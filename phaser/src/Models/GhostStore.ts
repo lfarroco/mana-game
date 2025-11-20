@@ -1,4 +1,5 @@
 import { Unit, makeUnit } from "./Entities/Unit";
+import { hasCardDefinition } from "./Entities/Card";
 import { cpuForce } from "./Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
@@ -103,8 +104,24 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 	const store = loadStore();
 	const list = store[round];
 	if (!list || !list.length) return null;
-	const idx = Math.floor(Math.random() * list.length);
-	return list[idx];
+
+	// Filter out ghosts that have cards that don't exist anymore
+	const validList = list.filter((entry) => {
+		return entry.units.every((u) => hasCardDefinition(u.cardId));
+	});
+
+	if (validList.length < list.length) {
+		console.log(
+			`[GhostStore] Removing ${list.length - validList.length} invalid ghosts for round ${round}`
+		);
+		store[round] = validList;
+		saveStore(store);
+	}
+
+	if (!validList.length) return null;
+
+	const idx = Math.floor(Math.random() * validList.length);
+	return validList[idx];
 }
 
 export function instantiateGhostUnits(entry: GhostEntry): Unit[] {
