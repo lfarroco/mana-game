@@ -45,7 +45,7 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 	currentLives = newTotalLives;
 };
 
-export const LIVES_DISPLAY_X = 320;
+export const LIVES_DISPLAY_X = 40;
 export const LIVES_DISPLAY_Y = 40;
 
 export function create() {
