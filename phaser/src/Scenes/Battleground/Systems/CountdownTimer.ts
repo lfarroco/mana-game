@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { activateBlackHole } from "../BlackHole";
+import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y } from "@Constants/constants";
 
 let scene: Phaser.Scene | null = null;
 let timerText: Phaser.GameObjects.Text | null = null;
@@ -15,16 +16,14 @@ export function start(): void {
 	if (!scene) return;
 
 	timerValue = 10;
-	const centerX = scene.scale.width / 2;
-	const centerY = 50;
-
 	// Add a circle background
-	timerCircle = scene.add.circle(centerX, centerY, 40, 0x000000, 0.8);
+	timerCircle = scene.add.circle(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, 40, 0x000000, 0.8);
 	timerCircle.setStrokeStyle(4, 0xffffff);
 	timerCircle.setDepth(1000);
+	timerCircle.setVisible(true);
 
 	timerText = scene.add
-		.text(centerX, centerY, timerValue.toString(), {
+		.text(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, timerValue.toString(), {
 			fontSize: "48px",
 			color: "#ffffff",
 			stroke: "#000000",
@@ -32,6 +31,7 @@ export function start(): void {
 		})
 		.setOrigin(0.5);
 	timerText.setDepth(1001);
+	timerText.setVisible(true);
 
 	timerEvent = scene.time.addEvent({
 		delay: 1000,
@@ -49,6 +49,11 @@ function updateTimer(): void {
 	if (timerValue <= 0) {
 		timerEvent?.destroy();
 		timerEvent = null;
+
+		timerText.setVisible(false);
+		if (timerCircle) {
+			timerCircle.setVisible(false);
+		}
 
 		activateBlackHole();
 	}
