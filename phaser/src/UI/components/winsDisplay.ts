@@ -1,72 +1,65 @@
-import * as c from "@Constants/constants";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
-import { titleTextConfig } from "@Constants/constants";
-import * as io from "@PhaserIO";
-import { vec2 } from "@Models/Geometry";
-import { tween } from "@Utils/animation";
+import { vec2, size } from "@Models/Geometry";
 import { getState } from "@Models/State";
+import * as io from "@PhaserIO";
 
-let winsTextElement: TextObj | null = null;
-export const WINS_DISPLAY_X = c.SCREEN_WIDTH - 920;
-export const WINS_DISPLAY_Y = 20;
+const MAX_WINS = 10;
+const RECT_WIDTH = 30;
+const RECT_HEIGHT = 20;
+const GAP = 5;
+const COLOR_GRAY = 0x808080;
+const COLOR_YELLOW = 0xFFFF00;
+
+let winRects: Phaser.GameObjects.Graphics[] = [];
+let currentWins = 0;
+
+export const WINS_DISPLAY_X = 520;
+export const WINS_DISPLAY_Y = 35;
 
 export function create() {
 	const initialWins = getState().gameData.player.wins;
+	currentWins = initialWins;
 
-	const label = io.Text("Wins:", {
-		...c.titleTextConfig,
-		fontSize: "24px",
-		color: "#ffffff",
-	});
-	io.Centralize(label);
+	const rects = createRects();
+	updateRectColors(currentWins);
 
-	winsTextElement = io.Text(initialWins.toString(), {
-		...c.titleTextConfig,
-		fontSize: "24px",
-		color: "#ffffff",
-	});
-	io.Centralize(winsTextElement);
-	io.SetPosition(winsTextElement, vec2(label.width + 10, 0));
+	const container = io.Container([...rects]);
+	io.SetPosition(container, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
 
-	const winsContainer = io.Container();
-	io.SetPosition(winsContainer, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
-	io.AddChildren(winsContainer, [label, winsTextElement]);
-	return winsContainer;
+	return container;
+}
+
+function createRects(): Phaser.GameObjects.Graphics[] {
+	winRects = [];
+
+	for (let i = 0; i < MAX_WINS; i++) {
+		const rect = io.Rectangle(vec2(0, 0), size(RECT_WIDTH, RECT_HEIGHT), COLOR_GRAY);
+
+		const xOffset = i * (RECT_WIDTH + GAP);
+		io.SetPosition(rect, vec2(xOffset, 0));
+
+		winRects.push(rect);
+	}
+
+	return winRects;
 }
 
 export const updateWinsDisplay = (newTotalWins: number): void => {
-	winsTextElement!.setText(newTotalWins.toString());
+	currentWins = newTotalWins;
+	updateRectColors(currentWins);
 };
 
-export async function winsChangeAnimation(wins: number) {
-	const sign = wins > 0 ? "+" : "";
-	const animationText = `${sign}${wins}`;
+function updateRectColors(wins: number) {
+	for (let i = 0; i < winRects.length; i++) {
+		const rect = winRects[i];
+		rect.clear();
 
-	const bounds = winsTextElement!.getBounds();
-	const startX = bounds.centerX;
-	const startY = bounds.centerY;
+		const color = i < wins ? COLOR_YELLOW : COLOR_GRAY;
 
-	const winsAmountText = scene.add
-		.text(startX, startY, animationText, titleTextConfig)
-		.setOrigin(0.5, 0.5)
-		.setAlpha(0)
-		.setScale(1)
-		.setDepth(1000);
+		rect.fillStyle(color, 0.7);
+		rect.fillRect(0, 0, RECT_WIDTH, RECT_HEIGHT);
+	}
+}
 
-	await tween({
-		targets: [winsAmountText],
-		alpha: 1,
-		scale: 1.2,
-		y: startY - 30,
-	});
-
-	await tween({
-		targets: [winsAmountText],
-		alpha: 0,
-		scale: 1,
-		y: startY - 60,
-		duration: 800,
-	});
-
-	winsAmountText.destroy();
+export async function winsChangeAnimation(_winsDelta: number) {
+	return Promise.resolve();
 }
