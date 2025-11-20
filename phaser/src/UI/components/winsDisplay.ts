@@ -96,6 +96,8 @@ function playWinEffect(index: number) {
 		throw new Error("mainContainer is null");
 	}
 
+	// TODO: play sound effect (plim)
+
 	const scene = getCurrentScene();
 	const rect = winRects[index];
 
