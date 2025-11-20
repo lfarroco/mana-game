@@ -1,7 +1,7 @@
 export const NUM_TAVERN_SLOTS = 3;
 const PANEL_PADDING = 40;
 export const TAVERN_PADDING = 20;
-export const TAVERN_CHARA_SPACING = 270;
+export const TAVERN_CHARA_SPACING = 300;
 
 export const TAVERN_BG_WIDTH = 900;
 export const TAVERN_BG_HEIGHT = 840;

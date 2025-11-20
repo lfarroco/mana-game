@@ -161,18 +161,13 @@
 			"isCore": true,
 			"effects": [
 				{
+					"id": "heal"
+				},
+				{
 					"id": "slow",
 					"duration": 1000,
 					"targets": {
 						"id": "random_enemy",
-						"count": 1
-					}
-				},
-				{
-					"id": "haste",
-					"duration": 3000,
-					"targets": {
-						"id": "random_ally",
 						"count": 1
 					}
 				}
@@ -180,15 +175,10 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "haste",
+					"effectId": "slow",
 					"effects": [
 						{
-							"id": "slow",
-							"duration": 1000,
-							"targets": {
-								"id": "random_enemy",
-								"count": 1
-							}
+							"id": "heal"
 						}
 					]
 				},

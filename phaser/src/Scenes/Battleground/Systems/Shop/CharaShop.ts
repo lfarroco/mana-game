@@ -1,6 +1,6 @@
 import * as Card from "@Models/Entities/Card";
 import { makeUnit } from "@Models/Entities/Unit";
-import { vec2 } from "@Models/Geometry";
+import { size, vec2 } from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
@@ -8,6 +8,7 @@ import * as sc from "./constants";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { getState } from "@Models/State";
 import * as ShopPanel from "./ShopPanel";
+import { Rectangle } from "@PhaserIO";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const createdCharas: Chara.Chara[] = [];
@@ -16,10 +17,14 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 	cardDefs.forEach((spec, index) => {
 		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 
-		const chara = Chara.create(unit);
-
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
+		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY)
+		const size_ = size(600, 280)
+
+		const bgRect = Rectangle(position, size_, 0x1f1f1f, 0.8);
+
+		const chara = Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
 
 		if (ownedCardIds.has(spec.id)) {
@@ -64,7 +69,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setWrapMode(1)
 			.setFontFamily("Arial");
 
-		ShopPanel.container.add([titleText, descriptionText, chara]);
+		ShopPanel.container.add([bgRect, chara, titleText, descriptionText]);
 
 		createdCharas.push(chara);
 	});
