@@ -8,6 +8,10 @@ const RECT_HEIGHT = 20;
 const GAP = 5;
 const COLOR_GRAY = 0x808080;
 const COLOR_YELLOW = 0xFFFF00;
+const COLOR_BRONZE = 0xCD7F32;
+const COLOR_SILVER = 0xC0C0C0;
+const COLOR_GOLD = 0xFFD700;
+const CIRCLE_RADIUS = 10;
 
 let winRects: Phaser.GameObjects.Graphics[] = [];
 let currentWins = 0;
@@ -20,9 +24,10 @@ export function create() {
 	currentWins = initialWins;
 
 	const rects = createRects();
+	const indicators = createBonusIndicators();
 	updateRectColors(currentWins);
 
-	const container = io.Container([...rects]);
+	const container = io.Container([...rects, ...indicators]);
 	io.SetPosition(container, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
 
 	return container;
@@ -41,6 +46,25 @@ function createRects(): Phaser.GameObjects.Graphics[] {
 	}
 
 	return winRects;
+}
+
+function createBonusIndicators(): Phaser.GameObjects.Graphics[] {
+	const indicators: Phaser.GameObjects.Graphics[] = [];
+	const bonuses = [
+		{ index: 4, color: COLOR_BRONZE },
+		{ index: 7, color: COLOR_SILVER },
+		{ index: 9, color: COLOR_GOLD },
+	];
+
+	for (const bonus of bonuses) {
+		const xOffset = bonus.index * (RECT_WIDTH + GAP) + RECT_WIDTH / 2;
+		const yOffset = RECT_HEIGHT + 15;
+
+		const circle = io.Circle(vec2(xOffset, yOffset), CIRCLE_RADIUS, bonus.color);
+		indicators.push(circle);
+	}
+
+	return indicators;
 }
 
 export const updateWinsDisplay = (newTotalWins: number): void => {

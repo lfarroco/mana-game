@@ -149,6 +149,20 @@ export function Rectangle(
 	return g;
 }
 
+export function Circle(
+	position: Vec2,
+	radius: number,
+	color: number = 0xffa500,
+	alpha: number = 0.7
+): Phaser.GameObjects.Graphics {
+	const scene = getCurrentScene();
+	const g = scene.add.graphics({ x: position.x, y: position.y });
+	g.fillStyle(color, alpha);
+	g.fillCircle(0, 0, radius);
+
+	return g;
+}
+
 export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size): Phaser.GameObjects.Zone {
 	const scene = getCurrentScene();
 
