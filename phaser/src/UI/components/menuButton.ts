@@ -22,7 +22,7 @@ export function createPanel() {
 	const buttons = (
 		[
 			[
-				"New Run",
+				"NEW RUN",
 				() => {
 					io.Destroy(container);
 					resetState();

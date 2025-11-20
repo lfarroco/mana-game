@@ -46,9 +46,9 @@ export function displayGameWon(
 	});
 	state.resultsContainer.add(nextButton.container);
 
-	// New Run Button
+	// NEW RUN Button
 	const newRunButton = createUIButton(
-		"New Run",
+		"NEW RUN",
 		vec2(panelX + panelWidth / 2, panelY + panelHeight - 180),
 		async () => {
 			resetState();

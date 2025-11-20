@@ -37,7 +37,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		super("BattlegroundScene");
 		console.log("BattlegroundScene constructor");
 
-		this.runCombatSystem = new RunCombatSystem();
+		this.runCombatSystem = NEW RUNCombatSystem();
 	}
 
 	preload = preload;
