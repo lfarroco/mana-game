@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Unit, upgradeUnitEffects } from "@Models/Entities/Unit";
+import { Unit, upgradeUnitEffects, resetUnitEffectsToCardDefinition } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as PowerDisplay from "./PowerDisplay";
@@ -304,10 +304,13 @@ export async function upgrade(unit: Unit) {
 
 	const source = getCardDefinition(unit.cardId);
 
-	if (source.power) updateUnitPower(chara, source.power);
 
-	unit.rank = unit.rank + 1;
+	unit.rank += 1;
 
+	if (source.power)
+		unit.power = source.power * unit.rank;
+
+	resetUnitEffectsToCardDefinition(unit, source);
 	upgradeUnitEffects(unit);
 
 	chara.destroy();
