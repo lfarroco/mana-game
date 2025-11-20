@@ -10,6 +10,7 @@ import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
+import { titleTextConfig } from "@Constants/constants";
 
 export async function open() {
 	const container = io.Container();
@@ -117,10 +118,9 @@ export function renderOrbShop(
 		container.add(magicOrb.getShader());
 
 		const titleText = scene.add
-			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, orbSpec.name)
+			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, orbSpec.name, titleTextConfig)
 			.setOrigin(0)
 			.setFontSize(40)
-			.setFontFamily("Arimo")
 			.setAlign("left");
 
 		const descriptionText = scene.add
@@ -129,7 +129,7 @@ export function renderOrbShop(
 			.setFontSize(30)
 			.setAlign("left")
 			.setWrapMode(1)
-			.setFontFamily("Arial");
+			.setFontFamily("Arimo");
 
 		container.add([titleText, descriptionText]);
 

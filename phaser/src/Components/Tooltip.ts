@@ -1,5 +1,5 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { defaultTextConfig } from "@Constants/constants";
+import { titleTextConfig } from "@Constants/constants";
 import { tooltipFragmentShader } from "../Shaders/TooltipShader";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
@@ -7,10 +7,9 @@ const PADDING = 30;
 const INTER_ELEMENT_PADDING = PADDING / 2;
 
 const MIN_TOOLTIP_WIDTH = 600;
-const MIN_TOOLTIP_HEIGHT = 300;
+const MIN_TOOLTIP_HEIGHT = 330;
 const MAX_TOOLTIP_WIDTH = 800;
 
-const TITLE_FONT_SIZE = 40;
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 8;
 
@@ -100,14 +99,8 @@ export function init() {
 
 	container.add(bg);
 
-	const textConfig = { ...defaultTextConfig };
-	delete (textConfig as any).backgroundColor;
-
 	titleText = scene.add
-		.text(0, 0, "", textConfig)
-		.setOrigin(0)
-		.setFontSize(TITLE_FONT_SIZE)
-		.setFontFamily("Arimo")
+		.text(0, 0, "", titleTextConfig)
 		.setAlign("left");
 	container.add(titleText);
 
@@ -117,7 +110,7 @@ export function init() {
 		.setFontSize(DESCRIPTION_FONT_SIZE)
 		.setAlign("left")
 		.setWrapMode(1)
-		.setFontFamily("Arial");
+		.setFontFamily("Arimo");
 
 	if ((descriptionText as any).setLineSpacing) {
 		(descriptionText as any).setLineSpacing(DESCRIPTION_LINE_SPACING);
@@ -185,7 +178,7 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		bg.setUniform("time.value", elapsedTime);
 
 		titleText.setPosition(PADDING, PADDING);
-		descriptionText.setPosition(PADDING, PADDING + titleText.height + INTER_ELEMENT_PADDING);
+		descriptionText.setPosition(PADDING + 10, 10 + PADDING + titleText.height + INTER_ELEMENT_PADDING);
 	}
 
 	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
