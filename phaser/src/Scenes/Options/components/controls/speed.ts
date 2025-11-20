@@ -16,7 +16,7 @@ export function speed(
 	setValue: (value: number) => void
 ) {
 	const formatLabel = () => getValue().toFixed(1) + "x";
-	const updateLabel = () => labelText.setText(formatLabel());
+	const updateLabel = () => valueText.setText(formatLabel());
 
 	//   ~~~//~~~
 	const labelText = io.Text(label, constants.titleTextConfig);

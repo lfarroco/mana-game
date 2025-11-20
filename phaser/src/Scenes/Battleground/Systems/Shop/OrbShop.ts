@@ -120,7 +120,7 @@ export function renderOrbShop(
 			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, orbSpec.name)
 			.setOrigin(0)
 			.setFontSize(40)
-			.setFontFamily("Arial Black")
+			.setFontFamily("Arimo")
 			.setAlign("left");
 
 		const descriptionText = scene.add
