@@ -30,6 +30,7 @@ const textStyle = {
 	fontSize: "24px",
 	color: "#ffffff",
 	stroke: "#000000",
+	fontStyle: "bold",
 	strokeThickness: 3,
 };
 

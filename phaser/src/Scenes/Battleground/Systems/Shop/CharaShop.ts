@@ -61,19 +61,17 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		const { title, description } = createDescription(chara);
 
 		const titleText = scene.add
-			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title)
-			.setOrigin(0)
-			.setFontSize(40)
-			.setFontFamily("Arimo")
+			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title, c.titleTextConfig)
 			.setAlign("left");
 
 		const descriptionText = scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 60, description)
-			.setOrigin(0)
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10,
+				sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60,
+				description)
 			.setFontSize(30)
 			.setAlign("left")
 			.setWrapMode(1)
-			.setFontFamily("Arial");
+			.setFontFamily("Arimo");
 
 		ShopPanel.container.add([bgRect, chara, titleText, descriptionText]);
 
