@@ -1,6 +1,7 @@
 import { vec2, size } from "@Models/Geometry";
-import { getState } from "@Models/State";
+import { getState, getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
+import { images } from "../../assets";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;
@@ -15,6 +16,7 @@ const CIRCLE_RADIUS = 10;
 
 let winRects: Phaser.GameObjects.Graphics[] = [];
 let currentWins = 0;
+let mainContainer: Phaser.GameObjects.Container | null = null;
 
 export const WINS_DISPLAY_X = 240;
 export const WINS_DISPLAY_Y = 35;
@@ -27,10 +29,10 @@ export function create() {
 	const indicators = createBonusIndicators();
 	updateRectColors(currentWins);
 
-	const container = io.Container([...rects, ...indicators]);
-	io.SetPosition(container, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
+	mainContainer = io.Container([...rects, ...indicators]);
+	io.SetPosition(mainContainer, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
 
-	return container;
+	return mainContainer;
 }
 
 function createRects(): Phaser.GameObjects.Graphics[] {
@@ -68,6 +70,11 @@ function createBonusIndicators(): Phaser.GameObjects.Graphics[] {
 }
 
 export const updateWinsDisplay = (newTotalWins: number): void => {
+	if (newTotalWins > currentWins) {
+		for (let i = currentWins; i < newTotalWins; i++) {
+			playWinEffect(i);
+		}
+	}
 	currentWins = newTotalWins;
 	updateRectColors(currentWins);
 };
@@ -82,6 +89,50 @@ function updateRectColors(wins: number) {
 		rect.fillStyle(color, 0.7);
 		rect.fillRect(0, 0, RECT_WIDTH, RECT_HEIGHT);
 	}
+}
+
+function playWinEffect(index: number) {
+	if (!mainContainer) {
+		throw new Error("mainContainer is null");
+	}
+
+	const scene = getCurrentScene();
+	const rect = winRects[index];
+
+	const containerX = mainContainer.x;
+	const containerY = mainContainer.y;
+
+	const rectLocalX = rect.x;
+	const rectLocalY = rect.y;
+
+	const x = containerX + rectLocalX + RECT_WIDTH / 2;
+	const y = containerY + rectLocalY + RECT_HEIGHT / 2;
+
+	const particles = scene.add.particles(x, y, images.light_pillar.key, {
+		lifespan: 300,
+		scale: { start: 0.3, end: 1.2 },
+		alpha: { start: 1, end: 0 },
+		speed: { min: 50, max: 100 },
+		quantity: 3,
+		frequency: 30,
+		rotate: { min: 0, max: 360 },
+		blendMode: "ADD",
+		tint: COLOR_YELLOW,
+		emitZone: {
+			type: "edge",
+			source: new Phaser.Geom.Circle(0, 0, 5),
+			quantity: 4,
+			yoyo: false,
+		},
+	});
+
+	scene.time.delayedCall(300, () => {
+		particles.stop();
+	});
+
+	scene.time.delayedCall(600, () => {
+		particles.destroy();
+	});
 }
 
 export async function winsChangeAnimation(_winsDelta: number) {
