@@ -15,7 +15,7 @@ export function createBlackHole() {
 		MIDDLE_SCREEN,
 		{ width: 800, height: 800 }, [
 		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] }, // black core
-		{ key: "color2", type: "3f", value: [0.2, 0.1, 0.2] }, // arcane purple
+		{ key: "color2", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "intensity", type: "1f", value: 0.1 },
 		{ key: "speed", type: "1f", value: 1.0 },
 		{ key: "dissolveProgress", type: "1f", value: dissolve },
