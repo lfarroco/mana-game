@@ -4,7 +4,7 @@ import { GameData, getState, setCurrentScene } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
-import { RunCombatSystem } from "./RunCombatIO";
+import { runCombatSystem } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Systems from "./Systems";
@@ -20,7 +20,7 @@ export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Image;
 	collection!: CardCollection;
-	runCombatSystem: RunCombatSystem;
+	runCombatSystem: runCombatSystem;
 
 	cleanup() {
 		clearAll();
@@ -37,7 +37,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		super("BattlegroundScene");
 		console.log("BattlegroundScene constructor");
 
-		this.runCombatSystem = NEW RUNCombatSystem();
+		this.runCombatSystem = new runCombatSystem();
 	}
 
 	preload = preload;
