@@ -38,7 +38,7 @@ export function displayGameOver(
 	state.resultsContainer.add(message);
 
 	const newRunButton = createUIButton(
-		"New Run",
+		"NEW RUN",
 		vec2(panelX + panelWidth / 2, panelY + panelHeight - 180),
 		async () => {
 			resetState();
