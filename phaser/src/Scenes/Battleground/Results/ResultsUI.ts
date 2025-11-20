@@ -62,7 +62,7 @@ function displayAppropriateUI(
 	if (gameWon) {
 		displayGameWon(state, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameOver(state, nextPhaseCallback);
+		displayGameOver(state);
 	} else if (resultType === "victory") {
 		displayVictory(state, nextPhaseCallback);
 	} else {

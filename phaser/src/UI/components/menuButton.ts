@@ -24,7 +24,6 @@ export function createPanel() {
 			[
 				"NEW RUN",
 				() => {
-					io.Destroy(container);
 					resetState();
 					getCurrentScene().scene.restart();
 				},
@@ -32,9 +31,8 @@ export function createPanel() {
 			[
 				"Return to Title",
 				() => {
-					io.Destroy(container);
-					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 					resetState();
+					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 				},
 			],
 			[
