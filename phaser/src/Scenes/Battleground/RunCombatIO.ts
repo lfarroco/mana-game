@@ -13,82 +13,80 @@ import { getCharaById } from "@Systems/Chara/Chara";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
-export class runCombatSystem {
-	private active: boolean = false;
+let active: boolean = false;
 
-	reducePoison(forceId: string, healAmount: number): void {
-		Systems.Poison.reducePoison(forceId, healAmount);
+export function reducePoison(forceId: string, healAmount: number): void {
+	Systems.Poison.reducePoison(forceId, healAmount);
+}
+
+export const runCombatIO = () => {
+	if (active) {
+		throw new Error("Combat is already active");
+	}
+	Systems.Timeout.initializeTimeoutDamageSystem();
+	Systems.Poison.initialize();
+	Systems.Regen.initialize();
+	Systems.CombatStatsTracker.initialize();
+
+	active = true;
+	Systems.CountdownTimer.start();
+};
+
+export function updateFrame(_time: number, delta: number): void {
+	if (!active) return;
+
+	const scaledDelta = delta * scene.time.timeScale;
+
+	const unitsReadyToAct = chargeUnits(scaledDelta);
+
+	for (const unit of unitsReadyToAct) {
+		Animations.pop(unit.id);
+
+		Systems.CombatStatsTracker.handleUnitAction({ unit });
+		processEffectsIO(unit, unit.effects, false);
 	}
 
-	runCombatIO = () => {
-		if (this.active) {
-			throw new Error("Combat is already active");
-		}
-		Systems.Timeout.initializeTimeoutDamageSystem();
-		Systems.Poison.initialize();
-		Systems.Regen.initialize();
-		Systems.CombatStatsTracker.initialize();
+	Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
+	Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
-		this.active = true;
-		Systems.CountdownTimer.start();
-	};
+	const playerLifeZero = getCore(playerForce.id).life <= 0;
+	const cpuLifeZero = getCore(cpuForce.id).life <= 0;
 
-	updateFrame(_time: number, delta: number): void {
-		if (!this.active) return;
+	const outcome: WaveOutcome | null = cpuLifeZero
+		? "player_won"
+		: playerLifeZero
+			? "player_lost"
+			: null;
 
-		const scaledDelta = delta * scene.time.timeScale;
+	if (outcome) {
+		finishCombat(outcome);
+	}
+}
 
-		const unitsReadyToAct = chargeUnits(scaledDelta);
+export async function finishCombat(outcome: WaveOutcome) {
+	if (!active) return;
 
-		for (const unit of unitsReadyToAct) {
-			Animations.pop(unit.id);
+	Systems.Regen.stop();
+	Systems.Poison.stop();
 
-			Systems.CombatStatsTracker.handleUnitAction({ unit });
-			processEffectsIO(unit, unit.effects, false);
-		}
-
-		Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
-		Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
-
-		const playerLifeZero = getCore(playerForce.id).life <= 0;
-		const cpuLifeZero = getCore(cpuForce.id).life <= 0;
-
-		const outcome: WaveOutcome | null = cpuLifeZero
-			? "player_won"
-			: playerLifeZero
-				? "player_lost"
-				: null;
-
-		if (outcome) {
-			this.finishCombat(outcome);
-		}
+	active = false;
+	if (outcome === "player_lost") {
+		await Animations.shatter(getCharaById(getCore(playerForce.id).id));
+	} else {
+		await Animations.shatter(getCharaById(getCore(cpuForce.id).id));
 	}
 
-	async finishCombat(outcome: WaveOutcome) {
-		if (!this.active) return;
+	await delay(500);
 
-		Systems.Regen.stop();
-		Systems.Poison.stop();
+	Systems.Timeout.onTimeoutDamageCombatEnd();
+	Systems.CombatStatsTracker.stop();
+	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
+	Systems.ResultsPhase.handleCombatEnded(outcome);
+	Systems.CountdownTimer.stop();
+}
 
-		this.active = false;
-		if (outcome === "player_lost") {
-			await Animations.shatter(getCharaById(getCore(playerForce.id).id));
-		} else {
-			await Animations.shatter(getCharaById(getCore(cpuForce.id).id));
-		}
-
-		await delay(500);
-
-		Systems.Timeout.onTimeoutDamageCombatEnd();
-		Systems.CombatStatsTracker.stop();
-		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-		Systems.ResultsPhase.handleCombatEnded(outcome);
-		Systems.CountdownTimer.stop();
-	}
-
-	isActive(): boolean {
-		return this.active;
-	}
+export function isActive(): boolean {
+	return active;
 }
 
 function chargeUnits(delta: number): Unit[] {
@@ -118,5 +116,3 @@ function chargeUnits(delta: number): Unit[] {
 	}
 	return performingUnits;
 }
-
-export default runCombatSystem;

@@ -1,7 +1,6 @@
 import { getState } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
-import { scene } from "../BattlegroundScene";
 import { getAllCards } from "@Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
@@ -12,6 +11,7 @@ import * as constants from "@Constants/constants";
 import { createUIButton } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { createForceStats } from "../ForceStats";
+import { runCombatIO } from "../RunCombatIO";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -80,5 +80,5 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
 	await delay(300);
 
-	scene.runCombatSystem.runCombatIO();
+	runCombatIO();
 }
