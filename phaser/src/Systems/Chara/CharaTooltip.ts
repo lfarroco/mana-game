@@ -89,6 +89,10 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 
 	const triggerPrefix = `[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
 
+	if (effectSegments.length > 1) {
+		return `${triggerPrefix} →\n    ${effectSegments.join("\n    ")}`;
+	}
+
 	return [triggerPrefix, ...effectSegments].join(" → ");
 };
 

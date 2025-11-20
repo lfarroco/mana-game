@@ -42,7 +42,7 @@ export async function arcaneMissileTargeted(
 			lifespan: 300,
 			alpha: 0.4,
 		},
-		onHit = () => {},
+		onHit = () => { },
 	} = options;
 
 	const duration = 200;
@@ -106,7 +106,7 @@ export async function arcaneMissileTargeted(
 			sprite.setScale(particleScale * 1.5, particleScale * 1.5);
 			sprite.setTint(colors[i % colors.length]);
 			sprite.setAlpha(1);
-			sprite.setBlendMode(Phaser.BlendModes.ADD);
+			//sprite.setBlendMode(Phaser.BlendModes.ADD);
 			segmentSprites.push(sprite);
 			scene.tweens.add({
 				targets: sprite,

@@ -24,8 +24,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 
 	const core = getCharaById(target.id);
 
-	// purple -> gold colors for the projectile
-	const colors = [0x800080, 0xda70d6, 0xffd700];
+	const colors = [0x000000];
 
 	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
 		colors,
@@ -34,10 +33,10 @@ async function spawnStar(damage: number, targetForce: Force) {
 		particleScale: 2.2,
 		speedMultiplier: 1.6,
 		impact: {
-			colors: [0x000000, 0x223322],
+			colors: [0x000000],
 			scale: 4.5,
 			speed: 240,
-			lifespan: 380,
+			lifespan: 780,
 			alpha: 0.6,
 		},
 		onHit: () => {
