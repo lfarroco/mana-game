@@ -142,6 +142,35 @@ function createSprite(
 	const animCacheKey = unit.pic + "-anims";
 	const animData = getCurrentScene().cache.json.get(animCacheKey);
 
+	if (!animData && !unit.isCore) {
+		const scene = getCurrentScene();
+		scene.load.atlas(unit.pic, `assets/heroes/${unit.pic}.png`, `assets/heroes/${unit.pic}.json`);
+		scene.load.animation(`${unit.pic}-anims`, `assets/heroes/${unit.pic}-anims.json`);
+
+		const placeholder = scene.add.sprite(0, -15, "placeholder");
+		placeholder.setVisible(false);
+		container.add(placeholder);
+
+		scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
+			configureSprite(placeholder, unit);
+			placeholder.setVisible(true);
+		});
+
+		scene.load.start();
+		return placeholder;
+	}
+
+	const sprite = getCurrentScene().add.sprite(0, -15, unit.pic);
+	container.add(sprite);
+	configureSprite(sprite, unit);
+
+	return sprite;
+}
+
+function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
+	const animCacheKey = unit.pic + "-anims";
+	const animData = getCurrentScene().cache.json.get(animCacheKey);
+
 	if (animData && animData.anims) {
 		for (const anim of animData.anims) {
 			const animKey = unit.pic + "_" + anim.key;
@@ -168,9 +197,9 @@ function createSprite(
 	});
 	const firstIdle = idleFrames[0] || frameNames[0];
 
-	const sprite = getCurrentScene().add.sprite(0, -15, unit.pic, firstIdle);
+	sprite.setTexture(unit.pic, firstIdle);
 	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
-	container.add(sprite);
+
 	if (getCurrentScene().anims.exists(unit.pic + "_idle")) {
 		sprite.play(unit.pic + "_idle");
 	}
@@ -187,7 +216,6 @@ function createSprite(
 		});
 	}
 
-	return sprite;
 }
 
 export function isShopItem(id: string): boolean {
