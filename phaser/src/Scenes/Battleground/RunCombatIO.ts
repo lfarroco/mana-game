@@ -13,7 +13,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
-export class RunCombatSystem {
+export class runCombatSystem {
 	private active: boolean = false;
 
 	reducePoison(forceId: string, healAmount: number): void {
@@ -119,4 +119,4 @@ function chargeUnits(delta: number): Unit[] {
 	return performingUnits;
 }
 
-export default RunCombatSystem;
+export default runCombatSystem;
