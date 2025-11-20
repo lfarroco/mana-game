@@ -3,18 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Collection Editor</title>
+    <title>Mana Card Editor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background: #f5f5f5;
             padding: 20px;
         }
-        .card-item {
+        .card-row {
             background: white;
             border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .card-row:hover {
+            background: #f8f9fa;
+        }
+        .card-row.expanded {
+            background: #e3f2fd;
+            cursor: default;
+        }
+        .card-details {
+            display: none;
+            padding: 20px;
+            border-top: 2px solid #007bff;
+            background: #fafafa;
+        }
+        .card-details.show {
+            display: block;
+        }
+        .card-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            margin-left: 8px;
+        }
+        .badge-core {
+            background: #ffc107;
+            color: #000;
+        }
+        .badge-stats {
+            background: #e0e0e0;
+            color: #333;
         }
         .nested-section {
             background: #f9f9f9;
@@ -27,6 +65,12 @@
             border: 1px solid #ddd;
             padding: 10px;
             margin-bottom: 8px;
+        }
+        .filter-section {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -41,6 +85,9 @@
         <div class="mb-3">
             <button id="addCardBtn" class="btn btn-primary" disabled>Add New Card</button>
             <button id="saveBtn" class="btn btn-success" disabled>Download JSON</button>
+            <button id="expandAllBtn" class="btn btn-secondary" disabled>Expand All</button>
+            <button id="collapseAllBtn" class="btn btn-secondary" disabled>Collapse All</button>
+            <span id="cardCount" class="ms-3 text-muted"></span>
         </div>
 
         <div id="collectionHeader" style="display: none;" class="mb-3">
@@ -56,12 +103,57 @@
             </div>
         </div>
 
+        <!-- Filters -->
+        <div id="filterSection" style="display: none;" class="filter-section">
+            <h5>Filters</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search Name/ID</label>
+                    <input type="text" class="form-control" id="filterSearch" placeholder="Type to search...">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Core Status</label>
+                    <select class="form-select" id="filterCore">
+                        <option value="">All</option>
+                        <option value="true">Core Only</option>
+                        <option value="false">Non-Core Only</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Has Effect</label>
+                    <select class="form-select" id="filterEffect">
+                        <option value="">Any</option>
+                        <option value="damage">Damage</option>
+                        <option value="heal">Heal</option>
+                        <option value="shield">Shield</option>
+                        <option value="poison">Poison</option>
+                        <option value="regen">Regen</option>
+                        <option value="haste">Haste</option>
+                        <option value="slow">Slow</option>
+                        <option value="charge">Charge</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Min Power</label>
+                    <input type="number" class="form-control" id="filterMinPower" placeholder="0">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Max Power</label>
+                    <input type="number" class="form-control" id="filterMaxPower" placeholder="100">
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary w-100" id="clearFilters">Clear</button>
+                </div>
+            </div>
+        </div>
+
         <div id="cardsContainer"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let collectionData = null;
+        let expandedCards = new Set();
 
         // Common options for dropdowns
         const EFFECT_IDS = ['damage', 'heal', 'shield', 'poison', 'regen', 'haste', 'slow', 'charge', 
@@ -118,9 +210,12 @@
             reader.onload = function(event) {
                 try {
                     collectionData = JSON.parse(event.target.result);
+                    expandedCards.clear();
                     renderCollection();
                     document.getElementById('addCardBtn').disabled = false;
                     document.getElementById('saveBtn').disabled = false;
+                    document.getElementById('expandAllBtn').disabled = false;
+                    document.getElementById('collapseAllBtn').disabled = false;
                 } catch (error) {
                     alert('Error parsing JSON: ' + error.message);
                 }
@@ -130,69 +225,125 @@
 
         function renderCollection() {
             document.getElementById('collectionHeader').style.display = 'block';
+            document.getElementById('filterSection').style.display = 'block';
             document.getElementById('collectionId').value = collectionData.id || '';
             document.getElementById('collectionName').value = collectionData.name || '';
             renderCards();
+        }
+
+        function getFilteredCards() {
+            if (!collectionData.cards) return [];
+
+            const searchText = document.getElementById('filterSearch')?.value.toLowerCase() || '';
+            const coreFilter = document.getElementById('filterCore')?.value || '';
+            const effectFilter = document.getElementById('filterEffect')?.value || '';
+            const minPower = parseInt(document.getElementById('filterMinPower')?.value) || 0;
+            const maxPower = parseInt(document.getElementById('filterMaxPower')?.value) || 999;
+
+            return collectionData.cards.filter((card, index) => {
+                // Search filter
+                if (searchText) {
+                    const matchName = (card.name || '').toLowerCase().includes(searchText);
+                    const matchId = (card.id || '').toLowerCase().includes(searchText);
+                    if (!matchName && !matchId) return false;
+                }
+
+                // Core filter
+                if (coreFilter !== '') {
+                    const isCore = coreFilter === 'true';
+                    if (card.isCore !== isCore) return false;
+                }
+
+                // Effect filter
+                if (effectFilter) {
+                    const hasEffect = card.effects?.some(e => e.id === effectFilter);
+                    if (!hasEffect) return false;
+                }
+
+                // Power range filter
+                const power = card.power || 0;
+                if (power < minPower || power > maxPower) return false;
+
+                return true;
+            }).map((card, filteredIndex) => {
+                // Find original index
+                const originalIndex = collectionData.cards.indexOf(card);
+                return { card, index: originalIndex };
+            });
         }
 
         function renderCards() {
             const container = document.getElementById('cardsContainer');
             container.innerHTML = '';
 
-            if (!collectionData.cards || collectionData.cards.length === 0) {
-                container.innerHTML = '<p>No cards yet.</p>';
+            const filteredCards = getFilteredCards();
+
+            if (filteredCards.length === 0) {
+                container.innerHTML = '<p>No cards match the current filters.</p>';
+                document.getElementById('cardCount').textContent = '0 cards';
                 return;
             }
 
-            collectionData.cards.forEach((card, index) => {
-                const cardElement = createCardElement(card, index);
+            document.getElementById('cardCount').textContent = `${filteredCards.length} card${filteredCards.length !== 1 ? 's' : ''}`;
+
+            filteredCards.forEach(({ card, index }) => {
+                const cardElement = createCardRow(card, index);
                 container.appendChild(cardElement);
             });
         }
 
-        function createSelectWithOther(options, currentValue, onchangeHandler, includeEmpty = false) {
-            const isOther = !options.includes(currentValue) && currentValue !== '';
-            const selectId = 'select_' + Math.random().toString(36).substr(2, 9);
-            const inputId = 'input_' + Math.random().toString(36).substr(2, 9);
+        function createCardRow(card, index) {
+            const wrapper = document.createElement('div');
+            const isExpanded = expandedCards.has(index);
             
-            let html = `<select class="form-select" id="${selectId}" onchange="${onchangeHandler.replace('VALUE', 'this.value')}; toggleOtherInput('${selectId}', '${inputId}')">`;
-            if (includeEmpty) html += '<option value="">--</option>';
-            options.forEach(opt => {
-                if (opt === 'other') {
-                    html += `<option value="other" ${isOther ? 'selected' : ''}>Other (custom)</option>`;
-                } else {
-                    html += `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`;
-                }
-            });
-            html += `</select>`;
-            html += `<input type="text" class="form-control mt-1" id="${inputId}" placeholder="Enter custom value" 
-                     value="${isOther ? currentValue : ''}" 
-                     style="display: ${isOther ? 'block' : 'none'}"
-                     onchange="${onchangeHandler.replace('VALUE', 'this.value')}">`;
-            return html;
+            // Summary row
+            const row = document.createElement('div');
+            row.className = 'card-row' + (isExpanded ? ' expanded' : '');
+            
+            const effectsSummary = card.effects?.map(e => e.id).join(', ') || 'None';
+            const reactionsSummary = card.reactions?.length || 0;
+            
+            row.innerHTML = `
+                <div class="card-summary">
+                    <div>
+                        <strong>${card.name || 'Unnamed'}</strong>
+                        ${card.isCore ? '<span class="card-badge badge-core">CORE</span>' : ''}
+                        <span class="card-badge badge-stats">ID: ${card.id || 'N/A'}</span>
+                        <span class="card-badge badge-stats">Power: ${card.power || 0}</span>
+                        <span class="card-badge badge-stats">Effects: ${effectsSummary}</span>
+                        <span class="card-badge badge-stats">Reactions: ${reactionsSummary}</span>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); removeCard(${index})">Delete</button>
+                    </div>
+                </div>
+            `;
+            
+            // Details section
+            const details = document.createElement('div');
+            details.className = 'card-details' + (isExpanded ? ' show' : '');
+            details.innerHTML = createCardDetails(card, index);
+            
+            // Click to expand/collapse
+            row.onclick = () => toggleCard(index);
+            
+            wrapper.appendChild(row);
+            wrapper.appendChild(details);
+            
+            return wrapper;
         }
 
-        window.toggleOtherInput = function(selectId, inputId) {
-            const select = document.getElementById(selectId);
-            const input = document.getElementById(inputId);
-            if (select.value === 'other') {
-                input.style.display = 'block';
-                input.focus();
+        function toggleCard(index) {
+            if (expandedCards.has(index)) {
+                expandedCards.delete(index);
             } else {
-                input.style.display = 'none';
+                expandedCards.add(index);
             }
-        };
+            renderCards();
+        }
 
-        function createCardElement(card, index) {
-            const div = document.createElement('div');
-            div.className = 'card-item';
-            
-            div.innerHTML = `
-                <div class="d-flex justify-content-between mb-3">
-                    <h5>${card.name || 'Unnamed Card'} ${card.isCore ? '(CORE)' : ''}</h5>
-                    <button class="btn btn-sm btn-danger" onclick="removeCard(${index})">Remove Card</button>
-                </div>
-
+        function createCardDetails(card, index) {
+            return `
                 <div class="row g-2 mb-2">
                     <div class="col-md-3">
                         <label class="form-label">ID</label>
@@ -257,9 +408,40 @@
                     <button class="btn btn-sm btn-primary mt-2" onclick="addReaction(${index})">Add Reaction</button>
                 </div>
             `;
-
-            return div;
         }
+
+        function createSelectWithOther(options, currentValue, onchangeHandler, includeEmpty = false) {
+            const isOther = !options.includes(currentValue) && currentValue !== '';
+            const selectId = 'select_' + Math.random().toString(36).substr(2, 9);
+            const inputId = 'input_' + Math.random().toString(36).substr(2, 9);
+            
+            let html = `<select class="form-select" id="${selectId}" onchange="${onchangeHandler.replace('VALUE', 'this.value')}; toggleOtherInput('${selectId}', '${inputId}')">`;
+            if (includeEmpty) html += '<option value="">--</option>';
+            options.forEach(opt => {
+                if (opt === 'other') {
+                    html += `<option value="other" ${isOther ? 'selected' : ''}>Other (custom)</option>`;
+                } else {
+                    html += `<option value="${opt}" ${currentValue === opt ? 'selected' : ''}>${opt}</option>`;
+                }
+            });
+            html += `</select>`;
+            html += `<input type="text" class="form-control mt-1" id="${inputId}" placeholder="Enter custom value" 
+                     value="${isOther ? currentValue : ''}" 
+                     style="display: ${isOther ? 'block' : 'none'}"
+                     onchange="${onchangeHandler.replace('VALUE', 'this.value')}">`;
+            return html;
+        }
+
+        window.toggleOtherInput = function(selectId, inputId) {
+            const select = document.getElementById(selectId);
+            const input = document.getElementById(inputId);
+            if (select.value === 'other') {
+                input.style.display = 'block';
+                input.focus();
+            } else {
+                input.style.display = 'none';
+            }
+        };
 
         function renderEffects(effects, cardIndex, reactionIndex) {
             if (!effects || effects.length === 0) {
@@ -364,10 +546,9 @@
             if (!collectionData.cards[cardIndex].effects[effectIndex]) return;
             collectionData.cards[cardIndex].effects[effectIndex][field] = value;
             
-            // If the effect ID changed, ensure all required fields are present
             if (field === 'id') {
                 ensureEffectFields(collectionData.cards[cardIndex].effects[effectIndex]);
-                renderCards(); // Re-render to show new fields
+                renderCards();
             }
         }
 
@@ -377,7 +558,6 @@
             }
             collectionData.cards[cardIndex].effects[effectIndex].targets[field] = value;
             
-            // If target ID changed to random targeting, ensure count field exists
             if (field === 'id' && (value === 'random_ally' || value === 'random_enemy')) {
                 ensureEffectFields(collectionData.cards[cardIndex].effects[effectIndex]);
                 renderCards();
@@ -393,10 +573,9 @@
             if (!collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex]) return;
             collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex][field] = value;
             
-            // If the effect ID changed, ensure all required fields are present
             if (field === 'id') {
                 ensureEffectFields(collectionData.cards[cardIndex].reactions[reactionIndex].effects[effectIndex]);
-                renderCards(); // Re-render to show new fields
+                renderCards();
             }
         }
 
@@ -408,7 +587,6 @@
             }
             effect.targets[field] = value;
             
-            // If target ID changed to random targeting, ensure count field exists
             if (field === 'id' && (value === 'random_ally' || value === 'random_enemy')) {
                 ensureEffectFields(effect);
                 renderCards();
@@ -446,6 +624,7 @@
         function removeCard(index) {
             if (confirm('Remove this card?')) {
                 collectionData.cards.splice(index, 1);
+                expandedCards.delete(index);
                 renderCards();
             }
         }
@@ -465,6 +644,36 @@
             renderCards();
         }
 
+        // Filter event listeners
+        ['filterSearch', 'filterCore', 'filterEffect', 'filterMinPower', 'filterMaxPower'].forEach(id => {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.addEventListener('input', renderCards);
+                elem.addEventListener('change', renderCards);
+            }
+        });
+
+        document.getElementById('clearFilters').addEventListener('click', function() {
+            document.getElementById('filterSearch').value = '';
+            document.getElementById('filterCore').value = '';
+            document.getElementById('filterEffect').value = '';
+            document.getElementById('filterMinPower').value = '';
+            document.getElementById('filterMaxPower').value = '';
+            renderCards();
+        });
+
+        document.getElementById('expandAllBtn').addEventListener('click', function() {
+            if (!collectionData.cards) return;
+            expandedCards.clear();
+            collectionData.cards.forEach((_, index) => expandedCards.add(index));
+            renderCards();
+        });
+
+        document.getElementById('collapseAllBtn').addEventListener('click', function() {
+            expandedCards.clear();
+            renderCards();
+        });
+
         document.getElementById('addCardBtn').addEventListener('click', function() {
             const newCard = {
                 id: '',
@@ -476,19 +685,18 @@
                 reactions: []
             };
             collectionData.cards.push(newCard);
+            const newIndex = collectionData.cards.length - 1;
+            expandedCards.add(newIndex);
             renderCards();
         });
 
         document.getElementById('saveBtn').addEventListener('click', function() {
-            // Update collection metadata
             collectionData.id = document.getElementById('collectionId').value;
             collectionData.name = document.getElementById('collectionName').value;
 
-            // Helper function to clean empty values from objects
             function cleanObject(obj) {
                 if (Array.isArray(obj)) {
                     return obj.map(item => cleanObject(item)).filter(item => {
-                        // Keep non-empty arrays and objects
                         if (Array.isArray(item)) return item.length > 0;
                         if (typeof item === 'object' && item !== null) return Object.keys(item).length > 0;
                         return true;
@@ -497,17 +705,13 @@
                     const cleaned = {};
                     Object.keys(obj).forEach(key => {
                         const value = obj[key];
-                        // Skip empty strings, null, undefined
                         if (value === '' || value === null || value === undefined) {
                             return;
                         }
-                        // Skip empty arrays
                         if (Array.isArray(value) && value.length === 0) {
                             return;
                         }
-                        // Recursively clean nested objects/arrays
                         const cleanedValue = cleanObject(value);
-                        // Only add if the cleaned value is not empty
                         if (cleanedValue !== null && cleanedValue !== undefined && cleanedValue !== '') {
                             if (Array.isArray(cleanedValue) && cleanedValue.length === 0) return;
                             if (typeof cleanedValue === 'object' && !Array.isArray(cleanedValue) && Object.keys(cleanedValue).length === 0) return;
@@ -519,7 +723,6 @@
                 return obj;
             }
 
-            // Clean the entire collection
             const cleanedData = cleanObject(collectionData);
 
             const jsonStr = JSON.stringify(cleanedData, null, '\t');
