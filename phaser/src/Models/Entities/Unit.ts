@@ -46,15 +46,31 @@ export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
 };
 
+function cloneEffects(effects: TriggerSystem.Effect[]): TriggerSystem.Effect[] {
+	return effects.map((e) => {
+		const clone = { ...e };
+		if ("targets" in e && typeof (e as any).targets === "object") {
+			(clone as any).targets = { ...(e as any).targets };
+		}
+		return clone;
+	});
+}
+
+function cloneReactions(reactions: TriggerSystem.EffectReaction[]): TriggerSystem.EffectReaction[] {
+	return reactions.map((r) => ({
+		...r,
+		effects: cloneEffects(r.effects),
+	}));
+}
+
 export function createUnitFromCardSpec(
 	force: string,
 	cardDef: CardDefinition,
 	position: Vec2 = { x: 0, y: 0 },
 	id: string
 ): Unit {
-	const effects = cardDef.effects ?? [];
-
-	const reactions = cardDef.reactions ?? [];
+	const effects = cloneEffects(cardDef.effects ?? []);
+	const reactions = cloneReactions(cardDef.reactions ?? []);
 
 	return {
 		id,
@@ -116,9 +132,7 @@ function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
 
 	if (["increase_power", "multiply_power", "increase_critical"].includes(eff.id)) {
 		if ("amount" in eff) {
-			if (rank === 2) eff.amount = eff.amount * 2;
-			else if (rank === 3) eff.amount = eff.amount + eff.amount / 2;
-			else if (rank === 4) eff.amount = eff.amount + eff.amount / 2;
+			eff.amount = eff.amount * rank;
 		}
 	}
 
@@ -127,11 +141,10 @@ function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
 			eff.targets.count = rank;
 		}
 	}
+
 	if (["charge"].includes(eff.id)) {
 		if ("duration" in eff) {
-			if (rank === 2) eff.duration = eff.duration * 2;
-			else if (rank === 3) eff.duration = eff.duration + eff.duration / 2;
-			else if (rank === 4) eff.duration = eff.duration + eff.duration / 2;
+			eff.duration = eff.duration * rank;
 		}
 	}
 }
@@ -146,4 +159,9 @@ export function upgradeUnitEffects(unit: Unit) {
 			upgradeEffect(unit.rank, eff);
 		});
 	});
+}
+
+export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefinition) {
+	unit.effects = cloneEffects(cardDef.effects ?? []);
+	unit.reactions = cloneReactions(cardDef.reactions ?? []);
 }
