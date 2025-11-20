@@ -1,5 +1,5 @@
 import * as Card from "@Models/Entities/Card";
-import { makeUnit } from "@Models/Entities/Unit";
+import * as makeUnit from "@Models/Entities/Unit";
 import { size, vec2 } from "@Models/Geometry";
 import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Chara from "@Systems/Chara/Chara";
@@ -15,7 +15,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 	const ownedCardIds = new Set(getState().gameData.player.units.map((u) => u.cardId));
 
 	cardDefs.forEach((spec, index) => {
-		const unit = makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
+		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
@@ -26,6 +26,12 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const chara = Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
+
+		const existingUnit = getState().gameData.player.units.find((u) => u.cardId === spec.id);
+		if (existingUnit) {
+			unit.rank = existingUnit.rank;
+			makeUnit.upgradeUnitEffects(unit);
+		}
 
 		if (ownedCardIds.has(spec.id)) {
 			const borderRadius = (c.TILE_WIDTH * 0.8) / 2;

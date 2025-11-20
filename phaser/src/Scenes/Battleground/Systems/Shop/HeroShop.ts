@@ -8,6 +8,7 @@ import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import { getState } from "@Models/State";
 
 // TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
@@ -104,5 +105,12 @@ async function animateItemAppearance(chara: Chara.Chara) {
 
 function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
 	const allCards = Card.getNonCores();
-	return pickRandom(allCards, count);
+	const playerUnits = getState().gameData.player.units;
+	const maxRankCardIds = new Set(
+		playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId)
+	);
+
+	const availableCards = allCards.filter((card) => !maxRankCardIds.has(card.id));
+
+	return pickRandom(availableCards, count);
 }
