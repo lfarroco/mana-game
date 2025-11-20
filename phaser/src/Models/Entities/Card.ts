@@ -67,6 +67,10 @@ export const getCardDefinition = (id: string): CardDefinition => {
 	return card;
 };
 
+export const hasCardDefinition = (id: string): boolean => {
+	return cards.has(id);
+};
+
 export const getCollection = (id: string): CardCollection => {
 	const collection = collections.get(id);
 	if (!collection) {
