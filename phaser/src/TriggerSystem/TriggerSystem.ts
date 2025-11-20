@@ -4,9 +4,22 @@ import * as effects from "./effects";
 import { pickRandom } from "../utils";
 import { getState } from "@Models/State";
 
+export type EffectId =
+	| "damage"
+	| "heal"
+	| "shield"
+	| "poison"
+	| "regen"
+	| "haste"
+	| "slow"
+	| "charge"
+	| "increase_power"
+	| "multiply_power"
+	| "increase_critical";
+
 export type EffectReaction = {
 	position: EffectSourcePosition;
-	effectId: string; // e.g. "damage", "heal", "slow", "charge"
+	effectId: EffectId | "all";
 	effects: Effect[];
 };
 
