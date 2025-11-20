@@ -1,7 +1,6 @@
 import Phaser from "phaser";
-import { createBlackHole } from "../BlackHole";
+import { activateBlackHole } from "../BlackHole";
 
-// Module-level state
 let scene: Phaser.Scene | null = null;
 let timerText: Phaser.GameObjects.Text | null = null;
 let timerCircle: Phaser.GameObjects.Arc | null = null;
@@ -50,9 +49,8 @@ function updateTimer(): void {
 	if (timerValue <= 0) {
 		timerEvent?.destroy();
 		timerEvent = null;
-		// Keep the timer visible at 0
 
-		createBlackHole();
+		activateBlackHole();
 	}
 }
 

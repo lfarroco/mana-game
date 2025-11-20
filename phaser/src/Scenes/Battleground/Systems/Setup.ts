@@ -5,6 +5,7 @@ import * as BG_CONSTANTS from "../battlegroundConstants";
 import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBackground";
+import { initBlackHole } from "../BlackHole";
 
 export let cloudsBackground: CloudsBackground | null = null;
 
@@ -30,7 +31,7 @@ export function setupSceneElements() {
 	scene.bgContainer = scene.add.container(0, 0);
 	ControlsSystem.init(scene);
 
-	scene.bgContainer.add([scene.cloudsBackground]);
+	scene.bgContainer.add([scene.cloudsBackground, initBlackHole()]);
 
 	Board.init();
 }

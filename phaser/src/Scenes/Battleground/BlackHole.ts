@@ -7,7 +7,7 @@ let blackHole: Phaser.GameObjects.Shader;
 let timer: Phaser.Time.TimerEvent;
 let dissolve = 0;
 
-export function createBlackHole() {
+export function initBlackHole() {
 	dissolve = 0;
 
 	blackHole = Shader(
@@ -21,7 +21,18 @@ export function createBlackHole() {
 		{ key: "dissolveProgress", type: "1f", value: dissolve },
 	]);
 
+	blackHole.setUniform("dissolveProgress.value", 0);
+
+	return blackHole;
+}
+
+export function activateBlackHole() {
+	if (!blackHole) return;
+
+	dissolve = 0;
 	const scene = getCurrentScene();
+
+	if (timer) timer.destroy();
 
 	timer = scene.time.addEvent({
 		delay: 100,
@@ -33,22 +44,19 @@ export function createBlackHole() {
 	});
 }
 
-export function destroyBlackHole() {
+export function deactivateBlackHole() {
 	if (!blackHole) return;
 
 	dissolve = 1;
 
-	getCurrentScene().time.addEvent({
+	if (timer) timer.destroy();
+
+	timer = getCurrentScene().time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {
 			dissolve -= 0.1;
 			blackHole.setUniform("dissolveProgress.value", dissolve);
-
-			if (dissolve == 0) {
-				blackHole.destroy();
-				timer.destroy();
-			}
 		},
 	});
 }
