@@ -2,9 +2,9 @@ import { getAlliedCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "../../Effects";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { isCritical, Unit } from "@Models/Entities/Unit";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
+import { reducePoison } from "@Scenes/Battleground/RunCombatIO";
 
 export const restoreLife = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -20,9 +20,8 @@ export const restoreLife = async (sourceUnit: Unit) => {
 			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, "direct");
 		}
 
-		const runCombatSystem = scene.runCombatSystem;
-		if (runCombatSystem && actualHealing > 0) {
-			runCombatSystem.reducePoison(targetForce.id, actualHealing);
+		if (actualHealing > 0) {
+			reducePoison(targetForce.id, actualHealing);
 		}
 	};
 
