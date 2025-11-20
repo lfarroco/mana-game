@@ -4,6 +4,7 @@ import * as Tooltip from "../Components/Tooltip";
 import * as io from "@PhaserIO";
 import * as livesDisplay from "./components/livesDisplay";
 import * as winsDisplay from "./components/winsDisplay";
+import * as headerBackground from "./components/headerBackground";
 import { vec2 } from "@Models/Geometry";
 import * as menuButton from "./components/menuButton";
 export * as events from "./events";
@@ -12,6 +13,7 @@ let uiContainer: Container | null = null;
 
 export function init() {
 	uiContainer = io.Container([
+		headerBackground.create,
 		livesDisplay.create,
 		winsDisplay.create,
 		menuButton.create,
