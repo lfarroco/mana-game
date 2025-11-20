@@ -26,7 +26,7 @@ export function setupSceneElements() {
 		timeScale: 0.3,
 	});
 
-	scene.cloudsBackground = cloudsBackground.getShader() as any;
+	scene.cloudsBackground = cloudsBackground.getShader();
 
 	scene.bgContainer = scene.add.container(0, 0);
 	ControlsSystem.init(scene);
