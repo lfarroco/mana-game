@@ -4,7 +4,7 @@ const COLOR_DARK_GRAY = 0x1f1f1f;
 const ALPHA = 0.8;
 
 const TOP_Y = 0;
-const HEIGHT = 70;
+const HEIGHT = 100;
 const START_X = 0;
 const END_X = 640;
 const SLOPE = 40;

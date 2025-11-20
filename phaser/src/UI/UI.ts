@@ -17,7 +17,7 @@ export function init() {
 		livesDisplay.create,
 		winsDisplay.create,
 	]);
-	io.SetPosition(headerContainer, vec2(280, 0));
+	io.SetPosition(headerContainer, vec2(580, 0));
 
 	uiContainer = io.Container([
 		headerContainer,

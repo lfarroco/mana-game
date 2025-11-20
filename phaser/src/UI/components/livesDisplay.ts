@@ -45,8 +45,8 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 	currentLives = newTotalLives;
 };
 
-export const LIVES_DISPLAY_X = 40;
-export const LIVES_DISPLAY_Y = 40;
+export const LIVES_DISPLAY_X = 60;
+export const LIVES_DISPLAY_Y = 50;
 
 export function create() {
 	const initialLives = getState().gameData.player.lives;
