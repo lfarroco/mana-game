@@ -12,10 +12,15 @@ export * as events from "./events";
 let uiContainer: Container | null = null;
 
 export function init() {
-	uiContainer = io.Container([
+	const headerContainer = io.Container([
 		headerBackground.create,
 		livesDisplay.create,
 		winsDisplay.create,
+	]);
+	io.SetPosition(headerContainer, vec2(280, 0));
+
+	uiContainer = io.Container([
+		headerContainer,
 		menuButton.create,
 	]);
 }

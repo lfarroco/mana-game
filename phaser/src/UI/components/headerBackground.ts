@@ -5,8 +5,8 @@ const ALPHA = 0.8;
 
 const TOP_Y = 0;
 const HEIGHT = 70;
-const START_X = 280;
-const END_X = 920;
+const START_X = 0;
+const END_X = 640;
 const SLOPE = 40;
 
 export function create() {

@@ -12,7 +12,7 @@ const COLOR_YELLOW = 0xFFFF00;
 let winRects: Phaser.GameObjects.Graphics[] = [];
 let currentWins = 0;
 
-export const WINS_DISPLAY_X = 520;
+export const WINS_DISPLAY_X = 240;
 export const WINS_DISPLAY_Y = 35;
 
 export function create() {
