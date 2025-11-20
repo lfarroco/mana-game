@@ -46,22 +46,7 @@ export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
 };
 
-function cloneEffects(effects: TriggerSystem.Effect[]): TriggerSystem.Effect[] {
-	return effects.map((e) => {
-		const clone = { ...e };
-		if ("targets" in e && typeof (e as any).targets === "object") {
-			(clone as any).targets = { ...(e as any).targets };
-		}
-		return clone;
-	});
-}
 
-function cloneReactions(reactions: TriggerSystem.EffectReaction[]): TriggerSystem.EffectReaction[] {
-	return reactions.map((r) => ({
-		...r,
-		effects: cloneEffects(r.effects),
-	}));
-}
 
 export function createUnitFromCardSpec(
 	force: string,
@@ -69,8 +54,8 @@ export function createUnitFromCardSpec(
 	position: Vec2 = { x: 0, y: 0 },
 	id: string
 ): Unit {
-	const effects = cloneEffects(cardDef.effects ?? []);
-	const reactions = cloneReactions(cardDef.reactions ?? []);
+	const effects = structuredClone(cardDef.effects ?? []);
+	const reactions = structuredClone(cardDef.reactions ?? []);
 
 	return {
 		id,
@@ -162,6 +147,6 @@ export function upgradeUnitEffects(unit: Unit) {
 }
 
 export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefinition) {
-	unit.effects = cloneEffects(cardDef.effects ?? []);
-	unit.reactions = cloneReactions(cardDef.reactions ?? []);
+	unit.effects = structuredClone(cardDef.effects ?? []);
+	unit.reactions = structuredClone(cardDef.reactions ?? []);
 }
