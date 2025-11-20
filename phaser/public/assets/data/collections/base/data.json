@@ -751,12 +751,12 @@
 			"pic": "haste-stone",
 			"life": 500,
 			"power": 15,
-			"cooldown": 4500,
+			"cooldown": 6500,
 			"isCore": true,
 			"effects": [
 				{
 					"id": "haste",
-					"duration": 800,
+					"duration": 1000,
 					"targets": {
 						"id": "row_allies"
 					}
@@ -769,7 +769,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 800,
+							"duration": 1000,
 							"targets": {
 								"id": "self"
 							}

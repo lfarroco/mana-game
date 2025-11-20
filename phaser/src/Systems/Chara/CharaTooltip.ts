@@ -23,14 +23,14 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(
-				`[color=#91a7ff][b]Haste[/b][/color] [color=#ffa94d]${dur}s[/color]`,
+				`[color=#91a7ff]Haste[/color] [color=#ffa94d]${dur}s[/color]`,
 				effect.targets
 			);
 		}
 		case "slow": {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(
-				`[color=#d0bfff][b]Slow[/b][/color] [color=#ffa94d]${dur}s[/color]`,
+				`[color=#d0bfff]Slow[/color] [color=#ffa94d]${dur}s[/color]`,
 				effect.targets
 			);
 		}
@@ -42,7 +42,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 			);
 		case "increase_power":
 			return withTargets(
-				`[color=#ff8cc8]+power${effect.permanent ? " (permanent)" : ""}[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				`[color=#ff8cc8]+${effect.amount}${effect.permanent ? "*" : ""}[/color]`,
 				effect.targets
 			);
 		case "increase_critical":
