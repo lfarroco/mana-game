@@ -122,8 +122,12 @@ function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
 		}
 	}
 
-	// For now, only increase durationi (also evaluate increasing targets)
-	if (["haste", "slow", "charge"].includes(eff.id)) {
+	if ("targets" in eff) {
+		if ("count" in eff.targets) {
+			eff.targets.count = rank;
+		}
+	}
+	if (["charge"].includes(eff.id)) {
 		if ("duration" in eff) {
 			if (rank === 2) eff.duration = eff.duration * 2;
 			else if (rank === 3) eff.duration = eff.duration + eff.duration / 2;
