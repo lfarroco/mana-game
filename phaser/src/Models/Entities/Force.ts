@@ -2,7 +2,6 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
-import { updateShieldDisplay } from "@Systems/Chara/ShieldDisplay";
 import { popText } from "@Systems/Chara/Animations";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
@@ -74,8 +73,6 @@ export const manipulateCoreShield = (
 		core.shield = Math.max(0, core.shield + amount);
 	}
 	const actualChange = core.shield - oldShield;
-
-	updateShieldDisplay(getCore(targetForce.id).id);
 
 	if (displayFeedback) {
 		const text = isCritical ? `${amount} Crit!` : amount.toString();
