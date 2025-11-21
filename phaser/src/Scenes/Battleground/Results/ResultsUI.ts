@@ -3,10 +3,9 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
 import { getState } from "@Models/State";
-import { displayGameOver } from "./GameOverUI";
-import { displayGameWon } from "./GameWonUI";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
+import { displayGameComplete } from "./GameCompleteUI";
 
 const WINS_TO_WIN_GAME = 10;
 const RESULTS_CONTAINER_DEPTH = 1002;
@@ -57,12 +56,14 @@ function displayAppropriateUI(
 	gameWon: boolean,
 	gameOver: boolean,
 	livesChange: number,
-	nextPhaseCallback: () => void
+	nextPhaseCallback: () => void,
+	newWins: number,
+	units: any[]
 ): void {
 	if (gameWon) {
-		displayGameWon(state, nextPhaseCallback);
+		displayGameComplete(state, newWins, units);
 	} else if (gameOver) {
-		displayGameOver(state);
+		displayGameComplete(state, newWins, units);
 	} else if (resultType === "victory") {
 		displayVictory(state, nextPhaseCallback);
 	} else {
@@ -86,7 +87,7 @@ export function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	displayAppropriateUI(state, resultType, gameWon, gameOver, livesChange, nextPhaseCallback);
+	displayAppropriateUI(state, resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
 }
 
 export async function slideIn(): Promise<void> {

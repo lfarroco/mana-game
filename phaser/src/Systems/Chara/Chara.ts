@@ -92,6 +92,7 @@ export function create(unit: Unit): Chara {
 
 	charaById.set(unit.id, container);
 
+	// TODO: use function to enable this even, this logic is too complex
 	container.on(Phaser.Input.Events.POINTER_OVER, () => {
 		if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
 			return;

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "@Models/Entities/Unit";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { getCurrentScene } from "@Models/State";
 
 export type CharaBars = {
 	chargeBar: Graphics;
@@ -10,7 +10,7 @@ export type CharaBars = {
 let charaBarsMap = new Map<string, CharaBars>();
 
 export function create(unit: Unit, container: Container) {
-	const chargeBar = scene.add.graphics();
+	const chargeBar = getCurrentScene().add.graphics();
 
 	container.add([chargeBar]);
 
