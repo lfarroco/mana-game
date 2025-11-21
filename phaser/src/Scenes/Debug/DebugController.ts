@@ -1,4 +1,4 @@
-import { Unit } from "@Models/Entities/Unit";
+import { Unit, makeUnit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
 import { CardDefinition } from "@Models/Entities/Card";
 import * as constants from "@Constants/constants";
@@ -158,4 +158,34 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 
 export function clickGameStart() {
 	startGame();
+}
+
+export async function summon(
+	forceId: string,
+	cardId: string,
+	x: number = 0,
+	y: number = 0
+): Promise<string> {
+	const state = getState();
+
+	// Validate force ID
+	if (forceId !== constants.FORCE_ID_PLAYER && forceId !== constants.FORCE_ID_CPU) {
+		return `Error: Invalid force ID "${forceId}". Use "${constants.FORCE_ID_PLAYER}" or "${constants.FORCE_ID_CPU}"`;
+	}
+
+	// Create the unit
+	const newUnit = makeUnit(forceId, cardId, vec2(x, y));
+
+	// Add to the appropriate force's units
+	if (forceId === constants.FORCE_ID_PLAYER) {
+		state.gameData.player.units.push(newUnit);
+	} else {
+		// CPU units go into battleData.units during battles
+		state.battleData.units.push(newUnit);
+	}
+
+	// Visually summon the character
+	await Chara.summon(newUnit, true);
+
+	return `Summoned ${cardId} (ID: ${newUnit.id}) to ${forceId} board at position (${x}, ${y})`;
 }
