@@ -3,6 +3,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import { getCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle } from "@PhaserIO";
 import { getPoisonRate } from "./Systems/PoisonDamageSystem";
+import { getRegenRate } from "./Systems/RegenSystem";
 
 let playerStats: Phaser.GameObjects.Container | null = null;
 let cpuStats: Phaser.GameObjects.Container | null = null;
@@ -75,7 +76,7 @@ export function updateAllStats(force: string) {
 	const core = getCore(force);
 	updateLifeDisplay(force, core.life);
 	updateShieldDisplay(force, core.shield);
-	updateRegenDisplay(force, core.regen);
+	updateRegenDisplay(force, getRegenRate(force));
 	updatePoisonDisplay(force, getPoisonRate(force));
 }
 

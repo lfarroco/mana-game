@@ -22,8 +22,6 @@ export type Unit = {
 	life: number;
 	maxLife: number;
 	shield: number;
-	regen: number;
-
 	cooldown: number;
 	evade: number;
 
@@ -77,9 +75,7 @@ export function createUnitFromCardSpec(
 		life: cardDef.life || 0,
 		maxLife: cardDef.life || 0,
 		critical: cardDef.critical || 0,
-
 		shield: 0,
-		regen: 0,
 	};
 }
 
