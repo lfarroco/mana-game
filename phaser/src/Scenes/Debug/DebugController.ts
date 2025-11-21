@@ -189,3 +189,101 @@ export async function summon(
 
 	return `Summoned ${cardId} (ID: ${newUnit.id}) to ${forceId} board at position (${x}, ${y})`;
 }
+
+export async function triggerGameComplete(wins: number = 0): Promise<void> {
+	const { getCurrentScene } = await import("@Models/State");
+	const { init } = await import("@Components/Tooltip");
+	const { displayGameComplete } = await import("../Battleground/Results/GameCompleteUI");
+
+	const gameState = getState();
+	gameState.gameData.player.wins = wins;
+	if (wins < 10) {
+		gameState.gameData.player.lives = 0;
+	} else {
+		gameState.gameData.player.lives = 4;
+	}
+
+	if (gameState.gameData.player.units.length === 0) {
+		gameState.gameData.player.units = [
+			{
+				id: "test-unit-1",
+				cardId: "fortress",
+				name: "Warrior",
+				pic: "boss_city",
+				force: "PLAYER",
+				position: { x: 0, y: 0 },
+				rank: 1,
+				power: 10,
+				life: 100,
+				maxLife: 100,
+				shield: 0,
+				cooldown: 100,
+				evade: 0,
+				effects: [],
+				reactions: [],
+				charge: 0,
+				refresh: 0,
+				hasted: 0,
+				slowed: 0,
+				isCore: false
+			},
+			{
+				id: "test-unit-2",
+				cardId: "parry_master",
+				name: "Healer",
+				pic: "neutral_swordofakrane",
+				force: "PLAYER",
+				position: { x: 1, y: 1 },
+				rank: 1,
+				power: 10,
+				life: 80,
+				maxLife: 80,
+				shield: 0,
+				cooldown: 100,
+				evade: 0,
+				effects: [],
+				reactions: [],
+				charge: 0,
+				refresh: 0,
+				hasted: 0,
+				slowed: 0,
+				isCore: false
+			},
+			{
+				id: "test-unit-3",
+				cardId: "parry_master",
+				name: "Healer",
+				pic: "neutral_swordofakrane",
+				force: "PLAYER",
+				position: { x: 2, y: 2 },
+				rank: 1,
+				power: 10,
+				life: 80,
+				maxLife: 80,
+				shield: 0,
+				cooldown: 100,
+				evade: 0,
+				effects: [],
+				reactions: [],
+				charge: 0,
+				refresh: 0,
+				hasted: 0,
+				slowed: 0,
+				isCore: false
+			}
+		];
+	}
+
+	const scene = getCurrentScene();
+	const container = scene.add.container(0, 0);
+	container.setDepth(2000);
+	const state = {
+		resultsContainer: container,
+		backgroundOverlay: null,
+		isOpen: true
+	};
+
+	init();
+
+	displayGameComplete(state, wins, gameState.gameData.player.units);
+}
