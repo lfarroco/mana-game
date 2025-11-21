@@ -39,6 +39,9 @@ const state = {
 };
 
 export function resetState() {
+	playerForce.lives = 4;
+	playerForce.wins = 0;
+	playerForce.units = [];
 	state.currentState = initialState();
 }
 
