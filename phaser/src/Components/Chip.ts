@@ -49,3 +49,7 @@ export function updateChipText(id: string, value: string) {
 	bg.strokeRoundedRect(0, 0, newSize.width, newSize.height, 4);
 	bg.setPosition(newActualPos.x, newActualPos.y);
 }
+
+export function getChip(id: string) {
+	return index.get(id)
+}

@@ -2,8 +2,6 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
-import { popText } from "@Systems/Chara/Animations";
-import { getCharaById } from "@Systems/Chara/Chara";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
 import { getState } from "@Models/State";
 
@@ -33,7 +31,7 @@ export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 export const manipulateCoreLife = (
 	targetForce: Force,
 	amount: number,
-	critical = false
+	_critical = false
 ): number => {
 	const core = getCore(targetForce.id);
 
@@ -45,15 +43,7 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	popText({
-		x: getCharaById(core.id).x,
-		y: getCharaById(core.id).y,
-		text: critical ? `${amount} Crit!` : amount.toString(),
-		type: "heal",
-		critical,
-	});
-
-	ForceStats.updateLifeDisplay(targetForce.id, core.life);
+	ForceStats.updateLifeDisplay(targetForce.id, core.life, amount);
 
 	return actualChange;
 };
@@ -61,7 +51,7 @@ export const manipulateCoreLife = (
 export const manipulateCoreShield = (
 	targetForce: Force,
 	amount: number,
-	isCritical: boolean,
+	_isCritical: boolean,
 	displayFeedback: boolean = true
 ): number => {
 	const core = getCore(targetForce.id);
@@ -74,19 +64,11 @@ export const manipulateCoreShield = (
 	}
 	const actualChange = core.shield - oldShield;
 
-	if (displayFeedback) {
-		const text = isCritical ? `${amount} Crit!` : amount.toString();
-
-		popText({
-			x: getCharaById(core.id).x,
-			y: getCharaById(core.id).y,
-			text: text,
-			type: "shield",
-			critical: isCritical,
-		});
-	}
-
-	ForceStats.updateShieldDisplay(targetForce.id, core.shield);
+	ForceStats.updateShieldDisplay(
+		targetForce.id,
+		core.shield,
+		displayFeedback ? actualChange : 0
+	);
 
 	return actualChange;
 };
@@ -96,12 +78,11 @@ export const applyDamageToForce = (
 	damage: number,
 	shieldPiercingPercentage: number = 0,
 	damageType?: "poison" | "normal" | "timeout",
-	critical = false
+	_critical = false
 ): number => {
 	if (damage <= 0) return 0;
 
 	const core = getCore(targetForce.id);
-	const coreChara = getCharaById(core.id);
 
 	let remainingDamage = damage;
 	const originalLife = core.life;
@@ -109,22 +90,12 @@ export const applyDamageToForce = (
 	if (damageType === "poison") {
 		const lifeChage = manipulateCoreLife(targetForce, -damage);
 
-		const text = !!critical ? `${lifeChage} Crit!` : lifeChage.toString();
-
 		CombatStatsTracker.trackLifeChange({
 			forceId: targetForce.id,
 			newLife: core.life,
 			maxLife: core.maxLife,
 			totalDamage: damage,
 			damageType: damageType,
-		});
-
-		popText({
-			x: coreChara.x,
-			y: coreChara.y,
-			text,
-			type: "poison",
-			critical: !!critical,
 		});
 
 		return Math.abs(lifeChage);
@@ -153,16 +124,6 @@ export const applyDamageToForce = (
 			damageType: damageType,
 		});
 	}
-
-	const text = !!critical ? `${damage} Crit!` : damage.toString();
-
-	popText({
-		x: coreChara.x,
-		y: coreChara.y,
-		text,
-		type: "damage",
-		critical: !!critical,
-	});
 
 	return Math.abs(lifeChange);
 };

@@ -1,10 +1,7 @@
 import { applyDamageToForce, cpuForce, Force, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { getCurrentScene } from "@Models/State";
-import { popText } from "@Systems/Chara/Animations";
-import { getCharaById } from "@Systems/Chara/Chara";
 import { updatePoisonDisplay } from "../ForceStats";
-import { getCore } from "@Models/Entities/Card";
 
 const tickInterval: number = 1000;
 
@@ -31,7 +28,7 @@ export function applyPoison(
 	targetForce: Force,
 	amount: number,
 	sourceUnitId?: string,
-	isCritical = false
+	_isCritical = false
 ): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
@@ -47,18 +44,7 @@ export function applyPoison(
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
 
-	const core = getCore(id);
-	const coreChara = getCharaById(core.id);
-
-	popText({
-		x: coreChara.x,
-		y: coreChara.y,
-		text: isCritical ? `${amount} Crit!` : Math.floor(amount).toString(),
-		type: "poison",
-		critical: isCritical,
-	});
-
-	updatePoisonDisplay(targetForce.id, state.rate);
+	updatePoisonDisplay(targetForce.id, state.rate, amount);
 }
 
 export function tick() {
@@ -110,12 +96,12 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	if (state.rate === 0) {
 		poisonStates.delete(forceId);
 	}
-	updatePoisonDisplay(forceId, state.rate);
+	updatePoisonDisplay(forceId, state.rate, -reduction);
 }
 
 export function clearPoison(forceId: string): void {
 	poisonStates.delete(forceId);
-	updatePoisonDisplay(forceId, 0);
+	updatePoisonDisplay(forceId, 0, 0);
 }
 
 export function getPoisonRate(forceId: string): number {
