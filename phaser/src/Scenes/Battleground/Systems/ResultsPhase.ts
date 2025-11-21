@@ -18,6 +18,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	ResultsUI.displayResults("defeat", () => {
 		handleDefeat();
 	});
+	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
 }
 
@@ -32,6 +33,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	ResultsUI.displayResults("victory", () => {
 		handleVictory();
 	});
+	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
 }
 
@@ -46,7 +48,6 @@ export function handleCombatEnded(combatResult: string) {
 }
 
 async function handleVictory(): Promise<void> {
-	PrestigeSystem.processVictory();
 	PrestigeSystem.finalizeRound();
 
 	const state = getState();
@@ -57,7 +58,6 @@ async function handleVictory(): Promise<void> {
 }
 
 async function handleDefeat(): Promise<void> {
-	PrestigeSystem.processDefeat();
 	PrestigeSystem.finalizeRound();
 
 	const state = getState();
