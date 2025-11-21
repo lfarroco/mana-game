@@ -47,7 +47,7 @@ export function displayGameOver(
 	state.resultsContainer.add(newRunButton.container);
 
 	const mainMenuButton = createUIButton(
-		"Main Menu",
+		"MAIN MENU",
 		vec2(panelX + panelWidth / 2, panelY + panelHeight - 80),
 		async () => {
 
