@@ -1,5 +1,4 @@
-import { scene } from "./BattlegroundScene";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import { MIN_COOLDOWN } from "@Constants/constants";
 import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
@@ -35,7 +34,7 @@ export const runCombatIO = () => {
 export function updateFrame(_time: number, delta: number): void {
 	if (!active) return;
 
-	const scaledDelta = delta * scene.time.timeScale;
+	const scaledDelta = delta * getCurrentScene().time.timeScale;
 
 	const unitsReadyToAct = chargeUnits(scaledDelta);
 

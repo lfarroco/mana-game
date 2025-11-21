@@ -1,8 +1,7 @@
-import { scene } from "../BattlegroundScene";
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
@@ -21,7 +20,7 @@ let state: ResultsUIState | null = null;
 
 export function create() {
 	state = {
-		resultsContainer: scene.add.container(0, 0),
+		resultsContainer: getCurrentScene().add.container(0, 0),
 		backgroundOverlay: null,
 		isOpen: false,
 	};

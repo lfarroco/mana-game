@@ -1,10 +1,11 @@
 import { tween } from "@Utils/animation";
 import { COLOR_BLACK } from "../../../Utils/colors";
-import { scene } from "../BattlegroundScene";
 import * as c from "@Constants/constants";
+import { getCurrentScene } from "@Models/State";
 
 // display a text in the center of the screen, with a fading gradient rect behind it
 export const renderVignette = async ({ message }: { message: string }) => {
+	const scene = getCurrentScene();
 	const rect = scene.add
 		.rectangle(0, c.MIDDLE_SCREEN_Y, c.MIDDLE_SCREEN_X, 100, COLOR_BLACK)
 		.setOrigin(0, 0)

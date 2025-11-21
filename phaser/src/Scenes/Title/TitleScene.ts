@@ -9,6 +9,7 @@ import { optionsButton } from "./components/optionsButton";
 import { goFullscreenButton } from "./components/goFullscreenButton";
 import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
+import { init } from "@Components/Tooltip";
 
 export let titleScene: TitleScene;
 
@@ -136,6 +137,8 @@ export default class TitleScene extends Phaser.Scene {
 				backgroundOverlay: null,
 				isOpen: true
 			};
+
+			init();
 
 			// Dynamic import to avoid circular dependencies if any, or just standard import
 			import("../Battleground/Results/GameCompleteUI").then(module => {

@@ -1,5 +1,5 @@
 import { CardCollection, registerCollection } from "@Models/Entities/Card";
-import { scene } from "../../BattlegroundScene";
+import { getCurrentScene } from "@Models/State";
 
 export function init(collection: CardCollection): void {
 	registerCollection(collection);
@@ -7,6 +7,8 @@ export function init(collection: CardCollection): void {
 
 export const loadDynamicAssets = (collection: CardCollection): Promise<void> =>
 	new Promise((resolve) => {
+
+		const scene = getCurrentScene()
 		const loadAsset = (asset: { name: string; pic: string }, type: string) => {
 			console.log(`Loading ${type} asset: ${asset.name} - ${asset.pic}`);
 			scene.load.image(asset.pic, asset.pic);

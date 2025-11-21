@@ -1,4 +1,3 @@
-import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { ResultsUIState } from "./ResultsUI";
@@ -14,7 +13,7 @@ export function displayGameOver(
 
 	// Add title
 	const titleText = "Game Over!";
-	const title = scene.add
+	const title = getCurrentScene().add
 		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
 			...c.titleTextConfig,
 			fontSize: "48px",
@@ -26,7 +25,7 @@ export function displayGameOver(
 
 	// Add result message
 	const messageText = "You have been defeated. Good luck next time!";
-	const message = scene.add
+	const message = getCurrentScene().add
 		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
 			...c.defaultTextConfig,
 			fontSize: "20px",

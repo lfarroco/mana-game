@@ -1,4 +1,4 @@
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { getCurrentScene } from "@Models/State";
 
 const COLOR_DARK_GRAY = 0x1f1f1f;
 const ALPHA = 0.8;
@@ -10,7 +10,7 @@ const END_X = 640;
 const SLOPE = 40;
 
 export function create() {
-	const graphics = scene.add.graphics();
+	const graphics = getCurrentScene().add.graphics();
 
 	graphics.fillStyle(COLOR_DARK_GRAY, ALPHA);
 

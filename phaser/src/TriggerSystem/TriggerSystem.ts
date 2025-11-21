@@ -1,5 +1,4 @@
 import { Unit } from "@Models/Entities/Unit";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
 import { getState } from "@Models/State";
@@ -187,7 +186,6 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) 
 		case "multiply_power":
 			effects.multiplyPower({
 				targets: resolveTargets(sourceUnit, effect),
-				scene,
 				sourceUnit,
 				multiplier: effect.multiplier,
 			});

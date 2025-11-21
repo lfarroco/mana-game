@@ -1,6 +1,6 @@
-import { scene } from "../BattlegroundScene";
 import * as c from "@Constants/constants";
 import { ResultsUIState } from "./ResultsUI";
+import { getCurrentScene } from "@Models/State";
 
 export function createResultsPanel(state: ResultsUIState): {
 	panelX: number;
@@ -8,6 +8,7 @@ export function createResultsPanel(state: ResultsUIState): {
 	panelWidth: number;
 	panelHeight: number;
 } {
+	const scene = getCurrentScene();
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.destroy();
 	}

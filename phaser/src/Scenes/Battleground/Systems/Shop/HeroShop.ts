@@ -1,14 +1,13 @@
 import * as Card from "@Models/Entities/Card";
 import { pickRandom } from "../../../../utils";
 import * as Chara from "@Systems/Chara/Chara";
-import { scene } from "../../BattlegroundScene";
 import * as ShopPanel from "./ShopPanel";
 import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 
 // TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
@@ -83,7 +82,7 @@ async function animateItemAppearance(chara: Chara.Chara) {
 		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION,
 	});
 
-	scene.tweens.chain({
+	getCurrentScene().tweens.chain({
 		targets: chara,
 		tweens: [
 			{

@@ -1,6 +1,5 @@
 import Phaser from "phaser";
 import { getCurrentScene } from "@Models/State";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 type CustomTweenProps = Omit<
 	Phaser.Types.Tweens.TweenBuilderConfig,
@@ -56,7 +55,7 @@ export async function tweenSequence(tweens: CustomTweenProps[]) {
 
 export const delay = (duration: number) =>
 	new Promise<void>((resolve) => {
-		scene.time.addEvent({
+		getCurrentScene().time.addEvent({
 			delay: duration,
 			callback: () => {
 				resolve();

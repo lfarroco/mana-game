@@ -1,7 +1,7 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { titleTextConfig } from "@Constants/constants";
 import { tooltipFragmentShader } from "../Shaders/TooltipShader";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { getCurrentScene } from "@Models/State";
 
 const PADDING = 30;
 const INTER_ELEMENT_PADDING = PADDING / 2;
@@ -28,6 +28,8 @@ let lastAdjustedY: number | undefined;
 
 function getAdjustedPosition(x: number, y: number): { x: number; y: number } {
 	if (!container) return { x, y };
+
+	const scene = getCurrentScene();
 
 	if (
 		lastAdjustedX !== undefined &&
@@ -73,6 +75,7 @@ export function destroyTooltip(): void {
 }
 
 export function init() {
+	const scene = getCurrentScene();
 	startTime = scene.time.now;
 
 	container = scene.add.container(0, 0);
@@ -123,14 +126,14 @@ export function init() {
 }
 
 function updateShaderAnimation(): void {
-	if (!bg || !scene || !container?.visible) return;
+	if (!bg || !container?.visible) return;
 
-	const elapsedTime = (scene.time.now - startTime) / 1000;
+	const elapsedTime = (getCurrentScene().time.now - startTime) / 1000;
 	bg.setUniform("time.value", elapsedTime);
 }
 
 export function renderTooltip(x: number, y: number, title: string, description: string): void {
-	if (!container || !titleText || !descriptionText || !scene || !bg) {
+	if (!container || !titleText || !descriptionText || !bg) {
 		console.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
 	}
@@ -174,7 +177,7 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		bg.setSize(tooltipWidth, tooltipHeight);
 		bg.setUniform("resolution.value", [tooltipWidth, tooltipHeight]);
 
-		const elapsedTime = (scene.time.now - startTime) / 1000;
+		const elapsedTime = (getCurrentScene().time.now - startTime) / 1000;
 		bg.setUniform("time.value", elapsedTime);
 
 		titleText.setPosition(PADDING, PADDING);
@@ -188,7 +191,7 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 
 	if (!container.visible) {
 		container.setVisible(true);
-		scene.children.bringToTop(container);
+		getCurrentScene().children.bringToTop(container);
 	}
 
 	updateShaderAnimation();

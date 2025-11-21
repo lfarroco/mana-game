@@ -1,9 +1,10 @@
-import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
+import * as io from "@PhaserIO";
+import { getCurrentScene } from "@Models/State";
 
 export function displayDefeat(
 	state: ResultsUIState,
@@ -12,15 +13,15 @@ export function displayDefeat(
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
 
+	const scene = getCurrentScene();
+
 	// Add title
 	const titleText = "Defeat";
-	const title = scene.add
-		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
-			...c.titleTextConfig,
-			fontSize: "48px",
-			color: "#F44336",
-		})
-		.setOrigin(0.5);
+	const title = io.Text(titleText, c.titleTextConfig)
+		.setColor("#F44336")
+		.setOrigin(0.5)
+		.setPosition(panelX + panelWidth / 2, panelY + 50);
+
 	title.setDepth(1001);
 	state.resultsContainer.add(title);
 
