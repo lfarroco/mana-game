@@ -92,9 +92,9 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	if (healAmount <= 0) return;
 	const state = poisonStates.get(forceId);
 	if (!state || state.rate === 0) return;
-	const reduction = Math.min(state.rate, Math.floor(healAmount * 0.25));
+	const reduction = Math.min(state.rate, Math.floor(healAmount * 0.05));
 	state.rate -= reduction;
-	// Scale down contributions proportionally to keep ratios
+
 	const contribs = state.sourceContributions;
 	if (contribs && state.rate > 0 && state.rate - reduction > 0) {
 		const newRate = state.rate - reduction;
