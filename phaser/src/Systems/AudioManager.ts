@@ -6,7 +6,7 @@ let currentMusicKey: string | null = null;
 
 let soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
 let soundEffectCooldowns: Map<string, number> = new Map();
-const SOUND_EFFECT_COOLDOWN_MS = 300;
+const SOUND_EFFECT_COOLDOWN_MS = 1000;
 
 export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
 	if (!getOption("music")) {

@@ -6,12 +6,16 @@ import { vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
+import { playMusic } from "@Systems/AudioManager";
 
 export function displayGameComplete(
 	state: ResultsUIState,
 	wins: number,
 	units: Unit[]
 ): void {
+
+	playMusic("music_playmode", true, 1000);
+
 	// Create a semi-transparent background to make text readable but keep board visible
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.destroy();
@@ -27,12 +31,11 @@ export function displayGameComplete(
 	state.backgroundOverlay.setInteractive();
 	state.backgroundOverlay.setDepth(1000);
 
-	const centerX = c.SCREEN_WIDTH / 2;
-	const centerY = c.SCREEN_HEIGHT / 2;
+	const baseX = c.MIDDLE_SCREEN_X + 400;
+	const centerY = c.MIDDLE_SCREEN_Y;
 
-	// 1. Display "X Wins"
 	const winsText = getCurrentScene().add
-		.text(centerX, centerY - 150, `${wins} Wins`, {
+		.text(baseX, centerY - 150, `${wins} Wins`, {
 			...c.titleTextConfig,
 			fontSize: "64px",
 			color: "#FFFFFF",
@@ -40,7 +43,6 @@ export function displayGameComplete(
 		.setOrigin(0.5);
 	state.resultsContainer.add(winsText);
 
-	// 2. Determine Victory Message
 	let message = "";
 	let color = "#FFFFFF";
 
@@ -59,18 +61,26 @@ export function displayGameComplete(
 	}
 
 	const messageText = getCurrentScene().add
-		.text(centerX, centerY, message, {
+		.text(baseX, centerY, message, {
 			...c.titleTextConfig,
-			fontSize: "48px",
-			color: color,
+			color,
 		})
 		.setOrigin(0.5);
 	state.resultsContainer.add(messageText);
 
-	// 3. Continue Button
+	const subtitle = getCurrentScene().add
+		.text(baseX, centerY + 100,
+			"Your journey is recorded in the Halls of Legends",
+			{
+				...c.titleTextConfig,
+				fontSize: "24px",
+			})
+		.setOrigin(0.5);
+	state.resultsContainer.add(subtitle);
+
 	const continueButton = createUIButton(
 		"Continue",
-		vec2(centerX, centerY + 150),
+		vec2(baseX, centerY + 250),
 		async () => {
 			resetState();
 			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
