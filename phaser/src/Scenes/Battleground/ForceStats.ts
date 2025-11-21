@@ -13,13 +13,13 @@ export function createForceStats(force: string) {
 	const x = force === FORCE_ID_PLAYER ? 300 : 1200;
 	const y = 1000;
 
-	const lifeDisplay = createChip(`life-display/${force}`, { x, y }, 0x29a1b9ff, "0");
+	const lifeDisplay = createChip(`life-display/${force}`, { x, y }, 0x29a1b9ff, "0", 100);
 
-	const shieldDisplay = createChip(`shield-display/${force}`, { x: x + 150, y }, 0xffff00, "0");
+	const shieldDisplay = createChip(`shield-display/${force}`, { x: x + 150, y }, 0xffff00, "0", 100);
 
-	const regenDisplay = createChip(`regen-display/${force}`, { x: x + 300, y }, 0x337a31, "0");
+	const regenDisplay = createChip(`regen-display/${force}`, { x: x + 300, y }, 0x337a31, "0", 100);
 
-	const poisonDisplay = createChip(`poison-display/${force}`, { x: x + 450, y }, 0x9932cc, "0");
+	const poisonDisplay = createChip(`poison-display/${force}`, { x: x + 450, y }, 0x9932cc, "0", 100);
 
 	const barWidth = 600;
 	const barHeight = 20;

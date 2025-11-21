@@ -8,19 +8,21 @@ const index = new Map<
 		bg: Graphics;
 		text: Phaser.GameObjects.Text;
 		color: number;
+		minWidth?: number;
 	}
 >();
 
-export function createChip(id: string, position: Vec2, color: number, value: string) {
+export function createChip(id: string, position: Vec2, color: number, value: string, minWidth?: number) {
 	const text = io.Text(value, defaultTextConfig);
 	io.SetPosition(text, position);
 	io.Centralize(text);
 
-	const bg = io.BorderedRoundRect(asVec2(text), size(text.width + 12, text.height + 12), 4, color);
+	const width = Math.max(text.width + 12, minWidth ?? 0);
+	const bg = io.BorderedRoundRect(asVec2(text), size(width, text.height + 12), 4, color);
 
 	io.MoveBelow(bg, text);
 
-	index.set(id, { bg, text, color });
+	index.set(id, { bg, text, color, minWidth });
 
 	io.OnceDestroyed(bg, () => {
 		index.delete(id);
@@ -35,8 +37,8 @@ export function updateChipText(id: string, value: string) {
 
 	state.text.setText(value);
 
-	const { bg, text, color } = state;
-	const newSize = { width: text.width + 12, height: text.height + 12 };
+	const { bg, text, color, minWidth } = state;
+	const newSize = { width: Math.max(text.width + 12, minWidth ?? 0), height: text.height + 12 };
 	const textPosition = asVec2(text);
 	const newActualPos = sumVec2(textPosition, { x: -newSize.width / 2, y: -newSize.height / 2 });
 
