@@ -14,8 +14,6 @@ import * as Tooltip from "@Components/Tooltip";
 import { resetBoard, startPhase } from "./PhaseManager";
 import * as SellZone from "./Systems/Shop/SellZone";
 
-export let scene: BattlegroundScene;
-
 export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Shader;
@@ -42,7 +40,6 @@ export class BattlegroundScene extends Phaser.Scene {
 	create = async (data?: GameData) => {
 		console.log(":::: BattlegroundScene creating logic...", data);
 		setCurrentScene(this);
-		scene = this;
 
 		this.collection = this.cache.json.get("base-collection") as CardCollection;
 

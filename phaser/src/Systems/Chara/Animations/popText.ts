@@ -1,6 +1,6 @@
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { tween } from "@Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
+import { getCurrentScene } from "@Models/State";
 
 const CONFIG = {
 	MAX_ANGLE: 30,
@@ -50,7 +50,7 @@ export async function popText({
 		textColor = CONFIG.COLORS.REGEN;
 	}
 
-	const popText = scene.add
+	const popText = getCurrentScene().add
 		.text(x, y, text, {
 			...titleTextConfig,
 			...(critical ? { fontSize: 50 } : {}),

@@ -81,10 +81,10 @@ export function displayGameComplete(
 	renderBoard(state, units);
 }
 
-function renderBoard(state: ResultsUIState, units: Unit[]): void {
-	units.forEach((unit) => {
+async function renderBoard(state: ResultsUIState, units: Unit[]): Promise<void> {
+	for (const unit of units) {
 		// Create the full Chara component with all its visual elements
-		const chara = Chara.create(unit);
+		const chara = await Chara.summon(unit);
 		state.resultsContainer.add(chara);
-	});
+	}
 }

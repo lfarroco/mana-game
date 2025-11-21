@@ -1,15 +1,17 @@
-import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
+import { getCurrentScene } from "@Models/State";
 
 export function displayVictory(
 	state: ResultsUIState,
 	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
+
+	const scene = getCurrentScene();
 
 	// Add title
 	const titleText = "Victory!";

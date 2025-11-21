@@ -41,6 +41,7 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		summonEffect(getCurrentScene(), vec);
 	}
 	const chara = create(unit);
+	enableTooltip(chara);
 	chara.setScale(0);
 	chara.setAngle(-10);
 	await tween({
@@ -92,25 +93,30 @@ export function create(unit: Unit): Chara {
 
 	charaById.set(unit.id, container);
 
-	// TODO: use function to enable this even, this logic is too complex
-	container.on(Phaser.Input.Events.POINTER_OVER, () => {
-		if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
-			return;
-		}
-		CharaTooltip.onCharaPointerOver(container);
-	});
-	container.on(Phaser.Input.Events.POINTER_OUT, () => {
-		if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
-			return;
-		}
-		CharaTooltip.onCharaPointerOut();
-	});
+
 
 	ChargeBarDisplay.create(unit, container);
 
 	PowerDisplay.create(unit, container);
 
 	return container;
+}
+
+export function enableTooltip(chara: Chara) {
+	// TODO: use function to enable this even, this logic is too complex
+	chara.on(Phaser.Input.Events.POINTER_OVER, () => {
+		// if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
+		// 	return;
+		// }
+		CharaTooltip.onCharaPointerOver(chara);
+	});
+	chara.on(Phaser.Input.Events.POINTER_OUT, () => {
+		// if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
+		// 	return;
+		// }
+		CharaTooltip.onCharaPointerOut();
+	});
+
 }
 
 export function getScreenPosition(unit: Unit) {

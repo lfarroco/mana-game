@@ -1,16 +1,18 @@
 import * as Card from "@Models/Entities/Card";
 import * as makeUnit from "@Models/Entities/Unit";
 import { size, vec2 } from "@Models/Geometry";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
 import * as sc from "./constants";
 import { createDescription } from "@Systems/Chara/createDescription";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "./ShopPanel";
 import { Rectangle } from "@PhaserIO";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
+
+	const scene = getCurrentScene();
+
 	const createdCharas: Chara.Chara[] = [];
 	const ownedCardIds = new Set(getState().gameData.player.units.map((u) => u.cardId));
 

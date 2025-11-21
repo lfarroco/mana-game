@@ -2,9 +2,8 @@ import * as constants from "@Constants/constants";
 import * as constants_1 from "@Constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
-import { getState, getUnitAt, State } from "./State";
+import { getCurrentScene, getState, getUnitAt, State } from "./State";
 import * as EnergySlot from "../Components/EnergySlot/EnergySlot";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];
@@ -31,6 +30,9 @@ export function createBoardState(): BoardState {
 }
 
 export function renderBoardSlots(board: BoardState): void {
+
+	const scene = getCurrentScene();
+
 	destroyVisuals(board);
 
 	const slotSpacing = 8;
@@ -128,6 +130,8 @@ export function setEnemyBoardVisible(visible: boolean): void {
 				slot.setVisible(true);
 				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
 
+				const scene = getCurrentScene();
+
 				scene.tweens.killTweensOf(slot.getShader());
 
 				scene.tweens.add({
@@ -140,6 +144,8 @@ export function setEnemyBoardVisible(visible: boolean): void {
 			});
 		} else {
 			board.cpuSlotShaders.forEach((slot, index) => {
+				const scene = getCurrentScene();
+
 				scene.tweens.killTweensOf(slot.getShader());
 
 				scene.tweens.add({

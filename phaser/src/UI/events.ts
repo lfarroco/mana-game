@@ -1,10 +1,10 @@
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as UI from "./UI";
 import * as winsDisplay from "./components/winsDisplay";
 import { winsChangeAnimation } from "./components/winsDisplay";
 import * as livesDisplay from "./components/livesDisplay";
+import { getCurrentScene } from "@Models/State";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
@@ -29,7 +29,7 @@ async function livesChangeAnimation(lives: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const livesAmountText = scene.add
+	const livesAmountText = getCurrentScene().add
 		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)

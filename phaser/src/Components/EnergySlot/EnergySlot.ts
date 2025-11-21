@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import { energySlotFragmentShader } from "../../Shaders/EnergySlotShader";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
+import { getCurrentScene } from "@Models/State";
 
 export interface EnergySlotConfig {
 	size?: number;
@@ -18,8 +18,8 @@ export class EnergySlot {
 	private config: Required<Omit<EnergySlotConfig, "x" | "y">>;
 	private isDestroyed: boolean = false;
 
-	constructor(scene: Phaser.Scene, x: number, y: number, config: EnergySlotConfig = {}) {
-		this.scene = scene;
+	constructor(x: number, y: number, config: EnergySlotConfig = {}) {
+		this.scene = getCurrentScene();
 
 		// Set default config
 		const defaultConfig = {
@@ -30,7 +30,7 @@ export class EnergySlot {
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = scene.time.now;
+		this.startTime = this.scene.time.now;
 
 		this.createShader(x, y);
 	}
@@ -196,7 +196,7 @@ export class EnergySlot {
 // Factory class for creating different types of energy slots
 export class EnergySlotFactory {
 	static createPlayerSlot(x: number, y: number, size: number = 80): EnergySlot {
-		return new EnergySlot(scene, x, y, {
+		return new EnergySlot(x, y, {
 			size,
 			color: { x: 0.7, y: 0.9, z: 1.0 }, // Blue-white for player
 			intensity: 1.0,
@@ -205,7 +205,7 @@ export class EnergySlotFactory {
 	}
 
 	static createEnemySlot(x: number, y: number, size: number = 80): EnergySlot {
-		return new EnergySlot(scene, x, y, {
+		return new EnergySlot(x, y, {
 			size,
 			color: { x: 1.0, y: 0.7, z: 0.7 }, // Red-white for enemy
 			intensity: 0.8,
@@ -213,13 +213,8 @@ export class EnergySlotFactory {
 		});
 	}
 
-	static createNeutralSlot(
-		scene: Phaser.Scene,
-		x: number,
-		y: number,
-		size: number = 80
-	): EnergySlot {
-		return new EnergySlot(scene, x, y, {
+	static createNeutralSlot(x: number, y: number, size: number = 80): EnergySlot {
+		return new EnergySlot(x, y, {
 			size,
 			color: { x: 0.9, y: 0.9, z: 0.9 }, // Pure white for neutral
 			intensity: 1.2,

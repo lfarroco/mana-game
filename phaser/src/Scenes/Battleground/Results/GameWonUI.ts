@@ -1,4 +1,3 @@
-import { scene } from "../BattlegroundScene";
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { slideOut, ResultsUIState } from "./ResultsUI";
@@ -12,6 +11,8 @@ export function displayGameWon(
 	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
+
+	const scene = getCurrentScene();
 
 	// Add title
 	const titleText = "You Win the Game!";

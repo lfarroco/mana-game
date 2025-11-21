@@ -1,11 +1,11 @@
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Board from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
-import { scene } from "../BattlegroundScene";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBackground";
 import { initBlackHole } from "../BlackHole";
+import BattlegroundScene from "../BattlegroundScene";
 
 export let cloudsBackground: CloudsBackground | null = null;
 
@@ -16,7 +16,7 @@ export function initializeNewGame(): void {
 	state.gameData.round = 1;
 	state.gameData.player.lives = BG_CONSTANTS.INITIAL_PLAYER_LIVES;
 
-	scene.sound.setVolume(getOption("soundVolume") ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
+	getCurrentScene().sound.setVolume(getOption("soundVolume") ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }
 
 export function setupSceneElements() {
@@ -25,6 +25,8 @@ export function setupSceneElements() {
 		depth: -2000,
 		timeScale: 0.3,
 	});
+
+	const scene = getCurrentScene() as BattlegroundScene;
 
 	scene.cloudsBackground = cloudsBackground.getShader();
 

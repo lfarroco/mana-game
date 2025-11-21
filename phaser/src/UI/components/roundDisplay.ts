@@ -1,10 +1,9 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { scene } from "@Scenes/Battleground/BattlegroundScene";
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = c.SCREEN_WIDTH - 720;
@@ -56,7 +55,7 @@ export async function roundChangeAnimation() {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const roundAmountText = scene.add
+	const roundAmountText = getCurrentScene().add
 		.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
