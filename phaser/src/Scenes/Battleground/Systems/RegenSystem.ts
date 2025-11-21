@@ -1,9 +1,6 @@
 import { cpuForce, Force, manipulateCoreLife, playerForce } from "@Models/Entities/Force";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import { reducePoison } from "./PoisonDamageSystem";
-import { popText } from "@Systems/Chara/Animations";
-import { getCore } from "@Models/Entities/Card";
-import { getCharaById } from "@Systems/Chara/Chara";
 import { getCurrentScene } from "@Models/State";
 import { updateRegenDisplay } from "../ForceStats";
 
@@ -32,7 +29,7 @@ export function applyRegen(
 	targetForce: Force,
 	amount: number,
 	sourceUnitId?: string,
-	critical = false
+	_critical = false
 ): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
@@ -48,17 +45,7 @@ export function applyRegen(
 		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
 	}
 
-	const coreChara = getCharaById(getCore(id).id);
-
-	popText({
-		x: coreChara.x,
-		y: coreChara.y,
-		text: critical ? `${amount} Crit!` : Math.floor(amount).toString(),
-		type: "regen",
-		critical,
-	});
-
-	updateRegenDisplay(targetForce.id, state.rate);
+	updateRegenDisplay(targetForce.id, state.rate, amount);
 }
 
 function tick() {
@@ -92,21 +79,12 @@ function tickForce(force: Force): void {
 	if (actualHealing > 0) {
 		reducePoison(id, actualHealing);
 	}
-
-	const core = getCore(id);
-	const coreChara = getCharaById(core.id);
-
-	popText({
-		x: coreChara.x,
-		y: coreChara.y,
-		text: healing.toString(),
-		type: "regen",
-	});
 }
 
 export function clearRegen(forceId: string) {
+	const oldRate = getRegenRate(forceId);
 	regenStates.delete(forceId);
-	updateRegenDisplay(forceId, 0);
+	updateRegenDisplay(forceId, 0, -oldRate);
 }
 
 export function getRegenRate(forceId: string): number {
