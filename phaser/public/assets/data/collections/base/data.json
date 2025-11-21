@@ -12,9 +12,6 @@
 			"isCore": true,
 			"effects": [
 				{
-					"id": "damage"
-				},
-				{
 					"id": "increase_power",
 					"amount": 5,
 					"targets": {
@@ -47,9 +44,6 @@
 			"cooldown": 3000,
 			"isCore": true,
 			"effects": [
-				{
-					"id": "damage"
-				},
 				{
 					"id": "increase_critical",
 					"amount": 10,
@@ -84,9 +78,6 @@
 			"isCore": true,
 			"reflect": 15,
 			"effects": [
-				{
-					"id": "shield"
-				},
 				{
 					"id": "increase_power",
 					"amount": 1,
@@ -123,9 +114,6 @@
 			"isCore": true,
 			"effects": [
 				{
-					"id": "heal"
-				},
-				{
 					"id": "increase_power",
 					"amount": 1,
 					"permanent": true,
@@ -161,9 +149,6 @@
 			"isCore": true,
 			"effects": [
 				{
-					"id": "heal"
-				},
-				{
 					"id": "slow",
 					"duration": 1000,
 					"targets": {
@@ -173,15 +158,6 @@
 				}
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "slow",
-					"effects": [
-						{
-							"id": "heal"
-						}
-					]
-				},
 				{
 					"position": "allies",
 					"effectId": "slow",
@@ -205,9 +181,6 @@
 			"power": 20,
 			"cooldown": 3200,
 			"effects": [
-				{
-					"id": "poison"
-				},
 				{
 					"id": "slow",
 					"duration": 1000,
@@ -242,15 +215,6 @@
 			"effects": [
 				{
 					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
 				}
 			],
 			"reactions": [
@@ -303,9 +267,6 @@
 			"power": 10,
 			"cooldown": 5000,
 			"effects": [
-				{
-					"id": "shield"
-				},
 				{
 					"id": "increase_power",
 					"amount": 1,
@@ -449,13 +410,6 @@
 			"effects": [
 				{
 					"id": "poison"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "self"
-					}
 				}
 			],
 			"reactions": [
@@ -632,9 +586,6 @@
 			"cooldown": 5200,
 			"effects": [
 				{
-					"id": "damage"
-				},
-				{
 					"id": "increase_power",
 					"amount": 1,
 					"permanent": true,
@@ -657,19 +608,6 @@
 							}
 						}
 					]
-				},
-				{
-					"position": "row_allies",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
 				}
 			]
 		},
@@ -680,9 +618,6 @@
 			"power": 10,
 			"cooldown": 3200,
 			"effects": [
-				{
-					"id": "shield"
-				},
 				{
 					"id": "increase_power",
 					"amount": 1,
@@ -846,14 +781,6 @@
 						"id": "random_enemy",
 						"count": 1
 					}
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
 				}
 			]
 		},
@@ -866,13 +793,6 @@
 			"effects": [
 				{
 					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"duration": 1000,
-					"targets": {
-						"id": "column_allies"
-					}
 				}
 			],
 			"reactions": [
@@ -948,7 +868,7 @@
 		{
 			"id": "aegis_warden",
 			"name": "Aaegis Warden",
-			"pic": "f1_shieldforger",
+			"pic": "f2_demononi",
 			"power": 20,
 			"cooldown": 3100,
 			"effects": [
@@ -1089,14 +1009,6 @@
 			"effects": [
 				{
 					"id": "heal"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
 				}
 			],
 			"reactions": [
@@ -1241,13 +1153,6 @@
 			"effects": [
 				{
 					"id": "heal"
-				},
-				{
-					"id": "charge",
-					"duration": 1000,
-					"targets": {
-						"id": "right_ally"
-					}
 				}
 			],
 			"reactions": [
@@ -1367,19 +1272,6 @@
 							}
 						}
 					]
-				},
-				{
-					"position": "allies",
-					"effectId": "slow",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
 				}
 			]
 		},
@@ -1470,14 +1362,6 @@
 			"effects": [
 				{
 					"id": "regen"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
 				}
 			],
 			"reactions": [
@@ -1529,20 +1413,6 @@
 							}
 						}
 					]
-				},
-				{
-					"position": "allies",
-					"effectId": "slow",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "random_ally",
-								"count": 1
-							}
-						}
-					]
 				}
 			]
 		},
@@ -1555,14 +1425,6 @@
 			"effects": [
 				{
 					"id": "regen"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
 				}
 			],
 			"reactions": [
@@ -1760,13 +1622,6 @@
 					"targets": {
 						"id": "column_allies"
 					}
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "row_allies"
-					}
 				}
 			],
 			"reactions": [
@@ -1825,14 +1680,6 @@
 			"effects": [
 				{
 					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 2,
-					"permanent": true,
-					"targets": {
-						"id": "self"
-					}
 				}
 			],
 			"reactions": [
@@ -1885,20 +1732,6 @@
 							"permanent": true,
 							"targets": {
 								"id": "self"
-							}
-						}
-					]
-				},
-				{
-					"position": "allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 10,
-							"targets": {
-								"id": "all_allies",
-								"ofType": "heal"
 							}
 						}
 					]
@@ -1985,13 +1818,6 @@
 				},
 				{
 					"id": "increase_critical",
-					"amount": 10,
-					"targets": {
-						"id": "self"
-					}
-				},
-				{
-					"id": "increase_power",
 					"amount": 10,
 					"targets": {
 						"id": "self"
