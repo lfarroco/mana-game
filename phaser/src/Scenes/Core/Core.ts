@@ -45,8 +45,8 @@ export default class Core extends Phaser.Scene {
 		this.load.audio("sfx_victory_match", "assets/audio/sfx_victory_match.m4a");
 
 		this.load.audio("music_ageofdisjunction", "assets/music/music_ageofdisjunction.m4a");
-
 		this.load.audio("music_battlemap_vetruv", "assets/music/music_battlemap_vetruv.m4a");
+		this.load.audio("music_playmode", "assets/music/music_playmode.m4a");
 
 		this.load.image(images.logo);
 
