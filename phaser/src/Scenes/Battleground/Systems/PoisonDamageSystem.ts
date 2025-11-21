@@ -110,10 +110,17 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	if (state.rate === 0) {
 		poisonStates.delete(forceId);
 	}
+	updatePoisonDisplay(forceId, state.rate);
 }
 
 export function clearPoison(forceId: string): void {
 	poisonStates.delete(forceId);
+	updatePoisonDisplay(forceId, 0);
+}
+
+export function getPoisonRate(forceId: string): number {
+	const state = poisonStates.get(forceId);
+	return state ? state.rate : 0;
 }
 
 export function stop() {

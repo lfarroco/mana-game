@@ -142,7 +142,6 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		evade: 5,
 		rank: 1,
 		shield: 0,
-		poison: 0,
 		regen: 0,
 		effects: [],
 		reactions: [],

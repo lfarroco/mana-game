@@ -2,6 +2,7 @@ import { createChip, updateChipText } from "@Components/Chip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import { getCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle } from "@PhaserIO";
+import { getPoisonRate } from "./Systems/PoisonDamageSystem";
 
 let playerStats: Phaser.GameObjects.Container | null = null;
 let cpuStats: Phaser.GameObjects.Container | null = null;
@@ -75,7 +76,7 @@ export function updateAllStats(force: string) {
 	updateLifeDisplay(force, core.life);
 	updateShieldDisplay(force, core.shield);
 	updateRegenDisplay(force, core.regen);
-	updatePoisonDisplay(force, core.poison);
+	updatePoisonDisplay(force, getPoisonRate(force));
 }
 
 export function updateLifeDisplay(force: string, life: number) {
