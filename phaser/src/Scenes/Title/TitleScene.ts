@@ -29,13 +29,12 @@ export default class TitleScene extends Phaser.Scene {
 
 		logo();
 
-		resumeGameButton();
-
-		startButton();
-
-		optionsButton();
-
-		goFullscreenButton();
+		[
+			resumeGameButton,
+			startButton,
+			optionsButton,
+			goFullscreenButton,
+		].forEach((fn, index) => fn(500 + index * 100));
 
 		this.input.keyboard?.on("keydown-ENTER", startGame);
 
