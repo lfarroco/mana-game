@@ -5,8 +5,8 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 
-const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 200;
-const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 100;
+const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 260;
+const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 50;
 
 export let container: Container;
 export let nextRoundButton: Button;
