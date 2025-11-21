@@ -106,6 +106,12 @@ function tickForce(force: Force): void {
 
 export function clearRegen(forceId: string) {
 	regenStates.delete(forceId);
+	updateRegenDisplay(forceId, 0);
+}
+
+export function getRegenRate(forceId: string): number {
+	const state = regenStates.get(forceId);
+	return state ? state.rate : 0;
 }
 
 export function stop() {
