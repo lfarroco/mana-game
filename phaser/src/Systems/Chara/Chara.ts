@@ -240,17 +240,10 @@ export function getId(chara: Chara): string {
 export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) {
 	const s = mustGetState(chara);
 	const { unit } = s;
-	const positive = num >= 0;
-	const text = `${positive ? "+" : "-"}${num}`;
 
 	unit.power += num;
 
 	PowerDisplay.updatePowerDisplay(s.id);
-	popText({
-		x: chara.x,
-		y: chara.y,
-		text,
-	});
 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
 		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
