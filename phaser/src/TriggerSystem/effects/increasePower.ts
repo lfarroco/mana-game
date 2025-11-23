@@ -1,5 +1,4 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as AudioManager from "@Systems/AudioManager";
 import { Chara, getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
 
@@ -11,7 +10,6 @@ export const increasePower = async (
 ) => {
 	const effect = (targetChara: Chara) => async () => {
 		updateUnitPower(targetChara, amount, permanent);
-		AudioManager.playSoundEffect("sfx_spell_innerfocus");
 	};
 
 	if (!sourceUnit) {
