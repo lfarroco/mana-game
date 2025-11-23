@@ -21,17 +21,17 @@ export function create(unit: Unit, chara: Chara) {
 		TILE_WIDTH * 0.7
 	), [
 		{
-			key: "u_color",
+			key: "color1",
 			type: "3f",
-			value: [x || 1, y || 1, z || 1]
+			value: [x ?? 0, y ?? 0, z ?? 0]
 		},
 		{
-			key: "u_intensity",
+			key: "intensity",
 			type: "1f",
 			value: 1.2,
 		},
 		{
-			key: "u_speed",
+			key: "speed",
 			type: "1f",
 			value: 1.0,
 		},
