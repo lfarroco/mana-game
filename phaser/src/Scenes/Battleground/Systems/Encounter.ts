@@ -5,6 +5,7 @@ import { size, vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
+import { openOrbShop } from "./Shop/OrbShop";
 
 const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
 	container.destroy(true);
@@ -18,8 +19,18 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 	{
 		name: "Upgrade Unit",
 		description: "Upgrade a unit",
-		onClick: () => {
+		onClick: async () => {
 			//open orb shop
+			container.destroy(true);
+			await openOrbShop(
+				[
+					"crimson_orb",
+					"emerald_orb",
+					"azure_orb"
+				]
+			);
+			PhaseManager.handlePhaseEnded();
+
 		}
 	},
 	{
@@ -32,41 +43,41 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 		description: "Choose a damage unit",
 		onClick: openHeroShopCallback(container, "damage")
 	},
-	{
-		name: "Healing Tent",
-		description: "Choose a healing unit",
-		onClick: openHeroShopCallback(container, "heal")
-	},
-	{
-		name: "Visit the Fort",
-		description: "Choose a shield unit",
-		onClick: openHeroShopCallback(container, "shield")
-	},
-	{
-		name: "Forest Pools",
-		description: "Choose a regen unit",
-		onClick: openHeroShopCallback(container, "regen")
-	},
-	{
-		name: "Toxic Chamber",
-		description: "Choose a poison unit",
-		onClick: openHeroShopCallback(container, "poison")
-	},
-	{
-		name: "Toxic Chamber",
-		description: "Choose a poison unit",
-		onClick: openHeroShopCallback(container, "poison")
-	},
-	{
-		name: "Trial Circuit",
-		description: "Choose a haste unit",
-		onClick: openHeroShopCallback(container, "haste")
-	},
-	{
-		name: "Trapper's Guild",
-		description: "Choose a guild unit",
-		onClick: openHeroShopCallback(container, "slow")
-	}
+	// {
+	// 	name: "Healing Tent",
+	// 	description: "Choose a healing unit",
+	// 	onClick: openHeroShopCallback(container, "heal")
+	// },
+	// {
+	// 	name: "Visit the Fort",
+	// 	description: "Choose a shield unit",
+	// 	onClick: openHeroShopCallback(container, "shield")
+	// },
+	// {
+	// 	name: "Forest Pools",
+	// 	description: "Choose a regen unit",
+	// 	onClick: openHeroShopCallback(container, "regen")
+	// },
+	// {
+	// 	name: "Toxic Chamber",
+	// 	description: "Choose a poison unit",
+	// 	onClick: openHeroShopCallback(container, "poison")
+	// },
+	// {
+	// 	name: "Toxic Chamber",
+	// 	description: "Choose a poison unit",
+	// 	onClick: openHeroShopCallback(container, "poison")
+	// },
+	// {
+	// 	name: "Trial Circuit",
+	// 	description: "Choose a haste unit",
+	// 	onClick: openHeroShopCallback(container, "haste")
+	// },
+	// {
+	// 	name: "Trapper's Guild",
+	// 	description: "Choose a guild unit",
+	// 	onClick: openHeroShopCallback(container, "slow")
+	// }
 ];
 
 export async function open() {

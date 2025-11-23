@@ -8,42 +8,44 @@ import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 
-export async function open() {
-	const container = io.Container();
+export async function openOrbShop(orbs?: string[]): Promise<void> {
+	return new Promise<void>(async (resolve) => {
+		const container = io.Container();
 
-	const availableOrbs = [
-		"crimson_orb",
-		"emerald_orb",
-		"azure_orb",
-		"golden_orb",
-		"violet_orb",
-		"charge_orb",
-		"positional_power_orb",
-		"positional_typed_power_orb",
-	];
+		const availableOrbs = [
+			"crimson_orb",
+			"emerald_orb",
+			"azure_orb",
+			"golden_orb",
+			"violet_orb",
+			"charge_orb",
+			"positional_power_orb",
+			"positional_typed_power_orb",
+		];
 
-	const selectedOrbs = pickRandom(availableOrbs, 3);
+		const selectedOrbs = pickRandom(orbs ? orbs : availableOrbs, 3);
 
-	const nextRoundCallback = async () => {
-		await ShopPanel.slideOut();
-		PhaseManager.handlePhaseEnded();
-		container.destroy();
-	};
+		const completeSectionCallback = async () => {
+			await ShopPanel.slideOut();
+			container.destroy();
 
-	ShopPanel.create(nextRoundCallback);
+			resolve();
+		};
 
-	renderOrbShop(container, selectedOrbs, async () => {
-		await delay(500);
-		nextRoundCallback();
+		ShopPanel.create(completeSectionCallback);
+
+		renderOrbShop(container, selectedOrbs, async () => {
+			await delay(500);
+			completeSectionCallback();
+		});
+
+		Board.setEnemyBoardVisible(false);
+
+		await ShopPanel.slideIn();
 	});
-
-	Board.setEnemyBoardVisible(false);
-
-	await ShopPanel.slideIn();
 }
 
 export function renderOrbShop(

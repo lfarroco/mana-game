@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import * as Board from "@Models/Board";
 import * as Tooltip from "../Tooltip";
 import { getCurrentScene } from "@Models/State";
-import { simpleMagicOrbFragmentShader } from "@Shaders/MagicOrbShader";
+import { magicOrbFragmentShader } from "@Shaders/MagicOrbShader";
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -49,7 +49,7 @@ export class MagicOrb {
 			enableTooltip: false,
 			enableDrag: false,
 			returnDuration: 300,
-			onDropTarget: () => {},
+			onDropTarget: () => { },
 			dropTargetNames: [] as string[],
 		};
 
@@ -74,7 +74,7 @@ export class MagicOrb {
 
 		const baseShader = new Phaser.Display.BaseShader(
 			"MagicOrb",
-			simpleMagicOrbFragmentShader,
+			magicOrbFragmentShader,
 			undefined,
 			{
 				time: { type: "1f", value: 0.0 },

@@ -30,7 +30,7 @@ export async function startPhase(phase: string) {
 			handlePhaseEnded();
 			break;
 		case "orb":
-			OrbShop.open();
+			OrbShop.openOrbShop();
 			break;
 		case "combat":
 			CombatPhase.transitionToCombatPhase();
