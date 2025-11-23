@@ -8,30 +8,35 @@ import { delay } from "@Utils/animation";
 import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
 import { destroyForceStats } from "./ForceStats";
+import * as Encounter from "./Systems/Encounter";
 
-const hourAction: Record<number, string> = {
-	0: "shop-core",
-	1: "shop",
-	2: "shop",
-	3: "combat",
+const hourAction: string[] = [
+	"shop-core",
+	"encounter",
+	"shop",
+	"shop",
+	"combat",
 	//3: 'orb',
-};
+];
 
-export async function startPhase() {
-	const currentPhase = hourAction[getState().gameData.hour];
+export async function startPhase(phase: string) {
 
-	switch (currentPhase) {
+	switch (phase) {
 		case "shop-core":
 			HeroShop.openCoreShop();
 			break;
 		case "shop":
-			HeroShop.open();
+			await HeroShop.openHeroShop();
+			handlePhaseEnded();
 			break;
 		case "orb":
 			OrbShop.open();
 			break;
 		case "combat":
 			CombatPhase.transitionToCombatPhase();
+			break;
+		case "encounter":
+			Encounter.open();
 			break;
 		default:
 			break;
@@ -41,6 +46,7 @@ export async function startPhase() {
 export function handlePhaseEnded(): void {
 	const currentPhase = hourAction[getState().gameData.hour];
 
+	// TODO: the combat phase itself should do this, when it ends
 	if (currentPhase === "combat") {
 		destroyForceStats(c.FORCE_ID_CPU);
 		destroyForceStats(c.FORCE_ID_PLAYER);
@@ -48,11 +54,13 @@ export function handlePhaseEnded(): void {
 
 	getState().gameData.hour++;
 
-	if (getState().gameData.hour > Object.keys(hourAction).length - 1) {
+	if (getState().gameData.hour > hourAction.length - 1) {
 		getState().gameData.hour = 1;
 	}
 
-	startPhase();
+	const phase = hourAction[getState().gameData.hour];
+
+	startPhase(phase);
 }
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
