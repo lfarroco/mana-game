@@ -6,32 +6,34 @@ import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import { getCurrentScene, getState } from "@Models/State";
 
 // TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
 
-export async function open() {
-	currentShopCharas = [];
+export async function openHeroShop(filter?: (u: Card.CardDefinition) => boolean): Promise<void> {
+	return new Promise<void>(async (resolve) => {
+		currentShopCharas = [];
 
-	const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS);
+		const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS, filter);
 
-	const nextRoundCallback = async () => {
-		await close();
-		PhaseManager.handlePhaseEnded();
-	};
+		const finishPhaseCallback = async () => {
+			await close();
+			resolve();
+		};
 
-	ShopPanel.create(nextRoundCallback);
+		ShopPanel.create(finishPhaseCallback);
 
-	// Render tavern charas
-	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
-	currentShopCharas = displayedCharas;
+		// Render tavern charas
+		const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
+		currentShopCharas = displayedCharas;
 
-	Board.setEnemyBoardVisible(false);
+		Board.setEnemyBoardVisible(false);
 
-	await ShopPanel.slideIn();
-	currentShopCharas.forEach((chara) => animateItemAppearance(chara));
+		await ShopPanel.slideIn();
+		currentShopCharas.forEach((chara) => animateItemAppearance(chara));
+
+	});
 }
 
 export async function openCoreShop() {
@@ -102,14 +104,17 @@ async function animateItemAppearance(chara: Chara.Chara) {
 	});
 }
 
-function getAvailableCardsForTavern(count: number): Card.CardDefinition[] {
+function getAvailableCardsForTavern(count: number, filter?: (u: Card.CardDefinition) => boolean): Card.CardDefinition[] {
 	const allCards = Card.getNonCores();
+	const filteredCards = filter ?
+		allCards.filter(filter) :
+		allCards;
 	const playerUnits = getState().gameData.player.units;
 	const maxRankCardIds = new Set(
 		playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId)
 	);
 
-	const availableCards = allCards.filter((card) => !maxRankCardIds.has(card.id));
+	const availableCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
 
 	return pickRandom(availableCards, count);
 }

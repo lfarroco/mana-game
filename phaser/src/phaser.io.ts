@@ -1,3 +1,4 @@
+import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
 import Phaser from "phaser";
@@ -180,9 +181,23 @@ export function Centralize(obj: Phaser.GameObjects.GameObject): Phaser.GameObjec
 	return obj;
 }
 
-export function Text(text: string, style: Phaser.Types.GameObjects.Text.TextStyle): Phaser.GameObjects.Text {
+export function Text(
+	text: string,
+	style = defaultTextConfig): Phaser.GameObjects.Text {
 	const scene = getCurrentScene();
 	return scene.add.text(0, 0, text, style);
+}
+
+export function Title1(text: string) {
+	return Text(text, titleTextConfig)
+}
+
+export function Title2(text: string) {
+	return Text(text, { ...titleTextConfig, fontSize: "22px" })
+}
+
+export function Label(text: string) {
+	return Text(text, defaultTextConfig)
 }
 
 export function SetStyle(
