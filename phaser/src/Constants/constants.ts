@@ -33,7 +33,7 @@ export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
 export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
-	fontSize: "24px",
+	fontSize: "20px",
 	color: "white",
 	fontFamily: "Arimo",
 	stroke: "black",
