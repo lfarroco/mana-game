@@ -133,11 +133,7 @@ export async function arcaneMissileTargeted(
 		blendMode: "ADD",
 	});
 
-	try {
-		onHit();
-	} catch (error) {
-		console.error("Error in arcaneMissileTargeted onHit callback:", error);
-	}
+	onHit();
 
 	await delay(200);
 
