@@ -17,6 +17,9 @@
 					"targets": {
 						"id": "column_allies"
 					}
+				},
+				{
+					"id": "regen"
 				}
 			],
 			"reactions": [
@@ -47,6 +50,13 @@
 				{
 					"id": "increase_critical",
 					"amount": 10,
+					"targets": {
+						"id": "column_allies"
+					}
+				},
+				{
+					"id": "increase_power",
+					"amount": 2,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -86,6 +96,9 @@
 						"id": "random_ally",
 						"count": 1
 					}
+				},
+				{
+					"id": "shield"
 				}
 			],
 			"reactions": [
@@ -120,6 +133,9 @@
 					"targets": {
 						"id": "column_allies"
 					}
+				},
+				{
+					"id": "heal"
 				}
 			],
 			"reactions": [
@@ -155,6 +171,9 @@
 						"id": "random_enemy",
 						"count": 1
 					}
+				},
+				{
+					"id": "poison"
 				}
 			],
 			"reactions": [
@@ -695,6 +714,9 @@
 					"targets": {
 						"id": "row_allies"
 					}
+				},
+				{
+					"id": "regen"
 				}
 			],
 			"reactions": [
