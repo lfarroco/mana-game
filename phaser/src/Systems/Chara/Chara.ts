@@ -299,7 +299,7 @@ export function shake(chara: Chara) {
 	});
 }
 
-export async function upgrade(unit: Unit) {
+export async function upgradeUnit(unit: Unit) {
 	const chara = getCharaById(unit.id);
 
 	const source = getCardDefinition(unit.cardId);

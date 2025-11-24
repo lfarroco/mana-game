@@ -1,6 +1,6 @@
 import * as constants from "@Constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { getCharaById, summon, upgrade } from "@Systems/Chara/Chara";
+import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as Geometry from "@Models/Geometry";
@@ -29,7 +29,7 @@ export async function itemClickPurchaseRequested(
 	);
 
 	if (existingUnit && existingUnit.rank <= 3) {
-		await upgrade(existingUnit);
+		await upgradeUnit(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 

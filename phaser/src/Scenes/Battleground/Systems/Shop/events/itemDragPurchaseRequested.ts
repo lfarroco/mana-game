@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { getState, getUnitAt } from "@Models/State";
-import { getCharaById, summon, upgrade } from "@Systems/Chara/Chara";
+import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as ShopUI from "../ShopPanel";
@@ -20,7 +20,7 @@ export async function itemDragPurchaseRequested(
 	);
 
 	if (existingUnit && existingUnit.rank <= 3) {
-		upgrade(existingUnit);
+		upgradeUnit(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
