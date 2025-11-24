@@ -102,8 +102,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
 	},
 	improveType(container, "haste"),
-	improveType(container, "slow"),
-	improveType(container, "charge"),
+	improveType(container, "slow")
 ];
 
 function improveType(container: Phaser.GameObjects.Container, type: string) {
