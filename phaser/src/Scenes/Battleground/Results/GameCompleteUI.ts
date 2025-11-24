@@ -70,7 +70,7 @@ export function displayGameComplete(
 
 	const subtitle = getCurrentScene().add
 		.text(baseX, centerY + 100,
-			"Your journey is recorded in the Halls of Legends",
+			"Thanks for playing! Come back for more updates!",
 			{
 				...c.titleTextConfig,
 				fontSize: "24px",
