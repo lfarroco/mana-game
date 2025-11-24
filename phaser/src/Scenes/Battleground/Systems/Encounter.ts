@@ -6,7 +6,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
-import { container } from "./Shop/ShopPanel";
+import { getState } from "@Models/State";
 
 const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
 	container.destroy(true);
@@ -16,17 +16,24 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 	PhaseManager.handlePhaseEnded();
 }
 
-const encounterIndex = (container: Phaser.GameObjects.Container) => [
+type EncounterItem = {
+	name: string;
+	description: string;
+	onClick: () => Promise<void>;
+	rank?: number;
+};
+
+const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: "Upgrade Unit",
 		description: "Upgrade a unit",
 		onClick: orbShopCallback(container, ["upgrade_orb"])
 	},
-	improveType("damage"),
-	improveType("heal"),
-	improveType("shield"),
-	improveType("heal"),
-	improveType("regen"),
+	improveType(container, "damage"),
+	improveType(container, "heal"),
+	improveType(container, "shield"),
+	improveType(container, "poison"),
+	improveType(container, "regen"),
 	{
 		name: "Armory",
 		description: "Choose a damage unit",
@@ -64,9 +71,10 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 	}
 ];
 
-function improveType(type: string) {
+function improveType(container: Phaser.GameObjects.Container, type: string) {
 	return {
 		name: `Improve: ${type}`,
+		rank: 4,
 		description: `Improve a ${type} hero`,
 		onClick: orbShopCallback(container, [
 			`increase_power_on_${type}`,
@@ -87,7 +95,14 @@ function orbShopCallback(container: Phaser.GameObjects.Container, orbs: string[]
 export async function open() {
 	const container = io.Container();
 
-	const encounters = pickRandom(encounterIndex(container), 3);
+	const encounters = pickRandom(encounterIndex(container), 3).filter(e => {
+
+		if (e.rank) {
+			return e.rank <= getState().gameData.round;
+		}
+
+		return true;
+	})
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);
