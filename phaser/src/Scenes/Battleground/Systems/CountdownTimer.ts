@@ -5,7 +5,7 @@ import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y } from "@Constants/constants";
 let scene: Phaser.Scene | null = null;
 let timerText: Phaser.GameObjects.Text | null = null;
 let timerCircle: Phaser.GameObjects.Arc | null = null;
-let timerValue: number = 10;
+let timerValue: number = 20;
 let timerEvent: Phaser.Time.TimerEvent | null = null;
 
 export function initializeCountdownTimer(gameScene: Phaser.Scene): void {
@@ -15,7 +15,7 @@ export function initializeCountdownTimer(gameScene: Phaser.Scene): void {
 export function start(): void {
 	if (!scene) return;
 
-	timerValue = 10;
+	timerValue = 20;
 	// Add a circle background
 	timerCircle = scene.add.circle(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, 40, 0x000000, 0.8);
 	timerCircle.setStrokeStyle(4, 0xffffff);
