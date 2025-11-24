@@ -283,6 +283,8 @@ export const orbsIndex: Record<
 	increase_critical_on_shield: increaseCriticalOnType("shield"),
 	increase_critical_on_poison: increaseCriticalOnType("poison"),
 	increase_critical_on_regen: increaseCriticalOnType("regen"),
+	increase_critical_on_slow: increaseCriticalOnType("slow"),
+	increase_critical_on_haste: increaseCriticalOnType("haste"),
 	upgrade_orb: () => ({
 		id: "upgrade_orb",
 		name: "Upgrade Orb",
