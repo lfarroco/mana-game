@@ -20,7 +20,7 @@ type EncounterItem = {
 	name: string;
 	description: string;
 	onClick: () => Promise<void>;
-	rank?: number;
+	minRound?: number;
 };
 
 const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
@@ -97,8 +97,8 @@ export async function open() {
 
 	const encounters = pickRandom(encounterIndex(container), 3).filter(e => {
 
-		if (e.rank) {
-			return e.rank <= getState().gameData.round;
+		if (e.minRound) {
+			return e.minRound <= getState().gameData.round;
 		}
 
 		return true;
