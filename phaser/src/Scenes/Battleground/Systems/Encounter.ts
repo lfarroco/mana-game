@@ -74,7 +74,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 function improveType(container: Phaser.GameObjects.Container, type: string) {
 	return {
 		name: `Improve: ${type}`,
-		rank: 4,
+		minRound: 4,
 		description: `Improve a ${type} hero`,
 		onClick: orbShopCallback(container, [
 			`increase_power_on_${type}`,
@@ -95,7 +95,7 @@ function orbShopCallback(container: Phaser.GameObjects.Container, orbs: string[]
 export async function open() {
 	const container = io.Container();
 
-	const encounters = pickRandom(encounterIndex(container), 3).filter(e => {
+	const index = encounterIndex(container).filter(e => {
 
 		if (e.minRound) {
 			return e.minRound <= getState().gameData.round;
@@ -103,6 +103,8 @@ export async function open() {
 
 		return true;
 	})
+
+	const encounters = pickRandom(index, 3)
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);
