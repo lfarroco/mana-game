@@ -22,15 +22,6 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 		description: "Upgrade a unit",
 		onClick: orbShopCallback(container, ["upgrade_orb"])
 	},
-	{
-		name: "Improve Crystal",
-		description: "Choose an improvement to your crystal",
-		onClick: orbShopCallback(container, [
-			"increase_core_max_life",
-			"decrease_core_cooldown",
-			"add_core_random_reaction"
-		])
-	},
 	improveType("damage"),
 	improveType("heal"),
 	improveType("shield"),
@@ -47,7 +38,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 		onClick: openHeroShopCallback(container, "heal")
 	},
 	{
-		name: "Visit the Fort",
+		name: "Frontier Fort",
 		description: "Choose a shield unit",
 		onClick: openHeroShopCallback(container, "shield")
 	},
@@ -62,18 +53,13 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 		onClick: openHeroShopCallback(container, "poison")
 	},
 	{
-		name: "Toxic Chamber",
-		description: "Choose a poison unit",
-		onClick: openHeroShopCallback(container, "poison")
-	},
-	{
 		name: "Trial Circuit",
 		description: "Choose a haste unit",
 		onClick: openHeroShopCallback(container, "haste")
 	},
 	{
 		name: "Trapper's Guild",
-		description: "Choose a guild unit",
+		description: "Choose a slow unit",
 		onClick: openHeroShopCallback(container, "slow")
 	}
 ];
