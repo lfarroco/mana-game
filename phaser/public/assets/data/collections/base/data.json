@@ -1172,8 +1172,8 @@
 			]
 		},
 		{
-			"id": "radiance_engine",
-			"name": "Radiance Engine",
+			"id": "radiance_envoy",
+			"name": "Radiance Envoy",
 			"pic": "boss_cindera",
 			"power": 30,
 			"cooldown": 3700,
