@@ -11,8 +11,6 @@ export const sacrificeEffect = (sourceUnit: Unit) => {
 
 	if (!hasEffects && !hasReactions) return;
 
-	// Decide whether to remove an effect or a reaction
-	// If only one type exists, remove that. If both, 50/50 chance.
 	let removeType: "effect" | "reaction";
 	if (hasEffects && hasReactions) {
 		removeType = Math.random() < 0.5 ? "effect" : "reaction";

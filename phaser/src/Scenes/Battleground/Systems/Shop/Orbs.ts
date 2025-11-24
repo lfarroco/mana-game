@@ -4,6 +4,10 @@ import { increasePower } from "../../../../TriggerSystem/effects";
 import * as TriggerSystem from "../../../../TriggerSystem/TriggerSystem";
 import { pickOne } from "../../../../utils";
 import { upgradeUnit } from "@Systems/Chara/Chara";
+import { distributePower } from "../../../../TriggerSystem/effects/distributePower";
+import { absorbPower } from "../../../../TriggerSystem/effects/absorbPower";
+import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffect";
+import { resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
 
 export type OrbSpec = {
 	id: string;
@@ -407,28 +411,32 @@ export const orbsIndex: Record<
 		id: "distribute_power_orb",
 		name: "Power Distributor",
 		color: 0xffaa00,
-		tooltip: "Distribute 50% of this unit's power to row/column allies",
+		tooltip: "Distribute 50% of this unit's power to row allies",
 		effect: (unit: Unit) => {
-			return addEffectSafely(unit, {
+			const targets = resolveTargets(unit, {
 				id: "distribute_power",
 				targets: {
 					id: "row_allies"
 				}
 			});
+			distributePower(unit, targets);
+			return true;
 		}
 	}),
 	absorb_power_orb: () => ({
 		id: "absorb_power_orb",
 		name: "Power Absorber",
 		color: 0xaa00ff,
-		tooltip: "Absorb 25% power from row/column allies",
+		tooltip: "Absorb 25% power from row allies",
 		effect: (unit: Unit) => {
-			return addEffectSafely(unit, {
+			const targets = resolveTargets(unit, {
 				id: "absorb_power",
 				targets: {
 					id: "row_allies"
 				}
 			});
+			absorbPower(unit, targets);
+			return true;
 		}
 	}),
 	sacrifice_effect_orb: () => ({
@@ -437,12 +445,8 @@ export const orbsIndex: Record<
 		color: 0x550000,
 		tooltip: "Sacrifice a random effect/reaction to gain 10 Power",
 		effect: (unit: Unit) => {
-			return addEffectSafely(unit, {
-				id: "sacrifice_effect",
-				targets: {
-					id: "self"
-				}
-			});
+			sacrificeEffect(unit);
+			return true;
 		}
 	}),
 	increase_power_on_haste: increasePowerOnType("haste"),
