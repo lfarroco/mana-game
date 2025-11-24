@@ -3,7 +3,7 @@ import { Effect, EffectReaction, Targeting } from "../../TriggerSystem/TriggerSy
 import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 
-export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
+export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
 	const withTargets = (base: string, targets?: Targeting) => {
 		if (!targets) return base;
 		return `${base} → [color=#e0e0e0]${getTargetDescription(targets)}[/color]`;
@@ -55,6 +55,10 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string => {
 				`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`,
 				effect.targets
 			);
+		case "distribute_power":
+		case "absorb_power":
+		case "sacrifice_effect":
+			return null;
 		default: {
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -85,7 +89,9 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
 	const showPos = !!reaction.position && !["all", "allies"].includes(reaction.position); // only show specific relative positions
 
-	const effectSegments = reaction.effects.map((e) => buildEffectBlock(e, unitPower));
+	const effectSegments = reaction.effects
+		.map((e) => buildEffectBlock(e, unitPower))
+		.filter((e): e is string => e !== null);
 
 	const triggerPrefix = `[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
 

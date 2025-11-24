@@ -403,6 +403,54 @@ export const orbsIndex: Record<
 	positional_power_orb: generatePositionalPowerOrb,
 	positional_skill_power_orb: generatePositionalSkillPowerOrb,
 	positional_typed_power_orb: generatePositionalTypedPowerOrb,
+	distribute_power_orb: () => ({
+		id: "distribute_power_orb",
+		name: "Power Distributor",
+		color: 0xffaa00,
+		tooltip: "Distribute 50% of this unit's power to row/column allies",
+		effect: (unit: Unit) => {
+			return addEffectSafely(unit, {
+				id: "distribute_power",
+				targets: {
+					id: "row_allies"
+				}
+			});
+		}
+	}),
+	absorb_power_orb: () => ({
+		id: "absorb_power_orb",
+		name: "Power Absorber",
+		color: 0xaa00ff,
+		tooltip: "Absorb 25% power from row/column allies",
+		effect: (unit: Unit) => {
+			return addEffectSafely(unit, {
+				id: "absorb_power",
+				targets: {
+					id: "row_allies"
+				}
+			});
+		}
+	}),
+	sacrifice_effect_orb: () => ({
+		id: "sacrifice_effect_orb",
+		name: "Dark Ritual",
+		color: 0x550000,
+		tooltip: "Sacrifice a random effect/reaction to gain 10 Power",
+		effect: (unit: Unit) => {
+			return addEffectSafely(unit, {
+				id: "sacrifice_effect",
+				targets: {
+					id: "self"
+				}
+			});
+		}
+	}),
+	increase_power_on_haste: increasePowerOnType("haste"),
+	decrease_cooldown_on_haste: decreaseCooldownOnType("haste"),
+	increase_power_on_slow: increasePowerOnType("slow"),
+	decrease_cooldown_on_slow: decreaseCooldownOnType("slow"),
+	increase_power_on_charge: increasePowerOnType("charge"),
+	decrease_cooldown_on_charge: decreaseCooldownOnType("charge"),
 };
 
 // Increase X Power to some_position (x depends on position generality)

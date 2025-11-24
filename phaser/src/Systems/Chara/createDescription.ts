@@ -5,7 +5,9 @@ export function createDescription(chara: Chara) {
 	const unit = getUnit(chara);
 	const title = unit.name;
 
-	const effectBlocks = unit.effects.map((e) => buildEffectBlock(e, unit.power));
+	const effectBlocks = unit.effects
+		.map((e) => buildEffectBlock(e, unit.power))
+		.filter((e): e is string => e !== null);
 	const reactionBlocks = unit.reactions.map((r) => getReactionDescription(r, unit.power));
 
 	const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);

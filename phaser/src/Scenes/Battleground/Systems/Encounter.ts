@@ -68,7 +68,42 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		name: "Trapper's Guild",
 		description: "Choose a slow unit",
 		onClick: openHeroShopCallback(container, "slow")
-	}
+	},
+	{
+		name: "Thunder Spire",
+		description: "Choose a charge unit",
+		onClick: openHeroShopCallback(container, "charge")
+	},
+	{
+		name: "Commander's Tent",
+		description: "Choose a buffer unit",
+		onClick: openHeroShopCallback(container, "increase_power")
+	},
+	{
+		name: "Assassin's Hideout",
+		description: "Choose a critical strike unit",
+		onClick: openHeroShopCallback(container, "increase_critical")
+	},
+	{
+		name: "Power Distributor",
+		description: "Distribute power to allies",
+		minRound: 3,
+		onClick: orbShopCallback(container, ["distribute_power_orb"])
+	},
+	{
+		name: "Power Absorber",
+		description: "Absorb power from allies",
+		minRound: 3,
+		onClick: orbShopCallback(container, ["absorb_power_orb"])
+	},
+	{
+		name: "Dark Ritual",
+		description: "Sacrifice effect for power",
+		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
+	},
+	improveType(container, "haste"),
+	improveType(container, "slow"),
+	improveType(container, "charge"),
 ];
 
 function improveType(container: Phaser.GameObjects.Container, type: string) {
