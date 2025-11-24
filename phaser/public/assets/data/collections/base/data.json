@@ -48,6 +48,9 @@
 			"isCore": true,
 			"effects": [
 				{
+					"id": "damage"
+				},
+				{
 					"id": "increase_critical",
 					"amount": 10,
 					"targets": {
@@ -62,21 +65,7 @@
 					}
 				}
 			],
-			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
-			]
+			"reactions": []
 		},
 		{
 			"id": "protective_crystal",

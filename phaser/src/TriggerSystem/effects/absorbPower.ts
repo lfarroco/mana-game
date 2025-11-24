@@ -1,5 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
+import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 export const absorbPower = (sourceUnit: Unit, targets: Unit[]) => {
 	if (targets.length === 0) return;
@@ -11,6 +12,7 @@ export const absorbPower = (sourceUnit: Unit, targets: Unit[]) => {
 		if (absorbedAmount > 0) {
 			target.power -= absorbedAmount;
 			totalAbsorbed += absorbedAmount;
+			updatePowerDisplay(target.id);
 		}
 	});
 

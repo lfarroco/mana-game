@@ -273,17 +273,15 @@ function processReactions(triggeringUnit: Unit, effect: Effect) {
 		});
 }
 
-function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
+export function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 	if (!("targets" in effect)) {
 		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
 	}
+	const state = getState();
+	const isInBattle = state.battleData.units.length > 0;
 
-	const filterOutCore = ["increase_power", "multiply_power", "increase_critical"].includes(
-		effect.id
-	);
-
-	const allUnits = getState().battleData.units.filter((u) => !u.isCore || !filterOutCore);
+	const allUnits = isInBattle ? state.battleData.units : state.gameData.player.units;
 	const allies = allUnits.filter((u) => u.force === sourceUnit.force);
 	const enemies = allUnits.filter((u) => u.force !== sourceUnit.force);
 
