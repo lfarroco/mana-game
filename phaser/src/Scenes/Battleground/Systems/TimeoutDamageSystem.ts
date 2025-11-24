@@ -4,7 +4,7 @@ import { getCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN } from "@Constants/constants";
 
-const timeoutDamageStartTime = 10000;
+const timeoutDamageStartTime = 20000;
 const timeoutDamageInterval = 1000;
 
 let combatElapsedTime = 0;
@@ -75,7 +75,7 @@ function applyTimeoutDamage(
 	timeSinceTimeoutStarted: number
 ): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-	const currentDamage = tickCount * 5;
+	const currentDamage = tickCount * 50;
 
 	console.log(
 		`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`
