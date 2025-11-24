@@ -16,7 +16,6 @@ const hourAction: string[] = [
 	"shop",
 	"shop",
 	"combat",
-	//3: 'orb',
 ];
 
 export async function startPhase(phase: string) {

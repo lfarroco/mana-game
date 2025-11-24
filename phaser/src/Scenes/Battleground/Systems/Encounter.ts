@@ -6,6 +6,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
+import { container } from "./Shop/ShopPanel";
 
 const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
 	container.destroy(true);
@@ -19,73 +20,88 @@ const encounterIndex = (container: Phaser.GameObjects.Container) => [
 	{
 		name: "Upgrade Unit",
 		description: "Upgrade a unit",
-		onClick: async () => {
-			//open orb shop
-			container.destroy(true);
-			await openOrbShop(
-				[
-					"crimson_orb",
-					"emerald_orb",
-					"azure_orb"
-				]
-			);
-			PhaseManager.handlePhaseEnded();
-
-		}
+		onClick: orbShopCallback(container, ["upgrade_orb"])
 	},
 	{
-		name: "Improve: Damage",
-		description: "Improve a damage hero",
-		onClick: () => { }
+		name: "Improve Crystal",
+		description: "Choose an improvement to your crystal",
+		onClick: orbShopCallback(container, [
+			"increase_core_max_life",
+			"decrease_core_cooldown",
+			"add_core_random_reaction"
+		])
 	},
+	improveType("damage"),
+	improveType("heal"),
+	improveType("shield"),
+	improveType("heal"),
+	improveType("regen"),
 	{
 		name: "Armory",
 		description: "Choose a damage unit",
 		onClick: openHeroShopCallback(container, "damage")
 	},
-	// {
-	// 	name: "Healing Tent",
-	// 	description: "Choose a healing unit",
-	// 	onClick: openHeroShopCallback(container, "heal")
-	// },
-	// {
-	// 	name: "Visit the Fort",
-	// 	description: "Choose a shield unit",
-	// 	onClick: openHeroShopCallback(container, "shield")
-	// },
-	// {
-	// 	name: "Forest Pools",
-	// 	description: "Choose a regen unit",
-	// 	onClick: openHeroShopCallback(container, "regen")
-	// },
-	// {
-	// 	name: "Toxic Chamber",
-	// 	description: "Choose a poison unit",
-	// 	onClick: openHeroShopCallback(container, "poison")
-	// },
-	// {
-	// 	name: "Toxic Chamber",
-	// 	description: "Choose a poison unit",
-	// 	onClick: openHeroShopCallback(container, "poison")
-	// },
-	// {
-	// 	name: "Trial Circuit",
-	// 	description: "Choose a haste unit",
-	// 	onClick: openHeroShopCallback(container, "haste")
-	// },
-	// {
-	// 	name: "Trapper's Guild",
-	// 	description: "Choose a guild unit",
-	// 	onClick: openHeroShopCallback(container, "slow")
-	// }
+	{
+		name: "Healing Tent",
+		description: "Choose a healing unit",
+		onClick: openHeroShopCallback(container, "heal")
+	},
+	{
+		name: "Visit the Fort",
+		description: "Choose a shield unit",
+		onClick: openHeroShopCallback(container, "shield")
+	},
+	{
+		name: "Forest Pools",
+		description: "Choose a regen unit",
+		onClick: openHeroShopCallback(container, "regen")
+	},
+	{
+		name: "Toxic Chamber",
+		description: "Choose a poison unit",
+		onClick: openHeroShopCallback(container, "poison")
+	},
+	{
+		name: "Toxic Chamber",
+		description: "Choose a poison unit",
+		onClick: openHeroShopCallback(container, "poison")
+	},
+	{
+		name: "Trial Circuit",
+		description: "Choose a haste unit",
+		onClick: openHeroShopCallback(container, "haste")
+	},
+	{
+		name: "Trapper's Guild",
+		description: "Choose a guild unit",
+		onClick: openHeroShopCallback(container, "slow")
+	}
 ];
+
+function improveType(type: string) {
+	return {
+		name: `Improve: ${type}`,
+		description: `Improve a ${type} hero`,
+		onClick: orbShopCallback(container, [
+			`increase_power_on_${type}`,
+			`decrease_cooldown_on_${type}`,
+			`increase_critical_on_${type}`
+		])
+	};
+}
+
+function orbShopCallback(container: Phaser.GameObjects.Container, orbs: string[]) {
+	return async () => {
+		container.destroy(true);
+		await openOrbShop(orbs);
+		PhaseManager.handlePhaseEnded();
+	};
+}
 
 export async function open() {
 	const container = io.Container();
 
-	const index = encounterIndex(container);
-
-	const encounters = pickRandom(index, 3);
+	const encounters = pickRandom(encounterIndex(container), 3);
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);
@@ -124,7 +140,7 @@ export async function open() {
 		io.OnPointerOver(bg, () => {
 			io.Tween({
 				targets: [bg],
-				alpha: 0.8,
+				alpha: 0.4,
 				duration: 400,
 				ease: "Linear"
 			});
@@ -143,12 +159,14 @@ export async function open() {
 
 		container.add([bg, title, label]);
 
-	})
+	});
 
-	createUIButton("Skip",
+	const btn = createUIButton("Skip",
 		vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
 		nextRoundCallback
-	)
+	);
+
+	container.add(btn.container);
 
 }
 
