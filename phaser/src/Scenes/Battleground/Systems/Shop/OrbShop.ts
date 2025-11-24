@@ -10,21 +10,21 @@ import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
-
+const availableOrbs = [
+	"increase_power",
+	"emerald_orb",
+	"azure_orb",
+	"golden_orb",
+	"violet_orb",
+	"charge_orb",
+	"positional_power_orb",
+	"positional_typed_power_orb",
+];
 export async function openOrbShop(orbs?: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-		const availableOrbs = [
-			"crimson_orb",
-			"emerald_orb",
-			"azure_orb",
-			"golden_orb",
-			"violet_orb",
-			"charge_orb",
-			"positional_power_orb",
-			"positional_typed_power_orb",
-		];
+
 
 		const selectedOrbs = pickRandom(orbs ? orbs : availableOrbs, 3);
 
@@ -148,3 +148,5 @@ export function renderOrbShop(
 		getCurrentScene().events.off("update", handler);
 	});
 }
+
+
