@@ -14,7 +14,10 @@ export type EffectId =
 	| "charge"
 	| "increase_power"
 	| "multiply_power"
-	| "increase_critical";
+	| "increase_critical"
+	| "distribute_power"
+	| "absorb_power"
+	| "sacrifice_effect";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -67,6 +70,18 @@ export type Effect =
 	| {
 		id: "increase_critical";
 		amount: number;
+		targets: Targeting;
+	}
+	| {
+		id: "distribute_power";
+		targets: Targeting;
+	}
+	| {
+		id: "absorb_power";
+		targets: Targeting;
+	}
+	| {
+		id: "sacrifice_effect";
 		targets: Targeting;
 	};
 
@@ -189,6 +204,15 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) 
 				sourceUnit,
 				multiplier: effect.multiplier,
 			});
+			break;
+		case "distribute_power":
+			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect));
+			break;
+		case "absorb_power":
+			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect));
+			break;
+		case "sacrifice_effect":
+			effects.sacrificeEffect(sourceUnit);
 			break;
 		default:
 			const _exhaustiveCheck: never = effect;
