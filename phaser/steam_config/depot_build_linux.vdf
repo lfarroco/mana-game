@@ -1,0 +1,16 @@
+"DepotBuildConfig"
+{
+	"DepotID" "3757603"
+	"ContentRoot"	"../dist-electron/linux-unpacked"
+
+	"FileMapping"
+	{
+		"LocalPath" "*"
+		"DepotPath" "."
+		"recursive" "1"
+	}
+
+	"FileExclusion" "*.pdb"
+	"FileExclusion" "**/*_ds_store"
+	"FileExclusion" "**/.DS_Store"
+}

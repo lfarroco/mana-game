@@ -1,0 +1,17 @@
+"appbuild"
+{
+	"appid"	"3757600"
+	"desc" "Alpha Version"
+	"buildoutput" "../dist-steam"
+	"contentroot" "../dist-electron"
+	"setlive" ""
+	"preview" "0"
+	"local"	""
+	
+	"depots"
+	{
+		"3757602" "depot_build_win.vdf"
+		"3757604" "depot_build_mac.vdf"
+		"3757603" "depot_build_linux.vdf"
+	}
+}
