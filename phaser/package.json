@@ -1,5 +1,5 @@
 {
-    "name": "template-webpack",
+    "name": "mana_battle",
     "version": "1.2.1",
     "main": "electron/main.js",
     "scripts": {
