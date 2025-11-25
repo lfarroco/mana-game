@@ -1794,7 +1794,7 @@
 			],
 			"reactions": [
 				{
-					"position": "row",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
