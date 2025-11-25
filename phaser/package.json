@@ -1,14 +1,14 @@
 {
     "name": "template-webpack",
     "version": "1.2.1",
-    "main": "electron.js",
+    "main": "electron/main.js",
     "scripts": {
         "dev": "node log.js dev && webpack-dev-server --config webpack/config.dev.js --open",
         "build": "node log.js build && webpack --config webpack/config.prod.js",
         "dev-nolog": "webpack-dev-server --config webpack/config.dev.js --open",
         "build-nolog": "webpack --config webpack/config.prod.js",
-        "electron": "electron electron.js",
-        "electron:dev": "npm run build && electron electron.js",
+        "electron": "electron electron/main.js",
+        "electron:dev": "npm run build && electron electron/main.js",
         "electron:pack": "npm run build && electron-builder",
         "electron:build": "npm run build && electron-builder --publish=never",
         "electron:build:win": "npm run build && electron-builder --win",
@@ -27,15 +27,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/phaserjs/template-webpack.git"
+        "url": "git+https://github.com/lfarroco/mana-game.git"
     },
-    "author": "Phaser Studio <support@phaser.io> (https://phaser.io/)",
+    "author": "Mana Battle Team <redacted@example.com>",
     "license": "MIT",
-    "licenseUrl": "http://www.opensource.org/licenses/mit-license.php",
     "bugs": {
-        "url": "https://github.com/phaserjs/template-webpack/issues"
+        "url": "https://github.com/lfarroco/mana-game/issues"
     },
-    "homepage": "https://github.com/phaserjs/template-webpack#readme",
+    "homepage": "https://github.com/lfarroco/mana-game",
     "devDependencies": {
         "@babel/core": "^7.24.5",
         "@babel/preset-env": "^7.24.5",
@@ -78,15 +77,18 @@
         "uuid": "^11.1.0"
     },
     "build": {
-        "appId": "com.yourdomain.managame",
-        "productName": "Mana Game",
+        "appId": "com.manabattle",
+        "productName": "Mana Battle",
         "directories": {
-            "output": "dist-electron"
+            "output": "dist-electron",
+            "buildResources": "electron/build"
         },
         "files": [
             "dist/**/*",
-            "electron.js",
-            "package.json"
+            "dist/**/*",
+            "electron/main.js",
+            "package.json",
+            "electron/assets"
         ],
         "mac": {
             "category": "public.app-category.games",
