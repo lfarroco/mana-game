@@ -9,7 +9,7 @@ function createWindow() {
 			nodeIntegration: false,
 			contextIsolation: true
 		},
-		icon: path.join(__dirname, 'assets/icon.png') // You can add an icon later
+		icon: path.join(__dirname, 'icon.png')
 	});
 
 	// Load the app
@@ -17,7 +17,7 @@ function createWindow() {
 		mainWindow.loadURL('http://localhost:8080');
 		mainWindow.webContents.openDevTools();
 	} else {
-		mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+		mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
 	}
 }
 
