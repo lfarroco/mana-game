@@ -20,7 +20,7 @@ jobs:
       - name: Build static files
         working-directory: phaser
         run: |
-          npm install
+          npm ci --omit=dev
           npm run build
 
       - name: Upload static files as artifact
