@@ -52,7 +52,7 @@
 				},
 				{
 					"id": "increase_critical",
-					"amount": 10,
+					"amount": 5,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -259,7 +259,7 @@
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 10,
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -1250,7 +1250,7 @@
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 10,
+							"amount": 5,
 							"targets": {
 								"id": "right_ally"
 							}
@@ -1786,7 +1786,7 @@
 			"effects": [
 				{
 					"id": "increase_critical",
-					"amount": 10,
+					"amount": 5,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -1794,23 +1794,14 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row",
 					"effectId": "all",
 					"effects": [
 						{
-							"id": "haste",
-							"duration": 1000,
+							"id": "increase_critical",
+							"amount": 5,
 							"targets": {
-								"id": "random_enemy",
-								"count": 1
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"permanent": true,
-							"targets": {
-								"id": "self"
+								"id": "random_enemy"
 							}
 						}
 					]
@@ -1829,7 +1820,7 @@
 				},
 				{
 					"id": "increase_critical",
-					"amount": 10,
+					"amount": 5,
 					"targets": {
 						"id": "self"
 					}
@@ -1855,7 +1846,7 @@
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 10,
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
