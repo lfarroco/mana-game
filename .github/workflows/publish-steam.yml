@@ -1,0 +1,55 @@
+name: Publish to Steam
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 1.0.0)'
+        required: false
+        default: ''
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: phaser/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: ./phaser
+        run: npm ci
+
+      - name: Build Electron App
+        working-directory: ./phaser
+        run: npm run electron:build:all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy to Steam
+        uses: game-ci/steam-deploy@v3
+        with:
+          username: ${{ secrets.STEAM_USERNAME }}
+          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
+          appId: ${{ secrets.STEAM_APP_ID }}
+          buildDescription: "Build ${{ github.run_number }}"
+          rootPath: phaser/dist-electron
+          # Map your depots here. You might need to adjust these IDs based on your Steamworks config.
+          # Example:
+          # depot1Path: phaser/dist-electron/win-unpacked
+          # depot2Path: phaser/dist-electron/mac
+          # depot3Path: phaser/dist-electron/linux-unpacked
+          # For now, we'll assume a simple setup or that the user will configure this part.
+          # A common pattern for electron-builder is to upload the installers or the unpacked folders.
+          # Let's try to upload the installers if possible, or just the whole dist folder if the user hasn't specified depots.
+          # However, steam-deploy requires mapping specific paths to depot IDs.
+          # Since I don't know the user's depot IDs, I will leave a comment and a placeholder.
+          # The user will need to fill this in.
+          depot1Path: phaser/dist-electron
