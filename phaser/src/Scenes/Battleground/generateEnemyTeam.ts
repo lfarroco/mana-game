@@ -4,6 +4,7 @@ import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import * as GhostStore from "@Models/GhostStore";
 import { pickOne } from "../../utils";
+import { upgradeUnitData } from "@Systems/Chara/Chara";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -29,12 +30,7 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 		const unit = pickOne(units);
 
 		if (unit.rank < 4) {
-			unit.rank += 1;
-
-			const cardDef = [...getCores(), ...getNonCores()].find(c => c.id === unit.cardId);
-			if (cardDef?.power) {
-				unit.power = cardDef.power * unit.rank;
-			}
+			upgradeUnitData(unit);
 		}
 	}
 }
