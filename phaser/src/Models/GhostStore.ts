@@ -3,6 +3,7 @@ import { hasCardDefinition } from "./Entities/Card";
 import { cpuForce } from "./Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
+import { storage } from "../Storage";
 
 const STORAGE_KEY = "mana-game-ghosts-v1";
 
@@ -29,7 +30,7 @@ export type GhostStoreData = {
 
 function loadStore(): GhostStoreData {
 	try {
-		const raw = localStorage.getItem(STORAGE_KEY);
+		const raw = storage.getItem(STORAGE_KEY);
 		if (!raw) return {};
 		const parsed = JSON.parse(raw);
 		if (typeof parsed !== "object" || parsed === null) return {};
@@ -41,7 +42,7 @@ function loadStore(): GhostStoreData {
 
 function saveStore(store: GhostStoreData) {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+		storage.setItem(STORAGE_KEY, JSON.stringify(store));
 	} catch (err) {
 		console.warn("[GhostStore] Failed to persist ghosts", err);
 	}

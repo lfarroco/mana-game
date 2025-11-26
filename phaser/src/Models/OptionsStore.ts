@@ -1,5 +1,6 @@
 import { game } from "../main";
 import * as AudioManager from "@Systems/AudioManager";
+import { storage } from "../Storage";
 
 let currentOptions: Options = {
 	sound: true,
@@ -74,7 +75,7 @@ function setGameSpeed(speed: number) {
 }
 
 function loadOptionsFromStorage(): Partial<Options> | null {
-	const savedOptions = localStorage.getItem(STORAGE_KEY);
+	const savedOptions = storage.getItem(STORAGE_KEY);
 	if (!savedOptions) {
 		return null;
 	}
@@ -82,7 +83,7 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 	const parsed = JSON.parse(savedOptions);
 
 	if (typeof parsed !== "object" || parsed === null) {
-		console.warn("Invalid options format in localStorage:", parsed);
+		console.warn("Invalid options format in storage:", parsed);
 		return null;
 	}
 
@@ -115,8 +116,8 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 
 function saveOptionsToStorage(): void {
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
+		storage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
 	} catch (error) {
-		console.warn("Failed to save options to localStorage:", error);
+		console.warn("Failed to save options to storage:", error);
 	}
 }
