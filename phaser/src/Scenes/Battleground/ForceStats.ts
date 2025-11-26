@@ -190,7 +190,7 @@ export function updateRegenDisplay(force: string, regen: number, delta: number) 
 		x: chip.text.getCenter().x,
 		y: chip.text.getCenter().y,
 		type: "regen",
-		text: "+" + delta.toFixed(0).toString()
+		text: delta.toFixed(0)
 	});
 }
 
@@ -211,6 +211,6 @@ export function updatePoisonDisplay(force: string, poison: number, delta: number
 		x: chip.text.getCenter().x,
 		y: chip.text.getCenter().y,
 		type: delta > 0 ? "poison" : "heal",
-		text: delta > 0 ? '+' : '-' + delta.toFixed(0).toString()
+		text: delta.toFixed(0)
 	});
 }
