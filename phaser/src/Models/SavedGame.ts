@@ -1,4 +1,5 @@
 import { GameData } from "./State";
+import { storage } from "../Storage";
 
 export type SavedGame = {
 	name: string;
@@ -19,7 +20,7 @@ export const makeSavedGame = (name: string, state: GameData): SavedGame => {
 export type SavedGamesIndex = string[];
 
 export function getSavedGamesIndex(): SavedGamesIndex {
-	const savedGames = localStorage.getItem("savedGames");
+	const savedGames = storage.getItem("savedGames");
 
 	if (savedGames) {
 		return JSON.parse(savedGames);
@@ -33,12 +34,12 @@ export function saveGame(savedGame: SavedGame) {
 
 	if (!savedGames.includes(savedGame.name)) savedGames.push(savedGame.name);
 
-	localStorage.setItem("savedGames", JSON.stringify(savedGames));
-	localStorage.setItem(savedGame.name, JSON.stringify(savedGame));
+	storage.setItem("savedGames", JSON.stringify(savedGames));
+	storage.setItem(savedGame.name, JSON.stringify(savedGame));
 }
 
 export function loadGame(name: string): SavedGame | null {
-	const savedGame = localStorage.getItem(name);
+	const savedGame = storage.getItem(name);
 
 	if (savedGame) {
 		return JSON.parse(savedGame);
@@ -52,8 +53,8 @@ export function deleteGame(name: string) {
 
 	const newSavedGames = savedGames.filter((game: string) => game !== name);
 
-	localStorage.setItem("savedGames", JSON.stringify(newSavedGames));
-	localStorage.removeItem(name);
+	storage.setItem("savedGames", JSON.stringify(newSavedGames));
+	storage.removeItem(name);
 
 	return newSavedGames;
 }
