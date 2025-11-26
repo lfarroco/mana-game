@@ -4,6 +4,7 @@ import { getState } from "@Models/State";
 import { applyRegen } from "@Scenes//Battleground/Systems/RegenSystem";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power * 0.1;
@@ -21,6 +22,8 @@ export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 	const effect = () => applyRegen(targetForce, amount, sourceUnit.id, critical);
 
 	const alliedCore = getAlliedCore(sourceUnit.force);
+
+	playSoundEffect('sfx_spell_tranquility');
 
 	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(alliedCore.id), {
 		colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones

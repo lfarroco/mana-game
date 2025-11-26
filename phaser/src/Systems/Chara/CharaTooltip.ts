@@ -47,7 +47,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 			);
 		case "increase_critical":
 			return withTargets(
-				`[color=#ff8cc8]Increase Critical[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				`[color=#ff8cc8]+Crit[/color] [color=#ffd93d]${effect.amount}[/color]`,
 				effect.targets
 			);
 		case "multiply_power":

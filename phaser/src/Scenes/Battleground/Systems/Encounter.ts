@@ -7,6 +7,7 @@ import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
 import { getState } from "@Models/State";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
 	container.destroy(true);
@@ -192,7 +193,10 @@ export async function open() {
 			});
 		});
 
-		io.OnPointerUp(bg, encounter.onClick);
+		io.OnPointerUp(bg, () => {
+			playSoundEffect('sfx_unit_run_magical_4');
+			encounter.onClick();
+		});
 
 		container.add([bg, title, label]);
 

@@ -5,6 +5,7 @@ import { getState } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -23,6 +24,9 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
 		}
 	};
+
+
+	playSoundEffect('sfx_spell_manavortex');
 
 	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(alliedCore.id), {
 		colors: [0x00ff00, 0x32cd32, 0x7fff00], //golden tones

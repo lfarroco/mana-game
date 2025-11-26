@@ -5,6 +5,7 @@ import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects/arcaneMissileTargeted";
 import { getEnemyCore } from "@Models/Entities/Card";
 import { getState } from "@Models/State";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 	const damageAmount = sourceUnit.power;
@@ -40,6 +41,9 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 			}
 		}
 	};
+
+
+	playSoundEffect('sfx_spell_truestrike');
 
 	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(enemyCore!.id), {
 		// Red tones

@@ -41,6 +41,18 @@ export default class Core extends Phaser.Scene {
 
 		this.load.audio("sfx_artifact_equipweapon", "assets/audio/sfx_artifact_equipweapon.m4a");
 
+		this.load.audio("sfx_voidhunter_death", "assets/audio/sfx_voidhunter_death.m4a");
+		this.load.audio("sfx_spell_truestrike", "assets/audio/sfx_spell_truestrike.m4a");
+		this.load.audio("sfx_spell_tranquility", "assets/audio/sfx_spell_tranquility.m4a");
+		this.load.audio("sfx_spell_manavortex", "assets/audio/sfx_spell_manavortex.m4a");
+
+		this.load.audio("sfx_unit_run_magical_4", "assets/audio/sfx_unit_run_magical_4.m4a");
+
+		this.load.audio("sfx_voidhunter_attack_impact", "assets/audio/sfx_voidhunter_attack_impact.m4a");
+		this.load.audio("sfx_spell_deathstrikeseal", "assets/audio/sfx_spell_deathstrikeseal.m4a");
+
+		this.load.audio("sfx_ui_select", "assets/audio/sfx_ui_select.m4a");
+
 		this.load.audio("sfx_victory_reward_chant", "assets/audio/sfx_victory_reward_chant.m4a");
 		this.load.audio("sfx_victory_match", "assets/audio/sfx_victory_match.m4a");
 
