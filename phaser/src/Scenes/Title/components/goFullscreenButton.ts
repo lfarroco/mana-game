@@ -5,7 +5,7 @@ import { createUIButton } from "@Components/UIButton";
 
 export function goFullscreenButton(y: number) {
 	createUIButton(
-		"GO FULLSCREEN",
+		"TOGGLE FULLSCREEN",
 		vec2(constants.MIDDLE_SCREEN_X, y),
 		() => {
 			const scene = getCurrentScene();
