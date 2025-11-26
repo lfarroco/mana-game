@@ -5,7 +5,7 @@ import { makeUnit, Unit } from "@Models/Entities/Unit";
 import * as GhostStore from "@Models/GhostStore";
 import { pickOne } from "../../utils";
 
-const MAX_UNITS = 9; // 3x3 board
+const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
 const BOARD_WIDTH = 3;
 const BOARD_HEIGHT = 3;
