@@ -23,7 +23,7 @@ export function ownedUnitSold(unitId: string, soldForGold: number) {
 
 	SellZone.hide();
 
-	return removeUnitFromPlayerState(state.gameData.player.units, unitId);
+	state.gameData.player.units = removeUnitFromPlayerState(state.gameData.player.units, unitId);
 }
 
 export function removeUnitFromPlayerState(units: Unit[], unitId: string): Unit[] {
