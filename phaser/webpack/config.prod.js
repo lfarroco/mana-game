@@ -29,6 +29,10 @@ module.exports = {
             "@Shaders": path.resolve(__dirname, "../src/Shaders")
         }
     },
+    // Exclude steamworks.js from browser bundle (only needed in Electron)
+    externals: {
+        'steamworks.js': 'commonjs steamworks.js'
+    },
     devtool: false,
     performance: {
         maxEntrypointSize: 2500000,
