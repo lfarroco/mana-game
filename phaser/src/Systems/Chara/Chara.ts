@@ -299,11 +299,8 @@ export function shake(chara: Chara) {
 	});
 }
 
-export async function upgradeUnit(unit: Unit) {
-	const chara = getCharaById(unit.id);
-
+export function upgradeUnitData(unit: Unit) {
 	const source = getCardDefinition(unit.cardId);
-
 
 	unit.rank += 1;
 
@@ -312,6 +309,12 @@ export async function upgradeUnit(unit: Unit) {
 
 	resetUnitEffectsToCardDefinition(unit, source);
 	upgradeUnitEffects(unit);
+}
+
+export async function upgradeUnit(unit: Unit) {
+	const chara = getCharaById(unit.id);
+
+	upgradeUnitData(unit);
 
 	chara.destroy();
 
