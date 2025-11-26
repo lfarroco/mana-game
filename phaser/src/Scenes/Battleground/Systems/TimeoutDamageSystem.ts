@@ -3,6 +3,7 @@ import { arcaneMissileTargeted } from "../../../Effects";
 import { getCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN } from "@Constants/constants";
+import { playSoundEffect } from "@Systems/AudioManager";
 
 const timeoutDamageStartTime = 20000;
 const timeoutDamageInterval = 1000;
@@ -25,6 +26,8 @@ async function spawnStar(damage: number, targetForce: Force) {
 	const core = getCharaById(target.id);
 
 	const colors = [0x000000];
+
+	playSoundEffect('sfx_voidhunter_attack_impact');
 
 	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
 		colors,

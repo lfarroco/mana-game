@@ -13,8 +13,8 @@ import * as Encounter from "./Systems/Encounter";
 const hourAction: string[] = [
 	"shop-core",
 	"encounter",
-	"shop",
-	"shop",
+	"encounter",
+	"encounter",
 	"combat",
 	"upgrade_orb"
 ];

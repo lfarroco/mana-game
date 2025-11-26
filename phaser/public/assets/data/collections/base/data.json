@@ -1801,7 +1801,8 @@
 							"id": "increase_critical",
 							"amount": 5,
 							"targets": {
-								"id": "random_enemy"
+								"id": "random_enemy",
+								"count": 1
 							}
 						}
 					]
