@@ -9,7 +9,7 @@ export function resumeGameButton(y: number) {
 	if (!data) return;
 
 	createUIButton(
-		"Resume",
+		"RESUME",
 		vec2(constants.MIDDLE_SCREEN.x, y),
 		loadGame
 	);

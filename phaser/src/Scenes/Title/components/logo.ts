@@ -6,7 +6,7 @@ import { images } from "../../../assets";
 export function logo() {
 	const logo = io.Image(images.logo.key);
 	io.SetPosition(logo,
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 300)
+		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 350)
 	);
 	io.Centralize(logo);
 }

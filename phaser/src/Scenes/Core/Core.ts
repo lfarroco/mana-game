@@ -22,6 +22,25 @@ export default class Core extends Phaser.Scene {
 		this.load.image("green-stone", "assets/green-stone.png");
 		this.load.image("purple-stone", "assets/purple-stone.png");
 
+		this.load.image("ui/armory", "assets/ui/armory.png");
+		this.load.image("ui/assassin", "assets/ui/assassin.png");
+		this.load.image("ui/commander", "assets/ui/commander.png");
+		this.load.image("ui/dark_ritual", "assets/ui/dark_ritual.png");
+		this.load.image("ui/forest_pools", "assets/ui/forest_pools.png");
+		this.load.image("ui/frontier_fort", "assets/ui/frontier_fort.png");
+		this.load.image("ui/improve_damage", "assets/ui/improve_damage.png");
+		this.load.image("ui/improve_haste", "assets/ui/improve_haste.png");
+		this.load.image("ui/improve_heal", "assets/ui/improve_heal.png");
+		this.load.image("ui/improve_regen", "assets/ui/improve_regen.png");
+		this.load.image("ui/improve_shield", "assets/ui/improve_shield.png");
+		this.load.image("ui/improve_slow", "assets/ui/improve_slow.png");
+		this.load.image("ui/power_distributor", "assets/ui/power_distributor.png");
+		this.load.image("ui/sacrifice", "assets/ui/sacrifice.png");
+		this.load.image("ui/thunder_spire", "assets/ui/thunder_spire.png");
+		this.load.image("ui/toxic", "assets/ui/toxic.png");
+		this.load.image("ui/trial_circuit", "assets/ui/trial_circuit.png");
+		this.load.image("ui/upgrade_unit", "assets/ui/upgrade_unit.png");
+
 		//sfx_ui_error.m4a
 		this.load.audio("sfx_ui_error", "assets/audio/sfx_ui_error.m4a");
 
