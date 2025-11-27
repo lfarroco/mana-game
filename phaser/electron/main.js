@@ -58,9 +58,7 @@ app.on('window-all-closed', () => {
 	// Unregister all shortcuts before quitting
 	globalShortcut.unregisterAll();
 
-	if (process.platform !== 'darwin') {
-		app.quit();
-	}
+	app.quit();
 });
 
 app.on('activate', () => {
