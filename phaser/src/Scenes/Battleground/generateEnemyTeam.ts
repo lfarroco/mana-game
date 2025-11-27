@@ -88,6 +88,11 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		occupiedPositions.add(`${position.x},${position.y}`);
 		const unit = makeUnit(cpuForce.id, card.id, vec2(position.x, position.y));
 		units.push(unit);
+
+		if (i > 1) {
+			coreUnit.life += 100;
+			coreUnit.maxLife += 100;
+		}
 	}
 
 	distributeUpgrades(units, upgradeCount);
