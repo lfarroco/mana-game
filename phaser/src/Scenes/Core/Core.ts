@@ -35,6 +35,7 @@ export default class Core extends Phaser.Scene {
 		this.load.image("ui/improve_shield", "assets/ui/improve_shield.png");
 		this.load.image("ui/improve_slow", "assets/ui/improve_slow.png");
 		this.load.image("ui/power_distributor", "assets/ui/power_distributor.png");
+		this.load.image("ui/power_absorber", "assets/ui/power_absorber.png");
 		this.load.image("ui/sacrifice", "assets/ui/sacrifice.png");
 		this.load.image("ui/thunder_spire", "assets/ui/thunder_spire.png");
 		this.load.image("ui/toxic", "assets/ui/toxic.png");
