@@ -11,7 +11,7 @@ import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 
-const hourAction: string[] = [
+export const hourAction: string[] = [
 	"shop-core",
 	"encounter",
 	"encounter",
