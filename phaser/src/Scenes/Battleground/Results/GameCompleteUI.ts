@@ -7,6 +7,7 @@ import { getCurrentScene, resetState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
+import * as AchievementSystem from "@Systems/AchievementSystem";
 
 export function displayGameComplete(
 	state: ResultsUIState,
@@ -58,6 +59,12 @@ export function displayGameComplete(
 	} else {
 		message = "Better luck next time!";
 		color = "#FFFFFF"; // White
+	}
+
+	// Check for Steam achievements based on core crystal and wins
+	const playerCore = units.find((unit) => unit.isCore);
+	if (playerCore && wins >= 5) {
+		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
 	const messageText = getCurrentScene().add
