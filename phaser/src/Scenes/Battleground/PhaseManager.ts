@@ -9,6 +9,7 @@ import { clearPoison } from "./Systems/PoisonDamageSystem";
 import { clearRegen } from "./Systems/RegenSystem";
 import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
+import { saveGameData } from "../../Game/effects/saveGameData";
 
 const hourAction: string[] = [
 	"shop-core",
@@ -69,6 +70,8 @@ export function handlePhaseEnded(): void {
 	}
 
 	const phase = hourAction[getState().gameData.hour];
+
+	saveGameData();
 
 	startPhase(phase);
 }

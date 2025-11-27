@@ -6,6 +6,7 @@ import * as ResultsUI from "../Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as PhaseManager from "../PhaseManager";
 import { deactivateBlackHole } from "../BlackHole";
+import { saveGameData } from "../../../Game/effects/saveGameData";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -53,6 +54,9 @@ async function handleVictory(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
+	// Autosave after victory
+	saveGameData();
+
 	await PhaseManager.resetBoard(true);
 	PhaseManager.handlePhaseEnded();
 }
@@ -70,6 +74,9 @@ async function handleDefeat(): Promise<void> {
 		});
 		return;
 	}
+
+	// Autosave after defeat (if still alive)
+	saveGameData();
 
 	await PhaseManager.resetBoard(true);
 	PhaseManager.handlePhaseEnded();
