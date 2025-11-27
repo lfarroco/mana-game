@@ -11,7 +11,7 @@ import * as Systems from "./Systems";
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import { startPhase, hourAction } from "./PhaseManager";
+import { startPhase, hourAction, resetBoard } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -60,7 +60,9 @@ export class BattlegroundScene extends Phaser.Scene {
 		const data = getState().gameData;
 		console.log(":::: BattlegroundScene starting logic...", data);
 
-		if (data?.player) {
+		const isLoading = data?.player;
+
+		if (isLoading) {
 			getState().gameData = data;
 		} else {
 			Systems.Setup.initializeNewGame();
@@ -69,7 +71,10 @@ export class BattlegroundScene extends Phaser.Scene {
 		Systems.Loader.init(this.collection);
 		Systems.Loader.loadDynamicAssets(this.collection);
 
+
 		const state = getState();
+
+		Systems.Setup.setupSceneElements();
 
 		const assetsToLoad = state.battleData.units.concat(
 			state.gameData.player?.units || []
@@ -77,7 +82,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		await Systems.Loader.loadUnitAssets(assetsToLoad);
 
-		Systems.Setup.setupSceneElements();
+		if (isLoading && state.battleData.units.length === 0) {
+			resetBoard();
+		}
 
 		UIManager.init();
 		Tooltip.init();

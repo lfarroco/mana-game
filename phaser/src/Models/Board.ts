@@ -109,7 +109,6 @@ export function renderBoardSlots(board: BoardState): void {
 
 export function setEnemyBoardVisible(visible: boolean): void {
 	const board = getBoardState();
-	if (!board) return;
 	board.enemyBoardVisible = visible;
 
 	if (board.cpuSlotShaders.length > 0) {
@@ -182,7 +181,6 @@ export function destroyVisuals(board: BoardState): void {
 
 export function update(time: number): void {
 	const board = getBoardState();
-	if (!board) return;
 	board.slotShaders.forEach((slot) => slot.update(time));
 	board.cpuSlotShaders.forEach((slot) => slot.update(time));
 }
@@ -194,7 +192,6 @@ export function destroy(board: BoardState): void {
 export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const board = getBoardState();
 
-	if (!board) return null;
 	const boardWidthInTiles = Math.floor(board.width / constants.TILE_WIDTH);
 	const boardHeightInTiles = Math.floor(board.height / constants.TILE_HEIGHT);
 	const maxSlots = boardWidthInTiles * boardHeightInTiles;
@@ -286,9 +283,9 @@ export function init() {
 	renderBoardSlots(_playerBoardState);
 }
 
-export function getBoardState(): BoardState | null {
+export function getBoardState(): BoardState {
 	if (!_playerBoardState) {
-		return null
+		throw new Error("Board state not initialized");
 	}
 	return _playerBoardState;
 }
