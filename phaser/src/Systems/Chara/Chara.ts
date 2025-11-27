@@ -93,8 +93,6 @@ export function create(unit: Unit): Chara {
 
 	charaById.set(unit.id, container);
 
-
-
 	ChargeBarDisplay.create(unit, container);
 
 	PowerDisplay.create(unit, container);

@@ -11,7 +11,7 @@ import * as Systems from "./Systems";
 import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import { resetBoard, startPhase } from "./PhaseManager";
+import { resetBoard, startPhase, hourAction } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -79,7 +79,8 @@ export class BattlegroundScene extends Phaser.Scene {
 		AudioManager.playMusic("music_battlemap_vetruv");
 
 		resetBoard(true);
-		startPhase("shop-core");
+		const currentHour = getState().gameData.hour;
+		startPhase(hourAction[currentHour] || "shop-core");
 	};
 
 	update(time: number, delta: number): void {
