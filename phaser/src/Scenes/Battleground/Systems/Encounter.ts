@@ -19,6 +19,7 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 
 type EncounterItem = {
 	name: string;
+	pic: string;
 	description: string;
 	onClick: () => Promise<void>;
 	minRound?: number;
@@ -27,88 +28,103 @@ type EncounterItem = {
 const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: "Upgrade Unit",
+		pic: "ui/upgrade_unit",
 		description: "Upgrade a unit",
 		onClick: orbShopCallback(container, ["upgrade_orb"])
 	},
-	improveType(container, "damage"),
-	improveType(container, "heal"),
-	improveType(container, "shield"),
-	improveType(container, "poison"),
-	improveType(container, "regen"),
+	improveType(container, "ui/improve_damage", "damage"),
+	improveType(container, "ui/improve_heal", "heal"),
+	improveType(container, "ui/improve_shield", "shield"),
+	improveType(container, "ui/improve_poison", "poison"),
+	improveType(container, "ui/improve_regen", "regen"),
 	{
 		name: "Armory",
+		pic: "ui/armory",
 		description: "Choose a damage unit",
 		onClick: openHeroShopCallback(container, "damage")
 	},
 	{
 		name: "Healing Tent",
+		pic: "ui/improve_heal",
 		description: "Choose a healing unit",
 		onClick: openHeroShopCallback(container, "heal")
 	},
 	{
 		name: "Frontier Fort",
+		pic: "ui/frontier_fort",
 		description: "Choose a shield unit",
 		onClick: openHeroShopCallback(container, "shield")
 	},
 	{
 		name: "Forest Pools",
+		pic: "ui/forest_pools",
 		description: "Choose a regen unit",
 		onClick: openHeroShopCallback(container, "regen")
 	},
 	{
 		name: "Toxic Chamber",
+		pic: "ui/toxic",
 		description: "Choose a poison unit",
 		onClick: openHeroShopCallback(container, "poison")
 	},
 	{
 		name: "Trial Circuit",
+		pic: "ui/trial_circuit",
 		description: "Choose a haste unit",
 		onClick: openHeroShopCallback(container, "haste")
 	},
 	{
 		name: "Trapper's Guild",
+		pic: "ui/improve_slow",
 		description: "Choose a slow unit",
 		onClick: openHeroShopCallback(container, "slow")
 	},
 	{
 		name: "Thunder Spire",
+		pic: "ui/thunder_spire",
 		description: "Choose a charge unit",
 		onClick: openHeroShopCallback(container, "charge")
 	},
 	{
 		name: "Commander's Tent",
+		pic: "ui/commander",
 		description: "Choose a buffer unit",
 		onClick: openHeroShopCallback(container, "increase_power")
 	},
 	{
 		name: "Assassin's Hideout",
+		pic: "ui/assassin",
 		description: "Choose a critical strike unit",
 		onClick: openHeroShopCallback(container, "increase_critical")
 	},
 	{
 		name: "Power Distributor",
+		pic: "ui/power_distributor",
 		description: "Distribute power to allies",
 		minRound: 3,
 		onClick: orbShopCallback(container, ["distribute_power_orb"])
 	},
 	{
 		name: "Power Absorber",
+		pic: "ui/power_absorber",
 		description: "Absorb power from allies",
 		minRound: 3,
 		onClick: orbShopCallback(container, ["absorb_power_orb"])
 	},
 	{
 		name: "Dark Ritual",
+		pic: "ui/dark_ritual",
 		description: "Sacrifice effect for power",
 		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
 	},
-	improveType(container, "haste"),
-	improveType(container, "slow")
+	improveType(container, "ui/improve_haste", "haste"),
+	improveType(container, "ui/improve_slow", "slow")
 ];
 
-function improveType(container: Phaser.GameObjects.Container, type: string) {
+function improveType(container: Phaser.GameObjects.Container, pic: string, type: string) {
 	return {
 		name: `Improve: ${type}`,
+		pic,
 		minRound: 4,
 		description: `Improve a ${type} hero`,
 		onClick: orbShopCallback(container, [
@@ -161,15 +177,35 @@ export async function open() {
 			1
 		);
 
-		const title = io.Title2(encounter.name)
+		const icon = io
+			.Image(encounter.pic)
+			.setDisplaySize(128, 128)
 			.setPosition(
 				x - dimensions.width / 2 + padding,
+				y - dimensions.height / 2 + padding + 70
+			);
+
+		io.Tween({
+			targets: [icon],
+			repeat: -1,
+			duration: 200 * Math.random() + 2000,
+			ease: "Linear",
+			yoyo: true,
+			y: {
+				from: y - dimensions.height / 2 + padding + 30,
+				to: y - dimensions.height / 2 + padding + 30 + 10
+			}
+		})
+
+		const title = io.Title2(encounter.name)
+			.setPosition(
+				x - dimensions.width / 2 + padding + 100,
 				y - dimensions.height / 2 + padding
 			);
 
 		const label = io.Label(encounter.description)
 			.setPosition(
-				x - dimensions.width / 2 + padding,
+				x - dimensions.width / 2 + padding + 100,
 				y - dimensions.height / 2 + padding + 50
 			);
 
@@ -198,7 +234,7 @@ export async function open() {
 			encounter.onClick();
 		});
 
-		container.add([bg, title, label]);
+		container.add([bg, icon, title, label]);
 
 	});
 
