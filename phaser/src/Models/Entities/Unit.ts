@@ -103,8 +103,25 @@ export const testCardDefinitions = {
 	},
 } as const;
 
-export function isCritical(u: Unit) {
-	return !!u.critical && Math.random() * 100 < u.critical;
+
+export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: number } {
+	const critChance = u.critical || 0;
+	const effectiveCritChance = Math.min(critChance, 100);
+	const excessCrit = Math.max(critChance - 100, 0);
+
+	const isCritical = critChance > 0 && Math.random() < effectiveCritChance / 100;
+
+	if (isCritical) {
+		// Base crit multiplier is 2x, plus any excess crit as bonus damage
+		const multiplier = 2 + (excessCrit / 100);
+		return { isCritical: true, multiplier };
+	}
+
+	return { isCritical: false, multiplier: 1 };
+}
+
+export function isCritical(u: Unit): boolean {
+	return calculateCritical(u).isCritical;
 }
 
 function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
