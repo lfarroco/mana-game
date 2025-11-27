@@ -12,7 +12,7 @@ import { clearAll } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import { resetBoard, startPhase } from "./PhaseManager";
-import * as SellZone from "./Systems/Shop/SellZone";
+import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
 export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
@@ -74,7 +74,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		ResultsUI.create();
 
-		SellZone.create();
+		DiscardZone.create();
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 

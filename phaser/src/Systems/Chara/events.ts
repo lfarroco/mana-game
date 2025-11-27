@@ -1,13 +1,11 @@
-import { SHOP_ITEM_PURCHASE_COST } from "@Constants/constants";
 import * as Chara from "./Chara";
 import { hideTooltip } from "@Components/Tooltip";
 import { tween } from "@Utils/animation";
 import { playSoundEffect } from "@Systems/AudioManager";
 import * as Shop from "@Scenes/Battleground/Systems/Shop";
 
-export const onSell = (unitId: string) => {
-	const sellPrice = Math.floor(SHOP_ITEM_PURCHASE_COST / 2);
-	Shop.events.ownedUnitSold(unitId, sellPrice);
+export const onDiscard = (unitId: string) => {
+	Shop.events.ownedUnitSold(unitId);
 };
 
 export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {

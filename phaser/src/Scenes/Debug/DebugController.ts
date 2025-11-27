@@ -80,17 +80,15 @@ export function moveUnitOnBoard(
 	return `Emitted OWNED_UNIT_MOVE_REQUESTED for unit ${unitId} to board (${targetBoardX},${targetBoardY}). Move/swap processing is asynchronous`;
 }
 
-export function sellUnitFromBoard(unitId: string): string {
+export function discardUnitFromBoard(unitId: string): string {
 	const unit = getState().gameData.player.units.find((u) => u.id === unitId);
 	if (!unit) {
-		return `Error: Unit with ID ${unitId} not found on player board. Cannot sell`;
+		return `Error: Unit with ID ${unitId} not found on player board. Cannot discard`;
 	}
 
-	const sellPrice = Math.floor(constants.SHOP_ITEM_PURCHASE_COST / 2);
+	Systems.Shop.events.ownedUnitSold(unitId);
 
-	Systems.Shop.events.ownedUnitSold(unitId, sellPrice);
-
-	return `Sell request processed for unit ${unitId}. Sold for ${sellPrice} gold. State and visuals will update asynchronously`;
+	return `Discard request processed for unit ${unitId}. State and visuals will update asynchronously`;
 }
 
 export function isShopVisible(): boolean {
