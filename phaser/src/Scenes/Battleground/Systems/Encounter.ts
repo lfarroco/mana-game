@@ -35,7 +35,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 	improveType(container, "ui/improve_damage", "damage"),
 	improveType(container, "ui/improve_heal", "heal"),
 	improveType(container, "ui/improve_shield", "shield"),
-	improveType(container, "ui/improve_poison", "poison"),
+	improveType(container, "ui/toxic", "poison"),
 	improveType(container, "ui/improve_regen", "regen"),
 	{
 		name: "Armory",
@@ -166,7 +166,7 @@ export async function open() {
 
 		const x = SCREEN_WIDTH - 460;
 		const y = 300 + index * 220;
-		const padding = 20;
+		const padding = 70;
 
 		const dimensions = size(450, 200);
 
