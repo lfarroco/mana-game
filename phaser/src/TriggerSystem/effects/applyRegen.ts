@@ -1,5 +1,5 @@
 import { getAlliedCore } from "@Models/Entities/Card";
-import { isCritical, Unit } from "@Models/Entities/Unit";
+import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { applyRegen } from "@Scenes//Battleground/Systems/RegenSystem";
 import { getCharaById } from "@Systems/Chara/Chara";
@@ -9,9 +9,9 @@ import { playSoundEffect } from "@Systems/AudioManager";
 export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
-	const critical = isCritical(sourceUnit);
+	const crit = calculateCritical(sourceUnit);
 
-	const amount = critical ? baseAmount * 2 : baseAmount;
+	const amount = baseAmount * crit.multiplier;
 
 	const targetForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
@@ -19,7 +19,7 @@ export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
-	const effect = () => applyRegen(targetForce, amount, sourceUnit.id, critical);
+	const effect = () => applyRegen(targetForce, amount, sourceUnit.id, crit.isCritical);
 
 	const alliedCore = getAlliedCore(sourceUnit.force);
 

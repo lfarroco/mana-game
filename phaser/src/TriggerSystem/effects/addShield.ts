@@ -1,6 +1,6 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { manipulateCoreShield } from "@Models/Entities/Force";
-import { isCritical, Unit } from "@Models/Entities/Unit";
+import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
@@ -14,11 +14,11 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
 	const effect = async () => {
-		const isCritical_ = isCritical(sourceUnit);
+		const crit = calculateCritical(sourceUnit);
 
-		const shieldAmount = isCritical_ ? baseAmount * 2 : baseAmount;
+		const shieldAmount = baseAmount * crit.multiplier;
 
-		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, isCritical_, true);
+		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, crit.isCritical, true);
 
 		if (actualShieldChange > 0) {
 			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);

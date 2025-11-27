@@ -1,5 +1,5 @@
 import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
-import { Unit } from "@Models/Entities/Unit";
+import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects/arcaneMissileTargeted";
@@ -17,14 +17,10 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 	const enemyCore = getEnemyCore(sourceUnit.force);
 
 	const effect = () => {
-		let damage = damageAmount;
+		const crit = calculateCritical(sourceUnit);
+		const damage = damageAmount * crit.multiplier;
 
-		const isCritical = sourceUnit.critical ? Math.random() < sourceUnit.critical / 100 : false;
-		if (isCritical) {
-			damage = damageAmount * 2;
-		}
-
-		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", isCritical);
+		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, "normal");
 		shake(getCharaById(enemyCore.id));
 
