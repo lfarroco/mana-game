@@ -8,7 +8,7 @@ import { updateFrame } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Systems from "./Systems";
-import { clearAll } from "@Systems/Chara/Chara";
+import { clearAll, getAllCharas } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import { startPhase, hourAction, resetBoard } from "./PhaseManager";
@@ -71,7 +71,6 @@ export class BattlegroundScene extends Phaser.Scene {
 		Systems.Loader.init(this.collection);
 		Systems.Loader.loadDynamicAssets(this.collection);
 
-
 		const state = getState();
 
 		Systems.Setup.setupSceneElements();
@@ -82,8 +81,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		await Systems.Loader.loadUnitAssets(assetsToLoad);
 
-		if (isLoading && state.battleData.units.length === 0) {
-			resetBoard();
+		const charas = getAllCharas();
+
+		if (charas.length === 0) {
+			await resetBoard();
 		}
 
 		UIManager.init();
