@@ -12,7 +12,7 @@ const color = 0xffa500;
 const alpha = 0.7;
 const label = "DISCARD";
 const cornerRadius = 10;
-export const name = "shop_sell_zone";
+export const name = "shop_discard_zone";
 const textStyle = {
 	...defaultTextConfig,
 	fontSize: "40px",

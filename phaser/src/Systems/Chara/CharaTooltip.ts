@@ -93,7 +93,7 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 		.map((e) => buildEffectBlock(e, unitPower))
 		.filter((e): e is string => e !== null);
 
-	const triggerPrefix = `[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
+	const triggerPrefix = `⚡[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
 
 	if (effectSegments.length > 1) {
 		return `${triggerPrefix} →\n    ${effectSegments.join("\n    ")}`;

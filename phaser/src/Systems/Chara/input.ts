@@ -11,7 +11,7 @@ import * as Chara from "./Chara";
 import * as events from "./events";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 
-import * as SellZone from "../../Scenes/Battleground/Systems/Shop/SellZone";
+import * as DiscardZone from "../../Scenes/Battleground/Systems/Shop/DiscardZone";
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
@@ -45,8 +45,8 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
-		ph.WhenDroppedOnZone(chara, SellZone.name, () => {
-			if (isPlayerUnit) events.onSell(state.unitId);
+		ph.WhenDroppedOnZone(chara, DiscardZone.name, () => {
+			if (isPlayerUnit) events.onDiscard(state.unitId);
 		});
 
 		ph.WhenDroppedOnZone(chara, "board-cell", (zone) => {
@@ -94,7 +94,7 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 	});
 
 	if (!Chara.isShopItem(handlerState.unitId)) {
-		SellZone.hide();
+		DiscardZone.hide();
 	}
 
 	if (!handlerState.wasDragSuccessful) {
@@ -140,7 +140,7 @@ export const onDragStart =
 		const unit = Chara.getUnit(chara);
 
 		if (!Chara.isShopItem(handlerState.unitId) && !unit.isCore) {
-			SellZone.show();
+			DiscardZone.show();
 		}
 
 		Tooltip.hideTooltip();

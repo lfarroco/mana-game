@@ -46,10 +46,6 @@ export function getDebugController(page: Page) {
 			);
 		},
 
-		async sellUnitFromBoard(unitId: string): Promise<string> {
-			return await page.evaluate((id) => window.debugController.sellUnitFromBoard(id), unitId);
-		},
-
 		async isShopVisible(): Promise<boolean> {
 			return true; // TODO: implement me
 		},
