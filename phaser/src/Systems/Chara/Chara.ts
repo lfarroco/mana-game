@@ -11,6 +11,7 @@ import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
 import { getCardDefinition } from "@Models/Entities/Card";
+import { loadUnitAssets } from "@Scenes/Battleground/Systems/Loader";
 
 export type Chara = Container;
 
@@ -40,7 +41,7 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 	if (useSummonEffect) {
 		summonEffect(getCurrentScene(), vec);
 	}
-	const chara = create(unit);
+	const chara = await create(unit);
 	enableTooltip(chara);
 	chara.setScale(0);
 	chara.setAngle(-10);
@@ -58,11 +59,11 @@ export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }
 
-export function create(unit: Unit): Chara {
+export async function create(unit: Unit): Promise<Chara> {
 	const position = getScreenPosition(unit);
 	const container = getCurrentScene().add.container(position.x, position.y);
 
-	const sprite = createSprite(container, unit);
+	const sprite = await createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
@@ -138,7 +139,7 @@ export function getScreenPosition(unit: Unit) {
 	};
 }
 
-function createSprite(
+async function createSprite(
 	container: Chara,
 	unit: Unit,
 	_borderWidth: number = 3,
@@ -147,22 +148,10 @@ function createSprite(
 	const animCacheKey = unit.pic + "-anims";
 	const animData = getCurrentScene().cache.json.get(animCacheKey);
 
-	if (!animData && !unit.isCore) {
-		const scene = getCurrentScene();
-		scene.load.atlas(unit.pic, `assets/heroes/${unit.pic}.png`, `assets/heroes/${unit.pic}.json`);
-		scene.load.animation(`${unit.pic}-anims`, `assets/heroes/${unit.pic}-anims.json`);
-
-		const placeholder = scene.add.sprite(0, -15, "placeholder");
-		placeholder.setVisible(false);
-		container.add(placeholder);
-
-		scene.load.once(Phaser.Loader.Events.COMPLETE, () => {
-			configureSprite(placeholder, unit);
-			placeholder.setVisible(true);
-		});
-
-		scene.load.start();
-		return placeholder;
+	const textureExists = getCurrentScene().textures.exists(unit.pic);
+	// TODO: we can preload before creating
+	if ((!animData || !textureExists) && !unit.isCore) {
+		await loadUnitAssets([unit]);
 	}
 
 	const sprite = getCurrentScene().add.sprite(0, -15, unit.pic);

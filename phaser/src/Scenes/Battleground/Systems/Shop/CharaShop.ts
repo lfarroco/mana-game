@@ -16,7 +16,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 	const createdCharas: Chara.Chara[] = [];
 	const ownedCardIds = new Set(getState().gameData.player.units.map((u) => u.cardId));
 
-	cardDefs.forEach((spec, index) => {
+	cardDefs.forEach(async (spec, index) => {
 		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
@@ -26,7 +26,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
 
-		const chara = Chara.create(unit);
+		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
 
 		const existingUnit = getState().gameData.player.units.find((u) => u.cardId === spec.id);
