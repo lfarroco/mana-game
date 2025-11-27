@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, globalShortcut } = require('electron');
 const path = require('path');
 
 // Try to initialize Steam - only works if steamworks.js is installed
@@ -34,9 +34,30 @@ function createWindow() {
 	}
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+	createWindow();
+
+	// Register Shift+Tab to activate Steam overlay
+	// Note: Steam overlay is automatically handled by Steam when the game runs through Steam
+	// This just ensures Electron doesn't block the shortcut
+	if (steamworks) {
+		globalShortcut.register('Shift+Tab', () => {
+			try {
+				// Activate Steam overlay
+				steamworks.overlay.activateToWebPage('');
+				console.log('[Electron] Steam overlay activated via Shift+Tab');
+			} catch (error) {
+				console.log('[Electron] Could not activate Steam overlay:', error);
+			}
+		});
+		console.log('[Electron] Shift+Tab shortcut registered for Steam overlay');
+	}
+});
 
 app.on('window-all-closed', () => {
+	// Unregister all shortcuts before quitting
+	globalShortcut.unregisterAll();
+
 	if (process.platform !== 'darwin') {
 		app.quit();
 	}
