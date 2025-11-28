@@ -9,7 +9,7 @@ try {
 	steamworks = require('steamworks.js');
 	console.log('[Electron] Steam API initialized successfully');
 } catch (error) {
-	console.log('[Electron] Steam API not available (this is normal for non-Steam builds)');
+	console.log('[Electron] Steam API not available (this is normal for non-Steam builds)', error);
 }
 
 // Initialize Steam client and enable overlay BEFORE app.whenReady()
@@ -36,7 +36,6 @@ function createWindow() {
 		icon: path.join(__dirname, 'icon.png')
 	});
 
-
 	// Load the app
 	if (process.env.NODE_ENV === 'development') {
 		mainWindow.loadURL('http://localhost:8080');
@@ -45,10 +44,6 @@ function createWindow() {
 		mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
 	}
 }
-
-// Fix for Steam Overlay
-app.commandLine.appendSwitch('--in-process-gpu');
-app.commandLine.appendSwitch('--disable-direct-composition');
 
 app.whenReady().then(() => {
 	createWindow();
