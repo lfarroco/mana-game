@@ -1,7 +1,7 @@
 import { storage } from "../../Storage";
 import { getState } from "@Models/State";
 
-export async function saveGameData() {
+export function saveGameData() {
 	const { gameData } = getState();
-	await storage.setItem("gameData", JSON.stringify(gameData));
+	storage.setItem("gameData", JSON.stringify(gameData));
 }

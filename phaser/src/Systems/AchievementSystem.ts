@@ -3,7 +3,15 @@
  * Handles unlocking achievements based on game completion with different cores
  */
 
-
+// Declare window.steamworks type for TypeScript
+declare const window: Window & {
+	steamworks?: {
+		achievement: {
+			activate(achievementId: string): boolean;
+			isActivated(achievementId: string): boolean;
+		};
+	};
+};
 
 /**
  * Crystal types that can earn achievements
@@ -43,22 +51,13 @@ function getAchievementId(crystal: CrystalType, tier: VictoryTier): string {
 	return `${tier.toUpperCase()}_${crystal.toUpperCase()}`;
 }
 
-// Declare window.greenworks type for TypeScript
-declare const window: Window & {
-	greenworks?: {
-		achievement: {
-			activate(achievementId: string, success: () => void, error: (err: any) => void): void;
-		};
-	};
-};
-
 /**
  * Check if Steam achievements API is available
  * @returns True if Steam is available and ready
  */
 function isSteamAvailable(): boolean {
 	try {
-		return !!(window.greenworks?.achievement);
+		return !!(window.steamworks?.achievement);
 	} catch {
 		return false;
 	}
@@ -67,7 +66,7 @@ function isSteamAvailable(): boolean {
 /**
  * Unlock a single Steam achievement
  * @param achievementId - The Steam achievement ID to unlock
- * @returns True if successfully unlocked (or at least attempted), false otherwise
+ * @returns True if successfully unlocked, false otherwise
  */
 function unlockAchievement(achievementId: string): boolean {
 	if (!isSteamAvailable()) {
@@ -78,17 +77,24 @@ function unlockAchievement(achievementId: string): boolean {
 	}
 
 	try {
-		const { achievement } = window.greenworks!;
+		const { achievement } = window.steamworks!;
 
-		// activate is usually synchronous in greenworks or takes callbacks
-		// Based on common greenworks usage:
-		achievement.activate(achievementId, () => {
+		// Check if already unlocked
+		if (achievement.isActivated(achievementId)) {
+			console.log(`[Achievement] Already unlocked: ${achievementId}`);
+			return false;
+		}
+
+		// Unlock the achievement
+		const success = achievement.activate(achievementId);
+
+		if (success) {
 			console.log(`[Achievement] ✅ Unlocked: ${achievementId}`);
-		}, (err: any) => {
-			console.warn(`[Achievement] ❌ Failed to unlock: ${achievementId}`, err);
-		});
+		} else {
+			console.warn(`[Achievement] ❌ Failed to unlock: ${achievementId}`);
+		}
 
-		return true;
+		return success;
 	} catch (error) {
 		console.error(`[Achievement] Error unlocking ${achievementId}:`, error);
 		return false;

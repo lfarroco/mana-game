@@ -15,16 +15,16 @@ const isElectron = (): boolean => {
 
 const isSteamAvailable = (): boolean => {
 	try {
-		// Check if window.greenworks is available (set by Electron preload/main)
+		// Check if window.steamworks is available (set by Electron preload/main)
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const greenworks = (window as any).greenworks;
+		const steamworks = (window as any).steamworks;
 
-		if (!greenworks || !greenworks.cloud) {
+		if (!steamworks || !steamworks.cloud) {
 			return false;
 		}
 
 		// Check if Steam Cloud is enabled for the app
-		return greenworks.cloud.isCloudEnabled();
+		return steamworks.cloud.isCloudEnabledForApp();
 	} catch (error) {
 		console.warn("[StorageFactory] Error checking Steam availability:", error);
 		return false;

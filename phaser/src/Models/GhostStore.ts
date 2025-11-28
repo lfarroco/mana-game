@@ -28,9 +28,9 @@ export type GhostStoreData = {
 	[round: number]: GhostEntry[];
 };
 
-async function loadStore(): Promise<GhostStoreData> {
+function loadStore(): GhostStoreData {
 	try {
-		const raw = await storage.getItem(STORAGE_KEY);
+		const raw = storage.getItem(STORAGE_KEY);
 		if (!raw) return {};
 		const parsed = JSON.parse(raw);
 		if (typeof parsed !== "object" || parsed === null) return {};
@@ -40,9 +40,9 @@ async function loadStore(): Promise<GhostStoreData> {
 	}
 }
 
-async function saveStore(store: GhostStoreData) {
+function saveStore(store: GhostStoreData) {
 	try {
-		await storage.setItem(STORAGE_KEY, JSON.stringify(store));
+		storage.setItem(STORAGE_KEY, JSON.stringify(store));
 	} catch (err) {
 		console.warn("[GhostStore] Failed to persist ghosts", err);
 	}
@@ -59,11 +59,11 @@ function computeHash(units: GhostUnit[]): string {
 		.join("|");
 }
 
-export async function saveGhostForRound(round: number, playerUnits: Unit[], lives: number) {
+export function saveGhostForRound(round: number, playerUnits: Unit[], lives: number) {
 	if (!round || round < 1) return;
 	if (!playerUnits.length) return;
 
-	const store = await loadStore();
+	const store = loadStore();
 
 	const ghostUnits: GhostUnit[] = playerUnits.map((u) => ({
 		cardId: u.cardId,
@@ -95,14 +95,14 @@ export async function saveGhostForRound(round: number, playerUnits: Unit[], live
 	list.push(entry);
 	list.sort((a, b) => b.savedAt - a.savedAt);
 	store[round] = list.slice(0, MAX_PER_ROUND);
-	await saveStore(store);
+	saveStore(store);
 	console.log(
 		`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`
 	);
 }
 
-export async function pickRandomGhost(round: number): Promise<GhostEntry | null> {
-	const store = await loadStore();
+export function pickRandomGhost(round: number): GhostEntry | null {
+	const store = loadStore();
 	const list = store[round];
 	if (!list || !list.length) return null;
 
@@ -116,7 +116,7 @@ export async function pickRandomGhost(round: number): Promise<GhostEntry | null>
 			`[GhostStore] Removing ${list.length - validList.length} invalid ghosts for round ${round}`
 		);
 		store[round] = validList;
-		await saveStore(store);
+		saveStore(store);
 	}
 
 	if (!validList.length) return null;
@@ -139,7 +139,7 @@ export function instantiateGhostUnits(entry: GhostEntry): Unit[] {
 	});
 }
 
-export async function getGhostCountForRound(round: number): Promise<number> {
-	const store = await loadStore();
+export function getGhostCountForRound(round: number): number {
+	const store = loadStore();
 	return store[round]?.length || 0;
 }
