@@ -45,6 +45,10 @@ function createWindow() {
 	}
 }
 
+// Fix for Steam Overlay
+app.commandLine.appendSwitch('--in-process-gpu');
+app.commandLine.appendSwitch('--disable-direct-composition');
+
 app.whenReady().then(() => {
 	createWindow();
 });
