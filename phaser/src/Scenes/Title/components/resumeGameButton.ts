@@ -4,8 +4,8 @@ import { createUIButton } from "@Components/UIButton";
 import { loadGame } from "../../../Game/effects/loadGame";
 import { getSavedData } from "../../../Game/effects/getSavedData";
 
-export function resumeGameButton(y: number) {
-	const data = getSavedData();
+export async function resumeGameButton(y: number) {
+	const data = await getSavedData();
 	if (!data) return;
 
 	createUIButton(

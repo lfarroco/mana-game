@@ -28,9 +28,9 @@ export type GhostStoreData = {
 	[round: number]: GhostEntry[];
 };
 
-function loadStore(): GhostStoreData {
+async function loadStore(): Promise<GhostStoreData> {
 	try {
-		const raw = storage.getItem(STORAGE_KEY);
+		const raw = await storage.getItem(STORAGE_KEY);
 		if (!raw) return {};
 		const parsed = JSON.parse(raw);
 		if (typeof parsed !== "object" || parsed === null) return {};
@@ -40,9 +40,9 @@ function loadStore(): GhostStoreData {
 	}
 }
 
-function saveStore(store: GhostStoreData) {
+async function saveStore(store: GhostStoreData) {
 	try {
-		storage.setItem(STORAGE_KEY, JSON.stringify(store));
+		await storage.setItem(STORAGE_KEY, JSON.stringify(store));
 	} catch (err) {
 		console.warn("[GhostStore] Failed to persist ghosts", err);
 	}
@@ -59,11 +59,11 @@ function computeHash(units: GhostUnit[]): string {
 		.join("|");
 }
 
-export function saveGhostForRound(round: number, playerUnits: Unit[], lives: number) {
+export async function saveGhostForRound(round: number, playerUnits: Unit[], lives: number) {
 	if (!round || round < 1) return;
 	if (!playerUnits.length) return;
 
-	const store = loadStore();
+	const store = await loadStore();
 
 	const ghostUnits: GhostUnit[] = playerUnits.map((u) => ({
 		cardId: u.cardId,
@@ -95,14 +95,14 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], lives: num
 	list.push(entry);
 	list.sort((a, b) => b.savedAt - a.savedAt);
 	store[round] = list.slice(0, MAX_PER_ROUND);
-	saveStore(store);
+	await saveStore(store);
 	console.log(
 		`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`
 	);
 }
 
-export function pickRandomGhost(round: number): GhostEntry | null {
-	const store = loadStore();
+export async function pickRandomGhost(round: number): Promise<GhostEntry | null> {
+	const store = await loadStore();
 	const list = store[round];
 	if (!list || !list.length) return null;
 
@@ -116,7 +116,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 			`[GhostStore] Removing ${list.length - validList.length} invalid ghosts for round ${round}`
 		);
 		store[round] = validList;
-		saveStore(store);
+		await saveStore(store);
 	}
 
 	if (!validList.length) return null;
@@ -139,7 +139,7 @@ export function instantiateGhostUnits(entry: GhostEntry): Unit[] {
 	});
 }
 
-export function getGhostCountForRound(round: number): number {
-	const store = loadStore();
+export async function getGhostCountForRound(round: number): Promise<number> {
+	const store = await loadStore();
 	return store[round]?.length || 0;
 }

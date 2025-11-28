@@ -19,8 +19,8 @@ export const makeSavedGame = (name: string, state: GameData): SavedGame => {
 
 export type SavedGamesIndex = string[];
 
-export function getSavedGamesIndex(): SavedGamesIndex {
-	const savedGames = storage.getItem("savedGames");
+export async function getSavedGamesIndex(): Promise<SavedGamesIndex> {
+	const savedGames = await storage.getItem("savedGames");
 
 	if (savedGames) {
 		return JSON.parse(savedGames);
@@ -29,17 +29,17 @@ export function getSavedGamesIndex(): SavedGamesIndex {
 	return [];
 }
 
-export function saveGame(savedGame: SavedGame) {
-	const savedGames = getSavedGamesIndex();
+export async function saveGame(savedGame: SavedGame) {
+	const savedGames = await getSavedGamesIndex();
 
 	if (!savedGames.includes(savedGame.name)) savedGames.push(savedGame.name);
 
-	storage.setItem("savedGames", JSON.stringify(savedGames));
-	storage.setItem(savedGame.name, JSON.stringify(savedGame));
+	await storage.setItem("savedGames", JSON.stringify(savedGames));
+	await storage.setItem(savedGame.name, JSON.stringify(savedGame));
 }
 
-export function loadGame(name: string): SavedGame | null {
-	const savedGame = storage.getItem(name);
+export async function loadGame(name: string): Promise<SavedGame | null> {
+	const savedGame = await storage.getItem(name);
 
 	if (savedGame) {
 		return JSON.parse(savedGame);
@@ -48,13 +48,13 @@ export function loadGame(name: string): SavedGame | null {
 	return null;
 }
 
-export function deleteGame(name: string) {
-	const savedGames = getSavedGamesIndex();
+export async function deleteGame(name: string) {
+	const savedGames = await getSavedGamesIndex();
 
 	const newSavedGames = savedGames.filter((game: string) => game !== name);
 
-	storage.setItem("savedGames", JSON.stringify(newSavedGames));
-	storage.removeItem(name);
+	await storage.setItem("savedGames", JSON.stringify(newSavedGames));
+	await storage.removeItem(name);
 
 	return newSavedGames;
 }

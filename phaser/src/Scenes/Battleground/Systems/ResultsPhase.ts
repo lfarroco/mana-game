@@ -55,10 +55,10 @@ async function handleVictory(): Promise<void> {
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
 	// Autosave after victory
-	saveGameData();
+	await saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded();
+	await PhaseManager.handlePhaseEnded();
 }
 
 async function handleDefeat(): Promise<void> {
@@ -76,8 +76,8 @@ async function handleDefeat(): Promise<void> {
 	}
 
 	// Autosave after defeat (if still alive)
-	saveGameData();
+	await saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded();
+	await PhaseManager.handlePhaseEnded();
 }

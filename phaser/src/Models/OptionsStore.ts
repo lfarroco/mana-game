@@ -12,8 +12,8 @@ let currentOptions: Options = {
 	particles: "medium",
 };
 
-export const init = () => {
-	const savedOptions = loadOptionsFromStorage();
+export const init = async () => {
+	const savedOptions = await loadOptionsFromStorage();
 	if (savedOptions) {
 		Object.assign(currentOptions, savedOptions);
 	}
@@ -40,10 +40,10 @@ export function getOption<K extends keyof Options>(key: K, default_?: Options[K]
 	return currentOptions[key] ?? default_;
 }
 
-export function setOption<K extends keyof Options>(key: K, value: Options[K]): void {
+export async function setOption<K extends keyof Options>(key: K, value: Options[K]): Promise<void> {
 	currentOptions[key] = value;
 
-	saveOptionsToStorage();
+	await saveOptionsToStorage();
 
 	if (key === "sound" || key === "music" || key === "soundVolume" || key === "musicVolume") {
 		AudioManager.onOptionsChanged();
@@ -60,8 +60,8 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 	}
 }
 
-export function saveOptions(): void {
-	saveOptionsToStorage();
+export async function saveOptions(): Promise<void> {
+	await saveOptionsToStorage();
 }
 
 function setGameSpeed(speed: number) {
@@ -74,8 +74,8 @@ function setGameSpeed(speed: number) {
 	});
 }
 
-function loadOptionsFromStorage(): Partial<Options> | null {
-	const savedOptions = storage.getItem(STORAGE_KEY);
+async function loadOptionsFromStorage(): Promise<Partial<Options> | null> {
+	const savedOptions = await storage.getItem(STORAGE_KEY);
 	if (!savedOptions) {
 		return null;
 	}
@@ -114,9 +114,9 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 	return validOptions;
 }
 
-function saveOptionsToStorage(): void {
+async function saveOptionsToStorage(): Promise<void> {
 	try {
-		storage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
+		await storage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
 	} catch (error) {
 		console.warn("Failed to save options to storage:", error);
 	}
