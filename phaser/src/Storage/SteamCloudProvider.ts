@@ -4,10 +4,12 @@ import { StorageProvider } from "./IStorageProvider";
 declare const window: Window & {
 	steamworks?: {
 		cloud: {
-			isCloudEnabledForApp(): boolean;
-			readTextFromFile(fileName: string): string | null;
-			writeTextToFile(fileName: string, text: string): boolean;
+			isEnabledForApp(): boolean;
+			isEnabledForAccount(): boolean;
+			readFile(fileName: string): string;
+			writeFile(fileName: string, content: string): boolean;
 			deleteFile(fileName: string): boolean;
+			fileExists(fileName: string): boolean;
 		};
 	};
 };
@@ -28,11 +30,13 @@ export const createSteamCloudProvider = (): StorageProvider => {
 			}
 
 			try {
-				const data = steam.cloud.readTextFromFile(key);
-				if (data === null) {
+				// Check if file exists first
+				if (!steam.cloud.fileExists(key)) {
 					console.log(`[SteamCloudProvider] File "${key}" not found in Steam Cloud`);
 					return null;
 				}
+
+				const data = steam.cloud.readFile(key);
 				console.log(`[SteamCloudProvider] Successfully read "${key}" from Steam Cloud`);
 				return data;
 			} catch (error) {
@@ -48,7 +52,7 @@ export const createSteamCloudProvider = (): StorageProvider => {
 			}
 
 			try {
-				const success = steam.cloud.writeTextToFile(key, value);
+				const success = steam.cloud.writeFile(key, value);
 				if (success) {
 					console.log(`[SteamCloudProvider] Successfully wrote "${key}" to Steam Cloud`);
 				} else {
