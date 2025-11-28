@@ -24,7 +24,7 @@ const isSteamAvailable = (): boolean => {
 		}
 
 		// Check if Steam Cloud is enabled for the app
-		return steamworks.cloud.isCloudEnabledForApp();
+		return steamworks.cloud.isEnabledForApp();
 	} catch (error) {
 		console.warn("[StorageFactory] Error checking Steam availability:", error);
 		return false;
