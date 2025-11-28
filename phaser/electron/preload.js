@@ -3,10 +3,9 @@
 
 try {
 	const steamworks = require('steamworks.js');
-	window.steamworks = steamworks;
-	console.log('[Preload] Steam API successfully exposed to window');
+	const client = steamworks.init();
+	window.steamworks = client;
+	console.log('[Preload] Steam client initialized and exposed to window');
 } catch (error) {
-	console.log('[Preload] Steam API not available - this is normal for non-Steam builds');
-	// Don't expose steamworks if it's not available
+	console.log('[Preload] Steam API not available - this is normal for non-Steam builds', error);
 }
-
