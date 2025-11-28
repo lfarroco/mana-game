@@ -1,28 +1,32 @@
 import { StorageProvider } from "./IStorageProvider";
 
 export const createLocalStorageProvider = (): StorageProvider => ({
-	getItem: (key: string): string | null => {
+	getItem: (key: string): Promise<string | null> => {
 		try {
-			return localStorage.getItem(key);
+			return Promise.resolve(localStorage.getItem(key));
 		} catch (error) {
 			console.warn(`[LocalStorageProvider] Failed to get item "${key}":`, error);
-			return null;
+			return Promise.resolve(null);
 		}
 	},
 
-	setItem: (key: string, value: string): void => {
+	setItem: (key: string, value: string): Promise<void> => {
 		try {
 			localStorage.setItem(key, value);
+			return Promise.resolve();
 		} catch (error) {
 			console.warn(`[LocalStorageProvider] Failed to set item "${key}":`, error);
+			return Promise.resolve();
 		}
 	},
 
-	removeItem: (key: string): void => {
+	removeItem: (key: string): Promise<void> => {
 		try {
 			localStorage.removeItem(key);
+			return Promise.resolve();
 		} catch (error) {
 			console.warn(`[LocalStorageProvider] Failed to remove item "${key}":`, error);
+			return Promise.resolve();
 		}
 	},
 });

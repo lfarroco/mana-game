@@ -1,1 +1,2 @@
-export const getSavedData = () => localStorage.getItem("gameData");
+import { storage } from "../../Storage";
+export const getSavedData = async () => await storage.getItem("gameData");

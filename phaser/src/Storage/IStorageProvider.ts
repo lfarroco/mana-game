@@ -1,8 +1,8 @@
 
 export type StorageProvider = {
-	getItem(key: string): string | null;
+	getItem(key: string): Promise<string | null>;
 
-	setItem(key: string, value: string): void;
+	setItem(key: string, value: string): Promise<void>;
 
-	removeItem(key: string): void;
+	removeItem(key: string): Promise<void>;
 };

@@ -1,80 +1,95 @@
 import { StorageProvider } from "./IStorageProvider";
 
-// Declare steamworks types for TypeScript
 declare const window: Window & {
-	steamworks?: {
+	greenworks?: {
 		cloud: {
-			isCloudEnabledForApp(): boolean;
-			readTextFromFile(fileName: string): string | null;
-			writeTextToFile(fileName: string, text: string): boolean;
-			deleteFile(fileName: string): boolean;
+			isCloudEnabled(): boolean;
+			readTextFromFile(fileName: string, success: (content: string) => void, error: (err: any) => void): void;
+			saveTextToFile(fileName: string, content: string, success: () => void, error: (err: any) => void): void;
+			deleteFile?(fileName: string, success: () => void, error: (err: any) => void): void;
 		};
+		achievement: {
+			activate(achievementId: string, success: () => void, error: (err: any) => void): void;
+		};
+		init(): boolean;
 	};
 };
 
 export const createSteamCloudProvider = (): StorageProvider => {
-	// Check if steamworks is available (initialized by Electron main process)
-	const steam = window.steamworks;
+	// Check if greenworks is available (initialized by Electron main process)
+	const steam = window.greenworks;
 
 	if (!steam) {
 		console.warn("[SteamCloudProvider] Steam API not available");
 	}
 
 	return {
-		getItem: (key: string): string | null => {
+		getItem: (key: string): Promise<string | null> => {
 			if (!steam) {
 				console.warn(`[SteamCloudProvider] Steam not initialized. Cannot get "${key}".`);
-				return null;
+				return Promise.resolve(null);
 			}
 
-			try {
-				const data = steam.cloud.readTextFromFile(key);
-				if (data === null) {
-					console.log(`[SteamCloudProvider] File "${key}" not found in Steam Cloud`);
-					return null;
-				}
-				console.log(`[SteamCloudProvider] Successfully read "${key}" from Steam Cloud`);
-				return data;
-			} catch (error) {
-				console.error(`[SteamCloudProvider] Error reading "${key}":`, error);
-				return null;
-			}
+			return new Promise((resolve) => {
+				steam.cloud.readTextFromFile(
+					key,
+					(content: string) => {
+						console.log(`[SteamCloudProvider] Successfully read "${key}" from Steam Cloud`);
+						resolve(content);
+					},
+					(err: any) => {
+						console.log(`[SteamCloudProvider] File "${key}" not found or error:`, err);
+						resolve(null);
+					}
+				);
+			});
 		},
 
-		setItem: (key: string, value: string): void => {
+		setItem: (key: string, value: string): Promise<void> => {
 			if (!steam) {
 				console.warn(`[SteamCloudProvider] Steam not initialized. Cannot set "${key}".`);
-				return;
+				return Promise.resolve();
 			}
 
-			try {
-				const success = steam.cloud.writeTextToFile(key, value);
-				if (success) {
-					console.log(`[SteamCloudProvider] Successfully wrote "${key}" to Steam Cloud`);
-				} else {
-					console.error(`[SteamCloudProvider] Failed to write "${key}" to Steam Cloud`);
-				}
-			} catch (error) {
-				console.error(`[SteamCloudProvider] Error writing "${key}":`, error);
-			}
+			return new Promise((resolve) => {
+				steam.cloud.saveTextToFile(
+					key,
+					value,
+					() => {
+						console.log(`[SteamCloudProvider] Successfully wrote "${key}" to Steam Cloud`);
+						resolve();
+					},
+					(err: any) => {
+						console.error(`[SteamCloudProvider] Failed to write "${key}" to Steam Cloud:`, err);
+						resolve();
+					}
+				);
+			});
 		},
 
-		removeItem: (key: string): void => {
+		removeItem: (key: string): Promise<void> => {
+			// Greenworks might not support deleteFile directly or it might be different.
+			// We'll try to use it if available, otherwise just log.
 			if (!steam) {
-				console.warn(`[SteamCloudProvider] Steam not initialized. Cannot remove "${key}".`);
-				return;
+				return Promise.resolve();
 			}
 
-			try {
-				const success = steam.cloud.deleteFile(key);
-				if (success) {
-					console.log(`[SteamCloudProvider] Successfully deleted "${key}" from Steam Cloud`);
-				} else {
-					console.warn(`[SteamCloudProvider] File "${key}" not found or failed to delete`);
-				}
-			} catch (error) {
-				console.error(`[SteamCloudProvider] Error deleting "${key}":`, error);
+			// Check if deleteFile exists
+			if (typeof steam.cloud.deleteFile === 'function') {
+				return new Promise((resolve) => {
+					// @ts-ignore
+					steam.cloud.deleteFile(key, () => {
+						console.log(`[SteamCloudProvider] Successfully deleted "${key}"`);
+						resolve();
+					}, (err: any) => {
+						console.warn(`[SteamCloudProvider] Failed to delete "${key}":`, err);
+						resolve();
+					});
+				});
 			}
+
+			console.warn(`[SteamCloudProvider] deleteFile not supported by greenworks version`);
+			return Promise.resolve();
 		},
 	};
 };

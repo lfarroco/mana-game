@@ -50,7 +50,7 @@ function getRandomEmptyPosition(occupiedPositions: Set<string>): { x: number; y:
 	return pickOne(availablePositions);
 }
 
-export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
+export async function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	if (round < 0) {
 		throw new Error("Round must be a non-negative number");
 	}
@@ -58,7 +58,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		throw new Error("Card pool cannot be empty");
 	}
 
-	const ghost = GhostStore.pickRandomGhost(round);
+	const ghost = await GhostStore.pickRandomGhost(round);
 	if (ghost) {
 		const ghostUnits = GhostStore.instantiateGhostUnits(ghost);
 		console.log(

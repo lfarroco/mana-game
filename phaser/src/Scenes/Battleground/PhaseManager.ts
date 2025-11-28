@@ -54,7 +54,7 @@ export async function startPhase(phase: string) {
 	}
 }
 
-export function handlePhaseEnded(): void {
+export async function handlePhaseEnded(): Promise<void> {
 	const currentPhase = hourAction[getState().gameData.hour];
 
 	// TODO: the combat phase itself should do this, when it ends
@@ -71,9 +71,9 @@ export function handlePhaseEnded(): void {
 
 	const phase = hourAction[getState().gameData.hour];
 
-	saveGameData();
+	await saveGameData();
 
-	startPhase(phase);
+	await startPhase(phase);
 }
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
