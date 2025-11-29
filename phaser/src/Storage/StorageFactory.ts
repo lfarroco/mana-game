@@ -11,8 +11,6 @@ const isElectron = (): boolean => {
 	);
 };
 
-
-
 const isSteamAvailable = (): boolean => {
 	try {
 		// Check if window.steamworks is available (set by Electron preload/main)
