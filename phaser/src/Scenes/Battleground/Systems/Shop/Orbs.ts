@@ -169,13 +169,13 @@ const increasePowerOnType = (type: string) => () => ({
 	name: `Increase Power (${type})`,
 	color: 0xff3333,
 	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+5[/color]",
+		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+10[/color]",
 		`[color=#c0c0c0]Target:[/color] [color=#e0e0e0]Type: ${type}[/color]`,
 	].join("\n"),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
-		increasePower([unit], 5, false);
+		increasePower([unit], 10, false);
 		console.log(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
 	}

@@ -120,7 +120,7 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		x: chip?.text.getCenter().x,
 		y: chip?.text.getCenter().y,
 		type: delta > 0 ? "heal" : "damage",
-		text: delta.toString()
+		text: delta.toFixed(0)
 	});
 
 }
@@ -168,7 +168,7 @@ export function updateShieldDisplay(
 		x: chip?.text.getCenter().x,
 		y: chip?.text.getCenter().y,
 		type: delta > 0 ? "shield" : "damage",
-		text: delta.toString()
+		text: delta.toFixed(0)
 	})
 
 }
