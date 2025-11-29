@@ -58,8 +58,10 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		throw new Error("Card pool cannot be empty");
 	}
 
+	const useGhosts = false; //disabled for now
+
 	const ghost = GhostStore.pickRandomGhost(round);
-	if (ghost) {
+	if (ghost && useGhosts) {
 		const ghostUnits = GhostStore.instantiateGhostUnits(ghost);
 		console.log(
 			`Loaded ghost enemy team for round ${round} (ghosts stored for round: ${GhostStore.getGhostCountForRound(round)})`
