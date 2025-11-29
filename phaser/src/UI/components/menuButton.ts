@@ -5,7 +5,7 @@ import { getCurrentScene, resetState } from "@Models/State";
 import * as io from "@PhaserIO";
 
 export function create() {
-	const btn = createUIButton("Menu", vec2(1800, 30), () => {
+	const btn = createUIButton("MENU", vec2(1800, 30), () => {
 		createPanel();
 	});
 
@@ -29,14 +29,14 @@ export function createPanel() {
 				},
 			],
 			[
-				"Return to Title",
+				"RETURN TO TITLE",
 				() => {
 					resetState();
 					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 				},
 			],
 			[
-				"Back",
+				"BACK",
 				() => {
 					io.Destroy(container);
 				},
