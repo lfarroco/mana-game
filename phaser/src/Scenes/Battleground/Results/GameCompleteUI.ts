@@ -8,12 +8,15 @@ import * as Chara from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
+import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 
 export function displayGameComplete(
 	state: ResultsUIState,
 	wins: number,
 	units: Unit[]
 ): void {
+	// Delete saved game data since the run is complete
+	deleteSavedData();
 
 	playMusic("music_playmode", true, 1000);
 

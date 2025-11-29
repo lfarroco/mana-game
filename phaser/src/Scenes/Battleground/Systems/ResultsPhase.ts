@@ -7,6 +7,7 @@ import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as PhaseManager from "../PhaseManager";
 import { deactivateBlackHole } from "../BlackHole";
 import { saveGameData } from "../../../Game/effects/saveGameData";
+import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -69,6 +70,9 @@ async function handleDefeat(): Promise<void> {
 
 	const player = state.gameData.player;
 	if (player.lives <= 0) {
+		// Delete saved game data since the run is over
+		deleteSavedData();
+
 		await renderVignette({
 			message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds`,
 		});
