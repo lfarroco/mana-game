@@ -34,6 +34,13 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 	}
 }
 
+function distributePowerPoints(units: Unit[], powerPoints: number): void {
+	for (let i = 0; i < powerPoints; i++) {
+		const unit = pickOne(units);
+		unit.power += 1;
+	}
+}
+
 function getRandomEmptyPosition(occupiedPositions: Set<string>): { x: number; y: number } {
 	const availablePositions: { x: number; y: number }[] = [];
 
@@ -86,6 +93,9 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	}
 
 	distributeUpgrades(units, upgradeCount);
+
+	const powerPoints = round * 10;
+	distributePowerPoints(units, powerPoints);
 
 	return units;
 }
