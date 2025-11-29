@@ -2,7 +2,6 @@ import { CardDefinition, getCores, getNonCores } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import * as GhostStore from "@Models/GhostStore";
 import { pickOne } from "../../utils";
 import { upgradeUnitData } from "@Systems/Chara/Chara";
 
@@ -56,17 +55,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	}
 	if (pool.length === 0) {
 		throw new Error("Card pool cannot be empty");
-	}
-
-	const useGhosts = false; //disabled for now
-
-	const ghost = GhostStore.pickRandomGhost(round);
-	if (ghost && useGhosts) {
-		const ghostUnits = GhostStore.instantiateGhostUnits(ghost);
-		console.log(
-			`Loaded ghost enemy team for round ${round} (ghosts stored for round: ${GhostStore.getGhostCountForRound(round)})`
-		);
-		return ghostUnits;
 	}
 
 	const unitCount = calculateUnitsForRound(round);
