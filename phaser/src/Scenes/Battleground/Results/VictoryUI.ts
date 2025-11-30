@@ -16,9 +16,9 @@ export function displayVictory(
 	// Add title
 	const titleText = "Victory!";
 	const title = scene.add
-		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
+		.text(panelX + panelWidth / 2, panelY + 30, titleText, {
 			...c.titleTextConfig,
-			fontSize: "48px",
+			fontSize: "36px",
 			color: "#4CAF50",
 		})
 		.setOrigin(0.5);
@@ -28,10 +28,10 @@ export function displayVictory(
 	// Add result message
 	const messageText = "Congratulations! You have won the battle.";
 	const message = scene.add
-		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
+		.text(panelX + panelWidth / 2, panelY + 80, messageText, {
 			...c.defaultTextConfig,
-			fontSize: "20px",
-			wordWrap: { width: panelWidth - 80 },
+			fontSize: "16px",
+			wordWrap: { width: panelWidth - 60 },
 		})
 		.setOrigin(0.5);
 	message.setDepth(1001);
@@ -39,7 +39,7 @@ export function displayVictory(
 
 	// Add next phase button
 	const buttonX = panelX + panelWidth / 2;
-	const buttonY = panelY + panelHeight - 80;
+	const buttonY = panelY + panelHeight - 60;
 	const nextButton = createUIButton("Continue", vec2(buttonX, buttonY), async () => {
 		await slideOut();
 		nextPhaseCallback();
