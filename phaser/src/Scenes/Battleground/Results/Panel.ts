@@ -24,8 +24,8 @@ export function createResultsPanel(state: ResultsUIState): {
 	state.backgroundOverlay.setDepth(1000);
 
 	const { width, height } = scene.cameras.main;
-	const panelWidth = 850;
-	const panelHeight = 850;
+	const panelWidth = 480;
+	const panelHeight = 400;
 	const panelX = width / 2 - panelWidth / 2;
 	const panelY = height / 2 - panelHeight / 2;
 
