@@ -35,6 +35,11 @@ export const manipulateCoreLife = (
 ): number => {
 	const core = getCore(targetForce.id);
 
+	// If core life is 0, it cannot restore life or take damage
+	if (core.life <= 0) {
+		return 0;
+	}
+
 	const oldLife = core.life;
 	if (amount > 0) {
 		core.life = Math.min(core.maxLife, core.life + amount);
@@ -55,6 +60,11 @@ export const manipulateCoreShield = (
 	displayFeedback: boolean = true
 ): number => {
 	const core = getCore(targetForce.id);
+
+	// If core life is 0, it cannot restore shield
+	if (core.life <= 0 && amount > 0) {
+		return 0;
+	}
 
 	const oldShield = core.shield;
 	if (amount > 0) {
@@ -83,6 +93,11 @@ export const applyDamageToForce = (
 	if (damage <= 0) return 0;
 
 	const core = getCore(targetForce.id);
+
+	// If core life is 0, it cannot be damaged
+	if (core.life <= 0) {
+		return 0;
+	}
 
 	let remainingDamage = damage;
 	const originalLife = core.life;

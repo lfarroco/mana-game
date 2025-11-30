@@ -9,6 +9,7 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
+import { deactivateBlackHole } from "./BlackHole";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -67,6 +68,8 @@ export async function finishCombat(outcome: WaveOutcome) {
 
 	Systems.Regen.stop();
 	Systems.Poison.stop();
+	Systems.Timeout.stopTimeoutDamageSystem();
+	deactivateBlackHole();
 
 	active = false;
 	if (outcome === "player_lost") {
