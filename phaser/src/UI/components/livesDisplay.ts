@@ -66,13 +66,19 @@ function createHearts(): Phaser.GameObjects.Text[] {
 	heartElements = [];
 
 	for (let i = 0; i < MAX_LIVES; i++) {
-		const heart = io.Text(GREEN_HEART, {
+		const isAlive = i < currentLives;
+		const heartIcon = isAlive ? GREEN_HEART : GRAY_HEART;
+
+		const heart = io.Text(heartIcon, {
 			...c.titleTextConfig,
 			fontSize: "36px",
 			color: "#ffffff",
 		});
 
-		// Position hearts in a row
+		if (!isAlive) {
+			heart.setTint(0x000000);
+		}
+
 		const xOffset = i * 40;
 		io.SetPosition(heart, vec2(xOffset, 0));
 		io.Centralize(heart);
