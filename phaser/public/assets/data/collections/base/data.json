@@ -323,6 +323,13 @@
 							"targets": {
 								"id": "self"
 							}
+						},
+						{
+							"id": "increase_critical",
+							"amount": 5,
+							"targets": {
+								"id": "row_allies"
+							}
 						}
 					]
 				}
@@ -581,6 +588,13 @@
 							"targets": {
 								"id": "self"
 							}
+						},
+						{
+							"id": "increase_critical",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
 						}
 					]
 				}
@@ -666,6 +680,13 @@
 					"effects": [
 						{
 							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						},
+						{
+							"id": "increase_critical",
 							"amount": 5,
 							"targets": {
 								"id": "self"
@@ -756,6 +777,13 @@
 							"amount": 5,
 							"targets": {
 								"id": "self"
+							}
+						},
+						{
+							"id": "increase_critical",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
 							}
 						}
 					]
