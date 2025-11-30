@@ -10,17 +10,15 @@ import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 
-export function displayGameComplete(
+export async function displayGameComplete(
 	state: ResultsUIState,
 	wins: number,
 	units: Unit[]
-): void {
-	// Delete saved game data since the run is complete
+): Promise<void> {
 	deleteSavedData();
 
 	playMusic("music_playmode", true, 1000);
 
-	// Create a semi-transparent background to make text readable but keep board visible
 	if (state.backgroundOverlay) {
 		state.backgroundOverlay.destroy();
 	}
@@ -30,7 +28,7 @@ export function displayGameComplete(
 		c.SCREEN_WIDTH,
 		c.SCREEN_HEIGHT,
 		0x000000,
-		0.7 // 70% opacity black
+		0.7
 	);
 	state.backgroundOverlay.setInteractive();
 	state.backgroundOverlay.setDepth(1000);
@@ -64,7 +62,6 @@ export function displayGameComplete(
 		color = "#FFFFFF"; // White
 	}
 
-	// Check for Steam achievements based on core crystal and wins
 	const playerCore = units.find((unit) => unit.isCore);
 	if (playerCore && wins >= 5) {
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
@@ -96,14 +93,16 @@ export function displayGameComplete(
 			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 		}
 	);
+	continueButton.disable();
 	state.resultsContainer.add(continueButton.container);
 
-	renderBoard(state, units);
+	await renderBoard(state, units);
+
+	continueButton.enable();
 }
 
 async function renderBoard(state: ResultsUIState, units: Unit[]): Promise<void> {
 	for (const unit of units) {
-		// Create the full Chara component with all its visual elements
 		const chara = await Chara.summon(unit);
 		state.resultsContainer.add(chara);
 	}
