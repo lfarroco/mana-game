@@ -11,7 +11,6 @@ export function displayGameOver(
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
 
-	// Add title
 	const titleText = "Game Over!";
 	const title = getCurrentScene().add
 		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
@@ -23,7 +22,6 @@ export function displayGameOver(
 	title.setDepth(1001);
 	state.resultsContainer.add(title);
 
-	// Add result message
 	const messageText = "You have been defeated. Good luck next time!";
 	const message = getCurrentScene().add
 		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
