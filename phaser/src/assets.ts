@@ -3,6 +3,10 @@ export const images = {
 		key: "ui/logo",
 		url: "assets/ui/logo.png",
 	},
+	youtube_icon: {
+		key: "ui/youtube_icon",
+		url: "assets/ui/youtube_icon.png",
+	},
 	reveal_mask: {
 		key: "fx/reveal-mask",
 		url: "assets/fx/reveal-mask.png",
