@@ -17,7 +17,7 @@ export const hourAction: string[] = [
 	"encounter",
 	"encounter",
 	"combat",
-	"upgrade_orb"
+	"upgrade_core_orbs"
 ];
 
 export async function startPhase(phase: string) {
@@ -30,16 +30,13 @@ export async function startPhase(phase: string) {
 			await HeroShop.openHeroShop();
 			handlePhaseEnded();
 			break;
-		case "orb":
-			OrbShop.openOrbShop();
-			break;
 		case "combat":
 			CombatPhase.transitionToCombatPhase();
 			break;
 		case "encounter":
 			Encounter.open();
 			break;
-		case "upgrade_orb":
+		case "upgrade_core_orbs":
 			await OrbShop.openOrbShop(
 				[
 					"increase_core_max_life",

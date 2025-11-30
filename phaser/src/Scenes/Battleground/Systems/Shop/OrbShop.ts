@@ -11,21 +11,12 @@ import { hexToVector3 } from "@Utils/colorUtils";
 import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
-const availableOrbs = [
-	"increase_power",
-	"emerald_orb",
-	"azure_orb",
-	"golden_orb",
-	"violet_orb",
-	"charge_orb",
-	"positional_power_orb",
-	"positional_typed_power_orb",
-];
-export async function openOrbShop(orbs?: string[]): Promise<void> {
+
+export async function openOrbShop(orbs: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-		const selectedOrbs = pickRandom(orbs ? orbs : availableOrbs, 3);
+		const selectedOrbs = pickRandom(orbs, 3);
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
@@ -41,6 +32,7 @@ export async function openOrbShop(orbs?: string[]): Promise<void> {
 			completeSectionCallback();
 		});
 
+		// TODO: this should be done when leaving combat phase
 		Board.setEnemyBoardVisible(false);
 
 		await ShopPanel.slideIn();
