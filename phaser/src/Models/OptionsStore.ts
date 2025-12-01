@@ -18,6 +18,9 @@ export const init = () => {
 		Object.assign(currentOptions, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
+	game.sound.volume =
+		currentOptions.soundVolume * currentOptions.musicVolume;
+	AudioManager.onOptionsChanged();
 };
 
 export type Options = {
