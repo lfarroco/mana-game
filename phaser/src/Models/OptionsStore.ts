@@ -4,9 +4,10 @@ import { storage } from "../Storage";
 
 let currentOptions: Options = {
 	sound: true,
-	soundVolume: 0.4,
+	soundVolume: 0.6,
 	music: true,
-	musicVolume: 0.2,
+	musicVolume: 0.4,
+	masterVolume: 1,
 	debug: false,
 	speed: 2,
 	particles: "medium",
@@ -18,8 +19,7 @@ export const init = () => {
 		Object.assign(currentOptions, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
-	game.sound.volume =
-		currentOptions.soundVolume * currentOptions.musicVolume;
+	game.sound.volume = currentOptions.masterVolume;
 	AudioManager.onOptionsChanged();
 };
 
@@ -28,6 +28,7 @@ export type Options = {
 	soundVolume: number;
 	music: boolean;
 	musicVolume: number;
+	masterVolume: number;
 	debug: boolean;
 	speed: number;
 	particles: "low" | "medium" | "high";
@@ -56,9 +57,11 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 		setGameSpeed(value as number);
 		return;
 	}
+	if (key === "masterVolume") {
+		game.sound.volume = value as number;
+		return;
+	}
 	if (key === "soundVolume" || key === "musicVolume") {
-		game.sound.volume =
-			(currentOptions.soundVolume as number) * (currentOptions.musicVolume as number);
 		return;
 	}
 }
@@ -107,6 +110,13 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 		parsed.musicVolume <= 1
 	) {
 		validOptions.musicVolume = parsed.musicVolume;
+	}
+	if (
+		typeof parsed.masterVolume === "number" &&
+		parsed.masterVolume >= 0 &&
+		parsed.masterVolume <= 1
+	) {
+		validOptions.masterVolume = parsed.masterVolume;
 	}
 	if (typeof parsed.debug === "boolean") validOptions.debug = parsed.debug;
 	if (typeof parsed.speed === "number" && parsed.speed > 0) validOptions.speed = parsed.speed;

@@ -4,30 +4,37 @@ import { volume } from "../controls/volume";
 
 export function audioTab(startY: number, lineHeight: number) {
 	return [
+		volume(
+			"Master Volume",
+			startY,
+			() => getOption("masterVolume"),
+			(value) => setOption("masterVolume", value)
+		),
+
 		boolean(
 			"Sound",
-			startY,
+			startY + lineHeight,
 			() => getOption("sound"),
 			(value) => setOption("sound", value)
 		),
 
 		volume(
 			"Sound Volume",
-			startY + lineHeight,
+			startY + lineHeight * 2,
 			() => getOption("soundVolume"),
 			(value) => setOption("soundVolume", value)
 		),
 
 		boolean(
 			"Music",
-			startY + lineHeight * 2,
+			startY + lineHeight * 3,
 			() => getOption("music"),
 			(value) => setOption("music", value)
 		),
 
 		volume(
 			"Music Volume",
-			startY + lineHeight * 3,
+			startY + lineHeight * 4,
 			() => getOption("musicVolume"),
 			(value) => setOption("musicVolume", value)
 		),
