@@ -13,7 +13,8 @@ import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 export async function displayGameComplete(
 	state: ResultsUIState,
 	wins: number,
-	units: Unit[]
+	units: Unit[],
+	nextPhaseCallback?: () => void
 ): Promise<void> {
 	deleteSavedData();
 
@@ -95,6 +96,19 @@ export async function displayGameComplete(
 	);
 	continueButton.disable();
 	state.resultsContainer.add(continueButton.container);
+
+	if (wins >= 10 && nextPhaseCallback) {
+		const infiniteButton = createUIButton(
+			"Infinite Mode",
+			vec2(baseX, centerY + 350),
+			async () => {
+				const { slideOut } = await import("./ResultsUI");
+				await slideOut();
+				nextPhaseCallback();
+			}
+		);
+		state.resultsContainer.add(infiniteButton.container);
+	}
 
 	await renderBoard(state, units);
 

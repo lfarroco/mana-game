@@ -4,6 +4,7 @@ import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { pickOne } from "../../utils";
 import { upgradeUnitData } from "@Systems/Chara/Chara";
+import { getState } from "@Models/State";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -93,7 +94,17 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	distributeUpgrades(units, upgradeCount);
 
 	const powerPoints = round * 10;
-	distributePowerPoints(units, powerPoints);
+	const state = getState();
+	if (state.gameData.player.wins >= 10) {
+		const multiplier = Math.pow(1.1, round - 10);
+		coreUnit.life = Math.floor(coreUnit.life * multiplier);
+		coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);
+
+		const infinitePowerPoints = Math.floor(powerPoints * multiplier);
+		distributePowerPoints(units, infinitePowerPoints);
+	} else {
+		distributePowerPoints(units, powerPoints);
+	}
 
 	return units;
 }

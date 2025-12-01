@@ -44,7 +44,7 @@ function determineGameOutcome(
 	newWins: number,
 	expectedNewLives: number
 ): { gameWon: boolean; gameOver: boolean } {
-	const gameWon = resultType === "victory" && newWins >= WINS_TO_WIN_GAME;
+	const gameWon = resultType === "victory" && newWins === WINS_TO_WIN_GAME;
 	const gameOver = resultType === "defeat" && expectedNewLives <= 0;
 	return { gameWon, gameOver };
 }
@@ -60,9 +60,9 @@ function displayAppropriateUI(
 	units: any[]
 ): void {
 	if (gameWon) {
-		displayGameComplete(state, newWins, units);
+		displayGameComplete(state, newWins, units, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameComplete(state, newWins, units);
+		displayGameComplete(state, newWins, units, nextPhaseCallback);
 	} else if (resultType === "victory") {
 		displayVictory(state, nextPhaseCallback);
 	} else {
