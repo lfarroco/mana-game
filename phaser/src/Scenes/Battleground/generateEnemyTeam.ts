@@ -87,10 +87,8 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 		units.push(unit);
 	}
 
-	if (round > 1) {
-		coreUnit.life += 100;
-		coreUnit.maxLife += 100;
-	}
+	coreUnit.life = (coreCard.life || 500) + (100 * (round - 1));
+	coreUnit.maxLife = (coreCard.life || 500) + (100 * (round - 1));
 
 	distributeUpgrades(units, upgradeCount);
 
