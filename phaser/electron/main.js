@@ -36,7 +36,6 @@ function createWindow() {
 		icon: path.join(__dirname, 'icon.png')
 	});
 
-	// Load the app
 	if (process.env.NODE_ENV === 'development') {
 		mainWindow.loadURL('http://localhost:8080');
 		mainWindow.webContents.openDevTools();
