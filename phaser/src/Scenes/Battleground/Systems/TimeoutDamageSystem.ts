@@ -77,11 +77,17 @@ function applyTimeoutDamage(
 	cpuForce: Force,
 	timeSinceTimeoutStarted: number
 ): void {
-	const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-	const currentDamage = Math.floor(5 * Math.pow(1.5, tickCount - 1));
+	let currentDamage: number;
+
+	if (timeSinceTimeoutStarted >= 60000) {
+		currentDamage = Infinity;
+	} else {
+		const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
+		currentDamage = Math.floor(5 * Math.pow(1.5, tickCount - 1));
+	}
 
 	console.log(
-		`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`
+		`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`
 	);
 
 	// Launch targeted shooting stars for each force that apply damage on hit
