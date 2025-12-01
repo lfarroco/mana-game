@@ -13,6 +13,7 @@ export type Unit = {
 	rank: number;
 
 	power: number;
+	bonusPower: number;
 
 	lifesteal?: boolean;
 	critical?: number;
@@ -76,6 +77,7 @@ export function createUnitFromCardSpec(
 		maxLife: cardDef.life || 0,
 		critical: cardDef.critical || 0,
 		shield: 0,
+		bonusPower: 0,
 	};
 }
 

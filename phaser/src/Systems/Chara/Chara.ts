@@ -235,6 +235,7 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
 		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
 		playerUnit.power += num;
+		playerUnit.bonusPower += num;
 	}
 }
 
@@ -292,7 +293,7 @@ export function upgradeUnitData(unit: Unit) {
 	unit.rank += 1;
 
 	if (source.power)
-		unit.power = source.power * unit.rank;
+		unit.power = (source.power * unit.rank) + unit.bonusPower;
 
 	resetUnitEffectsToCardDefinition(unit, source);
 	upgradeUnitEffects(unit);
