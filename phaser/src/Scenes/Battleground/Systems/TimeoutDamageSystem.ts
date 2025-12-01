@@ -78,7 +78,7 @@ function applyTimeoutDamage(
 	timeSinceTimeoutStarted: number
 ): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-	const currentDamage = Math.floor(10 * Math.pow(1.5, tickCount - 1));
+	const currentDamage = Math.floor(5 * Math.pow(1.5, tickCount - 1));
 
 	console.log(
 		`[TimeoutDamageSystem] Timeout damage tick ${tickCount}: ${currentDamage} damage to both forces`
