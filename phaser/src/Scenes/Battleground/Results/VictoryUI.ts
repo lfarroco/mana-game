@@ -4,6 +4,7 @@ import { slideOut, ResultsUIState } from "./ResultsUI";
 import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
+import { VICTORY_MESSAGES, INFINITE_MODE_THRESHOLD } from "./ResultsConfig";
 
 export function displayVictory(
 	state: ResultsUIState,
@@ -27,10 +28,9 @@ export function displayVictory(
 	state.resultsContainer.add(title);
 
 	// Add result message
-	let messageText = "Congratulations! You have won the battle.";
-	if (wins > 10) {
-		messageText = `You've won ${wins} matches so far - keep it up!`;
-	}
+	const messageText = wins > INFINITE_MODE_THRESHOLD
+		? VICTORY_MESSAGES.infinite(wins)
+		: VICTORY_MESSAGES.standard;
 
 	const message = scene.add
 		.text(panelX + panelWidth / 2, panelY + 80, messageText, {

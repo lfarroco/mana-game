@@ -5,8 +5,9 @@ import { getCurrentScene, getState } from "@Models/State";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
+import { Unit } from "@Models/Entities/Unit";
+import { WINS_TO_WIN_GAME } from "./ResultsConfig";
 
-const WINS_TO_WIN_GAME = 10;
 const RESULTS_CONTAINER_DEPTH = 1002;
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
@@ -57,7 +58,7 @@ function displayAppropriateUI(
 	livesChange: number,
 	nextPhaseCallback: () => void,
 	newWins: number,
-	units: any[]
+	units: Unit[]
 ): void {
 	if (gameWon) {
 		displayGameComplete(state, newWins, units, false, nextPhaseCallback);
