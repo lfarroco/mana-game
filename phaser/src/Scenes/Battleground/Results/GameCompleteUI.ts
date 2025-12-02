@@ -14,6 +14,7 @@ export async function displayGameComplete(
 	state: ResultsUIState,
 	wins: number,
 	units: Unit[],
+	isGameOver: boolean,
 	nextPhaseCallback?: () => void
 ): Promise<void> {
 	deleteSavedData();
@@ -50,8 +51,13 @@ export async function displayGameComplete(
 	let color = "#FFFFFF";
 
 	if (wins >= 10) {
-		message = "Gold Victory";
-		color = "#FFD700"; // Gold
+		if (isGameOver) {
+			message = "Run Complete";
+			color = "#F44336";
+		} else {
+			message = "Gold Victory";
+			color = "#FFD700"; // Gold
+		}
 	} else if (wins >= 8) {
 		message = "Silver Victory";
 		color = "#C0C0C0"; // Silver
@@ -76,9 +82,14 @@ export async function displayGameComplete(
 		.setOrigin(0.5);
 	state.resultsContainer.add(messageText);
 
+	let subtitleText = "Thanks for playing! Come back for more updates!";
+	if (isGameOver && wins > 10) {
+		subtitleText = `You defeated ${wins} teams in your journey, great job!`;
+	}
+
 	const subtitle = getCurrentScene().add
 		.text(baseX, centerY + 100,
-			"Thanks for playing! Come back for more updates!",
+			subtitleText,
 			{
 				...c.titleTextConfig,
 				fontSize: "24px",
@@ -97,7 +108,7 @@ export async function displayGameComplete(
 	continueButton.disable();
 	state.resultsContainer.add(continueButton.container);
 
-	if (wins >= 10 && nextPhaseCallback) {
+	if (wins >= 10 && nextPhaseCallback && !isGameOver) {
 		const infiniteButton = createUIButton(
 			"Infinite Mode",
 			vec2(baseX, centerY + 350),

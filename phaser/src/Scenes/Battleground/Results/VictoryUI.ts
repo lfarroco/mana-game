@@ -7,6 +7,7 @@ import { getCurrentScene } from "@Models/State";
 
 export function displayVictory(
 	state: ResultsUIState,
+	wins: number,
 	nextPhaseCallback: () => void
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
@@ -26,7 +27,11 @@ export function displayVictory(
 	state.resultsContainer.add(title);
 
 	// Add result message
-	const messageText = "Congratulations! You have won the battle.";
+	let messageText = "Congratulations! You have won the battle.";
+	if (wins > 10) {
+		messageText = `You've won ${wins} matches so far - keep it up!`;
+	}
+
 	const message = scene.add
 		.text(panelX + panelWidth / 2, panelY + 80, messageText, {
 			...c.defaultTextConfig,
