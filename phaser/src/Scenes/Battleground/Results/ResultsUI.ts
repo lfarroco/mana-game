@@ -60,11 +60,11 @@ function displayAppropriateUI(
 	units: any[]
 ): void {
 	if (gameWon) {
-		displayGameComplete(state, newWins, units, nextPhaseCallback);
+		displayGameComplete(state, newWins, units, false, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameComplete(state, newWins, units, nextPhaseCallback);
+		displayGameComplete(state, newWins, units, true, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, nextPhaseCallback);
+		displayVictory(state, newWins, nextPhaseCallback);
 	} else {
 		displayDefeat(state, livesChange, nextPhaseCallback);
 	}

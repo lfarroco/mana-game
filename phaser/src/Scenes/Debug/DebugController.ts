@@ -288,7 +288,7 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 
 	init();
 
-	displayGameComplete(state, wins, gameState.gameData.player.units);
+	displayGameComplete(state, wins, gameState.gameData.player.units, false);
 }
 
 export function defeatCpu(): string {
