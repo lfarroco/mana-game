@@ -9,6 +9,11 @@ import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
+import {
+	getVictoryTier,
+	DEFEAT_MESSAGES,
+	INFINITE_MODE_THRESHOLD
+} from "./ResultsConfig";
 
 export async function displayGameComplete(
 	state: ResultsUIState,
@@ -47,27 +52,7 @@ export async function displayGameComplete(
 		.setOrigin(0.5);
 	state.resultsContainer.add(winsText);
 
-	let message = "";
-	let color = "#FFFFFF";
-
-	if (wins >= 10) {
-		if (isGameOver) {
-			message = "Run Complete";
-			color = "#F44336";
-		} else {
-			message = "Gold Victory";
-			color = "#FFD700"; // Gold
-		}
-	} else if (wins >= 8) {
-		message = "Silver Victory";
-		color = "#C0C0C0"; // Silver
-	} else if (wins >= 5) {
-		message = "Bronze Victory";
-		color = "#CD7F32"; // Bronze
-	} else {
-		message = "Better luck next time!";
-		color = "#FFFFFF"; // White
-	}
+	const { message, color } = getVictoryTier(wins, isGameOver);
 
 	const playerCore = units.find((unit) => unit.isCore);
 	if (playerCore && wins >= 5) {
@@ -82,10 +67,9 @@ export async function displayGameComplete(
 		.setOrigin(0.5);
 	state.resultsContainer.add(messageText);
 
-	let subtitleText = "Thanks for playing! Come back for more updates!";
-	if (isGameOver && wins > 10) {
-		subtitleText = `You defeated ${wins} teams in your journey, great job!`;
-	}
+	const subtitleText = (isGameOver && wins > INFINITE_MODE_THRESHOLD)
+		? DEFEAT_MESSAGES.infinite(wins)
+		: DEFEAT_MESSAGES.standard;
 
 	const subtitle = getCurrentScene().add
 		.text(baseX, centerY + 100,
@@ -108,7 +92,7 @@ export async function displayGameComplete(
 	continueButton.disable();
 	state.resultsContainer.add(continueButton.container);
 
-	if (wins >= 10 && nextPhaseCallback && !isGameOver) {
+	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
 		const infiniteButton = createUIButton(
 			"Infinite Mode",
 			vec2(baseX, centerY + 350),
