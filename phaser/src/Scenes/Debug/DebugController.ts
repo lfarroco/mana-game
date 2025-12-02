@@ -1,6 +1,7 @@
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
-import { CardDefinition } from "@Models/Entities/Card";
+import { CardDefinition, getCore } from "@Models/Entities/Card";
+import { playerForce, cpuForce } from "@Models/Entities/Force";
 import * as constants from "@Constants/constants";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Systems from "../Battleground/Systems";
@@ -288,4 +289,25 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 	init();
 
 	displayGameComplete(state, wins, gameState.gameData.player.units);
+}
+
+export function defeatCpu(): string {
+	const core = getCore(cpuForce.id);
+	if (!core) return "Error: CPU core not found";
+	core.life = 0;
+	return "CPU core life set to 0. Victory imminent.";
+}
+
+export function defeatPlayer(): string {
+	const core = getCore(playerForce.id);
+	if (!core) return "Error: Player core not found";
+	core.life = 0;
+	return "Player core life set to 0. Defeat imminent.";
+}
+
+export async function setWins(wins: number): Promise<string> {
+	const { updateWinsDisplay } = await import("../../UI/components/winsDisplay");
+	getState().gameData.player.wins = wins;
+	updateWinsDisplay(wins);
+	return `Wins set to ${wins}`;
 }
