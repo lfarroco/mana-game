@@ -1,4 +1,3 @@
-import { defaultTextConfig } from "@Constants/constants";
 import { asVec2, size, sumVec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 
@@ -13,7 +12,8 @@ const index = new Map<
 >();
 
 export function createChip(id: string, position: Vec2, color: number, value: string, minWidth?: number) {
-	const text = io.Text(value, defaultTextConfig);
+	const text = io.Label(value)
+		.setFontSize(32);
 	io.SetPosition(text, position);
 	io.Centralize(text);
 

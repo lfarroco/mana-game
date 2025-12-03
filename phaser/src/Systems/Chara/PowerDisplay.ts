@@ -22,7 +22,7 @@ export function create(unit: Unit, container: Chara) {
 
 	const displayedPower = Math.floor(unit.power);
 
-	const powerDisplayPosition = vec2(0, constants.HALF_TILE_HEIGHT);
+	const powerDisplayPosition = vec2(0, constants.HALF_TILE_HEIGHT - 10);
 
 	const colorMap = {
 		damage: POWER_DISPLAY_COLORS.DAMAGE_BG,
