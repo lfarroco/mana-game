@@ -1,6 +1,7 @@
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
+import { Unit } from "@Models/Entities/Unit";
 import {
 	VICTORY_MESSAGES,
 	INFINITE_MODE_THRESHOLD,
@@ -10,9 +11,11 @@ import {
 	RESULTS_SPACING
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
+import { createCombatStatsPanels } from "./CombatStatsTable";
 
 export function displayVictory(
 	wins: number,
+	units: Unit[],
 	nextPhaseCallback: () => void
 ): Phaser.GameObjects.Container {
 	// Panel dimensions
@@ -47,6 +50,9 @@ export function displayVictory(
 			).container
 	);
 
+	// Create combat stats panels
+	const { playerPanel, cpuPanel } = createCombatStatsPanels(units, panelX, panelY);
+
 	// Create container with all elements
 	const container = io.Container([
 		io.BorderedRoundRect(
@@ -66,6 +72,8 @@ export function displayVictory(
 			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageY)),
 			(label) => io.Centralize(label),
 		],
+		playerPanel,
+		cpuPanel,
 		...buttons,
 	]);
 

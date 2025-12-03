@@ -1,6 +1,7 @@
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
+import { Unit } from "@Models/Entities/Unit";
 import {
 	RESULTS_COLORS,
 	RESULTS_FONT_SIZES,
@@ -8,9 +9,11 @@ import {
 	RESULTS_SPACING
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
+import { createCombatStatsPanels } from "./CombatStatsTable";
 
 export function displayDefeat(
 	livesChange: number,
+	units: Unit[],
 	nextPhaseCallback: () => void
 ): Phaser.GameObjects.Container {
 	// Panel dimensions
@@ -44,6 +47,9 @@ export function displayDefeat(
 			).container
 	);
 
+	// Create combat stats panels
+	const { playerPanel, cpuPanel } = createCombatStatsPanels(units, panelX, panelY);
+
 	const container = io.Container([
 		io.BorderedRoundRect(
 			vec2(panelX, panelY),
@@ -72,6 +78,8 @@ export function displayDefeat(
 			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + 160)),
 			(label) => io.Centralize(label),
 		],
+		playerPanel,
+		cpuPanel,
 		...buttons,
 	]);
 

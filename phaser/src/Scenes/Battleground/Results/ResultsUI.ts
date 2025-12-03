@@ -72,9 +72,9 @@ async function displayAppropriateUI(
 	} else if (gameOver) {
 		return await displayGameComplete(newWins, units, true, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		return displayVictory(newWins, nextPhaseCallback);
+		return displayVictory(newWins, units, nextPhaseCallback);
 	} else {
-		return displayDefeat(livesChange, nextPhaseCallback);
+		return displayDefeat(livesChange, units, nextPhaseCallback);
 	}
 }
 
@@ -96,7 +96,10 @@ export async function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	const uiContainer = await displayAppropriateUI(resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
+	// Get all units from the battle, not just player units
+	const allBattleUnits = gameState.battleData.units;
+
+	const uiContainer = await displayAppropriateUI(resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, allBattleUnits);
 	resultsContainer.add(uiContainer);
 }
 
