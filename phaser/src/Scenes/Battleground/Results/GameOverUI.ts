@@ -1,7 +1,6 @@
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
-import { ResultsUIState } from "./ResultsUI";
-import { createResultsPanel } from "./Panel";
+import { getPanelContainer, getPanelBounds } from "./Panel";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import { startGame } from "../../../Game/effects/startGame";
@@ -12,49 +11,48 @@ import {
 } from "./ResultsConfig";
 import { createTitle, createMessage } from "./ResultsHelpers";
 
-export function displayGameOver(
-	state: ResultsUIState,
-): void {
-	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
+export function displayGameOver(): void {
+	const panelContainer = getPanelContainer();
+	const { panelWidth, panelHeight } = getPanelBounds();
 
-	const centerX = panelX + panelWidth / 2;
+	const centerX = panelWidth / 2;
 
 	const title = createTitle(
 		centerX,
-		panelY + RESULTS_SPACING.titleYLarge,
+		RESULTS_SPACING.titleYLarge,
 		"Game Over!",
 		RESULTS_FONT_SIZES.titleLarge,
 		RESULTS_COLORS.defeat
 	);
-	state.resultsContainer.add(title);
+	panelContainer.add(title);
 
 	// Add result message
 	const message = createMessage(
 		centerX,
-		panelY + RESULTS_SPACING.messageYLarge,
+		RESULTS_SPACING.messageYLarge,
 		"You have been defeated. Good luck next time!",
 		RESULTS_FONT_SIZES.messageLarge,
 		panelWidth - RESULTS_SPACING.panelPaddingLarge
 	);
-	state.resultsContainer.add(message);
+	panelContainer.add(message);
 
 	const newRunButton = createUIButton(
 		"NEW RUN",
-		vec2(centerX, panelY + panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge - RESULTS_SPACING.buttonSpacing),
+		vec2(centerX, panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge - RESULTS_SPACING.buttonSpacing),
 		async () => {
 			resetState();
 			startGame();
 		}
 	);
-	state.resultsContainer.add(newRunButton.container);
+	panelContainer.add(newRunButton.container);
 
 	const mainMenuButton = createUIButton(
 		"MAIN MENU",
-		vec2(centerX, panelY + panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge),
+		vec2(centerX, panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge),
 		async () => {
 			resetState();
 			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 		}
 	);
-	state.resultsContainer.add(mainMenuButton.container);
+	panelContainer.add(mainMenuButton.container);
 }

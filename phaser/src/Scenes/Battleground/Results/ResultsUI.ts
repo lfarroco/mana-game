@@ -5,28 +5,20 @@ import { getCurrentScene, getState } from "@Models/State";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
+import { createPanel, clearPanel, getPanelContainer } from "./Panel";
 import { Unit } from "@Models/Entities/Unit";
-import { WINS_TO_WIN_GAME, RESULTS_DEPTHS } from "./ResultsConfig";
+import { WINS_TO_WIN_GAME } from "./ResultsConfig";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
-export type ResultsUIState = {
-	resultsContainer: Phaser.GameObjects.Container;
-	backgroundOverlay: Phaser.GameObjects.Rectangle | null;
-	isOpen: boolean;
-};
+export let resultsContainer: Phaser.GameObjects.Container;
+export let isOpen: boolean;
 
-let state: ResultsUIState | null = null;
+export function createResultsUI() {
+	resultsContainer = getCurrentScene().add.container(0, 0);
+	isOpen = false;
 
-export function create() {
-	state = {
-		resultsContainer: getCurrentScene().add.container(0, 0),
-		backgroundOverlay: null,
-		isOpen: false,
-	};
-
-	state.resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
-	state.resultsContainer.setDepth(RESULTS_DEPTHS.container);
+	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
 }
 
 function calculateLivesChange(
@@ -50,7 +42,6 @@ function determineGameOutcome(
 }
 
 function displayAppropriateUI(
-	state: ResultsUIState,
 	resultType: "victory" | "defeat",
 	gameWon: boolean,
 	gameOver: boolean,
@@ -60,13 +51,13 @@ function displayAppropriateUI(
 	units: Unit[]
 ): void {
 	if (gameWon) {
-		displayGameComplete(state, newWins, units, false, nextPhaseCallback);
+		displayGameComplete(newWins, units, false, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameComplete(state, newWins, units, true, nextPhaseCallback);
+		displayGameComplete(newWins, units, true, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(state, newWins, nextPhaseCallback);
+		displayVictory(newWins, nextPhaseCallback);
 	} else {
-		displayDefeat(state, livesChange, nextPhaseCallback);
+		displayDefeat(livesChange, nextPhaseCallback);
 	}
 }
 
@@ -74,8 +65,9 @@ export function displayResults(
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void
 ): void {
-	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
-	state.resultsContainer.removeAll(true);
+	resultsContainer.removeAll(true);
+	const scene = getCurrentScene();
+	scene.children.bringToTop(resultsContainer);
 
 	const gameState = getState();
 	const player = gameState.gameData.player;
@@ -86,46 +78,33 @@ export function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	displayAppropriateUI(state, resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
+	if (!gameWon && !gameOver) {
+		createPanel();
+		resultsContainer.add(getPanelContainer());
+	} else if (gameOver) {
+		createPanel();
+		resultsContainer.add(getPanelContainer());
+	}
+
+	displayAppropriateUI(resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
 }
 
 export async function slideIn(): Promise<void> {
-	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
+	await tween({ targets: [resultsContainer], y: 0 });
 
-	if (state.backgroundOverlay) {
-		state.backgroundOverlay.setVisible(true);
-	}
-
-	state.resultsContainer.setDepth(RESULTS_DEPTHS.container);
-	await tween({ targets: [state.resultsContainer], y: 0 });
-	state.isOpen = true;
+	isOpen = true;
 }
 
 export async function slideOut(): Promise<void> {
-	if (!state) throw new Error("ResultsUI not initialized. Call create() first.");
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
-	await tween({ targets: [state.resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
+	await tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
 
-	if (state.backgroundOverlay) {
-		state.backgroundOverlay.setVisible(false);
-	}
+	clearPanel();
 
-	state.isOpen = false;
-}
-
-export function destroy(): void {
-	if (!state) return;
-
-	if (state.backgroundOverlay) {
-		state.backgroundOverlay.destroy();
-		state.backgroundOverlay = null;
-	}
-
-	state.resultsContainer.destroy(true);
-	state = null;
+	isOpen = false;
 }
 
 export function getIsResultsOpen(): boolean {
-	return !!state?.isOpen;
+	return isOpen;
 }

@@ -1,28 +1,28 @@
 import * as c from "@Constants/constants";
-import { ResultsUIState } from "./ResultsUI";
 import { getCurrentScene } from "@Models/State";
-import { RESULTS_PANEL, RESULTS_DEPTHS } from "./ResultsConfig";
+import { RESULTS_PANEL } from "./ResultsConfig";
+import { Container } from "@PhaserIO";
 
-export function createResultsPanel(state: ResultsUIState): {
+let panelContainer: Container | null = null;
+let panelBounds: {
 	panelX: number;
 	panelY: number;
 	panelWidth: number;
 	panelHeight: number;
-} {
+} | null = null;
+
+export function createPanel(): void {
 	const scene = getCurrentScene();
-	if (state.backgroundOverlay) {
-		state.backgroundOverlay.destroy();
-	}
-	state.backgroundOverlay = scene.add.rectangle(
-		c.SCREEN_WIDTH / 2,
-		c.SCREEN_HEIGHT / 2,
+
+	const backgroundOverlay = scene.add.rectangle(
+		0,
+		0,
 		c.SCREEN_WIDTH,
 		c.SCREEN_HEIGHT,
 		RESULTS_PANEL.overlayColor,
 		0
 	);
-	state.backgroundOverlay.setInteractive();
-	state.backgroundOverlay.setDepth(RESULTS_DEPTHS.overlay);
+	backgroundOverlay.setInteractive();
 
 	const { width, height } = scene.cameras.main;
 	const panelWidth = RESULTS_PANEL.width;
@@ -33,9 +33,37 @@ export function createResultsPanel(state: ResultsUIState): {
 	const resultsBackground = scene.add
 		.graphics()
 		.fillStyle(RESULTS_PANEL.backgroundColor, RESULTS_PANEL.backgroundAlpha)
-		.fillRoundedRect(panelX, panelY, panelWidth, panelHeight, RESULTS_PANEL.borderRadius);
-	resultsBackground.setDepth(RESULTS_DEPTHS.panel);
-	state.resultsContainer.add(resultsBackground);
+		.fillRoundedRect(0, 0, panelWidth, panelHeight, RESULTS_PANEL.borderRadius);
 
-	return { panelX, panelY, panelWidth, panelHeight };
+	panelContainer = Container([backgroundOverlay, resultsBackground]).setPosition(panelX, panelY);
+
+	panelBounds = { panelX, panelY, panelWidth, panelHeight };
+}
+
+export function getPanelContainer(): Container {
+	if (!panelContainer) {
+		throw new Error("Panel container not initialized. Call createPanel() first.");
+	}
+	return panelContainer;
+}
+
+export function getPanelBounds(): {
+	panelX: number;
+	panelY: number;
+	panelWidth: number;
+	panelHeight: number;
+} {
+	if (!panelBounds) {
+		throw new Error("Panel bounds not initialized. Call createPanel() first.");
+	}
+	return panelBounds;
+}
+
+export function clearPanel(): void {
+	if (panelContainer) {
+		panelContainer.removeAll(true);
+		panelContainer.destroy();
+		panelContainer = null;
+	}
+	panelBounds = null;
 }

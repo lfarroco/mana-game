@@ -191,8 +191,7 @@ export async function summon(
 }
 
 export async function triggerGameComplete(wins: number = 0): Promise<void> {
-	const { getCurrentScene } = await import("@Models/State");
-	const { init } = await import("@Components/Tooltip");
+	const tooltip = await import("@Components/Tooltip");
 	const { displayGameComplete } = await import("../Battleground/Results/GameCompleteUI");
 
 	const gameState = getState();
@@ -277,18 +276,9 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 		];
 	}
 
-	const scene = getCurrentScene();
-	const container = scene.add.container(0, 0);
-	container.setDepth(2000);
-	const state = {
-		resultsContainer: container,
-		backgroundOverlay: null,
-		isOpen: true
-	};
+	tooltip.init();
 
-	init();
-
-	displayGameComplete(state, wins, gameState.gameData.player.units, false);
+	displayGameComplete(wins, gameState.gameData.player.units, false);
 }
 
 export function defeatCpu(): string {

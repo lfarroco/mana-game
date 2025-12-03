@@ -1,6 +1,5 @@
 import { createUIButton } from "../../../Components/UIButton";
-import { slideOut, ResultsUIState } from "./ResultsUI";
-import { createResultsPanel } from "./Panel";
+import { getPanelContainer, getPanelBounds } from "./Panel";
 import { vec2 } from "@Models/Geometry";
 import {
 	VICTORY_MESSAGES,
@@ -12,22 +11,22 @@ import {
 import { createTitle, createMessage } from "./ResultsHelpers";
 
 export function displayVictory(
-	state: ResultsUIState,
 	wins: number,
 	nextPhaseCallback: () => void
 ): void {
-	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
+	const panelContainer = getPanelContainer();
+	const { panelWidth, panelHeight } = getPanelBounds();
 
-	const centerX = panelX + panelWidth / 2;
+	const centerX = panelWidth / 2;
 
 	const title = createTitle(
 		centerX,
-		panelY + RESULTS_SPACING.titleY,
+		RESULTS_SPACING.titleY,
 		"Victory!",
 		RESULTS_FONT_SIZES.titleMedium,
 		RESULTS_COLORS.victory
 	);
-	state.resultsContainer.add(title);
+	panelContainer.add(title);
 
 	const messageText = wins > INFINITE_MODE_THRESHOLD
 		? VICTORY_MESSAGES.infinite(wins)
@@ -35,17 +34,18 @@ export function displayVictory(
 
 	const message = createMessage(
 		centerX,
-		panelY + RESULTS_SPACING.messageY,
+		RESULTS_SPACING.messageY,
 		messageText,
 		RESULTS_FONT_SIZES.messageMedium,
 		panelWidth - RESULTS_SPACING.panelPadding
 	);
-	state.resultsContainer.add(message);
+	panelContainer.add(message);
 
-	const buttonY = panelY + panelHeight - RESULTS_SPACING.buttonBottomOffset;
+	const buttonY = panelHeight - RESULTS_SPACING.buttonBottomOffset;
 	const nextButton = createUIButton("Continue", vec2(centerX, buttonY), async () => {
+		const { slideOut } = await import("./ResultsUI");
 		await slideOut();
 		nextPhaseCallback();
 	});
-	state.resultsContainer.add(nextButton.container);
+	panelContainer.add(nextButton.container);
 }

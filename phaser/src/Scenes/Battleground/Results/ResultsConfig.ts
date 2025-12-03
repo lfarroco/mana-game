@@ -5,12 +5,6 @@ export const GOLD_VICTORY_THRESHOLD = 10;
 export const SILVER_VICTORY_THRESHOLD = 8;
 export const BRONZE_VICTORY_THRESHOLD = 5;
 
-export const RESULTS_DEPTHS = {
-	overlay: 1000,
-	panel: 1001,
-	content: 1001,
-	container: 1002,
-} as const;
 
 export const RESULTS_COLORS = {
 	victory: "#4CAF50",
