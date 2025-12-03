@@ -59,9 +59,9 @@ export const VICTORY_MESSAGES = {
 	standard: "Congratulations! You have won the battle.",
 };
 
-export const DEFEAT_MESSAGES = {
+export const END_GAME_MESSAGES = {
 	infinite: (wins: number) => `You defeated ${wins} teams in your journey, great job!`,
-	standard: "Thanks for playing! Come back for more updates!",
+	standard: "You found a solid build! How about trying Infinite Mode?",
 };
 
 export type VictoryTier = {
