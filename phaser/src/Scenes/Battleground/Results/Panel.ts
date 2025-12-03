@@ -1,6 +1,7 @@
 import * as c from "@Constants/constants";
 import { ResultsUIState } from "./ResultsUI";
 import { getCurrentScene } from "@Models/State";
+import { RESULTS_PANEL, RESULTS_DEPTHS } from "./ResultsConfig";
 
 export function createResultsPanel(state: ResultsUIState): {
 	panelX: number;
@@ -17,23 +18,23 @@ export function createResultsPanel(state: ResultsUIState): {
 		c.SCREEN_HEIGHT / 2,
 		c.SCREEN_WIDTH,
 		c.SCREEN_HEIGHT,
-		0x000000,
+		RESULTS_PANEL.overlayColor,
 		0
 	);
 	state.backgroundOverlay.setInteractive();
-	state.backgroundOverlay.setDepth(1000);
+	state.backgroundOverlay.setDepth(RESULTS_DEPTHS.overlay);
 
 	const { width, height } = scene.cameras.main;
-	const panelWidth = 480;
-	const panelHeight = 400;
+	const panelWidth = RESULTS_PANEL.width;
+	const panelHeight = RESULTS_PANEL.height;
 	const panelX = width / 2 - panelWidth / 2;
 	const panelY = height / 2 - panelHeight / 2;
 
 	const resultsBackground = scene.add
 		.graphics()
-		.fillStyle(0x2c3e50, 0.95)
-		.fillRoundedRect(panelX, panelY, panelWidth, panelHeight, 20);
-	resultsBackground.setDepth(1001);
+		.fillStyle(RESULTS_PANEL.backgroundColor, RESULTS_PANEL.backgroundAlpha)
+		.fillRoundedRect(panelX, panelY, panelWidth, panelHeight, RESULTS_PANEL.borderRadius);
+	resultsBackground.setDepth(RESULTS_DEPTHS.panel);
 	state.resultsContainer.add(resultsBackground);
 
 	return { panelX, panelY, panelWidth, panelHeight };

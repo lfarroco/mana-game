@@ -1,4 +1,3 @@
-
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { ResultsUIState } from "./ResultsUI";
@@ -12,7 +11,9 @@ import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 import {
 	getVictoryTier,
 	DEFEAT_MESSAGES,
-	INFINITE_MODE_THRESHOLD
+	INFINITE_MODE_THRESHOLD,
+	RESULTS_FONT_SIZES,
+	RESULTS_PANEL
 } from "./ResultsConfig";
 
 export async function displayGameComplete(
@@ -34,8 +35,8 @@ export async function displayGameComplete(
 		c.SCREEN_HEIGHT / 2,
 		c.SCREEN_WIDTH,
 		c.SCREEN_HEIGHT,
-		0x000000,
-		0.7
+		RESULTS_PANEL.overlayColor,
+		RESULTS_PANEL.overlayAlpha
 	);
 	state.backgroundOverlay.setInteractive();
 	state.backgroundOverlay.setDepth(1000);
@@ -46,7 +47,7 @@ export async function displayGameComplete(
 	const winsText = getCurrentScene().add
 		.text(baseX, centerY - 150, `${wins} Wins`, {
 			...c.titleTextConfig,
-			fontSize: "64px",
+			fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
 			color: "#FFFFFF",
 		})
 		.setOrigin(0.5);
@@ -76,7 +77,7 @@ export async function displayGameComplete(
 			subtitleText,
 			{
 				...c.titleTextConfig,
-				fontSize: "24px",
+				fontSize: RESULTS_FONT_SIZES.titleSmall,
 			})
 		.setOrigin(0.5);
 	state.resultsContainer.add(subtitle);
@@ -111,8 +112,12 @@ export async function displayGameComplete(
 }
 
 async function renderBoard(state: ResultsUIState, units: Unit[]): Promise<void> {
-	for (const unit of units) {
-		const chara = await Chara.summon(unit);
-		state.resultsContainer.add(chara);
+	try {
+		for (const unit of units) {
+			const chara = await Chara.summon(unit);
+			state.resultsContainer.add(chara);
+		}
+	} catch (error) {
+		console.error("Error rendering board:", error);
 	}
 }

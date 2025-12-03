@@ -5,37 +5,42 @@ import { createResultsPanel } from "./Panel";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import { startGame } from "../../../Game/effects/startGame";
+import {
+	RESULTS_COLORS,
+	RESULTS_FONT_SIZES,
+	RESULTS_SPACING
+} from "./ResultsConfig";
+import { createTitle, createMessage } from "./ResultsHelpers";
 
 export function displayGameOver(
 	state: ResultsUIState,
 ): void {
 	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
 
-	const titleText = "Game Over!";
-	const title = getCurrentScene().add
-		.text(panelX + panelWidth / 2, panelY + 50, titleText, {
-			...c.titleTextConfig,
-			fontSize: "48px",
-			color: "#F44336",
-		})
-		.setOrigin(0.5);
-	title.setDepth(1001);
+	const centerX = panelX + panelWidth / 2;
+
+	const title = createTitle(
+		centerX,
+		panelY + RESULTS_SPACING.titleYLarge,
+		"Game Over!",
+		RESULTS_FONT_SIZES.titleLarge,
+		RESULTS_COLORS.defeat
+	);
 	state.resultsContainer.add(title);
 
-	const messageText = "You have been defeated. Good luck next time!";
-	const message = getCurrentScene().add
-		.text(panelX + panelWidth / 2, panelY + 120, messageText, {
-			...c.defaultTextConfig,
-			fontSize: "20px",
-			wordWrap: { width: panelWidth - 80 },
-		})
-		.setOrigin(0.5);
-	message.setDepth(1001);
+	// Add result message
+	const message = createMessage(
+		centerX,
+		panelY + RESULTS_SPACING.messageYLarge,
+		"You have been defeated. Good luck next time!",
+		RESULTS_FONT_SIZES.messageLarge,
+		panelWidth - RESULTS_SPACING.panelPaddingLarge
+	);
 	state.resultsContainer.add(message);
 
 	const newRunButton = createUIButton(
 		"NEW RUN",
-		vec2(panelX + panelWidth / 2, panelY + panelHeight - 180),
+		vec2(centerX, panelY + panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge - RESULTS_SPACING.buttonSpacing),
 		async () => {
 			resetState();
 			startGame();
@@ -45,9 +50,8 @@ export function displayGameOver(
 
 	const mainMenuButton = createUIButton(
 		"MAIN MENU",
-		vec2(panelX + panelWidth / 2, panelY + panelHeight - 80),
+		vec2(centerX, panelY + panelHeight - RESULTS_SPACING.buttonBottomOffsetLarge),
 		async () => {
-
 			resetState();
 			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 		}
