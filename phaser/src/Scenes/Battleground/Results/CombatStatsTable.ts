@@ -10,7 +10,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 
 const PANEL_CONFIG = {
 	width: 600,
-	baseHeight: 200, // Base height for title, headers, and padding
+	baseHeight: 100, // Base height for title, headers, and padding
 	padding: 20,
 	headerColor: "#FFD700",
 	playerColor: "#4A9EFF",
@@ -18,7 +18,7 @@ const PANEL_CONFIG = {
 	fontSize: 16,
 	headerFontSize: 18,
 	titleFontSize: 24,
-	rowHeight: 70,
+	rowHeight: 100,
 	columnWidths: [150, 80, 80, 80, 80, 80],
 };
 
@@ -104,7 +104,7 @@ async function createStatsPanel(
 		});
 		const firstIdle = idleFrames[0] || frameNames[0];
 		sprite.setTexture(unit.pic, firstIdle);
-		sprite.setDisplaySize(60, 60);
+		sprite.setDisplaySize(90, 90);
 
 		// Flip CPU units
 		if (unit.force === c.FORCE_ID_CPU) {
