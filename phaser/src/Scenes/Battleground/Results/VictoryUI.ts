@@ -13,11 +13,11 @@ import {
 import * as io from "@PhaserIO";
 import { createCombatStatsPanels } from "./CombatStatsTable";
 
-export function displayVictory(
+export async function displayVictory(
 	wins: number,
 	units: Unit[],
 	nextPhaseCallback: () => void
-): Phaser.GameObjects.Container {
+): Promise<Phaser.GameObjects.Container> {
 	// Panel dimensions
 	const panelWidth = RESULTS_PANEL.width;
 	const panelHeight = RESULTS_PANEL.height;
@@ -51,7 +51,7 @@ export function displayVictory(
 	);
 
 	// Create combat stats panels
-	const { playerPanel, cpuPanel } = createCombatStatsPanels(units, panelX, panelY);
+	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);
 
 	// Create container with all elements
 	const container = io.Container([

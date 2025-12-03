@@ -89,7 +89,7 @@ export async function displayGameComplete(
 	);
 
 	// Create combat stats panels
-	const { playerPanel, cpuPanel } = createCombatStatsPanels(units, panelX, panelY);
+	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);
 
 	// Create container with all elements
 	const container = io.Container([
