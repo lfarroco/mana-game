@@ -30,8 +30,6 @@ export async function displayDefeat(
 		[
 			"Continue",
 			async () => {
-				const { slideOut } = await import("./ResultsUI");
-				await slideOut();
 				nextPhaseCallback();
 			}
 		]
