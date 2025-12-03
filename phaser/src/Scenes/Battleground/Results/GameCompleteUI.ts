@@ -28,8 +28,8 @@ export async function displayGameComplete(
 
 	// Panel dimensions and positioning
 	const panelWidth = 800;
-	const panelHeight = 600;
-	const panelX = c.MIDDLE_SCREEN_X;
+	const panelHeight = 700;
+	const panelX = c.MIDDLE_SCREEN_X + 400;
 	const panelY = c.MIDDLE_SCREEN_Y;
 
 	const { message, color } = getVictoryTier(wins, isGameOver);
@@ -66,13 +66,13 @@ export async function displayGameComplete(
 		]
 	];
 
-	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
+	if (1 < 2 || wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
 		buttonDefinitions.push([
 			"INFINITE MODE",
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
-				nextPhaseCallback();
+				() => { }
 			}
 		]);
 	}
@@ -82,7 +82,7 @@ export async function displayGameComplete(
 		([label, callback], i) =>
 			createUIButton(
 				label,
-				vec2(panelX, panelY + 150 + i * 100),
+				vec2(panelX, panelY + 50 + i * 100),
 				callback
 			).container
 	);
@@ -102,17 +102,17 @@ export async function displayGameComplete(
 				fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
 				color: "#FFFFFF",
 			}),
-			(text) => io.SetPosition(text, vec2(panelX, panelY - 150)),
+			(text) => io.SetPosition(text, vec2(panelX, panelY - 250)),
 			(text) => io.Centralize(text),
 		],
 		[
 			() => io.Title1(message).setColor(color),
-			(title) => io.SetPosition(title, vec2(panelX, panelY - 50)),
+			(title) => io.SetPosition(title, vec2(panelX, panelY - 150)),
 			(title) => io.Centralize(title),
 		],
 		[
 			() => io.Label(subtitleText),
-			(label) => io.SetPosition(label, vec2(panelX, panelY + 50)),
+			(label) => io.SetPosition(label, vec2(panelX, panelY - 50)),
 			(label) => io.Centralize(label),
 		],
 		...buttons,
