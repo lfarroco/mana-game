@@ -66,7 +66,7 @@ export async function displayGameComplete(
 		]
 	];
 
-	if (1 < 2 || wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
+	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
 		buttonDefinitions.push([
 			"INFINITE MODE",
 			async () => {
