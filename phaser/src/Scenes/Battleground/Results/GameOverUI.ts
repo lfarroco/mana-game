@@ -47,10 +47,6 @@ export function displayGameOver(): Phaser.GameObjects.Container {
 	);
 
 	const container = io.Container([
-		[
-			() => io.Rectangle(c.MIDDLE_SCREEN, c.WHOLE_SCREEN, RESULTS_PANEL.overlayColor, RESULTS_PANEL.overlayAlpha),
-			io.SetInteractiveRect(size(c.SCREEN_WIDTH, c.SCREEN_HEIGHT)),
-		],
 		io.BorderedRoundRect(
 			vec2(panelX, panelY),
 			size(panelWidth, panelHeight),
