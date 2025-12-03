@@ -66,12 +66,17 @@ export function updateFrame(_time: number, delta: number): void {
 export async function finishCombat(outcome: WaveOutcome) {
 	if (!active) return;
 
+	active = false;
+
 	Systems.Regen.stop();
 	Systems.Poison.stop();
 	Systems.Timeout.stopTimeoutDamageSystem();
+	Systems.CountdownTimer.stop();
 	deactivateBlackHole();
+	Systems.Timeout.onTimeoutDamageCombatEnd();
+	Systems.CombatStatsTracker.stop();
+	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
-	active = false;
 	if (outcome === "player_lost") {
 		await Animations.shatter(getCharaById(getCore(playerForce.id).id));
 	} else {
@@ -80,11 +85,7 @@ export async function finishCombat(outcome: WaveOutcome) {
 
 	await delay(500);
 
-	Systems.Timeout.onTimeoutDamageCombatEnd();
-	Systems.CombatStatsTracker.stop();
-	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 	Systems.ResultsPhase.handleCombatEnded(outcome);
-	Systems.CountdownTimer.stop();
 }
 
 export function isActive(): boolean {
