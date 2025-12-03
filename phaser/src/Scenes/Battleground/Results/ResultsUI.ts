@@ -6,13 +6,12 @@ import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
-import { WINS_TO_WIN_GAME } from "./ResultsConfig";
+import { WINS_TO_WIN_GAME, RESULTS_DEPTHS } from "./ResultsConfig";
 
-const RESULTS_CONTAINER_DEPTH = 1002;
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
 export type ResultsUIState = {
-	resultsContainer: Container;
+	resultsContainer: Phaser.GameObjects.Container;
 	backgroundOverlay: Phaser.GameObjects.Rectangle | null;
 	isOpen: boolean;
 };
@@ -27,16 +26,16 @@ export function create() {
 	};
 
 	state.resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
-	state.resultsContainer.setDepth(RESULTS_CONTAINER_DEPTH);
+	state.resultsContainer.setDepth(RESULTS_DEPTHS.container);
 }
 
 function calculateLivesChange(
 	resultType: "victory" | "defeat"
 ): number {
 	if (resultType === "victory") {
-		return 0; // Victory doesn't change lives
+		return 0;
 	} else {
-		return -1; // Defeat loses 1 life
+		return -1;
 	}
 }
 
@@ -98,7 +97,7 @@ export async function slideIn(): Promise<void> {
 		state.backgroundOverlay.setVisible(true);
 	}
 
-	state.resultsContainer.setDepth(RESULTS_CONTAINER_DEPTH);
+	state.resultsContainer.setDepth(RESULTS_DEPTHS.container);
 	await tween({ targets: [state.resultsContainer], y: 0 });
 	state.isOpen = true;
 }

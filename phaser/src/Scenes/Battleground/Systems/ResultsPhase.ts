@@ -17,8 +17,8 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	await delay(1000);
 
-	ResultsUI.displayResults("defeat", () => {
-		handleDefeat();
+	ResultsUI.displayResults("defeat", async () => {
+		await handleDefeat();
 	});
 	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
@@ -32,8 +32,8 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	await delay(1000);
 
-	ResultsUI.displayResults("victory", () => {
-		handleVictory();
+	ResultsUI.displayResults("victory", async () => {
+		await handleVictory();
 	});
 	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
@@ -55,7 +55,6 @@ async function handleVictory(): Promise<void> {
 	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
-	// Autosave after victory
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
@@ -70,7 +69,6 @@ async function handleDefeat(): Promise<void> {
 
 	const player = state.gameData.player;
 	if (player.lives <= 0) {
-		// Delete saved game data since the run is over
 		deleteSavedData();
 
 		await renderVignette({
@@ -79,7 +77,6 @@ async function handleDefeat(): Promise<void> {
 		return;
 	}
 
-	// Autosave after defeat (if still alive)
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
