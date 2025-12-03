@@ -5,7 +5,6 @@ import { getCurrentScene, getState } from "@Models/State";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
-import { createPanel, clearPanel, getPanelContainer } from "./Panel";
 import { Unit } from "@Models/Entities/Unit";
 import { WINS_TO_WIN_GAME } from "./ResultsConfig";
 
@@ -41,7 +40,7 @@ function determineGameOutcome(
 	return { gameWon, gameOver };
 }
 
-function displayAppropriateUI(
+async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	gameWon: boolean,
 	gameOver: boolean,
@@ -49,22 +48,22 @@ function displayAppropriateUI(
 	nextPhaseCallback: () => void,
 	newWins: number,
 	units: Unit[]
-): void {
+): Promise<Phaser.GameObjects.Container> {
 	if (gameWon) {
-		displayGameComplete(newWins, units, false, nextPhaseCallback);
+		return await displayGameComplete(newWins, units, false, nextPhaseCallback);
 	} else if (gameOver) {
-		displayGameComplete(newWins, units, true, nextPhaseCallback);
+		return await displayGameComplete(newWins, units, true, nextPhaseCallback);
 	} else if (resultType === "victory") {
-		displayVictory(newWins, nextPhaseCallback);
+		return displayVictory(newWins, nextPhaseCallback);
 	} else {
-		displayDefeat(livesChange, nextPhaseCallback);
+		return displayDefeat(livesChange, nextPhaseCallback);
 	}
 }
 
-export function displayResults(
+export async function displayResults(
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void
-): void {
+): Promise<void> {
 	resultsContainer.removeAll(true);
 	const scene = getCurrentScene();
 	scene.children.bringToTop(resultsContainer);
@@ -78,15 +77,8 @@ export function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	if (!gameWon && !gameOver) {
-		createPanel();
-		resultsContainer.add(getPanelContainer());
-	} else if (gameOver) {
-		createPanel();
-		resultsContainer.add(getPanelContainer());
-	}
-
-	displayAppropriateUI(resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
+	const uiContainer = await displayAppropriateUI(resultType, gameWon, gameOver, livesChange, nextPhaseCallback, newWins, player.units);
+	resultsContainer.add(uiContainer);
 }
 
 export async function slideIn(): Promise<void> {
@@ -100,7 +92,7 @@ export async function slideOut(): Promise<void> {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
 
-	clearPanel();
+	resultsContainer.removeAll(true);
 
 	isOpen = false;
 }
