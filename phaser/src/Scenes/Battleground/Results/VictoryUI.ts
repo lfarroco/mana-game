@@ -33,8 +33,6 @@ export async function displayVictory(
 		[
 			"Continue",
 			async () => {
-				const { slideOut } = await import("./ResultsUI");
-				await slideOut();
 				nextPhaseCallback();
 			}
 		]

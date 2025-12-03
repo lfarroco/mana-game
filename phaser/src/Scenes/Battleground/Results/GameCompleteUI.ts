@@ -15,7 +15,7 @@ import {
 	RESULTS_PANEL
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
-import { createCombatStatsPanels } from "./CombatStatsTable";
+
 
 export async function displayGameComplete(
 	wins: number,
@@ -88,8 +88,7 @@ export async function displayGameComplete(
 			).container
 	);
 
-	// Create combat stats panels
-	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);
+
 
 	// Create container with all elements
 	const container = io.Container([
@@ -119,8 +118,7 @@ export async function displayGameComplete(
 			(label) => io.SetPosition(label, vec2(panelX, panelY - 50)),
 			(label) => io.Centralize(label),
 		],
-		playerPanel,
-		cpuPanel,
+
 		...buttons,
 	]);
 
