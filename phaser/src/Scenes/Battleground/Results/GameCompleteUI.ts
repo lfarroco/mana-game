@@ -1,6 +1,6 @@
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
+import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
@@ -21,31 +21,17 @@ export async function displayGameComplete(
 	units: Unit[],
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void
-): Promise<void> {
+): Promise<Phaser.GameObjects.Container> {
 	deleteSavedData();
 
 	playMusic("music_playmode", true, 1000);
 
-	const backgroundOverlay = getCurrentScene().add.rectangle(
-		c.SCREEN_WIDTH / 2,
-		c.SCREEN_HEIGHT / 2,
-		c.SCREEN_WIDTH,
-		c.SCREEN_HEIGHT,
-		RESULTS_PANEL.overlayColor,
-		RESULTS_PANEL.overlayAlpha
-	);
-	backgroundOverlay.setInteractive();
+	// Panel dimensions and positioning
+	const panelWidth = 800;
+	const panelHeight = 600;
+	const panelX = c.MIDDLE_SCREEN_X;
+	const panelY = c.MIDDLE_SCREEN_Y;
 
-	const baseX = c.MIDDLE_SCREEN_X + 400;
-	const centerY = c.MIDDLE_SCREEN_Y;
-
-	getCurrentScene().add
-		.text(baseX, centerY - 150, `${wins} Wins`, {
-			...c.titleTextConfig,
-			fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
-			color: "#FFFFFF",
-		})
-		.setOrigin(0.5);
 	const { message, color } = getVictoryTier(wins, isGameOver);
 
 	const playerCore = units.find((unit) => unit.isCore);
@@ -53,23 +39,16 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	io.Title1(message)
-		.setColor(color)
-		.setPosition(baseX, centerY)
-		.setOrigin(0.5);
-
 	const subtitleText = (isGameOver && wins > INFINITE_MODE_THRESHOLD)
 		? END_GAME_MESSAGES.infinite(wins)
 		: END_GAME_MESSAGES.standard;
 
-	io.Label(subtitleText)
-		.setPosition(baseX, centerY + 100)
-		.setOrigin(0.5);
-
+	// Render units first
 	for (const unit of units) {
 		await Chara.summon(unit);
 	}
 
+	// Button definitions
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
 			"NEW RUN",
@@ -98,13 +77,50 @@ export async function displayGameComplete(
 		]);
 	}
 
-	buttonDefinitions.map(
+	// Map button definitions to containers
+	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
 			createUIButton(
 				label,
-				vec2(baseX, centerY + 250 + i * 100),
+				vec2(panelX, panelY + 150 + i * 100),
 				callback
-			)
+			).container
 	);
 
+	// Create container with all elements
+	const container = io.Container([
+		[
+			() => io.Rectangle(c.MIDDLE_SCREEN, c.WHOLE_SCREEN, RESULTS_PANEL.overlayColor, RESULTS_PANEL.overlayAlpha),
+			io.SetInteractiveRect(size(c.SCREEN_WIDTH, c.SCREEN_HEIGHT)),
+		],
+		io.BorderedRoundRect(
+			vec2(panelX, panelY),
+			size(panelWidth, panelHeight),
+			RESULTS_PANEL.borderRadius,
+			RESULTS_PANEL.backgroundColor,
+			RESULTS_PANEL.backgroundAlpha
+		),
+		[
+			() => io.Text(`${wins} Wins`, {
+				...c.titleTextConfig,
+				fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
+				color: "#FFFFFF",
+			}),
+			(text) => io.SetPosition(text, vec2(panelX, panelY - 150)),
+			(text) => io.Centralize(text),
+		],
+		[
+			() => io.Title1(message).setColor(color),
+			(title) => io.SetPosition(title, vec2(panelX, panelY - 50)),
+			(title) => io.Centralize(title),
+		],
+		[
+			() => io.Label(subtitleText),
+			(label) => io.SetPosition(label, vec2(panelX, panelY + 50)),
+			(label) => io.Centralize(label),
+		],
+		...buttons,
+	]);
+
+	return container;
 }
