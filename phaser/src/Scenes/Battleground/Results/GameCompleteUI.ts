@@ -1,6 +1,5 @@
 import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
-import { ResultsUIState } from "./ResultsUI";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
@@ -15,9 +14,9 @@ import {
 	RESULTS_FONT_SIZES,
 	RESULTS_PANEL
 } from "./ResultsConfig";
+import * as io from "@PhaserIO";
 
 export async function displayGameComplete(
-	state: ResultsUIState,
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
@@ -27,10 +26,7 @@ export async function displayGameComplete(
 
 	playMusic("music_playmode", true, 1000);
 
-	if (state.backgroundOverlay) {
-		state.backgroundOverlay.destroy();
-	}
-	state.backgroundOverlay = getCurrentScene().add.rectangle(
+	const backgroundOverlay = getCurrentScene().add.rectangle(
 		c.SCREEN_WIDTH / 2,
 		c.SCREEN_HEIGHT / 2,
 		c.SCREEN_WIDTH,
@@ -38,21 +34,18 @@ export async function displayGameComplete(
 		RESULTS_PANEL.overlayColor,
 		RESULTS_PANEL.overlayAlpha
 	);
-	state.backgroundOverlay.setInteractive();
-	state.backgroundOverlay.setDepth(1000);
+	backgroundOverlay.setInteractive();
 
 	const baseX = c.MIDDLE_SCREEN_X + 400;
 	const centerY = c.MIDDLE_SCREEN_Y;
 
-	const winsText = getCurrentScene().add
+	getCurrentScene().add
 		.text(baseX, centerY - 150, `${wins} Wins`, {
 			...c.titleTextConfig,
 			fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
 			color: "#FFFFFF",
 		})
 		.setOrigin(0.5);
-	state.resultsContainer.add(winsText);
-
 	const { message, color } = getVictoryTier(wins, isGameOver);
 
 	const playerCore = units.find((unit) => unit.isCore);
@@ -60,64 +53,58 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	const messageText = getCurrentScene().add
-		.text(baseX, centerY, message, {
-			...c.titleTextConfig,
-			color,
-		})
+	io.Title1(message)
+		.setColor(color)
+		.setPosition(baseX, centerY)
 		.setOrigin(0.5);
-	state.resultsContainer.add(messageText);
 
 	const subtitleText = (isGameOver && wins > INFINITE_MODE_THRESHOLD)
 		? END_GAME_MESSAGES.infinite(wins)
 		: END_GAME_MESSAGES.standard;
 
-	const subtitle = getCurrentScene().add
-		.text(baseX, centerY + 100,
-			subtitleText,
-			{
-				...c.titleTextConfig,
-				fontSize: RESULTS_FONT_SIZES.titleSmall,
-			})
+	io.Label(subtitleText)
+		.setPosition(baseX, centerY + 100)
 		.setOrigin(0.5);
-	state.resultsContainer.add(subtitle);
 
-	const mainMenuButton = createUIButton(
-		"MAIN MENU",
-		vec2(baseX, centerY + 250),
-		async () => {
-			resetState();
-			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
-		}
-	);
-	mainMenuButton.disable();
-	state.resultsContainer.add(mainMenuButton.container);
+	for (const unit of units) {
+		await Chara.summon(unit);
+	}
+
+	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
+		[
+			"NEW RUN",
+			async () => {
+				resetState();
+				getCurrentScene().scene.restart();
+			}
+		],
+		[
+			"MAIN MENU",
+			async () => {
+				resetState();
+				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+			}
+		]
+	];
 
 	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
-		const infiniteButton = createUIButton(
+		buttonDefinitions.push([
 			"INFINITE MODE",
-			vec2(baseX, centerY + 350),
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
 				nextPhaseCallback();
 			}
-		);
-		state.resultsContainer.add(infiniteButton.container);
+		]);
 	}
 
-	await renderBoard(state, units);
+	buttonDefinitions.map(
+		([label, callback], i) =>
+			createUIButton(
+				label,
+				vec2(baseX, centerY + 250 + i * 100),
+				callback
+			)
+	);
 
-	mainMenuButton.enable();
-}
-
-async function renderBoard(state: ResultsUIState, units: Unit[]): Promise<void> {
-	try {
-		for (const unit of units) {
-			const chara = await Chara.summon(unit);
-			state.resultsContainer.add(chara);
-		}
-	} catch (error) {
-		console.error("Error rendering board:", error);
-	}
 }
