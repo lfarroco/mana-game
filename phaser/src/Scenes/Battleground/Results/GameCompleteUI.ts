@@ -10,7 +10,7 @@ import * as AchievementSystem from "@Systems/AchievementSystem";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 import {
 	getVictoryTier,
-	DEFEAT_MESSAGES,
+	END_GAME_MESSAGES,
 	INFINITE_MODE_THRESHOLD,
 	RESULTS_FONT_SIZES,
 	RESULTS_PANEL
@@ -69,8 +69,8 @@ export async function displayGameComplete(
 	state.resultsContainer.add(messageText);
 
 	const subtitleText = (isGameOver && wins > INFINITE_MODE_THRESHOLD)
-		? DEFEAT_MESSAGES.infinite(wins)
-		: DEFEAT_MESSAGES.standard;
+		? END_GAME_MESSAGES.infinite(wins)
+		: END_GAME_MESSAGES.standard;
 
 	const subtitle = getCurrentScene().add
 		.text(baseX, centerY + 100,
@@ -82,20 +82,20 @@ export async function displayGameComplete(
 		.setOrigin(0.5);
 	state.resultsContainer.add(subtitle);
 
-	const continueButton = createUIButton(
-		"Continue",
+	const mainMenuButton = createUIButton(
+		"MAIN MENU",
 		vec2(baseX, centerY + 250),
 		async () => {
 			resetState();
 			getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 		}
 	);
-	continueButton.disable();
-	state.resultsContainer.add(continueButton.container);
+	mainMenuButton.disable();
+	state.resultsContainer.add(mainMenuButton.container);
 
 	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
 		const infiniteButton = createUIButton(
-			"Infinite Mode",
+			"INFINITE MODE",
 			vec2(baseX, centerY + 350),
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
@@ -108,7 +108,7 @@ export async function displayGameComplete(
 
 	await renderBoard(state, units);
 
-	continueButton.enable();
+	mainMenuButton.enable();
 }
 
 async function renderBoard(state: ResultsUIState, units: Unit[]): Promise<void> {

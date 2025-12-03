@@ -29,7 +29,7 @@ export function createPanel() {
 				},
 			],
 			[
-				"RETURN TO TITLE",
+				"MAIN MENU",
 				() => {
 					resetState();
 					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
