@@ -3,9 +3,10 @@ import { size, vec2 } from "@Models/Geometry";
 import * as CombatStatsTracker from "../Systems/CombatStatsTracker";
 import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "./ResultsConfig";
+import * as c from "@Constants/constants";
 
 const PANEL_CONFIG = {
-	width: 420,
+	width: 600,
 	height: 600,
 	padding: 20,
 	headerColor: "#FFD700",
@@ -15,7 +16,7 @@ const PANEL_CONFIG = {
 	headerFontSize: 18,
 	titleFontSize: 24,
 	rowHeight: 28,
-	columnWidths: [100, 60, 60, 60, 60, 60],
+	columnWidths: [150, 80, 80, 80, 80, 80],
 };
 
 function createStatsPanel(
@@ -111,11 +112,11 @@ export function createCombatStatsPanels(
 	centerPanelX: number,
 	panelY: number
 ): { playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container } {
-	const panelSpacing = 450; // Distance from center to side panels
+	const panelSpacing = 600; // Distance from center to side panels
 
-	// Determine player and CPU force IDs from the units
-	const playerForceId = units.find(u => u.isCore)?.force || "PLAYER";
-	const cpuForceId = units.find(u => u.isCore && u.force !== playerForceId)?.force || "CPU";
+	// Use the actual force ID constants
+	const playerForceId = c.FORCE_ID_PLAYER;
+	const cpuForceId = c.FORCE_ID_CPU;
 
 	// Player panel on the left
 	const playerPanel = createStatsPanel(
