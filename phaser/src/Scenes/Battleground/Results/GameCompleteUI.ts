@@ -73,7 +73,7 @@ export async function displayGameComplete(
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
-				() => { }
+				nextPhaseCallback();
 			}
 		]);
 	}

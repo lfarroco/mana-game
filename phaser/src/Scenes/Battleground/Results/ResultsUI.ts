@@ -96,7 +96,8 @@ export async function displayResults(
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
-			const ui = await displayGameComplete(newWins, allBattleUnits, gameOver, nextPhaseCallback);
+			const playerUnits = allBattleUnits.filter(u => u.force === c.FORCE_ID_PLAYER);
+			const ui = await displayGameComplete(newWins, playerUnits, gameOver, nextPhaseCallback);
 			resultsContainer.add(ui);
 		} else {
 			await slideOut();
