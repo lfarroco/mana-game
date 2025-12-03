@@ -1,6 +1,6 @@
 import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
-import { RESULTS_FONT_SIZES, RESULTS_DEPTHS, RESULTS_SPACING } from "./ResultsConfig";
+import { RESULTS_FONT_SIZES, RESULTS_SPACING } from "./ResultsConfig";
 
 export function createTitle(
 	x: number,
@@ -17,7 +17,6 @@ export function createTitle(
 			color,
 		})
 		.setOrigin(0.5);
-	title.setDepth(RESULTS_DEPTHS.content);
 	return title;
 }
 
@@ -43,7 +42,6 @@ export function createMessage(
 	const message = scene.add
 		.text(x, y, text, config)
 		.setOrigin(0.5);
-	message.setDepth(RESULTS_DEPTHS.content);
 	return message;
 }
 
@@ -78,6 +76,5 @@ export function createLivesDisplay(
 			fontStyle: "bold",
 		})
 		.setOrigin(0.5);
-	livesDisplay.setDepth(RESULTS_DEPTHS.content);
 	return livesDisplay;
 }

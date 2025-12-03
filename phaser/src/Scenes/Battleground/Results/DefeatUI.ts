@@ -1,6 +1,5 @@
 import { createUIButton } from "../../../Components/UIButton";
-import { slideOut, ResultsUIState } from "./ResultsUI";
-import { createResultsPanel } from "./Panel";
+import { getPanelContainer, getPanelBounds } from "./Panel";
 import { vec2 } from "@Models/Geometry";
 import {
 	RESULTS_COLORS,
@@ -10,45 +9,46 @@ import {
 import { createTitle, createMessage, createLivesDisplay } from "./ResultsHelpers";
 
 export function displayDefeat(
-	state: ResultsUIState,
 	livesChange: number,
 	nextPhaseCallback: () => void
 ): void {
-	const { panelX, panelY, panelWidth, panelHeight } = createResultsPanel(state);
+	const panelContainer = getPanelContainer();
+	const { panelWidth, panelHeight } = getPanelBounds();
 
-	const centerX = panelX + panelWidth / 2;
+	const centerX = panelWidth / 2;
 
 	// Add title
 	const title = createTitle(
 		centerX,
-		panelY + RESULTS_SPACING.titleY,
+		RESULTS_SPACING.titleY,
 		"Defeat",
 		RESULTS_FONT_SIZES.titleMedium,
 		RESULTS_COLORS.defeat
 	);
-	state.resultsContainer.add(title);
+	panelContainer.add(title);
 
 	// Add result message
 	const message = createMessage(
 		centerX,
-		panelY + RESULTS_SPACING.messageY,
+		RESULTS_SPACING.messageY,
 		"You have been defeated.\nBetter luck next time!",
 		RESULTS_FONT_SIZES.messageMedium,
 		panelWidth - RESULTS_SPACING.panelPadding
 	);
-	state.resultsContainer.add(message);
+	panelContainer.add(message);
 
 	const livesDisplay = createLivesDisplay(
 		centerX,
-		panelY + 160,
+		160,
 		livesChange
 	);
-	state.resultsContainer.add(livesDisplay);
+	panelContainer.add(livesDisplay);
 
-	const buttonY = panelY + panelHeight - RESULTS_SPACING.buttonBottomOffset;
+	const buttonY = panelHeight - RESULTS_SPACING.buttonBottomOffset;
 	const nextButton = createUIButton("Continue", vec2(centerX, buttonY), async () => {
+		const { slideOut } = await import("./ResultsUI");
 		await slideOut();
 		nextPhaseCallback();
 	});
-	state.resultsContainer.add(nextButton.container);
+	panelContainer.add(nextButton.container);
 }

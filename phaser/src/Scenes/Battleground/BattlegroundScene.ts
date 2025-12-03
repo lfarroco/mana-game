@@ -19,7 +19,10 @@ export class BattlegroundScene extends Phaser.Scene {
 	cloudsBackground!: Phaser.GameObjects.Shader;
 	collection!: CardCollection;
 
+	// TODO: is this necessary?
 	cleanup() {
+
+		console.log(":::: BattlegroundScene cleanup")
 		clearAll();
 		this.time.removeAllEvents();
 		this.children.removeAll(true);
@@ -27,7 +30,6 @@ export class BattlegroundScene extends Phaser.Scene {
 		Systems.Setup.destroy();
 
 		UIManager.destroy();
-		ResultsUI.destroy();
 	}
 
 	constructor() {
@@ -92,7 +94,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		Systems.CountdownTimer.initializeCountdownTimer(this);
 
-		ResultsUI.create();
+		ResultsUI.createResultsUI();
 
 		DiscardZone.create();
 
