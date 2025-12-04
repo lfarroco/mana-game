@@ -150,13 +150,13 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 };
 
 // Process a list of effects that originate from a given source unit
-export const processEffectsIO = (sourceUnit: Unit, effects: Effect[], isReaction: boolean) => {
+export const processEffectsIO = (sourceUnit: Unit, effects: Effect[], isReaction: boolean, triggeringUnit?: Unit) => {
 	effects.forEach((effect) => {
-		processEffectIO(sourceUnit, effect, isReaction);
+		processEffectIO(sourceUnit, effect, isReaction, triggeringUnit);
 	});
 };
 
-const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) => {
+const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit) => {
 	switch (effect.id) {
 		case "damage":
 			effects.dealDamageLogicIO(sourceUnit);
@@ -174,19 +174,19 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) 
 			effects.applyRegenLogicIO(sourceUnit);
 			break;
 		case "haste":
-			const hasteTargets = resolveTargets(sourceUnit, effect);
+			const hasteTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration);
 			break;
 		case "slow":
-			const slowTargets = resolveTargets(sourceUnit, effect);
+			const slowTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration);
 			break;
 		case "charge":
-			const chargeTargets = resolveTargets(sourceUnit, effect);
+			const chargeTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.duration);
 			break;
 		case "increase_power":
-			const increasePowerTargets = resolveTargets(sourceUnit, effect);
+			const increasePowerTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.increasePower(
 				increasePowerTargets,
 				effect.amount,
@@ -195,21 +195,21 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean) 
 			);
 			break;
 		case "increase_critical":
-			const increaseCriticalTargets = resolveTargets(sourceUnit, effect);
+			const increaseCriticalTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.increaseCritical(increaseCriticalTargets, effect.amount, sourceUnit);
 			break;
 		case "multiply_power":
 			effects.multiplyPower({
-				targets: resolveTargets(sourceUnit, effect),
+				targets: resolveTargets(sourceUnit, effect, triggeringUnit),
 				sourceUnit,
 				multiplier: effect.multiplier,
 			});
 			break;
 		case "distribute_power":
-			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect));
+			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit));
 			break;
 		case "absorb_power":
-			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect));
+			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit));
 			break;
 		case "sacrifice_effect":
 			effects.sacrificeEffect(sourceUnit);
@@ -268,12 +268,12 @@ function processReactions(triggeringUnit: Unit, effect: Effect) {
 				});
 
 			reactions.forEach((r) => {
-				processEffectsIO(u, r.effects, true);
+				processEffectsIO(u, r.effects, true, triggeringUnit);
 			});
 		});
 }
 
-export function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
+export function resolveTargets(sourceUnit: Unit, effect: Effect, triggeringUnit?: Unit): Unit[] {
 	if (!("targets" in effect)) {
 		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
@@ -335,7 +335,7 @@ export function resolveTargets(sourceUnit: Unit, effect: Effect): Unit[] {
 			);
 
 		case "trigger":
-			return [sourceUnit];
+			return triggeringUnit ? [triggeringUnit] : [sourceUnit];
 
 		default:
 			const formattedEvent = JSON.stringify(effect, null, 2);

@@ -117,7 +117,7 @@
 			"effects": [
 				{
 					"id": "increase_power",
-					"amount": 1,
+					"amount": 2,
 					"permanent": true,
 					"targets": {
 						"id": "column_allies"
@@ -134,7 +134,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 2,
+							"amount": 1,
 							"permanent": true,
 							"targets": {
 								"id": "trigger"
