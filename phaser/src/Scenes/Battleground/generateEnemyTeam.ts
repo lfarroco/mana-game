@@ -3,7 +3,7 @@ import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { pickOne } from "../../utils";
-import { upgradeUnitData } from "@Systems/Chara/Chara";
+import { upgradeUnitData } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 
 const MAX_UNITS = 9;

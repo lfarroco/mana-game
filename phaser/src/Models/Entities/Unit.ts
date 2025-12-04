@@ -164,3 +164,15 @@ export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefini
 	unit.effects = structuredClone(cardDef.effects ?? []);
 	unit.reactions = structuredClone(cardDef.reactions ?? []);
 }
+
+export function upgradeUnitData(unit: Unit) {
+	const source = getCardDefinition(unit.cardId);
+
+	unit.rank += 1;
+
+	if (source.power)
+		unit.power = (source.power * unit.rank) + unit.bonusPower;
+
+	resetUnitEffectsToCardDefinition(unit, source);
+	upgradeUnitEffects(unit);
+}
