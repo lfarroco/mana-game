@@ -1,4 +1,5 @@
 import { getState } from "@Models/State";
+import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatPhase from "./Systems/CombatPhase";
 import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as OrbShop from "./Systems/Shop/OrbShop";
@@ -58,6 +59,7 @@ export function handlePhaseEnded(): void {
 	if (currentPhase === "combat") {
 		destroyForceStats(c.FORCE_ID_CPU);
 		destroyForceStats(c.FORCE_ID_PLAYER);
+		getState().gameData.player.units.forEach(resetUnitStats);
 	}
 
 	getState().gameData.hour++;
