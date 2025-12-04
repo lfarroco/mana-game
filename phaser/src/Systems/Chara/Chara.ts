@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Unit, upgradeUnitEffects, resetUnitEffectsToCardDefinition } from "@Models/Entities/Unit";
+import { Unit, upgradeUnitData } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as PowerDisplay from "./PowerDisplay";
@@ -10,7 +10,6 @@ import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
-import { getCardDefinition } from "@Models/Entities/Card";
 import { loadUnitAssets } from "@Scenes/Battleground/Systems/Loader";
 
 export type Chara = Container;
@@ -229,6 +228,9 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 	const { unit } = s;
 
 	unit.power += num;
+	if (permanent) {
+		unit.bonusPower += num;
+	}
 
 	PowerDisplay.updatePowerDisplay(s.id);
 
@@ -285,18 +287,6 @@ export function shake(chara: Chara) {
 			state.sprite.x = startingX;
 		},
 	});
-}
-
-export function upgradeUnitData(unit: Unit) {
-	const source = getCardDefinition(unit.cardId);
-
-	unit.rank += 1;
-
-	if (source.power)
-		unit.power = (source.power * unit.rank) + unit.bonusPower;
-
-	resetUnitEffectsToCardDefinition(unit, source);
-	upgradeUnitEffects(unit);
 }
 
 export async function upgradeUnit(unit: Unit) {
