@@ -55,7 +55,10 @@ export const VICTORY_MESSAGES = {
 
 export const END_GAME_MESSAGES = {
 	infinite: (wins: number) => `You defeated ${wins} teams in your journey, great job!`,
-	standard: "You found a solid build! How about trying Infinite Mode?",
+	gold: "You found a solid build! How about trying Infinite Mode?",
+	silver: "Great run! You're getting closer to the top.",
+	bronze: "Good effort! Keep improving your strategy.",
+	default: "Better luck next time!",
 };
 
 export type VictoryTier = {

@@ -12,7 +12,10 @@ import {
 	END_GAME_MESSAGES,
 	INFINITE_MODE_THRESHOLD,
 	RESULTS_FONT_SIZES,
-	RESULTS_PANEL
+	RESULTS_PANEL,
+	GOLD_VICTORY_THRESHOLD,
+	SILVER_VICTORY_THRESHOLD,
+	BRONZE_VICTORY_THRESHOLD
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
 
@@ -40,9 +43,16 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	const subtitleText = (isGameOver && wins > INFINITE_MODE_THRESHOLD)
-		? END_GAME_MESSAGES.infinite(wins)
-		: END_GAME_MESSAGES.standard;
+	let subtitleText = END_GAME_MESSAGES.default;
+	if (isGameOver && wins > INFINITE_MODE_THRESHOLD) {
+		subtitleText = END_GAME_MESSAGES.infinite(wins);
+	} else if (wins >= GOLD_VICTORY_THRESHOLD) {
+		subtitleText = END_GAME_MESSAGES.gold;
+	} else if (wins >= SILVER_VICTORY_THRESHOLD) {
+		subtitleText = END_GAME_MESSAGES.silver;
+	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
+		subtitleText = END_GAME_MESSAGES.bronze;
+	}
 
 	// Render units first
 	for (const unit of units) {
