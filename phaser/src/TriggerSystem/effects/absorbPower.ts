@@ -10,13 +10,13 @@ export const absorbPower = (sourceUnit: Unit, targets: Unit[]) => {
 	targets.forEach(target => {
 		const absorbedAmount = Math.floor(target.power * 0.25);
 		if (absorbedAmount > 0) {
-			target.power -= absorbedAmount;
+			target.power = Math.max(0, target.power - absorbedAmount);
 			totalAbsorbed += absorbedAmount;
 			updatePowerDisplay(target.id);
 		}
 	});
 
 	if (totalAbsorbed > 0) {
-		increasePower([sourceUnit], totalAbsorbed, false, sourceUnit);
+		increasePower([sourceUnit], totalAbsorbed, true, sourceUnit);
 	}
 };
