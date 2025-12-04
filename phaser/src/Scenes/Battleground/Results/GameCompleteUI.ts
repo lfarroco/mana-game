@@ -2,7 +2,6 @@ import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
-import * as Chara from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -30,10 +29,9 @@ export async function displayGameComplete(
 
 	playMusic("music_playmode", true, 1000);
 
-	// Panel dimensions and positioning
 	const panelWidth = 800;
 	const panelHeight = 700;
-	const panelX = c.MIDDLE_SCREEN_X + 400;
+	const panelX = c.MIDDLE_SCREEN_X;
 	const panelY = c.MIDDLE_SCREEN_Y;
 
 	const { message, color } = getVictoryTier(wins, isGameOver);
@@ -54,12 +52,6 @@ export async function displayGameComplete(
 		subtitleText = END_GAME_MESSAGES.bronze;
 	}
 
-	// Render units first
-	for (const unit of units) {
-		await Chara.summon(unit);
-	}
-
-	// Button definitions
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
 			"NEW RUN",
@@ -88,7 +80,6 @@ export async function displayGameComplete(
 		]);
 	}
 
-	// Map button definitions to containers
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
 			createUIButton(
@@ -98,9 +89,6 @@ export async function displayGameComplete(
 			).container
 	);
 
-
-
-	// Create container with all elements
 	const container = io.Container([
 		io.BorderedRoundRect(
 			vec2(panelX, panelY),
