@@ -176,3 +176,15 @@ export function upgradeUnitData(unit: Unit) {
 	resetUnitEffectsToCardDefinition(unit, source);
 	upgradeUnitEffects(unit);
 }
+
+export function resetUnitStats(unit: Unit) {
+	const source = getCardDefinition(unit.cardId);
+
+	unit.power = ((source.power || 0) * unit.rank) + unit.bonusPower;
+	unit.critical = source.critical || 0;
+	unit.shield = 0;
+	unit.charge = 0;
+	unit.hasted = 0;
+	unit.slowed = 0;
+	unit.life = unit.maxLife;
+}

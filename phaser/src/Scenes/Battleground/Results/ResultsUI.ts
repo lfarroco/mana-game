@@ -17,7 +17,6 @@ export let isOpen: boolean;
 export function createResultsUI() {
 	const scene = getCurrentScene();
 
-	// Create background overlay first so it's behind the container
 	backgroundOverlay = scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
@@ -29,10 +28,8 @@ export function createResultsUI() {
 	backgroundOverlay.setInteractive();
 	backgroundOverlay.setAlpha(0);
 	backgroundOverlay.setVisible(false);
-	backgroundOverlay.setDepth(99); // Ensure it's high up but below the results container
 
 	resultsContainer = scene.add.container(0, 0);
-	resultsContainer.setDepth(100); // Ensure container is above overlay
 	isOpen = false;
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
@@ -90,7 +87,6 @@ export async function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
 
-	// Get all units from the battle, not just player units
 	const allBattleUnits = gameState.battleData.units;
 
 	const handleContinue = async () => {
