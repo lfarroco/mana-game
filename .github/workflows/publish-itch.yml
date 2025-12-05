@@ -30,6 +30,6 @@ jobs:
         uses: robpc/itchio-upload-action@v1
         with:
           path: phaser/dist
-          project: ${{ vars.ITCHIO_PROJECT }}
+          project: ${{ secrets.ITCHIO_PROJECT }}
           channel: html5
           api-key: ${{ secrets.ITCHIO_API_KEY }}
