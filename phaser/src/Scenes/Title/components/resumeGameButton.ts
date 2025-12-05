@@ -8,7 +8,7 @@ export function resumeGameButton(y: number) {
 	const data = getSavedData();
 	if (!data) return;
 
-	createUIButton(
+	return createUIButton(
 		"RESUME",
 		vec2(constants.MIDDLE_SCREEN.x, y),
 		loadGame

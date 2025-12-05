@@ -42,7 +42,7 @@ export function openCredits(): void {
 
 	// Create title
 	const title = io.Title1("Credits");
-	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 60));
+	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 20));
 	io.Centralize(title);
 
 	// Create credits text container - you can add your credits here

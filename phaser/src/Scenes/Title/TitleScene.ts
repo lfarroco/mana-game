@@ -2,15 +2,15 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
-import { startButton } from "./components/new_run_button";
+import { newRunButton } from "./components/newRunButton";
 import { startGame } from "../../Game/effects/startGame";
 import { cloudsBg } from "./components/cloudsBg";
-import { optionsButton } from "./components/optionsButton";
+import { optionsButton, setMainButtonsContainer } from "./components/optionsButton";
 import { goFullscreenButton } from "./components/goFullscreenButton";
 import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
 import { howToPlay } from "./components/howToPlay";
-import { creditsButton } from "./components/creditsButton";
+import * as io from "@PhaserIO";
 
 export let titleScene: TitleScene;
 
@@ -31,13 +31,18 @@ export default class TitleScene extends Phaser.Scene {
 
 		logo();
 
-		[
-			resumeGameButton,
-			startButton,
-			optionsButton,
-			creditsButton,
-			goFullscreenButton,
-		].forEach((fn, index) => fn(500 + index * 100));
+		const buttons = [
+			resumeGameButton(500),
+			newRunButton(600),
+			optionsButton(700),
+			goFullscreenButton(800),
+		];
+
+		// Create a container for the main buttons so they can be hidden when showing submenu
+		const mainButtonsContainer = io.Container(
+			buttons.filter((b): b is NonNullable<typeof b> => b != null).map(b => b.container)
+		);
+		setMainButtonsContainer(mainButtonsContainer);
 
 		howToPlay();
 
