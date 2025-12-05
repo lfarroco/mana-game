@@ -96,7 +96,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const powerPoints = round * 10;
 	const state = getState();
 	if (state.gameData.player.wins >= 10) {
-		const multiplier = Math.pow(1.1, round - 10);
+		const multiplier = Math.pow(1.2, round - 10);
 		coreUnit.life = Math.floor(coreUnit.life * multiplier);
 		coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);
 
