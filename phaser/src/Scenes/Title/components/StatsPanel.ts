@@ -9,7 +9,7 @@ import { createUIButton } from "@Components/UIButton";
 import { getStats, getMostUsedUnit } from "@Models/StatsStore";
 
 const OVERLAY_ALPHA = 0.85;
-const PANEL_WIDTH = 800;
+const PANEL_WIDTH = 900;
 const PANEL_HEIGHT = 600;
 
 let isOpen = false;
@@ -69,7 +69,7 @@ export function openStats(): void {
 	const startY = c.MIDDLE_SCREEN_Y - 200;
 	const rowSpacing = 50;
 	const labelX = c.MIDDLE_SCREEN_X - 160;
-	const valueX = c.MIDDLE_SCREEN_X + 160;
+	const valueX = c.MIDDLE_SCREEN_X + 100;
 
 	const statTexts: Phaser.GameObjects.Text[] = [];
 

@@ -5,6 +5,7 @@ import { Container, OnceDestroyed, Rectangle } from "@PhaserIO";
 import { getPoisonRate } from "./Systems/PoisonDamageSystem";
 import { getRegenRate } from "./Systems/RegenSystem";
 import { popText } from "@Systems/Chara/Animations";
+import { compactNumber } from "utils";
 
 let playerStats: Phaser.GameObjects.Container | null = null;
 let cpuStats: Phaser.GameObjects.Container | null = null;
@@ -85,7 +86,7 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 
 	const chipId = `life-display/${force}`;
 
-	updateChipText(chipId, Math.floor(life).toString());
+	updateChipText(chipId, compactNumber(life));
 
 	const bar = healthBars.get(force);
 	if (!bar) {
@@ -131,7 +132,7 @@ export function updateShieldDisplay(
 	delta: number
 ) {
 	const chipId = `shield-display/${force}`;
-	updateChipText(chipId, Math.floor(shield).toString());
+	updateChipText(chipId, compactNumber(shield));
 
 	const bar = shieldBars.get(force);
 
@@ -175,7 +176,7 @@ export function updateShieldDisplay(
 
 export function updateRegenDisplay(force: string, regen: number, delta: number) {
 	const chipId = `regen-display/${force}`;
-	updateChipText(chipId, Math.floor(regen).toString());
+	updateChipText(chipId, compactNumber(regen));
 
 	if (delta === 0) return;
 
@@ -196,7 +197,7 @@ export function updateRegenDisplay(force: string, regen: number, delta: number) 
 
 export function updatePoisonDisplay(force: string, poison: number, delta: number) {
 	const chipId = `poison-display/${force}`;
-	updateChipText(chipId, Math.floor(poison).toString());
+	updateChipText(chipId, compactNumber(poison));
 
 	if (delta === 0) return;
 
