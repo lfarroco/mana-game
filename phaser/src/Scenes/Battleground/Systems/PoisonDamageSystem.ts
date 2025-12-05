@@ -1,73 +1,46 @@
-import { applyDamageToForce, cpuForce, Force, playerForce } from "@Models/Entities/Force";
-import * as CombatStatsTracker from "./CombatStatsTracker";
-import { getCurrentScene } from "@Models/State";
+import { Force } from "@Models/Entities/Force";
 import { updatePoisonDisplay } from "../ForceStats";
 
-const tickInterval: number = 1000;
-
-let poisonTimer: Phaser.Time.TimerEvent;
-
-type PoisonState = {
-	rate: number;
-	accumulator: number;
-};
-
-const poisonStates: Map<string, PoisonState> = new Map();
+const poisonStates: Map<string, number> = new Map();
 
 export function initialize(): void {
 	poisonStates.clear();
-	poisonTimer = getCurrentScene().time.addEvent({
-		delay: tickInterval,
-		callback: tick,
-		loop: true,
-	});
 }
 
 export function applyPoison(
 	targetForce: Force,
 	amount: number,
-	sourceUnitId?: string,
 	_isCritical = false
 ): void {
 	if (amount <= 0) return;
 	const id = targetForce.id;
-	let state = poisonStates.get(id);
-	if (!state) {
-		state = { rate: 0, accumulator: 0 };
-		poisonStates.set(id, state);
-	}
-	state.rate += amount;
+	let currentRate = poisonStates.get(id) || 0;
 
-	updatePoisonDisplay(targetForce.id, state.rate, amount);
+	currentRate += amount;
+	poisonStates.set(id, currentRate);
+
+	updatePoisonDisplay(targetForce.id, currentRate, amount);
 }
 
-export function tick() {
-	tickForce(playerForce);
-	tickForce(cpuForce);
-}
-
-function tickForce(force: Force): void {
-	const id = force.id;
-	const state = poisonStates.get(id);
-	if (!state) return;
-	const damage = Math.floor(state.accumulator + state.rate);
-	state.accumulator = state.accumulator + state.rate - damage;
-	if (damage <= 0) return;
-	applyDamageToForce(force, damage, 0, "poison", false);
-
+export function getTickAmount(forceId: string): number {
+	return poisonStates.get(forceId) || 0;
 }
 
 export function reducePoison(forceId: string, healAmount: number): void {
-	if (healAmount <= 0) return;
-	const state = poisonStates.get(forceId);
-	if (!state || state.rate === 0) return;
-	const reduction = Math.min(state.rate, Math.floor(healAmount * 0.05));
-	state.rate -= reduction;
+	if (healAmount < 20) return;
+	let currentRate = poisonStates.get(forceId);
+	if (!currentRate || currentRate === 0) return;
 
-	if (state.rate === 0) {
+	const reduction = Math.min(currentRate, Math.floor(healAmount * 0.05));
+	currentRate -= reduction;
+
+	if (currentRate <= 0) {
 		poisonStates.delete(forceId);
+		currentRate = 0;
+	} else {
+		poisonStates.set(forceId, currentRate);
 	}
-	updatePoisonDisplay(forceId, state.rate, -reduction);
+	updatePoisonDisplay(forceId, currentRate, -reduction);
 }
 
 export function clearPoison(forceId: string): void {
@@ -76,11 +49,9 @@ export function clearPoison(forceId: string): void {
 }
 
 export function getPoisonRate(forceId: string): number {
-	const state = poisonStates.get(forceId);
-	return state ? state.rate : 0;
+	return poisonStates.get(forceId) || 0;
 }
 
 export function stop() {
-	poisonTimer.destroy();
 	poisonStates.clear();
 }

@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
-import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCore } from "./Card";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
 import { getState } from "@Models/State";
@@ -100,18 +99,9 @@ export const applyDamageToForce = (
 	}
 
 	let remainingDamage = damage;
-	const originalLife = core.life;
 
 	if (damageType === "poison") {
 		const lifeChage = manipulateCoreLife(targetForce, -damage);
-
-		CombatStatsTracker.trackLifeChange({
-			forceId: targetForce.id,
-			newLife: core.life,
-			maxLife: core.maxLife,
-			totalDamage: damage,
-			damageType: damageType,
-		});
 
 		return Math.abs(lifeChage);
 	}
@@ -129,16 +119,6 @@ export const applyDamageToForce = (
 	}
 
 	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(targetForce, -remainingDamage) : 0;
-
-	if (core.life !== originalLife) {
-		CombatStatsTracker.trackLifeChange({
-			forceId: targetForce.id,
-			newLife: core.life,
-			maxLife: core.maxLife,
-			totalDamage: damage,
-			damageType: damageType,
-		});
-	}
 
 	return Math.abs(lifeChange);
 };

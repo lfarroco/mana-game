@@ -4,6 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as Systems from "./Systems";
+import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getCore } from "@Models/Entities/Card";
@@ -15,9 +16,6 @@ export type WaveOutcome = "player_won" | "player_lost";
 
 let active: boolean = false;
 
-export function reducePoison(forceId: string, healAmount: number): void {
-	Systems.Poison.reducePoison(forceId, healAmount);
-}
 
 export const runCombatIO = () => {
 	if (active) {
@@ -26,6 +24,7 @@ export const runCombatIO = () => {
 	Systems.Timeout.initializeTimeoutDamageSystem();
 	Systems.Poison.initialize();
 	Systems.Regen.initialize();
+	StatusEffectSystem.initialize();
 	Systems.CombatStatsTracker.initialize();
 
 	active = true;
@@ -42,7 +41,7 @@ export function updateFrame(_time: number, delta: number): void {
 	for (const unit of unitsReadyToAct) {
 		Animations.pop(unit.id);
 
-		Systems.CombatStatsTracker.handleUnitAction({ unit });
+		Systems.CombatStatsTracker.trackAction({ unit });
 		processEffectsIO(unit, unit.effects, false);
 	}
 
@@ -70,6 +69,7 @@ export async function finishCombat(outcome: WaveOutcome) {
 
 	Systems.Regen.stop();
 	Systems.Poison.stop();
+	StatusEffectSystem.stop();
 	Systems.Timeout.stopTimeoutDamageSystem();
 	Systems.CountdownTimer.stop();
 	deactivateBlackHole();

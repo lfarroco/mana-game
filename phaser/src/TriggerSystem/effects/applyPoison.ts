@@ -4,6 +4,7 @@ import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { applyPoison } from "@Scenes//Battleground/Systems/PoisonDamageSystem";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
+import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 
 export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power * 0.1;
@@ -18,7 +19,10 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 
-	const effect = () => applyPoison(targetForce, amount, sourceUnit.id, crit.isCritical);
+	const effect = () => {
+		applyPoison(targetForce, amount, crit.isCritical);
+		CombatStatsTracker.trackPoison(sourceUnit.id, amount);
+	}
 
 	arcaneMissileTargeted(
 		getCharaById(sourceUnit.id),

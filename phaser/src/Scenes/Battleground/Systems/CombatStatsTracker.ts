@@ -43,90 +43,7 @@ function initializeUnitStats(): void {
 	}
 }
 
-export function trackLifeChange(payload: {
-	forceId: string;
-	newLife: number;
-	maxLife: number;
-	totalDamage?: number;
-	damageType?: "poison" | "normal" | "timeout";
-	sourceUnitId?: string;
-}): void {
-	if (!isActive || !payload.totalDamage || payload.totalDamage <= 0) return;
-
-	const sourceUnitId = payload.sourceUnitId;
-	if (!sourceUnitId) {
-		console.warn("[CombatStatsTracker] Damage event without sourceUnitId");
-		return;
-	}
-
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
-
-	if (payload.damageType === "poison") {
-		stats.poisonApplied += payload.totalDamage;
-	} else {
-		stats.damageDealt += payload.totalDamage;
-	}
-
-	console.log(
-		`[CombatStatsTracker] Unit ${sourceUnitId} dealt ${payload.totalDamage} ${payload.damageType || "normal"} damage`
-	);
-}
-
-export function trackLifeRestored(payload: {
-	unit: Unit;
-	amount: number;
-	type?: "regen" | "direct";
-	sourceUnitId?: string;
-}): void {
-	if (!isActive || payload.amount <= 0) return;
-
-	const sourceUnitId = payload.sourceUnitId || payload.unit?.id;
-	if (!sourceUnitId) return;
-
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
-
-	if (payload.type === "regen") {
-		stats.regenApplied += payload.amount;
-	} else {
-		stats.healingDone += payload.amount;
-	}
-
-	console.log(
-		`[CombatStatsTracker] Unit ${sourceUnitId} provided ${payload.amount} ${payload.type || "direct"} healing`
-	);
-}
-
-export function trackShieldUpdated(payload: {
-	forceId: string;
-	newShield: number;
-	maxShield: number;
-	sourceUnitId?: string;
-	shieldDelta?: number;
-}): void {
-	if (!isActive || !payload.shieldDelta || payload.shieldDelta <= 0) return;
-	if (!payload.sourceUnitId) return;
-
-	const stats = unitStats.get(payload.sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${payload.sourceUnitId}`);
-		return;
-	}
-
-	stats.shieldGranted += payload.shieldDelta;
-	console.log(
-		`[CombatStatsTracker] Unit ${payload.sourceUnitId} granted ${payload.shieldDelta} shield via shield update`
-	);
-}
-
-export function handleUnitAction(payload: { unit: Unit }): void {
+export function trackAction(payload: { unit: Unit }): void {
 	if (!isActive || !payload.unit?.id) return;
 
 	const stats = unitStats.get(payload.unit.id);
@@ -154,7 +71,6 @@ export function initialize(): void {
 export function trackDamage(
 	sourceUnitId: string,
 	damage: number,
-	damageType: "normal" | "poison" | "reflect" = "normal"
 ): void {
 	if (!isActive || damage <= 0) return;
 
@@ -164,23 +80,35 @@ export function trackDamage(
 		return;
 	}
 
-	if (damageType === "poison") {
-		stats.poisonApplied += damage;
-	} else if (damageType === "normal") {
-		stats.damageDealt += damage;
-	} else if (damageType === "reflect") {
-		stats.damageDealt += damage;
-	}
+	stats.damageDealt += damage;
 
 	console.log(
-		`[CombatStatsTracker] Manually tracked ${damage} ${damageType} damage for unit ${sourceUnitId}`
+		`[CombatStatsTracker] Manually tracked ${damage} damage for unit ${sourceUnitId}`
 	);
 }
 
-export function trackHealing(
+export function trackPoison(
+	sourceUnitId: string,
+	poison: number,
+): void {
+	if (!isActive || poison <= 0) return;
+
+	const stats = unitStats.get(sourceUnitId);
+	if (!stats) {
+		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
+		return;
+	}
+
+	stats.poisonApplied += poison;
+
+	console.log(
+		`[CombatStatsTracker] Manually tracked ${poison} poison damage for unit ${sourceUnitId}`
+	);
+}
+
+export function trackHeal(
 	sourceUnitId: string,
 	healing: number,
-	healingType: "direct" | "regen" = "direct"
 ): void {
 	if (!isActive || healing <= 0) return;
 
@@ -190,15 +118,24 @@ export function trackHealing(
 		return;
 	}
 
-	if (healingType === "regen") {
-		stats.regenApplied += healing;
-	} else {
-		stats.healingDone += healing;
-	}
+	stats.healingDone += healing;
 
 	console.log(
-		`[CombatStatsTracker] Manually tracked ${healing} ${healingType} healing for unit ${sourceUnitId}`
+		`[CombatStatsTracker] Manually tracked ${healing} healing for unit ${sourceUnitId}`
 	);
+}
+
+export function trackRegen(sourceUnitId: string, regen: number): void {
+	if (!isActive || regen <= 0) return;
+
+	const stats = unitStats.get(sourceUnitId);
+	if (!stats) {
+		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
+		return;
+	}
+
+	stats.regenApplied += regen;
+	console.log(`[CombatStatsTracker] Manually tracked ${regen} regen for unit ${sourceUnitId}`);
 }
 
 export function trackShield(sourceUnitId: string, shield: number): void {

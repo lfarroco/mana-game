@@ -5,6 +5,7 @@ import { applyRegen } from "@Scenes//Battleground/Systems/RegenSystem";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
 import { playSoundEffect } from "@Systems/AudioManager";
+import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 
 export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power * 0.1;
@@ -19,7 +20,10 @@ export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
-	const effect = () => applyRegen(targetForce, amount, sourceUnit.id, crit.isCritical);
+	const effect = () => {
+		applyRegen(targetForce, amount, crit.isCritical);
+		CombatStatsTracker.trackRegen(sourceUnit.id, amount);
+	};
 
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
