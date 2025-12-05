@@ -4,6 +4,7 @@ import * as UI from "./UI";
 import * as winsDisplay from "./components/winsDisplay";
 import { winsChangeAnimation } from "./components/winsDisplay";
 import * as livesDisplay from "./components/livesDisplay";
+import * as roundDisplay from "./components/roundDisplay";
 import { getCurrentScene } from "@Models/State";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
@@ -16,6 +17,10 @@ export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 export function onLivesChanged(newTotalLives: number, livesDelta: number) {
 	livesDisplay.updateLivesDisplay(newTotalLives);
 	livesChangeAnimation(livesDelta);
+}
+
+export function onRoundChanged(newRound: number) {
+	roundDisplay.updateRoundDisplay(newRound);
 }
 
 
