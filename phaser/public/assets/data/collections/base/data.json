@@ -1938,6 +1938,110 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "gunslinger",
+			"name": "Gunslinger",
+			"pic": "neutral_hsuku",
+			"power": 20,
+			"cooldown": 6800,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"duration": 500,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "charge",
+							"duration": 500,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "inquisitor",
+			"name": "Inquisitor",
+			"pic": "neutral_inquisitorkron",
+			"power": 20,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"duration": 500,
+					"targets": {
+						"id": "left_ally"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "enemies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "grove_guardian",
+			"name": "Grove Guardian",
+			"pic": "neutral_keeperofthevale",
+			"power": 20,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "regen"
+				},
+				{
+					"id": "charge",
+					"duration": 500,
+					"targets": {
+						"id": "right_ally"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "enemies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"permanent": true,
+							"targets": {
+								"id": "right_ally"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
