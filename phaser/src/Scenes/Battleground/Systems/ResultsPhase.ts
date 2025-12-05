@@ -8,6 +8,8 @@ import * as PhaseManager from "../PhaseManager";
 import { deactivateBlackHole } from "../BlackHole";
 import { saveGameData } from "../../../Game/effects/saveGameData";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
+import * as StatsStore from "@Models/StatsStore";
+import * as c from "@Constants/constants";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -41,6 +43,15 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 export function handleCombatEnded(combatResult: string) {
 	deactivateBlackHole();
+
+	// Track unit usage and most powerful unit from battle data (buffs still active)
+	const state = getState();
+	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
+	for (const unit of playerUnits) {
+		StatsStore.recordUnitUsage(unit.cardId);
+		StatsStore.checkMostPowerfulUnit(unit.cardId, unit.power);
+	}
+	StatsStore.save();
 
 	if (combatResult === "player_won") {
 		handleCombatEndedVictory();
