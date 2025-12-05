@@ -394,6 +394,13 @@
 			"effects": [
 				{
 					"id": "poison"
+				},
+				{
+					"id": "increase_critical",
+					"amount": 5,
+					"targets": {
+						"id": "column_allies"
+					}
 				}
 			],
 			"reactions": [
@@ -1064,6 +1071,13 @@
 			"effects": [
 				{
 					"id": "heal"
+				},
+				{
+					"id": "increase_critical",
+					"amount": 5,
+					"targets": {
+						"id": "right_ally"
+					}
 				}
 			],
 			"reactions": [
@@ -1363,6 +1377,13 @@
 			"effects": [
 				{
 					"id": "regen"
+				},
+				{
+					"id": "increase_critical",
+					"amount": 5,
+					"targets": {
+						"id": "self"
+					}
 				}
 			],
 			"reactions": [
