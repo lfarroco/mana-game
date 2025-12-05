@@ -4,7 +4,7 @@ import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force"
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
-import { reducePoison } from "@Scenes/Battleground/RunCombatIO";
+import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
 
 export const restoreLife = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -16,21 +16,10 @@ export const restoreLife = async (sourceUnit: Unit) => {
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(targetForce, amount, crit.isCritical);
 
-		if (actualHealing > 0) {
-			CombatStatsTracker.trackHealing(sourceUnit.id, actualHealing, "direct");
-		}
+		CombatStatsTracker.trackHeal(sourceUnit.id, actualHealing);
 
-		if (actualHealing > 0) {
-			reducePoison(targetForce.id, actualHealing);
-		}
+		reducePoison(targetForce.id, actualHealing);
 	};
-
-	CombatStatsTracker.trackLifeRestored({
-		unit: sourceUnit,
-		amount: sourceUnit.power,
-		type: "direct",
-		sourceUnitId: sourceUnit.id,
-	});
 
 	const sourceForce = getUnitForce(sourceUnit.id);
 	const alliedCore = getAlliedCore(sourceUnit.force);

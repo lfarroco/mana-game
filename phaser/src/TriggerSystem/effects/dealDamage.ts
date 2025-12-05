@@ -21,7 +21,7 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 		const damage = damageAmount * crit.multiplier;
 
 		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
-		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, "normal");
+		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged);
 		shake(getCharaById(enemyCore.id));
 
 		if (sourceUnit.lifesteal) {
@@ -33,11 +33,10 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 
 			if (reflected > 0) {
 				const actualLifeChanged = applyDamageToForce(targetForce, reflected);
-				CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged, "reflect");
+				CombatStatsTracker.trackDamage(enemyCore.id, actualLifeChanged);
 			}
 		}
 	};
-
 
 	playSoundEffect('sfx_spell_truestrike');
 
