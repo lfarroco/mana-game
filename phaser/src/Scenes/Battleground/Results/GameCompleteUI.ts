@@ -17,6 +17,7 @@ import {
 	BRONZE_VICTORY_THRESHOLD
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
+import * as StatsStore from "@Models/StatsStore";
 
 
 export async function displayGameComplete(
@@ -39,6 +40,20 @@ export async function displayGameComplete(
 	const playerCore = units.find((unit) => unit.isCore);
 	if (playerCore && wins >= 5) {
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
+	}
+
+	// Record player statistics
+	StatsStore.incrementRunsPlayed();
+	if (wins >= GOLD_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("gold");
+	} else if (wins >= SILVER_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("silver");
+	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("bronze");
+	}
+	// Track furthest progress in infinite mode
+	if (wins > INFINITE_MODE_THRESHOLD) {
+		StatsStore.updateFurthestInfiniteRound(wins);
 	}
 
 	let subtitleText = END_GAME_MESSAGES.default;

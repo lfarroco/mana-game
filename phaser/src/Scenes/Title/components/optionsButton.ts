@@ -3,6 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
 import { openOptions } from "../effects/openOptions";
 import { openCredits } from "./CreditsPanel";
+import { openStats } from "./StatsPanel";
 import * as io from "@PhaserIO";
 
 let submenuContainer: Container | null = null;
@@ -40,7 +41,7 @@ function showOptionsSubmenu() {
 		"STATS",
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
 		() => {
-			// No-op for now
+			openStats();
 		}
 	);
 
