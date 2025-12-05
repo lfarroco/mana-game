@@ -1665,8 +1665,8 @@
 			]
 		},
 		{
-			"id": "void_rift",
-			"name": "Void Rift",
+			"id": "void_spawn",
+			"name": "Void Spawn",
 			"pic": "f5_ankylos",
 			"power": 10,
 			"cooldown": 8500,
