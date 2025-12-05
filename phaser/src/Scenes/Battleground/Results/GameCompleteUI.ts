@@ -55,6 +55,7 @@ export async function displayGameComplete(
 	if (wins > INFINITE_MODE_THRESHOLD) {
 		StatsStore.updateFurthestInfiniteRound(wins);
 	}
+	StatsStore.save();
 
 	let subtitleText = END_GAME_MESSAGES.default;
 	if (isGameOver && wins > INFINITE_MODE_THRESHOLD) {

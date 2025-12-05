@@ -6,11 +6,12 @@ import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
-import { getStats } from "@Models/StatsStore";
+import { getStats, getMostUsedUnit } from "@Models/StatsStore";
+import { getCardDefinition } from "@Models/Entities/Card";
 
 const OVERLAY_ALPHA = 0.85;
-const PANEL_WIDTH = 600;
-const PANEL_HEIGHT = 500;
+const PANEL_WIDTH = 800;
+const PANEL_HEIGHT = 600;
 
 let isOpen = false;
 
@@ -23,6 +24,16 @@ export function openStats(): void {
 
 	const scene = getCurrentScene();
 	const stats = getStats();
+
+	// Get unit display names
+	const mostUsedCardId = getMostUsedUnit();
+	const mostUsedName = mostUsedCardId ? getCardDefinition(mostUsedCardId).name : "-";
+	const mostPowerfulName = stats.mostPowerfulUnit
+		? getCardDefinition(stats.mostPowerfulUnit.cardId).name
+		: "-";
+	const mostPowerfulValue = stats.mostPowerfulUnit
+		? `${mostPowerfulName} (${stats.mostPowerfulUnit.power})`
+		: "-";
 
 	// Create dark overlay background
 	const overlay = scene.add.rectangle(
@@ -56,9 +67,11 @@ export function openStats(): void {
 		{ label: "Silver Victories", value: stats.silverVictories.toString(), color: "#C0C0C0" },
 		{ label: "Bronze Victories", value: stats.bronzeVictories.toString(), color: "#CD7F32" },
 		{ label: "Furthest Infinite Mode", value: stats.furthestInfiniteRound > 0 ? `${stats.furthestInfiniteRound} wins` : "-" },
+		{ label: "Most Used Unit", value: mostUsedName },
+		{ label: "Most Powerful Unit", value: mostPowerfulValue, color: "#ff6b6b" },
 	];
 
-	const startY = c.MIDDLE_SCREEN_Y - 80;
+	const startY = c.MIDDLE_SCREEN_Y - 200;
 	const rowSpacing = 50;
 	const labelX = c.MIDDLE_SCREEN_X - 160;
 	const valueX = c.MIDDLE_SCREEN_X + 160;
@@ -81,8 +94,9 @@ export function openStats(): void {
 			fontSize: "28px",
 			color: stat.color || "#ffffff",
 			fontStyle: "bold",
+			align: "left"
 		});
-		valueText.setOrigin(1, 0.5);
+		valueText.setOrigin(0, 0.5);
 		statTexts.push(valueText);
 	});
 
