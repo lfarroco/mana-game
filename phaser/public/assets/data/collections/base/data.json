@@ -8,7 +8,7 @@
 			"pic": "blue-stone",
 			"life": 500,
 			"power": 10,
-			"cooldown": 5200,
+			"cooldown": 7200,
 			"isCore": true,
 			"effects": [
 				{
@@ -29,7 +29,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -276,6 +276,9 @@
 			"cooldown": 5000,
 			"effects": [
 				{
+					"id": "shield"
+				},
+				{
 					"id": "increase_power",
 					"amount": 1,
 					"permanent": true,
@@ -306,7 +309,7 @@
 			"name": "Tek Monk",
 			"pic": "f3_windgiver",
 			"power": 15,
-			"cooldown": 3600,
+			"cooldown": 5600,
 			"effects": [
 				{
 					"id": "damage"
@@ -319,16 +322,9 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
-							}
-						},
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "row_allies"
 							}
 						}
 					]
@@ -340,7 +336,7 @@
 			"name": "Void Specter",
 			"pic": "neutral_amu",
 			"power": 10,
-			"cooldown": 2200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "poison"
@@ -353,7 +349,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -604,9 +600,12 @@
 			"id": "moss_golem",
 			"name": "Moss Golem",
 			"pic": "neutral_golemnature",
-			"power": 10,
+			"power": 30,
 			"cooldown": 5200,
 			"effects": [
+				{
+					"id": "shield"
+				},
 				{
 					"id": "increase_power",
 					"amount": 1,
@@ -702,7 +701,7 @@
 			"pic": "haste-stone",
 			"life": 500,
 			"power": 15,
-			"cooldown": 6500,
+			"cooldown": 4500,
 			"isCore": true,
 			"effects": [
 				{
@@ -718,14 +717,14 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
-								"id": "self"
+								"id": "column_allies"
 							}
 						}
 					]
@@ -739,6 +738,9 @@
 			"power": 10,
 			"cooldown": 4000,
 			"effects": [
+				{
+					"id": "shield"
+				},
 				{
 					"id": "increase_power",
 					"amount": 5,
@@ -1058,7 +1060,7 @@
 			"name": "Battle Medic",
 			"pic": "neutral_healingmysticbandainamco",
 			"power": 35,
-			"cooldown": 4800,
+			"cooldown": 6800,
 			"effects": [
 				{
 					"id": "heal"
@@ -1067,11 +1069,11 @@
 			"reactions": [
 				{
 					"position": "row_allies",
-					"effectId": "all",
+					"effectId": "shield",
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -1447,7 +1449,7 @@
 			"name": "Sand Shifter",
 			"pic": "f3_sandhowler",
 			"power": 30,
-			"cooldown": 2800,
+			"cooldown": 5800,
 			"effects": [
 				{
 					"id": "regen"
@@ -1460,7 +1462,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -1572,7 +1574,7 @@
 				},
 				{
 					"id": "charge",
-					"duration": 1000,
+					"duration": 500,
 					"targets": {
 						"id": "row_allies"
 					}
@@ -1580,10 +1582,10 @@
 			]
 		},
 		{
-			"id": "shifter_of_time",
-			"name": "Shifter of Time",
+			"id": "time_magus",
+			"name": "Time Magus",
 			"pic": "f2_mage4winds",
-			"power": 6,
+			"power": 10,
 			"cooldown": 3500,
 			"effects": [
 				{
@@ -1595,10 +1597,14 @@
 					}
 				},
 				{
-					"id": "charge",
-					"duration": 1000,
+					"id": "damage"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
 					"targets": {
-						"id": "column_allies"
+						"id": "self"
 					}
 				}
 			]
@@ -1607,9 +1613,12 @@
 			"id": "mana_source",
 			"name": "Mana Source",
 			"pic": "f4_furosa",
-			"power": 0,
-			"cooldown": 9500,
+			"power": 10,
+			"cooldown": 15000,
 			"effects": [
+				{
+					"id": "regen"
+				},
 				{
 					"id": "haste",
 					"duration": 1000,
@@ -1626,7 +1635,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -1639,9 +1648,12 @@
 			"id": "void_rift",
 			"name": "Void Rift",
 			"pic": "f5_ankylos",
-			"power": 0,
-			"cooldown": 6500,
+			"power": 10,
+			"cooldown": 8500,
 			"effects": [
+				{
+					"id": "poison"
+				},
 				{
 					"id": "haste",
 					"duration": 1000,
@@ -1657,7 +1669,7 @@
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -1670,12 +1682,15 @@
 			"id": "arcane_anomally",
 			"name": "Arcane Anomally",
 			"pic": "f6_myriad",
-			"power": 0,
-			"cooldown": 4500,
+			"power": 10,
+			"cooldown": 5500,
 			"effects": [
 				{
+					"id": "damage"
+				},
+				{
 					"id": "charge",
-					"duration": 1000,
+					"duration": 500,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -1684,11 +1699,11 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "all",
+					"effectId": "shield",
 					"effects": [
 						{
 							"id": "charge",
-							"duration": 1000,
+							"duration": 500,
 							"targets": {
 								"id": "self"
 							}
@@ -1728,9 +1743,12 @@
 			"id": "spellbreaker",
 			"name": "Spellbreaker",
 			"pic": "neutral_spelljammer",
-			"power": 0,
+			"power": 10,
 			"cooldown": 4500,
 			"effects": [
+				{
+					"id": "damage"
+				},
 				{
 					"id": "haste",
 					"duration": 1000,
@@ -1796,9 +1814,12 @@
 			"id": "gambler",
 			"name": "Gambler",
 			"pic": "neutral_gambler",
-			"power": 0,
+			"power": 10,
 			"cooldown": 3200,
 			"effects": [
+				{
+					"id": "shield"
+				},
 				{
 					"id": "increase_critical",
 					"amount": 5,
