@@ -5,7 +5,6 @@ import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "./ResultsConfig";
 import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
-import { loadUnitAssets } from "../Systems/Loader";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 
 const PANEL_CONFIG = {
@@ -32,13 +31,10 @@ async function createStatsPanel(
 	const elements: Phaser.GameObjects.GameObject[] = [];
 	const { padding } = PANEL_CONFIG;
 
-	// Filter units for this panel
 	const filteredUnits = units.filter(forceFilter);
 
-	// Calculate dynamic height based on number of units
 	const panelHeight = PANEL_CONFIG.baseHeight + (filteredUnits.length * PANEL_CONFIG.rowHeight) + 40;
 
-	// Panel background
 	const background = io.BorderedRoundRect(
 		position,
 		size(PANEL_CONFIG.width, panelHeight),
@@ -48,7 +44,6 @@ async function createStatsPanel(
 	);
 	elements.push(background);
 
-	// Title
 	const titleText = io.Text(title, {
 		fontSize: PANEL_CONFIG.titleFontSize,
 		color: titleColor,
@@ -58,7 +53,6 @@ async function createStatsPanel(
 	io.Centralize(titleText);
 	elements.push(titleText);
 
-	// Headers
 	const headers = ["DMG", "Heal", "Shield", "Poison", "Regen"];
 	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
 	let startY = position.y - panelHeight / 2 + 70;
@@ -74,27 +68,23 @@ async function createStatsPanel(
 		startX += PANEL_CONFIG.columnWidths[index + 1];
 	});
 
-	// Data rows - use for loop to handle async properly
 	let currentY = startY + PANEL_CONFIG.rowHeight;
 	for (const unit of filteredUnits) {
 		const stats = CombatStatsTracker.getUnitStats(unit.id);
 		if (!stats) continue;
 
-		const totalDamage = Math.floor(stats.damageDealt + stats.poisonApplied);
-		const totalHeal = Math.floor(stats.healingDone + stats.regenApplied);
+		const totalDamage = Math.floor(stats.damageDealt);
+		const totalHeal = Math.floor(stats.healingDone);
 		const shield = Math.floor(stats.shieldGranted);
 		const poison = Math.floor(stats.poisonApplied);
 		const regen = Math.floor(stats.regenApplied);
 
-		// Create sprite for this unit
-		await loadUnitAssets([unit]);
 		const sprite = getCurrentScene().add.sprite(
 			position.x - PANEL_CONFIG.width / 2 + padding + 25,
 			currentY,
 			unit.pic
 		);
 
-		// Configure sprite
 		const frameNames = getCurrentScene().textures.get(unit.pic).getFrameNames();
 		const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 		idleFrames.sort((a, b) => {
@@ -106,22 +96,18 @@ async function createStatsPanel(
 		sprite.setTexture(unit.pic, firstIdle);
 		sprite.setDisplaySize(90, 90);
 
-		// Flip CPU units
 		if (unit.force === c.FORCE_ID_CPU) {
 			sprite.setFlipX(true);
 		}
 
-		// Play idle animation if it exists
 		if (getCurrentScene().anims.exists(unit.pic + "_idle")) {
 			sprite.play(unit.pic + "_idle");
 		}
 
-		// Enable tooltips
 		sprite.setInteractive();
 
 		sprite.on('pointerover', () => {
 			import('@Components/Tooltip').then(({ renderTooltip }) => {
-				// Build description using the same functions as board units
 				const title = unit.name;
 
 				const effectBlocks = unit.effects
@@ -140,7 +126,6 @@ async function createStatsPanel(
 				const descriptionString = [...effectBlocks, ...reactionBlocks].join("\n") || "No special abilities";
 				const description = [statsBlock, descriptionString].join("\n");
 
-				// Position tooltip
 				const screenWidth = getCurrentScene().sys.game.config.width as number;
 				const isRightSide = sprite.x > screenWidth / 2;
 				const TOOLTIP_OFFSET_X = 300;
@@ -186,13 +171,11 @@ export async function createCombatStatsPanels(
 	centerPanelX: number,
 	panelY: number
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {
-	const panelSpacing = 600; // Distance from center to side panels
+	const panelSpacing = 600;
 
-	// Use the actual force ID constants
 	const playerForceId = c.FORCE_ID_PLAYER;
 	const cpuForceId = c.FORCE_ID_CPU;
 
-	// Player panel on the left
 	const playerPanel = await createStatsPanel(
 		units,
 		vec2(centerPanelX - panelSpacing, panelY),
@@ -201,7 +184,6 @@ export async function createCombatStatsPanels(
 		(unit) => unit.force === playerForceId
 	);
 
-	// CPU panel on the right
 	const cpuPanel = await createStatsPanel(
 		units,
 		vec2(centerPanelX + panelSpacing, panelY),
