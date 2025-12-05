@@ -16,7 +16,6 @@ export async function displayDefeat(
 	units: Unit[],
 	nextPhaseCallback: () => void
 ): Promise<Phaser.GameObjects.Container> {
-	// Panel dimensions
 	const panelWidth = RESULTS_PANEL.width;
 	const panelHeight = RESULTS_PANEL.height;
 	const panelX = c.MIDDLE_SCREEN_X;
@@ -25,7 +24,6 @@ export async function displayDefeat(
 	const livesText = `Lives: ${livesChange > 0 ? "+" : ""}${livesChange}`;
 	const livesColor = livesChange > 0 ? "#4CAF50" : "#F44336";
 
-	// Button definitions
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
 			"Continue",
@@ -35,7 +33,6 @@ export async function displayDefeat(
 		]
 	];
 
-	// Map button definitions to containers
 	const buttons = buttonDefinitions.map(
 		([label, callback]) =>
 			createUIButton(
@@ -45,7 +42,6 @@ export async function displayDefeat(
 			).container
 	);
 
-	// Create combat stats panels
 	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);
 
 	const container = io.Container([
@@ -60,11 +56,6 @@ export async function displayDefeat(
 			() => io.Text("Defeat", { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.defeat }),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleY)),
 			(title) => io.Centralize(title),
-		],
-		[
-			() => io.Text("You have been defeated.\nBetter luck next time!", { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageMedium, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPadding } }),
-			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageY)),
-			(label) => io.Centralize(label),
 		],
 		[
 			() => io.Text(livesText, {
