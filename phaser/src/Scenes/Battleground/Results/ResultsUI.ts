@@ -7,27 +7,22 @@ import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
 import { WINS_TO_WIN_GAME, RESULTS_PANEL } from "./ResultsConfig";
+import { createBackgroundOverlay, BackgroundOverlay } from "@Components/BackgroundOverlay";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
 export let resultsContainer: Phaser.GameObjects.Container;
-export let backgroundOverlay: Phaser.GameObjects.Rectangle;
+export let overlay: BackgroundOverlay;
 export let isOpen: boolean;
 
 export function createResultsUI() {
 	const scene = getCurrentScene();
 
-	backgroundOverlay = scene.add.rectangle(
-		c.MIDDLE_SCREEN_X,
-		c.MIDDLE_SCREEN_Y,
-		c.SCREEN_WIDTH,
-		c.SCREEN_HEIGHT,
-		RESULTS_PANEL.overlayColor,
-		RESULTS_PANEL.overlayAlpha
-	);
-	backgroundOverlay.setInteractive();
-	backgroundOverlay.setAlpha(0);
-	backgroundOverlay.setVisible(false);
+	overlay = createBackgroundOverlay({
+		color: RESULTS_PANEL.overlayColor,
+		alpha: RESULTS_PANEL.overlayAlpha,
+		interactive: true,
+	});
 
 	resultsContainer = scene.add.container(0, 0);
 	isOpen = false;
@@ -75,7 +70,7 @@ export async function displayResults(
 ): Promise<void> {
 	resultsContainer.removeAll(true);
 	const scene = getCurrentScene();
-	scene.children.bringToTop(backgroundOverlay);
+	scene.children.bringToTop(overlay.rectangle);
 	scene.children.bringToTop(resultsContainer);
 
 	const gameState = getState();
@@ -108,13 +103,7 @@ export async function displayResults(
 export async function slideIn(): Promise<void> {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 
-	const scene = getCurrentScene();
-	backgroundOverlay.setVisible(true);
-	scene.tweens.add({
-		targets: backgroundOverlay,
-		alpha: RESULTS_PANEL.overlayAlpha,
-		duration: 300
-	});
+	overlay.fadeIn(300);
 
 	await tween({ targets: [resultsContainer], y: 0 });
 
@@ -124,15 +113,7 @@ export async function slideIn(): Promise<void> {
 export async function slideOut(): Promise<void> {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 
-	const scene = getCurrentScene();
-	scene.tweens.add({
-		targets: backgroundOverlay,
-		alpha: 0,
-		duration: 300,
-		onComplete: () => {
-			backgroundOverlay.setVisible(false);
-		}
-	});
+	overlay.fadeOut(300);
 
 	await tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
 
