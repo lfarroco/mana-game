@@ -26,7 +26,7 @@ function showOptionsSubmenu() {
 
 	// Create submenu buttons
 	const baseY = 500;
-	const spacing = 80;
+	const spacing = 90;
 
 	const settingsBtn = createUIButton(
 		"SETTINGS",

@@ -27,9 +27,9 @@ export const RESULTS_FONT_SIZES = {
 } as const;
 
 export const RESULTS_SPACING = {
-	titleY: 30,
+	titleY: 50,
 	titleYLarge: 50,
-	messageY: 80,
+	messageY: 100,
 	messageYLarge: 120,
 	buttonSpacing: 100,
 	buttonBottomOffset: 60,
