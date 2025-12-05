@@ -10,7 +10,6 @@ let poisonTimer: Phaser.Time.TimerEvent;
 type PoisonState = {
 	rate: number;
 	accumulator: number;
-	sourceContributions?: Map<string, number>;
 };
 
 const poisonStates: Map<string, PoisonState> = new Map();
@@ -38,11 +37,6 @@ export function applyPoison(
 		poisonStates.set(id, state);
 	}
 	state.rate += amount;
-	if (sourceUnitId) {
-		if (!state.sourceContributions) state.sourceContributions = new Map();
-		const contribs = state.sourceContributions;
-		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
-	}
 
 	updatePoisonDisplay(targetForce.id, state.rate, amount);
 }
@@ -61,17 +55,6 @@ function tickForce(force: Force): void {
 	if (damage <= 0) return;
 	applyDamageToForce(force, damage, 0, "poison", false);
 
-	const contribs = state.sourceContributions;
-	if (contribs) {
-		let totalContrib = 0;
-		contribs.forEach((v) => (totalContrib += v));
-		if (totalContrib > 0) {
-			contribs.forEach((v, s) => {
-				const share = (v / totalContrib) * damage;
-				CombatStatsTracker.trackDamage(s, share, "poison");
-			});
-		}
-	}
 }
 
 export function reducePoison(forceId: string, healAmount: number): void {
@@ -81,18 +64,6 @@ export function reducePoison(forceId: string, healAmount: number): void {
 	const reduction = Math.min(state.rate, Math.floor(healAmount * 0.05));
 	state.rate -= reduction;
 
-	const contribs = state.sourceContributions;
-	if (contribs && state.rate > 0 && state.rate - reduction > 0) {
-		const newRate = state.rate - reduction;
-		contribs.forEach((v, k) => {
-			const scaled = (v / state.rate) * newRate;
-			contribs.set(k, scaled);
-		});
-		state.rate = newRate;
-	} else if (contribs && state.rate - reduction === 0) {
-		contribs.clear();
-		state.rate = 0;
-	}
 	if (state.rate === 0) {
 		poisonStates.delete(forceId);
 	}
