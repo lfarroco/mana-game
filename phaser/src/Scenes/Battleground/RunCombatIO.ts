@@ -46,7 +46,6 @@ export function updateFrame(_time: number, delta: number): void {
 	}
 
 	Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
-	Systems.CombatStatsTracker.updateTimeAlive(scaledDelta);
 
 	const playerLifeZero = getCore(playerForce.id).life <= 0;
 	const cpuLifeZero = getCore(cpuForce.id).life <= 0;

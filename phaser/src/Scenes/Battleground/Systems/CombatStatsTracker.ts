@@ -6,24 +6,20 @@ export type UnitCombatStats = {
 	unitName?: string;
 	forceId: string;
 
+	actionsPerformed: number;
 	reflected: number;
 	damageDealt: number;
 	poisonApplied: number;
-
 	healingDone: number;
 	regenApplied: number;
-
 	shieldGranted: number;
-
-	actionsPerformed: number;
-	timeAlive: number;
 };
 
-let isActive: boolean = false;
 let unitStats: Map<string, UnitCombatStats> = new Map();
-let combatStartTime: number = 0;
 
-function initializeUnitStats(): void {
+export function initialize(): void {
+	unitStats.clear();
+
 	const allUnits = getState().battleData.units;
 
 	for (const unit of allUnits) {
@@ -38,19 +34,14 @@ function initializeUnitStats(): void {
 			regenApplied: 0,
 			shieldGranted: 0,
 			actionsPerformed: 0,
-			timeAlive: 0,
 		});
 	}
+
+	console.log("[CombatStatsTracker] Initialized for new combat");
 }
 
 export function trackAction(payload: { unit: Unit }): void {
-	if (!isActive || !payload.unit?.id) return;
-
-	const stats = unitStats.get(payload.unit.id);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${payload.unit.id}`);
-		return;
-	}
+	const stats = unitStats.get(payload.unit.id)!;
 
 	stats.actionsPerformed += 1;
 	console.log(
@@ -58,214 +49,67 @@ export function trackAction(payload: { unit: Unit }): void {
 	);
 }
 
-export function initialize(): void {
-	isActive = true;
-	unitStats.clear();
-	combatStartTime = Date.now();
-
-	initializeUnitStats();
-
-	console.log("[CombatStatsTracker] Initialized for new combat");
-}
-
 export function trackDamage(
 	sourceUnitId: string,
 	damage: number,
 ): void {
-	if (!isActive || damage <= 0) return;
+	if (damage <= 0) return;
 
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
+	const stats = unitStats.get(sourceUnitId)!;
 
 	stats.damageDealt += damage;
-
-	console.log(
-		`[CombatStatsTracker] Manually tracked ${damage} damage for unit ${sourceUnitId}`
-	);
 }
 
 export function trackPoison(
 	sourceUnitId: string,
 	poison: number,
 ): void {
-	if (!isActive || poison <= 0) return;
+	if (poison <= 0) return;
 
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
+	const stats = unitStats.get(sourceUnitId)!;
 
 	stats.poisonApplied += poison;
 
-	console.log(
-		`[CombatStatsTracker] Manually tracked ${poison} poison damage for unit ${sourceUnitId}`
-	);
 }
 
 export function trackHeal(
 	sourceUnitId: string,
 	healing: number,
 ): void {
-	if (!isActive || healing <= 0) return;
+	if (healing <= 0) return;
 
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
+	const stats = unitStats.get(sourceUnitId)!;
 
 	stats.healingDone += healing;
-
-	console.log(
-		`[CombatStatsTracker] Manually tracked ${healing} healing for unit ${sourceUnitId}`
-	);
 }
 
 export function trackRegen(sourceUnitId: string, regen: number): void {
-	if (!isActive || regen <= 0) return;
+	if (regen <= 0) return;
 
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
+	const stats = unitStats.get(sourceUnitId)!;
 
 	stats.regenApplied += regen;
-	console.log(`[CombatStatsTracker] Manually tracked ${regen} regen for unit ${sourceUnitId}`);
 }
 
 export function trackShield(sourceUnitId: string, shield: number): void {
-	if (!isActive || shield <= 0) return;
+	if (shield <= 0) return;
 
-	const stats = unitStats.get(sourceUnitId);
-	if (!stats) {
-		console.warn(`[CombatStatsTracker] No stats found for unit ${sourceUnitId}`);
-		return;
-	}
+	const stats = unitStats.get(sourceUnitId)!;
 
 	stats.shieldGranted += shield;
-	console.log(`[CombatStatsTracker] Manually tracked ${shield} shield for unit ${sourceUnitId}`);
 }
 
-export function updateTimeAlive(delta: number): void {
-	if (!isActive) return;
-
-	const activeUnits = getState().battleData.units.filter((unit) =>
-		getState().battleData.forces.some((force) =>
-			force.units.some((forceUnit) => forceUnit.id === unit.id)
-		)
-	);
-
-	for (const unit of activeUnits) {
-		const stats = unitStats.get(unit.id);
-		if (stats) {
-			stats.timeAlive += delta;
-		}
-	}
-}
 
 export function getUnitStats(unitId: string): UnitCombatStats | undefined {
 	return unitStats.get(unitId);
 }
 
-export function getAllStats(): UnitCombatStats[] {
-	return Array.from(unitStats.values());
-}
-
-export function getForceStats(forceId: string): UnitCombatStats[] {
-	return Array.from(unitStats.values()).filter((stats) => stats.forceId === forceId);
-}
-
-export function getAggregatedForceStats(
-	forceId: string
-): Omit<UnitCombatStats, "unitId" | "unitName"> {
-	const forceStats = getForceStats(forceId);
-
-	return forceStats.reduce(
-		(aggregate, stats) => ({
-			forceId,
-			damageDealt: aggregate.damageDealt + stats.damageDealt,
-			poisonApplied: aggregate.poisonApplied + stats.poisonApplied,
-			healingDone: aggregate.healingDone + stats.healingDone,
-			regenApplied: aggregate.regenApplied + stats.regenApplied,
-			reflected: aggregate.reflected + stats.reflected,
-			shieldGranted: aggregate.shieldGranted + stats.shieldGranted,
-			actionsPerformed: aggregate.actionsPerformed + stats.actionsPerformed,
-			timeAlive: Math.max(aggregate.timeAlive, stats.timeAlive),
-		}),
-		{
-			forceId,
-			damageDealt: 0,
-			poisonApplied: 0,
-			healingDone: 0,
-			regenApplied: 0,
-			reflected: 0,
-			shieldGranted: 0,
-			actionsPerformed: 0,
-			timeAlive: 0,
-		}
-	);
-}
-
-export function printStatsSummary(): void {
-	if (!isActive && unitStats.size === 0) {
-		console.log("[CombatStatsTracker] No stats available");
-		return;
-	}
-
-	console.log("=== COMBAT STATS SUMMARY ===");
-
-	for (const stats of unitStats.values()) {
-		const totalDamage = stats.damageDealt + stats.poisonApplied;
-		const totalHealing = stats.healingDone + stats.regenApplied;
-
-		console.log(`${stats.unitName || stats.unitId} (${stats.forceId}):`);
-		console.log(
-			`  Damage: ${totalDamage} (${stats.damageDealt} direct, ${stats.poisonApplied} poison)`
-		);
-		console.log(
-			`  Healing: ${totalHealing} (${stats.healingDone} direct, ${stats.regenApplied} regen)`
-		);
-		console.log(`  Shield: ${stats.shieldGranted}`);
-		console.log(`  Actions: ${stats.actionsPerformed}`);
-		console.log(`  Time Alive: ${Math.round(stats.timeAlive / 1000)}s`);
-		console.log("");
-	}
-
-	console.log("=== END COMBAT STATS ===");
-}
-
 export function stop(): void {
-	if (!isActive) return;
-
-	isActive = false;
-
-	const combatDuration = Date.now() - combatStartTime;
-	for (const stats of unitStats.values()) {
-		if (stats.timeAlive === 0) {
-			stats.timeAlive = combatDuration;
-		}
-	}
-
-	printStatsSummary();
 
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
 
-export function getConfig() {
-	return {
-		isActive,
-		trackedUnits: unitStats.size,
-		combatDuration: Date.now() - combatStartTime,
-	};
-}
 
 export function reset(): void {
-	isActive = false;
 	unitStats.clear();
-	combatStartTime = 0;
 }
