@@ -54,11 +54,10 @@ async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
 	nextPhaseCallback: () => void,
-	newWins: number,
 	units: Unit[]
 ): Promise<Phaser.GameObjects.Container> {
 	if (resultType === "victory") {
-		return displayVictory(newWins, units, nextPhaseCallback);
+		return displayVictory(units, nextPhaseCallback);
 	} else {
 		return displayDefeat(livesChange, units, nextPhaseCallback);
 	}
@@ -96,7 +95,7 @@ export async function displayResults(
 		}
 	};
 
-	const uiContainer = await displayAppropriateUI(resultType, livesChange, handleContinue, newWins, allBattleUnits);
+	const uiContainer = await displayAppropriateUI(resultType, livesChange, handleContinue, allBattleUnits);
 	resultsContainer.add(uiContainer);
 }
 
