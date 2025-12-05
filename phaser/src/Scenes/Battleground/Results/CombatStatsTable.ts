@@ -1,11 +1,12 @@
 import * as io from "@PhaserIO";
-import { size, vec2 } from "@Models/Geometry";
+import { vec2 } from "@Models/Geometry";
 import * as CombatStatsTracker from "../Systems/CombatStatsTracker";
 import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "./ResultsConfig";
 import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
+import { createPanel } from "@Components/Panel";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -28,21 +29,19 @@ async function createStatsPanel(
 	titleColor: string,
 	forceFilter: (unit: Unit) => boolean
 ): Promise<Phaser.GameObjects.Container> {
-	const elements: Phaser.GameObjects.GameObject[] = [];
 	const { padding } = PANEL_CONFIG;
 
 	const filteredUnits = units.filter(forceFilter);
 
 	const panelHeight = PANEL_CONFIG.baseHeight + (filteredUnits.length * PANEL_CONFIG.rowHeight) + 40;
 
-	const background = io.BorderedRoundRect(
-		position,
-		size(PANEL_CONFIG.width, panelHeight),
-		RESULTS_PANEL.borderRadius,
-		RESULTS_PANEL.backgroundColor,
-		RESULTS_PANEL.backgroundAlpha
-	);
-	elements.push(background);
+	const panel = createPanel(position, {
+		width: PANEL_CONFIG.width,
+		height: panelHeight,
+		borderRadius: RESULTS_PANEL.borderRadius,
+		backgroundColor: RESULTS_PANEL.backgroundColor,
+		backgroundAlpha: RESULTS_PANEL.backgroundAlpha,
+	});
 
 	const titleText = io.Text(title, {
 		fontSize: PANEL_CONFIG.titleFontSize,
@@ -51,7 +50,7 @@ async function createStatsPanel(
 	});
 	io.SetPosition(titleText, vec2(position.x, position.y - panelHeight / 2 + 30));
 	io.Centralize(titleText);
-	elements.push(titleText);
+	panel.add(titleText);
 
 	const headers = ["DMG", "Heal", "Shield", "Poison", "Regen"];
 	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
@@ -64,7 +63,7 @@ async function createStatsPanel(
 			fontStyle: "bold",
 		});
 		io.SetPosition(headerText, vec2(startX, startY));
-		elements.push(headerText);
+		panel.add(headerText);
 		startX += PANEL_CONFIG.columnWidths[index + 1];
 	});
 
@@ -139,7 +138,7 @@ async function createStatsPanel(
 			CharaTooltip.onCharaPointerOut();
 		});
 
-		elements.push(sprite);
+		panel.add(sprite);
 
 		const rowData = [
 			totalDamage > 0 ? totalDamage.toString() : "-",
@@ -156,14 +155,14 @@ async function createStatsPanel(
 				color: "#FFFFFF",
 			});
 			io.SetPosition(cellText, vec2(currentX, currentY));
-			elements.push(cellText);
+			panel.add(cellText);
 			currentX += PANEL_CONFIG.columnWidths[index + 1];
 		});
 
 		currentY += PANEL_CONFIG.rowHeight;
 	}
 
-	return io.Container(elements);
+	return panel.container;
 }
 
 export async function createCombatStatsPanels(
