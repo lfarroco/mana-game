@@ -1,25 +1,11 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { images } from "../../../assets";
+import { openTutorial } from "./TutorialOverlay";
 
-function openYouTubeLink(url: string) {
-	if (typeof (window as any).openExternalURL === 'function') {
-		(window as any).openExternalURL(url);
-	} else {
-		window.open(url, '_blank');
-	}
-}
+export function howToPlay() {
 
-export function how_to_play() {
-	const YOUTUBE_URL = "https://youtube.com/live/F3xtoT-YwzU";
-
-	const youtube_icon = io.Image(images.youtube_icon.key);
-	io.SetPosition(youtube_icon,
-		vec2(0, 0)
-	);
-	io.Centralize(youtube_icon);
-	const text = io.Title1("How to play\n@manabattle");
+	const text = io.Title1("How to Play");
 	io.SetPosition(text,
 		vec2(0, 80)
 	);
@@ -33,18 +19,16 @@ export function how_to_play() {
 		scale: 1.2,
 	});
 
-	const container = io.Container([youtube_icon, text]);
+	const container = io.Container([text]);
 	container.rotation = -0.1;
 	container.x = constants.SCREEN_WIDTH - 200;
 	container.y = constants.SCREEN_HEIGHT - 200;
 
-	// Make the container interactive and clickable
 	container.setInteractive(
 		new Phaser.Geom.Rectangle(-100, -100, 200, 200),
 		Phaser.Geom.Rectangle.Contains
 	);
 
-	// Add pointer cursor on hover
 	container.on('pointerover', () => {
 		container.scene.input.setDefaultCursor('pointer');
 	});
@@ -53,8 +37,7 @@ export function how_to_play() {
 		container.scene.input.setDefaultCursor('default');
 	});
 
-	// Open YouTube link on click
 	container.on('pointerdown', () => {
-		openYouTubeLink(YOUTUBE_URL);
+		openTutorial();
 	});
 }

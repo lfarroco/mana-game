@@ -9,8 +9,7 @@ import { optionsButton } from "./components/optionsButton";
 import { goFullscreenButton } from "./components/goFullscreenButton";
 import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
-import { how_to_play } from "./components/how_to_play";
-import { tutorialButton } from "./components/tutorialButton";
+import { howToPlay } from "./components/howToPlay";
 
 export let titleScene: TitleScene;
 
@@ -38,8 +37,7 @@ export default class TitleScene extends Phaser.Scene {
 			goFullscreenButton,
 		].forEach((fn, index) => fn(500 + index * 100));
 
-		how_to_play();
-		tutorialButton();
+		howToPlay();
 
 		this.input.keyboard?.on("keydown-ENTER", startGame);
 
