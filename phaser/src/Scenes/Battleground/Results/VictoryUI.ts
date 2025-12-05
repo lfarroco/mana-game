@@ -29,7 +29,6 @@ export async function displayVictory(
 		]
 	];
 
-	// Map button definitions to containers
 	const buttons = buttonDefinitions.map(
 		([label, callback]) =>
 			createUIButton(
@@ -39,10 +38,8 @@ export async function displayVictory(
 			).container
 	);
 
-	// Create combat stats panels
 	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);
 
-	// Create container with all elements
 	const container = io.Container([
 		io.BorderedRoundRect(
 			vec2(panelX, panelY),
