@@ -10,6 +10,7 @@ import { goFullscreenButton } from "./components/goFullscreenButton";
 import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
 import { howToPlay } from "./components/howToPlay";
+import { creditsButton } from "./components/creditsButton";
 
 export let titleScene: TitleScene;
 
@@ -34,6 +35,7 @@ export default class TitleScene extends Phaser.Scene {
 			resumeGameButton,
 			startButton,
 			optionsButton,
+			creditsButton,
 			goFullscreenButton,
 		].forEach((fn, index) => fn(500 + index * 100));
 
