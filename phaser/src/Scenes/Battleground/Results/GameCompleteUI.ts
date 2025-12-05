@@ -75,6 +75,8 @@ export async function displayGameComplete(
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
+
+				playMusic("music_battlemap_vetruv");
 				nextPhaseCallback();
 			}
 		]);
