@@ -2,6 +2,7 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "../Components/Tooltip";
 import * as io from "@PhaserIO";
+import * as roundDisplay from "./components/roundDisplay";
 import * as livesDisplay from "./components/livesDisplay";
 import * as winsDisplay from "./components/winsDisplay";
 import * as headerBackground from "./components/headerBackground";
@@ -14,6 +15,7 @@ let uiContainer: Container | null = null;
 export function init() {
 	const headerContainer = io.Container([
 		headerBackground.create,
+		roundDisplay.create,
 		livesDisplay.create,
 		winsDisplay.create,
 	]);
