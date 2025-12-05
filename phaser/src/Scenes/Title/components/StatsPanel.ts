@@ -7,7 +7,6 @@ import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { getStats, getMostUsedUnit } from "@Models/StatsStore";
-import { getCardDefinition } from "@Models/Entities/Card";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 800;
@@ -25,14 +24,10 @@ export function openStats(): void {
 	const scene = getCurrentScene();
 	const stats = getStats();
 
-	// Get unit display names
-	const mostUsedCardId = getMostUsedUnit();
-	const mostUsedName = mostUsedCardId ? getCardDefinition(mostUsedCardId).name : "-";
-	const mostPowerfulName = stats.mostPowerfulUnit
-		? getCardDefinition(stats.mostPowerfulUnit.cardId).name
-		: "-";
+	// Get unit display names (now stored directly)
+	const mostUsedName = getMostUsedUnit() || "-";
 	const mostPowerfulValue = stats.mostPowerfulUnit
-		? `${mostPowerfulName} (${stats.mostPowerfulUnit.power})`
+		? `${stats.mostPowerfulUnit.name} (${stats.mostPowerfulUnit.power})`
 		: "-";
 
 	// Create dark overlay background

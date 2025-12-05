@@ -12,8 +12,8 @@ export type PlayerStats = {
 	silverVictories: number;
 	goldVictories: number;
 	furthestInfiniteRound: number;
-	unitUsage: Record<string, number>; // cardId -> times used
-	mostPowerfulUnit: { cardId: string; power: number } | null;
+	unitUsage: Record<string, number>; // unit name -> times used
+	mostPowerfulUnit: { name: string; power: number } | null;
 };
 
 export type VictoryTier = "bronze" | "silver" | "gold";
@@ -49,7 +49,7 @@ function loadStats(): void {
 			goldVictories: typeof parsed.goldVictories === "number" ? parsed.goldVictories : 0,
 			furthestInfiniteRound: typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
 			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
-			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.cardId === "string" ? parsed.mostPowerfulUnit : null,
+			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
 		};
 	} catch (error) {
 		console.warn("[StatsStore] Failed to load stats:", error);
@@ -127,40 +127,40 @@ export function updateFurthestInfiniteRound(wins: number): void {
 /**
  * Record unit usage for tracking most used unit
  */
-export function recordUnitUsage(cardId: string): void {
-	currentStats.unitUsage[cardId] = (currentStats.unitUsage[cardId] || 0) + 1;
+export function recordUnitUsage(name: string): void {
+	currentStats.unitUsage[name] = (currentStats.unitUsage[name] || 0) + 1;
 	// Don't save here, will batch save with other stats
 }
 
 /**
  * Check and update most powerful unit record
  */
-export function checkMostPowerfulUnit(cardId: string, power: number): void {
+export function checkMostPowerfulUnit(name: string, power: number): void {
 	if (!currentStats.mostPowerfulUnit || power > currentStats.mostPowerfulUnit.power) {
-		currentStats.mostPowerfulUnit = { cardId, power: Math.floor(power) };
-		console.log(`[StatsStore] New most powerful unit: ${cardId} with ${Math.floor(power)} power`);
+		currentStats.mostPowerfulUnit = { name, power: Math.floor(power) };
+		console.log(`[StatsStore] New most powerful unit: ${name} with ${Math.floor(power)} power`);
 	}
 	// Don't save here, will batch save with other stats
 }
 
 /**
- * Get the most used unit's cardId
+ * Get the most used unit's name
  */
 export function getMostUsedUnit(): string | null {
 	const entries = Object.entries(currentStats.unitUsage);
 	if (entries.length === 0) return null;
 
-	let maxCardId = entries[0][0];
+	let maxName = entries[0][0];
 	let maxCount = entries[0][1];
 
-	for (const [cardId, count] of entries) {
+	for (const [name, count] of entries) {
 		if (count > maxCount) {
-			maxCardId = cardId;
+			maxName = name;
 			maxCount = count;
 		}
 	}
 
-	return maxCardId;
+	return maxName;
 }
 
 /**
