@@ -317,7 +317,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "heal",
 					"effects": [
 						{
@@ -1635,7 +1635,7 @@
 			"name": "Mana Source",
 			"pic": "f4_furosa",
 			"power": 10,
-			"cooldown": 15000,
+			"cooldown": 9000,
 			"effects": [
 				{
 					"id": "regen"
@@ -1644,14 +1644,13 @@
 					"id": "haste",
 					"duration": 1000,
 					"targets": {
-						"id": "all_allies",
-						"ofType": "any"
+						"id": "row_allies"
 					}
 				}
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
@@ -1719,7 +1718,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "shield",
 					"effects": [
 						{
