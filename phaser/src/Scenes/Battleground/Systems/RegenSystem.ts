@@ -11,7 +11,6 @@ let regenTimer: Phaser.Time.TimerEvent;
 type RegenState = {
 	rate: number;
 	accumulator: number;
-	sourceContributions?: Map<string, number>;
 };
 
 const regenStates: Map<string, RegenState> = new Map();
@@ -40,9 +39,7 @@ export function applyRegen(
 	}
 	state.rate += amount;
 	if (sourceUnitId) {
-		if (!state.sourceContributions) state.sourceContributions = new Map();
-		const contribs = state.sourceContributions;
-		contribs.set(sourceUnitId, (contribs.get(sourceUnitId) || 0) + amount);
+		CombatStatsTracker.trackHealing(sourceUnitId, amount, "regen");
 	}
 
 	updateRegenDisplay(targetForce.id, state.rate, amount);
@@ -63,18 +60,7 @@ function tickForce(force: Force): void {
 
 	const actualHealing = manipulateCoreLife(force, healing);
 
-	// Attribute healing to contributors proportionally
-	const contribs = state.sourceContributions;
-	if (contribs && actualHealing > 0) {
-		let totalContrib = 0;
-		contribs.forEach((v) => (totalContrib += v));
-		if (totalContrib > 0) {
-			contribs.forEach((v, s) => {
-				const share = (v / totalContrib) * actualHealing;
-				CombatStatsTracker.trackHealing(s, share, "regen");
-			});
-		}
-	}
+
 
 	if (actualHealing > 0) {
 		reducePoison(id, actualHealing);
