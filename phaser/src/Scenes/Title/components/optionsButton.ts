@@ -1,4 +1,5 @@
 import * as constants from "@Constants/constants";
+import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
 import { openOptions } from "../effects/openOptions";
@@ -11,7 +12,7 @@ let mainButtonsContainer: Container | null = null;
 
 export function optionsButton(y: number) {
 	const button = createUIButton(
-		"OPTIONS",
+		t("title.options"),
 		vec2(constants.MIDDLE_SCREEN_X, y),
 		showOptionsSubmenu
 	);
@@ -29,7 +30,7 @@ function showOptionsSubmenu() {
 	const spacing = 90;
 
 	const settingsBtn = createUIButton(
-		"SETTINGS",
+		t("title.settings"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY),
 		() => {
 			hideOptionsSubmenu();
@@ -38,7 +39,7 @@ function showOptionsSubmenu() {
 	);
 
 	const statsBtn = createUIButton(
-		"STATS",
+		t("title.stats"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
 		() => {
 			openStats();
@@ -46,7 +47,7 @@ function showOptionsSubmenu() {
 	);
 
 	const creditsBtn = createUIButton(
-		"CREDITS",
+		t("title.credits"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
 		() => {
 			openCredits();
@@ -54,7 +55,7 @@ function showOptionsSubmenu() {
 	);
 
 	const backBtn = createUIButton(
-		"BACK",
+		t("title.back"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		() => {
 			hideOptionsSubmenu();

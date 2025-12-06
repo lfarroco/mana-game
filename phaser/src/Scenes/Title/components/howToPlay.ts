@@ -2,10 +2,11 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { openTutorial } from "./TutorialOverlay";
+import { t } from "@i18n/i18n";
 
 export function howToPlay() {
 
-	const text = io.Title1("How to Play");
+	const text = io.Title1(t("title.howToPlay"));
 	io.SetPosition(text,
 		vec2(0, 80)
 	);

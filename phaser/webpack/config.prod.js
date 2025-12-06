@@ -26,7 +26,8 @@ module.exports = {
             "@Constants": path.resolve(__dirname, "../src/Constants"),
             "@Utils": path.resolve(__dirname, "../src/Utils"),
             "@Components": path.resolve(__dirname, "../src/Components"),
-            "@Shaders": path.resolve(__dirname, "../src/Shaders")
+            "@Shaders": path.resolve(__dirname, "../src/Shaders"),
+            "@i18n": path.resolve(__dirname, "../src/i18n")
         }
     },
     // Exclude steamworks.js from browser bundle (only needed in Electron)
