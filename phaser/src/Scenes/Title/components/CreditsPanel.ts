@@ -1,4 +1,5 @@
 import * as c from "@Constants/constants";
+import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
@@ -41,19 +42,19 @@ export function openCredits(): void {
 	);
 
 	// Create title
-	const title = io.Title1("Credits");
+	const title = io.Title1(t("credits.title"));
 	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 20));
 	io.Centralize(title);
 
 	// Create credits text container - you can add your credits here
 	const creditsContent = [
-		"Game Design & Programming",
+		t("credits.design"),
 		"Leonardo Farroco",
 		"",
-		"Assets (Sprites and Sound)",
+		t("credits.assets"),
 		"Duelyst Assets",
 		"",
-		"Special Thanks",
+		t("credits.thanks"),
 		"My daughter (Laura) and my wife (Ercilia)",
 	];
 
@@ -76,7 +77,7 @@ export function openCredits(): void {
 
 	// Create close button
 	const closeButton = createUIButton(
-		"CLOSE",
+		t("credits.close"),
 		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
 		() => {
 			container.destroy(true);

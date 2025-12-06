@@ -8,6 +8,7 @@ import { vec2 } from "@Models/Geometry";
 import { cloudsBg } from "../Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
+import { t } from "@i18n/i18n";
 
 // Layout constants
 const CARD_DISPLAY_Y = 380;
@@ -39,10 +40,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.crystals = getCores();
 		this.currentIndex = 0;
 
-		const title = io.Text("Choose Your Crystal", {
-			...constants.titleTextConfig,
-			fontSize: "48px",
-		});
+		const title = io.Text(
+			t("crystalSelection.title"),
+			{
+				...constants.titleTextConfig,
+				fontSize: "48px",
+			});
 		io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, 150));
 		io.Centralize(title);
 

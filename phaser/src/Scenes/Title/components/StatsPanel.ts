@@ -7,6 +7,7 @@ import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { getStats, getMostUsedUnit } from "@Models/StatsStore";
+import { t } from "@i18n/i18n";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 900;
@@ -51,19 +52,19 @@ export function openStats(): void {
 	);
 
 	// Create title
-	const title = io.Title1("Statistics");
+	const title = io.Title1(t("stats.title"));
 	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
 	io.Centralize(title);
 
 	// Stats display data
 	const statsData = [
-		{ label: "Total Runs Played", value: stats.totalRuns.toString() },
-		{ label: "Gold Victories", value: stats.goldVictories.toString(), color: "#FFD700" },
-		{ label: "Silver Victories", value: stats.silverVictories.toString(), color: "#C0C0C0" },
-		{ label: "Bronze Victories", value: stats.bronzeVictories.toString(), color: "#CD7F32" },
-		{ label: "Furthest Infinite Mode", value: stats.furthestInfiniteRound > 0 ? `${stats.furthestInfiniteRound} wins` : "-" },
-		{ label: "Most Used Unit", value: mostUsedName },
-		{ label: "Most Powerful Unit", value: mostPowerfulValue, color: "#ff6b6b" },
+		{ label: t("stats.totalRuns"), value: stats.totalRuns.toString() },
+		{ label: t("stats.goldVictories"), value: stats.goldVictories.toString(), color: "#FFD700" },
+		{ label: t("stats.silverVictories"), value: stats.silverVictories.toString(), color: "#C0C0C0" },
+		{ label: t("stats.bronzeVictories"), value: stats.bronzeVictories.toString(), color: "#CD7F32" },
+		{ label: t("stats.furthestInfinite"), value: stats.furthestInfiniteRound > 0 ? t("stats.wins", { count: stats.furthestInfiniteRound.toString() }) : "-" },
+		{ label: t("stats.mostUsed"), value: mostUsedName },
+		{ label: t("stats.mostPowerful"), value: mostPowerfulValue, color: "#ff6b6b" },
 	];
 
 	const startY = c.MIDDLE_SCREEN_Y - 200;
@@ -97,7 +98,7 @@ export function openStats(): void {
 
 	// Create close button
 	const closeButton = createUIButton(
-		"CLOSE",
+		t("stats.close"),
 		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
 		() => {
 			container.destroy(true);
