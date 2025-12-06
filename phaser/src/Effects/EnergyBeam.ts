@@ -32,7 +32,6 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 
 		this.setBlendMode(Phaser.BlendModes.ADD);
 
-		// Configuration
 		this.start = config.start;
 		this.end = config.end;
 		this.segments = config?.segments || 40;
@@ -42,7 +41,6 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 		this.color = config?.color || 0xffd700;
 		this.thickness = config?.thickness || 20;
 
-		// Internal state
 		this.phase = 0;
 		this.points = [];
 	}
@@ -50,20 +48,16 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	updateBeam() {
 		this.clear();
 
-		// Calculate beam vector
 		const vec = new Phaser.Math.Vector2(this.end.x - this.start.x, this.end.y - this.start.y);
 
-		// Normalize and get perpendicular vector
 		const normalized = vec.clone().normalize();
 		const normal = new Phaser.Math.Vector2(-normalized.y, normalized.x);
 
-		// Generate points along the beam with sine wave offset
 		this.points = [];
 		for (let i = 0; i <= this.segments; i++) {
 			const t = i / this.segments;
 			const wave = Math.sin(t * Math.PI * this.frequency + this.phase);
 
-			// Calculate position using original vector direction
 			const basePos = new Phaser.Math.Vector2(this.start.x, this.start.y).add(vec.clone().scale(t));
 
 			const offset = normal.clone().scale(wave * this.amplitude);
@@ -72,7 +66,6 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 			this.points.push(pos);
 		}
 
-		// Draw the beam
 		this.lineStyle(this.thickness, this.color, 0.8);
 		this.beginPath();
 		this.moveTo(this.points[0].x, this.points[0].y);
@@ -83,7 +76,6 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 
 		this.strokePath();
 
-		// Update phase for animation
 		this.phase += this.speed;
 	}
 }
