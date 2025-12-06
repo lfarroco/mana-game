@@ -5,7 +5,7 @@ import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
 import { createPanel } from "@Components/Panel";
-import { getAvailableLocales, setLocale, getNativeName } from "@i18n/i18n";
+import { getAvailableLocales, setLocale, getNativeName, t } from "@i18n/i18n";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
@@ -34,7 +34,7 @@ export function openLanguagePanel(): void {
 	);
 
 	// Title
-	const title = io.Title1("Select Language");
+	const title = io.Title1(t("language.title"));
 	io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40));
 	io.Centralize(title);
 
@@ -55,7 +55,7 @@ export function openLanguagePanel(): void {
 
 	// Close Button
 	const closeButton = createUIButton(
-		"CLOSE",
+		t("language.close"),
 		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
 		() => {
 			closeLanguagePanel();

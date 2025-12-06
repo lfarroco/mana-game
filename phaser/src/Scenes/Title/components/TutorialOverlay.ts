@@ -3,6 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
+import { t } from "@i18n/i18n";
 
 // Tutorial slide configuration
 const SLIDE_COUNT = 10;
@@ -107,7 +108,7 @@ export async function openTutorial(): Promise<void> {
 
 	// Create navigation buttons
 	const prevButton = createUIButton(
-		"Previous",
+		t("tutorial.previous"),
 		vec2(c.MIDDLE_SCREEN_X - BUTTON_SPACING, BUTTON_Y),
 		() => {
 			if (currentSlide > 0) {
@@ -118,7 +119,7 @@ export async function openTutorial(): Promise<void> {
 	);
 
 	const nextButton = createUIButton(
-		"Next",
+		t("tutorial.next"),
 		vec2(c.MIDDLE_SCREEN_X, BUTTON_Y),
 		() => {
 			if (currentSlide < SLIDE_COUNT - 1) {
@@ -129,7 +130,7 @@ export async function openTutorial(): Promise<void> {
 	);
 
 	const exitButton = createUIButton(
-		"Exit",
+		t("tutorial.exit"),
 		vec2(c.MIDDLE_SCREEN_X + BUTTON_SPACING, BUTTON_Y),
 		() => {
 			container.destroy(true);
