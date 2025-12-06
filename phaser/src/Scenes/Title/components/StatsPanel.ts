@@ -69,8 +69,8 @@ export function openStats(): void {
 
 	const startY = c.MIDDLE_SCREEN_Y - 200;
 	const rowSpacing = 50;
-	const labelX = c.MIDDLE_SCREEN_X - 160;
-	const valueX = c.MIDDLE_SCREEN_X + 100;
+	const labelX = c.MIDDLE_SCREEN_X - 20;
+	const valueX = c.MIDDLE_SCREEN_X + 20;
 
 	const statTexts: Phaser.GameObjects.Text[] = [];
 
@@ -81,8 +81,9 @@ export function openStats(): void {
 			fontFamily: "Arial",
 			fontSize: "24px",
 			color: "#ecf0f1",
+			align: "right"
 		});
-		labelText.setOrigin(0, 0.5);
+		labelText.setOrigin(1, 0.5);
 		statTexts.push(labelText);
 
 		const valueText = scene.add.text(valueX, y, stat.value, {
