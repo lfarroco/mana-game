@@ -54,6 +54,7 @@ export const FORCE_ID_CPU = "CPU";
 export const SCENE_KEYS = {
 	DEBUG: "DebugScene",
 	BATTLEGROUND: "BattlegroundScene",
+	CRYSTAL_SELECTION: "CrystalSelectionScene",
 	CORE: "Core",
 	TITLE: "TitleScene",
 	OPTIONS: "OptionsScene",

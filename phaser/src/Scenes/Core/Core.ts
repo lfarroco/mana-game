@@ -1,5 +1,7 @@
+import { preload } from "@Scenes/Battleground/preload";
 import { images } from "../../assets";
 import { SCENE_KEYS } from "@Constants/constants";
+import { CardCollection, registerCollection } from "@Models/Entities/Card";
 
 export default class Core extends Phaser.Scene {
 	constructor() {
@@ -7,6 +9,7 @@ export default class Core extends Phaser.Scene {
 	}
 
 	preload() {
+		preload(this);
 		this.load.image("cloud_001", "assets/fx/cloud_001.png");
 		this.load.image("cloud_002", "assets/fx/cloud_002.png");
 		this.load.image("cloud_003", "assets/fx/cloud_003.png");
@@ -92,6 +95,10 @@ export default class Core extends Phaser.Scene {
 	}
 
 	create() {
+		const collection = this.cache.json.get("base-collection") as CardCollection;
+
+		registerCollection(collection);
+
 		this.game.scene.start(SCENE_KEYS.TITLE);
 	}
 }

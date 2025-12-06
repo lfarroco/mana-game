@@ -8,6 +8,7 @@ import { DebugScene } from "./Debug/DebugScene";
 import BattlegroundScene from "./Scenes/Battleground/BattlegroundScene";
 import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
+import CrystalSelectionScene from "./Scenes/CrystalSelection/CrystalSelectionScene";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 
 export const game = new Phaser.Game({
@@ -20,7 +21,7 @@ export const game = new Phaser.Game({
 		autoCenter: Phaser.Scale.CENTER_BOTH,
 	},
 	parent: "game-container",
-	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene],
+	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene, CrystalSelectionScene],
 	plugins: {
 		global: [
 			{

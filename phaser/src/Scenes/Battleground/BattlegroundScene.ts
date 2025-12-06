@@ -1,8 +1,6 @@
 import Phaser from "phaser";
-import { preload } from "./preload";
 import { getState, setCurrentScene } from "@Models/State";
 import * as UIManager from "../../UI/UI";
-import { CardCollection } from "@Models/Entities/Card";
 import * as Board from "@Models/Board";
 import { updateFrame } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
@@ -14,10 +12,13 @@ import * as Tooltip from "@Components/Tooltip";
 import { startPhase, hourAction, resetBoard } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
+export type BattlegroundSceneData = {
+	selectedCrystalId?: string;
+};
+
 export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Shader;
-	collection!: CardCollection;
 
 	// TODO: is this necessary?
 	cleanup() {
@@ -37,15 +38,12 @@ export class BattlegroundScene extends Phaser.Scene {
 		console.log("BattlegroundScene constructor");
 	}
 
-	preload = preload;
 
-	create = async () => {
-		const data = getState().gameData;
+	create = async (data?: BattlegroundSceneData) => {
+		const gameData = getState().gameData;
 
-		console.log(":::: BattlegroundScene creating logic...", data);
+		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
 		setCurrentScene(this);
-
-		this.collection = this.cache.json.get("base-collection") as CardCollection;
 
 		this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
 
@@ -54,34 +52,20 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
 
-		this.start();
+		this.start(data);
 	};
 
-	start = async () => {
+	start = async (sceneData?: BattlegroundSceneData) => {
 
 		const data = getState().gameData;
 		console.log(":::: BattlegroundScene starting logic...", data);
 
-		const isLoading = data?.player;
-
-		if (isLoading) {
+		if (sceneData?.selectedCrystalId)
+			Systems.Setup.initializeNewGame(sceneData.selectedCrystalId);
+		else
 			getState().gameData = data;
-		} else {
-			Systems.Setup.initializeNewGame();
-		}
-
-		Systems.Loader.init(this.collection);
-		Systems.Loader.loadDynamicAssets(this.collection);
-
-		const state = getState();
 
 		Systems.Setup.setupSceneElements();
-
-		const assetsToLoad = state.battleData.units.concat(
-			state.gameData.player?.units || []
-		);
-
-		await Systems.Loader.loadUnitAssets(assetsToLoad);
 
 		const charas = getAllCharas();
 
