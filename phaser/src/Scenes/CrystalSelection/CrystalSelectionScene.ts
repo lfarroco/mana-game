@@ -34,14 +34,11 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	create() {
 		setCurrentScene(this);
 
-		// Background
 		cloudsBg();
 
-		// Get all core crystals
 		this.crystals = getCores();
 		this.currentIndex = 0;
 
-		// Title
 		const title = io.Text("Choose Your Crystal", {
 			...constants.titleTextConfig,
 			fontSize: "48px",
@@ -49,26 +46,20 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, 150));
 		io.Centralize(title);
 
-		// Crystal display
 		this.createCrystalDisplay();
 
-		// Navigation buttons
 		this.createNavigationButtons();
 
-		// Pagination dots
 		this.createPaginationDots();
 
-		// Action buttons
 		this.createActionButtons();
 
-		// Initial display
 		this.updateDisplay();
 	}
 
 	private createCrystalDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
-		// Crystal sprite
 		this.crystalSprite = this.add.image(
 			constants.MIDDLE_SCREEN_X,
 			CARD_DISPLAY_Y,
@@ -76,7 +67,6 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		);
 		this.crystalSprite.setDisplaySize(200, 200);
 
-		// Add floating animation
 		this.tweens.add({
 			targets: this.crystalSprite,
 			y: CARD_DISPLAY_Y - 15,
@@ -86,7 +76,6 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		// Crystal name
 		this.crystalName = io.Text(crystal.name, {
 			...constants.titleTextConfig,
 			fontSize: "36px",
@@ -94,7 +83,6 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		io.SetPosition(this.crystalName, vec2(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y + 140));
 		io.Centralize(this.crystalName);
 
-		// Description text (using BBCode)
 		this.descriptionText = this.add
 			.rexBBCodeText(
 				constants.MIDDLE_SCREEN_X,
@@ -174,18 +162,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private updateDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
-		// Update sprite
 		this.crystalSprite.setTexture(crystal.pic);
 
-		// Update name
 		this.crystalName.setText(crystal.name);
 		io.Centralize(this.crystalName);
 
-		// Update description
 		const description = this.buildCrystalDescription(crystal);
 		this.descriptionText.setText(description);
 
-		// Update pagination dots
 		this.paginationDots.forEach((dot, i) => {
 			dot.setFillStyle(0xffffff, i === this.currentIndex ? 1 : 0.3);
 		});
@@ -194,17 +178,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private buildCrystalDescription(crystal: CardDefinition): string {
 		const power = crystal.power || 0;
 
-		// Build effect descriptions
 		const effectBlocks = crystal.effects
 			.map((e) => buildEffectBlock(e, power))
 			.filter((e): e is string => e !== null);
 
-		// Build reaction descriptions
 		const reactionBlocks = crystal.reactions.map((r) =>
 			getReactionDescription(r, power)
 		);
 
-		// Stats
 		const cdAsSeconds = ((crystal.cooldown || 0) / 1000).toFixed(1);
 		const statsBlock = `[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
 
