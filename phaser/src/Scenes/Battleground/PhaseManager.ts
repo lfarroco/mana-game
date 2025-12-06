@@ -13,7 +13,6 @@ import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 
 export const hourAction: string[] = [
-	"shop-core",
 	"encounter",
 	"encounter",
 	"encounter",
@@ -65,7 +64,7 @@ export function handlePhaseEnded(): void {
 	getState().gameData.hour++;
 
 	if (getState().gameData.hour > hourAction.length - 1) {
-		getState().gameData.hour = 1;
+		getState().gameData.hour = 0;
 	}
 
 	const phase = hourAction[getState().gameData.hour];

@@ -1,17 +1,17 @@
 import Phaser from "phaser";
 import { images } from "../../assets";
 
-export function preload(this: Phaser.Scene) {
+export function preload(scene: Phaser.Scene) {
 	Object.values(images).forEach((image) => {
-		this.load.image(image);
+		scene.load.image(image);
 	});
 
 	// reference to loading json data
-	this.load.json("base-collection", "assets/data/collections/base/data.json");
+	scene.load.json("base-collection", "assets/data/collections/base/data.json");
 
-	coinTexture(this);
+	coinTexture(scene);
 
-	loadAudio(this);
+	loadAudio(scene);
 }
 
 //gold round circle with black outline
