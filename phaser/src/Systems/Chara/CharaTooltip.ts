@@ -2,6 +2,7 @@ import { Chara } from "./Chara";
 import { Effect, EffectReaction, Targeting } from "../../TriggerSystem/TriggerSystem";
 import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
+import { t } from "../../i18n/i18n";
 
 export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
 	const withTargets = (base: string, targets?: Targeting) => {
@@ -11,33 +12,33 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 
 	switch (effect.id) {
 		case "damage":
-			return `[color=#ff6b6b]Damage[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#ff6b6b]${t("tooltip.effects.damage")}[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "heal":
-			return `[color=#51cf66]Heal[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#51cf66]${t("tooltip.effects.heal")}[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "shield":
-			return `[color=#74c0fc]Shield[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return `[color=#74c0fc]${t("tooltip.effects.shield")}[/color] [color=#ffd93d]${unitPower}[/color]`;
 		case "poison":
-			return `[color=#da77f2]Poison[/color] [color=#ffd93d]${unitPower}[/color] over 10s`;
+			return `[color=#da77f2]${t("tooltip.effects.poison")}[/color] [color=#ffd93d]${unitPower}[/color] ${t("tooltip.over_time")}`;
 		case "regen":
-			return `[color=#8ce99a]Regen[/color] [color=#ffd93d]${unitPower}[/color] over 10s`;
+			return `[color=#8ce99a]${t("tooltip.effects.regen")}[/color] [color=#ffd93d]${unitPower}[/color] ${t("tooltip.over_time")}`;
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(
-				`[color=#91a7ff]Haste[/color] [color=#ffa94d]${dur}s[/color]`,
+				`[color=#91a7ff]${t("tooltip.effects.haste")}[/color] [color=#ffa94d]${dur}s[/color]`,
 				effect.targets
 			);
 		}
 		case "slow": {
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(
-				`[color=#d0bfff]Slow[/color] [color=#ffa94d]${dur}s[/color]`,
+				`[color=#d0bfff]${t("tooltip.effects.slow")}[/color] [color=#ffa94d]${dur}s[/color]`,
 				effect.targets
 			);
 		}
 		case "charge":
 			const dur = (effect.duration / 1000).toFixed(1);
 			return withTargets(
-				`[color=#ffe066]Charge[/color] [color=#ffd93d]${dur}s[/color]`,
+				`[color=#ffe066]${t("tooltip.effects.charge")}[/color] [color=#ffd93d]${dur}s[/color]`,
 				effect.targets
 			);
 		case "increase_power":
@@ -47,12 +48,12 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 			);
 		case "increase_critical":
 			return withTargets(
-				`[color=#ff8cc8]+Crit[/color] [color=#ffd93d]${effect.amount}[/color]`,
+				`[color=#ff8cc8]+${t("tooltip.effects.increase_critical")}[/color] [color=#ffd93d]${effect.amount}[/color]`,
 				effect.targets
 			);
 		case "multiply_power":
 			return withTargets(
-				`[color=#ff8cc8]Multiply Power[/color] [color=#ffd93d]${effect.multiplier}x[/color]`,
+				`[color=#ff8cc8]${t("tooltip.effects.multiply_power")}[/color] [color=#ffd93d]${effect.multiplier}x[/color]`,
 				effect.targets
 			);
 		case "distribute_power":
@@ -66,24 +67,25 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 	}
 };
 
-const EFFECT_STYLES: Record<string, { label: string; color: string }> = {
-	damage: { label: "Damage", color: "#ff6b6b" },
-	heal: { label: "Heal", color: "#51cf66" },
-	shield: { label: "Shield", color: "#74c0fc" },
-	poison: { label: "Poison", color: "#da77f2" },
-	regen: { label: "Regen", color: "#8ce99a" },
-	haste: { label: "Haste", color: "#91a7ff" },
-	slow: { label: "Slow", color: "#d0bfff" },
-	charge: { label: "Charge", color: "#ffe066" },
-	increase_power: { label: "Power", color: "#ff8cc8" },
-	increase_critical: { label: "Critical", color: "#ff8cc8" },
-	multiply_power: { label: "Multiply Power", color: "#ff8cc8" },
-	all: { label: "Any", color: "#ffffff" },
+const EFFECT_STYLES: Record<string, { color: string }> = {
+	damage: { color: "#ff6b6b" },
+	heal: { color: "#51cf66" },
+	shield: { color: "#74c0fc" },
+	poison: { color: "#da77f2" },
+	regen: { color: "#8ce99a" },
+	haste: { color: "#91a7ff" },
+	slow: { color: "#d0bfff" },
+	charge: { color: "#ffe066" },
+	increase_power: { color: "#ff8cc8" },
+	increase_critical: { color: "#ff8cc8" },
+	multiply_power: { color: "#ff8cc8" },
+	all: { color: "#ffffff" },
 };
 
 export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
 	const style = EFFECT_STYLES[reaction.effectId];
-	const triggerLabel = style ? style.label : reaction.effectId.charAt(0).toUpperCase() + reaction.effectId.slice(1);
+	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
+	const triggerLabel = t(`tooltip.effects.${effectKey}`);
 	const triggerColor = style ? style.color : "#51cf66";
 
 	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
@@ -105,60 +107,64 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 const getPositionDescription = (position: string): string => {
 	switch (position) {
 		case "all":
-			return "Anyone";
+			return t("tooltip.position.anyone");
 		case "allies":
-			return "Ally";
+			return t("tooltip.position.ally");
 		case "enemies":
-			return "Enemy";
+			return t("tooltip.position.enemy");
 		case "row_allies":
-			return "Row";
+			return t("tooltip.position.row");
 		case "column_allies":
-			return "Column";
+			return t("tooltip.position.column");
 		case "top_ally":
-			return "Top";
+			return t("tooltip.position.top");
 		case "bottom_ally":
-			return "Bottom";
+			return t("tooltip.position.bottom");
 		case "left_ally":
-			return "Left";
+			return t("tooltip.position.left");
 		case "right_ally":
-			return "Right";
+			return t("tooltip.position.right");
 		default:
 			return position;
 	}
 };
 
 const getTargetDescription = (targets: Targeting): string => {
-	if (!targets) return "Targets";
+	if (!targets) return t("tooltip.targets.default");
 
 	switch (targets.id) {
 		case "self":
-			return "Self";
+			return t("tooltip.targets.self");
 		case "random_ally":
-			return targets.count === 1 ? "Random ally" : `${targets.count} random allies`;
+			return targets.count === 1
+				? t("tooltip.targets.random_ally")
+				: t("tooltip.targets.random_allies", { count: targets.count.toString() });
 		case "random_enemy":
-			return targets.count === 1 ? "Random enemy" : `${targets.count} random enemies`;
+			return targets.count === 1
+				? t("tooltip.targets.random_enemy")
+				: t("tooltip.targets.random_enemies", { count: targets.count.toString() });
 		case "row_allies":
-			return "Row";
+			return t("tooltip.targets.row");
 		case "column_allies":
-			return "Column";
+			return t("tooltip.targets.column");
 		case "all_allies":
 			if (targets.ofType !== "any")
-				return `All allies of type ${targets.ofType}`;
-			else return "All allies";
+				return t("tooltip.targets.all_allies_type", { type: targets.ofType });
+			else return t("tooltip.targets.all_allies");
 		case "all_enemies":
-			return "All enemies";
+			return t("tooltip.targets.all_enemies");
 		case "top_ally":
-			return "Top";
+			return t("tooltip.targets.top");
 		case "bottom_ally":
-			return "Bottom";
+			return t("tooltip.targets.bottom");
 		case "left_ally":
-			return "Left";
+			return t("tooltip.targets.left");
 		case "right_ally":
-			return "Right";
+			return t("tooltip.targets.right");
 		case "trigger":
-			return "Source";
+			return t("tooltip.targets.source");
 		default:
-			return "Targets";
+			return t("tooltip.targets.default");
 	}
 };
 
