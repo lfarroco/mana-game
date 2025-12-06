@@ -12,6 +12,7 @@ import { createUIButton } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { createForceStats } from "../ForceStats";
 import { runCombatIO } from "../RunCombatIO";
+import { t } from "@i18n/i18n";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -68,7 +69,7 @@ export async function setupBattle(): Promise<{ enemies: Unit[] }> {
 
 export async function showReadyButton(payload: { enemies: Unit[] }): Promise<void> {
 	const readyButton = createUIButton(
-		"Ready",
+		t("ui.ready"),
 		vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 		() => {
 			readyButton.container.destroy();

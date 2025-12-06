@@ -1,4 +1,5 @@
 import { Chara, getUnit } from "./Chara";
+import { t } from "../../i18n/i18n";
 import { buildEffectBlock, getReactionDescription } from "./CharaTooltip";
 
 export function createDescription(chara: Chara) {
@@ -11,17 +12,17 @@ export function createDescription(chara: Chara) {
 	const reactionBlocks = unit.reactions.map((r) => getReactionDescription(r, unit.power));
 
 	const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
-	const cdBlock = [`[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
+	const cdBlock = [`[color=#c0c0c0]${t("description.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
 
 	const critBlock =
 		(unit.critical || 0) > 0
-			? [`[color=#c0c0c0]Crit:[/color] [color=#ffa94d]${unit.critical}%[/color]`]
+			? [`[color=#c0c0c0]${t("description.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`]
 			: [];
 
 	const statsBlock = [...cdBlock, ...critBlock].join(" | ");
 
 	const descriptionString =
-		[...effectBlocks, ...reactionBlocks].join("\n") || "No special abilities";
+		[...effectBlocks, ...reactionBlocks].join("\n") || t("description.noAbilities");
 	const description = [statsBlock, descriptionString].join("\n");
 
 	return { title, description };

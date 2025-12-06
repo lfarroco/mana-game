@@ -167,5 +167,9 @@
 	"tooltip.position.top": "Top",
 	"tooltip.position.bottom": "Bottom",
 	"tooltip.position.left": "Left",
-	"tooltip.position.right": "Right"
+	"tooltip.position.right": "Right",
+	"description.cooldown": "Cooldown:",
+	"description.crit": "Crit:",
+	"description.noAbilities": "No special abilities",
+	"ui.ready": "Ready"
 }
