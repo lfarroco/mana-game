@@ -73,7 +73,7 @@ export async function displayGameComplete(
 			"NEW RUN",
 			async () => {
 				resetState();
-				getCurrentScene().scene.restart();
+				getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
 			}
 		],
 		[
