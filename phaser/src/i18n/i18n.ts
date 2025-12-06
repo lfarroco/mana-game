@@ -8,13 +8,31 @@ const locales: Record<string, Translations> = {
 	es
 };
 
+const STORAGE_KEY = 'selected_locale';
+
 let currentLocale = 'en';
+
+// Try to load saved locale
+try {
+	const savedLocale = localStorage.getItem(STORAGE_KEY);
+	if (savedLocale && locales[savedLocale]) {
+		currentLocale = savedLocale;
+	}
+} catch (e) {
+	console.warn('Failed to load locale from localStorage:', e);
+}
+
 let translations: Translations = locales[currentLocale];
 
 export function setLocale(locale: string) {
 	if (locales[locale]) {
 		currentLocale = locale;
 		translations = locales[locale];
+		try {
+			localStorage.setItem(STORAGE_KEY, locale);
+		} catch (e) {
+			console.warn('Failed to save locale to localStorage:', e);
+		}
 	} else {
 		console.warn(`Locale ${locale} not found, falling back to ${currentLocale}`);
 	}
