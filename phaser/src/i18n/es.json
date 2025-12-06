@@ -167,5 +167,9 @@
 	"tooltip.position.top": "Arriba",
 	"tooltip.position.bottom": "Abajo",
 	"tooltip.position.left": "Izquierda",
-	"tooltip.position.right": "Derecha"
+	"tooltip.position.right": "Derecha",
+	"description.cooldown": "Enfriamiento:",
+	"description.crit": "Crítico:",
+	"description.noAbilities": "Sin habilidades especiales",
+	"ui.ready": "Listo"
 }
