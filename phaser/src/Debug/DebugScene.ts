@@ -175,7 +175,6 @@ export class DebugScene extends Phaser.Scene {
 
 	preload() {
 		this.load.image(images.light);
-		this.load.image(images.beam);
 		this.load.image(images.white_dot);
 		this.load.image(images.light_pillar);
 	}

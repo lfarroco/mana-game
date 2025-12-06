@@ -15,10 +15,6 @@ export const images = {
 		key: "fx/light",
 		url: "assets/fx/light.png",
 	},
-	beam: {
-		key: "fx/beam",
-		url: "assets/fx/beam.png",
-	},
 	white_dot: {
 		key: "fx/white-dot",
 		url: "assets/fx/white-dot.png",
