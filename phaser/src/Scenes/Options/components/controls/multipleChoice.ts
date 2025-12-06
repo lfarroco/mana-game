@@ -10,9 +10,10 @@ export function multipleChoice(
 	yPos: number,
 	choices: string[],
 	getValue: () => string,
-	setValue: (value: string) => void
+	setValue: (value: string) => void,
+	valueLabeler?: (value: string) => string
 ) {
-	const formatLabel = () => getValue().toUpperCase();
+	const formatLabel = () => valueLabeler ? valueLabeler(getValue()) : getValue().toUpperCase();
 	const updateLabel = () => valueText.setText(formatLabel());
 
 	//   ~~~//~~~

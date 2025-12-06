@@ -4,6 +4,7 @@ import { Button, createUIButton } from "@Components/UIButton";
 import { LAYOUT } from "../OptionsScene";
 import { showTab } from "./effects/showTab";
 import { updateTabButtonStates } from "./effects/updateTabButtonStates";
+import { t } from "@i18n/i18n";
 
 export let buttonIndex: { [key: string]: Button } = {};
 
@@ -13,21 +14,21 @@ export function tabButtons() {
 	const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
 	buttonIndex["audio"] = createUIButton(
-		"AUDIO",
+		t("options.tabs.audio"),
 		vec2(startX, tabButtonY),
 		() => showTab("audio"),
 		LAYOUT.TAB_BUTTON_WIDTH
 	);
 
 	buttonIndex["graphics"] = createUIButton(
-		"GRAPHICS",
+		t("options.tabs.graphics"),
 		vec2(startX + buttonSpacing, tabButtonY),
 		() => showTab("graphics"),
 		LAYOUT.TAB_BUTTON_WIDTH
 	);
 
 	buttonIndex["game"] = createUIButton(
-		"GAME",
+		t("options.tabs.game"),
 		vec2(startX + buttonSpacing * 2, tabButtonY),
 		() => showTab("game"),
 		LAYOUT.TAB_BUTTON_WIDTH
