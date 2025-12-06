@@ -1,4 +1,4 @@
-import { t, setLocale } from './i18n';
+import { t, setLocale, initialize, getCurrentLocale } from './i18n';
 
 // Mock the JSON files
 jest.mock('./en.json', () => ({
@@ -68,19 +68,56 @@ describe('i18n', () => {
 		// Prepare local storage
 		localStorage.setItem('selected_locale', 'es');
 
-		// Reset modules to force re-execution of i18n.ts
-		jest.resetModules();
+		// Call initialize
+		initialize();
 
-		// Re-import
-		const i18n = require('./i18n');
+		expect(getCurrentLocale()).toBe('es');
+	});
 
-		expect(i18n.getCurrentLocale()).toBe('es');
+	test('initialization uses system locale if localStorage empty', () => {
+		// Redefine window.navigator to ensure we can control the language
+		Object.defineProperty(window, 'navigator', {
+			value: { language: 'es-ES' },
+			configurable: true,
+			writable: true
+		});
+
+		// Clear any previous state
+		setLocale('en');
+		localStorage.clear();
+
+		// Run initialization
+		initialize();
+
+		expect(getCurrentLocale()).toBe('es');
+	});
+
+	test('initialization prefers localStorage over system locale', () => {
+		localStorage.setItem('selected_locale', 'en');
+		Object.defineProperty(window, 'navigator', {
+			value: { language: 'es-ES' },
+			configurable: true,
+			writable: true
+		});
+
+		initialize();
+		expect(getCurrentLocale()).toBe('en');
+	});
+
+	test('initialization defaults to en if system locale not supported', () => {
+		Object.defineProperty(window, 'navigator', {
+			value: { language: 'fr-FR' },
+			configurable: true,
+			writable: true
+		});
+
+		initialize();
+		expect(getCurrentLocale()).toBe('en');
 	});
 
 	test('initialization defaults to en if localStorage invalid', () => {
 		localStorage.setItem('selected_locale', 'invalid_lang');
-		jest.resetModules();
-		const i18n = require('./i18n');
-		expect(i18n.getCurrentLocale()).toBe('en');
+		initialize();
+		expect(getCurrentLocale()).toBe('en');
 	});
 });
