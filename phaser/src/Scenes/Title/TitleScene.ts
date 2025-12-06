@@ -11,6 +11,7 @@ import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
 import { howToPlay } from "./components/howToPlay";
 import * as io from "@PhaserIO";
+import { languageButton } from "./components/languageButton";
 
 export let titleScene: TitleScene;
 
@@ -36,6 +37,7 @@ export default class TitleScene extends Phaser.Scene {
 			newRunButton(600),
 			optionsButton(700),
 			goFullscreenButton(800),
+			languageButton()
 		];
 
 		// Create a container for the main buttons so they can be hidden when showing submenu
