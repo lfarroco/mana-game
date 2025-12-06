@@ -1,3 +1,4 @@
+import { t } from "@i18n/i18n";
 export const WINS_TO_WIN_GAME = 10;
 export const INFINITE_MODE_THRESHOLD = 10;
 
@@ -49,16 +50,16 @@ export const RESULTS_PANEL = {
 } as const;
 
 export const VICTORY_MESSAGES = {
-	infinite: (wins: number) => `You've won ${wins} matches so far - keep it up!`,
-	standard: "Congratulations! You have won the battle.",
+	infinite: (wins: number) => t("results.messages.infinite", { wins: wins.toString() }),
+	standard: t("results.victory.run_complete"),
 };
 
 export const END_GAME_MESSAGES = {
-	infinite: (wins: number) => `You defeated ${wins} teams in your journey, great job!`,
-	gold: "You found a solid build! How about trying Infinite Mode?",
-	silver: "Great run! You're getting closer to the top.",
-	bronze: "Good effort! Keep improving your strategy.",
-	default: "Better luck next time!",
+	infinite: (wins: number) => t("results.messages.infinite", { wins: wins.toString() }),
+	gold: t("results.messages.gold"),
+	silver: t("results.messages.silver"),
+	bronze: t("results.messages.bronze"),
+	default: t("results.messages.default"),
 };
 
 export type VictoryTier = {
@@ -69,18 +70,18 @@ export type VictoryTier = {
 export function getVictoryTier(wins: number, isGameOver: boolean): VictoryTier {
 	if (wins >= GOLD_VICTORY_THRESHOLD) {
 		if (isGameOver) {
-			return { message: "Run Complete", color: RESULTS_COLORS.defeat };
+			return { message: t("results.victory.run_complete"), color: RESULTS_COLORS.defeat };
 		}
-		return { message: "Gold Victory", color: RESULTS_COLORS.gold };
+		return { message: t("results.victory.gold"), color: RESULTS_COLORS.gold };
 	}
 
 	if (wins >= SILVER_VICTORY_THRESHOLD) {
-		return { message: "Silver Victory", color: RESULTS_COLORS.silver };
+		return { message: t("results.victory.silver"), color: RESULTS_COLORS.silver };
 	}
 
 	if (wins >= BRONZE_VICTORY_THRESHOLD) {
-		return { message: "Bronze Victory", color: RESULTS_COLORS.bronze };
+		return { message: t("results.victory.bronze"), color: RESULTS_COLORS.bronze };
 	}
 
-	return { message: "Better luck next time!", color: RESULTS_COLORS.white };
+	return { message: t("results.victory.default"), color: RESULTS_COLORS.white };
 }
