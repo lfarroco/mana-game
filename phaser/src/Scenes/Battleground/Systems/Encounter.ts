@@ -1,6 +1,7 @@
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
+import { t } from "@i18n/i18n";
 import { size, vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
@@ -27,9 +28,9 @@ type EncounterItem = {
 
 const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
-		name: "Upgrade Unit",
+		name: t("encounters.upgrade_unit.name"),
 		pic: "ui/upgrade_unit",
-		description: "Upgrade a unit",
+		description: t("encounters.upgrade_unit.desc"),
 		onClick: orbShopCallback(container, ["upgrade_orb"])
 	},
 	improveType(container, "ui/improve_damage", "damage"),
@@ -38,93 +39,93 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 	improveType(container, "ui/toxic", "poison"),
 	improveType(container, "ui/improve_regen", "regen"),
 	{
-		name: "Armory",
+		name: t("encounters.armory.name"),
 		pic: "ui/armory",
-		description: "Choose a damage unit",
+		description: t("encounters.armory.desc"),
 		onClick: openHeroShopCallback(container, "damage")
 	},
 	{
-		name: "Healing Tent",
+		name: t("encounters.healing_tent.name"),
 		pic: "ui/improve_heal",
-		description: "Choose a healing unit",
+		description: t("encounters.healing_tent.desc"),
 		onClick: openHeroShopCallback(container, "heal")
 	},
 	{
-		name: "Frontier Fort",
+		name: t("encounters.frontier_fort.name"),
 		pic: "ui/frontier_fort",
-		description: "Choose a shield unit",
+		description: t("encounters.frontier_fort.desc"),
 		onClick: openHeroShopCallback(container, "shield")
 	},
 	{
-		name: "Forest Pools",
+		name: t("encounters.forest_pools.name"),
 		pic: "ui/forest_pools",
-		description: "Choose a regen unit",
+		description: t("encounters.forest_pools.desc"),
 		onClick: openHeroShopCallback(container, "regen")
 	},
 	{
-		name: "Toxic Chamber",
+		name: t("encounters.toxic_chamber.name"),
 		pic: "ui/toxic",
-		description: "Choose a poison unit",
+		description: t("encounters.toxic_chamber.desc"),
 		onClick: openHeroShopCallback(container, "poison")
 	},
 	{
-		name: "Trial Circuit",
+		name: t("encounters.trial_circuit.name"),
 		pic: "ui/trial_circuit",
-		description: "Choose a haste unit",
+		description: t("encounters.trial_circuit.desc"),
 		onClick: openHeroShopCallback(container, "haste")
 	},
 	{
-		name: "Trapper's Guild",
+		name: t("encounters.trappers_guild.name"),
 		pic: "ui/improve_slow",
-		description: "Choose a slow unit",
+		description: t("encounters.trappers_guild.desc"),
 		onClick: openHeroShopCallback(container, "slow")
 	},
 	{
-		name: "Thunder Spire",
+		name: t("encounters.thunder_spire.name"),
 		pic: "ui/thunder_spire",
-		description: "Choose a charge unit",
+		description: t("encounters.thunder_spire.desc"),
 		onClick: openHeroShopCallback(container, "charge")
 	},
 	{
-		name: "Commander's Tent",
+		name: t("encounters.commanders_tent.name"),
 		pic: "ui/commander",
-		description: "Choose a buffer unit",
+		description: t("encounters.commanders_tent.desc"),
 		onClick: openHeroShopCallback(container, "increase_power")
 	},
 	{
-		name: "Assassin's Hideout",
+		name: t("encounters.assassins_hideout.name"),
 		pic: "ui/assassin",
-		description: "Choose a critical strike unit",
+		description: t("encounters.assassins_hideout.desc"),
 		onClick: openHeroShopCallback(container, "increase_critical")
 	},
 	{
-		name: "Power Distributor",
+		name: t("encounters.power_distributor.name"),
 		pic: "ui/power_distributor",
-		description: "Distribute power to allies",
+		description: t("encounters.power_distributor.desc"),
 		minRound: 3,
 		onClick: orbShopCallback(container, ["distribute_power_orb"])
 	},
 	{
-		name: "Power Absorber",
+		name: t("encounters.power_absorber.name"),
 		pic: "ui/power_absorber",
-		description: "Absorb power from allies",
+		description: t("encounters.power_absorber.desc"),
 		minRound: 3,
 		onClick: orbShopCallback(container, ["absorb_power_orb"])
 	},
 	{
-		name: "Dark Ritual",
+		name: t("encounters.dark_ritual.name"),
 		pic: "ui/dark_ritual",
-		description: "Sacrifice effect for power",
+		description: t("encounters.dark_ritual.desc"),
 		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
 	}
 ];
 
 function improveType(container: Phaser.GameObjects.Container, pic: string, type: string) {
 	return {
-		name: `Improve: ${type}`,
+		name: t("encounters.improve_type.name", { type }),
 		pic,
 		minRound: 4,
-		description: `Improve a ${type} hero`,
+		description: t("encounters.improve_type.desc", { type }),
 		onClick: orbShopCallback(container, [
 			`increase_power_on_${type}`,
 			`decrease_cooldown_on_${type}`,
@@ -236,7 +237,7 @@ export async function open() {
 
 	});
 
-	const btn = createUIButton("Skip",
+	const btn = createUIButton(t("encounters.skip"),
 		vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
 		nextRoundCallback
 	);

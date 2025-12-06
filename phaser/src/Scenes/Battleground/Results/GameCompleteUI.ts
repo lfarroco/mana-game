@@ -18,6 +18,7 @@ import {
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
+import { t } from "@i18n/i18n";
 
 
 export async function displayGameComplete(
@@ -70,14 +71,14 @@ export async function displayGameComplete(
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
-			"NEW RUN",
+			t("results.buttons.new_run"),
 			async () => {
 				resetState();
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
 			}
 		],
 		[
-			"MAIN MENU",
+			t("results.buttons.main_menu"),
 			async () => {
 				resetState();
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
@@ -87,7 +88,7 @@ export async function displayGameComplete(
 
 	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
 		buttonDefinitions.push([
-			"INFINITE MODE",
+			t("results.buttons.infinite_mode"),
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
@@ -116,7 +117,7 @@ export async function displayGameComplete(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text(`${wins} Wins`, {
+			() => io.Text(t("results.wins_title", { count: wins.toString() }), {
 				...c.titleTextConfig,
 				fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
 				color: "#FFFFFF",
