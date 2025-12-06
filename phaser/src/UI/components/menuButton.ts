@@ -25,7 +25,7 @@ export function createPanel() {
 				"NEW RUN",
 				() => {
 					resetState();
-					getCurrentScene().scene.restart();
+					getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
 				},
 			],
 			[
