@@ -10,6 +10,7 @@ import {
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
 import { createCombatStatsPanels } from "./CombatStatsTable";
+import { t } from "@i18n/i18n";
 
 export async function displayVictory(
 	units: Unit[],
@@ -22,7 +23,7 @@ export async function displayVictory(
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
-			"Continue",
+			t("results.buttons.continue"),
 			async () => {
 				nextPhaseCallback();
 			}
@@ -49,7 +50,7 @@ export async function displayVictory(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text("Victory!", { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.victory }),
+			() => io.Text(t("results.titles.victory"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.victory }),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleY)),
 			(title) => io.Centralize(title),
 		],

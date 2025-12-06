@@ -10,6 +10,7 @@ import {
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
 import { createCombatStatsPanels } from "./CombatStatsTable";
+import { t } from "@i18n/i18n";
 
 export async function displayDefeat(
 	livesChange: number,
@@ -21,12 +22,13 @@ export async function displayDefeat(
 	const panelX = c.MIDDLE_SCREEN_X;
 	const panelY = c.MIDDLE_SCREEN_Y;
 
-	const livesText = `Lives: ${livesChange > 0 ? "+" : ""}${livesChange}`;
+	const livesValue = (livesChange > 0 ? "+" : "") + livesChange;
+	const livesText = t("results.lives", { value: livesValue });
 	const livesColor = livesChange > 0 ? "#4CAF50" : "#F44336";
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
-			"Continue",
+			t("results.buttons.continue"),
 			async () => {
 				nextPhaseCallback();
 			}
@@ -53,7 +55,7 @@ export async function displayDefeat(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text("Defeat", { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.defeat }),
+			() => io.Text(t("results.titles.defeat"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.defeat }),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleY)),
 			(title) => io.Centralize(title),
 		],

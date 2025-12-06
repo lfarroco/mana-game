@@ -7,6 +7,7 @@ import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { createPanel } from "@Components/Panel";
+import { t } from "@i18n/i18n";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -52,7 +53,13 @@ async function createStatsPanel(
 	io.Centralize(titleText);
 	panel.add(titleText);
 
-	const headers = ["DMG", "Heal", "Shield", "Poison", "Regen"];
+	const headers = [
+		t("combatStats.headers.dmg"),
+		t("combatStats.headers.heal"),
+		t("combatStats.headers.shield"),
+		t("combatStats.headers.poison"),
+		t("combatStats.headers.regen")
+	];
 	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
 	let startY = position.y - panelHeight / 2 + 70;
 
@@ -115,14 +122,14 @@ async function createStatsPanel(
 				const reactionBlocks = unit.reactions.map((r) => CharaTooltip.getReactionDescription(r, unit.power));
 
 				const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
-				const cdBlock = [`[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
+				const cdBlock = [`[color=#c0c0c0]${t("combatStats.tooltip.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
 
 				const critBlock = (unit.critical || 0) > 0
-					? [`[color=#c0c0c0]Crit:[/color] [color=#ffa94d]${unit.critical}%[/color]`]
+					? [`[color=#c0c0c0]${t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`]
 					: [];
 
 				const statsBlock = [...cdBlock, ...critBlock].join(" | ");
-				const descriptionString = [...effectBlocks, ...reactionBlocks].join("\n") || "No special abilities";
+				const descriptionString = [...effectBlocks, ...reactionBlocks].join("\n") || t("combatStats.tooltip.noAbilities");
 				const description = [statsBlock, descriptionString].join("\n");
 
 				const screenWidth = getCurrentScene().sys.game.config.width as number;
@@ -178,7 +185,7 @@ export async function createCombatStatsPanels(
 	const playerPanel = await createStatsPanel(
 		units,
 		vec2(centerPanelX - panelSpacing, panelY),
-		"Player Team",
+		t("combatStats.playerTeam"),
 		PANEL_CONFIG.playerColor,
 		(unit) => unit.force === playerForceId
 	);
@@ -186,7 +193,7 @@ export async function createCombatStatsPanels(
 	const cpuPanel = await createStatsPanel(
 		units,
 		vec2(centerPanelX + panelSpacing, panelY),
-		"Enemy Team",
+		t("combatStats.enemyTeam"),
 		PANEL_CONFIG.cpuColor,
 		(unit) => unit.force === cpuForceId
 	);

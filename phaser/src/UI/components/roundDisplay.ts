@@ -3,6 +3,8 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { getState } from "@Models/State";
 
+import { t } from "@i18n/i18n";
+
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
@@ -37,7 +39,7 @@ function text(initialRound: number) {
 }
 
 function label_() {
-	const label = io.Text("Round:", {
+	const label = io.Text(t("ui.round"), {
 		...c.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",

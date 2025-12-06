@@ -10,6 +10,7 @@ import {
 	RESULTS_SPACING
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
+import { t } from "@i18n/i18n";
 
 export function displayGameOver(): Phaser.GameObjects.Container {
 	// Panel dimensions
@@ -21,14 +22,14 @@ export function displayGameOver(): Phaser.GameObjects.Container {
 	// Button definitions
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
-			"NEW RUN",
+			t("results.buttons.new_run"),
 			async () => {
 				resetState();
 				startGame();
 			}
 		],
 		[
-			"MAIN MENU",
+			t("results.buttons.main_menu"),
 			async () => {
 				resetState();
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
@@ -55,12 +56,12 @@ export function displayGameOver(): Phaser.GameObjects.Container {
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text("Game Over!", { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleLarge, color: RESULTS_COLORS.defeat }),
+			() => io.Text(t("results.titles.gameOver"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleLarge, color: RESULTS_COLORS.defeat }),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleYLarge)),
 			(title) => io.Centralize(title),
 		],
 		[
-			() => io.Text("You have been defeated. Good luck next time!", { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageLarge, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge } }),
+			() => io.Text(t("results.messages.gameOver"), { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageLarge, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge } }),
 			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageYLarge)),
 			(label) => io.Centralize(label),
 		],

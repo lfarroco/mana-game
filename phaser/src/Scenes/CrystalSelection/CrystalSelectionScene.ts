@@ -105,14 +105,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	private createNavigationButtons() {
 		createUIButton(
-			"< PREVIOUS",
+			t("crystalSelection.previous"),
 			vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
 			() => this.navigateToPrevious(),
 			200
 		);
 
 		createUIButton(
-			"NEXT >",
+			t("crystalSelection.next"),
 			vec2(constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
 			() => this.navigateToNext(),
 			200
@@ -139,13 +139,13 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	private createActionButtons() {
 		createUIButton(
-			"PLAY",
+			t("crystalSelection.play"),
 			vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
 			() => this.startGameWithCrystal()
 		);
 
 		createUIButton(
-			"BACK",
+			t("crystalSelection.back"),
 			vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
 			() => this.returnToTitle()
 		);
@@ -190,15 +190,15 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		);
 
 		const cdAsSeconds = ((crystal.cooldown || 0) / 1000).toFixed(1);
-		const statsBlock = `[color=#c0c0c0]Cooldown:[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
+		const statsBlock = `[color=#c0c0c0]${t("crystalSelection.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
 
 		const lifeBlock = crystal.life
-			? ` | [color=#c0c0c0]Life:[/color] [color=#51cf66]${crystal.life}[/color]`
+			? ` | [color=#c0c0c0]${t("crystalSelection.life")}[/color] [color=#51cf66]${crystal.life}[/color]`
 			: "";
 
 		const allEffects = [...effectBlocks, ...reactionBlocks].join("\n");
 
-		return `${statsBlock}${lifeBlock}\n\n${allEffects || "No special abilities"}`;
+		return `${statsBlock}${lifeBlock}\n\n${allEffects || t("crystalSelection.noAbilities")}`;
 	}
 
 	private async startGameWithCrystal() {

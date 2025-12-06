@@ -6,6 +6,7 @@ import { winsChangeAnimation } from "./components/winsDisplay";
 import * as livesDisplay from "./components/livesDisplay";
 import * as roundDisplay from "./components/roundDisplay";
 import { getCurrentScene } from "@Models/State";
+import { t } from "@i18n/i18n";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
@@ -60,21 +61,23 @@ async function livesChangeAnimation(lives: number) {
 }
 
 export function onPurchaseFailed(unitName: string, reason: string, cost?: number) {
-	let message = `Could not buy ${unitName}. `;
+	let reasonText = "";
 
 	switch (reason) {
 		case "PARTY_FULL":
-			message += "Your party is full!";
+			reasonText = t("shop.messages.partyFull");
 			break;
 		case "INSUFFICIENT_GOLD":
-			message += `Not enough gold! (Cost: ${cost ?? "N/A"})`;
+			reasonText = t("shop.messages.insufficientGold", { cost: (cost ?? "N/A").toString() });
 			break;
 		case "SLOT_OCCUPIED":
-			message += "That slot is already occupied.";
+			reasonText = t("shop.messages.slotOccupied");
 			break;
 		default:
-			message += "Reason unknown.";
+			reasonText = t("shop.messages.unknown");
 	}
+
+	const message = t("shop.messages.purchaseFailed", { unitName, reason: reasonText });
 
 	UI.handleUserMessageRequested({ text: message, type: "error" });
 }
