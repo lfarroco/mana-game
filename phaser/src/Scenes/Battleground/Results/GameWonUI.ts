@@ -10,6 +10,7 @@ import {
 	RESULTS_SPACING
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
+import { t } from "@i18n/i18n";
 
 export function displayGameWon(
 	nextPhaseCallback: () => void
@@ -23,21 +24,21 @@ export function displayGameWon(
 	// Button definitions
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
-			"Main Menu",
+			t("results.buttons.main_menu"),
 			async () => {
 				resetState();
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 			}
 		],
 		[
-			"NEW RUN",
+			t("results.buttons.new_run"),
 			async () => {
 				resetState();
 				startGame();
 			}
 		],
 		[
-			"Continue (Endless)",
+			t("results.buttons.continueEndless"),
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
@@ -65,12 +66,12 @@ export function displayGameWon(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text("You Win the Game!", { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleLarge, color: RESULTS_COLORS.gameWon }),
+			() => io.Text(t("results.titles.gameWon"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleLarge, color: RESULTS_COLORS.gameWon }),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleYLarge)),
 			(title) => io.Centralize(title),
 		],
 		[
-			() => io.Text("Congratulations! You have won the game.", { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageLarge, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge } }),
+			() => io.Text(t("results.messages.gameWon"), { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageLarge, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge } }),
 			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageYLarge)),
 			(label) => io.Centralize(label),
 		],

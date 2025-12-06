@@ -1,5 +1,6 @@
 import { defaultTextConfig } from "@Constants/constants";
 import * as io from "@PhaserIO";
+import { t } from "@i18n/i18n";
 
 export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;
@@ -10,7 +11,7 @@ const position = { x: 1400, y: 500 };
 const size = { width: 900, height: 800 };
 const color = 0xffa500;
 const alpha = 0.7;
-const label = "DISCARD";
+
 const cornerRadius = 10;
 export const name = "shop_discard_zone";
 const textStyle = {
@@ -63,7 +64,7 @@ export function destroy() {
 const createRect = () => io.BorderedRoundRect(position, size, cornerRadius, color, alpha);
 
 const createLabel = () => {
-	const text = io.Text(label, textStyle);
+	const text = io.Text(t("shop.discard"), textStyle);
 
 	io.SetPosition(text, position);
 

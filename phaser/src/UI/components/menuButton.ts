@@ -3,9 +3,10 @@ import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import * as io from "@PhaserIO";
+import { t } from "@i18n/i18n";
 
 export function create() {
-	const btn = createUIButton("MENU", vec2(1800, 30), () => {
+	const btn = createUIButton(t("ui.menu.button"), vec2(1800, 30), () => {
 		createPanel();
 	});
 
@@ -22,21 +23,21 @@ export function createPanel() {
 	const buttons = (
 		[
 			[
-				"NEW RUN",
+				t("ui.menu.newRun"),
 				() => {
 					resetState();
 					getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
 				},
 			],
 			[
-				"MAIN MENU",
+				t("ui.menu.mainMenu"),
 				() => {
 					resetState();
 					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 				},
 			],
 			[
-				"BACK",
+				t("ui.menu.back"),
 				() => {
 					io.Destroy(container);
 				},
@@ -54,7 +55,7 @@ export function createPanel() {
 		],
 		io.BorderedRoundRect(vec2(panelX, panelY), size(panelWidth, panelHeight), 10, 0x2c3e50, 1),
 		[
-			() => io.Text("Menu", c.titleTextConfig),
+			() => io.Text(t("ui.menu.title"), c.titleTextConfig),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + 50)),
 			(title) => io.Centralize(title),
 		],
