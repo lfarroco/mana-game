@@ -3,6 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { LAYOUT, STYLES, BUTTONS } from "../../OptionsScene";
+import { t } from "@i18n/i18n";
 
 export function boolean(
 	label: string,
@@ -15,8 +16,11 @@ export function boolean(
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
+	//   ~~~//~~~
+	const onText = t("options.boolean.on");
+	const offText = t("options.boolean.off");
 
-	const valueText = io.Text(getValue() ? "ON" : "OFF", {
+	const valueText = io.Text(getValue() ? onText : offText, {
 		...constants.titleTextConfig,
 		fontSize: "12px",
 		color: STYLES.VALUE_TEXT_COLOR,
@@ -28,12 +32,12 @@ export function boolean(
 	//   ~~~//~~~
 
 	const toggleButton = createUIButton(
-		getValue() ? "ON" : "OFF",
+		getValue() ? onText : offText,
 		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
 		() => {
 			const newValue = !getValue();
 			setValue(newValue);
-			io.SetText(toggleButton.text, newValue ? "ON" : "OFF");
+			io.SetText(toggleButton.text, newValue ? onText : offText);
 		},
 		BUTTONS.BOOLEAN_TOGGLE_WIDTH
 	);

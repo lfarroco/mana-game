@@ -3,8 +3,9 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { LAYOUT } from "../OptionsScene";
 
+import { t } from "@i18n/i18n";
 export function optionsLabel() {
-	const optionsLabel = io.Text("OPTIONS", {
+	const optionsLabel = io.Text(t("options.title"), {
 		...constants.titleTextConfig,
 		fontSize: LAYOUT.TITLE_FONT_SIZE,
 	});
