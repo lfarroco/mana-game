@@ -16,25 +16,26 @@ import { poisonFx } from "TriggerSystem/effects/visuals/poison";
 import { regenFx } from "TriggerSystem/effects/visuals/regen";
 import { createDescription } from "@Systems/Chara/createDescription";
 
-const bbcode = (text: string, x: number, y: number) => getCurrentScene().add
+const bbcode = (text: string, y: number) => getCurrentScene().add
 	.rexBBCodeText(0, 0, text)
-	.setPosition(x, y)
+	.setPosition(c.MIDDLE_SCREEN_X, y)
 	.setFontSize(38)
 	.setOrigin(0)
 	.setAlign("left")
-	.setFontFamily("Arimo");
+	.setFontFamily("Arimo")
+	.setOrigin(0.5)
+	;
+
+const text = (str: string, y: number) => io.Text(str)
+	.setPosition(c.MIDDLE_SCREEN_X, y)
+	.setOrigin(0.5)
+	.setFontSize(38)
 
 const slides = [
 	() => io.Container([
-		io.Title1("The goal of Mana Battle is to destroy the enemy crystal.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		io.Title1("The enemy wants to destroy yourt crystal, so protect it!")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 150),
-		io.Title1("Your crystal is located in the left board. The enemy, in the right board.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 200),
+		text("The goal of Mana Battle is to destroy the enemy crystal.", 100),
+		text("The enemy wants to destroy yourt crystal, so protect it!", 150),
+		text("Your crystal is located in the left board. The enemy, in the right board.", 200),
 		() => {
 			const cont = io.Container();
 			const unit = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 })
@@ -60,15 +61,9 @@ const slides = [
 			.setPosition(c.MIDDLE_SCREEN_X + 200, 620),
 	]),
 	() => io.Container([
-		io.Title1("To help you, you can recruit units from all corners of the galaxy.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		io.Title1("Units can only damage, shield or heal crystals, not each other.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 150),
-		io.Title1("Units can make other units faster, slower or stronger.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 200),
+		text("To help you, you can recruit units from all corners of the galaxy.", 100),
+		text("Units can only damage, shield or heal crystals, not each other.", 150),
+		text("Units can make other units faster, slower or stronger.", 200),
 		() => {
 			const cont = io.Container([])
 			const fn = async (x: number, y: number, sprite: string) => {
@@ -88,11 +83,8 @@ const slides = [
 		}
 	]),
 	() => io.Container([
-		io.Title1("Unit basic abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.damage}]Damage[/color]: Damages the enemy crystal`, c.MIDDLE_SCREEN_X, 150)
-			.setOrigin(0.5),
+		text("Unit basic abilities", 100),
+		bbcode(`[color=${AbilityColors.damage}]Damage[/color]: Damages the enemy crystal`, 150),
 		() => {
 
 			const c = io.Container();
@@ -153,10 +145,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		io.Title1("Unit basic abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.shield}]Shield[/color]: Protects the crystal from enemy damage.`, c.MIDDLE_SCREEN_X, 150).setOrigin(0.5),
+		text("Unit basic abilities", 100),
+		bbcode(`[color=${AbilityColors.shield}]Shield[/color]: Protects the crystal from enemy damage.`, 150),
 		() => {
 
 			const c = io.Container();
@@ -216,11 +206,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		io.Title1("Unit basic abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.heal}]Heal[/color]: Restore life. Every 20 heal removes 1 poison.`, c.MIDDLE_SCREEN_X, 150)
-			.setOrigin(0.5),
+		text("Unit basic abilities", 100),
+		bbcode(`[color=${AbilityColors.heal}]Heal[/color]: Restore life. Every 20 heal removes 1 poison.`, 150),
 		() => {
 
 			const c = io.Container();
@@ -282,11 +269,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		io.Title1("Unit basic abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.regen}]Regen[/color]: Restores life every 1 second.`, c.MIDDLE_SCREEN_X, 150)
-			.setOrigin(0.5),
+		text("Unit basic abilities", 100),
+		bbcode(`[color=${AbilityColors.regen}]Regen[/color]: Restores life every 1 second.`, 150),
 		() => {
 
 			const c = io.Container();
@@ -342,11 +326,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		io.Title1("Unit basic abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.poison}]Poison[/color]: Deduces life every 1 second. Ignores Shield.`, c.MIDDLE_SCREEN_X, 150)
-			.setOrigin(0.5),
+		text("Unit basic abilities", 100),
+		bbcode(`[color=${AbilityColors.poison}]Poison[/color]: Deduces life every 1 second. Ignores Shield.`, 150),
 		() => {
 
 			const c = io.Container();
@@ -404,56 +385,45 @@ const slides = [
 
 	]),
 	() => io.Container([
-		io.Title1("Advanced abilities:")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-		io.Title1("These abilities can target both units and crystals.")
-			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 150).setOrigin(0.5),
+		text("Advanced abilities", 100),
+		text("These abilities can target both units and crystals.", 150),
 		bbcode(
 			`[color=${AbilityColors.haste}]Haste[/color]: Makes the unit cooldown reduce at double speed.`,
-			c.MIDDLE_SCREEN_X,
 			200
-		).setOrigin(0.5),
+		),
 		bbcode(
 			`[color=${AbilityColors.slow}]Slow[/color]: Makes the cooldown reduce at half speed.`,
-			c.MIDDLE_SCREEN_X,
 			250
-		).setOrigin(0.5),
+		),
 		bbcode(
 			`[color=${AbilityColors.charge}]Charge[/color]: Reduces current cooldown time.`,
-			c.MIDDLE_SCREEN_X,
 			300
-		).setOrigin(0.5),
+		),
 		bbcode(
 			`[color=${AbilityColors.increase_power}]+x[/color]: Increases ability power during the current battle.`,
-			c.MIDDLE_SCREEN_X,
 			350
-		).setOrigin(0.5),
+		),
 		bbcode(
 			`[color=${AbilityColors.increase_power}]+x*[/color]: Increases ability power permanently.`,
-			c.MIDDLE_SCREEN_X,
 			400
-		).setOrigin(0.5),
+		),
 		bbcode(
 			`[color=${AbilityColors.increase_critical}]+x% critical[/color]: Increases the chance of causing double ability power.`,
-			c.MIDDLE_SCREEN_X,
 			450
-		).setOrigin(0.5),
+		),
 	]),
 	() => io.Container([
-		io.Title1("Reactions:").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-		io.Title1("⚡").setPosition(c.MIDDLE_SCREEN_X, 150).setFontSize(40).setOrigin(0.5),
-		io.Title1(`This symbols signals that this unit can react to other unit's abilities.`)
-			.setPosition(c.MIDDLE_SCREEN_X, 200).setOrigin(0.5),
-		io.Title1("Reactions happen immediatelly.").setPosition(c.MIDDLE_SCREEN_X, 250).setOrigin(0.5),
-		io.Title1("Units can't react to reactions.").setPosition(c.MIDDLE_SCREEN_X, 300).setOrigin(0.5),
-		io.Title1("Reactions follow the pattern [source]->[effect]->[target]").setPosition(c.MIDDLE_SCREEN_X, 350).setOrigin(0.5),
+		text("Reactions", 100),
+		text("⚡", 150),
+		text(`This symbols signals that this unit can react to other unit's abilities.`, 200),
+		text("Reactions happen immediatelly.", 250),
+		text("Units can't react to reactions.", 300),
+		text("Reactions follow the pattern [source]->[effect]->[target]", 350)
 	]),
 	() => {
 
 		const cont = io.Container();
-		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		const title = io.Title1("⚡ Examples").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 })
 
@@ -480,12 +450,9 @@ const slides = [
 
 			cont.add([
 				titleText,
-				descriptionText
-			])
-
-			const desc = io.Title1("When any ally uses Haste, this unit gains 5 power.")
-				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
-			cont.add(desc);
+				descriptionText,
+				text("When any ally uses Haste, this unit gains 5 power.", 600)
+			]);
 
 		}
 
@@ -496,7 +463,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		const title = text("⚡ Examples", 100)
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 })
 
@@ -523,15 +490,10 @@ const slides = [
 
 			cont.add([
 				titleText,
-				descriptionText
-			])
-
-			const row1 = io.Title1("Some reactions also involve positions.")
-				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
-			cont.add(row1);
-			const row2 = io.Title1("This one reacts when an ally in the same column uses Shield.")
-				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
-			cont.add(row2);
+				descriptionText,
+				text("Some reactions also involve positions.", 600),
+				text("This one reacts when an ally in the same column uses Shield.", 650),
+			]);
 
 		}
 
@@ -542,7 +504,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		const title = text("⚡ Examples", 100);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 })
 
@@ -569,15 +531,10 @@ const slides = [
 
 			cont.add([
 				titleText,
-				descriptionText
-			])
-
-			const row1 = io.Title1("This unit reacts to any allied effect in the same row.")
-				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
-			cont.add(row1);
-			const row2 = io.Title1("Then, it applies Haste to all allies in the same column.")
-				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
-			cont.add(row2);
+				descriptionText,
+				text("This unit reacts to any allied effect in the same row.", 600),
+				text("Then, it applies Haste to all allies in the same column.", 650)
+			]);
 
 		}
 
@@ -588,7 +545,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		const title = text("⚡ Examples", 100);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 })
 
@@ -613,20 +570,14 @@ const slides = [
 				.setWrapMode(1)
 				.setFontFamily("Arimo");
 
+
 			cont.add([
 				titleText,
-				descriptionText
-			])
-
-			const row1 = io.Title1("Some units can react to enemy actions.")
-				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
-			cont.add(row1);
-			const row2 = io.Title1("This unit reacts when any enemy uses Damage.")
-				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
-			cont.add(row2);
-			const row3 = io.Title1("Then, it gives 2 permanent power to the ally to its right.")
-				.setPosition(c.MIDDLE_SCREEN_X, 700).setOrigin(0.5);
-			cont.add(row3);
+				descriptionText,
+				text("Some units can react to enemy actions.", 600),
+				text("This unit reacts when any enemy uses Damage.", 650),
+				text("Then, it gives 2 permanent power to the ally to its right.", 700)
+			]);
 
 		}
 
@@ -635,10 +586,10 @@ const slides = [
 		return cont;
 	},
 	() => io.Container([
-		io.Title1("Those are the basics of Mana Battle!").setPosition(c.MIDDLE_SCREEN_X, 200).setOrigin(0.5),
-		io.Title1("There's still a lot to discover.").setPosition(c.MIDDLE_SCREEN_X, 250).setOrigin(0.5),
-		io.Title1("Try getting a Gold Victory, or see how far you can get in Infinite Mode 😀").setPosition(c.MIDDLE_SCREEN_X, 300).setOrigin(0.5),
-		io.Title1("Hope you have fun playing this game!").setPosition(c.MIDDLE_SCREEN_X, 350).setOrigin(0.5),
+		text("Those are the basics of Mana Battle!", 200),
+		text("There's still a lot to discover.", 250),
+		text("Try getting a Gold Victory, or see how far you can get in Infinite Mode 😀", 300),
+		text("Hope you have fun playing this game!", 350)
 	])
 ]
 
