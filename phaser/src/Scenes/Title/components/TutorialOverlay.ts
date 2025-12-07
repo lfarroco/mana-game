@@ -33,9 +33,9 @@ const text = (str: string, y: number) => io.Text(str)
 
 const slides = [
 	() => io.Container([
-		text("The goal of Mana Battle is to destroy the enemy crystal.", 100),
-		text("The enemy wants to destroy yourt crystal, so protect it!", 150),
-		text("Your crystal is located in the left board. The enemy, in the right board.", 200),
+		text(t("tutorial.slide1.row1"), 100),
+		text(t("tutorial.slide1.row2"), 150),
+		text(t("tutorial.slide1.row3"), 200),
 		() => {
 			const cont = io.Container();
 			const unit = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 })
@@ -53,17 +53,17 @@ const slides = [
 
 			return cont
 		},
-		io.Title1("Protect ⬆️")
+		io.Title1(t("tutorial.slide1.row4"))
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X - 330, 620),
-		io.Title1("Destroy ⬆️")
+		io.Title1(t("tutorial.slide1.row5"))
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X + 200, 620),
 	]),
 	() => io.Container([
-		text("To help you, you can recruit units from all corners of the galaxy.", 100),
-		text("Units can only damage, shield or heal crystals, not each other.", 150),
-		text("Units can make other units faster, slower or stronger.", 200),
+		text(t("tutorial.slide2.row1"), 100),
+		text(t("tutorial.slide2.row2"), 150),
+		text(t("tutorial.slide2.row3"), 200),
 		() => {
 			const cont = io.Container([])
 			const fn = async (x: number, y: number, sprite: string) => {
@@ -83,8 +83,8 @@ const slides = [
 		}
 	]),
 	() => io.Container([
-		text("Unit basic abilities", 100),
-		bbcode(`[color=${AbilityColors.damage}]Damage[/color]: Damages the enemy crystal`, 150),
+		text(t("tutorial.slide3.row1"), 100),
+		bbcode(`[color=${AbilityColors.damage}]${t("tooltip.effects.damage")}[/color]: ${t("tutorial.slide3.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -145,8 +145,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text("Unit basic abilities", 100),
-		bbcode(`[color=${AbilityColors.shield}]Shield[/color]: Protects the crystal from enemy damage.`, 150),
+		text(t("tutorial.slide4.row1"), 100),
+		bbcode(`[color=${AbilityColors.shield}]${t("tooltip.effects.shield")}[/color]: ${t("tutorial.slide4.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -206,8 +206,9 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text("Unit basic abilities", 100),
-		bbcode(`[color=${AbilityColors.heal}]Heal[/color]: Restore life. Every 20 heal removes 1 poison.`, 150),
+		text(t("tutorial.slide5.row1"), 100),
+		bbcode(`[color=${AbilityColors.heal}]${t("tooltip.effects.heal")}[/color]: ${t("tutorial.slide5.row2")}`, 150),
+
 		() => {
 
 			const c = io.Container();
@@ -269,8 +270,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text("Unit basic abilities", 100),
-		bbcode(`[color=${AbilityColors.regen}]Regen[/color]: Restores life every 1 second.`, 150),
+		text(t("tutorial.slide6.row1"), 100),
+		bbcode(`[color=${AbilityColors.regen}]${t("tooltip.effects.regen")}[/color]: ${t("tutorial.slide6.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -326,8 +327,9 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text("Unit basic abilities", 100),
-		bbcode(`[color=${AbilityColors.poison}]Poison[/color]: Deduces life every 1 second. Ignores Shield.`, 150),
+		text(t("tutorial.slide7.row1"), 100),
+		bbcode(`[color=${AbilityColors.poison}]${t("tooltip.effects.poison")}[/color]: ${t("tutorial.slide7.row2")}`, 150),
+
 		() => {
 
 			const c = io.Container();
@@ -385,45 +387,45 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text("Advanced abilities", 100),
-		text("These abilities can target both units and crystals.", 150),
+		text(t("tutorial.slide8.row1"), 100),
+		text(t("tutorial.slide8.row2"), 150),
 		bbcode(
-			`[color=${AbilityColors.haste}]Haste[/color]: Makes the unit cooldown reduce at double speed.`,
+			`[color=${AbilityColors.haste}]${t("tooltip.effects.haste")}[/color]: ${t("tutorial.slide8.row3")}`,
 			200
 		),
 		bbcode(
-			`[color=${AbilityColors.slow}]Slow[/color]: Makes the cooldown reduce at half speed.`,
+			`[color=${AbilityColors.slow}]${t("tooltip.effects.slow")}[/color]: ${t("tutorial.slide8.row4")}`,
 			250
 		),
 		bbcode(
-			`[color=${AbilityColors.charge}]Charge[/color]: Reduces current cooldown time.`,
+			`[color=${AbilityColors.charge}]${t("tooltip.effects.charge")}[/color]: ${t("tutorial.slide8.row5")}`,
 			300
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_power}]+x[/color]: Increases ability power during the current battle.`,
+			`[color=${AbilityColors.increase_power}]+x[/color]: ${t("tutorial.slide8.row6")}`,
 			350
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_power}]+x*[/color]: Increases ability power permanently.`,
+			`[color=${AbilityColors.increase_power}]+x*[/color]: ${t("tutorial.slide8.row7")}`,
 			400
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_critical}]+x% critical[/color]: Increases the chance of causing double ability power.`,
+			`[color=${AbilityColors.increase_critical}]+x% crit[/color]: ${t("tutorial.slide8.row8")}`,
 			450
 		),
 	]),
 	() => io.Container([
-		text("Reactions", 100),
-		text("⚡", 150),
-		text(`This symbols signals that this unit can react to other unit's abilities.`, 200),
-		text("Reactions happen immediatelly.", 250),
-		text("Units can't react to reactions.", 300),
-		text("Reactions follow the pattern [source]->[effect]->[target]", 350)
+		text(t("tutorial.slide9.row1"), 100),
+		text(t("tutorial.slide9.row2"), 150),
+		text(t("tutorial.slide9.row3"), 200),
+		text(t("tutorial.slide9.row4"), 250),
+		text(t("tutorial.slide9.row5"), 300),
+		text(t("tutorial.slide9.row6"), 350)
 	]),
 	() => {
 
 		const cont = io.Container();
-		const title = io.Title1("⚡ Examples").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		const title = io.Title1(t("tutorial.slide10.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 })
 
@@ -451,7 +453,7 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text("When any ally uses Haste, this unit gains 5 power.", 600)
+				text(t("tutorial.slide10.row2"), 600)
 			]);
 
 		}
@@ -463,7 +465,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text("⚡ Examples", 100)
+		const title = text(t("tutorial.slide11.row1"), 100)
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 })
 
@@ -491,8 +493,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text("Some reactions also involve positions.", 600),
-				text("This one reacts when an ally in the same column uses Shield.", 650),
+				text(t("tutorial.slide11.row2"), 600),
+				text(t("tutorial.slide11.row3"), 650),
 			]);
 
 		}
@@ -504,7 +506,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text("⚡ Examples", 100);
+		const title = text(t("tutorial.slide12.row1"), 100);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 })
 
@@ -532,8 +534,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text("This unit reacts to any allied effect in the same row.", 600),
-				text("Then, it applies Haste to all allies in the same column.", 650)
+				text(t("tutorial.slide12.row2"), 600),
+				text(t("tutorial.slide12.row3"), 650)
 			]);
 
 		}
@@ -545,7 +547,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text("⚡ Examples", 100);
+		const title = text(t("tutorial.slide13.row1"), 100);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 })
 
@@ -574,9 +576,9 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text("Some units can react to enemy actions.", 600),
-				text("This unit reacts when any enemy uses Damage.", 650),
-				text("Then, it gives 2 permanent power to the ally to its right.", 700)
+				text(t("tutorial.slide13.row2"), 600),
+				text(t("tutorial.slide13.row3"), 650),
+				text(t("tutorial.slide13.row4"), 700)
 			]);
 
 		}
@@ -586,10 +588,10 @@ const slides = [
 		return cont;
 	},
 	() => io.Container([
-		text("Those are the basics of Mana Battle!", 200),
-		text("There's still a lot to discover.", 250),
-		text("Try getting a Gold Victory, or see how far you can get in Infinite Mode 😀", 300),
-		text("Hope you have fun playing this game!", 350)
+		text(t("tutorial.slide14.row1"), 200),
+		text(t("tutorial.slide14.row2"), 250),
+		text(t("tutorial.slide14.row3"), 300),
+		text(t("tutorial.slide14.row4"), 350)
 	])
 ]
 
