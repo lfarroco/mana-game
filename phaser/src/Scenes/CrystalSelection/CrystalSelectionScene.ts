@@ -63,6 +63,15 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private createCrystalDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
+		this.add.rectangle(
+			constants.MIDDLE_SCREEN_X,
+			CARD_DISPLAY_Y + 90,
+			440,
+			500,
+			0x000000,
+			0.8
+		);
+
 		this.crystalSprite = this.add.image(
 			constants.MIDDLE_SCREEN_X,
 			CARD_DISPLAY_Y,
