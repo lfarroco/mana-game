@@ -6,6 +6,8 @@ import { distributePower } from "../../../../TriggerSystem/effects/distributePow
 import { absorbPower } from "../../../../TriggerSystem/effects/absorbPower";
 import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffect";
 import { resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
+import { FORCE_ID_PLAYER } from "@Constants/constants";
+import { getState } from "@Models/State";
 
 export type OrbSpec = {
 	id: string;
@@ -21,13 +23,19 @@ const increasePowerOnType = (type: string) => () => ({
 	name: `Increase Power (${type})`,
 	color: 0xff3333,
 	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+10[/color]",
+		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+10%[/color]",
 		`Drag to a unit of type [color=#e0e0e0] ${type}[/color] to apply`,
 	].join("\n"),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
-		increasePower([unit], 10, false);
+		const pct = Math.floor(unit.power * 0.1);
+
+		increasePower([unit], pct, false);
+
+		if (unit.force === FORCE_ID_PLAYER) {
+			getState().gameData.player.units.find(u => u.id === unit.id)!.power = unit.power;
+		}
 		console.log(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
 	}
@@ -38,7 +46,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 	name: `Increase Critical (${type})`,
 	color: 0xff3333,
 	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+critical[/color] [color=#ffd93d]+10[/color]",
+		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+critical[/color] [color=#ffd93d]+10%[/color]",
 		`Drag to a unit of type [color=#e0e0e0] ${type}[/color] to apply`,
 	].join("\n"),
 	effect: (unit: Unit) => {
@@ -48,7 +56,12 @@ const increaseCriticalOnType = (type: string) => () => ({
 			unit.critical = 0;
 		}
 
-		unit.critical = Math.min(100, unit.critical + 10);
+		unit.critical = unit.critical + 10;
+
+		if (unit.force === FORCE_ID_PLAYER) {
+			getState().gameData.player.units.find(u => u.id === unit.id)!.critical = unit.critical;
+		}
+
 		console.log(`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`);
 		return true;
 	}
@@ -66,6 +79,11 @@ const decreaseCooldownOnType = (type: string) => () => ({
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
 		unit.cooldown = Math.max(1000, unit.cooldown * 0.9);
+
+		if (unit.force === FORCE_ID_PLAYER) {
+			getState().gameData.player.units.find(u => u.id === unit.id)!.cooldown = unit.cooldown;
+		}
+
 		console.log(`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`);
 		return true;
 	}
