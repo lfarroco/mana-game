@@ -81,32 +81,38 @@ const slides = [
 			const summonUnits = async () => {
 
 				const unit = makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 1.5 })
-				const chara = await summon(unit)
-
 				const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 1.5 })
-				const chara2 = await summon(enemy)
+
+				const [chara, chara2] = await Promise.all([
+					summon(unit),
+					summon(enemy)
+				]);
 				const s = mustGetState(chara);
 
 				c.add(chara);
 				c.add(chara2);
+				if (!c.active) return;
 				const anim = async () => {
 					s.sprite.anims.play(`${unit.pic}_attack`, true);
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 					await delay(1000);
-					damageFx(
-						chara,
-						chara2,
-						() => {
-							popText({
-								x: chara2.x,
-								y: chara2.y,
-								text: "-" + unit.power,
-								type: "damage"
-							})
-						}
-					)
+					if (s.sprite.active)
+						damageFx(
+							chara,
+							chara2,
+							() => {
+								popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "-" + unit.power,
+									type: "damage"
+								})
+							}
+						)
 
 				};
+
+				if (!s.sprite.active) return;
 				anim();
 
 				const effect = getCurrentScene().time.addEvent({
@@ -139,31 +145,35 @@ const slides = [
 			const summonUnit = async () => {
 
 				const unit = makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 1.5 })
-				const chara = await summon(unit)
-
 				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
-				const chara2 = await summon(ally)
+				const [chara, chara2] = await Promise.all([
+					summon(unit),
+					summon(ally)
+				]);
 				const s = mustGetState(chara);
 
 				c.add(chara);
 				c.add(chara2);
+				if (!c.active) return;
 				const anim = async () => {
 					s.sprite.anims.play(`${unit.pic}_attack`, true);
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 					await delay(1000);
-					shieldFx(
-						chara,
-						chara2,
-						() => {
-							popText({
-								x: chara2.x,
-								y: chara2.y,
-								text: "+" + unit.power,
-								type: "shield"
-							})
 
-						}
-					);
+					if (s.sprite.active)
+						shieldFx(
+							chara,
+							chara2,
+							() => {
+								popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "+" + unit.power,
+									type: "shield"
+								})
+
+							}
+						);
 
 
 				}
@@ -198,31 +208,37 @@ const slides = [
 			const summonUnit = async () => {
 
 				const unit = makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 1.5 })
-				const chara = await summon(unit)
-
 				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
-				const chara2 = await summon(ally)
+
+				const [chara, chara2] = await Promise.all([
+					summon(unit),
+					summon(ally)
+				]);
+
+
 				const s = mustGetState(chara);
 
 				c.add(chara);
 				c.add(chara2);
+				if (!c.active) return;
 				const anim = async () => {
 					s.sprite.anims.play(`${unit.pic}_attack`, true);
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 					await delay(1000);
-					healFx(
-						chara,
-						chara2,
-						() => {
-							popText({
-								x: chara2.x,
-								y: chara2.y,
-								text: "+" + unit.power,
-								type: "heal"
-							})
+					if (s.sprite.active)
+						healFx(
+							chara,
+							chara2,
+							() => {
+								popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "+" + unit.power,
+									type: "heal"
+								})
 
-						}
-					);
+							}
+						);
 
 
 				}
@@ -257,10 +273,12 @@ const slides = [
 			const summonUnit = async () => {
 
 				const unit = makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 1.5 })
-				const chara = await summon(unit)
-
 				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
-				const chara2 = await summon(ally)
+
+				const [chara, chara2] = await Promise.all([
+					summon(unit),
+					summon(ally)
+				]);
 				const s = mustGetState(chara);
 
 				c.add(chara);
@@ -268,6 +286,7 @@ const slides = [
 				s.sprite.anims.play(`${unit.pic}_attack`, true);
 				s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 				await delay(1000);
+				if (!c.active) return;
 				regenFx(
 					chara,
 					chara2,
@@ -313,10 +332,14 @@ const slides = [
 			const summonUnit = async () => {
 
 				const unit = makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 1.5 })
-				const chara = await summon(unit)
 
 				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 1.5 })
-				const chara2 = await summon(ally)
+				const [chara, chara2] = await Promise.all([
+
+					summon(unit),
+					summon(ally)
+				])
+
 				const s = mustGetState(chara);
 
 				c.add(chara);
@@ -324,6 +347,7 @@ const slides = [
 				s.sprite.anims.play(`${unit.pic}_attack`, true);
 				s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 				await delay(1000);
+				if (!c.active) return;
 				poisonFx(
 					chara,
 					chara2,
@@ -357,7 +381,43 @@ const slides = [
 
 		}
 
-	])
+	]),
+	() => io.Container([
+		io.Title1("Advanced abilities:")
+			.setOrigin(0.5)
+			.setPosition(c.MIDDLE_SCREEN_X, 100),
+		bbcode(
+			`[color=${AbilityColors.haste}]Haste[/color]: Makes the unit cooldown reduce at double speed.`,
+			c.MIDDLE_SCREEN_X - 400,
+			150
+		),
+		bbcode(
+			`[color=${AbilityColors.slow}]Slow[/color]: Makes the cooldown reduce at half speed.`,
+			c.MIDDLE_SCREEN_X - 400,
+			200
+		),
+		bbcode(
+			`[color=${AbilityColors.charge}]Charge[/color]: Reduces current cooldown time.`,
+			c.MIDDLE_SCREEN_X - 400,
+			250
+		),
+		bbcode(
+			`[color=${AbilityColors.increase_power}]+x[/color]: Increases ability power during the current battle.`,
+			c.MIDDLE_SCREEN_X - 400,
+			300
+		),
+		bbcode(
+			`[color=${AbilityColors.increase_power}]+x*[/color]: Increases ability power permanently.`,
+			c.MIDDLE_SCREEN_X - 400,
+			350
+		),
+		bbcode(
+			`[color=${AbilityColors.increase_critical}]+x% critical[/color]: Increases the chance of causing double ability power.`,
+			c.MIDDLE_SCREEN_X - 400,
+			400
+		),
+	]),
+
 ]
 
 const OVERLAY_ALPHA = 0.85;
