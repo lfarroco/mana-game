@@ -27,7 +27,6 @@ export function initialize() {
 		if (savedLocale && locales[savedLocale]) {
 			currentLocale = savedLocale;
 		} else {
-			// Try to detect system locale
 			const systemLocale = window.navigator.language.split('-')[0];
 			if (locales[systemLocale]) {
 				currentLocale = systemLocale;
