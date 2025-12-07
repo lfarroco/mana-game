@@ -1,10 +1,10 @@
 import { getAlliedCore } from "@Models/Entities/Card";
-import { arcaneMissileTargeted } from "../../Effects";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
+import { healFx } from "./visuals/heal";
 
 export const restoreLife = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -24,18 +24,10 @@ export const restoreLife = async (sourceUnit: Unit) => {
 	const sourceForce = getUnitForce(sourceUnit.id);
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
-	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(alliedCore.id), {
-		colors: [0x00ff00, 0x32cd32, 0x7fff00], // Green colors
-		amplitudeMin: 5,
-		amplitudeMax: 15,
-		particleScale: 1.5,
-		impact: {
-			colors: [0x00ff00, 0x32cd32],
-			scale: 2,
-			speed: 200,
-			lifespan: 300,
-			alpha: 0.4,
-		},
-		onHit: effect(sourceForce, healAmount),
-	});
+	healFx(
+		getCharaById(sourceUnit.id),
+		getCharaById(alliedCore.id),
+		effect(sourceForce, healAmount)
+	);
+
 };

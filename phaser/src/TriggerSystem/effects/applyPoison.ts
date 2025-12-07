@@ -3,8 +3,8 @@ import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { applyPoison } from "@Scenes//Battleground/Systems/PoisonDamageSystem";
 import { getCharaById } from "@Systems/Chara/Chara";
-import { arcaneMissileTargeted } from "../../Effects";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import { poisonFx } from "./visuals/poison";
 
 export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power * 0.1;
@@ -24,22 +24,9 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
 		CombatStatsTracker.trackPoison(sourceUnit.id, amount);
 	}
 
-	arcaneMissileTargeted(
+	poisonFx(
 		getCharaById(sourceUnit.id),
 		getCharaById(getEnemyCore(sourceUnit.force).id),
-		{
-			colors: [0x8a2be2, 0x9932cc, 0x800080], //purple tones
-			amplitudeMin: 5,
-			amplitudeMax: 15,
-			particleScale: 1.5,
-			impact: {
-				colors: [0x00ffff, 0x87ceeb],
-				scale: 2,
-				speed: 200,
-				lifespan: 300,
-				alpha: 0.4,
-			},
-			onHit: effect,
-		}
+		effect
 	);
 };

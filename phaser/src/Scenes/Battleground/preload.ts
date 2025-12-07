@@ -6,7 +6,6 @@ export function preload(scene: Phaser.Scene) {
 		scene.load.image(image);
 	});
 
-	// reference to loading json data
 	scene.load.json("base-collection", "assets/data/collections/base/data.json");
 
 	coinTexture(scene);
@@ -14,7 +13,6 @@ export function preload(scene: Phaser.Scene) {
 	loadAudio(scene);
 }
 
-//gold round circle with black outline
 function coinTexture(scene: Scene) {
 	const gfx = scene.make.graphics({ x: 0, y: 0 });
 	gfx.fillStyle(0xffd700, 1);

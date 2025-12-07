@@ -10,13 +10,7 @@ export default class Core extends Phaser.Scene {
 
 	preload() {
 		preload(this);
-		this.load.image("cloud_001", "assets/fx/cloud_001.png");
-		this.load.image("cloud_002", "assets/fx/cloud_002.png");
-		this.load.image("cloud_003", "assets/fx/cloud_003.png");
-		this.load.image("cloud_004", "assets/fx/cloud_004.png");
-		this.load.image("cloud_005", "assets/fx/cloud_005.png");
-		this.load.image("cloud_006", "assets/fx/cloud_006.png");
-		this.load.image("cloud_007", "assets/fx/cloud_007.png");
+		this.load.image("tutorial1", "assets/tutorial/tutorial1.png");
 
 		this.load.image("blue-stone", "assets/blue-stone.png");
 		this.load.image("haste-stone", "assets/haste-stone.png");

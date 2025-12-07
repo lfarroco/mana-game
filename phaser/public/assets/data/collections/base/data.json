@@ -215,7 +215,7 @@
 			]
 		},
 		{
-			"id": "Living Armor",
+			"id": "living_armor",
 			"name": "Living Armor",
 			"pic": "f1_tank",
 			"power": 25,
