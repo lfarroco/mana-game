@@ -2,10 +2,10 @@ import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/En
 import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
-import { arcaneMissileTargeted } from "../../Effects/arcaneMissileTargeted";
 import { getEnemyCore } from "@Models/Entities/Card";
 import { getState } from "@Models/State";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { damageFx } from "./visuals/damage";
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 	const damageAmount = sourceUnit.power;
@@ -40,19 +40,9 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 
 	playSoundEffect('sfx_spell_truestrike');
 
-	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(enemyCore!.id), {
-		// Red tones
-		colors: [0x880808, 0xee4b2b, 0xd22b2b], //blood red, bright red, cadmium red
-		amplitudeMin: 5,
-		amplitudeMax: 20,
-		particleScale: 1.5,
-		impact: {
-			colors: [0xd2691e, 0xcd853f],
-			scale: 2,
-			speed: 200,
-			lifespan: 300,
-			alpha: 0.4,
-		},
-		onHit: effect,
-	});
+	damageFx(
+		getCharaById(sourceUnit.id),
+		getCharaById(enemyCore!.id),
+		effect,
+	)
 }
