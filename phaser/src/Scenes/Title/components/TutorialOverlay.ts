@@ -14,8 +14,7 @@ import { popText } from "@Systems/Chara/Animations";
 import { healFx } from "TriggerSystem/effects/visuals/heal";
 import { poisonFx } from "TriggerSystem/effects/visuals/poison";
 import { regenFx } from "TriggerSystem/effects/visuals/regen";
-
-const SLIDE_COUNT = 10;
+import { createDescription } from "@Systems/Chara/createDescription";
 
 const bbcode = (text: string, x: number, y: number) => getCurrentScene().add
 	.rexBBCodeText(0, 0, text)
@@ -33,14 +32,32 @@ const slides = [
 		io.Title1("The enemy wants to destroy yourt crystal, so protect it!")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 150),
-		io.Image("tutorial1")
-			.setPosition(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
-		io.Title2("Protect")
+		io.Title1("Your crystal is located in the left board. The enemy, in the right board.")
 			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X - 530, 820),
-		io.Title2("Destroy")
+			.setPosition(c.MIDDLE_SCREEN_X, 200),
+		() => {
+			const cont = io.Container();
+			const unit = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 })
+			const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 })
+
+			const anim = async () => {
+				const charas = await Promise.all([
+					summon(unit),
+					summon(enemy)
+				]);
+				cont.add(charas)
+			}
+
+			anim();
+
+			return cont
+		},
+		io.Title1("Protect ⬆️")
 			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X + 400, 820),
+			.setPosition(c.MIDDLE_SCREEN_X - 330, 620),
+		io.Title1("Destroy ⬆️")
+			.setOrigin(0.5)
+			.setPosition(c.MIDDLE_SCREEN_X + 200, 620),
 	]),
 	() => io.Container([
 		io.Title1("To help you, you can recruit units from all corners of the galaxy.")
@@ -74,14 +91,15 @@ const slides = [
 		io.Title1("Unit basic abilities:")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.damage}]Damage[/color]: Damages the enemy crystal`, c.MIDDLE_SCREEN_X - 400, 150),
+		bbcode(`[color=${AbilityColors.damage}]Damage[/color]: Damages the enemy crystal`, c.MIDDLE_SCREEN_X, 150)
+			.setOrigin(0.5),
 		() => {
 
 			const c = io.Container();
 			const summonUnits = async () => {
 
-				const unit = makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 1.5 })
-				const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 1.5 })
+				const unit = makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 0.5 })
+				const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 })
 
 				const [chara, chara2] = await Promise.all([
 					summon(unit),
@@ -138,14 +156,14 @@ const slides = [
 		io.Title1("Unit basic abilities:")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.shield}]Shield[/color]: Protects the crystal from enemy damage.`, c.MIDDLE_SCREEN_X - 400, 150),
+		bbcode(`[color=${AbilityColors.shield}]Shield[/color]: Protects the crystal from enemy damage.`, c.MIDDLE_SCREEN_X, 150).setOrigin(0.5),
 		() => {
 
 			const c = io.Container();
 			const summonUnit = async () => {
 
-				const unit = makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 1.5 })
-				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
+				const unit = makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 0.5 })
+				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 })
 				const [chara, chara2] = await Promise.all([
 					summon(unit),
 					summon(ally)
@@ -201,14 +219,15 @@ const slides = [
 		io.Title1("Unit basic abilities:")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.heal}]Heal[/color]: Restore life. Every 20 heal removes 1 poison.`, c.MIDDLE_SCREEN_X - 400, 150),
+		bbcode(`[color=${AbilityColors.heal}]Heal[/color]: Restore life. Every 20 heal removes 1 poison.`, c.MIDDLE_SCREEN_X, 150)
+			.setOrigin(0.5),
 		() => {
 
 			const c = io.Container();
 			const summonUnit = async () => {
 
-				const unit = makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 1.5 })
-				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
+				const unit = makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 0.5 })
+				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 })
 
 				const [chara, chara2] = await Promise.all([
 					summon(unit),
@@ -266,14 +285,15 @@ const slides = [
 		io.Title1("Unit basic abilities:")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.regen}]Regen[/color]: Restores life every 1 second.`, c.MIDDLE_SCREEN_X - 400, 150),
+		bbcode(`[color=${AbilityColors.regen}]Regen[/color]: Restores life every 1 second.`, c.MIDDLE_SCREEN_X, 150)
+			.setOrigin(0.5),
 		() => {
 
 			const c = io.Container();
 			const summonUnit = async () => {
 
-				const unit = makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 1.5 })
-				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 1.5 })
+				const unit = makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 0.5 })
+				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 })
 
 				const [chara, chara2] = await Promise.all([
 					summon(unit),
@@ -325,15 +345,16 @@ const slides = [
 		io.Title1("Unit basic abilities:")
 			.setOrigin(0.5)
 			.setPosition(c.MIDDLE_SCREEN_X, 100),
-		bbcode(`[color=${AbilityColors.poison}]Poison[/color]: Deduces life every 1 second. Ignores Shield.`, c.MIDDLE_SCREEN_X - 400, 150),
+		bbcode(`[color=${AbilityColors.poison}]Poison[/color]: Deduces life every 1 second. Ignores Shield.`, c.MIDDLE_SCREEN_X, 150)
+			.setOrigin(0.5),
 		() => {
 
 			const c = io.Container();
 			const summonUnit = async () => {
 
-				const unit = makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 1.5 })
+				const unit = makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 0.5 })
 
-				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 1.5 })
+				const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 0.5 })
 				const [chara, chara2] = await Promise.all([
 
 					summon(unit),
@@ -385,39 +406,240 @@ const slides = [
 	() => io.Container([
 		io.Title1("Advanced abilities:")
 			.setOrigin(0.5)
-			.setPosition(c.MIDDLE_SCREEN_X, 100),
+			.setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+		io.Title1("These abilities can target both units and crystals.")
+			.setOrigin(0.5)
+			.setPosition(c.MIDDLE_SCREEN_X, 150).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.haste}]Haste[/color]: Makes the unit cooldown reduce at double speed.`,
-			c.MIDDLE_SCREEN_X - 400,
-			150
-		),
+			c.MIDDLE_SCREEN_X,
+			200
+		).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.slow}]Slow[/color]: Makes the cooldown reduce at half speed.`,
-			c.MIDDLE_SCREEN_X - 400,
-			200
-		),
+			c.MIDDLE_SCREEN_X,
+			250
+		).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.charge}]Charge[/color]: Reduces current cooldown time.`,
-			c.MIDDLE_SCREEN_X - 400,
-			250
-		),
+			c.MIDDLE_SCREEN_X,
+			300
+		).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.increase_power}]+x[/color]: Increases ability power during the current battle.`,
-			c.MIDDLE_SCREEN_X - 400,
-			300
-		),
+			c.MIDDLE_SCREEN_X,
+			350
+		).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.increase_power}]+x*[/color]: Increases ability power permanently.`,
-			c.MIDDLE_SCREEN_X - 400,
-			350
-		),
+			c.MIDDLE_SCREEN_X,
+			400
+		).setOrigin(0.5),
 		bbcode(
 			`[color=${AbilityColors.increase_critical}]+x% critical[/color]: Increases the chance of causing double ability power.`,
-			c.MIDDLE_SCREEN_X - 400,
-			400
-		),
+			c.MIDDLE_SCREEN_X,
+			450
+		).setOrigin(0.5),
 	]),
+	() => io.Container([
+		io.Title1("Reactions:").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+		io.Title1("⚡").setPosition(c.MIDDLE_SCREEN_X, 150).setFontSize(40).setOrigin(0.5),
+		io.Title1(`This symbols signals that this unit can react to other unit's abilities.`)
+			.setPosition(c.MIDDLE_SCREEN_X, 200).setOrigin(0.5),
+		io.Title1("Reactions happen immediatelly.").setPosition(c.MIDDLE_SCREEN_X, 250).setOrigin(0.5),
+		io.Title1("Units can't react to reactions.").setPosition(c.MIDDLE_SCREEN_X, 300).setOrigin(0.5),
+		io.Title1("Reactions follow the pattern [source]->[effect]->[target]").setPosition(c.MIDDLE_SCREEN_X, 350).setOrigin(0.5),
+	]),
+	() => {
 
+		const cont = io.Container();
+		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		cont.add(title);
+		const unit = makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 })
+
+		const anim = async () => {
+			const chara = await summon(unit);
+
+			cont.add(chara)
+
+			const { title, description } = createDescription(chara);
+
+			const titleText = getCurrentScene().add
+				.text(800, 300, title, c.titleTextConfig)
+				.setAlign("left");
+
+			const descriptionText = getCurrentScene().add
+				.rexBBCodeText(
+					800,
+					300 + 60,
+					description)
+				.setFontSize(30)
+				.setAlign("left")
+				.setWrapMode(1)
+				.setFontFamily("Arimo");
+
+			cont.add([
+				titleText,
+				descriptionText
+			])
+
+			const desc = io.Title1("When any ally uses Haste, this unit gains 5 power.")
+				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
+			cont.add(desc);
+
+		}
+
+		anim();
+
+		return cont;
+	},
+	() => {
+
+		const cont = io.Container();
+		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		cont.add(title);
+		const unit = makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 })
+
+		const anim = async () => {
+			const chara = await summon(unit);
+
+			cont.add(chara)
+
+			const { title, description } = createDescription(chara);
+
+			const titleText = getCurrentScene().add
+				.text(800, 300, title, c.titleTextConfig)
+				.setAlign("left");
+
+			const descriptionText = getCurrentScene().add
+				.rexBBCodeText(
+					800,
+					300 + 60,
+					description)
+				.setFontSize(30)
+				.setAlign("left")
+				.setWrapMode(1)
+				.setFontFamily("Arimo");
+
+			cont.add([
+				titleText,
+				descriptionText
+			])
+
+			const row1 = io.Title1("Some reactions also involve positions.")
+				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
+			cont.add(row1);
+			const row2 = io.Title1("This one reacts when an ally in the same column uses Shield.")
+				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
+			cont.add(row2);
+
+		}
+
+		anim();
+
+		return cont;
+	},
+	() => {
+
+		const cont = io.Container();
+		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		cont.add(title);
+		const unit = makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 })
+
+		const anim = async () => {
+			const chara = await summon(unit);
+
+			cont.add(chara)
+
+			const { title, description } = createDescription(chara);
+
+			const titleText = getCurrentScene().add
+				.text(800, 300, title, c.titleTextConfig)
+				.setAlign("left");
+
+			const descriptionText = getCurrentScene().add
+				.rexBBCodeText(
+					800,
+					300 + 60,
+					description)
+				.setFontSize(30)
+				.setAlign("left")
+				.setWrapMode(1)
+				.setFontFamily("Arimo");
+
+			cont.add([
+				titleText,
+				descriptionText
+			])
+
+			const row1 = io.Title1("This unit reacts to any allied effect in the same row.")
+				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
+			cont.add(row1);
+			const row2 = io.Title1("Then, it applies Haste to all allies in the same column.")
+				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
+			cont.add(row2);
+
+		}
+
+		anim();
+
+		return cont;
+	},
+	() => {
+
+		const cont = io.Container();
+		const title = io.Title1("⚡ Example").setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
+		cont.add(title);
+		const unit = makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 })
+
+		const anim = async () => {
+			const chara = await summon(unit);
+
+			cont.add(chara)
+
+			const { title, description } = createDescription(chara);
+
+			const titleText = getCurrentScene().add
+				.text(800, 300, title, c.titleTextConfig)
+				.setAlign("left");
+
+			const descriptionText = getCurrentScene().add
+				.rexBBCodeText(
+					800,
+					300 + 60,
+					description)
+				.setFontSize(30)
+				.setAlign("left")
+				.setWrapMode(1)
+				.setFontFamily("Arimo");
+
+			cont.add([
+				titleText,
+				descriptionText
+			])
+
+			const row1 = io.Title1("Some units can react to enemy actions.")
+				.setPosition(c.MIDDLE_SCREEN_X, 600).setOrigin(0.5);
+			cont.add(row1);
+			const row2 = io.Title1("This unit reacts when any enemy uses Damage.")
+				.setPosition(c.MIDDLE_SCREEN_X, 650).setOrigin(0.5);
+			cont.add(row2);
+			const row3 = io.Title1("Then, it gives 2 permanent power to the ally to its right.")
+				.setPosition(c.MIDDLE_SCREEN_X, 700).setOrigin(0.5);
+			cont.add(row3);
+
+		}
+
+		anim();
+
+		return cont;
+	},
+	() => io.Container([
+		io.Title1("Those are the basics of Mana Battle!").setPosition(c.MIDDLE_SCREEN_X, 200).setOrigin(0.5),
+		io.Title1("There's still a lot to discover.").setPosition(c.MIDDLE_SCREEN_X, 250).setOrigin(0.5),
+		io.Title1("Try getting a Gold Victory, or see how far you can get in Infinite Mode 😀").setPosition(c.MIDDLE_SCREEN_X, 300).setOrigin(0.5),
+		io.Title1("Hope you have fun playing this game!").setPosition(c.MIDDLE_SCREEN_X, 350).setOrigin(0.5),
+	])
 ]
 
 const OVERLAY_ALPHA = 0.85;
@@ -459,7 +681,7 @@ export async function openTutorial(): Promise<void> {
 			prevButton.enable();
 		}
 
-		if (currentSlide === SLIDE_COUNT - 1) {
+		if (currentSlide === slides.length - 1) {
 			nextButton.disable();
 		} else {
 			nextButton.enable();
@@ -481,7 +703,7 @@ export async function openTutorial(): Promise<void> {
 		t("tutorial.next"),
 		vec2(c.SCREEN_WIDTH - 200, c.MIDDLE_SCREEN_Y),
 		() => {
-			if (currentSlide < SLIDE_COUNT - 1) {
+			if (currentSlide < slides.length - 1) {
 				currentSlide++;
 				updateSlide();
 			}
