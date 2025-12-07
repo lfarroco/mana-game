@@ -2,6 +2,7 @@ import en from './en.json';
 import es from './es.json';
 import pt from './pt.json';
 import jp from './jp.json';
+import cn from './cn.json';
 
 type Translations = Record<string, string>;
 
@@ -9,7 +10,8 @@ const locales: Record<string, Translations> = {
 	en,
 	es,
 	pt,
-	jp
+	jp,
+	cn
 };
 
 const STORAGE_KEY = 'selected_locale';
@@ -82,7 +84,8 @@ const localeNames: Record<string, string> = {
 	en: "English",
 	es: "Español",
 	pt: "Português",
-	jp: "日本語"
+	jp: "日本語",
+	cn: "中文"
 };
 
 export function getNativeName(locale: string): string {
