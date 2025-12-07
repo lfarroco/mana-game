@@ -24,7 +24,7 @@ const increasePowerOnType = (type: string) => () => ({
 	color: 0xff3333,
 	tooltip: [
 		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+10%[/color]",
-		`Drag to a unit of type [color=#e0e0e0] ${type}[/color] to apply`,
+		`Drag to a unit of type [color=#e0e0e0]${type}[/color] to apply`,
 	].join("\n"),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
@@ -117,39 +117,6 @@ export const orbsIndex: Record<
 		tooltip: "Upgrade a unit\nDrag to the unit to apply",
 		effect: (unit: Unit) => {
 			upgradeUnit(unit);
-			return true;
-		},
-	}),
-	add_haste: () => ({
-		id: "add_haste_self",
-		name: "Add Haste (self)",
-		color: 0x3399ff,
-		tooltip: "Add haste (self) to a unit\nDrag to the unit to apply",
-		effect: (unit: Unit) => {
-			unit.effects.push({
-				id: "haste",
-				duration: 1000,
-				targets: {
-					id: "self",
-				},
-			})
-			return true;
-		},
-	}),
-	add_slow: () => ({
-		id: "add_slow",
-		name: "Add Slow",
-		color: 0x3399ff,
-		tooltip: "Add slow to a unit\nDrag to the unit to apply",
-		effect: (unit: Unit) => {
-			unit.effects.push({
-				id: "slow",
-				duration: 1000,
-				targets: {
-					id: "random_enemy",
-					count: 1
-				},
-			})
 			return true;
 		},
 	}),
