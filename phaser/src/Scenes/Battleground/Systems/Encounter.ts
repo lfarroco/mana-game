@@ -167,7 +167,7 @@ export async function open() {
 		const y = 300 + index * 220;
 		const padding = 70;
 
-		const dimensions = size(450, 200);
+		const dimensions = size(550, 200);
 
 		const bg = io.Rectangle(
 			vec2(x, y),

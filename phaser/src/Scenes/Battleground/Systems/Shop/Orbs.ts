@@ -8,6 +8,7 @@ import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffe
 import { resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { getState } from "@Models/State";
+import { t } from "@i18n/i18n";
 
 export type OrbSpec = {
 	id: string;
@@ -20,12 +21,9 @@ export type OrbSpec = {
 
 const increasePowerOnType = (type: string) => () => ({
 	id: `increase_power_on_${type}`,
-	name: `Increase Power (${type})`,
+	name: t("shop.orbs.increasePower.name", { type }),
 	color: 0xff3333,
-	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+power[/color] [color=#ffd93d]+10%[/color]",
-		`Drag to a unit of type [color=#e0e0e0]${type}[/color] to apply`,
-	].join("\n"),
+	tooltip: t("shop.orbs.increasePower.tooltip", { type }),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -43,12 +41,9 @@ const increasePowerOnType = (type: string) => () => ({
 
 const increaseCriticalOnType = (type: string) => () => ({
 	id: `increase_critical_on_${type}`,
-	name: `Increase Critical (${type})`,
+	name: t("shop.orbs.increaseCritical.name", { type }),
 	color: 0xff3333,
-	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]+critical[/color] [color=#ffd93d]+10%[/color]",
-		`Drag to a unit of type [color=#e0e0e0] ${type}[/color] to apply`,
-	].join("\n"),
+	tooltip: t("shop.orbs.increaseCritical.tooltip", { type }),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -69,12 +64,9 @@ const increaseCriticalOnType = (type: string) => () => ({
 
 const decreaseCooldownOnType = (type: string) => () => ({
 	id: `decrease_cooldown_on_${type}`,
-	name: `Decrease Cooldown (${type})`,
+	name: t("shop.orbs.decreaseCooldown.name", { type }),
 	color: 0xff3333,
-	tooltip: [
-		"[color=#c0c0c0]Effect:[/color] [color=#ff8cc8]-cooldown[/color] [color=#ffd93d]10%[/color]",
-		`Drag to a unit of type [color=#e0e0e0] ${type}[/color] to apply`,
-	].join("\n"),
+	tooltip: t("shop.orbs.decreaseCooldown.tooltip", { type }),
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -112,9 +104,9 @@ export const orbsIndex: Record<
 	increase_critical_on_regen: increaseCriticalOnType("regen"),
 	upgrade_orb: () => ({
 		id: "upgrade_orb",
-		name: "Upgrade Orb",
+		name: t("shop.orbs.upgrade.name"),
 		color: 0x3399ff,
-		tooltip: "Upgrade a unit\nDrag to the unit to apply",
+		tooltip: t("shop.orbs.upgrade.tooltip"),
 		effect: (unit: Unit) => {
 			upgradeUnit(unit);
 			return true;
@@ -122,9 +114,9 @@ export const orbsIndex: Record<
 	}),
 	increase_core_max_life: () => ({
 		id: "increase_core_max_life",
-		name: "Increase Max Life",
+		name: t("shop.orbs.increaseMaxLife.name"),
 		color: 0x3399ff,
-		tooltip: "Increase the crystal's max life by 100\nDrag to the crystal to apply",
+		tooltip: t("shop.orbs.increaseMaxLife.tooltip"),
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			unit.maxLife = unit.maxLife + 100;
@@ -134,9 +126,9 @@ export const orbsIndex: Record<
 	}),
 	decrease_core_cooldown: () => ({
 		id: "decrease_core_cooldown",
-		name: "Decrease Cooldown",
+		name: t("shop.orbs.decreaseCoreCooldown.name"),
 		color: 0x3399ff,
-		tooltip: "Decrease the core's cooldown by 10% (min: 1s)\nDrag to the crystal to apply",
+		tooltip: t("shop.orbs.decreaseCoreCooldown.tooltip"),
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			const reduction = unit.cooldown * 0.1;
@@ -146,9 +138,9 @@ export const orbsIndex: Record<
 	}),
 	add_core_random_reaction: () => ({
 		id: "add_core_random_reaction",
-		name: "Add Random Reaction",
+		name: t("shop.orbs.addRandomReaction.name"),
 		color: 0x3399ff,
-		tooltip: "Add a random reaction to the crystal\nDrag to the crystal to apply",
+		tooltip: t("shop.orbs.addRandomReaction.tooltip"),
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			unit.reactions.push({
@@ -177,9 +169,9 @@ export const orbsIndex: Record<
 	}),
 	distribute_power_orb: () => ({
 		id: "distribute_power_orb",
-		name: "Power Distributor",
+		name: t("shop.orbs.distributePower.name"),
 		color: 0xffaa00,
-		tooltip: "Distribute 50% of this unit's power to row allies",
+		tooltip: t("shop.orbs.distributePower.tooltip"),
 		effect: (unit: Unit) => {
 			const targets = resolveTargets(unit, {
 				id: "distribute_power",
@@ -193,9 +185,9 @@ export const orbsIndex: Record<
 	}),
 	absorb_power_orb: () => ({
 		id: "absorb_power_orb",
-		name: "Power Absorber",
+		name: t("shop.orbs.absorbPower.name"),
 		color: 0xaa00ff,
-		tooltip: "Absorb 25% power from row allies",
+		tooltip: t("shop.orbs.absorbPower.tooltip"),
 		effect: (unit: Unit) => {
 			const targets = resolveTargets(unit, {
 				id: "absorb_power",
@@ -209,9 +201,9 @@ export const orbsIndex: Record<
 	}),
 	sacrifice_effect_orb: () => ({
 		id: "sacrifice_effect_orb",
-		name: "Dark Ritual",
+		name: t("shop.orbs.darkRitual.name"),
 		color: 0x550000,
-		tooltip: "Sacrifice a random effect/reaction to gain 10 Power",
+		tooltip: t("shop.orbs.darkRitual.tooltip"),
 		effect: (unit: Unit) => {
 			sacrificeEffect(unit);
 			return true;
@@ -224,4 +216,3 @@ export const orbsIndex: Record<
 	increase_power_on_charge: increasePowerOnType("charge"),
 	decrease_cooldown_on_charge: decreaseCooldownOnType("charge"),
 };
-
