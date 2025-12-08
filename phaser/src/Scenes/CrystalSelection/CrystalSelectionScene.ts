@@ -66,7 +66,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.add.rectangle(
 			constants.MIDDLE_SCREEN_X,
 			CARD_DISPLAY_Y + 90,
-			440,
+			550,
 			500,
 			0x000000,
 			0.8
