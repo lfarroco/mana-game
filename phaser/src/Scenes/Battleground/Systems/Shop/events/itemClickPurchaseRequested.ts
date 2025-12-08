@@ -8,6 +8,7 @@ import * as Board from "@Models/Board";
 import * as ShopUI from "../ShopPanel";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { getState } from "@Models/State";
+import { getName } from "@i18n/i18n";
 
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -21,7 +22,7 @@ export async function itemClickPurchaseRequested(
 			Geometry.vec2(dragStartX, dragStartY)
 		);
 
-		uiEvents.onPurchaseFailed(shopUnitData.name, reason, cost);
+		uiEvents.onPurchaseFailed(getName(shopUnitData), reason, cost);
 	};
 
 	const existingUnit = getState().gameData.player.units.find(

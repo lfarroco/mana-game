@@ -3,7 +3,7 @@ import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
 const dummy: CardDefinition = {
 	id: "dummy_card",
-	name: "Dummyy",
+	name_en: "Dummyy",
 	pic: "boss_andromeda",
 	power: 10,
 	cooldown: 2300,
@@ -48,7 +48,12 @@ export type CardCollection = {
 export type CardDefinition = {
 	id: string;
 	pic: string;
-	name: string;
+	name_en: string;
+	name_es?: string;
+	name_pt?: string;
+	name_cn?: string;
+	name_jp?: string;
+	name_ru?: string;
 	description: string;
 	power?: number;
 	cooldown: number;

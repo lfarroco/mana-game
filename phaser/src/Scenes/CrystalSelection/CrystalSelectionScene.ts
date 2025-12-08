@@ -8,7 +8,7 @@ import { vec2 } from "@Models/Geometry";
 import { cloudsBg } from "../Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { t } from "@i18n/i18n";
+import { getName, t } from "@i18n/i18n";
 
 // Layout constants
 const CARD_DISPLAY_Y = 380;
@@ -88,7 +88,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		this.crystalName = io.Text(crystal.name, {
+		this.crystalName = io.Text(getName(crystal), {
 			...constants.titleTextConfig,
 			fontSize: "36px",
 		});
@@ -176,7 +176,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 		this.crystalSprite.setTexture(crystal.pic);
 
-		this.crystalName.setText(crystal.name);
+		this.crystalName.setText(getName(crystal));
 		io.Centralize(this.crystalName);
 
 		const description = this.buildCrystalDescription(crystal);

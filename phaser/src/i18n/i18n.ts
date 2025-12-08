@@ -4,6 +4,8 @@ import pt from './pt.json';
 import jp from './jp.json';
 import cn from './cn.json';
 import ru from './ru.json';
+import { Unit } from '@Models/Entities/Unit';
+import { CardDefinition } from '@Models/Entities/Card';
 
 type Translations = Record<string, string>;
 
@@ -71,6 +73,13 @@ export function t(key: string, params?: Record<string, string>): string {
 		});
 	}
 	return text;
+}
+
+export function getName(u: Unit | CardDefinition): string {
+	const localeKey = `name_${currentLocale}`;
+
+	//@ts-expect-error using a dynamic key for the unit name
+	return u[localeKey] || u['name_en'] || 'Unknown';
 }
 
 export function getCurrentLocale(): string {

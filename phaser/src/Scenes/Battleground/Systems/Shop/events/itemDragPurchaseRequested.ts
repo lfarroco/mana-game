@@ -7,6 +7,7 @@ import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as ShopUI from "../ShopPanel";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import { getName } from "@i18n/i18n";
 
 export async function itemDragPurchaseRequested(
 	shopUnitData: Unit,
@@ -32,14 +33,14 @@ export async function itemDragPurchaseRequested(
 
 	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(shopUnitData.name, "PARTY_FULL");
+		uiEvents.onPurchaseFailed(getName(shopUnitData), "PARTY_FULL");
 		return;
 	}
 
 	const occupier = getUnitAt(getState().gameData.player.units)(targetTile);
 	if (occupier) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(shopUnitData.name, "SLOT_OCCUPIED");
+		uiEvents.onPurchaseFailed(getName(shopUnitData), "SLOT_OCCUPIED");
 		return;
 	}
 

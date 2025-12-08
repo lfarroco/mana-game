@@ -1,3 +1,4 @@
+import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 
@@ -25,7 +26,7 @@ export function initialize(): void {
 	for (const unit of allUnits) {
 		unitStats.set(unit.id, {
 			unitId: unit.id,
-			unitName: unit.name,
+			unitName: getName(unit),
 			forceId: unit.force,
 			damageDealt: 0,
 			reflected: 0,
