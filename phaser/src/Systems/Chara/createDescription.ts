@@ -1,10 +1,10 @@
 import { Chara, getUnit } from "./Chara";
-import { t } from "../../i18n/i18n";
+import { getName, t } from "../../i18n/i18n";
 import { buildEffectBlock, getReactionDescription } from "./CharaTooltip";
 
 export function createDescription(chara: Chara) {
 	const unit = getUnit(chara);
-	const title = unit.name;
+	const title = getName(unit);
 
 	const effectBlocks = unit.effects
 		.map((e) => buildEffectBlock(e, unit.power))

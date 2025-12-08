@@ -10,6 +10,7 @@ import { saveGameData } from "../../../Game/effects/saveGameData";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
+import { getName } from "@i18n/i18n";
 
 export async function handleCombatEndedDefeat(): Promise<void> {
 	const state = getState();
@@ -48,8 +49,8 @@ export function handleCombatEnded(combatResult: string) {
 	const state = getState();
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 	for (const unit of playerUnits) {
-		StatsStore.recordUnitUsage(unit.name);
-		StatsStore.checkMostPowerfulUnit(unit.name, unit.power);
+		StatsStore.recordUnitUsage(getName(unit));
+		StatsStore.checkMostPowerfulUnit(getName(unit), unit.power);
 	}
 	StatsStore.save();
 

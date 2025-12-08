@@ -5,7 +5,12 @@ import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
 export type Unit = {
 	id: string;
 	cardId: string;
-	name: string;
+	name_en: string;
+	name_es?: string;
+	name_pt?: string;
+	name_cn?: string;
+	name_jp?: string;
+	name_ru?: string;
 	pic: string;
 	force: string;
 	position: Vec2;
@@ -44,8 +49,6 @@ export const makeUnit = (force: string, cardId: string, position = { x: 0, y: 0 
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
 };
 
-
-
 export function createUnitFromCardSpec(
 	force: string,
 	cardDef: CardDefinition,
@@ -58,7 +61,12 @@ export function createUnitFromCardSpec(
 	return {
 		id,
 		cardId: cardDef.id,
-		name: cardDef.name,
+		name_en: cardDef.name_en,
+		name_es: cardDef.name_es,
+		name_pt: cardDef.name_pt,
+		name_cn: cardDef.name_cn,
+		name_jp: cardDef.name_jp,
+		name_ru: cardDef.name_ru,
 		pic: cardDef.pic,
 		force,
 		position,

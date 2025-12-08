@@ -7,7 +7,7 @@ import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { createPanel } from "@Components/Panel";
-import { t } from "@i18n/i18n";
+import { getName, t } from "@i18n/i18n";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -114,7 +114,7 @@ async function createStatsPanel(
 
 		sprite.on('pointerover', () => {
 			import('@Components/Tooltip').then(({ renderTooltip }) => {
-				const title = unit.name;
+				const title = getName(unit);
 
 				const effectBlocks = unit.effects
 					.map((e) => CharaTooltip.buildEffectBlock(e, unit.power))
