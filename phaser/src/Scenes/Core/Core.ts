@@ -79,9 +79,6 @@ export default class Core extends Phaser.Scene {
 
 		this.load.image(images.logo);
 
-		// Hero assets are now lazy-loaded in Chara.ts
-
-
 		this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
 
 		this.load.audio("sfx_notification", "assets/audio/notification.m4a");

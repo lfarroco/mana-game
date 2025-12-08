@@ -301,6 +301,10 @@ const slides = [
 							repeat: -1,
 							delay: 1000,
 							callback: () => {
+								if (!c.active) {
+									regen.destroy();
+									return;
+								}
 								popText({
 									x: chara2.x,
 									y: chara2.y,
@@ -357,10 +361,14 @@ const slides = [
 					chara2,
 					() => {
 
-						const regen = getCurrentScene().time.addEvent({
+						const poisonTick = getCurrentScene().time.addEvent({
 							repeat: -1,
 							delay: 1000,
 							callback: () => {
+								if (!c.active) {
+									poisonTick.destroy();
+									return;
+								}
 								popText({
 									x: chara2.x,
 									y: chara2.y,
@@ -370,7 +378,7 @@ const slides = [
 							}
 						});
 						chara.on("destroy", () => {
-							regen.destroy();
+							poisonTick.destroy();
 						});
 
 					}
