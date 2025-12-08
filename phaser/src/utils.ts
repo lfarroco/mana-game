@@ -8,6 +8,14 @@ export function pickOne<a>(arr: a[]): a {
 	return item;
 }
 
+export function pickOneUnique<a>(arr: a[], exclude: a[]): a {
+	const filtered = arr.filter((item) => !exclude.includes(item));
+	if (filtered.length === 0) {
+		throw new Error("No unique items available to pick");
+	}
+	return pickOne(filtered);
+}
+
 export function randomBetween(min: number, max: number): number {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
