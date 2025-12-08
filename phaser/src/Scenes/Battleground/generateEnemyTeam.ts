@@ -2,7 +2,7 @@ import { CardDefinition, getCores, getNonCores } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { pickOne } from "../../utils";
+import { pickOne, pickOneUnique } from "../../utils";
 import { upgradeUnitData } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 
@@ -69,6 +69,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const upgradeCount = calculateUpgradesForRound(round);
 
 	const units: Unit[] = [];
+	const pickedCards: CardDefinition[] = [];
 	const occupiedPositions = new Set<string>();
 
 	const coreCard = pickOne(getCores());
@@ -78,7 +79,8 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	units.push(coreUnit);
 
 	for (let i = 1; i < unitCount; i++) {
-		const card = pickOne(getNonCores());
+		const card = pickOneUnique(getNonCores(), pickedCards);
+		pickedCards.push(card);
 		const position = getRandomEmptyPosition(occupiedPositions);
 		if (!position) {
 			break;
