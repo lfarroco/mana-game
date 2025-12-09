@@ -67,7 +67,7 @@ export function openStats(): void {
 		{ label: t("stats.mostPowerful"), value: mostPowerfulValue, color: "#ff6b6b" },
 	];
 
-	const startY = c.MIDDLE_SCREEN_Y - 200;
+	const startY = c.MIDDLE_SCREEN_Y - 170;
 	const rowSpacing = 50;
 	const labelX = c.MIDDLE_SCREEN_X - 20;
 	const valueX = c.MIDDLE_SCREEN_X + 20;
