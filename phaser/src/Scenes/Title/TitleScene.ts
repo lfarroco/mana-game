@@ -12,15 +12,12 @@ import { logo } from "./components/logo";
 import { howToPlay } from "./components/howToPlay";
 import * as io from "@PhaserIO";
 import { languageButton } from "./components/languageButton";
+import { linksButton } from "./components/linksButton";
 
-export let titleScene: TitleScene;
 
 export default class TitleScene extends Phaser.Scene {
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
-		titleScene = this;
-		//@ts-ignore
-		window.titleScene = this;
 	}
 
 	create() {
@@ -37,6 +34,7 @@ export default class TitleScene extends Phaser.Scene {
 			newRunButton(600),
 			optionsButton(700),
 			goFullscreenButton(800),
+			linksButton(900),
 			languageButton()
 		];
 
@@ -57,7 +55,7 @@ export default class TitleScene extends Phaser.Scene {
 		// setTimeout(() => {
 		// 	//@ts-ignore
 		// 	PhaserGUIAction(this);
-		// }, 500)
+		// }, 500)			
 
 	}
 }

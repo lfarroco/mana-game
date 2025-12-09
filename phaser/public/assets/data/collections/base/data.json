@@ -4,7 +4,7 @@
 	"cards": [
 		{
 			"id": "mana_crystal",
-			"name": "Mana Crystal",
+			"name_en": "Mana Crystal",
 			"name_es": "Cristal de Mana",
 			"name_pt": "Cristal de Mana",
 			"name_cn": "魔法水晶",
@@ -166,7 +166,7 @@
 		},
 		{
 			"id": "purple_crystal",
-			"name": "Purple Crystal",
+			"name_en": "Purple Crystal",
 			"name_es": "Cristal Púrpura",
 			"name_pt": "Cristal Púrpura",
 			"name_cn": "紫色水晶",
