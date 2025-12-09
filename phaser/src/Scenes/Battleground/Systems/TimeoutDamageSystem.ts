@@ -5,18 +5,16 @@ import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-const timeoutDamageStartTime = 20000;
+const timeoutDamageStartTime = 40000;
 const timeoutDamageInterval = 1000;
 
 let combatElapsedTime = 0;
 let timeSinceLastTick = 0;
-let timeSinceLastStarSpawn = 0;
 let isActive = false;
 
 export function initializeTimeoutDamageSystem(): void {
 	combatElapsedTime = 0;
 	timeSinceLastTick = 0;
-	timeSinceLastStarSpawn = 0;
 	isActive = true;
 }
 
@@ -60,7 +58,6 @@ export function updateTimeoutDamageSystem(
 
 	combatElapsedTime += delta;
 	timeSinceLastTick += delta;
-	timeSinceLastStarSpawn += delta;
 
 	if (combatElapsedTime < timeoutDamageStartTime) return;
 
