@@ -246,9 +246,9 @@ function processReactions(triggeringUnit: Unit, effect: Effect) {
 						case "enemies":
 							return !sameForce(u, triggeringUnit);
 						case "row_allies":
-							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
-						case "column_allies":
 							return sameForce(u, triggeringUnit) && u.position.y === triggeringUnit.position.y;
+						case "column_allies":
+							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
 						case "top_ally":
 							return sameForce(u, triggeringUnit) && triggeringUnit.position.y - 1 === u.position.y;
 						case "bottom_ally":
