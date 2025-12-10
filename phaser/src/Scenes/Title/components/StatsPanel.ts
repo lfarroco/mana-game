@@ -1,6 +1,3 @@
-/**
- * StatsPanel - Displays player lifetime statistics
- */
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
@@ -15,9 +12,6 @@ const PANEL_HEIGHT = 600;
 
 let isOpen = false;
 
-/**
- * Opens the stats panel overlay
- */
 export function openStats(): void {
 	if (isOpen) return;
 	isOpen = true;
@@ -25,13 +19,11 @@ export function openStats(): void {
 	const scene = getCurrentScene();
 	const stats = getStats();
 
-	// Get unit display names (now stored directly)
 	const mostUsedName = getMostUsedUnit() || "-";
 	const mostPowerfulValue = stats.mostPowerfulUnit
 		? `${stats.mostPowerfulUnit.name} (${stats.mostPowerfulUnit.power})`
 		: "-";
 
-	// Create dark overlay background
 	const overlay = scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
@@ -40,9 +32,8 @@ export function openStats(): void {
 		0x000000,
 		OVERLAY_ALPHA
 	);
-	overlay.setInteractive(); // Block clicks to elements behind
+	overlay.setInteractive();
 
-	// Create panel background
 	const panelBg = io.BorderedRoundRect(
 		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
 		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
@@ -51,12 +42,10 @@ export function openStats(): void {
 		0.95
 	);
 
-	// Create title
 	const title = io.Title1(t("stats.title"));
 	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
 	io.Centralize(title);
 
-	// Stats display data
 	const statsData = [
 		{ label: t("stats.totalRuns"), value: stats.totalRuns.toString() },
 		{ label: t("stats.goldVictories"), value: stats.goldVictories.toString(), color: "#FFD700" },
@@ -97,7 +86,6 @@ export function openStats(): void {
 		statTexts.push(valueText);
 	});
 
-	// Create close button
 	const closeButton = createUIButton(
 		t("stats.close"),
 		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
@@ -107,7 +95,6 @@ export function openStats(): void {
 		}
 	);
 
-	// Create container for all elements
 	const container = io.Container([
 		overlay,
 		panelBg,
