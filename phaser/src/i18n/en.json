@@ -240,5 +240,17 @@
 	"shop.orbs.absorbPower.name": "Power Absorber",
 	"shop.orbs.absorbPower.tooltip": "Absorb 25% power from row allies",
 	"shop.orbs.darkRitual.name": "Dark Ritual",
-	"shop.orbs.darkRitual.tooltip": "Sacrifice a random effect/reaction to gain 10 Power"
+	"shop.orbs.darkRitual.tooltip": "Sacrifice a random effect/reaction to gain 10 Power",
+	"forceStats.life.title": "Life",
+	"forceStats.life.description": "Your current health.",
+	"forceStats.shield.title": "Shield",
+	"forceStats.shield.description": "Blocks incoming damage.",
+	"forceStats.regen.title": "Regen",
+	"forceStats.regen.description": "Health restored per second.",
+	"forceStats.poison.title": "Poison",
+	"forceStats.poison.description": "Damage taken per second.",
+	"forceStats.healthBar.title": "Health Bar",
+	"forceStats.healthBar.description": "Your current health.",
+	"forceStats.shieldBar.title": "Shield Bar",
+	"forceStats.shieldBar.description": "Your current shield."
 }

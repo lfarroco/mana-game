@@ -1,5 +1,7 @@
 import { createChip, getChip, updateChipText } from "@Components/Chip";
+import { hideTooltip, renderTooltip } from "@Components/Tooltip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
+import * as i18n from "@i18n/i18n";
 import { getCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle } from "@PhaserIO";
 import { getPoisonRate } from "./Systems/PoisonDamageSystem";
@@ -18,12 +20,32 @@ export function createForceStats(force: string) {
 	const y = 1000;
 
 	const lifeDisplay = createChip(`life-display/${force}`, { x, y }, 0x29a1b9ff, "0", 100);
+	lifeDisplay[0].setInteractive().on("pointerover", () => {
+		renderTooltip(x, y - 250, i18n.t("forceStats.life.title"), i18n.t("forceStats.life.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	const shieldDisplay = createChip(`shield-display/${force}`, { x: x + 150, y }, 0xffff00, "0", 100);
+	shieldDisplay[0].setInteractive().on("pointerover", () => {
+		renderTooltip(x + 150, y - 250, i18n.t("forceStats.shield.title"), i18n.t("forceStats.shield.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	const regenDisplay = createChip(`regen-display/${force}`, { x: x + 300, y }, 0x337a31, "0", 100);
+	regenDisplay[0].setInteractive().on("pointerover", () => {
+		renderTooltip(x + 300, y - 250, i18n.t("forceStats.regen.title"), i18n.t("forceStats.regen.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	const poisonDisplay = createChip(`poison-display/${force}`, { x: x + 450, y }, 0x9932cc, "0", 100);
+	poisonDisplay[0].setInteractive().on("pointerover", () => {
+		renderTooltip(x + 450, y - 250, i18n.t("forceStats.poison.title"), i18n.t("forceStats.poison.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	const barWidth = 600;
 	const barHeight = 20;
@@ -32,9 +54,19 @@ export function createForceStats(force: string) {
 
 	const bgBar = Rectangle(healthBarPos, { width: barWidth, height: barHeight }, 0x000000, 0.5);
 	const healthBar = Rectangle(healthBarPos, { width: barWidth, height: barHeight }, 0x29a1b9ff, 1);
+	healthBar.setInteractive().on("pointerover", () => {
+		renderTooltip(x + 225, y - 250, i18n.t("forceStats.healthBar.title"), i18n.t("forceStats.healthBar.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	const bgShieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0x000000, 0.5);
 	const shieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0xffff00, 1);
+	shieldBar.setInteractive().on("pointerover", () => {
+		renderTooltip(x + 225, y - 250, i18n.t("forceStats.shieldBar.title"), i18n.t("forceStats.shieldBar.description"));
+	}).on("pointerout", () => {
+		hideTooltip();
+	});
 
 	healthBars.set(force, healthBar);
 	shieldBars.set(force, shieldBar);
