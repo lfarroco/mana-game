@@ -28,7 +28,7 @@ export function createChip(id: string, position: Vec2, color: number, value: str
 		index.delete(id);
 	});
 
-	return [bg, text];
+	return { bg, text };
 }
 
 export function updateChipText(id: string, value: string) {
