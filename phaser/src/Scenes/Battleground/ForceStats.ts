@@ -20,28 +20,28 @@ export function createForceStats(force: string) {
 	const y = 1000;
 
 	const lifeDisplay = createChip(`life-display/${force}`, { x, y }, 0x29a1b9ff, "0", 100);
-	lifeDisplay[0].setInteractive().on("pointerover", () => {
+	lifeDisplay.text.setInteractive().on("pointerover", () => {
 		renderTooltip(x, y - 250, i18n.t("forceStats.life.title"), i18n.t("forceStats.life.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const shieldDisplay = createChip(`shield-display/${force}`, { x: x + 150, y }, 0xffff00, "0", 100);
-	shieldDisplay[0].setInteractive().on("pointerover", () => {
+	shieldDisplay.text.setInteractive().on("pointerover", () => {
 		renderTooltip(x + 150, y - 250, i18n.t("forceStats.shield.title"), i18n.t("forceStats.shield.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const regenDisplay = createChip(`regen-display/${force}`, { x: x + 300, y }, 0x337a31, "0", 100);
-	regenDisplay[0].setInteractive().on("pointerover", () => {
+	regenDisplay.text.setInteractive().on("pointerover", () => {
 		renderTooltip(x + 300, y - 250, i18n.t("forceStats.regen.title"), i18n.t("forceStats.regen.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const poisonDisplay = createChip(`poison-display/${force}`, { x: x + 450, y }, 0x9932cc, "0", 100);
-	poisonDisplay[0].setInteractive().on("pointerover", () => {
+	poisonDisplay.text.setInteractive().on("pointerover", () => {
 		renderTooltip(x + 450, y - 250, i18n.t("forceStats.poison.title"), i18n.t("forceStats.poison.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
@@ -75,10 +75,14 @@ export function createForceStats(force: string) {
 	OnceDestroyed(shieldBar, () => shieldBars.delete(force));
 
 	const elements = [
-		...lifeDisplay,
-		...shieldDisplay,
-		...regenDisplay,
-		...poisonDisplay,
+		lifeDisplay.bg,
+		lifeDisplay.text,
+		shieldDisplay.bg,
+		shieldDisplay.text,
+		regenDisplay.bg,
+		regenDisplay.text,
+		poisonDisplay.bg,
+		poisonDisplay.text,
 		bgBar,
 		healthBar,
 		bgShieldBar,
