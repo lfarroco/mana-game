@@ -3,11 +3,12 @@ import { hideTooltip, renderTooltip } from "@Components/Tooltip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
 import { getCore } from "@Models/Entities/Card";
-import { Container, OnceDestroyed, Rectangle } from "@PhaserIO";
+import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
 import { getPoisonRate } from "./Systems/PoisonDamageSystem";
 import { getRegenRate } from "./Systems/RegenSystem";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "utils";
+import Phaser from "phaser";
 
 let playerStats: Phaser.GameObjects.Container | null = null;
 let cpuStats: Phaser.GameObjects.Container | null = null;
@@ -54,7 +55,7 @@ export function createForceStats(force: string) {
 
 	const bgBar = Rectangle(healthBarPos, { width: barWidth, height: barHeight }, 0x000000, 0.5);
 	const healthBar = Rectangle(healthBarPos, { width: barWidth, height: barHeight }, 0x29a1b9ff, 1);
-	healthBar.setInteractive().on("pointerover", () => {
+	healthBar.setInteractive(Rect({ x: 0, y: 0 }, { width: barWidth, height: barHeight }), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 225, y - 250, i18n.t("forceStats.healthBar.title"), i18n.t("forceStats.healthBar.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
@@ -62,7 +63,7 @@ export function createForceStats(force: string) {
 
 	const bgShieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0x000000, 0.5);
 	const shieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0xffff00, 1);
-	shieldBar.setInteractive().on("pointerover", () => {
+	shieldBar.setInteractive(Rect({ x: 0, y: 0 }, { width: barWidth, height: barHeight }), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 225, y - 250, i18n.t("forceStats.shieldBar.title"), i18n.t("forceStats.shieldBar.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
