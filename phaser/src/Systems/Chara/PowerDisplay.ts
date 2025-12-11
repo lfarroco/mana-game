@@ -38,7 +38,7 @@ export function create(unit: Unit, container: Chara) {
 
 	const chip = createChip(unit.id, powerDisplayPosition, bgColor, displayedPower.toString());
 
-	container.add([chip.bg, chip.text]);
+	container.add(chip.container);
 }
 
 export function updatePowerDisplay(id: string) {

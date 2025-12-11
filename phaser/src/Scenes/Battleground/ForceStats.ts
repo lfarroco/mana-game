@@ -76,14 +76,10 @@ export function createForceStats(force: string) {
 	OnceDestroyed(shieldBar, () => shieldBars.delete(force));
 
 	const elements = [
-		lifeDisplay.bg,
-		lifeDisplay.text,
-		shieldDisplay.bg,
-		shieldDisplay.text,
-		regenDisplay.bg,
-		regenDisplay.text,
-		poisonDisplay.bg,
-		poisonDisplay.text,
+		lifeDisplay.container,
+		shieldDisplay.container,
+		regenDisplay.container,
+		poisonDisplay.container,
 		bgBar,
 		healthBar,
 		bgShieldBar,
