@@ -2608,6 +2608,213 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "toxicologist",
+			"name_en": "Toxicologist",
+			"name_es": "Toxicólogo",
+			"name_pt": "Toxicólogo",
+			"name_cn": "毒理学家",
+			"name_jp": "トキシコロジスト",
+			"name_ru": "Токсиколог",
+			"pic": "neutral_gnash",
+			"power": 40,
+			"rank": 3,
+			"cooldown": 6800,
+			"effects": [
+				{
+					"id": "poison"
+				},
+				{
+					"id": "slow",
+					"duration": 2000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 2
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "poison",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "expedition_leader",
+			"name_en": "Expedition Leader",
+			"pic": "neutral_goldenhammer",
+			"power": 30,
+			"rank": 3,
+			"cooldown": 7300,
+			"effects": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "increase_power",
+					"amount": 10,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "heal",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"targets": {
+								"id": "column_allies"
+							}
+						},
+						{
+							"id": "increase_power",
+							"amount": 2,
+							"permanent": true,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "vanguard",
+			"name_en": "Vanguard",
+			"name_es": "Vanguardia",
+			"name_pt": "Vanguarda",
+			"name_cn": "先锋",
+			"name_jp": "ヴァンガード",
+			"name_ru": "Авангард",
+			"pic": "neutral_gauntletmaster",
+			"power": 40,
+			"rank": 3,
+			"cooldown": 4300,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "haste",
+					"duration": 2000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "veteran_paladin",
+			"name_en": "Veteran Paladin",
+			"name_es": "Paladín Veterano",
+			"name_pt": "Paladino Veterano",
+			"name_cn": "老练圣骑士",
+			"name_jp": "ベテランパラディン",
+			"name_ru": "Ветеран Паладин",
+			"pic": "neutral_goldenjusticar",
+			"power": 40,
+			"rank": 3,
+			"cooldown": 5400,
+			"effects": [
+				{
+					"id": "regen"
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "heal"
+						},
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "webert_the_old",
+			"name_en": "Webert the Old",
+			"name_es": "Webert el Viejo",
+			"name_pt": "Webert, o Velho",
+			"name_cn": "老韦伯特",
+			"name_jp": "老いたウェバート",
+			"name_ru": "Веберт Старый",
+			"pic": "neutral_goldenmantella",
+			"power": 40,
+			"rank": 3,
+			"cooldown": 7400,
+			"effects": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "increase_power",
+					"amount": 20,
+					"targets": {
+						"id": "row_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "poison"
+						},
+						{
+							"id": "increase_power",
+							"amount": 10,
+							"permanent": true,
+							"targets": {
+								"id": "row_allies"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
