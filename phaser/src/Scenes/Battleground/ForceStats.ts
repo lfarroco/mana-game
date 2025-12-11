@@ -21,28 +21,28 @@ export function createForceStats(force: string) {
 	const y = 1000;
 
 	const lifeDisplay = createChip(`life-display/${force}`, { x, y }, 0x29a1b9ff, "0", 100);
-	lifeDisplay.text.setInteractive().on("pointerover", () => {
+	lifeDisplay.bg.setInteractive(Rect({ x: 0, y: 0 }, lifeDisplay.size), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x, y - 250, i18n.t("forceStats.life.title"), i18n.t("forceStats.life.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const shieldDisplay = createChip(`shield-display/${force}`, { x: x + 150, y }, 0xffff00, "0", 100);
-	shieldDisplay.text.setInteractive().on("pointerover", () => {
+	shieldDisplay.bg.setInteractive(Rect({ x: 0, y: 0 }, shieldDisplay.size), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 150, y - 250, i18n.t("forceStats.shield.title"), i18n.t("forceStats.shield.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const regenDisplay = createChip(`regen-display/${force}`, { x: x + 300, y }, 0x337a31, "0", 100);
-	regenDisplay.text.setInteractive().on("pointerover", () => {
+	regenDisplay.bg.setInteractive(Rect({ x: 0, y: 0 }, regenDisplay.size), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 300, y - 250, i18n.t("forceStats.regen.title"), i18n.t("forceStats.regen.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
 	});
 
 	const poisonDisplay = createChip(`poison-display/${force}`, { x: x + 450, y }, 0x9932cc, "0", 100);
-	poisonDisplay.text.setInteractive().on("pointerover", () => {
+	poisonDisplay.bg.setInteractive(Rect({ x: 0, y: 0 }, poisonDisplay.size), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 450, y - 250, i18n.t("forceStats.poison.title"), i18n.t("forceStats.poison.description"));
 	}).on("pointerout", () => {
 		hideTooltip();
