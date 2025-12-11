@@ -13,18 +13,18 @@
 			"pic": "blue-stone",
 			"life": 500,
 			"power": 10,
-			"cooldown": 7200,
+			"cooldown": 5200,
 			"isCore": true,
 			"effects": [
+				{
+					"id": "regen"
+				},
 				{
 					"id": "increase_power",
 					"amount": 5,
 					"targets": {
 						"id": "column_allies"
 					}
-				},
-				{
-					"id": "regen"
 				}
 			],
 			"reactions": [
@@ -54,7 +54,7 @@
 			"pic": "red-stone",
 			"life": 500,
 			"power": 15,
-			"cooldown": 3000,
+			"cooldown": 5200,
 			"isCore": true,
 			"effects": [
 				{
@@ -66,16 +66,23 @@
 					"targets": {
 						"id": "column_allies"
 					}
-				},
-				{
-					"id": "increase_power",
-					"amount": 2,
-					"targets": {
-						"id": "column_allies"
-					}
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "all",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "protective_crystal",
@@ -88,31 +95,31 @@
 			"pic": "yellow-stone",
 			"life": 600,
 			"power": 10,
-			"cooldown": 3500,
+			"cooldown": 4500,
 			"isCore": true,
 			"reflect": 15,
 			"effects": [
 				{
+					"id": "shield"
+				},
+				{
 					"id": "increase_power",
-					"amount": 1,
+					"amount": 5,
 					"permanent": true,
 					"targets": {
 						"id": "random_ally",
 						"count": 1
 					}
-				},
-				{
-					"id": "shield"
 				}
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 3,
+							"amount": 5,
 							"targets": {
 								"id": "trigger"
 							}
@@ -132,7 +139,7 @@
 			"pic": "green-stone",
 			"life": 500,
 			"power": 15,
-			"cooldown": 4000,
+			"cooldown": 5000,
 			"isCore": true,
 			"effects": [
 				{
@@ -149,7 +156,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
@@ -196,11 +203,11 @@
 					"effectId": "slow",
 					"effects": [
 						{
-							"id": "haste",
-							"duration": 1000,
+							"id": "increase_power",
+							"amount": 5,
+							"permanent": true,
 							"targets": {
-								"id": "random_ally",
-								"count": 1
+								"id": "trigger"
 							}
 						}
 					]
@@ -219,6 +226,9 @@
 			"power": 20,
 			"cooldown": 3200,
 			"effects": [
+				{
+					"id": "poison"
+				},
 				{
 					"id": "slow",
 					"duration": 1000,
@@ -262,7 +272,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "column_allies",
 					"effectId": "damage",
 					"effects": [
 						{
