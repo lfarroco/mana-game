@@ -37,7 +37,9 @@ export default class Core extends Phaser.Scene {
 		this.load.image("ui/toxic", "assets/ui/toxic.png");
 		this.load.image("ui/trial_circuit", "assets/ui/trial_circuit.png");
 		this.load.image("ui/upgrade_unit", "assets/ui/upgrade_unit.png");
-		this.load.image("ui/youtube_icon", "assets/ui/youtube_icon.png");
+
+		this.load.image("ui/silver_medal", "assets/ui/silver_medal.png");
+		this.load.image("ui/gold_medal", "assets/ui/gold_medal.png");
 
 		//sfx_ui_error.m4a
 		this.load.audio("sfx_ui_error", "assets/audio/sfx_ui_error.m4a");
