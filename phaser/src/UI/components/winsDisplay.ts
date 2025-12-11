@@ -2,6 +2,9 @@ import { vec2, size } from "@Models/Geometry";
 import { getState, getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { images } from "../../assets";
+import { renderTooltip, hideTooltip } from "@Components/Tooltip";
+import * as i18n from "@i18n/i18n";
+import Phaser from "phaser";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;
@@ -31,6 +34,20 @@ export function create() {
 
 	mainContainer = io.Container([...rects, ...indicators]);
 	io.SetPosition(mainContainer, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
+
+	const containerWidth = MAX_WINS * RECT_WIDTH + (MAX_WINS - 1) * GAP;
+	mainContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, containerWidth, RECT_HEIGHT), Phaser.Geom.Rectangle.Contains)
+		.on("pointerover", () => {
+			renderTooltip(
+				WINS_DISPLAY_X + 100,
+				WINS_DISPLAY_Y + 200,
+				i18n.t("winsDisplay.title"),
+				i18n.t("winsDisplay.description")
+			);
+		})
+		.on("pointerout", () => {
+			hideTooltip();
+		});
 
 	return mainContainer;
 }

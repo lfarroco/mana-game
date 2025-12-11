@@ -252,5 +252,9 @@
 	"forceStats.healthBar.title": "Health Bar",
 	"forceStats.healthBar.description": "Your current health.",
 	"forceStats.shieldBar.title": "Shield Bar",
-	"forceStats.shieldBar.description": "Your current shield."
+	"forceStats.shieldBar.description": "Your current shield.",
+	"winsDisplay.title": "Wins",
+	"winsDisplay.description": "You get a bonus for 5, 8 and 10 wins.",
+	"livesDisplay.title": "Lives",
+	"livesDisplay.description": "You lose a life when you lose a match. If you run out of lives, the run is over."
 }
