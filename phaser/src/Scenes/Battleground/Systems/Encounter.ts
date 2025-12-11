@@ -156,7 +156,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 	},
 	{
 		name: t("encounters.gold_shop"),
-		pic: "ui/gold_shop",
+		pic: "ui/gold_medal",
 		description: t("encounters.gold_shop_desc"),
 		minRound: MIN_ROUND_FOR_GOLD_SHOP,
 		onClick: rankHeroShopCallback(container, 3)
