@@ -1519,12 +1519,12 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "left_ally",
 					"effectId": "all",
 					"effects": [
 						{
 							"id": "increase_critical",
-							"amount": 5,
+							"amount": 10,
 							"targets": {
 								"id": "right_ally"
 							}
