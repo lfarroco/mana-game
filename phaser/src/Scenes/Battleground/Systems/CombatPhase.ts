@@ -8,7 +8,7 @@ import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
-import { createUIButton } from "../../../Components/UIButton";
+import { createUIButton, Button } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { createForceStats } from "../ForceStats";
 import { runCombatIO } from "../RunCombatIO";
@@ -37,16 +37,19 @@ export async function transitionToCombatPhase(): Promise<void> {
 		state.gameData.player.lives
 	);
 
-	showReadyButton({ enemies });
+	const readyButton = showReadyButton({ enemies });
+	readyButton.disable();
 
 	Board.setEnemyBoardVisible(true);
 	Chara.clearAll();
 	// Important: summon the exact Unit instances stored in battleData.units
 	// so display components (e.g., charge bars) observe the same objects updated during combat.
 	const combatUnits = state.battleData.units;
-	combatUnits.forEach((u) => {
-		Chara.summon(u, false);
-	});
+	const summonPromises = combatUnits.map((u) => Chara.summon(u, false));
+
+	await Promise.all(summonPromises);
+
+	readyButton.enable();
 
 	createForceStats(constants.FORCE_ID_PLAYER);
 	createForceStats(constants.FORCE_ID_CPU);
@@ -67,7 +70,7 @@ export async function setupBattle(): Promise<{ enemies: Unit[] }> {
 	return { enemies };
 }
 
-export async function showReadyButton(payload: { enemies: Unit[] }): Promise<void> {
+export function showReadyButton(payload: { enemies: Unit[] }): Button {
 	const readyButton = createUIButton(
 		t("ui.ready"),
 		vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
@@ -76,6 +79,7 @@ export async function showReadyButton(payload: { enemies: Unit[] }): Promise<voi
 			handleCombatStartExecution(payload);
 		}
 	);
+	return readyButton;
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
