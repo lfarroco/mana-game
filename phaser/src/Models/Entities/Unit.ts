@@ -73,7 +73,7 @@ export function createUnitFromCardSpec(
 		power: cardDef.power || 0,
 		cooldown: cardDef.cooldown,
 		evade: 0,
-		rank: 1,
+		rank: cardDef.rank || 1,
 		effects,
 		reactions,
 		charge: 0,
