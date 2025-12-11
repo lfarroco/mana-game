@@ -33,6 +33,7 @@ export function createPanel() {
 				t("ui.menu.mainMenu"),
 				() => {
 					resetState();
+					getCurrentScene().scene.stop(getCurrentScene().scene.key);
 					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 				},
 			],

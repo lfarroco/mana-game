@@ -20,9 +20,7 @@ export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Shader;
 
-	// TODO: is this necessary?
 	cleanup() {
-
 		console.log(":::: BattlegroundScene cleanup")
 		clearAll();
 		this.time.removeAllEvents();
@@ -45,7 +43,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
 		setCurrentScene(this);
 
-		this.events.once(Phaser.Scenes.Events.DESTROY, this.cleanup, this);
+		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
 		const speed = getOption("speed");
 
