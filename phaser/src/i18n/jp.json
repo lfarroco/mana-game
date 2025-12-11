@@ -256,5 +256,9 @@
 	"winsDisplay.title": "勝利",
 	"winsDisplay.description": "5、8、10勝するとボーナスがもらえます。",
 	"livesDisplay.title": "ライフ",
-	"livesDisplay.description": "試合に負けるとライフを1つ失います。ライフがなくなると、ランは終了です。"
+	"livesDisplay.description": "試合に負けるとライフを1つ失います。ライフがなくなると、ランは終了です。",
+	"encounters.silver_shop": "シルバーユニット",
+	"encounters.silver_shop_desc": "シルバーユニットを募集する",
+	"encounters.gold_shop": "ゴールドユニット",
+	"encounters.gold_shop_desc": "ゴールドユニットを募集する"
 }

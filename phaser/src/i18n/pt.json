@@ -256,5 +256,9 @@
 	"winsDisplay.title": "Vitórias",
 	"winsDisplay.description": "Você ganha um bônus por 5, 8 e 10 vitórias.",
 	"livesDisplay.title": "Vidas",
-	"livesDisplay.description": "Você perde uma vida quando perde uma partida. Se você ficar sem vidas, a corrida acaba."
+	"livesDisplay.description": "Você perde uma vida quando perde uma partida. Se você ficar sem vidas, a corrida acaba.",
+	"encounters.silver_shop": "Unidades de Prata",
+	"encounters.silver_shop_desc": "Recrute uma unidade de prata",
+	"encounters.gold_shop": "Unidades de Ouro",
+	"encounters.gold_shop_desc": "Recrute uma unidade de ouro"
 }
