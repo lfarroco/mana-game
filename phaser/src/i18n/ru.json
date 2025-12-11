@@ -240,5 +240,21 @@
 	"shop.orbs.absorbPower.name": "Поглотитель силы",
 	"shop.orbs.absorbPower.tooltip": "Поглощает 25% силы у союзников в ряду",
 	"shop.orbs.darkRitual.name": "Темный ритуал",
-	"shop.orbs.darkRitual.tooltip": "Пожертвуйте случайным эффектом/реакцией, чтобы получить 10 силы"
+	"shop.orbs.darkRitual.tooltip": "Пожертвуйте случайным эффектом/реакцией, чтобы получить 10 силы",
+	"forceStats.life.title": "Жизнь",
+	"forceStats.life.description": "Ваше текущее здоровье.",
+	"forceStats.shield.title": "Щит",
+	"forceStats.shield.description": "Блокирует входящий урон.",
+	"forceStats.regen.title": "Регенерация",
+	"forceStats.regen.description": "Здоровье, восстанавливаемое в секунду.",
+	"forceStats.poison.title": "Яд",
+	"forceStats.poison.description": "Урон, получаемый в секунду.",
+	"forceStats.healthBar.title": "Полоса здоровья",
+	"forceStats.healthBar.description": "Ваше текущее здоровье.",
+	"forceStats.shieldBar.title": "Полоса щита",
+	"forceStats.shieldBar.description": "Ваш текущий щит.",
+	"winsDisplay.title": "Победы",
+	"winsDisplay.description": "Вы получаете бонус за 5, 8 и 10 побед.",
+	"livesDisplay.title": "Жизни",
+	"livesDisplay.description": "Вы теряете жизнь, когда проигрываете матч. Если у вас закончатся жизни, забег окончен."
 }
