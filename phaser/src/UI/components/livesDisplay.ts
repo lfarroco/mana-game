@@ -3,6 +3,9 @@ import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
 import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
+import { renderTooltip, hideTooltip } from "@Components/Tooltip";
+import * as i18n from "@i18n/i18n";
+import Phaser from "phaser";
 
 const MAX_LIVES = 4;
 const GREEN_HEART = "💚";
@@ -58,6 +61,20 @@ export function create() {
 	io.SetPosition(container, vec2(LIVES_DISPLAY_X, LIVES_DISPLAY_Y));
 
 	containerElement = container;
+
+	const bounds = containerElement.getBounds();
+	containerElement.setInteractive(new Phaser.Geom.Rectangle(0, -bounds.height / 2, bounds.width, bounds.height), Phaser.Geom.Rectangle.Contains)
+		.on("pointerover", () => {
+			renderTooltip(
+				LIVES_DISPLAY_X + 100,
+				LIVES_DISPLAY_Y + 200,
+				i18n.t("livesDisplay.title"),
+				i18n.t("livesDisplay.description")
+			);
+		})
+		.on("pointerout", () => {
+			hideTooltip();
+		});
 
 	return container;
 }
