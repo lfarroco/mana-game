@@ -17,8 +17,8 @@ export function createChip(id: string, position: Vec2, color: number, value: str
 	io.SetPosition(text, position);
 	io.Centralize(text);
 
-	const width = Math.max(text.width + 12, minWidth ?? 0);
-	const bg = io.BorderedRoundRect(asVec2(text), size(width, text.height + 12), 4, color);
+	const chipSize = size(Math.max(text.width + 12, minWidth ?? 0), text.height + 12);
+	const bg = io.BorderedRoundRect(asVec2(text), chipSize, 4, color);
 
 	io.MoveBelow(bg, text);
 
@@ -28,7 +28,7 @@ export function createChip(id: string, position: Vec2, color: number, value: str
 		index.delete(id);
 	});
 
-	return { bg, text };
+	return { bg, text, size: chipSize };
 }
 
 export function updateChipText(id: string, value: string) {
