@@ -9,11 +9,30 @@ import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
 import { getState } from "@Models/State";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { CardDefinition } from "@Models/Entities/Card";
+
+const MIN_ROUND_FOR_SILVER_SHOP = 1;
+const MIN_ROUND_FOR_GOLD_SHOP = 6;
 
 const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
 	container.destroy(true);
+	const round = getState().gameData.round;
+	const isValidRound = (card: CardDefinition) => {
+		if (card.rank) {
+			if (round <= MIN_ROUND_FOR_SILVER_SHOP && card.rank === 2) {
+				return false;
+			}
+			if (round >= MIN_ROUND_FOR_GOLD_SHOP && card.rank === 3) {
+				return true;
+			}
+			if (round < MIN_ROUND_FOR_GOLD_SHOP && card.rank === 3) {
+				return false;
+			}
+		}
+		return true;
+	}
 	await openHeroShop(
-		(card) => card.effects.some(eff => eff.id === type)
+		(card) => card.effects.some(eff => eff.id === type) && isValidRound(card)
 	);
 	PhaseManager.handlePhaseEnded();
 }
@@ -121,34 +140,26 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		minRound: 3,
 		onClick: orbShopCallback(container, ["absorb_power_orb"])
 	},
-	{
-		name: t("encounters.dark_ritual.name"),
-		pic: "ui/dark_ritual",
-		description: t("encounters.dark_ritual.desc"),
-		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
-	},
+	// {
+	// 	name: t("encounters.dark_ritual.name"),
+	// 	pic: "ui/dark_ritual",
+	// 	description: t("encounters.dark_ritual.desc"),
+	// 	onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
+	// },
 	{
 		name: t("encounters.silver_shop"),
-		pic: "ui/silver_shop",
+		pic: "ui/silver_medal",
 		description: t("encounters.silver_shop_desc"),
-		minRound: 2,
-		maxRound: 6,
+		minRound: MIN_ROUND_FOR_SILVER_SHOP,
+		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
 		onClick: rankHeroShopCallback(container, 2)
 	},
 	{
 		name: t("encounters.gold_shop"),
 		pic: "ui/gold_shop",
 		description: t("encounters.gold_shop_desc"),
-		minRound: 7,
-		maxRound: 15,
+		minRound: MIN_ROUND_FOR_GOLD_SHOP,
 		onClick: rankHeroShopCallback(container, 3)
-	},
-	{
-		name: t("encounters.platinum_shop"),
-		pic: "ui/platinum_shop",
-		description: t("encounters.platinum_shop_desc"),
-		minRound: 16,
-		onClick: rankHeroShopCallback(container, 4)
 	}
 ];
 
@@ -181,6 +192,10 @@ export async function open() {
 
 		if (e.minRound) {
 			return e.minRound <= getState().gameData.round;
+		}
+
+		if (e.maxRound) {
+			return e.maxRound >= getState().gameData.round;
 		}
 
 		return true;
