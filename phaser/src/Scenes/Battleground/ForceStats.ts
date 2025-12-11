@@ -150,13 +150,14 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		return;
 	}
 
-	const worldPos = chip.container.getWorldPoint();
-	popText({
-		x: worldPos.x,
-		y: worldPos.y,
+	const textElement = popText({
+		x: 0,
+		y: 0,
 		type: delta > 0 ? "heal" : "damage",
 		text: delta.toFixed(0)
 	});
+
+	chip.container.add(textElement);
 
 }
 
@@ -199,13 +200,14 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const worldPos = chip.container.getWorldPoint();
-	popText({
-		x: worldPos.x,
-		y: worldPos.y,
+	const textElement = popText({
+		x: 0,
+		y: 0,
 		type: delta > 0 ? "shield" : "damage",
-		text: delta.toFixed(0)
+		text: delta > 0 ? "+" + delta.toFixed(0) : delta.toFixed(0)
 	})
+
+	chip.container.add(textElement);
 
 }
 
@@ -222,13 +224,14 @@ export function updateRegenDisplay(force: string, regen: number, delta: number) 
 		return;
 	}
 
-	const worldPos = chip.container.getWorldPoint();
-	popText({
-		x: worldPos.x,
-		y: worldPos.y,
+	const textElement = popText({
+		x: 0,
+		y: 0,
 		type: "regen",
-		text: delta.toFixed(0)
+		text: "+" + delta.toFixed(0)
 	});
+
+	chip.container.add(textElement);
 }
 
 export function updatePoisonDisplay(force: string, poison: number, delta: number) {
@@ -244,11 +247,13 @@ export function updatePoisonDisplay(force: string, poison: number, delta: number
 		return;
 	}
 
-	const worldPos = chip.container.getWorldPoint();
-	popText({
-		x: worldPos.x,
-		y: worldPos.y,
+	const textElement = popText({
+
+		x: 0,
+		y: 0,
 		type: delta > 0 ? "poison" : "heal",
-		text: delta.toFixed(0)
+		text: delta > 0 ? "+" + delta.toFixed(0) : delta.toFixed(0)
 	});
+
+	chip.container.add(textElement);
 }

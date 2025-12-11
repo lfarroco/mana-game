@@ -20,7 +20,7 @@ const CONFIG = {
 	},
 };
 
-export async function popText({
+export function popText({
 	x,
 	y,
 	text,
@@ -84,12 +84,15 @@ export async function popText({
 		// in the angle direction
 		x: x + Math.sin((angle * Math.PI) / 180) * CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
 	});
-	await tween({
+	tween({
 		targets: [popText],
 		delay: CONFIG.FADE_DELAY,
 		alpha: 0,
 		duration: CONFIG.FADE_DURATION,
+		onComplete: () => {
+			popText.destroy();
+		}
 	});
 
-	popText.destroy();
+	return popText;
 }
