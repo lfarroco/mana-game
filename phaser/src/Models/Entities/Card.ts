@@ -7,6 +7,7 @@ const dummy: CardDefinition = {
 	pic: "boss_andromeda",
 	power: 10,
 	cooldown: 2300,
+	rank: 1,
 	description: "",
 	reactions: [],
 	effects: [
@@ -60,6 +61,7 @@ export type CardDefinition = {
 	effects: Effect[];
 	reactions: EffectReaction[];
 	isCore?: boolean;
+	rank?: number;
 	life?: number;
 	critical?: number;
 };

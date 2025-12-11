@@ -18,12 +18,21 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 	PhaseManager.handlePhaseEnded();
 }
 
+const rankHeroShopCallback = (container: Phaser.GameObjects.Container, rank: number) => async () => {
+	container.destroy(true);
+	await openHeroShop(
+		(card) => card.rank === rank
+	);
+	PhaseManager.handlePhaseEnded();
+}
+
 type EncounterItem = {
 	name: string;
 	pic: string;
 	description: string;
 	onClick: () => Promise<void>;
 	minRound?: number;
+	maxRound?: number;
 };
 
 const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
@@ -117,6 +126,29 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		pic: "ui/dark_ritual",
 		description: t("encounters.dark_ritual.desc"),
 		onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
+	},
+	{
+		name: t("encounters.silver_shop"),
+		pic: "ui/silver_shop",
+		description: t("encounters.silver_shop_desc"),
+		minRound: 2,
+		maxRound: 6,
+		onClick: rankHeroShopCallback(container, 2)
+	},
+	{
+		name: t("encounters.gold_shop"),
+		pic: "ui/gold_shop",
+		description: t("encounters.gold_shop_desc"),
+		minRound: 7,
+		maxRound: 15,
+		onClick: rankHeroShopCallback(container, 3)
+	},
+	{
+		name: t("encounters.platinum_shop"),
+		pic: "ui/platinum_shop",
+		description: t("encounters.platinum_shop_desc"),
+		minRound: 16,
+		onClick: rankHeroShopCallback(container, 4)
 	}
 ];
 

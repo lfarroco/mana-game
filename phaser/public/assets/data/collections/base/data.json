@@ -2410,6 +2410,204 @@
 					]
 				}
 			]
+		},
+		{
+			"id": "thunder_core",
+			"name_en": "Thunder Core",
+			"name_es": "Núcleo de Trueno",
+			"name_pt": "Núcleo de Trovão",
+			"name_cn": "雷霆核心",
+			"name_jp": "サンダーコア",
+			"name_ru": "Громовое Ядро",
+			"pic": "neutral_emp",
+			"power": 30,
+			"rank": 2,
+			"cooldown": 5800,
+			"effects": [
+				{
+					"id": "damage"
+				},
+				{
+					"id": "charge",
+					"duration": 1000,
+					"targets": {
+						"id": "left_ally"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "column_allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 6,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "conduit_howler",
+			"name_en": "Conduit Howler",
+			"name_es": "Aullador Conducto",
+			"name_pt": "Uivador Condutor",
+			"name_cn": "导能嚎叫者",
+			"name_jp": "コンデュイトハウラー",
+			"name_ru": "Вой Проводника",
+			"pic": "neutral_exun",
+			"power": 30,
+			"rank": 2,
+			"cooldown": 4800,
+			"effects": [
+				{
+					"id": "shield"
+				},
+				{
+					"id": "haste",
+					"duration": 2000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 4,
+							"permanent": true,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "water_elemental",
+			"name_en": "Water Elemental",
+			"name_es": "Elemental de Agua",
+			"name_pt": "Elemental da Água",
+			"name_cn": "水元素",
+			"name_jp": "ウォーターエレメンタル",
+			"name_ru": "Водный Элементаль",
+			"pic": "neutral_fog",
+			"power": 30,
+			"rank": 2,
+			"cooldown": 5800,
+			"effects": [
+				{
+					"id": "heal"
+				},
+				{
+					"id": "charge",
+					"duration": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "row_allies",
+					"effectId": "regen",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 6,
+							"permanent": true,
+							"targets": {
+								"id": "trigger"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "master_of_thorns",
+			"name_en": "Master of Thorns",
+			"name_es": "Maestro de Espinas",
+			"name_pt": "Mestre dos Espinhos",
+			"name_cn": "荆棘大师",
+			"name_jp": "マスターオブソーンズ",
+			"name_ru": "Повелитель Шипов",
+			"pic": "neutral_geargrinder",
+			"power": 30,
+			"rank": 2,
+			"cooldown": 7800,
+			"effects": [
+				{
+					"id": "poison"
+				}
+			],
+			"reactions": [
+				{
+					"position": "enemies",
+					"effectId": "damage",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 4,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"id": "coral_builder",
+			"name_en": "Coral Builder",
+			"name_es": "Constructor de Coral",
+			"name_pt": "Construtor de Coral",
+			"name_cn": "珊瑚建造者",
+			"name_jp": "コラルビルダー",
+			"name_ru": "Строитель Корала",
+			"pic": "neutral_giantcrab",
+			"power": 30,
+			"rank": 2,
+			"cooldown": 5800,
+			"effects": [
+				{
+					"id": "regen"
+				},
+				{
+					"id": "haste",
+					"duration": 2000,
+					"targets": {
+						"id": "column_allies"
+					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 4,
+							"permanent": true,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		}
 	]
 }
