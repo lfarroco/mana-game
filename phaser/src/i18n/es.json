@@ -256,5 +256,9 @@
 	"winsDisplay.title": "Victorias",
 	"winsDisplay.description": "Obtienes una bonificación por 5, 8 y 10 victorias.",
 	"livesDisplay.title": "Vidas",
-	"livesDisplay.description": "Pierdes una vida cuando pierdes una partida. Si te quedas sin vidas, la partida termina."
+	"livesDisplay.description": "Pierdes una vida cuando pierdes una partida. Si te quedas sin vidas, la partida termina.",
+	"encounters.silver_shop": "Unidades de Plata",
+	"encounters.silver_shop_desc": "Reclutar una unidad de plata",
+	"encounters.gold_shop": "Unidades de Oro",
+	"encounters.gold_shop_desc": "Reclutar una unidad de oro"
 }

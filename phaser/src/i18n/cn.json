@@ -256,5 +256,9 @@
 	"winsDisplay.title": "胜利",
 	"winsDisplay.description": "胜利5、8、10场有额外奖励。",
 	"livesDisplay.title": "生命",
-	"livesDisplay.description": "输掉一场比赛就会失去一条生命。如果生命耗尽，本轮游戏就结束了。"
+	"livesDisplay.description": "输掉一场比赛就会失去一条生命。如果生命耗尽，本轮游戏就结束了。",
+	"encounters.silver_shop": "白银单位",
+	"encounters.silver_shop_desc": "招募一个白银单位",
+	"encounters.gold_shop": "黄金单位",
+	"encounters.gold_shop_desc": "招募一个黄金单位"
 }

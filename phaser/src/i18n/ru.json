@@ -256,5 +256,9 @@
 	"winsDisplay.title": "Победы",
 	"winsDisplay.description": "Вы получаете бонус за 5, 8 и 10 побед.",
 	"livesDisplay.title": "Жизни",
-	"livesDisplay.description": "Вы теряете жизнь, когда проигрываете матч. Если у вас закончатся жизни, забег окончен."
+	"livesDisplay.description": "Вы теряете жизнь, когда проигрываете матч. Если у вас закончатся жизни, забег окончен.",
+	"encounters.silver_shop": "Серебряные юниты",
+	"encounters.silver_shop_desc": "Нанять серебряного юнита",
+	"encounters.gold_shop": "Золотые юниты",
+	"encounters.gold_shop_desc": "Нанять золотого юнита"
 }
