@@ -240,5 +240,21 @@
 	"shop.orbs.absorbPower.name": "パワー吸収器",
 	"shop.orbs.absorbPower.tooltip": "列の味方からパワーの25%を吸収",
 	"shop.orbs.darkRitual.name": "暗黒の儀式",
-	"shop.orbs.darkRitual.tooltip": "ランダムな効果/リアクションを犠牲にしてパワーを10得る"
+	"shop.orbs.darkRitual.tooltip": "ランダムな効果/リアクションを犠牲にしてパワーを10得る",
+	"forceStats.life.title": "ライフ",
+	"forceStats.life.description": "現在のヘルス。",
+	"forceStats.shield.title": "シールド",
+	"forceStats.shield.description": "受けるダメージをブロックします。",
+	"forceStats.regen.title": "リジェネ",
+	"forceStats.regen.description": "毎秒回復するヘルス。",
+	"forceStats.poison.title": "毒",
+	"forceStats.poison.description": "毎秒受けるダメージ。",
+	"forceStats.healthBar.title": "ヘルスバー",
+	"forceStats.healthBar.description": "現在のヘルス。",
+	"forceStats.shieldBar.title": "シールドバー",
+	"forceStats.shieldBar.description": "現在のシールド。",
+	"winsDisplay.title": "勝利",
+	"winsDisplay.description": "5、8、10勝するとボーナスがもらえます。",
+	"livesDisplay.title": "ライフ",
+	"livesDisplay.description": "試合に負けるとライフを1つ失います。ライフがなくなると、ランは終了です。"
 }

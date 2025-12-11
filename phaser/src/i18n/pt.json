@@ -240,5 +240,21 @@
 	"shop.orbs.absorbPower.name": "Absorvedor de Poder",
 	"shop.orbs.absorbPower.tooltip": "Absorve 25% do poder dos aliados da fila",
 	"shop.orbs.darkRitual.name": "Ritual Sombrio",
-	"shop.orbs.darkRitual.tooltip": "Sacrifica um efeito/reação aleatório para ganhar 10 de Poder"
+	"shop.orbs.darkRitual.tooltip": "Sacrifica um efeito/reação aleatório para ganhar 10 de Poder",
+	"forceStats.life.title": "Vida",
+	"forceStats.life.description": "Sua saúde atual.",
+	"forceStats.shield.title": "Escudo",
+	"forceStats.shield.description": "Bloqueia o dano recebido.",
+	"forceStats.regen.title": "Regeneração",
+	"forceStats.regen.description": "Vida restaurada por segundo.",
+	"forceStats.poison.title": "Veneno",
+	"forceStats.poison.description": "Dano recebido por segundo.",
+	"forceStats.healthBar.title": "Barra de Vida",
+	"forceStats.healthBar.description": "Sua saúde atual.",
+	"forceStats.shieldBar.title": "Barra de Escudo",
+	"forceStats.shieldBar.description": "Seu escudo atual.",
+	"winsDisplay.title": "Vitórias",
+	"winsDisplay.description": "Você ganha um bônus por 5, 8 e 10 vitórias.",
+	"livesDisplay.title": "Vidas",
+	"livesDisplay.description": "Você perde uma vida quando perde uma partida. Se você ficar sem vidas, a corrida acaba."
 }

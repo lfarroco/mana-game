@@ -240,5 +240,21 @@
 	"shop.orbs.absorbPower.name": "力量吸收器",
 	"shop.orbs.absorbPower.tooltip": "从行内盟友处吸收25%的力量",
 	"shop.orbs.darkRitual.name": "黑暗仪式",
-	"shop.orbs.darkRitual.tooltip": "牺牲一个随机效果/反应以获得10点力量"
+	"shop.orbs.darkRitual.tooltip": "牺牲一个随机效果/反应以获得10点力量",
+	"forceStats.life.title": "生命",
+	"forceStats.life.description": "你当前的生命值。",
+	"forceStats.shield.title": "护盾",
+	"forceStats.shield.description": "格挡即将到来的伤害。",
+	"forceStats.regen.title": "回复",
+	"forceStats.regen.description": "每秒恢复的生命值。",
+	"forceStats.poison.title": "中毒",
+	"forceStats.poison.description": "每秒受到的伤害。",
+	"forceStats.healthBar.title": "生命条",
+	"forceStats.healthBar.description": "你当前的生命值。",
+	"forceStats.shieldBar.title": "护盾条",
+	"forceStats.shieldBar.description": "你当前的护盾。",
+	"winsDisplay.title": "胜利",
+	"winsDisplay.description": "胜利5、8、10场有额外奖励。",
+	"livesDisplay.title": "生命",
+	"livesDisplay.description": "输掉一场比赛就会失去一条生命。如果生命耗尽，本轮游戏就结束了。"
 }

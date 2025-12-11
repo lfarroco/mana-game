@@ -240,5 +240,21 @@
 	"shop.orbs.absorbPower.name": "Absorbedor de Poder",
 	"shop.orbs.absorbPower.tooltip": "Absorbe el 25% del poder de los aliados de la fila",
 	"shop.orbs.darkRitual.name": "Ritual Oscuro",
-	"shop.orbs.darkRitual.tooltip": "Sacrifica un efecto/reacción aleatorio para ganar 10 de Poder"
+	"shop.orbs.darkRitual.tooltip": "Sacrifica un efecto/reacción aleatorio para ganar 10 de Poder",
+	"forceStats.life.title": "Vida",
+	"forceStats.life.description": "Tu salud actual.",
+	"forceStats.shield.title": "Escudo",
+	"forceStats.shield.description": "Bloquea el daño entrante.",
+	"forceStats.regen.title": "Regeneración",
+	"forceStats.regen.description": "Salud restaurada por segundo.",
+	"forceStats.poison.title": "Veneno",
+	"forceStats.poison.description": "Daño recibido por segundo.",
+	"forceStats.healthBar.title": "Barra de vida",
+	"forceStats.healthBar.description": "Tu salud actual.",
+	"forceStats.shieldBar.title": "Barra de escudo",
+	"forceStats.shieldBar.description": "Tu escudo actual.",
+	"winsDisplay.title": "Victorias",
+	"winsDisplay.description": "Obtienes una bonificación por 5, 8 y 10 victorias.",
+	"livesDisplay.title": "Vidas",
+	"livesDisplay.description": "Pierdes una vida cuando pierdes una partida. Si te quedas sin vidas, la partida termina."
 }
