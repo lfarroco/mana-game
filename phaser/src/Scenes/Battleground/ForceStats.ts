@@ -150,9 +150,10 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		return;
 	}
 
+	const worldPos = chip.container.getWorldPoint();
 	popText({
-		x: chip?.text.getCenter().x,
-		y: chip?.text.getCenter().y,
+		x: worldPos.x,
+		y: worldPos.y,
 		type: delta > 0 ? "heal" : "damage",
 		text: delta.toFixed(0)
 	});
@@ -198,9 +199,10 @@ export function updateShieldDisplay(
 		return;
 	}
 
+	const worldPos = chip.container.getWorldPoint();
 	popText({
-		x: chip?.text.getCenter().x,
-		y: chip?.text.getCenter().y,
+		x: worldPos.x,
+		y: worldPos.y,
 		type: delta > 0 ? "shield" : "damage",
 		text: delta.toFixed(0)
 	})
@@ -220,9 +222,10 @@ export function updateRegenDisplay(force: string, regen: number, delta: number) 
 		return;
 	}
 
+	const worldPos = chip.container.getWorldPoint();
 	popText({
-		x: chip.text.getCenter().x,
-		y: chip.text.getCenter().y,
+		x: worldPos.x,
+		y: worldPos.y,
 		type: "regen",
 		text: delta.toFixed(0)
 	});
@@ -241,9 +244,10 @@ export function updatePoisonDisplay(force: string, poison: number, delta: number
 		return;
 	}
 
+	const worldPos = chip.container.getWorldPoint();
 	popText({
-		x: chip.text.getCenter().x,
-		y: chip.text.getCenter().y,
+		x: worldPos.x,
+		y: worldPos.y,
 		type: delta > 0 ? "poison" : "heal",
 		text: delta.toFixed(0)
 	});
