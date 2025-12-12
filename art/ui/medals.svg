@@ -24,8 +24,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="0.60434812"
-     inkscape:cx="425.25159"
-     inkscape:cy="481.51055"
+     inkscape:cx="365.68327"
+     inkscape:cy="173.74092"
      inkscape:window-width="1680"
      inkscape:window-height="997"
      inkscape:window-x="0"
@@ -39,54 +39,42 @@
      inkscape:groupmode="layer"
      id="layer1">
     <circle
-       style="fill:#000000;stroke-width:3;stroke-linejoin:bevel"
-       id="path1"
-       cx="16.31823"
-       cy="116.2056"
-       r="42.031815"
-       inkscape:export-filename="gold_medal.png"
-       inkscape:export-xdpi="4.4684868"
-       inkscape:export-ydpi="4.4684868" />
-    <circle
-       style="fill:#ffcc00;stroke-width:3;stroke-linejoin:bevel;stroke:#4d4d4d"
+       style="fill:#ffcc00;stroke-width:9;stroke-linejoin:bevel;stroke:#000000;stroke-dasharray:none"
        id="path1-2"
        cx="10.933848"
        cy="112.85045"
-       r="42.031815" />
+       r="42.031815"
+       inkscape:export-filename="gold_medal.png"
+       inkscape:export-xdpi="8.7338095"
+       inkscape:export-ydpi="8.7338095" />
     <circle
        style="fill:none;stroke:#666666;stroke-width:2.66811;stroke-linejoin:bevel"
        id="path1-2-0"
-       cx="10.910027"
-       cy="112.52333"
+       cx="127.36471"
+       cy="-36.766315"
        r="37.381962" />
     <circle
-       style="fill:#000000;stroke-width:3;stroke-linejoin:bevel"
-       id="path1-0"
-       cx="161.01894"
-       cy="100.46175"
-       r="42.031815"
-       inkscape:export-filename="silver_medal.png"
-       inkscape:export-xdpi="4.4684868"
-       inkscape:export-ydpi="4.4684868" />
-    <circle
-       style="fill:#cccccc;stroke:#4d4d4d;stroke-width:3;stroke-linejoin:bevel"
+       style="fill:#cccccc;stroke:#1a1a1a;stroke-width:9;stroke-linejoin:bevel;stroke-dasharray:none"
        id="path1-2-5"
        cx="155.63455"
-       cy="97.106606"
-       r="42.031815" />
+       cy="97.982201"
+       r="42.031815"
+       inkscape:export-filename="silver_medal.png"
+       inkscape:export-xdpi="8.7338095"
+       inkscape:export-ydpi="8.7338095" />
     <circle
        style="fill:none;stroke:#666666;stroke-width:2.66811;stroke-linejoin:bevel"
        id="path1-2-0-9"
-       cx="156.1758"
-       cy="96.76828"
+       cx="262.5611"
+       cy="-31.506987"
        r="37.381962" />
     <path
-       style="opacity:0.44;fill:#ffffff;stroke:none;stroke-width:3;stroke-linejoin:bevel"
+       style="opacity:0.77;fill:#ffffff;stroke:none;stroke-width:3;stroke-linejoin:bevel"
        d="M -18.82538,128.27527 C -30.207163,96.321975 -4.5789661,73.895758 17.949781,80.555115 -6.2713134,87.320222 -12.231444,103.79759 -18.82538,128.27527 Z"
        id="path2"
        sodipodi:nodetypes="ccc" />
     <path
-       style="opacity:0.44;fill:#ffffff;stroke:none;stroke-width:3;stroke-linejoin:bevel"
+       style="opacity:0.77;fill:#ffffff;stroke:none;stroke-width:3;stroke-linejoin:bevel"
        d="m 126.66366,112.76033 c -11.38179,-31.953289 14.24641,-54.379506 36.77516,-47.720149 -24.2211,6.765107 -30.18123,23.242475 -36.77516,47.720149 z"
        id="path2-9"
        sodipodi:nodetypes="ccc" />
