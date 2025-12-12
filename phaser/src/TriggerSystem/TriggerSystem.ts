@@ -17,7 +17,8 @@ export type EffectId =
 	| "increase_critical"
 	| "distribute_power"
 	| "absorb_power"
-	| "sacrifice_effect";
+	| "sacrifice_effect"
+	| "re_hasted";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -83,6 +84,9 @@ export type Effect =
 	| {
 		id: "sacrifice_effect";
 		targets: Targeting;
+	}
+	| {
+		id: "re_hasted";
 	};
 
 export type Targeting =
@@ -175,7 +179,9 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration);
+			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration, (target: Unit) =>
+				processReactions(target, { id: "re_hasted" })
+			);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
@@ -213,6 +219,8 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "sacrifice_effect":
 			effects.sacrificeEffect(sourceUnit);
+			break;
+		case "re_hasted":
 			break;
 		default:
 			const _exhaustiveCheck: never = effect;

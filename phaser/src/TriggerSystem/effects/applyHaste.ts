@@ -3,10 +3,18 @@ import { hasteEffect } from "../../Effects/hasteEffect";
 import { Chara, getCharaById } from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
 
-export const applyHasteLogicIO = async (targets: Unit[], sourceUnit: Unit, duration: number) => {
+export const applyHasteLogicIO = async (
+	targets: Unit[],
+	sourceUnit: Unit,
+	duration: number,
+	onReHaste: (target: Unit) => void
+) => {
 	const sourceChara = getCharaById(sourceUnit.id);
 
 	const effect = (target: Unit, targetChara: Chara) => async () => {
+		if (target.hasted > 0) {
+			onReHaste(target);
+		}
 		target.hasted += duration;
 
 		hasteEffect(targetChara, {

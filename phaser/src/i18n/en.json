@@ -137,6 +137,7 @@
 	"tooltip.effects.poison": "Poison",
 	"tooltip.effects.regen": "Regen",
 	"tooltip.effects.haste": "Haste",
+	"tooltip.effects.re_hasted": "Re-Haste",
 	"tooltip.effects.slow": "Slow",
 	"tooltip.effects.charge": "Charge",
 	"tooltip.effects.increase_power": "Power",
