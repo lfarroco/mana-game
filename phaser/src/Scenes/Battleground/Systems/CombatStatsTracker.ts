@@ -125,16 +125,6 @@ export function stop(): void {
 		}
 	}
 
-	let mostUsedUnit: string | null = null;
-	let maxUsage = 0;
-	for (const unitName in runStats.unitUsage) {
-		if (runStats.unitUsage[unitName] > maxUsage) {
-			mostUsedUnit = unitName;
-			maxUsage = runStats.unitUsage[unitName];
-		}
-	}
-	runStats.mostUsedUnit = mostUsedUnit;
-
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
 

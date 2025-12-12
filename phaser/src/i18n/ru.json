@@ -56,7 +56,7 @@
 	"results.victory.silver": "Серебряная победа",
 	"results.victory.bronze": "Бронзовая победа",
 	"results.victory.run_complete": "Забег завершён",
-	"results.victory.default": "Повезёт в следующий раз!",
+	"results.victory.below_bronze": "Как насчет другой стратегии?",
 	"results.messages.infinite": "Вы победили {wins} команд — отличная работа!",
 	"results.messages.gold": "Отличная сборка! Попробуйте Бесконечный режим.",
 	"results.messages.silver": "Отличный забег! Вы всё ближе к вершине.",

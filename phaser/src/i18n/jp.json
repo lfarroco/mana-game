@@ -56,7 +56,7 @@
 	"results.victory.silver": "シルバー勝利",
 	"results.victory.bronze": "ブロンズ勝利",
 	"results.victory.run_complete": "ラン完了",
-	"results.victory.default": "次は頑張りましょう！",
+	"results.victory.below_bronze": "別の戦略を試してみてはどうですか？",
 	"results.messages.infinite": "旅の中で {wins} チームを撃破しました。お見事！",
 	"results.messages.gold": "強力な構成です！インフィニットモードにも挑戦してみませんか？",
 	"results.messages.silver": "素晴らしいランです！頂点まであと少し。",

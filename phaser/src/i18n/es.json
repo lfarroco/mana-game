@@ -56,7 +56,7 @@
 	"results.victory.silver": "Victoria de Plata",
 	"results.victory.bronze": "Victoria de Bronce",
 	"results.victory.run_complete": "Partida Completada",
-	"results.victory.default": "¡Mejor suerte la próxima vez!",
+	"results.victory.below_bronze": "Qué tal si pruebas una estrategia diferente?",
 	"results.messages.infinite": "Derrotaste {wins} equipos en tu viaje, ¡buen trabajo!",
 	"results.messages.gold": "¡Encontraste una buena estrategia! ¿Qué tal probar el Modo Infinito?",
 	"results.messages.silver": "¡Gran partida! Te estás acercando a la cima.",

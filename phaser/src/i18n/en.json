@@ -56,7 +56,7 @@
 	"results.victory.silver": "Silver Victory",
 	"results.victory.bronze": "Bronze Victory",
 	"results.victory.run_complete": "Run Complete",
-	"results.victory.default": "Better luck next time!",
+	"results.victory.below_bronze": "How about trying a different strategy?",
 	"results.messages.infinite": "You defeated {wins} teams in your journey, great job!",
 	"results.messages.gold": "You found a solid build! How about trying Infinite Mode?",
 	"results.messages.silver": "Great run! You're getting closer to the top.",
@@ -260,5 +260,14 @@
 	"encounters.silver_shop": "Silver Units",
 	"encounters.silver_shop_desc": "Recruit a silver unit",
 	"encounters.gold_shop": "Gold Units",
-	"encounters.gold_shop_desc": "Recruit a gold unit"
+	"encounters.gold_shop_desc": "Recruit a gold unit",
+	"run_stats.title": "Run Stats",
+	"run_stats.damage_dealt": "Damage Dealt",
+	"run_stats.poison_dealt": "Poison Dealt",
+	"run_stats.shield_dealt": "Shield Dealt",
+	"run_stats.regen_dealt": "Regen Dealt",
+	"run_stats.heal_dealt": "Heal Dealt",
+	"run_stats.most_powerful_unit": "Most Powerful Unit",
+	"run_stats.most_used_unit": "Most Used Unit",
+	"run_stats.total_units_recruited": "Units Recruited"
 }

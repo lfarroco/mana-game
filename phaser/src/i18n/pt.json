@@ -56,7 +56,7 @@
 	"results.victory.silver": "Vitória de Prata",
 	"results.victory.bronze": "Vitória de Bronze",
 	"results.victory.run_complete": "Partida Completa",
-	"results.victory.default": "Mais sorte na próxima!",
+	"results.victory.below_bronze": "Que tal tentar uma estratégia diferente?",
 	"results.messages.infinite": "Você derrotou {wins} times na sua jornada, ótimo trabalho!",
 	"results.messages.gold": "Você encontrou uma build sólida! Que tal tentar o Modo Infinito?",
 	"results.messages.silver": "Ótima partida! Você está chegando perto do topo.",

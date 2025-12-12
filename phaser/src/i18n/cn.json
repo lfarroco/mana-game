@@ -56,7 +56,7 @@
 	"results.victory.silver": "银牌胜利",
 	"results.victory.bronze": "铜牌胜利",
 	"results.victory.run_complete": "挑战完成",
-	"results.victory.default": "下次好运！",
+	"results.victory.below_bronze": "尝试不同的策略怎么样？",
 	"results.messages.infinite": "你在旅途中击败了 {wins} 支队伍，干得漂亮！",
 	"results.messages.gold": "你找到了一套强力组合！试试无限模式吧？",
 	"results.messages.silver": "很棒的挑战！离巅峰更近了。",
