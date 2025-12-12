@@ -92,18 +92,14 @@ export function incrementRunsPlayed(): void {
 
 /**
  * Record a victory of a specific tier
- * Higher tiers also count for lower tiers (gold = gold + silver + bronze)
  */
 export function recordVictory(tier: VictoryTier): void {
 	switch (tier) {
 		case "gold":
 			currentStats.goldVictories++;
-			currentStats.silverVictories++;
-			currentStats.bronzeVictories++;
 			break;
 		case "silver":
 			currentStats.silverVictories++;
-			currentStats.bronzeVictories++;
 			break;
 		case "bronze":
 			currentStats.bronzeVictories++;
