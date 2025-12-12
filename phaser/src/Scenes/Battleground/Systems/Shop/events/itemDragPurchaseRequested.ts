@@ -47,6 +47,11 @@ export async function itemDragPurchaseRequested(
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
 	getState().gameData.player.units.push(newUnit);
 
+	const { runStats } = getState().gameData;
+	runStats.totalUnitsRecruited++;
+	const unitName = getName(newUnit);
+	runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+
 	summon(newUnit, true);
 
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));

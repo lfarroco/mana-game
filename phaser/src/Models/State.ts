@@ -17,6 +17,19 @@ export type GameData = {
 	hour: number;
 	player: Force;
 	choices: string[];
+	runStats: RunStats;
+};
+
+export type RunStats = {
+	damageDealt: number;
+	poisonDealt: number;
+	shieldDealt: number;
+	regenDealt: number;
+	healDealt: number;
+	mostPowerfulUnit: { name: string; power: number } | null;
+	mostUsedUnit: string | null;
+	totalUnitsRecruited: number;
+	unitUsage: Record<string, number>;
 };
 
 const initialState = (): State => ({
@@ -26,6 +39,17 @@ const initialState = (): State => ({
 		hour: 0,
 		player: playerForce,
 		choices: [],
+		runStats: {
+			damageDealt: 0,
+			poisonDealt: 0,
+			shieldDealt: 0,
+			regenDealt: 0,
+			healDealt: 0,
+			mostPowerfulUnit: null,
+			mostUsedUnit: null,
+			totalUnitsRecruited: 0,
+			unitUsage: {},
+		},
 	},
 	battleData: {
 		forces: [],
