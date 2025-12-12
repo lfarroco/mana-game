@@ -23,8 +23,8 @@ export interface TargetedArcaneMissileOptions {
 }
 
 export async function arcaneMissileTargeted(
-	source: { x: number; y: number },
-	target: { x: number; y: number },
+	source: Vec2,
+	target: Vec2,
 	options: TargetedArcaneMissileOptions = {}
 ): Promise<void> {
 	const scene = getCurrentScene();
@@ -43,7 +43,7 @@ export async function arcaneMissileTargeted(
 			lifespan: 300,
 			alpha: 0.4,
 		},
-		blendMode = "ADD",
+		blendMode = Phaser.BlendModes.ADD,
 		onHit = () => { },
 	} = options;
 

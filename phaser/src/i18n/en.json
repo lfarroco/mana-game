@@ -138,6 +138,7 @@
 	"tooltip.effects.regen": "Regen",
 	"tooltip.effects.haste": "Haste",
 	"tooltip.effects.re_hasted": "Re-Haste",
+	"tooltip.effects.re_slow": "Re-Slow",
 	"tooltip.effects.slow": "Slow",
 	"tooltip.effects.charge": "Charge",
 	"tooltip.effects.increase_power": "Power",
