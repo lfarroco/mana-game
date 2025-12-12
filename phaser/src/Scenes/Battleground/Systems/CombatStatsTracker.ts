@@ -106,6 +106,34 @@ export function getUnitStats(unitId: string): UnitCombatStats | undefined {
 }
 
 export function stop(): void {
+	const { gameData } = getState();
+	const { runStats } = gameData;
+
+	for (const unit of unitStats.values()) {
+		runStats.damageDealt += unit.damageDealt;
+		runStats.poisonDealt += unit.poisonApplied;
+		runStats.healDealt += unit.healingDone;
+		runStats.regenDealt += unit.regenApplied;
+		runStats.shieldDealt += unit.shieldGranted;
+	}
+
+	const { player } = getState().gameData;
+	for (const unit of player.units) {
+
+		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {
+			runStats.mostPowerfulUnit = { name: getName(unit), power: unit.power };
+		}
+	}
+
+	let mostUsedUnit: string | null = null;
+	let maxUsage = 0;
+	for (const unitName in runStats.unitUsage) {
+		if (runStats.unitUsage[unitName] > maxUsage) {
+			mostUsedUnit = unitName;
+			maxUsage = runStats.unitUsage[unitName];
+		}
+	}
+	runStats.mostUsedUnit = mostUsedUnit;
 
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
