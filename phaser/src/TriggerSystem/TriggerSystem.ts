@@ -19,7 +19,8 @@ export type EffectId =
 	| "absorb_power"
 	| "sacrifice_effect"
 	| "re_hasted"
-	| "re_slow";
+	| "re_slow"
+	| "every_100_damage";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -91,6 +92,9 @@ export type Effect =
 	}
 	| {
 		id: "re_slow";
+	}
+	| {
+		id: "every_100_damage";
 	};
 
 export type Targeting =
@@ -230,6 +234,8 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "re_slow":
 			break;
+		case "every_100_damage":
+			break;
 		default:
 			const _exhaustiveCheck: never = effect;
 			return _exhaustiveCheck;
@@ -241,13 +247,15 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
-function processReactions(triggeringUnit: Unit, effect: Effect) {
+export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 
-	getState().battleData.units
-		.filter((u) => u.id != triggeringUnit.id)
+	const candidates = getState().battleData.units
+		.filter((u) => u.id != triggeringUnit.id || effect.id === "every_100_damage")
+
+	candidates
 		.forEach((u) => {
 			const reactions = u.reactions
 				.filter(r =>
