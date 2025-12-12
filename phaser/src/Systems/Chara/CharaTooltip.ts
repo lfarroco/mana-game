@@ -59,6 +59,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		case "distribute_power":
 		case "absorb_power":
 		case "sacrifice_effect":
+		case "re_hasted":
 			return null;
 		default: {
 			const _exhaustiveCheck: never = effect;
@@ -74,6 +75,7 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	poison: { color: "#da77f2" },
 	regen: { color: "#8ce99a" },
 	haste: { color: "#91a7ff" },
+	re_hasted: { color: "#00eaff" },
 	slow: { color: "#d0bfff" },
 	charge: { color: "#ffe066" },
 	increase_power: { color: "#ff8cc8" },
