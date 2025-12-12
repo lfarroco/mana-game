@@ -1,5 +1,4 @@
 import { createUIButton } from "../../../Components/UIButton";
-import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
@@ -14,12 +13,14 @@ import {
 	RESULTS_PANEL,
 	GOLD_VICTORY_THRESHOLD,
 	SILVER_VICTORY_THRESHOLD,
-	BRONZE_VICTORY_THRESHOLD
+	BRONZE_VICTORY_THRESHOLD,
+	RIGHT_PANEL_X,
 } from "./ResultsConfig";
 import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
 import { t } from "@i18n/i18n";
-
+import { createRunStatsPanel } from "@UI/RunStatsPanel";
+import { MIDDLE_SCREEN_Y, SCENE_KEYS, titleTextConfig } from "@Constants/constants";
 
 export async function displayGameComplete(
 	wins: number,
@@ -33,8 +34,8 @@ export async function displayGameComplete(
 
 	const panelWidth = 800;
 	const panelHeight = 700;
-	const panelX = c.MIDDLE_SCREEN_X;
-	const panelY = c.MIDDLE_SCREEN_Y;
+	const panelX = RIGHT_PANEL_X;
+	const panelY = MIDDLE_SCREEN_Y;
 
 	const { message, color } = getVictoryTier(wins, isGameOver);
 
@@ -74,16 +75,16 @@ export async function displayGameComplete(
 			t("results.buttons.new_run"),
 			async () => {
 				resetState();
-				getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
-			}
+				getCurrentScene().game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
+			},
 		],
 		[
 			t("results.buttons.main_menu"),
 			async () => {
 				resetState();
-				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
-			}
-		]
+				getCurrentScene().game.scene.start(SCENE_KEYS.TITLE);
+			},
+		],
 	];
 
 	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
@@ -95,7 +96,7 @@ export async function displayGameComplete(
 
 				playMusic("music_battlemap_vetruv");
 				nextPhaseCallback();
-			}
+			},
 		]);
 	}
 
@@ -108,7 +109,10 @@ export async function displayGameComplete(
 			).container
 	);
 
+	const statsPanel = createRunStatsPanel();
+
 	const container = io.Container([
+		statsPanel,
 		io.BorderedRoundRect(
 			vec2(panelX, panelY),
 			size(panelWidth, panelHeight),
@@ -117,11 +121,12 @@ export async function displayGameComplete(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text(t("results.wins_title", { count: wins.toString() }), {
-				...c.titleTextConfig,
-				fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
-				color: "#FFFFFF",
-			}),
+			() =>
+				io.Text(t("results.wins_title", { count: wins.toString() }), {
+					...titleTextConfig,
+					fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
+					color: "#FFFFFF",
+				}),
 			(text) => io.SetPosition(text, vec2(panelX, panelY - 250)),
 			(text) => io.Centralize(text),
 		],

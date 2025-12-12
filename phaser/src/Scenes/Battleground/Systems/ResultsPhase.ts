@@ -1,6 +1,5 @@
-import { getState } from "@Models/State";
+import { getState, getCurrentScene } from "@Models/State";
 import { delay } from "@Utils/animation";
-import { renderVignette } from "../Animations/vignette";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ResultsUI from "../Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
@@ -83,9 +82,9 @@ async function handleDefeat(): Promise<void> {
 	if (player.lives <= 0) {
 		deleteSavedData();
 
-		await renderVignette({
-			message: `Game Over! You were defeated in ${state.gameData.round - 1} rounds`,
-		});
+		const { displayGameComplete } = await import("../Results/GameCompleteUI");
+		const container = await displayGameComplete(player.wins, player.units, true);
+		getCurrentScene().add.existing(container);
 		return;
 	}
 

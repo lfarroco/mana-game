@@ -27,7 +27,6 @@ export type RunStats = {
 	regenDealt: number;
 	healDealt: number;
 	mostPowerfulUnit: { name: string; power: number } | null;
-	mostUsedUnit: string | null;
 	totalUnitsRecruited: number;
 	unitUsage: Record<string, number>;
 };
@@ -46,7 +45,6 @@ const initialState = (): State => ({
 			regenDealt: 0,
 			healDealt: 0,
 			mostPowerfulUnit: null,
-			mostUsedUnit: null,
 			totalUnitsRecruited: 0,
 			unitUsage: {},
 		},

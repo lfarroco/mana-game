@@ -1,4 +1,9 @@
 import { t } from "@i18n/i18n";
+import { SCREEN_WIDTH } from "@Constants/constants";
+
+export const LEFT_PANEL_X = 450;
+export const RIGHT_PANEL_X = SCREEN_WIDTH - LEFT_PANEL_X;
+
 export const WINS_TO_WIN_GAME = 10;
 export const INFINITE_MODE_THRESHOLD = 10;
 
