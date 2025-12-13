@@ -140,6 +140,7 @@
 	"tooltip.effects.re_hasted": "Re-Haste",
 	"tooltip.effects.re_slow": "Re-Slow",
 	"tooltip.effects.every_100_damage": "Every 100 Damage",
+	"tooltip.effects.decrease_power": "Decrease Power",
 	"tooltip.effects.every_100_shield": "Every 100 Shield",
 	"tooltip.effects.every_100_heal": "Every 100 Heal",
 	"tooltip.effects.every_10_poison": "Every 10 Poison",
