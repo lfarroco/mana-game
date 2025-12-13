@@ -154,6 +154,15 @@ export type Targeting =
 		id: "strongest_enemy";
 	}
 	| {
+		id: "weakest_enemy";
+	}
+	| {
+		id: "strongest_ally";
+	}
+	| {
+		id: "weakest_ally";
+	}
+	| {
 		id: "top_ally";
 	}
 	| {
@@ -384,8 +393,20 @@ export function resolveTargets(sourceUnit: Unit, effect: Effect, triggeringUnit?
 			return enemies;
 
 		case "strongest_enemy":
-			const sortedEnemies = enemies.sort((a, b) => b.power - a.power);
-			return sortedEnemies.length > 0 ? [sortedEnemies[0]] : [];
+			const strongestEnemies = enemies.sort((a, b) => b.power - a.power);
+			return strongestEnemies.length > 0 ? [strongestEnemies[0]] : [];
+
+		case "weakest_enemy":
+			const weakestEnemies = enemies.sort((a, b) => a.power - b.power);
+			return weakestEnemies.length > 0 ? [weakestEnemies[0]] : [];
+
+		case "strongest_ally":
+			const strongestAllies = allies.filter((u) => u.id !== sourceUnit.id).sort((a, b) => b.power - a.power);
+			return strongestAllies.length > 0 ? [strongestAllies[0]] : [];
+
+		case "weakest_ally":
+			const weakestAllies = allies.filter((u) => u.id !== sourceUnit.id).sort((a, b) => a.power - b.power);
+			return weakestAllies.length > 0 ? [weakestAllies[0]] : [];
 
 		case "top_ally":
 			return allies.filter(

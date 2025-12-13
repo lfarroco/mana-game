@@ -177,6 +177,12 @@ const getTargetDescription = (targets: Targeting): string => {
 			return t("tooltip.targets.all_enemies");
 		case "strongest_enemy":
 			return t("tooltip.targets.strongest_enemy");
+		case "weakest_enemy":
+			return t("tooltip.targets.weakest_enemy");
+		case "strongest_ally":
+			return t("tooltip.targets.strongest_ally");
+		case "weakest_ally":
+			return t("tooltip.targets.weakest_ally");
 		case "top_ally":
 			return t("tooltip.targets.top");
 		case "bottom_ally":
