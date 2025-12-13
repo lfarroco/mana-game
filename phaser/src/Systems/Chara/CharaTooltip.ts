@@ -62,6 +62,10 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		case "re_hasted":
 		case "re_slow":
 		case "every_100_damage":
+		case "every_100_shield":
+		case "every_100_heal":
+		case "every_10_poison":
+		case "every_10_regen":
 			return null;
 		default: {
 			const _exhaustiveCheck: never = effect;
@@ -80,6 +84,10 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	re_hasted: { color: "#00eaff" },
 	re_slow: { color: "#d2691e" },
 	every_100_damage: { color: "#ff4500" },
+	every_100_shield: { color: "#74c0fc" },
+	every_100_heal: { color: "#51cf66" },
+	every_10_poison: { color: "#da77f2" },
+	every_10_regen: { color: "#8ce99a" },
 	slow: { color: "#d0bfff" },
 	charge: { color: "#ffe066" },
 	increase_power: { color: "#ff8cc8" },

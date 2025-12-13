@@ -120,6 +120,54 @@ export function trackPoison(
 
 	const forceStats = getForceStats(stats.forceId);
 	forceStats.poisonDealt += poison;
+
+	trackGlobalPoison(poison, sourceUnitId);
+}
+
+const POISON_THRESHOLD = 10;
+
+function trackGlobalPoison(poison: number, sourceUnitId: string) {
+	const unitStats = getUnitStats(sourceUnitId)!;
+
+	const forceStats = getForceStats(unitStats.forceId);
+
+	const oldTotal = forceStats.poisonDealt;
+	forceStats.poisonDealt += poison;
+
+	const oldThresholds = Math.floor(oldTotal / POISON_THRESHOLD);
+	const newThresholds = Math.floor(forceStats.poisonDealt / POISON_THRESHOLD);
+
+	const diff = newThresholds - oldThresholds;
+
+	if (diff > 0) {
+		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
+		for (let i = 0; i < diff; i++) {
+			processReactions(unit, { id: "every_10_poison" });
+		}
+	}
+}
+
+const HEAL_THRESHOLD = 100;
+
+function trackGlobalHeal(healing: number, sourceUnitId: string) {
+	const unitStats = getUnitStats(sourceUnitId)!;
+
+	const forceStats = getForceStats(unitStats.forceId);
+
+	const oldTotal = forceStats.healDealt;
+	forceStats.healDealt += healing;
+
+	const oldThresholds = Math.floor(oldTotal / HEAL_THRESHOLD);
+	const newThresholds = Math.floor(forceStats.healDealt / HEAL_THRESHOLD);
+
+	const diff = newThresholds - oldThresholds;
+
+	if (diff > 0) {
+		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
+		for (let i = 0; i < diff; i++) {
+			processReactions(unit, { id: "every_100_heal" });
+		}
+	}
 }
 
 export function trackHeal(
@@ -133,6 +181,8 @@ export function trackHeal(
 
 	const forceStats = getForceStats(stats.forceId);
 	forceStats.healDealt += healing;
+
+	trackGlobalHeal(healing, sourceUnitId);
 }
 
 export function trackRegen(sourceUnitId: string, regen: number): void {
@@ -143,6 +193,54 @@ export function trackRegen(sourceUnitId: string, regen: number): void {
 
 	const forceStats = getForceStats(stats.forceId);
 	forceStats.regenDealt += regen;
+
+	trackGlobalRegen(regen, sourceUnitId);
+}
+
+const REGEN_THRESHOLD = 10;
+
+function trackGlobalRegen(regen: number, sourceUnitId: string) {
+	const unitStats = getUnitStats(sourceUnitId)!;
+
+	const forceStats = getForceStats(unitStats.forceId);
+
+	const oldTotal = forceStats.regenDealt;
+	forceStats.regenDealt += regen;
+
+	const oldThresholds = Math.floor(oldTotal / REGEN_THRESHOLD);
+	const newThresholds = Math.floor(forceStats.regenDealt / REGEN_THRESHOLD);
+
+	const diff = newThresholds - oldThresholds;
+
+	if (diff > 0) {
+		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
+		for (let i = 0; i < diff; i++) {
+			processReactions(unit, { id: "every_10_regen" });
+		}
+	}
+}
+
+const SHIELD_THRESHOLD = 100;
+
+function trackGlobalShield(shield: number, sourceUnitId: string) {
+	const unitStats = getUnitStats(sourceUnitId)!;
+
+	const forceStats = getForceStats(unitStats.forceId);
+
+	const oldTotal = forceStats.shieldDealt;
+	forceStats.shieldDealt += shield;
+
+	const oldThresholds = Math.floor(oldTotal / SHIELD_THRESHOLD);
+	const newThresholds = Math.floor(forceStats.shieldDealt / SHIELD_THRESHOLD);
+
+	const diff = newThresholds - oldThresholds;
+
+	if (diff > 0) {
+		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
+		for (let i = 0; i < diff; i++) {
+			processReactions(unit, { id: "every_100_shield" });
+		}
+	}
 }
 
 export function trackShield(sourceUnitId: string, shield: number): void {
@@ -153,6 +251,8 @@ export function trackShield(sourceUnitId: string, shield: number): void {
 
 	const forceStats = getForceStats(stats.forceId);
 	forceStats.shieldDealt += shield;
+
+	trackGlobalShield(shield, sourceUnitId);
 }
 
 
