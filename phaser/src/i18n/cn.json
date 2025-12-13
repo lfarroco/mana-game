@@ -141,6 +141,10 @@
 	"tooltip.effects.re_hasted": "再度加速",
 	"tooltip.effects.re_slow": "再度减速",
 	"tooltip.effects.every_100_damage": "每造成 100 点伤害",
+	"tooltip.effects.every_100_shield": "每 100 盾",
+	"tooltip.effects.every_100_heal": "每 100 治疗",
+	"tooltip.effects.every_10_poison": "每 10 毒",
+	"tooltip.effects.every_10_regen": "每 10 再生",
 	"tooltip.effects.charge": "充能",
 	"tooltip.effects.increase_power": "力量",
 	"tooltip.effects.increase_critical": "暴击",
@@ -263,5 +267,14 @@
 	"encounters.silver_shop": "白银单位",
 	"encounters.silver_shop_desc": "招募一个白银单位",
 	"encounters.gold_shop": "黄金单位",
-	"encounters.gold_shop_desc": "招募一个黄金单位"
+	"encounters.gold_shop_desc": "招募一个黄金单位",
+	"run_stats.title": "运行统计",
+	"run_stats.damage_dealt": "造成伤害",
+	"run_stats.poison_dealt": "造成毒素",
+	"run_stats.shield_dealt": "提供护盾",
+	"run_stats.regen_dealt": "提供再生",
+	"run_stats.heal_dealt": "提供治疗",
+	"run_stats.most_powerful_unit": "最强单位",
+	"run_stats.most_used_unit": "最常用单位",
+	"run_stats.total_units_recruited": "招募单位总数"
 }
