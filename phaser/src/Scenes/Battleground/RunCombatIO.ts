@@ -29,6 +29,16 @@ export const runCombatIO = () => {
 
 	active = true;
 	Systems.CountdownTimer.start();
+
+	const allUnits = getState().battleData.units;
+	allUnits.forEach((unit) => {
+		const battleStartReactions = unit.reactions.filter(
+			(r) => r.effectId === "on_battle_start"
+		);
+		battleStartReactions.forEach((r) => {
+			processEffectsIO(unit, r.effects, true);
+		});
+	});
 };
 
 export function updateFrame(_time: number, delta: number): void {
