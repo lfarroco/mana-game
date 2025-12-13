@@ -105,7 +105,7 @@ async function animateItemAppearance(chara: Chara.Chara) {
 }
 
 function getAvailableCardsForTavern(count: number, filter?: (u: Card.CardDefinition) => boolean): Card.CardDefinition[] {
-	const allCards = Card.getNonCores();
+	const allCards = Card.getAvailableCards();
 	const filteredCards = filter ?
 		allCards.filter(filter) :
 		allCards;
