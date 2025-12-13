@@ -46,6 +46,11 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 				`[color=#ff8cc8]+${effect.amount}${effect.permanent ? "*" : ""}[/color]`,
 				effect.targets
 			);
+		case "decrease_power":
+			return withTargets(
+				`[color=#8a2be2]-${effect.percentage}% Power[/color]`,
+				effect.targets
+			);
 		case "increase_critical":
 			return withTargets(
 				`[color=#ff8cc8]+${t("tooltip.effects.increase_critical")}[/color] [color=#ffd93d]${effect.amount}[/color]`,
@@ -92,6 +97,7 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	slow: { color: "#d0bfff" },
 	charge: { color: "#ffe066" },
 	increase_power: { color: "#ff8cc8" },
+	decrease_power: { color: "#8a2be2" },
 	increase_critical: { color: "#ff8cc8" },
 	on_crit: { color: "#ff0000" },
 	multiply_power: { color: "#ff8cc8" },
@@ -169,6 +175,8 @@ const getTargetDescription = (targets: Targeting): string => {
 			else return t("tooltip.targets.all_allies");
 		case "all_enemies":
 			return t("tooltip.targets.all_enemies");
+		case "strongest_enemy":
+			return t("tooltip.targets.strongest_enemy");
 		case "top_ally":
 			return t("tooltip.targets.top");
 		case "bottom_ally":
