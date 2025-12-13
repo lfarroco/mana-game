@@ -144,6 +144,7 @@
 	"tooltip.effects.every_100_shield": "每 100 盾",
 	"tooltip.effects.every_100_heal": "每 100 治疗",
 	"tooltip.effects.every_10_poison": "每 10 毒",
+	"tooltip.effects.on_crit": "暴击时",
 	"tooltip.effects.every_10_regen": "每 10 再生",
 	"tooltip.effects.charge": "充能",
 	"tooltip.effects.increase_power": "力量",

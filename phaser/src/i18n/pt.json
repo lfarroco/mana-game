@@ -144,6 +144,7 @@
 	"tooltip.effects.every_100_shield": "A cada 100 de Escudo",
 	"tooltip.effects.every_100_heal": "A cada 100 de Cura",
 	"tooltip.effects.every_10_poison": "A cada 10 de Veneno",
+	"tooltip.effects.on_crit": "Ao Crítico",
 	"tooltip.effects.every_10_regen": "A cada 10 de Regeneração",
 	"tooltip.effects.charge": "Carga",
 	"tooltip.effects.increase_power": "Poder",
