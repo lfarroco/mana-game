@@ -162,6 +162,7 @@
 	"tooltip.targets.all_allies": "All allies",
 	"tooltip.targets.all_allies_type": "All allies of type {type}",
 	"tooltip.targets.all_enemies": "All enemies",
+	"tooltip.targets.strongest_enemy": "Strongest enemy",
 	"tooltip.targets.top": "Top",
 	"tooltip.targets.bottom": "Bottom",
 	"tooltip.targets.left": "Left",

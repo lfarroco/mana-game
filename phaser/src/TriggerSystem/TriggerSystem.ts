@@ -11,8 +11,10 @@ export type EffectId =
 	| "regen"
 	| "haste"
 	| "slow"
+	| "slow"
 	| "charge"
 	| "increase_power"
+	| "decrease_power"
 	| "multiply_power"
 	| "increase_critical"
 	| "distribute_power"
@@ -67,6 +69,12 @@ export type Effect =
 	| {
 		id: "increase_power";
 		amount: number;
+		permanent?: boolean;
+		targets: Targeting;
+	}
+	| {
+		id: "decrease_power";
+		percentage: number;
 		permanent?: boolean;
 		targets: Targeting;
 	}
@@ -141,6 +149,9 @@ export type Targeting =
 	}
 	| {
 		id: "all_enemies";
+	}
+	| {
+		id: "strongest_enemy";
 	}
 	| {
 		id: "top_ally";
@@ -226,6 +237,15 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			effects.increasePower(
 				increasePowerTargets,
 				effect.amount,
+				effect.permanent || false,
+				sourceUnit
+			);
+			break;
+		case "decrease_power":
+			const decreasePowerTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
+			effects.decreasePower(
+				decreasePowerTargets,
+				effect.percentage,
 				effect.permanent || false,
 				sourceUnit
 			);
@@ -362,6 +382,10 @@ export function resolveTargets(sourceUnit: Unit, effect: Effect, triggeringUnit?
 
 		case "all_enemies":
 			return enemies;
+
+		case "strongest_enemy":
+			const sortedEnemies = enemies.sort((a, b) => b.power - a.power);
+			return sortedEnemies.length > 0 ? [sortedEnemies[0]] : [];
 
 		case "top_ally":
 			return allies.filter(
