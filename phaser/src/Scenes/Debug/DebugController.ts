@@ -9,6 +9,7 @@ import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { getState } from "@Models/State";
+import * as StatsStore from "@Models/StatsStore";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
@@ -300,4 +301,15 @@ export async function setWins(wins: number): Promise<string> {
 	getState().gameData.player.wins = wins;
 	updateWinsDisplay(wins);
 	return `Wins set to ${wins}`;
+}
+
+
+export function unlockUnit(unitId: string): string {
+	StatsStore.unlockUnit(unitId);
+	return `Unit ${unitId} unlocked (pending confirmation). Go to main menu to confirm.`;
+}
+
+export function lockUnit(unitId: string): string {
+	StatsStore.lockUnit(unitId);
+	return `Unit ${unitId} locked.`;
 }

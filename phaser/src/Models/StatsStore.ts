@@ -1,7 +1,3 @@
-/**
- * StatsStore - Persistent player statistics storage
- * Tracks lifetime game stats like runs played, victories by tier, and infinite mode progress
- */
 import { storage } from "../Storage";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
@@ -12,9 +8,10 @@ export type PlayerStats = {
 	silverVictories: number;
 	goldVictories: number;
 	furthestInfiniteRound: number;
-	unitUsage: Record<string, number>; // unit name -> times used
+	unitUsage: Record<string, number>;
 	mostPowerfulUnit: { name: string; power: number } | null;
 	unlockedUnits: string[];
+	pendingUnlockUnits: string[];
 };
 
 export type VictoryTier = "bronze" | "silver" | "gold";
@@ -28,13 +25,11 @@ const defaultStats: PlayerStats = {
 	unitUsage: {},
 	mostPowerfulUnit: null,
 	unlockedUnits: [],
+	pendingUnlockUnits: [],
 };
 
 let currentStats: PlayerStats = { ...defaultStats };
 
-/**
- * Load stats from storage
- */
 function loadStats(): void {
 	try {
 		const saved = storage.getItem(STORAGE_KEY);
@@ -43,7 +38,6 @@ function loadStats(): void {
 		const parsed = JSON.parse(saved);
 		if (typeof parsed !== "object" || parsed === null) return;
 
-		// Validate and merge with defaults
 		currentStats = {
 			totalRuns: typeof parsed.totalRuns === "number" ? parsed.totalRuns : 0,
 			bronzeVictories: typeof parsed.bronzeVictories === "number" ? parsed.bronzeVictories : 0,
@@ -53,15 +47,13 @@ function loadStats(): void {
 			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
 			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
 			unlockedUnits: Array.isArray(parsed.unlockedUnits) ? parsed.unlockedUnits : [],
+			pendingUnlockUnits: Array.isArray(parsed.pendingUnlockUnits) ? parsed.pendingUnlockUnits : [],
 		};
 	} catch (error) {
 		console.warn("[StatsStore] Failed to load stats:", error);
 	}
 }
 
-/**
- * Save stats to storage
- */
 function saveStats(): void {
 	try {
 		storage.setItem(STORAGE_KEY, JSON.stringify(currentStats));
@@ -70,32 +62,20 @@ function saveStats(): void {
 	}
 }
 
-/**
- * Initialize the stats store - call on app startup
- */
 export function init(): void {
 	loadStats();
 }
 
-/**
- * Get current stats
- */
 export function getStats(): PlayerStats {
 	return { ...currentStats };
 }
 
-/**
- * Increment total runs played
- */
 export function incrementRunsPlayed(): void {
 	currentStats.totalRuns++;
 	saveStats();
 	console.log(`[StatsStore] Runs played: ${currentStats.totalRuns}`);
 }
 
-/**
- * Record a victory of a specific tier
- */
 export function recordVictory(tier: VictoryTier): void {
 	switch (tier) {
 		case "gold":
@@ -112,9 +92,6 @@ export function recordVictory(tier: VictoryTier): void {
 	console.log(`[StatsStore] Recorded ${tier} victory`);
 }
 
-/**
- * Update furthest infinite round if the new value is higher
- */
 export function updateFurthestInfiniteRound(wins: number): void {
 	if (wins > currentStats.furthestInfiniteRound) {
 		currentStats.furthestInfiniteRound = wins;
@@ -123,28 +100,17 @@ export function updateFurthestInfiniteRound(wins: number): void {
 	}
 }
 
-/**
- * Record unit usage for tracking most used unit
- */
 export function recordUnitUsage(name: string): void {
 	currentStats.unitUsage[name] = (currentStats.unitUsage[name] || 0) + 1;
-	// Don't save here, will batch save with other stats
 }
 
-/**
- * Check and update most powerful unit record
- */
 export function checkMostPowerfulUnit(name: string, power: number): void {
 	if (!currentStats.mostPowerfulUnit || power > currentStats.mostPowerfulUnit.power) {
 		currentStats.mostPowerfulUnit = { name, power: Math.floor(power) };
 		console.log(`[StatsStore] New most powerful unit: ${name} with ${Math.floor(power)} power`);
 	}
-	// Don't save here, will batch save with other stats
 }
 
-/**
- * Get the most used unit's name
- */
 export function getMostUsedUnit(): string | null {
 	const entries = Object.entries(currentStats.unitUsage);
 	if (entries.length === 0) return null;
@@ -162,27 +128,40 @@ export function getMostUsedUnit(): string | null {
 	return maxName;
 }
 
-/**
- * Force save stats (call after batch operations)
- */
 export function save(): void {
 	saveStats();
 }
 
-/**
- * Unlock a specific unit by ID
- */
 export function unlockUnit(unitId: string): void {
-	if (!currentStats.unlockedUnits.includes(unitId)) {
-		currentStats.unlockedUnits.push(unitId);
+	if (!currentStats.unlockedUnits.includes(unitId) && !currentStats.pendingUnlockUnits.includes(unitId)) {
+		currentStats.pendingUnlockUnits.push(unitId);
 		saveStats();
-		console.log(`[StatsStore] Unlocked unit: ${unitId}`);
+		console.log(`[StatsStore] Pending unlock for unit: ${unitId}`);
 	}
 }
 
-/**
- * Check if a unit is unlocked
- */
+export function confirmUnlock(unitId: string): void {
+	if (currentStats.pendingUnlockUnits.includes(unitId)) {
+		currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter(id => id !== unitId);
+		if (!currentStats.unlockedUnits.includes(unitId)) {
+			currentStats.unlockedUnits.push(unitId);
+		}
+		saveStats();
+		console.log(`[StatsStore] Confirmed unlock for unit: ${unitId}`);
+	}
+}
+
+export function getPendingUnlocks(): string[] {
+	return [...currentStats.pendingUnlockUnits];
+}
+
 export function isUnitUnlocked(unitId: string): boolean {
 	return currentStats.unlockedUnits.includes(unitId);
+}
+
+export function lockUnit(unitId: string): void {
+	currentStats.unlockedUnits = currentStats.unlockedUnits.filter(id => id !== unitId);
+	currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter(id => id !== unitId);
+	saveStats();
+	console.log(`[StatsStore] Locked unit: ${unitId}`);
 }
