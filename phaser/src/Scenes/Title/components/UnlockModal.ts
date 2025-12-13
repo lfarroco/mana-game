@@ -4,13 +4,16 @@ import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { getCardDefinition } from "@Models/Entities/Card";
+import * as Chara from "@Systems/Chara/Chara";
+import { createUnitFromCardSpec } from "@Models/Entities/Unit";
+import { createDescription } from "@Systems/Chara/createDescription";
 
 const OVERLAY_ALPHA = 0.85;
-const PANEL_WIDTH = 600;
-const PANEL_HEIGHT = 500;
+const PANEL_WIDTH = 800;
+const PANEL_HEIGHT = 700;
 
 export function showUnlockModal(unitId: string): Promise<void> {
-	return new Promise((resolve) => {
+	return new Promise(async (resolve) => {
 		const scene = getCurrentScene();
 		const unitData = getCardDefinition(unitId);
 
@@ -32,28 +35,35 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			0.95
 		);
 
-		const title = io.Title1("NEW UNIT UNLOCKED!");
-		io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
-		io.Centralize(title);
+		const modalTitle = io.Title1("NEW UNIT UNLOCKED!");
+		io.SetPosition(modalTitle, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
+		io.Centralize(modalTitle);
 
-		const unitImage = scene.add.image(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 50, unitData.pic);
-		unitImage.setScale(1.5);
+		const dummy = createUnitFromCardSpec("dummy", unitData, undefined, "")
 
-		const nameText = scene.add.text(
-			c.MIDDLE_SCREEN_X,
-			c.MIDDLE_SCREEN_Y + 50,
-			unitData.name_en, // TODO: Localize name
-			{
-				...c.titleTextConfig,
-				fontSize: "28px",
-				color: "#f1c40f",
-			}
-		);
-		nameText.setOrigin(0.5, 0.5);
+		const chara = await Chara.create(dummy);
+
+		chara.setPosition(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 180);
+
+		const { title, description } = createDescription(chara);
+
+		const titleText = getCurrentScene().add
+			.text(c.MIDDLE_SCREEN_X, chara.y + 180, title, c.titleTextConfig)
+			.setOrigin(0.5);
+
+		const descriptionText = getCurrentScene().add
+			.rexBBCodeText(
+				c.MIDDLE_SCREEN_X,
+				titleText.y + 40,
+				description)
+			.setFontSize(30)
+			.setWrapMode(1)
+			.setFontFamily("Arimo")
+			.setOrigin(0.5, 0);
 
 		const confirmButton = createUIButton(
 			"AWESOME!",
-			vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+			vec2(c.MIDDLE_SCREEN_X, descriptionText.y + descriptionText.height + 60),
 			() => {
 				container.destroy(true);
 				resolve();
@@ -63,9 +73,10 @@ export function showUnlockModal(unitId: string): Promise<void> {
 		const container = io.Container([
 			overlay,
 			panelBg,
-			title,
-			unitImage,
-			nameText,
+			modalTitle,
+			chara,
+			titleText,
+			descriptionText,
 			confirmButton.container
 		]);
 

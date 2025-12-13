@@ -153,7 +153,7 @@ async function createSprite(
 		await loadUnitAssets([unit]);
 	}
 
-	const sprite = getCurrentScene().add.sprite(0, -15, unit.pic);
+	const sprite = getCurrentScene().add.sprite(0, -30, unit.pic);
 	container.add(sprite);
 	configureSprite(sprite, unit);
 
