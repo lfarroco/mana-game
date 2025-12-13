@@ -182,7 +182,7 @@
 			"pic": "purple-stone",
 			"life": 500,
 			"power": 20,
-			"cooldown": 3000,
+			"cooldown": 5500,
 			"isCore": true,
 			"effects": [
 				{
@@ -224,7 +224,7 @@
 			"name_ru": "Ведьма Пустоты",
 			"pic": "boss_andromeda",
 			"power": 20,
-			"cooldown": 3200,
+			"cooldown": 5400,
 			"effects": [
 				{
 					"id": "poison"
@@ -264,7 +264,7 @@
 			"name_ru": "Живая броня",
 			"pic": "f1_tank",
 			"power": 25,
-			"cooldown": 3000,
+			"cooldown": 5100,
 			"effects": [
 				{
 					"id": "shield"
@@ -296,7 +296,7 @@
 			"name_ru": "Громовой Механик",
 			"pic": "f3_mech",
 			"power": 10,
-			"cooldown": 3200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "damage"
@@ -433,7 +433,7 @@
 			"name_ru": "Носитель Чумы",
 			"pic": "f3_plague_totem",
 			"power": 10,
-			"cooldown": 2200,
+			"cooldown": 4200,
 			"effects": [
 				{
 					"id": "poison"
@@ -465,7 +465,7 @@
 			"name_ru": "Ядовитый Алхимик",
 			"pic": "f5_drogon",
 			"power": 20,
-			"cooldown": 3200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "poison"
@@ -504,7 +504,7 @@
 			"name_ru": "Ядовитая Гадюка",
 			"pic": "neutral_serpenti",
 			"power": 20,
-			"cooldown": 3200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "poison"
@@ -592,7 +592,7 @@
 			"name_ru": "Заражённый Ужас",
 			"pic": "f4_horror",
 			"power": 30,
-			"cooldown": 3700,
+			"cooldown": 5700,
 			"effects": [
 				{
 					"id": "poison"
@@ -624,7 +624,7 @@
 			"name_ru": "Скелетный Маг",
 			"pic": "neutral_bonereaper",
 			"power": 40,
-			"cooldown": 4700,
+			"cooldown": 4900,
 			"effects": [
 				{
 					"id": "poison"
@@ -650,7 +650,7 @@
 			"name_cn": "瘟疫携带者",
 			"pic": "f4_nocturn",
 			"power": 20,
-			"cooldown": 2700,
+			"cooldown": 4700,
 			"effects": [
 				{
 					"id": "poison"
@@ -682,7 +682,7 @@
 			"name_ru": "Диана Огненная Стрела",
 			"pic": "neutral_arrowwhistler",
 			"power": 20,
-			"cooldown": 3600,
+			"cooldown": 5600,
 			"effects": [
 				{
 					"id": "damage"
@@ -762,7 +762,7 @@
 			"name_ru": "Каменный Страж",
 			"pic": "neutral_golemstone",
 			"power": 10,
-			"cooldown": 3200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "shield"
@@ -796,7 +796,7 @@
 			"pic": "boss_shadowlord",
 			"power": 10,
 			"critical": 20,
-			"cooldown": 2000,
+			"cooldown": 4300,
 			"effects": [
 				{
 					"id": "damage"
@@ -908,7 +908,7 @@
 			"pic": "f2_chakriavatar",
 			"power": 20,
 			"critical": 10,
-			"cooldown": 3000,
+			"cooldown": 5000,
 			"effects": [
 				{
 					"id": "damage"
@@ -947,7 +947,7 @@
 			"name_ru": "Рыцарь Хаоса",
 			"pic": "boss_chaosknight",
 			"power": 30,
-			"cooldown": 3500,
+			"cooldown": 5500,
 			"effects": [
 				{
 					"id": "damage"
@@ -1083,7 +1083,7 @@
 			"name_ru": "Страж Айгиса",
 			"pic": "f2_demononi",
 			"power": 20,
-			"cooldown": 3100,
+			"cooldown": 5100,
 			"effects": [
 				{
 					"id": "shield"
@@ -1211,7 +1211,7 @@
 			"name_ru": "Мастер Парирования",
 			"pic": "neutral_swordofakrane",
 			"power": 20,
-			"cooldown": 3800,
+			"cooldown": 5800,
 			"effects": [
 				{
 					"id": "shield"
@@ -1314,7 +1314,7 @@
 			"name_ru": "Жрица Света",
 			"pic": "neutral_healingmystic",
 			"power": 25,
-			"cooldown": 3700,
+			"cooldown": 5700,
 			"effects": [
 				{
 					"id": "heal"
@@ -1347,7 +1347,7 @@
 			"name_ru": "Ткач Душ",
 			"pic": "boss_soulstealer",
 			"power": 15,
-			"cooldown": 2700,
+			"cooldown": 4700,
 			"effects": [
 				{
 					"id": "heal"
@@ -1451,7 +1451,7 @@
 			"name_ru": "Посланник Сияния",
 			"pic": "boss_cindera",
 			"power": 30,
-			"cooldown": 3700,
+			"cooldown": 5700,
 			"effects": [
 				{
 					"id": "heal"
@@ -1483,7 +1483,7 @@
 			"name_ru": "Монах Гармонии",
 			"pic": "boss_harmony",
 			"power": 20,
-			"cooldown": 2800,
+			"cooldown": 4800,
 			"effects": [
 				{
 					"id": "heal"
@@ -1715,7 +1715,7 @@
 			"name_ru": "Вечный Феникс",
 			"pic": "f2_firewyrm",
 			"power": 20,
-			"cooldown": 2300,
+			"cooldown": 4300,
 			"effects": [
 				{
 					"id": "regen"
@@ -1813,7 +1813,7 @@
 			"name_ru": "Кровавый Катализатор",
 			"pic": "neutral_bloodletter",
 			"power": 20,
-			"cooldown": 2200,
+			"cooldown": 4200,
 			"effects": [
 				{
 					"id": "regen"
@@ -1841,7 +1841,7 @@
 			"name_ru": "Симбиот",
 			"pic": "f5_mech",
 			"power": 20,
-			"cooldown": 2500,
+			"cooldown": 4500,
 			"effects": [
 				{
 					"id": "regen"
@@ -1881,7 +1881,7 @@
 			"name_ru": "Манипулятор Временем",
 			"pic": "f1_sister",
 			"power": 6,
-			"cooldown": 3500,
+			"cooldown": 5500,
 			"effects": [
 				{
 					"id": "slow",
@@ -1910,7 +1910,7 @@
 			"name_ru": "Волшебник Времени",
 			"pic": "f2_mage4winds",
 			"power": 10,
-			"cooldown": 3500,
+			"cooldown": 4900,
 			"effects": [
 				{
 					"id": "slow",
@@ -2173,7 +2173,7 @@
 			"name_ru": "Игрок",
 			"pic": "neutral_gambler",
 			"power": 10,
-			"cooldown": 3200,
+			"cooldown": 4200,
 			"effects": [
 				{
 					"id": "shield"
@@ -2270,7 +2270,7 @@
 			"name_ru": "Берсерк",
 			"pic": "neutral_beastmaster",
 			"power": 40,
-			"cooldown": 4800,
+			"cooldown": 4200,
 			"effects": [
 				{
 					"id": "damage"
@@ -2302,7 +2302,7 @@
 			"name_ru": "Стрелок",
 			"pic": "neutral_hsuku",
 			"power": 20,
-			"cooldown": 6800,
+			"cooldown": 6300,
 			"effects": [
 				{
 					"id": "damage"
