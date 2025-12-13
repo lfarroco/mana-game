@@ -145,6 +145,7 @@
 	"tooltip.effects.every_100_heal": "Every 100 Heal",
 	"tooltip.effects.every_10_poison": "Every 10 Poison",
 	"tooltip.effects.on_crit": "On Crit",
+	"tooltip.effects.on_over_heal": "Over Heal",
 	"tooltip.effects.every_10_regen": "Every 10 Regen",
 	"tooltip.effects.slow": "Slow",
 	"tooltip.effects.charge": "Charge",

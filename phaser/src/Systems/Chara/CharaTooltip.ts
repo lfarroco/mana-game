@@ -72,6 +72,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		case "every_100_heal":
 		case "every_10_poison":
 		case "every_10_regen":
+		case "on_over_heal":
 			return null;
 		default: {
 			const _exhaustiveCheck: never = effect;
@@ -100,6 +101,7 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	decrease_power: { color: "#8a2be2" },
 	increase_critical: { color: "#ff8cc8" },
 	on_crit: { color: "#ff0000" },
+	on_over_heal: { color: "#51cf66" },
 	multiply_power: { color: "#ff8cc8" },
 	all: { color: "#ffffff" },
 };
