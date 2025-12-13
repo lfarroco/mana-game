@@ -27,7 +27,8 @@ export type EffectId =
 	| "every_100_shield"
 	| "every_100_heal"
 	| "every_10_poison"
-	| "every_10_regen";
+	| "every_10_regen"
+	| "on_over_heal";
 
 export type EffectReaction = {
 	position: EffectSourcePosition;
@@ -123,6 +124,9 @@ export type Effect =
 	}
 	| {
 		id: "every_10_regen";
+	}
+	| {
+		id: "on_over_heal";
 	};
 
 export type Targeting =
@@ -289,6 +293,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 		case "every_100_heal":
 		case "every_10_poison":
 		case "every_10_regen":
+		case "on_over_heal":
 			break;
 		default:
 			const _exhaustiveCheck: never = effect;
@@ -301,7 +306,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
-const ALLOWED_SELF_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen"]
+const ALLOWED_SELF_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal"]
 export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
