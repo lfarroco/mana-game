@@ -75,184 +75,101 @@ export function trackAction(payload: { unit: Unit }): void {
 }
 
 const DAMAGE_THRESHOLD = 100;
-
-export function trackDamage(
-	sourceUnitId: string,
-	damage: number,
-): void {
-	if (damage <= 0) return;
-
-	const stats = unitStats.get(sourceUnitId)!;
-	stats.damageDealt += damage;
-
-	trackGlobalDamage(damage, sourceUnitId);
-}
-
-function trackGlobalDamage(damage: number, sourceUnitId: string) {
-	const unitStats = getUnitStats(sourceUnitId)!;
-
-	const forceStats = getForceStats(unitStats.forceId);
-
-	const oldTotal = forceStats.damageDealt;
-	forceStats.damageDealt += damage;
-
-	const oldThresholds = Math.floor(oldTotal / DAMAGE_THRESHOLD);
-	const newThresholds = Math.floor(forceStats.damageDealt / DAMAGE_THRESHOLD);
-
-	const diff = newThresholds - oldThresholds;
-
-	if (diff > 0) {
-		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
-		for (let i = 0; i < diff; i++) {
-			processReactions(unit, { id: "every_100_damage" });
-		}
-	}
-}
-
-export function trackPoison(
-	sourceUnitId: string,
-	poison: number,
-): void {
-	if (poison <= 0) return;
-
-	const stats = unitStats.get(sourceUnitId)!;
-	stats.poisonApplied += poison;
-
-	const forceStats = getForceStats(stats.forceId);
-	forceStats.poisonDealt += poison;
-
-	trackGlobalPoison(poison, sourceUnitId);
-}
-
 const POISON_THRESHOLD = 10;
-
-function trackGlobalPoison(poison: number, sourceUnitId: string) {
-	const unitStats = getUnitStats(sourceUnitId)!;
-
-	const forceStats = getForceStats(unitStats.forceId);
-
-	const oldTotal = forceStats.poisonDealt;
-	forceStats.poisonDealt += poison;
-
-	const oldThresholds = Math.floor(oldTotal / POISON_THRESHOLD);
-	const newThresholds = Math.floor(forceStats.poisonDealt / POISON_THRESHOLD);
-
-	const diff = newThresholds - oldThresholds;
-
-	if (diff > 0) {
-		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
-		for (let i = 0; i < diff; i++) {
-			processReactions(unit, { id: "every_10_poison" });
-		}
-	}
-}
-
 const HEAL_THRESHOLD = 100;
+const REGEN_THRESHOLD = 10;
+const SHIELD_THRESHOLD = 100;
 
-function trackGlobalHeal(healing: number, sourceUnitId: string) {
-	const unitStats = getUnitStats(sourceUnitId)!;
+type StatConfig = {
+	unitStatKey: keyof UnitCombatStats;
+	forceStatKey: keyof CurrentCombatStats;
+	threshold?: number;
+	reactionId?: string;
+};
 
-	const forceStats = getForceStats(unitStats.forceId);
+const STAT_CONFIGS: Record<string, StatConfig> = {
+	damage: {
+		unitStatKey: "damageDealt",
+		forceStatKey: "damageDealt",
+		threshold: DAMAGE_THRESHOLD,
+		reactionId: "every_100_damage",
+	},
+	poison: {
+		unitStatKey: "poisonApplied",
+		forceStatKey: "poisonDealt",
+		threshold: POISON_THRESHOLD,
+		reactionId: "every_10_poison",
+	},
+	heal: {
+		unitStatKey: "healingDone",
+		forceStatKey: "healDealt",
+		threshold: HEAL_THRESHOLD,
+		reactionId: "every_100_heal",
+	},
+	regen: {
+		unitStatKey: "regenApplied",
+		forceStatKey: "regenDealt",
+		threshold: REGEN_THRESHOLD,
+		reactionId: "every_10_regen",
+	},
+	shield: {
+		unitStatKey: "shieldGranted",
+		forceStatKey: "shieldDealt",
+		threshold: SHIELD_THRESHOLD,
+		reactionId: "every_100_shield",
+	},
+};
 
-	const oldTotal = forceStats.healDealt;
-	forceStats.healDealt += healing;
+function trackStat(
+	amount: number,
+	sourceUnitId: string,
+	configKey: keyof typeof STAT_CONFIGS
+) {
+	if (amount <= 0) return;
 
-	const oldThresholds = Math.floor(oldTotal / HEAL_THRESHOLD);
-	const newThresholds = Math.floor(forceStats.healDealt / HEAL_THRESHOLD);
+	const config = STAT_CONFIGS[configKey];
+	const stats = unitStats.get(sourceUnitId)!;
 
-	const diff = newThresholds - oldThresholds;
+	// Update Unit Stats
+	(stats[config.unitStatKey] as number) += amount;
 
-	if (diff > 0) {
-		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
-		for (let i = 0; i < diff; i++) {
-			processReactions(unit, { id: "every_100_heal" });
+	// Update Force Stats & Check Reactor
+	const forceStats = getForceStats(stats.forceId);
+	const oldTotal = forceStats[config.forceStatKey];
+	forceStats[config.forceStatKey] += amount;
+
+	if (config.threshold && config.reactionId) {
+		const oldThresholds = Math.floor(oldTotal / config.threshold);
+		const newThresholds = Math.floor(forceStats[config.forceStatKey] / config.threshold);
+		const diff = newThresholds - oldThresholds;
+
+		if (diff > 0) {
+			const unit = getState().battleData.units.find((u) => u.id === sourceUnitId)!;
+			for (let i = 0; i < diff; i++) {
+				processReactions(unit, { id: config.reactionId as any });
+			}
 		}
 	}
 }
 
-export function trackHeal(
-	sourceUnitId: string,
-	healing: number,
-): void {
-	if (healing <= 0) return;
+export function trackDamage(sourceUnitId: string, damage: number): void {
+	trackStat(damage, sourceUnitId, "damage");
+}
 
-	const stats = unitStats.get(sourceUnitId)!;
-	stats.healingDone += healing;
+export function trackPoison(sourceUnitId: string, poison: number): void {
+	trackStat(poison, sourceUnitId, "poison");
+}
 
-	const forceStats = getForceStats(stats.forceId);
-	forceStats.healDealt += healing;
-
-	trackGlobalHeal(healing, sourceUnitId);
+export function trackHeal(sourceUnitId: string, healing: number): void {
+	trackStat(healing, sourceUnitId, "heal");
 }
 
 export function trackRegen(sourceUnitId: string, regen: number): void {
-	if (regen <= 0) return;
-
-	const stats = unitStats.get(sourceUnitId)!;
-	stats.regenApplied += regen;
-
-	const forceStats = getForceStats(stats.forceId);
-	forceStats.regenDealt += regen;
-
-	trackGlobalRegen(regen, sourceUnitId);
-}
-
-const REGEN_THRESHOLD = 10;
-
-function trackGlobalRegen(regen: number, sourceUnitId: string) {
-	const unitStats = getUnitStats(sourceUnitId)!;
-
-	const forceStats = getForceStats(unitStats.forceId);
-
-	const oldTotal = forceStats.regenDealt;
-	forceStats.regenDealt += regen;
-
-	const oldThresholds = Math.floor(oldTotal / REGEN_THRESHOLD);
-	const newThresholds = Math.floor(forceStats.regenDealt / REGEN_THRESHOLD);
-
-	const diff = newThresholds - oldThresholds;
-
-	if (diff > 0) {
-		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
-		for (let i = 0; i < diff; i++) {
-			processReactions(unit, { id: "every_10_regen" });
-		}
-	}
-}
-
-const SHIELD_THRESHOLD = 100;
-
-function trackGlobalShield(shield: number, sourceUnitId: string) {
-	const unitStats = getUnitStats(sourceUnitId)!;
-
-	const forceStats = getForceStats(unitStats.forceId);
-
-	const oldTotal = forceStats.shieldDealt;
-	forceStats.shieldDealt += shield;
-
-	const oldThresholds = Math.floor(oldTotal / SHIELD_THRESHOLD);
-	const newThresholds = Math.floor(forceStats.shieldDealt / SHIELD_THRESHOLD);
-
-	const diff = newThresholds - oldThresholds;
-
-	if (diff > 0) {
-		const unit = getState().battleData.units.find(u => u.id === sourceUnitId)!;
-		for (let i = 0; i < diff; i++) {
-			processReactions(unit, { id: "every_100_shield" });
-		}
-	}
+	trackStat(regen, sourceUnitId, "regen");
 }
 
 export function trackShield(sourceUnitId: string, shield: number): void {
-	if (shield <= 0) return;
-
-	const stats = unitStats.get(sourceUnitId)!;
-	stats.shieldGranted += shield;
-
-	const forceStats = getForceStats(stats.forceId);
-	forceStats.shieldDealt += shield;
-
-	trackGlobalShield(shield, sourceUnitId);
+	trackStat(shield, sourceUnitId, "shield");
 }
 
 
