@@ -301,13 +301,13 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
+const ALLOWED_SELF_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen"]
 export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
-
 	const candidates = getState().battleData.units
-		.filter((u) => u.id != triggeringUnit.id || ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen"].includes(effect.id))
+		.filter((u) => u.id != triggeringUnit.id || ALLOWED_SELF_REACTIONS.includes(effect.id))
 
 	candidates
 		.forEach((u) => {
