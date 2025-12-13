@@ -61,6 +61,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		case "sacrifice_effect":
 		case "re_hasted":
 		case "re_slow":
+		case "on_crit":
 		case "every_100_damage":
 		case "every_100_shield":
 		case "every_100_heal":
@@ -92,6 +93,7 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	charge: { color: "#ffe066" },
 	increase_power: { color: "#ff8cc8" },
 	increase_critical: { color: "#ff8cc8" },
+	on_crit: { color: "#ff0000" },
 	multiply_power: { color: "#ff8cc8" },
 	all: { color: "#ffffff" },
 };

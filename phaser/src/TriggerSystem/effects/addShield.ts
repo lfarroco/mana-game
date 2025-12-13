@@ -6,6 +6,7 @@ import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTr
 import { getCharaById } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { shieldFx } from "./visuals/shield";
+import { processReactions } from "../TriggerSystem";
 
 export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -22,6 +23,10 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 
 		if (actualShieldChange > 0) {
 			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+		}
+
+		if (crit.isCritical) {
+			processReactions(sourceUnit, { id: "on_crit" });
 		}
 	};
 
