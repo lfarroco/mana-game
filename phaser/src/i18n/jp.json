@@ -143,6 +143,7 @@
 	"tooltip.effects.every_100_shield": "100 シールドごと",
 	"tooltip.effects.every_100_heal": "100 回復ごと",
 	"tooltip.effects.every_10_poison": "10 毒ごと",
+	"tooltip.effects.on_crit": "クリティカル時",
 	"tooltip.effects.every_10_regen": "10 再生ごと",
 	"tooltip.effects.slow": "スロー",
 	"tooltip.effects.charge": "チャージ",

@@ -144,6 +144,7 @@
 	"tooltip.effects.every_100_shield": "Каждые 100 ед. щита",
 	"tooltip.effects.every_100_heal": "Каждые 100 ед. лечения",
 	"tooltip.effects.every_10_poison": "Каждые 10 ед. яда",
+	"tooltip.effects.on_crit": "При крите",
 	"tooltip.effects.every_10_regen": "Каждые 10 ед. регенерации",
 	"tooltip.effects.charge": "Заряд",
 	"tooltip.effects.increase_power": "Сила",
