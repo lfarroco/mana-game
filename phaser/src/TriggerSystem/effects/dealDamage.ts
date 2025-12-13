@@ -6,6 +6,7 @@ import { getEnemyCore } from "@Models/Entities/Card";
 import { getState } from "@Models/State";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { damageFx } from "./visuals/damage";
+import { processReactions } from "../TriggerSystem";
 
 export function dealDamageLogicIO(sourceUnit: Unit) {
 	const damageAmount = sourceUnit.power;
@@ -23,6 +24,10 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged);
 		shake(getCharaById(enemyCore.id));
+
+		if (crit.isCritical) {
+			processReactions(sourceUnit, { id: "on_crit" });
+		}
 
 		if (sourceUnit.lifesteal) {
 			manipulateCoreLife(getUnitForce(sourceUnit.force), damage);

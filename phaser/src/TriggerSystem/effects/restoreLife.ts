@@ -5,6 +5,7 @@ import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTra
 import { getCharaById } from "@Systems/Chara/Chara";
 import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
 import { healFx } from "./visuals/heal";
+import { processReactions } from "../TriggerSystem";
 
 export const restoreLife = async (sourceUnit: Unit) => {
 	const baseAmount = sourceUnit.power;
@@ -19,6 +20,10 @@ export const restoreLife = async (sourceUnit: Unit) => {
 		CombatStatsTracker.trackHeal(sourceUnit.id, actualHealing);
 
 		reducePoison(targetForce.id, actualHealing);
+
+		if (crit.isCritical) {
+			processReactions(sourceUnit, { id: "on_crit" });
+		}
 	};
 
 	const sourceForce = getUnitForce(sourceUnit.id);

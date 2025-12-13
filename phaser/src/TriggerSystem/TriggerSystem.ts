@@ -20,6 +20,7 @@ export type EffectId =
 	| "sacrifice_effect"
 	| "re_hasted"
 	| "re_slow"
+	| "on_crit"
 	| "every_100_damage"
 	| "every_100_shield"
 	| "every_100_heal"
@@ -96,6 +97,9 @@ export type Effect =
 	}
 	| {
 		id: "re_slow";
+	}
+	| {
+		id: "on_crit";
 	}
 	| {
 		id: "every_100_damage";
@@ -250,6 +254,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "re_slow":
 			break;
+		case "on_crit":
 		case "every_100_damage":
 		case "every_100_shield":
 		case "every_100_heal":
@@ -273,7 +278,7 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	}
 
 	const candidates = getState().battleData.units
-		.filter((u) => u.id != triggeringUnit.id || ["every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen"].includes(effect.id))
+		.filter((u) => u.id != triggeringUnit.id || ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen"].includes(effect.id))
 
 	candidates
 		.forEach((u) => {
