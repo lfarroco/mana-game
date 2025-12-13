@@ -13,6 +13,8 @@ import { howToPlay } from "./components/howToPlay";
 import * as io from "@PhaserIO";
 import { languageButton } from "./components/languageButton";
 import { linksButton } from "./components/linksButton";
+import * as StatsStore from "@Models/StatsStore";
+import { showUnlockModal } from "./components/UnlockModal";
 
 
 export default class TitleScene extends Phaser.Scene {
@@ -57,5 +59,16 @@ export default class TitleScene extends Phaser.Scene {
 		// 	PhaserGUIAction(this);
 		// }, 500)			
 
+		this.checkUnlocks();
+	}
+
+	async checkUnlocks() {
+		const pendingUnlocks = StatsStore.getPendingUnlocks();
+
+		for (const unitId of pendingUnlocks) {
+			await showUnlockModal(unitId);
+			StatsStore.confirmUnlock(unitId);
+			await new Promise(resolve => setTimeout(resolve, 300));
+		}
 	}
 }
