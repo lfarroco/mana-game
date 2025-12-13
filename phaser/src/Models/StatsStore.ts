@@ -14,6 +14,7 @@ export type PlayerStats = {
 	furthestInfiniteRound: number;
 	unitUsage: Record<string, number>; // unit name -> times used
 	mostPowerfulUnit: { name: string; power: number } | null;
+	unlockedUnits: string[];
 };
 
 export type VictoryTier = "bronze" | "silver" | "gold";
@@ -26,6 +27,7 @@ const defaultStats: PlayerStats = {
 	furthestInfiniteRound: 0,
 	unitUsage: {},
 	mostPowerfulUnit: null,
+	unlockedUnits: [],
 };
 
 let currentStats: PlayerStats = { ...defaultStats };
@@ -50,6 +52,7 @@ function loadStats(): void {
 			furthestInfiniteRound: typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
 			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
 			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
+			unlockedUnits: Array.isArray(parsed.unlockedUnits) ? parsed.unlockedUnits : [],
 		};
 	} catch (error) {
 		console.warn("[StatsStore] Failed to load stats:", error);
@@ -164,4 +167,22 @@ export function getMostUsedUnit(): string | null {
  */
 export function save(): void {
 	saveStats();
+}
+
+/**
+ * Unlock a specific unit by ID
+ */
+export function unlockUnit(unitId: string): void {
+	if (!currentStats.unlockedUnits.includes(unitId)) {
+		currentStats.unlockedUnits.push(unitId);
+		saveStats();
+		console.log(`[StatsStore] Unlocked unit: ${unitId}`);
+	}
+}
+
+/**
+ * Check if a unit is unlocked
+ */
+export function isUnitUnlocked(unitId: string): boolean {
+	return currentStats.unlockedUnits.includes(unitId);
 }

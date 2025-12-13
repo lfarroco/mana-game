@@ -1,4 +1,5 @@
 import { getState } from "@Models/State";
+import { isUnitUnlocked } from "@Models/StatsStore";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
 const dummy: CardDefinition = {
@@ -61,6 +62,7 @@ export type CardDefinition = {
 	effects: Effect[];
 	reactions: EffectReaction[];
 	isCore?: boolean;
+	locked?: boolean;
 	rank?: number;
 	life?: number;
 	critical?: number;
@@ -93,6 +95,13 @@ export const getCores = (): CardDefinition[] =>
 
 export const getNonCores = (): CardDefinition[] =>
 	Array.from(cards.values()).filter((card) => !card.isCore);
+
+export const getAvailableCards = (): CardDefinition[] =>
+	Array.from(cards.values()).filter(
+		(card) =>
+			!card.isCore &&
+			(!card.locked || isUnitUnlocked(card.id))
+	);
 
 export const getAlliedCore = (forceId: string) =>
 	getState().battleData.units.find((u) => u.force === forceId && u.isCore)!;
