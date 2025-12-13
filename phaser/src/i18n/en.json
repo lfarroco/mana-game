@@ -284,5 +284,6 @@
 	"run_stats.heal_dealt": "Heal Dealt",
 	"run_stats.most_powerful_unit": "Most Powerful Unit",
 	"run_stats.most_used_unit": "Most Used Unit",
-	"run_stats.total_units_recruited": "Units Recruited"
+	"run_stats.total_units_recruited": "Units Recruited",
+	"title.unlock_modal.confirm": "CONFIRM"
 }

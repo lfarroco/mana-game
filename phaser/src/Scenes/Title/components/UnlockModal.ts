@@ -7,6 +7,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import { createUnitFromCardSpec } from "@Models/Entities/Unit";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { createModal } from "@Components/Modal";
+import { t } from "@i18n/i18n";
 
 const PANEL_WIDTH = 800;
 const PANEL_HEIGHT = 700;
@@ -25,17 +26,17 @@ export function showUnlockModal(unitId: string): Promise<void> {
 
 		const chara = await Chara.create(dummy);
 
-		chara.setPosition(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 180);
+		chara.setPosition(0, -180);
 
 		const { title, description } = createDescription(chara);
 
 		const titleText = getCurrentScene().add
-			.text(c.MIDDLE_SCREEN_X, chara.y + 180, title, c.titleTextConfig)
+			.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
 		const descriptionText = getCurrentScene().add
 			.rexBBCodeText(
-				c.MIDDLE_SCREEN_X,
+				0,
 				titleText.y + 40,
 				description)
 			.setFontSize(30)
@@ -44,8 +45,8 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			.setOrigin(0.5, 0);
 
 		const confirmButton = createUIButton(
-			"AWESOME!",
-			vec2(c.MIDDLE_SCREEN_X, descriptionText.y + descriptionText.height + 60),
+			t("title.unlock_modal.confirm"),
+			vec2(0, descriptionText.y + descriptionText.height + 60),
 			() => {
 				modal.close();
 			}
