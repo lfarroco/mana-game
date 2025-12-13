@@ -140,6 +140,10 @@
 	"tooltip.effects.re_hasted": "再加速",
 	"tooltip.effects.re_slow": "再減速",
 	"tooltip.effects.every_100_damage": "100 ダメージごと",
+	"tooltip.effects.every_100_shield": "100 シールドごと",
+	"tooltip.effects.every_100_heal": "100 回復ごと",
+	"tooltip.effects.every_10_poison": "10 毒ごと",
+	"tooltip.effects.every_10_regen": "10 再生ごと",
 	"tooltip.effects.slow": "スロー",
 	"tooltip.effects.charge": "チャージ",
 	"tooltip.effects.increase_power": "パワー",
@@ -263,5 +267,14 @@
 	"encounters.silver_shop": "シルバーユニット",
 	"encounters.silver_shop_desc": "シルバーユニットを募集する",
 	"encounters.gold_shop": "ゴールドユニット",
-	"encounters.gold_shop_desc": "ゴールドユニットを募集する"
+	"encounters.gold_shop_desc": "ゴールドユニットを募集する",
+	"run_stats.title": "ラン統計",
+	"run_stats.damage_dealt": "与ダメージ",
+	"run_stats.poison_dealt": "与毒ダメージ",
+	"run_stats.shield_dealt": "与シールド",
+	"run_stats.regen_dealt": "与再生",
+	"run_stats.heal_dealt": "与回復",
+	"run_stats.most_powerful_unit": "最強ユニット",
+	"run_stats.most_used_unit": "最使用ユニット",
+	"run_stats.total_units_recruited": "総募集ユニット"
 }

@@ -141,6 +141,10 @@
 	"tooltip.effects.re_hasted": "Повторное ускорение",
 	"tooltip.effects.re_slow": "Повторное замедление",
 	"tooltip.effects.every_100_damage": "Каждые 100 ед. урона",
+	"tooltip.effects.every_100_shield": "Каждые 100 ед. щита",
+	"tooltip.effects.every_100_heal": "Каждые 100 ед. лечения",
+	"tooltip.effects.every_10_poison": "Каждые 10 ед. яда",
+	"tooltip.effects.every_10_regen": "Каждые 10 ед. регенерации",
 	"tooltip.effects.charge": "Заряд",
 	"tooltip.effects.increase_power": "Сила",
 	"tooltip.effects.increase_critical": "Крит",
@@ -263,5 +267,14 @@
 	"encounters.silver_shop": "Серебряные юниты",
 	"encounters.silver_shop_desc": "Нанять серебряного юнита",
 	"encounters.gold_shop": "Золотые юниты",
-	"encounters.gold_shop_desc": "Нанять золотого юнита"
+	"encounters.gold_shop_desc": "Нанять золотого юнита",
+	"run_stats.title": "Статистика забега",
+	"run_stats.damage_dealt": "Нанесено урона",
+	"run_stats.poison_dealt": "Нанесено яда",
+	"run_stats.shield_dealt": "Создано щита",
+	"run_stats.regen_dealt": "Создано регенерации",
+	"run_stats.heal_dealt": "Исцелено",
+	"run_stats.most_powerful_unit": "Самый сильный юнит",
+	"run_stats.most_used_unit": "Самый используемый юнит",
+	"run_stats.total_units_recruited": "Всего нанято юнитов"
 }

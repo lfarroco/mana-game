@@ -140,6 +140,10 @@
 	"tooltip.effects.re_hasted": "Re-Aceleración",
 	"tooltip.effects.re_slow": "Re-Lentitud",
 	"tooltip.effects.every_100_damage": "Cada 100 de Daño",
+	"tooltip.effects.every_100_shield": "Cada 100 de Escudo",
+	"tooltip.effects.every_100_heal": "Cada 100 de Curación",
+	"tooltip.effects.every_10_poison": "Cada 10 de Veneno",
+	"tooltip.effects.every_10_regen": "Cada 10 de Regeneración",
 	"tooltip.effects.slow": "Ralentizar",
 	"tooltip.effects.charge": "Carga",
 	"tooltip.effects.increase_power": "Poder",
@@ -263,5 +267,14 @@
 	"encounters.silver_shop": "Unidades de Plata",
 	"encounters.silver_shop_desc": "Reclutar una unidad de plata",
 	"encounters.gold_shop": "Unidades de Oro",
-	"encounters.gold_shop_desc": "Reclutar una unidad de oro"
+	"encounters.gold_shop_desc": "Reclutar una unidad de oro",
+	"run_stats.title": "Estadísticas de la Partida",
+	"run_stats.damage_dealt": "Daño Infligido",
+	"run_stats.poison_dealt": "Veneno Infligido",
+	"run_stats.shield_dealt": "Escudo Aplicado",
+	"run_stats.regen_dealt": "Regeneración Aplicada",
+	"run_stats.heal_dealt": "Curación Realizada",
+	"run_stats.most_powerful_unit": "Unidad Más Poderosa",
+	"run_stats.most_used_unit": "Unidad Más Usada",
+	"run_stats.total_units_recruited": "Unidades Reclutadas"
 }
