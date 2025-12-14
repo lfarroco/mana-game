@@ -17,7 +17,7 @@ export const hourAction: string[] = [
 	"encounter",
 	"encounter",
 	"combat",
-	"upgrade_core_orbs"
+	"upgrade_core_phase"
 ];
 
 export async function startPhase(phase: string) {
@@ -36,8 +36,8 @@ export async function startPhase(phase: string) {
 		case "encounter":
 			Encounter.open();
 			break;
-		case "upgrade_core_orbs":
-			await OrbShop.openOrbShop(
+		case "upgrade_core_phase":
+			await OrbShop.openUpgradeCorePhase(
 				[
 					"increase_core_max_life",
 					"decrease_core_cooldown",
