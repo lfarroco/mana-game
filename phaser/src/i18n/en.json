@@ -288,5 +288,7 @@
 	"title.unlock_modal.confirm": "CONFIRM",
 	"title.collection": "COLLECTION",
 	"title.collection_modal.title": "COLLECTION",
+	"collection.tabs.unlocked": "UNLOCKED",
+	"collection.tabs.locked": "LOCKED",
 	"ui.common.close": "CLOSE"
 }
