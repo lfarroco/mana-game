@@ -2,7 +2,7 @@ import { getState } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatPhase from "./Systems/CombatPhase";
 import * as HeroShop from "./Systems/Shop/HeroShop";
-import * as OrbShop from "./Systems/Shop/OrbShop";
+import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
@@ -37,7 +37,7 @@ export async function startPhase(phase: string) {
 			Encounter.open();
 			break;
 		case "upgrade_core_phase":
-			await OrbShop.openUpgradeCorePhase(
+			await EffectCardShop.openUpgradeCorePhase(
 				[
 					"increase_core_max_life",
 					"decrease_core_cooldown",
