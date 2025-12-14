@@ -6,12 +6,12 @@ import { getCurrentScene } from "@Models/State";
 const PADDING = 40;
 const INTER_ELEMENT_PADDING = PADDING / 2;
 
-const MIN_TOOLTIP_WIDTH = 600;
+const MIN_TOOLTIP_WIDTH = 800;
 const MIN_TOOLTIP_HEIGHT = 330;
-const MAX_TOOLTIP_WIDTH = 840;
+const MAX_TOOLTIP_WIDTH = 940;
 
 const DESCRIPTION_FONT_SIZE = 30;
-const DESCRIPTION_LINE_SPACING = 8;
+const DESCRIPTION_LINE_SPACING = 12;
 
 let container: Phaser.GameObjects.Container | null = null;
 let bg: Phaser.GameObjects.Shader | null = null;
