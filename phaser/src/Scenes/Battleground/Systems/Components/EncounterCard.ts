@@ -1,6 +1,8 @@
 import * as io from "@PhaserIO";
 import { size, vec2 } from "@Models/Geometry";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { getCurrentScene } from "@Models/State";
+import { titleTextConfig } from "@Constants/constants";
 
 type EncounterCardProps = {
 	x: number;
@@ -15,8 +17,9 @@ type EncounterCardProps = {
 
 export function createEncounterCard(container: Phaser.GameObjects.Container, props: EncounterCardProps) {
 	const { x, y, width, height, name, pic, description, onClick } = props;
-	const padding = 70;
+	const padding = 20;
 	const dimensions = size(width, height);
+	const scene = getCurrentScene();
 
 	const bg = io.Rectangle(
 		vec2(x, y),
@@ -25,14 +28,17 @@ export function createEncounterCard(container: Phaser.GameObjects.Container, pro
 		1
 	);
 
+	const iconSize = 120;
+	const iconX = x - width / 2 + padding + iconSize / 2 + 10;
+	const iconY = y;
+
+	// Icon
 	const icon = io
 		.Image(pic)
-		.setDisplaySize(128, 128)
-		.setPosition(
-			x - dimensions.width / 2 + padding,
-			y - dimensions.height / 2 + padding + 70
-		);
+		.setDisplaySize(iconSize, iconSize)
+		.setPosition(iconX, iconY + 10);
 
+	// Initial floating animation
 	io.Tween({
 		targets: [icon],
 		repeat: -1,
@@ -40,25 +46,43 @@ export function createEncounterCard(container: Phaser.GameObjects.Container, pro
 		ease: "Linear",
 		yoyo: true,
 		y: {
-			from: y - dimensions.height / 2 + padding + 30,
-			to: y - dimensions.height / 2 + padding + 30 + 10
+			from: iconY,
+			to: iconY + 10
 		}
 	});
 
-	const title = io.Title2(name)
-		.setPosition(
-			x - dimensions.width / 2 + padding + 100,
-			y - dimensions.height / 2 + padding
-		);
+	const textX = x - width / 2 + padding + iconSize + 40;
+	const textWidth = width - (padding + iconSize + 40 + padding);
 
-	const label = io.Label(description)
-		.setPosition(
-			x - dimensions.width / 2 + padding + 100,
-			y - dimensions.height / 2 + padding + 50
-		);
+	const title = scene.add.text(
+		textX,
+		y - height / 2 + 30,
+		name,
+		{
+			...titleTextConfig,
+			fontSize: "26px",
+			align: "left",
+			wordWrap: { width: textWidth }
+		}
+	).setOrigin(0, 0);
 
-	// We can't use io.SetInteractiveRect directly if it expects a type we can't easily reproduce or if we want custom behavior?
-	// Encounter.ts uses: io.SetInteractiveRect(dimensions)(bg);
+	const label = scene.add
+		.rexBBCodeText(
+			textX,
+			y - height / 2 + 75,
+			description,
+			{
+				fontSize: "22px",
+				fontFamily: "Arimo",
+				color: "#dddddd",
+				wrap: {
+					mode: 1, // Word wrap
+					width: textWidth
+				}
+			}
+		)
+		.setOrigin(0, 0);
+
 	io.SetInteractiveRect(dimensions)(bg);
 
 	io.OnPointerOver(bg, () => {

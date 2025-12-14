@@ -2,12 +2,11 @@ import * as ShopPanel from "./ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
-import * as sc from "./constants";
 import { getState } from "@Models/State";
 import { orbsIndex } from "./Orbs";
 import * as io from "@PhaserIO";
+import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
-import { vec2 } from "@Models/Geometry";
 import { createEncounterCard } from "../Components/EncounterCard";
 
 export async function openUpgradeCorePhase(orbs: string[]): Promise<void> {
@@ -53,17 +52,19 @@ function renderUpgradeCards(
 	orbIds.forEach((orbId, index) => {
 		const orbSpec = orbsIndex[orbId]();
 
-		const offsetY = index * sc.TAVERN_CHARA_SPACING;
-		const posX = sc.ITEM_BASE_X;
-		const posY = sc.ITEM_BASE_Y + offsetY;
+		const width = 700;
+		const height = 220;
+		const spacing = 240;
 
-		const bgPos = vec2(posX + 400, posY);
+		// Align with Encounter.ts
+		const x = SCREEN_WIDTH - 450;
+		const y = 300 + index * spacing;
 
 		createEncounterCard(container, {
-			x: bgPos.x,
-			y: posY,
-			width: 550,
-			height: 200,
+			x,
+			y,
+			width,
+			height,
 			name: orbSpec.name,
 			pic: orbSpec.icon,
 			description: orbSpec.tooltip,

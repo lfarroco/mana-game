@@ -210,14 +210,18 @@ export async function open() {
 
 	encounters.forEach((encounter, index) => {
 
-		const x = SCREEN_WIDTH - 460;
-		const y = 300 + index * 220;
+		const width = 700;
+		const height = 220;
+		const spacing = 240;
+
+		const x = SCREEN_WIDTH - 450;
+		const y = 300 + index * spacing;
 
 		createEncounterCard(container, {
 			x,
 			y,
-			width: 550,
-			height: 200,
+			width,
+			height,
 			name: encounter.name,
 			pic: encounter.pic,
 			description: encounter.description,
