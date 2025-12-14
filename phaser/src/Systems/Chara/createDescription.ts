@@ -9,7 +9,11 @@ export function createDescription(chara: Chara) {
 	const effectBlocks = unit.effects
 		.map((e) => buildEffectBlock(e, unit.power))
 		.filter((e): e is string => e !== null)
-		.map(str => "- " + str[0].toUpperCase() + str.slice(1))
+		.map(str => {
+
+			console.log(">>>", str)
+			return "- " + str[0].toUpperCase() + str.slice(1)
+		})
 		;
 	const reactionBlocks = unit.reactions.map((r) => getReactionDescription(r, unit.power))
 		.map(str => "- " + str);
