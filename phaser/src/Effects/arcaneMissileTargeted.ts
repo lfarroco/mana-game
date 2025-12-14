@@ -62,7 +62,7 @@ export async function arcaneMissileTargeted(
 		thickness: 1,
 		amplitude,
 		frequency,
-		segments: Math.floor(distance / 15),
+		segments: Math.floor(distance / 30),
 		color: colors[0],
 	});
 
@@ -80,12 +80,10 @@ export async function arcaneMissileTargeted(
 		g.destroy();
 	}
 
-	const segmentSprites: Phaser.GameObjects.Image[] = [];
 	const points = beam.points;
 	const totalSegments = points.length - 1;
 	const amplitudeForSegments = amplitude * 2.2;
 	const travelTime = duration * speedMultiplier;
-	const fadeDuration = travelTime * 1.1;
 	const segmentDelay = travelTime / totalSegments;
 
 	const vec = new Phaser.Math.Vector2(target.x - source.x, target.y - source.y);
@@ -105,19 +103,23 @@ export async function arcaneMissileTargeted(
 		scene.time.delayedCall(i * segmentDelay, () => {
 			const sprite = scene.add.image(midX + offsetX, midY + offsetY, rectKey);
 			sprite.setRotation(angle);
-			sprite.setScale(particleScale * 1.5, particleScale * 1.5);
+			sprite.setScale(particleScale * 2, particleScale * 2);
 			sprite.setTint(colors[i % colors.length]);
 			sprite.setAlpha(1);
 			sprite.setBlendMode(blendMode);
-			segmentSprites.push(sprite);
 			scene.tweens.add({
 				targets: sprite,
 				alpha: 0,
-				duration: fadeDuration,
+				scaleX: 0,
+				scaleY: 0,
+				duration: duration * 2,
 				delay: 0,
 				x: sprite.x + (Math.random() - 0.5) * 40,
 				y: sprite.y + (Math.random() - 0.5) * 40,
 				ease: "Cubic.easeIn",
+				onComplete: () => {
+					sprite.destroy();
+				},
 			});
 		});
 	}
@@ -143,5 +145,4 @@ export async function arcaneMissileTargeted(
 
 	beam.destroy();
 	impactParticles.destroy();
-	segmentSprites.forEach((sprite) => sprite.destroy());
 }
