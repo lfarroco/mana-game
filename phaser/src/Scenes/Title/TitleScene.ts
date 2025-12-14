@@ -6,7 +6,7 @@ import { newRunButton } from "./components/newRunButton";
 import { startGame } from "../../Game/effects/startGame";
 import { cloudsBg } from "./components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "./components/optionsButton";
-import { goFullscreenButton } from "./components/goFullscreenButton";
+import { collectionButton } from "./components/collectionButton";
 import { resumeGameButton } from "./components/resumeGameButton";
 import { logo } from "./components/logo";
 import { howToPlay } from "./components/howToPlay";
@@ -35,7 +35,7 @@ export default class TitleScene extends Phaser.Scene {
 			resumeGameButton(500),
 			newRunButton(600),
 			optionsButton(700),
-			goFullscreenButton(800),
+			collectionButton(800),
 			linksButton(900),
 			languageButton()
 		];
