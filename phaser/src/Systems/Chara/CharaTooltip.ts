@@ -21,12 +21,43 @@ const getTargetDescription = (targets: Targeting): string => {
 	return t(key, { count: count?.toString() });
 };
 
+const isTargetPlural = (targets?: Targeting): boolean => {
+	if (!targets) return true; // Default to plural "targets" if undefined? Or maybe false? "Targets" is plural.
+	// But undefined targets usually means implicit, but let's see. logic above says "Targets" default.
+
+	switch (targets.id) {
+		case "self":
+		case "strongest_ally":
+		case "weakest_ally":
+		case "strongest_enemy":
+		case "weakest_enemy":
+		case "trigger":
+		case "top_ally":
+		case "bottom_ally":
+		case "left_ally":
+		case "right_ally":
+			return false;
+		case "random_ally":
+		case "random_enemy":
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			return ((targets as any).count || 1) > 1;
+		case "all_allies":
+		case "all_enemies":
+		case "row_allies":
+		case "column_allies":
+			return true;
+		default:
+			return true;
+	}
+};
+
 export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const targets = (effect as any).targets as Targeting | undefined;
 	const targetDesc = targets ? getTargetDescription(targets) : "";
 	const coloredTarget = `[color=#e0e0e0]${targetDesc}[/color]`;
 	const coloredPower = `[color=#ffd93d]${unitPower}[/color]`;
+	const isPlural = isTargetPlural(targets);
 
 	switch (effect.id) {
 		case "damage":
@@ -51,21 +82,31 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 			const dur = (effect.duration / 1000).toFixed(1);
 			return t("tooltip.sentence.charge", { duration: `[color=#ffd93d]${dur}[/color]`, target: coloredTarget });
 		}
-		case "increase_power":
-			return t(effect.permanent ? "tooltip.sentence.increase_power_permanent" : "tooltip.sentence.increase_power", {
+		case "increase_power": {
+			const key = effect.permanent
+				? isPlural
+					? "tooltip.sentence.increase_power_permanent_plural"
+					: "tooltip.sentence.increase_power_permanent"
+				: isPlural
+					? "tooltip.sentence.increase_power_plural"
+					: "tooltip.sentence.increase_power";
+			return t(key, {
 				amount: `[color=#ff8cc8]${effect.amount}[/color]`,
 				target: coloredTarget,
 			});
+		}
 		case "decrease_power":
 			return t("tooltip.sentence.decrease_power", {
 				amount: `[color=#8a2be2]${effect.percentage}[/color]`,
 				target: coloredTarget,
 			});
-		case "increase_critical":
-			return t("tooltip.sentence.increase_critical", {
+		case "increase_critical": {
+			const key = isPlural ? "tooltip.sentence.increase_critical_plural" : "tooltip.sentence.increase_critical";
+			return t(key, {
 				amount: `[color=#ffd93d]${effect.amount}[/color]`,
 				target: coloredTarget,
 			});
+		}
 		case "multiply_power":
 			return t("tooltip.sentence.multiply_power", {
 				amount: `[color=#ffd93d]${effect.multiplier}[/color]`,
