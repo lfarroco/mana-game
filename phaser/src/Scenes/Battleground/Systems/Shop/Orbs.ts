@@ -15,6 +15,7 @@ export type OrbSpec = {
 	name: string;
 	color: number;
 	tooltip: string;
+	icon: string;
 	// return false to indicate the effect was not applied and the orb should return
 	effect: (unit: Unit) => boolean;
 };
@@ -24,6 +25,7 @@ const increasePowerOnType = (type: string) => () => ({
 	name: t("shop.orbs.increasePower.name", { type }),
 	color: 0xff3333,
 	tooltip: t("shop.orbs.increasePower.tooltip", { type }),
+	icon: "ui/commander",
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -44,6 +46,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 	name: t("shop.orbs.increaseCritical.name", { type }),
 	color: 0xff3333,
 	tooltip: t("shop.orbs.increaseCritical.tooltip", { type }),
+	icon: "ui/assassin",
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -67,6 +70,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 	name: t("shop.orbs.decreaseCooldown.name", { type }),
 	color: 0xff3333,
 	tooltip: t("shop.orbs.decreaseCooldown.tooltip", { type }),
+	icon: "ui/trial_circuit",
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
@@ -107,6 +111,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.upgrade.name"),
 		color: 0x3399ff,
 		tooltip: t("shop.orbs.upgrade.tooltip"),
+		icon: "ui/upgrade_unit",
 		effect: (unit: Unit) => {
 			upgradeUnit(unit);
 			return true;
@@ -117,6 +122,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.increaseMaxLife.name"),
 		color: 0x3399ff,
 		tooltip: t("shop.orbs.increaseMaxLife.tooltip"),
+		icon: "ui/frontier_fort",
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			unit.maxLife = unit.maxLife + 100;
@@ -129,6 +135,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.decreaseCoreCooldown.name"),
 		color: 0x3399ff,
 		tooltip: t("shop.orbs.decreaseCoreCooldown.tooltip"),
+		icon: "ui/trial_circuit",
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			const reduction = unit.cooldown * 0.1;
@@ -141,6 +148,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.addRandomReaction.name"),
 		color: 0x3399ff,
 		tooltip: t("shop.orbs.addRandomReaction.tooltip"),
+		icon: "ui/forest_pools",
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			unit.reactions.push({
@@ -172,6 +180,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.distributePower.name"),
 		color: 0xffaa00,
 		tooltip: t("shop.orbs.distributePower.tooltip"),
+		icon: "ui/power_distributor",
 		effect: (unit: Unit) => {
 			const targets = resolveTargets(unit, {
 				id: "distribute_power",
@@ -188,6 +197,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.absorbPower.name"),
 		color: 0xaa00ff,
 		tooltip: t("shop.orbs.absorbPower.tooltip"),
+		icon: "ui/power_absorber",
 		effect: (unit: Unit) => {
 			const targets = resolveTargets(unit, {
 				id: "absorb_power",
@@ -204,6 +214,7 @@ export const orbsIndex: Record<
 		name: t("shop.orbs.darkRitual.name"),
 		color: 0x550000,
 		tooltip: t("shop.orbs.darkRitual.tooltip"),
+		icon: "ui/dark_ritual",
 		effect: (unit: Unit) => {
 			sacrificeEffect(unit);
 			return true;

@@ -2,14 +2,14 @@ import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
-import { size, vec2 } from "@Models/Geometry";
+import { vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
 import { getState } from "@Models/State";
-import { playSoundEffect } from "@Systems/AudioManager";
 import { CardDefinition } from "@Models/Entities/Card";
+import { createEncounterCard } from "@Scenes/Battleground/Systems/Components/EncounterCard";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -212,75 +212,17 @@ export async function open() {
 
 		const x = SCREEN_WIDTH - 460;
 		const y = 300 + index * 220;
-		const padding = 70;
 
-		const dimensions = size(550, 200);
-
-		const bg = io.Rectangle(
-			vec2(x, y),
-			dimensions,
-			0x1f1f1f,
-			1
-		);
-
-		const icon = io
-			.Image(encounter.pic)
-			.setDisplaySize(128, 128)
-			.setPosition(
-				x - dimensions.width / 2 + padding,
-				y - dimensions.height / 2 + padding + 70
-			);
-
-		io.Tween({
-			targets: [icon],
-			repeat: -1,
-			duration: 200 * Math.random() + 2000,
-			ease: "Linear",
-			yoyo: true,
-			y: {
-				from: y - dimensions.height / 2 + padding + 30,
-				to: y - dimensions.height / 2 + padding + 30 + 10
-			}
-		})
-
-		const title = io.Title2(encounter.name)
-			.setPosition(
-				x - dimensions.width / 2 + padding + 100,
-				y - dimensions.height / 2 + padding
-			);
-
-		const label = io.Label(encounter.description)
-			.setPosition(
-				x - dimensions.width / 2 + padding + 100,
-				y - dimensions.height / 2 + padding + 50
-			);
-
-		io.SetInteractiveRect(dimensions)(bg);
-
-		io.OnPointerOver(bg, () => {
-			io.Tween({
-				targets: [bg],
-				alpha: 0.4,
-				duration: 400,
-				ease: "Linear"
-			});
-		})
-
-		io.OnPointerOut(bg, () => {
-			io.Tween({
-				targets: [bg],
-				alpha: 1,
-				duration: 400,
-				ease: "Linear"
-			});
+		createEncounterCard(container, {
+			x,
+			y,
+			width: 550,
+			height: 200,
+			name: encounter.name,
+			pic: encounter.pic,
+			description: encounter.description,
+			onClick: encounter.onClick
 		});
-
-		io.OnPointerUp(bg, () => {
-			playSoundEffect('sfx_unit_run_magical_4');
-			encounter.onClick();
-		});
-
-		container.add([bg, icon, title, label]);
 
 	});
 
