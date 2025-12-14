@@ -285,5 +285,8 @@
 	"run_stats.most_powerful_unit": "Most Powerful Unit",
 	"run_stats.most_used_unit": "Most Used Unit",
 	"run_stats.total_units_recruited": "Units Recruited",
-	"title.unlock_modal.confirm": "CONFIRM"
+	"title.unlock_modal.confirm": "CONFIRM",
+	"title.collection": "COLLECTION",
+	"title.collection_modal.title": "COLLECTION",
+	"ui.common.close": "CLOSE"
 }
