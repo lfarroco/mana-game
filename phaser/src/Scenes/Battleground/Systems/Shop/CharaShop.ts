@@ -22,7 +22,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
 		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY)
-		const bgSize = size(600, 280)
+		const bgSize = size(700, 280)
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
 
@@ -67,10 +67,13 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setAlign("left");
 
 		const descriptionText = scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10,
+			.rexBBCodeText(
+				sc.ITEM_DESC_BASE_X + 10,
 				sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60,
-				description)
+				description,
+			)
 			.setFontSize(30)
+			.setWrapWidth(600)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
