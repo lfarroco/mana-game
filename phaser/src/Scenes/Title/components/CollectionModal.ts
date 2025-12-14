@@ -6,6 +6,7 @@ import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
+import * as StatsStore from "@Models/StatsStore";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;
@@ -62,6 +63,13 @@ export function showCollectionModal(): Promise<void> {
 				// Explicitly ensure interactivity for tooltip
 				// Chara.create sets interactive, but let's be sure
 				chara.setInteractive({ useHandCursor: true });
+
+				// Check if locked
+				const isUnlocked = !card.locked || StatsStore.isUnitUnlocked(card.id);
+				if (!isUnlocked) {
+					const sprite = Chara.mustGetState(chara).sprite;
+					sprite.preFX?.addColorMatrix().grayscale(1);
+				}
 
 				chara.setPosition(startX + col * cellWidth, startY + row * cellHeight);
 
