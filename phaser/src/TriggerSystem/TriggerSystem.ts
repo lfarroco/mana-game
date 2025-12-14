@@ -311,24 +311,26 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
-const ALLOWED_SELF_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal", "on_battle_start"]
+const GLOBAL_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal", "on_battle_start"]
+
 export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 	const candidates = getState().battleData.units
-		.filter((u) => u.id != triggeringUnit.id || ALLOWED_SELF_REACTIONS.includes(effect.id))
+		.filter((u) => u.id != triggeringUnit.id || GLOBAL_REACTIONS.includes(effect.id))
 
 	candidates
 		.forEach((u) => {
 			const reactions = u.reactions
 				.filter(r =>
-					r.effectId === effect.id || r.effectId === "all"
+					r.effectId === effect.id || (r.effectId === "all" && !GLOBAL_REACTIONS.includes(effect.id))
 				)
 				.filter((r) => {
 					switch (r.position) {
 						case "all":
 							return true;
+						//return !GLOBAL_REACTIONS.includes(effect.id);
 						case "allies":
 							return sameForce(u, triggeringUnit);
 						case "enemies":
@@ -338,16 +340,16 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 						case "column_allies":
 							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
 						case "top_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y - 1 === u.position.y;
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y - 1 === u.position.y && triggeringUnit.position.x === u.position.x;
 						case "bottom_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y + 1 === u.position.y;
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y + 1 === u.position.y && triggeringUnit.position.x === u.position.x;
 						case "left_ally":
 							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x - 1 === u.position.x
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x - 1 === u.position.x && triggeringUnit.position.y === u.position.y
 							);
 						case "right_ally":
 							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x + 1 === u.position.x
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x + 1 === u.position.x && triggeringUnit.position.y === u.position.y
 							);
 						default:
 							const _exhaustiveCheck: never = r.position;
