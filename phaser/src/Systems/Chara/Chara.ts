@@ -101,17 +101,10 @@ export async function create(unit: Unit): Promise<Chara> {
 }
 
 export function enableTooltip(chara: Chara) {
-	// TODO: use function to enable this even, this logic is too complex
 	chara.on(Phaser.Input.Events.POINTER_OVER, () => {
-		// if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
-		// 	return;
-		// }
 		CharaTooltip.onCharaPointerOver(chara);
 	});
 	chara.on(Phaser.Input.Events.POINTER_OUT, () => {
-		// if (unit.force === constants.FORCE_ID_PLAYER && isShopItem(unit.id)) {
-		// 	return;
-		// }
 		CharaTooltip.onCharaPointerOut();
 	});
 

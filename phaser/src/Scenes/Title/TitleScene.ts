@@ -15,6 +15,7 @@ import { languageButton } from "./components/languageButton";
 import { linksButton } from "./components/linksButton";
 import * as StatsStore from "@Models/StatsStore";
 import { showUnlockModal } from "./components/UnlockModal";
+import * as Tooltip from "@Components/Tooltip";
 
 
 export default class TitleScene extends Phaser.Scene {
@@ -28,6 +29,8 @@ export default class TitleScene extends Phaser.Scene {
 		AudioManager.playMusic("music_ageofdisjunction");
 
 		cloudsBg();
+
+		Tooltip.init();
 
 		logo();
 
