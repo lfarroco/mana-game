@@ -4,63 +4,73 @@ import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 import { t } from "../../i18n/i18n";
 
+const getTargetDescription = (targets: Targeting): string => {
+	if (!targets) return t("tooltip.targets.default");
+
+	let key = `tooltip.sentence.target.${targets.id}`;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const count = (targets as any).count;
+
+	if (targets.id === "random_ally" && count && count > 1) key = "tooltip.sentence.target.random_allies";
+	if (targets.id === "random_enemy" && count && count > 1) key = "tooltip.sentence.target.random_enemies";
+
+	if (targets.id === "all_allies" && targets.ofType !== "any") {
+		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType });
+	}
+
+	return t(key, { count: count?.toString() });
+};
+
 export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
-	const withTargets = (base: string, targets?: Targeting) => {
-		if (!targets) return base;
-		return `${base} → [color=#e0e0e0]${getTargetDescription(targets)}[/color]`;
-	};
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const targets = (effect as any).targets as Targeting | undefined;
+	const targetDesc = targets ? getTargetDescription(targets) : "";
+	const coloredTarget = `[color=#e0e0e0]${targetDesc}[/color]`;
+	const coloredPower = `[color=#ffd93d]${unitPower}[/color]`;
 
 	switch (effect.id) {
 		case "damage":
-			return `[color=#ff6b6b]${t("tooltip.effects.damage")}[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return t("tooltip.sentence.damage", { amount: coloredPower, target: coloredTarget });
 		case "heal":
-			return `[color=#51cf66]${t("tooltip.effects.heal")}[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return t("tooltip.sentence.heal", { amount: coloredPower, target: coloredTarget });
 		case "shield":
-			return `[color=#74c0fc]${t("tooltip.effects.shield")}[/color] [color=#ffd93d]${unitPower}[/color]`;
+			return t("tooltip.sentence.shield", { amount: coloredPower, target: coloredTarget });
 		case "poison":
-			return `[color=#da77f2]${t("tooltip.effects.poison")}[/color] [color=#ffd93d]${unitPower}[/color] ${t("tooltip.over_time")}`;
+			return t("tooltip.sentence.poison", { amount: coloredPower, target: coloredTarget });
 		case "regen":
-			return `[color=#8ce99a]${t("tooltip.effects.regen")}[/color] [color=#ffd93d]${unitPower}[/color] ${t("tooltip.over_time")}`;
+			return t("tooltip.sentence.regen", { amount: coloredPower, target: coloredTarget });
 		case "haste": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(
-				`[color=#91a7ff]${t("tooltip.effects.haste")}[/color] [color=#ffa94d]${dur}s[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.haste", { duration: `[color=#ffa94d]${dur}[/color]`, target: coloredTarget });
 		}
 		case "slow": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(
-				`[color=#d0bfff]${t("tooltip.effects.slow")}[/color] [color=#ffa94d]${dur}s[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.slow", { duration: `[color=#ffa94d]${dur}[/color]`, target: coloredTarget });
 		}
-		case "charge":
+		case "charge": {
 			const dur = (effect.duration / 1000).toFixed(1);
-			return withTargets(
-				`[color=#ffe066]${t("tooltip.effects.charge")}[/color] [color=#ffd93d]${dur}s[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.charge", { duration: `[color=#ffd93d]${dur}[/color]`, target: coloredTarget });
+		}
 		case "increase_power":
-			return withTargets(
-				`[color=#ff8cc8]+${effect.amount}${effect.permanent ? "*" : ""}[/color]`,
-				effect.targets
-			);
+			return t(effect.permanent ? "tooltip.sentence.increase_power_permanent" : "tooltip.sentence.increase_power", {
+				amount: `[color=#ff8cc8]${effect.amount}[/color]`,
+				target: coloredTarget,
+			});
 		case "decrease_power":
-			return withTargets(
-				`[color=#8a2be2]-${effect.percentage}% Power[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.decrease_power", {
+				amount: `[color=#8a2be2]${effect.percentage}[/color]`,
+				target: coloredTarget,
+			});
 		case "increase_critical":
-			return withTargets(
-				`[color=#ff8cc8]+${t("tooltip.effects.increase_critical")}[/color] [color=#ffd93d]${effect.amount}[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.increase_critical", {
+				amount: `[color=#ffd93d]${effect.amount}[/color]`,
+				target: coloredTarget,
+			});
 		case "multiply_power":
-			return withTargets(
-				`[color=#ff8cc8]${t("tooltip.effects.multiply_power")}[/color] [color=#ffd93d]${effect.multiplier}x[/color]`,
-				effect.targets
-			);
+			return t("tooltip.sentence.multiply_power", {
+				amount: `[color=#ffd93d]${effect.multiplier}[/color]`,
+				target: coloredTarget,
+			});
 		case "distribute_power":
 		case "absorb_power":
 		case "sacrifice_effect":
@@ -108,98 +118,68 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	all: { color: "#ffffff" },
 };
 
-export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
-	const style = EFFECT_STYLES[reaction.effectId];
-	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
-	const triggerLabel = t(`tooltip.effects.${effectKey}`);
-	const triggerColor = style ? style.color : "#51cf66";
-
-	const posDesc = reaction.position ? getPositionDescription(reaction.position) : undefined;
-	const showPos = !!reaction.position && !["all", "allies"].includes(reaction.position); // only show specific relative positions
-
-	const effectSegments = reaction.effects
-		.map((e) => buildEffectBlock(e, unitPower))
-		.filter((e): e is string => e !== null);
-
-	const triggerPrefix = `⚡[color=${triggerColor}]${triggerLabel}[/color]${showPos && posDesc ? ` ([color=#c0c0c0]${posDesc.toLowerCase()}[/color])` : ""}`;
-
-	if (effectSegments.length > 1) {
-		return `${triggerPrefix} →\n    ${effectSegments.join("\n    ")}`;
-	}
-
-	return [triggerPrefix, ...effectSegments].join(" → ");
-};
-
 const getPositionDescription = (position: string): string => {
+	//const key = `tooltip.sentence.position.${position}`;
+	// Fallback to "all" if not found is not safe, but 'all', 'allies', 'enemies' map directly.
+	// We matched keys in en.json to values in TriggerSystem (presumably).
+	// TriggerSystem positions: all, allies, enemies, row_allies, column_allies, top_ally, etc.
+	// My keys in en.json: ally, enemy, row, column...
+	// Wait, I used "row" in en.json but the code passes "row_allies".
+	// I need to map "row_allies" -> "row" or update en.json keys or update this mapping.
+	// I'll update the mapping here for safety.
+
 	switch (position) {
 		case "all":
-			return t("tooltip.position.anyone");
+			return t("tooltip.sentence.position.any");
 		case "allies":
-			return t("tooltip.position.ally");
+			return t("tooltip.sentence.position.ally");
 		case "enemies":
-			return t("tooltip.position.enemy");
+			return t("tooltip.sentence.position.enemy");
 		case "row_allies":
-			return t("tooltip.position.row");
+			return t("tooltip.sentence.position.row");
 		case "column_allies":
-			return t("tooltip.position.column");
+			return t("tooltip.sentence.position.column");
 		case "top_ally":
-			return t("tooltip.position.top");
+			return t("tooltip.sentence.position.top");
 		case "bottom_ally":
-			return t("tooltip.position.bottom");
+			return t("tooltip.sentence.position.bottom");
 		case "left_ally":
-			return t("tooltip.position.left");
+			return t("tooltip.sentence.position.left");
 		case "right_ally":
-			return t("tooltip.position.right");
+			return t("tooltip.sentence.position.right");
 		default:
 			return position;
 	}
 };
 
-const getTargetDescription = (targets: Targeting): string => {
-	if (!targets) return t("tooltip.targets.default");
+export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
+	const style = EFFECT_STYLES[reaction.effectId];
+	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
+	const triggerColor = style ? style.color : "#51cf66";
 
-	switch (targets.id) {
-		case "self":
-			return t("tooltip.targets.self");
-		case "random_ally":
-			return targets.count === 1
-				? t("tooltip.targets.random_ally")
-				: t("tooltip.targets.random_allies", { count: targets.count.toString() });
-		case "random_enemy":
-			return targets.count === 1
-				? t("tooltip.targets.random_enemy")
-				: t("tooltip.targets.random_enemies", { count: targets.count.toString() });
-		case "row_allies":
-			return t("tooltip.targets.row");
-		case "column_allies":
-			return t("tooltip.targets.column");
-		case "all_allies":
-			if (targets.ofType !== "any")
-				return t("tooltip.targets.all_allies_type", { type: targets.ofType });
-			else return t("tooltip.targets.all_allies");
-		case "all_enemies":
-			return t("tooltip.targets.all_enemies");
-		case "strongest_enemy":
-			return t("tooltip.targets.strongest_enemy");
-		case "weakest_enemy":
-			return t("tooltip.targets.weakest_enemy");
-		case "strongest_ally":
-			return t("tooltip.targets.strongest_ally");
-		case "weakest_ally":
-			return t("tooltip.targets.weakest_ally");
-		case "top_ally":
-			return t("tooltip.targets.top");
-		case "bottom_ally":
-			return t("tooltip.targets.bottom");
-		case "left_ally":
-			return t("tooltip.targets.left");
-		case "right_ally":
-			return t("tooltip.targets.right");
-		case "trigger":
-			return t("tooltip.targets.source");
-		default:
-			return t("tooltip.targets.default");
+	const sourceDesc = reaction.position ? getPositionDescription(reaction.position) : t("tooltip.sentence.position.any");
+	const effectName = t(`tooltip.effects.${effectKey}`);
+
+	let triggerText = "";
+	if (reaction.effectId === "on_crit") {
+		triggerText = t("tooltip.sentence.trigger.on_crit", { source: sourceDesc });
+	} else if (reaction.effectId === "on_battle_start") {
+		triggerText = t("tooltip.sentence.trigger.on_battle_start");
+	} else if (reaction.effectId === "on_over_heal") {
+		triggerText = t("tooltip.sentence.trigger.on_over_heal", { source: sourceDesc });
+	} else {
+		triggerText = t("tooltip.sentence.trigger.default", { source: sourceDesc, effect: effectName });
 	}
+
+	const coloredTrigger = `[color=${triggerColor}]${triggerText}[/color]`;
+
+	const effectSegments = reaction.effects
+		.map((e) => buildEffectBlock(e, unitPower))
+		.filter((e): e is string => e !== null);
+
+	const effectText = effectSegments.join(effectSegments.length > 1 ? "\n" : ", ");
+
+	return t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
 };
 
 export const onCharaPointerOver = (chara: Chara): void => {
