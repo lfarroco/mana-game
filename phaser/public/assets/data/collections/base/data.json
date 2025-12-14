@@ -1495,7 +1495,11 @@
 					"effectId": "all",
 					"effects": [
 						{
-							"id": "heal"
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
 						}
 					]
 				}
@@ -2746,6 +2750,7 @@
 			"pic": "neutral_goldenjusticar",
 			"power": 40,
 			"rank": 3,
+			"locked": true,
 			"cooldown": 5400,
 			"effects": [
 				{
@@ -2784,6 +2789,7 @@
 			"power": 40,
 			"rank": 3,
 			"cooldown": 7400,
+			"locked": true,
 			"effects": [
 				{
 					"id": "heal"
