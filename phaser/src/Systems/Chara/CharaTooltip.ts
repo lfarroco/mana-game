@@ -140,10 +140,10 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 
 const EFFECT_STYLES: Record<string, { color: string }> = {
 	damage: { color: "#ff6b6b" },
-	heal: { color: "#51cf66" },
-	shield: { color: "#74c0fc" },
+	heal: { color: "#07f62fff" },
+	shield: { color: "#ede545ff" },
 	poison: { color: "#da77f2" },
-	regen: { color: "#8ce99a" },
+	regen: { color: "#38c24cff" },
 	haste: { color: "#91a7ff" },
 	re_hasted: { color: "#00eaff" },
 	re_slow: { color: "#d2691e" },
@@ -152,7 +152,7 @@ const EFFECT_STYLES: Record<string, { color: string }> = {
 	every_100_heal: { color: "#51cf66" },
 	every_10_poison: { color: "#da77f2" },
 	every_10_regen: { color: "#8ce99a" },
-	slow: { color: "#d0bfff" },
+	slow: { color: "#db7c28e0" },
 	charge: { color: "#ffe066" },
 	increase_power: { color: "#ff8cc8" },
 	decrease_power: { color: "#8a2be2" },

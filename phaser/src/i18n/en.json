@@ -191,7 +191,7 @@
 	"tooltip.sentence.increase_critical": "{target} gains [color={color}]{amount} critical[/color]",
 	"tooltip.sentence.increase_critical_plural": "{target} gain [color={color}]{amount} critical[/color]",
 	"tooltip.sentence.multiply_power": "{target} [color={color}]power[/color] is multiplied by [color={color}]{amount}x[/color]",
-	"tooltip.sentence.reaction": "When {trigger}, {effect}.",
+	"tooltip.sentence.reaction": "When {trigger}, {effect}",
 	"tooltip.sentence.trigger.default": "{source} uses [color={color}]{effect}[/color]",
 	"tooltip.sentence.trigger.on_crit": "{source} lands a critical hit",
 	"tooltip.sentence.trigger.on_battle_start": "battle starts",
