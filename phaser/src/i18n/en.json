@@ -342,5 +342,6 @@
 	"title.collection_modal.title": "COLLECTION",
 	"collection.tabs.unlocked": "UNLOCKED",
 	"collection.tabs.locked": "LOCKED",
-	"ui.common.close": "CLOSE"
+	"ui.common.close": "CLOSE",
+	"effectCardShop.title": "Add Reaction to the Crystal"
 }
