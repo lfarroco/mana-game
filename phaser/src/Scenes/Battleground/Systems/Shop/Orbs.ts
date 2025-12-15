@@ -5,10 +5,11 @@ import { upgradeUnit } from "@Systems/Chara/Chara";
 import { distributePower } from "../../../../TriggerSystem/effects/distributePower";
 import { absorbPower } from "../../../../TriggerSystem/effects/absorbPower";
 import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffect";
-import { resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction, resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { getState } from "@Models/State";
 import { t } from "@i18n/i18n";
+import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 
 export type OrbSpec = {
 	id: string;
@@ -85,7 +86,19 @@ const decreaseCooldownOnType = (type: string) => () => ({
 	}
 });
 
-
+//re-haste: target triggering
+const increasePowerOnTypeEffect = (type: "damage" | "heal" | "shield" | "poison" | "regen"): Effect => ({
+	id: "increase_power", amount: 2, targets: {
+		id: "all_allies",
+		ofType: type
+	}
+});
+const increaseCriticalEffect: Effect = { id: "increase_critical", amount: 5, targets: { id: "random_ally", count: 1 } };
+const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", percentage: 10, targets: { id: "random_enemy", count: 1 } }
+const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
+const hasteEffect: Effect = { id: "haste", duration: 1000, targets: { id: "random_ally", count: 2 } }
+const slowEffect: Effect = { id: "slow", duration: 1000, targets: { id: "random_enemy", count: 2 } }
+const chargeEffect: Effect = { id: "charge", duration: 500, targets: { id: "random_ally", count: 2 } }
 
 export const orbsIndex: Record<
 	string,
@@ -175,6 +188,263 @@ export const orbsIndex: Record<
 			return true;
 		},
 	}),
+	on_100_damage_effect: () => {
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "every_100_damage",
+			effects: [
+				pickOne([
+					increasePowerOnTypeEffect("heal"),
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("poison"),
+					increasePowerOnTypeEffect("regen"),
+				])
+			]
+		}
+
+		return {
+			id: "on_100_damage_effect",
+			name: t("tooltip.effects.every_100_damage"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_100_shield_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "every_100_shield",
+			effects: [
+				pickOne([
+					increasePowerOnTypeEffect("heal"),
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("poison"),
+					increasePowerOnTypeEffect("regen"),
+				])
+			]
+		}
+
+		return {
+			id: "on_100_shield_effect",
+			name: t("tooltip.effects.every_100_shield"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_100_heal_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "every_100_heal",
+			effects: [
+				pickOne([
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("poison"),
+					increasePowerOnTypeEffect("regen"),
+				])
+			]
+		}
+
+		return {
+			id: "on_100_heal_effect",
+			name: t("tooltip.effects.every_100_heal"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_10_regen_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "every_10_regen",
+			effects: [
+				pickOne([
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("poison"),
+					increasePowerOnTypeEffect("heal"),
+				])
+			]
+		}
+
+		return {
+			id: "on_10_regen_effect",
+			name: t("tooltip.effects.every_10_regen"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_10_poison_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "every_10_poison",
+			effects: [
+				pickOne([
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("regen"),
+					increasePowerOnTypeEffect("heal"),
+				])
+			]
+		}
+
+		return {
+			id: "on_10_poison_effect",
+			name: t("tooltip.effects.every_10_poison"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_re_slow_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "re_slow",
+			effects: [
+				pickOne([
+					decreaseEnemyPowerEffect,
+					multiplyAllyPowerEffect
+				])
+			]
+		}
+		return {
+			id: "on_re_slow_effect",
+			name: t("tooltip.effects.re_slow"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_re_haste_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "re_hasted",
+			effects: [
+				pickOne([
+					multiplyAllyPowerEffect,
+					increaseCriticalEffect
+				])
+			]
+		}
+		return {
+			id: "on_re_haste_effect",
+			name: t("tooltip.effects.re_hasted"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_over_heal_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "on_over_heal",
+			effects: [
+				pickOne([
+					multiplyAllyPowerEffect,
+					increaseCriticalEffect
+				])
+			]
+		}
+		return {
+			id: "on_over_heal_effect",
+			name: t("tooltip.effects.on_over_heal"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_crit_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "on_crit",
+			effects: [
+				pickOne([
+					multiplyAllyPowerEffect,
+					decreaseEnemyPowerEffect
+				])
+			]
+		}
+		return {
+			id: "on_crit_effect",
+			name: t("tooltip.effects.on_crit"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+	on_battle_start_effect: () => {
+
+		const reaction: EffectReaction = {
+			position: "allies",
+			effectId: "on_battle_start",
+			effects: [
+				pickOne([
+					hasteEffect,
+					slowEffect,
+					chargeEffect
+				])
+			]
+		}
+		return {
+			id: "on_battle_start_effect",
+			name: t("tooltip.effects.on_battle_start"),
+			color: 0x3399ff,
+			tooltip: getReactionDescription(reaction, 0),
+			icon: "ui/forest_pools",
+			effect: (unit: Unit) => {
+				unit.reactions.push(reaction)
+				return true;
+			},
+		}
+	},
+
+
 	distribute_power_orb: () => ({
 		id: "distribute_power_orb",
 		name: t("shop.orbs.distributePower.name"),
