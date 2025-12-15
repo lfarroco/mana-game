@@ -163,7 +163,7 @@
 	"tooltip.targets.row": "Row",
 	"tooltip.targets.column": "Column",
 	"tooltip.targets.all_allies": "All allies",
-	"tooltip.targets.all_allies_type": "All allies of type {type}",
+	"tooltip.targets.all_allies_type": "All allies of type [color={color}]{type}[/color]",
 	"tooltip.targets.all_enemies": "All enemies",
 	"tooltip.targets.strongest_enemy": "Strongest enemy",
 	"tooltip.targets.weakest_enemy": "Weakest enemy",
