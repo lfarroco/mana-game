@@ -65,6 +65,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		Systems.Setup.setupSceneElements();
 
+		Tooltip.init();
+
 		const charas = getAllCharas();
 
 		if (charas.length === 0) {
@@ -72,7 +74,6 @@ export class BattlegroundScene extends Phaser.Scene {
 		}
 
 		UIManager.init();
-		Tooltip.init();
 
 		Systems.CountdownTimer.initializeCountdownTimer(this);
 
