@@ -39,9 +39,16 @@ export async function startPhase(phase: string) {
 		case "upgrade_core_phase":
 			await EffectCardShop.openUpgradeCorePhase(
 				[
-					"increase_core_max_life",
-					"decrease_core_cooldown",
-					"add_core_random_reaction"
+					"on_100_damage_effect",
+					"on_100_heal_effect",
+					"on_100_shield_effect",
+					"on_10_poison_effect",
+					"on_10_regen_effect",
+					"on_re_slow_effect",
+					"on_re_haste_effect",
+					"on_crit_effect",
+					"on_over_heal_effect",
+					"on_battle_start_effect",
 				]
 			);
 			handlePhaseEnded();

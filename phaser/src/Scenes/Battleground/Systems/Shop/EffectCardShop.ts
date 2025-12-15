@@ -9,11 +9,11 @@ import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 
-export async function openUpgradeCorePhase(orbs: string[]): Promise<void> {
+export async function openUpgradeCorePhase(availableEncounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-		const selectedOrbs = pickRandom(orbs, 3);
+		const encounters = pickRandom(availableEncounters, 3);
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
@@ -23,7 +23,7 @@ export async function openUpgradeCorePhase(orbs: string[]): Promise<void> {
 
 		ShopPanel.create(completeSectionCallback);
 
-		renderUpgradeCards(container, selectedOrbs, async () => {
+		renderUpgradeCards(container, encounters, async () => {
 			container.list.forEach((child) => child.disableInteractive());
 			await delay(500);
 			completeSectionCallback();
@@ -37,26 +37,21 @@ export async function openUpgradeCorePhase(orbs: string[]): Promise<void> {
 
 
 function renderUpgradeCards(
-	container: Phaser.GameObjects.Container,
-	orbIds: string[],
+	container: Container,
+	encounterIds: string[],
 	onUpgradeSelected: () => void | Promise<void>
 ) {
 	const state = getState();
 
-	const coreUnit = state.gameData.player.units.find((u) => u.isCore);
-	if (!coreUnit) {
-		console.error("No core unit found for player!");
-		return;
-	}
+	const coreUnit = state.gameData.player.units.find((u) => u.isCore)!;
 
-	orbIds.forEach((orbId, index) => {
-		const orbSpec = orbsIndex[orbId]();
+	encounterIds.forEach((encounterId, index) => {
+		const encounterSpec = orbsIndex[encounterId]();
 
 		const width = 700;
 		const height = 220;
 		const spacing = 240;
 
-		// Align with Encounter.ts
 		const x = SCREEN_WIDTH - 450;
 		const y = 300 + index * spacing;
 
@@ -65,13 +60,13 @@ function renderUpgradeCards(
 			y,
 			width,
 			height,
-			name: orbSpec.name,
-			pic: orbSpec.icon,
-			description: orbSpec.tooltip,
+			name: encounterSpec.name,
+			pic: encounterSpec.icon,
+			description: encounterSpec.tooltip,
 			onClick: async () => {
-				console.log(`Selected upgrade: ${orbSpec.name}`);
+				console.log(`Selected upgrade: ${encounterSpec.name}`);
 
-				const applied = orbSpec.effect(coreUnit);
+				const applied = encounterSpec.effect(coreUnit);
 				if (applied) {
 					playSoundEffect('sfx_spell_deathstrikeseal');
 					await onUpgradeSelected();
