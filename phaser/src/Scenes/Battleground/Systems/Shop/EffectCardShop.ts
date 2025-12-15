@@ -8,6 +8,7 @@ import * as io from "@PhaserIO";
 import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
+import { t } from "@i18n/i18n";
 
 export async function openUpgradeCorePhase(availableEncounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
@@ -20,6 +21,10 @@ export async function openUpgradeCorePhase(availableEncounters: string[]): Promi
 			container.destroy();
 			resolve();
 		};
+
+		const title = io.Title1(t("effectCardShop.title"))
+			.setPosition(SCREEN_WIDTH / 2 + 180, 130)
+		container.add(title);
 
 		ShopPanel.create(completeSectionCallback);
 
