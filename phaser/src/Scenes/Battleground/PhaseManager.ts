@@ -12,13 +12,35 @@ import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 
-export const hourAction: string[] = [
+export const loopPhases: string[] = [
 	"encounter",
 	"encounter",
 	"encounter",
 	"combat",
 	"upgrade_core_phase"
 ];
+
+// This will repeat the loop logic for the first 15 turns for now,
+// but can be customized with specific phases.
+export const predefinedPhases: string[] = [
+	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
+];
+
+
+export const hourAction = loopPhases; // Alias for backward compatibility if needed temporarily
+
+export function getPhaseForHour(hour: number): string {
+	if (hour < predefinedPhases.length) {
+		return predefinedPhases[hour];
+	}
+
+	// For hours beyond the predefined list, use the loop
+	// We subtract the predefined length so the loop starts from index 0
+	const loopIndex = (hour - predefinedPhases.length) % loopPhases.length;
+	return loopPhases[loopIndex];
+}
 
 export async function startPhase(phase: string) {
 
@@ -59,7 +81,7 @@ export async function startPhase(phase: string) {
 }
 
 export function handlePhaseEnded(): void {
-	const currentPhase = hourAction[getState().gameData.hour];
+	const currentPhase = getPhaseForHour(getState().gameData.hour);
 
 	// TODO: the combat phase itself should do this, when it ends
 	if (currentPhase === "combat") {
@@ -70,11 +92,7 @@ export function handlePhaseEnded(): void {
 
 	getState().gameData.hour++;
 
-	if (getState().gameData.hour > hourAction.length - 1) {
-		getState().gameData.hour = 0;
-	}
-
-	const phase = hourAction[getState().gameData.hour];
+	const phase = getPhaseForHour(getState().gameData.hour);
 
 	saveGameData();
 
