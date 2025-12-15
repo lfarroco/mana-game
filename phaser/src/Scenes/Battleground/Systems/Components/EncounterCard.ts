@@ -32,13 +32,11 @@ export function createEncounterCard(container: Phaser.GameObjects.Container, pro
 	const iconX = x - width / 2 + padding + iconSize / 2 + 10;
 	const iconY = y;
 
-	// Icon
 	const icon = io
 		.Image(pic)
 		.setDisplaySize(iconSize, iconSize)
 		.setPosition(iconX, iconY + 10);
 
-	// Initial floating animation
 	io.Tween({
 		targets: [icon],
 		repeat: -1,
@@ -51,12 +49,12 @@ export function createEncounterCard(container: Phaser.GameObjects.Container, pro
 		}
 	});
 
-	const textX = x - width / 2 + padding + iconSize + 40;
+	const textX = x - width / 2 + padding + iconSize + 20;
 	const textWidth = width - (padding + iconSize + 40 + padding);
 
 	const title = scene.add.text(
-		textX,
-		y - height / 2 + 30,
+		textX - 8,
+		y - height / 2 + 20,
 		name,
 		{
 			...titleTextConfig,
@@ -81,6 +79,7 @@ export function createEncounterCard(container: Phaser.GameObjects.Container, pro
 				}
 			}
 		)
+		.setAlign("left")
 		.setOrigin(0, 0);
 
 	io.SetInteractiveRect(dimensions)(bg);

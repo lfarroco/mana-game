@@ -11,11 +11,13 @@ const getTargetDescription = (targets: Targeting): string => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const count = (targets as any).count;
 
-	if (targets.id === "random_ally" && count && count > 1) key = "tooltip.sentence.target.random_allies";
-	if (targets.id === "random_enemy" && count && count > 1) key = "tooltip.sentence.target.random_enemies";
+	if (targets.id === "random_ally" && count && count > 1)
+		key = "tooltip.sentence.target.random_allies";
+	if (targets.id === "random_enemy" && count && count > 1)
+		key = "tooltip.sentence.target.random_enemies";
 
 	if (targets.id === "all_allies" && targets.ofType !== "any") {
-		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType });
+		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType, color: EFFECT_STYLES[targets.ofType].color });
 	}
 
 	return t(key, { count: count?.toString() });
@@ -225,7 +227,7 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 
 	const effectText = effectSegments.join(effectSegments.length > 1 ? "\n" : ", ");
 
-	return t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
+	return "⚡ " + t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
 };
 
 export const onCharaPointerOver = (chara: Chara): void => {
