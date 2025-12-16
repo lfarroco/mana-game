@@ -327,7 +327,7 @@
 			"name_jp": "リビングアーマー",
 			"name_ru": "Живая броня",
 			"pic": "boss_spelleater",
-			"power": 10,
+			"power": 15,
 			"cooldown": 5000,
 			"effects": [
 				{
@@ -345,7 +345,7 @@
 			],
 			"reactions": [
 				{
-					"position": "column_allies",
+					"position": "allies",
 					"effectId": "haste",
 					"effects": [
 						{
@@ -368,8 +368,8 @@
 			"name_jp": "テックモンク",
 			"name_ru": "Тек Монах",
 			"pic": "f3_windgiver",
-			"power": 15,
-			"cooldown": 5600,
+			"power": 20,
+			"cooldown": 4600,
 			"effects": [
 				{
 					"id": "damage"
@@ -408,7 +408,7 @@
 			"name_jp": "虚空のスペクター",
 			"name_ru": "Призрак Пустоты",
 			"pic": "neutral_amu",
-			"power": 10,
+			"power": 15,
 			"cooldown": 5200,
 			"effects": [
 				{
@@ -440,8 +440,8 @@
 			"name_jp": "疫病の運び手",
 			"name_ru": "Носитель Чумы",
 			"pic": "f3_plague_totem",
-			"power": 10,
-			"cooldown": 4200,
+			"power": 15,
+			"cooldown": 3800,
 			"effects": [
 				{
 					"id": "poison"
@@ -678,7 +678,7 @@
 			"name_cn": "瘟疫携带者",
 			"pic": "f4_nocturn",
 			"power": 20,
-			"cooldown": 6700,
+			"cooldown": 5500,
 			"effects": [
 				{
 					"id": "poison"
@@ -1111,7 +1111,7 @@
 			"name_jp": "イージスウォーデン",
 			"name_ru": "Страж Айгиса",
 			"pic": "f2_demononi",
-			"power": 20,
+			"power": 25,
 			"cooldown": 5100,
 			"effects": [
 				{
@@ -2018,14 +2018,14 @@
 			"name_ru": "Источник Маны",
 			"pic": "f4_furosa",
 			"power": 10,
-			"cooldown": 9000,
+			"cooldown": 6000,
 			"effects": [
 				{
 					"id": "regen"
 				},
 				{
 					"id": "haste",
-					"duration": 1000,
+					"duration": 2000,
 					"targets": {
 						"id": "row_allies"
 					}
@@ -2057,14 +2057,14 @@
 			"name_ru": "Порождение Пустоты",
 			"pic": "f5_ankylos",
 			"power": 10,
-			"cooldown": 8500,
+			"cooldown": 6000,
 			"effects": [
 				{
 					"id": "poison"
 				},
 				{
 					"id": "haste",
-					"duration": 1000,
+					"duration": 2000,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -2095,7 +2095,7 @@
 			"name_jp": "アーケインアノマリー",
 			"name_ru": "Арканная Аномалия",
 			"pic": "f6_myriad",
-			"power": 10,
+			"power": 15,
 			"cooldown": 5500,
 			"effects": [
 				{
@@ -2103,7 +2103,7 @@
 				},
 				{
 					"id": "charge",
-					"duration": 500,
+					"duration": 1000,
 					"targets": {
 						"id": "column_allies"
 					}
@@ -2382,7 +2382,7 @@
 			"name_ru": "Стрелок",
 			"pic": "neutral_hsuku",
 			"power": 20,
-			"cooldown": 6300,
+			"cooldown": 5000,
 			"effects": [
 				{
 					"id": "damage"
