@@ -1253,7 +1253,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
+							"amount": 2,
 							"targets": {
 								"id": "column_allies"
 							}
@@ -2220,8 +2220,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 2,
-							"permanent": true,
+							"amount": 4,
 							"targets": {
 								"id": "self"
 							}
@@ -2482,8 +2481,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 2,
-							"permanent": true,
+							"amount": 4,
 							"targets": {
 								"id": "right_ally"
 							}
@@ -2639,8 +2637,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 4,
-							"permanent": true,
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -2680,8 +2677,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 4,
-							"permanent": true,
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -2722,8 +2718,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
-							"permanent": true,
+							"amount": 6,
 							"targets": {
 								"id": "self"
 							}
@@ -2758,7 +2753,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 10,
+							"amount": 4,
 							"targets": {
 								"id": "column_allies"
 							}
@@ -2766,7 +2761,6 @@
 						{
 							"id": "increase_power",
 							"amount": 2,
-							"permanent": true,
 							"targets": {
 								"id": "column_allies"
 							}
