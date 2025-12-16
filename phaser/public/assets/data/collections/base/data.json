@@ -144,7 +144,7 @@
 			"effects": [
 				{
 					"id": "increase_power",
-					"amount": 2,
+					"amount": 1,
 					"permanent": true,
 					"targets": {
 						"id": "column_allies"
@@ -263,7 +263,7 @@
 			"name_jp": "リビングアーマー",
 			"name_ru": "Живая броня",
 			"pic": "f1_tank",
-			"power": 25,
+			"power": 35,
 			"cooldown": 5100,
 			"effects": [
 				{
@@ -295,7 +295,7 @@
 			"name_jp": "雷機械",
 			"name_ru": "Громовой Механик",
 			"pic": "f3_mech",
-			"power": 10,
+			"power": 20,
 			"cooldown": 5200,
 			"effects": [
 				{
@@ -352,7 +352,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "column_allies"
+								"id": "row_allies"
 							}
 						}
 					]
@@ -373,6 +373,14 @@
 			"effects": [
 				{
 					"id": "damage"
+				},
+				{
+					"id": "increase_power",
+					"targets": {
+						"id": "self",
+						"permanent": true,
+						"amount": 1
+					}
 				}
 			],
 			"reactions": [
@@ -413,8 +421,8 @@
 					"effectId": "regen",
 					"effects": [
 						{
-							"id": "charge",
-							"duration": 500,
+							"id": "increase_power",
+							"amount": 2,
 							"targets": {
 								"id": "self"
 							}
@@ -517,7 +525,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 2,
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -540,15 +548,27 @@
 			"effects": [
 				{
 					"id": "poison"
+				},
+				{
+					"id": "slow",
+					"duration": 1000,
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
 				{
-					"position": "enemies",
-					"effectId": "shield",
+					"position": "allies",
+					"effectId": "poison",
 					"effects": [
 						{
-							"id": "poison"
+							"id": "haste",
+							"duration": 1000,
+							"targets": {
+								"id": "self"
+							}
 						}
 					]
 				}
@@ -576,7 +596,11 @@
 					"effectId": "shield",
 					"effects": [
 						{
-							"id": "poison"
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
 						}
 					]
 				}
@@ -604,8 +628,8 @@
 					"effectId": "poison",
 					"effects": [
 						{
-							"id": "haste",
-							"duration": 1000,
+							"id": "increase_power",
+							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -633,10 +657,14 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "heal",
+					"effectId": "poison",
 					"effects": [
 						{
-							"id": "poison"
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "trigger"
+							}
 						}
 					]
 				}
@@ -650,10 +678,17 @@
 			"name_cn": "瘟疫携带者",
 			"pic": "f4_nocturn",
 			"power": 20,
-			"cooldown": 4700,
+			"cooldown": 6700,
 			"effects": [
 				{
 					"id": "poison"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "column_allies"
+					}
 				}
 			],
 			"reactions": [
@@ -681,7 +716,7 @@
 			"name_jp": "火の矢のダイアナ",
 			"name_ru": "Диана Огненная Стрела",
 			"pic": "neutral_arrowwhistler",
-			"power": 20,
+			"power": 30,
 			"cooldown": 5600,
 			"effects": [
 				{
@@ -696,13 +731,6 @@
 						{
 							"id": "haste",
 							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						},
-						{
-							"id": "increase_critical",
-							"amount": 5,
 							"targets": {
 								"id": "self"
 							}
@@ -800,6 +828,13 @@
 			"effects": [
 				{
 					"id": "damage"
+				},
+				{
+					"id": "increase_critical",
+					"amount": 5,
+					"targets": {
+						"id": "self"
+					}
 				}
 			],
 			"reactions": [
@@ -809,13 +844,6 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						},
-						{
-							"id": "increase_critical",
 							"amount": 5,
 							"targets": {
 								"id": "self"
@@ -875,8 +903,8 @@
 			"name_jp": "コマンドマン",
 			"name_ru": "Командир",
 			"pic": "f1_shieldforger",
-			"power": 10,
-			"cooldown": 4000,
+			"power": 30,
+			"cooldown": 6000,
 			"effects": [
 				{
 					"id": "shield"
@@ -912,6 +940,14 @@
 			"effects": [
 				{
 					"id": "damage"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "self"
+					}
 				}
 			],
 			"reactions": [
@@ -924,13 +960,6 @@
 							"amount": 5,
 							"targets": {
 								"id": "self"
-							}
-						},
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
 							}
 						}
 					]
@@ -1018,7 +1047,7 @@
 			"name_jp": "アービター",
 			"name_ru": "Арбитр",
 			"pic": "f1_peacekeeper",
-			"power": 20,
+			"power": 10,
 			"cooldown": 6200,
 			"effects": [
 				{
@@ -1064,7 +1093,7 @@
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
+							"amount": 10,
 							"targets": {
 								"id": "column_allies"
 							}
@@ -1290,7 +1319,7 @@
 			],
 			"reactions": [
 				{
-					"position": "row_allies",
+					"position": "column_allies",
 					"effectId": "shield",
 					"effects": [
 						{
@@ -1322,15 +1351,15 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
-					"effectId": "all",
+					"position": "row_allies",
+					"effectId": "shield",
 					"effects": [
 						{
 							"id": "increase_power",
-							"amount": 5,
+							"amount": 1,
+							"permanent": true,
 							"targets": {
-								"id": "random_ally",
-								"count": 1
+								"id": "top"
 							}
 						}
 					]
@@ -1351,6 +1380,14 @@
 			"effects": [
 				{
 					"id": "heal"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "bottom"
+					}
 				}
 			],
 			"reactions": [
@@ -1361,14 +1398,6 @@
 						{
 							"id": "increase_power",
 							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
 							"targets": {
 								"id": "trigger"
 							}
@@ -1387,10 +1416,18 @@
 			"name_ru": "Исцелитель Миров",
 			"pic": "f6_auroraguardian",
 			"power": 35,
-			"cooldown": 4200,
+			"cooldown": 6200,
 			"effects": [
 				{
 					"id": "heal"
+				},
+				{
+					"id": "increase_power",
+					"amount": 1,
+					"permanent": true,
+					"targets": {
+						"id": "right"
+					}
 				}
 			],
 			"reactions": [
@@ -1413,7 +1450,7 @@
 			"id": "divine_spark",
 			"name_en": "Divine Spark",
 			"name_es": "Chispa Divina",
-			"name_pt": "Faísca Divina",
+			"name_pt": "Centelha Divina",
 			"name_cn": "神圣火花",
 			"name_jp": "神聖な火花",
 			"name_ru": "Божественная Искра",
@@ -1583,15 +1620,26 @@
 			"effects": [
 				{
 					"id": "regen"
+				},
+				{
+					"id": "haste",
+					"duration": 1000,
+					"targets": {
+						"id": "row_allies"
+					}
 				}
 			],
 			"reactions": [
 				{
-					"position": "row_allies",
+					"position": "column_allies",
 					"effectId": "all",
 					"effects": [
 						{
-							"id": "heal"
+							"id": "increase_critical",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
 						}
 					]
 				}
@@ -1683,6 +1731,13 @@
 			"effects": [
 				{
 					"id": "regen"
+				},
+				{
+					"id": "slow",
+					"targets": {
+						"id": "random_enemy",
+						"count": 1
+					}
 				}
 			],
 			"reactions": [
@@ -1693,14 +1748,6 @@
 						{
 							"id": "increase_power",
 							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
 							"targets": {
 								"id": "self"
 							}
@@ -1734,8 +1781,7 @@
 							"id": "increase_power",
 							"amount": 5,
 							"targets": {
-								"id": "random_ally",
-								"count": 1
+								"id": "weakest_ally"
 							}
 						}
 					]
@@ -1793,14 +1839,13 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "all",
+					"effectId": "column_allies",
 					"effects": [
 						{
 							"id": "increase_critical",
 							"amount": 5,
 							"targets": {
-								"id": "random_ally",
-								"count": 1
+								"id": "row_allies"
 							}
 						}
 					]
@@ -1829,7 +1874,13 @@
 					"effectId": "heal",
 					"effects": [
 						{
-							"id": "damage"
+							"increase_power": {
+								"amount": 1,
+								"permanent": true,
+								"targets": {
+									"id": "self"
+								}
+							}
 						}
 					]
 				}
@@ -1849,6 +1900,12 @@
 			"effects": [
 				{
 					"id": "regen"
+				},
+				{
+					"id": "haste",
+					"targets": {
+						"id": "left_ally"
+					}
 				}
 			],
 			"reactions": [
@@ -1861,14 +1918,6 @@
 							"amount": 5,
 							"targets": {
 								"id": "column_allies"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "self"
 							}
 						}
 					]
@@ -1885,7 +1934,7 @@
 			"name_ru": "Манипулятор Временем",
 			"pic": "f1_sister",
 			"power": 6,
-			"cooldown": 5500,
+			"cooldown": 6500,
 			"effects": [
 				{
 					"id": "slow",
@@ -1901,6 +1950,21 @@
 					"targets": {
 						"id": "row_allies"
 					}
+				}
+			],
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -1926,14 +1990,21 @@
 				},
 				{
 					"id": "damage"
-				},
+				}
+			],
+			"reactions": [
 				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "self"
-					}
+					"position": "allies",
+					"effectId": "haste",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "column_allies"
+							}
+						}
+					]
 				}
 			]
 		},
@@ -2121,14 +2192,6 @@
 								"id": "random_ally",
 								"count": 1
 							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
 						}
 					]
 				}
@@ -2230,7 +2293,21 @@
 					}
 				}
 			],
-			"reactions": []
+			"reactions": [
+				{
+					"position": "allies",
+					"effectId": "shield",
+					"effects": [
+						{
+							"id": "increase_power",
+							"amount": 5,
+							"targets": {
+								"id": "self"
+							}
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "spellblade",
@@ -2250,7 +2327,7 @@
 			],
 			"reactions": [
 				{
-					"position": "allies",
+					"position": "row_allies",
 					"effectId": "all",
 					"effects": [
 						{
@@ -2274,7 +2351,7 @@
 			"name_ru": "Берсерк",
 			"pic": "neutral_beastmaster",
 			"power": 40,
-			"cooldown": 4200,
+			"cooldown": 5200,
 			"effects": [
 				{
 					"id": "damage"
