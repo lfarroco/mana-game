@@ -1,6 +1,6 @@
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import { vec2 } from "@Models/Geometry";
-import { CardDefinition, getCore } from "@Models/Entities/Card";
+import { CardDefinition, getBattleCore } from "@Models/Entities/Card";
 import { playerForce, cpuForce } from "@Models/Entities/Force";
 import * as constants from "@Constants/constants";
 import * as Chara from "@Systems/Chara/Chara";
@@ -283,14 +283,14 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 }
 
 export function defeatCpu(): string {
-	const core = getCore(cpuForce.id);
+	const core = getBattleCore(cpuForce.id);
 	if (!core) return "Error: CPU core not found";
 	core.life = 0;
 	return "CPU core life set to 0. Victory imminent.";
 }
 
 export function defeatPlayer(): string {
-	const core = getCore(playerForce.id);
+	const core = getBattleCore(playerForce.id);
 	if (!core) return "Error: Player core not found";
 	core.life = 0;
 	return "Player core life set to 0. Defeat imminent.";

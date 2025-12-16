@@ -288,6 +288,5 @@ export async function upgradeUnit(unit: Unit) {
 	upgradeUnitData(unit);
 
 	chara.destroy();
-
 	summon(unit, true);
 }

@@ -17,15 +17,22 @@ export const loopPhases: string[] = [
 	"encounter",
 	"encounter",
 	"combat",
-	"upgrade_core_phase"
+	"upgrade_core"
 ];
 
 // This will repeat the loop logic for the first 15 turns for now,
 // but can be customized with specific phases.
 export const predefinedPhases: string[] = [
-	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core_phase",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
 ];
 
 
@@ -58,7 +65,7 @@ export async function startPhase(phase: string) {
 		case "encounter":
 			Encounter.open();
 			break;
-		case "upgrade_core_phase":
+		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				[
 					"on_100_damage_effect",
@@ -73,6 +80,14 @@ export async function startPhase(phase: string) {
 					"on_battle_start_effect",
 				]
 			);
+			handlePhaseEnded();
+			break;
+		case "upgrade_core":
+			await EffectCardShop.openUpgradeCorePhase([
+				"increase_core_max_life",
+				"decrease_core_cooldown",
+				"upgrade_core_power"
+			])
 			handlePhaseEnded();
 			break;
 		default:

@@ -2,7 +2,7 @@ import { createChip, getChip, updateChipText } from "@Components/Chip";
 import { hideTooltip, renderTooltip } from "@Components/Tooltip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
-import { getCore } from "@Models/Entities/Card";
+import { getBattleCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
 import { getPoisonRate } from "./Systems/PoisonDamageSystem";
 import { getRegenRate } from "./Systems/RegenSystem";
@@ -108,7 +108,7 @@ export function destroyForceStats(force: string) {
 }
 
 export function updateAllStats(force: string) {
-	const core = getCore(force);
+	const core = getBattleCore(force);
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
 	updateRegenDisplay(force, getRegenRate(force), 0);
@@ -126,7 +126,7 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		console.error(`No health bar found for force ${force}`);
 		return;
 	}
-	const core = getCore(force);
+	const core = getBattleCore(force);
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, life / maxLife));
 	const barWidth = 600;
@@ -176,7 +176,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = getCore(force);
+	const core = getBattleCore(force);
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, shield / maxLife));
 	const barWidth = 600;
