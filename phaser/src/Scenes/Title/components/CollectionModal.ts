@@ -139,6 +139,8 @@ export function showCollectionModal(): Promise<void> {
 			() => switchTab("unlocked"),
 			280
 		);
+		unlockedTabBtn.container.setAlpha(0);
+
 		const lockedTabBtn = createUIButton(
 			t("collection.tabs.locked"),
 			vec2(150, tabY),
@@ -154,6 +156,7 @@ export function showCollectionModal(): Promise<void> {
 			renderPage(0);
 			updateTabs();
 		};
+		lockedTabBtn.container.setAlpha(0);
 
 		const updateTabs = () => {
 			if (currentTab === "unlocked") {
