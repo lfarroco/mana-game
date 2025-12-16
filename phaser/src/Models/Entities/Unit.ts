@@ -137,9 +137,19 @@ export function isCritical(u: Unit): boolean {
 function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
 	if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id)) return;
 
-	if (["increase_power", "multiply_power", "increase_critical"].includes(eff.id)) {
+	if (["increase_power", "increase_critical"].includes(eff.id)) {
 		if ("amount" in eff) {
 			eff.amount = eff.amount * rank;
+		}
+	}
+	if (["decrease_power"].includes(eff.id)) {
+		if ("percentage" in eff) {
+			eff.percentage = eff.percentage * rank;
+		}
+	}
+	if (["multiply_power"].includes(eff.id)) {
+		if ("multiplier" in eff) {
+			eff.multiplier = 1 + (rank / 10);
 		}
 	}
 
@@ -169,8 +179,11 @@ export function upgradeUnitEffects(unit: Unit) {
 }
 
 export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefinition) {
+	const newReactions = unit.reactions.filter((r) => {
+		return !cardDef.reactions.some((c) => c.effectId === r.effectId);
+	});
 	unit.effects = structuredClone(cardDef.effects ?? []);
-	unit.reactions = structuredClone(cardDef.reactions ?? []);
+	unit.reactions = structuredClone(cardDef.reactions ?? []).concat(newReactions)
 }
 
 export function upgradeUnitData(unit: Unit) {
