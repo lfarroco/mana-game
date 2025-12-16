@@ -1,6 +1,6 @@
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from "../../../Effects";
-import { getCore } from "@Models/Entities/Card";
+import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
@@ -19,7 +19,7 @@ export function initializeTimeoutDamageSystem(): void {
 }
 
 async function spawnStar(damage: number, targetForce: Force) {
-	const target = getCore(targetForce.id);
+	const target = getBattleCore(targetForce.id);
 
 	const core = getCharaById(target.id);
 

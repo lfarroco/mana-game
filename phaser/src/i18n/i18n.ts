@@ -69,7 +69,7 @@ export function t(key: string, params?: Record<string, string>): string {
 
 	if (params) {
 		Object.entries(params).forEach(([k, v]) => {
-			text = text.replace(`{${k}}`, v);
+			text = text.replace(new RegExp(`{${k}}`, 'g'), v);
 		});
 	}
 	return text;

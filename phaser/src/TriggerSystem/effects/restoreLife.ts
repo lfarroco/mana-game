@@ -1,4 +1,4 @@
-import { getAlliedCore, getCore } from "@Models/Entities/Card";
+import { getAlliedCore, getBattleCore } from "@Models/Entities/Card";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
@@ -25,7 +25,7 @@ export const restoreLife = async (sourceUnit: Unit) => {
 			processReactions(sourceUnit, { id: "on_crit" });
 		}
 
-		if (getCore(targetForce.id).life + amount > getCore(targetForce.id).maxLife) {
+		if (getBattleCore(targetForce.id).life + amount > getBattleCore(targetForce.id).maxLife) {
 			processReactions(sourceUnit, { id: "on_over_heal" });
 		}
 	};

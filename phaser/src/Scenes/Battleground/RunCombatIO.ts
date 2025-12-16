@@ -7,7 +7,7 @@ import * as Systems from "./Systems";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
-import { getCore } from "@Models/Entities/Card";
+import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { deactivateBlackHole } from "./BlackHole";
@@ -57,8 +57,8 @@ export function updateFrame(_time: number, delta: number): void {
 
 	Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
 
-	const playerLifeZero = getCore(playerForce.id).life <= 0;
-	const cpuLifeZero = getCore(cpuForce.id).life <= 0;
+	const playerLifeZero = getBattleCore(playerForce.id).life <= 0;
+	const cpuLifeZero = getBattleCore(cpuForce.id).life <= 0;
 
 	const outcome: WaveOutcome | null = cpuLifeZero
 		? "player_won"
@@ -87,9 +87,9 @@ export async function finishCombat(outcome: WaveOutcome) {
 	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 	if (outcome === "player_lost") {
-		await Animations.shatter(getCharaById(getCore(playerForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(playerForce.id).id));
 	} else {
-		await Animations.shatter(getCharaById(getCore(cpuForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(cpuForce.id).id));
 	}
 
 	await delay(500);

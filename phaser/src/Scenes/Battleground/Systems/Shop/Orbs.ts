@@ -10,6 +10,8 @@ import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { getState } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
+import { getPlayerPersistentCore } from "@Models/Entities/Card";
+import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 export type OrbSpec = {
 	id: string;
@@ -130,19 +132,49 @@ export const orbsIndex: Record<
 			return true;
 		},
 	}),
-	increase_core_max_life: () => ({
-		id: "increase_core_max_life",
-		name: t("shop.orbs.increaseMaxLife.name"),
-		color: 0x3399ff,
-		tooltip: t("shop.orbs.increaseMaxLife.tooltip"),
-		icon: "ui/frontier_fort",
-		effect: (unit: Unit) => {
-			if (!unit.isCore) return false;
-			unit.maxLife = unit.maxLife + 100;
-			unit.life = unit.maxLife;
-			return true;
-		},
-	}),
+	increase_core_max_life: () => {
+
+		const core = getPlayerPersistentCore();
+
+		const round = getState().gameData.round;
+		const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
+
+		return {
+			id: "increase_core_max_life",
+			name: t("shop.orbs.increaseMaxLife.name"),
+			color: 0x3399ff,
+			tooltip: t("shop.orbs.increaseMaxLife.tooltip", { amount: lifeGain.toString() }),
+			icon: "ui/frontier_fort",
+			effect: (unit: Unit) => {
+				if (!unit.isCore) return false;
+				unit.maxLife = core.maxLife + lifeGain;
+				unit.life = core.maxLife;
+				return true;
+			},
+		}
+	},
+	upgrade_core_power: () => {
+
+		const core = getPlayerPersistentCore();
+
+		const round = getState().gameData.round;
+		const powerGain = Math.floor(core.power * 0.1) + round * 10;
+
+		return {
+			id: "upgrade_core_power",
+			name: t("shop.orbs.upgradePower.name"),
+			color: 0x3399ff,
+			tooltip: t("shop.orbs.upgradePower.tooltip", { amount: powerGain.toString() }),
+			icon: "ui/frontier_fort",
+			effect: (unit: Unit) => {
+				if (!unit.isCore) return false;
+				unit.power = unit.power + powerGain;
+				unit.bonusPower = (unit.bonusPower || 0) + powerGain;
+				updatePowerDisplay(core.id)
+				return true;
+			},
+		}
+	},
 	decrease_core_cooldown: () => ({
 		id: "decrease_core_cooldown",
 		name: t("shop.orbs.decreaseCoreCooldown.name"),

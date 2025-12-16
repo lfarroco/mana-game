@@ -108,5 +108,8 @@ export const getAlliedCore = (forceId: string) =>
 export const getEnemyCore = (forceId: string) =>
 	getState().battleData.units.find((u) => u.force !== forceId && u.isCore)!;
 
-export const getCore = (forceId: string) =>
+export const getBattleCore = (forceId: string) =>
 	getState().battleData.units.find((u) => u.force === forceId && u.isCore)!;
+
+export const getPlayerPersistentCore = () =>
+	getState().gameData.player.units.find((u) => u.isCore)!;
