@@ -114,7 +114,7 @@ async function createStatsPanel(
 
 		sprite.on('pointerover', () => {
 			import('@Components/Tooltip').then(({ renderTooltip }) => {
-				const title = getName(unit);
+				const title = getName(unit.cardId);
 
 				const effectBlocks = unit.effects
 					.map((e) => CharaTooltip.buildEffectBlock(e, unit.power))

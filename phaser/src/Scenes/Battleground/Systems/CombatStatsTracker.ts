@@ -50,7 +50,7 @@ export function initialize(): void {
 	for (const unit of allUnits) {
 		unitStats.set(unit.id, {
 			unitId: unit.id,
-			unitName: getName(unit),
+			unitName: getName(unit.cardId),
 			forceId: unit.force,
 			damageDealt: 0,
 			reflected: 0,
@@ -194,7 +194,7 @@ export function stop(): void {
 	for (const unit of player.units) {
 
 		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {
-			runStats.mostPowerfulUnit = { name: getName(unit), power: unit.power };
+			runStats.mostPowerfulUnit = { name: getName(unit.cardId), power: unit.power };
 		}
 	}
 

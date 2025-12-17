@@ -88,7 +88,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			repeat: -1,
 		});
 
-		this.crystalName = io.Text(getName(crystal), {
+		this.crystalName = io.Text(getName(crystal.id), {
 			...constants.titleTextConfig,
 			fontSize: "36px",
 		});
@@ -176,7 +176,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 		this.crystalSprite.setTexture(crystal.pic);
 
-		this.crystalName.setText(getName(crystal));
+		this.crystalName.setText(getName(crystal.id));
 		io.Centralize(this.crystalName);
 
 		const description = this.buildCrystalDescription(crystal);

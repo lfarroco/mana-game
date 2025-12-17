@@ -130,7 +130,6 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 	const newUnit: Unit = {
 		id: `test-unit-${Date.now()}-${Math.random()}`,
 		cardId: cardId,
-		name_en: `Test Unit ${cardId}`,
 		pic: `${cardId}.png`,
 		force: getState().gameData.player.id,
 		position: vec2(boardX, boardY),
@@ -208,7 +207,6 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 			{
 				id: "test-unit-1",
 				cardId: "fortress",
-				name_en: "Warrior",
 				pic: "boss_city",
 				force: "PLAYER",
 				position: { x: 0, y: 0 },
@@ -231,7 +229,6 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 			{
 				id: "test-unit-2",
 				cardId: "parry_master",
-				name_en: "Healer",
 				pic: "neutral_swordofakrane",
 				force: "PLAYER",
 				position: { x: 1, y: 1 },
@@ -254,7 +251,6 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 			{
 				id: "test-unit-3",
 				cardId: "parry_master",
-				name_en: "Healer",
 				pic: "neutral_swordofakrane",
 				force: "PLAYER",
 				position: { x: 2, y: 2 },

@@ -4,7 +4,7 @@ import { buildEffectBlock, getReactionDescription } from "./CharaTooltip";
 
 export function createDescription(chara: Chara) {
 	const unit = getUnit(chara);
-	const title = getName(unit);
+	const title = getName(unit.cardId);
 
 	const effectBlocks = unit.effects
 		.map((e) => buildEffectBlock(e, unit.power))

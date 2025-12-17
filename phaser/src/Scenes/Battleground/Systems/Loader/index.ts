@@ -20,7 +20,7 @@ export const loadUnitAssets = (units: Unit[]): Promise<void> =>
 			const textureExists = scene.textures.exists(unit.pic);
 
 			if (!animData || !textureExists) {
-				console.log(`Loading unit asset: ${getName(unit)} - ${unit.pic}`);
+				console.log(`Loading unit asset: ${getName(unit.cardId)} - ${unit.pic}`);
 				scene.load.atlas(unit.pic, `assets/heroes/${unit.pic}.png`, `assets/heroes/${unit.pic}.json`);
 				scene.load.animation(`${unit.pic}-anims`, `assets/heroes/${unit.pic}-anims.json`);
 				loadingCount++;
