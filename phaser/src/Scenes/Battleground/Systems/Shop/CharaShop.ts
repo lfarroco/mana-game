@@ -85,7 +85,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 				description,
 			)
 			.setFontSize(28)
-			.setWrapWidth(700)
+			.setWrapWidth(650)
 			.setAlign("left")
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
