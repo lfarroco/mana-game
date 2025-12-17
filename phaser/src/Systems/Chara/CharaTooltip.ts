@@ -227,7 +227,7 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 
 	const effectText = effectSegments.join(effectSegments.length > 1 ? "\n" : ", ");
 
-	return "⚡ " + t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
+	return t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
 };
 
 export const onCharaPointerOver = (chara: Chara): void => {

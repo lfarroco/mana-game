@@ -34,8 +34,8 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 	await openHeroShop(
 		(card) =>
 			isValidRound(card) &&
-			(card.effects.some(eff => eff.id === type)
-				|| card.reactions.some(eff => eff.effects.some(eff => eff.id === type)))
+			(card.effects?.some(eff => eff.id === type)
+				|| card.reactions?.some(eff => eff.effects?.some(eff => eff.id === type)))
 
 	);
 	PhaseManager.handlePhaseEnded();
