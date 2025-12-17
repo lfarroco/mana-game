@@ -17,7 +17,7 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 
 	AudioManager.playSoundEffect("sfx_victory_match");
 
-	await delay(1000);
+	await delay(300);
 
 	ResultsUI.displayResults("defeat", async () => {
 		await handleDefeat();
@@ -32,7 +32,7 @@ export async function handleCombatEndedVictory(): Promise<void> {
 
 	AudioManager.playSoundEffect("sfx_victory_reward_chant");
 
-	await delay(1000);
+	await delay(300);
 
 	ResultsUI.displayResults("victory", async () => {
 		await handleVictory();

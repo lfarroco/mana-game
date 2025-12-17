@@ -92,7 +92,7 @@ export async function finishCombat(outcome: WaveOutcome) {
 		await Animations.shatter(getCharaById(getBattleCore(cpuForce.id).id));
 	}
 
-	await delay(500);
+	await delay(300);
 
 	Systems.ResultsPhase.handleCombatEnded(outcome);
 }

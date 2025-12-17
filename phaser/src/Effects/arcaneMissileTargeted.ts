@@ -141,6 +141,9 @@ export async function arcaneMissileTargeted(
 
 	impactParticles.stop();
 
+	// TODO: make the animation return the elements
+	// if we add them to the parent container, they will be
+	// cleaned up
 	await delay(2000);
 
 	beam.destroy();

@@ -30,7 +30,7 @@ export async function openUpgradeCorePhase(titleText: string, availableEncounter
 
 		renderUpgradeCards(container, encounters, async () => {
 			container.list.forEach((child) => child.disableInteractive());
-			await delay(500);
+			await delay(300);
 			completeSectionCallback();
 		});
 

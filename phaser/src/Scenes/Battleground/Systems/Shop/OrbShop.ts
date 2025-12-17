@@ -28,7 +28,7 @@ export async function openOrbShop(orbs: string[]): Promise<void> {
 		ShopPanel.create(completeSectionCallback);
 
 		renderOrbShop(container, selectedOrbs, async () => {
-			await delay(500);
+			await delay(300);
 			completeSectionCallback();
 		});
 
