@@ -376,10 +376,10 @@
 				},
 				{
 					"id": "increase_power",
+					"permanent": true,
+					"amount": 1,
 					"targets": {
-						"id": "self",
-						"permanent": true,
-						"amount": 1
+						"id": "self"
 					}
 				}
 			],
@@ -1874,12 +1874,11 @@
 					"effectId": "heal",
 					"effects": [
 						{
-							"increase_power": {
-								"amount": 1,
-								"permanent": true,
-								"targets": {
-									"id": "self"
-								}
+							"id": "increase_power",
+							"amount": 1,
+							"permanent": true,
+							"targets": {
+								"id": "self"
 							}
 						}
 					]

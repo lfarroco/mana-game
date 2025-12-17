@@ -1,3 +1,4 @@
+import Phaser from "phaser";
 import * as Card from "@Models/Entities/Card";
 import * as makeUnit from "@Models/Entities/Unit";
 import { size, vec2 } from "@Models/Geometry";
@@ -22,12 +23,23 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
 		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY)
-		const bgSize = size(750, 280)
+		const bgSize = size(800, 280)
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
 
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
+
+		bgRect.setInteractive(new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height), Phaser.Geom.Rectangle.Contains);
+		bgRect.on("pointerover", () => {
+			bgRect.setAlpha(0.7);
+		});
+		bgRect.on("pointerout", () => {
+			bgRect.setAlpha(1);
+		});
+		bgRect.on("pointerup", (pointer: Phaser.Input.Pointer) => {
+			chara.emit("pointerup", pointer);
+		});
 
 		const existingUnit = getState().gameData.player.units.find((u) => u.cardId === spec.id);
 		if (existingUnit) {
