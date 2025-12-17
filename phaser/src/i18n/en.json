@@ -183,7 +183,7 @@
 	"tooltip.sentence.haste": "[color={color}]Haste[/color] {target} for {duration}s",
 	"tooltip.sentence.slow": "[color={color}]Slow[/color] {target} for {duration}s",
 	"tooltip.sentence.charge": "[color={color}]Charge[/color] {target} for {duration}s",
-	"tooltip.sentence.increase_power": "{target} gains[color={color}]+{amount} power[/color]",
+	"tooltip.sentence.increase_power": "{target} gains [color={color}]+{amount} power[/color]",
 	"tooltip.sentence.increase_power_plural": "{target} gain [color={color}]+{amount} power[/color]",
 	"tooltip.sentence.increase_power_permanent": "{target} permanently gains [color={color}]{amount} power[/color]",
 	"tooltip.sentence.increase_power_permanent_plural": "{target} permanently gain [color={color}]{amount} power[/color]",
