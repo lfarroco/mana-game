@@ -341,8 +341,8 @@ const cards: CardDefinition[] = [
 		cooldown: 4500,
 		isCore: true,
 		effects: [
+			regen,
 			haste(1000, row),
-			regen
 		],
 		reactions: [
 			reaction("all", "row_allies", charge(500, column)),

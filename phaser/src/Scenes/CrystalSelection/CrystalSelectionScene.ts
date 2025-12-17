@@ -108,6 +108,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			)
 			.setOrigin(0.5, 0)
 			.setWrapMode(1)
+			.setLineSpacing(10)
 			.setWrapWidth(800);
 	}
 
