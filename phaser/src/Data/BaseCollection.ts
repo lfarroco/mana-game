@@ -26,6 +26,12 @@ const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reac
 	]
 })
 
+const targetingLeftAlly: Targeting = { "id": "left_ally" };
+const targetingRightAlly: Targeting = { "id": "right_ally" };
+const targetingTopAlly: Targeting = { "id": "top_ally" };
+const targetingBottomAlly: Targeting = { "id": "bottom_ally" };
+const targetingWeakestAlly: Targeting = { "id": "weakest_ally" };
+
 export const BASE_COLLECTION_DATA: CardCollection = {
 	"id": "base",
 	"name": "Base Set",
@@ -204,33 +210,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 15,
 			"cooldown": 5000,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
-				}
+				effectShield,
+				effectIncreasePower(1, targetingRandomAlly(1), true),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "row_allies"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingRowAllies)),
 			]
 		},
 		{
@@ -245,32 +229,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4600,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "increase_power",
-					"permanent": true,
-					"amount": 1,
-					"targets": {
-						"id": "self"
-					}
-				}
+				effectDamage,
+				effectIncreasePower(1, targetingSelf, true),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("heal", "column_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -285,24 +248,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 15,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("regen", "enemies", effectIncreasePower(2, targetingSelf)),
 			]
 		},
 		{
@@ -317,24 +266,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 15,
 			"cooldown": 3800,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("regen", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -349,31 +284,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "poison"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectPoison,
+				effectIncreaseCritical(5, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("regen", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -388,24 +303,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -420,32 +321,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 4300,
 			"effects": [
-				{
-					"id": "poison"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				}
+				effectPoison,
+				effectSlow(1000, targetingRandomEnemy(1)),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectHaste(1000, targetingSelf)),
 			]
 		},
 		{
@@ -460,24 +340,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4300,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -492,24 +358,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5700,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -524,24 +376,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 40,
 			"cooldown": 4900,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectIncreasePower(5, targetingTrigger)),
 			]
 		},
 		{
@@ -554,31 +392,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5500,
 			"effects": [
-				{
-					"id": "poison"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectPoison,
+				effectHaste(1000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("poison", "column_allies", effectIncreasePower(5, targetingTrigger)),
 			]
 		},
 		{
@@ -593,24 +411,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5600,
 			"effects": [
-				{
-					"id": "damage"
-				}
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "allies", effectHaste(1000, targetingSelf)),
 			]
 		},
 		{
@@ -625,33 +429,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "random_ally",
-						"count": 1
-					}
-				}
+				effectShield,
+				effectIncreasePower(1, targetingRandomAlly(1), true),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("regen", "column_allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -666,25 +448,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "allies", effectIncreasePower(1, targetingSelf, true)),
 			]
 		},
 		{
@@ -700,31 +467,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"critical": 20,
 			"cooldown": 4300,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "self"
-					}
-				}
+				effectDamage,
+				effectIncreaseCritical(5, targetingSelf),
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("heal", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -741,31 +488,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"cooldown": 4500,
 			"isCore": true,
 			"effects": [
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "row_allies"
-					}
-				},
-				{
-					"id": "regen"
-				}
+				effectHaste(1000, targetingRowAllies),
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectCharge(500, targetingColumnAllies)),
 			]
 		},
 		{
@@ -780,23 +507,9 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 6000,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 5,
-					"targets": {
-						"id": "column_allies"
-					}
-				},
-				{
-					"id": "increase_power",
-					"amount": 5,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectShield,
+				effectIncreasePower(5, targetingColumnAllies),
+				effectIncreasePower(5, targetingRowAllies),
 			],
 			"reactions": []
 		},
@@ -813,32 +526,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"critical": 10,
 			"cooldown": 5000,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "self"
-					}
-				}
+				effectDamage,
+				effectIncreasePower(1, targetingSelf, true),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "column_allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -853,32 +545,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5500,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				}
+				effectDamage,
+				effectSlow(1000, targetingRandomEnemy(1)),
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -893,24 +564,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 6200,
 			"effects": [
-				{
-					"id": "damage"
-				}
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -925,24 +582,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 6200,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -957,24 +600,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4200,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "left_ally",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 10,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("heal", "left_ally", effectIncreasePower(10, targetingColumnAllies)),
 			]
 		},
 		{
@@ -989,24 +618,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 25,
 			"cooldown": 5100,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("poison", "column_allies", effectIncreasePower(5, targetingTrigger)),
 			]
 		},
 		{
@@ -1021,24 +636,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4400,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("damage", "row_allies", effectIncreasePower(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1053,24 +654,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "row_allies"
-							}
-						}
-					]
-				}
+				reaction("shield", "column_allies", effectIncreasePower(5, targetingRowAllies)),
 			]
 		},
 		{
@@ -1085,24 +672,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "left_ally"
-							}
-						}
-					]
-				}
+				reaction("shield", "allies", effectIncreasePower(5, targetingLeftAlly)),
 			]
 		},
 		{
@@ -1117,24 +690,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5800,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectIncreasePower(2, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1149,24 +708,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4100,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("damage", "row_allies", effectIncreasePower(5, targetingTrigger)),
 			]
 		},
 		{
@@ -1181,31 +726,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 35,
 			"cooldown": 6800,
 			"effects": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "right_ally"
-					}
-				}
+				effectHeal,
+				effectIncreaseCritical(5, targetingRightAlly),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "column_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -1220,25 +745,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 25,
 			"cooldown": 5700,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "top_ally"
-							}
-						}
-					]
-				}
+				reaction("shield", "row_allies", effectIncreasePower(1, targetingTopAlly, true)),
 			]
 		},
 		{
@@ -1253,32 +763,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 15,
 			"cooldown": 4700,
 			"effects": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "bottom_ally"
-					}
-				}
+				effectHeal,
+				effectIncreasePower(1, targetingBottomAlly, true),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("shield", "row_allies", effectIncreasePower(5, targetingTrigger)),
 			]
 		},
 		{
@@ -1293,32 +782,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 35,
 			"cooldown": 6200,
 			"effects": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "increase_power",
-					"amount": 1,
-					"permanent": true,
-					"targets": {
-						"id": "left_ally"
-					}
-				}
+				effectHeal,
+				effectIncreasePower(1, targetingLeftAlly, true),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("all", "column_allies", effectHaste(1000, targetingSelf)),
 			]
 		},
 		{
@@ -1333,24 +801,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 35,
 			"cooldown": 4200,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "row_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "column_allies", effectHaste(1000, targetingRowAllies)),
 			]
 		},
 		{
@@ -1365,24 +819,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5700,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectHaste(1000, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1397,24 +837,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectIncreasePower(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1429,24 +855,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 3300,
 			"effects": [
-				{
-					"id": "heal"
-				}
+				effectHeal
 			],
 			"reactions": [
-				{
-					"position": "left_ally",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_critical",
-							"amount": 10,
-							"targets": {
-								"id": "right_ally"
-							}
-						}
-					]
-				}
+				reaction("all", "left_ally", effectIncreaseCritical(10, targetingRightAlly)),
 			]
 		},
 		{
@@ -1461,24 +873,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 3700,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -1493,31 +891,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectRegen,
+				effectHaste(1000, targetingRowAllies),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "column_allies", effectIncreaseCritical(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1532,25 +910,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 2300,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectIncreasePower(1, targetingSelf, true)),
 			]
 		},
 		{
@@ -1565,31 +928,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 2900,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "self"
-					}
-				}
+				effectRegen,
+				effectIncreaseCritical(5, targetingSelf),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "column_allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -1604,32 +947,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 2900,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				}
+				effectRegen,
+				effectSlow(1000, targetingRandomEnemy(1)),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "column_allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -1644,24 +966,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4300,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "weakest_ally"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingWeakestAlly)),
 			]
 		},
 		{
@@ -1676,24 +984,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 5800,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "slow",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("slow", "column_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -1708,24 +1002,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 40,
 			"cooldown": 4200,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "row_allies"
-							}
-						}
-					]
-				}
+				reaction("all", "allies", effectIncreaseCritical(5, targetingRowAllies)),
 			]
 		},
 		{
@@ -1740,25 +1020,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4200,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 1,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("heal", "allies", effectIncreasePower(1, targetingSelf, true)),
 			]
 		},
 		{
@@ -1773,31 +1038,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4500,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "left_ally"
-					}
-				}
+				effectRegen,
+				effectHaste(1000, targetingLeftAlly),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("shield", "row_allies", effectIncreasePower(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1812,36 +1057,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 6,
 			"cooldown": 6500,
 			"effects": [
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				},
-				{
-					"id": "charge",
-					"duration": 500,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectSlow(1000, targetingRandomEnemy(1)),
+				effectCharge(500, targetingRowAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1856,32 +1076,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 4900,
 			"effects": [
-				{
-					"id": "slow",
-					"duration": 1000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 1
-					}
-				},
-				{
-					"id": "damage"
-				}
+				effectSlow(1000, targetingRandomEnemy(1)),
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingColumnAllies)),
 			]
 		},
 		{
@@ -1896,31 +1095,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 6000,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "haste",
-					"duration": 2000,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectRegen,
+				effectHaste(2000, targetingRowAllies),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -1935,31 +1114,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 6000,
 			"effects": [
-				{
-					"id": "poison"
-				},
-				{
-					"id": "haste",
-					"duration": 2000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectPoison,
+				effectHaste(2000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -1974,31 +1133,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 15,
 			"cooldown": 5500,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"duration": 1000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectDamage,
+				effectCharge(1000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "column_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -2013,24 +1152,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 4500,
 			"effects": [
-				{
-					"id": "shield"
-				}
+				effectShield
 			],
 			"reactions": [
-				{
-					"position": "bottom_ally",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 10,
-							"targets": {
-								"id": "top_ally"
-							}
-						}
-					]
-				}
+				reaction("all", "bottom_ally", effectIncreasePower(10, targetingTopAlly)),
 			]
 		},
 		{
@@ -2045,32 +1170,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 4500,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 1000,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectDamage,
+				effectHaste(1000, targetingRowAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "random_ally",
-								"count": 1
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectHaste(1000, targetingRandomAlly(1))),
 			]
 		},
 		{
@@ -2085,24 +1189,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4500,
 			"effects": [
-				{
-					"id": "damage"
-				}
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 4,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectIncreasePower(4, targetingSelf)),
 			]
 		},
 		{
@@ -2117,32 +1207,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 10,
 			"cooldown": 4200,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectShield,
+				effectIncreaseCritical(5, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "random_enemy",
-								"count": 1
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectIncreaseCritical(5, targetingRandomEnemy(1))),
 			]
 		},
 		{
@@ -2157,31 +1226,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 4100,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "increase_critical",
-					"amount": 5,
-					"targets": {
-						"id": "self"
-					}
-				}
+				effectDamage,
+				effectIncreaseCritical(5, targetingSelf),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -2196,24 +1245,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 30,
 			"cooldown": 4100,
 			"effects": [
-				{
-					"id": "damage"
-				}
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "increase_critical",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectIncreaseCritical(5, targetingSelf)),
 			]
 		},
 		{
@@ -2228,24 +1263,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 40,
 			"cooldown": 5200,
 			"effects": [
-				{
-					"id": "damage"
-				}
+				effectDamage
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "haste",
-							"duration": 1000,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectHaste(1000, targetingSelf)),
 			]
 		},
 		{
@@ -2260,31 +1281,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 5000,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"duration": 500,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectDamage,
+				effectCharge(500, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "column_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
@@ -2299,32 +1300,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"duration": 500,
-					"targets": {
-						"id": "left_ally"
-					}
-				}
+				effectDamage,
+				effectCharge(500, targetingLeftAlly),
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "enemies", effectIncreasePower(2, targetingSelf, true)),
 			]
 		},
 		{
@@ -2339,31 +1319,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"power": 20,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "charge",
-					"duration": 500,
-					"targets": {
-						"id": "right_ally"
-					}
-				}
+				effectRegen,
+				effectCharge(500, targetingRightAlly),
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 4,
-							"targets": {
-								"id": "right_ally"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectIncreasePower(4, targetingRightAlly)),
 			]
 		},
 		{
@@ -2379,32 +1339,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 2,
 			"cooldown": 5800,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "charge",
-					"duration": 1000,
-					"targets": {
-						"id": "left_ally"
-					}
-				}
+				effectDamage,
+				effectCharge(1000, targetingLeftAlly),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 6,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("haste", "column_allies", effectIncreasePower(6, targetingSelf, true)),
 			]
 		},
 		{
@@ -2420,32 +1359,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 2,
 			"cooldown": 4800,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "haste",
-					"duration": 2000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectShield,
+				effectHaste(2000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 4,
-							"permanent": true,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("haste", "row_allies", effectIncreasePower(4, targetingColumnAllies, true)),
 			]
 		},
 		{
@@ -2461,32 +1379,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 2,
 			"cooldown": 5800,
 			"effects": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "charge",
-					"duration": 1000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectHeal,
+				effectCharge(1000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 6,
-							"permanent": true,
-							"targets": {
-								"id": "trigger"
-							}
-						}
-					]
-				}
+				reaction("regen", "row_allies", effectIncreasePower(6, targetingTrigger, true)),
 			]
 		},
 		{
@@ -2502,24 +1399,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 2,
 			"cooldown": 7800,
 			"effects": [
-				{
-					"id": "poison"
-				}
+				effectPoison
 			],
 			"reactions": [
-				{
-					"position": "enemies",
-					"effectId": "damage",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("damage", "enemies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -2535,31 +1418,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 2,
 			"cooldown": 5800,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "haste",
-					"duration": 2000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectRegen,
+				effectHaste(2000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "allies", effectIncreasePower(5, targetingSelf)),
 			]
 		},
 		{
@@ -2575,32 +1438,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 3,
 			"cooldown": 6800,
 			"effects": [
-				{
-					"id": "poison"
-				},
-				{
-					"id": "slow",
-					"duration": 2000,
-					"targets": {
-						"id": "random_enemy",
-						"count": 2
-					}
-				}
+				effectPoison,
+				effectSlow(2000, targetingRandomEnemy(2)),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "poison",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 6,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("poison", "allies", effectIncreasePower(6, targetingSelf)),
 			]
 		},
 		{
@@ -2611,38 +1453,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 3,
 			"cooldown": 7300,
 			"effects": [
-				{
-					"id": "shield"
-				},
-				{
-					"id": "increase_power",
-					"amount": 10,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectShield,
+				effectIncreasePower(10, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "heal",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 4,
-							"targets": {
-								"id": "column_allies"
-							}
-						},
-						{
-							"id": "increase_power",
-							"amount": 2,
-							"targets": {
-								"id": "column_allies"
-							}
-						}
-					]
-				}
+				reaction("heal", "allies", effectIncreasePower(4, targetingColumnAllies))
 			]
 		},
 		{
@@ -2658,32 +1473,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 3,
 			"cooldown": 4300,
 			"effects": [
-				{
-					"id": "damage"
-				},
-				{
-					"id": "haste",
-					"duration": 2000,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectDamage,
+				effectHaste(2000, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "allies",
-					"effectId": "haste",
-					"effects": [
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("haste", "allies", effectIncreasePower(5, targetingSelf, true)),
 			]
 		},
 		{
@@ -2699,28 +1493,10 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 3,
 			"cooldown": 5400,
 			"effects": [
-				{
-					"id": "regen"
-				}
+				effectRegen
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "shield",
-					"effects": [
-						{
-							"id": "heal"
-						},
-						{
-							"id": "increase_power",
-							"amount": 5,
-							"permanent": true,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("shield", "column_allies", effectIncreasePower(5, targetingSelf, true))
 			]
 		},
 		{
@@ -2736,35 +1512,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"rank": 3,
 			"cooldown": 7400,
 			"effects": [
-				{
-					"id": "heal"
-				},
-				{
-					"id": "increase_power",
-					"amount": 20,
-					"targets": {
-						"id": "row_allies"
-					}
-				}
+				effectHeal,
+				effectIncreasePower(20, targetingRowAllies),
 			],
 			"reactions": [
-				{
-					"position": "column_allies",
-					"effectId": "regen",
-					"effects": [
-						{
-							"id": "poison"
-						},
-						{
-							"id": "increase_power",
-							"amount": 10,
-							"permanent": true,
-							"targets": {
-								"id": "row_allies"
-							}
-						}
-					]
-				}
+				reaction("regen", "column_allies", effectIncreasePower(5, targetingRowAllies, true)),
 			]
 		}
 	]
