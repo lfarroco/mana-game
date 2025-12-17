@@ -343,16 +343,16 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 						case "column_allies":
 							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
 						case "top_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y - 1 === u.position.y && triggeringUnit.position.x === u.position.x;
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y === u.position.y - 1 && triggeringUnit.position.x === u.position.x;
 						case "bottom_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y + 1 === u.position.y && triggeringUnit.position.x === u.position.x;
+							return sameForce(u, triggeringUnit) && triggeringUnit.position.y === u.position.y + 1 && triggeringUnit.position.x === u.position.x;
 						case "left_ally":
 							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x - 1 === u.position.x && triggeringUnit.position.y === u.position.y
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x === u.position.x - 1 && triggeringUnit.position.y === u.position.y
 							);
 						case "right_ally":
 							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x + 1 === u.position.x && triggeringUnit.position.y === u.position.y
+								sameForce(u, triggeringUnit) && triggeringUnit.position.x === u.position.x + 1 && triggeringUnit.position.y === u.position.y
 							);
 						default:
 							const _exhaustiveCheck: never = r.position;
