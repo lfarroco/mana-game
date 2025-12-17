@@ -62,7 +62,7 @@ export async function arcaneMissileTargeted(
 		thickness: 1,
 		amplitude,
 		frequency,
-		segments: Math.floor(distance / 60),
+		segments: Math.floor(distance / 30),
 		color: colors[0],
 	});
 
