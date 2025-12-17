@@ -22,7 +22,7 @@ export async function itemClickPurchaseRequested(
 			Geometry.vec2(dragStartX, dragStartY)
 		);
 
-		uiEvents.onPurchaseFailed(getName(shopUnitData), reason, cost);
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), reason, cost);
 	};
 
 	const existingUnit = getState().gameData.player.units.find(
@@ -58,7 +58,7 @@ export async function itemClickPurchaseRequested(
 
 	const { runStats } = getState().gameData;
 	runStats.totalUnitsRecruited++;
-	const unitName = getName(newUnit);
+	const unitName = getName(newUnit.cardId);
 	runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
 
 	summon(newUnit, true);

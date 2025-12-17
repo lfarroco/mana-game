@@ -33,14 +33,14 @@ export async function itemDragPurchaseRequested(
 
 	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(getName(shopUnitData), "PARTY_FULL");
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
 
 	const occupier = getUnitAt(getState().gameData.player.units)(targetTile);
 	if (occupier) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(getName(shopUnitData), "SLOT_OCCUPIED");
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 		return;
 	}
 
@@ -49,7 +49,7 @@ export async function itemDragPurchaseRequested(
 
 	const { runStats } = getState().gameData;
 	runStats.totalUnitsRecruited++;
-	const unitName = getName(newUnit);
+	const unitName = getName(newUnit.cardId);
 	runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
 
 	summon(newUnit, true);

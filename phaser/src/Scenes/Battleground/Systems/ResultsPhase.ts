@@ -48,8 +48,8 @@ export function handleCombatEnded(combatResult: string) {
 	const state = getState();
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 	for (const unit of playerUnits) {
-		StatsStore.recordUnitUsage(getName(unit));
-		StatsStore.checkMostPowerfulUnit(getName(unit), unit.power);
+		StatsStore.recordUnitUsage(getName(unit.cardId));
+		StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
 	}
 	StatsStore.save();
 
