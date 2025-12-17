@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 import { activateBlackHole } from "../BlackHole";
-import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y } from "@Constants/constants";
+import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 
 let scene: Phaser.Scene | null = null;
 let timerText: Phaser.GameObjects.Text | null = null;
 let timerCircle: Phaser.GameObjects.Arc | null = null;
-let timerValue: number = 20;
+let timerValue: number = 30;
 let timerEvent: Phaser.Time.TimerEvent | null = null;
 
 export function initializeCountdownTimer(gameScene: Phaser.Scene): void {
@@ -15,12 +15,12 @@ export function initializeCountdownTimer(gameScene: Phaser.Scene): void {
 export function start(): void {
 	if (!scene) return;
 
-	timerValue = 20;
+	timerValue = TIMEOUT_DAMAGE_START_TIME / 1000;
 	// Add a circle background
 	timerCircle = scene.add.circle(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, 40, 0x000000, 0.8);
 	timerCircle.setStrokeStyle(4, 0xffffff);
 	timerCircle.setDepth(1000);
-	timerCircle.setVisible(true);
+	timerCircle.setVisible(false);
 
 	timerText = scene.add
 		.text(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, timerValue.toString(), {
@@ -31,7 +31,7 @@ export function start(): void {
 		})
 		.setOrigin(0.5);
 	timerText.setDepth(1001);
-	timerText.setVisible(true);
+	timerText.setVisible(false);
 
 	timerEvent = scene.time.addEvent({
 		delay: 1000,
@@ -46,6 +46,12 @@ function updateTimer(): void {
 
 	timerValue--;
 	timerText.setText(timerValue.toString());
+	if (timerValue <= 10) {
+		timerText.setVisible(true);
+		if (timerCircle) {
+			timerCircle.setVisible(true);
+		}
+	}
 	if (timerValue <= 0) {
 		timerEvent?.destroy();
 		timerEvent = null;
