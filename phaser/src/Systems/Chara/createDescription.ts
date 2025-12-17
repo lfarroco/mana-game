@@ -4,7 +4,9 @@ import { buildEffectBlock, getReactionDescription } from "./CharaTooltip";
 
 export function createDescription(chara: Chara) {
 	const unit = getUnit(chara);
-	const title = getName(unit.cardId);
+	const rankNames = [t("rank.bronze"), t("rank.silver"), t("rank.gold"), t("rank.platinum")];
+	const rankName = rankNames[unit.rank - 1] || unit.rank.toString();
+	const title = `${getName(unit.cardId)} (${rankName})`;
 
 	const effectBlocks = unit.effects
 		.map((e) => buildEffectBlock(e, unit.power))
