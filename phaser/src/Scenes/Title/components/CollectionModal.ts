@@ -59,7 +59,7 @@ export function showCollectionModal(): Promise<void> {
 			// Use a more generous cell height or spacing
 			const cellHeight = 300;
 			const startX = -PANEL_WIDTH / 2 + cellWidth / 2;
-			const startY = -PANEL_HEIGHT / 2 + 100 + cellHeight / 2 + 60; // Offset for tabs
+			const startY = -PANEL_HEIGHT / 2 + cellHeight / 2 + 60; // Offset for tabs
 
 			for (let i = 0; i < pageCards.length; i++) {
 				const card = pageCards[i];
