@@ -9,7 +9,7 @@ let currentOptions: Options = {
 	musicVolume: 0.4,
 	masterVolume: 1,
 	debug: false,
-	speed: 1.2,
+	speed: 1.5,
 	particles: "medium",
 };
 
