@@ -11,11 +11,14 @@ import { getCurrentScene, getState } from "@Models/State";
 // TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
 
-export async function openHeroShop(filter?: (u: Card.CardDefinition) => boolean): Promise<void> {
+export async function openHeroShop(
+	filter?: (u: Card.CardDefinition) => boolean,
+	totalHeroes?: number
+): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		currentShopCharas = [];
 
-		const tavernCardData = getAvailableCardsForTavern(sc.NUM_TAVERN_SLOTS, filter);
+		const tavernCardData = getAvailableCardsForTavern(totalHeroes || sc.NUM_TAVERN_SLOTS, filter);
 
 		const finishPhaseCallback = async () => {
 			await close();
