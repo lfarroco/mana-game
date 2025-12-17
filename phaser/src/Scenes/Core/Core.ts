@@ -1,7 +1,8 @@
 import { preload } from "@Scenes/Battleground/preload";
 import { images } from "../../assets";
 import { SCENE_KEYS } from "@Constants/constants";
-import { CardCollection, registerCollection } from "@Models/Entities/Card";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "../../Data/BaseCollection";
 
 export default class Core extends Phaser.Scene {
 	constructor() {
@@ -87,7 +88,7 @@ export default class Core extends Phaser.Scene {
 	}
 
 	create() {
-		const collection = this.cache.json.get("base-collection") as CardCollection;
+		const collection = BASE_COLLECTION_DATA;
 
 		registerCollection(collection);
 

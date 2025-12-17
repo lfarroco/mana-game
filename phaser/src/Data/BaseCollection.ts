@@ -1,4 +1,6 @@
-{
+import { CardCollection } from "@Models/Entities/Card";
+
+export const BASE_COLLECTION_DATA: CardCollection = {
 	"id": "base",
 	"name": "Base Set",
 	"cards": [
@@ -923,7 +925,8 @@
 						"id": "row_allies"
 					}
 				}
-			]
+			],
+			"reactions": []
 		},
 		{
 			"id": "avatar_of_anger",
@@ -1359,7 +1362,7 @@
 							"amount": 1,
 							"permanent": true,
 							"targets": {
-								"id": "top"
+								"id": "top_ally"
 							}
 						}
 					]
@@ -1386,7 +1389,7 @@
 					"amount": 1,
 					"permanent": true,
 					"targets": {
-						"id": "bottom"
+						"id": "bottom_ally"
 					}
 				}
 			],
@@ -1426,7 +1429,7 @@
 					"amount": 1,
 					"permanent": true,
 					"targets": {
-						"id": "right"
+						"id": "left_ally"
 					}
 				}
 			],
@@ -1734,6 +1737,7 @@
 				},
 				{
 					"id": "slow",
+					"duration": 1000,
 					"targets": {
 						"id": "random_enemy",
 						"count": 1
@@ -1839,7 +1843,7 @@
 			"reactions": [
 				{
 					"position": "allies",
-					"effectId": "column_allies",
+					"effectId": "all",
 					"effects": [
 						{
 							"id": "increase_critical",
@@ -1902,6 +1906,7 @@
 				},
 				{
 					"id": "haste",
+					"duration": 1000,
 					"targets": {
 						"id": "left_ally"
 					}

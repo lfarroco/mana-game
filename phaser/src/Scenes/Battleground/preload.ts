@@ -6,7 +6,6 @@ export function preload(scene: Phaser.Scene) {
 		scene.load.image(image);
 	});
 
-	scene.load.json("base-collection", "assets/data/collections/base/data.json");
 
 	coinTexture(scene);
 

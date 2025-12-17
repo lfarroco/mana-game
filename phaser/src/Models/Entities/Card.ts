@@ -9,7 +9,6 @@ const dummy: CardDefinition = {
 	power: 10,
 	cooldown: 2300,
 	rank: 1,
-	description: "",
 	reactions: [],
 	effects: [
 		{
@@ -36,8 +35,6 @@ export const registerCollection = (collection: CardCollection): void => {
 export type CardCollection = {
 	id: string;
 	name: string;
-	description: string;
-	pic: string;
 	cards: CardDefinition[];
 };
 
@@ -56,7 +53,6 @@ export type CardDefinition = {
 	name_cn?: string;
 	name_jp?: string;
 	name_ru?: string;
-	description: string;
 	power?: number;
 	cooldown: number;
 	effects: Effect[];
@@ -66,6 +62,7 @@ export type CardDefinition = {
 	rank?: number;
 	life?: number;
 	critical?: number;
+	reflect?: number;
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {
