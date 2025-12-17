@@ -690,7 +690,7 @@ const cards: CardDefinition[] = [
 			regen
 		],
 		reactions: [
-			reaction("all", "allies", increaseCritical(5, row)),
+			reaction("regen", "allies", increaseCritical(5, self)),
 		]
 	},
 	{

@@ -96,7 +96,7 @@ const increasePowerOnTypeEffect = (type: "damage" | "heal" | "shield" | "poison"
 	}
 });
 const increaseCriticalEffect: Effect = { id: "increase_critical", amount: 5, targets: { id: "random_ally", count: 1 } };
-const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", percentage: 10, targets: { id: "random_enemy", count: 1 } }
+const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", percentage: 5, targets: { id: "random_enemy", count: 1 } }
 const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
 const hasteEffect: Effect = { id: "haste", duration: 1000, targets: { id: "random_ally", count: 2 } }
 const slowEffect: Effect = { id: "slow", duration: 1000, targets: { id: "random_enemy", count: 2 } }
@@ -185,38 +185,6 @@ export const orbsIndex: Record<
 			if (!unit.isCore) return false;
 			const reduction = unit.cooldown * 0.1;
 			unit.cooldown = Math.max(1000, unit.cooldown - reduction);
-			return true;
-		},
-	}),
-	add_core_random_reaction: () => ({
-		id: "add_core_random_reaction",
-		name: t("shop.orbs.addRandomReaction.name"),
-		color: 0x3399ff,
-		tooltip: t("shop.orbs.addRandomReaction.tooltip"),
-		icon: "ui/forest_pools",
-		effect: (unit: Unit) => {
-			if (!unit.isCore) return false;
-			unit.reactions.push({
-				position: pickOne(["row_allies", "column_allies"]),
-				effectId: pickOne([
-					"damage",
-					"shield",
-					"poison",
-					"heal",
-					"regen"
-				]),
-				effects: [
-					{
-						"id": pickOne([
-							"heal",
-							"regen",
-							"shield",
-							"poison",
-							"damage"
-						])
-					}
-				]
-			})
 			return true;
 		},
 	}),
