@@ -6,21 +6,13 @@ export function createDescription(chara: Chara) {
 	const unit = getUnit(chara);
 	const title = getName(unit);
 
-	let effectBlocks = unit.effects
+	const effectBlocks = unit.effects
 		.map((e) => buildEffectBlock(e, unit.power))
 		.filter((e): e is string => e !== null)
-		.map(str => "- " + str[0].toUpperCase() + str.slice(1));
-
-	if (effectBlocks.length > 0) {
-		effectBlocks.unshift(`[b]${t("tooltip.header.effects")}[/b]`);
-	}
-
-	let reactionBlocks = unit.reactions.map((r) => getReactionDescription(r, unit.power))
+		.map(str => "- " + str[0].toUpperCase() + str.slice(1))
+		;
+	const reactionBlocks = unit.reactions.map((r) => getReactionDescription(r, unit.power))
 		.map(str => "- " + str);
-
-	if (reactionBlocks.length > 0) {
-		reactionBlocks.unshift(`[b]${t("tooltip.header.reactions")}[/b]`);
-	}
 
 	const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
 	const cdBlock = [`[color=#c0c0c0]${t("description.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
