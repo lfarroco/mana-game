@@ -395,7 +395,8 @@ const slides = [
 
 	]),
 	() => io.Container([
-		text(t("tutorial.slide8.row1"), 100),
+
+		io.Title1(t("tutorial.slide8.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 		text(t("tutorial.slide8.row2"), 150),
 		bbcode(
 			`[color=${ABILITY_COLORS.haste}]${t("tooltip.effects.haste")}[/color]: ${t("tutorial.slide8.row3")}`,
@@ -423,12 +424,11 @@ const slides = [
 		),
 	]),
 	() => io.Container([
-		text(t("tutorial.slide9.row1"), 100),
-		text(t("tutorial.slide9.row2"), 150),
+
+		io.Title1(t("tutorial.slide9.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 		text(t("tutorial.slide9.row3"), 200),
 		text(t("tutorial.slide9.row4"), 250),
 		text(t("tutorial.slide9.row5"), 300),
-		text(t("tutorial.slide9.row6"), 350)
 	]),
 	() => {
 
@@ -473,7 +473,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text(t("tutorial.slide11.row1"), 100)
+		const title = io.Title1(t("tutorial.slide11.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 })
 
@@ -514,7 +514,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text(t("tutorial.slide12.row1"), 100);
+		const title = io.Title1(t("tutorial.slide12.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 })
 
@@ -555,7 +555,7 @@ const slides = [
 	() => {
 
 		const cont = io.Container();
-		const title = text(t("tutorial.slide13.row1"), 100);
+		const title = io.Title1(t("tutorial.slide13.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5);
 		cont.add(title);
 		const unit = makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 })
 
