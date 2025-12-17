@@ -310,13 +310,13 @@ const cards: CardDefinition[] = [
 	{
 		id: "stone_guardian",
 		pic: "neutral_golemstone",
-		power: 10,
-		cooldown: 5200,
+		power: 20,
+		cooldown: 4500,
 		effects: [
 			shield
 		],
 		reactions: [
-			reaction("damage", "allies", increasePower(1, self, true)),
+			reaction("damage", "allies", increasePower(3, self, true)),
 		]
 	},
 	{
@@ -402,8 +402,8 @@ const cards: CardDefinition[] = [
 	{
 		id: "arbiter",
 		pic: "f1_peacekeeper",
-		power: 10,
-		cooldown: 6200,
+		power: 20,
+		cooldown: 5200,
 		effects: [
 			shield
 		],
@@ -747,8 +747,8 @@ const cards: CardDefinition[] = [
 	{
 		id: "mana_source",
 		pic: "f4_furosa",
-		power: 10,
-		cooldown: 6000,
+		power: 20,
+		cooldown: 5000,
 		effects: [
 			regen,
 			haste(2000, row),
@@ -760,8 +760,8 @@ const cards: CardDefinition[] = [
 	{
 		id: "void_spawn",
 		pic: "f5_ankylos",
-		power: 10,
-		cooldown: 6000,
+		power: 25,
+		cooldown: 4800,
 		effects: [
 			poison,
 			haste(2000, column),
@@ -786,8 +786,8 @@ const cards: CardDefinition[] = [
 	{
 		id: "mirror_entity",
 		pic: "f3_nimbus",
-		power: 10,
-		cooldown: 4500,
+		power: 20,
+		cooldown: 4000,
 		effects: [
 			shield
 		],
