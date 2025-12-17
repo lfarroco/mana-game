@@ -3,6 +3,7 @@ import { Effect, EffectReaction, Targeting } from "../../TriggerSystem/TriggerSy
 import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 import { t } from "../../i18n/i18n";
+import { ABILITY_COLORS } from "@Models/Abilities";
 
 const getTargetDescription = (targets: Targeting): string => {
 	if (!targets) return t("tooltip.targets.default");
@@ -17,7 +18,7 @@ const getTargetDescription = (targets: Targeting): string => {
 		key = "tooltip.sentence.target.random_enemies";
 
 	if (targets.id === "all_allies" && targets.ofType !== "any") {
-		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType, color: EFFECT_STYLES[targets.ofType].color });
+		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType, color: ABILITY_COLORS[targets.ofType] });
 	}
 
 	return t(key, { count: count?.toString() });
@@ -60,7 +61,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 	const isPlural = isTargetPlural(targets);
 
 	const amount = unitPower.toString();
-	const color = EFFECT_STYLES[effect.id].color
+	const color = ABILITY_COLORS[effect.id];
 
 	switch (effect.id) {
 		case "damage":
@@ -140,32 +141,6 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 	}
 };
 
-const EFFECT_STYLES: Record<string, { color: string }> = {
-	damage: { color: "#ff6b6b" },
-	heal: { color: "#07f62fff" },
-	shield: { color: "#ede545ff" },
-	poison: { color: "#da77f2" },
-	regen: { color: "#38c24cff" },
-	haste: { color: "#91a7ff" },
-	re_hasted: { color: "#00eaff" },
-	re_slow: { color: "#d2691e" },
-	every_100_damage: { color: "#ff4500" },
-	every_100_shield: { color: "#74c0fc" },
-	every_100_heal: { color: "#51cf66" },
-	every_10_poison: { color: "#da77f2" },
-	every_10_regen: { color: "#8ce99a" },
-	slow: { color: "#db7c28e0" },
-	charge: { color: "#ffe066" },
-	increase_power: { color: "#ff8cc8" },
-	decrease_power: { color: "#8a2be2" },
-	increase_critical: { color: "#ff8cc8" },
-	on_crit: { color: "#ff0000" },
-	on_over_heal: { color: "#51cf66" },
-	on_battle_start: { color: "#ffffff" },
-	multiply_power: { color: "#ff8cc8" },
-	all: { color: "#ffffff" },
-};
-
 const getPositionDescription = (position: string): string => {
 	//const key = `tooltip.sentence.position.${position}`;
 	// Fallback to "all" if not found is not safe, but 'all', 'allies', 'enemies' map directly.
@@ -201,9 +176,9 @@ const getPositionDescription = (position: string): string => {
 };
 
 export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
-	const style = EFFECT_STYLES[reaction.effectId];
+	const style = ABILITY_COLORS[reaction.effectId];
 	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
-	const color = style ? style.color : "#51cf66";
+	const color = style || "#51cf66";
 
 	const sourceDesc = reaction.position ? getPositionDescription(reaction.position) : t("tooltip.sentence.position.any");
 	const effectName = t(`tooltip.effects.${effectKey}`);
