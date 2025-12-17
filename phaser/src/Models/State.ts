@@ -16,7 +16,7 @@ export type GameData = {
 	round: number;
 	hour: number;
 	player: Force;
-	choices: string[];
+	recentEncounterIds: string[];
 	runStats: RunStats;
 };
 
@@ -37,7 +37,7 @@ const initialState = (): State => ({
 		round: 1,
 		hour: 0,
 		player: playerForce,
-		choices: [],
+		recentEncounterIds: [],
 		runStats: {
 			damageDealt: 0,
 			poisonDealt: 0,
