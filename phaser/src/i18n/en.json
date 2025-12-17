@@ -131,6 +131,8 @@
 	"shop.messages.insufficientGold": "Not enough gold! (Cost: {cost})",
 	"shop.messages.slotOccupied": "That slot is already occupied.",
 	"shop.messages.unknown": "Reason unknown.",
+	"tooltip.header.effects": "Effects",
+	"tooltip.header.reactions": "Reactions",
 	"tooltip.effects.damage": "Damage",
 	"tooltip.effects.heal": "Heal",
 	"tooltip.effects.shield": "Shield",
