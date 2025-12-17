@@ -41,10 +41,11 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 	PhaseManager.handlePhaseEnded();
 }
 
-const rankHeroShopCallback = (container: Phaser.GameObjects.Container, rank: number) => async () => {
+const singleHeroOfRankShop = (container: Phaser.GameObjects.Container, rank: number) => async () => {
 	container.destroy(true);
 	await openHeroShop(
-		(card) => card.rank === rank
+		(card) => card.rank === rank,
+		1
 	);
 	PhaseManager.handlePhaseEnded();
 }
@@ -156,14 +157,14 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		description: t("encounters.silver_shop_desc"),
 		minRound: MIN_ROUND_FOR_SILVER_SHOP,
 		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
-		onClick: rankHeroShopCallback(container, 2)
+		onClick: singleHeroOfRankShop(container, 2)
 	},
 	{
 		name: t("encounters.gold_shop"),
 		pic: "ui/gold_medal",
 		description: t("encounters.gold_shop_desc"),
 		minRound: MIN_ROUND_FOR_GOLD_SHOP,
-		onClick: rankHeroShopCallback(container, 3)
+		onClick: singleHeroOfRankShop(container, 3)
 	}
 ];
 
