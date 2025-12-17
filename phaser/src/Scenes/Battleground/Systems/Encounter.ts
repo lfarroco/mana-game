@@ -57,6 +57,7 @@ type EncounterItem = {
 	onClick: () => Promise<void>;
 	minRound?: number;
 	maxRound?: number;
+	id?: string;
 };
 
 const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
@@ -64,7 +65,8 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		name: t("encounters.upgrade_unit.name"),
 		pic: "ui/upgrade_unit",
 		description: t("encounters.upgrade_unit.desc"),
-		onClick: orbShopCallback(container, ["upgrade_orb"])
+		onClick: orbShopCallback(container, ["upgrade_orb"]),
+		id: "upgrade_unit"
 	},
 	improveType(container, "ui/improve_damage", "damage"),
 	improveType(container, "ui/improve_heal", "heal"),
@@ -75,75 +77,87 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		name: t("encounters.armory.name"),
 		pic: "ui/armory",
 		description: t("encounters.armory.desc"),
-		onClick: openHeroShopCallback(container, "damage")
+		onClick: openHeroShopCallback(container, "damage"),
+		id: "armory"
 	},
 	{
 		name: t("encounters.healing_tent.name"),
 		pic: "ui/improve_heal",
 		description: t("encounters.healing_tent.desc"),
-		onClick: openHeroShopCallback(container, "heal")
+		onClick: openHeroShopCallback(container, "heal"),
+		id: "healing_tent"
 	},
 	{
 		name: t("encounters.frontier_fort.name"),
 		pic: "ui/frontier_fort",
 		description: t("encounters.frontier_fort.desc"),
-		onClick: openHeroShopCallback(container, "shield")
+		onClick: openHeroShopCallback(container, "shield"),
+		id: "frontier_fort"
 	},
 	{
 		name: t("encounters.forest_pools.name"),
 		pic: "ui/forest_pools",
 		description: t("encounters.forest_pools.desc"),
-		onClick: openHeroShopCallback(container, "regen")
+		onClick: openHeroShopCallback(container, "regen"),
+		id: "forest_pools"
 	},
 	{
 		name: t("encounters.toxic_chamber.name"),
 		pic: "ui/toxic",
 		description: t("encounters.toxic_chamber.desc"),
-		onClick: openHeroShopCallback(container, "poison")
+		onClick: openHeroShopCallback(container, "poison"),
+		id: "toxic_chamber"
 	},
 	{
 		name: t("encounters.trial_circuit.name"),
 		pic: "ui/trial_circuit",
 		description: t("encounters.trial_circuit.desc"),
-		onClick: openHeroShopCallback(container, "haste")
+		onClick: openHeroShopCallback(container, "haste"),
+		id: "trial_circuit"
 	},
 	{
 		name: t("encounters.trappers_guild.name"),
 		pic: "ui/improve_slow",
 		description: t("encounters.trappers_guild.desc"),
-		onClick: openHeroShopCallback(container, "slow")
+		onClick: openHeroShopCallback(container, "slow"),
+		id: "trappers_guild"
 	},
 	{
 		name: t("encounters.thunder_spire.name"),
 		pic: "ui/thunder_spire",
 		description: t("encounters.thunder_spire.desc"),
-		onClick: openHeroShopCallback(container, "charge")
+		onClick: openHeroShopCallback(container, "charge"),
+		id: "thunder_spire"
 	},
 	{
 		name: t("encounters.commanders_tent.name"),
 		pic: "ui/commander",
 		description: t("encounters.commanders_tent.desc"),
-		onClick: openHeroShopCallback(container, "increase_power")
+		onClick: openHeroShopCallback(container, "increase_power"),
+		id: "commanders_tent"
 	},
 	{
 		name: t("encounters.assassins_hideout.name"),
 		pic: "ui/assassin",
 		description: t("encounters.assassins_hideout.desc"),
-		onClick: openHeroShopCallback(container, "increase_critical")
+		onClick: openHeroShopCallback(container, "increase_critical"),
+		id: "assassins_hideout"
 	},
 	{
 		name: t("encounters.power_distributor.name"),
 		pic: "ui/power_distributor",
 		description: t("encounters.power_distributor.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(container, ["distribute_power_orb"])
+		onClick: orbShopCallback(container, ["distribute_power_orb"]),
+		id: "power_distributor"
 	},
 	{
 		name: t("encounters.power_absorber.name"),
 		pic: "ui/power_absorber",
 		description: t("encounters.power_absorber.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(container, ["absorb_power_orb"])
+		onClick: orbShopCallback(container, ["absorb_power_orb"]),
+		id: "power_absorber"
 	},
 	// {
 	// 	name: t("encounters.dark_ritual.name"),
@@ -157,14 +171,16 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		description: t("encounters.silver_shop_desc"),
 		minRound: MIN_ROUND_FOR_SILVER_SHOP,
 		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
-		onClick: singleHeroOfRankShop(container, 2)
+		onClick: singleHeroOfRankShop(container, 2),
+		id: "silver_shop"
 	},
 	{
 		name: t("encounters.gold_shop"),
 		pic: "ui/gold_medal",
 		description: t("encounters.gold_shop_desc"),
 		minRound: MIN_ROUND_FOR_GOLD_SHOP,
-		onClick: singleHeroOfRankShop(container, 3)
+		onClick: singleHeroOfRankShop(container, 3),
+		id: "gold_shop"
 	}
 ];
 
@@ -178,7 +194,8 @@ function improveType(container: Phaser.GameObjects.Container, pic: string, type:
 			`increase_power_on_${type}`,
 			`decrease_cooldown_on_${type}`,
 			`increase_critical_on_${type}`
-		])
+		]),
+		id: `improve_${type}`
 	};
 }
 
@@ -194,13 +211,19 @@ export async function open() {
 	const container = io.Container();
 
 	const index = encounterIndex(container).filter(e => {
+		const state = getState();
+		const recentIds = state.gameData.recentEncounterIds || [];
+
+		if (e.id && recentIds.includes(e.id)) {
+			return false;
+		}
 
 		if (e.minRound) {
-			return e.minRound <= getState().gameData.round;
+			return e.minRound <= state.gameData.round;
 		}
 
 		if (e.maxRound) {
-			return e.maxRound >= getState().gameData.round;
+			return e.maxRound >= state.gameData.round;
 		}
 
 		return true;
@@ -230,7 +253,17 @@ export async function open() {
 			name: encounter.name,
 			pic: encounter.pic,
 			description: encounter.description,
-			onClick: encounter.onClick
+			onClick: async () => {
+				if (encounter.id) {
+					const state = getState();
+					state.gameData.recentEncounterIds = state.gameData.recentEncounterIds || [];
+					state.gameData.recentEncounterIds.push(encounter.id);
+					if (state.gameData.recentEncounterIds.length > 3) {
+						state.gameData.recentEncounterIds.shift();
+					}
+				}
+				await encounter.onClick();
+			}
 		});
 
 	});
