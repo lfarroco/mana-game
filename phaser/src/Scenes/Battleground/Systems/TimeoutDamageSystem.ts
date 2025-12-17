@@ -2,10 +2,10 @@ import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { arcaneMissileTargeted } from "../../../Effects";
 import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
-import { MIDDLE_SCREEN } from "@Constants/constants";
+import { MIDDLE_SCREEN, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-const timeoutDamageStartTime = 40000;
+
 const timeoutDamageInterval = 1000;
 
 let combatElapsedTime = 0;
@@ -29,18 +29,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 
 	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
 		colors,
-		amplitudeMin: 10,
-		amplitudeMax: 30,
-		particleScale: 2.2,
-		speedMultiplier: 1.6,
-		blendMode: Phaser.BlendModes.DARKEN,
-		impact: {
-			colors: [0x000000],
-			scale: 4.5,
-			speed: 240,
-			lifespan: 780,
-			alpha: 0.6,
-		},
+		blendMode: Phaser.BlendModes.NORMAL,
 		onHit: () => {
 			// Apply damage when the shooting star hits the bar
 			applyDamageToForce(targetForce, damage, 0, "timeout");
@@ -59,9 +48,9 @@ export function updateTimeoutDamageSystem(
 	combatElapsedTime += delta;
 	timeSinceLastTick += delta;
 
-	if (combatElapsedTime < timeoutDamageStartTime) return;
+	if (combatElapsedTime < TIMEOUT_DAMAGE_START_TIME) return;
 
-	const timeSinceTimeoutStarted = combatElapsedTime - timeoutDamageStartTime;
+	const timeSinceTimeoutStarted = combatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
 
 	if (timeSinceLastTick >= timeoutDamageInterval) {
 		applyTimeoutDamage(playerForce, cpuForce, timeSinceTimeoutStarted);
@@ -80,7 +69,7 @@ function applyTimeoutDamage(
 		currentDamage = Infinity;
 	} else {
 		const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-		currentDamage = Math.floor(5 * Math.pow(1.5, tickCount - 1));
+		currentDamage = Math.floor(5 * Math.pow(1.2, tickCount - 1));
 	}
 
 	console.log(
@@ -102,12 +91,12 @@ export function onTimeoutDamageCombatEnd(): void {
 
 export function getTimeoutDamageConfig() {
 	return {
-		timeoutDamageStartTime,
+		timeoutDamageStartTime: TIMEOUT_DAMAGE_START_TIME,
 		timeoutDamageInterval,
 		isActive,
 		combatElapsed: combatElapsedTime,
 		stormState: {
-			stormStarted: combatElapsedTime >= timeoutDamageStartTime,
+			stormStarted: combatElapsedTime >= TIMEOUT_DAMAGE_START_TIME,
 		},
 	};
 }

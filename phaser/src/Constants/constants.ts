@@ -12,6 +12,8 @@ export const WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 export const TICK_DURATION = 100;
 
+export const TIMEOUT_DAMAGE_START_TIME = 30000;
+
 export const TILE_WIDTH = 250;
 export const TILE_HEIGHT = TILE_WIDTH;
 export const HALF_TILE_WIDTH = TILE_WIDTH / 2;
