@@ -44,7 +44,7 @@ export async function shatter(chara: Chara) {
 		//angle: () => Phaser.Math.Between(-360, 360),
 		x: (face: Phaser.Geom.Mesh.Face) => (face.x += Phaser.Math.Between(-1, 1)),
 		y: (face: Phaser.Geom.Mesh.Face) => (face.y += Phaser.Math.Between(-1, 1)),
-		duration: 3000,
+		duration: 1500,
 		ease: "Power2",
 		//delay: this.tweens.stagger(30, {}),
 	});
