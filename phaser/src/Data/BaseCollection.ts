@@ -86,8 +86,8 @@ const cards: CardDefinition[] = [
 		cooldown: 5000,
 		isCore: true,
 		effects: [
-			increasePower(1, column, true),
 			heal,
+			increasePower(1, column, true),
 		],
 		reactions: [
 			reaction("all", "row_allies", increasePower(1, trigger, true)),
@@ -143,7 +143,6 @@ const cards: CardDefinition[] = [
 		],
 		reactions: [
 			reaction("haste", "allies", increaseCritical(5, self)),
-
 		]
 	},
 	{
@@ -365,7 +364,7 @@ const cards: CardDefinition[] = [
 		id: "avatar_of_anger",
 		pic: "f2_chakriavatar",
 		power: 20,
-		"critical": 10,
+		critical: 10,
 		cooldown: 5000,
 		effects: [
 			damage,
@@ -722,11 +721,11 @@ const cards: CardDefinition[] = [
 	{
 		id: "time_shifter",
 		pic: "f1_sister",
-		power: 6,
+		power: 15,
 		cooldown: 6500,
 		effects: [
+			shield,
 			slow(1000, randomEnemy(1)),
-			charge(500, row),
 		],
 		reactions: [
 			reaction("haste", "allies", increasePower(5, column)),
@@ -738,8 +737,8 @@ const cards: CardDefinition[] = [
 		power: 10,
 		cooldown: 4900,
 		effects: [
+			damage,
 			slow(1000, randomEnemy(1)),
-			damage
 		],
 		reactions: [
 			reaction("haste", "allies", increasePower(5, column)),
