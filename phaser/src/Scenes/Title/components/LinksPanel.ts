@@ -5,13 +5,15 @@ import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 
+import { isElectron } from "@Utils/environment";
+
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 800;
 const PANEL_HEIGHT = 600;
 
 let isOpen = false;
 
-const links = [
+const baseLinks = [
 	{ text: "Discord", url: "https://discord.gg/ummKn3s9" },
 	{ text: "Reddit", url: "https://www.reddit.com/r/ManaBattleGame/" },
 	{ text: "X/Twitter", url: "https://x.com/manabattle_en" },
@@ -45,6 +47,14 @@ export function openLinksPanel(): void {
 	const title = io.Title1(t("title.links"));
 	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80));
 	io.Centralize(title);
+
+	const links = [...baseLinks];
+	if (!isElectron()) {
+		links.push({
+			text: "Steam",
+			url: "https://store.steampowered.com/app/3757600/Mana_Battle",
+		});
+	}
 
 	const linkTexts = links.map((link, index) => {
 		const textObj = scene.add.text(
