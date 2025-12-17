@@ -10,7 +10,7 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 import { t } from "@i18n/i18n";
 
-export async function openUpgradeCorePhase(availableEncounters: string[]): Promise<void> {
+export async function openUpgradeCorePhase(titleText: string, availableEncounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
@@ -22,7 +22,7 @@ export async function openUpgradeCorePhase(availableEncounters: string[]): Promi
 			resolve();
 		};
 
-		const title = io.Title1(t("effectCardShop.title"))
+		const title = io.Title1(t(titleText))
 			.setPosition(SCREEN_WIDTH / 2 + 180, 130)
 		container.add(title);
 

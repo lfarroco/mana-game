@@ -67,6 +67,7 @@ export async function startPhase(phase: string) {
 			break;
 		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
+				"effectCardShop.title",
 				[
 					"on_100_damage_effect",
 					"on_100_heal_effect",
@@ -83,11 +84,13 @@ export async function startPhase(phase: string) {
 			handlePhaseEnded();
 			break;
 		case "upgrade_core":
-			await EffectCardShop.openUpgradeCorePhase([
-				"increase_core_max_life",
-				"decrease_core_cooldown",
-				"upgrade_core_power"
-			])
+			await EffectCardShop.openUpgradeCorePhase(
+				"upgradeCrystal.title",
+				[
+					"increase_core_max_life",
+					"decrease_core_cooldown",
+					"upgrade_core_power"
+				])
 			handlePhaseEnded();
 			break;
 		default:
