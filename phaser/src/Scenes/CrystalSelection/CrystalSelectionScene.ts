@@ -10,12 +10,11 @@ import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTo
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
 
-// Layout constants
 const CARD_DISPLAY_Y = 380;
 const DESCRIPTION_Y = 550;
-const PAGINATION_Y = 720;
-const PLAY_BUTTON_Y = 820;
-const BACK_BUTTON_Y = 920;
+const PAGINATION_Y = 770;
+const PLAY_BUTTON_Y = 850;
+const BACK_BUTTON_Y = 950;
 const NAV_BUTTON_OFFSET_X = 350;
 const DOT_SIZE = 16;
 const DOT_SPACING = 32;
@@ -40,14 +39,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.crystals = getCores();
 		this.currentIndex = 0;
 
-		const title = io.Text(
+		io.Text(
 			t("crystalSelection.title"),
 			{
 				...constants.titleTextConfig,
 				fontSize: "48px",
-			});
-		io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, 150));
-		io.Centralize(title);
+			}).setPosition(
+				constants.MIDDLE_SCREEN_X, 100
+			).setOrigin(0.5);
 
 		this.createCrystalDisplay();
 
@@ -66,8 +65,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.add.rectangle(
 			constants.MIDDLE_SCREEN_X,
 			CARD_DISPLAY_Y + 90,
-			750,
-			550,
+			950,
+			650,
 			0x000000,
 			0.8
 		);
@@ -109,7 +108,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			)
 			.setOrigin(0.5, 0)
 			.setWrapMode(1)
-			.setWrapWidth(700);
+			.setWrapWidth(800);
 	}
 
 	private createNavigationButtons() {
@@ -192,11 +191,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 		const effectBlocks = crystal.effects
 			.map((e) => buildEffectBlock(e, power))
-			.filter((e): e is string => e !== null);
+			.filter((e): e is string => e !== null)
+			.map(str => "- " + str[0].toUpperCase() + str.slice(1))
 
-		const reactionBlocks = crystal.reactions.map((r) =>
-			getReactionDescription(r, power)
-		);
+		const reactionBlocks = crystal.reactions
+			.map((r) => getReactionDescription(r, power))
+			.map(str => "- " + str)
 
 		const cdAsSeconds = ((crystal.cooldown || 0) / 1000).toFixed(1);
 		const statsBlock = `[color=#c0c0c0]${t("crystalSelection.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
