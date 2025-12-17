@@ -1,5 +1,6 @@
 import { createUIButton } from "../../../Components/UIButton";
 import { size, vec2 } from "@Models/Geometry";
+import { isElectron } from "@Utils/environment";
 import { getCurrentScene, resetState } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
@@ -69,6 +70,7 @@ export async function displayGameComplete(
 	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
 		subtitleText = END_GAME_MESSAGES.bronze;
 	}
+
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[
@@ -143,6 +145,36 @@ export async function displayGameComplete(
 
 		...buttons,
 	]);
+
+	if (!isElectron() && !isGameOver && wins >= GOLD_VICTORY_THRESHOLD) {
+		const wishlistPanelHeight = 150;
+		const wishlistPanelY = panelY + panelHeight / 2 + 15 + wishlistPanelHeight / 2;
+
+		const wishlistBg = io.BorderedRoundRect(
+			vec2(panelX, wishlistPanelY),
+			size(panelWidth, wishlistPanelHeight),
+			RESULTS_PANEL.borderRadius,
+			RESULTS_PANEL.backgroundColor,
+			RESULTS_PANEL.backgroundAlpha
+		);
+
+		const wishlistText = io.Label(t("results.messages.wishlist"))
+			.setPosition(panelX, wishlistPanelY - 30)
+			.setOrigin(0.5);
+
+		const btn = createUIButton(
+			t("results.buttons.wishlist"),
+			vec2(panelX, wishlistPanelY + 30),
+			async () => {
+				window.open(
+					"https://store.steampowered.com/app/3757600/Mana_Battle",
+					"_blank"
+				);
+			},
+			400
+		);
+		container.add([wishlistBg, wishlistText, btn.container]);
+	}
 
 	return container;
 }
