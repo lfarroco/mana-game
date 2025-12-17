@@ -6,7 +6,7 @@ import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { mustGetState, summon } from "@Systems/Chara/Chara";
 import { makeUnit } from "@Models/Entities/Unit";
-import { AbilityColors } from "@Models/Abilities";
+import { ABILITY_COLORS } from "@Models/Abilities";
 import { delay } from "@Utils/animation";
 import { damageFx } from "TriggerSystem/effects/visuals/damage";
 import { shieldFx } from "TriggerSystem/effects/visuals/shield";
@@ -84,7 +84,7 @@ const slides = [
 	]),
 	() => io.Container([
 		text(t("tutorial.slide3.row1"), 100),
-		bbcode(`[color=${AbilityColors.damage}]${t("tooltip.effects.damage")}[/color]: ${t("tutorial.slide3.row2")}`, 150),
+		bbcode(`[color=${ABILITY_COLORS.damage}]${t("tooltip.effects.damage")}[/color]: ${t("tutorial.slide3.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -146,7 +146,7 @@ const slides = [
 	]),
 	() => io.Container([
 		text(t("tutorial.slide4.row1"), 100),
-		bbcode(`[color=${AbilityColors.shield}]${t("tooltip.effects.shield")}[/color]: ${t("tutorial.slide4.row2")}`, 150),
+		bbcode(`[color=${ABILITY_COLORS.shield}]${t("tooltip.effects.shield")}[/color]: ${t("tutorial.slide4.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -207,7 +207,7 @@ const slides = [
 	]),
 	() => io.Container([
 		text(t("tutorial.slide5.row1"), 100),
-		bbcode(`[color=${AbilityColors.heal}]${t("tooltip.effects.heal")}[/color]: ${t("tutorial.slide5.row2")}`, 150),
+		bbcode(`[color=${ABILITY_COLORS.heal}]${t("tooltip.effects.heal")}[/color]: ${t("tutorial.slide5.row2")}`, 150),
 
 		() => {
 
@@ -271,7 +271,7 @@ const slides = [
 	]),
 	() => io.Container([
 		text(t("tutorial.slide6.row1"), 100),
-		bbcode(`[color=${AbilityColors.regen}]${t("tooltip.effects.regen")}[/color]: ${t("tutorial.slide6.row2")}`, 150),
+		bbcode(`[color=${ABILITY_COLORS.regen}]${t("tooltip.effects.regen")}[/color]: ${t("tutorial.slide6.row2")}`, 150),
 		() => {
 
 			const c = io.Container();
@@ -332,7 +332,7 @@ const slides = [
 	]),
 	() => io.Container([
 		text(t("tutorial.slide7.row1"), 100),
-		bbcode(`[color=${AbilityColors.poison}]${t("tooltip.effects.poison")}[/color]: ${t("tutorial.slide7.row2")}`, 150),
+		bbcode(`[color=${ABILITY_COLORS.poison}]${t("tooltip.effects.poison")}[/color]: ${t("tutorial.slide7.row2")}`, 150),
 
 		() => {
 
@@ -398,27 +398,27 @@ const slides = [
 		text(t("tutorial.slide8.row1"), 100),
 		text(t("tutorial.slide8.row2"), 150),
 		bbcode(
-			`[color=${AbilityColors.haste}]${t("tooltip.effects.haste")}[/color]: ${t("tutorial.slide8.row3")}`,
+			`[color=${ABILITY_COLORS.haste}]${t("tooltip.effects.haste")}[/color]: ${t("tutorial.slide8.row3")}`,
 			200
 		),
 		bbcode(
-			`[color=${AbilityColors.slow}]${t("tooltip.effects.slow")}[/color]: ${t("tutorial.slide8.row4")}`,
+			`[color=${ABILITY_COLORS.slow}]${t("tooltip.effects.slow")}[/color]: ${t("tutorial.slide8.row4")}`,
 			250
 		),
 		bbcode(
-			`[color=${AbilityColors.charge}]${t("tooltip.effects.charge")}[/color]: ${t("tutorial.slide8.row5")}`,
+			`[color=${ABILITY_COLORS.charge}]${t("tooltip.effects.charge")}[/color]: ${t("tutorial.slide8.row5")}`,
 			300
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_power}]+x[/color]: ${t("tutorial.slide8.row6")}`,
+			`[color=${ABILITY_COLORS.increase_power}]+x[/color]: ${t("tutorial.slide8.row6")}`,
 			350
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_power}]+x*[/color]: ${t("tutorial.slide8.row7")}`,
+			`[color=${ABILITY_COLORS.increase_power}]+x*[/color]: ${t("tutorial.slide8.row7")}`,
 			400
 		),
 		bbcode(
-			`[color=${AbilityColors.increase_critical}]+x% crit[/color]: ${t("tutorial.slide8.row8")}`,
+			`[color=${ABILITY_COLORS.increase_critical}]+x% crit[/color]: ${t("tutorial.slide8.row8")}`,
 			450
 		),
 	]),
