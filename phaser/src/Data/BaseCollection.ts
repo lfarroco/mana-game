@@ -1,4 +1,23 @@
 import { CardCollection } from "@Models/Entities/Card";
+import { Effect, EffectId, EffectReaction, EffectSourcePosition, Targeting } from "TriggerSystem/TriggerSystem";
+
+const effectRegen: Effect = { "id": "regen" };
+// const effectDamage: Effect = { "id": "damage" };
+// const effectHeal: Effect = { "id": "heal" };
+// const effectShield: Effect = { "id": "shield" };
+// const effectPoison: Effect = { "id": "poison" };
+const effectCharge = (duration: number, targets: Targeting): Effect => ({ "id": "charge", "duration": duration, targets });
+const targetingColumnAllies: Targeting = { "id": "column_allies" };
+//const targetingRowAllies: Targeting = { "id": "row_allies" };
+const targetingSelf: Targeting = { "id": "self" };
+const effectIncreasePower = (power: number, targets: Targeting): Effect => ({ "id": "increase_power", "amount": power, "targets": targets });
+const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reactWith: Effect): EffectReaction => ({
+	position,
+	effectId: effect,
+	effects: [
+		reactWith
+	]
+})
 
 export const BASE_COLLECTION_DATA: CardCollection = {
 	"id": "base",
@@ -18,31 +37,11 @@ export const BASE_COLLECTION_DATA: CardCollection = {
 			"cooldown": 5200,
 			"isCore": true,
 			"effects": [
-				{
-					"id": "regen"
-				},
-				{
-					"id": "increase_power",
-					"amount": 5,
-					"targets": {
-						"id": "column_allies"
-					}
-				}
+				effectRegen,
+				effectIncreasePower(5, targetingColumnAllies),
 			],
 			"reactions": [
-				{
-					"position": "row_allies",
-					"effectId": "all",
-					"effects": [
-						{
-							"id": "charge",
-							"duration": 500,
-							"targets": {
-								"id": "self"
-							}
-						}
-					]
-				}
+				reaction("all", "row_allies", effectCharge(500, targetingSelf)),
 			]
 		},
 		{
