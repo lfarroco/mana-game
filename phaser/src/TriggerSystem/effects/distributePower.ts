@@ -13,15 +13,13 @@ export const distributePower = (sourceUnit: Unit, targets: Unit[]) => {
 	sourceUnit.power = Math.max(0, sourceUnit.power - powerToDistribute);
 
 	const bonusToLose = Math.max(0, Math.min(sourceUnit.bonusPower, powerToDistribute));
-	if (bonusToLose > 0) {
-		sourceUnit.bonusPower -= bonusToLose;
+	sourceUnit.bonusPower -= bonusToLose;
 
-		if (sourceUnit.force === FORCE_ID_PLAYER) {
-			const playerUnit = getState().gameData.player.units.find((u) => u.id === sourceUnit.id);
-			if (playerUnit) {
-				playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
-				playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);
-			}
+	if (sourceUnit.force === FORCE_ID_PLAYER) {
+		const playerUnit = getState().gameData.player.units.find((u) => u.id === sourceUnit.id);
+		if (playerUnit && playerUnit !== sourceUnit) {
+			playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
+			playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);
 		}
 	}
 
