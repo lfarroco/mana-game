@@ -331,8 +331,7 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 				.filter((r) => {
 					switch (r.position) {
 						case "all":
-							return true;
-						//return !GLOBAL_REACTIONS.includes(effect.id);
+							return ["damage", "shield", "poison", "regen", "heal"].includes(effect.id);
 						case "allies":
 							return sameForce(u, triggeringUnit);
 						case "enemies":
