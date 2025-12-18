@@ -13,7 +13,7 @@ export const applyRegenLogicIO = async (sourceUnit: Unit) => {
 
 	const crit = calculateCritical(sourceUnit);
 
-	const amount = baseAmount * crit.multiplier;
+	const amount = (baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier;
 
 	const targetForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
