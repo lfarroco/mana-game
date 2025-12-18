@@ -32,6 +32,7 @@ export function showCollectionModal(): Promise<void> {
 		let currentPage = 0;
 		const charas: Chara.Chara[] = [];
 		let displayCards = getCardsForTab(currentTab);
+		let isLoading = false;
 
 		const charaContainer = io.Container();
 		modal.container.add(charaContainer);
@@ -48,88 +49,94 @@ export function showCollectionModal(): Promise<void> {
 		}
 
 		const renderPage = async (pageIndex: number) => {
-			// Cleanup previous charas
-			charas.forEach(c => Chara.destroy(c));
-			charas.length = 0;
-			charaContainer.removeAll(true);
+			isLoading = true;
+			try {
+				// Cleanup previous charas
+				charas.forEach(c => Chara.destroy(c));
+				charas.length = 0;
+				charaContainer.removeAll(true);
 
-			const startIdx = pageIndex * CARDS_PER_PAGE;
-			const endIdx = Math.min(startIdx + CARDS_PER_PAGE, displayCards.length);
-			const pageCards = displayCards.slice(startIdx, endIdx);
+				const startIdx = pageIndex * CARDS_PER_PAGE;
+				const endIdx = Math.min(startIdx + CARDS_PER_PAGE, displayCards.length);
+				const pageCards = displayCards.slice(startIdx, endIdx);
 
-			const cellWidth = PANEL_WIDTH / COLS;
-			// Use a more generous cell height or spacing
-			const cellHeight = 300;
-			const startX = -PANEL_WIDTH / 2 + cellWidth / 2;
-			const startY = -PANEL_HEIGHT / 2 + cellHeight / 2 + 120; // Offset for tabs
+				const cellWidth = PANEL_WIDTH / COLS;
+				// Use a more generous cell height or spacing
+				const cellHeight = 300;
+				const startX = -PANEL_WIDTH / 2 + cellWidth / 2;
+				const startY = -PANEL_HEIGHT / 2 + cellHeight / 2 + 120; // Offset for tabs
 
-			for (let i = 0; i < pageCards.length; i++) {
-				const card = pageCards[i];
-				const col = i % COLS;
-				const row = Math.floor(i / COLS);
+				for (let i = 0; i < pageCards.length; i++) {
+					const card = pageCards[i];
+					const col = i % COLS;
+					const row = Math.floor(i / COLS);
 
-				// Unique ID for dummy unit to avoid conflicts
-				const dummyId = `collection_dummy_${card.id}_${pageIndex}`;
-				// Use "NEUTRAL" force to avoid drag logic in input.ts (checks for PLAYER)
-				const dummyUnit = createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
+					// Unique ID for dummy unit to avoid conflicts
+					const dummyId = `collection_dummy_${card.id}_${pageIndex}`;
+					// Use "NEUTRAL" force to avoid drag logic in input.ts (checks for PLAYER)
+					const dummyUnit = createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
 
-				// Create chara
-				const chara = await Chara.create(dummyUnit);
-				// Check if locked
-				const isUnlocked = !card.locked || StatsStore.isUnitUnlocked(card.id);
-				if (!isUnlocked) {
-					const sprite = Chara.mustGetState(chara).sprite;
-					sprite.preFX?.addColorMatrix().grayscale(1);
+					// Create chara
+					const chara = await Chara.create(dummyUnit);
+					// Check if locked
+					const isUnlocked = !card.locked || StatsStore.isUnitUnlocked(card.id);
+					if (!isUnlocked) {
+						const sprite = Chara.mustGetState(chara).sprite;
+						sprite.preFX?.addColorMatrix().grayscale(1);
 
-					const unlockDescKey = `unlock_description.${card.id}`;
-					const unlockDesc = t(unlockDescKey);
+						const unlockDescKey = `unlock_description.${card.id}`;
+						const unlockDesc = t(unlockDescKey);
 
-					chara.on(Phaser.Input.Events.POINTER_OVER, () => {
-						const { title, description: normalDescription } = createDescription(chara);
-						const description = `${normalDescription}\n\n[color=#ff9999]LOCKED[/color]\n${unlockDesc}`;
+						chara.on(Phaser.Input.Events.POINTER_OVER, () => {
+							const { title, description: normalDescription } = createDescription(chara);
+							const description = `${normalDescription}\n\n[color=#ff9999]LOCKED[/color]\n${unlockDesc}`;
 
-						const worldMatrix = chara.getWorldTransformMatrix();
-						const charaWorldX = worldMatrix.tx;
-						const charaWorldY = worldMatrix.ty;
+							const worldMatrix = chara.getWorldTransformMatrix();
+							const charaWorldX = worldMatrix.tx;
+							const charaWorldY = worldMatrix.ty;
 
-						const screenWidth = chara.scene.sys.game.config.width as number;
-						const isRightSide = charaWorldX > screenWidth / 2;
+							const screenWidth = chara.scene.sys.game.config.width as number;
+							const isRightSide = charaWorldX > screenWidth / 2;
 
-						const TOOLTIP_OFFSET_X = 400;
-						let tooltipX: number;
+							const TOOLTIP_OFFSET_X = 400;
+							let tooltipX: number;
 
-						if (isRightSide) {
-							tooltipX = charaWorldX - TOOLTIP_OFFSET_X;
-						} else {
-							tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
-						}
-						const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
+							if (isRightSide) {
+								tooltipX = charaWorldX - TOOLTIP_OFFSET_X;
+							} else {
+								tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
+							}
+							const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
 
-						const EXTRA_OFFSET = -20;
-						const tooltipY = CHAR_TOP + EXTRA_OFFSET;
+							const EXTRA_OFFSET = -20;
+							const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 
-						renderTooltip(tooltipX, tooltipY, title, description);
-					});
-					chara.on(Phaser.Input.Events.POINTER_OUT, () => {
-						hideTooltip();
-					});
-				} else {
-					Chara.enableTooltip(chara);
+							renderTooltip(tooltipX, tooltipY, title, description);
+						});
+						chara.on(Phaser.Input.Events.POINTER_OUT, () => {
+							hideTooltip();
+						});
+					} else {
+						Chara.enableTooltip(chara);
+					}
+
+					chara.setPosition(startX + col * cellWidth, startY + row * cellHeight);
+
+					charaContainer.add(chara);
+					charas.push(chara);
 				}
 
-				chara.setPosition(startX + col * cellWidth, startY + row * cellHeight);
-
-				charaContainer.add(chara);
-				charas.push(chara);
+				updateButtons();
+			} finally {
+				isLoading = false;
 			}
-
-			updateButtons();
 		};
 
 		const prevButton = createUIButton(
 			"<",
 			vec2(-100, PANEL_HEIGHT / 2 - 120),
 			() => {
+				if (isLoading) return;
 				if (currentPage > 0) {
 					currentPage--;
 					renderPage(currentPage);
@@ -142,6 +149,7 @@ export function showCollectionModal(): Promise<void> {
 			">",
 			vec2(100, PANEL_HEIGHT / 2 - 120),
 			() => {
+				if (isLoading) return;
 				if (currentPage < getTotalPages() - 1) {
 					currentPage++;
 					renderPage(currentPage);
@@ -179,6 +187,7 @@ export function showCollectionModal(): Promise<void> {
 		);
 
 		const switchTab = (tab: Tab) => {
+			if (isLoading) return;
 			if (currentTab === tab) return;
 			currentTab = tab;
 			currentPage = 0;
