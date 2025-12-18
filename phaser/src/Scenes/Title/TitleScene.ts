@@ -18,6 +18,9 @@ import { showUnlockModal } from "./components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
 
 
+import pkg from "../../../package.json";
+
+
 export default class TitleScene extends Phaser.Scene {
 	constructor() {
 		super(constants.SCENE_KEYS.TITLE);
@@ -62,7 +65,17 @@ export default class TitleScene extends Phaser.Scene {
 		// 	PhaserGUIAction(this);
 		// }, 500)			
 
+
 		this.checkUnlocks();
+
+		this.add
+			.text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
+				fontFamily: "Arimo",
+				fontSize: "16px",
+				color: "white",
+			})
+			.setOrigin(1, 0)
+			.setAlpha(0.5);
 	}
 
 	async checkUnlocks() {
