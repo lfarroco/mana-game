@@ -1011,6 +1011,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_gauntletmaster",
 		power: 40,
 		"rank": 3,
+		locked: true,
 		cooldown: 4300,
 		effects: [
 			damage,
@@ -1025,6 +1026,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenjusticar",
 		power: 40,
 		"rank": 3,
+		locked: true,
 		cooldown: 5400,
 		effects: [
 			regen
@@ -1038,6 +1040,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenmantella",
 		power: 40,
 		"rank": 3,
+		locked: true,
 		cooldown: 7400,
 		effects: [
 			heal,
