@@ -12,7 +12,7 @@ export const restoreLife = async (sourceUnit: Unit) => {
 
 	const crit = calculateCritical(sourceUnit);
 
-	const healAmount = baseAmount * crit.multiplier;
+	const healAmount = (baseAmount + crit.bonusPower) * crit.multiplier;
 
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(targetForce, amount, crit.isCritical);

@@ -17,7 +17,7 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const effect = async () => {
 		const crit = calculateCritical(sourceUnit);
 
-		const shieldAmount = baseAmount * crit.multiplier;
+		const shieldAmount = (baseAmount + crit.bonusPower) * crit.multiplier;
 
 		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, crit.isCritical, true);
 

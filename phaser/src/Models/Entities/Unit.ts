@@ -102,7 +102,7 @@ export const testCardDefinitions = {
 } as const;
 
 
-export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: number } {
+export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: number; bonusPower: number } {
 	const critChance = u.critical || 0;
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
@@ -110,12 +110,12 @@ export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: n
 	const isCritical = critChance > 0 && Math.random() < effectiveCritChance / 100;
 
 	if (isCritical) {
-		// Base crit multiplier is 2x, plus any excess crit as bonus damage
-		const multiplier = 2 + (excessCrit / 100);
-		return { isCritical: true, multiplier };
+		const multiplier = 2;
+		const bonusPower = Math.floor(excessCrit / 5);
+		return { isCritical: true, multiplier, bonusPower };
 	}
 
-	return { isCritical: false, multiplier: 1 };
+	return { isCritical: false, multiplier: 1, bonusPower: 0 };
 }
 
 export function isCritical(u: Unit): boolean {

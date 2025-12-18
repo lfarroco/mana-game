@@ -19,7 +19,7 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 
 	const effect = () => {
 		const crit = calculateCritical(sourceUnit);
-		const damage = damageAmount * crit.multiplier;
+		const damage = (damageAmount + crit.bonusPower) * crit.multiplier;
 
 		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged);
