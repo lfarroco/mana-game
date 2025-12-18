@@ -7,6 +7,8 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
+import { hideTooltip, renderTooltip } from "@Components/Tooltip";
+import { createDescription } from "@Systems/Chara/createDescription";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;
@@ -59,7 +61,7 @@ export function showCollectionModal(): Promise<void> {
 			// Use a more generous cell height or spacing
 			const cellHeight = 300;
 			const startX = -PANEL_WIDTH / 2 + cellWidth / 2;
-			const startY = -PANEL_HEIGHT / 2 + cellHeight / 2 + 60; // Offset for tabs
+			const startY = -PANEL_HEIGHT / 2 + cellHeight / 2 + 120; // Offset for tabs
 
 			for (let i = 0; i < pageCards.length; i++) {
 				const card = pageCards[i];
@@ -73,17 +75,46 @@ export function showCollectionModal(): Promise<void> {
 
 				// Create chara
 				const chara = await Chara.create(dummyUnit);
-				Chara.enableTooltip(chara);
-
-				// Explicitly ensure interactivity for tooltip
-				// Chara.create sets interactive, but let's be sure
-				chara.setInteractive({ useHandCursor: true });
-
 				// Check if locked
 				const isUnlocked = !card.locked || StatsStore.isUnitUnlocked(card.id);
 				if (!isUnlocked) {
 					const sprite = Chara.mustGetState(chara).sprite;
 					sprite.preFX?.addColorMatrix().grayscale(1);
+
+					const unlockDescKey = `unlock_description.${card.id}`;
+					const unlockDesc = t(unlockDescKey);
+
+					chara.on(Phaser.Input.Events.POINTER_OVER, () => {
+						const { title, description: normalDescription } = createDescription(chara);
+						const description = `${normalDescription}\n\n[color=#ff9999]LOCKED[/color]\n${unlockDesc}`;
+
+						const worldMatrix = chara.getWorldTransformMatrix();
+						const charaWorldX = worldMatrix.tx;
+						const charaWorldY = worldMatrix.ty;
+
+						const screenWidth = chara.scene.sys.game.config.width as number;
+						const isRightSide = charaWorldX > screenWidth / 2;
+
+						const TOOLTIP_OFFSET_X = 400;
+						let tooltipX: number;
+
+						if (isRightSide) {
+							tooltipX = charaWorldX - TOOLTIP_OFFSET_X;
+						} else {
+							tooltipX = charaWorldX + chara.displayWidth + TOOLTIP_OFFSET_X;
+						}
+						const CHAR_TOP = charaWorldY - chara.displayHeight / 2;
+
+						const EXTRA_OFFSET = -20;
+						const tooltipY = CHAR_TOP + EXTRA_OFFSET;
+
+						renderTooltip(tooltipX, tooltipY, title, description);
+					});
+					chara.on(Phaser.Input.Events.POINTER_OUT, () => {
+						hideTooltip();
+					});
+				} else {
+					Chara.enableTooltip(chara);
 				}
 
 				chara.setPosition(startX + col * cellWidth, startY + row * cellHeight);
@@ -139,7 +170,6 @@ export function showCollectionModal(): Promise<void> {
 			() => switchTab("unlocked"),
 			280
 		);
-		unlockedTabBtn.container.setAlpha(0);
 
 		const lockedTabBtn = createUIButton(
 			t("collection.tabs.locked"),
@@ -156,7 +186,6 @@ export function showCollectionModal(): Promise<void> {
 			renderPage(0);
 			updateTabs();
 		};
-		lockedTabBtn.container.setAlpha(0);
 
 		const updateTabs = () => {
 			if (currentTab === "unlocked") {
