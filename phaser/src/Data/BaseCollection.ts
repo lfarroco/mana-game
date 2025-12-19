@@ -16,6 +16,7 @@ const randomEnemy = (count: number): Targeting => ({ id: "random_enemy", count }
 const trigger: Targeting = { id: "trigger" };
 const self: Targeting = { id: "self" };
 const increasePower = (amount: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "increase_power", "amount": amount, permanent, "targets": targets });
+const decreasePower = (percentage: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "decrease_power", percentage, permanent, "targets": targets });
 const increaseCritical = (amount: number, targets: Targeting): Effect => ({ id: "increase_critical", amount, targets });
 const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reactWith: Effect): EffectReaction => ({
 	position,
@@ -24,12 +25,23 @@ const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reac
 		reactWith
 	]
 })
+const multiplyPower = (multiplier: number, targets: Targeting): Effect => ({ id: "multiply_power", multiplier, targets });
 
 const left: Targeting = { id: "left_ally" };
 const right: Targeting = { id: "right_ally" };
 const top: Targeting = { id: "top_ally" };
 const bottom: Targeting = { id: "bottom_ally" };
 const weakestAlly: Targeting = { id: "weakest_ally" };
+const strongestEnemy: Targeting = { id: "strongest_enemy" };
+const strongestAlly: Targeting = { id: "strongest_ally" };
+const weakestEnemy: Targeting = { id: "weakest_enemy" };
+const allAllies: Targeting = { id: "all_allies", ofType: "any" };
+const allAlliesOfType = (ofType: "damage" | "heal" | "shield" | "poison" | "regen"): Targeting => ({ id: "all_allies", ofType });
+// const allEnemies: Targeting = { id: "enemies" };
+
+const distributePower = (targets: Targeting): Effect => ({ id: "distribute_power", targets });
+const absorbPower = (targets: Targeting): Effect => ({ id: "absorb_power", targets });
+//const decreasePower = (percentage: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "decrease_power", percentage, targets, permanent });
 
 const cards: CardDefinition[] = [
 	{
@@ -1011,7 +1023,6 @@ const cards: CardDefinition[] = [
 		pic: "neutral_gauntletmaster",
 		power: 40,
 		"rank": 3,
-		locked: true,
 		cooldown: 4300,
 		effects: [
 			damage,
@@ -1026,7 +1037,6 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenjusticar",
 		power: 40,
 		"rank": 3,
-		locked: true,
 		cooldown: 5400,
 		effects: [
 			regen
@@ -1049,7 +1059,242 @@ const cards: CardDefinition[] = [
 		reactions: [
 			reaction("regen", "column_allies", increasePower(5, row, true)),
 		]
-	}
+	},
+	{
+		// power distributor
+		id: "walking_reactor",
+		pic: "boss_protector",
+		power: 30,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			shield,
+			distributePower(row),
+		],
+		reactions: [
+			reaction("all", "column_allies", increasePower(20, self))
+		]
+	},
+	// power absorber
+	{
+		id: "spectral_knight",
+		pic: "boss_gol",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			damage,
+			absorbPower(column)
+		],
+		reactions: [
+			reaction("all", "row_allies", increasePower(20, column))
+		]
+	},
+	// re-haste
+	{
+		id: "windlash_serpent",
+		pic: "boss_serpenti",
+		power: 30,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			shield,
+			haste(2000, row)
+		],
+		reactions: [
+			reaction("re_hasted", "allies", increasePower(20, self))
+		]
+	},
+	// re-slow
+	{
+		id: "corruption_bringer",
+		pic: "boss_legion",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 5000,
+		isCore: true,
+		effects: [
+			poison,
+			slow(2000, randomEnemy(2))
+		],
+		reactions: [
+			reaction("re_slow", "allies", decreasePower(2, strongestEnemy))
+		]
+	},
+	//on_crit
+	{
+		id: "frontline_dasher",
+		pic: "boss_kane",
+		power: 60,
+		rank: 3,
+		locked: true,
+		cooldown: 5500,
+		effects: [
+			damage,
+			increaseCritical(10, column)
+		],
+		reactions: [
+			reaction("on_crit", "allies", increasePower(20, column))
+		]
+	},
+	//over_heal
+	{
+		id: "life_balancekeeper",
+		pic: "f3_anubis",
+		life: 1500,
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			heal,
+		],
+		reactions: [
+			reaction("on_over_heal", "allies", increasePower(5, allAllies, true))
+		]
+	},
+	//Balancer
+	{
+		id: "destiny_balancer",
+		pic: "f3_allomancer",
+		life: 1500,
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			shield,
+			decreasePower(5, strongestAlly),
+			increasePower(15, weakestAlly)
+		],
+		reactions: []
+	},
+	//metronome
+	{
+		id: "cadence_warden",
+		pic: "f6_3rdgeneral",
+		life: 1500,
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			heal,
+		],
+		reactions: [
+			reaction("all", "left_ally", haste(2000, right)),
+			reaction("all", "right_ally", haste(2000, left)),
+		]
+	},
+	//damage -> poison
+	{
+		id: "essence_harvester",
+		pic: "boss_malyk",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			poison,
+		],
+		reactions: [
+			reaction("every_100_damage", "allies", increasePower(10, allAlliesOfType("poison"))),
+		],
+	},
+	//poison -> damage
+	{
+		id: "plague_incubator",
+		pic: "boss_manaman",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			poison,
+		],
+		reactions: [
+			reaction("every_10_poison", "allies", increasePower(10, allAlliesOfType("damage"))),
+		],
+	},
+	//shield -> damage
+	{
+		id: "tempest_ravager",
+		pic: "boss_invader",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			regen,
+		],
+		reactions: [
+			reaction("every_100_shield", "allies", increasePower(10, allAlliesOfType("damage"))),
+		],
+	},
+	//shield -> heal
+	{
+		id: "paragon",
+		pic: "boss_paragon",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			regen,
+		],
+		reactions: [
+			reaction("every_100_shield", "allies", increasePower(10, allAlliesOfType("heal"))),
+		],
+	},
+	//heal -> regen
+	{
+		id: "vitality_channeler",
+		pic: "f2_sepukku",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			heal,
+		],
+		reactions: [
+			reaction("every_100_heal", "allies", increasePower(10, allAlliesOfType("regen"))),
+		],
+	},
+	//regen -> heal
+	{
+		id: "mend_sage",
+		pic: "boss_orias",
+		power: 55,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			heal,
+		],
+		reactions: [
+			reaction("every_10_regen", "allies", increasePower(10, allAlliesOfType("heal"))),
+		],
+	},
+	//gambler2
+	{
+		id: "fate_shifter",
+		pic: "boss_sandpanther",
+		power: 45,
+		rank: 3,
+		locked: true,
+		cooldown: 4500,
+		effects: [
+			damage,
+			multiplyPower(1.2, self),
+			multiplyPower(1.4, weakestEnemy)
+		],
+		reactions: [],
+	},
 ]
 
 export const BASE_COLLECTION_DATA: CardCollection = {

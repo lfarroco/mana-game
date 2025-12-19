@@ -4,22 +4,8 @@ import { Chara, getCharaById, getUnit } from "./Chara";
 import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
 import { compactNumber } from "utils";
+import { ABILITY_COLORS } from "@Models/Abilities";
 
-const POWER_DISPLAY_COLORS = {
-	DAMAGE_BG: 0xff0000,
-	HEAL_BG: 0x23a423,
-	ARMOR_BG: 0xd1d135,
-	POISON_BG: 0x9932cc,
-	REGEN_BG: 0x337a31,
-	DEFAULT_BG: 0x29a1b9ff,
-} as const;
-const colorMap = {
-	damage: POWER_DISPLAY_COLORS.DAMAGE_BG,
-	heal: POWER_DISPLAY_COLORS.HEAL_BG,
-	shield: POWER_DISPLAY_COLORS.ARMOR_BG,
-	poison: POWER_DISPLAY_COLORS.POISON_BG,
-	regen: POWER_DISPLAY_COLORS.REGEN_BG,
-};
 
 export function create(unit: Unit, container: Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
@@ -33,8 +19,8 @@ export function create(unit: Unit, container: Chara) {
 	const powerDisplayPosition = vec2(0, constants.HALF_TILE_HEIGHT - 10);
 
 	const bgColor = effect
-		? colorMap[effect.id as keyof typeof colorMap]
-		: POWER_DISPLAY_COLORS.DEFAULT_BG;
+		? parseInt(ABILITY_COLORS[effect.id].replace(/^#/, "").substring(0, 6), 16)
+		: 0xeaeaea;
 
 	const chip = createChip(unit.id, powerDisplayPosition, bgColor, displayedPower.toString());
 

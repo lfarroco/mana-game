@@ -99,6 +99,7 @@ export type Effect =
 	| {
 		id: "absorb_power";
 		targets: Targeting;
+		permanent?: boolean;
 	}
 	| {
 		id: "sacrifice_effect";
@@ -197,7 +198,8 @@ export type EffectSourcePosition =
 	| "top_ally"
 	| "bottom_ally"
 	| "left_ally"
-	| "right_ally";
+	| "right_ally"
+	| "self";
 
 export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSourcePosition } = {
 	all: "all",
@@ -209,6 +211,7 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 	bottom_ally: "bottom_ally",
 	left_ally: "left_ally",
 	right_ally: "right_ally",
+	self: "self",
 };
 
 // Process a list of effects that originate from a given source unit
@@ -284,7 +287,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit));
 			break;
 		case "absorb_power":
-			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit));
+			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit), effect.permanent || false);
 			break;
 		case "sacrifice_effect":
 			effects.sacrificeEffect(sourceUnit);
@@ -352,6 +355,8 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 							return (
 								sameForce(u, triggeringUnit) && triggeringUnit.position.x === u.position.x + 1 && triggeringUnit.position.y === u.position.y
 							);
+						case "self":
+							return u.id === triggeringUnit.id;
 						default:
 							const _exhaustiveCheck: never = r.position;
 							return _exhaustiveCheck;
