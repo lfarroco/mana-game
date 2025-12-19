@@ -4,6 +4,7 @@ import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
 import { createDescription } from "./createDescription";
 import { t } from "../../i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";
+import { getOption } from "@Models/OptionsStore";
 
 const getTargetDescription = (targets: Targeting): string => {
 	if (!targets) return t("tooltip.targets.default");
@@ -26,7 +27,6 @@ const getTargetDescription = (targets: Targeting): string => {
 
 const isTargetPlural = (targets?: Targeting): boolean => {
 	if (!targets) return true; // Default to plural "targets" if undefined? Or maybe false? "Targets" is plural.
-	// But undefined targets usually means implicit, but let's see. logic above says "Targets" default.
 
 	switch (targets.id) {
 		case "self":
@@ -54,7 +54,106 @@ const isTargetPlural = (targets?: Targeting): boolean => {
 	}
 };
 
+const COMPACT_TARGET_MAP: Record<string, string> = {
+	top_ally: "top",
+	bottom_ally: "bottom",
+	left_ally: "left",
+	right_ally: "right",
+};
+
+const getCompactTargetDescription = (targets: Targeting, color?: string): string => {
+	if (!targets) return "";
+	let id: string = targets.id;
+	if (COMPACT_TARGET_MAP[id]) {
+		id = COMPACT_TARGET_MAP[id];
+	}
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const count = (targets as any).count;
+	if (targets.id === "random_ally" && count && count > 1)
+		return t("tooltip.targets.random_allies", { count, color: color || "" });
+	if (targets.id === "random_enemy" && count && count > 1)
+		return t("tooltip.targets.random_enemies", { count, color: color || "" });
+
+	if (targets.id === "all_allies" && targets.ofType !== "any") {
+		return t("tooltip.targets.all_allies_type", { type: targets.ofType, color: ABILITY_COLORS[targets.ofType] });
+	}
+
+	return t(`tooltip.targets.${id}`, { color: color || "" });
+};
+
+export const buildCompactEffectBlock = (effect: Effect, unitPower: number): string | null => {
+	const amount = unitPower.toString();
+	const color = ABILITY_COLORS[effect.id] || "#ffffff";
+	const effectName = t(`tooltip.effects.${effect.id}`);
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const targets = (effect as any).targets as Targeting | undefined;
+	const targetDesc = targets ? getCompactTargetDescription(targets, color) : "";
+
+	let effectString = "";
+
+	switch (effect.id) {
+		case "damage":
+		case "heal":
+		case "shield":
+		case "poison":
+		case "regen":
+			effectString = `[color=${color}]${effectName} ${amount}[/color]`;
+			break;
+		case "haste":
+		case "slow":
+		case "charge": {
+			const dur = (effect.duration / 1000).toFixed(1);
+			effectString = `[color=${color}]${effectName}[/color] ${dur}s`;
+			break;
+		}
+		case "increase_power": {
+			const suffix = effect.permanent ? "*" : "";
+			effectString = `[color=${color}]+${effect.amount}${suffix} ${effectName}[/color]`;
+			break;
+		}
+		case "decrease_power":
+			effectString = `[color=${color}]-${effect.percentage}% ${t("tooltip.effects.increase_power")}[/color]`;
+			break;
+		case "increase_critical":
+			effectString = `[color=${color}]+${effect.amount} ${t("tooltip.effects.increase_critical")}[/color]`;
+			break;
+		case "multiply_power":
+			effectString = `[color=${color}]x${effect.multiplier} ${t("tooltip.effects.increase_power")}[/color]`;
+			break;
+		case "distribute_power":
+			// Distribute power sentence is complex to compact without new key. 
+			// En.json: "gives 50% of its [color={color}]power[/color] to {target}"
+			// Compact idea: "50% Power -> Target"
+			effectString = `50% [color=${color}]${t("tooltip.effects.increase_power")}[/color]`;
+			break;
+		case "absorb_power":
+			// En.json: "absorbs 50% [color={color}]power[/color] from {target}"
+			effectString = `Absorb 50% [color=${color}]${t("tooltip.effects.increase_power")}[/color]`;
+			break;
+		case "on_crit":
+		case "on_battle_start":
+		case "on_over_heal":
+			// These are triggers, usually not effects in this list unless they are nested? 
+			// Actually they appear in main effect list sometimes? No, they are usually keys in Reaction.
+			// But type definition allows them. 
+			return null;
+		default:
+			return null;
+	}
+
+	if (targetDesc) {
+		return `${effectString} -> ${targetDesc}`;
+	}
+	return effectString;
+};
+
 export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
+	if (getOption("compactTooltips")) {
+		return buildCompactEffectBlock(effect, unitPower);
+	}
+
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const targets = (effect as any).targets as Targeting | undefined;
 	const target = targets ? getTargetDescription(targets) : "";
@@ -184,6 +283,31 @@ const getPositionDescription = (position: string): string => {
 };
 
 export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
+	if (getOption("compactTooltips")) {
+		const style = ABILITY_COLORS[reaction.effectId];
+		const color = style || "#51cf66";
+		const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
+		const sourceDesc = reaction.position ? getCompactTargetDescription({ id: reaction.position } as Targeting, color) : t("tooltip.targets.source", { color });
+		const effectName = t(`tooltip.effects.${effectKey}`);
+
+		let triggerText = `⚡ ${effectName} (${sourceDesc})`;
+
+		if (reaction.effectId === "on_crit") {
+			triggerText = `⚡ ${t("tooltip.effects.on_crit")}`;
+		} else if (reaction.effectId === "on_battle_start") {
+			triggerText = `⚡ ${t("tooltip.effects.on_battle_start")}`;
+		} else if (reaction.effectId === "on_over_heal") {
+			triggerText = `⚡ ${t("tooltip.effects.on_over_heal")} (${sourceDesc})`;
+		}
+
+		const effectSegments = reaction.effects
+			.map((e) => buildCompactEffectBlock(e, unitPower))
+			.filter((e): e is string => e !== null);
+
+		const effectText = effectSegments.join(" -> ");
+		return `${triggerText} -> ${effectText}`;
+	}
+
 	const style = ABILITY_COLORS[reaction.effectId];
 	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
 	const color = style || "#51cf66";

@@ -165,6 +165,8 @@
 	"tooltip.targets.random_enemies": "{count} random enemies",
 	"tooltip.targets.row": "Row",
 	"tooltip.targets.column": "Column",
+	"tooltip.targets.row_allies": "Row Allies",
+	"tooltip.targets.column_allies": "Column Allies",
 	"tooltip.targets.all_allies": "All allies",
 	"tooltip.targets.all_allies_type": "All allies of type [color={color}]{type}[/color]",
 	"tooltip.targets.all_enemies": "All enemies",

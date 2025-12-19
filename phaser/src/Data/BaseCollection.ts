@@ -1169,7 +1169,7 @@ const cards: CardDefinition[] = [
 		effects: [
 			shield,
 			decreasePower(5, strongestAlly),
-			increasePower(15, weakestAlly)
+			multiplyPower(1.1, weakestAlly)
 		],
 		reactions: []
 	},
@@ -1287,11 +1287,11 @@ const cards: CardDefinition[] = [
 		power: 45,
 		rank: 3,
 		locked: true,
-		cooldown: 4500,
+		cooldown: 6200,
 		effects: [
 			damage,
-			multiplyPower(1.2, self),
-			multiplyPower(1.4, weakestEnemy)
+			multiplyPower(1.1, right),
+			multiplyPower(1.2, weakestEnemy)
 		],
 		reactions: [],
 	},
