@@ -17,5 +17,11 @@ export function gameTab(startY: number, lineHeight: number) {
 			() => getOption("speed", 1.0),
 			(value) => setOption("speed", value)
 		),
+		boolean(
+			t("options.game.compactTooltips"),
+			startY + lineHeight * 2,
+			() => getOption("compactTooltips", false),
+			(value) => setOption("compactTooltips", value)
+		),
 	].flat();
 }
