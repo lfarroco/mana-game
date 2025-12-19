@@ -1,9 +1,9 @@
 
 export const ABILITY_COLORS: Record<string, string> = {
-	damage: "#c11414ff",
+	damage: "#f21414ff",
 	heal: "#07f62fff",
 	shield: "#aca40fff",
-	poison: "#8c16a9ff",
+	poison: "#8419ffff",
 	regen: "#257331ff",
 	haste: "#91a7ff",
 	re_hasted: "#00eaff",
