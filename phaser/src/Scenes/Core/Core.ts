@@ -54,7 +54,6 @@ export default class Core extends Phaser.Scene {
 		assetText.setOrigin(0.5, 0.5);
 
 		this.load.on("progress", function (value: number) {
-			console.log(value);
 			percentText.setText(parseInt(value * 100 + "") + "%");
 			progressBar.clear();
 			progressBar.fillStyle(0xffffff, 1);
@@ -62,12 +61,10 @@ export default class Core extends Phaser.Scene {
 		});
 
 		this.load.on("fileprogress", function (file: any) {
-			console.log(file.src);
 			assetText.setText("Loading asset: " + file.key);
 		});
 
 		this.load.on("complete", function () {
-			console.log("complete");
 			progressBar.destroy();
 			progressBox.destroy();
 			loadingText.destroy();

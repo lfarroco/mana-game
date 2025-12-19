@@ -11,6 +11,7 @@ let currentOptions: Options = {
 	debug: false,
 	speed: 1.5,
 	particles: "medium",
+	compactTooltips: false,
 };
 
 export const init = () => {
@@ -32,6 +33,7 @@ export type Options = {
 	debug: boolean;
 	speed: number;
 	particles: "low" | "medium" | "high";
+	compactTooltips: boolean;
 };
 
 const STORAGE_KEY = "mana-game-options";
@@ -123,6 +125,8 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 	if (["low", "medium", "high"].includes(parsed.particles)) {
 		validOptions.particles = parsed.particles;
 	}
+	if (typeof parsed.compactTooltips === "boolean")
+		validOptions.compactTooltips = parsed.compactTooltips;
 
 	return validOptions;
 }

@@ -46,6 +46,7 @@
 	"options.graphics.values.high": "HIGH",
 	"options.game.debug": "Debug",
 	"options.game.speed": "Speed",
+	"options.game.compactTooltips": "Compact Tooltips",
 	"options.boolean.on": "ON",
 	"options.boolean.off": "OFF",
 	"results.wins_title": "{count} Wins",
