@@ -1,10 +1,10 @@
 
 export const ABILITY_COLORS: Record<string, string> = {
-	damage: "#ff6b6b",
+	damage: "#c11414ff",
 	heal: "#07f62fff",
-	shield: "#ede545ff",
-	poison: "#da77f2",
-	regen: "#38c24cff",
+	shield: "#aca40fff",
+	poison: "#8c16a9ff",
+	regen: "#257331ff",
 	haste: "#91a7ff",
 	re_hasted: "#00eaff",
 	re_slow: "#d2691e",
@@ -16,7 +16,7 @@ export const ABILITY_COLORS: Record<string, string> = {
 	slow: "#db7c28e0",
 	charge: "#ffe066",
 	increase_power: "#ff8cc8",
-	decrease_power: "#8a2be2",
+	decrease_power: "#b972fbff",
 	increase_critical: "#ff8cc8",
 	on_crit: "#ff0000",
 	on_over_heal: "#51cf66",

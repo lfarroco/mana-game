@@ -475,7 +475,7 @@ export const orbsIndex: Record<
 					id: "row_allies"
 				}
 			});
-			absorbPower(unit, targets);
+			absorbPower(unit, targets, true);
 			return true;
 		}
 	}),
