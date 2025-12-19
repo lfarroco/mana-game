@@ -121,7 +121,15 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 				color,
 			});
 		case "distribute_power":
+			return t("tooltip.sentence.distribute_power", {
+				target,
+				color,
+			});
 		case "absorb_power":
+			return t("tooltip.sentence.absorb_power", {
+				target,
+				color,
+			});
 		case "sacrifice_effect":
 		case "re_hasted":
 		case "re_slow":
