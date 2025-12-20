@@ -457,7 +457,20 @@
 	"card.vitality_channeler.name": "バイタリティチャネラー",
 	"card.mend_sage.name": "メンドセージ",
 	"card.fate_shifter.name": "フェイトシフター",
-	"unlock_description.vanguard": "どの勢力でも10回勝利すると、ヴァンガードがアンロックされます。",
-	"unlock_description.veteran_paladin": "マナクリスタルで5回勝利すると、ベテランパラディンがアンロックされます。",
-	"unlock_description.webert_the_old": "インフィニットモードで1回勝利すると、ウェバート・ザ・オールドがアンロックされます。"
+	"unlock_description.webert_the_old": "インフィニットモードで1回勝利すると、ウェバート・ザ・オールドがアンロックされます。",
+	"unlock_description.walking_reactor": "インフィニットモードでラウンド20に到達すると、ウォーキングリアクターがアンロックされます。",
+	"unlock_description.spectral_knight": "マナクリスタルでゴールド勝利を達成すると、スペクトラルナイトがアンロックされます。",
+	"unlock_description.windlash_serpent": "クイックストーンでゴールド勝利を達成すると、ウインドラッシュサーペントがアンロックされます。",
+	"unlock_description.corruption_bringer": "パープルクリスタルでゴールド勝利を達成すると、コラプションブリンガーがアンロックされます。",
+	"unlock_description.frontline_dasher": "クリティカルクリスタルでゴールド勝利を達成すると、フロントラインダッシャーがアンロックされます。",
+	"unlock_description.life_balancekeeper": "成長クリスタルでゴールド勝利を達成すると、ライフバランスキーパーがアンロックされます。",
+	"unlock_description.destiny_balancer": "保護クリスタルでゴールド勝利を達成すると、デスティニーバランサーがアンロックされます。",
+	"unlock_description.cadence_warden": "どのクリスタルでも1回勝利すると、ケイデンスウォーデンがアンロックされます。",
+	"unlock_description.essence_harvester": "マナクリスタルで3回勝利すると、エッセンスハーベスターがアンロックされます。",
+	"unlock_description.plague_incubator": "パープルクリスタルで3回勝利すると、プレイグインキュベーターがアンロックされます。",
+	"unlock_description.tempest_ravager": "保護クリスタルで3回勝利すると、テンペストラベジャーがアンロックされます。",
+	"unlock_description.paragon": "どのクリスタルでも5回勝利すると、パラゴンがアンロックされます。",
+	"unlock_description.vitality_channeler": "成長クリスタルで3回勝利すると、バイタリティチャネラーがアンロックされます。",
+	"unlock_description.mend_sage": "合計10,000 HPを回復すると、メンドセージがアンロックされます。",
+	"unlock_description.fate_shifter": "クリティカルクリスタルで3回勝利すると、フェイトシフターがアンロックされます。"
 }
