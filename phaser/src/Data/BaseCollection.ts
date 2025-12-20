@@ -1115,7 +1115,6 @@ const cards: CardDefinition[] = [
 		rank: 3,
 		locked: true,
 		cooldown: 5000,
-		isCore: true,
 		effects: [
 			poison,
 			slow(2000, randomEnemy(2))

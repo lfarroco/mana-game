@@ -199,7 +199,7 @@
 	"tooltip.sentence.increase_power_plural": "{target} gain [color={color}]+{amount} power[/color]",
 	"tooltip.sentence.increase_power_permanent": "{target} permanently gains [color={color}]{amount} power[/color]",
 	"tooltip.sentence.increase_power_permanent_plural": "{target} permanently gain [color={color}]{amount} power[/color]",
-	"tooltip.sentence.decrease_power": "{target} loses [color={color}]{amount} power[/color]",
+	"tooltip.sentence.decrease_power": "{target} loses [color={color}]{amount}% power[/color]",
 	"tooltip.sentence.increase_critical": "{target} gains [color={color}]+{amount} critical[/color]",
 	"tooltip.sentence.increase_critical_plural": "{target} gain [color={color}]{amount} critical[/color]",
 	"tooltip.sentence.multiply_power": "{target} [color={color}]x{amount} power[/color]",
