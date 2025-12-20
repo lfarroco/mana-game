@@ -121,6 +121,21 @@ const cards: CardDefinition[] = [
 		]
 	},
 	{
+		id: "quickstone",
+		pic: "haste-stone",
+		life: 500,
+		power: 15,
+		cooldown: 4500,
+		isCore: true,
+		effects: [
+			regen,
+			haste(1000, row),
+		],
+		reactions: [
+			reaction("all", "row_allies", charge(500, column)),
+		]
+	},
+	{
 		id: "void_witch",
 		pic: "boss_andromeda",
 		power: 20,
@@ -129,9 +144,7 @@ const cards: CardDefinition[] = [
 			poison,
 			slow(1000, randomEnemy(1)),
 		],
-		reactions: [
-			reaction("slow", "allies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "living_armor",
@@ -154,7 +167,7 @@ const cards: CardDefinition[] = [
 			damage
 		],
 		reactions: [
-			reaction("haste", "allies", increaseCritical(5, self)),
+			reaction("haste", "row_allies", increaseCritical(5, self)),
 		]
 	},
 	{
@@ -164,11 +177,9 @@ const cards: CardDefinition[] = [
 		cooldown: 5000,
 		effects: [
 			shield,
-			increasePower(1, randomAlly(1), true),
+			increasePower(2, randomAlly(1), true),
 		],
-		reactions: [
-			reaction("haste", "allies", increasePower(5, row)),
-		]
+		reactions: []
 	},
 	{
 		id: "tek_monk",
@@ -179,9 +190,7 @@ const cards: CardDefinition[] = [
 			damage,
 			increasePower(1, self, true),
 		],
-		reactions: [
-			reaction("heal", "column_allies", charge(500, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "void_specter",
@@ -192,7 +201,7 @@ const cards: CardDefinition[] = [
 			poison
 		],
 		reactions: [
-			reaction("regen", "enemies", increasePower(2, self)),
+			reaction("regen", "column_allies", increasePower(5, self)),
 		]
 	},
 	{
@@ -204,7 +213,7 @@ const cards: CardDefinition[] = [
 			poison
 		],
 		reactions: [
-			reaction("regen", "allies", increasePower(5, self)),
+			reaction("damage", "row_allies", increasePower(5, self)),
 		]
 	},
 	{
@@ -216,9 +225,7 @@ const cards: CardDefinition[] = [
 			poison,
 			increaseCritical(5, column),
 		],
-		reactions: [
-			reaction("regen", "enemies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "venomous_viper",
@@ -229,7 +236,7 @@ const cards: CardDefinition[] = [
 			poison
 		],
 		reactions: [
-			reaction("haste", "allies", increasePower(5, self)),
+			reaction("haste", "row_allies", increasePower(5, self)),
 		]
 	},
 	{
@@ -241,9 +248,7 @@ const cards: CardDefinition[] = [
 			poison,
 			slow(1000, randomEnemy(1)),
 		],
-		reactions: [
-			reaction("poison", "allies", haste(1000, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "corrosive_slime",
@@ -254,7 +259,7 @@ const cards: CardDefinition[] = [
 			poison
 		],
 		reactions: [
-			reaction("shield", "enemies", increasePower(5, self)),
+			reaction("shield", "enemies", increasePower(2, self)),
 		]
 	},
 	{
@@ -266,7 +271,7 @@ const cards: CardDefinition[] = [
 			poison
 		],
 		reactions: [
-			reaction("poison", "allies", increasePower(5, self)),
+			reaction("poison", "allies", increasePower(2, self)),
 		]
 	},
 	{
@@ -275,10 +280,10 @@ const cards: CardDefinition[] = [
 		power: 40,
 		cooldown: 4900,
 		effects: [
-			poison
+			poison,
+			haste(1000, column),
 		],
 		reactions: [
-			reaction("poison", "allies", increasePower(5, trigger)),
 		]
 	},
 	{
@@ -288,10 +293,9 @@ const cards: CardDefinition[] = [
 		cooldown: 5500,
 		effects: [
 			poison,
-			haste(1000, column),
 		],
 		reactions: [
-			reaction("poison", "column_allies", increasePower(5, trigger)),
+			reaction("poison", "allies", increasePower(2, trigger)),
 		]
 	},
 	{
@@ -315,9 +319,7 @@ const cards: CardDefinition[] = [
 			shield,
 			increasePower(1, randomAlly(1), true),
 		],
-		reactions: [
-			reaction("regen", "column_allies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "stone_guardian",
@@ -328,7 +330,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("damage", "allies", increasePower(3, self, true)),
+			reaction("damage", "allies", increasePower(2, self, true)),
 		]
 	},
 	{
@@ -341,25 +343,9 @@ const cards: CardDefinition[] = [
 			damage,
 			increaseCritical(5, self),
 		],
-		reactions: [
-			reaction("heal", "enemies", increasePower(5, self)),
-		]
+		reactions: []
 	},
-	{
-		id: "quickstone",
-		pic: "haste-stone",
-		life: 500,
-		power: 15,
-		cooldown: 4500,
-		isCore: true,
-		effects: [
-			regen,
-			haste(1000, row),
-		],
-		reactions: [
-			reaction("all", "row_allies", charge(500, column)),
-		]
-	},
+
 	{
 		id: "commander",
 		pic: "f1_shieldforger",
@@ -367,8 +353,8 @@ const cards: CardDefinition[] = [
 		cooldown: 6000,
 		effects: [
 			shield,
-			increasePower(5, column),
 			increasePower(5, row),
+
 		],
 		reactions: []
 	},
@@ -377,14 +363,12 @@ const cards: CardDefinition[] = [
 		pic: "f2_chakriavatar",
 		power: 20,
 		critical: 10,
-		cooldown: 5000,
+		cooldown: 6000,
 		effects: [
 			damage,
-			increasePower(1, self, true),
+			increasePower(2, self, true),
 		],
-		reactions: [
-			reaction("damage", "column_allies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "chaos_knight",
@@ -395,9 +379,7 @@ const cards: CardDefinition[] = [
 			damage,
 			slow(1000, randomEnemy(1)),
 		],
-		reactions: [
-			reaction("shield", "enemies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "thunder_conduit",
@@ -408,7 +390,7 @@ const cards: CardDefinition[] = [
 			damage
 		],
 		reactions: [
-			reaction("haste", "allies", increasePower(5, self)),
+			reaction("haste", "allies", increasePower(2, self)),
 		]
 	},
 	{
@@ -420,7 +402,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("damage", "enemies", increasePower(5, self)),
+			reaction("damage", "enemies", increasePower(2, self)),
 		]
 	},
 	{
@@ -432,7 +414,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("heal", "left_ally", increasePower(10, column)),
+			reaction("heal", "left_ally", increasePower(6, column)),
 		]
 	},
 	{
@@ -444,7 +426,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("poison", "column_allies", increasePower(5, trigger)),
+			reaction("poison", "column_allies", increasePower(4, trigger)),
 		]
 	},
 	{
@@ -456,7 +438,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("damage", "row_allies", increasePower(5, column)),
+			reaction("damage", "row_allies", increasePower(4, column)),
 		]
 	},
 	{
@@ -468,7 +450,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("shield", "column_allies", increasePower(5, row)),
+			reaction("shield", "column_allies", increasePower(4, row)),
 		]
 	},
 	{
@@ -480,7 +462,7 @@ const cards: CardDefinition[] = [
 			shield
 		],
 		reactions: [
-			reaction("shield", "allies", increasePower(5, left)),
+			reaction("shield", "allies", increasePower(6, left)),
 		]
 	},
 	{
@@ -504,27 +486,25 @@ const cards: CardDefinition[] = [
 			heal
 		],
 		reactions: [
-			reaction("damage", "row_allies", increasePower(5, trigger)),
+			reaction("damage", "row_allies", increasePower(4, trigger)),
 		]
 	},
 	{
 		id: "battle_medic",
 		pic: "neutral_healingmysticbandainamco",
 		power: 35,
-		cooldown: 6800,
+		cooldown: 3800,
 		effects: [
 			heal,
 			increaseCritical(5, right),
 		],
-		reactions: [
-			reaction("shield", "column_allies", charge(500, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "light_priestess",
 		pic: "neutral_healingmystic",
 		power: 25,
-		cooldown: 5700,
+		cooldown: 4700,
 		effects: [
 			heal
 		],
@@ -536,27 +516,23 @@ const cards: CardDefinition[] = [
 		id: "soul_weaver",
 		pic: "boss_soulstealer",
 		power: 15,
-		cooldown: 4700,
+		cooldown: 4500,
 		effects: [
 			heal,
 			increasePower(1, bottom, true),
 		],
-		reactions: [
-			reaction("shield", "row_allies", increasePower(5, trigger)),
-		]
+		reactions: []
 	},
 	{
 		id: "mender_of_worlds",
 		pic: "f6_auroraguardian",
 		power: 35,
-		cooldown: 6200,
+		cooldown: 4200,
 		effects: [
 			heal,
 			increasePower(1, left, true),
 		],
-		reactions: [
-			reaction("all", "column_allies", haste(1000, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "divine_spark",
@@ -591,7 +567,7 @@ const cards: CardDefinition[] = [
 			heal
 		],
 		reactions: [
-			reaction("all", "row_allies", increasePower(5, column)),
+			reaction("all", "row_allies", increasePower(4, column)),
 		]
 	},
 	{
@@ -603,7 +579,7 @@ const cards: CardDefinition[] = [
 			heal
 		],
 		reactions: [
-			reaction("all", "left_ally", increaseCritical(10, right)),
+			reaction("all", "left_ally", increaseCritical(7, right)),
 		]
 	},
 	{
@@ -615,7 +591,7 @@ const cards: CardDefinition[] = [
 			regen
 		],
 		reactions: [
-			reaction("haste", "allies", increasePower(5, self)),
+			reaction("haste", "allies", increasePower(7, self)),
 		]
 	},
 	{
@@ -627,15 +603,13 @@ const cards: CardDefinition[] = [
 			regen,
 			haste(1000, row),
 		],
-		reactions: [
-			reaction("all", "column_allies", increaseCritical(5, column)),
-		]
+		reactions: []
 	},
 	{
 		id: "enchanted_tree",
 		pic: "f6_treant",
 		power: 10,
-		cooldown: 2300,
+		cooldown: 3300,
 		effects: [
 			regen
 		],
@@ -652,9 +626,7 @@ const cards: CardDefinition[] = [
 			regen,
 			increaseCritical(5, self),
 		],
-		reactions: [
-			reaction("damage", "column_allies", increasePower(5, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "plague_dr",
@@ -663,10 +635,9 @@ const cards: CardDefinition[] = [
 		cooldown: 2900,
 		effects: [
 			regen,
-			slow(1000, randomEnemy(1)),
 		],
 		reactions: [
-			reaction("poison", "column_allies", increasePower(5, self)),
+			reaction("poison", "column_allies", increasePower(4, self)),
 		]
 	},
 	{
@@ -726,9 +697,7 @@ const cards: CardDefinition[] = [
 			regen,
 			haste(1000, left),
 		],
-		reactions: [
-			reaction("shield", "row_allies", increasePower(5, column)),
-		]
+		reactions: []
 	},
 	{
 		id: "time_shifter",
@@ -737,10 +706,9 @@ const cards: CardDefinition[] = [
 		cooldown: 6500,
 		effects: [
 			shield,
-			slow(1000, randomEnemy(1)),
 		],
 		reactions: [
-			reaction("haste", "allies", increasePower(5, column)),
+			reaction("haste", "allies", increasePower(4, column)),
 		]
 	},
 	{
@@ -752,15 +720,14 @@ const cards: CardDefinition[] = [
 			damage,
 			slow(1000, randomEnemy(1)),
 		],
-		reactions: [
-			reaction("haste", "allies", increasePower(5, column)),
-		]
+		reactions: []
 	},
 	{
 		id: "mana_source",
 		pic: "f4_furosa",
 		power: 20,
-		cooldown: 5000,
+		cooldown: 6400,
+		rank: 2,
 		effects: [
 			regen,
 			haste(1000, row),
@@ -776,7 +743,6 @@ const cards: CardDefinition[] = [
 		cooldown: 4800,
 		effects: [
 			poison,
-			haste(2000, column),
 		],
 		reactions: [
 			reaction("poison", "allies", charge(500, self)),
@@ -789,11 +755,9 @@ const cards: CardDefinition[] = [
 		cooldown: 5500,
 		effects: [
 			damage,
-			charge(1000, column),
+			charge(500, column),
 		],
-		reactions: [
-			reaction("shield", "column_allies", charge(500, self)),
-		]
+		reactions: []
 	},
 	{
 		id: "mirror_entity",
@@ -814,11 +778,9 @@ const cards: CardDefinition[] = [
 		cooldown: 4500,
 		effects: [
 			damage,
-			haste(1000, row),
+			haste(1000, randomAlly(2)),
 		],
-		reactions: [
-			reaction("poison", "allies", haste(1000, randomAlly(1))),
-		]
+		reactions: []
 	},
 	{
 		id: "duelist",
@@ -852,7 +814,6 @@ const cards: CardDefinition[] = [
 		cooldown: 4100,
 		effects: [
 			damage,
-			increaseCritical(5, self),
 		],
 		reactions: [
 			reaction("shield", "allies", increasePower(5, self)),
@@ -889,7 +850,6 @@ const cards: CardDefinition[] = [
 		cooldown: 5000,
 		effects: [
 			damage,
-			charge(500, column),
 		],
 		reactions: [
 			reaction("shield", "column_allies", charge(500, self)),
@@ -902,7 +862,6 @@ const cards: CardDefinition[] = [
 		cooldown: 4800,
 		effects: [
 			damage,
-			charge(500, left),
 		],
 		reactions: [
 			reaction("poison", "enemies", increasePower(2, self, true)),
@@ -913,9 +872,10 @@ const cards: CardDefinition[] = [
 		pic: "neutral_keeperofthevale",
 		power: 20,
 		cooldown: 4800,
+		rank: 2,
 		effects: [
 			regen,
-			charge(500, right),
+			charge(500, row),
 		],
 		reactions: [
 			reaction("damage", "enemies", increasePower(4, right)),
@@ -970,7 +930,8 @@ const cards: CardDefinition[] = [
 		rank: 2,
 		cooldown: 7800,
 		effects: [
-			poison
+			poison,
+			slow(2000, randomEnemy(2))
 		],
 		reactions: [
 			reaction("damage", "enemies", increasePower(5, self)),
@@ -1039,7 +1000,8 @@ const cards: CardDefinition[] = [
 		rank: 3,
 		cooldown: 5400,
 		effects: [
-			regen
+			regen,
+			haste(2000, row)
 		],
 		reactions: [
 			reaction("shield", "column_allies", increasePower(5, self, true))
