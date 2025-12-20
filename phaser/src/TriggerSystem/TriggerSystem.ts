@@ -215,50 +215,50 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 };
 
 // Process a list of effects that originate from a given source unit
-export const processEffectsIO = (sourceUnit: Unit, effects: Effect[], isReaction: boolean, triggeringUnit?: Unit) => {
+export const processEffectsIO = (sourceUnit: Unit, effects: Effect[], isReaction: boolean, triggeringUnit?: Unit, scale: number = 1) => {
 	effects.forEach((effect) => {
-		processEffectIO(sourceUnit, effect, isReaction, triggeringUnit);
+		processEffectIO(sourceUnit, effect, isReaction, triggeringUnit, scale);
 	});
 };
 
-const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit) => {
+const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit, scale: number = 1) => {
 	switch (effect.id) {
 		case "damage":
-			effects.dealDamageLogicIO(sourceUnit);
+			effects.dealDamageLogicIO(sourceUnit, scale);
 			break;
 		case "heal":
-			effects.restoreLife(sourceUnit);
+			effects.restoreLife(sourceUnit, scale);
 			break;
 		case "shield":
-			effects.addShieldLogicIO(sourceUnit);
+			effects.addShieldLogicIO(sourceUnit, scale);
 			break;
 		case "poison":
-			effects.applyPoisonLogicIO(sourceUnit);
+			effects.applyPoisonLogicIO(sourceUnit, scale);
 			break;
 		case "regen":
-			effects.applyRegenLogicIO(sourceUnit);
+			effects.applyRegenLogicIO(sourceUnit, scale);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration, (target: Unit) =>
+			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration * scale, (target: Unit) =>
 				processReactions(target, { id: "re_hasted" })
 			);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration, (target: Unit) =>
+			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration * scale, (target: Unit) =>
 				processReactions(target, { id: "re_slow" })
 			);
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.duration);
+			effects.applyChargeLogicIO(sourceUnit, chargeTargets, effect.duration * scale);
 			break;
 		case "increase_power":
 			const increasePowerTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.increasePower(
 				increasePowerTargets,
-				effect.amount,
+				effect.amount * scale,
 				effect.permanent || false,
 				sourceUnit
 			);
@@ -267,20 +267,20 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			const decreasePowerTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.decreasePower(
 				decreasePowerTargets,
-				effect.percentage,
+				effect.percentage * scale,
 				effect.permanent || false,
 				sourceUnit
 			);
 			break;
 		case "increase_critical":
 			const increaseCriticalTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.increaseCritical(increaseCriticalTargets, effect.amount, sourceUnit);
+			effects.increaseCritical(increaseCriticalTargets, effect.amount * scale, sourceUnit);
 			break;
 		case "multiply_power":
 			effects.multiplyPower({
 				targets: resolveTargets(sourceUnit, effect, triggeringUnit),
 				sourceUnit,
-				multiplier: effect.multiplier,
+				multiplier: Math.pow(effect.multiplier, scale),
 			});
 			break;
 		case "distribute_power":
@@ -319,7 +319,7 @@ const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggerin
 const GLOBAL_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal", "on_battle_start"]
 const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"]
 
-export function processReactions(triggeringUnit: Unit, effect: Effect) {
+export function processReactions(triggeringUnit: Unit, effect: Effect, scale: number = 1) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
@@ -367,7 +367,7 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 			reactions.forEach((r) => {
 				const chara = getCharaById(u.id);
 				summonEffect(getCurrentScene(), chara);
-				processEffectsIO(u, r.effects, true, triggeringUnit);
+				processEffectsIO(u, r.effects, true, triggeringUnit, scale);
 			});
 		});
 }

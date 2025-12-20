@@ -8,7 +8,7 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { damageFx } from "./visuals/damage";
 import { processReactions } from "../TriggerSystem";
 
-export function dealDamageLogicIO(sourceUnit: Unit) {
+export function dealDamageLogicIO(sourceUnit: Unit, scale: number = 1) {
 	const damageAmount = sourceUnit.power;
 
 	const targetForce = getState().battleData.forces.find(
@@ -19,7 +19,7 @@ export function dealDamageLogicIO(sourceUnit: Unit) {
 
 	const effect = () => {
 		const crit = calculateCritical(sourceUnit);
-		const damage = (damageAmount + crit.bonusPower) * crit.multiplier;
+		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
 		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged);

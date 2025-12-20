@@ -7,12 +7,12 @@ import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTra
 import { poisonFx } from "./visuals/poison";
 import { processReactions } from "../TriggerSystem";
 
-export const applyPoisonLogicIO = async (sourceUnit: Unit) => {
+export const applyPoisonLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
 	const crit = calculateCritical(sourceUnit);
 
-	const amount = (baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier;
+	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
 	const targetForce = getEnemyForce(sourceUnit.id);
 

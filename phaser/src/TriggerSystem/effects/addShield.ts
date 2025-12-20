@@ -8,7 +8,7 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { shieldFx } from "./visuals/shield";
 import { processReactions } from "../TriggerSystem";
 
-export const addShieldLogicIO = async (sourceUnit: Unit) => {
+export const addShieldLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power;
 
 	const sourceForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
@@ -17,7 +17,7 @@ export const addShieldLogicIO = async (sourceUnit: Unit) => {
 	const effect = async () => {
 		const crit = calculateCritical(sourceUnit);
 
-		const shieldAmount = (baseAmount + crit.bonusPower) * crit.multiplier;
+		const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, crit.isCritical, true);
 
