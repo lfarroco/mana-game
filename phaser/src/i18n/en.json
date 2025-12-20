@@ -287,7 +287,7 @@
 	"tutorial.slide9.row1": "Reactions",
 	"tutorial.slide9.row2": "",
 	"tutorial.slide9.row3": "Some units can react to other unit's abilities.",
-	"tutorial.slide9.row4": "Reactions happen 100ms after the original event.",
+	"tutorial.slide9.row4": "Reactions happen 200ms after the original event.",
 	"tutorial.slide9.row5": "Units can't react to reactions.",
 	"tutorial.slide9.row6": "",
 	"tutorial.slide10.row1": "Examples",
