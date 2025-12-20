@@ -2,6 +2,7 @@ import { EnergyBeam } from "./EnergyBeam";
 import { images } from "../assets";
 import { delay } from "../Utils/animation";
 import { getCurrentScene } from "@Models/State";
+import { getOption } from "../Models/OptionsStore";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];
@@ -56,13 +57,18 @@ export async function arcaneMissileTargeted(
 		(Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
 	const frequency = Math.floor(Math.random() * (frequencyMax - frequencyMin + 1) + frequencyMin);
 
+	const particlesOption = getOption("particles");
+	let particleDivisor = 30;
+	if (particlesOption === "low") particleDivisor = 45;
+	else if (particlesOption === "high") particleDivisor = 15;
+
 	const beam = new EnergyBeam(scene, {
 		start: source,
 		end: target,
 		thickness: 1,
 		amplitude,
 		frequency,
-		segments: Math.floor(distance / 30),
+		segments: Math.floor(distance / particleDivisor),
 		color: colors[0],
 	});
 
