@@ -96,7 +96,7 @@ const increasePowerOnTypeEffect = (type: "damage" | "heal" | "shield" | "poison"
 	}
 });
 const increaseCriticalEffect: Effect = { id: "increase_critical", amount: 5, targets: { id: "random_ally", count: 1 } };
-const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", percentage: 5, targets: { id: "random_enemy", count: 1 } }
+const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", amount: 5, targets: { id: "random_enemy", count: 1 } }
 const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
 const hasteEffect: Effect = { id: "haste", duration: 1000, targets: { id: "random_ally", count: 2 } }
 const slowEffect: Effect = { id: "slow", duration: 1000, targets: { id: "random_enemy", count: 2 } }
