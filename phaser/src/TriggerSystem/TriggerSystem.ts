@@ -4,6 +4,7 @@ import { pickRandom } from "../utils";
 import { getState, getCurrentScene } from "@Models/State";
 import { getCharaById } from "../Systems/Chara/Chara";
 import { summonEffect } from "../Effects/summonEffect";
+import { delay } from "@Utils/animation";
 
 export type EffectId =
 	| "damage"
@@ -364,9 +365,15 @@ export function processReactions(triggeringUnit: Unit, effect: Effect, scale: nu
 					}
 				});
 
-			reactions.forEach((r) => {
+			reactions.forEach(async (r) => {
+
 				const chara = getCharaById(u.id);
 				summonEffect(getCurrentScene(), chara);
+				await delay(100);
+				// check if still in combat
+				if (getState().battleData.units.length === 0) {
+					return;
+				}
 				processEffectsIO(u, r.effects, true, triggeringUnit, scale);
 			});
 		});
