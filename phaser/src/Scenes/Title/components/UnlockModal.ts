@@ -9,7 +9,7 @@ import { createDescription } from "@Systems/Chara/createDescription";
 import { createModal } from "@Components/Modal";
 import { t } from "@i18n/i18n";
 
-const PANEL_WIDTH = 800;
+const PANEL_WIDTH = 900;
 const PANEL_HEIGHT = 700;
 
 export function showUnlockModal(unitId: string): Promise<void> {
