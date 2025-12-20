@@ -317,6 +317,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
 const GLOBAL_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal", "on_battle_start"]
+const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"]
 
 export function processReactions(triggeringUnit: Unit, effect: Effect) {
 	if (["charge", "increase_power", "increase_power", "multiply_power"].includes(effect.id)) {
@@ -329,12 +330,12 @@ export function processReactions(triggeringUnit: Unit, effect: Effect) {
 		.forEach((u) => {
 			const reactions = u.reactions
 				.filter(r =>
-					r.effectId === effect.id || (r.effectId === "all" && !GLOBAL_REACTIONS.includes(effect.id))
+					r.effectId === effect.id || (r.effectId === "all" && BASIC_ABILITIES.includes(effect.id))
 				)
 				.filter((r) => {
 					switch (r.position) {
 						case "all":
-							return ["damage", "shield", "poison", "regen", "heal"].includes(effect.id);
+							return true;
 						case "allies":
 							return sameForce(u, triggeringUnit);
 						case "enemies":
