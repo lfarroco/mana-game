@@ -287,7 +287,7 @@
 	"tutorial.slide9.row1": "リアクション",
 	"tutorial.slide9.row2": "",
 	"tutorial.slide9.row3": "一部のユニットは、他のユニットのアビリティに反応（リアクション）できます。",
-	"tutorial.slide9.row4": "リアクションは元のイベントの100ms後に発生します。",
+	"tutorial.slide9.row4": "リアクションは元のイベントの200ms後に発生します。",
 	"tutorial.slide9.row5": "ユニットはリアクションに対してリアクションできません。",
 	"tutorial.slide9.row6": "",
 	"tutorial.slide10.row1": "例",

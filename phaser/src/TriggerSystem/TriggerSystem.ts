@@ -367,13 +367,14 @@ export function processReactions(triggeringUnit: Unit, effect: Effect, scale: nu
 
 			reactions.forEach(async (r) => {
 
-				const chara = getCharaById(u.id);
-				summonEffect(getCurrentScene(), chara);
-				await delay(100);
+				await delay(200);
 				// check if still in combat
 				if (getState().battleData.units.length === 0) {
 					return;
 				}
+
+				const chara = getCharaById(u.id);
+				summonEffect(getCurrentScene(), chara);
 				processEffectsIO(u, r.effects, true, triggeringUnit, scale);
 			});
 		});
