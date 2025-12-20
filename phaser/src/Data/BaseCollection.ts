@@ -377,9 +377,10 @@ const cards: CardDefinition[] = [
 		cooldown: 5500,
 		effects: [
 			damage,
-			slow(1000, randomEnemy(1)),
 		],
-		reactions: []
+		reactions: [
+			reaction("slow", "row_allies", charge(500, self))
+		]
 	},
 	{
 		id: "thunder_conduit",
@@ -745,7 +746,7 @@ const cards: CardDefinition[] = [
 			poison,
 		],
 		reactions: [
-			reaction("poison", "allies", charge(500, self)),
+			reaction("poison", "column_allies", charge(500, self)),
 		]
 	},
 	{
