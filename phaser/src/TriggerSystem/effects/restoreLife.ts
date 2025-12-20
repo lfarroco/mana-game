@@ -7,12 +7,12 @@ import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
 import { healFx } from "./visuals/heal";
 import { processReactions } from "../TriggerSystem";
 
-export const restoreLife = async (sourceUnit: Unit) => {
+export const restoreLife = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power;
 
 	const crit = calculateCritical(sourceUnit);
 
-	const healAmount = (baseAmount + crit.bonusPower) * crit.multiplier;
+	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(targetForce, amount, crit.isCritical);

@@ -8,12 +8,12 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { processReactions } from "../TriggerSystem";
 
-export const applyRegenLogicIO = async (sourceUnit: Unit) => {
+export const applyRegenLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
 	const crit = calculateCritical(sourceUnit);
 
-	const amount = (baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier;
+	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
 	const targetForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
