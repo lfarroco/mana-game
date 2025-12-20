@@ -1,7 +1,7 @@
 import { createUIButton } from "../../../Components/UIButton";
 import { size, vec2 } from "@Models/Geometry";
 import { isElectron } from "@Utils/environment";
-import { getCurrentScene, resetState } from "@Models/State";
+import { getCurrentScene, getState, resetState } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -45,7 +45,6 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	// Record player statistics
 	StatsStore.incrementRunsPlayed();
 	if (wins >= GOLD_VICTORY_THRESHOLD) {
 		StatsStore.recordVictory("gold", playerCore?.cardId);
@@ -54,10 +53,13 @@ export async function displayGameComplete(
 	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
 		StatsStore.recordVictory("bronze", playerCore?.cardId);
 	}
-	// Track furthest progress in infinite mode
+
 	if (wins > INFINITE_MODE_THRESHOLD) {
 		StatsStore.updateFurthestInfiniteRound(wins);
 	}
+
+	StatsStore.recordRunStats(getState().gameData.runStats);
+
 	StatsStore.save();
 
 	let subtitleText = END_GAME_MESSAGES.default;
@@ -70,7 +72,6 @@ export async function displayGameComplete(
 	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
 		subtitleText = END_GAME_MESSAGES.bronze;
 	}
-
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[

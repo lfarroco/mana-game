@@ -1,3 +1,4 @@
+import { RunStats } from "@Models/State";
 import { storage } from "../Storage";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
@@ -10,6 +11,11 @@ export type PlayerStats = {
 	furthestInfiniteRound: number;
 	unitUsage: Record<string, number>;
 	coreUnitWins: Record<string, { bronze: number; silver: number; gold: number }>;
+	totalHealed: number;
+	totalDamage: number;
+	totalShield: number;
+	totalPoison: number;
+	totalRegen: number;
 	mostPowerfulUnit: { name: string; power: number } | null;
 	unlockedUnits: string[];
 	pendingUnlockUnits: string[];
@@ -25,12 +31,75 @@ const defaultStats: PlayerStats = {
 	furthestInfiniteRound: 0,
 	unitUsage: {},
 	coreUnitWins: {},
+	totalHealed: 0,
+	totalDamage: 0,
+	totalShield: 0,
+	totalPoison: 0,
+	totalRegen: 0,
 	mostPowerfulUnit: null,
 	unlockedUnits: [],
 	pendingUnlockUnits: [],
 };
 
 let currentStats: PlayerStats = { ...defaultStats };
+
+function checkUnlockConditions() {
+
+	const getWins = (coreId: string, tier: VictoryTier) => {
+		return currentStats.coreUnitWins[coreId]?.[tier] || 0;
+	};
+
+	const getWinsOrBetter = (coreId: string, tier: VictoryTier) => {
+		const wins = currentStats.coreUnitWins[coreId];
+		if (!wins) return 0;
+		if (tier === "gold") return wins.gold;
+		if (tier === "silver") return wins.silver + wins.gold;
+		return wins.bronze + wins.silver + wins.gold;
+	};
+
+	// Helper to check wins for ANY core
+	const getTotalWinsOrBetter = (tier: VictoryTier) => {
+		let total = 0;
+		for (const coreId in currentStats.coreUnitWins) {
+			const wins = currentStats.coreUnitWins[coreId];
+			if (tier === "gold") total += wins.gold;
+			else if (tier === "silver") total += wins.silver + wins.gold;
+			else total += wins.bronze + wins.silver + wins.gold;
+		}
+		return total;
+	};
+
+
+	if (currentStats.furthestInfiniteRound >= 20) unlockUnit("walking_reactor");
+
+	if (getWins("mana_crystal", "gold") >= 1) unlockUnit("spectral_knight");
+
+	if (getWins("quickstone", "gold") >= 1) unlockUnit("windlash_serpent");
+
+	if (getWins("purple_crystal", "gold") >= 1) unlockUnit("corruption_bringer");
+
+	if (getWins("critical_crystal", "gold") >= 1) unlockUnit("frontline_dasher");
+
+	if (getWins("growth_crystal", "gold") >= 1) unlockUnit("life_balancekeeper");
+
+	if (getWins("protective_crystal", "gold") >= 1) unlockUnit("destiny_balancer");
+
+	if (getTotalWinsOrBetter("bronze") >= 1) unlockUnit("cadence_warden");
+
+	if (getWinsOrBetter("mana_crystal", "bronze") >= 3) unlockUnit("essence_harvester");
+
+	if (getWinsOrBetter("purple_crystal", "bronze") >= 3) unlockUnit("plague_incubator");
+
+	if (getWinsOrBetter("protective_crystal", "bronze") >= 3) unlockUnit("tempest_ravager");
+
+	if (getTotalWinsOrBetter("bronze") >= 5) unlockUnit("paragon");
+
+	if (getWinsOrBetter("growth_crystal", "bronze") >= 3) unlockUnit("vitality_channeler");
+
+	if (currentStats.totalHealed >= 10000) unlockUnit("mend_sage");
+
+	if (getWinsOrBetter("critical_crystal", "bronze") >= 3) unlockUnit("fate_shifter");
+}
 
 function loadStats(): void {
 	try {
@@ -48,6 +117,11 @@ function loadStats(): void {
 			furthestInfiniteRound: typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
 			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
 			coreUnitWins: typeof parsed.coreUnitWins === "object" && parsed.coreUnitWins !== null ? parsed.coreUnitWins : {},
+			totalHealed: typeof parsed.totalHealed === "number" ? parsed.totalHealed : 0,
+			totalDamage: typeof parsed.totalDamage === "number" ? parsed.totalDamage : 0,
+			totalShield: typeof parsed.totalShield === "number" ? parsed.totalShield : 0,
+			totalPoison: typeof parsed.totalPoison === "number" ? parsed.totalPoison : 0,
+			totalRegen: typeof parsed.totalRegen === "number" ? parsed.totalRegen : 0,
 			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
 			unlockedUnits: Array.isArray(parsed.unlockedUnits) ? parsed.unlockedUnits : [],
 			pendingUnlockUnits: Array.isArray(parsed.pendingUnlockUnits) ? parsed.pendingUnlockUnits : [],
@@ -67,6 +141,7 @@ function saveStats(): void {
 
 export function init(): void {
 	loadStats();
+	checkUnlockConditions();
 }
 
 export function getStats(): PlayerStats {
@@ -100,6 +175,7 @@ export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
 		console.log(`[StatsStore] Recorded ${tier} victory for core unit: ${coreUnitId}`);
 	}
 
+	checkUnlockConditions();
 	saveStats();
 	console.log(`[StatsStore] Recorded ${tier} victory`);
 }
@@ -107,9 +183,21 @@ export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
 export function updateFurthestInfiniteRound(wins: number): void {
 	if (wins > currentStats.furthestInfiniteRound) {
 		currentStats.furthestInfiniteRound = wins;
+		checkUnlockConditions();
 		saveStats();
 		console.log(`[StatsStore] New furthest infinite mode: ${wins} wins`);
 	}
+}
+
+export function recordRunStats(runStats: RunStats): void {
+	currentStats.totalDamage += runStats.damageDealt;
+	currentStats.totalShield += runStats.shieldDealt;
+	currentStats.totalPoison += runStats.poisonDealt;
+	currentStats.totalRegen += runStats.regenDealt;
+	currentStats.totalHealed += runStats.healDealt;
+
+	checkUnlockConditions();
+	saveStats();
 }
 
 export function recordUnitUsage(name: string): void {
@@ -176,4 +264,8 @@ export function lockUnit(unitId: string): void {
 	currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter(id => id !== unitId);
 	saveStats();
 	console.log(`[StatsStore] Locked unit: ${unitId}`);
+}
+
+export function forceCheckUnlocks(): void {
+	checkUnlockConditions();
 }

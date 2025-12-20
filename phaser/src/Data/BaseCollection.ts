@@ -925,7 +925,7 @@ const cards: CardDefinition[] = [
 		id: "thunder_core",
 		pic: "neutral_emp",
 		power: 30,
-		"rank": 2,
+		rank: 2,
 		cooldown: 5800,
 		effects: [
 			damage,
@@ -939,7 +939,7 @@ const cards: CardDefinition[] = [
 		id: "conduit_howler",
 		pic: "neutral_exun",
 		power: 30,
-		"rank": 2,
+		rank: 2,
 		cooldown: 4800,
 		effects: [
 			shield,
@@ -953,7 +953,7 @@ const cards: CardDefinition[] = [
 		id: "water_elemental",
 		pic: "neutral_fog",
 		power: 30,
-		"rank": 2,
+		rank: 2,
 		cooldown: 5800,
 		effects: [
 			heal,
@@ -967,7 +967,7 @@ const cards: CardDefinition[] = [
 		id: "master_of_thorns",
 		pic: "neutral_geargrinder",
 		power: 30,
-		"rank": 2,
+		rank: 2,
 		cooldown: 7800,
 		effects: [
 			poison
@@ -980,7 +980,7 @@ const cards: CardDefinition[] = [
 		id: "coral_builder",
 		pic: "neutral_giantcrab",
 		power: 30,
-		"rank": 2,
+		rank: 2,
 		cooldown: 5800,
 		effects: [
 			regen,
@@ -994,7 +994,7 @@ const cards: CardDefinition[] = [
 		id: "toxicologist",
 		pic: "neutral_gnasher",
 		power: 40,
-		"rank": 3,
+		rank: 3,
 		cooldown: 6800,
 		effects: [
 			poison,
@@ -1008,7 +1008,7 @@ const cards: CardDefinition[] = [
 		id: "expedition_leader",
 		pic: "neutral_goldenhammer",
 		power: 30,
-		"rank": 3,
+		rank: 3,
 		cooldown: 7300,
 		effects: [
 			shield,
@@ -1022,7 +1022,7 @@ const cards: CardDefinition[] = [
 		id: "vanguard",
 		pic: "neutral_gauntletmaster",
 		power: 40,
-		"rank": 3,
+		rank: 3,
 		cooldown: 4300,
 		effects: [
 			damage,
@@ -1036,7 +1036,7 @@ const cards: CardDefinition[] = [
 		id: "veteran_paladin",
 		pic: "neutral_goldenjusticar",
 		power: 40,
-		"rank": 3,
+		rank: 3,
 		cooldown: 5400,
 		effects: [
 			regen
@@ -1049,8 +1049,7 @@ const cards: CardDefinition[] = [
 		id: "webert_the_old",
 		pic: "neutral_goldenmantella",
 		power: 40,
-		"rank": 3,
-		locked: true,
+		rank: 3,
 		cooldown: 7400,
 		effects: [
 			heal,
@@ -1179,7 +1178,7 @@ const cards: CardDefinition[] = [
 		pic: "f6_3rdgeneral",
 		life: 1500,
 		power: 45,
-		rank: 3,
+		rank: 2,
 		locked: true,
 		cooldown: 4500,
 		effects: [
