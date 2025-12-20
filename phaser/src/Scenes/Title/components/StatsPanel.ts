@@ -1,3 +1,4 @@
+import { compactNumber } from "../../../utils";
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getCurrentScene } from "@Models/State";
@@ -7,7 +8,7 @@ import { getStats, getMostUsedUnit } from "@Models/StatsStore";
 import { t } from "@i18n/i18n";
 
 const OVERLAY_ALPHA = 0.85;
-const PANEL_WIDTH = 900;
+const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 600;
 
 let isOpen = false;
@@ -46,7 +47,27 @@ export function openStats(): void {
 	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
 	io.Centralize(title);
 
-	const statsData = [
+	// --- Left Column: Battle Totals ---
+	const leftTitle = io.Title2(t("stats.battleTotals"));
+	io.SetPosition(leftTitle, vec2(c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100));
+	io.Centralize(leftTitle);
+
+	type StatItem = { label: string; value: string; color?: string };
+
+	const leftStatsData: StatItem[] = [
+		{ label: t("stats.totalDamage"), value: compactNumber(stats.totalDamage) },
+		{ label: t("stats.totalHealed"), value: compactNumber(stats.totalHealed) },
+		{ label: t("stats.totalShield"), value: compactNumber(stats.totalShield) },
+		{ label: t("stats.totalPoison"), value: compactNumber(stats.totalPoison) },
+		{ label: t("stats.totalRegen"), value: compactNumber(stats.totalRegen) },
+	];
+
+	// --- Right Column: Career Stats ---
+	const rightTitle = io.Title2(t("stats.careerStats"));
+	io.SetPosition(rightTitle, vec2(c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100));
+	io.Centralize(rightTitle);
+
+	const rightStatsData: StatItem[] = [
 		{ label: t("stats.totalRuns"), value: stats.totalRuns.toString() },
 		{ label: t("stats.goldVictories"), value: stats.goldVictories.toString(), color: "#FFD700" },
 		{ label: t("stats.silverVictories"), value: stats.silverVictories.toString(), color: "#C0C0C0" },
@@ -56,35 +77,41 @@ export function openStats(): void {
 		{ label: t("stats.mostPowerful"), value: mostPowerfulValue, color: "#ff6b6b" },
 	];
 
-	const startY = c.MIDDLE_SCREEN_Y - 170;
-	const rowSpacing = 50;
-	const labelX = c.MIDDLE_SCREEN_X - 20;
-	const valueX = c.MIDDLE_SCREEN_X + 20;
-
+	const startY = c.MIDDLE_SCREEN_Y - 120;
+	const rowSpacing = 45;
 	const statTexts: Phaser.GameObjects.Text[] = [];
 
-	statsData.forEach((stat, index) => {
-		const y = startY + index * rowSpacing;
+	// Render Helper
+	const renderStats = (data: StatItem[], centerX: number) => {
+		const labelX = centerX - 10;
+		const valueX = centerX + 10;
 
-		const labelText = scene.add.text(labelX, y, stat.label, {
-			fontFamily: "Arial",
-			fontSize: "24px",
-			color: "#ecf0f1",
-			align: "right"
-		});
-		labelText.setOrigin(1, 0.5);
-		statTexts.push(labelText);
+		data.forEach((stat, index) => {
+			const y = startY + index * rowSpacing;
 
-		const valueText = scene.add.text(valueX, y, stat.value, {
-			fontFamily: "Arial",
-			fontSize: "28px",
-			color: stat.color || "#ffffff",
-			fontStyle: "bold",
-			align: "left"
+			const labelText = scene.add.text(labelX, y, stat.label, {
+				fontFamily: "Arial",
+				fontSize: "22px",
+				color: "#ecf0f1",
+				align: "right"
+			});
+			labelText.setOrigin(1, 0.5);
+			statTexts.push(labelText);
+
+			const valueText = scene.add.text(valueX, y, stat.value, {
+				fontFamily: "Arial",
+				fontSize: "24px",
+				color: stat.color || "#ffffff",
+				fontStyle: "bold",
+				align: "left"
+			});
+			valueText.setOrigin(0, 0.5);
+			statTexts.push(valueText);
 		});
-		valueText.setOrigin(0, 0.5);
-		statTexts.push(valueText);
-	});
+	};
+
+	renderStats(leftStatsData, c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4);
+	renderStats(rightStatsData, c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4);
 
 	const closeButton = createUIButton(
 		t("stats.close"),
@@ -99,6 +126,8 @@ export function openStats(): void {
 		overlay,
 		panelBg,
 		title,
+		leftTitle,
+		rightTitle,
 		...statTexts,
 		closeButton.container,
 	]);
