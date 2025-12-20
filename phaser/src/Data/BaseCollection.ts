@@ -990,7 +990,7 @@ const cards: CardDefinition[] = [
 			haste(2000, column),
 		],
 		reactions: [
-			reaction("haste", "allies", increasePower(5, self, true)),
+			reaction("haste", "allies", increasePower(2, self, true)),
 		]
 	},
 	{
@@ -1004,7 +1004,7 @@ const cards: CardDefinition[] = [
 			haste(2000, row)
 		],
 		reactions: [
-			reaction("shield", "column_allies", increasePower(5, self, true))
+			reaction("shield", "column_allies", increasePower(2, self, true))
 		]
 	},
 	{
@@ -1066,7 +1066,7 @@ const cards: CardDefinition[] = [
 			haste(2000, row)
 		],
 		reactions: [
-			reaction("re_hasted", "allies", increasePower(20, self))
+			reaction("re_hasted", "allies", increasePower(5, self))
 		]
 	},
 	// re-slow
@@ -1114,7 +1114,7 @@ const cards: CardDefinition[] = [
 			heal,
 		],
 		reactions: [
-			reaction("on_over_heal", "allies", increasePower(5, allAllies, true))
+			reaction("on_over_heal", "allies", increasePower(1, allAllies, true))
 		]
 	},
 	//Balancer

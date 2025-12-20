@@ -78,8 +78,18 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const coreUnit = makeUnit(cpuForce.id, coreCard.id, vec2(corePosition.x, corePosition.y));
 	units.push(coreUnit);
 
+	const filteredPool = getNonCores().filter(u => {
+		const rank = u.rank || 1;
+		if (round < 3 && rank > 1) return false;
+		if (round >= 3 && round < 5 && rank > 2) return false;
+		if (round >= 5 && round < 9 && rank > 3) return false;
+		if (round >= 9 && round < 13 && rank > 4) return false;
+
+		return true;
+	})
+
 	for (let i = 1; i < unitCount; i++) {
-		const card = pickOneUnique(getNonCores(), pickedCards);
+		const card = pickOneUnique(filteredPool, pickedCards);
 		pickedCards.push(card);
 		const position = getRandomEmptyPosition(occupiedPositions);
 		if (!position) {
