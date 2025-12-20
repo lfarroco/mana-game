@@ -9,6 +9,7 @@ export type PlayerStats = {
 	goldVictories: number;
 	furthestInfiniteRound: number;
 	unitUsage: Record<string, number>;
+	coreUnitWins: Record<string, { bronze: number; silver: number; gold: number }>;
 	mostPowerfulUnit: { name: string; power: number } | null;
 	unlockedUnits: string[];
 	pendingUnlockUnits: string[];
@@ -23,6 +24,7 @@ const defaultStats: PlayerStats = {
 	goldVictories: 0,
 	furthestInfiniteRound: 0,
 	unitUsage: {},
+	coreUnitWins: {},
 	mostPowerfulUnit: null,
 	unlockedUnits: [],
 	pendingUnlockUnits: [],
@@ -45,6 +47,7 @@ function loadStats(): void {
 			goldVictories: typeof parsed.goldVictories === "number" ? parsed.goldVictories : 0,
 			furthestInfiniteRound: typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
 			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
+			coreUnitWins: typeof parsed.coreUnitWins === "object" && parsed.coreUnitWins !== null ? parsed.coreUnitWins : {},
 			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
 			unlockedUnits: Array.isArray(parsed.unlockedUnits) ? parsed.unlockedUnits : [],
 			pendingUnlockUnits: Array.isArray(parsed.pendingUnlockUnits) ? parsed.pendingUnlockUnits : [],
@@ -76,7 +79,7 @@ export function incrementRunsPlayed(): void {
 	console.log(`[StatsStore] Runs played: ${currentStats.totalRuns}`);
 }
 
-export function recordVictory(tier: VictoryTier): void {
+export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
 	switch (tier) {
 		case "gold":
 			currentStats.goldVictories++;
@@ -88,6 +91,15 @@ export function recordVictory(tier: VictoryTier): void {
 			currentStats.bronzeVictories++;
 			break;
 	}
+
+	if (coreUnitId) {
+		if (!currentStats.coreUnitWins[coreUnitId]) {
+			currentStats.coreUnitWins[coreUnitId] = { bronze: 0, silver: 0, gold: 0 };
+		}
+		currentStats.coreUnitWins[coreUnitId][tier]++;
+		console.log(`[StatsStore] Recorded ${tier} victory for core unit: ${coreUnitId}`);
+	}
+
 	saveStats();
 	console.log(`[StatsStore] Recorded ${tier} victory`);
 }
