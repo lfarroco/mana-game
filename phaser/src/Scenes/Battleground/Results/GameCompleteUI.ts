@@ -48,11 +48,11 @@ export async function displayGameComplete(
 	// Record player statistics
 	StatsStore.incrementRunsPlayed();
 	if (wins >= GOLD_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("gold");
+		StatsStore.recordVictory("gold", playerCore?.cardId);
 	} else if (wins >= SILVER_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("silver");
+		StatsStore.recordVictory("silver", playerCore?.cardId);
 	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("bronze");
+		StatsStore.recordVictory("bronze", playerCore?.cardId);
 	}
 	// Track furthest progress in infinite mode
 	if (wins > INFINITE_MODE_THRESHOLD) {
