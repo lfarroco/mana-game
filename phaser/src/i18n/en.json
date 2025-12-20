@@ -459,5 +459,20 @@
 	"card.fate_shifter.name": "Fate Shifter",
 	"unlock_description.vanguard": "Win 10 games with any faction to unlock Vanguard.",
 	"unlock_description.veteran_paladin": "Win 5 games with Mana Crystal to unlock Veteran Paladin.",
-	"unlock_description.webert_the_old": "Win a game in Infinite Mode to unlock Webert the Old."
+	"unlock_description.webert_the_old": "Win a game in Infinite Mode to unlock Webert the Old.",
+	"unlock_description.walking_reactor": "Reach Round 20 in Infinite Mode to unlock Walking Reactor.",
+	"unlock_description.spectral_knight": "Get a Gold Victory with Mana Crystal to unlock Spectral Knight.",
+	"unlock_description.windlash_serpent": "Get a Gold Victory with Quickstone to unlock Windlash Serpent.",
+	"unlock_description.corruption_bringer": "Get a Gold Victory with Purple Crystal to unlock Corruption Bringer.",
+	"unlock_description.frontline_dasher": "Get a Gold Victory with Critical Crystal to unlock Frontline Dasher.",
+	"unlock_description.life_balancekeeper": "Get a Gold Victory with Growth Crystal to unlock Life Balancekeeper.",
+	"unlock_description.destiny_balancer": "Get a Gold Victory with Protective Crystal to unlock Destiny Balancer.",
+	"unlock_description.cadence_warden": "Win a game with any crystal to unlock Cadence Warden.",
+	"unlock_description.essence_harvester": "Win 3 games with Mana Crystal to unlock Essence Harvester.",
+	"unlock_description.plague_incubator": "Win 3 games with Purple Crystal to unlock Plague Incubator.",
+	"unlock_description.tempest_ravager": "Win 3 games with Protective Crystal to unlock Tempest Ravager.",
+	"unlock_description.paragon": "Win 5 games with any crystal to unlock Paragon.",
+	"unlock_description.vitality_channeler": "Win 3 games with Growth Crystal to unlock Vitality Channeler.",
+	"unlock_description.mend_sage": "Heal 10,000 total HP to unlock Mend Sage.",
+	"unlock_description.fate_shifter": "Win 3 games with Critical Crystal to unlock Fate Shifter."
 }
