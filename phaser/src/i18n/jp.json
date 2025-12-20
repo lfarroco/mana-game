@@ -199,7 +199,7 @@
 	"tooltip.sentence.increase_power_plural": "{target}の[color={color}]パワーを +{amount}[/color] する",
 	"tooltip.sentence.increase_power_permanent": "{target}の[color={color}]パワーを永久に {amount}[/color] 増加させる",
 	"tooltip.sentence.increase_power_permanent_plural": "{target}の[color={color}]パワーを永久に {amount}[/color] 増加させる",
-	"tooltip.sentence.decrease_power": "{target}の[color={color}]パワーを {amount}%[/color] 減少させる",
+	"tooltip.sentence.decrease_power": "{target}の[color={color}]パワーを {amount}[/color] 減少させる",
 	"tooltip.sentence.increase_critical": "{target}の[color={color}]クリティカルを +{amount}[/color] する",
 	"tooltip.sentence.increase_critical_plural": "{target}の[color={color}]クリティカルを +{amount}[/color] する",
 	"tooltip.sentence.multiply_power": "{target}の[color={color}]パワーを x{amount}[/color] 倍にする",

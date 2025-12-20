@@ -79,7 +79,7 @@ export type Effect =
 	}
 	| {
 		id: "decrease_power";
-		percentage: number;
+		amount: number;
 		permanent?: boolean;
 		targets: Targeting;
 	}
@@ -268,7 +268,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			const decreasePowerTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
 			effects.decreasePower(
 				decreasePowerTargets,
-				effect.percentage * scale,
+				effect.amount * scale,
 				effect.permanent || false,
 				sourceUnit
 			);

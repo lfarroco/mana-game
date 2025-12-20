@@ -125,16 +125,12 @@ export function isCritical(u: Unit): boolean {
 function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
 	if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id)) return;
 
-	if (["increase_power", "increase_critical"].includes(eff.id)) {
+	if (["increase_power", "decrease_power", "increase_critical"].includes(eff.id)) {
 		if ("amount" in eff) {
 			eff.amount = eff.amount * rank;
 		}
 	}
-	if (["decrease_power"].includes(eff.id)) {
-		if ("percentage" in eff) {
-			eff.percentage = eff.percentage * rank;
-		}
-	}
+
 	if (["multiply_power"].includes(eff.id)) {
 		if ("multiplier" in eff) {
 			eff.multiplier = 1 + (rank / 10);

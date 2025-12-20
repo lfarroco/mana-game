@@ -114,7 +114,7 @@ export const buildCompactEffectBlock = (effect: Effect, unitPower: number): stri
 			break;
 		}
 		case "decrease_power":
-			effectString = `[color=${color}]-${effect.percentage}% ${t("tooltip.effects.increase_power")}[/color]`;
+			effectString = `[color=${color}]-${effect.amount}${effect.permanent ? "*" : ""} ${t("tooltip.effects.increase_power")}[/color]`;
 			break;
 		case "increase_critical":
 			effectString = `[color=${color}]+${effect.amount} ${t("tooltip.effects.increase_critical")}[/color]`;
@@ -201,7 +201,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		}
 		case "decrease_power":
 			return t("tooltip.sentence.decrease_power", {
-				amount: effect.percentage.toString(),
+				amount: effect.amount.toString(),
 				target,
 				color,
 			});

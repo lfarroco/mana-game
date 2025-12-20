@@ -16,7 +16,7 @@ const randomEnemy = (count: number): Targeting => ({ id: "random_enemy", count }
 const trigger: Targeting = { id: "trigger" };
 const self: Targeting = { id: "self" };
 const increasePower = (amount: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "increase_power", "amount": amount, permanent, "targets": targets });
-const decreasePower = (percentage: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "decrease_power", percentage, permanent, "targets": targets });
+const decreasePower = (amount: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "decrease_power", amount, permanent, "targets": targets });
 const increaseCritical = (amount: number, targets: Targeting): Effect => ({ id: "increase_critical", amount, targets });
 const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reactWith: Effect): EffectReaction => ({
 	position,
