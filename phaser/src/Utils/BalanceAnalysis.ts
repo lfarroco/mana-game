@@ -112,15 +112,25 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 				return isAlly ? -hasteSlowCost : hasteSlowCost;
 			}
 		case "distribute_power":
+			// Distribute power redistributes power among targets
+			// Value is roughly equivalent to a temporary power increase
+			// Estimate: average redistribution of ~20 power per target
+			return 4 * 20 * targets;
 		case "absorb_power":
-			return 40 * targets; // Arbitrary for now? Rule doesn't specify others.
+			// Absorb power takes from enemies and gives to self
+			// This is a double swing: reduces enemy output AND increases own output
+			// @ts-ignore
+			const isPermanentAbsorb = effect.permanent || false;
+			// Estimate: average absorption of ~15 power per target
+			// Double value because it's a swing (enemy loses, you gain)
+			return (isPermanentAbsorb ? 10 : 4) * 15 * 2 * targets;
 		case "multiply_power":
 			// @ts-ignore
-			const gain = (effect.multiplier - 1) * 20; // Assuming base 20 power?
-			// Actually let's assume standard unit power 20 for this calc as it relies on raw stats? 
-			// Or maybe we shouldn't hardcode 20. But unit.power varies.
-			// Let's stick to old logic for this one but update multiplier cost.
-			// "Increase Power (temp)" is 4x. Multiply is basically temp increase.
+			const multiplier = effect.multiplier;
+			// Use actual unit power to calculate the gain
+			// This ensures the cost scales appropriately with the unit's actual stats
+			const gain = (multiplier - 1) * unitPower;
+			// Multiply is a temporary power increase, so use 4x multiplier
 			baseCost = 4 * gain;
 			// If multiplying power of enemies, it's a negative (team-harming)
 			if (!isAlly) baseCost = -baseCost;
@@ -148,26 +158,33 @@ function getTriggerFrequency(reaction: any): number {
 	else if (pos && (pos.includes("row") || pos.includes("column"))) sources = 3; // Approx 3 sources usually
 	// else 1
 
-	let freq = 1;
-	// Rule 7 estimates
-	if (effectId === "poison" || effectId === "regen") freq = 1; // once per sec? No, poison ticks.
-	// Actually poison/regen ticks every second. 
-	// But "Reaction: when poison..." triggers on APPLY or TICK? Usually apply.
-	// If it's "on take damage", poison triggers it each tick.
-	// Let's assume standard 1 trigger per 5s for "special" events, but "damage" happens often.
+	// Base frequency: how often does this effect type occur per source per 5s?
+	let baseFreq = 1;
 
-	if (effectId === "damage") freq = 2; // more common
-	if (effectId === "heal") freq = 1;
+	// Damage is the most common effect (units attack frequently)
+	if (effectId === "damage") baseFreq = 2;
+	// Heal is less common than damage
+	else if (effectId === "heal") baseFreq = 1;
+	// Poison/regen: applied less frequently but ticks every second
+	// Reactions typically trigger on application, not ticks
+	else if (effectId === "poison" || effectId === "regen") baseFreq = 1;
+	// Shield is moderately common
+	else if (effectId === "shield") baseFreq = 1;
+	// Haste/slow are less common support effects
+	else if (effectId === "haste" || effectId === "slow") baseFreq = 0.5;
+	// Critical hits are rare
+	else if (effectId === "on_crit") baseFreq = 0.4;
+	// "every_X" triggers are threshold-based, hard to estimate
+	else if (effectId && effectId.startsWith("every_")) baseFreq = 1;
+	// "all" catches all basic effects
+	else if (effectId === "all") baseFreq = 1.5;
 
-	if (effectId === "haste" || effectId === "slow") freq = 0.5;
-	if (effectId === "on_crit") freq = 0.4;
-	if (effectId && effectId.startsWith("every_")) freq = 1; // Hard to estimate, assume 1
-
-	return Math.sqrt(sources) * freq; // Diminishing returns on sources too? Or linear? 
-	// Rule 7 says "Number of valid sources". Usually linear for triggers. 
-	// If I have 8 allies taking damage, I react 8 times.
-	// But let's be conservative. 
-	return sources * freq;
+	// Use sqrt for diminishing returns on multiple sources
+	// If you have 8 allies, you don't get 8x the triggers because:
+	// 1. Not all allies act simultaneously
+	// 2. Combat is chaotic and overlapping
+	// 3. This prevents reaction spam from being too powerful
+	return Math.sqrt(sources) * baseFreq;
 }
 
 function calculateActualPower(unit: any) {
