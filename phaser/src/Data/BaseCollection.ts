@@ -1,6 +1,8 @@
 import { CardCollection, CardDefinition } from "@Models/Entities/Card";
 import { Effect, EffectId, EffectReaction, EffectSourcePosition, Targeting } from "TriggerSystem/TriggerSystem";
 
+// Refer to the Readme for instructions on how to balance units
+
 const regen: Effect = { id: "regen" };
 const damage: Effect = { id: "damage" };
 const heal: Effect = { id: "heal" };
@@ -48,12 +50,12 @@ const cards: CardDefinition[] = [
 		id: "mana_crystal",
 		pic: "blue-stone",
 		life: 500,
-		power: 20,
+		power: 35,
 		cooldown: 5200,
 		isCore: true,
 		effects: [
 			regen,
-			increasePower(8, column),
+			increasePower(10, column),
 		],
 		reactions: [
 			reaction("all", "row_allies", charge(500, self)),
@@ -63,7 +65,7 @@ const cards: CardDefinition[] = [
 		id: "critical_crystal",
 		pic: "red-stone",
 		life: 500,
-		power: 10,
+		power: 35,
 		cooldown: 5200,
 		isCore: true,
 		effects: [
@@ -78,7 +80,7 @@ const cards: CardDefinition[] = [
 		id: "protective_crystal",
 		pic: "yellow-stone",
 		life: 600,
-		power: 10,
+		power: 35,
 		cooldown: 4500,
 		isCore: true,
 		reflect: 15,
@@ -94,37 +96,37 @@ const cards: CardDefinition[] = [
 		id: "growth_crystal",
 		pic: "green-stone",
 		life: 500,
-		power: 25,
-		cooldown: 5000,
+		power: 35,
+		cooldown: 4500,
 		isCore: true,
 		effects: [
 			heal,
 			increasePower(2, column, true),
 		],
 		reactions: [
-			reaction("all", "row_allies", increasePower(1, trigger, true)),
+			reaction("all", "row_allies", increasePower(5, trigger)),
 		]
 	},
 	{
 		id: "purple_crystal",
 		pic: "purple-stone",
 		life: 500,
-		power: 20,
-		cooldown: 5500,
+		power: 40,
+		cooldown: 4700,
 		isCore: true,
 		effects: [
 			poison,
 			slow(1000, randomEnemy(1)),
 		],
 		reactions: [
-			reaction("slow", "allies", increasePower(5, trigger, true)),
+			reaction("slow", "allies", increasePower(4, trigger, true)),
 		]
 	},
 	{
 		id: "quickstone",
 		pic: "haste-stone",
 		life: 500,
-		power: 17,
+		power: 48,
 		cooldown: 5200,
 		isCore: true,
 		effects: [

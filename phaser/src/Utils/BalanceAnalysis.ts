@@ -143,10 +143,11 @@ function getTriggerFrequency(reaction: any): number {
 function calculateActualPower(unit: any) {
 	// @ts-ignore
 	const rank = unit.rank || 1;
-	// Rank 1 (Core/Bronze): 100 AP
+	// Rank 1 (Core/Bronze): 100 AP (150 if Core)
 	// Rank 2 (Silver): 200 AP
 	// Rank 3 (Gold): 300 AP
-	const targetAP = rank * 100;
+	let targetAP = rank * 100;
+	if (unit.isCore) targetAP = 150;
 
 	const C = unit.cooldown || 5000;
 	const B = 5000;
