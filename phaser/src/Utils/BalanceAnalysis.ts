@@ -5,7 +5,7 @@ const DELAY_MODIFIER = 0.9;
 const STD_UNIT_POWER = 100; // Updated from 20/40 to 100 based on new budget
 
 function getTargetsCount(targeting: any): number {
-	if (!targeting) return 0;
+	if (!targeting) return 1; // Default to single target if not specified
 	if (targeting.count !== undefined) return Math.sqrt(targeting.count);
 	const id = targeting.id;
 	if (["self", "trigger", "strongest_enemy", "weakest_enemy", "strongest_ally", "weakest_ally", "top_ally", "bottom_ally", "left_ally", "right_ally"].includes(id)) return 1;
@@ -141,6 +141,13 @@ function getTriggerFrequency(reaction: any): number {
 }
 
 function calculateActualPower(unit: any) {
+	// @ts-ignore
+	const rank = unit.rank || 1;
+	// Rank 1 (Core/Bronze): 100 AP
+	// Rank 2 (Silver): 200 AP
+	// Rank 3 (Gold): 300 AP
+	const targetAP = rank * 100;
+
 	const C = unit.cooldown || 5000;
 	const B = 5000;
 	const Power = unit.power || 0;
@@ -167,18 +174,19 @@ function calculateActualPower(unit: any) {
 		});
 	}
 	const AP = ActionPower + ReactionPower;
-	return { name: unit.id, AP, ActionPower, ReactionPower, Cooldown: C };
+	return { name: unit.id, AP, ActionPower, ReactionPower, Cooldown: C, Rank: rank, TargetAP: targetAP };
 }
 
 export const BalanceAnalysis = {
-	run: () => {
+	run: (filterNonOk: boolean = false) => {
 		const cards = BASE_COLLECTION_DATA.cards;
 
 		const results = cards.map((card: any) => {
 			const stats = calculateActualPower(card);
 			let status = "OK";
-			if (stats.AP < 90) status = "WEAK";
-			if (stats.AP > 110) status = "OP";
+			const diff = stats.AP - stats.TargetAP;
+			if (diff < -10) status = "WEAK";
+			if (diff > 10) status = "OP";
 
 			return {
 				...stats,
@@ -186,14 +194,18 @@ export const BalanceAnalysis = {
 			};
 		});
 
+		const filteredResults = filterNonOk
+			? results.filter(r => r.status !== "OK")
+			: results;
+
 		const header = "| Unit Name | AP | Act | React | Status |";
 		const separator = "|---|---|---|---|---|";
-		const rows = results.map(stats =>
+		const rows = filteredResults.map(stats =>
 			`| ${stats.name} | ${stats.AP.toFixed(1)} | ${stats.ActionPower.toFixed(1)} | ${stats.ReactionPower.toFixed(1)} | ${stats.status} |`
 		).join("\n");
 
 		console.log(`Balance Analysis Report:\n${header}\n${separator}\n${rows}`);
 
-		return results;
+		return filteredResults;
 	}
 };
