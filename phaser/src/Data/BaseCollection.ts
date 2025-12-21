@@ -48,12 +48,12 @@ const cards: CardDefinition[] = [
 		id: "mana_crystal",
 		pic: "blue-stone",
 		life: 500,
-		power: 10,
+		power: 20,
 		cooldown: 5200,
 		isCore: true,
 		effects: [
 			regen,
-			increasePower(5, column),
+			increasePower(8, column),
 		],
 		reactions: [
 			reaction("all", "row_allies", charge(500, self)),
@@ -63,7 +63,7 @@ const cards: CardDefinition[] = [
 		id: "critical_crystal",
 		pic: "red-stone",
 		life: 500,
-		power: 15,
+		power: 12,
 		cooldown: 5200,
 		isCore: true,
 		effects: [
@@ -94,12 +94,12 @@ const cards: CardDefinition[] = [
 		id: "growth_crystal",
 		pic: "green-stone",
 		life: 500,
-		power: 15,
+		power: 25,
 		cooldown: 5000,
 		isCore: true,
 		effects: [
 			heal,
-			increasePower(1, column, true),
+			increasePower(2, column, true),
 		],
 		reactions: [
 			reaction("all", "row_allies", increasePower(1, trigger, true)),
@@ -138,7 +138,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "void_witch",
 		pic: "boss_andromeda",
-		power: 20,
+		power: 40,
 		cooldown: 5400,
 		effects: [
 			poison,
@@ -149,7 +149,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "living_armor",
 		pic: "f1_tank",
-		power: 35,
+		power: 30,
 		cooldown: 5100,
 		effects: [
 			shield
@@ -161,7 +161,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "thunder_mech",
 		pic: "f3_mech",
-		power: 20,
+		power: 40,
 		cooldown: 5200,
 		effects: [
 			damage
@@ -173,7 +173,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "timebender",
 		pic: "boss_spelleater",
-		power: 15,
+		power: 35,
 		cooldown: 5000,
 		effects: [
 			shield,
@@ -184,7 +184,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "tek_monk",
 		pic: "f3_windgiver",
-		power: 20,
+		power: 40,
 		cooldown: 4600,
 		effects: [
 			damage,
@@ -195,7 +195,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "void_specter",
 		pic: "neutral_amu",
-		power: 15,
+		power: 30,
 		cooldown: 5200,
 		effects: [
 			poison
@@ -219,7 +219,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "toxic_alchemist",
 		pic: "f5_drogon",
-		power: 20,
+		power: 30,
 		cooldown: 5200,
 		effects: [
 			poison,
@@ -230,7 +230,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "venomous_viper",
 		pic: "neutral_serpenti",
-		power: 20,
+		power: 40,
 		cooldown: 5200,
 		effects: [
 			poison
@@ -242,7 +242,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "noxious_blight",
 		pic: "neutral_dreamgazer",
-		power: 30,
+		power: 40,
 		cooldown: 4300,
 		effects: [
 			poison,
@@ -253,7 +253,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "corrosive_slime",
 		pic: "f4_gloomchaser",
-		power: 20,
+		power: 30,
 		cooldown: 4300,
 		effects: [
 			poison
@@ -265,7 +265,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "infected_horror",
 		pic: "f4_horror",
-		power: 30,
+		power: 45,
 		cooldown: 5700,
 		effects: [
 			poison
@@ -277,7 +277,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "skeletal_mage",
 		pic: "neutral_bonereaper",
-		power: 40,
+		power: 35,
 		cooldown: 4900,
 		effects: [
 			poison,
@@ -289,7 +289,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "scourge_bringer",
 		pic: "f4_nocturn",
-		power: 20,
+		power: 35,
 		cooldown: 5500,
 		effects: [
 			poison,
@@ -313,7 +313,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "moss_golem",
 		pic: "neutral_golemnature",
-		power: 30,
+		power: 55,
 		cooldown: 5200,
 		effects: [
 			shield,
@@ -324,19 +324,19 @@ const cards: CardDefinition[] = [
 	{
 		id: "stone_guardian",
 		pic: "neutral_golemstone",
-		power: 20,
+		power: 10,
 		cooldown: 4500,
 		effects: [
 			shield
 		],
 		reactions: [
-			reaction("damage", "allies", increasePower(2, self, true)),
+			reaction("damage", "allies", increasePower(1, self, true)),
 		]
 	},
 	{
 		id: "shadow_assassin",
 		pic: "boss_shadowlord",
-		power: 10,
+		power: 25,
 		"critical": 20,
 		cooldown: 4300,
 		effects: [
@@ -349,7 +349,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "commander",
 		pic: "f1_shieldforger",
-		power: 30,
+		power: 45,
 		cooldown: 6000,
 		effects: [
 			shield,
@@ -361,7 +361,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "avatar_of_anger",
 		pic: "f2_chakriavatar",
-		power: 20,
+		power: 40,
 		critical: 10,
 		cooldown: 6000,
 		effects: [
@@ -373,7 +373,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "chaos_knight",
 		pic: "boss_chaosknight",
-		power: 30,
+		power: 50,
 		cooldown: 5500,
 		effects: [
 			damage,
@@ -385,7 +385,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "thunder_conduit",
 		pic: "boss_borealjuggernaut",
-		power: 30,
+		power: 55,
 		cooldown: 6200,
 		effects: [
 			damage
@@ -397,7 +397,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "arbiter",
 		pic: "f1_peacekeeper",
-		power: 20,
+		power: 30,
 		cooldown: 5200,
 		effects: [
 			shield
@@ -409,7 +409,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "bastion",
 		pic: "f1_mech",
-		power: 20,
+		power: 30,
 		cooldown: 4200,
 		effects: [
 			shield
@@ -421,7 +421,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "aegis_warden",
 		pic: "f2_demononi",
-		power: 25,
+		power: 40,
 		cooldown: 5100,
 		effects: [
 			shield
@@ -433,7 +433,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "bulwark",
 		pic: "f1_solarius",
-		power: 20,
+		power: 15,
 		cooldown: 4400,
 		effects: [
 			shield
@@ -445,7 +445,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "void_shield",
 		pic: "neutral_voidhunter",
-		power: 20,
+		power: 30,
 		cooldown: 4800,
 		effects: [
 			shield
@@ -493,7 +493,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "battle_medic",
 		pic: "neutral_healingmysticbandainamco",
-		power: 35,
+		power: 30,
 		cooldown: 3800,
 		effects: [
 			heal,
@@ -504,7 +504,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "light_priestess",
 		pic: "neutral_healingmystic",
-		power: 25,
+		power: 40,
 		cooldown: 4700,
 		effects: [
 			heal
@@ -516,7 +516,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "soul_weaver",
 		pic: "boss_soulstealer",
-		power: 15,
+		power: 35,
 		cooldown: 4500,
 		effects: [
 			heal,
@@ -538,7 +538,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "divine_spark",
 		pic: "f3_obelyskduskwind",
-		power: 35,
+		power: 25,
 		cooldown: 4200,
 		effects: [
 			heal
@@ -562,7 +562,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "harmony_monk",
 		pic: "boss_harmony",
-		power: 20,
+		power: 25,
 		cooldown: 4800,
 		effects: [
 			heal
@@ -574,7 +574,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "oracle",
 		pic: "neutral_timekeeper",
-		power: 30,
+		power: 25,
 		cooldown: 3300,
 		effects: [
 			heal
@@ -586,7 +586,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "chronomancer",
 		pic: "f4_klaxon",
-		power: 20,
+		power: 25,
 		cooldown: 3700,
 		effects: [
 			regen
@@ -609,7 +609,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "enchanted_tree",
 		pic: "f6_treant",
-		power: 10,
+		power: 25,
 		cooldown: 3300,
 		effects: [
 			regen
@@ -644,7 +644,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "eternal_phoenix",
 		pic: "f2_firewyrm",
-		power: 20,
+		power: 30,
 		cooldown: 4300,
 		effects: [
 			regen
@@ -656,7 +656,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "sand_shifter",
 		pic: "f3_sandhowler",
-		power: 30,
+		power: 50,
 		cooldown: 5800,
 		effects: [
 			regen
@@ -668,7 +668,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "crystalline_geode",
 		pic: "f6_crystalbeetle",
-		power: 40,
+		power: 25,
 		cooldown: 4200,
 		effects: [
 			regen
@@ -680,7 +680,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "blood_catalyst",
 		pic: "neutral_bloodletter",
-		power: 20,
+		power: 30,
 		cooldown: 4200,
 		effects: [
 			regen
@@ -692,7 +692,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "symbiote",
 		pic: "f5_mech",
-		power: 20,
+		power: 30,
 		cooldown: 4500,
 		effects: [
 			regen,
@@ -703,7 +703,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "time_shifter",
 		pic: "f1_sister",
-		power: 15,
+		power: 30,
 		cooldown: 6500,
 		effects: [
 			shield,
@@ -715,7 +715,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "time_magus",
 		pic: "f2_mage4winds",
-		power: 10,
+		power: 35,
 		cooldown: 4900,
 		effects: [
 			damage,
@@ -726,7 +726,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "mana_source",
 		pic: "f4_furosa",
-		power: 20,
+		power: 80,
 		cooldown: 6400,
 		rank: 2,
 		effects: [
@@ -740,7 +740,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "void_spawn",
 		pic: "f5_ankylos",
-		power: 25,
+		power: 40,
 		cooldown: 4800,
 		effects: [
 			poison,
@@ -752,7 +752,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "arcane_anomaly",
 		pic: "f6_myriad",
-		power: 15,
+		power: 35,
 		cooldown: 5500,
 		effects: [
 			damage,
@@ -763,7 +763,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "mirror_entity",
 		pic: "f3_nimbus",
-		power: 20,
+		power: 30,
 		cooldown: 4000,
 		effects: [
 			shield
@@ -775,7 +775,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "spellbreaker",
 		pic: "neutral_spelljammer",
-		power: 10,
+		power: 25,
 		cooldown: 4500,
 		effects: [
 			damage,
@@ -786,7 +786,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "duelist",
 		pic: "neutral_shuffler",
-		power: 20,
+		power: 15,
 		cooldown: 4500,
 		effects: [
 			damage
@@ -811,7 +811,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "glass_cannon",
 		pic: "f1_sinergyunit",
-		power: 30,
+		power: 25,
 		cooldown: 4100,
 		effects: [
 			damage,
@@ -835,7 +835,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "berserker",
 		pic: "neutral_beastmaster",
-		power: 40,
+		power: 15,
 		cooldown: 5200,
 		effects: [
 			damage
@@ -847,7 +847,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "gunslinger",
 		pic: "neutral_hsuku",
-		power: 20,
+		power: 40,
 		cooldown: 5000,
 		effects: [
 			damage,
@@ -871,7 +871,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "grove_guardian",
 		pic: "neutral_keeperofthevale",
-		power: 20,
+		power: 40,
 		cooldown: 4800,
 		rank: 2,
 		effects: [
@@ -885,7 +885,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "thunder_core",
 		pic: "neutral_emp",
-		power: 30,
+		power: 75,
 		rank: 2,
 		cooldown: 5800,
 		effects: [
@@ -899,7 +899,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "conduit_howler",
 		pic: "neutral_exun",
-		power: 30,
+		power: 40,
 		rank: 2,
 		cooldown: 4800,
 		effects: [
@@ -913,7 +913,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "water_elemental",
 		pic: "neutral_fog",
-		power: 30,
+		power: 40,
 		rank: 2,
 		cooldown: 5800,
 		effects: [
@@ -927,7 +927,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "master_of_thorns",
 		pic: "neutral_geargrinder",
-		power: 30,
+		power: 40,
 		rank: 2,
 		cooldown: 7800,
 		effects: [
@@ -941,7 +941,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "coral_builder",
 		pic: "neutral_giantcrab",
-		power: 30,
+		power: 40,
 		rank: 2,
 		cooldown: 5800,
 		effects: [
@@ -955,7 +955,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "toxicologist",
 		pic: "neutral_gnasher",
-		power: 40,
+		power: 120,
 		rank: 3,
 		cooldown: 6800,
 		effects: [
@@ -969,12 +969,12 @@ const cards: CardDefinition[] = [
 	{
 		id: "expedition_leader",
 		pic: "neutral_goldenhammer",
-		power: 30,
+		power: 80,
 		rank: 3,
 		cooldown: 7300,
 		effects: [
 			shield,
-			increasePower(10, column),
+			increasePower(20, column),
 		],
 		reactions: [
 			reaction("heal", "allies", increasePower(4, column))
@@ -983,7 +983,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "vanguard",
 		pic: "neutral_gauntletmaster",
-		power: 40,
+		power: 75,
 		rank: 3,
 		cooldown: 4300,
 		effects: [
@@ -997,7 +997,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "veteran_paladin",
 		pic: "neutral_goldenjusticar",
-		power: 40,
+		power: 90,
 		rank: 3,
 		cooldown: 5400,
 		effects: [
@@ -1011,7 +1011,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "webert_the_old",
 		pic: "neutral_goldenmantella",
-		power: 40,
+		power: 45,
 		rank: 3,
 		cooldown: 7400,
 		effects: [
@@ -1026,7 +1026,7 @@ const cards: CardDefinition[] = [
 		// power distributor
 		id: "walking_reactor",
 		pic: "boss_protector",
-		power: 30,
+		power: 50,
 		rank: 3,
 		locked: true,
 		cooldown: 5200,
@@ -1042,7 +1042,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "spectral_knight",
 		pic: "boss_gol",
-		power: 45,
+		power: 25,
 		rank: 3,
 		locked: true,
 		cooldown: 5200,
@@ -1058,7 +1058,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "windlash_serpent",
 		pic: "boss_serpenti",
-		power: 30,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1074,7 +1074,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "corruption_bringer",
 		pic: "boss_legion",
-		power: 45,
+		power: 130,
 		rank: 3,
 		locked: true,
 		cooldown: 5000,
@@ -1107,7 +1107,7 @@ const cards: CardDefinition[] = [
 		id: "life_balancekeeper",
 		pic: "f3_anubis",
 		life: 1500,
-		power: 45,
+		power: 100,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1123,7 +1123,7 @@ const cards: CardDefinition[] = [
 		id: "destiny_balancer",
 		pic: "f3_allomancer",
 		life: 1500,
-		power: 45,
+		power: 165,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1139,7 +1139,7 @@ const cards: CardDefinition[] = [
 		id: "cadence_warden",
 		pic: "f6_3rdgeneral",
 		life: 1500,
-		power: 45,
+		power: 70,
 		rank: 2,
 		locked: true,
 		cooldown: 4500,
@@ -1155,7 +1155,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "essence_harvester",
 		pic: "boss_malyk",
-		power: 45,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1163,14 +1163,14 @@ const cards: CardDefinition[] = [
 			poison,
 		],
 		reactions: [
-			reaction("every_100_damage", "allies", increasePower(10, allAlliesOfType("poison"))),
+			reaction("every_100_damage", "allies", increasePower(6, allAlliesOfType("poison"))),
 		],
 	},
 	//poison -> damage
 	{
 		id: "plague_incubator",
 		pic: "boss_manaman",
-		power: 45,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1178,14 +1178,14 @@ const cards: CardDefinition[] = [
 			poison,
 		],
 		reactions: [
-			reaction("every_10_poison", "allies", increasePower(10, allAlliesOfType("damage"))),
+			reaction("every_10_poison", "allies", increasePower(6, allAlliesOfType("damage"))),
 		],
 	},
 	//shield -> damage
 	{
 		id: "tempest_ravager",
 		pic: "boss_invader",
-		power: 45,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1193,14 +1193,14 @@ const cards: CardDefinition[] = [
 			regen,
 		],
 		reactions: [
-			reaction("every_100_shield", "allies", increasePower(10, allAlliesOfType("damage"))),
+			reaction("every_100_shield", "allies", increasePower(6, allAlliesOfType("damage"))),
 		],
 	},
 	//shield -> heal
 	{
 		id: "paragon",
 		pic: "boss_paragon",
-		power: 45,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1208,14 +1208,14 @@ const cards: CardDefinition[] = [
 			regen,
 		],
 		reactions: [
-			reaction("every_100_shield", "allies", increasePower(10, allAlliesOfType("heal"))),
+			reaction("every_100_shield", "allies", increasePower(6, allAlliesOfType("heal"))),
 		],
 	},
 	//heal -> regen
 	{
 		id: "vitality_channeler",
 		pic: "f2_sepukku",
-		power: 45,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 4500,
@@ -1223,14 +1223,14 @@ const cards: CardDefinition[] = [
 			heal,
 		],
 		reactions: [
-			reaction("every_100_heal", "allies", increasePower(10, allAlliesOfType("regen"))),
+			reaction("every_100_heal", "allies", increasePower(6, allAlliesOfType("regen"))),
 		],
 	},
 	//regen -> heal
 	{
 		id: "mend_sage",
 		pic: "boss_orias",
-		power: 55,
+		power: 70,
 		rank: 3,
 		locked: true,
 		cooldown: 5200,
@@ -1238,14 +1238,14 @@ const cards: CardDefinition[] = [
 			heal,
 		],
 		reactions: [
-			reaction("every_10_regen", "allies", increasePower(10, allAlliesOfType("heal"))),
+			reaction("every_10_regen", "allies", increasePower(6, allAlliesOfType("heal"))),
 		],
 	},
 	//gambler2
 	{
 		id: "fate_shifter",
 		pic: "boss_sandpanther",
-		power: 45,
+		power: 150,
 		rank: 3,
 		locked: true,
 		cooldown: 6200,

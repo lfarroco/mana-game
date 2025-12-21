@@ -23,7 +23,8 @@
         "lint": "eslint src --ext .ts,.tsx",
         "lint:fix": "eslint src --ext .ts,.tsx --fix",
         "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
-        "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\""
+        "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
+        "check-balance": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' npx ts-node -r tsconfig-paths/register src/Utils/run_balance.ts"
     },
     "repository": {
         "type": "git",
