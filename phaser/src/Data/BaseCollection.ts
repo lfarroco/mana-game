@@ -2,6 +2,7 @@ import { CardCollection, CardDefinition } from "@Models/Entities/Card";
 import { Effect, EffectId, EffectReaction, EffectSourcePosition, Targeting } from "TriggerSystem/TriggerSystem";
 
 // Refer to the Readme for instructions on how to balance units
+// When adding/updating units, run "npm run check-balance -- --filter" to check if they are balanced 
 
 const regen: Effect = { id: "regen" };
 const damage: Effect = { id: "damage" };
