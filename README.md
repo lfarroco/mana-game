@@ -211,6 +211,11 @@ This ensures support units pay the full cost of enabling engines.
 A unit is considered balanced if:
 > 90 ≤ AP ≤ 110
 
+### 16. On Scaling
+Combat is expected to last for 30 seconds.
+Effects that scale (like increasing power) are expected to yield "profit" over raw damage/heal at the 15/20 second mark.
+Permanent power increases (they last even for future combats) are expected to cost 5x more than temporary power increases.
+
 **Adjust balance by:**
 - Changing cooldown
 - Changing effect magnitude
