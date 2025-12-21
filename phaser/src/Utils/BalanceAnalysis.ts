@@ -16,6 +16,15 @@ function getTargetsCount(targeting: any): number {
 	return 1;
 }
 
+function isAllyTargeting(targeting: any): boolean {
+	if (!targeting) return true; // Default to ally if not specified
+	const id = targeting.id;
+	// Enemy targeting
+	if (["strongest_enemy", "weakest_enemy", "all_enemies", "enemies", "random_enemy"].includes(id)) return false;
+	// Ally targeting (including self)
+	return true;
+}
+
 function calculateHasteSlowCost(effect: Effect, _unitPower: number): number {
 	// @ts-ignore
 	const durationSec = (effect.duration || 0) / 1000;
@@ -57,6 +66,8 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 	const id = effect.id;
 	// @ts-ignore
 	const targets = getTargetsCount(effect.targets);
+	// @ts-ignore
+	const isAlly = isAllyTargeting(effect.targets);
 	let baseCost = 0;
 
 	switch (id) {
@@ -74,15 +85,32 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 		case "increase_power":
 			// @ts-ignore
 			baseCost = (effect.permanent ? 10 : 4) * (effect.amount || 0);
+			// If increasing power of enemies, it's a negative (team-harming)
+			if (!isAlly) baseCost = -baseCost;
+			return baseCost * targets;
+		case "decrease_power":
+			// @ts-ignore
+			baseCost = (effect.permanent ? 10 : 4) * (effect.amount || 0);
+			// If decreasing power of allies, it's a negative (team-harming)
+			if (isAlly) baseCost = -baseCost;
 			return baseCost * targets;
 		case "increase_critical":
 			// @ts-ignore
 			baseCost = 4 * (effect.amount || 0); // Rule 9: 4 * %
+			// If increasing crit of enemies, it's a negative (team-harming)
+			if (!isAlly) baseCost = -baseCost;
 			return baseCost * targets;
 		case "haste":
 		case "slow":
 		case "charge":
-			return calculateHasteSlowCost(effect, unitPower);
+			const hasteSlowCost = calculateHasteSlowCost(effect, unitPower);
+			// Haste on allies is positive, haste on enemies is negative
+			// Slow on allies is negative, slow on enemies is positive
+			if (id === "haste" || id === "charge") {
+				return isAlly ? hasteSlowCost : -hasteSlowCost;
+			} else { // slow
+				return isAlly ? -hasteSlowCost : hasteSlowCost;
+			}
 		case "distribute_power":
 		case "absorb_power":
 			return 40 * targets; // Arbitrary for now? Rule doesn't specify others.
@@ -94,6 +122,8 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			// Let's stick to old logic for this one but update multiplier cost.
 			// "Increase Power (temp)" is 4x. Multiply is basically temp increase.
 			baseCost = 4 * gain;
+			// If multiplying power of enemies, it's a negative (team-harming)
+			if (!isAlly) baseCost = -baseCost;
 			return baseCost * targets;
 		default:
 			return 0;

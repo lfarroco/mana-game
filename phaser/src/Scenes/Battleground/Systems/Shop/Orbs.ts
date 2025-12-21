@@ -96,8 +96,11 @@ const increasePowerOnTypeEffect = (type: "damage" | "heal" | "shield" | "poison"
 	}
 });
 const increaseCriticalEffect: Effect = { id: "increase_critical", amount: 5, targets: { id: "random_ally", count: 1 } };
-const decreaseEnemyPowerEffect: Effect = { id: "decrease_power", amount: 5, targets: { id: "random_enemy", count: 1 } }
-const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
+const increasePowerOnWeakest: Effect = { id: "increase_power", amount: 10, targets: { id: "weakest_ally" } }
+const decreaseRandomEnemyPowerEffect: Effect = { id: "decrease_power", amount: 10, targets: { id: "random_enemy", count: 1 } }
+const decreaseStrongestEnemyPowerEffect: Effect = { id: "decrease_power", amount: 10, targets: { id: "random_enemy", count: 1 } }
+//multiply power on spammable effects is extremelly OP 
+//const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
 const hasteEffect: Effect = { id: "haste", duration: 1000, targets: { id: "random_ally", count: 2 } }
 const slowEffect: Effect = { id: "slow", duration: 1000, targets: { id: "random_enemy", count: 2 } }
 const chargeEffect: Effect = { id: "charge", duration: 500, targets: { id: "random_ally", count: 2 } }
@@ -248,6 +251,7 @@ export const orbsIndex: Record<
 			effectId: "every_100_heal",
 			effects: [
 				pickOne([
+					increasePowerOnWeakest,
 					increasePowerOnTypeEffect("shield"),
 					increasePowerOnTypeEffect("damage"),
 					increasePowerOnTypeEffect("poison"),
@@ -329,8 +333,11 @@ export const orbsIndex: Record<
 			effectId: "re_slow",
 			effects: [
 				pickOne([
-					decreaseEnemyPowerEffect,
-					multiplyAllyPowerEffect
+					decreaseRandomEnemyPowerEffect,
+					decreaseStrongestEnemyPowerEffect,
+					increasePowerOnTypeEffect("poison"),
+					increasePowerOnTypeEffect("shield"),
+
 				])
 			]
 		}
@@ -353,8 +360,10 @@ export const orbsIndex: Record<
 			effectId: "re_hasted",
 			effects: [
 				pickOne([
-					multiplyAllyPowerEffect,
-					increaseCriticalEffect
+					increaseCriticalEffect,
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("heal"),
 				])
 			]
 		}
@@ -377,8 +386,9 @@ export const orbsIndex: Record<
 			effectId: "on_over_heal",
 			effects: [
 				pickOne([
-					multiplyAllyPowerEffect,
-					increaseCriticalEffect
+					increaseCriticalEffect,
+					hasteEffect,
+					increasePowerOnWeakest
 				])
 			]
 		}
@@ -401,8 +411,12 @@ export const orbsIndex: Record<
 			effectId: "on_crit",
 			effects: [
 				pickOne([
-					multiplyAllyPowerEffect,
-					decreaseEnemyPowerEffect
+					decreaseRandomEnemyPowerEffect,
+					decreaseStrongestEnemyPowerEffect,
+					increasePowerOnTypeEffect("damage"),
+					increasePowerOnTypeEffect("shield"),
+					increasePowerOnTypeEffect("heal"),
+
 				])
 			]
 		}
