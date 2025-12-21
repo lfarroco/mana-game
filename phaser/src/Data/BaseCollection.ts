@@ -801,11 +801,11 @@ const cards: CardDefinition[] = [
 	{
 		id: "gambler",
 		pic: "neutral_gambler",
-		power: 10,
+		power: 30,
 		cooldown: 4200,
 		effects: [
 			shield,
-			increaseCritical(5, column),
+			increaseCritical(10, column),
 		],
 		reactions: [
 			reaction("all", "row_allies", increaseCritical(5, randomEnemy(1))),
@@ -1077,7 +1077,7 @@ const cards: CardDefinition[] = [
 	{
 		id: "corruption_bringer",
 		pic: "boss_legion",
-		power: 135,
+		power: 80,
 		rank: 3,
 		locked: true,
 		cooldown: 5000,
@@ -1086,7 +1086,7 @@ const cards: CardDefinition[] = [
 			slow(2000, randomEnemy(2))
 		],
 		reactions: [
-			reaction("re_slow", "allies", decreasePower(2, strongestEnemy))
+			reaction("re_slow", "allies", decreasePower(10, strongestEnemy))
 		]
 	},
 	//on_crit
@@ -1126,14 +1126,14 @@ const cards: CardDefinition[] = [
 		id: "destiny_balancer",
 		pic: "f3_allomancer",
 		life: 1500,
-		power: 170,
+		power: 10,
 		rank: 3,
 		locked: true,
-		cooldown: 4600,
+		cooldown: 8600,
 		effects: [
 			shield,
-			decreasePower(5, strongestAlly),
-			multiplyPower(1.1, weakestAlly)
+			decreasePower(100, strongestAlly),
+			multiplyPower(1.5, weakestAlly)
 		],
 		reactions: []
 	},
@@ -1248,14 +1248,14 @@ const cards: CardDefinition[] = [
 	{
 		id: "fate_shifter",
 		pic: "boss_sandpanther",
-		power: 175,
+		power: 10,
 		rank: 3,
 		locked: true,
-		cooldown: 6200,
+		cooldown: 9200,
 		effects: [
 			damage,
-			multiplyPower(1.1, right),
-			multiplyPower(1.2, weakestEnemy)
+			multiplyPower(1.5, right),
+			multiplyPower(1.5, weakestEnemy)
 		],
 		reactions: [],
 	},
