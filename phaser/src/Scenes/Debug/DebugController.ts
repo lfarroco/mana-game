@@ -224,7 +224,7 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 				refresh: 0,
 				hasted: 0,
 				slowed: 0,
-				isCore: false
+				isCore: false,
 			},
 			{
 				id: "test-unit-2",
@@ -246,7 +246,7 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 				refresh: 0,
 				hasted: 0,
 				slowed: 0,
-				isCore: false
+				isCore: false,
 			},
 			{
 				id: "test-unit-3",
@@ -268,7 +268,7 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 				refresh: 0,
 				hasted: 0,
 				slowed: 0,
-				isCore: false
+				isCore: false,
 			}
 		];
 	}
@@ -308,4 +308,10 @@ export function unlockUnit(unitId: string): string {
 export function lockUnit(unitId: string): string {
 	StatsStore.lockUnit(unitId);
 	return `Unit ${unitId} locked.`;
+}
+
+export async function runBalanceAnalysis() {
+	const { BalanceAnalysis } = await import("@Utils/BalanceAnalysis");
+	BalanceAnalysis.run();
+	return "Balance analysis executed. Check console for results.";
 }
