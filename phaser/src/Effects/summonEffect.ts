@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { delay } from "@Utils/animation";
 import { images } from "../assets";
+import { getOption } from "@Models/OptionsStore";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
@@ -25,19 +26,24 @@ export async function summonEffect(scene: Phaser.Scene, { x, y }: { x: number; y
 		EMIT_ZONE_QUANTITY,
 	} = SUMMON_EFFECT_CONFIG;
 
+	const particlesOption = getOption("particles");
+	let multiplier = 1;
+	if (particlesOption === "low") multiplier = 0.5;
+	else if (particlesOption === "high") multiplier = 2;
+
 	const summonEffect = scene.add.particles(x, y, images.light_pillar.key, {
 		lifespan: LIFESPAN,
 		scale: { start: SCALE_START, end: SCALE_END },
 		alpha: { start: 1, end: 0 },
 		speed: { min: SPEED_MIN, max: SPEED_MAX },
-		quantity: PARTICLE_QUANTITY,
+		quantity: Math.floor(PARTICLE_QUANTITY * multiplier),
 		frequency: LIFESPAN / 10, // Emit all at once
 		rotate: { min: 0, max: 360 }, // Random rotation for variety
 		blendMode: "ADD",
 		emitZone: {
 			type: "edge",
 			source: new Phaser.Geom.Circle(0, 0, EMIT_ZONE_RADIUS),
-			quantity: EMIT_ZONE_QUANTITY,
+			quantity: Math.floor(EMIT_ZONE_QUANTITY * multiplier),
 			yoyo: false,
 		},
 	});
