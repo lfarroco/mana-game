@@ -125,6 +125,37 @@ Trigger frequency (`T`) must be estimated based on:
 - Number of valid sources
 - Trigger conditions (“any”, “damage”, “poison”, etc.)
 
+
+### 7.1. Trigger Frequency Implementation
+
+The trigger frequency `T` is calculated as:
+
+> T = √(number of sources) × base frequency
+
+**Diminishing Returns**: The square root scaling prevents reaction spam from being overpowered. With 8 allies, you get √8 ≈ 2.83× triggers, not 8×.
+
+**Base Frequencies** (per source per 5 seconds):
+
+| Effect Type | Base Frequency | Reasoning |
+| :--- | :--- | :--- |
+| damage | 2.0 | Most common effect (units attack frequently) |
+| all | 1.5 | Catches multiple basic effect types |
+| heal, shield, poison, regen | 1.0 | Standard frequency |
+| haste, slow | 0.5 | Less common support effects |
+| on_crit | 0.4 | Rare (depends on critical chance) |
+| every_X | 1.0 | Threshold-based, hard to estimate |
+
+**Source Counts** (approximate):
+
+| Position | Sources |
+| :--- | :--- |
+| all | 16 (both teams) |
+| allies | 8 |
+| enemies | 9 |
+| row_allies, column_allies | 3 |
+| directional (top, bottom, left, right) | 1 |
+| self | 1 |
+
 ### 8. Actual Power (AP)
 
 The unit’s Actual Power is:
@@ -140,9 +171,29 @@ This value is compared against the 100-point budget.
 | Shield | 1.6 × Power |
 | Poison / Regen | 2 × Power |
 | Haste / Slow (base) | 15 |
-| Increase Power (temporary) | 4 × Power |
-| Increase Power (permanent) | 10 × Power |
+| Increase Power (temporary) | 4 × Amount |
+| Increase Power (permanent) | 10 × Amount |
+| Decrease Power (temporary) | 4 × Amount |
+| Decrease Power (permanent) | 10 × Amount |
+| Multiply Power | 4 × (Multiplier - 1) × Unit Power |
 | Critical Chance | 4 × % |
+| Distribute Power | 4 × 20 (estimated avg redistribution) |
+| Absorb Power (temporary) | 4 × 15 × 2 (double swing) |
+| Absorb Power (permanent) | 10 × 15 × 2 (double swing) |
+
+### 9.1. Team-Harming Effects
+
+Some effects can harm your own team or benefit enemies. These are valued as **negative costs**:
+
+- **Increase Power on enemies** → negative value
+- **Decrease Power on allies** → negative value  
+- **Increase Critical on enemies** → negative value
+- **Multiply Power on enemies** → negative value
+- **Haste on enemies** → negative value
+- **Slow on allies** → negative value
+
+Units with significant team-harming effects will have negative or very low AP scores. This is intentional for units designed with high-risk mechanics or flavor-based drawbacks.
+
 
 ### 10. Targeting Multipliers (Adjusted)
 
