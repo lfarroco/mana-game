@@ -173,9 +173,6 @@ function calculateActualPower(unit: any) {
 export const BalanceAnalysis = {
 	run: () => {
 		const cards = BASE_COLLECTION_DATA.cards;
-		console.log("Running Balance Analysis...");
-		console.log("Unit Name".padEnd(20) + " | " + "AP".padEnd(6) + " | " + "Act".padEnd(6) + " | " + "React".padEnd(6) + " | " + "Status");
-		console.log("-".repeat(60));
 
 		const results = cards.map((card: any) => {
 			const stats = calculateActualPower(card);
@@ -189,15 +186,13 @@ export const BalanceAnalysis = {
 			};
 		});
 
-		results.forEach(stats => {
-			console.log(
-				stats.name.substring(0, 19).padEnd(20) + " | " +
-				stats.AP.toFixed(1).padEnd(6) + " | " +
-				stats.ActionPower.toFixed(1).padEnd(6) + " | " +
-				stats.ReactionPower.toFixed(1).padEnd(6) + " | " +
-				stats.status
-			);
-		});
+		const header = "| Unit Name | AP | Act | React | Status |";
+		const separator = "|---|---|---|---|---|";
+		const rows = results.map(stats =>
+			`| ${stats.name} | ${stats.AP.toFixed(1)} | ${stats.ActionPower.toFixed(1)} | ${stats.ReactionPower.toFixed(1)} | ${stats.status} |`
+		).join("\n");
+
+		console.log(`Balance Analysis Report:\n${header}\n${separator}\n${rows}`);
 
 		return results;
 	}
