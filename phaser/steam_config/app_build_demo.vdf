@@ -11,7 +11,7 @@
 	"depots"
 	{
 		"4233282" "depot_build_demo_win.vdf"
-		"4233284" "depot_build_demo_mac.vdf"
-		"4233283" "depot_build_demo_linux.vdf"
+		"4233283" "depot_build_demo_mac.vdf"
+		"4233284" "depot_build_demo_linux.vdf"
 	}
 }
