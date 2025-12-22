@@ -122,42 +122,46 @@ export function isCritical(u: Unit): boolean {
 	return calculateCritical(u).isCritical;
 }
 
-function upgradeEffect(rank: number, eff: TriggerSystem.Effect) {
+function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
 	if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id)) return;
 
 	if (["increase_power", "decrease_power", "increase_critical"].includes(eff.id)) {
 		if ("amount" in eff) {
-			eff.amount = eff.amount * rank;
+			eff.amount = eff.amount * rankMultiplier;
 		}
 	}
 
 	if (["multiply_power"].includes(eff.id)) {
 		if ("multiplier" in eff) {
-			eff.multiplier = 1 + (rank / 10);
+			eff.multiplier = 1 + (rankMultiplier / 10);
 		}
 	}
 
 	if ("targets" in eff) {
 		if ("count" in eff.targets) {
-			eff.targets.count = rank;
+			eff.targets.count = rankMultiplier;
 		}
 	}
 
 	if (["charge"].includes(eff.id)) {
 		if ("duration" in eff) {
-			eff.duration = eff.duration * rank;
+			eff.duration = eff.duration * rankMultiplier;
 		}
 	}
 }
 
 export function upgradeUnitEffects(unit: Unit) {
+	const source = getCardDefinition(unit.cardId);
+	const startingRank = source.rank || 1;
+	const rankMultiplier = unit.rank - startingRank + 1;
+
 	unit.effects.forEach((eff) => {
-		upgradeEffect(unit.rank, eff);
+		upgradeEffect(rankMultiplier, eff);
 	});
 
 	unit.reactions.forEach((r) => {
 		r.effects.forEach((eff) => {
-			upgradeEffect(unit.rank, eff);
+			upgradeEffect(rankMultiplier, eff);
 		});
 	});
 }
@@ -175,8 +179,16 @@ export function upgradeUnitData(unit: Unit) {
 
 	unit.rank += 1;
 
-	if (source.power)
-		unit.power = (source.power * unit.rank) + unit.bonusPower;
+	if (source.power) {
+		// Calculate power based on incremental ranks from the starting rank
+		// For a unit starting at rank 2 with power 100:
+		// - At rank 2: 100 * 1 = 100
+		// - At rank 3: 100 * 2 = 200
+		// - At rank 4: 100 * 3 = 300
+		const startingRank = source.rank || 1;
+		const rankMultiplier = unit.rank - startingRank + 1;
+		unit.power = (source.power * rankMultiplier) + unit.bonusPower;
+	}
 
 	resetUnitEffectsToCardDefinition(unit, source);
 	upgradeUnitEffects(unit);
@@ -185,7 +197,9 @@ export function upgradeUnitData(unit: Unit) {
 export function resetUnitStats(unit: Unit) {
 	const source = getCardDefinition(unit.cardId);
 
-	unit.power = ((source.power || 0) * unit.rank) + unit.bonusPower;
+	const startingRank = source.rank || 1;
+	const rankMultiplier = unit.rank - startingRank + 1;
+	unit.power = ((source.power || 0) * rankMultiplier) + unit.bonusPower;
 	unit.critical = source.critical || 0;
 	unit.shield = 0;
 	unit.charge = 0;
