@@ -123,21 +123,14 @@ export const buildCompactEffectBlock = (effect: Effect, unitPower: number): stri
 			effectString = `[color=${color}]x${effect.multiplier} ${t("tooltip.effects.increase_power")}[/color]`;
 			break;
 		case "distribute_power":
-			// Distribute power sentence is complex to compact without new key. 
-			// En.json: "gives 50% of its [color={color}]power[/color] to {target}"
-			// Compact idea: "50% Power -> Target"
 			effectString = `50% [color=${color}]${t("tooltip.effects.increase_power")}[/color]`;
 			break;
 		case "absorb_power":
-			// En.json: "absorbs 50% [color={color}]power[/color] from {target}"
 			effectString = `Absorb 50% [color=${color}]${t("tooltip.effects.increase_power")}[/color]`;
 			break;
 		case "on_crit":
 		case "on_battle_start":
 		case "on_over_heal":
-			// These are triggers, usually not effects in this list unless they are nested? 
-			// Actually they appear in main effect list sometimes? No, they are usually keys in Reaction.
-			// But type definition allows them. 
 			return null;
 		default:
 			return null;
@@ -249,14 +242,6 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 };
 
 const getPositionDescription = (position: string): string => {
-	//const key = `tooltip.sentence.position.${position}`;
-	// Fallback to "all" if not found is not safe, but 'all', 'allies', 'enemies' map directly.
-	// We matched keys in en.json to values in TriggerSystem (presumably).
-	// TriggerSystem positions: all, allies, enemies, row_allies, column_allies, top_ally, etc.
-	// My keys in en.json: ally, enemy, row, column...
-	// Wait, I used "row" in en.json but the code passes "row_allies".
-	// I need to map "row_allies" -> "row" or update en.json keys or update this mapping.
-	// I'll update the mapping here for safety.
 
 	switch (position) {
 		case "all":
