@@ -242,14 +242,14 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration * scale, (target: Unit) =>
-				processReactions(target, { id: "re_hasted" })
+			effects.applyHasteLogicIO(hasteTargets, sourceUnit, effect.duration * scale, (_target: Unit) =>
+				processReactions(sourceUnit, { id: "re_hasted" })
 			);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration * scale, (target: Unit) =>
-				processReactions(target, { id: "re_slow" })
+			effects.applySlowLogicIO(sourceUnit, slowTargets, effect.duration * scale, (_target: Unit) =>
+				processReactions(sourceUnit, { id: "re_slow" })
 			);
 			break;
 		case "charge":
