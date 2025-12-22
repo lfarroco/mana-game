@@ -26,22 +26,18 @@ function calculateUpgradesForRound(round: number): number {
 }
 
 function distributeUpgrades(units: Unit[], upgradeCount: number): void {
-	// Cap at maximum possible upgrades: 9 units × 3 upgrades = 27 max
 	const maxPossibleUpgrades = units.length * 3;
 	const cappedUpgradeCount = Math.min(upgradeCount, maxPossibleUpgrades);
 
-	// Batch upgrades: calculate how many ranks each unit should gain
 	const upgradesPerUnit = Math.floor(cappedUpgradeCount / units.length);
 	const remainder = cappedUpgradeCount % units.length;
 
-	// Apply bulk upgrades to all units
 	units.forEach(unit => {
 		for (let i = 0; i < upgradesPerUnit && unit.rank < 4; i++) {
 			upgradeUnitData(unit);
 		}
 	});
 
-	// Distribute remainder upgrades randomly
 	for (let i = 0; i < remainder; i++) {
 		const unit = pickOne(units);
 		if (unit.rank < 4) {
@@ -50,21 +46,13 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 	}
 }
 
-function distributePowerPoints(units: Unit[], powerPoints: number): void {
-	// Batch power distribution: divide points evenly, then distribute remainder
-	const pointsPerUnit = Math.floor(powerPoints / units.length);
-	const remainder = powerPoints % units.length;
+function distributePowerPoints(units: Unit[], powerPoints: number, multiplier: number = 1): void {
+	const scaledPowerPoints = Math.floor(powerPoints * multiplier);
+	const pointsPerUnit = Math.floor(scaledPowerPoints / units.length);
 
-	// Apply bulk power to all units
-	units.forEach(unit => {
+	units.forEach((unit) => {
 		unit.power += pointsPerUnit;
 	});
-
-	// Distribute remainder points to random units
-	for (let i = 0; i < Math.min(remainder, units.length * 100); i++) {
-		const unit = pickOne(units);
-		unit.power += 1;
-	}
 }
 
 function getRandomEmptyPosition(occupiedPositions: Set<string>): { x: number; y: number } {
@@ -133,13 +121,12 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const powerPoints = round * 10;
 	const state = getState();
 	if (state.gameData.player.wins >= 10) {
-		// Cap multiplier at 1000x to prevent integer overflow and performance issues
-		const multiplier = Math.min(Math.pow(1.2, round - 10), 1000);
+		const multiplier = Math.pow(1.2, round - 10);
+
 		coreUnit.life = Math.floor(coreUnit.life * multiplier);
 		coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);
 
-		const infinitePowerPoints = Math.floor(powerPoints * multiplier);
-		distributePowerPoints(units, infinitePowerPoints);
+		distributePowerPoints(units, powerPoints, multiplier);
 	} else {
 		distributePowerPoints(units, powerPoints);
 	}
