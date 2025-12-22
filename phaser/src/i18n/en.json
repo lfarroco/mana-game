@@ -166,6 +166,7 @@
 	"tooltip.effects.any": "Any Ability",
 	"tooltip.over_time": "over 10s",
 	"tooltip.targets.self": "Self",
+	"tooltip.targets.allies": "Allies",
 	"tooltip.targets.random_ally": "Random ally",
 	"tooltip.targets.random_allies": "{count} random allies",
 	"tooltip.targets.random_enemy": "Random enemy",
