@@ -4,1166 +4,1082 @@
 	<dict>
 		<key>frames</key>
 		<dict>
-			<key>f2_firewyrm_attack_000.png</key>
+			<key>f3_insightcaster_attack_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,333},{110,110}}</string>
+				<string>{{505,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_001.png</key>
+			<key>f3_insightcaster_attack_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,666},{110,110}}</string>
+				<string>{{505,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_002.png</key>
+			<key>f3_insightcaster_attack_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,555},{110,110}}</string>
+				<string>{{505,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_003.png</key>
+			<key>f3_insightcaster_attack_003.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,444},{110,110}}</string>
+				<string>{{505,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_004.png</key>
+			<key>f3_insightcaster_attack_004.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,333},{110,110}}</string>
+				<string>{{505,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_005.png</key>
+			<key>f3_insightcaster_attack_005.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,222},{110,110}}</string>
+				<string>{{404,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_006.png</key>
+			<key>f3_insightcaster_attack_006.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,111},{110,110}}</string>
+				<string>{{404,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_007.png</key>
+			<key>f3_insightcaster_attack_007.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,0},{110,110}}</string>
+				<string>{{404,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_008.png</key>
+			<key>f3_insightcaster_attack_008.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,888},{110,110}}</string>
+				<string>{{404,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_009.png</key>
+			<key>f3_insightcaster_attack_009.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,777},{110,110}}</string>
+				<string>{{404,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_010.png</key>
+			<key>f3_insightcaster_attack_010.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,666},{110,110}}</string>
+				<string>{{404,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_011.png</key>
+			<key>f3_insightcaster_attack_011.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,555},{110,110}}</string>
+				<string>{{404,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_012.png</key>
+			<key>f3_insightcaster_attack_012.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,444},{110,110}}</string>
+				<string>{{404,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_013.png</key>
+			<key>f3_insightcaster_attack_013.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,333},{110,110}}</string>
+				<string>{{404,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_014.png</key>
+			<key>f3_insightcaster_attack_014.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,222},{110,110}}</string>
+				<string>{{404,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_015.png</key>
+			<key>f3_insightcaster_attack_015.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,111},{110,110}}</string>
+				<string>{{303,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_016.png</key>
+			<key>f3_insightcaster_attack_016.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{777,0},{110,110}}</string>
+				<string>{{303,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_017.png</key>
+			<key>f3_insightcaster_attack_017.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,888},{110,110}}</string>
+				<string>{{303,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_018.png</key>
+			<key>f3_insightcaster_attack_018.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,777},{110,110}}</string>
+				<string>{{303,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_019.png</key>
+			<key>f3_insightcaster_attack_019.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,666},{110,110}}</string>
+				<string>{{303,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_020.png</key>
+			<key>f3_insightcaster_attack_020.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,555},{110,110}}</string>
+				<string>{{303,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_021.png</key>
+			<key>f3_insightcaster_breathing_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,444},{110,110}}</string>
+				<string>{{303,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_022.png</key>
+			<key>f3_insightcaster_breathing_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,333},{110,110}}</string>
+				<string>{{303,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_023.png</key>
+			<key>f3_insightcaster_breathing_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,222},{110,110}}</string>
+				<string>{{303,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_024.png</key>
+			<key>f3_insightcaster_breathing_003.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,111},{110,110}}</string>
+				<string>{{303,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_025.png</key>
+			<key>f3_insightcaster_breathing_004.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{666,0},{110,110}}</string>
+				<string>{{303,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_attack_026.png</key>
+			<key>f3_insightcaster_breathing_005.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,888},{110,110}}</string>
+				<string>{{303,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_000.png</key>
+			<key>f3_insightcaster_breathing_006.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,777},{110,110}}</string>
+				<string>{{606,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_001.png</key>
+			<key>f3_insightcaster_breathing_007.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,666},{110,110}}</string>
+				<string>{{303,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_002.png</key>
+			<key>f3_insightcaster_breathing_008.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,555},{110,110}}</string>
+				<string>{{303,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_003.png</key>
+			<key>f3_insightcaster_breathing_009.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,444},{110,110}}</string>
+				<string>{{303,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_004.png</key>
+			<key>f3_insightcaster_breathing_010.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,333},{110,110}}</string>
+				<string>{{303,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_005.png</key>
+			<key>f3_insightcaster_breathing_011.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,222},{110,110}}</string>
+				<string>{{303,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_006.png</key>
+			<key>f3_insightcaster_breathing_012.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,111},{110,110}}</string>
+				<string>{{606,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_007.png</key>
+			<key>f3_insightcaster_breathing_013.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{555,0},{110,110}}</string>
+				<string>{{303,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_008.png</key>
+			<key>f3_insightcaster_death_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,888},{110,110}}</string>
+				<string>{{505,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_009.png</key>
+			<key>f3_insightcaster_death_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,777},{110,110}}</string>
+				<string>{{202,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_010.png</key>
+			<key>f3_insightcaster_death_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,666},{110,110}}</string>
+				<string>{{202,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_011.png</key>
+			<key>f3_insightcaster_death_003.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,555},{110,110}}</string>
+				<string>{{202,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_012.png</key>
+			<key>f3_insightcaster_death_004.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,444},{110,110}}</string>
+				<string>{{202,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_breathing_013.png</key>
+			<key>f3_insightcaster_death_005.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{888,777},{110,110}}</string>
+				<string>{{202,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_000.png</key>
+			<key>f3_insightcaster_death_006.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,222},{110,110}}</string>
+				<string>{{202,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_001.png</key>
+			<key>f3_insightcaster_death_007.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,111},{110,110}}</string>
+				<string>{{202,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_002.png</key>
+			<key>f3_insightcaster_death_008.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,0},{110,110}}</string>
+				<string>{{202,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_003.png</key>
+			<key>f3_insightcaster_death_009.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,888},{110,110}}</string>
+				<string>{{202,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_004.png</key>
+			<key>f3_insightcaster_death_010.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,777},{110,110}}</string>
+				<string>{{202,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_005.png</key>
+			<key>f3_insightcaster_death_011.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,666},{110,110}}</string>
+				<string>{{101,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_006.png</key>
+			<key>f3_insightcaster_death_012.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,555},{110,110}}</string>
+				<string>{{101,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_007.png</key>
+			<key>f3_insightcaster_death_013.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,444},{110,110}}</string>
+				<string>{{101,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_008.png</key>
+			<key>f3_insightcaster_death_014.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,333},{110,110}}</string>
+				<string>{{101,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_009.png</key>
+			<key>f3_insightcaster_death_015.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,222},{110,110}}</string>
+				<string>{{101,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_010.png</key>
+			<key>f3_insightcaster_death_016.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,111},{110,110}}</string>
+				<string>{{101,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_011.png</key>
+			<key>f3_insightcaster_hit_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{333,0},{110,110}}</string>
+				<string>{{505,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_012.png</key>
+			<key>f3_insightcaster_hit_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,888},{110,110}}</string>
+				<string>{{202,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_013.png</key>
+			<key>f3_insightcaster_hit_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,777},{110,110}}</string>
+				<string>{{202,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_014.png</key>
+			<key>f3_insightcaster_idle_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,666},{110,110}}</string>
+				<string>{{101,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_015.png</key>
+			<key>f3_insightcaster_idle_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,555},{110,110}}</string>
+				<string>{{101,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_016.png</key>
+			<key>f3_insightcaster_idle_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,444},{110,110}}</string>
+				<string>{{101,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_017.png</key>
+			<key>f3_insightcaster_idle_003.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,333},{110,110}}</string>
+				<string>{{101,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_018.png</key>
+			<key>f3_insightcaster_idle_004.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,222},{110,110}}</string>
+				<string>{{0,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_019.png</key>
+			<key>f3_insightcaster_idle_005.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,111},{110,110}}</string>
+				<string>{{0,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_death_020.png</key>
+			<key>f3_insightcaster_idle_006.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{222,0},{110,110}}</string>
+				<string>{{0,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_hit_000.png</key>
+			<key>f3_insightcaster_idle_007.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,222},{110,110}}</string>
+				<string>{{0,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_hit_001.png</key>
+			<key>f3_insightcaster_idle_008.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,111},{110,110}}</string>
+				<string>{{0,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_hit_002.png</key>
+			<key>f3_insightcaster_idle_009.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{444,0},{110,110}}</string>
+				<string>{{0,404},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_000.png</key>
+			<key>f3_insightcaster_idle_010.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,888},{110,110}}</string>
+				<string>{{0,303},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_001.png</key>
+			<key>f3_insightcaster_idle_011.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,777},{110,110}}</string>
+				<string>{{0,202},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_002.png</key>
+			<key>f3_insightcaster_idle_012.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,666},{110,110}}</string>
+				<string>{{0,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_003.png</key>
+			<key>f3_insightcaster_idle_013.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,555},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_004.png</key>
+			<key>f3_insightcaster_run_000.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,444},{110,110}}</string>
+				<string>{{303,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_005.png</key>
+			<key>f3_insightcaster_run_001.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,333},{110,110}}</string>
+				<string>{{606,101},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_006.png</key>
+			<key>f3_insightcaster_run_002.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,222},{110,110}}</string>
+				<string>{{606,0},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_007.png</key>
+			<key>f3_insightcaster_run_003.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,111},{110,110}}</string>
+				<string>{{505,909},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_008.png</key>
+			<key>f3_insightcaster_run_004.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{111,0},{110,110}}</string>
+				<string>{{505,808},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_idle_009.png</key>
+			<key>f3_insightcaster_run_005.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,888},{110,110}}</string>
+				<string>{{505,707},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_run_000.png</key>
+			<key>f3_insightcaster_run_006.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,777},{110,110}}</string>
+				<string>{{505,606},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
-			<key>f2_firewyrm_run_001.png</key>
+			<key>f3_insightcaster_run_007.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,666},{110,110}}</string>
+				<string>{{505,505},{100,100}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
 				<false/>
 				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
+				<string>{{0,0},{100,100}}</string>
 				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_002.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,555},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_003.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,444},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_004.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,333},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_005.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,222},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_006.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,111},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
-			</dict>
-
-			<key>f2_firewyrm_run_007.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false/>
-				<key>sourceColorRect</key>
-				<string>{{0,0},{110,110}}</string>
-				<key>sourceSize</key>
-				<string>{110,110}</string>
+				<string>{100,100}</string>
 			</dict>
 
 		</dict>
@@ -1175,7 +1091,7 @@
 			<key>size</key>
 			<string>{1024,1024}</string>
 			<key>textureFileName</key>
-			<string>f2_firewyrm.png</string>
+			<string>f3_insightcaster.png</string>
 			</dict>
 		</dict>
 </plist>
