@@ -86,6 +86,7 @@ export type Effect =
 	| {
 		id: "multiply_power";
 		multiplier: number;
+		baseMultiplier: number;
 		targets: Targeting;
 	}
 	| {

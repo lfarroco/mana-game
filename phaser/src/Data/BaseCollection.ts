@@ -28,7 +28,7 @@ const reaction = (effect: EffectId | "all", position: EffectSourcePosition, reac
 		reactWith
 	]
 })
-const multiplyPower = (multiplier: number, targets: Targeting): Effect => ({ id: "multiply_power", multiplier, targets });
+const multiplyPower = (multiplier: number, targets: Targeting): Effect => ({ id: "multiply_power", multiplier, baseMultiplier: multiplier, targets });
 
 const left: Targeting = { id: "left_ally" };
 const right: Targeting = { id: "right_ally" };
