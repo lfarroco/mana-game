@@ -506,7 +506,7 @@ const cards: CardDefinition[] = [
 	},
 	{
 		id: "light_priestess",
-		pic: "neutral_healingmystic",
+		pic: "f3_duskweaver",
 		power: 40,
 		cooldown: 4700,
 		effects: [
@@ -646,7 +646,7 @@ const cards: CardDefinition[] = [
 	},
 	{
 		id: "eternal_phoenix",
-		pic: "f2_firewyrm",
+		pic: "neutral_zurael",
 		power: 30,
 		cooldown: 4300,
 		effects: [
@@ -1242,6 +1242,66 @@ const cards: CardDefinition[] = [
 		],
 		reactions: [
 			reaction("every_10_regen", "allies", increasePower(5, allAlliesOfType("heal"))),
+		],
+	},
+	//damage -> damage
+	{
+		id: "warbringer",
+		pic: "boss_solfist",
+		power: 80,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			damage,
+		],
+		reactions: [
+			reaction("every_100_damage", "allies", increasePower(5, allAlliesOfType("damage"))),
+		],
+	},
+	//shield -> shield
+	{
+		id: "aegis_archon",
+		pic: "f3_tier2general",
+		power: 105,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			shield,
+		],
+		reactions: [
+			reaction("every_100_shield", "allies", increasePower(5, allAlliesOfType("shield"))),
+		],
+	},
+	//poison -> poison
+	{
+		id: "plague_sovereign",
+		pic: "f4_abomination",
+		power: 80,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			poison,
+		],
+		reactions: [
+			reaction("every_10_poison", "allies", increasePower(5, allAlliesOfType("poison"))),
+		],
+	},
+	//regen -> regen
+	{
+		id: "life_weaver",
+		pic: "f3_insightcaster",
+		power: 80,
+		rank: 3,
+		locked: true,
+		cooldown: 5200,
+		effects: [
+			regen,
+		],
+		reactions: [
+			reaction("every_10_regen", "allies", increasePower(5, allAlliesOfType("regen"))),
 		],
 	},
 	//gambler2

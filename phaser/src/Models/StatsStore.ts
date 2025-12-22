@@ -98,6 +98,14 @@ function checkUnlockConditions() {
 
 	if (currentStats.totalHealed >= 10000) unlockUnit("mend_sage");
 
+	if (currentStats.totalDamage >= 10000) unlockUnit("warbringer");
+
+	if (currentStats.totalShield >= 10000) unlockUnit("aegis_archon");
+
+	if (currentStats.totalPoison >= 1000) unlockUnit("plague_sovereign");
+
+	if (currentStats.totalRegen >= 1000) unlockUnit("life_weaver");
+
 	if (getWinsOrBetter("critical_crystal", "bronze") >= 3) unlockUnit("fate_shifter");
 }
 
