@@ -1,6 +1,6 @@
 "DepotBuildConfig"
 {
-	"DepotID" "4233283"
+	"DepotID" "4233284"
 	"ContentRoot"	"../dist-electron/linux-unpacked"
 
 	"FileMapping"
