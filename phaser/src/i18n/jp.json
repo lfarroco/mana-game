@@ -482,7 +482,7 @@
 	"unlock_description.life_weaver": "合計10,000リジェネを付与すると、ライフウィーバーがアンロックされます。",
 	"unlock_description.fate_shifter": "クリティカルクリスタルで3回勝利すると、フェイトシフターがアンロックされます。",
 	"demo.complete.title": "デモ完了！",
-	"demo.complete.message": "デモ版の制限である5勝に到達しました。全ての機能をアンロックして冒険を続けるには、フルゲームをご購入ください！",
+	"demo.complete.message": "デモ版の制限である5勝に到達しました。\n全ての機能をアンロックして冒険を続けるには、フルゲームをご購入ください！",
 	"demo.buy_full_game": "フルゲームを購入",
 	"demo.locked_feature": "この機能はデモ版では利用できません。"
 }
