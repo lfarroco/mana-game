@@ -26,9 +26,20 @@ function calculateUpgradesForRound(round: number): number {
 }
 
 function distributeUpgrades(units: Unit[], upgradeCount: number): void {
-	for (let i = 0; i < upgradeCount; i++) {
-		const unit = pickOne(units);
+	// Batch upgrades: calculate how many ranks each unit should gain
+	const upgradesPerUnit = Math.floor(upgradeCount / units.length);
+	const remainder = upgradeCount % units.length;
 
+	// Apply bulk upgrades to all units
+	units.forEach(unit => {
+		for (let i = 0; i < upgradesPerUnit && unit.rank < 4; i++) {
+			upgradeUnitData(unit);
+		}
+	});
+
+	// Distribute remainder upgrades randomly
+	for (let i = 0; i < remainder; i++) {
+		const unit = pickOne(units);
 		if (unit.rank < 4) {
 			upgradeUnitData(unit);
 		}
@@ -36,7 +47,17 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 }
 
 function distributePowerPoints(units: Unit[], powerPoints: number): void {
-	for (let i = 0; i < powerPoints; i++) {
+	// Batch power distribution: divide points evenly, then distribute remainder
+	const pointsPerUnit = Math.floor(powerPoints / units.length);
+	const remainder = powerPoints % units.length;
+
+	// Apply bulk power to all units
+	units.forEach(unit => {
+		unit.power += pointsPerUnit;
+	});
+
+	// Distribute remainder points to random units
+	for (let i = 0; i < Math.min(remainder, units.length * 100); i++) {
 		const unit = pickOne(units);
 		unit.power += 1;
 	}
@@ -108,7 +129,8 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const powerPoints = round * 10;
 	const state = getState();
 	if (state.gameData.player.wins >= 10) {
-		const multiplier = Math.pow(1.2, round - 10);
+		// Cap multiplier at 1000x to prevent integer overflow and performance issues
+		const multiplier = Math.min(Math.pow(1.2, round - 10), 1000);
 		coreUnit.life = Math.floor(coreUnit.life * multiplier);
 		coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);
 
