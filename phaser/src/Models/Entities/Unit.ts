@@ -133,7 +133,10 @@ function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
 
 	if (["multiply_power"].includes(eff.id)) {
 		if ("multiplier" in eff) {
-			eff.multiplier = 1 + (rankMultiplier / 10);
+			// Scale by adding the base increment per rank level
+			// Example: base 1.5 → increment 0.5 → rank 2: 1.5 + 0.5 = 2.0
+			const baseIncrement = eff.baseMultiplier - 1;
+			eff.multiplier = eff.baseMultiplier + (baseIncrement * (rankMultiplier - 1));
 		}
 	}
 
