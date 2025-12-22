@@ -456,6 +456,10 @@
 	"card.paragon.name": "パラゴン",
 	"card.vitality_channeler.name": "バイタリティチャネラー",
 	"card.mend_sage.name": "メンドセージ",
+	"card.warbringer.name": "ウォーブリンガー",
+	"card.aegis_archon.name": "イージスアルコン",
+	"card.plague_sovereign.name": "プレイグソブリン",
+	"card.life_weaver.name": "ライフウィーバー",
 	"card.fate_shifter.name": "フェイトシフター",
 	"unlock_description.webert_the_old": "インフィニットモードで1回勝利すると、ウェバート・ザ・オールドがアンロックされます。",
 	"unlock_description.walking_reactor": "インフィニットモードでラウンド20に到達すると、ウォーキングリアクターがアンロックされます。",
@@ -472,5 +476,9 @@
 	"unlock_description.paragon": "どのクリスタルでも5回勝利すると、パラゴンがアンロックされます。",
 	"unlock_description.vitality_channeler": "成長クリスタルで3回勝利すると、バイタリティチャネラーがアンロックされます。",
 	"unlock_description.mend_sage": "合計10,000 HPを回復すると、メンドセージがアンロックされます。",
+	"unlock_description.warbringer": "合計10,000ダメージを与えると、ウォーブリンガーがアンロックされます。",
+	"unlock_description.aegis_archon": "合計10,000シールドを付与すると、イージスアルコンがアンロックされます。",
+	"unlock_description.plague_sovereign": "合計10,000毒ダメージを与えると、プレイグソブリンがアンロックされます。",
+	"unlock_description.life_weaver": "合計10,000リジェネを付与すると、ライフウィーバーがアンロックされます。",
 	"unlock_description.fate_shifter": "クリティカルクリスタルで3回勝利すると、フェイトシフターがアンロックされます。"
 }
