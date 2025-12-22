@@ -19,5 +19,8 @@ module.exports = {
 		"^@PhaserIO$": "<rootDir>/src/phaser.io.ts",
 		"^@Components/(.*)$": "<rootDir>/src/Components/$1",
 		"^@Shaders/(.*)$": "<rootDir>/src/Shaders/$1",
+		"^TriggerSystem/(.*)$": "<rootDir>/src/TriggerSystem/$1",
+		"^@i18n/(.*)$": "<rootDir>/src/i18n/$1",
+		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 	},
 };
