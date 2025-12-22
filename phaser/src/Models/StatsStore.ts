@@ -1,5 +1,6 @@
 import { RunStats } from "@Models/State";
 import { storage } from "../Storage";
+import { GAME_CONFIG } from "../config";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
 
@@ -44,6 +45,11 @@ const defaultStats: PlayerStats = {
 let currentStats: PlayerStats = { ...defaultStats };
 
 function checkUnlockConditions() {
+	// Demo mode: no unlocks allowed
+	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
+		console.log('[StatsStore] Unlocks disabled in demo mode');
+		return;
+	}
 
 	const getWins = (coreId: string, tier: VictoryTier) => {
 		return currentStats.coreUnitWins[coreId]?.[tier] || 0;
@@ -241,6 +247,12 @@ export function save(): void {
 }
 
 export function unlockUnit(unitId: string): void {
+	// Demo mode: no unlocks allowed
+	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
+		console.log(`[StatsStore] Cannot unlock ${unitId} in demo mode`);
+		return;
+	}
+
 	if (!currentStats.unlockedUnits.includes(unitId) && !currentStats.pendingUnlockUnits.includes(unitId)) {
 		currentStats.pendingUnlockUnits.push(unitId);
 		saveStats();

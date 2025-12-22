@@ -481,5 +481,9 @@
 	"unlock_description.aegis_archon": "Grant 10,000 total shield to unlock Aegis Archon.",
 	"unlock_description.plague_sovereign": "Deal 10,000 total poison to unlock Plague Sovereign.",
 	"unlock_description.life_weaver": "Grant 10,000 total regen to unlock Life Weaver.",
-	"unlock_description.fate_shifter": "Win 3 games with Critical Crystal to unlock Fate Shifter."
+	"unlock_description.fate_shifter": "Win 3 games with Critical Crystal to unlock Fate Shifter.",
+	"demo.complete.title": "Demo Complete!",
+	"demo.complete.message": "You've reached the demo limit of 5 victories.\nPurchase the full game to unlock all features and continue your journey!",
+	"demo.buy_full_game": "BUY FULL GAME",
+	"demo.locked_feature": "This feature is not available in the demo version."
 }

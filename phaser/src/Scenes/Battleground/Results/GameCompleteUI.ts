@@ -22,6 +22,7 @@ import * as StatsStore from "@Models/StatsStore";
 import { t } from "@i18n/i18n";
 import { createRunStatsPanel } from "@UI/RunStatsPanel";
 import { MIDDLE_SCREEN_Y, SCENE_KEYS, titleTextConfig } from "@Constants/constants";
+import { IS_DEMO, GAME_CONFIG } from "../../../config";
 
 export async function displayGameComplete(
 	wins: number,
@@ -62,8 +63,14 @@ export async function displayGameComplete(
 
 	StatsStore.save();
 
+	// Check if demo limit reached
+	const isDemoComplete = IS_DEMO && wins >= GAME_CONFIG.MAX_VICTORIES;
+
 	let subtitleText = END_GAME_MESSAGES.default;
-	if (isGameOver && wins > INFINITE_MODE_THRESHOLD) {
+	if (isDemoComplete) {
+		// Demo complete message
+		subtitleText = t("demo.complete.message");
+	} else if (isGameOver && wins > INFINITE_MODE_THRESHOLD) {
 		subtitleText = END_GAME_MESSAGES.infinite(wins);
 	} else if (wins >= GOLD_VICTORY_THRESHOLD) {
 		subtitleText = END_GAME_MESSAGES.gold;
@@ -73,7 +80,29 @@ export async function displayGameComplete(
 		subtitleText = END_GAME_MESSAGES.bronze;
 	}
 
-	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
+	const buttonDefinitions: Array<[string, () => Promise<void>]> = [];
+
+	// Buy Full Game button for demo when limit reached - make it first/primary
+	if (isDemoComplete) {
+		buttonDefinitions.push([
+			t("demo.buy_full_game"),
+			async () => {
+				if ((window as any).openExternalURL) {
+					(window as any).openExternalURL(
+						"https://store.steampowered.com/app/3757600/Mana_Battle"
+					);
+				} else {
+					window.open(
+						"https://store.steampowered.com/app/3757600/Mana_Battle",
+						"_blank"
+					);
+				}
+			},
+		]);
+	}
+
+	// Standard buttons
+	buttonDefinitions.push(
 		[
 			t("results.buttons.new_run"),
 			async () => {
@@ -87,10 +116,11 @@ export async function displayGameComplete(
 				resetState();
 				getCurrentScene().game.scene.start(SCENE_KEYS.TITLE);
 			},
-		],
-	];
+		]
+	);
 
-	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver) {
+	// Infinite mode button - disabled in demo
+	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver && !IS_DEMO) {
 		buttonDefinitions.push([
 			t("results.buttons.infinite_mode"),
 			async () => {
@@ -134,7 +164,7 @@ export async function displayGameComplete(
 			(text) => io.Centralize(text),
 		],
 		[
-			() => io.Title1(message).setColor(color),
+			() => io.Title1(isDemoComplete ? t("demo.complete.title") : message).setColor(color),
 			(title) => io.SetPosition(title, vec2(panelX, panelY - 150)),
 			(title) => io.Centralize(title),
 		],
