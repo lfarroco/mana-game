@@ -3,6 +3,8 @@
  * Handles unlocking achievements based on game completion with different cores
  */
 
+import { GAME_CONFIG } from "../config";
+
 // Declare window.steamworks type for TypeScript
 declare const window: Window & {
 	steamworks?: {
@@ -115,6 +117,12 @@ export function checkVictoryAchievements(
 	console.log(
 		`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`
 	);
+
+	// Demo mode: achievements disabled
+	if (!GAME_CONFIG.ENABLE_ACHIEVEMENTS) {
+		console.log("[Achievement] Achievements disabled in demo mode");
+		return;
+	}
 
 	// Determine victory tier
 	const tier = getVictoryTier(wins);

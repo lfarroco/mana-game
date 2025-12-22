@@ -8,6 +8,7 @@ import { displayGameComplete } from "./GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
 import { WINS_TO_WIN_GAME, RESULTS_PANEL } from "./ResultsConfig";
 import { createBackgroundOverlay, BackgroundOverlay } from "@Components/BackgroundOverlay";
+import { GAME_CONFIG } from "../../../config";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
@@ -45,7 +46,9 @@ function determineGameOutcome(
 	newWins: number,
 	expectedNewLives: number
 ): { gameWon: boolean; gameOver: boolean } {
-	const gameWon = resultType === "victory" && newWins === WINS_TO_WIN_GAME;
+	// In demo mode, treat reaching MAX_VICTORIES as "game won" to trigger demo complete screen
+	const demoComplete = resultType === "victory" && newWins >= GAME_CONFIG.MAX_VICTORIES;
+	const gameWon = resultType === "victory" && (newWins === WINS_TO_WIN_GAME || demoComplete);
 	const gameOver = resultType === "defeat" && expectedNewLives <= 0;
 	return { gameWon, gameOver };
 }
