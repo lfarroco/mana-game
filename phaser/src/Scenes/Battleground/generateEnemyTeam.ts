@@ -26,9 +26,13 @@ function calculateUpgradesForRound(round: number): number {
 }
 
 function distributeUpgrades(units: Unit[], upgradeCount: number): void {
+	// Cap at maximum possible upgrades: 9 units × 3 upgrades = 27 max
+	const maxPossibleUpgrades = units.length * 3;
+	const cappedUpgradeCount = Math.min(upgradeCount, maxPossibleUpgrades);
+
 	// Batch upgrades: calculate how many ranks each unit should gain
-	const upgradesPerUnit = Math.floor(upgradeCount / units.length);
-	const remainder = upgradeCount % units.length;
+	const upgradesPerUnit = Math.floor(cappedUpgradeCount / units.length);
+	const remainder = cappedUpgradeCount % units.length;
 
 	// Apply bulk upgrades to all units
 	units.forEach(unit => {
