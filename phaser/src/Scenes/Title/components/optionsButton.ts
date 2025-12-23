@@ -6,6 +6,7 @@ import { openOptions } from "../effects/openOptions";
 import { openCredits } from "./CreditsPanel";
 import { openStats } from "./StatsPanel";
 import * as io from "@PhaserIO";
+import { getCloudsBg } from "./cloudsBg";
 
 let submenuContainer: Container | null = null;
 let mainButtonsContainer: Container | null = null;
@@ -34,7 +35,14 @@ function showOptionsSubmenu() {
 		vec2(constants.MIDDLE_SCREEN_X, baseY),
 		() => {
 			hideOptionsSubmenu();
-			openOptions();
+
+			if (1 > 2)
+				openOptions();
+
+			const bg = getCloudsBg();
+			if (bg) {
+				bg.tweenToPreset('sunset', 2000, 'Quad.easeInOut');
+			}
 		}
 	);
 
