@@ -324,6 +324,52 @@ export class CloudsBackground {
 	}
 
 	/**
+	 * Tween the time scale (animation speed)
+	 * @param targetTimeScale Target time scale
+	 * @param duration Duration in ms
+	 * @param ease Phaser ease string
+	 */
+	public tweenTimeScale(
+		targetTimeScale: number,
+		duration: number = 2000,
+		ease: string | Function = 'Linear'
+	): void {
+		this.scene.tweens.addCounter({
+			from: this.timeScale,
+			to: targetTimeScale,
+			duration: duration,
+			ease: ease,
+			onUpdate: (tween) => {
+				this.timeScale = tween.getValue();
+				this.shader.setUniform("timeScale.value", this.timeScale);
+			}
+		});
+	}
+
+	/**
+	 * Tween the alpha (opacity)
+	 * @param targetAlpha Target alpha (0-1)
+	 * @param duration Duration in ms
+	 * @param ease Phaser ease string
+	 */
+	public tweenAlpha(
+		targetAlpha: number,
+		duration: number = 2000,
+		ease: string | Function = 'Linear'
+	): void {
+		this.scene.tweens.addCounter({
+			from: this.alpha,
+			to: targetAlpha,
+			duration: duration,
+			ease: ease,
+			onUpdate: (tween) => {
+				this.alpha = tween.getValue();
+				(this.shader as any).alpha = this.alpha;
+			}
+		});
+	}
+
+	/**
 	 * Get the underlying Phaser shader object
 	 */
 	public getShader(): Phaser.GameObjects.Shader {
