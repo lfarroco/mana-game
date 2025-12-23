@@ -39,6 +39,8 @@ export class CloudsBackground {
 	private timeScale: number;
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
+	private renderColors: IColorPreset;
+	private currentTween: Phaser.Tweens.Tween | null = null;
 	constructor(config: CloudsBackgroundConfig = {}) {
 		const scene = getCurrentScene();
 		this.scene = scene;
@@ -66,7 +68,9 @@ export class CloudsBackground {
 	}
 
 	private createShader(): void {
-		const colors = this.getCurrentColors();
+		// Initialize renderColors with a deep copy of current settings
+		this.renderColors = JSON.parse(JSON.stringify(this.getCurrentColors()));
+		const colors = this.renderColors;
 
 		// Create the shader
 		const backgroundShader = new Phaser.Display.BaseShader(
@@ -113,6 +117,9 @@ export class CloudsBackground {
 
 		this.currentPresetIndex = (this.currentPresetIndex + 1) % this.presetKeys.length;
 		const colors = this.getCurrentColors();
+
+		// Update renderColors to match the new preset instantly
+		this.renderColors = JSON.parse(JSON.stringify(colors));
 
 		this.shader.setUniform("color1.value", colors.color1);
 		this.shader.setUniform("color2.value", colors.color2);
@@ -241,6 +248,79 @@ export class CloudsBackground {
 	public updateParticleQuality(): void {
 		const qualityValue = this.getParticleQualityValue();
 		this.shader.setUniform("particleQuality.value", qualityValue);
+	}
+
+	/**
+	 * Tween the shader colors to a new target
+	 * @param targetColors The target colors to tween to
+	 * @param duration Duration in ms
+	 * @param ease Phaser ease string (default: 'Linear')
+	 */
+	public tweenColors(
+		targetColors: IColorPreset,
+		duration: number = 2000,
+		ease: string | Function = 'Linear'
+	): void {
+		// Stop any existing tween
+		if (this.currentTween) {
+			this.currentTween.stop();
+		}
+
+		// Capture start values (deep copy to avoid reference issues)
+		const startColors = JSON.parse(JSON.stringify(this.renderColors));
+
+		this.currentTween = this.scene.tweens.addCounter({
+			from: 0,
+			to: 1,
+			duration: duration,
+			ease: ease,
+			onUpdate: (tween) => {
+				const progress = tween.getValue();
+
+				// Helper to interpolate vectors
+				const lerpVector = (
+					start: Phaser.Types.Math.Vector3Like,
+					end: Phaser.Types.Math.Vector3Like
+				) => ({
+					x: (start.x || 0) + ((end.x || 0) - (start.x || 0)) * progress,
+					y: (start.y || 0) + ((end.y || 0) - (start.y || 0)) * progress,
+					z: (start.z || 0) + ((end.z || 0) - (start.z || 0)) * progress
+				});
+
+				// Interpolate all 5 colors
+				this.renderColors.color1 = lerpVector(startColors.color1, targetColors.color1);
+				this.renderColors.color2 = lerpVector(startColors.color2, targetColors.color2);
+				this.renderColors.color3 = lerpVector(startColors.color3, targetColors.color3);
+				this.renderColors.color4 = lerpVector(startColors.color4, targetColors.color4);
+				this.renderColors.color5 = lerpVector(startColors.color5, targetColors.color5);
+
+				// Update Uniforms
+				this.shader.setUniform("color1.value", this.renderColors.color1);
+				this.shader.setUniform("color2.value", this.renderColors.color2);
+				this.shader.setUniform("color3.value", this.renderColors.color3);
+				this.shader.setUniform("color4.value", this.renderColors.color4);
+				this.shader.setUniform("color5.value", this.renderColors.color5);
+			},
+			onComplete: () => {
+				this.currentTween = null;
+			}
+		});
+	}
+
+	/**
+	 * Tween to a specific named preset
+	 */
+	public tweenToPreset(
+		presetName: keyof typeof colorPresets,
+		duration: number = 2000,
+		ease: string = 'Linear'
+	): void {
+		const targetPreset = colorPresets[presetName];
+		if (targetPreset) {
+			this.tweenColors(targetPreset, duration, ease);
+		} else {
+			console.warn(`Preset ${presetName} not found`);
+		}
 	}
 
 	/**
