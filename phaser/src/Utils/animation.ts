@@ -13,9 +13,6 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	const { targets, onComplete: userOnCompleteCallback, ...restOfConfig } = attributes;
 
 	if (targets.length === 0 || !targets[0]) {
-		console.warn(
-			"Tween: No valid targets provided or first target is null/undefined. Aborting tween."
-		);
 		return Promise.resolve();
 	}
 

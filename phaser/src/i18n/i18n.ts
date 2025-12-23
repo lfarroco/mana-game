@@ -33,8 +33,8 @@ export function initialize() {
 			}
 		}
 		translations = locales[currentLocale];
-	} catch (e) {
-		console.warn('Failed to load locale:', e);
+	} catch {
+		// console.warn('Failed to load locale:', e);
 	}
 }
 
@@ -46,11 +46,11 @@ export function setLocale(locale: string) {
 		translations = locales[locale];
 		try {
 			localStorage.setItem(STORAGE_KEY, locale);
-		} catch (e) {
-			console.warn('Failed to save locale to localStorage:', e);
+		} catch (_e) {
+			// console.warn('Failed to save locale to localStorage:', e);
 		}
 	} else {
-		console.warn(`Locale ${locale} not found, falling back to ${currentLocale}`);
+		// console.warn(`Locale ${locale} not found, falling back to ${currentLocale}`);
 	}
 }
 

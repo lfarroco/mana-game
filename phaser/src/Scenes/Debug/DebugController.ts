@@ -93,9 +93,10 @@ export function discardUnitFromBoard(unitId: string): string {
 	return `Discard request processed for unit ${unitId}. State and visuals will update asynchronously`;
 }
 
-export function isShopVisible(): boolean {
-	return true; // TODO: implement me
-}
+export let isShopVisible = (): boolean => {
+	const ShopPanel = require("../Battleground/Systems/Shop/ShopPanel");
+	return !!(ShopPanel.container && ShopPanel.container.visible);
+};
 
 export function getShopItemCost(): number {
 	return constants.SHOP_ITEM_PURCHASE_COST;
