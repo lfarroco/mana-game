@@ -2,6 +2,7 @@
     "name": "mana_battle",
     "version": "0.2.1",
     "main": "electron/main.js",
+    "type": "module",
     "scripts": {
         "dev": "node log.js dev && webpack-dev-server --config webpack/config.dev.js --open",
         "dev:demo": "IS_DEMO=true node log.js dev && IS_DEMO=true webpack-dev-server --config webpack/config.dev.js --open",
