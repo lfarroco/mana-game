@@ -1,0 +1,234 @@
+# Unit Power & Cost Calculation System
+
+## 1. Game Structure
+
+- Each player has a 3×3 board (9 slots).
+- Each player has a Crystal unit.
+- Units cannot target other units with damage/heal/etc.
+- All damage, healing, shielding, poison, and regeneration target Crystals only.
+- Units may apply haste or slow to other units.
+- Units may have reactions that trigger based on other units' actions.
+    - Reactions trigger 200 ms after the event that caused them.
+- Units act continuously during combat.
+
+## 2. Unit Budget
+
+- Every unit has a total budget of 100 points.
+- The unit's strength is evaluated as **Actual Power (AP)**, measured in points per 5 seconds.
+- A unit is balanced if:
+  > Actual Power ≈ 100 ± 10
+
+## 3. Cooldown System
+
+- **Base cooldown** = 5 seconds.
+- A unit with cooldown `C` uses its actions every `C` seconds.
+- Faster cooldowns increase output proportionally.
+- Slower cooldowns reduce output proportionally.
+
+## 4. Action vs Reaction Budget Separation
+
+The budget is conceptually divided into:
+
+- **Actions** (things the unit does on its own turn)
+- **Reactions** (things the unit does in response to events)
+
+This separation exists because:
+- Reactions are always "armed" regardless of cooldown.
+- A very strong reaction with a long cooldown is still dangerous.
+- Actions can safely scale with cooldown; reactions cannot.
+
+## 5. Time Normalization (Critical Adjustment)
+
+All effects are normalized to a **5-second window**.
+
+This ensures:
+- Fast and slow units are directly comparable.
+- Haste and slow can be evaluated mathematically.
+- Reactions are priced based on how often they actually occur.
+
+## 6. Action Power Calculation
+
+**Definitions**
+- `C` = unit cooldown (seconds)
+- `A` = total value of the unit's action effects per use
+- `B` = base cooldown = 5 seconds
+
+**Formula**
+> Action Power per 5s = A × (B / C)
+
+This represents how much value the unit produces through actions over 5 seconds.
+
+## 7. Reaction Power Calculation (Adjusted)
+
+Reactions are priced based on expected value over time, not just effect strength.
+
+**Definitions**
+- `R` = reaction value per trigger (effect cost × targeting × discounts)
+- `T` = expected number of triggers per 5 seconds
+- `D` = reaction delay modifier (0.9 due to 200 ms delay)
+
+**Formula**
+> Reaction Power per 5s = R × T × D
+
+**Important adjustment:**
+Trigger frequency (`T`) must be estimated based on:
+- Source unit cooldowns
+- Number of valid sources
+- Trigger conditions ("any", "damage", "poison", etc.)
+
+
+### 7.1. Trigger Frequency Implementation
+
+The trigger frequency `T` is calculated as:
+
+> T = √(number of sources) × base frequency
+
+**Diminishing Returns**: The square root scaling prevents reaction spam from being overpowered. With 8 allies, you get √8 ≈ 2.83× triggers, not 8×.
+
+**Base Frequencies** (per source per 5 seconds):
+
+| Effect Type | Base Frequency | Reasoning |
+| :--- | :--- | :--- |
+| damage | 2.0 | Most common effect (units attack frequently) |
+| all | 1.5 | Catches multiple basic effect types |
+| heal, shield, poison, regen | 1.0 | Standard frequency |
+| haste, slow | 0.5 | Less common support effects |
+| on_crit | 0.4 | Rare (depends on critical chance) |
+| every_X | 1.0 | Threshold-based, hard to estimate |
+
+**Source Counts** (approximate):
+
+| Position | Sources |
+| :--- | :--- |
+| all | 16 (both teams) |
+| allies | 8 |
+| enemies | 9 |
+| row_allies, column_allies | 3 |
+| directional (top, bottom, left, right) | 1 |
+| self | 1 |
+
+## 8. Actual Power (AP)
+
+The unit's Actual Power is:
+> AP = Action Power per 5s + Reaction Power per 5s
+
+This value is compared against the 100-point budget.
+
+## 9. Effect Cost Baselines
+
+| Core effects | Base Cost |
+| :--- | :--- |
+| Damage / Heal | 2 × Power |
+| Shield | 1.6 × Power |
+| Poison / Regen | 2 × Power |
+| Haste / Slow (base) | 15 |
+| Increase Power (temporary) | 4 × Amount |
+| Increase Power (permanent) | 10 × Amount |
+| Decrease Power (temporary) | 4 × Amount |
+| Decrease Power (permanent) | 10 × Amount |
+| Multiply Power | 4 × (Multiplier - 1) × Unit Power |
+| Critical Chance | 4 × % |
+| Distribute Power | 4 × 20 (estimated avg redistribution) |
+| Absorb Power (temporary) | 4 × 15 × 2 (double swing) |
+| Absorb Power (permanent) | 10 × 15 × 2 (double swing) |
+
+### 9.1. Team-Harming Effects
+
+Some effects can harm your own team or benefit enemies. These are valued as **negative costs**:
+
+- **Increase Power on enemies** → negative value
+- **Decrease Power on allies** → negative value  
+- **Increase Critical on enemies** → negative value
+- **Multiply Power on enemies** → negative value
+- **Haste on enemies** → negative value
+- **Slow on allies** → negative value
+
+Units with significant team-harming effects will have negative or very low AP scores. This is intentional for units designed with high-risk mechanics or flavor-based drawbacks.
+
+
+## 10. Targeting Multipliers (Adjusted)
+
+Targeting increases effect cost based on effective number of targets, with diminishing returns.
+
+| Target Type | Raw Targets | Effective Targets | Target Multiplier |
+| :--- | :--- | :--- | :--- |
+| Directional | 1 | 1 | 1 |
+| Row / Column | 2–3 | √n | √2 ≈ 1.41 / √3 ≈ 1.73 |
+| All Allies | up to 8 | √n | √8 ≈ 2.83 |
+| All Enemies | up to 9 | √n | 3 |
+
+> Target Multiplier = √(number of possible targets)
+
+This prevents wide targeting from scaling linearly.
+
+## 11. Conditional Discounts
+
+Effects restricted by condition (e.g., "only poison", "only damage") receive a 30% cost reduction:
+
+> Conditional Modifier = 0.7
+
+## 12. Haste and Slow
+
+Haste and slow are evaluated by how much extra or reduced action output they cause.
+
+**Definitions**
+- `s` = speed multiplier (2 = haste, 0.5 = slow)
+- `d` = duration (seconds)
+- `Cₜ` = target cooldown
+- `Aₜ` = target action value per use
+
+**Extra cooldown progress**
+> Extra Progress = (s − 1) × d
+
+**Extra (or lost) actions**
+> Extra Actions = Extra Progress / Cₜ
+
+**Actual Power change**
+> ΔAP = Aₜ × Extra Actions
+
+- Positive ΔAP = haste benefit
+- Negative ΔAP = slow penalty
+
+This value is multiplied by:
+- Number of affected targets
+- Expected applications per 5 seconds
+
+## 13. Pricing Reactions that Apply Haste or Slow
+
+When a reaction applies haste or slow:
+1. Calculate ΔAP for each expected target.
+2. Multiply by expected trigger frequency per 5 seconds.
+3. Attribute the resulting power to the source unit's reaction budget.
+
+This ensures support units pay the full cost of enabling engines.
+
+## 14. Effect Slots
+
+- Each unit has **3 total effect slots** (actions + reactions).
+- Every unit must have at least one basic action.
+- Slot limits are a hard cap to prevent over-stacking efficiency.
+
+## 15. Final Validation Rule
+
+A unit is considered balanced if:
+> 90 ≤ AP ≤ 110
+
+## 16. On Scaling
+Combat is expected to last for 30 seconds.
+Effects that scale (like increasing power) are expected to yield "profit" over raw damage/heal at the 15/20 second mark.
+Permanent power increases (they last even for future combats) are expected to cost 5x more than temporary power increases.
+
+**Adjust balance by:**
+- Changing cooldown
+- Changing effect magnitude
+- Changing trigger frequency
+- Changing targeting scope
+
+## Summary
+
+This system:
+- Converts all effects into expected value per 5 seconds
+- Prevents reaction abuse by pricing trigger frequency
+- Makes haste and slow mathematically precise
+- Allows easy spreadsheet modeling and AI evaluation
+- Keeps all units comparable under a single Actual Power metric
