@@ -1,9 +1,9 @@
 import { storage } from "../../Storage";
 import { getState } from "@Models/State";
-import { RNGManager } from "@Utils/Random";
+import { getSeed } from "@Utils/Random";
 
 export function saveGameData() {
 	const { gameData } = getState();
-	gameData.seed = RNGManager.getInstance().getSeed();
+	gameData.seed = getSeed();
 	storage.setItem("gameData", JSON.stringify(gameData));
 }

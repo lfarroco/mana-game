@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import { energySlotFragmentShader } from "../../Shaders/EnergySlotShader";
 import { getCurrentScene } from "@Models/State";
-import { RNGManager } from "../../Utils/Random";
+import { value } from "../../Utils/Random";
 
 export interface EnergySlotConfig {
 	size?: number;
@@ -38,7 +38,7 @@ export class EnergySlot {
 
 	private createShader(x: number, y: number): void {
 		// Calculate animation phase offset - randomized for variety
-		const animationPhaseOffset = RNGManager.getInstance().value() * Math.PI * 2;
+		const animationPhaseOffset = value() * Math.PI * 2;
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(
