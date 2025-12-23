@@ -24,6 +24,13 @@ export class RNGManager {
 	}
 
 	/**
+	 * Returns the current seed.
+	 */
+	public getSeed(): number {
+		return this.seed;
+	}
+
+	/**
 	 * Returns a pseudo-random number between 0 (inclusive) and 1 (exclusive).
 	 * Implements the Mulberry32 algorithm.
 	 */
