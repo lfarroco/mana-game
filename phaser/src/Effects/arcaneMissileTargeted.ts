@@ -87,6 +87,7 @@ export async function arcaneMissileTargeted(
 	}
 
 	const points = beam.points;
+	beam.destroy();
 	const totalSegments = points.length - 1;
 	const amplitudeForSegments = amplitude * 2.2;
 	const travelTime = duration * speedMultiplier;
@@ -132,10 +133,12 @@ export async function arcaneMissileTargeted(
 
 	await delay(duration * speedMultiplier);
 
+	const impactLifespan = impact.lifespan || 300;
+
 	const impactParticles = scene.add.particles(target.x, target.y, images.white_dot.key, {
 		speed: impact.speed || 200,
 		tint: impact.colors || [0x00ffff, 0x87ceeb],
-		lifespan: impact.lifespan || 300,
+		lifespan: impactLifespan,
 		alpha: { start: impact.alpha || 0.4, end: 0 },
 		scale: { start: impact.scale || 2, end: 0 },
 		blendMode: "ADD",
@@ -143,15 +146,8 @@ export async function arcaneMissileTargeted(
 
 	onHit();
 
-	await delay(200);
+	await delay(impactLifespan);
 
-	impactParticles.stop();
+	impactParticles.destroy();
 
-	// TODO: make the animation return the elements
-	// if we add them to the parent container, they will be
-	// cleaned up
-	// await delay(2000);
-
-	// beam.destroy();
-	// impactParticles.destroy();
 }
