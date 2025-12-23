@@ -1,7 +1,6 @@
 import * as ShopPanel from "./ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
-import { pickRandom } from "../../../../utils";
 import { getState } from "@Models/State";
 import { orbsIndex } from "./Orbs";
 import * as io from "@PhaserIO";
@@ -10,11 +9,10 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 import { t } from "@i18n/i18n";
 
-export async function openUpgradeCorePhase(titleText: string, availableEncounters: string[]): Promise<void> {
+export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-		const encounters = pickRandom(availableEncounters, 3);
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();

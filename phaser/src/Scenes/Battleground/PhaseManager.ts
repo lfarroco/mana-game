@@ -11,6 +11,7 @@ import { clearRegen } from "./Systems/RegenSystem";
 import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
+import { pickRandom } from "utils";
 
 export const loopPhases: string[] = [
 	"encounter",
@@ -68,7 +69,7 @@ export async function startPhase(phase: string) {
 		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"effectCardShop.title",
-				[
+				pickRandom([
 					"on_100_damage_effect",
 					"on_100_heal_effect",
 					"on_100_shield_effect",
@@ -79,7 +80,7 @@ export async function startPhase(phase: string) {
 					"on_crit_effect",
 					"on_over_heal_effect",
 					"on_battle_start_effect",
-				]
+				], 3)
 			);
 			handlePhaseEnded();
 			break;

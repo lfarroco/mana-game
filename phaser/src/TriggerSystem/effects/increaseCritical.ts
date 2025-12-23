@@ -6,7 +6,7 @@ import { arcaneMissileTargeted } from "../../Effects";
 export const increaseCritical = async (
 	targets: Unit[],
 	amount: number,
-	sourceUnit?: Unit, // sources like orbs apply direct critical increase
+	sourceUnit?: Unit,
 	permanent: boolean = false
 ) => {
 	const effect = (target: string) => async () => {
