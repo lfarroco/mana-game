@@ -1,6 +1,7 @@
 import { Force, playerForce } from "./Entities/Force";
 import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
+import { RNGManager } from "../Utils/Random";
 
 export type State = {
 	savedGames: string[];
@@ -18,6 +19,8 @@ export type GameData = {
 	player: Force;
 	recentEncounterIds: string[];
 	runStats: RunStats;
+	seed: number;
+	initialSeed: number;
 };
 
 export type RunStats = {
@@ -31,30 +34,35 @@ export type RunStats = {
 	unitUsage: Record<string, number>;
 };
 
-const initialState = (): State => ({
-	savedGames: [],
-	gameData: {
-		round: 1,
-		hour: 0,
-		player: playerForce,
-		recentEncounterIds: [],
-		runStats: {
-			damageDealt: 0,
-			poisonDealt: 0,
-			shieldDealt: 0,
-			regenDealt: 0,
-			healDealt: 0,
-			mostPowerfulUnit: null,
-			totalUnitsRecruited: 0,
-			unitUsage: {},
+const initialState = (): State => {
+	const initialSeed = Date.now();
+	return {
+		savedGames: [],
+		gameData: {
+			round: 1,
+			hour: 0,
+			player: playerForce,
+			recentEncounterIds: [],
+			runStats: {
+				damageDealt: 0,
+				poisonDealt: 0,
+				shieldDealt: 0,
+				regenDealt: 0,
+				healDealt: 0,
+				mostPowerfulUnit: null,
+				totalUnitsRecruited: 0,
+				unitUsage: {},
+			},
+			seed: initialSeed,
+			initialSeed: initialSeed,
 		},
-	},
-	battleData: {
-		forces: [],
-		grid: [],
-		units: [],
-	},
-});
+		battleData: {
+			forces: [],
+			grid: [],
+			units: [],
+		},
+	};
+};
 
 const state = {
 	currentState: initialState(),
@@ -65,6 +73,7 @@ export function resetState() {
 	playerForce.wins = 0;
 	playerForce.units = [];
 	state.currentState = initialState();
+	RNGManager.getInstance().setSeed(state.currentState.gameData.seed);
 }
 
 declare global {
