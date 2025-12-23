@@ -6,11 +6,12 @@ import { arcaneMissileTargeted } from "../../Effects";
 export const increaseCritical = async (
 	targets: Unit[],
 	amount: number,
-	sourceUnit?: Unit // sources like orbs apply direct critical increase
+	sourceUnit?: Unit, // sources like orbs apply direct critical increase
+	permanent: boolean = false
 ) => {
 	const effect = (target: string) => async () => {
 		const targetChara = getCharaById(target);
-		updateUnitCritical(targetChara, amount);
+		updateUnitCritical(targetChara, amount, permanent);
 		AudioManager.playSoundEffect("sfx_spell_innerfocus");
 	};
 
@@ -21,7 +22,6 @@ export const increaseCritical = async (
 		return;
 	}
 
-	// Use projectile animation when sourceUnit is provided
 	const sourceChara = getCharaById(sourceUnit.id);
 
 	for (const target of targets) {

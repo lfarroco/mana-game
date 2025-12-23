@@ -16,6 +16,7 @@ export type Unit = {
 
 	lifesteal?: boolean;
 	critical?: number;
+	bonusCritical?: number;
 	reflect?: number;
 
 	// Core attributes
@@ -203,7 +204,7 @@ export function resetUnitStats(unit: Unit) {
 	const startingRank = source.rank || 1;
 	const rankMultiplier = unit.rank - startingRank + 1;
 	unit.power = ((source.power || 0) * rankMultiplier) + unit.bonusPower;
-	unit.critical = source.critical || 0;
+	unit.critical = (source.critical || 0) + (unit.bonusCritical || 0);
 	unit.shield = 0;
 	unit.charge = 0;
 	unit.hasted = 0;

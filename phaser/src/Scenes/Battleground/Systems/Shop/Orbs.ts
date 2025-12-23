@@ -5,7 +5,7 @@ import { upgradeUnit } from "@Systems/Chara/Chara";
 import { distributePower } from "../../../../TriggerSystem/effects/distributePower";
 import { absorbPower } from "../../../../TriggerSystem/effects/absorbPower";
 import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffect";
-import { Effect, EffectReaction, resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction, processEffectsIO, resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { getState } from "@Models/State";
 import { t } from "@i18n/i18n";
@@ -53,15 +53,13 @@ const increaseCriticalOnType = (type: string) => () => ({
 	effect: (unit: Unit) => {
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
-		if (!unit.critical) {
-			unit.critical = 0;
-		}
-
-		unit.critical = unit.critical + 10;
-
-		if (unit.force === FORCE_ID_PLAYER) {
-			getState().gameData.player.units.find(u => u.id === unit.id)!.critical = unit.critical;
-		}
+		// Use processEffectsIO with permanent=true for shop orbs
+		processEffectsIO(unit, [{
+			id: "increase_critical",
+			amount: 10,
+			targets: { id: "self" },
+			permanent: true,
+		}], false);
 
 		console.log(`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`);
 		return true;
@@ -472,7 +470,7 @@ export const orbsIndex: Record<
 					id: "row_allies"
 				}
 			});
-			distributePower(unit, targets);
+			distributePower(unit, targets, true);  // permanent=true in shop
 			return true;
 		}
 	}),

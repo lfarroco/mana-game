@@ -4,7 +4,7 @@ import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 import { getState } from "@Models/State";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 
-export const distributePower = (sourceUnit: Unit, targets: Unit[]) => {
+export const distributePower = (sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
 	if (targets.length === 0) return;
 
 	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
@@ -25,7 +25,7 @@ export const distributePower = (sourceUnit: Unit, targets: Unit[]) => {
 
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
-	increasePower(targets, powerPerTarget, false, sourceUnit);
+	increasePower(targets, powerPerTarget, permanent, sourceUnit);
 
 	updatePowerDisplay(sourceUnit.id)
 };
