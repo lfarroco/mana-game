@@ -9,6 +9,7 @@ import { cloudsBg } from "../Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
+import { getSeed, setSeed } from "@Utils/Random";
 
 const CARD_DISPLAY_Y = 380;
 const DESCRIPTION_Y = 550;
@@ -25,6 +26,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private crystalSprite!: Phaser.GameObjects.Image;
 	private crystalName!: Phaser.GameObjects.Text;
 	private paginationDots: Phaser.GameObjects.Arc[] = [];
+	private seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
 
 	constructor() {
@@ -55,6 +57,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.createPaginationDots();
 
 		this.createActionButtons();
+
+		this.createSeedDisplay();
 
 		this.updateDisplay();
 	}
@@ -222,5 +226,44 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	private returnToTitle() {
 		this.scene.start(constants.SCENE_KEYS.TITLE);
+	}
+
+	private createSeedDisplay() {
+		const currentSeed = getSeed();
+		this.seedText = io.Text(`Seed: ${currentSeed}`, {
+			...constants.defaultTextConfig,
+			fontSize: "24px",
+			color: "#888888"
+		})
+			.setOrigin(1, 1)
+			.setPosition(constants.SCREEN_WIDTH - 20, constants.SCREEN_HEIGHT - 20)
+			.setInteractive({ useHandCursor: true })
+			.on('pointerdown', () => this.changeSeed());
+
+		// Add a tooltip or hover effect
+		this.seedText.on('pointerover', () => {
+			this.seedText.setColor("#ffffff");
+		});
+		this.seedText.on('pointerout', () => {
+			this.seedText.setColor("#888888");
+		});
+
+		this.add.existing(this.seedText);
+	}
+
+	private changeSeed() {
+		const currentSeed = getSeed();
+		// Use window.prompt as discussed
+		const newSeedStr = window.prompt("Enter new seed (numeric):", currentSeed.toString());
+
+		if (newSeedStr !== null) {
+			const newSeed = parseInt(newSeedStr, 10);
+			if (!isNaN(newSeed)) {
+				setSeed(newSeed);
+				this.seedText.setText(`Seed: ${newSeed}`);
+			} else {
+				console.warn("Invalid seed entered");
+			}
+		}
 	}
 }

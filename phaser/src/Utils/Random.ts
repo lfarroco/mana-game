@@ -1,5 +1,5 @@
 /**
- * RNGManager is a singleton class that provides seeded random number generation
+ * Random number generation utility providing seeded RNG
  * using the Mulberry32 algorithm.
  */
 let seed: number = Date.now();
