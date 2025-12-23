@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
+import { FORCE_ID_PLAYER } from "@Constants/constants";
 
 // Helper function to create a test unit
 const createTestUnit = (overrides: Partial<Unit>): Unit => ({
