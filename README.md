@@ -8,7 +8,7 @@ A PVE, trigger-based autobattler in a 3x3 board, built with Phaser 3.
 
 ## Overview
 
-**Mana Battle** is a strategic auto-battler where players build teams, manage resources, and engage in tactical combat. Key features:
+**Mana Battle** is a strategic auto-battler where players build teams and engage in tactical combat. Key features:
 
 - Real-time tactical combat with unit synergies
 - Unit management and progression system
@@ -33,7 +33,10 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Localization System](docs/localization.md)** - Architecture, usage, and guide for adding new languages
 - **[Achievement System](docs/achievement-system.md)** - Overview of Steam achievement integration, victory tiers, and calculation logic
 
-## Links
+## Documentation Roadmap
 
-- [Repository](https://github.com/lfarroco/mana-game)
-- [Issues](https://github.com/lfarroco/mana-game/issues)
+The following systems still need to be documented. If you find sections in the game that need documentation, please add them here.
+
+- [ ] **Battle System** - Core combat loop, phase management, and board logic (`phaser/src/Scenes/Battleground`)
+- [ ] **Character/Unit System** - Unit definitions, classes, and asset management (`phaser/src/Systems/Chara`)
+- [ ] **Audio System** - Music and SFX management (`phaser/src/Systems/AudioManager.ts`)
