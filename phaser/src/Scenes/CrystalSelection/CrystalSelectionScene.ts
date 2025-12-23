@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { setCurrentScene } from "@Models/State";
+import { setCurrentScene, getState } from "@Models/State";
 import { getCores, CardDefinition } from "@Models/Entities/Card";
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
@@ -217,6 +217,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	private async startGameWithCrystal() {
 		const selectedCrystal = this.crystals[this.currentIndex];
+
+		// Ensure the user-selected seed is persisted in the game data
+		const currentSeed = getSeed();
+		const state = getState();
+		state.gameData.seed = currentSeed;
+		state.gameData.initialSeed = currentSeed;
 
 		await io.Fade(300, 0x000000);
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
