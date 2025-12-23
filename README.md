@@ -15,26 +15,6 @@ A PVE, trigger-based autobattler in a 3x3 board, built with Phaser 3.
 - Steam achievements and cloud saves
 - Cross-platform: Windows, macOS, Linux
 
-## Quick Start
-
-```bash
-cd phaser
-npm install
-npm run dev
-```
-
-Opens at `http://localhost:8080`
-
-## Key Commands
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production web build |
-| `npm run electron:dev` | Run desktop app |
-| `npm run electron:build:all` | Build for all platforms |
-| `npm run test` | Run all tests |
-
 ## Tech Stack
 
 - **Phaser 3** - Game engine
@@ -46,6 +26,7 @@ Opens at `http://localhost:8080`
 
 Detailed documentation is organized by topic in the `docs` directory:
 
+- **[Building and Running](docs/building-and-running.md)** - Setup instructions, available commands, and platform requirements
 - **[Unit Balance](docs/unit-balance.md)** - Complete guide to the unit power and cost calculation system, including action/reaction budgets, trigger frequencies, effect costs, and balancing formulas
 
 ## Links
