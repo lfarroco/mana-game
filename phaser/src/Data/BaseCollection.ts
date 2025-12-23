@@ -1229,56 +1229,58 @@ const cards: CardDefinition[] = [
 			reaction("every_100_heal", "allies", increasePower(5, allAlliesOfType("regen"))),
 		],
 	},
-	//regen -> heal
+	//heal -> heal
 	{
 		id: "mend_sage",
 		pic: "boss_orias",
-		power: 80,
+		power: 40,
 		rank: 3,
 		locked: true,
 		cooldown: 5200,
 		effects: [
 			heal,
+			increasePower(5, allAlliesOfType("heal"))
 		],
 		reactions: [
-			reaction("every_10_regen", "allies", increasePower(5, allAlliesOfType("heal"))),
+			reaction("on_battle_start", "allies", haste(2000, allAlliesOfType("heal")))
 		],
 	},
 	//damage -> damage
 	{
 		id: "warbringer",
 		pic: "boss_solfist",
-		power: 80,
+		power: 60,
 		rank: 3,
 		locked: true,
-		cooldown: 5200,
+		cooldown: 6200,
 		effects: [
 			damage,
+			increasePower(10, allAlliesOfType("damage"))
 		],
 		reactions: [
-			reaction("every_100_damage", "allies", increasePower(5, allAlliesOfType("damage"))),
+			reaction("on_battle_start", "allies", charge(1000, allAlliesOfType("damage")))
 		],
 	},
 	//shield -> shield
 	{
 		id: "aegis_archon",
 		pic: "f3_tier2general",
-		power: 105,
+		power: 35,
 		rank: 3,
 		locked: true,
-		cooldown: 5200,
+		cooldown: 6200,
 		effects: [
 			shield,
 		],
 		reactions: [
-			reaction("every_100_shield", "allies", increasePower(5, allAlliesOfType("shield"))),
+			reaction("damage", "enemies", increasePower(5, allAlliesOfType("shield")))
 		],
 	},
 	//poison -> poison
 	{
 		id: "plague_sovereign",
 		pic: "f4_abomination",
-		power: 80,
+		power: 40,
 		rank: 3,
 		locked: true,
 		cooldown: 5200,
@@ -1286,22 +1288,23 @@ const cards: CardDefinition[] = [
 			poison,
 		],
 		reactions: [
-			reaction("every_10_poison", "allies", increasePower(5, allAlliesOfType("poison"))),
+			reaction("on_battle_start", "allies", slow(2000, randomEnemy(4))),
+			reaction("re_slow", "allies", increasePower(5, allAlliesOfType("poison")))
 		],
 	},
 	//regen -> regen
 	{
 		id: "life_weaver",
 		pic: "f3_insightcaster",
-		power: 80,
+		power: 60,
 		rank: 3,
 		locked: true,
-		cooldown: 5200,
+		cooldown: 4200,
 		effects: [
 			regen,
 		],
 		reactions: [
-			reaction("every_10_regen", "allies", increasePower(5, allAlliesOfType("regen"))),
+			reaction("every_10_regen", "allies", increasePower(20, weakestAlly))
 		],
 	},
 	//gambler2
