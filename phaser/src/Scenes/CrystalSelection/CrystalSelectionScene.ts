@@ -229,41 +229,200 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	}
 
 	private createSeedDisplay() {
-		const currentSeed = getSeed();
-		this.seedText = io.Text(`Seed: ${currentSeed}`, {
-			...constants.defaultTextConfig,
-			fontSize: "24px",
-			color: "#888888"
-		})
-			.setOrigin(1, 1)
-			.setPosition(constants.SCREEN_WIDTH - 20, constants.SCREEN_HEIGHT - 20)
-			.setInteractive({ useHandCursor: true })
-			.on('pointerdown', () => this.changeSeed());
-
-		// Add a tooltip or hover effect
-		this.seedText.on('pointerover', () => {
-			this.seedText.setColor("#ffffff");
-		});
-		this.seedText.on('pointerout', () => {
-			this.seedText.setColor("#888888");
-		});
-
-		this.add.existing(this.seedText);
+		this.createSeedInput();
 	}
 
-	private changeSeed() {
+	private createSeedInput() {
 		const currentSeed = getSeed();
-		// Use window.prompt as discussed
-		const newSeedStr = window.prompt("Enter new seed (numeric):", currentSeed.toString());
 
-		if (newSeedStr !== null) {
-			const newSeed = parseInt(newSeedStr, 10);
-			if (!isNaN(newSeed)) {
-				setSeed(newSeed);
-				this.seedText.setText(`Seed: ${newSeed}`);
-			} else {
-				console.warn("Invalid seed entered");
+		const x = constants.SCREEN_WIDTH - 20;
+		const y = constants.SCREEN_HEIGHT - 20;
+		const width = 200;
+		const height = 40;
+
+		// Input Background
+		const bg = this.add.rectangle(x, y, width, height, 0x000000, 0.5)
+			.setOrigin(1, 1)
+			.setStrokeStyle(1, 0x888888)
+			.setInteractive({ useHandCursor: true });
+
+		// Seed Text
+		this.seedText = io.Text(`${currentSeed}`, {
+			...constants.defaultTextConfig,
+			fontSize: "24px",
+			color: "#ffffff"
+		})
+			.setOrigin(1, 0.5)
+			.setPosition(x - 20, y - height / 2);
+
+		// Events
+		bg.on('pointerdown', () => {
+			this.createKeyboard(this.seedText);
+		});
+
+		// Hover effects
+		bg.on('pointerover', () => bg.setStrokeStyle(1, 0xffffff));
+		bg.on('pointerout', () => bg.setStrokeStyle(1, 0x888888));
+
+		this.add.existing(this.seedText);
+
+		// Cleanup on scene shutdown
+		this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+			const existingKeyboard = document.getElementById("virtual-keyboard");
+			if (existingKeyboard && document.body.contains(existingKeyboard)) {
+				document.body.removeChild(existingKeyboard);
 			}
-		}
+		});
+	}
+
+	private createKeyboard(targetText: Phaser.GameObjects.Text) {
+		if (document.getElementById("virtual-keyboard")) return;
+
+		const keyboardContainer = document.createElement("div");
+		keyboardContainer.id = "virtual-keyboard";
+		keyboardContainer.style.position = "absolute";
+		keyboardContainer.style.bottom = "80px";
+		keyboardContainer.style.right = "20px";
+		keyboardContainer.style.backgroundColor = "rgba(30, 30, 30, 0.95)";
+		keyboardContainer.style.padding = "10px";
+		keyboardContainer.style.borderRadius = "8px";
+		keyboardContainer.style.border = "1px solid #555";
+		keyboardContainer.style.display = "flex";
+		keyboardContainer.style.flexDirection = "column";
+		keyboardContainer.style.gap = "5px";
+		keyboardContainer.style.zIndex = "1001";
+		keyboardContainer.style.boxShadow = "0 4px 6px rgba(0,0,0,0.3)";
+
+		// Numpad Layout
+		const rows = [
+			["7", "8", "9"],
+			["4", "5", "6"],
+			["1", "2", "3"],
+			["0"]
+		];
+
+		// Styles
+		const btnStyle = "width: 40px; height: 40px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: 18px;";
+		const actionBtnStyle = "height: 30px; padding: 0 10px; background: #555; color: white; border: 1px solid #777; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: sans-serif;";
+
+		// Key rows
+		rows.forEach(row => {
+			const rowDiv = document.createElement("div");
+			rowDiv.style.display = "flex";
+			rowDiv.style.justifyContent = "center";
+			rowDiv.style.gap = "4px";
+
+			row.forEach(char => {
+				const btn = document.createElement("button");
+				btn.innerText = char;
+				btn.style.cssText = btnStyle;
+				if (char === "0") {
+					btn.style.width = "40px"; // Keep uniform size
+				}
+				btn.onmousedown = (e) => {
+					e.preventDefault(); // Prevent focus loss
+					targetText.setText(targetText.text + char);
+				};
+				rowDiv.appendChild(btn);
+			});
+			keyboardContainer.appendChild(rowDiv);
+		});
+
+		// Helper to create buttons
+		const createActionBtn = (text: string, onClick: () => void, color: string = "#555") => {
+			const btn = document.createElement("button");
+			btn.innerText = text;
+			btn.style.cssText = actionBtnStyle + `background: ${color};`;
+			btn.onclick = onClick;
+			return btn;
+		};
+
+		const backBtn = createActionBtn("Back", () => {
+			targetText.setText(`${getSeed()}`);
+			if (document.body.contains(keyboardContainer)) {
+				document.body.removeChild(keyboardContainer);
+			}
+		}, "#d32f2f");
+
+		const clearBtn = createActionBtn("Clear", () => {
+			targetText.setText("");
+		}, "#c62828");
+
+		const copyBtn = createActionBtn("Copy", () => {
+			navigator.clipboard.writeText(targetText.text);
+		}, "#1976d2");
+
+		const pasteBtn = createActionBtn("Paste", async () => {
+			try {
+				const text = await navigator.clipboard.readText();
+				const numeric = text.replace(/\D/g, '');
+				targetText.setText(numeric);
+			} catch (err) {
+				console.error("Paste failed", err);
+			}
+		}, "#1976d2");
+
+		const backspaceBtn = createActionBtn("⌫", () => {
+			const c = targetText.text;
+			if (c.length > 0) {
+				targetText.setText(c.slice(0, -1));
+			}
+		});
+
+		const enterBtn = createActionBtn("Enter", () => {
+			const val = parseInt(targetText.text, 10);
+			if (!isNaN(val)) {
+				setSeed(val);
+				targetText.setText(`${val}`);
+			} else {
+				targetText.setText(`${getSeed()}`);
+			}
+
+			if (document.body.contains(keyboardContainer)) {
+				document.body.removeChild(keyboardContainer);
+			}
+		}, "#388e3c");
+		enterBtn.style.flexGrow = "1";
+
+		// Arrange actions
+		const actionsContainer = document.createElement("div");
+		actionsContainer.style.display = "grid";
+		actionsContainer.style.gridTemplateColumns = "1fr 1fr 1fr";
+		actionsContainer.style.gap = "5px";
+		actionsContainer.style.marginTop = "5px";
+
+		// Row 1
+		actionsContainer.appendChild(copyBtn);
+		actionsContainer.appendChild(pasteBtn);
+		actionsContainer.appendChild(clearBtn);
+
+		// Row 2
+		actionsContainer.appendChild(backBtn);
+		actionsContainer.appendChild(backspaceBtn);
+		actionsContainer.appendChild(enterBtn);
+		enterBtn.style.gridColumn = "span 1";
+
+		keyboardContainer.appendChild(actionsContainer);
+
+		document.body.appendChild(keyboardContainer);
+
+		// Global click listener to close if clicking outside
+		const outsideClickListener = (e: MouseEvent) => {
+			if (!keyboardContainer.contains(e.target as Node)) {
+				if (document.body.contains(keyboardContainer)) {
+					document.body.removeChild(keyboardContainer);
+				}
+				const currentVal = parseInt(targetText.text, 10);
+				if (isNaN(currentVal) && targetText.text !== `${getSeed()}`) {
+					targetText.setText(`${getSeed()}`);
+				}
+
+				document.removeEventListener("mousedown", outsideClickListener);
+			}
+		};
+
+		setTimeout(() => {
+			document.addEventListener("mousedown", outsideClickListener);
+		}, 0);
 	}
 }
