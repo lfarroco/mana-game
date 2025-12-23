@@ -234,7 +234,7 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 	}
 }
 
-export function updateUnitCritical(chara: Chara, num: number) {
+export function updateUnitCritical(chara: Chara, num: number, permanent: boolean = false) {
 	const s = mustGetState(chara);
 	const { unit } = s;
 	const positive = num >= 0;
@@ -244,11 +244,28 @@ export function updateUnitCritical(chara: Chara, num: number) {
 
 	unit.critical += num;
 
+	if (permanent) {
+		if (!unit.bonusCritical) unit.bonusCritical = 0;
+		unit.bonusCritical += num;
+	}
+
 	popText({
 		x: chara.x,
 		y: chara.y,
 		text,
 	});
+
+	if (unit.force === constants.FORCE_ID_PLAYER) {
+		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
+		if (playerUnit && playerUnit !== unit) {
+			if (!playerUnit.critical) playerUnit.critical = 0;
+			playerUnit.critical += num;
+			if (permanent) {
+				if (!playerUnit.bonusCritical) playerUnit.bonusCritical = 0;
+				playerUnit.bonusCritical += num;
+			}
+		}
+	}
 }
 
 export function destroy(chara: Chara) {

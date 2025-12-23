@@ -92,11 +92,13 @@ export type Effect =
 	| {
 		id: "increase_critical";
 		amount: number;
+		permanent?: boolean;
 		targets: Targeting;
 	}
 	| {
 		id: "distribute_power";
 		targets: Targeting;
+		permanent?: boolean;
 	}
 	| {
 		id: "absorb_power";
@@ -276,7 +278,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			break;
 		case "increase_critical":
 			const increaseCriticalTargets = resolveTargets(sourceUnit, effect, triggeringUnit);
-			effects.increaseCritical(increaseCriticalTargets, effect.amount * scale, sourceUnit);
+			effects.increaseCritical(increaseCriticalTargets, effect.amount * scale, sourceUnit, effect.permanent || false);
 			break;
 		case "multiply_power":
 			effects.multiplyPower({
@@ -286,7 +288,7 @@ const processEffectIO = (sourceUnit: Unit, effect: Effect, isReaction: boolean, 
 			});
 			break;
 		case "distribute_power":
-			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit));
+			effects.distributePower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit), effect.permanent || false);
 			break;
 		case "absorb_power":
 			effects.absorbPower(sourceUnit, resolveTargets(sourceUnit, effect, triggeringUnit), effect.permanent || false);
