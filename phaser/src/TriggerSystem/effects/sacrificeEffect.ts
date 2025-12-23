@@ -1,4 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
+import { RNGManager } from "../../Utils/Random";
 import { pickRandom } from "../../utils";
 import { increasePower } from "./increasePower";
 
@@ -11,9 +12,11 @@ export const sacrificeEffect = (sourceUnit: Unit) => {
 
 	if (!hasEffects && !hasReactions) return;
 
+	// Random choice between effect or reaction
+
 	let removeType: "effect" | "reaction";
 	if (hasEffects && hasReactions) {
-		removeType = Math.random() < 0.5 ? "effect" : "reaction";
+		removeType = RNGManager.getInstance().value() < 0.5 ? "effect" : "reaction";
 	} else {
 		removeType = hasEffects ? "effect" : "reaction";
 	}
