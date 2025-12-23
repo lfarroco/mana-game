@@ -4,7 +4,7 @@ import { cpuForce } from "./Entities/Force";
 import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
 import { storage } from "../Storage";
-import { RNGManager } from "../Utils/Random";
+import { value } from "../Utils/Random";
 
 const STORAGE_KEY = "mana-game-ghosts-v1";
 
@@ -122,7 +122,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 
 	if (!validList.length) return null;
 
-	const idx = Math.floor(RNGManager.getInstance().value() * validList.length);
+	const idx = Math.floor(value() * validList.length);
 	return validList[idx];
 }
 

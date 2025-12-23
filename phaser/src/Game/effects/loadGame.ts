@@ -2,7 +2,7 @@ import { SCENE_KEYS } from "@Constants/constants";
 import { getState, getCurrentScene } from "@Models/State";
 import { getSavedData } from "./getSavedData";
 
-import { RNGManager } from "@Utils/Random";
+import { setSeed } from "@Utils/Random";
 
 export function loadGame() {
 	const data = getSavedData();
@@ -17,6 +17,6 @@ export function loadGame() {
 	}
 
 	getState().gameData = gameData;
-	RNGManager.getInstance().setSeed(gameData.seed);
+	setSeed(gameData.seed);
 	getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, gameData);
 }

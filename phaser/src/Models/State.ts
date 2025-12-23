@@ -1,7 +1,7 @@
 import { Force, playerForce } from "./Entities/Force";
 import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
-import { RNGManager } from "../Utils/Random";
+import { setSeed } from "../Utils/Random";
 
 export type State = {
 	savedGames: string[];
@@ -73,7 +73,7 @@ export function resetState() {
 	playerForce.wins = 0;
 	playerForce.units = [];
 	state.currentState = initialState();
-	RNGManager.getInstance().setSeed(state.currentState.gameData.seed);
+	setSeed(state.currentState.gameData.seed);
 }
 
 declare global {
