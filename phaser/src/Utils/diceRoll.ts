@@ -1,1 +1,3 @@
-export const diceRoll = (n: number) => Math.floor(Math.random() * n) + 1;
+import { RNGManager } from "./Random";
+
+export const diceRoll = (n: number) => RNGManager.getInstance().range(1, n);

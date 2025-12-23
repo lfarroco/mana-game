@@ -1,6 +1,8 @@
+import { RNGManager } from "./Utils/Random";
+
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
-	return shuffle(arr).slice(0, n);
+	return RNGManager.getInstance().pickRandom(arr, n);
 }
 
 export function pickOne<a>(arr: a[]): a {
@@ -17,17 +19,11 @@ export function pickOneUnique<a>(arr: a[], exclude: a[]): a {
 }
 
 export function randomBetween(min: number, max: number): number {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+	return RNGManager.getInstance().range(min, max);
 }
 
 export function shuffle<T>(arr: T[]): T[] {
-	const copy = [...arr]; // Don't mutate the original array
-	// Fisher-Yates shuffle
-	for (let i = copy.length - 1; i > 0; i--) {
-		const j = Math.floor(Math.random() * (i + 1));
-		[copy[i], copy[j]] = [copy[j], copy[i]];
-	}
-	return copy;
+	return RNGManager.getInstance().shuffle(arr);
 }
 const formatter = new Intl.NumberFormat("en-US", { notation: "compact" });
 

@@ -1,6 +1,7 @@
 import * as uuid from "uuid";
 import { CardDefinition, getCardDefinition } from "./Card";
 import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
+import { RNGManager } from "../../Utils/Random";
 
 export type Unit = {
 	id: string;
@@ -108,7 +109,7 @@ export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: n
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
 
-	const isCritical = critChance > 0 && Math.random() < effectiveCritChance / 100;
+	const isCritical = critChance > 0 && RNGManager.getInstance().value() < effectiveCritChance / 100;
 
 	if (isCritical) {
 		const multiplier = 2;
