@@ -29,6 +29,9 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Building and Running](docs/building-and-running.md)** - Setup instructions, available commands, and platform requirements
 - **[Unit Balance](docs/unit-balance.md)** - Complete guide to the unit power and cost calculation system, including action/reaction budgets, trigger frequencies, effect costs, and balancing formulas
 - **[Trigger System](docs/trigger-system.md)** - Documentation on the Action-Reaction model, including trigger conditions, targeting, and effect types
+- **[Storage System](docs/storage-system.md)** - Details on the Storage Provider pattern and Steam Cloud / LocalStorage integration
+- **[Localization System](docs/localization.md)** - Architecture, usage, and guide for adding new languages
+- **[Achievement System](docs/achievement-system.md)** - Overview of Steam achievement integration, victory tiers, and calculation logic
 
 ## Links
 
