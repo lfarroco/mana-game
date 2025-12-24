@@ -40,3 +40,7 @@ The following systems still need to be documented. If you find sections in the g
 - [ ] **Battle System** - Core combat loop, phase management, and board logic (`phaser/src/Scenes/Battleground`)
 - [ ] **Character/Unit System** - Unit definitions, classes, and asset management (`phaser/src/Systems/Chara`)
 - [ ] **Audio System** - Music and SFX management (`phaser/src/Systems/AudioManager.ts`)
+
+## Migration Plans
+
+- **[Server-Side Combat Migration](docs/server-side-combat-migration.md)** - Plan for decoupling the combat runner from Phaser for server-side verification.
