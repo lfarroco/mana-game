@@ -34,10 +34,19 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
+		const unlockConditionText = getCurrentScene().add
+			.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
+				fontFamily: "Arimo",
+				fontSize: "20px",
+				color: "#ffff00",
+				align: "center",
+			})
+			.setOrigin(0.5);
+
 		const descriptionText = getCurrentScene().add
 			.rexBBCodeText(
 				0,
-				titleText.y + 40,
+				unlockConditionText.y + 40,
 				description)
 			.setFontSize(30)
 			.setWrapMode(1)
@@ -55,6 +64,7 @@ export function showUnlockModal(unitId: string): Promise<void> {
 		modal.container.add([
 			chara,
 			titleText,
+			unlockConditionText,
 			descriptionText,
 			confirmButton.container
 		]);
