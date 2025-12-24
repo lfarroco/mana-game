@@ -21,6 +21,7 @@ export type GameData = {
 	runStats: RunStats;
 	seed: number;
 	initialSeed: number;
+	isSeeded: boolean;
 };
 
 export type RunStats = {
@@ -55,6 +56,7 @@ const initialState = (): State => {
 			},
 			seed: initialSeed,
 			initialSeed: initialSeed,
+			isSeeded: false,
 		},
 		battleData: {
 			forces: [],

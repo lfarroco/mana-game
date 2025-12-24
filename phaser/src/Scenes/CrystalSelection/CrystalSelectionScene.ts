@@ -28,6 +28,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private paginationDots: Phaser.GameObjects.Arc[] = [];
 	private seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
+	private isSeededRun: boolean = false;
 
 	constructor() {
 		super(constants.SCENE_KEYS.CRYSTAL_SELECTION);
@@ -223,6 +224,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		const state = getState();
 		state.gameData.seed = currentSeed;
 		state.gameData.initialSeed = currentSeed;
+		state.gameData.isSeeded = this.isSeededRun;
 
 		await io.Fade(300, 0x000000);
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
@@ -380,6 +382,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			if (!isNaN(val)) {
 				setSeed(val);
 				targetText.setText(`${val}`);
+				this.isSeededRun = true;
 			} else {
 				targetText.setText(`${getSeed()}`);
 			}
