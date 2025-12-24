@@ -47,11 +47,14 @@ export function handleCombatEnded(combatResult: string) {
 	// Track unit usage and most powerful unit from battle data (buffs still active)
 	const state = getState();
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
-	for (const unit of playerUnits) {
-		StatsStore.recordUnitUsage(getName(unit.cardId));
-		StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
+
+	if (!state.gameData.isSeeded) {
+		for (const unit of playerUnits) {
+			StatsStore.recordUnitUsage(getName(unit.cardId));
+			StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
+		}
+		StatsStore.save();
 	}
-	StatsStore.save();
 
 	if (combatResult === "player_won") {
 		handleCombatEndedVictory();

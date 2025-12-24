@@ -46,22 +46,24 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	StatsStore.incrementRunsPlayed();
-	if (wins >= GOLD_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("gold", playerCore?.cardId);
-	} else if (wins >= SILVER_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("silver", playerCore?.cardId);
-	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
-		StatsStore.recordVictory("bronze", playerCore?.cardId);
+	if (!getState().gameData.isSeeded) {
+		StatsStore.incrementRunsPlayed();
+		if (wins >= GOLD_VICTORY_THRESHOLD) {
+			StatsStore.recordVictory("gold", playerCore?.cardId);
+		} else if (wins >= SILVER_VICTORY_THRESHOLD) {
+			StatsStore.recordVictory("silver", playerCore?.cardId);
+		} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
+			StatsStore.recordVictory("bronze", playerCore?.cardId);
+		}
+
+		if (wins > INFINITE_MODE_THRESHOLD) {
+			StatsStore.updateFurthestInfiniteRound(wins);
+		}
+
+		StatsStore.recordRunStats(getState().gameData.runStats);
+
+		StatsStore.save();
 	}
-
-	if (wins > INFINITE_MODE_THRESHOLD) {
-		StatsStore.updateFurthestInfiniteRound(wins);
-	}
-
-	StatsStore.recordRunStats(getState().gameData.runStats);
-
-	StatsStore.save();
 
 	// Check if demo limit reached
 	const isDemoComplete = IS_DEMO && wins >= GAME_CONFIG.MAX_VICTORIES;
