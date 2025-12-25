@@ -5,8 +5,9 @@ import { setCurrentScene, getState } from "@Models/State";
 import { getCores, CardDefinition } from "@Models/Entities/Card";
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { cloudsBg } from "../Title/components/cloudsBg";
+import { cloudsBg, getCloudsBg } from "../Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
+import { colorPresets } from "@Constants/colorPresets";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
@@ -191,6 +192,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.paginationDots.forEach((dot, i) => {
 			dot.setFillStyle(0xffffff, i === this.currentIndex ? 1 : 0.3);
 		});
+
+		const bg = getCloudsBg();
+		if (bg) {
+			const preset = this.getColorPresetForCrystal(crystal.id);
+			bg.tweenToPreset(preset, 1500, "Sine.InOut");
+		}
 	}
 
 	private buildCrystalDescription(crystal: CardDefinition): string {
@@ -215,6 +222,19 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		const allEffects = [...effectBlocks, ...reactionBlocks].join("\n");
 
 		return `${statsBlock}${lifeBlock}\n\n${allEffects || t("crystalSelection.noAbilities")}`;
+	}
+
+	private getColorPresetForCrystal(crystalId: string): keyof typeof colorPresets {
+		const colorMap: Record<string, keyof typeof colorPresets> = {
+			"mana_crystal": "nebula",
+			"critical_crystal": "sunset",
+			"protective_crystal": "sunset",
+			"growth_crystal": "forest",
+			"purple_crystal": "aurora",
+			"quickstone": "sea"
+		};
+
+		return colorMap[crystalId] || "nebula";
 	}
 
 	private async startGameWithCrystal() {
