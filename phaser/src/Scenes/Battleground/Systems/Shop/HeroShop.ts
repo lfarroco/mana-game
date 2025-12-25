@@ -39,27 +39,6 @@ export async function openHeroShop(
 	});
 }
 
-export async function openCoreShop() {
-	currentShopCharas = [];
-
-	const tavernCardData = pickRandom(
-		Card.getAllCards().filter((card) => card.isCore),
-		sc.NUM_TAVERN_SLOTS
-	);
-
-	ShopPanel.create(null);
-
-	// Render tavern charas
-	const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
-	currentShopCharas = displayedCharas;
-
-	Board.setEnemyBoardVisible(false);
-
-	await ShopPanel.slideIn();
-
-	currentShopCharas.forEach(animateItemAppearance);
-}
-
 export async function close() {
 	currentShopCharas = [];
 

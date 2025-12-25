@@ -84,7 +84,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		AudioManager.playMusic("music_battlemap_vetruv");
 
 		const currentHour = getState().gameData.hour;
-		startPhase(getPhaseForHour(currentHour) || "shop-core");
+		startPhase(getPhaseForHour(currentHour) || "shop");
 	};
 
 	update(time: number, delta: number): void {

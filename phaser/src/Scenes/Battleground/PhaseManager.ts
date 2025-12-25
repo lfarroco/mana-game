@@ -12,6 +12,8 @@ import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 import { pickRandom } from "utils";
+import { cloudsBackground } from "./Systems/Setup";
+import { colorPresets } from "@Constants/colorPresets";
 
 export const loopPhases: string[] = [
 	"encounter",
@@ -50,12 +52,25 @@ export function getPhaseForHour(hour: number): string {
 	return loopPhases[loopIndex];
 }
 
+function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
+	const colorMap: Record<string, keyof typeof colorPresets> = {
+		"shop": "sea",
+		"encounter": "nebula",
+		"combat": "forest",
+		"upgrade_core": "aurora",
+		"add_reaction_core": "sunset"
+	};
+
+	return colorMap[phase] || "forest";
+}
+
 export async function startPhase(phase: string) {
+	if (cloudsBackground) {
+		const preset = getColorPresetForPhase(phase);
+		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
+	}
 
 	switch (phase) {
-		case "shop-core":
-			HeroShop.openCoreShop();
-			break;
 		case "shop":
 			await HeroShop.openHeroShop();
 			handlePhaseEnded();
