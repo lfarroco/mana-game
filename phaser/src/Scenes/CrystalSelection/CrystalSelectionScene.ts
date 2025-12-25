@@ -29,6 +29,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
 	private isSeededRun: boolean = false;
+	private seedWarningText!: Phaser.GameObjects.Text;
 
 	constructor() {
 		super(constants.SCENE_KEYS.CRYSTAL_SELECTION);
@@ -254,6 +255,15 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			.setStrokeStyle(1, 0x888888)
 			.setInteractive({ useHandCursor: true });
 
+		// Seed Label
+		io.Text("Seed: ", {
+			...constants.defaultTextConfig,
+			fontSize: "24px",
+			color: "#ffffff"
+		})
+			.setOrigin(1, 0.5)
+			.setPosition(x - width - 10, y - height / 2);
+
 		// Seed Text
 		this.seedText = io.Text(`${currentSeed}`, {
 			...constants.defaultTextConfig,
@@ -262,6 +272,16 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		})
 			.setOrigin(1, 0.5)
 			.setPosition(x - 20, y - height / 2);
+
+		// Warning Text
+		this.seedWarningText = io.Text("Unlocks and stats disabled when using a custom seed", {
+			...constants.defaultTextConfig,
+			fontSize: "16px",
+			color: "#ffff00"
+		})
+			.setOrigin(1, 0.5)
+			.setPosition(x, y - height - 20)
+			.setVisible(false);
 
 		// Events
 		bg.on('pointerdown', () => {
@@ -329,7 +349,9 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 				}
 				btn.onmousedown = (e) => {
 					e.preventDefault(); // Prevent focus loss
-					targetText.setText(targetText.text + char);
+					if (targetText.text.length < 12) {
+						targetText.setText(targetText.text + char);
+					}
 				};
 				rowDiv.appendChild(btn);
 			});
@@ -347,6 +369,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 		const backBtn = createActionBtn("Back", () => {
 			targetText.setText(`${getSeed()}`);
+			this.isSeededRun = false;
+			this.seedWarningText.setVisible(false);
 			if (document.body.contains(keyboardContainer)) {
 				document.body.removeChild(keyboardContainer);
 			}
@@ -363,7 +387,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		const pasteBtn = createActionBtn("Paste", async () => {
 			try {
 				const text = await navigator.clipboard.readText();
-				const numeric = text.replace(/\D/g, '');
+				const numeric = text.replace(/\D/g, '').slice(0, 12);
 				targetText.setText(numeric);
 			} catch (err) {
 				console.error("Paste failed", err);
@@ -378,13 +402,27 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		});
 
 		const enterBtn = createActionBtn("Enter", () => {
-			const val = parseInt(targetText.text, 10);
-			if (!isNaN(val)) {
-				setSeed(val);
-				targetText.setText(`${val}`);
-				this.isSeededRun = true;
+			if (targetText.text === "") {
+				const newSeed = Date.now();
+				setSeed(newSeed);
+				targetText.setText(`${newSeed}`);
+				this.isSeededRun = false;
+				this.seedWarningText.setVisible(false);
 			} else {
-				targetText.setText(`${getSeed()}`);
+				const val = parseInt(targetText.text, 10);
+				if (!isNaN(val)) {
+					setSeed(val);
+					targetText.setText(`${val}`);
+					this.isSeededRun = true;
+					this.seedWarningText.setVisible(true);
+				} else {
+					// Fallback if parsing fails for some reason (shouldn't with numberpad)
+					const newSeed = Date.now();
+					setSeed(newSeed);
+					targetText.setText(`${newSeed}`);
+					this.isSeededRun = false;
+					this.seedWarningText.setVisible(false);
+				}
 			}
 
 			if (document.body.contains(keyboardContainer)) {
@@ -424,6 +462,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 				const currentVal = parseInt(targetText.text, 10);
 				if (isNaN(currentVal) && targetText.text !== `${getSeed()}`) {
 					targetText.setText(`${getSeed()}`);
+					this.isSeededRun = false;
+					this.seedWarningText.setVisible(false);
 				}
 
 				document.removeEventListener("mousedown", outsideClickListener);
