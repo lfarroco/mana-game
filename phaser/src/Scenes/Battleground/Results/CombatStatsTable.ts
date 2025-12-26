@@ -8,6 +8,7 @@ import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { createPanel } from "@Components/Panel";
 import { getName, t } from "@i18n/i18n";
+import { compactNumber } from "utils";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -148,11 +149,11 @@ async function createStatsPanel(
 		panel.add(sprite);
 
 		const rowData = [
-			totalDamage > 0 ? totalDamage.toString() : "-",
-			totalHeal > 0 ? totalHeal.toString() : "-",
-			shield > 0 ? shield.toString() : "-",
-			poison > 0 ? poison.toString() : "-",
-			regen > 0 ? regen.toString() : "-",
+			totalDamage > 0 ? compactNumber(totalDamage) : "-",
+			totalHeal > 0 ? compactNumber(totalHeal) : "-",
+			shield > 0 ? compactNumber(shield) : "-",
+			poison > 0 ? compactNumber(poison) : "-",
+			regen > 0 ? compactNumber(regen) : "-",
 		];
 
 		let currentX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0];
