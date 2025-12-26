@@ -38,7 +38,7 @@ export const runCombatIO = () => {
 			(r) => r.effectId === "on_battle_start"
 		);
 		battleStartReactions.forEach((r) => {
-			processEffectsIO(unit, r.effects, true);
+			processEffectsIO(state, unit, r.effects, true);
 		});
 	});
 };
@@ -56,7 +56,7 @@ export function updateFrame(_time: number, delta: number): void {
 		Animations.pop(unit.id);
 
 		Systems.CombatStatsTracker.trackAction({ unit });
-		processEffectsIO(unit, unit.effects, false);
+		processEffectsIO(state, unit, unit.effects, false);
 	}
 
 	Systems.Timeout.updateTimeoutDamageSystem(state, playerForce, cpuForce, scaledDelta);
