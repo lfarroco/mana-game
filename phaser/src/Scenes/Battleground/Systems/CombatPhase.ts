@@ -10,7 +10,6 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import { createUIButton, Button } from "../../../Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { createForceStats } from "../ForceStats";
 import { runCombatIO } from "../RunCombatIO";
 import { t } from "@i18n/i18n";
 import { BattlegroundScene } from "../BattlegroundScene";
@@ -49,9 +48,6 @@ export async function transitionToCombatPhase(state: State): Promise<void> {
 	await Promise.all(summonPromises);
 
 	readyButton.enable();
-
-	createForceStats(constants.FORCE_ID_PLAYER);
-	createForceStats(constants.FORCE_ID_CPU);
 }
 
 export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {

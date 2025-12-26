@@ -12,13 +12,23 @@ import { compactNumber } from "utils";
 import Phaser from "phaser";
 import { getState } from "@Models/State";
 
-let playerStats: Phaser.GameObjects.Container | null = null;
-let cpuStats: Phaser.GameObjects.Container | null = null;
+export type ForceStatsState = {
+	playerStats: Phaser.GameObjects.Container | null;
+	cpuStats: Phaser.GameObjects.Container | null;
+	healthBars: Map<string, Phaser.GameObjects.Graphics>;
+	shieldBars: Map<string, Phaser.GameObjects.Graphics>;
+};
 
-const healthBars = new Map<string, Phaser.GameObjects.Graphics>();
-const shieldBars = new Map<string, Phaser.GameObjects.Graphics>();
+export function initializeForceStatsState(): ForceStatsState {
+	return {
+		playerStats: null,
+		cpuStats: null,
+		healthBars: new Map<string, Phaser.GameObjects.Graphics>(),
+		shieldBars: new Map<string, Phaser.GameObjects.Graphics>(),
+	};
+}
 
-export function createForceStats(force: string) {
+export function createForceStats(state: ForceStatsState, force: string): ForceStatsState {
 	const x = force === FORCE_ID_PLAYER ? 300 : 1200;
 	const y = 1000;
 
@@ -71,11 +81,14 @@ export function createForceStats(force: string) {
 		hideTooltip();
 	});
 
-	healthBars.set(force, healthBar);
-	shieldBars.set(force, shieldBar);
+	const newHealthBars = new Map(state.healthBars);
+	const newShieldBars = new Map(state.shieldBars);
 
-	OnceDestroyed(healthBar, () => healthBars.delete(force));
-	OnceDestroyed(shieldBar, () => shieldBars.delete(force));
+	newHealthBars.set(force, healthBar);
+	newShieldBars.set(force, shieldBar);
+
+	OnceDestroyed(healthBar, () => newHealthBars.delete(force));
+	OnceDestroyed(shieldBar, () => newShieldBars.delete(force));
 
 	const elements = [
 		lifeDisplay.container,
@@ -88,31 +101,43 @@ export function createForceStats(force: string) {
 		shieldBar,
 	];
 
+	const newState = {
+		...state,
+		healthBars: newHealthBars,
+		shieldBars: newShieldBars,
+	};
+
 	if (force === FORCE_ID_PLAYER) {
-		playerStats?.destroy();
-		playerStats = Container(elements);
+		newState.playerStats?.destroy();
+		newState.playerStats = Container(elements);
 	} else if (force === FORCE_ID_CPU) {
-		cpuStats?.destroy();
-		cpuStats = Container(elements);
+		newState.cpuStats?.destroy();
+		newState.cpuStats = Container(elements);
 	}
 
 	updateAllStats(force);
+
+	return newState;
 }
 
-export function destroyForceStats(force: string) {
+export function destroyForceStats(state: ForceStatsState, force: string): ForceStatsState {
+	const newState = { ...state };
+
 	if (force === FORCE_ID_PLAYER) {
-		playerStats?.destroy();
-		playerStats = null;
+		newState.playerStats?.destroy();
+		newState.playerStats = null;
 	} else if (force === FORCE_ID_CPU) {
-		cpuStats?.destroy();
-		cpuStats = null;
+		newState.cpuStats?.destroy();
+		newState.cpuStats = null;
 	}
+
+	return newState;
 }
 
 export function updateAllStats(force: string) {
 
-	const state = getState();
-	const core = getBattleCore(state)(force);
+	const gameState = getState();
+	const core = getBattleCore(gameState)(force);
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
 	const combatStates = CombatSystemStates.getCombatSystemStates();
@@ -121,12 +146,14 @@ export function updateAllStats(force: string) {
 }
 
 export function updateLifeDisplay(force: string, life: number, delta: number) {
+	const combatStates = CombatSystemStates.getCombatSystemStates();
+	const forceStatsState = combatStates.forceStatsState;
 
 	const chipId = `life-display/${force}`;
 
 	updateChipText(chipId, compactNumber(life));
 
-	const bar = healthBars.get(force);
+	const bar = forceStatsState.healthBars.get(force);
 	if (!bar) {
 		console.error(`No health bar found for force ${force}`);
 		return;
@@ -171,18 +198,20 @@ export function updateShieldDisplay(
 	shield: number,
 	delta: number
 ) {
-	const state = getState();
+	const combatStates = CombatSystemStates.getCombatSystemStates();
+	const forceStatsState = combatStates.forceStatsState;
+	const gameState = getState();
 	const chipId = `shield-display/${force}`;
 	updateChipText(chipId, compactNumber(shield));
 
-	const bar = shieldBars.get(force);
+	const bar = forceStatsState.shieldBars.get(force);
 
 	if (!bar) {
 		console.error("No bar for force", force);
 		return;
 	}
 
-	const core = getBattleCore(state)(force);
+	const core = getBattleCore(gameState)(force);
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, shield / maxLife));
 	const barWidth = 600;

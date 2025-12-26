@@ -1,48 +1,56 @@
-import { PoisonSystemState } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
-import { RegenSystemState } from "@Scenes/Battleground/Systems/RegenSystem";
-import { CombatStatsTrackerState } from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import { PoisonSystemState } from "./PoisonDamageSystem";
+import { RegenSystemState } from "./RegenSystem";
+import { CombatStatsTrackerState } from "./CombatStatsTracker";
+import { ForceStatsState } from "../ForceStats";
 
 type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;
 	regenSystemState: RegenSystemState;
 	combatStatsTrackerState: CombatStatsTrackerState;
+	forceStatsState: ForceStatsState;
 };
 
 let currentCombatStates: CombatSystemStates | null = null;
 
-export const setCombatSystemStates = (states: CombatSystemStates): void => {
+export function setCombatSystemStates(states: CombatSystemStates) {
 	currentCombatStates = states;
 };
 
-export const getCombatSystemStates = (): CombatSystemStates => {
+export function getCombatSystemStates(): CombatSystemStates {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");
 	}
 	return currentCombatStates;
 };
 
-export const updatePoisonSystemState = (state: PoisonSystemState): void => {
+export function updatePoisonSystemState(state: PoisonSystemState): void {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");
 	}
 	currentCombatStates.poisonSystemState = state;
 };
 
-export const updateRegenSystemState = (state: RegenSystemState): void => {
+export function updateRegenSystemState(state: RegenSystemState): void {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");
 	}
 	currentCombatStates.regenSystemState = state;
 };
 
-export const updateCombatStatsTrackerState = (state: CombatStatsTrackerState): void => {
+export function updateCombatStatsTrackerState(state: CombatStatsTrackerState): void {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");
 	}
 	currentCombatStates.combatStatsTrackerState = state;
 };
 
-export const clearCombatSystemStates = (): void => {
+export function updateForceStatsState(state: ForceStatsState) {
+	if (!currentCombatStates) {
+		throw new Error("Combat system states not initialized");
+	}
+	currentCombatStates.forceStatsState = state;
+}
+
+export function clearCombatSystemStates() {
 	currentCombatStates = null;
 };
-

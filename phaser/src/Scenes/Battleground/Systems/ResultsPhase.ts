@@ -4,7 +4,6 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as ResultsUI from "../Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
 import * as PhaseManager from "../PhaseManager";
-import { deactivateBlackHole } from "../BlackHole";
 import { saveGameData } from "../../../Game/effects/saveGameData";
 import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 import * as StatsStore from "@Models/StatsStore";
@@ -46,7 +45,6 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 }
 
 export function handleCombatEnded(state: State, combatResult: string) {
-	deactivateBlackHole();
 
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 
