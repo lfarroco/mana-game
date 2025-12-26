@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
-import { getState } from "@Models/State";
+import { getState, State } from "@Models/State";
 
 export type Force = {
 	id: string;
@@ -28,11 +28,11 @@ export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
 export const cpuForce = makeForce(constants.FORCE_ID_CPU);
 
 export const manipulateCoreLife = (
+	state: State,
 	targetForce: Force,
 	amount: number,
 	_critical = false
 ): number => {
-	const state = getState();
 	const core = getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot restore life or take damage
@@ -84,6 +84,7 @@ export const manipulateCoreShield = (
 };
 
 export const applyDamageToForce = (
+	state: State,
 	targetForce: Force,
 	damage: number,
 	shieldPiercingPercentage: number = 0,
@@ -92,7 +93,7 @@ export const applyDamageToForce = (
 ): number => {
 	if (damage <= 0) return 0;
 
-	const core = getBattleCore(getState())(targetForce.id);
+	const core = getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot be damaged
 	if (core.life <= 0) {
@@ -102,7 +103,7 @@ export const applyDamageToForce = (
 	let remainingDamage = damage;
 
 	if (damageType === "poison") {
-		const lifeChage = manipulateCoreLife(targetForce, -damage);
+		const lifeChage = manipulateCoreLife(state, targetForce, -damage);
 
 		return Math.abs(lifeChage);
 	}
@@ -119,7 +120,7 @@ export const applyDamageToForce = (
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(targetForce, -remainingDamage) : 0;
+	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(state, targetForce, -remainingDamage) : 0;
 
 	return Math.abs(lifeChange);
 };

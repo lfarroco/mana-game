@@ -21,12 +21,14 @@ export const runCombatIO = () => {
 	if (active) {
 		throw new Error("Combat is already active");
 	}
+
+	const state = getState();
+
 	Systems.Timeout.initializeTimeoutDamageSystem();
 	Systems.Poison.initialize();
 	Systems.Regen.initialize();
-	StatusEffectSystem.initialize();
+	StatusEffectSystem.initialize(state);
 
-	const state = getState();
 	Systems.CombatStatsTracker.initialize(state);
 
 	active = true;

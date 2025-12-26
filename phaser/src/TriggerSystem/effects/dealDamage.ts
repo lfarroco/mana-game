@@ -21,7 +21,7 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		const crit = calculateCritical(sourceUnit);
 		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
+		const actualLifeChanged = applyDamageToForce(state, targetForce, damage, 0, "normal", crit.isCritical);
 		CombatStatsTracker.trackDamage(state, sourceUnit.id, actualLifeChanged);
 		shake(getCharaById(enemyCore.id));
 
@@ -30,14 +30,14 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		}
 
 		if (sourceUnit.lifesteal) {
-			manipulateCoreLife(getUnitForce(sourceUnit.force), damage);
+			manipulateCoreLife(state, getUnitForce(sourceUnit.force), damage);
 		}
 
 		if (enemyCore.reflect) {
 			const reflected = (damage * enemyCore.reflect) / 100;
 
 			if (reflected > 0) {
-				const actualLifeChanged = applyDamageToForce(targetForce, reflected);
+				const actualLifeChanged = applyDamageToForce(state, targetForce, reflected);
 				CombatStatsTracker.trackDamage(state, enemyCore.id, actualLifeChanged);
 			}
 		}

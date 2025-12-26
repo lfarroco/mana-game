@@ -33,7 +33,7 @@ async function spawnStar(state: State, damage: number, targetForce: Force) {
 		blendMode: Phaser.BlendModes.NORMAL,
 		onHit: () => {
 			// Apply damage when the shooting star hits the bar
-			applyDamageToForce(targetForce, damage, 0, "timeout");
+			applyDamageToForce(state, targetForce, damage, 0, "timeout");
 			shake(core);
 		},
 	});
