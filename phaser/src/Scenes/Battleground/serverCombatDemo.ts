@@ -3,7 +3,7 @@ import { createServerCombatEffects } from "./ServerCombatEffects.js";
 import { State } from "@Models/State.js";
 import { makeForce } from "@Models/Entities/Force.js";
 import { makeUnit } from "@Models/Entities/Unit.js";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants.js";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "./ServerConstants.js";
 
 const createMockState = (): State => {
 	const playerForce = makeForce(FORCE_ID_PLAYER);
@@ -15,11 +15,18 @@ const createMockState = (): State => {
 		{ x: 1, y: 1 },
 	);
 
+	playerUnit.isCore = true;
+	playerUnit.maxLife = 100;
+	playerUnit.life = 100;
+
 	const cpuUnit = makeUnit(
 		FORCE_ID_CPU,
 		"critical_crystal",
 		{ x: 1, y: 1 }
 	);
+	cpuUnit.isCore = true;
+	cpuUnit.maxLife = 100;
+	cpuUnit.life = 100;
 
 	return {
 		savedGames: [],

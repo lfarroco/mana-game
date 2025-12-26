@@ -1,6 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const multiplyPower = async (context: {
 	targets: Unit[];
@@ -9,15 +8,21 @@ export const multiplyPower = async (context: {
 }) => {
 	const { targets, multiplier } = context;
 
+	const effects = CombatEffectsRegistry.getCombatEffects();
+
 	for (const target of targets) {
 		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
-		const chara = getCharaById(target.id);
 		const currentPower = target.power;
 		const newPower = Math.floor(currentPower * multiplier);
 		const powerDifference = newPower - currentPower;
 
-		updateUnitPower(chara, powerDifference);
+		target.power += powerDifference;
 
-		playSoundEffect("sfx_spell_innerfocus");
+		if (effects.onPowerUpdate) {
+			effects.onPowerUpdate(target.id);
+		}
+
+		// Note: removed sfx_spell_innerfocus sound as it's not crucial for server/logic separation 
+		// or requires a generic sound callback.
 	}
 };

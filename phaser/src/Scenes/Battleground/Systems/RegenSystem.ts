@@ -1,5 +1,5 @@
 import { Force } from "@Models/Entities/Force";
-import { updateRegenDisplay } from "../ForceStats";
+import * as CombatEffectsRegistry from "../CombatEffectsRegistry";
 
 export type RegenSystemState = {
 	regenRates: Map<string, number>;
@@ -25,7 +25,8 @@ export function applyRegen(
 	const newRates = new Map(regenState.regenRates);
 	newRates.set(id, newRate);
 
-	updateRegenDisplay(targetForce.id, newRate, amount);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updateRegenDisplay(targetForce.id, newRate, amount);
 
 	return {
 		...regenState,
@@ -44,7 +45,9 @@ export function clearRegen(
 	const oldRate = getRegenRate(regenState, forceId);
 	const newRates = new Map(regenState.regenRates);
 	newRates.delete(forceId);
-	updateRegenDisplay(forceId, 0, -oldRate);
+	newRates.delete(forceId);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updateRegenDisplay(forceId, 0, -oldRate);
 
 	return {
 		...regenState,

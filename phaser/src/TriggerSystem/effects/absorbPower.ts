@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
-import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { getState } from "@Models/State";
 
@@ -14,14 +14,20 @@ export const absorbPower = (sourceUnit: Unit, targets: Unit[], permanent: boolea
 		if (absorbedAmount > 0) {
 			target.power = Math.max(0, target.power - absorbedAmount);
 			totalAbsorbed += absorbedAmount;
-			updatePowerDisplay(target.id);
+
+			const effects = CombatEffectsRegistry.getCombatEffects();
+			if (effects.onPowerUpdate) {
+				effects.onPowerUpdate(target.id);
+			}
 
 			if (target.force === FORCE_ID_PLAYER && permanent) {
 				const persistentTarget = getState().gameData.player.units.find(u => u.id === target.id)!;
 
 				if (persistentTarget !== target) {
 					persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);
-					updatePowerDisplay(persistentTarget.id);
+					if (effects.onPowerUpdate) {
+						effects.onPowerUpdate(persistentTarget.id);
+					}
 				}
 			}
 

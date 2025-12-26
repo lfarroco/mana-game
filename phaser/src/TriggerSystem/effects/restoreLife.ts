@@ -2,10 +2,9 @@ import { getAlliedCore, getBattleCore } from "@Models/Entities/Card";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import { getCharaById } from "@Systems/Chara/Chara";
 import * as PoisonSystem from "@Scenes/Battleground/Systems/PoisonDamageSystem";
 import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { healFx } from "./visuals/heal";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { processReactions } from "../TriggerSystem";
 import { State } from "@Models/State";
 
@@ -19,6 +18,8 @@ export const restoreLife = async (
 	const crit = calculateCritical(sourceUnit);
 
 	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
+	const sourceForce = getUnitForce(state, sourceUnit.id);
+	const alliedCore = getAlliedCore(state)(sourceUnit.force);
 
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(state, targetForce, amount, crit.isCritical);
@@ -42,13 +43,10 @@ export const restoreLife = async (
 		}
 	};
 
-	const sourceForce = getUnitForce(state, sourceUnit.id);
-	const alliedCore = getAlliedCore(state)(sourceUnit.force);
-
-	healFx(
-		getCharaById(sourceUnit.id),
-		getCharaById(alliedCore.id),
-		effect(sourceForce, healAmount)
-	);
-
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onHeal) {
+		effects.onHeal(sourceUnit.id, alliedCore.id, effect(sourceForce, healAmount));
+	} else {
+		effect(sourceForce, healAmount)();
+	}
 };

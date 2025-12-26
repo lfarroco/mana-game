@@ -1,6 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { Chara, getCharaById, updateUnitPower } from "@Systems/Chara/Chara";
-import { arcaneMissileTargeted } from "../../Effects";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const increasePower = async (
 	targets: Unit[],
@@ -8,37 +7,20 @@ export const increasePower = async (
 	permanent: boolean,
 	sourceUnit?: Unit // sources like orbs apply direct power increase
 ) => {
-	const effect = (targetChara: Chara) => async () => {
-		updateUnitPower(targetChara, amount, permanent);
+	const effect = (targetUnit: Unit) => async () => {
+		targetUnit.power += amount;
+		if (permanent) {
+			targetUnit.bonusPower += amount;
+		}
 	};
 
-	if (!sourceUnit) {
-		for (const target of targets) {
-			const targetChara = getCharaById(target.id);
-			effect(targetChara)();
-		}
-		return;
-	}
-
-	// Use projectile animation when sourceUnit is provided
-	const sourceChara = getCharaById(sourceUnit.id);
+	const effects = CombatEffectsRegistry.getCombatEffects();
 
 	for (const target of targets) {
-		const targetChara = getCharaById(target.id);
-
-		arcaneMissileTargeted(sourceChara, targetChara, {
-			colors: [0xffa500, 0xff8c00, 0xff4500], // Orange colors
-			amplitudeMin: 5,
-			amplitudeMax: 15,
-			particleScale: 1.5,
-			impact: {
-				colors: [0xffa500, 0xff8c00],
-				scale: 2,
-				speed: 200,
-				lifespan: 300,
-				alpha: 0.4,
-			},
-			onHit: effect(targetChara),
-		});
+		if (effects.onIncreasePower) {
+			effects.onIncreasePower(sourceUnit?.id, target.id, effect(target));
+		} else {
+			effect(target)();
+		}
 	}
 };

@@ -1,10 +1,9 @@
 import { applyDamageToForce, Force } from "@Models/Entities/Force";
-import { arcaneMissileTargeted } from "../../../Effects";
-import { getBattleCore } from "@Models/Entities/Card";
-import { getCharaById, shake } from "@Systems/Chara/Chara";
-import { MIDDLE_SCREEN, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
-import { playSoundEffect } from "@Systems/AudioManager";
+// Removed browser-specific imports
+
 import { State } from "@Models/State";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 
 const timeoutDamageInterval = 1000;
 
@@ -22,25 +21,7 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 	};
 }
 
-async function spawnStar(state: State, damage: number, targetForce: Force) {
-	const target = getBattleCore(state)(targetForce.id);
-
-	const core = getCharaById(target.id);
-
-	const colors = [0x000000];
-
-	playSoundEffect('sfx_voidhunter_attack_impact');
-
-	arcaneMissileTargeted(MIDDLE_SCREEN, core, {
-		colors,
-		blendMode: Phaser.BlendModes.NORMAL,
-		onHit: () => {
-			// Apply damage when the shooting star hits the bar
-			applyDamageToForce(state, targetForce, damage, 0, "timeout");
-			shake(core);
-		},
-	});
-}
+// spawnStar function removed, logic moved to BrowserCombatEffects
 
 export function updateTimeoutDamageSystem(
 	timeoutState: TimeoutSystemState,
@@ -99,9 +80,19 @@ function applyTimeoutDamage(
 		`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`
 	);
 
-	// Launch targeted shooting stars for each force that apply damage on hit
-	spawnStar(state, currentDamage, playerForce);
-	spawnStar(state, currentDamage, cpuForce);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+
+	const hitEffect = (force: Force) => () => {
+		applyDamageToForce(state, force, currentDamage, 0, "timeout");
+	};
+
+	if (effects.onTimeoutDamageVisual) {
+		effects.onTimeoutDamageVisual(playerForce.id, currentDamage, hitEffect(playerForce));
+		effects.onTimeoutDamageVisual(cpuForce.id, currentDamage, hitEffect(cpuForce));
+	} else {
+		hitEffect(playerForce)();
+		hitEffect(cpuForce)();
+	}
 }
 
 export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {

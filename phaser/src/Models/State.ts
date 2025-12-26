@@ -1,8 +1,8 @@
 import { Force, makeForce } from "./Entities/Force";
-import { eqVec2 } from "./Geometry";
+import { eqVec2 } from "./ServerGeometry";
 import { Unit } from "./Entities/Unit";
 import { setSeed } from "../Utils/Random";
-import { FORCE_ID_PLAYER } from "@Constants/constants";
+import { FORCE_ID_PLAYER } from "../Scenes/Battleground/ServerConstants";
 
 export type State = {
 	savedGames: string[];

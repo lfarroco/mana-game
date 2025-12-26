@@ -1,5 +1,5 @@
 import { Force } from "@Models/Entities/Force";
-import { updatePoisonDisplay } from "../ForceStats";
+import * as CombatEffectsRegistry from "../CombatEffectsRegistry";
 
 export type PoisonSystemState = {
 	poisonRates: Map<string, number>;
@@ -25,7 +25,8 @@ export function applyPoison(
 	const newRates = new Map(poisonState.poisonRates);
 	newRates.set(id, newRate);
 
-	updatePoisonDisplay(targetForce.id, newRate, amount);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updatePoisonDisplay(targetForce.id, newRate, amount);
 
 	return {
 		...poisonState,
@@ -52,10 +53,12 @@ export function reducePoison(
 	const newRates = new Map(poisonState.poisonRates);
 	if (newRate <= 0) {
 		newRates.delete(forceId);
-		updatePoisonDisplay(forceId, 0, -reduction);
+		const effects = CombatEffectsRegistry.getCombatEffects();
+		effects.updatePoisonDisplay(forceId, 0, -reduction);
 	} else {
 		newRates.set(forceId, newRate);
-		updatePoisonDisplay(forceId, newRate, -reduction);
+		const effects = CombatEffectsRegistry.getCombatEffects();
+		effects.updatePoisonDisplay(forceId, newRate, -reduction);
 	}
 
 	return {
@@ -70,7 +73,9 @@ export function clearPoison(
 ): PoisonSystemState {
 	const newRates = new Map(poisonState.poisonRates);
 	newRates.delete(forceId);
-	updatePoisonDisplay(forceId, 0, 0);
+	newRates.delete(forceId);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updatePoisonDisplay(forceId, 0, 0);
 
 	return {
 		...poisonState,

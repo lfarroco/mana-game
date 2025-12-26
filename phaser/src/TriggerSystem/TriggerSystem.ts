@@ -1,10 +1,9 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
-import { getState, getCurrentScene, State } from "@Models/State";
-import { getCharaById } from "../Systems/Chara/Chara";
-import { summonEffect } from "../Effects/summonEffect";
+import { getState, State } from "@Models/State";
 import { delay } from "@Utils/animation";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export type EffectId =
 	| "damage"
@@ -376,8 +375,10 @@ export function processReactions(state: State, triggeringUnit: Unit, effect: Eff
 					return;
 				}
 
-				const chara = getCharaById(u.id);
-				summonEffect(getCurrentScene(), chara);
+				const effects = CombatEffectsRegistry.getCombatEffects();
+				if (effects.onReactionVisual) {
+					await effects.onReactionVisual(u.id);
+				}
 				processEffectsIO(state, u, r.effects, true, triggeringUnit, scale);
 			});
 		});

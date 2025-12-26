@@ -1,6 +1,6 @@
 import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
-import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { State } from "@Models/State";
 
 export type Force = {
@@ -52,7 +52,8 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	ForceStats.updateLifeDisplay(targetForce.id, core.life, amount);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updateLifeDisplay(targetForce.id, core.life, amount);
 
 	return actualChange;
 };
@@ -79,7 +80,8 @@ export const manipulateCoreShield = (
 	}
 	const actualChange = core.shield - oldShield;
 
-	ForceStats.updateShieldDisplay(
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	effects.updateShieldDisplay(
 		targetForce.id,
 		core.shield,
 		displayFeedback ? actualChange : 0

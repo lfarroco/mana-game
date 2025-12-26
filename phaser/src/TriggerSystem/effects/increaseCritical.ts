@@ -1,7 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as AudioManager from "@Systems/AudioManager";
-import { getCharaById, updateUnitCritical } from "@Systems/Chara/Chara";
-import { arcaneMissileTargeted } from "../../Effects";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const increaseCritical = async (
 	targets: Unit[],
@@ -10,36 +8,29 @@ export const increaseCritical = async (
 	permanent: boolean = false
 ) => {
 	const effect = (target: string) => async () => {
-		const targetChara = getCharaById(target);
-		updateUnitCritical(targetChara, amount, permanent);
-		AudioManager.playSoundEffect("sfx_spell_innerfocus");
+		// Logic update only
+		const targetUnit = targets.find(u => u.id === target);
+		if (!targetUnit) return;
+
+		if (!targetUnit.critical) targetUnit.critical = 0;
+		targetUnit.critical += amount;
+
+		if (permanent) {
+			if (!targetUnit.bonusCritical) targetUnit.bonusCritical = 0;
+			targetUnit.bonusCritical += amount;
+		}
+
+		// Note: updateUnitCritical in Chara.ts also updated playerForce global unit but that seemed like state duplication.
+		// For now we stick to unit data update.
 	};
 
-	if (!sourceUnit) {
-		for (const target of targets) {
-			effect(target.id)();
-		}
-		return;
-	}
-
-	const sourceChara = getCharaById(sourceUnit.id);
+	const effects = CombatEffectsRegistry.getCombatEffects();
 
 	for (const target of targets) {
-		const targetChara = getCharaById(target.id);
-
-		arcaneMissileTargeted(sourceChara, targetChara, {
-			colors: [0xffa500, 0xff8c00, 0xff4500], // Orange colors
-			amplitudeMin: 5,
-			amplitudeMax: 15,
-			particleScale: 1.5,
-			impact: {
-				colors: [0xffa500, 0xff8c00],
-				scale: 2,
-				speed: 200,
-				lifespan: 300,
-				alpha: 0.4,
-			},
-			onHit: effect(target.id),
-		});
+		if (effects.onIncreaseCritical) {
+			effects.onIncreaseCritical(sourceUnit?.id, target.id, effect(target.id));
+		} else {
+			effect(target.id)();
+		}
 	}
 };

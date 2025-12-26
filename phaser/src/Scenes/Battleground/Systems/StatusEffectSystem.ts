@@ -1,4 +1,4 @@
-import { getCurrentScene, State } from "@Models/State";
+import { State } from "@Models/State";
 import { cpuForce, Force, manipulateCoreLife, playerForce, applyDamageToForce } from "@Models/Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
@@ -7,17 +7,11 @@ import * as CombatSystemStates from "./CombatSystemStates";
 const tickInterval: number = 1000;
 
 export type StatusEffectSystemState = {
-	timer: Phaser.Time.TimerEvent;
+	elapsed: number;
 };
 
-export function initialize(state: State): StatusEffectSystemState {
-	const timer = getCurrentScene().time.addEvent({
-		delay: tickInterval,
-		callback: tick(state),
-		loop: true,
-	});
-
-	return { timer };
+export function initialize(_state: State): StatusEffectSystemState {
+	return { elapsed: 0 };
 }
 
 const tick = (state: State) => () => {
@@ -40,8 +34,25 @@ function tickForce(state: State, force: Force): void {
 	}
 }
 
-export function stop(statusEffectState: StatusEffectSystemState): void {
-	if (statusEffectState.timer) {
-		statusEffectState.timer.destroy();
+export function update(
+	statusEffectState: StatusEffectSystemState,
+	state: State,
+	delta: number
+): StatusEffectSystemState {
+	const newElapsed = statusEffectState.elapsed + delta;
+
+	if (newElapsed >= tickInterval) {
+		tick(state)();
+		return {
+			elapsed: newElapsed - tickInterval,
+		};
 	}
+
+	return {
+		elapsed: newElapsed,
+	};
+}
+
+export function stop(_statusEffectState: StatusEffectSystemState): void {
+	// No cleanup needed
 }

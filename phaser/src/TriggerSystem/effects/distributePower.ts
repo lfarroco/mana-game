@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
-import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { getState } from "@Models/State";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 
@@ -27,5 +27,8 @@ export const distributePower = (sourceUnit: Unit, targets: Unit[], permanent: bo
 
 	increasePower(targets, powerPerTarget, permanent, sourceUnit);
 
-	updatePowerDisplay(sourceUnit.id)
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onPowerUpdate) {
+		effects.onPowerUpdate(sourceUnit.id);
+	}
 };

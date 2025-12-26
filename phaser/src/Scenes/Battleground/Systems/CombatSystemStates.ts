@@ -1,13 +1,12 @@
 import { PoisonSystemState } from "./PoisonDamageSystem";
 import { RegenSystemState } from "./RegenSystem";
 import { CombatStatsTrackerState } from "./CombatStatsTracker";
-import { ForceStatsState } from "../ForceStats";
 
 type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;
 	regenSystemState: RegenSystemState;
 	combatStatsTrackerState: CombatStatsTrackerState;
-	forceStatsState: ForceStatsState;
+	forceStatsState: any;
 };
 
 let currentCombatStates: CombatSystemStates | null = null;
@@ -44,7 +43,7 @@ export function updateCombatStatsTrackerState(state: CombatStatsTrackerState): v
 	currentCombatStates.combatStatsTrackerState = state;
 };
 
-export function updateForceStatsState(state: ForceStatsState) {
+export function updateForceStatsState(state: any) {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");
 	}
