@@ -4,8 +4,9 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
 import { getBattleCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
-import { getPoisonRate } from "./Systems/PoisonDamageSystem";
-import { getRegenRate } from "./Systems/RegenSystem";
+import * as PoisonSystem from "./Systems/PoisonDamageSystem";
+import * as RegenSystem from "./Systems/RegenSystem";
+import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "utils";
 import Phaser from "phaser";
@@ -114,8 +115,9 @@ export function updateAllStats(force: string) {
 	const core = getBattleCore(state)(force);
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
-	updateRegenDisplay(force, getRegenRate(force), 0);
-	updatePoisonDisplay(force, getPoisonRate(force), 0);
+	const combatStates = CombatSystemStates.getCombatSystemStates();
+	updateRegenDisplay(force, RegenSystem.getRegenRate(combatStates.regenSystemState, force), 0);
+	updatePoisonDisplay(force, PoisonSystem.getPoisonRate(combatStates.poisonSystemState, force), 0);
 }
 
 export function updateLifeDisplay(force: string, life: number, delta: number) {

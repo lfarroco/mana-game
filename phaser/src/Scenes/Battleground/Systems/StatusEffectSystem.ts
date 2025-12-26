@@ -2,6 +2,7 @@ import { getCurrentScene, State } from "@Models/State";
 import { cpuForce, Force, manipulateCoreLife, playerForce, applyDamageToForce } from "@Models/Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
+import * as CombatSystemStates from "./CombatSystemStates";
 
 const tickInterval: number = 1000;
 let timer: Phaser.Time.TimerEvent;
@@ -20,8 +21,10 @@ const tick = (state: State) => () => {
 }
 
 function tickForce(state: State, force: Force): void {
-	const poisonAmount = Poison.getTickAmount(force.id);
-	const regenAmount = Regen.getTickAmount(force.id);
+	const combatStates = CombatSystemStates.getCombatSystemStates();
+
+	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, force.id);
+	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, force.id);
 
 	const netHealing = regenAmount - poisonAmount;
 

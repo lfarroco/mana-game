@@ -5,7 +5,10 @@ import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as Systems from "./Systems";
 import { TimeoutSystemState } from "./Systems/TimeoutDamageSystem";
+import { PoisonSystemState } from "./Systems/PoisonDamageSystem";
+import { RegenSystemState } from "./Systems/RegenSystem";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
+import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
@@ -24,6 +27,8 @@ export type CombatRunner = {
 type CombatRunnerState = {
 	active: boolean;
 	timeoutSystemState: TimeoutSystemState;
+	poisonSystemState: PoisonSystemState;
+	regenSystemState: RegenSystemState;
 };
 
 export const runCombatIO = (): CombatRunner => {
@@ -32,10 +37,15 @@ export const runCombatIO = (): CombatRunner => {
 	const runnerState: CombatRunnerState = {
 		active: true,
 		timeoutSystemState: Systems.Timeout.initializeTimeoutDamageSystem(),
+		poisonSystemState: Systems.Poison.initializePoisonSystem(),
+		regenSystemState: Systems.Regen.initializeRegenSystem(),
 	};
 
-	Systems.Poison.initialize();
-	Systems.Regen.initialize();
+	CombatSystemStates.setCombatSystemStates({
+		poisonSystemState: runnerState.poisonSystemState,
+		regenSystemState: runnerState.regenSystemState,
+	});
+
 	StatusEffectSystem.initialize(state);
 
 	Systems.CombatStatsTracker.initialize(state);
@@ -64,6 +74,10 @@ export const runCombatIO = (): CombatRunner => {
 
 			Systems.CombatStatsTracker.trackAction({ unit });
 			processEffectsIO(state, unit, unit.effects, false);
+
+			const combatStates = CombatSystemStates.getCombatSystemStates();
+			runnerState.poisonSystemState = combatStates.poisonSystemState;
+			runnerState.regenSystemState = combatStates.regenSystemState;
 		}
 
 		runnerState.timeoutSystemState = Systems.Timeout.updateTimeoutDamageSystem(
@@ -93,13 +107,12 @@ export const runCombatIO = (): CombatRunner => {
 
 		runnerState.active = false;
 
-		Systems.Regen.stop();
-		Systems.Poison.stop();
 		StatusEffectSystem.stop();
 		runnerState.timeoutSystemState = Systems.Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
 		Systems.CountdownTimer.stop();
 		deactivateBlackHole();
 		runnerState.timeoutSystemState = Systems.Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
+		CombatSystemStates.clearCombatSystemStates();
 
 		Systems.CombatStatsTracker.stop(state);
 		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);

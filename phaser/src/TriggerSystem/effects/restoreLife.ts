@@ -3,7 +3,8 @@ import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force"
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
-import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
+import * as PoisonSystem from "@Scenes/Battleground/Systems/PoisonDamageSystem";
+import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import { healFx } from "./visuals/heal";
 import { processReactions } from "../TriggerSystem";
 import { State } from "@Models/State";
@@ -24,7 +25,13 @@ export const restoreLife = async (
 
 		CombatStatsTracker.trackHeal(state, sourceUnit.id, actualHealing);
 
-		reducePoison(targetForce.id, actualHealing);
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		const newPoisonState = PoisonSystem.reducePoison(
+			combatStates.poisonSystemState,
+			targetForce.id,
+			actualHealing
+		);
+		CombatSystemStates.updatePoisonSystemState(newPoisonState);
 
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });
