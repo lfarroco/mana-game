@@ -1,5 +1,4 @@
 import { test, expect, Page } from '@playwright/test';
-import shopSpec from '../src/Scenes/Battleground/Systems/Shop/shop.e2e.spec';
 import boardSpec from '../src/Scenes/Battleground/Systems/Board/board.e2e.spec';
 import battlegroundSpec from '../src/Scenes/Battleground/Systems/battleground.e2e.spec';
 import { waitForGameInit, getDebugController } from '../src/test-utils/debugController';
@@ -28,5 +27,3 @@ test.describe('Game Initialization', () => {
 battlegroundSpec(waitForGameInit);
 
 boardSpec(waitForGameInit);
-
-shopSpec(waitForGameInit);

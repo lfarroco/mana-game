@@ -10,6 +10,10 @@ import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { getState, State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
+import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";
+import { handleCombatStartExecution } from "@Scenes/Battleground/Systems/CombatPhase";
+import { chooseEncounter as executeEncounterChoice } from "@Scenes/Battleground/Systems/Encounter";
+import { getCurrentScene } from "@Models/State";
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);
@@ -54,8 +58,8 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
 }
 
-export function clickNextRound(state: State): string {
-	handlePhaseEnded(state);
+export function clickNextRound(): string {
+	handlePhaseEnded(getState());
 	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 }
 
@@ -159,6 +163,42 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 
 export function clickGameStart() {
 	startGame();
+}
+
+export function clickNewRun() {
+	startGame();
+	return "Started new run sequence";
+}
+
+export function selectCrystal(index: number) {
+	const scene = getCurrentScene();
+	if (scene instanceof CrystalSelectionScene) {
+		// @ts-ignore - Accessing private property for testing
+		scene.currentIndex = index;
+		// @ts-ignore - Accessing private method for testing
+		scene.updateDisplay();
+		return `Selected crystal at index ${index}`;
+	}
+	return "Error: Current scene is not CrystalSelectionScene";
+}
+
+export function confirmCrystalSelection() {
+	const scene = getCurrentScene();
+	if (scene instanceof CrystalSelectionScene) {
+		// @ts-ignore - Accessing private method for testing
+		scene.startGameWithCrystal();
+		return "Confirmed crystal selection";
+	}
+	return "Error: Current scene is not CrystalSelectionScene";
+}
+
+export function clickReady() {
+	handleCombatStartExecution({ enemies: [] });
+	return "Executed combat start (Ready clicked)";
+}
+
+export function chooseEncounter(index: number) {
+	return executeEncounterChoice(index);
 }
 
 export async function summon(
