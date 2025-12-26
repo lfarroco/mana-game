@@ -25,12 +25,14 @@ type CurrentCombatStats = {
 	shieldDealt: number;
 };
 
-let unitStats: Map<string, UnitCombatStats> = new Map();
-let currentCombatStats: Map<string, CurrentCombatStats> = new Map();
+export type CombatStatsTrackerState = {
+	unitStats: Map<string, UnitCombatStats>;
+	currentCombatStats: Map<string, CurrentCombatStats>;
+};
 
-function getForceStats(forceId: string): CurrentCombatStats {
-	if (!currentCombatStats.has(forceId)) {
-		currentCombatStats.set(forceId, {
+function getForceStats(trackerState: CombatStatsTrackerState, forceId: string): CurrentCombatStats {
+	if (!trackerState.currentCombatStats.has(forceId)) {
+		trackerState.currentCombatStats.set(forceId, {
 			damageDealt: 0,
 			poisonDealt: 0,
 			healDealt: 0,
@@ -38,12 +40,12 @@ function getForceStats(forceId: string): CurrentCombatStats {
 			shieldDealt: 0,
 		});
 	}
-	return currentCombatStats.get(forceId)!;
+	return trackerState.currentCombatStats.get(forceId)!;
 }
 
-export function initialize(state: State): void {
-	unitStats.clear();
-	currentCombatStats.clear();
+export function initialize(state: State): CombatStatsTrackerState {
+	const unitStats = new Map<string, UnitCombatStats>();
+	const currentCombatStats = new Map<string, CurrentCombatStats>();
 
 	const allUnits = state.battleData.units;
 
@@ -63,10 +65,12 @@ export function initialize(state: State): void {
 	}
 
 	console.log("[CombatStatsTracker] Initialized for new combat");
+
+	return { unitStats, currentCombatStats };
 }
 
-export function trackAction(payload: { unit: Unit }): void {
-	const stats = unitStats.get(payload.unit.id)!;
+export function trackAction(trackerState: CombatStatsTrackerState, payload: { unit: Unit }): void {
+	const stats = trackerState.unitStats.get(payload.unit.id)!;
 
 	stats.actionsPerformed += 1;
 	console.log(
@@ -121,6 +125,7 @@ const STAT_CONFIGS: Record<string, StatConfig> = {
 };
 
 function trackStat(
+	trackerState: CombatStatsTrackerState,
 	state: State,
 	amount: number,
 	sourceUnitId: string,
@@ -129,13 +134,11 @@ function trackStat(
 	if (amount <= 0) return;
 
 	const config = STAT_CONFIGS[configKey];
-	const stats = unitStats.get(sourceUnitId)!;
+	const stats = trackerState.unitStats.get(sourceUnitId)!;
 
-	// Update Unit Stats
 	(stats[config.unitStatKey] as number) += amount;
 
-	// Update Force Stats & Check Reactor
-	const forceStats = getForceStats(stats.forceId);
+	const forceStats = getForceStats(trackerState, stats.forceId);
 	const oldTotal = forceStats[config.forceStatKey];
 	forceStats[config.forceStatKey] += amount;
 
@@ -151,37 +154,37 @@ function trackStat(
 	}
 }
 
-export function trackDamage(state: State, sourceUnitId: string, damage: number): void {
-	trackStat(state, damage, sourceUnitId, "damage");
+export function trackDamage(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, damage: number): void {
+	trackStat(trackerState, state, damage, sourceUnitId, "damage");
 }
 
-export function trackPoison(state: State, sourceUnitId: string, poison: number): void {
-	trackStat(state, poison, sourceUnitId, "poison");
+export function trackPoison(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, poison: number): void {
+	trackStat(trackerState, state, poison, sourceUnitId, "poison");
 }
 
-export function trackHeal(state: State, sourceUnitId: string, healing: number): void {
-	trackStat(state, healing, sourceUnitId, "heal");
+export function trackHeal(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, healing: number): void {
+	trackStat(trackerState, state, healing, sourceUnitId, "heal");
 }
 
-export function trackRegen(state: State, sourceUnitId: string, regen: number): void {
-	trackStat(state, regen, sourceUnitId, "regen");
+export function trackRegen(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, regen: number): void {
+	trackStat(trackerState, state, regen, sourceUnitId, "regen");
 }
 
-export function trackShield(state: State, sourceUnitId: string, shield: number): void {
-	trackStat(state, shield, sourceUnitId, "shield");
+export function trackShield(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, shield: number): void {
+	trackStat(trackerState, state, shield, sourceUnitId, "shield");
 }
 
 
-export function getUnitStats(unitId: string): UnitCombatStats | undefined {
-	return unitStats.get(unitId);
+export function getUnitStats(trackerState: CombatStatsTrackerState, unitId: string): UnitCombatStats | undefined {
+	return trackerState.unitStats.get(unitId);
 }
 
-export function stop(state: State): void {
+export function stop(trackerState: CombatStatsTrackerState, state: State): void {
 	const { gameData } = state;
 	const { runStats } = gameData;
 
 	const playerForceId = gameData.player.id;
-	const playerStats = getForceStats(playerForceId);
+	const playerStats = getForceStats(trackerState, playerForceId);
 
 	runStats.damageDealt += playerStats.damageDealt;
 	runStats.poisonDealt += playerStats.poisonDealt;
@@ -200,7 +203,3 @@ export function stop(state: State): void {
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
 
-
-export function reset(): void {
-	unitStats.clear();
-}

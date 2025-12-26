@@ -1,6 +1,7 @@
 import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
+import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { getEnemyCore } from "@Models/Entities/Card";
 import { State } from "@Models/State";
@@ -22,7 +23,8 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 		const actualLifeChanged = applyDamageToForce(state, targetForce, damage, 0, "normal", crit.isCritical);
-		CombatStatsTracker.trackDamage(state, sourceUnit.id, actualLifeChanged);
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualLifeChanged);
 		shake(getCharaById(enemyCore.id));
 
 		if (crit.isCritical) {
@@ -38,7 +40,8 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 
 			if (reflected > 0) {
 				const actualLifeChanged = applyDamageToForce(state, targetForce, reflected);
-				CombatStatsTracker.trackDamage(state, enemyCore.id, actualLifeChanged);
+				const combatStates = CombatSystemStates.getCombatSystemStates();
+				CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, state, enemyCore.id, actualLifeChanged);
 			}
 		}
 	};

@@ -5,14 +5,19 @@ import * as Regen from "./RegenSystem";
 import * as CombatSystemStates from "./CombatSystemStates";
 
 const tickInterval: number = 1000;
-let timer: Phaser.Time.TimerEvent;
 
-export function initialize(state: State): void {
-	timer = getCurrentScene().time.addEvent({
+export type StatusEffectSystemState = {
+	timer: Phaser.Time.TimerEvent;
+};
+
+export function initialize(state: State): StatusEffectSystemState {
+	const timer = getCurrentScene().time.addEvent({
 		delay: tickInterval,
 		callback: tick(state),
 		loop: true,
 	});
+
+	return { timer };
 }
 
 const tick = (state: State) => () => {
@@ -35,8 +40,8 @@ function tickForce(state: State, force: Force): void {
 	}
 }
 
-export function stop(): void {
-	if (timer) {
-		timer.destroy();
+export function stop(statusEffectState: StatusEffectSystemState): void {
+	if (statusEffectState.timer) {
+		statusEffectState.timer.destroy();
 	}
 }

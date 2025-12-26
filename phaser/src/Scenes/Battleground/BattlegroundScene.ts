@@ -80,8 +80,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		UIManager.init(state);
 
-		Systems.CountdownTimer.initializeCountdownTimer(this);
-
 		ResultsUI.createResultsUI();
 
 		DiscardZone.create();

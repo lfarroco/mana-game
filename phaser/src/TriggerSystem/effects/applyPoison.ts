@@ -36,7 +36,7 @@ export const applyPoisonLogicIO = async (
 		);
 		CombatSystemStates.updatePoisonSystemState(newPoisonState);
 
-		CombatStatsTracker.trackPoison(state, sourceUnit.id, amount);
+		CombatStatsTracker.trackPoison(combatStates.combatStatsTrackerState, state, sourceUnit.id, amount);
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });
 		}

@@ -23,9 +23,9 @@ export const restoreLife = async (
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(state, targetForce, amount, crit.isCritical);
 
-		CombatStatsTracker.trackHeal(state, sourceUnit.id, actualHealing);
-
 		const combatStates = CombatSystemStates.getCombatSystemStates();
+		CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualHealing);
+
 		const newPoisonState = PoisonSystem.reducePoison(
 			combatStates.poisonSystemState,
 			targetForce.id,
