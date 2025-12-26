@@ -146,7 +146,7 @@ function trackStat(
 
 		if (diff > 0) {
 			const unit = state.battleData.units.find((u) => u.id === sourceUnitId)!;
-			processReactions(unit, { id: config.reactionId as any }, diff);
+			processReactions(state, unit, { id: config.reactionId as any }, diff);
 		}
 	}
 }

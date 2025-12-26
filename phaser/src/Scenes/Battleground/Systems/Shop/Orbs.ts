@@ -54,12 +54,14 @@ const increaseCriticalOnType = (type: string) => () => ({
 		if (!unit.effects.find(eff => eff.id === type)) return false;
 
 		// Use processEffectsIO with permanent=true for shop orbs
-		processEffectsIO(unit, [{
-			id: "increase_critical",
-			amount: 10,
-			targets: { id: "self" },
-			permanent: true,
-		}], false);
+		processEffectsIO(
+			getState(),
+			unit, [{
+				id: "increase_critical",
+				amount: 10,
+				targets: { id: "self" },
+				permanent: true,
+			}], false);
 
 		console.log(`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`);
 		return true;
@@ -464,7 +466,9 @@ export const orbsIndex: Record<
 		tooltip: t("shop.orbs.distributePower.tooltip"),
 		icon: "ui/power_distributor",
 		effect: (unit: Unit) => {
-			const targets = resolveTargets(unit, {
+			const targets = resolveTargets(
+				getState(),
+				unit, {
 				id: "distribute_power",
 				targets: {
 					id: "row_allies"
@@ -481,12 +485,15 @@ export const orbsIndex: Record<
 		tooltip: t("shop.orbs.absorbPower.tooltip"),
 		icon: "ui/power_absorber",
 		effect: (unit: Unit) => {
-			const targets = resolveTargets(unit, {
-				id: "absorb_power",
-				targets: {
-					id: "row_allies"
-				}
-			});
+			const targets = resolveTargets(
+				getState(),
+				unit,
+				{
+					id: "absorb_power",
+					targets: {
+						id: "row_allies"
+					}
+				});
 			absorbPower(unit, targets, true);
 			return true;
 		}

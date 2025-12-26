@@ -6,9 +6,9 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { poisonFx } from "./visuals/poison";
 import { processReactions } from "../TriggerSystem";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 
-export const applyPoisonLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
+export const applyPoisonLogicIO = async (state: State, sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
 	const crit = calculateCritical(sourceUnit);
@@ -16,8 +16,6 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit, scale: number = 1) =>
 	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
 	const targetForce = getEnemyForce(sourceUnit.id);
-
-	const state = getState();
 
 	console.log(
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
@@ -27,7 +25,7 @@ export const applyPoisonLogicIO = async (sourceUnit: Unit, scale: number = 1) =>
 		applyPoison(targetForce, amount, crit.isCritical);
 		CombatStatsTracker.trackPoison(state, sourceUnit.id, amount);
 		if (crit.isCritical) {
-			processReactions(sourceUnit, { id: "on_crit" });
+			processReactions(state, sourceUnit, { id: "on_crit" });
 		}
 	}
 

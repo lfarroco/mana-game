@@ -3,21 +3,19 @@ import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { getEnemyCore } from "@Models/Entities/Card";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { damageFx } from "./visuals/damage";
 import { processReactions } from "../TriggerSystem";
 
-export function dealDamageLogicIO(sourceUnit: Unit, scale: number = 1) {
+export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number = 1) {
 	const damageAmount = sourceUnit.power;
 
-	const targetForce = getState().battleData.forces.find(
+	const targetForce = state.battleData.forces.find(
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 
 	const enemyCore = getEnemyCore(sourceUnit.force);
-
-	const state = getState();
 
 	const effect = () => {
 		const crit = calculateCritical(sourceUnit);
@@ -28,7 +26,7 @@ export function dealDamageLogicIO(sourceUnit: Unit, scale: number = 1) {
 		shake(getCharaById(enemyCore.id));
 
 		if (crit.isCritical) {
-			processReactions(sourceUnit, { id: "on_crit" });
+			processReactions(state, sourceUnit, { id: "on_crit" });
 		}
 
 		if (sourceUnit.lifesteal) {
