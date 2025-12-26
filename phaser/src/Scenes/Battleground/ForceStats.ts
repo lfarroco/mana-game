@@ -138,6 +138,12 @@ export function updateAllStats(force: string) {
 
 	const gameState = getState();
 	const core = getBattleCore(gameState)(force);
+
+	if (!core) {
+		console.warn(`[ForceStats] Core not found for force ${force}`);
+		return;
+	}
+
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
 	const combatStates = CombatSystemStates.getCombatSystemStates();
