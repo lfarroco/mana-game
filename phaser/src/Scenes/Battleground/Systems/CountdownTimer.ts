@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { activateBlackHole } from "../BlackHole";
+import { activateBlackHole, BlackHoleState } from "../BlackHole";
 import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 
 export type CountdownTimerState = {
@@ -8,15 +8,17 @@ export type CountdownTimerState = {
 	timerCircle: Phaser.GameObjects.Arc | null;
 	timerValue: number;
 	timerEvent: Phaser.Time.TimerEvent | null;
+	blackHoleState: BlackHoleState;
 };
 
-export function initializeCountdownTimer(gameScene: Phaser.Scene): CountdownTimerState {
+export function initializeCountdownTimer(gameScene: Phaser.Scene, blackHoleState: BlackHoleState): CountdownTimerState {
 	return {
 		scene: gameScene,
 		timerText: null,
 		timerCircle: null,
 		timerValue: 30,
 		timerEvent: null,
+		blackHoleState,
 	};
 }
 
@@ -76,7 +78,7 @@ function makeUpdateTimer(
 			timerText.setVisible(false);
 			timerCircle.setVisible(false);
 
-			activateBlackHole();
+			timerState.blackHoleState = activateBlackHole(timerState.blackHoleState);
 		}
 	};
 }

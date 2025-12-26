@@ -3,18 +3,20 @@ import { getCurrentScene } from "@Models/State";
 import { Shader } from "@PhaserIO";
 import { arcaneTornadoFragmentShader } from "@Shaders/ArcaneTornado";
 
-let blackHole: Phaser.GameObjects.Shader;
-let timer: Phaser.Time.TimerEvent;
-let dissolve = 0;
+export type BlackHoleState = {
+	blackHole: Phaser.GameObjects.Shader | null;
+	timer: Phaser.Time.TimerEvent | null;
+	dissolve: number;
+};
 
-export function initBlackHole() {
-	dissolve = 0;
+export function initBlackHole(): BlackHoleState {
+	const dissolve = 0;
 
-	blackHole = Shader(
+	const blackHole = Shader(
 		arcaneTornadoFragmentShader,
 		MIDDLE_SCREEN,
 		{ width: 800, height: 800 }, [
-		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] }, // black core
+		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "color2", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "intensity", type: "1f", value: 0.1 },
 		{ key: "speed", type: "1f", value: 1.0 },
@@ -23,40 +25,56 @@ export function initBlackHole() {
 
 	blackHole.setUniform("dissolveProgress.value", 0);
 
-	return blackHole;
+	return {
+		blackHole,
+		timer: null,
+		dissolve,
+	};
 }
 
-export function activateBlackHole() {
-	if (!blackHole) return;
+export function activateBlackHole(state: BlackHoleState): BlackHoleState {
+	if (!state.blackHole) return state;
 
-	dissolve = 0;
+	const dissolve = 0;
 	const scene = getCurrentScene();
 
-	if (timer) timer.destroy();
+	if (state.timer) state.timer.destroy();
 
-	timer = scene.time.addEvent({
+	const timer = scene.time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {
-			dissolve += 0.1;
-			blackHole.setUniform("dissolveProgress.value", dissolve);
+			state.dissolve += 0.1;
+			state.blackHole?.setUniform("dissolveProgress.value", state.dissolve);
 		},
 	});
+
+	return {
+		...state,
+		dissolve,
+		timer,
+	};
 }
 
-export function deactivateBlackHole() {
-	if (!blackHole) return;
+export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
+	if (!state.blackHole) return state;
 
-	dissolve = 1;
+	const dissolve = 1;
 
-	if (timer) timer.destroy();
+	if (state.timer) state.timer.destroy();
 
-	timer = getCurrentScene().time.addEvent({
+	const timer = getCurrentScene().time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {
-			dissolve -= 0.1;
-			blackHole.setUniform("dissolveProgress.value", dissolve);
+			state.dissolve -= 0.1;
+			state.blackHole?.setUniform("dissolveProgress.value", state.dissolve);
 		},
 	});
+
+	return {
+		...state,
+		dissolve,
+		timer,
+	};
 }

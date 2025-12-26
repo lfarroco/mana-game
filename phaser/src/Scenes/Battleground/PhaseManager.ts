@@ -120,8 +120,11 @@ export function handlePhaseEnded(state: State): void {
 
 	// TODO: the combat phase itself should do this, when it ends
 	if (currentPhase === "combat") {
-		destroyForceStats(c.FORCE_ID_CPU);
-		destroyForceStats(c.FORCE_ID_PLAYER);
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		let forceStatsState = combatStates.forceStatsState;
+		forceStatsState = destroyForceStats(forceStatsState, c.FORCE_ID_CPU);
+		forceStatsState = destroyForceStats(forceStatsState, c.FORCE_ID_PLAYER);
+		CombatSystemStates.updateForceStatsState(forceStatsState);
 		state.gameData.player.units.forEach(resetUnitStats);
 	}
 

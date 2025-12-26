@@ -39,7 +39,7 @@ export function setupSceneElements() {
 	scene.bgContainer = scene.add.container(0, 0);
 	ControlsSystem.init(scene);
 
-	scene.bgContainer.add([scene.cloudsBackground, initBlackHole()]);
+	scene.bgContainer.add([scene.cloudsBackground, initBlackHole().blackHole!]);
 
 	Board.init();
 }
