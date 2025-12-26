@@ -17,12 +17,14 @@ export function dealDamageLogicIO(sourceUnit: Unit, scale: number = 1) {
 
 	const enemyCore = getEnemyCore(sourceUnit.force);
 
+	const state = getState();
+
 	const effect = () => {
 		const crit = calculateCritical(sourceUnit);
 		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 		const actualLifeChanged = applyDamageToForce(targetForce, damage, 0, "normal", crit.isCritical);
-		CombatStatsTracker.trackDamage(sourceUnit.id, actualLifeChanged);
+		CombatStatsTracker.trackDamage(state, sourceUnit.id, actualLifeChanged);
 		shake(getCharaById(enemyCore.id));
 
 		if (crit.isCritical) {
@@ -38,7 +40,7 @@ export function dealDamageLogicIO(sourceUnit: Unit, scale: number = 1) {
 
 			if (reflected > 0) {
 				const actualLifeChanged = applyDamageToForce(targetForce, reflected);
-				CombatStatsTracker.trackDamage(enemyCore.id, actualLifeChanged);
+				CombatStatsTracker.trackDamage(state, enemyCore.id, actualLifeChanged);
 			}
 		}
 	};

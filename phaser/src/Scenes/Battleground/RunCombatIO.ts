@@ -1,4 +1,4 @@
-import { getCurrentScene, getState } from "@Models/State";
+import { getCurrentScene, getState, State } from "@Models/State";
 import { MIN_COOLDOWN } from "@Constants/constants";
 import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
@@ -25,7 +25,9 @@ export const runCombatIO = () => {
 	Systems.Poison.initialize();
 	Systems.Regen.initialize();
 	StatusEffectSystem.initialize();
-	Systems.CombatStatsTracker.initialize();
+
+	const state = getState();
+	Systems.CombatStatsTracker.initialize(state);
 
 	active = true;
 	Systems.CountdownTimer.start();
@@ -48,7 +50,7 @@ export function updateFrame(_time: number, delta: number): void {
 
 	const scaledDelta = delta * getCurrentScene().time.timeScale;
 
-	const unitsReadyToAct = chargeUnits(scaledDelta);
+	const unitsReadyToAct = chargeUnits(state, scaledDelta);
 
 	for (const unit of unitsReadyToAct) {
 		Animations.pop(unit.id);
@@ -85,7 +87,9 @@ export async function finishCombat(outcome: WaveOutcome) {
 	Systems.CountdownTimer.stop();
 	deactivateBlackHole();
 	Systems.Timeout.onTimeoutDamageCombatEnd();
-	Systems.CombatStatsTracker.stop();
+
+	const state = getState();
+	Systems.CombatStatsTracker.stop(state);
 	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 	if (outcome === "player_lost") {
@@ -96,17 +100,17 @@ export async function finishCombat(outcome: WaveOutcome) {
 
 	await delay(300);
 
-	Systems.ResultsPhase.handleCombatEnded(outcome);
+	Systems.ResultsPhase.handleCombatEnded(state, outcome);
 }
 
 export function isActive(): boolean {
 	return active;
 }
 
-function chargeUnits(delta: number): Unit[] {
+function chargeUnits(state: State, delta: number): Unit[] {
 	let performingUnits: Unit[] = [];
 
-	for (const unit of getState().battleData.units) {
+	for (const unit of state.battleData.units) {
 		const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 		const chargeRate = 1 / cooldownMultiplier;
 

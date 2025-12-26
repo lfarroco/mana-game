@@ -1,4 +1,4 @@
-import { getState, getCurrentScene } from "@Models/State";
+import { State, getCurrentScene } from "@Models/State";
 import { delay } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ResultsUI from "../Results/ResultsUI";
@@ -11,8 +11,7 @@ import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
 
-export async function handleCombatEndedDefeat(): Promise<void> {
-	const state = getState();
+export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	console.log("Round", state.gameData.round, "Processing Defeat...");
 
 	AudioManager.playSoundEffect("sfx_victory_match");
@@ -20,14 +19,13 @@ export async function handleCombatEndedDefeat(): Promise<void> {
 	await delay(300);
 
 	ResultsUI.displayResults("defeat", async () => {
-		await handleDefeat();
+		await handleDefeat(state);
 	});
 	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
 }
 
-export async function handleCombatEndedVictory(): Promise<void> {
-	const state = getState();
+export async function handleCombatEndedVictory(state: State): Promise<void> {
 	console.log("Round", state.gameData.round, "Processing Victory...");
 
 	AudioManager.playSoundEffect("sfx_victory_reward_chant");
@@ -35,17 +33,15 @@ export async function handleCombatEndedVictory(): Promise<void> {
 	await delay(300);
 
 	ResultsUI.displayResults("victory", async () => {
-		await handleVictory();
+		await handleVictory(state);
 	});
 	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
 }
 
-export function handleCombatEnded(combatResult: string) {
+export function handleCombatEnded(state: State, combatResult: string) {
 	deactivateBlackHole();
 
-	// Track unit usage and most powerful unit from battle data (buffs still active)
-	const state = getState();
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 
 	if (!state.gameData.isSeeded) {
@@ -57,16 +53,15 @@ export function handleCombatEnded(combatResult: string) {
 	}
 
 	if (combatResult === "player_won") {
-		handleCombatEndedVictory();
+		handleCombatEndedVictory(state);
 	} else {
-		handleCombatEndedDefeat();
+		handleCombatEndedDefeat(state);
 	}
 }
 
-async function handleVictory(): Promise<void> {
+async function handleVictory(state: State): Promise<void> {
 	PrestigeSystem.finalizeRound();
 
-	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
 
 	saveGameData();
@@ -75,10 +70,9 @@ async function handleVictory(): Promise<void> {
 	PhaseManager.handlePhaseEnded();
 }
 
-async function handleDefeat(): Promise<void> {
+async function handleDefeat(state: State): Promise<void> {
 	PrestigeSystem.finalizeRound();
 
-	const state = getState();
 	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
 
 	const player = state.gameData.player;

@@ -1,6 +1,6 @@
 import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 import { processReactions } from "TriggerSystem/TriggerSystem";
 
 export type UnitCombatStats = {
@@ -41,11 +41,11 @@ function getForceStats(forceId: string): CurrentCombatStats {
 	return currentCombatStats.get(forceId)!;
 }
 
-export function initialize(): void {
+export function initialize(state: State): void {
 	unitStats.clear();
 	currentCombatStats.clear();
 
-	const allUnits = getState().battleData.units;
+	const allUnits = state.battleData.units;
 
 	for (const unit of allUnits) {
 		unitStats.set(unit.id, {
@@ -121,6 +121,7 @@ const STAT_CONFIGS: Record<string, StatConfig> = {
 };
 
 function trackStat(
+	state: State,
 	amount: number,
 	sourceUnitId: string,
 	configKey: keyof typeof STAT_CONFIGS
@@ -144,30 +145,30 @@ function trackStat(
 		const diff = newThresholds - oldThresholds;
 
 		if (diff > 0) {
-			const unit = getState().battleData.units.find((u) => u.id === sourceUnitId)!;
+			const unit = state.battleData.units.find((u) => u.id === sourceUnitId)!;
 			processReactions(unit, { id: config.reactionId as any }, diff);
 		}
 	}
 }
 
-export function trackDamage(sourceUnitId: string, damage: number): void {
-	trackStat(damage, sourceUnitId, "damage");
+export function trackDamage(state: State, sourceUnitId: string, damage: number): void {
+	trackStat(state, damage, sourceUnitId, "damage");
 }
 
-export function trackPoison(sourceUnitId: string, poison: number): void {
-	trackStat(poison, sourceUnitId, "poison");
+export function trackPoison(state: State, sourceUnitId: string, poison: number): void {
+	trackStat(state, poison, sourceUnitId, "poison");
 }
 
-export function trackHeal(sourceUnitId: string, healing: number): void {
-	trackStat(healing, sourceUnitId, "heal");
+export function trackHeal(state: State, sourceUnitId: string, healing: number): void {
+	trackStat(state, healing, sourceUnitId, "heal");
 }
 
-export function trackRegen(sourceUnitId: string, regen: number): void {
-	trackStat(regen, sourceUnitId, "regen");
+export function trackRegen(state: State, sourceUnitId: string, regen: number): void {
+	trackStat(state, regen, sourceUnitId, "regen");
 }
 
-export function trackShield(sourceUnitId: string, shield: number): void {
-	trackStat(shield, sourceUnitId, "shield");
+export function trackShield(state: State, sourceUnitId: string, shield: number): void {
+	trackStat(state, shield, sourceUnitId, "shield");
 }
 
 
@@ -175,8 +176,8 @@ export function getUnitStats(unitId: string): UnitCombatStats | undefined {
 	return unitStats.get(unitId);
 }
 
-export function stop(): void {
-	const { gameData } = getState();
+export function stop(state: State): void {
+	const { gameData } = state;
 	const { runStats } = gameData;
 
 	const playerForceId = gameData.player.id;
@@ -188,7 +189,7 @@ export function stop(): void {
 	runStats.regenDealt += playerStats.regenDealt;
 	runStats.shieldDealt += playerStats.shieldDealt;
 
-	const { player } = getState().gameData;
+	const { player } = state.gameData;
 	for (const unit of player.units) {
 
 		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {

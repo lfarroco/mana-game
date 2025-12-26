@@ -17,13 +17,15 @@ export const applyRegenLogicIO = async (sourceUnit: Unit, scale: number = 1) => 
 
 	const targetForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
+	const state = getState();
+
 	console.log(
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
 	const effect = () => {
 		applyRegen(targetForce, amount, crit.isCritical);
-		CombatStatsTracker.trackRegen(sourceUnit.id, amount);
+		CombatStatsTracker.trackRegen(state, sourceUnit.id, amount);
 		if (crit.isCritical) {
 			processReactions(sourceUnit, { id: "on_crit" });
 		}
