@@ -22,7 +22,7 @@ export const addShieldLogicIO = async (
 
 		const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, crit.isCritical, true);
+		const actualShieldChange = manipulateCoreShield(state, sourceForce, shieldAmount, crit.isCritical, true);
 
 		if (actualShieldChange > 0) {
 			CombatStatsTracker.trackShield(state, sourceUnit.id, actualShieldChange);

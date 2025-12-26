@@ -87,6 +87,9 @@ if (typeof window !== "undefined") {
 	window.state = state;
 }
 
+/**
+ * Use this only for operations not related to combat, as we need to run this on the server
+ */
 export const getState = (): State => {
 	return state.currentState;
 };

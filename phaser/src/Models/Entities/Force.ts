@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 
 export type Force = {
 	id: string;
@@ -54,12 +54,13 @@ export const manipulateCoreLife = (
 };
 
 export const manipulateCoreShield = (
+	state: State,
 	targetForce: Force,
 	amount: number,
 	_isCritical: boolean,
 	displayFeedback: boolean = true
 ): number => {
-	const core = getBattleCore(getState())(targetForce.id);
+	const core = getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot restore shield
 	if (core.life <= 0 && amount > 0) {
@@ -116,7 +117,7 @@ export const applyDamageToForce = (
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateCoreShield(targetForce, -shieldAbsorbed, false, false);
+		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, false);
 		remainingDamage -= shieldAbsorbed;
 	}
 
@@ -125,14 +126,12 @@ export const applyDamageToForce = (
 	return Math.abs(lifeChange);
 };
 
-export const getUnitForce = (unitId: string) => {
-	const state = getState();
+export const getUnitForce = (state: State, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id === unit.force)!;
 };
 
-export const getEnemyForce = (unitId: string) => {
-	const state = getState();
+export const getEnemyForce = (state: State, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id !== unit.force)!;
 };
