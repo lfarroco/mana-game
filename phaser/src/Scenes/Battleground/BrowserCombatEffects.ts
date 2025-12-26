@@ -22,7 +22,7 @@ import { shake } from "@Systems/Chara/Chara";
 import { hasteEffect } from "../../Effects/hasteEffect";
 import { slowEffect } from "../../Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import { MIDDLE_SCREEN } from "@Constants/constants";
+import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { getState } from "@Models/State";
 
 export const createBrowserCombatEffects = (): CombatEffects => {
@@ -81,8 +81,8 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 
 		initForceStats: () => {
 			let state = ForceStats.initializeForceStatsState();
-			state = ForceStats.createForceStats(state, "player");
-			state = ForceStats.createForceStats(state, "cpu");
+			state = ForceStats.createForceStats(state, FORCE_ID_PLAYER);
+			state = ForceStats.createForceStats(state, FORCE_ID_CPU);
 			return state;
 		},
 
