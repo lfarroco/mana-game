@@ -3,7 +3,7 @@ import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "../../../../utils";
 import * as sc from "./constants";
-import { getCurrentScene, getState } from "@Models/State";
+import { getCurrentScene, State } from "@Models/State";
 import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "./Orbs";
 import { eqVec2 } from "@Models/Geometry";
@@ -12,7 +12,7 @@ import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-export async function openOrbShop(orbs: string[]): Promise<void> {
+export async function openOrbShop(state: State, orbs: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
@@ -27,7 +27,7 @@ export async function openOrbShop(orbs: string[]): Promise<void> {
 
 		ShopPanel.create(completeSectionCallback);
 
-		renderOrbShop(container, selectedOrbs, async () => {
+		renderOrbShop(state, container, selectedOrbs, async () => {
 			await delay(300);
 			completeSectionCallback();
 		});
@@ -39,11 +39,11 @@ export async function openOrbShop(orbs: string[]): Promise<void> {
 }
 
 export function renderOrbShop(
+	state: State,
 	container: Phaser.GameObjects.Container,
 	orbIds: string[],
 	onOrbUsed?: () => void | Promise<void>
 ) {
-	const state = getState();
 	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;

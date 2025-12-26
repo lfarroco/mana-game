@@ -8,7 +8,7 @@ import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
-import { getState } from "@Models/State";
+import { getState, State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 
 export function clickHeroInShop(slotIndex: number): string {
@@ -54,8 +54,8 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
 }
 
-export function clickNextRound(): string {
-	handlePhaseEnded();
+export function clickNextRound(state: State): string {
+	handlePhaseEnded(state);
 	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
 }
 

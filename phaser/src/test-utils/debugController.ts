@@ -1,5 +1,6 @@
 // Test utilities for E2E tests with proper TypeScript support
 
+import { getState } from "@Models/State";
 import { Page } from "@playwright/test";
 import type * as DebugController from "@Scenes//Debug/DebugController";
 
@@ -59,7 +60,7 @@ export function getDebugController(page: Page) {
 		},
 
 		async clickNextRound(): Promise<string> {
-			return await page.evaluate(() => window.debugController.clickNextRound());
+			return await page.evaluate(() => window.debugController.clickNextRound(getState()));
 		},
 
 		async addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): Promise<string> {

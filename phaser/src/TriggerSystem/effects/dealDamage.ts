@@ -15,7 +15,7 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 
-	const enemyCore = getEnemyCore(sourceUnit.force);
+	const enemyCore = getEnemyCore(state)(sourceUnit.force);
 
 	const effect = () => {
 		const crit = calculateCritical(sourceUnit);

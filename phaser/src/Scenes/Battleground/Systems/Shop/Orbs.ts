@@ -137,9 +137,11 @@ export const orbsIndex: Record<
 	}),
 	increase_core_max_life: () => {
 
-		const core = getPlayerPersistentCore();
+		const state = getState();
 
-		const round = getState().gameData.round;
+		const core = getPlayerPersistentCore(state);
+
+		const round = state.gameData.round;
 		const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
 
 		return {
@@ -158,9 +160,11 @@ export const orbsIndex: Record<
 	},
 	upgrade_core_power: () => {
 
-		const core = getPlayerPersistentCore();
+		const state = getState();
 
-		const round = getState().gameData.round;
+		const core = getPlayerPersistentCore(state);
+
+		const round = state.gameData.round;
 		const powerGain = Math.floor(core.power * 0.1) + round * 10;
 
 		return {

@@ -1,7 +1,7 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { manipulateCoreShield } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
@@ -9,16 +9,13 @@ import { shieldFx } from "./visuals/shield";
 import { processReactions } from "../TriggerSystem";
 
 export const addShieldLogicIO = async (
-	_state: State,
+	state: State,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
 	const baseAmount = sourceUnit.power;
-
-	const state = getState();
-
 	const sourceForce = state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
-	const alliedCore = getAlliedCore(sourceUnit.force);
+	const alliedCore = getAlliedCore(state)(sourceUnit.force);
 
 	const effect = async () => {
 		const crit = calculateCritical(sourceUnit);
