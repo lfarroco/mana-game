@@ -59,27 +59,56 @@ test.describe('Game Flow', () => {
 
 		await page.waitForTimeout(1000);
 
-		// 6. When facing an enemy team, click ready.
-		// We might need to advance phases until Combat.
-		// If we are still in Encounter/Shop, we might need to close it?
-		// DebugController.clickNextRound() advances phase.
-		// Let's try to advance to Combat.
-		await debugController.clickNextRound(); // End Shop/Encounter
+		// 7. Advance phases until we reach 'combat'
+		// We loop with a safety limit to prevent infinite loops
+		let attempts = 0;
+		while (attempts < 10) {
+			const phase = await page.evaluate(() => window.state.currentState.gameData.hour);
+			const phaseName = await page.evaluate((h) => {
+				const predefined = ["encounter", "encounter", "encounter", "combat", "upgrade_core"]; // simplified check from PhaseManager logic or just check UI
+				// Better: check global state phase directly if accessible, or just check if ready button exists
+				// For now let's just click next round until we see the Ready button
+				const readyBtn = document.querySelector('div[data-component-id="ui.ready"]'); // Hypothetical selector
+				// Actually debugController.clickReady() handles the click, but we want to know if we SHOULD click it.
+				// Let's rely on checking if we are in combat.
+				// We can check `window.state.currentState` logic for phase, but let's just use debugController to get phase if possible, or just clickNextRound blindly a few times?
 
-		await page.waitForTimeout(3000); // Wait for Combat transition
+				// Let's use the explicit phase logic we saw in PhaseManager:
+				// 0,1,2 = encounter, 3 = combat.
+				return h;
+			}, phase);
 
-		// Now we should be in Combat.
+			// We know hour starts at 0.
+			// 0: Encounter
+			// 1: Encounter
+			// 2: Encounter
+			// 3: Combat
+
+			const currentHour = await page.evaluate(() => window.state.currentState.gameData.hour);
+			console.log(`Current Hour: ${currentHour}`);
+
+			if (currentHour === 3) {
+				break;
+			}
+
+			await debugController.clickNextRound();
+			await page.waitForTimeout(1000);
+			attempts++;
+		}
+
+		await page.waitForTimeout(2000); // Wait for combat setup
+
+		// Now we should be in Combat and Ready button should be active/visible (even if we can't see it in DOM easily from here without selector).
+		// Click ready
 		await debugController.clickReady();
 
-		// 7. When the combat is done, advance to the next phase.
-		// Wait for combat to finish. Length depends on simulation.
-		// We can just wait a fixed time or check logs.
-		await page.waitForTimeout(5000); // Let combat run a bit
+		// 8. When the combat is done, advance to the next phase.
+		await page.waitForTimeout(5000); // Let combat run
 
 		// Advance
 		await debugController.clickNextRound();
 
-		// 8. Check that no errors showed up in the console
+		// 9. Check that no errors showed up in the console
 		expect(consoleErrors.length).toBe(0);
 	});
 });
