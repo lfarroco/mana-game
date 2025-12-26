@@ -5,6 +5,7 @@ import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
 import { storage } from "../Storage";
 import { value } from "../Utils/Random";
+import { State } from "./State";
 
 const STORAGE_KEY = "mana-game-ghosts-v1";
 
@@ -126,9 +127,9 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 	return validList[idx];
 }
 
-export function instantiateGhostUnits(entry: GhostEntry): Unit[] {
+export function instantiateGhostUnits(state: State, entry: GhostEntry): Unit[] {
 	return entry.units.map((g) => {
-		const unit = makeUnit(cpuForce.id, g.cardId, vec2(g.x, g.y));
+		const unit = makeUnit(cpuForce(state).id, g.cardId, vec2(g.x, g.y));
 		if (g.power && g.power > 0) unit.power = g.power;
 		if (g.effects) unit.effects = g.effects.map((e) => ({ ...e }));
 		if (g.reactions)

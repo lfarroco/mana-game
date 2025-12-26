@@ -2,7 +2,7 @@ import { createUIButton } from "../../../Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { startGame } from "../../../Game/effects/startGame";
-import { getCurrentScene, resetState } from "@Models/State";
+import { getCurrentScene, resetState, State } from "@Models/State";
 import {
 	RESULTS_COLORS,
 	RESULTS_FONT_SIZES,
@@ -13,6 +13,7 @@ import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 
 export function displayGameWon(
+	_state: State,
 	nextPhaseCallback: () => void
 ): Phaser.GameObjects.Container {
 	// Panel dimensions

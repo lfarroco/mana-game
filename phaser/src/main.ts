@@ -10,6 +10,9 @@ import TitleScene from "./Scenes/Title/TitleScene";
 import OptionsScene from "./Scenes/Options/OptionsScene";
 import CrystalSelectionScene from "./Scenes/CrystalSelection/CrystalSelectionScene";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
+import { initState } from "@Models/State";
+
+initState();
 
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,

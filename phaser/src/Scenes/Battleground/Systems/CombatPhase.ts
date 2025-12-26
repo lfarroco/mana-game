@@ -1,9 +1,9 @@
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
 import { getAllCards } from "@Models/Entities/Card";
 import { generateEnemyTeam } from "../generateEnemyTeam";
-import { cpuForce, playerForce } from "@Models/Entities/Force";
+import { makeForce, playerForce } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
@@ -26,10 +26,9 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
-export async function transitionToCombatPhase(): Promise<void> {
-	const state = getState();
+export async function transitionToCombatPhase(state: State): Promise<void> {
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
-	const { enemies } = await setupBattle();
+	const { enemies } = await setupBattle(state);
 
 	GhostStore.saveGhostForRound(
 		state.gameData.round,
@@ -55,14 +54,13 @@ export async function transitionToCombatPhase(): Promise<void> {
 	createForceStats(constants.FORCE_ID_CPU);
 }
 
-export async function setupBattle(): Promise<{ enemies: Unit[] }> {
-	const state = getState();
+export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
 	const cardPool = getAllCards();
-	const enemies = generateEnemyTeam(state.gameData.round, cardPool);
+	const enemies = generateEnemyTeam(state, state.gameData.round, cardPool);
 
 	const playerUnitsForBattle = state.gameData.player.units.map((unit) => createUnitCopy(unit));
 
-	state.battleData.forces = [cpuForce, playerForce];
+	state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), playerForce(state)];
 	state.battleData.units = [...enemies, ...playerUnitsForBattle];
 
 	await delay(100);

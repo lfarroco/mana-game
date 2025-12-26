@@ -1,7 +1,7 @@
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
-import { getCurrentScene, getState } from "@Models/State";
+import { getCurrentScene, getState, State } from "@Models/State";
 import { displayVictory } from "./VictoryUI";
 import { displayDefeat } from "./DefeatUI";
 import { displayGameComplete } from "./GameCompleteUI";
@@ -67,6 +67,7 @@ async function displayAppropriateUI(
 }
 
 export async function displayResults(
+	state: State,
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void
 ): Promise<void> {
@@ -90,7 +91,7 @@ export async function displayResults(
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
 			const playerUnits = allBattleUnits.filter(u => u.force === c.FORCE_ID_PLAYER);
-			const ui = await displayGameComplete(newWins, playerUnits, gameOver, nextPhaseCallback);
+			const ui = await displayGameComplete(state, newWins, playerUnits, gameOver, nextPhaseCallback);
 			resultsContainer.add(ui);
 		} else {
 			await slideOut();

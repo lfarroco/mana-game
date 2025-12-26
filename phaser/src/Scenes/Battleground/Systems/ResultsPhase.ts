@@ -18,9 +18,12 @@ export async function handleCombatEndedDefeat(state: State): Promise<void> {
 
 	await delay(300);
 
-	ResultsUI.displayResults("defeat", async () => {
-		await handleDefeat(state);
-	});
+	ResultsUI.displayResults(
+		state,
+		"defeat",
+		async () => {
+			await handleDefeat(state);
+		});
 	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
 }
@@ -32,9 +35,12 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 
 	await delay(300);
 
-	ResultsUI.displayResults("victory", async () => {
-		await handleVictory(state);
-	});
+	ResultsUI.displayResults(
+		state,
+		"victory",
+		async () => {
+			await handleVictory(state);
+		});
 	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
 }
@@ -80,7 +86,7 @@ async function handleDefeat(state: State): Promise<void> {
 		deleteSavedData();
 
 		const { displayGameComplete } = await import("../Results/GameCompleteUI");
-		const container = await displayGameComplete(player.wins, player.units, true);
+		const container = await displayGameComplete(state, player.wins, player.units, true);
 		getCurrentScene().add.existing(container);
 		return;
 	}
