@@ -1,4 +1,3 @@
-import * as constants from "@Constants/constants";
 import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
@@ -24,8 +23,13 @@ export const makeForce = (id: string): Force => {
 	};
 };
 
-export const playerForce = makeForce(constants.FORCE_ID_PLAYER);
-export const cpuForce = makeForce(constants.FORCE_ID_CPU);
+export const playerForce = (state: State): Force => {
+	return state.gameData.player;
+};
+
+export const cpuForce = (state: State): Force => {
+	return state.battleData.forces.find((f) => f.id !== state.gameData.player.id)!;
+};
 
 export const manipulateCoreLife = (
 	state: State,

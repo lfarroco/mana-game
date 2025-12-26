@@ -76,7 +76,7 @@ export async function startPhase(state: State, phase: string) {
 			handlePhaseEnded(state);
 			break;
 		case "combat":
-			CombatPhase.transitionToCombatPhase();
+			CombatPhase.transitionToCombatPhase(state);
 			break;
 		case "encounter":
 			Encounter.open(state);

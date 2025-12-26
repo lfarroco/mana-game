@@ -4,7 +4,7 @@ import { vec2 } from "@Models/Geometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { pickOne, pickOneUnique } from "../../utils";
 import { upgradeUnitData } from "@Models/Entities/Unit";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -70,7 +70,7 @@ function getRandomEmptyPosition(occupiedPositions: Set<string>): { x: number; y:
 	return pickOne(availablePositions);
 }
 
-export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
+export function generateEnemyTeam(state: State, round: number, pool: CardDefinition[]) {
 	if (round < 0) {
 		throw new Error("Round must be a non-negative number");
 	}
@@ -88,7 +88,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	const coreCard = pickOne(getCores());
 	const corePosition = getRandomEmptyPosition(occupiedPositions);
 	occupiedPositions.add(`${corePosition.x},${corePosition.y}`);
-	const coreUnit = makeUnit(cpuForce.id, coreCard.id, vec2(corePosition.x, corePosition.y));
+	const coreUnit = makeUnit(cpuForce(state).id, coreCard.id, vec2(corePosition.x, corePosition.y));
 	units.push(coreUnit);
 
 	const filteredPool = getNonCores().filter(u => {
@@ -109,7 +109,7 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 			break;
 		}
 		occupiedPositions.add(`${position.x},${position.y}`);
-		const unit = makeUnit(cpuForce.id, card.id, vec2(position.x, position.y));
+		const unit = makeUnit(cpuForce(state).id, card.id, vec2(position.x, position.y));
 		units.push(unit);
 	}
 
@@ -119,7 +119,6 @@ export function generateEnemyTeam(round: number, pool: CardDefinition[]) {
 	distributeUpgrades(units, upgradeCount);
 
 	const powerPoints = round * 10;
-	const state = getState();
 	if (state.gameData.player.wins >= 10) {
 		const multiplier = Math.pow(1.2, round - 10);
 

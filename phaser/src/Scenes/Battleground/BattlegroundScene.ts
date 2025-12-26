@@ -77,7 +77,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			await resetBoard();
 		}
 
-		UIManager.init();
+		UIManager.init(state);
 
 		Systems.CountdownTimer.initializeCountdownTimer(this);
 

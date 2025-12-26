@@ -191,20 +191,19 @@ export async function summon(
 	return `Summoned ${cardId} (ID: ${newUnit.id}) to ${forceId} board at position (${x}, ${y})`;
 }
 
-export async function triggerGameComplete(wins: number = 0): Promise<void> {
+export async function triggerGameComplete(state: State, wins: number = 0): Promise<void> {
 	const tooltip = await import("@Components/Tooltip");
 	const { displayGameComplete } = await import("../Battleground/Results/GameCompleteUI");
 
-	const gameState = getState();
-	gameState.gameData.player.wins = wins;
+	state.gameData.player.wins = wins;
 	if (wins < 10) {
-		gameState.gameData.player.lives = 0;
+		state.gameData.player.lives = 0;
 	} else {
-		gameState.gameData.player.lives = 4;
+		state.gameData.player.lives = 4;
 	}
 
-	if (gameState.gameData.player.units.length === 0) {
-		gameState.gameData.player.units = [
+	if (state.gameData.player.units.length === 0) {
+		state.gameData.player.units = [
 			{
 				id: "test-unit-1",
 				cardId: "fortress",
@@ -276,18 +275,18 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 
 	tooltip.init();
 
-	displayGameComplete(wins, gameState.gameData.player.units, false);
+	displayGameComplete(state, wins, state.gameData.player.units, false);
 }
 
-export function defeatCpu(): string {
-	const core = getBattleCore(getState())(cpuForce.id);
+export function defeatCpu(state: State): string {
+	const core = getBattleCore(state)(cpuForce(state).id);
 	if (!core) return "Error: CPU core not found";
 	core.life = 0;
 	return "CPU core life set to 0. Victory imminent.";
 }
 
-export function defeatPlayer(): string {
-	const core = getBattleCore(getState())(playerForce.id);
+export function defeatPlayer(state: State): string {
+	const core = getBattleCore(state)(playerForce(state).id);
 	if (!core) return "Error: Player core not found";
 	core.life = 0;
 	return "Player core life set to 0. Defeat imminent.";

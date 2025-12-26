@@ -1,7 +1,8 @@
-import { Force, playerForce } from "./Entities/Force";
+import { Force, makeForce } from "./Entities/Force";
 import { eqVec2 } from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { setSeed } from "../Utils/Random";
+import { FORCE_ID_PLAYER } from "@Constants/constants";
 
 export type State = {
 	savedGames: string[];
@@ -42,7 +43,7 @@ const initialState = (): State => {
 		gameData: {
 			round: 1,
 			hour: 0,
-			player: playerForce,
+			player: makeForce(FORCE_ID_PLAYER),
 			recentEncounterIds: [],
 			runStats: {
 				damageDealt: 0,
@@ -66,14 +67,18 @@ const initialState = (): State => {
 	};
 };
 
-const state = {
-	currentState: initialState(),
-};
+let state: {
+	currentState: State;
+} = {
+
+} as any;
+
+export const initState = () => {
+	state.currentState = initialState();
+}
+
 
 export function resetState() {
-	playerForce.lives = 4;
-	playerForce.wins = 0;
-	playerForce.units = [];
 	state.currentState = initialState();
 	setSeed(state.currentState.gameData.seed);
 }

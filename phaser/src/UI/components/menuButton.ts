@@ -1,19 +1,19 @@
 import { createUIButton } from "@Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
-import { getCurrentScene, resetState } from "@Models/State";
+import { getCurrentScene, resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 
-export function create() {
+export function create(state: State) {
 	const btn = createUIButton(t("ui.menu.button"), vec2(1800, 30), () => {
-		createPanel();
+		createPanel(state);
 	});
 
 	return btn.container;
 }
 
-export function createPanel() {
+export function createPanel(_state: State) {
 	const panelWidth = 650;
 	const panelHeight = 500;
 	const panelX = c.MIDDLE_SCREEN.x;

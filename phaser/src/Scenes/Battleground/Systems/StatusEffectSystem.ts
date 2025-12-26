@@ -15,8 +15,8 @@ export function initialize(state: State): void {
 }
 
 const tick = (state: State) => () => {
-	tickForce(state, playerForce);
-	tickForce(state, cpuForce);
+	tickForce(state, playerForce(state));
+	tickForce(state, cpuForce(state));
 }
 
 function tickForce(state: State, force: Force): void {

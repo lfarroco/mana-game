@@ -1,7 +1,7 @@
 import { createUIButton } from "../../../Components/UIButton";
 import { size, vec2 } from "@Models/Geometry";
 import { isElectron } from "@Utils/environment";
-import { getCurrentScene, getState, resetState } from "@Models/State";
+import { getCurrentScene, getState, resetState, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -25,6 +25,7 @@ import { MIDDLE_SCREEN_Y, SCENE_KEYS, titleTextConfig } from "@Constants/constan
 import { IS_DEMO, GAME_CONFIG } from "../../../config";
 
 export async function displayGameComplete(
+	_state: State,
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,

@@ -8,11 +8,12 @@ import * as winsDisplay from "./components/winsDisplay";
 import * as headerBackground from "./components/headerBackground";
 import { vec2 } from "@Models/Geometry";
 import * as menuButton from "./components/menuButton";
+import { State } from "@Models/State";
 export * as events from "./events";
 
 let uiContainer: Container | null = null;
 
-export function init() {
+export function init(state: State) {
 	const headerContainer = io.Container([
 		headerBackground.create,
 		roundDisplay.create,
@@ -23,7 +24,7 @@ export function init() {
 
 	uiContainer = io.Container([
 		headerContainer,
-		menuButton.create,
+		menuButton.create(state),
 	]);
 }
 
