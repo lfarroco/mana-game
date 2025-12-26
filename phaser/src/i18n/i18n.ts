@@ -23,10 +23,10 @@ let translations: Translations = locales[currentLocale];
 
 export function initialize() {
 	try {
-		const savedLocale = localStorage.getItem(STORAGE_KEY);
+		const savedLocale = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
 		if (savedLocale && locales[savedLocale]) {
 			currentLocale = savedLocale;
-		} else {
+		} else if (typeof window !== "undefined" && window.navigator) {
 			const systemLocale = window.navigator.language.split('-')[0];
 			if (locales[systemLocale]) {
 				currentLocale = systemLocale;

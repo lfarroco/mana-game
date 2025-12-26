@@ -2,12 +2,11 @@ import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/En
 import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { getCharaById, shake } from "@Systems/Chara/Chara";
+
 import { getEnemyCore } from "@Models/Entities/Card";
 import { State } from "@Models/State";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { damageFx } from "./visuals/damage";
 import { processReactions } from "../TriggerSystem";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number = 1) {
 	const damageAmount = sourceUnit.power;
@@ -25,7 +24,6 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		const actualLifeChanged = applyDamageToForce(state, targetForce, damage, 0, "normal", crit.isCritical);
 		const combatStates = CombatSystemStates.getCombatSystemStates();
 		CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualLifeChanged);
-		shake(getCharaById(enemyCore.id));
 
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });
@@ -46,11 +44,10 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		}
 	};
 
-	playSoundEffect('sfx_spell_truestrike');
-
-	damageFx(
-		getCharaById(sourceUnit.id),
-		getCharaById(enemyCore!.id),
-		effect,
-	)
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onDamage) {
+		effects.onDamage(sourceUnit.id, enemyCore!.id, effect);
+	} else {
+		effect();
+	}
 }

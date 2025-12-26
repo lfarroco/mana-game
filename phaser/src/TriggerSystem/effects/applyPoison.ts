@@ -3,11 +3,10 @@ import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Scenes//Battleground/Systems/PoisonDamageSystem";
 import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { getCharaById } from "@Systems/Chara/Chara";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import { poisonFx } from "./visuals/poison";
 import { processReactions } from "../TriggerSystem";
 import { State } from "@Models/State";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const applyPoisonLogicIO = async (
 	state: State,
@@ -42,9 +41,10 @@ export const applyPoisonLogicIO = async (
 		}
 	}
 
-	poisonFx(
-		getCharaById(sourceUnit.id),
-		getCharaById(getEnemyCore(state)(sourceUnit.force).id),
-		effect
-	);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onPoison) {
+		effects.onPoison(sourceUnit.id, getEnemyCore(state)(sourceUnit.force).id, effect);
+	} else {
+		effect();
+	}
 };

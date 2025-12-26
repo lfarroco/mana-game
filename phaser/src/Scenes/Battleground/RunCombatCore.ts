@@ -1,21 +1,21 @@
 import { State } from "@Models/State";
-import { MIN_COOLDOWN } from "@Constants/constants";
+import { MIN_COOLDOWN } from "./ServerConstants";
 import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
-import * as Systems from "./Systems";
+import * as Timeout from "./Systems/TimeoutDamageSystem";
+import * as Poison from "./Systems/PoisonDamageSystem";
+import * as Regen from "./Systems/RegenSystem";
+import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
 import { TimeoutSystemState } from "./Systems/TimeoutDamageSystem";
 import { PoisonSystemState } from "./Systems/PoisonDamageSystem";
 import { RegenSystemState } from "./Systems/RegenSystem";
 import { StatusEffectSystemState } from "./Systems/StatusEffectSystem";
 import { CombatStatsTrackerState } from "./Systems/CombatStatsTracker";
-import { CountdownTimerState } from "./Systems/CountdownTimer";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import { getBattleCore } from "@Models/Entities/Card";
-import { deactivateBlackHole, BlackHoleState, initBlackHole } from "./BlackHole";
-import { initializeForceStatsState, createForceStats, ForceStatsState } from "./ForceStats";
-import * as c from "@Constants/constants";
+import * as CombatEffectsRegistry from "./CombatEffectsRegistry";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
@@ -25,6 +25,28 @@ export type CombatEffects = {
 	onCombatEnd: (state: State, outcome: WaveOutcome) => Promise<void>;
 	getTimeScale: () => number;
 	getScene: () => any;
+	updateLifeDisplay: (force: string, life: number, delta: number) => void;
+	updateShieldDisplay: (force: string, shield: number, delta: number) => void;
+	updateRegenDisplay: (force: string, regen: number, delta: number) => void;
+	updatePoisonDisplay: (force: string, poison: number, delta: number) => void;
+	initBlackHole?: () => any;
+	initCountdownTimer?: (blackHoleState: any) => any;
+	initForceStats?: () => any;
+	onReactionVisual?: (unitId: string) => Promise<void>;
+	onDamage?: (sourceId: string, targetId: string, onHit: () => void) => void;
+	onHeal?: (sourceId: string, targetId: string, onHit: () => void) => void;
+	onShield?: (sourceId: string, targetId: string, onHit: () => void) => void;
+	onPoison?: (sourceId: string, targetId: string, onHit: () => void) => void;
+
+	onRegen?: (sourceId: string, targetId: string, onHit: () => void) => void;
+	onHaste?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
+	onSlow?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
+	onCharge?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
+	onIncreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
+	onDecreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
+	onIncreaseCritical?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
+	onPowerUpdate?: (unitId: string) => void;
+	onTimeoutDamageVisual?: (targetForceId: string, damage: number, onHit: () => void) => void;
 };
 
 export type CombatRunner = {
@@ -40,28 +62,28 @@ type CombatRunnerState = {
 	regenSystemState: RegenSystemState;
 	statusEffectSystemState: StatusEffectSystemState;
 	combatStatsTrackerState: CombatStatsTrackerState;
-	countdownTimerState: CountdownTimerState;
-	blackHoleState: BlackHoleState;
-	forceStatsState: ForceStatsState;
+	countdownTimerState: any;
+	blackHoleState: any;
+	forceStatsState: any;
 };
 
 export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
-	const blackHoleState = initBlackHole();
-	const countdownTimerState = Systems.CountdownTimer.initializeCountdownTimer(effects.getScene(), blackHoleState);
+	CombatEffectsRegistry.setCombatEffects(effects);
 
-	let forceStatsState = initializeForceStatsState();
-	forceStatsState = createForceStats(forceStatsState, c.FORCE_ID_PLAYER);
-	forceStatsState = createForceStats(forceStatsState, c.FORCE_ID_CPU);
+	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
+	const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+
+	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
 
 	const runnerState: CombatRunnerState = {
 		active: true,
-		timeoutSystemState: Systems.Timeout.initializeTimeoutDamageSystem(),
-		poisonSystemState: Systems.Poison.initializePoisonSystem(),
-		regenSystemState: Systems.Regen.initializeRegenSystem(),
+		timeoutSystemState: Timeout.initializeTimeoutDamageSystem(),
+		poisonSystemState: Poison.initializePoisonSystem(),
+		regenSystemState: Regen.initializeRegenSystem(),
 		statusEffectSystemState: StatusEffectSystem.initialize(state),
-		combatStatsTrackerState: Systems.CombatStatsTracker.initialize(state),
-		countdownTimerState: Systems.CountdownTimer.start(countdownTimerState),
-		blackHoleState: countdownTimerState.blackHoleState,
+		combatStatsTrackerState: CombatStatsTracker.initialize(state),
+		countdownTimerState,
+		blackHoleState,
 		forceStatsState,
 	};
 
@@ -92,7 +114,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		for (const unit of unitsReadyToAct) {
 			effects.onUnitPop(unit.id);
 
-			Systems.CombatStatsTracker.trackAction(runnerState.combatStatsTrackerState, { unit });
+			CombatStatsTracker.trackAction(runnerState.combatStatsTrackerState, { unit });
 			processEffectsIO(state, unit, unit.effects, false);
 
 			const combatStates = CombatSystemStates.getCombatSystemStates();
@@ -101,7 +123,13 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			runnerState.forceStatsState = combatStates.forceStatsState;
 		}
 
-		runnerState.timeoutSystemState = Systems.Timeout.updateTimeoutDamageSystem(
+		runnerState.statusEffectSystemState = StatusEffectSystem.update(
+			runnerState.statusEffectSystemState,
+			state,
+			scaledDelta
+		);
+
+		runnerState.timeoutSystemState = Timeout.updateTimeoutDamageSystem(
 			runnerState.timeoutSystemState,
 			state,
 			playerForce(state),
@@ -129,13 +157,12 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		runnerState.active = false;
 
 		StatusEffectSystem.stop(runnerState.statusEffectSystemState);
-		runnerState.timeoutSystemState = Systems.Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
-		runnerState.countdownTimerState = Systems.CountdownTimer.stop(runnerState.countdownTimerState);
-		runnerState.blackHoleState = deactivateBlackHole(runnerState.blackHoleState);
-		runnerState.timeoutSystemState = Systems.Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
+		runnerState.timeoutSystemState = Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
+		runnerState.timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
 		CombatSystemStates.clearCombatSystemStates();
+		CombatEffectsRegistry.clearCombatEffects();
 
-		Systems.CombatStatsTracker.stop(runnerState.combatStatsTrackerState, state);
+		CombatStatsTracker.stop(runnerState.combatStatsTrackerState, state);
 		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 		await effects.onCombatEnd(state, outcome);

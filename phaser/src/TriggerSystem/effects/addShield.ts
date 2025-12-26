@@ -4,10 +4,8 @@ import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { getCharaById } from "@Systems/Chara/Chara";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { shieldFx } from "./visuals/shield";
 import { processReactions } from "../TriggerSystem";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const addShieldLogicIO = async (
 	state: State,
@@ -35,11 +33,10 @@ export const addShieldLogicIO = async (
 		}
 	};
 
-	playSoundEffect('sfx_spell_manavortex');
-
-	shieldFx(
-		getCharaById(sourceUnit.id),
-		getCharaById(alliedCore.id),
-		effect,
-	);
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onShield) {
+		effects.onShield(sourceUnit.id, alliedCore.id, effect);
+	} else {
+		effect();
+	}
 };

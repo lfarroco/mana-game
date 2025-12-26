@@ -3,11 +3,10 @@ import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { getState, State } from "@Models/State";
 import * as RegenSystem from "@Scenes//Battleground/Systems/RegenSystem";
 import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { getCharaById } from "@Systems/Chara/Chara";
-import { arcaneMissileTargeted } from "../../Effects";
-import { playSoundEffect } from "@Systems/AudioManager";
+
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { processReactions } from "../TriggerSystem";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 
 export const applyRegenLogicIO = async (
 	state: State,
@@ -44,20 +43,10 @@ export const applyRegenLogicIO = async (
 
 	const alliedCore = getAlliedCore(state)(sourceUnit.force);
 
-	playSoundEffect('sfx_spell_tranquility');
-
-	arcaneMissileTargeted(getCharaById(sourceUnit.id), getCharaById(alliedCore.id), {
-		colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones
-		amplitudeMin: 5,
-		amplitudeMax: 15,
-		particleScale: 1.5,
-		impact: {
-			colors: [0x00ff00, 0x32cd32],
-			scale: 2,
-			speed: 200,
-			lifespan: 300,
-			alpha: 0.4,
-		},
-		onHit: effect,
-	});
+	const effects = CombatEffectsRegistry.getCombatEffects();
+	if (effects.onRegen) {
+		effects.onRegen(sourceUnit.id, alliedCore.id, effect);
+	} else {
+		effect();
+	}
 };

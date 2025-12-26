@@ -1,6 +1,4 @@
-import { arcaneMissileTargeted } from "../../Effects/arcaneMissileTargeted";
-import { hasteEffect } from "../../Effects/hasteEffect";
-import { Chara, getCharaById } from "@Systems/Chara/Chara";
+import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 
@@ -11,36 +9,20 @@ export const applyHasteLogicIO = async (
 	duration: number,
 	onReHaste: (target: Unit) => void
 ) => {
-	const sourceChara = getCharaById(sourceUnit.id);
-
-	const effect = (target: Unit, targetChara: Chara) => async () => {
+	const effect = (target: Unit) => () => {
 		if (target.hasted > 0) {
 			onReHaste(target);
 		}
 		target.hasted += duration;
-
-		hasteEffect(targetChara, {
-			duration: 1000,
-			intensity: 1.5,
-			color: 0x00eaff,
-		});
 	};
 
+	const effects = CombatEffectsRegistry.getCombatEffects();
+
 	for (const target of targets) {
-		const targetChara = getCharaById(target.id);
-		arcaneMissileTargeted(sourceChara, targetChara, {
-			colors: [0x00ffff, 0x87ceeb, 0xadd8e6],
-			amplitudeMin: 5,
-			amplitudeMax: 15,
-			particleScale: 1.5,
-			impact: {
-				colors: [0x00ffff, 0x87ceeb],
-				scale: 2,
-				speed: 200,
-				lifespan: 300,
-				alpha: 0.4,
-			},
-			onHit: effect(target, targetChara),
-		});
+		if (effects.onHaste) {
+			effects.onHaste(sourceUnit.id, target.id, duration, effect(target));
+		} else {
+			effect(target)();
+		}
 	}
 };

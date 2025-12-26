@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import type Phaser from "phaser";
 import { getCurrentScene } from "@Models/State";
 
 type CustomTweenProps = Omit<
@@ -17,6 +17,10 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	}
 
 	const scene = getCurrentScene();
+	if (!scene || !scene.tweens) {
+		if (userOnCompleteCallback) userOnCompleteCallback();
+		return Promise.resolve();
+	}
 
 	const phaserTweenConfig: Phaser.Types.Tweens.TweenBuilderConfig = {
 		...restOfConfig,
@@ -52,10 +56,15 @@ export async function tweenSequence(tweens: CustomTweenProps[]) {
 
 export const delay = (duration: number) =>
 	new Promise<void>((resolve) => {
-		getCurrentScene().time.addEvent({
-			delay: duration,
-			callback: () => {
-				resolve();
-			},
-		});
+		const scene = getCurrentScene();
+		if (scene && scene.time) {
+			scene.time.addEvent({
+				delay: duration,
+				callback: () => {
+					resolve();
+				},
+			});
+		} else {
+			setTimeout(resolve, duration);
+		}
 	});
