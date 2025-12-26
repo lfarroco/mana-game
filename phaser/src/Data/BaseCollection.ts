@@ -755,8 +755,8 @@ const cards: CardDefinition[] = [
 	{
 		id: "arcane_anomaly",
 		pic: "f6_myriad",
-		power: 45,
-		cooldown: 5500,
+		power: 35,
+		cooldown: 7500,
 		effects: [
 			damage,
 			charge(500, column),
@@ -1258,7 +1258,7 @@ const cards: CardDefinition[] = [
 			increasePower(10, allAlliesOfType("damage"))
 		],
 		reactions: [
-			reaction("on_battle_start", "allies", charge(1000, allAlliesOfType("damage")))
+			reaction("on_battle_start", "allies", haste(2000, allAlliesOfType("damage")))
 		],
 	},
 	//shield -> shield
