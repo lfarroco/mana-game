@@ -250,6 +250,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		await io.Fade(300, 0x000000);
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 			selectedCrystalId: selectedCrystal.id,
+			state: state,
 		});
 	}
 

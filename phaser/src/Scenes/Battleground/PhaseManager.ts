@@ -144,14 +144,16 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 		state.battleData.units = [];
 	}
 
-	const combatStates = CombatSystemStates.getCombatSystemStates();
-	let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
-	newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
-	CombatSystemStates.updateRegenSystemState(newRegenState);
+	if (CombatSystemStates.isInitialized()) {
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
+		newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
+		CombatSystemStates.updateRegenSystemState(newRegenState);
 
-	let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
-	newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
-	CombatSystemStates.updatePoisonSystemState(newPoisonState);
+		let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
+		newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
+		CombatSystemStates.updatePoisonSystemState(newPoisonState);
+	}
 
 	if (shouldResummonUnits) {
 		const summonPromises = state.gameData.player.units.map(async (unit, index) => {

@@ -15,6 +15,10 @@ export function setCombatSystemStates(states: CombatSystemStates) {
 	currentCombatStates = states;
 };
 
+export function isInitialized(): boolean {
+	return currentCombatStates !== null;
+}
+
 export function getCombatSystemStates(): CombatSystemStates {
 	if (!currentCombatStates) {
 		throw new Error("Combat system states not initialized");

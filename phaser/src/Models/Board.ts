@@ -180,6 +180,7 @@ export function destroyVisuals(board: BoardState): void {
 }
 
 export function update(time: number): void {
+	if (!_playerBoardState) return;
 	const board = getBoardState();
 	board.slotShaders.forEach((slot) => slot.update(time));
 	board.cpuSlotShaders.forEach((slot) => slot.update(time));

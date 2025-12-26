@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { setCurrentScene, State } from "@Models/State";
+import { setCurrentScene, State, getState } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import * as Board from "@Models/Board";
 import { CombatRunner } from "./RunCombatIO";
@@ -41,7 +41,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
 
 	create = async (data: BattlegroundSceneData) => {
-		const gameData = data.state.gameData;
+		const state = data?.state || getState();
+		const gameData = state.gameData;
 
 		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
 		setCurrentScene(this);
@@ -53,9 +54,9 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
 
-		this.state = data.state;
+		this.state = state;
 
-		this.start(data);
+		this.start({ ...data, state });
 	};
 
 	start = async ({ state, selectedCrystalId }: BattlegroundSceneData) => {
