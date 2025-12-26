@@ -6,17 +6,20 @@ import { MIDDLE_SCREEN, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { State } from "@Models/State";
 
-
 const timeoutDamageInterval = 1000;
 
-let combatElapsedTime = 0;
-let timeSinceLastTick = 0;
-let isActive = false;
+export type TimeoutSystemState = {
+	combatElapsedTime: number;
+	timeSinceLastTick: number;
+	isActive: boolean;
+};
 
-export function initializeTimeoutDamageSystem(): void {
-	combatElapsedTime = 0;
-	timeSinceLastTick = 0;
-	isActive = true;
+export function initializeTimeoutDamageSystem(): TimeoutSystemState {
+	return {
+		combatElapsedTime: 0,
+		timeSinceLastTick: 0,
+		isActive: true,
+	};
 }
 
 async function spawnStar(state: State, damage: number, targetForce: Force) {
@@ -40,24 +43,41 @@ async function spawnStar(state: State, damage: number, targetForce: Force) {
 }
 
 export function updateTimeoutDamageSystem(
+	timeoutState: TimeoutSystemState,
 	state: State,
 	playerForce: Force,
 	cpuForce: Force,
 	delta: number
-): void {
-	if (!isActive) return;
+): TimeoutSystemState {
+	if (!timeoutState.isActive) return timeoutState;
 
-	combatElapsedTime += delta;
-	timeSinceLastTick += delta;
+	const newCombatElapsedTime = timeoutState.combatElapsedTime + delta;
+	const newTimeSinceLastTick = timeoutState.timeSinceLastTick + delta;
 
-	if (combatElapsedTime < TIMEOUT_DAMAGE_START_TIME) return;
-
-	const timeSinceTimeoutStarted = combatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
-
-	if (timeSinceLastTick >= timeoutDamageInterval) {
-		applyTimeoutDamage(state, playerForce, cpuForce, timeSinceTimeoutStarted);
-		timeSinceLastTick = 0;
+	if (newCombatElapsedTime < TIMEOUT_DAMAGE_START_TIME) {
+		return {
+			...timeoutState,
+			combatElapsedTime: newCombatElapsedTime,
+			timeSinceLastTick: newTimeSinceLastTick,
+		};
 	}
+
+	const timeSinceTimeoutStarted = newCombatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
+
+	if (newTimeSinceLastTick >= timeoutDamageInterval) {
+		applyTimeoutDamage(state, playerForce, cpuForce, timeSinceTimeoutStarted);
+		return {
+			...timeoutState,
+			combatElapsedTime: newCombatElapsedTime,
+			timeSinceLastTick: 0,
+		};
+	}
+
+	return {
+		...timeoutState,
+		combatElapsedTime: newCombatElapsedTime,
+		timeSinceLastTick: newTimeSinceLastTick,
+	};
 }
 
 function applyTimeoutDamage(
@@ -84,22 +104,25 @@ function applyTimeoutDamage(
 	spawnStar(state, currentDamage, cpuForce);
 }
 
-export function stopTimeoutDamageSystem(): void {
-	isActive = false;
+export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {
+	return {
+		...timeoutState,
+		isActive: false,
+	};
 }
 
-export function onTimeoutDamageCombatEnd(): void {
-	if (isActive) isActive = false;
+export function onTimeoutDamageCombatEnd(timeoutState: TimeoutSystemState): TimeoutSystemState {
+	return timeoutState.isActive ? { ...timeoutState, isActive: false } : timeoutState;
 }
 
-export function getTimeoutDamageConfig() {
+export function getTimeoutDamageConfig(timeoutState: TimeoutSystemState) {
 	return {
 		timeoutDamageStartTime: TIMEOUT_DAMAGE_START_TIME,
 		timeoutDamageInterval,
-		isActive,
-		combatElapsed: combatElapsedTime,
+		isActive: timeoutState.isActive,
+		combatElapsed: timeoutState.combatElapsedTime,
 		stormState: {
-			stormStarted: combatElapsedTime >= TIMEOUT_DAMAGE_START_TIME,
+			stormStarted: timeoutState.combatElapsedTime >= TIMEOUT_DAMAGE_START_TIME,
 		},
 	};
 }

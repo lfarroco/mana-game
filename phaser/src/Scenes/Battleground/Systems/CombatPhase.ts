@@ -1,4 +1,4 @@
-import { State } from "@Models/State";
+import { getCurrentScene, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
 import { getAllCards } from "@Models/Entities/Card";
@@ -13,6 +13,7 @@ import { vec2 } from "@Models/Geometry";
 import { createForceStats } from "../ForceStats";
 import { runCombatIO } from "../RunCombatIO";
 import { t } from "@i18n/i18n";
+import { BattlegroundScene } from "../BattlegroundScene";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -41,8 +42,7 @@ export async function transitionToCombatPhase(state: State): Promise<void> {
 
 	Board.setEnemyBoardVisible(true);
 	Chara.clearAll();
-	// Important: summon the exact Unit instances stored in battleData.units
-	// so display components (e.g., charge bars) observe the same objects updated during combat.
+
 	const combatUnits = state.battleData.units;
 	const summonPromises = combatUnits.map((u) => Chara.summon(u, false));
 
@@ -83,5 +83,7 @@ export function showReadyButton(payload: { enemies: Unit[] }): Button {
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
 	await delay(300);
 
-	runCombatIO();
+	const scene = getCurrentScene() as BattlegroundScene;
+	scene.combatRunner = runCombatIO();
 }
+

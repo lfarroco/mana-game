@@ -4,6 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import * as Systems from "./Systems";
+import { TimeoutSystemState } from "./Systems/TimeoutDamageSystem";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
@@ -14,24 +15,31 @@ import { deactivateBlackHole } from "./BlackHole";
 
 export type WaveOutcome = "player_won" | "player_lost";
 
-let active: boolean = false;
+export type CombatRunner = {
+	updateFrame: (state: State, time: number, delta: number) => void;
+	finishCombat: (state: State, outcome: WaveOutcome) => Promise<void>;
+	isActive: () => boolean;
+};
 
+type CombatRunnerState = {
+	active: boolean;
+	timeoutSystemState: TimeoutSystemState;
+};
 
-export const runCombatIO = () => {
-	if (active) {
-		throw new Error("Combat is already active");
-	}
-
+export const runCombatIO = (): CombatRunner => {
 	const state = getState();
 
-	Systems.Timeout.initializeTimeoutDamageSystem();
+	const runnerState: CombatRunnerState = {
+		active: true,
+		timeoutSystemState: Systems.Timeout.initializeTimeoutDamageSystem(),
+	};
+
 	Systems.Poison.initialize();
 	Systems.Regen.initialize();
 	StatusEffectSystem.initialize(state);
 
 	Systems.CombatStatsTracker.initialize(state);
 
-	active = true;
 	Systems.CountdownTimer.start();
 
 	const allUnits = state.battleData.units;
@@ -43,68 +51,80 @@ export const runCombatIO = () => {
 			processEffectsIO(state, unit, r.effects, true);
 		});
 	});
+
+	const updateFrame = (state: State, _time: number, delta: number): void => {
+		if (!runnerState.active) return;
+
+		const scaledDelta = delta * getCurrentScene().time.timeScale;
+
+		const unitsReadyToAct = chargeUnits(state, scaledDelta);
+
+		for (const unit of unitsReadyToAct) {
+			Animations.pop(unit.id);
+
+			Systems.CombatStatsTracker.trackAction({ unit });
+			processEffectsIO(state, unit, unit.effects, false);
+		}
+
+		runnerState.timeoutSystemState = Systems.Timeout.updateTimeoutDamageSystem(
+			runnerState.timeoutSystemState,
+			state,
+			playerForce(state),
+			cpuForce(state),
+			scaledDelta
+		);
+
+		const playerLifeZero = getBattleCore(state)(playerForce(state).id).life <= 0;
+		const cpuLifeZero = getBattleCore(state)(cpuForce(state).id).life <= 0;
+
+		const outcome: WaveOutcome | null = cpuLifeZero
+			? "player_won"
+			: playerLifeZero
+				? "player_lost"
+				: null;
+
+		if (outcome) {
+			finishCombat(state, outcome);
+		}
+	};
+
+	const finishCombat = async (state: State, outcome: WaveOutcome) => {
+		if (!runnerState.active) return;
+
+		runnerState.active = false;
+
+		Systems.Regen.stop();
+		Systems.Poison.stop();
+		StatusEffectSystem.stop();
+		runnerState.timeoutSystemState = Systems.Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
+		Systems.CountdownTimer.stop();
+		deactivateBlackHole();
+		runnerState.timeoutSystemState = Systems.Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
+
+		Systems.CombatStatsTracker.stop(state);
+		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
+
+		if (outcome === "player_lost") {
+			await Animations.shatter(getCharaById(getBattleCore(state)(playerForce(state).id).id));
+		} else {
+			await Animations.shatter(getCharaById(getBattleCore(state)(cpuForce(state).id).id));
+		}
+
+		await delay(300);
+
+		Systems.ResultsPhase.handleCombatEnded(state, outcome);
+	};
+
+	const isActive = (): boolean => {
+		return runnerState.active;
+	};
+
+	return {
+		updateFrame,
+		finishCombat,
+		isActive,
+	};
 };
-
-export function updateFrame(state: State, _time: number, delta: number): void {
-	if (!active) return;
-
-	const scaledDelta = delta * getCurrentScene().time.timeScale;
-
-	const unitsReadyToAct = chargeUnits(state, scaledDelta);
-
-	for (const unit of unitsReadyToAct) {
-		Animations.pop(unit.id);
-
-		Systems.CombatStatsTracker.trackAction({ unit });
-		processEffectsIO(state, unit, unit.effects, false);
-	}
-
-	Systems.Timeout.updateTimeoutDamageSystem(state, playerForce(state), cpuForce(state), scaledDelta);
-
-	const playerLifeZero = getBattleCore(state)(playerForce(state).id).life <= 0;
-	const cpuLifeZero = getBattleCore(state)(cpuForce(state).id).life <= 0;
-
-	const outcome: WaveOutcome | null = cpuLifeZero
-		? "player_won"
-		: playerLifeZero
-			? "player_lost"
-			: null;
-
-	if (outcome) {
-		finishCombat(state, outcome);
-	}
-}
-
-export async function finishCombat(state: State, outcome: WaveOutcome) {
-	if (!active) return;
-
-	active = false;
-
-	Systems.Regen.stop();
-	Systems.Poison.stop();
-	StatusEffectSystem.stop();
-	Systems.Timeout.stopTimeoutDamageSystem();
-	Systems.CountdownTimer.stop();
-	deactivateBlackHole();
-	Systems.Timeout.onTimeoutDamageCombatEnd();
-
-	Systems.CombatStatsTracker.stop(state);
-	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
-
-	if (outcome === "player_lost") {
-		await Animations.shatter(getCharaById(getBattleCore(state)(playerForce(state).id).id));
-	} else {
-		await Animations.shatter(getCharaById(getBattleCore(state)(cpuForce(state).id).id));
-	}
-
-	await delay(300);
-
-	Systems.ResultsPhase.handleCombatEnded(state, outcome);
-}
-
-export function isActive(): boolean {
-	return active;
-}
 
 function chargeUnits(state: State, delta: number): Unit[] {
 	let performingUnits: Unit[] = [];
@@ -133,3 +153,4 @@ function chargeUnits(state: State, delta: number): Unit[] {
 	}
 	return performingUnits;
 }
+

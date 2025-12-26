@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { setCurrentScene, State } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import * as Board from "@Models/Board";
-import { updateFrame } from "./RunCombatIO";
+import { CombatRunner } from "./RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Systems from "./Systems";
@@ -21,6 +21,7 @@ export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Shader;
 	state: State;
+	combatRunner?: CombatRunner;
 
 	cleanup() {
 		console.log(":::: BattlegroundScene cleanup")
@@ -94,8 +95,11 @@ export class BattlegroundScene extends Phaser.Scene {
 	update(time: number, delta: number): void {
 		Board.update(time);
 
-		updateFrame(this.state, time, delta);
+		if (this.combatRunner) {
+			this.combatRunner.updateFrame(this.state, time, delta);
+		}
 	}
 }
 
 export default BattlegroundScene;
+
