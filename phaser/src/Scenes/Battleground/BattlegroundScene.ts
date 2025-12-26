@@ -20,6 +20,7 @@ export type BattlegroundSceneData = {
 export class BattlegroundScene extends Phaser.Scene {
 	bgContainer!: Phaser.GameObjects.Container;
 	cloudsBackground!: Phaser.GameObjects.Shader;
+	state: State;
 
 	cleanup() {
 		console.log(":::: BattlegroundScene cleanup")
@@ -50,6 +51,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
+
+		this.state = data.state;
 
 		this.start(data);
 	};
@@ -91,7 +94,7 @@ export class BattlegroundScene extends Phaser.Scene {
 	update(time: number, delta: number): void {
 		Board.update(time);
 
-		updateFrame(time, delta);
+		updateFrame(this.state, time, delta);
 	}
 }
 

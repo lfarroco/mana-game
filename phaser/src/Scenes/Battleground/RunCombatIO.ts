@@ -34,7 +34,7 @@ export const runCombatIO = () => {
 	active = true;
 	Systems.CountdownTimer.start();
 
-	const allUnits = getState().battleData.units;
+	const allUnits = state.battleData.units;
 	allUnits.forEach((unit) => {
 		const battleStartReactions = unit.reactions.filter(
 			(r) => r.effectId === "on_battle_start"
@@ -45,10 +45,8 @@ export const runCombatIO = () => {
 	});
 };
 
-export function updateFrame(_time: number, delta: number): void {
+export function updateFrame(state: State, _time: number, delta: number): void {
 	if (!active) return;
-
-	const state = getState();
 
 	const scaledDelta = delta * getCurrentScene().time.timeScale;
 
@@ -73,11 +71,11 @@ export function updateFrame(_time: number, delta: number): void {
 			: null;
 
 	if (outcome) {
-		finishCombat(outcome);
+		finishCombat(state, outcome);
 	}
 }
 
-export async function finishCombat(outcome: WaveOutcome) {
+export async function finishCombat(state: State, outcome: WaveOutcome) {
 	if (!active) return;
 
 	active = false;
@@ -90,14 +88,13 @@ export async function finishCombat(outcome: WaveOutcome) {
 	deactivateBlackHole();
 	Systems.Timeout.onTimeoutDamageCombatEnd();
 
-	const state = getState();
 	Systems.CombatStatsTracker.stop(state);
 	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 	if (outcome === "player_lost") {
-		await Animations.shatter(getCharaById(getBattleCore(getState())(playerForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(state)(playerForce.id).id));
 	} else {
-		await Animations.shatter(getCharaById(getBattleCore(getState())(cpuForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(state)(cpuForce.id).id));
 	}
 
 	await delay(300);

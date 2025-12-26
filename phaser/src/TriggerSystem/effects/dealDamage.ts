@@ -30,7 +30,7 @@ export function dealDamageLogicIO(state: State, sourceUnit: Unit, scale: number 
 		}
 
 		if (sourceUnit.lifesteal) {
-			manipulateCoreLife(state, getUnitForce(sourceUnit.force), damage);
+			manipulateCoreLife(state, getUnitForce(state, sourceUnit.force), damage);
 		}
 
 		if (enemyCore.reflect) {

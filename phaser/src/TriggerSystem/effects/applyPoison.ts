@@ -19,7 +19,7 @@ export const applyPoisonLogicIO = async (
 
 	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
-	const targetForce = getEnemyForce(sourceUnit.id);
+	const targetForce = getEnemyForce(state, sourceUnit.id);
 
 	console.log(
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
