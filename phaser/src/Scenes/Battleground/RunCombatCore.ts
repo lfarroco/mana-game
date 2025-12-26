@@ -73,8 +73,6 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
 	const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
 
-	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
-
 	const runnerState: CombatRunnerState = {
 		active: true,
 		timeoutSystemState: Timeout.initializeTimeoutDamageSystem(),
@@ -84,15 +82,42 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		combatStatsTrackerState: CombatStatsTracker.initialize(state),
 		countdownTimerState,
 		blackHoleState,
-		forceStatsState,
+		forceStatsState: null, // Will be set after initForceStats
 	};
 
+	// 1. Initialize states with null force stats (needed for systems that don't depend on force stats yet)
+	CombatSystemStates.setCombatSystemStates({
+		poisonSystemState: runnerState.poisonSystemState,
+		regenSystemState: runnerState.regenSystemState,
+		combatStatsTrackerState: runnerState.combatStatsTrackerState,
+		forceStatsState: null,
+	});
+
+	// 2. Initialize Force Stats (UI) - now safe because creating UI doesn't call updateAllStats anymore
+	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
+	runnerState.forceStatsState = forceStatsState;
+
+	// 3. Update global state with the real force stats
 	CombatSystemStates.setCombatSystemStates({
 		poisonSystemState: runnerState.poisonSystemState,
 		regenSystemState: runnerState.regenSystemState,
 		combatStatsTrackerState: runnerState.combatStatsTrackerState,
 		forceStatsState: runnerState.forceStatsState,
 	});
+
+	// 4. Perform initial stats sync (since we removed it from createForceStats)
+	if (runnerState.forceStatsState) {
+		const forces = [playerForce(state).id, cpuForce(state).id];
+		forces.forEach(forceId => {
+			const core = getBattleCore(state)(forceId);
+			if (core) {
+				effects.updateLifeDisplay(forceId, core.life, 0);
+				effects.updateShieldDisplay(forceId, core.shield, 0);
+				effects.updateRegenDisplay(forceId, Regen.getRegenRate(runnerState.regenSystemState, forceId), 0);
+				effects.updatePoisonDisplay(forceId, Poison.getPoisonRate(runnerState.poisonSystemState, forceId), 0);
+			}
+		});
+	}
 
 	const allUnits = state.battleData.units;
 	allUnits.forEach((unit) => {

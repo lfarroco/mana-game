@@ -110,12 +110,14 @@ export function createForceStats(state: ForceStatsState, force: string): ForceSt
 	if (force === FORCE_ID_PLAYER) {
 		newState.playerStats?.destroy();
 		newState.playerStats = Container(elements);
+		newState.playerStats.setDepth(1000); // Ensure it's on top
 	} else if (force === FORCE_ID_CPU) {
 		newState.cpuStats?.destroy();
 		newState.cpuStats = Container(elements);
+		newState.cpuStats.setDepth(1000); // Ensure it's on top
 	}
 
-	updateAllStats(force);
+
 
 	return newState;
 }
