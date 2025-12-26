@@ -35,7 +35,7 @@ export async function itemClickPurchaseRequested(
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 		await ShopUI.slideOut();
-		handlePhaseEnded();
+		handlePhaseEnded(getState());
 		return;
 	}
 
@@ -66,5 +66,5 @@ export async function itemClickPurchaseRequested(
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 	await ShopUI.slideOut();
-	handlePhaseEnded();
+	handlePhaseEnded(getState());
 }

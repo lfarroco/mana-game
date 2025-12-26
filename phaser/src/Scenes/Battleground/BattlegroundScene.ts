@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { getState, setCurrentScene } from "@Models/State";
+import { setCurrentScene, State } from "@Models/State";
 import * as UIManager from "../../UI/UI";
 import * as Board from "@Models/Board";
 import { updateFrame } from "./RunCombatIO";
@@ -13,6 +13,7 @@ import { startPhase, resetBoard, getPhaseForHour } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
 export type BattlegroundSceneData = {
+	state: State,
 	selectedCrystalId?: string;
 };
 
@@ -37,8 +38,8 @@ export class BattlegroundScene extends Phaser.Scene {
 	}
 
 
-	create = async (data?: BattlegroundSceneData) => {
-		const gameData = getState().gameData;
+	create = async (data: BattlegroundSceneData) => {
+		const gameData = data.state.gameData;
 
 		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
 		setCurrentScene(this);
@@ -53,15 +54,15 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.start(data);
 	};
 
-	start = async (sceneData?: BattlegroundSceneData) => {
+	start = async ({ state, selectedCrystalId }: BattlegroundSceneData) => {
 
-		const data = getState().gameData;
+		const data = state.gameData;
 		console.log(":::: BattlegroundScene starting logic...", data);
 
-		if (sceneData?.selectedCrystalId)
-			Systems.Setup.initializeNewGame(sceneData.selectedCrystalId);
+		if (selectedCrystalId)
+			Systems.Setup.initializeNewGame(selectedCrystalId);
 		else
-			getState().gameData = data;
+			state.gameData = data;
 
 		Systems.Setup.setupSceneElements();
 
@@ -83,8 +84,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		const currentHour = getState().gameData.hour;
-		startPhase(getPhaseForHour(currentHour) || "shop");
+		const currentHour = state.gameData.hour;
+		startPhase(state, getPhaseForHour(currentHour) || "shop");
 	};
 
 	update(time: number, delta: number): void {

@@ -36,7 +36,7 @@ export const restoreLife = async (
 	};
 
 	const sourceForce = getUnitForce(sourceUnit.id);
-	const alliedCore = getAlliedCore(sourceUnit.force);
+	const alliedCore = getAlliedCore(state)(sourceUnit.force);
 
 	healFx(
 		getCharaById(sourceUnit.id),

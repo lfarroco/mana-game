@@ -27,7 +27,7 @@ export async function itemDragPurchaseRequested(
 
 		await ShopUI.slideOut();
 
-		PhaseManager.handlePhaseEnded();
+		PhaseManager.handlePhaseEnded(getState());
 		return;
 	}
 
@@ -57,5 +57,5 @@ export async function itemDragPurchaseRequested(
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 	await ShopUI.slideOut();
-	PhaseManager.handlePhaseEnded();
+	PhaseManager.handlePhaseEnded(getState());
 }

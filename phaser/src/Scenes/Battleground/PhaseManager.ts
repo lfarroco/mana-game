@@ -1,4 +1,4 @@
-import { getState } from "@Models/State";
+import { getState, State } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatPhase from "./Systems/CombatPhase";
 import * as HeroShop from "./Systems/Shop/HeroShop";
@@ -64,7 +64,7 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	return colorMap[phase] || "forest";
 }
 
-export async function startPhase(phase: string) {
+export async function startPhase(state: State, phase: string) {
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
@@ -73,13 +73,13 @@ export async function startPhase(phase: string) {
 	switch (phase) {
 		case "shop":
 			await HeroShop.openHeroShop();
-			handlePhaseEnded();
+			handlePhaseEnded(state);
 			break;
 		case "combat":
 			CombatPhase.transitionToCombatPhase();
 			break;
 		case "encounter":
-			Encounter.open();
+			Encounter.open(state);
 			break;
 		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
@@ -97,7 +97,7 @@ export async function startPhase(phase: string) {
 					"on_battle_start_effect",
 				], 3)
 			);
-			handlePhaseEnded();
+			handlePhaseEnded(state);
 			break;
 		case "upgrade_core":
 			await EffectCardShop.openUpgradeCorePhase(
@@ -107,30 +107,30 @@ export async function startPhase(phase: string) {
 					"decrease_core_cooldown",
 					"upgrade_core_power"
 				])
-			handlePhaseEnded();
+			handlePhaseEnded(state);
 			break;
 		default:
 			break;
 	}
 }
 
-export function handlePhaseEnded(): void {
-	const currentPhase = getPhaseForHour(getState().gameData.hour);
+export function handlePhaseEnded(state: State): void {
+	const currentPhase = getPhaseForHour(state.gameData.hour);
 
 	// TODO: the combat phase itself should do this, when it ends
 	if (currentPhase === "combat") {
 		destroyForceStats(c.FORCE_ID_CPU);
 		destroyForceStats(c.FORCE_ID_PLAYER);
-		getState().gameData.player.units.forEach(resetUnitStats);
+		state.gameData.player.units.forEach(resetUnitStats);
 	}
 
-	getState().gameData.hour++;
+	state.gameData.hour++;
 
-	const phase = getPhaseForHour(getState().gameData.hour);
+	const phase = getPhaseForHour(state.gameData.hour);
 
 	saveGameData();
 
-	startPhase(phase);
+	startPhase(state, phase);
 }
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {

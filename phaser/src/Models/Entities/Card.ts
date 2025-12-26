@@ -1,4 +1,4 @@
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import { isUnitUnlocked } from "@Models/StatsStore";
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
@@ -93,13 +93,13 @@ export const getAvailableCards = (): CardDefinition[] =>
 			(!card.locked || isUnitUnlocked(card.id))
 	);
 
-export const getAlliedCore = (forceId: string) =>
-	getState().battleData.units.find((u) => u.force === forceId && u.isCore)!;
-export const getEnemyCore = (forceId: string) =>
-	getState().battleData.units.find((u) => u.force !== forceId && u.isCore)!;
+export const getAlliedCore = (state: State) => (forceId: string) =>
+	state.battleData.units.find((u) => u.force === forceId && u.isCore)!;
+export const getEnemyCore = (state: State) => (forceId: string) =>
+	state.battleData.units.find((u) => u.force !== forceId && u.isCore)!;
 
 export const getBattleCore = (state: State) => (forceId: string) =>
 	state.battleData.units.find((u) => u.force === forceId && u.isCore)!;
 
-export const getPlayerPersistentCore = () =>
-	getState().gameData.player.units.find((u) => u.isCore)!;
+export const getPlayerPersistentCore = (state: State) =>
+	state.gameData.player.units.find((u) => u.isCore)!;

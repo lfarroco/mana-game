@@ -9,7 +9,7 @@ import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTra
 import { processReactions } from "../TriggerSystem";
 
 export const applyRegenLogicIO = async (
-	_state: State,
+	state: State,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
@@ -20,8 +20,6 @@ export const applyRegenLogicIO = async (
 	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
 	const targetForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
-
-	const state = getState();
 
 	console.log(
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
@@ -35,7 +33,7 @@ export const applyRegenLogicIO = async (
 		}
 	};
 
-	const alliedCore = getAlliedCore(sourceUnit.force);
+	const alliedCore = getAlliedCore(state)(sourceUnit.force);
 
 	playSoundEffect('sfx_spell_tranquility');
 

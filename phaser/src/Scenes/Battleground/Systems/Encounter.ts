@@ -7,7 +7,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
 import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
-import { getState } from "@Models/State";
+import { getState, State } from "@Models/State";
 import { CardDefinition } from "@Models/Entities/Card";
 import { createEncounterCard } from "@Scenes/Battleground/Systems/Components/EncounterCard";
 
@@ -38,7 +38,7 @@ const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: str
 				|| card.reactions?.some(eff => eff.effects?.some(eff => eff.id === type)))
 
 	);
-	PhaseManager.handlePhaseEnded();
+	PhaseManager.handlePhaseEnded(getState());
 }
 
 const singleHeroOfRankShop = (container: Phaser.GameObjects.Container, rank: number) => async () => {
@@ -47,7 +47,7 @@ const singleHeroOfRankShop = (container: Phaser.GameObjects.Container, rank: num
 		(card) => card.rank === rank,
 		1
 	);
-	PhaseManager.handlePhaseEnded();
+	PhaseManager.handlePhaseEnded(getState());
 }
 
 type EncounterItem = {
@@ -60,19 +60,19 @@ type EncounterItem = {
 	id?: string;
 };
 
-const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[] => [
+const encounterIndex = (state: State, container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: t("encounters.upgrade_unit.name"),
 		pic: "ui/upgrade_unit",
 		description: t("encounters.upgrade_unit.desc"),
-		onClick: orbShopCallback(container, ["upgrade_orb"]),
+		onClick: orbShopCallback(state, container, ["upgrade_orb"]),
 		id: "upgrade_unit"
 	},
-	improveType(container, "ui/improve_damage", "damage"),
-	improveType(container, "ui/improve_heal", "heal"),
-	improveType(container, "ui/improve_shield", "shield"),
-	improveType(container, "ui/toxic", "poison"),
-	improveType(container, "ui/improve_regen", "regen"),
+	improveType(state, container, "ui/improve_damage", "damage"),
+	improveType(state, container, "ui/improve_heal", "heal"),
+	improveType(state, container, "ui/improve_shield", "shield"),
+	improveType(state, container, "ui/toxic", "poison"),
+	improveType(state, container, "ui/improve_regen", "regen"),
 	{
 		name: t("encounters.armory.name"),
 		pic: "ui/armory",
@@ -148,7 +148,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		pic: "ui/power_distributor",
 		description: t("encounters.power_distributor.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(container, ["distribute_power_orb"]),
+		onClick: orbShopCallback(state, container, ["distribute_power_orb"]),
 		id: "power_distributor"
 	},
 	{
@@ -156,7 +156,7 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 		pic: "ui/power_absorber",
 		description: t("encounters.power_absorber.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(container, ["absorb_power_orb"]),
+		onClick: orbShopCallback(state, container, ["absorb_power_orb"]),
 		id: "power_absorber"
 	},
 	// {
@@ -184,13 +184,13 @@ const encounterIndex = (container: Phaser.GameObjects.Container): EncounterItem[
 	}
 ];
 
-function improveType(container: Phaser.GameObjects.Container, pic: string, type: string) {
+function improveType(state: State, container: Phaser.GameObjects.Container, pic: string, type: string) {
 	return {
 		name: t("encounters.improve_type.name", { type }),
 		pic,
 		minRound: 4,
 		description: t("encounters.improve_type.desc", { type }),
-		onClick: orbShopCallback(container, [
+		onClick: orbShopCallback(state, container, [
 			`increase_power_on_${type}`,
 			`decrease_cooldown_on_${type}`,
 			`increase_critical_on_${type}`
@@ -199,19 +199,18 @@ function improveType(container: Phaser.GameObjects.Container, pic: string, type:
 	};
 }
 
-function orbShopCallback(container: Phaser.GameObjects.Container, orbs: string[]) {
+function orbShopCallback(state: State, container: Phaser.GameObjects.Container, orbs: string[]) {
 	return async () => {
 		container.destroy(true);
-		await openOrbShop(orbs);
-		PhaseManager.handlePhaseEnded();
+		await openOrbShop(state, orbs);
+		PhaseManager.handlePhaseEnded(state);
 	};
 }
 
-export async function open() {
+export async function open(state: State) {
 	const container = io.Container();
 
-	const index = encounterIndex(container).filter(e => {
-		const state = getState();
+	const index = encounterIndex(state, container).filter(e => {
 		const recentIds = state.gameData.recentEncounterIds || [];
 
 		if (e.id && recentIds.includes(e.id)) {
@@ -233,7 +232,7 @@ export async function open() {
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);
-		PhaseManager.handlePhaseEnded();
+		PhaseManager.handlePhaseEnded(state);
 	}
 
 	encounters.forEach((encounter, index) => {

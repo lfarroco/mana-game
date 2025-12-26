@@ -67,7 +67,7 @@ async function handleVictory(state: State): Promise<void> {
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded();
+	PhaseManager.handlePhaseEnded(state);
 }
 
 async function handleDefeat(state: State): Promise<void> {
@@ -88,5 +88,5 @@ async function handleDefeat(state: State): Promise<void> {
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded();
+	PhaseManager.handlePhaseEnded(state);
 }
