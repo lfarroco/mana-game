@@ -7,6 +7,9 @@ import * as Systems from "./Systems";
 import { TimeoutSystemState } from "./Systems/TimeoutDamageSystem";
 import { PoisonSystemState } from "./Systems/PoisonDamageSystem";
 import { RegenSystemState } from "./Systems/RegenSystem";
+import { StatusEffectSystemState } from "./Systems/StatusEffectSystem";
+import { CombatStatsTrackerState } from "./Systems/CombatStatsTracker";
+import { CountdownTimerState } from "./Systems/CountdownTimer";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import * as Animations from "@Systems/Chara/Animations";
@@ -29,28 +32,31 @@ type CombatRunnerState = {
 	timeoutSystemState: TimeoutSystemState;
 	poisonSystemState: PoisonSystemState;
 	regenSystemState: RegenSystemState;
+	statusEffectSystemState: StatusEffectSystemState;
+	combatStatsTrackerState: CombatStatsTrackerState;
+	countdownTimerState: CountdownTimerState;
 };
 
 export const runCombatIO = (): CombatRunner => {
 	const state = getState();
+
+	const countdownTimerState = Systems.CountdownTimer.initializeCountdownTimer(getCurrentScene());
 
 	const runnerState: CombatRunnerState = {
 		active: true,
 		timeoutSystemState: Systems.Timeout.initializeTimeoutDamageSystem(),
 		poisonSystemState: Systems.Poison.initializePoisonSystem(),
 		regenSystemState: Systems.Regen.initializeRegenSystem(),
+		statusEffectSystemState: StatusEffectSystem.initialize(state),
+		combatStatsTrackerState: Systems.CombatStatsTracker.initialize(state),
+		countdownTimerState: Systems.CountdownTimer.start(countdownTimerState),
 	};
 
 	CombatSystemStates.setCombatSystemStates({
 		poisonSystemState: runnerState.poisonSystemState,
 		regenSystemState: runnerState.regenSystemState,
+		combatStatsTrackerState: runnerState.combatStatsTrackerState,
 	});
-
-	StatusEffectSystem.initialize(state);
-
-	Systems.CombatStatsTracker.initialize(state);
-
-	Systems.CountdownTimer.start();
 
 	const allUnits = state.battleData.units;
 	allUnits.forEach((unit) => {
@@ -72,7 +78,7 @@ export const runCombatIO = (): CombatRunner => {
 		for (const unit of unitsReadyToAct) {
 			Animations.pop(unit.id);
 
-			Systems.CombatStatsTracker.trackAction({ unit });
+			Systems.CombatStatsTracker.trackAction(runnerState.combatStatsTrackerState, { unit });
 			processEffectsIO(state, unit, unit.effects, false);
 
 			const combatStates = CombatSystemStates.getCombatSystemStates();
@@ -107,14 +113,14 @@ export const runCombatIO = (): CombatRunner => {
 
 		runnerState.active = false;
 
-		StatusEffectSystem.stop();
+		StatusEffectSystem.stop(runnerState.statusEffectSystemState);
 		runnerState.timeoutSystemState = Systems.Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
-		Systems.CountdownTimer.stop();
+		runnerState.countdownTimerState = Systems.CountdownTimer.stop(runnerState.countdownTimerState);
 		deactivateBlackHole();
 		runnerState.timeoutSystemState = Systems.Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
 		CombatSystemStates.clearCombatSystemStates();
 
-		Systems.CombatStatsTracker.stop(state);
+		Systems.CombatStatsTracker.stop(runnerState.combatStatsTrackerState, state);
 		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 		if (outcome === "player_lost") {

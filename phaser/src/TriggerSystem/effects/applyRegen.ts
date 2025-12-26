@@ -36,7 +36,7 @@ export const applyRegenLogicIO = async (
 		);
 		CombatSystemStates.updateRegenSystemState(newRegenState);
 
-		CombatStatsTracker.trackRegen(state, sourceUnit.id, amount);
+		CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, state, sourceUnit.id, amount);
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });
 		}

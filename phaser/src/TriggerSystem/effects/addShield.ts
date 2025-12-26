@@ -3,6 +3,7 @@ import { manipulateCoreShield } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
+import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { shieldFx } from "./visuals/shield";
@@ -25,7 +26,8 @@ export const addShieldLogicIO = async (
 		const actualShieldChange = manipulateCoreShield(state, sourceForce, shieldAmount, crit.isCritical, true);
 
 		if (actualShieldChange > 0) {
-			CombatStatsTracker.trackShield(state, sourceUnit.id, actualShieldChange);
+			const combatStates = CombatSystemStates.getCombatSystemStates();
+			CombatStatsTracker.trackShield(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualShieldChange);
 		}
 
 		if (crit.isCritical) {
