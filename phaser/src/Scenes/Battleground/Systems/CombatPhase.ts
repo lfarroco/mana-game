@@ -51,12 +51,13 @@ export async function transitionToCombatPhase(state: State): Promise<void> {
 }
 
 export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
+	state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), playerForce(state)];
+
 	const cardPool = getAllCards();
 	const enemies = generateEnemyTeam(state, state.gameData.round, cardPool);
 
 	const playerUnitsForBattle = state.gameData.player.units.map((unit) => createUnitCopy(unit));
 
-	state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), playerForce(state)];
 	state.battleData.units = [...enemies, ...playerUnitsForBattle];
 
 	await delay(100);
