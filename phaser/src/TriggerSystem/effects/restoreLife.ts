@@ -20,7 +20,7 @@ export const restoreLife = async (sourceUnit: Unit, scale: number = 1) => {
 	const effect = (targetForce: Force, amount: number) => () => {
 		const actualHealing = manipulateCoreLife(targetForce, amount, crit.isCritical);
 
-		CombatStatsTracker.trackHeal(sourceUnit.id, actualHealing);
+		CombatStatsTracker.trackHeal(state, sourceUnit.id, actualHealing);
 
 		reducePoison(targetForce.id, actualHealing);
 

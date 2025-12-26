@@ -11,7 +11,9 @@ import { processReactions } from "../TriggerSystem";
 export const addShieldLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power;
 
-	const sourceForce = getState().battleData.forces.find((force) => force.id === sourceUnit.force)!;
+	const state = getState();
+
+	const sourceForce = state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
 	const alliedCore = getAlliedCore(sourceUnit.force);
 
 	const effect = async () => {
@@ -22,7 +24,7 @@ export const addShieldLogicIO = async (sourceUnit: Unit, scale: number = 1) => {
 		const actualShieldChange = manipulateCoreShield(sourceForce, shieldAmount, crit.isCritical, true);
 
 		if (actualShieldChange > 0) {
-			CombatStatsTracker.trackShield(sourceUnit.id, actualShieldChange);
+			CombatStatsTracker.trackShield(state, sourceUnit.id, actualShieldChange);
 		}
 
 		if (crit.isCritical) {
