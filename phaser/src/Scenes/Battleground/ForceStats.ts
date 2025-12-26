@@ -9,6 +9,7 @@ import { getRegenRate } from "./Systems/RegenSystem";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "utils";
 import Phaser from "phaser";
+import { getState } from "@Models/State";
 
 let playerStats: Phaser.GameObjects.Container | null = null;
 let cpuStats: Phaser.GameObjects.Container | null = null;
@@ -108,7 +109,9 @@ export function destroyForceStats(force: string) {
 }
 
 export function updateAllStats(force: string) {
-	const core = getBattleCore(force);
+
+	const state = getState();
+	const core = getBattleCore(state)(force);
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
 	updateRegenDisplay(force, getRegenRate(force), 0);
@@ -126,7 +129,7 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		console.error(`No health bar found for force ${force}`);
 		return;
 	}
-	const core = getBattleCore(force);
+	const core = getBattleCore(getState())(force);
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, life / maxLife));
 	const barWidth = 600;
@@ -166,6 +169,7 @@ export function updateShieldDisplay(
 	shield: number,
 	delta: number
 ) {
+	const state = getState();
 	const chipId = `shield-display/${force}`;
 	updateChipText(chipId, compactNumber(shield));
 
@@ -176,7 +180,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = getBattleCore(force);
+	const core = getBattleCore(state)(force);
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, shield / maxLife));
 	const barWidth = 600;

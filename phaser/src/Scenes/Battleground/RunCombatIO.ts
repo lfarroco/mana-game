@@ -44,6 +44,8 @@ export const runCombatIO = () => {
 export function updateFrame(_time: number, delta: number): void {
 	if (!active) return;
 
+	const state = getState();
+
 	const scaledDelta = delta * getCurrentScene().time.timeScale;
 
 	const unitsReadyToAct = chargeUnits(scaledDelta);
@@ -55,10 +57,10 @@ export function updateFrame(_time: number, delta: number): void {
 		processEffectsIO(unit, unit.effects, false);
 	}
 
-	Systems.Timeout.updateTimeoutDamageSystem(playerForce, cpuForce, scaledDelta);
+	Systems.Timeout.updateTimeoutDamageSystem(state, playerForce, cpuForce, scaledDelta);
 
-	const playerLifeZero = getBattleCore(playerForce.id).life <= 0;
-	const cpuLifeZero = getBattleCore(cpuForce.id).life <= 0;
+	const playerLifeZero = getBattleCore(state)(playerForce.id).life <= 0;
+	const cpuLifeZero = getBattleCore(state)(cpuForce.id).life <= 0;
 
 	const outcome: WaveOutcome | null = cpuLifeZero
 		? "player_won"
@@ -87,9 +89,9 @@ export async function finishCombat(outcome: WaveOutcome) {
 	console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 	if (outcome === "player_lost") {
-		await Animations.shatter(getCharaById(getBattleCore(playerForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(getState())(playerForce.id).id));
 	} else {
-		await Animations.shatter(getCharaById(getBattleCore(cpuForce.id).id));
+		await Animations.shatter(getCharaById(getBattleCore(getState())(cpuForce.id).id));
 	}
 
 	await delay(300);

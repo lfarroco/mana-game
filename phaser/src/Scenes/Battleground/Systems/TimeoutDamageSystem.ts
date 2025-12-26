@@ -4,6 +4,7 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById, shake } from "@Systems/Chara/Chara";
 import { MIDDLE_SCREEN, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { State } from "@Models/State";
 
 
 const timeoutDamageInterval = 1000;
@@ -18,8 +19,8 @@ export function initializeTimeoutDamageSystem(): void {
 	isActive = true;
 }
 
-async function spawnStar(damage: number, targetForce: Force) {
-	const target = getBattleCore(targetForce.id);
+async function spawnStar(state: State, damage: number, targetForce: Force) {
+	const target = getBattleCore(state)(targetForce.id);
 
 	const core = getCharaById(target.id);
 
@@ -39,6 +40,7 @@ async function spawnStar(damage: number, targetForce: Force) {
 }
 
 export function updateTimeoutDamageSystem(
+	state: State,
 	playerForce: Force,
 	cpuForce: Force,
 	delta: number
@@ -53,12 +55,13 @@ export function updateTimeoutDamageSystem(
 	const timeSinceTimeoutStarted = combatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
 
 	if (timeSinceLastTick >= timeoutDamageInterval) {
-		applyTimeoutDamage(playerForce, cpuForce, timeSinceTimeoutStarted);
+		applyTimeoutDamage(state, playerForce, cpuForce, timeSinceTimeoutStarted);
 		timeSinceLastTick = 0;
 	}
 }
 
 function applyTimeoutDamage(
+	state: State,
 	playerForce: Force,
 	cpuForce: Force,
 	timeSinceTimeoutStarted: number
@@ -77,8 +80,8 @@ function applyTimeoutDamage(
 	);
 
 	// Launch targeted shooting stars for each force that apply damage on hit
-	spawnStar(currentDamage, playerForce);
-	spawnStar(currentDamage, cpuForce);
+	spawnStar(state, currentDamage, playerForce);
+	spawnStar(state, currentDamage, cpuForce);
 }
 
 export function stopTimeoutDamageSystem(): void {

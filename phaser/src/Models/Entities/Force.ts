@@ -32,7 +32,8 @@ export const manipulateCoreLife = (
 	amount: number,
 	_critical = false
 ): number => {
-	const core = getBattleCore(targetForce.id);
+	const state = getState();
+	const core = getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot restore life or take damage
 	if (core.life <= 0) {
@@ -58,7 +59,7 @@ export const manipulateCoreShield = (
 	_isCritical: boolean,
 	displayFeedback: boolean = true
 ): number => {
-	const core = getBattleCore(targetForce.id);
+	const core = getBattleCore(getState())(targetForce.id);
 
 	// If core life is 0, it cannot restore shield
 	if (core.life <= 0 && amount > 0) {
@@ -91,7 +92,7 @@ export const applyDamageToForce = (
 ): number => {
 	if (damage <= 0) return 0;
 
-	const core = getBattleCore(targetForce.id);
+	const core = getBattleCore(getState())(targetForce.id);
 
 	// If core life is 0, it cannot be damaged
 	if (core.life <= 0) {

@@ -6,9 +6,12 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import { reducePoison } from "@Scenes/Battleground/Systems/PoisonDamageSystem";
 import { healFx } from "./visuals/heal";
 import { processReactions } from "../TriggerSystem";
+import { getState } from "@Models/State";
 
 export const restoreLife = async (sourceUnit: Unit, scale: number = 1) => {
 	const baseAmount = sourceUnit.power;
+
+	const state = getState();
 
 	const crit = calculateCritical(sourceUnit);
 
@@ -25,7 +28,7 @@ export const restoreLife = async (sourceUnit: Unit, scale: number = 1) => {
 			processReactions(sourceUnit, { id: "on_crit" });
 		}
 
-		if (getBattleCore(targetForce.id).life + amount > getBattleCore(targetForce.id).maxLife) {
+		if (getBattleCore(state)(targetForce.id).life + amount > getBattleCore(state)(targetForce.id).maxLife) {
 			processReactions(sourceUnit, { id: "on_over_heal" });
 		}
 	};
