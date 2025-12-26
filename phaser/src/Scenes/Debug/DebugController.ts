@@ -158,6 +158,8 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 
 	getState().gameData.player.units.push(newUnit);
 
+	Chara.summon(newUnit, true);
+
 	return `Added unit ${cardId} (ID: ${newUnit.id}) to board position (${boardX}, ${boardY})`;
 }
 
