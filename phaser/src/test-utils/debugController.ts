@@ -1,6 +1,6 @@
 // Test utilities for E2E tests with proper TypeScript support
+// Force refresh
 
-import { getState } from "@Models/State";
 import { Page } from "@playwright/test";
 import type * as DebugController from "@Scenes//Debug/DebugController";
 
@@ -60,7 +60,7 @@ export function getDebugController(page: Page) {
 		},
 
 		async clickNextRound(): Promise<string> {
-			return await page.evaluate(() => window.debugController.clickNextRound(getState()));
+			return await page.evaluate(() => window.debugController.clickNextRound());
 		},
 
 		async addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): Promise<string> {
@@ -72,6 +72,26 @@ export function getDebugController(page: Page) {
 
 		async clickGameStart() {
 			return await page.evaluate(() => window.debugController.clickGameStart());
+		},
+
+		async clickNewRun() {
+			return await page.evaluate(() => window.debugController.clickNewRun());
+		},
+
+		async selectCrystal(index: number) {
+			return await page.evaluate((i) => window.debugController.selectCrystal(i), index);
+		},
+
+		async confirmCrystalSelection() {
+			return await page.evaluate(() => window.debugController.confirmCrystalSelection());
+		},
+
+		async clickReady() {
+			return await page.evaluate(() => window.debugController.clickReady());
+		},
+
+		async chooseEncounter(index: number) {
+			return await page.evaluate((i) => window.debugController.chooseEncounter(i), index);
 		},
 	};
 }

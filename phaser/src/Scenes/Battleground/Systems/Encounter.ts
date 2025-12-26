@@ -60,6 +60,16 @@ type EncounterItem = {
 	id?: string;
 };
 
+let currentEncounters: EncounterItem[] = [];
+
+export async function chooseEncounter(index: number) {
+	if (currentEncounters[index]) {
+		await currentEncounters[index].onClick();
+		return `Chose encounter ${index}: ${currentEncounters[index].name}`;
+	}
+	return `Invalid encounter index: ${index}. Available: ${currentEncounters.length}`;
+}
+
 const encounterIndex = (state: State, container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: t("encounters.upgrade_unit.name"),
@@ -226,9 +236,10 @@ export async function open(state: State) {
 		}
 
 		return true;
-	})
+	});
 
 	const encounters = pickRandom(index, 3)
+	currentEncounters = encounters;
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);

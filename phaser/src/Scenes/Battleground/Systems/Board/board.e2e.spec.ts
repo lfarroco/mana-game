@@ -10,14 +10,14 @@ const boardSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 			const debugController = getDebugController(page);
 
 			// Add a unit to the board
-			const cardIdToUse = "bowsie"; // Ensure this is a valid card ID
+			const cardIdToUse = "warbringer"; // Ensure this is a valid card ID
 			const initialBoardX = 0;
 			const initialBoardY = 0;
 			await debugController.addUnitToPlayerBoard(cardIdToUse, initialBoardX, initialBoardY);
 
 			let units = await debugController.getPlayerBoardUnits();
 			const unitToMove = units.find(
-				(u) => u.position.x === initialBoardX && u.position.y === initialBoardY
+				(u: any) => u.position.x === initialBoardX && u.position.y === initialBoardY
 			);
 			expect(unitToMove).toBeDefined();
 			if (!unitToMove) return; // Guard for TypeScript
