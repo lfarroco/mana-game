@@ -280,14 +280,14 @@ export async function triggerGameComplete(wins: number = 0): Promise<void> {
 }
 
 export function defeatCpu(): string {
-	const core = getBattleCore(cpuForce.id);
+	const core = getBattleCore(getState())(cpuForce.id);
 	if (!core) return "Error: CPU core not found";
 	core.life = 0;
 	return "CPU core life set to 0. Victory imminent.";
 }
 
 export function defeatPlayer(): string {
-	const core = getBattleCore(playerForce.id);
+	const core = getBattleCore(getState())(playerForce.id);
 	if (!core) return "Error: Player core not found";
 	core.life = 0;
 	return "Player core life set to 0. Defeat imminent.";
