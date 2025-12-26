@@ -1,7 +1,8 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import { getState, State } from "@Models/State";
-import { applyRegen } from "@Scenes//Battleground/Systems/RegenSystem";
+import * as RegenSystem from "@Scenes//Battleground/Systems/RegenSystem";
+import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { arcaneMissileTargeted } from "../../Effects";
 import { playSoundEffect } from "@Systems/AudioManager";
@@ -26,7 +27,15 @@ export const applyRegenLogicIO = async (
 	);
 
 	const effect = () => {
-		applyRegen(targetForce, amount, crit.isCritical);
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		const newRegenState = RegenSystem.applyRegen(
+			combatStates.regenSystemState,
+			targetForce,
+			amount,
+			crit.isCritical
+		);
+		CombatSystemStates.updateRegenSystemState(newRegenState);
+
 		CombatStatsTracker.trackRegen(state, sourceUnit.id, amount);
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });

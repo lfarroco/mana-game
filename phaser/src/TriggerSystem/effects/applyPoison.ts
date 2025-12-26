@@ -1,7 +1,8 @@
 import { getEnemyCore } from "@Models/Entities/Card";
 import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import { applyPoison } from "@Scenes//Battleground/Systems/PoisonDamageSystem";
+import * as PoisonSystem from "@Scenes//Battleground/Systems/PoisonDamageSystem";
+import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import { poisonFx } from "./visuals/poison";
@@ -26,7 +27,15 @@ export const applyPoisonLogicIO = async (
 	);
 
 	const effect = () => {
-		applyPoison(targetForce, amount, crit.isCritical);
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		const newPoisonState = PoisonSystem.applyPoison(
+			combatStates.poisonSystemState,
+			targetForce,
+			amount,
+			crit.isCritical
+		);
+		CombatSystemStates.updatePoisonSystemState(newPoisonState);
+
 		CombatStatsTracker.trackPoison(state, sourceUnit.id, amount);
 		if (crit.isCritical) {
 			processReactions(state, sourceUnit, { id: "on_crit" });

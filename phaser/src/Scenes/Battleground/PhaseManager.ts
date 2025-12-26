@@ -6,8 +6,9 @@ import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
-import { clearPoison } from "./Systems/PoisonDamageSystem";
-import { clearRegen } from "./Systems/RegenSystem";
+import * as PoisonSystem from "./Systems/PoisonDamageSystem";
+import * as RegenSystem from "./Systems/RegenSystem";
+import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
@@ -140,10 +141,14 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 		state.battleData.units = [];
 	}
 
-	clearRegen(c.FORCE_ID_PLAYER);
-	clearRegen(c.FORCE_ID_CPU);
-	clearPoison(c.FORCE_ID_PLAYER);
-	clearPoison(c.FORCE_ID_CPU);
+	const combatStates = CombatSystemStates.getCombatSystemStates();
+	let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
+	newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
+	CombatSystemStates.updateRegenSystemState(newRegenState);
+
+	let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
+	newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
+	CombatSystemStates.updatePoisonSystemState(newPoisonState);
 
 	if (shouldResummonUnits) {
 		const summonPromises = state.gameData.player.units.map(async (unit, index) => {

@@ -1,41 +1,57 @@
 import { Force } from "@Models/Entities/Force";
 import { updateRegenDisplay } from "../ForceStats";
 
-const regenStates: Map<string, number> = new Map();
+export type RegenSystemState = {
+	regenRates: Map<string, number>;
+};
 
-export function initialize(): void {
-	regenStates.clear();
+export function initializeRegenSystem(): RegenSystemState {
+	return {
+		regenRates: new Map(),
+	};
 }
 
 export function applyRegen(
+	regenState: RegenSystemState,
 	targetForce: Force,
 	amount: number,
 	_critical = false
-): void {
-	if (amount <= 0) return;
+): RegenSystemState {
+	if (amount <= 0) return regenState;
 	const id = targetForce.id;
-	let currentRate = regenStates.get(id) || 0;
+	const currentRate = regenState.regenRates.get(id) || 0;
 
-	currentRate += amount;
-	regenStates.set(id, currentRate);
+	const newRate = currentRate + amount;
+	const newRates = new Map(regenState.regenRates);
+	newRates.set(id, newRate);
 
-	updateRegenDisplay(targetForce.id, currentRate, amount);
+	updateRegenDisplay(targetForce.id, newRate, amount);
+
+	return {
+		...regenState,
+		regenRates: newRates,
+	};
 }
 
-export function getTickAmount(forceId: string): number {
-	return regenStates.get(forceId) || 0;
+export function getTickAmount(regenState: RegenSystemState, forceId: string): number {
+	return regenState.regenRates.get(forceId) || 0;
 }
 
-export function clearRegen(forceId: string) {
-	const oldRate = getRegenRate(forceId);
-	regenStates.delete(forceId);
+export function clearRegen(
+	regenState: RegenSystemState,
+	forceId: string
+): RegenSystemState {
+	const oldRate = getRegenRate(regenState, forceId);
+	const newRates = new Map(regenState.regenRates);
+	newRates.delete(forceId);
 	updateRegenDisplay(forceId, 0, -oldRate);
+
+	return {
+		...regenState,
+		regenRates: newRates,
+	};
 }
 
-export function getRegenRate(forceId: string): number {
-	return regenStates.get(forceId) || 0;
-}
-
-export function stop() {
-	regenStates.clear();
+export function getRegenRate(regenState: RegenSystemState, forceId: string): number {
+	return regenState.regenRates.get(forceId) || 0;
 }
