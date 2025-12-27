@@ -58,17 +58,11 @@ export class MagicOrb {
 		this.startTime = this.scene.time.now;
 		this.originalPosition = { x, y };
 
-		console.log("Creating MagicOrb with config:", this.config);
-		console.log("Position:", x, y);
 
 		this.createShader(x, y);
 	}
 
 	private createShader(x: number, y: number): void {
-		console.log("Creating shader at position:", x, y);
-		console.log("Shader size:", this.config.size);
-		console.log("Shader color:", this.config.color);
-		console.log("Shader intensity:", this.config.intensity);
 
 		const animationPhaseOffset = value() * Math.PI * 2;
 		console.log(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);

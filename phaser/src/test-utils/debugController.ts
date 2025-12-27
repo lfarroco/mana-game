@@ -48,7 +48,10 @@ export function getDebugController(page: Page) {
 		},
 
 		async isShopVisible(): Promise<boolean> {
-			return true; // TODO: implement me
+			return await page.evaluate(() => {
+				const state = (window as any).state;
+				return state && typeof state.currentState === 'string' && state.currentState.includes('shop');
+			});
 		},
 
 		async getShopItemCost(): Promise<number> {
