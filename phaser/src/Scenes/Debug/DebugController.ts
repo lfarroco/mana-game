@@ -8,12 +8,24 @@ import * as Systems from "../Battleground/Systems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";
 import { handleCombatStartExecution } from "@Scenes/Battleground/Systems/CombatPhase";
 import { chooseEncounter as executeEncounterChoice } from "@Scenes/Battleground/Systems/Encounter";
-import { getCurrentScene } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
+import { getPhaseForHour } from "@Scenes/Battleground/PhaseManager";
+
+export function getCurrentSceneName(): string {
+	const scene = getCurrentScene();
+	return scene ? scene.scene.key : "";
+}
+
+export function getCurrentPhase(): string {
+	const state = getState();
+	if (!state || !state.gameData) return "";
+	return getPhaseForHour(state.gameData.hour);
+}
 
 export function clickHeroInShop(slotIndex: number): string {
 	const chara = Systems.Shop.HeroShop.getShopCharaBySlot(slotIndex);

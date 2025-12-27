@@ -47,11 +47,17 @@ export function getDebugController(page: Page) {
 			);
 		},
 
+
 		async isShopVisible(): Promise<boolean> {
-			return await page.evaluate(() => {
-				const state = (window as any).state;
-				return state && typeof state.currentState === 'string' && state.currentState.includes('shop');
-			});
+			return await page.evaluate(() => window.debugController.isShopVisible());
+		},
+
+		async getCurrentSceneName(): Promise<string> {
+			return await page.evaluate(() => window.debugController.getCurrentSceneName());
+		},
+
+		async getCurrentPhase(): Promise<string> {
+			return await page.evaluate(() => window.debugController.getCurrentPhase());
 		},
 
 		async getShopItemCost(): Promise<number> {
@@ -107,10 +113,27 @@ export function getDebugController(page: Page) {
  * Wait for game initialization and debugController to be available
  */
 export async function waitForGameInit(page: Page): Promise<void> {
+	console.log("Waiting for game init...");
 	// Wait for the canvas to be present
-	const canvas = await page.waitForSelector("canvas");
-	if (!canvas) throw new Error("Canvas not found");
+	try {
+		console.log("Waiting for canvas...");
+		const canvas = await page.waitForSelector("canvas", { timeout: 10000 });
+		if (!canvas) throw new Error("Canvas not found");
+		console.log("Canvas found.");
 
-	// Wait for debugController/state to be available on window
-	await page.waitForFunction(() => window.debugController && window.state);
+		// Wait for debugController/state to be available on window
+		console.log("Waiting for global vars...");
+		await page.waitForFunction(() => {
+			const hasDebug = !!window.debugController;
+			const hasState = !!window.state;
+			if (!hasDebug || !hasState) {
+				// return false; // Don't log spam
+			}
+			return hasDebug && hasState;
+		}, null, { timeout: 10000 });
+		console.log("Global vars found.");
+	} catch (e) {
+		console.log("waitForGameInit failed:", e);
+		throw e;
+	}
 }
