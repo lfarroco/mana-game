@@ -24,6 +24,8 @@ import { slowEffect } from "../../Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { getState } from "@Models/State";
+import { resetUnitStats } from "@Models/Entities/Unit";
+import * as CombatSystemStates from "./Systems/CombatSystemStates";
 
 export const createBrowserCombatEffects = (): CombatEffects => {
 	return {
@@ -43,6 +45,15 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			}
 
 			await delay(300);
+
+			if (CombatSystemStates.isInitialized()) {
+				const combatStates = CombatSystemStates.getCombatSystemStates();
+				let forceStatsState = combatStates.forceStatsState;
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
+				CombatSystemStates.updateForceStatsState(forceStatsState);
+			}
+			state.gameData.player.units.forEach(resetUnitStats);
 
 			await Systems.ResultsPhase.handleCombatEnded(state, outcome);
 		},

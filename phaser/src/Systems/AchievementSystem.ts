@@ -72,9 +72,6 @@ function isSteamAvailable(): boolean {
  */
 function unlockAchievement(achievementId: string): boolean {
 	if (!isSteamAvailable()) {
-		console.log(
-			`[Achievement] Would unlock: ${achievementId} (Steam not available)`
-		);
 		return false;
 	}
 
@@ -83,7 +80,6 @@ function unlockAchievement(achievementId: string): boolean {
 
 		// Check if already unlocked
 		if (achievement.isActivated(achievementId)) {
-			console.log(`[Achievement] Already unlocked: ${achievementId}`);
 			return false;
 		}
 

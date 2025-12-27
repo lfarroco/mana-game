@@ -1,5 +1,4 @@
 import { getState, State } from "@Models/State";
-import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatPhase from "./Systems/CombatPhase";
 import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
@@ -9,7 +8,6 @@ import { delay } from "@Utils/animation";
 import * as PoisonSystem from "./Systems/PoisonDamageSystem";
 import * as RegenSystem from "./Systems/RegenSystem";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
-import { destroyForceStats } from "./ForceStats";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 import { pickRandom } from "utils";
@@ -116,19 +114,6 @@ export async function startPhase(state: State, phase: string) {
 }
 
 export function handlePhaseEnded(state: State): void {
-	const currentPhase = getPhaseForHour(state.gameData.hour);
-
-	// TODO: the combat phase itself should do this, when it ends
-	if (currentPhase === "combat") {
-		if (CombatSystemStates.isInitialized()) {
-			const combatStates = CombatSystemStates.getCombatSystemStates();
-			let forceStatsState = combatStates.forceStatsState;
-			forceStatsState = destroyForceStats(forceStatsState, c.FORCE_ID_CPU);
-			forceStatsState = destroyForceStats(forceStatsState, c.FORCE_ID_PLAYER);
-			CombatSystemStates.updateForceStatsState(forceStatsState);
-		}
-		state.gameData.player.units.forEach(resetUnitStats);
-	}
 
 	state.gameData.hour++;
 
