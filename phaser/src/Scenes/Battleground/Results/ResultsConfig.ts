@@ -88,5 +88,5 @@ export function getVictoryTier(wins: number, isGameOver: boolean): VictoryTier {
 		return { message: t("results.victory.bronze"), color: RESULTS_COLORS.bronze };
 	}
 
-	return { message: t("results.victory.default"), color: RESULTS_COLORS.white };
+	return { message: "", color: RESULTS_COLORS.white };
 }
