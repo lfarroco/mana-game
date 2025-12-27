@@ -21,6 +21,9 @@ test.describe('Game Flow', () => {
 
 		const debugController = getDebugController(page);
 
+		// Speed up game
+		await debugController.setSpeed(10);
+
 		// 2. Click "new run"
 		await debugController.clickNewRun();
 

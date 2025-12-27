@@ -184,13 +184,14 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		StatusEffectSystem.stop(runnerState.statusEffectSystemState);
 		runnerState.timeoutSystemState = Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
 		runnerState.timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
-		CombatSystemStates.clearCombatSystemStates();
-		CombatEffectsRegistry.clearCombatEffects();
-
-		CombatStatsTracker.stop(runnerState.combatStatsTrackerState, state);
 		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
+		// 1. Run combat end effects (visuals, results UI)
 		await effects.onCombatEnd(state, outcome);
+
+		// 2. NOW clear state, after UI has likely finished using it
+		CombatSystemStates.clearCombatSystemStates();
+		CombatEffectsRegistry.clearCombatEffects();
 	};
 
 	const isActive = (): boolean => {

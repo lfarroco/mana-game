@@ -44,7 +44,7 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 	await ResultsUI.slideIn();
 }
 
-export function handleCombatEnded(state: State, combatResult: string) {
+export async function handleCombatEnded(state: State, combatResult: string) {
 
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 
@@ -57,9 +57,9 @@ export function handleCombatEnded(state: State, combatResult: string) {
 	}
 
 	if (combatResult === "player_won") {
-		handleCombatEndedVictory(state);
+		await handleCombatEndedVictory(state);
 	} else {
-		handleCombatEndedDefeat(state);
+		await handleCombatEndedDefeat(state);
 	}
 }
 
