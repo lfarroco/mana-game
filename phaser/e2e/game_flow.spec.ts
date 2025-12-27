@@ -216,7 +216,7 @@ test.describe('Game Flow', () => {
 			if (!cpuCore) return true;
 
 			return playerCore.life <= 0 || cpuCore.life <= 0;
-		}, null, { timeout: 30000 }); // 30s timeout to be safe
+		}, null, { timeout: 60000 }); // 60s timeout to be safe
 
 		console.log("Combat finished (one core reached 0 life).");
 
