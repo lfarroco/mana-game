@@ -1,17 +1,13 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
 import * as RegenSystem from "@Scenes//Battleground/Systems/RegenSystem";
-import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import { processReactions } from "../TriggerSystem";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const applyRegenLogicIO = async (
-	state: State,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1,
+	scale: number = 1
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -19,31 +15,33 @@ export const applyRegenLogicIO = async (
 
 	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
-	const targetForce = state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
+	const targetForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
 	console.log(
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
 	const effect = () => {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
+		const { combatStates } = env;
 		const newRegenState = RegenSystem.applyRegen(
 			combatStates.regenSystemState,
 			targetForce,
 			amount,
-			crit.isCritical
+			crit.isCritical,
+			env.effects
 		);
-		CombatSystemStates.updateRegenSystemState(newRegenState);
 
-		CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, state, sourceUnit.id, amount);
+		combatStates.regenSystemState = newRegenState;
+
+		CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, env, sourceUnit.id, amount);
 		if (crit.isCritical) {
-			processReactions(state, sourceUnit, { id: "on_crit" });
+			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 		}
 	};
 
-	const alliedCore = getAlliedCore(state)(sourceUnit.force);
+	const alliedCore = getAlliedCore(env.state)(sourceUnit.force);
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 	if (effects.onRegen) {
 		effects.onRegen(sourceUnit.id, alliedCore.id, effect);
 	} else {

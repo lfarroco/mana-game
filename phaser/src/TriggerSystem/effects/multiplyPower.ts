@@ -1,14 +1,15 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const multiplyPower = async (context: {
+export const multiplyPower = async (options: {
+	env: CombatEnvironment;
 	targets: Unit[];
 	sourceUnit: Unit;
 	multiplier: number;
 }) => {
-	const { targets, multiplier } = context;
+	const { targets, multiplier, env } = options;
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 
 	for (const target of targets) {
 		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
@@ -21,8 +22,5 @@ export const multiplyPower = async (context: {
 		if (effects.onPowerUpdate) {
 			effects.onPowerUpdate(target.id);
 		}
-
-		// Note: removed sfx_spell_innerfocus sound as it's not crucial for server/logic separation 
-		// or requires a generic sound callback.
 	}
 };

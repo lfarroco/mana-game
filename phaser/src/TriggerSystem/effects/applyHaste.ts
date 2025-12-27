@@ -1,9 +1,8 @@
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const applyHasteLogicIO = async (
-	_state: State,
+	env: CombatEnvironment,
 	targets: Unit[],
 	sourceUnit: Unit,
 	duration: number,
@@ -16,7 +15,7 @@ export const applyHasteLogicIO = async (
 		target.hasted += duration;
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 
 	for (const target of targets) {
 		if (effects.onHaste) {

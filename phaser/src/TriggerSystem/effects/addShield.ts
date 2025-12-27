@@ -1,39 +1,36 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { manipulateCoreShield } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
 import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
-import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import { processReactions } from "../TriggerSystem";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const addShieldLogicIO = async (
-	state: State,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1,
+	scale: number = 1
 ) => {
 	const baseAmount = sourceUnit.power;
-	const sourceForce = state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
-	const alliedCore = getAlliedCore(state)(sourceUnit.force);
+	const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
+	const alliedCore = getAlliedCore(env.state)(sourceUnit.force);
 
 	const effect = async () => {
 		const crit = calculateCritical(sourceUnit);
 
 		const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-		const actualShieldChange = manipulateCoreShield(state, sourceForce, shieldAmount, crit.isCritical, true);
+		const actualShieldChange = manipulateCoreShield(env.state, sourceForce, shieldAmount, crit.isCritical, true, env.effects, env.combatStates.forceStatsState);
 
 		if (actualShieldChange > 0) {
-			const combatStates = CombatSystemStates.getCombatSystemStates();
-			CombatStatsTracker.trackShield(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualShieldChange);
+			const { combatStates } = env;
+			CombatStatsTracker.trackShield(combatStates.combatStatsTrackerState, env, sourceUnit.id, actualShieldChange);
 		}
 
 		if (crit.isCritical) {
-			processReactions(state, sourceUnit, { id: "on_crit" });
+			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 		}
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 	if (effects.onShield) {
 		effects.onShield(sourceUnit.id, alliedCore.id, effect);
 	} else {

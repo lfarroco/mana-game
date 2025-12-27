@@ -1,7 +1,8 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const increasePower = async (
+	env: CombatEnvironment,
 	targets: Unit[],
 	amount: number,
 	permanent: boolean,
@@ -14,7 +15,7 @@ export const increasePower = async (
 		}
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 
 	for (const target of targets) {
 		if (effects.onIncreasePower) {

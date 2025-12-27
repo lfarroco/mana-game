@@ -1,7 +1,7 @@
 import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
-import { processReactions } from "TriggerSystem/TriggerSystem";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export type UnitCombatStats = {
 	unitId: string;
@@ -126,7 +126,7 @@ const STAT_CONFIGS: Record<string, StatConfig> = {
 
 function trackStat(
 	trackerState: CombatStatsTrackerState,
-	state: State,
+	env: CombatEnvironment,
 	amount: number,
 	sourceUnitId: string,
 	configKey: keyof typeof STAT_CONFIGS
@@ -148,30 +148,31 @@ function trackStat(
 		const diff = newThresholds - oldThresholds;
 
 		if (diff > 0) {
-			const unit = state.battleData.units.find((u) => u.id === sourceUnitId)!;
-			processReactions(state, unit, { id: config.reactionId as any }, diff);
+			const unit = env.state.battleData.units.find((u) => u.id === sourceUnitId)!;
+			// Use env.processReactions to avoid circular import and ensure correct context
+			env.processReactions(env, unit, { id: config.reactionId as any }, diff);
 		}
 	}
 }
 
-export function trackDamage(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, damage: number): void {
-	trackStat(trackerState, state, damage, sourceUnitId, "damage");
+export function trackDamage(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, damage: number): void {
+	trackStat(trackerState, env, damage, sourceUnitId, "damage");
 }
 
-export function trackPoison(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, poison: number): void {
-	trackStat(trackerState, state, poison, sourceUnitId, "poison");
+export function trackPoison(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, poison: number): void {
+	trackStat(trackerState, env, poison, sourceUnitId, "poison");
 }
 
-export function trackHeal(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, healing: number): void {
-	trackStat(trackerState, state, healing, sourceUnitId, "heal");
+export function trackHeal(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, healing: number): void {
+	trackStat(trackerState, env, healing, sourceUnitId, "heal");
 }
 
-export function trackRegen(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, regen: number): void {
-	trackStat(trackerState, state, regen, sourceUnitId, "regen");
+export function trackRegen(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, regen: number): void {
+	trackStat(trackerState, env, regen, sourceUnitId, "regen");
 }
 
-export function trackShield(trackerState: CombatStatsTrackerState, state: State, sourceUnitId: string, shield: number): void {
-	trackStat(trackerState, state, shield, sourceUnitId, "shield");
+export function trackShield(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, shield: number): void {
+	trackStat(trackerState, env, shield, sourceUnitId, "shield");
 }
 
 
@@ -202,4 +203,3 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 
 	console.log("[CombatStatsTracker] Stopped and finalized stats");
 }
-

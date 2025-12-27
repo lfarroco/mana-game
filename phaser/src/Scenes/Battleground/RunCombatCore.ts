@@ -1,120 +1,73 @@
 import { State } from "@Models/State";
 import { MIN_COOLDOWN } from "./ServerConstants";
 import { Unit } from "@Models/Entities/Unit";
-import { processEffectsIO } from "../../TriggerSystem/TriggerSystem";
+import { processEffectsIO, processReactions } from "../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "./ServerConstants";
 import * as Timeout from "./Systems/TimeoutDamageSystem";
 import * as Poison from "./Systems/PoisonDamageSystem";
 import * as Regen from "./Systems/RegenSystem";
 import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
-import { TimeoutSystemState } from "./Systems/TimeoutDamageSystem";
-import { PoisonSystemState } from "./Systems/PoisonDamageSystem";
-import { RegenSystemState } from "./Systems/RegenSystem";
-import { StatusEffectSystemState } from "./Systems/StatusEffectSystem";
-import { CombatStatsTrackerState } from "./Systems/CombatStatsTracker";
 import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
-import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import { getBattleCore } from "@Models/Entities/Card";
-import * as CombatEffectsRegistry from "./CombatEffectsRegistry";
+import { CombatEffects, CombatEnvironment } from "./CombatEnvironment";
 
-export type WaveOutcome = "player_won" | "player_lost";
-
-export type CombatEffects = {
-	onUnitPop: (unitId: string) => void;
-	onChargeBarUpdate: (unitId: string) => void;
-	onCombatEnd: (state: State, outcome: WaveOutcome) => Promise<void>;
-	getTimeScale: () => number;
-	getScene: () => any;
-	updateLifeDisplay: (force: string, life: number, delta: number) => void;
-	updateShieldDisplay: (force: string, shield: number, delta: number) => void;
-	updateRegenDisplay: (force: string, regen: number, delta: number) => void;
-	updatePoisonDisplay: (force: string, poison: number, delta: number) => void;
-	initBlackHole?: () => any;
-	initCountdownTimer?: (blackHoleState: any) => any;
-	initForceStats?: () => any;
-	onReactionVisual?: (unitId: string) => Promise<void>;
-	onDamage?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onHeal?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onShield?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onPoison?: (sourceId: string, targetId: string, onHit: () => void) => void;
-
-	onRegen?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onHaste?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
-	onSlow?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
-	onCharge?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
-	onIncreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
-	onDecreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
-	onIncreaseCritical?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
-	onPowerUpdate?: (unitId: string) => void;
-	onTimeoutDamageVisual?: (targetForceId: string, damage: number, onHit: () => void) => void;
-};
+export type { WaveOutcome, CombatEffects } from "./CombatEnvironment";
 
 export type CombatRunner = {
 	updateFrame: (state: State, time: number, delta: number) => void;
-	finishCombat: (state: State, outcome: WaveOutcome) => Promise<void>;
+	finishCombat: (state: State, outcome: "player_won" | "player_lost") => Promise<void>;
 	isActive: () => boolean;
+	getEnv: () => any; // Return generic object to avoid export issues, or explicit CombatEnvironment
 };
 
 type CombatRunnerState = {
 	active: boolean;
-	timeoutSystemState: TimeoutSystemState;
-	poisonSystemState: PoisonSystemState;
-	regenSystemState: RegenSystemState;
-	statusEffectSystemState: StatusEffectSystemState;
-	combatStatsTrackerState: CombatStatsTrackerState;
+	env: CombatEnvironment;
 	countdownTimerState: any;
 	blackHoleState: any;
-	forceStatsState: any;
 };
 
 export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
-	CombatEffectsRegistry.setCombatEffects(effects);
 
 	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
 	const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
 
-	const runnerState: CombatRunnerState = {
-		active: true,
-		timeoutSystemState: Timeout.initializeTimeoutDamageSystem(),
-		poisonSystemState: Poison.initializePoisonSystem(),
-		regenSystemState: Regen.initializeRegenSystem(),
-		statusEffectSystemState: StatusEffectSystem.initialize(state),
-		combatStatsTrackerState: CombatStatsTracker.initialize(state),
-		countdownTimerState,
-		blackHoleState,
-		forceStatsState: null, // Will be set after initForceStats
+	const env: CombatEnvironment = {
+		state,
+		effects,
+		combatStates: {
+			poisonSystemState: Poison.initializePoisonSystem(),
+			regenSystemState: Regen.initializeRegenSystem(),
+			combatStatsTrackerState: CombatStatsTracker.initialize(state),
+			forceStatsState: null, // Will be set after initForceStats
+		},
+		processReactions
 	};
 
-	// 1. Initialize states with null force stats (needed for systems that don't depend on force stats yet)
-	CombatSystemStates.setCombatSystemStates({
-		poisonSystemState: runnerState.poisonSystemState,
-		regenSystemState: runnerState.regenSystemState,
-		combatStatsTrackerState: runnerState.combatStatsTrackerState,
-		forceStatsState: null,
-	});
+	const runnerState: CombatRunnerState = {
+		active: true,
+		env,
+		countdownTimerState,
+		blackHoleState,
+	};
 
-	// 2. Initialize Force Stats (UI) - now safe because creating UI doesn't call updateAllStats anymore
+	runnerState.env.combatStates.forceStatsState = null;
+
+	// 2. Initialize Force Stats (UI)
 	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
-	runnerState.forceStatsState = forceStatsState;
+	runnerState.env.combatStates.forceStatsState = forceStatsState;
 
-	// 3. Update global state with the real force stats
-	CombatSystemStates.setCombatSystemStates({
-		poisonSystemState: runnerState.poisonSystemState,
-		regenSystemState: runnerState.regenSystemState,
-		combatStatsTrackerState: runnerState.combatStatsTrackerState,
-		forceStatsState: runnerState.forceStatsState,
-	});
-
-	// 4. Perform initial stats sync (since we removed it from createForceStats)
-	if (runnerState.forceStatsState) {
+	// 4. Perform initial stats sync
+	if (runnerState.env.combatStates.forceStatsState) {
 		const forces = [playerForce(state).id, cpuForce(state).id];
 		forces.forEach(forceId => {
 			const core = getBattleCore(state)(forceId);
 			if (core) {
-				effects.updateLifeDisplay(forceId, core.life, 0);
-				effects.updateShieldDisplay(forceId, core.shield, 0);
-				effects.updateRegenDisplay(forceId, Regen.getRegenRate(runnerState.regenSystemState, forceId), 0);
-				effects.updatePoisonDisplay(forceId, Poison.getPoisonRate(runnerState.poisonSystemState, forceId), 0);
+				effects.updateLifeDisplay(forceId, core.life, 0, runnerState.env.combatStates.forceStatsState);
+				effects.updateShieldDisplay(forceId, core.shield, 0, runnerState.env.combatStates.forceStatsState);
+				effects.updateRegenDisplay(forceId, Regen.getRegenRate(runnerState.env.combatStates.regenSystemState, forceId), 0);
+				effects.updatePoisonDisplay(forceId, Poison.getPoisonRate(runnerState.env.combatStates.poisonSystemState, forceId), 0);
 			}
 		});
 	}
@@ -125,12 +78,19 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			(r) => r.effectId === "on_battle_start"
 		);
 		battleStartReactions.forEach((r) => {
-			processEffectsIO(state, unit, r.effects, true);
+			processEffectsIO(env, unit, r.effects, true);
 		});
 	});
 
+	// Initialize local systems not in Env
+	let statusEffectSystemState = StatusEffectSystem.initialize(state);
+	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
+
 	const updateFrame = (state: State, _time: number, delta: number): void => {
 		if (!runnerState.active) return;
+
+		// Update state reference
+		runnerState.env.state = state;
 
 		const scaledDelta = delta * effects.getTimeScale();
 
@@ -139,33 +99,32 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		for (const unit of unitsReadyToAct) {
 			effects.onUnitPop(unit.id);
 
-			CombatStatsTracker.trackAction(runnerState.combatStatsTrackerState, { unit });
-			processEffectsIO(state, unit, unit.effects, false);
-
-			const combatStates = CombatSystemStates.getCombatSystemStates();
-			runnerState.poisonSystemState = combatStates.poisonSystemState;
-			runnerState.regenSystemState = combatStates.regenSystemState;
-			runnerState.forceStatsState = combatStates.forceStatsState;
+			CombatStatsTracker.trackAction(runnerState.env.combatStates.combatStatsTrackerState, { unit });
+			processEffectsIO(env, unit, unit.effects, false);
 		}
 
-		runnerState.statusEffectSystemState = StatusEffectSystem.update(
-			runnerState.statusEffectSystemState,
-			state,
+		statusEffectSystemState = StatusEffectSystem.update(
+			env,
+			statusEffectSystemState,
 			scaledDelta
 		);
 
-		runnerState.timeoutSystemState = Timeout.updateTimeoutDamageSystem(
-			runnerState.timeoutSystemState,
+		timeoutSystemState = Timeout.updateTimeoutDamageSystem(
+			env,
+			timeoutSystemState,
 			state,
 			playerForce(state),
 			cpuForce(state),
-			scaledDelta
+			scaledDelta,
 		);
 
-		const playerLifeZero = getBattleCore(state)(playerForce(state).id).life <= 0;
-		const cpuLifeZero = getBattleCore(state)(cpuForce(state).id).life <= 0;
+		const playerCore = getBattleCore(state)(FORCE_ID_PLAYER);
+		const cpuCore = getBattleCore(state)(FORCE_ID_CPU);
 
-		const outcome: WaveOutcome | null = cpuLifeZero
+		const playerLifeZero = !playerCore || playerCore.life <= 0;
+		const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
+
+		const outcome: "player_won" | "player_lost" | null = cpuLifeZero
 			? "player_won"
 			: playerLifeZero
 				? "player_lost"
@@ -176,32 +135,33 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		}
 	};
 
-	const finishCombat = async (state: State, outcome: WaveOutcome) => {
+	const finishCombat = async (state: State, outcome: "player_won" | "player_lost") => {
 		if (!runnerState.active) return;
 
 		runnerState.active = false;
 
-		StatusEffectSystem.stop(runnerState.statusEffectSystemState);
-		runnerState.timeoutSystemState = Timeout.stopTimeoutDamageSystem(runnerState.timeoutSystemState);
-		runnerState.timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(runnerState.timeoutSystemState);
+		StatusEffectSystem.stop(statusEffectSystemState);
+
+		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
+		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
+
 		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 		// 1. Run combat end effects (visuals, results UI)
-		await effects.onCombatEnd(state, outcome);
-
-		// 2. NOW clear state, after UI has likely finished using it
-		CombatSystemStates.clearCombatSystemStates();
-		CombatEffectsRegistry.clearCombatEffects();
+		await effects.onCombatEnd(state, outcome, runnerState.env.combatStates);
 	};
 
 	const isActive = (): boolean => {
 		return runnerState.active;
 	};
 
+	const getEnv = () => runnerState.env;
+
 	return {
 		updateFrame,
 		finishCombat,
 		isActive,
+		getEnv,
 	};
 };
 

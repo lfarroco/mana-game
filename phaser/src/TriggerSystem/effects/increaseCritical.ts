@@ -1,7 +1,8 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const increaseCritical = async (
+	env: CombatEnvironment,
 	targets: Unit[],
 	amount: number,
 	sourceUnit?: Unit,
@@ -19,12 +20,9 @@ export const increaseCritical = async (
 			if (!targetUnit.bonusCritical) targetUnit.bonusCritical = 0;
 			targetUnit.bonusCritical += amount;
 		}
-
-		// Note: updateUnitCritical in Chara.ts also updated playerForce global unit but that seemed like state duplication.
-		// For now we stick to unit data update.
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 
 	for (const target of targets) {
 		if (effects.onIncreaseCritical) {

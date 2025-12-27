@@ -37,17 +37,22 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			ChargeBarDisplay.updateChargeBar(unitId);
 		},
 
-		onCombatEnd: async (state: State, outcome: WaveOutcome) => {
+		onCombatEnd: async (state: State, outcome: WaveOutcome, combatStates: CombatSystemStates.CombatSystemStates) => {
 			if (outcome === "player_lost") {
-				await Animations.shatter(getCharaById(getBattleCore(state)(playerForce(state).id).id));
+				const core = getBattleCore(state)(playerForce(state).id);
+				if (core) {
+					await Animations.shatter(getCharaById(core.id));
+				}
 			} else {
-				await Animations.shatter(getCharaById(getBattleCore(state)(cpuForce(state).id).id));
+				const core = getBattleCore(state)(cpuForce(state).id);
+				if (core) {
+					await Animations.shatter(getCharaById(core.id));
+				}
 			}
 
 			await delay(300);
 
-			if (CombatSystemStates.isInitialized()) {
-				const combatStates = CombatSystemStates.getCombatSystemStates();
+			if (combatStates) {
 				let forceStatsState = combatStates.forceStatsState;
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
@@ -66,12 +71,12 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			return getCurrentScene();
 		},
 
-		updateLifeDisplay: (force: string, life: number, delta: number) => {
-			ForceStats.updateLifeDisplay(force, life, delta);
+		updateLifeDisplay: (force: string, life: number, delta: number, forceStatsState?: any) => {
+			ForceStats.updateLifeDisplay(force, life, delta, forceStatsState);
 		},
 
-		updateShieldDisplay: (force: string, shield: number, delta: number) => {
-			ForceStats.updateShieldDisplay(force, shield, delta);
+		updateShieldDisplay: (force: string, shield: number, delta: number, forceStatsState?: any) => {
+			ForceStats.updateShieldDisplay(force, shield, delta, forceStatsState);
 		},
 
 		updateRegenDisplay: (force: string, regen: number, delta: number) => {

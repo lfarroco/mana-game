@@ -1,9 +1,13 @@
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export function applyChargeLogicIO(_state: State, sourceUnit: Unit, targets: Unit[], amount: number) {
-	const effects = CombatEffectsRegistry.getCombatEffects();
+export function applyChargeLogicIO(
+	env: CombatEnvironment,
+	sourceUnit: Unit,
+	targets: Unit[],
+	amount: number
+) {
+	const effects = env.effects;
 
 	for (const target of targets) {
 		const effect = () => {

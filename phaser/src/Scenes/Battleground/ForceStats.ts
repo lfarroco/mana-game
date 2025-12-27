@@ -146,16 +146,28 @@ export function updateAllStats(force: string) {
 		return;
 	}
 
+	// This function is likely called from outside combat where global state SHOULD exist, 
+	// or we might need to update it too. For now assume globals are safe or handled by caller.
+	// Actually, this is often called from PhaseManager. 
 	updateLifeDisplay(force, core.life, 0);
 	updateShieldDisplay(force, core.shield, 0);
-	const combatStates = CombatSystemStates.getCombatSystemStates();
-	updateRegenDisplay(force, RegenSystem.getRegenRate(combatStates.regenSystemState, force), 0);
-	updatePoisonDisplay(force, PoisonSystem.getPoisonRate(combatStates.poisonSystemState, force), 0);
+
+	if (CombatSystemStates.isInitialized()) {
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		updateRegenDisplay(force, RegenSystem.getRegenRate(combatStates.regenSystemState, force), 0);
+		updatePoisonDisplay(force, PoisonSystem.getPoisonRate(combatStates.poisonSystemState, force), 0);
+	}
 }
 
-export function updateLifeDisplay(force: string, life: number, delta: number) {
-	const combatStates = CombatSystemStates.getCombatSystemStates();
-	const forceStatsState = combatStates.forceStatsState;
+export function updateLifeDisplay(force: string, life: number, delta: number, state?: any) {
+	let forceStatsState: ForceStatsState;
+
+	if (state) {
+		forceStatsState = state;
+	} else {
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		forceStatsState = combatStates.forceStatsState;
+	}
 
 	const chipId = `life-display/${force}`;
 
@@ -204,10 +216,18 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 export function updateShieldDisplay(
 	force: string,
 	shield: number,
-	delta: number
+	delta: number,
+	state?: any
 ) {
-	const combatStates = CombatSystemStates.getCombatSystemStates();
-	const forceStatsState = combatStates.forceStatsState;
+	let forceStatsState: ForceStatsState;
+
+	if (state) {
+		forceStatsState = state;
+	} else {
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		forceStatsState = combatStates.forceStatsState;
+	}
+
 	const gameState = getState();
 	const chipId = `shield-display/${force}`;
 	updateChipText(chipId, compactNumber(shield));
