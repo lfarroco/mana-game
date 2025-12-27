@@ -93,6 +93,10 @@ export function getDebugController(page: Page) {
 		async chooseEncounter(index: number) {
 			return await page.evaluate((i) => window.debugController.chooseEncounter(i), index);
 		},
+
+		async setSpeed(speed: number) {
+			return await page.evaluate((s) => window.debugController.setSpeed(s), speed);
+		},
 	};
 }
 
@@ -103,4 +107,7 @@ export async function waitForGameInit(page: Page): Promise<void> {
 	// Wait for the canvas to be present
 	const canvas = await page.waitForSelector("canvas");
 	if (!canvas) throw new Error("Canvas not found");
+
+	// Wait for debugController/state to be available on window
+	await page.waitForFunction(() => window.debugController && window.state);
 }

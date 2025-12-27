@@ -44,7 +44,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 
 			await delay(300);
 
-			Systems.ResultsPhase.handleCombatEnded(state, outcome);
+			await Systems.ResultsPhase.handleCombatEnded(state, outcome);
 		},
 
 		getTimeScale: () => {

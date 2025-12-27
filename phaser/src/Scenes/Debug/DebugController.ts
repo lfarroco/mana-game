@@ -357,3 +357,9 @@ export async function runBalanceAnalysis() {
 	BalanceAnalysis.run();
 	return "Balance analysis executed. Check console for results.";
 }
+
+export async function setSpeed(speed: number): Promise<string> {
+	const OptionsStore = await import("@Models/OptionsStore");
+	OptionsStore.setOption("speed", speed);
+	return `Game speed set to ${speed}`;
+}
