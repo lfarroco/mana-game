@@ -57,7 +57,7 @@ const createMockState = (): State => {
 	};
 };
 
-const runServerSideCombat = () => {
+export const runServerSideCombat = () => {
 	console.log("=== Server-Side Combat Demo ===\n");
 
 	const state = createMockState();
@@ -80,4 +80,9 @@ const runServerSideCombat = () => {
 	console.log("This demonstrates that combat logic runs without browser dependencies!");
 };
 
-runServerSideCombat();
+// Auto-run if executed directly
+import { fileURLToPath } from 'url';
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	runServerSideCombat();
+}
+
