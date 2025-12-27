@@ -60,7 +60,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 
 	// 4. Perform initial stats sync
 	if (runnerState.env.combatStates.forceStatsState) {
-		const forces = [playerForce(state).id, cpuForce(state).id];
+		const forces = [FORCE_ID_PLAYER, FORCE_ID_CPU];
 		forces.forEach(forceId => {
 			const core = getBattleCore(state)(forceId);
 			if (core) {

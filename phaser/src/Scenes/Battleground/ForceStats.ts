@@ -74,7 +74,7 @@ export function createForceStats(state: ForceStatsState, force: string): ForceSt
 	});
 
 	const bgShieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0x000000, 0.5);
-	const shieldBar = Rectangle(shieldBarPos, { width: barWidth, height: barHeight }, 0xffff00, 1);
+	const shieldBar = Rectangle(shieldBarPos, { width: 0, height: barHeight }, 0xffff00, 1);
 	shieldBar.setInteractive(Rect({ x: 0, y: 0 }, { width: barWidth, height: barHeight }), Phaser.Geom.Rectangle.Contains).on("pointerover", () => {
 		renderTooltip(x + 225, y - 250, i18n.t("forceStats.shieldBar.title"), i18n.t("forceStats.shieldBar.description"));
 	}).on("pointerout", () => {

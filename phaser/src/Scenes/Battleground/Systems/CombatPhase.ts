@@ -56,7 +56,10 @@ export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
 	const cardPool = getAllCards();
 	const enemies = generateEnemyTeam(state, state.gameData.round, cardPool);
 
-	const playerUnitsForBattle = state.gameData.player.units.map((unit) => createUnitCopy(unit));
+	const playerUnitsForBattle = state.gameData.player.units.map((unit) => ({
+		...createUnitCopy(unit),
+		force: constants.FORCE_ID_PLAYER,
+	}));
 
 	state.battleData.units = [...enemies, ...playerUnitsForBattle];
 

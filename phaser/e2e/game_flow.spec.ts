@@ -123,7 +123,7 @@ test.describe('Game Flow', () => {
 				}
 
 				if (state.battleData && state.battleData.units) {
-					const battleCore = state.battleData.units.find((u: any) => u.isCore && u.force === state.gameData.player.id || u.force === "PLAYER");
+					const battleCore = state.battleData.units.find((u: any) => u.isCore && (u.force === state.gameData.player.id || u.force === "PLAYER"));
 					if (battleCore) {
 						battleCore.power = 9999;
 						battleCore.life = 10000;
