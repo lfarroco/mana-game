@@ -1,68 +1,52 @@
-import { State } from "@Models/State.js";
-import { CombatEffects, WaveOutcome } from "./RunCombatCore.js";
-import * as ServerBlackHole from "./ServerBlackHole.js";
-import * as ServerCountdownTimer from "./ServerCountdownTimer.js";
+import { State } from "@Models/State";
+import { CombatEffects, WaveOutcome } from "./RunCombatCore";
+import { CombatSystemStates } from "./Systems/CombatSystemStates";
 
-export type LogEntry =
-	| { type: "reaction"; unitId: string; frame: number }
-	| { type: "damage"; sourceId: string; targetId: string; frame: number }
-	| { type: "heal"; sourceId: string; targetId: string; frame: number }
-	| { type: "shield"; sourceId: string; targetId: string; frame: number }
-	| { type: "poison"; sourceId: string; targetId: string; frame: number }
-	| { type: "regen"; sourceId: string; targetId: string; frame: number }
-	| { type: "crystal_life"; force: string; life: number; frame: number }
-	| { type: "timeout_damage"; force: string; damage: number; frame: number }
-	| { type: "outcome"; result: WaveOutcome; frame: number };
+let currentFrame = 0;
 
-export interface ServerCombatEffects extends CombatEffects {
-	logs: LogEntry[];
-	setFrame: (frame: number) => void;
-}
+export type CombatLogEntry = {
+	type: string;
+	[key: string]: any;
+};
 
-export const createServerCombatEffects = (state: State): ServerCombatEffects => {
-	const logs: LogEntry[] = [];
-	let currentFrame = 0;
+export let logs: CombatLogEntry[] = [];
 
-	const resolveUnitName = (unitId: string): string => {
-		const unit = state.battleData.units.find(u => u.id === unitId);
-		if (unit) {
-			return `(${unit.force})${unit.cardId}`;
-		}
-		// Fallback for core or if unit not found (dead?)
-		return unitId;
-	};
+export const clearLogs = () => {
+	logs = [];
+	currentFrame = 0;
+};
 
+export const createServerCombatEffects = (_state: State): CombatEffects & { logs: CombatLogEntry[], setFrame: (f: number) => void } => {
 	return {
 		logs,
-		setFrame: (frame: number) => {
-			currentFrame = frame;
+		setFrame: (f: number) => {
+			currentFrame = f;
 		},
 		onUnitPop: (_unitId: string) => {
-			// User requested to remove unit action logs
 		},
 
 		onChargeBarUpdate: (_unitId: string) => {
 		},
 
-		onCombatEnd: async (_state: State, outcome: WaveOutcome) => {
+		onCombatEnd: async (_state: State, outcome: WaveOutcome, _combatStates: CombatSystemStates) => {
 			logs.push({ type: "outcome", result: outcome, frame: currentFrame });
 		},
 
 		getTimeScale: () => {
-			return 1.0;
+			return 1;
 		},
 
 		getScene: () => {
 			return null;
 		},
 
-		updateLifeDisplay: (force: string, life: number, _delta: number) => {
+		updateLifeDisplay: (force: string, life: number, _delta: number, _state?: any) => {
 			if (life <= 0) {
 				logs.push({ type: "crystal_life", force, life, frame: currentFrame });
 			}
 		},
 
-		updateShieldDisplay: (_force: string, _shield: number, _delta: number) => {
+		updateShieldDisplay: (_force: string, _shield: number, _delta: number, _state?: any) => {
 		},
 
 		updateRegenDisplay: (_force: string, _regen: number, _delta: number) => {
@@ -72,45 +56,71 @@ export const createServerCombatEffects = (state: State): ServerCombatEffects => 
 		},
 
 		initBlackHole: () => {
-			return ServerBlackHole.createServerBlackHoleState();
+			return {};
 		},
 
-		initCountdownTimer: (blackHoleState: any) => {
-			return ServerCountdownTimer.createServerCountdownTimerState(blackHoleState);
+		initCountdownTimer: (_blackHoleState: any) => {
+			return {};
 		},
 
-		onReactionVisual: async (unitId: string) => {
-			logs.push({ type: "reaction", unitId: resolveUnitName(unitId), frame: currentFrame });
+		initForceStats: () => {
+			return {};
 		},
 
-		onDamage: (sourceId: string, targetId: string, onHit: () => void) => {
-			logs.push({ type: "damage", sourceId: resolveUnitName(sourceId), targetId: resolveUnitName(targetId), frame: currentFrame });
+		onReactionVisual: async (_unitId: string) => {
+		},
+
+		onDamage: (_sourceId: string, _targetId: string, onHit: () => void) => {
+			logs.push({ type: "damage_effect", source: _sourceId, target: _targetId, frame: currentFrame });
 			onHit();
 		},
 
-		onHeal: (sourceId: string, targetId: string, onHit: () => void) => {
-			logs.push({ type: "heal", sourceId: resolveUnitName(sourceId), targetId: resolveUnitName(targetId), frame: currentFrame });
+		onHeal: (_sourceId: string, _targetId: string, onHit: () => void) => {
 			onHit();
 		},
 
-		onShield: (sourceId: string, targetId: string, onHit: () => void) => {
-			logs.push({ type: "shield", sourceId: resolveUnitName(sourceId), targetId: resolveUnitName(targetId), frame: currentFrame });
+		onShield: (_sourceId: string, _targetId: string, onHit: () => void) => {
 			onHit();
 		},
 
-		onPoison: (sourceId: string, targetId: string, onHit: () => void) => {
-			logs.push({ type: "poison", sourceId: resolveUnitName(sourceId), targetId: resolveUnitName(targetId), frame: currentFrame });
+		onPoison: (_sourceId: string, _targetId: string, onHit: () => void) => {
 			onHit();
 		},
 
-		onRegen: (sourceId: string, targetId: string, onHit: () => void) => {
-			logs.push({ type: "regen", sourceId: resolveUnitName(sourceId), targetId: resolveUnitName(targetId), frame: currentFrame });
+		onRegen: (_sourceId: string, _targetId: string, onHit: () => void) => {
 			onHit();
+		},
+
+		onHaste: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void) => {
+			onHit();
+		},
+
+		onSlow: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void) => {
+			onHit();
+		},
+
+		onCharge: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
+			onHit();
+		},
+
+		onIncreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
+			onHit();
+		},
+
+		onDecreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
+			onHit();
+		},
+
+		onIncreaseCritical: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
+			onHit();
+		},
+
+		onPowerUpdate: (_unitId: string) => {
 		},
 
 		onTimeoutDamageVisual: (targetForceId: string, damage: number, onHit: () => void) => {
-			logs.push({ type: "timeout_damage", force: targetForceId, damage, frame: currentFrame });
+			logs.push({ type: "timeout_damage", target: targetForceId, damage, frame: currentFrame });
 			onHit();
-		}
+		},
 	};
 };

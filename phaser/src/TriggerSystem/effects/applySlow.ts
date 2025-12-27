@@ -1,9 +1,8 @@
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export async function applySlowLogicIO(
-	_state: State,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	targets: Unit[],
 	duration: number,
@@ -16,7 +15,7 @@ export async function applySlowLogicIO(
 		target.slowed += duration;
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 
 	for (const target of targets) {
 		if (effects.onSlow) {

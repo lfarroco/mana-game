@@ -3,13 +3,10 @@ import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force"
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
 import * as PoisonSystem from "@Scenes/Battleground/Systems/PoisonDamageSystem";
-import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
-import { processReactions } from "../TriggerSystem";
-import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const restoreLife = async (
-	state: State,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1
 ) => {
@@ -18,32 +15,33 @@ export const restoreLife = async (
 	const crit = calculateCritical(sourceUnit);
 
 	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
-	const sourceForce = getUnitForce(state, sourceUnit.id);
-	const alliedCore = getAlliedCore(state)(sourceUnit.force);
+	const sourceForce = getUnitForce(env.state, sourceUnit.id);
+	const alliedCore = getAlliedCore(env.state)(sourceUnit.force);
 
 	const effect = (targetForce: Force, amount: number) => () => {
-		const actualHealing = manipulateCoreLife(state, targetForce, amount, crit.isCritical);
+		const actualHealing = manipulateCoreLife(env.state, targetForce, amount, crit.isCritical, env.effects, env.combatStates.forceStatsState);
 
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, state, sourceUnit.id, actualHealing);
+		const { combatStates } = env;
+		CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, env, sourceUnit.id, actualHealing);
 
 		const newPoisonState = PoisonSystem.reducePoison(
 			combatStates.poisonSystemState,
 			targetForce.id,
-			actualHealing
+			actualHealing,
+			env.effects
 		);
-		CombatSystemStates.updatePoisonSystemState(newPoisonState);
+		combatStates.poisonSystemState = newPoisonState;
 
 		if (crit.isCritical) {
-			processReactions(state, sourceUnit, { id: "on_crit" });
+			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 		}
 
-		if (getBattleCore(state)(targetForce.id).life + amount > getBattleCore(state)(targetForce.id).maxLife) {
-			processReactions(state, sourceUnit, { id: "on_over_heal" });
+		if (getBattleCore(env.state)(targetForce.id).life + amount > getBattleCore(env.state)(targetForce.id).maxLife) {
+			env.processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
 		}
 	};
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 	if (effects.onHeal) {
 		effects.onHeal(sourceUnit.id, alliedCore.id, effect(sourceForce, healAmount));
 	} else {

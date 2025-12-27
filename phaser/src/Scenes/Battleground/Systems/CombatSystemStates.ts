@@ -2,58 +2,50 @@ import { PoisonSystemState } from "./PoisonDamageSystem";
 import { RegenSystemState } from "./RegenSystem";
 import { CombatStatsTrackerState } from "./CombatStatsTracker";
 
-type CombatSystemStates = {
+export type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;
 	regenSystemState: RegenSystemState;
 	combatStatsTrackerState: CombatStatsTrackerState;
 	forceStatsState: any;
 };
 
+// Global storage for Browser UI / Legacy access
 let currentCombatStates: CombatSystemStates | null = null;
 
-export function setCombatSystemStates(states: CombatSystemStates) {
+export const setCombatSystemStates = (states: CombatSystemStates) => {
 	currentCombatStates = states;
 };
 
-export function isInitialized(): boolean {
-	return currentCombatStates !== null;
-}
-
-export function getCombatSystemStates(): CombatSystemStates {
+export const getCombatSystemStates = (): CombatSystemStates => {
 	if (!currentCombatStates) {
-		throw new Error("Combat system states not initialized");
+		throw new Error("CombatSystemStates not initialized");
 	}
 	return currentCombatStates;
 };
 
-export function updatePoisonSystemState(state: PoisonSystemState): void {
-	if (!currentCombatStates) {
-		throw new Error("Combat system states not initialized");
-	}
-	currentCombatStates.poisonSystemState = state;
+export const isInitialized = (): boolean => {
+	return currentCombatStates !== null;
 };
 
-export function updateRegenSystemState(state: RegenSystemState): void {
-	if (!currentCombatStates) {
-		throw new Error("Combat system states not initialized");
-	}
-	currentCombatStates.regenSystemState = state;
-};
-
-export function updateCombatStatsTrackerState(state: CombatStatsTrackerState): void {
-	if (!currentCombatStates) {
-		throw new Error("Combat system states not initialized");
-	}
-	currentCombatStates.combatStatsTrackerState = state;
-};
-
-export function updateForceStatsState(state: any) {
-	if (!currentCombatStates) {
-		throw new Error("Combat system states not initialized");
-	}
-	currentCombatStates.forceStatsState = state;
-}
-
-export function clearCombatSystemStates() {
+export const clearCombatSystemStates = () => {
 	currentCombatStates = null;
+};
+
+// Helper update functions required by PhaseManager
+export const updateRegenSystemState = (newState: RegenSystemState) => {
+	if (currentCombatStates) {
+		currentCombatStates.regenSystemState = newState;
+	}
+};
+
+export const updatePoisonSystemState = (newState: PoisonSystemState) => {
+	if (currentCombatStates) {
+		currentCombatStates.poisonSystemState = newState;
+	}
+};
+
+export const updateForceStatsState = (newState: any) => {
+	if (currentCombatStates) {
+		currentCombatStates.forceStatsState = newState;
+	}
 };

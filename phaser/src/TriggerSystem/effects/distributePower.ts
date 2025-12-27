@@ -1,12 +1,12 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
-import { State } from "@Models/State";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const distributePower = (state: State, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
+export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
 	if (targets.length === 0) return;
 
+	const { state } = env;
 	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
 	if (powerToDistribute <= 0) return;
 
@@ -25,9 +25,9 @@ export const distributePower = (state: State, sourceUnit: Unit, targets: Unit[],
 
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
-	increasePower(targets, powerPerTarget, permanent, sourceUnit);
+	increasePower(env, targets, powerPerTarget, permanent, sourceUnit);
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 	if (effects.onPowerUpdate) {
 		effects.onPowerUpdate(sourceUnit.id);
 	}

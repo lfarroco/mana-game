@@ -2,8 +2,9 @@ import { Unit } from "@Models/Entities/Unit";
 import { value } from "../../Utils/Random";
 import { pickRandom } from "../../utils";
 import { increasePower } from "./increasePower";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const sacrificeEffect = (sourceUnit: Unit) => {
+export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
 	const removableEffects = sourceUnit.effects;
 	const removableReactions = sourceUnit.reactions;
 
@@ -29,5 +30,5 @@ export const sacrificeEffect = (sourceUnit: Unit) => {
 		sourceUnit.reactions = sourceUnit.reactions.filter(r => r !== reactionToRemove);
 	}
 
-	increasePower([sourceUnit], 10, false, sourceUnit);
+	increasePower(env, [sourceUnit], 10, false, sourceUnit);
 };

@@ -5,13 +5,17 @@ import { upgradeUnit } from "@Systems/Chara/Chara";
 import { distributePower } from "../../../../TriggerSystem/effects/distributePower";
 import { absorbPower } from "../../../../TriggerSystem/effects/absorbPower";
 import { sacrificeEffect } from "../../../../TriggerSystem/effects/sacrificeEffect";
-import { Effect, EffectReaction, processEffectsIO, resolveTargets } from "../../../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction, processEffectsIO, resolveTargets, processReactions } from "../../../../TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
-import { getState } from "@Models/State";
+import { getState, State } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import { CombatEnvironment } from "../../CombatEnvironment";
+import * as Poison from "../../Systems/PoisonDamageSystem";
+import * as Regen from "../../Systems/RegenSystem";
+import * as CombatStatsTracker from "../../Systems/CombatStatsTracker";
 
 export type OrbSpec = {
 	id: string;
@@ -21,6 +25,35 @@ export type OrbSpec = {
 	icon: string;
 	// return false to indicate the effect was not applied and the orb should return
 	effect: (unit: Unit) => boolean;
+};
+
+const getShopEnvironment = (state: State): CombatEnvironment => {
+	return {
+		state,
+		combatStates: {
+			poisonSystemState: Poison.initializePoisonSystem(),
+			regenSystemState: Regen.initializeRegenSystem(),
+			combatStatsTrackerState: CombatStatsTracker.initialize(state),
+			forceStatsState: null,
+		},
+		effects: {
+			onUnitPop: () => { },
+			onChargeBarUpdate: () => { },
+			onCombatEnd: async () => { },
+			getTimeScale: () => 1,
+			getScene: () => null,
+			updateLifeDisplay: () => { },
+			updateShieldDisplay: () => { },
+			updateRegenDisplay: () => { },
+			updatePoisonDisplay: () => { },
+			onPowerUpdate: (unitId: string) => updatePowerDisplay(unitId),
+			// For shop, we might want to run the onHit callback immediately for other effects if they happen
+			onIncreasePower: (_s, _t, onHit) => onHit(),
+			onDecreasePower: (_s, _t, onHit) => onHit(),
+			onIncreaseCritical: (_s, _t, onHit) => onHit(),
+		},
+		processReactions
+	};
 };
 
 const increasePowerOnType = (type: string) => () => ({
@@ -34,7 +67,8 @@ const increasePowerOnType = (type: string) => () => ({
 
 		const pct = Math.floor(unit.power * 0.1);
 
-		increasePower([unit], pct, false);
+		const env = getShopEnvironment(getState());
+		increasePower(env, [unit], pct, false);
 
 		if (unit.force === FORCE_ID_PLAYER) {
 			getState().gameData.player.units.find(u => u.id === unit.id)!.power = unit.power;
@@ -55,7 +89,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 
 		// Use processEffectsIO with permanent=true for shop orbs
 		processEffectsIO(
-			getState(),
+			getShopEnvironment(getState()),
 			unit, [{
 				id: "increase_critical",
 				amount: 10,
@@ -478,7 +512,8 @@ export const orbsIndex: Record<
 					id: "row_allies"
 				}
 			});
-			distributePower(getState(), unit, targets, true);  // permanent=true in shop
+			const env = getShopEnvironment(getState());
+			distributePower(env, unit, targets, true);  // permanent=true in shop
 			return true;
 		}
 	}),
@@ -498,7 +533,9 @@ export const orbsIndex: Record<
 						id: "row_allies"
 					}
 				});
-			absorbPower(getState(), unit, targets, true);
+
+			const env = getShopEnvironment(getState());
+			absorbPower(env, unit, targets, true);
 			return true;
 		}
 	}),
@@ -509,7 +546,8 @@ export const orbsIndex: Record<
 		tooltip: t("shop.orbs.darkRitual.tooltip"),
 		icon: "ui/dark_ritual",
 		effect: (unit: Unit) => {
-			sacrificeEffect(unit);
+			const env = getShopEnvironment(getState());
+			sacrificeEffect(env, unit);
 			return true;
 		}
 	}),

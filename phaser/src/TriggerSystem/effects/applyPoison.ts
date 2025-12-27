@@ -2,16 +2,13 @@ import { getEnemyCore } from "@Models/Entities/Card";
 import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Scenes//Battleground/Systems/PoisonDamageSystem";
-import * as CombatSystemStates from "@Scenes/Battleground/Systems/CombatSystemStates";
 import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import { processReactions } from "../TriggerSystem";
-import { State } from "@Models/State";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const applyPoisonLogicIO = async (
-	state: State,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1,
+	scale: number = 1
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -19,31 +16,32 @@ export const applyPoisonLogicIO = async (
 
 	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
 
-	const targetForce = getEnemyForce(state, sourceUnit.id);
+	const targetForce = getEnemyForce(env.state, sourceUnit.id);
 
 	console.log(
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 
 	const effect = () => {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
+		const { combatStates } = env;
 		const newPoisonState = PoisonSystem.applyPoison(
 			combatStates.poisonSystemState,
 			targetForce,
 			amount,
-			crit.isCritical
+			crit.isCritical,
+			env.effects
 		);
-		CombatSystemStates.updatePoisonSystemState(newPoisonState);
+		combatStates.poisonSystemState = newPoisonState;
 
-		CombatStatsTracker.trackPoison(combatStates.combatStatsTrackerState, state, sourceUnit.id, amount);
+		CombatStatsTracker.trackPoison(combatStates.combatStatsTrackerState, env, sourceUnit.id, amount);
 		if (crit.isCritical) {
-			processReactions(state, sourceUnit, { id: "on_crit" });
+			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 		}
 	}
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
+	const effects = env.effects;
 	if (effects.onPoison) {
-		effects.onPoison(sourceUnit.id, getEnemyCore(state)(sourceUnit.force).id, effect);
+		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, effect);
 	} else {
 		effect();
 	}

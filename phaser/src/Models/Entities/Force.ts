@@ -1,7 +1,7 @@
 import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
-import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { State } from "@Models/State";
+import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
 
 export type Force = {
 	id: string;
@@ -31,11 +31,25 @@ export const cpuForce = (state: State): Force => {
 	return state.battleData.forces.find((f) => f.id !== state.gameData.player.id)!;
 };
 
+// Helper to get forceStatsState from env.effects if accessible, but Force.ts imports CombatEffects which doesn't have reference to Environment context directly unless passed.
+// Wait, manipulateCoreLife receives effects: CombatEffects.
+// BUT it doesn't receive the environment or combatStates directly.
+// And CombatEffects is just functions.
+// We should probably change manipulateCoreLife to accept CombatEnvironment?
+// Or we assume 'effects' passed to it IS the environment's effects which might be bound?
+// No, they are just functions.
+// The caller (dealDamage, etc) has access to env.
+// So we should pass env.combatStates.forceStatsState to manipulateCoreLife?
+// Or just pass 'env' to manipulateCoreLife?
+// Passing 'env' is cleaner.
+
 export const manipulateCoreLife = (
 	state: State,
 	targetForce: Force,
 	amount: number,
-	_critical = false
+	_critical = false,
+	effects?: CombatEffects,
+	forceStatsState?: any // Add optional state
 ): number => {
 	const core = getBattleCore(state)(targetForce.id);
 
@@ -52,8 +66,9 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
-	effects.updateLifeDisplay(targetForce.id, core.life, amount);
+	if (effects) {
+		effects.updateLifeDisplay(targetForce.id, core.life, amount, forceStatsState);
+	}
 
 	return actualChange;
 };
@@ -63,7 +78,9 @@ export const manipulateCoreShield = (
 	targetForce: Force,
 	amount: number,
 	_isCritical: boolean,
-	displayFeedback: boolean = true
+	displayFeedback: boolean = true,
+	effects?: CombatEffects,
+	forceStatsState?: any
 ): number => {
 	const core = getBattleCore(state)(targetForce.id);
 
@@ -80,12 +97,14 @@ export const manipulateCoreShield = (
 	}
 	const actualChange = core.shield - oldShield;
 
-	const effects = CombatEffectsRegistry.getCombatEffects();
-	effects.updateShieldDisplay(
-		targetForce.id,
-		core.shield,
-		displayFeedback ? actualChange : 0
-	);
+	if (effects && displayFeedback) {
+		effects.updateShieldDisplay(
+			targetForce.id,
+			core.shield,
+			actualChange,
+			forceStatsState
+		);
+	}
 
 	return actualChange;
 };
@@ -96,7 +115,9 @@ export const applyDamageToForce = (
 	damage: number,
 	shieldPiercingPercentage: number = 0,
 	damageType?: "poison" | "normal" | "timeout",
-	_critical = false
+	_critical = false,
+	effects?: CombatEffects,
+	forceStatsState?: any
 ): number => {
 	if (damage <= 0) return 0;
 
@@ -110,7 +131,7 @@ export const applyDamageToForce = (
 	let remainingDamage = damage;
 
 	if (damageType === "poison") {
-		const lifeChage = manipulateCoreLife(state, targetForce, -damage);
+		const lifeChage = manipulateCoreLife(state, targetForce, -damage, false, effects, forceStatsState);
 
 		return Math.abs(lifeChage);
 	}
@@ -123,11 +144,11 @@ export const applyDamageToForce = (
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, false);
+		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, false, effects, forceStatsState);
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(state, targetForce, -remainingDamage) : 0;
+	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(state, targetForce, -remainingDamage, false, effects, forceStatsState) : 0;
 
 	return Math.abs(lifeChange);
 };

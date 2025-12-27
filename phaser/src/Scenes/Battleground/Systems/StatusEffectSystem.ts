@@ -2,7 +2,7 @@ import { State } from "@Models/State";
 import { cpuForce, Force, manipulateCoreLife, playerForce, applyDamageToForce } from "@Models/Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
-import * as CombatSystemStates from "./CombatSystemStates";
+import { CombatEnvironment } from "../CombatEnvironment";
 
 const tickInterval: number = 1000;
 
@@ -14,35 +14,34 @@ export function initialize(_state: State): StatusEffectSystemState {
 	return { elapsed: 0 };
 }
 
-const tick = (state: State) => () => {
-	tickForce(state, playerForce(state));
-	tickForce(state, cpuForce(state));
+const tick = (env: CombatEnvironment) => () => {
+	tickForce(env, playerForce(env.state));
+	tickForce(env, cpuForce(env.state));
 }
 
-function tickForce(state: State, force: Force): void {
-	const combatStates = CombatSystemStates.getCombatSystemStates();
-
+function tickForce(env: CombatEnvironment, force: Force): void {
+	const { combatStates } = env;
 	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, force.id);
 	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, force.id);
 
 	const netHealing = regenAmount - poisonAmount;
 
 	if (netHealing > 0) {
-		manipulateCoreLife(state, force, netHealing);
+		manipulateCoreLife(env.state, force, netHealing, false, env.effects, env.combatStates.forceStatsState);
 	} else if (netHealing < 0) {
-		applyDamageToForce(state, force, Math.abs(netHealing), 0, "poison", false);
+		applyDamageToForce(env.state, force, Math.abs(netHealing), 0, "poison", false, env.effects, env.combatStates.forceStatsState);
 	}
 }
 
 export function update(
+	env: CombatEnvironment,
 	statusEffectState: StatusEffectSystemState,
-	state: State,
 	delta: number
 ): StatusEffectSystemState {
 	const newElapsed = statusEffectState.elapsed + delta;
 
 	if (newElapsed >= tickInterval) {
-		tick(state)();
+		tick(env)();
 		return {
 			elapsed: newElapsed - tickInterval,
 		};
