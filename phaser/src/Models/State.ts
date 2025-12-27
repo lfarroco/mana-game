@@ -93,7 +93,8 @@ if (typeof window !== "undefined") {
 }
 
 /**
- * Use this only for operations not related to combat, as we need to run this on the server
+ * Use this only for client-side operations
+ * For anything related to combat, use state as a parameter
  */
 export const getState = (): State => {
 	return state.currentState;

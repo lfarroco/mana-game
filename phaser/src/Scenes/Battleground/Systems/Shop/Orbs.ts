@@ -478,7 +478,7 @@ export const orbsIndex: Record<
 					id: "row_allies"
 				}
 			});
-			distributePower(unit, targets, true);  // permanent=true in shop
+			distributePower(getState(), unit, targets, true);  // permanent=true in shop
 			return true;
 		}
 	}),
@@ -498,7 +498,7 @@ export const orbsIndex: Record<
 						id: "row_allies"
 					}
 				});
-			absorbPower(unit, targets, true);
+			absorbPower(getState(), unit, targets, true);
 			return true;
 		}
 	}),
