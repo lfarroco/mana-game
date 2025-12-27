@@ -2,9 +2,9 @@ import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
 import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 
-export const absorbPower = (sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
+export const absorbPower = (state: State, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
 	if (targets.length === 0) return;
 
 	let totalAbsorbed = 0;
@@ -21,7 +21,7 @@ export const absorbPower = (sourceUnit: Unit, targets: Unit[], permanent: boolea
 			}
 
 			if (target.force === FORCE_ID_PLAYER && permanent) {
-				const persistentTarget = getState().gameData.player.units.find(u => u.id === target.id)!;
+				const persistentTarget = state.gameData.player.units.find(u => u.id === target.id)!;
 
 				if (persistentTarget !== target) {
 					persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);

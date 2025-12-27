@@ -287,10 +287,10 @@ const processEffectIO = (state: State, sourceUnit: Unit, effect: Effect, isReact
 			});
 			break;
 		case "distribute_power":
-			effects.distributePower(sourceUnit, resolveTargets(state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
+			effects.distributePower(state, sourceUnit, resolveTargets(state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
 			break;
 		case "absorb_power":
-			effects.absorbPower(sourceUnit, resolveTargets(state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
+			effects.absorbPower(state, sourceUnit, resolveTargets(state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
 			break;
 		case "sacrifice_effect":
 			effects.sacrificeEffect(sourceUnit);

@@ -1,10 +1,10 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "./increasePower";
 import * as CombatEffectsRegistry from "@Scenes/Battleground/CombatEffectsRegistry";
-import { getState } from "@Models/State";
+import { State } from "@Models/State";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 
-export const distributePower = (sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
+export const distributePower = (state: State, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
 	if (targets.length === 0) return;
 
 	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
@@ -16,7 +16,7 @@ export const distributePower = (sourceUnit: Unit, targets: Unit[], permanent: bo
 	sourceUnit.bonusPower -= bonusToLose;
 
 	if (sourceUnit.force === FORCE_ID_PLAYER) {
-		const playerUnit = getState().gameData.player.units.find((u) => u.id === sourceUnit.id);
+		const playerUnit = state.gameData.player.units.find((u) => u.id === sourceUnit.id);
 		if (playerUnit && playerUnit !== sourceUnit) {
 			playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
 			playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);
