@@ -123,6 +123,11 @@ export const applyDamageToForce = (
 
 	const core = getBattleCore(state)(targetForce.id);
 
+	if (!core) {
+		console.warn(`[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
+		return 0;
+	}
+
 	// If core life is 0, it cannot be damaged
 	if (core.life <= 0) {
 		return 0;
