@@ -325,6 +325,13 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 		onTimeoutDamageVisual: (targetForceId: string, _damage: number, onHit: () => void) => {
 			const state = getState();
 			const target = getBattleCore(state)(targetForceId);
+
+			if (!target) {
+				console.warn(`[BrowserCombatEffects] onTimeoutDamageVisual: No core found for force ${targetForceId}`);
+				onHit();
+				return;
+			}
+
 			const core = getCharaById(target.id);
 			const colors = [0x000000];
 
