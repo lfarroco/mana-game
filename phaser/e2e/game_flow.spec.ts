@@ -102,6 +102,24 @@ test.describe('Game Flow', () => {
 		await page.waitForTimeout(2000); // Wait for combat setup
 
 		// Now we should be in Combat and Ready button should be active/visible (even if we can't see it in DOM easily from here without selector).
+
+		// Optimization: Boost player power to ensure combat ends quickly (as per user suggestion)
+		await page.evaluate(() => {
+			const win = window as any;
+			if (win.state && win.state.gameData) {
+				const playerUnits = win.state.gameData.player.units;
+				const core = playerUnits.find((u: any) => u.isCore);
+				if (core) {
+					core.power = 1000;
+					// Also huge health to not die
+					core.life = 10000;
+					core.maxLife = 10000;
+					// Ensure it attacks (damage effect)
+					core.effects = [{ id: "damage" }];
+				}
+			}
+		});
+
 		// Click ready
 		await debugController.clickReady();
 
