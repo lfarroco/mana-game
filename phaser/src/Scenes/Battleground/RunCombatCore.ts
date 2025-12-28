@@ -94,7 +94,13 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 
 		const scaledDelta = delta * effects.getTimeScale();
 
-		const unitsReadyToAct = chargeUnits(state, scaledDelta, effects.onChargeBarUpdate);
+		const unitsReadyToAct = chargeUnits(
+			state,
+			scaledDelta,
+			effects.onChargeBarUpdate,
+			effects.onHasteEnd,
+			effects.onSlowEnd
+		);
 
 		for (const unit of unitsReadyToAct) {
 			effects.onUnitPop(unit.id);
@@ -168,7 +174,9 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 export const chargeUnits = (
 	state: State,
 	delta: number,
-	onChargeBarUpdate: (unitId: string) => void
+	onChargeBarUpdate: (unitId: string) => void,
+	onHasteEnd?: (unitId: string) => void,
+	onSlowEnd?: (unitId: string) => void
 ): Unit[] => {
 	let performingUnits: Unit[] = [];
 
@@ -179,10 +187,18 @@ export const chargeUnits = (
 		unit.charge += delta * chargeRate;
 
 		if (unit.hasted > 0) {
+			const prevHasted = unit.hasted;
 			unit.hasted = Math.max(0, unit.hasted - delta);
+			if (prevHasted > 0 && unit.hasted === 0 && onHasteEnd) {
+				onHasteEnd(unit.id);
+			}
 		}
 		if (unit.slowed > 0) {
+			const prevSlowed = unit.slowed;
 			unit.slowed = Math.max(0, unit.slowed - delta);
+			if (prevSlowed > 0 && unit.slowed === 0 && onSlowEnd) {
+				onSlowEnd(unit.id);
+			}
 		}
 
 		unit.refresh = Math.max(0, unit.refresh - delta);

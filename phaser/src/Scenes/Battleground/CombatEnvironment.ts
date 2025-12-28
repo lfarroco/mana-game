@@ -32,6 +32,8 @@ export type CombatEffects = {
 	onIncreaseCritical?: (sourceId: string | undefined, targetId: string, onHit: () => void) => void;
 	onPowerUpdate?: (unitId: string) => void;
 	onTimeoutDamageVisual?: (targetForceId: string, damage: number, onHit: () => void) => void;
+	onHasteEnd?: (unitId: string) => void;
+	onSlowEnd?: (unitId: string) => void;
 };
 
 export type CombatEnvironment = {
