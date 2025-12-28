@@ -119,7 +119,7 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		},
 
 		onTimeoutDamageVisual: (targetForceId: string, damage: number, onHit: () => void) => {
-			logs.push({ type: "timeout_damage", target: targetForceId, damage, frame: currentFrame });
+			logs.push({ type: "timeout_damage", force: targetForceId, damage, frame: currentFrame });
 			onHit();
 		},
 	};
