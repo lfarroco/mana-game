@@ -41,7 +41,7 @@ export const applyPoisonLogicIO = async (
 
 	const effects = env.effects;
 	if (effects.onPoison) {
-		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, effect);
+		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, amount, effect);
 	} else {
 		effect();
 	}

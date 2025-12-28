@@ -32,7 +32,9 @@ export const addShieldLogicIO = async (
 
 	const effects = env.effects;
 	if (effects.onShield) {
-		effects.onShield(sourceUnit.id, alliedCore.id, effect);
+		const crit = calculateCritical(sourceUnit);
+		const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
+		effects.onShield(sourceUnit.id, alliedCore.id, shieldAmount, effect);
 	} else {
 		effect();
 	}

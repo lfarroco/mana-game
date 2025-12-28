@@ -42,19 +42,31 @@ export const runServerSideCombat = () => {
 		if (log.type === "reaction") {
 			console.log(`${prefix} [REACT] ${log.unitId} reacted`);
 		} else if (log.type === "damage") {
-			console.log(`${prefix} [DMG] ${log.sourceId} dealt damage to ${log.targetId}`);
+			console.log(`${prefix} [DMG] ${log.sourceId} dealt ${log.amount} damage to ${log.targetId}`);
 		} else if (log.type === "heal") {
-			console.log(`${prefix} [HEAL] ${log.sourceId} healed ${log.targetId}`);
+			console.log(`${prefix} [HEAL] ${log.sourceId} healed ${log.targetId} for ${log.amount}`);
 		} else if (log.type === "shield") {
-			console.log(`${prefix} [SHIELD] ${log.sourceId} shielded ${log.targetId}`);
+			console.log(`${prefix} [SHIELD] ${log.sourceId} shielded ${log.targetId} for ${log.amount}`);
 		} else if (log.type === "poison") {
-			console.log(`${prefix} [POISON] ${log.sourceId} poisoned ${log.targetId}`);
+			console.log(`${prefix} [POISON] ${log.sourceId} poisoned ${log.targetId} for ${log.amount}/tick`);
 		} else if (log.type === "regen") {
-			console.log(`${prefix} [REGEN] ${log.sourceId} applied regen to ${log.targetId}`);
+			console.log(`${prefix} [REGEN] ${log.sourceId} applied ${log.amount}/tick regen to ${log.targetId}`);
 		} else if (log.type === "crystal_life") {
 			console.log(`${prefix} [CRYSTAL] ${log.force} crystal life: ${log.life}`);
 		} else if (log.type === "timeout_damage") {
 			console.log(`${prefix} [TIMEOUT] Timeout damage: ${log.damage} to ${log.force}`);
+		} else if (log.type === "haste") {
+			console.log(`${prefix} [HASTE] ${log.sourceId} applied haste to ${log.targetId} (duration: ${log.duration})`);
+		} else if (log.type === "slow") {
+			console.log(`${prefix} [SLOW] ${log.sourceId} applied slow to ${log.targetId} (duration: ${log.duration})`);
+		} else if (log.type === "charge") {
+			console.log(`${prefix} [CHARGE] ${log.sourceId} charged ${log.targetId} by ${log.amount}`);
+		} else if (log.type === "increase_power") {
+			console.log(`${prefix} [PWR+] ${log.sourceId || 'system'} increased power of ${log.targetId}`);
+		} else if (log.type === "decrease_power") {
+			console.log(`${prefix} [PWR-] ${log.sourceId || 'system'} decreased power of ${log.targetId}`);
+		} else if (log.type === "increase_critical") {
+			console.log(`${prefix} [CRIT+] ${log.sourceId || 'system'} increased critical of ${log.targetId}`);
 		} else if (log.type === "outcome") {
 			console.log(`${prefix} [END] Winner: ${log.result}`);
 		}

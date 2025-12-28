@@ -19,11 +19,11 @@ export type CombatEffects = {
 	initCountdownTimer?: (blackHoleState: any) => any;
 	initForceStats?: () => any;
 	onReactionVisual?: (unitId: string) => Promise<void>;
-	onDamage?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onHeal?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onShield?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onPoison?: (sourceId: string, targetId: string, onHit: () => void) => void;
-	onRegen?: (sourceId: string, targetId: string, onHit: () => void) => void;
+	onDamage?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
+	onHeal?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
+	onShield?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
+	onPoison?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
+	onRegen?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;
 	onHaste?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
 	onSlow?: (sourceId: string, targetId: string, duration: number, onHit: () => void) => void;
 	onCharge?: (sourceId: string, targetId: string, amount: number, onHit: () => void) => void;

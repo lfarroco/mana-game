@@ -69,7 +69,9 @@ export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scal
 
 	const effects = env.effects;
 	if (effects.onDamage) {
-		effects.onDamage(sourceUnit.id, enemyCore!.id, effect);
+		const crit = calculateCritical(sourceUnit);
+		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
+		effects.onDamage(sourceUnit.id, enemyCore!.id, damage, effect);
 	} else {
 		effect();
 	}
