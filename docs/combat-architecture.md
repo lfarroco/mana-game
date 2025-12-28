@@ -8,6 +8,7 @@ The combat system is designed around a strict Separation of Concerns:
 1.  **Core Logic**: Handles rules, damage, stats, and outcomes. Pure TypeScript, no Phaser dependencies.
 2.  **Interface Layer**: Defines how the Core interacts with the outside world (visuals, sounds, logs).
 3.  **Implementation**: Platform-specific handlers (Phaser for Client, Mock/Log for Server).
+4.  **Playback System**: Decouples combat simulation from animation timing, allowing server-side computation with client-side playback.
 
 ## Architecture Components
 
@@ -46,13 +47,24 @@ export type CombatEffects = {
 - **Context**: Runs in the browser (Electron/Web).
 - **Behavior**: Implements `CombatEffects` using Phaser 3. Triggers animations, particles, camera shakes, and sound effects.
 
-#### Server-Side / Headless
-- **Example**: `phaser/src/Scenes/Battleground/serverCombatDemo.ts`
-- **Context**: Runs in Node.js (e.g., for verification or mass simulation).
-- **Behavior**: Implements `CombatEffects` using mocks or loggers. It ignores visual flair but ensures the combat simulation proceeds exactly as it would on the client.
+#### Server-Side (`ServerCombatEffects.ts`)
+- **Location**: `phaser/src/Scenes/Battleground/ServerCombatEffects.ts`
+- **Context**: Runs in Node.js or browser for simulation.
+- **Behavior**: Implements `CombatEffects` using loggers. Records all combat events with frame numbers and durations for playback.
+
+### 4. Playback System (`CombatPlaybackController.ts`)
+
+- **Location**: `phaser/src/Scenes/Battleground/CombatPlaybackController.ts`
+- **Responsibility**: Schedules and executes animations based on pre-computed combat logs from server-side simulation.
+- **Key Features**:
+  - Accepts combat logs with frame numbers and durations
+  - Implements `CombatRunner` interface for compatibility
+  - Schedules animations in chronological order
+  - Executes visual effects at appropriate times
 
 ## Data Flow
 
+### Traditional Flow (Deprecated)
 ```mermaid
 sequenceDiagram
     participant Core as RunCombatCore
@@ -71,10 +83,71 @@ sequenceDiagram
     end
 ```
 
+### Current Playback Flow
+```mermaid
+sequenceDiagram
+    participant IO as RunCombatIO
+    participant Server as runServerSideCombat
+    participant Core as RunCombatCore
+    participant ServerFX as ServerCombatEffects
+    participant Playback as CombatPlaybackController
+    participant ClientFX as BrowserCombatEffects
+    
+    IO->>Server: runServerSideCombat(state)
+    Server->>Core: runCombat(state, ServerCombatEffects)
+    Core->>ServerFX: Log all events
+    ServerFX-->>Server: Combat logs
+    Server-->>IO: { logs, outcome }
+    
+    IO->>Playback: createCombatPlaybackController(state, logs, BrowserCombatEffects)
+    
+    loop Game Loop
+        Playback->>Playback: Check scheduled animations
+        Playback->>ClientFX: Execute animations at correct time
+    end
+    
+    Playback->>ClientFX: onCombatEnd(outcome)
+```
+
 ## Usage
 
 ### Running Locally (Client)
-The game initializes `runCombat` with `createBrowserCombatEffects()` in `BattlegroundScene.ts`.
+The game initializes combat using the playback system in `RunCombatIO.ts`:
+
+```typescript
+export const runCombatIO = (): CombatRunner => {
+    const state = getState();
+    
+    // Run server-side simulation to get logs
+    const combatResult = runServerSideCombat(state);
+    
+    // Create playback controller with logs
+    const effects = createBrowserCombatEffects();
+    const playbackController = createCombatPlaybackController(
+        state, 
+        combatResult.logs, 
+        effects
+    );
+    
+    return playbackController;
+};
+```
 
 ### Running on Server
-The server initializes `runCombat` with `createServerCombatEffects()` (or similar mock), passing a `State` object. It then pumps the `updateFrame` loop manually or via a precise timer.
+The server can run combat simulation directly:
+
+```typescript
+import { runServerSideCombat } from './serverCombatDemo';
+
+const result = runServerSideCombat(gameState);
+console.log('Combat outcome:', result.outcome);
+console.log('Combat logs:', result.logs);
+```
+
+## Benefits
+
+1. **Deterministic**: Combat results are computed server-side, ensuring consistency
+2. **Verifiable**: Server can validate combat outcomes independently
+3. **Replayable**: Combat logs can be saved and replayed later
+4. **Network-Ready**: Easy to move simulation to actual server for multiplayer
+5. **Performance**: Combat calculation doesn't block rendering
