@@ -31,6 +31,14 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		onChargeBarUpdate: (_unitId: string) => {
 		},
 
+		onHasteEnd: (unitId: string) => {
+			logs.push({ type: "haste_end", unitId, frame: currentFrame, duration: 0 });
+		},
+
+		onSlowEnd: (unitId: string) => {
+			logs.push({ type: "slow_end", unitId, frame: currentFrame, duration: 0 });
+		},
+
 		onCombatEnd: async (_state: State, outcome: WaveOutcome, _combatStates: CombatSystemStates) => {
 			logs.push({ type: "outcome", result: outcome, frame: currentFrame });
 		},
