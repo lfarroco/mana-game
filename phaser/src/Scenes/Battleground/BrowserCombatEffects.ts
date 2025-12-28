@@ -107,7 +107,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			summonEffect(getCurrentScene(), chara);
 		},
 
-		onDamage: (sourceId: string, targetId: string, onHit: () => void) => {
+		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect('sfx_spell_truestrike');
 			damageFx(
 				getCharaById(sourceId),
@@ -117,7 +117,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			shake(getCharaById(targetId));
 		},
 
-		onHeal: (sourceId: string, targetId: string, onHit: () => void) => {
+		onHeal: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			healFx(
 				getCharaById(sourceId),
 				getCharaById(targetId),
@@ -125,7 +125,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			);
 		},
 
-		onShield: (sourceId: string, targetId: string, onHit: () => void) => {
+		onShield: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect('sfx_spell_manavortex');
 			shieldFx(
 				getCharaById(sourceId),
@@ -134,7 +134,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			);
 		},
 
-		onPoison: (sourceId: string, targetId: string, onHit: () => void) => {
+		onPoison: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			poisonFx(
 				getCharaById(sourceId),
 				getCharaById(targetId),
@@ -142,7 +142,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			);
 		},
 
-		onRegen: (sourceId: string, targetId: string, onHit: () => void) => {
+		onRegen: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect('sfx_spell_tranquility');
 
 			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {

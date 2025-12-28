@@ -43,7 +43,7 @@ export const applyRegenLogicIO = async (
 
 	const effects = env.effects;
 	if (effects.onRegen) {
-		effects.onRegen(sourceUnit.id, alliedCore.id, effect);
+		effects.onRegen(sourceUnit.id, alliedCore.id, amount, effect);
 	} else {
 		effect();
 	}

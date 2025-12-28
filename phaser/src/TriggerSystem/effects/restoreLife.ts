@@ -43,7 +43,7 @@ export const restoreLife = async (
 
 	const effects = env.effects;
 	if (effects.onHeal) {
-		effects.onHeal(sourceUnit.id, alliedCore.id, effect(sourceForce, healAmount));
+		effects.onHeal(sourceUnit.id, alliedCore.id, healAmount, effect(sourceForce, healAmount));
 	} else {
 		effect(sourceForce, healAmount)();
 	}
