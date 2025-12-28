@@ -277,16 +277,15 @@ export function updateShieldDisplay(
 
 export function updateRegenDisplay(force: string, regen: number, delta: number) {
 	const chipId = `regen-display/${force}`;
+
+	const chip = getChip(chipId);
+	if (!chip) {
+		return;
+	}
+
 	updateChipText(chipId, compactNumber(regen));
 
 	if (delta === 0) return;
-
-	const chip = getChip(chipId);
-
-	if (!chip) {
-		console.error("No chip found for id", chipId);
-		return;
-	}
 
 	const textElement = popText({
 		x: 0,
@@ -300,16 +299,15 @@ export function updateRegenDisplay(force: string, regen: number, delta: number) 
 
 export function updatePoisonDisplay(force: string, poison: number, delta: number) {
 	const chipId = `poison-display/${force}`;
+
+	const chip = getChip(chipId);
+	if (!chip) {
+		return;
+	}
+
 	updateChipText(chipId, compactNumber(poison));
 
 	if (delta === 0) return;
-
-	const chip = getChip(chipId);
-
-	if (!chip) {
-		console.error("No chip found for id", chipId);
-		return;
-	}
 
 	const textElement = popText({
 
