@@ -65,11 +65,14 @@ describe('Reaction System Tests', () => {
 				targets: { id: 'self' }
 			}], false);
 
+			// Force delayed execution (projectile time)
+			effects.setFrame(50);
+
 			const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
 			expect(hasteLog).toBeDefined();
 
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id && l.delayed === 200
+				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(chronomancer.power).toBe(initialPower + 7);
@@ -84,6 +87,9 @@ describe('Reaction System Tests', () => {
 				duration: 1000,
 				targets: { id: 'self' }
 			}], false);
+
+			// Advance frame to be safe
+			effects.setFrame(50);
 
 			const powerIncreaseLog = effects.logs.find(
 				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id
@@ -107,6 +113,9 @@ describe('Reaction System Tests', () => {
 				targets: { id: 'self' }
 			}], false);
 
+			// Advance frame
+			effects.setFrame(50);
+
 			expect(chaosKnight.charge).toBeGreaterThan(initialCharge);
 		});
 
@@ -125,6 +134,9 @@ describe('Reaction System Tests', () => {
 				targets: { id: 'self' }
 			}], false);
 
+			// Advance frame
+			effects.setFrame(50);
+
 			expect(chaosKnight.charge).toBe(initialCharge);
 		});
 	});
@@ -140,8 +152,11 @@ describe('Reaction System Tests', () => {
 
 			processEffectsIO(env, enemyUnit, [{ id: 'damage' }], false);
 
+			// Advance frame
+			effects.setFrame(50);
+
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === 'increase_power' && l.sourceId === arbiter.id && l.delayed === 200
+				(l: any) => l.type === 'increase_power' && l.sourceId === arbiter.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(arbiter.power).toBe(initialPower + 2);
@@ -159,8 +174,11 @@ describe('Reaction System Tests', () => {
 
 			processEffectsIO(env, sourceUnit, [{ id: 'shield' }], false);
 
+			// Advance frame
+			effects.setFrame(50);
+
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === 'increase_power' && l.sourceId === glassCannon.id && l.delayed === 200
+				(l: any) => l.type === 'increase_power' && l.sourceId === glassCannon.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(glassCannon.power).toBe(initialPower + 5);
@@ -177,12 +195,15 @@ describe('Reaction System Tests', () => {
 			effects.logs.length = 0;
 
 			processEffectsIO(env, sourceUnit, [{ id: 'damage' }], false);
+			effects.setFrame(50);
 			expect(chronomancer.power).toBe(initialChronoPower + 4);
 
 			processEffectsIO(env, sourceUnit, [{ id: 'shield' }], false);
+			effects.setFrame(100);
 			expect(chronomancer.power).toBe(initialChronoPower + 8);
 
 			processEffectsIO(env, sourceUnit, [{ id: 'heal' }], false);
+			effects.setFrame(150);
 			expect(chronomancer.power).toBe(initialChronoPower + 12);
 		});
 
@@ -199,6 +220,8 @@ describe('Reaction System Tests', () => {
 				duration: 1000,
 				targets: { id: 'self' }
 			}], false);
+
+			effects.setFrame(50);
 
 			expect(chronomancer.power).toBe(initialChronoPower);
 		});
@@ -219,6 +242,8 @@ describe('Reaction System Tests', () => {
 				duration: 1000,
 				targets: { id: 'self' }
 			}], false);
+
+			effects.setFrame(50);
 
 			expect(chronomancer.power).toBe(initialChronoPower + 7 + 5);
 			expect(eternalPhoenix.power).toBe(initialPhoenixPower);

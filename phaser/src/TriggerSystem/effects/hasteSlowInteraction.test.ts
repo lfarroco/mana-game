@@ -58,6 +58,9 @@ describe('Haste & Slow Interaction Tests', () => {
 		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => { });
 		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
 
+		// Force apply delayed effects (projectile time)
+		effects.setFrame(100);
+
 		expect(targetUnit.hasted).toBe(duration);
 		expect(targetUnit.slowed).toBe(duration);
 
@@ -74,9 +77,14 @@ describe('Haste & Slow Interaction Tests', () => {
 		const hasteDuration = 1000;
 		const slowDuration = 500;
 		const delta = 10;
+		let currentFrame = 0;
 
 		// T=0: Apply Haste
 		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
+		// Force apply
+		currentFrame += 50;
+		effects.setFrame(currentFrame);
+
 		// Expect haste log
 		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
 		expect(hasteLog).toBeDefined();
@@ -88,6 +96,10 @@ describe('Haste & Slow Interaction Tests', () => {
 
 		// T=200: Apply Slow
 		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
+		// Force apply
+		currentFrame += 50;
+		effects.setFrame(currentFrame);
+
 		// Expect slow log
 		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
 		expect(slowLog).toBeDefined();
@@ -125,9 +137,14 @@ describe('Haste & Slow Interaction Tests', () => {
 		const slowDuration = 1000;
 		const hasteDuration = 500;
 		const delta = 10;
+		let currentFrame = 200; // Start offset to avoid conflict with previous test if state shared (it's not)
 
 		// T=0: Apply Slow
 		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
+		// Force apply
+		currentFrame += 50;
+		effects.setFrame(currentFrame);
+
 		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
 		expect(slowLog).toBeDefined();
 
@@ -138,6 +155,10 @@ describe('Haste & Slow Interaction Tests', () => {
 
 		// T=200: Apply Haste
 		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
+		// Force apply
+		currentFrame += 50;
+		effects.setFrame(currentFrame);
+
 		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
 		expect(hasteLog).toBeDefined();
 
