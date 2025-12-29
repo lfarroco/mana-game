@@ -6,7 +6,8 @@ export async function applySlowLogicIO(
 	sourceUnit: Unit,
 	targets: Unit[],
 	duration: number,
-	onReSlow?: (target: Unit) => void
+	onReSlow?: (target: Unit) => void,
+	delayedExecution?: number
 ) {
 	const effect = (target: Unit) => () => {
 		if (target.slowed > 0 && onReSlow) {
@@ -19,7 +20,7 @@ export async function applySlowLogicIO(
 
 	for (const target of targets) {
 		if (effects.onSlow) {
-			effects.onSlow(sourceUnit.id, target.id, duration, effect(target));
+			effects.onSlow(sourceUnit.id, target.id, duration, effect(target), delayedExecution);
 		} else {
 			effect(target)();
 		}

@@ -6,7 +6,8 @@ export const applyHasteLogicIO = async (
 	targets: Unit[],
 	sourceUnit: Unit,
 	duration: number,
-	onReHaste: (target: Unit) => void
+	onReHaste: (target: Unit) => void,
+	delayedExecution?: number
 ) => {
 	const effect = (target: Unit) => () => {
 		if (target.hasted > 0) {
@@ -19,7 +20,7 @@ export const applyHasteLogicIO = async (
 
 	for (const target of targets) {
 		if (effects.onHaste) {
-			effects.onHaste(sourceUnit.id, target.id, duration, effect(target));
+			effects.onHaste(sourceUnit.id, target.id, duration, effect(target), delayedExecution);
 		} else {
 			effect(target)();
 		}

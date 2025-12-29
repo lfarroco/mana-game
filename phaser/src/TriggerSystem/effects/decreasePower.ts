@@ -1,12 +1,13 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const decreasePower = async (
+export const decreasePower = (
 	env: CombatEnvironment,
 	targets: Unit[],
 	amount: number,
 	permanent: boolean,
-	sourceUnit?: Unit
+	sourceUnit: Unit | undefined,
+	delayedExecution?: number
 ) => {
 	const effect = (targetUnit: Unit) => async () => {
 		const newPower = Math.max(0, targetUnit.power - amount);
@@ -21,7 +22,7 @@ export const decreasePower = async (
 
 	for (const target of targets) {
 		if (effects.onDecreasePower) {
-			effects.onDecreasePower(sourceUnit?.id, target.id, effect(target));
+			effects.onDecreasePower(sourceUnit?.id, target.id, effect(target), delayedExecution);
 		} else {
 			effect(target)();
 		}

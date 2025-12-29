@@ -77,58 +77,58 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		onReactionVisual: async (_unitId: string) => {
 		},
 
-		onDamage: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "damage", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onDamage: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "damage", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onHeal: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "heal", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onHeal: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "heal", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onShield: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "shield", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onShield: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "shield", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onPoison: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "poison", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onPoison: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "poison", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onRegen: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "regen", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onRegen: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "regen", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onHaste: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void) => {
-			logs.push({ type: "haste", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, effectDuration: _duration, frame: currentFrame });
+		onHaste: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "haste", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, effectDuration: _duration, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onSlow: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void) => {
-			logs.push({ type: "slow", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, effectDuration: _duration, frame: currentFrame });
+		onSlow: (_sourceId: string, _targetId: string, _duration: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "slow", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, effectDuration: _duration, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onCharge: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void) => {
-			logs.push({ type: "charge", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onCharge: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "charge", sourceId: _sourceId, targetId: _targetId, amount: _amount, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onIncreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
-			logs.push({ type: "increase_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onIncreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "increase_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onDecreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
-			logs.push({ type: "decrease_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onDecreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "decrease_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onIncreaseCritical: (_sourceId: string | undefined, _targetId: string, onHit: () => void) => {
-			logs.push({ type: "increase_critical", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame });
+		onIncreaseCritical: (_sourceId: string | undefined, _targetId: string, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "increase_critical", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 

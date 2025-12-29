@@ -6,6 +6,7 @@ export const multiplyPower = async (options: {
 	targets: Unit[];
 	sourceUnit: Unit;
 	multiplier: number;
+	delayedExecution?: number;
 }) => {
 	const { targets, multiplier, env } = options;
 

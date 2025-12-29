@@ -4,6 +4,7 @@ import { createMockState } from '../../test-utils/serverCombatUtils';
 import { createServerCombatEffects } from '../../Scenes/Battleground/ServerCombatEffects';
 import { runCombat } from '../../Scenes/Battleground/RunCombatCore';
 import { dealDamageLogicIO } from './dealDamage';
+import { processEffectsIO } from '../TriggerSystem';
 import { registerCollection } from '../../Models/Entities/Card';
 import { BASE_COLLECTION_DATA } from '../../Data/BaseCollection';
 import { Unit } from '../../Models/Entities/Unit';
@@ -17,6 +18,14 @@ jest.mock('../../i18n/i18n', () => ({
 	getCurrentLocale: () => 'en',
 	getAvailableLocales: () => ['en'],
 	getNativeName: () => 'English'
+}));
+
+
+
+let globalState: any;
+jest.mock('../../Models/State', () => ({
+	getState: () => globalState,
+	State: {}
 }));
 
 beforeAll(() => {
@@ -35,6 +44,7 @@ describe('Damage Effect Tests', () => {
 
 	beforeEach(() => {
 		state = createMockState();
+		globalState = state;
 		effects = createServerCombatEffects(state);
 		const runner = runCombat(state, effects);
 		env = runner.getEnv();
@@ -71,5 +81,30 @@ describe('Damage Effect Tests', () => {
 
 		expect(targetUnit.shield).toBe(0);
 		expect(targetUnit.life).toBe(initialLife - 5);
+	});
+	it('should trigger reaction on damage', async () => {
+		// Setup a reaction on targetUnit: when 'enemies' deal 'damage', trigger 'heal'
+		targetUnit.reactions.push({
+			effectId: 'damage',
+			position: 'enemies',
+			effects: [{ id: 'heal' }]
+		});
+
+		effects.logs.length = 0;
+
+
+		// Trigger damage using processEffectsIO to ensure reactions are processed
+		processEffectsIO(env, sourceUnit, [{ id: 'damage' }], false);
+
+		// Should have damage log
+		const damageLog = effects.logs.find((l: any) => l.type === 'damage');
+		expect(damageLog).toBeDefined();
+
+		// Verify reaction
+		const reactionLog = effects.logs.find(
+			(log: any) => log.type === 'heal' && log.delayed === 200
+		);
+		expect(reactionLog).toBeDefined();
+		expect(reactionLog.sourceId).toBe(targetUnit.id);
 	});
 });

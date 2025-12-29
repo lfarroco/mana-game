@@ -5,7 +5,8 @@ export function applyChargeLogicIO(
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	targets: Unit[],
-	amount: number
+	amount: number,
+	delayedExecution?: number
 ) {
 	const effects = env.effects;
 
@@ -15,7 +16,7 @@ export function applyChargeLogicIO(
 		};
 
 		if (effects.onCharge) {
-			effects.onCharge(sourceUnit.id, target.id, amount, effect);
+			effects.onCharge(sourceUnit.id, target.id, amount, effect, delayedExecution);
 		} else {
 			effect();
 		}

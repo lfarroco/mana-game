@@ -4,7 +4,7 @@ import { pickRandom } from "../../utils";
 import { increasePower } from "./increasePower";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
+export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit, delayedExecution?: number) => {
 	const removableEffects = sourceUnit.effects;
 	const removableReactions = sourceUnit.reactions;
 
@@ -30,5 +30,5 @@ export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
 		sourceUnit.reactions = sourceUnit.reactions.filter(r => r !== reactionToRemove);
 	}
 
-	increasePower(env, [sourceUnit], 10, false, sourceUnit);
+	increasePower(env, [sourceUnit], 10, false, sourceUnit, delayedExecution);
 };

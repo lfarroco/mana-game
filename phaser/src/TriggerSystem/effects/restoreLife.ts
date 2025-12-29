@@ -8,7 +8,8 @@ import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 export const restoreLife = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1
+	scale: number = 1,
+	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power;
 
@@ -43,7 +44,7 @@ export const restoreLife = async (
 
 	const effects = env.effects;
 	if (effects.onHeal) {
-		effects.onHeal(sourceUnit.id, alliedCore.id, healAmount, effect(sourceForce, healAmount));
+		effects.onHeal(sourceUnit.id, alliedCore.id, healAmount, effect(sourceForce, healAmount), delayedExecution);
 	} else {
 		effect(sourceForce, healAmount)();
 	}
