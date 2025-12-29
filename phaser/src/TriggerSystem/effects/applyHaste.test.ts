@@ -54,6 +54,9 @@ describe('Haste Effect Tests', () => {
 
 		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => { });
 
+		// Advance frames to simulate projectile travel time
+		effects.setFrame(50);
+
 		expect(targetUnit.hasted).toBe(duration);
 
 		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
@@ -66,6 +69,9 @@ describe('Haste Effect Tests', () => {
 		const delta = 10; // 10ms per frame
 
 		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => { });
+
+		// Advance frames to simulate projectile travel time so effect is applied
+		effects.setFrame(50);
 
 		// Advance 1 frame (10ms)
 		// With haste, charge rate is 2x. So charge should increase by 20.
