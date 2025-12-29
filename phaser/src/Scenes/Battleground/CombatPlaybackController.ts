@@ -3,6 +3,9 @@ import { CombatRunner, WaveOutcome } from "./RunCombatCore";
 import { CombatLogEntry } from "./ServerCombatEffects";
 import { CombatEffects } from "./CombatEnvironment";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
+import { initializePoisonSystem } from "./Systems/PoisonDamageSystem";
+import { initializeRegenSystem } from "./Systems/RegenSystem";
+import { initialize as initializeCombatStatsTracker } from "./Systems/CombatStatsTracker";
 
 type ScheduledAnimation = {
 	log: CombatLogEntry;
@@ -29,9 +32,9 @@ export const createCombatPlaybackController = (
 	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
-		poisonSystemState: null as any,
-		regenSystemState: null as any,
-		combatStatsTrackerState: null as any,
+		poisonSystemState: initializePoisonSystem(),
+		regenSystemState: initializeRegenSystem(),
+		combatStatsTrackerState: initializeCombatStatsTracker(state),
 		forceStatsState,
 	};
 
