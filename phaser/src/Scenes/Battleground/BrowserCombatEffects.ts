@@ -112,9 +112,11 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			damageFx(
 				getCharaById(sourceId),
 				getCharaById(targetId),
-				onHit
+				() => {
+					onHit();
+					shake(getCharaById(targetId));
+				}
 			);
-			shake(getCharaById(targetId));
 		},
 
 		onHeal: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
