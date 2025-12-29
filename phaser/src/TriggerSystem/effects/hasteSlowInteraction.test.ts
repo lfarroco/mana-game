@@ -62,29 +62,107 @@ describe('Haste & Slow Interaction Tests', () => {
 		expect(targetUnit.slowed).toBe(duration);
 
 		// Advance 1 frame (10ms)
-		// Normal rate = 1x. Haste (2x) + Slow (0.5x) => (1 / (0.5 * 2))??? 
-		// Let's check the logic in RunCombatCore.ts:
-		// const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
-		// Wait, the logic I read earlier in RunCombatCore.ts line 184 was:
-		// const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
-
-		// This implies priority! 
-		// If hasted > 0, mult is 0.5. Slow is ignored?
-		// Let me re-read RunCombatCore.ts to be sure about the interaction logic.
-		// If the code is: unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1
-		// Then Haste overrides Slow completely?
-		// The user EXPECTS "cooldown rate is 1".
-		// If the current implementation prioritizes Haste, then the test will fail if I expect 1x (charge +10).
-		// It would behave as Haste (charge +20).
-
-		// Let's write the test expecting 1x (neutralized) as requested, 
-		// and if it fails, I might need to adjust the implementation (or report it).
-		// BUT the user said: "slow makes the cooldown reduce at 1/2 speed... do the same type of assertions... If a unit has both statuses, then its cooldown rate is 1"
-		// This implies the User BELIEVES getting 1 is the desired behavior.
+		// Normal rate = 1x. Haste (2x) + Slow (0.5x) => 1x (neutralized)
 
 		combatRunner.updateFrame(state, 0, delta);
 
 		// Normal charge increase for 10ms delta is 10.
 		expect(targetUnit.charge).toBeCloseTo(10);
+	});
+
+	it('should emit correct logs for overlapping effects', async () => {
+		const hasteDuration = 1000;
+		const slowDuration = 500;
+		const delta = 10;
+
+		// T=0: Apply Haste
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
+		// Expect haste log
+		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
+		expect(hasteLog).toBeDefined();
+
+		effects.logs.length = 0; // Clear logs to isolate checks
+
+		// Advance 200ms
+		for (let i = 0; i < 20; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// T=200: Apply Slow
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
+		// Expect slow log
+		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
+		expect(slowLog).toBeDefined();
+
+		effects.logs.length = 0;
+
+		// Advance 500ms (Slow duration)
+		// Note: applySlowLogicIO doesn't advance time, we must do it manually via updateFrame loops
+		// The check for expiration happens inside updateFrame when unit.slowed <= 0
+
+		// We need to advance 500ms.
+		for (let i = 0; i < 50; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// Now (T=700), Slow should have expired.
+		const slowEndLog = effects.logs.find((l: any) => l.type === 'slow_end');
+		expect(slowEndLog).toBeDefined();
+		expect(slowEndLog.unitId).toBe(targetUnit.id);
+
+		// Verify Haste is NOT ended yet (Duration 1000, Elapsed 700)
+		const hasteEndLogEarly = effects.logs.find((l: any) => l.type === 'haste_end');
+		expect(hasteEndLogEarly).toBeUndefined();
+
+		effects.logs.length = 0;
+
+		// Advance remaining 300ms (Total 1000 - 200 - 500 = 300)
+		for (let i = 0; i < 30; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// Now T=1000, Haste should expire
+		const hasteEndLog = effects.logs.find((l: any) => l.type === 'haste_end');
+		expect(hasteEndLog).toBeDefined();
+		expect(hasteEndLog.unitId).toBe(targetUnit.id);
+	});
+
+	it('should emit correct logs for slow then short haste', async () => {
+		const slowDuration = 1000;
+		const hasteDuration = 500;
+		const delta = 10;
+
+		// T=0: Apply Slow
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
+		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
+		expect(slowLog).toBeDefined();
+
+		effects.logs.length = 0;
+
+		// Advance 200ms
+		for (let i = 0; i < 20; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// T=200: Apply Haste
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
+		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
+		expect(hasteLog).toBeDefined();
+
+		effects.logs.length = 0;
+
+		// Advance 500ms (Haste Duration)
+		for (let i = 0; i < 50; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// T=700: Haste should expire.
+		const hasteEndLog = effects.logs.find((l: any) => l.type === 'haste_end');
+		expect(hasteEndLog).toBeDefined();
+		expect(hasteEndLog.unitId).toBe(targetUnit.id);
+
+		// Verify Slow is not ended yet
+		const slowEndLogEarly = effects.logs.find((l: any) => l.type === 'slow_end');
+		expect(slowEndLogEarly).toBeUndefined();
+
+		effects.logs.length = 0;
+
+		// Advance remaining 300ms (Total 1000 - 200 - 500 = 300)
+		for (let i = 0; i < 30; i++) combatRunner.updateFrame(state, 0, delta);
+
+		// T=1000: Slow should expire
+		const slowEndLog = effects.logs.find((l: any) => l.type === 'slow_end');
+		expect(slowEndLog).toBeDefined();
+		expect(slowEndLog.unitId).toBe(targetUnit.id);
 	});
 });
