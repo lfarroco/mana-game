@@ -5,21 +5,15 @@ import { CombatSystemStates } from "./Systems/CombatSystemStates";
 const DEFAULT_PROJECTILE_DURATION = 400;
 const INSTANT_EFFECT_DURATION = 0;
 
-let currentFrame = 0;
-
 export type CombatLogEntry = {
 	type: string;
 	[key: string]: any;
 };
 
-export let logs: CombatLogEntry[] = [];
-
-export const clearLogs = () => {
-	logs = [];
-	currentFrame = 0;
-};
-
 export const createServerCombatEffects = (_state: State): CombatEffects & { logs: CombatLogEntry[], setFrame: (f: number) => void } => {
+	let currentFrame = 0;
+	let logs: CombatLogEntry[] = [];
+
 	return {
 		logs,
 		setFrame: (f: number) => {
@@ -147,3 +141,4 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		},
 	};
 };
+
