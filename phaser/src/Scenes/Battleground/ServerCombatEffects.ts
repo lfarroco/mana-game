@@ -25,7 +25,8 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		setFrame: (f: number) => {
 			currentFrame = f;
 		},
-		onUnitPop: (_unitId: string) => {
+		onUnitPop: (unitId: string) => {
+			logs.push({ type: "unit_pop", unitId, frame: currentFrame, duration: 0 });
 		},
 
 		onChargeBarUpdate: (_unitId: string) => {

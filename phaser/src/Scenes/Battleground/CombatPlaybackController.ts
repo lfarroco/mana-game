@@ -171,6 +171,9 @@ export const createCombatPlaybackController = (
 					effects.onChargeBarUpdate(log.unitId);
 				}
 				break;
+			case "unit_pop":
+				effects.onUnitPop(log.unitId);
+				break;
 		}
 
 		animation.executed = true;
