@@ -71,6 +71,9 @@ describe('Reaction System Tests', () => {
 			const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
 			expect(hasteLog).toBeDefined();
 
+			const reactionLog = effects.logs.find((l: any) => l.type === 'reaction' && l.unitId === chronomancer.id);
+			expect(reactionLog).toBeDefined();
+
 			const powerIncreaseLog = effects.logs.find(
 				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id
 			);

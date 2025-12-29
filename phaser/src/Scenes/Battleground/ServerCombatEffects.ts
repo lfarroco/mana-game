@@ -102,7 +102,8 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 			return {};
 		},
 
-		onReactionVisual: async (_unitId: string) => {
+		onReactionVisual: async (unitId: string) => {
+			logs.push({ type: "reaction", unitId, frame: currentFrame });
 		},
 
 		onDamage: (_sourceId: string, _targetId: string, _amount: number, onHit: () => void, delayedExecution?: number) => {
