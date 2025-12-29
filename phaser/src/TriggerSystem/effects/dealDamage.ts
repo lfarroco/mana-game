@@ -4,7 +4,7 @@ import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTr
 import { getEnemyCore } from "@Models/Entities/Card";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scale: number = 1) {
+export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scale: number = 1, delayedExecution?: number) {
 	const damageAmount = sourceUnit.power;
 
 	const targetForce = env.state.battleData.forces.find(
@@ -71,7 +71,7 @@ export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scal
 	if (effects.onDamage) {
 		const crit = calculateCritical(sourceUnit);
 		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
-		effects.onDamage(sourceUnit.id, enemyCore!.id, damage, effect);
+		effects.onDamage(sourceUnit.id, enemyCore!.id, damage, effect, delayedExecution);
 	} else {
 		effect();
 	}

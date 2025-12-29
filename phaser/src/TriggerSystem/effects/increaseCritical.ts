@@ -1,12 +1,13 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const increaseCritical = async (
+export const increaseCritical = (
 	env: CombatEnvironment,
 	targets: Unit[],
 	amount: number,
-	sourceUnit?: Unit,
-	permanent: boolean = false
+	sourceUnit: Unit | undefined,
+	permanent: boolean = false,
+	delayedExecution?: number
 ) => {
 	const effect = (target: string) => async () => {
 		// Logic update only
@@ -26,7 +27,7 @@ export const increaseCritical = async (
 
 	for (const target of targets) {
 		if (effects.onIncreaseCritical) {
-			effects.onIncreaseCritical(sourceUnit?.id, target.id, effect(target.id));
+			effects.onIncreaseCritical(sourceUnit?.id, target.id, effect(target.id), delayedExecution);
 		} else {
 			effect(target.id)();
 		}

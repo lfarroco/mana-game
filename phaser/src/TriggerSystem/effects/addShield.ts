@@ -7,7 +7,8 @@ import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 export const addShieldLogicIO = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1
+	scale: number = 1,
+	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power;
 	const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
@@ -34,7 +35,7 @@ export const addShieldLogicIO = async (
 	if (effects.onShield) {
 		const crit = calculateCritical(sourceUnit);
 		const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
-		effects.onShield(sourceUnit.id, alliedCore.id, shieldAmount, effect);
+		effects.onShield(sourceUnit.id, alliedCore.id, shieldAmount, effect, delayedExecution);
 	} else {
 		effect();
 	}

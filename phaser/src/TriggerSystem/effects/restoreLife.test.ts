@@ -4,6 +4,7 @@ import { createMockState } from '../../test-utils/serverCombatUtils';
 import { createServerCombatEffects } from '../../Scenes/Battleground/ServerCombatEffects';
 import { runCombat } from '../../Scenes/Battleground/RunCombatCore';
 import { restoreLife } from './restoreLife';
+import { processEffectsIO } from '../TriggerSystem';
 import { registerCollection } from '../../Models/Entities/Card';
 import { BASE_COLLECTION_DATA } from '../../Data/BaseCollection';
 import { Unit } from '../../Models/Entities/Unit';
@@ -17,6 +18,14 @@ jest.mock('../../i18n/i18n', () => ({
 	getCurrentLocale: () => 'en',
 	getAvailableLocales: () => ['en'],
 	getNativeName: () => 'English'
+}));
+
+
+
+let globalState: any;
+jest.mock('../../Models/State', () => ({
+	getState: () => globalState,
+	State: {}
 }));
 
 beforeAll(() => {
@@ -34,6 +43,7 @@ describe('Heal Effect Tests', () => {
 
 	beforeEach(() => {
 		state = createMockState();
+		globalState = state;
 		effects = createServerCombatEffects(state);
 		const runner = runCombat(state, effects);
 		env = runner.getEnv();
@@ -66,5 +76,32 @@ describe('Heal Effect Tests', () => {
 		await restoreLife(env, sourceUnit);
 
 		expect(sourceUnit.life).toBe(100);
+	});
+
+	it('should trigger reaction on heal', async () => {
+		// Use the enemy unit as the reactor (since source cannot react to self)
+		const reactorUnit = state.battleData.units[1];
+
+		// Setup reaction on reactorUnit: when 'enemies' perform 'heal', trigger 'damage'
+		reactorUnit.reactions.push({
+			effectId: 'heal',
+			position: 'enemies',
+			effects: [{ id: 'damage' }]
+		});
+
+		effects.logs.length = 0;
+
+
+		// Trigger heal via processEffectsIO
+		processEffectsIO(env, sourceUnit, [{ id: 'heal' }], false);
+
+		// Check for heal log
+		const healLog = effects.logs.find((l: any) => l.type === 'heal');
+		expect(healLog).toBeDefined();
+
+		// Check for damage log from reaction
+		const damageLog = effects.logs.find((l: any) => l.type === 'damage' && l.delayed === 200);
+		expect(damageLog).toBeDefined();
+		expect(damageLog.sourceId).toBe(reactorUnit.id);
 	});
 });

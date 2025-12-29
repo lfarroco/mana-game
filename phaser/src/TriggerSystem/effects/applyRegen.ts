@@ -7,7 +7,8 @@ import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 export const applyRegenLogicIO = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1
+	scale: number = 1,
+	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -43,7 +44,7 @@ export const applyRegenLogicIO = async (
 
 	const effects = env.effects;
 	if (effects.onRegen) {
-		effects.onRegen(sourceUnit.id, alliedCore.id, amount, effect);
+		effects.onRegen(sourceUnit.id, alliedCore.id, amount, effect, delayedExecution);
 	} else {
 		effect();
 	}

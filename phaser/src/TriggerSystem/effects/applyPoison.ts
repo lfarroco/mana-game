@@ -8,7 +8,8 @@ import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 export const applyPoisonLogicIO = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
-	scale: number = 1
+	scale: number = 1,
+	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -41,7 +42,7 @@ export const applyPoisonLogicIO = async (
 
 	const effects = env.effects;
 	if (effects.onPoison) {
-		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, amount, effect);
+		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, amount, effect, delayedExecution);
 	} else {
 		effect();
 	}

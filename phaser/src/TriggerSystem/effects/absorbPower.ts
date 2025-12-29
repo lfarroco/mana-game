@@ -3,7 +3,7 @@ import { increasePower } from "./increasePower";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const absorbPower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
+export const absorbPower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean, delayedExecution?: number) => {
 	if (targets.length === 0) return;
 
 	const { state } = env;
@@ -36,6 +36,6 @@ export const absorbPower = (env: CombatEnvironment, sourceUnit: Unit, targets: U
 	});
 
 	if (totalAbsorbed > 0) {
-		increasePower(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit);
+		increasePower(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit, delayedExecution);
 	}
 };

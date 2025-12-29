@@ -3,7 +3,7 @@ import { increasePower } from "./increasePower";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean) => {
+export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean, delayedExecution?: number) => {
 	if (targets.length === 0) return;
 
 	const { state } = env;
@@ -25,7 +25,7 @@ export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, target
 
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
-	increasePower(env, targets, powerPerTarget, permanent, sourceUnit);
+	increasePower(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
 
 	const effects = env.effects;
 	if (effects.onPowerUpdate) {

@@ -1,12 +1,13 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const increasePower = async (
+export const increasePower = (
 	env: CombatEnvironment,
 	targets: Unit[],
 	amount: number,
 	permanent: boolean,
-	sourceUnit?: Unit // sources like orbs apply direct power increase
+	sourceUnit?: Unit,
+	delayedExecution?: number
 ) => {
 	const effect = (targetUnit: Unit) => async () => {
 		targetUnit.power += amount;
@@ -19,7 +20,7 @@ export const increasePower = async (
 
 	for (const target of targets) {
 		if (effects.onIncreasePower) {
-			effects.onIncreasePower(sourceUnit?.id, target.id, effect(target));
+			effects.onIncreasePower(sourceUnit?.id, target.id, effect(target), delayedExecution);
 		} else {
 			effect(target)();
 		}

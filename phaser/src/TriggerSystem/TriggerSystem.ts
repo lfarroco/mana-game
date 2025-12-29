@@ -2,7 +2,7 @@ import { Unit } from "@Models/Entities/Unit";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
 import { getState, State } from "@Models/State";
-import { delay } from "@Utils/animation";
+
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export type EffectId =
@@ -218,44 +218,46 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 };
 
 // Process a list of effects that originate from a given source unit
-export const processEffectsIO = (env: CombatEnvironment, sourceUnit: Unit, effectsList: Effect[], isReaction: boolean, triggeringUnit?: Unit, scale: number = 1) => {
+export const processEffectsIO = (env: CombatEnvironment, sourceUnit: Unit, effectsList: Effect[], isReaction: boolean, triggeringUnit?: Unit, scale: number = 1, delayedExecution?: number) => {
 	effectsList.forEach((effect) => {
-		processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale);
+		processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale, delayedExecution);
 	});
 };
 
-const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit, scale: number = 1) => {
+const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit, scale: number = 1, delayedExecution?: number) => {
 	switch (effect.id) {
 		case "damage":
-			effects.dealDamageLogicIO(env, sourceUnit, scale);
+			effects.dealDamageLogicIO(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "heal":
-			effects.restoreLife(env, sourceUnit, scale);
+			effects.restoreLife(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "shield":
-			effects.addShieldLogicIO(env, sourceUnit, scale);
+			effects.addShieldLogicIO(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "poison":
-			effects.applyPoisonLogicIO(env, sourceUnit, scale);
+			effects.applyPoisonLogicIO(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "regen":
-			effects.applyRegenLogicIO(env, sourceUnit, scale);
+			effects.applyRegenLogicIO(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
 			effects.applyHasteLogicIO(env, hasteTargets, sourceUnit, effect.duration * scale, (_target: Unit) =>
-				processReactions(env, sourceUnit, { id: "re_hasted" }, scale)
+				processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+				delayedExecution
 			);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
 			effects.applySlowLogicIO(env, sourceUnit, slowTargets, effect.duration * scale, (_target: Unit) =>
-				processReactions(env, sourceUnit, { id: "re_slow" }, scale)
+				processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+				delayedExecution
 			);
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applyChargeLogicIO(env, sourceUnit, chargeTargets, effect.duration * scale);
+			effects.applyChargeLogicIO(env, sourceUnit, chargeTargets, effect.duration * scale, delayedExecution);
 			break;
 		case "increase_power":
 			const increasePowerTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
@@ -264,7 +266,8 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 				increasePowerTargets,
 				effect.amount * scale,
 				effect.permanent || false,
-				sourceUnit
+				sourceUnit,
+				delayedExecution
 			);
 			break;
 		case "decrease_power":
@@ -274,12 +277,13 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 				decreasePowerTargets,
 				effect.amount * scale,
 				effect.permanent || false,
-				sourceUnit
+				sourceUnit,
+				delayedExecution
 			);
 			break;
 		case "increase_critical":
 			const increaseCriticalTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.increaseCritical(env, increaseCriticalTargets, effect.amount * scale, sourceUnit, effect.permanent || false);
+			effects.increaseCritical(env, increaseCriticalTargets, effect.amount * scale, sourceUnit, effect.permanent || false, delayedExecution);
 			break;
 		case "multiply_power":
 			effects.multiplyPower({
@@ -287,16 +291,17 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 				targets: resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
 				sourceUnit,
 				multiplier: Math.pow(effect.multiplier, scale),
+				delayedExecution
 			});
 			break;
 		case "distribute_power":
-			effects.distributePower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
+			effects.distributePower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false, delayedExecution);
 			break;
 		case "absorb_power":
-			effects.absorbPower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false);
+			effects.absorbPower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false, delayedExecution);
 			break;
 		case "sacrifice_effect":
-			effects.sacrificeEffect(env, sourceUnit);
+			effects.sacrificeEffect(env, sourceUnit, delayedExecution);
 			break;
 		case "re_hasted":
 			break;
@@ -370,18 +375,16 @@ export function processReactions(env: CombatEnvironment, triggeringUnit: Unit, e
 					}
 				});
 
-			reactions.forEach(async (r) => {
-
-				await delay(200);
+			reactions.forEach((r) => {
 				// check if still in combat
 				if (getState().battleData.units.length === 0) {
 					return;
 				}
 
 				if (env.effects.onReactionVisual) {
-					await env.effects.onReactionVisual(u.id);
+					env.effects.onReactionVisual(u.id);
 				}
-				processEffectsIO(env, u, r.effects, true, triggeringUnit, scale);
+				processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, 200);
 			});
 		});
 }
