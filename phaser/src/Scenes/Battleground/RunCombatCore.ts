@@ -181,7 +181,7 @@ export const chargeUnits = (
 	let performingUnits: Unit[] = [];
 
 	for (const unit of state.battleData.units) {
-		const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
+		const cooldownMultiplier = (unit.hasted > 0 && unit.slowed > 0) ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 		const chargeRate = 1 / cooldownMultiplier;
 
 		unit.charge += delta * chargeRate;
