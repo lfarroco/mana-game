@@ -89,5 +89,10 @@ describe('Haste Effect Tests', () => {
 		// Charge should increase by 10.
 		combatRunner.updateFrame(state, 0, delta);
 		expect(targetUnit.charge).toBeCloseTo(210);
+
+		// Check for haste_end log
+		const hasteEndLog = effects.logs.find((l: any) => l.type === 'haste_end');
+		expect(hasteEndLog).toBeDefined();
+		expect(hasteEndLog.unitId).toBe(targetUnit.id);
 	});
 });
