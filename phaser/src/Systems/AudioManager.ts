@@ -14,13 +14,26 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		return;
 	}
 
+	if (!game || !game.sound) {
+		// Silently fail or log warning if game sound system is not ready (common in tests)
+		return;
+	}
+
 	if (currentMusic && currentMusic.isPlaying) {
 		currentMusic.stop();
 	}
-	const music = game.sound.add(musicKey, {
-		volume: getOption("musicVolume"),
-		loop: loop,
-	});
+
+	let music;
+	try {
+		music = game.sound.add(musicKey, {
+			volume: getOption("musicVolume"),
+			loop: loop,
+		});
+	} catch (e) {
+		// Warn but do not crash the app/test
+		console.warn(`[AudioManager] Failed to load/play music "${musicKey}":`, e);
+		return;
+	}
 
 	if (!music) return;
 

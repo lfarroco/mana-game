@@ -35,9 +35,7 @@ function showOptionsSubmenu() {
 		vec2(constants.MIDDLE_SCREEN_X, baseY),
 		() => {
 			hideOptionsSubmenu();
-
-			if (1 > 2)
-				openOptions();
+			openOptions();
 
 			const bg = getCloudsBg();
 			if (bg) {

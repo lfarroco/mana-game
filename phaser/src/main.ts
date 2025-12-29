@@ -46,4 +46,5 @@ StatsStore.init();
 
 if (process.env.NODE_ENV === "development") {
 	window.debugController = DebugController;
+	(window as any).game = game;
 }

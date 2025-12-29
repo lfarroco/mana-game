@@ -4,6 +4,30 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "./magicButtonShader";
 import * as io from "@PhaserIO";
 
+export const activeButtons: Record<string, () => void> = {};
+if (typeof window !== "undefined") {
+	(window as any)._activeButtons = activeButtons;
+}
+
+export function triggerButton(text: string): boolean {
+	const key = text.toUpperCase();
+	if (activeButtons[key]) {
+		activeButtons[key]();
+		return true;
+	}
+	return false;
+}
+
+export function registerButton(text: string, callback: () => void) {
+	const key = text.toUpperCase();
+	activeButtons[key] = callback;
+}
+
+export function unregisterButton(text: string) {
+	const key = text.toUpperCase();
+	delete activeButtons[key];
+}
+
 export type Button = {
 	disable: () => void;
 	enable: () => void;
@@ -40,6 +64,7 @@ export function createUIButton(
 	callback: () => void,
 	width?: number
 ): Button {
+	console.log(`DEBUG: createUIButton called for ${text}`);
 	const size = {
 		width: width || 280,
 		height: buttonHeight,
@@ -69,12 +94,14 @@ export function createUIButton(
 	};
 
 	io.OnPointerDown(buttonGraphics, () => {
+		console.log(`DEBUG: UIButton PointerDown ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
 		tweenShaderIntensity(3.1);
 	});
 
 	io.OnPointerUp(buttonGraphics, () => {
+		console.log(`DEBUG: UIButton PointerUp ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		const wasPressed = state.isPressed;
 		state.isPressed = false;
@@ -82,6 +109,8 @@ export function createUIButton(
 			playSoundEffect("sfx_unit_onclick");
 			tweenShaderIntensity(0.1);
 			callback();
+		} else {
+			console.log(`DEBUG: UIButton PointerUp but not pressed`);
 		}
 	});
 
@@ -97,6 +126,7 @@ export function createUIButton(
 
 	io.OnceDestroyed(container, () => {
 		buttonsIndex.delete(container);
+		unregisterButton(text);
 	});
 
 	const state: State = {
@@ -109,6 +139,7 @@ export function createUIButton(
 	};
 
 	buttonsIndex.set(container, state);
+	registerButton(text, callback);
 
 	return {
 		disable: () => disableUIButton(state),
