@@ -32,17 +32,21 @@ describe('Haste Effect Tests', () => {
 	let env: any;
 	let sourceUnit: Unit;
 	let targetUnit: Unit;
+	let combatRunner: any;
 
 	beforeEach(() => {
 		state = createMockState();
 		effects = createServerCombatEffects(state);
-		const runner = runCombat(state, effects);
-		env = runner.getEnv();
+		combatRunner = runCombat(state, effects);
+		env = combatRunner.getEnv();
 
 		sourceUnit = state.battleData.units[0];
 		targetUnit = state.battleData.units[1];
 
 		targetUnit.hasted = 0;
+		targetUnit.charge = 0;
+		// set cooldown to something large so it doesn't fire naturally during test
+		targetUnit.cooldown = 100000;
 	});
 
 	it('should increase haste duration on target', async () => {
@@ -55,5 +59,35 @@ describe('Haste Effect Tests', () => {
 		const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
 		expect(hasteLog).toBeDefined();
 		expect(hasteLog.effectDuration).toBe(duration);
+	});
+
+	it('should double charge rate and expire after duration', async () => {
+		const duration = 100; // 100ms duration
+		const delta = 10; // 10ms per frame
+
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => { });
+
+		// Advance 1 frame (10ms)
+		// With haste, charge rate is 2x. So charge should increase by 20.
+		combatRunner.updateFrame(state, 0, delta);
+
+		expect(targetUnit.charge).toBeCloseTo(20);
+		expect(targetUnit.hasted).toBe(duration - delta);
+
+		// Advance 9 more frames (total 10 frames = 100ms)
+		for (let i = 0; i < 9; i++) {
+			combatRunner.updateFrame(state, 0, delta);
+		}
+
+		// Duraion expired
+		expect(targetUnit.hasted).toBe(0);
+
+		// Total charge: 10 frames * 20 = 200
+		expect(targetUnit.charge).toBeCloseTo(200);
+
+		// Next frame, haste is gone. Normal rate (1x).
+		// Charge should increase by 10.
+		combatRunner.updateFrame(state, 0, delta);
+		expect(targetUnit.charge).toBeCloseTo(210);
 	});
 });
