@@ -126,7 +126,13 @@ export const createCombatPlaybackController = (
 				}
 				break;
 			case "charge":
-				effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => { });
+				const chargeTarget = state.battleData.units.find(u => u.id === log.targetId);
+				if (chargeTarget) {
+					effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => {
+						chargeTarget.charge += log.amount;
+						effects.onChargeBarUpdate(log.targetId);
+					});
+				}
 				break;
 			case "increase_power":
 				effects.onIncreasePower?.(log.sourceId, log.targetId, () => { });
