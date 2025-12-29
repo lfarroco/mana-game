@@ -106,6 +106,10 @@ export function getDebugController(page: Page) {
 		async setSpeed(speed: number) {
 			return await page.evaluate((s) => window.debugController.setSpeed(s), speed);
 		},
+
+		async clickButton(text: string) {
+			return await page.evaluate((t) => window.debugController.clickButton(t), text);
+		},
 	};
 }
 

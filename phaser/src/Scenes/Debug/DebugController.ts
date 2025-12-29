@@ -15,6 +15,7 @@ import { handleCombatStartExecution } from "@Scenes/Battleground/Systems/CombatP
 import { chooseEncounter as executeEncounterChoice } from "@Scenes/Battleground/Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
 import { getPhaseForHour } from "@Scenes/Battleground/PhaseManager";
+import { activeButtons } from "@Components/UIButton";
 
 export function getCurrentSceneName(): string {
 	const scene = getCurrentScene();
@@ -310,9 +311,9 @@ export async function triggerGameComplete(state: State, wins: number = 0): Promi
 				position: { x: 2, y: 2 },
 				rank: 1,
 				power: 10,
+				bonusPower: 0,
 				life: 80,
 				maxLife: 80,
-				bonusPower: 0,
 				shield: 0,
 				cooldown: 100,
 				evade: 0,
@@ -374,4 +375,15 @@ export async function setSpeed(speed: number): Promise<string> {
 	const OptionsStore = await import("@Models/OptionsStore");
 	OptionsStore.setOption("speed", speed);
 	return `Game speed set to ${speed}`;
+}
+
+export function clickButton(textToFind: string): string {
+	const registry = (window as any)._activeButtons || activeButtons;
+	const key = textToFind.toUpperCase();
+	if (registry[key]) {
+		registry[key]();
+		return `Clicked button "${textToFind}" via registry`;
+	}
+	const keys = Object.keys(registry);
+	return `Error: Button "${textToFind}" not found in registry. Available: ${keys.join(', ')}`;
 }
