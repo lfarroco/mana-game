@@ -135,10 +135,26 @@ export const createCombatPlaybackController = (
 				}
 				break;
 			case "increase_power":
-				effects.onIncreasePower?.(log.sourceId, log.targetId, () => { });
+				const powerTarget = state.battleData.units.find(u => u.id === log.targetId);
+				if (powerTarget) {
+					effects.onIncreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
+						powerTarget.power += log.amount;
+						if (log.permanent) {
+							powerTarget.bonusPower += log.amount;
+						}
+					});
+				}
 				break;
 			case "decrease_power":
-				effects.onDecreasePower?.(log.sourceId, log.targetId, () => { });
+				const decreaseTarget = state.battleData.units.find(u => u.id === log.targetId);
+				if (decreaseTarget) {
+					effects.onDecreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
+						decreaseTarget.power -= log.amount;
+						if (log.permanent) {
+							decreaseTarget.bonusPower -= log.amount;
+						}
+					});
+				}
 				break;
 			case "increase_critical":
 				effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => { });

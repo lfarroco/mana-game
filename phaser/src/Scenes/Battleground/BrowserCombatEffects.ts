@@ -243,7 +243,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			});
 		},
 
-		onIncreasePower: (sourceId: string | undefined, targetId: string, onHit: () => void) => {
+		onIncreasePower: (sourceId: string | undefined, targetId: string, _amount: number, _permanent: boolean, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
 				PowerDisplay.updatePowerDisplay(targetId);
@@ -270,7 +270,7 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			});
 		},
 
-		onDecreasePower: (sourceId: string | undefined, targetId: string, onHit: () => void) => {
+		onDecreasePower: (sourceId: string | undefined, targetId: string, _amount: number, _permanent: boolean, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
 				PowerDisplay.updatePowerDisplay(targetId);

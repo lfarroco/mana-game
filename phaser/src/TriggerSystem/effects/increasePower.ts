@@ -20,7 +20,7 @@ export const increasePower = (
 
 	for (const target of targets) {
 		if (effects.onIncreasePower) {
-			effects.onIncreasePower(sourceUnit?.id, target.id, effect(target), delayedExecution);
+			effects.onIncreasePower(sourceUnit?.id, target.id, amount, permanent, effect(target), delayedExecution);
 		} else {
 			effect(target)();
 		}

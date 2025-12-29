@@ -48,8 +48,8 @@ const getShopEnvironment = (state: State): CombatEnvironment => {
 			updatePoisonDisplay: () => { },
 			onPowerUpdate: (unitId: string) => updatePowerDisplay(unitId),
 			// For shop, we might want to run the onHit callback immediately for other effects if they happen
-			onIncreasePower: (_s, _t, onHit) => onHit(),
-			onDecreasePower: (_s, _t, onHit) => onHit(),
+			onIncreasePower: (_s, _t, _amount, _permanent, onHit) => onHit(),
+			onDecreasePower: (_s, _t, _amount, _permanent, onHit) => onHit(),
 			onIncreaseCritical: (_s, _t, onHit) => onHit(),
 		},
 		processReactions
