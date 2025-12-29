@@ -32,17 +32,21 @@ describe('Slow Effect Tests', () => {
 	let env: any;
 	let sourceUnit: Unit;
 	let targetUnit: Unit;
+	let combatRunner: any;
 
 	beforeEach(() => {
 		state = createMockState();
 		effects = createServerCombatEffects(state);
-		const runner = runCombat(state, effects);
-		env = runner.getEnv();
+		combatRunner = runCombat(state, effects);
+		env = combatRunner.getEnv();
 
 		sourceUnit = state.battleData.units[0];
 		targetUnit = state.battleData.units[1];
 
 		targetUnit.slowed = 0;
+		targetUnit.charge = 0;
+		// set cooldown to something large so it doesn't fire naturally during test
+		targetUnit.cooldown = 100000;
 	});
 
 	it('should increase slow duration on target', async () => {
@@ -55,5 +59,40 @@ describe('Slow Effect Tests', () => {
 		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
 		expect(slowLog).toBeDefined();
 		expect(slowLog.effectDuration).toBe(duration);
+	});
+
+	it('should halve charge rate and expire after duration', async () => {
+		const duration = 100; // 100ms duration
+		const delta = 10; // 10ms per frame
+
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
+
+		// Advance 1 frame (10ms)
+		// With slow, charge rate is 0.5x. So charge should increase by 5.
+		combatRunner.updateFrame(state, 0, delta);
+
+		expect(targetUnit.charge).toBeCloseTo(5);
+		expect(targetUnit.slowed).toBe(duration - delta);
+
+		// Advance 9 more frames (total 10 frames = 100ms)
+		for (let i = 0; i < 9; i++) {
+			combatRunner.updateFrame(state, 0, delta);
+		}
+
+		// Duration expired
+		expect(targetUnit.slowed).toBe(0);
+
+		// Total charge: 10 frames * 5 = 50
+		expect(targetUnit.charge).toBeCloseTo(50);
+
+		// Next frame, slow is gone. Normal rate (1x).
+		// Charge should increase by 10.
+		combatRunner.updateFrame(state, 0, delta);
+		expect(targetUnit.charge).toBeCloseTo(60);
+
+		// Check for slow_end log
+		const slowEndLog = effects.logs.find((l: any) => l.type === 'slow_end');
+		expect(slowEndLog).toBeDefined();
+		expect(slowEndLog.unitId).toBe(targetUnit.id);
 	});
 });
