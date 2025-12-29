@@ -1,0 +1,227 @@
+
+import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
+import { createMockState } from '../test-utils/serverCombatUtils';
+import { createServerCombatEffects } from '../Scenes/Battleground/ServerCombatEffects';
+import { runCombat } from '../Scenes/Battleground/RunCombatCore';
+import { processEffectsIO } from './TriggerSystem';
+import { registerCollection } from '../Models/Entities/Card';
+import { BASE_COLLECTION_DATA } from '../Data/BaseCollection';
+import { Unit } from '../Models/Entities/Unit';
+
+jest.mock('../i18n/i18n', () => ({
+	t: (key: string) => key,
+	getName: (id: string) => id,
+	initialize: () => { },
+	setLocale: () => { },
+	getCurrentLocale: () => 'en',
+	getAvailableLocales: () => ['en'],
+	getNativeName: () => 'English'
+}));
+
+let globalState: any;
+jest.mock('../Models/State', () => ({
+	getState: () => globalState,
+	State: {}
+}));
+
+beforeAll(() => {
+	if (typeof global.structuredClone === 'undefined') {
+		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+	}
+	registerCollection(BASE_COLLECTION_DATA);
+});
+
+describe('Reaction System Tests', () => {
+	let state: any;
+	let effects: any;
+	let env: any;
+	let sourceUnit: Unit;
+	let chronomancer: Unit;
+	let enemyUnit: Unit;
+
+	beforeEach(() => {
+		state = createMockState();
+		globalState = state;
+		effects = createServerCombatEffects(state);
+		const runner = runCombat(state, effects);
+		env = runner.getEnv();
+
+		sourceUnit = state.battleData.units[0];
+		enemyUnit = state.battleData.units[1];
+
+		const { makeUnit } = require('../Models/Entities/Unit');
+		chronomancer = makeUnit(sourceUnit.force, 'chronomancer', { x: 2, y: 1 });
+		state.battleData.units.push(chronomancer);
+	});
+
+	describe('Haste Reactions', () => {
+		it('should trigger chronomancer reaction when ally receives haste', async () => {
+			const initialPower = chronomancer.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{
+				id: 'haste',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			const hasteLog = effects.logs.find((l: any) => l.type === 'haste');
+			expect(hasteLog).toBeDefined();
+
+			const powerIncreaseLog = effects.logs.find(
+				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id && l.delayed === 200
+			);
+			expect(powerIncreaseLog).toBeDefined();
+			expect(chronomancer.power).toBe(initialPower + 7);
+		});
+
+		it('should not trigger chronomancer reaction when enemy receives haste', async () => {
+			const initialPower = chronomancer.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, enemyUnit, [{
+				id: 'haste',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			const powerIncreaseLog = effects.logs.find(
+				(l: any) => l.type === 'increase_power' && l.sourceId === chronomancer.id
+			);
+			expect(powerIncreaseLog).toBeUndefined();
+			expect(chronomancer.power).toBe(initialPower);
+		});
+
+		it('should trigger reaction for row_allies position with chaos_knight', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const chaosKnight = makeUnit(sourceUnit.force, 'chaos_knight', { x: 3, y: 1 });
+			chaosKnight.position.y = sourceUnit.position.y;
+			state.battleData.units.push(chaosKnight);
+
+			const initialCharge = chaosKnight.charge || 0;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{
+				id: 'slow',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			expect(chaosKnight.charge).toBeGreaterThan(initialCharge);
+		});
+
+		it('should not trigger row_allies reaction when not in same row', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const chaosKnight = makeUnit(sourceUnit.force, 'chaos_knight', { x: 3, y: 2 });
+			chaosKnight.position.y = sourceUnit.position.y + 1;
+			state.battleData.units.push(chaosKnight);
+
+			const initialCharge = chaosKnight.charge || 0;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{
+				id: 'slow',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			expect(chaosKnight.charge).toBe(initialCharge);
+		});
+	});
+
+	describe('Damage Reactions', () => {
+		it('should trigger arbiter reaction when enemy deals damage', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const arbiter = makeUnit(sourceUnit.force, 'arbiter', { x: 3, y: 1 });
+			state.battleData.units.push(arbiter);
+
+			const initialPower = arbiter.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, enemyUnit, [{ id: 'damage' }], false);
+
+			const powerIncreaseLog = effects.logs.find(
+				(l: any) => l.type === 'increase_power' && l.sourceId === arbiter.id && l.delayed === 200
+			);
+			expect(powerIncreaseLog).toBeDefined();
+			expect(arbiter.power).toBe(initialPower + 2);
+		});
+	});
+
+	describe('Shield Reactions', () => {
+		it('should trigger glass_cannon reaction when ally receives shield', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const glassCannon = makeUnit(sourceUnit.force, 'glass_cannon', { x: 3, y: 1 });
+			state.battleData.units.push(glassCannon);
+
+			const initialPower = glassCannon.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{ id: 'shield' }], false);
+
+			const powerIncreaseLog = effects.logs.find(
+				(l: any) => l.type === 'increase_power' && l.sourceId === glassCannon.id && l.delayed === 200
+			);
+			expect(powerIncreaseLog).toBeDefined();
+			expect(glassCannon.power).toBe(initialPower + 5);
+		});
+	});
+
+	describe('All Effect Reactions', () => {
+		it('should trigger harmony_monk reaction on any basic ability', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const harmonyMonk = makeUnit(sourceUnit.force, 'harmony_monk', { x: 2, y: sourceUnit.position.y });
+			state.battleData.units.push(harmonyMonk);
+
+			const initialChronoPower = chronomancer.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{ id: 'damage' }], false);
+			expect(chronomancer.power).toBe(initialChronoPower + 4);
+
+			processEffectsIO(env, sourceUnit, [{ id: 'shield' }], false);
+			expect(chronomancer.power).toBe(initialChronoPower + 8);
+
+			processEffectsIO(env, sourceUnit, [{ id: 'heal' }], false);
+			expect(chronomancer.power).toBe(initialChronoPower + 12);
+		});
+
+		it('should not trigger "all" reaction on non-basic abilities', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const harmonyMonk = makeUnit(sourceUnit.force, 'harmony_monk', { x: 2, y: sourceUnit.position.y });
+			state.battleData.units.push(harmonyMonk);
+
+			const initialChronoPower = chronomancer.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{
+				id: 'charge',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			expect(chronomancer.power).toBe(initialChronoPower);
+		});
+	});
+
+	describe('Multiple Reactions', () => {
+		it('should trigger multiple reactions from different units', async () => {
+			const { makeUnit } = require('../Models/Entities/Unit');
+			const eternalPhoenix = makeUnit(sourceUnit.force, 'eternal_phoenix', { x: 3, y: 1 });
+			state.battleData.units.push(eternalPhoenix);
+
+			const initialChronoPower = chronomancer.power;
+			const initialPhoenixPower = eternalPhoenix.power;
+			effects.logs.length = 0;
+
+			processEffectsIO(env, sourceUnit, [{
+				id: 'haste',
+				duration: 1000,
+				targets: { id: 'self' }
+			}], false);
+
+			expect(chronomancer.power).toBe(initialChronoPower + 7 + 5);
+			expect(eternalPhoenix.power).toBe(initialPhoenixPower);
+		});
+	});
+});

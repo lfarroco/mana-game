@@ -117,13 +117,13 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 			onHit();
 		},
 
-		onIncreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void, delayedExecution?: number) => {
-			logs.push({ type: "increase_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
+		onIncreasePower: (_sourceId: string | undefined, _targetId: string, _amount: number, _permanent: boolean, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "increase_power", sourceId: _sourceId, targetId: _targetId, amount: _amount, permanent: _permanent, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 
-		onDecreasePower: (_sourceId: string | undefined, _targetId: string, onHit: () => void, delayedExecution?: number) => {
-			logs.push({ type: "decrease_power", sourceId: _sourceId, targetId: _targetId, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
+		onDecreasePower: (_sourceId: string | undefined, _targetId: string, _amount: number, _permanent: boolean, onHit: () => void, delayedExecution?: number) => {
+			logs.push({ type: "decrease_power", sourceId: _sourceId, targetId: _targetId, amount: _amount, permanent: _permanent, duration: DEFAULT_PROJECTILE_DURATION, frame: currentFrame, delayed: delayedExecution });
 			onHit();
 		},
 

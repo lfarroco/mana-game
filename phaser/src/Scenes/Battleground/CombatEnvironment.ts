@@ -27,8 +27,8 @@ export type CombatEffects = {
 	onHaste?: (sourceId: string, targetId: string, duration: number, onHit: () => void, delayedExecution?: number) => void;
 	onSlow?: (sourceId: string, targetId: string, duration: number, onHit: () => void, delayedExecution?: number) => void;
 	onCharge?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
-	onIncreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void, delayedExecution?: number) => void;
-	onDecreasePower?: (sourceId: string | undefined, targetId: string, onHit: () => void, delayedExecution?: number) => void;
+	onIncreasePower?: (sourceId: string | undefined, targetId: string, amount: number, permanent: boolean, onHit: () => void, delayedExecution?: number) => void;
+	onDecreasePower?: (sourceId: string | undefined, targetId: string, amount: number, permanent: boolean, onHit: () => void, delayedExecution?: number) => void;
 	onIncreaseCritical?: (sourceId: string | undefined, targetId: string, onHit: () => void, delayedExecution?: number) => void;
 	onPowerUpdate?: (unitId: string) => void;
 	onTimeoutDamageVisual?: (targetForceId: string, damage: number, onHit: () => void) => void;
