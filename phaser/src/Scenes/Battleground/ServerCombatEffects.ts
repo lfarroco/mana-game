@@ -51,19 +51,20 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 			return null;
 		},
 
-		updateLifeDisplay: (force: string, life: number, _delta: number, _state?: any) => {
-			if (life <= 0) {
-				logs.push({ type: "crystal_life", force, life, frame: currentFrame });
-			}
+		updateLifeDisplay: (force: string, life: number, delta: number, _state?: any) => {
+			logs.push({ type: "life_display", force, life, delta, frame: currentFrame, duration: 0 });
 		},
 
-		updateShieldDisplay: (_force: string, _shield: number, _delta: number, _state?: any) => {
+		updateShieldDisplay: (force: string, shield: number, delta: number, _state?: any) => {
+			logs.push({ type: "shield_display", force, shield, delta, frame: currentFrame, duration: 0 });
 		},
 
-		updateRegenDisplay: (_force: string, _regen: number, _delta: number) => {
+		updateRegenDisplay: (force: string, regen: number, delta: number) => {
+			logs.push({ type: "regen_display", force, regen, delta, frame: currentFrame, duration: 0 });
 		},
 
-		updatePoisonDisplay: (_force: string, _poison: number, _delta: number) => {
+		updatePoisonDisplay: (force: string, poison: number, delta: number) => {
+			logs.push({ type: "poison_display", force, poison, delta, frame: currentFrame, duration: 0 });
 		},
 
 		initBlackHole: () => {
