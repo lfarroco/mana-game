@@ -22,6 +22,9 @@ type PlaybackState = {
 	combatStates: CombatSystemStates.CombatSystemStates;
 };
 
+// Must match ServerConstants.MIN_COOLDOWN
+const MIN_COOLDOWN = 200;
+
 export const createCombatPlaybackController = (
 	state: State,
 	logs: CombatLogEntry[],
@@ -190,13 +193,13 @@ export const createCombatPlaybackController = (
 
 	const updateChargeBars = (delta: number) => {
 		for (const unit of state.battleData.units) {
-			const cooldownMultiplier = unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
+			const cooldownMultiplier = (unit.hasted > 0 && unit.slowed > 0) ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 			const chargeRate = 1 / cooldownMultiplier;
 			unit.charge += delta * chargeRate;
 
 			if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 				unit.charge = unit.charge - unit.cooldown;
-				unit.refresh = 16.67;
+				unit.refresh = MIN_COOLDOWN;
 			}
 
 			unit.refresh = Math.max(0, unit.refresh - delta);
