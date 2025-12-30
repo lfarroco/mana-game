@@ -63,6 +63,15 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 		},
 
 		onCombatEnd: async (_state: State, outcome: WaveOutcome, _combatStates: CombatSystemStates) => {
+			if (_combatStates && _combatStates.combatStatsTrackerState) {
+				const { unitStats, currentCombatStats } = _combatStates.combatStatsTrackerState;
+				logs.push({
+					type: "combat_stats",
+					unitStats: Array.from(unitStats.entries()),
+					currentCombatStats: Array.from(currentCombatStats.entries()),
+					frame: currentFrame
+				});
+			}
 			logs.push({ type: "outcome", result: outcome, frame: currentFrame });
 		},
 
