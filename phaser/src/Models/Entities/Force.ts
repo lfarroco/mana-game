@@ -149,7 +149,7 @@ export const applyDamageToForce = (
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, false, effects, forceStatsState);
+		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, true, effects, forceStatsState);
 		remainingDamage -= shieldAbsorbed;
 	}
 
