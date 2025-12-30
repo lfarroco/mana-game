@@ -41,6 +41,8 @@ export const createCombatPlaybackController = (
 		forceStatsState,
 	};
 
+	CombatSystemStates.setCombatSystemStates(combatStates);
+
 	const playbackState: PlaybackState = {
 		active: true,
 		currentTime: 0,
@@ -185,6 +187,12 @@ export const createCombatPlaybackController = (
 				break;
 			case "unit_pop":
 				effects.onUnitPop(log.unitId);
+				break;
+			case "combat_stats":
+				if (playbackState.combatStates.combatStatsTrackerState) {
+					playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);
+					playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(log.currentCombatStats);
+				}
 				break;
 		}
 
