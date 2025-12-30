@@ -83,28 +83,12 @@ export const createCombatPlaybackController = (
 				effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => { });
 				break;
 			case "shield":
-				const shieldTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (shieldTarget) {
-					effects.updateShieldDisplay(shieldTarget.force, shieldTarget.shield + log.amount, log.amount, playbackState.combatStates.forceStatsState);
-				}
 				effects.onShield?.(log.sourceId, log.targetId, log.amount, () => { });
 				break;
 			case "poison":
-				const poisonTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (poisonTarget) {
-					const poisonSystem = require("./Systems/PoisonDamageSystem");
-					const newPoisonRate = poisonSystem.getPoisonRate(playbackState.combatStates.poisonSystemState, poisonTarget.force);
-					effects.updatePoisonDisplay(poisonTarget.force, newPoisonRate, log.amount);
-				}
 				effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => { });
 				break;
 			case "regen":
-				const regenTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (regenTarget) {
-					const regenSystem = require("./Systems/RegenSystem");
-					const newRegenRate = regenSystem.getRegenRate(playbackState.combatStates.regenSystemState, regenTarget.force);
-					effects.updateRegenDisplay(regenTarget.force, newRegenRate, log.amount);
-				}
 				effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => { });
 				break;
 			case "haste":
