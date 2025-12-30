@@ -62,6 +62,8 @@ describe('Heal Effect Tests', () => {
 
 		await restoreLife(env, sourceUnit);
 
+		effects.setFrame(30);
+
 		const healLog = effects.logs.find((l: any) => l.type === 'heal');
 		expect(healLog).toBeDefined();
 		expect(healLog.amount).toBe(30);
@@ -74,6 +76,8 @@ describe('Heal Effect Tests', () => {
 		sourceUnit.power = 20;
 
 		await restoreLife(env, sourceUnit);
+
+		effects.setFrame(30);
 
 		expect(sourceUnit.life).toBe(100);
 	});

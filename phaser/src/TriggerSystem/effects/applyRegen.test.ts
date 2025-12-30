@@ -48,6 +48,8 @@ describe('Regen Effect Tests', () => {
 
 		applyRegenLogicIO(env, sourceUnit);
 
+		effects.setFrame(30);
+
 		const regenRate = env.combatStates.regenSystemState.regenRates.get(sourceUnit.force);
 		expect(regenRate).toBeCloseTo(0.7);
 

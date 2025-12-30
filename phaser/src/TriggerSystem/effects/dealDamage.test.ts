@@ -64,6 +64,8 @@ describe('Damage Effect Tests', () => {
 
 		dealDamageLogicIO(env, sourceUnit);
 
+		effects.setFrame(30);
+
 		const core = state.battleData.units.find((u: Unit) => u.force === targetUnit.force && u.isCore);
 		const damageLog = effects.logs.find((l: any) => l.type === 'damage');
 
@@ -78,6 +80,7 @@ describe('Damage Effect Tests', () => {
 		const initialLife = targetUnit.life;
 
 		dealDamageLogicIO(env, sourceUnit);
+		effects.setFrame(30);
 
 		expect(targetUnit.shield).toBe(0);
 		expect(targetUnit.life).toBe(initialLife - 5);
