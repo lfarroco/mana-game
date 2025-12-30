@@ -54,6 +54,8 @@ describe('Slow Effect Tests', () => {
 
 		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
 
+		effects.setFrame(30);
+
 		expect(targetUnit.slowed).toBe(duration);
 
 		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
@@ -66,6 +68,8 @@ describe('Slow Effect Tests', () => {
 		const delta = 10; // 10ms per frame
 
 		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
+
+		effects.setFrame(30);
 
 		// Advance 1 frame (10ms)
 		// With slow, charge rate is 0.5x. So charge should increase by 5.

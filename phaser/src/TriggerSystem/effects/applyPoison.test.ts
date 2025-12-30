@@ -50,6 +50,8 @@ describe('Poison Effect Tests', () => {
 
 		applyPoisonLogicIO(env, sourceUnit);
 
+		effects.setFrame(30);
+
 		const poisonRate = env.combatStates.poisonSystemState.poisonRates.get(targetUnit.force);
 		expect(poisonRate).toBeCloseTo(0.5);
 
@@ -62,6 +64,7 @@ describe('Poison Effect Tests', () => {
 		sourceUnit.power = 5;
 		applyPoisonLogicIO(env, sourceUnit);
 		applyPoisonLogicIO(env, sourceUnit);
+		effects.setFrame(30);
 
 		const poisonRate = env.combatStates.poisonSystemState.poisonRates.get(targetUnit.force);
 		expect(poisonRate).toBeCloseTo(1.0);

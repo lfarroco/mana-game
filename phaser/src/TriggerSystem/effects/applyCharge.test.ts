@@ -48,6 +48,8 @@ describe('Charge Effect Tests', () => {
 
 		applyChargeLogicIO(env, sourceUnit, [sourceUnit], amount);
 
+		effects.setFrame(30);
+
 		expect(sourceUnit.charge).toBe(20);
 
 		const chargeLog = effects.logs.find((l: any) => l.type === 'charge');

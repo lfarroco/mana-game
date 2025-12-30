@@ -50,6 +50,8 @@ describe('Shield Effect Tests', () => {
 
 		await addShieldLogicIO(env, sourceUnit);
 
+		effects.setFrame(30);
+
 		const shieldLog = effects.logs.find((l: any) => l.type === 'shield');
 
 		expect(shieldLog).toBeDefined();
