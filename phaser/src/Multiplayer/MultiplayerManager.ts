@@ -50,10 +50,21 @@ export class MultiplayerManager {
 
 	public async sendOptionSelection(optionId: string, payload?: any): Promise<boolean> {
 		console.log(`Sending selection ${optionId} to server...`, payload);
+		const body = { playerId: this.playerId, actionId: optionId, ...((payload) || {}) };
 		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId, actionId: optionId, payload })
+			body: JSON.stringify(body)
+		});
+		return response.ok;
+	}
+
+	public async sendTeamUpdate(team: any): Promise<boolean> {
+		console.log("Sending team update to server...", team);
+		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ playerId: this.playerId, actionId: 'update_team', team })
 		});
 		return response.ok;
 	}
