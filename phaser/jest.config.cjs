@@ -31,6 +31,7 @@ module.exports = {
 		"^TriggerSystem/(.*)$": "<rootDir>/src/TriggerSystem/$1",
 		"^@i18n/(.*)\\.js$": "<rootDir>/src/i18n/$1",
 		"^@i18n/(.*)$": "<rootDir>/src/i18n/$1",
+		"^utils$": "<rootDir>/src/utils.ts",
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",
 	},
