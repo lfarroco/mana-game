@@ -3,6 +3,7 @@ import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
 import { newRunButton } from "./components/newRunButton";
+import { arenaButton } from "./components/arenaButton";
 import { startGame } from "../../Game/effects/startGame";
 import { cloudsBg } from "./components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "./components/optionsButton";
@@ -40,9 +41,10 @@ export default class TitleScene extends Phaser.Scene {
 		const buttons = [
 			resumeGameButton(500),
 			newRunButton(600),
-			optionsButton(700),
-			collectionButton(800),
-			linksButton(900),
+			arenaButton(700),
+			optionsButton(800),
+			collectionButton(900),
+			linksButton(1000),
 			languageButton()
 		];
 

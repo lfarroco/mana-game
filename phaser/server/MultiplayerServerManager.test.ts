@@ -4,68 +4,70 @@ describe('MultiplayerServerManager', () => {
 	let manager: MultiplayerServerManager;
 
 	beforeEach(() => {
-		// Reset singleton instance by accessing logical property if possible, 
-		// or just accept we are testing a singleton. 
-		// JavaScript private/static persistence makes resetting singletons hard without explicit support.
-		// For this test, we'll just get the instance and treat it as stateful, or create a method to reset it if needed.
-		// Since we can't easily reset a private static instance without adding code to the class,
-		// we will assume fresh state for new IDs.
 		manager = MultiplayerServerManager.getInstance();
 	});
 
-	it('should create a session for a new player', () => {
+	it('should create a session for a new player', async () => {
 		const playerId = 'test_player_1';
-		const session = manager.createSession(playerId);
+		const session = await manager.createSession(playerId);
 
 		expect(session).toBeDefined();
-		expect(session.id).toBe(playerId);
+		expect(session.player_id).toBe(playerId);
 		expect(session.phase).toBe('encounter'); // Default start phase
 		expect(session.round).toBe(1);
 	});
 
-	it('should retrieve an existing session', () => {
+	it('should retrieve an existing session', async () => {
 		const playerId = 'test_player_2';
-		manager.createSession(playerId);
-		const session = manager.getSession(playerId);
+		await manager.createSession(playerId);
+		const session = await manager.getSession(playerId);
 
 		expect(session).toBeDefined();
-		expect(session?.id).toBe(playerId);
+		expect(session?.player_id).toBe(playerId);
 	});
 
-	it('should return undefined for non-existent session', () => {
-		const session = manager.getSession('non_existent_player');
+	it('should return undefined for non-existent session', async () => {
+		const session = await manager.getSession('non_existent_player');
 		expect(session).toBeUndefined();
 	});
 
-	it('should get phase options for a session', () => {
+	it('should get phase options for a session', async () => {
 		const playerId = 'test_player_3';
-		manager.createSession(playerId);
+		await manager.createSession(playerId);
 
-		const options = manager.getPhaseOptions(playerId);
+		const options = await manager.getPhaseOptions(playerId);
 
 		expect(options.phase).toBe('encounter');
 		expect(options.options.length).toBeGreaterThan(0);
 		expect(options.options[0]).toHaveProperty('id');
 	});
 
-	it('should advance phase on action', () => {
+	it('should advance phase on action', async () => {
 		const playerId = 'test_player_4';
-		manager.createSession(playerId);
+		await manager.createSession(playerId);
 
-		// Initial: encounter
-		// Advance to Shop
-		const result = manager.handleAction(playerId, 'upgrade_unit');
+		// Initial: encounter -> Shop (step 1 -> 2)
+		const result = await manager.handleAction(playerId, 'upgrade_unit');
 		expect(result).toBe(true);
 
-		const session = manager.getSession(playerId);
+		let session = await manager.getSession(playerId);
 		expect(session?.phase).toBe('shop');
+		expect(session?.step).toBe(2);
 
-		// Shop -> Combat
-		manager.handleAction(playerId, 'card:archer');
+		// Shop -> Encounter (Step 3)
+		await manager.handleAction(playerId, 'card:archer');
+		session = await manager.getSession(playerId);
+		expect(session?.phase).toBe('encounter');
+		expect(session?.step).toBe(3);
+
+		// Encounter -> Combat
+		await manager.handleAction(playerId, 'combat_result');
+		session = await manager.getSession(playerId);
 		expect(session?.phase).toBe('combat');
 
 		// Combat -> Encounter (Next Round)
-		manager.handleAction(playerId, 'combat_result');
+		await manager.handleAction(playerId, 'combat_result');
+		session = await manager.getSession(playerId);
 		expect(session?.phase).toBe('encounter');
 		expect(session?.round).toBe(2);
 	});

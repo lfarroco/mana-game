@@ -48,12 +48,12 @@ export class MultiplayerManager {
 		return await response.json();
 	}
 
-	public async sendOptionSelection(optionId: string): Promise<boolean> {
-		console.log(`Sending selection ${optionId} to server...`);
+	public async sendOptionSelection(optionId: string, payload?: any): Promise<boolean> {
+		console.log(`Sending selection ${optionId} to server...`, payload);
 		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId, actionId: optionId })
+			body: JSON.stringify({ playerId: this.playerId, actionId: optionId, payload })
 		});
 		return response.ok;
 	}
