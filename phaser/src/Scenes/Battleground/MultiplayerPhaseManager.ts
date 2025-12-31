@@ -78,15 +78,23 @@ export async function handleMultiplayerPhase(state: State) {
 	async function handleMultiplayerCombat(state: State, combatState: any) {
 		console.log("Initializing Multiplayer Combat:", combatState);
 
+
 		// 1. Setup Units
-		const playerUnits = state.gameData.player.units;
-		const enemyUnits = combatState.enemyTeam;
+		// Prioritize using the full unit list from server if available (to capture injected Cores)
+		let allUnits = [];
+		if (combatState.units) {
+			console.log("Using server-provided full unit list.");
+			allUnits = combatState.units;
+		} else {
+			console.warn("Server did not provide full unit list. Falling back to local player units + enemy team.");
+			const playerUnits = state.gameData.player.units;
+			const enemyUnits = combatState.enemyTeam;
+			// Ensure force IDs (just in case)
+			playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
+			allUnits = [...playerUnits, ...enemyUnits];
+		}
 
-		// Ensure force IDs (just in case)
-		playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
-		// enemyUnits should have FORCE_ID_CPU from server
-
-		state.battleData.units = [...playerUnits, ...enemyUnits];
+		state.battleData.units = allUnits;
 
 		// 2. Refresh Visuals
 		clearAll();

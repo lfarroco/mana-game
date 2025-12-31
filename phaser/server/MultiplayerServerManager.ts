@@ -17,7 +17,7 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../src/Scenes/Battleground/Server
 import { makeForce } from "../src/Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "../src/Data/BaseCollection";
 import { State } from "../src/Models/State";
-import { Unit } from "../src/Models/Entities/Unit";
+import { Unit, makeUnit } from "../src/Models/Entities/Unit";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
@@ -179,13 +179,19 @@ export class MultiplayerServerManager {
 				break;
 
 			case "combat":
+				console.log("[getPhaseOptions] Generating Combat...");
 				// Generate Combat Data
 				// 1. Create State
 				const combatState = this.createCombatState(session);
+				console.log(`[getPhaseOptions] State created. Units: ${combatState.battleData.units?.length}`);
+
 				// 2. Create Effects
 				const effects = createServerCombatEffects(combatState);
+				console.log("[getPhaseOptions] Effects created.");
+
 				// 3. Run Simulation
 				const combatRunner = runCombat(combatState, effects);
+				console.log("[getPhaseOptions] Runner started.");
 
 				// Run until finish
 				const SIM_DELTA = 16.67;
@@ -196,16 +202,24 @@ export class MultiplayerServerManager {
 					combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
 					frame++;
 				}
+				console.log(`[getPhaseOptions] Simulation finished after ${frame} frames.`);
 
 				newOptions = [{ id: 'combat_done', label: "Continue" }];
 
 				// Encode Combat State for Client
+				console.log("[getPhaseOptions] Constructing response...");
+				if (!combatState.battleData) console.error("[getPhaseOptions] ERROR: battleData is missing!");
+				if (!combatState.battleData.units) console.error("[getPhaseOptions] ERROR: battleData.units is missing!");
+
 				response.options = newOptions;
 				response.combatState = {
+					// Send all units (Player + CPU) so client uses the exact IDs (including injected Core)
+					units: combatState.battleData.units,
 					enemyTeam: combatState.battleData.units.filter(u => u.force === FORCE_ID_CPU),
 					logs: effects.logs,
 					seed: session.seed
 				};
+				console.log("[getPhaseOptions] Response constructed.");
 				break;
 
 			case "victory":
@@ -379,11 +393,30 @@ export class MultiplayerServerManager {
 	}
 
 	private createCombatState(session: PlayerSession): State {
+		// print session team debug info
+		console.log(`[createCombatState] Session Team Raw:`, JSON.stringify(session.team));
+
 		// parsing the team
 		let playerUnits: Unit[] = [];
 		if (session.team && (session.team as any).units) {
 			playerUnits = (session.team as any).units;
+			// Hydrate units to ensure they have necessary arrays (prevent crash on partial data)
+			playerUnits.forEach(u => {
+				u.effects = u.effects || [];
+				u.reactions = u.reactions || [];
+			});
 		}
+
+		// Ensure Player has a Core unit
+		const hasCore = playerUnits.some(u => u.isCore);
+		if (!hasCore) {
+			console.log("[createCombatState] Player missing Core. Adding default Protective Crystal.");
+			// Default to protective_crystal at 0,1 (middle left)
+			const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", { x: 0, y: 1 });
+			playerUnits.push(coreUnit);
+		}
+
+		console.log(`[createCombatState] Parsed Player Units Count: ${playerUnits.length}`);
 
 		// Mock State
 		const state: any = {

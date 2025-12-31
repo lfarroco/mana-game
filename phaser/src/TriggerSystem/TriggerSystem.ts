@@ -1,7 +1,7 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as effects from "./effects";
 import { pickRandom } from "../utils";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
@@ -377,7 +377,7 @@ export function processReactions(env: CombatEnvironment, triggeringUnit: Unit, e
 
 			reactions.forEach((r) => {
 				// check if still in combat
-				if (getState().battleData.units.length === 0) {
+				if (env.state.battleData.units.length === 0) {
 					return;
 				}
 
