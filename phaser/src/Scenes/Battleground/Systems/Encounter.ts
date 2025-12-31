@@ -10,6 +10,7 @@ import { openOrbShop } from "./Shop/OrbShop";
 import { getState, State } from "@Models/State";
 import { CardDefinition } from "@Models/Entities/Card";
 import { createEncounterCard } from "@Scenes/Battleground/Systems/Components/EncounterCard";
+import { MultiplayerManager } from "../../../Multiplayer/MultiplayerManager";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -70,7 +71,7 @@ export async function chooseEncounter(index: number) {
 	return `Invalid encounter index: ${index}. Available: ${currentEncounters.length}`;
 }
 
-const encounterIndex = (state: State, container: Phaser.GameObjects.Container): EncounterItem[] => [
+export const getEncounterItems = (state: State, container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: t("encounters.upgrade_unit.name"),
 		pic: "ui/upgrade_unit",
@@ -217,28 +218,50 @@ function orbShopCallback(state: State, container: Phaser.GameObjects.Container, 
 	};
 }
 
-export async function open(state: State) {
+export async function open(state: State, options?: string[]) {
 	const container = io.Container();
 
-	const index = encounterIndex(state, container).filter(e => {
-		const recentIds = state.gameData.recentEncounterIds || [];
+	let encounters: EncounterItem[] = [];
 
-		if (e.id && recentIds.includes(e.id)) {
-			return false;
+	if (options) {
+		const all = getEncounterItems(state, container);
+		encounters = options.map(id => all.find(e => e.id === id)).filter(e => !!e) as EncounterItem[];
+
+		if (MultiplayerManager.getInstance().isMultiplayer) {
+			encounters.forEach(e => {
+				// Override onClick to send selection to server
+				e.onClick = async () => {
+					await MultiplayerManager.getInstance().sendOptionSelection(e.id || "");
+					container.destroy(true);
+					// Wait for server? For now assume server will trigger next phase or we just wait.
+					// But we should probably clear the UI.
+					// We relying on PhaseManager knowing what to do.
+					PhaseManager.handlePhaseEnded(state);
+				};
+			});
 		}
+	} else {
+		const index = getEncounterItems(state, container).filter(e => {
+			const recentIds = state.gameData.recentEncounterIds || [];
 
-		if (e.minRound) {
-			return e.minRound <= state.gameData.round;
-		}
+			if (e.id && recentIds.includes(e.id)) {
+				return false;
+			}
 
-		if (e.maxRound) {
-			return e.maxRound >= state.gameData.round;
-		}
+			if (e.minRound) {
+				return e.minRound <= state.gameData.round;
+			}
 
-		return true;
-	});
+			if (e.maxRound) {
+				return e.maxRound >= state.gameData.round;
+			}
 
-	const encounters = pickRandom(index, 3)
+			return true;
+		});
+
+		encounters = pickRandom(index, 3)
+	}
+
 	currentEncounters = encounters;
 
 	const nextRoundCallback = async () => {
@@ -278,12 +301,14 @@ export async function open(state: State) {
 
 	});
 
-	const btn = createUIButton(t("encounters.skip"),
-		vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
-		nextRoundCallback
-	);
+	if (!MultiplayerManager.getInstance().isMultiplayer) {
+		const btn = createUIButton(t("encounters.skip"),
+			vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
+			nextRoundCallback
+		);
 
-	container.add(btn.container);
+		container.add(btn.container);
+	}
 
 }
 

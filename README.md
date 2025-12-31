@@ -33,6 +33,7 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Localization System](docs/localization.md)** - Architecture, usage, and guide for adding new languages
 - **[Achievement System](docs/achievement-system.md)** - Overview of Steam achievement integration, victory tiers, and calculation logic
 - **[Combat Architecture](docs/combat-architecture.md)** - Documentation of the client-server separation for combat simulation.
+- **[Multiplayer Architecture](docs/multiplayer-architecture.md)** - Documentation of the multiplayer mode and server-driven phase management.
 
 ## Documentation Roadmap
 

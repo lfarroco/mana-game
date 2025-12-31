@@ -8,6 +8,7 @@ import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 import { t } from "@i18n/i18n";
+import { MultiplayerManager } from "../../../../Multiplayer/MultiplayerManager";
 
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
@@ -68,6 +69,13 @@ function renderUpgradeCards(
 			description: encounterSpec.tooltip,
 			onClick: async () => {
 				console.log(`Selected upgrade: ${encounterSpec.name}`);
+
+				if (MultiplayerManager.getInstance().isMultiplayer) {
+					await MultiplayerManager.getInstance().sendOptionSelection(encounterId);
+					playSoundEffect('sfx_spell_deathstrikeseal');
+					await onUpgradeSelected();
+					return;
+				}
 
 				const applied = encounterSpec.effect(coreUnit);
 				if (applied) {

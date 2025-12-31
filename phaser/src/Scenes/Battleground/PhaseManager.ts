@@ -13,6 +13,8 @@ import { saveGameData } from "../../Game/effects/saveGameData";
 import { pickRandom } from "utils";
 import { cloudsBackground } from "./Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
+import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
 
 export const loopPhases: string[] = [
 	"encounter",
@@ -64,6 +66,11 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 }
 
 export async function startPhase(state: State, phase: string) {
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		await handleMultiplayerPhase(state);
+		return;
+	}
+
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
