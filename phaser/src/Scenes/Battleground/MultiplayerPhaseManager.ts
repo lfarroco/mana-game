@@ -3,6 +3,7 @@ import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 import * as Encounter from "./Systems/Encounter";
 import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
+import { showMatchResult } from "./Systems/MatchResultSystem";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -39,6 +40,14 @@ export async function handleMultiplayerPhase(state: State) {
 		case "add_reaction_core":
 			const reactionIds = result.options.map(o => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
+			break;
+
+		case "victory":
+			await showMatchResult(true);
+			break;
+
+		case "game_over":
+			await showMatchResult(false);
 			break;
 
 		default:

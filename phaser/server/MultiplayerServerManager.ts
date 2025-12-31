@@ -27,6 +27,8 @@ interface PlayerSession {
 	initial_seed: string;
 	action_log: any[];
 	current_options?: any[];
+	wins: number;
+	losses: number;
 }
 
 export class MultiplayerServerManager {
@@ -48,10 +50,10 @@ export class MultiplayerServerManager {
 
 		// Upsert session
 		const query = `
-            INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log)
-            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb)
+            INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log, wins, losses)
+            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0)
             ON CONFLICT (player_id) 
-            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, updated_at = now()
+            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, updated_at = now()
             RETURNING *;
         `;
 		const res = await pool.query(query, [playerId, seed]);
@@ -114,6 +116,16 @@ export class MultiplayerServerManager {
 				response.options = newOptions;
 				break;
 
+			case "victory":
+				newOptions = [{ id: "menu:main_menu", label: "Victory! Return to Menu" }];
+				response.options = newOptions;
+				break;
+
+			case "game_over":
+				newOptions = [{ id: "menu:main_menu", label: "Defeat. Return to Menu" }];
+				response.options = newOptions;
+				break;
+
 			default:
 				break;
 		}
@@ -148,8 +160,17 @@ export class MultiplayerServerManager {
 
 		if (session.phase === "combat") {
 			// End of combat, advancing to next round
+			// We need to determine if we won or lost the combat.
+			// Ideally this comes from the verify/simulate combat logic.
+			// For now, we will assume a mock WIN if actionId contains 'win' or 50/50 if not specified
+			// In reality, actionId here is the "combat_result" generic action, payload might have details?
+			// But for strict server auth, we should simulate.
+
+			// MOCK COMBAT RESULT:
+			const wonCombat = Math.random() > 0.5; // TODO: Replace with actual simulation
+
 			const newSeed = this.generateNextSeed(session.seed, actionId);
-			await this.advancePhase(session, newSeed);
+			await this.advancePhase(session, newSeed, wonCombat);
 			return true;
 		}
 
@@ -206,11 +227,21 @@ export class MultiplayerServerManager {
 		console.log(`Saved ghost for ${playerId} Round ${round}`);
 	}
 
-	private async advancePhase(session: PlayerSession, nextSeed: string) {
-		// From Combat -> Encounter (Next Round)
+	private async advancePhase(session: PlayerSession, nextSeed: string, wonLastCombat: boolean) {
+		let wins = session.wins;
+		let losses = session.losses;
+
+		if (wonLastCombat) wins++; else losses++;
+
+		let nextPhase = 'encounter';
+		if (wins >= 10) nextPhase = 'victory';
+		if (losses >= 4) nextPhase = 'game_over';
+
 		const nextRound = session.round + 1;
-		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, current_options = null, updated_at = now() WHERE id = $4',
-			['encounter', nextRound, nextSeed, session.id]);
-		console.log(`Session ${session.player_id} advanced to Round ${nextRound} with seed ${nextSeed}`);
+
+		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, wins = $4, losses = $5, current_options = null, updated_at = now() WHERE id = $6',
+			[nextPhase, nextRound, nextSeed, wins, losses, session.id]);
+
+		console.log(`Session ${session.player_id} advanced. Wins: ${wins}, Losses: ${losses}. Next Phase: ${nextPhase}`);
 	}
 }
