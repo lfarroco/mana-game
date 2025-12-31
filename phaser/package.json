@@ -25,6 +25,7 @@
         "electron:build:demo:linux": "IS_DEMO=true npm run build && IS_DEMO=true electron-builder --linux",
         "test": "jest",
         "test:unit": "jest --testPathIgnorePatterns=e2e",
+        "test:server": "./scripts/test-server-integration.sh",
         "test:e2e": "playwright test",
         "test:e2e:game-flow": "playwright test e2e/game_flow.spec.ts",
         "test:e2e:ui": "playwright test --ui",
@@ -82,10 +83,13 @@
         "webpack-merge": "^5.10.0"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.89.0",
         "@types/express": "^4.17.25",
+        "@types/pg": "^8.16.0",
         "delaunator": "^5.0.1",
         "easystarjs": "^0.4.4",
         "express": "^5.2.1",
+        "pg": "^8.16.3",
         "phaser": "^3.88.2",
         "phaser3-rex-plugins": "^1.80.16",
         "plist": "^3.1.0",
