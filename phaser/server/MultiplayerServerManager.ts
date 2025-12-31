@@ -96,9 +96,9 @@ export class MultiplayerServerManager {
 			case "encounter":
 				// Mock deterministic options using stepSeed
 				newOptions = [
-					{ id: `upgrade_unit_${session.step}_A` },
-					{ id: `armory_${session.step}_B` },
-					{ id: `healing_${session.step}_C` }
+					{ id: `upgrade_unit` },
+					{ id: `armory` },
+					{ id: `healing_tent` }
 				];
 				response.options = newOptions;
 				break;
