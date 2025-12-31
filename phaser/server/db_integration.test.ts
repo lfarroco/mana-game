@@ -137,19 +137,51 @@ describe('E2E Server Integration (Database)', () => {
 		const dbRes = await pool.query('SELECT * FROM player_sessions WHERE player_id = $1', [PLAYER_ID]);
 		expect(dbRes.rows[0].phase).toBe('combat');
 
+		// Verify Seed changed
+		expect(dbRes.rows[0].seed).toBeDefined();
+		expect(dbRes.rows[0].seed.length).toBeGreaterThan(0);
+
+		// Verify Initial Seed Persists
+		expect(dbRes.rows[0].initial_seed).toBeDefined();
+		expect(dbRes.rows[0].initial_seed.length).toBeGreaterThan(0);
+		expect(dbRes.rows[0].seed).not.toBe(dbRes.rows[0].initial_seed); // Seed should have evolved
+
+		// Verify Action Log
+		// We expect: [action1 (upgrade), action2 (card), action3 (ready_combat)]
+		const logs = dbRes.rows[0].action_log;
+		expect(logs).toHaveLength(3);
+		expect(logs[0].actionId).toBe('upgrade_unit_1');
+		expect(logs[1].actionId).toBe('card:archer');
+		expect(logs[2].actionId).toBe('ready_combat');
+		expect(logs[2].payload).toEqual({ team: teamPayload });
+
 		// Verify Ghost Saved
 		const ghostRes = await pool.query('SELECT * FROM ghosts WHERE player_id = $1 AND round = 1', [PLAYER_ID]);
 		expect(ghostRes.rows.length).toBe(1);
 		expect(ghostRes.rows[0].team_composition).toEqual(teamPayload);
 	});
 
-	it('should advance to next round after combat', async () => {
+	it('should change seed after action', async () => {
+		// Get current seed
+		let dbRes = await pool.query('SELECT seed FROM player_sessions WHERE player_id = $1', [PLAYER_ID]);
+		const seed1 = dbRes.rows[0].seed;
+
+		// Perform action (end combat)
 		await fetch(`${SERVER_URL}/multiplayer/action`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ playerId: PLAYER_ID, actionId: 'combat_done' })
 		});
 
+		// Get new seed
+		dbRes = await pool.query('SELECT seed FROM player_sessions WHERE player_id = $1', [PLAYER_ID]);
+		const seed2 = dbRes.rows[0].seed;
+
+		expect(seed1).not.toBe(seed2);
+	});
+
+	it('should advance to next round after combat', async () => {
+		// Check state (already advanced by previous test action)
 		const response = await fetch(`${SERVER_URL}/multiplayer/state?playerId=${PLAYER_ID}`);
 		const data = await response.json();
 

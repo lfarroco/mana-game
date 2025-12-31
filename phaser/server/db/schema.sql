@@ -8,6 +8,8 @@ create table public.player_sessions (
   step integer not null default 1,
   -- RNG Seed for deterministic generation
   seed text not null default '',
+  initial_seed text not null default '',
+  action_log jsonb not null default '[]'::jsonb,
   current_options jsonb,
   created_at timestamp with time zone not null default now(),
   updated_at timestamp with time zone not null default now(),
