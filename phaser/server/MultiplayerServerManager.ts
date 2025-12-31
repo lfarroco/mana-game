@@ -183,6 +183,9 @@ export class MultiplayerServerManager {
 				// Generate Combat Data
 				// 1. Create State
 				const combatState = this.createCombatState(session);
+				// CLONE units for the response so we send the INITIAL state, not the post-simulation state
+				const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
+
 				console.log(`[getPhaseOptions] State created. Units: ${combatState.battleData.units?.length}`);
 
 				// 2. Create Effects
@@ -214,8 +217,9 @@ export class MultiplayerServerManager {
 				response.options = newOptions;
 				response.combatState = {
 					// Send all units (Player + CPU) so client uses the exact IDs (including injected Core)
-					units: combatState.battleData.units,
-					enemyTeam: combatState.battleData.units.filter(u => u.force === FORCE_ID_CPU),
+					// Use the INITIAL units (cloned before simulation) so client starts at frame 0 state
+					units: initialUnits,
+					enemyTeam: initialUnits.filter(u => u.force === FORCE_ID_CPU),
 					logs: effects.logs,
 					seed: session.seed
 				};
@@ -254,9 +258,11 @@ export class MultiplayerServerManager {
 		// Handle State Update Actions (Non-Progression)
 		if (actionId === 'update_team') {
 			if (payload && payload.team) {
+				// Need to ensure we don't lose existing existing team data if payload is partial?
+				// Assuming payload.team is the full new team state
 				await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
 					[JSON.stringify(payload.team), session.id]);
-				console.log(`Team updated for Player ${playerId}`);
+				console.log(`Team updated for Player ${playerId}: ${JSON.stringify(payload.team).substring(0, 100)}...`);
 			}
 			return true; // Success, no phase change
 		}

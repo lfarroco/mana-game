@@ -123,7 +123,18 @@ describe('MultiplayerServerManager', () => {
 		// Step 2: Shop -> Encounter
 		let opts = await manager.getPhaseOptions(playerId);
 		if (opts.options.length === 0) throw new Error("Shop options empty");
-		await manager.handleAction(playerId, opts.options[0].id);
+		if (opts.options.length === 0) throw new Error("Shop options empty");
+
+		// Verify Team Persistence
+		const dummyTeam = { units: [{ id: "persistent_unit", cardId: "knight", isCore: false, force: "player" }] };
+		await manager.handleAction(playerId, opts.options[0].id, { team: dummyTeam });
+
+		session = await manager.getSession(playerId);
+		expect(session?.phase).toBe('encounter');
+		// Check if team was persisted
+		expect(session?.team).toBeDefined();
+		expect((session?.team as any).units).toBeDefined();
+		expect((session?.team as any).units[0].id).toBe("persistent_unit");
 
 		session = await manager.getSession(playerId);
 		expect(session?.phase).toBe('encounter');
