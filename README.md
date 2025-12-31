@@ -34,6 +34,7 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Achievement System](docs/achievement-system.md)** - Overview of Steam achievement integration, victory tiers, and calculation logic
 - **[Combat Architecture](docs/combat-architecture.md)** - Documentation of the client-server separation for combat simulation.
 - **[Multiplayer Architecture](docs/multiplayer-architecture.md)** - Documentation of the multiplayer mode and server-driven phase management.
+- **[Multiplayer Setup & Usage](docs/MULTIPLAYER_SETUP.md)** - Guide for running the server, database, and integration tests.
 
 ## Documentation Roadmap
 
