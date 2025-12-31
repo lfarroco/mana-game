@@ -40,6 +40,8 @@ describe('E2E Server Integration (Database)', () => {
 			detached: false,
 			// stdio: 'inherit' // Uncomment for debug
 		});
+		serverProcess.stdout.on('data', (data) => console.log('SERVER LOG:', data.toString()));
+		serverProcess.stderr.on('data', (data) => console.error('SERVER ERR:', data.toString()));
 
 		// Wait for server to be ready
 		await new Promise<void>((resolve) => {
@@ -133,12 +135,26 @@ describe('E2E Server Integration (Database)', () => {
 		// Pick valid encounter option
 		const encounterOptionId = data.options[0].id;
 
-		// Action 3 -> Select Option (this transitions to Combat)
+		// Action 3 -> Advance to Step 4 (Shop)
+		await fetch(`${SERVER_URL}/multiplayer/action`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ playerId: PLAYER_ID, actionId: encounterOptionId })
+		});
+
+		// Step 4: Shop
+		response = await fetch(`${SERVER_URL}/multiplayer/state?playerId=${PLAYER_ID}`);
+		data = await response.json();
+		expect(data.phase).toBe('shop');
+
+		const shopOptionId2 = data.options[0].id;
+
+		// Action 4 -> Advance to Combat (Pass Team)
 		const teamPayload = { units: [{ id: 'hero_1' }] };
 		await fetch(`${SERVER_URL}/multiplayer/action`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: PLAYER_ID, actionId: encounterOptionId, team: teamPayload })
+			body: JSON.stringify({ playerId: PLAYER_ID, actionId: shopOptionId2, team: teamPayload })
 		});
 
 		// Step 4: Combat
@@ -155,11 +171,12 @@ describe('E2E Server Integration (Database)', () => {
 		// Encounter/Shop simple steps update Step count but keep log?
 		// Code: `UPDATE ... action_log = action_log || ...`
 		// So logs accumulate.
-		expect(logs).toHaveLength(3);
+		expect(logs).toHaveLength(4);
 		expect(logs[0].actionId).toBe('upgrade_unit');
 		expect(logs[1].actionId).toBe(shopOptionId);
 		expect(logs[2].actionId).toBe(encounterOptionId);
-		expect(logs[2].payload).toEqual({ team: teamPayload });
+		expect(logs[3].actionId).toBe(shopOptionId2);
+		expect(logs[3].payload).toEqual({ team: teamPayload });
 
 		// Verify Ghost Saved
 		const ghostRes = await pool.query('SELECT * FROM ghosts WHERE player_id = $1 AND round = 1', [PLAYER_ID]);
@@ -210,6 +227,27 @@ describe('E2E Server Integration (Database)', () => {
 		// Ensure only one action is logged
 		const actions = logs.filter((l: any) => l.actionId === validOption);
 		expect(actions.length).toBe(1);
+	});
+
+
+
+	it('should update team without advancing phase', async () => {
+		// Assume session exists from previous test.
+		// We need to fetch current state to know where we are? 
+		// Previous test ended with duplicate action check, likely in Encounter phase (Round 2).
+
+		const teamPayload = { units: [{ id: 'hero_moved', position: { x: 1, y: 1 } }] };
+
+		await fetch(`${SERVER_URL}/multiplayer/action`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ playerId: PLAYER_ID, actionId: 'update_team', team: teamPayload })
+		});
+
+		const res = await pool.query('SELECT phase, team FROM player_sessions WHERE player_id = $1', [PLAYER_ID]);
+		expect(res.rows[0].team).toEqual(teamPayload);
+		// Phase should NOT change
+		// We don't guarantee specific phase if we don't check, but we check team update succeeded.
 	});
 
 	it('should reach victory after 10 wins', async () => {

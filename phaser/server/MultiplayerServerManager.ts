@@ -47,13 +47,20 @@ export class MultiplayerServerManager {
 
 	// Since we are now async, we update signatures
 	public async createSession(playerId: string): Promise<PlayerSession> {
+		// Ensure team column exists (migration-like step)
+		try {
+			await pool.query('ALTER TABLE player_sessions ADD COLUMN IF NOT EXISTS team jsonb');
+		} catch (e) {
+			console.error("Error adding team column", e);
+		}
+
 		// Generate a random seed
 		const seed = Math.random().toString(36).substring(7);
 
 		// Upsert session
 		const query = `
-            INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log, wins, losses)
-            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0)
+            INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log, wins, losses, team)
+            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0, null)
             ON CONFLICT (player_id) 
             DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, updated_at = now()
             RETURNING *;
@@ -106,7 +113,8 @@ export class MultiplayerServerManager {
 				break;
 
 			case "shop":
-				const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.phase === 'encounter');
+				const previousStep = session.step - 1;
+				const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
 				const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
 
 				let filterType = "";
@@ -179,7 +187,23 @@ export class MultiplayerServerManager {
 			throw new Error("Session not found");
 		}
 
-		console.log(`Player ${playerId} selected ${actionId} in Step ${session.step}`);
+		console.log(`Player ${playerId} selected ${actionId} in Step ${session.step} with payload:`, JSON.stringify(payload));
+
+		// Handle State Update Actions (Non-Progression)
+		if (actionId === 'update_team') {
+			if (payload && payload.team) {
+				await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
+					[JSON.stringify(payload.team), session.id]);
+				console.log(`Team updated for Player ${playerId}`);
+			}
+			return true; // Success, no phase change
+		}
+
+		// For progression actions, also update team if provided
+		if (payload && payload.team) {
+			await pool.query('UPDATE player_sessions SET team = $1 WHERE id = $2',
+				[JSON.stringify(payload.team), session.id]);
+		}
 
 		// Check for duplicate action in the current step
 		const existingAction = session.action_log.find((entry: any) =>
@@ -192,7 +216,6 @@ export class MultiplayerServerManager {
 			console.warn(`Duplicate action detected for Player ${playerId} in Step ${session.step}. Ignoring.`);
 			return true; // Return success to client so it doesn't retry, but don't process again
 		}
-
 
 		// Validate Action against allowed Options
 		// We allow 'combat_done' implicitly if phase is combat? 
@@ -245,18 +268,29 @@ export class MultiplayerServerManager {
 
 		// Handle Encounter/Shop progression
 
-		if (session.step < 3) {
+		// Handle Encounter/Shop progression
+		// Sequence: 
+		// Step 1: Encounter Choice -> Step 2: Shop (Resolution)
+		// Step 3: Encounter Choice -> Step 4: Shop (Resolution)
+		// Step 4 -> Combat
+
+		if (session.step < 4) {
 			// Stay in encounter/shop (or toggle)
 			let nextPhase = "encounter";
-			if (session.step === 1) nextPhase = "shop"; // After step 1 (Encounter) go to Shop (Step 2)
-			if (session.step === 2) nextPhase = "encounter"; // After step 2 (Shop) go to Encounter (Step 3)
+
+			// Step 1 (Encounter) -> Step 2 (Shop)
+			if (session.step === 1) nextPhase = "shop";
+			// Step 2 (Shop) -> Step 3 (Encounter)
+			if (session.step === 2) nextPhase = "encounter";
+			// Step 3 (Encounter) -> Step 4 (Shop)
+			if (session.step === 3) nextPhase = "shop";
 
 			// Update Seed: deterministic based on current seed + actionId
 			const newSeed = this.generateNextSeed(session.seed, actionId);
 
 			await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3', [nextPhase, newSeed, session.id]);
 		} else {
-			// After Step 3, go to Combat
+			// After Step 4, go to Combat
 			// Save Ghost if team provided
 			if (payload && payload.team) {
 				await this.saveGhost(session.player_id, session.round, payload.team);

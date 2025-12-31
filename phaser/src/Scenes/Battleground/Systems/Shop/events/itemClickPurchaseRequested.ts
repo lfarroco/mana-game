@@ -31,8 +31,34 @@ export async function itemClickPurchaseRequested(
 	);
 
 	if (MultiplayerManager.getInstance().isMultiplayer) {
+		const targetTile = Board.getEmptySlot(
+			getState().gameData.player.units,
+			constants.FORCE_ID_PLAYER
+		);
+
+		if (!targetTile && (!existingUnit || existingUnit.rank > 3)) {
+			// If full and no upgrade possible
+			handlePurchaseFailure("PARTY_FULL");
+			return;
+		}
+
 		const success = await MultiplayerManager.getInstance().sendOptionSelection(shopUnitData.cardId);
+
 		if (success) {
+			if (existingUnit && existingUnit.rank <= 3) {
+				await upgradeUnit(existingUnit);
+			} else if (targetTile) {
+				const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
+				getState().gameData.player.units.push(newUnit);
+
+				const { runStats } = getState().gameData;
+				runStats.totalUnitsRecruited++;
+				const unitName = getName(newUnit.cardId);
+				runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+
+				summon(newUnit, true);
+			}
+
 			charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 			await ShopUI.slideOut();
 			handlePhaseEnded(getState());

@@ -15,6 +15,8 @@ import * as DiscardZone from "../../Scenes/Battleground/Systems/Shop/DiscardZone
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
+import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -192,6 +194,10 @@ const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	if (!result) return;
 
 	applyMoveVisual(result.movedUnit);
+
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		MultiplayerManager.getInstance().sendTeamUpdate({ units });
+	}
 };
 
 const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
