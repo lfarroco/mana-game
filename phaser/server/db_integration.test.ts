@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { spawn } from 'child_process';
 import { Pool } from 'pg';
 
