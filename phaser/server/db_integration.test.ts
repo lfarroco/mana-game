@@ -40,8 +40,8 @@ describe('E2E Server Integration (Database)', () => {
 			detached: false,
 			// stdio: 'inherit' // Uncomment for debug
 		});
-		serverProcess.stdout.on('data', (data) => console.log('SERVER LOG:', data.toString()));
-		serverProcess.stderr.on('data', (data) => console.error('SERVER ERR:', data.toString()));
+		serverProcess.stdout.on('data', (data: any) => console.log('SERVER LOG:', data.toString()));
+		serverProcess.stderr.on('data', (data: any) => console.error('SERVER ERR:', data.toString()));
 
 		// Wait for server to be ready
 		await new Promise<void>((resolve) => {

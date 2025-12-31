@@ -7,7 +7,20 @@
 import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
 import { Pool } from 'pg';
 import * as Card from "../src/Models/Entities/Card";
+import { registerCollection } from "../src/Models/Entities/Card";
 import { pickRandom } from "../src/utils";
+
+import { generateEnemyTeam } from "../src/Scenes/Battleground/generateEnemyTeam";
+import { runCombat } from "../src/Scenes/Battleground/RunCombatCore";
+import { createServerCombatEffects } from "../src/Scenes/Battleground/ServerCombatEffects";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../src/Scenes/Battleground/ServerConstants";
+import { makeForce } from "../src/Models/Entities/Force";
+import { BASE_COLLECTION_DATA } from "../src/Data/BaseCollection";
+import { State } from "../src/Models/State";
+import { Unit } from "../src/Models/Entities/Unit";
+
+// Register base collection to ensure unit definitions exist
+registerCollection(BASE_COLLECTION_DATA);
 
 // Database configuration
 // In production, use environment variables
@@ -31,6 +44,7 @@ interface PlayerSession {
 	current_options?: any[];
 	wins: number;
 	losses: number;
+	team?: any;
 }
 
 export class MultiplayerServerManager {
@@ -86,6 +100,14 @@ export class MultiplayerServerManager {
 
 		// If stored options exist, return them (idempotency)
 		if (session.current_options) {
+			const stored = session.current_options as any;
+			if (!Array.isArray(stored) && stored.options) {
+				return {
+					phase: session.phase as any,
+					options: stored.options,
+					combatState: stored.combatState
+				};
+			}
 			return {
 				phase: session.phase as any,
 				options: session.current_options
@@ -157,8 +179,33 @@ export class MultiplayerServerManager {
 				break;
 
 			case "combat":
-				newOptions = [{ id: 'combat_done' }];
+				// Generate Combat Data
+				// 1. Create State
+				const combatState = this.createCombatState(session);
+				// 2. Create Effects
+				const effects = createServerCombatEffects(combatState);
+				// 3. Run Simulation
+				const combatRunner = runCombat(combatState, effects);
+
+				// Run until finish
+				const SIM_DELTA = 16.67;
+				let frame = 0;
+				const MAX_FRAMES = 10000; // Safety
+				while (combatRunner.isActive() && frame < MAX_FRAMES) {
+					effects.setFrame(frame);
+					combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+					frame++;
+				}
+
+				newOptions = [{ id: 'combat_done', label: "Continue" }];
+
+				// Encode Combat State for Client
 				response.options = newOptions;
+				response.combatState = {
+					enemyTeam: combatState.battleData.units.filter(u => u.force === FORCE_ID_CPU),
+					logs: effects.logs,
+					seed: session.seed
+				};
 				break;
 
 			case "victory":
@@ -176,7 +223,8 @@ export class MultiplayerServerManager {
 		}
 
 		// Update DB with generated options
-		await pool.query('UPDATE player_sessions SET current_options = $1 WHERE player_id = $2', [JSON.stringify(newOptions), playerId]);
+		const optionsToStore = response.combatState ? { options: response.options, combatState: response.combatState } : response.options;
+		await pool.query('UPDATE player_sessions SET current_options = $1 WHERE player_id = $2', [JSON.stringify(optionsToStore), playerId]);
 
 		return response;
 	}
@@ -330,6 +378,50 @@ export class MultiplayerServerManager {
 		console.log(`Saved ghost for ${playerId} Round ${round}`);
 	}
 
+	private createCombatState(session: PlayerSession): State {
+		// parsing the team
+		let playerUnits: Unit[] = [];
+		if (session.team && (session.team as any).units) {
+			playerUnits = (session.team as any).units;
+		}
+
+		// Mock State
+		const state: any = {
+			gameData: {
+				player: {
+					wins: session.wins,
+					losses: session.losses,
+					units: playerUnits,
+					items: [],
+					gold: 0
+				},
+				runStats: {},
+				settings: {}
+			},
+			battleData: {
+				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+				units: [],
+				projectiles: [],
+				containers: {}
+			},
+			time: { time: 0, delta: 0 }
+		};
+
+		// Generate Enemy Team
+		// We need available cards for the generator
+		const allCards = Card.getAvailableCards();
+		const enemyUnits = generateEnemyTeam(state, session.round, allCards);
+
+		// Combine units
+		// Ensure force IDs are correct
+		playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
+		enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
+
+		state.battleData.units = [...playerUnits, ...enemyUnits];
+
+		return state as State;
+	}
+
 	private async advancePhase(session: PlayerSession, nextSeed: string, wonLastCombat: boolean) {
 		let wins = session.wins;
 		let losses = session.losses;
@@ -342,8 +434,8 @@ export class MultiplayerServerManager {
 
 		const nextRound = session.round + 1;
 
-		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, wins = $4, losses = $5, current_options = null, action_log = $7::jsonb, updated_at = now() WHERE id = $6',
-			[nextPhase, nextRound, nextSeed, wins, losses, session.id, JSON.stringify([])]);
+		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, wins = $4, losses = $5, current_options = null, team = $8, action_log = $7::jsonb, updated_at = now() WHERE id = $6',
+			[nextPhase, nextRound, nextSeed, wins, losses, session.id, JSON.stringify([]), JSON.stringify({ units: session.team ? (session.team as any).units : [] })]); // Persist team (might be modified? No, combat doesn't modify persistent team usually, but health resets. Actually we keep same team object)
 
 		console.log(`Session ${session.player_id} advanced. Wins: ${wins}, Losses: ${losses}. Next Phase: ${nextPhase}`);
 	}

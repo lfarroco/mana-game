@@ -1,9 +1,22 @@
-import { State } from "@Models/State";
+import { State, getCurrentScene } from "@Models/State";
 import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 import * as Encounter from "./Systems/Encounter";
 import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
 import { showMatchResult } from "./Systems/MatchResultSystem";
+import { createBrowserCombatEffects } from "./BrowserCombatEffects";
+import { createCombatPlaybackController } from "./CombatPlaybackController";
+import { clearAll, create as createChara } from "@Systems/Chara/Chara";
+import { FORCE_ID_PLAYER, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
+import { BattlegroundScene } from "./BattlegroundScene";
+
+// ... existing handleMultiplayerPhase ...
+
+
+
+// ... update handleMultiplayerCombat usage ...
+// I need to replace the WHOLE handleMultiplayerCombat function to update UIManager calls to createButton calls.
+
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -14,8 +27,15 @@ export async function handleMultiplayerPhase(state: State) {
 
 	switch (result.phase) {
 		case "combat":
-			console.log("Multiplayer Combat - waiting for implementation");
-			// In a real implementation this would trigger combat playback based on server data
+			if (result.combatState) {
+				await handleMultiplayerCombat(state, result.combatState);
+			} else {
+				console.error("Multiplayer Combat Phase missing combatState!");
+				const combatOption = result.options[0];
+				// Auto-skip
+				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id);
+				await handleMultiplayerPhase(state);
+			}
 			break;
 
 		case "encounter":
@@ -53,5 +73,77 @@ export async function handleMultiplayerPhase(state: State) {
 		default:
 			console.warn(`Unknown multiplayer phase: ${result.phase}`);
 			break;
+	}
+
+	async function handleMultiplayerCombat(state: State, combatState: any) {
+		console.log("Initializing Multiplayer Combat:", combatState);
+
+		// 1. Setup Units
+		const playerUnits = state.gameData.player.units;
+		const enemyUnits = combatState.enemyTeam;
+
+		// Ensure force IDs (just in case)
+		playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
+		// enemyUnits should have FORCE_ID_CPU from server
+
+		state.battleData.units = [...playerUnits, ...enemyUnits];
+
+		// 2. Refresh Visuals
+		clearAll();
+		for (const u of state.battleData.units) {
+			await createChara(u);
+		}
+
+		const scene = getCurrentScene() as BattlegroundScene;
+
+		// 3. Ready Button
+		await new Promise<void>((resolve) => {
+			const btn = scene.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "READY", {
+				fontSize: '32px',
+				color: '#ffffff',
+				backgroundColor: '#000000',
+				padding: { x: 20, y: 10 }
+			})
+				.setOrigin(0.5)
+				.setInteractive({ useHandCursor: true });
+
+			btn.once('pointerdown', () => {
+				btn.destroy();
+				resolve();
+			});
+		});
+
+		// 4. Start Playback
+		const effects = createBrowserCombatEffects();
+		// Wrap onCombatEnd to add our Continue logic
+		const originalOnCombatEnd = effects.onCombatEnd;
+		effects.onCombatEnd = async (state, outcome, combatStates) => {
+			await originalOnCombatEnd(state, outcome, combatStates);
+
+			// Show Continue Button
+			await new Promise<void>((resolve) => {
+				const btn = scene.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "CONTINUE", {
+					fontSize: '32px',
+					color: '#ffffff',
+					backgroundColor: '#000000',
+					padding: { x: 20, y: 10 }
+				})
+					.setOrigin(0.5)
+					.setInteractive({ useHandCursor: true });
+
+				btn.once('pointerdown', () => {
+					btn.destroy();
+					resolve();
+				});
+			});
+
+			// Proceed
+			await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
+			// Loop back to handle next phase (e.g. victory or next encounter)
+			await handleMultiplayerPhase(state);
+		};
+
+		const controller = createCombatPlaybackController(state, combatState.logs, effects);
+		scene.combatRunner = controller;
 	}
 }

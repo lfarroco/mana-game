@@ -1,6 +1,6 @@
 import { CardDefinition, getCores, getNonCores } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
-import { vec2 } from "@Models/Geometry";
+import { vec2 } from "@Models/ServerGeometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { pickOne, pickOneUnique } from "../../utils";
 import { upgradeUnitData } from "@Models/Entities/Unit";
