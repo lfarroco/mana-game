@@ -1,6 +1,6 @@
 
 import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
-import { resolveTargets, Effect, Targeting } from './TriggerSystem';
+import { resolveTargets, Effect } from './TriggerSystem';
 import { createMockState } from '../test-utils/serverCombatUtils';
 import { Unit } from '../Models/Entities/Unit';
 import { registerCollection } from '../Models/Entities/Card';

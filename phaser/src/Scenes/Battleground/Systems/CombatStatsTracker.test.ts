@@ -1,6 +1,6 @@
 
 import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
-import { trackDamage, trackHeal } from './CombatStatsTracker';
+import { trackDamage } from './CombatStatsTracker';
 import { createMockState } from '../../../test-utils/serverCombatUtils';
 import { createServerCombatEffects } from '../ServerCombatEffects';
 import { runCombat } from '../RunCombatCore';

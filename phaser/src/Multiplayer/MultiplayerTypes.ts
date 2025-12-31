@@ -3,6 +3,11 @@ export type PhaseType = "encounter" | "shop" | "upgrade_core" | "add_reaction_co
 export interface PhaseOptions {
 	phase: PhaseType;
 	options: any[]; // Specific options depending on phase
+	combatState?: {
+		enemyTeam: any;
+		logs: any[];
+		seed: string;
+	};
 }
 
 // For Encounter Phase

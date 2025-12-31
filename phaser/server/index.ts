@@ -1,10 +1,12 @@
+import './mocks';
 import express from 'express';
 import { runServerSideCombat } from '../src/Scenes/Battleground/serverCombatDemo.js';
+import { MultiplayerServerManager } from './MultiplayerServerManager.js';
 
 const app = express();
 const port = 3000;
 
-app.get('/test-combat', (req, res) => {
+app.get('/test-combat', (_req, res) => {
 	console.log('Received request for combat demo');
 	try {
 		// Capture console output to return it in the response
@@ -33,7 +35,6 @@ app.get('/test-combat', (req, res) => {
 	}
 });
 
-import { MultiplayerServerManager } from './MultiplayerServerManager.js';
 
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
