@@ -6,6 +6,8 @@
 
 import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
 import { Pool } from 'pg';
+import * as Card from "../src/Models/Entities/Card";
+import { pickRandom } from "../src/utils";
 
 // Database configuration
 // In production, use environment variables
@@ -104,10 +106,45 @@ export class MultiplayerServerManager {
 				break;
 
 			case "shop":
-				newOptions = [
-					{ id: "card:archer", cost: 10 },
-					{ id: "card:knight", cost: 15 }
-				];
+				const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.phase === 'encounter');
+				const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+
+				let filterType = "";
+				// Map encounter ID to effect type filter
+				// Matches client-side Encounter.ts logic
+				if (encounterId) {
+					if (encounterId === 'armory') filterType = 'damage';
+					else if (encounterId === 'healing_tent') filterType = 'heal';
+					else if (encounterId === 'frontier_fort') filterType = 'shield';
+					else if (encounterId === 'forest_pools') filterType = 'regen';
+					else if (encounterId === 'toxic_chamber') filterType = 'poison';
+					else if (encounterId === 'trial_circuit') filterType = 'haste';
+					else if (encounterId === 'trappers_guild') filterType = 'slow';
+					else if (encounterId === 'thunder_spire') filterType = 'charge';
+					else if (encounterId === 'commanders_tent') filterType = 'increase_power';
+					else if (encounterId === 'assassins_hideout') filterType = 'increase_critical';
+				}
+
+				const allCards = Card.getAvailableCards();
+				let filteredCards = allCards;
+
+				if (filterType) {
+					filteredCards = allCards.filter(card =>
+					(card.effects?.some(eff => eff.id === filterType) ||
+						card.reactions?.some(react => react.effects?.some(eff => eff.id === filterType)))
+					);
+				}
+
+				// Fallback if filter returns empty (shouldn't happen with full collection but safe to have)
+				if (filteredCards.length === 0) {
+					filteredCards = allCards;
+				}
+
+				newOptions = pickRandom(filteredCards, 3).map(card => ({
+					id: card.id,
+					cost: 10 // Mock cost for now, logic can be added later
+				}));
+
 				response.options = newOptions;
 				break;
 
