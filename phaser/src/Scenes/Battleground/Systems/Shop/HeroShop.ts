@@ -13,12 +13,19 @@ let currentShopCharas: Chara.Chara[] = [];
 
 export async function openHeroShop(
 	filter?: (u: Card.CardDefinition) => boolean,
-	totalHeroes?: number
+	totalHeroes?: number,
+	serverCardIds?: string[]
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		currentShopCharas = [];
 
-		const tavernCardData = getAvailableCardsForTavern(totalHeroes || sc.NUM_TAVERN_SLOTS, filter);
+		let tavernCardData: Card.CardDefinition[];
+
+		if (serverCardIds) {
+			tavernCardData = serverCardIds.map(id => Card.getCardDefinition(id));
+		} else {
+			tavernCardData = getAvailableCardsForTavern(totalHeroes || sc.NUM_TAVERN_SLOTS, filter);
+		}
 
 		const finishPhaseCallback = async () => {
 			await close();

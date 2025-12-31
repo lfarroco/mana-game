@@ -15,6 +15,7 @@ import * as DiscardZone from "../../Scenes/Battleground/Systems/Shop/DiscardZone
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
+import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -286,5 +287,11 @@ const processShopItemClick =
 	(handlerState: InputHandler) =>
 		(_clickX: number, _clickY: number): void => {
 			const { chara, unitId } = handlerState;
+
+			if (MultiplayerManager.getInstance().isMultiplayer) {
+				MultiplayerManager.getInstance().sendOptionSelection(unitId);
+				return;
+			}
+
 			Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
 		};
