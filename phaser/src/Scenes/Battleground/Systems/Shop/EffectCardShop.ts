@@ -71,7 +71,7 @@ function renderUpgradeCards(
 				console.log(`Selected upgrade: ${encounterSpec.name}`);
 
 				if (MultiplayerManager.getInstance().isMultiplayer) {
-					await MultiplayerManager.getInstance().sendOptionSelection(encounterId);
+					await MultiplayerManager.getInstance().sendOptionSelection(encounterId, undefined, getState());
 					playSoundEffect('sfx_spell_deathstrikeseal');
 					await onUpgradeSelected();
 					return;

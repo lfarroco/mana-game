@@ -33,7 +33,7 @@ export async function handleMultiplayerPhase(state: State) {
 				console.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
-				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id);
+				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id, undefined, state);
 				await handleMultiplayerPhase(state);
 			}
 			break;
@@ -146,7 +146,7 @@ export async function handleMultiplayerPhase(state: State) {
 			});
 
 			// Proceed
-			await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
+			await MultiplayerManager.getInstance().sendOptionSelection("combat_done", undefined, state);
 			// Loop back to handle next phase (e.g. victory or next encounter)
 			await handleMultiplayerPhase(state);
 		};
