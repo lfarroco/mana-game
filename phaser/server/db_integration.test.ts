@@ -100,7 +100,7 @@ describe('E2E Server Integration (Database)', () => {
 		await fetch(`${SERVER_URL}/multiplayer/action`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: PLAYER_ID, actionId: 'upgrade_unit_1' })
+			body: JSON.stringify({ playerId: PLAYER_ID, actionId: 'upgrade_unit' })
 		});
 
 		// Step 2: Shop
@@ -150,7 +150,7 @@ describe('E2E Server Integration (Database)', () => {
 		// We expect: [action1 (upgrade), action2 (card), action3 (ready_combat)]
 		const logs = dbRes.rows[0].action_log;
 		expect(logs).toHaveLength(3);
-		expect(logs[0].actionId).toBe('upgrade_unit_1');
+		expect(logs[0].actionId).toBe('upgrade_unit');
 		expect(logs[1].actionId).toBe('card:archer');
 		expect(logs[2].actionId).toBe('ready_combat');
 		expect(logs[2].payload).toEqual({ team: teamPayload });
