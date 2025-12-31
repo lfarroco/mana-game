@@ -149,7 +149,7 @@ export class MultiplayerServerManager {
 				break;
 
 			case "combat":
-				newOptions = [];
+				newOptions = [{ id: 'combat_done' }];
 				response.options = newOptions;
 				break;
 
@@ -180,6 +180,38 @@ export class MultiplayerServerManager {
 		}
 
 		console.log(`Player ${playerId} selected ${actionId} in Step ${session.step}`);
+
+		// Check for duplicate action in the current step
+		const existingAction = session.action_log.find((entry: any) =>
+			entry.round === session.round &&
+			entry.phase === session.phase &&
+			entry.step === session.step
+		);
+
+		if (existingAction) {
+			console.warn(`Duplicate action detected for Player ${playerId} in Step ${session.step}. Ignoring.`);
+			return true; // Return success to client so it doesn't retry, but don't process again
+		}
+
+
+		// Validate Action against allowed Options
+		// We allow 'combat_done' implicitly if phase is combat? 
+		// No, we added it to options.
+		// We skip validation if current_options is null but allow it?
+		// No, if options are null, client shouldn't be acting.
+
+		if (session.current_options) {
+			const validOption = session.current_options.find((opt: any) => opt.id === actionId);
+			if (!validOption) {
+				console.warn(`Action ${actionId} rejected: Invalid option for Player ${playerId} (Phase: ${session.phase})`);
+				return false;
+			}
+		} else {
+			// No options generated yet? or cleared.
+			// Reject action.
+			console.warn(`Action ${actionId} rejected: No active options for Player ${playerId}`);
+			return false;
+		}
 
 		// Append action to log
 		const actionEntry = {
@@ -276,8 +308,8 @@ export class MultiplayerServerManager {
 
 		const nextRound = session.round + 1;
 
-		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, wins = $4, losses = $5, current_options = null, updated_at = now() WHERE id = $6',
-			[nextPhase, nextRound, nextSeed, wins, losses, session.id]);
+		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, wins = $4, losses = $5, current_options = null, action_log = $7::jsonb, updated_at = now() WHERE id = $6',
+			[nextPhase, nextRound, nextSeed, wins, losses, session.id, JSON.stringify([])]);
 
 		console.log(`Session ${session.player_id} advanced. Wins: ${wins}, Losses: ${losses}. Next Phase: ${nextPhase}`);
 	}

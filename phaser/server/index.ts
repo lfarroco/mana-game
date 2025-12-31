@@ -78,7 +78,7 @@ app.get('/multiplayer/state', async (req, res) => {
 });
 
 app.post('/multiplayer/action', async (req, res) => {
-	const { playerId, actionId, payload } = req.body;
+	const { playerId, actionId, ...payload } = req.body;
 	if (!playerId || !actionId) {
 		return res.status(400).json({ error: 'playerId and actionId required' });
 	}
@@ -91,5 +91,6 @@ app.post('/multiplayer/action', async (req, res) => {
 });
 
 app.listen(port, () => {
+	console.log("SERVER V2 STARTED");
 	console.log(`Server listening on port ${port}`);
 });

@@ -286,12 +286,9 @@ export const onPointerUpShopItem =
 const processShopItemClick =
 	(handlerState: InputHandler) =>
 		(_clickX: number, _clickY: number): void => {
+			//TODO: Instead of passing the handler state, pass just the necessary info
 			const { chara, unitId } = handlerState;
 
-			if (MultiplayerManager.getInstance().isMultiplayer) {
-				MultiplayerManager.getInstance().sendOptionSelection(unitId);
-				return;
-			}
 
 			Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
 		};
