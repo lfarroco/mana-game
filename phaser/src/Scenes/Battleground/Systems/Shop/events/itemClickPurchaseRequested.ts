@@ -9,6 +9,7 @@ import * as ShopUI from "../ShopPanel";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
+import { MultiplayerManager } from "../../../../../Multiplayer/MultiplayerManager";
 
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -28,6 +29,18 @@ export async function itemClickPurchaseRequested(
 	const existingUnit = getState().gameData.player.units.find(
 		(u) => u.cardId === shopUnitData.cardId
 	);
+
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		const success = await MultiplayerManager.getInstance().sendOptionSelection(shopUnitData.cardId);
+		if (success) {
+			charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+			await ShopUI.slideOut();
+			handlePhaseEnded(getState());
+		} else {
+			handlePurchaseFailure("SERVER_REJECTED");
+		}
+		return;
+	}
 
 	if (existingUnit && existingUnit.rank <= 3) {
 		await upgradeUnit(existingUnit);
