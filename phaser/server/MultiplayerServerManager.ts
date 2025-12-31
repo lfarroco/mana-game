@@ -22,6 +22,8 @@ interface PlayerSession {
 	player_id: string;
 	phase: string;
 	round: number;
+	step: number;
+	seed: string;
 	current_options?: any[];
 }
 
@@ -39,16 +41,19 @@ export class MultiplayerServerManager {
 
 	// Since we are now async, we update signatures
 	public async createSession(playerId: string): Promise<PlayerSession> {
+		// Generate a random seed
+		const seed = Math.random().toString(36).substring(7);
+
 		// Upsert session
 		const query = `
-            INSERT INTO player_sessions (player_id, phase, round, current_options)
-            VALUES ($1, 'encounter', 1, null)
+            INSERT INTO player_sessions (player_id, phase, round, step, seed, current_options)
+            VALUES ($1, 'encounter', 1, 1, $2, null)
             ON CONFLICT (player_id) 
-            DO UPDATE SET phase = 'encounter', round = 1, current_options = null, updated_at = now()
+            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, current_options = null, updated_at = now()
             RETURNING *;
         `;
-		const res = await pool.query(query, [playerId]);
-		console.log(`Created/Updated session for ${playerId}`);
+		const res = await pool.query(query, [playerId, seed]);
+		console.log(`Created/Updated session for ${playerId} with seed ${seed}`);
 		return res.rows[0];
 	}
 
@@ -64,29 +69,35 @@ export class MultiplayerServerManager {
 			throw new Error("Session not found");
 		}
 
-		console.log(`Getting options for ${playerId} in phase ${session.phase}`);
+		console.log(`Getting options for ${playerId} in phase ${session.phase} (Round ${session.round}, Step ${session.step})`);
 
-		let newOptions: any[] = [];
-		// If options already exist, return them? For now always regenerate if null
-		// But to keep simple, let's regenerate for this stateless flow unless stored
-
-		// Actually, we should store them to validate action. 
+		// If stored options exist, return them (idempotency)
 		if (session.current_options) {
-			// return persisted options? 
-			// Logic: If user refreshes, show same options.
+			return {
+				phase: session.phase as any,
+				options: session.current_options
+			};
 		}
 
+		let newOptions: any[] = [];
 		let response: PhaseOptions = {
 			phase: session.phase as any,
 			options: []
 		};
 
+		// Pseudo-random generation based on seed + round + step
+		const stepSeed = `${session.seed}-${session.round}-${session.step}`;
+
+		// Logic: 3 steps of non-combat (Encounter/Shop), then combat.
+		const isShopStep = (session.step % 2) === 0;
+
 		switch (session.phase) {
 			case "encounter":
+				// Mock deterministic options using stepSeed
 				newOptions = [
-					{ id: "upgrade_unit" },
-					{ id: "armory" },
-					{ id: "healing_tent" }
+					{ id: `upgrade_unit_${session.step}_A` },
+					{ id: `armory_${session.step}_B` },
+					{ id: `healing_${session.step}_C` }
 				];
 				response.options = newOptions;
 				break;
@@ -100,9 +111,7 @@ export class MultiplayerServerManager {
 				break;
 
 			case "combat":
-			case "upgrade_core":
-			case "add_reaction_core":
-				newOptions = []; // TODO
+				newOptions = [];
 				response.options = newOptions;
 				break;
 
@@ -110,45 +119,70 @@ export class MultiplayerServerManager {
 				break;
 		}
 
-		// Update DB with generated options if different
-		if (JSON.stringify(newOptions) !== JSON.stringify(session.current_options)) {
-			await pool.query('UPDATE player_sessions SET current_options = $1 WHERE player_id = $2', [JSON.stringify(newOptions), playerId]);
-		}
+		// Update DB with generated options
+		await pool.query('UPDATE player_sessions SET current_options = $1 WHERE player_id = $2', [JSON.stringify(newOptions), playerId]);
 
 		return response;
 	}
 
-	public async handleAction(playerId: string, actionId: string): Promise<boolean> {
+	public async handleAction(playerId: string, actionId: string, payload?: any): Promise<boolean> {
 		const session = await this.getSession(playerId);
 		if (!session) {
 			throw new Error("Session not found");
 		}
 
-		console.log(`Player ${playerId} selected ${actionId}`);
-		// Here we would validate that actionId is in session.current_options
+		console.log(`Player ${playerId} selected ${actionId} in Step ${session.step}`);
+		// Validation of actionId vs current_options skipped for prototype
 
-		// Transition logic (Mock)
-		await this.advancePhase(session);
+		if (session.phase === "combat") {
+			// End of combat, advancing to next round
+			await this.advancePhase(session);
+			return true;
+		}
+
+		// Handle Encounter/Shop progression
+
+		if (session.step < 3) {
+			// Stay in encounter/shop (or toggle)
+			// Just increment step and clear options
+			// Toggle phase for variety? For now keep 'encounter' string or switch based on step logic
+			// Let's assume simplified flow for now: Step 1 Encounter, Step 2 Shop, Step 3 Encounter -> Combat
+
+			let nextPhase = "encounter";
+			if (session.step === 1) nextPhase = "shop"; // After step 1 (Encounter) go to Shop (Step 2)
+			if (session.step === 2) nextPhase = "encounter"; // After step 2 (Shop) go to Encounter (Step 3)
+
+			await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = null, updated_at = now() WHERE id = $2', [nextPhase, session.id]);
+		} else {
+			// After Step 3, go to Combat
+			// Save Ghost if team provided
+			if (payload && payload.team) {
+				await this.saveGhost(session.player_id, session.round, payload.team);
+			}
+
+			// Generate Combat Result (or prepare for it)
+			// For now, just transition phase
+			await pool.query('UPDATE player_sessions SET phase = $1, current_options = null, updated_at = now() WHERE id = $2', ['combat', session.id]);
+		}
+
 		return true;
 	}
 
+	private async saveGhost(playerId: string, round: number, team: any) {
+		// Save to ghosts table
+		const query = `
+            INSERT INTO ghosts (player_id, round, team_composition)
+            VALUES ($1, $2, $3)
+        `;
+		await pool.query(query, [playerId, round, JSON.stringify(team)]);
+		console.log(`Saved ghost for ${playerId} Round ${round}`);
+	}
+
 	private async advancePhase(session: PlayerSession) {
-		let nextPhase = session.phase;
-		let nextRound = session.round;
-
-		// Simple loop: encounter -> shop -> combat -> encounter...
-		if (session.phase === "encounter") {
-			nextPhase = "shop";
-		} else if (session.phase === "shop") {
-			nextPhase = "combat";
-		} else if (session.phase === "combat") {
-			nextPhase = "encounter";
-			nextRound++;
-		}
-
-		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, current_options = null, updated_at = now() WHERE id = $3',
-			[nextPhase, nextRound, session.id]);
-
-		console.log(`Session ${session.player_id} advanced to ${nextPhase}`);
+		// From Combat -> Encounter (Next Round)
+		const nextRound = session.round + 1;
+		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, current_options = null, updated_at = now() WHERE id = $3',
+			['encounter', nextRound, session.id]);
+		console.log(`Session ${session.player_id} advanced to Round ${nextRound}`);
 	}
 }

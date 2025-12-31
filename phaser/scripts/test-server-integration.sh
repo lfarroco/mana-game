@@ -11,7 +11,7 @@ cd $DB_DIR
 docker-compose down -v
 
 # Start the database in background
-docker-compose up -d
+docker-compose up -d --build
 
 # Wait for DB to be ready
 echo "Waiting for database to be ready..."

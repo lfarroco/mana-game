@@ -48,7 +48,8 @@ app.post('/multiplayer/connect', async (req, res) => {
 		const session = await MultiplayerServerManager.getInstance().createSession(playerId);
 		res.json({ success: true, session });
 	} catch (e) {
-		res.status(500).json({ error: 'Database error' });
+		console.error("Connect Error:", e);
+		res.status(500).json({ error: 'Database error', details: e instanceof Error ? e.message : String(e) });
 	}
 });
 
@@ -66,12 +67,12 @@ app.get('/multiplayer/state', async (req, res) => {
 });
 
 app.post('/multiplayer/action', async (req, res) => {
-	const { playerId, actionId } = req.body;
+	const { playerId, actionId, payload } = req.body;
 	if (!playerId || !actionId) {
 		return res.status(400).json({ error: 'playerId and actionId required' });
 	}
 	try {
-		const result = await MultiplayerServerManager.getInstance().handleAction(playerId, actionId);
+		const result = await MultiplayerServerManager.getInstance().handleAction(playerId, actionId, payload);
 		res.json({ success: result });
 	} catch (e) {
 		res.status(500).json({ error: e instanceof Error ? e.message : 'Error processing action' });
