@@ -24,6 +24,8 @@ interface PlayerSession {
 	round: number;
 	step: number;
 	seed: string;
+	initial_seed: string;
+	action_log: any[];
 	current_options?: any[];
 }
 
@@ -46,10 +48,10 @@ export class MultiplayerServerManager {
 
 		// Upsert session
 		const query = `
-            INSERT INTO player_sessions (player_id, phase, round, step, seed, current_options)
-            VALUES ($1, 'encounter', 1, 1, $2, null)
+            INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log)
+            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb)
             ON CONFLICT (player_id) 
-            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, current_options = null, updated_at = now()
+            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, updated_at = now()
             RETURNING *;
         `;
 		const res = await pool.query(query, [playerId, seed]);
@@ -132,11 +134,25 @@ export class MultiplayerServerManager {
 		}
 
 		console.log(`Player ${playerId} selected ${actionId} in Step ${session.step}`);
-		// Validation of actionId vs current_options skipped for prototype
+
+		// Append action to log
+		const actionEntry = {
+			round: session.round,
+			phase: session.phase,
+			step: session.step,
+			actionId: actionId,
+			payload: payload
+		};
+
+		// We need to persist the log. Since we do updates below, we can combine or emit separate.
+		// For simplicity, let's just append to the array in DB using specific postgres JSONB ops.
+		await pool.query('UPDATE player_sessions SET action_log = action_log || $1::jsonb WHERE id = $2',
+			[JSON.stringify([actionEntry]), session.id]);
 
 		if (session.phase === "combat") {
 			// End of combat, advancing to next round
-			await this.advancePhase(session);
+			const newSeed = this.generateNextSeed(session.seed, actionId);
+			await this.advancePhase(session, newSeed);
 			return true;
 		}
 
@@ -144,15 +160,14 @@ export class MultiplayerServerManager {
 
 		if (session.step < 3) {
 			// Stay in encounter/shop (or toggle)
-			// Just increment step and clear options
-			// Toggle phase for variety? For now keep 'encounter' string or switch based on step logic
-			// Let's assume simplified flow for now: Step 1 Encounter, Step 2 Shop, Step 3 Encounter -> Combat
-
 			let nextPhase = "encounter";
 			if (session.step === 1) nextPhase = "shop"; // After step 1 (Encounter) go to Shop (Step 2)
 			if (session.step === 2) nextPhase = "encounter"; // After step 2 (Shop) go to Encounter (Step 3)
 
-			await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = null, updated_at = now() WHERE id = $2', [nextPhase, session.id]);
+			// Update Seed: deterministic based on current seed + actionId
+			const newSeed = this.generateNextSeed(session.seed, actionId);
+
+			await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3', [nextPhase, newSeed, session.id]);
 		} else {
 			// After Step 3, go to Combat
 			// Save Ghost if team provided
@@ -160,12 +175,28 @@ export class MultiplayerServerManager {
 				await this.saveGhost(session.player_id, session.round, payload.team);
 			}
 
+			// New seed for combat? Or keep same? Usually keep same or update.
+			// Let's update it to keep the chain moving.
+			const newSeed = this.generateNextSeed(session.seed, actionId);
+
 			// Generate Combat Result (or prepare for it)
 			// For now, just transition phase
-			await pool.query('UPDATE player_sessions SET phase = $1, current_options = null, updated_at = now() WHERE id = $2', ['combat', session.id]);
+			await pool.query('UPDATE player_sessions SET phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3', ['combat', newSeed, session.id]);
 		}
 
 		return true;
+	}
+
+	private generateNextSeed(currentSeed: string, actionId: string): string {
+		// Simple hash: rotate and mix chars
+		const input = currentSeed + actionId;
+		let hash = 0;
+		for (let i = 0; i < input.length; i++) {
+			const char = input.charCodeAt(i);
+			hash = ((hash << 5) - hash) + char;
+			hash = hash & hash; // Convert to 32bit integer
+		}
+		return Math.abs(hash).toString(36);
 	}
 
 	private async saveGhost(playerId: string, round: number, team: any) {
@@ -178,11 +209,11 @@ export class MultiplayerServerManager {
 		console.log(`Saved ghost for ${playerId} Round ${round}`);
 	}
 
-	private async advancePhase(session: PlayerSession) {
+	private async advancePhase(session: PlayerSession, nextSeed: string) {
 		// From Combat -> Encounter (Next Round)
 		const nextRound = session.round + 1;
-		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, current_options = null, updated_at = now() WHERE id = $3',
-			['encounter', nextRound, session.id]);
-		console.log(`Session ${session.player_id} advanced to Round ${nextRound}`);
+		await pool.query('UPDATE player_sessions SET phase = $1, round = $2, step = 1, seed = $3, current_options = null, updated_at = now() WHERE id = $4',
+			['encounter', nextRound, nextSeed, session.id]);
+		console.log(`Session ${session.player_id} advanced to Round ${nextRound} with seed ${nextSeed}`);
 	}
 }
