@@ -14,9 +14,23 @@ export class MultiplayerManager {
 		return MultiplayerManager.instance;
 	}
 
-	public enableMultiplayer() {
+	private playerId: string = "player_" + Math.floor(Math.random() * 10000);
+	private serverUrl: string = "http://localhost:3000";
+
+	public async enableMultiplayer() {
 		this.isMultiplayer = true;
 		console.log("Multiplayer mode enabled");
+		try {
+			await fetch(`${this.serverUrl}/multiplayer/connect`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ playerId: this.playerId })
+			});
+			console.log("Connected to multiplayer session");
+		} catch (e) {
+			console.error("Failed to connect to multiplayer session", e);
+			this.isMultiplayer = false;
+		}
 	}
 
 	public disableMultiplayer() {
@@ -26,24 +40,21 @@ export class MultiplayerManager {
 
 	// Requests the current phase options from the server
 	public async getPhaseOptions(_state: State): Promise<PhaseOptions> {
-		// TODO: Implement actual server call
-		// Mock response for now
-		return new Promise((resolve) => {
-			console.log("Mock: Fetching phase options from server...");
-			setTimeout(() => {
-				// Determine phase based on state or random for mock
-				// For now, let's just return a generic encounter mock to test flow
-				resolve({
-					phase: "encounter",
-					options: [{ id: "upgrade_unit" }, { id: "armory" }, { id: "healing_tent" }]
-				});
-			}, 500);
-		});
+		console.log("Fetching phase options from server...");
+		const response = await fetch(`${this.serverUrl}/multiplayer/state?playerId=${this.playerId}`);
+		if (!response.ok) {
+			throw new Error("Failed to fetch state");
+		}
+		return await response.json();
 	}
 
 	public async sendOptionSelection(optionId: string): Promise<boolean> {
-		// TODO: Implement actual server call
-		console.log(`Mock: Sending selection ${optionId} to server...`);
-		return Promise.resolve(true);
+		console.log(`Sending selection ${optionId} to server...`);
+		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ playerId: this.playerId, actionId: optionId })
+		});
+		return response.ok;
 	}
 }
