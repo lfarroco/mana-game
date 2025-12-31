@@ -15,7 +15,6 @@ import * as DiscardZone from "../../Scenes/Battleground/Systems/Shop/DiscardZone
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
