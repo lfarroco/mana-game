@@ -250,6 +250,10 @@ export class MultiplayerServerManager {
 				response.options = newOptions;
 				break;
 
+			case "orb_shop":
+				response.options = [{ id: 'upgrade_orb' }];
+				break;
+
 			default:
 				break;
 		}
@@ -262,7 +266,7 @@ export class MultiplayerServerManager {
 	}
 
 	// Helper to resolve the semantic effect of an action (e.g. buying a unit, getting a buff)
-	private async resolveAction(session: PlayerSession, actionId: string, _payload?: any) {
+	private async resolveAction(session: PlayerSession, actionId: string, payload?: any) {
 		// 1. Check if actionId is a Card ID (Shop Purchase)
 		const availableCards = Card.getAvailableCards();
 		const card = availableCards.find(c => c.id === actionId);
@@ -318,46 +322,29 @@ export class MultiplayerServerManager {
 			// armory -> damage
 			// healing_tent -> heal (full heal?)
 			// ...
-			// For simplified v1 refactor, let's handle basic buffs
-			// const buffMap: { [key: string]: string } = {
-			// 	'armory': 'damage',
-			// 	'healing_tent': 'heal',
-			// 	'frontier_fort': 'shield',
-			// 	'forest_pools': 'regen',
-			// 	'toxic_chamber': 'poison',
-			// 	'trial_circuit': 'haste',
-			// 	'trappers_guild': 'slow',
-			// 	'thunder_spire': 'charge',
-			// 	'commanders_tent': 'power',
-			// 	'assassins_hideout': 'crit'
-			// };
-
-			// If actionId matches a buff type directly (e.g. from shop upgrade)
-			// OR matches an encounter ID
-
-			// In the current architecture, 'armory' opens a shop. The ACTUAL action is 'upgrade_unit' or something specific?
-			// Checking Encounter.ts: 
-			// armory -> onClick opens Shop with filter 'damage'.
-			// The selection made in that shop is a card ID? No, it's an "improve_type" option?
-			// Encounter.ts: improveType returns id `improve_${type}`.
-			// orbShopCallback returns `openOrbShop`.
-			// OrbShop uses `orbsIndex`.
-
-			// If it's a Buff Action (e.g. improve_damage)
 			if (actionId.startsWith('improve_')) {
 				const type = actionId.replace('improve_', '');
 				console.log(`[resolveAction] Applying buff ${type} to all units? Or specific?`);
-				// In current game, it opens orb shop. The Orb Shop selection is what matters.
-				// Orb IDs: increase_power_on_damage, etc.
 			}
 
-			// If actionId matches a known Orb ID (from Orbs.ts, e.g. "increase_power_on_damage")
-			// We'd need to import Orbs or replicate logic.
-			// For this task, the USER complained about "second unit disappears". This implies Shop Buying.
-			// So focusing on Card ID resolution is priority #1.
+
+			if (actionId === 'apply_orb' && payload) {
+				const { orbId, targetUnitId } = payload;
+				console.log(`[resolveAction] Applying orb ${orbId} to ${targetUnitId}`);
+				const targetUnit = units.find((u: any) => u.id === targetUnitId);
+				if (targetUnit) {
+					if (orbId === 'upgrade_orb') {
+						targetUnit.rank = (targetUnit.rank || 1) + 1;
+						// Apply stats boost (mock)
+						targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
+						targetUnit.life = targetUnit.maxLife;
+						targetUnit.power = Math.floor(targetUnit.power * 1.5);
+						console.log(`[resolveAction] Upgraded unit ${targetUnit.id} to rank ${targetUnit.rank}`);
+					}
+				}
+			}
 		}
 
-		// Save updated team back to session
 		team.units = units;
 		await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
 			[JSON.stringify(team), session.id]);
@@ -376,23 +363,11 @@ export class MultiplayerServerManager {
 		// Handle State Update Actions (Non-Progression)
 		if (actionId === 'update_team') {
 			if (payload && payload.team) {
-				// Client tried to send team, but we are Server Authoritative now. Check if we accept it?
-				// User wants "player sends choice id, then server generates unit".
-				// So we IGNORE payload.team for progression actions, but maybe allow update_team for positioning?
-				// "The player can only move that unit around" -> Client sends team update with positions.
-
-				// If action is update_team, we trust the positions but verify/sanitize units?
-				// For now, accept update_team for positioning.
-
-				// We need to merge positions into existing server team to prevent hacking stats.
 				const sessionTeam = session.team || { units: [] };
 				const clientUnits = payload.team.units || [];
 
-				// Map client positions to server units
 				const serverUnits = sessionTeam.units || [];
 				serverUnits.forEach((su: any) => {
-					// Find matching unit in client payload (by ID ideally, or cardId+index)
-					// If units have unique instance IDs, use that.
 					const cu = clientUnits.find((u: any) => u.id === su.id || (u.cardId === su.cardId && u.id === su.id)); // ID matching
 					if (cu && cu.position) {
 						su.position = cu.position;
@@ -406,7 +381,6 @@ export class MultiplayerServerManager {
 			return true; // Success, no phase change
 		}
 
-		// Check for duplicate action in the current step
 		const existingAction = session.action_log.find((entry: any) =>
 			entry.round === session.round &&
 			entry.phase === session.phase &&
@@ -486,18 +460,39 @@ export class MultiplayerServerManager {
 		if (session.step < 4) {
 			// Stay in encounter/shop (or toggle)
 			let nextPhase = "encounter";
+			let nextOptions: any = null;
 
-			// Step 1 (Encounter) -> Step 2 (Shop)
-			if (session.step === 1) nextPhase = "shop";
-			// Step 2 (Shop) -> Step 3 (Encounter)
+			// Step 1 (Encounter) -> Step 2 (Shop / Orb Shop)
+			if (session.step === 1) {
+				if (actionId === 'upgrade_unit') {
+					nextPhase = "orb_shop";
+					nextOptions = [{ id: 'upgrade_orb' }];
+				} else {
+					nextPhase = "shop";
+				}
+			}
+			// Step 2 (Shop/Orb Shop) -> Step 3 (Encounter)
 			if (session.step === 2) nextPhase = "encounter";
-			// Step 3 (Encounter) -> Step 4 (Shop)
-			if (session.step === 3) nextPhase = "shop";
+			// Step 3 (Encounter) -> Step 4 (Shop / Orb Shop)
+			if (session.step === 3) {
+				if (actionId === 'upgrade_unit') {
+					nextPhase = "orb_shop";
+					nextOptions = [{ id: 'upgrade_orb' }];
+				} else {
+					nextPhase = "shop";
+				}
+			}
 
 			// Update Seed: deterministic based on current seed + actionId
 			const newSeed = this.generateNextSeed(session.seed, actionId);
 
-			await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3', [nextPhase, newSeed, session.id]);
+			if (nextOptions) {
+				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = $3, updated_at = now() WHERE id = $4',
+					[nextPhase, newSeed, JSON.stringify({ options: nextOptions }), session.id]);
+			} else {
+				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3',
+					[nextPhase, newSeed, session.id]);
+			}
 		} else {
 			// After Step 4, go to Combat
 			// Save Ghost if team provided

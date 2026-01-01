@@ -1,4 +1,4 @@
-export type PhaseType = "encounter" | "shop" | "upgrade_core" | "add_reaction_core" | "combat" | "victory" | "game_over";
+export type PhaseType = "encounter" | "shop" | "orb_shop" | "upgrade_core" | "add_reaction_core" | "combat" | "victory" | "game_over";
 
 export interface PhaseOptions {
 	phase: PhaseType;

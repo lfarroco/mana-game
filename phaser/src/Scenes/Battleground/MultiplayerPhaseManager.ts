@@ -20,6 +20,7 @@ import { resetUnitStats } from "@Models/Entities/Unit";
 import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
+import { openOrbShop } from "./Systems/Shop/OrbShop";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -68,6 +69,25 @@ export async function handleMultiplayerPhase(state: State) {
 		case "shop":
 			const shopCardIds = result.options.map(o => o.id);
 			await HeroShop.openHeroShop(undefined, undefined, shopCardIds);
+			await handleMultiplayerPhase(state);
+			break;
+
+		case "orb_shop":
+			const orbOptions = result.options;
+			if (!orbOptions || orbOptions.length === 0) {
+				console.warn("Orb Shop options missing");
+				return;
+			}
+			console.log("Opening Orb Shop with options:", orbOptions);
+			await openOrbShop(
+				state,
+				orbOptions.map((o: any) => o.id),
+				async (orbId, targetId) => {
+					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
+					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', { orbId, targetUnitId: targetId });
+				}
+			);
+			await handleMultiplayerPhase(state);
 			break;
 
 		case "upgrade_core":
