@@ -558,8 +558,25 @@ export class MultiplayerServerManager {
 		const hasCore = playerUnits.some(u => u.isCore);
 		if (!hasCore) {
 			console.log("[createCombatState] Player missing Core. Adding default Protective Crystal.");
-			// Default to protective_crystal at 0,1 (middle left)
-			const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", { x: 0, y: 1 });
+
+			// Find free slot for Core (Default preference: 0,1 -> 0,2 -> 0,0 -> etc)
+			const occupiedSlots = new Set(playerUnits.map(u => `${u.position?.x},${u.position?.y}`));
+			let targetPos = { x: 0, y: 1 };
+
+			// Priority positions for core: Middle Column 0
+			const priorities = [
+				{ x: 0, y: 1 }, { x: 0, y: 2 }, { x: 0, y: 0 }, { x: 0, y: 3 },
+				{ x: 1, y: 1 }, { x: 1, y: 2 }, { x: 1, y: 0 }, { x: 1, y: 3 }
+			];
+
+			for (const p of priorities) {
+				if (!occupiedSlots.has(`${p.x},${p.y}`)) {
+					targetPos = p;
+					break;
+				}
+			}
+
+			const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", targetPos);
 			playerUnits.push(coreUnit);
 		}
 
