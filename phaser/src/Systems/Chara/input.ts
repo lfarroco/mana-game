@@ -48,10 +48,13 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
 		ph.WhenDroppedOnZone(chara, DiscardZone.name, () => {
+			if (!Board.isInputEnabled()) return;
 			if (isPlayerUnit) events.onDiscard(state.unitId);
 		});
 
 		ph.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+			if (!Board.isInputEnabled()) return;
+
 			const x = zone.getData("cell-x") as number;
 			const y = zone.getData("cell-y") as number;
 			const tile = Geometry.vec2(x, y);
@@ -81,11 +84,14 @@ export function init(chara: Chara.Chara) {
 export const onDrag =
 	(chara: Chara.Chara) =>
 		(_pointer: Pointer, dragX: number, dragY: number): void => {
+			if (!Board.isInputEnabled()) return;
 			chara.x = dragX;
 			chara.y = dragY;
 		};
 
 export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
+	if (!Board.isInputEnabled()) return;
+
 	const { chara } = handlerState;
 
 	tween({
