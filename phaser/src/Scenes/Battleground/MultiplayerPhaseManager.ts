@@ -21,6 +21,7 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "./Systems/Shop/OrbShop";
+import { updateLivesDisplay } from "@UI/components/livesDisplay";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -34,6 +35,7 @@ export async function handleMultiplayerPhase(state: State) {
 	if (result.losses !== undefined) {
 		state.gameData.player.losses = result.losses;
 		state.gameData.player.lives = 4 - result.losses;
+		updateLivesDisplay(state.gameData.player.lives);
 	}
 
 	if (result.team && result.team.units) {
