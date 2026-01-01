@@ -270,6 +270,15 @@ export function updateUnitPosition(
 }
 
 let _playerBoardState: BoardState | null = null;
+let _inputEnabled = true;
+
+export function setIsInputEnabled(enabled: boolean) {
+	_inputEnabled = enabled;
+}
+
+export function isInputEnabled() {
+	return _inputEnabled;
+}
 
 export function init() {
 	if (_playerBoardState) {
