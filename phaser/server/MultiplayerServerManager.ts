@@ -392,6 +392,27 @@ export class MultiplayerServerManager {
 							targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
 							console.log(`[resolveAction] Target ${targetUnit.id} absorbed ${totalAbsorbed} power`);
 						}
+					} else if (payload.orbId === 'distribute_power_orb') {
+						const powerToDistribute = Math.floor(targetUnit.power * 0.5);
+						if (powerToDistribute > 0) {
+							// Deduct from source
+							targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
+							const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
+							targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
+							console.log(`[resolveAction] Source ${targetUnit.id} distributed ${powerToDistribute} power`);
+
+							// Find targets (row allies excluding self)
+							const targets = units.filter((u: any) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y);
+
+							if (targets.length > 0) {
+								const powerPerTarget = Math.floor(powerToDistribute / targets.length);
+								targets.forEach((u: any) => {
+									u.power = (u.power || 0) + powerPerTarget;
+									u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
+									console.log(`[resolveAction] Distributed ${powerPerTarget} power to ${u.id}`);
+								});
+							}
+						}
 					}
 				}
 			}
@@ -498,6 +519,16 @@ export class MultiplayerServerManager {
 				return true;
 			} else if (validOption && validOption.id === 'power_absorber') {
 				const newOptions = [{ id: 'absorb_power_orb' }];
+				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = $2, updated_at = now() WHERE id = $3',
+					['orb_shop', JSON.stringify({ options: newOptions }), session.id]);
+
+				session.phase = 'orb_shop';
+				session.step++;
+				session.current_options = { options: newOptions } as any;
+
+				return true;
+			} else if (validOption && validOption.id === 'power_distributor') {
+				const newOptions = [{ id: 'distribute_power_orb' }];
 				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = $2, updated_at = now() WHERE id = $3',
 					['orb_shop', JSON.stringify({ options: newOptions }), session.id]);
 
