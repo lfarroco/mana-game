@@ -61,12 +61,19 @@ export class MultiplayerServerManager {
 	}
 
 	// Since we are now async, we update signatures
-	public async createSession(playerId: string): Promise<PlayerSession> {
+	public async createSession(playerId: string, selectedCrystalId?: string): Promise<PlayerSession> {
 		// Ensure team column exists (migration-like step)
 		try {
 			await pool.query('ALTER TABLE player_sessions ADD COLUMN IF NOT EXISTS team jsonb');
 		} catch (e) {
 			console.error("Error adding team column", e);
+		}
+
+		// Initial Team Setup
+		let initialTeam: any = null;
+		if (selectedCrystalId) {
+			const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 0, y: 1 });
+			initialTeam = { units: [coreUnit] };
 		}
 
 		// Generate a random seed
@@ -75,13 +82,13 @@ export class MultiplayerServerManager {
 		// Upsert session
 		const query = `
             INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log, wins, losses, team)
-            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0, null)
+            VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0, $3)
             ON CONFLICT (player_id) 
-            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, team = null, updated_at = now()
+            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, team = EXCLUDED.team, updated_at = now()
             RETURNING *;
         `;
-		const res = await pool.query(query, [playerId, seed]);
-		console.log(`Created/Updated session for ${playerId} with seed ${seed}`);
+		const res = await pool.query(query, [playerId, seed, initialTeam ? JSON.stringify(initialTeam) : null]);
+		console.log(`Created/Updated session for ${playerId} with seed ${seed} and crystal ${selectedCrystalId}`);
 		return res.rows[0];
 	}
 

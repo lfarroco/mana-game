@@ -52,12 +52,12 @@ app.use(express.json());
 // Simple in-memory session mapping for demo purposes
 // In production, use proper session middleware
 app.post('/multiplayer/connect', async (req, res) => {
-	const { playerId } = req.body;
+	const { playerId, selectedCrystalId } = req.body;
 	if (!playerId) {
 		return res.status(400).json({ error: 'playerId required' });
 	}
 	try {
-		const session = await MultiplayerServerManager.getInstance().createSession(playerId);
+		const session = await MultiplayerServerManager.getInstance().createSession(playerId, selectedCrystalId);
 		res.json({ success: true, session });
 	} catch (e) {
 		console.error("Connect Error:", e);
