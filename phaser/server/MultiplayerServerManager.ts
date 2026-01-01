@@ -367,6 +367,7 @@ export class MultiplayerServerManager {
 				const targetUnit = units.find((u: any) => u.id === targetUnitId);
 				if (targetUnit) {
 					if (payload.orbId === 'upgrade_orb') {
+						// TOOD: should be the logic used by the upgrade unit function
 						targetUnit.rank = (targetUnit.rank || 1) + 1;
 						// Apply stats boost (mock)
 						targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
@@ -579,37 +580,30 @@ export class MultiplayerServerManager {
 		}
 
 		// Handle Encounter/Shop progression
-
-		// Handle Encounter/Shop progression
 		// Sequence: 
 		// Step 1: Encounter Choice -> Step 2: Shop (Resolution)
 		// Step 3: Encounter Choice -> Step 4: Shop (Resolution)
-		// Step 4 -> Combat
+		// Step 5: Encounter Choice -> Step 6: Shop (Resolution)
+		// Step 6 -> Combat
 
-		if (session.step < 4) {
+		if (session.step < 6) {
 			// Stay in encounter/shop (or toggle)
 			let nextPhase = "encounter";
 			let nextOptions: any = null;
 
-			// Step 1 (Encounter) -> Step 2 (Shop / Orb Shop)
-			if (session.step === 1) {
-				if (actionId === 'upgrade_unit') {
+			// Odd Steps (1, 3, 5) Encounter -> Shop
+			if (session.step % 2 !== 0) {
+				if (actionId === 'upgrade_unit' || actionId === 'power_distributor' || actionId === 'power_absorber') {
 					nextPhase = "orb_shop";
-					nextOptions = [{ id: 'upgrade_orb' }];
+					if (actionId === 'upgrade_unit') nextOptions = [{ id: 'upgrade_orb' }];
+					if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }];
+					if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }];
 				} else {
 					nextPhase = "shop";
 				}
-			}
-			// Step 2 (Shop/Orb Shop) -> Step 3 (Encounter)
-			if (session.step === 2) nextPhase = "encounter";
-			// Step 3 (Encounter) -> Step 4 (Shop / Orb Shop)
-			if (session.step === 3) {
-				if (actionId === 'upgrade_unit') {
-					nextPhase = "orb_shop";
-					nextOptions = [{ id: 'upgrade_orb' }];
-				} else {
-					nextPhase = "shop";
-				}
+			} else {
+				// Even Steps (2, 4) Shop -> Encounter
+				nextPhase = "encounter";
 			}
 
 			// Update Seed: deterministic based on current seed + actionId
@@ -623,7 +617,7 @@ export class MultiplayerServerManager {
 					[nextPhase, newSeed, session.id]);
 			}
 		} else {
-			// After Step 4, go to Combat
+			// After Step 6, go to Combat
 			// Save Ghost if team provided
 			if (payload && payload.team) {
 				await this.saveGhost(session.player_id, session.round, payload.team);
@@ -640,7 +634,6 @@ export class MultiplayerServerManager {
 
 		return true;
 	}
-
 	private generateNextSeed(currentSeed: string, actionId: string): string {
 		// Simple hash: rotate and mix chars
 		const input = currentSeed + actionId;
