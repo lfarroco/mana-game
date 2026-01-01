@@ -458,7 +458,9 @@ export class MultiplayerServerManager {
 
 			const validOption = currentOptions.find((opt: any) => opt.id === actionId);
 			// Allow 'apply_orb' action implicitly if we are in 'orb_shop' phase
-			const isImplicitAction = (session.phase === 'orb_shop' && actionId === 'apply_orb');
+			const isImplicitAction = (session.phase === 'orb_shop' && actionId === 'apply_orb') ||
+				(session.phase === 'shop' && actionId === 'shop_skip');
+
 
 			if (!validOption && !isImplicitAction) {
 				console.warn(`Action ${actionId} rejected: Invalid option for Player ${playerId} (Phase: ${session.phase})`);
