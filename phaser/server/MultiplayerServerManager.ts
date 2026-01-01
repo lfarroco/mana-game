@@ -87,6 +87,15 @@ export class MultiplayerServerManager {
 			console.error("Error adding team column", e);
 		}
 
+		// Check for existing active session
+		const existingSession = await this.getSession(playerId);
+		if (existingSession) {
+			if (existingSession.phase !== 'victory' && existingSession.phase !== 'game_over') {
+				console.log(`Resuming active session for ${playerId} in phase ${existingSession.phase}`);
+				return existingSession;
+			}
+		}
+
 		// Initial Team Setup
 		let initialTeam: any = null;
 		if (selectedCrystalId) {
