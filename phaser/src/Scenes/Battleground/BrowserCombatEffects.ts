@@ -348,5 +348,11 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 				},
 			});
 		},
+
+		onTimeoutStart: () => {
+			// Handled by playback controller in multiplayer or local logic
+			// For strictly local single player, we might need a way to set blackHole visible here
+			// if we want to support it. But for now, empty to satisfy interface.
+		}
 	};
 };

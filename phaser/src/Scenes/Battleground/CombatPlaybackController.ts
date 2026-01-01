@@ -20,6 +20,7 @@ type PlaybackState = {
 	animations: ScheduledAnimation[];
 	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates.CombatSystemStates;
+	blackHoleState?: any;
 };
 
 // Must match ServerConstants.MIN_COOLDOWN
@@ -43,18 +44,21 @@ export const createCombatPlaybackController = (
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
 
+	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
+	if (blackHoleState && blackHoleState.blackHole) {
+		blackHoleState.blackHole.setVisible(false);
+	}
+	// Note: countdownTimerState is generally not used in playback logic directly but good to init if needed
+	// const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+
 	const playbackState: PlaybackState = {
 		active: true,
 		currentTime: 0,
 		animations: [],
 		outcome: null,
 		combatStates,
+		blackHoleState,
 	};
-
-	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
-	if (blackHoleState && blackHoleState.blackHole) {
-		blackHoleState.blackHole.setVisible(false);
-	}
 
 	const scheduleAnimations = () => {
 		logs.forEach(log => {
@@ -194,6 +198,12 @@ export const createCombatPlaybackController = (
 					playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(log.currentCombatStats);
 				}
 				break;
+		}
+
+		if (log.type === "storm_start") {
+			if (playbackState.blackHoleState && playbackState.blackHoleState.blackHole) {
+				playbackState.blackHoleState.blackHole.setVisible(true);
+			}
 		}
 
 		animation.executed = true;
