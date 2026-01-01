@@ -414,6 +414,25 @@ export class MultiplayerServerManager {
 			return true; // Success, no phase change
 		}
 
+		if (actionId === 'discard_unit') {
+			if (payload && payload.unitId) {
+				const sessionTeam = session.team || { units: [] };
+				const serverUnits = sessionTeam.units || [];
+				const initialLength = serverUnits.length;
+
+				const filteredUnits = serverUnits.filter((u: any) => u.id !== payload.unitId);
+
+				if (filteredUnits.length !== initialLength) {
+					await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
+						[JSON.stringify({ units: filteredUnits }), session.id]);
+					console.log(`Unit ${payload.unitId} discarded for Player ${playerId}`);
+				} else {
+					console.warn(`Discard failed: Unit ${payload.unitId} not found in session for Player ${playerId}`);
+				}
+			}
+			return true; // Success, no phase change
+		}
+
 		const existingAction = session.action_log.find((entry: any) =>
 			entry.round === session.round &&
 			entry.phase === session.phase &&

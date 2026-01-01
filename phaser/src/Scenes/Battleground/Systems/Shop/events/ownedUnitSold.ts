@@ -3,8 +3,14 @@ import { getState } from "@Models/State";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as DiscardZone from "../DiscardZone";
 
+import { MultiplayerManager } from "../../../../../Multiplayer/MultiplayerManager";
+
 export function ownedUnitSold(unitId: string) {
 	const state = getState();
+
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		MultiplayerManager.getInstance().sendOptionSelection("discard_unit", { unitId });
+	}
 
 	const chara = getCharaById(unitId);
 
