@@ -2,8 +2,9 @@ import * as constants from "@Constants/constants";
 import * as constants_1 from "@Constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
-import { getCurrentScene, getState, getUnitAt, State } from "./State";
+import { getCurrentScene, getState, State } from "./State";
 import * as EnergySlot from "../Components/EnergySlot/EnergySlot";
+import * as BoardLogic from "./BoardLogic";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];
@@ -195,22 +196,13 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 
 	const boardWidthInTiles = Math.floor(board.width / constants.TILE_WIDTH);
 	const boardHeightInTiles = Math.floor(board.height / constants.TILE_HEIGHT);
-	const maxSlots = boardWidthInTiles * boardHeightInTiles;
 
-	if (units.filter((u) => u.force === forceId).length >= maxSlots) {
+	const slot = BoardLogic.getEmptySlot(units, forceId, boardWidthInTiles, boardHeightInTiles);
+
+	if (!slot) {
 		console.warn("Board full. No empty slot available for forceId:", forceId);
-		return null;
 	}
-
-	for (let y = 0; y < boardHeightInTiles; y++) {
-		for (let x = 0; x < boardWidthInTiles; x++) {
-			const currentPos = Geometry.vec2(x, y);
-			if (!getUnitAt(units)(currentPos)) {
-				return currentPos;
-			}
-		}
-	}
-	return null;
+	return slot;
 }
 
 export function getTileAt(board: BoardState, pointer: { x: number; y: number }): Vec2 | null {
@@ -246,13 +238,13 @@ export function updateUnitPosition(
 	const state = getState();
 	const oldPositionOfMovedUnit = { ...unitToMove.position };
 
-	if (Geometry.eqVec2(oldPositionOfMovedUnit, newBoardPosition)) {
+	const moveCheck = BoardLogic.checkMove(unitToMove, newBoardPosition, unitsOnBoard);
+
+	if (!moveCheck.valid) {
 		return null;
 	}
 
-	const occupierUnit = unitsOnBoard.find(
-		(u) => u.id !== unitToMove.id && Geometry.eqVec2(u.position, newBoardPosition)
-	);
+	const occupierUnit = moveCheck.occupant;
 
 	if (occupierUnit) {
 		occupierUnit.position = oldPositionOfMovedUnit;
