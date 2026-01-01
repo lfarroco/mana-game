@@ -17,14 +17,14 @@ export class MultiplayerManager {
 	private playerId: string = "player_" + Math.floor(Math.random() * 10000);
 	private serverUrl: string = "http://localhost:3000";
 
-	public async enableMultiplayer() {
+	public async enableMultiplayer(selectedCrystalId?: string) {
 		this.isMultiplayer = true;
 		console.log("Multiplayer mode enabled");
 		try {
 			await fetch(`${this.serverUrl}/multiplayer/connect`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ playerId: this.playerId })
+				body: JSON.stringify({ playerId: this.playerId, selectedCrystalId })
 			});
 			console.log("Connected to multiplayer session");
 		} catch (e) {

@@ -264,7 +264,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		state.gameData.isSeeded = this.isSeededRun;
 
 		if (this.isArena) {
-			await MultiplayerManager.getInstance().enableMultiplayer();
+			await MultiplayerManager.getInstance().enableMultiplayer(selectedCrystal.id);
 		}
 
 		await io.Fade(300, 0x000000);
