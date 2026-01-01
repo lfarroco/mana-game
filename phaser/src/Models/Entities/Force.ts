@@ -10,6 +10,7 @@ export type Force = {
 	units: Unit[];
 	lives: number;
 	wins: number;
+	losses: number;
 };
 
 export const makeForce = (id: string): Force => {
@@ -20,6 +21,7 @@ export const makeForce = (id: string): Force => {
 		units: [],
 		lives: 4,
 		wins: 0,
+		losses: 0,
 	};
 };
 

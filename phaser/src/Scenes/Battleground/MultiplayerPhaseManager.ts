@@ -7,8 +7,19 @@ import { showMatchResult } from "./Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
 import { createCombatPlaybackController } from "./CombatPlaybackController";
 import { clearAll, create as createChara } from "@Systems/Chara/Chara";
-import { FORCE_ID_PLAYER, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
+import { createUIButton } from "../../Components/UIButton";
+import { t } from "@i18n/i18n";
+import { vec2 } from "@Models/Geometry";
 import { BattlegroundScene } from "./BattlegroundScene";
+import * as ResultsUI from "./Results/ResultsUI";
+import * as Animations from "@Systems/Chara/Animations";
+import * as ForceStats from "./ForceStats";
+import * as CombatSystemStates from "./Systems/CombatSystemStates";
+import { resetUnitStats } from "@Models/Entities/Unit";
+import { getBattleCore } from "@Models/Entities/Card";
+import { getCharaById } from "@Systems/Chara/Chara";
+import { delay } from "@Utils/animation";
 
 // ... existing handleMultiplayerPhase ...
 
@@ -25,7 +36,13 @@ export async function handleMultiplayerPhase(state: State) {
 
 	console.log(`Multiplayer Phase: ${result.phase}`);
 
-	// Sync Team State from Server
+	// Sync Team State and Stats from Server
+	if (result.wins !== undefined) state.gameData.player.wins = result.wins;
+	if (result.losses !== undefined) {
+		state.gameData.player.losses = result.losses;
+		state.gameData.player.lives = 4 - result.losses;
+	}
+
 	if (result.team && result.team.units) {
 		console.log("Syncing team from server...", result.team.units.length);
 		const serverUnits = result.team.units;
@@ -157,46 +174,51 @@ export async function handleMultiplayerPhase(state: State) {
 
 		// 3. Ready Button
 		await new Promise<void>((resolve) => {
-			const btn = scene.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "READY", {
-				fontSize: '32px',
-				color: '#ffffff',
-				backgroundColor: '#000000',
-				padding: { x: 20, y: 10 }
-			})
-				.setOrigin(0.5)
-				.setInteractive({ useHandCursor: true });
-
-			btn.once('pointerdown', () => {
-				btn.destroy();
+			const btn = createUIButton(t("ui.ready"), vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100), () => {
+				btn.container.destroy();
 				resolve();
 			});
 		});
 
 		// 4. Start Playback
 		const effects = createBrowserCombatEffects();
-		// Wrap onCombatEnd to add our Continue logic
-		const originalOnCombatEnd = effects.onCombatEnd;
+		// Overridden onCombatEnd to use Shared ResultsUI but control flow manually
 		effects.onCombatEnd = async (state, outcome, combatStates) => {
-			await originalOnCombatEnd(state, outcome, combatStates);
+			// 1. Shatter Visuals (copied from BrowserCombatEffects)
+			if (outcome === "player_lost") {
+				const core = getBattleCore(state)(FORCE_ID_PLAYER);
+				if (core) {
+					await Animations.shatter(getCharaById(core.id));
+				}
+			} else {
+				const core = getBattleCore(state)(FORCE_ID_CPU);
+				if (core) {
+					await Animations.shatter(getCharaById(core.id));
+				}
+			}
 
-			// Show Continue Button
+			await delay(300);
+
+			// 2. Cleanup Stats
+			if (combatStates) {
+				let forceStatsState = combatStates.forceStatsState;
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
+				CombatSystemStates.updateForceStatsState(forceStatsState);
+			}
+			state.gameData.player.units.forEach(resetUnitStats);
+
+			// 3. Show Results UI (Single-Player Style)
+			const resultType = outcome === "player_won" ? "victory" : "defeat";
+
 			await new Promise<void>((resolve) => {
-				const btn = scene.add.text(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "CONTINUE", {
-					fontSize: '32px',
-					color: '#ffffff',
-					backgroundColor: '#000000',
-					padding: { x: 20, y: 10 }
-				})
-					.setOrigin(0.5)
-					.setInteractive({ useHandCursor: true });
-
-				btn.once('pointerdown', () => {
-					btn.destroy();
+				ResultsUI.displayResults(state, resultType, () => {
 					resolve();
 				});
+				ResultsUI.slideIn();
 			});
 
-			// Proceed
+			// 4. Proceed
 			await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
 			// Loop back to handle next phase (e.g. victory or next encounter)
 			await handleMultiplayerPhase(state);
