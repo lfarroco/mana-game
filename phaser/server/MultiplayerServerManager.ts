@@ -366,13 +366,32 @@ export class MultiplayerServerManager {
 				console.log(`[resolveAction] Applying orb ${orbId} to ${targetUnitId}`);
 				const targetUnit = units.find((u: any) => u.id === targetUnitId);
 				if (targetUnit) {
-					if (orbId === 'upgrade_orb') {
+					if (payload.orbId === 'upgrade_orb') {
 						targetUnit.rank = (targetUnit.rank || 1) + 1;
 						// Apply stats boost (mock)
 						targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
 						targetUnit.life = targetUnit.maxLife;
 						targetUnit.power = Math.floor(targetUnit.power * 1.5);
 						console.log(`[resolveAction] Upgraded unit ${targetUnit.id} to rank ${targetUnit.rank}`);
+					} else if (payload.orbId === 'absorb_power_orb') {
+						let totalAbsorbed = 0;
+						// Find row neighbors
+						units.forEach((u: any) => {
+							if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
+								const absorbed = Math.floor(u.power * 0.25);
+								if (absorbed > 0) {
+									u.power = Math.max(0, u.power - absorbed);
+									totalAbsorbed += absorbed;
+									console.log(`[resolveAction] Unit ${u.id} drained ${absorbed} power`);
+								}
+							}
+						});
+
+						if (totalAbsorbed > 0) {
+							targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
+							targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
+							console.log(`[resolveAction] Target ${targetUnit.id} absorbed ${totalAbsorbed} power`);
+						}
 					}
 				}
 			}
@@ -465,6 +484,28 @@ export class MultiplayerServerManager {
 			if (!validOption && !isImplicitAction) {
 				console.warn(`Action ${actionId} rejected: Invalid option for Player ${playerId} (Phase: ${session.phase})`);
 				return false;
+			}
+
+			if (validOption && validOption.id === 'upgrade_unit') {
+				const newOptions = [{ id: 'upgrade_orb' }];
+				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = $2, updated_at = now() WHERE id = $3',
+					['orb_shop', JSON.stringify({ options: newOptions }), session.id]);
+
+				session.phase = 'orb_shop';
+				session.step++;
+				session.current_options = { options: newOptions } as any;
+
+				return true;
+			} else if (validOption && validOption.id === 'power_absorber') {
+				const newOptions = [{ id: 'absorb_power_orb' }];
+				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, current_options = $2, updated_at = now() WHERE id = $3',
+					['orb_shop', JSON.stringify({ options: newOptions }), session.id]);
+
+				session.phase = 'orb_shop';
+				session.step++;
+				session.current_options = { options: newOptions } as any;
+
+				return true;
 			}
 		} else {
 			// No options generated yet? or cleared.
