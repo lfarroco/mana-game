@@ -2,6 +2,7 @@ export type PhaseType = "encounter" | "shop" | "orb_shop" | "upgrade_core" | "ad
 
 export interface PhaseOptions {
 	phase: PhaseType;
+	round?: number;
 	options: any[]; // Specific options depending on phase
 	combatState?: {
 		enemyTeam: any;
