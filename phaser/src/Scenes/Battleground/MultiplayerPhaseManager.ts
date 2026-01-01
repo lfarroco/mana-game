@@ -131,10 +131,8 @@ export async function handleMultiplayerPhase(state: State) {
 		// Prioritize using the full unit list from server if available (to capture injected Cores)
 		let allUnits = [];
 		if (combatState.units) {
-			console.log("Using server-provided full unit list.");
 			allUnits = combatState.units;
 		} else {
-			console.warn("Server did not provide full unit list. Falling back to local player units + enemy team.");
 			const playerUnits = state.gameData.player.units;
 			const enemyUnits = combatState.enemyTeam;
 			// Ensure force IDs (just in case)
