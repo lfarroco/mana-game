@@ -42,7 +42,7 @@ export async function itemClickPurchaseRequested(
 			return;
 		}
 
-		const success = await MultiplayerManager.getInstance().sendOptionSelection(shopUnitData.cardId, undefined, getState());
+		const success = await MultiplayerManager.getInstance().sendOptionSelection(shopUnitData.cardId);
 
 		if (success) {
 			if (existingUnit && existingUnit.rank <= 3) {

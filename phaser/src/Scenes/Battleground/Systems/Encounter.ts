@@ -231,7 +231,7 @@ export async function open(state: State, options?: string[]) {
 			encounters.forEach(e => {
 				// Override onClick to send selection to server
 				e.onClick = async () => {
-					await MultiplayerManager.getInstance().sendOptionSelection(e.id || "", undefined, state);
+					await MultiplayerManager.getInstance().sendOptionSelection(e.id || "");
 					container.destroy(true);
 					// Wait for server? For now assume server will trigger next phase or we just wait.
 					// But we should probably clear the UI.

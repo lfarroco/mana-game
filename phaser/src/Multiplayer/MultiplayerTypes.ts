@@ -7,6 +7,10 @@ export interface PhaseOptions {
 		enemyTeam: any;
 		logs: any[];
 		seed: string;
+		units: any[]; // Include units here for full sync if needed
+	};
+	team?: {
+		units: any[];
 	};
 }
 
