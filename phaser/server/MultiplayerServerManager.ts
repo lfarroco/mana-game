@@ -402,12 +402,6 @@ export class MultiplayerServerManager {
 			return true; // Success, no phase change
 		}
 
-		// SERVER AUTHORITATIVE ACTION RESOLUTION
-		await this.resolveAction(session, actionId, payload);
-
-		// For progression actions, we've already called resolveAction above.
-		// And we don't trust payload.team for progression anymore.
-
 		// Check for duplicate action in the current step
 		const existingAction = session.action_log.find((entry: any) =>
 			entry.round === session.round &&
@@ -417,7 +411,7 @@ export class MultiplayerServerManager {
 
 		if (existingAction) {
 			console.warn(`Duplicate action detected for Player ${playerId} in Step ${session.step}. Ignoring.`);
-			return true; // Return success to client so it doesn't retry, but don't process again
+			return true; // Return success to client so it doesn't retry
 		}
 
 		// Validate Action against allowed Options
@@ -443,6 +437,9 @@ export class MultiplayerServerManager {
 			console.warn(`Action ${actionId} rejected: No active options for Player ${playerId}`);
 			return false;
 		}
+
+		// SERVER AUTHORITATIVE ACTION RESOLUTION
+		await this.resolveAction(session, actionId, payload);
 
 		// Append action to log
 		const actionEntry = {
