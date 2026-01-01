@@ -139,12 +139,14 @@ export class MultiplayerServerManager {
 			if (!Array.isArray(stored) && stored.options) {
 				return {
 					phase: session.phase as any,
+					round: session.round,
 					options: stored.options,
 					combatState: stored.combatState
 				};
 			}
 			return {
 				phase: session.phase as any,
+				round: session.round,
 				options: session.current_options,
 				team: session.team,
 				wins: session.wins,
@@ -155,6 +157,7 @@ export class MultiplayerServerManager {
 		let newOptions: any[] = [];
 		let response: PhaseOptions = {
 			phase: session.phase as any,
+			round: session.round,
 			options: [],
 			team: session.team,
 			wins: session.wins,
