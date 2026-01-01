@@ -113,6 +113,8 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 
 export const onDragStart =
 	(handlerState: InputHandler) => (_pointer: Pointer, _dragX: number, _dragY: number) => {
+		if (!Board.isInputEnabled()) return;
+
 		const { chara } = handlerState;
 
 		const dragStartVec = Geometry.vec2(chara.x, chara.y);

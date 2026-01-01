@@ -12,6 +12,7 @@ import { createUIButton } from "../../Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { BattlegroundScene } from "./BattlegroundScene";
+import { setIsInputEnabled } from "@Models/Board";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ForceStats from "./ForceStats";
@@ -134,6 +135,8 @@ export async function handleMultiplayerPhase(state: State) {
 
 		state.battleData.units = allUnits;
 
+		setIsInputEnabled(false);
+
 		clearAll();
 		for (const u of state.battleData.units) {
 			const c = await createChara(u);
@@ -151,6 +154,7 @@ export async function handleMultiplayerPhase(state: State) {
 
 		const effects = createBrowserCombatEffects();
 		effects.onCombatEnd = async (state, outcome, combatStates) => {
+			setIsInputEnabled(true);
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
