@@ -200,16 +200,24 @@ export class MultiplayerServerManager {
 					else if (encounterId === 'thunder_spire') filterType = 'charge';
 					else if (encounterId === 'commanders_tent') filterType = 'increase_power';
 					else if (encounterId === 'assassins_hideout') filterType = 'increase_critical';
+					else if (encounterId === 'silver_shop') filterType = 'silver';
+					else if (encounterId === 'gold_shop') filterType = 'gold';
 				}
 
 				const allCards = Card.getAvailableCards();
 				let filteredCards = allCards;
 
 				if (filterType) {
-					filteredCards = allCards.filter(card =>
-					(card.effects?.some(eff => eff.id === filterType) ||
-						card.reactions?.some(react => react.effects?.some(eff => eff.id === filterType)))
-					);
+					if (filterType === 'silver') {
+						filteredCards = allCards.filter(card => card.rank === 2);
+					} else if (filterType === 'gold') {
+						filteredCards = allCards.filter(card => card.rank === 3);
+					} else {
+						filteredCards = allCards.filter(card =>
+						(card.effects?.some(eff => eff.id === filterType) ||
+							card.reactions?.some(react => react.effects?.some(eff => eff.id === filterType)))
+						);
+					}
 				}
 
 				// Fallback if filter returns empty (shouldn't happen with full collection but safe to have)
@@ -338,6 +346,28 @@ export class MultiplayerServerManager {
 
 					if (targetPos) {
 						const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
+
+						// CHECK FOR SILVER/GOLD SHOP CONTEXT
+						const previousStep = session.step - 1;
+						const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
+						const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+						let targetRank = 1;
+						if (encounterId === 'silver_shop') targetRank = 2;
+						if (encounterId === 'gold_shop') targetRank = 3;
+
+						// Handle Silver/Gold Shop Rank Up
+						if (targetRank > 1) {
+							newUnit.rank = targetRank;
+							// Apply upgrades (Rank 2 = 1 upgrade, Rank 3 = 2 upgrades)
+							const extraLevels = targetRank - 1;
+							for (let i = 0; i < extraLevels; i++) {
+								newUnit.maxLife = Math.floor(newUnit.maxLife * 1.5);
+								newUnit.life = newUnit.maxLife;
+								newUnit.power = Math.floor(newUnit.power * 1.5);
+							}
+							console.log(`[resolveAction] Recruited unit ${actionId} at Rank ${newUnit.rank} (Silver/Gold Shop)`);
+						}
+
 						units.push(newUnit);
 						console.log(`[resolveAction] Added new unit ${actionId} at ${targetPos.x},${targetPos.y}`);
 					} else {
