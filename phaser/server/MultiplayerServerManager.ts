@@ -301,7 +301,7 @@ export class MultiplayerServerManager {
 			const existingUnitIndex = units.findIndex((u: any) => u.cardId === actionId);
 			if (existingUnitIndex >= 0) {
 				const existingUnit = units[existingUnitIndex];
-				if (existingUnit.rank < 3) {
+				if (existingUnit.rank < 4) {
 					// Upgrade!
 					existingUnit.rank++;
 					// Boost stats? Usually re-generate or valid logic.
