@@ -251,16 +251,19 @@ export function updateUnitPosition(
 		unitToMove.position = newBoardPosition;
 		if (state.battleData.units.length > 0) {
 			// sync battledata
-			state.battleData.units.find((u) => u.id === occupierUnit.id)!.position =
-				oldPositionOfMovedUnit;
-			state.battleData.units.find((u) => u.id === unitToMove.id)!.position = newBoardPosition;
+			const bdOccupier = state.battleData.units.find((u) => u.id === occupierUnit.id);
+			if (bdOccupier) bdOccupier.position = oldPositionOfMovedUnit;
+
+			const bdMoved = state.battleData.units.find((u) => u.id === unitToMove.id);
+			if (bdMoved) bdMoved.position = newBoardPosition;
 		}
 		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 	} else {
 		unitToMove.position = newBoardPosition;
 		if (state.battleData.units.length > 0) {
 			//sync battledata
-			state.battleData.units.find((u) => u.id === unitToMove.id)!.position = newBoardPosition;
+			const bdMoved = state.battleData.units.find((u) => u.id === unitToMove.id);
+			if (bdMoved) bdMoved.position = newBoardPosition;
 		}
 		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
 	}
