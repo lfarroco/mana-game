@@ -6,7 +6,7 @@ import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
 import { showMatchResult } from "./Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
 import { createCombatPlaybackController } from "./CombatPlaybackController";
-import { clearAll, create as createChara } from "@Systems/Chara/Chara";
+import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
 import { createUIButton } from "../../Components/UIButton";
 import { t } from "@i18n/i18n";
@@ -46,7 +46,10 @@ export async function handleMultiplayerPhase(state: State) {
 
 		if (result.phase !== "combat") {
 			clearAll();
-			await Promise.all(state.gameData.player.units.map(u => createChara(u)));
+			await Promise.all(state.gameData.player.units.map(async u => {
+				const c = await createChara(u);
+				enableTooltip(c);
+			}));
 		}
 	}
 
@@ -133,7 +136,8 @@ export async function handleMultiplayerPhase(state: State) {
 
 		clearAll();
 		for (const u of state.battleData.units) {
-			await createChara(u);
+			const c = await createChara(u);
+			enableTooltip(c);
 		}
 
 		const scene = getCurrentScene() as BattlegroundScene;
