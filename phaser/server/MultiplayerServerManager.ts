@@ -7,6 +7,7 @@
 import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
 import { Pool } from 'pg';
 import * as Card from "../src/Models/Entities/Card";
+import * as BoardLogic from "../src/Models/BoardLogic";
 import { registerCollection } from "../src/Models/Entities/Card";
 import { pickRandom } from "../src/utils";
 
@@ -76,7 +77,7 @@ export class MultiplayerServerManager {
             INSERT INTO player_sessions (player_id, phase, round, step, seed, initial_seed, current_options, action_log, wins, losses, team)
             VALUES ($1, 'encounter', 1, 1, $2, $2, null, '[]'::jsonb, 0, 0, null)
             ON CONFLICT (player_id) 
-            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, updated_at = now()
+            DO UPDATE SET phase = 'encounter', round = 1, step = 1, seed = EXCLUDED.seed, initial_seed = EXCLUDED.initial_seed, current_options = null, action_log = '[]'::jsonb, wins = 0, losses = 0, team = null, updated_at = now()
             RETURNING *;
         `;
 		const res = await pool.query(query, [playerId, seed]);
@@ -221,7 +222,7 @@ export class MultiplayerServerManager {
 					// Send all units (Player + CPU) so client uses the exact IDs (including injected Core)
 					// Use the INITIAL units (cloned before simulation) so client starts at frame 0 state
 					units: initialUnits,
-					enemyTeam: initialUnits.filter(u => u.force === FORCE_ID_CPU),
+					enemyTeam: initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
 					logs: effects.logs,
 					seed: session.seed
 				};
@@ -250,7 +251,7 @@ export class MultiplayerServerManager {
 	}
 
 	// Helper to resolve the semantic effect of an action (e.g. buying a unit, getting a buff)
-	private async resolveAction(session: PlayerSession, actionId: string, payload?: any) {
+	private async resolveAction(session: PlayerSession, actionId: string, _payload?: any) {
 		// 1. Check if actionId is a Card ID (Shop Purchase)
 		const availableCards = Card.getAvailableCards();
 		const card = availableCards.find(c => c.id === actionId);
@@ -285,24 +286,15 @@ export class MultiplayerServerManager {
 				// New Unit
 				if (units.length < 6) { // Max party size constant hardcoded for now
 					// Find free slot
-					const occupiedSlots = new Set(units.map((u: any) => `${u.position?.x},${u.position?.y}`));
-					let targetPos = { x: 0, y: 0 };
-					// Simple grid search 4x4
-					let found = false;
-					for (let x = 0; x < 4; x++) {
-						for (let y = 0; y < 4; y++) {
-							if (!occupiedSlots.has(`${x},${y}`)) {
-								targetPos = { x, y };
-								found = true;
-								break;
-							}
-						}
-						if (found) break;
-					}
+					const targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
 
-					const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
-					units.push(newUnit);
-					console.log(`[resolveAction] Added new unit ${actionId} at ${targetPos.x},${targetPos.y}`);
+					if (targetPos) {
+						const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
+						units.push(newUnit);
+						console.log(`[resolveAction] Added new unit ${actionId} at ${targetPos.x},${targetPos.y}`);
+					} else {
+						console.warn(`[resolveAction] failed to find a slot for ${actionId}`);
+					}
 				}
 			}
 		} else {
@@ -316,18 +308,18 @@ export class MultiplayerServerManager {
 			// healing_tent -> heal (full heal?)
 			// ...
 			// For simplified v1 refactor, let's handle basic buffs
-			const buffMap: { [key: string]: string } = {
-				'armory': 'damage',
-				'healing_tent': 'heal',
-				'frontier_fort': 'shield',
-				'forest_pools': 'regen',
-				'toxic_chamber': 'poison',
-				'trial_circuit': 'haste',
-				'trappers_guild': 'slow',
-				'thunder_spire': 'charge',
-				'commanders_tent': 'power',
-				'assassins_hideout': 'crit'
-			};
+			// const buffMap: { [key: string]: string } = {
+			// 	'armory': 'damage',
+			// 	'healing_tent': 'heal',
+			// 	'frontier_fort': 'shield',
+			// 	'forest_pools': 'regen',
+			// 	'toxic_chamber': 'poison',
+			// 	'trial_circuit': 'haste',
+			// 	'trappers_guild': 'slow',
+			// 	'thunder_spire': 'charge',
+			// 	'commanders_tent': 'power',
+			// 	'assassins_hideout': 'crit'
+			// };
 
 			// If actionId matches a buff type directly (e.g. from shop upgrade)
 			// OR matches an encounter ID
@@ -559,25 +551,16 @@ export class MultiplayerServerManager {
 		if (!hasCore) {
 			console.log("[createCombatState] Player missing Core. Adding default Protective Crystal.");
 
-			// Find free slot for Core (Default preference: 0,1 -> 0,2 -> 0,0 -> etc)
-			const occupiedSlots = new Set(playerUnits.map(u => `${u.position?.x},${u.position?.y}`));
-			let targetPos = { x: 0, y: 1 };
+			// Find free slot for Core
+			// Default preference: 0,1
+			const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 0, y: 1 });
 
-			// Priority positions for core: Middle Column 0
-			const priorities = [
-				{ x: 0, y: 1 }, { x: 0, y: 2 }, { x: 0, y: 0 }, { x: 0, y: 3 },
-				{ x: 1, y: 1 }, { x: 1, y: 2 }, { x: 1, y: 0 }, { x: 1, y: 3 }
-			];
-
-			for (const p of priorities) {
-				if (!occupiedSlots.has(`${p.x},${p.y}`)) {
-					targetPos = p;
-					break;
-				}
+			if (freeSlot) {
+				const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", freeSlot);
+				playerUnits.push(coreUnit);
+			} else {
+				console.error("[createCombatState] Could not find slot for Default Core!");
 			}
-
-			const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", targetPos);
-			playerUnits.push(coreUnit);
 		}
 
 		console.log(`[createCombatState] Parsed Player Units Count: ${playerUnits.length}`);

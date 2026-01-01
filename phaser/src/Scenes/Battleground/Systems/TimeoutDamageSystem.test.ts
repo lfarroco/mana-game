@@ -64,7 +64,7 @@ describe('TimeoutDamageSystem', () => {
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME;
 		timeoutState.timeSinceLastTick = 1000;
 
-		const delta = 0; // Just trigger check, or better simulate a tick
+		// const delta = 0; // Just trigger check, or better simulate a tick
 		// update adds delta first.
 
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME;
@@ -92,7 +92,7 @@ describe('TimeoutDamageSystem', () => {
 		// Passed in state: elapsed = start+2000. Last tick was 0? No, let's say last tick was at 1000.
 		// We want to trigger the calculation for tick #3?
 
-		const delta = 0; // Just trigger? No, update adds delta.
+		// const delta = 0; // Just trigger? No, update adds delta.
 
 		// Let's restart.
 		// We want to verify scaling.
@@ -103,7 +103,8 @@ describe('TimeoutDamageSystem', () => {
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME + 2000;
 		timeoutState.timeSinceLastTick = 1000;
 
-		const newState = updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0.001); // minimal delta to trigger
+		// const newState = updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0.001); // minimal delta to trigger
+		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0.001); // minimal delta to trigger
 		// Actually update adds delta to combatElapsedTime AND timeSinceLastTick.
 		// so if we pass 0, it uses existing.
 
