@@ -12,6 +12,8 @@ export interface PhaseOptions {
 	team?: {
 		units: any[];
 	};
+	wins?: number;
+	losses?: number;
 }
 
 // For Encounter Phase

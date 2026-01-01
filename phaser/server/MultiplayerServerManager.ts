@@ -120,6 +120,8 @@ export class MultiplayerServerManager {
 				phase: session.phase as any,
 				options: session.current_options,
 				team: session.team,
+				wins: session.wins,
+				losses: session.losses,
 			};
 		}
 
@@ -128,6 +130,8 @@ export class MultiplayerServerManager {
 			phase: session.phase as any,
 			options: [],
 			team: session.team,
+			wins: session.wins,
+			losses: session.losses,
 		};
 
 		// Pseudo-random generation based on seed + round + step

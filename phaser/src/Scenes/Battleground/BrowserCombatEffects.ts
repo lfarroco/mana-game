@@ -5,7 +5,7 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
-import { cpuForce, playerForce } from "@Models/Entities/Force";
+
 import * as Systems from "./Systems";
 import * as ForceStats from "./ForceStats";
 import { initBlackHole } from "./BlackHole";
@@ -39,12 +39,12 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 
 		onCombatEnd: async (state: State, outcome: WaveOutcome, combatStates: CombatSystemStates.CombatSystemStates) => {
 			if (outcome === "player_lost") {
-				const core = getBattleCore(state)(playerForce(state).id);
+				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));
 				}
 			} else {
-				const core = getBattleCore(state)(cpuForce(state).id);
+				const core = getBattleCore(state)(FORCE_ID_CPU);
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));
 				}
