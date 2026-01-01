@@ -68,9 +68,14 @@ export async function handleMultiplayerPhase(state: State) {
 		// Actually, simpler is to just replace and trigger a visual refresh if we can.
 		// But in Phaser, destroying/creating sprites is cheap enough for this turn-based sync.
 		state.gameData.player.units = serverUnits;
-		// Trigger Refesh?
-		clearAll();
-		state.gameData.player.units.forEach(u => createChara(u));
+
+		// Optimization: if we are about to enter combat, skip this intermediate render 
+		// because `handleMultiplayerCombat` will render everything including enemy units.
+		if (result.phase !== "combat") {
+			clearAll();
+			// Ensure we await all creations to prevent race conditions
+			await Promise.all(state.gameData.player.units.map(u => createChara(u)));
+		}
 	}
 
 	switch (result.phase) {
