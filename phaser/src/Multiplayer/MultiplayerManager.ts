@@ -48,18 +48,10 @@ export class MultiplayerManager {
 		return await response.json();
 	}
 
-	public async sendOptionSelection(optionId: string, payload?: any, state?: State): Promise<boolean> {
+	public async sendOptionSelection(optionId: string, payload?: any): Promise<boolean> {
 		console.log(`Sending selection ${optionId} to server...`, payload);
 
-		let body: any = { playerId: this.playerId, actionId: optionId, ...((payload) || {}) };
-
-		if (state) {
-			const team = {
-				units: state.gameData.player.units
-			};
-			body.team = team;
-			console.log("Attached updated team to payload");
-		}
+		const body: any = { playerId: this.playerId, actionId: optionId, ...((payload) || {}) };
 
 		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
 			method: 'POST',

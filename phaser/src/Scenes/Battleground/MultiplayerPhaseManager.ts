@@ -25,6 +25,54 @@ export async function handleMultiplayerPhase(state: State) {
 
 	console.log(`Multiplayer Phase: ${result.phase}`);
 
+	// Sync Team State from Server
+	if (result.team && result.team.units) {
+		console.log("Syncing team from server...", result.team.units.length);
+		const serverUnits = result.team.units;
+		// We overwrite local units with server units, ensuring IDs match.
+		// If we want to preserve local positions for smoothness, we might need matching logic.
+		// But User requested "Server generates, sends to player", so Server is authoritative.
+		// However, "player can move unit around" implies client position authority during phase.
+		// But `getPhaseOptions` is called usually at start of phase or after major action.
+
+		state.gameData.player.units = serverUnits;
+
+		// Re-spawn visuals to match new units (if count changed or upgrades happened)
+		// Or let the scene update loop handle it? Battleground usually manually creates Charas.
+		// We might need to refresh visuals here if we are in non-combat phase.
+		// For now, let's update data. Visuals might rely on `Encounter` or `Shop` opening logic to refresh?
+		// Shop relies on `CharaShop.renderTavernCharas`.
+		// Player units are `Chara` instances.
+		// If we replace `state.gameData.player.units`, existing `Charas` might point to old unit objects?
+		// Yes, `Chara` holds a reference to `Unit`.
+		// So we MUST refresh visuals or merge data into existing objects.
+
+		// For simplicity in this refactor: Clear and Recreate Player Charas?
+		// Or Merge Data (HP, Rank, etc) into existing units if ID matches?
+		// Let's try Merge first to avoid flickering.
+
+		/*
+		const currentUnits = state.gameData.player.units;
+		serverUnits.forEach((su: any) => {
+			const cu = currentUnits.find(u => u.id === su.id);
+			if (cu) {
+				Object.assign(cu, su); // Update stats
+			} else {
+				currentUnits.push(su); // Add new
+			}
+		});
+		// Remove missing?
+		// state.gameData.player.units = currentUnits.filter(u => serverUnits.find((su: any) => su.id === u.id));
+		*/
+
+		// Actually, simpler is to just replace and trigger a visual refresh if we can.
+		// But in Phaser, destroying/creating sprites is cheap enough for this turn-based sync.
+		state.gameData.player.units = serverUnits;
+		// Trigger Refesh?
+		clearAll();
+		state.gameData.player.units.forEach(u => createChara(u));
+	}
+
 	switch (result.phase) {
 		case "combat":
 			if (result.combatState) {
@@ -33,7 +81,7 @@ export async function handleMultiplayerPhase(state: State) {
 				console.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
-				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id, undefined, state);
+				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id);
 				await handleMultiplayerPhase(state);
 			}
 			break;
@@ -146,7 +194,7 @@ export async function handleMultiplayerPhase(state: State) {
 			});
 
 			// Proceed
-			await MultiplayerManager.getInstance().sendOptionSelection("combat_done", undefined, state);
+			await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
 			// Loop back to handle next phase (e.g. victory or next encounter)
 			await handleMultiplayerPhase(state);
 		};

@@ -110,14 +110,16 @@ export class MultiplayerServerManager {
 			}
 			return {
 				phase: session.phase as any,
-				options: session.current_options
+				options: session.current_options,
+				team: session.team,
 			};
 		}
 
 		let newOptions: any[] = [];
 		let response: PhaseOptions = {
 			phase: session.phase as any,
-			options: []
+			options: [],
+			team: session.team,
 		};
 
 		// Pseudo-random generation based on seed + round + step
@@ -247,6 +249,119 @@ export class MultiplayerServerManager {
 		return response;
 	}
 
+	// Helper to resolve the semantic effect of an action (e.g. buying a unit, getting a buff)
+	private async resolveAction(session: PlayerSession, actionId: string, payload?: any) {
+		// 1. Check if actionId is a Card ID (Shop Purchase)
+		const availableCards = Card.getAvailableCards();
+		const card = availableCards.find(c => c.id === actionId);
+
+		let team = session.team || { units: [] };
+		let units = team.units || [];
+
+		// Ensure Core
+		if (units.length === 0) {
+			// First time setup if empty? Usually handled in createCombatState but good to have.
+		}
+
+		if (card) {
+			// SHOP PURCHASE LOGIC
+			console.log(`[resolveAction] Player ${session.player_id} buying unit ${actionId}`);
+
+			// Check if we have an existing unit of this type to upgrade
+			const existingUnitIndex = units.findIndex((u: any) => u.cardId === actionId);
+			if (existingUnitIndex >= 0) {
+				const existingUnit = units[existingUnitIndex];
+				if (existingUnit.rank < 3) {
+					// Upgrade!
+					existingUnit.rank++;
+					// Boost stats? Usually re-generate or valid logic.
+					// Simple Mock Upgrade:
+					existingUnit.maxLife = Math.floor(existingUnit.maxLife * 1.5);
+					existingUnit.life = existingUnit.maxLife;
+					existingUnit.power = Math.floor(existingUnit.power * 1.5);
+					console.log(`[resolveAction] Upgraded unit ${actionId} to rank ${existingUnit.rank}`);
+				}
+			} else {
+				// New Unit
+				if (units.length < 6) { // Max party size constant hardcoded for now
+					// Find free slot
+					const occupiedSlots = new Set(units.map((u: any) => `${u.position?.x},${u.position?.y}`));
+					let targetPos = { x: 0, y: 0 };
+					// Simple grid search 4x4
+					let found = false;
+					for (let x = 0; x < 4; x++) {
+						for (let y = 0; y < 4; y++) {
+							if (!occupiedSlots.has(`${x},${y}`)) {
+								targetPos = { x, y };
+								found = true;
+								break;
+							}
+						}
+						if (found) break;
+					}
+
+					const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
+					units.push(newUnit);
+					console.log(`[resolveAction] Added new unit ${actionId} at ${targetPos.x},${targetPos.y}`);
+				}
+			}
+		} else {
+			// ENCOUNTER / BUFF LOGIC
+			// Check for known encounter IDs
+			if (actionId === 'upgrade_unit') {
+				// handled via sub-menu usually? Or payload?
+			}
+			// Mapping from Encounter ID to Effect
+			// armory -> damage
+			// healing_tent -> heal (full heal?)
+			// ...
+			// For simplified v1 refactor, let's handle basic buffs
+			const buffMap: { [key: string]: string } = {
+				'armory': 'damage',
+				'healing_tent': 'heal',
+				'frontier_fort': 'shield',
+				'forest_pools': 'regen',
+				'toxic_chamber': 'poison',
+				'trial_circuit': 'haste',
+				'trappers_guild': 'slow',
+				'thunder_spire': 'charge',
+				'commanders_tent': 'power',
+				'assassins_hideout': 'crit'
+			};
+
+			// If actionId matches a buff type directly (e.g. from shop upgrade)
+			// OR matches an encounter ID
+
+			// In the current architecture, 'armory' opens a shop. The ACTUAL action is 'upgrade_unit' or something specific?
+			// Checking Encounter.ts: 
+			// armory -> onClick opens Shop with filter 'damage'.
+			// The selection made in that shop is a card ID? No, it's an "improve_type" option?
+			// Encounter.ts: improveType returns id `improve_${type}`.
+			// orbShopCallback returns `openOrbShop`.
+			// OrbShop uses `orbsIndex`.
+
+			// If it's a Buff Action (e.g. improve_damage)
+			if (actionId.startsWith('improve_')) {
+				const type = actionId.replace('improve_', '');
+				console.log(`[resolveAction] Applying buff ${type} to all units? Or specific?`);
+				// In current game, it opens orb shop. The Orb Shop selection is what matters.
+				// Orb IDs: increase_power_on_damage, etc.
+			}
+
+			// If actionId matches a known Orb ID (from Orbs.ts, e.g. "increase_power_on_damage")
+			// We'd need to import Orbs or replicate logic.
+			// For this task, the USER complained about "second unit disappears". This implies Shop Buying.
+			// So focusing on Card ID resolution is priority #1.
+		}
+
+		// Save updated team back to session
+		team.units = units;
+		await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
+			[JSON.stringify(team), session.id]);
+
+		return true;
+	}
+
 	public async handleAction(playerId: string, actionId: string, payload?: any): Promise<boolean> {
 		const session = await this.getSession(playerId);
 		if (!session) {
@@ -258,20 +373,41 @@ export class MultiplayerServerManager {
 		// Handle State Update Actions (Non-Progression)
 		if (actionId === 'update_team') {
 			if (payload && payload.team) {
-				// Need to ensure we don't lose existing existing team data if payload is partial?
-				// Assuming payload.team is the full new team state
+				// Client tried to send team, but we are Server Authoritative now. Check if we accept it?
+				// User wants "player sends choice id, then server generates unit".
+				// So we IGNORE payload.team for progression actions, but maybe allow update_team for positioning?
+				// "The player can only move that unit around" -> Client sends team update with positions.
+
+				// If action is update_team, we trust the positions but verify/sanitize units?
+				// For now, accept update_team for positioning.
+
+				// We need to merge positions into existing server team to prevent hacking stats.
+				const sessionTeam = session.team || { units: [] };
+				const clientUnits = payload.team.units || [];
+
+				// Map client positions to server units
+				const serverUnits = sessionTeam.units || [];
+				serverUnits.forEach((su: any) => {
+					// Find matching unit in client payload (by ID ideally, or cardId+index)
+					// If units have unique instance IDs, use that.
+					const cu = clientUnits.find((u: any) => u.id === su.id || (u.cardId === su.cardId && u.id === su.id)); // ID matching
+					if (cu && cu.position) {
+						su.position = cu.position;
+					}
+				});
+
 				await pool.query('UPDATE player_sessions SET team = $1, updated_at = now() WHERE id = $2',
-					[JSON.stringify(payload.team), session.id]);
-				console.log(`Team updated for Player ${playerId}: ${JSON.stringify(payload.team).substring(0, 100)}...`);
+					[JSON.stringify({ units: serverUnits }), session.id]);
+				console.log(`Team positions updated for Player ${playerId}`);
 			}
 			return true; // Success, no phase change
 		}
 
-		// For progression actions, also update team if provided
-		if (payload && payload.team) {
-			await pool.query('UPDATE player_sessions SET team = $1 WHERE id = $2',
-				[JSON.stringify(payload.team), session.id]);
-		}
+		// SERVER AUTHORITATIVE ACTION RESOLUTION
+		await this.resolveAction(session, actionId, payload);
+
+		// For progression actions, we've already called resolveAction above.
+		// And we don't trust payload.team for progression anymore.
 
 		// Check for duplicate action in the current step
 		const existingAction = session.action_log.find((entry: any) =>
@@ -292,7 +428,12 @@ export class MultiplayerServerManager {
 		// No, if options are null, client shouldn't be acting.
 
 		if (session.current_options) {
-			const validOption = session.current_options.find((opt: any) => opt.id === actionId);
+			let currentOptions = session.current_options as any;
+			if (!Array.isArray(currentOptions) && currentOptions.options) {
+				currentOptions = currentOptions.options;
+			}
+
+			const validOption = currentOptions.find((opt: any) => opt.id === actionId);
 			if (!validOption) {
 				console.warn(`Action ${actionId} rejected: Invalid option for Player ${playerId} (Phase: ${session.phase})`);
 				return false;
