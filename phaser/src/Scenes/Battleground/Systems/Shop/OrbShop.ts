@@ -12,7 +12,7 @@ import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-export async function openOrbShop(state: State, orbs: string[]): Promise<void> {
+export async function openOrbShop(state: State, orbs: string[], onOrbApply?: (orbId: string, targetId: string) => void): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
@@ -30,7 +30,7 @@ export async function openOrbShop(state: State, orbs: string[]): Promise<void> {
 		renderOrbShop(state, container, selectedOrbs, async () => {
 			await delay(300);
 			completeSectionCallback();
-		});
+		}, onOrbApply);
 
 		Board.setEnemyBoardVisible(false);
 
@@ -42,7 +42,8 @@ export function renderOrbShop(
 	state: State,
 	container: Phaser.GameObjects.Container,
 	orbIds: string[],
-	onOrbUsed?: () => void | Promise<void>
+	onOrbUsed?: () => void | Promise<void>,
+	onOrbApply?: (orbId: string, targetId: string) => void
 ) {
 	const scene = getCurrentScene();
 
@@ -92,6 +93,7 @@ export function renderOrbShop(
 
 		magicOrb.startDissolve();
 		onOrbUsed?.();
+		onOrbApply?.(orbSpec.id, existingUnit.id);
 	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {
