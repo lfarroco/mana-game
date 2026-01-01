@@ -235,47 +235,20 @@ export class MultiplayerServerManager {
 
 			case "combat":
 				console.log("[getPhaseOptions] Generating Combat...");
-				// Generate Combat Data
-				// 1. Create State
-				const combatState = this.createCombatState(session);
-				// CLONE units for the response so we send the INITIAL state, not the post-simulation state
-				const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
-
-				console.log(`[getPhaseOptions] State created. Units: ${combatState.battleData.units?.length}`);
-
-				// 2. Create Effects
-				const effects = createServerCombatEffects(combatState);
-				console.log("[getPhaseOptions] Effects created.");
-
-				// 3. Run Simulation
-				const combatRunner = runCombat(combatState, effects);
-				console.log("[getPhaseOptions] Runner started.");
-
-				// Run until finish
-				const SIM_DELTA = 16.67;
-				let frame = 0;
-				const MAX_FRAMES = 10000; // Safety
-				while (combatRunner.isActive() && frame < MAX_FRAMES) {
-					effects.setFrame(frame);
-					combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
-					frame++;
-				}
-				console.log(`[getPhaseOptions] Simulation finished after ${frame} frames.`);
+				const simResult = this.simulateCombat(session);
 
 				newOptions = [{ id: 'combat_done', label: "Continue" }];
 
 				// Encode Combat State for Client
 				console.log("[getPhaseOptions] Constructing response...");
-				if (!combatState.battleData) console.error("[getPhaseOptions] ERROR: battleData is missing!");
-				if (!combatState.battleData.units) console.error("[getPhaseOptions] ERROR: battleData.units is missing!");
 
 				response.options = newOptions;
 				response.combatState = {
 					// Send all units (Player + CPU) so client uses the exact IDs (including injected Core)
 					// Use the INITIAL units (cloned before simulation) so client starts at frame 0 state
-					units: initialUnits,
-					enemyTeam: initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
-					logs: effects.logs,
+					units: simResult.initialUnits,
+					enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
+					logs: simResult.logs,
 					seed: session.seed
 				};
 				console.log("[getPhaseOptions] Response constructed.");
@@ -602,10 +575,46 @@ export class MultiplayerServerManager {
 			// But for strict server auth, we should simulate.
 
 			// MOCK COMBAT RESULT:
-			const wonCombat = Math.random() > 0.5; // TODO: Replace with actual simulation
+			// Run Simulation to determine win/loss and get final stats
+			const simResult = this.simulateCombat(session);
+			const playerUnits = simResult.finalState.gameData.player.units; // These are post-combat units
+			const core = playerUnits.find(u => u.isCore);
+			const wonCombat = core && core.life > 0;
+
+			// Update Permanent Stats (Power Gains)
+			// We need to map back to the session team.
+			// session.team.units are the "source of truth".
+			// simResult.finalState units are the simulation result.
+			// We iterate session.team.units and update bonusPower if found in finalState.
+			const sessionTeam = session.team || { units: [] };
+			if (sessionTeam.units) {
+				sessionTeam.units.forEach((u: any) => {
+					// matching by id. Note that combat simulation might inject ID if missing, but session units have IDs.
+					const simUnit = playerUnits.find(su => su.id === u.id);
+					if (simUnit) {
+						// Update bonusPower
+						// We must also update 'power' because in this game 'power' is the effective value.
+						// The simulation unit has the correct final power (base + permanent changes).
+						u.bonusPower = simUnit.bonusPower;
+						u.power = simUnit.power;
+
+						// Also sync maxLife if changed (e.g. upgrades)? 
+						// Upgrades happen in Shop, but if reactions change maxLife permanently, we should sync it.
+						// Currently increasePower is the main permanent one.
+						u.maxLife = simUnit.maxLife;
+					}
+				});
+
+				// Persist Updated Team
+				await pool.query('UPDATE player_sessions SET team = $1 WHERE id = $2',
+					[JSON.stringify(sessionTeam), session.id]);
+			}
+
+			// const wonCombat = Math.random() > 0.5; // TODO: Replace with actual simulation
+			// Replaced above.
 
 			const newSeed = this.generateNextSeed(session.seed, actionId);
-			await this.advancePhase(session, newSeed, wonCombat);
+			await this.advancePhase(session, newSeed, wonCombat || false);
 			return true;
 		}
 
@@ -664,6 +673,27 @@ export class MultiplayerServerManager {
 
 		return true;
 	}
+
+	private simulateCombat(session: PlayerSession): { finalState: State, initialUnits: Unit[], logs: any[] } {
+		const combatState = this.createCombatState(session);
+		// CLONE units for the response so we send the INITIAL state, not the post-simulation state
+		const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
+
+		const effects = createServerCombatEffects(combatState);
+		const combatRunner = runCombat(combatState, effects);
+
+		const SIM_DELTA = 16.67;
+		let frame = 0;
+		const MAX_FRAMES = 10000; // Safety
+		while (combatRunner.isActive() && frame < MAX_FRAMES) {
+			effects.setFrame(frame);
+			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+			frame++;
+		}
+
+		return { finalState: combatState, initialUnits, logs: effects.logs };
+	}
+
 	private generateNextSeed(currentSeed: string, actionId: string): string {
 		// Simple hash: rotate and mix chars
 		const input = currentSeed + actionId;
@@ -708,6 +738,8 @@ export class MultiplayerServerManager {
 			playerUnits.forEach(u => {
 				u.effects = u.effects || [];
 				u.reactions = u.reactions || [];
+				// Ensure full life at start of combat
+				u.life = u.maxLife;
 			});
 		}
 
