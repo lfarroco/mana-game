@@ -33,6 +33,24 @@ const pool = new Pool({
 	port: 5432,
 });
 
+const ENCOUNTER_IDS = [
+	'upgrade_unit',
+	'armory',
+	'healing_tent',
+	'frontier_fort',
+	'forest_pools',
+	'toxic_chamber',
+	'trial_circuit',
+	'trappers_guild',
+	'thunder_spire',
+	'commanders_tent',
+	'assassins_hideout',
+	'power_distributor',
+	'power_absorber',
+	'silver_shop',
+	'gold_shop'
+];
+
 interface PlayerSession {
 	id: string; // This is the session UUID
 	player_id: string;
@@ -140,11 +158,26 @@ export class MultiplayerServerManager {
 		switch (session.phase) {
 			case "encounter":
 				// Mock deterministic options using stepSeed
+				/*
 				newOptions = [
 					{ id: `upgrade_unit` },
 					{ id: `armory` },
 					{ id: `healing_tent` }
 				];
+				*/
+				const seedNum = this.stringToSeed(session.seed);
+				const shuffled = [...ENCOUNTER_IDS];
+				let currentSeedVal = seedNum;
+
+				// Fisher-Yates Shuffle with seeded random
+				for (let i = shuffled.length - 1; i > 0; i--) {
+					const x = Math.sin(currentSeedVal++) * 10000;
+					const rnd = x - Math.floor(x);
+					const j = Math.floor(rnd * (i + 1));
+					[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+				}
+
+				newOptions = shuffled.slice(0, 3).map(id => ({ id }));
 				response.options = newOptions;
 				break;
 
@@ -525,6 +558,16 @@ export class MultiplayerServerManager {
 			hash = hash & hash; // Convert to 32bit integer
 		}
 		return Math.abs(hash).toString(36);
+	}
+
+	private stringToSeed(str: string): number {
+		let hash = 0;
+		for (let i = 0; i < str.length; i++) {
+			const char = str.charCodeAt(i);
+			hash = ((hash << 5) - hash) + char;
+			hash = hash & hash;
+		}
+		return Math.abs(hash);
 	}
 
 	private async saveGhost(playerId: string, round: number, team: any) {
