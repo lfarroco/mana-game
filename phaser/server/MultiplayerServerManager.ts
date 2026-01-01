@@ -573,6 +573,7 @@ export class MultiplayerServerManager {
 		const state: any = {
 			gameData: {
 				player: {
+					id: FORCE_ID_PLAYER,
 					wins: session.wins,
 					losses: session.losses,
 					units: playerUnits,

@@ -280,5 +280,9 @@ export const createServerCombatEffects = (_state: State): CombatEffects & { logs
 			logs.push({ type: "timeout_damage", force: targetForceId, damage, duration: INSTANT_EFFECT_DURATION, frame: currentFrame, applyTime: currentFrame });
 			onHit();
 		},
+
+		onTimeoutStart: () => {
+			logs.push({ type: "storm_start", frame: currentFrame });
+		},
 	};
 };

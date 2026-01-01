@@ -11,6 +11,7 @@ export type TimeoutSystemState = {
 	combatElapsedTime: number;
 	timeSinceLastTick: number;
 	isActive: boolean;
+	stormStarted: boolean;
 };
 
 export function initializeTimeoutDamageSystem(): TimeoutSystemState {
@@ -18,6 +19,7 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 		combatElapsedTime: 0,
 		timeSinceLastTick: 0,
 		isActive: true,
+		stormStarted: false,
 	};
 }
 
@@ -55,10 +57,20 @@ export function updateTimeoutDamageSystem(
 		};
 	}
 
+	// Check for storm start
+	let stormStarted = timeoutState.stormStarted;
+	if (!stormStarted && newCombatElapsedTime >= TIMEOUT_DAMAGE_START_TIME) {
+		stormStarted = true;
+		if (env.effects.onTimeoutStart) {
+			env.effects.onTimeoutStart();
+		}
+	}
+
 	return {
 		...timeoutState,
 		combatElapsedTime: newCombatElapsedTime,
 		timeSinceLastTick: newTimeSinceLastTick,
+		stormStarted,
 	};
 }
 
