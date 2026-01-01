@@ -36,6 +36,12 @@ export async function itemClickPurchaseRequested(
 			constants.FORCE_ID_PLAYER
 		);
 
+		// Check explicit party size limit (consistent with Single Player)
+		if ((!existingUnit || existingUnit.rank > 3) && getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+			handlePurchaseFailure("PARTY_FULL");
+			return;
+		}
+
 		if (!targetTile && (!existingUnit || existingUnit.rank > 3)) {
 			// If full and no upgrade possible
 			handlePurchaseFailure("PARTY_FULL");

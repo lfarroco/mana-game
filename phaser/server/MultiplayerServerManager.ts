@@ -332,7 +332,7 @@ export class MultiplayerServerManager {
 				}
 			} else {
 				// New Unit
-				if (units.length < 6) { // Max party size constant hardcoded for now
+				if (units.length < 9) { // Max party size constant hardcoded for now
 					// Find free slot
 					const targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
 
