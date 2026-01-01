@@ -72,7 +72,7 @@ export class MultiplayerServerManager {
 		// Initial Team Setup
 		let initialTeam: any = null;
 		if (selectedCrystalId) {
-			const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 0, y: 1 });
+			const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
 			initialTeam = { units: [coreUnit] };
 		}
 
@@ -559,8 +559,8 @@ export class MultiplayerServerManager {
 			console.log("[createCombatState] Player missing Core. Adding default Protective Crystal.");
 
 			// Find free slot for Core
-			// Default preference: 0,1
-			const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 0, y: 1 });
+			// Default preference: 1,1
+			const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
 
 			if (freeSlot) {
 				const coreUnit = makeUnit(FORCE_ID_PLAYER, "protective_crystal", freeSlot);
