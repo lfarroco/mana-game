@@ -684,7 +684,7 @@ export class MultiplayerServerManager {
 			} else {
 				await pool.query('UPDATE player_sessions SET step = step + 1, phase = $1, seed = $2, current_options = null, updated_at = now() WHERE id = $3',
 					[nextPhase, newSeed, session.id]);
-			}
+		}
 		} else {
 			// Step 7 (Encounter) -> Combat
 			// Action must be 'combat_encounter'

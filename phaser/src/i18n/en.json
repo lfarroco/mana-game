@@ -347,6 +347,8 @@
 	"encounters.silver_shop_desc": "Recruit a silver unit (only one option)",
 	"encounters.gold_shop": "Gold Unit",
 	"encounters.gold_shop_desc": "Recruit a gold unit (only one option)",
+	"encounters.combat.name": "Combat",
+	"encounters.combat.desc": "Prepare for combat!",
 	"run_stats.title": "Run Stats",
 	"run_stats.damage_dealt": "Damage Dealt",
 	"run_stats.poison_dealt": "Poison Dealt",
