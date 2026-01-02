@@ -614,6 +614,15 @@ export class MultiplayerServerManager {
 						// Upgrades happen in Shop, but if reactions change maxLife permanently, we should sync it.
 						// Currently increasePower is the main permanent one.
 						u.maxLife = simUnit.maxLife;
+
+						// Sanitization (User Request)
+						u.life = u.maxLife;
+						u.charge = 0;
+						u.shield = 0;
+						u.poison = 0;
+						u.hasted = 0;
+						u.slowed = 0;
+						u.evade = 0;
 					}
 				});
 
@@ -745,7 +754,8 @@ export class MultiplayerServerManager {
 		// parsing the team
 		let playerUnits: Unit[] = [];
 		if (session.team && (session.team as any).units) {
-			playerUnits = (session.team as any).units;
+			// Deep clone to prevent mutation of session state during simulation
+			playerUnits = JSON.parse(JSON.stringify((session.team as any).units));
 			// Hydrate units to ensure they have necessary arrays (prevent crash on partial data)
 			playerUnits.forEach(u => {
 				u.effects = u.effects || [];
