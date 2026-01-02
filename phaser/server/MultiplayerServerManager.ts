@@ -169,6 +169,13 @@ export class MultiplayerServerManager {
 
 		switch (session.phase) {
 			case "encounter":
+				// Step 7: Explicit Combat Encounter
+				if (session.step === 7) {
+					newOptions = [{ id: 'combat_encounter' }];
+					response.options = newOptions;
+					break;
+				}
+
 				// Mock deterministic options using stepSeed
 				/*
 				newOptions = [
@@ -646,7 +653,8 @@ export class MultiplayerServerManager {
 		// Step 5: Encounter Choice -> Step 6: Shop (Resolution)
 		// Step 6 -> Combat
 
-		if (session.step < 6) {
+
+		if (session.step < 7) {
 			// Stay in encounter/shop (or toggle)
 			let nextPhase = "encounter";
 			let nextOptions: any = null;
@@ -662,7 +670,8 @@ export class MultiplayerServerManager {
 					nextPhase = "shop";
 				}
 			} else {
-				// Even Steps (2, 4) Shop -> Encounter
+				// Even Steps (2, 4, 6) Shop -> Encounter
+				// Step 6 Shop -> Step 7 Encounter (Combat Card)
 				nextPhase = "encounter";
 			}
 
@@ -677,7 +686,13 @@ export class MultiplayerServerManager {
 					[nextPhase, newSeed, session.id]);
 			}
 		} else {
-			// After Step 6, go to Combat
+			// Step 7 (Encounter) -> Combat
+			// Action must be 'combat_encounter'
+			if (actionId !== 'combat_encounter') {
+				console.warn(`[handleAction] Unexpected action ${actionId} at Step 7. Expected 'combat_encounter'.`);
+				// Allow implicit fallthrough? Better to normalize.
+			}
+
 			// Save Ghost if team provided
 			if (payload && payload.team) {
 				await this.saveGhost(session.player_id, session.round, payload.team);
