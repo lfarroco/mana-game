@@ -4,6 +4,7 @@ import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
+import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 
 export function create(state: State) {
 	const btn = createUIButton(t("ui.menu.button"), vec2(1800, 30), () => {
@@ -20,31 +21,36 @@ export function createPanel(_state: State) {
 	const panelY = 600;
 	const startingY = panelY - 100;
 
-	const buttons = (
+	const buttonDefs: [string, () => void][] = [];
+
+	if (!MultiplayerManager.getInstance().isMultiplayer) {
+		buttonDefs.push([
+			t("ui.menu.newRun"),
+			() => {
+				resetState();
+				getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
+			},
+		]);
+	}
+
+	buttonDefs.push(
 		[
-			[
-				t("ui.menu.newRun"),
-				() => {
-					resetState();
-					getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
-				},
-			],
-			[
-				t("ui.menu.mainMenu"),
-				() => {
-					resetState();
-					getCurrentScene().scene.stop(getCurrentScene().scene.key);
-					getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
-				},
-			],
-			[
-				t("ui.menu.back"),
-				() => {
-					io.Destroy(container);
-				},
-			],
-		] as [string, () => void][]
-	).map(
+			t("ui.menu.mainMenu"),
+			() => {
+				resetState();
+				getCurrentScene().scene.stop(getCurrentScene().scene.key);
+				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+			},
+		],
+		[
+			t("ui.menu.back"),
+			() => {
+				io.Destroy(container);
+			},
+		]
+	);
+
+	const buttons = buttonDefs.map(
 		([label, callback], i) =>
 			createUIButton(label, vec2(panelX, startingY + i * 100), callback).container
 	);
