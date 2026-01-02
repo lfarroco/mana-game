@@ -125,7 +125,8 @@ export async function handleMultiplayerPhase(state: State) {
 
 		let allUnits = [];
 		if (combatState.units) {
-			allUnits = combatState.units;
+			// Deep clone units to ensure replay starts with fresh state
+			allUnits = JSON.parse(JSON.stringify(combatState.units));
 		} else {
 			const playerUnits = state.gameData.player.units;
 			const enemyUnits = combatState.enemyTeam;
@@ -180,14 +181,25 @@ export async function handleMultiplayerPhase(state: State) {
 			const resultType = outcome === "player_won" ? "victory" : "defeat";
 
 			await new Promise<void>((resolve) => {
-				ResultsUI.displayResults(state, resultType, () => {
-					resolve();
-				});
+				ResultsUI.displayResults(
+					state,
+					resultType,
+					() => {
+						// Continue Callback
+						resolve();
+						// Proceed to next phase
+						MultiplayerManager.getInstance().sendOptionSelection("combat_done")
+							.then(() => handleMultiplayerPhase(state));
+					},
+					() => {
+						// Replay Callback
+						resolve();
+						// Restart combat
+						handleMultiplayerCombat(state, combatState);
+					}
+				);
 				ResultsUI.slideIn();
 			});
-
-			await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
-			await handleMultiplayerPhase(state);
 		};
 
 		const controller = createCombatPlaybackController(state, combatState.logs, effects);
