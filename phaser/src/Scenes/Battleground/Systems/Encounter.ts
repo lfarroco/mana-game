@@ -283,7 +283,11 @@ export async function open(state: State, options?: string[]) {
 		const spacing = 240;
 
 		const x = SCREEN_WIDTH - 450;
-		const y = 300 + index * spacing;
+		let y = 300 + index * spacing;
+
+		if (encounters.length === 1) {
+			y = SCREEN_HEIGHT / 2;
+		}
 
 		createEncounterCard(container, {
 			x,
