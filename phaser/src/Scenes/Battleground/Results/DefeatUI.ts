@@ -15,7 +15,8 @@ import { t } from "@i18n/i18n";
 export async function displayDefeat(
 	livesChange: number,
 	units: Unit[],
-	nextPhaseCallback: () => void
+	nextPhaseCallback: () => void,
+	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	const panelWidth = RESULTS_PANEL.width;
 	const panelHeight = RESULTS_PANEL.height;
@@ -26,20 +27,33 @@ export async function displayDefeat(
 	const livesText = t("results.lives", { value: livesValue });
 	const livesColor = livesChange > 0 ? "#4CAF50" : "#F44336";
 
-	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
-		[
-			t("results.buttons.continue"),
+	const buttonDefinitions: Array<[string, () => Promise<void>]> = [];
+
+	if (replayCallback) {
+		buttonDefinitions.push([
+			t("results.buttons.replay"),
 			async () => {
-				nextPhaseCallback();
+				replayCallback();
 			}
-		]
-	];
+		]);
+	}
+
+	buttonDefinitions.push([
+		t("results.buttons.continue"),
+		async () => {
+			nextPhaseCallback();
+		}
+	]);
+
+	const totalButtons = buttonDefinitions.length;
+	const verticalSpacing = 75;
+	const baseY = panelY + panelHeight / 2 - RESULTS_SPACING.buttonBottomOffset;
 
 	const buttons = buttonDefinitions.map(
-		([label, callback]) =>
+		([label, callback], index) =>
 			createUIButton(
 				label,
-				vec2(panelX, panelY + panelHeight / 2 - RESULTS_SPACING.buttonBottomOffset),
+				vec2(panelX, baseY - (totalButtons - 1 - index) * verticalSpacing),
 				callback
 			).container
 	);

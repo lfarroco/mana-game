@@ -57,19 +57,21 @@ async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
 	nextPhaseCallback: () => void,
-	units: Unit[]
+	units: Unit[],
+	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	if (resultType === "victory") {
-		return displayVictory(units, nextPhaseCallback);
+		return displayVictory(units, nextPhaseCallback, replayCallback);
 	} else {
-		return displayDefeat(livesChange, units, nextPhaseCallback);
+		return displayDefeat(livesChange, units, nextPhaseCallback, replayCallback);
 	}
 }
 
 export async function displayResults(
 	state: State,
 	resultType: "victory" | "defeat",
-	nextPhaseCallback: () => void
+	nextPhaseCallback: () => void,
+	replayCallback?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
 	const scene = getCurrentScene();
@@ -99,7 +101,12 @@ export async function displayResults(
 		}
 	};
 
-	const uiContainer = await displayAppropriateUI(resultType, livesChange, handleContinue, allBattleUnits);
+	const handleReplay = async () => {
+		await slideOut();
+		if (replayCallback) replayCallback();
+	};
+
+	const uiContainer = await displayAppropriateUI(resultType, livesChange, handleContinue, allBattleUnits, replayCallback ? handleReplay : undefined);
 	resultsContainer.add(uiContainer);
 }
 
