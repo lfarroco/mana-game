@@ -192,6 +192,13 @@ export const getEncounterItems = (state: State, container: Phaser.GameObjects.Co
 		minRound: MIN_ROUND_FOR_GOLD_SHOP,
 		onClick: singleHeroOfRankShop(container, 3),
 		id: "gold_shop"
+	},
+	{
+		name: t("encounters.combat.name"),
+		pic: "ui/armory",
+		description: t("encounters.combat.desc"),
+		onClick: async () => { }, // Overridden in MP
+		id: "combat_encounter"
 	}
 ];
 
