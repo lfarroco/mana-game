@@ -23,6 +23,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "./Systems/Shop/OrbShop";
 import { updateLivesDisplay } from "@UI/components/livesDisplay";
+import { updateRoundDisplay } from "@UI/components/roundDisplay";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -32,6 +33,11 @@ export async function handleMultiplayerPhase(state: State) {
 	console.log(`Multiplayer Phase: ${result.phase}`);
 
 	// Sync Team State and Stats from Server
+	if (result.round !== undefined) {
+		console.log(`Syncing round: ${result.round}`);
+		state.gameData.round = result.round;
+		updateRoundDisplay(state.gameData.round);
+	}
 	if (result.wins !== undefined) state.gameData.player.wins = result.wins;
 	if (result.losses !== undefined) {
 		state.gameData.player.losses = result.losses;
