@@ -15,6 +15,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private profileText?: Phaser.GameObjects.Text;
 	private ratingText?: Phaser.GameObjects.Text;
 
+	private guestBtn: any;
+	private loginBtn: any;
+	private logoutBtn: any;
+
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOBBY);
 	}
@@ -48,11 +52,17 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 
 		// Guest Button
-		createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+		this.guestBtn = createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
 			this.handleGuest();
 		});
 
-		createUIButton("Login / Register", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
+		// Logout Button (Same position as Guest)
+		this.logoutBtn = createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+			MultiplayerManager.getInstance().logout();
+		});
+		this.logoutBtn.container.setVisible(false);
+
+		this.loginBtn = createUIButton("Login / Register", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
 			this.openLoginModal();
 		});
 
@@ -83,6 +93,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			// Not Logged In
 			this.profileText?.setText("Not Logged In");
 			this.ratingText?.setText("");
+			this.updateUI(null);
 		} else {
 			try {
 				const profile = await MultiplayerManager.getInstance().getPlayerProfile(playerId);
@@ -91,13 +102,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				// Invalid ID?
 				console.error("Profile Fetch Failed", e);
 				this.profileText?.setText("Error Fetching Profile");
+				this.updateUI(null);
 			}
 		}
 	}
 
 	updateUI(profile: any) {
-		this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
-		this.ratingText?.setText(`Rating: ${profile.rating}`);
+		if (profile) {
+			this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
+			this.ratingText?.setText(`Rating: ${profile.rating}`);
+
+			this.guestBtn.container.setVisible(false);
+			this.loginBtn.container.setVisible(false);
+			this.logoutBtn.container.setVisible(true);
+		} else {
+			this.guestBtn.container.setVisible(true);
+			this.loginBtn.container.setVisible(true);
+			this.logoutBtn.container.setVisible(false);
+		}
 	}
 
 	openLoginModal() {

@@ -314,6 +314,12 @@ export class MultiplayerManager {
 		return await response.json();
 	}
 
+	public async logout() {
+		await supabase.auth.signOut();
+		localStorage.removeItem('mana_player_id');
+		window.location.reload();
+	}
+
 	private updatePlayerId(id: string) {
 		this.playerId = id;
 		localStorage.setItem('mana_player_id', id);
