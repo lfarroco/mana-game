@@ -315,9 +315,28 @@ export class MultiplayerManager {
 	}
 
 	public async logout() {
-		await supabase.auth.signOut();
+		try {
+			await supabase.auth.signOut();
+		} catch (error) {
+			console.error("SignOut Error:", error);
+		}
+
+		// Force clean local storage for Supabase keys (Broad Match)
+		Object.keys(localStorage).forEach((key) => {
+			if (key.startsWith('sb-') || key.includes('supabase')) {
+				localStorage.removeItem(key);
+			}
+		});
 		localStorage.removeItem('mana_player_id');
-		window.location.reload();
+
+		// Clear Cookies
+		document.cookie.split(";").forEach((c) => {
+			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+		});
+
+		// Reset to a new random ID for the session (Logged Out State)
+		this.playerId = "player_" + Math.floor(Math.random() * 1000000);
+		console.log("Logged out. New temp ID:", this.playerId);
 	}
 
 	private updatePlayerId(id: string) {
