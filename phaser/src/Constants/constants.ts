@@ -60,4 +60,5 @@ export const SCENE_KEYS = {
 	CORE: "Core",
 	TITLE: "TitleScene",
 	OPTIONS: "OptionsScene",
+	ARENA_LOBBY: "ArenaLobbyScene",
 } as const;

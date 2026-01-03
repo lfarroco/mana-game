@@ -1,3 +1,14 @@
+-- Create table for storing player profiles (auth & rating)
+create table public.players (
+  id text not null,
+  username text unique,
+  password text, -- hashed or plain for simple proto (we'll assume plain/simple hash logic in server)
+  rating integer not null default 1000,
+  matches_played integer not null default 0,
+  created_at timestamp with time zone not null default now(),
+  constraint players_pkey primary key (id)
+);
+
 -- Create table for storing player sessions
 create table public.player_sessions (
   id uuid not null default gen_random_uuid (),
@@ -35,9 +46,13 @@ create index ghosts_round_idx on public.ghosts (round);
 -- Add simple RLS policies (though server uses service role usually)
 alter table public.player_sessions enable row level security;
 alter table public.ghosts enable row level security;
+alter table public.players enable row level security;
 
 create policy "Allow all access for everyone (for now)" on public.player_sessions
   for all using (true) with check (true);
 
 create policy "Allow all access for everyone (for now)" on public.ghosts
+  for all using (true) with check (true);
+
+create policy "Allow all access for everyone (for now)" on public.players
   for all using (true) with check (true);

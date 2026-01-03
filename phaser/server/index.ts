@@ -1,10 +1,52 @@
+import 'dotenv/config';
 import './mocks';
 import express from 'express';
 import { runServerSideCombat } from '../src/Scenes/Battleground/serverCombatDemo.js';
 import { MultiplayerServerManager } from './MultiplayerServerManager.js';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 const port = 3000;
+
+// Supabase Configuration
+const supabaseUrl = 'https://supabase-project-REDACTED.supabase.co';
+const supabaseKey = 'sb_publishable_REDACTED';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Middleware to extract and verify Supabase Token
+const authenticate = async (req: any, res: any, next: any) => {
+	const authHeader = req.headers.authorization;
+	if (!authHeader) {
+		return res.status(401).json({ error: 'Missing Authorization Header' });
+	}
+
+	const token = authHeader.split(' ')[1];
+	if (!token) {
+		return res.status(401).json({ error: 'Invalid Token Format' });
+	}
+
+	try {
+		const { data: { user }, error } = await supabase.auth.getUser(token);
+		if (error || !user) {
+			console.error("Auth Fail:", error);
+			return res.status(401).json({ error: 'Invalid or Expired Token' });
+		}
+
+		req.user = user;
+
+		// Ensure player profile exists in our DB (Lazy Profile Creation)
+		// We do this here or rely on specific endpoints? 
+		// Doing it here ensures every request has a valid DB profile.
+		// It adds DB overhead to every request, but ensures consistency.
+		// Optimization: Cache this check? For now, simple approach.
+		// Actually, let's delegate profile creation to 'ensureProfile' method in Manager.
+
+		next();
+	} catch (e) {
+		console.error("Auth Error:", e);
+		res.status(500).json({ error: 'Authentication Error' });
+	}
+};
 
 app.get('/test-combat', (_req, res) => {
 	console.log('Received request for combat demo');
@@ -39,7 +81,7 @@ app.get('/test-combat', (_req, res) => {
 app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
 	if (req.method === 'OPTIONS') {
 		res.sendStatus(200);
 	} else {
@@ -49,13 +91,20 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Simple in-memory session mapping for demo purposes
-// In production, use proper session middleware
-app.post('/multiplayer/connect', async (req, res) => {
-	const { playerId, selectedCrystalId } = req.body;
-	if (!playerId) {
-		return res.status(400).json({ error: 'playerId required' });
+// Protected Multiplayer Endpoints
+app.post('/multiplayer/connect', authenticate, async (req: any, res) => {
+	// Ignore body.playerId, use authenticated user id
+	const playerId = req.user.id;
+	const { selectedCrystalId } = req.body;
+
+	// Ensure profile exists (First time login handling)
+	try {
+		// Create or Get Profile
+		await MultiplayerServerManager.getInstance().ensureProfile(playerId, req.user.email);
+	} catch (e) {
+		console.error("Profile Ensure Fail", e);
 	}
+
 	try {
 		const session = await MultiplayerServerManager.getInstance().createSession(playerId, selectedCrystalId);
 		res.json({ success: true, session });
@@ -65,11 +114,8 @@ app.post('/multiplayer/connect', async (req, res) => {
 	}
 });
 
-app.get('/multiplayer/state', async (req, res) => {
-	const { playerId } = req.query;
-	if (!playerId || typeof playerId !== 'string') {
-		return res.status(400).json({ error: 'playerId required' });
-	}
+app.get('/multiplayer/state', authenticate, async (req: any, res) => {
+	const playerId = req.user.id;
 	try {
 		const options = await MultiplayerServerManager.getInstance().getPhaseOptions(playerId);
 		res.json(options);
@@ -78,16 +124,32 @@ app.get('/multiplayer/state', async (req, res) => {
 	}
 });
 
-app.post('/multiplayer/action', async (req, res) => {
-	const { playerId, actionId, ...payload } = req.body;
-	if (!playerId || !actionId) {
-		return res.status(400).json({ error: 'playerId and actionId required' });
+app.post('/multiplayer/action', authenticate, async (req: any, res) => {
+	const playerId = req.user.id;
+	const { actionId, ...payload } = req.body;
+
+	if (!actionId) {
+		return res.status(400).json({ error: 'actionId required' });
 	}
 	try {
 		const result = await MultiplayerServerManager.getInstance().handleAction(playerId, actionId, payload);
 		res.json({ success: result });
 	} catch (e) {
 		res.status(500).json({ error: e instanceof Error ? e.message : 'Error processing action' });
+	}
+});
+
+// Public Endpoint (Profile View)
+app.get('/player/:id', async (req, res) => {
+	// If the requesting user is authenticated, we could return more info?
+	// For now, public profile is fine.
+	try {
+		const profile = await MultiplayerServerManager.getInstance().getPlayerProfile(req.params.id);
+		res.json(profile);
+	} catch (e) {
+		// If profile not found, maybe they are a new user who hasn't connected yet?
+		// Return 404.
+		res.status(404).json({ error: 'Player not found' });
 	}
 });
 
