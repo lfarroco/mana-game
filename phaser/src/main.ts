@@ -12,6 +12,7 @@ import CrystalSelectionScene from "./Scenes/CrystalSelection/CrystalSelectionSce
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import { initState } from "@Models/State";
 import { ArenaLobbyScene } from "./Scenes/ArenaLobby/ArenaLobbyScene";
+import { ArenaLoginScene } from "./Scenes/ArenaLobby/ArenaLoginScene";
 
 initState();
 
@@ -24,8 +25,11 @@ export const game = new Phaser.Game({
 		mode: Phaser.Scale.FIT,
 		autoCenter: Phaser.Scale.CENTER_BOTH,
 	},
+	dom: {
+		createContainer: true
+	},
 	parent: "game-container",
-	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene, CrystalSelectionScene, ArenaLobbyScene],
+	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene, CrystalSelectionScene, ArenaLobbyScene, ArenaLoginScene],
 	plugins: {
 		global: [
 			{
