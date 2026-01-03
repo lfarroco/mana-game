@@ -133,3 +133,4 @@ dist
 .DS_Store
 phaser/dist.zip
 phaser/dist-steam
+phaser/supabase/functions/action/_shared.js

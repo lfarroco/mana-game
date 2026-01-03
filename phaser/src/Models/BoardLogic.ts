@@ -41,3 +41,7 @@ export function checkMove(unit: Unit, newPos: Geometry.Vec2, units: Unit[]): { v
 	const occupant = units.find(u => u.id !== unit.id && Geometry.eqVec2(u.position, newPos));
 	return { valid: true, occupant };
 }
+
+export function createGrid(): number[][] {
+	return [[0, 0, 0], [0, 0, 0], [0, 0, 0]]; // 3x3 Mock
+}

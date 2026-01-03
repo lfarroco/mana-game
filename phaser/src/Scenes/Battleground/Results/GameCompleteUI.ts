@@ -110,6 +110,9 @@ export async function displayGameComplete(
 		[
 			t("results.buttons.new_run"),
 			async () => {
+				if (MultiplayerManager.getInstance().isMultiplayer) {
+					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
+				}
 				resetState();
 				getCurrentScene().game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
 			},
@@ -117,6 +120,9 @@ export async function displayGameComplete(
 		[
 			t("results.buttons.main_menu"),
 			async () => {
+				if (MultiplayerManager.getInstance().isMultiplayer) {
+					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
+				}
 				resetState();
 				getCurrentScene().game.scene.start(SCENE_KEYS.TITLE);
 			},
