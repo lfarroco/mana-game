@@ -39,17 +39,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const buttonY = 500;
 
 		createUIButton("Find Match", vec2(MIDDLE_SCREEN.x, buttonY), () => {
-			// Use MultiplayerManager to start session?
-			// Actually, usually we go to CrystalSelection or just start.
-			// If we start a new run, we go to Crystal Selection.
-			this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
+			const playerId = localStorage.getItem("player_id");
+			if (playerId) {
+				this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
+			} else {
+				alert("Please Login or Play as Guest first!");
+			}
 		});
 
-		createUIButton("Login / Register", vec2(MIDDLE_SCREEN.x, buttonY + 100), () => {
+		// Guest Button
+		createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+			this.handleGuest();
+		});
+
+		createUIButton("Login / Register", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
 			this.openLoginModal();
 		});
 
-		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 200), () => {
+		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 210), () => {
 			this.scene.start(SCENE_KEYS.TITLE);
 		});
 
@@ -58,23 +65,32 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.refreshProfile();
 	}
 
+	async handleGuest() {
+		try {
+			const profile = await MultiplayerManager.getInstance().handleAuthGuest();
+			this.updateUI(profile);
+			localStorage.setItem("player_id", profile.id);
+		} catch (e) {
+			console.error(e);
+			alert("Guest Login Failed: " + (e as Error).message);
+		}
+	}
+
 	async refreshProfile() {
 		// Mock ID or get from localStorage
 		const playerId = localStorage.getItem("player_id");
 		if (!playerId) {
-			// Guest
-			const profile = await MultiplayerManager.getInstance().handleAuthGuest();
-			this.updateUI(profile);
-			localStorage.setItem("player_id", profile.id);
+			// Not Logged In
+			this.profileText?.setText("Not Logged In");
+			this.ratingText?.setText("");
 		} else {
 			try {
 				const profile = await MultiplayerManager.getInstance().getPlayerProfile(playerId);
 				this.updateUI(profile);
 			} catch (e) {
-				// Invalid ID? Re-auth as guest
-				const profile = await MultiplayerManager.getInstance().handleAuthGuest();
-				this.updateUI(profile);
-				localStorage.setItem("player_id", profile.id);
+				// Invalid ID?
+				console.error("Profile Fetch Failed", e);
+				this.profileText?.setText("Error Fetching Profile");
 			}
 		}
 	}

@@ -142,9 +142,9 @@ export class MultiplayerManager {
 					.from('player_sessions')
 					.select('phase')
 					.eq('player_id', this.playerId)
-					.single();
+					.maybeSingle();
 
-				if (error && error.code !== 'PGRST116') {
+				if (error) {
 					console.error("DB Error checking session:", error);
 					return false;
 				}
@@ -295,8 +295,15 @@ export class MultiplayerManager {
 				.from('players')
 				.select('*')
 				.eq('id', playerId)
-				.single();
-			if (error) throw error;
+				.maybeSingle();
+			if (error) {
+				console.error("Error fetching profile:", error);
+				// Return default/mock profile instead of crashing
+				return { id: playerId, username: 'Unknown', rating: 1000, matches_played: 0 };
+			}
+			if (!data) {
+				return { id: playerId, username: 'Guest', rating: 1000, matches_played: 0 };
+			}
 			return data;
 		}
 
