@@ -7,6 +7,7 @@ import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 import { setCurrentScene } from "@Models/State";
+import { isElectron } from "@Utils/environment";
 
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
@@ -67,6 +68,13 @@ export class ArenaLoginScene extends Phaser.Scene {
 		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 210), () => {
 			this.scene.start(SCENE_KEYS.TITLE);
 		});
+
+		if (isElectron()) {
+			this.handleSteamLogin();
+			io.Text("Logging in with Steam...", { fontSize: "24px", color: "#00aaff" })
+				.setPosition(MIDDLE_SCREEN.x, buttonY + 280)
+				.setOrigin(0.5);
+		}
 	}
 
 	private getInputs(): { email: string, pass: string } | null {
@@ -122,6 +130,20 @@ export class ArenaLoginScene extends Phaser.Scene {
 		} catch (e) {
 			console.error(e);
 			alert("Guest Login Failed: " + (e as Error).message);
+		}
+	}
+
+	async handleSteamLogin() {
+		try {
+			console.log("Attempting Steam Login...");
+			const profile = await MultiplayerManager.getInstance().handleSteamAuth();
+			if (profile) {
+				localStorage.setItem("mana_player_id", profile.id);
+				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			}
+		} catch (e) {
+			console.error("Steam Login Failed:", e);
+			// Don't alert, just log. Let user login manually if failed.
 		}
 	}
 }

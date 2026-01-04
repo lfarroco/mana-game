@@ -219,6 +219,37 @@ export class MultiplayerManager {
 	}
 
 
+	public async handleSteamAuth(): Promise<any> {
+		if (!(window as any).steamworks) {
+			console.warn("Steamworks not available");
+			return null;
+		}
+
+		// Get Ticket using steamworks.js
+		console.log("Requesting Steam Auth Ticket...");
+		const ticket = await (window as any).steamworks.auth.getSessionTicket();
+		console.log("Got Ticket:", ticket);
+
+		// Convert Buffer to Hex String for JSON transport
+		const ticketHex = ticket.ticket.toString('hex');
+
+		// Call Edge Function
+		const { data, error } = await supabase.functions.invoke('auth-steam', {
+			body: { ticket: ticketHex }
+		});
+
+		if (error) throw error;
+
+		// Data should be Session
+		if (data && data.access_token) {
+			console.log("Got Session from Steam Auth", data.user.id);
+			await supabase.auth.setSession(data);
+			this.updatePlayerId(data.user.id);
+			return await this.getPlayerProfile(this.playerId);
+		}
+		throw new Error("Invalid Session from Steam Auth");
+	}
+
 	public async handleAuthGuest(): Promise<any> {
 		// Use Supabase Anonymous Sign-In (if enabled)
 		// Or create a random managed user?
