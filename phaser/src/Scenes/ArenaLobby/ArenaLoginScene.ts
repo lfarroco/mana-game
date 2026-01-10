@@ -3,6 +3,7 @@ import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
+import { createModal } from "@Components/Modal";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
@@ -146,7 +147,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 	async handleLogin() {
 		const inputs = this.getInputs();
 		if (!inputs || !inputs.email || !inputs.pass) {
-			alert("Please enter email and password.");
+			this.showModal("Error", "Please enter email and password.");
 			return;
 		}
 
@@ -155,30 +156,38 @@ export class ArenaLoginScene extends Phaser.Scene {
 			localStorage.setItem("mana_player_id", profile.id);
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
-			alert("Login Failed: " + (e as Error).message);
+			this.showModal("Login Failed", (e as Error).message);
 		}
 	}
 
 	async handleRegister() {
 		const inputs = this.getInputs();
 		if (!inputs || !inputs.email || !inputs.pass || !inputs.username || !inputs.confirmPass) {
-			alert("Please fill in all fields.");
+			this.showModal("Error", "Please fill in all fields.");
 			return;
 		}
 
 		if (inputs.pass !== inputs.confirmPass) {
-			alert("Passwords do not match.");
+			this.showModal("Error", "Passwords do not match.");
 			return;
 		}
 
 		try {
 			// Pass username separately to updated handleAuthRegister
-			const profile = await MultiplayerManager.getInstance().handleAuthRegister(inputs.email, inputs.pass, inputs.username);
-			localStorage.setItem("mana_player_id", profile.id);
-			alert("Registration Successful!");
-			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			const result: any = await MultiplayerManager.getInstance().handleAuthRegister(inputs.email, inputs.pass, inputs.username);
+
+			if (result && result.success && result.requiresConfirmation) {
+				this.showModal("Registration Successful", "Registration successful! Please confirm your email.", () => {
+					this.isRegisterMode = false;
+					this.renderForm();
+				});
+			} else {
+				localStorage.setItem("mana_player_id", result.id);
+				this.showModal("Success", "Registration Successful!");
+				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			}
 		} catch (e) {
-			alert("Registration Failed: " + (e as Error).message);
+			this.showModal("Registration Failed", (e as Error).message);
 		}
 	}
 
@@ -189,7 +198,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
 			console.error(e);
-			alert("Guest Login Failed: " + (e as Error).message);
+			this.showModal("Guest Login Failed", (e as Error).message);
 		}
 	}
 
@@ -204,5 +213,25 @@ export class ArenaLoginScene extends Phaser.Scene {
 		} catch (e) {
 			console.error("Steam Login Failed:", e);
 		}
+	}
+	showModal(title: string, message: string, onClose?: () => void) {
+		const modal = createModal({
+			width: 400,
+			height: 300,
+			title: title
+		});
+
+		const text = io.Text(message, { fontSize: "24px", color: "#ffffff", wordWrap: { width: 360 } })
+			.setOrigin(0.5);
+
+		modal.panel.add(text);
+
+		const closeBtn = createUIButton("OK", vec2(0, 100), () => {
+			modal.close();
+			if (onClose) onClose();
+		});
+		modal.panel.add(closeBtn.container);
+
+		this.add.existing(modal.container);
 	}
 }
