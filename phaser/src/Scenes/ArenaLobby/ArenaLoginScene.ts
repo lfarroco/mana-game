@@ -11,6 +11,9 @@ import { isElectron } from "@Utils/environment";
 
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
+	private isRegisterMode: boolean = false;
+	private buttonContainer: Phaser.GameObjects.Container | null = null;
+	private titleText?: Phaser.GameObjects.Text;
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOGIN);
@@ -20,72 +23,124 @@ export class ArenaLoginScene extends Phaser.Scene {
 		setCurrentScene(this);
 		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x1a1a2e).setOrigin(0);
 
-		io.Text("Arena Login", { fontSize: "64px", color: "#ffffff" })
+		this.titleText = io.Text("Arena Login", { fontSize: "64px", color: "#ffffff" })
 			.setPosition(MIDDLE_SCREEN.x, 100)
 			.setOrigin(0.5);
 
+		this.buttonContainer = this.add.container(0, 0);
 
-		// HTML Form for Inputs
-		const formHTML = `
-            <div style="display:flex; flex-direction:column; gap:15px; width: 300px; font-family: sans-serif;">
-                <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-            </div>
-        `;
+		// Initial Render
+		this.renderForm();
 
-		this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
-		this.formElement!.setOrigin(0.5);
-
-		// Forgot Password Text
-		const forgotPwd = io.Text("Forgot Password?", { fontSize: "20px", color: "#aaaaaa", fontStyle: "italic" })
-			.setPosition(MIDDLE_SCREEN.x, 400)
-			.setOrigin(0.5)
-			.setInteractive({ useHandCursor: true });
-
-		forgotPwd.on('pointerdown', () => {
-			alert("Password Reset functionality coming soon.");
-		});
-
-		// Buttons
-		const buttonY = 500;
-
-		// Login
-		createUIButton("Login", vec2(MIDDLE_SCREEN.x, buttonY), () => {
-			this.handleLogin();
-		});
-
-		// Register
-		createUIButton("Register", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
-			this.handleRegister();
-		});
-
-		// Guest
-		createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
-			this.handleGuest();
-		});
-
-		// Back
-		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 210), () => {
-			this.scene.start(SCENE_KEYS.TITLE);
-		});
-
-		if (isElectron()) {
+		if (isElectron() && !this.isRegisterMode) {
 			this.handleSteamLogin();
 			io.Text("Logging in with Steam...", { fontSize: "24px", color: "#00aaff" })
-				.setPosition(MIDDLE_SCREEN.x, buttonY + 280)
+				.setPosition(MIDDLE_SCREEN.x, 600) // Lower down
 				.setOrigin(0.5);
 		}
 	}
 
-	private getInputs(): { email: string, pass: string } | null {
+	renderForm() {
+		// Clear previous form if exists
+		if (this.formElement) {
+			this.formElement.destroy();
+			this.formElement = undefined;
+		}
+		// Clear buttons
+		if (this.buttonContainer) {
+			this.buttonContainer.removeAll(true);
+		}
+
+		const buttonY = 500;
+
+		if (this.isRegisterMode) {
+			this.titleText?.setText("Create Account");
+
+			const formHTML = `
+                <div style="display:flex; flex-direction:column; gap:15px; width: 300px; font-family: sans-serif;">
+                    <input type="text" name="username" placeholder="Username" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                </div>
+            `;
+
+			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
+			this.formElement!.setOrigin(0.5);
+
+			// Register Button
+			const regBtn = createUIButton("Create Account", vec2(MIDDLE_SCREEN.x, buttonY), () => {
+				this.handleRegister();
+			});
+			this.buttonContainer?.add(regBtn.container);
+
+			// Back to Login
+			const backBtn = createUIButton("Back to Login", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+				this.isRegisterMode = false;
+				this.renderForm();
+			});
+			this.buttonContainer?.add(backBtn.container);
+
+		} else {
+			this.titleText?.setText("Arena Login");
+
+			const formHTML = `
+                <div style="display:flex; flex-direction:column; gap:15px; width: 300px; font-family: sans-serif;">
+                    <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                </div>
+            `;
+
+			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
+			this.formElement!.setOrigin(0.5);
+
+			// Login
+			const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, buttonY), () => {
+				this.handleLogin();
+			});
+			this.buttonContainer?.add(loginBtn.container);
+
+			// Register Switch
+			const regBtn = createUIButton("Register", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+				this.isRegisterMode = true;
+				this.renderForm();
+			});
+			this.buttonContainer?.add(regBtn.container);
+
+			// Guest
+			const guestBtn = createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
+				this.handleGuest();
+			});
+			this.buttonContainer?.add(guestBtn.container);
+
+			// Back to Title
+			const backBtn = createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 210), () => {
+				this.scene.start(SCENE_KEYS.TITLE);
+			});
+			this.buttonContainer?.add(backBtn.container);
+		}
+	}
+
+	private getInputs(): { email?: string, pass?: string, username?: string, confirmPass?: string } | null {
 		if (!this.formElement) return null;
-		// Access underlying DOM values
+
 		const emailInput = this.formElement.getChildByName('email') as unknown as HTMLInputElement | null;
 		const passInput = this.formElement.getChildByName('password') as unknown as HTMLInputElement | null;
 
-		if (!emailInput || !passInput) return null;
+		let usernameInput: HTMLInputElement | null = null;
+		let confirmPassInput: HTMLInputElement | null = null;
 
-		return { email: emailInput.value, pass: passInput.value };
+		if (this.isRegisterMode) {
+			usernameInput = this.formElement.getChildByName('username') as unknown as HTMLInputElement | null;
+			confirmPassInput = this.formElement.getChildByName('confirm_password') as unknown as HTMLInputElement | null;
+		}
+
+		return {
+			email: emailInput?.value,
+			pass: passInput?.value,
+			username: usernameInput?.value,
+			confirmPass: confirmPassInput?.value
+		};
 	}
 
 	async handleLogin() {
@@ -98,7 +153,6 @@ export class ArenaLoginScene extends Phaser.Scene {
 		try {
 			const profile = await MultiplayerManager.getInstance().handleAuthLogin(inputs.email, inputs.pass);
 			localStorage.setItem("mana_player_id", profile.id);
-			// Go to Lobby
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
 			alert("Login Failed: " + (e as Error).message);
@@ -107,13 +161,19 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	async handleRegister() {
 		const inputs = this.getInputs();
-		if (!inputs || !inputs.email || !inputs.pass) {
-			alert("Please enter email and password to register.");
+		if (!inputs || !inputs.email || !inputs.pass || !inputs.username || !inputs.confirmPass) {
+			alert("Please fill in all fields.");
+			return;
+		}
+
+		if (inputs.pass !== inputs.confirmPass) {
+			alert("Passwords do not match.");
 			return;
 		}
 
 		try {
-			const profile = await MultiplayerManager.getInstance().handleAuthRegister(inputs.email, inputs.pass);
+			// Pass username separately to updated handleAuthRegister
+			const profile = await MultiplayerManager.getInstance().handleAuthRegister(inputs.email, inputs.pass, inputs.username);
 			localStorage.setItem("mana_player_id", profile.id);
 			alert("Registration Successful!");
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
@@ -143,7 +203,6 @@ export class ArenaLoginScene extends Phaser.Scene {
 			}
 		} catch (e) {
 			console.error("Steam Login Failed:", e);
-			// Don't alert, just log. Let user login manually if failed.
 		}
 	}
 }

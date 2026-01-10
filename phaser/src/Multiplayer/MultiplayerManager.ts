@@ -301,10 +301,16 @@ export class MultiplayerManager {
 		}
 	}
 
-	public async handleAuthRegister(username: string, password: string): Promise<any> {
+	public async handleAuthRegister(email: string, password: string, username?: string): Promise<any> {
+		const options: any = {};
+		if (username) {
+			options.data = { username };
+		}
+
 		const { data, error } = await supabase.auth.signUp({
-			email: username,
+			email: email,
 			password: password,
+			options: options
 		});
 
 		if (error) throw new Error(error.message);
