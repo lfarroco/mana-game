@@ -215,6 +215,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 		}
 	}
 	showModal(title: string, message: string, onClose?: () => void) {
+		if (this.formElement) this.formElement.setVisible(false);
+
 		const modal = createModal({
 			width: 400,
 			height: 300,
@@ -227,6 +229,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		modal.panel.add(text);
 
 		const closeBtn = createUIButton("OK", vec2(0, 100), () => {
+			if (this.formElement) this.formElement.setVisible(true);
 			modal.close();
 			if (onClose) onClose();
 		});
