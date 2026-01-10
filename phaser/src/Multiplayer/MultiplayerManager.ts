@@ -322,7 +322,11 @@ export class MultiplayerManager {
 			return await this.getPlayerProfile(this.playerId);
 		} else if (data.user) {
 			// Registration successful but maybe confirm email?
-			throw new Error("Registration successful! Please confirm your email.");
+			return {
+				success: true,
+				requiresConfirmation: true,
+				user: data.user
+			};
 		}
 	}
 
