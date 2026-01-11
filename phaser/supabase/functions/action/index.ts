@@ -181,7 +181,7 @@ Deno.serve(async (req) => {
 					// Generate Shop Options
 					// We need to temporarily update session log to assist generation if it relies on history (which it does)
 					const tempSession = { ...session, action_log: [...(session.action_log || []), { round: session.round, step: session.step, actionId, payload }] }
-					const shopResult = MultiplayerLogic.generateShopOptions(tempSession)
+					const shopResult = MultiplayerLogic.generateShopOptions(tempSession, actionId)
 					nextOptions = shopResult.options
 				}
 			} else {

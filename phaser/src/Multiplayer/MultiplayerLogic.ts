@@ -81,12 +81,16 @@ export class MultiplayerLogic {
 	}
 
 	public static generateEnemyTeamForRound(round: number, wins: number): any[] {
-		const allCards = Card.getAvailableCards();
+		// CPU should have access to all non-core units, disregarding unlock status
+		const allCards = Card.getNonCores();
 		const mockState = {
 			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
-			gameData: { player: { wins } }
+			gameData: { player: { wins, id: FORCE_ID_PLAYER } }
 		} as any;
-		return generateEnemyTeam(mockState, round, allCards);
+		const units = generateEnemyTeam(mockState, round, allCards);
+		// Explicitly assign to CPU force to ensure correctness regardless of mock state nuances
+		units.forEach(u => u.force = FORCE_ID_CPU);
+		return units;
 	}
 
 	public static stringToSeed(str: string): number {
@@ -129,10 +133,16 @@ export class MultiplayerLogic {
 		return { options: shuffled.slice(0, 3).map(id => ({ id })) };
 	}
 
-	public static generateShopOptions(session: SessionData): { options: any[] } {
-		const previousStep = session.step - 1;
-		const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
-		const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+	public static generateShopOptions(session: SessionData, triggerActionId?: string): { options: any[] } {
+		let encounterId = null;
+
+		if (triggerActionId) {
+			encounterId = triggerActionId;
+		} else {
+			const previousStep = session.step - 1;
+			const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
+			encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+		}
 
 		let filterType = "";
 		if (encounterId) {
@@ -327,9 +337,10 @@ export class MultiplayerLogic {
 			const allCards = Card.getAvailableCards();
 			const mockState = {
 				battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
-				gameData: { player: { wins: session.wins || 0 } }
+				gameData: { player: { wins: session.wins || 0, id: FORCE_ID_PLAYER } }
 			} as any;
 			enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
+			enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
 		}
 
 		return {
