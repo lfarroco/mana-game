@@ -161,95 +161,112 @@ Deno.serve(async (req) => {
 			return new Response(JSON.stringify({ success: true, nextPhase, wonCombat }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 		}
 
+
 		// Progression Logic (Encounter/Shop)
 		if (session.step < 7) {
 			let nextPhase = 'encounter'
 			let nextOptions = null
 
+			// Calculate Next Phase
 			if (session.step % 2 !== 0) {
+				// Odd steps -> Moving to Shop/OrbShop (Step 2, 4, 6)
 				if (actionId === 'upgrade_unit' || actionId === 'power_distributor' || actionId === 'power_absorber') {
 					nextPhase = 'orb_shop'
+					// Orb Shop options are static based on entrance action
 					if (actionId === 'upgrade_unit') nextOptions = [{ id: 'upgrade_orb' }]
 					if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }]
 					if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }]
 				} else {
 					nextPhase = 'shop'
+					// Generate Shop Options
+					// We need to temporarily update session log to assist generation if it relies on history (which it does)
+					const tempSession = { ...session, action_log: [...(session.action_log || []), { round: session.round, step: session.step, actionId, payload }] }
+					const shopResult = MultiplayerLogic.generateShopOptions(tempSession)
+					nextOptions = shopResult.options
 				}
 			} else {
-				nextPhase = 'encounter'
+				// Even steps -> Moving to Encounter (Step 3, 5, 7.. wait 7 is combat)
+				// Actually step check is < 7, so max current step is 6.
+				// If current step is 6 (Shop/OrbShop), next is 7 (Combat).
+
+				if (session.step === 6) {
+					nextPhase = 'combat'
+				} else {
+					nextPhase = 'encounter'
+					// Generate Encounter Options
+					const tempSession = { ...session, action_log: [...(session.action_log || []), { round: session.round, step: session.step, actionId, payload }] }
+					const encounterResult = MultiplayerLogic.generateEncounterOptions(tempSession)
+					nextOptions = encounterResult.options
+				}
 			}
 
 			const newSeed = MultiplayerLogic.generateNextSeed(session.seed, actionId)
 			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId, payload }
-
-			// Append log (need to fetch existing or rely on append via Postgres? Supabase append using JSONB || operator might be tricky via SDK update)
-			// SDK update replaces. So we must append manually using current session.action_log
 			const newLog = [...(session.action_log || []), actionEntry]
 
-			const updateData: any = {
-				step: session.step + 1,
-				phase: nextPhase,
-				seed: newSeed,
-				action_log: newLog,
-				updated_at: new Date()
-			}
 
-			if (nextOptions) {
-				updateData.current_options = { options: nextOptions }
-			} else {
-				updateData.current_options = null
-			}
+			// COMBAT TRANSITION
+			if (nextPhase === 'combat') {
+				// Step 7 logic (Combat)
 
-			await supabaseClient
-				.from('player_sessions')
-				.update(updateData)
-				.eq('id', session.id)
+				// Persist Ghost if team updated
+				if (payload && payload.team) {
+					await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
+				}
 
-			// Step 7 -> Combat
-			if (payload && payload.team) {
-				await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
-			}
+				// Generate Enemy Team & Simulate
+				const enemyTeam = MultiplayerLogic.generateEnemyTeamForRound(session.round, session.wins)
 
-			// Reuse newSeed, actionEntry, newLog from above if needed, or simply don't re-declare.
-			// Actually, let's just use the existing variables since they are identical calculations.
-
-			// Generate Enemy Team and Simulate Combat
-			const enemyTeam = MultiplayerLogic.generateEnemyTeamForRound(session.round, session.wins)
-
-			// Construct Next Session for Simulation
-			const nextSession = {
-				...session,
-				phase: 'combat',
-				seed: newSeed,
-				current_options: { combatState: { enemyTeam } }, // Mock options for Logic to pick up
-				team: payload && payload.team ? payload.team : session.team
-			}
-
-			const simResult = MultiplayerLogic.simulateCombat(nextSession)
-
-			const playerUnits = simResult.finalState.gameData.player.units
-			const core = playerUnits.find((u: any) => u.isCore)
-			const wonCombat = core && core.life > 0
-
-			const combatState = {
-				enemyTeam,
-				seed: newSeed,
-				wonCombat,
-				initialUnits: simResult.initialUnits,
-				finalPlayerUnits: playerUnits // Store final stats for application
-			}
-			const options = [{ id: 'combat_done', label: 'Continue' }]
-
-			await supabaseClient
-				.from('player_sessions')
-				.update({
+				const nextSession = {
+					...session,
 					phase: 'combat',
 					seed: newSeed,
-					current_options: { options, combatState },
+					current_options: { combatState: { enemyTeam } },
+					team: payload && payload.team ? payload.team : session.team
+				}
+
+				const simResult = MultiplayerLogic.simulateCombat(nextSession)
+				const playerUnits = simResult.finalState.gameData.player.units
+				const core = playerUnits.find((u: any) => u.isCore)
+				const wonCombat = core && core.life > 0
+
+				const combatState = {
+					enemyTeam,
+					seed: newSeed,
+					wonCombat,
+					initialUnits: simResult.initialUnits,
+					finalPlayerUnits: playerUnits
+				}
+				const options = [{ id: 'combat_done', label: 'Continue' }]
+
+				await supabaseClient
+					.from('player_sessions')
+					.update({
+						phase: 'combat',
+						step: 7, // Ensure step is set to 7
+						seed: newSeed,
+						current_options: { options, combatState },
+						action_log: newLog,
+						updated_at: new Date()
+					})
+					.eq('id', session.id)
+
+			} else {
+				// NORMAL PROGRESSION (Encounter / Shop)
+				const updateData: any = {
+					step: session.step + 1,
+					phase: nextPhase,
+					seed: newSeed,
 					action_log: newLog,
+					current_options: nextOptions ? { options: nextOptions } : null,
 					updated_at: new Date()
-				})
-				.eq('id', session.id)
+				}
+
+				await supabaseClient
+					.from('player_sessions')
+					.update(updateData)
+					.eq('id', session.id)
+			}
 		}
 
 		return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
