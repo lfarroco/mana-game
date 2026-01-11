@@ -18,6 +18,7 @@ export class MultiplayerManager {
 	private playerId: string;
 	private serverUrl: string = "http://localhost:3000";
 	private useEdgeFunctions: boolean = true;
+	private initPromise: Promise<void>;
 
 	private constructor() {
 		const storedId = localStorage.getItem('mana_player_id');
@@ -37,7 +38,7 @@ export class MultiplayerManager {
 		}
 
 		// Check for existing Supabase session
-		supabase.auth.getSession().then(({ data: { session } }) => {
+		this.initPromise = supabase.auth.getSession().then(({ data: { session } }) => {
 			if (session) {
 				this.updatePlayerId(session.user.id);
 			}
@@ -67,12 +68,16 @@ export class MultiplayerManager {
 		console.log("Multiplayer mode enabled");
 		try {
 			if (this.useEdgeFunctions) {
-				// Call Edge Function to Start Session
-				const { error } = await supabase.functions.invoke('action', {
-					body: { actionId: 'start_session', payload: { selectedCrystalId } }
-				});
-				if (error) {
-					throw error;
+				if (selectedCrystalId) {
+					// Call Edge Function to Start Session (Only for New Game)
+					const { error } = await supabase.functions.invoke('action', {
+						body: { actionId: 'start_session', payload: { selectedCrystalId } }
+					});
+					if (error) {
+						throw error;
+					}
+				} else {
+					console.log("[MultiplayerManager] Resuming existing session (no crystal selected)");
 				}
 			} else {
 				await fetch(`${this.serverUrl}/multiplayer/connect`, {
@@ -136,6 +141,7 @@ export class MultiplayerManager {
 	}
 
 	public async checkActiveSession(): Promise<boolean> {
+		await this.initPromise;
 		try {
 			if (this.useEdgeFunctions) {
 				const { data, error } = await supabase
