@@ -85,7 +85,7 @@ export async function handleMultiplayerPhase(state: State) {
 		case "shop":
 			const shopCardIds = result.options.map(o => o.id);
 			await HeroShop.openHeroShop(undefined, undefined, shopCardIds);
-			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip");
+			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.gameData.player });
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -101,7 +101,11 @@ export async function handleMultiplayerPhase(state: State) {
 				orbOptions.map((o: any) => o.id),
 				async (orbId, targetId) => {
 					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
-					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', { orbId, targetUnitId: targetId });
+					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', {
+						orbId,
+						targetUnitId: targetId,
+						team: state.gameData.player
+					});
 				}
 			);
 			await handleMultiplayerPhase(state);

@@ -81,10 +81,12 @@ Deno.serve(async (req) => {
 
 		if (result.updates && result.updates.length > 0) {
 			// Update Team in DB
-			await supabaseClient
+			const { error: updateError } = await supabaseClient
 				.from('player_sessions')
 				.update({ team: result.team, updated_at: new Date() })
 				.eq('id', session.id)
+
+			if (updateError) throw updateError
 
 			// Update local session object for further processing
 			session.team = result.team
@@ -119,10 +121,12 @@ Deno.serve(async (req) => {
 					}
 				})
 
-				await supabaseClient
+				const { error: teamUpdateError } = await supabaseClient
 					.from('player_sessions')
 					.update({ team: session.team })
 					.eq('id', session.id)
+
+				if (teamUpdateError) throw teamUpdateError
 			}
 
 			const newSeed = MultiplayerLogic.generateNextSeed(session.seed, actionId)
@@ -154,7 +158,7 @@ Deno.serve(async (req) => {
 
 			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId: 'combat_done', payload: {} }
 
-			await supabaseClient
+			const { error: combatUpdateError } = await supabaseClient
 				.from('player_sessions')
 				.update({
 					phase: nextPhase,
@@ -169,6 +173,8 @@ Deno.serve(async (req) => {
 					updated_at: new Date()
 				})
 				.eq('id', session.id)
+
+			if (combatUpdateError) throw combatUpdateError
 
 			return new Response(JSON.stringify({ success: true, nextPhase, wonCombat }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 		}
@@ -223,7 +229,8 @@ Deno.serve(async (req) => {
 
 				// Persist Ghost if team updated
 				if (payload && payload.team) {
-					await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
+					const { error: ghostInsertError } = await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
+					if (ghostInsertError) throw ghostInsertError
 				}
 
 				// Generate Enemy Team & Simulate
@@ -238,20 +245,32 @@ Deno.serve(async (req) => {
 				}
 
 				const simResult = MultiplayerLogic.simulateCombat(nextSession)
-				const playerUnits = simResult.finalState.gameData.player.units
-				const core = playerUnits.find((u: any) => u.isCore)
-				const wonCombat = core && core.life > 0
+				// Fix: Retrieve units from battleData, not gameData (which is empty on server)
+				const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER')
+
+				// Determine Outcome from Logs (Authoritative)
+				const outcomeLog = simResult.logs.find((l: any) => l.type === 'outcome')
+				let wonCombat = false
+
+				if (outcomeLog) {
+					wonCombat = outcomeLog.result === 'player_won'
+				} else {
+					// Fallback (Time limit reached or no outcome)
+					const core = playerUnits.find((u: any) => u.isCore)
+					wonCombat = core && core.life > 0
+				}
 
 				const combatState = {
 					enemyTeam,
 					seed: newSeed,
 					wonCombat,
 					initialUnits: simResult.initialUnits,
-					finalPlayerUnits: playerUnits
+					finalPlayerUnits: playerUnits,
+					logs: simResult.logs // Persist logs for accurate client playback
 				}
 				const options = [{ id: 'combat_done', label: 'Continue' }]
 
-				await supabaseClient
+				const { error: combatPrepError } = await supabaseClient
 					.from('player_sessions')
 					.update({
 						phase: 'combat',
@@ -259,9 +278,12 @@ Deno.serve(async (req) => {
 						seed: newSeed,
 						current_options: { options, combatState },
 						action_log: newLog,
+						team: payload && payload.team ? payload.team : session.team, // Persist team positions
 						updated_at: new Date()
 					})
 					.eq('id', session.id)
+
+				if (combatPrepError) throw combatPrepError
 
 			} else {
 				// NORMAL PROGRESSION (Encounter / Shop)
@@ -270,20 +292,23 @@ Deno.serve(async (req) => {
 					phase: nextPhase,
 					seed: newSeed,
 					action_log: newLog,
+					team: payload && payload.team ? payload.team : session.team, // Persist team positions
 					current_options: nextOptions ? { options: nextOptions } : null,
 					updated_at: new Date()
 				}
 
-				await supabaseClient
+				const { error: progressionError } = await supabaseClient
 					.from('player_sessions')
 					.update(updateData)
 					.eq('id', session.id)
+
+				if (progressionError) throw progressionError
 			}
 		}
 
 		return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
-	} catch (error) {
+	} catch (error: any) {
 		return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 	}
 })
