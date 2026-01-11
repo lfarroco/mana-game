@@ -12,7 +12,7 @@ import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-export async function openOrbShop(state: State, orbs: string[], onOrbApply?: (orbId: string, targetId: string) => void): Promise<void> {
+export async function openOrbShop(state: State, orbs: string[], onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
@@ -43,13 +43,13 @@ export function renderOrbShop(
 	container: Phaser.GameObjects.Container,
 	orbIds: string[],
 	onOrbUsed?: () => void | Promise<void>,
-	onOrbApply?: (orbId: string, targetId: string) => void
+	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ) {
 	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 
-	function handleOrbDrop(params: {
+	async function handleOrbDrop(params: {
 		orb: MagicOrb;
 		target: Phaser.GameObjects.GameObject;
 		orbSpec: OrbSpec;
@@ -92,8 +92,12 @@ export function renderOrbShop(
 		playSoundEffect('sfx_spell_deathstrikeseal');
 
 		magicOrb.startDissolve();
+
+		if (onOrbApply) {
+			await onOrbApply(orbSpec.id, existingUnit.id);
+		}
+
 		onOrbUsed?.();
-		onOrbApply?.(orbSpec.id, existingUnit.id);
 	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {
