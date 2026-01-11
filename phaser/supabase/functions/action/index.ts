@@ -101,7 +101,8 @@ Deno.serve(async (req) => {
 			} else {
 				// Fallback Simulation (Legacy/Failover)
 				const simResult = MultiplayerLogic.simulateCombat(session)
-				playerUnits = simResult.finalState.gameData.player.units
+				// Fix: Retrieve units from battleData, not gameData (which is empty on server)
+				playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER')
 				const core = playerUnits.find((u: any) => u.isCore)
 				wonCombat = core && core.life > 0
 			}
