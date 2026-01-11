@@ -198,10 +198,14 @@ export class MultiplayerManager {
 			}
 
 			// Map DB session to PhaseOptions
+			// Handle both Array and Object format for options
+			const rawOptions = session.current_options;
+			const optionsList = Array.isArray(rawOptions) ? rawOptions : (rawOptions?.options || []);
+
 			return {
 				phase: session.phase as any,
 				round: session.round,
-				options: session.current_options ? (session.current_options.options || []) : [],
+				options: optionsList,
 				team: session.team,
 				wins: session.wins,
 				losses: session.losses,
