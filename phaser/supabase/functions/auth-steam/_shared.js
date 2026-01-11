@@ -6391,7 +6391,7 @@ var MultiplayerLogic = class {
     return { options };
   }
   static resolveAction(session, actionId, payload) {
-    const availableCards = getAvailableCards();
+    const availableCards = getNonCores();
     const card = availableCards.find((c) => c.id === actionId);
     let team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
     let units = team.units || [];

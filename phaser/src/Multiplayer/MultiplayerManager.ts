@@ -194,13 +194,25 @@ export class MultiplayerManager {
 
 			let combatState = undefined;
 			if (session.phase === 'combat') {
-				const simResult = MultiplayerLogic.simulateCombat(session as any);
-				combatState = {
-					units: simResult.initialUnits,
-					enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
-					logs: simResult.logs,
-					seed: session.seed
-				};
+				const optionsCombatState = (session.current_options as any)?.combatState;
+				if (optionsCombatState && optionsCombatState.logs) {
+					console.log("Using server-provided combat logs");
+					combatState = {
+						units: optionsCombatState.initialUnits,
+						enemyTeam: optionsCombatState.enemyTeam,
+						logs: optionsCombatState.logs,
+						seed: session.seed
+					};
+				} else {
+					console.log("Simulating combat locally (fallback)");
+					const simResult = MultiplayerLogic.simulateCombat(session as any);
+					combatState = {
+						units: simResult.initialUnits,
+						enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
+						logs: simResult.logs,
+						seed: session.seed
+					};
+				}
 			}
 
 			// Map DB session to PhaseOptions

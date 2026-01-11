@@ -191,7 +191,7 @@ export class MultiplayerLogic {
 
 	public static resolveAction(session: SessionData, actionId: string, payload?: any): { team: any, updates?: string[] } {
 		// Returns modified team object
-		const availableCards = Card.getAvailableCards();
+		const availableCards = Card.getNonCores();
 		const card = availableCards.find(c => c.id === actionId);
 
 		let team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };

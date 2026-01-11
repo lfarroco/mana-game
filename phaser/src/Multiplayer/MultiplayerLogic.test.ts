@@ -29,4 +29,35 @@ describe('MultiplayerLogic', () => {
 			expect(seed1).toBe(seed2);
 		});
 	});
+
+	describe('resolveAction', () => {
+		it('should upgrade unit with apply_orb', () => {
+			const session: any = {
+				team: {
+					units: [{ id: 'unit_1', rank: 1, maxLife: 100, power: 10 }]
+				},
+				step: 1
+			};
+			const payload = { orbId: 'upgrade_orb', targetUnitId: 'unit_1' };
+			const result = MultiplayerLogic.resolveAction(session, 'apply_orb', payload);
+
+			expect(result.updates).toBeDefined();
+			expect(result.updates?.length).toBeGreaterThan(0);
+
+			const unit = result.team.units.find((u: any) => u.id === 'unit_1');
+			expect(unit.rank).toBe(2);
+			expect(unit.maxLife).toBeGreaterThan(100);
+		});
+
+		it('should handle missing unit gracefully', () => {
+			const session: any = {
+				team: { units: [] },
+				step: 1
+			};
+			const payload = { orbId: 'upgrade_orb', targetUnitId: 'unit_1' };
+			const result = MultiplayerLogic.resolveAction(session, 'apply_orb', payload);
+
+			expect(result.updates).toEqual([]);
+		});
+	});
 });
