@@ -24,6 +24,7 @@ create table public.player_sessions (
   current_options jsonb,
   wins integer not null default 0,
   losses integer not null default 0,
+  team jsonb,
   created_at timestamp with time zone not null default now(),
   updated_at timestamp with time zone not null default now(),
   constraint player_sessions_pkey primary key (id),
