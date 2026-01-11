@@ -36,8 +36,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = 500;
 
-		createUIButton("Start / Continue Run", vec2(MIDDLE_SCREEN.x, buttonY), () => {
-			this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
+		createUIButton("Start / Continue Run", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
+			const hasActiveSession = await MultiplayerManager.getInstance().checkActiveSession();
+			if (hasActiveSession) {
+				await MultiplayerManager.getInstance().enableMultiplayer();
+				this.scene.start(SCENE_KEYS.BATTLEGROUND);
+			} else {
+				this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
+			}
 		});
 
 		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
