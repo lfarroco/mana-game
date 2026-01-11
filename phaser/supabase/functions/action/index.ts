@@ -133,6 +133,8 @@ Deno.serve(async (req) => {
 			if (wins >= 10) nextPhase = 'victory'
 			if (losses >= 4) nextPhase = 'game_over'
 
+			console.log(`Combat Result: won=${wonCombat}, newWins=${wins}, newLosses=${losses}, nextPhase=${nextPhase}`)
+
 			if (wonCombat) {
 				await supabaseClient.rpc('increment_rating', { player_id: playerId, amount: 25 })
 			} else {
@@ -140,6 +142,15 @@ Deno.serve(async (req) => {
 			}
 
 			const nextRound = session.round + 1
+			let nextOptions = null
+
+			if (nextPhase === 'encounter') {
+				// Generate Encounter Options for the new round
+				const nextSessionState = { ...session, round: nextRound, step: 1, seed: newSeed }
+				const encounterResult = MultiplayerLogic.generateEncounterOptions(nextSessionState)
+				nextOptions = encounterResult.options
+			}
+
 			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId: 'combat_done', payload: {} }
 
 			await supabaseClient
@@ -151,7 +162,7 @@ Deno.serve(async (req) => {
 					seed: newSeed,
 					wins: wins,
 					losses: losses,
-					current_options: null,
+					current_options: nextOptions ? { options: nextOptions } : null,
 					action_log: [], // Clear log
 					team: session.team, // Persist stats
 					updated_at: new Date()

@@ -229,6 +229,9 @@ var getBattleCore = (state) => (forceId) => state.battleData.units.find((u) => u
 
 // src/Utils/Random.ts
 var seed = Date.now();
+function setSeed(newSeed) {
+  seed = newSeed;
+}
 function value() {
   let t2 = seed += 1831565813;
   t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
@@ -6480,6 +6483,8 @@ var MultiplayerLogic = class {
   }
   static simulateCombat(session) {
     const combatState = this.createCombatState(session);
+    const seedVal = this.stringToSeed(session.initial_seed);
+    setSeed(seedVal);
     const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
     const effects = createServerCombatEffects(combatState);
     const combatRunner = runCombat(combatState, effects);

@@ -10,6 +10,7 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/ServerCons
 import { makeForce } from "../Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
 import { registerCollection } from "../Models/Entities/Card";
+import * as Random from "../Utils/Random";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
@@ -292,6 +293,11 @@ export class MultiplayerLogic {
 
 	public static simulateCombat(session: SessionData): { finalState: State, initialUnits: Unit[], logs: any[] } {
 		const combatState = this.createCombatState(session);
+
+		// Ensure RNG is seeded for deterministic simulation
+		const seedVal = this.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
 		const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
 
 		const effects = createServerCombatEffects(combatState);
