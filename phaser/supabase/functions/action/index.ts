@@ -1,10 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { MultiplayerLogic } from './_shared.js'
 
-const corsHeaders = {
-	'Access-Control-Allow-Origin': '*',
-	'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 Deno.serve(async (req) => {
 	if (req.method === 'OPTIONS') {
@@ -213,9 +210,8 @@ Deno.serve(async (req) => {
 				await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
 			}
 
-			const newSeed = MultiplayerLogic.generateNextSeed(session.seed, actionId)
-			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId, payload }
-			const newLog = [...(session.action_log || []), actionEntry]
+			// Reuse newSeed, actionEntry, newLog from above if needed, or simply don't re-declare.
+			// Actually, let's just use the existing variables since they are identical calculations.
 
 			// Generate Enemy Team and Simulate Combat
 			const enemyTeam = MultiplayerLogic.generateEnemyTeamForRound(session.round, session.wins)
