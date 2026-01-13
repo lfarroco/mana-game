@@ -55,7 +55,7 @@ export function setLocale(locale: string) {
 }
 
 export function t(key: string, params?: Record<string, string>): string {
-	let text = translations[key];
+	let text = translations ? translations[key] : key;
 
 	if (!text && currentLocale !== 'en') {
 		text = locales['en'][key];

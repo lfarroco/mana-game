@@ -1,5 +1,5 @@
 import { State } from "@Models/State";
-import { isUnitUnlocked } from "@Models/StatsStore";
+
 import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
 
 const dummy: CardDefinition = {
@@ -86,11 +86,11 @@ export const getCores = (): CardDefinition[] =>
 export const getNonCores = (): CardDefinition[] =>
 	Array.from(cards.values()).filter((card) => !card.isCore);
 
-export const getAvailableCards = (): CardDefinition[] =>
+export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =>
 	Array.from(cards.values()).filter(
 		(card) =>
 			!card.isCore &&
-			(!card.locked || isUnitUnlocked(card.id))
+			(!card.locked || unlockedUnitIds.includes(card.id))
 	);
 
 export const getAlliedCore = (state: State) => (forceId: string) =>

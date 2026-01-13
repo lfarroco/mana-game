@@ -7,6 +7,7 @@ import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
 import { getCurrentScene, getState } from "@Models/State";
+import * as StatsStore from "@Models/StatsStore";
 
 // TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
@@ -94,7 +95,7 @@ async function animateItemAppearance(chara: Chara.Chara) {
 }
 
 function getAvailableCardsForTavern(count: number, filter?: (u: Card.CardDefinition) => boolean): Card.CardDefinition[] {
-	const allCards = Card.getAvailableCards();
+	const allCards = Card.getAvailableCards(StatsStore.getStats().unlockedUnits);
 	const filteredCards = filter ?
 		allCards.filter(filter) :
 		allCards;

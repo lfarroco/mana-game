@@ -183,7 +183,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				});
 			} else {
 				localStorage.setItem("mana_player_id", result.id);
-				this.showModal("Success", "Registration Successful!");
+				// this.showModal("Success", "Registration Successful!");
 				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 			}
 		} catch (e) {
