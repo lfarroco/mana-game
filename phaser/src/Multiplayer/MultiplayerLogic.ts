@@ -161,7 +161,7 @@ export class MultiplayerLogic {
 			else if (encounterId === 'gold_shop') filterType = 'gold';
 		}
 
-		const allCards = Card.getAvailableCards();
+		const allCards = Card.getNonCores();
 		let filteredCards = allCards;
 
 		if (filterType) {
@@ -284,88 +284,345 @@ export class MultiplayerLogic {
 						}
 					}
 				}
+			} else if (payload.orbId.startsWith('increase_power_on_')) {
+				const type = payload.orbId.replace('increase_power_on_', '');
+				if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					const pct = Math.floor(targetUnit.power * 0.1);
+					targetUnit.power += pct;
+					updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
+				}
+			} else if (payload.orbId.startsWith('increase_critical_on_')) {
+				const type = payload.orbId.replace('increase_critical_on_', '');
+				if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					// Permanent +10 Critical
+					// Since Critical is likely a stat or inferred, we need to check how it's stored.
+					// Browsing logic uses processEffectsIO with 'increase_critical'.
+					// Assuming we can add an effect or modify stat if it exists on Unit model.
+					// Unit model usually has 'critical' property? Checking Unit.ts...
+					// For now, assuming direct property or adding a permanent effect is acceptable.
+					// Looking at Orbs.ts: "processEffectsIO(..., {id: 'increase_critical', amount: 10, permanent: true})"
+					// This adds an effect {id: 'increase_critical', amount: 10}.
+					targetUnit.effects = targetUnit.effects || [];
+					targetUnit.effects.push({ id: 'increase_critical', amount: 10, targets: { id: 'self' } });
+					updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
+				}
+			} else if (payload.orbId.startsWith('decrease_cooldown_on_')) {
+				const type = payload.orbId.replace('decrease_cooldown_on_', '');
+				if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
+					updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
+				}
 			}
 		}
-
-		team.units = units;
-		return { team, updates };
 	}
+} else if (actionId === 'discard_unit' && payload && payload.unitId) {
+	const unitIndex = units.findIndex((u: any) => u.id === payload.unitId);
+	if (unitIndex >= 0) {
+		const unit = units[unitIndex];
+		if (!unit.isCore) {
+			units.splice(unitIndex, 1);
+			updates.push(`Discarded unit ${payload.unitId}`);
+		}
+	}
+}
+		}
+
+team.units = units;
+return { team, updates };
+	}
+
+	public static validateAndApplyTeamUpdate(session: SessionData, newTeam: any): { team: any, valid: boolean } {
+	// Only allow position updates. Prevent adding/removing/upgrading units via this endpoint.
+	const currentUnits = session.team?.units || [];
+	const newUnits = newTeam?.units || [];
+
+	if (currentUnits.length !== newUnits.length) {
+		return { team: session.team, valid: false };
+	}
+
+	// Create a map of current units for verification
+	const currentUnitMap = new Map();
+	currentUnits.forEach((u: any) => currentUnitMap.set(u.id, u));
+
+	const validatedUnits = [];
+
+	for (const newUnit of newUnits) {
+		const originalUnit = currentUnitMap.get(newUnit.id);
+		if (!originalUnit) {
+			// Unit ID mistmatch - potential cheating or sync error
+			return { team: session.team, valid: false };
+		}
+
+		// Check if critical stats match (prevent stats hacking)
+		if (originalUnit.cardId !== newUnit.cardId ||
+			originalUnit.rank !== newUnit.rank) {
+			return { team: session.team, valid: false };
+		}
+
+		// Allow position update
+		// We construct a new unit object using critical data from Server + Position from Client
+		const validatedUnit = {
+			...originalUnit,
+			position: newUnit.position // Acceptance of client position
+		};
+		validatedUnits.push(validatedUnit);
+	}
+
+	return { team: { units: validatedUnits }, valid: true };
+}
 
 	public static simulateCombat(session: SessionData): { finalState: State, initialUnits: Unit[], logs: any[] } {
-		const combatState = this.createCombatState(session);
+	const combatState = this.createCombatState(session);
 
-		// Ensure RNG is seeded for deterministic simulation
-		const seedVal = this.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
+	// Ensure RNG is seeded for deterministic simulation
+	const seedVal = this.stringToSeed(session.initial_seed);
+	Random.setSeed(seedVal);
 
-		const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
+	const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
 
-		const effects = createServerCombatEffects(combatState);
-		const combatRunner = runCombat(combatState, effects);
+	const effects = createServerCombatEffects(combatState);
+	const combatRunner = runCombat(combatState, effects);
 
-		const SIM_DELTA = 16.67;
-		let frame = 0;
-		const MAX_FRAMES = 10000;
-		while (combatRunner.isActive() && frame < MAX_FRAMES) {
-			effects.setFrame(frame);
-			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
-			frame++;
-		}
-
-		return { finalState: combatState, initialUnits, logs: effects.logs };
+	const SIM_DELTA = 16.67;
+	let frame = 0;
+	const MAX_FRAMES = 10000;
+	while (combatRunner.isActive() && frame < MAX_FRAMES) {
+		effects.setFrame(frame);
+		combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+		frame++;
 	}
+
+	return { finalState: combatState, initialUnits, logs: effects.logs };
+}
 
 	private static createCombatState(session: SessionData): State {
-		let playerUnits: Unit[] = [];
-		if (session.team && (session.team as any).units) {
-			playerUnits = JSON.parse(JSON.stringify((session.team as any).units));
-			playerUnits.forEach(u => {
-				u.effects = u.effects || [];
-				u.reactions = u.reactions || [];
-				u.life = u.maxLife;
-			});
-		}
-
-		const hasCore = playerUnits.some(u => u.isCore);
-		if (!hasCore) {
-			const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
-			if (freeSlot) {
-				const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
-				crystal.isCore = true;
-				playerUnits.push(crystal);
-			}
-		}
-
-		let enemyUnits: Unit[] = [];
-		if (session.current_options && (session.current_options as any).combatState && (session.current_options as any).combatState.enemyTeam) {
-			enemyUnits = JSON.parse(JSON.stringify((session.current_options as any).combatState.enemyTeam));
-		} else {
-			const allCards = Card.getAvailableCards();
-			const mockState = {
-				battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
-				gameData: { player: { wins: session.wins || 0, id: FORCE_ID_PLAYER } }
-			} as any;
-			enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
-			enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
-		}
-
-		return {
-			savedGames: [],
-			gameData: {
-				round: session.round,
-				hour: 0,
-				player: makeForce(FORCE_ID_PLAYER),
-				recentEncounterIds: [],
-				runStats: {} as any,
-				seed: this.stringToSeed(session.initial_seed),
-				initialSeed: this.stringToSeed(session.initial_seed),
-				isSeeded: true
-			},
-			battleData: {
-				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
-				grid: BoardLogic.createGrid(),
-				units: [...playerUnits, ...enemyUnits]
-			}
-		};
+	let playerUnits: Unit[] = [];
+	if (session.team && (session.team as any).units) {
+		playerUnits = JSON.parse(JSON.stringify((session.team as any).units));
+		playerUnits.forEach(u => {
+			u.effects = u.effects || [];
+			u.reactions = u.reactions || [];
+			u.life = u.maxLife;
+		});
 	}
+
+	const hasCore = playerUnits.some(u => u.isCore);
+	if (!hasCore) {
+		const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
+		if (freeSlot) {
+			const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
+			crystal.isCore = true;
+			playerUnits.push(crystal);
+		}
+	}
+
+	let enemyUnits: Unit[] = [];
+	if (session.current_options && (session.current_options as any).combatState && (session.current_options as any).combatState.enemyTeam) {
+		enemyUnits = JSON.parse(JSON.stringify((session.current_options as any).combatState.enemyTeam));
+	} else {
+		const allCards = Card.getNonCores();
+		const mockState = {
+			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
+			gameData: { player: { wins: session.wins || 0, id: FORCE_ID_PLAYER } }
+		} as any;
+		enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
+		enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
+	}
+
+	return {
+		savedGames: [],
+		gameData: {
+			round: session.round,
+			hour: 0,
+			player: makeForce(FORCE_ID_PLAYER),
+			recentEncounterIds: [],
+			runStats: {} as any,
+			seed: this.stringToSeed(session.initial_seed),
+			initialSeed: this.stringToSeed(session.initial_seed),
+			isSeeded: true
+		},
+		battleData: {
+			forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+			grid: BoardLogic.createGrid(),
+			units: [...playerUnits, ...enemyUnits]
+		}
+	};
+}
+	public static processSessionTurn(
+	session: SessionData,
+	actionId: string,
+	payload ?: any
+): { session: SessionData; updates: string[] | undefined; combatResult ?: { won: boolean } } {
+	// 1. Resolve Action (Team Updates)
+	const { team, updates } = this.resolveAction(session, actionId, payload);
+	let nextSession = { ...session, team };
+	let combatResult = undefined;
+
+	// 2. Handle Combat Phase Processing (if we are currently in combat and finishing it)
+	if (nextSession.phase === 'combat' && actionId === 'combat_done') {
+		// Combat is done, move to next round
+		// Logic handled below in "Advance Phase"
+	} else if (nextSession.phase === 'combat') {
+		// specific combat actions if any? 
+		// For now, if phase is combat, we expect 'combat_done' to proceed.
+		// But wait, the server logic triggered combat processing *before* returning to client.
+		// The client calls 'combat_done' to acknowledge.
+	}
+
+	// 3. Game Loop / State Machine
+	// 3. Game Loop / State Machine
+	// const newSeed = this.generateNextSeed(nextSession.seed, actionId);
+
+	// If we are currently in combat, processing 'combat_done' moves us to next round
+	if (nextSession.phase === 'combat' && actionId === 'combat_done') {
+		// We already calculated wins/losses when entering combat phase (see below).
+		// So we just reset to step 1 of next round.
+
+		// But wait, looking at action/index.ts:
+		// It calculates result WHEN calling 'combat', then updates wins/losses and invokes `increment_rating`.
+		// Then it waits for 'combat_done'.
+
+		// Actually action/index.ts line 95: if (session.phase === 'combat') ...
+		// This block runs when the USER sends an action while the session IS IN combat phase.
+		// Currently the only action sent during combat phase (from client) is likely 'combat_done' (or nothing if auto?).
+		// Check action/index.ts logic again.
+	}
+
+	return { session: nextSession, updates, combatResult };
+}
+
+	// Helper to encapsulate the complex transition logic
+	public static transitionToNextState(session: SessionData, actionId: string, payload ?: any): { session: SessionData, combatResult ?: { won: boolean } } {
+	const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
+
+	// If we are already in combat phase, we are waiting for 'combat_done' to proceed to next round
+	if (nextSession.phase === 'combat') {
+		// Transition handling is actually done *before* entering this state in the previous turn?
+		// No, typically:
+		// 1. User is in 'encounter' (step 6).
+		// 2. User sends action (e.g., 'upgrade_unit').
+		// 3. Server resolves action.
+		// 4. Server sees step 6 -> 7. Step 7 is Combat.
+		// 5. Server performs simulation, updates DB with 'combat' phase and results. RETURNS result to client.
+		// 6. Client plays combat.
+		// 7. Client sends 'combat_done'.
+		// 8. Server receives 'combat_done'. Server updates DB to Round + 1, Step 1.
+
+		if (actionId === 'combat_done') {
+			// Determine next phase based on wins/losses (already updated when entering combat?)
+			// looking at action/index.ts:
+			// It updates wins/losses immediately when resolving the combat simulation. 
+			// So now we just check if game over.
+
+			let nextPhase = 'encounter';
+			if (nextSession.wins >= 10) nextPhase = 'victory';
+			if (nextSession.losses >= 4) nextPhase = 'game_over';
+
+			nextSession.phase = nextPhase;
+			nextSession.round += 1;
+			nextSession.step = 1;
+			nextSession.action_log = []; // Clear log for new round
+
+			if (nextPhase === 'encounter') {
+				const encounterResult = this.generateEncounterOptions(nextSession);
+				nextSession.current_options = encounterResult.options;
+			} else {
+				nextSession.current_options = null;
+			}
+
+			nextSession.updated_at = new Date();
+			return { session: nextSession };
+		}
+
+		return { session: nextSession };
+	}
+
+	// Normal Progression (Encounter/Shop)
+	const newSeed = this.generateNextSeed(nextSession.seed, actionId);
+	nextSession.seed = newSeed;
+
+	// Log action
+	const actionEntry = { round: nextSession.round, phase: nextSession.phase, step: nextSession.step, actionId, payload };
+	nextSession.action_log = [...(nextSession.action_log || []), actionEntry];
+
+	// Increment Step?
+	// Logic from action/index.ts:
+	// if (session.step < 7) ...
+
+	let nextPhase = 'encounter';
+	let nextOptions = null;
+	let combatResult = undefined;
+
+	if (nextSession.step % 2 !== 0) {
+		// Odd -> Moving to Shop (2, 4, 6)
+		if (actionId === 'upgrade_unit' || actionId === 'power_distributor' || actionId === 'power_absorber') {
+			nextPhase = 'orb_shop';
+			if (actionId === 'upgrade_unit') nextOptions = [{ id: 'upgrade_orb' }];
+			if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }];
+			if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }];
+		} else {
+			nextPhase = 'shop';
+			// Generate Shop Options
+			const shopResult = this.generateShopOptions(nextSession, actionId);
+			nextOptions = shopResult.options;
+		}
+	} else {
+		// Even -> Moving to Encounter (3, 5) or Combat (7)
+		if (nextSession.step === 6) {
+			nextPhase = 'combat';
+		} else {
+			nextPhase = 'encounter';
+			const encounterResult = this.generateEncounterOptions(nextSession);
+			nextOptions = encounterResult.options;
+		}
+	}
+
+	nextSession.step += 1;
+	nextSession.phase = nextPhase;
+	nextSession.current_options = nextOptions ? { options: nextOptions } : null;
+
+	// Special handling for entering COMBAT
+	if (nextPhase === 'combat') {
+		// Generate Enemy Team
+		const enemyTeam = this.generateEnemyTeamForRound(nextSession.round, nextSession.wins);
+
+		// Setup next session for simulation
+		nextSession.current_options = { combatState: { enemyTeam } };
+
+		// Run Simulation
+		const simResult = this.simulateCombat(nextSession);
+		const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER');
+
+		const outcomeLog = simResult.logs.find((l: any) => l.type === 'outcome');
+		let wonCombat = false;
+		if (outcomeLog) {
+			wonCombat = outcomeLog.result === 'player_won';
+		} else {
+			const core = playerUnits.find((u: any) => u.isCore);
+			wonCombat = !!(core && core.life > 0);
+		}
+
+		// Update Wins/Losses immediately? Use separate variables to track transition
+		nextSession.wins += (wonCombat ? 1 : 0);
+		nextSession.losses += (wonCombat ? 0 : 1);
+
+		// Prepare Combat Result for Client
+		const combatState = {
+			enemyTeam,
+			seed: newSeed,
+			wonCombat,
+			initialUnits: simResult.initialUnits,
+			finalPlayerUnits: playerUnits,
+			logs: simResult.logs
+		};
+
+		const options = [{ id: 'combat_done', label: 'Continue' }];
+		nextSession.current_options = { options, combatState };
+
+		combatResult = { won: wonCombat };
+	}
+
+	nextSession.updated_at = new Date();
+	return { session: nextSession, combatResult };
+}
 }

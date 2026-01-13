@@ -64,13 +64,16 @@ Deno.serve(async (req) => {
 
 		// Handle Team Update (Non-progression)
 		if (actionId === 'update_team' && payload && payload.team) {
-			// Merge positions logic (simplified)
-			const sessionTeam = session.team || { units: [] }
-			// Assumption: client sends updated positions. 
-			// Logic.resolveAction doesn't handle pure position updates, so we do it here or update DB.
+			// Validate and Apply Team Update (Security Check)
+			const { team, valid } = MultiplayerLogic.validateAndApplyTeamUpdate(session, payload.team)
+
+			if (!valid) {
+				return new Response(JSON.stringify({ success: false, error: 'Invalid Team Update' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+			}
+
 			await supabaseClient
 				.from('player_sessions')
-				.update({ team: payload.team, updated_at: new Date() })
+				.update({ team, updated_at: new Date() })
 				.eq('id', session.id)
 
 			return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
@@ -78,235 +81,64 @@ Deno.serve(async (req) => {
 
 		// Logic: Resolve Action
 		const result = MultiplayerLogic.resolveAction(session, actionId, payload)
+		let nextSession = { ...session, team: result.team }
 
+		// Update Team in DB if changed
 		if (result.updates && result.updates.length > 0) {
-			// Update Team in DB
 			const { error: updateError } = await supabaseClient
 				.from('player_sessions')
 				.update({ team: result.team, updated_at: new Date() })
 				.eq('id', session.id)
 
 			if (updateError) throw updateError
-
-			// Update local session object for further processing
-			session.team = result.team
 		}
 
-		if (session.phase === 'combat') {
-			const combatState = session.current_options?.combatState
-			let wonCombat = false
-			let playerUnits: any[] = []
+		// Logic: Transition State
+		const transitionResult = MultiplayerLogic.transitionToNextState(nextSession, actionId, payload)
+		nextSession = transitionResult.session
+		const combatResult = transitionResult.combatResult
 
-			if (combatState && combatState.finalPlayerUnits) {
-				wonCombat = combatState.wonCombat
-				playerUnits = combatState.finalPlayerUnits
-			} else {
-				// Fallback Simulation (Legacy/Failover)
-				const simResult = MultiplayerLogic.simulateCombat(session)
-				// Fix: Retrieve units from battleData, not gameData (which is empty on server)
-				playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER')
-				const core = playerUnits.find((u: any) => u.isCore)
-				wonCombat = core && core.life > 0
-			}
+		// Persist New State
+		const { error: saveError } = await supabaseClient
+			.from('player_sessions')
+			.update({
+				phase: nextSession.phase,
+				round: nextSession.round,
+				step: nextSession.step,
+				seed: nextSession.seed,
+				wins: nextSession.wins,
+				losses: nextSession.losses,
+				current_options: nextSession.current_options,
+				action_log: nextSession.action_log,
+				team: nextSession.team,
+				updated_at: new Date()
+			})
+			.eq('id', session.id)
 
-			// Update Team Stats
-			if (session.team && session.team.units) {
-				session.team.units.forEach((u: any) => {
-					const simUnit = playerUnits.find((su: any) => su.id === u.id)
-					if (simUnit) {
-						u.bonusPower = simUnit.bonusPower
-						u.power = simUnit.power
-						u.maxLife = simUnit.maxLife
-						u.life = u.maxLife
-					}
-				})
+		if (saveError) throw saveError
 
-				const { error: teamUpdateError } = await supabaseClient
-					.from('player_sessions')
-					.update({ team: session.team })
-					.eq('id', session.id)
-
-				if (teamUpdateError) throw teamUpdateError
-			}
-
-			const newSeed = MultiplayerLogic.generateNextSeed(session.seed, actionId)
-
-			// Advance Phase Logic
-			const wins = session.wins + (wonCombat ? 1 : 0)
-			const losses = session.losses + (wonCombat ? 0 : 1)
-			let nextPhase = 'encounter'
-			if (wins >= 10) nextPhase = 'victory'
-			if (losses >= 4) nextPhase = 'game_over'
-
-			console.log(`Combat Result: won=${wonCombat}, newWins=${wins}, newLosses=${losses}, nextPhase=${nextPhase}`)
-
-			if (wonCombat) {
-				await supabaseClient.rpc('increment_rating', { player_id: playerId, amount: 25 })
-			} else {
-				await supabaseClient.rpc('increment_rating', { player_id: playerId, amount: -25 })
-			}
-
-			const nextRound = session.round + 1
-			let nextOptions = null
-
-			if (nextPhase === 'encounter') {
-				// Generate Encounter Options for the new round
-				const nextSessionState = { ...session, round: nextRound, step: 1, seed: newSeed }
-				const encounterResult = MultiplayerLogic.generateEncounterOptions(nextSessionState)
-				nextOptions = encounterResult.options
-			}
-
-			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId: 'combat_done', payload: {} }
-
-			const { error: combatUpdateError } = await supabaseClient
-				.from('player_sessions')
-				.update({
-					phase: nextPhase,
-					round: nextRound,
-					step: 1,
-					seed: newSeed,
-					wins: wins,
-					losses: losses,
-					current_options: nextOptions ? { options: nextOptions } : null,
-					action_log: [], // Clear log
-					team: session.team, // Persist stats
-					updated_at: new Date()
-				})
-				.eq('id', session.id)
-
-			if (combatUpdateError) throw combatUpdateError
-
-			return new Response(JSON.stringify({ success: true, nextPhase, wonCombat }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+		// Side Effects (Rating)
+		if (combatResult) {
+			const wonCombat = combatResult.won
+			const ratingAmount = wonCombat ? 25 : -25
+			await supabaseClient.rpc('increment_rating', { player_id: playerId, amount: ratingAmount })
 		}
 
-
-		// Progression Logic (Encounter/Shop)
-		if (session.step < 7) {
-			let nextPhase = 'encounter'
-			let nextOptions = null
-
-			// Calculate Next Phase
-			if (session.step % 2 !== 0) {
-				// Odd steps -> Moving to Shop/OrbShop (Step 2, 4, 6)
-				if (actionId === 'upgrade_unit' || actionId === 'power_distributor' || actionId === 'power_absorber') {
-					nextPhase = 'orb_shop'
-					// Orb Shop options are static based on entrance action
-					if (actionId === 'upgrade_unit') nextOptions = [{ id: 'upgrade_orb' }]
-					if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }]
-					if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }]
-				} else {
-					nextPhase = 'shop'
-					// Generate Shop Options
-					// We need to temporarily update session log to assist generation if it relies on history (which it does)
-					const tempSession = { ...session, action_log: [...(session.action_log || []), { round: session.round, step: session.step, actionId, payload }] }
-					const shopResult = MultiplayerLogic.generateShopOptions(tempSession, actionId)
-					nextOptions = shopResult.options
-				}
-			} else {
-				// Even steps -> Moving to Encounter (Step 3, 5, 7.. wait 7 is combat)
-				// Actually step check is < 7, so max current step is 6.
-				// If current step is 6 (Shop/OrbShop), next is 7 (Combat).
-
-				if (session.step === 6) {
-					nextPhase = 'combat'
-				} else {
-					nextPhase = 'encounter'
-					// Generate Encounter Options
-					const tempSession = { ...session, action_log: [...(session.action_log || []), { round: session.round, step: session.step, actionId, payload }] }
-					const encounterResult = MultiplayerLogic.generateEncounterOptions(tempSession)
-					nextOptions = encounterResult.options
-				}
-			}
-
-			const newSeed = MultiplayerLogic.generateNextSeed(session.seed, actionId)
-			const actionEntry = { round: session.round, phase: session.phase, step: session.step, actionId, payload }
-			const newLog = [...(session.action_log || []), actionEntry]
-
-
-			// COMBAT TRANSITION
-			if (nextPhase === 'combat') {
-				// Step 7 logic (Combat)
-
-				// Persist Ghost if team updated
-				if (payload && payload.team) {
-					const { error: ghostInsertError } = await supabaseClient.from('ghosts').insert({ player_id: playerId, round: session.round, team_composition: payload.team })
-					if (ghostInsertError) throw ghostInsertError
-				}
-
-				// Generate Enemy Team & Simulate
-				const enemyTeam = MultiplayerLogic.generateEnemyTeamForRound(session.round, session.wins)
-
-				const nextSession = {
-					...session,
-					phase: 'combat',
-					seed: newSeed,
-					current_options: { combatState: { enemyTeam } },
-					team: payload && payload.team ? payload.team : session.team
-				}
-
-				const simResult = MultiplayerLogic.simulateCombat(nextSession)
-				// Fix: Retrieve units from battleData, not gameData (which is empty on server)
-				const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER')
-
-				// Determine Outcome from Logs (Authoritative)
-				const outcomeLog = simResult.logs.find((l: any) => l.type === 'outcome')
-				let wonCombat = false
-
-				if (outcomeLog) {
-					wonCombat = outcomeLog.result === 'player_won'
-				} else {
-					// Fallback (Time limit reached or no outcome)
-					const core = playerUnits.find((u: any) => u.isCore)
-					wonCombat = core && core.life > 0
-				}
-
-				const combatState = {
-					enemyTeam,
-					seed: newSeed,
-					wonCombat,
-					initialUnits: simResult.initialUnits,
-					finalPlayerUnits: playerUnits,
-					logs: simResult.logs // Persist logs for accurate client playback
-				}
-				const options = [{ id: 'combat_done', label: 'Continue' }]
-
-				const { error: combatPrepError } = await supabaseClient
-					.from('player_sessions')
-					.update({
-						phase: 'combat',
-						step: 7, // Ensure step is set to 7
-						seed: newSeed,
-						current_options: { options, combatState },
-						action_log: newLog,
-						team: payload && payload.team ? payload.team : session.team, // Persist team positions
-						updated_at: new Date()
-					})
-					.eq('id', session.id)
-
-				if (combatPrepError) throw combatPrepError
-
-			} else {
-				// NORMAL PROGRESSION (Encounter / Shop)
-				const updateData: any = {
-					step: session.step + 1,
-					phase: nextPhase,
-					seed: newSeed,
-					action_log: newLog,
-					team: payload && payload.team ? payload.team : session.team, // Persist team positions
-					current_options: nextOptions ? { options: nextOptions } : null,
-					updated_at: new Date()
-				}
-
-				const { error: progressionError } = await supabaseClient
-					.from('player_sessions')
-					.update(updateData)
-					.eq('id', session.id)
-
-				if (progressionError) throw progressionError
-			}
+		// Determine response formatting
+		// If we just finished combat (won/lost), the client might expect specific fields
+		if (combatResult) {
+			// This is the response for entering combat
+			return new Response(JSON.stringify({
+				success: true,
+				nextPhase: 'combat',
+				wonCombat: combatResult.won
+			}), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 		}
 
-		return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+		return new Response(JSON.stringify({
+			success: true,
+			nextPhase: nextSession.phase
+		}), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 
 	} catch (error: any) {
 		return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })

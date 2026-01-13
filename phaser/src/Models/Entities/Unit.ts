@@ -51,8 +51,8 @@ export function createUnitFromCardSpec(
 	position: Vec2 = { x: 0, y: 0 },
 	id: string
 ): Unit {
-	const effects = structuredClone(cardDef.effects ?? []);
-	const reactions = structuredClone(cardDef.reactions ?? []);
+	const effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
+	const reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? []));
 
 	return {
 		id,
@@ -175,8 +175,8 @@ export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefini
 	const newReactions = unit.reactions.filter((r) => {
 		return !cardDef.reactions.some((c) => c.effectId === r.effectId);
 	});
-	unit.effects = structuredClone(cardDef.effects ?? []);
-	unit.reactions = structuredClone(cardDef.reactions ?? []).concat(newReactions)
+	unit.effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
+	unit.reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? [])).concat(newReactions)
 }
 
 export function upgradeUnitData(unit: Unit) {

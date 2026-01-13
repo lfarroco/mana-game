@@ -83,7 +83,7 @@ export class LoginModal {
 
 			const profile = await MultiplayerManager.getInstance().handleAuthRegister(username, password);
 			localStorage.setItem("player_id", profile.id);
-			alert("Registration Successful!");
+			// alert("Registration Successful!");
 			this.hide(true);
 		} catch (e) {
 			alert("Registration Failed: " + (e as Error).message);
