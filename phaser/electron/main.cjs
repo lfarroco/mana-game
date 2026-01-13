@@ -31,7 +31,7 @@ function createWindow() {
 			// Required for steamworks.js to work
 			nodeIntegration: true,
 			contextIsolation: false,
-			preload: path.join(__dirname, 'preload.js')
+			preload: path.join(__dirname, 'preload.cjs')
 		},
 		icon: path.join(__dirname, 'icon.png')
 	});
