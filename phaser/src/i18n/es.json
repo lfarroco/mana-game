@@ -15,6 +15,8 @@
 	"credits.assets": "Recursos (Sprites y Sonido)",
 	"credits.thanks": "Agradecimientos Especiales",
 	"credits.close": "CERRAR",
+	"credits.icons": "Íconos",
+	"credits.phaser": "Creado con Phaser",
 	"stats.title": "Estadísticas",
 	"stats.totalRuns": "Partidas Jugadas",
 	"stats.goldVictories": "Victorias de Oro",

@@ -51,13 +51,16 @@ export function openCredits(): void {
 		t("credits.design"),
 		"Leonardo Farroco",
 		"",
+		t("credits.icons"),
+		"Laura de Stefano Farroco",
+		"",
 		t("credits.assets"),
 		"Duelyst Assets",
 		"",
 		t("credits.thanks"),
 		"My daughter (Laura) and my wife (Ercilia)",
 		"",
-		"Created with Phaser"
+		t("credits.phaser")
 	];
 
 	const creditsTexts = creditsContent.map((text, index) => {

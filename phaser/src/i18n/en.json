@@ -17,6 +17,8 @@
 	"credits.assets": "Assets (Sprites and Sound)",
 	"credits.thanks": "Special Thanks",
 	"credits.close": "CLOSE",
+	"credits.phaser": "Created with Phaser",
+	"credits.icons": "Icons",
 	"stats.title": "Statistics",
 	"stats.totalRuns": "Total Runs Played",
 	"stats.goldVictories": "Gold Victories",
