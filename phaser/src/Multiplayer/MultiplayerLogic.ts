@@ -282,53 +282,42 @@ export class MultiplayerLogic {
 								});
 							}
 						}
+					} else if (payload.orbId.startsWith('increase_power_on_')) {
+						const type = payload.orbId.replace('increase_power_on_', '');
+						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+							const pct = Math.floor(targetUnit.power * 0.1);
+							targetUnit.power += pct;
+							updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
+						}
+					} else if (payload.orbId.startsWith('increase_critical_on_')) {
+						const type = payload.orbId.replace('increase_critical_on_', '');
+						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+							targetUnit.effects = targetUnit.effects || [];
+							targetUnit.effects.push({ id: 'increase_critical', amount: 10, targets: { id: 'self' } });
+							updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
+						}
+					} else if (payload.orbId.startsWith('decrease_cooldown_on_')) {
+						const type = payload.orbId.replace('decrease_cooldown_on_', '');
+						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+							targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
+							updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
+						}
 					}
 				}
-			} else if (payload.orbId.startsWith('increase_power_on_')) {
-				const type = payload.orbId.replace('increase_power_on_', '');
-				if (targetUnit.effects?.some((e: any) => e.id === type)) {
-					const pct = Math.floor(targetUnit.power * 0.1);
-					targetUnit.power += pct;
-					updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
-				}
-			} else if (payload.orbId.startsWith('increase_critical_on_')) {
-				const type = payload.orbId.replace('increase_critical_on_', '');
-				if (targetUnit.effects?.some((e: any) => e.id === type)) {
-					// Permanent +10 Critical
-					// Since Critical is likely a stat or inferred, we need to check how it's stored.
-					// Browsing logic uses processEffectsIO with 'increase_critical'.
-					// Assuming we can add an effect or modify stat if it exists on Unit model.
-					// Unit model usually has 'critical' property? Checking Unit.ts...
-					// For now, assuming direct property or adding a permanent effect is acceptable.
-					// Looking at Orbs.ts: "processEffectsIO(..., {id: 'increase_critical', amount: 10, permanent: true})"
-					// This adds an effect {id: 'increase_critical', amount: 10}.
-					targetUnit.effects = targetUnit.effects || [];
-					targetUnit.effects.push({ id: 'increase_critical', amount: 10, targets: { id: 'self' } });
-					updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
-				}
-			} else if (payload.orbId.startsWith('decrease_cooldown_on_')) {
-				const type = payload.orbId.replace('decrease_cooldown_on_', '');
-				if (targetUnit.effects?.some((e: any) => e.id === type)) {
-					targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
-					updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
+			} else if (actionId === 'discard_unit' && payload && payload.unitId) {
+				const unitIndex = units.findIndex((u: any) => u.id === payload.unitId);
+				if (unitIndex >= 0) {
+					const unit = units[unitIndex];
+					if (!unit.isCore) {
+						units.splice(unitIndex, 1);
+						updates.push(`Discarded unit ${payload.unitId}`);
+					}
 				}
 			}
 		}
-	}
-} else if (actionId === 'discard_unit' && payload && payload.unitId) {
-	const unitIndex = units.findIndex((u: any) => u.id === payload.unitId);
-	if (unitIndex >= 0) {
-		const unit = units[unitIndex];
-		if (!unit.isCore) {
-			units.splice(unitIndex, 1);
-			updates.push(`Discarded unit ${payload.unitId}`);
-		}
-	}
-}
-		}
 
-team.units = units;
-return { team, updates };
+		team.units = units;
+		return { team, updates };
 	}
 
 	public static validateAndApplyTeamUpdate(session: SessionData, newTeam: any): { team: any, valid: boolean } {
