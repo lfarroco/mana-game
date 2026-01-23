@@ -1,0 +1,6 @@
+{
+  "appId": "com.managame.app",
+  "appName": "Mana Game",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
