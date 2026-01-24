@@ -134,3 +134,5 @@ dist
 phaser/dist.zip
 phaser/dist-steam
 phaser/supabase/functions/action/_shared.js
+phaser/android/key.jks
+/Users/<redacted>/dev/mana-game/phaser/android/app/releasek
