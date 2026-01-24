@@ -1,6 +1,6 @@
 {
     "name": "mana_battle",
-    "version": "1.2.2",
+    "version": "1.1",
     "main": "electron/main.cjs",
     "type": "module",
     "scripts": {
@@ -58,6 +58,7 @@
         "@babel/preset-env": "^7.24.5",
         "@babel/preset-typescript": "^7.27.1",
         "@capacitor/android": "^8.0.1",
+        "@capacitor/assets": "^3.0.5",
         "@capacitor/cli": "^8.0.1",
         "@capacitor/core": "^8.0.1",
         "@playwright/test": "^1.53.0",

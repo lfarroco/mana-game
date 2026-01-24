@@ -1,6 +1,6 @@
 {
-  "appId": "com.managame.app",
-  "appName": "Mana Game",
+  "appId": "com.manabattle.app",
+  "appName": "Mana Battle",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "android": {
