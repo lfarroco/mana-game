@@ -1,4 +1,4 @@
-package com.managame.app;
+package com.manabattle.app;
 
 import android.view.View;
 import com.getcapacitor.BridgeActivity;
