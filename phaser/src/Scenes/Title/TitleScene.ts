@@ -38,15 +38,20 @@ export default class TitleScene extends Phaser.Scene {
 
 		logo();
 
+		const arenaButton_ = process.env.NODE_ENV === "development" ? [arenaButton(700)] : [];
+
 		const buttons = [
 			resumeGameButton(500),
-			newRunButton(600),
-			arenaButton(700),
-			optionsButton(800),
-			collectionButton(900),
-			linksButton(1000),
-			languageButton()
-		];
+			newRunButton(600)]
+			.concat(
+				arenaButton_
+			).concat(
+				[
+					optionsButton(800),
+					collectionButton(900),
+					linksButton(1000),
+					languageButton()
+				]);
 
 		// Create a container for the main buttons so they can be hidden when showing submenu
 		const mainButtonsContainer = io.Container(
