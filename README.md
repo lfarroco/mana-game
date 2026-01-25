@@ -47,3 +47,10 @@ The following systems still need to be documented. If you find sections in the g
 ## Migration Plans
 
 - **[Server-Side Combat Migration](docs/server-side-combat-migration.md)** - Plan for decoupling the combat runner from Phaser for server-side verification.
+
+## Publishing
+
+- Steam: run `npm run electron:build:all`, then `sh scripts/publish_steam.sh` from the `phaser` directory.
+- Stem Demo: `npm run electron:build:demo`, then `sh scripts/publish_steam_demo.sh` from the `phaser` directory.
+- Itch: `npm run build`, zip the contents of `dist`, and upload to Itch.io.
+- Android: run `npm run android:build` in `phaser`, then, in Android Studio, Build > Generate Signed Bundle / APK.
