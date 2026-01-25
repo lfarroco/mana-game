@@ -1,9 +1,3 @@
-// We might need to import logical counterparts or move shared logic to a shared folder.
-// For now, I'll mock the data generation or reuse what I can.
-// Note: Imports from "src" might be tricky if they depend on Phaser or browser-specifics.
-// existing serverCombatDemo uses imports from src, so it seems like we successfully compile/run src code in node.
-
-
 import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
 import { Pool } from 'pg';
 import { makeUnit } from "../src/Models/Entities/Unit";
