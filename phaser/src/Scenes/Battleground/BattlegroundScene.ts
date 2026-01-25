@@ -14,6 +14,7 @@ import * as DiscardZone from "./Systems/Shop/DiscardZone";
 
 export type BattlegroundSceneData = {
 	state: State,
+	// TODO: instead of this, we need the list of current units 
 	selectedCrystalId?: string;
 };
 
@@ -42,7 +43,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	create = async (data: BattlegroundSceneData) => {
 		const state = data?.state || getState();
-		const gameData = state.gameData;
+		const { gameData } = state;
+
+		this.state = state;
 
 		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
 		setCurrentScene(this);
@@ -54,17 +57,21 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
 
-		this.state = state;
-
 		this.start({ ...data, state });
 	};
 
 	start = async ({ state, selectedCrystalId }: BattlegroundSceneData) => {
 
+		// TODO: the start for this scene should be just:
+		// - render boards
+		// - render untis
+		// - display current phase 
+
 		const data = state.gameData;
 		console.log(":::: BattlegroundScene starting logic...", data);
 
 		if (selectedCrystalId)
+			// TODO: the game data should be initialized before even getting into this scene
 			Systems.Setup.initializeNewGame(selectedCrystalId);
 		else
 			state.gameData = data;
@@ -75,6 +82,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		const charas = getAllCharas();
 
+		// TODO: why??
 		if (charas.length === 0) {
 			await resetBoard();
 		}
@@ -88,12 +96,14 @@ export class BattlegroundScene extends Phaser.Scene {
 		AudioManager.playMusic("music_battlemap_vetruv");
 
 		const currentHour = state.gameData.hour;
+		// TODO: only arg should be state 
 		startPhase(state, getPhaseForHour(currentHour) || "shop");
 	};
 
 	update(time: number, delta: number): void {
 		Board.update(time);
 
+		// TODO: instead, we can have a "combat system", that informs if the simulation is running
 		if (this.combatRunner) {
 			this.combatRunner.updateFrame(this.state, time, delta);
 		}

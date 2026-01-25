@@ -3,6 +3,9 @@ import { MultiplayerLogic } from './_shared.js'
 
 import { corsHeaders } from '../_shared/cors.ts'
 
+// TODO: each action should have an isolated handler 
+// should create new endpoints, one for each goal, instead of checking payload
+
 Deno.serve(async (req) => {
 	if (req.method === 'OPTIONS') {
 		return new Response('ok', { headers: corsHeaders })
