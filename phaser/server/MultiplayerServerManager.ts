@@ -1,5 +1,4 @@
-import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
-import { SessionData } from "../src/Core/Types";
+import { PhaseOptions, SessionData } from "../src/Core/Types";
 import { IGameServer } from "../src/Core/IGameServer";
 import { Pool } from 'pg';
 import { makeUnit } from "../src/Models/Entities/Unit";
@@ -62,7 +61,7 @@ export class MultiplayerServerManager implements IGameServer {
 	}
 
 	// Since we are now async, we update signatures
-	public async createSession(playerId: string, selectedCrystalId?: string): Promise<PlayerSession> {
+	public async createSession(playerId: string, selectedCrystalId?: string): Promise<SessionData> {
 		// Ensure team column exists (migration-like step)
 		try {
 			await pool.query('ALTER TABLE player_sessions ADD COLUMN IF NOT EXISTS team jsonb');
@@ -102,7 +101,7 @@ export class MultiplayerServerManager implements IGameServer {
 		return res.rows[0];
 	}
 
-	public async getSession(playerId: string): Promise<PlayerSession | undefined> {
+	public async getSession(playerId: string): Promise<SessionData | null> {
 		const query = 'SELECT * FROM player_sessions WHERE player_id = $1';
 		const res = await pool.query(query, [playerId]);
 		return res.rows[0];
@@ -330,7 +329,7 @@ export class MultiplayerServerManager implements IGameServer {
 			[playerId, round, JSON.stringify(team)]);
 	}
 
-	private async advancePhase(session: PlayerSession, nextSeed: string, wonLastCombat: boolean) {
+	private async advancePhase(session: SessionData, nextSeed: string, wonLastCombat: boolean) {
 		let wins = session.wins;
 		let losses = session.losses;
 

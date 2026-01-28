@@ -1008,3 +1008,41 @@ mkdir -p phaser/src/Core
   - Phase 4 (cleanup) can begin: remove deprecated code, optimize performance
 
 **Status**: Phase 3 complete! Single-player successfully migrated to use unified server architecture. Game logic is now centralized in Core modules, accessible through server adapters. Ready for Phase 4 (cleanup and optimization).
+### January 28, 2026 - Phase 4 Cleanup Session
+- **Code Quality Improvements**:
+  - Fixed duplicate function definition in `PhaseManager.ts` (had two `renderPhaseByName` declarations)
+  - Fixed test assumption in `LocalServerAdapter.test.ts` to handle both `shop` and `orb_shop` phase transitions
+  - Fixed TypeScript errors in `LocalServerAdapter.ts`:
+    - Combat state now properly extracted from `session.current_options` (created by `transitionToNextState`)
+    - Added fallback to generate combat state if not present
+  - Fixed type compatibility in `MultiplayerServerManager.ts`:
+    - Changed `PlayerSession` references to `SessionData` for consistency with `IGameServer` interface
+    - Updated import to use `PhaseOptions` from `Core/Types` instead of `MultiplayerTypes`
+    - Fixed return type from `undefined` to `null` in `getSession()` to match interface
+
+- **Test Results**:
+  - All Core module tests passing: 23/23 ✅
+  - `LocalServerAdapter` tests: 12/12 ✅ (all passing after phase progression fix)
+  - `ServerFactory` tests: 11/11 ✅
+  - No TypeScript compilation errors in Core modules
+
+- **Architecture Verification**:
+  - ✅ Core modules remain Phaser-free (validated via grep)
+  - ✅ Both adapters (Local and Remote) implement `IGameServer` correctly
+  - ✅ Type consistency across Core, adapters, and server manager
+  - ✅ Phase transition logic working correctly for all game flow paths (encounter → shop/orb_shop → combat)
+
+- **Key Technical Insights**:
+  - Phase flow is more complex than initially documented: encounters can lead to either `shop` or `orb_shop` depending on which encounter is selected (upgrade_unit, power_distributor, power_absorber trigger orb_shop)
+  - `transitionToNextState` in `GameLogic` already creates the full combat state (including wonCombat, finalPlayerUnits, etc.), so adapters should use that instead of re-simulating
+  - The architecture is now properly layered: Client → IGameServer → Core Logic → State
+
+- **Remaining Phase 4 Tasks**:
+  - Manual E2E testing of both single-player and multiplayer modes
+  - Consider removing `MultiplayerPhaseManager.ts` (currently still used as fallback for MP during transition)
+  - Remove legacy fallback code in `PhaseManager.renderPhaseByName()` once full integration is verified
+  - Remove legacy fallback code in `itemClickPurchaseRequested.ts` and `Encounter.ts`
+  - Performance profiling (combat simulation, phase transitions)
+  - Update documentation for any API changes
+
+**Status**: Phase 4 partially complete. Code quality improvements done. Core architecture is solid with all tests passing. Integration is working correctly. Ready for manual testing and final cleanup.

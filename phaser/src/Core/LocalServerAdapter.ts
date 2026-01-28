@@ -48,23 +48,24 @@ export class LocalServerAdapter implements IGameServer {
 				break;
 
 			case 'combat':
-				// Simulate combat and return the combat state
-				const simResult = GameLogic.simulateCombat(session);
-				response.combatState = {
-					units: simResult.initialUnits,
-					logs: simResult.logs,
-					enemyTeam: simResult.enemyTeam,
-					seed: session.seed,
-					wonCombat: simResult.wonCombat,
-					finalPlayerUnits: simResult.finalPlayerUnits,
-					initialUnits: simResult.initialUnits,
-				};
-				break;
+				// Combat state should already be in session.current_options from transitionToNextState
+				if (session.current_options && (session.current_options as any).combatState) {
+					response.combatState = (session.current_options as any).combatState;
+				} else {
+					// Fallback: simulate combat if not already done
+					const enemyTeam = GameLogic.generateEnemyTeamForRound(session.round, session.wins);
+					const simResult = GameLogic.simulateCombat(session);
+					const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER');
 
-			case 'victory':
-			case 'game_over':
-				// No options for end states
-				break;
+					response.combatState = {
+						units: simResult.initialUnits,
+						logs: simResult.logs,
+						enemyTeam: enemyTeam,
+						seed: session.seed,
+						initialUnits: simResult.initialUnits,
+						finalPlayerUnits: playerUnits,
+					};
+				}
 
 			case 'orb_shop':
 			case 'upgrade_core':
