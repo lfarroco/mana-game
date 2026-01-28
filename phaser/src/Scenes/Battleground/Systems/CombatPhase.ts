@@ -36,6 +36,9 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 		console.log("Using server-provided enemy team");
 		enemies = combatState.enemyTeam;
 
+		// Initialize forces array for combat
+		state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), { ...playerForce(state), id: constants.FORCE_ID_PLAYER }];
+
 		// If we have full combat state with units, use those
 		if (combatState.units) {
 			state.battleData.units = combatState.units;
