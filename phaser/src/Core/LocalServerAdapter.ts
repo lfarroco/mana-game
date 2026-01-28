@@ -50,9 +50,13 @@ export class LocalServerAdapter implements IGameServer {
 			case 'combat':
 				// Combat state should already be in session.current_options from transitionToNextState
 				if (session.current_options && (session.current_options as any).combatState) {
-					response.combatState = (session.current_options as any).combatState;
-				} else {
-					// Fallback: simulate combat if not already done
+					const combatState = (session.current_options as any).combatState;
+					// Normalize combatState structure
+					response.combatState = {
+						...combatState,
+						units: combatState.units || combatState.initialUnits,
+						initialUnits: combatState.initialUnits
+					};
 					const enemyTeam = GameLogic.generateEnemyTeamForRound(session.round, session.wins);
 					const simResult = GameLogic.simulateCombat(session);
 					const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER');
@@ -65,16 +69,19 @@ export class LocalServerAdapter implements IGameServer {
 						initialUnits: simResult.initialUnits,
 						finalPlayerUnits: playerUnits,
 					};
-				} break;
+					response.options = [{ id: 'combat_done', label: 'Continue' }];
+				}
+				break;
+
 			case 'orb_shop':
 			case 'upgrade_core':
 			case 'add_reaction_core':
-				// TODO: Implement these phases
-				// For now, return empty options
-				break;
-
-			default:
-				// For other phases
+				// Return options from session
+				if (session.current_options) {
+					response.options = Array.isArray(session.current_options)
+						? session.current_options
+						: (session.current_options as any).options || session.current_options;
+				}
 				break;
 		}
 
