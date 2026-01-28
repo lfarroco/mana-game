@@ -79,7 +79,6 @@ export async function startPhase(state: State, phase: string) {
 	switch (phase) {
 		case "shop":
 			await HeroShop.openHeroShop();
-			handlePhaseEnded(state);
 			break;
 		case "combat":
 			CombatPhase.transitionToCombatPhase(state);
@@ -103,7 +102,6 @@ export async function startPhase(state: State, phase: string) {
 					"on_battle_start_effect",
 				], 3)
 			);
-			handlePhaseEnded(state);
 			break;
 		case "upgrade_core":
 			await EffectCardShop.openUpgradeCorePhase(
@@ -113,7 +111,6 @@ export async function startPhase(state: State, phase: string) {
 					"decrease_core_cooldown",
 					"upgrade_core_power"
 				])
-			handlePhaseEnded(state);
 			break;
 		default:
 			break;
