@@ -1,7 +1,6 @@
 import { IGameServer } from './IGameServer';
 import { SessionData, PhaseOptions } from './Types';
 import { supabase } from '../lib/supabase';
-import { FORCE_ID_CPU } from '../Scenes/Battleground/ServerConstants';
 
 /**
  * Remote implementation of the game server using Supabase.
@@ -18,7 +17,7 @@ export class RemoteServerAdapter implements IGameServer {
 		}
 	}
 
-	async createSession(playerId: string, crystalId: string): Promise<SessionData> {
+	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
 		const { data, error } = await supabase.functions.invoke('action', {
 			body: {
 				actionId: 'start_session',
@@ -91,7 +90,7 @@ export class RemoteServerAdapter implements IGameServer {
 		};
 	}
 
-	async handleAction(playerId: string, actionId: string, payload?: any): Promise<boolean> {
+	async handleAction(_playerId: string, actionId: string, payload?: any): Promise<boolean> {
 		const { error } = await supabase.functions.invoke('action', {
 			body: { actionId, payload }
 		});

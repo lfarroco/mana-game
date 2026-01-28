@@ -65,8 +65,7 @@ export class LocalServerAdapter implements IGameServer {
 						initialUnits: simResult.initialUnits,
 						finalPlayerUnits: playerUnits,
 					};
-				}
-
+				} break;
 			case 'orb_shop':
 			case 'upgrade_core':
 			case 'add_reaction_core':
