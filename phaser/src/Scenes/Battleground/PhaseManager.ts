@@ -4,6 +4,7 @@ import * as HeroShop from "./Systems/Shop/HeroShop";
 import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import * as PoisonSystem from "./Systems/PoisonDamageSystem";
 import * as RegenSystem from "./Systems/RegenSystem";
@@ -101,6 +102,21 @@ async function renderPhase(state: State, options: any) {
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(options.phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
+	}
+
+	// Sync team from server if provided (important for combat phase to have correct units)
+	if (options.team && options.team.units) {
+		console.log("Syncing team from server...", options.team.units.length);
+		state.gameData.player.units = options.team.units;
+
+		// Re-render units if not in combat (combat handles its own rendering)
+		if (options.phase !== "combat") {
+			Chara.clearAll();
+			await Promise.all(state.gameData.player.units.map(async u => {
+				const c = await Chara.create(u);
+				Chara.enableTooltip(c);
+			}));
+		}
 	}
 
 	switch (options.phase) {
