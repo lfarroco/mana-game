@@ -120,16 +120,18 @@ describe('LocalServerAdapter', () => {
 			// Select encounter
 			await adapter.handleAction(testPlayerId, options.options[0].id);
 
-			// Should be in shop phase
+			// Should be in shop or orb_shop phase (depends on encounter chosen)
 			options = await adapter.getPhaseOptions(testPlayerId);
-			expect(options.phase).toBe('shop');
+			expect(['shop', 'orb_shop']).toContain(options.phase);
+			const phaseAfterEncounter = options.phase;
 
 			// Skip shop
-			await adapter.handleAction(testPlayerId, 'skip_shop');
+			const skipAction = phaseAfterEncounter === 'shop' ? 'skip_shop' : 'skip_orb_shop';
+			await adapter.handleAction(testPlayerId, skipAction);
 
-			// Should progress
+			// Should progress to next phase
 			options = await adapter.getPhaseOptions(testPlayerId);
-			expect(options.phase).not.toBe('shop');
+			expect(options.phase).not.toBe(phaseAfterEncounter);
 		});
 	});
 
