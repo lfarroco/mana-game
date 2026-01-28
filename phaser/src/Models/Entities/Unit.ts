@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
 import { CardDefinition, getCardDefinition } from "./Card";
 import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
-import { value } from "../../Utils/Random";
+import { nextValue } from "../../Utils/Random";
 
 export type Unit = {
 	id: string;
@@ -109,7 +109,7 @@ export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: n
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
 
-	const isCritical = critChance > 0 && value() < effectiveCritChance / 100;
+	const isCritical = critChance > 0 && nextValue() < effectiveCritChance / 100;
 
 	if (isCritical) {
 		const multiplier = 2;

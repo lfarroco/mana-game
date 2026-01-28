@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 
 export async function startGame(isMultiplayer: boolean) {
 
@@ -17,5 +16,5 @@ export async function startGame(isMultiplayer: boolean) {
 	// 	}
 	// }
 
-	io.StartScene(constants.SCENE_KEYS.CRYSTAL_SELECTION, options);
+	io.StartScene(constants.SCENE_KEYS.CRYSTAL_SELECTION, { isMultiplayer });
 }

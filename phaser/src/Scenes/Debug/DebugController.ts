@@ -177,11 +177,11 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 }
 
 export function clickGameStart() {
-	startGame();
+	startGame(false);
 }
 
 export function clickNewRun() {
-	startGame();
+	startGame(false);
 	return "Started new run sequence";
 }
 

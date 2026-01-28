@@ -1,7 +1,7 @@
 import { images } from "../assets";
 import { delay } from "@Utils/animation";
 import { EnergyBeam } from "./EnergyBeam";
-import { value } from "@Utils/Random";
+import { nextValue } from "@Utils/Random";
 
 const ARCANE_MISSILE_CONFIG = {
 	DEFAULT_COLORS: [0xff00ff, 0x0000ff, 0x000000] as number[],
@@ -42,18 +42,18 @@ export async function arcaneMissile({
 }: ArcaneMissileAnimationArgs) {
 	const duration = 200;
 
-	const positiveOrNegative = value() > 0.5 ? 1 : -1;
+	const positiveOrNegative = nextValue() > 0.5 ? 1 : -1;
 
 	const beam = new EnergyBeam(scene, {
 		start: source,
 		end: target,
 		thickness: 1,
 		amplitude:
-			(ARCANE_MISSILE_CONFIG.BEAM_AMPLITUDE_RANDOM * value() +
+			(ARCANE_MISSILE_CONFIG.BEAM_AMPLITUDE_RANDOM * nextValue() +
 				ARCANE_MISSILE_CONFIG.BEAM_AMPLITUDE_BASE) *
 			positiveOrNegative,
 		frequency: Math.floor(
-			value() * ARCANE_MISSILE_CONFIG.BEAM_FREQUENCY_MAX +
+			nextValue() * ARCANE_MISSILE_CONFIG.BEAM_FREQUENCY_MAX +
 			ARCANE_MISSILE_CONFIG.BEAM_FREQUENCY_MIN
 		),
 		segments: ARCANE_MISSILE_CONFIG.BEAM_SEGMENTS,

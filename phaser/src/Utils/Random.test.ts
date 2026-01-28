@@ -1,14 +1,14 @@
-import { setSeed, value, range, shuffle, getSeed } from "./Random";
+import { setSeed, nextValue, nextRange, nextShuffle, getSeed } from "./Random";
 
 describe("Random Module", () => {
 	it("should produce deterministic results with the same seed", () => {
 		setSeed(12345);
-		const val1 = value();
-		const val2 = value();
+		const val1 = nextValue();
+		const val2 = nextValue();
 
 		setSeed(12345);
-		const val3 = value();
-		const val4 = value();
+		const val3 = nextValue();
+		const val4 = nextValue();
 
 		expect(val1).toBe(val3);
 		expect(val2).toBe(val4);
@@ -16,10 +16,10 @@ describe("Random Module", () => {
 
 	it("should produce different results with different seeds", () => {
 		setSeed(12345);
-		const val1 = value();
+		const val1 = nextValue();
 
 		setSeed(67890);
-		const val2 = value();
+		const val2 = nextValue();
 
 		expect(val1).not.toBe(val2);
 	});
@@ -28,7 +28,7 @@ describe("Random Module", () => {
 		setSeed(123);
 
 		for (let i = 0; i < 100; i++) {
-			const val = range(1, 10);
+			const val = nextRange(1, 10);
 			expect(val).toBeGreaterThanOrEqual(1);
 			expect(val).toBeLessThanOrEqual(10);
 			expect(Number.isInteger(val)).toBe(true);
@@ -39,10 +39,10 @@ describe("Random Module", () => {
 		const arr = [1, 2, 3, 4, 5];
 
 		setSeed(42);
-		const shuffled1 = shuffle(arr);
+		const shuffled1 = nextShuffle(arr);
 
 		setSeed(42);
-		const shuffled2 = shuffle(arr);
+		const shuffled2 = nextShuffle(arr);
 
 		expect(shuffled1).toEqual(shuffled2);
 		expect(shuffled1.length).toBe(arr.length);

@@ -19,7 +19,10 @@ type Session = {
 	updated_at: Date;
 }
 
-function createNewSessionRecord(
+// This file is deprecated - SessionData is now in Core/Types.ts
+// Session creation is handled by Core/GameLogic.createInitialSession
+// @ts-ignore - Keeping for reference but not used
+function _unused_createNewSessionRecord(
 	playerId: string,
 	selectedCrystalId: string,
 	seedText: string | null
