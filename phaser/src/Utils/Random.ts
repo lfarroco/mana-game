@@ -49,6 +49,41 @@ export function shuffle<T>(seed: number, array: T[]): {
 }
 
 export function pickRandom<T>(seed: number, arr: T[], n: number): T[] {
-	return shuffle(seed, arr).slice(0, n);
+	return shuffle(seed, arr).copy.slice(0, n);
 }
 
+// Stateful compatibility layer for legacy code
+// This allows code that relied on global RNG state to continue working
+let globalSeed: number = Math.floor(Math.random() * 0xFFFFFFFF);
+
+export function nextValue(): number {
+	const result = value(globalSeed);
+	globalSeed = result.seed;
+	return result.result;
+}
+
+export function nextRange(min: number, max: number): number {
+	const result = range(globalSeed, min, max);
+	globalSeed = result.seed;
+	return result.result;
+}
+
+export function nextShuffle<T>(array: T[]): T[] {
+	const result = shuffle(globalSeed, array);
+	globalSeed = result.seed;
+	return result.copy;
+}
+
+export function nextPickRandom<T>(arr: T[], n: number): T[] {
+	const result = shuffle(globalSeed, arr);
+	globalSeed = result.seed;
+	return result.copy.slice(0, n);
+}
+
+export function setSeed(seed: number): void {
+	globalSeed = seed;
+}
+
+export function getSeed(): number {
+	return globalSeed;
+}

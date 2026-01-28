@@ -926,3 +926,28 @@ mkdir -p phaser/src/Core
 - **Refactoring Adjustments**:
   - Updated `phaser/src/Multiplayer/MultiplayerLogic.ts` to extend `GameLogic` for backward compatibility.
   - **Fixed Randomness**: Discovered `Random.ts` was refactored to be pure but consumers relied on global state. Restored stateful compatibility layer in `Random.ts`.
+
+### January 28, 2026 - Phase 2 Complete
+- **Created Server Interface & Adapters**:
+  - `phaser/src/Core/IGameServer.ts`: Defined common interface for local and remote server implementations.
+  - `phaser/src/Core/LocalServerAdapter.ts`: Implemented in-memory local server for single-player mode using Core logic.
+  - `phaser/src/Core/RemoteServerAdapter.ts`: Implemented remote server adapter wrapping Supabase Edge Functions.
+  - `phaser/src/Core/ServerFactory.ts`: Created factory pattern for selecting appropriate adapter based on game mode.
+  - Updated `phaser/server/MultiplayerServerManager.ts` to implement `IGameServer` interface for consistency.
+
+- **Fixed Critical Issues**:
+  - **Random Module**: Completed the stateful compatibility layer in `Random.ts` with `nextPickRandom`, `nextShuffle`, `nextRange`, `nextValue`, `setSeed`, and `getSeed` functions to support legacy code that relied on global RNG state.
+  - **Fixed Tests**: All Core module tests now passing (23 tests).
+
+- **Testing**:
+  - Created comprehensive unit tests for `LocalServerAdapter` (12 tests covering session management, phase options, actions, game flow, and determinism).
+  - Created unit tests for `ServerFactory` (11 tests covering adapter selection, mode switching, and factory behavior).
+  - All tests passing successfully.
+
+- **Next Steps**:
+  - Phase 3: Refactor client code (PhaseManager, Encounter, HeroShop, etc.) to use server interface instead of embedded logic.
+  - Test integration between client and new server adapters.
+  - Ensure single-player and multiplayer modes work identically through their respective adapters.
+
+**Status**: Phase 2 complete. Core logic is fully abstracted with working server adapters. Ready to begin Phase 3 (client refactoring).
+

@@ -1,4 +1,6 @@
 import { PhaseOptions } from "../src/Multiplayer/MultiplayerTypes";
+import { SessionData } from "../src/Core/Types";
+import { IGameServer } from "../src/Core/IGameServer";
 import { Pool } from 'pg';
 import { makeUnit } from "../src/Models/Entities/Unit";
 import { FORCE_ID_PLAYER } from "../src/Scenes/Battleground/ServerConstants";
@@ -21,9 +23,13 @@ const pool = new Pool(
 		}
 );
 
-
-
-export class MultiplayerServerManager {
+/**
+ * Server-side game manager that implements IGameServer interface.
+ * Uses PostgreSQL database for persistence.
+ * Note: This implementation includes additional server-specific methods
+ * beyond the IGameServer interface (e.g., profile management, ratings).
+ */
+export class MultiplayerServerManager implements IGameServer {
 	private static instance: MultiplayerServerManager;
 
 	private constructor() { }
