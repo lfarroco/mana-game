@@ -11,11 +11,15 @@ import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import { startPhase, resetBoard, getPhaseForHour } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
+import { getServerAdapter } from "@Core/ServerFactory";
+import { ServerFactory } from "@Core/ServerFactory";
+import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 
 export type BattlegroundSceneData = {
 	state: State,
 	// TODO: instead of this, we need the list of current units 
 	selectedCrystalId?: string;
+	isMultiplayer?: boolean;
 };
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -60,7 +64,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.start({ ...data, state });
 	};
 
-	start = async ({ state, selectedCrystalId }: BattlegroundSceneData) => {
+	start = async ({ state, selectedCrystalId, isMultiplayer }: BattlegroundSceneData) => {
 
 		// TODO: the start for this scene should be just:
 		// - render boards
@@ -70,11 +74,31 @@ export class BattlegroundScene extends Phaser.Scene {
 		const data = state.gameData;
 		console.log(":::: BattlegroundScene starting logic...", data);
 
-		if (selectedCrystalId)
+		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
 			Systems.Setup.initializeNewGame(selectedCrystalId);
-		else
+
+			// Set up multiplayer mode if needed
+			if (isMultiplayer) {
+				ServerFactory.setMultiplayer(true);
+				await MultiplayerManager.getInstance().enableMultiplayer();
+			}
+
+			// Create session via server adapter for unified logic
+			// This ensures the session exists before we try to get phase options
+			const server = getServerAdapter();
+			const playerId = state.gameData.playerId || "sp_player_" + Date.now();
+			state.gameData.playerId = playerId;
+
+			try {
+				await server.createSession(playerId, selectedCrystalId);
+				console.log(`Session created for player ${playerId} with crystal ${selectedCrystalId}`);
+			} catch (error) {
+				console.error("Failed to create session:", error);
+			}
+		} else {
 			state.gameData = data;
+		}
 
 		Systems.Setup.setupSceneElements();
 
