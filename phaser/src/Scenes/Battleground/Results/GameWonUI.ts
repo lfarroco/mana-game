@@ -35,7 +35,7 @@ export function displayGameWon(
 			t("results.buttons.new_run"),
 			async () => {
 				resetState();
-				startGame();
+				startGame(false);
 			}
 		],
 		[

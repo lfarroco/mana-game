@@ -41,14 +41,6 @@ export class MultiplayerManager {
 		console.log(`[MultiplayerManager] Initialized with Player ID: ${this.playerId}`);
 	}
 
-	private async getHeaders(): Promise<HeadersInit> {
-		const { data: { session } } = await supabase.auth.getSession();
-		const headers: any = { 'Content-Type': 'application/json' };
-		if (session?.access_token) {
-			headers['Authorization'] = `Bearer ${session.access_token}`;
-		}
-		return headers;
-	}
 
 	public async enableMultiplayer(selectedCrystalId?: string) {
 		this.isMultiplayer = true;

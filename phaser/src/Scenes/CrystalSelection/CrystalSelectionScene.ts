@@ -11,7 +11,6 @@ import { colorPresets } from "@Constants/colorPresets";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
-import { createSession } from "Core/createSession";
 
 //TODO: should also disable seed selection in multiplayer mode
 interface CrystalSelectionData {
@@ -35,6 +34,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private paginationDots: Phaser.GameObjects.Arc[] = [];
 	private seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
+	// @ts-ignore - Used in keyboard callback functions below
 	private isSeededRun: boolean = false;
 	private seedWarningText!: Phaser.GameObjects.Text;
 	private isMultiplayer: boolean = false;
@@ -254,18 +254,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private async startGameWithCrystal() {
 		const selectedCrystal = this.crystals[this.currentIndex];
 
-		// TODO: also pass seed
-		const state = await createSession(
-			selectedCrystal.id,
-			this.seedText,
-			this.isMultiplayer,
-		)
-
+		// Initialize game session through server adapter
+		// This works for both single-player and multiplayer
 		await io.Fade(300, 0x000000);
-		// TODO: pass just state
+
+		// Pass to battleground scene which will initialize via server
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 			selectedCrystalId: selectedCrystal.id,
-			state,
+			isMultiplayer: this.isMultiplayer,
 		});
 	}
 

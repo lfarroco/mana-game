@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { value } from "../../Utils/Random";
+import { nextValue } from "../../Utils/Random";
 import { pickRandom } from "../../utils";
 import { increasePower } from "./increasePower";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
@@ -17,7 +17,7 @@ export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit, delaye
 
 	let removeType: "effect" | "reaction";
 	if (hasEffects && hasReactions) {
-		removeType = value() < 0.5 ? "effect" : "reaction";
+		removeType = nextValue() < 0.5 ? "effect" : "reaction";
 	} else {
 		removeType = hasEffects ? "effect" : "reaction";
 	}

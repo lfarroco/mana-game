@@ -8,6 +8,6 @@ export function newSinglePlayerRunButton(y: number) {
 	return createUIButton(
 		t("title.newRun"),
 		vec2(constants.MIDDLE_SCREEN.x, y),
-		startGame
+		() => startGame(false)
 	);
 }
