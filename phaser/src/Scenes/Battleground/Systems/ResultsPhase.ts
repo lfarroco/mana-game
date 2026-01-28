@@ -71,7 +71,12 @@ async function handleVictory(state: State): Promise<void> {
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded(state);
+
+	// Notify server of combat completion and get next phase
+	const server = PhaseManager.getServerAdapter();
+	const playerId = PhaseManager.getPlayerId();
+	await server.handleAction(playerId, 'combat_done');
+	PhaseManager.startPhase(state);
 }
 
 async function handleDefeat(state: State): Promise<void> {
@@ -92,5 +97,10 @@ async function handleDefeat(state: State): Promise<void> {
 	saveGameData();
 
 	await PhaseManager.resetBoard(true);
-	PhaseManager.handlePhaseEnded(state);
+
+	// Notify server of combat completion and get next phase
+	const server = PhaseManager.getServerAdapter();
+	const playerId = PhaseManager.getPlayerId();
+	await server.handleAction(playerId, 'combat_done');
+	PhaseManager.startPhase(state);
 }
