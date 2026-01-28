@@ -1,0 +1,33 @@
+import { PhaseType } from "./Types";
+
+const loopPhases: PhaseType[] = [
+	"encounter",
+	"encounter",
+	"encounter",
+	"combat",
+	"upgrade_core"
+];
+
+const predefinedPhases: PhaseType[] = [
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+];
+
+export class PhaseTransitions {
+	static getPhaseForHour(hour: number): PhaseType {
+		if (hour < predefinedPhases.length) {
+			return predefinedPhases[hour];
+		}
+
+		const loopIndex = (hour - predefinedPhases.length) % loopPhases.length;
+		return loopPhases[loopIndex];
+	}
+}

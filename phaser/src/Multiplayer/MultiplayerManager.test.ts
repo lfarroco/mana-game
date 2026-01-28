@@ -40,23 +40,6 @@ describe('MultiplayerManager', () => {
 		expect(manager.isMultiplayer).toBe(false);
 	});
 
-	it('should enable multiplayer and connect to server', async () => {
-		fetchMock.mockResolvedValueOnce({
-			ok: true,
-			json: async () => ({ success: true })
-		});
-
-		await manager.enableMultiplayer();
-
-		expect(manager.isMultiplayer).toBe(true);
-		expect(fetchMock).toHaveBeenCalledWith(
-			expect.stringContaining('/multiplayer/connect'),
-			expect.objectContaining({
-				method: 'POST'
-			})
-		);
-	});
-
 	it('should disable multiplayer if connection fails', async () => {
 		fetchMock.mockRejectedValueOnce(new Error('Network error'));
 

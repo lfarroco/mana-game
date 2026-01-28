@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { setCurrentScene, getState } from "@Models/State";
+import { setCurrentScene } from "@Models/State";
 import { getCores, CardDefinition } from "@Models/Entities/Card";
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
@@ -11,10 +11,11 @@ import { colorPresets } from "@Constants/colorPresets";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+import { createSession } from "Core/createSession";
 
+//TODO: should also disable seed selection in multiplayer mode
 interface CrystalSelectionData {
-	isArena?: boolean;
+	isMultiplayer: boolean;
 }
 
 const CARD_DISPLAY_Y = 380;
@@ -36,19 +37,16 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	descriptionText!: BBCodeText;
 	private isSeededRun: boolean = false;
 	private seedWarningText!: Phaser.GameObjects.Text;
-	private isArena: boolean = false;
+	private isMultiplayer: boolean = false;
 
 	constructor() {
 		super(constants.SCENE_KEYS.CRYSTAL_SELECTION);
 	}
 
 	init(data: CrystalSelectionData) {
-		this.isArena = data?.isArena || false;
-		if (this.isArena) {
-			console.log("Entering Arena Mode");
-		} else {
-			// Ensure multiplayer is disabled for normal runs
-			MultiplayerManager.getInstance().disableMultiplayer();
+		this.isMultiplayer = data.isMultiplayer;
+		if (this.isMultiplayer) {
+			console.log("Entering Arena Mode (Multiplayer)");
 		}
 	}
 
@@ -256,21 +254,18 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private async startGameWithCrystal() {
 		const selectedCrystal = this.crystals[this.currentIndex];
 
-		// Ensure the user-selected seed is persisted in the game data
-		const currentSeed = getSeed();
-		const state = getState();
-		state.gameData.seed = currentSeed;
-		state.gameData.initialSeed = currentSeed;
-		state.gameData.isSeeded = this.isSeededRun;
-
-		if (this.isArena) {
-			await MultiplayerManager.getInstance().enableMultiplayer(selectedCrystal.id);
-		}
+		// TODO: also pass seed
+		const state = await createSession(
+			selectedCrystal.id,
+			this.seedText,
+			this.isMultiplayer,
+		)
 
 		await io.Fade(300, 0x000000);
+		// TODO: pass just state
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 			selectedCrystalId: selectedCrystal.id,
-			state: state,
+			state,
 		});
 	}
 

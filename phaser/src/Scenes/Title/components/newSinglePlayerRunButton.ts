@@ -4,7 +4,7 @@ import { createUIButton } from "@Components/UIButton";
 import { startGame } from "../../../Game/effects/startGame";
 import { t } from "@i18n/i18n";
 
-export function newRunButton(y: number) {
+export function newSinglePlayerRunButton(y: number) {
 	return createUIButton(
 		t("title.newRun"),
 		vec2(constants.MIDDLE_SCREEN.x, y),

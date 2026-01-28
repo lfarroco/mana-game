@@ -21,21 +21,7 @@ const pool = new Pool(
 		}
 );
 
-interface PlayerSession {
-	id: string; // This is the session UUID
-	player_id: string;
-	phase: string;
-	round: number;
-	step: number;
-	seed: string;
-	initial_seed: string;
-	action_log: any[];
-	current_options?: any[];
-	wins: number;
-	losses: number;
-	team?: any;
-	updated_at?: Date;
-}
+
 
 export class MultiplayerServerManager {
 	private static instance: MultiplayerServerManager;

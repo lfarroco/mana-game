@@ -4,8 +4,11 @@ import { supabase } from "@lib/supabase";
 import { MultiplayerLogic } from "./MultiplayerLogic";
 import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 
+// TODO: this instance *might* not be necessary, but I'm not sure yet
 export class MultiplayerManager {
 	private static instance: MultiplayerManager;
+
+	// Canonical source
 	public isMultiplayer: boolean = false;
 
 	public static getInstance(): MultiplayerManager {
@@ -16,8 +19,6 @@ export class MultiplayerManager {
 	}
 
 	private playerId: string;
-	private serverUrl: string = "http://localhost:3000";
-	private useEdgeFunctions: boolean = true;
 	private initPromise: Promise<void>;
 
 	private constructor() {
@@ -28,14 +29,7 @@ export class MultiplayerManager {
 			this.playerId = "player_" + Math.floor(Math.random() * 1000000);
 		}
 
-		// Check if Edge Functions are enabled (default true now)
-		const useEdge = localStorage.getItem('use_edge_functions');
-		if (useEdge === 'false') {
-			this.useEdgeFunctions = false;
-			console.log("[MultiplayerManager] Using Legacy Node Server");
-		} else {
-			console.log("[MultiplayerManager] Using Supabase Edge Functions");
-		}
+		console.log("[MultiplayerManager] Using Supabase Edge Functions");
 
 		// Check for existing Supabase session
 		this.initPromise = supabase.auth.getSession().then(({ data: { session } }) => {
@@ -45,13 +39,6 @@ export class MultiplayerManager {
 		});
 
 		console.log(`[MultiplayerManager] Initialized with Player ID: ${this.playerId}`);
-	}
-
-	public toggleEdgeFunctions(enable: boolean) {
-		this.useEdgeFunctions = enable;
-		localStorage.setItem('use_edge_functions', enable ? 'true' : 'false');
-		console.log(`[MultiplayerManager] Edge Functions: ${this.useEdgeFunctions}`);
-		window.location.reload(); // Reload to ensure clean state
 	}
 
 	private async getHeaders(): Promise<HeadersInit> {
@@ -66,178 +53,110 @@ export class MultiplayerManager {
 	public async enableMultiplayer(selectedCrystalId?: string) {
 		this.isMultiplayer = true;
 		console.log("Multiplayer mode enabled");
-		try {
-			if (this.useEdgeFunctions) {
-				if (selectedCrystalId) {
-					// Call Edge Function to Start Session (Only for New Game)
-					const { error } = await supabase.functions.invoke('action', {
-						body: { actionId: 'start_session', payload: { selectedCrystalId } }
-					});
-					if (error) {
-						throw error;
-					}
-				} else {
-					console.log("[MultiplayerManager] Resuming existing session (no crystal selected)");
-				}
-			} else {
-				await fetch(`${this.serverUrl}/multiplayer/connect`, {
-					method: 'POST',
-					headers: await this.getHeaders(),
-					body: JSON.stringify({ playerId: this.playerId, selectedCrystalId })
-				});
-			}
-			console.log("Connected to multiplayer session");
-		} catch (e) {
-			console.error("Failed to connect to multiplayer session", e);
-			this.isMultiplayer = false;
+		if (selectedCrystalId) {
+
+		} else {
+			console.log("[MultiplayerManager] Resuming existing session (no crystal selected)");
 		}
+		console.log("Connected to multiplayer session");
 	}
 	// ...
 	public async sendOptionSelection(optionId: string, payload?: any): Promise<boolean> {
 		console.log(`Sending selection ${optionId} to server...`, payload);
 
-		if (this.useEdgeFunctions) {
-			const { error } = await supabase.functions.invoke('action', {
-				body: { actionId: optionId, payload }
-			});
-			if (error) {
-				console.error("Edge Function Error:", error);
-				return false;
-			}
-			return true;
-		}
-
-		const body: any = { playerId: this.playerId, actionId: optionId, ...((payload) || {}) };
-
-		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
-			method: 'POST',
-			headers: await this.getHeaders(),
-			body: JSON.stringify(body)
+		const { error } = await supabase.functions.invoke('action', {
+			body: { actionId: optionId, payload }
 		});
-		return response.ok;
+		if (error) {
+			console.error("Edge Function Error:", error);
+			return false;
+		}
+		return true;
+
 	}
 
 	public async sendTeamUpdate(team: any): Promise<boolean> {
 		console.log("Sending team update to server...", team);
 
-		if (this.useEdgeFunctions) {
-			const { error } = await supabase.functions.invoke('action', {
-				body: { actionId: 'update_team', payload: { team } }
-			});
-			return !error;
-		}
-
-		const response = await fetch(`${this.serverUrl}/multiplayer/action`, {
-			method: 'POST',
-			headers: await this.getHeaders(),
-			body: JSON.stringify({ playerId: this.playerId, actionId: 'update_team', team })
+		const { error } = await supabase.functions.invoke('action', {
+			body: { actionId: 'update_team', payload: { team } }
 		});
-		return response.ok;
+		return !error;
+
 	}
 
-	public disableMultiplayer() {
-		this.isMultiplayer = false;
-		console.log("Multiplayer mode disabled");
-	}
-
+	// TODO: if arena, fetch from supabase, else, localhost
 	public async checkActiveSession(): Promise<boolean> {
 		await this.initPromise;
-		try {
-			if (this.useEdgeFunctions) {
-				const { data, error } = await supabase
-					.from('player_sessions')
-					.select('phase')
-					.eq('player_id', this.playerId)
-					.maybeSingle();
+		const { data, error } = await supabase
+			.from('player_sessions')
+			.select('phase')
+			.eq('player_id', this.playerId)
+			.maybeSingle();
 
-				if (error) {
-					console.error("DB Error checking session:", error);
-					return false;
-				}
-
-				if (data && data.phase !== 'victory' && data.phase !== 'game_over') {
-					return true;
-				}
-				return false;
-			}
-
-			const response = await fetch(`${this.serverUrl}/multiplayer/state?playerId=${this.playerId}`, {
-				headers: await this.getHeaders()
-			});
-			if (response.ok) {
-				const data = await response.json();
-				if (data && data.phase && data.phase !== 'victory' && data.phase !== 'game_over') {
-					return true;
-				}
-			}
-			return false;
-		} catch (e) {
-			console.log("[MultiplayerManager] checkActiveSession: No active session or error", e);
+		if (error) {
+			console.error("DB Error checking session:", error);
 			return false;
 		}
+
+		if (data && data.phase !== 'victory' && data.phase !== 'game_over') {
+			return true;
+		}
+		return false;
 	}
 
 	// Requests the current phase options from the server
 	public async getPhaseOptions(_state: State): Promise<PhaseOptions> {
 		console.log("Fetching phase options from server...");
 
-		if (this.useEdgeFunctions) {
-			const { data: session, error } = await supabase
-				.from('player_sessions')
-				.select('*')
-				.eq('player_id', this.playerId)
-				.single();
+		const { data: session, error } = await supabase
+			.from('player_sessions')
+			.select('*')
+			.eq('player_id', this.playerId)
+			.single();
 
-			if (error || !session) {
-				throw new Error("Failed to fetch state from DB");
-			}
-
-			let combatState = undefined;
-			if (session.phase === 'combat') {
-				const optionsCombatState = (session.current_options as any)?.combatState;
-				if (optionsCombatState && optionsCombatState.logs) {
-					console.log("Using server-provided combat logs");
-					combatState = {
-						units: optionsCombatState.initialUnits,
-						enemyTeam: optionsCombatState.enemyTeam,
-						logs: optionsCombatState.logs,
-						seed: session.seed
-					};
-				} else {
-					console.log("Simulating combat locally (fallback)");
-					const simResult = MultiplayerLogic.simulateCombat(session as any);
-					combatState = {
-						units: simResult.initialUnits,
-						enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
-						logs: simResult.logs,
-						seed: session.seed
-					};
-				}
-			}
-
-			// Map DB session to PhaseOptions
-			// Handle both Array and Object format for options
-			const rawOptions = session.current_options;
-			const optionsList = Array.isArray(rawOptions) ? rawOptions : (rawOptions?.options || []);
-
-			return {
-				phase: session.phase as any,
-				round: session.round,
-				options: optionsList,
-				team: session.team,
-				wins: session.wins,
-				losses: session.losses,
-				combatState: combatState
-			};
+		if (error || !session) {
+			throw new Error("Failed to fetch state from DB");
 		}
 
-		const response = await fetch(`${this.serverUrl}/multiplayer/state?playerId=${this.playerId}`, {
-			headers: await this.getHeaders()
-		});
-		if (!response.ok) {
-			throw new Error("Failed to fetch state");
+		let combatState = undefined;
+		if (session.phase === 'combat') {
+			const optionsCombatState = (session.current_options as any)?.combatState;
+			if (optionsCombatState && optionsCombatState.logs) {
+				console.log("Using server-provided combat logs");
+				combatState = {
+					units: optionsCombatState.initialUnits,
+					enemyTeam: optionsCombatState.enemyTeam,
+					logs: optionsCombatState.logs,
+					seed: session.seed
+				};
+			} else {
+				console.log("Simulating combat locally (fallback)");
+				const simResult = MultiplayerLogic.simulateCombat(session as any);
+				combatState = {
+					units: simResult.initialUnits,
+					enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
+					logs: simResult.logs,
+					seed: session.seed
+				};
+			}
 		}
-		return await response.json();
+
+		// Map DB session to PhaseOptions
+		// Handle both Array and Object format for options
+		const rawOptions = session.current_options;
+		const optionsList = Array.isArray(rawOptions) ? rawOptions : (rawOptions?.options || []);
+
+		return {
+			phase: session.phase as any,
+			round: session.round,
+			options: optionsList,
+			team: session.team,
+			wins: session.wins,
+			losses: session.losses,
+			combatState: combatState
+		};
+
 	}
 
 
@@ -273,14 +192,10 @@ export class MultiplayerManager {
 	}
 
 	public async handleAuthGuest(): Promise<any> {
-		// Use Supabase Anonymous Sign-In (if enabled)
-		// Or create a random managed user?
-		// Supabase `signInAnonymously` exists in JS client
 		const { data, error } = await supabase.auth.signInAnonymously();
+
 		if (error) {
-			// Fallback to legacy guest handling if Anon is disabled on Supabase
-			console.warn("Supabase Anon Auth failed, falling back to legacy", error);
-			return this.handleAuthGuestLegacy();
+			console.error(error)
 		}
 
 		if (data.session) {
@@ -291,25 +206,7 @@ export class MultiplayerManager {
 		}
 	}
 
-	private async handleAuthGuestLegacy(): Promise<any> {
-		const response = await fetch(`${this.serverUrl}/auth/guest`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ playerId: this.playerId })
-		});
-		if (!response.ok) throw new Error("Guest Auth Failed");
-		const profile = await response.json();
-		this.updatePlayerId(profile.id);
-		return profile;
-	}
-
 	public async handleAuthLogin(username: string, password: string): Promise<any> {
-		// Assume username is email for Supabase? Or strictly username?
-		// Supabase requires email (or phone). If username, we need to map or use signInWithPassword({ email: username ... }) if we treated username as email.
-		// For this game, let's assume the user enters an email. Or we append a fake domain?
-		// Let's assume input is Email for now to be standard.
-		// If the user inputs a "username", it will fail validation.
-		// We will try to sign in with email.
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email: username,
 			password: password
@@ -353,38 +250,26 @@ export class MultiplayerManager {
 	}
 
 	public async getPlayerProfile(playerId: string): Promise<any> {
-		if (this.useEdgeFunctions) {
-			const { data, error } = await supabase
-				.from('players')
-				.select('*')
-				.eq('id', playerId)
-				.maybeSingle();
-			if (error) {
-				console.error("Error fetching profile:", error);
-				// Return default/mock profile instead of crashing
-				return { id: playerId, username: 'Unknown', rating: 1000, matches_played: 0 };
-			}
-			if (!data) {
-				return { id: playerId, username: 'Guest', rating: 1000, matches_played: 0 };
-			}
-			return data;
+		const { data, error } = await supabase
+			.from('players')
+			.select('*')
+			.eq('id', playerId)
+			.maybeSingle();
+		if (error) {
+			console.error("Error fetching profile:", error);
+			// Return default/mock profile instead of crashing
+			return { id: playerId, username: 'Unknown', rating: 1000, matches_played: 0 };
 		}
+		if (!data) {
+			return { id: playerId, username: 'Guest', rating: 1000, matches_played: 0 };
+		}
+		return data;
 
-		const response = await fetch(`${this.serverUrl}/player/${playerId}`, {
-			headers: await this.getHeaders()
-		});
-		if (!response.ok) throw new Error("Fetch Profile Failed");
-		return await response.json();
 	}
 
 	public async logout() {
-		try {
-			await supabase.auth.signOut();
-		} catch (error) {
-			console.error("SignOut Error:", error);
-		}
+		await supabase.auth.signOut();
 
-		// Force clean local storage for Supabase keys (Broad Match)
 		Object.keys(localStorage).forEach((key) => {
 			if (key.startsWith('sb-') || key.includes('supabase')) {
 				localStorage.removeItem(key);
@@ -392,12 +277,10 @@ export class MultiplayerManager {
 		});
 		localStorage.removeItem('mana_player_id');
 
-		// Clear Cookies
 		document.cookie.split(";").forEach((c) => {
 			document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
 		});
 
-		// Reset to a new random ID for the session (Logged Out State)
 		this.playerId = "player_" + Math.floor(Math.random() * 1000000);
 		console.log("Logged out. New temp ID:", this.playerId);
 	}

@@ -1,4 +1,4 @@
-import { range, pickRandom as rngPickRandom, shuffle as rngShuffle } from "./Utils/Random";
+import { nextRange as range, nextPickRandom as rngPickRandom, nextShuffle as rngShuffle } from "./Utils/Random";
 
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {

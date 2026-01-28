@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
-import { newRunButton } from "./components/newRunButton";
+import { newSinglePlayerRunButton } from "./components/newSinglePlayerRunButton";
 import { arenaButton } from "./components/arenaButton";
 import { startGame } from "../../Game/effects/startGame";
 import { cloudsBg } from "./components/cloudsBg";
@@ -17,10 +17,7 @@ import { linksButton } from "./components/linksButton";
 import * as StatsStore from "@Models/StatsStore";
 import { showUnlockModal } from "./components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
-
-
 import pkg from "../../../package.json";
-
 
 export default class TitleScene extends Phaser.Scene {
 	constructor() {
@@ -42,7 +39,7 @@ export default class TitleScene extends Phaser.Scene {
 
 		const buttons = [
 			resumeGameButton(500),
-			newRunButton(600)]
+			newSinglePlayerRunButton(600)]
 			.concat(
 				arenaButton_
 			).concat(
