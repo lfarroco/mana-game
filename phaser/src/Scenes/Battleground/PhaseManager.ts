@@ -14,9 +14,11 @@ import { saveGameData } from "../../Game/effects/saveGameData";
 import { cloudsBackground } from "./Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
 import { getServerAdapter } from "@Core/ServerFactory";
+export { getServerAdapter }; // Re-export for convenience
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
 import { openOrbShop } from "./Systems/Shop/OrbShop";
+import * as Board from "@Models/Board";
 
 // NOTE: Phase definitions are now in Core/PhaseTransitions
 // These are kept here temporarily for backward compatibility with legacy code
@@ -88,7 +90,7 @@ export async function startPhase(state: State, phase?: string) {
 }
 
 // Helper to get player ID (from state or generate one)
-function getPlayerId(): string {
+export function getPlayerId(): string {
 	const state = getState();
 	// Use a consistent player ID for single-player
 	if (!state.gameData.playerId) {
@@ -206,6 +208,10 @@ export function handlePhaseEnded(state: State): void {
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
 	const state = getState();
+
+	// Hide enemy board after combat
+	Board.setEnemyBoardVisible(false);
+
 	if (shouldResummonUnits) {
 		clearAll();
 		state.battleData.units = [];
