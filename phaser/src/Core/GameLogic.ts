@@ -456,6 +456,10 @@ export class GameLogic {
 			return { session: nextSession };
 		}
 
+		// Apply the action to update team state (e.g., purchasing units)
+		const { team } = this.resolveAction(nextSession, actionId, payload);
+		nextSession.team = team;
+
 		const newSeed = this.generateNextSeed(nextSession.seed, actionId);
 		nextSession.seed = newSeed;
 
