@@ -23,6 +23,7 @@ export type GameData = {
 	seed: number;
 	initialSeed: number;
 	isSeeded: boolean;
+	playerId?: string; // Player ID for server communication (single-player and multiplayer)
 };
 
 export type RunStats = {

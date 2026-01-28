@@ -26,9 +26,32 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
-export async function transitionToCombatPhase(state: State): Promise<void> {
+export async function transitionToCombatPhase(state: State, combatState?: any): Promise<void> {
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
-	const { enemies } = await setupBattle(state);
+
+	let enemies: Unit[];
+
+	if (combatState && combatState.enemyTeam) {
+		// Use server-provided enemy team (from local or remote server)
+		console.log("Using server-provided enemy team");
+		enemies = combatState.enemyTeam;
+
+		// If we have full combat state with units, use those
+		if (combatState.units) {
+			state.battleData.units = combatState.units;
+		} else {
+			// Otherwise, combine player units with enemy team
+			const playerUnitsForBattle = state.gameData.player.units.map((unit) => ({
+				...createUnitCopy(unit),
+				force: constants.FORCE_ID_PLAYER,
+			}));
+			state.battleData.units = [...enemies, ...playerUnitsForBattle];
+		}
+	} else {
+		// Fallback to local generation (legacy behavior)
+		const result = await setupBattle(state);
+		enemies = result.enemies;
+	}
 
 	GhostStore.saveGhostForRound(
 		state.gameData.round,

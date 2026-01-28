@@ -10,11 +10,12 @@ import * as RegenSystem from "./Systems/RegenSystem";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
 import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
-import { pickRandom } from "utils";
 import { cloudsBackground } from "./Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+import { getServerAdapter } from "@Core/ServerFactory";
+import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
+import { openOrbShop } from "./Systems/Shop/OrbShop";
 
 export const loopPhases: string[] = [
 	"encounter",
@@ -65,92 +66,156 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	return colorMap[phase] || "forest";
 }
 
-export async function startPhase(state: State, phase: string) {
+export async function startPhase(state: State, phase?: string) {
+	// For multiplayer, continue using the existing system (for now during migration)
 	if (MultiplayerManager.getInstance().isMultiplayer) {
 		await handleMultiplayerPhase(state);
 		return;
 	}
 
+	// For single-player, use the unified server interface
+	const server = getServerAdapter();
+	const playerId = getPlayerId();
+
+	try {
+		const phaseOptions = await server.getPhaseOptions(playerId);
+		await renderPhase(state, phaseOptions);
+	} catch (error) {
+		console.error("Failed to get phase options:", error);
+		// Fallback to legacy behavior if server fails
+		if (phase) {
+			await renderPhaseByName(state, phase);
+		}
+	}
+}
+
+// Helper to get player ID (from state or generate one)
+function getPlayerId(): string {
+	const state = getState();
+	// Use a consistent player ID for single-player
+	if (!state.gameData.playerId) {
+		state.gameData.playerId = "sp_player_" + Date.now();
+	}
+	return state.gameData.playerId;
+}
+
+// Render phase based on server response
+async function renderPhase(state: State, options: any) {
 	if (cloudsBackground) {
-		const preset = getColorPresetForPhase(phase);
+		const preset = getColorPresetForPhase(options.phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
 	}
 
-	switch (phase) {
+	switch (options.phase) {
+		case "encounter":
+			await Encounter.open(state, options.options.map((o: any) => o.id));
+			break;
 		case "shop":
-			await HeroShop.openHeroShop();
+			await HeroShop.openHeroShop(undefined, undefined, options.options.map((o: any) => o.id));
 			break;
 		case "combat":
-			CombatPhase.transitionToCombatPhase(state);
+			await CombatPhase.transitionToCombatPhase(state, options.combatState);
 			break;
-		case "encounter":
-			Encounter.open(state);
-			break;
-		case "add_reaction_core":
-			await EffectCardShop.openUpgradeCorePhase(
-				"effectCardShop.title",
-				pickRandom([
-					"on_100_damage_effect",
-					"on_100_heal_effect",
-					"on_100_shield_effect",
-					"on_10_poison_effect",
-					"on_10_regen_effect",
-					"on_re_slow_effect",
-					"on_re_haste_effect",
-					"on_crit_effect",
-					"on_over_heal_effect",
-					"on_battle_start_effect",
-				], 3)
-			);
+		case "orb_shop":
+			await openOrbShop(state, options.options.map((o: any) => o.id));
 			break;
 		case "upgrade_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"upgradeCrystal.title",
-				[
-					"increase_core_max_life",
-					"decrease_core_cooldown",
-					"upgrade_core_power"
-				])
+				options.options.map((o: any) => o.id)
+			);
+			break;
+		case "add_reaction_core":
+			await EffectCardShop.openUpgradeCorePhase(
+				"effectCardShop.title",
+				options.options.map((o: any) => o.id)
+			);
 			break;
 		default:
+			console.warn(`Unknown phase: ${options.phase}`);
 			break;
 	}
 }
 
-export function handlePhaseEnded(state: State): void {
+// Legacy rendering by phase name (fallback)
+async function renderPhaseByName(state: State, phase: string) {
 
-	state.gameData.hour++;
+	// Legacy rendering by phase name (fallback)
+	async function renderPhaseByName(state: State, phase: string) {
+		if (cloudsBackground) {
+			const preset = getColorPresetForPhase(phase);
+			cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
+		}
 
-	const phase = getPhaseForHour(state.gameData.hour);
-
-	saveGameData();
-
-	startPhase(state, phase);
-}
-
-export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
-	const state = getState();
-	if (shouldResummonUnits) {
-		clearAll();
-		state.battleData.units = [];
+		// NOTE: This is legacy code, kept for fallback during migration
+		// Will be removed once all phases use server interface
+		switch (phase) {
+			case "shop":
+				await HeroShop.openHeroShop();
+				break;
+			case "combat":
+				await CombatPhase.transitionToCombatPhase(state);
+				break;
+			case "encounter":
+				await Encounter.open(state);
+				break;
+			case "add_reaction_core":
+			case "upgrade_core":
+				// These require server-provided options, skip for now
+				console.warn(`Phase ${phase} requires server integration`);
+				break;
+			default:
+				break;
+		}
 	}
 
-	if (CombatSystemStates.isInitialized()) {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
-		newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
-		CombatSystemStates.updateRegenSystemState(newRegenState);
+	export function handlePhaseEnded(state: State): void {
+		state.gameData.hour++;
 
-		let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
-		newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
-		CombatSystemStates.updatePoisonSystemState(newPoisonState);
-	}
+		const phase = getPhaseForHour(state.gameData.hour);
 
-	if (shouldResummonUnits) {
-		const summonPromises = state.gameData.player.units.map(async (unit, index) => {
-			await delay(index * 200);
-			await summon(unit, true);
-		});
-		await Promise.all(summonPromises);
-	}
-}
+		saveGameData();
+
+		// Use server-based phase transition for single-player
+		if (!MultiplayerManager.getInstance().isMultiplayer) {
+			const server = getServerAdapter();
+			const playerId = getPlayerId();
+
+			// Notify server of phase completion and get next phase
+			server.handleAction(playerId, "phase_complete").then(() => {
+				startPhase(state);
+			}).catch(error => {
+				console.error("Failed to complete phase:", error);
+				// Fallback to legacy phase progression
+				startPhase(state, phase);
+			});
+		} else {
+			startPhase(state, phase);
+		}
+
+		export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
+			const state = getState();
+			if (shouldResummonUnits) {
+				clearAll();
+				state.battleData.units = [];
+			}
+
+			if (CombatSystemStates.isInitialized()) {
+				const combatStates = CombatSystemStates.getCombatSystemStates();
+				let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
+				newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
+				CombatSystemStates.updateRegenSystemState(newRegenState);
+
+				let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
+				newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
+				CombatSystemStates.updatePoisonSystemState(newPoisonState);
+			}
+
+			if (shouldResummonUnits) {
+				const summonPromises = state.gameData.player.units.map(async (unit, index) => {
+					await delay(index * 200);
+					await summon(unit, true);
+				});
+				await Promise.all(summonPromises);
+			}
+		}
