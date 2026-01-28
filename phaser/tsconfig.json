@@ -38,6 +38,12 @@
             ],
             "@lib/*": [
                 "lib/*"
+            ],
+            "@Core/*": [
+                "Core/*"
+            ],
+            "@Multiplayer/*": [
+                "Multiplayer/*"
             ]
         },
         "lib": [
