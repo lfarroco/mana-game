@@ -7,6 +7,7 @@ import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as ShopUI from "../ShopPanel";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
+import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
 import { MultiplayerManager } from "../../../../../Multiplayer/MultiplayerManager";
@@ -115,7 +116,9 @@ export async function itemClickPurchaseRequested(
 
 			charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 			await ShopUI.slideOut();
-			handlePhaseEnded(getState());
+			// Don't call handlePhaseEnded - the server has already transitioned the state
+			// Just render the next phase
+			await PhaseManager.startPhase(getState());
 		} else {
 			handlePurchaseFailure("SERVER_REJECTED");
 		}

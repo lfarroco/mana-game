@@ -252,7 +252,9 @@ export async function open(state: State, options?: string[]) {
 					try {
 						await server.handleAction(playerId, e.id || "");
 						container.destroy(true);
-						PhaseManager.handlePhaseEnded(state);
+						// Don't call handlePhaseEnded - the server has already transitioned the state
+						// Just render the next phase
+						await PhaseManager.startPhase(state);
 					} catch (error) {
 						console.error("Failed to handle encounter selection:", error);
 						// Fallback to original onClick for backward compatibility
