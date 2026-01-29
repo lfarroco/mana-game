@@ -50,6 +50,8 @@ function renderUpgradeCards(
 	const coreUnit = state.gameData.player.units.find((u) => u.isCore)!;
 
 	encounterIds.forEach((encounterId, index) => {
+
+		console.log("Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = orbsIndex[encounterId]();
 
 		const width = 700;

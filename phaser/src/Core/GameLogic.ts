@@ -430,33 +430,6 @@ export class GameLogic {
 	public static transitionToNextState(session: SessionData, actionId: string, payload?: any): { session: SessionData, combatResult?: { won: boolean } } {
 		const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
 
-		if (nextSession.phase === 'combat') {
-
-			if (actionId === 'combat_done') {
-
-				let nextPhase: SessionData['phase'] = 'encounter';
-				if (nextSession.wins >= 10) nextPhase = 'victory';
-				if (nextSession.losses >= 4) nextPhase = 'game_over';
-
-				nextSession.phase = nextPhase;
-				nextSession.round += 1;
-				nextSession.step = 1;
-				nextSession.action_log = [];
-
-				if (nextPhase === 'encounter') {
-					const encounterResult = this.generateEncounterOptions(nextSession);
-					nextSession.current_options = encounterResult.options;
-				} else {
-					nextSession.current_options = null;
-				}
-
-				nextSession.updated_at = new Date();
-				return { session: nextSession };
-			}
-
-			return { session: nextSession };
-		}
-
 		// Handle orb shop / upgrade phase completion - just advance without modifying team
 		let newSeed: string;
 		if ((nextSession.phase === 'orb_shop' && actionId === 'orb_shop_done') ||
@@ -554,7 +527,21 @@ export class GameLogic {
 			nextSession.step += 1;
 			if (nextSession.round < 15) {
 				nextPhase = nextSession.round % 2 === 0 ? 'add_reaction_core' : 'upgrade_core';
-				nextOptions = [{ id: 'upgrade_crystal' }];
+				// Generate appropriate upgrade options based on phase type
+				if (nextPhase === 'upgrade_core') {
+					nextOptions = [
+						{ id: 'increase_core_max_life' },
+						{ id: 'upgrade_core_power' },
+						{ id: 'decrease_core_cooldown' }
+					];
+				} else {
+					// add_reaction_core options
+					nextOptions = [
+						{ id: 'on_100_damage_effect' },
+						{ id: 'on_crit_effect' },
+						{ id: 'on_battle_start_effect' }
+					];
+				}
 			} else {
 				// No upgrade phase after round 15, start next round
 				nextSession.round += 1;
@@ -565,12 +552,19 @@ export class GameLogic {
 			}
 		}
 		// After upgrade phase, start next round
-		else if ((currentPhase === 'upgrade_core' || currentPhase === 'add_reaction_core') && (actionId === 'upgrade_crystal' || actionId === 'phase_complete')) {
-			nextSession.round += 1;
-			nextSession.step = 1; // Reset to step 1 for next round
-			nextPhase = 'encounter';
-			const encounterResult = this.generateEncounterOptions(nextSession);
-			nextOptions = encounterResult.options;
+		else if (currentPhase === 'upgrade_core' || currentPhase === 'add_reaction_core') {
+			// Check if the action is one of the valid upgrade/reaction options
+			const upgradeOptions = ['increase_core_max_life', 'upgrade_core_power', 'decrease_core_cooldown'];
+			const reactionOptions = ['on_100_damage_effect', 'on_ally_death_effect', 'on_crit_effect', 'on_battle_start_effect'];
+			const isUpgradeAction = upgradeOptions.includes(actionId) || reactionOptions.includes(actionId);
+
+			if (isUpgradeAction || actionId === 'phase_complete') {
+				nextSession.round += 1;
+				nextSession.step = 1; // Reset to step 1 for next round
+				nextPhase = 'encounter';
+				const encounterResult = this.generateEncounterOptions(nextSession);
+				nextOptions = encounterResult.options;
+			}
 		}
 
 		nextSession.phase = nextPhase;
