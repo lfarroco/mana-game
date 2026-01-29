@@ -132,19 +132,45 @@ async function renderPhase(state: State, options: any) {
 			await CombatPhase.transitionToCombatPhase(state, options.combatState);
 			break;
 		case "orb_shop":
-			await openOrbShop(state, options.options.map((o: any) => o.id));
+			await openOrbShop(state, options.options.map((o: any) => o.id), async (orbId: string, targetId: string) => {
+				// Notify server when orb is applied
+				const server = getServerAdapter();
+				const playerId = getPlayerId();
+				await server.handleAction(playerId, 'orb_purchase', { orbId, targetId });
+			});
+			// After orb shop completes, notify server and get next phase
+			{
+				const server = getServerAdapter();
+				const playerId = getPlayerId();
+				await server.handleAction(playerId, 'orb_shop_done');
+				await startPhase(state);
+			}
 			break;
 		case "upgrade_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"upgradeCrystal.title",
 				options.options.map((o: any) => o.id)
 			);
+			// After upgrade completes, notify server and get next phase
+			{
+				const server = getServerAdapter();
+				const playerId = getPlayerId();
+				await server.handleAction(playerId, 'upgrade_core_done');
+				await startPhase(state);
+			}
 			break;
 		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"effectCardShop.title",
 				options.options.map((o: any) => o.id)
 			);
+			// After reaction card completes, notify server and get next phase
+			{
+				const server = getServerAdapter();
+				const playerId = getPlayerId();
+				await server.handleAction(playerId, 'add_reaction_core_done');
+				await startPhase(state);
+			}
 			break;
 		default:
 			console.warn(`Unknown phase: ${options.phase}`);
