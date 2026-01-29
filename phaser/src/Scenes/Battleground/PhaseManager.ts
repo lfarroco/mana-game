@@ -238,6 +238,9 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 	// Hide enemy board after combat
 	Board.setEnemyBoardVisible(false);
 
+	// Re-enable board input after combat
+	Board.setIsInputEnabled(true);
+
 	if (shouldResummonUnits) {
 		clearAll();
 		state.battleData.units = [];

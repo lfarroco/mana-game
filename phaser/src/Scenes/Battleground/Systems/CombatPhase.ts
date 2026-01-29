@@ -107,6 +107,9 @@ export function showReadyButton(payload: { enemies: Unit[] }): Button {
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
+	// Disable board input when combat execution starts
+	Board.setIsInputEnabled(false);
+
 	await delay(300);
 
 	const scene = getCurrentScene() as BattlegroundScene;
