@@ -456,15 +456,26 @@ export class GameLogic {
 			return { session: nextSession };
 		}
 
-		// Apply the action to update team state (e.g., purchasing units)
-		const { team } = this.resolveAction(nextSession, actionId, payload);
-		nextSession.team = team;
+		// Handle orb shop / upgrade phase completion - just advance without modifying team
+		let newSeed: string;
+		if ((nextSession.phase === 'orb_shop' && actionId === 'orb_shop_done') ||
+			(nextSession.phase === 'upgrade_core' && actionId === 'upgrade_core_done') ||
+			(nextSession.phase === 'add_reaction_core' && actionId === 'add_reaction_core_done')) {
+			// Don't apply resolveAction, just transition to next phase
+			// (the effects were already applied via previous actions)
+			newSeed = this.generateNextSeed(nextSession.seed, actionId);
+			nextSession.seed = newSeed;
+		} else {
+			// Apply the action to update team state (e.g., purchasing units)
+			const { team } = this.resolveAction(nextSession, actionId, payload);
+			nextSession.team = team;
 
-		const newSeed = this.generateNextSeed(nextSession.seed, actionId);
-		nextSession.seed = newSeed;
+			newSeed = this.generateNextSeed(nextSession.seed, actionId);
+			nextSession.seed = newSeed;
 
-		const actionEntry = { round: nextSession.round, phase: nextSession.phase, step: nextSession.step, actionId, payload };
-		nextSession.action_log = [...(nextSession.action_log || []), actionEntry];
+			const actionEntry = { round: nextSession.round, phase: nextSession.phase, step: nextSession.step, actionId, payload };
+			nextSession.action_log = [...(nextSession.action_log || []), actionEntry];
+		}
 
 		let nextPhase: SessionData['phase'] = 'encounter';
 		let nextOptions = null;
