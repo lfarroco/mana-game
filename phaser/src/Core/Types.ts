@@ -44,5 +44,6 @@ export type SessionData = {
 	wins: number;
 	losses: number;
 	action_log: any[];
+	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
 	updated_at?: Date;
 };
