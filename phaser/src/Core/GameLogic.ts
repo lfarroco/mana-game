@@ -515,7 +515,6 @@ export class GameLogic {
 		// Step 6: upgrade_core or add_reaction_core (only before round 15)
 		// Then reset to step 1 for next round
 
-		const currentStep = nextSession.step;
 		const currentPhase = nextSession.phase;
 
 		// Check if actionId is a card purchase (any card from the available cards)
@@ -528,6 +527,8 @@ export class GameLogic {
 			if (actionId === 'upgrade_unit') nextOptions = [{ id: 'upgrade_orb' }];
 			if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }];
 			if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }];
+			// Increment step when entering orb_shop from encounter
+			nextSession.step += 1;
 		}
 		// Handle orb application - stay in orb_shop phase
 		else if (currentPhase === 'orb_shop' && actionId === 'apply_orb') {
@@ -538,8 +539,7 @@ export class GameLogic {
 		}
 		// Completing orb_shop completes the encounter step
 		else if (currentPhase === 'orb_shop' && actionId === 'orb_shop_done') {
-			// After orb_shop, increment step and move to next phase
-			nextSession.step += 1;
+			// Step already incremented when entering orb_shop, just move to next phase
 			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
 
 			if (expectedPhase === 'encounter') {
@@ -555,7 +555,7 @@ export class GameLogic {
 		// Handle combat_encounter transition to combat
 		else if (actionId === 'combat_encounter') {
 			nextPhase = 'combat';
-			nextSession.step += 1;
+			// Don't increment step - combat_encounter is just a transition, not a separate phase step
 		}
 		// Current phase is encounter, selected an encounter (not combat_encounter, not special orb encounters) -> transition to shop (same step)
 		else if (currentPhase === 'encounter' &&
@@ -563,17 +563,15 @@ export class GameLogic {
 			actionId !== 'upgrade_unit' &&
 			actionId !== 'power_distributor' &&
 			actionId !== 'power_absorber') {
-			const expectedPhase = this.getPhaseForTurn(nextSession.round, currentStep);
-			// Only go to shop if we're in an encounter step (not combat or upgrade)
-			if (expectedPhase === 'encounter') {
-				nextPhase = 'shop';
-				const shopResult = this.generateShopOptions(nextSession, actionId);
-				nextOptions = shopResult.options;
-			}
-		}
-		// Current phase is shop, completed purchase (card ID) or skip -> increment step and determine next phase
-		else if (currentPhase === 'shop' && (isCardPurchase || actionId === 'skip_shop' || actionId === 'phase_complete')) {
+			// Always go to shop when selecting a regular encounter
+			nextPhase = 'shop';
+			const shopResult = this.generateShopOptions(nextSession, actionId);
+			nextOptions = shopResult.options;
+			// Increment step when entering shop from encounter
 			nextSession.step += 1;
+		}
+		// Current phase is shop, completed purchase (card ID) or skip -> determine next phase (step already incremented)
+		else if (currentPhase === 'shop' && (isCardPurchase || actionId === 'skip_shop' || actionId === 'phase_complete')) {
 			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
 
 			if (expectedPhase === 'encounter') {
@@ -588,33 +586,43 @@ export class GameLogic {
 		}
 		// After combat (combat_done action), move to next step
 		else if (currentPhase === 'combat' && actionId === 'combat_done') {
-			nextSession.step += 1;
-			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
-
-			if (expectedPhase === 'upgrade_core' || expectedPhase === 'add_reaction_core') {
-				nextPhase = expectedPhase;
-				// Generate appropriate upgrade options based on phase type
-				if (nextPhase === 'upgrade_core') {
-					nextOptions = [
-						{ id: 'increase_core_max_life' },
-						{ id: 'upgrade_core_power' },
-						{ id: 'decrease_core_cooldown' }
-					];
-				} else {
-					// add_reaction_core options
-					nextOptions = [
-						{ id: 'on_100_damage_effect' },
-						{ id: 'on_crit_effect' },
-						{ id: 'on_battle_start_effect' }
-					];
-				}
+			// Check for victory/game_over conditions first
+			if (nextSession.wins >= 10) {
+				nextPhase = 'victory';
+				nextOptions = [{ id: 'return_to_menu', label: 'Return to Menu' }];
+			} else if (nextSession.losses >= 4) {
+				nextPhase = 'game_over';
+				nextOptions = [{ id: 'return_to_menu', label: 'Return to Menu' }];
 			} else {
-				// No upgrade phase, start next round
-				nextSession.round += 1;
-				nextSession.step = 1; // Reset to step 1 for next round
-				nextPhase = 'encounter';
-				const encounterResult = this.generateEncounterOptions(nextSession);
-				nextOptions = encounterResult.options;
+				// Continue with normal progression
+				nextSession.step += 1;
+				const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
+
+				if (expectedPhase === 'upgrade_core' || expectedPhase === 'add_reaction_core') {
+					nextPhase = expectedPhase;
+					// Generate appropriate upgrade options based on phase type
+					if (nextPhase === 'upgrade_core') {
+						nextOptions = [
+							{ id: 'increase_core_max_life' },
+							{ id: 'upgrade_core_power' },
+							{ id: 'decrease_core_cooldown' }
+						];
+					} else {
+						// add_reaction_core options
+						nextOptions = [
+							{ id: 'on_100_damage_effect' },
+							{ id: 'on_crit_effect' },
+							{ id: 'on_battle_start_effect' }
+						];
+					}
+				} else {
+					// No upgrade phase, start next round
+					nextSession.round += 1;
+					nextSession.step = 1; // Reset to step 1 for next round
+					nextPhase = 'encounter';
+					const encounterResult = this.generateEncounterOptions(nextSession);
+					nextOptions = encounterResult.options;
+				}
 			}
 		}
 		// After upgrade phase, start next round
