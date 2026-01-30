@@ -19,6 +19,11 @@ const predefinedPhases: PhaseType[] = [
 	"encounter", "encounter", "encounter", "combat", "upgrade_core",
 	"encounter", "encounter", "encounter", "combat", "upgrade_core",
 	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
+	"encounter", "encounter", "encounter", "combat", "upgrade_core",
 ];
 
 export class PhaseTransitions {
