@@ -82,11 +82,15 @@ export function renderOrbShop(
 
 		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
-		const applied = !!orbSpec.effect(existingUnit);
-		if (!applied) {
-			console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
-			MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
+		// Only apply effect locally if no server callback is provided
+		// When onOrbApply is provided, the server will handle the upgrade
+		if (!onOrbApply) {
+			const applied = !!orbSpec.effect(existingUnit);
+			if (!applied) {
+				console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
+				MagicOrbCallbacks.returnToPosition(orb, target);
+				return;
+			}
 		}
 
 		playSoundEffect('sfx_spell_deathstrikeseal');

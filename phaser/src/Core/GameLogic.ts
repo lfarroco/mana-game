@@ -240,6 +240,13 @@ export class GameLogic {
 			filteredCards = allCards;
 		}
 
+		// Filter out cards where player already has a platinum (rank 4) unit
+		const playerUnits = session.team?.units || [];
+		const maxRankCardIds = new Set(
+			playerUnits.filter((u: any) => u.rank >= 4).map((u: any) => u.cardId)
+		);
+		filteredCards = filteredCards.filter(card => !maxRankCardIds.has(card.id));
+
 		const options = pickRandom(filteredCards, 3).map(card => ({
 			id: card.id,
 			cost: 10
