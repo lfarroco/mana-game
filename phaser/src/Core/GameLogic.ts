@@ -12,6 +12,7 @@ import { makeForce } from "../Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
 import { registerCollection } from "../Models/Entities/Card";
 import * as Random from "../Utils/Random";
+import { PhaseType } from "./Types";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
@@ -34,7 +35,48 @@ const ENCOUNTER_IDS = [
 	'gold_shop'
 ];
 
+// Phase sequence per round - explicit mapping of what happens each round
+// Each round has 5 steps: 3 encounters, 1 combat, 1 upgrade
+const ROUND_PHASES: Record<number, PhaseType[]> = {
+	1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+	3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+	7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+	11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+	15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+};
+
+// Default round pattern for rounds beyond the predefined ones
+const DEFAULT_ROUND_PHASES: PhaseType[] = [
+	"encounter",
+	"encounter",
+	"encounter",
+	"combat",
+	"upgrade_core"
+];
+
 export class GameLogic {
+	// Helper function to get phase type based on round and step
+	private static getPhaseForTurn(round: number, step: number): PhaseType {
+		// Step is 1-indexed, convert to 0-indexed for array access
+		const stepIndex = step - 1;
+
+		// Get phases for this round
+		const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
+
+		// Return the phase for this step in the round
+		return roundPhases[stepIndex];
+	}
+
 	public static createInitialSession(playerId: string, selectedCrystalId?: string): SessionData {
 		const seed = Math.random().toString(36).substring(7);
 		const initialSeed = seed;
@@ -102,8 +144,11 @@ export class GameLogic {
 	}
 
 	public static generateEncounterOptions(session: SessionData): { options: any[], nextPhase?: string } {
-		// At step 4, show combat_encounter as the only option (pre-combat warning)
-		if (session.step === 4) {
+		// Check what phase we should be at for this turn
+		const expectedPhase = this.getPhaseForTurn(session.round, session.step);
+
+		// If the expected phase is combat, show combat_encounter as the only option (pre-combat warning)
+		if (expectedPhase === 'combat') {
 			return { options: [{ id: 'combat_encounter' }] };
 		}
 
@@ -486,14 +531,16 @@ export class GameLogic {
 		}
 		// Completing orb_shop completes the encounter step
 		else if (currentPhase === 'orb_shop' && actionId === 'orb_shop_done') {
-			// After orb_shop, increment step and determine next phase
+			// After orb_shop, increment step and move to next phase
 			nextSession.step += 1;
-			const nextStep = nextSession.step;
-			if (nextStep <= 3) {
+			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
+
+			if (expectedPhase === 'encounter') {
 				nextPhase = 'encounter';
 				const encounterResult = this.generateEncounterOptions(nextSession);
 				nextOptions = encounterResult.options;
-			} else if (nextStep === 4) {
+			} else if (expectedPhase === 'combat') {
+				// Show combat_encounter warning
 				nextPhase = 'encounter';
 				nextOptions = [{ id: 'combat_encounter' }];
 			}
@@ -508,30 +555,37 @@ export class GameLogic {
 			actionId !== 'combat_encounter' &&
 			actionId !== 'upgrade_unit' &&
 			actionId !== 'power_distributor' &&
-			actionId !== 'power_absorber' &&
-			currentStep <= 3) {
-			nextPhase = 'shop';
-			const shopResult = this.generateShopOptions(nextSession, actionId);
-			nextOptions = shopResult.options;
+			actionId !== 'power_absorber') {
+			const expectedPhase = this.getPhaseForTurn(nextSession.round, currentStep);
+			// Only go to shop if we're in an encounter step (not combat or upgrade)
+			if (expectedPhase === 'encounter') {
+				nextPhase = 'shop';
+				const shopResult = this.generateShopOptions(nextSession, actionId);
+				nextOptions = shopResult.options;
+			}
 		}
-		// Current phase is shop, completed purchase (card ID) or skip -> increment step and go to next encounter
+		// Current phase is shop, completed purchase (card ID) or skip -> increment step and determine next phase
 		else if (currentPhase === 'shop' && (isCardPurchase || actionId === 'skip_shop' || actionId === 'phase_complete')) {
 			nextSession.step += 1;
-			const nextStep = nextSession.step;
-			if (nextStep <= 3) {
+			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
+
+			if (expectedPhase === 'encounter') {
 				nextPhase = 'encounter';
 				const encounterResult = this.generateEncounterOptions(nextSession);
 				nextOptions = encounterResult.options;
-			} else if (nextStep === 4) {
+			} else if (expectedPhase === 'combat') {
+				// Show combat_encounter warning
 				nextPhase = 'encounter';
 				nextOptions = [{ id: 'combat_encounter' }];
 			}
 		}
-		// After combat (combat_done action), check for upgrade phase
+		// After combat (combat_done action), move to next step
 		else if (currentPhase === 'combat' && actionId === 'combat_done') {
 			nextSession.step += 1;
-			if (nextSession.round < 15) {
-				nextPhase = nextSession.round % 2 === 0 ? 'add_reaction_core' : 'upgrade_core';
+			const expectedPhase = this.getPhaseForTurn(nextSession.round, nextSession.step);
+
+			if (expectedPhase === 'upgrade_core' || expectedPhase === 'add_reaction_core') {
+				nextPhase = expectedPhase;
 				// Generate appropriate upgrade options based on phase type
 				if (nextPhase === 'upgrade_core') {
 					nextOptions = [
@@ -548,7 +602,7 @@ export class GameLogic {
 					];
 				}
 			} else {
-				// No upgrade phase after round 15, start next round
+				// No upgrade phase, start next round
 				nextSession.round += 1;
 				nextSession.step = 1; // Reset to step 1 for next round
 				nextPhase = 'encounter';
