@@ -529,6 +529,13 @@ export class GameLogic {
 			if (actionId === 'power_distributor') nextOptions = [{ id: 'distribute_power_orb' }];
 			if (actionId === 'power_absorber') nextOptions = [{ id: 'absorb_power_orb' }];
 		}
+		// Handle orb application - stay in orb_shop phase
+		else if (currentPhase === 'orb_shop' && actionId === 'apply_orb') {
+			// Stay in orb_shop phase after applying orb
+			nextPhase = 'orb_shop';
+			// Keep the same options as before
+			nextOptions = nextSession.current_options ? (nextSession.current_options as any).options || nextSession.current_options : null;
+		}
 		// Completing orb_shop completes the encounter step
 		else if (currentPhase === 'orb_shop' && actionId === 'orb_shop_done') {
 			// After orb_shop, increment step and move to next phase
