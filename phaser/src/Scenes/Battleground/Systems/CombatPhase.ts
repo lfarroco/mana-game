@@ -73,8 +73,8 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 
 	await Promise.all(summonPromises);
 
-	// Show ready button - clicking it will playback the pre-calculated combat
-	showReadyButton({ enemies });
+	// Automatically start combat playback without waiting for ready button
+	handleCombatStartExecution({ enemies });
 }
 
 export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
