@@ -137,6 +137,9 @@ export async function handleMultiplayerPhase(state: State) {
 	async function handleMultiplayerCombat(state: State, combatState: any) {
 		console.log("Initializing Multiplayer Combat:", combatState);
 
+		// Disable board input immediately - combat outcome is pre-calculated
+		setIsInputEnabled(false);
+
 		let allUnits = [];
 		if (combatState.units) {
 			// Deep clone units to ensure replay starts with fresh state
@@ -150,7 +153,6 @@ export async function handleMultiplayerPhase(state: State) {
 
 		state.battleData.units = allUnits;
 
-		setIsInputEnabled(false);
 		setEnemyBoardVisible(true);
 
 		clearAll();
