@@ -27,7 +27,7 @@ import { getState } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatSystemStates from "./Systems/CombatSystemStates";
 
-export const createBrowserCombatEffects = (): CombatEffects => {
+export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEnd?: () => void): CombatEffects => {
 	return {
 		onUnitPop: (unitId: string) => {
 			Animations.pop(unitId);
@@ -60,7 +60,13 @@ export const createBrowserCombatEffects = (): CombatEffects => {
 			}
 			state.gameData.player.units.forEach(resetUnitStats);
 
-			await Systems.ResultsPhase.handleCombatEnded(state, outcome);
+			// Only update game state (lives, wins, losses) if this is not a replay
+			if (!isReplay) {
+				await Systems.ResultsPhase.handleCombatEnded(state, outcome);
+			} else if (onReplayEnd) {
+				// After replay ends, show the results screen again
+				await onReplayEnd();
+			}
 		},
 
 		getTimeScale: () => {

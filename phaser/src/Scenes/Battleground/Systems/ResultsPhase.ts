@@ -9,6 +9,7 @@ import { deleteSavedData } from "../../../Game/effects/deleteSavedData";
 import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
+import { replayCombat, storeCombatResult } from "../RunCombatIO";
 
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	console.log("Round", state.gameData.round, "Processing Defeat...");
@@ -17,12 +18,19 @@ export async function handleCombatEndedDefeat(state: State): Promise<void> {
 
 	await delay(300);
 
+	const nextPhaseCallback = async () => {
+		await handleDefeat(state);
+	};
+
+	// Store combat result for replay
+	storeCombatResult("player_lost", state, nextPhaseCallback);
+
 	ResultsUI.displayResults(
 		state,
 		"defeat",
-		async () => {
-			await handleDefeat(state);
-		});
+		nextPhaseCallback,
+		replayCombat
+	);
 	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
 }
@@ -34,12 +42,19 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 
 	await delay(300);
 
+	const nextPhaseCallback = async () => {
+		await handleVictory(state);
+	};
+
+	// Store combat result for replay
+	storeCombatResult("player_won", state, nextPhaseCallback);
+
 	ResultsUI.displayResults(
 		state,
 		"victory",
-		async () => {
-			await handleVictory(state);
-		});
+		nextPhaseCallback,
+		replayCombat
+	);
 	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
 }

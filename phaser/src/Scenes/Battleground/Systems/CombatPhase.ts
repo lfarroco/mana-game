@@ -29,6 +29,9 @@ function createUnitCopy(unit: Unit): Unit {
 export async function transitionToCombatPhase(state: State, combatState?: any): Promise<void> {
 	console.log("Round", state.gameData.round, "Combat Phase Starting.");
 
+	// Disable board input immediately - combat outcome is already pre-calculated
+	Board.setIsInputEnabled(false);
+
 	let enemies: Unit[];
 
 	if (combatState && combatState.enemyTeam) {
@@ -62,9 +65,6 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 		state.gameData.player.lives
 	);
 
-	const readyButton = showReadyButton({ enemies });
-	readyButton.disable();
-
 	Board.setEnemyBoardVisible(true);
 	Chara.clearAll();
 
@@ -73,7 +73,8 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 
 	await Promise.all(summonPromises);
 
-	readyButton.enable();
+	// Show ready button - clicking it will playback the pre-calculated combat
+	showReadyButton({ enemies });
 }
 
 export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
@@ -100,6 +101,7 @@ export function showReadyButton(payload: { enemies: Unit[] }): Button {
 		vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 		() => {
 			readyButton.container.destroy();
+			// Start playback of pre-calculated combat results
 			handleCombatStartExecution(payload);
 		}
 	);
@@ -107,9 +109,7 @@ export function showReadyButton(payload: { enemies: Unit[] }): Button {
 }
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
-	// Disable board input when combat execution starts
-	Board.setIsInputEnabled(false);
-
+	// Board input is already disabled - begin playback of pre-calculated combat
 	await delay(300);
 
 	const scene = getCurrentScene() as BattlegroundScene;
