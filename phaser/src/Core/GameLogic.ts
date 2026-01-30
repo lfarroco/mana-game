@@ -503,8 +503,13 @@ export class GameLogic {
 			nextPhase = 'combat';
 			nextSession.step += 1;
 		}
-		// Current phase is encounter, selected an encounter (not combat_encounter) -> transition to shop (same step)
-		else if (currentPhase === 'encounter' && actionId !== 'combat_encounter' && currentStep <= 3) {
+		// Current phase is encounter, selected an encounter (not combat_encounter, not special orb encounters) -> transition to shop (same step)
+		else if (currentPhase === 'encounter' &&
+			actionId !== 'combat_encounter' &&
+			actionId !== 'upgrade_unit' &&
+			actionId !== 'power_distributor' &&
+			actionId !== 'power_absorber' &&
+			currentStep <= 3) {
 			nextPhase = 'shop';
 			const shopResult = this.generateShopOptions(nextSession, actionId);
 			nextOptions = shopResult.options;
