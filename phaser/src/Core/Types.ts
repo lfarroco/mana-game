@@ -30,6 +30,17 @@ export type PhaseOptions = {
 	losses?: number;
 };
 
+export type RunStats = {
+	damageDealt: number;
+	poisonDealt: number;
+	shieldDealt: number;
+	regenDealt: number;
+	healDealt: number;
+	mostPowerfulUnit: { cardId: string; power: number } | null;
+	totalUnitsRecruited: number;
+	unitUsage: Record<string, number>;
+};
+
 // Session state (exists in both SP and MP)
 export type SessionData = {
 	id: string;
@@ -45,5 +56,6 @@ export type SessionData = {
 	losses: number;
 	action_log: any[];
 	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
+	runStats?: RunStats;
 	updated_at?: Date;
 };

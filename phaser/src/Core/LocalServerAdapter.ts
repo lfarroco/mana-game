@@ -99,13 +99,32 @@ export class LocalServerAdapter implements IGameServer {
 			// Handle the action and transition to next state
 			const result = GameLogic.transitionToNextState(session, actionId, payload);
 
-			// Update the session in the manager
+			// Update the session in the manager (this saves to localStorage with SessionManager's format)
 			this.sessionManager.updateSession(playerId, result.session);
+
+			// Also sync to old save system for resume game compatibility
+			// This ensures the "Resume Game" button continues to work
+			this.syncToLegacySaveSystem(result.session);
 
 			return true;
 		} catch (error) {
 			console.error(`Error handling action ${actionId} for player ${playerId}:`, error);
 			return false;
+		}
+	}
+
+	/**
+	 * Sync session data to legacy save system (gameData in localStorage)
+	 * This maintains backwards compatibility with the resume game feature
+	 */
+	private syncToLegacySaveSystem(session: SessionData): void {
+		try {
+			if (typeof window !== 'undefined' && window.localStorage) {
+				// Save the entire session object - replaces old format if it exists
+				localStorage.setItem('gameData', JSON.stringify(session));
+			}
+		} catch (error) {
+			console.error('[LocalServerAdapter] Failed to sync to legacy save system:', error);
 		}
 	}
 }
