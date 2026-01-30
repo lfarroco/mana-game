@@ -152,6 +152,14 @@ export class GameLogic {
 			return { options: [{ id: 'combat_encounter' }] };
 		}
 
+		// Initialize encounter history if it doesn't exist
+		if (!session.encounter_history) {
+			session.encounter_history = [];
+		}
+
+		// Get the last 12 encounters (4 phases × 3 options each)
+		const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
+
 		const seedNum = this.stringToSeed(session.seed);
 		const shuffled = [...ENCOUNTER_IDS];
 		let currentSeedVal = seedNum;
@@ -163,7 +171,17 @@ export class GameLogic {
 			[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 		}
 
-		return { options: shuffled.slice(0, 3).map(id => ({ id })) };
+		// Filter out recently shown encounters
+		const availableEncounters = shuffled.filter(id => !recentlyShownEncounters.has(id));
+
+		// If we don't have enough encounters (very rare), use all encounters
+		const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
+		const selectedOptions = encountersToShow.slice(0, 3);
+
+		// Add these encounters to the history
+		session.encounter_history.push(...selectedOptions);
+
+		return { options: selectedOptions.map(id => ({ id })) };
 	}
 
 	public static generateShopOptions(session: SessionData, triggerActionId?: string): { options: any[] } {
