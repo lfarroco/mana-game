@@ -78,7 +78,7 @@ export const replayCombat = async (): Promise<void> => {
 	const onReplayEnd = async () => {
 		const ResultsUI = await import("./Results/ResultsUI");
 		const resultType = lastCombatOutcome === "player_won" ? "victory" : "defeat";
-		
+
 		// Re-display the results with the same callbacks
 		ResultsUI.displayResults(
 			lastCombatState!,

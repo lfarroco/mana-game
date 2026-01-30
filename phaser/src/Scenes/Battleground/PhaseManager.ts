@@ -136,7 +136,7 @@ async function renderPhase(state: State, options: any) {
 				// Notify server when orb is applied
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
-				await server.handleAction(playerId, 'orb_purchase', { orbId, targetId });
+				await server.handleAction(playerId, 'apply_orb', { orbId, targetUnitId: targetId });
 			});
 			// After orb shop completes, notify server and get next phase
 			{
