@@ -173,8 +173,16 @@ export class GameLogic {
 			encounterId = triggerActionId;
 		} else {
 			const previousStep = session.step - 1;
-			const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
+			// Look for the most recent ENCOUNTER action at the previous step
+			const encounterActions = session.action_log.filter((a: any) =>
+				a.round === session.round &&
+				a.step === previousStep &&
+				a.phase === 'encounter'
+			);
+			const lastEncounterAction = encounterActions[encounterActions.length - 1];
 			encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+			console.log(`[generateShopOptions] Looking for encounter at round ${session.round}, step ${previousStep}. Found: ${encounterId}`);
+			console.log(`[generateShopOptions] Action log:`, JSON.stringify(session.action_log.filter((a: any) => a.round === session.round), null, 2));
 		}
 
 		let filterType = "";
@@ -207,6 +215,7 @@ export class GameLogic {
 					card.reactions?.some(react => react.effects?.some(eff => eff.id === filterType)))
 				);
 			}
+			console.log(`[generateShopOptions] Filter: ${filterType}, Filtered cards: ${filteredCards.length} (from ${allCards.length} total)`);
 		}
 
 		if (filteredCards.length === 0) {
