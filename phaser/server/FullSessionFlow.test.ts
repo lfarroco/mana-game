@@ -40,7 +40,7 @@ describe('Full Session Flow - Server Side', () => {
 	});
 
 	/**
-	 * Helper function to complete a single round (Encounter -> Shop -> Encounter -> Shop -> Combat)
+	 * Helper function to complete a single round (Encounter -> Shop -> Encounter -> Shop -> Encounter -> Shop -> Combat -> Upgrade)
 	 */
 	async function completeRound(playerId: string): Promise<{ won: boolean, session: SessionData }> {
 		// Step 1: Encounter
@@ -91,8 +91,14 @@ describe('Full Session Flow - Server Side', () => {
 		const shopAction3 = options.options[0].id;
 		await manager.handleAction(playerId, shopAction3);
 
-		// Combat phase
+		// After 3rd shop, may show combat_encounter before combat
 		options = await manager.getPhaseOptions(playerId);
+		if (options.phase === 'encounter' && options.options[0].id === 'combat_encounter') {
+			await manager.handleAction(playerId, 'combat_encounter');
+			options = await manager.getPhaseOptions(playerId);
+		}
+
+		// Combat phase
 		expect(options.phase).toBe('combat');
 		expect(options.combatState).toBeDefined();
 		expect(options.combatState?.logs).toBeDefined();
@@ -106,10 +112,27 @@ describe('Full Session Flow - Server Side', () => {
 		// Complete combat
 		await manager.handleAction(playerId, 'combat_done');
 
+		// After combat, may be upgrade phase, victory, or game_over
+		options = await manager.getPhaseOptions(playerId);
 		const session = await manager.getSession(playerId);
 		if (!session) throw new Error('Session not found after combat');
 
-		return { won, session };
+		// If game ended (victory or game_over), return immediately
+		if (session.phase === 'victory' || session.phase === 'game_over') {
+			return { won, session };
+		}
+
+		// Otherwise, handle upgrade phase
+		expect(['upgrade_core', 'add_reaction_core'].includes(options.phase)).toBe(true);
+		expect(options.options.length).toBeGreaterThan(0);
+
+		const upgradeAction = options.options[0].id;
+		await manager.handleAction(playerId, upgradeAction);
+
+		const updatedSession = await manager.getSession(playerId);
+		if (!updatedSession) throw new Error('Session not found after upgrade');
+
+		return { won, session: updatedSession };
 	}
 
 	describe('Basic Session Flow', () => {
@@ -213,12 +236,18 @@ describe('Full Session Flow - Server Side', () => {
 			options = await manager.getPhaseOptions(playerId);
 			await manager.handleAction(playerId, options.options[0].id);
 
-			// Step 6: Shop -> Combat
+			// Step 6: Shop -> Combat (with combat_encounter transition)
 			options = await manager.getPhaseOptions(playerId);
 			await manager.handleAction(playerId, options.options[0].id);
 
-			// Now in combat phase
+			// After 3rd shop, may show combat_encounter before combat
 			options = await manager.getPhaseOptions(playerId);
+			if (options.phase === 'encounter' && options.options[0]?.id === 'combat_encounter') {
+				await manager.handleAction(playerId, 'combat_encounter');
+				options = await manager.getPhaseOptions(playerId);
+			}
+
+			// Now in combat phase
 			expect(options.phase).toBe('combat');
 			expect(options.combatState).toBeDefined();
 			expect(options.combatState?.units).toBeDefined();
@@ -456,7 +485,12 @@ describe('Full Session Flow - Server Side', () => {
 				await manager.handleAction(playerId, options.options[0].id);
 			}
 
-			const combatOptions = await manager.getPhaseOptions(playerId);
+			// Handle combat_encounter if present
+			let combatOptions = await manager.getPhaseOptions(playerId);
+			if (combatOptions.phase === 'encounter' && combatOptions.options[0]?.id === 'combat_encounter') {
+				await manager.handleAction(playerId, 'combat_encounter');
+				combatOptions = await manager.getPhaseOptions(playerId);
+			}
 
 			expect(combatOptions.phase).toBe('combat');
 			expect(combatOptions.combatState).toBeDefined();
@@ -495,21 +529,36 @@ describe('Full Session Flow - Server Side', () => {
 
 			// Check if game continues (not defeat)
 			let session = await manager.getSession(playerId);
+			if (session && (session.phase === 'upgrade_core' || session.phase === 'add_reaction_core')) {
+				// Complete upgrade phase
+				const upgradeOptions = await manager.getPhaseOptions(playerId);
+				await manager.handleAction(playerId, upgradeOptions.options[0].id);
+				session = await manager.getSession(playerId);
+			}
+
 			if (session && session.phase === 'encounter') {
-				// Complete to next combat
+				// Complete to next combat (handle combat_encounter if present)
 				for (let i = 0; i < 6; i++) {
 					const options = await manager.getPhaseOptions(playerId);
 					await manager.handleAction(playerId, options.options[0].id);
 				}
 
-				const round2Combat = await manager.getPhaseOptions(playerId);
-				const round2Enemy = round2Combat.combatState?.enemyTeam || [];
-				const round2EnemyPower = round2Enemy.reduce((sum: number, u: any) => sum + (u.power || 0), 0);
+				let round2Combat = await manager.getPhaseOptions(playerId);
+				if (round2Combat.phase === 'encounter' && round2Combat.options[0]?.id === 'combat_encounter') {
+					await manager.handleAction(playerId, 'combat_encounter');
+					round2Combat = await manager.getPhaseOptions(playerId);
+				}
 
-				// Round 2 enemies should generally be stronger (though RNG can vary)
-				// At minimum, they should exist
-				expect(round2Enemy.length).toBeGreaterThan(0);
-				console.log(`Round 1 enemy power: ${round1EnemyPower}, Round 2 enemy power: ${round2EnemyPower}`);
+				// Only check enemy scaling if we actually reached combat (not game_over)
+				if (round2Combat.phase === 'combat' && round2Combat.combatState) {
+					const round2Enemy = round2Combat.combatState?.enemyTeam || [];
+					const round2EnemyPower = round2Enemy.reduce((sum: number, u: any) => sum + (u.power || 0), 0);
+
+					// Round 2 enemies should generally be stronger (though RNG can vary)
+					// At minimum, they should exist
+					expect(round2Enemy.length).toBeGreaterThan(0);
+					console.log(`Round 1 enemy power: ${round1EnemyPower}, Round 2 enemy power: ${round2EnemyPower}`);
+				}
 			}
 		});
 	});
