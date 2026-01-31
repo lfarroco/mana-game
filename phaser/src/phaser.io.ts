@@ -337,7 +337,7 @@ export async function Fade(duration: number, color: number) {
 	});
 }
 
-export function StartScene(key: string, data?: any): void {
+export function StartScene(key: string, data?: object): void {
 	const scene = getCurrentScene();
 	scene.scene.start(key, data);
 }

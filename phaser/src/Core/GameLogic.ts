@@ -1,4 +1,4 @@
-import { SessionData } from "./Types";
+import { SessionData, PhaseOption, ActionPayload } from "./Types";
 import { State } from "../Models/State";
 import { Unit, makeUnit } from "../Models/Entities/Unit";
 import { pickRandom } from "../utils";
@@ -6,7 +6,7 @@ import * as Card from "../Models/Entities/Card";
 import * as BoardLogic from "../Models/BoardLogic";
 import { generateEnemyTeam } from "../Scenes/Battleground/generateEnemyTeam";
 import { runCombat } from "../Scenes/Battleground/RunCombatCore";
-import { createServerCombatEffects } from "../Scenes/Battleground/ServerCombatEffects";
+import { createServerCombatEffects, CombatLogEntry } from "../Scenes/Battleground/ServerCombatEffects";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/ServerConstants";
 import { makeForce } from "../Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
@@ -81,7 +81,7 @@ export class GameLogic {
 		const seed = Math.random().toString(36).substring(7);
 		const initialSeed = seed;
 
-		let team: any = { units: [] };
+		const team: { units: Unit[] } = { units: [] };
 		if (selectedCrystalId) {
 			const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
 			coreUnit.isCore = true;
@@ -109,13 +109,13 @@ export class GameLogic {
 		return session;
 	}
 
-	public static generateEnemyTeamForRound(round: number, wins: number): any[] {
+	public static generateEnemyTeamForRound(round: number, wins: number): Unit[] {
 		// CPU should have access to all non-core units, disregarding unlock status
 		const allCards = Card.getNonCores();
 		const mockState = {
 			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
 			gameData: { player: { wins, id: FORCE_ID_PLAYER } }
-		} as any;
+		} as State;
 		const units = generateEnemyTeam(mockState, round, allCards);
 		// Explicitly assign to CPU force to ensure correctness regardless of mock state nuances
 		units.forEach(u => u.force = FORCE_ID_CPU);
@@ -143,7 +143,7 @@ export class GameLogic {
 		return Math.abs(hash).toString(36);
 	}
 
-	public static generateEncounterOptions(session: SessionData): { options: any[], nextPhase?: string } {
+	public static generateEncounterOptions(session: SessionData): { options: PhaseOption[], nextPhase?: string } {
 		// Check what phase we should be at for this turn
 		const expectedPhase = this.getPhaseForTurn(session.round, session.step);
 
@@ -184,7 +184,7 @@ export class GameLogic {
 		return { options: selectedOptions.map(id => ({ id })) };
 	}
 
-	public static generateShopOptions(session: SessionData, triggerActionId?: string): { options: any[] } {
+	public static generateShopOptions(session: SessionData, triggerActionId?: string): { options: PhaseOption[] } {
 		let encounterId = null;
 
 		if (triggerActionId) {
@@ -192,7 +192,7 @@ export class GameLogic {
 		} else {
 			const previousStep = session.step - 1;
 			// Look for the most recent ENCOUNTER action at the previous step
-			const encounterActions = session.action_log.filter((a: any) =>
+			const encounterActions = session.action_log.filter((a) =>
 				a.round === session.round &&
 				a.step === previousStep &&
 				a.phase === 'encounter'
@@ -200,7 +200,7 @@ export class GameLogic {
 			const lastEncounterAction = encounterActions[encounterActions.length - 1];
 			encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
 			console.log(`[generateShopOptions] Looking for encounter at round ${session.round}, step ${previousStep}. Found: ${encounterId}`);
-			console.log(`[generateShopOptions] Action log:`, JSON.stringify(session.action_log.filter((a: any) => a.round === session.round), null, 2));
+			console.log(`[generateShopOptions] Action log:`, JSON.stringify(session.action_log.filter((a) => a.round === session.round), null, 2));
 		}
 
 		let filterType = "";
@@ -243,7 +243,7 @@ export class GameLogic {
 		// Filter out cards where player already has a platinum (rank 4) unit
 		const playerUnits = session.team?.units || [];
 		const maxRankCardIds = new Set(
-			playerUnits.filter((u: any) => u.rank >= 4).map((u: any) => u.cardId)
+			playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId)
 		);
 		filteredCards = filteredCards.filter(card => !maxRankCardIds.has(card.id));
 
@@ -255,16 +255,16 @@ export class GameLogic {
 		return { options };
 	}
 
-	public static resolveAction(session: SessionData, actionId: string, payload?: any): { team: any, updates?: string[] } {
+	public static resolveAction(session: SessionData, actionId: string, payload?: ActionPayload): { team: { units: Unit[] }, updates?: string[] } {
 		const availableCards = Card.getNonCores();
 		const card = availableCards.find(c => c.id === actionId);
 
-		let team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
-		let units = team.units || [];
+		const team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
+		const units: Unit[] = team.units || [];
 		const updates: string[] = [];
 
 		if (card) {
-			const existingUnitIndex = units.findIndex((u: any) => u.cardId === actionId);
+			const existingUnitIndex = units.findIndex((u: Unit) => u.cardId === actionId);
 			if (existingUnitIndex >= 0) {
 				const existingUnit = units[existingUnitIndex];
 				if (existingUnit.rank < 4) {
@@ -281,7 +281,7 @@ export class GameLogic {
 						const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
 
 						const previousStep = session.step - 1;
-						const lastEncounterAction = session.action_log.find((a: any) => a.round === session.round && a.step === previousStep);
+						const lastEncounterAction = session.action_log.find((a) => a.round === session.round && a.step === previousStep);
 						const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
 						let targetRank = 1;
 						if (encounterId === 'silver_shop') targetRank = 2;
@@ -304,19 +304,19 @@ export class GameLogic {
 				}
 			}
 		} else {
-			if (actionId === 'apply_orb' && payload) {
+			if (actionId === 'apply_orb' && payload && 'orbId' in payload && 'targetUnitId' in payload) {
 				const { orbId, targetUnitId } = payload;
-				const targetUnit = units.find((u: any) => u.id === targetUnitId);
+				const targetUnit = units.find((u: Unit) => u.id === targetUnitId);
 				if (targetUnit) {
 					updates.push(`Applying orb ${orbId} to ${targetUnitId}`);
-					if (payload.orbId === 'upgrade_orb') {
+					if (orbId === 'upgrade_orb') {
 						targetUnit.rank = (targetUnit.rank || 1) + 1;
 						targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
 						targetUnit.life = targetUnit.maxLife;
 						targetUnit.power = Math.floor(targetUnit.power * 1.5);
-					} else if (payload.orbId === 'absorb_power_orb') {
+					} else if (orbId === 'absorb_power_orb') {
 						let totalAbsorbed = 0;
-						units.forEach((u: any) => {
+						units.forEach((u: Unit) => {
 							if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
 								const absorbed = Math.floor(u.power * 0.25);
 								if (absorbed > 0) {
@@ -336,39 +336,39 @@ export class GameLogic {
 							const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
 							targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
 
-							const targets = units.filter((u: any) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y);
+							const targets = units.filter((u: Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y);
 							if (targets.length > 0) {
 								const powerPerTarget = Math.floor(powerToDistribute / targets.length);
-								targets.forEach((u: any) => {
+								targets.forEach((u: Unit) => {
 									u.power = (u.power || 0) + powerPerTarget;
 									u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
 								});
 							}
 						}
-					} else if (payload.orbId.startsWith('increase_power_on_')) {
-						const type = payload.orbId.replace('increase_power_on_', '');
-						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					} else if (typeof orbId === 'string' && orbId.startsWith('increase_power_on_')) {
+						const type = orbId.replace('increase_power_on_', '');
+						if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 							const pct = Math.floor(targetUnit.power * 0.1);
 							targetUnit.power += pct;
 							updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
 						}
-					} else if (payload.orbId.startsWith('increase_critical_on_')) {
-						const type = payload.orbId.replace('increase_critical_on_', '');
-						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					} else if (typeof orbId === 'string' && orbId.startsWith('increase_critical_on_')) {
+						const type = orbId.replace('increase_critical_on_', '');
+						if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 							targetUnit.effects = targetUnit.effects || [];
 							targetUnit.effects.push({ id: 'increase_critical', amount: 10, targets: { id: 'self' } });
 							updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
 						}
-					} else if (payload.orbId.startsWith('decrease_cooldown_on_')) {
-						const type = payload.orbId.replace('decrease_cooldown_on_', '');
-						if (targetUnit.effects?.some((e: any) => e.id === type)) {
+					} else if (typeof orbId === 'string' && orbId.startsWith('decrease_cooldown_on_')) {
+						const type = orbId.replace('decrease_cooldown_on_', '');
+						if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 							targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
 							updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
 						}
 					}
 				}
-			} else if (actionId === 'discard_unit' && payload && payload.unitId) {
-				const unitIndex = units.findIndex((u: any) => u.id === payload.unitId);
+			} else if (actionId === 'discard_unit' && payload && 'unitId' in payload) {
+				const unitIndex = units.findIndex((u: Unit) => u.id === payload.unitId);
 				if (unitIndex >= 0) {
 					const unit = units[unitIndex];
 					if (!unit.isCore) {
@@ -383,7 +383,7 @@ export class GameLogic {
 		return { team, updates };
 	}
 
-	public static validateAndApplyTeamUpdate(session: SessionData, newTeam: any): { team: any, valid: boolean } {
+	public static validateAndApplyTeamUpdate(session: SessionData, newTeam: { units: Unit[] }): { team: { units: Unit[] }, valid: boolean } {
 		const currentUnits = session.team?.units || [];
 		const newUnits = newTeam?.units || [];
 
@@ -391,8 +391,8 @@ export class GameLogic {
 			return { team: session.team, valid: false };
 		}
 
-		const currentUnitMap = new Map();
-		currentUnits.forEach((u: any) => currentUnitMap.set(u.id, u));
+		const currentUnitMap = new Map<string, Unit>();
+		currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
 
 		const validatedUnits = [];
 
@@ -417,7 +417,7 @@ export class GameLogic {
 		return { team: { units: validatedUnits }, valid: true };
 	}
 
-	public static simulateCombat(session: SessionData): { finalState: State, initialUnits: Unit[], logs: any[] } {
+	public static simulateCombat(session: SessionData): { finalState: State, initialUnits: Unit[], logs: CombatLogEntry[] } {
 		const combatState = this.createCombatState(session);
 
 		const seedVal = this.stringToSeed(session.initial_seed);
@@ -442,8 +442,8 @@ export class GameLogic {
 
 	private static createCombatState(session: SessionData): State {
 		let playerUnits: Unit[] = [];
-		if (session.team && (session.team as any).units) {
-			playerUnits = JSON.parse(JSON.stringify((session.team as any).units));
+		if (session.team && session.team.units) {
+			playerUnits = JSON.parse(JSON.stringify(session.team.units));
 			playerUnits.forEach(u => {
 				u.effects = u.effects || [];
 				u.reactions = u.reactions || [];
@@ -462,14 +462,14 @@ export class GameLogic {
 		}
 
 		let enemyUnits: Unit[] = [];
-		if (session.current_options && (session.current_options as any).combatState && (session.current_options as any).combatState.enemyTeam) {
-			enemyUnits = JSON.parse(JSON.stringify((session.current_options as any).combatState.enemyTeam));
+		if (session.current_options && typeof session.current_options === 'object' && 'combatState' in session.current_options && session.current_options.combatState?.enemyTeam) {
+			enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
 		} else {
 			const allCards = Card.getNonCores();
-			const mockState = {
+			const mockState: State = {
 				battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
 				gameData: { player: { wins: session.wins || 0, id: FORCE_ID_PLAYER } }
-			} as any;
+			} as State;
 			enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
 			enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
 		}
@@ -481,7 +481,16 @@ export class GameLogic {
 				hour: 0,
 				player: makeForce(FORCE_ID_PLAYER),
 				recentEncounterIds: [],
-				runStats: {} as any,
+				runStats: {
+					damageDealt: 0,
+					poisonDealt: 0,
+					shieldDealt: 0,
+					regenDealt: 0,
+					healDealt: 0,
+					mostPowerfulUnit: null,
+					totalUnitsRecruited: 0,
+					unitUsage: {}
+				},
 				seed: this.stringToSeed(session.initial_seed),
 				initialSeed: this.stringToSeed(session.initial_seed),
 				isSeeded: true
@@ -497,16 +506,16 @@ export class GameLogic {
 	public static processSessionTurn(
 		session: SessionData,
 		actionId: string,
-		payload?: any
+		payload?: ActionPayload
 	): { session: SessionData; updates: string[] | undefined; combatResult?: { won: boolean } } {
 		const { team, updates } = this.resolveAction(session, actionId, payload);
-		let nextSession = { ...session, team };
-		let combatResult = undefined;
+		const nextSession = { ...session, team };
+		const combatResult = undefined;
 
 		return { session: nextSession, updates, combatResult };
 	}
 
-	public static transitionToNextState(session: SessionData, actionId: string, payload?: any): { session: SessionData, combatResult?: { won: boolean } } {
+	public static transitionToNextState(session: SessionData, actionId: string, payload?: ActionPayload): { session: SessionData, combatResult?: { won: boolean } } {
 		const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
 
 		// Handle orb shop / upgrade phase completion - just advance without modifying team
@@ -569,7 +578,13 @@ export class GameLogic {
 			// Stay in orb_shop phase after applying orb
 			nextPhase = 'orb_shop';
 			// Keep the same options as before
-			nextOptions = nextSession.current_options ? (nextSession.current_options as any).options || nextSession.current_options : null;
+			if (nextSession.current_options) {
+				if (Array.isArray(nextSession.current_options)) {
+					nextOptions = nextSession.current_options;
+				} else if (typeof nextSession.current_options === 'object' && 'options' in nextSession.current_options) {
+					nextOptions = nextSession.current_options.options;
+				}
+			}
 		}
 		// Completing orb_shop completes the encounter step
 		else if (currentPhase === 'orb_shop' && actionId === 'orb_shop_done') {
@@ -684,14 +699,14 @@ export class GameLogic {
 			nextSession.current_options = { combatState: { enemyTeam } };
 
 			const simResult = this.simulateCombat(nextSession);
-			const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER');
+			const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === 'PLAYER');
 
-			const outcomeLog = simResult.logs.find((l: any) => l.type === 'outcome');
+			const outcomeLog = simResult.logs.find((l) => l.type === 'outcome');
 			let wonCombat = false;
 			if (outcomeLog) {
 				wonCombat = outcomeLog.result === 'player_won';
 			} else {
-				const core = playerUnits.find((u: any) => u.isCore);
+				const core = playerUnits.find((u) => u.isCore);
 				wonCombat = !!(core && core.life > 0);
 			}
 

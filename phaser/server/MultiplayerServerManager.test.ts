@@ -215,6 +215,6 @@ describe('MultiplayerServerManager', () => {
 
 		const outcomeLog = options.combatState?.logs.find((l: any) => l.type === 'outcome');
 		expect(outcomeLog).toBeDefined();
-		expect(outcomeLog.frame).toBeGreaterThan(0);
+		expect(outcomeLog?.frame).toBeGreaterThan(0);
 	});
 });

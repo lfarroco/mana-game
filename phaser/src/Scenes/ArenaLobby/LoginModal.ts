@@ -82,7 +82,9 @@ export class LoginModal {
 			}
 
 			const profile = await MultiplayerManager.getInstance().handleAuthRegister(username, password);
-			localStorage.setItem("player_id", profile.id);
+			if (profile && typeof profile === 'object' && 'id' in profile) {
+				localStorage.setItem("player_id", profile.id as string);
+			}
 			// alert("Registration Successful!");
 			this.hide(true);
 		} catch (e) {
