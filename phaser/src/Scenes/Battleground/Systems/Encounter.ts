@@ -289,6 +289,11 @@ export async function open(state: State, options?: string[]) {
 
 	const nextRoundCallback = async () => {
 		container.destroy(true);
+
+		// Use server adapter to properly skip encounter phase
+		const server = getServerAdapter();
+		const playerId = state.gameData.playerId || 'local_player';
+		await server.handleAction(playerId, 'skip_encounter');
 		PhaseManager.handlePhaseEnded(state);
 	}
 
@@ -328,7 +333,11 @@ export async function open(state: State, options?: string[]) {
 
 	});
 
-	if (!MultiplayerManager.getInstance().isMultiplayer) {
+	// Only show skip button if:
+	// 1. Not in multiplayer mode
+	// 2. Not showing combat_encounter (pre-combat phase)
+	const isCombatEncounter = encounters.length === 1 && encounters[0].id === 'combat_encounter';
+	if (!MultiplayerManager.getInstance().isMultiplayer && !isCombatEncounter) {
 		const btn = createUIButton(t("encounters.skip"),
 			vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
 			nextRoundCallback
