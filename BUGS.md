@@ -1,3 +1,3 @@
-[x] - if I have a list of units to select from, and I discard one from the board, when I select one of the unit options, I'm presented with a new list of units instead of moving to the next phase
-[x] - when in the pre-combat phase, it should not be possible to skip (so there should be no skip button)
-[x] - if I have a list of encounters to select from, if I click on "skip", I'm presented with a list of units instead of moving to the next phase
+[] - when in the game over screen, the match's statistics are all at 0
+[] - confirm that match stats are preserved when saving and resuming a game
+[] - when a unit changes position in the board, that should be saved

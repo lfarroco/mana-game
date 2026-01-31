@@ -121,6 +121,23 @@ async function renderPhase(state: State, options: any) {
 		}
 	}
 
+	// Sync run stats if provided
+	if (options.runStats) {
+		state.gameData.runStats = options.runStats;
+	} else if (!state.gameData.runStats) {
+		// Initialize empty stats if missing
+		state.gameData.runStats = {
+			damageDealt: 0,
+			poisonDealt: 0,
+			shieldDealt: 0,
+			regenDealt: 0,
+			healDealt: 0,
+			mostPowerfulUnit: null,
+			totalUnitsRecruited: 0,
+			unitUsage: {}
+		};
+	}
+
 	switch (options.phase) {
 		case "encounter":
 			await Encounter.open(state, options.options.map((o: any) => o.id));

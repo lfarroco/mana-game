@@ -51,6 +51,7 @@ export type PhaseOptions = {
 	team?: { units: Unit[] };
 	wins?: number;
 	losses?: number;
+	runStats?: RunStats;
 };
 
 export type RunStats = {

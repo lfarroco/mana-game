@@ -34,6 +34,7 @@ export class LocalServerAdapter implements IGameServer {
 			team: session.team,
 			wins: session.wins,
 			losses: session.losses,
+			runStats: session.runStats
 		};
 
 		switch (session.phase) {
