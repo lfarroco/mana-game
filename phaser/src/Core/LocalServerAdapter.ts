@@ -38,13 +38,29 @@ export class LocalServerAdapter implements IGameServer {
 
 		switch (session.phase) {
 			case 'encounter':
-				const encOpts = GameLogic.generateEncounterOptions(session);
-				response.options = encOpts.options;
+				// Use stored options if available (consistent with shop behavior)
+				if (session.current_options) {
+					response.options = Array.isArray(session.current_options)
+						? session.current_options
+						: (session.current_options as any).options || session.current_options;
+				} else {
+					// Fallback: generate encounter options if not stored
+					const encOpts = GameLogic.generateEncounterOptions(session);
+					response.options = encOpts.options;
+				}
 				break;
 
 			case 'shop':
-				const shopOpts = GameLogic.generateShopOptions(session);
-				response.options = shopOpts.options;
+				// Use stored options if available (important after discard_unit actions)
+				if (session.current_options) {
+					response.options = Array.isArray(session.current_options)
+						? session.current_options
+						: (session.current_options as any).options || session.current_options;
+				} else {
+					// Fallback: generate shop options if not stored
+					const shopOpts = GameLogic.generateShopOptions(session);
+					response.options = shopOpts.options;
+				}
 				break;
 
 			case 'combat':

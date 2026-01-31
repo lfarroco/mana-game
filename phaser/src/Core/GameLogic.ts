@@ -606,6 +606,15 @@ export class GameLogic {
 			nextPhase = 'combat';
 			// Don't increment step - combat_encounter is just a transition, not a separate phase step
 		}
+		// Handle skip_encounter action - skips to shop with no encounter selected
+		else if (currentPhase === 'encounter' && actionId === 'skip_encounter') {
+			// Go directly to shop phase (skipping encounter selection)
+			nextPhase = 'shop';
+			const shopResult = this.generateShopOptions(nextSession);
+			nextOptions = shopResult.options;
+			// Increment step when entering shop from encounter
+			nextSession.step += 1;
+		}
 		// Current phase is encounter, selected an encounter (not combat_encounter, not special orb encounters) -> transition to shop (same step)
 		else if (currentPhase === 'encounter' &&
 			actionId !== 'combat_encounter' &&
@@ -618,6 +627,19 @@ export class GameLogic {
 			nextOptions = shopResult.options;
 			// Increment step when entering shop from encounter
 			nextSession.step += 1;
+		}
+		// Handle discard_unit action - stay in current phase (meta-action)
+		else if (actionId === 'discard_unit') {
+			// Discard unit is a meta-action that doesn't change phase
+			// Stay in current phase with current options
+			nextPhase = currentPhase;
+			if (nextSession.current_options) {
+				if (Array.isArray(nextSession.current_options)) {
+					nextOptions = nextSession.current_options;
+				} else if (typeof nextSession.current_options === 'object' && 'options' in nextSession.current_options) {
+					nextOptions = nextSession.current_options.options;
+				}
+			}
 		}
 		// Current phase is shop, completed purchase (card ID) or skip -> determine next phase (step already incremented)
 		else if (currentPhase === 'shop' && (isCardPurchase || actionId === 'skip_shop' || actionId === 'phase_complete')) {
