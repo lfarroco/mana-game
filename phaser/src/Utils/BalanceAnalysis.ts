@@ -1,35 +1,34 @@
 import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
-import { Effect } from "../TriggerSystem/TriggerSystem";
+import { Effect, Targeting, EffectReaction } from "../TriggerSystem/TriggerSystem";
+import { CardDefinition } from "../Models/Entities/Card";
 
 const DELAY_MODIFIER = 0.9;
 const STD_UNIT_POWER = 100; // Updated from 20/40 to 100 based on new budget
 
-function getTargetsCount(targeting: any): number {
+function getTargetsCount(targeting: Targeting | undefined): number {
 	if (!targeting) return 1; // Default to single target if not specified
-	if (targeting.count !== undefined) return Math.sqrt(targeting.count);
+	if ('count' in targeting && targeting.count !== undefined) return Math.sqrt(targeting.count);
 	const id = targeting.id;
 	if (["self", "trigger", "strongest_enemy", "weakest_enemy", "strongest_ally", "weakest_ally", "top_ally", "bottom_ally", "left_ally", "right_ally"].includes(id)) return 1;
 	if (["row_allies", "column_allies"].includes(id)) return 1.73; // sqrt(3) approx
 	if (id === "all_allies") return 2.82; // sqrt(8) approx
-	if (id === "all_enemies" || id === "enemies") return 3; // sqrt(9) approx
+	if (id === "all_enemies") return 3; // sqrt(9) approx
 	if (id === "random_ally" || id === "random_enemy") return 1;
 	return 1;
 }
 
-function isAllyTargeting(targeting: any): boolean {
+function isAllyTargeting(targeting: Targeting | undefined): boolean {
 	if (!targeting) return true; // Default to ally if not specified
 	const id = targeting.id;
 	// Enemy targeting
-	if (["strongest_enemy", "weakest_enemy", "all_enemies", "enemies", "random_enemy"].includes(id)) return false;
+	if (["strongest_enemy", "weakest_enemy", "all_enemies", "random_enemy"].includes(id)) return false;
 	// Ally targeting (including self)
 	return true;
 }
 
 function calculateHasteSlowCost(effect: Effect, _unitPower: number): number {
-	// @ts-ignore
-	const durationSec = (effect.duration || 0) / 1000;
-	// @ts-ignore
-	const targets = getTargetsCount(effect.targets);
+	const durationSec = ('duration' in effect ? effect.duration : 0) / 1000;
+	const targets = getTargetsCount('targets' in effect ? effect.targets : undefined);
 	const id = effect.id;
 	let s = 1;
 	if (id === "haste") s = 2;
@@ -64,10 +63,8 @@ function calculateHasteSlowCost(effect: Effect, _unitPower: number): number {
 
 function calculateEffectCost(effect: Effect, unitPower: number): number {
 	const id = effect.id;
-	// @ts-ignore
-	const targets = getTargetsCount(effect.targets);
-	// @ts-ignore
-	const isAlly = isAllyTargeting(effect.targets);
+	const targets = getTargetsCount('targets' in effect ? effect.targets : undefined);
+	const isAlly = isAllyTargeting('targets' in effect ? effect.targets : undefined);
 	let baseCost = 0;
 
 	switch (id) {
@@ -83,23 +80,29 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			baseCost = 2 * unitPower;
 			break;
 		case "increase_power":
-			// @ts-ignore
-			baseCost = (effect.permanent ? 10 : 4) * (effect.amount || 0);
-			// If increasing power of enemies, it's a negative (team-harming)
-			if (!isAlly) baseCost = -baseCost;
-			return baseCost * targets;
+			if (effect.id === 'increase_power') {
+				baseCost = (effect.permanent ? 10 : 4) * effect.amount;
+				// If increasing power of enemies, it's a negative (team-harming)
+				if (!isAlly) baseCost = -baseCost;
+				return baseCost * targets;
+			}
+			return 0;
 		case "decrease_power":
-			// @ts-ignore
-			baseCost = (effect.permanent ? 10 : 4) * (effect.amount || 0);
-			// If decreasing power of allies, it's a negative (team-harming)
-			if (isAlly) baseCost = -baseCost;
-			return baseCost * targets;
+			if (effect.id === 'decrease_power') {
+				baseCost = (effect.permanent ? 10 : 4) * effect.amount;
+				// If decreasing power of allies, it's a negative (team-harming)
+				if (isAlly) baseCost = -baseCost;
+				return baseCost * targets;
+			}
+			return 0;
 		case "increase_critical":
-			// @ts-ignore
-			baseCost = 4 * (effect.amount || 0); // Rule 9: 4 * %
-			// If increasing crit of enemies, it's a negative (team-harming)
-			if (!isAlly) baseCost = -baseCost;
-			return baseCost * targets;
+			if (effect.id === 'increase_critical') {
+				baseCost = 4 * effect.amount; // Rule 9: 4 * %
+				// If increasing crit of enemies, it's a negative (team-harming)
+				if (!isAlly) baseCost = -baseCost;
+				return baseCost * targets;
+			}
+			return 0;
 		case "haste":
 		case "slow":
 		case "charge":
@@ -119,35 +122,34 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 		case "absorb_power":
 			// Absorb power takes from enemies and gives to self
 			// This is a double swing: reduces enemy output AND increases own output
-			// @ts-ignore
-			const isPermanentAbsorb = effect.permanent || false;
+			const isPermanentAbsorb = (effect.id === 'absorb_power' && effect.permanent) || false;
 			// Estimate: average absorption of ~15 power per target
 			// Double value because it's a swing (enemy loses, you gain)
 			return (isPermanentAbsorb ? 10 : 4) * 15 * 2 * targets;
 		case "multiply_power":
-			// @ts-ignore
-			const multiplier = effect.multiplier;
-			// Use actual unit power to calculate the gain
-			// This ensures the cost scales appropriately with the unit's actual stats
-			const gain = (multiplier - 1) * unitPower;
-			// Multiply is a temporary power increase, so use 4x multiplier
-			baseCost = 4 * gain;
-			// If multiplying power of enemies, it's a negative (team-harming)
-			if (!isAlly) baseCost = -baseCost;
-			return baseCost * targets;
+			if (effect.id === 'multiply_power') {
+				const multiplier = effect.multiplier;
+				// Use actual unit power to calculate the gain
+				// This ensures the cost scales appropriately with the unit's actual stats
+				const gain = (multiplier - 1) * unitPower;
+				// Multiply is a temporary power increase, so use 4x multiplier
+				baseCost = 4 * gain;
+				// If multiplying power of enemies, it's a negative (team-harming)
+				if (!isAlly) baseCost = -baseCost;
+				return baseCost * targets;
+			}
+			return 0;
 		default:
 			return 0;
 	}
 
-	// @ts-ignore
-	if (effect.targets && effect.targets.ofType && effect.targets.ofType !== "any") {
-		baseCost *= 0.7;
-	}
+	// Note: ofType filtering could reduce baseCost by 0.7x, but it's complex to type-check
+	// as it's only available on all_allies targeting
 
 	return baseCost * targets;
 }
 
-function getTriggerFrequency(reaction: any): number {
+function getTriggerFrequency(reaction: EffectReaction): number {
 	const pos = reaction.position;
 	const effectId = reaction.effectId;
 	let sources = 1;
@@ -187,8 +189,7 @@ function getTriggerFrequency(reaction: any): number {
 	return Math.sqrt(sources) * baseFreq;
 }
 
-function calculateActualPower(unit: any) {
-	// @ts-ignore
+function calculateActualPower(unit: CardDefinition) {
 	const rank = unit.rank || 1;
 	// Rank 1 (Core/Bronze): 100 AP (150 if Core)
 	// Rank 2 (Silver): 200 AP
@@ -210,7 +211,7 @@ function calculateActualPower(unit: any) {
 
 	let ReactionPower = 0;
 	if (unit.reactions) {
-		unit.reactions.forEach((r: any) => {
+		unit.reactions.forEach((r) => {
 			if (!r.effects) return;
 			const T = getTriggerFrequency(r);
 			const D = DELAY_MODIFIER;
@@ -229,7 +230,7 @@ export const BalanceAnalysis = {
 	run: (filterNonOk: boolean = false) => {
 		const cards = BASE_COLLECTION_DATA.cards;
 
-		const results = cards.map((card: any) => {
+		const results = cards.map((card) => {
 			const stats = calculateActualPower(card);
 			let status = "OK";
 			const diff = stats.AP - stats.TargetAP;

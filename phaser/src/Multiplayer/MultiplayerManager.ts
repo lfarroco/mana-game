@@ -1,4 +1,5 @@
 import { PhaseOptions } from "./MultiplayerTypes";
+import { Unit } from "../Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import { MultiplayerLogic } from "./MultiplayerLogic";
@@ -53,7 +54,7 @@ export class MultiplayerManager {
 		console.log("Connected to multiplayer session");
 	}
 	// ...
-	public async sendOptionSelection(optionId: string, payload?: any): Promise<boolean> {
+	public async sendOptionSelection(optionId: string, payload?: unknown): Promise<boolean> {
 		console.log(`Sending selection ${optionId} to server...`, payload);
 
 		const { error } = await supabase.functions.invoke('action', {
@@ -67,7 +68,7 @@ export class MultiplayerManager {
 
 	}
 
-	public async sendTeamUpdate(team: any): Promise<boolean> {
+	public async sendTeamUpdate(team: { units: Unit[] }): Promise<boolean> {
 		console.log("Sending team update to server...", team);
 
 		const { error } = await supabase.functions.invoke('action', {
@@ -212,8 +213,8 @@ export class MultiplayerManager {
 		}
 	}
 
-	public async handleAuthRegister(email: string, password: string, username?: string): Promise<any> {
-		const options: any = {};
+	public async handleAuthRegister(email: string, password: string, username?: string): Promise<unknown> {
+		const options: { data?: { username: string } } = {};
 		if (username) {
 			options.data = { username };
 		}

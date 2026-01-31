@@ -12,7 +12,7 @@ describe('MultiplayerLogic Server Compatibility', () => {
 		// Mock session to be at shop step
 		session.step = 2; // Step 2 is Shop (Upgrade Unit -> Orb Shop, or other -> Shop)
 		// Previous step 1 was Encounter
-		session.action_log = [{ round: 1, step: 1, actionId: 'gold_shop' }];
+		session.action_log = [{ round: 1, step: 1, phase: 'encounter', actionId: 'gold_shop' }];
 
 		const result = MultiplayerLogic.generateShopOptions(session, undefined);
 		expect(result.options).toBeDefined();

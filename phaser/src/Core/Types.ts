@@ -1,4 +1,27 @@
 import { Unit } from "../Models/Entities/Unit";
+import { CombatLogEntry } from "../Scenes/Battleground/ServerCombatEffects";
+
+// Option types for different phases
+export type PhaseOption =
+	| { id: string; cost?: number; label?: string } // Generic option with optional cost and label
+	| { id: 'combat_encounter' } // Pre-combat warning option
+	| { id: 'combat_done'; label: string }; // Post-combat continue option
+
+// Action log entry for tracking player actions
+export type ActionLogEntry = {
+	round: number;
+	phase: PhaseType;
+	step: number;
+	actionId: string;
+	payload?: ActionPayload;
+};
+
+// Payload types for different actions
+export type ActionPayload =
+	| { orbId: string; targetUnitId: string } // orb shop actions
+	| { unitId: string } // discard unit action
+	| { team: { units: Unit[] } } // team update
+	| Record<string, unknown>; // other generic payloads
 
 export type PhaseType =
 	| "encounter"
@@ -13,7 +36,7 @@ export type PhaseType =
 export type CombatState = {
 	enemyTeam: Unit[];
 	units: Unit[];
-	logs: any[];
+	logs: CombatLogEntry[];
 	seed: string;
 	wonCombat?: boolean;
 	finalPlayerUnits?: Unit[];
@@ -23,7 +46,7 @@ export type CombatState = {
 export type PhaseOptions = {
 	phase: PhaseType;
 	round: number;
-	options: any[];
+	options: PhaseOption[];
 	combatState?: CombatState;
 	team?: { units: Unit[] };
 	wins?: number;
@@ -50,11 +73,11 @@ export type SessionData = {
 	step: number;
 	seed: string;
 	initial_seed: string;
-	current_options: any;
+	current_options: PhaseOption[] | { options: PhaseOption[]; combatState?: CombatState } | null;
 	team: { units: Unit[] };
 	wins: number;
 	losses: number;
-	action_log: any[];
+	action_log: ActionLogEntry[];
 	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
 	runStats?: RunStats;
 	updated_at?: Date;

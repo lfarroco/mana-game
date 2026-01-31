@@ -1,17 +1,21 @@
+import { CombatLogEntry } from "../Scenes/Battleground/ServerCombatEffects";
+import { Unit } from "../Models/Entities/Unit";
+import { PhaseOption } from "../Core/Types";
+
 export type PhaseType = "encounter" | "shop" | "orb_shop" | "upgrade_core" | "add_reaction_core" | "combat" | "victory" | "game_over";
 
 export interface PhaseOptions {
 	phase: PhaseType;
 	round?: number;
-	options: any[]; // Specific options depending on phase
+	options: PhaseOption[]; // Specific options depending on phase
 	combatState?: {
-		enemyTeam: any;
-		logs: any[];
+		enemyTeam: Unit[];
+		logs: CombatLogEntry[];
 		seed: string;
-		units: any[]; // Include units here for full sync if needed
+		units: Unit[]; // Include units here for full sync if needed
 	};
 	team?: {
-		units: any[];
+		units: Unit[];
 	};
 	wins?: number;
 	losses?: number;

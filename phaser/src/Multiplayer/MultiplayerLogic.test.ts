@@ -45,8 +45,9 @@ describe('MultiplayerLogic', () => {
 			expect(result.updates?.length).toBeGreaterThan(0);
 
 			const unit = result.team.units.find((u: any) => u.id === 'unit_1');
-			expect(unit.rank).toBe(2);
-			expect(unit.maxLife).toBeGreaterThan(100);
+			expect(unit).toBeDefined();
+			expect(unit?.rank).toBe(2);
+			expect(unit?.maxLife).toBeGreaterThan(100);
 		});
 
 		it('should handle missing unit gracefully', () => {

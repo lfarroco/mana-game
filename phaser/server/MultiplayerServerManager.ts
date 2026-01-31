@@ -117,23 +117,27 @@ export class MultiplayerServerManager implements IGameServer {
 
 		// If stored options exist, return them (idempotency)
 		if (session.current_options) {
-			const stored = session.current_options as any;
-			if (!Array.isArray(stored) && stored.options) {
+			if (Array.isArray(session.current_options)) {
 				return {
 					phase: session.phase as any,
 					round: session.round,
-					options: stored.options,
-					combatState: stored.combatState
+					options: session.current_options,
+					team: session.team,
+					wins: session.wins,
+					losses: session.losses,
+				};
+			} else {
+				// It's an object with options and combatState
+				return {
+					phase: session.phase as any,
+					round: session.round,
+					options: session.current_options.options,
+					combatState: session.current_options.combatState,
+					team: session.team,
+					wins: session.wins,
+					losses: session.losses,
 				};
 			}
-			return {
-				phase: session.phase as any,
-				round: session.round,
-				options: session.current_options,
-				team: session.team,
-				wins: session.wins,
-				losses: session.losses,
-			};
 		}
 
 		let response: PhaseOptions = {
