@@ -31,7 +31,11 @@ type CombatRunnerState = {
 export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
 
 	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
-	const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+	let countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+
+	if (countdownTimerState && effects.startCountdownTimer) {
+		countdownTimerState = effects.startCountdownTimer(countdownTimerState);
+	}
 
 	const env: CombatEnvironment = {
 		state,

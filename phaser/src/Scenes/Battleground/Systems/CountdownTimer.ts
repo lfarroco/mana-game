@@ -50,13 +50,13 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
 		loop: true,
 	});
 
-	return {
-		...timerState,
-		timerValue: newTimerValue,
-		timerCircle,
-		timerText,
-		timerEvent,
-	};
+	// Mutate the state object so that the closure in makeUpdateTimer sees the new values
+	timerState.timerValue = newTimerValue;
+	timerState.timerCircle = timerCircle;
+	timerState.timerText = timerText;
+	timerState.timerEvent = timerEvent;
+
+	return timerState;
 }
 
 function makeUpdateTimer(
@@ -92,6 +92,10 @@ export function stop(timerState: CountdownTimerState): CountdownTimerState {
 	}
 	if (timerState.timerCircle) {
 		timerState.timerCircle.destroy();
+	}
+
+	if (timerState.blackHoleState.blackHole) {
+		timerState.blackHoleState.blackHole.setVisible(false);
 	}
 
 	return {

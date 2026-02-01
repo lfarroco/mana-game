@@ -21,6 +21,7 @@ type PlaybackState = {
 	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates.CombatSystemStates;
 	blackHoleState?: any;
+	countdownTimerState?: any;
 };
 
 // Must match ServerConstants.MIN_COOLDOWN
@@ -48,8 +49,11 @@ export const createCombatPlaybackController = (
 	if (blackHoleState && blackHoleState.blackHole) {
 		blackHoleState.blackHole.setVisible(false);
 	}
-	// Note: countdownTimerState is generally not used in playback logic directly but good to init if needed
-	// const countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+
+	let countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+	if (countdownTimerState && effects.startCountdownTimer) {
+		countdownTimerState = effects.startCountdownTimer(countdownTimerState);
+	}
 
 	const playbackState: PlaybackState = {
 		active: true,
@@ -58,6 +62,7 @@ export const createCombatPlaybackController = (
 		outcome: null,
 		combatStates,
 		blackHoleState,
+		countdownTimerState,
 	};
 
 	const scheduleAnimations = () => {
@@ -254,6 +259,10 @@ export const createCombatPlaybackController = (
 		if (!playbackState.active) return;
 
 		playbackState.active = false;
+
+		if (playbackState.countdownTimerState && effects.stopCountdownTimer) {
+			playbackState.countdownTimerState = effects.stopCountdownTimer(playbackState.countdownTimerState);
+		}
 
 		console.log("[CombatPlaybackController] Combat ended. Outcome:", outcome);
 
