@@ -101,6 +101,14 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			return CountdownTimer.initializeCountdownTimer(getCurrentScene(), blackHoleState);
 		},
 
+		startCountdownTimer: (timerState: any) => {
+			return CountdownTimer.start(timerState);
+		},
+
+		stopCountdownTimer: (timerState: any) => {
+			return CountdownTimer.stop(timerState);
+		},
+
 		initForceStats: () => {
 			let state = ForceStats.initializeForceStatsState();
 			state = ForceStats.createForceStats(state, FORCE_ID_PLAYER);

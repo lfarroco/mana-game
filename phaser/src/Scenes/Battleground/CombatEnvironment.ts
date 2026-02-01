@@ -17,6 +17,8 @@ export type CombatEffects = {
 	updatePoisonDisplay: (force: string, poison: number, delta: number) => void;
 	initBlackHole?: () => any;
 	initCountdownTimer?: (blackHoleState: any) => any;
+	startCountdownTimer?: (timerState: any) => any;
+	stopCountdownTimer?: (timerState: any) => any;
 	initForceStats?: () => any;
 	onReactionVisual?: (unitId: string) => Promise<void>;
 	onDamage?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
