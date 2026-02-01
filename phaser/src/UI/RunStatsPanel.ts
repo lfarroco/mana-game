@@ -1,7 +1,7 @@
 import { getState } from "@Models/State";
 import { size, vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { t } from "@i18n/i18n";
+import { t, getName } from "@i18n/i18n";
 import { LEFT_PANEL_X, RESULTS_PANEL } from "@Scenes/Battleground/Results/ResultsConfig";
 import { MIDDLE_SCREEN_Y } from "@Constants/constants";
 
@@ -46,7 +46,7 @@ export function createRunStatsPanel(): Phaser.GameObjects.Container {
         ...statLabel(t("run_stats.shield_dealt"), runStats.shieldDealt.toFixed(0), panelY - 100),
         ...statLabel(t("run_stats.regen_dealt"), runStats.regenDealt.toFixed(0), panelY - 50),
         ...statLabel(t("run_stats.heal_dealt"), runStats.healDealt.toFixed(0), panelY),
-        ...statLabel(t("run_stats.most_powerful_unit"), runStats.mostPowerfulUnit ? `${runStats.mostPowerfulUnit.name} (${runStats.mostPowerfulUnit.power})` : "-", panelY + 50),
+        ...statLabel(t("run_stats.most_powerful_unit"), runStats.mostPowerfulUnit ? `${getName(runStats.mostPowerfulUnit.cardId)} (${runStats.mostPowerfulUnit.power})` : "-", panelY + 50),
         ...statLabel(t("run_stats.total_units_recruited"), runStats.totalUnitsRecruited, panelY + 150),
     ]);
 

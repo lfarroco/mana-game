@@ -507,7 +507,7 @@ export class GameLogic {
 				hour: 0,
 				player: makeForce(FORCE_ID_PLAYER),
 				recentEncounterIds: [],
-				runStats: {
+				runStats: session.runStats || {
 					damageDealt: 0,
 					poisonDealt: 0,
 					shieldDealt: 0,

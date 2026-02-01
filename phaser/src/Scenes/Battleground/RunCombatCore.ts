@@ -147,6 +147,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		runnerState.active = false;
 
 		StatusEffectSystem.stop(statusEffectSystemState);
+		CombatStatsTracker.stop(runnerState.env.combatStates.combatStatsTrackerState, state);
 
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
