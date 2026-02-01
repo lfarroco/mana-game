@@ -197,7 +197,7 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 	for (const unit of player.units) {
 
 		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {
-			runStats.mostPowerfulUnit = { name: getName(unit.cardId), power: unit.power };
+			runStats.mostPowerfulUnit = { cardId: unit.cardId, power: unit.power };
 		}
 	}
 

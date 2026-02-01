@@ -32,7 +32,7 @@ export type RunStats = {
 	shieldDealt: number;
 	regenDealt: number;
 	healDealt: number;
-	mostPowerfulUnit: { name: string; power: number } | null;
+	mostPowerfulUnit: { cardId: string; power: number } | null;
 	totalUnitsRecruited: number;
 	unitUsage: Record<string, number>;
 };

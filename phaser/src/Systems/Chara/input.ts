@@ -16,6 +16,8 @@ import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
 import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+import { getServerAdapter } from "@Core/ServerFactory";
+
 
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
@@ -197,15 +199,34 @@ export const processOwnedUnitMoveRequest = (
 	_executeMove(unit, targetTile, units);
 };
 
+
+const saveUnitPositions = (units: Unit[]) => {
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		MultiplayerManager.getInstance().sendTeamUpdate({ units });
+	} else {
+		const state = getState();
+		const playerId = state.gameData.playerId;
+		if (playerId) {
+			const server = getServerAdapter();
+			if ('sessionManager' in server) {
+				const sessionManager = (server as any).sessionManager;
+				const session = sessionManager.getSession(playerId);
+				if (session) {
+					session.team.units = units;
+					sessionManager.updateSession(playerId, session);
+				}
+			}
+		}
+	}
+};
+
 const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
 	applyMoveVisual(result.movedUnit);
 
-	if (MultiplayerManager.getInstance().isMultiplayer) {
-		MultiplayerManager.getInstance().sendTeamUpdate({ units });
-	}
+	saveUnitPositions(units);
 };
 
 const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
@@ -213,7 +234,10 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 	if (!result) return;
 
 	applySwapVisual(result.movedUnit, result.swappedUnit!);
+
+	saveUnitPositions(units);
 };
+
 
 const applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
