@@ -20,40 +20,6 @@ import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
 import { openOrbShop } from "./Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 
-// NOTE: Phase definitions are now in Core/PhaseTransitions
-// These are kept here temporarily for backward compatibility with legacy code
-// TODO: Remove once all references are updated to use Core/PhaseTransitions
-export const loopPhases: string[] = [
-	"encounter",
-	"encounter",
-	"encounter",
-	"combat",
-	"upgrade_core"
-];
-
-export const predefinedPhases: string[] = [
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "upgrade_core",
-	"encounter", "encounter", "encounter", "combat", "add_reaction_core",
-];
-
-export const hourAction = loopPhases; // Alias for backward compatibility
-
-export function getPhaseForHour(hour: number): string {
-	if (hour < predefinedPhases.length) {
-		return predefinedPhases[hour];
-	}
-	const loopIndex = (hour - predefinedPhases.length) % loopPhases.length;
-	return loopPhases[loopIndex];
-}
-
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets> = {
 		"shop": "sea",
@@ -66,7 +32,7 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	return colorMap[phase] || "forest";
 }
 
-export async function startPhase(state: State, phase?: string) {
+export async function startPhase(state: State) {
 	// For multiplayer, continue using the existing system (for now during migration)
 	if (MultiplayerManager.getInstance().isMultiplayer) {
 		await handleMultiplayerPhase(state);
@@ -82,10 +48,6 @@ export async function startPhase(state: State, phase?: string) {
 		await renderPhase(state, phaseOptions);
 	} catch (error) {
 		console.error("Failed to get phase options:", error);
-		// Fallback to legacy behavior if server fails
-		if (phase) {
-			await renderPhaseByName(state, phase);
-		}
 	}
 }
 
@@ -195,39 +157,8 @@ async function renderPhase(state: State, options: any) {
 	}
 }
 
-// Legacy rendering by phase name (fallback)
-async function renderPhaseByName(state: State, phase: string) {
-	if (cloudsBackground) {
-		const preset = getColorPresetForPhase(phase);
-		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
-	}
-
-	// NOTE: This is legacy code, kept for fallback during migration
-	// Will be removed once all phases use server interface
-	switch (phase) {
-		case "shop":
-			await HeroShop.openHeroShop();
-			break;
-		case "combat":
-			await CombatPhase.transitionToCombatPhase(state);
-			break;
-		case "encounter":
-			await Encounter.open(state);
-			break;
-		case "add_reaction_core":
-		case "upgrade_core":
-			// These require server-provided options, skip for now
-			console.warn(`Phase ${phase} requires server integration`);
-			break;
-		default:
-			break;
-	}
-}
-
 export function handlePhaseEnded(state: State): void {
 	state.gameData.hour++;
-
-	const phase = getPhaseForHour(state.gameData.hour);
 
 	saveGameData();
 
@@ -241,11 +172,9 @@ export function handlePhaseEnded(state: State): void {
 			startPhase(state);
 		}).catch(error => {
 			console.error("Failed to complete phase:", error);
-			// Fallback to legacy phase progression
-			startPhase(state, phase);
 		});
 	} else {
-		startPhase(state, phase);
+		startPhase(state);
 	}
 }
 

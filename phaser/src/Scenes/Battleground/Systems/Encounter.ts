@@ -5,7 +5,6 @@ import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { openHeroShop } from "./Shop/HeroShop";
-import { pickRandom } from "utils";
 import { openOrbShop } from "./Shop/OrbShop";
 import { getState, State } from "@Models/State";
 import { CardDefinition } from "@Models/Entities/Card";
@@ -226,7 +225,7 @@ function orbShopCallback(state: State, container: Phaser.GameObjects.Container, 
 	};
 }
 
-export async function open(state: State, options?: string[]) {
+export async function open(state: State, options: string[]) {
 	const container = io.Container();
 
 	let encounters: EncounterItem[] = [];
@@ -264,25 +263,8 @@ export async function open(state: State, options?: string[]) {
 			};
 		});
 	} else {
-		const index = getEncounterItems(state, container).filter(e => {
-			const recentIds = state.gameData.recentEncounterIds || [];
-
-			if (e.id && recentIds.includes(e.id)) {
-				return false;
-			}
-
-			if (e.minRound) {
-				return e.minRound <= state.gameData.round;
-			}
-
-			if (e.maxRound) {
-				return e.maxRound >= state.gameData.round;
-			}
-
-			return true;
-		});
-
-		encounters = pickRandom(index, 3)
+		console.warn("No encounter options provided from server");
+		return;
 	}
 
 	currentEncounters = encounters;

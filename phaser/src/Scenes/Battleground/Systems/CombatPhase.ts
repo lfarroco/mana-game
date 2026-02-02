@@ -1,8 +1,6 @@
 import { getCurrentScene, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
-import { getAllCards } from "@Models/Entities/Card";
-import { generateEnemyTeam } from "../generateEnemyTeam";
 import { makeForce, playerForce } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
@@ -54,9 +52,9 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 			state.battleData.units = [...enemies, ...playerUnitsForBattle];
 		}
 	} else {
-		// Fallback to local generation (legacy behavior)
-		const result = await setupBattle(state);
-		enemies = result.enemies;
+		// This should not happen if migration is complete
+		console.error("No combat state provided for combat phase");
+		enemies = [];
 	}
 
 	GhostStore.saveGhostForRound(
@@ -75,24 +73,6 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 
 	// Automatically start combat playback without waiting for ready button
 	handleCombatStartExecution({ enemies });
-}
-
-export async function setupBattle(state: State): Promise<{ enemies: Unit[] }> {
-	state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), { ...playerForce(state), id: constants.FORCE_ID_PLAYER }];
-
-	const cardPool = getAllCards();
-	const enemies = generateEnemyTeam(state, state.gameData.round, cardPool);
-
-	const playerUnitsForBattle = state.gameData.player.units.map((unit) => ({
-		...createUnitCopy(unit),
-		force: constants.FORCE_ID_PLAYER,
-	}));
-
-	state.battleData.units = [...enemies, ...playerUnitsForBattle];
-
-	await delay(100);
-
-	return { enemies };
 }
 
 export function showReadyButton(payload: { enemies: Unit[] }): Button {

@@ -9,7 +9,7 @@ import * as Systems from "./Systems";
 import { clearAll, getAllCharas } from "@Systems/Chara/Chara";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import { startPhase, resetBoard, getPhaseForHour } from "./PhaseManager";
+import { startPhase, resetBoard } from "./PhaseManager";
 import * as DiscardZone from "./Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
@@ -119,9 +119,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		const currentHour = state.gameData.hour;
-		// TODO: only arg should be state 
-		startPhase(state, getPhaseForHour(currentHour) || "shop");
+		startPhase(state);
 	};
 
 	update(time: number, delta: number): void {

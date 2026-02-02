@@ -14,7 +14,7 @@ import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScen
 import { handleCombatStartExecution } from "@Scenes/Battleground/Systems/CombatPhase";
 import { chooseEncounter as executeEncounterChoice } from "@Scenes/Battleground/Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
-import { getPhaseForHour } from "@Scenes/Battleground/PhaseManager";
+import { PhaseTransitions } from "@Core/PhaseTransitions";
 import { activeButtons } from "@Components/UIButton";
 
 export function getCurrentSceneName(): string {
@@ -25,7 +25,7 @@ export function getCurrentSceneName(): string {
 export function getCurrentPhase(): string {
 	const state = getState();
 	if (!state || !state.gameData) return "";
-	return getPhaseForHour(state.gameData.hour);
+	return PhaseTransitions.getPhaseForHour(state.gameData.hour);
 }
 
 export function clickHeroInShop(slotIndex: number): string {
