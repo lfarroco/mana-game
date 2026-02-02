@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { activateBlackHole, BlackHoleState } from "../BlackHole";
+import { activateBlackHole, deactivateBlackHole, BlackHoleState } from "../BlackHole";
 import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 
 export type CountdownTimerState = {
@@ -95,7 +95,7 @@ export function stop(timerState: CountdownTimerState): CountdownTimerState {
 	}
 
 	if (timerState.blackHoleState.blackHole) {
-		timerState.blackHoleState.blackHole.setVisible(false);
+		timerState.blackHoleState = deactivateBlackHole(timerState.blackHoleState);
 	}
 
 	return {
