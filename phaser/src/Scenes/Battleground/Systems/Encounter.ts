@@ -4,52 +4,13 @@ import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
-import { openHeroShop } from "./Shop/HeroShop";
-import { openOrbShop } from "./Shop/OrbShop";
-import { getState, State } from "@Models/State";
-import { CardDefinition } from "@Models/Entities/Card";
+import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Scenes/Battleground/Systems/Components/EncounterCard";
 import { MultiplayerManager } from "../../../Multiplayer/MultiplayerManager";
 import { getServerAdapter } from "@Core/ServerFactory";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
-
-const openHeroShopCallback = (container: Phaser.GameObjects.Container, type: string) => async () => {
-	container.destroy(true);
-	const round = getState().gameData.round;
-	const isValidRound = (card: CardDefinition) => {
-		if (card.rank) {
-			if (round <= MIN_ROUND_FOR_SILVER_SHOP && card.rank === 2) {
-				return false;
-			}
-			if (round >= MIN_ROUND_FOR_GOLD_SHOP && card.rank === 3) {
-				return true;
-			}
-			if (round < MIN_ROUND_FOR_GOLD_SHOP && card.rank === 3) {
-				return false;
-			}
-		}
-		return true;
-	}
-	await openHeroShop(
-		(card) =>
-			isValidRound(card) &&
-			(card.effects?.some(eff => eff.id === type)
-				|| card.reactions?.some(eff => eff.effects?.some(eff => eff.id === type)))
-
-	);
-	PhaseManager.handlePhaseEnded(getState());
-}
-
-const singleHeroOfRankShop = (container: Phaser.GameObjects.Container, rank: number) => async () => {
-	container.destroy(true);
-	await openHeroShop(
-		(card) => card.rank === rank,
-		1
-	);
-	PhaseManager.handlePhaseEnded(getState());
-}
 
 type EncounterItem = {
 	name: string;
@@ -71,87 +32,89 @@ export async function chooseEncounter(index: number) {
 	return `Invalid encounter index: ${index}. Available: ${currentEncounters.length}`;
 }
 
-export const getEncounterItems = (state: State, container: Phaser.GameObjects.Container): EncounterItem[] => [
+const noOp = async () => { };
+
+export const getEncounterItems = (_state: State, _container: Phaser.GameObjects.Container): EncounterItem[] => [
 	{
 		name: t("encounters.upgrade_unit.name"),
 		pic: "ui/upgrade_unit",
 		description: t("encounters.upgrade_unit.desc"),
-		onClick: orbShopCallback(state, container, ["upgrade_orb"]),
+		onClick: noOp,
 		id: "upgrade_unit"
 	},
-	improveType(state, container, "ui/improve_damage", "damage"),
-	improveType(state, container, "ui/improve_heal", "heal"),
-	improveType(state, container, "ui/improve_shield", "shield"),
-	improveType(state, container, "ui/toxic", "poison"),
-	improveType(state, container, "ui/improve_regen", "regen"),
+	improveType("ui/improve_damage", "damage"),
+	improveType("ui/improve_heal", "heal"),
+	improveType("ui/improve_shield", "shield"),
+	improveType("ui/toxic", "poison"),
+	improveType("ui/improve_regen", "regen"),
 	{
 		name: t("encounters.armory.name"),
 		pic: "ui/armory",
 		description: t("encounters.armory.desc"),
-		onClick: openHeroShopCallback(container, "damage"),
+		onClick: noOp,
 		id: "armory"
 	},
 	{
 		name: t("encounters.healing_tent.name"),
 		pic: "ui/improve_heal",
 		description: t("encounters.healing_tent.desc"),
-		onClick: openHeroShopCallback(container, "heal"),
+		onClick: noOp,
 		id: "healing_tent"
 	},
 	{
 		name: t("encounters.frontier_fort.name"),
 		pic: "ui/frontier_fort",
 		description: t("encounters.frontier_fort.desc"),
-		onClick: openHeroShopCallback(container, "shield"),
+		onClick: noOp,
 		id: "frontier_fort"
 	},
 	{
 		name: t("encounters.forest_pools.name"),
 		pic: "ui/forest_pools",
 		description: t("encounters.forest_pools.desc"),
-		onClick: openHeroShopCallback(container, "regen"),
+		onClick: noOp,
 		id: "forest_pools"
 	},
 	{
 		name: t("encounters.toxic_chamber.name"),
 		pic: "ui/toxic",
 		description: t("encounters.toxic_chamber.desc"),
-		onClick: openHeroShopCallback(container, "poison"),
+		onClick: noOp,
 		id: "toxic_chamber"
 	},
 	{
 		name: t("encounters.trial_circuit.name"),
 		pic: "ui/trial_circuit",
 		description: t("encounters.trial_circuit.desc"),
-		onClick: openHeroShopCallback(container, "haste"),
+		onClick: noOp,
 		id: "trial_circuit"
 	},
 	{
 		name: t("encounters.trappers_guild.name"),
 		pic: "ui/improve_slow",
 		description: t("encounters.trappers_guild.desc"),
-		onClick: openHeroShopCallback(container, "slow"),
+		onClick: noOp,
 		id: "trappers_guild"
 	},
 	{
 		name: t("encounters.thunder_spire.name"),
 		pic: "ui/thunder_spire",
 		description: t("encounters.thunder_spire.desc"),
-		onClick: openHeroShopCallback(container, "charge"),
+		onClick: noOp,
 		id: "thunder_spire"
 	},
 	{
 		name: t("encounters.commanders_tent.name"),
 		pic: "ui/commander",
 		description: t("encounters.commanders_tent.desc"),
-		onClick: openHeroShopCallback(container, "increase_power"),
+		onClick: noOp,
 		id: "commanders_tent"
 	},
 	{
 		name: t("encounters.assassins_hideout.name"),
 		pic: "ui/assassin",
 		description: t("encounters.assassins_hideout.desc"),
-		onClick: openHeroShopCallback(container, "increase_critical"),
+		onClick: noOp,
 		id: "assassins_hideout"
 	},
 	{
@@ -159,7 +122,7 @@ export const getEncounterItems = (state: State, container: Phaser.GameObjects.Co
 		pic: "ui/power_distributor",
 		description: t("encounters.power_distributor.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(state, container, ["distribute_power_orb"]),
+		onClick: noOp,
 		id: "power_distributor"
 	},
 	{
@@ -167,22 +130,16 @@ export const getEncounterItems = (state: State, container: Phaser.GameObjects.Co
 		pic: "ui/power_absorber",
 		description: t("encounters.power_absorber.desc"),
 		minRound: 3,
-		onClick: orbShopCallback(state, container, ["absorb_power_orb"]),
+		onClick: noOp,
 		id: "power_absorber"
 	},
-	// {
-	// 	name: t("encounters.dark_ritual.name"),
-	// 	pic: "ui/dark_ritual",
-	// 	description: t("encounters.dark_ritual.desc"),
-	// 	onClick: orbShopCallback(container, ["sacrifice_effect_orb"])
-	// },
 	{
 		name: t("encounters.silver_shop"),
 		pic: "ui/silver_medal",
 		description: t("encounters.silver_shop_desc"),
 		minRound: MIN_ROUND_FOR_SILVER_SHOP,
 		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
-		onClick: singleHeroOfRankShop(container, 2),
+		onClick: noOp,
 		id: "silver_shop"
 	},
 	{
@@ -190,7 +147,7 @@ export const getEncounterItems = (state: State, container: Phaser.GameObjects.Co
 		pic: "ui/gold_medal",
 		description: t("encounters.gold_shop_desc"),
 		minRound: MIN_ROUND_FOR_GOLD_SHOP,
-		onClick: singleHeroOfRankShop(container, 3),
+		onClick: noOp,
 		id: "gold_shop"
 	},
 	{
@@ -202,26 +159,14 @@ export const getEncounterItems = (state: State, container: Phaser.GameObjects.Co
 	}
 ];
 
-function improveType(state: State, container: Phaser.GameObjects.Container, pic: string, type: string) {
+function improveType(pic: string, type: string): EncounterItem {
 	return {
 		name: t("encounters.improve_type.name", { type }),
 		pic,
 		minRound: 4,
 		description: t("encounters.improve_type.desc", { type }),
-		onClick: orbShopCallback(state, container, [
-			`increase_power_on_${type}`,
-			`decrease_cooldown_on_${type}`,
-			`increase_critical_on_${type}`
-		]),
+		onClick: noOp,
 		id: `improve_${type}`
-	};
-}
-
-function orbShopCallback(state: State, container: Phaser.GameObjects.Container, orbs: string[]) {
-	return async () => {
-		container.destroy(true);
-		await openOrbShop(state, orbs);
-		PhaseManager.handlePhaseEnded(state);
 	};
 }
 
