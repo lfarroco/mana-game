@@ -4,7 +4,6 @@ import * as Board from "@Models/Board";
 import * as BG_CONSTANTS from "../battlegroundConstants";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "../../../Components/cloudBackground/CloudsBackground";
-import { initBlackHole } from "../BlackHole";
 import BattlegroundScene from "../BattlegroundScene";
 import { makeUnit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
@@ -37,9 +36,10 @@ export function setupSceneElements() {
 	scene.cloudsBackground = cloudsBackground.getShader();
 
 	scene.bgContainer = scene.add.container(0, 0);
+	scene.bgContainer.setDepth(-2000);
 	ControlsSystem.init(scene);
 
-	scene.bgContainer.add([scene.cloudsBackground, initBlackHole().blackHole!]);
+	scene.bgContainer.add([scene.cloudsBackground]);
 
 	Board.init();
 }
