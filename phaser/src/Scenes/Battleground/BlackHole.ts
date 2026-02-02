@@ -24,6 +24,7 @@ export function initBlackHole(): BlackHoleState {
 	]);
 
 	blackHole.setUniform("dissolveProgress.value", 0);
+	blackHole.setDepth(-1000);
 
 	return {
 		blackHole,
