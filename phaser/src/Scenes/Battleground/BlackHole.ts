@@ -36,7 +36,6 @@ export function initBlackHole(): BlackHoleState {
 export function activateBlackHole(state: BlackHoleState): BlackHoleState {
 	if (!state.blackHole) return state;
 
-	const dissolve = 0;
 	const scene = getCurrentScene();
 
 	if (state.timer) state.timer.destroy();
@@ -52,15 +51,13 @@ export function activateBlackHole(state: BlackHoleState): BlackHoleState {
 
 	return {
 		...state,
-		dissolve,
+		dissolve: 1,
 		timer,
 	};
 }
 
 export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
 	if (!state.blackHole) return state;
-
-	const dissolve = 1;
 
 	if (state.timer) state.timer.destroy();
 
@@ -75,7 +72,7 @@ export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
 
 	return {
 		...state,
-		dissolve,
+		dissolve: 0,
 		timer,
 	};
 }
