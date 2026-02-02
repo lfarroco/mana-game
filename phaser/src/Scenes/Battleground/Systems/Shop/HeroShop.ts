@@ -15,8 +15,6 @@ import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 let currentShopCharas: Chara.Chara[] = [];
 
 export async function openHeroShop(
-	_filter?: (u: Card.CardDefinition) => boolean,
-	_totalHeroes?: number,
 	serverCardIds?: string[]
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {

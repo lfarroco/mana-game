@@ -105,7 +105,7 @@ async function renderPhase(state: State, options: any) {
 			await Encounter.open(state, options.options.map((o: any) => o.id));
 			break;
 		case "shop":
-			await HeroShop.openHeroShop(undefined, undefined, options.options.map((o: any) => o.id));
+			await HeroShop.openHeroShop(options.options.map((o: any) => o.id));
 			break;
 		case "combat":
 			await CombatPhase.transitionToCombatPhase(state, options.combatState);
