@@ -13,6 +13,7 @@ import * as Encounter from "./Systems/Encounter";
 import { saveGameData } from "../../Game/effects/saveGameData";
 import { cloudsBackground } from "./Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
+import { loadUnitAssets } from "./Systems/Loader";
 import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
@@ -76,6 +77,12 @@ async function renderPhase(state: State, options: any) {
 		// Re-render units if not in combat (combat handles its own rendering)
 		if (options.phase !== "combat") {
 			Chara.clearAll();
+
+			// Preload all unit assets
+			if (state.gameData.player.units.length > 0) {
+				await loadUnitAssets(state.gameData.player.units);
+			}
+
 			await Promise.all(state.gameData.player.units.map(async u => {
 				const c = await Chara.create(u);
 				Chara.enableTooltip(c);

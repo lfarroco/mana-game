@@ -141,7 +141,7 @@ async function createSprite(
 	const animData = getCurrentScene().cache.json.get(animCacheKey);
 
 	const textureExists = getCurrentScene().textures.exists(unit.pic);
-	// TODO: we can preload before creating
+
 	if ((!animData || !textureExists) && !unit.isCore) {
 		await loadUnitAssets([unit]);
 	}
