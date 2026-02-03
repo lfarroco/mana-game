@@ -11,7 +11,6 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 
-// TODO: is this necessary?
 let currentShopCharas: Chara.Chara[] = [];
 
 export async function openHeroShop(
