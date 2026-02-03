@@ -317,15 +317,12 @@ export const onPointerUpShopItem =
 				return;
 			}
 
-			processShopItemClick(handlerState)(pointer.x, pointer.y);
+			processShopItemClick(handlerState.chara, handlerState.unitId)(pointer.x, pointer.y);
 		};
 
 const processShopItemClick =
-	(handlerState: InputHandler) =>
+	(chara: Chara.Chara, unitId: string) =>
 		(_clickX: number, _clickY: number): void => {
-			//TODO: Instead of passing the handler state, pass just the necessary info
-			const { chara, unitId } = handlerState;
-
 
 			Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
 		};
