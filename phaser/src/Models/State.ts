@@ -1,12 +1,12 @@
-import { Force, makeForce } from "./Entities/Force";
+import { Force } from "./Entities/Force";
 import { eqVec2 } from "./ServerGeometry";
 import { Unit } from "./Entities/Unit";
 import { setSeed } from "../Utils/Random";
-import { FORCE_ID_PLAYER } from "../Scenes/Battleground/ServerConstants";
+import { SessionData } from "../Core/Types";
 
 export type State = {
 	savedGames: string[];
-	gameData: GameData;
+	session: SessionData;
 	battleData: {
 		forces: Force[];
 		grid: number[][];
@@ -14,38 +14,24 @@ export type State = {
 	};
 };
 
-export type GameData = {
-	round: number;
-	hour: number;
-	player: Force;
-	recentEncounterIds: string[];
-	runStats: RunStats;
-	seed: number;
-	initialSeed: number;
-	isSeeded: boolean;
-	playerId?: string; // Player ID for server communication (single-player and multiplayer)
-};
-
-export type RunStats = {
-	damageDealt: number;
-	poisonDealt: number;
-	shieldDealt: number;
-	regenDealt: number;
-	healDealt: number;
-	mostPowerfulUnit: { cardId: string; power: number } | null;
-	totalUnitsRecruited: number;
-	unitUsage: Record<string, number>;
-};
-
 const initialState = (): State => {
-	const initialSeed = Date.now();
+	const initialSeed = Date.now().toString();
 	return {
 		savedGames: [],
-		gameData: {
+		session: {
+			id: 'local_session',
+			player_id: 'local_player',
+			phase: 'encounter',
 			round: 1,
-			hour: 0,
-			player: makeForce(FORCE_ID_PLAYER),
-			recentEncounterIds: [],
+			step: 0,
+			seed: initialSeed,
+			initial_seed: initialSeed,
+			current_options: null,
+			team: { units: [] },
+			wins: 0,
+			losses: 0,
+			action_log: [],
+			encounter_history: [],
 			runStats: {
 				damageDealt: 0,
 				poisonDealt: 0,
@@ -55,10 +41,7 @@ const initialState = (): State => {
 				mostPowerfulUnit: null,
 				totalUnitsRecruited: 0,
 				unitUsage: {},
-			},
-			seed: initialSeed,
-			initialSeed: initialSeed,
-			isSeeded: false,
+			}
 		},
 		battleData: {
 			forces: [],
@@ -81,7 +64,7 @@ export const initState = () => {
 
 export function resetState() {
 	state.currentState = initialState();
-	setSeed(state.currentState.gameData.seed);
+	setSeed(parseInt(state.currentState.session.seed));
 }
 
 declare global {

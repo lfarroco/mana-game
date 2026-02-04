@@ -28,18 +28,18 @@ export async function itemClickPurchaseRequested(
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), reason, cost);
 	};
 
-	const existingUnit = getState().gameData.player.units.find(
+	const existingUnit = getState().session.team.units.find(
 		(u) => u.cardId === shopUnitData.cardId
 	);
 
 	if (MultiplayerManager.getInstance().isMultiplayer) {
 		const targetTile = Board.getEmptySlot(
-			getState().gameData.player.units,
+			getState().session.team.units,
 			constants.FORCE_ID_PLAYER
 		);
 
 		// Check explicit party size limit (consistent with Single Player)
-		if ((!existingUnit || existingUnit.rank > 3) && getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+		if ((!existingUnit || existingUnit.rank > 3) && getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
 			handlePurchaseFailure("PARTY_FULL");
 			return;
 		}
@@ -57,12 +57,14 @@ export async function itemClickPurchaseRequested(
 				await upgradeUnit(existingUnit);
 			} else if (targetTile) {
 				const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-				getState().gameData.player.units.push(newUnit);
+				getState().session.team.units.push(newUnit);
 
-				const { runStats } = getState().gameData;
-				runStats.totalUnitsRecruited++;
-				const unitName = getName(newUnit.cardId);
-				runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+				const { runStats } = getState().session;
+				if (runStats) {
+					runStats.totalUnitsRecruited++;
+					const unitName = getName(newUnit.cardId);
+					runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+				}
 
 				summon(newUnit, true);
 			}
@@ -78,15 +80,15 @@ export async function itemClickPurchaseRequested(
 
 	// Single-player: use local server adapter
 	const server = getServerAdapter();
-	const playerId = getState().gameData.playerId || "sp_player";
+	const playerId = getState().session.player_id || "sp_player";
 
 	const targetTile = Board.getEmptySlot(
-		getState().gameData.player.units,
+		getState().session.team.units,
 		constants.FORCE_ID_PLAYER
 	);
 
 	// Check explicit party size limit
-	if ((!existingUnit || existingUnit.rank > 3) && getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if ((!existingUnit || existingUnit.rank > 3) && getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
 		handlePurchaseFailure("PARTY_FULL");
 		return;
 	}
@@ -104,12 +106,14 @@ export async function itemClickPurchaseRequested(
 				await upgradeUnit(existingUnit);
 			} else if (targetTile) {
 				const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-				getState().gameData.player.units.push(newUnit);
+				getState().session.team.units.push(newUnit);
 
-				const { runStats } = getState().gameData;
-				runStats.totalUnitsRecruited++;
-				const unitName = getName(newUnit.cardId);
-				runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+				const { runStats } = getState().session;
+				if (runStats) {
+					runStats.totalUnitsRecruited++;
+					const unitName = getName(newUnit.cardId);
+					runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+				}
 
 				summon(newUnit, true);
 			}
@@ -140,7 +144,7 @@ export async function itemClickPurchaseRequested(
 		return;
 	}
 
-	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if (getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
 		handlePurchaseFailure("PARTY_FULL");
 		return;
 	}
@@ -152,12 +156,14 @@ export async function itemClickPurchaseRequested(
 	}
 
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	getState().gameData.player.units.push(newUnit);
+	getState().session.team.units.push(newUnit);
 
-	const { runStats } = getState().gameData;
-	runStats.totalUnitsRecruited++;
-	const unitName = getName(newUnit.cardId);
-	runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+	const { runStats } = getState().session;
+	if (runStats) {
+		runStats.totalUnitsRecruited++;
+		const unitName = getName(newUnit.cardId);
+		runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+	}
 
 	summon(newUnit, true);
 

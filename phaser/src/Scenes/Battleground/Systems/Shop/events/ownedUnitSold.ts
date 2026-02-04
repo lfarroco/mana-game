@@ -14,7 +14,7 @@ export function ownedUnitSold(unitId: string) {
 	} else {
 		// For local/single-player mode, send action to local server adapter
 		const server = getServerAdapter();
-		const playerId = state.gameData.playerId || 'local_player';
+		const playerId = state.session.player_id || 'local_player';
 		server.handleAction(playerId, 'discard_unit', { unitId });
 	}
 
@@ -24,7 +24,7 @@ export function ownedUnitSold(unitId: string) {
 
 	DiscardZone.hide();
 
-	state.gameData.player.units = removeUnitFromPlayerState(state.gameData.player.units, unitId);
+	state.session.team.units = removeUnitFromPlayerState(state.session.team.units, unitId);
 }
 
 export function removeUnitFromPlayerState(units: Unit[], unitId: string): Unit[] {

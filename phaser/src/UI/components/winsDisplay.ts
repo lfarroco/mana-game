@@ -25,7 +25,7 @@ export const WINS_DISPLAY_X = 240;
 export const WINS_DISPLAY_Y = 35;
 
 export function create() {
-	const initialWins = getState().gameData.player.wins;
+	const initialWins = getState().session.wins;
 	currentWins = initialWins;
 
 	const rects = createRects();

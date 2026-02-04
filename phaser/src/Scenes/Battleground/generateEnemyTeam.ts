@@ -119,7 +119,7 @@ export function generateEnemyTeam(state: State, round: number, pool: CardDefinit
 	distributeUpgrades(units, upgradeCount);
 
 	const powerPoints = round * 10;
-	if (state.gameData.player.wins >= 10) {
+	if (state.session.wins >= 10) {
 		const multiplier = Math.pow(1.2, round - 10);
 
 		coreUnit.life = Math.floor(coreUnit.life * multiplier);

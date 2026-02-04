@@ -192,7 +192,7 @@ export async function open(state: State, options: string[]) {
 				} else {
 					// Single-player: send to local server
 					const server = getServerAdapter();
-					const playerId = state.gameData.playerId || "sp_player";
+					const playerId = state.session.player_id || "sp_player";
 					try {
 						await server.handleAction(playerId, e.id || "");
 						container.destroy(true);
@@ -219,7 +219,7 @@ export async function open(state: State, options: string[]) {
 
 		// Use server adapter to properly skip encounter phase
 		const server = getServerAdapter();
-		const playerId = state.gameData.playerId || 'local_player';
+		const playerId = state.session.player_id || 'local_player';
 		await server.handleAction(playerId, 'skip_encounter');
 		PhaseManager.handlePhaseEnded(state);
 	}
@@ -248,10 +248,10 @@ export async function open(state: State, options: string[]) {
 			onClick: async () => {
 				if (encounter.id) {
 					const state = getState();
-					state.gameData.recentEncounterIds = state.gameData.recentEncounterIds || [];
-					state.gameData.recentEncounterIds.push(encounter.id);
-					if (state.gameData.recentEncounterIds.length > 3) {
-						state.gameData.recentEncounterIds.shift();
+					state.session.encounter_history = state.session.encounter_history || [];
+					state.session.encounter_history.push(encounter.id);
+					if (state.session.encounter_history.length > 3) {
+						state.session.encounter_history.shift();
 					}
 				}
 				await encounter.onClick();

@@ -58,7 +58,7 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
-			state.gameData.player.units.forEach(resetUnitStats);
+			state.session.team.units.forEach(resetUnitStats);
 
 			// Only update game state (lives, wins, losses) if this is not a replay
 			if (!isReplay) {

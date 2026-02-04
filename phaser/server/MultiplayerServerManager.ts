@@ -249,14 +249,14 @@ export class MultiplayerServerManager implements IGameServer {
 		if (session.phase === "combat") {
 			// Run Simulation for Result
 			const simResult = MultiplayerLogic.simulateCombat(session);
-			const playerUnits = simResult.finalState.gameData.player.units;
-			const core = playerUnits.find(u => u.isCore);
+			const playerUnits = simResult.finalState.session.team.units;
+			const core = playerUnits.find((u: any) => u.isCore);
 			const wonCombat = core && core.life > 0;
 
 			// Apply Stats post-combat
 			if (session.team && session.team.units) {
 				session.team.units.forEach((u: any) => {
-					const simUnit = playerUnits.find(su => su.id === u.id);
+					const simUnit = playerUnits.find((su: any) => su.id === u.id);
 					if (simUnit) {
 						u.bonusPower = simUnit.bonusPower;
 						u.power = simUnit.power;

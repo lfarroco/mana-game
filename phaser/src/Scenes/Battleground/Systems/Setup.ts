@@ -13,13 +13,13 @@ export let cloudsBackground: CloudsBackground | null = null;
 export function initializeNewGame(selectedCrystalId: string): void {
 	const state = getState();
 
-	state.gameData.player.units = [];
-	state.gameData.round = 1;
-	state.gameData.player.lives = BG_CONSTANTS.INITIAL_PLAYER_LIVES;
+	state.session.team.units = [];
+	state.session.round = 1;
+	state.session.losses = 0; // BG_CONSTANTS.INITIAL_PLAYER_LIVES is 4, so 0 losses
 
 	const crystalUnit = makeUnit(constants.FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
-	state.gameData.player.units.push(crystalUnit);
-	state.gameData.hour = 0;
+	state.session.team.units.push(crystalUnit);
+	state.session.step = 0;
 
 	getCurrentScene().sound.setVolume(getOption("soundVolume") ?? BG_CONSTANTS.DEFAULT_SCENE_SOUND_VOLUME);
 }

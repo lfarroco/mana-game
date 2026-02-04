@@ -79,7 +79,10 @@ export async function displayResults(
 	scene.children.bringToTop(resultsContainer);
 
 	const gameState = getState();
-	const player = gameState.gameData.player;
+	const player = {
+		wins: gameState.session.wins,
+		lives: 4 - gameState.session.losses
+	};
 
 	const livesChange = calculateLivesChange(resultType);
 	const expectedNewLives = player.lives + livesChange;

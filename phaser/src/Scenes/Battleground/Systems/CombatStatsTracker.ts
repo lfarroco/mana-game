@@ -181,10 +181,22 @@ export function getUnitStats(trackerState: CombatStatsTrackerState, unitId: stri
 }
 
 export function stop(trackerState: CombatStatsTrackerState, state: State): void {
-	const { gameData } = state;
-	const { runStats } = gameData;
+	const session = state.session;
+	if (!session.runStats) {
+		session.runStats = {
+			damageDealt: 0,
+			poisonDealt: 0,
+			shieldDealt: 0,
+			regenDealt: 0,
+			healDealt: 0,
+			mostPowerfulUnit: null,
+			totalUnitsRecruited: 0,
+			unitUsage: {},
+		};
+	}
+	const { runStats } = session;
 
-	const playerForceId = gameData.player.id;
+	const playerForceId = session.player_id;
 	const playerStats = getForceStats(trackerState, playerForceId);
 
 	runStats.damageDealt += playerStats.damageDealt;
@@ -193,7 +205,7 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 	runStats.regenDealt += playerStats.regenDealt;
 	runStats.shieldDealt += playerStats.shieldDealt;
 
-	const { player } = state.gameData;
+	const player = { units: session.team.units };
 	for (const unit of player.units) {
 
 		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {

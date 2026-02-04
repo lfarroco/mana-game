@@ -12,7 +12,7 @@ import { getName } from "@i18n/i18n";
 import { replayCombat, storeCombatResult } from "../RunCombatIO";
 
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
-	console.log("Round", state.gameData.round, "Processing Defeat...");
+	console.log("Round", state.session.round, "Processing Defeat...");
 
 	AudioManager.playSoundEffect("sfx_victory_match");
 
@@ -36,7 +36,7 @@ export async function handleCombatEndedDefeat(state: State): Promise<void> {
 }
 
 export async function handleCombatEndedVictory(state: State): Promise<void> {
-	console.log("Round", state.gameData.round, "Processing Victory...");
+	console.log("Round", state.session.round, "Processing Victory...");
 
 	AudioManager.playSoundEffect("sfx_victory_reward_chant");
 
@@ -63,13 +63,13 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 
-	if (!state.gameData.isSeeded) {
-		for (const unit of playerUnits) {
-			StatsStore.recordUnitUsage(getName(unit.cardId));
-			StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
-		}
-		StatsStore.save();
+	// if (!state.gameData.isSeeded) { // TODO: Check for seeded runs in SessionData
+	for (const unit of playerUnits) {
+		StatsStore.recordUnitUsage(getName(unit.cardId));
+		StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
 	}
+	StatsStore.save();
+	// }
 
 	if (combatResult === "player_won") {
 		await handleCombatEndedVictory(state);
@@ -81,7 +81,7 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 async function handleVictory(state: State): Promise<void> {
 	PrestigeSystem.finalizeRound();
 
-	console.log("Round", state.gameData.round, "Shop Phase Starting (Victory Transition).");
+	console.log("Round", state.session.round, "Shop Phase Starting (Victory Transition).");
 
 	saveGameData();
 
@@ -97,14 +97,14 @@ async function handleVictory(state: State): Promise<void> {
 async function handleDefeat(state: State): Promise<void> {
 	PrestigeSystem.finalizeRound();
 
-	console.log("Round", state.gameData.round, "Shop Phase Starting (After Defeat).");
+	console.log("Round", state.session.round, "Shop Phase Starting (After Defeat).");
 
-	const player = state.gameData.player;
-	if (player.lives <= 0) {
+	const lives = 4 - state.session.losses;
+	if (lives <= 0) {
 		deleteSavedData();
 
 		const { displayGameComplete } = await import("../Results/GameCompleteUI");
-		const container = await displayGameComplete(state, player.wins, player.units, true);
+		const container = await displayGameComplete(state, state.session.wins, state.session.team.units, true);
 		getCurrentScene().add.existing(container);
 		return;
 	}

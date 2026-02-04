@@ -396,7 +396,7 @@ export function resolveTargets(state: State, sourceUnit: Unit, effect: Effect, t
 	}
 	const isInBattle = state.battleData.units.length > 0;
 
-	const allUnits = isInBattle ? state.battleData.units : state.gameData.player.units;
+	const allUnits = isInBattle ? state.battleData.units : state.session.team.units;
 	const allies = allUnits.filter((u) => u.force === sourceUnit.force);
 	const enemies = allUnits.filter((u) => u.force !== sourceUnit.force);
 

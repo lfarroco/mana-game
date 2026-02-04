@@ -22,7 +22,7 @@ export const absorbPower = (env: CombatEnvironment, sourceUnit: Unit, targets: U
 			}
 
 			if (target.force === FORCE_ID_PLAYER && permanent) {
-				const persistentTarget = state.gameData.player.units.find(u => u.id === target.id)!;
+				const persistentTarget = state.session.team.units.find(u => u.id === target.id)!;
 
 				if (persistentTarget !== target) {
 					persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);

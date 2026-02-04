@@ -39,7 +39,7 @@ export async function openHeroShop(
 				handlePhaseEnded(state);
 			} else {
 				const server = getServerAdapter();
-				const playerId = state.gameData.playerId || 'local_player';
+				const playerId = state.session.player_id || 'local_player';
 				await server.handleAction(playerId, 'skip_shop');
 				// For single-player, server has updated state, so reload the phase
 				await PhaseManager.startPhase(getState());

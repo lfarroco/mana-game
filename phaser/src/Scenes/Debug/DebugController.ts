@@ -24,8 +24,8 @@ export function getCurrentSceneName(): string {
 
 export function getCurrentPhase(): string {
 	const state = getState();
-	if (!state || !state.gameData) return "";
-	return PhaseTransitions.getPhaseForHour(state.gameData.hour);
+	if (!state || !state.session) return "";
+	return PhaseTransitions.getPhaseForHour(state.session.step);
 }
 
 export function clickHeroInShop(slotIndex: number): string {
@@ -81,7 +81,7 @@ export function moveUnitOnBoard(
 	targetBoardX: number,
 	targetBoardY: number
 ): string {
-	const unit = getState().gameData.player.units.find((u) => u.id === unitId);
+	const unit = getState().session.team.units.find((u) => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board`;
 	}
@@ -100,7 +100,7 @@ export function moveUnitOnBoard(
 }
 
 export function discardUnitFromBoard(unitId: string): string {
-	const unit = getState().gameData.player.units.find((u) => u.id === unitId);
+	const unit = getState().session.team.units.find((u) => u.id === unitId);
 	if (!unit) {
 		return `Error: Unit with ID ${unitId} not found on player board. Cannot discard`;
 	}
@@ -128,7 +128,7 @@ export function getShopHeroes(): CardDefinition[] {
 }
 
 export function getPlayerBoardUnits(): Unit[] {
-	return getState().gameData.player?.units || [];
+	return getState().session.team?.units || [];
 }
 
 export function logGameState(): void {
@@ -140,7 +140,7 @@ export function logGameState(): void {
 			x: u.position.x,
 			y: u.position.y,
 		})),
-		currentRound: getState().gameData?.round,
+		currentRound: getState().session?.round,
 	});
 }
 
@@ -149,7 +149,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		id: `test-unit-${Date.now()}-${Math.random()}`,
 		cardId: cardId,
 		pic: `${cardId}.png`,
-		force: getState().gameData.player.id,
+		force: getState().session.player_id,
 		position: vec2(boardX, boardY),
 		power: 25,
 		bonusPower: 0,
@@ -169,7 +169,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 		isCore: false,
 	};
 
-	getState().gameData.player.units.push(newUnit);
+	getState().session.team.units.push(newUnit);
 
 	Chara.summon(newUnit, true);
 
@@ -234,7 +234,7 @@ export async function summon(
 
 	// Add to the appropriate force's units
 	if (forceId === constants.FORCE_ID_PLAYER) {
-		state.gameData.player.units.push(newUnit);
+		state.session.team.units.push(newUnit);
 	} else {
 		// CPU units go into battleData.units during battles
 		state.battleData.units.push(newUnit);
@@ -250,15 +250,15 @@ export async function triggerGameComplete(state: State, wins: number = 0): Promi
 	const tooltip = await import("@Components/Tooltip");
 	const { displayGameComplete } = await import("../Battleground/Results/GameCompleteUI");
 
-	state.gameData.player.wins = wins;
+	state.session.wins = wins;
 	if (wins < 10) {
-		state.gameData.player.lives = 0;
+		state.session.losses = 4; // Assuming 0 lives means 4 losses
 	} else {
-		state.gameData.player.lives = 4;
+		state.session.losses = 0; // Assuming 4 lives means 0 losses
 	}
 
-	if (state.gameData.player.units.length === 0) {
-		state.gameData.player.units = [
+	if (state.session.team.units.length === 0) {
+		state.session.team.units = [
 			{
 				id: "test-unit-1",
 				cardId: "fortress",
@@ -330,7 +330,7 @@ export async function triggerGameComplete(state: State, wins: number = 0): Promi
 
 	tooltip.init();
 
-	displayGameComplete(state, wins, state.gameData.player.units, false);
+	displayGameComplete(state, wins, state.session.team.units, false);
 }
 
 export function defeatCpu(state: State): string {
@@ -349,7 +349,7 @@ export function defeatPlayer(state: State): string {
 
 export async function setWins(wins: number): Promise<string> {
 	const { updateWinsDisplay } = await import("../../UI/components/winsDisplay");
-	getState().gameData.player.wins = wins;
+	getState().session.wins = wins;
 	updateWinsDisplay(wins);
 	return `Wins set to ${wins}`;
 }

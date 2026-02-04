@@ -25,7 +25,7 @@ function createUnitCopy(unit: Unit): Unit {
 }
 
 export async function transitionToCombatPhase(state: State, combatState?: any): Promise<void> {
-	console.log("Round", state.gameData.round, "Combat Phase Starting.");
+	console.log("Round", state.session.round, "Combat Phase Starting.");
 
 	// Disable board input immediately - combat outcome is already pre-calculated
 	Board.setIsInputEnabled(false);
@@ -45,7 +45,7 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 			state.battleData.units = combatState.units;
 		} else {
 			// Otherwise, combine player units with enemy team
-			const playerUnitsForBattle = state.gameData.player.units.map((unit) => ({
+			const playerUnitsForBattle = state.session.team.units.map((unit) => ({
 				...createUnitCopy(unit),
 				force: constants.FORCE_ID_PLAYER,
 			}));
@@ -58,9 +58,9 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 	}
 
 	GhostStore.saveGhostForRound(
-		state.gameData.round,
-		state.gameData.player.units,
-		state.gameData.player.lives
+		state.session.round,
+		state.session.team.units,
+		4 - state.session.losses
 	);
 
 	Board.setEnemyBoardVisible(true);

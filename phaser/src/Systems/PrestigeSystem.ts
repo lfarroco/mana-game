@@ -3,27 +3,27 @@ import * as UIManager from "@UI/UI";
 
 export function processVictory(): void {
 	const state = getState();
-	const playerState = state.gameData.player;
+	// const playerState = state.gameData.player;
 
-	playerState.wins += 1;
-	UIManager.events.onWinsChanged(playerState.wins, 1);
+	state.session.wins += 1;
+	UIManager.events.onWinsChanged(state.session.wins, 1);
 }
 
 export function processDefeat(): void {
 	const state = getState();
 
-	const playerState = state.gameData.player;
-	const oldLives = playerState.lives;
-	const newLives = Math.max(0, playerState.lives - 1);
+	const oldLives = 4 - state.session.losses;
+
+	state.session.losses = Math.min(4, state.session.losses + 1);
+
+	const newLives = 4 - state.session.losses;
 	const livesDelta = newLives - oldLives;
 
-	playerState.lives = newLives;
-
-	UIManager.events.onLivesChanged(playerState.lives, livesDelta);
+	UIManager.events.onLivesChanged(newLives, livesDelta);
 }
 
 export function finalizeRound(): void {
 	const state = getState();
-	state.gameData.round += 1;
-	UIManager.events.onRoundChanged(state.gameData.round);
+	state.session.round += 1;
+	UIManager.events.onRoundChanged(state.session.round);
 }

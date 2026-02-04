@@ -10,7 +10,7 @@ const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
 
 export function create() {
-	const initialRound = getState().gameData.round;
+	const initialRound = getState().session.round;
 
 	const label = label_();
 
