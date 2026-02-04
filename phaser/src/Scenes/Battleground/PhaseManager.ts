@@ -56,10 +56,10 @@ export async function startPhase(state: State) {
 export function getPlayerId(): string {
 	const state = getState();
 	// Use a consistent player ID for single-player
-	if (!state.gameData.playerId) {
-		state.gameData.playerId = "sp_player_" + Date.now();
+	if (!state.session.player_id) {
+		state.session.player_id = "sp_player_" + Date.now();
 	}
-	return state.gameData.playerId;
+	return state.session.player_id;
 }
 
 // Render phase based on server response
@@ -72,18 +72,18 @@ async function renderPhase(state: State, options: any) {
 	// Sync team from server if provided (important for combat phase to have correct units)
 	if (options.team && options.team.units) {
 		console.log("Syncing team from server...", options.team.units.length);
-		state.gameData.player.units = options.team.units;
+		state.session.team.units = options.team.units;
 
 		// Re-render units if not in combat (combat handles its own rendering)
 		if (options.phase !== "combat") {
 			Chara.clearAll();
 
 			// Preload all unit assets
-			if (state.gameData.player.units.length > 0) {
-				await loadUnitAssets(state.gameData.player.units);
+			if (state.session.team.units.length > 0) {
+				await loadUnitAssets(state.session.team.units);
 			}
 
-			await Promise.all(state.gameData.player.units.map(async u => {
+			await Promise.all(state.session.team.units.map(async u => {
 				const c = await Chara.create(u);
 				Chara.enableTooltip(c);
 			}));
@@ -92,10 +92,10 @@ async function renderPhase(state: State, options: any) {
 
 	// Sync run stats if provided
 	if (options.runStats) {
-		state.gameData.runStats = options.runStats;
-	} else if (!state.gameData.runStats) {
+		state.session.runStats = options.runStats;
+	} else if (!state.session.runStats) {
 		// Initialize empty stats if missing
-		state.gameData.runStats = {
+		state.session.runStats = {
 			damageDealt: 0,
 			poisonDealt: 0,
 			shieldDealt: 0,
@@ -165,7 +165,7 @@ async function renderPhase(state: State, options: any) {
 }
 
 export function handlePhaseEnded(state: State): void {
-	state.gameData.hour++;
+	state.session.step++;
 
 	saveGameData();
 
@@ -211,7 +211,7 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 	}
 
 	if (shouldResummonUnits) {
-		const summonPromises = state.gameData.player.units.map(async (unit, index) => {
+		const summonPromises = state.session.team.units.map(async (unit, index) => {
 			await delay(index * 200);
 			await summon(unit, true);
 		});

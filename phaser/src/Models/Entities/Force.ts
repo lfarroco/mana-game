@@ -26,11 +26,19 @@ export const makeForce = (id: string): Force => {
 };
 
 export const playerForce = (state: State): Force => {
-	return state.gameData.player;
+	return {
+		id: state.session.player_id,
+		name: '',
+		color: '',
+		units: state.session.team.units,
+		lives: 4 - state.session.losses,
+		wins: state.session.wins,
+		losses: state.session.losses
+	};
 };
 
 export const cpuForce = (state: State): Force => {
-	return state.battleData.forces.find((f) => f.id !== state.gameData.player.id)!;
+	return state.battleData.forces.find((f) => f.id !== state.session.player_id)!;
 };
 
 // Helper to get forceStatsState from env.effects if accessible, but Force.ts imports CombatEffects which doesn't have reference to Environment context directly unless passed.

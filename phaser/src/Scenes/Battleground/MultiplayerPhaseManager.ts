@@ -36,28 +36,28 @@ export async function handleMultiplayerPhase(state: State) {
 	// Sync Team State and Stats from Server
 	if (result.round !== undefined) {
 		console.log(`Syncing round: ${result.round}`);
-		state.gameData.round = result.round;
-		updateRoundDisplay(state.gameData.round);
+		state.session.round = result.round;
+		updateRoundDisplay(state.session.round);
 	}
 	if (result.wins !== undefined) {
-		state.gameData.player.wins = result.wins;
-		updateWinsDisplay(state.gameData.player.wins);
+		state.session.wins = result.wins;
+		updateWinsDisplay(state.session.wins);
 	}
 	if (result.losses !== undefined) {
-		state.gameData.player.losses = result.losses;
-		state.gameData.player.lives = 4 - result.losses;
-		updateLivesDisplay(state.gameData.player.lives);
+		state.session.losses = result.losses;
+		// state.gameData.player.lives = 4 - result.losses; // Derived from losses
+		updateLivesDisplay(4 - state.session.losses);
 	}
 
 	if (result.team && result.team.units) {
 		console.log("Syncing team from server...", result.team.units.length);
 		const serverUnits = result.team.units;
 
-		state.gameData.player.units = serverUnits;
+		state.session.team.units = serverUnits;
 
 		if (result.phase !== "combat") {
 			clearAll();
-			await Promise.all(state.gameData.player.units.map(async u => {
+			await Promise.all(state.session.team.units.map(async u => {
 				const c = await createChara(u);
 				enableTooltip(c);
 			}));
@@ -85,7 +85,7 @@ export async function handleMultiplayerPhase(state: State) {
 		case "shop":
 			const shopCardIds = result.options.map(o => o.id);
 			await HeroShop.openHeroShop(shopCardIds);
-			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.gameData.player });
+			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.session.team });
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -104,7 +104,7 @@ export async function handleMultiplayerPhase(state: State) {
 					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', {
 						orbId,
 						targetUnitId: targetId,
-						team: state.gameData.player
+						team: state.session.team
 					});
 				}
 			);
@@ -145,7 +145,7 @@ export async function handleMultiplayerPhase(state: State) {
 			// Deep clone units to ensure replay starts with fresh state
 			allUnits = JSON.parse(JSON.stringify(combatState.units));
 		} else {
-			const playerUnits = state.gameData.player.units;
+			const playerUnits = state.session.team.units;
 			const enemyUnits = combatState.enemyTeam;
 			playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
 			allUnits = [...playerUnits, ...enemyUnits];
@@ -194,15 +194,15 @@ export async function handleMultiplayerPhase(state: State) {
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
-			state.gameData.player.units.forEach(resetUnitStats);
+			state.session.team.units.forEach(resetUnitStats);
 
 			const resultType = outcome === "player_won" ? "victory" : "defeat";
 
 			// Optimistically update top bar stats
 			if (resultType === "victory") {
-				updateWinsDisplay((state.gameData.player.wins || 0) + 1);
+				updateWinsDisplay((state.session.wins || 0) + 1);
 			} else {
-				updateLivesDisplay((state.gameData.player.lives || 4) - 1);
+				updateLivesDisplay((4 - (state.session.losses || 0)) - 1);
 			}
 
 			await new Promise<void>((resolve) => {

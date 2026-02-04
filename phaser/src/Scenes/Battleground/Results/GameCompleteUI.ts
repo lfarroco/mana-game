@@ -48,7 +48,7 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	if (!getState().gameData.isSeeded) {
+	if (true) {
 		StatsStore.incrementRunsPlayed();
 		if (wins >= GOLD_VICTORY_THRESHOLD) {
 			StatsStore.recordVictory("gold", playerCore?.cardId);
@@ -62,7 +62,17 @@ export async function displayGameComplete(
 			StatsStore.updateFurthestInfiniteRound(wins);
 		}
 
-		StatsStore.recordRunStats(getState().gameData.runStats);
+		const defaultRunStats = {
+			damageDealt: 0,
+			poisonDealt: 0,
+			shieldDealt: 0,
+			regenDealt: 0,
+			healDealt: 0,
+			mostPowerfulUnit: null,
+			totalUnitsRecruited: 0,
+			unitUsage: {}
+		};
+		StatsStore.recordRunStats(getState().session.runStats || defaultRunStats);
 
 		StatsStore.save();
 	}

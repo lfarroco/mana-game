@@ -15,7 +15,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 	const scene = getCurrentScene();
 
 	const createdCharas: Chara.Chara[] = [];
-	const ownedCardIds = new Set(getState().gameData.player.units.map((u) => u.cardId));
+	const ownedCardIds = new Set(getState().session.team.units.map((u) => u.cardId));
 
 	cardDefs.forEach(async (spec, index) => {
 		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
@@ -41,7 +41,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			chara.emit("pointerup", pointer);
 		});
 
-		const existingUnit = getState().gameData.player.units.find((u) => u.cardId === spec.id);
+		const existingUnit = getState().session.team.units.find((u) => u.cardId === spec.id);
 		if (existingUnit) {
 			unit.rank = existingUnit.rank;
 			makeUnit.upgradeUnitEffects(unit);

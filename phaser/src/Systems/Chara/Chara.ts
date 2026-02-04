@@ -205,7 +205,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 }
 
 export function isShopItem(id: string): boolean {
-	return !getState().gameData.player.units.find((u) => u.id === id);
+	return !getState().session.team.units.find((u) => u.id === id);
 }
 
 export function getUnit(chara: Chara): Unit {
@@ -228,7 +228,7 @@ export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) 
 	PowerDisplay.updatePowerDisplay(s.id);
 
 	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
-		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
+		const playerUnit = getState().session.team.units.find((u) => u.id === unit.id)!;
 		playerUnit.power += num;
 		playerUnit.bonusPower += num;
 	}
@@ -256,7 +256,7 @@ export function updateUnitCritical(chara: Chara, num: number, permanent: boolean
 	});
 
 	if (unit.force === constants.FORCE_ID_PLAYER) {
-		const playerUnit = getState().gameData.player.units.find((u) => u.id === unit.id)!;
+		const playerUnit = getState().session.team.units.find((u) => u.id === unit.id)!;
 		if (playerUnit && playerUnit !== unit) {
 			if (!playerUnit.critical) playerUnit.critical = 0;
 			playerUnit.critical += num;

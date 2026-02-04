@@ -1,13 +1,13 @@
-import { GameData } from "./State";
+import { SessionData } from "../Core/Types";
 import { storage } from "../Storage";
 
 export type SavedGame = {
 	name: string;
-	state: GameData;
+	state: SessionData;
 	savedAt: number;
 };
-export const makeSavedGame = (name: string, state: GameData): SavedGame => {
-	const cleanedState: GameData = {
+export const makeSavedGame = (name: string, state: SessionData): SavedGame => {
+	const cleanedState: SessionData = {
 		...state,
 	};
 	return {

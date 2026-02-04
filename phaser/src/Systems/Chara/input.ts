@@ -175,7 +175,7 @@ export const processOwnedUnitMoveRequest = (
 	dragStartX: number,
 	dragStartY: number
 ) => {
-	const units = getState().gameData.player.units;
+	const units = getState().session.team.units;
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {
@@ -205,7 +205,7 @@ const saveUnitPositions = (units: Unit[]) => {
 		MultiplayerManager.getInstance().sendTeamUpdate({ units });
 	} else {
 		const state = getState();
-		const playerId = state.gameData.playerId;
+		const playerId = state.session.player_id;
 		if (playerId) {
 			const server = getServerAdapter();
 			if ('sessionManager' in server) {

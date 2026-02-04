@@ -102,4 +102,4 @@ export const getBattleCore = (state: State) => (forceId: string) =>
 	state.battleData.units.find((u) => u.force === forceId && u.isCore)!;
 
 export const getPlayerPersistentCore = (state: State) =>
-	state.gameData.player.units.find((u) => u.isCore)!;
+	state.session.team.units.find((u) => u.isCore)!;

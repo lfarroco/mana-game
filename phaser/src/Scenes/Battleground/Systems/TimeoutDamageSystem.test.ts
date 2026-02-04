@@ -41,7 +41,7 @@ describe('TimeoutDamageSystem', () => {
 		env = runner.getEnv();
 
 		timeoutState = initializeTimeoutDamageSystem();
-		playerForce = state.gameData.player;
+		playerForce = { id: state.session.player_id } as any;
 		cpuForce = state.battleData.forces.find((f: any) => f.id !== playerForce.id);
 	});
 

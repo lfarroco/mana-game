@@ -71,7 +71,7 @@ const increasePowerOnType = (type: string) => () => ({
 		increasePower(env, [unit], pct, false);
 
 		if (unit.force === FORCE_ID_PLAYER) {
-			getState().gameData.player.units.find(u => u.id === unit.id)!.power = unit.power;
+			getState().session.team.units.find(u => u.id === unit.id)!.power = unit.power;
 		}
 		console.log(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
@@ -114,7 +114,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 		unit.cooldown = Math.max(1000, unit.cooldown * 0.9);
 
 		if (unit.force === FORCE_ID_PLAYER) {
-			getState().gameData.player.units.find(u => u.id === unit.id)!.cooldown = unit.cooldown;
+			getState().session.team.units.find(u => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
 		console.log(`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`);
@@ -175,7 +175,7 @@ export const orbsIndex: Record<
 
 		const core = getPlayerPersistentCore(state);
 
-		const round = state.gameData.round;
+		const round = state.session.round;
 		const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
 
 		return {
@@ -198,7 +198,7 @@ export const orbsIndex: Record<
 
 		const core = getPlayerPersistentCore(state);
 
-		const round = state.gameData.round;
+		const round = state.session.round;
 		const powerGain = Math.floor(core.power * 0.1) + round * 10;
 
 		return {

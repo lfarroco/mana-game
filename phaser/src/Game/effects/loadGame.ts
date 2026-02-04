@@ -3,6 +3,7 @@ import { getState, getCurrentScene } from "@Models/State";
 import { getSavedData } from "./getSavedData";
 import { setSeed } from "@Utils/Random";
 import { getServerAdapter } from "@Core/ServerFactory";
+import { SessionData } from "@Core/Types";
 
 export function loadGame() {
 	const data = getSavedData();
@@ -15,7 +16,7 @@ export function loadGame() {
 
 	if (isSessionData) {
 		// New format: SessionData
-		const session = savedData;
+		const session = savedData as SessionData;
 
 		// Restore session into SessionManager
 		const server = getServerAdapter();
@@ -24,45 +25,14 @@ export function loadGame() {
 		}
 
 		// Set up game state
-		setSeed(session.seed);
+		setSeed(parseInt(session.seed));
 		const state = getState();
-		state.gameData.playerId = session.player_id;
+		state.session = session;
 
-		// Convert session to gameData format for BattlegroundScene
-		state.gameData = {
-			player: {
-				id: 'PLAYER',
-				name: '',
-				color: '',
-				units: session.team?.units || [],
-				wins: session.wins,
-				losses: session.losses,
-				lives: 4 - session.losses, // Convert losses back to lives
-			},
-			round: session.round,
-			hour: session.step,
-			seed: session.seed,
-			initialSeed: session.initial_seed,
-			playerId: session.player_id,
-			recentEncounterIds: session.encounter_history,
-			runStats: session.runStats,
-			isSeeded: false,
-		};
-
-		getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, state.gameData);
+		getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, { state: state });
 	} else {
-		// Old format: legacy gameData
-		const gameData = savedData;
-
-		// Handle legacy saves or missing seed
-		if (!gameData.seed) {
-			const newSeed = Date.now();
-			gameData.seed = newSeed;
-			gameData.initialSeed = newSeed;
-		}
-
-		getState().gameData = gameData;
-		setSeed(gameData.seed);
-		getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, gameData);
+		console.warn("Legacy save format detected. Ignoring.");
+		// TODO: Implement migration if needed, but for now assuming SessionData is the way forward.
+		// If we really need redundancy check, this branch proves GameData is legacy.
 	}
 }

@@ -47,7 +47,7 @@ function renderUpgradeCards(
 ) {
 	const state = getState();
 
-	const coreUnit = state.gameData.player.units.find((u) => u.isCore)!;
+	const coreUnit = state.session.team.units.find((u) => u.isCore)!;
 
 	encounterIds.forEach((encounterId, index) => {
 

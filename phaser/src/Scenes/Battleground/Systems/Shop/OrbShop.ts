@@ -70,7 +70,7 @@ export function renderOrbShop(
 
 		console.log(`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
 
-		const existingUnit = state?.gameData?.player?.units?.find((unit) =>
+		const existingUnit = state?.session?.team?.units?.find((unit) =>
 			eqVec2(unit.position, { x: tileX, y: tileY })
 		);
 

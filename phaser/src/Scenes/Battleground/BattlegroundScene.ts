@@ -47,11 +47,11 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	create = async (data: BattlegroundSceneData) => {
 		const state = data?.state || getState();
-		const { gameData } = state;
+		const { session } = state;
 
 		this.state = state;
 
-		console.log(":::: BattlegroundScene creating logic...", gameData, "sceneData:", data);
+		console.log(":::: BattlegroundScene creating logic...", session, "sceneData:", data);
 		setCurrentScene(this);
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
@@ -71,8 +71,8 @@ export class BattlegroundScene extends Phaser.Scene {
 		// - render untis
 		// - display current phase 
 
-		const data = state.gameData;
-		console.log(":::: BattlegroundScene starting logic...", data);
+		const session = state.session;
+		console.log(":::: BattlegroundScene starting logic...", session);
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
@@ -87,8 +87,8 @@ export class BattlegroundScene extends Phaser.Scene {
 			// Create session via server adapter for unified logic
 			// This ensures the session exists before we try to get phase options
 			const server = getServerAdapter();
-			const playerId = state.gameData.playerId || "sp_player_" + Date.now();
-			state.gameData.playerId = playerId;
+			const playerId = state.session.player_id || "sp_player_" + Date.now();
+			state.session.player_id = playerId;
 
 			try {
 				await server.createSession(playerId, selectedCrystalId);
@@ -97,7 +97,7 @@ export class BattlegroundScene extends Phaser.Scene {
 				console.error("Failed to create session:", error);
 			}
 		} else {
-			state.gameData = data;
+			state.session = session;
 		}
 
 		Systems.Setup.setupSceneElements();

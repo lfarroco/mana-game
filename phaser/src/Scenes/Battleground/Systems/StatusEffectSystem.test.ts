@@ -58,10 +58,10 @@ describe('StatusEffectSystem', () => {
 	});
 
 	it('should apply poison damage on tick', () => {
-		const playerForceId = state.gameData.player.id;
+		const playerForceId = state.session.player_id;
 
 		// Inject poison
-		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, state.gameData.player, 10);
+		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, { id: playerForceId } as any, 10);
 
 		const delta = 1000;
 		update(env, statusState, delta);
@@ -74,7 +74,7 @@ describe('StatusEffectSystem', () => {
 	});
 
 	it('should apply regen healing on tick', () => {
-		const playerForceId = state.gameData.player.id;
+		const playerForceId = state.session.player_id;
 
 		// Set damaged life so heal works
 		const core = state.battleData.units.find((u: Unit) => u.force === playerForceId && u.isCore);
@@ -83,7 +83,7 @@ describe('StatusEffectSystem', () => {
 			core.maxLife = 100;
 		}
 
-		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, state.gameData.player, 5);
+		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, { id: playerForceId } as any, 5);
 
 		const delta = 1000;
 		update(env, statusState, delta);
@@ -95,15 +95,15 @@ describe('StatusEffectSystem', () => {
 	});
 
 	it('should calculate net effect (Regen > Poison)', () => {
-		const playerForceId = state.gameData.player.id;
+		const playerForceId = state.session.player_id;
 		const core = state.battleData.units.find((u: Unit) => u.force === playerForceId && u.isCore);
 		if (core) {
 			core.life = 50;
 			core.maxLife = 100;
 		}
 
-		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, state.gameData.player, 5);
-		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, state.gameData.player, 10);
+		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, { id: playerForceId } as any, 5);
+		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, { id: playerForceId } as any, 10);
 
 		update(env, statusState, 1000);
 
@@ -114,10 +114,10 @@ describe('StatusEffectSystem', () => {
 	});
 
 	it('should calculate net effect (Poison > Regen)', () => {
-		const playerForceId = state.gameData.player.id;
+		const playerForceId = state.session.player_id;
 
-		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, state.gameData.player, 10);
-		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, state.gameData.player, 5);
+		env.combatStates.poisonSystemState = applyPoison(env.combatStates.poisonSystemState, { id: playerForceId } as any, 10);
+		env.combatStates.regenSystemState = applyRegen(env.combatStates.regenSystemState, { id: playerForceId } as any, 5);
 
 		update(env, statusState, 1000);
 

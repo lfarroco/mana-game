@@ -16,7 +16,7 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const existingUnit = getState().gameData.player.units.find(
+	const existingUnit = getState().session.team.units.find(
 		(u) => u.cardId === shopUnitData.cardId
 	);
 
@@ -31,13 +31,13 @@ export async function itemDragPurchaseRequested(
 		return;
 	}
 
-	if (getState().gameData.player.units.length >= constants.MAX_PARTY_SIZE) {
+	if (getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
 
-	const occupier = getUnitAt(getState().gameData.player.units)(targetTile);
+	const occupier = getUnitAt(getState().session.team.units)(targetTile);
 	if (occupier) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
@@ -45,12 +45,14 @@ export async function itemDragPurchaseRequested(
 	}
 
 	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	getState().gameData.player.units.push(newUnit);
+	getState().session.team.units.push(newUnit);
 
-	const { runStats } = getState().gameData;
-	runStats.totalUnitsRecruited++;
-	const unitName = getName(newUnit.cardId);
-	runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+	const { runStats } = getState().session;
+	if (runStats) {
+		runStats.totalUnitsRecruited++;
+		const unitName = getName(newUnit.cardId);
+		runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
+	}
 
 	summon(newUnit, true);
 

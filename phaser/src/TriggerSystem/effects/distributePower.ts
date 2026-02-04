@@ -16,7 +16,7 @@ export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, target
 	sourceUnit.bonusPower -= bonusToLose;
 
 	if (sourceUnit.force === FORCE_ID_PLAYER) {
-		const playerUnit = state.gameData.player.units.find((u) => u.id === sourceUnit.id);
+		const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
 		if (playerUnit && playerUnit !== sourceUnit) {
 			playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
 			playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);

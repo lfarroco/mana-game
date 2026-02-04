@@ -6,7 +6,17 @@ import { LEFT_PANEL_X, RESULTS_PANEL } from "@Scenes/Battleground/Results/Result
 import { MIDDLE_SCREEN_Y } from "@Constants/constants";
 
 export function createRunStatsPanel(): Phaser.GameObjects.Container {
-    const { runStats } = getState().gameData;
+    const defaultRunStats = {
+        damageDealt: 0,
+        poisonDealt: 0,
+        shieldDealt: 0,
+        regenDealt: 0,
+        healDealt: 0,
+        mostPowerfulUnit: null,
+        totalUnitsRecruited: 0,
+        unitUsage: {}
+    };
+    const runStats = getState().session.runStats || defaultRunStats;
 
     const panelWidth = 700;
     const panelHeight = 700;

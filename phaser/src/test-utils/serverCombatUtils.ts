@@ -29,11 +29,19 @@ export const createMockState = (): State => {
 
 	return {
 		savedGames: [],
-		gameData: {
+		session: {
+			id: 'test_session',
+			player_id: playerForce.id,
+			phase: 'combat',
 			round: 1,
-			hour: 0,
-			player: playerForce,
-			recentEncounterIds: [],
+			step: 0,
+			seed: Date.now().toString(),
+			initial_seed: Date.now().toString(),
+			current_options: null,
+			team: { units: [] },
+			wins: 0,
+			losses: 0,
+			action_log: [],
 			runStats: {
 				damageDealt: 0,
 				poisonDealt: 0,
@@ -44,9 +52,6 @@ export const createMockState = (): State => {
 				totalUnitsRecruited: 0,
 				unitUsage: {},
 			},
-			seed: Date.now(),
-			initialSeed: Date.now(),
-			isSeeded: false,
 		},
 		battleData: {
 			forces: [playerForce, cpuForce],

@@ -114,8 +114,12 @@ export class GameLogic {
 		// CPU should have access to all non-core units, disregarding unlock status
 		const allCards = Card.getNonCores();
 		const mockState = {
-			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
-			gameData: { player: { wins, id: FORCE_ID_PLAYER } }
+			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)], units: [], grid: [] },
+			savedGames: [],
+			session: {
+				wins,
+				player_id: FORCE_ID_PLAYER
+			} as SessionData
 		} as State;
 		const units = generateEnemyTeam(mockState, round, allCards);
 		// Explicitly assign to CPU force to ensure correctness regardless of mock state nuances
@@ -493,33 +497,21 @@ export class GameLogic {
 		} else {
 			const allCards = Card.getNonCores();
 			const mockState: State = {
-				battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)] },
-				gameData: { player: { wins: session.wins || 0, id: FORCE_ID_PLAYER } }
-			} as State;
+				battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)], units: [], grid: [] },
+				savedGames: [],
+				session: { ...session }
+			};
 			enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
 			enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
 		}
 
 		return {
 			savedGames: [],
-			gameData: {
-				round: session.round,
-				hour: 0,
-				player: makeForce(FORCE_ID_PLAYER),
-				recentEncounterIds: [],
-				runStats: session.runStats || {
-					damageDealt: 0,
-					poisonDealt: 0,
-					shieldDealt: 0,
-					regenDealt: 0,
-					healDealt: 0,
-					mostPowerfulUnit: null,
-					totalUnitsRecruited: 0,
-					unitUsage: {}
-				},
-				seed: this.stringToSeed(session.initial_seed),
-				initialSeed: this.stringToSeed(session.initial_seed),
-				isSeeded: true
+			session: {
+				...session,
+				team: { units: playerUnits },
+				// ensure other required fields if session from input is partial? 
+				// The input session is SessionData, so it should be fine.
 			},
 			battleData: {
 				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
