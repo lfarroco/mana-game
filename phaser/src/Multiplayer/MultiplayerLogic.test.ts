@@ -1,5 +1,5 @@
 import { MultiplayerLogic } from './MultiplayerLogic';
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '../Scenes/Battleground/ServerConstants';
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from '@Scenes/Battleground/ServerConstants';
 
 // Polyfill structuredClone for Jest environment
 if (typeof global.structuredClone === 'undefined') {

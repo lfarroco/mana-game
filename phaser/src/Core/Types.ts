@@ -1,5 +1,5 @@
 import { Unit } from "../Models/Entities/Unit";
-import { CombatLogEntry } from "../Scenes/Battleground/ServerCombatEffects";
+import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 
 // Option types for different phases
 export type PhaseOption =

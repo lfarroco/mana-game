@@ -1,8 +1,8 @@
 
 import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
 import { createMockState } from '../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '../Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '../Scenes/Battleground/RunCombatCore';
+import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
+import { runCombat } from '@Scenes/Battleground/RunCombatCore';
 import { dealDamageLogicIO, applyPoisonLogicIO } from './effects';
 import { applyHasteLogicIO } from './effects/applyHaste';
 import { applySlowLogicIO } from './effects/applySlow';
@@ -12,7 +12,7 @@ import { BASE_COLLECTION_DATA } from '../Data/BaseCollection';
 import { Unit } from '../Models/Entities/Unit';
 import * as StateModule from '../Models/State';
 import { getBattleCore } from '../Models/Entities/Card';
-import { FORCE_ID_PLAYER } from '../Scenes/Battleground/ServerConstants';
+import { FORCE_ID_PLAYER } from '@Scenes/Battleground/ServerConstants';
 import { processReactions } from './TriggerSystem';
 
 // Mock i18n

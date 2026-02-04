@@ -10,7 +10,7 @@
                 "Models/*"
             ],
             "@Scenes/*": [
-                "Scenes/*"
+                "Engine/Scenes/*"
             ],
             "@Systems/*": [
                 "Systems/*"
@@ -44,6 +44,24 @@
             ],
             "@Multiplayer/*": [
                 "Multiplayer/*"
+            ],
+            "@Data/*": [
+                "Data/*"
+            ],
+            "@Game/*": [
+                "Game/*"
+            ],
+            "@TriggerSystem/*": [
+                "TriggerSystem/*"
+            ],
+            "@config": [
+                "config.ts"
+            ],
+            "@assets": [
+                "assets.ts"
+            ],
+            "@utils": [
+                "utils.ts"
             ]
         },
         "lib": [

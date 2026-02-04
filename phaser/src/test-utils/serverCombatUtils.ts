@@ -2,7 +2,7 @@
 import { State } from "@Models/State";
 import { makeForce } from "@Models/Entities/Force";
 import { makeUnit } from "@Models/Entities/Unit";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "../Scenes/Battleground/ServerConstants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 
 export const createMockState = (): State => {
 	const playerForce = makeForce(FORCE_ID_PLAYER);

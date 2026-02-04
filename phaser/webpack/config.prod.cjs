@@ -19,7 +19,7 @@ module.exports = {
         plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, "../tsconfig.json") })],
         alias: {
             "@Models": path.resolve(__dirname, "../src/Models"),
-            "@Scenes": path.resolve(__dirname, "../src/Scenes"),
+            "@Scenes": path.resolve(__dirname, "../src/Engine/Scenes"),
             "@Systems": path.resolve(__dirname, "../src/Systems"),
             "@UI": path.resolve(__dirname, "../src/UI"),
             "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
