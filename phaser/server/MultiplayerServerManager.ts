@@ -2,7 +2,7 @@ import { PhaseOptions, SessionData } from "../src/Core/Types";
 import { IGameServer } from "../src/Core/IGameServer";
 import { Pool } from 'pg';
 import { makeUnit } from "../src/Models/Entities/Unit";
-import { FORCE_ID_PLAYER } from "../src/Scenes/Battleground/ServerConstants";
+import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
 import { MultiplayerLogic } from "../src/Multiplayer/MultiplayerLogic";
 
 // Database configuration

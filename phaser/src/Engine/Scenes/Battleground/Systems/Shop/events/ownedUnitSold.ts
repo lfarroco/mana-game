@@ -1,0 +1,38 @@
+import { Unit } from "@Models/Entities/Unit";
+import { getState } from "@Models/State";
+import { getCharaById } from "@Systems/Chara/Chara";
+import * as DiscardZone from "../DiscardZone";
+import { getServerAdapter } from "@Core/ServerFactory";
+
+import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+
+export function ownedUnitSold(unitId: string) {
+	const state = getState();
+
+	if (MultiplayerManager.getInstance().isMultiplayer) {
+		MultiplayerManager.getInstance().sendOptionSelection("discard_unit", { unitId });
+	} else {
+		// For local/single-player mode, send action to local server adapter
+		const server = getServerAdapter();
+		const playerId = state.session.player_id || 'local_player';
+		server.handleAction(playerId, 'discard_unit', { unitId });
+	}
+
+	const chara = getCharaById(unitId);
+
+	chara?.destroy();
+
+	DiscardZone.hide();
+
+	state.session.team.units = removeUnitFromPlayerState(state.session.team.units, unitId);
+}
+
+export function removeUnitFromPlayerState(units: Unit[], unitId: string): Unit[] {
+	const unitIndex = units.findIndex((u) => u.id === unitId);
+	if (unitIndex > -1) {
+		return units.filter((u) => u.id !== unitId);
+	} else {
+		console.warn(`Unit with ID ${unitId} not found for discarding`);
+		return [...units];
+	}
+}

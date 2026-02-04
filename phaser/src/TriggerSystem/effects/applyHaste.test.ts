@@ -1,8 +1,8 @@
 
 import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
 import { createMockState } from '../../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '../../Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '../../Scenes/Battleground/RunCombatCore';
+import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
+import { runCombat } from '@Scenes/Battleground/RunCombatCore';
 import { applyHasteLogicIO } from './applyHaste';
 import { registerCollection } from '../../Models/Entities/Card';
 import { BASE_COLLECTION_DATA } from '../../Data/BaseCollection';

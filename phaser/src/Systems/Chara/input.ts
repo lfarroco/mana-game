@@ -11,7 +11,7 @@ import * as Chara from "./Chara";
 import * as events from "./events";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 
-import * as DiscardZone from "../../Scenes/Battleground/Systems/Shop/DiscardZone";
+import * as DiscardZone from "@Scenes/Battleground/Systems/Shop/DiscardZone";
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";

@@ -112,3 +112,12 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 1.  **Refactor `Systems`**: Move `Encounter`, `Shop`, `CombatStats` out of `Scences/Battleground` into a top-level `Systems` folder.
 2.  **Implement `GameController`**: Create the interface and refactor one feature (e.g., `HeroShop`) to use it, removing `if(isMultiplayer)` from the UI.
 3.  **Strict "No-Phaser" Core**: Identify business logic files that import `phaser` and refactor them to remove that dependency, ensuring server-side compatibility.
+
+## 7. Executed Improvements
+
+- **Directory Structure Update (Isolating View Logic)**:
+    - Created `src/Engine` directory.
+    - Moved `src/Scenes` to `src/Engine/Scenes` to distinguish View logic from Core logic and other Systems.
+    - Updated `tsconfig.json`, Webpack configurations (`config.dev.cjs`, `config.prod.cjs`), and Jest configuration to map `@Scenes` to `src/Engine/Scenes`.
+    - Added new path aliases to `tsconfig.json` and `jest.config.cjs` to simplify imports and resolve compilation errors: `@Data`, `@Game`, `@TriggerSystem`, `@config`, `@assets`, `@utils`.
+    - Refactored relative imports throughout the codebase to align with the new directory structure, replacing broken relative imports with consistent aliases.
