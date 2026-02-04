@@ -40,29 +40,44 @@ src/
 
 Currently, UI event handlers (like `itemClickPurchaseRequested`) contain explicit checks for `isMultiplayer`. This leaks infrastructure details into the UI and creates duplicate logic paths.
 
-### Proposal: `GameController` Interface
+### Proposal: `GameController` Type
 
-Create a unified interface that the UI interacts with, hiding the implementation detail of whether the game is local or multiplayer.
+Create a unified type that the UI interacts with, hiding the implementation detail of whether the game is local or multiplayer.
 
 ```typescript
-// interface IGameController
-interface IGameController {
+// type GameController
+type GameController = {
     purchaseUnit(cardId: string, targetSlot?: number): Promise<void>;
     skipPhase(): Promise<void>;
     selectEncounter(encounterId: string): Promise<void>;
-}
+};
 ```
 
 ### Implementations:
 
-1.  **`RemoteGameController`**: Sends WebSocket messages (`MultiplayerManager`).
-2.  **`LocalGameController`**: Calls `GameLogic` functions directly and mutates the local state.
+1.  **`createRemoteGameController`**: Factory function that sends WebSocket messages (`MultiplayerManager`).
+2.  **`createLocalGameController`**: Factory function that calls `GameLogic` functions directly and mutates the local state.
+
+```typescript
+// Factory functions
+const createRemoteGameController = (multiplayerManager: MultiplayerManager): GameController => ({
+    purchaseUnit: async (cardId, targetSlot) => { /* send websocket message */ },
+    skipPhase: async () => { /* send websocket message */ },
+    selectEncounter: async (encounterId) => { /* send websocket message */ },
+});
+
+const createLocalGameController = (state: State): GameController => ({
+    purchaseUnit: async (cardId, targetSlot) => { /* mutate state directly */ },
+    skipPhase: async () => { /* mutate state directly */ },
+    selectEncounter: async (encounterId) => { /* mutate state directly */ },
+});
+```
 
 **Benefit**: The UI code becomes:
 ```typescript
 // UI Component
 onBuyClick(unitId) {
-    // The controller is injected or retrieved from context
+    // The controller is provided via dependency injection or context
     await gameController.purchaseUnit(unitId);
     // UI updates automatically via state subscription
 }
@@ -110,7 +125,7 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 ## 6. Next Steps (Roadmap)
 
 1.  **Refactor `Systems`**: Move `Encounter`, `Shop`, `CombatStats` out of `Scences/Battleground` into a top-level `Systems` folder.
-2.  **Implement `GameController`**: Create the interface and refactor one feature (e.g., `HeroShop`) to use it, removing `if(isMultiplayer)` from the UI.
+2.  **Implement `GameController`**: Create the type and factory functions, then refactor one feature (e.g., `HeroShop`) to use it, removing `if(isMultiplayer)` from the UI.
 3.  **Strict "No-Phaser" Core**: Identify business logic files that import `phaser` and refactor them to remove that dependency, ensuring server-side compatibility.
 
 ## 7. Executed Improvements
