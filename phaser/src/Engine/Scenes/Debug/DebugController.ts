@@ -432,8 +432,10 @@ export async function startBattlegroundWithSession(session: Partial<SessionData>
 	const completeSession: SessionData = {
 		...defaultSession,
 		...session,
-		// Deep merge for nested objects
-		team: session.team ? { units: [...(session.team.units || [])] } : defaultSession.team,
+		// Deep merge for nested objects - preserve all team properties while merging units
+		team: session.team 
+			? { ...defaultSession.team, ...session.team, units: [...(session.team.units || [])] } 
+			: defaultSession.team,
 		runStats: session.runStats ? { ...defaultSession.runStats, ...session.runStats } : defaultSession.runStats,
 	};
 	
@@ -441,6 +443,8 @@ export async function startBattlegroundWithSession(session: Partial<SessionData>
 	state.session = completeSession;
 	
 	// Restore session into SessionManager via the server adapter
+	// Note: Using type assertion to access sessionManager, which is consistent with loadGame.ts
+	// This is only for debugging/testing purposes where we need direct session manipulation
 	const server = getServerAdapter();
 	if ('sessionManager' in server) {
 		(server as any).sessionManager.updateSession(completeSession.player_id, completeSession);
