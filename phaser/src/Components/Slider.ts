@@ -18,12 +18,14 @@ export type Slider = {
 };
 
 const TRACK_HEIGHT = 8;
-const TRACK_COLOR = 0x1a1a2e;
-const TRACK_FILL_COLOR = 0x4a90d9;
-const HANDLE_RADIUS = 16;
-const HANDLE_COLOR = 0xffffff;
-const HANDLE_HOVER_COLOR = 0x4a90d9;
-const HANDLE_BORDER_COLOR = 0x333333;
+const TRACK_COLOR = 0x0a0a15;
+const TRACK_BORDER_COLOR = 0x00ffff;
+const TRACK_FILL_COLOR = 0x00ffff;
+const TRACK_GLOW_COLOR = 0x00ffff;
+const HANDLE_RADIUS = 14;
+const HANDLE_COLOR = 0x00ffff;
+const HANDLE_HOVER_COLOR = 0xff00ff;
+const HANDLE_CORE_COLOR = 0xffffff;
 
 export function createSlider(position: Vec2, config: SliderConfig): Slider {
 	const { width, min, max, step, initialValue, onChange } = config;
@@ -34,10 +36,30 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 
 	const container = scene.add.container();
 
+	// Track glow (outer glow effect)
+	const trackGlow = scene.add.graphics();
+	trackGlow.lineStyle(4, TRACK_GLOW_COLOR, 0.3);
+	trackGlow.strokeRoundedRect(
+		position.x - width / 2 - 2,
+		position.y - TRACK_HEIGHT / 2 - 2,
+		width + 4,
+		TRACK_HEIGHT + 4,
+		(TRACK_HEIGHT + 4) / 2
+	);
+	container.add(trackGlow);
+
 	// Track background (unfilled part)
 	const trackBackground = scene.add.graphics();
 	trackBackground.fillStyle(TRACK_COLOR, 1);
+	trackBackground.lineStyle(2, TRACK_BORDER_COLOR, 0.5);
 	trackBackground.fillRoundedRect(
+		position.x - width / 2,
+		position.y - TRACK_HEIGHT / 2,
+		width,
+		TRACK_HEIGHT,
+		TRACK_HEIGHT / 2
+	);
+	trackBackground.strokeRoundedRect(
 		position.x - width / 2,
 		position.y - TRACK_HEIGHT / 2,
 		width,
@@ -83,10 +105,29 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 		// Update track fill
 		const handleX = valueToX(currentValue);
 		const fillWidth = handleX - (position.x - width / 2);
+		const glowColor = isDragging ? HANDLE_HOVER_COLOR : TRACK_GLOW_COLOR;
 
 		trackFill.clear();
-		trackFill.fillStyle(TRACK_FILL_COLOR, 1);
 		if (fillWidth > 0) {
+			// Neon glow effect for fill (multiple layers)
+			trackFill.fillStyle(glowColor, 0.2);
+			trackFill.fillRoundedRect(
+				position.x - width / 2 - 3,
+				position.y - TRACK_HEIGHT / 2 - 3,
+				fillWidth + 6,
+				TRACK_HEIGHT + 6,
+				(TRACK_HEIGHT + 6) / 2
+			);
+			trackFill.fillStyle(glowColor, 0.4);
+			trackFill.fillRoundedRect(
+				position.x - width / 2 - 1,
+				position.y - TRACK_HEIGHT / 2 - 1,
+				fillWidth + 2,
+				TRACK_HEIGHT + 2,
+				(TRACK_HEIGHT + 2) / 2
+			);
+			// Core bright fill
+			trackFill.fillStyle(TRACK_FILL_COLOR, 1);
 			trackFill.fillRoundedRect(
 				position.x - width / 2,
 				position.y - TRACK_HEIGHT / 2,
@@ -96,12 +137,25 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 			);
 		}
 
-		// Update handle
+		// Update handle with neon glow effect
 		handle.clear();
-		handle.fillStyle(isDragging ? HANDLE_HOVER_COLOR : HANDLE_COLOR, 1);
-		handle.lineStyle(3, HANDLE_BORDER_COLOR, 1);
+		const handleColor = isDragging ? HANDLE_HOVER_COLOR : HANDLE_COLOR;
+		
+		// Outer glow layers
+		handle.fillStyle(handleColor, 0.15);
+		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 8);
+		handle.fillStyle(handleColor, 0.25);
+		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 4);
+		handle.fillStyle(handleColor, 0.4);
+		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 2);
+		
+		// Main handle with bright border
+		handle.fillStyle(handleColor, 1);
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS);
-		handle.strokeCircle(handleX, position.y, HANDLE_RADIUS);
+		
+		// Inner bright core
+		handle.fillStyle(HANDLE_CORE_COLOR, 0.9);
+		handle.fillCircle(handleX, position.y, HANDLE_RADIUS - 4);
 	};
 
 	const setValue = (value: number) => {
@@ -138,11 +192,23 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 	hitArea.on(Phaser.Input.Events.POINTER_OVER, () => {
 		if (!isDragging) {
 			handle.clear();
-			handle.fillStyle(HANDLE_HOVER_COLOR, 1);
-			handle.lineStyle(3, HANDLE_BORDER_COLOR, 1);
 			const handleX = valueToX(currentValue);
+			
+			// Outer glow layers (using hover color)
+			handle.fillStyle(HANDLE_HOVER_COLOR, 0.15);
+			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 8);
+			handle.fillStyle(HANDLE_HOVER_COLOR, 0.25);
+			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 4);
+			handle.fillStyle(HANDLE_HOVER_COLOR, 0.4);
+			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 2);
+			
+			// Main handle
+			handle.fillStyle(HANDLE_HOVER_COLOR, 1);
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS);
-			handle.strokeCircle(handleX, position.y, HANDLE_RADIUS);
+			
+			// Inner bright core
+			handle.fillStyle(HANDLE_CORE_COLOR, 0.9);
+			handle.fillCircle(handleX, position.y, HANDLE_RADIUS - 4);
 		}
 	});
 
