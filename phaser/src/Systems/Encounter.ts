@@ -1,4 +1,3 @@
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
@@ -7,6 +6,7 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { getGameController } from "@Core/GameControllerFactory";
+import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;

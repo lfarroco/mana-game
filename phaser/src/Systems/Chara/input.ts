@@ -203,7 +203,6 @@ const saveUnitPositions = (units: Unit[]) => {
 	const controller = getGameController();
 	controller.updateTeam({ units });
 };
-};
 
 const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);

@@ -1,7 +1,6 @@
 import * as ShopPanel from "./ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
-import { getState } from "@Models/State";
 import { orbsIndex } from "./Orbs";
 import * as io from "@PhaserIO";
 import { SCREEN_WIDTH } from "@Constants/constants";
@@ -45,10 +44,6 @@ function renderUpgradeCards(
 	encounterIds: string[],
 	onUpgradeSelected: () => void | Promise<void>
 ) {
-	const state = getState();
-
-	const coreUnit = state.session.team.units.find((u) => u.isCore)!;
-
 	encounterIds.forEach((encounterId, index) => {
 
 		console.log("Rendering upgrade card for encounter:", encounterId);
