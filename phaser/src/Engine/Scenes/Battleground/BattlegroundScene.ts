@@ -106,8 +106,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		const charas = getAllCharas();
 
-		// TODO: why??
-		if (charas.length === 0) {
+		// Only summon units if there are no characters and we're not in combat phase
+		// Combat phase handles its own summoning in transitionToCombatPhase
+		if (charas.length === 0 && state.session.phase !== 'combat') {
 			await resetBoard();
 		}
 
