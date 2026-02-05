@@ -5,11 +5,8 @@ import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
-import { getCurrentScene, getState } from "@Models/State";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
-import { getServerAdapter } from "@Core/ServerFactory";
-import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import { getCurrentScene } from "@Models/State";
+import { getGameController } from "@Core/GameControllerFactory";
 
 let currentShopCharas: Chara.Chara[] = [];
 
@@ -31,19 +28,9 @@ export async function openHeroShop(
 		const finishPhaseCallback = async () => {
 			await close();
 
-			const state = getState();
-
-			// Send skip action to server
-			if (MultiplayerManager.getInstance().isMultiplayer) {
-				await MultiplayerManager.getInstance().sendOptionSelection('skip_shop');
-				handlePhaseEnded(state);
-			} else {
-				const server = getServerAdapter();
-				const playerId = state.session.player_id || 'local_player';
-				await server.handleAction(playerId, 'skip_shop');
-				// For single-player, server has updated state, so reload the phase
-				await PhaseManager.startPhase(getState());
-			}
+			// Use GameController to skip the shop
+			const controller = getGameController();
+			await controller.skipPhase();
 
 			resolve();
 		};

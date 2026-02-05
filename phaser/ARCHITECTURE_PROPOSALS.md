@@ -154,3 +154,27 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 - Consistent import patterns using path aliases instead of fragile relative paths
 - Easier to navigate and maintain the codebase
 - Foundation laid for implementing the GameController pattern (Step 2 from Section 6)
+
+- **GameController Pattern Implementation (Step 2 from Section 6)**:
+    - Created `GameController` type in `src/Core/GameController.ts` - a unified interface for game actions that hides multiplayer implementation details
+    - Implemented functional factory pattern with:
+        - `createLocalGameController()` in `src/Core/LocalGameController.ts` - handles actions via local server adapter for single-player
+        - `createRemoteGameController()` in `src/Core/RemoteGameController.ts` - handles actions via multiplayer manager for multiplayer
+        - `GameControllerFactory` in `src/Core/GameControllerFactory.ts` - manages controller instances and determines which to use based on game mode
+    - Refactored the following UI event handlers to use GameController instead of `isMultiplayer` checks:
+        - `itemClickPurchaseRequested.ts` - unit purchasing from shop
+        - `ownedUnitSold.ts` - selling/discarding units
+        - `Encounter.ts` - encounter selection
+        - `input.ts` - team unit repositioning
+        - `HeroShop.ts` - shop skip/finish actions
+        - `EffectCardShop.ts` - upgrade core actions
+    - Initialized GameController in `BattlegroundScene` after session creation
+    - Successfully built project with no TypeScript or compilation errors
+
+**Benefits Achieved**:
+- Eliminated duplicate logic paths with explicit `if (isMultiplayer)` checks throughout UI components
+- UI code is now cleaner and focused on presentation, not infrastructure details
+- Consistent interface for all game actions regardless of single-player or multiplayer mode
+- Easier to test game actions in isolation
+- Easier to add new actions or modify existing ones without touching multiplayer/local branching logic
+- Foundation for future action handlers to follow the same pattern

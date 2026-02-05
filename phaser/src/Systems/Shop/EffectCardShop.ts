@@ -1,14 +1,13 @@
 import * as ShopPanel from "./ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
-import { getState } from "@Models/State";
 import { orbsIndex } from "./Orbs";
 import * as io from "@PhaserIO";
 import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 import { t } from "@i18n/i18n";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getGameController } from "@Core/GameControllerFactory";
 
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
@@ -45,10 +44,6 @@ function renderUpgradeCards(
 	encounterIds: string[],
 	onUpgradeSelected: () => void | Promise<void>
 ) {
-	const state = getState();
-
-	const coreUnit = state.session.team.units.find((u) => u.isCore)!;
-
 	encounterIds.forEach((encounterId, index) => {
 
 		console.log("Rendering upgrade card for encounter:", encounterId);
@@ -72,19 +67,15 @@ function renderUpgradeCards(
 			onClick: async () => {
 				console.log(`Selected upgrade: ${encounterSpec.name}`);
 
-				if (MultiplayerManager.getInstance().isMultiplayer) {
-					await MultiplayerManager.getInstance().sendOptionSelection(encounterId);
-					playSoundEffect('sfx_spell_deathstrikeseal');
-					await onUpgradeSelected();
-					return;
-				}
-
-				const applied = encounterSpec.effect(coreUnit);
-				if (applied) {
+				// Use GameController to handle the upgrade selection
+				const controller = getGameController();
+				const success = await controller.handleAction(encounterId);
+				
+				if (success) {
 					playSoundEffect('sfx_spell_deathstrikeseal');
 					await onUpgradeSelected();
 				} else {
-					console.warn("Upgrade failed to apply (conditions not met?)");
+					console.warn("Upgrade action failed");
 				}
 			}
 		});
