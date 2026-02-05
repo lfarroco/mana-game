@@ -16,6 +16,8 @@ import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
 import { PhaseTransitions } from "@Core/PhaseTransitions";
 import { activeButtons } from "@Components/UIButton";
+import { SessionData } from "@Core/Types";
+import { getServerAdapter } from "@Core/ServerFactory";
 
 export function getCurrentSceneName(): string {
 	const scene = getCurrentScene();
@@ -386,4 +388,71 @@ export function clickButton(textToFind: string): string {
 	}
 	const keys = Object.keys(registry);
 	return `Error: Button "${textToFind}" not found in registry. Available: ${keys.join(', ')}`;
+}
+
+/**
+ * Start the battleground scene with an arbitrary session state.
+ * This is useful for e2e testing to set up specific game scenarios.
+ * 
+ * @param session - The session data to use for the battleground scene.
+ *                  Can be a partial session that will be merged with defaults.
+ * @returns A promise that resolves to a string indicating success or error.
+ */
+export async function startBattlegroundWithSession(session: Partial<SessionData>): Promise<string> {
+	const state = getState();
+	
+	// Create a complete session by merging with defaults
+	const defaultSession: SessionData = {
+		id: `test-session-${Date.now()}`,
+		player_id: `test-player-${Date.now()}`,
+		phase: 'encounter',
+		round: 1,
+		step: 1,
+		seed: Math.random().toString(36).substring(7),
+		initial_seed: Math.random().toString(36).substring(7),
+		action_log: [],
+		current_options: null,
+		team: { units: [] },
+		wins: 0,
+		losses: 0,
+		encounter_history: [],
+		runStats: {
+			damageDealt: 0,
+			poisonDealt: 0,
+			shieldDealt: 0,
+			regenDealt: 0,
+			healDealt: 0,
+			mostPowerfulUnit: null,
+			totalUnitsRecruited: 0,
+			unitUsage: {},
+		}
+	};
+	
+	// Merge the provided session with defaults
+	const completeSession: SessionData = {
+		...defaultSession,
+		...session,
+		// Deep merge for nested objects - preserve all team properties while merging units
+		team: session.team 
+			? { ...defaultSession.team, ...session.team, units: [...(session.team.units || [])] } 
+			: defaultSession.team,
+		runStats: session.runStats ? { ...defaultSession.runStats, ...session.runStats } : defaultSession.runStats,
+	};
+	
+	// Update the global state with the new session
+	state.session = completeSession;
+	
+	// Restore session into SessionManager via the server adapter
+	// Note: Using type assertion to access sessionManager, which is consistent with loadGame.ts
+	// This is only for debugging/testing purposes where we need direct session manipulation
+	const server = getServerAdapter();
+	if ('sessionManager' in server) {
+		(server as any).sessionManager.updateSession(completeSession.player_id, completeSession);
+	}
+	
+	// Start the battleground scene with the state
+	const scene = getCurrentScene();
+	scene.scene.start(constants.SCENE_KEYS.BATTLEGROUND, { state });
+	
+	return `Started battleground scene with session: phase=${completeSession.phase}, round=${completeSession.round}, team size=${completeSession.team.units.length}`;
 }
