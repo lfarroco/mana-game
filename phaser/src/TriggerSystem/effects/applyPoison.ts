@@ -1,8 +1,8 @@
 import { getEnemyCore } from "@Models/Entities/Card";
 import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import * as PoisonSystem from "@Scenes//Battleground/Systems/PoisonDamageSystem";
-import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import * as PoisonSystem from "@Systems/PoisonDamageSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const applyPoisonLogicIO = async (

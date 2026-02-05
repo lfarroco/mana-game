@@ -1,7 +1,7 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { manipulateCoreShield } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const addShieldLogicIO = async (

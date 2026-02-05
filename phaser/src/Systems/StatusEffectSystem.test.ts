@@ -1,9 +1,9 @@
 
 import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
 import { initialize, update } from './StatusEffectSystem';
-import { createMockState } from '../../../../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '../ServerCombatEffects';
-import { runCombat } from '../RunCombatCore';
+import { createMockState } from '@test-utils/serverCombatUtils';
+import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
+import { runCombat } from '@Scenes/Battleground/RunCombatCore';
 import { State } from '@Models/State';
 import { applyPoison } from './PoisonDamageSystem';
 import { applyRegen } from './RegenSystem';

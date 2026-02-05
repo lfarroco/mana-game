@@ -2,7 +2,7 @@ import * as Chara from "./Chara";
 import { hideTooltip } from "@Components/Tooltip";
 import { tween } from "@Utils/animation";
 import { playSoundEffect } from "@Systems/AudioManager";
-import * as Shop from "@Scenes/Battleground/Systems/Shop";
+import * as Shop from "@Systems/Shop";
 
 export const onDiscard = (unitId: string) => {
 	Shop.events.ownedUnitSold(unitId);

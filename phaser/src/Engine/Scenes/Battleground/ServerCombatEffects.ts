@@ -1,6 +1,6 @@
 import { State } from "@Models/State";
 import { CombatEffects, WaveOutcome } from "./RunCombatCore";
-import { CombatSystemStates } from "./Systems/CombatSystemStates";
+import { CombatSystemStates } from "@Systems/CombatSystemStates";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 const INSTANT_EFFECT_DURATION = 0;

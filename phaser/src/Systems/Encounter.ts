@@ -5,7 +5,7 @@ import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { State, getState } from "@Models/State";
-import { createEncounterCard } from "@Scenes/Battleground/Systems/Components/EncounterCard";
+import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { getServerAdapter } from "@Core/ServerFactory";
 

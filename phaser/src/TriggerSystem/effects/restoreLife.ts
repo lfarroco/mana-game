@@ -1,8 +1,8 @@
 import { getAlliedCore, getBattleCore } from "@Models/Entities/Card";
 import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
-import * as PoisonSystem from "@Scenes/Battleground/Systems/PoisonDamageSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const restoreLife = async (

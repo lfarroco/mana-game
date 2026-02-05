@@ -3,7 +3,7 @@ import * as Geometry from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
 
 import * as constants from "@Constants/constants";
-import * as Shop from "@Scenes/Battleground/Systems/Shop";
+import * as Shop from "@Systems/Shop";
 import * as Board from "@Models/Board";
 import * as Tooltip from "@Components/Tooltip";
 
@@ -11,10 +11,10 @@ import * as Chara from "./Chara";
 import * as events from "./events";
 import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
 
-import * as DiscardZone from "@Scenes/Battleground/Systems/Shop/DiscardZone";
+import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
-import * as ShopPanel from "@Scenes/Battleground/Systems/Shop/ShopPanel";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
 import { getServerAdapter } from "@Core/ServerFactory";
 

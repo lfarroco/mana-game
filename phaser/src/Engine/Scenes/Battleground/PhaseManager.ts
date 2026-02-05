@@ -1,24 +1,24 @@
 import { getState, State } from "@Models/State";
-import * as CombatPhase from "./Systems/CombatPhase";
-import * as HeroShop from "./Systems/Shop/HeroShop";
-import * as EffectCardShop from "./Systems/Shop/EffectCardShop";
+import * as CombatPhase from "@Systems/CombatPhase";
+import * as HeroShop from "@Systems/Shop/HeroShop";
+import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import * as Chara from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
-import * as PoisonSystem from "./Systems/PoisonDamageSystem";
-import * as RegenSystem from "./Systems/RegenSystem";
-import * as CombatSystemStates from "./Systems/CombatSystemStates";
-import * as Encounter from "./Systems/Encounter";
+import * as PoisonSystem from "@Systems/PoisonDamageSystem";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import * as Encounter from "@Systems/Encounter";
 import { saveGameData } from "../../../Game/effects/saveGameData";
-import { cloudsBackground } from "./Systems/Setup";
+import { cloudsBackground } from "@Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
-import { loadUnitAssets } from "./Systems/Loader";
+import { loadUnitAssets } from "@Systems/Loader";
 import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
-import { openOrbShop } from "./Systems/Shop/OrbShop";
+import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {

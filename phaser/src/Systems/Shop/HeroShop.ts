@@ -24,7 +24,7 @@ export async function openHeroShop(
 		if (serverCardIds) {
 			tavernCardData = serverCardIds.map(id => Card.getCardDefinition(id));
 		} else {
-			console.warn("No server card IDs provided to hero shop");
+			// No server card IDs provided to hero shop
 			tavernCardData = [];
 		}
 

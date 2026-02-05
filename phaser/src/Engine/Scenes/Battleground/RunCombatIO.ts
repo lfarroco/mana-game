@@ -1,7 +1,7 @@
 import { getState, State } from "@Models/State";
 import { CombatRunner, WaveOutcome } from "./RunCombatCore";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
-import * as CombatSystemStates from "./Systems/CombatSystemStates";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { runServerSideCombat } from "./serverCombatDemo";
 import { createCombatPlaybackController } from "./CombatPlaybackController";
 import { registerCollection } from "@Models/Entities/Card";

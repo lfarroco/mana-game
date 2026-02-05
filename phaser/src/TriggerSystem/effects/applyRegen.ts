@@ -1,7 +1,7 @@
 import { getAlliedCore } from "@Models/Entities/Card";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
-import * as RegenSystem from "@Scenes//Battleground/Systems/RegenSystem";
-import * as CombatStatsTracker from "@Scenes/Battleground/Systems/CombatStatsTracker";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 export const applyRegenLogicIO = async (
