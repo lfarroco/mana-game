@@ -245,6 +245,10 @@ export function updateShieldDisplay(
 	}
 
 	const core = getBattleCore(gameState)(force);
+	if (!core) {
+		console.warn(`[ForceStats] Core not found for force ${force} in updateShieldDisplay`);
+		return;
+	}
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, shield / maxLife));
 	const barWidth = 600;

@@ -30,13 +30,13 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	cleanup() {
 		console.log(":::: BattlegroundScene cleanup")
-		
+
 		// Stop the combat runner if it exists
 		if (this.combatRunner) {
 			this.combatRunner.stop();
 			this.combatRunner = undefined;
 		}
-		
+
 		clearAll();
 		this.time.removeAllEvents();
 		this.children.removeAll(true);
@@ -134,7 +134,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		Board.update(time);
 
 		// TODO: instead, we can have a "combat system", that informs if the simulation is running
-		if (this.combatRunner) {
+		if (this.combatRunner && this.combatRunner.isActive()) {
 			this.combatRunner.updateFrame(this.state, time, delta);
 		}
 	}
