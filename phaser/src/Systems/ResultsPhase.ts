@@ -63,13 +63,11 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 
 	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
 
-	// if (!state.gameData.isSeeded) { // TODO: Check for seeded runs in SessionData
 	for (const unit of playerUnits) {
 		StatsStore.recordUnitUsage(getName(unit.cardId));
 		StatsStore.checkMostPowerfulUnit(getName(unit.cardId), unit.power);
 	}
 	StatsStore.save();
-	// }
 
 	if (combatResult === "player_won") {
 		await handleCombatEndedVictory(state);

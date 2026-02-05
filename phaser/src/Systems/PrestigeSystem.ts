@@ -3,7 +3,6 @@ import * as UIManager from "@UI/UI";
 
 export function processVictory(): void {
 	const state = getState();
-	// const playerState = state.gameData.player;
 
 	state.session.wins += 1;
 	UIManager.events.onWinsChanged(state.session.wins, 1);

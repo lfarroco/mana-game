@@ -45,7 +45,6 @@ export async function handleMultiplayerPhase(state: State) {
 	}
 	if (result.losses !== undefined) {
 		state.session.losses = result.losses;
-		// state.gameData.player.lives = 4 - result.losses; // Derived from losses
 		updateLivesDisplay(4 - state.session.losses);
 	}
 
