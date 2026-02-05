@@ -46,6 +46,8 @@ module.exports = {
 		"^@config$": "<rootDir>/src/config.ts",
 		"^@assets$": "<rootDir>/src/assets.ts",
 		"^@utils$": "<rootDir>/src/utils.ts",
+		"^@test-utils/(.*)\\.js$": "<rootDir>/src/test-utils/$1",
+		"^@test-utils/(.*)$": "<rootDir>/src/test-utils/$1",
 		"^utils$": "<rootDir>/src/utils.ts",
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",

@@ -6,10 +6,10 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
 
-import * as Systems from "./Systems";
+import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "./ForceStats";
 import { initBlackHole } from "./BlackHole";
-import * as CountdownTimer from "./Systems/CountdownTimer";
+import * as CountdownTimer from "@Systems/CountdownTimer";
 import { summonEffect } from "../../../Effects/summonEffect";
 import { damageFx } from "../../../TriggerSystem/effects/visuals/damage";
 import { healFx } from "../../../TriggerSystem/effects/visuals/heal";
@@ -25,7 +25,7 @@ import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { getState } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
-import * as CombatSystemStates from "./Systems/CombatSystemStates";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
 
 export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEnd?: () => void): CombatEffects => {
 	return {

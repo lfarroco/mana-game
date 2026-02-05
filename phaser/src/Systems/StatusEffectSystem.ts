@@ -2,7 +2,7 @@ import { State } from "@Models/State";
 import { cpuForce, Force, manipulateCoreLife, playerForce, applyDamageToForce } from "@Models/Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
-import { CombatEnvironment } from "../CombatEnvironment";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 const tickInterval: number = 1000;
 

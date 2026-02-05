@@ -136,3 +136,21 @@ For the Combat system specifically, consider moving further toward an Entity-Com
     - Updated `tsconfig.json`, Webpack configurations (`config.dev.cjs`, `config.prod.cjs`), and Jest configuration to map `@Scenes` to `src/Engine/Scenes`.
     - Added new path aliases to `tsconfig.json` and `jest.config.cjs` to simplify imports and resolve compilation errors: `@Data`, `@Game`, `@TriggerSystem`, `@config`, `@assets`, `@utils`.
     - Refactored relative imports throughout the codebase to align with the new directory structure, replacing broken relative imports with consistent aliases.
+- **Systems Consolidation (Step 1 from Section 6)**:
+    - Moved all game logic systems from `src/Engine/Scenes/Battleground/Systems/` to top-level `src/Systems/` directory.
+    - Relocated the following files and directories:
+        - Individual system files: `CombatPhase.ts`, `CombatStatsTracker.ts`, `CombatSystemStates.ts`, `CountdownTimer.ts`, `Encounter.ts`, `MatchResultSystem.ts`, `PoisonDamageSystem.ts`, `RegenSystem.ts`, `ResultsPhase.ts`, `Setup.ts`, `StatusEffectSystem.ts`, `TimeoutDamageSystem.ts`
+        - System directories: `Board/`, `Shop/`, `Components/`, `Loader/`
+        - Test files: `CombatStatsTracker.test.ts`, `StatusEffectSystem.test.ts`, `TimeoutDamageSystem.test.ts`, `battleground.e2e.spec.ts`
+    - Updated all imports throughout the codebase to use the `@Systems` alias instead of relative paths.
+    - Fixed imports in Battleground scene files to reference the new `@Systems` location.
+    - Added `@test-utils` alias to `tsconfig.json` and `jest.config.cjs` for test utility imports.
+    - Renamed `src/Engine/Scenes/Battleground/Systems/index.ts` to `src/Systems/BattlegroundSystems.ts` for clarity.
+    - Successfully verified build with no TypeScript or compilation errors.
+
+**Benefits Achieved**:
+- Clear separation between View layer (Engine/Scenes) and Business Logic (Systems)
+- Systems are now co-located with other game systems like `AudioManager`, `AchievementSystem`, and `PrestigeSystem`
+- Consistent import patterns using path aliases instead of fragile relative paths
+- Easier to navigate and maintain the codebase
+- Foundation laid for implementing the GameController pattern (Step 2 from Section 6)

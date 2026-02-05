@@ -4,15 +4,15 @@ import { CardDefinition, getBattleCore } from "@Models/Entities/Card";
 import { playerForce, cpuForce } from "@Models/Entities/Force";
 import * as constants from "@Constants/constants";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Systems from "../Battleground/Systems";
+import * as Systems from "@Systems/BattlegroundSystems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { startGame } from "../../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";
-import { handleCombatStartExecution } from "@Scenes/Battleground/Systems/CombatPhase";
-import { chooseEncounter as executeEncounterChoice } from "@Scenes/Battleground/Systems/Encounter";
+import { handleCombatStartExecution } from "@Systems/CombatPhase";
+import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
 import { PhaseTransitions } from "@Core/PhaseTransitions";
 import { activeButtons } from "@Components/UIButton";
@@ -111,7 +111,7 @@ export function discardUnitFromBoard(unitId: string): string {
 }
 
 export let isShopVisible = (): boolean => {
-	const ShopPanel = require("../Battleground/Systems/Shop/ShopPanel");
+	const ShopPanel = require("@Systems/Shop/ShopPanel");
 	return !!(ShopPanel.container && ShopPanel.container.visible);
 };
 

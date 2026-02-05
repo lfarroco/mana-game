@@ -10,7 +10,7 @@ import * as CharaTooltip from "./CharaTooltip";
 import { popText } from "./Animations/popText";
 import { summonEffect } from "../../Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
-import { loadUnitAssets } from "@Scenes/Battleground/Systems/Loader";
+import { loadUnitAssets } from "@Systems/Loader";
 
 export type Chara = Container;
 

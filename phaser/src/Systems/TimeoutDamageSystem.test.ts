@@ -1,9 +1,9 @@
 
 import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
 import { initializeTimeoutDamageSystem, updateTimeoutDamageSystem } from './TimeoutDamageSystem';
-import { createMockState } from '../../../../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '../ServerCombatEffects';
-import { runCombat } from '../RunCombatCore';
+import { createMockState } from '@test-utils/serverCombatUtils';
+import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
+import { runCombat } from '@Scenes/Battleground/RunCombatCore';
 import { TIMEOUT_DAMAGE_START_TIME } from '@Constants/constants';
 import { State } from '@Models/State';
 import { registerCollection } from '@Models/Entities/Card';

@@ -1,15 +1,15 @@
 import { State, getCurrentScene } from "@Models/State";
 import { delay } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as ResultsUI from "../Results/ResultsUI";
+import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
-import * as PhaseManager from "../PhaseManager";
+import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 import { saveGameData } from "@Game/effects/saveGameData";
 import { deleteSavedData } from "@Game/effects/deleteSavedData";
 import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
-import { replayCombat, storeCombatResult } from "../RunCombatIO";
+import { replayCombat, storeCombatResult } from "@Scenes/Battleground/RunCombatIO";
 
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	console.log("Round", state.session.round, "Processing Defeat...");
@@ -103,7 +103,7 @@ async function handleDefeat(state: State): Promise<void> {
 	if (lives <= 0) {
 		deleteSavedData();
 
-		const { displayGameComplete } = await import("../Results/GameCompleteUI");
+		const { displayGameComplete } = await import("@Scenes/Battleground/Results/GameCompleteUI");
 		const container = await displayGameComplete(state, state.session.wins, state.session.team.units, true);
 		getCurrentScene().add.existing(container);
 		return;

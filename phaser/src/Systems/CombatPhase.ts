@@ -8,9 +8,9 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import { createUIButton, Button } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { runCombatIO } from "../RunCombatIO";
+import { runCombatIO } from "@Scenes/Battleground/RunCombatIO";
 import { t } from "@i18n/i18n";
-import { BattlegroundScene } from "../BattlegroundScene";
+import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 
 function createUnitCopy(unit: Unit): Unit {
 	return {

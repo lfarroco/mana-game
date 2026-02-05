@@ -12,10 +12,10 @@ import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
-import { CombatEnvironment } from "../../CombatEnvironment";
-import * as Poison from "../../Systems/PoisonDamageSystem";
-import * as Regen from "../../Systems/RegenSystem";
-import * as CombatStatsTracker from "../../Systems/CombatStatsTracker";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import * as Poison from "../PoisonDamageSystem";
+import * as Regen from "../RegenSystem";
+import * as CombatStatsTracker from "../CombatStatsTracker";
 
 export type OrbSpec = {
 	id: string;

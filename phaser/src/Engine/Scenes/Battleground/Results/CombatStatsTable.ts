@@ -1,7 +1,7 @@
 import * as io from "@PhaserIO";
 import { vec2 } from "@Models/Geometry";
-import * as CombatStatsTracker from "../Systems/CombatStatsTracker";
-import * as CombatSystemStates from "../Systems/CombatSystemStates";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "./ResultsConfig";
 import * as c from "@Constants/constants";

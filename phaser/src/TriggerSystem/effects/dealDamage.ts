@@ -1,6 +1,6 @@
 import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
 import { Unit, calculateCritical } from "@Models/Entities/Unit";
-import * as CombatStatsTracker from "@Scenes//Battleground/Systems/CombatStatsTracker";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { getEnemyCore } from "@Models/Entities/Card";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 

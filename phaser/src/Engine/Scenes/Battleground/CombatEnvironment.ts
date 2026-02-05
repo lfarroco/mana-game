@@ -1,6 +1,6 @@
 import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
-import { CombatSystemStates } from "./Systems/CombatSystemStates";
+import { CombatSystemStates } from "@Systems/CombatSystemStates";
 
 export type WaveOutcome = "player_won" | "player_lost";
 

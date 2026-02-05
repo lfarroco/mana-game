@@ -4,11 +4,11 @@ import { Unit } from "@Models/Entities/Unit";
 import { processEffectsIO, processReactions } from "../../../TriggerSystem/TriggerSystem";
 import { cpuForce, playerForce } from "@Models/Entities/Force";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "./ServerConstants";
-import * as Timeout from "./Systems/TimeoutDamageSystem";
-import * as Poison from "./Systems/PoisonDamageSystem";
-import * as Regen from "./Systems/RegenSystem";
-import * as CombatStatsTracker from "./Systems/CombatStatsTracker";
-import * as StatusEffectSystem from "./Systems/StatusEffectSystem";
+import * as Timeout from "@Systems/TimeoutDamageSystem";
+import * as Poison from "@Systems/PoisonDamageSystem";
+import * as Regen from "@Systems/RegenSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+import * as StatusEffectSystem from "@Systems/StatusEffectSystem";
 import { getBattleCore } from "@Models/Entities/Card";
 import { CombatEffects, CombatEnvironment } from "./CombatEnvironment";
 

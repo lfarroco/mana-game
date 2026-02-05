@@ -1,7 +1,7 @@
 import { handleMultiplayerPhase } from './MultiplayerPhaseManager';
 import { MultiplayerManager } from '@Multiplayer/MultiplayerManager';
-import * as Encounter from './Systems/Encounter';
-import * as HeroShop from './Systems/Shop/HeroShop';
+import * as Encounter from '@Systems/Encounter';
+import * as HeroShop from '@Systems/Shop/HeroShop';
 
 // Mock dependencies with factories
 jest.mock('../../Multiplayer/MultiplayerManager', () => ({
@@ -9,13 +9,13 @@ jest.mock('../../Multiplayer/MultiplayerManager', () => ({
 		getInstance: jest.fn()
 	}
 }));
-jest.mock('./Systems/Encounter', () => ({
+jest.mock('@Systems/Encounter', () => ({
 	open: jest.fn()
 }));
-jest.mock('./Systems/Shop/HeroShop', () => ({
+jest.mock('@Systems/Shop/HeroShop', () => ({
 	openHeroShop: jest.fn()
 }));
-jest.mock('./Systems/Shop/EffectCardShop', () => ({
+jest.mock('@Systems/Shop/EffectCardShop', () => ({
 	openUpgradeCorePhase: jest.fn()
 }));
 jest.mock('./PhaseManager', () => ({
