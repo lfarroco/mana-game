@@ -18,6 +18,7 @@ export type CombatRunner = {
 	updateFrame: (state: State, time: number, delta: number) => void;
 	finishCombat: (state: State, outcome: "player_won" | "player_lost") => Promise<void>;
 	isActive: () => boolean;
+	stop: () => void;
 	getEnv: () => any; // Return generic object to avoid export issues, or explicit CombatEnvironment
 };
 
@@ -166,12 +167,18 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		return runnerState.active;
 	};
 
+	const stop = (): void => {
+		console.log("[RunCombatCore] Stopping combat");
+		runnerState.active = false;
+	};
+
 	const getEnv = () => runnerState.env;
 
 	return {
 		updateFrame,
 		finishCombat,
 		isActive,
+		stop,
 		getEnv,
 	};
 };
