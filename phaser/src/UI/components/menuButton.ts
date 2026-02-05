@@ -4,7 +4,7 @@ import { size, vec2 } from "@Models/Geometry";
 import { getCurrentScene, resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
+import { getGameController } from "@Core/GameControllerFactory";
 
 export function create(state: State) {
 	const btn = createUIButton(t("ui.menu.button"), vec2(1800, 30), () => {
@@ -23,7 +23,8 @@ export function createPanel(_state: State) {
 
 	const buttonDefs: [string, () => void][] = [];
 
-	if (!MultiplayerManager.getInstance().isMultiplayer) {
+	const controller = getGameController();
+	if (controller.isFeatureEnabled('new_run_button')) {
 		buttonDefs.push([
 			t("ui.menu.newRun"),
 			() => {

@@ -6,7 +6,7 @@ import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as ShopUI from "../ShopPanel";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import { getGameController } from "@Core/GameControllerFactory";
 import { getName } from "@i18n/i18n";
 
 export async function itemDragPurchaseRequested(
@@ -20,14 +20,22 @@ export async function itemDragPurchaseRequested(
 		(u) => u.cardId === shopUnitData.cardId
 	);
 
+	// Use the GameController to handle the purchase
+	const controller = getGameController();
+	const success = await controller.purchaseUnit(shopUnitData.cardId);
+
+	if (!success) {
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SERVER_REJECTED");
+		return;
+	}
+
 	if (existingUnit && existingUnit.rank <= 3) {
 		upgradeUnit(existingUnit);
 
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 		await ShopUI.slideOut();
-
-		PhaseManager.handlePhaseEnded(getState());
 		return;
 	}
 
@@ -59,5 +67,4 @@ export async function itemDragPurchaseRequested(
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
 
 	await ShopUI.slideOut();
-	PhaseManager.handlePhaseEnded(getState());
 }
