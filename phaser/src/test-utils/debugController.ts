@@ -110,6 +110,13 @@ export function getDebugController(page: Page) {
 		async clickButton(text: string) {
 			return await page.evaluate((t) => window.debugController.clickButton(t), text);
 		},
+
+		async startBattlegroundWithSession(session: Record<string, unknown>) {
+			return await page.evaluate(
+				(s) => window.debugController.startBattlegroundWithSession(s),
+				session
+			);
+		},
 	};
 }
 
