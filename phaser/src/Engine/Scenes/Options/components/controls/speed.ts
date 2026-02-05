@@ -1,13 +1,14 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
+import { createSlider } from "@Components/Slider";
 import * as Phaser from "phaser";
-import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
+import { LAYOUT, STYLES } from "../../OptionsScene";
 
 const SPEED_STEP = 0.1;
 const SPEED_MIN = 0.1;
 const SPEED_MAX = 3.0;
+const SLIDER_WIDTH = 280;
 
 export function speed(
 	label: string,
@@ -15,8 +16,7 @@ export function speed(
 	getValue: () => number,
 	setValue: (value: number) => void
 ) {
-	const formatLabel = () => getValue().toFixed(1) + "x";
-	const updateLabel = () => valueText.setText(formatLabel());
+	const formatLabel = (n: number) => n.toFixed(1) + "x";
 
 	//   ~~~//~~~
 	const labelText = io.Text(label, constants.titleTextConfig);
@@ -25,49 +25,34 @@ export function speed(
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
-	const decreaseButton = createUIButton(
-		"-",
-		vec2(
-			constants.MIDDLE_SCREEN_X - BUTTONS.SPEED_BUTTON_OFFSET_X,
-			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y
-		),
-		() => {
-			const newValue = Math.max(SPEED_MIN, getValue() - SPEED_STEP);
-			setValue(newValue);
-			updateLabel();
-		},
-		BUTTONS.SPEED_BUTTON_WIDTH
-	);
-
-	//   ~~~//~~~
-	const valueText = io.Text(formatLabel(), {
+	const valueText = io.Text(formatLabel(getValue()), {
 		...constants.titleTextConfig,
 		color: STYLES.VALUE_TEXT_COLOR,
 	});
 
-	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y));
+	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y - 20));
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
-	const increaseButton = createUIButton(
-		"+",
-		vec2(
-			constants.MIDDLE_SCREEN_X + BUTTONS.SPEED_BUTTON_OFFSET_X,
-			yPos + LAYOUT.SPEED_VALUE_OFFSET_Y
-		),
-		() => {
-			const newValue = Math.min(SPEED_MAX, getValue() + SPEED_STEP);
-			setValue(newValue);
-			updateLabel();
-		},
-		BUTTONS.SPEED_BUTTON_WIDTH
+	const slider = createSlider(
+		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y + 20),
+		{
+			width: SLIDER_WIDTH,
+			min: SPEED_MIN,
+			max: SPEED_MAX,
+			step: SPEED_STEP,
+			initialValue: getValue(),
+			onChange: (value) => {
+				setValue(value);
+				valueText.setText(formatLabel(value));
+			},
+		}
 	);
 
 	//   ~~~//~~~
 	return [
 		labelText,
-		decreaseButton.container,
 		valueText,
-		increaseButton.container,
+		slider.container,
 	] as Phaser.GameObjects.GameObject[];
 }
