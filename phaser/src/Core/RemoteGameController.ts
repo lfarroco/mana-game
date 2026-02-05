@@ -74,7 +74,8 @@ export const createRemoteGameController = (): GameController => {
 		},
 
 		notifyGameComplete: async (actionId: string): Promise<boolean> => {
-			// In multiplayer, notify the server about game completion
+			// In multiplayer, notify the server about game completion.
+			// Expected actionId values: 'combat_done' (signals game end/new run request)
 			return await MultiplayerManager.getInstance().sendOptionSelection(actionId);
 		},
 

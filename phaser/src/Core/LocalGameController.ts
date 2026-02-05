@@ -87,17 +87,9 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return true;
 		},
 
-		isFeatureEnabled: (feature: GameFeature): boolean => {
+		isFeatureEnabled: (_feature: GameFeature): boolean => {
 			// In single-player mode, all features are enabled
-			switch (feature) {
-				case 'new_run_button':
-				case 'infinite_mode':
-				case 'skip_encounter':
-				case 'seed_selection':
-					return true;
-				default:
-					return true;
-			}
+			return true;
 		}
 	};
 };
