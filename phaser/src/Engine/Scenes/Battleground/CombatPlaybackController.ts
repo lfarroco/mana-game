@@ -273,6 +273,11 @@ export const createCombatPlaybackController = (
 		return playbackState.active;
 	};
 
+	const stop = (): void => {
+		console.log("[CombatPlaybackController] Stopping combat playback");
+		playbackState.active = false;
+	};
+
 	const getEnv = () => {
 		return {
 			state,
@@ -288,6 +293,7 @@ export const createCombatPlaybackController = (
 		updateFrame,
 		finishCombat,
 		isActive,
+		stop,
 		getEnv,
 	};
 };
