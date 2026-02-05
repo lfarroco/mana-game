@@ -30,6 +30,16 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	cleanup() {
 		console.log(":::: BattlegroundScene cleanup")
+		
+		// Stop the combat runner if it's still active
+		if (this.combatRunner) {
+			if (this.combatRunner.isActive()) {
+				console.log(":::: Stopping active combat runner");
+				this.combatRunner.stop();
+			}
+			this.combatRunner = undefined;
+		}
+		
 		clearAll();
 		this.time.removeAllEvents();
 		this.children.removeAll(true);

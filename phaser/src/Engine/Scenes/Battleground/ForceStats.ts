@@ -180,6 +180,10 @@ export function updateLifeDisplay(force: string, life: number, delta: number, st
 		return;
 	}
 	const core = getBattleCore(getState())(force);
+	if (!core) {
+		console.warn(`[ForceStats] Core not found for force ${force} in updateLifeDisplay`);
+		return;
+	}
 	const maxLife = core.maxLife || 1;
 	const percent = Math.max(0, Math.min(1, life / maxLife));
 	const barWidth = 600;
