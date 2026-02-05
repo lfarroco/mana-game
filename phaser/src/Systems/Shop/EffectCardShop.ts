@@ -69,10 +69,14 @@ function renderUpgradeCards(
 
 				// Use GameController to handle the upgrade selection
 				const controller = getGameController();
-				await controller.handleAction(encounterId);
+				const success = await controller.handleAction(encounterId);
 				
-				playSoundEffect('sfx_spell_deathstrikeseal');
-				await onUpgradeSelected();
+				if (success) {
+					playSoundEffect('sfx_spell_deathstrikeseal');
+					await onUpgradeSelected();
+				} else {
+					console.warn("Upgrade action failed");
+				}
 			}
 		});
 

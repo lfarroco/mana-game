@@ -183,8 +183,10 @@ export async function open(state: State, options: string[]) {
 		encounters.forEach(e => {
 			e.onClick = async () => {
 				const controller = getGameController();
-				await controller.selectEncounter(e.id || "");
-				container.destroy(true);
+				const success = await controller.selectEncounter(e.id || "");
+				if (success) {
+					container.destroy(true);
+				}
 			};
 		});
 	} else {
