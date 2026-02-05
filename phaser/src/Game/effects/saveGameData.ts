@@ -1,15 +1,18 @@
-import { storage } from "../../Storage";
 import { getState } from "@Models/State";
+import { getServerAdapter } from "@Core/ServerFactory";
 
+/**
+ * Save game data through the SessionManager.
+ * This is automatically called by server.handleAction(), but can be called
+ * manually when needed (e.g., after direct session modifications).
+ */
 export function saveGameData() {
-	const { session } = getState();
-	// session.seed = getSeed().toString(); // Session seed should drive the RNG, not the other way around usually. 
-	// But if we want to persist current RNG state:
-	// storage.setItem("gameData", JSON.stringify(session));
+	const state = getState();
+	const server = getServerAdapter();
 
-	// Actually, let's just save the session.
-	// If the random seed global was updated, we might want to update session.seed?
-	// In State.ts: setSeed(parseInt(state.currentState.session.seed));
-
-	storage.setItem("gameData", JSON.stringify(session));
+	if (state.session?.player_id && 'sessionManager' in server) {
+		(server as any).sessionManager.updateSession(state.session.player_id, state.session);
+	} else {
+		console.warn("[saveGameData] Unable to save: SessionManager not available or no player_id");
+	}
 }

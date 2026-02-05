@@ -16,26 +16,6 @@ import { ArenaLoginScene } from "@Scenes/ArenaLobby/ArenaLoginScene";
 
 initState();
 
-// Clean up old format gameData from localStorage
-function cleanupOldSaveFormat() {
-	try {
-		const gameData = localStorage.getItem('gameData');
-		if (gameData) {
-			const savedData = JSON.parse(gameData);
-			// Check if this is old format (has player.units instead of player_id/phase)
-			const isOldFormat = savedData.player && !savedData.player_id && !savedData.phase;
-			if (isOldFormat) {
-				console.log('[Cleanup] Removing old format gameData from localStorage');
-				localStorage.removeItem('gameData');
-			}
-		}
-	} catch (error) {
-		console.error('[Cleanup] Failed to check/clean old save format:', error);
-	}
-}
-
-cleanupOldSaveFormat();
-
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,
 	pixelArt: true,
