@@ -8,7 +8,7 @@ import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "../Components/EncounterCard";
 import { t } from "@i18n/i18n";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getGameController } from "@Core/GameControllerFactory";
 
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
@@ -72,20 +72,12 @@ function renderUpgradeCards(
 			onClick: async () => {
 				console.log(`Selected upgrade: ${encounterSpec.name}`);
 
-				if (MultiplayerManager.getInstance().isMultiplayer) {
-					await MultiplayerManager.getInstance().sendOptionSelection(encounterId);
-					playSoundEffect('sfx_spell_deathstrikeseal');
-					await onUpgradeSelected();
-					return;
-				}
-
-				const applied = encounterSpec.effect(coreUnit);
-				if (applied) {
-					playSoundEffect('sfx_spell_deathstrikeseal');
-					await onUpgradeSelected();
-				} else {
-					console.warn("Upgrade failed to apply (conditions not met?)");
-				}
+				// Use GameController to handle the upgrade selection
+				const controller = getGameController();
+				await controller.handleAction(encounterId);
+				
+				playSoundEffect('sfx_spell_deathstrikeseal');
+				await onUpgradeSelected();
 			}
 		});
 

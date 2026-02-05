@@ -6,8 +6,7 @@ import { vec2 } from "@Models/Geometry";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getGameController } from "@Core/GameControllerFactory";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -180,31 +179,12 @@ export async function open(state: State, options: string[]) {
 		const all = getEncounterItems(state, container);
 		encounters = options.map(id => all.find(e => e.id === id)).filter(e => !!e) as EncounterItem[];
 
-		// Override onClick to delegate to server
+		// Override onClick to use GameController
 		encounters.forEach(e => {
-			const originalOnClick = e.onClick;
 			e.onClick = async () => {
-				if (MultiplayerManager.getInstance().isMultiplayer) {
-					// Multiplayer: send to remote server
-					await MultiplayerManager.getInstance().sendOptionSelection(e.id || "");
-					container.destroy(true);
-					PhaseManager.handlePhaseEnded(state);
-				} else {
-					// Single-player: send to local server
-					const server = getServerAdapter();
-					const playerId = state.session.player_id || "sp_player";
-					try {
-						await server.handleAction(playerId, e.id || "");
-						container.destroy(true);
-						// Don't call handlePhaseEnded - the server has already transitioned the state
-						// Just render the next phase
-						await PhaseManager.startPhase(state);
-					} catch (error) {
-						console.error("Failed to handle encounter selection:", error);
-						// Fallback to original onClick for backward compatibility
-						await originalOnClick();
-					}
-				}
+				const controller = getGameController();
+				await controller.selectEncounter(e.id || "");
+				container.destroy(true);
 			};
 		});
 	} else {
@@ -217,11 +197,9 @@ export async function open(state: State, options: string[]) {
 	const nextRoundCallback = async () => {
 		container.destroy(true);
 
-		// Use server adapter to properly skip encounter phase
-		const server = getServerAdapter();
-		const playerId = state.session.player_id || 'local_player';
-		await server.handleAction(playerId, 'skip_encounter');
-		PhaseManager.handlePhaseEnded(state);
+		// Use GameController to properly skip encounter phase
+		const controller = getGameController();
+		await controller.skipPhase();
 	}
 
 	encounters.forEach((encounter, index) => {
