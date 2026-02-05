@@ -20,6 +20,23 @@ export async function itemDragPurchaseRequested(
 		(u) => u.cardId === shopUnitData.cardId
 	);
 
+	// Validate before purchase - party full check (only if not an upgrade)
+	if ((!existingUnit || existingUnit.rank > 3) && getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
+		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
+		return;
+	}
+
+	// Validate slot occupation (only if not an upgrade)
+	if (!existingUnit || existingUnit.rank > 3) {
+		const occupier = getUnitAt(getState().session.team.units)(targetTile);
+		if (occupier) {
+			charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+			uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
+			return;
+		}
+	}
+
 	// Use the GameController to handle the purchase
 	const controller = getGameController();
 	const success = await controller.purchaseUnit(shopUnitData.cardId);
@@ -30,25 +47,11 @@ export async function itemDragPurchaseRequested(
 		return;
 	}
 
+	// Handle the visual updates after successful purchase
 	if (existingUnit && existingUnit.rank <= 3) {
 		upgradeUnit(existingUnit);
-
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
 		await ShopUI.slideOut();
-		return;
-	}
-
-	if (getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
-		return;
-	}
-
-	const occupier = getUnitAt(getState().session.team.units)(targetTile);
-	if (occupier) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 		return;
 	}
 
@@ -63,8 +66,6 @@ export async function itemDragPurchaseRequested(
 	}
 
 	summon(newUnit, true);
-
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
 	await ShopUI.slideOut();
 }
