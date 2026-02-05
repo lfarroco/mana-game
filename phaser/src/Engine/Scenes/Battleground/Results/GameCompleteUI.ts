@@ -23,7 +23,7 @@ import { t } from "@i18n/i18n";
 import { createRunStatsPanel } from "@UI/RunStatsPanel";
 import { MIDDLE_SCREEN_Y, SCENE_KEYS, titleTextConfig } from "@Constants/constants";
 import { IS_DEMO, GAME_CONFIG } from "@config";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getGameController } from "@Core/GameControllerFactory";
 
 export async function displayGameComplete(
 	_state: State,
@@ -120,9 +120,8 @@ export async function displayGameComplete(
 		[
 			t("results.buttons.new_run"),
 			async () => {
-				if (MultiplayerManager.getInstance().isMultiplayer) {
-					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
-				}
+				const controller = getGameController();
+				await controller.notifyGameComplete("combat_done");
 				resetState();
 				const currentScene = getCurrentScene();
 				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -132,9 +131,8 @@ export async function displayGameComplete(
 		[
 			t("results.buttons.main_menu"),
 			async () => {
-				if (MultiplayerManager.getInstance().isMultiplayer) {
-					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
-				}
+				const controller = getGameController();
+				await controller.notifyGameComplete("combat_done");
 				resetState();
 				const currentScene = getCurrentScene();
 				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -143,8 +141,9 @@ export async function displayGameComplete(
 		]
 	);
 
-	// Infinite mode button - disabled in demo and multiplayer
-	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver && !IS_DEMO && !MultiplayerManager.getInstance().isMultiplayer) {
+	// Infinite mode button - disabled in demo and when not enabled by controller
+	const controller = getGameController();
+	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver && !IS_DEMO && controller.isFeatureEnabled('infinite_mode')) {
 		buttonDefinitions.push([
 			t("results.buttons.infinite_mode"),
 			async () => {

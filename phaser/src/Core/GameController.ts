@@ -51,7 +51,31 @@ export type GameController = {
 	 * @returns Promise that resolves when the action completes
 	 */
 	updateTeam(team: { units: Unit[] }): Promise<boolean>;
+
+	/**
+	 * Notify game completion (used for new run, main menu, etc.).
+	 * @param actionId - The completion action ('combat_done', 'new_run', etc.)
+	 * @returns Promise that resolves when the action completes
+	 */
+	notifyGameComplete(actionId: string): Promise<boolean>;
+
+	/**
+	 * Check if a feature is enabled in the current game mode.
+	 * This abstracts mode-dependent UI feature availability.
+	 * @param feature - The feature to check ('new_run_button', 'infinite_mode', 'skip_encounter', etc.)
+	 * @returns Whether the feature is enabled
+	 */
+	isFeatureEnabled(feature: GameFeature): boolean;
 };
+
+/**
+ * Features that can be enabled/disabled based on game mode.
+ */
+export type GameFeature = 
+	| 'new_run_button'      // Allow starting a new run from menu
+	| 'infinite_mode'       // Allow entering infinite mode after victory
+	| 'skip_encounter'      // Allow skipping encounters
+	| 'seed_selection';     // Allow selecting custom seeds
 
 /**
  * Context object for controller dependencies.
