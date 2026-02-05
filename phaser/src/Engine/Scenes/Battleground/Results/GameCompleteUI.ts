@@ -124,7 +124,9 @@ export async function displayGameComplete(
 					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
 				}
 				resetState();
-				getCurrentScene().game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
+				const currentScene = getCurrentScene();
+				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
+				currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
 			},
 		],
 		[
@@ -134,7 +136,9 @@ export async function displayGameComplete(
 					await MultiplayerManager.getInstance().sendOptionSelection("combat_done");
 				}
 				resetState();
-				getCurrentScene().game.scene.start(SCENE_KEYS.TITLE);
+				const currentScene = getCurrentScene();
+				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
+				currentScene.game.scene.start(SCENE_KEYS.TITLE);
 			},
 		]
 	);

@@ -258,6 +258,9 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		// This works for both single-player and multiplayer
 		await io.Fade(300, 0x000000);
 
+		// Stop Battleground scene if it's running to ensure clean start
+		this.scene.stop(constants.SCENE_KEYS.BATTLEGROUND);
+
 		// Pass to battleground scene which will initialize via server
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 			selectedCrystalId: selectedCrystal.id,

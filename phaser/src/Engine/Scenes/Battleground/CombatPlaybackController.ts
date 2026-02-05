@@ -87,171 +87,190 @@ export const createCombatPlaybackController = (
 	};
 
 	const executeAnimation = async (animation: ScheduledAnimation) => {
-		const { log } = animation;
+		if (!playbackState.active) return;
 
-		switch (log.type) {
-			case "damage":
-				effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => { });
-				break;
-			case "heal":
-				effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => { });
-				break;
-			case "shield":
-				effects.onShield?.(log.sourceId, log.targetId, log.amount, () => { });
-				break;
-			case "poison":
-				effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => { });
-				break;
-			case "regen":
-				effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => { });
-				break;
-			case "haste":
-				const hasteTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (hasteTarget) {
-					effects.onHaste?.(log.sourceId, log.targetId, log.effectDuration, () => {
-						hasteTarget.hasted += log.effectDuration;
-						effects.onChargeBarUpdate(log.targetId);
-					});
-				}
-				break;
-			case "slow":
-				const slowTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (slowTarget) {
-					effects.onSlow?.(log.sourceId, log.targetId, log.effectDuration, () => {
-						slowTarget.slowed += log.effectDuration;
-						effects.onChargeBarUpdate(log.targetId);
-					});
-				}
-				break;
-			case "charge":
-				const chargeTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (chargeTarget) {
-					effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => {
-						chargeTarget.charge += log.amount;
-						effects.onChargeBarUpdate(log.targetId);
-					});
-				}
-				break;
-			case "increase_power":
-				const powerTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (powerTarget) {
-					effects.onIncreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
-						powerTarget.power += log.amount;
-						if (log.permanent) {
-							powerTarget.bonusPower += log.amount;
-						}
-					});
-				}
-				break;
-			case "decrease_power":
-				const decreaseTarget = state.battleData.units.find(u => u.id === log.targetId);
-				if (decreaseTarget) {
-					effects.onDecreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
-						decreaseTarget.power -= log.amount;
-						if (log.permanent) {
-							decreaseTarget.bonusPower -= log.amount;
-						}
-					});
-				}
-				break;
-			case "increase_critical":
-				effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => { });
-				break;
-			case "crystal_life":
-				effects.updateLifeDisplay(log.force, log.life, 0, playbackState.combatStates.forceStatsState);
-				break;
-			case "life_display":
-				effects.updateLifeDisplay(log.force, log.life, log.delta, playbackState.combatStates.forceStatsState);
-				break;
-			case "shield_display":
-				effects.updateShieldDisplay(log.force, log.shield, log.delta, playbackState.combatStates.forceStatsState);
-				break;
-			case "regen_display":
-				effects.updateRegenDisplay(log.force, log.regen, log.delta);
-				break;
-			case "poison_display":
-				effects.updatePoisonDisplay(log.force, log.poison, log.delta);
-				break;
-			case "timeout_damage":
-				effects.onTimeoutDamageVisual?.(log.force, log.damage, () => { });
-				break;
-			case "reaction":
-				if (effects.onReactionVisual) {
-					await effects.onReactionVisual(log.unitId);
-				}
-				break;
-			case "haste_end":
-				const hasteEndTarget = state.battleData.units.find(u => u.id === log.unitId);
-				if (hasteEndTarget) {
-					hasteEndTarget.hasted = 0;
-					effects.onChargeBarUpdate(log.unitId);
-				}
-				break;
-			case "slow_end":
-				const slowEndTarget = state.battleData.units.find(u => u.id === log.unitId);
-				if (slowEndTarget) {
-					slowEndTarget.slowed = 0;
-					effects.onChargeBarUpdate(log.unitId);
-				}
-				break;
-			case "unit_pop":
-				effects.onUnitPop(log.unitId);
-				break;
-			case "combat_stats":
-				if (playbackState.combatStates.combatStatsTrackerState) {
-					playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);
-					playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(log.currentCombatStats);
-				}
-				break;
-		}
+		try {
+			const { log } = animation;
 
-		if (log.type === "storm_start") {
-			if (playbackState.blackHoleState && playbackState.blackHoleState.blackHole) {
-				playbackState.blackHoleState.blackHole.setVisible(true);
+			switch (log.type) {
+				case "damage":
+					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => { });
+					break;
+				case "heal":
+					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => { });
+					break;
+				case "shield":
+					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => { });
+					break;
+				case "poison":
+					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => { });
+					break;
+				case "regen":
+					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => { });
+					break;
+				case "haste":
+					const hasteTarget = state.battleData.units.find(u => u.id === log.targetId);
+					if (hasteTarget) {
+						effects.onHaste?.(log.sourceId, log.targetId, log.effectDuration, () => {
+							hasteTarget.hasted += log.effectDuration;
+							effects.onChargeBarUpdate(log.targetId);
+						});
+					}
+					break;
+				case "slow":
+					const slowTarget = state.battleData.units.find(u => u.id === log.targetId);
+					if (slowTarget) {
+						effects.onSlow?.(log.sourceId, log.targetId, log.effectDuration, () => {
+							slowTarget.slowed += log.effectDuration;
+							effects.onChargeBarUpdate(log.targetId);
+						});
+					}
+					break;
+				case "charge":
+					const chargeTarget = state.battleData.units.find(u => u.id === log.targetId);
+					if (chargeTarget) {
+						effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => {
+							chargeTarget.charge += log.amount;
+							effects.onChargeBarUpdate(log.targetId);
+						});
+					}
+					break;
+				case "increase_power":
+					const powerTarget = state.battleData.units.find(u => u.id === log.targetId);
+					if (powerTarget) {
+						effects.onIncreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
+							powerTarget.power += log.amount;
+							if (log.permanent) {
+								powerTarget.bonusPower += log.amount;
+							}
+						});
+					}
+					break;
+				case "decrease_power":
+					const decreaseTarget = state.battleData.units.find(u => u.id === log.targetId);
+					if (decreaseTarget) {
+						effects.onDecreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
+							decreaseTarget.power -= log.amount;
+							if (log.permanent) {
+								decreaseTarget.bonusPower -= log.amount;
+							}
+						});
+					}
+					break;
+				case "increase_critical":
+					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => { });
+					break;
+				case "crystal_life":
+					effects.updateLifeDisplay(log.force, log.life, 0, playbackState.combatStates.forceStatsState);
+					break;
+				case "life_display":
+					effects.updateLifeDisplay(log.force, log.life, log.delta, playbackState.combatStates.forceStatsState);
+					break;
+				case "shield_display":
+					effects.updateShieldDisplay(log.force, log.shield, log.delta, playbackState.combatStates.forceStatsState);
+					break;
+				case "regen_display":
+					effects.updateRegenDisplay(log.force, log.regen, log.delta);
+					break;
+				case "poison_display":
+					effects.updatePoisonDisplay(log.force, log.poison, log.delta);
+					break;
+				case "timeout_damage":
+					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => { });
+					break;
+				case "reaction":
+					if (effects.onReactionVisual) {
+						await effects.onReactionVisual(log.unitId);
+					}
+					break;
+				case "haste_end":
+					const hasteEndTarget = state.battleData.units.find(u => u.id === log.unitId);
+					if (hasteEndTarget) {
+						hasteEndTarget.hasted = 0;
+						effects.onChargeBarUpdate(log.unitId);
+					}
+					break;
+				case "slow_end":
+					const slowEndTarget = state.battleData.units.find(u => u.id === log.unitId);
+					if (slowEndTarget) {
+						slowEndTarget.slowed = 0;
+						effects.onChargeBarUpdate(log.unitId);
+					}
+					break;
+				case "unit_pop":
+					effects.onUnitPop(log.unitId);
+					break;
+				case "combat_stats":
+					if (playbackState.combatStates.combatStatsTrackerState) {
+						playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);
+						playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(log.currentCombatStats);
+					}
+					break;
 			}
-		}
 
-		animation.executed = true;
+			if (log.type === "storm_start") {
+				if (playbackState.blackHoleState && playbackState.blackHoleState.blackHole) {
+					playbackState.blackHoleState.blackHole.setVisible(true);
+				}
+			}
+
+			animation.executed = true;
+		} catch (error) {
+			console.warn("[CombatPlaybackController] Error executing animation, scene may be destroyed", error);
+			playbackState.active = false;
+		}
 	};
 
 	const updateChargeBars = (delta: number) => {
-		for (const unit of state.battleData.units) {
-			const cooldownMultiplier = (unit.hasted > 0 && unit.slowed > 0) ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
-			const chargeRate = 1 / cooldownMultiplier;
-			unit.charge += delta * chargeRate;
+		if (!playbackState.active) return;
 
-			if (unit.charge >= unit.cooldown && unit.refresh === 0) {
-				unit.charge = unit.charge - unit.cooldown;
-				unit.refresh = MIN_COOLDOWN;
+		try {
+			for (const unit of state.battleData.units) {
+				const cooldownMultiplier = (unit.hasted > 0 && unit.slowed > 0) ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
+				const chargeRate = 1 / cooldownMultiplier;
+				unit.charge += delta * chargeRate;
+
+				if (unit.charge >= unit.cooldown && unit.refresh === 0) {
+					unit.charge = unit.charge - unit.cooldown;
+					unit.refresh = MIN_COOLDOWN;
+				}
+
+				unit.refresh = Math.max(0, unit.refresh - delta);
+				effects.onChargeBarUpdate(unit.id);
 			}
-
-			unit.refresh = Math.max(0, unit.refresh - delta);
-			effects.onChargeBarUpdate(unit.id);
+		} catch (error) {
+			console.warn("[CombatPlaybackController] Error updating charge bars, scene may be destroyed", error);
+			playbackState.active = false;
 		}
 	};
 
 	const updateFrame = (_state: State, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
-		const scaledDelta = delta * effects.getTimeScale();
-		playbackState.currentTime += scaledDelta;
+		try {
+			const scaledDelta = delta * effects.getTimeScale();
+			playbackState.currentTime += scaledDelta;
 
-		updateChargeBars(scaledDelta);
+			updateChargeBars(scaledDelta);
 
-		const animationsToExecute = playbackState.animations.filter(
-			anim => !anim.executed && anim.startTime <= playbackState.currentTime
-		);
+			const animationsToExecute = playbackState.animations.filter(
+				anim => !anim.executed && anim.startTime <= playbackState.currentTime
+			);
 
-		animationsToExecute.forEach(anim => {
-			executeAnimation(anim);
-		});
+			animationsToExecute.forEach(anim => {
+				executeAnimation(anim);
+			});
 
-		const allAnimationsComplete = playbackState.animations.every(anim => anim.executed);
-		const lastAnimationEnded = playbackState.animations.length > 0 &&
-			playbackState.currentTime >= Math.max(...playbackState.animations.map(a => a.endTime));
+			const allAnimationsComplete = playbackState.animations.every(anim => anim.executed);
+			const lastAnimationEnded = playbackState.animations.length > 0 &&
+				playbackState.currentTime >= Math.max(...playbackState.animations.map(a => a.endTime));
 
-		if (allAnimationsComplete && lastAnimationEnded && playbackState.outcome) {
-			finishCombat(state, playbackState.outcome);
+			if (allAnimationsComplete && lastAnimationEnded && playbackState.outcome) {
+				finishCombat(state, playbackState.outcome);
+			}
+		} catch (error) {
+			console.warn("[CombatPlaybackController] Error in updateFrame, stopping playback", error);
+			playbackState.active = false;
 		}
 	};
 
