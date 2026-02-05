@@ -5,7 +5,7 @@ import * as CharaShop from "./CharaShop";
 import * as sc from "./constants";
 import { tween } from "@Utils/animation";
 import * as Board from "@Models/Board";
-import { getCurrentScene, getState } from "@Models/State";
+import { getCurrentScene } from "@Models/State";
 import { getGameController } from "@Core/GameControllerFactory";
 
 let currentShopCharas: Chara.Chara[] = [];
