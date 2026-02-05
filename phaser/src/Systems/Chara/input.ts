@@ -15,8 +15,7 @@ import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
-import { MultiplayerManager } from "../../Multiplayer/MultiplayerManager";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getGameController } from "@Core/GameControllerFactory";
 
 
 
@@ -201,23 +200,9 @@ export const processOwnedUnitMoveRequest = (
 
 
 const saveUnitPositions = (units: Unit[]) => {
-	if (MultiplayerManager.getInstance().isMultiplayer) {
-		MultiplayerManager.getInstance().sendTeamUpdate({ units });
-	} else {
-		const state = getState();
-		const playerId = state.session.player_id;
-		if (playerId) {
-			const server = getServerAdapter();
-			if ('sessionManager' in server) {
-				const sessionManager = (server as any).sessionManager;
-				const session = sessionManager.getSession(playerId);
-				if (session) {
-					session.team.units = units;
-					sessionManager.updateSession(playerId, session);
-				}
-			}
-		}
-	}
+	const controller = getGameController();
+	controller.updateTeam({ units });
+};
 };
 
 const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {

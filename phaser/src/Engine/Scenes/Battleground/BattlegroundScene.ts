@@ -13,6 +13,7 @@ import { startPhase, resetBoard } from "./PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
+import { createGameController } from "@Core/GameControllerFactory";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 
 export type BattlegroundSceneData = {
@@ -100,6 +101,10 @@ export class BattlegroundScene extends Phaser.Scene {
 			try {
 				await server.createSession(playerId, selectedCrystalId);
 				console.log(`Session created for player ${playerId} with crystal ${selectedCrystalId}`);
+				
+				// Initialize the GameController after session creation
+				createGameController(playerId);
+				console.log("GameController initialized");
 			} catch (error) {
 				console.error("Failed to create session:", error);
 			}

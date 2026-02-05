@@ -2,21 +2,14 @@ import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as DiscardZone from "../DiscardZone";
-import { getServerAdapter } from "@Core/ServerFactory";
-
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getGameController } from "@Core/GameControllerFactory";
 
 export function ownedUnitSold(unitId: string) {
 	const state = getState();
 
-	if (MultiplayerManager.getInstance().isMultiplayer) {
-		MultiplayerManager.getInstance().sendOptionSelection("discard_unit", { unitId });
-	} else {
-		// For local/single-player mode, send action to local server adapter
-		const server = getServerAdapter();
-		const playerId = state.session.player_id || 'local_player';
-		server.handleAction(playerId, 'discard_unit', { unitId });
-	}
+	// Use the GameController to handle the unit sale
+	const controller = getGameController();
+	controller.sellUnit(unitId);
 
 	const chara = getCharaById(unitId);
 
