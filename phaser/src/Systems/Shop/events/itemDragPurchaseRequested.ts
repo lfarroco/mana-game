@@ -6,7 +6,7 @@ import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as ShopUI from "../ShopPanel";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import { getGameController } from "@Core/GameControllerFactory";
 import { getName } from "@i18n/i18n";
 
 export async function itemDragPurchaseRequested(
@@ -20,27 +20,38 @@ export async function itemDragPurchaseRequested(
 		(u) => u.cardId === shopUnitData.cardId
 	);
 
-	if (existingUnit && existingUnit.rank <= 3) {
-		upgradeUnit(existingUnit);
-
-		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
-		await ShopUI.slideOut();
-
-		PhaseManager.handlePhaseEnded(getState());
-		return;
-	}
-
-	if (getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
+	// Validate before purchase - party full check (only if not an upgrade)
+	if ((!existingUnit || existingUnit.rank > 3) && getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
 
-	const occupier = getUnitAt(getState().session.team.units)(targetTile);
-	if (occupier) {
+	// Validate slot occupation (only if not an upgrade)
+	if (!existingUnit || existingUnit.rank > 3) {
+		const occupier = getUnitAt(getState().session.team.units)(targetTile);
+		if (occupier) {
+			charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+			uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
+			return;
+		}
+	}
+
+	// Use the GameController to handle the purchase
+	const controller = getGameController();
+	const success = await controller.purchaseUnit(shopUnitData.cardId);
+
+	if (!success) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
-		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
+		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SERVER_REJECTED");
+		return;
+	}
+
+	// Handle the visual updates after successful purchase
+	if (existingUnit && existingUnit.rank <= 3) {
+		upgradeUnit(existingUnit);
+		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+		await ShopUI.slideOut();
 		return;
 	}
 
@@ -55,9 +66,6 @@ export async function itemDragPurchaseRequested(
 	}
 
 	summon(newUnit, true);
-
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-
 	await ShopUI.slideOut();
-	PhaseManager.handlePhaseEnded(getState());
 }

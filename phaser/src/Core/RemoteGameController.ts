@@ -1,4 +1,4 @@
-import { GameController } from "./GameController";
+import { GameController, GameFeature } from "./GameController";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
@@ -71,6 +71,32 @@ export const createRemoteGameController = (): GameController => {
 
 		updateTeam: async (team: { units: any[] }): Promise<boolean> => {
 			return await MultiplayerManager.getInstance().sendTeamUpdate(team);
+		},
+
+		notifyGameComplete: async (actionId: string): Promise<boolean> => {
+			// In multiplayer, notify the server about game completion.
+			// Expected actionId values: 'combat_done' (signals game end/new run request)
+			return await MultiplayerManager.getInstance().sendOptionSelection(actionId);
+		},
+
+		isFeatureEnabled: (feature: GameFeature): boolean => {
+			// In multiplayer mode, certain features are disabled
+			switch (feature) {
+				case 'new_run_button':
+					// In multiplayer, starting a new run from in-game menu is disabled
+					return false;
+				case 'infinite_mode':
+					// Infinite mode is not available in multiplayer
+					return false;
+				case 'skip_encounter':
+					// Skipping encounters is not allowed in multiplayer
+					return false;
+				case 'seed_selection':
+					// Seed selection is not available in multiplayer
+					return false;
+				default:
+					return false;
+			}
 		}
 	};
 };

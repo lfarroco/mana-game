@@ -1,4 +1,4 @@
-import { GameController } from "./GameController";
+import { GameController, GameFeature } from "./GameController";
 import { getServerAdapter } from "./ServerFactory";
 import { getState } from "@Models/State";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
@@ -79,6 +79,17 @@ export const createLocalGameController = (playerId: string): GameController => {
 		updateTeam: async (team: { units: any[] }): Promise<boolean> => {
 			const server = getServerAdapter();
 			return await server.handleAction(playerId, 'update_team', { team });
+		},
+
+		notifyGameComplete: async (_actionId: string): Promise<boolean> => {
+			// In single-player, no server notification is needed for game completion
+			// Just return true to allow the UI to proceed
+			return true;
+		},
+
+		isFeatureEnabled: (_feature: GameFeature): boolean => {
+			// In single-player mode, all features are enabled
+			return true;
 		}
 	};
 };

@@ -6,7 +6,6 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { getGameController } from "@Core/GameControllerFactory";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -241,10 +240,11 @@ export async function open(state: State, options: string[]) {
 	});
 
 	// Only show skip button if:
-	// 1. Not in multiplayer mode
+	// 1. Feature is enabled by controller (not multiplayer)
 	// 2. Not showing combat_encounter (pre-combat phase)
+	const controller = getGameController();
 	const isCombatEncounter = encounters.length === 1 && encounters[0].id === 'combat_encounter';
-	if (!MultiplayerManager.getInstance().isMultiplayer && !isCombatEncounter) {
+	if (controller.isFeatureEnabled('skip_encounter') && !isCombatEncounter) {
 		const btn = createUIButton(t("encounters.skip"),
 			vec2(SCREEN_WIDTH - 260, SCREEN_HEIGHT - 50),
 			nextRoundCallback
