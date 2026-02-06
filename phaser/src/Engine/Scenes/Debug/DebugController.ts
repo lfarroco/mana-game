@@ -6,6 +6,7 @@ import * as constants from "@Constants/constants";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Systems from "@Systems/BattlegroundSystems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
+import { getGameController } from "@Core/GameControllerFactory";
 import { startGame } from "../../../Game/effects/startGame";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { State } from "@Models/State";
@@ -73,9 +74,13 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
 }
 
-export function clickNextRound(): string {
-	handlePhaseEnded(getState());
-	return "Emitted SHOP_PHASE_ENDED. Current shop phase should end, leading to combat or next round's shop.";
+export async function clickNextRound(): Promise<string> {
+	const controller = getGameController();
+	const success = await controller.skipPhase();
+	if (success) {
+		return "Requested phase skip via GameController. Transition should follow server rules.";
+	}
+	return "Phase skip rejected by GameController.";
 }
 
 export function moveUnitOnBoard(
@@ -217,6 +222,24 @@ export function clickReady() {
 export function chooseEncounter(index: number) {
 	return executeEncounterChoice(index);
 }
+
+export const gameActions = {
+	purchaseUnit: async (cardId: string, targetSlot?: number) => {
+		return await getGameController().purchaseUnit(cardId, targetSlot);
+	},
+	sellUnit: async (unitId: string) => {
+		return await getGameController().sellUnit(unitId);
+	},
+	updateTeam: async (team: { units: Unit[] }) => {
+		return await getGameController().updateTeam(team);
+	},
+	handleAction: async (actionId: string, payload?: any) => {
+		return await getGameController().handleAction(actionId, payload);
+	},
+	skipPhase: async () => {
+		return await getGameController().skipPhase();
+	},
+};
 
 export async function summon(
 	forceId: string,
