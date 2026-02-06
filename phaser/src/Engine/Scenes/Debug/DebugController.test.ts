@@ -122,4 +122,23 @@ describe("DebugController delegation", () => {
 
 		expect(purchaseUnit).toHaveBeenCalledWith("hero-card", undefined);
 	});
+
+	it("forwards common game actions through the gameActions wrapper", async () => {
+		const sellUnit = jest.fn().mockResolvedValue(true);
+		const updateTeam = jest.fn().mockResolvedValue(true);
+		const handleAction = jest.fn().mockResolvedValue(true);
+		const skipPhase = jest.fn().mockResolvedValue(true);
+		const controller = buildController({ sellUnit, updateTeam, handleAction, skipPhase });
+		mockGetController.mockReturnValue(controller as any);
+
+		await gameActions.sellUnit("unit-1");
+		await gameActions.updateTeam({ units: [] });
+		await gameActions.handleAction("custom", { team: { units: [] } });
+		await gameActions.skipPhase();
+
+		expect(sellUnit).toHaveBeenCalledWith("unit-1");
+		expect(updateTeam).toHaveBeenCalledWith({ units: [] });
+		expect(handleAction).toHaveBeenCalledWith("custom", { team: { units: [] } });
+		expect(skipPhase).toHaveBeenCalled();
+	});
 });

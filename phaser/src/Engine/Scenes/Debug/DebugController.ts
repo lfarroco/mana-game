@@ -17,7 +17,7 @@ import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
 import { PhaseTransitions } from "@Core/PhaseTransitions";
 import { activeButtons } from "@Components/UIButton";
-import { SessionData } from "@Core/Types";
+import { ActionPayload, SessionData } from "@Core/Types";
 import { getServerAdapter } from "@Core/ServerFactory";
 
 export function getCurrentSceneName(): string {
@@ -230,10 +230,10 @@ export const gameActions = {
 	sellUnit: async (unitId: string) => {
 		return await getGameController().sellUnit(unitId);
 	},
-	updateTeam: async (team: { units: Unit[] }) => {
+	updateTeam: async (team: ActionPayload["team"]) => {
 		return await getGameController().updateTeam(team);
 	},
-	handleAction: async (actionId: string, payload?: any) => {
+	handleAction: async (actionId: string, payload?: ActionPayload) => {
 		return await getGameController().handleAction(actionId, payload);
 	},
 	skipPhase: async () => {
