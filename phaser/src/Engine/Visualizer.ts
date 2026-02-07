@@ -149,43 +149,90 @@ export class Visualizer {
 
 	// Animation helper methods
 	private animateItemAppearance(chara: Chara.Chara): void {
-		tween(this.scene, chara.sprite, { alpha: 0 }, { alpha: 1 }, 300);
+		tween({
+			targets: [chara],
+			alpha: 1,
+			duration: 300
+		});
 	}
 
 	private animateUnitPlacement(chara: Chara.Chara, slot: number): void {
 		// Animate unit moving to its board position
 		const targetPos = Board.getSlotPosition(slot);
-		tween(this.scene, chara.sprite, chara.sprite, targetPos, 500);
+		tween({
+			targets: [chara],
+			x: targetPos.x,
+			y: targetPos.y,
+			duration: 500
+		});
 	}
 
 	private animateDamage(chara: Chara.Chara, damage: number, type: string = 'normal'): void {
 		// Create damage text
-		const damageText = this.scene.add.text(chara.sprite.x, chara.sprite.y - 20, `-${damage}`, {
+		const damageText = this.scene.add.text(chara.x, chara.y - 20, `-${damage}`, {
 			fontSize: '24px',
 			color: type === 'poison' ? '#00ff00' : type === 'timeout' ? '#ff0000' : '#ffffff'
 		});
 
-		tween(this.scene, damageText, { y: damageText.y - 30, alpha: 1 }, { y: damageText.y - 60, alpha: 0 }, 1000, () => {
-			damageText.destroy();
+		tween({
+			targets: [damageText],
+			y: damageText.y - 30,
+			alpha: 1,
+			duration: 500,
+			onComplete: () => {
+				tween({
+					targets: [damageText],
+					y: damageText.y - 60,
+					alpha: 0,
+					duration: 500,
+					onComplete: () => {
+						damageText.destroy();
+					}
+				});
+			}
 		});
 
 		// Flash the sprite
-		tween(this.scene, chara.sprite, { tint: 0xff0000 }, { tint: 0xffffff }, 200);
+		tween({
+			targets: [chara],
+			tint: 0xff0000,
+			duration: 100,
+			yoyo: true
+		});
 	}
 
 	private animateHealing(chara: Chara.Chara, healing: number): void {
 		// Create healing text
-		const healText = this.scene.add.text(chara.sprite.x, chara.sprite.y - 20, `+${healing}`, {
+		const healText = this.scene.add.text(chara.x, chara.y - 20, `+${healing}`, {
 			fontSize: '24px',
 			color: '#00ff00'
 		});
 
-		tween(this.scene, healText, { y: healText.y - 30, alpha: 1 }, { y: healText.y - 60, alpha: 0 }, 1000, () => {
-			healText.destroy();
+		tween({
+			targets: [healText],
+			y: healText.y - 30,
+			alpha: 1,
+			duration: 500,
+			onComplete: () => {
+				tween({
+					targets: [healText],
+					y: healText.y - 60,
+					alpha: 0,
+					duration: 500,
+					onComplete: () => {
+						healText.destroy();
+					}
+				});
+			}
 		});
 
 		// Glow effect
-		tween(this.scene, chara.sprite, { tint: 0x00ff00 }, { tint: 0xffffff }, 500);
+		tween({
+			targets: [chara],
+			tint: 0x00ff00,
+			duration: 250,
+			yoyo: true
+		});
 	}
 
 	private highlightCombatants(attackerId: string, defenderId: string): void {
@@ -193,10 +240,20 @@ export class Visualizer {
 		const defender = Chara.getCharaById(defenderId);
 
 		if (attacker) {
-			tween(this.scene, attacker.sprite, { tint: 0xffff00 }, { tint: 0xffffff }, 300);
+			tween({
+				targets: [attacker],
+				tint: 0xffff00,
+				duration: 150,
+				yoyo: true
+			});
 		}
 		if (defender) {
-			tween(this.scene, defender.sprite, { tint: 0xff0000 }, { tint: 0xffffff }, 300);
+			tween({
+				targets: [defender],
+				tint: 0xff0000,
+				duration: 150,
+				yoyo: true
+			});
 		}
 	}
 
@@ -205,13 +262,23 @@ export class Visualizer {
 		if (winnerId) {
 			const winner = Chara.getCharaById(winnerId);
 			if (winner) {
-				tween(this.scene, winner.sprite, { scale: 1.2 }, { scale: 1 }, 500);
+				tween({
+					targets: [winner],
+					scale: 1.2,
+					duration: 250,
+					yoyo: true
+				});
 			}
 		}
 		if (loserId) {
 			const loser = Chara.getCharaById(loserId);
 			if (loser) {
-				tween(this.scene, loser.sprite, { alpha: 0.5 }, { alpha: 1 }, 500);
+				tween({
+					targets: [loser],
+					alpha: 0.5,
+					duration: 250,
+					yoyo: true
+				});
 			}
 		}
 	}
@@ -221,12 +288,22 @@ export class Visualizer {
 		const overlay = this.scene.add.rectangle(400, 300, 800, 600, 0x000000, 0.5);
 		overlay.setDepth(1000);
 
-		tween(this.scene, overlay, { alpha: 0 }, { alpha: 0.5 }, 200, () => {
-			setTimeout(() => {
-				tween(this.scene, overlay, { alpha: 0.5 }, { alpha: 0 }, 200, () => {
-					overlay.destroy();
-				});
-			}, 300);
+		tween({
+			targets: [overlay],
+			alpha: 0.5,
+			duration: 200,
+			onComplete: () => {
+				setTimeout(() => {
+					tween({
+						targets: [overlay],
+						alpha: 0,
+						duration: 200,
+						onComplete: () => {
+							overlay.destroy();
+						}
+					});
+				}, 300);
+			}
 		});
 	}
 

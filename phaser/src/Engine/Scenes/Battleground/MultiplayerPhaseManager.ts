@@ -83,7 +83,7 @@ export async function handleMultiplayerPhase(state: State) {
 
 		case "shop":
 			const shopCardIds = result.options.map((o: any) => o.id);
-			await HeroShop.openHeroShop(shopCardIds);
+			await HeroShop.openHeroShopLegacy(shopCardIds);
 			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.session.team });
 			await handleMultiplayerPhase(state);
 			break;
