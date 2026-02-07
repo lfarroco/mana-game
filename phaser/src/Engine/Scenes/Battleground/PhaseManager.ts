@@ -20,6 +20,7 @@ import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter } from "@Systems/Events";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
+import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
 
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets> = {
@@ -121,7 +122,7 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 				result.events.forEach(event => eventEmitter.emit(event));
 			} else {
 				// Fallback to old system
-				await HeroShop.openHeroShop(options.options.map((o: any) => o.id));
+				await HeroShop.openHeroShopLegacy(options.options.map((o: any) => o.id));
 			}
 			break;
 		case "combat":

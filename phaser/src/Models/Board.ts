@@ -1,5 +1,4 @@
 import * as constants from "@Constants/constants";
-import * as constants_1 from "@Constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { getCurrentScene, getState, State } from "./State";
@@ -23,8 +22,8 @@ export function createBoardState(): BoardState {
 		dropZones: [],
 		cpuSlotShaders: [],
 		enemyBoardVisible: false,
-		x: constants_1.PLAYER_BOARD_X,
-		y: constants_1.PLAYER_BOARD_Y,
+		x: constants.PLAYER_BOARD_X,
+		y: constants.PLAYER_BOARD_Y,
 		width: constants.TILE_WIDTH * 3 + 8 * 2,
 		height: constants.TILE_HEIGHT * 3 + 8 * 2,
 	};
