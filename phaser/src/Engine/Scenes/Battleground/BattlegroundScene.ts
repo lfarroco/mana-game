@@ -34,7 +34,6 @@ export class BattlegroundScene extends Phaser.Scene {
 	visualizer: Visualizer;
 
 	cleanup() {
-		console.log(":::: BattlegroundScene cleanup")
 
 		// Stop the combat runner if it exists
 		if (this.combatRunner) {
@@ -58,24 +57,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	constructor() {
 		super("BattlegroundScene");
-		console.log("BattlegroundScene constructor");
 	}
 
 
 	create = async (data: BattlegroundSceneData) => {
 		const state = data?.state || getState();
-		const { session } = state;
 
 		this.state = state;
 
-		console.log(":::: BattlegroundScene creating logic...", session, "sceneData:", data);
 		setCurrentScene(this);
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
 		// Initialize event system per Architecture Proposal Item 3
 		this.eventEmitter = new SimpleEventEmitter();
-		this.visualizer = new Visualizer(this, this.eventEmitter);
+		this.visualizer = new Visualizer();
 
 		const speed = getOption("speed");
 
@@ -93,11 +89,9 @@ export class BattlegroundScene extends Phaser.Scene {
 		// - display current phase 
 
 		const session = state.session;
-		console.log(":::: BattlegroundScene starting logic...", session);
 
 		// Initialize the Visualizer early in the scene startup
-		initializeVisualizer(this);
-		console.log("Visualizer initialized");
+		this.visualizer.initialize();
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
@@ -115,16 +109,10 @@ export class BattlegroundScene extends Phaser.Scene {
 			const playerId = state.session.player_id || "sp_player_" + Date.now();
 			state.session.player_id = playerId;
 
-			try {
-				await server.createSession(playerId, selectedCrystalId);
-				console.log(`Session created for player ${playerId} with crystal ${selectedCrystalId}`);
+			await server.createSession(playerId, selectedCrystalId);
 
-				// Initialize the GameController after session creation
-				createGameController(playerId);
-				console.log("GameController initialized");
-			} catch (error) {
-				console.error("Failed to create session:", error);
-			}
+			// Initialize the GameController after session creation
+			createGameController(playerId);
 		} else {
 			state.session = session;
 		}

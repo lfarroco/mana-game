@@ -119,7 +119,7 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 			if (eventEmitter) {
 				// Use new event-driven system
 				const result = HeroShop.openHeroShop(state, eventEmitter, options.options.map((o: any) => o.id));
-				result.events.forEach(event => eventEmitter.emit(event));
+				result.events.forEach(event => eventEmitter.emit(event.type, event));
 			} else {
 				// Fallback to old system
 				await HeroShop.openHeroShopLegacy(options.options.map((o: any) => o.id));

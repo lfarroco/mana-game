@@ -11,14 +11,12 @@
  * while keeping game logic in pure functions.
  */
 
-import Phaser from "phaser";
 import * as SystemEvents from "@Systems/Events";
 import * as Chara from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as ShopUI from "@Systems/Shop/ShopPanel";
 import * as Geometry from "@Models/Geometry";
-import { getName } from "@i18n/i18n";
 
 /**
  * Event handler function type
@@ -29,12 +27,10 @@ type EventHandler<T extends SystemEvents.SystemEvent> = (event: T) => void | Pro
  * Visualizer class that manages visual updates based on system events
  */
 export class Visualizer {
-	private scene: Phaser.Scene;
 	private eventHandlers: Map<string, Set<EventHandler<any>>>;
 	private isInitialized: boolean = false;
 
-	constructor(scene: Phaser.Scene) {
-		this.scene = scene;
+	constructor() {
 		this.eventHandlers = new Map();
 	}
 
@@ -117,13 +113,13 @@ export class Visualizer {
 	// Shop Event Handlers
 	// ========================================================================
 
-	private async handleShopOpened(event: SystemEvents.ShopOpenedEvent): Promise<void> {
-		console.log("Visualizer: Shop opened with cards:", event.cardIds);
+	private async handleShopOpened(_event: SystemEvents.ShopOpenedEvent): Promise<void> {
+		console.log("Visualizer: Shop opened with cards:", _event.cardIds);
 		// The actual shop opening and rendering is handled elsewhere
 		// This is just for logging/tracking
 	}
 
-	private async handleShopClosed(event: SystemEvents.ShopClosedEvent): Promise<void> {
+	private async handleShopClosed(_event: SystemEvents.ShopClosedEvent): Promise<void> {
 		console.log("Visualizer: Shop closed");
 		await ShopUI.slideOut();
 	}
@@ -223,13 +219,13 @@ let globalVisualizer: Visualizer | null = null;
 /**
  * Initialize the global visualizer
  */
-export function initializeVisualizer(scene: Phaser.Scene): Visualizer {
+export function initializeVisualizer(): Visualizer {
 	if (globalVisualizer) {
 		console.warn("Global visualizer already exists, destroying and recreating");
 		globalVisualizer.destroy();
 	}
 
-	globalVisualizer = new Visualizer(scene);
+	globalVisualizer = new Visualizer();
 	globalVisualizer.initialize();
 	return globalVisualizer;
 }
