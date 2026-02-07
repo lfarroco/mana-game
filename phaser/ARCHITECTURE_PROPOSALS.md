@@ -89,9 +89,9 @@ onBuyClick(unitId) {
 
 Move all logic systems out of `src/Scenes`. The Scene should orchestrate **when** things run, not **how** they work.
 
-*   **Move**: `src/Scenes/Battleground/Systems/*` $\rightarrow$ `src/Systems/*`
-*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly.
-*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. Currently, `Chara.ts` mixes data logic (stats) with sprite logic.
+*   **Move**: `src/Scenes/Battleground/Systems/*` $\rightarrow$ `src/Systems/*` ✅ **COMPLETED**
+*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly. ❌ **NOT COMPLETED** - Systems still directly manipulate Phaser objects (e.g., `ShopPanel.create()`, `Board.setEnemyBoardVisible()`)
+*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. Currently, `Chara.ts` mixes data logic (stats) with sprite logic. ❌ **NOT COMPLETED** - No separate visualization layer exists.
 
 ---
 
