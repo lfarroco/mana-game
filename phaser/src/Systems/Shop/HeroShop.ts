@@ -1,5 +1,5 @@
 import { getState } from "@Models/State";
-import { SimpleEventEmitter } from "@Systems/Events";
+import { SimpleEventEmitter, EventEmitter, SystemEvent } from "@Systems/Events";
 
 export interface HeroShopResult {
 	events: SystemEvent[];

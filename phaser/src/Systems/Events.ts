@@ -1,115 +1,304 @@
-// System Events for Architecture Proposal Item 3
-// Events that systems emit instead of directly manipulating Phaser objects
+/**
+ * System Events
+ * 
+ * This module defines event types emitted by game systems.
+ * Systems should be pure functions that accept game state and return events/mutations
+ * instead of directly manipulating Phaser GameObjects.
+ * 
+ * The Visualizer layer subscribes to these events and handles all visual updates.
+ */
 
-export type SystemEvent =
-	| ShopOpenedEvent
-	| UnitPurchasedEvent
-	| ShopClosedEvent
-	| PhaseSkippedEvent
-	| UnitDamagedEvent
-	| UnitHealedEvent
-	| CombatStartedEvent
-	| CombatEndedEvent
-	| RegenAppliedEvent
-	| PoisonAppliedEvent
-	| TimeoutDamageAppliedEvent;
+import { Unit } from "@Models/Entities/Unit";
 
-export interface ShopOpenedEvent {
-	type: 'SHOP_OPENED';
-	shopType: 'hero' | 'orb' | 'effect';
+/**
+ * Base event type that all system events extend
+ */
+export type SystemEvent = {
+	type: string;
+	timestamp: number;
+};
+
+// ============================================================================
+// Shop Events
+// ============================================================================
+
+/**
+ * Emitted when the shop is opened
+ */
+export type ShopOpenedEvent = SystemEvent & {
+	type: "ShopOpened";
 	cardIds: string[];
-}
+};
 
-export interface UnitPurchasedEvent {
-	type: 'UNIT_PURCHASED';
+/**
+ * Emitted when the shop is closed
+ */
+export type ShopClosedEvent = SystemEvent & {
+	type: "ShopClosed";
+};
+
+/**
+ * Emitted when a unit purchase is successful
+ */
+export type UnitPurchasedEvent = SystemEvent & {
+	type: "UnitPurchased";
 	cardId: string;
-	targetSlot?: number;
-}
+	shopCharaId: string;
+	wasUpgrade: boolean;
+	unit?: Unit; // The newly created unit (if not an upgrade)
+	upgradedUnit?: Unit; // The upgraded unit (if it was an upgrade)
+};
 
-export interface ShopClosedEvent {
-	type: 'SHOP_CLOSED';
-	shopType: 'hero' | 'orb' | 'effect';
-}
+/**
+ * Emitted when a unit purchase fails
+ */
+export type PurchaseFailedEvent = SystemEvent & {
+	type: "PurchaseFailed";
+	cardId: string;
+	unitName: string;
+	reason: string;
+	cost?: number;
+	shopCharaId: string;
+	dragStartPosition: { x: number; y: number };
+};
 
-export interface PhaseSkippedEvent {
-	type: 'PHASE_SKIPPED';
-}
+/**
+ * Emitted when a unit is sold
+ */
+export type UnitSoldEvent = SystemEvent & {
+	type: "UnitSold";
+	unitId: string;
+};
 
-export interface UnitDamagedEvent {
-	type: 'UNIT_DAMAGED';
+// ============================================================================
+// Unit Events
+// ============================================================================
+
+/**
+ * Emitted when a unit is spawned/summoned
+ */
+export type UnitSpawnedEvent = SystemEvent & {
+	type: "UnitSpawned";
+	unit: Unit;
+	isFromShop: boolean;
+};
+
+/**
+ * Emitted when a unit is upgraded
+ */
+export type UnitUpgradedEvent = SystemEvent & {
+	type: "UnitUpgraded";
+	unit: Unit;
+	previousRank: number;
+};
+
+/**
+ * Emitted when a unit takes damage
+ */
+export type UnitDamagedEvent = SystemEvent & {
+	type: "UnitDamaged";
 	unitId: string;
 	damage: number;
 	source?: string;
-}
+};
 
-export interface UnitHealedEvent {
-	type: 'UNIT_HEALED';
+/**
+ * Emitted when a unit is destroyed/killed
+ */
+export type UnitDestroyedEvent = SystemEvent & {
+	type: "UnitDestroyed";
 	unitId: string;
-	healing: number;
-	source?: string;
-}
+};
 
-export interface CombatStartedEvent {
-	type: 'COMBAT_STARTED';
-	attackerId: string;
-	defenderId: string;
-}
+// ============================================================================
+// Phase Events
+// ============================================================================
 
-export interface CombatEndedEvent {
-	type: 'COMBAT_ENDED';
-	winnerId?: string;
-	loserId?: string;
-}
+/**
+ * Emitted when a phase is skipped
+ */
+export type PhaseSkippedEvent = SystemEvent & {
+	type: "PhaseSkipped";
+	phaseName: string;
+};
 
-export interface RegenAppliedEvent {
-	type: 'REGEN_APPLIED';
-	unitId: string;
-	healing: number;
-}
+/**
+ * Emitted when a phase starts
+ */
+export type PhaseStartedEvent = SystemEvent & {
+	type: "PhaseStarted";
+	phaseName: string;
+};
 
-export interface PoisonAppliedEvent {
-	type: 'POISON_APPLIED';
-	unitId: string;
-	damage: number;
-}
+/**
+ * Emitted when a phase ends
+ */
+export type PhaseEndedEvent = SystemEvent & {
+	type: "PhaseEnded";
+	phaseName: string;
+};
 
-export interface TimeoutDamageAppliedEvent {
-	type: 'TIMEOUT_DAMAGE_APPLIED';
-	unitId: string;
-	damage: number;
-}
+// ============================================================================
+// UI Events
+// ============================================================================
 
-// Event emitter interface
-export interface EventEmitter {
-	emit(event: SystemEvent): void;
-	on(eventType: SystemEvent['type'], handler: (event: SystemEvent) => void): void;
-	off(eventType: SystemEvent['type'], handler: (event: SystemEvent) => void): void;
-}
-// Simple event emitter implementation
-export class SimpleEventEmitter implements EventEmitter {
-	private listeners: Map<SystemEvent['type'], ((event: SystemEvent) => void)[]> = new Map();
+/**
+ * Emitted when currency/resources change
+ */
+export type ResourcesChangedEvent = SystemEvent & {
+	type: "ResourcesChanged";
+	currency?: number;
+	wins?: number;
+	lives?: number;
+	round?: number;
+};
 
-	emit(event: SystemEvent): void {
-		const handlers = this.listeners.get(event.type);
-		if (handlers) {
-			handlers.forEach(handler => handler(event));
-		}
-	}
+// ============================================================================
+// Union Types
+// ============================================================================
 
-	on(eventType: SystemEvent['type'], handler: (event: SystemEvent) => void): void {
-		if (!this.listeners.has(eventType)) {
-			this.listeners.set(eventType, []);
-		}
-		this.listeners.get(eventType)!.push(handler);
-	}
+/**
+ * All shop-related events
+ */
+export type ShopEvent =
+	| ShopOpenedEvent
+	| ShopClosedEvent
+	| UnitPurchasedEvent
+	| PurchaseFailedEvent
+	| UnitSoldEvent;
 
-	off(eventType: SystemEvent['type'], handler: (event: SystemEvent) => void): void {
-		const handlers = this.listeners.get(eventType);
-		if (handlers) {
-			const index = handlers.indexOf(handler);
-			if (index > -1) {
-				handlers.splice(index, 1);
-			}
-		}
-	}
-}
+/**
+ * All unit-related events
+ */
+export type UnitEvent =
+	| UnitSpawnedEvent
+	| UnitUpgradedEvent
+	| UnitDamagedEvent
+	| UnitDestroyedEvent;
+
+/**
+ * All phase-related events
+ */
+export type PhaseEvent =
+	| PhaseSkippedEvent
+	| PhaseStartedEvent
+	| PhaseEndedEvent;
+
+/**
+ * All system events (union of all event types)
+ */
+export type AllSystemEvents =
+	| ShopEvent
+	| UnitEvent
+	| PhaseEvent
+	| ResourcesChangedEvent;
+
+// ============================================================================
+// Event Creation Helpers
+// ============================================================================
+
+/**
+ * Creates a timestamp for an event
+ */
+const createTimestamp = (): number => Date.now();
+
+/**
+ * Helper to create a ShopOpenedEvent
+ */
+export const createShopOpenedEvent = (cardIds: string[]): ShopOpenedEvent => ({
+	type: "ShopOpened",
+	timestamp: createTimestamp(),
+	cardIds,
+});
+
+/**
+ * Helper to create a ShopClosedEvent
+ */
+export const createShopClosedEvent = (): ShopClosedEvent => ({
+	type: "ShopClosed",
+	timestamp: createTimestamp(),
+});
+
+/**
+ * Helper to create a UnitPurchasedEvent
+ */
+export const createUnitPurchasedEvent = (
+	cardId: string,
+	shopCharaId: string,
+	wasUpgrade: boolean,
+	unit?: Unit,
+	upgradedUnit?: Unit
+): UnitPurchasedEvent => ({
+	type: "UnitPurchased",
+	timestamp: createTimestamp(),
+	cardId,
+	shopCharaId,
+	wasUpgrade,
+	unit,
+	upgradedUnit,
+});
+
+/**
+ * Helper to create a PurchaseFailedEvent
+ */
+export const createPurchaseFailedEvent = (
+	cardId: string,
+	unitName: string,
+	reason: string,
+	shopCharaId: string,
+	dragStartPosition: { x: number; y: number },
+	cost?: number
+): PurchaseFailedEvent => ({
+	type: "PurchaseFailed",
+	timestamp: createTimestamp(),
+	cardId,
+	unitName,
+	reason,
+	cost,
+	shopCharaId,
+	dragStartPosition,
+});
+
+/**
+ * Helper to create a UnitSoldEvent
+ */
+export const createUnitSoldEvent = (unitId: string): UnitSoldEvent => ({
+	type: "UnitSold",
+	timestamp: createTimestamp(),
+	unitId,
+});
+
+/**
+ * Helper to create a UnitSpawnedEvent
+ */
+export const createUnitSpawnedEvent = (
+	unit: Unit,
+	isFromShop: boolean
+): UnitSpawnedEvent => ({
+	type: "UnitSpawned",
+	timestamp: createTimestamp(),
+	unit,
+	isFromShop,
+});
+
+/**
+ * Helper to create a UnitUpgradedEvent
+ */
+export const createUnitUpgradedEvent = (
+	unit: Unit,
+	previousRank: number
+): UnitUpgradedEvent => ({
+	type: "UnitUpgraded",
+	timestamp: createTimestamp(),
+	unit,
+	previousRank,
+});
+
+/**
+ * Helper to create a PhaseSkippedEvent
+ */
+export const createPhaseSkippedEvent = (phaseName: string): PhaseSkippedEvent => ({
+	type: "PhaseSkipped",
+	timestamp: createTimestamp(),
+	phaseName,
+});
