@@ -89,9 +89,9 @@ onBuyClick(unitId) {
 
 Move all logic systems out of `src/Scenes`. The Scene should orchestrate **when** things run, not **how** they work.
 
-*   **Move**: `src/Scenes/Battleground/Systems/*` $\rightarrow$ `src/Systems/*`
-*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly.
-*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. Currently, `Chara.ts` mixes data logic (stats) with sprite logic.
+*   **Move**: `src/Scenes/Battleground/Systems/*` $\rightarrow$ `src/Systems/*` ✅ **COMPLETED**
+*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly. 🟡 **IN PROGRESS** - Shop system refactored to use pure functions and emit events (see `PureShop.ts` and `Events.ts`). Other systems still need refactoring.
+*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. Currently, `Chara.ts` mixes data logic (stats) with sprite logic. 🟡 **IN PROGRESS** - Visualizer layer created in `src/Engine/Visualizer.ts` with support for Shop events. Other systems need integration.
 
 ---
 
@@ -117,8 +117,7 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 *   **Model**: The `SessionData` and `BattleData`. Pure JSON.
 *   **Logic**: Functions that calculate damage, cooldowns, etc. (No imports from `phaser`).
 *   **View**: The `BattlegroundScene`. It watches the Model.
-    *   *If `model.unit[0].hp` changes*, update the health bar.
-    *   *If `model.unit[0]` is removed*, play death animation then destroy sprite.
+    *   *If `model.unit[0].life` changes*, update the health bar.
 
 **Goal**: You should be able to run the entire game loop in a Node.js terminal (for server-side validation or testing) without importing Phaser. We are close to this with `GameLogic.ts`, but `Chara.ts` and others still bridge the gap too mostly.
 
