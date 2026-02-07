@@ -1,97 +1,73 @@
 import * as Card from "@Models/Entities/Card";
-import * as Chara from "@Systems/Chara/Chara";
-import * as ShopPanel from "./ShopPanel";
-import * as CharaShop from "./CharaShop";
-import * as sc from "./constants";
-import { tween } from "@Utils/animation";
-import * as Board from "@Models/Board";
-import { getCurrentScene } from "@Models/State";
-import { getGameController } from "@Core/GameControllerFactory";
+import { State } from "@Models/State";
+import { SystemEvent, EventEmitter } from "@Systems/Events";
 
-let currentShopCharas: Chara.Chara[] = [];
+export interface HeroShopResult {
+	events: SystemEvent[];
+	shopData: {
+		cardIds: string[];
+		shopType: 'hero';
+	};
+}
 
-export async function openHeroShop(
+/**
+ * Open hero shop - returns events instead of manipulating Phaser objects
+ * Per Architecture Proposal Item 3: systems should return mutations/events
+ */
+export function openHeroShop(
+	state: State,
+	eventEmitter: EventEmitter,
 	serverCardIds?: string[]
-): Promise<void> {
-	return new Promise<void>(async (resolve) => {
-		currentShopCharas = [];
+): HeroShopResult {
+	const cardIds = serverCardIds || [];
 
-		let tavernCardData: Card.CardDefinition[];
+	// Emit shop opened event
+	const shopOpenedEvent: SystemEvent = {
+		type: 'SHOP_OPENED',
+		shopType: 'hero',
+		cardIds
+	};
 
-		if (serverCardIds) {
-			tavernCardData = serverCardIds.map(id => Card.getCardDefinition(id));
-		} else {
-			// No server card IDs provided to hero shop
-			tavernCardData = [];
+	return {
+		events: [shopOpenedEvent],
+		shopData: {
+			cardIds,
+			shopType: 'hero'
 		}
-
-		const finishPhaseCallback = async () => {
-			await close();
-
-			// Use GameController to skip the shop
-			const controller = getGameController();
-			await controller.skipPhase();
-
-			resolve();
-		};
-
-		ShopPanel.create(finishPhaseCallback);
-
-		// Render tavern charas
-		const displayedCharas = CharaShop.renderTavernCharas(tavernCardData);
-		currentShopCharas = displayedCharas;
-
-		Board.setEnemyBoardVisible(false);
-
-		await ShopPanel.slideIn();
-		currentShopCharas.forEach((chara) => animateItemAppearance(chara));
-
-	});
+	};
 }
 
-export async function close() {
-	currentShopCharas = [];
-
-	await ShopPanel.slideOut();
+/**
+ * Handle shop close - emits phase skip event
+ */
+export function closeHeroShop(eventEmitter: EventEmitter): SystemEvent[] {
+	return [{
+		type: 'SHOP_CLOSED',
+		shopType: 'hero'
+	}];
 }
 
-export function getShopCharaBySlot(slotIndex: number): Chara.Chara | null {
-	return currentShopCharas[slotIndex] || null;
+/**
+ * Handle unit purchase from shop
+ */
+export function purchaseUnit(
+	state: State,
+	eventEmitter: EventEmitter,
+	cardId: string,
+	targetSlot?: number
+): SystemEvent[] {
+	return [{
+		type: 'UNIT_PURCHASED',
+		cardId,
+		targetSlot
+	}];
 }
 
-export function getDisplayedHeroCardDefinitions(): Card.CardDefinition[] {
-	return currentShopCharas.map((chara) => Chara.getUnit(chara).cardId).map(Card.getCardDefinition);
-}
-
-async function animateItemAppearance(chara: Chara.Chara) {
-	const targetScaleX = chara.scaleX;
-	const targetScaleY = chara.scaleY;
-
-	chara.setScale(0);
-
-	tween({
-		targets: [chara],
-		scaleX: targetScaleX,
-		scaleY: targetScaleY,
-		duration: sc.SHOP_ITEM_APPEAR_SCALE_DURATION,
-	});
-
-	getCurrentScene().tweens.chain({
-		targets: chara,
-		tweens: [
-			{
-				angle: -sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE,
-				duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_1,
-				yoyo: true,
-				ease: "Quad.easeInOut",
-			},
-			{
-				angle: sc.SHOP_ITEM_APPEAR_WIGGLE_ANGLE,
-				duration: sc.SHOP_ITEM_APPEAR_WIGGLE_DURATION_2,
-				yoyo: true,
-				ease: "Quad.easeInOut",
-			},
-			{ angle: 0, duration: sc.SHOP_ITEM_APPEAR_WIGGLE_RETURN_DURATION, ease: "Quad.easeIn" },
-		],
-	});
+/**
+ * Skip shop phase
+ */
+export function skipShopPhase(eventEmitter: EventEmitter): SystemEvent[] {
+	return [{
+		type: 'PHASE_SKIPPED'
+	}];
 }
