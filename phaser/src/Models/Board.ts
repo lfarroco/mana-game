@@ -226,6 +226,32 @@ export function getTileAt(board: BoardState, pointer: { x: number; y: number }):
 	return null;
 }
 
+export function getSlotPosition(slotIndex: number, isPlayerBoard: boolean = true): Vec2 {
+	const slotSpacing = 8;
+	const cells = [];
+	for (let tileY = 0; tileY < 3; tileY++)
+		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
+
+	const cell = cells[slotIndex];
+	if (!cell) return Geometry.vec2(0, 0);
+
+	let visualX = cell.x;
+	if (!isPlayerBoard) {
+		visualX = 2 - cell.x;
+	}
+
+	const boardX = isPlayerBoard ? constants_1.PLAYER_BOARD_X : constants_1.CPU_BOARD_X;
+	const boardY = isPlayerBoard ? constants_1.PLAYER_BOARD_Y : constants_1.CPU_BOARD_Y;
+
+	const zoneX = boardX + visualX * (constants.TILE_WIDTH + slotSpacing);
+	const zoneY = boardY + cell.y * (constants.TILE_HEIGHT + slotSpacing);
+
+	const slotX = zoneX + constants.TILE_WIDTH / 2;
+	const slotY = zoneY + constants.TILE_HEIGHT / 2;
+
+	return Geometry.vec2(slotX, slotY);
+}
+
 export function updateUnitPosition(
 	unitToMove: Unit,
 	newBoardPosition: Vec2,

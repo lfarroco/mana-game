@@ -17,7 +17,7 @@ import { loadUnitAssets } from "@Systems/Loader";
 import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
-import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
+import { EventEmitter } from "@Systems/Events";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 
@@ -33,7 +33,10 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	return colorMap[phase] || "forest";
 }
 
-export async function startPhase(state: State) {
+let currentEventEmitter: EventEmitter | undefined;
+
+export async function startPhase(state: State, eventEmitter?: EventEmitter) {
+	currentEventEmitter = eventEmitter;
 	// For multiplayer, continue using the existing system (for now during migration)
 	if (MultiplayerManager.getInstance().isMultiplayer) {
 		await handleMultiplayerPhase(state);
@@ -46,7 +49,7 @@ export async function startPhase(state: State) {
 
 	try {
 		const phaseOptions = await server.getPhaseOptions(playerId);
-		await renderPhase(state, phaseOptions);
+		await renderPhase(state, phaseOptions, eventEmitter);
 	} catch (error) {
 		console.error("Failed to get phase options:", error);
 	}
@@ -63,7 +66,7 @@ export function getPlayerId(): string {
 }
 
 // Render phase based on server response
-async function renderPhase(state: State, options: any) {
+async function renderPhase(state: State, options: any, eventEmitter?: EventEmitter) {
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(options.phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
@@ -112,7 +115,14 @@ async function renderPhase(state: State, options: any) {
 			await Encounter.open(state, options.options.map((o: any) => o.id));
 			break;
 		case "shop":
-			await HeroShop.openHeroShop(options.options.map((o: any) => o.id));
+			if (eventEmitter) {
+				// Use new event-driven system
+				const result = HeroShop.openHeroShop(state, eventEmitter, options.options.map((o: any) => o.id));
+				result.events.forEach(event => eventEmitter.emit(event));
+			} else {
+				// Fallback to old system
+				await HeroShop.openHeroShop(options.options.map((o: any) => o.id));
+			}
 			break;
 		case "combat":
 			await CombatPhase.transitionToCombatPhase(state, options.combatState);
@@ -129,7 +139,7 @@ async function renderPhase(state: State, options: any) {
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
 				await server.handleAction(playerId, 'orb_shop_done');
-				await startPhase(state);
+				await startPhase(state, currentEventEmitter);
 			}
 			break;
 		case "upgrade_core":
@@ -142,7 +152,7 @@ async function renderPhase(state: State, options: any) {
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
 				await server.handleAction(playerId, 'upgrade_core_done');
-				await startPhase(state);
+				await startPhase(state, currentEventEmitter);
 			}
 			break;
 		case "add_reaction_core":
@@ -155,7 +165,7 @@ async function renderPhase(state: State, options: any) {
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
 				await server.handleAction(playerId, 'add_reaction_core_done');
-				await startPhase(state);
+				await startPhase(state, currentEventEmitter);
 			}
 			break;
 		default:
@@ -176,12 +186,12 @@ export function handlePhaseEnded(state: State): void {
 
 		// Notify server of phase completion and get next phase
 		server.handleAction(playerId, "phase_complete").then(() => {
-			startPhase(state);
+			startPhase(state, currentEventEmitter);
 		}).catch(error => {
 			console.error("Failed to complete phase:", error);
 		});
 	} else {
-		startPhase(state);
+		startPhase(state, currentEventEmitter);
 	}
 }
 

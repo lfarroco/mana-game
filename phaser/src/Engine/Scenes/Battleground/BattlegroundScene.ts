@@ -15,6 +15,8 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
+import { Visualizer } from "../../Visualizer";
 
 export type BattlegroundSceneData = {
 	state: State,
@@ -28,6 +30,8 @@ export class BattlegroundScene extends Phaser.Scene {
 	cloudsBackground!: Phaser.GameObjects.Shader;
 	state: State;
 	combatRunner?: CombatRunner;
+	eventEmitter: EventEmitter;
+	visualizer: Visualizer;
 
 	cleanup() {
 		console.log(":::: BattlegroundScene cleanup")
@@ -36,6 +40,11 @@ export class BattlegroundScene extends Phaser.Scene {
 		if (this.combatRunner) {
 			this.combatRunner.stop();
 			this.combatRunner = undefined;
+		}
+
+		// Clean up event system
+		if (this.visualizer) {
+			this.visualizer.destroy();
 		}
 
 		clearAll();
@@ -63,6 +72,10 @@ export class BattlegroundScene extends Phaser.Scene {
 		setCurrentScene(this);
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
+
+		// Initialize event system per Architecture Proposal Item 3
+		this.eventEmitter = new SimpleEventEmitter();
+		this.visualizer = new Visualizer(this, this.eventEmitter);
 
 		const speed = getOption("speed");
 
@@ -101,7 +114,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			try {
 				await server.createSession(playerId, selectedCrystalId);
 				console.log(`Session created for player ${playerId} with crystal ${selectedCrystalId}`);
-				
+
 				// Initialize the GameController after session creation
 				createGameController(playerId);
 				console.log("GameController initialized");
@@ -132,7 +145,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		startPhase(state);
+		startPhase(state, this.eventEmitter);
 	};
 
 	update(time: number, delta: number): void {
