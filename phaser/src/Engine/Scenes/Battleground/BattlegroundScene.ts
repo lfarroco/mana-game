@@ -95,6 +95,10 @@ export class BattlegroundScene extends Phaser.Scene {
 		const session = state.session;
 		console.log(":::: BattlegroundScene starting logic...", session);
 
+		// Initialize the Visualizer early in the scene startup
+		initializeVisualizer(this);
+		console.log("Visualizer initialized");
+
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
 			Systems.Setup.initializeNewGame(selectedCrystalId);
