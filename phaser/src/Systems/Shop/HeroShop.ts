@@ -1,5 +1,5 @@
-import { getState } from "@Models/State";
-import { SimpleEventEmitter, EventEmitter, SystemEvent } from "@Systems/Events";
+import { getState, State } from "@Models/State";
+import { SimpleEventEmitter, EventEmitter, SystemEvent, createShopOpenedEvent, createShopClosedEvent, createUnitPurchasedEvent, createPhaseSkippedEvent } from "@Systems/Events";
 
 export interface HeroShopResult {
 	events: SystemEvent[];
@@ -14,18 +14,14 @@ export interface HeroShopResult {
  * Per Architecture Proposal Item 3: systems should return mutations/events
  */
 export function openHeroShop(
-	state: State,
-	eventEmitter: EventEmitter,
+	_state: State,
+	_eventEmitter: EventEmitter,
 	serverCardIds?: string[]
 ): HeroShopResult {
 	const cardIds = serverCardIds || [];
 
 	// Emit shop opened event
-	const shopOpenedEvent: SystemEvent = {
-		type: 'SHOP_OPENED',
-		shopType: 'hero',
-		cardIds
-	};
+	const shopOpenedEvent = createShopOpenedEvent(cardIds);
 
 	return {
 		events: [shopOpenedEvent],
@@ -39,36 +35,27 @@ export function openHeroShop(
 /**
  * Handle shop close - emits phase skip event
  */
-export function closeHeroShop(eventEmitter: EventEmitter): SystemEvent[] {
-	return [{
-		type: 'SHOP_CLOSED',
-		shopType: 'hero'
-	}];
+export function closeHeroShop(_eventEmitter: EventEmitter): SystemEvent[] {
+	return [createShopClosedEvent()];
 }
 
 /**
  * Handle unit purchase from shop
  */
 export function purchaseUnit(
-	state: State,
-	eventEmitter: EventEmitter,
+	_state: State,
+	_eventEmitter: EventEmitter,
 	cardId: string,
-	targetSlot?: number
+	_targetSlot?: number
 ): SystemEvent[] {
-	return [{
-		type: 'UNIT_PURCHASED',
-		cardId,
-		targetSlot
-	}];
+	return [createUnitPurchasedEvent(cardId, "", false)];
 }
 
 /**
  * Skip shop phase
  */
-export function skipShopPhase(eventEmitter: EventEmitter): SystemEvent[] {
-	return [{
-		type: 'PHASE_SKIPPED'
-	}];
+export function skipShopPhase(_eventEmitter: EventEmitter): SystemEvent[] {
+	return [createPhaseSkippedEvent("shop")];
 }
 
 /**
@@ -82,7 +69,7 @@ export async function openHeroShopLegacy(serverCardIds?: string[]): Promise<void
 	// For now, just emit the event but don't handle visualization
 	// This maintains backward compatibility while we migrate
 	const result = openHeroShop(state, eventEmitter, serverCardIds);
-	result.events.forEach(event => eventEmitter.emit(event));
+	result.events.forEach(event => eventEmitter.emit(event.type, event));
 	
 	// TODO: Connect to actual visualizer when multiplayer is updated
 }

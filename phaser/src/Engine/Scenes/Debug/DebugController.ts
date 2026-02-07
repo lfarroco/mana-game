@@ -8,7 +8,6 @@ import * as Systems from "@Systems/BattlegroundSystems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { getGameController } from "@Core/GameControllerFactory";
 import { startGame } from "../../../Game/effects/startGame";
-import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";
@@ -45,8 +44,8 @@ export function clickHeroInShop(slotIndex: number): string {
 	Systems.Shop.events.itemClickPurchaseRequested(
 		{ ...unitToPurchase },
 		Chara.getId(chara),
-		chara.x,
-		chara.y
+		(chara as any).x,
+		(chara as any).y
 	);
 
 	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous`;
@@ -67,8 +66,8 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),
-		chara.x,
-		chara.y
+		(chara as any).x,
+		(chara as any).y
 	);
 
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
@@ -230,7 +229,7 @@ export const gameActions = {
 	sellUnit: async (unitId: string) => {
 		return await getGameController().sellUnit(unitId);
 	},
-	updateTeam: async (team: ActionPayload["team"]) => {
+	updateTeam: async (team: { units: Unit[] }) => {
 		return await getGameController().updateTeam(team);
 	},
 	handleAction: async (actionId: string, payload?: ActionPayload) => {
