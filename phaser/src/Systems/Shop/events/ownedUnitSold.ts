@@ -4,7 +4,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import * as DiscardZone from "../DiscardZone";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as PureShop from "../PureShop";
-import { emitSystemEvent } from "@Engine/Visualizer";
+import { emitSystemEvent } from "../../../Engine/Visualizer";
 
 /**
  * Handle a unit sale request

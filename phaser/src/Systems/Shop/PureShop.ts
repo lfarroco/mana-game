@@ -14,7 +14,7 @@ import * as constants from "@Constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
 import * as Board from "@Models/Board";
 import { getName } from "@i18n/i18n";
-import { SessionData } from "@Models/Session";
+import { SessionData } from "@Core/Types";
 import * as SystemEvents from "@Systems/Events";
 
 /**
@@ -47,7 +47,7 @@ export function processPurchase(
 
 	// Check if unit already exists (for upgrade)
 	const existingUnit = session.team.units.find(
-		(u) => u.cardId === shopUnitCardId
+		(u: Unit) => u.cardId === shopUnitCardId
 	);
 
 	// Find empty slot for new unit
@@ -167,7 +167,7 @@ export function processSale(
 	const events: SystemEvents.AllSystemEvents[] = [];
 
 	// Validate unit exists
-	const unit = session.team.units.find((u) => u.id === unitId);
+	const unit = session.team.units.find((u: Unit) => u.id === unitId);
 	if (!unit) {
 		console.warn(`Unit with ID ${unitId} not found for sale`);
 		return events;
