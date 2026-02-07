@@ -15,7 +15,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
-import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
+import { initializeVisualizer, destroyVisualizer } from "../../Visualizer";
 
 export type BattlegroundSceneData = {
 	state: State,
