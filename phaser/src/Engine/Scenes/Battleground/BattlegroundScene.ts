@@ -15,6 +15,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
 
 export type BattlegroundSceneData = {
 	state: State,
@@ -37,6 +38,9 @@ export class BattlegroundScene extends Phaser.Scene {
 			this.combatRunner.stop();
 			this.combatRunner = undefined;
 		}
+
+		// Destroy the visualizer
+		destroyVisualizer();
 
 		clearAll();
 		this.time.removeAllEvents();
@@ -81,6 +85,10 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		const session = state.session;
 		console.log(":::: BattlegroundScene starting logic...", session);
+
+		// Initialize the Visualizer early in the scene startup
+		initializeVisualizer(this);
+		console.log("Visualizer initialized");
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
