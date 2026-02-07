@@ -2,59 +2,44 @@ import { IGameServer } from './IGameServer';
 import { LocalServerAdapter } from './LocalServerAdapter';
 import { RemoteServerAdapter } from './RemoteServerAdapter';
 
-/**
- * Factory for creating the appropriate server adapter based on game mode.
- */
-export class ServerFactory {
-	private static instance: IGameServer | null = null;
-	private static isMultiplayer: boolean = false;
+type ServerFactoryApi = {
+	getServer: () => IGameServer;
+	setMultiplayer: (multiplayer: boolean) => void;
+	isInMultiplayerMode: () => boolean;
+	reset: () => void;
+};
 
-	/**
-	 * Get the current server adapter instance.
-	 * Returns LocalServerAdapter for single-player or RemoteServerAdapter for multiplayer.
-	 */
-	static getServer(): IGameServer {
-		if (!this.instance) {
-			this.instance = this.isMultiplayer
-				? new RemoteServerAdapter()
-				: new LocalServerAdapter();
-		}
-		return this.instance;
+let instance: IGameServer | null = null;
+let multiplayerMode = false;
+
+const getServer = (): IGameServer => {
+	if (!instance) {
+		instance = multiplayerMode ? new RemoteServerAdapter() : new LocalServerAdapter();
 	}
+	return instance;
+};
 
-	/**
-	 * Set the game mode and reinitialize the server adapter.
-	 * @param multiplayer - true for multiplayer mode, false for single-player
-	 */
-	static setMultiplayer(multiplayer: boolean): void {
-		if (this.isMultiplayer !== multiplayer) {
-			this.isMultiplayer = multiplayer;
-			// Recreate the adapter when mode changes
-			this.instance = multiplayer
-				? new RemoteServerAdapter()
-				: new LocalServerAdapter();
-		}
+const setMultiplayer = (multiplayer: boolean): void => {
+	if (multiplayerMode !== multiplayer) {
+		multiplayerMode = multiplayer;
+		instance = multiplayer ? new RemoteServerAdapter() : new LocalServerAdapter();
 	}
+};
 
-	/**
-	 * Check if currently in multiplayer mode.
-	 */
-	static isInMultiplayerMode(): boolean {
-		return this.isMultiplayer;
-	}
+const isInMultiplayerMode = (): boolean => multiplayerMode;
 
-	/**
-	 * Reset the server instance (useful for testing).
-	 */
-	static reset(): void {
-		this.instance = null;
-		this.isMultiplayer = false;
-	}
-}
+const reset = (): void => {
+	instance = null;
+	multiplayerMode = false;
+};
 
-/**
- * Convenience function to get the current server adapter.
- */
+export const ServerFactory: ServerFactoryApi = {
+	getServer,
+	setMultiplayer,
+	isInMultiplayerMode,
+	reset,
+};
+
 export function getServerAdapter(): IGameServer {
-	return ServerFactory.getServer();
+	return getServer();
 }
