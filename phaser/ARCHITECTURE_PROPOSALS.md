@@ -117,8 +117,7 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 *   **Model**: The `SessionData` and `BattleData`. Pure JSON.
 *   **Logic**: Functions that calculate damage, cooldowns, etc. (No imports from `phaser`).
 *   **View**: The `BattlegroundScene`. It watches the Model.
-    *   *If `model.unit[0].hp` changes*, update the health bar.
-    *   *If `model.unit[0]` is removed*, play death animation then destroy sprite.
+    *   *If `model.unit[0].life` changes*, update the health bar.
 
 **Goal**: You should be able to run the entire game loop in a Node.js terminal (for server-side validation or testing) without importing Phaser. We are close to this with `GameLogic.ts`, but `Chara.ts` and others still bridge the gap too mostly.
 
