@@ -26,6 +26,7 @@
         "test": "jest",
         "test:unit": "jest --testPathIgnorePatterns=e2e",
         "test:server": "./scripts/test-server-integration.sh",
+        "test:supabase": "deno test --no-check supabase/functions/**/*.test.js",
         "test:e2e": "playwright test",
         "test:e2e:game-flow": "playwright test e2e/game_flow.spec.ts",
         "test:e2e:ui": "playwright test --ui",
