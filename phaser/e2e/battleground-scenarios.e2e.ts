@@ -17,17 +17,24 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-1',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 500,
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [],
 							reactions: []
 						}
@@ -38,9 +45,11 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 					combatState: {
 						enemyTeam: [
 							{
-								id: 'void_witch',
+								id: 'enemy-unit-1',
+								cardId: 'void_witch',
 								pic: 'boss_andromeda',
 								power: 50,
+								bonusPower: 0,
 								cooldown: 5400,
 								position: { x: 3, y: 3 },
 								force: 'CPU',
@@ -48,6 +57,12 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 								refresh: 5400,
 								maxLife: 100,
 								life: 100,
+								rank: 1,
+								shield: 0,
+								evade: 0,
+								hasted: 0,
+								slowed: 0,
+								isCore: false,
 								effects: [],
 								reactions: []
 							}
@@ -90,17 +105,24 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-2',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 500,
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [],
 							reactions: []
 						}
@@ -138,17 +160,24 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-3',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 500,
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [],
 							reactions: []
 						}
