@@ -1,5 +1,3 @@
-import { t, setLocale, initialize, getCurrentLocale } from './i18n';
-
 // Mock the JSON files
 jest.mock('./en.json', () => ({
 	__esModule: true,
@@ -16,6 +14,8 @@ jest.mock('./es.json', () => ({
 		"common_key": "Value ES"
 	}
 }));
+
+import { t, setLocale, initialize, getCurrentLocale } from './i18n';
 
 describe('i18n', () => {
 	beforeEach(() => {

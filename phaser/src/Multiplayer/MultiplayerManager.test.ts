@@ -16,6 +16,7 @@ jest.mock("@lib/supabase", () => ({
 		from: jest.fn(() => ({
 			select: jest.fn().mockReturnThis(),
 			eq: jest.fn().mockReturnThis(),
+			single: jest.fn().mockResolvedValue({ data: null, error: null }),
 			maybeSingle: jest.fn(),
 		})),
 	},
