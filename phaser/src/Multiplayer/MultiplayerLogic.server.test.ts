@@ -34,7 +34,8 @@ describe('MultiplayerLogic Server Compatibility', () => {
 		const session = MultiplayerLogic.createInitialSession('test_player', 'mana_crystal');
 		session.step = 1; // Encounter
 
-		const actionId = 'enter_shop';
+		// Get a valid encounter action from the current options
+		const actionId = session.current_options?.[0]?.id || 'armory';
 
 		const { session: nextSession } = MultiplayerLogic.transitionToNextState(session, actionId, {});
 		expect(nextSession.step).toBe(2);
@@ -57,11 +58,12 @@ describe('MultiplayerLogic Server Compatibility', () => {
 
 	test('should transition to Combat at Step 7', () => {
 		const session = MultiplayerLogic.createInitialSession('test_player', 'mana_crystal');
-		session.step = 6; // Shop before Combat
+		session.step = 3; // Shop before Combat (last encounter of round 1)
 		session.phase = 'shop';
+		session.current_options = [{ id: 'some_unit' }]; // Mock shop options
 
 		const { session: nextSession, combatResult } = MultiplayerLogic.transitionToNextState(session, 'some_unit', {});
-		expect(nextSession.step).toBe(7);
+		expect(nextSession.step).toBe(4);
 		expect(nextSession.phase).toBe('combat');
 		expect(nextSession.current_options).toBeDefined();
 		expect(combatResult).toBeDefined(); // Should have simulated combat

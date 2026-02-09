@@ -9,7 +9,7 @@ export const shopPhaseHandler = createPhaseHandler({
 	actionType: ActionType.PHASE_TRANSITION,
 	computeTransition: (context: PhaseTransitionContext): PhaseTransitionResult => {
 		const { session } = context;
-		const expectedPhase = getPhaseForTurn(session.round, session.step);
+		const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
 
 		let nextPhase: PhaseType = 'encounter';
 		let nextOptions: PhaseOption[] = [];
@@ -30,6 +30,7 @@ export const shopPhaseHandler = createPhaseHandler({
 		return {
 			nextPhase,
 			nextOptions,
+			stepIncrement: 1,
 		};
 	},
 });

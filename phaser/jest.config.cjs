@@ -58,6 +58,7 @@ module.exports = {
 		"^@test-utils/(.*)$": "<rootDir>/src/test-utils/$1",
 		"^utils$": "<rootDir>/src/utils.ts",
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
+		"^Effects$": "<rootDir>/src/Effects/index.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",
 		"\\.(json)$": "identity-obj-proxy",
 	},
