@@ -64,7 +64,7 @@ describe('MultiplayerLogic Server Compatibility', () => {
 
 		const { session: nextSession, combatResult } = MultiplayerLogic.transitionToNextState(session, 'some_unit', {});
 		expect(nextSession.step).toBe(4);
-		expect(nextSession.phase).toBe('encounter');
+		expect(nextSession.phase).toBe('combat');
 		expect(nextSession.current_options).toBeDefined();
 		expect(combatResult).toBeDefined(); // Should have simulated combat
 	});
