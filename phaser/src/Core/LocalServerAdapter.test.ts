@@ -96,7 +96,7 @@ describe('LocalServerAdapter', () => {
 			expect(result).toBe(true);
 
 			const session = await adapter.getSession(testPlayerId);
-			expect(session?.phase).toBe('shop');
+			expect(session?.phase).toBe('orb_shop');
 		});
 
 		it('should handle buying a unit in shop', async () => {

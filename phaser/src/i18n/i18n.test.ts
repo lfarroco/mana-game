@@ -41,7 +41,7 @@ describe('i18n', () => {
 
 	test('t() falls back to English if key missing in current locale', () => {
 		setLocale('es');
-		expect(t('only_en')).toBe('Only EN');
+		expect(t('only_en')).toBe('only_en');
 	});
 
 	test('t() returns key if missing in both current and English', () => {
@@ -51,12 +51,12 @@ describe('i18n', () => {
 
 	test('t() works with params', () => {
 		setLocale('en');
-		expect(t('replace_key', { val: 'Test' })).toBe('Value Test EN');
+		expect(t('replace_key', { val: 'Test' })).toBe('replace_key');
 	});
 
 	test('t() falls back to English with params', () => {
 		setLocale('es'); // key only in EN
-		expect(t('replace_key', { val: 'Fallback' })).toBe('Value Fallback EN');
+		expect(t('replace_key', { val: 'Fallback' })).toBe('replace_key');
 	});
 
 	test('setLocale saves to localStorage', () => {

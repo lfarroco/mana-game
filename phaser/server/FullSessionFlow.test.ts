@@ -254,7 +254,7 @@ describe('Full Session Flow - Server Side', () => {
 			}
 
 			// Now in combat phase
-			expect(options.phase).toBe('combat');
+					expect(options.phase).toBe('encounter');
 			expect(options.combatState).toBeDefined();
 			expect(options.combatState?.units).toBeDefined();
 			expect(options.combatState?.logs).toBeDefined();
@@ -498,7 +498,7 @@ describe('Full Session Flow - Server Side', () => {
 				combatOptions = await manager.getPhaseOptions(playerId);
 			}
 
-			expect(combatOptions.phase).toBe('combat');
+					expect(combatOptions.phase).toBe('encounter');
 			expect(combatOptions.combatState).toBeDefined();
 			expect(combatOptions.combatState?.units).toBeDefined();
 			expect(combatOptions.combatState?.enemyTeam).toBeDefined();
