@@ -1,5 +1,5 @@
 import test, { expect, Page } from "@playwright/test";
-import { getDebugController } from "../../../test-utils/debugController";
+import { getDebugController } from '../src/test-utils/debugController';
 
 const boardSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 	test.describe("Board Interactions", () => {

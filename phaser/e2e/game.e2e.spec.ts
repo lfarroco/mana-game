@@ -1,6 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
-import boardSpec from '../src/Systems/Board/board.e2e.spec';
-import battlegroundSpec from '../src/Systems/battleground.e2e.spec';
+import boardSpec from './board.e2e';
+import battlegroundSpec from './battleground.e2e';
 import { waitForGameInit, getDebugController } from '../src/test-utils/debugController';
 
 // Guideline for when adding tests to this file:
