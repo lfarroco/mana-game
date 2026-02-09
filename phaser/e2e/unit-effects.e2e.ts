@@ -17,17 +17,24 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-regen',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 400, // Start with less than max life
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [{ id: 'regen' }], // Add regen effect
 							reactions: []
 						}
@@ -38,9 +45,11 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 					combatState: {
 						enemyTeam: [
 							{
-								id: 'void_witch',
+								id: 'enemy-weak',
+								cardId: 'void_witch',
 								pic: 'boss_andromeda',
 								power: 10, // Weak enemy to not kill immediately
+								bonusPower: 0,
 								cooldown: 5400,
 								position: { x: 3, y: 3 },
 								force: 'CPU',
@@ -48,6 +57,12 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 								refresh: 5400,
 								maxLife: 100,
 								life: 100,
+								rank: 1,
+								shield: 0,
+								evade: 0,
+								hasted: 0,
+								slowed: 0,
+								isCore: false,
 								effects: [],
 								reactions: []
 							}
@@ -106,24 +121,33 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-poison',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 500,
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [],
 							reactions: []
 						},
 						{
-							id: 'void_witch',
+							id: 'poison-unit',
+							cardId: 'void_witch',
 							pic: 'boss_andromeda',
 							power: 50,
+							bonusPower: 0,
 							cooldown: 5400,
 							position: { x: 1, y: 1 },
 							force: 'PLAYER',
@@ -131,6 +155,12 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 							refresh: 5400,
 							maxLife: 100,
 							life: 100,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
+							isCore: false,
 							effects: [{ id: 'poison' }], // Poison effect
 							reactions: []
 						}
@@ -141,9 +171,11 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 					combatState: {
 						enemyTeam: [
 							{
-								id: 'warbringer',
+								id: 'enemy-warbringer',
+								cardId: 'warbringer',
 								pic: 'warbringer',
 								power: 20,
+								bonusPower: 0,
 								cooldown: 5400,
 								position: { x: 3, y: 3 },
 								force: 'CPU',
@@ -151,6 +183,12 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 								refresh: 5400,
 								maxLife: 100,
 								life: 100,
+								rank: 1,
+								shield: 0,
+								evade: 0,
+								hasted: 0,
+								slowed: 0,
+								isCore: false,
 								effects: [],
 								reactions: []
 							}
@@ -209,17 +247,24 @@ const unitEffectsSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 				team: {
 					units: [
 						{
-							id: 'mana_crystal',
+							id: 'player-core-movement',
+							cardId: 'mana_crystal',
 							pic: 'blue-stone',
 							life: 500,
+							maxLife: 500,
 							power: 35,
+							bonusPower: 0,
 							cooldown: 5200,
 							isCore: true,
 							position: { x: 2, y: 2 },
 							force: 'PLAYER',
 							charge: 0,
 							refresh: 5200,
-							maxLife: 500,
+							rank: 1,
+							shield: 0,
+							evade: 0,
+							hasted: 0,
+							slowed: 0,
 							effects: [],
 							reactions: []
 						}
