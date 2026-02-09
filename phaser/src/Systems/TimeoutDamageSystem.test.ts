@@ -10,7 +10,7 @@ import { registerCollection } from '@Models/Entities/Card';
 import { BASE_COLLECTION_DATA } from '@Data/BaseCollection';
 
 // Mock i18n
-jest.mock('../../../i18n/i18n', () => ({
+jest.mock('../i18n/i18n', () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
 	initialize: () => { },

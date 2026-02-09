@@ -4,7 +4,7 @@ import * as Encounter from '@Systems/Encounter';
 import * as HeroShop from '@Systems/Shop/HeroShop';
 
 // Mock dependencies with factories
-jest.mock('../../Multiplayer/MultiplayerManager', () => ({
+jest.mock('@Multiplayer/MultiplayerManager', () => ({
 	MultiplayerManager: {
 		getInstance: jest.fn()
 	}

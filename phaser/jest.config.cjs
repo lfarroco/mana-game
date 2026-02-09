@@ -1,11 +1,19 @@
 module.exports = {
 	testEnvironment: "jsdom",
+	extensionsToTreatAsEsm: [".ts"],
+	setupFilesAfterEnv: ["<rootDir>/src/test-utils/jest-setup.ts"],
 	transform: {
-		"^.+\\.(ts|tsx)$": "ts-jest",
+		"^.+\\.(ts|tsx)$": ["ts-jest", { useESM: true }],
+		"^.+\\.(js|jsx)$": "babel-jest",
 	},
+	transformIgnorePatterns: [
+		"node_modules/(?!(@supabase|@jest)/)",
+	],
 	moduleFileExtensions: ["ts", "tsx", "js"],
 	testPathIgnorePatterns: [
 		"/node_modules/",
+		"/dist/",
+		"/supabase/",
 		"/e2e/",
 		"\\.e2e\\.",
 	],
@@ -51,5 +59,6 @@ module.exports = {
 		"^utils$": "<rootDir>/src/utils.ts",
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",
+		"\\.(json)$": "identity-obj-proxy",
 	},
 };

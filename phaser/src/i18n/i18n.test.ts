@@ -8,14 +8,14 @@ jest.mock('./en.json', () => ({
 		"only_en": "Only EN",
 		"replace_key": "Value {val} EN"
 	}
-}), { virtual: true });
+}));
 
 jest.mock('./es.json', () => ({
 	__esModule: true,
 	default: {
 		"common_key": "Value ES"
 	}
-}), { virtual: true });
+}));
 
 describe('i18n', () => {
 	beforeEach(() => {
