@@ -2,7 +2,7 @@
 import { jest, describe, it, expect, beforeAll } from '@jest/globals';
 
 // Mock i18n to avoid JSON import issues in Jest
-jest.mock('../i18n/i18n', () => ({
+jest.mock('../../i18n/i18n', () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
 	initialize: () => { },
