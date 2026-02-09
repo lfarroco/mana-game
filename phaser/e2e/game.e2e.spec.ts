@@ -1,6 +1,8 @@
 import { test, expect, Page } from '@playwright/test';
 import boardSpec from './board.e2e';
 import battlegroundSpec from './battleground.e2e';
+import battlegroundScenariosSpec from './battleground-scenarios.e2e';
+import unitEffectsSpec from './unit-effects.e2e';
 import { waitForGameInit, getDebugController } from '../src/test-utils/debugController';
 
 // Guideline for when adding tests to this file:
@@ -27,3 +29,7 @@ test.describe('Game Initialization', () => {
 battlegroundSpec(waitForGameInit);
 
 boardSpec(waitForGameInit);
+
+battlegroundScenariosSpec(waitForGameInit);
+
+unitEffectsSpec(waitForGameInit);
