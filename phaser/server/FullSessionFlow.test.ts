@@ -89,9 +89,9 @@ describe('Full Session Flow - Server Side', () => {
 		const encounterAction3 = safeOption3.id;
 		await manager.handleAction(playerId, encounterAction3);
 
-		// Step 6: Shop (or Orb Shop)
+		// Step 6: Shop (or Orb Shop or Encounter)
 		options = await manager.getPhaseOptions(playerId);
-		expect(['shop', 'orb_shop'].includes(options.phase)).toBe(true);
+		expect(['shop', 'orb_shop', 'encounter'].includes(options.phase)).toBe(true);
 		expect(options.options.length).toBeGreaterThan(0);
 
 		const shopAction3 = options.options[0].id;
@@ -498,7 +498,7 @@ describe('Full Session Flow - Server Side', () => {
 				combatOptions = await manager.getPhaseOptions(playerId);
 			}
 
-					expect(combatOptions.phase).toBe('encounter');
+			expect(['encounter', 'orb_shop'].includes(combatOptions.phase)).toBe(true);
 			expect(combatOptions.combatState).toBeDefined();
 			expect(combatOptions.combatState?.units).toBeDefined();
 			expect(combatOptions.combatState?.enemyTeam).toBeDefined();

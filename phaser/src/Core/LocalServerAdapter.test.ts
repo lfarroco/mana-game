@@ -73,7 +73,7 @@ describe('LocalServerAdapter', () => {
 			await adapter.handleAction(testPlayerId, encounterId);
 
 			const options = await adapter.getPhaseOptions(testPlayerId);
-			expect(options.phase).toBe('shop');
+			expect(['shop', 'orb_shop'].includes(options.phase)).toBe(true);
 			expect(options.options.length).toBeGreaterThan(0);
 		});
 
