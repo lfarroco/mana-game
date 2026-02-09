@@ -35,7 +35,9 @@ describe('MultiplayerLogic Server Compatibility', () => {
 		session.step = 1; // Encounter
 
 		// Get a valid encounter action from the current options
-		const actionId = session.current_options?.[0]?.id || 'armory';
+		const actionId = (Array.isArray(session.current_options) 
+			? session.current_options[0]?.id 
+			: session.current_options?.options[0]?.id) || 'armory';
 
 		const { session: nextSession } = MultiplayerLogic.transitionToNextState(session, actionId, {});
 		expect(nextSession.step).toBe(2);

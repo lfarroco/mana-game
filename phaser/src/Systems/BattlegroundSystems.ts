@@ -14,7 +14,7 @@ export const Shop = {
 	...ShopModule,
 	HeroShop: {
 		...ShopModule.HeroShop,
-		getShopCharaBySlot: (_slotIndex: number) => {
+		getShopCharaBySlot: (_: number) => {
 			console.warn("getShopCharaBySlot is deprecated - use new event-driven shop system");
 			return null;
 		},
