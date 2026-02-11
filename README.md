@@ -35,14 +35,17 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Combat Architecture](docs/combat-architecture.md)** - Documentation of the client-server separation for combat simulation.
 - **[Multiplayer Architecture](docs/multiplayer-architecture.md)** - Documentation of the multiplayer mode and server-driven phase management.
 - **[Multiplayer Setup & Usage](docs/MULTIPLAYER_SETUP.md)** - Guide for running the server, database, and integration tests.
+- **[Battle System](docs/battle-system.md)** - Core combat loop, phase management, and board logic.
+- **[Character/Unit System](docs/character-unit-system.md)** - Unit definitions, classes, and asset management.
+- **[Audio System](docs/audio-system.md)** - Music and SFX management.
 
 ## Documentation Roadmap
 
 The following systems still need to be documented. If you find sections in the game that need documentation, please add them here.
 
-- [ ] **Battle System** - Core combat loop, phase management, and board logic (`phaser/src/Scenes/Battleground`)
-- [ ] **Character/Unit System** - Unit definitions, classes, and asset management (`phaser/src/Systems/Chara`)
-- [ ] **Audio System** - Music and SFX management (`phaser/src/Systems/AudioManager.ts`)
+- [ ] **UI System** - User interface components and layout management
+- [ ] **Effect System** - Visual effects and particle systems
+- [ ] **Options/Preferences System** - User settings and configuration
 
 ## Migration Plans
 
