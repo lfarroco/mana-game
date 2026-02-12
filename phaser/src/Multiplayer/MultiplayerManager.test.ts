@@ -1,4 +1,4 @@
-import { MultiplayerManager } from './MultiplayerManager';
+import { isMultiplayer, enableMultiplayer, getPhaseOptions, sendOptionSelection, handleAuthRegister } from './MultiplayerManager';
 import { supabase } from "@lib/supabase";
 
 // Mock Supabase
@@ -27,26 +27,21 @@ const fetchMock = jest.fn();
 global.fetch = fetchMock;
 
 describe('MultiplayerManager', () => {
-	let manager: MultiplayerManager;
-
 	beforeEach(() => {
 		jest.clearAllMocks();
-		// Reset instance for fresh tests (using any cast to access private/static)
-		(MultiplayerManager as any).instance = undefined;
-		manager = MultiplayerManager.getInstance();
 		fetchMock.mockClear();
 	});
 
 	it('should be disabled by default', () => {
-		expect(manager.isMultiplayer).toBe(false);
+		expect(isMultiplayer).toBe(false);
 	});
 
 	it('should disable multiplayer if connection fails', async () => {
 		fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
-		await manager.enableMultiplayer();
+		await enableMultiplayer();
 
-		expect(manager.isMultiplayer).toBe(false);
+		expect(isMultiplayer).toBe(false);
 	});
 
 	it('should fetch phase options', async () => {
@@ -56,7 +51,7 @@ describe('MultiplayerManager', () => {
 			json: async () => mockOptions
 		});
 
-		const options = await manager.getPhaseOptions({} as any);
+		const options = await getPhaseOptions({} as any);
 
 		expect(options).toEqual(mockOptions);
 		expect(fetchMock).toHaveBeenCalledWith(
@@ -69,7 +64,7 @@ describe('MultiplayerManager', () => {
 			ok: true
 		});
 
-		const result = await manager.sendOptionSelection('some_option');
+		const result = await sendOptionSelection('some_option');
 
 		expect(result).toBe(true);
 		expect(fetchMock).toHaveBeenCalledWith(
@@ -105,7 +100,7 @@ describe('MultiplayerManager', () => {
 		// But the task is to fix it. So I should write the test creating the EXPECTED behavior (success)
 		// and see it fail.
 
-		const result = await manager.handleAuthRegister("lfarroco@gmail.com", "password123", "derpy");
+		const result = await handleAuthRegister("lfarroco@gmail.com", "password123", "derpy");
 		expect(result).toEqual({
 			success: true,
 			requiresConfirmation: true,

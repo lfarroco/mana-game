@@ -1,5 +1,5 @@
 import { LocalServerAdapter } from './LocalServerAdapter';
-import { GameLogic } from './GameLogic';
+import * as GameLogic from './GameLogic';
 import { SessionData } from './Types';
 
 // Polyfill structuredClone for Jest environment
@@ -86,11 +86,11 @@ describe('LocalServerAdapter', () => {
 	describe('handleAction', () => {
 		it('should handle encounter selection', async () => {
 			await adapter.createSession(testPlayerId, testCrystalId);
-			
+
 			// Get initial options to find a valid encounter
 			const initialOptions = await adapter.getPhaseOptions(testPlayerId);
 			const encounterId = initialOptions.options[0].id;
-			
+
 			const result = await adapter.handleAction(testPlayerId, encounterId);
 
 			expect(result).toBe(true);
@@ -163,7 +163,7 @@ describe('LocalServerAdapter', () => {
 				current_options: null
 			};
 			const session2: SessionData = {
-				id: 'test2', 
+				id: 'test2',
 				player_id: 'player-2',
 				phase: 'encounter',
 				round: 1,

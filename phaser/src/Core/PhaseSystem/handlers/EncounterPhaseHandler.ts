@@ -1,6 +1,6 @@
 import { createPhaseHandler } from "../BasePhaseHandler";
 import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "../types";
-import { GameLogic } from "../../GameLogic";
+import * as GameLogic from "../../GameLogic";
 import { PhaseType } from "../../Types";
 
 export const encounterPhaseHandler = createPhaseHandler({

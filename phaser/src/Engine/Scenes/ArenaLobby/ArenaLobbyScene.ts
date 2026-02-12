@@ -5,7 +5,7 @@ import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { checkActiveSession, enableMultiplayer, logout, getPlayerProfile } from "@Multiplayer/MultiplayerManager";
 
 import { setCurrentScene } from "@Models/State";
 
@@ -37,9 +37,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const buttonY = 500;
 
 		createUIButton("Start / Continue Run", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
-			const hasActiveSession = await MultiplayerManager.getInstance().checkActiveSession();
+			const hasActiveSession = await checkActiveSession();
 			if (hasActiveSession) {
-				await MultiplayerManager.getInstance().enableMultiplayer();
+				await enableMultiplayer();
 				this.scene.start(SCENE_KEYS.BATTLEGROUND);
 			} else {
 				this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
@@ -47,7 +47,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 
 		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
-			MultiplayerManager.getInstance().logout();
+			logout();
 			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		});
 
@@ -64,7 +64,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		} else {
 			try {
-				const profile = await MultiplayerManager.getInstance().getPlayerProfile(playerId);
+				const profile = await getPlayerProfile(playerId);
 				this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
 				this.ratingText?.setText(`Rating: ${profile.rating}`);
 			} catch (e) {
