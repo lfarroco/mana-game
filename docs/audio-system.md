@@ -24,7 +24,7 @@ Located in `phaser/src/Systems/AudioManager.ts`.
 
 ### Features
 - **Looping**: Configurable loop behavior
-- **Fade Effects**: Smooth volume transitions
+- **Fade Effects**: Delayed start/stop via `setTimeout` (not smooth tweens)
 - **Volume Control**: Uses `musicVolume` user setting
 - **Single Track**: Only one music track plays at a time
 
@@ -34,8 +34,10 @@ Located in `phaser/src/Systems/AudioManager.ts`.
 
 ## Sound Effects
 
-### Playback Function
+### Playback Functions
 - `playSoundEffect(soundKey, volume?)`: Play one-shot sound
+- `stopSoundEffect(soundKey)`: Stop a specific playing sound effect
+- `stopAllSoundEffects()`: Stop all active sound effects
 
 ### Anti-Spam Protection
 - **Cooldown System**: 1-second cooldown per sound effect
@@ -44,7 +46,7 @@ Located in `phaser/src/Systems/AudioManager.ts`.
 
 ### State Management
 - `soundEffects`: Map of active sound instances
-- **Automatic Cleanup**: Phaser handles sound lifecycle
+- **Automatic Cleanup**: On sound `complete` event, the effect is removed from the `soundEffects` map
 
 ## User Preferences Integration
 
@@ -56,13 +58,13 @@ Located in `phaser/src/Systems/AudioManager.ts`.
 
 ### Integration
 - `getOption()` from `OptionsStore` retrieves preferences
-- Real-time application of volume changes
+- `onOptionsChanged()`: Reacts to settings changes at runtime — adjusts music/SFX volumes live, stops music or SFX if the user disables them
 - Silent operation when disabled
 
 ## Error Handling
 
 ### Robustness Features
-- **Sound System Check**: Verifies `game.sound` availability
+- **Sound System Check**: `playMusic` verifies `game.sound` availability (note: `playSoundEffect` does not have this guard)
 - **Asset Loading**: Try-catch for missing audio files
 - **Test Compatibility**: Silent failure in test environments
 - **Console Logging**: Debug information without crashes
@@ -108,8 +110,8 @@ playSoundEffect('critical_hit', 0.8);
 ## Audio Assets
 
 ### Expected File Structure
-- Music: `assets/audio/music/*.mp3` or `*.ogg`
-- SFX: `assets/audio/sfx/*.mp3` or `*.ogg`
+- All audio files are in a flat directory: `public/assets/audio/`
+- Formats include `.wav`, `.m4a`, `.mp3`, and `.ogg`
 
 ### Naming Convention
 - Music keys: `battle_theme`, `shop_music`, etc.
