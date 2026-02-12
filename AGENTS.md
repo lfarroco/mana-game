@@ -39,7 +39,7 @@ All application code lives under `phaser/src/`:
 | `Systems/`       | Gameplay systems (combat, shop, board, audio) | `CombatPhase.ts`, `AudioManager.ts`, `AchievementSystem.ts`, `Chara/`, `Shop/`, `Encounter.ts`              |
 | `Models/`        | Data models and board logic                   | `Entities/Unit.ts`, `Entities/Card.ts`, `Board.ts`, `BoardLogic.ts`, `State.ts`                             |
 | `TriggerSystem/` | Action-Reaction effect engine                 | `TriggerSystem.ts`                                                                                          |
-| `Multiplayer/`   | Multiplayer manager & logic                   | `MultiplayerManager.ts`, `MultiplayerLogic.ts`                                                              |
+| `Multiplayer/`   | Multiplayer manager & logic                   | `MultiplayerManager.ts`                                                                                     |
 | `Storage/`       | Save data (Steam Cloud / localStorage)        | `StorageFactory.ts`, `SteamCloudProvider.ts`, `LocalStorageProvider.ts`                                     |
 | `i18n/`          | Localization (en, es, pt, jp, cn, ru)         | `i18n.ts`, `*.json`                                                                                         |
 | `Data/`          | Card/unit definitions                         | `BaseCollection.ts`                                                                                         |
@@ -80,7 +80,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 - [ ] `playSoundEffect` in `AudioManager.ts` lacks a `game.sound` availability check (unlike `playMusic`)
 - [ ] Legacy `PhaseManager.ts` still runs the main game loop — new `Core/PhaseSystem/` handlers are registered but not fully migrated
-- [ ] `MultiplayerManager` is a singleton class (has a TODO suggesting it may not need to be)
+- [x] `MultiplayerManager` was a singleton class — converted to functional module
 
 ## Task Queue
 
@@ -111,6 +111,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Single-multiplayer unification Phase 3 (client refactoring)
 - [x] Phase system handler architecture implemented in `Core/PhaseSystem/`
 - [x] Documentation audit and corrections (2026-02-11)
+- [x] Converted OOP classes to functional modules (GameLogic, Visualizer, MultiplayerManager)
 
 ## Agent Workflow
 

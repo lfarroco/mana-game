@@ -1,5 +1,5 @@
 import { SessionData } from "./Types";
-import { GameLogic } from "./GameLogic";
+import * as GameLogic from "./GameLogic";
 
 const STORAGE_PREFIX = 'mana_session_';
 

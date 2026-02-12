@@ -16,7 +16,7 @@ import { colorPresets } from "@Constants/colorPresets";
 import { loadUnitAssets } from "@Systems/Loader";
 import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter } from "@Systems/Events";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
@@ -39,7 +39,7 @@ let currentEventEmitter: EventEmitter | undefined;
 export async function startPhase(state: State, eventEmitter?: EventEmitter) {
 	currentEventEmitter = eventEmitter;
 	// For multiplayer, continue using the existing system (for now during migration)
-	if (MultiplayerManager.getInstance().isMultiplayer) {
+	if (isMultiplayer) {
 		await handleMultiplayerPhase(state);
 		return;
 	}
@@ -181,7 +181,7 @@ export function handlePhaseEnded(state: State): void {
 	saveGameData();
 
 	// Use server-based phase transition for single-player
-	if (!MultiplayerManager.getInstance().isMultiplayer) {
+	if (!isMultiplayer) {
 		const server = getServerAdapter();
 		const playerId = getPlayerId();
 

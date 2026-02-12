@@ -14,9 +14,9 @@ import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
-import { Visualizer } from "../../Visualizer";
+import { initializeVisualizer, destroyVisualizer } from "../../Visualizer";
 
 export type BattlegroundSceneData = {
 	state: State,
@@ -31,7 +31,6 @@ export class BattlegroundScene extends Phaser.Scene {
 	state: State;
 	combatRunner?: CombatRunner;
 	eventEmitter: EventEmitter;
-	visualizer: Visualizer;
 
 	cleanup() {
 
@@ -42,9 +41,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		}
 
 		// Clean up event system
-		if (this.visualizer) {
-			this.visualizer.destroy();
-		}
+		destroyVisualizer();
 
 		clearAll();
 		this.time.removeAllEvents();
@@ -71,7 +68,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		// Initialize event system per Architecture Proposal Item 3
 		this.eventEmitter = new SimpleEventEmitter();
-		this.visualizer = new Visualizer();
+		initializeVisualizer();
 
 		const speed = getOption("speed");
 
@@ -91,7 +88,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		const session = state.session;
 
 		// Initialize the Visualizer early in the scene startup
-		this.visualizer.initialize();
+		initializeVisualizer();
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
@@ -100,7 +97,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			// Set up multiplayer mode if needed
 			if (isMultiplayer) {
 				ServerFactory.setMultiplayer(true);
-				await MultiplayerManager.getInstance().enableMultiplayer();
+				await enableMultiplayer();
 			}
 
 			// Create session via server adapter for unified logic

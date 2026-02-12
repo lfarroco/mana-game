@@ -1,5 +1,5 @@
 import { State, getCurrentScene } from "@Models/State";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
 import * as HeroShop from "@Systems/Shop/HeroShop";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
@@ -29,7 +29,7 @@ import { updateWinsDisplay } from "@UI/components/winsDisplay";
 
 export async function handleMultiplayerPhase(state: State) {
 	console.log("Starting Multiplayer Phase handling...");
-	const result = await MultiplayerManager.getInstance().getPhaseOptions(state);
+	const result = await getPhaseOptions(state);
 
 	console.log(`Multiplayer Phase: ${result.phase}`);
 
@@ -71,7 +71,7 @@ export async function handleMultiplayerPhase(state: State) {
 				console.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
-				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id);
+				await sendOptionSelection(combatOption.id);
 				await handleMultiplayerPhase(state);
 			}
 			break;
@@ -84,7 +84,7 @@ export async function handleMultiplayerPhase(state: State) {
 		case "shop":
 			const shopCardIds = result.options.map((o: any) => o.id);
 			await HeroShop.openHeroShopLegacy(shopCardIds);
-			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.session.team });
+			await sendOptionSelection("shop_skip", { team: state.session.team });
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -100,7 +100,7 @@ export async function handleMultiplayerPhase(state: State) {
 				orbOptions.map((o: any) => o.id),
 				async (orbId, targetId) => {
 					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
-					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', {
+					await sendOptionSelection('apply_orb', {
 						orbId,
 						targetUnitId: targetId,
 						team: state.session.team
@@ -212,7 +212,7 @@ export async function handleMultiplayerPhase(state: State) {
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						MultiplayerManager.getInstance().sendOptionSelection("combat_done")
+						sendOptionSelection("combat_done")
 							.then(() => handleMultiplayerPhase(state));
 					},
 					() => {
