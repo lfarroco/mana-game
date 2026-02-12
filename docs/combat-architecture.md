@@ -14,7 +14,7 @@ The combat system is designed around a strict Separation of Concerns:
 
 ### 1. Core Logic (`RunCombatCore.ts`)
 
-- **Location**: `phaser/src/Scenes/Battleground/RunCombatCore.ts`
+- **Location**: `phaser/src/Engine/Scenes/Battleground/RunCombatCore.ts`
 - **Responsibility**: Manages the game loop, processes cooldowns, applies effects (damage/heal), and determines win/loss conditions.
 - **Dependencies**: Imports *only* data models (`State`, `Unit`, `Force`) and pure logic systems (`TimeoutDamageSystem`, `PoisonDamageSystem`). **No Phaser imports allowed.**
 
@@ -25,36 +25,38 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner
 
 ### 2. The Interface (`CombatEffects`)
 
-- **Location**: `phaser/src/Scenes/Battleground/CombatEnvironment.ts`
+- **Location**: `phaser/src/Engine/Scenes/Battleground/CombatEnvironment.ts`
 - **Responsibility**: Defines the contract for all side-effects. The Core Logic calls these methods to "announce" what happened, without knowing *how* it is presented.
 
-Key methods include:
-- `onDamage(sourceId, targetId, onHit)`
-- `onUnitPop(unitId)`
+Key methods include (all optional — implementations only provide what they need):
+- `onDamage(sourceId, targetId, amount, onHit, delayedExecution?)`
+- `onHeal`, `onShield`, `onPoison`, `onRegen`
+- `onHaste`, `onSlow`, `onCharge`
+- `onIncreasePower`, `onDecreasePower`, `onMultiplyPower`
 - `updateLifeDisplay(force, life, ...)`
 
 ```typescript
 export type CombatEffects = {
-    onDamage: (sourceId: string, targetId: string, onHit: () => void) => void;
-    // ...
+    onDamage?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+    // ... ~25 optional methods
 };
 ```
 
 ### 3. Implementations
 
 #### Client-Side (`BrowserCombatEffects.ts`)
-- **Location**: `phaser/src/Scenes/Battleground/BrowserCombatEffects.ts`
+- **Location**: `phaser/src/Engine/Scenes/Battleground/BrowserCombatEffects.ts`
 - **Context**: Runs in the browser (Electron/Web).
 - **Behavior**: Implements `CombatEffects` using Phaser 3. Triggers animations, particles, camera shakes, and sound effects.
 
 #### Server-Side (`ServerCombatEffects.ts`)
-- **Location**: `phaser/src/Scenes/Battleground/ServerCombatEffects.ts`
+- **Location**: `phaser/src/Engine/Scenes/Battleground/ServerCombatEffects.ts`
 - **Context**: Runs in Node.js or browser for simulation.
 - **Behavior**: Implements `CombatEffects` using loggers. Records all combat events with frame numbers and durations for playback.
 
 ### 4. Playback System (`CombatPlaybackController.ts`)
 
-- **Location**: `phaser/src/Scenes/Battleground/CombatPlaybackController.ts`
+- **Location**: `phaser/src/Engine/Scenes/Battleground/CombatPlaybackController.ts`
 - **Responsibility**: Schedules and executes animations based on pre-computed combat logs from server-side simulation.
 - **Key Features**:
   - Accepts combat logs with frame numbers and durations

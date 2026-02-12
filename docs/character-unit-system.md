@@ -13,11 +13,11 @@ Units are the core gameplay entities that players collect, upgrade, and deploy i
 Located in `phaser/src/Models/Entities/Unit.ts`.
 
 Defines the `Unit` type with all properties:
-- **Identity**: `id`, `cardId`, `pic`, `force`, `position`
-- **Stats**: `power`, `life`, `maxLife`, `shield`, `cooldown`
+- **Identity**: `id`, `cardId`, `pic`, `force`, `position`, `isCore`
+- **Stats**: `power`, `bonusPower`, `life`, `maxLife`, `shield`, `cooldown`, `rank`
 - **Abilities**: `effects` (actions), `reactions` (responses)
 - **State**: `charge`, `refresh`, `hasted`, `slowed`
-- **Special**: `critical`, `lifesteal`, `reflect`, `evade`
+- **Special**: `critical?`, `bonusCritical?`, `lifesteal?`, `reflect?`, `evade`
 
 Key functions:
 - `makeUnit()`: Creates unit from card definition
@@ -29,7 +29,7 @@ Key functions:
 Located in `phaser/src/Models/Entities/Card.ts`.
 
 Manages unit card data:
-- **Base Collection**: `BASE_COLLECTION_DATA` contains all unit definitions
+- **Base Collection**: `BASE_COLLECTION_DATA` in `phaser/src/Data/BaseCollection.ts` contains all unit definitions
 - **Registration**: `registerCollection()` loads card data
 - **Lookup**: `getCardDefinition()` retrieves card by ID
 

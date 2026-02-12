@@ -17,7 +17,7 @@ Located in `phaser/src/Engine/Scenes/Battleground/PhaseManager.ts`.
 
 The PhaseManager orchestrates the game flow:
 - Delegates to `MultiplayerPhaseManager` for multiplayer mode
-- Uses `LocalServerAdapter` for single-player mode
+- Uses `getServerAdapter()` from `@Core/ServerFactory` for single-player mode
 - Handles phase transitions and UI updates
 - Manages background color changes per phase
 
@@ -57,9 +57,10 @@ Key functions:
 
 #### Board Logic (`BoardLogic.ts`)
 Contains pure functions for board operations:
-- Position calculations and validations
-- Unit placement logic
-- Board state queries
+- `getEmptySlot()`: Finds available board positions
+- `findFreeSlot()`: Locates free slots for unit placement
+- `checkMove()`: Validates position moves
+- `createGrid()`: Initializes grid data structure
 
 ### Unit Management (`Chara/` System)
 
@@ -90,7 +91,7 @@ Key features:
 ```
 PhaseManager
     ↓
-LocalServerAdapter (single-player) OR MultiplayerManager (multiplayer)
+getServerAdapter() (single-player) OR MultiplayerManager (multiplayer)
     ↓
 CombatPhase.transitionToCombatPhase()
     ↓

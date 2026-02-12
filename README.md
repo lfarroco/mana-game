@@ -51,6 +51,10 @@ The following systems still need to be documented. If you find sections in the g
 
 - **[Server-Side Combat Migration](docs/server-side-combat-migration.md)** - Plan for decoupling the combat runner from Phaser for server-side verification.
 
+## AI Agent Entry Point
+
+See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, current issues, task queue, and workflow instructions.
+
 ## Publishing
 
 - Steam: run `npm run electron:build:all`, then `sh scripts/publish_steam.sh` from the `phaser` directory.
