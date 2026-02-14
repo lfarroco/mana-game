@@ -82,6 +82,11 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		return;
 	}
 
+	if (!game || !game.sound) {
+		// Silently fail or log warning if game sound system is not ready (common in tests)
+		return;
+	}
+
 	const now = Date.now();
 	const lastPlayed = soundEffectCooldowns.get(soundKey);
 	if (lastPlayed && now - lastPlayed < SOUND_EFFECT_COOLDOWN_MS) {

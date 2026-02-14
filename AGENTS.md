@@ -78,7 +78,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find or fix bugs.
 
-- [ ] `playSoundEffect` in `AudioManager.ts` lacks a `game.sound` availability check (unlike `playMusic`)
 - [ ] Legacy `PhaseManager.ts` still runs the main game loop — new `Core/PhaseSystem/` handlers are registered but not fully migrated
 - [x] `MultiplayerManager` was a singleton class — converted to functional module
 
@@ -96,7 +95,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [ ] Document the UI System (components, layout management)
 - [ ] Document the Effect System (visual effects, particles)
 - [ ] Document the Options/Preferences System (user settings)
-- [ ] Add `game.sound` availability guard to `playSoundEffect` in `AudioManager.ts`
 - [ ] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
 
 ### Low Priority
@@ -112,6 +110,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Phase system handler architecture implemented in `Core/PhaseSystem/`
 - [x] Documentation audit and corrections (2026-02-11)
 - [x] Converted OOP classes to functional modules (GameLogic, Visualizer, MultiplayerManager)
+- [x] Added `game.sound` availability guard to `playSoundEffect` in `AudioManager.ts` (Gemini, 2026-02-12)
 
 ## Agent Workflow
 
