@@ -111,6 +111,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Documentation audit and corrections (2026-02-11)
 - [x] Converted OOP classes to functional modules (GameLogic, Visualizer, MultiplayerManager)
 - [x] Added `game.sound` availability guard to `playSoundEffect` in `AudioManager.ts` (Gemini, 2026-02-12)
+- [x] Deployed updated Supabase Edge Functions (action and auth-steam) (2026-02-14)
 
 ## Agent Workflow
 
