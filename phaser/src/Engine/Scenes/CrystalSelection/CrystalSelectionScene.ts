@@ -14,7 +14,8 @@ import { getSeed, setSeed } from "@Utils/Random";
 
 //TODO: should also disable seed selection in multiplayer mode
 interface CrystalSelectionData {
-	isMultiplayer: boolean;
+	isMultiplayer?: boolean;
+	isArena?: boolean;
 }
 
 const CARD_DISPLAY_Y = 380;
@@ -44,7 +45,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	}
 
 	init(data: CrystalSelectionData) {
-		this.isMultiplayer = data.isMultiplayer;
+		this.isMultiplayer = data.isMultiplayer || data.isArena || false;
 		if (this.isMultiplayer) {
 			console.log("Entering Arena Mode (Multiplayer)");
 		}
