@@ -112,6 +112,10 @@ export class BattlegroundScene extends Phaser.Scene {
 			createGameController(playerId);
 		} else {
 			state.session = session;
+
+			// Ensure GameController is initialized for resumed sessions (e.g. multiplayer reconnect)
+			const playerId = state.session.player_id || "local_player";
+			createGameController(playerId);
 		}
 
 		Systems.Setup.setupSceneElements();
