@@ -82,23 +82,11 @@ Deno.serve(async (req) => {
 			return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 		}
 
-		// Logic: Resolve Action
-		const result = MultiplayerLogic.resolveAction(session, actionId, payload)
-		let nextSession = { ...session, team: result.team }
-
-		// Update Team in DB if changed
-		if (result.updates && result.updates.length > 0) {
-			const { error: updateError } = await supabaseClient
-				.from('player_sessions')
-				.update({ team: result.team, updated_at: new Date() })
-				.eq('id', session.id)
-
-			if (updateError) throw updateError
-		}
-
 		// Logic: Transition State
-		const transitionResult = MultiplayerLogic.transitionToNextState(nextSession, actionId, payload)
-		nextSession = transitionResult.session
+		// transitionToNextState already resolves the action and applies team updates,
+		// so calling resolveAction separately here would apply the same action twice.
+		const transitionResult = MultiplayerLogic.transitionToNextState(session, actionId, payload)
+		const nextSession = transitionResult.session
 		const combatResult = transitionResult.combatResult
 
 		// Persist New State

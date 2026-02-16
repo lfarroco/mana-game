@@ -285,7 +285,12 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 					const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
 
 					const previousStep = session.step - 1;
-					const lastEncounterAction = session.action_log.find((a) => a.round === session.round && a.step === previousStep);
+					const encounterActions = session.action_log.filter((a) =>
+						a.round === session.round &&
+						a.step === previousStep &&
+						a.phase === 'encounter'
+					);
+					const lastEncounterAction = encounterActions[encounterActions.length - 1];
 					const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
 					let targetRank = 1;
 					if (encounterId === 'silver_shop') targetRank = 2;
