@@ -35,6 +35,9 @@ export async function handleMultiplayerPhase(state: State) {
 
 	console.log(`Multiplayer Phase: ${result.phase}`);
 
+	// Sync phase from server
+	state.session.phase = result.phase;
+
 	// Sync Team State and Stats from Server
 	if (result.round !== undefined) {
 		console.log(`Syncing round: ${result.round}`);
