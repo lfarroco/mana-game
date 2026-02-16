@@ -31,7 +31,7 @@ export const createRemoteGameController = (): GameController => {
 			// Determine the appropriate skip action based on current phase
 			let actionId = 'skip';
 			if (state.session.phase === 'shop') {
-				actionId = 'shop_done';
+				actionId = 'skip_shop';
 			} else if (state.session.phase === 'orb_shop') {
 				actionId = 'orb_shop_done';
 			} else if (state.session.phase === 'upgrade_core') {
