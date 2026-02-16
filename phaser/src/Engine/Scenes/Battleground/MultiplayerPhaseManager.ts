@@ -1,7 +1,6 @@
 import { State, getCurrentScene } from "@Models/State";
 import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
-import * as HeroShop from "@Systems/Shop/HeroShop";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import { showMatchResult } from "@Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
@@ -18,13 +17,16 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ForceStats from "./ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { resetUnitStats } from "@Models/Entities/Unit";
-import { getBattleCore } from "@Models/Entities/Card";
+import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import { updateLivesDisplay } from "@UI/components/livesDisplay";
 import { updateRoundDisplay } from "@UI/components/roundDisplay";
 import { updateWinsDisplay } from "@UI/components/winsDisplay";
+import { renderTavernCharas } from "@Systems/Shop/CharaShop";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import { getGameController } from "@Core/GameControllerFactory";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -83,9 +85,17 @@ export async function handleMultiplayerPhase(state: State) {
 
 		case "shop":
 			const shopCardIds = result.options.map((o: any) => o.id);
-			await HeroShop.openHeroShopLegacy(shopCardIds);
-			await sendOptionSelection("shop_skip", { team: state.session.team });
-			await handleMultiplayerPhase(state);
+			const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
+			const controller = getGameController();
+
+			ShopPanel.create(async () => {
+				await ShopPanel.slideOut();
+				await controller.skipPhase();
+			});
+
+			renderTavernCharas(cardDefs);
+
+			await ShopPanel.slideIn();
 			break;
 
 		case "orb_shop":
