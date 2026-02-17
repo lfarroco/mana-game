@@ -44,13 +44,17 @@ export async function handleMultiplayerPhase(state: State) {
 		state.session.round = result.round;
 		updateRoundDisplay(state.session.round);
 	}
-	if (result.wins !== undefined) {
-		state.session.wins = result.wins;
-		updateWinsDisplay(state.session.wins);
-	}
-	if (result.losses !== undefined) {
-		state.session.losses = result.losses;
-		updateLivesDisplay(4 - state.session.losses);
+	// Don't sync wins/losses when entering combat phase, since the combat hasn't been shown yet
+	// The optimistic update after combat will handle the display, and the next phase will sync correctly
+	if (result.phase !== "combat") {
+		if (result.wins !== undefined) {
+			state.session.wins = result.wins;
+			updateWinsDisplay(state.session.wins);
+		}
+		if (result.losses !== undefined) {
+			state.session.losses = result.losses;
+			updateLivesDisplay(4 - state.session.losses);
+		}
 	}
 
 	if (result.team && result.team.units) {
@@ -218,11 +222,12 @@ export async function handleMultiplayerPhase(state: State) {
 
 			const resultType = outcome === "player_won" ? "victory" : "defeat";
 
-			// Optimistically update top bar stats
+			// Optimistically update top bar display only (not state)
+			// The state will be synced from server on next phase transition
 			if (resultType === "victory") {
 				updateWinsDisplay((state.session.wins || 0) + 1);
 			} else {
-				updateLivesDisplay((4 - (state.session.losses || 0)) - 1);
+				updateLivesDisplay(4 - (state.session.losses || 0) - 1);
 			}
 
 			await new Promise<void>((resolve) => {
