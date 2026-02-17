@@ -1,7 +1,6 @@
 import { State, getCurrentScene } from "@Models/State";
 import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
-import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import { showMatchResult } from "@Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
 import { createCombatPlaybackController } from "./CombatPlaybackController";
@@ -27,6 +26,7 @@ import { updateWinsDisplay } from "@UI/components/winsDisplay";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
+import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 
 
 export async function handleMultiplayerPhase(state: State) {
@@ -122,6 +122,22 @@ export async function handleMultiplayerPhase(state: State) {
 			);
 			// After orb shop completes, notify server and get next phase
 			await sendOptionSelection('orb_shop_done');
+			await handleMultiplayerPhase(state);
+			break;
+
+		case "upgrade_core":
+			const upgradeIds = result.options.map((o: any) => o.id);
+			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
+			// After upgrade completes, notify server and get next phase
+			await sendOptionSelection('upgrade_core_done');
+			await handleMultiplayerPhase(state);
+			break;
+
+		case "add_reaction_core":
+			const reactionIds = result.options.map((o: any) => o.id);
+			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
+			// After reaction card completes, notify server and get next phase
+			await sendOptionSelection('add_reaction_core_done');
 			await handleMultiplayerPhase(state);
 			break;
 

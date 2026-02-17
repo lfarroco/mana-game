@@ -116,6 +116,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Fixed multiplayer phase transitions: `upgrade_core` and `add_reaction_core` now properly transition to next phase (Copilot, 2026-02-16)
 - [x] Fixed multiplayer timeout damage bug where only player's core was damaged instead of both cores (Copilot, 2026-02-16)
 - [x] Fixed multiplayer `orb_shop` phase transition: now properly sends `orb_shop_done` to transition to next phase (Copilot, 2026-02-16)
+- [x] Added missing `upgrade_core` and `add_reaction_core` phase handlers in multiplayer to display effect card shop (Copilot, 2026-02-16)
 
 ## Agent Workflow
 
