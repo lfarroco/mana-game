@@ -2,6 +2,7 @@ import { Unit } from "./Unit";
 import { getBattleCore } from "./Card";
 import { State } from "@Models/State";
 import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 
 export type Force = {
 	id: string;
@@ -26,19 +27,11 @@ export const makeForce = (id: string): Force => {
 };
 
 export const playerForce = (state: State): Force => {
-	return {
-		id: state.session.player_id,
-		name: '',
-		color: '',
-		units: state.session.team.units,
-		lives: 4 - state.session.losses,
-		wins: state.session.wins,
-		losses: state.session.losses
-	};
+	return state.battleData.forces.find((f) => f.id === FORCE_ID_PLAYER)!;
 };
 
 export const cpuForce = (state: State): Force => {
-	return state.battleData.forces.find((f) => f.id !== state.session.player_id)!;
+	return state.battleData.forces.find((f) => f.id === FORCE_ID_CPU)!;
 };
 
 // Helper to get forceStatsState from env.effects if accessible, but Force.ts imports CombatEffects which doesn't have reference to Environment context directly unless passed.

@@ -120,25 +120,8 @@ export async function handleMultiplayerPhase(state: State) {
 					});
 				}
 			);
-			await handleMultiplayerPhase(state);
-			break;
-
-		case "upgrade_core":
-			const upgradeIds = result.options.map((o: any) => o.id);
-			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
-			// After upgrade completes, notify server and get next phase
-			await sendOptionSelection('upgrade_core_done');
-			await handleMultiplayerPhase(state);
-			break;
-
-		case "add_reaction_core":
-			const reactionIds = result.options.map((o: any) => o.id);
-			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
-			// After reaction card completes, notify server and get next phase
-			await sendOptionSelection('add_reaction_core_done');
-			await handleMultiplayerPhase(state);
-			break;
-
+			// After orb shop completes, notify server and get next phase
+			await sendOptionSelection('orb_shop_done');
 		case "victory":
 			await showMatchResult(true);
 			break;
