@@ -1,7 +1,7 @@
 import { getCurrentScene, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
-import { makeForce, playerForce } from "@Models/Entities/Force";
+import { makeForce } from "@Models/Entities/Force";
 import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
@@ -38,7 +38,18 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 		enemies = combatState.enemyTeam;
 
 		// Initialize forces array for combat
-		state.battleData.forces = [makeForce(constants.FORCE_ID_CPU), { ...playerForce(state), id: constants.FORCE_ID_PLAYER }];
+		state.battleData.forces = [
+			makeForce(constants.FORCE_ID_CPU),
+			{
+				id: constants.FORCE_ID_PLAYER,
+				name: '',
+				color: '',
+				units: state.session.team.units,
+				lives: 4 - state.session.losses,
+				wins: state.session.wins,
+				losses: state.session.losses
+			}
+		];
 
 		// If we have full combat state with units, use those
 		if (combatState.units) {
