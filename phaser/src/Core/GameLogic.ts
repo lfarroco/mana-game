@@ -12,8 +12,8 @@ import { makeForce } from "../Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
 import { registerCollection } from "../Models/Entities/Card";
 import * as Random from "../Utils/Random";
-import { PhaseType } from "./Types";
 import { phaseManager } from "./PhaseSystem";
+import { getPhaseForTurn } from "./PhaseSystem/PhaseConfig";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
@@ -36,46 +36,7 @@ const ENCOUNTER_IDS = [
 	'gold_shop'
 ];
 
-// Phase sequence per round - explicit mapping of what happens each round
-// Each round has 5 steps: 3 encounters, 1 combat, 1 upgrade
-const ROUND_PHASES: Record<number, PhaseType[]> = {
-	1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-};
-
-// Default round pattern for rounds beyond the predefined ones
-const DEFAULT_ROUND_PHASES: PhaseType[] = [
-	"encounter",
-	"encounter",
-	"encounter",
-	"combat",
-	"upgrade_core"
-];
-
-// Helper function to get phase type based on round and step
-function getPhaseForTurn(round: number, step: number): PhaseType {
-	// Step is 1-indexed, convert to 0-indexed for array access
-	const stepIndex = step - 1;
-
-	// Get phases for this round
-	const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
-
-	// Return the phase for this step in the round
-	return roundPhases[stepIndex];
-}
+// Phase config is centralized in PhaseConfig; import `getPhaseForTurn` above
 
 export function createInitialSession(playerId: string, selectedCrystalId?: string): SessionData {
 	const seed = Math.random().toString(36).substring(7);

@@ -113,6 +113,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Added `game.sound` availability guard to `playSoundEffect` in `AudioManager.ts` (Gemini, 2026-02-12)
 - [x] Deployed updated Supabase Edge Functions (action and auth-steam) (2026-02-14)
 - [x] Fixed multiplayer `silver_shop`/`gold_shop` rank inversion and duplicate action application in action flow (Copilot, 2026-02-16)
+- [x] Fixed multiplayer phase transitions: `upgrade_core` and `add_reaction_core` now properly transition to next phase (Copilot, 2026-02-16)
 
 ## Agent Workflow
 
