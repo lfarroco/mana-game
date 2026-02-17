@@ -21,7 +21,7 @@ export const orbShopPhaseHandler = createPhaseHandler({
 		}
 
 		if (actionId === 'orb_shop_done') {
-			const expectedPhase = getPhaseForTurn(session.round, session.step);
+			const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
 
 			let nextPhase: PhaseType = 'encounter';
 			let nextOptions: any[] = [];
@@ -42,7 +42,7 @@ export const orbShopPhaseHandler = createPhaseHandler({
 			return {
 				nextPhase,
 				nextOptions,
-				stepIncrement: 0,
+				stepIncrement: 1,
 			};
 		}
 

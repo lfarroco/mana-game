@@ -117,6 +117,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Fixed multiplayer timeout damage bug where only player's core was damaged instead of both cores (Copilot, 2026-02-16)
 - [x] Fixed multiplayer `orb_shop` phase transition: now properly sends `orb_shop_done` to transition to next phase (Copilot, 2026-02-16)
 - [x] Added missing `upgrade_core` and `add_reaction_core` phase handlers in multiplayer to display effect card shop (Copilot, 2026-02-16)
+- [x] Fixed phase step increment logic: shops no longer increment steps (they're part of the same turn as encounters), ensuring correct 3-encounter sequence before combat (Copilot, 2026-02-17)
+- [x] Fixed shop-to-combat transition: shop now properly transitions to encounter phase with combat warning instead of directly to combat phase (Copilot, 2026-02-17)
 
 ## Agent Workflow
 
