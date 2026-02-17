@@ -105,16 +105,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ### Completed
 
-- [x] Server-side combat migration (playback-based architecture)
-- [x] Single-multiplayer unification Phase 3 (client refactoring)
-- [x] Phase system handler architecture implemented in `Core/PhaseSystem/`
-- [x] Documentation audit and corrections (2026-02-11)
-- [x] Converted OOP classes to functional modules (GameLogic, Visualizer, MultiplayerManager)
-- [x] Added `game.sound` availability guard to `playSoundEffect` in `AudioManager.ts` (Gemini, 2026-02-12)
-- [x] Deployed updated Supabase Edge Functions (action and auth-steam) (2026-02-14)
-- [x] Fixed multiplayer `silver_shop`/`gold_shop` rank inversion and duplicate action application in action flow (Copilot, 2026-02-16)
-- [x] Fixed multiplayer phase transitions: `upgrade_core` and `add_reaction_core` now properly transition to next phase (Copilot, 2026-02-16)
-- [x] Fixed multiplayer timeout damage bug where only player's core was damaged instead of both cores (Copilot, 2026-02-16)
 - [x] Fixed multiplayer `orb_shop` phase transition: now properly sends `orb_shop_done` to transition to next phase (Copilot, 2026-02-16)
 - [x] Added missing `upgrade_core` and `add_reaction_core` phase handlers in multiplayer to display effect card shop (Copilot, 2026-02-16)
 - [x] Fixed phase step increment logic: shops no longer increment steps (they're part of the same turn as encounters), ensuring correct 3-encounter sequence before combat (Copilot, 2026-02-17)
