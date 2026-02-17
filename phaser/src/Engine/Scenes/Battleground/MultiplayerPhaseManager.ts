@@ -122,6 +122,9 @@ export async function handleMultiplayerPhase(state: State) {
 			);
 			// After orb shop completes, notify server and get next phase
 			await sendOptionSelection('orb_shop_done');
+			await handleMultiplayerPhase(state);
+			break;
+
 		case "victory":
 			await showMatchResult(true);
 			break;
