@@ -19,7 +19,7 @@ export const shopPhaseHandler = createPhaseHandler({
 			const encounterResult = GameLogic.generateEncounterOptions(session);
 			nextOptions = encounterResult.options;
 		} else if (expectedPhase === 'combat') {
-			nextPhase = 'combat';
+			nextPhase = 'encounter';
 			nextOptions = [{ id: 'combat_encounter' }];
 		} else {
 			nextPhase = 'encounter';
