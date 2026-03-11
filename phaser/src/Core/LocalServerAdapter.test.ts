@@ -134,8 +134,8 @@ describe("LocalServerAdapter", () => {
 			expect(["shop", "orb_shop"]).toContain(options.phase);
 			const phaseAfterEncounter = options.phase;
 
-			// Skip shop
-			const skipAction = phaseAfterEncounter === "shop" ? "skip_shop" : "skip_orb_shop";
+			// Skip shop/orb_shop
+			const skipAction = phaseAfterEncounter === "shop" ? "skip_shop" : "orb_shop_done";
 			await adapter.handleAction(testPlayerId, skipAction);
 
 			// Should progress to next phase
