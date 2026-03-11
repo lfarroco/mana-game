@@ -63,4 +63,13 @@ module.exports = {
 		"^(\\.{1,2}/.*)\\.js$": "$1",
 		"\\.(json)$": "identity-obj-proxy",
 	},
+	collectCoverageFrom: [
+		"src/Core/**/*.{ts,tsx}",
+		"src/Systems/**/*.{ts,tsx}",
+		"!src/**/*.d.ts",
+		"!src/**/__tests__/**",
+		"!src/test-utils/**",
+	],
+	coverageDirectory: "coverage",
+	coverageReporters: ["text", "lcov", "html"],
 };
