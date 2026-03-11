@@ -1,5 +1,4 @@
 import * as constants from "@Constants/constants";
-import * as constants_1 from "@Constants/constants";
 import * as Geometry from "./Geometry";
 import { Unit } from "./Entities/Unit";
 import { getCurrentScene, getState, State } from "./State";
@@ -23,8 +22,8 @@ export function createBoardState(): BoardState {
 		dropZones: [],
 		cpuSlotShaders: [],
 		enemyBoardVisible: false,
-		x: constants_1.PLAYER_BOARD_X,
-		y: constants_1.PLAYER_BOARD_Y,
+		x: constants.PLAYER_BOARD_X,
+		y: constants.PLAYER_BOARD_Y,
 		width: constants.TILE_WIDTH * 3 + 8 * 2,
 		height: constants.TILE_HEIGHT * 3 + 8 * 2,
 	};
@@ -41,13 +40,13 @@ export function renderBoardSlots(board: BoardState): void {
 	board.dropZones = [];
 	board.cpuSlotShaders = [];
 
-	let cells = [];
+	const cells: Vec2[] = [];
 	for (let tileY = 0; tileY < 3; tileY++)
 		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
 
 	const boards = [
-		{ x: constants_1.PLAYER_BOARD_X, y: constants_1.PLAYER_BOARD_Y, isPlayer: true },
-		{ x: constants_1.CPU_BOARD_X, y: constants_1.CPU_BOARD_Y, isPlayer: false },
+		{ x: constants.PLAYER_BOARD_X, y: constants.PLAYER_BOARD_Y, isPlayer: true },
+		{ x: constants.CPU_BOARD_X, y: constants.CPU_BOARD_Y, isPlayer: false },
 	];
 
 	boards.forEach((boardInfo) => {
@@ -124,7 +123,7 @@ export function setEnemyBoardVisible(visible: boolean): void {
 				};
 				const visualX = 2 - cell.x;
 				const targetX =
-					constants_1.CPU_BOARD_X +
+					constants.CPU_BOARD_X +
 					visualX * (constants.TILE_WIDTH + slotSpacing) +
 					constants.TILE_WIDTH / 2;
 
@@ -200,7 +199,7 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const slot = BoardLogic.getEmptySlot(units, forceId, boardWidthInTiles, boardHeightInTiles);
 
 	if (!slot) {
-		console.warn("Board full. No empty slot available for forceId:", forceId);
+		// Board full, no empty slot available
 	}
 	return slot;
 }
@@ -224,6 +223,32 @@ export function getTileAt(board: BoardState, pointer: { x: number; y: number }):
 		}
 	}
 	return null;
+}
+
+export function getSlotPosition(slotIndex: number, isPlayerBoard: boolean = true): Vec2 {
+	const slotSpacing = 8;
+	const cells = [];
+	for (let tileY = 0; tileY < 3; tileY++)
+		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
+
+	const cell = cells[slotIndex];
+	if (!cell) return Geometry.vec2(0, 0);
+
+	let visualX = cell.x;
+	if (!isPlayerBoard) {
+		visualX = 2 - cell.x;
+	}
+
+	const boardX = isPlayerBoard ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
+	const boardY = isPlayerBoard ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
+
+	const zoneX = boardX + visualX * (constants.TILE_WIDTH + slotSpacing);
+	const zoneY = boardY + cell.y * (constants.TILE_HEIGHT + slotSpacing);
+
+	const slotX = zoneX + constants.TILE_WIDTH / 2;
+	const slotY = zoneY + constants.TILE_HEIGHT / 2;
+
+	return Geometry.vec2(slotX, slotY);
 }
 
 export function updateUnitPosition(

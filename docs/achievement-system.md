@@ -45,4 +45,5 @@ Achievement IDs follow the format: `TIER_CRYSTALNAME`.
 ## Debugging
 
 *   The system logs to the console with the prefix `[Achievement]`.
-*   If Steam is not initialized (e.g., running in browser), it logs what *would* have been unlocked.
+*   If Steam is not initialized (e.g., running in browser), `unlockAchievement` returns `false` silently without logging.
+*   The `isSteamAvailable()` guard and try-catch blocks ensure errors are caught and logged via `console.error`.

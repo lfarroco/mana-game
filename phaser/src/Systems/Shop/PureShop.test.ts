@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
 import * as PureShop from './PureShop';
 import { SessionData } from '@Core/Types';
-import { makeUnit, Unit } from '@Models/Entities/Unit';
+import { makeUnit } from '@Models/Entities/Unit';
 import * as constants from '@Constants/constants';
 import { registerCollection } from '@Models/Entities/Card';
 import { BASE_COLLECTION_DATA } from '@Data/BaseCollection';

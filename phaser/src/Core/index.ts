@@ -15,7 +15,7 @@
 export * from './Types';
 
 // Core Logic
-export { GameLogic } from './GameLogic';
+export * from './GameLogic';
 export { SessionManager } from './SessionManager';
 export { PhaseTransitions } from './PhaseTransitions';
 

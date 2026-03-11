@@ -1,6 +1,6 @@
 import { IGameServer } from './IGameServer';
 import { SessionManager } from './SessionManager';
-import { GameLogic } from './GameLogic';
+import * as GameLogic from './GameLogic';
 import { SessionData, PhaseOptions, PhaseType } from './Types';
 
 /**

@@ -6,5 +6,21 @@ export * as Timeout from "./TimeoutDamageSystem";
 export * as CombatPhase from "./CombatPhase";
 export * as ResultsPhase from "./ResultsPhase";
 export * as Setup from "./Setup";
-export * as Shop from "./Shop";
 export * as CountdownTimer from "./CountdownTimer";
+
+// Export Shop with backward compatibility extensions
+import * as ShopModule from "./Shop";
+export const Shop = {
+	...ShopModule,
+	HeroShop: {
+		...ShopModule.HeroShop,
+		getShopCharaBySlot: (_: number) => {
+			console.warn("getShopCharaBySlot is deprecated - use new event-driven shop system");
+			return null;
+		},
+		getDisplayedHeroCardDefinitions: () => {
+			console.warn("getDisplayedHeroCardDefinitions is deprecated - use new event-driven shop system");
+			return [];
+		}
+	}
+};

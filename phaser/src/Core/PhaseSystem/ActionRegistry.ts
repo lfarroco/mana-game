@@ -5,6 +5,7 @@ type ActionRegistryState = Record<string, ActionMetadata>;
 const initialRegistry: ActionRegistryState = {
 	// Meta Actions
 	'discard_unit': { type: ActionType.META_ACTION, description: 'Remove a unit from the team' },
+	'update_team': { type: ActionType.META_ACTION, description: 'Update team composition' },
 
 	// Special Orb Encounters -> Orb Shop
 	'upgrade_unit': { type: ActionType.PHASE_TRANSITION, toPhase: 'orb_shop', description: 'Enter orb shop to upgrade unit' },

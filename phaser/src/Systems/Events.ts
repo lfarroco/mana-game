@@ -11,6 +11,46 @@
 import { Unit } from "@Models/Entities/Unit";
 
 /**
+ * EventEmitter interface for system events
+ */
+export interface EventEmitter {
+	on(event: string, listener: (event: any) => void): void;
+	off(event: string, listener: (event: any) => void): void;
+	emit(event: string, data?: any): void;
+}
+
+/**
+ * Simple implementation of EventEmitter
+ */
+export class SimpleEventEmitter implements EventEmitter {
+	private listeners: { [event: string]: ((data?: any) => void)[] } = {};
+
+	on(event: string, listener: (data?: any) => void): void {
+		if (!this.listeners[event]) {
+			this.listeners[event] = [];
+		}
+		this.listeners[event].push(listener);
+	}
+
+	off(event: string, listener: (data?: any) => void): void {
+		const eventListeners = this.listeners[event];
+		if (eventListeners) {
+			const index = eventListeners.indexOf(listener);
+			if (index > -1) {
+				eventListeners.splice(index, 1);
+			}
+		}
+	}
+
+	emit(event: string, data?: any): void {
+		const eventListeners = this.listeners[event];
+		if (eventListeners) {
+			eventListeners.forEach(listener => listener(data));
+		}
+	}
+}
+
+/**
  * Base event type that all system events extend
  */
 export type SystemEvent = {

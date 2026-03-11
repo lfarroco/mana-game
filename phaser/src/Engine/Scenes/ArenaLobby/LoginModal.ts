@@ -3,7 +3,7 @@ import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "@Constants/constants";
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { handleAuthLogin, handleAuthRegister } from "@Multiplayer/MultiplayerManager";
 
 export class LoginModal {
 	private scene: Phaser.Scene;
@@ -56,7 +56,7 @@ export class LoginModal {
 		if (!password) return;
 
 		try {
-			const profile = await MultiplayerManager.getInstance().handleAuthLogin(username, password);
+			const profile = await handleAuthLogin(username, password);
 			localStorage.setItem("player_id", profile.id);
 			alert("Login Successful!");
 			this.hide(true);
@@ -81,7 +81,7 @@ export class LoginModal {
 				return;
 			}
 
-			const profile = await MultiplayerManager.getInstance().handleAuthRegister(username, password);
+			const profile = await handleAuthRegister(username, password);
 			if (profile && typeof profile === 'object' && 'id' in profile) {
 				localStorage.setItem("player_id", profile.id as string);
 			}

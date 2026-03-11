@@ -57,7 +57,9 @@ Common targeting options:
 - **`weakest_ally` / `strongest_ally`**: Based on current Power.
 - **`weakest_enemy` / `strongest_enemy`**: Based on current Power.
 - **`row_allies` / `column_allies`**: Multi-target selection based on grid.
+- **`top_ally` / `bottom_ally` / `left_ally` / `right_ally`**: Specific adjacent allies.
 - **`all_allies`**: Everyone on the team.
+- **`all_enemies`**: Everyone on the opposing team.
 
 ## Effect Types
 
@@ -79,10 +81,19 @@ Common targeting options:
 - `increase_critical`: Increases Critical Hit chance.
 - `absorb_power`: Steals Power from target.
 - `distribute_power`: Spreads own Power to allies.
+- `sacrifice_effect`: Sacrifices own unit for a powerful effect.
+
+### Re-application Effects
+- `re_hasted`: Re-applies haste (refreshes duration).
+- `re_slow`: Re-applies slow (refreshes duration).
 
 ### Global Triggers
 These are special "event" triggers that don't come from a specific unit's active skill but from game state changes:
 - `on_crit`: Triggers when a Critical Hit happens.
 - `on_battle_start`: Triggers once at the beginning of combat.
+- `on_over_heal`: Triggers when healing exceeds max life.
 - `every_100_damage`: Triggers globally every 100 damage dealt.
 - `every_100_heal`, `every_100_shield`: Similar global accumulation triggers.
+- `every_10_poison`, `every_10_regen`: Triggers every 10 poison/regen applied.
+
+> **Note**: The `effectId` field in reactions can also be `"all"` to trigger on any effect type.

@@ -6,7 +6,7 @@ import { createUIButton } from "@Components/UIButton";
 import { createModal } from "@Components/Modal";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { handleAuthLogin, handleAuthRegister, handleAuthGuest, handleSteamAuth } from "@Multiplayer/MultiplayerManager";
 import { setCurrentScene } from "@Models/State";
 import { isElectron } from "@Utils/environment";
 
@@ -152,7 +152,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		}
 
 		try {
-			const profile = await MultiplayerManager.getInstance().handleAuthLogin(inputs.email, inputs.pass);
+			const profile = await handleAuthLogin(inputs.email, inputs.pass);
 			localStorage.setItem("mana_player_id", profile.id);
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
@@ -174,7 +174,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		try {
 			// Pass username separately to updated handleAuthRegister
-			const result: any = await MultiplayerManager.getInstance().handleAuthRegister(inputs.email, inputs.pass, inputs.username);
+			const result: any = await handleAuthRegister(inputs.email, inputs.pass, inputs.username);
 
 			if (result && result.success && result.requiresConfirmation) {
 				this.showModal("Registration Successful", "Registration successful! Please confirm your email.", () => {
@@ -193,7 +193,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	async handleGuest() {
 		try {
-			const profile = await MultiplayerManager.getInstance().handleAuthGuest();
+			const profile = await handleAuthGuest();
 			localStorage.setItem("mana_player_id", profile.id);
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
@@ -205,7 +205,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 	async handleSteamLogin() {
 		try {
 			console.log("Attempting Steam Login...");
-			const profile = await MultiplayerManager.getInstance().handleSteamAuth();
+			const profile = await handleSteamAuth();
 			if (profile) {
 				localStorage.setItem("mana_player_id", profile.id);
 				this.scene.start(SCENE_KEYS.ARENA_LOBBY);

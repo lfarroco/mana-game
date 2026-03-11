@@ -19,11 +19,13 @@ phaseManager.register(combatPhaseHandler);
 phaseManager.register(upgradeCorePhaseHandler);
 phaseManager.register(addReactionCorePhaseHandler);
 
-export * from "./types";
+export type * from "./types";
 export {
 	phaseManager,
 	actionRegistry,
 	phaseValidator,
+};
+export type {
 	PhaseManagerApi,
 	ActionRegistryApi,
 };
