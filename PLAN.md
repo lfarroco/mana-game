@@ -440,12 +440,13 @@ Improvements to build, deployment, and development workflows.
   - **Targets**: Itch.io, Steam, GitHub Releases
 
 ### Development Tools
-- [ ] **Add bundle size monitoring**
+- [x] **Add bundle size monitoring**
   - **Context**: Track bundle size changes over time
   - **Impact**: Prevent bundle bloat
   - **Effort**: Low (0.5 day)
   - **Tools**: bundlesize, size-limit
   - **Integration**: Add to CI pipeline
+  - **Status**: ✅ Fixed - Added `size-limit` + `@size-limit/file`, configured bundle threshold for `dist/bundle.min.js`, and integrated check in `webpack.yml` CI workflow (2026-03-11)
 
 - [ ] **Create debug build configuration**
   - **Context**: Development builds could have more debug tools
@@ -578,6 +579,7 @@ Previously completed work for historical reference.
 ### DevOps (March 2026)
 - [x] **Added automated unit test runs to CI** — Updated `.github/workflows/webpack.yml` to install dependencies and run `npm run test` before `npm run build` (2026-03-11)
 - [x] **Re-enabled automated E2E tests in CI** — Updated `.github/workflows/e2e-tests.yml` to run on pull requests targeting `main` (and kept manual dispatch) (2026-03-11)
+- [x] **Added bundle size monitoring in CI** — Added `size-limit` bundle threshold check (`npm run test:bundle-size`) and executed it in `.github/workflows/webpack.yml` after the production build (2026-03-11)
 
 ### Architecture Debt (March 2026)
 - [x] **Completed Systems consolidation cleanup verification** — Confirmed no remaining `Scenes/Battleground/Systems/` references and no legacy directory under `phaser/src/Engine/Scenes/Battleground/` (2026-03-11)
