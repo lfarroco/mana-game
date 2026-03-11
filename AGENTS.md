@@ -2,6 +2,8 @@
 
 This file is the entry point for AI agents working on the Mana Battle codebase. Read this first to orient yourself, then pick a task and get to work. **Update this file when you complete a task or discover new issues.**
 
+The file plan.md contains the overall project plan and roadmap, including tasks that are currently in progress, completed, or planned for future development.
+
 ## Project Overview
 
 Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview.
