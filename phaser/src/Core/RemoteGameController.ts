@@ -1,5 +1,5 @@
 import { GameController, GameFeature } from "./GameController";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { sendOptionSelection, sendTeamUpdate } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 
@@ -12,26 +12,26 @@ import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 export const createRemoteGameController = (): GameController => {
 	return {
 		purchaseUnit: async (cardId: string, _targetSlot?: number): Promise<boolean> => {
-			const success = await MultiplayerManager.getInstance().sendOptionSelection(cardId);
-			
+			const success = await sendOptionSelection(cardId);
+
 			if (success) {
 				handlePhaseEnded(getState());
 			}
-			
+
 			return success;
 		},
 
 		sellUnit: async (unitId: string): Promise<boolean> => {
-			return await MultiplayerManager.getInstance().sendOptionSelection('discard_unit', { unitId });
+			return await sendOptionSelection('discard_unit', { unitId });
 		},
 
 		skipPhase: async (): Promise<boolean> => {
 			const state = getState();
-			
+
 			// Determine the appropriate skip action based on current phase
 			let actionId = 'skip';
 			if (state.session.phase === 'shop') {
-				actionId = 'shop_done';
+				actionId = 'skip_shop';
 			} else if (state.session.phase === 'orb_shop') {
 				actionId = 'orb_shop_done';
 			} else if (state.session.phase === 'upgrade_core') {
@@ -39,44 +39,44 @@ export const createRemoteGameController = (): GameController => {
 			} else if (state.session.phase === 'add_reaction_core') {
 				actionId = 'add_reaction_core_done';
 			}
-			
-			const success = await MultiplayerManager.getInstance().sendOptionSelection(actionId);
-			
+
+			const success = await sendOptionSelection(actionId);
+
 			if (success) {
 				handlePhaseEnded(getState());
 			}
-			
+
 			return success;
 		},
 
 		selectEncounter: async (encounterId: string): Promise<boolean> => {
-			const success = await MultiplayerManager.getInstance().sendOptionSelection(encounterId);
-			
+			const success = await sendOptionSelection(encounterId);
+
 			if (success) {
 				handlePhaseEnded(getState());
 			}
-			
+
 			return success;
 		},
 
 		handleAction: async (actionId: string, payload?: any): Promise<boolean> => {
-			const success = await MultiplayerManager.getInstance().sendOptionSelection(actionId, payload);
-			
+			const success = await sendOptionSelection(actionId, payload);
+
 			if (success) {
 				handlePhaseEnded(getState());
 			}
-			
+
 			return success;
 		},
 
 		updateTeam: async (team: { units: any[] }): Promise<boolean> => {
-			return await MultiplayerManager.getInstance().sendTeamUpdate(team);
+			return await sendTeamUpdate(team);
 		},
 
 		notifyGameComplete: async (actionId: string): Promise<boolean> => {
 			// In multiplayer, notify the server about game completion.
 			// Expected actionId values: 'combat_done' (signals game end/new run request)
-			return await MultiplayerManager.getInstance().sendOptionSelection(actionId);
+			return await sendOptionSelection(actionId);
 		},
 
 		isFeatureEnabled: (feature: GameFeature): boolean => {

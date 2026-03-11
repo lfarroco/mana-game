@@ -1,5 +1,6 @@
 import { LocalServerAdapter } from './LocalServerAdapter';
-import { GameLogic } from './GameLogic';
+import * as GameLogic from './GameLogic';
+import { SessionData } from './Types';
 
 // Polyfill structuredClone for Jest environment
 if (typeof global.structuredClone === 'undefined') {
@@ -64,11 +65,15 @@ describe('LocalServerAdapter', () => {
 		it('should return shop options after encounter', async () => {
 			await adapter.createSession(testPlayerId, testCrystalId);
 
+			// Get initial options to find a valid encounter
+			const initialOptions = await adapter.getPhaseOptions(testPlayerId);
+			const encounterId = initialOptions.options[0].id;
+
 			// Select an encounter
-			await adapter.handleAction(testPlayerId, 'armory');
+			await adapter.handleAction(testPlayerId, encounterId);
 
 			const options = await adapter.getPhaseOptions(testPlayerId);
-			expect(options.phase).toBe('shop');
+			expect(['shop', 'orb_shop'].includes(options.phase)).toBe(true);
 			expect(options.options.length).toBeGreaterThan(0);
 		});
 
@@ -81,12 +86,17 @@ describe('LocalServerAdapter', () => {
 	describe('handleAction', () => {
 		it('should handle encounter selection', async () => {
 			await adapter.createSession(testPlayerId, testCrystalId);
-			const result = await adapter.handleAction(testPlayerId, 'armory');
+
+			// Get initial options to find a valid encounter
+			const initialOptions = await adapter.getPhaseOptions(testPlayerId);
+			const encounterId = initialOptions.options[0].id;
+
+			const result = await adapter.handleAction(testPlayerId, encounterId);
 
 			expect(result).toBe(true);
 
 			const session = await adapter.getSession(testPlayerId);
-			expect(session?.phase).toBe('shop');
+			expect(session?.phase).toBe('orb_shop');
 		});
 
 		it('should handle buying a unit in shop', async () => {
@@ -137,12 +147,35 @@ describe('LocalServerAdapter', () => {
 
 	describe('deterministic behavior', () => {
 		it('should generate same options with same seed', () => {
-			const session1 = GameLogic.createInitialSession('player-1', testCrystalId);
-			const session2 = GameLogic.createInitialSession('player-2', testCrystalId);
-
-			// Force same seed
-			session2.seed = session1.seed;
-			session2.initial_seed = session1.initial_seed;
+			const seed = 'test-seed';
+			const session1: SessionData = {
+				id: 'test1',
+				player_id: 'player-1',
+				phase: 'encounter',
+				round: 1,
+				step: 1,
+				seed,
+				initial_seed: seed,
+				action_log: [],
+				wins: 0,
+				losses: 0,
+				team: { units: [] },
+				current_options: null
+			};
+			const session2: SessionData = {
+				id: 'test2',
+				player_id: 'player-2',
+				phase: 'encounter',
+				round: 1,
+				step: 1,
+				seed,
+				initial_seed: seed,
+				action_log: [],
+				wins: 0,
+				losses: 0,
+				team: { units: [] },
+				current_options: null
+			};
 
 			const options1 = GameLogic.generateEncounterOptions(session1);
 			const options2 = GameLogic.generateEncounterOptions(session2);

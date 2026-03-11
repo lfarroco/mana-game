@@ -14,7 +14,8 @@ import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { enableMultiplayer } from "@Multiplayer/MultiplayerManager";
+import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "../../Visualizer";
 
 export type BattlegroundSceneData = {
@@ -29,9 +30,9 @@ export class BattlegroundScene extends Phaser.Scene {
 	cloudsBackground!: Phaser.GameObjects.Shader;
 	state: State;
 	combatRunner?: CombatRunner;
+	eventEmitter: EventEmitter;
 
 	cleanup() {
-		console.log(":::: BattlegroundScene cleanup")
 
 		// Stop the combat runner if it exists
 		if (this.combatRunner) {
@@ -39,7 +40,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			this.combatRunner = undefined;
 		}
 
-		// Destroy the visualizer
+		// Clean up event system
 		destroyVisualizer();
 
 		clearAll();
@@ -53,20 +54,21 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	constructor() {
 		super("BattlegroundScene");
-		console.log("BattlegroundScene constructor");
 	}
 
 
 	create = async (data: BattlegroundSceneData) => {
 		const state = data?.state || getState();
-		const { session } = state;
 
 		this.state = state;
 
-		console.log(":::: BattlegroundScene creating logic...", session, "sceneData:", data);
 		setCurrentScene(this);
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
+
+		// Initialize event system per Architecture Proposal Item 3
+		this.eventEmitter = new SimpleEventEmitter();
+		initializeVisualizer();
 
 		const speed = getOption("speed");
 
@@ -84,11 +86,9 @@ export class BattlegroundScene extends Phaser.Scene {
 		// - display current phase 
 
 		const session = state.session;
-		console.log(":::: BattlegroundScene starting logic...", session);
 
 		// Initialize the Visualizer early in the scene startup
-		initializeVisualizer(this);
-		console.log("Visualizer initialized");
+		initializeVisualizer();
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
@@ -97,7 +97,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			// Set up multiplayer mode if needed
 			if (isMultiplayer) {
 				ServerFactory.setMultiplayer(true);
-				await MultiplayerManager.getInstance().enableMultiplayer();
+				await enableMultiplayer();
 			}
 
 			// Create session via server adapter for unified logic
@@ -106,18 +106,16 @@ export class BattlegroundScene extends Phaser.Scene {
 			const playerId = state.session.player_id || "sp_player_" + Date.now();
 			state.session.player_id = playerId;
 
-			try {
-				await server.createSession(playerId, selectedCrystalId);
-				console.log(`Session created for player ${playerId} with crystal ${selectedCrystalId}`);
-				
-				// Initialize the GameController after session creation
-				createGameController(playerId);
-				console.log("GameController initialized");
-			} catch (error) {
-				console.error("Failed to create session:", error);
-			}
+			await server.createSession(playerId, selectedCrystalId);
+
+			// Initialize the GameController after session creation
+			createGameController(playerId);
 		} else {
 			state.session = session;
+
+			// Ensure GameController is initialized for resumed sessions (e.g. multiplayer reconnect)
+			const playerId = state.session.player_id || "local_player";
+			createGameController(playerId);
 		}
 
 		Systems.Setup.setupSceneElements();
@@ -140,7 +138,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		startPhase(state);
+		startPhase(state, this.eventEmitter);
 	};
 
 	update(time: number, delta: number): void {

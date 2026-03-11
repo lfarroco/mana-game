@@ -1,6 +1,6 @@
 import { createPhaseHandler } from "../BasePhaseHandler";
 import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "../types";
-import { GameLogic } from "../../GameLogic";
+import * as GameLogic from "../../GameLogic";
 import { PhaseType } from "../../Types";
 
 export const encounterPhaseHandler = createPhaseHandler({
@@ -31,7 +31,7 @@ export const encounterPhaseHandler = createPhaseHandler({
 			return {
 				nextPhase: 'orb_shop',
 				nextOptions,
-				stepIncrement: 1,
+				stepIncrement: 0,
 			};
 		}
 
@@ -41,7 +41,7 @@ export const encounterPhaseHandler = createPhaseHandler({
 			return {
 				nextPhase: 'shop',
 				nextOptions: shopResult.options,
-				stepIncrement: 1,
+				stepIncrement: 0,
 			};
 		}
 
@@ -50,7 +50,7 @@ export const encounterPhaseHandler = createPhaseHandler({
 		return {
 			nextPhase: 'shop',
 			nextOptions: shopResult.options,
-			stepIncrement: 1,
+			stepIncrement: 0,
 		};
 	},
 });

@@ -1,9 +1,4 @@
 
-import { runCombat } from "./RunCombatCore";
-import { createServerCombatEffects } from "./ServerCombatEffects";
-import { createMockState } from "../../../test-utils/serverCombatUtils";
-import { registerCollection } from "@Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { jest, describe, it, expect, beforeAll } from '@jest/globals';
 
 // Mock i18n to avoid JSON import issues in Jest
@@ -16,6 +11,12 @@ jest.mock('../../i18n/i18n', () => ({
 	getAvailableLocales: () => ['en'],
 	getNativeName: () => 'English'
 }));
+
+import { runCombat } from "./RunCombatCore";
+import { createServerCombatEffects } from "./ServerCombatEffects";
+import { createMockState } from "../../../test-utils/serverCombatUtils";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 
 // Register base collection to ensure unit definitions exist
 beforeAll(() => {

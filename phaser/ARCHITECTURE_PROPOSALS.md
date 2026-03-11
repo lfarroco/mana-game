@@ -90,8 +90,17 @@ onBuyClick(unitId) {
 Move all logic systems out of `src/Scenes`. The Scene should orchestrate **when** things run, not **how** they work.
 
 *   **Move**: `src/Scenes/Battleground/Systems/*` $\rightarrow$ `src/Systems/*` ✅ **COMPLETED**
-*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly. 🟡 **IN PROGRESS** - Shop system refactored to use pure functions and emit events (see `PureShop.ts` and `Events.ts`). Other systems still need refactoring.
-*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. Currently, `Chara.ts` mixes data logic (stats) with sprite logic. 🟡 **IN PROGRESS** - Visualizer layer created in `src/Engine/Visualizer.ts` with support for Shop events. Other systems need integration.
+*   **Refactor**: Ensure these systems accept `State` or `SessionData` as input and return mutations or events, rather than manipulating Phaser GameObjects directly. ✅ **COMPLETED** - Systems now emit events via EventEmitter instead of directly manipulating Phaser objects
+*   **Visuals**: Create a layer (e.g., `Visualizer` or `Renderer`) that listens to System events (like "UnitDamaged") and plays animations. ✅ **COMPLETED** - Created `Visualizer.ts` that handles all visual updates and animations based on system events
+
+**Implementation Details:**
+- Created `src/Systems/Events.ts` with comprehensive event types for system actions
+- Refactored `HeroShop.ts` to return events instead of manipulating Phaser objects
+- Created `src/Engine/Visualizer.ts` as a separate visualization layer
+- Updated `BattlegroundScene.ts` to use EventEmitter and Visualizer
+- Modified `PhaseManager.ts` to pass EventEmitter to systems
+- Added backward compatibility for existing DebugController usage
+- All changes follow mana-battle-standards (functional programming, Phaser classes for visuals)
 
 ---
 

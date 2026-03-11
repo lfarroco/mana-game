@@ -1,8 +1,6 @@
 import { State, getCurrentScene } from "@Models/State";
-import { MultiplayerManager } from "@Multiplayer/MultiplayerManager";
+import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
-import * as HeroShop from "@Systems/Shop/HeroShop";
-import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import { showMatchResult } from "@Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "./BrowserCombatEffects";
 import { createCombatPlaybackController } from "./CombatPlaybackController";
@@ -18,20 +16,27 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ForceStats from "./ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { resetUnitStats } from "@Models/Entities/Unit";
-import { getBattleCore } from "@Models/Entities/Card";
+import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import { updateLivesDisplay } from "@UI/components/livesDisplay";
 import { updateRoundDisplay } from "@UI/components/roundDisplay";
 import { updateWinsDisplay } from "@UI/components/winsDisplay";
+import { renderTavernCharas } from "@Systems/Shop/CharaShop";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import { getGameController } from "@Core/GameControllerFactory";
+import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 
 
 export async function handleMultiplayerPhase(state: State) {
 	console.log("Starting Multiplayer Phase handling...");
-	const result = await MultiplayerManager.getInstance().getPhaseOptions(state);
+	const result = await getPhaseOptions(state);
 
 	console.log(`Multiplayer Phase: ${result.phase}`);
+
+	// Sync phase from server
+	state.session.phase = result.phase;
 
 	// Sync Team State and Stats from Server
 	if (result.round !== undefined) {
@@ -39,13 +44,17 @@ export async function handleMultiplayerPhase(state: State) {
 		state.session.round = result.round;
 		updateRoundDisplay(state.session.round);
 	}
-	if (result.wins !== undefined) {
-		state.session.wins = result.wins;
-		updateWinsDisplay(state.session.wins);
-	}
-	if (result.losses !== undefined) {
-		state.session.losses = result.losses;
-		updateLivesDisplay(4 - state.session.losses);
+	// Don't sync wins/losses when entering combat phase, since the combat hasn't been shown yet
+	// The optimistic update after combat will handle the display, and the next phase will sync correctly
+	if (result.phase !== "combat") {
+		if (result.wins !== undefined) {
+			state.session.wins = result.wins;
+			updateWinsDisplay(state.session.wins);
+		}
+		if (result.losses !== undefined) {
+			state.session.losses = result.losses;
+			updateLivesDisplay(4 - state.session.losses);
+		}
 	}
 
 	if (result.team && result.team.units) {
@@ -71,7 +80,7 @@ export async function handleMultiplayerPhase(state: State) {
 				console.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
-				await MultiplayerManager.getInstance().sendOptionSelection(combatOption.id);
+				await sendOptionSelection(combatOption.id);
 				await handleMultiplayerPhase(state);
 			}
 			break;
@@ -83,9 +92,17 @@ export async function handleMultiplayerPhase(state: State) {
 
 		case "shop":
 			const shopCardIds = result.options.map((o: any) => o.id);
-			await HeroShop.openHeroShop(shopCardIds);
-			await MultiplayerManager.getInstance().sendOptionSelection("shop_skip", { team: state.session.team });
-			await handleMultiplayerPhase(state);
+			const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
+			const controller = getGameController();
+
+			ShopPanel.create(async () => {
+				await ShopPanel.slideOut();
+				await controller.skipPhase();
+			});
+
+			renderTavernCharas(cardDefs);
+
+			await ShopPanel.slideIn();
 			break;
 
 		case "orb_shop":
@@ -100,24 +117,32 @@ export async function handleMultiplayerPhase(state: State) {
 				orbOptions.map((o: any) => o.id),
 				async (orbId, targetId) => {
 					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
-					await MultiplayerManager.getInstance().sendOptionSelection('apply_orb', {
+					await sendOptionSelection('apply_orb', {
 						orbId,
 						targetUnitId: targetId,
 						team: state.session.team
 					});
 				}
 			);
+			// After orb shop completes, notify server and get next phase
+			await sendOptionSelection('orb_shop_done');
 			await handleMultiplayerPhase(state);
 			break;
 
 		case "upgrade_core":
 			const upgradeIds = result.options.map((o: any) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
+			// After upgrade completes, notify server and get next phase
+			await sendOptionSelection('upgrade_core_done');
+			await handleMultiplayerPhase(state);
 			break;
 
 		case "add_reaction_core":
 			const reactionIds = result.options.map((o: any) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
+			// After reaction card completes, notify server and get next phase
+			await sendOptionSelection('add_reaction_core_done');
+			await handleMultiplayerPhase(state);
 			break;
 
 		case "victory":
@@ -197,11 +222,12 @@ export async function handleMultiplayerPhase(state: State) {
 
 			const resultType = outcome === "player_won" ? "victory" : "defeat";
 
-			// Optimistically update top bar stats
+			// Optimistically update top bar display only (not state)
+			// The state will be synced from server on next phase transition
 			if (resultType === "victory") {
 				updateWinsDisplay((state.session.wins || 0) + 1);
 			} else {
-				updateLivesDisplay((4 - (state.session.losses || 0)) - 1);
+				updateLivesDisplay(4 - (state.session.losses || 0) - 1);
 			}
 
 			await new Promise<void>((resolve) => {
@@ -212,7 +238,7 @@ export async function handleMultiplayerPhase(state: State) {
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						MultiplayerManager.getInstance().sendOptionSelection("combat_done")
+						sendOptionSelection("combat_done")
 							.then(() => handleMultiplayerPhase(state));
 					},
 					() => {
