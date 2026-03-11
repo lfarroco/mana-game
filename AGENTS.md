@@ -97,13 +97,14 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [ ] Document the UI System (components, layout management)
 - [ ] Document the Effect System (visual effects, particles)
 - [ ] Document the Options/Preferences System (user settings)
-- [ ] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
+- [x] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
+- [x] Add pre-commit hooks (Husky + lint-staged + typecheck)
 
 ### Low Priority
 
 - [ ] Reorganize project file structure (see TODO.md for proposed layout)
 - [ ] Replace `MultiplayerManager` singleton with a functional module
-- [ ] Evaluate if Node.js engine requirement should be formally set in `package.json`
+- [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
 
@@ -111,6 +112,9 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Added missing `upgrade_core` and `add_reaction_core` phase handlers in multiplayer to display effect card shop (Copilot, 2026-02-16)
 - [x] Fixed phase step increment logic: shops no longer increment steps (they're part of the same turn as encounters), ensuring correct 3-encounter sequence before combat (Copilot, 2026-02-17)
 - [x] Fixed shop-to-combat transition: shop now properly transitions to encounter phase with combat warning instead of directly to combat phase (Copilot, 2026-02-17)
+- [x] Added Node.js engine requirement in `phaser/package.json` (`"engines": { "node": ">=20.0.0" }`) (Copilot, 2026-03-11)
+- [x] Replaced audio fade `setTimeout` logic with Phaser tweens in `AudioManager.ts` for smoother transitions (Copilot, 2026-03-11)
+- [x] Added pre-commit quality gates with Husky + lint-staged + TypeScript typecheck (Copilot, 2026-03-11)
 
 ## Agent Workflow
 
