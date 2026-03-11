@@ -18,6 +18,8 @@ This document outlines the development priorities and planned improvements for M
 8. [Performance Optimizations](#performance-optimizations)
 9. [DevOps & CI/CD](#devops--cicd)
 10. [Future Features](#future-features)
+11. [Completed Tasks](#completed-tasks)
+12. [Current Sprint Focus](#current-sprint-focus)
 
 ---
 
@@ -33,10 +35,11 @@ This document outlines the development priorities and planned improvements for M
 
 ### ⚠️ Areas for Improvement
 - **Phase system migration incomplete** - Legacy `PhaseManager.ts` still runs main loop
-- **Code consistency** - Mix of console.log statements (50+ instances) need proper logging system
-- **Test coverage gaps** - Some systems lack comprehensive test coverage
-- **Documentation gaps** - UI System, Effect System, and Options/Preferences not documented
-- **Build optimization** - Potential for code splitting and lazy loading
+- **Code consistency** - 150+ console.log statements need proper logging system (ESLint `no-console` set to warn, not error)
+- **No unit tests in CI** - Only E2E tests exist in workflows, and those are manually triggered
+- **Test coverage gaps** - No code coverage reporting; some systems lack comprehensive tests
+- **Documentation gaps** - UI System, Effect System, Options/Preferences, and Supabase backend not documented
+- **Build optimization** - Monolithic bundle (no code splitting or lazy loading)
 
 ---
 
@@ -78,7 +81,7 @@ These tasks significantly improve code quality, maintainability, and user experi
 
 ### Logging System
 - [ ] **Implement structured logging system**
-  - **Context**: 50+ console.log statements scattered throughout codebase
+  - **Context**: 150+ console.log statements scattered throughout codebase (heaviest in `serverCombatDemo.ts`, `StatsStore.ts`, `MultiplayerManager.ts`, `AudioManager.ts`)
   - **Impact**: Better debugging, production monitoring, clean console output
   - **Effort**: Low (1 day)
   - **Steps**:
@@ -98,7 +101,7 @@ These tasks significantly improve code quality, maintainability, and user experi
 
 ### Testing Improvements
 - [ ] **Verify all E2E tests pass**
-  - **Context**: Migration testing checklist shows E2E tests need manual verification
+  - **Context**: 7 E2E test suites exist (`battleground`, `board`, `game_flow`, `settings`, `unit-effects`, `battleground-scenarios`, `game.e2e`) but CI runs are manual-only
   - **Impact**: Ensures game stability across refactors
   - **Effort**: Low (0.5 day)
   - **Action**: Run `npm run test:e2e` and fix any failures
@@ -128,6 +131,15 @@ These tasks significantly improve code quality, maintainability, and user experi
     2. Convert remaining relative imports to aliases
     3. Run lint:fix
 
+- [ ] **Escalate ESLint warnings to errors**
+  - **Context**: `no-explicit-any`, `no-unused-vars`, `no-console`, and `prefer-const` are all set to `warn` in `eslint.config.js`, allowing problematic code to be committed
+  - **Impact**: Enforces type safety, immutability, and logging discipline
+  - **Effort**: Low (0.5 day)
+  - **Steps**:
+    1. Change `no-explicit-any` to `error` (fix existing violations first)
+    2. Change `prefer-const` to `error`
+    3. Evaluate `no-console` as `error` after implementing structured logging
+
 ---
 
 ## Medium Priority
@@ -155,6 +167,13 @@ These tasks enhance developer experience and expand documentation.
   - **Effort**: Low (0.5 day)
   - **Create**: `docs/options-system.md`
   - **Cover**: Settings structure, persistence, UI binding
+
+- [ ] **Document Supabase Backend**
+  - **Context**: Supabase Edge Functions handle multiplayer game actions and Steam authentication (`phaser/supabase/functions/`), but have no architecture documentation
+  - **Impact**: Critical for multiplayer maintenance and onboarding
+  - **Effort**: Medium (1 day)
+  - **Create**: `docs/supabase-backend.md`
+  - **Cover**: Edge Function architecture, action handler, Steam auth flow, deployment process, integration tests
 
 ### Developer Experience
 - [ ] **Add pre-commit hooks**
@@ -194,7 +213,7 @@ Nice-to-have improvements that can be scheduled as time permits.
 
 ### Refactoring
 - [ ] **Evaluate Node.js engine requirement in package.json**
-  - **Context**: No explicit engine version specified
+  - **Context**: No explicit engine version specified. CI workflows hardcode `node-version: '20'` but `package.json` has no `"engines"` field.
   - **Impact**: Prevents issues with incompatible Node versions
   - **Effort**: Trivial (0.1 day)
   - **File**: `phaser/package.json`
@@ -236,7 +255,7 @@ Issues and patterns that should be addressed to prevent future problems.
 
 ### Code Smells
 - [ ] **Remove double slashes in import paths**
-  - **Context**: `@Scenes//Debug/DebugController` found in test-utils/debugController.ts
+  - **Context**: `@Scenes//Debug/DebugController` found in test-utils/debugController.ts (line 5) — confirmed still present
   - **Impact**: Prevents potential path resolution issues
   - **Effort**: Trivial (0.1 day)
   - **File**: [src/test-utils/debugController.ts](phaser/src/test-utils/debugController.ts#L5)
@@ -376,20 +395,25 @@ Improvements to build, deployment, and development workflows.
 
 ### CI/CD Pipeline
 - [ ] **Add automated unit test runs to CI**
-  - **Context**: E2E tests run in CI, but unit tests may not
-  - **Impact**: Catch failures earlier
+  - **Context**: No workflow runs `npm run test`. E2E tests exist (`e2e-tests.yml`) but are manual-only (`workflow_dispatch`). `webpack.yml` runs on push to `main` but only builds — no tests.
+  - **Impact**: Catch failures earlier; currently no automated test gate on merges
   - **Effort**: Low (0.5 day)
-  - **File**: `.github/workflows/e2e-tests.yml` (or create new workflow)
-  - **Action**: Run `npm run test:unit` before E2E tests
+  - **Action**: Add `npm run test` step to `webpack.yml` before the build step
+
+- [ ] **Re-enable automated E2E tests in CI**
+  - **Context**: `e2e-tests.yml` only triggers via `workflow_dispatch` (manual). Should run on PRs to `main`.
+  - **Impact**: Catch integration regressions before merge
+  - **Effort**: Low (0.5 day)
+  - **Action**: Add `pull_request` trigger to `e2e-tests.yml`
 
 - [ ] **Add build verification for all platforms**
-  - **Context**: Only one platform may be validated in CI
+  - **Context**: Only web build (`webpack.yml`) runs automatically. Electron and Android builds are manual.
   - **Impact**: Catch platform-specific build issues
   - **Effort**: Medium (1 day)
-  - **Platforms**: Web, Electron (Win/Mac/Linux), Android
+  - **Platforms**: Web (automated), Electron Win/Mac/Linux (manual), Android (manual)
 
 - [ ] **Implement automated deployment**
-  - **Context**: Manual deployment processes prone to error
+  - **Context**: `publish-steam.yml` and `publish-itch.yml` exist but are manual. Shell scripts `scripts/publish_steam.sh` and `scripts/publish_steam_demo.sh` also exist for manual deployment.
   - **Impact**: Faster, safer releases
   - **Effort**: High (2-3 days)
   - **Targets**: Itch.io, Steam, GitHub Releases
@@ -499,19 +523,34 @@ Use this matrix to help prioritize tasks not already categorized:
 
 ---
 
-## Progress Tracking
+## Completed Tasks
 
-### Completed This Quarter
-- [x] Systems consolidation - moved from `Scenes/Battleground/Systems/` to `Systems/` (Feb 2026)
-- [x] GameController pattern implementation (Feb 2026)
-- [x] Directory structure reorganization - `Engine/Scenes` separation (Feb 2026)
-- [x] Fixed multiplayer phase transitions (Feb 2026)
-- [x] Converted MultiplayerManager to functional module (Feb 2026)
+Previously completed work for historical reference.
 
-### Current Sprint Focus
-- [ ] Phase system migration
-- [ ] Single-player/multiplayer unification
-- [ ] Logging system implementation
+### Architecture & Refactoring
+- [x] **Systems consolidation** — Moved systems from `Scenes/Battleground/Systems/` to `src/Systems/`
+- [x] **GameController pattern** — Implemented unified interface for game actions
+- [x] **Converted MultiplayerManager to functional module** — Replaced singleton class with module-level state and exported functions
+- [x] **Server-side combat migration** — Headless combat simulation (see [server-side-combat-migration.md](docs/server-side-combat-migration.md))
+
+### Bug Fixes (February 2026)
+- [x] **Fixed multiplayer `orb_shop` phase transition** — Now properly sends `orb_shop_done` to transition to next phase (2026-02-16)
+- [x] **Added missing `upgrade_core` and `add_reaction_core` phase handlers** — Display effect card shop in multiplayer (2026-02-16)
+- [x] **Fixed phase step increment logic** — Shops no longer increment steps (they're part of the same turn as encounters), ensuring correct 3-encounter sequence before combat (2026-02-17)
+- [x] **Fixed shop-to-combat transition** — Shop now properly transitions to encounter phase with combat warning instead of directly to combat phase (2026-02-17)
+
+### Resolved Bugs
+- [x] Game over screen match statistics showing 0 — fixed
+- [x] Match stats preserved when saving and resuming a game — fixed
+- [x] Unit position changes saved when moving on board — fixed
+
+---
+
+## Current Sprint Focus
+- [ ] Phase system migration (Critical)
+- [ ] Single-player/multiplayer unification (Critical)
+- [ ] Add unit tests to CI pipeline (High — quick win)
+- [ ] Logging system implementation (High)
 
 ---
 
