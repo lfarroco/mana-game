@@ -116,6 +116,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Replaced audio fade `setTimeout` logic with Phaser tweens in `AudioManager.ts` for smoother transitions (Copilot, 2026-03-11)
 - [x] Added pre-commit quality gates with Husky + lint-staged + TypeScript typecheck (Copilot, 2026-03-11)
 - [x] Re-enabled automated E2E CI runs by adding `pull_request` trigger for `main` in `.github/workflows/e2e-tests.yml` (Copilot, 2026-03-11)
+- [x] Verified Systems consolidation cleanup: no remaining references to `Scenes/Battleground/Systems/` and no legacy directory found (Copilot, 2026-03-11)
 
 ## Agent Workflow
 

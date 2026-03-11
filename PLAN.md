@@ -274,11 +274,11 @@ Issues and patterns that should be addressed to prevent future problems.
     3. Document rationale for values
 
 ### Architecture Debt
-- [ ] **Complete Systems consolidation cleanup**
+- [x] **Complete Systems consolidation cleanup**
   - **Context**: Post-migration from `Scenes/Battleground/Systems/` to `Systems/`
   - **Impact**: Ensure no broken references or orphaned files
   - **Effort**: Low (0.5 day)
-  - **Status**: Most work done, needs verification
+  - **Status**: ✅ Verified complete - no remaining references to `Scenes/Battleground/Systems/` and no orphaned legacy directory found (2026-03-11)
 
 - [ ] **Standardize error handling patterns**
   - **Context**: Inconsistent error handling across modules
@@ -561,6 +561,9 @@ Previously completed work for historical reference.
 
 ### DevOps (March 2026)
 - [x] **Re-enabled automated E2E tests in CI** — Updated `.github/workflows/e2e-tests.yml` to run on pull requests targeting `main` (and kept manual dispatch) (2026-03-11)
+
+### Architecture Debt (March 2026)
+- [x] **Completed Systems consolidation cleanup verification** — Confirmed no remaining `Scenes/Battleground/Systems/` references and no legacy directory under `phaser/src/Engine/Scenes/Battleground/` (2026-03-11)
 
 ---
 
