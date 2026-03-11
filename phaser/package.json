@@ -8,6 +8,7 @@
         "server": "tsx server/index.ts",
         "dev:demo": "IS_DEMO=true webpack-dev-server --config webpack/config.dev.cjs --open",
         "build": "webpack --config webpack/config.prod.cjs",
+        "build:debug": "webpack --config webpack/config.debug.cjs",
         "dev-nolog": "webpack-dev-server --config webpack/config.dev.cjs --open",
         "build-nolog": "webpack --config webpack/config.prod.cjs",
         "electron": "electron electron/main.cjs",

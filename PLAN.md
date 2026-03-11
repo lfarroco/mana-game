@@ -448,11 +448,12 @@ Improvements to build, deployment, and development workflows.
   - **Integration**: Add to CI pipeline
   - **Status**: ✅ Fixed - Added `size-limit` + `@size-limit/file`, configured bundle threshold for `dist/bundle.min.js`, and integrated check in `webpack.yml` CI workflow (2026-03-11)
 
-- [ ] **Create debug build configuration**
+- [x] **Create debug build configuration**
   - **Context**: Development builds could have more debug tools
   - **Impact**: Easier debugging and development
   - **Effort**: Low (0.5 day)
   - **Features**: Source maps, verbose logging, debug panels
+  - **Status**: ✅ Fixed - Added dedicated debug webpack config (`webpack/config.debug.cjs`) with source maps, non-minified output, and debug log level injection; added `npm run build:debug` script (2026-03-11)
 
 ---
 
@@ -575,6 +576,7 @@ Previously completed work for historical reference.
 
 ### Developer Experience (March 2026)
 - [x] **Added pre-commit hooks** — Configured Husky + lint-staged to run ESLint/Prettier on staged TS/TSX files and full type checking before commits (2026-03-11)
+- [x] **Created debug build configuration** — Added `webpack/config.debug.cjs` and `build:debug` npm script to generate a non-minified debug bundle with source maps and debug-level logging defaults (2026-03-11)
 
 ### DevOps (March 2026)
 - [x] **Added automated unit test runs to CI** — Updated `.github/workflows/webpack.yml` to install dependencies and run `npm run test` before `npm run build` (2026-03-11)
