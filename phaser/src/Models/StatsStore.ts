@@ -1,6 +1,7 @@
 import { RunStats } from "@Core/Types";
 import { storage } from "../Storage";
 import { GAME_CONFIG } from "../config";
+import { createLogger } from "@Utils/Logger";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
 
@@ -43,11 +44,12 @@ const defaultStats: PlayerStats = {
 };
 
 let currentStats: PlayerStats = { ...defaultStats };
+const logger = createLogger("StatsStore");
 
 function checkUnlockConditions() {
 	// Demo mode: no unlocks allowed
 	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
-		console.log('[StatsStore] Unlocks disabled in demo mode');
+		logger.debug("Unlock checks skipped in demo mode");
 		return;
 	}
 
@@ -74,7 +76,6 @@ function checkUnlockConditions() {
 		}
 		return total;
 	};
-
 
 	if (currentStats.furthestInfiniteRound >= 20) unlockUnit("walking_reactor");
 
@@ -128,20 +129,28 @@ function loadStats(): void {
 			bronzeVictories: typeof parsed.bronzeVictories === "number" ? parsed.bronzeVictories : 0,
 			silverVictories: typeof parsed.silverVictories === "number" ? parsed.silverVictories : 0,
 			goldVictories: typeof parsed.goldVictories === "number" ? parsed.goldVictories : 0,
-			furthestInfiniteRound: typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
-			unitUsage: typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
-			coreUnitWins: typeof parsed.coreUnitWins === "object" && parsed.coreUnitWins !== null ? parsed.coreUnitWins : {},
+			furthestInfiniteRound:
+				typeof parsed.furthestInfiniteRound === "number" ? parsed.furthestInfiniteRound : 0,
+			unitUsage:
+				typeof parsed.unitUsage === "object" && parsed.unitUsage !== null ? parsed.unitUsage : {},
+			coreUnitWins:
+				typeof parsed.coreUnitWins === "object" && parsed.coreUnitWins !== null
+					? parsed.coreUnitWins
+					: {},
 			totalHealed: typeof parsed.totalHealed === "number" ? parsed.totalHealed : 0,
 			totalDamage: typeof parsed.totalDamage === "number" ? parsed.totalDamage : 0,
 			totalShield: typeof parsed.totalShield === "number" ? parsed.totalShield : 0,
 			totalPoison: typeof parsed.totalPoison === "number" ? parsed.totalPoison : 0,
 			totalRegen: typeof parsed.totalRegen === "number" ? parsed.totalRegen : 0,
-			mostPowerfulUnit: parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string" ? parsed.mostPowerfulUnit : null,
+			mostPowerfulUnit:
+				parsed.mostPowerfulUnit && typeof parsed.mostPowerfulUnit.name === "string"
+					? parsed.mostPowerfulUnit
+					: null,
 			unlockedUnits: Array.isArray(parsed.unlockedUnits) ? parsed.unlockedUnits : [],
 			pendingUnlockUnits: Array.isArray(parsed.pendingUnlockUnits) ? parsed.pendingUnlockUnits : [],
 		};
 	} catch (error) {
-		console.warn("[StatsStore] Failed to load stats:", error);
+		logger.warn("Failed to load stats", { error });
 	}
 }
 
@@ -149,7 +158,7 @@ function saveStats(): void {
 	try {
 		storage.setItem(STORAGE_KEY, JSON.stringify(currentStats));
 	} catch (error) {
-		console.warn("[StatsStore] Failed to save stats:", error);
+		logger.warn("Failed to save stats", { error });
 	}
 }
 
@@ -165,7 +174,7 @@ export function getStats(): PlayerStats {
 export function incrementRunsPlayed(): void {
 	currentStats.totalRuns++;
 	saveStats();
-	console.log(`[StatsStore] Runs played: ${currentStats.totalRuns}`);
+	logger.info("Runs played incremented", { totalRuns: currentStats.totalRuns });
 }
 
 export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
@@ -186,12 +195,12 @@ export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
 			currentStats.coreUnitWins[coreUnitId] = { bronze: 0, silver: 0, gold: 0 };
 		}
 		currentStats.coreUnitWins[coreUnitId][tier]++;
-		console.log(`[StatsStore] Recorded ${tier} victory for core unit: ${coreUnitId}`);
+		logger.info("Recorded tiered core victory", { tier, coreUnitId });
 	}
 
 	checkUnlockConditions();
 	saveStats();
-	console.log(`[StatsStore] Recorded ${tier} victory`);
+	logger.info("Recorded tiered victory", { tier });
 }
 
 export function updateFurthestInfiniteRound(wins: number): void {
@@ -199,7 +208,7 @@ export function updateFurthestInfiniteRound(wins: number): void {
 		currentStats.furthestInfiniteRound = wins;
 		checkUnlockConditions();
 		saveStats();
-		console.log(`[StatsStore] New furthest infinite mode: ${wins} wins`);
+		logger.info("Updated furthest infinite round", { wins });
 	}
 }
 
@@ -221,7 +230,7 @@ export function recordUnitUsage(name: string): void {
 export function checkMostPowerfulUnit(name: string, power: number): void {
 	if (!currentStats.mostPowerfulUnit || power > currentStats.mostPowerfulUnit.power) {
 		currentStats.mostPowerfulUnit = { name, power: Math.floor(power) };
-		console.log(`[StatsStore] New most powerful unit: ${name} with ${Math.floor(power)} power`);
+		logger.info("Updated most powerful unit", { name, power: Math.floor(power) });
 	}
 }
 
@@ -249,25 +258,28 @@ export function save(): void {
 export function unlockUnit(unitId: string): void {
 	// Demo mode: no unlocks allowed
 	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
-		console.log(`[StatsStore] Cannot unlock ${unitId} in demo mode`);
+		logger.debug("Unlock blocked in demo mode", { unitId });
 		return;
 	}
 
-	if (!currentStats.unlockedUnits.includes(unitId) && !currentStats.pendingUnlockUnits.includes(unitId)) {
+	if (
+		!currentStats.unlockedUnits.includes(unitId) &&
+		!currentStats.pendingUnlockUnits.includes(unitId)
+	) {
 		currentStats.pendingUnlockUnits.push(unitId);
 		saveStats();
-		console.log(`[StatsStore] Pending unlock for unit: ${unitId}`);
+		logger.info("Queued pending unit unlock", { unitId });
 	}
 }
 
 export function confirmUnlock(unitId: string): void {
 	if (currentStats.pendingUnlockUnits.includes(unitId)) {
-		currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter(id => id !== unitId);
+		currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter((id) => id !== unitId);
 		if (!currentStats.unlockedUnits.includes(unitId)) {
 			currentStats.unlockedUnits.push(unitId);
 		}
 		saveStats();
-		console.log(`[StatsStore] Confirmed unlock for unit: ${unitId}`);
+		logger.info("Confirmed unit unlock", { unitId });
 	}
 }
 
@@ -280,10 +292,10 @@ export function isUnitUnlocked(unitId: string): boolean {
 }
 
 export function lockUnit(unitId: string): void {
-	currentStats.unlockedUnits = currentStats.unlockedUnits.filter(id => id !== unitId);
-	currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter(id => id !== unitId);
+	currentStats.unlockedUnits = currentStats.unlockedUnits.filter((id) => id !== unitId);
+	currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter((id) => id !== unitId);
 	saveStats();
-	console.log(`[StatsStore] Locked unit: ${unitId}`);
+	logger.info("Locked unit", { unitId });
 }
 
 export function forceCheckUnlocks(): void {

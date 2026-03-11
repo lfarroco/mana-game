@@ -1,16 +1,22 @@
 import { game } from "../main";
 import { getOption } from "@Models/OptionsStore";
+import { createLogger } from "@Utils/Logger";
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;
 
-let soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
-let soundEffectCooldowns: Map<string, number> = new Map();
+const soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
+const soundEffectCooldowns: Map<string, number> = new Map();
 const SOUND_EFFECT_COOLDOWN_MS = 1000;
+const logger = createLogger("AudioManager");
+
+type VolumeSound = Phaser.Sound.BaseSound & {
+	setVolume: (volume: number) => Phaser.Sound.BaseSound;
+};
 
 export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
 	if (!getOption("music")) {
-		console.log(`Music disabled - not playing ${musicKey}`);
+		logger.debug("Music disabled - skipping playback", { musicKey });
 		return;
 	}
 
@@ -31,7 +37,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		});
 	} catch (e) {
 		// Warn but do not crash the app/test
-		console.warn(`[AudioManager] Failed to load/play music "${musicKey}":`, e);
+		logger.warn("Failed to load/play music", { musicKey, error: e });
 		return;
 	}
 
@@ -43,9 +49,10 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 	if (fadeIn > 0) {
 		// Start at 0 volume and fade in using Phaser tween
 		const targetVolume = getOption("musicVolume");
-		(music as any).setVolume(0);
+		const volumeMusic = music as VolumeSound;
+		volumeMusic.setVolume(0);
 		music.play();
-		
+
 		// Get active scene for tween manager
 		const activeScene = game.scene.getScenes(true)[0];
 		if (activeScene) {
@@ -53,17 +60,17 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 				targets: music,
 				volume: targetVolume,
 				duration: fadeIn,
-				ease: 'Linear'
+				ease: "Linear",
 			});
 		} else {
 			// Fallback if no active scene
-			(music as any).setVolume(targetVolume);
+			volumeMusic.setVolume(targetVolume);
 		}
 	} else {
 		music.play();
 	}
 
-	console.log(`Playing music: ${musicKey} (loop: ${loop})`);
+	logger.info("Playing music", { musicKey, loop });
 };
 
 export const stopMusic = (fadeOut: number = 0) => {
@@ -80,10 +87,10 @@ export const stopMusic = (fadeOut: number = 0) => {
 				targets: musicToStop,
 				volume: 0,
 				duration: fadeOut,
-				ease: 'Linear',
+				ease: "Linear",
 				onComplete: () => {
 					musicToStop.stop();
-				}
+				},
 			});
 		} else {
 			// Fallback if no active scene
@@ -93,14 +100,14 @@ export const stopMusic = (fadeOut: number = 0) => {
 		currentMusic.stop();
 	}
 
-	console.log(`Stopped music: ${currentMusicKey}`);
+	logger.info("Stopped music", { currentMusicKey });
 	currentMusic = null;
 	currentMusicKey = null;
 };
 
 export const playSoundEffect = (soundKey: string, volume?: number) => {
 	if (!getOption("sound")) {
-		console.log(`Sound effects disabled - not playing ${soundKey}`);
+		logger.debug("Sound effects disabled - skipping playback", { soundKey });
 		return;
 	}
 
@@ -112,7 +119,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	const now = Date.now();
 	const lastPlayed = soundEffectCooldowns.get(soundKey);
 	if (lastPlayed && now - lastPlayed < SOUND_EFFECT_COOLDOWN_MS) {
-		console.log(`Sound effect ${soundKey} on cooldown`);
+		logger.debug("Sound effect on cooldown", { soundKey, cooldownMs: SOUND_EFFECT_COOLDOWN_MS });
 		return;
 	}
 
@@ -131,7 +138,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		soundEffects.delete(soundKey);
 	});
 
-	console.log(`Playing sound effect: ${soundKey} (volume: ${effectVolume})`);
+	logger.debug("Playing sound effect", { soundKey, volume: effectVolume });
 };
 
 export const stopSoundEffect = (soundKey: string) => {
@@ -139,7 +146,7 @@ export const stopSoundEffect = (soundKey: string) => {
 	if (soundEffect && soundEffect.isPlaying) {
 		soundEffect.stop();
 		soundEffects.delete(soundKey);
-		console.log(`Stopped sound effect: ${soundKey}`);
+		logger.debug("Stopped sound effect", { soundKey });
 	}
 };
 
@@ -150,7 +157,7 @@ export const stopAllSoundEffects = () => {
 		}
 	});
 	soundEffects.clear();
-	console.log("Stopped all sound effects");
+	logger.debug("Stopped all sound effects");
 };
 
 export const onOptionsChanged = () => {
@@ -161,12 +168,12 @@ export const onOptionsChanged = () => {
 
 	if (currentMusic && currentMusic.isPlaying) {
 		//phaserjs misstyping
-		(currentMusic as any).setVolume(musicEnabled ? musicVolume : 0);
+		(currentMusic as VolumeSound).setVolume(musicEnabled ? musicVolume : 0);
 	}
 
 	soundEffects.forEach((soundEffect) => {
 		if (soundEffect.isPlaying) {
-			(soundEffect as any).setVolume(soundEnabled ? soundVolume : 0);
+			(soundEffect as VolumeSound).setVolume(soundEnabled ? soundVolume : 0);
 		}
 	});
 
