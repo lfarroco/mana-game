@@ -398,11 +398,12 @@ Improvements for load times, runtime performance, and bundle size.
 Improvements to build, deployment, and development workflows.
 
 ### CI/CD Pipeline
-- [ ] **Add automated unit test runs to CI**
+- [x] **Add automated unit test runs to CI**
   - **Context**: No workflow runs `npm run test`. E2E tests exist (`e2e-tests.yml`) but are manual-only (`workflow_dispatch`). `webpack.yml` runs on push to `main` but only builds — no tests.
   - **Impact**: Catch failures earlier; currently no automated test gate on merges
   - **Effort**: Low (0.5 day)
   - **Action**: Add `npm run test` step to `webpack.yml` before the build step
+  - **Status**: ✅ Fixed - Added `npm run test` before build in `.github/workflows/webpack.yml` using Node 20 with npm cache (2026-03-11)
 
 - [x] **Re-enable automated E2E tests in CI**
   - **Context**: `e2e-tests.yml` only triggers via `workflow_dispatch` (manual). Should run on PRs to `main`.
@@ -560,6 +561,7 @@ Previously completed work for historical reference.
 - [x] **Added pre-commit hooks** — Configured Husky + lint-staged to run ESLint/Prettier on staged TS/TSX files and full type checking before commits (2026-03-11)
 
 ### DevOps (March 2026)
+- [x] **Added automated unit test runs to CI** — Updated `.github/workflows/webpack.yml` to install dependencies and run `npm run test` before `npm run build` (2026-03-11)
 - [x] **Re-enabled automated E2E tests in CI** — Updated `.github/workflows/e2e-tests.yml` to run on pull requests targeting `main` (and kept manual dispatch) (2026-03-11)
 
 ### Architecture Debt (March 2026)
@@ -570,7 +572,7 @@ Previously completed work for historical reference.
 ## Current Sprint Focus
 - [ ] Phase system migration (Critical)
 - [ ] Single-player/multiplayer unification (Critical)
-- [ ] Add unit tests to CI pipeline (High — quick win)
+- [x] Add unit tests to CI pipeline (High — quick win)
 - [ ] Logging system implementation (High)
 
 ---

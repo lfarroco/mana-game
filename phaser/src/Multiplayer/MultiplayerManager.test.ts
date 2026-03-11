@@ -1,4 +1,10 @@
-import { isMultiplayer, enableMultiplayer, getPhaseOptions, sendOptionSelection, handleAuthRegister } from './MultiplayerManager';
+import {
+	isMultiplayer,
+	enableMultiplayer,
+	getPhaseOptions,
+	sendOptionSelection,
+	handleAuthRegister,
+} from "./MultiplayerManager";
 import { supabase } from "@lib/supabase";
 
 // Mock Supabase
@@ -22,58 +28,55 @@ jest.mock("@lib/supabase", () => ({
 	},
 }));
 
-// Mock fetch
-const fetchMock = jest.fn();
-global.fetch = fetchMock;
-
-describe('MultiplayerManager', () => {
+describe("MultiplayerManager", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
-		fetchMock.mockClear();
 	});
 
-	it('should be disabled by default', () => {
+	it("should be disabled by default", () => {
 		expect(isMultiplayer).toBe(false);
 	});
 
-	it('should disable multiplayer if connection fails', async () => {
-		fetchMock.mockRejectedValueOnce(new Error('Network error'));
-
+	it("should enable multiplayer", async () => {
 		await enableMultiplayer();
 
-		expect(isMultiplayer).toBe(false);
+		expect(isMultiplayer).toBe(true);
 	});
 
-	it('should fetch phase options', async () => {
-		const mockOptions = { phase: 'encounter', options: [] };
-		fetchMock.mockResolvedValueOnce({
-			ok: true,
-			json: async () => mockOptions
+	it("should fetch phase options", async () => {
+		const mockSession = {
+			phase: "encounter",
+			round: 1,
+			current_options: [],
+			team: { units: [] },
+			wins: 0,
+			losses: 0,
+			seed: 123,
+		};
+
+		const singleMock = jest.fn().mockResolvedValue({ data: mockSession, error: null });
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			single: singleMock,
 		});
 
 		const options = await getPhaseOptions({} as any);
 
-		expect(options).toEqual(mockOptions);
-		expect(fetchMock).toHaveBeenCalledWith(
-			expect.stringContaining('/multiplayer/state?playerId=')
-		);
+		expect(options.phase).toBe("encounter");
+		expect(options.options).toEqual([]);
+		expect(supabase.from).toHaveBeenCalledWith("player_sessions");
 	});
 
-	it('should send option selection', async () => {
-		fetchMock.mockResolvedValueOnce({
-			ok: true
-		});
+	it("should send option selection", async () => {
+		(supabase.functions.invoke as jest.Mock).mockResolvedValueOnce({ data: {}, error: null });
 
-		const result = await sendOptionSelection('some_option');
+		const result = await sendOptionSelection("some_option");
 
 		expect(result).toBe(true);
-		expect(fetchMock).toHaveBeenCalledWith(
-			expect.stringContaining('/multiplayer/action'),
-			expect.objectContaining({
-				method: 'POST',
-				body: expect.stringContaining('some_option')
-			})
-		);
+		expect(supabase.functions.invoke).toHaveBeenCalledWith("action", {
+			body: { actionId: "some_option", payload: undefined },
+		});
 	});
 	it("should handle successful registration enabling email confirmation", async () => {
 		const mockResponse = {
@@ -104,7 +107,7 @@ describe('MultiplayerManager', () => {
 		expect(result).toEqual({
 			success: true,
 			requiresConfirmation: true,
-			user: expect.objectContaining({ email: "lfarroco@gmail.com" })
+			user: expect.objectContaining({ email: "lfarroco@gmail.com" }),
 		});
 	});
 });

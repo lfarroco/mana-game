@@ -49,6 +49,7 @@ module.exports = {
 		"^@Data/(.*)$": "<rootDir>/src/Data/$1",
 		"^@Game/(.*)\\.js$": "<rootDir>/src/Game/$1",
 		"^@Game/(.*)$": "<rootDir>/src/Game/$1",
+		"^phaser3-rex-plugins/plugins/bbcodetext-plugin\\.js$": "<rootDir>/src/test-utils/mocks/bbcodeTextPluginMock.ts",
 		"^@TriggerSystem/(.*)\\.js$": "<rootDir>/src/TriggerSystem/$1",
 		"^@TriggerSystem/(.*)$": "<rootDir>/src/TriggerSystem/$1",
 		"^@config$": "<rootDir>/src/config.ts",
