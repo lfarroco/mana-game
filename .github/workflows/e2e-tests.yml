@@ -22,8 +22,9 @@ name: E2E Tests
 #     - Create a repo secret named RUN_E2E with value "true" to allow runs.
 #     - Add `if: ${{ secrets.RUN_E2E == 'true' }}` to the job or each step.
 #
-# Current configuration: manual run only via the Actions tab or API
 on:
+  pull_request:
+    branches: [ main ]
   workflow_dispatch: {}
 
 jobs:

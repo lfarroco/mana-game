@@ -404,11 +404,12 @@ Improvements to build, deployment, and development workflows.
   - **Effort**: Low (0.5 day)
   - **Action**: Add `npm run test` step to `webpack.yml` before the build step
 
-- [ ] **Re-enable automated E2E tests in CI**
+- [x] **Re-enable automated E2E tests in CI**
   - **Context**: `e2e-tests.yml` only triggers via `workflow_dispatch` (manual). Should run on PRs to `main`.
   - **Impact**: Catch integration regressions before merge
   - **Effort**: Low (0.5 day)
   - **Action**: Add `pull_request` trigger to `e2e-tests.yml`
+  - **Status**: ✅ Fixed - Added `pull_request` trigger for `main` while keeping manual `workflow_dispatch` (2026-03-11)
 
 - [ ] **Add build verification for all platforms**
   - **Context**: Only web build (`webpack.yml`) runs automatically. Electron and Android builds are manual.
@@ -557,6 +558,9 @@ Previously completed work for historical reference.
 
 ### Developer Experience (March 2026)
 - [x] **Added pre-commit hooks** — Configured Husky + lint-staged to run ESLint/Prettier on staged TS/TSX files and full type checking before commits (2026-03-11)
+
+### DevOps (March 2026)
+- [x] **Re-enabled automated E2E tests in CI** — Updated `.github/workflows/e2e-tests.yml` to run on pull requests targeting `main` (and kept manual dispatch) (2026-03-11)
 
 ---
 
