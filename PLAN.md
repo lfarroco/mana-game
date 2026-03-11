@@ -175,12 +175,13 @@ These tasks enhance developer experience and expand documentation.
   - **Create**: `docs/effect-system.md`
   - **Cover**: Effect types, particle configs, animation system
 
-- [ ] **Document Options/Preferences System**
+- [x] **Document Options/Preferences System**
   - **Context**: User settings system needs documentation
   - **Impact**: Makes settings extension easier
   - **Effort**: Low (0.5 day)
   - **Create**: `docs/options-system.md`
   - **Cover**: Settings structure, persistence, UI binding
+  - **Status**: ✅ Fixed - Added `docs/options-system.md` documenting data model, storage providers, side effects, tab architecture, localization flow, and extension steps (2026-03-11)
 
 - [ ] **Document Supabase Backend**
   - **Context**: Supabase Edge Functions handle multiplayer game actions and Steam authentication (`phaser/supabase/functions/`), but have no architecture documentation
@@ -594,6 +595,9 @@ Previously completed work for historical reference.
 
 ### Quality & Testing (March 2026)
 - [x] **Added code coverage reporting** — Configured Jest coverage collection for Core and Systems code, generated text/lcov/html reports, and added `test:coverage` npm script (2026-03-11)
+
+### Documentation (March 2026)
+- [x] **Documented Options/Preferences System** — Added `docs/options-system.md` covering `OptionsStore`, persistence through `StorageFactory`, options scene tab composition, runtime side effects, and localization integration (2026-03-11)
 
 ### Phase System Fixes (March 2026)
 - [x] **Fixed encounter phase skip action in LocalGameController** — Added 'skip_encounter' case for encounter phase (was fallback to invalid 'skip'); changed shop phase to use 'skip_shop' for consistency with RemoteGameController (2026-03-11)

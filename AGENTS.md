@@ -66,6 +66,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 | [server-side-combat-migration.md](docs/server-side-combat-migration.md)     | Headless combat simulation (completed)                      |
 | [storage-system.md](docs/storage-system.md)                                 | Provider pattern, Steam Cloud, localStorage                 |
 | [audio-system.md](docs/audio-system.md)                                     | Music, SFX, cooldowns, user preferences                     |
+| [options-system.md](docs/options-system.md)                                 | Options data model, persistence, UI bindings                |
 | [logging-system.md](docs/logging-system.md)                                 | Structured logging utility, levels, conventions             |
 | [localization.md](docs/localization.md)                                     | i18n, adding languages, fallback logic                      |
 | [achievement-system.md](docs/achievement-system.md)                         | Steam achievements, victory tiers                           |
@@ -97,7 +98,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 - [ ] Document the UI System (components, layout management)
 - [ ] Document the Effect System (visual effects, particles)
-- [ ] Document the Options/Preferences System (user settings)
+- [x] Document the Options/Preferences System (user settings)
 - [x] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
 - [x] Add pre-commit hooks (Husky + lint-staged + typecheck)
 
@@ -123,6 +124,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Fixed encounter phase skip action in `LocalGameController.ts`: added 'skip_encounter' for encounter phase and 'skip_shop' for shop phase for consistency with `RemoteGameController` (Copilot, 2026-03-11)
 - [x] Fixed unit test in `LocalServerAdapter.test.ts` to use correct 'orb_shop_done' action instead of non-existent 'skip_orb_shop' (Copilot, 2026-03-11)
 - [x] Investigated E2E test failures (4 tests failing): identified phase system migration as root cause; simplified game_flow test to focus on basic game operation; documented issues in PLAN.md (Copilot, 2026-03-11)
+- [x] Documented Options/Preferences System in `docs/options-system.md` with architecture, persistence, and extension guidance (Copilot, 2026-03-11)
 
 ## Agent Workflow
 
