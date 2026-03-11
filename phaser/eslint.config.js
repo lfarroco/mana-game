@@ -42,4 +42,21 @@ export default [
 			],
 		},
 	},
+	{
+		files: ["src/Core/**/*.ts", "src/Core/**/*.tsx"],
+		rules: {
+			"no-restricted-imports": [
+				"error",
+				{
+					paths: [
+						{
+							name: "phaser",
+							message:
+								"Core must stay framework-agnostic. Move Phaser-dependent code to Engine/ or Systems/.",
+						},
+					],
+				},
+			],
+		},
+	},
 ];

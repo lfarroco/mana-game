@@ -241,7 +241,7 @@ Nice-to-have improvements that can be scheduled as time permits.
   - **Risk**: High - requires significant refactoring
   - **Recommendation**: Create proof-of-concept first
 
-- [ ] **Strict "No-Phaser" Core**
+- [x] **Strict "No-Phaser" Core**
   - **Context**: Ensure Core/ has zero Phaser dependencies
   - **Impact**: Enables headless testing, server-side validation
   - **Effort**: Medium (2-3 days)
@@ -249,6 +249,7 @@ Nice-to-have improvements that can be scheduled as time permits.
     1. Audit Core/ for Phaser imports
     2. Refactor any Phaser-dependent code
     3. Add ESLint rule to prevent Phaser imports in Core/
+  - **Status**: ✅ Fixed - Audited `src/Core/` (no direct Phaser imports found) and added ESLint `no-restricted-imports` rule to block future `phaser` imports in Core files (2026-03-11)
 
 ### User Experience
 - [ ] **Add keyboard shortcuts**
@@ -580,6 +581,9 @@ Previously completed work for historical reference.
 
 ### Architecture Debt (March 2026)
 - [x] **Completed Systems consolidation cleanup verification** — Confirmed no remaining `Scenes/Battleground/Systems/` references and no legacy directory under `phaser/src/Engine/Scenes/Battleground/` (2026-03-11)
+
+### Architecture Guardrails (March 2026)
+- [x] **Enforced Strict "No-Phaser" Core** — Added ESLint guard (`no-restricted-imports`) for `src/Core/**` to prevent direct `phaser` imports and preserve framework-agnostic core logic (2026-03-11)
 
 ### Code Quality (March 2026)
 - [x] **Implemented structured logging system** — Added `phaser/src/Utils/Logger.ts` with log levels and environment filtering; migrated key noisy modules and documented conventions in `docs/logging-system.md` (2026-03-11)
