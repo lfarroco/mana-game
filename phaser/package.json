@@ -53,6 +53,9 @@
         "url": "https://github.com/lfarroco/mana-game/issues"
     },
     "homepage": "https://github.com/lfarroco/mana-game",
+    "engines": {
+        "node": ">=20.0.0"
+    },
     "devDependencies": {
         "@babel/core": "^7.24.5",
         "@babel/preset-env": "^7.24.5",
