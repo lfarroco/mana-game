@@ -177,12 +177,13 @@ These tasks enhance developer experience and expand documentation.
   - **Cover**: Edge Function architecture, action handler, Steam auth flow, deployment process, integration tests
 
 ### Developer Experience
-- [ ] **Add pre-commit hooks**
+- [x] **Add pre-commit hooks**
   - **Context**: Enforce code quality before commits
   - **Impact**: Prevents broken code from being committed
   - **Effort**: Low (0.5 day)
   - **Tools**: Husky + lint-staged
   - **Hooks**: ESLint, Prettier, type checking
+  - **Status**: ✅ Fixed - Added Husky pre-commit hook running lint-staged (ESLint + Prettier on staged TS/TSX files) and TypeScript type checking (2026-03-11)
 
 - [ ] **Improve hot reload speed**
   - **Context**: Development server reload times could be faster
@@ -553,6 +554,9 @@ Previously completed work for historical reference.
 
 ### Audio System (March 2026)
 - [x] **Replaced setTimeout with Phaser tweens for audio fade** — Implemented smooth volume transitions in AudioManager using Phaser's tween system for fade-in and fade-out effects (2026-03-11)
+
+### Developer Experience (March 2026)
+- [x] **Added pre-commit hooks** — Configured Husky + lint-staged to run ESLint/Prettier on staged TS/TSX files and full type checking before commits (2026-03-11)
 
 ---
 
