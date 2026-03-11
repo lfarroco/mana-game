@@ -36,6 +36,10 @@ jobs:
         working-directory: phaser
         run: npm run build
 
+      - name: Check bundle size
+        working-directory: phaser
+        run: npm run test:bundle-size
+
       - name: Upload static files as artifact
         uses: actions/upload-pages-artifact@v3
         with:
