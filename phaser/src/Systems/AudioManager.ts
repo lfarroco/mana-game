@@ -41,14 +41,24 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 	currentMusicKey = musicKey;
 
 	if (fadeIn > 0) {
-		// Start at 0 volume and fade in
+		// Start at 0 volume and fade in using Phaser tween
+		const targetVolume = getOption("musicVolume");
 		(music as any).setVolume(0);
 		music.play();
-		setTimeout(() => {
-			if (music.isPlaying) {
-				(music as any).setVolume(getOption("musicVolume"));
-			}
-		}, 50);
+		
+		// Get active scene for tween manager
+		const activeScene = game.scene.getScenes(true)[0];
+		if (activeScene) {
+			activeScene.tweens.add({
+				targets: music,
+				volume: targetVolume,
+				duration: fadeIn,
+				ease: 'Linear'
+			});
+		} else {
+			// Fallback if no active scene
+			(music as any).setVolume(targetVolume);
+		}
 	} else {
 		music.play();
 	}
@@ -62,11 +72,23 @@ export const stopMusic = (fadeOut: number = 0) => {
 	}
 
 	if (fadeOut > 0) {
-		setTimeout(() => {
-			if (currentMusic) {
-				currentMusic.stop();
-			}
-		}, fadeOut);
+		// Fade out using Phaser tween
+		const activeScene = game.scene.getScenes(true)[0];
+		if (activeScene) {
+			const musicToStop = currentMusic;
+			activeScene.tweens.add({
+				targets: musicToStop,
+				volume: 0,
+				duration: fadeOut,
+				ease: 'Linear',
+				onComplete: () => {
+					musicToStop.stop();
+				}
+			});
+		} else {
+			// Fallback if no active scene
+			currentMusic.stop();
+		}
 	} else {
 		currentMusic.stop();
 	}
