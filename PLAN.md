@@ -103,10 +103,22 @@ These tasks significantly improve code quality, maintainability, and user experi
 
 ### Testing Improvements
 - [ ] **Verify all E2E tests pass**
-  - **Context**: 7 E2E test suites exist (`battleground`, `board`, `game_flow`, `settings`, `unit-effects`, `battleground-scenarios`, `game.e2e`) but CI runs are manual-only
+  - **Context**: 7 E2E test suites exist but 4 are currently failing. Tests were written for previous phase system architecture and need updating.
+  - **Current Status (2026-03-11)**:
+    - ✅ 6 tests passing (settings.e2e.ts, unit-effects.e2e.ts, battleground.e2e.ts, game.e2e.ts + 2 battleground-scenarios)
+    - ❌ 4 tests failing:
+      - `game_flow.spec.ts`: Test simplified to focus on basic game operation; phase advancement logic incomplete
+      - `board.e2e.ts`: Unit drag-and-drop test; may need UI interaction fixes
+      - `battleground-scenarios.e2e.ts` (2 tests): Combat and shop phase specific scenarios  
+    - **Issue Identified**: Phase system migration (in progress from legacy PhaseManager.ts to Core/PhaseSystem/) affects how E2E tests interact with phase transitions
+    - **Root Cause**: Tests assume older phase transition behavior; need alignment with new PhaseManager architecture
   - **Impact**: Ensures game stability across refactors
-  - **Effort**: Low (0.5 day)
-  - **Action**: Run `npm run test:e2e` and fix any failures
+  - **Effort**: Medium (1-2 days to fix all tests)
+  - **Next Steps**:
+    1. Fix phase skip action IDs in LocalGameController (✅ done - skip_encounter added)
+    2. Debug why phase options aren't transitioning correctly in E2E
+    3. Update test logic to match new phase system expectations
+    4. Consider if phase system migration affects option availability
 
 - [ ] **Add comprehensive test coverage for UI handlers**
   - **Context**: Input handlers and UI components need more test coverage
@@ -571,13 +583,19 @@ Previously completed work for historical reference.
 ### Code Quality (March 2026)
 - [x] **Implemented structured logging system** — Added `phaser/src/Utils/Logger.ts` with log levels and environment filtering; migrated key noisy modules and documented conventions in `docs/logging-system.md` (2026-03-11)
 
+### Phase System Fixes (March 2026)
+- [x] **Fixed encounter phase skip action in LocalGameController** — Added 'skip_encounter' case for encounter phase (was fallback to invalid 'skip'); changed shop phase to use 'skip_shop' for consistency with RemoteGameController (2026-03-11)
+- [x] **Fixed unit test for orb_shop skip action** — Updated `LocalServerAdapter.test.ts` to use 'orb_shop_done' instead of non-existent 'skip_orb_shop' action (2026-03-11)
+- [x] **Investigated E2E test failures** — Identified that phase system migration affects E2E test assumptions; documented issues in PLAN.md for future work; changed game_flow test to simplified approach (2026-03-11)
+
 ---
 
 ## Current Sprint Focus
-- [ ] Phase system migration (Critical)
+- [ ] Phase system migration (Critical) - investigation underway
 - [ ] Single-player/multiplayer unification (Critical)
 - [x] Add unit tests to CI pipeline (High — quick win)
 - [x] Logging system implementation (High)
+- [ ] E2E test fixes (High) - 4 tests still failing, phase advancement issues identified
 
 ---
 
