@@ -254,11 +254,12 @@ Nice-to-have improvements that can be scheduled as time permits.
 Issues and patterns that should be addressed to prevent future problems.
 
 ### Code Smells
-- [ ] **Remove double slashes in import paths**
+- [x] **Remove double slashes in import paths**
   - **Context**: `@Scenes//Debug/DebugController` found in test-utils/debugController.ts (line 5) — confirmed still present
   - **Impact**: Prevents potential path resolution issues
   - **Effort**: Trivial (0.1 day)
   - **File**: [src/test-utils/debugController.ts](phaser/src/test-utils/debugController.ts#L5)
+  - **Status**: ✅ Fixed (2026-03-11)
 
 - [ ] **Centralize magic numbers and constants**
   - **Context**: Hardcoded values throughout codebase
@@ -543,6 +544,9 @@ Previously completed work for historical reference.
 - [x] Game over screen match statistics showing 0 — fixed
 - [x] Match stats preserved when saving and resuming a game — fixed
 - [x] Unit position changes saved when moving on board — fixed
+
+### Technical Debt (March 2026)
+- [x] **Removed double slashes in import paths** — Fixed `@Scenes//Debug/DebugController` to `@Scenes/Debug/DebugController` in test-utils/debugController.ts (2026-03-11)
 
 ---
 
