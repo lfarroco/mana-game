@@ -161,12 +161,13 @@ These tasks significantly improve code quality, maintainability, and user experi
 These tasks enhance developer experience and expand documentation.
 
 ### Documentation
-- [ ] **Document UI System**
+- [x] **Document UI System**
   - **Context**: Listed in README as needing documentation
   - **Impact**: Helps contributors understand UI architecture
   - **Effort**: Medium (1 day)
   - **Create**: `docs/ui-system.md`
   - **Cover**: Component structure, event handling, layout management
+  - **Status**: ✅ Fixed - Added `docs/ui-system.md` documenting UI composition architecture, event-driven updates, reusable components, input handling, and layout patterns (2026-03-11)
 
 - [x] **Document Effect System**
   - **Context**: Visual effects and particle systems not documented
@@ -598,6 +599,7 @@ Previously completed work for historical reference.
 - [x] **Added code coverage reporting** — Configured Jest coverage collection for Core and Systems code, generated text/lcov/html reports, and added `test:coverage` npm script (2026-03-11)
 
 ### Documentation (March 2026)
+- [x] **Documented UI System** — Added `docs/ui-system.md` covering HUD composition, event/update flow, shared component primitives, and layout/input patterns (2026-03-11)
 - [x] **Documented Effect System** — Added `docs/effect-system.md` covering playback pipeline, effect module structure, trigger visual adapters, and implementation guidelines (2026-03-11)
 - [x] **Documented Options/Preferences System** — Added `docs/options-system.md` covering `OptionsStore`, persistence through `StorageFactory`, options scene tab composition, runtime side effects, and localization integration (2026-03-11)
 
