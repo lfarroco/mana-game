@@ -66,6 +66,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 | [server-side-combat-migration.md](docs/server-side-combat-migration.md)     | Headless combat simulation (completed)                      |
 | [storage-system.md](docs/storage-system.md)                                 | Provider pattern, Steam Cloud, localStorage                 |
 | [audio-system.md](docs/audio-system.md)                                     | Music, SFX, cooldowns, user preferences                     |
+| [logging-system.md](docs/logging-system.md)                                 | Structured logging utility, levels, conventions             |
 | [localization.md](docs/localization.md)                                     | i18n, adding languages, fallback logic                      |
 | [achievement-system.md](docs/achievement-system.md)                         | Steam achievements, victory tiers                           |
 
@@ -118,6 +119,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Re-enabled automated E2E CI runs by adding `pull_request` trigger for `main` in `.github/workflows/e2e-tests.yml` (Copilot, 2026-03-11)
 - [x] Verified Systems consolidation cleanup: no remaining references to `Scenes/Battleground/Systems/` and no legacy directory found (Copilot, 2026-03-11)
 - [x] Added automated unit-test CI gate by running `npm run test` in `.github/workflows/webpack.yml` before build (Copilot, 2026-03-11)
+- [x] Implemented structured logging system with `Logger.ts`, migrated `AudioManager`, `MultiplayerManager`, `StatsStore`, and `serverCombatDemo`, and documented conventions (Copilot, 2026-03-11)
 
 ## Agent Workflow
 

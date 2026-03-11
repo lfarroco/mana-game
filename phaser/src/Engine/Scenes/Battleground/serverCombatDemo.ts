@@ -5,20 +5,23 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "./ServerConstants";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { State } from "@Models/State";
+import { createLogger } from "@Utils/Logger";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
+const logger = createLogger("ServerCombatDemo");
 
 export const runServerSideCombat = (inputState?: State) => {
-	console.log("=== Server-Side Combat Demo ===\n");
+	logger.info("Starting server-side combat demo");
 
 	const state = inputState || createMockState();
 	const effects = createServerCombatEffects(state);
 	const combatRunner = runCombat(state, effects);
 
-	console.log("Combat initialized");
-	console.log(`Player units: ${state.battleData.units.filter((u: any) => u.force === FORCE_ID_PLAYER).length}`);
-	console.log(`CPU units: ${state.battleData.units.filter((u: any) => u.force === FORCE_ID_CPU).length}\n`);
+	logger.info("Combat initialized", {
+		playerUnits: state.battleData.units.filter((u: any) => u.force === FORCE_ID_PLAYER).length,
+		cpuUnits: state.battleData.units.filter((u: any) => u.force === FORCE_ID_CPU).length,
+	});
 
 	let frame = 0;
 	const deltaTime = 16.67;
@@ -29,46 +32,70 @@ export const runServerSideCombat = (inputState?: State) => {
 		frame++;
 	}
 
-	console.log(`\nCombat ended after ${frame} frames`);
+	logger.info("Combat ended", { frames: frame });
 
-	const outcomeLog = effects.logs.find(l => l.type === "outcome");
+	const outcomeLog = effects.logs.find((l) => l.type === "outcome");
 	const result = outcomeLog && outcomeLog.type === "outcome" ? outcomeLog.result : "Draw / Timeout";
-	console.log(`Result: ${result}`);
+	logger.info("Combat result", { result });
 
 	if (!inputState) {
-		console.log("\n=== Combat Logs ===");
-		effects.logs.forEach(log => {
+		logger.info("Printing combat logs");
+		effects.logs.forEach((log) => {
 			const prefix = `[${log.frame}]`;
 			if (log.type === "reaction") {
-				console.log(`${prefix} [REACT] ${log.unitId} reacted`);
+				logger.info(`${prefix} [REACT] ${log.unitId} reacted`);
 			} else if (log.type === "damage") {
-				console.log(`${prefix} [DMG] ${log.sourceId} dealt ${log.amount} damage to ${log.targetId} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [DMG] ${log.sourceId} dealt ${log.amount} damage to ${log.targetId} (${log.duration}ms)`
+				);
 			} else if (log.type === "heal") {
-				console.log(`${prefix} [HEAL] ${log.sourceId} healed ${log.targetId} for ${log.amount} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [HEAL] ${log.sourceId} healed ${log.targetId} for ${log.amount} (${log.duration}ms)`
+				);
 			} else if (log.type === "shield") {
-				console.log(`${prefix} [SHIELD] ${log.sourceId} shielded ${log.targetId} for ${log.amount} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [SHIELD] ${log.sourceId} shielded ${log.targetId} for ${log.amount} (${log.duration}ms)`
+				);
 			} else if (log.type === "poison") {
-				console.log(`${prefix} [POISON] ${log.sourceId} poisoned ${log.targetId} for ${log.amount}/tick (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [POISON] ${log.sourceId} poisoned ${log.targetId} for ${log.amount}/tick (${log.duration}ms)`
+				);
 			} else if (log.type === "regen") {
-				console.log(`${prefix} [REGEN] ${log.sourceId} applied ${log.amount}/tick regen to ${log.targetId} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [REGEN] ${log.sourceId} applied ${log.amount}/tick regen to ${log.targetId} (${log.duration}ms)`
+				);
 			} else if (log.type === "crystal_life") {
-				console.log(`${prefix} [CRYSTAL] ${log.force} crystal life: ${log.life}`);
+				logger.info(`${prefix} [CRYSTAL] ${log.force} crystal life: ${log.life}`);
 			} else if (log.type === "timeout_damage") {
-				console.log(`${prefix} [TIMEOUT] Timeout damage: ${log.damage} to ${log.force} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [TIMEOUT] Timeout damage: ${log.damage} to ${log.force} (${log.duration}ms)`
+				);
 			} else if (log.type === "haste") {
-				console.log(`${prefix} [HASTE] ${log.sourceId} applied haste to ${log.targetId} (effect: ${log.effectDuration}ms, travel: ${log.duration}ms)`);
+				logger.info(
+					`${prefix} [HASTE] ${log.sourceId} applied haste to ${log.targetId} (effect: ${log.effectDuration}ms, travel: ${log.duration}ms)`
+				);
 			} else if (log.type === "slow") {
-				console.log(`${prefix} [SLOW] ${log.sourceId} applied slow to ${log.targetId} (effect: ${log.effectDuration}ms, travel: ${log.duration}ms)`);
+				logger.info(
+					`${prefix} [SLOW] ${log.sourceId} applied slow to ${log.targetId} (effect: ${log.effectDuration}ms, travel: ${log.duration}ms)`
+				);
 			} else if (log.type === "charge") {
-				console.log(`${prefix} [CHARGE] ${log.sourceId} charged ${log.targetId} by ${log.amount} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [CHARGE] ${log.sourceId} charged ${log.targetId} by ${log.amount} (${log.duration}ms)`
+				);
 			} else if (log.type === "increase_power") {
-				console.log(`${prefix} [PWR+] ${log.sourceId || 'system'} increased power of ${log.targetId} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [PWR+] ${log.sourceId || "system"} increased power of ${log.targetId} (${log.duration}ms)`
+				);
 			} else if (log.type === "decrease_power") {
-				console.log(`${prefix} [PWR-] ${log.sourceId || 'system'} decreased power of ${log.targetId} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [PWR-] ${log.sourceId || "system"} decreased power of ${log.targetId} (${log.duration}ms)`
+				);
 			} else if (log.type === "increase_critical") {
-				console.log(`${prefix} [CRIT+] ${log.sourceId || 'system'} increased critical of ${log.targetId} (${log.duration}ms)`);
+				logger.info(
+					`${prefix} [CRIT+] ${log.sourceId || "system"} increased critical of ${log.targetId} (${log.duration}ms)`
+				);
 			} else if (log.type === "outcome") {
-				console.log(`${prefix} [END] Winner: ${log.result}`);
+				logger.info(`${prefix} [END] Winner: ${log.result}`);
 			}
 		});
 	}
@@ -77,6 +104,6 @@ export const runServerSideCombat = (inputState?: State) => {
 		success: true,
 		frames: frame,
 		logs: effects.logs,
-		outcome: result
-	}
+		outcome: result,
+	};
 };
