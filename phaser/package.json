@@ -25,6 +25,7 @@
         "electron:build:demo:linux": "IS_DEMO=true npm run build && IS_DEMO=true electron-builder --linux --dir",
         "test": "jest",
         "test:unit": "jest --testPathIgnorePatterns=e2e",
+        "test:coverage": "jest --coverage",
         "test:supabase": "deno test --no-check --allow-env supabase/functions/**/*.test.js supabase/functions/*.test.js",
         "test:e2e": "playwright test",
         "test:e2e:game-flow": "playwright test e2e/game_flow.spec.ts",

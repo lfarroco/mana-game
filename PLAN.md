@@ -309,13 +309,14 @@ Issues and patterns that should be addressed to prevent future problems.
 Improvements to testing infrastructure and coverage.
 
 ### Test Coverage
-- [ ] **Add code coverage reporting**
+- [x] **Add code coverage reporting**
   - **Context**: No code coverage metrics currently tracked
   - **Impact**: Identify untested code paths
   - **Effort**: Low (0.5 day)
   - **Tools**: Jest coverage, Istanbul
   - **Config**: Add to `jest.config.cjs`
   - **Goal**: >80% coverage for Core/, >60% for Systems/
+  - **Status**: ✅ Fixed - Added Jest coverage configuration (`collectCoverageFrom`, reports, output directory) and `npm run test:coverage` script; verified coverage report generation (2026-03-11)
 
 - [ ] **Create visual regression tests**
   - **Context**: UI changes could break visual appearance
@@ -582,6 +583,9 @@ Previously completed work for historical reference.
 
 ### Code Quality (March 2026)
 - [x] **Implemented structured logging system** — Added `phaser/src/Utils/Logger.ts` with log levels and environment filtering; migrated key noisy modules and documented conventions in `docs/logging-system.md` (2026-03-11)
+
+### Quality & Testing (March 2026)
+- [x] **Added code coverage reporting** — Configured Jest coverage collection for Core and Systems code, generated text/lcov/html reports, and added `test:coverage` npm script (2026-03-11)
 
 ### Phase System Fixes (March 2026)
 - [x] **Fixed encounter phase skip action in LocalGameController** — Added 'skip_encounter' case for encounter phase (was fallback to invalid 'skip'); changed shop phase to use 'skip_shop' for consistency with RemoteGameController (2026-03-11)
