@@ -212,11 +212,12 @@ These tasks enhance developer experience and expand documentation.
 Nice-to-have improvements that can be scheduled as time permits.
 
 ### Refactoring
-- [ ] **Evaluate Node.js engine requirement in package.json**
+- [x] **Evaluate Node.js engine requirement in package.json**
   - **Context**: No explicit engine version specified. CI workflows hardcode `node-version: '20'` but `package.json` has no `"engines"` field.
   - **Impact**: Prevents issues with incompatible Node versions
   - **Effort**: Trivial (0.1 day)
   - **File**: `phaser/package.json`
+  - **Status**: ✅ Fixed - Added "engines": { "node": ">=20.0.0" } (2026-03-11)
 
 - [ ] **Implement Action/Reducer pattern for state management**
   - **Context**: Proposed in ARCHITECTURE_PROPOSALS.md Section 4
@@ -547,6 +548,7 @@ Previously completed work for historical reference.
 
 ### Technical Debt (March 2026)
 - [x] **Removed double slashes in import paths** — Fixed `@Scenes//Debug/DebugController` to `@Scenes/Debug/DebugController` in test-utils/debugController.ts (2026-03-11)
+- [x] **Added Node.js engine requirement** — Added "engines": { "node": ">=20.0.0" } to package.json to enforce version compatibility (2026-03-11)
 
 ---
 
