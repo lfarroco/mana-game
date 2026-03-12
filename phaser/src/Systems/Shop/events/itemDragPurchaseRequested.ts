@@ -5,7 +5,6 @@ import { getState, getUnitAt } from "@Models/State";
 import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
-import * as ShopUI from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getName } from "@i18n/i18n";
 
@@ -52,7 +51,6 @@ export async function itemDragPurchaseRequested(
 	if (existingUnit && existingUnit.rank <= 3) {
 		upgradeUnit(existingUnit);
 		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-		await ShopUI.slideOut();
 		return;
 	}
 
@@ -68,5 +66,4 @@ export async function itemDragPurchaseRequested(
 
 	summon(newUnit, true);
 	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
-	await ShopUI.slideOut();
 }
