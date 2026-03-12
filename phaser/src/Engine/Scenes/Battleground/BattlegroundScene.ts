@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { setCurrentScene, State, getState } from "@Models/State";
+import { setCurrentScene, State, getState, setState } from "@Models/State";
 import * as UIManager from "@UI/UI";
 import * as Board from "@Models/Board";
 import { CombatRunner } from "./RunCombatIO";
@@ -19,8 +19,8 @@ import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "../../Visualizer";
 
 export type BattlegroundSceneData = {
-	state: State,
-	// TODO: instead of this, we need the list of current units 
+	state: State;
+	// TODO: instead of this, we need the list of current units
 	selectedCrystalId?: string;
 	isMultiplayer?: boolean;
 };
@@ -33,7 +33,6 @@ export class BattlegroundScene extends Phaser.Scene {
 	eventEmitter: EventEmitter;
 
 	cleanup() {
-
 		// Stop the combat runner if it exists
 		if (this.combatRunner) {
 			this.combatRunner.stop();
@@ -56,11 +55,15 @@ export class BattlegroundScene extends Phaser.Scene {
 		super("BattlegroundScene");
 	}
 
-
 	create = async (data: BattlegroundSceneData) => {
 		const state = data?.state || getState();
 
 		this.state = state;
+
+		// Update global state when scene receives new state data (important for testing)
+		if (data?.state) {
+			setState(state);
+		}
 
 		setCurrentScene(this);
 
@@ -79,11 +82,10 @@ export class BattlegroundScene extends Phaser.Scene {
 	};
 
 	start = async ({ state, selectedCrystalId, isMultiplayer }: BattlegroundSceneData) => {
-
 		// TODO: the start for this scene should be just:
 		// - render boards
 		// - render untis
-		// - display current phase 
+		// - display current phase
 
 		const session = state.session;
 
@@ -126,7 +128,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		// Only summon units if there are no characters and we're not in combat phase
 		// Combat phase handles its own summoning in transitionToCombatPhase
-		if (charas.length === 0 && state.session.phase !== 'combat') {
+		if (charas.length === 0 && state.session.phase !== "combat") {
 			await resetBoard();
 		}
 
@@ -152,4 +154,3 @@ export class BattlegroundScene extends Phaser.Scene {
 }
 
 export default BattlegroundScene;
-

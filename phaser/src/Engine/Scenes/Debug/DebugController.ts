@@ -14,7 +14,6 @@ import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScen
 import { handleCombatStartExecution } from "@Systems/CombatPhase";
 import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
-import { PhaseTransitions } from "@Core/PhaseTransitions";
 import { activeButtons } from "@Components/UIButton";
 import { ActionPayload, SessionData } from "@Core/Types";
 import { getServerAdapter } from "@Core/ServerFactory";
@@ -27,7 +26,9 @@ export function getCurrentSceneName(): string {
 export function getCurrentPhase(): string {
 	const state = getState();
 	if (!state || !state.session) return "";
-	return PhaseTransitions.getPhaseForHour(state.session.step);
+	// Return the actual phase from the session, not derived from step
+	// This allows tests to set arbitrary phases
+	return state.session.phase;
 }
 
 export function clickHeroInShop(slotIndex: number): string {
@@ -116,8 +117,9 @@ export function discardUnitFromBoard(unitId: string): string {
 	return `Discard request processed for unit ${unitId}. State and visuals will update asynchronously`;
 }
 
-export let isShopVisible = (): boolean => {
-	const ShopPanel = require("@Systems/Shop/ShopPanel");
+export const isShopVisible = (): boolean => {
+	// eslint-disable-next-line @typescript-eslint/no-require-imports
+	const ShopPanel = require("@Systems/Shop/ShopPanel") as typeof import("@Systems/Shop/ShopPanel");
 	return !!(ShopPanel.container && ShopPanel.container.visible);
 };
 
@@ -150,7 +152,11 @@ export function logGameState(): void {
 	});
 }
 
-export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: number): string {
+export async function addUnitToPlayerBoard(
+	cardId: string,
+	boardX: number,
+	boardY: number
+): Promise<string> {
 	const newUnit: Unit = {
 		id: `test-unit-${Date.now()}-${Math.random()}`,
 		cardId: cardId,
@@ -177,7 +183,7 @@ export function addUnitToPlayerBoard(cardId: string, boardX: number, boardY: num
 
 	getState().session.team.units.push(newUnit);
 
-	Chara.summon(newUnit, true);
+	await Chara.summon(newUnit, true);
 
 	return `Added unit ${cardId} (ID: ${newUnit.id}) to board position (${boardX}, ${boardY})`;
 }
@@ -194,9 +200,9 @@ export function clickNewRun() {
 export function selectCrystal(index: number) {
 	const scene = getCurrentScene();
 	if (scene instanceof CrystalSelectionScene) {
-		// @ts-ignore - Accessing private property for testing
+		// @ts-expect-error - Accessing private property for testing
 		scene.currentIndex = index;
-		// @ts-ignore - Accessing private method for testing
+		// @ts-expect-error - Accessing private method for testing
 		scene.updateDisplay();
 		return `Selected crystal at index ${index}`;
 	}
@@ -206,7 +212,7 @@ export function selectCrystal(index: number) {
 export function confirmCrystalSelection() {
 	const scene = getCurrentScene();
 	if (scene instanceof CrystalSelectionScene) {
-		// @ts-ignore - Accessing private method for testing
+		// @ts-expect-error - Accessing private method for testing
 		scene.startGameWithCrystal();
 		return "Confirmed crystal selection";
 	}
@@ -348,7 +354,7 @@ export async function triggerGameComplete(state: State, wins: number = 0): Promi
 				hasted: 0,
 				slowed: 0,
 				isCore: false,
-			}
+			},
 		];
 	}
 
@@ -377,7 +383,6 @@ export async function setWins(wins: number): Promise<string> {
 	updateWinsDisplay(wins);
 	return `Wins set to ${wins}`;
 }
-
 
 export function unlockUnit(unitId: string): string {
 	StatsStore.unlockUnit(unitId);
@@ -409,25 +414,25 @@ export function clickButton(textToFind: string): string {
 		return `Clicked button "${textToFind}" via registry`;
 	}
 	const keys = Object.keys(registry);
-	return `Error: Button "${textToFind}" not found in registry. Available: ${keys.join(', ')}`;
+	return `Error: Button "${textToFind}" not found in registry. Available: ${keys.join(", ")}`;
 }
 
 /**
  * Start the battleground scene with an arbitrary session state.
  * This is useful for e2e testing to set up specific game scenarios.
- * 
+ *
  * @param session - The session data to use for the battleground scene.
  *                  Can be a partial session that will be merged with defaults.
  * @returns A promise that resolves to a string indicating success or error.
  */
 export async function startBattlegroundWithSession(session: Partial<SessionData>): Promise<string> {
 	const state = getState();
-	
+
 	// Create a complete session by merging with defaults
 	const defaultSession: SessionData = {
 		id: `test-session-${Date.now()}`,
 		player_id: `test-player-${Date.now()}`,
-		phase: 'encounter',
+		phase: "encounter",
 		round: 1,
 		step: 1,
 		seed: Math.random().toString(36).substring(7),
@@ -447,34 +452,36 @@ export async function startBattlegroundWithSession(session: Partial<SessionData>
 			mostPowerfulUnit: null,
 			totalUnitsRecruited: 0,
 			unitUsage: {},
-		}
+		},
 	};
-	
+
 	// Merge the provided session with defaults
 	const completeSession: SessionData = {
 		...defaultSession,
 		...session,
 		// Deep merge for nested objects - preserve all team properties while merging units
-		team: session.team 
-			? { ...defaultSession.team, ...session.team, units: [...(session.team.units || [])] } 
+		team: session.team
+			? { ...defaultSession.team, ...session.team, units: [...(session.team.units || [])] }
 			: defaultSession.team,
-		runStats: session.runStats ? { ...defaultSession.runStats, ...session.runStats } : defaultSession.runStats,
+		runStats: session.runStats
+			? { ...defaultSession.runStats, ...session.runStats }
+			: defaultSession.runStats,
 	};
-	
+
 	// Update the global state with the new session
 	state.session = completeSession;
-	
+
 	// Restore session into SessionManager via the server adapter
 	// Note: Using type assertion to access sessionManager, which is consistent with loadGame.ts
 	// This is only for debugging/testing purposes where we need direct session manipulation
 	const server = getServerAdapter();
-	if ('sessionManager' in server) {
+	if ("sessionManager" in server) {
 		(server as any).sessionManager.updateSession(completeSession.player_id, completeSession);
 	}
-	
+
 	// Start the battleground scene with the state
 	const scene = getCurrentScene();
 	scene.scene.start(constants.SCENE_KEYS.BATTLEGROUND, { state });
-	
+
 	return `Started battleground scene with session: phase=${completeSession.phase}, round=${completeSession.round}, team size=${completeSession.team.units.length}`;
 }

@@ -19,9 +19,9 @@ const initialState = (): State => {
 	return {
 		savedGames: [],
 		session: {
-			id: 'local_session',
-			player_id: 'local_player',
-			phase: 'encounter',
+			id: "local_session",
+			player_id: "local_player",
+			phase: "encounter",
 			round: 1,
 			step: 0,
 			seed: initialSeed,
@@ -41,7 +41,7 @@ const initialState = (): State => {
 				mostPowerfulUnit: null,
 				totalUnitsRecruited: 0,
 				unitUsage: {},
-			}
+			},
 		},
 		battleData: {
 			forces: [],
@@ -51,16 +51,13 @@ const initialState = (): State => {
 	};
 };
 
-let state: {
+const state: {
 	currentState: State;
-} = {
-
-} as any;
+} = {} as any;
 
 export const initState = () => {
 	state.currentState = initialState();
-}
-
+};
 
 export function resetState() {
 	state.currentState = initialState();
@@ -84,11 +81,20 @@ export const getState = (): State => {
 	return state.currentState;
 };
 
+/**
+ * Update the global game state
+ * Used primarily for testing and scene transitions
+ */
+export const setState = (newState: State): void => {
+	state.currentState = newState;
+	setSeed(parseInt(newState.session.seed));
+};
+
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
 	return units.find((u) => eqVec2(u.position, position));
 };
 
-let currentScene = {
+const currentScene = {
 	scene: {} as Phaser.Scene,
 };
 
