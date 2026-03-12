@@ -1,6 +1,5 @@
 import { getState, State } from "@Models/State";
 import * as CombatPhase from "@Systems/CombatPhase";
-import * as HeroShop from "@Systems/Shop/HeroShop";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
@@ -20,15 +19,19 @@ import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter } from "@Systems/Events";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
+import { renderTavernCharas } from "@Systems/Shop/CharaShop";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import { getGameController } from "@Core/GameControllerFactory";
+import { getCardDefinition } from "@Models/Entities/Card";
 import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
 
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets> = {
-		"shop": "sea",
-		"encounter": "nebula",
-		"combat": "forest",
-		"upgrade_core": "aurora",
-		"add_reaction_core": "sunset"
+		shop: "sea",
+		encounter: "nebula",
+		combat: "forest",
+		upgrade_core: "aurora",
+		add_reaction_core: "sunset",
 	};
 
 	return colorMap[phase] || "forest";
@@ -67,7 +70,7 @@ export function getPlayerId(): string {
 }
 
 // Render phase based on server response
-async function renderPhase(state: State, options: any, eventEmitter?: EventEmitter) {
+async function renderPhase(state: State, options: any, _eventEmitter?: EventEmitter) {
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(options.phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");
@@ -87,10 +90,12 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 				await loadUnitAssets(state.session.team.units);
 			}
 
-			await Promise.all(state.session.team.units.map(async u => {
-				const c = await Chara.create(u);
-				Chara.enableTooltip(c);
-			}));
+			await Promise.all(
+				state.session.team.units.map(async (u) => {
+					const c = await Chara.create(u);
+					Chara.enableTooltip(c);
+				})
+			);
 		}
 	}
 
@@ -107,39 +112,49 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 			healDealt: 0,
 			mostPowerfulUnit: null,
 			totalUnitsRecruited: 0,
-			unitUsage: {}
+			unitUsage: {},
 		};
 	}
 
 	switch (options.phase) {
 		case "encounter":
-			await Encounter.open(state, options.options.map((o: any) => o.id));
+			await Encounter.open(
+				state,
+				options.options.map((o: any) => o.id)
+			);
 			break;
 		case "shop":
-			if (eventEmitter) {
-				// Use new event-driven system
-				const result = HeroShop.openHeroShop(state, eventEmitter, options.options.map((o: any) => o.id));
-				result.events.forEach(event => eventEmitter.emit(event.type, event));
-			} else {
-				// Fallback to old system
-				await HeroShop.openHeroShopLegacy(options.options.map((o: any) => o.id));
+			{
+				const shopCardIds = options.options.map((o: any) => o.id);
+				const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
+				const controller = getGameController();
+				ShopPanel.create(async () => {
+					await ShopPanel.slideOut();
+					await controller.skipPhase();
+				});
+				renderTavernCharas(cardDefs);
+				await ShopPanel.slideIn();
 			}
 			break;
 		case "combat":
 			await CombatPhase.transitionToCombatPhase(state, options.combatState);
 			break;
 		case "orb_shop":
-			await openOrbShop(state, options.options.map((o: any) => o.id), async (orbId: string, targetId: string) => {
-				// Notify server when orb is applied
-				const server = getServerAdapter();
-				const playerId = getPlayerId();
-				await server.handleAction(playerId, 'apply_orb', { orbId, targetUnitId: targetId });
-			});
+			await openOrbShop(
+				state,
+				options.options.map((o: any) => o.id),
+				async (orbId: string, targetId: string) => {
+					// Notify server when orb is applied
+					const server = getServerAdapter();
+					const playerId = getPlayerId();
+					await server.handleAction(playerId, "apply_orb", { orbId, targetUnitId: targetId });
+				}
+			);
 			// After orb shop completes, notify server and get next phase
 			{
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
-				await server.handleAction(playerId, 'orb_shop_done');
+				await server.handleAction(playerId, "orb_shop_done");
 				await startPhase(state, currentEventEmitter);
 			}
 			break;
@@ -152,7 +167,7 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 			{
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
-				await server.handleAction(playerId, 'upgrade_core_done');
+				await server.handleAction(playerId, "upgrade_core_done");
 				await startPhase(state, currentEventEmitter);
 			}
 			break;
@@ -165,7 +180,7 @@ async function renderPhase(state: State, options: any, eventEmitter?: EventEmitt
 			{
 				const server = getServerAdapter();
 				const playerId = getPlayerId();
-				await server.handleAction(playerId, 'add_reaction_core_done');
+				await server.handleAction(playerId, "add_reaction_core_done");
 				await startPhase(state, currentEventEmitter);
 			}
 			break;
@@ -186,11 +201,14 @@ export function handlePhaseEnded(state: State): void {
 		const playerId = getPlayerId();
 
 		// Notify server of phase completion and get next phase
-		server.handleAction(playerId, "phase_complete").then(() => {
-			startPhase(state, currentEventEmitter);
-		}).catch(error => {
-			console.error("Failed to complete phase:", error);
-		});
+		server
+			.handleAction(playerId, "phase_complete")
+			.then(() => {
+				startPhase(state, currentEventEmitter);
+			})
+			.catch((error) => {
+				console.error("Failed to complete phase:", error);
+			});
 	} else {
 		startPhase(state, currentEventEmitter);
 	}
@@ -216,7 +234,10 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 		newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
 		CombatSystemStates.updateRegenSystemState(newRegenState);
 
-		let newPoisonState = PoisonSystem.clearPoison(combatStates.poisonSystemState, c.FORCE_ID_PLAYER);
+		let newPoisonState = PoisonSystem.clearPoison(
+			combatStates.poisonSystemState,
+			c.FORCE_ID_PLAYER
+		);
 		newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
 		CombatSystemStates.updatePoisonSystemState(newPoisonState);
 	}

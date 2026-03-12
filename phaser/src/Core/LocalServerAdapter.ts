@@ -1,14 +1,16 @@
-import { IGameServer } from './IGameServer';
-import { SessionManager } from './SessionManager';
-import * as GameLogic from './GameLogic';
-import { SessionData, PhaseOptions, PhaseType } from './Types';
+import { IGameServer } from "./IGameServer";
+import { SessionManager } from "./SessionManager";
+import * as GameLogic from "./GameLogic";
+import { SessionData, PhaseOptions, PhaseType } from "./Types";
 
 /**
  * Local in-memory implementation of the game server.
  * Used for single-player mode - runs all game logic locally without network calls.
  */
 export class LocalServerAdapter implements IGameServer {
-	private sessionManager = new SessionManager();
+	// Made public to allow debugging/testing scenarios to set up arbitrary session states
+	// See: DebugController.startBattlegroundWithSession()
+	sessionManager = new SessionManager();
 
 	async createSession(playerId: string, crystalId: string): Promise<SessionData> {
 		const session = GameLogic.createInitialSession(playerId, crystalId);
@@ -34,11 +36,11 @@ export class LocalServerAdapter implements IGameServer {
 			team: session.team,
 			wins: session.wins,
 			losses: session.losses,
-			runStats: session.runStats
+			runStats: session.runStats,
 		};
 
 		switch (session.phase) {
-			case 'encounter':
+			case "encounter":
 				// Use stored options if available (consistent with shop behavior)
 				if (session.current_options) {
 					response.options = Array.isArray(session.current_options)
@@ -51,7 +53,7 @@ export class LocalServerAdapter implements IGameServer {
 				}
 				break;
 
-			case 'shop':
+			case "shop":
 				// Use stored options if available (important after discard_unit actions)
 				if (session.current_options) {
 					response.options = Array.isArray(session.current_options)
@@ -64,7 +66,7 @@ export class LocalServerAdapter implements IGameServer {
 				}
 				break;
 
-			case 'combat':
+			case "combat":
 				// Combat state should already be in session.current_options from transitionToNextState
 				if (session.current_options && (session.current_options as any).combatState) {
 					const combatState = (session.current_options as any).combatState;
@@ -72,11 +74,13 @@ export class LocalServerAdapter implements IGameServer {
 					response.combatState = {
 						...combatState,
 						units: combatState.units || combatState.initialUnits,
-						initialUnits: combatState.initialUnits
+						initialUnits: combatState.initialUnits,
 					};
 					const enemyTeam = GameLogic.generateEnemyTeamForRound(session.round, session.wins);
 					const simResult = GameLogic.simulateCombat(session);
-					const playerUnits = simResult.finalState.battleData.units.filter((u: any) => u.force === 'PLAYER');
+					const playerUnits = simResult.finalState.battleData.units.filter(
+						(u: any) => u.force === "PLAYER"
+					);
 
 					response.combatState = {
 						units: simResult.initialUnits,
@@ -86,13 +90,13 @@ export class LocalServerAdapter implements IGameServer {
 						initialUnits: simResult.initialUnits,
 						finalPlayerUnits: playerUnits,
 					};
-					response.options = [{ id: 'combat_done', label: 'Continue' }];
+					response.options = [{ id: "combat_done", label: "Continue" }];
 				}
 				break;
 
-			case 'orb_shop':
-			case 'upgrade_core':
-			case 'add_reaction_core':
+			case "orb_shop":
+			case "upgrade_core":
+			case "add_reaction_core":
 				// Return options from session
 				if (session.current_options) {
 					response.options = Array.isArray(session.current_options)

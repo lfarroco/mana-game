@@ -112,7 +112,11 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	}
 
 	if (!game || !game.sound) {
-		// Silently fail or log warning if game sound system is not ready (common in tests)
+		return;
+	}
+
+	if (!game.cache.audio.has(soundKey)) {
+		logger.warn("Audio key not found in cache - skipping", { soundKey });
 		return;
 	}
 

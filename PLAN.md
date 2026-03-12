@@ -102,17 +102,17 @@ These tasks significantly improve code quality, maintainability, and user experi
   - **Status**: ✅ Fixed - Replaced setTimeout with Phaser tweens for smooth volume transitions (2026-03-11)
 
 ### Testing Improvements
-- [ ] **Verify all E2E tests pass**
-  - **Context**: 7 E2E test suites exist but 4 are currently failing. Tests were written for previous phase system architecture and need updating.
-  - **Current Status (2026-03-11)**:
-    - ✅ 6 tests passing (settings.e2e.ts, unit-effects.e2e.ts, battleground.e2e.ts, game.e2e.ts + 2 battleground-scenarios)
-    - ❌ 4 tests failing:
-      - `game_flow.spec.ts`: Test simplified to focus on basic game operation; phase advancement logic incomplete
-      - `board.e2e.ts`: Unit drag-and-drop test; may need UI interaction fixes
-      - `battleground-scenarios.e2e.ts` (2 tests): Combat and shop phase specific scenarios  
-    - **Issue Identified**: Phase system migration (in progress from legacy PhaseManager.ts to Core/PhaseSystem/) affects how E2E tests interact with phase transitions
-    - **Root Cause**: Tests assume older phase transition behavior; need alignment with new PhaseManager architecture
-  - **Impact**: Ensures game stability across refactors
+- [x] **Verify all E2E tests pass**
+  - **Context**: 7 E2E test suites exist; 4 were failing due to phase detection, shop display, board swap timing, and audio errors.
+  - **Status**: ✅ All 10 E2E tests passing (2026-03-12)
+  - **Fixes applied**:
+    - `LocalServerAdapter.sessionManager` made accessible for DebugController test injection
+    - `getCurrentPhase()` returns `session.phase` directly instead of computing from step
+    - `BattlegroundScene` propagates injected test state to global state
+    - `addUnitToPlayerBoard` made async so Chara creation is awaited before board moves
+    - `PhaseManager.renderPhase` shop case wired up to real `ShopPanel` display logic
+    - `AudioManager.playSoundEffect` now silently skips missing audio keys (graceful degradation)
+  - **Impact**: Full E2E coverage restored
   - **Effort**: Medium (1-2 days to fix all tests)
   - **Next Steps**:
     1. Fix phase skip action IDs in LocalGameController (✅ done - skip_encounter added)

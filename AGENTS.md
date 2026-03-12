@@ -111,6 +111,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
+- [x] Fixed all 4 failing E2E tests: phase detection (`getCurrentPhase` returns `session.phase` directly), board swap race condition (await Chara creation), shop display wiring (`PhaseManager.renderPhase` shop case uses `ShopPanel`), audio graceful degradation (`playSoundEffect` skips missing cache keys) — all 10 E2E tests now pass (Copilot, 2026-03-12)
 
 - [x] Fixed multiplayer `orb_shop` phase transition: now properly sends `orb_shop_done` to transition to next phase (Copilot, 2026-02-16)
 - [x] Added missing `upgrade_core` and `add_reaction_core` phase handlers in multiplayer to display effect card shop (Copilot, 2026-02-16)
