@@ -4,7 +4,7 @@ import { SessionData } from "@Core/Types";
 
 // Polyfill structuredClone for Jest environment
 if (typeof global.structuredClone === "undefined") {
-	global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+	global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 }
 
 describe("LocalServerAdapter", () => {
@@ -115,6 +115,36 @@ describe("LocalServerAdapter", () => {
 		it("should return false for non-existent session", async () => {
 			const result = await adapter.handleAction("non-existent-player", "some-action");
 			expect(result).toBe(false);
+		});
+
+		it("should use updated team positions when combat starts", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			const movedTeam = {
+				units: session.team.units.map((unit) =>
+					unit.isCore ? { ...unit, position: { x: 0, y: 0 } } : unit
+				),
+			};
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "encounter",
+				current_options: { options: [{ id: "combat_encounter" }] },
+			});
+
+			const updated = await adapter.handleAction(testPlayerId, "update_team", {
+				team: movedTeam,
+			});
+			expect(updated).toBe(true);
+
+			const startedCombat = await adapter.handleAction(testPlayerId, "combat_encounter");
+			expect(startedCombat).toBe(true);
+
+			const combatOptions = await adapter.getPhaseOptions(testPlayerId);
+			expect(combatOptions.phase).toBe("combat");
+
+			const coreInInitialUnits = combatOptions.combatState?.initialUnits?.find((u) => u.isCore);
+			expect(coreInInitialUnits?.position).toEqual({ x: 0, y: 0 });
 		});
 	});
 

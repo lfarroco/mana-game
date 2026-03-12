@@ -235,6 +235,24 @@ export function resolveAction(
 	actionId: string,
 	payload?: ActionPayload
 ): { team: { units: Unit[] }; updates?: string[] } {
+	if (
+		actionId === "update_team" &&
+		payload &&
+		typeof payload === "object" &&
+		"team" in payload &&
+		payload.team &&
+		typeof payload.team === "object" &&
+		"units" in payload.team &&
+		Array.isArray(payload.team.units)
+	) {
+		const { team, valid } = validateAndApplyTeamUpdate(session, payload.team as { units: Unit[] });
+		if (!valid) {
+			return { team: session.team, updates: ["Rejected invalid team update"] };
+		}
+
+		return { team, updates: ["Updated team positioning"] };
+	}
+
 	const availableCards = Card.getNonCores();
 	const card = availableCards.find((c) => c.id === actionId);
 
