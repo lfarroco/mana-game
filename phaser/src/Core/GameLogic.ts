@@ -68,7 +68,7 @@ export function createInitialSession(playerId: string, selectedCrystalId?: strin
 	};
 
 	const options = generateEncounterOptions(session);
-	session.current_options = options.options;
+	session.current_options = { options: options.options };
 
 	return session;
 }

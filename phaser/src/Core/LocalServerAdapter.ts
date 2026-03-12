@@ -1,7 +1,18 @@
 import { IGameServer } from "@Core/IGameServer";
 import { SessionManager } from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
-import { SessionData, PhaseOptions, PhaseType } from "@Core/Types";
+import {
+	SessionData,
+	PhaseOptions,
+	PhaseType,
+	PhaseOption,
+	CombatState,
+	ActionPayload,
+} from "@Core/Types";
+import { Unit } from "@Models/Entities/Unit";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("LocalServerAdapter");
 
 /**
  * Local in-memory implementation of the game server.
@@ -11,6 +22,26 @@ export class LocalServerAdapter implements IGameServer {
 	// Made public to allow debugging/testing scenarios to set up arbitrary session states
 	// See: DebugController.startBattlegroundWithSession()
 	sessionManager = new SessionManager();
+
+	private getCurrentOptions(session: SessionData): PhaseOption[] {
+		if (!session.current_options) {
+			return [];
+		}
+
+		if (Array.isArray(session.current_options)) {
+			return session.current_options;
+		}
+
+		return session.current_options.options || [];
+	}
+
+	private getCurrentCombatState(session: SessionData): CombatState | null {
+		if (!session.current_options || Array.isArray(session.current_options)) {
+			return null;
+		}
+
+		return session.current_options.combatState || null;
+	}
 
 	async createSession(playerId: string, crystalId: string): Promise<SessionData> {
 		const session = GameLogic.createInitialSession(playerId, crystalId);
@@ -41,35 +72,34 @@ export class LocalServerAdapter implements IGameServer {
 
 		switch (session.phase) {
 			case "encounter":
-				// Use stored options if available (consistent with shop behavior)
 				if (session.current_options) {
-					response.options = Array.isArray(session.current_options)
-						? session.current_options
-						: (session.current_options as any).options || session.current_options;
+					response.options = this.getCurrentOptions(session);
 				} else {
-					// Fallback: generate encounter options if not stored
 					const encOpts = GameLogic.generateEncounterOptions(session);
 					response.options = encOpts.options;
+					session.current_options = { options: encOpts.options };
+					this.sessionManager.updateSession(playerId, session);
 				}
 				break;
 
 			case "shop":
-				// Use stored options if available (important after discard_unit actions)
 				if (session.current_options) {
-					response.options = Array.isArray(session.current_options)
-						? session.current_options
-						: (session.current_options as any).options || session.current_options;
+					response.options = this.getCurrentOptions(session);
 				} else {
-					// Fallback: generate shop options if not stored
 					const shopOpts = GameLogic.generateShopOptions(session);
 					response.options = shopOpts.options;
+					session.current_options = { options: shopOpts.options };
+					this.sessionManager.updateSession(playerId, session);
 				}
 				break;
 
 			case "combat":
 				// Combat state should already be in session.current_options from transitionToNextState
-				if (session.current_options && (session.current_options as any).combatState) {
-					const combatState = (session.current_options as any).combatState;
+				{
+					const combatState = this.getCurrentCombatState(session);
+					if (!combatState) {
+						break;
+					}
 					// Normalize combatState structure
 					response.combatState = {
 						...combatState,
@@ -79,7 +109,7 @@ export class LocalServerAdapter implements IGameServer {
 					const enemyTeam = GameLogic.generateEnemyTeamForRound(session.round, session.wins);
 					const simResult = GameLogic.simulateCombat(session);
 					const playerUnits = simResult.finalState.battleData.units.filter(
-						(u: any) => u.force === "PLAYER"
+						(u: Unit) => u.force === "PLAYER"
 					);
 
 					response.combatState = {
@@ -97,11 +127,8 @@ export class LocalServerAdapter implements IGameServer {
 			case "orb_shop":
 			case "upgrade_core":
 			case "add_reaction_core":
-				// Return options from session
 				if (session.current_options) {
-					response.options = Array.isArray(session.current_options)
-						? session.current_options
-						: (session.current_options as any).options || session.current_options;
+					response.options = this.getCurrentOptions(session);
 				}
 				break;
 		}
@@ -109,10 +136,14 @@ export class LocalServerAdapter implements IGameServer {
 		return response;
 	}
 
-	async handleAction(playerId: string, actionId: string, payload?: any): Promise<boolean> {
+	async handleAction(
+		playerId: string,
+		actionId: string,
+		payload?: ActionPayload
+	): Promise<boolean> {
 		const session = this.sessionManager.getSession(playerId);
 		if (!session) {
-			console.error(`No session found for player ${playerId}`);
+			logger.error("Session not found", { playerId });
 			return false;
 		}
 
@@ -125,7 +156,7 @@ export class LocalServerAdapter implements IGameServer {
 
 			return true;
 		} catch (error) {
-			console.error(`Error handling action ${actionId} for player ${playerId}:`, error);
+			logger.error("Failed to handle action", { playerId, actionId, error });
 			return false;
 		}
 	}

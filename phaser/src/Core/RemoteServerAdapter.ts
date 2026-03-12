@@ -75,9 +75,7 @@ export class RemoteServerAdapter implements IGameServer {
 			}
 		}
 
-		// Handle both Array and Object format for options
-		const rawOptions = session.current_options;
-		const optionsList = Array.isArray(rawOptions) ? rawOptions : rawOptions?.options || [];
+		const optionsList = session.current_options?.options || [];
 
 		return {
 			phase: session.phase as any,

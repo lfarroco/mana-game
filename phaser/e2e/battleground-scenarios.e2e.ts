@@ -77,9 +77,9 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 			await debugController.startBattlegroundWithSession(session);
 
 			// Wait for battleground scene to load
-			await page.waitForFunction(() => {
-				return window.debugController.getCurrentSceneName() === "BattlegroundScene";
-			});
+			await expect
+				.poll(async () => await debugController.getCurrentSceneName())
+				.toBe("BattlegroundScene");
 
 			// Verify we're in combat phase
 			const phase = await debugController.getCurrentPhase();
@@ -88,7 +88,7 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 			// Verify player units are placed
 			const playerUnits = await debugController.getPlayerBoardUnits();
 			expect(playerUnits.length).toBe(1);
-			expect(playerUnits.some((u) => u.cardId === "mana_crystal")).toBe(true);
+			expect(playerUnits.some((u: { cardId: string }) => u.cardId === "mana_crystal")).toBe(true);
 		});
 
 		test("should handle shop phase with specific gold amount", async ({ page }) => {
@@ -133,9 +133,9 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 			await debugController.startBattlegroundWithSession(session);
 
 			// Wait for battleground scene to load
-			await page.waitForFunction(() => {
-				return window.debugController.getCurrentSceneName() === "BattlegroundScene";
-			});
+			await expect
+				.poll(async () => await debugController.getCurrentSceneName())
+				.toBe("BattlegroundScene");
 
 			// Verify we're in shop phase
 			const phase = await debugController.getCurrentPhase();
@@ -198,9 +198,9 @@ const battlegroundScenariosSpec = (waitForGameInit: (p: Page) => Promise<void>) 
 			await debugController.startBattlegroundWithSession(session);
 
 			// Wait for battleground scene to load
-			await page.waitForFunction(() => {
-				return window.debugController.getCurrentSceneName() === "BattlegroundScene";
-			});
+			await expect
+				.poll(async () => await debugController.getCurrentSceneName())
+				.toBe("BattlegroundScene");
 
 			// Verify we're in encounter phase
 			const phase = await debugController.getCurrentPhase();
