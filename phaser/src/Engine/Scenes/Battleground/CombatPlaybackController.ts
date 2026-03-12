@@ -1,7 +1,7 @@
 import { State } from "@Models/State";
-import { CombatRunner, WaveOutcome } from "./RunCombatCore";
-import { CombatLogEntry } from "./ServerCombatEffects";
-import { CombatEffects } from "./CombatEnvironment";
+import { CombatRunner, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
+import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
 import { initializeRegenSystem } from "@Systems/RegenSystem";
@@ -50,7 +50,9 @@ export const createCombatPlaybackController = (
 		blackHoleState.blackHole.setVisible(false);
 	}
 
-	let countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
+	let countdownTimerState = effects.initCountdownTimer
+		? effects.initCountdownTimer(blackHoleState)
+		: null;
 	if (countdownTimerState && effects.startCountdownTimer) {
 		countdownTimerState = effects.startCountdownTimer(countdownTimerState);
 	}
@@ -66,7 +68,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const scheduleAnimations = () => {
-		logs.forEach(log => {
+		logs.forEach((log) => {
 			const startTime = log.frame * FRAME_DURATION;
 			const duration = log.duration || 0;
 			const endTime = startTime + duration;
@@ -94,22 +96,22 @@ export const createCombatPlaybackController = (
 
 			switch (log.type) {
 				case "damage":
-					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => { });
+					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "heal":
-					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => { });
+					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "shield":
-					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => { });
+					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "poison":
-					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => { });
+					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "regen":
-					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => { });
+					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "haste":
-					const hasteTarget = state.battleData.units.find(u => u.id === log.targetId);
+					const hasteTarget = state.battleData.units.find((u) => u.id === log.targetId);
 					if (hasteTarget) {
 						effects.onHaste?.(log.sourceId, log.targetId, log.effectDuration, () => {
 							hasteTarget.hasted += log.effectDuration;
@@ -118,7 +120,7 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "slow":
-					const slowTarget = state.battleData.units.find(u => u.id === log.targetId);
+					const slowTarget = state.battleData.units.find((u) => u.id === log.targetId);
 					if (slowTarget) {
 						effects.onSlow?.(log.sourceId, log.targetId, log.effectDuration, () => {
 							slowTarget.slowed += log.effectDuration;
@@ -127,7 +129,7 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "charge":
-					const chargeTarget = state.battleData.units.find(u => u.id === log.targetId);
+					const chargeTarget = state.battleData.units.find((u) => u.id === log.targetId);
 					if (chargeTarget) {
 						effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => {
 							chargeTarget.charge += log.amount;
@@ -136,7 +138,7 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "increase_power":
-					const powerTarget = state.battleData.units.find(u => u.id === log.targetId);
+					const powerTarget = state.battleData.units.find((u) => u.id === log.targetId);
 					if (powerTarget) {
 						effects.onIncreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
 							powerTarget.power += log.amount;
@@ -147,7 +149,7 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "decrease_power":
-					const decreaseTarget = state.battleData.units.find(u => u.id === log.targetId);
+					const decreaseTarget = state.battleData.units.find((u) => u.id === log.targetId);
 					if (decreaseTarget) {
 						effects.onDecreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
 							decreaseTarget.power -= log.amount;
@@ -158,16 +160,31 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "increase_critical":
-					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => { });
+					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => {});
 					break;
 				case "crystal_life":
-					effects.updateLifeDisplay(log.force, log.life, 0, playbackState.combatStates.forceStatsState);
+					effects.updateLifeDisplay(
+						log.force,
+						log.life,
+						0,
+						playbackState.combatStates.forceStatsState
+					);
 					break;
 				case "life_display":
-					effects.updateLifeDisplay(log.force, log.life, log.delta, playbackState.combatStates.forceStatsState);
+					effects.updateLifeDisplay(
+						log.force,
+						log.life,
+						log.delta,
+						playbackState.combatStates.forceStatsState
+					);
 					break;
 				case "shield_display":
-					effects.updateShieldDisplay(log.force, log.shield, log.delta, playbackState.combatStates.forceStatsState);
+					effects.updateShieldDisplay(
+						log.force,
+						log.shield,
+						log.delta,
+						playbackState.combatStates.forceStatsState
+					);
 					break;
 				case "regen_display":
 					effects.updateRegenDisplay(log.force, log.regen, log.delta);
@@ -176,7 +193,7 @@ export const createCombatPlaybackController = (
 					effects.updatePoisonDisplay(log.force, log.poison, log.delta);
 					break;
 				case "timeout_damage":
-					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => { });
+					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => {});
 					break;
 				case "reaction":
 					if (effects.onReactionVisual) {
@@ -184,14 +201,14 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "haste_end":
-					const hasteEndTarget = state.battleData.units.find(u => u.id === log.unitId);
+					const hasteEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
 					if (hasteEndTarget) {
 						hasteEndTarget.hasted = 0;
 						effects.onChargeBarUpdate(log.unitId);
 					}
 					break;
 				case "slow_end":
-					const slowEndTarget = state.battleData.units.find(u => u.id === log.unitId);
+					const slowEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
 					if (slowEndTarget) {
 						slowEndTarget.slowed = 0;
 						effects.onChargeBarUpdate(log.unitId);
@@ -203,7 +220,9 @@ export const createCombatPlaybackController = (
 				case "combat_stats":
 					if (playbackState.combatStates.combatStatsTrackerState) {
 						playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);
-						playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(log.currentCombatStats);
+						playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(
+							log.currentCombatStats
+						);
 					}
 					break;
 			}
@@ -216,7 +235,10 @@ export const createCombatPlaybackController = (
 
 			animation.executed = true;
 		} catch (error) {
-			console.warn("[CombatPlaybackController] Error executing animation, scene may be destroyed", error);
+			console.warn(
+				"[CombatPlaybackController] Error executing animation, scene may be destroyed",
+				error
+			);
 			playbackState.active = false;
 		}
 	};
@@ -226,7 +248,8 @@ export const createCombatPlaybackController = (
 
 		try {
 			for (const unit of state.battleData.units) {
-				const cooldownMultiplier = (unit.hasted > 0 && unit.slowed > 0) ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
+				const cooldownMultiplier =
+					unit.hasted > 0 && unit.slowed > 0 ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 				const chargeRate = 1 / cooldownMultiplier;
 				unit.charge += delta * chargeRate;
 
@@ -239,7 +262,10 @@ export const createCombatPlaybackController = (
 				effects.onChargeBarUpdate(unit.id);
 			}
 		} catch (error) {
-			console.warn("[CombatPlaybackController] Error updating charge bars, scene may be destroyed", error);
+			console.warn(
+				"[CombatPlaybackController] Error updating charge bars, scene may be destroyed",
+				error
+			);
 			playbackState.active = false;
 		}
 	};
@@ -254,16 +280,17 @@ export const createCombatPlaybackController = (
 			updateChargeBars(scaledDelta);
 
 			const animationsToExecute = playbackState.animations.filter(
-				anim => !anim.executed && anim.startTime <= playbackState.currentTime
+				(anim) => !anim.executed && anim.startTime <= playbackState.currentTime
 			);
 
-			animationsToExecute.forEach(anim => {
+			animationsToExecute.forEach((anim) => {
 				executeAnimation(anim);
 			});
 
-			const allAnimationsComplete = playbackState.animations.every(anim => anim.executed);
-			const lastAnimationEnded = playbackState.animations.length > 0 &&
-				playbackState.currentTime >= Math.max(...playbackState.animations.map(a => a.endTime));
+			const allAnimationsComplete = playbackState.animations.every((anim) => anim.executed);
+			const lastAnimationEnded =
+				playbackState.animations.length > 0 &&
+				playbackState.currentTime >= Math.max(...playbackState.animations.map((a) => a.endTime));
 
 			if (allAnimationsComplete && lastAnimationEnded && playbackState.outcome) {
 				finishCombat(state, playbackState.outcome);
@@ -280,7 +307,9 @@ export const createCombatPlaybackController = (
 		playbackState.active = false;
 
 		if (playbackState.countdownTimerState && effects.stopCountdownTimer) {
-			playbackState.countdownTimerState = effects.stopCountdownTimer(playbackState.countdownTimerState);
+			playbackState.countdownTimerState = effects.stopCountdownTimer(
+				playbackState.countdownTimerState
+			);
 		}
 
 		console.log("[CombatPlaybackController] Combat ended. Outcome:", outcome);
@@ -302,7 +331,7 @@ export const createCombatPlaybackController = (
 			state,
 			effects,
 			combatStates: playbackState.combatStates,
-			processReactions: () => { },
+			processReactions: () => {},
 		};
 	};
 

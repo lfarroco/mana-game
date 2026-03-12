@@ -1,4 +1,4 @@
-import { setSeed, nextValue, nextRange, nextShuffle, getSeed } from "./Random";
+import { setSeed, nextValue, nextRange, nextShuffle, getSeed } from "@Utils/Random";
 
 describe("Random Module", () => {
 	it("should produce deterministic results with the same seed", () => {
@@ -46,7 +46,7 @@ describe("Random Module", () => {
 
 		expect(shuffled1).toEqual(shuffled2);
 		expect(shuffled1.length).toBe(arr.length);
-		arr.forEach(item => expect(shuffled1).toContain(item));
+		arr.forEach((item) => expect(shuffled1).toContain(item));
 	});
 
 	it("should get and set seed correctly", () => {
@@ -54,4 +54,3 @@ describe("Random Module", () => {
 		expect(getSeed()).toBe(999);
 	});
 });
-

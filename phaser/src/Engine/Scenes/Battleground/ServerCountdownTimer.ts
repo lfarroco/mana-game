@@ -1,4 +1,4 @@
-import { BlackHoleState } from "./ServerBlackHole.js";
+import { BlackHoleState } from "@Scenes/Battleground/ServerBlackHole.js";
 
 export type CountdownTimerState = {
 	timerValue: number;
@@ -6,7 +6,9 @@ export type CountdownTimerState = {
 	blackHoleState: BlackHoleState;
 };
 
-export function createServerCountdownTimerState(blackHoleState: BlackHoleState): CountdownTimerState {
+export function createServerCountdownTimerState(
+	blackHoleState: BlackHoleState
+): CountdownTimerState {
 	return {
 		timerValue: 30,
 		active: false,

@@ -1,6 +1,6 @@
 import { SCENE_KEYS } from "@Constants/constants";
 import { getState, getCurrentScene } from "@Models/State";
-import { getSavedData } from "./getSavedData";
+import { getSavedData } from "@Game/effects/getSavedData";
 import { setSeed } from "@Utils/Random";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { SessionData } from "@Core/Types";
@@ -13,7 +13,7 @@ export function loadGame() {
 
 	// Restore session into SessionManager
 	const server = getServerAdapter();
-	if ('sessionManager' in server) {
+	if ("sessionManager" in server) {
 		(server as any).sessionManager.updateSession(savedData.player_id, savedData);
 	}
 

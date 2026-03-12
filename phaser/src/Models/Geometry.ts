@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-export * from "./SharedGeometry";
+export * from "@Models/SharedGeometry";
 
 // Phaser-specific implementations that override the pure versions
 export const snakeDistanceBetween =

@@ -2,21 +2,21 @@ import Phaser from "phaser";
 import { setCurrentScene, State, getState, setState } from "@Models/State";
 import * as UIManager from "@UI/UI";
 import * as Board from "@Models/Board";
-import { CombatRunner } from "./RunCombatIO";
+import { CombatRunner } from "@Scenes/Battleground/RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Systems from "@Systems/BattlegroundSystems";
 import { clearAll, getAllCharas } from "@Systems/Chara/Chara";
-import * as ResultsUI from "./Results/ResultsUI";
+import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import { startPhase, resetBoard } from "./PhaseManager";
+import { startPhase, resetBoard } from "@Scenes/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
-import { initializeVisualizer, destroyVisualizer } from "../../Visualizer";
+import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
 
 export type BattlegroundSceneData = {
 	state: State;

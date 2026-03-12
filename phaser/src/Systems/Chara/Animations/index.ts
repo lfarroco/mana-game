@@ -1,3 +1,3 @@
-export { pop } from "./pop";
-export { popText } from "./popText";
-export { shatter } from "./shatter";
+export { pop } from "@Systems/Chara/Animations/pop";
+export { popText } from "@Systems/Chara/Animations/popText";
+export { shatter } from "@Systems/Chara/Animations/shatter";

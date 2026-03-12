@@ -1,7 +1,7 @@
 import { getOption, setOption } from "@Models/OptionsStore";
 import { getCurrentScene } from "@Models/State";
-import OptionsScene from "../../OptionsScene";
-import { multipleChoice } from "../controls/multipleChoice";
+import OptionsScene from "@Scenes/Options/OptionsScene";
+import { multipleChoice } from "@Scenes/Options/components/controls/multipleChoice";
 import { t } from "@i18n/i18n";
 
 type ParticlesOption = "low" | "medium" | "high";

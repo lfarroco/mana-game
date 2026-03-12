@@ -1,10 +1,10 @@
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as UI from "./UI";
-import * as winsDisplay from "./components/winsDisplay";
-import { winsChangeAnimation } from "./components/winsDisplay";
-import * as livesDisplay from "./components/livesDisplay";
-import * as roundDisplay from "./components/roundDisplay";
+import * as UI from "@UI/UI";
+import * as winsDisplay from "@UI/components/winsDisplay";
+import { winsChangeAnimation } from "@UI/components/winsDisplay";
+import * as livesDisplay from "@UI/components/livesDisplay";
+import * as roundDisplay from "@UI/components/roundDisplay";
 import { getCurrentScene } from "@Models/State";
 import { t } from "@i18n/i18n";
 
@@ -24,7 +24,6 @@ export function onRoundChanged(newRound: number) {
 	roundDisplay.updateRoundDisplay(newRound);
 }
 
-
 async function livesChangeAnimation(lives: number) {
 	const sign = lives > 0 ? "+" : "";
 	const animationText = `${sign}${lives}`;
@@ -35,8 +34,8 @@ async function livesChangeAnimation(lives: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const livesAmountText = getCurrentScene().add
-		.text(startX, startY, animationText, titleTextConfig)
+	const livesAmountText = getCurrentScene()
+		.add.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)

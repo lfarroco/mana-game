@@ -1,4 +1,4 @@
-import { EffectReaction, Effect } from "./TriggerSystem";
+import { EffectReaction, Effect } from "@TriggerSystem/TriggerSystem";
 
 export const reactions: EffectReaction[] = [
 	{

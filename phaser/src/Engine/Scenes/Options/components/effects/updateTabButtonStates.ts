@@ -1,6 +1,6 @@
-import { Tabs } from "../Model";
-import { buttonIndex } from "../tabButtons";
-import { currentTab } from "./showTab";
+import { Tabs } from "@Scenes/Options/components/Model";
+import { buttonIndex } from "@Scenes/Options/components/tabButtons";
+import { currentTab } from "@Scenes/Options/components/effects/showTab";
 
 const SELECTED_TAB_COLOR = "#FFD700";
 const SELECTED_TAB_STROKE_WIDTH = 4;

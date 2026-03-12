@@ -1,4 +1,4 @@
-import { SessionData, PhaseOptions } from './Types';
+import { SessionData, PhaseOptions } from "@Core/Types";
 
 /**
  * Interface for game server implementations.

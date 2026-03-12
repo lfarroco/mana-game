@@ -3,7 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { Unit } from "@Models/Entities/Unit";
-import { RESULTS_PANEL } from "./ResultsConfig";
+import { RESULTS_PANEL } from "@Scenes/Battleground/Results/ResultsConfig";
 import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
@@ -36,7 +36,7 @@ async function createStatsPanel(
 
 	const filteredUnits = units.filter(forceFilter);
 
-	const panelHeight = PANEL_CONFIG.baseHeight + (filteredUnits.length * PANEL_CONFIG.rowHeight) + 40;
+	const panelHeight = PANEL_CONFIG.baseHeight + filteredUnits.length * PANEL_CONFIG.rowHeight + 40;
 
 	const panel = createPanel(position, {
 		width: PANEL_CONFIG.width,
@@ -60,10 +60,10 @@ async function createStatsPanel(
 		t("combatStats.headers.heal"),
 		t("combatStats.headers.shield"),
 		t("combatStats.headers.poison"),
-		t("combatStats.headers.regen")
+		t("combatStats.headers.regen"),
 	];
 	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
-	let startY = position.y - panelHeight / 2 + 70;
+	const startY = position.y - panelHeight / 2 + 70;
 
 	headers.forEach((header, index) => {
 		const headerText = io.Text(header, {
@@ -115,24 +115,32 @@ async function createStatsPanel(
 
 		sprite.setInteractive();
 
-		sprite.on('pointerover', () => {
-			import('@Components/Tooltip').then(({ renderTooltip }) => {
+		sprite.on("pointerover", () => {
+			import("@Components/Tooltip").then(({ renderTooltip }) => {
 				const title = getName(unit.cardId);
 
 				const effectBlocks = unit.effects
 					.map((e) => CharaTooltip.buildEffectBlock(e, unit.power))
 					.filter((e): e is string => e !== null);
-				const reactionBlocks = unit.reactions.map((r) => CharaTooltip.getReactionDescription(r, unit.power));
+				const reactionBlocks = unit.reactions.map((r) =>
+					CharaTooltip.getReactionDescription(r, unit.power)
+				);
 
 				const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
-				const cdBlock = [`[color=#c0c0c0]${t("combatStats.tooltip.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`];
+				const cdBlock = [
+					`[color=#c0c0c0]${t("combatStats.tooltip.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`,
+				];
 
-				const critBlock = (unit.critical || 0) > 0
-					? [`[color=#c0c0c0]${t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`]
-					: [];
+				const critBlock =
+					(unit.critical || 0) > 0
+						? [
+								`[color=#c0c0c0]${t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
+							]
+						: [];
 
 				const statsBlock = [...cdBlock, ...critBlock].join(" | ");
-				const descriptionString = [...effectBlocks, ...reactionBlocks].join("\n") || t("combatStats.tooltip.noAbilities");
+				const descriptionString =
+					[...effectBlocks, ...reactionBlocks].join("\n") || t("combatStats.tooltip.noAbilities");
 				const description = [statsBlock, descriptionString].join("\n");
 
 				const screenWidth = getCurrentScene().sys.game.config.width as number;
@@ -144,7 +152,7 @@ async function createStatsPanel(
 				renderTooltip(tooltipX, tooltipY, title, description);
 			});
 		});
-		sprite.on('pointerout', () => {
+		sprite.on("pointerout", () => {
 			CharaTooltip.onCharaPointerOut();
 		});
 

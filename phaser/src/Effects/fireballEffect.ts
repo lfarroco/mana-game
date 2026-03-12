@@ -1,4 +1,4 @@
-import { images } from "../assets";
+import { images } from "@assets";
 import { delay, tween } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 

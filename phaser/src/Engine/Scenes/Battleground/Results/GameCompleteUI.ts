@@ -16,7 +16,7 @@ import {
 	SILVER_VICTORY_THRESHOLD,
 	BRONZE_VICTORY_THRESHOLD,
 	RIGHT_PANEL_X,
-} from "./ResultsConfig";
+} from "@Scenes/Battleground/Results/ResultsConfig";
 import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
 import { t } from "@i18n/i18n";
@@ -70,7 +70,7 @@ export async function displayGameComplete(
 			healDealt: 0,
 			mostPowerfulUnit: null,
 			totalUnitsRecruited: 0,
-			unitUsage: {}
+			unitUsage: {},
 		};
 		StatsStore.recordRunStats(getState().session.runStats || defaultRunStats);
 
@@ -102,14 +102,9 @@ export async function displayGameComplete(
 			t("demo.buy_full_game"),
 			async () => {
 				if ((window as any).openExternalURL) {
-					(window as any).openExternalURL(
-						"https://store.steampowered.com/app/3757600/Mana_Battle"
-					);
+					(window as any).openExternalURL("https://store.steampowered.com/app/3757600/Mana_Battle");
 				} else {
-					window.open(
-						"https://store.steampowered.com/app/3757600/Mana_Battle",
-						"_blank"
-					);
+					window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 				}
 			},
 		]);
@@ -143,7 +138,13 @@ export async function displayGameComplete(
 
 	// Infinite mode button - disabled in demo and when not enabled by controller
 	const controller = getGameController();
-	if (wins >= INFINITE_MODE_THRESHOLD && nextPhaseCallback && !isGameOver && !IS_DEMO && controller.isFeatureEnabled('infinite_mode')) {
+	if (
+		wins >= INFINITE_MODE_THRESHOLD &&
+		nextPhaseCallback &&
+		!isGameOver &&
+		!IS_DEMO &&
+		controller.isFeatureEnabled("infinite_mode")
+	) {
 		buttonDefinitions.push([
 			t("results.buttons.infinite_mode"),
 			async () => {
@@ -158,11 +159,7 @@ export async function displayGameComplete(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
-			createUIButton(
-				label,
-				vec2(panelX, panelY + 50 + i * 100),
-				callback
-			).container
+			createUIButton(label, vec2(panelX, panelY + 50 + i * 100), callback).container
 	);
 
 	const statsPanel = createRunStatsPanel();
@@ -212,7 +209,8 @@ export async function displayGameComplete(
 			RESULTS_PANEL.backgroundAlpha
 		);
 
-		const wishlistText = io.Label(t("results.messages.wishlist"))
+		const wishlistText = io
+			.Label(t("results.messages.wishlist"))
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 
@@ -220,10 +218,7 @@ export async function displayGameComplete(
 			t("results.buttons.wishlist"),
 			vec2(panelX, wishlistPanelY + 30),
 			async () => {
-				window.open(
-					"https://store.steampowered.com/app/3757600/Mana_Battle",
-					"_blank"
-				);
+				window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 			},
 			400
 		);

@@ -11,9 +11,9 @@ jest.mock("../../../i18n/i18n", () => ({
 	getNativeName: () => "English",
 }));
 
-import { runCombat } from "./RunCombatCore";
-import { createServerCombatEffects } from "./ServerCombatEffects";
-import { createMockState } from "../../../test-utils/serverCombatUtils";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { createMockState } from "@test-utils/serverCombatUtils";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 

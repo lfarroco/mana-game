@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { clickNextRound, gameActions } from "./DebugController";
+import { clickNextRound, gameActions } from "@Scenes/Debug/DebugController";
 import { getGameController } from "@Core/GameControllerFactory";
 import { Unit } from "@Models/Entities/Unit";
 
@@ -105,8 +105,8 @@ describe("DebugController delegation", () => {
 	});
 
 	it.skip("uses GameController to skip phases when advancing rounds", async () => {
-		const controller = buildController({ 
-			skipPhase: jest.fn<() => Promise<boolean>>().mockResolvedValue(true)
+		const controller = buildController({
+			skipPhase: jest.fn<() => Promise<boolean>>().mockResolvedValue(true),
 		});
 		mockGetController.mockReturnValue(controller as any);
 
@@ -117,7 +117,9 @@ describe("DebugController delegation", () => {
 	});
 
 	it("exposes gameActions to forward purchase operations", async () => {
-		const purchaseUnit = jest.fn<(cardId: string, targetSlot?: number) => Promise<boolean>>().mockResolvedValue(true);
+		const purchaseUnit = jest
+			.fn<(cardId: string, targetSlot?: number) => Promise<boolean>>()
+			.mockResolvedValue(true);
 		const controller = buildController({ purchaseUnit });
 		mockGetController.mockReturnValue(controller as any);
 
@@ -128,8 +130,12 @@ describe("DebugController delegation", () => {
 
 	it("forwards common game actions through the gameActions wrapper", async () => {
 		const sellUnit = jest.fn<(unitId: string) => Promise<boolean>>().mockResolvedValue(true);
-		const updateTeam = jest.fn<(team: { units: Unit[] }) => Promise<boolean>>().mockResolvedValue(true);
-		const handleAction = jest.fn<(actionId: string, payload?: any) => Promise<boolean>>().mockResolvedValue(true);
+		const updateTeam = jest
+			.fn<(team: { units: Unit[] }) => Promise<boolean>>()
+			.mockResolvedValue(true);
+		const handleAction = jest
+			.fn<(actionId: string, payload?: any) => Promise<boolean>>()
+			.mockResolvedValue(true);
 		const skipPhase = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
 		const controller = buildController({ sellUnit, updateTeam, handleAction, skipPhase });
 		mockGetController.mockReturnValue(controller as any);

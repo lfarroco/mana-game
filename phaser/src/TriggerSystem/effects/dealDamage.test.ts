@@ -1,41 +1,38 @@
-
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
-import { createMockState } from '../../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '@Scenes/Battleground/RunCombatCore';
-import { dealDamageLogicIO } from './dealDamage';
-import { processEffectsIO } from '../TriggerSystem';
-import { registerCollection } from '../../Models/Entities/Card';
-import { BASE_COLLECTION_DATA } from '../../Data/BaseCollection';
-import { Unit } from '../../Models/Entities/Unit';
+import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { dealDamageLogicIO } from "@TriggerSystem/effects/dealDamage";
+import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { Unit } from "@Models/Entities/Unit";
 
 // Mock i18n
-jest.mock('../../i18n/i18n', () => ({
+jest.mock("../../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => 'en',
-	getAvailableLocales: () => ['en'],
-	getNativeName: () => 'English'
+	initialize: () => {},
+	setLocale: () => {},
+	getCurrentLocale: () => "en",
+	getAvailableLocales: () => ["en"],
+	getNativeName: () => "English",
 }));
 
-
-
 let globalState: any;
-jest.mock('../../Models/State', () => ({
+jest.mock("../../Models/State", () => ({
 	getState: () => globalState,
-	State: {}
+	State: {},
 }));
 
 beforeAll(() => {
-	if (typeof global.structuredClone === 'undefined') {
+	if (typeof global.structuredClone === "undefined") {
 		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
-describe('Damage Effect Tests', () => {
+describe("Damage Effect Tests", () => {
 	let state: any;
 	let effects: any;
 	let env: any;
@@ -58,7 +55,7 @@ describe('Damage Effect Tests', () => {
 		targetUnit.shield = 0;
 	});
 
-	it('should deal correct damage to target', () => {
+	it("should deal correct damage to target", () => {
 		const initialLife = targetUnit.life;
 		sourceUnit.power = 20;
 
@@ -67,14 +64,14 @@ describe('Damage Effect Tests', () => {
 		effects.setFrame(30);
 
 		const core = state.battleData.units.find((u: Unit) => u.force === targetUnit.force && u.isCore);
-		const damageLog = effects.logs.find((l: any) => l.type === 'damage');
+		const damageLog = effects.logs.find((l: any) => l.type === "damage");
 
 		expect(damageLog).toBeDefined();
 		expect(damageLog.amount).toBe(20);
 		expect(core.life).toBe(initialLife - 20);
 	});
 
-	it('should be absorbed by shield', () => {
+	it("should be absorbed by shield", () => {
 		sourceUnit.power = 20;
 		targetUnit.shield = 15;
 		const initialLife = targetUnit.life;
@@ -85,28 +82,25 @@ describe('Damage Effect Tests', () => {
 		expect(targetUnit.shield).toBe(0);
 		expect(targetUnit.life).toBe(initialLife - 5);
 	});
-	it('should trigger reaction on damage', async () => {
+	it("should trigger reaction on damage", async () => {
 		// Setup a reaction on targetUnit: when 'enemies' deal 'damage', trigger 'heal'
 		targetUnit.reactions.push({
-			effectId: 'damage',
-			position: 'enemies',
-			effects: [{ id: 'heal' }]
+			effectId: "damage",
+			position: "enemies",
+			effects: [{ id: "heal" }],
 		});
 
 		effects.logs.length = 0;
 
-
 		// Trigger damage using processEffectsIO to ensure reactions are processed
-		processEffectsIO(env, sourceUnit, [{ id: 'damage' }], false);
+		processEffectsIO(env, sourceUnit, [{ id: "damage" }], false);
 
 		// Should have damage log
-		const damageLog = effects.logs.find((l: any) => l.type === 'damage');
+		const damageLog = effects.logs.find((l: any) => l.type === "damage");
 		expect(damageLog).toBeDefined();
 
 		// Verify reaction
-		const reactionLog = effects.logs.find(
-			(log: any) => log.type === 'heal' && log.delayed === 200
-		);
+		const reactionLog = effects.logs.find((log: any) => log.type === "heal" && log.delayed === 200);
 		expect(reactionLog).toBeDefined();
 		expect(reactionLog.sourceId).toBe(targetUnit.id);
 	});

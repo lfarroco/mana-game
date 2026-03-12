@@ -1,14 +1,14 @@
 import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { getCharaById } from "@Systems/Chara/Chara";
-import * as DiscardZone from "../DiscardZone";
+import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getGameController } from "@Core/GameControllerFactory";
-import * as PureShop from "../PureShop";
-import { emitSystemEvent } from "../../../Engine/Visualizer";
+import * as PureShop from "@Systems/Shop/PureShop";
+import { emitSystemEvent } from "@Engine/Visualizer";
 
 /**
  * Handle a unit sale request
- * 
+ *
  * This function has been refactored to use the event-driven architecture:
  * 1. Use pure functions to determine what should happen
  * 2. Call the GameController for server validation
@@ -22,10 +22,7 @@ export function ownedUnitSold(unitId: string) {
 	controller.sellUnit(unitId);
 
 	// Step 2: Update game state - remove unit from state
-	state.session.team.units = PureShop.removeUnitFromUnits(
-		state.session.team.units,
-		unitId
-	);
+	state.session.team.units = PureShop.removeUnitFromUnits(state.session.team.units, unitId);
 
 	// Step 3: Emit events for visual updates
 	const events = PureShop.processSale(state.session, unitId);

@@ -1,7 +1,7 @@
-import { runCombat } from "./RunCombatCore";
-import { createServerCombatEffects } from "./ServerCombatEffects";
-import { createMockState } from "../../../test-utils/serverCombatUtils";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "./ServerConstants";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { State } from "@Models/State";

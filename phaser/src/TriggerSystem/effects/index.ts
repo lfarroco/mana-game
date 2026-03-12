@@ -3,19 +3,18 @@
  * Exports all individual implementation modules for easy import.
  */
 
-export * from "./dealDamage";
-export * from "./addShield";
-export * from "./restoreLife";
-export * from "./distributePower";
-export * from "./absorbPower";
-export * from "./sacrificeEffect";
-export * from "./increasePower";
-export * from "./multiplyPower";
-export * from "./applyHaste";
-export * from "./applySlow";
-export * from "./applyCharge";
-export * from "./applyPoison";
-export * from "./applyRegen";
-export * from "./increaseCritical";
-export * from "./decreasePower";
-
+export * from "@TriggerSystem/effects/dealDamage";
+export * from "@TriggerSystem/effects/addShield";
+export * from "@TriggerSystem/effects/restoreLife";
+export * from "@TriggerSystem/effects/distributePower";
+export * from "@TriggerSystem/effects/absorbPower";
+export * from "@TriggerSystem/effects/sacrificeEffect";
+export * from "@TriggerSystem/effects/increasePower";
+export * from "@TriggerSystem/effects/multiplyPower";
+export * from "@TriggerSystem/effects/applyHaste";
+export * from "@TriggerSystem/effects/applySlow";
+export * from "@TriggerSystem/effects/applyCharge";
+export * from "@TriggerSystem/effects/applyPoison";
+export * from "@TriggerSystem/effects/applyRegen";
+export * from "@TriggerSystem/effects/increaseCritical";
+export * from "@TriggerSystem/effects/decreasePower";

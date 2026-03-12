@@ -1,5 +1,5 @@
 import { getCurrentScene } from "@Models/State";
-import { images } from "../assets";
+import { images } from "@assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { delay } from "@Utils/animation";
 

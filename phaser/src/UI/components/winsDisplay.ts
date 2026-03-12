@@ -1,7 +1,7 @@
 import { vec2, size } from "@Models/Geometry";
 import { getState, getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
-import { images } from "../../assets";
+import { images } from "@assets";
 import { renderTooltip, hideTooltip } from "@Components/Tooltip";
 import * as i18n from "@i18n/i18n";
 import Phaser from "phaser";
@@ -11,10 +11,10 @@ const RECT_WIDTH = 30;
 const RECT_HEIGHT = 20;
 const GAP = 5;
 const COLOR_GRAY = 0x808080;
-const COLOR_YELLOW = 0xFFFF00;
-const COLOR_BRONZE = 0xCD7F32;
-const COLOR_SILVER = 0xC0C0C0;
-const COLOR_GOLD = 0xFFD700;
+const COLOR_YELLOW = 0xffff00;
+const COLOR_BRONZE = 0xcd7f32;
+const COLOR_SILVER = 0xc0c0c0;
+const COLOR_GOLD = 0xffd700;
 const CIRCLE_RADIUS = 10;
 
 let winRects: Phaser.GameObjects.Graphics[] = [];
@@ -36,7 +36,11 @@ export function create() {
 	io.SetPosition(mainContainer, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
 
 	const containerWidth = MAX_WINS * RECT_WIDTH + (MAX_WINS - 1) * GAP;
-	mainContainer.setInteractive(new Phaser.Geom.Rectangle(0, 0, containerWidth, RECT_HEIGHT), Phaser.Geom.Rectangle.Contains)
+	mainContainer
+		.setInteractive(
+			new Phaser.Geom.Rectangle(0, 0, containerWidth, RECT_HEIGHT),
+			Phaser.Geom.Rectangle.Contains
+		)
 		.on("pointerover", () => {
 			renderTooltip(
 				WINS_DISPLAY_X + 100,

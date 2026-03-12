@@ -1,4 +1,4 @@
-import { pickRandom, pickOne } from "./utils";
+import { pickRandom, pickOne } from "@utils";
 
 describe("utils.ts", () => {
 	describe("pickRandom", () => {

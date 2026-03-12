@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
-import { energySlotFragmentShader } from "../../Shaders/EnergySlotShader";
+import { energySlotFragmentShader } from "@Shaders/EnergySlotShader";
 import { getCurrentScene } from "@Models/State";
-import { nextValue } from "../../Utils/Random";
+import { nextValue } from "@Utils/Random";
 
 export interface EnergySlotConfig {
 	size?: number;

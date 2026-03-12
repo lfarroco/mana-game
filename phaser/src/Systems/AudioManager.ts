@@ -1,4 +1,4 @@
-import { game } from "../main";
+import { game } from "@main";
 import { getOption } from "@Models/OptionsStore";
 import { createLogger } from "@Utils/Logger";
 

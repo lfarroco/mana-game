@@ -3,7 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createSlider } from "@Components/Slider";
 import * as Phaser from "phaser";
-import { LAYOUT, STYLES } from "../../OptionsScene";
+import { LAYOUT, STYLES } from "@Scenes/Options/OptionsScene";
 
 const SPEED_STEP = 0.1;
 const SPEED_MIN = 0.1;
@@ -30,7 +30,10 @@ export function speed(
 		color: STYLES.VALUE_TEXT_COLOR,
 	});
 
-	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y - 20));
+	io.SetPosition(
+		valueText,
+		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y - 20)
+	);
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
@@ -50,9 +53,5 @@ export function speed(
 	);
 
 	//   ~~~//~~~
-	return [
-		labelText,
-		valueText,
-		slider.container,
-	] as Phaser.GameObjects.GameObject[];
+	return [labelText, valueText, slider.container] as Phaser.GameObjects.GameObject[];
 }

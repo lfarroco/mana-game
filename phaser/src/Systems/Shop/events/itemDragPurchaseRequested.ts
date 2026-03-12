@@ -5,7 +5,7 @@ import { getState, getUnitAt } from "@Models/State";
 import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
-import * as ShopUI from "../ShopPanel";
+import * as ShopUI from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getName } from "@i18n/i18n";
 
@@ -16,12 +16,13 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const existingUnit = getState().session.team.units.find(
-		(u) => u.cardId === shopUnitData.cardId
-	);
+	const existingUnit = getState().session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	// Validate before purchase - party full check (only if not an upgrade)
-	if ((!existingUnit || existingUnit.rank > 3) && getState().session.team.units.length >= constants.MAX_PARTY_SIZE) {
+	if (
+		(!existingUnit || existingUnit.rank > 3) &&
+		getState().session.team.units.length >= constants.MAX_PARTY_SIZE
+	) {
 		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
 		return;

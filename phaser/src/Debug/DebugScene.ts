@@ -1,8 +1,8 @@
-import { images } from "../assets";
+import { images } from "@assets";
 import { SCENE_KEYS } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
-import * as effects from "../Effects";
-import { Button, createUIButton } from "../Components/UIButton";
+import * as effects from "@Effects/index";
+import { Button, createUIButton } from "@Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { setCurrentScene } from "@Models/State";
@@ -267,7 +267,7 @@ export class DebugScene extends Phaser.Scene {
 			this.effectButtonsContainer.setVisible(false);
 			this.effectButtonsContainer.list.forEach((go) => {
 				// Disable interaction on its buttons
-				// @ts-ignore
+				// @ts-expect-error - buttonGraphics is not in Phaser type def
 				if (go.buttonGraphics) go.buttonGraphics.disableInteractive();
 			});
 		}

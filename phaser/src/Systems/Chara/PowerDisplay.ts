@@ -1,11 +1,10 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
-import { Chara, getCharaById, getUnit } from "./Chara";
+import { Chara, getCharaById, getUnit } from "@Systems/Chara/Chara";
 import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
 import { compactNumber } from "utils";
 import { ABILITY_COLORS } from "@Models/Abilities";
-
 
 export function create(unit: Unit, container: Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];

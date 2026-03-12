@@ -7,7 +7,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Systems from "@Systems/BattlegroundSystems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { getGameController } from "@Core/GameControllerFactory";
-import { startGame } from "../../../Game/effects/startGame";
+import { startGame } from "@Game/effects/startGame";
 import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";

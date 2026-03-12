@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { delay } from "@Utils/animation";
-import { images } from "../assets";
+import { images } from "@assets";
 import { getOption } from "@Models/OptionsStore";
 
 const SUMMON_EFFECT_CONFIG = {

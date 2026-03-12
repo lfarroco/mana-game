@@ -1,5 +1,5 @@
-import { SessionData } from "../Core/Types";
-import { storage } from "../Storage";
+import { SessionData } from "@Core/Types";
+import { storage } from "@Storage/index";
 
 export type SavedGame = {
 	name: string;

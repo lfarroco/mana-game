@@ -1,15 +1,15 @@
-export * as Loader from "./Loader";
-export * as Regen from "./RegenSystem";
-export * as CombatStatsTracker from "./CombatStatsTracker";
-export * as Poison from "./PoisonDamageSystem";
-export * as Timeout from "./TimeoutDamageSystem";
-export * as CombatPhase from "./CombatPhase";
-export * as ResultsPhase from "./ResultsPhase";
-export * as Setup from "./Setup";
-export * as CountdownTimer from "./CountdownTimer";
+export * as Loader from "@Systems/Loader";
+export * as Regen from "@Systems/RegenSystem";
+export * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+export * as Poison from "@Systems/PoisonDamageSystem";
+export * as Timeout from "@Systems/TimeoutDamageSystem";
+export * as CombatPhase from "@Systems/CombatPhase";
+export * as ResultsPhase from "@Systems/ResultsPhase";
+export * as Setup from "@Systems/Setup";
+export * as CountdownTimer from "@Systems/CountdownTimer";
 
 // Export Shop with backward compatibility extensions
-import * as ShopModule from "./Shop";
+import * as ShopModule from "@Systems/Shop";
 export const Shop = {
 	...ShopModule,
 	HeroShop: {
@@ -19,8 +19,10 @@ export const Shop = {
 			return null;
 		},
 		getDisplayedHeroCardDefinitions: () => {
-			console.warn("getDisplayedHeroCardDefinitions is deprecated - use new event-driven shop system");
+			console.warn(
+				"getDisplayedHeroCardDefinitions is deprecated - use new event-driven shop system"
+			);
 			return [];
-		}
-	}
+		},
+	},
 };

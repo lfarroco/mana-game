@@ -1,6 +1,6 @@
 import { getOption, setOption } from "@Models/OptionsStore";
-import { boolean } from "../controls/boolean";
-import { volume } from "../controls/volume";
+import { boolean } from "@Scenes/Options/components/controls/boolean";
+import { volume } from "@Scenes/Options/components/controls/volume";
 import { t } from "@i18n/i18n";
 
 export function audioTab(startY: number, lineHeight: number) {

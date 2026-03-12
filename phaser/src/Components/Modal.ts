@@ -2,8 +2,8 @@ import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { getCurrentScene } from "@Models/State";
-import { createBackgroundOverlay } from "./BackgroundOverlay";
-import { createPanel, Panel } from "./Panel";
+import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
+import { createPanel, Panel } from "@Components/Panel";
 
 export type ModalConfig = {
 	width: number;
@@ -32,9 +32,7 @@ export function createModal(config: ModalConfig): Modal {
 		height,
 	});
 
-	const children: Phaser.GameObjects.GameObject[] = [
-		panel.container,
-	];
+	const children: Phaser.GameObjects.GameObject[] = [panel.container];
 
 	if (title) {
 		const modalTitle = io.Title1(title);

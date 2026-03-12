@@ -2,12 +2,12 @@ import { Unit, upgradeUnitData } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
-import * as PureShop from "../PureShop";
-import { emitSystemEvent } from "../../../Engine/Visualizer";
+import * as PureShop from "@Systems/Shop/PureShop";
+import { emitSystemEvent } from "@Engine/Visualizer";
 
 /**
  * Handle a unit purchase request from the shop
- * 
+ *
  * This function has been refactored to use the event-driven architecture:
  * 1. Use pure functions to determine what should happen
  * 2. Call the GameController for server validation
@@ -22,12 +22,10 @@ export async function itemClickPurchaseRequested(
 	const state = getState();
 
 	// Step 1: Use pure function to validate and determine purchase outcome
-	const purchaseResult = PureShop.processPurchase(
-		state.session,
-		shopUnitData.cardId,
-		shopCharaId,
-		{ x: dragStartX, y: dragStartY }
-	);
+	const purchaseResult = PureShop.processPurchase(state.session, shopUnitData.cardId, shopCharaId, {
+		x: dragStartX,
+		y: dragStartY,
+	});
 
 	// If validation failed, emit failure events and return
 	if (!purchaseResult.success) {

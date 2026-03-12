@@ -2,7 +2,7 @@ import { getCurrentLocale, getNativeName } from "@i18n/i18n";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
-import { openLanguagePanel } from "./LanguagePanel";
+import { openLanguagePanel } from "@Scenes/Title/components/LanguagePanel";
 
 export function languageButton() {
 	const x = 120;
@@ -10,12 +10,7 @@ export function languageButton() {
 
 	const currentLangName = getNativeName(getCurrentLocale());
 
-	const button = createUIButton(
-		`あ/A ${currentLangName}`,
-		vec2(x, y),
-		openLanguagePanel,
-		200
-	);
+	const button = createUIButton(`あ/A ${currentLangName}`, vec2(x, y), openLanguagePanel, 200);
 
-	return button
+	return button;
 }

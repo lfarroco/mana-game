@@ -1,6 +1,6 @@
-import { LocalServerAdapter } from "./LocalServerAdapter";
-import * as GameLogic from "./GameLogic";
-import { SessionData } from "./Types";
+import { LocalServerAdapter } from "@Core/LocalServerAdapter";
+import * as GameLogic from "@Core/GameLogic";
+import { SessionData } from "@Core/Types";
 
 // Polyfill structuredClone for Jest environment
 if (typeof global.structuredClone === "undefined") {

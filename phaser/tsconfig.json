@@ -57,6 +57,18 @@
             "@config": [
                 "config.ts"
             ],
+                "@main": [
+                    "main.ts"
+                ],
+            "@Storage/*": [
+                "Storage/*"
+            ],
+            "@Effects/*": [
+                "Effects/*"
+            ],
+            "@Engine/*": [
+                "Engine/*"
+            ],
             "@assets": [
                 "assets.ts"
             ],

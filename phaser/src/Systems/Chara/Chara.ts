@@ -2,13 +2,13 @@ import Phaser from "phaser";
 import { Unit, upgradeUnitData } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as PowerDisplay from "./PowerDisplay";
-import * as ChargeBarDisplay from "./ChargeBarDisplay";
-import * as RankDisplay from "./RankDisplay";
-import * as input from "./input";
-import * as CharaTooltip from "./CharaTooltip";
-import { popText } from "./Animations/popText";
-import { summonEffect } from "../../Effects/summonEffect";
+import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
+import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
+import * as RankDisplay from "@Systems/Chara/RankDisplay";
+import * as input from "@Systems/Chara/input";
+import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
+import { popText } from "@Systems/Chara/Animations/popText";
+import { summonEffect } from "@Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
 import { loadUnitAssets } from "@Systems/Loader";
 
@@ -107,7 +107,6 @@ export function enableTooltip(chara: Chara) {
 	chara.on(Phaser.Input.Events.POINTER_OUT, () => {
 		CharaTooltip.onCharaPointerOut();
 	});
-
 }
 
 export function getScreenPosition(unit: Unit) {
@@ -201,7 +200,6 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 			repeat: -1,
 		});
 	}
-
 }
 
 export function isShopItem(id: string): boolean {

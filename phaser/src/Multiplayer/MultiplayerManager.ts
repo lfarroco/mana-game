@@ -1,8 +1,8 @@
-import { PhaseOptions } from "./MultiplayerTypes";
-import { Unit } from "../Models/Entities/Unit";
+import { PhaseOptions } from "@Multiplayer/MultiplayerTypes";
+import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
-import * as GameLogic from "../Core/GameLogic";
+import * as GameLogic from "@Core/GameLogic";
 import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 import { createLogger } from "@Utils/Logger";
 

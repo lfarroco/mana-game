@@ -1,33 +1,35 @@
-
-import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
-import { initializeTimeoutDamageSystem, updateTimeoutDamageSystem } from './TimeoutDamageSystem';
-import { createMockState } from '@test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '@Scenes/Battleground/RunCombatCore';
-import { TIMEOUT_DAMAGE_START_TIME } from '@Constants/constants';
-import { State } from '@Models/State';
-import { registerCollection } from '@Models/Entities/Card';
-import { BASE_COLLECTION_DATA } from '@Data/BaseCollection';
+import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals";
+import {
+	initializeTimeoutDamageSystem,
+	updateTimeoutDamageSystem,
+} from "@Systems/TimeoutDamageSystem";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
+import { State } from "@Models/State";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 
 // Mock i18n
-jest.mock('../i18n/i18n', () => ({
+jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => 'en',
-	getAvailableLocales: () => ['en'],
-	getNativeName: () => 'English'
+	initialize: () => {},
+	setLocale: () => {},
+	getCurrentLocale: () => "en",
+	getAvailableLocales: () => ["en"],
+	getNativeName: () => "English",
 }));
 
 beforeAll(() => {
-	if (typeof global.structuredClone === 'undefined') {
+	if (typeof global.structuredClone === "undefined") {
 		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
-describe('TimeoutDamageSystem', () => {
+describe("TimeoutDamageSystem", () => {
 	let state: State;
 	let env: any;
 	let timeoutState: any;
@@ -45,21 +47,28 @@ describe('TimeoutDamageSystem', () => {
 		cpuForce = state.battleData.forces.find((f: any) => f.id !== playerForce.id);
 	});
 
-	it('should initialize correctly', () => {
+	it("should initialize correctly", () => {
 		expect(timeoutState.combatElapsedTime).toBe(0);
 		expect(timeoutState.isActive).toBe(true);
 	});
 
-	it('should not apply damage before timeout start time', () => {
+	it("should not apply damage before timeout start time", () => {
 		const delta = 1000;
-		const newState = updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, delta);
+		const newState = updateTimeoutDamageSystem(
+			env,
+			timeoutState,
+			state,
+			playerForce,
+			cpuForce,
+			delta
+		);
 
 		expect(newState.combatElapsedTime).toBe(delta);
-		const damageLog = env.effects.logs.find((l: any) => l.type === 'timeout_damage');
+		const damageLog = env.effects.logs.find((l: any) => l.type === "timeout_damage");
 		expect(damageLog).toBeUndefined();
 	});
 
-	it('should apply damage after timeout start time', () => {
+	it("should apply damage after timeout start time", () => {
 		// Fast forward to start time - 1000ms
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME;
 		timeoutState.timeSinceLastTick = 1000;
@@ -71,16 +80,23 @@ describe('TimeoutDamageSystem', () => {
 		timeoutState.timeSinceLastTick = 0;
 
 		const deltaTick = 1000;
-		const newState = updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, deltaTick);
+		const newState = updateTimeoutDamageSystem(
+			env,
+			timeoutState,
+			state,
+			playerForce,
+			cpuForce,
+			deltaTick
+		);
 
 		expect(newState.timeSinceLastTick).toBe(0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === 'timeout_damage');
+		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
 		expect(damageLogs.length).toBe(2); // One for each force
 		expect(damageLogs[0].damage).toBe(6);
 	});
 
-	it('should scale damage exponentially', () => {
+	it("should scale damage exponentially", () => {
 		// Simulate a later tick
 		// timeSinceTimeoutStarted = 2000 (2 seconds past timeout)
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME + 2000;
@@ -118,17 +134,17 @@ describe('TimeoutDamageSystem', () => {
 
 		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === 'timeout_damage');
+		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
 		expect(damageLogs[0].damage).toBe(7);
 	});
 
-	it('should inflict infinite damage after 60s', () => {
+	it("should inflict infinite damage after 60s", () => {
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME + 60000;
 		timeoutState.timeSinceLastTick = 1000;
 
 		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === 'timeout_damage');
+		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
 		expect(damageLogs[0].damage).toBe(Infinity);
 	});
 });

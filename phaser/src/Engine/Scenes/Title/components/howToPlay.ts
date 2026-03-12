@@ -1,15 +1,12 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { openTutorial } from "./TutorialOverlay";
+import { openTutorial } from "@Scenes/Title/components/TutorialOverlay";
 import { t } from "@i18n/i18n";
 
 export function howToPlay() {
-
 	const text = io.Title1(t("title.howToPlay"));
-	io.SetPosition(text,
-		vec2(0, 80)
-	);
+	io.SetPosition(text, vec2(0, 80));
 	io.Centralize(text);
 	io.Tween({
 		targets: text,
@@ -30,15 +27,15 @@ export function howToPlay() {
 		Phaser.Geom.Rectangle.Contains
 	);
 
-	container.on('pointerover', () => {
-		container.scene.input.setDefaultCursor('pointer');
+	container.on("pointerover", () => {
+		container.scene.input.setDefaultCursor("pointer");
 	});
 
-	container.on('pointerout', () => {
-		container.scene.input.setDefaultCursor('default');
+	container.on("pointerout", () => {
+		container.scene.input.setDefaultCursor("default");
 	});
 
-	container.on('pointerdown', () => {
+	container.on("pointerdown", () => {
 		openTutorial();
 	});
 }

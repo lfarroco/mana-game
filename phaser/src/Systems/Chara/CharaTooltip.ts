@@ -1,8 +1,8 @@
-import { Chara } from "./Chara";
-import { Effect, EffectReaction, Targeting } from "../../TriggerSystem/TriggerSystem";
-import { hideTooltip, renderTooltip } from "../../Components/Tooltip";
-import { createDescription } from "./createDescription";
-import { t } from "../../i18n/i18n";
+import { Chara } from "@Systems/Chara/Chara";
+import { Effect, EffectReaction, Targeting } from "@TriggerSystem/TriggerSystem";
+import { hideTooltip, renderTooltip } from "@Components/Tooltip";
+import { createDescription } from "@Systems/Chara/createDescription";
+import { t } from "@i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";
 import { getOption } from "@Models/OptionsStore";
 
@@ -19,7 +19,10 @@ const getTargetDescription = (targets: Targeting): string => {
 		key = "tooltip.sentence.target.random_enemies";
 
 	if (targets.id === "all_allies" && targets.ofType !== "any") {
-		return t("tooltip.sentence.target.all_allies_type", { type: targets.ofType, color: ABILITY_COLORS[targets.ofType] });
+		return t("tooltip.sentence.target.all_allies_type", {
+			type: targets.ofType,
+			color: ABILITY_COLORS[targets.ofType],
+		});
 	}
 
 	return t(key, { count: count?.toString() });
@@ -76,7 +79,10 @@ const getCompactTargetDescription = (targets: Targeting, color?: string): string
 		return t("tooltip.targets.random_enemies", { count, color: color || "" });
 
 	if (targets.id === "all_allies" && targets.ofType !== "any") {
-		return t("tooltip.targets.all_allies_type", { type: targets.ofType, color: ABILITY_COLORS[targets.ofType] });
+		return t("tooltip.targets.all_allies_type", {
+			type: targets.ofType,
+			color: ABILITY_COLORS[targets.ofType],
+		});
 	}
 
 	return t(`tooltip.targets.${id}`, { color: color || "" });
@@ -199,7 +205,9 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 				color,
 			});
 		case "increase_critical": {
-			const key = isPlural ? "tooltip.sentence.increase_critical_plural" : "tooltip.sentence.increase_critical";
+			const key = isPlural
+				? "tooltip.sentence.increase_critical_plural"
+				: "tooltip.sentence.increase_critical";
 			return t(key, {
 				amount: effect.amount.toString(),
 				target,
@@ -242,7 +250,6 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 };
 
 const getPositionDescription = (position: string): string => {
-
 	switch (position) {
 		case "all":
 			return t("tooltip.sentence.position.any");
@@ -272,7 +279,9 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 		const style = ABILITY_COLORS[reaction.effectId];
 		const color = style || "#51cf66";
 		const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
-		const sourceDesc = reaction.position ? getCompactTargetDescription({ id: reaction.position } as Targeting, color) : t("tooltip.targets.source", { color });
+		const sourceDesc = reaction.position
+			? getCompactTargetDescription({ id: reaction.position } as Targeting, color)
+			: t("tooltip.targets.source", { color });
 		const effectName = t(`tooltip.effects.${effectKey}`);
 
 		let triggerText = `⚡ ${effectName} (${sourceDesc})`;
@@ -297,7 +306,9 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 	const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
 	const color = style || "#51cf66";
 
-	const sourceDesc = reaction.position ? getPositionDescription(reaction.position) : t("tooltip.sentence.position.any");
+	const sourceDesc = reaction.position
+		? getPositionDescription(reaction.position)
+		: t("tooltip.sentence.position.any");
 	const effectName = t(`tooltip.effects.${effectKey}`);
 
 	let triggerText = "";
@@ -308,7 +319,11 @@ export const getReactionDescription = (reaction: EffectReaction, unitPower: numb
 	} else if (reaction.effectId === "on_over_heal") {
 		triggerText = t("tooltip.sentence.trigger.on_over_heal", { source: sourceDesc });
 	} else {
-		triggerText = t("tooltip.sentence.trigger.default", { source: sourceDesc, effect: effectName, color });
+		triggerText = t("tooltip.sentence.trigger.default", {
+			source: sourceDesc,
+			effect: effectName,
+			color,
+		});
 	}
 
 	const coloredTrigger = triggerText;

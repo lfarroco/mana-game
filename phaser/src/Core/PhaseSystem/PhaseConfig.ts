@@ -1,4 +1,4 @@
-import { PhaseType } from "../Types";
+import { PhaseType } from "@Core/Types";
 
 export const ROUND_PHASES: Record<number, PhaseType[]> = {
 	1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
@@ -23,7 +23,7 @@ export const DEFAULT_ROUND_PHASES: PhaseType[] = [
 	"encounter",
 	"encounter",
 	"combat",
-	"upgrade_core"
+	"upgrade_core",
 ];
 
 export function getPhaseForTurn(round: number, step: number): PhaseType {

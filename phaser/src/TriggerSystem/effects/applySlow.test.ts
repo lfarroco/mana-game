@@ -1,32 +1,31 @@
-
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
-import { createMockState } from '../../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '@Scenes/Battleground/RunCombatCore';
-import { applySlowLogicIO } from './applySlow';
-import { registerCollection } from '../../Models/Entities/Card';
-import { BASE_COLLECTION_DATA } from '../../Data/BaseCollection';
-import { Unit } from '../../Models/Entities/Unit';
+import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { Unit } from "@Models/Entities/Unit";
 
 // Mock i18n
-jest.mock('../../i18n/i18n', () => ({
+jest.mock("../../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => 'en',
-	getAvailableLocales: () => ['en'],
-	getNativeName: () => 'English'
+	initialize: () => {},
+	setLocale: () => {},
+	getCurrentLocale: () => "en",
+	getAvailableLocales: () => ["en"],
+	getNativeName: () => "English",
 }));
 
 beforeAll(() => {
-	if (typeof global.structuredClone === 'undefined') {
+	if (typeof global.structuredClone === "undefined") {
 		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
-describe('Slow Effect Tests', () => {
+describe("Slow Effect Tests", () => {
 	let state: any;
 	let effects: any;
 	let env: any;
@@ -49,25 +48,25 @@ describe('Slow Effect Tests', () => {
 		targetUnit.cooldown = 100000;
 	});
 
-	it('should increase slow duration on target', async () => {
+	it("should increase slow duration on target", async () => {
 		const duration = 3000;
 
-		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => {});
 
 		effects.setFrame(30);
 
 		expect(targetUnit.slowed).toBe(duration);
 
-		const slowLog = effects.logs.find((l: any) => l.type === 'slow');
+		const slowLog = effects.logs.find((l: any) => l.type === "slow");
 		expect(slowLog).toBeDefined();
 		expect(slowLog.effectDuration).toBe(duration);
 	});
 
-	it('should halve charge rate and expire after duration', async () => {
+	it("should halve charge rate and expire after duration", async () => {
 		const duration = 100; // 100ms duration
 		const delta = 10; // 10ms per frame
 
-		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => {});
 
 		effects.setFrame(30);
 
@@ -95,7 +94,7 @@ describe('Slow Effect Tests', () => {
 		expect(targetUnit.charge).toBeCloseTo(60);
 
 		// Check for slow_end log
-		const slowEndLog = effects.logs.find((l: any) => l.type === 'slow_end');
+		const slowEndLog = effects.logs.find((l: any) => l.type === "slow_end");
 		expect(slowEndLog).toBeDefined();
 		expect(slowEndLog.unitId).toBe(targetUnit.id);
 	});

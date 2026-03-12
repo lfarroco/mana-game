@@ -1,5 +1,5 @@
-import { GameController, GameFeature } from "./GameController";
-import { getServerAdapter } from "./ServerFactory";
+import { GameController, GameFeature } from "@Core/GameController";
+import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
 

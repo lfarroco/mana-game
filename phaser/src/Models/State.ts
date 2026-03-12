@@ -1,8 +1,8 @@
-import { Force } from "./Entities/Force";
-import { eqVec2 } from "./ServerGeometry";
-import { Unit } from "./Entities/Unit";
-import { setSeed } from "../Utils/Random";
-import { SessionData } from "../Core/Types";
+import { Force } from "@Models/Entities/Force";
+import { eqVec2 } from "@Models/ServerGeometry";
+import { Unit } from "@Models/Entities/Unit";
+import { setSeed } from "@Utils/Random";
+import { SessionData } from "@Core/Types";
 
 export type State = {
 	savedGames: string[];

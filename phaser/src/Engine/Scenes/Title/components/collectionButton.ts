@@ -1,6 +1,6 @@
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
-import { showCollectionModal } from "./CollectionModal";
+import { showCollectionModal } from "@Scenes/Title/components/CollectionModal";
 import { t } from "@i18n/i18n";
 import { MIDDLE_SCREEN_X } from "@Constants/constants";
 

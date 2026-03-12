@@ -9,7 +9,7 @@ import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Encounter from "@Systems/Encounter";
-import { saveGameData } from "../../../Game/effects/saveGameData";
+import { saveGameData } from "@Game/effects/saveGameData";
 import { cloudsBackground } from "@Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
 import { loadUnitAssets } from "@Systems/Loader";
@@ -23,7 +23,7 @@ import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getCardDefinition } from "@Models/Entities/Card";
-import { handleMultiplayerPhase } from "./MultiplayerPhaseManager";
+import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseManager";
 
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets> = {

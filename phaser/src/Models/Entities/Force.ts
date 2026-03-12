@@ -1,5 +1,5 @@
-import { Unit } from "./Unit";
-import { getBattleCore } from "./Card";
+import { Unit } from "@Models/Entities/Unit";
+import { getBattleCore } from "@Models/Entities/Card";
 import { State } from "@Models/State";
 import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
@@ -101,12 +101,7 @@ export const manipulateCoreShield = (
 	const actualChange = core.shield - oldShield;
 
 	if (effects && displayFeedback) {
-		effects.updateShieldDisplay(
-			targetForce.id,
-			core.shield,
-			actualChange,
-			forceStatsState
-		);
+		effects.updateShieldDisplay(targetForce.id, core.shield, actualChange, forceStatsState);
 	}
 
 	return actualChange;
@@ -139,7 +134,14 @@ export const applyDamageToForce = (
 	let remainingDamage = damage;
 
 	if (damageType === "poison") {
-		const lifeChage = manipulateCoreLife(state, targetForce, -damage, false, effects, forceStatsState);
+		const lifeChage = manipulateCoreLife(
+			state,
+			targetForce,
+			-damage,
+			false,
+			effects,
+			forceStatsState
+		);
 
 		return Math.abs(lifeChage);
 	}
@@ -152,11 +154,22 @@ export const applyDamageToForce = (
 
 	if (effectiveShield > 0) {
 		const shieldAbsorbed = Math.min(remainingDamage, effectiveShield);
-		manipulateCoreShield(state, targetForce, -shieldAbsorbed, false, true, effects, forceStatsState);
+		manipulateCoreShield(
+			state,
+			targetForce,
+			-shieldAbsorbed,
+			false,
+			true,
+			effects,
+			forceStatsState
+		);
 		remainingDamage -= shieldAbsorbed;
 	}
 
-	const lifeChange = remainingDamage > 0 ? manipulateCoreLife(state, targetForce, -remainingDamage, false, effects, forceStatsState) : 0;
+	const lifeChange =
+		remainingDamage > 0
+			? manipulateCoreLife(state, targetForce, -remainingDamage, false, effects, forceStatsState)
+			: 0;
 
 	return Math.abs(lifeChange);
 };

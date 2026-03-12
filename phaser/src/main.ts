@@ -1,5 +1,5 @@
-import * as OptionsStore from "./Models/OptionsStore";
-import * as StatsStore from "./Models/StatsStore";
+import * as OptionsStore from "@Models/OptionsStore";
+import * as StatsStore from "@Models/StatsStore";
 import * as DebugController from "@Scenes/Debug/DebugController";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
@@ -26,10 +26,19 @@ export const game = new Phaser.Game({
 		autoCenter: Phaser.Scale.CENTER_BOTH,
 	},
 	dom: {
-		createContainer: true
+		createContainer: true,
 	},
 	parent: "game-container",
-	scene: [Core, DebugScene, BattlegroundScene, TitleScene, OptionsScene, CrystalSelectionScene, ArenaLobbyScene, ArenaLoginScene],
+	scene: [
+		Core,
+		DebugScene,
+		BattlegroundScene,
+		TitleScene,
+		OptionsScene,
+		CrystalSelectionScene,
+		ArenaLobbyScene,
+		ArenaLoginScene,
+	],
 	plugins: {
 		global: [
 			{

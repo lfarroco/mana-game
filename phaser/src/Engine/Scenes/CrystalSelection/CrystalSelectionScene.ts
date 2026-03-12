@@ -5,7 +5,7 @@ import { setCurrentScene } from "@Models/State";
 import { getCores, CardDefinition } from "@Models/Entities/Card";
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { cloudsBg, getCloudsBg } from "../Title/components/cloudsBg";
+import { cloudsBg, getCloudsBg } from "@Scenes/Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { colorPresets } from "@Constants/colorPresets";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
@@ -35,7 +35,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private paginationDots: Phaser.GameObjects.Arc[] = [];
 	private seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
-	// @ts-ignore - Used in keyboard callback functions below
+	// @ts-expect-error - Used in keyboard callback functions below
 	private isSeededRun: boolean = false;
 	private seedWarningText!: Phaser.GameObjects.Text;
 	private isMultiplayer: boolean = false;
@@ -59,14 +59,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.crystals = getCores();
 		this.currentIndex = 0;
 
-		io.Text(
-			t("crystalSelection.title"),
-			{
-				...constants.titleTextConfig,
-				fontSize: "48px",
-			}).setPosition(
-				constants.MIDDLE_SCREEN_X, 100
-			).setOrigin(0.5);
+		io.Text(t("crystalSelection.title"), {
+			...constants.titleTextConfig,
+			fontSize: "48px",
+		})
+			.setPosition(constants.MIDDLE_SCREEN_X, 100)
+			.setOrigin(0.5);
 
 		this.createCrystalDisplay();
 
@@ -84,20 +82,9 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private createCrystalDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
-		this.add.rectangle(
-			constants.MIDDLE_SCREEN_X,
-			CARD_DISPLAY_Y + 90,
-			950,
-			650,
-			0x000000,
-			0.8
-		);
+		this.add.rectangle(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y + 90, 950, 650, 0x000000, 0.8);
 
-		this.crystalSprite = this.add.image(
-			constants.MIDDLE_SCREEN_X,
-			CARD_DISPLAY_Y,
-			crystal.pic
-		);
+		this.crystalSprite = this.add.image(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y, crystal.pic);
 		this.crystalSprite.setDisplaySize(200, 200);
 
 		this.tweens.add({
@@ -117,17 +104,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		io.Centralize(this.crystalName);
 
 		this.descriptionText = this.add
-			.rexBBCodeText(
-				constants.MIDDLE_SCREEN_X,
-				DESCRIPTION_Y,
-				"",
-				{
-					fontSize: "24px",
-					fontFamily: "Arimo",
-					align: "center",
-					color: "#ffffff",
-				}
-			)
+			.rexBBCodeText(constants.MIDDLE_SCREEN_X, DESCRIPTION_Y, "", {
+				fontSize: "24px",
+				fontFamily: "Arimo",
+				align: "center",
+				color: "#ffffff",
+			})
 			.setOrigin(0.5, 0)
 			.setWrapMode(1)
 			.setLineSpacing(10)
@@ -169,22 +151,17 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	}
 
 	private createActionButtons() {
-		createUIButton(
-			t("crystalSelection.play"),
-			vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
-			() => this.startGameWithCrystal()
+		createUIButton(t("crystalSelection.play"), vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y), () =>
+			this.startGameWithCrystal()
 		);
 
-		createUIButton(
-			t("crystalSelection.back"),
-			vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
-			() => this.returnToTitle()
+		createUIButton(t("crystalSelection.back"), vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y), () =>
+			this.returnToTitle()
 		);
 	}
 
 	private navigateToPrevious() {
-		this.currentIndex =
-			(this.currentIndex - 1 + this.crystals.length) % this.crystals.length;
+		this.currentIndex = (this.currentIndex - 1 + this.crystals.length) % this.crystals.length;
 		this.updateDisplay();
 	}
 
@@ -221,11 +198,11 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		const effectBlocks = crystal.effects
 			.map((e) => buildEffectBlock(e, power))
 			.filter((e): e is string => e !== null)
-			.map(str => "- " + str[0].toUpperCase() + str.slice(1))
+			.map((str) => "- " + str[0].toUpperCase() + str.slice(1));
 
 		const reactionBlocks = crystal.reactions
 			.map((r) => getReactionDescription(r, power))
-			.map(str => "- " + str)
+			.map((str) => "- " + str);
 
 		const cdAsSeconds = ((crystal.cooldown || 0) / 1000).toFixed(1);
 		const statsBlock = `[color=#c0c0c0]${t("crystalSelection.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
@@ -241,12 +218,12 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	private getColorPresetForCrystal(crystalId: string): keyof typeof colorPresets {
 		const colorMap: Record<string, keyof typeof colorPresets> = {
-			"mana_crystal": "nebula",
-			"critical_crystal": "sunset",
-			"protective_crystal": "sunset",
-			"growth_crystal": "forest",
-			"purple_crystal": "aurora",
-			"quickstone": "sea"
+			mana_crystal: "nebula",
+			critical_crystal: "sunset",
+			protective_crystal: "sunset",
+			growth_crystal: "forest",
+			purple_crystal: "aurora",
+			quickstone: "sea",
 		};
 
 		return colorMap[crystalId] || "nebula";
@@ -286,7 +263,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		const height = 40;
 
 		// Input Background
-		const bg = this.add.rectangle(x, y, width, height, 0x000000, 0.5)
+		const bg = this.add
+			.rectangle(x, y, width, height, 0x000000, 0.5)
 			.setOrigin(1, 1)
 			.setStrokeStyle(1, 0x888888)
 			.setInteractive({ useHandCursor: true });
@@ -295,38 +273,40 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		io.Text("Seed: ", {
 			...constants.defaultTextConfig,
 			fontSize: "24px",
-			color: "#ffffff"
+			color: "#ffffff",
 		})
 			.setOrigin(1, 0.5)
 			.setPosition(x - width - 10, y - height / 2);
 
 		// Seed Text
-		this.seedText = io.Text(`${currentSeed}`, {
-			...constants.defaultTextConfig,
-			fontSize: "24px",
-			color: "#ffffff"
-		})
+		this.seedText = io
+			.Text(`${currentSeed}`, {
+				...constants.defaultTextConfig,
+				fontSize: "24px",
+				color: "#ffffff",
+			})
 			.setOrigin(1, 0.5)
 			.setPosition(x - 20, y - height / 2);
 
 		// Warning Text
-		this.seedWarningText = io.Text("Unlocks and stats disabled when using a custom seed", {
-			...constants.defaultTextConfig,
-			fontSize: "16px",
-			color: "#ffff00"
-		})
+		this.seedWarningText = io
+			.Text("Unlocks and stats disabled when using a custom seed", {
+				...constants.defaultTextConfig,
+				fontSize: "16px",
+				color: "#ffff00",
+			})
 			.setOrigin(1, 0.5)
 			.setPosition(x, y - height - 20)
 			.setVisible(false);
 
 		// Events
-		bg.on('pointerdown', () => {
+		bg.on("pointerdown", () => {
 			this.createKeyboard(this.seedText);
 		});
 
 		// Hover effects
-		bg.on('pointerover', () => bg.setStrokeStyle(1, 0xffffff));
-		bg.on('pointerout', () => bg.setStrokeStyle(1, 0x888888));
+		bg.on("pointerover", () => bg.setStrokeStyle(1, 0xffffff));
+		bg.on("pointerout", () => bg.setStrokeStyle(1, 0x888888));
 
 		this.add.existing(this.seedText);
 
@@ -358,25 +338,22 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		keyboardContainer.style.boxShadow = "0 4px 6px rgba(0,0,0,0.3)";
 
 		// Numpad Layout
-		const rows = [
-			["7", "8", "9"],
-			["4", "5", "6"],
-			["1", "2", "3"],
-			["0"]
-		];
+		const rows = [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"], ["0"]];
 
 		// Styles
-		const btnStyle = "width: 40px; height: 40px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: 18px;";
-		const actionBtnStyle = "height: 30px; padding: 0 10px; background: #555; color: white; border: 1px solid #777; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: sans-serif;";
+		const btnStyle =
+			"width: 40px; height: 40px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: 18px;";
+		const actionBtnStyle =
+			"height: 30px; padding: 0 10px; background: #555; color: white; border: 1px solid #777; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: sans-serif;";
 
 		// Key rows
-		rows.forEach(row => {
+		rows.forEach((row) => {
 			const rowDiv = document.createElement("div");
 			rowDiv.style.display = "flex";
 			rowDiv.style.justifyContent = "center";
 			rowDiv.style.gap = "4px";
 
-			row.forEach(char => {
+			row.forEach((char) => {
 				const btn = document.createElement("button");
 				btn.innerText = char;
 				btn.style.cssText = btnStyle;
@@ -403,32 +380,48 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			return btn;
 		};
 
-		const backBtn = createActionBtn("Back", () => {
-			targetText.setText(`${getSeed()}`);
-			this.isSeededRun = false;
-			this.seedWarningText.setVisible(false);
-			if (document.body.contains(keyboardContainer)) {
-				document.body.removeChild(keyboardContainer);
-			}
-		}, "#d32f2f");
+		const backBtn = createActionBtn(
+			"Back",
+			() => {
+				targetText.setText(`${getSeed()}`);
+				this.isSeededRun = false;
+				this.seedWarningText.setVisible(false);
+				if (document.body.contains(keyboardContainer)) {
+					document.body.removeChild(keyboardContainer);
+				}
+			},
+			"#d32f2f"
+		);
 
-		const clearBtn = createActionBtn("Clear", () => {
-			targetText.setText("");
-		}, "#c62828");
+		const clearBtn = createActionBtn(
+			"Clear",
+			() => {
+				targetText.setText("");
+			},
+			"#c62828"
+		);
 
-		const copyBtn = createActionBtn("Copy", () => {
-			navigator.clipboard.writeText(targetText.text);
-		}, "#1976d2");
+		const copyBtn = createActionBtn(
+			"Copy",
+			() => {
+				navigator.clipboard.writeText(targetText.text);
+			},
+			"#1976d2"
+		);
 
-		const pasteBtn = createActionBtn("Paste", async () => {
-			try {
-				const text = await navigator.clipboard.readText();
-				const numeric = text.replace(/\D/g, '').slice(0, 12);
-				targetText.setText(numeric);
-			} catch (err) {
-				console.error("Paste failed", err);
-			}
-		}, "#1976d2");
+		const pasteBtn = createActionBtn(
+			"Paste",
+			async () => {
+				try {
+					const text = await navigator.clipboard.readText();
+					const numeric = text.replace(/\D/g, "").slice(0, 12);
+					targetText.setText(numeric);
+				} catch (err) {
+					console.error("Paste failed", err);
+				}
+			},
+			"#1976d2"
+		);
 
 		const backspaceBtn = createActionBtn("⌫", () => {
 			const c = targetText.text;
@@ -437,34 +430,38 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			}
 		});
 
-		const enterBtn = createActionBtn("Enter", () => {
-			if (targetText.text === "") {
-				const newSeed = Date.now();
-				setSeed(newSeed);
-				targetText.setText(`${newSeed}`);
-				this.isSeededRun = false;
-				this.seedWarningText.setVisible(false);
-			} else {
-				const val = parseInt(targetText.text, 10);
-				if (!isNaN(val)) {
-					setSeed(val);
-					targetText.setText(`${val}`);
-					this.isSeededRun = true;
-					this.seedWarningText.setVisible(true);
-				} else {
-					// Fallback if parsing fails for some reason (shouldn't with numberpad)
+		const enterBtn = createActionBtn(
+			"Enter",
+			() => {
+				if (targetText.text === "") {
 					const newSeed = Date.now();
 					setSeed(newSeed);
 					targetText.setText(`${newSeed}`);
 					this.isSeededRun = false;
 					this.seedWarningText.setVisible(false);
+				} else {
+					const val = parseInt(targetText.text, 10);
+					if (!isNaN(val)) {
+						setSeed(val);
+						targetText.setText(`${val}`);
+						this.isSeededRun = true;
+						this.seedWarningText.setVisible(true);
+					} else {
+						// Fallback if parsing fails for some reason (shouldn't with numberpad)
+						const newSeed = Date.now();
+						setSeed(newSeed);
+						targetText.setText(`${newSeed}`);
+						this.isSeededRun = false;
+						this.seedWarningText.setVisible(false);
+					}
 				}
-			}
 
-			if (document.body.contains(keyboardContainer)) {
-				document.body.removeChild(keyboardContainer);
-			}
-		}, "#388e3c");
+				if (document.body.contains(keyboardContainer)) {
+					document.body.removeChild(keyboardContainer);
+				}
+			},
+			"#388e3c"
+		);
 		enterBtn.style.flexGrow = "1";
 
 		// Arrange actions

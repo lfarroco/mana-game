@@ -137,13 +137,13 @@ These tasks significantly improve code quality, maintainability, and user experi
     3. Check for orphaned files post-Systems migration
 
 - [ ] **Standardize import patterns**
-  - **Context**: Mix of relative and aliased imports
-  - **Impact**: Consistent, maintainable codebase
-  - **Effort**: Low (1 day)
-  - **Steps**:
-    1. Enforce path alias usage in ESLint config
-    2. Convert remaining relative imports to aliases
-    3. Run lint:fix
+- [x] **Standardize import patterns**
+  - **Status**: ✅ Completed (2026-03-12)
+  - **Work done**:
+    - Converted 451 relative cross-directory imports to path aliases across 164 files
+    - Added missing aliases: `@Storage/*`, `@Effects/*`, `@Engine/*`, `@main`
+    - Added ESLint `no-restricted-imports` error rule to enforce cross-directory alias usage going forward
+    - All TypeScript and unit tests pass; 0 ESLint alias violations remain
 
 - [ ] **Escalate ESLint warnings to errors**
   - **Context**: `no-explicit-any`, `no-unused-vars`, `no-console`, and `prefer-const` are all set to `warn` in `eslint.config.js`, allowing problematic code to be committed

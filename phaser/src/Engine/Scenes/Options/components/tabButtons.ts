@@ -1,12 +1,12 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { Button, createUIButton } from "@Components/UIButton";
-import { LAYOUT } from "../OptionsScene";
-import { showTab } from "./effects/showTab";
-import { updateTabButtonStates } from "./effects/updateTabButtonStates";
+import { LAYOUT } from "@Scenes/Options/OptionsScene";
+import { showTab } from "@Scenes/Options/components/effects/showTab";
+import { updateTabButtonStates } from "@Scenes/Options/components/effects/updateTabButtonStates";
 import { t } from "@i18n/i18n";
 
-export let buttonIndex: { [key: string]: Button } = {};
+export const buttonIndex: { [key: string]: Button } = {};
 
 export function tabButtons() {
 	const tabButtonY = LAYOUT.TAB_BUTTON_Y;

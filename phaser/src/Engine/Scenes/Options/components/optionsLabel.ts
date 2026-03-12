@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { LAYOUT } from "../OptionsScene";
+import { LAYOUT } from "@Scenes/Options/OptionsScene";
 
 import { t } from "@i18n/i18n";
 export function optionsLabel() {
