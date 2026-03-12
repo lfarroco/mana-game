@@ -26,7 +26,7 @@ type EventHandler<T extends SystemEvents.SystemEvent> = (event: T) => void | Pro
 /**
  * Event handlers map
  */
-let eventHandlers: Map<string, Set<EventHandler<any>>> = new Map();
+const eventHandlers: Map<string, Set<EventHandler<any>>> = new Map();
 let isInitialized: boolean = false;
 
 /**
@@ -123,8 +123,13 @@ async function handleUnitPurchased(event: SystemEvents.UnitPurchasedEvent): Prom
 	console.log("Visualizer: Unit purchased:", event.cardId, "wasUpgrade:", event.wasUpgrade);
 
 	try {
-		// Get the shop character for success animation
-		const shopChara = Chara.getCharaById(event.shopCharaId);
+		// Shop item visuals may already be gone if phase transition happened immediately.
+		let shopChara: Chara.Chara | undefined;
+		try {
+			shopChara = Chara.getCharaById(event.shopCharaId);
+		} catch {
+			shopChara = undefined;
+		}
 
 		// Handle visual feedback for successful purchase
 		if (event.wasUpgrade && event.upgradedUnit) {
@@ -135,11 +140,15 @@ async function handleUnitPurchased(event: SystemEvents.UnitPurchasedEvent): Prom
 			await Chara.summon(event.unit, true);
 		}
 
-		// Play success animation on the shop character
-		charaEvents.onShopPurchaseSuccesful(shopChara);
+		// Play success animation on the shop character when still present
+		if (shopChara) {
+			charaEvents.onShopPurchaseSuccesful(shopChara);
+		}
 
 		// Close the shop UI
-		await ShopUI.slideOut();
+		if (ShopUI.container) {
+			await ShopUI.slideOut();
+		}
 	} catch (error) {
 		console.error("Error handling UnitPurchased event:", error);
 	}

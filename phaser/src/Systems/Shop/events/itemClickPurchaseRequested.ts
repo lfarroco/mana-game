@@ -1,4 +1,4 @@
-import { Unit, upgradeUnitData } from "@Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
@@ -10,8 +10,8 @@ import { emitSystemEvent } from "@Engine/Visualizer";
  *
  * This function has been refactored to use the event-driven architecture:
  * 1. Use pure functions to determine what should happen
- * 2. Call the GameController for server validation
- * 3. Emit events for the Visualizer to handle visual updates
+ * 2. Emit only failure events for immediate UI feedback
+ * 3. Delegate successful purchase flow to GameController/server phase sync
  */
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
@@ -54,33 +54,6 @@ export async function itemClickPurchaseRequested(
 		return;
 	}
 
-	// Step 3: Update game state
-	if (purchaseResult.upgradedUnit) {
-		// Upgrade existing unit
-		const existingUnit = state.session.team.units.find(
-			(u) => u.id === purchaseResult.upgradedUnit!.id
-		);
-		if (existingUnit) {
-			upgradeUnitData(existingUnit);
-		}
-	} else if (purchaseResult.newUnit) {
-		// Add new unit to state
-		state.session.team.units = PureShop.addUnitToUnits(
-			state.session.team.units,
-			purchaseResult.newUnit
-		);
-
-		// Update run stats
-		const { runStats } = state.session;
-		if (runStats) {
-			runStats.totalUnitsRecruited++;
-			const unitName = getName(purchaseResult.newUnit.cardId);
-			runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
-		}
-	}
-
-	// Step 4: Emit success events for the Visualizer to handle visual updates
-	for (const event of purchaseResult.events) {
-		await emitSystemEvent(event);
-	}
+	// Success path is now fully driven by server-synced phase rendering in GameController.
+	// Do not mutate local state or emit UnitPurchased visuals here.
 }
