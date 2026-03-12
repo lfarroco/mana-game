@@ -4,6 +4,15 @@ This file is the entry point for AI agents working on the Mana Battle codebase. 
 
 The file plan.md contains the overall project plan and roadmap, including tasks that are currently in progress, completed, or planned for future development.
 
+## Agent Workflow
+
+1. **Read this file** to orient yourself.
+2. **Pick a task** from the Task Queue.
+3. **Read the relevant docs** from the Knowledge Index.
+4. **Check the coding standards** before writing code.
+5. **Implement the change**, including tests where appropriate.
+6. **Update this file**: mark the task done, move to Completed, note any new issues discovered.
+
 ## Project Overview
 
 Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview.
@@ -111,6 +120,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
+- [x] Standardized all imports to path aliases: converted 451 relative cross-directory imports across 164 files; added @Storage/*, @Effects/*, @Engine/*, @main aliases; enforced via ESLint no-restricted-imports error rule; added tsconfig.eslint.json to cover spec files (Copilot, 2026-03-12)
 - [x] Fixed all 4 failing E2E tests: phase detection (`getCurrentPhase` returns `session.phase` directly), board swap race condition (await Chara creation), shop display wiring (`PhaseManager.renderPhase` shop case uses `ShopPanel`), audio graceful degradation (`playSoundEffect` skips missing cache keys) — all 10 E2E tests now pass (Copilot, 2026-03-12)
 
 - [x] Fixed multiplayer `orb_shop` phase transition: now properly sends `orb_shop_done` to transition to next phase (Copilot, 2026-02-16)
@@ -130,12 +140,3 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Documented Options/Preferences System in `docs/options-system.md` with architecture, persistence, and extension guidance (Copilot, 2026-03-11)
 - [x] Documented Effect System in `docs/effect-system.md` with playback integration and module-level architecture guidance (Copilot, 2026-03-11)
 - [x] Documented UI System in `docs/ui-system.md` with component composition, event flow, and layout/input conventions (Copilot, 2026-03-11)
-
-## Agent Workflow
-
-1. **Read this file** to orient yourself.
-2. **Pick a task** from the Task Queue above.
-3. **Read the relevant docs** from the Knowledge Index.
-4. **Check the coding standards** before writing code.
-5. **Implement the change**, including tests where appropriate.
-6. **Update this file**: mark the task done, move to Completed, note any new issues discovered.
