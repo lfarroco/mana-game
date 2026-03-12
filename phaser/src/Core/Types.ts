@@ -1,11 +1,11 @@
-import { Unit } from "../Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 
 // Option types for different phases
 export type PhaseOption =
 	| { id: string; cost?: number; label?: string } // Generic option with optional cost and label
-	| { id: 'combat_encounter' } // Pre-combat warning option
-	| { id: 'combat_done'; label: string }; // Post-combat continue option
+	| { id: "combat_encounter" } // Pre-combat warning option
+	| { id: "combat_done"; label: string }; // Post-combat continue option
 
 // Action log entry for tracking player actions
 export type ActionLogEntry = {

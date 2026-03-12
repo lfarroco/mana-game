@@ -3,7 +3,7 @@
  * Handles unlocking achievements based on game completion with different cores
  */
 
-import { GAME_CONFIG } from "../config";
+import { GAME_CONFIG } from "@config";
 
 // Declare window.steamworks type for TypeScript
 declare const window: Window & {
@@ -59,7 +59,7 @@ function getAchievementId(crystal: CrystalType, tier: VictoryTier): string {
  */
 function isSteamAvailable(): boolean {
 	try {
-		return !!(window.steamworks?.achievement);
+		return !!window.steamworks?.achievement;
 	} catch {
 		return false;
 	}
@@ -106,13 +106,8 @@ function unlockAchievement(achievementId: string): boolean {
  * @param wins - Total number of wins achieved in the game
  * @param coreCardId - The card ID of the player's core crystal
  */
-export function checkVictoryAchievements(
-	wins: number,
-	coreCardId: string
-): void {
-	console.log(
-		`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`
-	);
+export function checkVictoryAchievements(wins: number, coreCardId: string): void {
+	console.log(`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`);
 
 	// Demo mode: achievements disabled
 	if (!GAME_CONFIG.ENABLE_ACHIEVEMENTS) {
@@ -138,9 +133,7 @@ export function checkVictoryAchievements(
 	];
 
 	if (!validCrystals.includes(coreCardId as CrystalType)) {
-		console.log(
-			`[Achievement] Core ${coreCardId} is not eligible for achievements`
-		);
+		console.log(`[Achievement] Core ${coreCardId} is not eligible for achievements`);
 		return;
 	}
 

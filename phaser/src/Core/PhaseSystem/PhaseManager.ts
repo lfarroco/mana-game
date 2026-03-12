@@ -1,5 +1,9 @@
-import { PhaseHandler, PhaseTransitionContext, PhaseTransitionResult } from "./types";
-import { phaseValidator } from "./PhaseValidator";
+import {
+	PhaseHandler,
+	PhaseTransitionContext,
+	PhaseTransitionResult,
+} from "@Core/PhaseSystem/types";
+import { phaseValidator } from "@Core/PhaseSystem/PhaseValidator";
 
 function createPhaseManager() {
 	const handlers: PhaseHandler[] = [];
@@ -21,13 +25,15 @@ function createPhaseManager() {
 		const handler = findHandler(context);
 
 		if (!handler) {
-			throw new Error(`No phase handler found for phase '${context.session.phase}' and action '${context.actionId}'`);
+			throw new Error(
+				`No phase handler found for phase '${context.session.phase}' and action '${context.actionId}'`
+			);
 		}
 
 		const { session } = context;
 		const validation = phaseValidator.validateAction(context);
 		if (!validation.valid) {
-			throw new Error(`Invalid action: ${validation.errors.join(', ')}`);
+			throw new Error(`Invalid action: ${validation.errors.join(", ")}`);
 		}
 
 		const result = handler.transition(context);

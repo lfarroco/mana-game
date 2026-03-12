@@ -1,8 +1,16 @@
 import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
-import { Unit } from "../Models/Entities/Unit";
-import { PhaseOption } from "../Core/Types";
+import { Unit } from "@Models/Entities/Unit";
+import { PhaseOption } from "@Core/Types";
 
-export type PhaseType = "encounter" | "shop" | "orb_shop" | "upgrade_core" | "add_reaction_core" | "combat" | "victory" | "game_over";
+export type PhaseType =
+	| "encounter"
+	| "shop"
+	| "orb_shop"
+	| "upgrade_core"
+	| "add_reaction_core"
+	| "combat"
+	| "victory"
+	| "game_over";
 
 export interface PhaseOptions {
 	phase: PhaseType;

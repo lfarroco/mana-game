@@ -1,9 +1,9 @@
 import * as constants from "@Constants/constants";
-import * as Geometry from "./Geometry";
-import { Unit } from "./Entities/Unit";
-import { getCurrentScene, getState, State } from "./State";
-import * as EnergySlot from "../Components/EnergySlot/EnergySlot";
-import * as BoardLogic from "./BoardLogic";
+import * as Geometry from "@Models/Geometry";
+import { Unit } from "@Models/Entities/Unit";
+import { getCurrentScene, getState, State } from "@Models/State";
+import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
+import * as BoardLogic from "@Models/BoardLogic";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];
@@ -30,7 +30,6 @@ export function createBoardState(): BoardState {
 }
 
 export function renderBoardSlots(board: BoardState): void {
-
 	const scene = getCurrentScene();
 
 	destroyVisuals(board);

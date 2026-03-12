@@ -1,5 +1,5 @@
 import { getCurrentScene } from "@Models/State";
-import { images } from "../assets";
+import { images } from "@assets";
 import { delay } from "@Utils/animation";
 
 export interface SlowEffectOptions {

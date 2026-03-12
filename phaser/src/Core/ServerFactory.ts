@@ -1,6 +1,6 @@
-import { IGameServer } from './IGameServer';
-import { LocalServerAdapter } from './LocalServerAdapter';
-import { RemoteServerAdapter } from './RemoteServerAdapter';
+import { IGameServer } from "@Core/IGameServer";
+import { LocalServerAdapter } from "@Core/LocalServerAdapter";
+import { RemoteServerAdapter } from "@Core/RemoteServerAdapter";
 
 type ServerFactoryApi = {
 	getServer: () => IGameServer;

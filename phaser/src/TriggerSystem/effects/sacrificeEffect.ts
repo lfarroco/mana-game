@@ -1,10 +1,14 @@
 import { Unit } from "@Models/Entities/Unit";
-import { nextValue } from "../../Utils/Random";
-import { pickRandom } from "../../utils";
-import { increasePower } from "./increasePower";
+import { nextValue } from "@Utils/Random";
+import { pickRandom } from "@utils";
+import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit, delayedExecution?: number) => {
+export const sacrificeEffect = (
+	env: CombatEnvironment,
+	sourceUnit: Unit,
+	delayedExecution?: number
+) => {
 	const removableEffects = sourceUnit.effects;
 	const removableReactions = sourceUnit.reactions;
 
@@ -24,10 +28,10 @@ export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit, delaye
 
 	if (removeType === "effect") {
 		const effectToRemove = pickRandom(removableEffects, 1)[0];
-		sourceUnit.effects = sourceUnit.effects.filter(e => e !== effectToRemove);
+		sourceUnit.effects = sourceUnit.effects.filter((e) => e !== effectToRemove);
 	} else {
 		const reactionToRemove = pickRandom(removableReactions, 1)[0];
-		sourceUnit.reactions = sourceUnit.reactions.filter(r => r !== reactionToRemove);
+		sourceUnit.reactions = sourceUnit.reactions.filter((r) => r !== reactionToRemove);
 	}
 
 	increasePower(env, [sourceUnit], 10, false, sourceUnit, delayedExecution);

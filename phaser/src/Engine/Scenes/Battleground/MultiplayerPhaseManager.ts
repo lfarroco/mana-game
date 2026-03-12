@@ -2,18 +2,18 @@ import { State, getCurrentScene } from "@Models/State";
 import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
 import { showMatchResult } from "@Systems/MatchResultSystem";
-import { createBrowserCombatEffects } from "./BrowserCombatEffects";
-import { createCombatPlaybackController } from "./CombatPlaybackController";
+import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
+import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { BattlegroundScene } from "./BattlegroundScene";
+import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
-import * as ResultsUI from "./Results/ResultsUI";
+import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
-import * as ForceStats from "./ForceStats";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
@@ -27,7 +27,6 @@ import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
-
 
 export async function handleMultiplayerPhase(state: State) {
 	console.log("Starting Multiplayer Phase handling...");
@@ -65,10 +64,12 @@ export async function handleMultiplayerPhase(state: State) {
 
 		if (result.phase !== "combat") {
 			clearAll();
-			await Promise.all(state.session.team.units.map(async u => {
-				const c = await createChara(u);
-				enableTooltip(c);
-			}));
+			await Promise.all(
+				state.session.team.units.map(async (u) => {
+					const c = await createChara(u);
+					enableTooltip(c);
+				})
+			);
 		}
 	}
 
@@ -117,15 +118,15 @@ export async function handleMultiplayerPhase(state: State) {
 				orbOptions.map((o: any) => o.id),
 				async (orbId, targetId) => {
 					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
-					await sendOptionSelection('apply_orb', {
+					await sendOptionSelection("apply_orb", {
 						orbId,
 						targetUnitId: targetId,
-						team: state.session.team
+						team: state.session.team,
 					});
 				}
 			);
 			// After orb shop completes, notify server and get next phase
-			await sendOptionSelection('orb_shop_done');
+			await sendOptionSelection("orb_shop_done");
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -133,7 +134,7 @@ export async function handleMultiplayerPhase(state: State) {
 			const upgradeIds = result.options.map((o: any) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
-			await sendOptionSelection('upgrade_core_done');
+			await sendOptionSelection("upgrade_core_done");
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -141,7 +142,7 @@ export async function handleMultiplayerPhase(state: State) {
 			const reactionIds = result.options.map((o: any) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
-			await sendOptionSelection('add_reaction_core_done');
+			await sendOptionSelection("add_reaction_core_done");
 			await handleMultiplayerPhase(state);
 			break;
 
@@ -171,7 +172,7 @@ export async function handleMultiplayerPhase(state: State) {
 		} else {
 			const playerUnits = state.session.team.units;
 			const enemyUnits = combatState.enemyTeam;
-			playerUnits.forEach(u => u.force = FORCE_ID_PLAYER);
+			playerUnits.forEach((u) => (u.force = FORCE_ID_PLAYER));
 			allUnits = [...playerUnits, ...enemyUnits];
 		}
 
@@ -238,8 +239,7 @@ export async function handleMultiplayerPhase(state: State) {
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						sendOptionSelection("combat_done")
-							.then(() => handleMultiplayerPhase(state));
+						sendOptionSelection("combat_done").then(() => handleMultiplayerPhase(state));
 					},
 					() => {
 						// Replay Callback
@@ -256,4 +256,3 @@ export async function handleMultiplayerPhase(state: State) {
 		scene.combatRunner = controller;
 	}
 }
-

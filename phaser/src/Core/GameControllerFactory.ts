@@ -1,17 +1,17 @@
-import { GameController } from "./GameController";
-import { createLocalGameController } from "./LocalGameController";
-import { createRemoteGameController } from "./RemoteGameController";
+import { GameController } from "@Core/GameController";
+import { createLocalGameController } from "@Core/LocalGameController";
+import { createRemoteGameController } from "@Core/RemoteGameController";
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 
 /**
- * Global controller instance. 
+ * Global controller instance.
  * This is initialized when the game starts and updated when switching between modes.
  */
 let gameController: GameController | null = null;
 
 /**
  * Creates and returns the appropriate GameController based on the current game mode.
- * 
+ *
  * @param playerId - The player's ID (required for local mode)
  * @returns A GameController instance
  */
@@ -28,13 +28,13 @@ export const createGameController = (playerId: string): GameController => {
 /**
  * Gets the current GameController instance.
  * If no controller exists, creates a local controller with default player ID.
- * 
+ *
  * @returns The current GameController instance
  */
 export const getGameController = (): GameController => {
 	if (!gameController) {
 		// Create a default local controller
-		gameController = createLocalGameController('local_player');
+		gameController = createLocalGameController("local_player");
 	}
 
 	return gameController;
@@ -43,7 +43,7 @@ export const getGameController = (): GameController => {
 /**
  * Sets the GameController instance directly.
  * Useful for testing or when you have a pre-configured controller.
- * 
+ *
  * @param controller - The GameController instance to set
  */
 export const setGameController = (controller: GameController): void => {

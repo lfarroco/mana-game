@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
-import { createMagicButtonOverlay, MagicOverlayHandle } from "./magicButtonShader";
+import { createMagicButtonOverlay, MagicOverlayHandle } from "@Components/magicButtonShader";
 import * as io from "@PhaserIO";
 
 export const activeButtons: Record<string, () => void> = {};

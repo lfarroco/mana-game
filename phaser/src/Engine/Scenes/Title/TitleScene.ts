@@ -2,21 +2,22 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
-import { newSinglePlayerRunButton } from "./components/newSinglePlayerRunButton";
-import { arenaButton } from "./components/arenaButton";
+import { newSinglePlayerRunButton } from "@Scenes/Title/components/newSinglePlayerRunButton";
+import { arenaButton } from "@Scenes/Title/components/arenaButton";
 import { startGame } from "@Game/effects/startGame";
-import { cloudsBg } from "./components/cloudsBg";
-import { optionsButton, setMainButtonsContainer } from "./components/optionsButton";
-import { collectionButton } from "./components/collectionButton";
-import { resumeGameButton } from "./components/resumeGameButton";
-import { logo } from "./components/logo";
-import { howToPlay } from "./components/howToPlay";
+import { cloudsBg } from "@Scenes/Title/components/cloudsBg";
+import { optionsButton, setMainButtonsContainer } from "@Scenes/Title/components/optionsButton";
+import { collectionButton } from "@Scenes/Title/components/collectionButton";
+import { resumeGameButton } from "@Scenes/Title/components/resumeGameButton";
+import { logo } from "@Scenes/Title/components/logo";
+import { howToPlay } from "@Scenes/Title/components/howToPlay";
 import * as io from "@PhaserIO";
-import { languageButton } from "./components/languageButton";
-import { linksButton } from "./components/linksButton";
+import { languageButton } from "@Scenes/Title/components/languageButton";
+import { linksButton } from "@Scenes/Title/components/linksButton";
 import * as StatsStore from "@Models/StatsStore";
-import { showUnlockModal } from "./components/UnlockModal";
+import { showUnlockModal } from "@Scenes/Title/components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
+// eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 
 export default class TitleScene extends Phaser.Scene {
@@ -37,22 +38,13 @@ export default class TitleScene extends Phaser.Scene {
 
 		const arenaButton_ = process.env.NODE_ENV === "development" ? [arenaButton(700)] : [];
 
-		const buttons = [
-			resumeGameButton(500),
-			newSinglePlayerRunButton(600)]
-			.concat(
-				arenaButton_
-			).concat(
-				[
-					optionsButton(800),
-					collectionButton(900),
-					linksButton(1000),
-					languageButton()
-				]);
+		const buttons = [resumeGameButton(500), newSinglePlayerRunButton(600)]
+			.concat(arenaButton_)
+			.concat([optionsButton(800), collectionButton(900), linksButton(1000), languageButton()]);
 
 		// Create a container for the main buttons so they can be hidden when showing submenu
 		const mainButtonsContainer = io.Container(
-			buttons.filter((b): b is NonNullable<typeof b> => b != null).map(b => b.container)
+			buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
 		);
 		setMainButtonsContainer(mainButtonsContainer);
 
@@ -67,8 +59,7 @@ export default class TitleScene extends Phaser.Scene {
 		// setTimeout(() => {
 		// 	//@ts-ignore
 		// 	PhaserGUIAction(this);
-		// }, 500)			
-
+		// }, 500)
 
 		this.checkUnlocks();
 
@@ -88,7 +79,7 @@ export default class TitleScene extends Phaser.Scene {
 		for (const unitId of pendingUnlocks) {
 			await showUnlockModal(unitId);
 			StatsStore.confirmUnlock(unitId);
-			await new Promise(resolve => setTimeout(resolve, 300));
+			await new Promise((resolve) => setTimeout(resolve, 300));
 		}
 	}
 }

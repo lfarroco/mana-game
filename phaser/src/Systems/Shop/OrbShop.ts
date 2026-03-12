@@ -1,18 +1,22 @@
-import * as ShopPanel from "./ShopPanel";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "@utils";
-import * as sc from "./constants";
+import * as sc from "@Systems/Shop/constants";
 import { getCurrentScene, State } from "@Models/State";
 import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
-import { orbsIndex, OrbSpec } from "./Orbs";
+import { orbsIndex, OrbSpec } from "@Systems/Shop/Orbs";
 import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as io from "@PhaserIO";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
-export async function openOrbShop(state: State, orbs: string[], onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>): Promise<void> {
+export async function openOrbShop(
+	state: State,
+	orbs: string[],
+	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
+): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
@@ -27,10 +31,16 @@ export async function openOrbShop(state: State, orbs: string[], onOrbApply?: (or
 
 		ShopPanel.create(completeSectionCallback);
 
-		renderOrbShop(state, container, selectedOrbs, async () => {
-			await delay(300);
-			completeSectionCallback();
-		}, onOrbApply);
+		renderOrbShop(
+			state,
+			container,
+			selectedOrbs,
+			async () => {
+				await delay(300);
+				completeSectionCallback();
+			},
+			onOrbApply
+		);
 
 		Board.setEnemyBoardVisible(false);
 
@@ -93,7 +103,7 @@ export function renderOrbShop(
 			}
 		}
 
-		playSoundEffect('sfx_spell_deathstrikeseal');
+		playSoundEffect("sfx_spell_deathstrikeseal");
 
 		magicOrb.startDissolve();
 

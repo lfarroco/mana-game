@@ -7,17 +7,15 @@ import * as Shop from "@Systems/Shop";
 import * as Board from "@Models/Board";
 import * as Tooltip from "@Components/Tooltip";
 
-import * as Chara from "./Chara";
-import * as events from "./events";
-import { onCharaPointerOut, onCharaPointerOver } from "./CharaTooltip";
+import * as Chara from "@Systems/Chara/Chara";
+import * as events from "@Systems/Chara/events";
+import { onCharaPointerOut, onCharaPointerOver } from "@Systems/Chara/CharaTooltip";
 
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as ph from "@PhaserIO";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
-
-
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -84,11 +82,11 @@ export function init(chara: Chara.Chara) {
 
 export const onDrag =
 	(chara: Chara.Chara) =>
-		(_pointer: Pointer, dragX: number, dragY: number): void => {
-			if (!Board.isInputEnabled()) return;
-			chara.x = dragX;
-			chara.y = dragY;
-		};
+	(_pointer: Pointer, dragX: number, dragY: number): void => {
+		if (!Board.isInputEnabled()) return;
+		chara.x = dragX;
+		chara.y = dragY;
+	};
 
 export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
 	if (!Board.isInputEnabled()) return;
@@ -198,7 +196,6 @@ export const processOwnedUnitMoveRequest = (
 	_executeMove(unit, targetTile, units);
 };
 
-
 const saveUnitPositions = (units: Unit[]) => {
 	const controller = getGameController();
 	controller.updateTeam({ units });
@@ -221,7 +218,6 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 
 	saveUnitPositions(units);
 };
-
 
 const applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
@@ -254,59 +250,58 @@ const movementRejected = (
 
 export const onPointerDown =
 	(handlerState: InputHandler) =>
-		(_pointer: Pointer): void => {
-			const scene = getCurrentScene();
-			if (!scene.sys.game.device.input.touch) return;
-			handlerState.longPressTimer = scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
-				handlerState.isLongPressActive = true;
-				const { chara } = handlerState;
-				onCharaPointerOver(chara);
-			});
-		};
+	(_pointer: Pointer): void => {
+		const scene = getCurrentScene();
+		if (!scene.sys.game.device.input.touch) return;
+		handlerState.longPressTimer = scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
+			handlerState.isLongPressActive = true;
+			const { chara } = handlerState;
+			onCharaPointerOver(chara);
+		});
+	};
 
 export const onPointerUp =
 	(handlerState: InputHandler) =>
-		(_pointer: Pointer): void => {
-			if (handlerState.longPressTimer) {
-				handlerState.longPressTimer.destroy();
-				handlerState.longPressTimer = undefined;
-			}
+	(_pointer: Pointer): void => {
+		if (handlerState.longPressTimer) {
+			handlerState.longPressTimer.destroy();
+			handlerState.longPressTimer = undefined;
+		}
 
-			if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
-				handlerState.isLongPressActive = false;
+		if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
+			handlerState.isLongPressActive = false;
 
-				onCharaPointerOut();
-			}
-		};
+			onCharaPointerOut();
+		}
+	};
 
 export const onPointerUpShopItem =
 	(handlerState: InputHandler) =>
-		(pointer: Pointer): void => {
-			if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
+	(pointer: Pointer): void => {
+		if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
 
-			if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
-				return;
-			}
+		if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
+			return;
+		}
 
-			// Don't trigger shop click if it was a long press, and snap back to original position
-			if (handlerState.isLongPressActive) {
-				handlerState.isLongPressActive = false;
-				const vec = handlerState.chara.getData("dragStartVec") as Vec2;
+		// Don't trigger shop click if it was a long press, and snap back to original position
+		if (handlerState.isLongPressActive) {
+			handlerState.isLongPressActive = false;
+			const vec = handlerState.chara.getData("dragStartVec") as Vec2;
 
-				tween({
-					targets: [handlerState.chara],
-					...vec,
-					duration: 150,
-				});
-				return;
-			}
+			tween({
+				targets: [handlerState.chara],
+				...vec,
+				duration: 150,
+			});
+			return;
+		}
 
-			processShopItemClick(handlerState.chara, handlerState.unitId)(pointer.x, pointer.y);
-		};
+		processShopItemClick(handlerState.chara, handlerState.unitId)(pointer.x, pointer.y);
+	};
 
 const processShopItemClick =
 	(chara: Chara.Chara, unitId: string) =>
-		(_clickX: number, _clickY: number): void => {
-
-			Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
-		};
+	(_clickX: number, _clickY: number): void => {
+		Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
+	};

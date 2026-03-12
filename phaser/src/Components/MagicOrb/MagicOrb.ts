@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as Board from "@Models/Board";
-import * as Tooltip from "../Tooltip";
+import * as Tooltip from "@Components/Tooltip";
 import { getCurrentScene } from "@Models/State";
 import { magicOrbFragmentShader } from "@Shaders/MagicOrbShader";
 import { nextValue } from "@Utils/Random";
@@ -50,7 +50,7 @@ export class MagicOrb {
 			enableTooltip: false,
 			enableDrag: false,
 			returnDuration: 300,
-			onDropTarget: () => { },
+			onDropTarget: () => {},
 			dropTargetNames: [] as string[],
 		};
 
@@ -58,12 +58,10 @@ export class MagicOrb {
 		this.startTime = this.scene.time.now;
 		this.originalPosition = { x, y };
 
-
 		this.createShader(x, y);
 	}
 
 	private createShader(x: number, y: number): void {
-
 		const animationPhaseOffset = nextValue() * Math.PI * 2;
 		console.log(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);
 

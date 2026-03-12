@@ -1,45 +1,44 @@
-
-import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
-import { createMockState } from '../test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '@Scenes/Battleground/RunCombatCore';
-import { dealDamageLogicIO, applyPoisonLogicIO } from './effects';
-import { applyHasteLogicIO } from './effects/applyHaste';
-import { applySlowLogicIO } from './effects/applySlow';
-import { restoreLife } from './effects/restoreLife';
-import { registerCollection } from '../Models/Entities/Card';
-import { BASE_COLLECTION_DATA } from '../Data/BaseCollection';
-import { Unit } from '../Models/Entities/Unit';
-import * as StateModule from '../Models/State';
-import { getBattleCore } from '../Models/Entities/Card';
-import { FORCE_ID_PLAYER } from '@Scenes/Battleground/ServerConstants';
-import { processReactions } from './TriggerSystem';
+import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { dealDamageLogicIO, applyPoisonLogicIO } from "@TriggerSystem/effects";
+import { applyHasteLogicIO } from "@TriggerSystem/effects/applyHaste";
+import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
+import { restoreLife } from "@TriggerSystem/effects/restoreLife";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { Unit } from "@Models/Entities/Unit";
+import * as StateModule from "@Models/State";
+import { getBattleCore } from "@Models/Entities/Card";
+import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
+import { processReactions } from "@TriggerSystem/TriggerSystem";
 
 // Mock i18n
-jest.mock('../i18n/i18n', () => ({
+jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => 'en',
-	getAvailableLocales: () => ['en'],
-	getNativeName: () => 'English'
+	initialize: () => {},
+	setLocale: () => {},
+	getCurrentLocale: () => "en",
+	getAvailableLocales: () => ["en"],
+	getNativeName: () => "English",
 }));
 
 // Mock State module
-jest.mock('../Models/State', () => ({
-	...jest.requireActual('../Models/State') as any,
-	getState: jest.fn()
+jest.mock("../Models/State", () => ({
+	...(jest.requireActual("../Models/State") as any),
+	getState: jest.fn(),
 }));
 
 beforeAll(() => {
-	if (typeof global.structuredClone === 'undefined') {
+	if (typeof global.structuredClone === "undefined") {
 		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
-describe('Reaction System Tests', () => {
+describe("Reaction System Tests", () => {
 	let state: any;
 	let effects: any;
 	let env: any;
@@ -63,8 +62,8 @@ describe('Reaction System Tests', () => {
 
 		// Create source unit (the one acting)
 		sourceUnit = {
-			id: 'source_unit',
-			cardId: 'test_card_1',
+			id: "source_unit",
+			cardId: "test_card_1",
 			force: FORCE_ID_PLAYER,
 			power: 50,
 			bonusPower: 0,
@@ -82,13 +81,13 @@ describe('Reaction System Tests', () => {
 			isCore: false,
 			refresh: 0,
 			rank: 1,
-			pic: ''
+			pic: "",
 		} as Unit;
 
 		// Create reactor unit (the one watching for events)
 		reactorUnit = {
-			id: 'reactor_unit',
-			cardId: 'test_card_2',
+			id: "reactor_unit",
+			cardId: "test_card_2",
 			force: FORCE_ID_PLAYER, // Same force
 			power: 10,
 			bonusPower: 0,
@@ -106,7 +105,7 @@ describe('Reaction System Tests', () => {
 			isCore: false,
 			refresh: 0,
 			rank: 1,
-			pic: ''
+			pic: "",
 		} as Unit;
 
 		state.battleData.units.push(sourceUnit, reactorUnit);
@@ -116,17 +115,21 @@ describe('Reaction System Tests', () => {
 		env = combatRunner.getEnv();
 	});
 
-	it('should trigger every_100_damage reaction when cumulative damage reaches 100', async () => {
-		reactorUnit.reactions = [{
-			position: 'allies',
-			effectId: 'every_100_damage',
-			effects: [{
-				id: 'increase_power',
-				amount: 50,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+	it("should trigger every_100_damage reaction when cumulative damage reaches 100", async () => {
+		reactorUnit.reactions = [
+			{
+				position: "allies",
+				effectId: "every_100_damage",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 50,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 
 		sourceUnit.power = 50;
 		dealDamageLogicIO(env, sourceUnit);
@@ -147,17 +150,21 @@ describe('Reaction System Tests', () => {
 		expect(reactorUnit.bonusPower).toBe(100);
 	});
 
-	it('should trigger every_10_poison when cumulative poison reaches 10', async () => {
-		reactorUnit.reactions = [{
-			position: 'allies',
-			effectId: 'every_10_poison',
-			effects: [{
-				id: 'increase_power',
-				amount: 20,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+	it("should trigger every_10_poison when cumulative poison reaches 10", async () => {
+		reactorUnit.reactions = [
+			{
+				position: "allies",
+				effectId: "every_10_poison",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 20,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 
 		sourceUnit.power = 50;
 
@@ -174,21 +181,23 @@ describe('Reaction System Tests', () => {
 		expect(reactorUnit.bonusPower).toBe(20);
 	});
 
-	it('should allow multiple units to react to the same threshold event', async () => {
+	it("should allow multiple units to react to the same threshold event", async () => {
 		const reactorUnit2 = JSON.parse(JSON.stringify(reactorUnit));
-		reactorUnit2.id = 'reactor_unit_2';
+		reactorUnit2.id = "reactor_unit_2";
 		reactorUnit2.bonusPower = 0;
 		state.battleData.units.push(reactorUnit2);
 
 		const reaction = {
-			position: 'allies',
-			effectId: 'every_100_damage',
-			effects: [{
-				id: 'increase_power',
-				amount: 10,
-				targets: { id: 'self' },
-				permanent: true
-			}]
+			position: "allies",
+			effectId: "every_100_damage",
+			effects: [
+				{
+					id: "increase_power",
+					amount: 10,
+					targets: { id: "self" },
+					permanent: true,
+				},
+			],
 		} as any;
 
 		reactorUnit.reactions = [reaction];
@@ -203,7 +212,7 @@ describe('Reaction System Tests', () => {
 		expect(reactorUnit2.bonusPower).toBe(10);
 	});
 
-	it('should trigger on_crit when a critical hit occurs', async () => {
+	it("should trigger on_crit when a critical hit occurs", async () => {
 		// Setup source unit to always crit
 		sourceUnit.critical = 200;
 		// Ensure dealDamage finds core
@@ -211,16 +220,20 @@ describe('Reaction System Tests', () => {
 		if (!core) throw new Error("Enemy core not found");
 
 		// Reactor: sourceUnit responds to its own crit
-		sourceUnit.reactions = [{
-			position: 'self',
-			effectId: 'on_crit',
-			effects: [{
-				id: 'increase_power',
-				amount: 50,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+		sourceUnit.reactions = [
+			{
+				position: "self",
+				effectId: "on_crit",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 50,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 
 		dealDamageLogicIO(env, sourceUnit);
 		// Increase frame delay to be safe
@@ -230,25 +243,33 @@ describe('Reaction System Tests', () => {
 		expect(sourceUnit.bonusPower).toBe(50);
 	});
 
-	it('should trigger re_hasted when haste is applied', async () => {
+	it("should trigger re_hasted when haste is applied", async () => {
 		// Setup reaction on reactorUnit
 		// Must use 'allies' position as 're_hasted' event doesn't carry target info to match 'self'
-		reactorUnit.reactions = [{
-			position: 'allies',
-			effectId: 're_hasted',
-			effects: [{
-				id: 'increase_power',
-				amount: 20,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+		reactorUnit.reactions = [
+			{
+				position: "allies",
+				effectId: "re_hasted",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 20,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 		reactorUnit.hasted = 100;
 
 		const duration = 500;
 		// Cast on reactorUnit
-		await applyHasteLogicIO(env, [reactorUnit], sourceUnit, duration, (_target: Unit) =>
-			processReactions(env, sourceUnit, { id: "re_hasted" } as any, 1) // Triggering unit is sourceUnit
+		await applyHasteLogicIO(
+			env,
+			[reactorUnit],
+			sourceUnit,
+			duration,
+			(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" } as any, 1) // Triggering unit is sourceUnit
 		);
 		effects.setFrame(300);
 		effects.setFrame(350);
@@ -256,18 +277,22 @@ describe('Reaction System Tests', () => {
 		expect(reactorUnit.bonusPower).toBe(20);
 	});
 
-	it('should trigger re_slow when slow is applied', async () => {
+	it("should trigger re_slow when slow is applied", async () => {
 		// Setup reaction on reactorUnit
-		reactorUnit.reactions = [{
-			position: 'allies',
-			effectId: 're_slow',
-			effects: [{
-				id: 'increase_power',
-				amount: 30,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+		reactorUnit.reactions = [
+			{
+				position: "allies",
+				effectId: "re_slow",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 30,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 		reactorUnit.slowed = 100;
 
 		const duration = 500;
@@ -281,22 +306,26 @@ describe('Reaction System Tests', () => {
 		expect(reactorUnit.bonusPower).toBe(30);
 	});
 
-	it('should trigger on_over_heal when healing triggers over heal condition', async () => {
+	it("should trigger on_over_heal when healing triggers over heal condition", async () => {
 		const playerCore = getBattleCore(state)(FORCE_ID_PLAYER);
-		if (!playerCore) throw new Error('Core not found');
+		if (!playerCore) throw new Error("Core not found");
 		playerCore.maxLife = 1000;
 		playerCore.life = 990;
 
-		sourceUnit.reactions = [{
-			position: 'self',
-			effectId: 'on_over_heal',
-			effects: [{
-				id: 'increase_power',
-				amount: 100,
-				targets: { id: 'self' },
-				permanent: true
-			}]
-		}];
+		sourceUnit.reactions = [
+			{
+				position: "self",
+				effectId: "on_over_heal",
+				effects: [
+					{
+						id: "increase_power",
+						amount: 100,
+						targets: { id: "self" },
+						permanent: true,
+					},
+				],
+			},
+		];
 
 		await restoreLife(env, sourceUnit);
 		effects.setFrame(300);
@@ -305,23 +334,27 @@ describe('Reaction System Tests', () => {
 		expect(sourceUnit.bonusPower).toBe(100);
 	});
 
-	it('should trigger on_battle_start at the beginning of combat', () => {
+	it("should trigger on_battle_start at the beginning of combat", () => {
 		const freshState = createMockState();
 		(StateModule.getState as jest.Mock).mockReturnValue(freshState);
 
 		const unitWithStartReaction = {
 			...sourceUnit,
-			id: 'start_reactor',
-			reactions: [{
-				position: 'self',
-				effectId: 'on_battle_start',
-				effects: [{
-					id: 'increase_power',
-					amount: 77,
-					targets: { id: 'self' },
-					permanent: true
-				}]
-			}]
+			id: "start_reactor",
+			reactions: [
+				{
+					position: "self",
+					effectId: "on_battle_start",
+					effects: [
+						{
+							id: "increase_power",
+							amount: 77,
+							targets: { id: "self" },
+							permanent: true,
+						},
+					],
+				},
+			],
 		} as Unit;
 
 		freshState.battleData.units.push(unitWithStartReaction);

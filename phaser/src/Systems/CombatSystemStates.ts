@@ -1,6 +1,6 @@
-import { PoisonSystemState } from "./PoisonDamageSystem";
-import { RegenSystemState } from "./RegenSystem";
-import { CombatStatsTrackerState } from "./CombatStatsTracker";
+import { PoisonSystemState } from "@Systems/PoisonDamageSystem";
+import { RegenSystemState } from "@Systems/RegenSystem";
+import { CombatStatsTrackerState } from "@Systems/CombatStatsTracker";
 
 export type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;

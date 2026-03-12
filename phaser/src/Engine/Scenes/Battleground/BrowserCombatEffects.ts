@@ -1,5 +1,5 @@
 import { State, getCurrentScene } from "@Models/State";
-import { CombatEffects, WaveOutcome } from "./RunCombatCore";
+import { CombatEffects, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
@@ -7,27 +7,30 @@ import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
 
 import * as Systems from "@Systems/BattlegroundSystems";
-import * as ForceStats from "./ForceStats";
-import { initBlackHole } from "./BlackHole";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import { initBlackHole } from "@Scenes/Battleground/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import { summonEffect } from "../../../Effects/summonEffect";
-import { damageFx } from "../../../TriggerSystem/effects/visuals/damage";
-import { healFx } from "../../../TriggerSystem/effects/visuals/heal";
-import { shieldFx } from "../../../TriggerSystem/effects/visuals/shield";
-import { poisonFx } from "../../../TriggerSystem/effects/visuals/poison";
-import { arcaneMissileTargeted } from "../../../Effects/index";
+import { summonEffect } from "@Effects/summonEffect";
+import { damageFx } from "@TriggerSystem/effects/visuals/damage";
+import { healFx } from "@TriggerSystem/effects/visuals/heal";
+import { shieldFx } from "@TriggerSystem/effects/visuals/shield";
+import { poisonFx } from "@TriggerSystem/effects/visuals/poison";
+import { arcaneMissileTargeted } from "@Effects/index";
 
 import { playSoundEffect } from "@Systems/AudioManager";
 import { shake } from "@Systems/Chara/Chara";
-import { hasteEffect } from "../../../Effects/hasteEffect";
-import { slowEffect } from "../../../Effects/slowEffect";
+import { hasteEffect } from "@Effects/hasteEffect";
+import { slowEffect } from "@Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { getState } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 
-export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEnd?: () => void): CombatEffects => {
+export const createBrowserCombatEffects = (
+	isReplay: boolean = false,
+	onReplayEnd?: () => void
+): CombatEffects => {
 	return {
 		onUnitPop: (unitId: string) => {
 			Animations.pop(unitId);
@@ -37,7 +40,11 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			ChargeBarDisplay.updateChargeBar(unitId);
 		},
 
-		onCombatEnd: async (state: State, outcome: WaveOutcome, combatStates: CombatSystemStates.CombatSystemStates) => {
+		onCombatEnd: async (
+			state: State,
+			outcome: WaveOutcome,
+			combatStates: CombatSystemStates.CombatSystemStates
+		) => {
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
@@ -122,44 +129,28 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 		},
 
 		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			playSoundEffect('sfx_spell_truestrike');
-			damageFx(
-				getCharaById(sourceId),
-				getCharaById(targetId),
-				() => {
-					onHit();
-					shake(getCharaById(targetId));
-				}
-			);
+			playSoundEffect("sfx_spell_truestrike");
+			damageFx(getCharaById(sourceId), getCharaById(targetId), () => {
+				onHit();
+				shake(getCharaById(targetId));
+			});
 		},
 
 		onHeal: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			healFx(
-				getCharaById(sourceId),
-				getCharaById(targetId),
-				onHit
-			);
+			healFx(getCharaById(sourceId), getCharaById(targetId), onHit);
 		},
 
 		onShield: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			playSoundEffect('sfx_spell_manavortex');
-			shieldFx(
-				getCharaById(sourceId),
-				getCharaById(targetId),
-				onHit
-			);
+			playSoundEffect("sfx_spell_manavortex");
+			shieldFx(getCharaById(sourceId), getCharaById(targetId), onHit);
 		},
 
 		onPoison: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			poisonFx(
-				getCharaById(sourceId),
-				getCharaById(targetId),
-				onHit
-			);
+			poisonFx(getCharaById(sourceId), getCharaById(targetId), onHit);
 		},
 
 		onRegen: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			playSoundEffect('sfx_spell_tranquility');
+			playSoundEffect("sfx_spell_tranquility");
 
 			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
 				colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones
@@ -174,7 +165,6 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 					alpha: 0.4,
 				},
 				onHit,
-
 			});
 		},
 
@@ -215,13 +205,13 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			};
 
 			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
-				colors: [0x6E260E, 0x7B3F00, 0x6F4E37],
+				colors: [0x6e260e, 0x7b3f00, 0x6f4e37],
 				amplitudeMin: 5,
 				amplitudeMax: 20,
 				particleScale: 1.5,
 				blendMode: Phaser.BlendModes.NORMAL,
 				impact: {
-					colors: [0x6E260E, 0x954535],
+					colors: [0x6e260e, 0x954535],
 					scale: 2,
 					speed: 200,
 					lifespan: 300,
@@ -257,7 +247,13 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			});
 		},
 
-		onIncreasePower: (sourceId: string | undefined, targetId: string, _amount: number, _permanent: boolean, onHit: () => void) => {
+		onIncreasePower: (
+			sourceId: string | undefined,
+			targetId: string,
+			_amount: number,
+			_permanent: boolean,
+			onHit: () => void
+		) => {
 			const effect = async () => {
 				onHit();
 				PowerDisplay.updatePowerDisplay(targetId);
@@ -284,7 +280,13 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			});
 		},
 
-		onDecreasePower: (sourceId: string | undefined, targetId: string, _amount: number, _permanent: boolean, onHit: () => void) => {
+		onDecreasePower: (
+			sourceId: string | undefined,
+			targetId: string,
+			_amount: number,
+			_permanent: boolean,
+			onHit: () => void
+		) => {
 			const effect = async () => {
 				onHit();
 				PowerDisplay.updatePowerDisplay(targetId);
@@ -343,7 +345,9 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			const target = getBattleCore(state)(targetForceId);
 
 			if (!target) {
-				console.warn(`[BrowserCombatEffects] onTimeoutDamageVisual: No core found for force ${targetForceId}`);
+				console.warn(
+					`[BrowserCombatEffects] onTimeoutDamageVisual: No core found for force ${targetForceId}`
+				);
 				onHit();
 				return;
 			}
@@ -351,7 +355,7 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			const core = getCharaById(target.id);
 			const colors = [0x000000];
 
-			playSoundEffect('sfx_voidhunter_attack_impact');
+			playSoundEffect("sfx_voidhunter_attack_impact");
 
 			arcaneMissileTargeted(MIDDLE_SCREEN, core, {
 				colors,
@@ -367,6 +371,6 @@ export const createBrowserCombatEffects = (isReplay: boolean = false, onReplayEn
 			// Handled by playback controller in multiplayer or local logic
 			// For strictly local single player, we might need a way to set blackHole visible here
 			// if we want to support it. But for now, empty to satisfy interface.
-		}
+		},
 	};
 };

@@ -4,14 +4,13 @@ import * as makeUnit from "@Models/Entities/Unit";
 import { size, vec2 } from "@Models/Geometry";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
-import * as sc from "./constants";
+import * as sc from "@Systems/Shop/constants";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { getCurrentScene, getState } from "@Models/State";
-import * as ShopPanel from "./ShopPanel";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { Rectangle } from "@PhaserIO";
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
-
 	const scene = getCurrentScene();
 
 	const createdCharas: Chara.Chara[] = [];
@@ -22,15 +21,18 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
-		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY)
-		const bgSize = size(800, 280)
+		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY);
+		const bgSize = size(800, 280);
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
 
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
 
-		bgRect.setInteractive(new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height), Phaser.Geom.Rectangle.Contains);
+		bgRect.setInteractive(
+			new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height),
+			Phaser.Geom.Rectangle.Contains
+		);
 		bgRect.on("pointerover", () => {
 			bgRect.setAlpha(0.7);
 		});
@@ -55,7 +57,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			chara.add(animatedBorder);
 			chara.bringToTop(chara.list[chara.list.length - 2]);
 
-			let currentWidth = 2;
+			const currentWidth = 2;
 			scene.tweens.add({
 				targets: { width: currentWidth },
 				width: 6,
@@ -79,11 +81,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setAlign("left");
 
 		const descriptionText = scene.add
-			.rexBBCodeText(
-				sc.ITEM_DESC_BASE_X + 10,
-				sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60,
-				description,
-			)
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60, description)
 			.setFontSize(28)
 			.setWrapWidth(650)
 			.setAlign("left")

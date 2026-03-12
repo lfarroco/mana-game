@@ -1,4 +1,4 @@
-import { ActionPayload, PhaseOption, PhaseType, SessionData } from "../Types";
+import { ActionPayload, PhaseOption, PhaseType, SessionData } from "@Core/Types";
 
 /**
  * Interface representing the context for a phase transition or action.
@@ -35,13 +35,13 @@ export interface PhaseTransitionResult {
  */
 export enum ActionType {
 	/** Advances to a new phase */
-	PHASE_TRANSITION = 'phase_transition',
+	PHASE_TRANSITION = "phase_transition",
 	/** Stays in current phase (e.g., discarding a unit) */
-	META_ACTION = 'meta_action',
+	META_ACTION = "meta_action",
 	/** Stays in sub-phase logic (e.g., applying an orb) */
-	SUB_PHASE = 'sub_phase',
+	SUB_PHASE = "sub_phase",
 	/** Skips the current phase entirely */
-	PHASE_SKIP = 'phase_skip',
+	PHASE_SKIP = "phase_skip",
 }
 
 /**

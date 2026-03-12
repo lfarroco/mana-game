@@ -1,6 +1,6 @@
-import { IGameServer } from './IGameServer';
-import { SessionData, PhaseOptions } from './Types';
-import { supabase } from '../lib/supabase';
+import { IGameServer } from "@Core/IGameServer";
+import { SessionData, PhaseOptions } from "@Core/Types";
+import { supabase } from "@lib/supabase";
 
 /**
  * Remote implementation of the game server using Supabase.
@@ -10,19 +10,19 @@ export class RemoteServerAdapter implements IGameServer {
 	private playerId: string;
 
 	constructor(playerId?: string) {
-		const storedId = localStorage.getItem('mana_player_id');
+		const storedId = localStorage.getItem("mana_player_id");
 		this.playerId = playerId || storedId || `player_${Math.floor(Math.random() * 1000000)}`;
 		if (!storedId) {
-			localStorage.setItem('mana_player_id', this.playerId);
+			localStorage.setItem("mana_player_id", this.playerId);
 		}
 	}
 
 	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
-		const { data, error } = await supabase.functions.invoke('action', {
+		const { data, error } = await supabase.functions.invoke("action", {
 			body: {
-				actionId: 'start_session',
-				payload: { selectedCrystalId: crystalId }
-			}
+				actionId: "start_session",
+				payload: { selectedCrystalId: crystalId },
+			},
 		});
 
 		if (error) {
@@ -34,13 +34,13 @@ export class RemoteServerAdapter implements IGameServer {
 
 	async getSession(playerId: string): Promise<SessionData | null> {
 		const { data, error } = await supabase
-			.from('player_sessions')
-			.select('*')
-			.eq('player_id', playerId)
+			.from("player_sessions")
+			.select("*")
+			.eq("player_id", playerId)
 			.maybeSingle();
 
 		if (error) {
-			console.error('Failed to fetch session:', error);
+			console.error("Failed to fetch session:", error);
 			return null;
 		}
 
@@ -49,20 +49,20 @@ export class RemoteServerAdapter implements IGameServer {
 
 	async getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 		const { data: session, error } = await supabase
-			.from('player_sessions')
-			.select('*')
-			.eq('player_id', playerId)
+			.from("player_sessions")
+			.select("*")
+			.eq("player_id", playerId)
 			.single();
 
 		if (error || !session) {
-			throw new Error(`Failed to fetch phase options: ${error?.message || 'No session found'}`);
+			throw new Error(`Failed to fetch phase options: ${error?.message || "No session found"}`);
 		}
 
 		let combatState = undefined;
-		if (session.phase === 'combat') {
+		if (session.phase === "combat") {
 			const optionsCombatState = (session.current_options as any)?.combatState;
 			if (optionsCombatState && optionsCombatState.logs) {
-				console.log('Using server-provided combat logs');
+				console.log("Using server-provided combat logs");
 				combatState = {
 					units: optionsCombatState.initialUnits,
 					enemyTeam: optionsCombatState.enemyTeam,
@@ -77,7 +77,7 @@ export class RemoteServerAdapter implements IGameServer {
 
 		// Handle both Array and Object format for options
 		const rawOptions = session.current_options;
-		const optionsList = Array.isArray(rawOptions) ? rawOptions : (rawOptions?.options || []);
+		const optionsList = Array.isArray(rawOptions) ? rawOptions : rawOptions?.options || [];
 
 		return {
 			phase: session.phase as any,
@@ -86,13 +86,13 @@ export class RemoteServerAdapter implements IGameServer {
 			team: session.team,
 			wins: session.wins,
 			losses: session.losses,
-			combatState: combatState
+			combatState: combatState,
 		};
 	}
 
 	async handleAction(_playerId: string, actionId: string, payload?: any): Promise<boolean> {
-		const { error } = await supabase.functions.invoke('action', {
-			body: { actionId, payload }
+		const { error } = await supabase.functions.invoke("action", {
+			body: { actionId, payload },
 		});
 
 		if (error) {
@@ -108,7 +108,7 @@ export class RemoteServerAdapter implements IGameServer {
 	 */
 	setPlayerId(playerId: string): void {
 		this.playerId = playerId;
-		localStorage.setItem('mana_player_id', playerId);
+		localStorage.setItem("mana_player_id", playerId);
 	}
 
 	/**

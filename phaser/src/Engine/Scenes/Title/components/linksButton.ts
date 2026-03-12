@@ -1,6 +1,6 @@
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
-import { openLinksPanel } from "./LinksPanel";
+import { openLinksPanel } from "@Scenes/Title/components/LinksPanel";
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 

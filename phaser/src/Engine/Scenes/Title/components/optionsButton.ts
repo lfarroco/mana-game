@@ -2,11 +2,11 @@ import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
-import { openOptions } from "../effects/openOptions";
-import { openCredits } from "./CreditsPanel";
-import { openStats } from "./StatsPanel";
+import { openOptions } from "@Scenes/Title/effects/openOptions";
+import { openCredits } from "@Scenes/Title/components/CreditsPanel";
+import { openStats } from "@Scenes/Title/components/StatsPanel";
 import * as io from "@PhaserIO";
-import { getCloudsBg } from "./cloudsBg";
+import { getCloudsBg } from "@Scenes/Title/components/cloudsBg";
 
 let submenuContainer: Container | null = null;
 let mainButtonsContainer: Container | null = null;
@@ -39,7 +39,7 @@ function showOptionsSubmenu() {
 
 			const bg = getCloudsBg();
 			if (bg) {
-				bg.tweenToPreset('sunset', 2000, 'Quad.easeInOut');
+				bg.tweenToPreset("sunset", 2000, "Quad.easeInOut");
 			}
 		}
 	);

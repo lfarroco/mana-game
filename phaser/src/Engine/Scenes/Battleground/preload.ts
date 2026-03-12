@@ -1,11 +1,10 @@
 import Phaser from "phaser";
-import { images } from "../../../assets";
+import { images } from "@assets";
 
 export function preload(scene: Phaser.Scene) {
 	Object.values(images).forEach((image: any) => {
 		scene.load.image(image);
 	});
-
 
 	coinTexture(scene);
 

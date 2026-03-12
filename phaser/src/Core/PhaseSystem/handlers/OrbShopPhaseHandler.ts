@@ -1,40 +1,42 @@
-import { createPhaseHandler } from "../BasePhaseHandler";
-import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "../types";
-import * as GameLogic from "../../GameLogic";
-import { PhaseType } from "../../Types";
-import { getPhaseForTurn } from "../PhaseConfig";
+import { createPhaseHandler } from "@Core/PhaseSystem/BasePhaseHandler";
+import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "@Core/PhaseSystem/types";
+import * as GameLogic from "@Core/GameLogic";
+import { PhaseType } from "@Core/Types";
+import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
 
 export const orbShopPhaseHandler = createPhaseHandler({
-	phase: 'orb_shop' as PhaseType,
+	phase: "orb_shop" as PhaseType,
 	actionType: ActionType.PHASE_TRANSITION,
 	computeTransition: (context: PhaseTransitionContext): PhaseTransitionResult => {
 		const { session, actionId } = context;
 
-		if (actionId === 'apply_orb') {
+		if (actionId === "apply_orb") {
 			return {
-				nextPhase: 'orb_shop',
+				nextPhase: "orb_shop",
 				nextOptions: session.current_options
-					? (Array.isArray(session.current_options) ? session.current_options : session.current_options.options)
+					? Array.isArray(session.current_options)
+						? session.current_options
+						: session.current_options.options
 					: [],
 				stepIncrement: 0,
 			};
 		}
 
-		if (actionId === 'orb_shop_done') {
+		if (actionId === "orb_shop_done") {
 			const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
 
-			let nextPhase: PhaseType = 'encounter';
+			let nextPhase: PhaseType = "encounter";
 			let nextOptions: any[] = [];
 
-			if (expectedPhase === 'encounter') {
-				nextPhase = 'encounter';
+			if (expectedPhase === "encounter") {
+				nextPhase = "encounter";
 				const encounterResult = GameLogic.generateEncounterOptions(session);
 				nextOptions = encounterResult.options;
-			} else if (expectedPhase === 'combat') {
-				nextPhase = 'encounter';
-				nextOptions = [{ id: 'combat_encounter' }];
+			} else if (expectedPhase === "combat") {
+				nextPhase = "encounter";
+				nextOptions = [{ id: "combat_encounter" }];
 			} else {
-				nextPhase = 'encounter';
+				nextPhase = "encounter";
 				const encounterResult = GameLogic.generateEncounterOptions(session);
 				nextOptions = encounterResult.options;
 			}

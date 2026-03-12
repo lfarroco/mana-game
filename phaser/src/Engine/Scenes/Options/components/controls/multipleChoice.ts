@@ -3,7 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import * as Phaser from "phaser";
-import { BUTTONS, LAYOUT, STYLES } from "../../OptionsScene";
+import { BUTTONS, LAYOUT, STYLES } from "@Scenes/Options/OptionsScene";
 
 export function multipleChoice(
 	label: string,
@@ -13,7 +13,7 @@ export function multipleChoice(
 	setValue: (value: string) => void,
 	valueLabeler?: (value: string) => string
 ) {
-	const formatLabel = () => valueLabeler ? valueLabeler(getValue()) : getValue().toUpperCase();
+	const formatLabel = () => (valueLabeler ? valueLabeler(getValue()) : getValue().toUpperCase());
 	const updateLabel = () => valueText.setText(formatLabel());
 
 	//   ~~~//~~~

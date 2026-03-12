@@ -2,7 +2,7 @@ import { CardDefinition, getCores, getNonCores } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/ServerGeometry";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { pickOne, pickOneUnique } from "../../../utils";
+import { pickOne, pickOneUnique } from "@utils";
 import { upgradeUnitData } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 
@@ -32,7 +32,7 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 	const upgradesPerUnit = Math.floor(cappedUpgradeCount / units.length);
 	const remainder = cappedUpgradeCount % units.length;
 
-	units.forEach(unit => {
+	units.forEach((unit) => {
 		for (let i = 0; i < upgradesPerUnit && unit.rank < 4; i++) {
 			upgradeUnitData(unit);
 		}
@@ -91,7 +91,7 @@ export function generateEnemyTeam(state: State, round: number, pool: CardDefinit
 	const coreUnit = makeUnit(cpuForce(state).id, coreCard.id, vec2(corePosition.x, corePosition.y));
 	units.push(coreUnit);
 
-	const filteredPool = getNonCores().filter(u => {
+	const filteredPool = getNonCores().filter((u) => {
 		const rank = u.rank || 1;
 		if (round < 3 && rank > 1) return false;
 		if (round >= 3 && round < 5 && rank > 2) return false;
@@ -99,7 +99,7 @@ export function generateEnemyTeam(state: State, round: number, pool: CardDefinit
 		if (round >= 9 && round < 13 && rank > 4) return false;
 
 		return true;
-	})
+	});
 
 	for (let i = 1; i < unitCount; i++) {
 		const card = pickOneUnique(filteredPool, pickedCards);
@@ -113,8 +113,8 @@ export function generateEnemyTeam(state: State, round: number, pool: CardDefinit
 		units.push(unit);
 	}
 
-	coreUnit.life = (coreCard.life || 500) + (100 * (round - 1));
-	coreUnit.maxLife = (coreCard.life || 500) + (100 * (round - 1));
+	coreUnit.life = (coreCard.life || 500) + 100 * (round - 1);
+	coreUnit.maxLife = (coreCard.life || 500) + 100 * (round - 1);
 
 	distributeUpgrades(units, upgradeCount);
 

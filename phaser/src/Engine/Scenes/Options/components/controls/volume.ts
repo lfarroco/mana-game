@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createSlider } from "@Components/Slider";
-import { LAYOUT, STYLES } from "../../OptionsScene";
+import { LAYOUT, STYLES } from "@Scenes/Options/OptionsScene";
 
 const VOLUME_STEP = 0.1;
 const VOLUME_MIN = 0;
@@ -34,20 +34,17 @@ export function volume(
 
 	//   ~~~//~~~
 
-	const slider = createSlider(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y + 20),
-		{
-			width: SLIDER_WIDTH,
-			min: VOLUME_MIN,
-			max: VOLUME_MAX,
-			step: VOLUME_STEP,
-			initialValue: getValue(),
-			onChange: (value) => {
-				setValue(value);
-				valueText.setText(formatLabel(value));
-			},
-		}
-	);
+	const slider = createSlider(vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y + 20), {
+		width: SLIDER_WIDTH,
+		min: VOLUME_MIN,
+		max: VOLUME_MAX,
+		step: VOLUME_STEP,
+		initialValue: getValue(),
+		onChange: (value) => {
+			setValue(value);
+			valueText.setText(formatLabel(value));
+		},
+	});
 
 	//   ~~~//~~~
 

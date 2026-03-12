@@ -1,9 +1,15 @@
 import { Unit } from "@Models/Entities/Unit";
-import { increasePower } from "./increasePower";
+import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-export const distributePower = (env: CombatEnvironment, sourceUnit: Unit, targets: Unit[], permanent: boolean, delayedExecution?: number) => {
+export const distributePower = (
+	env: CombatEnvironment,
+	sourceUnit: Unit,
+	targets: Unit[],
+	permanent: boolean,
+	delayedExecution?: number
+) => {
 	if (targets.length === 0) return;
 
 	const { state } = env;

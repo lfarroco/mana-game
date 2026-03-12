@@ -1,39 +1,42 @@
-import { SessionData, PhaseOption, ActionPayload } from "./Types";
-import { State } from "../Models/State";
-import { Unit, makeUnit } from "../Models/Entities/Unit";
-import { pickRandom } from "../utils";
-import * as Card from "../Models/Entities/Card";
-import * as BoardLogic from "../Models/BoardLogic";
+import { SessionData, PhaseOption, ActionPayload } from "@Core/Types";
+import { State } from "@Models/State";
+import { Unit, makeUnit } from "@Models/Entities/Unit";
+import { pickRandom } from "@utils";
+import * as Card from "@Models/Entities/Card";
+import * as BoardLogic from "@Models/BoardLogic";
 import { generateEnemyTeam } from "@Scenes/Battleground/generateEnemyTeam";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
-import { createServerCombatEffects, CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
-import { makeForce } from "../Models/Entities/Force";
-import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
-import { registerCollection } from "../Models/Entities/Card";
-import * as Random from "../Utils/Random";
-import { phaseManager } from "./PhaseSystem";
-import { getPhaseForTurn } from "./PhaseSystem/PhaseConfig";
+import { makeForce } from "@Models/Entities/Force";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { registerCollection } from "@Models/Entities/Card";
+import * as Random from "@Utils/Random";
+import { phaseManager } from "@Core/PhaseSystem";
+import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
 
 const ENCOUNTER_IDS = [
-	'upgrade_unit',
-	'armory',
-	'healing_tent',
-	'frontier_fort',
-	'forest_pools',
-	'toxic_chamber',
-	'trial_circuit',
-	'trappers_guild',
-	'thunder_spire',
-	'commanders_tent',
-	'assassins_hideout',
-	'power_distributor',
-	'power_absorber',
-	'silver_shop',
-	'gold_shop'
+	"upgrade_unit",
+	"armory",
+	"healing_tent",
+	"frontier_fort",
+	"forest_pools",
+	"toxic_chamber",
+	"trial_circuit",
+	"trappers_guild",
+	"thunder_spire",
+	"commanders_tent",
+	"assassins_hideout",
+	"power_distributor",
+	"power_absorber",
+	"silver_shop",
+	"gold_shop",
 ];
 
 // Phase config is centralized in PhaseConfig; import `getPhaseForTurn` above
@@ -50,9 +53,9 @@ export function createInitialSession(playerId: string, selectedCrystalId?: strin
 	}
 
 	const session: SessionData = {
-		id: '',
+		id: "",
 		player_id: playerId,
-		phase: 'encounter',
+		phase: "encounter",
 		round: 1,
 		step: 1,
 		seed,
@@ -61,7 +64,7 @@ export function createInitialSession(playerId: string, selectedCrystalId?: strin
 		wins: 0,
 		losses: 0,
 		team,
-		current_options: null
+		current_options: null,
 	};
 
 	const options = generateEncounterOptions(session);
@@ -74,16 +77,20 @@ export function generateEnemyTeamForRound(round: number, wins: number): Unit[] {
 	// CPU should have access to all non-core units, disregarding unlock status
 	const allCards = Card.getNonCores();
 	const mockState = {
-		battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)], units: [], grid: [] },
+		battleData: {
+			forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+			units: [],
+			grid: [],
+		},
 		savedGames: [],
 		session: {
 			wins,
-			player_id: FORCE_ID_PLAYER
-		} as SessionData
+			player_id: FORCE_ID_PLAYER,
+		} as SessionData,
 	} as State;
 	const units = generateEnemyTeam(mockState, round, allCards);
 	// Explicitly assign to CPU force to ensure correctness regardless of mock state nuances
-	units.forEach(u => u.force = FORCE_ID_CPU);
+	units.forEach((u) => (u.force = FORCE_ID_CPU));
 	return units;
 }
 
@@ -91,7 +98,7 @@ export function stringToSeed(str: string): number {
 	let hash = 0;
 	for (let i = 0; i < str.length; i++) {
 		const char = str.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
+		hash = (hash << 5) - hash + char;
 		hash = hash & hash;
 	}
 	return Math.abs(hash);
@@ -102,19 +109,22 @@ export function generateNextSeed(currentSeed: string, actionId: string): string 
 	let hash = 0;
 	for (let i = 0; i < input.length; i++) {
 		const char = input.charCodeAt(i);
-		hash = ((hash << 5) - hash) + char;
+		hash = (hash << 5) - hash + char;
 		hash = hash & hash;
 	}
 	return Math.abs(hash).toString(36);
 }
 
-export function generateEncounterOptions(session: SessionData): { options: PhaseOption[], nextPhase?: string } {
+export function generateEncounterOptions(session: SessionData): {
+	options: PhaseOption[];
+	nextPhase?: string;
+} {
 	// Check what phase we should be at for this turn
 	const expectedPhase = getPhaseForTurn(session.round, session.step);
 
 	// If the expected phase is combat, show combat_encounter as the only option (pre-combat warning)
-	if (expectedPhase === 'combat') {
-		return { options: [{ id: 'combat_encounter' }] };
+	if (expectedPhase === "combat") {
+		return { options: [{ id: "combat_encounter" }] };
 	}
 
 	// Initialize encounter history if it doesn't exist
@@ -137,7 +147,7 @@ export function generateEncounterOptions(session: SessionData): { options: Phase
 	}
 
 	// Filter out recently shown encounters
-	const availableEncounters = shuffled.filter(id => !recentlyShownEncounters.has(id));
+	const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
 
 	// If we don't have enough encounters (very rare), use all encounters
 	const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
@@ -146,10 +156,13 @@ export function generateEncounterOptions(session: SessionData): { options: Phase
 	// Add these encounters to the history
 	session.encounter_history.push(...selectedOptions);
 
-	return { options: selectedOptions.map(id => ({ id })) };
+	return { options: selectedOptions.map((id) => ({ id })) };
 }
 
-export function generateShopOptions(session: SessionData, triggerActionId?: string): { options: PhaseOption[] } {
+export function generateShopOptions(
+	session: SessionData,
+	triggerActionId?: string
+): { options: PhaseOption[] } {
 	let encounterId = null;
 
 	if (triggerActionId) {
@@ -157,10 +170,8 @@ export function generateShopOptions(session: SessionData, triggerActionId?: stri
 	} else {
 		const previousStep = session.step - 1;
 		// Look for the most recent ENCOUNTER action at the previous step
-		const encounterActions = session.action_log.filter((a) =>
-			a.round === session.round &&
-			a.step === previousStep &&
-			a.phase === 'encounter'
+		const encounterActions = session.action_log.filter(
+			(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
 		);
 		const lastEncounterAction = encounterActions[encounterActions.length - 1];
 		encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
@@ -170,32 +181,33 @@ export function generateShopOptions(session: SessionData, triggerActionId?: stri
 
 	let filterType = "";
 	if (encounterId) {
-		if (encounterId === 'armory') filterType = 'damage';
-		else if (encounterId === 'healing_tent') filterType = 'heal';
-		else if (encounterId === 'frontier_fort') filterType = 'shield';
-		else if (encounterId === 'forest_pools') filterType = 'regen';
-		else if (encounterId === 'toxic_chamber') filterType = 'poison';
-		else if (encounterId === 'trial_circuit') filterType = 'haste';
-		else if (encounterId === 'trappers_guild') filterType = 'slow';
-		else if (encounterId === 'thunder_spire') filterType = 'charge';
-		else if (encounterId === 'commanders_tent') filterType = 'increase_power';
-		else if (encounterId === 'assassins_hideout') filterType = 'increase_critical';
-		else if (encounterId === 'silver_shop') filterType = 'silver';
-		else if (encounterId === 'gold_shop') filterType = 'gold';
+		if (encounterId === "armory") filterType = "damage";
+		else if (encounterId === "healing_tent") filterType = "heal";
+		else if (encounterId === "frontier_fort") filterType = "shield";
+		else if (encounterId === "forest_pools") filterType = "regen";
+		else if (encounterId === "toxic_chamber") filterType = "poison";
+		else if (encounterId === "trial_circuit") filterType = "haste";
+		else if (encounterId === "trappers_guild") filterType = "slow";
+		else if (encounterId === "thunder_spire") filterType = "charge";
+		else if (encounterId === "commanders_tent") filterType = "increase_power";
+		else if (encounterId === "assassins_hideout") filterType = "increase_critical";
+		else if (encounterId === "silver_shop") filterType = "silver";
+		else if (encounterId === "gold_shop") filterType = "gold";
 	}
 
 	const allCards = Card.getNonCores();
 	let filteredCards = allCards;
 
 	if (filterType) {
-		if (filterType === 'silver') {
-			filteredCards = allCards.filter(card => card.rank === 2);
-		} else if (filterType === 'gold') {
-			filteredCards = allCards.filter(card => card.rank === 3);
+		if (filterType === "silver") {
+			filteredCards = allCards.filter((card) => card.rank === 2);
+		} else if (filterType === "gold") {
+			filteredCards = allCards.filter((card) => card.rank === 3);
 		} else {
-			filteredCards = allCards.filter(card =>
-			(card.effects?.some(eff => eff.id === filterType) ||
-				card.reactions?.some(react => react.effects?.some(eff => eff.id === filterType)))
+			filteredCards = allCards.filter(
+				(card) =>
+					card.effects?.some((eff) => eff.id === filterType) ||
+					card.reactions?.some((react) => react.effects?.some((eff) => eff.id === filterType))
 			);
 		}
 		// console.log(`[generateShopOptions] Filter: ${filterType}, Filtered cards: ${filteredCards.length} (from ${allCards.length} total)`);
@@ -207,22 +219,24 @@ export function generateShopOptions(session: SessionData, triggerActionId?: stri
 
 	// Filter out cards where player already has a platinum (rank 4) unit
 	const playerUnits = session.team?.units || [];
-	const maxRankCardIds = new Set(
-		playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId)
-	);
-	filteredCards = filteredCards.filter(card => !maxRankCardIds.has(card.id));
+	const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
+	filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
 
-	const options = pickRandom(filteredCards, 3).map(card => ({
+	const options = pickRandom(filteredCards, 3).map((card) => ({
 		id: card.id,
-		cost: 10
+		cost: 10,
 	}));
 
 	return { options };
 }
 
-export function resolveAction(session: SessionData, actionId: string, payload?: ActionPayload): { team: { units: Unit[] }, updates?: string[] } {
+export function resolveAction(
+	session: SessionData,
+	actionId: string,
+	payload?: ActionPayload
+): { team: { units: Unit[] }; updates?: string[] } {
 	const availableCards = Card.getNonCores();
-	const card = availableCards.find(c => c.id === actionId);
+	const card = availableCards.find((c) => c.id === actionId);
 
 	const team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
 	const units: Unit[] = team.units || [];
@@ -246,16 +260,14 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 					const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
 
 					const previousStep = session.step - 1;
-					const encounterActions = session.action_log.filter((a) =>
-						a.round === session.round &&
-						a.step === previousStep &&
-						a.phase === 'encounter'
+					const encounterActions = session.action_log.filter(
+						(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
 					);
 					const lastEncounterAction = encounterActions[encounterActions.length - 1];
 					const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
 					let targetRank = 1;
-					if (encounterId === 'silver_shop') targetRank = 2;
-					if (encounterId === 'gold_shop') targetRank = 3;
+					if (encounterId === "silver_shop") targetRank = 2;
+					if (encounterId === "gold_shop") targetRank = 3;
 
 					if (targetRank > 1) {
 						newUnit.rank = targetRank;
@@ -274,17 +286,17 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 			}
 		}
 	} else {
-		if (actionId === 'apply_orb' && payload && 'orbId' in payload && 'targetUnitId' in payload) {
+		if (actionId === "apply_orb" && payload && "orbId" in payload && "targetUnitId" in payload) {
 			const { orbId, targetUnitId } = payload;
 			const targetUnit = units.find((u: Unit) => u.id === targetUnitId);
 			if (targetUnit) {
 				updates.push(`Applying orb ${orbId} to ${targetUnitId}`);
-				if (orbId === 'upgrade_orb') {
+				if (orbId === "upgrade_orb") {
 					targetUnit.rank = (targetUnit.rank || 1) + 1;
 					targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
 					targetUnit.life = targetUnit.maxLife;
 					targetUnit.power = Math.floor(targetUnit.power * 1.5);
-				} else if (orbId === 'absorb_power_orb') {
+				} else if (orbId === "absorb_power_orb") {
 					let totalAbsorbed = 0;
 					units.forEach((u: Unit) => {
 						if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
@@ -299,14 +311,20 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 						targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
 						targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
 					}
-				} else if (payload.orbId === 'distribute_power_orb') {
+				} else if (payload.orbId === "distribute_power_orb") {
 					const powerToDistribute = Math.floor(targetUnit.power * 0.5);
 					if (powerToDistribute > 0) {
 						targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
-						const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
+						const bonusToLose = Math.max(
+							0,
+							Math.min(targetUnit.bonusPower || 0, powerToDistribute)
+						);
 						targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
 
-						const targets = units.filter((u: Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y);
+						const targets = units.filter(
+							(u: Unit) =>
+								u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
+						);
 						if (targets.length > 0) {
 							const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 							targets.forEach((u: Unit) => {
@@ -315,29 +333,33 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 							});
 						}
 					}
-				} else if (typeof orbId === 'string' && orbId.startsWith('increase_power_on_')) {
-					const type = orbId.replace('increase_power_on_', '');
+				} else if (typeof orbId === "string" && orbId.startsWith("increase_power_on_")) {
+					const type = orbId.replace("increase_power_on_", "");
 					if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 						const pct = Math.floor(targetUnit.power * 0.1);
 						targetUnit.power += pct;
 						updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
 					}
-				} else if (typeof orbId === 'string' && orbId.startsWith('increase_critical_on_')) {
-					const type = orbId.replace('increase_critical_on_', '');
+				} else if (typeof orbId === "string" && orbId.startsWith("increase_critical_on_")) {
+					const type = orbId.replace("increase_critical_on_", "");
 					if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 						targetUnit.effects = targetUnit.effects || [];
-						targetUnit.effects.push({ id: 'increase_critical', amount: 10, targets: { id: 'self' } });
+						targetUnit.effects.push({
+							id: "increase_critical",
+							amount: 10,
+							targets: { id: "self" },
+						});
 						updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
 					}
-				} else if (typeof orbId === 'string' && orbId.startsWith('decrease_cooldown_on_')) {
-					const type = orbId.replace('decrease_cooldown_on_', '');
+				} else if (typeof orbId === "string" && orbId.startsWith("decrease_cooldown_on_")) {
+					const type = orbId.replace("decrease_cooldown_on_", "");
 					if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
 						targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
 						updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
 					}
 				}
 			}
-		} else if (actionId === 'discard_unit' && payload && 'unitId' in payload) {
+		} else if (actionId === "discard_unit" && payload && "unitId" in payload) {
 			const unitIndex = units.findIndex((u: Unit) => u.id === payload.unitId);
 			if (unitIndex >= 0) {
 				const unit = units[unitIndex];
@@ -346,8 +368,8 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 					updates.push(`Discarded unit ${payload.unitId}`);
 				}
 			}
-		} else if (actionId === 'increase_core_max_life') {
-			const core = units.find(u => u.isCore);
+		} else if (actionId === "increase_core_max_life") {
+			const core = units.find((u) => u.isCore);
 			if (core) {
 				const round = session.round;
 				const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
@@ -355,8 +377,8 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 				core.life = core.maxLife; // Heal to full on upgrade
 				updates.push(`Increased Core Max Life by ${lifeGain}`);
 			}
-		} else if (actionId === 'upgrade_core_power') {
-			const core = units.find(u => u.isCore);
+		} else if (actionId === "upgrade_core_power") {
+			const core = units.find((u) => u.isCore);
 			if (core) {
 				const round = session.round;
 				const powerGain = Math.floor(core.power * 0.1) + round * 10;
@@ -364,8 +386,8 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 				core.bonusPower = (core.bonusPower || 0) + powerGain;
 				updates.push(`Increased Core Power by ${powerGain}`);
 			}
-		} else if (actionId === 'decrease_core_cooldown') {
-			const core = units.find(u => u.isCore);
+		} else if (actionId === "decrease_core_cooldown") {
+			const core = units.find((u) => u.isCore);
 			if (core) {
 				const reduction = core.cooldown * 0.1;
 				core.cooldown = Math.max(1000, core.cooldown - reduction);
@@ -378,7 +400,10 @@ export function resolveAction(session: SessionData, actionId: string, payload?: 
 	return { team, updates };
 }
 
-export function validateAndApplyTeamUpdate(session: SessionData, newTeam: { units: Unit[] }): { team: { units: Unit[] }, valid: boolean } {
+export function validateAndApplyTeamUpdate(
+	session: SessionData,
+	newTeam: { units: Unit[] }
+): { team: { units: Unit[] }; valid: boolean } {
 	const currentUnits = session.team?.units || [];
 	const newUnits = newTeam?.units || [];
 
@@ -397,14 +422,13 @@ export function validateAndApplyTeamUpdate(session: SessionData, newTeam: { unit
 			return { team: session.team, valid: false };
 		}
 
-		if (originalUnit.cardId !== newUnit.cardId ||
-			originalUnit.rank !== newUnit.rank) {
+		if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
 			return { team: session.team, valid: false };
 		}
 
 		const validatedUnit = {
 			...originalUnit,
-			position: newUnit.position
+			position: newUnit.position,
 		};
 		validatedUnits.push(validatedUnit);
 	}
@@ -412,7 +436,11 @@ export function validateAndApplyTeamUpdate(session: SessionData, newTeam: { unit
 	return { team: { units: validatedUnits }, valid: true };
 }
 
-export function simulateCombat(session: SessionData): { finalState: State, initialUnits: Unit[], logs: CombatLogEntry[] } {
+export function simulateCombat(session: SessionData): {
+	finalState: State;
+	initialUnits: Unit[];
+	logs: CombatLogEntry[];
+} {
 	const combatState = createCombatState(session);
 
 	const seedVal = stringToSeed(session.initial_seed);
@@ -439,14 +467,14 @@ function createCombatState(session: SessionData): State {
 	let playerUnits: Unit[] = [];
 	if (session.team && session.team.units) {
 		playerUnits = JSON.parse(JSON.stringify(session.team.units));
-		playerUnits.forEach(u => {
+		playerUnits.forEach((u) => {
 			u.effects = u.effects || [];
 			u.reactions = u.reactions || [];
 			u.life = u.maxLife;
 		});
 	}
 
-	const hasCore = playerUnits.some(u => u.isCore);
+	const hasCore = playerUnits.some((u) => u.isCore);
 	if (!hasCore) {
 		const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
 		if (freeSlot) {
@@ -457,17 +485,26 @@ function createCombatState(session: SessionData): State {
 	}
 
 	let enemyUnits: Unit[] = [];
-	if (session.current_options && typeof session.current_options === 'object' && 'combatState' in session.current_options && session.current_options.combatState?.enemyTeam) {
+	if (
+		session.current_options &&
+		typeof session.current_options === "object" &&
+		"combatState" in session.current_options &&
+		session.current_options.combatState?.enemyTeam
+	) {
 		enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
 	} else {
 		const allCards = Card.getNonCores();
 		const mockState: State = {
-			battleData: { forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)], units: [], grid: [] },
+			battleData: {
+				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+				units: [],
+				grid: [],
+			},
 			savedGames: [],
-			session: { ...session }
+			session: { ...session },
 		};
 		enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
-		enemyUnits.forEach(u => u.force = FORCE_ID_CPU);
+		enemyUnits.forEach((u) => (u.force = FORCE_ID_CPU));
 	}
 
 	return {
@@ -481,8 +518,8 @@ function createCombatState(session: SessionData): State {
 		battleData: {
 			forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
 			grid: BoardLogic.createGrid(),
-			units: [...playerUnits, ...enemyUnits]
-		}
+			units: [...playerUnits, ...enemyUnits],
+		},
 	};
 }
 
@@ -498,20 +535,31 @@ export function processSessionTurn(
 	return { session: nextSession, updates, combatResult };
 }
 
-export function transitionToNextState(session: SessionData, actionId: string, payload?: ActionPayload): { session: SessionData, combatResult?: { won: boolean } } {
+export function transitionToNextState(
+	session: SessionData,
+	actionId: string,
+	payload?: ActionPayload
+): { session: SessionData; combatResult?: { won: boolean } } {
 	const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
 
 	// 1. Resolve Action / Update Team & Seed
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
-	const isPureTransition = (nextSession.phase === 'orb_shop' && actionId === 'orb_shop_done') ||
-		(nextSession.phase === 'upgrade_core' && actionId === 'upgrade_core_done') ||
-		(nextSession.phase === 'add_reaction_core' && actionId === 'add_reaction_core_done');
+	const isPureTransition =
+		(nextSession.phase === "orb_shop" && actionId === "orb_shop_done") ||
+		(nextSession.phase === "upgrade_core" && actionId === "upgrade_core_done") ||
+		(nextSession.phase === "add_reaction_core" && actionId === "add_reaction_core_done");
 
 	if (!isPureTransition) {
 		const { team } = resolveAction(nextSession, actionId, payload);
 		nextSession.team = team;
 
-		const actionEntry = { round: nextSession.round, phase: nextSession.phase, step: nextSession.step, actionId, payload };
+		const actionEntry = {
+			round: nextSession.round,
+			phase: nextSession.phase,
+			step: nextSession.step,
+			actionId,
+			payload,
+		};
 		nextSession.action_log = [...(nextSession.action_log || []), actionEntry];
 	}
 
@@ -523,12 +571,14 @@ export function transitionToNextState(session: SessionData, actionId: string, pa
 	const transitionResult = phaseManager.transition({
 		session: nextSession,
 		actionId,
-		payload
+		payload,
 	});
 
 	// 3. Apply Transition Results
 	nextSession.phase = transitionResult.nextPhase;
-	nextSession.current_options = transitionResult.nextOptions ? { options: transitionResult.nextOptions } : null;
+	nextSession.current_options = transitionResult.nextOptions
+		? { options: transitionResult.nextOptions }
+		: null;
 
 	if (transitionResult.stepIncrement) {
 		nextSession.step += transitionResult.stepIncrement;
@@ -540,7 +590,7 @@ export function transitionToNextState(session: SessionData, actionId: string, pa
 	// 4. Handle Combat Logic Execution (Side Effects)
 	let combatResult = undefined;
 
-	if (nextSession.phase === 'combat') {
+	if (nextSession.phase === "combat") {
 		// Logic extracted from original transitionToNextState
 
 		// If combatState provided in specialData (future), use it. Currently GameLogic generates it.
@@ -549,19 +599,19 @@ export function transitionToNextState(session: SessionData, actionId: string, pa
 		nextSession.current_options = { combatState: { enemyTeam } };
 
 		const simResult = simulateCombat(nextSession);
-		const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === 'PLAYER');
+		const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 
-		const outcomeLog = simResult.logs.find((l) => l.type === 'outcome');
+		const outcomeLog = simResult.logs.find((l) => l.type === "outcome");
 		let wonCombat = false;
 		if (outcomeLog) {
-			wonCombat = outcomeLog.result === 'player_won';
+			wonCombat = outcomeLog.result === "player_won";
 		} else {
 			const core = playerUnits.find((u) => u.isCore);
 			wonCombat = !!(core && core.life > 0);
 		}
 
-		nextSession.wins += (wonCombat ? 1 : 0);
-		nextSession.losses += (wonCombat ? 0 : 1);
+		nextSession.wins += wonCombat ? 1 : 0;
+		nextSession.losses += wonCombat ? 0 : 1;
 
 		const combatState = {
 			enemyTeam,
@@ -569,10 +619,10 @@ export function transitionToNextState(session: SessionData, actionId: string, pa
 			wonCombat,
 			initialUnits: simResult.initialUnits,
 			finalPlayerUnits: playerUnits,
-			logs: simResult.logs
+			logs: simResult.logs,
 		};
 
-		const options = [{ id: 'combat_done', label: 'Continue' }];
+		const options = [{ id: "combat_done", label: "Continue" }];
 		nextSession.current_options = { options, combatState };
 
 		combatResult = { won: wonCombat };

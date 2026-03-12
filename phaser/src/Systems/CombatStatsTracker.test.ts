@@ -1,32 +1,31 @@
+import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals";
+import { trackDamage } from "@Systems/CombatStatsTracker";
+import { createMockState } from "@test-utils/serverCombatUtils";
+import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { State } from "@Models/State";
+import { registerCollection } from "@Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { Unit } from "@Models/Entities/Unit";
 
-import { describe, it, expect, beforeEach, beforeAll, jest } from '@jest/globals';
-import { trackDamage } from './CombatStatsTracker';
-import { createMockState } from '@test-utils/serverCombatUtils';
-import { createServerCombatEffects } from '@Scenes/Battleground/ServerCombatEffects';
-import { runCombat } from '@Scenes/Battleground/RunCombatCore';
-import { State } from '@Models/State';
-import { registerCollection } from '@Models/Entities/Card';
-import { BASE_COLLECTION_DATA } from '@Data/BaseCollection';
-import { Unit } from '@Models/Entities/Unit';
-
-jest.mock('../i18n/i18n', () => ({
+jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => 'en',
-	getAvailableLocales: () => ['en'],
-	getNativeName: () => 'English'
+	initialize: () => {},
+	setLocale: () => {},
+	getCurrentLocale: () => "en",
+	getAvailableLocales: () => ["en"],
+	getNativeName: () => "English",
 }));
 
 beforeAll(() => {
-	if (typeof global.structuredClone === 'undefined') {
+	if (typeof global.structuredClone === "undefined") {
 		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
-describe('CombatStatsTracker', () => {
+describe("CombatStatsTracker", () => {
 	let state: State;
 	let env: any;
 	let trackerState: any;
@@ -44,7 +43,7 @@ describe('CombatStatsTracker', () => {
 		env.processReactions = jest.fn();
 	});
 
-	it('should track damage and update stats', () => {
+	it("should track damage and update stats", () => {
 		trackDamage(trackerState, env, sourceUnit.id, 50);
 
 		const unitStats = trackerState.unitStats.get(sourceUnit.id);
@@ -54,7 +53,7 @@ describe('CombatStatsTracker', () => {
 		expect(forceStats.damageDealt).toBe(50);
 	});
 
-	it('should trigger reaction on threshold', () => {
+	it("should trigger reaction on threshold", () => {
 		// Threshold for damage is 100
 		trackDamage(trackerState, env, sourceUnit.id, 100);
 
@@ -66,7 +65,7 @@ describe('CombatStatsTracker', () => {
 		);
 	});
 
-	it('should trigger multiple times if threshold crossed multiple times', () => {
+	it("should trigger multiple times if threshold crossed multiple times", () => {
 		// 250 damage -> 2 thresholds (100, 200)
 		trackDamage(trackerState, env, sourceUnit.id, 250);
 
@@ -78,7 +77,7 @@ describe('CombatStatsTracker', () => {
 		);
 	});
 
-	it('should aggregate stats from multiple units for force threshold', () => {
+	it("should aggregate stats from multiple units for force threshold", () => {
 		// Initial: 50. No trigger.
 		trackDamage(trackerState, env, sourceUnit.id, 50);
 		expect(env.processReactions).not.toHaveBeenCalled();

@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
-import { CardDefinition, getCardDefinition } from "./Card";
-import * as TriggerSystem from "../../TriggerSystem/TriggerSystem";
-import { nextValue } from "../../Utils/Random";
+import { CardDefinition, getCardDefinition } from "@Models/Entities/Card";
+import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
+import { nextValue } from "@Utils/Random";
 
 export type Unit = {
 	id: string;
@@ -103,8 +103,11 @@ export const testCardDefinitions = {
 	},
 } as const;
 
-
-export function calculateCritical(u: Unit): { isCritical: boolean; multiplier: number; bonusPower: number } {
+export function calculateCritical(u: Unit): {
+	isCritical: boolean;
+	multiplier: number;
+	bonusPower: number;
+} {
 	const critChance = u.critical || 0;
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
@@ -138,7 +141,7 @@ function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
 			// Scale by adding the base increment per rank level
 			// Example: base 1.5 → increment 0.5 → rank 2: 1.5 + 0.5 = 2.0
 			const baseIncrement = eff.baseMultiplier - 1;
-			eff.multiplier = eff.baseMultiplier + (baseIncrement * (rankMultiplier - 1));
+			eff.multiplier = eff.baseMultiplier + baseIncrement * (rankMultiplier - 1);
 		}
 	}
 
@@ -176,7 +179,7 @@ export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefini
 		return !cardDef.reactions.some((c) => c.effectId === r.effectId);
 	});
 	unit.effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
-	unit.reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? [])).concat(newReactions)
+	unit.reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? [])).concat(newReactions);
 }
 
 export function upgradeUnitData(unit: Unit) {
@@ -192,7 +195,7 @@ export function upgradeUnitData(unit: Unit) {
 		// - At rank 4: 100 * 3 = 300
 		const startingRank = source.rank || 1;
 		const rankMultiplier = unit.rank - startingRank + 1;
-		unit.power = (source.power * rankMultiplier) + unit.bonusPower;
+		unit.power = source.power * rankMultiplier + unit.bonusPower;
 	}
 
 	resetUnitEffectsToCardDefinition(unit, source);
@@ -204,7 +207,7 @@ export function resetUnitStats(unit: Unit) {
 
 	const startingRank = source.rank || 1;
 	const rankMultiplier = unit.rank - startingRank + 1;
-	unit.power = ((source.power || 0) * rankMultiplier) + unit.bonusPower;
+	unit.power = (source.power || 0) * rankMultiplier + unit.bonusPower;
 	unit.critical = (source.critical || 0) + (unit.bonusCritical || 0);
 	unit.shield = 0;
 	unit.charge = 0;

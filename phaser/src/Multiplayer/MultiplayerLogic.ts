@@ -1,4 +1,4 @@
-import * as GameLogic from '../Core/GameLogic';
+import * as GameLogic from "@Core/GameLogic";
 
 // MultiplayerLogic provides a class interface for the GameLogic functions
 // for backward compatibility with Supabase functions

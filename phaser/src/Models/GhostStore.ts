@@ -1,11 +1,11 @@
-import { Unit, makeUnit } from "./Entities/Unit";
-import { hasCardDefinition } from "./Entities/Card";
-import { cpuForce } from "./Entities/Force";
+import { Unit, makeUnit } from "@Models/Entities/Unit";
+import { hasCardDefinition } from "@Models/Entities/Card";
+import { cpuForce } from "@Models/Entities/Force";
 import { vec2 } from "@Models/Geometry";
-import { Effect, EffectReaction } from "../TriggerSystem/TriggerSystem";
-import { storage } from "../Storage";
-import { nextValue } from "../Utils/Random";
-import { State } from "./State";
+import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
+import { storage } from "@Storage/index";
+import { nextValue } from "@Utils/Random";
+import { State } from "@Models/State";
 
 const STORAGE_KEY = "mana-game-ghosts-v1";
 

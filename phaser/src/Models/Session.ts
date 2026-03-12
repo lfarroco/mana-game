@@ -1,7 +1,7 @@
 import { FORCE_ID_PLAYER } from "@Constants/constants";
-import { makeUnit, Unit } from "./Entities/Unit";
+import { makeUnit, Unit } from "@Models/Entities/Unit";
 import { pickRandom } from "utils";
-import { generateNextSeed } from "./Seed";
+import { generateNextSeed } from "@Models/Seed";
 
 type Session = {
 	id: string; // This is the session UUID
@@ -17,11 +17,11 @@ type Session = {
 	losses: number;
 	team: { units: Unit[] };
 	updated_at: Date;
-}
+};
 
 // This file is deprecated - SessionData is now in Core/Types.ts
 // Session creation is handled by Core/GameLogic.createInitialSession
-// @ts-ignore - Keeping for reference but not used
+// @ts-expect-error - Keeping for reference but not used
 function _unused_createNewSessionRecord(
 	playerId: string,
 	selectedCrystalId: string,
@@ -30,16 +30,16 @@ function _unused_createNewSessionRecord(
 	const seed = seedText ? seedText : Math.random().toString(36).substring(7);
 	const initialSeed = seed;
 
-	const core = makeUnit(FORCE_ID_PLAYER, selectedCrystalId)
+	const core = makeUnit(FORCE_ID_PLAYER, selectedCrystalId);
 	core.isCore = true;
 	const team = {
-		units: [core]
+		units: [core],
 	};
 
 	const session: Session = {
-		id: '',
+		id: "",
 		player_id: playerId,
-		phase: 'encounter',
+		phase: "encounter",
 		round: 1,
 		step: 1,
 		seed: generateNextSeed(initialSeed, "start"),
@@ -49,30 +49,26 @@ function _unused_createNewSessionRecord(
 		losses: 0,
 		team,
 		// TODO: simple option picking for now
-		current_options: pickRandom(
-			ENCOUNTER_IDS,
-			3
-		),
-		updated_at: new Date()
+		current_options: pickRandom(ENCOUNTER_IDS, 3),
+		updated_at: new Date(),
 	};
 
 	return session;
 }
 const ENCOUNTER_IDS = [
-	'upgrade_unit',
-	'armory',
-	'healing_tent',
-	'frontier_fort',
-	'forest_pools',
-	'toxic_chamber',
-	'trial_circuit',
-	'trappers_guild',
-	'thunder_spire',
-	'commanders_tent',
-	'assassins_hideout',
-	'power_distributor',
-	'power_absorber',
-	'silver_shop',
-	'gold_shop'
+	"upgrade_unit",
+	"armory",
+	"healing_tent",
+	"frontier_fort",
+	"forest_pools",
+	"toxic_chamber",
+	"trial_circuit",
+	"trappers_guild",
+	"thunder_spire",
+	"commanders_tent",
+	"assassins_hideout",
+	"power_distributor",
+	"power_absorber",
+	"silver_shop",
+	"gold_shop",
 ];
-

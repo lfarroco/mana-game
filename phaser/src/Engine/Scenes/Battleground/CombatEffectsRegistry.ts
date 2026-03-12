@@ -1,4 +1,4 @@
-import { CombatEffects } from "./RunCombatCore.js";
+import { CombatEffects } from "@Scenes/Battleground/RunCombatCore.js";
 
 let currentEffects: CombatEffects | null = null;
 

@@ -6,10 +6,10 @@ import {
 	RESULTS_COLORS,
 	RESULTS_FONT_SIZES,
 	RESULTS_PANEL,
-	RESULTS_SPACING
-} from "./ResultsConfig";
+	RESULTS_SPACING,
+} from "@Scenes/Battleground/Results/ResultsConfig";
 import * as io from "@PhaserIO";
-import { createCombatStatsPanels } from "./CombatStatsTable";
+import { createCombatStatsPanels } from "@Scenes/Battleground/Results/CombatStatsTable";
 import { t } from "@i18n/i18n";
 
 export async function displayVictory(
@@ -29,7 +29,7 @@ export async function displayVictory(
 			t("results.buttons.replay"),
 			async () => {
 				replayCallback();
-			}
+			},
 		]);
 	}
 
@@ -37,7 +37,7 @@ export async function displayVictory(
 		t("results.buttons.continue"),
 		async () => {
 			nextPhaseCallback();
-		}
+		},
 	]);
 
 	const totalButtons = buttonDefinitions.length;
@@ -64,8 +64,14 @@ export async function displayVictory(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text(t("results.titles.victory"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleMedium, color: RESULTS_COLORS.victory }),
-			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleY)),
+			() =>
+				io.Text(t("results.titles.victory"), {
+					...c.titleTextConfig,
+					fontSize: RESULTS_FONT_SIZES.titleMedium,
+					color: RESULTS_COLORS.victory,
+				}),
+			(title) =>
+				io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleY)),
 			(title) => io.Centralize(title),
 		],
 		playerPanel,

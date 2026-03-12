@@ -1,10 +1,9 @@
-import en from './en.json';
-import es from './es.json';
-import pt from './pt.json';
-import jp from './jp.json';
-import cn from './cn.json';
-import ru from './ru.json';
-
+import en from "./en.json";
+import es from "./es.json";
+import pt from "./pt.json";
+import jp from "./jp.json";
+import cn from "./cn.json";
+import ru from "./ru.json";
 type Translations = Record<string, string>;
 
 const locales: Record<string, Translations> = {
@@ -13,21 +12,22 @@ const locales: Record<string, Translations> = {
 	pt,
 	jp,
 	cn,
-	ru
+	ru,
 };
 
-const STORAGE_KEY = 'selected_locale';
+const STORAGE_KEY = "selected_locale";
 
-let currentLocale = 'en';
+let currentLocale = "en";
 let translations: Translations = locales[currentLocale];
 
 export function initialize() {
 	try {
-		const savedLocale = typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
+		const savedLocale =
+			typeof localStorage !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
 		if (savedLocale && locales[savedLocale]) {
 			currentLocale = savedLocale;
 		} else if (typeof window !== "undefined" && window.navigator) {
-			const systemLocale = window.navigator.language.split('-')[0];
+			const systemLocale = window.navigator.language.split("-")[0];
 			if (locales[systemLocale]) {
 				currentLocale = systemLocale;
 			}
@@ -57,8 +57,8 @@ export function setLocale(locale: string) {
 export function t(key: string, params?: Record<string, string>): string {
 	let text = translations ? translations[key] : key;
 
-	if (!text && currentLocale !== 'en') {
-		text = locales['en'][key];
+	if (!text && currentLocale !== "en") {
+		text = locales["en"][key];
 	}
 
 	if (!text) {
@@ -67,7 +67,7 @@ export function t(key: string, params?: Record<string, string>): string {
 
 	if (params) {
 		Object.entries(params).forEach(([k, v]) => {
-			text = text.replace(new RegExp(`{${k}}`, 'g'), v);
+			text = text.replace(new RegExp(`{${k}}`, "g"), v);
 		});
 	}
 	return text;

@@ -2,13 +2,13 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
 import { setCurrentScene } from "@Models/State";
-import { returnToTitle } from "./effects/returnToTitle";
-import { showTab } from "./components/effects/showTab";
-import { backButton } from "./components/backButton";
-import { optionsLabel } from "./components/optionsLabel";
-import { tabButtons } from "./components/tabButtons";
-import { currentTab } from "./components/effects/showTab";
-import { Tabs } from "./components/Model";
+import { returnToTitle } from "@Scenes/Options/effects/returnToTitle";
+import { showTab } from "@Scenes/Options/components/effects/showTab";
+import { backButton } from "@Scenes/Options/components/backButton";
+import { optionsLabel } from "@Scenes/Options/components/optionsLabel";
+import { tabButtons } from "@Scenes/Options/components/tabButtons";
+import { currentTab } from "@Scenes/Options/components/effects/showTab";
+import { Tabs } from "@Scenes/Options/components/Model";
 
 export const LAYOUT = {
 	TITLE_Y: 40,

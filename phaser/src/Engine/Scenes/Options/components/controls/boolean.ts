@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
-import { LAYOUT, STYLES, BUTTONS } from "../../OptionsScene";
+import { LAYOUT, STYLES, BUTTONS } from "@Scenes/Options/OptionsScene";
 import { t } from "@i18n/i18n";
 
 export function boolean(

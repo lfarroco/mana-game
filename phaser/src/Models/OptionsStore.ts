@@ -1,8 +1,8 @@
-import { game } from "../main";
+import { game } from "@main";
 import * as AudioManager from "@Systems/AudioManager";
-import { storage } from "../Storage";
+import { storage } from "@Storage/index";
 
-let currentOptions: Options = {
+const currentOptions: Options = {
 	sound: true,
 	soundVolume: 0.6,
 	music: true,

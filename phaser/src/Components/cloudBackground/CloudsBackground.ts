@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import { cloudsBackgroundShader } from "../../Shaders/CloudsBackground";
+import { cloudsBackgroundShader } from "@Shaders/CloudsBackground";
 import { colorPresets, IColorPreset } from "@Constants/colorPresets";
 import { getCurrentScene } from "@Models/State";
 
@@ -222,7 +222,9 @@ export class CloudsBackground {
 	private getParticleQualityValue(): number {
 		try {
 			// Import getOption here to avoid circular dependencies
-			const { getOption } = require("@Models/OptionsStore");
+			// eslint-disable-next-line @typescript-eslint/no-require-imports
+			const { getOption } =
+				require("@Models/OptionsStore") as typeof import("@Models/OptionsStore");
 			const particles = getOption("particles");
 
 			switch (particles) {
@@ -259,7 +261,7 @@ export class CloudsBackground {
 	public tweenColors(
 		targetColors: IColorPreset,
 		duration: number = 2000,
-		ease: string | Function = 'Linear'
+		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
 		// Stop any existing tween
 		if (this.currentTween) {
@@ -284,7 +286,7 @@ export class CloudsBackground {
 				) => ({
 					x: (start.x || 0) + ((end.x || 0) - (start.x || 0)) * progress,
 					y: (start.y || 0) + ((end.y || 0) - (start.y || 0)) * progress,
-					z: (start.z || 0) + ((end.z || 0) - (start.z || 0)) * progress
+					z: (start.z || 0) + ((end.z || 0) - (start.z || 0)) * progress,
 				});
 
 				// Interpolate all 5 colors
@@ -303,7 +305,7 @@ export class CloudsBackground {
 			},
 			onComplete: () => {
 				this.currentTween = null;
-			}
+			},
 		});
 	}
 
@@ -313,7 +315,7 @@ export class CloudsBackground {
 	public tweenToPreset(
 		presetName: keyof typeof colorPresets,
 		duration: number = 2000,
-		ease: string = 'Linear'
+		ease: string = "Linear"
 	): void {
 		const targetPreset = colorPresets[presetName];
 		if (targetPreset) {
@@ -332,7 +334,7 @@ export class CloudsBackground {
 	public tweenTimeScale(
 		targetTimeScale: number,
 		duration: number = 2000,
-		ease: string | Function = 'Linear'
+		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
 		this.scene.tweens.addCounter({
 			from: this.timeScale,
@@ -342,7 +344,7 @@ export class CloudsBackground {
 			onUpdate: (tween) => {
 				this.timeScale = tween.getValue();
 				this.shader.setUniform("timeScale.value", this.timeScale);
-			}
+			},
 		});
 	}
 
@@ -355,7 +357,7 @@ export class CloudsBackground {
 	public tweenAlpha(
 		targetAlpha: number,
 		duration: number = 2000,
-		ease: string | Function = 'Linear'
+		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
 		this.scene.tweens.addCounter({
 			from: this.alpha,
@@ -365,7 +367,7 @@ export class CloudsBackground {
 			onUpdate: (tween) => {
 				this.alpha = tween.getValue();
 				(this.shader as any).alpha = this.alpha;
-			}
+			},
 		});
 	}
 

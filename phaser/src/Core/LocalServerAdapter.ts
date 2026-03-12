@@ -1,7 +1,7 @@
-import { IGameServer } from "./IGameServer";
-import { SessionManager } from "./SessionManager";
-import * as GameLogic from "./GameLogic";
-import { SessionData, PhaseOptions, PhaseType } from "./Types";
+import { IGameServer } from "@Core/IGameServer";
+import { SessionManager } from "@Core/SessionManager";
+import * as GameLogic from "@Core/GameLogic";
+import { SessionData, PhaseOptions, PhaseType } from "@Core/Types";
 
 /**
  * Local in-memory implementation of the game server.

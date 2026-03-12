@@ -1,7 +1,7 @@
 import { getCurrentScene } from "@Models/State";
 import { tween } from "@Utils/animation";
 import Phaser from "phaser";
-import { Chara, mustGetState } from "../Chara";
+import { Chara, mustGetState } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
 
 export async function shatter(chara: Chara) {
@@ -34,7 +34,7 @@ export async function shatter(chara: Chara) {
 		variation: 0.4,
 	});
 
-	playSoundEffect("sfx_voidhunter_death")
+	playSoundEffect("sfx_voidhunter_death");
 
 	image.startUpdate();
 

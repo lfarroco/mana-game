@@ -7,8 +7,8 @@ import {
 	RESULTS_COLORS,
 	RESULTS_FONT_SIZES,
 	RESULTS_PANEL,
-	RESULTS_SPACING
-} from "./ResultsConfig";
+	RESULTS_SPACING,
+} from "@Scenes/Battleground/Results/ResultsConfig";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 
@@ -29,14 +29,14 @@ export function displayGameWon(
 			async () => {
 				resetState();
 				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
-			}
+			},
 		],
 		[
 			t("results.buttons.new_run"),
 			async () => {
 				resetState();
 				startGame(false);
-			}
+			},
 		],
 		[
 			t("results.buttons.continueEndless"),
@@ -44,8 +44,8 @@ export function displayGameWon(
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
 				nextPhaseCallback();
-			}
-		]
+			},
+		],
 	];
 
 	// Map button definitions to containers
@@ -53,7 +53,13 @@ export function displayGameWon(
 		([label, callback], i) =>
 			createUIButton(
 				label,
-				vec2(panelX, panelY + panelHeight / 2 - RESULTS_SPACING.buttonBottomOffsetLarge - (buttonDefinitions.length - 1 - i) * RESULTS_SPACING.buttonSpacing),
+				vec2(
+					panelX,
+					panelY +
+						panelHeight / 2 -
+						RESULTS_SPACING.buttonBottomOffsetLarge -
+						(buttonDefinitions.length - 1 - i) * RESULTS_SPACING.buttonSpacing
+				),
 				callback
 			).container
 	);
@@ -67,13 +73,28 @@ export function displayGameWon(
 			RESULTS_PANEL.backgroundAlpha
 		),
 		[
-			() => io.Text(t("results.titles.gameWon"), { ...c.titleTextConfig, fontSize: RESULTS_FONT_SIZES.titleLarge, color: RESULTS_COLORS.gameWon }),
-			(title) => io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleYLarge)),
+			() =>
+				io.Text(t("results.titles.gameWon"), {
+					...c.titleTextConfig,
+					fontSize: RESULTS_FONT_SIZES.titleLarge,
+					color: RESULTS_COLORS.gameWon,
+				}),
+			(title) =>
+				io.SetPosition(title, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.titleYLarge)),
 			(title) => io.Centralize(title),
 		],
 		[
-			() => io.Text(t("results.messages.gameWon"), { ...c.defaultTextConfig, fontSize: RESULTS_FONT_SIZES.messageLarge, wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge } }),
-			(label) => io.SetPosition(label, vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageYLarge)),
+			() =>
+				io.Text(t("results.messages.gameWon"), {
+					...c.defaultTextConfig,
+					fontSize: RESULTS_FONT_SIZES.messageLarge,
+					wordWrap: { width: panelWidth - RESULTS_SPACING.panelPaddingLarge },
+				}),
+			(label) =>
+				io.SetPosition(
+					label,
+					vec2(panelX, panelY - panelHeight / 2 + RESULTS_SPACING.messageYLarge)
+				),
 			(label) => io.Centralize(label),
 		],
 		...buttons,

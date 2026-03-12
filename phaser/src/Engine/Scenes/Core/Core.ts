@@ -1,5 +1,5 @@
 import { preload } from "@Scenes/Battleground/preload";
-import { images } from "../../../assets";
+import { images } from "@assets";
 import { SCENE_KEYS } from "@Constants/constants";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
@@ -128,7 +128,10 @@ export default class Core extends Phaser.Scene {
 
 		this.load.audio("sfx_unit_run_magical_4", "assets/audio/sfx_unit_run_magical_4.m4a");
 
-		this.load.audio("sfx_voidhunter_attack_impact", "assets/audio/sfx_voidhunter_attack_impact.m4a");
+		this.load.audio(
+			"sfx_voidhunter_attack_impact",
+			"assets/audio/sfx_voidhunter_attack_impact.m4a"
+		);
 		this.load.audio("sfx_spell_deathstrikeseal", "assets/audio/sfx_spell_deathstrikeseal.m4a");
 
 		this.load.audio("sfx_ui_select", "assets/audio/sfx_ui_select.m4a");

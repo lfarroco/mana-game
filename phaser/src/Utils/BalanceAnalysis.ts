@@ -1,15 +1,29 @@
-import { BASE_COLLECTION_DATA } from "../Data/BaseCollection";
-import { Effect, Targeting, EffectReaction } from "../TriggerSystem/TriggerSystem";
-import { CardDefinition } from "../Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { Effect, Targeting, EffectReaction } from "@TriggerSystem/TriggerSystem";
+import { CardDefinition } from "@Models/Entities/Card";
 
 const DELAY_MODIFIER = 0.9;
 const STD_UNIT_POWER = 100; // Updated from 20/40 to 100 based on new budget
 
 function getTargetsCount(targeting: Targeting | undefined): number {
 	if (!targeting) return 1; // Default to single target if not specified
-	if ('count' in targeting && targeting.count !== undefined) return Math.sqrt(targeting.count);
+	if ("count" in targeting && targeting.count !== undefined) return Math.sqrt(targeting.count);
 	const id = targeting.id;
-	if (["self", "trigger", "strongest_enemy", "weakest_enemy", "strongest_ally", "weakest_ally", "top_ally", "bottom_ally", "left_ally", "right_ally"].includes(id)) return 1;
+	if (
+		[
+			"self",
+			"trigger",
+			"strongest_enemy",
+			"weakest_enemy",
+			"strongest_ally",
+			"weakest_ally",
+			"top_ally",
+			"bottom_ally",
+			"left_ally",
+			"right_ally",
+		].includes(id)
+	)
+		return 1;
 	if (["row_allies", "column_allies"].includes(id)) return 1.73; // sqrt(3) approx
 	if (id === "all_allies") return 2.82; // sqrt(8) approx
 	if (id === "all_enemies") return 3; // sqrt(9) approx
@@ -21,14 +35,15 @@ function isAllyTargeting(targeting: Targeting | undefined): boolean {
 	if (!targeting) return true; // Default to ally if not specified
 	const id = targeting.id;
 	// Enemy targeting
-	if (["strongest_enemy", "weakest_enemy", "all_enemies", "random_enemy"].includes(id)) return false;
+	if (["strongest_enemy", "weakest_enemy", "all_enemies", "random_enemy"].includes(id))
+		return false;
 	// Ally targeting (including self)
 	return true;
 }
 
 function calculateHasteSlowCost(effect: Effect, _unitPower: number): number {
-	const durationSec = ('duration' in effect ? effect.duration : 0) / 1000;
-	const targets = getTargetsCount('targets' in effect ? effect.targets : undefined);
+	const durationSec = ("duration" in effect ? effect.duration : 0) / 1000;
+	const targets = getTargetsCount("targets" in effect ? effect.targets : undefined);
 	const id = effect.id;
 	let s = 1;
 	if (id === "haste") s = 2;
@@ -63,8 +78,8 @@ function calculateHasteSlowCost(effect: Effect, _unitPower: number): number {
 
 function calculateEffectCost(effect: Effect, unitPower: number): number {
 	const id = effect.id;
-	const targets = getTargetsCount('targets' in effect ? effect.targets : undefined);
-	const isAlly = isAllyTargeting('targets' in effect ? effect.targets : undefined);
+	const targets = getTargetsCount("targets" in effect ? effect.targets : undefined);
+	const isAlly = isAllyTargeting("targets" in effect ? effect.targets : undefined);
 	let baseCost = 0;
 
 	switch (id) {
@@ -80,7 +95,7 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			baseCost = 2 * unitPower;
 			break;
 		case "increase_power":
-			if (effect.id === 'increase_power') {
+			if (effect.id === "increase_power") {
 				baseCost = (effect.permanent ? 10 : 4) * effect.amount;
 				// If increasing power of enemies, it's a negative (team-harming)
 				if (!isAlly) baseCost = -baseCost;
@@ -88,7 +103,7 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			}
 			return 0;
 		case "decrease_power":
-			if (effect.id === 'decrease_power') {
+			if (effect.id === "decrease_power") {
 				baseCost = (effect.permanent ? 10 : 4) * effect.amount;
 				// If decreasing power of allies, it's a negative (team-harming)
 				if (isAlly) baseCost = -baseCost;
@@ -96,7 +111,7 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			}
 			return 0;
 		case "increase_critical":
-			if (effect.id === 'increase_critical') {
+			if (effect.id === "increase_critical") {
 				baseCost = 4 * effect.amount; // Rule 9: 4 * %
 				// If increasing crit of enemies, it's a negative (team-harming)
 				if (!isAlly) baseCost = -baseCost;
@@ -111,7 +126,8 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 			// Slow on allies is negative, slow on enemies is positive
 			if (id === "haste" || id === "charge") {
 				return isAlly ? hasteSlowCost : -hasteSlowCost;
-			} else { // slow
+			} else {
+				// slow
 				return isAlly ? -hasteSlowCost : hasteSlowCost;
 			}
 		case "distribute_power":
@@ -122,12 +138,12 @@ function calculateEffectCost(effect: Effect, unitPower: number): number {
 		case "absorb_power":
 			// Absorb power takes from enemies and gives to self
 			// This is a double swing: reduces enemy output AND increases own output
-			const isPermanentAbsorb = (effect.id === 'absorb_power' && effect.permanent) || false;
+			const isPermanentAbsorb = (effect.id === "absorb_power" && effect.permanent) || false;
 			// Estimate: average absorption of ~15 power per target
 			// Double value because it's a swing (enemy loses, you gain)
 			return (isPermanentAbsorb ? 10 : 4) * 15 * 2 * targets;
 		case "multiply_power":
-			if (effect.id === 'multiply_power') {
+			if (effect.id === "multiply_power") {
 				const multiplier = effect.multiplier;
 				// Use actual unit power to calculate the gain
 				// This ensures the cost scales appropriately with the unit's actual stats
@@ -223,7 +239,15 @@ function calculateActualPower(unit: CardDefinition) {
 		});
 	}
 	const AP = ActionPower + ReactionPower;
-	return { name: unit.id, AP, ActionPower, ReactionPower, Cooldown: C, Rank: rank, TargetAP: targetAP };
+	return {
+		name: unit.id,
+		AP,
+		ActionPower,
+		ReactionPower,
+		Cooldown: C,
+		Rank: rank,
+		TargetAP: targetAP,
+	};
 }
 
 export const BalanceAnalysis = {
@@ -239,22 +263,23 @@ export const BalanceAnalysis = {
 
 			return {
 				...stats,
-				status
+				status,
 			};
 		});
 
-		const filteredResults = filterNonOk
-			? results.filter(r => r.status !== "OK")
-			: results;
+		const filteredResults = filterNonOk ? results.filter((r) => r.status !== "OK") : results;
 
 		const header = "| Unit Name | AP | Act | React | Status |";
 		const separator = "|---|---|---|---|---|";
-		const rows = filteredResults.map(stats =>
-			`| ${stats.name} | ${stats.AP.toFixed(1)} | ${stats.ActionPower.toFixed(1)} | ${stats.ReactionPower.toFixed(1)} | ${stats.status} |`
-		).join("\n");
+		const rows = filteredResults
+			.map(
+				(stats) =>
+					`| ${stats.name} | ${stats.AP.toFixed(1)} | ${stats.ActionPower.toFixed(1)} | ${stats.ReactionPower.toFixed(1)} | ${stats.status} |`
+			)
+			.join("\n");
 
 		console.log(`Balance Analysis Report:\n${header}\n${separator}\n${rows}`);
 
 		return filteredResults;
-	}
+	},
 };

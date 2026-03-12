@@ -1,11 +1,11 @@
-import * as ShopPanel from "./ShopPanel";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
-import { orbsIndex } from "./Orbs";
+import { orbsIndex } from "@Systems/Shop/Orbs";
 import * as io from "@PhaserIO";
 import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
-import { createEncounterCard } from "../Components/EncounterCard";
+import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 
@@ -13,15 +13,13 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
 			container.destroy();
 			resolve();
 		};
 
-		const title = io.Title1(t(titleText))
-			.setPosition(SCREEN_WIDTH / 2 + 180, 130)
+		const title = io.Title1(t(titleText)).setPosition(SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
 		ShopPanel.create(completeSectionCallback);
@@ -38,14 +36,12 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 	});
 }
 
-
 function renderUpgradeCards(
 	container: Container,
 	encounterIds: string[],
 	onUpgradeSelected: () => void | Promise<void>
 ) {
 	encounterIds.forEach((encounterId, index) => {
-
 		console.log("Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = orbsIndex[encounterId]();
 
@@ -70,16 +66,14 @@ function renderUpgradeCards(
 				// Use GameController to handle the upgrade selection
 				const controller = getGameController();
 				const success = await controller.handleAction(encounterId);
-				
+
 				if (success) {
-					playSoundEffect('sfx_spell_deathstrikeseal');
+					playSoundEffect("sfx_spell_deathstrikeseal");
 					await onUpgradeSelected();
 				} else {
 					console.warn("Upgrade action failed");
 				}
-			}
+			},
 		});
-
 	});
-
 }

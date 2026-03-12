@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { delay } from "@Utils/animation";
-import { images } from "../assets";
+import { images } from "@assets";
 
 const HEALING_HIT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 50,

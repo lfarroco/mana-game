@@ -1,6 +1,12 @@
-import { PhaseType } from "../Types";
-import { PhaseHandler, PhaseTransitionContext, PhaseTransitionResult, ActionType, ValidationResult } from "./types";
-import { phaseValidator } from "./PhaseValidator";
+import { PhaseType } from "@Core/Types";
+import {
+	PhaseHandler,
+	PhaseTransitionContext,
+	PhaseTransitionResult,
+	ActionType,
+	ValidationResult,
+} from "@Core/PhaseSystem/types";
+import { phaseValidator } from "@Core/PhaseSystem/PhaseValidator";
 
 type PhaseHandlerConfig = {
 	phase: PhaseType;
@@ -10,9 +16,15 @@ type PhaseHandlerConfig = {
 	canHandle?: (context: PhaseTransitionContext) => boolean;
 };
 
-function defaultValidateAction(phase: PhaseType, context: PhaseTransitionContext): ValidationResult {
-	if (phase !== 'encounter' && context.session.phase !== phase) {
-		return { valid: false, errors: [`Handler for '${phase}' called on session in '${context.session.phase}'`] };
+function defaultValidateAction(
+	phase: PhaseType,
+	context: PhaseTransitionContext
+): ValidationResult {
+	if (phase !== "encounter" && context.session.phase !== phase) {
+		return {
+			valid: false,
+			errors: [`Handler for '${phase}' called on session in '${context.session.phase}'`],
+		};
 	}
 
 	return phaseValidator.validateAction(context);
@@ -26,13 +38,14 @@ export function createPhaseHandler(config: PhaseHandlerConfig): PhaseHandler {
 		actionType,
 		canHandle: canHandle || ((context) => context.session.phase === phase),
 		validateAction: (context) => {
-			const validator = validateAction || ((ctx: PhaseTransitionContext) => defaultValidateAction(phase, ctx));
+			const validator =
+				validateAction || ((ctx: PhaseTransitionContext) => defaultValidateAction(phase, ctx));
 			return validator(context);
 		},
 		transition: (context) => {
 			const validation = handler.validateAction(context);
 			if (!validation.valid) {
-				throw new Error(`Invalid action: ${validation.errors.join(', ')}`);
+				throw new Error(`Invalid action: ${validation.errors.join(", ")}`);
 			}
 			return computeTransition(context);
 		},

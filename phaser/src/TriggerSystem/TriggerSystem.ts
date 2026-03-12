@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as effects from "./effects";
-import { pickRandom } from "../utils";
+import * as effects from "@TriggerSystem/effects";
+import { pickRandom } from "@utils";
 import { State } from "@Models/State";
 
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
@@ -41,156 +41,156 @@ export type EffectReaction = {
 
 export type Effect =
 	| {
-		id: "damage";
-	}
+			id: "damage";
+	  }
 	| {
-		id: "heal";
-	}
+			id: "heal";
+	  }
 	| {
-		id: "shield";
-	}
+			id: "shield";
+	  }
 	| {
-		id: "poison";
-	}
+			id: "poison";
+	  }
 	| {
-		id: "regen";
-	}
+			id: "regen";
+	  }
 	| {
-		id: "haste";
-		duration: number;
-		targets: Targeting;
-	}
+			id: "haste";
+			duration: number;
+			targets: Targeting;
+	  }
 	| {
-		id: "slow";
-		duration: number;
-		targets: Targeting;
-	}
+			id: "slow";
+			duration: number;
+			targets: Targeting;
+	  }
 	| {
-		id: "charge";
-		duration: number;
-		targets: Targeting;
-	}
+			id: "charge";
+			duration: number;
+			targets: Targeting;
+	  }
 	| {
-		id: "increase_power";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
+			id: "increase_power";
+			amount: number;
+			permanent?: boolean;
+			targets: Targeting;
+	  }
 	| {
-		id: "decrease_power";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
+			id: "decrease_power";
+			amount: number;
+			permanent?: boolean;
+			targets: Targeting;
+	  }
 	| {
-		id: "multiply_power";
-		multiplier: number;
-		baseMultiplier: number;
-		targets: Targeting;
-	}
+			id: "multiply_power";
+			multiplier: number;
+			baseMultiplier: number;
+			targets: Targeting;
+	  }
 	| {
-		id: "increase_critical";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
+			id: "increase_critical";
+			amount: number;
+			permanent?: boolean;
+			targets: Targeting;
+	  }
 	| {
-		id: "distribute_power";
-		targets: Targeting;
-		permanent?: boolean;
-	}
+			id: "distribute_power";
+			targets: Targeting;
+			permanent?: boolean;
+	  }
 	| {
-		id: "absorb_power";
-		targets: Targeting;
-		permanent?: boolean;
-	}
+			id: "absorb_power";
+			targets: Targeting;
+			permanent?: boolean;
+	  }
 	| {
-		id: "sacrifice_effect";
-		targets: Targeting;
-	}
+			id: "sacrifice_effect";
+			targets: Targeting;
+	  }
 	| {
-		id: "re_hasted";
-	}
+			id: "re_hasted";
+	  }
 	| {
-		id: "re_slow";
-	}
+			id: "re_slow";
+	  }
 	| {
-		id: "on_crit";
-	}
+			id: "on_crit";
+	  }
 	| {
-		id: "every_100_damage";
-	}
+			id: "every_100_damage";
+	  }
 	| {
-		id: "every_100_shield";
-	}
+			id: "every_100_shield";
+	  }
 	| {
-		id: "every_100_heal";
-	}
+			id: "every_100_heal";
+	  }
 	| {
-		id: "every_10_poison";
-	}
+			id: "every_10_poison";
+	  }
 	| {
-		id: "every_10_regen";
-	}
+			id: "every_10_regen";
+	  }
 	| {
-		id: "on_over_heal";
-	}
+			id: "on_over_heal";
+	  }
 	| {
-		id: "on_battle_start";
-	};
+			id: "on_battle_start";
+	  };
 
 export type Targeting =
 	| {
-		id: "self";
-	}
+			id: "self";
+	  }
 	| {
-		id: "random_ally";
-		count: number;
-	}
+			id: "random_ally";
+			count: number;
+	  }
 	| {
-		id: "random_enemy";
-		count: number;
-	}
+			id: "random_enemy";
+			count: number;
+	  }
 	| {
-		id: "row_allies";
-	}
+			id: "row_allies";
+	  }
 	| {
-		id: "column_allies";
-	}
+			id: "column_allies";
+	  }
 	| {
-		id: "all_allies";
-		ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
-	}
+			id: "all_allies";
+			ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
+	  }
 	| {
-		id: "all_enemies";
-	}
+			id: "all_enemies";
+	  }
 	| {
-		id: "strongest_enemy";
-	}
+			id: "strongest_enemy";
+	  }
 	| {
-		id: "weakest_enemy";
-	}
+			id: "weakest_enemy";
+	  }
 	| {
-		id: "strongest_ally";
-	}
+			id: "strongest_ally";
+	  }
 	| {
-		id: "weakest_ally";
-	}
+			id: "weakest_ally";
+	  }
 	| {
-		id: "top_ally";
-	}
+			id: "top_ally";
+	  }
 	| {
-		id: "bottom_ally";
-	}
+			id: "bottom_ally";
+	  }
 	| {
-		id: "left_ally";
-	}
+			id: "left_ally";
+	  }
 	| {
-		id: "right_ally";
-	}
+			id: "right_ally";
+	  }
 	| {
-		id: "trigger";
-	};
+			id: "trigger";
+	  };
 
 export type EffectSourcePosition =
 	| "all"
@@ -218,13 +218,29 @@ export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSou
 };
 
 // Process a list of effects that originate from a given source unit
-export const processEffectsIO = (env: CombatEnvironment, sourceUnit: Unit, effectsList: Effect[], isReaction: boolean, triggeringUnit?: Unit, scale: number = 1, delayedExecution?: number) => {
+export const processEffectsIO = (
+	env: CombatEnvironment,
+	sourceUnit: Unit,
+	effectsList: Effect[],
+	isReaction: boolean,
+	triggeringUnit?: Unit,
+	scale: number = 1,
+	delayedExecution?: number
+) => {
 	effectsList.forEach((effect) => {
 		processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale, delayedExecution);
 	});
 };
 
-const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effect, isReaction: boolean, triggeringUnit?: Unit, scale: number = 1, delayedExecution?: number) => {
+const processEffectIO = (
+	env: CombatEnvironment,
+	sourceUnit: Unit,
+	effect: Effect,
+	isReaction: boolean,
+	triggeringUnit?: Unit,
+	scale: number = 1,
+	delayedExecution?: number
+) => {
 	switch (effect.id) {
 		case "damage":
 			effects.dealDamageLogicIO(env, sourceUnit, scale, delayedExecution);
@@ -243,21 +259,35 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applyHasteLogicIO(env, hasteTargets, sourceUnit, effect.duration * scale, (_target: Unit) =>
-				processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+			effects.applyHasteLogicIO(
+				env,
+				hasteTargets,
+				sourceUnit,
+				effect.duration * scale,
+				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
 				delayedExecution
 			);
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applySlowLogicIO(env, sourceUnit, slowTargets, effect.duration * scale, (_target: Unit) =>
-				processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+			effects.applySlowLogicIO(
+				env,
+				sourceUnit,
+				slowTargets,
+				effect.duration * scale,
+				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
 				delayedExecution
 			);
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applyChargeLogicIO(env, sourceUnit, chargeTargets, effect.duration * scale, delayedExecution);
+			effects.applyChargeLogicIO(
+				env,
+				sourceUnit,
+				chargeTargets,
+				effect.duration * scale,
+				delayedExecution
+			);
 			break;
 		case "increase_power":
 			const increasePowerTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
@@ -283,7 +313,14 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 			break;
 		case "increase_critical":
 			const increaseCriticalTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.increaseCritical(env, increaseCriticalTargets, effect.amount * scale, sourceUnit, effect.permanent || false, delayedExecution);
+			effects.increaseCritical(
+				env,
+				increaseCriticalTargets,
+				effect.amount * scale,
+				sourceUnit,
+				effect.permanent || false,
+				delayedExecution
+			);
 			break;
 		case "multiply_power":
 			effects.multiplyPower({
@@ -291,14 +328,26 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 				targets: resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
 				sourceUnit,
 				multiplier: Math.pow(effect.multiplier, scale),
-				delayedExecution
+				delayedExecution,
 			});
 			break;
 		case "distribute_power":
-			effects.distributePower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false, delayedExecution);
+			effects.distributePower(
+				env,
+				sourceUnit,
+				resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
+				effect.permanent || false,
+				delayedExecution
+			);
 			break;
 		case "absorb_power":
-			effects.absorbPower(env, sourceUnit, resolveTargets(env.state, sourceUnit, effect, triggeringUnit), effect.permanent || false, delayedExecution);
+			effects.absorbPower(
+				env,
+				sourceUnit,
+				resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
+				effect.permanent || false,
+				delayedExecution
+			);
 			break;
 		case "sacrifice_effect":
 			effects.sacrificeEffect(env, sourceUnit, delayedExecution);
@@ -321,75 +370,106 @@ const processEffectIO = (env: CombatEnvironment, sourceUnit: Unit, effect: Effec
 			return _exhaustiveCheck;
 	}
 
-	if (!isReaction)
-		processReactions(env, sourceUnit, effect, scale);
+	if (!isReaction) processReactions(env, sourceUnit, effect, scale);
 };
 
 const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
-const GLOBAL_REACTIONS = ["on_crit", "every_100_damage", "every_100_shield", "every_100_heal", "every_10_poison", "every_10_regen", "on_over_heal", "on_battle_start"]
-const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"]
+const GLOBAL_REACTIONS = [
+	"on_crit",
+	"every_100_damage",
+	"every_100_shield",
+	"every_100_heal",
+	"every_10_poison",
+	"every_10_regen",
+	"on_over_heal",
+	"on_battle_start",
+];
+const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"];
 
-export function processReactions(env: CombatEnvironment, triggeringUnit: Unit, effect: Effect, scale: number = 1) {
+export function processReactions(
+	env: CombatEnvironment,
+	triggeringUnit: Unit,
+	effect: Effect,
+	scale: number = 1
+) {
 	if (["charge", "increase_power", "decrease_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
-	const candidates = env.state.battleData.units
-		.filter((u) => u.id != triggeringUnit.id || GLOBAL_REACTIONS.includes(effect.id))
+	const candidates = env.state.battleData.units.filter(
+		(u) => u.id != triggeringUnit.id || GLOBAL_REACTIONS.includes(effect.id)
+	);
 
-	candidates
-		.forEach((u) => {
-			const reactions = u.reactions
-				.filter(r =>
+	candidates.forEach((u) => {
+		const reactions = u.reactions
+			.filter(
+				(r) =>
 					r.effectId === effect.id || (r.effectId === "all" && BASIC_ABILITIES.includes(effect.id))
-				)
-				.filter((r) => {
-					switch (r.position) {
-						case "all":
-							return true;
-						case "allies":
-							return sameForce(u, triggeringUnit);
-						case "enemies":
-							return !sameForce(u, triggeringUnit);
-						case "row_allies":
-							return sameForce(u, triggeringUnit) && u.position.y === triggeringUnit.position.y;
-						case "column_allies":
-							return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
-						case "top_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y === u.position.y - 1 && triggeringUnit.position.x === u.position.x;
-						case "bottom_ally":
-							return sameForce(u, triggeringUnit) && triggeringUnit.position.y === u.position.y + 1 && triggeringUnit.position.x === u.position.x;
-						case "left_ally":
-							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x === u.position.x - 1 && triggeringUnit.position.y === u.position.y
-							);
-						case "right_ally":
-							return (
-								sameForce(u, triggeringUnit) && triggeringUnit.position.x === u.position.x + 1 && triggeringUnit.position.y === u.position.y
-							);
-						case "self":
-							return u.id === triggeringUnit.id;
-						default:
-							const _exhaustiveCheck: never = r.position;
-							return _exhaustiveCheck;
-					}
-				});
-
-			reactions.forEach((r) => {
-				// check if still in combat
-				if (env.state.battleData.units.length === 0) {
-					return;
+			)
+			.filter((r) => {
+				switch (r.position) {
+					case "all":
+						return true;
+					case "allies":
+						return sameForce(u, triggeringUnit);
+					case "enemies":
+						return !sameForce(u, triggeringUnit);
+					case "row_allies":
+						return sameForce(u, triggeringUnit) && u.position.y === triggeringUnit.position.y;
+					case "column_allies":
+						return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
+					case "top_ally":
+						return (
+							sameForce(u, triggeringUnit) &&
+							triggeringUnit.position.y === u.position.y - 1 &&
+							triggeringUnit.position.x === u.position.x
+						);
+					case "bottom_ally":
+						return (
+							sameForce(u, triggeringUnit) &&
+							triggeringUnit.position.y === u.position.y + 1 &&
+							triggeringUnit.position.x === u.position.x
+						);
+					case "left_ally":
+						return (
+							sameForce(u, triggeringUnit) &&
+							triggeringUnit.position.x === u.position.x - 1 &&
+							triggeringUnit.position.y === u.position.y
+						);
+					case "right_ally":
+						return (
+							sameForce(u, triggeringUnit) &&
+							triggeringUnit.position.x === u.position.x + 1 &&
+							triggeringUnit.position.y === u.position.y
+						);
+					case "self":
+						return u.id === triggeringUnit.id;
+					default:
+						const _exhaustiveCheck: never = r.position;
+						return _exhaustiveCheck;
 				}
-
-				if (env.effects.onReactionVisual) {
-					env.effects.onReactionVisual(u.id);
-				}
-				processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, 200);
 			});
+
+		reactions.forEach((r) => {
+			// check if still in combat
+			if (env.state.battleData.units.length === 0) {
+				return;
+			}
+
+			if (env.effects.onReactionVisual) {
+				env.effects.onReactionVisual(u.id);
+			}
+			processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, 200);
 		});
+	});
 }
 
-export function resolveTargets(state: State, sourceUnit: Unit, effect: Effect, triggeringUnit?: Unit): Unit[] {
+export function resolveTargets(
+	state: State,
+	sourceUnit: Unit,
+	effect: Effect,
+	triggeringUnit?: Unit
+): Unit[] {
 	if (!("targets" in effect)) {
 		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
@@ -438,11 +518,15 @@ export function resolveTargets(state: State, sourceUnit: Unit, effect: Effect, t
 			return weakestEnemies.length > 0 ? [weakestEnemies[0]] : [];
 
 		case "strongest_ally":
-			const strongestAllies = allies.filter((u) => u.id !== sourceUnit.id).sort((a, b) => b.power - a.power);
+			const strongestAllies = allies
+				.filter((u) => u.id !== sourceUnit.id)
+				.sort((a, b) => b.power - a.power);
 			return strongestAllies.length > 0 ? [strongestAllies[0]] : [];
 
 		case "weakest_ally":
-			const weakestAllies = allies.filter((u) => u.id !== sourceUnit.id).sort((a, b) => a.power - b.power);
+			const weakestAllies = allies
+				.filter((u) => u.id !== sourceUnit.id)
+				.sort((a, b) => a.power - b.power);
 			return weakestAllies.length > 0 ? [weakestAllies[0]] : [];
 
 		case "top_ally":

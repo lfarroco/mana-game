@@ -1,6 +1,6 @@
 import { getOption, setOption } from "@Models/OptionsStore";
-import { boolean } from "../controls/boolean";
-import { speed } from "../controls/speed";
+import { boolean } from "@Scenes/Options/components/controls/boolean";
+import { speed } from "@Scenes/Options/components/controls/speed";
 import { t } from "@i18n/i18n";
 
 export function gameTab(startY: number, lineHeight: number) {

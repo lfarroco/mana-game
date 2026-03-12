@@ -4,7 +4,7 @@ import {
 	getPhaseOptions,
 	sendOptionSelection,
 	handleAuthRegister,
-} from "./MultiplayerManager";
+} from "@Multiplayer/MultiplayerManager";
 import { supabase } from "@lib/supabase";
 
 // Mock Supabase

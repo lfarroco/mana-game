@@ -1,6 +1,6 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { titleTextConfig } from "@Constants/constants";
-import { tooltipFragmentShader } from "../Shaders/TooltipShader";
+import { tooltipFragmentShader } from "@Shaders/TooltipShader";
 import { getCurrentScene } from "@Models/State";
 
 const PADDING = 40;
@@ -102,9 +102,7 @@ export function init() {
 
 	container.add(bg);
 
-	titleText = scene.add
-		.text(0, 0, "", titleTextConfig)
-		.setAlign("left");
+	titleText = scene.add.text(0, 0, "", titleTextConfig).setAlign("left");
 	container.add(titleText);
 
 	descriptionText = scene.add
@@ -181,7 +179,10 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		bg.setUniform("time.value", elapsedTime);
 
 		titleText.setPosition(PADDING, PADDING);
-		descriptionText.setPosition(PADDING + 10, 10 + PADDING + titleText.height + INTER_ELEMENT_PADDING);
+		descriptionText.setPosition(
+			PADDING + 10,
+			10 + PADDING + titleText.height + INTER_ELEMENT_PADDING
+		);
 	}
 
 	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);

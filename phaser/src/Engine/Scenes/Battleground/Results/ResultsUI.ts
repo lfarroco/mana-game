@@ -2,11 +2,11 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
 import { getCurrentScene, getState, State } from "@Models/State";
-import { displayVictory } from "./VictoryUI";
-import { displayDefeat } from "./DefeatUI";
-import { displayGameComplete } from "./GameCompleteUI";
+import { displayVictory } from "@Scenes/Battleground/Results/VictoryUI";
+import { displayDefeat } from "@Scenes/Battleground/Results/DefeatUI";
+import { displayGameComplete } from "@Scenes/Battleground/Results/GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
-import { WINS_TO_WIN_GAME, RESULTS_PANEL } from "./ResultsConfig";
+import { WINS_TO_WIN_GAME, RESULTS_PANEL } from "@Scenes/Battleground/Results/ResultsConfig";
 import { createBackgroundOverlay, BackgroundOverlay } from "@Components/BackgroundOverlay";
 import { GAME_CONFIG } from "@config";
 
@@ -31,9 +31,7 @@ export function createResultsUI() {
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
 }
 
-function calculateLivesChange(
-	resultType: "victory" | "defeat"
-): number {
+function calculateLivesChange(resultType: "victory" | "defeat"): number {
 	if (resultType === "victory") {
 		return 0;
 	} else {
@@ -81,7 +79,7 @@ export async function displayResults(
 	const gameState = getState();
 	const player = {
 		wins: gameState.session.wins,
-		lives: 4 - gameState.session.losses
+		lives: 4 - gameState.session.losses,
 	};
 
 	const livesChange = calculateLivesChange(resultType);
@@ -95,8 +93,14 @@ export async function displayResults(
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
-			const playerUnits = allBattleUnits.filter(u => u.force === c.FORCE_ID_PLAYER);
-			const ui = await displayGameComplete(state, newWins, playerUnits, gameOver, nextPhaseCallback);
+			const playerUnits = allBattleUnits.filter((u) => u.force === c.FORCE_ID_PLAYER);
+			const ui = await displayGameComplete(
+				state,
+				newWins,
+				playerUnits,
+				gameOver,
+				nextPhaseCallback
+			);
 			resultsContainer.add(ui);
 		} else {
 			await slideOut();
@@ -109,7 +113,13 @@ export async function displayResults(
 		if (replayCallback) replayCallback();
 	};
 
-	const uiContainer = await displayAppropriateUI(resultType, livesChange, handleContinue, allBattleUnits, replayCallback ? handleReplay : undefined);
+	const uiContainer = await displayAppropriateUI(
+		resultType,
+		livesChange,
+		handleContinue,
+		allBattleUnits,
+		replayCallback ? handleReplay : undefined
+	);
 	resultsContainer.add(uiContainer);
 }
 

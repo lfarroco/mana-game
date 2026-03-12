@@ -1,19 +1,19 @@
 import { getState, State } from "@Models/State";
-import { CombatRunner, WaveOutcome } from "./RunCombatCore";
-import { createBrowserCombatEffects } from "./BrowserCombatEffects";
+import { CombatRunner, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
+import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { runServerSideCombat } from "./serverCombatDemo";
-import { createCombatPlaybackController } from "./CombatPlaybackController";
+import { runServerSideCombat } from "@Scenes/Battleground/serverCombatDemo";
+import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { resetUnitStats, Unit } from "@Models/Entities/Unit";
-import { CombatLogEntry } from "./ServerCombatEffects";
+import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Board from "@Models/Board";
 import { getCurrentScene } from "@Models/State";
-import { BattlegroundScene } from "./BattlegroundScene";
+import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 
-export type { WaveOutcome, CombatRunner } from "./RunCombatCore";
+export type { WaveOutcome, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
 
 registerCollection(BASE_COLLECTION_DATA);
 
@@ -45,7 +45,11 @@ export const runCombatIO = (): CombatRunner => {
 };
 
 // Store the last combat result for replay functionality
-export const storeCombatResult = (outcome: WaveOutcome, state: State, nextPhaseCallback: () => Promise<void>) => {
+export const storeCombatResult = (
+	outcome: WaveOutcome,
+	state: State,
+	nextPhaseCallback: () => Promise<void>
+) => {
 	lastCombatOutcome = outcome;
 	lastCombatState = state;
 	lastNextPhaseCallback = nextPhaseCallback;
@@ -53,7 +57,13 @@ export const storeCombatResult = (outcome: WaveOutcome, state: State, nextPhaseC
 
 // Replay the last combat with stored logs
 export const replayCombat = async (): Promise<void> => {
-	if (!lastCombatLogs || !lastCombatInitialUnits || !lastCombatOutcome || !lastCombatState || !lastNextPhaseCallback) {
+	if (
+		!lastCombatLogs ||
+		!lastCombatInitialUnits ||
+		!lastCombatOutcome ||
+		!lastCombatState ||
+		!lastNextPhaseCallback
+	) {
 		console.warn("No combat data available for replay");
 		return;
 	}
@@ -80,12 +90,7 @@ export const replayCombat = async (): Promise<void> => {
 		const resultType = lastCombatOutcome === "player_won" ? "victory" : "defeat";
 
 		// Re-display the results with the same callbacks
-		ResultsUI.displayResults(
-			lastCombatState!,
-			resultType,
-			lastNextPhaseCallback!,
-			replayCombat
-		);
+		ResultsUI.displayResults(lastCombatState!, resultType, lastNextPhaseCallback!, replayCombat);
 		await ResultsUI.slideIn();
 	};
 

@@ -1,15 +1,15 @@
 import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as Tooltip from "../Components/Tooltip";
+import * as Tooltip from "@Components/Tooltip";
 import * as io from "@PhaserIO";
-import * as roundDisplay from "./components/roundDisplay";
-import * as livesDisplay from "./components/livesDisplay";
-import * as winsDisplay from "./components/winsDisplay";
-import * as headerBackground from "./components/headerBackground";
+import * as roundDisplay from "@UI/components/roundDisplay";
+import * as livesDisplay from "@UI/components/livesDisplay";
+import * as winsDisplay from "@UI/components/winsDisplay";
+import * as headerBackground from "@UI/components/headerBackground";
 import { vec2 } from "@Models/Geometry";
-import * as menuButton from "./components/menuButton";
+import * as menuButton from "@UI/components/menuButton";
 import { State } from "@Models/State";
-export * as events from "./events";
+export * as events from "@UI/events";
 
 let uiContainer: Container | null = null;
 
@@ -22,10 +22,7 @@ export function init(state: State) {
 	]);
 	io.SetPosition(headerContainer, vec2(580, 0));
 
-	uiContainer = io.Container([
-		headerContainer,
-		menuButton.create(state),
-	]);
+	uiContainer = io.Container([headerContainer, menuButton.create(state)]);
 }
 
 export async function handleUserMessageRequested(payload: {

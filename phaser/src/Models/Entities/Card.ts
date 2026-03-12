@@ -1,6 +1,6 @@
 import { State } from "@Models/State";
 
-import { Effect, EffectReaction } from "../../TriggerSystem/TriggerSystem";
+import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
 
 const dummy: CardDefinition = {
 	id: "dummy_card",
@@ -16,13 +16,13 @@ const dummy: CardDefinition = {
 	],
 };
 
-let cards = new Map<string, CardDefinition>();
+const cards = new Map<string, CardDefinition>();
 
 const registerCard = (card: CardDefinition): void => {
 	cards.set(card.id, card);
 };
 
-let collections = new Map<string, CardCollection>();
+const collections = new Map<string, CardCollection>();
 export const registerCollection = (collection: CardCollection): void => {
 	collections.set(collection.id, collection);
 
@@ -88,9 +88,7 @@ export const getNonCores = (): CardDefinition[] =>
 
 export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =>
 	Array.from(cards.values()).filter(
-		(card) =>
-			!card.isCore &&
-			(!card.locked || unlockedUnitIds.includes(card.id))
+		(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
 	);
 
 export const getAlliedCore = (state: State) => (forceId: string) =>
