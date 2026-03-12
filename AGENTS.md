@@ -120,6 +120,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
+- [x] Fixed pre-combat team rearrangement persistence: `update_team` now validates/applies team position updates in `GameLogic.resolveAction`, so drag-and-drop changes made during the combat warning (`combat_encounter`) are used when combat starts; added regression test in `LocalServerAdapter.test.ts` (Copilot, 2026-03-12)
 - [x] Fixed non-responsive/empty encounter choices by enforcing canonical server option shape (`current_options.options`) for local/remote adapters, persisting fallback-generated phase options in `LocalServerAdapter`, and keeping action validation aligned to canonical option objects (Copilot, 2026-03-11)
 - [x] Fixed click-purchase double-apply and visualizer error: `itemClickPurchaseRequested` no longer mutates local team/emits success `UnitPurchased` after controller-driven phase sync, preventing duplicate units; hardened `Visualizer.handleUnitPurchased` to skip missing shop chara/UI safely (Copilot, 2026-03-11)
 - [x] Fixed unit-shop transition UI layering bug: moved shop panel teardown (`ShopPanel.slideOut`) into `purchaseUnit` controller flow so stale shop options are cleared before next phase render in both single-player and multiplayer; removed late teardown from drag purchase handler (Copilot, 2026-03-11)
