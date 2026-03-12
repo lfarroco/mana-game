@@ -9,7 +9,8 @@ import { createLogger } from "@Utils/Logger";
 // Internal state
 let isMultiplayer: boolean = false;
 let playerId: string;
-let initPromise: Promise<void>;
+let initPromise: Promise<void> = Promise.resolve();
+let authInitialized = false;
 const logger = createLogger("MultiplayerManager");
 
 // Initialize the player ID
@@ -20,12 +21,23 @@ if (storedId) {
 	playerId = "player_" + Math.floor(Math.random() * 1000000);
 }
 
-// Check for existing Supabase session
-initPromise = supabase.auth.getSession().then(({ data: { session } }) => {
-	if (session) {
-		updatePlayerId(session.user.id);
+const initializeAuthSession = (): Promise<void> => {
+	if (!authInitialized) {
+		authInitialized = true;
+		initPromise = supabase.auth
+			.getSession()
+			.then(({ data: { session } }) => {
+				if (session) {
+					updatePlayerId(session.user.id);
+				}
+			})
+			.catch((error) => {
+				logger.warn("Unable to initialize auth session", { error });
+			});
 	}
-});
+
+	return initPromise;
+};
 
 logger.info("Initialized multiplayer manager", { playerId });
 
@@ -33,6 +45,7 @@ export { isMultiplayer };
 
 export async function enableMultiplayer(selectedCrystalId?: string) {
 	isMultiplayer = true;
+	await initializeAuthSession();
 	logger.info("Multiplayer mode enabled", { hasSelectedCrystal: Boolean(selectedCrystalId) });
 	if (selectedCrystalId) {
 	} else {
@@ -64,7 +77,7 @@ export async function sendTeamUpdate(team: { units: Unit[] }): Promise<boolean> 
 
 // TODO: if arena, fetch from supabase, else, localhost
 export async function checkActiveSession(): Promise<boolean> {
-	await initPromise;
+	await initializeAuthSession();
 	const { data, error } = await supabase
 		.from("player_sessions")
 		.select("phase")
