@@ -70,6 +70,7 @@ class PhaseValidator {
 		const systemActions = [
 			"phase_complete",
 			"return_to_menu",
+			"combat_done",
 			"upgrade_core_done",
 			"orb_shop_done",
 			"add_reaction_core_done",
