@@ -2,6 +2,7 @@ import { GameController, GameFeature } from "@Core/GameController";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 /**
  * Creates a local game controller that handles actions through the local server adapter.
@@ -17,6 +18,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			const success = await server.handleAction(playerId, cardId);
 
 			if (success) {
+				await ShopPanel.slideOut();
 				// Render the next phase
 				await PhaseManager.startPhase(getState());
 			}
