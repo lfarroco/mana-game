@@ -120,6 +120,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
+- [x] Fixed click-purchase double-apply and visualizer error: `itemClickPurchaseRequested` no longer mutates local team/emits success `UnitPurchased` after controller-driven phase sync, preventing duplicate units; hardened `Visualizer.handleUnitPurchased` to skip missing shop chara/UI safely (Copilot, 2026-03-11)
 - [x] Fixed unit-shop transition UI layering bug: moved shop panel teardown (`ShopPanel.slideOut`) into `purchaseUnit` controller flow so stale shop options are cleared before next phase render in both single-player and multiplayer; removed late teardown from drag purchase handler (Copilot, 2026-03-11)
 - [x] Fixed Supabase auth refresh requests in single-player by lazy-initializing the Supabase client and deferring multiplayer auth session initialization until multiplayer/auth flows are used (Copilot, 2026-03-11)
 - [x] Standardized all imports to path aliases: converted 451 relative cross-directory imports across 164 files; added @Storage/*, @Effects/*, @Engine/*, @main aliases; enforced via ESLint no-restricted-imports error rule; added tsconfig.eslint.json to cover spec files (Copilot, 2026-03-12)
