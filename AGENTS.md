@@ -127,6 +127,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Completed
 - Historical completed entries were moved to [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) on 2026-03-13.
 - Keep only recent or in-progress-relevant completions in this section going forward.
+- [x] Continued ESLint warning escalation by promoting `@typescript-eslint/no-unused-vars` to error in `phaser/eslint.config.js` and fixing active source violations in `src/Components/cloudBackground/CloudsBackground.ts` (Copilot, 2026-03-13)
 - [x] Began ESLint warning escalation by promoting `prefer-const` to error in `phaser/eslint.config.js` and fixing existing `prefer-const` violations in `src/Systems/Chara/ChargeBarDisplay.ts` and `src/Systems/Shop/ShopPanel.ts` (Copilot, 2026-03-13)
 - [x] Documented Supabase backend architecture and operations in `docs/supabase-backend.md` (Copilot, 2026-03-13)
 - [x] Improved webpack hot reload speed via filesystem cache and faster ts-loader watch mode in `webpack/config.dev.cjs` and `webpack/config.debug.cjs` (Copilot, 2026-03-13)

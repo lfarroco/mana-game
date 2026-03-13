@@ -150,7 +150,7 @@ These tasks significantly improve code quality, maintainability, and user experi
   - **Context**: `no-explicit-any`, `no-unused-vars`, `no-console`, and `prefer-const` are all set to `warn` in `eslint.config.js`, allowing problematic code to be committed
   - **Impact**: Enforces type safety, immutability, and logging discipline
   - **Effort**: Low (0.5 day)
-  - **Status**: 🚧 In progress (2026-03-13) - `prefer-const` promoted to `error` and existing `prefer-const` violations fixed in source; remaining rules (`no-explicit-any`, `no-unused-vars`, `no-console`) still pending escalation
+  - **Status**: 🚧 In progress (2026-03-13) - `prefer-const` and `@typescript-eslint/no-unused-vars` promoted to `error`; existing `prefer-const` and active `no-unused-vars` violations in source were fixed. Remaining rules (`no-explicit-any`, `no-console`) are still pending escalation.
   - **Steps**:
     1. Change `no-explicit-any` to `error` (fix existing violations first)
     2. Change `prefer-const` to `error`
