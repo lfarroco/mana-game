@@ -120,11 +120,12 @@ These tasks significantly improve code quality, maintainability, and user experi
     3. Update test logic to match new phase system expectations
     4. Consider if phase system migration affects option availability
 
-- [ ] **Add comprehensive test coverage for UI handlers**
+- [x] **Add comprehensive test coverage for UI handlers**
   - **Context**: Input handlers and UI components need more test coverage
   - **Impact**: Prevents regressions in user interactions
   - **Effort**: Medium (2 days)
   - **Files**: `src/Systems/Chara/input.ts`, `src/Systems/Shop/events/`
+  - **Status**: ✅ Added focused Jest coverage for click/drag/long-press input handlers and shop purchase/sale events; also fixed sale event emission ordering and removed a broken global JSON Jest mapper that prevented suites from starting (2026-03-13)
 
 ### Code Quality
 - [ ] **Remove unused code and dead code paths**

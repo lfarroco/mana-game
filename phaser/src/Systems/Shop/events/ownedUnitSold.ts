@@ -21,16 +21,18 @@ export function ownedUnitSold(unitId: string) {
 	const controller = getGameController();
 	controller.sellUnit(unitId);
 
-	// Step 2: Update game state - remove unit from state
+	// Step 2: Capture sale events before mutating local state.
+	const events = PureShop.processSale(state.session, unitId);
+
+	// Step 3: Update game state - remove unit from state
 	state.session.team.units = PureShop.removeUnitFromUnits(state.session.team.units, unitId);
 
-	// Step 3: Emit events for visual updates
-	const events = PureShop.processSale(state.session, unitId);
+	// Step 4: Emit events for visual updates
 	for (const event of events) {
 		emitSystemEvent(event);
 	}
 
-	// Step 4: Handle immediate visual cleanup
+	// Step 5: Handle immediate visual cleanup
 	// Note: In the future, these could also be handled by the Visualizer
 	const chara = getCharaById(unitId);
 	chara?.destroy();
