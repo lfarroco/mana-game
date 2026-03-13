@@ -173,13 +173,6 @@ Issues and patterns that should be addressed to prevent future problems.
 Improvements to testing infrastructure and coverage.
 
 ### Test Coverage
-- [ ] **Create visual regression tests**
-  - **Context**: UI changes could break visual appearance
-  - **Impact**: Catch visual bugs early
-  - **Effort**: Medium (1-2 days)
-  - **Tools**: Playwright with screenshot comparison
-  - **Scope**: Main menu, shop UI, combat board
-
 ### Test Infrastructure
 ---
 
