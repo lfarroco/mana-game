@@ -120,6 +120,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
+- [x] Fixed duplicate post-combat upgrade/reaction rerender: in-phase upgrade/reaction selections no longer trigger immediate controller phase refresh before `upgrade_core_done`/`add_reaction_core_done`, preventing repeated upgrade-like screens and incorrect skipped encounter flow (Copilot, 2026-03-12)
+- [x] Fixed orb encounter UI transition/rendering: selecting orb encounters now destroys encounter cards before async phase transition (prevents overlap with orb shop), and orb shop items are vertically centered so single-orb encounters appear on mid-screen Y axis (Copilot, 2026-03-12)
 - [x] Fixed local post-combat transition crash: `combat_done` is now treated as a system transition action in `PhaseValidator`, so combat result flow no longer fails validation when `current_options` is temporarily empty/null (Copilot, 2026-03-12)
 - [x] Fixed pre-combat team rearrangement persistence: `update_team` now validates/applies team position updates in `GameLogic.resolveAction`, so drag-and-drop changes made during the combat warning (`combat_encounter`) are used when combat starts; added regression test in `LocalServerAdapter.test.ts` (Copilot, 2026-03-12)
 - [x] Fixed non-responsive/empty encounter choices by enforcing canonical server option shape (`current_options.options`) for local/remote adapters, persisting fallback-generated phase options in `LocalServerAdapter`, and keeping action validation aligned to canonical option objects (Copilot, 2026-03-11)

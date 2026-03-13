@@ -9,7 +9,7 @@ import { orbsIndex, OrbSpec } from "@Systems/Shop/Orbs";
 import { eqVec2 } from "@Models/Geometry";
 import { hexToVector3 } from "@Utils/colorUtils";
 import * as io from "@PhaserIO";
-import { titleTextConfig } from "@Constants/constants";
+import { SCREEN_HEIGHT, titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 
 export async function openOrbShop(
@@ -58,6 +58,8 @@ export function renderOrbShop(
 	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
+	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
+	const firstOrbY = SCREEN_HEIGHT / 2 - totalOrbSpan / 2;
 
 	async function handleOrbDrop(params: {
 		orb: MagicOrb;
@@ -117,9 +119,9 @@ export function renderOrbShop(
 	const orbs = orbIds.map((orbId: string, index: number) => {
 		const orbSpec = orbsIndex[orbId]();
 
-		const offsetY = index * orbSpacing;
+		const orbY = firstOrbY + index * orbSpacing;
 
-		const magicOrb = new MagicOrb(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY, {
+		const magicOrb = new MagicOrb(sc.ITEM_BASE_X, orbY, {
 			size: 240,
 			color: hexToVector3(orbSpec.color),
 			intensity: 1.2,
@@ -133,13 +135,13 @@ export function renderOrbShop(
 		container.add(magicOrb.getShader());
 
 		const titleText = scene.add
-			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY + 50, orbSpec.name, titleTextConfig)
+			.text(sc.ITEM_DESC_BASE_X, orbY - 80, orbSpec.name, titleTextConfig)
 			.setOrigin(0)
 			.setFontSize(40)
 			.setAlign("left");
 
 		const descriptionText = scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, sc.ITEM_DESC_BASE_Y + offsetY + 110, orbSpec.tooltip)
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, orbY - 20, orbSpec.tooltip)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
