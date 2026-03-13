@@ -2,8 +2,9 @@ module.exports = {
 	testEnvironment: "jsdom",
 	extensionsToTreatAsEsm: [".ts"],
 	setupFilesAfterEnv: ["<rootDir>/src/test-utils/jest-setup.ts"],
+	cacheDirectory: "<rootDir>/.cache/jest",
 	transform: {
-		"^.+\\.(ts|tsx)$": ["ts-jest", { useESM: true }],
+		"^.+\\.(ts|tsx)$": ["ts-jest", { useESM: true, diagnostics: false, tsconfig: { isolatedModules: true } }],
 		"^.+\\.(js|jsx)$": "babel-jest",
 	},
 	transformIgnorePatterns: [
