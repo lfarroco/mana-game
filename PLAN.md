@@ -340,7 +340,7 @@ Improvements to testing infrastructure and coverage.
   - **Focus**: Combat simulation, shop generation, encounter selection
 
 ### Test Infrastructure
-- [ ] **Improve test execution speed**
+- [x] **Improve test execution speed**
   - **Context**: Large test suites can be slow
   - **Impact**: Faster CI/CD, better developer experience
   - **Effort**: Low (1 day)
@@ -348,6 +348,7 @@ Improvements to testing infrastructure and coverage.
     1. Enable Jest test parallelization
     2. Use test sharding in CI
     3. Mock expensive operations
+  - **Status**: ✅ Added a cached CI-oriented Jest script, faster ts-jest isolated transforms, persistent Jest cache, and 2-way unit-test sharding in `.github/workflows/webpack.yml` (2026-03-13)
 
 - [ ] **Add mutation testing**
   - **Context**: Verify tests actually catch bugs

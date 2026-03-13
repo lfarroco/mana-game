@@ -25,6 +25,7 @@
         "electron:build:demo:mac": "IS_DEMO=true npm run build && IS_DEMO=true electron-builder --mac --dir",
         "electron:build:demo:linux": "IS_DEMO=true npm run build && IS_DEMO=true electron-builder --linux --dir",
         "test": "jest",
+        "test:ci": "jest --ci --maxWorkers=50%",
         "test:unit": "jest --testPathIgnorePatterns=e2e",
         "test:coverage": "jest --coverage",
         "test:supabase": "deno test --no-check --allow-env supabase/functions/**/*.test.js supabase/functions/*.test.js",

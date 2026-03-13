@@ -115,6 +115,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Add comprehensive test coverage for UI handlers
 - [x] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
 - [x] Add pre-commit hooks (Husky + lint-staged + typecheck)
+- [x] Improve test execution speed
 
 ### Low Priority
 
@@ -128,3 +129,4 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [x] Documented Supabase backend architecture and operations in `docs/supabase-backend.md` (Copilot, 2026-03-13)
 - [x] Improved webpack hot reload speed via filesystem cache and faster ts-loader watch mode in `webpack/config.dev.cjs` and `webpack/config.debug.cjs` (Copilot, 2026-03-13)
 - [x] Added Jest coverage for Chara input and Shop event handlers; fixed `ownedUnitSold` sale-event ordering and Jest JSON module mapping in `jest.config.cjs` (Copilot, 2026-03-13)
+- [x] Improved unit-test execution speed with cached isolated Jest transforms and 2-way CI sharding in `.github/workflows/webpack.yml` (Copilot, 2026-03-13)
