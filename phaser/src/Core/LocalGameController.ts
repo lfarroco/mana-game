@@ -71,9 +71,25 @@ export const createLocalGameController = (playerId: string): GameController => {
 
 		handleAction: async (actionId: string, payload?: any): Promise<boolean> => {
 			const server = getServerAdapter();
+			const state = getState();
+			const inUpgradePhase = state.session.phase === "upgrade_core";
+			const inReactionPhase = state.session.phase === "add_reaction_core";
+			const isInPhaseUpgradeSelection =
+				(inUpgradePhase &&
+					["increase_core_max_life", "upgrade_core_power", "decrease_core_cooldown"].includes(
+						actionId
+					)) ||
+				(inReactionPhase &&
+					[
+						"on_100_damage_effect",
+						"on_ally_death_effect",
+						"on_crit_effect",
+						"on_battle_start_effect",
+					].includes(actionId));
+
 			const success = await server.handleAction(playerId, actionId, payload);
 
-			if (success) {
+			if (success && !isInPhaseUpgradeSelection) {
 				await PhaseManager.startPhase(getState());
 			}
 
