@@ -71,6 +71,19 @@ export function getPlayerId(): string {
 
 // Render phase based on server response
 async function renderPhase(state: State, options: any, _eventEmitter?: EventEmitter) {
+	state.session.phase = options.phase;
+	state.session.round = options.round ?? state.session.round;
+	state.session.current_options = {
+		options: options.options || [],
+		combatState: options.combatState,
+	};
+	if (options.wins !== undefined) {
+		state.session.wins = options.wins;
+	}
+	if (options.losses !== undefined) {
+		state.session.losses = options.losses;
+	}
+
 	if (cloudsBackground) {
 		const preset = getColorPresetForPhase(options.phase);
 		cloudsBackground.tweenToPreset(preset, 2000, "Sine.InOut");

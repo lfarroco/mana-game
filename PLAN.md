@@ -258,11 +258,12 @@ Nice-to-have improvements that can be scheduled as time permits.
   - **Status**: ✅ Fixed - Audited `src/Core/` (no direct Phaser imports found) and added ESLint `no-restricted-imports` rule to block future `phaser` imports in Core files (2026-03-11)
 
 ### User Experience
-- [ ] **Add keyboard shortcuts**
+- [x] **Add keyboard shortcuts**
   - **Context**: Mouse-only interaction currently
   - **Impact**: Power users can play faster
   - **Effort**: Medium (1-2 days)
   - **Examples**: Space to skip, number keys for unit selection
+  - **Status**: ✅ Fixed - Added battleground keyboard shortcuts for `Space` to skip skippable phases and `1`-`9` to trigger current encounter, shop, and core-upgrade options via `GameController`; phase option state is now synced during phase rendering and covered by focused Jest tests (2026-03-13)
 
 - [ ] **Improve mobile touch interactions**
   - **Context**: Android version needs touch optimization

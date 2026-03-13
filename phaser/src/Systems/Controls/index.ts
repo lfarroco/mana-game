@@ -1,26 +1,46 @@
+import Phaser from "phaser";
+import { getGameController } from "@Core/GameControllerFactory";
+import { getState } from "@Models/State";
 import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import { resolveShortcutAction, shouldIgnoreShortcutEvent } from "@Systems/Controls/shortcuts";
 
 export function init(scene: BattlegroundScene) {
-	const keyToSelectorMap = [
-		["Z", "#grid-cell-0 button"],
-		["X", "#grid-cell-1 button"],
-		["C", "#grid-cell-2 button"],
-	];
+	const keyboard = scene.input.keyboard;
+	if (!keyboard) {
+		return;
+	}
 
-	keyToSelectorMap.forEach(([key, selector]) => {
-		scene.input.keyboard?.on(`keydown-${key}`, () => {
-			//@ts-ignore
-			document.querySelector(selector)?.click();
-		});
-	});
+	const onKeyDown = async (event: KeyboardEvent) => {
+		if (event.repeat || shouldIgnoreShortcutEvent(event)) {
+			return;
+		}
 
-	scene.input.keyboard?.on("keydown-ESC", () => {
-		// bind to close-current-context-window actio
-	});
+		const action = resolveShortcutAction(getState(), event.key);
+		if (!action) {
+			return;
+		}
 
-	//bind space to end turn
-	scene.input.keyboard?.on("keydown-SPACE", () => {
-		//@ts-ignore
-		document.querySelector("#next-turn")?.click();
+		event.preventDefault();
+
+		const controller = getGameController();
+		switch (action.type) {
+			case "skipPhase":
+				await controller.skipPhase();
+				break;
+			case "purchaseUnit":
+				await controller.purchaseUnit(action.optionId);
+				break;
+			case "selectEncounter":
+				await controller.selectEncounter(action.optionId);
+				break;
+			case "handleAction":
+				await controller.handleAction(action.optionId);
+				break;
+		}
+	};
+
+	keyboard.on("keydown", onKeyDown);
+	scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+		keyboard.off("keydown", onKeyDown);
 	});
 }
