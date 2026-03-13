@@ -28,3 +28,5 @@ builder-effective-config.yaml
 # Code quality tools
 .eslintcache
 coverage/
+reports/mutation/
+.stryker-tmp/
