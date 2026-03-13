@@ -180,13 +180,6 @@ Improvements to testing infrastructure and coverage.
   - **Tools**: Playwright with screenshot comparison
   - **Scope**: Main menu, shop UI, combat board
 
-- [ ] **Property-based testing for game logic**
-  - **Context**: Suggested in phase-system-refactoring.md
-  - **Impact**: Find edge cases in randomized scenarios
-  - **Effort**: Medium (2 days)
-  - **Tools**: fast-check
-  - **Focus**: Combat simulation, shop generation, encounter selection
-
 ### Test Infrastructure
 ---
 
