@@ -9,6 +9,14 @@ module.exports = {
     mode: "development",
     devtool: "eval-source-map",
     entry: "./src/main.ts",
+    cache: {
+        type: "filesystem",
+        cacheDirectory: path.resolve(__dirname, "../.webpack-cache/dev"),
+        buildDependencies: {
+            config: [__filename],
+            tsconfig: [path.resolve(__dirname, "../tsconfig.json")]
+        }
+    },
     output: {
         path: path.resolve(process.cwd(), 'dist'),
         filename: "bundle.min.js"
@@ -50,7 +58,10 @@ module.exports = {
                 options: {
                     // Ensure ts-loader uses the phaser project's tsconfig so
                     // path mappings (eg. @Constants/*) are resolved correctly
-                    configFile: path.resolve(__dirname, "../tsconfig.json")
+                    configFile: path.resolve(__dirname, "../tsconfig.json"),
+                    // Speed up incremental rebuilds during dev; full type checks run via npm scripts.
+                    transpileOnly: true,
+                    experimentalWatchApi: true
                 }
 
             },

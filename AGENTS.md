@@ -125,3 +125,4 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - Historical completed entries were moved to [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) on 2026-03-13.
 - Keep only recent or in-progress-relevant completions in this section going forward.
 - [x] Documented Supabase backend architecture and operations in `docs/supabase-backend.md` (Copilot, 2026-03-13)
+- [x] Improved webpack hot reload speed via filesystem cache and faster ts-loader watch mode in `webpack/config.dev.cjs` and `webpack/config.debug.cjs` (Copilot, 2026-03-13)

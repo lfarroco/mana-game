@@ -8,6 +8,14 @@ const webpack = require("webpack");
 module.exports = {
     mode: "development",
     entry: "./src/main.ts",
+    cache: {
+        type: "filesystem",
+        cacheDirectory: path.resolve(__dirname, "../.webpack-cache/debug"),
+        buildDependencies: {
+            config: [__filename],
+            tsconfig: [path.resolve(__dirname, "../tsconfig.json")]
+        }
+    },
     output: {
         path: path.resolve(process.cwd(), "dist"),
         filename: "./bundle.debug.js"
@@ -47,7 +55,10 @@ module.exports = {
                 exclude: /node_modules/,
                 loader: "ts-loader",
                 options: {
-                    configFile: path.resolve(__dirname, "../tsconfig.json")
+                    configFile: path.resolve(__dirname, "../tsconfig.json"),
+                    // Keep debug rebuilds responsive while type checks run in dedicated scripts.
+                    transpileOnly: true,
+                    experimentalWatchApi: true
                 }
             },
             {
