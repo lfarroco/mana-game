@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 11, 2026
+**Last Updated**: March 13, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -38,7 +38,7 @@ This document outlines the development priorities and planned improvements for M
 - **Code consistency** - 150+ console.log statements need proper logging system (ESLint `no-console` set to warn, not error)
 - **No unit tests in CI** - Only E2E tests exist in workflows, and those are manually triggered
 - **Test coverage gaps** - No code coverage reporting; some systems lack comprehensive tests
-- **Documentation gaps** - UI System, Effect System, Options/Preferences, and Supabase backend not documented
+- **Documentation drift risk** - keep docs in sync as gameplay and backend flows evolve
 - **Build optimization** - Monolithic bundle (no code splitting or lazy loading)
 
 ---
@@ -185,12 +185,13 @@ These tasks enhance developer experience and expand documentation.
   - **Cover**: Settings structure, persistence, UI binding
   - **Status**: ✅ Fixed - Added `docs/options-system.md` documenting data model, storage providers, side effects, tab architecture, localization flow, and extension steps (2026-03-11)
 
-- [ ] **Document Supabase Backend**
+- [x] **Document Supabase Backend**
   - **Context**: Supabase Edge Functions handle multiplayer game actions and Steam authentication (`phaser/supabase/functions/`), but have no architecture documentation
   - **Impact**: Critical for multiplayer maintenance and onboarding
   - **Effort**: Medium (1 day)
   - **Create**: `docs/supabase-backend.md`
   - **Cover**: Edge Function architecture, action handler, Steam auth flow, deployment process, integration tests
+  - **Status**: ✅ Fixed - Added `docs/supabase-backend.md` covering architecture, env vars, testing strategy, bundling pipeline, and deployment process (2026-03-13)
 
 ### Developer Experience
 - [x] **Add pre-commit hooks**
