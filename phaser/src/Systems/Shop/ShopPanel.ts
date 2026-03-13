@@ -10,7 +10,7 @@ const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 50;
 
 export let container: Container;
 export let nextRoundButton: Button;
-export let onNextRoundClicked: (() => void) | null = null;
+export const onNextRoundClicked: (() => void) | null = null;
 
 export const create = (nextRoundCallback: (() => void) | null) => {
 	container?.destroy();
