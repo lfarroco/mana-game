@@ -54,7 +54,7 @@ module.exports = {
 		"^@TriggerSystem/(.*)\\.js$": "<rootDir>/src/TriggerSystem/$1",
 		"^@TriggerSystem/(.*)$": "<rootDir>/src/TriggerSystem/$1",
 		"^@config$": "<rootDir>/src/config.ts",
-				"^@main$": "<rootDir>/src/main.ts",
+		"^@main$": "<rootDir>/src/main.ts",
 		"^@assets$": "<rootDir>/src/assets.ts",
 		"^@utils$": "<rootDir>/src/utils.ts",
 		"^@Storage/(.*)\\.js$": "<rootDir>/src/Storage/$1",
