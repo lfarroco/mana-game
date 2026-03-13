@@ -68,7 +68,6 @@ module.exports = {
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 		"^Effects$": "<rootDir>/src/Effects/index.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",
-		"\\.(json)$": "identity-obj-proxy",
 	},
 	collectCoverageFrom: [
 		"src/Core/**/*.{ts,tsx}",
