@@ -35,3 +35,13 @@ Migration date: 2026-03-13
 - [x] Documented Options/Preferences System in `docs/options-system.md` with architecture, persistence, and extension guidance (Copilot, 2026-03-11)
 - [x] Documented Effect System in `docs/effect-system.md` with playback integration and module-level architecture guidance (Copilot, 2026-03-11)
 - [x] Documented UI System in `docs/ui-system.md` with component composition, event flow, and layout/input conventions (Copilot, 2026-03-11)
+
+## Migrated From PLAN.md
+
+Migration date: 2026-03-13
+
+### Completed (moved from roadmap historical section)
+- [x] Systems consolidation moved from `Scenes/Battleground/Systems/` to `src/Systems/` (historical roadmap entry)
+- [x] GameController pattern implemented as unified game-action interface (historical roadmap entry)
+- [x] Server-side combat migration completed (headless combat simulation)
+- [x] Resolved bugs: game-over match stats zero, match stats persistence across save/resume, and board unit position save consistency
