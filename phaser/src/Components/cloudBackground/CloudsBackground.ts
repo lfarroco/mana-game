@@ -237,7 +237,7 @@ export class CloudsBackground {
 				default:
 					return 1.0; // Default to medium
 			}
-		} catch (error) {
+		} catch {
 			// Fallback to medium quality if OptionsStore is not available
 			console.warn("Could not access OptionsStore, defaulting to medium particle quality");
 			return 1.0;
