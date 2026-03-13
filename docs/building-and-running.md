@@ -14,16 +14,17 @@ Opens at `http://localhost:8080`
 
 ### Core
 
-| Command             | Description                              |
-|---------------------|------------------------------------------|
-| `npm run dev`       | Start development server with hot reload |
-| `npm run dev:demo`  | Start development server in demo mode    |
-| `npm run build`     | Create production web build              |
-| `npm run test`      | Run all tests                            |
-| `npm run test:unit` | Run unit tests only                      |
-| `npm run test:e2e`  | Run Playwright end-to-end tests          |
-| `npm run lint`      | Run ESLint                               |
-| `npm run format`    | Run Prettier formatting                  |
+| Command                 | Description                                        |
+|-------------------------|----------------------------------------------------|
+| `npm run dev`           | Start development server with hot reload           |
+| `npm run dev:demo`      | Start development server in demo mode              |
+| `npm run build`         | Create production web build                        |
+| `npm run test`          | Run all tests                                      |
+| `npm run test:unit`     | Run unit tests only                                |
+| `npm run test:e2e`      | Run Playwright end-to-end tests                    |
+| `npm run test:mutation` | Run mutation testing (Stryker, Core-focused scope) |
+| `npm run lint`          | Run ESLint                                         |
+| `npm run format`        | Run Prettier formatting                            |
 
 ### Desktop (Electron)
 

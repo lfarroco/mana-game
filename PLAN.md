@@ -188,13 +188,6 @@ Improvements to testing infrastructure and coverage.
   - **Focus**: Combat simulation, shop generation, encounter selection
 
 ### Test Infrastructure
-- [ ] **Add mutation testing**
-  - **Context**: Verify tests actually catch bugs
-  - **Impact**: Improve test quality
-  - **Effort**: Medium (1 day)
-  - **Tools**: Stryker
-  - **Scope**: Start with Core/ logic
-
 ---
 
 ## Performance Optimizations

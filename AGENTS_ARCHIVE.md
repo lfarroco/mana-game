@@ -46,3 +46,4 @@ Migration date: 2026-03-13
 - [x] Server-side combat migration completed (headless combat simulation)
 - [x] Resolved bugs: game-over match stats zero, match stats persistence across save/resume, and board unit position save consistency
 - [x] Added cross-platform CI build verification via `.github/workflows/platform-build-verification.yml`: Electron build validation now runs on Linux/macOS/Windows and Android build validation runs with Capacitor sync plus Gradle debug assemble (Copilot, 2026-03-13)
+- [x] Added mutation testing infrastructure with Stryker in `phaser/`: configured `stryker.conf.json` for Core-focused mutation scope, added `npm run test:mutation`, and verified setup with a successful Core-only dry run (`npx stryker run --dryRunOnly --mutate "src/Core/Types.ts" --testFiles "src/Core/**/*.test.ts"`) (Copilot, 2026-03-13)

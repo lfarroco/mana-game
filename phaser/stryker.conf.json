@@ -1,0 +1,41 @@
+{
+	"$schema": "https://stryker-mutator.io/schema/stryker-schema.json",
+	"testRunner": "jest",
+	"jest": {
+		"projectType": "custom",
+		"configFile": "jest.config.cjs",
+		"enableFindRelatedTests": true
+	},
+	"mutate": [
+		"src/Core/**/*.ts",
+		"src/Systems/Shop/PureShop.ts",
+		"!src/**/*.test.ts",
+		"!src/**/__tests__/**"
+	],
+	"testFiles": [
+		"src/Core/**/*.test.ts"
+	],
+	"ignorePatterns": [
+		"dist-electron",
+		"dist-steam",
+		"dist-steam-demo",
+		"android/build",
+		"coverage",
+		"playwright-report",
+		"test-results",
+		"public",
+		"assets",
+		".cache"
+	],
+	"coverageAnalysis": "off",
+	"reporters": [
+		"clear-text",
+		"progress",
+		"html"
+	],
+	"htmlReporter": {
+		"fileName": "reports/mutation/mutation.html"
+	},
+	"tempDirName": ".stryker-tmp",
+	"concurrency": 4
+}
