@@ -41,6 +41,7 @@ Migration date: 2026-03-13
 Migration date: 2026-03-13
 
 ### Completed (moved from roadmap historical section)
+- [x] Added Playwright visual regression coverage with baseline snapshots in `phaser/e2e/visual-regression.spec.ts` for title scene, battleground shop phase, and battleground combat phase; validated with `npx playwright test e2e/visual-regression.spec.ts` (3/3 passed) (Copilot, 2026-03-13)
 - [x] Closed roadmap sprint item "E2E test fixes (High)": validated Playwright suite now passes end-to-end (`npm run test:e2e` => 10/10 passed), then removed the stale sprint-focus task from `PLAN.md` (Copilot, 2026-03-13)
 - [x] Systems consolidation moved from `Scenes/Battleground/Systems/` to `src/Systems/` (historical roadmap entry)
 - [x] GameController pattern implemented as unified game-action interface (historical roadmap entry)
