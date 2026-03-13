@@ -202,7 +202,7 @@ These tasks enhance developer experience and expand documentation.
   - **Hooks**: ESLint, Prettier, type checking
   - **Status**: ✅ Fixed - Added Husky pre-commit hook running lint-staged (ESLint + Prettier on staged TS/TSX files) and TypeScript type checking (2026-03-11)
 
-- [ ] **Improve hot reload speed**
+- [x] **Improve hot reload speed**
   - **Context**: Development server reload times could be faster
   - **Impact**: Faster iteration during development
   - **Effort**: Medium (1 day)
@@ -210,6 +210,7 @@ These tasks enhance developer experience and expand documentation.
     1. Audit webpack config for optimization opportunities
     2. Implement module caching strategies
     3. Consider vite migration (future consideration)
+  - **Status**: ✅ Improved webpack dev/debug rebuild speed by enabling filesystem cache and ts-loader transpile-only watch mode in `webpack/config.dev.cjs` and `webpack/config.debug.cjs` (2026-03-13)
 
 ### Code Organization
 - [ ] **Reorganize project file structure (from TODO.md)**
