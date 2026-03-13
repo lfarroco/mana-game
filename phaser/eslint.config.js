@@ -31,7 +31,7 @@ export default [
 		rules: {
 			...tseslint.configs.recommended.rules,
 			"no-console": "warn",
-			"prefer-const": "warn",
+			"prefer-const": "error",
 			"@typescript-eslint/no-explicit-any": "warn",
 			"@typescript-eslint/no-unused-vars": [
 				"warn",

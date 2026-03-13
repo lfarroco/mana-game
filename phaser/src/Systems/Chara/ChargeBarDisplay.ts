@@ -7,7 +7,7 @@ export type CharaBars = {
 	unit: Unit;
 };
 
-let charaBarsMap = new Map<string, CharaBars>();
+const charaBarsMap = new Map<string, CharaBars>();
 
 export function create(unit: Unit, container: Container) {
 	const chargeBar = getCurrentScene().add.graphics();
