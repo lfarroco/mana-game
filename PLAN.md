@@ -258,12 +258,6 @@ Improvements for load times, runtime performance, and bundle size.
 Improvements to build, deployment, and development workflows.
 
 ### CI/CD Pipeline
-- [ ] **Add build verification for all platforms**
-  - **Context**: Only web build (`webpack.yml`) runs automatically. Electron and Android builds are manual.
-  - **Impact**: Catch platform-specific build issues
-  - **Effort**: Medium (1 day)
-  - **Platforms**: Web (automated), Electron Win/Mac/Linux (manual), Android (manual)
-
 - [ ] **Implement automated deployment**
   - **Context**: `publish-steam.yml` and `publish-itch.yml` exist but are manual. Shell scripts `scripts/publish_steam.sh` and `scripts/publish_steam_demo.sh` also exist for manual deployment.
   - **Impact**: Faster, safer releases

@@ -45,3 +45,4 @@ Migration date: 2026-03-13
 - [x] GameController pattern implemented as unified game-action interface (historical roadmap entry)
 - [x] Server-side combat migration completed (headless combat simulation)
 - [x] Resolved bugs: game-over match stats zero, match stats persistence across save/resume, and board unit position save consistency
+- [x] Added cross-platform CI build verification via `.github/workflows/platform-build-verification.yml`: Electron build validation now runs on Linux/macOS/Windows and Android build validation runs with Capacitor sync plus Gradle debug assemble (Copilot, 2026-03-13)
