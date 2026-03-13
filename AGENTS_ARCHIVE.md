@@ -41,6 +41,7 @@ Migration date: 2026-03-13
 Migration date: 2026-03-13
 
 ### Completed (moved from roadmap historical section)
+- [x] Closed roadmap sprint item "E2E test fixes (High)": validated Playwright suite now passes end-to-end (`npm run test:e2e` => 10/10 passed), then removed the stale sprint-focus task from `PLAN.md` (Copilot, 2026-03-13)
 - [x] Systems consolidation moved from `Scenes/Battleground/Systems/` to `src/Systems/` (historical roadmap entry)
 - [x] GameController pattern implemented as unified game-action interface (historical roadmap entry)
 - [x] Server-side combat migration completed (headless combat simulation)
