@@ -36,6 +36,10 @@ export async function handleMultiplayerPhase(state: State) {
 
 	// Sync phase from server
 	state.session.phase = result.phase;
+	state.session.current_options = {
+		options: result.options || [],
+		combatState: result.combatState,
+	};
 
 	// Sync Team State and Stats from Server
 	if (result.round !== undefined) {
