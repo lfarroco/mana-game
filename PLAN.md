@@ -344,7 +344,6 @@ Use this matrix to help prioritize tasks not already categorized:
 ## Current Sprint Focus
 - [ ] Phase system migration (Critical) - investigation underway
 - [ ] Single-player/multiplayer unification (Critical)
-- [ ] E2E test fixes (High) - 4 tests still failing, phase advancement issues identified
 
 ---
 
