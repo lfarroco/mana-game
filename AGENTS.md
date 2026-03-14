@@ -95,7 +95,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Update this section as you find or fix bugs.
 
 - [ ] Legacy `PhaseManager.ts` still runs the main game loop — new `Core/PhaseSystem/` handlers are registered but not fully migrated
-- [x] `MultiplayerManager` was a singleton class — converted to functional module
 
 ## Task Queue
 
@@ -108,33 +107,12 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ### Medium Priority
 
-- [x] Add keyboard shortcuts
-- [x] Document the UI System (components, layout management)
-- [x] Document the Effect System (visual effects, particles)
-- [x] Document the Options/Preferences System (user settings)
-- [x] Document Supabase Backend (Edge Functions, Steam auth, deployment)
-- [x] Add comprehensive test coverage for UI handlers
-- [x] Implement smooth fade-in/out using Phaser tweens in `AudioManager.ts` (currently uses `setTimeout` delays)
-- [x] Add pre-commit hooks (Husky + lint-staged + typecheck)
-- [x] Improve test execution speed
+- [ ] Add comprehensive test coverage for the phase-system migration
 
 ### Low Priority
 
 - [ ] Reorganize project file structure (see TODO.md for proposed layout)
-- [ ] Replace `MultiplayerManager` singleton with a functional module
-- [x] Evaluate if Node.js engine requirement should be formally set in `package.json`
 
 ### Completed
-- Historical completed entries were moved to [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) on 2026-03-13.
-- Keep only recent or in-progress-relevant completions in this section going forward.
-- [x] Fixed drag-to-board shop purchases crashing when the shop Chara was already removed by guarding `getCharaById` in `itemDragPurchaseRequested` and adding a missing-Chara regression test in `itemDragPurchaseRequested.test.ts` (Copilot, 2026-03-14)
-- [x] Fixed premature game-over/win checks in results flow by using server-synced current lives/wins (no extra virtual increment), extracted pure outcome logic to `ResultsOutcome.ts`, and added threshold regression tests in `ResultsUI.test.ts` (Copilot, 2026-03-14)
-- [x] Fixed end-of-run session stats showing zeros by persisting `runStats` in server-side sessions, syncing combat simulation totals back into `GameLogic`, and reading the provided state in `GameCompleteUI`; covered with `LocalServerAdapter` regression tests (Copilot, 2026-03-13)
-- [x] Fixed single-player post-combat round desync by removing client-side round advancement from `src/Systems/ResultsPhase.ts` and covering the continue flow with unit tests in `src/Systems/ResultsPhase.test.ts` (Copilot, 2026-03-13)
-- [x] Continued ESLint warning escalation by promoting `@typescript-eslint/no-unused-vars` to error in `phaser/eslint.config.js` and fixing active source violations in `src/Components/cloudBackground/CloudsBackground.ts` (Copilot, 2026-03-13)
-- [x] Began ESLint warning escalation by promoting `prefer-const` to error in `phaser/eslint.config.js` and fixing existing `prefer-const` violations in `src/Systems/Chara/ChargeBarDisplay.ts` and `src/Systems/Shop/ShopPanel.ts` (Copilot, 2026-03-13)
-- [x] Documented Supabase backend architecture and operations in `docs/supabase-backend.md` (Copilot, 2026-03-13)
-- [x] Improved webpack hot reload speed via filesystem cache and faster ts-loader watch mode in `webpack/config.dev.cjs` and `webpack/config.debug.cjs` (Copilot, 2026-03-13)
-- [x] Added Jest coverage for Chara input and Shop event handlers; fixed `ownedUnitSold` sale-event ordering and Jest JSON module mapping in `jest.config.cjs` (Copilot, 2026-03-13)
-- [x] Improved unit-test execution speed with cached isolated Jest transforms and 2-way CI sharding in `.github/workflows/webpack.yml` (Copilot, 2026-03-13)
-- [x] Added battleground keyboard shortcuts for phase actions and synced phase options into client state for shortcut resolution; covered with focused Jest tests (Copilot, 2026-03-13)
+- Historical completed entries live in [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md).
+- Add new completed work there when closing tasks so this file stays focused on active items.
