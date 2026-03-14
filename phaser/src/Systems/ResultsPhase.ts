@@ -25,12 +25,7 @@ export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	// Store combat result for replay
 	storeCombatResult("player_lost", state, nextPhaseCallback);
 
-	ResultsUI.displayResults(
-		state,
-		"defeat",
-		nextPhaseCallback,
-		replayCombat
-	);
+	ResultsUI.displayResults(state, "defeat", nextPhaseCallback, replayCombat);
 	PrestigeSystem.processDefeat();
 	await ResultsUI.slideIn();
 }
@@ -49,19 +44,15 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 	// Store combat result for replay
 	storeCombatResult("player_won", state, nextPhaseCallback);
 
-	ResultsUI.displayResults(
-		state,
-		"victory",
-		nextPhaseCallback,
-		replayCombat
-	);
+	ResultsUI.displayResults(state, "victory", nextPhaseCallback, replayCombat);
 	PrestigeSystem.processVictory();
 	await ResultsUI.slideIn();
 }
 
 export async function handleCombatEnded(state: State, combatResult: string) {
-
-	const playerUnits = state.battleData.units.filter(u => u.force === c.FORCE_ID_PLAYER && !u.isCore);
+	const playerUnits = state.battleData.units.filter(
+		(u) => u.force === c.FORCE_ID_PLAYER && !u.isCore
+	);
 
 	for (const unit of playerUnits) {
 		StatsStore.recordUnitUsage(getName(unit.cardId));
@@ -77,8 +68,6 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 }
 
 async function handleVictory(state: State): Promise<void> {
-	PrestigeSystem.finalizeRound();
-
 	console.log("Round", state.session.round, "Shop Phase Starting (Victory Transition).");
 
 	saveGameData();
@@ -88,13 +77,11 @@ async function handleVictory(state: State): Promise<void> {
 	// Notify server of combat completion and get next phase
 	const server = PhaseManager.getServerAdapter();
 	const playerId = PhaseManager.getPlayerId();
-	await server.handleAction(playerId, 'combat_done');
+	await server.handleAction(playerId, "combat_done");
 	PhaseManager.startPhase(state);
 }
 
 async function handleDefeat(state: State): Promise<void> {
-	PrestigeSystem.finalizeRound();
-
 	console.log("Round", state.session.round, "Shop Phase Starting (After Defeat).");
 
 	const lives = 4 - state.session.losses;
@@ -102,7 +89,12 @@ async function handleDefeat(state: State): Promise<void> {
 		deleteSavedData();
 
 		const { displayGameComplete } = await import("@Scenes/Battleground/Results/GameCompleteUI");
-		const container = await displayGameComplete(state, state.session.wins, state.session.team.units, true);
+		const container = await displayGameComplete(
+			state,
+			state.session.wins,
+			state.session.team.units,
+			true
+		);
 		getCurrentScene().add.existing(container);
 		return;
 	}
@@ -114,6 +106,6 @@ async function handleDefeat(state: State): Promise<void> {
 	// Notify server of combat completion and get next phase
 	const server = PhaseManager.getServerAdapter();
 	const playerId = PhaseManager.getPlayerId();
-	await server.handleAction(playerId, 'combat_done');
+	await server.handleAction(playerId, "combat_done");
 	PhaseManager.startPhase(state);
 }
