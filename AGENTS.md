@@ -11,7 +11,7 @@ The file plan.md contains the overall project plan and roadmap, including tasks 
 3. **Read the relevant docs** from the Knowledge Index.
 4. **Check the coding standards** before writing code.
 5. **Implement the change**, including tests where appropriate.
-6. **Update this file**: mark the task done, move to Completed, note any new issues discovered.
+6. **Update this file**: remove the task that was completed, and append it to the file AGENTS_ARCHIVE.md . If you discover new issues or tasks during your work, add them to this file.
 
 ## Project Overview
 
@@ -127,6 +127,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Completed
 - Historical completed entries were moved to [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) on 2026-03-13.
 - Keep only recent or in-progress-relevant completions in this section going forward.
+- [x] Fixed drag-to-board shop purchases crashing when the shop Chara was already removed by guarding `getCharaById` in `itemDragPurchaseRequested` and adding a missing-Chara regression test in `itemDragPurchaseRequested.test.ts` (Copilot, 2026-03-14)
 - [x] Fixed premature game-over/win checks in results flow by using server-synced current lives/wins (no extra virtual increment), extracted pure outcome logic to `ResultsOutcome.ts`, and added threshold regression tests in `ResultsUI.test.ts` (Copilot, 2026-03-14)
 - [x] Fixed end-of-run session stats showing zeros by persisting `runStats` in server-side sessions, syncing combat simulation totals back into `GameLogic`, and reading the provided state in `GameCompleteUI`; covered with `LocalServerAdapter` regression tests (Copilot, 2026-03-13)
 - [x] Fixed single-player post-combat round desync by removing client-side round advancement from `src/Systems/ResultsPhase.ts` and covering the continue flow with unit tests in `src/Systems/ResultsPhase.test.ts` (Copilot, 2026-03-13)
