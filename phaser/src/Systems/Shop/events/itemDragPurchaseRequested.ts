@@ -15,6 +15,14 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
+	const shopChara = (() => {
+		try {
+			return getCharaById(shopCharaId);
+		} catch {
+			return undefined;
+		}
+	})();
+
 	const existingUnit = getState().session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	// Validate before purchase - party full check (only if not an upgrade)
@@ -22,7 +30,9 @@ export async function itemDragPurchaseRequested(
 		(!existingUnit || existingUnit.rank > 3) &&
 		getState().session.team.units.length >= constants.MAX_PARTY_SIZE
 	) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		if (shopChara) {
+			charaEvents.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+		}
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
@@ -31,7 +41,9 @@ export async function itemDragPurchaseRequested(
 	if (!existingUnit || existingUnit.rank > 3) {
 		const occupier = getUnitAt(getState().session.team.units)(targetTile);
 		if (occupier) {
-			charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+			if (shopChara) {
+				charaEvents.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+			}
 			uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 			return;
 		}
@@ -42,7 +54,9 @@ export async function itemDragPurchaseRequested(
 	const success = await controller.purchaseUnit(shopUnitData.cardId);
 
 	if (!success) {
-		charaEvents.onShopPurchaseFailed(getCharaById(shopCharaId), vec2(dragStartX, dragStartY));
+		if (shopChara) {
+			charaEvents.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+		}
 		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SERVER_REJECTED");
 		return;
 	}
@@ -50,7 +64,9 @@ export async function itemDragPurchaseRequested(
 	// Handle the visual updates after successful purchase
 	if (existingUnit && existingUnit.rank <= 3) {
 		upgradeUnit(existingUnit);
-		charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+		if (shopChara) {
+			charaEvents.onShopPurchaseSuccesful(shopChara);
+		}
 		return;
 	}
 
@@ -65,5 +81,7 @@ export async function itemDragPurchaseRequested(
 	}
 
 	summon(newUnit, true);
-	charaEvents.onShopPurchaseSuccesful(getCharaById(shopCharaId));
+	if (shopChara) {
+		charaEvents.onShopPurchaseSuccesful(shopChara);
+	}
 }

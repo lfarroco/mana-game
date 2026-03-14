@@ -192,4 +192,28 @@ describe("itemDragPurchaseRequested", () => {
 		);
 		expect(mockOnShopPurchaseSuccesful).toHaveBeenCalledWith({ id: "shop-chara-1" });
 	});
+
+	it("does not throw when the dragged shop chara no longer exists", async () => {
+		mockGetCharaById.mockImplementation(() => {
+			throw new Error("Chara not found");
+		});
+
+		await expect(
+			itemDragPurchaseRequested(
+				{ id: "shop-unit", cardId: "mana_crystal" } as never,
+				"missing-shop-chara",
+				{ x: 2, y: 0 },
+				10,
+				20
+			)
+		).resolves.toBeUndefined();
+
+		expect(mockPurchaseUnit).toHaveBeenCalledWith("mana_crystal");
+		expect(mockState.session.team.units).toHaveLength(1);
+		expect(mockSummon).toHaveBeenCalledWith(
+			expect.objectContaining({ id: "new-mana_crystal", cardId: "mana_crystal" }),
+			true
+		);
+		expect(mockOnShopPurchaseSuccesful).not.toHaveBeenCalled();
+	});
 });
