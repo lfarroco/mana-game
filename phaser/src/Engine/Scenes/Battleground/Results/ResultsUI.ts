@@ -1,14 +1,14 @@
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
-import { getCurrentScene, getState, State } from "@Models/State";
+import { getCurrentScene, State } from "@Models/State";
 import { displayVictory } from "@Scenes/Battleground/Results/VictoryUI";
 import { displayDefeat } from "@Scenes/Battleground/Results/DefeatUI";
 import { displayGameComplete } from "@Scenes/Battleground/Results/GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
-import { WINS_TO_WIN_GAME, RESULTS_PANEL } from "@Scenes/Battleground/Results/ResultsConfig";
+import { RESULTS_PANEL } from "@Scenes/Battleground/Results/ResultsConfig";
 import { createBackgroundOverlay, BackgroundOverlay } from "@Components/BackgroundOverlay";
-import { GAME_CONFIG } from "@config";
+import { determineGameOutcome } from "@Scenes/Battleground/Results/ResultsOutcome";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
@@ -39,18 +39,6 @@ function calculateLivesChange(resultType: "victory" | "defeat"): number {
 	}
 }
 
-function determineGameOutcome(
-	resultType: "victory" | "defeat",
-	newWins: number,
-	expectedNewLives: number
-): { gameWon: boolean; gameOver: boolean } {
-	// In demo mode, treat reaching MAX_VICTORIES as "game won" to trigger demo complete screen
-	const demoComplete = resultType === "victory" && newWins >= GAME_CONFIG.MAX_VICTORIES;
-	const gameWon = resultType === "victory" && (newWins === WINS_TO_WIN_GAME || demoComplete);
-	const gameOver = resultType === "defeat" && expectedNewLives <= 0;
-	return { gameWon, gameOver };
-}
-
 async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
@@ -76,17 +64,17 @@ export async function displayResults(
 	scene.children.bringToTop(overlay.rectangle);
 	scene.children.bringToTop(resultsContainer);
 
-	const gameState = getState();
+	const gameState = state;
 	const player = {
 		wins: gameState.session.wins,
 		lives: 4 - gameState.session.losses,
 	};
 
 	const livesChange = calculateLivesChange(resultType);
-	const expectedNewLives = player.lives + livesChange;
-	const newWins = resultType === "victory" ? player.wins + 1 : player.wins;
+	const currentLives = player.lives;
+	const currentWins = player.wins;
 
-	const { gameWon, gameOver } = determineGameOutcome(resultType, newWins, expectedNewLives);
+	const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
 
 	const allBattleUnits = gameState.battleData.units;
 
@@ -96,7 +84,7 @@ export async function displayResults(
 			const playerUnits = allBattleUnits.filter((u) => u.force === c.FORCE_ID_PLAYER);
 			const ui = await displayGameComplete(
 				state,
-				newWins,
+				currentWins,
 				playerUnits,
 				gameOver,
 				nextPhaseCallback
