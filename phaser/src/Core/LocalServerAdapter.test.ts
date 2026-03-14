@@ -204,6 +204,24 @@ describe("LocalServerAdapter", () => {
 			expect(combatSession?.runStats?.totalUnitsRecruited).toBe(1);
 			expect(combatSession?.runStats?.mostPowerfulUnit).toBeTruthy();
 		});
+
+		it("should allow victory action to continue infinite mode after 10 wins", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "combat",
+				wins: 10,
+				current_options: { options: [{ id: "combat_done", label: "Continue" }] },
+			});
+
+			const result = await adapter.handleAction(testPlayerId, "victory");
+			expect(result).toBe(true);
+
+			const nextSession = await adapter.getSession(testPlayerId);
+			expect(nextSession?.phase).not.toBe("victory");
+			expect(nextSession?.phase).not.toBe("game_over");
+		});
 	});
 
 	describe("game flow", () => {

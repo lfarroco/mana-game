@@ -61,6 +61,7 @@ jest.mock("@Constants/constants", () => ({
 }));
 
 jest.mock("@i18n/i18n", () => ({
+	t: (key: string) => key,
 	getName: (cardId: string) => cardId,
 }));
 
@@ -146,6 +147,24 @@ describe("ResultsPhase", () => {
 		expect(mockSaveGameData).toHaveBeenCalled();
 		expect(mockResetBoard).toHaveBeenCalledWith(true);
 		expect(mockHandleAction).toHaveBeenCalledWith("player-1", "combat_done");
+		expect(mockStartPhase).toHaveBeenCalledWith(state);
+	});
+
+	it("uses victory action to continue infinite mode once the win threshold is reached", async () => {
+		const state = createState();
+		state.session.wins = 10;
+		let continueCallback: (() => Promise<void>) | undefined;
+
+		mockDisplayResults.mockImplementation((...args: unknown[]) => {
+			continueCallback = args[2] as () => Promise<void>;
+		});
+
+		await handleCombatEnded(state, "player_won");
+		expect(continueCallback).toBeDefined();
+
+		await continueCallback?.();
+
+		expect(mockHandleAction).toHaveBeenCalledWith("player-1", "victory");
 		expect(mockStartPhase).toHaveBeenCalledWith(state);
 	});
 

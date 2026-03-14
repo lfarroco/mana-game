@@ -62,6 +62,11 @@ const initialRegistry: ActionRegistryState = {
 		fromPhase: "combat",
 		description: "Finish combat summary",
 	},
+	victory: {
+		type: ActionType.PHASE_TRANSITION,
+		fromPhase: "combat",
+		description: "Continue in infinite mode after reaching victory threshold",
+	},
 
 	// Upgrade Actions
 	upgrade_core_done: {
