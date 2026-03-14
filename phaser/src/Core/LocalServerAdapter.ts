@@ -23,6 +23,25 @@ export class LocalServerAdapter implements IGameServer {
 	// See: DebugController.startBattlegroundWithSession()
 	sessionManager = new SessionManager();
 
+	private getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
+		switch (phase) {
+			case "upgrade_core":
+				return [
+					{ id: "increase_core_max_life" },
+					{ id: "upgrade_core_power" },
+					{ id: "decrease_core_cooldown" },
+				];
+			case "add_reaction_core":
+				return [
+					{ id: "on_100_damage_effect" },
+					{ id: "on_crit_effect" },
+					{ id: "on_battle_start_effect" },
+				];
+			default:
+				return [];
+		}
+	}
+
 	private getCurrentOptions(session: SessionData): PhaseOption[] {
 		if (!session.current_options) {
 			return [];
@@ -129,6 +148,15 @@ export class LocalServerAdapter implements IGameServer {
 			case "add_reaction_core":
 				if (session.current_options) {
 					response.options = this.getCurrentOptions(session);
+				}
+
+				if (response.options.length === 0) {
+					const fallbackOptions = this.getFallbackOptionsForPhase(session.phase as PhaseType);
+					if (fallbackOptions.length > 0) {
+						response.options = fallbackOptions;
+						session.current_options = { options: fallbackOptions };
+						this.sessionManager.updateSession(playerId, session);
+					}
 				}
 				break;
 		}

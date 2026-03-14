@@ -21,6 +21,7 @@ import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import { updateRoundDisplay } from "@UI/components/roundDisplay";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getCardDefinition } from "@Models/Entities/Card";
 import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseManager";
@@ -72,7 +73,11 @@ export function getPlayerId(): string {
 // Render phase based on server response
 async function renderPhase(state: State, options: any, _eventEmitter?: EventEmitter) {
 	state.session.phase = options.phase;
+	const previousRound = state.session.round;
 	state.session.round = options.round ?? state.session.round;
+	if (state.session.round !== previousRound) {
+		updateRoundDisplay(state.session.round);
+	}
 	state.session.current_options = {
 		options: options.options || [],
 		combatState: options.combatState,
