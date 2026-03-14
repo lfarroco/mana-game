@@ -10,6 +10,7 @@ import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
 import { replayCombat, storeCombatResult } from "@Scenes/Battleground/RunCombatIO";
+import { WINS_TO_WIN_GAME } from "@Scenes/Battleground/Results/ResultsConfig";
 
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	console.log("Round", state.session.round, "Processing Defeat...");
@@ -77,7 +78,8 @@ async function handleVictory(state: State): Promise<void> {
 	// Notify server of combat completion and get next phase
 	const server = PhaseManager.getServerAdapter();
 	const playerId = PhaseManager.getPlayerId();
-	await server.handleAction(playerId, "combat_done");
+	const completionAction = state.session.wins >= WINS_TO_WIN_GAME ? "victory" : "combat_done";
+	await server.handleAction(playerId, completionAction);
 	PhaseManager.startPhase(state);
 }
 

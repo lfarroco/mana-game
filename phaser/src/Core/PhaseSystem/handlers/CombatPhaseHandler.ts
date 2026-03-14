@@ -10,14 +10,17 @@ export const combatPhaseHandler = createPhaseHandler({
 	computeTransition: (context: PhaseTransitionContext): PhaseTransitionResult => {
 		const { session, actionId } = context;
 
-		if (actionId !== "combat_done") {
+		if (actionId !== "combat_done" && actionId !== "victory") {
 			throw new Error(`Unexpected action ${actionId} in Combat handler`);
 		}
 
-		if (session.wins >= 10) {
+		if (actionId === "combat_done" && session.wins >= 10) {
 			return {
 				nextPhase: "victory",
-				nextOptions: [{ id: "return_to_menu", label: "Return to Menu" }],
+				nextOptions: [
+					{ id: "victory", label: "Continue Endless" },
+					{ id: "return_to_menu", label: "Return to Menu" },
+				],
 			};
 		}
 
