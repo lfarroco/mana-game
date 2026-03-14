@@ -3,22 +3,15 @@ import * as UIManager from "@UI/UI";
 
 export function processVictory(): void {
 	const state = getState();
-
-	state.session.wins += 1;
+	// wins already incremented server-side during combat simulation; just update the UI
 	UIManager.events.onWinsChanged(state.session.wins, 1);
 }
 
 export function processDefeat(): void {
 	const state = getState();
-
-	const oldLives = 4 - state.session.losses;
-
-	state.session.losses = Math.min(4, state.session.losses + 1);
-
-	const newLives = 4 - state.session.losses;
-	const livesDelta = newLives - oldLives;
-
-	UIManager.events.onLivesChanged(newLives, livesDelta);
+	// losses already incremented server-side during combat simulation; just update the UI
+	const lives = 4 - state.session.losses;
+	UIManager.events.onLivesChanged(lives, -1);
 }
 
 export function finalizeRound(): void {
