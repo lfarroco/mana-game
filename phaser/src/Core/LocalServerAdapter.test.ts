@@ -80,6 +80,24 @@ describe("LocalServerAdapter", () => {
 		it("should throw error for non-existent session", async () => {
 			await expect(adapter.getPhaseOptions("non-existent-player")).rejects.toThrow();
 		});
+
+		it("should recover missing upgrade options during upgrade_core phase", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "upgrade_core",
+				current_options: null,
+			});
+
+			const options = await adapter.getPhaseOptions(testPlayerId);
+			expect(options.phase).toBe("upgrade_core");
+			expect(options.options.map((option) => option.id)).toEqual([
+				"increase_core_max_life",
+				"upgrade_core_power",
+				"decrease_core_cooldown",
+			]);
+		});
 	});
 
 	describe("handleAction", () => {

@@ -23,7 +23,11 @@ export function create() {
 }
 
 export const updateRoundDisplay = (newTotalRound: number): void => {
-	roundTextElement!.setText(newTotalRound.toString());
+	if (!roundTextElement) {
+		return;
+	}
+
+	roundTextElement.setText(newTotalRound.toString());
 };
 
 function text(initialRound: number) {
