@@ -2,6 +2,7 @@ import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
 
 export type UnitCombatStats = {
 	unitId: string;
@@ -155,28 +156,55 @@ function trackStat(
 	}
 }
 
-export function trackDamage(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, damage: number): void {
+export function trackDamage(
+	trackerState: CombatStatsTrackerState,
+	env: CombatEnvironment,
+	sourceUnitId: string,
+	damage: number
+): void {
 	trackStat(trackerState, env, damage, sourceUnitId, "damage");
 }
 
-export function trackPoison(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, poison: number): void {
+export function trackPoison(
+	trackerState: CombatStatsTrackerState,
+	env: CombatEnvironment,
+	sourceUnitId: string,
+	poison: number
+): void {
 	trackStat(trackerState, env, poison, sourceUnitId, "poison");
 }
 
-export function trackHeal(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, healing: number): void {
+export function trackHeal(
+	trackerState: CombatStatsTrackerState,
+	env: CombatEnvironment,
+	sourceUnitId: string,
+	healing: number
+): void {
 	trackStat(trackerState, env, healing, sourceUnitId, "heal");
 }
 
-export function trackRegen(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, regen: number): void {
+export function trackRegen(
+	trackerState: CombatStatsTrackerState,
+	env: CombatEnvironment,
+	sourceUnitId: string,
+	regen: number
+): void {
 	trackStat(trackerState, env, regen, sourceUnitId, "regen");
 }
 
-export function trackShield(trackerState: CombatStatsTrackerState, env: CombatEnvironment, sourceUnitId: string, shield: number): void {
+export function trackShield(
+	trackerState: CombatStatsTrackerState,
+	env: CombatEnvironment,
+	sourceUnitId: string,
+	shield: number
+): void {
 	trackStat(trackerState, env, shield, sourceUnitId, "shield");
 }
 
-
-export function getUnitStats(trackerState: CombatStatsTrackerState, unitId: string): UnitCombatStats | undefined {
+export function getUnitStats(
+	trackerState: CombatStatsTrackerState,
+	unitId: string
+): UnitCombatStats | undefined {
 	return trackerState.unitStats.get(unitId);
 }
 
@@ -196,7 +224,7 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 	}
 	const { runStats } = session;
 
-	const playerForceId = session.player_id;
+	const playerForceId = session.team.units[0]?.force || FORCE_ID_PLAYER;
 	const playerStats = getForceStats(trackerState, playerForceId);
 
 	runStats.damageDealt += playerStats.damageDealt;
@@ -207,7 +235,6 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 
 	const player = { units: session.team.units };
 	for (const unit of player.units) {
-
 		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {
 			runStats.mostPowerfulUnit = { cardId: unit.cardId, power: unit.power };
 		}

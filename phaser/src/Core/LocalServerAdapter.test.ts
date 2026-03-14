@@ -146,6 +146,64 @@ describe("LocalServerAdapter", () => {
 			const coreInInitialUnits = combatOptions.combatState?.initialUnits?.find((u) => u.isCore);
 			expect(coreInInitialUnits?.position).toEqual({ x: 0, y: 0 });
 		});
+
+		it("should persist run stats through purchases and combat", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+			const shopOptions = GameLogic.generateShopOptions(session);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "shop",
+				current_options: { options: shopOptions.options },
+			});
+
+			let options = await adapter.getPhaseOptions(testPlayerId);
+			expect(options.phase).toBe("shop");
+
+			const unitId = options.options[0]?.id;
+			expect(unitId).toBeDefined();
+
+			await adapter.handleAction(testPlayerId, unitId!);
+
+			const updatedSession = await adapter.getSession(testPlayerId);
+			expect(updatedSession?.runStats?.totalUnitsRecruited).toBe(1);
+			expect(updatedSession?.runStats?.unitUsage[unitId!]).toBe(1);
+
+			for (let guard = 0; guard < 10; guard++) {
+				options = await adapter.getPhaseOptions(testPlayerId);
+
+				if (
+					options.phase === "encounter" &&
+					options.options.some((option) => option.id === "combat_encounter")
+				) {
+					break;
+				}
+
+				if (options.phase === "encounter") {
+					await adapter.handleAction(testPlayerId, options.options[0].id);
+					continue;
+				}
+
+				if (options.phase === "shop") {
+					await adapter.handleAction(testPlayerId, "skip_shop");
+					continue;
+				}
+
+				if (options.phase === "orb_shop") {
+					await adapter.handleAction(testPlayerId, "orb_shop_done");
+					continue;
+				}
+
+				throw new Error(`Unexpected phase before combat: ${options.phase}`);
+			}
+
+			await adapter.handleAction(testPlayerId, "combat_encounter");
+
+			const combatSession = await adapter.getSession(testPlayerId);
+			expect(combatSession?.runStats).toBeDefined();
+			expect(combatSession?.runStats?.totalUnitsRecruited).toBe(1);
+			expect(combatSession?.runStats?.mostPowerfulUnit).toBeTruthy();
+		});
 	});
 
 	describe("game flow", () => {
