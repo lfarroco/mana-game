@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals";
-import { trackDamage } from "@Systems/CombatStatsTracker";
+import { stop, trackDamage } from "@Systems/CombatStatsTracker";
 import { createMockState } from "@test-utils/serverCombatUtils";
 import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
@@ -86,5 +86,18 @@ describe("CombatStatsTracker", () => {
 		trackDamage(trackerState, env, sourceUnit.id, 50);
 
 		expect(env.processReactions).toHaveBeenCalledTimes(1);
+	});
+
+	it("should finalize run stats using the player combat force instead of session player id", () => {
+		state.session.player_id = "session-player-id";
+		state.session.team.units = state.battleData.units.filter(
+			(unit) => unit.force === sourceUnit.force
+		);
+
+		trackDamage(trackerState, env, sourceUnit.id, 50);
+		stop(trackerState, state);
+
+		expect(state.session.runStats?.damageDealt).toBe(50);
+		expect(state.session.runStats?.mostPowerfulUnit?.cardId).toBe(sourceUnit.cardId);
 	});
 });

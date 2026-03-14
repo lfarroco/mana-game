@@ -1,7 +1,7 @@
 import { createUIButton } from "@Components/UIButton";
 import { size, vec2 } from "@Models/Geometry";
 import { isElectron } from "@Utils/environment";
-import { getCurrentScene, getState, resetState, State } from "@Models/State";
+import { getCurrentScene, resetState, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -26,7 +26,7 @@ import { IS_DEMO, GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
 
 export async function displayGameComplete(
-	_state: State,
+	state: State,
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
@@ -72,7 +72,7 @@ export async function displayGameComplete(
 			totalUnitsRecruited: 0,
 			unitUsage: {},
 		};
-		StatsStore.recordRunStats(getState().session.runStats || defaultRunStats);
+		StatsStore.recordRunStats(state.session.runStats || defaultRunStats);
 
 		StatsStore.save();
 	}
@@ -162,7 +162,7 @@ export async function displayGameComplete(
 			createUIButton(label, vec2(panelX, panelY + 50 + i * 100), callback).container
 	);
 
-	const statsPanel = createRunStatsPanel();
+	const statsPanel = createRunStatsPanel(state.session.runStats);
 
 	const container = io.Container([
 		statsPanel,

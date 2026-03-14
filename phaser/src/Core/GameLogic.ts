@@ -21,6 +21,19 @@ import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
 
+function createDefaultRunStats() {
+	return {
+		damageDealt: 0,
+		poisonDealt: 0,
+		shieldDealt: 0,
+		regenDealt: 0,
+		healDealt: 0,
+		mostPowerfulUnit: null,
+		totalUnitsRecruited: 0,
+		unitUsage: {},
+	};
+}
+
 const ENCOUNTER_IDS = [
 	"upgrade_unit",
 	"armory",
@@ -65,6 +78,7 @@ export function createInitialSession(playerId: string, selectedCrystalId?: strin
 		losses: 0,
 		team,
 		current_options: null,
+		runStats: createDefaultRunStats(),
 	};
 
 	const options = generateEncounterOptions(session);
@@ -299,6 +313,11 @@ export function resolveAction(
 					}
 
 					units.push(newUnit);
+					if (!session.runStats) {
+						session.runStats = createDefaultRunStats();
+					}
+					session.runStats.totalUnitsRecruited += 1;
+					session.runStats.unitUsage[actionId] = (session.runStats.unitUsage[actionId] || 0) + 1;
 					updates.push(`Added new unit ${actionId}`);
 				}
 			}
@@ -559,6 +578,7 @@ export function transitionToNextState(
 	payload?: ActionPayload
 ): { session: SessionData; combatResult?: { won: boolean } } {
 	const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
+	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
 
 	// 1. Resolve Action / Update Team & Seed
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
@@ -618,6 +638,7 @@ export function transitionToNextState(
 
 		const simResult = simulateCombat(nextSession);
 		const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
+		nextSession.runStats = simResult.finalState.session.runStats || nextSession.runStats;
 
 		const outcomeLog = simResult.logs.find((l) => l.type === "outcome");
 		let wonCombat = false;

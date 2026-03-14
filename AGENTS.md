@@ -127,6 +127,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Completed
 - Historical completed entries were moved to [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) on 2026-03-13.
 - Keep only recent or in-progress-relevant completions in this section going forward.
+- [x] Fixed end-of-run session stats showing zeros by persisting `runStats` in server-side sessions, syncing combat simulation totals back into `GameLogic`, and reading the provided state in `GameCompleteUI`; covered with `LocalServerAdapter` regression tests (Copilot, 2026-03-13)
 - [x] Fixed single-player post-combat round desync by removing client-side round advancement from `src/Systems/ResultsPhase.ts` and covering the continue flow with unit tests in `src/Systems/ResultsPhase.test.ts` (Copilot, 2026-03-13)
 - [x] Continued ESLint warning escalation by promoting `@typescript-eslint/no-unused-vars` to error in `phaser/eslint.config.js` and fixing active source violations in `src/Components/cloudBackground/CloudsBackground.ts` (Copilot, 2026-03-13)
 - [x] Began ESLint warning escalation by promoting `prefer-const` to error in `phaser/eslint.config.js` and fixing existing `prefer-const` violations in `src/Systems/Chara/ChargeBarDisplay.ts` and `src/Systems/Shop/ShopPanel.ts` (Copilot, 2026-03-13)
