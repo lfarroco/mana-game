@@ -119,9 +119,9 @@ const extractPlayerIdFromAuthorization = async (
 		throw new Error("Unauthorized");
 	}
 
-	const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET");
+	const jwtSecret = Deno.env.get("JWT_SECRET");
 	if (!jwtSecret) {
-		throw new Error("Missing Server Configuration (SUPABASE_JWT_SECRET)");
+		throw new Error("Missing Server Configuration (JWT_SECRET)");
 	}
 
 	await verifyJwtHs256(token, jwtSecret);

@@ -80,6 +80,7 @@ The bundle script uses `esbuild` to produce Deno-compatible ESM and aliases Phas
 
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
+- `JWT_SECRET` (optional but recommended for local JWT verification path; falls back to `auth.getUser()` when unset)
 
 ### `auth-steam`
 

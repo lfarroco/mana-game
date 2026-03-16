@@ -225,7 +225,7 @@ Improvements for load times, runtime performance, and bundle size.
   - **Context**: `auth.getUser()` adds a network round-trip on every action request
   - **Impact**: Lower per-action latency and less auth service load
   - **Effort**: Medium (1-2 days)
-  - **Status**: Completed (2026-03-15) - `action` now verifies JWTs locally with `SUPABASE_JWT_SECRET` and derives `playerId` from claims.
+  - **Status**: Completed (2026-03-15) - `action` now verifies JWTs locally with `JWT_SECRET` and derives `playerId` from claims.
   - **Steps**:
     1. Verify JWT locally in Edge Function runtime
     2. Derive `playerId` from verified claims
