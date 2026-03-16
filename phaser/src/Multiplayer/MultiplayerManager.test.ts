@@ -76,7 +76,7 @@ describe("MultiplayerManager", () => {
 
 		expect(result).toBe(true);
 		expect(supabase.functions.invoke).toHaveBeenCalledWith("action", {
-			body: { actionId: "some_option", payload: undefined },
+			body: { actionId: "some_option" },
 		});
 	});
 
