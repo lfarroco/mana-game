@@ -43,6 +43,27 @@ logger.info("Initialized multiplayer manager", { playerId });
 
 export { isMultiplayer };
 
+const safeClonePayload = (payload: unknown): unknown => {
+	if (payload === undefined) {
+		return undefined;
+	}
+
+	try {
+		return JSON.parse(JSON.stringify(payload));
+	} catch {
+		return undefined;
+	}
+};
+
+const isFunctionsFetchError = (error: unknown): boolean => {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+
+	const maybeError = error as { name?: string };
+	return maybeError.name === "FunctionsFetchError";
+};
+
 export function disableMultiplayer() {
 	isMultiplayer = false;
 	logger.info("Multiplayer mode disabled");
@@ -59,16 +80,35 @@ export async function enableMultiplayer(selectedCrystalId?: string) {
 	logger.info("Connected to multiplayer session");
 }
 export async function sendOptionSelection(optionId: string, payload?: unknown): Promise<boolean> {
-	logger.debug("Sending option selection", { optionId, payload });
+	const sanitizedPayload = safeClonePayload(payload);
+	const body =
+		sanitizedPayload === undefined
+			? { actionId: optionId }
+			: { actionId: optionId, payload: sanitizedPayload };
 
-	const { error } = await supabase.functions.invoke("action", {
-		body: { actionId: optionId, payload },
+	logger.debug("Sending option selection", {
+		optionId,
+		hasPayload: sanitizedPayload !== undefined,
 	});
-	if (error) {
-		logger.error("Edge function action invoke failed", { optionId, error });
-		return false;
+
+	for (let attempt = 1; attempt <= 2; attempt += 1) {
+		const { error } = await supabase.functions.invoke("action", { body });
+
+		if (!error) {
+			return true;
+		}
+
+		const shouldRetry = attempt === 1 && isFunctionsFetchError(error);
+		if (!shouldRetry) {
+			logger.error("Edge function action invoke failed", { optionId, attempt, error });
+			return false;
+		}
+
+		logger.warn("Transient edge function fetch failure, retrying", { optionId, attempt, error });
+		await new Promise((resolve) => setTimeout(resolve, 150));
 	}
-	return true;
+
+	return false;
 }
 
 export async function sendTeamUpdate(team: { units: Unit[] }): Promise<boolean> {
