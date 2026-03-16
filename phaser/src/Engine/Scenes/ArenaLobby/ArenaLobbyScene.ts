@@ -1,11 +1,15 @@
-
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { checkActiveSession, enableMultiplayer, logout, getPlayerProfile } from "@Multiplayer/MultiplayerManager";
+import {
+	checkActiveSession,
+	enableMultiplayer,
+	logout,
+	getPlayerProfile,
+} from "@Multiplayer/MultiplayerManager";
 
 import { setCurrentScene } from "@Models/State";
 
@@ -25,11 +29,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setPosition(MIDDLE_SCREEN.x, 100)
 			.setOrigin(0.5);
 
-		this.profileText = io.Text("Loading...", { fontSize: "32px", color: "#aaaaaa" })
+		this.profileText = io
+			.Text("Loading...", { fontSize: "32px", color: "#aaaaaa" })
 			.setPosition(MIDDLE_SCREEN.x, 200)
 			.setOrigin(0.5);
 
-		this.ratingText = io.Text("", { fontSize: "48px", color: "#ffd700", fontStyle: "bold" })
+		this.ratingText = io
+			.Text("", { fontSize: "48px", color: "#ffd700", fontStyle: "bold" })
 			.setPosition(MIDDLE_SCREEN.x, 260)
 			.setOrigin(0.5);
 
@@ -40,7 +46,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			const hasActiveSession = await checkActiveSession();
 			if (hasActiveSession) {
 				await enableMultiplayer();
-				this.scene.start(SCENE_KEYS.BATTLEGROUND);
+				this.scene.start(SCENE_KEYS.BATTLEGROUND, { isMultiplayer: true });
 			} else {
 				this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
 			}
