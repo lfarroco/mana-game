@@ -43,6 +43,11 @@ logger.info("Initialized multiplayer manager", { playerId });
 
 export { isMultiplayer };
 
+export function disableMultiplayer() {
+	isMultiplayer = false;
+	logger.info("Multiplayer mode disabled");
+}
+
 export async function enableMultiplayer(selectedCrystalId?: string) {
 	isMultiplayer = true;
 	await initializeAuthSession();
