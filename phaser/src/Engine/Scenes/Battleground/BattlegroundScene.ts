@@ -14,7 +14,7 @@ import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
-import { enableMultiplayer } from "@Multiplayer/MultiplayerManager";
+import { disableMultiplayer, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
 
@@ -88,6 +88,15 @@ export class BattlegroundScene extends Phaser.Scene {
 		// - display current phase
 
 		const session = state.session;
+		const multiplayerModeEnabled = Boolean(isMultiplayer);
+
+		// Keep global mode state in sync so controller/server selection matches the current run type.
+		ServerFactory.setMultiplayer(multiplayerModeEnabled);
+		if (multiplayerModeEnabled) {
+			await enableMultiplayer();
+		} else {
+			disableMultiplayer();
+		}
 
 		// Initialize the Visualizer early in the scene startup
 		initializeVisualizer();
@@ -95,12 +104,6 @@ export class BattlegroundScene extends Phaser.Scene {
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
 			Systems.Setup.initializeNewGame(selectedCrystalId);
-
-			// Set up multiplayer mode if needed
-			if (isMultiplayer) {
-				ServerFactory.setMultiplayer(true);
-				await enableMultiplayer();
-			}
 
 			// Create session via server adapter for unified logic
 			// This ensures the session exists before we try to get phase options
