@@ -85,7 +85,7 @@ export async function checkActiveSession(): Promise<boolean> {
 	await initializeAuthSession();
 	const { data, error } = await supabase
 		.from("player_sessions")
-		.select("phase")
+		.select("phase, team, current_options")
 		.eq("player_id", playerId)
 		.maybeSingle();
 
@@ -94,10 +94,34 @@ export async function checkActiveSession(): Promise<boolean> {
 		return false;
 	}
 
-	if (data && data.phase !== "victory" && data.phase !== "game_over") {
-		return true;
+	if (!data) {
+		return false;
 	}
-	return false;
+
+	if (data.phase === "victory" || data.phase === "game_over") {
+		return false;
+	}
+
+	const teamUnits = Array.isArray((data as any).team?.units) ? (data as any).team.units : [];
+	const hasCore = teamUnits.some((unit: any) => unit?.isCore === true);
+
+	const rawOptions = (data as any).current_options;
+	const optionsList = Array.isArray(rawOptions) ? rawOptions : rawOptions?.options || [];
+	const hasCombatState = Boolean(rawOptions?.combatState);
+
+	if (!hasCore) {
+		logger.warn("Ignoring invalid active session: missing core unit", {
+			playerId,
+			phase: data.phase,
+		});
+		return false;
+	}
+
+	if (data.phase === "combat") {
+		return optionsList.length > 0 || hasCombatState;
+	}
+
+	return optionsList.length > 0;
 }
 
 // Requests the current phase options from the server
