@@ -4,6 +4,7 @@ import {
 	getPhaseOptions,
 	sendOptionSelection,
 	handleAuthRegister,
+	checkActiveSession,
 } from "@Multiplayer/MultiplayerManager";
 import { supabase } from "@lib/supabase";
 
@@ -78,6 +79,91 @@ describe("MultiplayerManager", () => {
 			body: { actionId: "some_option", payload: undefined },
 		});
 	});
+
+	it("should treat session with core and options as active", async () => {
+		const maybeSingleMock = jest.fn().mockResolvedValue({
+			data: {
+				phase: "shop",
+				team: { units: [{ id: "core-1", isCore: true }] },
+				current_options: { options: [{ id: "card_a" }] },
+			},
+			error: null,
+		});
+
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+		});
+
+		const isActive = await checkActiveSession();
+
+		expect(isActive).toBe(true);
+	});
+
+	it("should treat session without core as inactive", async () => {
+		const maybeSingleMock = jest.fn().mockResolvedValue({
+			data: {
+				phase: "shop",
+				team: { units: [{ id: "u1", isCore: false }] },
+				current_options: { options: [{ id: "card_a" }] },
+			},
+			error: null,
+		});
+
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+		});
+
+		const isActive = await checkActiveSession();
+
+		expect(isActive).toBe(false);
+	});
+
+	it("should treat non-combat session without options as inactive", async () => {
+		const maybeSingleMock = jest.fn().mockResolvedValue({
+			data: {
+				phase: "shop",
+				team: { units: [{ id: "core-1", isCore: true }] },
+				current_options: { options: [] },
+			},
+			error: null,
+		});
+
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+		});
+
+		const isActive = await checkActiveSession();
+
+		expect(isActive).toBe(false);
+	});
+
+	it("should allow combat session with combatState even if options list is empty", async () => {
+		const maybeSingleMock = jest.fn().mockResolvedValue({
+			data: {
+				phase: "combat",
+				team: { units: [{ id: "core-1", isCore: true }] },
+				current_options: { options: [], combatState: { logs: [] } },
+			},
+			error: null,
+		});
+
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+		});
+
+		const isActive = await checkActiveSession();
+
+		expect(isActive).toBe(true);
+	});
+
 	it("should handle successful registration enabling email confirmation", async () => {
 		const mockResponse = {
 			data: {
