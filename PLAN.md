@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 13, 2026
+**Last Updated**: March 15, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -95,9 +95,7 @@ These tasks significantly improve code quality, maintainability, and user experi
   - **Impact**: Enforces type safety, immutability, and logging discipline
   - **Effort**: Low (0.5 day)
   - **Status**: 🚧 In progress (2026-03-13) - `prefer-const` and `@typescript-eslint/no-unused-vars` promoted to `error`; existing `prefer-const` and active `no-unused-vars` violations in source were fixed. Remaining rules (`no-explicit-any`, `no-console`) are still pending escalation.
-  - **Steps**:
     1. Change `no-explicit-any` to `error` (fix existing violations first)
-    2. Change `prefer-const` to `error`
     3. Evaluate `no-console` as `error` after implementing structured logging
 
 ---
@@ -108,7 +106,6 @@ These tasks enhance developer experience and expand documentation.
 
 ### Code Organization
 - [ ] **Reorganize project file structure (from TODO.md)**
-  - **Context**: Proposed structure in TODO.md and ARCHITECTURE_PROPOSALS.md
   - **Impact**: Clearer separation of concerns
   - **Effort**: High (3-4 days)
   - **Risk**: High - requires extensive import updates
@@ -116,7 +113,6 @@ These tasks enhance developer experience and expand documentation.
   - **Steps**:
     1. Create new structure in parallel
     2. Gradually move files with comprehensive testing
-    3. Update all imports and configs
     4. Ensure all platforms still build
 
 ---
@@ -125,7 +121,6 @@ These tasks enhance developer experience and expand documentation.
 
 Nice-to-have improvements that can be scheduled as time permits.
 
-### Refactoring
 - [ ] **Implement Action/Reducer pattern for state management**
   - **Context**: Proposed in ARCHITECTURE_PROPOSALS.md Section 4
   - **Impact**: Cleaner state mutations, easier debugging/replays
@@ -133,14 +128,12 @@ Nice-to-have improvements that can be scheduled as time permits.
   - **Risk**: High - requires significant refactoring
   - **Recommendation**: Create proof-of-concept first
 
-### User Experience
 - [ ] **Improve mobile touch interactions**
   - **Context**: Android version needs touch optimization
   - **Impact**: Better mobile user experience
   - **Effort**: Medium (2 days)
   - **Focus**: Drag-and-drop, shop interactions, button sizes
 
----
 
 ## Technical Debt
 
@@ -148,7 +141,6 @@ Issues and patterns that should be addressed to prevent future problems.
 
 ### Code Smells
 - [ ] **Centralize magic numbers and constants**
-  - **Context**: Hardcoded values throughout codebase
   - **Impact**: Easier balancing and configuration
   - **Effort**: Medium (1-2 days)
   - **Steps**:
@@ -156,7 +148,6 @@ Issues and patterns that should be addressed to prevent future problems.
     2. Move to appropriate config files
     3. Document rationale for values
 
-### Architecture Debt
 - [ ] **Standardize error handling patterns**
   - **Context**: Inconsistent error handling across modules
   - **Impact**: Better error recovery and user feedback
@@ -165,7 +156,6 @@ Issues and patterns that should be addressed to prevent future problems.
     1. Define error handling conventions
     2. Create error boundary utilities
     3. Apply consistently across codebase
-
 ---
 
 ## Quality & Testing
@@ -229,6 +219,72 @@ Improvements for load times, runtime performance, and bundle size.
     2. Reduce draw calls via batching
     3. Optimize particle effects
     4. Profile with Phaser debug tools
+
+### Supabase Edge Function Performance
+- [ ] **Reduce auth latency in `action` endpoint**
+  - **Context**: `auth.getUser()` adds a network round-trip on every action request
+  - **Impact**: Lower per-action latency and less auth service load
+  - **Effort**: Medium (1-2 days)
+  - **Steps**:
+    1. Verify JWT locally in Edge Function runtime
+    2. Derive `playerId` from verified claims
+    3. Keep authorization checks server-authoritative
+
+- [ ] **Add short-lived per-player session cache (L1)**
+  - **Context**: Session read happens on almost every action
+  - **Impact**: Fewer repeated reads during bursty gameplay
+  - **Effort**: Medium (1 day)
+  - **Guardrails**: 30-120s TTL, write-through updates, no long-lived authoritative state
+  - **Steps**:
+    1. Cache by `playerId` in warm isolate memory
+    2. Invalidate/refresh cache after every successful write
+    3. Fall back to DB on cache miss or stale entry
+    4. Tune default to 60s for turn-based pacing
+
+- [ ] **Serialize in-flight actions per player**
+  - **Context**: Retries/double-submits can cause duplicate work and contention
+  - **Impact**: Better correctness and lower tail latency under load
+  - **Effort**: Medium (1 day)
+  - **Steps**:
+    1. Add per-player in-flight lock or queue
+    2. Enforce idempotency for retried action IDs
+    3. Return stable response for duplicate requests
+
+- [ ] **Optional L2 distributed cache for burst traffic**
+  - **Context**: L1 cache does not survive cold starts or cross-instance routing
+  - **Impact**: Better p95/p99 when concurrency increases
+  - **Effort**: Medium (1-2 days)
+  - **Recommendation**: For turn-based sessions, default to 5m TTL with strict invalidation on write
+  - **Use Cases**:
+    1. Session snapshots for turn flow (default 5m TTL)
+    2. Temporary Steam ticket verification cache for retry storms
+
+- [ ] **Minimize write payload size and side-effects**
+  - **Context**: Full-session JSON updates and side-effects increase request time
+  - **Impact**: Lower DB CPU, network, and lock duration
+  - **Effort**: Medium (1-2 days)
+  - **Steps**:
+    1. Update only changed fields where possible
+    2. Cap/roll large action logs
+    3. Move non-critical side-effects off critical response path when safe
+
+- [ ] **Add request-level timing instrumentation**
+  - **Context**: No clear segment-level visibility for edge latency
+  - **Impact**: Faster performance debugging and safer optimization rollout
+  - **Effort**: Low (0.5-1 day)
+  - **Steps**:
+    1. Emit `Server-Timing` for auth/read/logic/write/side-effects
+    2. Track p50/p95 dashboards per endpoint (`action`, `auth-steam`)
+    3. Set alerts for sustained tail-latency regressions
+
+- [ ] **Align Edge Function execution with DB region**
+  - **Context**: Region mismatch can dominate total latency
+  - **Impact**: Immediate reduction in network time
+  - **Effort**: Low (0.5 day)
+  - **Steps**:
+    1. Confirm Supabase project region and edge execution regions
+    2. Pin/route stateful endpoints close to database region
+    3. Re-measure p95 after regional alignment
 
 ---
 
@@ -356,4 +412,4 @@ Use this matrix to help prioritize tasks not already categorized:
 
 **End of Development Roadmap**
 
-*Last reviewed: March 13, 2026*
+*Last reviewed: March 15, 2026*
