@@ -77,7 +77,25 @@ const decodeJwtPayload = (token: string): Record<string, unknown> => {
 	return parsed as Record<string, unknown>;
 };
 
-const verifyJwtHs256 = async (token: string, secret: string): Promise<void> => {
+// Lazy-cached CryptoKey — imported once per warm isolate lifetime.
+// crypto.subtle.importKey is non-trivial; re-importing on every request wastes CPU.
+let _cachedJwtKey: CryptoKey | null = null;
+
+const getJwtSigningKey = async (): Promise<CryptoKey> => {
+	if (_cachedJwtKey) return _cachedJwtKey;
+	const jwtSecret = Deno.env.get("JWT_SECRET");
+	if (!jwtSecret) throw new Error("Missing Server Configuration (JWT_SECRET)");
+	_cachedJwtKey = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(jwtSecret),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["verify"]
+	);
+	return _cachedJwtKey;
+};
+
+const verifyJwtHs256 = async (token: string, key: CryptoKey): Promise<void> => {
 	const parts = token.split(".");
 	if (parts.length !== 3) {
 		throw new Error("Unauthorized");
@@ -85,14 +103,6 @@ const verifyJwtHs256 = async (token: string, secret: string): Promise<void> => {
 
 	const [headerB64, payloadB64, signatureB64] = parts;
 	const signingInput = `${headerB64}.${payloadB64}`;
-
-	const key = await crypto.subtle.importKey(
-		"raw",
-		new TextEncoder().encode(secret),
-		{ name: "HMAC", hash: "SHA-256" },
-		false,
-		["verify"]
-	);
 
 	const signature = decodeBase64Url(signatureB64);
 	const valid = await crypto.subtle.verify(
@@ -119,12 +129,8 @@ const extractPlayerIdFromAuthorization = async (
 		throw new Error("Unauthorized");
 	}
 
-	const jwtSecret = Deno.env.get("JWT_SECRET");
-	if (!jwtSecret) {
-		throw new Error("Missing Server Configuration (JWT_SECRET)");
-	}
-
-	await verifyJwtHs256(token, jwtSecret);
+	const key = await getJwtSigningKey();
+	await verifyJwtHs256(token, key);
 	const payload = decodeJwtPayload(token);
 
 	const now = Math.floor(Date.now() / 1000);
@@ -147,6 +153,18 @@ const extractPlayerIdFromAuthorization = async (
 	return playerId;
 };
 
+// Module-level service-role client — created once per warm isolate lifetime.
+// Avoids per-request createClient overhead and bypasses RLS (identity enforced
+// by our own JWT verification above).
+const supabaseAdmin = createClient(
+	Deno.env.get("SUPABASE_URL") ?? "",
+	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+);
+
+const MAX_ACTION_LOG_SIZE = 100;
+const trimActionLog = (log: any[]): any[] =>
+	Array.isArray(log) && log.length > MAX_ACTION_LOG_SIZE ? log.slice(-MAX_ACTION_LOG_SIZE) : log;
+
 Deno.serve(async (req) => {
 	if (req.method === "OPTIONS") {
 		return new Response("ok", { headers: corsHeaders });
@@ -154,15 +172,14 @@ Deno.serve(async (req) => {
 
 	try {
 		const authorizationHeader = req.headers.get("Authorization");
-		const playerId = await extractPlayerIdFromAuthorization(authorizationHeader);
 
-		const supabaseClient = createClient(
-			Deno.env.get("SUPABASE_URL") ?? "",
-			Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-			{ global: { headers: { Authorization: authorizationHeader! } } }
-		);
+		// JWT verification and body parsing are independent — run in parallel.
+		const [playerId, body] = await Promise.all([
+			extractPlayerIdFromAuthorization(authorizationHeader),
+			req.json(),
+		]);
 
-		const { actionId, payload } = await req.json();
+		const { actionId, payload } = body;
 
 		// Handle Start Session
 		if (actionId === "start_session") {
@@ -170,7 +187,7 @@ Deno.serve(async (req) => {
 			const newSession = MultiplayerLogic.createInitialSession(playerId, selectedCrystalId);
 
 			// Upsert Session
-			const { data, error } = await supabaseClient
+			const { data, error } = await supabaseAdmin
 				.from("player_sessions")
 				.upsert(
 					{
@@ -202,7 +219,7 @@ Deno.serve(async (req) => {
 		// Fetch Session (prefer L1 cache for bursty action traffic)
 		let session = getCachedSession(playerId);
 		if (!session) {
-			const { data: dbSession, error: sessError } = await supabaseClient
+			const { data: dbSession, error: sessError } = await supabaseAdmin
 				.from("player_sessions")
 				.select("*")
 				.eq("player_id", playerId)
@@ -227,7 +244,7 @@ Deno.serve(async (req) => {
 				});
 			}
 
-			const { error: teamUpdateError } = await supabaseClient
+			const { error: teamUpdateError } = await supabaseAdmin
 				.from("player_sessions")
 				.update({ team, updated_at: new Date() })
 				.eq("id", session.id);
@@ -252,7 +269,7 @@ Deno.serve(async (req) => {
 		const combatResult = transitionResult.combatResult;
 
 		// Persist New State
-		const { error: saveError } = await supabaseClient
+		const { error: saveError } = await supabaseAdmin
 			.from("player_sessions")
 			.update({
 				phase: nextSession.phase,
@@ -262,7 +279,7 @@ Deno.serve(async (req) => {
 				wins: nextSession.wins,
 				losses: nextSession.losses,
 				current_options: nextSession.current_options,
-				action_log: nextSession.action_log,
+				action_log: trimActionLog(nextSession.action_log),
 				team: nextSession.team,
 				updated_at: new Date(),
 			})
@@ -277,11 +294,15 @@ Deno.serve(async (req) => {
 			updated_at: new Date().toISOString(),
 		});
 
-		// Side Effects (Rating)
-		if (combatResult) {
-			const wonCombat = combatResult.won;
-			const ratingAmount = wonCombat ? 25 : -25;
-			await supabaseClient.rpc("increment_rating", { player_id: playerId, amount: ratingAmount });
+		// Side Effects (Rating) — apply only when a run is completed.
+		const sessionCompleted = nextSession.phase === "victory" || nextSession.phase === "game_over";
+		if (sessionCompleted) {
+			const ratingAmount = nextSession.phase === "victory" ? 25 : -25;
+			supabaseAdmin
+				.rpc("increment_rating", { player_id: playerId, amount: ratingAmount })
+				.then(({ error }) => {
+					if (error) console.error("Rating update failed:", error.message);
+				});
 		}
 
 		// Determine response formatting
