@@ -1,8 +1,8 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { makeUnit, Unit } from "@Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { getState, getUnitAt } from "@Models/State";
-import { getCharaById, summon, upgradeUnit } from "@Systems/Chara/Chara";
+import { getCharaById } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import { getGameController } from "@Core/GameControllerFactory";
@@ -61,26 +61,8 @@ export async function itemDragPurchaseRequested(
 		return;
 	}
 
-	// Handle the visual updates after successful purchase
-	if (existingUnit && existingUnit.rank <= 3) {
-		upgradeUnit(existingUnit);
-		if (shopChara) {
-			charaEvents.onShopPurchaseSuccesful(shopChara);
-		}
-		return;
-	}
-
-	const newUnit = makeUnit(constants.FORCE_ID_PLAYER, shopUnitData.cardId, targetTile);
-	getState().session.team.units.push(newUnit);
-
-	const { runStats } = getState().session;
-	if (runStats) {
-		runStats.totalUnitsRecruited++;
-		const unitName = getName(newUnit.cardId);
-		runStats.unitUsage[unitName] = (runStats.unitUsage[unitName] || 0) + 1;
-	}
-
-	summon(newUnit, true);
+	// Keep server as source of truth for purchased/updated units.
+	// The phase refresh triggered by GameController will sync team state and visuals.
 	if (shopChara) {
 		charaEvents.onShopPurchaseSuccesful(shopChara);
 	}
