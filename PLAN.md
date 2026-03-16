@@ -221,20 +221,22 @@ Improvements for load times, runtime performance, and bundle size.
     4. Profile with Phaser debug tools
 
 ### Supabase Edge Function Performance
-- [ ] **Reduce auth latency in `action` endpoint**
+- [x] **Reduce auth latency in `action` endpoint**
   - **Context**: `auth.getUser()` adds a network round-trip on every action request
   - **Impact**: Lower per-action latency and less auth service load
   - **Effort**: Medium (1-2 days)
+  - **Status**: Completed (2026-03-15) - `action` now verifies JWTs locally with `SUPABASE_JWT_SECRET` and derives `playerId` from claims.
   - **Steps**:
     1. Verify JWT locally in Edge Function runtime
     2. Derive `playerId` from verified claims
     3. Keep authorization checks server-authoritative
 
-- [ ] **Add short-lived per-player session cache (L1)**
+- [x] **Add short-lived per-player session cache (L1)**
   - **Context**: Session read happens on almost every action
   - **Impact**: Fewer repeated reads during bursty gameplay
   - **Effort**: Medium (1 day)
   - **Guardrails**: 30-120s TTL, write-through updates, no long-lived authoritative state
+  - **Status**: Completed (2026-03-15) - Added per-player warm-isolate cache with default 60s TTL (`SESSION_CACHE_TTL_MS`, clamped 30-120s), DB fallback on miss, and write-through refresh on successful writes.
   - **Steps**:
     1. Cache by `playerId` in warm isolate memory
     2. Invalidate/refresh cache after every successful write
