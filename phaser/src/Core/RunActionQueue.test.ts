@@ -83,7 +83,7 @@ describe("RunActionQueue.resume", () => {
 	it("restores a previously saved queue", () => {
 		const q = makeQueue("run-restore");
 		q.append("forest_pools");
-		q.append("update_team", { team: { units: [] } });
+		q.append("goblin");
 
 		const restored = RunActionQueue.resume("run-restore");
 		expect(restored).not.toBeNull();
@@ -97,10 +97,40 @@ describe("RunActionQueue.append", () => {
 		const q = makeQueue();
 		q.append("encounter_forest");
 		q.append("buy_unit", { unitId: "goblin" });
-		q.append("update_team", { team: { units: [] } });
+		q.append("armory");
 
 		const manifest = q.build();
 		expect(manifest.actions.map((a: ActionEnvelope) => a.sequence)).toEqual([1, 2, 3]);
+	});
+
+	it("stores teamSnapshot in the envelope when provided", () => {
+		const team = { units: [{ id: "u1", cardId: "goblin", position: { x: 0, y: 0 } }] };
+		const q = makeQueue("run-snapshot");
+		q.append("forest_pools", undefined, team as ActionEnvelope["teamSnapshot"]);
+
+		const manifest = q.build();
+		expect(manifest.actions[0].teamSnapshot).toEqual(team);
+	});
+
+	it("omits teamSnapshot from the envelope when not provided", () => {
+		const q = makeQueue("run-no-snapshot");
+		q.append("forest_pools");
+
+		const manifest = q.build();
+		expect(manifest.actions[0].teamSnapshot).toBeUndefined();
+	});
+
+	it("persists teamSnapshot to localStorage", () => {
+		const team = { units: [{ id: "u1", cardId: "goblin", position: { x: 1, y: 2 } }] };
+		const q = makeQueue("run-snap-persist");
+		q.append("armory", undefined, team as ActionEnvelope["teamSnapshot"]);
+
+		const raw = localStorage.getItem("mana_run_manifest_run-snap-persist");
+		const saved = JSON.parse(raw!) as RunManifest;
+		expect(saved.actions[0].teamSnapshot).toEqual(team);
+		// Restoring from storage also recovers the snapshot
+		const restored = RunActionQueue.resume("run-snap-persist");
+		expect(restored!.build().actions[0].teamSnapshot).toEqual(team);
 	});
 
 	it("persists updated manifest to localStorage after each append", () => {
