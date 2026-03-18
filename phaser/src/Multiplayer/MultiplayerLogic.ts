@@ -18,4 +18,12 @@ export class MultiplayerLogic {
 	static transitionToNextState(session: any, actionId: string, payload?: any) {
 		return GameLogic.transitionToNextState(session, actionId, payload);
 	}
+
+	static replayManifest(manifest: any) {
+		return GameLogic.replayManifest(manifest);
+	}
+
+	static buildReplaySnapshot(session: any) {
+		return GameLogic.buildReplaySnapshot(session);
+	}
 }
