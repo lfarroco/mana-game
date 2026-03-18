@@ -5,6 +5,7 @@ This directory contains tests for the Supabase Edge Functions that handle server
 ## Test Structure
 
 - `action/index.test.js` - Unit tests for the main game action handler
+- `action/matchmaking.test.js` - Unit tests for matchmaking helper logic (rating window parsing, valid-team selection, sanitization, PvE fallback trigger)
 - `auth-steam/index.test.js` - Unit tests for Steam authentication
 - `integration.test.js` - Integration tests simulating full HTTP request/response cycles
 - `action/test_utils.ts` - Shared test utilities and mocks (TypeScript)
@@ -24,8 +25,9 @@ deno test --no-check --allow-env supabase/functions/integration.test.js
 
 ## Current Test Results
 
-All **12 tests** are passing across 3 test files:
+All **19 tests** are passing across 4 test files:
 - 4 unit tests for action endpoint
+- 7 unit tests for matchmaking helpers
 - 4 unit tests for auth-steam endpoint  
 - 4 integration tests for full request flows
 
@@ -38,6 +40,13 @@ All **12 tests** are passing across 3 test files:
 - **Team Updates**: Validating and applying team changes
 - **Action Resolution**: Processing game actions and state transitions
 - **Database Operations**: Mocking Supabase database interactions
+
+### Matchmaking Helper Tests
+
+- **Rating Window Parsing**: Validates and clamps/falls back `MATCHMAKING_RATING_DELTA`
+- **Candidate Validation**: Accepts only teams with units that include a core
+- **Team Sanitization**: Converts picked teams to combat-safe CPU units with normalized fields
+- **Fallback Contract**: Returns `null` when no valid candidate team exists so server can use PvE generation
 
 ### Auth-Steam Function Tests
 

@@ -581,10 +581,15 @@ export function processSessionTurn(
 	return { session: nextSession, updates, combatResult };
 }
 
+export type TransitionToNextStateOptions = {
+	combatEnemyTeam?: Unit[];
+};
+
 export function transitionToNextState(
 	session: SessionData,
 	actionId: string,
-	payload?: ActionPayload
+	payload?: ActionPayload,
+	options?: TransitionToNextStateOptions
 ): { session: SessionData; combatResult?: { won: boolean } } {
 	const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
 	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
@@ -644,7 +649,9 @@ export function transitionToNextState(
 		// Logic extracted from original transitionToNextState
 
 		// If combatState provided in specialData (future), use it. Currently GameLogic generates it.
-		const enemyTeam = generateEnemyTeamForRound(nextSession.round, nextSession.wins);
+		const enemyTeam = options?.combatEnemyTeam
+			? JSON.parse(JSON.stringify(options.combatEnemyTeam))
+			: generateEnemyTeamForRound(nextSession.round, nextSession.wins);
 
 		nextSession.current_options = { combatState: { enemyTeam } };
 
@@ -673,8 +680,8 @@ export function transitionToNextState(
 			logs: simResult.logs,
 		};
 
-		const options = [{ id: "combat_done", label: "Continue" }];
-		nextSession.current_options = { options, combatState };
+		const continueOptions = [{ id: "combat_done", label: "Continue" }];
+		nextSession.current_options = { options: continueOptions, combatState };
 
 		combatResult = { won: wonCombat };
 	}

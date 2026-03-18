@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { MultiplayerLogic } from "./_shared.js";
+import { pickMatchedEnemyTeam, readRatingDelta } from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -165,6 +166,69 @@ const MAX_ACTION_LOG_SIZE = 100;
 const trimActionLog = (log: any[]): any[] =>
 	Array.isArray(log) && log.length > MAX_ACTION_LOG_SIZE ? log.slice(-MAX_ACTION_LOG_SIZE) : log;
 
+const DEFAULT_MATCHMAKING_RATING_DELTA = 150;
+const MATCHMAKING_CANDIDATE_LIMIT = 50;
+
+const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> => {
+	const { data: selfPlayer, error: selfError } = await supabaseAdmin
+		.from("players")
+		.select("rating")
+		.eq("id", playerId)
+		.maybeSingle();
+
+	if (selfError) {
+		console.error("Failed to read player rating for matchmaking:", selfError.message);
+		return null;
+	}
+
+	const selfRating = Number(selfPlayer?.rating);
+	if (Number.isNaN(selfRating)) {
+		return null;
+	}
+
+	const delta = readRatingDelta(
+		Deno.env.get("MATCHMAKING_RATING_DELTA"),
+		DEFAULT_MATCHMAKING_RATING_DELTA
+	);
+	const minRating = selfRating - delta;
+	const maxRating = selfRating + delta;
+
+	const { data: candidatePlayers, error: candidateError } = await supabaseAdmin
+		.from("players")
+		.select("id")
+		.neq("id", playerId)
+		.gte("rating", minRating)
+		.lte("rating", maxRating)
+		.limit(MATCHMAKING_CANDIDATE_LIMIT);
+
+	if (candidateError) {
+		console.error("Failed to query matchmaking candidates:", candidateError.message);
+		return null;
+	}
+
+	const candidateIds = Array.isArray(candidatePlayers)
+		? candidatePlayers.map((row) => row?.id).filter((id): id is string => typeof id === "string")
+		: [];
+
+	if (candidateIds.length === 0) {
+		return null;
+	}
+
+	const { data: candidateSessions, error: sessionError } = await supabaseAdmin
+		.from("player_sessions")
+		.select("player_id, team")
+		.in("player_id", candidateIds)
+		.not("team", "is", null)
+		.limit(MATCHMAKING_CANDIDATE_LIMIT);
+
+	if (sessionError) {
+		console.error("Failed to query candidate sessions:", sessionError.message);
+		return null;
+	}
+
+	return pickMatchedEnemyTeam(Array.isArray(candidateSessions) ? candidateSessions : []);
+};
+
 Deno.serve(async (req) => {
 	if (req.method === "OPTIONS") {
 		return new Response("ok", { headers: corsHeaders });
@@ -264,7 +328,20 @@ Deno.serve(async (req) => {
 		// Logic: Transition State
 		// transitionToNextState already resolves the action and applies team updates,
 		// so calling resolveAction separately here would apply the same action twice.
-		const transitionResult = MultiplayerLogic.transitionToNextState(session, actionId, payload);
+		let transitionOptions: { combatEnemyTeam?: any[] } | undefined;
+		if (actionId === "combat_encounter") {
+			const matchedEnemyTeam = await selectMatchedEnemyTeam(playerId);
+			if (matchedEnemyTeam && matchedEnemyTeam.length > 0) {
+				transitionOptions = { combatEnemyTeam: matchedEnemyTeam };
+			}
+		}
+
+		const transitionResult = MultiplayerLogic.transitionToNextState(
+			session,
+			actionId,
+			payload,
+			transitionOptions
+		);
 		const nextSession = transitionResult.session;
 		const combatResult = transitionResult.combatResult;
 
