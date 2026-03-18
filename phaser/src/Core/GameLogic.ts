@@ -610,8 +610,11 @@ export function transitionToNextState(
 		nextSession.action_log = [...(nextSession.action_log || []), actionEntry];
 	}
 
-	// Generate new seed
-	nextSession.seed = generateNextSeed(nextSession.seed, actionId);
+	// Generate new seed — board repositioning does not advance the run seed
+	// because update_team never appears in the deferred-submission action log.
+	if (actionId !== "update_team") {
+		nextSession.seed = generateNextSeed(nextSession.seed, actionId);
+	}
 
 	// 2. Use PhaseManager for transition logic
 	// PhaseManager determines next phase, options, and counter increments
@@ -720,6 +723,16 @@ export function replayManifest(manifest: RunManifest): {
 	session.id = `replay-${manifest.runId}`;
 
 	for (const envelope of manifest.actions) {
+		// Restore the board arrangement the player had set up before this
+		// decision.  Board moves are never stored as separate log entries;
+		// instead each decision envelope carries a snapshot of the team state
+		// at decision time.
+		if (envelope.teamSnapshot) {
+			const { team, valid } = validateAndApplyTeamUpdate(session, envelope.teamSnapshot);
+			if (valid) {
+				session = { ...session, team };
+			}
+		}
 		const { session: next } = transitionToNextState(session, envelope.actionId, envelope.payload);
 		session = next;
 	}

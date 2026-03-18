@@ -92,11 +92,18 @@ export type SessionData = {
  * A single recorded player action with its sequence position.
  * `sequence` is a monotonically increasing integer starting at 1, assigned by
  * the client action queue so the server can detect gaps or duplicates.
+ *
+ * `teamSnapshot` captures the board arrangement at the moment the decision was
+ * made.  It is applied by the server before replaying the action so that unit
+ * positioning (which doesn't advance the RNG seed and is never stored as a
+ * separate action) is correctly reflected during replay.
  */
 export type ActionEnvelope = {
 	sequence: number;
 	actionId: string;
 	payload?: ActionPayload;
+	/** Board state at the moment this decision was taken. */
+	teamSnapshot?: { units: Unit[] };
 };
 
 /**

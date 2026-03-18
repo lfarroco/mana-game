@@ -75,6 +75,9 @@ const RUN_ID = "golden-run-001";
  * each action into the provided queue.  Stops early if the session reaches a
  * terminal phase (victory / game_over) or a combat phase (to keep the test fast).
  * Returns the final live session state.
+ *
+ * Each action is recorded with a `teamSnapshot` of the board state at decision
+ * time, mirroring how the client works in practice.
  */
 function driveSession(session: SessionData, queue: RunActionQueue, maxActions = 6): SessionData {
 	const specialEncounters = ["upgrade_unit", "power_distributor", "power_absorber"];
@@ -97,7 +100,8 @@ function driveSession(session: SessionData, queue: RunActionQueue, maxActions = 
 			(opts as Array<{ id: string }>)[0];
 
 		const { session: next } = GameLogic.transitionToNextState(current, opt.id);
-		queue.append(opt.id);
+		// Capture board state at decision time (pre-action team)
+		queue.append(opt.id, undefined, JSON.parse(JSON.stringify(current.team)));
 		current = next;
 		taken++;
 	}
@@ -173,5 +177,70 @@ describe("Deterministic replay – replayManifest", () => {
 		const fresh = GameLogic.createInitialSession(PLAYER, CRYSTAL, SEED);
 
 		expect(GameLogic.buildReplaySnapshot(replayed)).toEqual(GameLogic.buildReplaySnapshot(fresh));
+	});
+
+	it("update_team does not advance the run seed", () => {
+		const session = GameLogic.createInitialSession(PLAYER, CRYSTAL, SEED);
+		const seedBefore = session.seed;
+
+		// Apply multiple board moves — seed must not change
+		const { session: after1 } = GameLogic.transitionToNextState(session, "update_team", {
+			team: session.team,
+		});
+		const { session: after2 } = GameLogic.transitionToNextState(after1, "update_team", {
+			team: after1.team,
+		});
+
+		expect(after1.seed).toBe(seedBefore);
+		expect(after2.seed).toBe(seedBefore);
+	});
+
+	it("board reordering between decisions does not affect replay outcome", () => {
+		const queue = RunActionQueue.start(PLAYER, CRYSTAL, SEED, VERSION, `${RUN_ID}-reorder`);
+		let liveSession = GameLogic.createInitialSession(PLAYER, CRYSTAL, SEED);
+
+		const specialEncounters = ["upgrade_unit", "power_distributor", "power_absorber"];
+		let taken = 0;
+		while (taken < 4) {
+			const phase = liveSession.phase;
+			if (phase === "victory" || phase === "game_over" || phase === "combat") break;
+
+			const opts = Array.isArray(liveSession.current_options)
+				? liveSession.current_options
+				: ((liveSession.current_options as { options: unknown[] } | null)?.options ?? []);
+			if (!Array.isArray(opts) || opts.length === 0) break;
+
+			const opt =
+				(opts as Array<{ id: string }>).find((o) => !specialEncounters.includes(o.id)) ??
+				(opts as Array<{ id: string }>)[0];
+
+			// Simulate a board reorder via update_team before the decision
+			const reorderedTeam = JSON.parse(JSON.stringify(liveSession.team));
+			reorderedTeam.units.forEach((u: { position: { x: number; y: number } }, i: number) => {
+				u.position = { x: i % 3, y: Math.floor(i / 3) };
+			});
+			const { session: afterReorder } = GameLogic.transitionToNextState(
+				liveSession,
+				"update_team",
+				{ team: reorderedTeam }
+			);
+
+			// Record the decision with the post-reorder board state
+			const { session: next } = GameLogic.transitionToNextState(afterReorder, opt.id);
+			queue.append(opt.id, undefined, JSON.parse(JSON.stringify(afterReorder.team)));
+			liveSession = next;
+			taken++;
+		}
+
+		const liveSnapshot = GameLogic.buildReplaySnapshot(liveSession);
+		const manifest = queue.build();
+
+		// The manifest must NOT contain any update_team actions
+		expect(manifest.actions.every((a) => a.actionId !== "update_team")).toBe(true);
+
+		// The replay must match the live outcome
+		const { session: replayed, rejectReason } = GameLogic.replayManifest(manifest);
+		expect(rejectReason).toBeUndefined();
+		expect(GameLogic.buildReplaySnapshot(replayed)).toEqual(liveSnapshot);
 	});
 });
