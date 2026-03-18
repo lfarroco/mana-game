@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 15, 2026
+**Last Updated**: March 18, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -242,6 +242,26 @@ Improvements for load times, runtime performance, and bundle size.
     2. Invalidate/refresh cache after every successful write
     3. Fall back to DB on cache miss or stale entry
     4. Tune default to 60s for turn-based pacing
+
+- [ ] **Add deferred end-of-run submission with deterministic server replay**
+  - **Context**: The current `action` endpoint still pays auth/read/write cost on nearly every player action. The game already centralizes turn resolution in shared pure logic (`GameLogic`) and advances `session.seed` deterministically from action order.
+  - **Impact**: Removes gameplay lag for PVE runs, reduces backend traffic from O(actions) writes per run to O(1) final submission, and preserves server authority by replaying the run before accepting it.
+  - **Effort**: High (4-6 days)
+  - **Feasibility**: High for single-player/PVE runs. Not a fit for real-time or adversarial multiplayer because the server no longer observes intermediate state in real time.
+  - **Prerequisites / Guardrails**:
+    1. Make the initial run seed explicit and authoritative. `createInitialSession()` currently generates it with `Math.random()`, so replay submission needs a server-issued or signed initial seed instead of an implicit local one.
+    2. Capture the full ordered action stream, including `update_team` board-move events. The current live endpoint handles `update_team` outside `action_log`, and persisted logs are trimmed to 100 entries.
+    3. Compare against a canonical normalized final snapshot or hash derived on the server, not client-reported win/loss values alone.
+    4. Keep the existing per-action path behind a feature flag until browser and Edge replay results are proven identical.
+  - **Steps**:
+    1. Introduce a run manifest schema for deferred submission: `selectedCrystalId`, `initialSeed`, client build/version, and an ordered list of action envelopes `{ actionId, payload, sequence }`.
+    2. Plumb explicit seed selection through crystal selection, `GameLogic.createInitialSession`, local session creation, and the Supabase start/commit flow so local and server runs begin from the same seed.
+    3. Add a local action queue/persistence layer next to `SessionManager` so single-player runs can be played entirely locally and survive refresh/crash until submitted.
+    4. Implement a dedicated Supabase replay-commit path that reconstructs a fresh session and replays every action via `GameLogic.transitionToNextState`, including validated `update_team` actions.
+    5. Define a canonical comparison contract for acceptance: phase, round, step, wins/losses, normalized team state, seed, and any server-owned rewards/stats derived from replay.
+    6. Make completion writes transactional and idempotent so duplicate submissions for the same run return a stable response instead of duplicating rewards or rating changes.
+    7. Add golden determinism tests that run the same manifest through browser-local logic and Edge-bundled logic and assert identical encounter options, combat logs/outcomes, and final snapshots.
+    8. Roll out behind a flag for PVE only, instrument reject reasons, payload sizes, and replay duration, then remove per-action writes for those runs after validation.
 
 - [ ] **Serialize in-flight actions per player**
   - **Context**: Retries/double-submits can cause duplicate work and contention
