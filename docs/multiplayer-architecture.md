@@ -6,6 +6,8 @@ This document describes the architecture of the multiplayer system in Mana Battl
 
 The multiplayer system is designed to seamlessly integrate with the existing single-player experience. It works by intercepting local decision-making logic and delegating control to a central `MultiplayerManager`. The actual game state phases (Encounter, Shop, Combat) are driven by a server (mocked for now) rather than local loops.
 
+Combat enemy selection is now server-authoritative: when the player confirms `combat_encounter`, the backend first attempts to select a random opponent team from players in a nearby rating band. If no suitable team is available, it falls back to the same PvE enemy-generation logic used in single-player.
+
 ## Core Components
 
 ### MultiplayerManager

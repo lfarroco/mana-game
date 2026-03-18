@@ -15,8 +15,8 @@ export class MultiplayerLogic {
 		return GameLogic.resolveAction(session, actionId, payload);
 	}
 
-	static transitionToNextState(session: any, actionId: string, payload?: any) {
-		return GameLogic.transitionToNextState(session, actionId, payload);
+	static transitionToNextState(session: any, actionId: string, payload?: any, options?: any) {
+		return GameLogic.transitionToNextState(session, actionId, payload, options);
 	}
 
 	static replayManifest(manifest: any) {

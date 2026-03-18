@@ -24,6 +24,7 @@ Responsibilities:
 - Creates or updates `player_sessions` records.
 - Applies team updates via `MultiplayerLogic.validateAndApplyTeamUpdate`.
 - Resolves progression through `MultiplayerLogic.transitionToNextState`.
+- On `combat_encounter`, attempts rating-based opponent team selection from nearby player sessions, then falls back to PvE generation when no suitable team is available.
 - Persists resulting state (phase, round, step, options, team, action log, rating side-effects).
 
 High-level request flow:
@@ -38,7 +39,9 @@ High-level request flow:
 5. Otherwise:
    - Load current `player_sessions` row.
    - If `update_team`, validate and persist team only (non-progression path).
+   - If `combat_encounter`, query `players` within rating window and try to select a valid enemy team from candidate `player_sessions`.
    - Else transition state through `transitionToNextState`, persist changes, and return phase transition payload.
+   - If matchmaking yields no valid team, transition uses the default PvE enemy team generation path.
 6. If combat rating side-effect exists, invoke `increment_rating` RPC.
 
 ### `auth-steam` function
@@ -81,6 +84,7 @@ The bundle script uses `esbuild` to produce Deno-compatible ESM and aliases Phas
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `JWT_SECRET` (optional but recommended for local JWT verification path; falls back to `auth.getUser()` when unset)
+- `MATCHMAKING_RATING_DELTA` (optional, default `150`): max absolute rating difference used when selecting multiplayer combat opponents
 
 ### `auth-steam`
 
