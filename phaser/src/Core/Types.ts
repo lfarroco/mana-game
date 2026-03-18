@@ -83,3 +83,49 @@ export type SessionData = {
 	runStats?: RunStats;
 	updated_at?: Date;
 };
+
+// ---------------------------------------------------------------------------
+// Deferred run-submission types (deterministic server replay)
+// ---------------------------------------------------------------------------
+
+/**
+ * A single recorded player action with its sequence position.
+ * `sequence` is a monotonically increasing integer starting at 1, assigned by
+ * the client action queue so the server can detect gaps or duplicates.
+ */
+export type ActionEnvelope = {
+	sequence: number;
+	actionId: string;
+	payload?: ActionPayload;
+};
+
+/**
+ * A full run manifest that can be submitted to the server for deterministic
+ * replay.  The server reconstructs a fresh session from `initialSeed` and
+ * `selectedCrystalId`, then replays every action in `actions` in order.
+ */
+export type RunManifest = {
+	/** Stable identifier for this run; used for idempotency. */
+	runId: string;
+	playerId: string;
+	selectedCrystalId: string;
+	/** The exact seed that `createInitialSession` must use for replay. */
+	initialSeed: string;
+	/** Semver string of the client build; the server can reject unknown versions. */
+	clientVersion: string;
+	actions: ActionEnvelope[];
+};
+
+/**
+ * Normalized snapshot of the final session state after a replay.
+ * Used as the canonical comparison contract between client and server.
+ */
+export type ReplaySnapshot = {
+	phase: PhaseType;
+	round: number;
+	step: number;
+	wins: number;
+	losses: number;
+	seed: string;
+	teamUnitIds: string[]; // sorted cardId list — order-independent identity
+};

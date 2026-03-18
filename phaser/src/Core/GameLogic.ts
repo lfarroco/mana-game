@@ -1,7 +1,6 @@
-import { SessionData, PhaseOption, ActionPayload } from "@Core/Types";
+import { SessionData, PhaseOption, ActionPayload, RunManifest, ReplaySnapshot } from "@Core/Types";
 import { State } from "@Models/State";
 import { Unit, makeUnit } from "@Models/Entities/Unit";
-import { pickRandom } from "@utils";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
 import { generateEnemyTeam } from "@Scenes/Battleground/generateEnemyTeam";
@@ -54,8 +53,12 @@ const ENCOUNTER_IDS = [
 
 // Phase config is centralized in PhaseConfig; import `getPhaseForTurn` above
 
-export function createInitialSession(playerId: string, selectedCrystalId?: string): SessionData {
-	const seed = Math.random().toString(36).substring(7);
+export function createInitialSession(
+	playerId: string,
+	selectedCrystalId?: string,
+	explicitSeed?: string
+): SessionData {
+	const seed = explicitSeed ?? Math.random().toString(36).substring(7);
 	const initialSeed = seed;
 
 	const team: { units: Unit[] } = { units: [] };
@@ -236,7 +239,13 @@ export function generateShopOptions(
 	const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
 	filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
 
-	const options = pickRandom(filteredCards, 3).map((card) => ({
+	// Derive a numeric seed from the session seed so shop contents are
+	// deterministic and reproducible during server-side replay.
+	// We mix the current seed with "shop" and the encounter id to ensure
+	// encounter options and shop options never collide in their seed space.
+	const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
+	const shopSeedNum = stringToSeed(shopSeedInput);
+	const options = Random.pickRandom(shopSeedNum, filteredCards, 3).map((card) => ({
 		id: card.id,
 		cost: 10,
 	}));
@@ -669,4 +678,69 @@ export function transitionToNextState(
 
 	nextSession.updated_at = new Date();
 	return { session: nextSession, combatResult };
+}
+
+// ---------------------------------------------------------------------------
+// Deferred run replay
+// ---------------------------------------------------------------------------
+
+/**
+ * Replay a complete run from a `RunManifest` and return the final session.
+ *
+ * The function reconstructs a fresh session from the manifest's `initialSeed`
+ * and `selectedCrystalId`, then applies every `ActionEnvelope` in sequence
+ * order via `transitionToNextState`.  The resulting session can be compared
+ * against the client-reported snapshot to validate the run.
+ */
+export function replayManifest(manifest: RunManifest): {
+	session: SessionData;
+	rejectReason?: string;
+} {
+	// Validate that actions are in order with no gaps
+	for (let i = 0; i < manifest.actions.length; i++) {
+		if (manifest.actions[i].sequence !== i + 1) {
+			return {
+				session: createInitialSession(
+					manifest.playerId,
+					manifest.selectedCrystalId,
+					manifest.initialSeed
+				),
+				rejectReason: `Action sequence gap: expected ${i + 1}, got ${manifest.actions[i].sequence}`,
+			};
+		}
+	}
+
+	let session = createInitialSession(
+		manifest.playerId,
+		manifest.selectedCrystalId,
+		manifest.initialSeed
+	);
+	// Assign a stable ID derived from the run manifest so the replayed session
+	// is identifiable separately from in-progress client sessions.
+	session.id = `replay-${manifest.runId}`;
+
+	for (const envelope of manifest.actions) {
+		const { session: next } = transitionToNextState(session, envelope.actionId, envelope.payload);
+		session = next;
+	}
+
+	return { session };
+}
+
+/**
+ * Build a `ReplaySnapshot` — the canonical, minimal description of a session
+ * used as the comparison contract between client and server.
+ */
+export function buildReplaySnapshot(session: SessionData): ReplaySnapshot {
+	const teamUnitIds = [...(session.team?.units ?? [])].map((u) => u.cardId).sort();
+
+	return {
+		phase: session.phase,
+		round: session.round,
+		step: session.step,
+		wins: session.wins,
+		losses: session.losses,
+		seed: session.seed,
+		teamUnitIds,
+	};
 }
