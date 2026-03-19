@@ -1,6 +1,9 @@
 import { images } from "@assets";
 import { delay, tween } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("fireballEffect");
 
 // --- Effect Configuration Constants ---
 const FIREBALL_TRACE_LIFESPAN = 200;
@@ -28,7 +31,7 @@ export async function fireballEffect(
 		(source.x === ZERO_COORDINATE_VALUE && source.y === ZERO_COORDINATE_VALUE) ||
 		(target.x === ZERO_COORDINATE_VALUE && target.y === ZERO_COORDINATE_VALUE)
 	) {
-		console.warn(
+		logger.warn(
 			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`
 		);
 		return;

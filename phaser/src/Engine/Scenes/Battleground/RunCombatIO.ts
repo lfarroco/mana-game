@@ -12,6 +12,9 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Board from "@Models/Board";
 import { getCurrentScene } from "@Models/State";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("RunCombatIO");
 
 export type { WaveOutcome, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
 
@@ -64,7 +67,7 @@ export const replayCombat = async (): Promise<void> => {
 		!lastCombatState ||
 		!lastNextPhaseCallback
 	) {
-		console.warn("No combat data available for replay");
+		logger.warn("No combat data available for replay");
 		return;
 	}
 

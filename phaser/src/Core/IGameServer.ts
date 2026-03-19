@@ -1,4 +1,4 @@
-import { SessionData, PhaseOptions } from "@Core/Types";
+import { SessionData, PhaseOptions, ActionPayload } from "@Core/Types";
 
 /**
  * Interface for game server implementations.
@@ -34,5 +34,5 @@ export interface IGameServer {
 	 * @param payload - Optional additional data for the action
 	 * @returns Success status
 	 */
-	handleAction(playerId: string, actionId: string, payload?: any): Promise<boolean>;
+	handleAction(playerId: string, actionId: string, payload?: ActionPayload): Promise<boolean>;
 }

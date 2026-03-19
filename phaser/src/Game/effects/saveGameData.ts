@@ -1,5 +1,9 @@
 import { getState } from "@Models/State";
 import { getServerAdapter } from "@Core/ServerFactory";
+import { createLogger } from "@Utils/Logger";
+import { SessionData } from "@Core/Types";
+
+const logger = createLogger("saveGameData");
 
 /**
  * Save game data through the SessionManager.
@@ -10,9 +14,13 @@ export function saveGameData() {
 	const state = getState();
 	const server = getServerAdapter();
 
-	if (state.session?.player_id && 'sessionManager' in server) {
-		(server as any).sessionManager.updateSession(state.session.player_id, state.session);
+	if (state.session?.player_id && "sessionManager" in server) {
+		(
+			server as unknown as {
+				sessionManager: { updateSession(id: string, session: SessionData): void };
+			}
+		).sessionManager.updateSession(state.session.player_id, state.session);
 	} else {
-		console.warn("[saveGameData] Unable to save: SessionManager not available or no player_id");
+		logger.warn("[saveGameData] Unable to save: SessionManager not available or no player_id");
 	}
 }

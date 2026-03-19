@@ -53,7 +53,7 @@ const initialState = (): State => {
 
 const state: {
 	currentState: State;
-} = {} as any;
+} = {} as { currentState: State };
 
 export const initState = () => {
 	state.currentState = initialState();

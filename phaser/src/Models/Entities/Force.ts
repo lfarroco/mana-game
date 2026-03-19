@@ -3,6 +3,10 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { State } from "@Models/State";
 import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
+import { createLogger } from "@Utils/Logger";
+import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
+
+const logger = createLogger("Force");
 
 export type Force = {
 	id: string;
@@ -52,7 +56,7 @@ export const manipulateCoreLife = (
 	amount: number,
 	_critical = false,
 	effects?: CombatEffects,
-	forceStatsState?: any // Add optional state
+	forceStatsState?: ForceStatsState
 ): number => {
 	const core = getBattleCore(state)(targetForce.id);
 
@@ -83,7 +87,7 @@ export const manipulateCoreShield = (
 	_isCritical: boolean,
 	displayFeedback: boolean = true,
 	effects?: CombatEffects,
-	forceStatsState?: any
+	forceStatsState?: ForceStatsState
 ): number => {
 	const core = getBattleCore(state)(targetForce.id);
 
@@ -115,14 +119,14 @@ export const applyDamageToForce = (
 	damageType?: "poison" | "normal" | "timeout",
 	_critical = false,
 	effects?: CombatEffects,
-	forceStatsState?: any
+	forceStatsState?: ForceStatsState
 ): number => {
 	if (damage <= 0) return 0;
 
 	const core = getBattleCore(state)(targetForce.id);
 
 	if (!core) {
-		console.warn(`[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
+		logger.warn(`[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
 		return 0;
 	}
 

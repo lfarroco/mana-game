@@ -1,13 +1,33 @@
 import { State } from "@Models/State";
 import { CombatEffects, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
 import { CombatSystemStates } from "@Systems/CombatSystemStates";
+import { initializeForceStatsState, type ForceStatsState } from "@Scenes/Battleground/ForceStats";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 const INSTANT_EFFECT_DURATION = 0;
 
 export type CombatLogEntry = {
 	type: string;
-	[key: string]: any;
+	frame: number;
+	duration?: number;
+	result?: WaveOutcome;
+	sourceId?: string;
+	targetId?: string;
+	amount?: number;
+	effectDuration?: number;
+	permanent?: boolean;
+	force?: string;
+	life?: number;
+	shield?: number;
+	regen?: number;
+	poison?: number;
+	delta?: number;
+	damage?: number;
+	unitId?: string;
+	unitStats?: [string, import("@Systems/CombatStatsTracker").UnitCombatStats][];
+	currentCombatStats?: [string, import("@Systems/CombatStatsTracker").CurrentCombatStats][];
+	delayed?: number;
+	applyTime?: number;
 };
 
 export const createServerCombatEffects = (
@@ -84,11 +104,16 @@ export const createServerCombatEffects = (
 			return null;
 		},
 
-		updateLifeDisplay: (force: string, life: number, delta: number, _state?: any) => {
+		updateLifeDisplay: (force: string, life: number, delta: number, _state?: ForceStatsState) => {
 			logs.push({ type: "life_display", force, life, delta, frame: currentFrame, duration: 0 });
 		},
 
-		updateShieldDisplay: (force: string, shield: number, delta: number, _state?: any) => {
+		updateShieldDisplay: (
+			force: string,
+			shield: number,
+			delta: number,
+			_state?: ForceStatsState
+		) => {
 			logs.push({ type: "shield_display", force, shield, delta, frame: currentFrame, duration: 0 });
 		},
 
@@ -100,17 +125,9 @@ export const createServerCombatEffects = (
 			logs.push({ type: "poison_display", force, poison, delta, frame: currentFrame, duration: 0 });
 		},
 
-		initBlackHole: () => {
-			return {};
-		},
+		initBlackHole: () => null,
 
-		initCountdownTimer: (_blackHoleState: any) => {
-			return {};
-		},
-
-		initForceStats: () => {
-			return {};
-		},
+		initForceStats: () => initializeForceStatsState(),
 
 		onReactionVisual: async (unitId: string) => {
 			logs.push({ type: "reaction", unitId, frame: currentFrame });

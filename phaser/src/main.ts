@@ -60,5 +60,5 @@ StatsStore.init();
 
 if (process.env.NODE_ENV === "development") {
 	window.debugController = DebugController;
-	(window as any).game = game;
+	(window as Window & { game?: Phaser.Game }).game = game;
 }

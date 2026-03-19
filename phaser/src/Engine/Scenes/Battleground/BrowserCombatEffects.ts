@@ -8,8 +8,10 @@ import { getCharaById } from "@Systems/Chara/Chara";
 
 import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
-import { initBlackHole } from "@Scenes/Battleground/BlackHole";
+import { ForceStatsState } from "@Scenes/Battleground/ForceStats";
+import { initBlackHole, BlackHoleState } from "@Scenes/Battleground/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
+import { CountdownTimerState } from "@Systems/CountdownTimer";
 import { summonEffect } from "@Effects/summonEffect";
 import { damageFx } from "@TriggerSystem/effects/visuals/damage";
 import { healFx } from "@TriggerSystem/effects/visuals/heal";
@@ -26,6 +28,9 @@ import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constan
 import { getState } from "@Models/State";
 import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("BrowserCombatEffects");
 
 export const createBrowserCombatEffects = (
 	isReplay: boolean = false,
@@ -84,11 +89,21 @@ export const createBrowserCombatEffects = (
 			return getCurrentScene();
 		},
 
-		updateLifeDisplay: (force: string, life: number, delta: number, forceStatsState?: any) => {
+		updateLifeDisplay: (
+			force: string,
+			life: number,
+			delta: number,
+			forceStatsState?: ForceStatsState
+		) => {
 			ForceStats.updateLifeDisplay(force, life, delta, forceStatsState);
 		},
 
-		updateShieldDisplay: (force: string, shield: number, delta: number, forceStatsState?: any) => {
+		updateShieldDisplay: (
+			force: string,
+			shield: number,
+			delta: number,
+			forceStatsState?: ForceStatsState
+		) => {
 			ForceStats.updateShieldDisplay(force, shield, delta, forceStatsState);
 		},
 
@@ -104,15 +119,18 @@ export const createBrowserCombatEffects = (
 			return initBlackHole();
 		},
 
-		initCountdownTimer: (blackHoleState: any) => {
+		initCountdownTimer: (blackHoleState: BlackHoleState | null) => {
+			if (!blackHoleState) {
+				return CountdownTimer.initializeCountdownTimer(getCurrentScene(), initBlackHole());
+			}
 			return CountdownTimer.initializeCountdownTimer(getCurrentScene(), blackHoleState);
 		},
 
-		startCountdownTimer: (timerState: any) => {
+		startCountdownTimer: (timerState: CountdownTimerState) => {
 			return CountdownTimer.start(timerState);
 		},
 
-		stopCountdownTimer: (timerState: any) => {
+		stopCountdownTimer: (timerState: CountdownTimerState) => {
 			return CountdownTimer.stop(timerState);
 		},
 
@@ -345,7 +363,7 @@ export const createBrowserCombatEffects = (
 			const target = getBattleCore(state)(targetForceId);
 
 			if (!target) {
-				console.warn(
+				logger.warn(
 					`[BrowserCombatEffects] onTimeoutDamageVisual: No core found for force ${targetForceId}`
 				);
 				onHit();

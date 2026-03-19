@@ -101,8 +101,9 @@ export async function displayGameComplete(
 		buttonDefinitions.push([
 			t("demo.buy_full_game"),
 			async () => {
-				if ((window as any).openExternalURL) {
-					(window as any).openExternalURL("https://store.steampowered.com/app/3757600/Mana_Battle");
+				const win = window as Window & { openExternalURL?: (url: string) => void };
+				if (win.openExternalURL) {
+					win.openExternalURL("https://store.steampowered.com/app/3757600/Mana_Battle");
 				} else {
 					window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 				}

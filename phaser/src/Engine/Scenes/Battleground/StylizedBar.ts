@@ -2,6 +2,7 @@ import Phaser from "phaser";
 
 const BAR_HEIGHT = 50;
 const INNER_PADDING = 3;
+const originalHeights = new WeakMap<Phaser.GameObjects.Container, number>();
 
 export type StylizedBar = {
 	container: Container;
@@ -82,8 +83,7 @@ export function createStylizedBar(scene: Phaser.Scene, options: StylizedBarOptio
 	container.add(innerHighlight);
 
 	container.setVisible(false);
-
-	(container as any)._originalHeight = barHeight;
+	originalHeights.set(container, barHeight);
 
 	return {
 		container,
@@ -104,7 +104,7 @@ export function updateStylizedBar(
 	const percentage = Math.max(0, currentValue) / maxValue;
 	bar.barFill.scene.tweens.killTweensOf([bar.barFill, bar.innerHighlight]);
 
-	const originalHeight = (bar.container as any)._originalHeight || BAR_HEIGHT;
+	const originalHeight = originalHeights.get(bar.container) || BAR_HEIGHT;
 	const fillHeight = originalHeight - INNER_PADDING * 2;
 
 	const targetScaleY = percentage;

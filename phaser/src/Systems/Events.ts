@@ -1,10 +1,10 @@
 /**
  * System Events
- * 
+ *
  * This module defines event types emitted by game systems.
  * Systems should be pure functions that accept game state and return events/mutations
  * instead of directly manipulating Phaser GameObjects.
- * 
+ *
  * The Visualizer layer subscribes to these events and handles all visual updates.
  */
 
@@ -14,25 +14,25 @@ import { Unit } from "@Models/Entities/Unit";
  * EventEmitter interface for system events
  */
 export interface EventEmitter {
-	on(event: string, listener: (event: any) => void): void;
-	off(event: string, listener: (event: any) => void): void;
-	emit(event: string, data?: any): void;
+	on(event: string, listener: (event: SystemEvent) => void): void;
+	off(event: string, listener: (event: SystemEvent) => void): void;
+	emit(event: string, data?: SystemEvent): void;
 }
 
 /**
  * Simple implementation of EventEmitter
  */
 export class SimpleEventEmitter implements EventEmitter {
-	private listeners: { [event: string]: ((data?: any) => void)[] } = {};
+	private listeners: { [event: string]: ((data: SystemEvent) => void)[] } = {};
 
-	on(event: string, listener: (data?: any) => void): void {
+	on(event: string, listener: (data: SystemEvent) => void): void {
 		if (!this.listeners[event]) {
 			this.listeners[event] = [];
 		}
 		this.listeners[event].push(listener);
 	}
 
-	off(event: string, listener: (data?: any) => void): void {
+	off(event: string, listener: (data: SystemEvent) => void): void {
 		const eventListeners = this.listeners[event];
 		if (eventListeners) {
 			const index = eventListeners.indexOf(listener);
@@ -42,10 +42,10 @@ export class SimpleEventEmitter implements EventEmitter {
 		}
 	}
 
-	emit(event: string, data?: any): void {
+	emit(event: string, data?: SystemEvent): void {
 		const eventListeners = this.listeners[event];
-		if (eventListeners) {
-			eventListeners.forEach(listener => listener(data));
+		if (eventListeners && data) {
+			eventListeners.forEach((listener) => listener(data));
 		}
 	}
 }
@@ -219,19 +219,12 @@ export type UnitEvent =
 /**
  * All phase-related events
  */
-export type PhaseEvent =
-	| PhaseSkippedEvent
-	| PhaseStartedEvent
-	| PhaseEndedEvent;
+export type PhaseEvent = PhaseSkippedEvent | PhaseStartedEvent | PhaseEndedEvent;
 
 /**
  * All system events (union of all event types)
  */
-export type AllSystemEvents =
-	| ShopEvent
-	| UnitEvent
-	| PhaseEvent
-	| ResourcesChangedEvent;
+export type AllSystemEvents = ShopEvent | UnitEvent | PhaseEvent | ResourcesChangedEvent;
 
 // ============================================================================
 // Event Creation Helpers
@@ -311,10 +304,7 @@ export const createUnitSoldEvent = (unitId: string): UnitSoldEvent => ({
 /**
  * Helper to create a UnitSpawnedEvent
  */
-export const createUnitSpawnedEvent = (
-	unit: Unit,
-	isFromShop: boolean
-): UnitSpawnedEvent => ({
+export const createUnitSpawnedEvent = (unit: Unit, isFromShop: boolean): UnitSpawnedEvent => ({
 	type: "UnitSpawned",
 	timestamp: createTimestamp(),
 	unit,
@@ -324,10 +314,7 @@ export const createUnitSpawnedEvent = (
 /**
  * Helper to create a UnitUpgradedEvent
  */
-export const createUnitUpgradedEvent = (
-	unit: Unit,
-	previousRank: number
-): UnitUpgradedEvent => ({
+export const createUnitUpgradedEvent = (unit: Unit, previousRank: number): UnitUpgradedEvent => ({
 	type: "UnitUpgraded",
 	timestamp: createTimestamp(),
 	unit,

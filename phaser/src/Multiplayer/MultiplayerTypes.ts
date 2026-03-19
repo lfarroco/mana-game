@@ -40,3 +40,10 @@ export interface ShopOption {
 	id: string; // "card:archer" etc
 	cost: number;
 }
+
+export type PlayerProfile = {
+	id: string;
+	username: string;
+	rating: number;
+	matches_played: number;
+};

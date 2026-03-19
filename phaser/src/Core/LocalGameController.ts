@@ -1,4 +1,6 @@
 import { GameController, GameFeature } from "@Core/GameController";
+import { ActionPayload } from "@Core/Types";
+import { Unit } from "@Models/Entities/Unit";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
@@ -69,7 +71,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return success;
 		},
 
-		handleAction: async (actionId: string, payload?: any): Promise<boolean> => {
+		handleAction: async (actionId: string, payload?: ActionPayload): Promise<boolean> => {
 			const server = getServerAdapter();
 			const state = getState();
 			const inUpgradePhase = state.session.phase === "upgrade_core";
@@ -96,7 +98,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return success;
 		},
 
-		updateTeam: async (team: { units: any[] }): Promise<boolean> => {
+		updateTeam: async (team: { units: Unit[] }): Promise<boolean> => {
 			const server = getServerAdapter();
 			return await server.handleAction(playerId, "update_team", { team });
 		},

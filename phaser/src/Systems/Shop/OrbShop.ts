@@ -11,6 +11,9 @@ import { hexToVector3 } from "@Utils/colorUtils";
 import * as io from "@PhaserIO";
 import { SCREEN_HEIGHT, titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("OrbShop");
 
 export async function openOrbShop(
 	state: State,
@@ -71,7 +74,7 @@ export function renderOrbShop(
 		const playerBoard = Board.getBoardState();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
-			console.log(`${orbSpec.name} dropped on non-board target:`, target);
+			logger.debug(`${orbSpec.name} dropped on non-board target:`, target);
 			MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
@@ -80,26 +83,28 @@ export function renderOrbShop(
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
 
-		console.log(`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`);
+		logger.debug(
+			`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
+		);
 
 		const existingUnit = state?.session?.team?.units?.find((unit) =>
 			eqVec2(unit.position, { x: tileX, y: tileY })
 		);
 
 		if (!existingUnit) {
-			console.log(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
+			logger.debug(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
 			MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
-		console.log(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
+		logger.debug(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
 		// Only apply effect locally if no server callback is provided
 		// When onOrbApply is provided, the server will handle the upgrade
 		if (!onOrbApply) {
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
-				console.log(`${orbSpec.name} effect returned false — returning orb to origin`);
+				logger.debug(`${orbSpec.name} effect returned false — returning orb to origin`);
 				MagicOrbCallbacks.returnToPosition(orb, target);
 				return;
 			}

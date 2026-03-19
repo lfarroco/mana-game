@@ -2,6 +2,10 @@ import * as Phaser from "phaser";
 import { cloudsBackgroundShader } from "@Shaders/CloudsBackground";
 import { colorPresets, IColorPreset } from "@Constants/colorPresets";
 import { getCurrentScene } from "@Models/State";
+import { getOption } from "@Models/OptionsStore";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("CloudsBackground");
 
 export interface CloudsBackgroundConfig {
 	/** Initial color preset to use */
@@ -93,8 +97,7 @@ export class CloudsBackground {
 			.setOrigin(0.5, 0.5)
 			.setDepth(this.depth);
 
-		// Set alpha via the shader's alpha property since setAlpha might not exist
-		(this.shader as any).alpha = this.alpha;
+		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
 	}
 
 	private getCurrentColors(): IColorPreset {
@@ -111,7 +114,7 @@ export class CloudsBackground {
 	 */
 	public changePreset(): void {
 		if (this.customColors) {
-			console.warn("Cannot change presets when using custom colors");
+			logger.warn("Cannot change presets when using custom colors");
 			return;
 		}
 
@@ -133,13 +136,13 @@ export class CloudsBackground {
 	 */
 	public setPreset(presetName: keyof typeof colorPresets): void {
 		if (this.customColors) {
-			console.warn("Cannot set preset when using custom colors");
+			logger.warn("Cannot set preset when using custom colors");
 			return;
 		}
 
 		const index = this.presetKeys.indexOf(presetName as string);
 		if (index === -1) {
-			console.warn(`Preset '${presetName}' not found`);
+			logger.warn(`Preset '${presetName}' not found`);
 			return;
 		}
 
@@ -204,8 +207,7 @@ export class CloudsBackground {
 	 */
 	public setAlpha(alpha: number): void {
 		this.alpha = alpha;
-		// Directly set the alpha property since setAlpha method might not exist
-		(this.shader as any).alpha = alpha;
+		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = alpha;
 	}
 
 	/**
@@ -221,10 +223,6 @@ export class CloudsBackground {
 	 */
 	private getParticleQualityValue(): number {
 		try {
-			// Import getOption here to avoid circular dependencies
-			// eslint-disable-next-line @typescript-eslint/no-require-imports
-			const { getOption } =
-				require("@Models/OptionsStore") as typeof import("@Models/OptionsStore");
 			const particles = getOption("particles");
 
 			switch (particles) {
@@ -239,7 +237,7 @@ export class CloudsBackground {
 			}
 		} catch {
 			// Fallback to medium quality if OptionsStore is not available
-			console.warn("Could not access OptionsStore, defaulting to medium particle quality");
+			logger.warn("Could not access OptionsStore, defaulting to medium particle quality");
 			return 1.0;
 		}
 	}
@@ -321,7 +319,7 @@ export class CloudsBackground {
 		if (targetPreset) {
 			this.tweenColors(targetPreset, duration, ease);
 		} else {
-			console.warn(`Preset ${presetName} not found`);
+			logger.warn(`Preset ${presetName} not found`);
 		}
 	}
 
@@ -366,7 +364,7 @@ export class CloudsBackground {
 			ease: ease,
 			onUpdate: (tween) => {
 				this.alpha = tween.getValue();
-				(this.shader as any).alpha = this.alpha;
+				(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
 			},
 		});
 	}

@@ -27,7 +27,7 @@ export interface PhaseTransitionResult {
 	/** Amount to increment the round counter (default: 0) */
 	roundIncrement?: number;
 	/** Any special data to store/return (e.g. combat state) */
-	specialData?: Record<string, any>;
+	specialData?: Record<string, unknown>;
 }
 
 /**

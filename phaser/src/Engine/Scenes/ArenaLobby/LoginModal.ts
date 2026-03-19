@@ -1,4 +1,3 @@
-
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "@Constants/constants";
 import { createUIButton } from "@Components/UIButton";
@@ -21,31 +20,46 @@ export class LoginModal {
 
 	createUI() {
 		// Dark Overlay
-		const bg = this.scene.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.8).setOrigin(0);
+		const bg = this.scene.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.8)
+			.setOrigin(0);
 		bg.setInteractive(); // Block clicks
 		this.container.add(bg);
 
 		// Panel
 		const panelWidth = 600;
 		const panelHeight = 400;
-		const panel = this.scene.add.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, panelWidth, panelHeight, 0x2c3e50).setOrigin(0.5);
+		const panel = this.scene.add
+			.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, panelWidth, panelHeight, 0x2c3e50)
+			.setOrigin(0.5);
 		panel.setStrokeStyle(4, 0xffffff);
 		this.container.add(panel);
 
 		// Title
-		const title = this.scene.add.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 150, "Authentication", { fontSize: "32px", color: "white" }).setOrigin(0.5);
+		const title = this.scene.add
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 150, "Authentication", {
+				fontSize: "32px",
+				color: "white",
+			})
+			.setOrigin(0.5);
 		this.container.add(title);
 
 		// Login Button
-		const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 50), () => this.handleLogin());
+		const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 50), () =>
+			this.handleLogin()
+		);
 		this.container.add(loginBtn.container);
 
 		// Register Button
-		const regBtn = createUIButton("Register", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 50), () => this.handleRegister());
+		const regBtn = createUIButton("Register", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 50), () =>
+			this.handleRegister()
+		);
 		this.container.add(regBtn.container);
 
 		// Cancel Button
-		const cancelBtn = createUIButton("Cancel", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 150), () => this.hide());
+		const cancelBtn = createUIButton("Cancel", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 150), () =>
+			this.hide()
+		);
 		this.container.add(cancelBtn.container);
 	}
 
@@ -57,6 +71,9 @@ export class LoginModal {
 
 		try {
 			const profile = await handleAuthLogin(username, password);
+			if (!profile?.id) {
+				throw new Error("Login succeeded but no profile id was returned");
+			}
 			localStorage.setItem("player_id", profile.id);
 			alert("Login Successful!");
 			this.hide(true);
@@ -82,7 +99,7 @@ export class LoginModal {
 			}
 
 			const profile = await handleAuthRegister(username, password);
-			if (profile && typeof profile === 'object' && 'id' in profile) {
+			if (profile && typeof profile === "object" && "id" in profile) {
 				localStorage.setItem("player_id", profile.id as string);
 			}
 			// alert("Registration Successful!");

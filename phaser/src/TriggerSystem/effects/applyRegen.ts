@@ -3,6 +3,9 @@ import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("applyRegen");
 
 export const applyRegenLogicIO = async (
 	env: CombatEnvironment,
@@ -14,11 +17,11 @@ export const applyRegenLogicIO = async (
 
 	const crit = calculateCritical(sourceUnit);
 
-	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
+	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
 	const targetForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
-	console.log(
+	logger.debug(
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 

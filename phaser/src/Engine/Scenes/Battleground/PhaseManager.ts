@@ -17,6 +17,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter } from "@Systems/Events";
+import { PhaseOptions, PhaseOption } from "@Core/Types";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
@@ -25,6 +26,9 @@ import { updateRoundDisplay } from "@UI/components/roundDisplay";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getCardDefinition } from "@Models/Entities/Card";
 import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseManager";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("PhaseManager");
 
 function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets> = {
@@ -56,7 +60,7 @@ export async function startPhase(state: State, eventEmitter?: EventEmitter) {
 		const phaseOptions = await server.getPhaseOptions(playerId);
 		await renderPhase(state, phaseOptions, eventEmitter);
 	} catch (error) {
-		console.error("Failed to get phase options:", error);
+		logger.error("Failed to get phase options:", error);
 	}
 }
 
@@ -71,7 +75,7 @@ export function getPlayerId(): string {
 }
 
 // Render phase based on server response
-async function renderPhase(state: State, options: any, _eventEmitter?: EventEmitter) {
+async function renderPhase(state: State, options: PhaseOptions, _eventEmitter?: EventEmitter) {
 	state.session.phase = options.phase;
 	const previousRound = state.session.round;
 	state.session.round = options.round ?? state.session.round;
@@ -96,7 +100,7 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 
 	// Sync team from server if provided (important for combat phase to have correct units)
 	if (options.team && options.team.units) {
-		console.log("Syncing team from server...", options.team.units.length);
+		logger.debug("Syncing team from server...", options.team.units.length);
 		state.session.team.units = options.team.units;
 
 		// Re-render units if not in combat (combat handles its own rendering)
@@ -138,12 +142,12 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 		case "encounter":
 			await Encounter.open(
 				state,
-				options.options.map((o: any) => o.id)
+				options.options.map((o: PhaseOption) => o.id)
 			);
 			break;
 		case "shop":
 			{
-				const shopCardIds = options.options.map((o: any) => o.id);
+				const shopCardIds = options.options.map((o: PhaseOption) => o.id);
 				const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
 				const controller = getGameController();
 				ShopPanel.create(async () => {
@@ -160,7 +164,7 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 		case "orb_shop":
 			await openOrbShop(
 				state,
-				options.options.map((o: any) => o.id),
+				options.options.map((o: PhaseOption) => o.id),
 				async (orbId: string, targetId: string) => {
 					// Notify server when orb is applied
 					const server = getServerAdapter();
@@ -179,7 +183,7 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 		case "upgrade_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"upgradeCrystal.title",
-				options.options.map((o: any) => o.id)
+				options.options.map((o: PhaseOption) => o.id)
 			);
 			// After upgrade completes, notify server and get next phase
 			{
@@ -192,7 +196,7 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 		case "add_reaction_core":
 			await EffectCardShop.openUpgradeCorePhase(
 				"effectCardShop.title",
-				options.options.map((o: any) => o.id)
+				options.options.map((o: PhaseOption) => o.id)
 			);
 			// After reaction card completes, notify server and get next phase
 			{
@@ -203,7 +207,7 @@ async function renderPhase(state: State, options: any, _eventEmitter?: EventEmit
 			}
 			break;
 		default:
-			console.warn(`Unknown phase: ${options.phase}`);
+			logger.warn(`Unknown phase: ${options.phase}`);
 			break;
 	}
 }
@@ -225,7 +229,7 @@ export function handlePhaseEnded(state: State): void {
 				startPhase(state, currentEventEmitter);
 			})
 			.catch((error) => {
-				console.error("Failed to complete phase:", error);
+				logger.error("Failed to complete phase:", error);
 			});
 	} else {
 		startPhase(state, currentEventEmitter);

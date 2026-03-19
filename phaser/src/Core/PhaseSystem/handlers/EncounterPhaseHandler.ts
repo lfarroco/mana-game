@@ -1,7 +1,7 @@
 import { createPhaseHandler } from "@Core/PhaseSystem/BasePhaseHandler";
 import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "@Core/PhaseSystem/types";
 import * as GameLogic from "@Core/GameLogic";
-import { PhaseType } from "@Core/Types";
+import { PhaseType, PhaseOption } from "@Core/Types";
 
 export const encounterPhaseHandler = createPhaseHandler({
 	phase: "encounter" as PhaseType,
@@ -23,7 +23,7 @@ export const encounterPhaseHandler = createPhaseHandler({
 		// Handle special encounters -> Orb Shop
 		const specialOrbEncounters = ["upgrade_unit", "power_distributor", "power_absorber"];
 		if (specialOrbEncounters.includes(actionId)) {
-			let nextOptions: any[] = [];
+			let nextOptions: PhaseOption[] = [];
 			if (actionId === "upgrade_unit") nextOptions = [{ id: "upgrade_orb" }];
 			if (actionId === "power_distributor") nextOptions = [{ id: "distribute_power_orb" }];
 			if (actionId === "power_absorber") nextOptions = [{ id: "absorb_power_orb" }];

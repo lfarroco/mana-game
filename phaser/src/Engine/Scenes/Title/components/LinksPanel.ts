@@ -68,8 +68,9 @@ export function openLinksPanel(): void {
 		textObj.setOrigin(0.5, 0.5);
 		textObj.setInteractive({ useHandCursor: true });
 		textObj.on("pointerdown", () => {
-			if ((window as any).openExternalURL) {
-				(window as any).openExternalURL(link.url);
+			const win = window as Window & { openExternalURL?: (url: string) => void };
+			if (win.openExternalURL) {
+				win.openExternalURL(link.url);
 			} else {
 				window.open(link.url, "_blank");
 			}
@@ -88,13 +89,7 @@ export function openLinksPanel(): void {
 		}
 	);
 
-	const container = io.Container([
-		overlay,
-		panelBg,
-		title,
-		...linkTexts,
-		closeButton.container,
-	]);
+	const container = io.Container([overlay, panelBg, title, ...linkTexts, closeButton.container]);
 
 	io.BringToTop(container);
 }

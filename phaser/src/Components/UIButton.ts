@@ -3,10 +3,13 @@ import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createMagicButtonOverlay, MagicOverlayHandle } from "@Components/magicButtonShader";
 import * as io from "@PhaserIO";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("UIButton");
 
 export const activeButtons: Record<string, () => void> = {};
 if (typeof window !== "undefined") {
-	(window as any)._activeButtons = activeButtons;
+	(window as Window & { _activeButtons?: typeof activeButtons })._activeButtons = activeButtons;
 }
 
 export function triggerButton(text: string): boolean {
@@ -64,7 +67,7 @@ export function createUIButton(
 	callback: () => void,
 	width?: number
 ): Button {
-	console.log(`DEBUG: createUIButton called for ${text}`);
+	logger.debug(`DEBUG: createUIButton called for ${text}`);
 	const size = {
 		width: width || 280,
 		height: buttonHeight,
@@ -94,14 +97,14 @@ export function createUIButton(
 	};
 
 	io.OnPointerDown(buttonGraphics, () => {
-		console.log(`DEBUG: UIButton PointerDown ${text}`);
+		logger.debug(`DEBUG: UIButton PointerDown ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
 		tweenShaderIntensity(3.1);
 	});
 
 	io.OnPointerUp(buttonGraphics, () => {
-		console.log(`DEBUG: UIButton PointerUp ${text}`);
+		logger.debug(`DEBUG: UIButton PointerUp ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		const wasPressed = state.isPressed;
 		state.isPressed = false;
@@ -110,7 +113,7 @@ export function createUIButton(
 			tweenShaderIntensity(0.1);
 			callback();
 		} else {
-			console.log(`DEBUG: UIButton PointerUp but not pressed`);
+			logger.debug(`DEBUG: UIButton PointerUp but not pressed`);
 		}
 	});
 

@@ -1,4 +1,6 @@
 import { GameController, GameFeature } from "@Core/GameController";
+import { ActionPayload } from "@Core/Types";
+import { Unit } from "@Models/Entities/Unit";
 import { sendOptionSelection, sendTeamUpdate } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
@@ -61,7 +63,7 @@ export const createRemoteGameController = (): GameController => {
 			return success;
 		},
 
-		handleAction: async (actionId: string, payload?: any): Promise<boolean> => {
+		handleAction: async (actionId: string, payload?: ActionPayload): Promise<boolean> => {
 			const state = getState();
 			const inUpgradePhase = state.session.phase === "upgrade_core";
 			const inReactionPhase = state.session.phase === "add_reaction_core";
@@ -87,7 +89,7 @@ export const createRemoteGameController = (): GameController => {
 			return success;
 		},
 
-		updateTeam: async (team: { units: any[] }): Promise<boolean> => {
+		updateTeam: async (team: { units: Unit[] }): Promise<boolean> => {
 			return await sendTeamUpdate(team);
 		},
 

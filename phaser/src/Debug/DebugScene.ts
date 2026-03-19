@@ -6,6 +6,9 @@ import { Button, createUIButton } from "@Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { setCurrentScene } from "@Models/State";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("DebugScene");
 
 type EffectFactory = (scene: DebugScene) => void;
 
@@ -183,14 +186,14 @@ export class DebugScene extends Phaser.Scene {
 		setCurrentScene(this);
 		// Ensure a headless battleground scene exists for effects that depend on its globals/systems.
 		if (!this.scene.get(SCENE_KEYS.BATTLEGROUND)) {
-			console.log(
+			logger.debug(
 				"[DebugScene] Adding headless BattlegroundScene instance for effect dependencies."
 			);
 			this.scene.add(SCENE_KEYS.BATTLEGROUND, BattlegroundScene, true, { headless: true });
 		} else {
 			const bg = this.scene.get(SCENE_KEYS.BATTLEGROUND) as BattlegroundScene;
 			if (!bg.scene.isActive()) {
-				console.log("[DebugScene] Launching existing BattlegroundScene in headless mode.");
+				logger.debug("[DebugScene] Launching existing BattlegroundScene in headless mode.");
 				this.scene.launch(SCENE_KEYS.BATTLEGROUND, { headless: true });
 			}
 		}
@@ -253,12 +256,12 @@ export class DebugScene extends Phaser.Scene {
 	private runEffect(key: string) {
 		// Clear previous timed events (avoids stacking repeats)
 		this.time.removeAllEvents();
-		console.log("[DebugScene] Running effect:", key);
+		logger.debug("[DebugScene] Running effect:", key);
 		const fx = EFFECT_REGISTRY[key];
 		if (fx) {
 			fx(this);
 		} else {
-			console.warn("[DebugScene] Effect not found:", key);
+			logger.warn("[DebugScene] Effect not found:", key);
 			return;
 		}
 

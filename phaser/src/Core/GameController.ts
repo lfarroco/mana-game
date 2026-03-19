@@ -1,10 +1,11 @@
 import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
+import { ActionPayload } from "@Core/Types";
 
 /**
  * GameController type - Unified interface for game actions.
  * Hides the implementation detail of whether the game is local or multiplayer.
- * 
+ *
  * This pattern eliminates the need for `isMultiplayer` checks scattered throughout
  * the UI and event handling code.
  */
@@ -43,7 +44,7 @@ export type GameController = {
 	 * @param payload - Optional payload for the action
 	 * @returns Promise that resolves when the action completes
 	 */
-	handleAction(actionId: string, payload?: any): Promise<boolean>;
+	handleAction(actionId: string, payload?: ActionPayload): Promise<boolean>;
 
 	/**
 	 * Update the team composition (for drag-and-drop repositioning).
@@ -71,11 +72,11 @@ export type GameController = {
 /**
  * Features that can be enabled/disabled based on game mode.
  */
-export type GameFeature = 
-	| 'new_run_button'      // Allow starting a new run from menu
-	| 'infinite_mode'       // Allow entering infinite mode after victory
-	| 'skip_encounter'      // Allow skipping encounters
-	| 'seed_selection';     // Allow selecting custom seeds
+export type GameFeature =
+	| "new_run_button" // Allow starting a new run from menu
+	| "infinite_mode" // Allow entering infinite mode after victory
+	| "skip_encounter" // Allow skipping encounters
+	| "seed_selection"; // Allow selecting custom seeds
 
 /**
  * Context object for controller dependencies.

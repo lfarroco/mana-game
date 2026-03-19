@@ -17,6 +17,9 @@ import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
 import * as ShopUI from "@Systems/Shop/ShopPanel";
 import * as Geometry from "@Models/Geometry";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("Visualizer");
 
 /**
  * Event handler function type
@@ -26,7 +29,7 @@ type EventHandler<T extends SystemEvents.SystemEvent> = (event: T) => void | Pro
 /**
  * Event handlers map
  */
-const eventHandlers: Map<string, Set<EventHandler<any>>> = new Map();
+const eventHandlers: Map<string, Set<EventHandler<SystemEvents.SystemEvent>>> = new Map();
 let isInitialized: boolean = false;
 
 /**
@@ -34,7 +37,7 @@ let isInitialized: boolean = false;
  */
 export function initialize(): void {
 	if (isInitialized) {
-		console.warn("Visualizer already initialized");
+		logger.warn("Visualizer already initialized");
 		return;
 	}
 
@@ -50,7 +53,7 @@ export function initialize(): void {
 	subscribe("UnitUpgraded", handleUnitUpgraded);
 
 	isInitialized = true;
-	console.log("Visualizer initialized");
+	logger.debug("Visualizer initialized");
 }
 
 /**
@@ -63,7 +66,7 @@ function subscribe<T extends SystemEvents.SystemEvent>(
 	if (!eventHandlers.has(eventType)) {
 		eventHandlers.set(eventType, new Set());
 	}
-	eventHandlers.get(eventType)!.add(handler);
+	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<SystemEvents.SystemEvent>);
 }
 
 /**
@@ -85,7 +88,7 @@ export async function emit(event: SystemEvents.AllSystemEvents): Promise<void> {
 				promises.push(result);
 			}
 		} catch (error) {
-			console.error(`Error handling event ${event.type}:`, error);
+			logger.error(`Error handling event ${event.type}:`, error);
 		}
 	}
 
@@ -101,7 +104,7 @@ export async function emit(event: SystemEvents.AllSystemEvents): Promise<void> {
 export function destroy(): void {
 	eventHandlers.clear();
 	isInitialized = false;
-	console.log("Visualizer destroyed");
+	logger.debug("Visualizer destroyed");
 }
 
 // ========================================================================
@@ -109,18 +112,18 @@ export function destroy(): void {
 // ========================================================================
 
 async function handleShopOpened(_event: SystemEvents.ShopOpenedEvent): Promise<void> {
-	console.log("Visualizer: Shop opened with cards:", _event.cardIds);
+	logger.debug("Visualizer: Shop opened with cards:", _event.cardIds);
 	// The actual shop opening and rendering is handled elsewhere
 	// This is just for logging/tracking
 }
 
 async function handleShopClosed(_event: SystemEvents.ShopClosedEvent): Promise<void> {
-	console.log("Visualizer: Shop closed");
+	logger.debug("Visualizer: Shop closed");
 	await ShopUI.slideOut();
 }
 
 async function handleUnitPurchased(event: SystemEvents.UnitPurchasedEvent): Promise<void> {
-	console.log("Visualizer: Unit purchased:", event.cardId, "wasUpgrade:", event.wasUpgrade);
+	logger.debug(`Visualizer: Unit purchased: ${event.cardId}, wasUpgrade: ${event.wasUpgrade}`);
 
 	try {
 		// Shop item visuals may already be gone if phase transition happened immediately.
@@ -150,12 +153,12 @@ async function handleUnitPurchased(event: SystemEvents.UnitPurchasedEvent): Prom
 			await ShopUI.slideOut();
 		}
 	} catch (error) {
-		console.error("Error handling UnitPurchased event:", error);
+		logger.error("Error handling UnitPurchased event:", error);
 	}
 }
 
 function handlePurchaseFailed(event: SystemEvents.PurchaseFailedEvent): void {
-	console.log("Visualizer: Purchase failed:", event.reason);
+	logger.debug("Visualizer: Purchase failed:", event.reason);
 
 	try {
 		// Get the shop character for failure animation
@@ -170,12 +173,12 @@ function handlePurchaseFailed(event: SystemEvents.PurchaseFailedEvent): void {
 		// Show UI feedback
 		uiEvents.onPurchaseFailed(event.unitName, event.reason, event.cost);
 	} catch (error) {
-		console.error("Error handling PurchaseFailed event:", error);
+		logger.error("Error handling PurchaseFailed event:", error);
 	}
 }
 
 function handleUnitSold(event: SystemEvents.UnitSoldEvent): void {
-	console.log("Visualizer: Unit sold:", event.unitId);
+	logger.debug("Visualizer: Unit sold:", event.unitId);
 	// Visual feedback for unit sale could be added here
 	// For now, the unit removal is handled by the game logic
 }
@@ -185,31 +188,26 @@ function handleUnitSold(event: SystemEvents.UnitSoldEvent): void {
 // ========================================================================
 
 async function handleUnitSpawned(event: SystemEvents.UnitSpawnedEvent): Promise<void> {
-	console.log("Visualizer: Unit spawned:", event.unit.cardId);
+	logger.debug("Visualizer: Unit spawned:", event.unit.cardId);
 
 	try {
 		// Summon the unit with visual effects
 		await Chara.summon(event.unit, event.isFromShop);
 	} catch (error) {
-		console.error("Error handling UnitSpawned event:", error);
+		logger.error("Error handling UnitSpawned event:", error);
 	}
 }
 
 async function handleUnitUpgraded(event: SystemEvents.UnitUpgradedEvent): Promise<void> {
-	console.log(
-		"Visualizer: Unit upgraded:",
-		event.unit.cardId,
-		"from rank",
-		event.previousRank,
-		"to",
-		event.unit.rank
+	logger.debug(
+		`Visualizer: Unit upgraded: ${event.unit.cardId} from rank ${event.previousRank} to ${event.unit.rank}`
 	);
 
 	try {
 		// Animate the upgrade
 		await Chara.upgradeUnit(event.unit);
 	} catch (error) {
-		console.error("Error handling UnitUpgraded event:", error);
+		logger.error("Error handling UnitUpgraded event:", error);
 	}
 }
 
@@ -223,7 +221,7 @@ let globalVisualizerInitialized: boolean = false;
  */
 export function initializeVisualizer(): void {
 	if (globalVisualizerInitialized) {
-		console.warn("Global visualizer already exists, destroying and recreating");
+		logger.warn("Global visualizer already exists, destroying and recreating");
 		destroyVisualizer();
 	}
 
@@ -254,6 +252,6 @@ export async function emitSystemEvent(event: SystemEvents.AllSystemEvents): Prom
 	if (globalVisualizerInitialized) {
 		await emit(event);
 	} else {
-		console.warn("Cannot emit event - visualizer not initialized:", event.type);
+		logger.warn("Cannot emit event - visualizer not initialized:", event.type);
 	}
 }

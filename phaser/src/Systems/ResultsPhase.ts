@@ -11,9 +11,12 @@ import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
 import { replayCombat, storeCombatResult } from "@Scenes/Battleground/RunCombatIO";
 import { WINS_TO_WIN_GAME } from "@Scenes/Battleground/Results/ResultsConfig";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("ResultsPhase");
 
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
-	console.log("Round", state.session.round, "Processing Defeat...");
+	logger.debug(`Round ${state.session.round}: Processing Defeat...`);
 
 	AudioManager.playSoundEffect("sfx_victory_match");
 
@@ -32,7 +35,7 @@ export async function handleCombatEndedDefeat(state: State): Promise<void> {
 }
 
 export async function handleCombatEndedVictory(state: State): Promise<void> {
-	console.log("Round", state.session.round, "Processing Victory...");
+	logger.debug(`Round ${state.session.round}: Processing Victory...`);
 
 	AudioManager.playSoundEffect("sfx_victory_reward_chant");
 
@@ -69,7 +72,7 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 }
 
 async function handleVictory(state: State): Promise<void> {
-	console.log("Round", state.session.round, "Shop Phase Starting (Victory Transition).");
+	logger.debug(`Round ${state.session.round}: Shop Phase Starting (Victory Transition).`);
 
 	saveGameData();
 
@@ -84,7 +87,7 @@ async function handleVictory(state: State): Promise<void> {
 }
 
 async function handleDefeat(state: State): Promise<void> {
-	console.log("Round", state.session.round, "Shop Phase Starting (After Defeat).");
+	logger.debug(`Round ${state.session.round}: Shop Phase Starting (After Defeat).`);
 
 	const lives = 4 - state.session.losses;
 	if (lives <= 0) {

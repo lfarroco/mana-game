@@ -1,6 +1,11 @@
 import { IGameServer } from "@Core/IGameServer";
-import { SessionData, PhaseOptions } from "@Core/Types";
+import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
+import { Unit } from "@Models/Entities/Unit";
+import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("RemoteServerAdapter");
 
 /**
  * Remote implementation of the game server using Supabase.
@@ -40,7 +45,7 @@ export class RemoteServerAdapter implements IGameServer {
 			.maybeSingle();
 
 		if (error) {
-			console.error("Failed to fetch session:", error);
+			logger.error("Failed to fetch session:", error);
 			return null;
 		}
 
@@ -58,19 +63,33 @@ export class RemoteServerAdapter implements IGameServer {
 			throw new Error(`Failed to fetch phase options: ${error?.message || "No session found"}`);
 		}
 
-		let combatState = undefined;
+		let combatState: CombatState | undefined = undefined;
 		if (session.phase === "combat") {
-			const optionsCombatState = (session.current_options as any)?.combatState;
-			if (optionsCombatState && optionsCombatState.logs) {
-				console.log("Using server-provided combat logs");
+			const optionsCombatState = (session.current_options as Record<string, unknown>)
+				?.combatState as Record<string, unknown> | undefined;
+			if (optionsCombatState && Array.isArray(optionsCombatState.logs)) {
+				logger.debug("Using server-provided combat logs");
+				const enemyTeam = Array.isArray(optionsCombatState.enemyTeam)
+					? (optionsCombatState.enemyTeam as Unit[])
+					: [];
+				const units = Array.isArray(optionsCombatState.initialUnits)
+					? (optionsCombatState.initialUnits as Unit[])
+					: [];
+				const finalPlayerUnits = Array.isArray(optionsCombatState.finalPlayerUnits)
+					? (optionsCombatState.finalPlayerUnits as Unit[])
+					: undefined;
+				const wonCombat =
+					typeof optionsCombatState.wonCombat === "boolean"
+						? optionsCombatState.wonCombat
+						: undefined;
 				combatState = {
-					units: optionsCombatState.initialUnits,
-					enemyTeam: optionsCombatState.enemyTeam,
-					logs: optionsCombatState.logs,
+					units,
+					enemyTeam,
+					logs: optionsCombatState.logs as CombatLogEntry[],
 					seed: session.seed,
-					wonCombat: optionsCombatState.wonCombat,
-					finalPlayerUnits: optionsCombatState.finalPlayerUnits,
-					initialUnits: optionsCombatState.initialUnits,
+					wonCombat,
+					finalPlayerUnits,
+					initialUnits: units,
 				};
 			}
 		}
@@ -78,7 +97,7 @@ export class RemoteServerAdapter implements IGameServer {
 		const optionsList = session.current_options?.options || [];
 
 		return {
-			phase: session.phase as any,
+			phase: session.phase as PhaseType,
 			round: session.round,
 			options: optionsList,
 			team: session.team,
@@ -88,13 +107,17 @@ export class RemoteServerAdapter implements IGameServer {
 		};
 	}
 
-	async handleAction(_playerId: string, actionId: string, payload?: any): Promise<boolean> {
+	async handleAction(
+		_playerId: string,
+		actionId: string,
+		payload?: ActionPayload
+	): Promise<boolean> {
 		const { error } = await supabase.functions.invoke("action", {
 			body: { actionId, payload },
 		});
 
 		if (error) {
-			console.error(`Failed to handle action ${actionId}:`, error);
+			logger.error(`Failed to handle action ${actionId}:`, error);
 			return false;
 		}
 

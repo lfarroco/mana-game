@@ -10,16 +10,19 @@ export * as CountdownTimer from "@Systems/CountdownTimer";
 
 // Export Shop with backward compatibility extensions
 import * as ShopModule from "@Systems/Shop";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("BattlegroundSystems");
 export const Shop = {
 	...ShopModule,
 	HeroShop: {
 		...ShopModule.HeroShop,
 		getShopCharaBySlot: (_: number) => {
-			console.warn("getShopCharaBySlot is deprecated - use new event-driven shop system");
+			logger.warn("getShopCharaBySlot is deprecated - use new event-driven shop system");
 			return null;
 		},
 		getDisplayedHeroCardDefinitions: () => {
-			console.warn(
+			logger.warn(
 				"getDisplayedHeroCardDefinitions is deprecated - use new event-driven shop system"
 			);
 			return [];

@@ -2,6 +2,9 @@ import { getCurrentScene } from "@Models/State";
 import { images } from "@assets";
 import * as AudioManager from "@Systems/AudioManager";
 import { delay } from "@Utils/animation";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("hasteEffect");
 
 export interface HasteEffectOptions {
 	duration?: number;
@@ -18,7 +21,7 @@ export async function hasteEffect(
 	try {
 		AudioManager.playSoundEffect("sfx_artifact_equipmask");
 	} catch (error) {
-		console.warn("Could not play haste effect sound:", error);
+		logger.warn("Could not play haste effect sound:", error);
 	}
 
 	const particles = getCurrentScene().add.particles(x, y, images.light_pillar.key, {

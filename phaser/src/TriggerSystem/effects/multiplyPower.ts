@@ -1,5 +1,8 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("multiplyPower");
 
 export const multiplyPower = async (options: {
 	env: CombatEnvironment;
@@ -13,7 +16,7 @@ export const multiplyPower = async (options: {
 	const effects = env.effects;
 
 	for (const target of targets) {
-		console.log(`Multiplying power of ${target.id} by ${multiplier}`);
+		logger.debug(`Multiplying power of ${target.id} by ${multiplier}`);
 		const currentPower = target.power;
 		const newPower = Math.floor(currentPower * multiplier);
 		const powerDifference = newPower - currentPower;
