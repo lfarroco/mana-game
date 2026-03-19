@@ -4,6 +4,9 @@ import { pickRandom } from "@utils";
 import { State } from "@Models/State";
 
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("TriggerSystem");
 
 export type EffectId =
 	| "damage"
@@ -471,7 +474,7 @@ export function resolveTargets(
 	triggeringUnit?: Unit
 ): Unit[] {
 	if (!("targets" in effect)) {
-		console.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
+		logger.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
 	}
 	const isInBattle = state.battleData.units.length > 0;

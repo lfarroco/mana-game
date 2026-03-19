@@ -2,10 +2,16 @@ import { State } from "@Models/State";
 import { CombatRunner, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
 import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
+import type { BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import type { CountdownTimerState } from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
 import { initializeRegenSystem } from "@Systems/RegenSystem";
 import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
+import { createLogger } from "@Utils/Logger";
+import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
+
+const logger = createLogger("CombatPlaybackController");
 
 type ScheduledAnimation = {
 	log: CombatLogEntry;
@@ -20,8 +26,8 @@ type PlaybackState = {
 	animations: ScheduledAnimation[];
 	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates.CombatSystemStates;
-	blackHoleState?: any;
-	countdownTimerState?: any;
+	blackHoleState?: BlackHoleState;
+	countdownTimerState?: CountdownTimerState;
 };
 
 // Must match ServerConstants.MIN_COOLDOWN
@@ -40,7 +46,7 @@ export const createCombatPlaybackController = (
 		poisonSystemState: initializePoisonSystem(),
 		regenSystemState: initializeRegenSystem(),
 		combatStatsTrackerState: initializeCombatStatsTracker(state),
-		forceStatsState,
+		forceStatsState: forceStatsState ?? initializeForceStatsState(),
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
@@ -63,8 +69,8 @@ export const createCombatPlaybackController = (
 		animations: [],
 		outcome: null,
 		combatStates,
-		blackHoleState,
-		countdownTimerState,
+		blackHoleState: blackHoleState ?? undefined,
+		countdownTimerState: countdownTimerState ?? undefined,
 	};
 
 	const scheduleAnimations = () => {
@@ -80,7 +86,7 @@ export const createCombatPlaybackController = (
 				executed: false,
 			});
 
-			if (log.type === "outcome") {
+			if (log.type === "outcome" && log.result) {
 				playbackState.outcome = log.result;
 			}
 		});
@@ -96,73 +102,109 @@ export const createCombatPlaybackController = (
 
 			switch (log.type) {
 				case "damage":
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
 					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "heal":
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
 					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "shield":
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
 					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "poison":
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
 					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "regen":
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
 					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => {});
 					break;
 				case "haste":
-					const hasteTarget = state.battleData.units.find((u) => u.id === log.targetId);
+					if (!log.sourceId || !log.targetId || log.effectDuration === undefined) break;
+					const hasteTargetId = log.targetId;
+					const hasteDuration = log.effectDuration;
+					const hasteTarget = state.battleData.units.find((u) => u.id === hasteTargetId);
 					if (hasteTarget) {
-						effects.onHaste?.(log.sourceId, log.targetId, log.effectDuration, () => {
-							hasteTarget.hasted += log.effectDuration;
-							effects.onChargeBarUpdate(log.targetId);
+						effects.onHaste?.(log.sourceId, hasteTargetId, hasteDuration, () => {
+							hasteTarget.hasted += hasteDuration;
+							effects.onChargeBarUpdate(hasteTargetId);
 						});
 					}
 					break;
 				case "slow":
-					const slowTarget = state.battleData.units.find((u) => u.id === log.targetId);
+					if (!log.sourceId || !log.targetId || log.effectDuration === undefined) break;
+					const slowTargetId = log.targetId;
+					const slowDuration = log.effectDuration;
+					const slowTarget = state.battleData.units.find((u) => u.id === slowTargetId);
 					if (slowTarget) {
-						effects.onSlow?.(log.sourceId, log.targetId, log.effectDuration, () => {
-							slowTarget.slowed += log.effectDuration;
-							effects.onChargeBarUpdate(log.targetId);
+						effects.onSlow?.(log.sourceId, slowTargetId, slowDuration, () => {
+							slowTarget.slowed += slowDuration;
+							effects.onChargeBarUpdate(slowTargetId);
 						});
 					}
 					break;
 				case "charge":
-					const chargeTarget = state.battleData.units.find((u) => u.id === log.targetId);
+					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
+					const chargeTargetId = log.targetId;
+					const chargeAmount = log.amount;
+					const chargeTarget = state.battleData.units.find((u) => u.id === chargeTargetId);
 					if (chargeTarget) {
-						effects.onCharge?.(log.sourceId, log.targetId, log.amount, () => {
-							chargeTarget.charge += log.amount;
-							effects.onChargeBarUpdate(log.targetId);
+						effects.onCharge?.(log.sourceId, chargeTargetId, chargeAmount, () => {
+							chargeTarget.charge += chargeAmount;
+							effects.onChargeBarUpdate(chargeTargetId);
 						});
 					}
 					break;
 				case "increase_power":
-					const powerTarget = state.battleData.units.find((u) => u.id === log.targetId);
+					if (!log.targetId || log.amount === undefined || log.permanent === undefined) break;
+					const powerTargetId = log.targetId;
+					const powerAmount = log.amount;
+					const powerPermanent = log.permanent;
+					const powerTarget = state.battleData.units.find((u) => u.id === powerTargetId);
 					if (powerTarget) {
-						effects.onIncreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
-							powerTarget.power += log.amount;
-							if (log.permanent) {
-								powerTarget.bonusPower += log.amount;
+						effects.onIncreasePower?.(
+							log.sourceId,
+							powerTargetId,
+							powerAmount,
+							powerPermanent,
+							() => {
+								powerTarget.power += powerAmount;
+								if (powerPermanent) {
+									powerTarget.bonusPower += powerAmount;
+								}
 							}
-						});
+						);
 					}
 					break;
 				case "decrease_power":
-					const decreaseTarget = state.battleData.units.find((u) => u.id === log.targetId);
+					if (!log.targetId || log.amount === undefined || log.permanent === undefined) break;
+					const decreaseTargetId = log.targetId;
+					const decreaseAmount = log.amount;
+					const decreasePermanent = log.permanent;
+					const decreaseTarget = state.battleData.units.find((u) => u.id === decreaseTargetId);
 					if (decreaseTarget) {
-						effects.onDecreasePower?.(log.sourceId, log.targetId, log.amount, log.permanent, () => {
-							decreaseTarget.power -= log.amount;
-							if (log.permanent) {
-								decreaseTarget.bonusPower -= log.amount;
+						effects.onDecreasePower?.(
+							log.sourceId,
+							decreaseTargetId,
+							decreaseAmount,
+							decreasePermanent,
+							() => {
+								decreaseTarget.power -= decreaseAmount;
+								if (decreasePermanent) {
+									decreaseTarget.bonusPower -= decreaseAmount;
+								}
 							}
-						});
+						);
 					}
 					break;
 				case "increase_critical":
+					if (!log.targetId) break;
 					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => {});
 					break;
 				case "crystal_life":
+					if (!log.force || log.life === undefined) break;
 					effects.updateLifeDisplay(
 						log.force,
 						log.life,
@@ -171,6 +213,7 @@ export const createCombatPlaybackController = (
 					);
 					break;
 				case "life_display":
+					if (!log.force || log.life === undefined || log.delta === undefined) break;
 					effects.updateLifeDisplay(
 						log.force,
 						log.life,
@@ -179,6 +222,7 @@ export const createCombatPlaybackController = (
 					);
 					break;
 				case "shield_display":
+					if (!log.force || log.shield === undefined || log.delta === undefined) break;
 					effects.updateShieldDisplay(
 						log.force,
 						log.shield,
@@ -187,20 +231,25 @@ export const createCombatPlaybackController = (
 					);
 					break;
 				case "regen_display":
+					if (!log.force || log.regen === undefined || log.delta === undefined) break;
 					effects.updateRegenDisplay(log.force, log.regen, log.delta);
 					break;
 				case "poison_display":
+					if (!log.force || log.poison === undefined || log.delta === undefined) break;
 					effects.updatePoisonDisplay(log.force, log.poison, log.delta);
 					break;
 				case "timeout_damage":
+					if (!log.force || log.damage === undefined) break;
 					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => {});
 					break;
 				case "reaction":
 					if (effects.onReactionVisual) {
+						if (!log.unitId) break;
 						await effects.onReactionVisual(log.unitId);
 					}
 					break;
 				case "haste_end":
+					if (!log.unitId) break;
 					const hasteEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
 					if (hasteEndTarget) {
 						hasteEndTarget.hasted = 0;
@@ -208,6 +257,7 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "slow_end":
+					if (!log.unitId) break;
 					const slowEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
 					if (slowEndTarget) {
 						slowEndTarget.slowed = 0;
@@ -215,10 +265,15 @@ export const createCombatPlaybackController = (
 					}
 					break;
 				case "unit_pop":
+					if (!log.unitId) break;
 					effects.onUnitPop(log.unitId);
 					break;
 				case "combat_stats":
-					if (playbackState.combatStates.combatStatsTrackerState) {
+					if (
+						playbackState.combatStates.combatStatsTrackerState &&
+						log.unitStats &&
+						log.currentCombatStats
+					) {
 						playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);
 						playbackState.combatStates.combatStatsTrackerState.currentCombatStats = new Map(
 							log.currentCombatStats
@@ -235,7 +290,7 @@ export const createCombatPlaybackController = (
 
 			animation.executed = true;
 		} catch (error) {
-			console.warn(
+			logger.warn(
 				"[CombatPlaybackController] Error executing animation, scene may be destroyed",
 				error
 			);
@@ -262,7 +317,7 @@ export const createCombatPlaybackController = (
 				effects.onChargeBarUpdate(unit.id);
 			}
 		} catch (error) {
-			console.warn(
+			logger.warn(
 				"[CombatPlaybackController] Error updating charge bars, scene may be destroyed",
 				error
 			);
@@ -296,7 +351,7 @@ export const createCombatPlaybackController = (
 				finishCombat(state, playbackState.outcome);
 			}
 		} catch (error) {
-			console.warn("[CombatPlaybackController] Error in updateFrame, stopping playback", error);
+			logger.warn("[CombatPlaybackController] Error in updateFrame, stopping playback", error);
 			playbackState.active = false;
 		}
 	};
@@ -312,7 +367,7 @@ export const createCombatPlaybackController = (
 			);
 		}
 
-		console.log("[CombatPlaybackController] Combat ended. Outcome:", outcome);
+		logger.debug("[CombatPlaybackController] Combat ended. Outcome:", outcome);
 
 		await effects.onCombatEnd(state, outcome, playbackState.combatStates);
 	};
@@ -322,7 +377,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const stop = (): void => {
-		console.log("[CombatPlaybackController] Stopping combat playback");
+		logger.debug("[CombatPlaybackController] Stopping combat playback");
 		playbackState.active = false;
 	};
 

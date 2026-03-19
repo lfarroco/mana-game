@@ -1,12 +1,13 @@
 import { PoisonSystemState } from "@Systems/PoisonDamageSystem";
 import { RegenSystemState } from "@Systems/RegenSystem";
 import { CombatStatsTrackerState } from "@Systems/CombatStatsTracker";
+import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
 
 export type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;
 	regenSystemState: RegenSystemState;
 	combatStatsTrackerState: CombatStatsTrackerState;
-	forceStatsState: any;
+	forceStatsState: ForceStatsState;
 };
 
 // Global storage for Browser UI / Legacy access
@@ -44,7 +45,7 @@ export const updatePoisonSystemState = (newState: PoisonSystemState) => {
 	}
 };
 
-export const updateForceStatsState = (newState: any) => {
+export const updateForceStatsState = (newState: ForceStatsState) => {
 	if (currentCombatStates) {
 		currentCombatStates.forceStatsState = newState;
 	}

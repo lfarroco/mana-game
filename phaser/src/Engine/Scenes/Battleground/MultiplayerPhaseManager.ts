@@ -27,12 +27,16 @@ import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
+import { createLogger } from "@Utils/Logger";
+import { PhaseOption, CombatState } from "@Core/Types";
+
+const logger = createLogger("MultiplayerPhaseManager");
 
 export async function handleMultiplayerPhase(state: State) {
-	console.log("Starting Multiplayer Phase handling...");
+	logger.debug("Starting Multiplayer Phase handling...");
 	const result = await getPhaseOptions(state);
 
-	console.log(`Multiplayer Phase: ${result.phase}`);
+	logger.debug(`Multiplayer Phase: ${result.phase}`);
 
 	// Sync phase from server
 	state.session.phase = result.phase;
@@ -43,7 +47,7 @@ export async function handleMultiplayerPhase(state: State) {
 
 	// Sync Team State and Stats from Server
 	if (result.round !== undefined) {
-		console.log(`Syncing round: ${result.round}`);
+		logger.debug(`Syncing round: ${result.round}`);
 		state.session.round = result.round;
 		updateRoundDisplay(state.session.round);
 	}
@@ -61,7 +65,7 @@ export async function handleMultiplayerPhase(state: State) {
 	}
 
 	if (result.team && result.team.units) {
-		console.log("Syncing team from server...", result.team.units.length);
+		logger.debug("Syncing team from server...", result.team.units.length);
 		const serverUnits = result.team.units;
 
 		state.session.team.units = serverUnits;
@@ -82,7 +86,7 @@ export async function handleMultiplayerPhase(state: State) {
 			if (result.combatState) {
 				await handleMultiplayerCombat(state, result.combatState);
 			} else {
-				console.error("Multiplayer Combat Phase missing combatState!");
+				logger.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
 				await sendOptionSelection(combatOption.id);
@@ -91,12 +95,12 @@ export async function handleMultiplayerPhase(state: State) {
 			break;
 
 		case "encounter":
-			const encounterIds = result.options.map((o: any) => o.id);
+			const encounterIds = result.options.map((o: PhaseOption) => o.id);
 			await Encounter.open(state, encounterIds);
 			break;
 
 		case "shop":
-			const shopCardIds = result.options.map((o: any) => o.id);
+			const shopCardIds = result.options.map((o: PhaseOption) => o.id);
 			const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
 			const controller = getGameController();
 
@@ -113,15 +117,15 @@ export async function handleMultiplayerPhase(state: State) {
 		case "orb_shop":
 			const orbOptions = result.options;
 			if (!orbOptions || orbOptions.length === 0) {
-				console.warn("Orb Shop options missing");
+				logger.warn("Orb Shop options missing");
 				return;
 			}
-			console.log("Opening Orb Shop with options:", orbOptions);
+			logger.debug("Opening Orb Shop with options:", orbOptions);
 			await openOrbShop(
 				state,
-				orbOptions.map((o: any) => o.id),
+				orbOptions.map((o: PhaseOption) => o.id),
 				async (orbId, targetId) => {
-					console.log(`Sending Orb Apply: ${orbId} -> ${targetId}`);
+					logger.debug(`Sending Orb Apply: ${orbId} -> ${targetId}`);
 					await sendOptionSelection("apply_orb", {
 						orbId,
 						targetUnitId: targetId,
@@ -135,7 +139,7 @@ export async function handleMultiplayerPhase(state: State) {
 			break;
 
 		case "upgrade_core":
-			const upgradeIds = result.options.map((o: any) => o.id);
+			const upgradeIds = result.options.map((o: PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
 			await sendOptionSelection("upgrade_core_done");
@@ -143,7 +147,7 @@ export async function handleMultiplayerPhase(state: State) {
 			break;
 
 		case "add_reaction_core":
-			const reactionIds = result.options.map((o: any) => o.id);
+			const reactionIds = result.options.map((o: PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			await sendOptionSelection("add_reaction_core_done");
@@ -159,12 +163,12 @@ export async function handleMultiplayerPhase(state: State) {
 			break;
 
 		default:
-			console.warn(`Unknown multiplayer phase: ${result.phase}`);
+			logger.warn(`Unknown multiplayer phase: ${result.phase}`);
 			break;
 	}
 
-	async function handleMultiplayerCombat(state: State, combatState: any) {
-		console.log("Initializing Multiplayer Combat:", combatState);
+	async function handleMultiplayerCombat(state: State, combatState: CombatState) {
+		logger.debug("Initializing Multiplayer Combat:", combatState);
 
 		// Disable board input immediately - combat outcome is pre-calculated
 		setIsInputEnabled(false);

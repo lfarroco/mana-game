@@ -14,7 +14,11 @@ export function loadGame() {
 	// Restore session into SessionManager
 	const server = getServerAdapter();
 	if ("sessionManager" in server) {
-		(server as any).sessionManager.updateSession(savedData.player_id, savedData);
+		(
+			server as unknown as {
+				sessionManager: { updateSession(id: string, session: SessionData): void };
+			}
+		).sessionManager.updateSession(savedData.player_id, savedData);
 	}
 
 	// Set up game state

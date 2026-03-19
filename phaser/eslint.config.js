@@ -30,7 +30,7 @@ export default [
 		},
 		rules: {
 			...tseslint.configs.recommended.rules,
-			"no-console": "warn",
+			"no-console": "error",
 			"prefer-const": "error",
 			"@typescript-eslint/no-explicit-any": "warn",
 			"@typescript-eslint/no-unused-vars": [
@@ -40,6 +40,13 @@ export default [
 					varsIgnorePattern: "^_",
 				},
 			],
+		},
+	},
+	{
+		// Allow console in test and test-utils files
+		files: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test-utils/**/*.ts", "e2e/**/*.ts"],
+		rules: {
+			"no-console": "warn",
 		},
 	},
 	{

@@ -6,6 +6,9 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { getGameController } from "@Core/GameControllerFactory";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("Encounter");
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -205,7 +208,7 @@ export async function open(state: State, options: string[]) {
 			};
 		});
 	} else {
-		console.warn("No encounter options provided from server");
+		logger.warn("No encounter options provided from server");
 		return;
 	}
 

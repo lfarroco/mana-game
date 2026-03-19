@@ -115,7 +115,7 @@ export class EnergySlot {
 
 	// Method to set alpha
 	setAlpha(alpha: number): this {
-		(this.shader as any).alpha = alpha;
+		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = alpha;
 		return this;
 	}
 

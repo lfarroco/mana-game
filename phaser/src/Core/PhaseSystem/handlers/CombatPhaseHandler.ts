@@ -1,5 +1,6 @@
 import { createPhaseHandler } from "@Core/PhaseSystem/BasePhaseHandler";
 import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "@Core/PhaseSystem/types";
+import { PhaseOption } from "@Core/Types";
 import * as GameLogic from "@Core/GameLogic";
 import { PhaseType } from "@Core/Types";
 import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
@@ -39,7 +40,7 @@ export const combatPhaseHandler = createPhaseHandler({
 		const expectedPhase = getPhaseForTurn(nextRound, nextStep);
 
 		let nextPhase: PhaseType;
-		let nextOptions: any[] = [];
+		let nextOptions: PhaseOption[] = [];
 
 		if (expectedPhase === "upgrade_core" || expectedPhase === "add_reaction_core") {
 			nextPhase = expectedPhase;

@@ -4,6 +4,9 @@ import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("applyPoison");
 
 export const applyPoisonLogicIO = async (
 	env: CombatEnvironment,
@@ -15,11 +18,11 @@ export const applyPoisonLogicIO = async (
 
 	const crit = calculateCritical(sourceUnit);
 
-	const amount = ((baseAmount + (crit.bonusPower * 0.1)) * crit.multiplier) * scale;
+	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
 	const targetForce = getEnemyForce(env.state, sourceUnit.id);
 
-	console.log(
+	logger.debug(
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 
@@ -34,15 +37,26 @@ export const applyPoisonLogicIO = async (
 		);
 		combatStates.poisonSystemState = newPoisonState;
 
-		CombatStatsTracker.trackPoison(combatStates.combatStatsTrackerState, env, sourceUnit.id, amount);
+		CombatStatsTracker.trackPoison(
+			combatStates.combatStatsTrackerState,
+			env,
+			sourceUnit.id,
+			amount
+		);
 		if (crit.isCritical) {
 			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 		}
-	}
+	};
 
 	const effects = env.effects;
 	if (effects.onPoison) {
-		effects.onPoison(sourceUnit.id, getEnemyCore(env.state)(sourceUnit.force).id, amount, effect, delayedExecution);
+		effects.onPoison(
+			sourceUnit.id,
+			getEnemyCore(env.state)(sourceUnit.force).id,
+			amount,
+			effect,
+			delayedExecution
+		);
 	} else {
 		effect();
 	}

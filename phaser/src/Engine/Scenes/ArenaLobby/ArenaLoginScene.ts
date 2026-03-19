@@ -1,4 +1,3 @@
-
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
 import * as io from "@PhaserIO";
@@ -6,9 +5,17 @@ import { createUIButton } from "@Components/UIButton";
 import { createModal } from "@Components/Modal";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { handleAuthLogin, handleAuthRegister, handleAuthGuest, handleSteamAuth } from "@Multiplayer/MultiplayerManager";
+import {
+	handleAuthLogin,
+	handleAuthRegister,
+	handleAuthGuest,
+	handleSteamAuth,
+} from "@Multiplayer/MultiplayerManager";
 import { setCurrentScene } from "@Models/State";
 import { isElectron } from "@Utils/environment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("ArenaLoginScene");
 
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
@@ -24,7 +31,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 		setCurrentScene(this);
 		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x1a1a2e).setOrigin(0);
 
-		this.titleText = io.Text("Arena Login", { fontSize: "64px", color: "#ffffff" })
+		this.titleText = io
+			.Text("Arena Login", { fontSize: "64px", color: "#ffffff" })
 			.setPosition(MIDDLE_SCREEN.x, 100)
 			.setOrigin(0.5);
 
@@ -66,6 +74,7 @@ export class ArenaLoginScene extends Phaser.Scene {
                 </div>
             `;
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
@@ -81,7 +90,6 @@ export class ArenaLoginScene extends Phaser.Scene {
 				this.renderForm();
 			});
 			this.buttonContainer?.add(backBtn.container);
-
 		} else {
 			this.titleText?.setText("Arena Login");
 
@@ -92,6 +100,7 @@ export class ArenaLoginScene extends Phaser.Scene {
                 </div>
             `;
 
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
@@ -115,32 +124,49 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(guestBtn.container);
 
 			// Back to Title
-			const backBtn = createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 210), () => {
-				this.scene.start(SCENE_KEYS.TITLE);
-			});
+			const backBtn = createUIButton(
+				t("ui.menu.back"),
+				vec2(MIDDLE_SCREEN.x, buttonY + 210),
+				() => {
+					this.scene.start(SCENE_KEYS.TITLE);
+				}
+			);
 			this.buttonContainer?.add(backBtn.container);
 		}
 	}
 
-	private getInputs(): { email?: string, pass?: string, username?: string, confirmPass?: string } | null {
+	private getInputs(): {
+		email?: string;
+		pass?: string;
+		username?: string;
+		confirmPass?: string;
+	} | null {
 		if (!this.formElement) return null;
 
-		const emailInput = this.formElement.getChildByName('email') as unknown as HTMLInputElement | null;
-		const passInput = this.formElement.getChildByName('password') as unknown as HTMLInputElement | null;
+		const emailInput = this.formElement.getChildByName(
+			"email"
+		) as unknown as HTMLInputElement | null;
+		const passInput = this.formElement.getChildByName(
+			"password"
+		) as unknown as HTMLInputElement | null;
 
 		let usernameInput: HTMLInputElement | null = null;
 		let confirmPassInput: HTMLInputElement | null = null;
 
 		if (this.isRegisterMode) {
-			usernameInput = this.formElement.getChildByName('username') as unknown as HTMLInputElement | null;
-			confirmPassInput = this.formElement.getChildByName('confirm_password') as unknown as HTMLInputElement | null;
+			usernameInput = this.formElement.getChildByName(
+				"username"
+			) as unknown as HTMLInputElement | null;
+			confirmPassInput = this.formElement.getChildByName(
+				"confirm_password"
+			) as unknown as HTMLInputElement | null;
 		}
 
 		return {
 			email: emailInput?.value,
 			pass: passInput?.value,
 			username: usernameInput?.value,
-			confirmPass: confirmPassInput?.value
+			confirmPass: confirmPassInput?.value,
 		};
 	}
 
@@ -153,6 +179,9 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		try {
 			const profile = await handleAuthLogin(inputs.email, inputs.pass);
+			if (!profile?.id) {
+				throw new Error("Login succeeded but no profile id was returned");
+			}
 			localStorage.setItem("mana_player_id", profile.id);
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
@@ -174,17 +203,25 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		try {
 			// Pass username separately to updated handleAuthRegister
-			const result: any = await handleAuthRegister(inputs.email, inputs.pass, inputs.username);
+			const result = (await handleAuthRegister(inputs.email, inputs.pass, inputs.username)) as
+				| { success?: boolean; requiresConfirmation?: boolean; id?: string }
+				| undefined;
 
 			if (result && result.success && result.requiresConfirmation) {
-				this.showModal("Registration Successful", "Registration successful! Please confirm your email.", () => {
-					this.isRegisterMode = false;
-					this.renderForm();
-				});
-			} else {
+				this.showModal(
+					"Registration Successful",
+					"Registration successful! Please confirm your email.",
+					() => {
+						this.isRegisterMode = false;
+						this.renderForm();
+					}
+				);
+			} else if (result?.id) {
 				localStorage.setItem("mana_player_id", result.id);
 				// this.showModal("Success", "Registration Successful!");
 				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			} else {
+				throw new Error("Registration succeeded but no profile id was returned");
 			}
 		} catch (e) {
 			this.showModal("Registration Failed", (e as Error).message);
@@ -194,24 +231,27 @@ export class ArenaLoginScene extends Phaser.Scene {
 	async handleGuest() {
 		try {
 			const profile = await handleAuthGuest();
+			if (!profile?.id) {
+				throw new Error("Guest login failed to return profile id");
+			}
 			localStorage.setItem("mana_player_id", profile.id);
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
-			console.error(e);
+			logger.error("Guest login failed", e);
 			this.showModal("Guest Login Failed", (e as Error).message);
 		}
 	}
 
 	async handleSteamLogin() {
 		try {
-			console.log("Attempting Steam Login...");
+			logger.debug("Attempting Steam Login...");
 			const profile = await handleSteamAuth();
-			if (profile) {
+			if (profile?.id) {
 				localStorage.setItem("mana_player_id", profile.id);
 				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 			}
 		} catch (e) {
-			console.error("Steam Login Failed:", e);
+			logger.error("Steam Login Failed:", e);
 		}
 	}
 	showModal(title: string, message: string, onClose?: () => void) {
@@ -220,10 +260,11 @@ export class ArenaLoginScene extends Phaser.Scene {
 		const modal = createModal({
 			width: 400,
 			height: 300,
-			title: title
+			title: title,
 		});
 
-		const text = io.Text(message, { fontSize: "24px", color: "#ffffff", wordWrap: { width: 360 } })
+		const text = io
+			.Text(message, { fontSize: "24px", color: "#ffffff", wordWrap: { width: 360 } })
 			.setOrigin(0.5);
 
 		modal.panel.add(text);

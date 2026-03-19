@@ -8,6 +8,9 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("EffectCardShop");
 
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
@@ -42,7 +45,7 @@ function renderUpgradeCards(
 	onUpgradeSelected: () => void | Promise<void>
 ) {
 	encounterIds.forEach((encounterId, index) => {
-		console.log("Rendering upgrade card for encounter:", encounterId);
+		logger.debug("Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = orbsIndex[encounterId]();
 
 		const width = 700;
@@ -61,7 +64,7 @@ function renderUpgradeCards(
 			pic: encounterSpec.icon,
 			description: encounterSpec.tooltip,
 			onClick: async () => {
-				console.log(`Selected upgrade: ${encounterSpec.name}`);
+				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
 				// Use GameController to handle the upgrade selection
 				const controller = getGameController();
@@ -71,7 +74,7 @@ function renderUpgradeCards(
 					playSoundEffect("sfx_spell_deathstrikeseal");
 					await onUpgradeSelected();
 				} else {
-					console.warn("Upgrade action failed");
+					logger.warn("Upgrade action failed");
 				}
 			},
 		});

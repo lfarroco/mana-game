@@ -22,6 +22,10 @@ import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+import { createLogger } from "@Utils/Logger";
+import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
+
+const logger = createLogger("Orbs");
 
 export type OrbSpec = {
 	id: string;
@@ -40,7 +44,7 @@ const getShopEnvironment = (state: State): CombatEnvironment => {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-			forceStatsState: null,
+			forceStatsState: initializeForceStatsState(),
 		},
 		effects: {
 			onUnitPop: () => {},
@@ -79,7 +83,7 @@ const increasePowerOnType = (type: string) => () => ({
 		if (unit.force === FORCE_ID_PLAYER) {
 			getState().session.team.units.find((u) => u.id === unit.id)!.power = unit.power;
 		}
-		console.log(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
+		logger.debug(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
 	},
 });
@@ -108,7 +112,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 			false
 		);
 
-		console.log(
+		logger.debug(
 			`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`
 		);
 		return true;
@@ -130,7 +134,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 			getState().session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
-		console.log(
+		logger.debug(
 			`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`
 		);
 		return true;

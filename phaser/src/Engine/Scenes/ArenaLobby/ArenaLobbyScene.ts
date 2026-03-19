@@ -12,6 +12,9 @@ import {
 } from "@Multiplayer/MultiplayerManager";
 
 import { setCurrentScene } from "@Models/State";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("ArenaLobbyScene");
 
 export class ArenaLobbyScene extends Phaser.Scene {
 	private profileText?: Phaser.GameObjects.Text;
@@ -74,7 +77,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
 				this.ratingText?.setText(`Rating: ${profile.rating}`);
 			} catch (e) {
-				console.error("Profile Fetch Failed", e);
+				logger.error("Profile Fetch Failed", e);
 				// Redirect to Login if invalid
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			}

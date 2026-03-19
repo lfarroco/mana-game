@@ -2,6 +2,9 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 import { titleTextConfig } from "@Constants/constants";
 import { tooltipFragmentShader } from "@Shaders/TooltipShader";
 import { getCurrentScene } from "@Models/State";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("Tooltip");
 
 const PADDING = 40;
 const INTER_ELEMENT_PADDING = PADDING / 2;
@@ -113,10 +116,12 @@ export function init() {
 		.setWrapMode(1)
 		.setFontFamily("Arimo");
 
-	if ((descriptionText as any).setLineSpacing) {
-		(descriptionText as any).setLineSpacing(DESCRIPTION_LINE_SPACING);
-	} else if ("lineSpacing" in (descriptionText as any)) {
-		(descriptionText as any).lineSpacing = DESCRIPTION_LINE_SPACING;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const textAsAny = descriptionText as any;
+	if (textAsAny.setLineSpacing) {
+		textAsAny.setLineSpacing(DESCRIPTION_LINE_SPACING);
+	} else if ("lineSpacing" in textAsAny) {
+		textAsAny.lineSpacing = DESCRIPTION_LINE_SPACING;
 	}
 	container.add(descriptionText);
 
@@ -132,7 +137,7 @@ function updateShaderAnimation(): void {
 
 export function renderTooltip(x: number, y: number, title: string, description: string): void {
 	if (!container || !titleText || !descriptionText || !bg) {
-		console.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
+		logger.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
 	}
 

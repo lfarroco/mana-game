@@ -1,8 +1,10 @@
 import { PhaseOptions } from "@Multiplayer/MultiplayerTypes";
+import { PhaseType, PlayerProfile } from "@Multiplayer/MultiplayerTypes";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import * as GameLogic from "@Core/GameLogic";
+import type { SessionData } from "@Core/Types";
 import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 import { createLogger } from "@Utils/Logger";
 
@@ -142,12 +144,21 @@ export async function checkActiveSession(): Promise<boolean> {
 		return false;
 	}
 
-	const teamUnits = Array.isArray((data as any).team?.units) ? (data as any).team.units : [];
-	const hasCore = teamUnits.some((unit: any) => unit?.isCore === true);
+	const dataRecord = data as Record<string, unknown>;
+	const teamUnits = Array.isArray((dataRecord.team as Record<string, unknown>)?.units)
+		? ((dataRecord.team as Record<string, unknown>).units as Unit[])
+		: [];
+	const hasCore = teamUnits.some(
+		(unit: Unit) => (unit as unknown as Record<string, unknown>)?.isCore === true
+	);
 
-	const rawOptions = (data as any).current_options;
-	const optionsList = Array.isArray(rawOptions) ? rawOptions : rawOptions?.options || [];
-	const hasCombatState = Boolean(rawOptions?.combatState);
+	const rawOptions = dataRecord.current_options;
+	const rawOptionsRecord =
+		rawOptions && typeof rawOptions === "object" ? (rawOptions as Record<string, unknown>) : null;
+	const optionsList = Array.isArray(rawOptions)
+		? rawOptions
+		: (rawOptionsRecord?.options as unknown[] | undefined) || [];
+	const hasCombatState = Boolean(rawOptionsRecord?.combatState);
 
 	if (!hasCore) {
 		logger.warn("Ignoring invalid active session: missing core unit", {
@@ -178,23 +189,29 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 		throw new Error("Failed to fetch state from DB");
 	}
 
-	let combatState = undefined;
+	let combatState: PhaseOptions["combatState"] = undefined;
 	if (session.phase === "combat") {
-		const optionsCombatState = (session.current_options as any)?.combatState;
-		if (optionsCombatState && optionsCombatState.logs) {
+		const optionsCombatState = (session.current_options as Record<string, unknown>)?.combatState as
+			| Record<string, unknown>
+			| undefined;
+		if (optionsCombatState && Array.isArray(optionsCombatState.logs)) {
 			logger.debug("Using server-provided combat logs");
 			combatState = {
-				units: optionsCombatState.initialUnits,
-				enemyTeam: optionsCombatState.enemyTeam,
-				logs: optionsCombatState.logs,
+				units: Array.isArray(optionsCombatState.initialUnits)
+					? (optionsCombatState.initialUnits as Unit[])
+					: [],
+				enemyTeam: Array.isArray(optionsCombatState.enemyTeam)
+					? (optionsCombatState.enemyTeam as Unit[])
+					: [],
+				logs: optionsCombatState.logs as import("@Scenes/Battleground/ServerCombatEffects").CombatLogEntry[],
 				seed: session.seed,
 			};
 		} else {
 			logger.warn("Combat logs missing from server response; simulating locally");
-			const simResult = GameLogic.simulateCombat(session as any);
+			const simResult = GameLogic.simulateCombat(session as unknown as SessionData);
 			combatState = {
 				units: simResult.initialUnits,
-				enemyTeam: simResult.initialUnits.filter((u: any) => u.force === FORCE_ID_CPU),
+				enemyTeam: simResult.initialUnits.filter((u: Unit) => u.force === FORCE_ID_CPU),
 				logs: simResult.logs,
 				seed: session.seed,
 			};
@@ -204,10 +221,14 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 	// Map DB session to PhaseOptions
 	// Handle both Array and Object format for options
 	const rawOptions = session.current_options;
-	const optionsList = Array.isArray(rawOptions) ? rawOptions : rawOptions?.options || [];
+	const rawOptionsRecord =
+		rawOptions && typeof rawOptions === "object" ? (rawOptions as Record<string, unknown>) : null;
+	const optionsList = Array.isArray(rawOptions)
+		? rawOptions
+		: (rawOptionsRecord?.options as unknown[] | undefined) || [];
 
 	return {
-		phase: session.phase as any,
+		phase: session.phase as PhaseType,
 		round: session.round,
 		options: optionsList,
 		team: session.team,
@@ -217,15 +238,20 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 	};
 }
 
-export async function handleSteamAuth(): Promise<any> {
-	if (!(window as any).steamworks) {
+type SteamworksAPI = {
+	auth: { getSessionTicket(): Promise<{ ticket: { toString(encoding: string): string } }> };
+};
+
+export async function handleSteamAuth(): Promise<PlayerProfile | null> {
+	const steamworks = (window as Window & { steamworks?: SteamworksAPI }).steamworks;
+	if (!steamworks) {
 		logger.warn("Steamworks not available");
 		return null;
 	}
 
 	// Get Ticket using steamworks.js
 	logger.info("Requesting Steam auth ticket");
-	const ticket = await (window as any).steamworks.auth.getSessionTicket();
+	const ticket = await steamworks.auth.getSessionTicket();
 	logger.debug("Received Steam auth ticket");
 
 	// Convert Buffer to Hex String for JSON transport
@@ -248,7 +274,7 @@ export async function handleSteamAuth(): Promise<any> {
 	throw new Error("Invalid Session from Steam Auth");
 }
 
-export async function handleAuthGuest(): Promise<any> {
+export async function handleAuthGuest(): Promise<PlayerProfile | undefined> {
 	const { data, error } = await supabase.auth.signInAnonymously();
 
 	if (error) {
@@ -263,7 +289,10 @@ export async function handleAuthGuest(): Promise<any> {
 	}
 }
 
-export async function handleAuthLogin(username: string, password: string): Promise<any> {
+export async function handleAuthLogin(
+	username: string,
+	password: string
+): Promise<PlayerProfile | undefined> {
 	const { data, error } = await supabase.auth.signInWithPassword({
 		email: username,
 		password: password,
@@ -310,7 +339,7 @@ export async function handleAuthRegister(
 	}
 }
 
-export async function getPlayerProfile(profilePlayerId: string): Promise<any> {
+export async function getPlayerProfile(profilePlayerId: string): Promise<PlayerProfile> {
 	const { data, error } = await supabase
 		.from("players")
 		.select("*")

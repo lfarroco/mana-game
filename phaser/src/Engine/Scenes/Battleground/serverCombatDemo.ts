@@ -5,6 +5,7 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Scenes/Battleground/ServerConsta
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { State } from "@Models/State";
+import { Unit } from "@Models/Entities/Unit";
 import { createLogger } from "@Utils/Logger";
 
 // Register base collection to ensure unit definitions exist
@@ -19,8 +20,8 @@ export const runServerSideCombat = (inputState?: State) => {
 	const combatRunner = runCombat(state, effects);
 
 	logger.info("Combat initialized", {
-		playerUnits: state.battleData.units.filter((u: any) => u.force === FORCE_ID_PLAYER).length,
-		cpuUnits: state.battleData.units.filter((u: any) => u.force === FORCE_ID_CPU).length,
+		playerUnits: state.battleData.units.filter((u: Unit) => u.force === FORCE_ID_PLAYER).length,
+		cpuUnits: state.battleData.units.filter((u: Unit) => u.force === FORCE_ID_CPU).length,
 	});
 
 	let frame = 0;

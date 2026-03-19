@@ -1,7 +1,7 @@
 import { createPhaseHandler } from "@Core/PhaseSystem/BasePhaseHandler";
 import { PhaseTransitionContext, PhaseTransitionResult, ActionType } from "@Core/PhaseSystem/types";
 import * as GameLogic from "@Core/GameLogic";
-import { PhaseType } from "@Core/Types";
+import { PhaseType, PhaseOption } from "@Core/Types";
 import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
 
 export const orbShopPhaseHandler = createPhaseHandler({
@@ -26,7 +26,7 @@ export const orbShopPhaseHandler = createPhaseHandler({
 			const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
 
 			let nextPhase: PhaseType = "encounter";
-			let nextOptions: any[] = [];
+			let nextOptions: PhaseOption[] = [];
 
 			if (expectedPhase === "encounter") {
 				nextPhase = "encounter";

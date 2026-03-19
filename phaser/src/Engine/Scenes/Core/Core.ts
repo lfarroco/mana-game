@@ -60,7 +60,7 @@ export default class Core extends Phaser.Scene {
 			progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30);
 		});
 
-		this.load.on("fileprogress", function (file: any) {
+		this.load.on("fileprogress", function (file: { key: string }) {
 			assetText.setText("Loading asset: " + file.key);
 		});
 

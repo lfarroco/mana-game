@@ -17,6 +17,9 @@ import { getCurrentScene, getState } from "@Models/State";
 import { activeButtons } from "@Components/UIButton";
 import { ActionPayload, SessionData } from "@Core/Types";
 import { getServerAdapter } from "@Core/ServerFactory";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("DebugController");
 
 export function getCurrentSceneName(): string {
 	const scene = getCurrentScene();
@@ -45,8 +48,8 @@ export function clickHeroInShop(slotIndex: number): string {
 	Systems.Shop.events.itemClickPurchaseRequested(
 		{ ...unitToPurchase },
 		Chara.getId(chara),
-		(chara as any).x,
-		(chara as any).y
+		(chara as Chara.Chara).x,
+		(chara as Chara.Chara).y
 	);
 
 	return `Emitted SHOP_ITEM_CLICK_PURCHASE_REQUESTED for hero in shop slot ${slotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}). Purchase processing is asynchronous`;
@@ -67,8 +70,8 @@ export function buyAndPlaceHero(shopSlotIndex: number, boardX: number, boardY: n
 		unitToPurchase,
 		Chara.getId(chara),
 		vec2(boardX, boardY),
-		(chara as any).x,
-		(chara as any).y
+		(chara as Chara.Chara).x,
+		(chara as Chara.Chara).y
 	);
 
 	return `Emitted SHOP_ITEM_DRAG_PURCHASE_REQUESTED for hero in shop slot ${shopSlotIndex} (Card ID: ${unitToPurchase.cardId}, Chara ID: ${Chara.getId(chara)}) to board (${boardX},${boardY}). Purchase and placement are asynchronous`;
@@ -140,7 +143,7 @@ export function getPlayerBoardUnits(): Unit[] {
 }
 
 export function logGameState(): void {
-	console.log("Current Game State (DebugController):", {
+	logger.debug("Current Game State (DebugController):", {
 		shopHeroes: getShopHeroes().map((c) => c?.id),
 		playerUnits: getPlayerBoardUnits().map((u) => ({
 			id: u.id,
@@ -407,7 +410,10 @@ export async function setSpeed(speed: number): Promise<string> {
 }
 
 export function clickButton(textToFind: string): string {
-	const registry = (window as any)._activeButtons || activeButtons;
+	const registry =
+		((window as unknown as Record<string, unknown>)._activeButtons as
+			| typeof activeButtons
+			| undefined) || activeButtons;
 	const key = textToFind.toUpperCase();
 	if (registry[key]) {
 		registry[key]();
@@ -476,7 +482,11 @@ export async function startBattlegroundWithSession(session: Partial<SessionData>
 	// This is only for debugging/testing purposes where we need direct session manipulation
 	const server = getServerAdapter();
 	if ("sessionManager" in server) {
-		(server as any).sessionManager.updateSession(completeSession.player_id, completeSession);
+		(
+			server as unknown as {
+				sessionManager: { updateSession(id: string, session: SessionData): void };
+			}
+		).sessionManager.updateSession(completeSession.player_id, completeSession);
 	}
 
 	// Start the battleground scene with the state

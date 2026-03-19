@@ -1,6 +1,9 @@
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Effect, Targeting, EffectReaction } from "@TriggerSystem/TriggerSystem";
 import { CardDefinition } from "@Models/Entities/Card";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("BalanceAnalysis");
 
 const DELAY_MODIFIER = 0.9;
 const STD_UNIT_POWER = 100; // Updated from 20/40 to 100 based on new budget
@@ -278,7 +281,7 @@ export const BalanceAnalysis = {
 			)
 			.join("\n");
 
-		console.log(`Balance Analysis Report:\n${header}\n${separator}\n${rows}`);
+		logger.debug(`Balance Analysis Report:\n${header}\n${separator}\n${rows}`);
 
 		return filteredResults;
 	},

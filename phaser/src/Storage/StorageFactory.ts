@@ -1,6 +1,9 @@
 import { StorageProvider } from "./IStorageProvider";
 import { createLocalStorageProvider } from "./LocalStorageProvider";
 import { createSteamCloudProvider } from "./SteamCloudProvider";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("StorageFactory");
 
 const isElectron = (): boolean => {
 	return (
@@ -24,17 +27,17 @@ const isSteamAvailable = (): boolean => {
 		// Check if Steam Cloud is enabled for the app
 		return steamworks.cloud.isEnabledForApp();
 	} catch (error) {
-		console.warn("[StorageFactory] Error checking Steam availability:", error);
+		logger.warn("[StorageFactory] Error checking Steam availability:", error);
 		return false;
 	}
 };
 
 export const createStorageProvider = (): StorageProvider => {
 	if (isElectron() && isSteamAvailable()) {
-		console.log("[StorageFactory] Using Steam Cloud storage provider");
+		logger.debug("[StorageFactory] Using Steam Cloud storage provider");
 		return createSteamCloudProvider();
 	}
 
-	console.log("[StorageFactory] Using localStorage storage provider");
+	logger.debug("[StorageFactory] Using localStorage storage provider");
 	return createLocalStorageProvider();
 };

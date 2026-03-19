@@ -3,6 +3,10 @@ import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
+import { createLogger } from "@Utils/Logger";
+import { EffectId, Effect } from "@TriggerSystem/TriggerSystem";
+
+const logger = createLogger("CombatStatsTracker");
 
 export type UnitCombatStats = {
 	unitId: string;
@@ -18,7 +22,7 @@ export type UnitCombatStats = {
 	shieldGranted: number;
 };
 
-type CurrentCombatStats = {
+export type CurrentCombatStats = {
 	damageDealt: number;
 	poisonDealt: number;
 	healDealt: number;
@@ -65,7 +69,7 @@ export function initialize(state: State): CombatStatsTrackerState {
 		});
 	}
 
-	console.log("[CombatStatsTracker] Initialized for new combat");
+	logger.debug("[CombatStatsTracker] Initialized for new combat");
 
 	return { unitStats, currentCombatStats };
 }
@@ -74,7 +78,7 @@ export function trackAction(trackerState: CombatStatsTrackerState, payload: { un
 	const stats = trackerState.unitStats.get(payload.unit.id)!;
 
 	stats.actionsPerformed += 1;
-	console.log(
+	logger.debug(
 		`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`
 	);
 }
@@ -89,7 +93,7 @@ type StatConfig = {
 	unitStatKey: keyof UnitCombatStats;
 	forceStatKey: keyof CurrentCombatStats;
 	threshold?: number;
-	reactionId?: string;
+	reactionId?: EffectId;
 };
 
 const STAT_CONFIGS: Record<string, StatConfig> = {
@@ -151,7 +155,7 @@ function trackStat(
 		if (diff > 0) {
 			const unit = env.state.battleData.units.find((u) => u.id === sourceUnitId)!;
 			// Use env.processReactions to avoid circular import and ensure correct context
-			env.processReactions(env, unit, { id: config.reactionId as any }, diff);
+			env.processReactions(env, unit, { id: config.reactionId } as Effect, diff);
 		}
 	}
 }
@@ -240,5 +244,5 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 		}
 	}
 
-	console.log("[CombatStatsTracker] Stopped and finalized stats");
+	logger.debug("[CombatStatsTracker] Stopped and finalized stats");
 }

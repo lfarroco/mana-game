@@ -1,4 +1,5 @@
 import { getCurrentScene, State } from "@Models/State";
+import { CombatState } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
 import { makeForce } from "@Models/Entities/Force";
@@ -11,6 +12,9 @@ import { vec2 } from "@Models/Geometry";
 import { runCombatIO } from "@Scenes/Battleground/RunCombatIO";
 import { t } from "@i18n/i18n";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("CombatPhase");
 
 function createUnitCopy(unit: Unit): Unit {
 	return {
@@ -24,8 +28,11 @@ function createUnitCopy(unit: Unit): Unit {
 	};
 }
 
-export async function transitionToCombatPhase(state: State, combatState?: any): Promise<void> {
-	console.log("Round", state.session.round, "Combat Phase Starting.");
+export async function transitionToCombatPhase(
+	state: State,
+	combatState?: CombatState
+): Promise<void> {
+	logger.debug(`Round ${state.session.round}: Combat Phase Starting.`);
 
 	// Disable board input immediately - combat outcome is already pre-calculated
 	Board.setIsInputEnabled(false);
@@ -34,7 +41,7 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 
 	if (combatState && combatState.enemyTeam) {
 		// Use server-provided enemy team (from local or remote server)
-		console.log("Using server-provided enemy team");
+		logger.debug("Using server-provided enemy team");
 		enemies = combatState.enemyTeam;
 
 		// Initialize forces array for combat
@@ -42,13 +49,13 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 			makeForce(constants.FORCE_ID_CPU),
 			{
 				id: constants.FORCE_ID_PLAYER,
-				name: '',
-				color: '',
+				name: "",
+				color: "",
 				units: state.session.team.units,
 				lives: 4 - state.session.losses,
 				wins: state.session.wins,
-				losses: state.session.losses
-			}
+				losses: state.session.losses,
+			},
 		];
 
 		// If we have full combat state with units, use those
@@ -64,7 +71,7 @@ export async function transitionToCombatPhase(state: State, combatState?: any): 
 		}
 	} else {
 		// This should not happen if migration is complete
-		console.error("No combat state provided for combat phase");
+		logger.error("No combat state provided for combat phase");
 		enemies = [];
 	}
 
@@ -106,4 +113,3 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 	const scene = getCurrentScene() as BattlegroundScene;
 	scene.combatRunner = runCombatIO();
 }
-

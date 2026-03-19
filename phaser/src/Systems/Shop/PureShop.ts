@@ -1,9 +1,9 @@
 /**
  * Pure Shop System
- * 
+ *
  * This module contains pure functions for shop operations that return events
  * instead of directly manipulating game state or Phaser objects.
- * 
+ *
  * These functions follow functional programming principles:
  * - Accept state as input
  * - Return events describing what should happen
@@ -16,6 +16,9 @@ import * as Board from "@Models/Board";
 import { getName } from "@i18n/i18n";
 import { SessionData } from "@Core/Types";
 import * as SystemEvents from "@Systems/Events";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("PureShop");
 
 /**
  * Result type for purchase operations
@@ -30,7 +33,7 @@ export type PurchaseResult = {
 
 /**
  * Pure function to handle unit purchase logic
- * 
+ *
  * @param session - Current session data
  * @param shopUnitCardId - Card ID being purchased
  * @param shopCharaId - ID of the shop character clicked
@@ -46,15 +49,10 @@ export function processPurchase(
 	const events: SystemEvents.AllSystemEvents[] = [];
 
 	// Check if unit already exists (for upgrade)
-	const existingUnit = session.team.units.find(
-		(u: Unit) => u.cardId === shopUnitCardId
-	);
+	const existingUnit = session.team.units.find((u: Unit) => u.cardId === shopUnitCardId);
 
 	// Find empty slot for new unit
-	const targetTile = Board.getEmptySlot(
-		session.team.units,
-		constants.FORCE_ID_PLAYER
-	);
+	const targetTile = Board.getEmptySlot(session.team.units, constants.FORCE_ID_PLAYER);
 
 	// Validation: Check party size limit
 	const isUpgradable = existingUnit && existingUnit.rank <= 3;
@@ -155,21 +153,18 @@ export function processPurchase(
 
 /**
  * Pure function to handle unit sale logic
- * 
+ *
  * @param session - Current session data
  * @param unitId - ID of unit being sold
  * @returns Events to emit
  */
-export function processSale(
-	session: SessionData,
-	unitId: string
-): SystemEvents.AllSystemEvents[] {
+export function processSale(session: SessionData, unitId: string): SystemEvents.AllSystemEvents[] {
 	const events: SystemEvents.AllSystemEvents[] = [];
 
 	// Validate unit exists
 	const unit = session.team.units.find((u: Unit) => u.id === unitId);
 	if (!unit) {
-		console.warn(`Unit with ID ${unitId} not found for sale`);
+		logger.warn(`Unit with ID ${unitId} not found for sale`);
 		return events;
 	}
 
@@ -183,7 +178,7 @@ export function processSale(
 /**
  * Helper function to remove a unit from the player's units array
  * This is a pure function that returns a new array
- * 
+ *
  * @param units - Current units array
  * @param unitId - ID of unit to remove
  * @returns New units array without the sold unit
@@ -195,7 +190,7 @@ export function removeUnitFromUnits(units: Unit[], unitId: string): Unit[] {
 /**
  * Helper function to add a unit to the player's units array
  * This is a pure function that returns a new array
- * 
+ *
  * @param units - Current units array
  * @param unit - Unit to add
  * @returns New units array with the new unit
@@ -207,7 +202,7 @@ export function addUnitToUnits(units: Unit[], unit: Unit): Unit[] {
 /**
  * Helper function to update a unit in the player's units array
  * This is a pure function that returns a new array
- * 
+ *
  * @param units - Current units array
  * @param updatedUnit - Updated unit data
  * @returns New units array with the updated unit

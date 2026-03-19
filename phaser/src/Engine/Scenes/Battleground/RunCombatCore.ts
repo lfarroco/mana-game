@@ -11,6 +11,12 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as StatusEffectSystem from "@Systems/StatusEffectSystem";
 import { getBattleCore } from "@Models/Entities/Card";
 import { CombatEffects, CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import { CountdownTimerState } from "@Systems/CountdownTimer";
+import { createLogger } from "@Utils/Logger";
+import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
+
+const logger = createLogger("RunCombatCore");
 
 export type { WaveOutcome, CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
 
@@ -19,14 +25,14 @@ export type CombatRunner = {
 	finishCombat: (state: State, outcome: "player_won" | "player_lost") => Promise<void>;
 	isActive: () => boolean;
 	stop: () => void;
-	getEnv: () => any; // Return generic object to avoid export issues, or explicit CombatEnvironment
+	getEnv: () => CombatEnvironment;
 };
 
 type CombatRunnerState = {
 	active: boolean;
 	env: CombatEnvironment;
-	countdownTimerState: any;
-	blackHoleState: any;
+	countdownTimerState: CountdownTimerState | null;
+	blackHoleState: BlackHoleState | null;
 };
 
 export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
@@ -46,7 +52,9 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-			forceStatsState: null, // Will be set after initForceStats
+			forceStatsState: effects.initForceStats
+				? effects.initForceStats()
+				: initializeForceStatsState(),
 		},
 		processReactions,
 	};
@@ -58,43 +66,35 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		blackHoleState,
 	};
 
-	runnerState.env.combatStates.forceStatsState = null;
-
-	// 2. Initialize Force Stats (UI)
-	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
-	runnerState.env.combatStates.forceStatsState = forceStatsState;
-
 	// 4. Perform initial stats sync
-	if (runnerState.env.combatStates.forceStatsState) {
-		const forces = [FORCE_ID_PLAYER, FORCE_ID_CPU];
-		forces.forEach((forceId) => {
-			const core = getBattleCore(state)(forceId);
-			if (core) {
-				effects.updateLifeDisplay(
-					forceId,
-					core.life,
-					0,
-					runnerState.env.combatStates.forceStatsState
-				);
-				effects.updateShieldDisplay(
-					forceId,
-					core.shield,
-					0,
-					runnerState.env.combatStates.forceStatsState
-				);
-				effects.updateRegenDisplay(
-					forceId,
-					Regen.getRegenRate(runnerState.env.combatStates.regenSystemState, forceId),
-					0
-				);
-				effects.updatePoisonDisplay(
-					forceId,
-					Poison.getPoisonRate(runnerState.env.combatStates.poisonSystemState, forceId),
-					0
-				);
-			}
-		});
-	}
+	const forces = [FORCE_ID_PLAYER, FORCE_ID_CPU];
+	forces.forEach((forceId) => {
+		const core = getBattleCore(state)(forceId);
+		if (core) {
+			effects.updateLifeDisplay(
+				forceId,
+				core.life,
+				0,
+				runnerState.env.combatStates.forceStatsState
+			);
+			effects.updateShieldDisplay(
+				forceId,
+				core.shield,
+				0,
+				runnerState.env.combatStates.forceStatsState
+			);
+			effects.updateRegenDisplay(
+				forceId,
+				Regen.getRegenRate(runnerState.env.combatStates.regenSystemState, forceId),
+				0
+			);
+			effects.updatePoisonDisplay(
+				forceId,
+				Poison.getPoisonRate(runnerState.env.combatStates.poisonSystemState, forceId),
+				0
+			);
+		}
+	});
 
 	const allUnits = state.battleData.units;
 	allUnits.forEach((unit) => {
@@ -172,7 +172,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
 
-		console.log("[RunCombatSystem] Combat ended. Outcome:", outcome);
+		logger.debug("[RunCombatSystem] Combat ended. Outcome:", outcome);
 
 		// 1. Run combat end effects (visuals, results UI)
 		await effects.onCombatEnd(state, outcome, runnerState.env.combatStates);
@@ -183,7 +183,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 	};
 
 	const stop = (): void => {
-		console.log("[RunCombatCore] Stopping combat");
+		logger.debug("[RunCombatCore] Stopping combat");
 		runnerState.active = false;
 	};
 

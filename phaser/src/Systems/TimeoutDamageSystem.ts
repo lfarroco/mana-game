@@ -4,6 +4,9 @@ import { applyDamageToForce, Force } from "@Models/Entities/Force";
 import { State } from "@Models/State";
 import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("TimeoutDamageSystem");
 
 const timeoutDamageInterval = 1000;
 
@@ -90,14 +93,21 @@ function applyTimeoutDamage(
 		currentDamage = Math.floor(5 * Math.pow(1.2, tickCount - 1));
 	}
 
-	console.log(
-		`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`
-	);
+	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
 	const effects = env.effects;
 
 	const hitEffect = (force: Force) => () => {
-		applyDamageToForce(state, force, currentDamage, 0, "timeout", false, env.effects, env.combatStates.forceStatsState);
+		applyDamageToForce(
+			state,
+			force,
+			currentDamage,
+			0,
+			"timeout",
+			false,
+			env.effects,
+			env.combatStates.forceStatsState
+		);
 	};
 
 	if (effects.onTimeoutDamageVisual) {

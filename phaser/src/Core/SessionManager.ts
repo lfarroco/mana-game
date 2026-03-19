@@ -1,5 +1,8 @@
 import { SessionData } from "@Core/Types";
 import * as GameLogic from "@Core/GameLogic";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("SessionManager");
 
 const STORAGE_PREFIX = "mana_session_";
 
@@ -26,7 +29,7 @@ export class SessionManager {
 				}
 			}
 		} catch (error) {
-			console.error("[SessionManager] Failed to load sessions from storage:", error);
+			logger.error("[SessionManager] Failed to load sessions from storage:", error);
 		}
 	}
 
@@ -34,7 +37,7 @@ export class SessionManager {
 		try {
 			localStorage.setItem(STORAGE_PREFIX + playerId, JSON.stringify(session));
 		} catch (error) {
-			console.error("[SessionManager] Failed to save session to storage:", error);
+			logger.error("[SessionManager] Failed to save session to storage:", error);
 		}
 	}
 
@@ -42,7 +45,7 @@ export class SessionManager {
 		try {
 			localStorage.removeItem(STORAGE_PREFIX + playerId);
 		} catch (error) {
-			console.error("[SessionManager] Failed to remove session from storage:", error);
+			logger.error("[SessionManager] Failed to remove session from storage:", error);
 		}
 	}
 

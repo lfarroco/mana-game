@@ -11,6 +11,9 @@ import { colorPresets } from "@Constants/colorPresets";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
+import { createLogger } from "@Utils/Logger";
+
+const logger = createLogger("CrystalSelectionScene");
 
 //TODO: should also disable seed selection in multiplayer mode
 interface CrystalSelectionData {
@@ -47,7 +50,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	init(data: CrystalSelectionData) {
 		this.isMultiplayer = data.isMultiplayer || data.isArena || false;
 		if (this.isMultiplayer) {
-			console.log("Entering Arena Mode (Multiplayer)");
+			logger.debug("Entering Arena Mode (Multiplayer)");
 		}
 	}
 
@@ -417,7 +420,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 					const numeric = text.replace(/\D/g, "").slice(0, 12);
 					targetText.setText(numeric);
 				} catch (err) {
-					console.error("Paste failed", err);
+					logger.error("Paste failed", err);
 				}
 			},
 			"#1976d2"
