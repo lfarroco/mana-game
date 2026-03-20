@@ -6,6 +6,8 @@ import { t } from "@i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";
 import { getOption } from "@Models/OptionsStore";
 
+const MS_PER_SECOND = 1000;
+
 const getTargetDescription = (targets: Targeting): string => {
 	if (!targets) return t("tooltip.targets.default");
 
@@ -110,7 +112,7 @@ export const buildCompactEffectBlock = (effect: Effect, unitPower: number): stri
 		case "haste":
 		case "slow":
 		case "charge": {
-			const dur = (effect.duration / 1000).toFixed(1);
+			const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
 			effectString = `[color=${color}]${effectName}[/color] ${dur}s`;
 			break;
 		}
@@ -173,15 +175,15 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		case "regen":
 			return t("tooltip.sentence.regen", { amount, target, color });
 		case "haste": {
-			const dur = (effect.duration / 1000).toFixed(1);
+			const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
 			return t("tooltip.sentence.haste", { duration: dur, target, color });
 		}
 		case "slow": {
-			const dur = (effect.duration / 1000).toFixed(1);
+			const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
 			return t("tooltip.sentence.slow", { duration: dur, target, color });
 		}
 		case "charge": {
-			const dur = (effect.duration / 1000).toFixed(1);
+			const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
 			return t("tooltip.sentence.charge", { duration: dur, target, color });
 		}
 		case "increase_power": {
