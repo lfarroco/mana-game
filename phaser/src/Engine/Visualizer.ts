@@ -230,13 +230,6 @@ export function initializeVisualizer(): void {
 }
 
 /**
- * Get whether the visualizer is initialized
- */
-export function isVisualizerInitialized(): boolean {
-	return globalVisualizerInitialized;
-}
-
-/**
  * Destroy the global visualizer
  */
 export function destroyVisualizer(): void {

@@ -28,10 +28,6 @@ export const isInitialized = (): boolean => {
 	return currentCombatStates !== null;
 };
 
-export const clearCombatSystemStates = () => {
-	currentCombatStates = null;
-};
-
 // Helper update functions required by PhaseManager
 export const updateRegenSystemState = (newState: RegenSystemState) => {
 	if (currentCombatStates) {

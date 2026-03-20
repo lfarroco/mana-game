@@ -145,15 +145,6 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	logger.debug("Playing sound effect", { soundKey, volume: effectVolume });
 };
 
-export const stopSoundEffect = (soundKey: string) => {
-	const soundEffect = soundEffects.get(soundKey);
-	if (soundEffect && soundEffect.isPlaying) {
-		soundEffect.stop();
-		soundEffects.delete(soundKey);
-		logger.debug("Stopped sound effect", { soundKey });
-	}
-};
-
 export const stopAllSoundEffects = () => {
 	soundEffects.forEach((soundEffect) => {
 		if (soundEffect.isPlaying) {

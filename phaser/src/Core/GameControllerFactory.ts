@@ -39,21 +39,3 @@ export const getGameController = (): GameController => {
 
 	return gameController;
 };
-
-/**
- * Sets the GameController instance directly.
- * Useful for testing or when you have a pre-configured controller.
- *
- * @param controller - The GameController instance to set
- */
-export const setGameController = (controller: GameController): void => {
-	gameController = controller;
-};
-
-/**
- * Resets the GameController instance.
- * The next call to getGameController will create a new instance.
- */
-export const resetGameController = (): void => {
-	gameController = null;
-};

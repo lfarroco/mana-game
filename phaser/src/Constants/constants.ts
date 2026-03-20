@@ -10,8 +10,6 @@ export const MIDDLE_SCREEN = vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
 
 export const WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-export const TICK_DURATION = 100;
-
 export const TIMEOUT_DAMAGE_START_TIME = 30000;
 
 export const TILE_WIDTH = 250;
@@ -23,10 +21,6 @@ export const SHOP_ITEM_PURCHASE_COST = 3;
 export const DRAG_CLICK_THRESHOLD = 10;
 
 export const MAX_PARTY_SIZE = 9;
-
-export const REROLL_UNITS_PRICE = 3;
-
-export const MIN_COOLDOWN = 200;
 
 export const PLAYER_BOARD_X = 120;
 export const PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;

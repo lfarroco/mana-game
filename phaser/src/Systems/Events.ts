@@ -302,26 +302,6 @@ export const createUnitSoldEvent = (unitId: string): UnitSoldEvent => ({
 });
 
 /**
- * Helper to create a UnitSpawnedEvent
- */
-export const createUnitSpawnedEvent = (unit: Unit, isFromShop: boolean): UnitSpawnedEvent => ({
-	type: "UnitSpawned",
-	timestamp: createTimestamp(),
-	unit,
-	isFromShop,
-});
-
-/**
- * Helper to create a UnitUpgradedEvent
- */
-export const createUnitUpgradedEvent = (unit: Unit, previousRank: number): UnitUpgradedEvent => ({
-	type: "UnitUpgraded",
-	timestamp: createTimestamp(),
-	unit,
-	previousRank,
-});
-
-/**
  * Helper to create a PhaseSkippedEvent
  */
 export const createPhaseSkippedEvent = (phaseName: string): PhaseSkippedEvent => ({

@@ -1,4 +1,3 @@
-import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { ActionPayload } from "@Core/Types";
 
@@ -77,11 +76,3 @@ export type GameFeature =
 	| "infinite_mode" // Allow entering infinite mode after victory
 	| "skip_encounter" // Allow skipping encounters
 	| "seed_selection"; // Allow selecting custom seeds
-
-/**
- * Context object for controller dependencies.
- */
-export type GameControllerContext = {
-	state: State;
-	playerId: string;
-};

@@ -17,7 +17,7 @@ const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
 	error: 40,
 };
 
-let overrideLogLevel: LogLevel | null = null;
+const overrideLogLevel: LogLevel | null = null;
 
 const getEnv = (): Record<string, string | undefined> => {
 	if (typeof process === "undefined" || !process.env) return {};
@@ -90,10 +90,6 @@ const writeLog = (scope: string, level: LogLevel, message: string, meta?: unknow
 
 	getConsoleMethod(level)(payload);
 	writeElectronLog(payload);
-};
-
-export const setLogLevel = (level: LogLevel | null): void => {
-	overrideLogLevel = level;
 };
 
 export const createLogger = (scope: string) => ({

@@ -85,9 +85,10 @@ These tasks significantly improve code quality, maintainability, and user experi
   - **Context**: Post-refactoring cleanup needed
   - **Impact**: Smaller bundle size, easier maintenance
   - **Effort**: Medium (1-2 days)
+  - **Status**: 🚧 In progress (2026-03-20) - Ran ts-prune; deleted TestShader.ts, TestOrbShader.ts, TriggerSystem/examples.ts; removed TURN_DURATION from config.ts and unused randomBetween/shuffle wrappers from utils.ts. Many remaining ts-prune results are false positives (barrel index exports, phaser.io.ts, MockPhaser.ts). Remaining real candidates need careful manual review.
   - **Steps**:
-    1. Run dead code detection tools (e.g., ts-prune)
-    2. Remove unused imports and functions
+    1. ~~Run dead code detection tools (e.g., ts-prune)~~ ✅
+    2. Remove unused imports and functions - partially done
     3. Check for orphaned files post-Systems migration
 
 - [x] **Escalate ESLint warnings to errors**
