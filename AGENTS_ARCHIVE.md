@@ -21,6 +21,7 @@ Date: 2026-03-20
 - [x] Centralized core float tween offset/duration constants in `phaser/src/Systems/Chara/Chara.ts` (Copilot, 2026-03-20)
 - [x] Centralized pop animation duration constant in `phaser/src/Systems/Chara/Animations/pop.ts` (`POP_ANIMATION_DURATION_MS`) (Copilot, 2026-03-20)
 - [x] Centralized summon animation duration constant in `phaser/src/Systems/Chara/Chara.ts` (`SUMMON_ANIMATION_DURATION_MS`) (Copilot, 2026-03-20)
+- [x] Centralized encounter card animation and layout constants in `phaser/src/Systems/Components/EncounterCard.ts` (icon bounce duration, hover animation, font sizes) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
