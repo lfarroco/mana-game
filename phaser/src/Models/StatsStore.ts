@@ -4,6 +4,9 @@ import { GAME_CONFIG } from "@config";
 import { createLogger } from "@Utils/Logger";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
+const INFINITE_ROUND_UNLOCK_THRESHOLD = 20;
+const TOTAL_OUTPUT_UNLOCK_THRESHOLD = 10_000;
+const TOTAL_DOT_UNLOCK_THRESHOLD = 1_000;
 
 export type PlayerStats = {
 	totalRuns: number;
@@ -77,7 +80,8 @@ function checkUnlockConditions() {
 		return total;
 	};
 
-	if (currentStats.furthestInfiniteRound >= 20) unlockUnit("walking_reactor");
+	if (currentStats.furthestInfiniteRound >= INFINITE_ROUND_UNLOCK_THRESHOLD)
+		unlockUnit("walking_reactor");
 
 	if (getWins("mana_crystal", "gold") >= 1) unlockUnit("spectral_knight");
 
@@ -103,15 +107,15 @@ function checkUnlockConditions() {
 
 	if (getWinsOrBetter("growth_crystal", "bronze") >= 3) unlockUnit("vitality_channeler");
 
-	if (currentStats.totalHealed >= 10000) unlockUnit("mend_sage");
+	if (currentStats.totalHealed >= TOTAL_OUTPUT_UNLOCK_THRESHOLD) unlockUnit("mend_sage");
 
-	if (currentStats.totalDamage >= 10000) unlockUnit("warbringer");
+	if (currentStats.totalDamage >= TOTAL_OUTPUT_UNLOCK_THRESHOLD) unlockUnit("warbringer");
 
-	if (currentStats.totalShield >= 10000) unlockUnit("aegis_archon");
+	if (currentStats.totalShield >= TOTAL_OUTPUT_UNLOCK_THRESHOLD) unlockUnit("aegis_archon");
 
-	if (currentStats.totalPoison >= 1000) unlockUnit("plague_sovereign");
+	if (currentStats.totalPoison >= TOTAL_DOT_UNLOCK_THRESHOLD) unlockUnit("plague_sovereign");
 
-	if (currentStats.totalRegen >= 1000) unlockUnit("life_weaver");
+	if (currentStats.totalRegen >= TOTAL_DOT_UNLOCK_THRESHOLD) unlockUnit("life_weaver");
 
 	if (getWinsOrBetter("critical_crystal", "bronze") >= 3) unlockUnit("fate_shifter");
 }
