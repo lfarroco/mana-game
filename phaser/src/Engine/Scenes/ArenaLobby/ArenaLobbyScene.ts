@@ -16,6 +16,22 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("ArenaLobbyScene");
 
+// Layout positioning
+const BACKGROUND_COLOR = 0x1a1a2e;
+const TITLE_Y = 100;
+const PROFILE_TEXT_Y = 200;
+const RATING_TEXT_Y = 260;
+const FIRST_BUTTON_Y = 500;
+const BUTTON_Y_OFFSET = 70;
+const BACK_BUTTON_Y_OFFSET = 140;
+
+// Title styling
+const TITLE_FONT_SIZE = "64px";
+
+// Profile/Rating styling
+const PROFILE_FONT_SIZE = "32px";
+const RATING_FONT_SIZE = "48px";
+
 export class ArenaLobbyScene extends Phaser.Scene {
 	private profileText?: Phaser.GameObjects.Text;
 	private ratingText?: Phaser.GameObjects.Text;
@@ -26,24 +42,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 	create() {
 		setCurrentScene(this);
-		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x1a1a2e).setOrigin(0);
+		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
 
-		io.Text(t("title.arena"), { fontSize: "64px", color: "#ffffff" })
-			.setPosition(MIDDLE_SCREEN.x, 100)
+		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
+			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
 		this.profileText = io
-			.Text("Loading...", { fontSize: "32px", color: "#aaaaaa" })
-			.setPosition(MIDDLE_SCREEN.x, 200)
+			.Text("Loading...", { fontSize: PROFILE_FONT_SIZE, color: "#aaaaaa" })
+			.setPosition(MIDDLE_SCREEN.x, PROFILE_TEXT_Y)
 			.setOrigin(0.5);
 
 		this.ratingText = io
-			.Text("", { fontSize: "48px", color: "#ffd700", fontStyle: "bold" })
-			.setPosition(MIDDLE_SCREEN.x, 260)
+			.Text("", { fontSize: RATING_FONT_SIZE, color: "#ffd700", fontStyle: "bold" })
+			.setPosition(MIDDLE_SCREEN.x, RATING_TEXT_Y)
 			.setOrigin(0.5);
 
 		// Buttons
-		const buttonY = 500;
+		const buttonY = FIRST_BUTTON_Y;
 
 		createUIButton("Start / Continue Run", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
 			const hasActiveSession = await checkActiveSession();
@@ -55,12 +71,12 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			}
 		});
 
-		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
+		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), () => {
 			logout();
 			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		});
 
-		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
+		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + BACK_BUTTON_Y_OFFSET), () => {
 			this.scene.start(SCENE_KEYS.TITLE);
 		});
 
