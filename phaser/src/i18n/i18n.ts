@@ -46,7 +46,7 @@ export function setLocale(locale: string) {
 		translations = locales[locale];
 		try {
 			localStorage.setItem(STORAGE_KEY, locale);
-		} catch (_e) {
+		} catch {
 			// console.warn('Failed to save locale to localStorage:', e);
 		}
 	} else {
