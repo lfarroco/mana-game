@@ -30,6 +30,7 @@ Date: 2026-03-20
 - [x] Centralized orb shop UI layout and animation constants in `phaser/src/Systems/Shop/OrbShop.ts` (return duration, font sizes, positioning offsets) (Copilot, 2026-03-20)
 - [x] Centralized discard zone UI styling and layout constants in `phaser/src/Systems/Shop/DiscardZone.ts` (dimensions, colors, alpha, shadow offsets, font sizes) (Copilot, 2026-03-20)
 - [x] Centralized effect card shop layout constants in `phaser/src/Systems/Shop/EffectCardShop.ts` (card dimensions, spacing, positional offsets, completion delay) (Copilot, 2026-03-20)
+- [x] Centralized shake animation constants in `phaser/src/Systems/Chara/Chara.ts` (offset, range, duration, repeat count) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
