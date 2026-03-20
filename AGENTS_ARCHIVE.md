@@ -39,6 +39,7 @@ Date: 2026-03-20
 - [x] Centralized chip component styling and animation constants in `phaser/src/Components/Chip.ts` (font size, padding, stroke styles, fill alpha, corner radius, pulse animation) (Copilot, 2026-03-20)
 - [x] Centralized background overlay styling and animation constants in `phaser/src/Components/BackgroundOverlay.ts` (default overlay color/alpha, fade animation duration) (Copilot, 2026-03-20)
 - [x] Centralized arena lobby scene layout and styling constants in `phaser/src/Engine/Scenes/ArenaLobby/ArenaLobbyScene.ts` (title/profile/rating font sizes, positioning, button offsets) (Copilot, 2026-03-20)
+- [x] Centralized match result system screen styling and layout constants in `phaser/src/Systems/MatchResultSystem.ts` (fade duration, overlay color/alpha, text fonts, positioning offsets, drawing depths) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
