@@ -2,31 +2,44 @@ import { defaultTextConfig } from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 
+// Discard zone UI constants
+const DISCARD_ZONE_X = 1400;
+const DISCARD_ZONE_Y = 500;
+const DISCARD_ZONE_WIDTH = 900;
+const DISCARD_ZONE_HEIGHT = 800;
+const DISCARD_ZONE_COLOR = 0xffa500;
+const DISCARD_ZONE_ALPHA = 0.7;
+const DISCARD_ZONE_CORNER_RADIUS = 10;
+const DISCARD_ZONE_LABEL_FONT_SIZE = "40px";
+const DISCARD_ZONE_STROKE_THICKNESS = 6;
+const DISCARD_ZONE_SHADOW_OFFSET_X = 2;
+const DISCARD_ZONE_SHADOW_OFFSET_Y = 2;
+const DISCARD_ZONE_SHADOW_BLUR = 4;
+
 export let zone: Phaser.GameObjects.Zone | null = null;
 let container: Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
 let rect: Graphics | null = null;
 
-const position = { x: 1400, y: 500 };
-const size = { width: 900, height: 800 };
-const color = 0xffa500;
-const alpha = 0.7;
+const position = { x: DISCARD_ZONE_X, y: DISCARD_ZONE_Y };
+const size = { width: DISCARD_ZONE_WIDTH, height: DISCARD_ZONE_HEIGHT };
+const color = DISCARD_ZONE_COLOR;
+const alpha = DISCARD_ZONE_ALPHA;
 
-const cornerRadius = 10;
 export const name = "shop_discard_zone";
 const textStyle = {
 	...defaultTextConfig,
-	fontSize: "40px",
+	fontSize: DISCARD_ZONE_LABEL_FONT_SIZE,
 	color: "#fff",
 	fontStyle: "bold",
 	stroke: "#222",
-	strokeThickness: 6,
+	strokeThickness: DISCARD_ZONE_STROKE_THICKNESS,
 	align: "center",
 	shadow: {
-		offsetX: 2,
-		offsetY: 2,
+		offsetX: DISCARD_ZONE_SHADOW_OFFSET_X,
+		offsetY: DISCARD_ZONE_SHADOW_OFFSET_Y,
 		color: "#000",
-		blur: 4,
+		blur: DISCARD_ZONE_SHADOW_BLUR,
 		fill: true,
 	},
 };
@@ -61,7 +74,7 @@ export function destroy() {
 	container = null;
 }
 
-const createRect = () => io.BorderedRoundRect(position, size, cornerRadius, color, alpha);
+const createRect = () => io.BorderedRoundRect(position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
 
 const createLabel = () => {
 	const text = io.Text(t("shop.discard"), textStyle);
