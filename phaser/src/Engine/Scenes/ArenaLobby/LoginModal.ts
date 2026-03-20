@@ -4,6 +4,27 @@ import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { handleAuthLogin, handleAuthRegister } from "@Multiplayer/MultiplayerManager";
 
+// Layout positioning
+const MODAL_DEPTH = 100;
+const TITLE_Y_OFFSET = 150;
+const LOGIN_BUTTON_Y_OFFSET = 50;
+const REGISTER_BUTTON_Y_OFFSET = 50;
+const CANCEL_BUTTON_Y_OFFSET = 150;
+
+// Panel styling
+const PANEL_WIDTH = 600;
+const PANEL_HEIGHT = 400;
+const PANEL_COLOR = 0x2c3e50;
+const PANEL_STROKE_WIDTH = 4;
+const PANEL_STROKE_COLOR = 0xffffff;
+
+// Overlay styling
+const OVERLAY_COLOR = 0x000000;
+const OVERLAY_ALPHA = 0.8;
+
+// Title styling
+const TITLE_FONT_SIZE = "32px";
+
 export class LoginModal {
 	private scene: Phaser.Scene;
 	private container: Phaser.GameObjects.Container;
@@ -13,7 +34,7 @@ export class LoginModal {
 		this.scene = scene;
 		this.container = this.scene.add.container(0, 0);
 		this.container.setVisible(false);
-		this.container.setDepth(100); // Top layer
+		this.container.setDepth(MODAL_DEPTH);
 
 		this.createUI();
 	}
@@ -21,44 +42,48 @@ export class LoginModal {
 	createUI() {
 		// Dark Overlay
 		const bg = this.scene.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.8)
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, OVERLAY_COLOR, OVERLAY_ALPHA)
 			.setOrigin(0);
 		bg.setInteractive(); // Block clicks
 		this.container.add(bg);
 
 		// Panel
-		const panelWidth = 600;
-		const panelHeight = 400;
 		const panel = this.scene.add
-			.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, panelWidth, panelHeight, 0x2c3e50)
+			.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR)
 			.setOrigin(0.5);
-		panel.setStrokeStyle(4, 0xffffff);
+		panel.setStrokeStyle(PANEL_STROKE_WIDTH, PANEL_STROKE_COLOR);
 		this.container.add(panel);
 
 		// Title
 		const title = this.scene.add
-			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 150, "Authentication", {
-				fontSize: "32px",
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - TITLE_Y_OFFSET, "Authentication", {
+				fontSize: TITLE_FONT_SIZE,
 				color: "white",
 			})
 			.setOrigin(0.5);
 		this.container.add(title);
 
 		// Login Button
-		const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 50), () =>
-			this.handleLogin()
+		const loginBtn = createUIButton(
+			"Login",
+			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - LOGIN_BUTTON_Y_OFFSET),
+			() => this.handleLogin()
 		);
 		this.container.add(loginBtn.container);
 
 		// Register Button
-		const regBtn = createUIButton("Register", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 50), () =>
-			this.handleRegister()
+		const regBtn = createUIButton(
+			"Register",
+			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + REGISTER_BUTTON_Y_OFFSET),
+			() => this.handleRegister()
 		);
 		this.container.add(regBtn.container);
 
 		// Cancel Button
-		const cancelBtn = createUIButton("Cancel", vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + 150), () =>
-			this.hide()
+		const cancelBtn = createUIButton(
+			"Cancel",
+			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + CANCEL_BUTTON_Y_OFFSET),
+			() => this.hide()
 		);
 		this.container.add(cancelBtn.container);
 	}
