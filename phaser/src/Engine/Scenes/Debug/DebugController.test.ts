@@ -2,6 +2,8 @@ import { jest } from "@jest/globals";
 import { clickNextRound, gameActions } from "@Scenes/Debug/DebugController";
 import { getGameController } from "@Core/GameControllerFactory";
 import { Unit } from "@Models/Entities/Unit";
+import { GameController } from "@Core/GameController";
+import { ActionPayload } from "@Core/Types";
 
 jest.mock("@Models/Entities/Unit", () => ({
 	makeUnit: jest.fn(),
@@ -92,7 +94,7 @@ const buildController = (overrides: Partial<ReturnType<typeof mockGetController>
 	sellUnit: jest.fn<(unitId: string) => Promise<boolean>>(),
 	skipPhase: jest.fn<() => Promise<boolean>>(),
 	selectEncounter: jest.fn<(encounterId: string) => Promise<boolean>>(),
-	handleAction: jest.fn<(actionId: string, payload?: any) => Promise<boolean>>(),
+	handleAction: jest.fn<(actionId: string, payload?: ActionPayload) => Promise<boolean>>(),
 	updateTeam: jest.fn<(team: { units: Unit[] }) => Promise<boolean>>(),
 	notifyGameComplete: jest.fn<() => Promise<boolean>>(),
 	isFeatureEnabled: jest.fn<(feature: string) => boolean>(),
@@ -108,7 +110,7 @@ describe("DebugController delegation", () => {
 		const controller = buildController({
 			skipPhase: jest.fn<() => Promise<boolean>>().mockResolvedValue(true),
 		});
-		mockGetController.mockReturnValue(controller as any);
+		mockGetController.mockReturnValue(controller as unknown as GameController);
 
 		const result = await clickNextRound();
 
@@ -121,7 +123,7 @@ describe("DebugController delegation", () => {
 			.fn<(cardId: string, targetSlot?: number) => Promise<boolean>>()
 			.mockResolvedValue(true);
 		const controller = buildController({ purchaseUnit });
-		mockGetController.mockReturnValue(controller as any);
+		mockGetController.mockReturnValue(controller as unknown as GameController);
 
 		await gameActions.purchaseUnit("hero-card");
 
@@ -134,11 +136,11 @@ describe("DebugController delegation", () => {
 			.fn<(team: { units: Unit[] }) => Promise<boolean>>()
 			.mockResolvedValue(true);
 		const handleAction = jest
-			.fn<(actionId: string, payload?: any) => Promise<boolean>>()
+			.fn<(actionId: string, payload?: ActionPayload) => Promise<boolean>>()
 			.mockResolvedValue(true);
 		const skipPhase = jest.fn<() => Promise<boolean>>().mockResolvedValue(true);
 		const controller = buildController({ sellUnit, updateTeam, handleAction, skipPhase });
-		mockGetController.mockReturnValue(controller as any);
+		mockGetController.mockReturnValue(controller as unknown as GameController);
 
 		await gameActions.sellUnit("unit-1");
 		await gameActions.updateTeam({ units: [] });

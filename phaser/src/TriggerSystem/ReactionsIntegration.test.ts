@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
 import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
-import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import { runCombat, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
 import { dealDamageLogicIO, applyPoisonLogicIO } from "@TriggerSystem/effects";
 import { applyHasteLogicIO } from "@TriggerSystem/effects/applyHaste";
 import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
@@ -10,9 +10,11 @@ import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
 import * as StateModule from "@Models/State";
+import { State } from "@Models/State";
 import { getBattleCore } from "@Models/Entities/Card";
 import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
-import { processReactions } from "@TriggerSystem/TriggerSystem";
+import { processReactions, EffectReaction } from "@TriggerSystem/TriggerSystem";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 // Mock i18n
 jest.mock("../i18n/i18n", () => ({
@@ -27,24 +29,24 @@ jest.mock("../i18n/i18n", () => ({
 
 // Mock State module
 jest.mock("../Models/State", () => ({
-	...(jest.requireActual("../Models/State") as any),
+	...(jest.requireActual("../Models/State") as typeof StateModule),
 	getState: jest.fn(),
 }));
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Reaction System Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 	let reactorUnit: Unit;
-	let combatRunner: any;
+	let combatRunner: CombatRunner;
 
 	beforeEach(() => {
 		state = createMockState();
@@ -198,7 +200,7 @@ describe("Reaction System Tests", () => {
 					permanent: true,
 				},
 			],
-		} as any;
+		} as EffectReaction;
 
 		reactorUnit.reactions = [reaction];
 		reactorUnit2.reactions = [reaction];
@@ -269,7 +271,7 @@ describe("Reaction System Tests", () => {
 			[reactorUnit],
 			sourceUnit,
 			duration,
-			(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" } as any, 1) // Triggering unit is sourceUnit
+			(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, 1) // Triggering unit is sourceUnit
 		);
 		effects.setFrame(300);
 		effects.setFrame(350);
@@ -298,7 +300,7 @@ describe("Reaction System Tests", () => {
 		const duration = 500;
 		// Cast on reactorUnit
 		await applySlowLogicIO(env, sourceUnit, [reactorUnit], duration, (_target: Unit) =>
-			processReactions(env, sourceUnit, { id: "re_slow" } as any, 1)
+			processReactions(env, sourceUnit, { id: "re_slow" }, 1)
 		);
 		effects.setFrame(300);
 		effects.setFrame(350);

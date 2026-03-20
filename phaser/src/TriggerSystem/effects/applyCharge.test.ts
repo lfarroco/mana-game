@@ -1,11 +1,16 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
 import { applyChargeLogicIO } from "@TriggerSystem/effects/applyCharge";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
@@ -20,15 +25,15 @@ jest.mock("../../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Charge Effect Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 
 	beforeEach(() => {
@@ -51,7 +56,7 @@ describe("Charge Effect Tests", () => {
 
 		expect(sourceUnit.charge).toBe(20);
 
-		const chargeLog = effects.logs.find((l: any) => l.type === "charge");
+		const chargeLog = effects.logs.find((l: CombatLogEntry) => l.type === "charge")!;
 		expect(chargeLog).toBeDefined();
 		expect(chargeLog.amount).toBe(amount);
 	});

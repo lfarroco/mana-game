@@ -1,12 +1,17 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
 import { dealDamageLogicIO } from "@TriggerSystem/effects/dealDamage";
 import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
@@ -19,7 +24,7 @@ jest.mock("../../i18n/i18n", () => ({
 	getNativeName: () => "English",
 }));
 
-let globalState: any;
+let globalState: State;
 jest.mock("../../Models/State", () => ({
 	getState: () => globalState,
 	State: {},
@@ -27,15 +32,15 @@ jest.mock("../../Models/State", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Damage Effect Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 	let targetUnit: Unit;
 
@@ -63,8 +68,10 @@ describe("Damage Effect Tests", () => {
 
 		effects.setFrame(30);
 
-		const core = state.battleData.units.find((u: Unit) => u.force === targetUnit.force && u.isCore);
-		const damageLog = effects.logs.find((l: any) => l.type === "damage");
+		const core = state.battleData.units.find(
+			(u: Unit) => u.force === targetUnit.force && u.isCore
+		)!;
+		const damageLog = effects.logs.find((l: CombatLogEntry) => l.type === "damage")!;
 
 		expect(damageLog).toBeDefined();
 		expect(damageLog.amount).toBe(20);
@@ -96,11 +103,13 @@ describe("Damage Effect Tests", () => {
 		processEffectsIO(env, sourceUnit, [{ id: "damage" }], false);
 
 		// Should have damage log
-		const damageLog = effects.logs.find((l: any) => l.type === "damage");
+		const damageLog = effects.logs.find((l: CombatLogEntry) => l.type === "damage");
 		expect(damageLog).toBeDefined();
 
 		// Verify reaction
-		const reactionLog = effects.logs.find((log: any) => log.type === "heal" && log.delayed === 200);
+		const reactionLog = effects.logs.find(
+			(log: CombatLogEntry) => log.type === "heal" && log.delayed === 200
+		)!;
 		expect(reactionLog).toBeDefined();
 		expect(reactionLog.sourceId).toBe(targetUnit.id);
 	});

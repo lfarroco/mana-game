@@ -1,12 +1,17 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
-import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
+import { runCombat, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
 import { applyHasteLogicIO } from "@TriggerSystem/effects/applyHaste";
 import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
@@ -21,18 +26,18 @@ jest.mock("../../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Haste & Slow Interaction Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 	let targetUnit: Unit;
-	let combatRunner: any;
+	let combatRunner: CombatRunner;
 
 	beforeEach(() => {
 		state = createMockState();
@@ -85,7 +90,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		effects.setFrame(currentFrame);
 
 		// Expect haste log
-		const hasteLog = effects.logs.find((l: any) => l.type === "haste");
+		const hasteLog = effects.logs.find((l: CombatLogEntry) => l.type === "haste");
 		expect(hasteLog).toBeDefined();
 
 		effects.logs.length = 0; // Clear logs to isolate checks
@@ -100,7 +105,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		effects.setFrame(currentFrame);
 
 		// Expect slow log
-		const slowLog = effects.logs.find((l: any) => l.type === "slow");
+		const slowLog = effects.logs.find((l: CombatLogEntry) => l.type === "slow");
 		expect(slowLog).toBeDefined();
 
 		effects.logs.length = 0;
@@ -113,12 +118,12 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 50; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// Now (T=700), Slow should have expired.
-		const slowEndLog = effects.logs.find((l: any) => l.type === "slow_end");
+		const slowEndLog = effects.logs.find((l: CombatLogEntry) => l.type === "slow_end")!;
 		expect(slowEndLog).toBeDefined();
 		expect(slowEndLog.unitId).toBe(targetUnit.id);
 
 		// Verify Haste is NOT ended yet (Duration 1000, Elapsed 700)
-		const hasteEndLogEarly = effects.logs.find((l: any) => l.type === "haste_end");
+		const hasteEndLogEarly = effects.logs.find((l: CombatLogEntry) => l.type === "haste_end");
 		expect(hasteEndLogEarly).toBeUndefined();
 
 		effects.logs.length = 0;
@@ -127,7 +132,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 30; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// Now T=1000, Haste should expire
-		const hasteEndLog = effects.logs.find((l: any) => l.type === "haste_end");
+		const hasteEndLog = effects.logs.find((l: CombatLogEntry) => l.type === "haste_end")!;
 		expect(hasteEndLog).toBeDefined();
 		expect(hasteEndLog.unitId).toBe(targetUnit.id);
 	});
@@ -144,7 +149,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		currentFrame += 50;
 		effects.setFrame(currentFrame);
 
-		const slowLog = effects.logs.find((l: any) => l.type === "slow");
+		const slowLog = effects.logs.find((l: CombatLogEntry) => l.type === "slow");
 		expect(slowLog).toBeDefined();
 
 		effects.logs.length = 0;
@@ -158,7 +163,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		currentFrame += 50;
 		effects.setFrame(currentFrame);
 
-		const hasteLog = effects.logs.find((l: any) => l.type === "haste");
+		const hasteLog = effects.logs.find((l: CombatLogEntry) => l.type === "haste");
 		expect(hasteLog).toBeDefined();
 
 		effects.logs.length = 0;
@@ -167,12 +172,12 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 50; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// T=700: Haste should expire.
-		const hasteEndLog = effects.logs.find((l: any) => l.type === "haste_end");
+		const hasteEndLog = effects.logs.find((l: CombatLogEntry) => l.type === "haste_end")!;
 		expect(hasteEndLog).toBeDefined();
 		expect(hasteEndLog.unitId).toBe(targetUnit.id);
 
 		// Verify Slow is not ended yet
-		const slowEndLogEarly = effects.logs.find((l: any) => l.type === "slow_end");
+		const slowEndLogEarly = effects.logs.find((l: CombatLogEntry) => l.type === "slow_end");
 		expect(slowEndLogEarly).toBeUndefined();
 
 		effects.logs.length = 0;
@@ -181,7 +186,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 30; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// T=1000: Slow should expire
-		const slowEndLog = effects.logs.find((l: any) => l.type === "slow_end");
+		const slowEndLog = effects.logs.find((l: CombatLogEntry) => l.type === "slow_end")!;
 		expect(slowEndLog).toBeDefined();
 		expect(slowEndLog.unitId).toBe(targetUnit.id);
 	});

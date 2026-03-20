@@ -5,14 +5,14 @@
 import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals";
 import * as PureShop from "@Systems/Shop/PureShop";
 import { SessionData } from "@Core/Types";
-import { makeUnit } from "@Models/Entities/Unit";
+import { makeUnit, Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 
 // Mock Board module
 jest.mock("@Models/Board", () => ({
-	getEmptySlot: jest.fn((units: any[]) => {
+	getEmptySlot: jest.fn((units: Unit[]) => {
 		// Simple mock: return first empty position
 		if (units.length < 6) {
 			return { x: units.length, y: 0 };
@@ -34,7 +34,7 @@ jest.mock("../../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });

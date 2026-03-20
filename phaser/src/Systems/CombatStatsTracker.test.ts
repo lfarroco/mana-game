@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals";
-import { stop, trackDamage } from "@Systems/CombatStatsTracker";
+import { stop, trackDamage, CombatStatsTrackerState } from "@Systems/CombatStatsTracker";
 import { createMockState } from "@test-utils/serverCombatUtils";
 import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
@@ -7,6 +7,7 @@ import { State } from "@Models/State";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
@@ -20,15 +21,15 @@ jest.mock("../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("CombatStatsTracker", () => {
 	let state: State;
-	let env: any;
-	let trackerState: any;
+	let env: CombatEnvironment;
+	let trackerState: CombatStatsTrackerState;
 	let sourceUnit: Unit;
 
 	beforeEach(() => {
@@ -46,10 +47,10 @@ describe("CombatStatsTracker", () => {
 	it("should track damage and update stats", () => {
 		trackDamage(trackerState, env, sourceUnit.id, 50);
 
-		const unitStats = trackerState.unitStats.get(sourceUnit.id);
+		const unitStats = trackerState.unitStats.get(sourceUnit.id)!;
 		expect(unitStats.damageDealt).toBe(50);
 
-		const forceStats = trackerState.currentCombatStats.get(sourceUnit.force);
+		const forceStats = trackerState.currentCombatStats.get(sourceUnit.force)!;
 		expect(forceStats.damageDealt).toBe(50);
 	});
 

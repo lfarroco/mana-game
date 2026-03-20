@@ -19,7 +19,7 @@ jest.mock("../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
@@ -58,11 +58,11 @@ describe("TriggerSystem Targeting", () => {
 		state.battleData.units = [sourceUnit, allyRight, allyTop, allyRowFar, enemy1, enemy2];
 	});
 
-	const createEffect = (targetingId: string, extra?: any): Effect =>
+	const createEffect = (targetingId: string, extra?: Record<string, unknown>): Effect =>
 		({
 			id: "damage",
 			targets: { id: targetingId, ...extra },
-		}) as any;
+		}) as Effect;
 
 	it("should resolve self", () => {
 		const targets = resolveTargets(state, sourceUnit, createEffect("self"));

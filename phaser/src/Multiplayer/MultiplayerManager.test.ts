@@ -7,6 +7,7 @@ import {
 	checkActiveSession,
 } from "@Multiplayer/MultiplayerManager";
 import { supabase } from "@lib/supabase";
+import { State } from "@Models/State";
 
 // Mock Supabase
 jest.mock("@lib/supabase", () => ({
@@ -62,7 +63,7 @@ describe("MultiplayerManager", () => {
 			single: singleMock,
 		});
 
-		const options = await getPhaseOptions({} as any);
+		const options = await getPhaseOptions({} as State);
 
 		expect(options.phase).toBe("encounter");
 		expect(options.options).toEqual([]);

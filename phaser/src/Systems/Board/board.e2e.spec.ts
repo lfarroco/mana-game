@@ -1,5 +1,6 @@
 import test, { expect, Page } from "@playwright/test";
 import { getDebugController } from "@test-utils/debugController";
+import { Unit } from "@Models/Entities/Unit";
 
 const boardSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 	test.describe("Board Interactions", () => {
@@ -17,7 +18,7 @@ const boardSpec = (waitForGameInit: (p: Page) => Promise<void>) =>
 
 			let units = await debugController.getPlayerBoardUnits();
 			const unitToMove = units.find(
-				(u: any) => u.position.x === initialBoardX && u.position.y === initialBoardY
+				(u: Unit) => u.position.x === initialBoardX && u.position.y === initialBoardY
 			);
 			expect(unitToMove).toBeDefined();
 			if (!unitToMove) return; // Guard for TypeScript
