@@ -32,7 +32,7 @@ export default [
 			...tseslint.configs.recommended.rules,
 			"no-console": "error",
 			"prefer-const": "error",
-			"@typescript-eslint/no-explicit-any": "warn",
+			"@typescript-eslint/no-explicit-any": "error",
 			"@typescript-eslint/no-unused-vars": [
 				"error",
 				{

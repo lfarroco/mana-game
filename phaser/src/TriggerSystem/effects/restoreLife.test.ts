@@ -1,12 +1,17 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
 import { restoreLife } from "@TriggerSystem/effects/restoreLife";
 import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
@@ -19,7 +24,7 @@ jest.mock("../../i18n/i18n", () => ({
 	getNativeName: () => "English",
 }));
 
-let globalState: any;
+let globalState: State;
 jest.mock("../../Models/State", () => ({
 	getState: () => globalState,
 	State: {},
@@ -27,15 +32,15 @@ jest.mock("../../Models/State", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Heal Effect Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 
 	beforeEach(() => {
@@ -61,7 +66,7 @@ describe("Heal Effect Tests", () => {
 
 		effects.setFrame(30);
 
-		const healLog = effects.logs.find((l: any) => l.type === "heal");
+		const healLog = effects.logs.find((l: CombatLogEntry) => l.type === "heal")!;
 		expect(healLog).toBeDefined();
 		expect(healLog.amount).toBe(30);
 		expect(sourceUnit.life).toBe(80);
@@ -96,11 +101,13 @@ describe("Heal Effect Tests", () => {
 		processEffectsIO(env, sourceUnit, [{ id: "heal" }], false);
 
 		// Check for heal log
-		const healLog = effects.logs.find((l: any) => l.type === "heal");
+		const healLog = effects.logs.find((l: CombatLogEntry) => l.type === "heal");
 		expect(healLog).toBeDefined();
 
 		// Check for damage log from reaction
-		const damageLog = effects.logs.find((l: any) => l.type === "damage" && l.delayed === 200);
+		const damageLog = effects.logs.find(
+			(l: CombatLogEntry) => l.type === "damage" && l.delayed === 200
+		)!;
 		expect(damageLog).toBeDefined();
 		expect(damageLog.sourceId).toBe(reactorUnit.id);
 	});

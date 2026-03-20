@@ -90,13 +90,12 @@ These tasks significantly improve code quality, maintainability, and user experi
     2. Remove unused imports and functions
     3. Check for orphaned files post-Systems migration
 
-- [ ] **Escalate ESLint warnings to errors**
+- [x] **Escalate ESLint warnings to errors**
   - **Context**: `no-explicit-any`, `no-unused-vars`, `no-console`, and `prefer-const` are all set to `warn` in `eslint.config.js`, allowing problematic code to be committed
   - **Impact**: Enforces type safety, immutability, and logging discipline
   - **Effort**: Low (0.5 day)
-  - **Status**: 🚧 In progress (2026-03-13) - `prefer-const` and `@typescript-eslint/no-unused-vars` promoted to `error`; existing `prefer-const` and active `no-unused-vars` violations in source were fixed. Remaining rules (`no-explicit-any`, `no-console`) are still pending escalation.
-    1. Change `no-explicit-any` to `error` (fix existing violations first)
-    3. Evaluate `no-console` as `error` after implementing structured logging
+  - **Status**: ✅ Completed (2026-03-20) - All four rules now at `error`. Fixed 133 `no-explicit-any` violations across 17 test/utility files (replaced with proper types: `CombatEnvironment`, `CombatLogEntry`, `Force`, `State`, etc.). `no-console` remains `warn` in test files only (intentional exception).
+  - **Remaining**: Evaluate `no-console` as `error` after implementing structured logging (test files intentionally excluded)
 
 ---
 

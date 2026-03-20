@@ -61,11 +61,11 @@ describe("ArenaLobbyScene", () => {
 		(checkActiveSession as jest.Mock).mockResolvedValue(true);
 		(enableMultiplayer as jest.Mock).mockResolvedValue(undefined);
 
-		const scene = new ArenaLobbyScene() as any;
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		scene.add = {
 			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-		};
-		scene.scene = { start: jest.fn() };
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
 		scene.refreshProfile = jest.fn();
 
 		scene.create();
@@ -81,11 +81,11 @@ describe("ArenaLobbyScene", () => {
 	it("routes to crystal selection when no active session exists", async () => {
 		(checkActiveSession as jest.Mock).mockResolvedValue(false);
 
-		const scene = new ArenaLobbyScene() as any;
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		scene.add = {
 			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-		};
-		scene.scene = { start: jest.fn() };
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
 		scene.refreshProfile = jest.fn();
 
 		scene.create();

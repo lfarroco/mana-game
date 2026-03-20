@@ -1,11 +1,16 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
+import {
+	createServerCombatEffects,
+	CombatLogEntry,
+} from "@Scenes/Battleground/ServerCombatEffects";
 import { runCombat } from "@Scenes/Battleground/RunCombatCore";
 import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit, makeUnit } from "@Models/Entities/Unit";
+import { State } from "@Models/State";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
 jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
@@ -17,7 +22,7 @@ jest.mock("../i18n/i18n", () => ({
 	getNativeName: () => "English",
 }));
 
-let globalState: any;
+let globalState: State;
 jest.mock("../Models/State", () => ({
 	getState: () => globalState,
 	State: {},
@@ -25,15 +30,15 @@ jest.mock("../Models/State", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("Reaction System Tests", () => {
-	let state: any;
-	let effects: any;
-	let env: any;
+	let state: State;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
 	let sourceUnit: Unit;
 	let chronomancer: Unit;
 	let enemyUnit: Unit;
@@ -73,16 +78,16 @@ describe("Reaction System Tests", () => {
 			// Force delayed execution (projectile time)
 			effects.setFrame(50);
 
-			const hasteLog = effects.logs.find((l: any) => l.type === "haste");
+			const hasteLog = effects.logs.find((l: CombatLogEntry) => l.type === "haste");
 			expect(hasteLog).toBeDefined();
 
 			const reactionLog = effects.logs.find(
-				(l: any) => l.type === "reaction" && l.unitId === chronomancer.id
+				(l: CombatLogEntry) => l.type === "reaction" && l.unitId === chronomancer.id
 			);
 			expect(reactionLog).toBeDefined();
 
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === "increase_power" && l.sourceId === chronomancer.id
+				(l: CombatLogEntry) => l.type === "increase_power" && l.sourceId === chronomancer.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(chronomancer.power).toBe(initialPower + 7);
@@ -109,7 +114,7 @@ describe("Reaction System Tests", () => {
 			effects.setFrame(50);
 
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === "increase_power" && l.sourceId === chronomancer.id
+				(l: CombatLogEntry) => l.type === "increase_power" && l.sourceId === chronomancer.id
 			);
 			expect(powerIncreaseLog).toBeUndefined();
 			expect(chronomancer.power).toBe(initialPower);
@@ -184,7 +189,7 @@ describe("Reaction System Tests", () => {
 			effects.setFrame(50);
 
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === "increase_power" && l.sourceId === arbiter.id
+				(l: CombatLogEntry) => l.type === "increase_power" && l.sourceId === arbiter.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(arbiter.power).toBe(initialPower + 2);
@@ -205,7 +210,7 @@ describe("Reaction System Tests", () => {
 			effects.setFrame(50);
 
 			const powerIncreaseLog = effects.logs.find(
-				(l: any) => l.type === "increase_power" && l.sourceId === glassCannon.id
+				(l: CombatLogEntry) => l.type === "increase_power" && l.sourceId === glassCannon.id
 			);
 			expect(powerIncreaseLog).toBeDefined();
 			expect(glassCannon.power).toBe(initialPower + 5);

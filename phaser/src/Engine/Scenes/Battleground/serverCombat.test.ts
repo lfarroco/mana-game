@@ -21,7 +21,7 @@ import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 beforeAll(() => {
 	// Polyfill structuredClone for JSDOM/Node environments that lack it
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });

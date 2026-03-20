@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, beforeAll, jest } from "@jest/globals
 import {
 	initializeTimeoutDamageSystem,
 	updateTimeoutDamageSystem,
+	TimeoutSystemState,
 } from "@Systems/TimeoutDamageSystem";
 import { createMockState } from "@test-utils/serverCombatUtils";
 import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
@@ -10,6 +11,9 @@ import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 import { State } from "@Models/State";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import { Force } from "@Models/Entities/Force";
 
 // Mock i18n
 jest.mock("../i18n/i18n", () => ({
@@ -24,27 +28,28 @@ jest.mock("../i18n/i18n", () => ({
 
 beforeAll(() => {
 	if (typeof global.structuredClone === "undefined") {
-		global.structuredClone = (obj: any) => JSON.parse(JSON.stringify(obj));
+		global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
 	}
 	registerCollection(BASE_COLLECTION_DATA);
 });
 
 describe("TimeoutDamageSystem", () => {
 	let state: State;
-	let env: any;
-	let timeoutState: any;
-	let playerForce: any;
-	let cpuForce: any;
+	let effects: ReturnType<typeof createServerCombatEffects>;
+	let env: CombatEnvironment;
+	let timeoutState: TimeoutSystemState;
+	let playerForce: Force;
+	let cpuForce: Force;
 
 	beforeEach(() => {
 		state = createMockState();
-		const effects = createServerCombatEffects(state);
+		effects = createServerCombatEffects(state);
 		const runner = runCombat(state, effects);
 		env = runner.getEnv();
 
 		timeoutState = initializeTimeoutDamageSystem();
-		playerForce = { id: state.session.player_id } as any;
-		cpuForce = state.battleData.forces.find((f: any) => f.id !== playerForce.id);
+		playerForce = { id: state.session.player_id } as Force;
+		cpuForce = state.battleData.forces.find((f: Force) => f.id !== playerForce.id) as Force;
 	});
 
 	it("should initialize correctly", () => {
@@ -64,7 +69,7 @@ describe("TimeoutDamageSystem", () => {
 		);
 
 		expect(newState.combatElapsedTime).toBe(delta);
-		const damageLog = env.effects.logs.find((l: any) => l.type === "timeout_damage");
+		const damageLog = effects.logs.find((l: CombatLogEntry) => l.type === "timeout_damage");
 		expect(damageLog).toBeUndefined();
 	});
 
@@ -91,7 +96,7 @@ describe("TimeoutDamageSystem", () => {
 
 		expect(newState.timeSinceLastTick).toBe(0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
+		const damageLogs = effects.logs.filter((l: CombatLogEntry) => l.type === "timeout_damage");
 		expect(damageLogs.length).toBe(2); // One for each force
 		expect(damageLogs[0].damage).toBe(6);
 	});
@@ -134,7 +139,7 @@ describe("TimeoutDamageSystem", () => {
 
 		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
+		const damageLogs = effects.logs.filter((l: CombatLogEntry) => l.type === "timeout_damage");
 		expect(damageLogs[0].damage).toBe(7);
 	});
 
@@ -144,7 +149,7 @@ describe("TimeoutDamageSystem", () => {
 
 		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0);
 
-		const damageLogs = env.effects.logs.filter((l: any) => l.type === "timeout_damage");
+		const damageLogs = effects.logs.filter((l: CombatLogEntry) => l.type === "timeout_damage");
 		expect(damageLogs[0].damage).toBe(Infinity);
 	});
 });
