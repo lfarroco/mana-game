@@ -1,6 +1,8 @@
 import { tween } from "@Utils/animation";
 import { getCharaById, mustGetState } from "@Systems/Chara/Chara";
 
+const POP_ANIMATION_DURATION_MS = 300;
+
 export async function pop(id: string) {
 	const chara = getCharaById(id);
 	const s = mustGetState(chara);
@@ -17,7 +19,7 @@ export async function pop(id: string) {
 		targets: [chara],
 		scale: 1.4,
 		yoyo: true,
-		duration: 300,
+		duration: POP_ANIMATION_DURATION_MS,
 		repeat: 0,
 	});
 
