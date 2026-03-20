@@ -17,6 +17,30 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("ArenaLoginScene");
 
+// Layout positioning
+const TITLE_Y = 100;
+const TITLE_FONT_SIZE = "64px";
+const STEAM_LOGIN_Y = 600;
+const FORM_CONTENT_Y = 300;
+const FIRST_BUTTON_Y = 500;
+const BUTTON_Y_OFFSET_REGISTER = 70;
+const BUTTON_Y_OFFSET_GUEST = 140;
+const BUTTON_Y_OFFSET_BACK = 210;
+
+// Styling
+const BACKGROUND_COLOR = 0x1a1a2e;
+const STEAM_LOGIN_FONT_SIZE = "24px";
+const STEAM_LOGIN_COLOR = "#00aaff";
+const FORM_WIDTH = 300;
+const FORM_GAP = 15;
+
+// Modal styling
+const MODAL_WIDTH = 400;
+const MODAL_HEIGHT = 300;
+const MODAL_TEXT_FONT_SIZE = "24px";
+const MODAL_TEXT_WRAP_WIDTH = 360;
+const MODAL_BUTTON_Y_OFFSET = 100;
+
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
 	private isRegisterMode: boolean = false;
@@ -29,11 +53,11 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	create() {
 		setCurrentScene(this);
-		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x1a1a2e).setOrigin(0);
+		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
 
 		this.titleText = io
-			.Text("Arena Login", { fontSize: "64px", color: "#ffffff" })
-			.setPosition(MIDDLE_SCREEN.x, 100)
+			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
+			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
 		this.buttonContainer = this.add.container(0, 0);
@@ -43,8 +67,11 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		if (isElectron() && !this.isRegisterMode) {
 			this.handleSteamLogin();
-			io.Text("Logging in with Steam...", { fontSize: "24px", color: "#00aaff" })
-				.setPosition(MIDDLE_SCREEN.x, 600) // Lower down
+			io.Text("Logging in with Steam...", {
+				fontSize: STEAM_LOGIN_FONT_SIZE,
+				color: STEAM_LOGIN_COLOR,
+			})
+				.setPosition(MIDDLE_SCREEN.x, STEAM_LOGIN_Y)
 				.setOrigin(0.5);
 		}
 	}
@@ -60,13 +87,13 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer.removeAll(true);
 		}
 
-		const buttonY = 500;
+		const buttonY = FIRST_BUTTON_Y;
 
 		if (this.isRegisterMode) {
 			this.titleText?.setText("Create Account");
 
 			const formHTML = `
-                <div style="display:flex; flex-direction:column; gap:15px; width: 300px; font-family: sans-serif;">
+                <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
                     <input type="text" name="username" placeholder="Username" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
                     <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
                     <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
@@ -75,7 +102,9 @@ export class ArenaLoginScene extends Phaser.Scene {
             `;
 
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
+			this.formElement = (this.add as any)
+				.dom(MIDDLE_SCREEN.x, FORM_CONTENT_Y)
+				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
 			// Register Button
@@ -85,23 +114,29 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(regBtn.container);
 
 			// Back to Login
-			const backBtn = createUIButton("Back to Login", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
-				this.isRegisterMode = false;
-				this.renderForm();
-			});
+			const backBtn = createUIButton(
+				"Back to Login",
+				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
+				() => {
+					this.isRegisterMode = false;
+					this.renderForm();
+				}
+			);
 			this.buttonContainer?.add(backBtn.container);
 		} else {
 			this.titleText?.setText("Arena Login");
 
 			const formHTML = `
-                <div style="display:flex; flex-direction:column; gap:15px; width: 300px; font-family: sans-serif;">
+                <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
                     <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
                     <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
                 </div>
             `;
 
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			this.formElement = (this.add as any).dom(MIDDLE_SCREEN.x, 300).createFromHTML(formHTML);
+			this.formElement = (this.add as any)
+				.dom(MIDDLE_SCREEN.x, FORM_CONTENT_Y)
+				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
 			// Login
@@ -111,22 +146,30 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(loginBtn.container);
 
 			// Register Switch
-			const regBtn = createUIButton("Register", vec2(MIDDLE_SCREEN.x, buttonY + 70), () => {
-				this.isRegisterMode = true;
-				this.renderForm();
-			});
+			const regBtn = createUIButton(
+				"Register",
+				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
+				() => {
+					this.isRegisterMode = true;
+					this.renderForm();
+				}
+			);
 			this.buttonContainer?.add(regBtn.container);
 
 			// Guest
-			const guestBtn = createUIButton("Play as Guest", vec2(MIDDLE_SCREEN.x, buttonY + 140), () => {
-				this.handleGuest();
-			});
+			const guestBtn = createUIButton(
+				"Play as Guest",
+				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_GUEST),
+				() => {
+					this.handleGuest();
+				}
+			);
 			this.buttonContainer?.add(guestBtn.container);
 
 			// Back to Title
 			const backBtn = createUIButton(
 				t("ui.menu.back"),
-				vec2(MIDDLE_SCREEN.x, buttonY + 210),
+				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
 				() => {
 					this.scene.start(SCENE_KEYS.TITLE);
 				}
@@ -258,18 +301,22 @@ export class ArenaLoginScene extends Phaser.Scene {
 		if (this.formElement) this.formElement.setVisible(false);
 
 		const modal = createModal({
-			width: 400,
-			height: 300,
+			width: MODAL_WIDTH,
+			height: MODAL_HEIGHT,
 			title: title,
 		});
 
 		const text = io
-			.Text(message, { fontSize: "24px", color: "#ffffff", wordWrap: { width: 360 } })
+			.Text(message, {
+				fontSize: MODAL_TEXT_FONT_SIZE,
+				color: "#ffffff",
+				wordWrap: { width: MODAL_TEXT_WRAP_WIDTH },
+			})
 			.setOrigin(0.5);
 
 		modal.panel.add(text);
 
-		const closeBtn = createUIButton("OK", vec2(0, 100), () => {
+		const closeBtn = createUIButton("OK", vec2(0, MODAL_BUTTON_Y_OFFSET), () => {
 			if (this.formElement) this.formElement.setVisible(true);
 			modal.close();
 			if (onClose) onClose();
