@@ -15,6 +15,14 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("OrbShop");
 
+// Orb shop UI constants
+const ORB_SHOP_COMPLETION_DELAY_MS = 300;
+const ORB_RETURN_ANIMATION_DURATION_MS = 500;
+const ORB_TITLE_FONT_SIZE = 40;
+const ORB_TITLE_Y_OFFSET = 80;
+const ORB_DESCRIPTION_X_OFFSET = 10;
+const ORB_DESCRIPTION_Y_OFFSET = 20;
+
 export async function openOrbShop(
 	state: State,
 	orbs: string[],
@@ -39,7 +47,7 @@ export async function openOrbShop(
 			container,
 			selectedOrbs,
 			async () => {
-				await delay(300);
+				await delay(ORB_SHOP_COMPLETION_DELAY_MS);
 				completeSectionCallback();
 			},
 			onOrbApply
@@ -132,7 +140,7 @@ export function renderOrbShop(
 			intensity: 1.2,
 			speed: 1.0,
 			enableDrag: true,
-			returnDuration: 500,
+			returnDuration: ORB_RETURN_ANIMATION_DURATION_MS,
 			onDropTarget: (orb, target) => handleOrbDrop({ orb, target, orbSpec, magicOrb }),
 			dropTargetNames: [],
 		});
@@ -140,13 +148,17 @@ export function renderOrbShop(
 		container.add(magicOrb.getShader());
 
 		const titleText = scene.add
-			.text(sc.ITEM_DESC_BASE_X, orbY - 80, orbSpec.name, titleTextConfig)
+			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, titleTextConfig)
 			.setOrigin(0)
-			.setFontSize(40)
+			.setFontSize(ORB_TITLE_FONT_SIZE)
 			.setAlign("left");
 
 		const descriptionText = scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, orbY - 20, orbSpec.tooltip)
+			.rexBBCodeText(
+				sc.ITEM_DESC_BASE_X + ORB_DESCRIPTION_X_OFFSET,
+				orbY - ORB_DESCRIPTION_Y_OFFSET,
+				orbSpec.tooltip
+			)
 			.setOrigin(0)
 			.setFontSize(30)
 			.setAlign("left")
