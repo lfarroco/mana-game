@@ -10,6 +10,8 @@ import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { Rectangle } from "@PhaserIO";
 
+const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
+
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const scene = getCurrentScene();
 
@@ -61,7 +63,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			scene.tweens.add({
 				targets: { width: currentWidth },
 				width: 6,
-				duration: 1000,
+				duration: OWNED_CARD_BORDER_PULSE_DURATION_MS,
 				yoyo: true,
 				repeat: -1,
 				ease: "Sine.easeInOut",
