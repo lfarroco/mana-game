@@ -13,6 +13,13 @@ const logger = createLogger("Encounter");
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
 
+// Encounter card display layout constants
+const ENCOUNTER_CARD_WIDTH = 700;
+const ENCOUNTER_CARD_HEIGHT = 220;
+const ENCOUNTER_CARD_SPACING = 240;
+const ENCOUNTER_CARD_X_OFFSET = 450;
+const ENCOUNTER_CARD_BASE_Y = 300;
+
 type EncounterItem = {
 	name: string;
 	pic: string;
@@ -223,12 +230,12 @@ export async function open(state: State, options: string[]) {
 	};
 
 	encounters.forEach((encounter, index) => {
-		const width = 700;
-		const height = 220;
-		const spacing = 240;
+		const width = ENCOUNTER_CARD_WIDTH;
+		const height = ENCOUNTER_CARD_HEIGHT;
+		const spacing = ENCOUNTER_CARD_SPACING;
 
-		const x = SCREEN_WIDTH - 450;
-		let y = 300 + index * spacing;
+		const x = SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
+		let y = ENCOUNTER_CARD_BASE_Y + index * spacing;
 
 		if (encounters.length === 1) {
 			y = SCREEN_HEIGHT / 2;
