@@ -7,6 +7,10 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RemoteServerAdapter");
 
+const PLAYER_ID_STORAGE_KEY = "mana_player_id";
+const PLAYER_ID_PREFIX = "player_";
+const PLAYER_ID_RANDOM_MAX = 1_000_000;
+
 /**
  * Remote implementation of the game server using Supabase.
  * Used for multiplayer mode - communicates with Supabase Edge Functions.
@@ -15,10 +19,13 @@ export class RemoteServerAdapter implements IGameServer {
 	private playerId: string;
 
 	constructor(playerId?: string) {
-		const storedId = localStorage.getItem("mana_player_id");
-		this.playerId = playerId || storedId || `player_${Math.floor(Math.random() * 1000000)}`;
+		const storedId = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
+		this.playerId =
+			playerId ||
+			storedId ||
+			`${PLAYER_ID_PREFIX}${Math.floor(Math.random() * PLAYER_ID_RANDOM_MAX)}`;
 		if (!storedId) {
-			localStorage.setItem("mana_player_id", this.playerId);
+			localStorage.setItem(PLAYER_ID_STORAGE_KEY, this.playerId);
 		}
 	}
 
@@ -129,7 +136,7 @@ export class RemoteServerAdapter implements IGameServer {
 	 */
 	setPlayerId(playerId: string): void {
 		this.playerId = playerId;
-		localStorage.setItem("mana_player_id", playerId);
+		localStorage.setItem(PLAYER_ID_STORAGE_KEY, playerId);
 	}
 
 	/**
