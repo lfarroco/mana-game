@@ -7,6 +7,13 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("UIButton");
 
+// UI button styling constants
+const BUTTON_HEIGHT = 60;
+const BUTTON_BG_COLOR = 0x000000;
+const BUTTON_CORNER_RADIUS = 10;
+const BUTTON_TEXT_FONT_SIZE = "24px";
+const BUTTON_SHADER_TWEEN_DURATION_MS = 180;
+
 export const activeButtons: Record<string, () => void> = {};
 if (typeof window !== "undefined") {
 	(window as Window & { _activeButtons?: typeof activeButtons })._activeButtons = activeButtons;
@@ -49,12 +56,9 @@ type State = {
 
 const buttonsIndex = new WeakMap<Container, State>();
 
-const buttonHeight = 60;
-const backgroundColor = 0x000000;
-const cornerRadius = 10;
 const textStyle = {
 	...titleTextConfig,
-	fontSize: "24px",
+	fontSize: BUTTON_TEXT_FONT_SIZE,
 	color: "#ffffff",
 	stroke: "#000000",
 	fontStyle: "bold",
@@ -70,13 +74,19 @@ export function createUIButton(
 	logger.debug(`DEBUG: createUIButton called for ${text}`);
 	const size = {
 		width: width || 280,
-		height: buttonHeight,
+		height: BUTTON_HEIGHT,
 	};
 	const container = io.Container();
 
 	const magic = createMagicButtonOverlay(position, size);
 
-	const buttonGraphics = io.BorderedRoundRect(position, size, cornerRadius, backgroundColor, 1);
+	const buttonGraphics = io.BorderedRoundRect(
+		position,
+		size,
+		BUTTON_CORNER_RADIUS,
+		BUTTON_BG_COLOR,
+		1
+	);
 
 	io.SetInteractiveRect(size)(buttonGraphics);
 
@@ -90,7 +100,7 @@ export function createUIButton(
 		io.Tween({
 			targets: [state],
 			magicIntensity: to,
-			duration: 180,
+			duration: BUTTON_SHADER_TWEEN_DURATION_MS,
 			onUpdate: () => magic.setIntensity(state.magicIntensity),
 			ease: "Sine.easeInOut",
 		});
