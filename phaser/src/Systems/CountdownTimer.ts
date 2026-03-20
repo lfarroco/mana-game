@@ -1,6 +1,16 @@
 import Phaser from "phaser";
-import { activateBlackHole, deactivateBlackHole, BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import {
+	activateBlackHole,
+	deactivateBlackHole,
+	BlackHoleState,
+} from "@Scenes/Battleground/BlackHole";
 import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
+
+const MS_PER_SECOND = 1000;
+const TIMER_TICK_DELAY_MS = 1000;
+const TIMER_CIRCLE_DEPTH = 1000;
+const TIMER_TEXT_DEPTH = 1001;
+const TIMER_WARNING_THRESHOLD_SECONDS = 10;
 
 export type CountdownTimerState = {
 	scene: Phaser.Scene;
@@ -11,7 +21,10 @@ export type CountdownTimerState = {
 	blackHoleState: BlackHoleState;
 };
 
-export function initializeCountdownTimer(gameScene: Phaser.Scene, blackHoleState: BlackHoleState): CountdownTimerState {
+export function initializeCountdownTimer(
+	gameScene: Phaser.Scene,
+	blackHoleState: BlackHoleState
+): CountdownTimerState {
 	return {
 		scene: gameScene,
 		timerText: null,
@@ -23,11 +36,17 @@ export function initializeCountdownTimer(gameScene: Phaser.Scene, blackHoleState
 }
 
 export function start(timerState: CountdownTimerState): CountdownTimerState {
-	const newTimerValue = TIMEOUT_DAMAGE_START_TIME / 1000;
+	const newTimerValue = TIMEOUT_DAMAGE_START_TIME / MS_PER_SECOND;
 
-	const timerCircle = timerState.scene.add.circle(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, 40, 0x000000, 0.8);
+	const timerCircle = timerState.scene.add.circle(
+		MIDDLE_SCREEN_X,
+		MIDDLE_SCREEN_Y,
+		40,
+		0x000000,
+		0.8
+	);
 	timerCircle.setStrokeStyle(4, 0xffffff);
-	timerCircle.setDepth(1000);
+	timerCircle.setDepth(TIMER_CIRCLE_DEPTH);
 	timerCircle.setVisible(false);
 
 	const timerText = timerState.scene.add
@@ -38,13 +57,13 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
 			strokeThickness: 4,
 		})
 		.setOrigin(0.5);
-	timerText.setDepth(1001);
+	timerText.setDepth(TIMER_TEXT_DEPTH);
 	timerText.setVisible(false);
 
 	const updateTimer = makeUpdateTimer(timerState, timerText, timerCircle);
 
 	const timerEvent = timerState.scene.time.addEvent({
-		delay: 1000,
+		delay: TIMER_TICK_DELAY_MS,
 		callback: updateTimer,
 		callbackScope: null,
 		loop: true,
@@ -67,7 +86,7 @@ function makeUpdateTimer(
 	return function updateTimer(): void {
 		timerState.timerValue--;
 		timerText.setText(timerState.timerValue.toString());
-		if (timerState.timerValue <= 10) {
+		if (timerState.timerValue <= TIMER_WARNING_THRESHOLD_SECONDS) {
 			timerText.setVisible(true);
 			timerCircle.setVisible(true);
 		}
@@ -109,4 +128,3 @@ export function stop(timerState: CountdownTimerState): CountdownTimerState {
 export function getCircle(timerState: CountdownTimerState): Phaser.GameObjects.Arc | null {
 	return timerState.timerCircle;
 }
-
