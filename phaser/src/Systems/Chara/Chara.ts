@@ -31,6 +31,12 @@ const CORE_FLOAT_MIN_DURATION_MS = 1000;
 const CORE_FLOAT_RANDOM_DURATION_RANGE_MS = 1000;
 const SUMMON_ANIMATION_DURATION_MS = 500;
 
+// Shake animation effects
+const SHAKE_OFFSET_X = 10;
+const SHAKE_RANGE_X = 20;
+const SHAKE_DURATION_MS = 100;
+const SHAKE_REPEAT_COUNT = 3;
+
 export function getCharaById(id: string): Chara {
 	const c = charaById.get(id);
 	if (!c) throw new Error(`Chara with id ${id} not found`);
@@ -289,13 +295,13 @@ export function shake(chara: Chara) {
 	state.isAnimating = true;
 
 	const startingX = state.sprite.x;
-	state.sprite.x += 10;
+	state.sprite.x += SHAKE_OFFSET_X;
 
 	tween({
 		targets: [state.sprite],
-		x: state.sprite.x - 20,
-		duration: 100,
-		repeat: 3,
+		x: state.sprite.x - SHAKE_RANGE_X,
+		duration: SHAKE_DURATION_MS,
+		repeat: SHAKE_REPEAT_COUNT,
 		onComplete: () => {
 			state.isAnimating = false;
 			state.sprite.x = startingX;
