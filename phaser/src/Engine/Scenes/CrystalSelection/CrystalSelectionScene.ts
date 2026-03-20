@@ -21,14 +21,53 @@ interface CrystalSelectionData {
 	isArena?: boolean;
 }
 
+// Layout positioning
 const CARD_DISPLAY_Y = 380;
 const DESCRIPTION_Y = 550;
 const PAGINATION_Y = 770;
 const PLAY_BUTTON_Y = 850;
 const BACK_BUTTON_Y = 950;
 const NAV_BUTTON_OFFSET_X = 350;
+const TITLE_Y = 100;
+
+// Pagination styling
 const DOT_SIZE = 16;
 const DOT_SPACING = 32;
+const PAGINATION_DOT_COLOR = 0xffffff;
+const PAGINATION_DOT_STROKE_COLOR = 0xffffff;
+const PAGINATION_DOT_INACTIVE_ALPHA = 0.3;
+const PAGINATION_DOT_ACTIVE_ALPHA = 1;
+const PAGINATION_DOT_STROKE_WIDTH = 2;
+const PAGINATION_DOT_STROKE_ALPHA = 0.5;
+
+// Crystal display styling
+const TITLE_FONT_SIZE = "48px";
+const CRYSTAL_NAME_FONT_SIZE = "36px";
+const DESCRIPTION_FONT_SIZE = "24px";
+const DESCRIPTION_LINE_SPACING = 10;
+const DESCRIPTION_WRAP_WIDTH = 800;
+const DESCRIPTION_ORIGIN_X = 0.5;
+const DESCRIPTION_ORIGIN_Y = 0;
+
+// Crystal display box
+const CARD_DISPLAY_BG_OFFSET_Y = 90;
+const CARD_DISPLAY_BG_WIDTH = 950;
+const CARD_DISPLAY_BG_HEIGHT = 650;
+const CARD_DISPLAY_BG_COLOR = 0x000000;
+const CARD_DISPLAY_BG_ALPHA = 0.8;
+
+// Crystal sprite
+const CRYSTAL_SPRITE_SIZE = 200;
+const CRYSTAL_FLOAT_ANIMATION_DURATION = 1500;
+const CRYSTAL_FLOAT_Y_OFFSET = 15;
+const CRYSTAL_FLOAT_EASE = "Sine.InOut";
+
+// Navigation buttons
+const NAV_BUTTON_WIDTH = 200;
+
+// Cloud background animation
+const CLOUD_BG_ANIMATION_DURATION = 1500;
+const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
 export default class CrystalSelectionScene extends Phaser.Scene {
 	private crystals: CardDefinition[] = [];
@@ -64,9 +103,9 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 		io.Text(t("crystalSelection.title"), {
 			...constants.titleTextConfig,
-			fontSize: "48px",
+			fontSize: TITLE_FONT_SIZE,
 		})
-			.setPosition(constants.MIDDLE_SCREEN_X, 100)
+			.setPosition(constants.MIDDLE_SCREEN_X, TITLE_Y)
 			.setOrigin(0.5);
 
 		this.createCrystalDisplay();
@@ -85,38 +124,45 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private createCrystalDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
-		this.add.rectangle(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y + 90, 950, 650, 0x000000, 0.8);
+		this.add.rectangle(
+			constants.MIDDLE_SCREEN_X,
+			CARD_DISPLAY_Y + CARD_DISPLAY_BG_OFFSET_Y,
+			CARD_DISPLAY_BG_WIDTH,
+			CARD_DISPLAY_BG_HEIGHT,
+			CARD_DISPLAY_BG_COLOR,
+			CARD_DISPLAY_BG_ALPHA
+		);
 
 		this.crystalSprite = this.add.image(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y, crystal.pic);
-		this.crystalSprite.setDisplaySize(200, 200);
+		this.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
 		this.tweens.add({
 			targets: this.crystalSprite,
-			y: CARD_DISPLAY_Y - 15,
-			duration: 1500,
-			ease: "Sine.InOut",
+			y: CARD_DISPLAY_Y - CRYSTAL_FLOAT_Y_OFFSET,
+			duration: CRYSTAL_FLOAT_ANIMATION_DURATION,
+			ease: CRYSTAL_FLOAT_EASE,
 			yoyo: true,
 			repeat: -1,
 		});
 
 		this.crystalName = io.Text(getName(crystal.id), {
 			...constants.titleTextConfig,
-			fontSize: "36px",
+			fontSize: CRYSTAL_NAME_FONT_SIZE,
 		});
 		io.SetPosition(this.crystalName, vec2(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y + 140));
 		io.Centralize(this.crystalName);
 
 		this.descriptionText = this.add
 			.rexBBCodeText(constants.MIDDLE_SCREEN_X, DESCRIPTION_Y, "", {
-				fontSize: "24px",
+				fontSize: DESCRIPTION_FONT_SIZE,
 				fontFamily: "Arimo",
 				align: "center",
 				color: "#ffffff",
 			})
-			.setOrigin(0.5, 0)
+			.setOrigin(DESCRIPTION_ORIGIN_X, DESCRIPTION_ORIGIN_Y)
 			.setWrapMode(1)
-			.setLineSpacing(10)
-			.setWrapWidth(800);
+			.setLineSpacing(DESCRIPTION_LINE_SPACING)
+			.setWrapWidth(DESCRIPTION_WRAP_WIDTH);
 	}
 
 	private createNavigationButtons() {
@@ -124,14 +170,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			t("crystalSelection.previous"),
 			vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
 			() => this.navigateToPrevious(),
-			200
+			NAV_BUTTON_WIDTH
 		);
 
 		createUIButton(
 			t("crystalSelection.next"),
 			vec2(constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
 			() => this.navigateToNext(),
-			200
+			NAV_BUTTON_WIDTH
 		);
 	}
 
@@ -145,10 +191,14 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 				startX + i * DOT_SPACING,
 				PAGINATION_Y,
 				DOT_SIZE / 2,
-				0xffffff,
-				0.3
+				PAGINATION_DOT_COLOR,
+				PAGINATION_DOT_INACTIVE_ALPHA
 			);
-			dot.setStrokeStyle(2, 0xffffff, 0.5);
+			dot.setStrokeStyle(
+				PAGINATION_DOT_STROKE_WIDTH,
+				PAGINATION_DOT_STROKE_COLOR,
+				PAGINATION_DOT_STROKE_ALPHA
+			);
 			this.paginationDots.push(dot);
 		}
 	}
@@ -185,13 +235,16 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.descriptionText.setText(description);
 
 		this.paginationDots.forEach((dot, i) => {
-			dot.setFillStyle(0xffffff, i === this.currentIndex ? 1 : 0.3);
+			dot.setFillStyle(
+				PAGINATION_DOT_COLOR,
+				i === this.currentIndex ? PAGINATION_DOT_ACTIVE_ALPHA : PAGINATION_DOT_INACTIVE_ALPHA
+			);
 		});
 
 		const bg = getCloudsBg();
 		if (bg) {
 			const preset = this.getColorPresetForCrystal(crystal.id);
-			bg.tweenToPreset(preset, 1500, "Sine.InOut");
+			bg.tweenToPreset(preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE);
 		}
 	}
 
