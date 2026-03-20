@@ -15,12 +15,15 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("ResultsPhase");
 
+// Results phase transition delay (for audio + UI synchronization)
+const RESULTS_START_DELAY_MS = 300;
+
 export async function handleCombatEndedDefeat(state: State): Promise<void> {
 	logger.debug(`Round ${state.session.round}: Processing Defeat...`);
 
 	AudioManager.playSoundEffect("sfx_victory_match");
 
-	await delay(300);
+	await delay(RESULTS_START_DELAY_MS);
 
 	const nextPhaseCallback = async () => {
 		await handleDefeat(state);
@@ -39,7 +42,7 @@ export async function handleCombatEndedVictory(state: State): Promise<void> {
 
 	AudioManager.playSoundEffect("sfx_victory_reward_chant");
 
-	await delay(300);
+	await delay(RESULTS_START_DELAY_MS);
 
 	const nextPhaseCallback = async () => {
 		await handleVictory(state);

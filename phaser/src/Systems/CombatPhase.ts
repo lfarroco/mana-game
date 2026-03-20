@@ -16,6 +16,9 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("CombatPhase");
 
+// Combat phase transition delay
+const COMBAT_START_DELAY_MS = 300;
+
 function createUnitCopy(unit: Unit): Unit {
 	return {
 		...unit,
@@ -108,7 +111,7 @@ export function showReadyButton(payload: { enemies: Unit[] }): Button {
 
 export async function handleCombatStartExecution(_payload: { enemies: Unit[] }): Promise<void> {
 	// Board input is already disabled - begin playback of pre-calculated combat
-	await delay(300);
+	await delay(COMBAT_START_DELAY_MS);
 
 	const scene = getCurrentScene() as BattlegroundScene;
 	scene.combatRunner = runCombatIO();
