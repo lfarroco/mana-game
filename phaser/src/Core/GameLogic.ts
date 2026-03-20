@@ -51,6 +51,11 @@ const ENCOUNTER_IDS = [
 	"gold_shop",
 ];
 
+const COOLDOWN_REDUCTION_FACTOR = 0.1;
+const CORE_STAT_SCALING_FACTOR = 0.1;
+const MIN_COOLDOWN_MS = 1000;
+const CORE_ROUND_SCALING = 10;
+
 // Phase config is centralized in PhaseConfig; import `getPhaseForTurn` above
 
 export function createInitialSession(
@@ -400,7 +405,10 @@ export function resolveAction(
 				} else if (typeof orbId === "string" && orbId.startsWith("decrease_cooldown_on_")) {
 					const type = orbId.replace("decrease_cooldown_on_", "");
 					if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
-						targetUnit.cooldown = Math.max(1000, targetUnit.cooldown * 0.9);
+						targetUnit.cooldown = Math.max(
+							MIN_COOLDOWN_MS,
+							targetUnit.cooldown * (1 - COOLDOWN_REDUCTION_FACTOR)
+						);
 						updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
 					}
 				}
@@ -418,7 +426,8 @@ export function resolveAction(
 			const core = units.find((u) => u.isCore);
 			if (core) {
 				const round = session.round;
-				const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
+				const lifeGain =
+					Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 				core.maxLife += lifeGain;
 				core.life = core.maxLife; // Heal to full on upgrade
 				updates.push(`Increased Core Max Life by ${lifeGain}`);
@@ -427,7 +436,8 @@ export function resolveAction(
 			const core = units.find((u) => u.isCore);
 			if (core) {
 				const round = session.round;
-				const powerGain = Math.floor(core.power * 0.1) + round * 10;
+				const powerGain =
+					Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 				core.power += powerGain;
 				core.bonusPower = (core.bonusPower || 0) + powerGain;
 				updates.push(`Increased Core Power by ${powerGain}`);
@@ -435,8 +445,8 @@ export function resolveAction(
 		} else if (actionId === "decrease_core_cooldown") {
 			const core = units.find((u) => u.isCore);
 			if (core) {
-				const reduction = core.cooldown * 0.1;
-				core.cooldown = Math.max(1000, core.cooldown - reduction);
+				const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
+				core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
 				updates.push(`Decreased Core Cooldown by ${Math.floor(reduction)}`);
 			}
 		}
