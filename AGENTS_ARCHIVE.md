@@ -1,6 +1,6 @@
 # AI Agent Task Archive — Mana Battle
 
-This file stores historical completed-task entries that were moved out of AGENTS.md to keep the active agent guide concise.
+This file stores historical completed-task entries that were moved out of AGENTS.md and PLAN.md to keep the active agent guide concise.
 
 ## Completed (Current Session)
 
@@ -25,6 +25,7 @@ Date: 2026-03-20
 - [x] Centralized phase transition delay constants in `phaser/src/Systems/CombatPhase.ts` and `phaser/src/Systems/ResultsPhase.ts` (`COMBAT_START_DELAY_MS`, `RESULTS_START_DELAY_MS`) (Copilot, 2026-03-20)
 - [x] Centralized death animation (shatter) constants in `phaser/src/Systems/Chara/Animations/shatter.ts` (shake, ring radius, sampling parameters) (Copilot, 2026-03-20)
 - [x] Centralized failed purchase snap-back animation duration in `phaser/src/Systems/Chara/events.ts` (`PURCHASE_FAILED_SNAP_DURATION_MS`) (Copilot, 2026-03-20)
+- [x] Centralized encounter card display layout constants in `phaser/src/Systems/Encounter.ts` (card dimensions, spacing, X/Y positioning) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
