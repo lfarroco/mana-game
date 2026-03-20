@@ -4,6 +4,17 @@ import Phaser from "phaser";
 import { Chara, mustGetState } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
 
+// Shatter death animation constants
+const SHAKE_OFFSET_X = 10;
+const SHAKE_RANGE_X = 20;
+const SHAKE_REPEAT_COUNT = 10;
+const SHAKE_DURATION_MS = 100;
+const SHATTER_ANIMATION_DURATION_MS = 1500;
+const SHATTER_SAMPLES_PER_RING = 4;
+const SHATTER_VARIATION = 0.4;
+const SHATTER_RING_RADIUS_NEAR = 1 / 10;
+const SHATTER_RING_RADIUS_FAR = 3 / 10;
+
 export async function shatter(chara: Chara) {
 	const scene = getCurrentScene();
 
@@ -12,13 +23,13 @@ export async function shatter(chara: Chara) {
 	const { sprite } = state;
 
 	//shake the container
-	sprite.x = sprite.x + 10;
+	sprite.x = sprite.x + SHAKE_OFFSET_X;
 
 	await tween({
 		targets: [sprite],
-		x: sprite.x - 20,
-		repeat: 10,
-		duration: 100,
+		x: sprite.x - SHAKE_RANGE_X,
+		repeat: SHAKE_REPEAT_COUNT,
+		duration: SHAKE_DURATION_MS,
 		yoyo: true,
 	});
 
@@ -29,9 +40,9 @@ export async function shatter(chara: Chara) {
 	image.setScale(sprite.scaleX, sprite.scaleY);
 
 	image.shatter(image.x, image.y, {
-		ringRadiusList: [1 / 10, 3 / 10],
-		samplesPerRing: 4,
-		variation: 0.4,
+		ringRadiusList: [SHATTER_RING_RADIUS_NEAR, SHATTER_RING_RADIUS_FAR],
+		samplesPerRing: SHATTER_SAMPLES_PER_RING,
+		variation: SHATTER_VARIATION,
 	});
 
 	playSoundEffect("sfx_voidhunter_death");
@@ -44,7 +55,7 @@ export async function shatter(chara: Chara) {
 		//angle: () => Phaser.Math.Between(-360, 360),
 		x: (face: Phaser.Geom.Mesh.Face) => (face.x += Phaser.Math.Between(-1, 1)),
 		y: (face: Phaser.Geom.Mesh.Face) => (face.y += Phaser.Math.Between(-1, 1)),
-		duration: 1500,
+		duration: SHATTER_ANIMATION_DURATION_MS,
 		ease: "Power2",
 		//delay: this.tweens.stagger(30, {}),
 	});
