@@ -11,7 +11,6 @@ export const GOLD_VICTORY_THRESHOLD = 10;
 export const SILVER_VICTORY_THRESHOLD = 8;
 export const BRONZE_VICTORY_THRESHOLD = 5;
 
-
 export const RESULTS_COLORS = {
 	victory: "#4CAF50",
 	defeat: "#F44336",
@@ -53,11 +52,6 @@ export const RESULTS_PANEL = {
 	overlayColor: 0x000000,
 	overlayAlpha: 0.7,
 } as const;
-
-export const VICTORY_MESSAGES = {
-	infinite: (wins: number) => t("results.messages.infinite", { wins: wins.toString() }),
-	standard: t("results.victory.run_complete"),
-};
 
 export const END_GAME_MESSAGES = {
 	infinite: (wins: number) => t("results.messages.infinite", { wins: wins.toString() }),

@@ -48,12 +48,6 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	});
 }
 
-export async function tweenSequence(tweens: CustomTweenProps[]) {
-	for (let i = 0; i < tweens.length; i++) {
-		await tween(tweens[i]);
-	}
-}
-
 export const delay = (duration: number) =>
 	new Promise<void>((resolve) => {
 		const scene = getCurrentScene();

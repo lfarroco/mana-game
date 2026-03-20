@@ -19,15 +19,6 @@ if (typeof window !== "undefined") {
 	(window as Window & { _activeButtons?: typeof activeButtons })._activeButtons = activeButtons;
 }
 
-export function triggerButton(text: string): boolean {
-	const key = text.toUpperCase();
-	if (activeButtons[key]) {
-		activeButtons[key]();
-		return true;
-	}
-	return false;
-}
-
 export function registerButton(text: string, callback: () => void) {
 	const key = text.toUpperCase();
 	activeButtons[key] = callback;

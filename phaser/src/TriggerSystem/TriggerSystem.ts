@@ -207,19 +207,6 @@ export type EffectSourcePosition =
 	| "right_ally"
 	| "self";
 
-export const EFFECT_SOURCE_POSITIONS: { [key in EffectSourcePosition]: EffectSourcePosition } = {
-	all: "all",
-	allies: "allies",
-	enemies: "enemies",
-	row_allies: "row_allies",
-	column_allies: "column_allies",
-	top_ally: "top_ally",
-	bottom_ally: "bottom_ally",
-	left_ally: "left_ally",
-	right_ally: "right_ally",
-	self: "self",
-};
-
 // Process a list of effects that originate from a given source unit
 export const processEffectsIO = (
 	env: CombatEnvironment,

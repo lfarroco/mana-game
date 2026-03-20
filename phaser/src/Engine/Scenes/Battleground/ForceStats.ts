@@ -4,8 +4,6 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
 import { getBattleCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
-import * as PoisonSystem from "@Systems/PoisonDamageSystem";
-import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "utils";
@@ -207,32 +205,6 @@ export function destroyForceStats(state: ForceStatsState, force: string): ForceS
 	}
 
 	return newState;
-}
-
-export function updateAllStats(force: string) {
-	const gameState = getState();
-	const core = getBattleCore(gameState)(force);
-
-	if (!core) {
-		logger.warn(`[ForceStats] Core not found for force ${force}`);
-		return;
-	}
-
-	// This function is likely called from outside combat where global state SHOULD exist,
-	// or we might need to update it too. For now assume globals are safe or handled by caller.
-	// Actually, this is often called from PhaseManager.
-	updateLifeDisplay(force, core.life, 0);
-	updateShieldDisplay(force, core.shield, 0);
-
-	if (CombatSystemStates.isInitialized()) {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		updateRegenDisplay(force, RegenSystem.getRegenRate(combatStates.regenSystemState, force), 0);
-		updatePoisonDisplay(
-			force,
-			PoisonSystem.getPoisonRate(combatStates.poisonSystemState, force),
-			0
-		);
-	}
 }
 
 export function updateLifeDisplay(
