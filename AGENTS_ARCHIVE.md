@@ -10,6 +10,9 @@ Date: 2026-03-20
 - [x] Centralized timeout damage magic numbers into named constants in `phaser/src/Systems/TimeoutDamageSystem.ts` (`TIMEOUT_DAMAGE_INTERVAL_MS`, sudden-death threshold, base/growth tuning) with no behavior change (Copilot, 2026-03-20)
 - [x] Centralized orb cooldown and trigger-duration magic numbers in `phaser/src/Systems/Shop/Orbs.ts` (`MIN_COOLDOWN_MS`, reduction factor, haste/slow/charge durations) (Copilot, 2026-03-20)
 - [x] Centralized remote adapter player-id settings in `phaser/src/Core/RemoteServerAdapter.ts` (storage key, prefix, random max) to remove embedded literals (Copilot, 2026-03-20)
+- [x] Centralized core cooldown/stat-scaling magic numbers in `phaser/src/Core/GameLogic.ts` (`MIN_COOLDOWN_MS`, reduction factor, round scaling) (Copilot, 2026-03-20)
+- [x] Centralized owned-card border pulse duration in `phaser/src/Systems/Shop/CharaShop.ts` to remove inline animation literal (Copilot, 2026-03-20)
+- [x] Centralized stat-based unit unlock thresholds in `phaser/src/Models/StatsStore.ts` for infinite-round and run-total gates (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
