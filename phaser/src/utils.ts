@@ -1,8 +1,4 @@
-import {
-	nextRange as range,
-	nextPickRandom as rngPickRandom,
-	nextShuffle as rngShuffle,
-} from "@Utils/Random";
+import { nextPickRandom as rngPickRandom } from "@Utils/Random";
 
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
@@ -20,14 +16,6 @@ export function pickOneUnique<a>(arr: a[], exclude: a[]): a {
 		throw new Error("No unique items available to pick");
 	}
 	return pickOne(filtered);
-}
-
-export function randomBetween(min: number, max: number): number {
-	return range(min, max);
-}
-
-export function shuffle<T>(arr: T[]): T[] {
-	return rngShuffle(arr);
 }
 const formatter = new Intl.NumberFormat("en-US", { notation: "compact" });
 
