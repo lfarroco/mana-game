@@ -29,6 +29,7 @@ const CORE_FLOAT_MIN_OFFSET_Y = -10;
 const CORE_FLOAT_RANDOM_OFFSET_RANGE_Y = -20;
 const CORE_FLOAT_MIN_DURATION_MS = 1000;
 const CORE_FLOAT_RANDOM_DURATION_RANGE_MS = 1000;
+const SUMMON_ANIMATION_DURATION_MS = 500;
 
 export function getCharaById(id: string): Chara {
 	const c = charaById.get(id);
@@ -54,7 +55,7 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		scale: 1,
 		angle: 0,
 		ease: "Back.easeOut",
-		duration: 500,
+		duration: SUMMON_ANIMATION_DURATION_MS,
 	});
 	return chara;
 }
