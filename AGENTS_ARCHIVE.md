@@ -14,6 +14,9 @@ Date: 2026-03-20
 - [x] Centralized owned-card border pulse duration in `phaser/src/Systems/Shop/CharaShop.ts` to remove inline animation literal (Copilot, 2026-03-20)
 - [x] Centralized stat-based unit unlock thresholds in `phaser/src/Models/StatsStore.ts` for infinite-round and run-total gates (Copilot, 2026-03-20)
 - [x] Centralized milliseconds-to-seconds conversion constant in `phaser/src/Systems/Chara/CharaTooltip.ts` to remove repeated duration literals (Copilot, 2026-03-20)
+- [x] Centralized countdown timer tick/display thresholds and depth constants in `phaser/src/Systems/CountdownTimer.ts` (Copilot, 2026-03-20)
+- [x] Centralized cooldown milliseconds-to-seconds conversion constant in `phaser/src/Systems/Chara/createDescription.ts` (Copilot, 2026-03-20)
+- [x] Clarified status effect tick interval constant naming in `phaser/src/Systems/StatusEffectSystem.ts` (`STATUS_EFFECT_TICK_INTERVAL_MS`) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
