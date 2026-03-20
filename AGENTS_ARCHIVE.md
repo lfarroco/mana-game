@@ -23,6 +23,7 @@ Date: 2026-03-20
 - [x] Centralized summon animation duration constant in `phaser/src/Systems/Chara/Chara.ts` (`SUMMON_ANIMATION_DURATION_MS`) (Copilot, 2026-03-20)
 - [x] Centralized encounter card animation and layout constants in `phaser/src/Systems/Components/EncounterCard.ts` (icon bounce duration, hover animation, font sizes) (Copilot, 2026-03-20)
 - [x] Centralized phase transition delay constants in `phaser/src/Systems/CombatPhase.ts` and `phaser/src/Systems/ResultsPhase.ts` (`COMBAT_START_DELAY_MS`, `RESULTS_START_DELAY_MS`) (Copilot, 2026-03-20)
+- [x] Centralized death animation (shatter) constants in `phaser/src/Systems/Chara/Animations/shatter.ts` (shake, ring radius, sampling parameters) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
