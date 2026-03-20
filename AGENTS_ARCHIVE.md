@@ -35,6 +35,7 @@ Date: 2026-03-20
 - [x] Centralized modal animation timing constants in `phaser/src/Components/Modal.ts` (scale-in duration, overlay fade duration) (Copilot, 2026-03-20)
 - [x] Centralized crystal selection scene UI layout and animation constants in `phaser/src/Engine/Scenes/CrystalSelection/CrystalSelectionScene.ts` (title/font sizes, button widths, pagination styling, display dimensions, animation timings) (Copilot, 2026-03-20)
 - [x] Centralized arena login scene layout and styling constants in `phaser/src/Engine/Scenes/ArenaLobby/ArenaLoginScene.ts` (title position/font, form dimensions, button offsets, modal styling) (Copilot, 2026-03-20)
+- [x] Centralized login modal panel and styling constants in `phaser/src/Engine/Scenes/ArenaLobby/LoginModal.ts` (panel dimensions, colors, strokes, title font, button offsets) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
