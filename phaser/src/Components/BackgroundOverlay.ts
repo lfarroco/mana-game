@@ -1,15 +1,20 @@
 import * as c from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 
+// Default overlay styling
+const DEFAULT_OVERLAY_COLOR = 0x000000;
+const DEFAULT_OVERLAY_ALPHA = 0.7;
+const DEFAULT_FADE_ANIMATION_DURATION_MS = 300;
+
 export type BackgroundOverlayConfig = {
 	color?: number;
 	alpha?: number;
 	interactive?: boolean;
-}
+};
 
 const DEFAULT_CONFIG: Required<BackgroundOverlayConfig> = {
-	color: 0x000000,
-	alpha: 0.7,
+	color: DEFAULT_OVERLAY_COLOR,
+	alpha: DEFAULT_OVERLAY_ALPHA,
 	interactive: true,
 };
 
@@ -20,7 +25,7 @@ export type BackgroundOverlay = {
 	show: () => void;
 	hide: () => void;
 	destroy: () => void;
-}
+};
 
 export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): BackgroundOverlay {
 	const scene = getCurrentScene();
@@ -42,7 +47,7 @@ export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): B
 	rectangle.setAlpha(0);
 	rectangle.setVisible(false);
 
-	const fadeIn = (duration: number = 300): Promise<void> => {
+	const fadeIn = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
 			rectangle.setVisible(true);
 			scene.tweens.add({
@@ -54,7 +59,7 @@ export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): B
 		});
 	};
 
-	const fadeOut = (duration: number = 300): Promise<void> => {
+	const fadeOut = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
 			scene.tweens.add({
 				targets: rectangle,
