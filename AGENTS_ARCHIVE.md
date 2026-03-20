@@ -13,6 +13,7 @@ Date: 2026-03-20
 - [x] Centralized core cooldown/stat-scaling magic numbers in `phaser/src/Core/GameLogic.ts` (`MIN_COOLDOWN_MS`, reduction factor, round scaling) (Copilot, 2026-03-20)
 - [x] Centralized owned-card border pulse duration in `phaser/src/Systems/Shop/CharaShop.ts` to remove inline animation literal (Copilot, 2026-03-20)
 - [x] Centralized stat-based unit unlock thresholds in `phaser/src/Models/StatsStore.ts` for infinite-round and run-total gates (Copilot, 2026-03-20)
+- [x] Centralized milliseconds-to-seconds conversion constant in `phaser/src/Systems/Chara/CharaTooltip.ts` to remove repeated duration literals (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
