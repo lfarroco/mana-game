@@ -5,6 +5,10 @@ import { getCurrentScene } from "@Models/State";
 import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
 import { createPanel, Panel } from "@Components/Panel";
 
+// Modal animation constants
+const MODAL_SCALE_IN_DURATION_MS = 500;
+const MODAL_OVERLAY_FADE_OUT_DURATION_MS = 150;
+
 export type ModalConfig = {
 	width: number;
 	height: number;
@@ -51,7 +55,7 @@ export function createModal(config: ModalConfig): Modal {
 	scene.tweens.add({
 		targets: container,
 		scale: 1,
-		duration: 500,
+		duration: MODAL_SCALE_IN_DURATION_MS,
 		ease: Phaser.Math.Easing.Back.Out,
 	});
 
@@ -61,7 +65,7 @@ export function createModal(config: ModalConfig): Modal {
 	});
 
 	const close = async () => {
-		await overlay.fadeOut(150);
+		await overlay.fadeOut(MODAL_OVERLAY_FADE_OUT_DURATION_MS);
 		container.destroy(true);
 		overlay.destroy();
 		resolveClose();
