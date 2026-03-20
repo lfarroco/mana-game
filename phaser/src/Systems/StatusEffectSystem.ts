@@ -10,7 +10,7 @@ import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
 
-const tickInterval: number = 1000;
+const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;
 
 export type StatusEffectSystemState = {
 	elapsed: number;
@@ -62,10 +62,10 @@ export function update(
 ): StatusEffectSystemState {
 	const newElapsed = statusEffectState.elapsed + delta;
 
-	if (newElapsed >= tickInterval) {
+	if (newElapsed >= STATUS_EFFECT_TICK_INTERVAL_MS) {
 		tick(env)();
 		return {
-			elapsed: newElapsed - tickInterval,
+			elapsed: newElapsed - STATUS_EFFECT_TICK_INTERVAL_MS,
 		};
 	}
 
