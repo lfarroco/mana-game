@@ -1,5 +1,3 @@
-export const TURN_DURATION = 500;
-
 /**
  * Demo vs Full Version Configuration
  * IS_DEMO_BUILD is injected by webpack DefinePlugin at build time
@@ -8,11 +6,9 @@ export const TURN_DURATION = 500;
 // This will be injected by webpack DefinePlugin at build time
 declare const IS_DEMO_BUILD: boolean;
 
-
-export const IS_DEMO = typeof IS_DEMO_BUILD !== 'undefined' ? IS_DEMO_BUILD : false;
+export const IS_DEMO = typeof IS_DEMO_BUILD !== "undefined" ? IS_DEMO_BUILD : false;
 
 export const DEMO_CONFIG = {
-
 	MAX_VICTORIES: 5,
 	ENABLE_UNLOCKS: false,
 	ENABLE_ACHIEVEMENTS: false,
@@ -25,4 +21,3 @@ export const FULL_CONFIG = {
 } as const;
 
 export const GAME_CONFIG = IS_DEMO ? DEMO_CONFIG : FULL_CONFIG;
-
