@@ -26,6 +26,7 @@ Date: 2026-03-20
 - [x] Centralized death animation (shatter) constants in `phaser/src/Systems/Chara/Animations/shatter.ts` (shake, ring radius, sampling parameters) (Copilot, 2026-03-20)
 - [x] Centralized failed purchase snap-back animation duration in `phaser/src/Systems/Chara/events.ts` (`PURCHASE_FAILED_SNAP_DURATION_MS`) (Copilot, 2026-03-20)
 - [x] Centralized encounter card display layout constants in `phaser/src/Systems/Encounter.ts` (card dimensions, spacing, X/Y positioning) (Copilot, 2026-03-20)
+- [x] Extracted pop-text animation configuration constants in `phaser/src/Systems/Chara/Animations/popText.ts` (rotation, scale, timing, color palette) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
