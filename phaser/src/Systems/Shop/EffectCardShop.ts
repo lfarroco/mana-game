@@ -12,6 +12,14 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("EffectCardShop");
 
+// Effect card shop constants (same as Encounter display)
+const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
+const EFFECT_CARD_WIDTH = 700;
+const EFFECT_CARD_HEIGHT = 220;
+const EFFECT_CARD_SPACING = 240;
+const EFFECT_CARD_X_OFFSET = 450;
+const EFFECT_CARD_BASE_Y = 300;
+
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
@@ -29,7 +37,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 
 		renderUpgradeCards(container, encounters, async () => {
 			container.list.forEach((child) => child.disableInteractive());
-			await delay(300);
+			await delay(EFFECT_CARD_COMPLETION_DELAY_MS);
 			completeSectionCallback();
 		});
 
@@ -48,12 +56,12 @@ function renderUpgradeCards(
 		logger.debug("Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = orbsIndex[encounterId]();
 
-		const width = 700;
-		const height = 220;
-		const spacing = 240;
+		const width = EFFECT_CARD_WIDTH;
+		const height = EFFECT_CARD_HEIGHT;
+		const spacing = EFFECT_CARD_SPACING;
 
-		const x = SCREEN_WIDTH - 450;
-		const y = 300 + index * spacing;
+		const x = SCREEN_WIDTH - EFFECT_CARD_X_OFFSET;
+		const y = EFFECT_CARD_BASE_Y + index * spacing;
 
 		createEncounterCard(container, {
 			x,
