@@ -19,6 +19,7 @@ Date: 2026-03-20
 - [x] Clarified status effect tick interval constant naming in `phaser/src/Systems/StatusEffectSystem.ts` (`STATUS_EFFECT_TICK_INTERVAL_MS`) (Copilot, 2026-03-20)
 - [x] Extracted orb power increase factor constant in `phaser/src/Core/GameLogic.ts` (`ORB_POWER_INCREASE_FACTOR`) (Copilot, 2026-03-20)
 - [x] Centralized core float tween offset/duration constants in `phaser/src/Systems/Chara/Chara.ts` (Copilot, 2026-03-20)
+- [x] Centralized pop animation duration constant in `phaser/src/Systems/Chara/Animations/pop.ts` (`POP_ANIMATION_DURATION_MS`) (Copilot, 2026-03-20)
 
 ## Migrated From AGENTS.md
 
