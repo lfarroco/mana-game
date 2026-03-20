@@ -53,6 +53,7 @@ const ENCOUNTER_IDS = [
 
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
 const CORE_STAT_SCALING_FACTOR = 0.1;
+const ORB_POWER_INCREASE_FACTOR = 0.1;
 const MIN_COOLDOWN_MS = 1000;
 const CORE_ROUND_SCALING = 10;
 
@@ -387,7 +388,7 @@ export function resolveAction(
 				} else if (typeof orbId === "string" && orbId.startsWith("increase_power_on_")) {
 					const type = orbId.replace("increase_power_on_", "");
 					if (targetUnit.effects?.some((e: { id: string }) => e.id === type)) {
-						const pct = Math.floor(targetUnit.power * 0.1);
+						const pct = Math.floor(targetUnit.power * ORB_POWER_INCREASE_FACTOR);
 						targetUnit.power += pct;
 						updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
 					}
