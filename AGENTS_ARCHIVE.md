@@ -2,6 +2,15 @@
 
 This file stores historical completed-task entries that were moved out of AGENTS.md to keep the active agent guide concise.
 
+## Completed (Current Session)
+
+Date: 2026-03-20
+
+- [x] Fixed i18n unused catch binding lint error in `phaser/src/i18n/i18n.ts` by removing the unused catch parameter; validated via lint + pre-commit typecheck (Copilot, 2026-03-20)
+- [x] Centralized timeout damage magic numbers into named constants in `phaser/src/Systems/TimeoutDamageSystem.ts` (`TIMEOUT_DAMAGE_INTERVAL_MS`, sudden-death threshold, base/growth tuning) with no behavior change (Copilot, 2026-03-20)
+- [x] Centralized orb cooldown and trigger-duration magic numbers in `phaser/src/Systems/Shop/Orbs.ts` (`MIN_COOLDOWN_MS`, reduction factor, haste/slow/charge durations) (Copilot, 2026-03-20)
+- [x] Centralized remote adapter player-id settings in `phaser/src/Core/RemoteServerAdapter.ts` (storage key, prefix, random max) to remove embedded literals (Copilot, 2026-03-20)
+
 ## Migrated From AGENTS.md
 
 Migration date: 2026-03-14
@@ -78,3 +87,4 @@ Migration date: 2026-03-13
 - [x] Added cross-platform CI build verification via `.github/workflows/platform-build-verification.yml`: Electron build validation now runs on Linux/macOS/Windows and Android build validation runs with Capacitor sync plus Gradle debug assemble (Copilot, 2026-03-13)
 - [x] Added mutation testing infrastructure with Stryker in `phaser/`: configured `stryker.conf.json` for Core-focused mutation scope, added `npm run test:mutation`, and verified setup with a successful Core-only dry run (`npx stryker run --dryRunOnly --mutate "src/Core/Types.ts" --testFiles "src/Core/**/*.test.ts"`) (Copilot, 2026-03-13)
 - [x] Added property-based tests for board game logic using `fast-check`: new `src/Models/BoardLogic.property.test.ts` validates `getEmptySlot`, `findFreeSlot`, and `checkMove` invariants across randomized inputs; verified with `npm run test -- src/Models/BoardLogic.property.test.ts` (Copilot, 2026-03-13)
+
