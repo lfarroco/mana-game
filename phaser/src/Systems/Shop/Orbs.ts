@@ -27,6 +27,12 @@ import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
 
 const logger = createLogger("Orbs");
 
+const MIN_COOLDOWN_MS = 1000;
+const COOLDOWN_REDUCTION_FACTOR = 0.1;
+const HASTE_DURATION_MS = 1000;
+const SLOW_DURATION_MS = 1000;
+const CHARGE_DURATION_MS = 500;
+
 export type OrbSpec = {
 	id: string;
 	name: string;
@@ -128,7 +134,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 	effect: (unit: Unit) => {
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
-		unit.cooldown = Math.max(1000, unit.cooldown * 0.9);
+		unit.cooldown = Math.max(MIN_COOLDOWN_MS, unit.cooldown * (1 - COOLDOWN_REDUCTION_FACTOR));
 
 		if (unit.force === FORCE_ID_PLAYER) {
 			getState().session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
@@ -176,17 +182,17 @@ const decreaseStrongestEnemyPowerEffect: Effect = {
 //const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
 const hasteEffect: Effect = {
 	id: "haste",
-	duration: 1000,
+	duration: HASTE_DURATION_MS,
 	targets: { id: "random_ally", count: 2 },
 };
 const slowEffect: Effect = {
 	id: "slow",
-	duration: 1000,
+	duration: SLOW_DURATION_MS,
 	targets: { id: "random_enemy", count: 2 },
 };
 const chargeEffect: Effect = {
 	id: "charge",
-	duration: 500,
+	duration: CHARGE_DURATION_MS,
 	targets: { id: "random_ally", count: 2 },
 };
 
@@ -270,8 +276,8 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		icon: "ui/trial_circuit",
 		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
-			const reduction = unit.cooldown * 0.1;
-			unit.cooldown = Math.max(1000, unit.cooldown - reduction);
+			const reduction = unit.cooldown * COOLDOWN_REDUCTION_FACTOR;
+			unit.cooldown = Math.max(MIN_COOLDOWN_MS, unit.cooldown - reduction);
 			return true;
 		},
 	}),
