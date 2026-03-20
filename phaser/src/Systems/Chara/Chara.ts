@@ -25,6 +25,11 @@ const charaState = new WeakMap<Chara, CharaState>();
 
 const charaById = new Map<string, Chara>();
 
+const CORE_FLOAT_MIN_OFFSET_Y = -10;
+const CORE_FLOAT_RANDOM_OFFSET_RANGE_Y = -20;
+const CORE_FLOAT_MIN_DURATION_MS = 1000;
+const CORE_FLOAT_RANDOM_DURATION_RANGE_MS = 1000;
+
 export function getCharaById(id: string): Chara {
 	const c = charaById.get(id);
 	if (!c) throw new Error(`Chara with id ${id} not found`);
@@ -193,9 +198,9 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 		sprite.setDisplaySize(constants.TILE_WIDTH * 0.8, constants.TILE_HEIGHT * 0.8);
 		tween({
 			targets: [sprite],
-			y: Math.random() * -20 - 10,
+			y: Math.random() * CORE_FLOAT_RANDOM_OFFSET_RANGE_Y + CORE_FLOAT_MIN_OFFSET_Y,
 			ease: "Cubic.EaseOut",
-			duration: Math.random() * 1000 + 1000,
+			duration: Math.random() * CORE_FLOAT_RANDOM_DURATION_RANGE_MS + CORE_FLOAT_MIN_DURATION_MS,
 			yoyo: true,
 			repeat: -1,
 		});
