@@ -2,23 +2,24 @@ import { tween } from "@Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 
-const CONFIG = {
-	MAX_ANGLE: 30,
-	SCALE_TARGET: 1.4,
-	MOVE_DURATION: 1000,
-	FADE_DELAY: 500,
-	FADE_DURATION: 1000,
-	VERTICAL_DISTANCE: 128,
-	HORIZONTAL_SPREAD: 60,
-	COLORS: {
-		HEAL: "green",
-		REGEN: "darkgreen",
-		DAMAGE: "red",
-		SHIELD: "yellow",
-		POISON: "#9932cc",
-		TIMEOUT: "#ff8c00",
-	},
-};
+// Pop text animation configuration
+const POP_TEXT_MAX_ROTATION_ANGLE = 30;
+const POP_TEXT_SCALE_TARGET = 1.4;
+const POP_TEXT_MOVE_DURATION_MS = 1000;
+const POP_TEXT_FADE_DELAY_MS = 500;
+const POP_TEXT_FADE_DURATION_MS = 1000;
+const POP_TEXT_VERTICAL_DISTANCE = 128;
+const POP_TEXT_HORIZONTAL_SPREAD = 60;
+const POP_TEXT_CRITICAL_FONT_SIZE = 50;
+
+const POP_TEXT_COLORS = {
+	HEAL: "green",
+	REGEN: "darkgreen",
+	DAMAGE: "red",
+	SHIELD: "yellow",
+	POISON: "#9932cc",
+	TIMEOUT: "#ff8c00",
+} as const;
 
 export function popText({
 	x,
@@ -37,61 +38,61 @@ export function popText({
 }) {
 	let textColor = defaultTextConfig.color;
 	if (type === "heal") {
-		textColor = CONFIG.COLORS.HEAL;
+		textColor = POP_TEXT_COLORS.HEAL;
 	} else if (type === "damage") {
-		textColor = CONFIG.COLORS.DAMAGE;
+		textColor = POP_TEXT_COLORS.DAMAGE;
 	} else if (type === "shield") {
-		textColor = CONFIG.COLORS.SHIELD;
+		textColor = POP_TEXT_COLORS.SHIELD;
 	} else if (type === "poison") {
-		textColor = CONFIG.COLORS.POISON;
+		textColor = POP_TEXT_COLORS.POISON;
 	} else if (type === "timeout") {
-		textColor = CONFIG.COLORS.TIMEOUT;
+		textColor = POP_TEXT_COLORS.TIMEOUT;
 	} else if (type === "regen") {
-		textColor = CONFIG.COLORS.REGEN;
+		textColor = POP_TEXT_COLORS.REGEN;
 	}
 
-	const popText = getCurrentScene().add
-		.text(x, y, text, {
+	const popText = getCurrentScene()
+		.add.text(x, y, text, {
 			...titleTextConfig,
-			...(critical ? { fontSize: 50 } : {}),
+			...(critical ? { fontSize: POP_TEXT_CRITICAL_FONT_SIZE } : {}),
 		})
 		.setOrigin(0.5, 0.5);
 	if (textColor) popText.setColor(textColor);
 
 	// random angle upwards or downwards based on direction
-	const angle = Math.random() * CONFIG.MAX_ANGLE * (Math.random() < 0.5 ? -1 : 1);
+	const angle = Math.random() * POP_TEXT_MAX_ROTATION_ANGLE * (Math.random() < 0.5 ? -1 : 1);
 
 	// Calculate vertical movement based on direction
 	const verticalMovement =
 		direction === "down"
-			? CONFIG.VERTICAL_DISTANCE // Move down (positive Y)
+			? POP_TEXT_VERTICAL_DISTANCE // Move down (positive Y)
 			: direction === "up"
-				? -CONFIG.VERTICAL_DISTANCE // Move up (negative Y)
+				? -POP_TEXT_VERTICAL_DISTANCE // Move up (negative Y)
 				: 0;
 
 	const horizontalMovement =
 		direction === "left"
-			? -CONFIG.HORIZONTAL_SPREAD // Move left (negative X)
+			? -POP_TEXT_HORIZONTAL_SPREAD // Move left (negative X)
 			: direction === "right"
-				? CONFIG.HORIZONTAL_SPREAD // Move right (positive X)
+				? POP_TEXT_HORIZONTAL_SPREAD // Move right (positive X)
 				: 0;
 
 	tween({
 		targets: [popText],
-		scale: CONFIG.SCALE_TARGET,
-		duration: CONFIG.MOVE_DURATION,
+		scale: POP_TEXT_SCALE_TARGET,
+		duration: POP_TEXT_MOVE_DURATION_MS,
 		y: y + verticalMovement,
 		// in the angle direction
-		x: x + Math.sin((angle * Math.PI) / 180) * CONFIG.HORIZONTAL_SPREAD + horizontalMovement,
+		x: x + Math.sin((angle * Math.PI) / 180) * POP_TEXT_HORIZONTAL_SPREAD + horizontalMovement,
 	});
 	tween({
 		targets: [popText],
-		delay: CONFIG.FADE_DELAY,
+		delay: POP_TEXT_FADE_DELAY_MS,
 		alpha: 0,
-		duration: CONFIG.FADE_DURATION,
+		duration: POP_TEXT_FADE_DURATION_MS,
 		onComplete: () => {
 			popText.destroy();
-		}
+		},
 	});
 
 	return popText;
