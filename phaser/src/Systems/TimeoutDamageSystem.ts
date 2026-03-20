@@ -8,7 +8,10 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("TimeoutDamageSystem");
 
-const timeoutDamageInterval = 1000;
+const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
+const TIMEOUT_SUDDEN_DEATH_MS = 60_000;
+const TIMEOUT_BASE_DAMAGE = 5;
+const TIMEOUT_GROWTH_RATE = 1.2;
 
 export type TimeoutSystemState = {
 	combatElapsedTime: number;
@@ -51,7 +54,7 @@ export function updateTimeoutDamageSystem(
 
 	const timeSinceTimeoutStarted = newCombatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
 
-	if (newTimeSinceLastTick >= timeoutDamageInterval) {
+	if (newTimeSinceLastTick >= TIMEOUT_DAMAGE_INTERVAL_MS) {
 		applyTimeoutDamage(env, state, playerForce, cpuForce, timeSinceTimeoutStarted);
 		return {
 			...timeoutState,
@@ -86,11 +89,11 @@ function applyTimeoutDamage(
 ): void {
 	let currentDamage: number;
 
-	if (timeSinceTimeoutStarted >= 60000) {
+	if (timeSinceTimeoutStarted >= TIMEOUT_SUDDEN_DEATH_MS) {
 		currentDamage = Infinity;
 	} else {
-		const tickCount = Math.floor(timeSinceTimeoutStarted / timeoutDamageInterval) + 1;
-		currentDamage = Math.floor(5 * Math.pow(1.2, tickCount - 1));
+		const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
+		currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
 	}
 
 	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
@@ -133,7 +136,7 @@ export function onTimeoutDamageCombatEnd(timeoutState: TimeoutSystemState): Time
 export function getTimeoutDamageConfig(timeoutState: TimeoutSystemState) {
 	return {
 		timeoutDamageStartTime: TIMEOUT_DAMAGE_START_TIME,
-		timeoutDamageInterval,
+		timeoutDamageInterval: TIMEOUT_DAMAGE_INTERVAL_MS,
 		isActive: timeoutState.isActive,
 		combatElapsed: timeoutState.combatElapsedTime,
 		stormState: {
