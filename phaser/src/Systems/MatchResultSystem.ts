@@ -5,11 +5,30 @@ import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 
+// Result screen styling
+const FADE_DURATION_MS = 500;
+const FADE_COLOR = 0x000000;
+const OVERLAY_COLOR = 0x000000;
+const OVERLAY_ALPHA = 0.85;
+
+// Result screen depths
+const OVERLAY_DEPTH = 2000;
+const TEXT_DEPTH = 2001;
+const BUTTON_DEPTH = 2002;
+
+// Result screen layout
+const TITLE_FONT_SIZE = "96px";
+const TITLE_Y_OFFSET = 100;
+const SUBTITLE_FONT_SIZE = "32px";
+const SUBTITLE_Y_OFFSET = 20;
+const BUTTON_Y_OFFSET = 150;
+const BUTTON_WIDTH = 300;
+
 export async function showMatchResult(isVictory: boolean) {
 	const scene = getCurrentScene();
 
 	// Dim background
-	await io.Fade(500, 0x000000); // Actually fade out or just add overlay? 
+	await io.Fade(FADE_DURATION_MS, FADE_COLOR); // Actually fade out or just add overlay?
 	// io.Fade fades the camera. We might want a semi-transparent rect instead.
 
 	const overlay = scene.add.rectangle(
@@ -17,10 +36,10 @@ export async function showMatchResult(isVictory: boolean) {
 		constants.MIDDLE_SCREEN_Y,
 		constants.SCREEN_WIDTH,
 		constants.SCREEN_HEIGHT,
-		0x000000,
-		0.85
+		OVERLAY_COLOR,
+		OVERLAY_ALPHA
 	);
-	overlay.setDepth(2000);
+	overlay.setDepth(OVERLAY_DEPTH);
 	overlay.setInteractive(); // Block clicks
 
 	const titleText = isVictory ? "VICTORY" : "GAME OVER";
@@ -28,12 +47,15 @@ export async function showMatchResult(isVictory: boolean) {
 
 	const title = io.Text(titleText, {
 		...constants.titleTextConfig,
-		fontSize: "96px",
-		color: color
+		fontSize: TITLE_FONT_SIZE,
+		color: color,
 	});
-	io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 100));
+	io.SetPosition(
+		title,
+		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - TITLE_Y_OFFSET)
+	);
 	io.Centralize(title);
-	title.setDepth(2001);
+	title.setDepth(TEXT_DEPTH);
 
 	const subText = isVictory
 		? "Legendary! You have conquered the arena."
@@ -41,24 +63,27 @@ export async function showMatchResult(isVictory: boolean) {
 
 	const subtitle = io.Text(subText, {
 		...constants.defaultTextConfig,
-		fontSize: "32px",
-		color: "#ffffff"
+		fontSize: SUBTITLE_FONT_SIZE,
+		color: "#ffffff",
 	});
-	io.SetPosition(subtitle, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 20));
+	io.SetPosition(
+		subtitle,
+		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + SUBTITLE_Y_OFFSET)
+	);
 	io.Centralize(subtitle);
-	subtitle.setDepth(2001);
+	subtitle.setDepth(TEXT_DEPTH);
 
 	// Return to Title Button
-	const btnPos = vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + 150);
+	const btnPos = vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + BUTTON_Y_OFFSET);
 	const btn = createUIButton(
 		t("common.mainMenu") || "Main Menu", // Fallback if key missing
 		btnPos,
 		() => {
 			scene.scene.start(constants.SCENE_KEYS.TITLE);
 		},
-		300
+		BUTTON_WIDTH
 	);
 
 	// Ensure button is on top
-	btn.container.setDepth(2002);
+	btn.container.setDepth(BUTTON_DEPTH);
 }
