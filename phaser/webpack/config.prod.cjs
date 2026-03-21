@@ -91,7 +91,8 @@ module.exports = {
             "typeof PLUGIN_CAMERA3D": JSON.stringify(false),
             "typeof PLUGIN_FBINSTANT": JSON.stringify(false),
             "typeof FEATURE_SOUND": JSON.stringify(true),
-            "IS_DEMO_BUILD": JSON.stringify(process.env.IS_DEMO === 'true')
+            "IS_DEMO_BUILD": JSON.stringify(process.env.IS_DEMO === 'true'),
+            "process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version || 'dev')
         }),
         new HtmlWebpackPlugin({
             template: "./index.html"

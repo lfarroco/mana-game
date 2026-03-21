@@ -2,15 +2,10 @@ import type { RunManifest } from "@Core/Types";
 
 /**
  * Whether the deferred end-of-run submission feature is enabled on the client.
- * Reads `process.env.DEFERRED_SUBMISSION` (Vite/Webpack builds) with a
- * safe fallback for environments without a `process` global.
+ * Deferred submission is enabled by default.
  */
 export function isEnabled(): boolean {
-	try {
-		return typeof process !== "undefined" && process.env.DEFERRED_SUBMISSION === "true";
-	} catch {
-		return false;
-	}
+	return true;
 }
 
 export type SubmitResult =
@@ -30,10 +25,6 @@ export async function submitRunManifest(
 	manifest: RunManifest,
 	authToken: string
 ): Promise<SubmitResult> {
-	if (!isEnabled()) {
-		return { submitted: false, reason: "Deferred submission is disabled." };
-	}
-
 	const supabaseUrl = typeof process !== "undefined" ? (process.env.SUPABASE_URL ?? "") : "";
 	const endpoint = `${supabaseUrl}/functions/v1/replay-commit`;
 

@@ -93,7 +93,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		// Keep global mode state in sync so controller/server selection matches the current run type.
 		ServerFactory.setMultiplayer(multiplayerModeEnabled);
 		if (multiplayerModeEnabled) {
-			await enableMultiplayer();
+			await enableMultiplayer(selectedCrystalId);
 		} else {
 			disableMultiplayer();
 		}

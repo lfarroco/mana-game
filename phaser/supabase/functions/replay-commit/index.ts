@@ -91,25 +91,12 @@ const supabaseAdmin = createClient(
 );
 
 // ---------------------------------------------------------------------------
-// Feature flag
-// ---------------------------------------------------------------------------
-
-const DEFERRED_SUBMISSION_ENABLED = Deno.env.get("DEFERRED_SUBMISSION_ENABLED") === "true";
-
-// ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
 
 Deno.serve(async (req) => {
 	if (req.method === "OPTIONS") {
 		return new Response("ok", { headers: corsHeaders });
-	}
-
-	if (!DEFERRED_SUBMISSION_ENABLED) {
-		return new Response(
-			JSON.stringify({ error: "Deferred submission is not enabled on this server." }),
-			{ status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-		);
 	}
 
 	try {
