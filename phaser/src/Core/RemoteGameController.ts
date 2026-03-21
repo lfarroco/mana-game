@@ -94,8 +94,15 @@ export const createRemoteGameController = (): GameController => {
 		},
 
 		notifyGameComplete: async (actionId: string): Promise<boolean> => {
-			// In multiplayer, notify the server about game completion.
-			// Expected actionId values: 'combat_done' (signals game end/new run request)
+			const state = getState();
+
+			// Deferred multiplayer runs are already terminal by the time the game-complete UI
+			// is shown, so there is nothing left to notify. Sending another transition action
+			// from a terminal phase can produce invalid local transitions.
+			if (state.session.phase === "victory" || state.session.phase === "game_over") {
+				return true;
+			}
+
 			return await sendOptionSelection(actionId);
 		},
 

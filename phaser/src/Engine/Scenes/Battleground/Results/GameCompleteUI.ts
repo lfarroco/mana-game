@@ -30,7 +30,8 @@ export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
-	nextPhaseCallback?: () => void
+	nextPhaseCallback?: () => void,
+	completionAction: "victory" | "game_over" = isGameOver ? "game_over" : "victory"
 ): Promise<Phaser.GameObjects.Container> {
 	deleteSavedData();
 
@@ -117,7 +118,7 @@ export async function displayGameComplete(
 			t("results.buttons.new_run"),
 			async () => {
 				const controller = getGameController();
-				await controller.notifyGameComplete("combat_done");
+				await controller.notifyGameComplete(completionAction);
 				resetState();
 				const currentScene = getCurrentScene();
 				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -128,7 +129,7 @@ export async function displayGameComplete(
 			t("results.buttons.main_menu"),
 			async () => {
 				const controller = getGameController();
-				await controller.notifyGameComplete("combat_done");
+				await controller.notifyGameComplete(completionAction);
 				resetState();
 				const currentScene = getCurrentScene();
 				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);

@@ -1,7 +1,6 @@
 import { State, getCurrentScene } from "@Models/State";
 import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
-import { showMatchResult } from "@Systems/MatchResultSystem";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
@@ -155,11 +154,13 @@ export async function handleMultiplayerPhase(state: State) {
 			break;
 
 		case "victory":
-			await showMatchResult(true);
+			await ResultsUI.displayGameCompleteResults(state, false);
+			await ResultsUI.slideIn();
 			break;
 
 		case "game_over":
-			await showMatchResult(false);
+			await ResultsUI.displayGameCompleteResults(state, true);
+			await ResultsUI.slideIn();
 			break;
 
 		default:
