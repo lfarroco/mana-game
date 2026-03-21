@@ -87,7 +87,8 @@ export async function displayResults(
 				currentWins,
 				playerUnits,
 				gameOver,
-				nextPhaseCallback
+				nextPhaseCallback,
+				gameOver ? "game_over" : "victory"
 			);
 			resultsContainer.add(ui);
 		} else {
@@ -109,6 +110,27 @@ export async function displayResults(
 		replayCallback ? handleReplay : undefined
 	);
 	resultsContainer.add(uiContainer);
+}
+
+export async function displayGameCompleteResults(
+	state: State,
+	isGameOver: boolean,
+	nextPhaseCallback?: () => void
+): Promise<void> {
+	resultsContainer.removeAll(true);
+	const scene = getCurrentScene();
+	scene.children.bringToTop(overlay.rectangle);
+	scene.children.bringToTop(resultsContainer);
+
+	const ui = await displayGameComplete(
+		state,
+		state.session.wins,
+		state.session.team.units,
+		isGameOver,
+		nextPhaseCallback,
+		isGameOver ? "game_over" : "victory"
+	);
+	resultsContainer.add(ui);
 }
 
 export async function slideIn(): Promise<void> {
