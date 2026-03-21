@@ -200,6 +200,49 @@ export const Curves = {
 	},
 };
 
+export const Renderer = {
+	WebGL: {
+		Utils: {},
+	},
+};
+
+export const Utils = {
+	Objects: {
+		GetValue: (..._args: unknown[]) => undefined,
+		GetAdvancedValue: (..._args: unknown[]) => undefined,
+		GetFastValue: (..._args: unknown[]) => undefined,
+		IsPlainObject: (_obj: unknown) => false,
+	},
+	String: {
+		Pad: (str: unknown) => String(str),
+		UUID: () => "",
+	},
+};
+
+export const Scale = {
+	FIT: 3,
+	CENTER_BOTH: 1,
+	NO_CENTER: 0,
+	SCALE_MODES: {},
+};
+
+export const DOM = {
+	AddToDOM: (..._args: unknown[]) => {},
+	RemoveFromDOM: (..._args: unknown[]) => {},
+};
+
+export const Textures = {
+	DynamicTexture: class DynamicTexture {
+		constructor(..._args: unknown[]) {}
+	},
+};
+
+export const VERSION = "3.60.0";
+
+export const Class = {
+	mixin: (..._args: unknown[]) => {},
+};
+
 const PhaserMock = {
 	Math,
 	Events,
@@ -214,6 +257,13 @@ const PhaserMock = {
 	Geom,
 	BlendModes,
 	Curves,
+	Renderer,
+	Utils,
+	Scale,
+	DOM,
+	Textures,
+	VERSION,
+	Class,
 };
 
 // Some modules reference global `Phaser` directly instead of importing it.
