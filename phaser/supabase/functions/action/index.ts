@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { MultiplayerLogic } from "./_shared.js";
+import * as GameLogic from "./_shared.js";
 import { pickMatchedEnemyTeam, readRatingDelta } from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
@@ -248,7 +248,7 @@ Deno.serve(async (req) => {
 		// Handle Start Session
 		if (actionId === "start_session") {
 			const selectedCrystalId = payload?.selectedCrystalId;
-			const newSession = MultiplayerLogic.createInitialSession(playerId, selectedCrystalId);
+			const newSession = GameLogic.createInitialSession(playerId, selectedCrystalId);
 
 			// Upsert Session
 			const { data, error } = await supabaseAdmin
@@ -299,7 +299,7 @@ Deno.serve(async (req) => {
 		// Handle Team Update (Non-progression)
 		if (actionId === "update_team" && payload && payload.team) {
 			// Validate and Apply Team Update (Security Check)
-			const { team, valid } = MultiplayerLogic.validateAndApplyTeamUpdate(session, payload.team);
+			const { team, valid } = GameLogic.validateAndApplyTeamUpdate(session, payload.team);
 
 			if (!valid) {
 				return new Response(JSON.stringify({ success: false, error: "Invalid Team Update" }), {
@@ -336,7 +336,7 @@ Deno.serve(async (req) => {
 			}
 		}
 
-		const transitionResult = MultiplayerLogic.transitionToNextState(
+		const transitionResult = GameLogic.transitionToNextState(
 			session,
 			actionId,
 			payload,

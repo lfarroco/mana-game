@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { MultiplayerLogic } from "./_shared.js";
+import * as GameLogic from "./_shared.js";
 
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
 		// ---------------------------------------------------------------------------
 		// Server-side replay
 		// ---------------------------------------------------------------------------
-		const { session: replayedSession, rejectReason } = MultiplayerLogic.replayManifest(manifest);
+		const { session: replayedSession, rejectReason } = GameLogic.replayManifest(manifest);
 
 		if (rejectReason) {
 			return new Response(JSON.stringify({ success: false, rejectReason }), {
@@ -182,7 +182,7 @@ Deno.serve(async (req) => {
 			});
 		}
 
-		const snapshot = MultiplayerLogic.buildReplaySnapshot(replayedSession);
+		const snapshot = GameLogic.buildReplaySnapshot(replayedSession);
 		const sessionCompleted =
 			replayedSession.phase === "victory" || replayedSession.phase === "game_over";
 

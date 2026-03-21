@@ -47,7 +47,7 @@
         "publish:steam": "./scripts/publish_steam.sh",
         "publish:steam:demo": "./scripts/publish_steam_demo.sh",
         "bundle:edge": "tsx scripts/bundle-edge.ts",
-        "deploy:functions": "npm run bundle:edge && supabase functions deploy action && supabase functions deploy auth-steam && supabase functions deploy replay-commit",
+        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED",
         "prepare": "husky"
     },
     "repository": {
