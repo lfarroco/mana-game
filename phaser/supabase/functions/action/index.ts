@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as GameLogic from "./_shared.js";
 import { pickMatchedEnemyTeam, readRatingDelta } from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
@@ -243,6 +242,15 @@ const selectMatchedEnemyTeam = async (
 	return pickMatchedEnemyTeam(Array.isArray(candidateSessions) ? candidateSessions : []);
 };
 
+type GameLogicModule = typeof import("./_shared.js");
+let cachedGameLogicModule: GameLogicModule | null = null;
+
+const getGameLogic = async (): Promise<GameLogicModule> => {
+	if (cachedGameLogicModule) return cachedGameLogicModule;
+	cachedGameLogicModule = await import("./_shared.js");
+	return cachedGameLogicModule;
+};
+
 Deno.serve(async (req) => {
 	if (req.method === "OPTIONS") {
 		return new Response("ok", { headers: corsHeaders });
@@ -250,6 +258,7 @@ Deno.serve(async (req) => {
 
 	try {
 		const supabaseAdmin = getSupabaseAdmin();
+		const GameLogic = await getGameLogic();
 		const authorizationHeader = req.headers.get("Authorization");
 
 		// JWT verification and body parsing are independent — run in parallel.
