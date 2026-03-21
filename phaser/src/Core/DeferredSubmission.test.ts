@@ -20,36 +20,19 @@ const makeManifest = (): RunManifest => ({
 });
 
 describe("isEnabled", () => {
-	it("returns false when DEFERRED_SUBMISSION env var is not set", () => {
-		delete process.env.DEFERRED_SUBMISSION;
-		expect(isEnabled()).toBe(false);
-	});
-
-	it("returns true when DEFERRED_SUBMISSION env var is 'true'", () => {
-		process.env.DEFERRED_SUBMISSION = "true";
+	it("returns true by default", () => {
 		expect(isEnabled()).toBe(true);
-		delete process.env.DEFERRED_SUBMISSION;
 	});
 });
 
 describe("submitRunManifest", () => {
 	beforeEach(() => {
 		mockFetch.mockReset();
-		process.env.DEFERRED_SUBMISSION = "true";
 		process.env.SUPABASE_URL = "https://example.supabase.co";
 	});
 
 	afterEach(() => {
-		delete process.env.DEFERRED_SUBMISSION;
 		delete process.env.SUPABASE_URL;
-	});
-
-	it("returns noop result when feature flag is off", async () => {
-		delete process.env.DEFERRED_SUBMISSION;
-		const result = await submitRunManifest(makeManifest(), "token-abc");
-		expect(result.submitted).toBe(false);
-		expect((result as { submitted: false; reason: string }).reason).toMatch(/disabled/i);
-		expect(mockFetch).not.toHaveBeenCalled();
 	});
 
 	it("POSTs the manifest to the replay-commit endpoint", async () => {

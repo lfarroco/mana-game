@@ -4,7 +4,9 @@ import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import * as GameLogic from "@Core/GameLogic";
-import type { SessionData } from "@Core/Types";
+import type { SessionData, ActionPayload } from "@Core/Types";
+import { RunActionQueue } from "@Core/RunActionQueue";
+import { submitRunManifest } from "@Core/DeferredSubmission";
 import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
 import { createLogger } from "@Utils/Logger";
 
@@ -13,7 +15,122 @@ let isMultiplayer: boolean = false;
 let playerId: string;
 let initPromise: Promise<void> = Promise.resolve();
 let authInitialized = false;
+let deferredModeActive = false;
+let deferredSession: SessionData | null = null;
+let runQueue: RunActionQueue | null = null;
+let runSubmitted = false;
+let deferredSelectedCrystalId: string | null = null;
 const logger = createLogger("MultiplayerManager");
+
+const getClientVersion = (): string => {
+	try {
+		return typeof process !== "undefined" && typeof process.env.APP_VERSION === "string"
+			? process.env.APP_VERSION
+			: "dev";
+	} catch {
+		return "dev";
+	}
+};
+
+const cloneSession = (session: SessionData): SessionData =>
+	JSON.parse(JSON.stringify(session)) as SessionData;
+
+const getOptionsList = (session: SessionData): unknown[] => {
+	const rawOptions = session.current_options;
+	if (!rawOptions) {
+		return [];
+	}
+
+	if (Array.isArray(rawOptions)) {
+		return rawOptions;
+	}
+
+	return rawOptions.options || [];
+};
+
+const getCombatState = (session: SessionData): PhaseOptions["combatState"] => {
+	const rawOptions = session.current_options;
+	if (rawOptions && !Array.isArray(rawOptions) && rawOptions.combatState) {
+		return rawOptions.combatState;
+	}
+	return undefined;
+};
+
+const getSelectedCrystalIdFromSession = (session: SessionData): string => {
+	const core = session.team?.units?.find((u) => u.isCore);
+	if (core?.cardId) {
+		return core.cardId;
+	}
+
+	return deferredSelectedCrystalId || "crystal_core";
+};
+
+const ensureRunQueue = (session: SessionData): void => {
+	if (!deferredModeActive || runQueue) {
+		return;
+	}
+
+	const runId = session.id || `run-${Date.now()}`;
+	const resumed = RunActionQueue.resume(runId);
+	if (resumed) {
+		runQueue = resumed;
+		logger.info("Resumed deferred run queue", { runId, actionCount: resumed.length });
+		return;
+	}
+
+	runQueue = RunActionQueue.start(
+		playerId,
+		getSelectedCrystalIdFromSession(session),
+		session.initial_seed,
+		getClientVersion(),
+		runId
+	);
+	logger.info("Started deferred run queue", { runId });
+};
+
+const syncDeferredSession = (session: SessionData): void => {
+	deferredSession = cloneSession(session);
+	ensureRunQueue(deferredSession);
+};
+
+const submitDeferredManifestIfNeeded = async (): Promise<void> => {
+	if (!deferredModeActive || runSubmitted || !runQueue || !deferredSession) {
+		return;
+	}
+
+	if (deferredSession.phase !== "victory" && deferredSession.phase !== "game_over") {
+		return;
+	}
+
+	const { data } = await supabase.auth.getSession();
+	const token = data.session?.access_token;
+	if (!token) {
+		logger.warn("Skipping deferred manifest submission: missing auth token");
+		return;
+	}
+
+	const result = await submitRunManifest(runQueue.build(), token);
+	if (!result.submitted) {
+		logger.warn("Deferred run submission failed", { reason: result.reason });
+		return;
+	}
+
+	runSubmitted = true;
+	logger.info("Deferred run submitted", {
+		accepted: result.accepted,
+		idempotent: result.idempotent,
+	});
+};
+
+const buildPhaseOptionsFromSession = (session: SessionData): PhaseOptions => ({
+	phase: session.phase as PhaseType,
+	round: session.round,
+	options: getOptionsList(session) as PhaseOptions["options"],
+	team: session.team,
+	wins: session.wins,
+	losses: session.losses,
+	combatState: getCombatState(session),
+});
 
 // Initialize the player ID
 const storedId = localStorage.getItem("mana_player_id");
@@ -68,13 +185,23 @@ const isFunctionsFetchError = (error: unknown): boolean => {
 
 export function disableMultiplayer() {
 	isMultiplayer = false;
+	deferredModeActive = false;
+	deferredSession = null;
+	runQueue = null;
+	runSubmitted = false;
+	deferredSelectedCrystalId = null;
 	logger.info("Multiplayer mode disabled");
 }
 
 export async function enableMultiplayer(selectedCrystalId?: string) {
 	isMultiplayer = true;
+	deferredModeActive = Boolean(selectedCrystalId);
+	deferredSelectedCrystalId = selectedCrystalId || null;
 	await initializeAuthSession();
 	logger.info("Multiplayer mode enabled", { hasSelectedCrystal: Boolean(selectedCrystalId) });
+	if (!deferredModeActive) {
+		logger.info("Deferred mode disabled for resumed multiplayer session");
+	}
 	if (selectedCrystalId) {
 	} else {
 		logger.info("Resuming existing session without crystal selection");
@@ -83,6 +210,28 @@ export async function enableMultiplayer(selectedCrystalId?: string) {
 }
 export async function sendOptionSelection(optionId: string, payload?: unknown): Promise<boolean> {
 	const sanitizedPayload = safeClonePayload(payload);
+
+	if (deferredModeActive) {
+		if (!deferredSession) {
+			logger.error("Deferred mode action received without initialized session", { optionId });
+			return false;
+		}
+
+		const teamSnapshot = cloneSession(deferredSession).team;
+		if (optionId !== "update_team" && runQueue) {
+			runQueue.append(optionId, sanitizedPayload as ActionPayload | undefined, teamSnapshot);
+		}
+
+		const result = GameLogic.transitionToNextState(
+			deferredSession,
+			optionId,
+			sanitizedPayload as ActionPayload | undefined
+		);
+		syncDeferredSession(result.session);
+		await submitDeferredManifestIfNeeded();
+		return true;
+	}
+
 	const body =
 		sanitizedPayload === undefined
 			? { actionId: optionId }
@@ -114,6 +263,10 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 }
 
 export async function sendTeamUpdate(team: { units: Unit[] }): Promise<boolean> {
+	if (deferredModeActive) {
+		return await sendOptionSelection("update_team", { team });
+	}
+
 	logger.debug("Sending team update", { unitCount: team.units.length });
 
 	const { error } = await supabase.functions.invoke("action", {
@@ -177,6 +330,30 @@ export async function checkActiveSession(): Promise<boolean> {
 
 // Requests the current phase options from the server
 export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
+	if (deferredModeActive) {
+		if (deferredSession) {
+			return buildPhaseOptionsFromSession(deferredSession);
+		}
+
+		logger.info("Bootstrapping deferred session from server");
+		const { data: session, error } = await supabase
+			.from("player_sessions")
+			.select("*")
+			.eq("player_id", playerId)
+			.single();
+
+		if (error || !session) {
+			throw new Error("Failed to bootstrap deferred state from DB");
+		}
+
+		syncDeferredSession(session as SessionData);
+		if (!deferredSession) {
+			throw new Error("Deferred session bootstrap failed");
+		}
+
+		return buildPhaseOptionsFromSession(deferredSession);
+	}
+
 	logger.debug("Fetching phase options from server", { playerId });
 
 	const { data: session, error } = await supabase
@@ -236,6 +413,13 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 		losses: session.losses,
 		combatState: combatState,
 	};
+}
+
+export function primeDeferredSession(session: SessionData, selectedCrystalId?: string) {
+	deferredModeActive = true;
+	deferredSelectedCrystalId = selectedCrystalId || deferredSelectedCrystalId;
+	runSubmitted = false;
+	syncDeferredSession(session);
 }
 
 type SteamworksAPI = {

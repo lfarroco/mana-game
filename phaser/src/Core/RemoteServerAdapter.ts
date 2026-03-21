@@ -3,6 +3,7 @@ import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from
 import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
+import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RemoteServerAdapter");
@@ -40,6 +41,8 @@ export class RemoteServerAdapter implements IGameServer {
 		if (error) {
 			throw new Error(`Failed to create session: ${error.message}`);
 		}
+
+		primeDeferredSession(data as SessionData, crystalId);
 
 		return data as SessionData;
 	}
