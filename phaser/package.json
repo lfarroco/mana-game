@@ -47,8 +47,7 @@
         "publish:steam": "./scripts/publish_steam.sh",
         "publish:steam:demo": "./scripts/publish_steam_demo.sh",
         "bundle:edge": "tsx scripts/bundle-edge.ts",
-        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED",
-        "prepare": "husky"
+        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED"
     },
     "repository": {
         "type": "git",
@@ -95,7 +94,6 @@
         "fast-check": "^4.6.0",
         "file-loader": "^6.2.0",
         "html-webpack-plugin": "^5.6.0",
-        "husky": "^9.1.7",
         "identity-obj-proxy": "^3.0.0",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
