@@ -154,13 +154,24 @@ const extractPlayerIdFromAuthorization = async (
 	return playerId;
 };
 
-// Module-level service-role client — created once per warm isolate lifetime.
-// Avoids per-request createClient overhead and bypasses RLS (identity enforced
-// by our own JWT verification above).
-const supabaseAdmin = createClient(
-	Deno.env.get("SUPABASE_URL") ?? "",
-	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-);
+// Module-level service-role client — lazily created once per warm isolate.
+// This avoids module-load crashes (for example, missing env vars) from
+// blocking CORS preflight OPTIONS responses.
+let cachedSupabaseAdmin: ReturnType<typeof createClient> | null = null;
+
+const getSupabaseAdmin = (): ReturnType<typeof createClient> => {
+	if (cachedSupabaseAdmin) return cachedSupabaseAdmin;
+
+	const supabaseUrl = Deno.env.get("SUPABASE_URL");
+	const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+	if (!supabaseUrl || !serviceRoleKey) {
+		throw new Error("Missing Server Configuration (SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY)");
+	}
+
+	cachedSupabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+	return cachedSupabaseAdmin;
+};
 
 const MAX_ACTION_LOG_SIZE = 100;
 const trimActionLog = (log: any[]): any[] =>
@@ -169,7 +180,10 @@ const trimActionLog = (log: any[]): any[] =>
 const DEFAULT_MATCHMAKING_RATING_DELTA = 150;
 const MATCHMAKING_CANDIDATE_LIMIT = 50;
 
-const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> => {
+const selectMatchedEnemyTeam = async (
+	supabaseAdmin: ReturnType<typeof createClient>,
+	playerId: string
+): Promise<any[] | null> => {
 	const { data: selfPlayer, error: selfError } = await supabaseAdmin
 		.from("players")
 		.select("rating")
@@ -235,6 +249,7 @@ Deno.serve(async (req) => {
 	}
 
 	try {
+		const supabaseAdmin = getSupabaseAdmin();
 		const authorizationHeader = req.headers.get("Authorization");
 
 		// JWT verification and body parsing are independent — run in parallel.
@@ -330,7 +345,7 @@ Deno.serve(async (req) => {
 		// so calling resolveAction separately here would apply the same action twice.
 		let transitionOptions: { combatEnemyTeam?: any[] } | undefined;
 		if (actionId === "combat_encounter") {
-			const matchedEnemyTeam = await selectMatchedEnemyTeam(playerId);
+			const matchedEnemyTeam = await selectMatchedEnemyTeam(supabaseAdmin, playerId);
 			if (matchedEnemyTeam && matchedEnemyTeam.length > 0) {
 				transitionOptions = { combatEnemyTeam: matchedEnemyTeam };
 			}
