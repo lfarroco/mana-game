@@ -5576,16 +5576,6 @@ function DisableInteractive(obj) {
 function SetUniform(shader, key, value2) {
   shader.setUniform(key, value2);
 }
-async function Fade(duration, color) {
-  return new Promise((resolve) => {
-    const scene = getCurrentScene();
-    const r = color >> 16 & 255;
-    const g = color >> 8 & 255;
-    const b = color & 255;
-    scene.cameras.main.fade(duration, r, g, b);
-    scene.cameras.main.once(MockPhaser_default.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
-  });
-}
 var SetInteractiveRect;
 var init_phaser_io = __esm({
   "src/phaser.io.ts"() {
@@ -10470,7 +10460,7 @@ var GameCompleteUI_exports = {};
 __export(GameCompleteUI_exports, {
   displayGameComplete: () => displayGameComplete
 });
-async function displayGameComplete(state2, wins, units, isGameOver, nextPhaseCallback) {
+async function displayGameComplete(state2, wins, units, isGameOver, nextPhaseCallback, completionAction = isGameOver ? "game_over" : "victory") {
   deleteSavedData();
   playMusic("music_playmode", true, 1e3);
   const panelWidth = 800;
@@ -10539,7 +10529,7 @@ async function displayGameComplete(state2, wins, units, isGameOver, nextPhaseCal
       t("results.buttons.new_run"),
       async () => {
         const controller2 = getGameController();
-        await controller2.notifyGameComplete("combat_done");
+        await controller2.notifyGameComplete(completionAction);
         resetState();
         const currentScene2 = getCurrentScene();
         currentScene2.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -10550,7 +10540,7 @@ async function displayGameComplete(state2, wins, units, isGameOver, nextPhaseCal
       t("results.buttons.main_menu"),
       async () => {
         const controller2 = getGameController();
-        await controller2.notifyGameComplete("combat_done");
+        await controller2.notifyGameComplete(completionAction);
         resetState();
         const currentScene2 = getCurrentScene();
         currentScene2.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -10745,6 +10735,7 @@ var init_ResultsOutcome = __esm({
 var ResultsUI_exports = {};
 __export(ResultsUI_exports, {
   createResultsUI: () => createResultsUI,
+  displayGameCompleteResults: () => displayGameCompleteResults,
   displayResults: () => displayResults,
   getIsResultsOpen: () => getIsResultsOpen,
   isOpen: () => isOpen,
@@ -10802,7 +10793,8 @@ async function displayResults(state2, resultType, nextPhaseCallback, replayCallb
         currentWins2,
         playerUnits,
         gameOver,
-        nextPhaseCallback
+        nextPhaseCallback,
+        gameOver ? "game_over" : "victory"
       );
       resultsContainer.add(ui);
     } else {
@@ -10822,6 +10814,21 @@ async function displayResults(state2, resultType, nextPhaseCallback, replayCallb
     replayCallback ? handleReplay : void 0
   );
   resultsContainer.add(uiContainer);
+}
+async function displayGameCompleteResults(state2, isGameOver, nextPhaseCallback) {
+  resultsContainer.removeAll(true);
+  const scene = getCurrentScene();
+  scene.children.bringToTop(overlay.rectangle);
+  scene.children.bringToTop(resultsContainer);
+  const ui = await displayGameComplete(
+    state2,
+    state2.session.wins,
+    state2.session.team.units,
+    isGameOver,
+    nextPhaseCallback,
+    isGameOver ? "game_over" : "victory"
+  );
+  resultsContainer.add(ui);
 }
 async function slideIn2() {
   playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
@@ -15225,83 +15232,6 @@ var init_CharaShop = __esm({
   }
 });
 
-// src/Systems/MatchResultSystem.ts
-async function showMatchResult(isVictory) {
-  const scene = getCurrentScene();
-  await Fade(FADE_DURATION_MS, FADE_COLOR);
-  const overlay2 = scene.add.rectangle(
-    MIDDLE_SCREEN_X,
-    MIDDLE_SCREEN_Y,
-    SCREEN_WIDTH,
-    SCREEN_HEIGHT,
-    OVERLAY_COLOR,
-    OVERLAY_ALPHA
-  );
-  overlay2.setDepth(OVERLAY_DEPTH);
-  overlay2.setInteractive();
-  const titleText2 = isVictory ? "VICTORY" : "GAME OVER";
-  const color = isVictory ? "#ffd700" : "#ff0000";
-  const title = Text(titleText2, {
-    ...titleTextConfig,
-    fontSize: TITLE_FONT_SIZE2,
-    color
-  });
-  SetPosition(
-    title,
-    vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y - TITLE_Y_OFFSET)
-  );
-  Centralize(title);
-  title.setDepth(TEXT_DEPTH);
-  const subText = isVictory ? "Legendary! You have conquered the arena." : "Defeat... Try again to claim glory.";
-  const subtitle = Text(subText, {
-    ...defaultTextConfig,
-    fontSize: SUBTITLE_FONT_SIZE,
-    color: "#ffffff"
-  });
-  SetPosition(
-    subtitle,
-    vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y + SUBTITLE_Y_OFFSET)
-  );
-  Centralize(subtitle);
-  subtitle.setDepth(TEXT_DEPTH);
-  const btnPos = vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y + BUTTON_Y_OFFSET);
-  const btn = createUIButton(
-    t("common.mainMenu") || "Main Menu",
-    // Fallback if key missing
-    btnPos,
-    () => {
-      scene.scene.start(SCENE_KEYS.TITLE);
-    },
-    BUTTON_WIDTH
-  );
-  btn.container.setDepth(BUTTON_DEPTH);
-}
-var FADE_DURATION_MS, FADE_COLOR, OVERLAY_COLOR, OVERLAY_ALPHA, OVERLAY_DEPTH, TEXT_DEPTH, BUTTON_DEPTH, TITLE_FONT_SIZE2, TITLE_Y_OFFSET, SUBTITLE_FONT_SIZE, SUBTITLE_Y_OFFSET, BUTTON_Y_OFFSET, BUTTON_WIDTH;
-var init_MatchResultSystem = __esm({
-  "src/Systems/MatchResultSystem.ts"() {
-    "use strict";
-    init_State();
-    init_UIButton();
-    init_phaser_io();
-    init_constants();
-    init_i18n();
-    init_Geometry();
-    FADE_DURATION_MS = 500;
-    FADE_COLOR = 0;
-    OVERLAY_COLOR = 0;
-    OVERLAY_ALPHA = 0.85;
-    OVERLAY_DEPTH = 2e3;
-    TEXT_DEPTH = 2001;
-    BUTTON_DEPTH = 2002;
-    TITLE_FONT_SIZE2 = "96px";
-    TITLE_Y_OFFSET = 100;
-    SUBTITLE_FONT_SIZE = "32px";
-    SUBTITLE_Y_OFFSET = 20;
-    BUTTON_Y_OFFSET = 150;
-    BUTTON_WIDTH = 300;
-  }
-});
-
 // src/Engine/Scenes/Battleground/MultiplayerPhaseManager.ts
 async function handleMultiplayerPhase(state2) {
   logger40.debug("Starting Multiplayer Phase handling...");
@@ -15402,10 +15332,12 @@ async function handleMultiplayerPhase(state2) {
       await handleMultiplayerPhase(state2);
       break;
     case "victory":
-      await showMatchResult(true);
+      await displayGameCompleteResults(state2, false);
+      await slideIn2();
       break;
     case "game_over":
-      await showMatchResult(false);
+      await displayGameCompleteResults(state2, true);
+      await slideIn2();
       break;
     default:
       logger40.warn(`Unknown multiplayer phase: ${result.phase}`);
@@ -15493,7 +15425,6 @@ var init_MultiplayerPhaseManager = __esm({
     init_State();
     init_MultiplayerManager();
     init_Encounter();
-    init_MatchResultSystem();
     init_BrowserCombatEffects();
     init_CombatPlaybackController();
     init_Chara();
