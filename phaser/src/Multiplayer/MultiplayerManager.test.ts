@@ -4,11 +4,13 @@ import {
 	disableMultiplayer,
 	getPhaseOptions,
 	sendOptionSelection,
+	primeDeferredSession,
 	handleAuthRegister,
 	checkActiveSession,
 } from "@Multiplayer/MultiplayerManager";
 import { supabase } from "@lib/supabase";
 import { State } from "@Models/State";
+import { RunActionQueue } from "@Core/RunActionQueue";
 
 // Mock Supabase
 jest.mock("@lib/supabase", () => ({
@@ -81,6 +83,34 @@ describe("MultiplayerManager", () => {
 		expect(supabase.functions.invoke).toHaveBeenCalledWith("action", {
 			body: { actionId: "some_option" },
 		});
+	});
+
+	it("should not append invalid deferred actions to the run manifest", async () => {
+		const appendSpy = jest.spyOn(RunActionQueue.prototype, "append");
+
+		await enableMultiplayer("crystal_core");
+
+		primeDeferredSession({
+			id: "sess-1",
+			player_id: "player-1",
+			phase: "encounter",
+			round: 1,
+			step: 1,
+			seed: "seed-1",
+			initial_seed: "seed-1",
+			current_options: { options: [{ id: "forest_pools" }] },
+			team: { units: [] },
+			wins: 0,
+			losses: 0,
+			action_log: [],
+		});
+
+		const success = await sendOptionSelection("power_distributor");
+
+		expect(success).toBe(false);
+		expect(appendSpy).not.toHaveBeenCalled();
+
+		appendSpy.mockRestore();
 	});
 
 	it("should treat session with core and options as active", async () => {

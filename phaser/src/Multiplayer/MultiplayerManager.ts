@@ -310,15 +310,25 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 		}
 
 		const teamSnapshot = cloneSession(deferredSession).team;
+		let result: ReturnType<typeof GameLogic.transitionToNextState>;
+		try {
+			result = GameLogic.transitionToNextState(
+				deferredSession,
+				optionId,
+				sanitizedPayload as ActionPayload | undefined
+			);
+		} catch (error) {
+			logger.error("Rejected deferred action during local transition", {
+				optionId,
+				error,
+			});
+			return false;
+		}
+
 		if (optionId !== "update_team" && runQueue) {
 			runQueue.append(optionId, sanitizedPayload as ActionPayload | undefined, teamSnapshot);
 		}
 
-		const result = GameLogic.transitionToNextState(
-			deferredSession,
-			optionId,
-			sanitizedPayload as ActionPayload | undefined
-		);
 		syncDeferredSession(result.session);
 		await submitDeferredManifestIfNeeded();
 		return true;
