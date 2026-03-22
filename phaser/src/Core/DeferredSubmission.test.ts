@@ -5,6 +5,7 @@
 
 import { submitRunManifest, isEnabled } from "@Core/DeferredSubmission";
 import type { RunManifest } from "@Core/Types";
+import { SUPABASE_URL } from "@lib/supabase";
 
 // Mock fetch
 const mockFetch = jest.fn();
@@ -28,11 +29,6 @@ describe("isEnabled", () => {
 describe("submitRunManifest", () => {
 	beforeEach(() => {
 		mockFetch.mockReset();
-		process.env.SUPABASE_URL = "https://example.supabase.co";
-	});
-
-	afterEach(() => {
-		delete process.env.SUPABASE_URL;
 	});
 
 	it("POSTs the manifest to the replay-commit endpoint", async () => {
@@ -45,7 +41,7 @@ describe("submitRunManifest", () => {
 
 		expect(mockFetch).toHaveBeenCalledTimes(1);
 		const [url, options] = mockFetch.mock.calls[0];
-		expect(url).toContain("replay-commit");
+		expect(url).toBe(`${SUPABASE_URL}/functions/v1/replay-commit`);
 		expect(options.method).toBe("POST");
 		const body = JSON.parse(options.body);
 		expect(body.runId).toBe("run-submit-001");

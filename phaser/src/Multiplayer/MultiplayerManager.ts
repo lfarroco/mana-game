@@ -37,6 +37,20 @@ const clearPersistedDeferredSession = (): void => {
 	localStorage.removeItem(getDeferredSessionStorageKey(playerId));
 };
 
+const hasTerminalPhase = (session: SessionData | null): boolean =>
+	Boolean(session && (session.phase === "victory" || session.phase === "game_over"));
+
+const clearDeferredRunState = ({ clearPersisted = false }: { clearPersisted?: boolean } = {}): void => {
+	if (clearPersisted) {
+		clearPersistedDeferredSession();
+	}
+
+	deferredSession = null;
+	runQueue = null;
+	runSubmitted = false;
+	deferredSelectedCrystalId = null;
+};
+
 const restorePersistedDeferredSession = (): SessionData | null => {
 	const raw = localStorage.getItem(getDeferredSessionStorageKey(playerId));
 	if (!raw) {
@@ -165,9 +179,30 @@ const submitDeferredManifestIfNeeded = async (): Promise<void> => {
 
 	if (result.accepted || result.idempotent) {
 		runQueue.clear();
-		clearPersistedDeferredSession();
+		clearDeferredRunState({ clearPersisted: true });
 	}
 };
+
+export async function finalizeCompletedRun(): Promise<boolean> {
+	if (!deferredModeActive) {
+		return true;
+	}
+
+	if (!deferredSession) {
+		const restored = restorePersistedDeferredSession();
+		if (restored) {
+			syncDeferredSession(restored);
+		}
+	}
+
+	if (!hasTerminalPhase(deferredSession)) {
+		return true;
+	}
+
+	await submitDeferredManifestIfNeeded();
+
+	return !hasTerminalPhase(deferredSession);
+}
 
 const buildPhaseOptionsFromSession = (session: SessionData): PhaseOptions => ({
 	phase: session.phase as PhaseType,
@@ -233,10 +268,7 @@ const isFunctionsFetchError = (error: unknown): boolean => {
 export function disableMultiplayer() {
 	isMultiplayer = false;
 	deferredModeActive = false;
-	deferredSession = null;
-	runQueue = null;
-	runSubmitted = false;
-	deferredSelectedCrystalId = null;
+	clearDeferredRunState();
 	logger.info("Multiplayer mode disabled");
 }
 
@@ -323,54 +355,12 @@ export async function sendTeamUpdate(team: { units: Unit[] }): Promise<boolean> 
 // TODO: if arena, fetch from supabase, else, localhost
 export async function checkActiveSession(): Promise<boolean> {
 	await initializeAuthSession();
-	const { data, error } = await supabase
-		.from("player_sessions")
-		.select("phase, team, current_options")
-		.eq("player_id", playerId)
-		.maybeSingle();
-
-	if (error) {
-		logger.error("Failed to check active session", { error, playerId });
-		return false;
+	const localSession = restorePersistedDeferredSession();
+	if (localSession) {
+		return !hasTerminalPhase(localSession);
 	}
 
-	if (!data) {
-		return false;
-	}
-
-	if (data.phase === "victory" || data.phase === "game_over") {
-		return false;
-	}
-
-	const dataRecord = data as Record<string, unknown>;
-	const teamUnits = Array.isArray((dataRecord.team as Record<string, unknown>)?.units)
-		? ((dataRecord.team as Record<string, unknown>).units as Unit[])
-		: [];
-	const hasCore = teamUnits.some(
-		(unit: Unit) => (unit as unknown as Record<string, unknown>)?.isCore === true
-	);
-
-	const rawOptions = dataRecord.current_options;
-	const rawOptionsRecord =
-		rawOptions && typeof rawOptions === "object" ? (rawOptions as Record<string, unknown>) : null;
-	const optionsList = Array.isArray(rawOptions)
-		? rawOptions
-		: (rawOptionsRecord?.options as unknown[] | undefined) || [];
-	const hasCombatState = Boolean(rawOptionsRecord?.combatState);
-
-	if (!hasCore) {
-		logger.warn("Ignoring invalid active session: missing core unit", {
-			playerId,
-			phase: data.phase,
-		});
-		return false;
-	}
-
-	if (data.phase === "combat") {
-		return optionsList.length > 0 || hasCombatState;
-	}
-
-	return optionsList.length > 0;
+	return false;
 }
 
 // Requests the current phase options from the server

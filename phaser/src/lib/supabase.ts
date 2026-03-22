@@ -1,13 +1,13 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = "https://supabase-project-REDACTED.supabase.co";
+export const SUPABASE_URL = "https://supabase-project-REDACTED.supabase.co";
 const supabaseKey = "sb_publishable_REDACTED";
 
 let supabaseClient: SupabaseClient | null = null;
 
 const getSupabaseClient = (): SupabaseClient => {
 	if (!supabaseClient) {
-		supabaseClient = createClient(supabaseUrl, supabaseKey);
+		supabaseClient = createClient(SUPABASE_URL, supabaseKey);
 	}
 
 	return supabaseClient;

@@ -1,9 +1,14 @@
 import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { createRemoteGameController } from "@Core/RemoteGameController";
 import { getState } from "@Models/State";
-import { sendOptionSelection, sendTeamUpdate } from "@Multiplayer/MultiplayerManager";
+import {
+	finalizeCompletedRun,
+	sendOptionSelection,
+	sendTeamUpdate,
+} from "@Multiplayer/MultiplayerManager";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
+	finalizeCompletedRun: jest.fn(),
 	sendOptionSelection: jest.fn(),
 	sendTeamUpdate: jest.fn(),
 	__esModule: true,
@@ -28,14 +33,18 @@ const mockGetState = getState as jest.MockedFunction<typeof getState>;
 const mockSendOptionSelection = sendOptionSelection as jest.MockedFunction<
 	typeof sendOptionSelection
 >;
+const mockFinalizeCompletedRun = finalizeCompletedRun as jest.MockedFunction<
+	typeof finalizeCompletedRun
+>;
 
 describe("RemoteGameController.notifyGameComplete", () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockSendOptionSelection.mockResolvedValue(true);
+		mockFinalizeCompletedRun.mockResolvedValue(true);
 	});
 
-	it("does not send an extra transition when the run is already game over", async () => {
+	it("finalizes deterministic runs when the run is already game over", async () => {
 		mockGetState.mockReturnValue({
 			session: { phase: "game_over" },
 		} as ReturnType<typeof getState>);
@@ -45,6 +54,7 @@ describe("RemoteGameController.notifyGameComplete", () => {
 
 		expect(result).toBe(true);
 		expect(mockSendOptionSelection).not.toHaveBeenCalled();
+		expect(mockFinalizeCompletedRun).toHaveBeenCalled();
 	});
 
 	it("still forwards completion actions before the run is terminal", async () => {

@@ -90,6 +90,13 @@ const supabaseAdmin = createClient(
 	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 );
 
+const deletePlayerSession = async (playerId: string): Promise<void> => {
+	const { error } = await supabaseAdmin.from("player_sessions").delete().eq("player_id", playerId);
+	if (error) {
+		console.error("[replay-commit] player session delete failed:", error.message);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -158,6 +165,10 @@ Deno.serve(async (req) => {
 		}
 
 		if (existingCommit) {
+			if (existingCommit.accepted) {
+				await deletePlayerSession(playerId);
+			}
+
 			// Already processed — return the stored result without re-running replay.
 			return new Response(
 				JSON.stringify({
@@ -217,6 +228,8 @@ Deno.serve(async (req) => {
 		// Side effects: rating update (only for completed PVE runs)
 		// ---------------------------------------------------------------------------
 		if (sessionCompleted) {
+			await deletePlayerSession(playerId);
+
 			const ratingAmount = replayedSession.phase === "victory" ? 25 : -25;
 			supabaseAdmin
 				.rpc("increment_rating", { player_id: playerId, amount: ratingAmount })
