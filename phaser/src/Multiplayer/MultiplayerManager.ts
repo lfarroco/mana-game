@@ -120,12 +120,27 @@ const getSelectedCrystalIdFromSession = (session: SessionData): string => {
 	return deferredSelectedCrystalId || "crystal_core";
 };
 
+const getDeferredRunId = (session: SessionData): string => {
+	const sessionId = session.id || `player-${playerId}`;
+	const runSeed = session.initial_seed || session.seed || `${Date.now()}`;
+	return `${sessionId}:${runSeed}`;
+};
+
 const ensureRunQueue = (session: SessionData): void => {
-	if (!deferredModeActive || runQueue) {
+	if (!deferredModeActive) {
 		return;
 	}
 
-	const runId = session.id || `run-${Date.now()}`;
+	const runId = getDeferredRunId(session);
+
+	if (runQueue && runQueue.runId === runId) {
+		return;
+	}
+
+	if (runQueue && runQueue.runId !== runId) {
+		runQueue = null;
+	}
+
 	const resumed = RunActionQueue.resume(runId);
 	if (resumed) {
 		runQueue = resumed;
@@ -467,6 +482,7 @@ export function primeDeferredSession(session: SessionData, selectedCrystalId?: s
 	deferredModeActive = true;
 	deferredSelectedCrystalId = selectedCrystalId || deferredSelectedCrystalId;
 	runSubmitted = false;
+	runQueue = null;
 	syncDeferredSession(session);
 }
 
