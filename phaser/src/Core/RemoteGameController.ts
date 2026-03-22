@@ -1,7 +1,11 @@
 import { GameController, GameFeature } from "@Core/GameController";
 import { ActionPayload } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
-import { sendOptionSelection, sendTeamUpdate } from "@Multiplayer/MultiplayerManager";
+import {
+	finalizeCompletedRun,
+	sendOptionSelection,
+	sendTeamUpdate,
+} from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
 import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
@@ -100,7 +104,7 @@ export const createRemoteGameController = (): GameController => {
 			// is shown, so there is nothing left to notify. Sending another transition action
 			// from a terminal phase can produce invalid local transitions.
 			if (state.session.phase === "victory" || state.session.phase === "game_over") {
-				return true;
+				return await finalizeCompletedRun();
 			}
 
 			return await sendOptionSelection(actionId);

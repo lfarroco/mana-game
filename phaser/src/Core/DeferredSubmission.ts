@@ -1,4 +1,5 @@
 import type { RunManifest } from "@Core/Types";
+import { SUPABASE_URL } from "@lib/supabase";
 
 /**
  * Whether the deferred end-of-run submission feature is enabled on the client.
@@ -25,8 +26,7 @@ export async function submitRunManifest(
 	manifest: RunManifest,
 	authToken: string
 ): Promise<SubmitResult> {
-	const supabaseUrl = typeof process !== "undefined" ? (process.env.SUPABASE_URL ?? "") : "";
-	const endpoint = `${supabaseUrl}/functions/v1/replay-commit`;
+	const endpoint = `${SUPABASE_URL}/functions/v1/replay-commit`;
 
 	try {
 		const response = await fetch(endpoint, {

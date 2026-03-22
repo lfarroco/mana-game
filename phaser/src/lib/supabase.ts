@@ -1,13 +1,13 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl = "https://bsorlueqmikmixlcryiq.supabase.co";
+export const SUPABASE_URL = "https://bsorlueqmikmixlcryiq.supabase.co";
 const supabaseKey = "sb_publishable_75wmGG1tt_gr8aGscan7PQ_kH07-3E1";
 
 let supabaseClient: SupabaseClient | null = null;
 
 const getSupabaseClient = (): SupabaseClient => {
 	if (!supabaseClient) {
-		supabaseClient = createClient(supabaseUrl, supabaseKey);
+		supabaseClient = createClient(SUPABASE_URL, supabaseKey);
 	}
 
 	return supabaseClient;
