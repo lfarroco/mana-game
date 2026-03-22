@@ -21,6 +21,47 @@ let runQueue: RunActionQueue | null = null;
 let runSubmitted = false;
 let deferredSelectedCrystalId: string | null = null;
 const logger = createLogger("MultiplayerManager");
+const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
+
+const getDeferredSessionStorageKey = (id: string): string =>
+	`${DEFERRED_SESSION_STORAGE_KEY_PREFIX}${id}`;
+
+const persistDeferredSession = (session: SessionData): void => {
+	localStorage.setItem(
+		getDeferredSessionStorageKey(playerId),
+		JSON.stringify({ ...session, player_id: playerId })
+	);
+};
+
+const clearPersistedDeferredSession = (): void => {
+	localStorage.removeItem(getDeferredSessionStorageKey(playerId));
+};
+
+const restorePersistedDeferredSession = (): SessionData | null => {
+	const raw = localStorage.getItem(getDeferredSessionStorageKey(playerId));
+	if (!raw) {
+		return null;
+	}
+
+	try {
+		const parsed = JSON.parse(raw) as Partial<SessionData>;
+		if (!parsed || typeof parsed !== "object") {
+			return null;
+		}
+
+		if (parsed.player_id && parsed.player_id !== playerId) {
+			return null;
+		}
+
+		if (!parsed.phase || !parsed.round || !parsed.seed || !parsed.initial_seed || !parsed.team) {
+			return null;
+		}
+
+		return parsed as SessionData;
+	} catch {
+		return null;
+	}
+};
 
 const getClientVersion = (): string => {
 	try {
@@ -91,6 +132,7 @@ const ensureRunQueue = (session: SessionData): void => {
 const syncDeferredSession = (session: SessionData): void => {
 	deferredSession = cloneSession(session);
 	ensureRunQueue(deferredSession);
+	persistDeferredSession(deferredSession);
 };
 
 const submitDeferredManifestIfNeeded = async (): Promise<void> => {
@@ -120,6 +162,11 @@ const submitDeferredManifestIfNeeded = async (): Promise<void> => {
 		accepted: result.accepted,
 		idempotent: result.idempotent,
 	});
+
+	if (result.accepted || result.idempotent) {
+		runQueue.clear();
+		clearPersistedDeferredSession();
+	}
 };
 
 const buildPhaseOptionsFromSession = (session: SessionData): PhaseOptions => ({
@@ -333,6 +380,19 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 			return buildPhaseOptionsFromSession(deferredSession);
 		}
 
+		const restored = restorePersistedDeferredSession();
+		if (restored) {
+			logger.info("Restored deferred session from local storage", {
+				runId: restored.id,
+				phase: restored.phase,
+				round: restored.round,
+			});
+			syncDeferredSession(restored);
+			if (deferredSession) {
+				return buildPhaseOptionsFromSession(deferredSession);
+			}
+		}
+
 		logger.info("Bootstrapping deferred session from server");
 		const { data: session, error } = await supabase
 			.from("player_sessions")
@@ -543,6 +603,12 @@ export async function logout() {
 
 	Object.keys(localStorage).forEach((key) => {
 		if (key.startsWith("sb-") || key.includes("supabase")) {
+			localStorage.removeItem(key);
+		}
+		if (
+			key.startsWith(DEFERRED_SESSION_STORAGE_KEY_PREFIX) ||
+			key.startsWith("mana_run_manifest_")
+		) {
 			localStorage.removeItem(key);
 		}
 	});
