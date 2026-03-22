@@ -195,15 +195,13 @@ export function disableMultiplayer() {
 
 export async function enableMultiplayer(selectedCrystalId?: string) {
 	isMultiplayer = true;
-	deferredModeActive = Boolean(selectedCrystalId);
+	deferredModeActive = true;
 	deferredSelectedCrystalId = selectedCrystalId || null;
 	await initializeAuthSession();
-	logger.info("Multiplayer mode enabled", { hasSelectedCrystal: Boolean(selectedCrystalId) });
-	if (!deferredModeActive) {
-		logger.info("Deferred mode disabled for resumed multiplayer session");
-	}
-	if (selectedCrystalId) {
-	} else {
+	logger.info("Multiplayer mode enabled with deterministic deferred processing", {
+		hasSelectedCrystal: Boolean(selectedCrystalId),
+	});
+	if (!selectedCrystalId) {
 		logger.info("Resuming existing session without crystal selection");
 	}
 	logger.info("Connected to multiplayer session");

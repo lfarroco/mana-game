@@ -1,6 +1,7 @@
 import {
 	isMultiplayer,
 	enableMultiplayer,
+	disableMultiplayer,
 	getPhaseOptions,
 	sendOptionSelection,
 	handleAuthRegister,
@@ -32,6 +33,7 @@ jest.mock("@lib/supabase", () => ({
 
 describe("MultiplayerManager", () => {
 	beforeEach(() => {
+		disableMultiplayer();
 		jest.clearAllMocks();
 	});
 
