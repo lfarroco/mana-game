@@ -314,44 +314,8 @@ function createGrid() {
   ];
 }
 
-// src/Models/ServerGeometry.ts
-var vec22 = (x, y) => ({
-  x,
-  y
-});
-var size = (width, height) => ({
-  width,
-  height
-});
-
-// src/Constants/constants.ts
-var SCREEN_WIDTH = 1920;
-var SCREEN_HEIGHT = 1080;
-var MIDDLE_SCREEN_X = SCREEN_WIDTH / 2;
-var MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
-var MIDDLE_SCREEN = vec22(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
-var WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
-var TIMEOUT_DAMAGE_START_TIME = 3e4;
-var TILE_WIDTH = 250;
-var TILE_HEIGHT = TILE_WIDTH;
-var HALF_TILE_WIDTH = TILE_WIDTH / 2;
-var HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
-var PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;
-var CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
-var defaultTextConfig = {
-  fontSize: "20px",
-  color: "white",
-  fontFamily: "Arimo",
-  stroke: "black",
-  strokeThickness: 4,
-  align: "center"
-};
-var titleTextConfig = {
-  ...defaultTextConfig,
-  fontSize: "28px",
-  strokeThickness: 14,
-  fontStyle: "bold"
-};
+// src/Core/Combat/CombatConstants.ts
+var MIN_COOLDOWN = 200;
 var FORCE_ID_PLAYER = "PLAYER";
 var FORCE_ID_CPU = "CPU";
 
@@ -523,6 +487,16 @@ var getEnemyForce = (state, unitId) => {
   const unit = state.battleData.units.find((u) => u.id === unitId);
   return state.battleData.forces.find((f) => f.id !== unit.force);
 };
+
+// src/Models/ServerGeometry.ts
+var vec22 = (x, y) => ({
+  x,
+  y
+});
+var size = (width, height) => ({
+  width,
+  height
+});
 
 // src/utils.ts
 function pickRandom2(arr, n) {
@@ -3650,11 +3624,6 @@ function getName(cardId) {
   return t(`card.${cardId}.name`);
 }
 
-// src/Core/Combat/CombatConstants.ts
-var MIN_COOLDOWN = 200;
-var FORCE_ID_PLAYER2 = "PLAYER";
-var FORCE_ID_CPU2 = "CPU";
-
 // src/Systems/CombatStatsTracker.ts
 var logger2 = createLogger("CombatStatsTracker");
 function getForceStats(trackerState, forceId) {
@@ -3782,7 +3751,7 @@ function stop(trackerState, state) {
     };
   }
   const { runStats } = session;
-  const playerForceId = session.team.units[0]?.force || FORCE_ID_PLAYER2;
+  const playerForceId = session.team.units[0]?.force || FORCE_ID_PLAYER;
   const playerStats = getForceStats(trackerState, playerForceId);
   runStats.damageDealt += playerStats.damageDealt;
   runStats.poisonDealt += playerStats.poisonDealt;
@@ -3986,6 +3955,36 @@ var increasePower = (env, targets, amount, permanent, sourceUnit, delayedExecuti
   }
 };
 
+// src/Constants/constants.ts
+var SCREEN_WIDTH = 1920;
+var SCREEN_HEIGHT = 1080;
+var MIDDLE_SCREEN_X = SCREEN_WIDTH / 2;
+var MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
+var MIDDLE_SCREEN = vec22(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
+var WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
+var TIMEOUT_DAMAGE_START_TIME = 3e4;
+var TILE_WIDTH = 250;
+var TILE_HEIGHT = TILE_WIDTH;
+var HALF_TILE_WIDTH = TILE_WIDTH / 2;
+var HALF_TILE_HEIGHT = TILE_HEIGHT / 2;
+var PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;
+var CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
+var defaultTextConfig = {
+  fontSize: "20px",
+  color: "white",
+  fontFamily: "Arimo",
+  stroke: "black",
+  strokeThickness: 4,
+  align: "center"
+};
+var titleTextConfig = {
+  ...defaultTextConfig,
+  fontSize: "28px",
+  strokeThickness: 14,
+  fontStyle: "bold"
+};
+var FORCE_ID_PLAYER2 = "PLAYER";
+
 // src/TriggerSystem/effects/distributePower.ts
 var distributePower = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
@@ -3995,7 +3994,7 @@ var distributePower = (env, sourceUnit, targets, permanent, delayedExecution) =>
   sourceUnit.power = Math.max(0, sourceUnit.power - powerToDistribute);
   const bonusToLose = Math.max(0, Math.min(sourceUnit.bonusPower, powerToDistribute));
   sourceUnit.bonusPower -= bonusToLose;
-  if (sourceUnit.force === FORCE_ID_PLAYER) {
+  if (sourceUnit.force === FORCE_ID_PLAYER2) {
     const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
     if (playerUnit && playerUnit !== sourceUnit) {
       playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
@@ -4024,7 +4023,7 @@ var absorbPower = (env, sourceUnit, targets, permanent, delayedExecution) => {
       if (effects.onPowerUpdate) {
         effects.onPowerUpdate(target.id);
       }
-      if (target.force === FORCE_ID_PLAYER && permanent) {
+      if (target.force === FORCE_ID_PLAYER2 && permanent) {
         const persistentTarget = state.session.team.units.find((u) => u.id === target.id);
         if (persistentTarget !== target) {
           persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);
@@ -4714,7 +4713,7 @@ var runCombat = (state, effects) => {
     countdownTimerState,
     blackHoleState
   };
-  [FORCE_ID_PLAYER2, FORCE_ID_CPU2].forEach((forceId) => {
+  [FORCE_ID_PLAYER, FORCE_ID_CPU].forEach((forceId) => {
     const core = getBattleCore(state)(forceId);
     if (!core) {
       return;
@@ -4777,8 +4776,8 @@ var runCombat = (state, effects) => {
       cpuForce(nextState),
       scaledDelta
     );
-    const playerCore = getBattleCore(nextState)(FORCE_ID_PLAYER2);
-    const cpuCore = getBattleCore(nextState)(FORCE_ID_CPU2);
+    const playerCore = getBattleCore(nextState)(FORCE_ID_PLAYER);
+    const cpuCore = getBattleCore(nextState)(FORCE_ID_CPU);
     const playerLifeZero = !playerCore || playerCore.life <= 0;
     const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
     const outcome = cpuLifeZero ? "player_won" : playerLifeZero ? "player_lost" : null;
@@ -7050,7 +7049,7 @@ function createInitialSession(playerId, selectedCrystalId, explicitSeed) {
   const initialSeed = seed;
   const team = { units: [] };
   if (selectedCrystalId) {
-    const coreUnit = makeUnit(FORCE_ID_PLAYER2, selectedCrystalId, { x: 1, y: 1 });
+    const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
     coreUnit.isCore = true;
     team.units.push(coreUnit);
   }
@@ -7077,18 +7076,18 @@ function generateEnemyTeamForRound(round, wins) {
   const allCards = getNonCores();
   const mockState = {
     battleData: {
-      forces: [makeForce(FORCE_ID_PLAYER2), makeForce(FORCE_ID_CPU2)],
+      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
       units: [],
       grid: []
     },
     savedGames: [],
     session: {
       wins,
-      player_id: FORCE_ID_PLAYER2
+      player_id: FORCE_ID_PLAYER
     }
   };
   const units = generateEnemyTeam(mockState, round, allCards);
-  units.forEach((u) => u.force = FORCE_ID_CPU2);
+  units.forEach((u) => u.force = FORCE_ID_CPU);
   return units;
 }
 function stringToSeed(str) {
@@ -7214,9 +7213,9 @@ function resolveAction(session, actionId, payload) {
       }
     } else {
       if (units.length < 9) {
-        const targetPos = getEmptySlot(units, FORCE_ID_PLAYER2);
+        const targetPos = getEmptySlot(units, FORCE_ID_PLAYER);
         if (targetPos) {
-          const newUnit = makeUnit(FORCE_ID_PLAYER2, actionId, targetPos);
+          const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
           const previousStep = session.step - 1;
           const encounterActions = session.action_log.filter(
             (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
@@ -7414,9 +7413,9 @@ function createCombatState(session) {
   }
   const hasCore = playerUnits.some((u) => u.isCore);
   if (!hasCore) {
-    const freeSlot = findFreeSlot(playerUnits, FORCE_ID_PLAYER2, { x: 1, y: 1 });
+    const freeSlot = findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
     if (freeSlot) {
-      const crystal = makeUnit(FORCE_ID_PLAYER2, "crystal_core", freeSlot);
+      const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
       crystal.isCore = true;
       playerUnits.push(crystal);
     }
@@ -7428,7 +7427,7 @@ function createCombatState(session) {
     const allCards = getNonCores();
     const mockState = {
       battleData: {
-        forces: [makeForce(FORCE_ID_PLAYER2), makeForce(FORCE_ID_CPU2)],
+        forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
         units: [],
         grid: []
       },
@@ -7436,7 +7435,7 @@ function createCombatState(session) {
       session: { ...session }
     };
     enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
-    enemyUnits.forEach((u) => u.force = FORCE_ID_CPU2);
+    enemyUnits.forEach((u) => u.force = FORCE_ID_CPU);
   }
   return {
     savedGames: [],
@@ -7447,7 +7446,7 @@ function createCombatState(session) {
       // The input session is SessionData, so it should be fine.
     },
     battleData: {
-      forces: [makeForce(FORCE_ID_PLAYER2), makeForce(FORCE_ID_CPU2)],
+      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
       grid: createGrid(),
       units: [...playerUnits, ...enemyUnits]
     }
