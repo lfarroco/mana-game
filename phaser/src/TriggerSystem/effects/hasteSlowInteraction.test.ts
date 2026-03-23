@@ -2,23 +2,23 @@ import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals
 import { createMockState } from "@test-utils/serverCombatUtils";
 import {
 	createServerCombatEffects,
-	CombatLogEntry,
-} from "@Scenes/Battleground/ServerCombatEffects";
-import { runCombat, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
+	type CombatLogEntry,
+} from "@Core/Combat/ServerCombatEffects";
+import { runCombat, CombatRunner } from "@Core/Combat/RunCombatCore";
 import { applyHasteLogicIO } from "@TriggerSystem/effects/applyHaste";
 import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
@@ -59,8 +59,8 @@ describe("Haste & Slow Interaction Tests", () => {
 		const delta = 10;
 
 		// Apply both effects
-		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => {});
-		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => {});
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, duration, () => { });
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], duration, () => { });
 
 		// Force apply delayed effects (projectile time)
 		effects.setFrame(100);
@@ -84,7 +84,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		let currentFrame = 0;
 
 		// T=0: Apply Haste
-		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => {});
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
 		// Force apply
 		currentFrame += 50;
 		effects.setFrame(currentFrame);
@@ -99,7 +99,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 20; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// T=200: Apply Slow
-		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => {});
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
 		// Force apply
 		currentFrame += 50;
 		effects.setFrame(currentFrame);
@@ -144,7 +144,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		let currentFrame = 200; // Start offset to avoid conflict with previous test if state shared (it's not)
 
 		// T=0: Apply Slow
-		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => {});
+		await applySlowLogicIO(env, sourceUnit, [targetUnit], slowDuration, () => { });
 		// Force apply
 		currentFrame += 50;
 		effects.setFrame(currentFrame);
@@ -158,7 +158,7 @@ describe("Haste & Slow Interaction Tests", () => {
 		for (let i = 0; i < 20; i++) combatRunner.updateFrame(state, 0, delta);
 
 		// T=200: Apply Haste
-		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => {});
+		await applyHasteLogicIO(env, [targetUnit], sourceUnit, hasteDuration, () => { });
 		// Force apply
 		currentFrame += 50;
 		effects.setFrame(currentFrame);

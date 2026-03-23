@@ -8,7 +8,8 @@ import type { SessionData, ActionPayload } from "@Core/Types";
 import type { TransitionToNextStateOptions } from "@Core/GameLogic";
 import { RunActionQueue } from "@Core/RunActionQueue";
 import { submitRunManifest } from "@Core/DeferredSubmission";
-import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
+import { FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
+import type { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { createLogger } from "@Utils/Logger";
 
 // Internal state
@@ -582,7 +583,7 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 				enemyTeam: Array.isArray(optionsCombatState.enemyTeam)
 					? (optionsCombatState.enemyTeam as Unit[])
 					: [],
-				logs: optionsCombatState.logs as import("@Scenes/Battleground/ServerCombatEffects").CombatLogEntry[],
+				logs: optionsCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
 			};
 		} else {

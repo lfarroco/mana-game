@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals";
 import { createMockState } from "@test-utils/serverCombatUtils";
-import { createServerCombatEffects } from "@Scenes/Battleground/ServerCombatEffects";
-import { runCombat, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
+import { createServerCombatEffects } from "@Core/Combat/ServerCombatEffects";
+import { runCombat, CombatRunner } from "@Core/Combat/RunCombatCore";
 import { dealDamageLogicIO, applyPoisonLogicIO } from "@TriggerSystem/effects";
 import { applyHasteLogicIO } from "@TriggerSystem/effects/applyHaste";
 import { applySlowLogicIO } from "@TriggerSystem/effects/applySlow";
@@ -14,14 +14,14 @@ import { State } from "@Models/State";
 import { getBattleCore } from "@Models/Entities/Card";
 import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
 import { processReactions, EffectReaction } from "@TriggerSystem/TriggerSystem";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 // Mock i18n
 jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
