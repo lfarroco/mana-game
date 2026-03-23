@@ -4,10 +4,7 @@ import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_WIDTH, SCREEN_HEIGHT } from "@Constants/constants";
-import { createUIButton } from "@Components/UIButton";
-import { t } from "@i18n/i18n";
-import { vec2 } from "@Models/Geometry";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
 import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
@@ -212,12 +209,8 @@ export async function handleMultiplayerPhase(
 
 		const scene = getCurrentScene() as BattlegroundScene;
 
-		await new Promise<void>((resolve) => {
-			const btn = createUIButton(t("ui.ready"), vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100), () => {
-				btn.container.destroy();
-				resolve();
-			});
-		});
+		// Automatically start combat after a brief delay to allow teams to be visible
+		await delay(300);
 
 		const effects = createBrowserCombatEffects();
 		effects.onCombatEnd = async (state, outcome, combatStates) => {
