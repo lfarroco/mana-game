@@ -79,6 +79,16 @@ class PhaseValidator {
 			"skip_encounter",
 		];
 		if (systemActions.includes(actionId)) {
+			const meta = actionRegistry.get(actionId);
+			if (meta?.fromPhase && meta.fromPhase !== phase) {
+				return {
+					valid: false,
+					errors: [
+						`Action '${actionId}' is valid for phase '${meta.fromPhase}', but current phase is '${phase}'.`,
+					],
+				};
+			}
+
 			return { valid: true, errors: [] };
 		}
 
