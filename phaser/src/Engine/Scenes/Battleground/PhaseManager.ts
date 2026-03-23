@@ -17,7 +17,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter } from "@Systems/Events";
-import { PhaseOptions, PhaseOption } from "@Core/Types";
+import { ActionPayload, PhaseOptions, PhaseOption } from "@Core/Types";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import * as Board from "@Models/Board";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
@@ -26,6 +26,7 @@ import { updateRoundDisplay } from "@UI/components/roundDisplay";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getCardDefinition } from "@Models/Entities/Card";
 import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseManager";
+import type { PhaseTransport } from "@Scenes/Battleground/MultiplayerPhaseManager";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("PhaseManager");
@@ -44,15 +45,38 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 
 let currentEventEmitter: EventEmitter | undefined;
 
+const createLocalPhaseTransport = (): PhaseTransport => ({
+	getPhaseOptions: async () => {
+		const server = getServerAdapter();
+		const playerId = getPlayerId();
+		return await server.getPhaseOptions(playerId);
+	},
+	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
+		const server = getServerAdapter();
+		const playerId = getPlayerId();
+		return await server.handleAction(playerId, optionId, payload);
+	},
+});
+
 export async function startPhase(state: State, eventEmitter?: EventEmitter) {
 	currentEventEmitter = eventEmitter;
-	// For multiplayer, continue using the existing system (for now during migration)
+	// Multiplayer keeps using the remote transport.
 	if (isMultiplayer) {
 		await handleMultiplayerPhase(state);
 		return;
 	}
 
-	// For single-player, use the unified server interface
+	// Single-player uses the same phase UI handler with a local server transport.
+	try {
+		await handleMultiplayerPhase(state, createLocalPhaseTransport());
+		return;
+	} catch (error) {
+		logger.warn("Shared phase handler failed in local mode, falling back to legacy renderer", {
+			error,
+		});
+	}
+
+	// Legacy single-player fallback path.
 	const server = getServerAdapter();
 	const playerId = getPlayerId();
 

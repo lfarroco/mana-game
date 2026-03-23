@@ -113,7 +113,7 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 				round: 1,
 			},
 			battleData: { units: [] },
-		} as Parameters<typeof handleMultiplayerPhase>[0];
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
 
 		await handleMultiplayerPhase(state);
 

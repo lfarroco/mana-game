@@ -27,13 +27,28 @@ import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import { createLogger } from "@Utils/Logger";
-import { PhaseOption, CombatState } from "@Core/Types";
+import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
 
 const logger = createLogger("MultiplayerPhaseManager");
 
-export async function handleMultiplayerPhase(state: State) {
+type PhaseOptionsResult = Omit<PhaseOptions, "round"> & { round?: number };
+
+export type PhaseTransport = {
+	getPhaseOptions: (state: State) => Promise<PhaseOptionsResult>;
+	sendOptionSelection: (optionId: string, payload?: ActionPayload) => Promise<boolean>;
+};
+
+const defaultMultiplayerTransport: PhaseTransport = {
+	getPhaseOptions,
+	sendOptionSelection,
+};
+
+export async function handleMultiplayerPhase(
+	state: State,
+	transport: PhaseTransport = defaultMultiplayerTransport
+) {
 	logger.debug("Starting Multiplayer Phase handling...");
-	const result = await getPhaseOptions(state);
+	const result = await transport.getPhaseOptions(state);
 
 	logger.debug(`Multiplayer Phase: ${result.phase}`);
 
@@ -88,8 +103,8 @@ export async function handleMultiplayerPhase(state: State) {
 				logger.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
-				await sendOptionSelection(combatOption.id);
-				await handleMultiplayerPhase(state);
+				await transport.sendOptionSelection(combatOption.id);
+				await handleMultiplayerPhase(state, transport);
 			}
 			break;
 
@@ -125,7 +140,7 @@ export async function handleMultiplayerPhase(state: State) {
 				orbOptions.map((o: PhaseOption) => o.id),
 				async (orbId, targetId) => {
 					logger.debug(`Sending Orb Apply: ${orbId} -> ${targetId}`);
-					await sendOptionSelection("apply_orb", {
+					await transport.sendOptionSelection("apply_orb", {
 						orbId,
 						targetUnitId: targetId,
 						team: state.session.team,
@@ -133,24 +148,24 @@ export async function handleMultiplayerPhase(state: State) {
 				}
 			);
 			// After orb shop completes, notify server and get next phase
-			await sendOptionSelection("orb_shop_done");
-			await handleMultiplayerPhase(state);
+			await transport.sendOptionSelection("orb_shop_done");
+			await handleMultiplayerPhase(state, transport);
 			break;
 
 		case "upgrade_core":
 			const upgradeIds = result.options.map((o: PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
-			await sendOptionSelection("upgrade_core_done");
-			await handleMultiplayerPhase(state);
+			await transport.sendOptionSelection("upgrade_core_done");
+			await handleMultiplayerPhase(state, transport);
 			break;
 
 		case "add_reaction_core":
 			const reactionIds = result.options.map((o: PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
-			await sendOptionSelection("add_reaction_core_done");
-			await handleMultiplayerPhase(state);
+			await transport.sendOptionSelection("add_reaction_core_done");
+			await handleMultiplayerPhase(state, transport);
 			break;
 
 		case "victory":
@@ -248,7 +263,9 @@ export async function handleMultiplayerPhase(state: State) {
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						sendOptionSelection("combat_done").then(() => handleMultiplayerPhase(state));
+						transport
+							.sendOptionSelection("combat_done")
+							.then(() => handleMultiplayerPhase(state, transport));
 					},
 					() => {
 						// Replay Callback
