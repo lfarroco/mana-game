@@ -1,6 +1,6 @@
 import type { RunManifest, SessionData } from "@Core/Types";
 import type { Unit } from "@Models/Entities/Unit";
-import type { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import type { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 
 jest.mock("@main", () => ({
 	game: {

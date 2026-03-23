@@ -11,8 +11,8 @@ if (typeof global.structuredClone === "undefined") {
 jest.mock("../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (key: string) => key,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
@@ -94,5 +94,36 @@ describe("transitionToNextState - combat enemy selection", () => {
 			?.combatState;
 		expect(Array.isArray(combatState?.enemyTeam)).toBe(true);
 		expect((combatState?.enemyTeam?.length ?? 0) > 0).toBe(true);
+	});
+});
+
+describe("pure session helpers", () => {
+	it("pickOption supports pipeline-style state transitions without mutating the source session", () => {
+		const initialState = GameLogic.createInitialSession("p1", "crystal_core", "pipeline-seed-1");
+		const initialOptions = GameLogic.getCurrentOptions(initialState);
+
+		const firstStep = GameLogic.pickOption(initialState, 1);
+		const secondStep = GameLogic.pickOption(firstStep, 1);
+
+		expect(initialOptions.length).toBeGreaterThan(0);
+		expect(initialState.action_log).toHaveLength(0);
+		expect(firstStep.action_log).toHaveLength(1);
+		expect(firstStep.action_log[0].actionId).toBe(initialOptions[0].id);
+		expect(secondStep.action_log).toHaveLength(2);
+	});
+
+	it("pickRandomOptionsUntilGameOver is deterministic for the same initial seed", () => {
+		const seed = "pipeline-seed-random-1";
+		const initialStateA = GameLogic.createInitialSession("p1", "crystal_core", seed);
+		const initialStateB = GameLogic.createInitialSession("p1", "crystal_core", seed);
+
+		const finalStateA = GameLogic.pickRandomOptionsUntilGameOver(initialStateA, { maxActions: 12 });
+		const finalStateB = GameLogic.pickRandomOptionsUntilGameOver(initialStateB, { maxActions: 12 });
+
+		expect(GameLogic.buildReplaySnapshot(finalStateA)).toEqual(
+			GameLogic.buildReplaySnapshot(finalStateB)
+		);
+		expect(initialStateA.action_log).toHaveLength(0);
+		expect(finalStateA.action_log.length).toBeGreaterThan(0);
 	});
 });
