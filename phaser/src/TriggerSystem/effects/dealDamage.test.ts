@@ -2,23 +2,23 @@ import { describe, it, expect, jest, beforeAll, beforeEach } from "@jest/globals
 import { createMockState } from "@test-utils/serverCombatUtils";
 import {
 	createServerCombatEffects,
-	CombatLogEntry,
-} from "@Scenes/Battleground/ServerCombatEffects";
-import { runCombat } from "@Scenes/Battleground/RunCombatCore";
+	type CombatLogEntry,
+} from "@Core/Combat/ServerCombatEffects";
+import { runCombat } from "@Core/Combat/RunCombatCore";
 import { dealDamageLogicIO } from "@TriggerSystem/effects/dealDamage";
 import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
