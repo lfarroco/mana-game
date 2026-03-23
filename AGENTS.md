@@ -70,6 +70,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 | [character-unit-system.md](docs/character-unit-system.md)                   | Unit/Card types, Chara rendering system                     |
 | [unit-balance.md](docs/unit-balance.md)                                     | Power budget, cost formulas, trigger frequencies            |
 | [phase-system-refactoring.md](docs/phase-system-refactoring.md)             | New PhaseSystem handler architecture                        |
+| [purity-boundary.md](docs/purity-boundary.md)                               | Pure logic boundary, replay-critical import rules           |
 | [single-multiplayer-unification.md](docs/single-multiplayer-unification.md) | IGameServer interface, LocalServerAdapter, unification plan |
 | [multiplayer-architecture.md](docs/multiplayer-architecture.md)             | MultiplayerManager, server-driven phases                    |
 | [server-side-combat-migration.md](docs/server-side-combat-migration.md)     | Headless combat simulation (completed)                      |
