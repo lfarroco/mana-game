@@ -8,6 +8,7 @@ import {
 	handleAuthRegister,
 	checkActiveSession,
 } from "@Multiplayer/MultiplayerManager";
+import { createInitialSession } from "@Core/SessionManagement";
 import { supabase } from "@lib/supabase";
 import { State } from "@Models/State";
 import { RunActionQueue } from "@Core/RunActionQueue";
@@ -32,6 +33,9 @@ jest.mock("@lib/supabase", () => ({
 		})),
 	},
 }));
+
+const createDeferredCoreTeam = (playerId: string, seed: string) =>
+	createInitialSession(playerId, "crystal_core", seed).team;
 
 describe("MultiplayerManager", () => {
 	beforeEach(() => {
@@ -127,7 +131,7 @@ describe("MultiplayerManager", () => {
 			seed: "seed-1",
 			initial_seed: "seed-1",
 			current_options: { options: [{ id: "card_a" }] },
-			team: { units: [{ id: "core-1", isCore: true }] },
+			team: createDeferredCoreTeam("player-1", "seed-1"),
 			wins: 0,
 			losses: 0,
 			action_log: [],
@@ -150,7 +154,7 @@ describe("MultiplayerManager", () => {
 			seed: "seed-1",
 			initial_seed: "seed-1",
 			current_options: { options: [] },
-			team: { units: [{ id: "core-1", isCore: true }] },
+			team: createDeferredCoreTeam("player-1", "seed-1"),
 			wins: 10,
 			losses: 0,
 			action_log: [],
