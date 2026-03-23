@@ -103,7 +103,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### High Priority
 
 - [ ] Complete migration from legacy `PhaseManager.ts` to `Core/PhaseSystem/` handler architecture
-- [ ] Have the multiplayer handler be used locally in single player mode (from TODO.md)
 
 ### Medium Priority
 
