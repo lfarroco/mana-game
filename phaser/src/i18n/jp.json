@@ -1,4 +1,8 @@
 {
+	"title.singlePlayer": "シングルプレイ",
+	"title.startContinue": "開始 / 再開",
+	"title.return": "戻る",
+	"title.multiplayer": "マルチプレイ",
 	"title.newRun": "新規プレイ",
 	"title.resume": "再開",
 	"title.options": "設定",
