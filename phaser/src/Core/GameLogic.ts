@@ -3,13 +3,10 @@ import { State } from "@Models/State";
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
-import { generateEnemyTeam } from "@Scenes/Battleground/generateEnemyTeam";
-import { runCombat } from "@Scenes/Battleground/RunCombatCore";
-import {
-	createServerCombatEffects,
-	CombatLogEntry,
-} from "@Scenes/Battleground/ServerCombatEffects";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
+import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
+import { runCombat } from "@Core/Combat/RunCombatCore";
+import { createServerCombatEffects, CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
 import { makeForce } from "@Models/Entities/Force";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { registerCollection } from "@Models/Entities/Card";
@@ -596,6 +593,8 @@ export type TransitionToNextStateOptions = {
 	combatEnemyTeam?: Unit[];
 };
 
+export type SessionOptionSelection = number | string;
+
 export function transitionToNextState(
 	session: SessionData,
 	actionId: string,
@@ -699,6 +698,106 @@ export function transitionToNextState(
 
 	nextSession.updated_at = new Date();
 	return { session: nextSession, combatResult };
+}
+
+export function getCurrentOptions(session: SessionData): PhaseOption[] {
+	if (!session.current_options) {
+		return [];
+	}
+
+	if (Array.isArray(session.current_options)) {
+		return session.current_options;
+	}
+
+	return session.current_options.options;
+}
+
+function resolveSelectedOption(
+	session: SessionData,
+	selection: SessionOptionSelection
+): PhaseOption {
+	const options = getCurrentOptions(session);
+
+	if (typeof selection === "number") {
+		const option = options[selection - 1];
+		if (!option) {
+			throw new Error(`Option index ${selection} is out of range for ${options.length} options`);
+		}
+		return option;
+	}
+
+	const option = options.find((currentOption) => currentOption.id === selection);
+	if (!option) {
+		throw new Error(`Option ${selection} is not available in the current session state`);
+	}
+
+	return option;
+}
+
+export function pickOption(
+	session: SessionData,
+	selection: SessionOptionSelection,
+	payload?: ActionPayload,
+	options?: TransitionToNextStateOptions
+): SessionData {
+	const option = resolveSelectedOption(session, selection);
+	return transitionToNextState(session, option.id, payload, options).session;
+}
+
+function getDeterministicRandomOptionIndex(session: SessionData, optionCount: number): number {
+	const seededInput = `${session.seed}:${session.round}:${session.step}:${optionCount}`;
+	return Random.range(stringToSeed(seededInput), 0, optionCount - 1).result;
+}
+
+export function pickRandomOption(
+	session: SessionData,
+	payload?: ActionPayload,
+	options?: TransitionToNextStateOptions
+): SessionData {
+	const currentOptions = getCurrentOptions(session);
+	if (currentOptions.length === 0) {
+		return session;
+	}
+
+	const optionIndex = getDeterministicRandomOptionIndex(session, currentOptions.length);
+	return pickOption(session, optionIndex + 1, payload, options);
+}
+
+export function pickRandomOptionsUntilGameOver(
+	session: SessionData,
+	config?: {
+		maxActions?: number;
+		transitionOptionsForAction?: (
+			currentSession: SessionData,
+			actionId: string,
+			index: number
+		) => TransitionToNextStateOptions | undefined;
+	}
+): SessionData {
+	const maxActions = config?.maxActions ?? 128;
+	let currentSession = session;
+
+	for (let index = 0; index < maxActions; index++) {
+		if (currentSession.phase === "victory" || currentSession.phase === "game_over") {
+			break;
+		}
+
+		const currentOptions = getCurrentOptions(currentSession);
+		if (currentOptions.length === 0) {
+			break;
+		}
+
+		const optionIndex = getDeterministicRandomOptionIndex(currentSession, currentOptions.length);
+		const selectedOption = currentOptions[optionIndex];
+		currentSession = pickOption(
+			currentSession,
+			selectedOption.id,
+			undefined,
+			config?.transitionOptionsForAction?.(currentSession, selectedOption.id, index)
+		);
+	}
+
+	return currentSession;
 }
 
 // ---------------------------------------------------------------------------
