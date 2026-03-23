@@ -11,6 +11,7 @@ export default class Core extends Phaser.Scene {
 
 	preload() {
 		preload(this);
+		this.preloadAllUnitAssets();
 
 		const width = this.cameras.main.width;
 		const height = this.cameras.main.height;
@@ -148,6 +149,17 @@ export default class Core extends Phaser.Scene {
 		this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
 
 		this.load.audio("sfx_notification", "assets/audio/notification.m4a");
+	}
+
+	private preloadAllUnitAssets() {
+		const uniquePics = new Set(
+			BASE_COLLECTION_DATA.cards.filter((card) => !card.isCore).map((card) => card.pic)
+		);
+
+		for (const pic of uniquePics) {
+			this.load.atlas(pic, `assets/heroes/${pic}.png`, `assets/heroes/${pic}.json`);
+			this.load.animation(`${pic}-anims`, `assets/heroes/${pic}-anims.json`);
+		}
 	}
 
 	create() {
