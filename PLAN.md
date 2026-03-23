@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 18, 2026
+**Last Updated**: March 22, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -73,6 +73,45 @@ These tasks are essential for system stability and architectural consistency.
     3. Remove direct game logic calls from single-player UI
     4. Comprehensive testing of both modes
     5. Update Phase 3 status in unification doc
+
+### Pure Logic Migration
+- [ ] **Make game logic pure (remove Phaser-mock dependencies)**
+  - **Context**: Deferred replay verification is implemented, but server replay currently depends on a bundled `_shared.js` generated from `Core/GameLogic.ts` that still needs global shims (`window`, `localStorage`, `Phaser`) in `scripts/bundle-edge.ts`.
+  - **Observed dependency leaks (verified)**:
+   1. `GameLogic.ts` imports combat modules from `Engine/Scenes/Battleground/*`, which transitively pull scene/UI-adjacent code.
+   2. `replay-commit/_shared.js` currently contains unrelated browser/game modules (`AudioManager`, `window.steamworks`, scene strings), proving the replay bundle is not isolated to pure logic.
+   3. Because of this, replay execution in Edge depends on mocking browser/Phaser globals instead of running truly headless.
+  - **Impact**: Deterministic replays become robust and portable (Edge, tests, local headless), bundle size/risk drops, and future replay validation changes become safer.
+  - **Effort**: High (4-6 days)
+  - **Related**: Deferred replay submission in Supabase Edge Functions
+  - **Necessary steps (dependency-ordered)**:
+   1. **Define pure combat contracts in Core**
+     - Create/relocate combat types used by replay (`CombatEffects`, `CombatLogEntry`, force stat state) into Phaser-free modules under `src/Core/` (or equivalent pure folder).
+     - Remove Phaser type/value imports from these contracts.
+   2. **Extract replay-critical combat runtime from scene paths**
+     - Move headless-only logic used by replay (`runCombat`, enemy generation for replay, server combat effects) out of `Engine/Scenes/*` import paths into pure modules.
+     - Keep browser visuals (`BrowserCombatEffects`, UI renderers, scene orchestration) in scene/system layer.
+   3. **Rewire `GameLogic` to pure modules only**
+     - `GameLogic` must depend only on `Core`, `Models`, `TriggerSystem`, and pure utilities.
+     - No imports from Phaser scenes/components/audio/storage UI layers.
+   4. **Harden Edge bundle boundaries**
+     - After extraction, regenerate replay/action shared bundles and verify they no longer include Phaser/browser app code.
+     - Treat remaining global shim requirements as failures for replay-critical logic (temporary shim allowed only while migration is in progress).
+   5. **Add determinism + parity gates**
+     - Golden tests: same manifest + same server enemy teams must produce identical snapshot/outcomes in browser-local and Edge-bundled replay.
+     - Include `update_team` snapshot application path in test corpus.
+   6. **Document purity boundary and ownership**
+     - Record which folders are allowed for pure game logic and which are presentation/integration only.
+     - Add a short "replay-critical import rules" checklist for future contributors.
+  - **Non-goals (avoid scope creep)**:
+   1. Full Phaser scene refactor outside replay-critical paths.
+   2. Replacing localStorage usage in session persistence that is not part of replay evaluation.
+   3. Migrating all gameplay systems at once; prioritize replay/transition/combat pipeline first.
+  - **Acceptance criteria (must all pass)**:
+   1. `replay-commit/_shared.js` no longer references `window.steamworks`, `AudioManager`, or scene/UI modules.
+   2. Replay path executes in Edge without Phaser/browser global mocks for core logic.
+   3. Determinism tests pass for encounter/shop/combat and final snapshot parity.
+   4. `transitionToNextState` + combat simulation run headless in unit tests without Phaser mocks.
 
 ---
 
