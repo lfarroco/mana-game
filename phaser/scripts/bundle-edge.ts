@@ -123,3 +123,6 @@ bundle("action", path.join(srcDir, "Core/GameLogic.ts"));
 
 // Bundle Logic for 'replay-commit' function (same shared logic — replay uses the same GameLogic)
 bundle("replay-commit", path.join(srcDir, "Core/GameLogic.ts"));
+
+// Bundle Logic for 'get-enemy-team' function (needs generateEnemyTeamForRound from GameLogic)
+bundle("get-enemy-team", path.join(srcDir, "Core/GameLogic.ts"));

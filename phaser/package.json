@@ -47,7 +47,7 @@
         "publish:steam": "./scripts/publish_steam.sh",
         "publish:steam:demo": "./scripts/publish_steam_demo.sh",
         "bundle:edge": "tsx scripts/bundle-edge.ts",
-        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED"
+        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED && supabase functions deploy get-enemy-team --project-ref supabase-project-ref-REDACTED"
     },
     "repository": {
         "type": "git",
