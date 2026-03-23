@@ -21,6 +21,11 @@ Deno.test("readRatingDelta floors valid positive values", () => {
 	assertEquals(readRatingDelta("301", 150), 301);
 });
 
+Deno.test("readRatingDelta supports a 50-point fallback window", () => {
+	assertEquals(readRatingDelta(undefined, 50), 50);
+	assertEquals(readRatingDelta("bad-value", 50), 50);
+});
+
 Deno.test("hasValidCombatTeam accepts non-empty team with a core", () => {
 	assertEquals(
 		hasValidCombatTeam({ units: [{ id: "u1", isCore: false }, { id: "core", isCore: true }] }),
