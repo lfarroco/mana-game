@@ -2,12 +2,9 @@ import { MIDDLE_SCREEN } from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import { Shader } from "@PhaserIO";
 import { arcaneTornadoFragmentShader } from "@Shaders/ArcaneTornado";
+import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 
-export type BlackHoleState = {
-	blackHole: Phaser.GameObjects.Shader | null;
-	timer: Phaser.Time.TimerEvent | null;
-	dissolve: number;
-};
+export type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 
 export function initBlackHole(): BlackHoleState {
 	const dissolve = 0;

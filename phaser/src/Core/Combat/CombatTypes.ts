@@ -3,9 +3,9 @@ import type { State } from "@Models/State";
 import type { Unit } from "@Models/Entities/Unit";
 import type { CombatSystemStates } from "@Systems/CombatSystemStates";
 import type { Effect } from "@TriggerSystem/TriggerSystem";
-import type { BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import type { CountdownTimerState } from "@Systems/CountdownTimer";
-import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
+import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 export type WaveOutcome = "player_won" | "player_lost";
 

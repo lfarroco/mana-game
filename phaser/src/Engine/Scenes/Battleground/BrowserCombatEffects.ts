@@ -1,5 +1,7 @@
 import { State, getCurrentScene } from "@Models/State";
 import { CombatEffects, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
+import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
+import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
@@ -8,8 +10,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 
 import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
-import { ForceStatsState } from "@Scenes/Battleground/ForceStats";
-import { initBlackHole, BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import { initBlackHole } from "@Scenes/Battleground/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import { CountdownTimerState } from "@Systems/CountdownTimer";
 import { summonEffect } from "@Effects/summonEffect";

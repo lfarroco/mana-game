@@ -1,8 +1,7 @@
 import { State } from "@Models/State";
 import { CombatEffects, WaveOutcome } from "@Core/Combat/CombatTypes";
 import { CombatSystemStates } from "@Systems/CombatSystemStates";
-import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
-import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";
+import { initializeForceStatsState, type ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 const INSTANT_EFFECT_DURATION = 0;

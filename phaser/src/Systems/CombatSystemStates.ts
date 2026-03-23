@@ -1,7 +1,7 @@
 import { PoisonSystemState } from "@Systems/PoisonDamageSystem";
 import { RegenSystemState } from "@Systems/RegenSystem";
 import { CombatStatsTrackerState } from "@Systems/CombatStatsTracker";
-import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
+import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 export type CombatSystemStates = {
 	poisonSystemState: PoisonSystemState;

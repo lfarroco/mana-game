@@ -1,10 +1,10 @@
 import { Unit } from "@Models/Entities/Unit";
 import { getBattleCore } from "@Models/Entities/Card";
 import { State } from "@Models/State";
-import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
+import { CombatEffects } from "@Core/Combat/CombatTypes";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
 import { createLogger } from "@Utils/Logger";
-import type { ForceStatsState } from "@Scenes/Battleground/ForceStats";
+import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 const logger = createLogger("Force");
 

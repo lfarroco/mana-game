@@ -18,12 +18,12 @@ import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { createLogger } from "@Utils/Logger";
-import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
+import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";
 
 const logger = createLogger("Orbs");
 
@@ -53,15 +53,15 @@ const getShopEnvironment = (state: State): CombatEnvironment => {
 			forceStatsState: initializeForceStatsState(),
 		},
 		effects: {
-			onUnitPop: () => {},
-			onChargeBarUpdate: () => {},
-			onCombatEnd: async () => {},
+			onUnitPop: () => { },
+			onChargeBarUpdate: () => { },
+			onCombatEnd: async () => { },
 			getTimeScale: () => 1,
 			getScene: () => null,
-			updateLifeDisplay: () => {},
-			updateShieldDisplay: () => {},
-			updateRegenDisplay: () => {},
-			updatePoisonDisplay: () => {},
+			updateLifeDisplay: () => { },
+			updateShieldDisplay: () => { },
+			updateRegenDisplay: () => { },
+			updatePoisonDisplay: () => { },
 			onPowerUpdate: (unitId: string) => updatePowerDisplay(unitId),
 			// For shop, we might want to run the onHit callback immediately for other effects if they happen
 			onIncreasePower: (_s, _t, _amount, _permanent, onHit) => onHit(),

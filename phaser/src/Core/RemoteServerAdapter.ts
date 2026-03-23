@@ -1,7 +1,7 @@
 import { IGameServer } from "@Core/IGameServer";
 import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
-import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
 import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";

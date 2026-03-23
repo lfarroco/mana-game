@@ -10,15 +10,11 @@ import { compactNumber } from "utils";
 import Phaser from "phaser";
 import { getState } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
+import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 const logger = createLogger("ForceStats");
 
-export type ForceStatsState = {
-	playerStats: Phaser.GameObjects.Container | null;
-	cpuStats: Phaser.GameObjects.Container | null;
-	healthBars: Map<string, Phaser.GameObjects.Graphics>;
-	shieldBars: Map<string, Phaser.GameObjects.Graphics>;
-};
+export type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 export function initializeForceStatsState(): ForceStatsState {
 	return {
