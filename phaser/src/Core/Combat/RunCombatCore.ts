@@ -10,7 +10,7 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as StatusEffectSystem from "@Systems/StatusEffectSystem";
 import { getBattleCore } from "@Models/Entities/Card";
 import { CombatEffects, CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import { CountdownTimerState } from "@Systems/CountdownTimer";
 import { createLogger } from "@Utils/Logger";
 import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";

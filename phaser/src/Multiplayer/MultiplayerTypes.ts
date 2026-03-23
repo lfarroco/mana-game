@@ -1,4 +1,4 @@
-import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { Unit } from "@Models/Entities/Unit";
 import { PhaseOption } from "@Core/Types";
 

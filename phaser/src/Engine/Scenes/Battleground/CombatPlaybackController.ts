@@ -1,15 +1,15 @@
 import { State } from "@Models/State";
 import { CombatRunner, WaveOutcome } from "@Scenes/Battleground/RunCombatCore";
-import { CombatLogEntry } from "@Scenes/Battleground/ServerCombatEffects";
+import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { CombatEffects } from "@Scenes/Battleground/CombatEnvironment";
-import type { BlackHoleState } from "@Scenes/Battleground/BlackHole";
+import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import type { CountdownTimerState } from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
 import { initializeRegenSystem } from "@Systems/RegenSystem";
 import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
 import { createLogger } from "@Utils/Logger";
-import { initializeForceStatsState } from "@Scenes/Battleground/ForceStats";
+import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";
 
 const logger = createLogger("CombatPlaybackController");
 
@@ -103,23 +103,23 @@ export const createCombatPlaybackController = (
 			switch (log.type) {
 				case "damage":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
-					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => {});
+					effects.onDamage?.(log.sourceId, log.targetId, log.amount, () => { });
 					break;
 				case "heal":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
-					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => {});
+					effects.onHeal?.(log.sourceId, log.targetId, log.amount, () => { });
 					break;
 				case "shield":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
-					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => {});
+					effects.onShield?.(log.sourceId, log.targetId, log.amount, () => { });
 					break;
 				case "poison":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
-					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => {});
+					effects.onPoison?.(log.sourceId, log.targetId, log.amount, () => { });
 					break;
 				case "regen":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
-					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => {});
+					effects.onRegen?.(log.sourceId, log.targetId, log.amount, () => { });
 					break;
 				case "haste":
 					if (!log.sourceId || !log.targetId || log.effectDuration === undefined) break;
@@ -201,7 +201,7 @@ export const createCombatPlaybackController = (
 					break;
 				case "increase_critical":
 					if (!log.targetId) break;
-					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => {});
+					effects.onIncreaseCritical?.(log.sourceId, log.targetId, () => { });
 					break;
 				case "crystal_life":
 					if (!log.force || log.life === undefined) break;
@@ -240,7 +240,7 @@ export const createCombatPlaybackController = (
 					break;
 				case "timeout_damage":
 					if (!log.force || log.damage === undefined) break;
-					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => {});
+					effects.onTimeoutDamageVisual?.(log.force, log.damage, () => { });
 					break;
 				case "reaction":
 					if (effects.onReactionVisual) {
@@ -386,7 +386,7 @@ export const createCombatPlaybackController = (
 			state,
 			effects,
 			combatStates: playbackState.combatStates,
-			processReactions: () => {},
+			processReactions: () => { },
 		};
 	};
 
