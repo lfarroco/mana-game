@@ -45,7 +45,12 @@ test.describe("Visual regression", () => {
 			phase: "shop",
 			round: 1,
 			step: 1,
+			seed: "visual-regression-seed",
+			initial_seed: "visual-regression-seed",
 			team: { units: [CORE_UNIT] },
+			current_options: {
+				options: [{ id: "living_armor" }, { id: "void_witch" }, { id: "water_elemental" }],
+			},
 		});
 
 		await expect
