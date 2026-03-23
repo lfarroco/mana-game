@@ -90,6 +90,46 @@ const getClientVersion = (): string => {
 const cloneSession = (session: SessionData): SessionData =>
 	JSON.parse(JSON.stringify(session)) as SessionData;
 
+const getCurrentOptionIds = (session: SessionData): string[] => {
+	const rawOptions = session.current_options;
+	if (!rawOptions) {
+		return [];
+	}
+
+	if (Array.isArray(rawOptions)) {
+		return rawOptions
+			.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
+			.filter((id): id is string => Boolean(id));
+	}
+
+	if (typeof rawOptions === "object" && Array.isArray(rawOptions.options)) {
+		return rawOptions.options
+			.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
+			.filter((id): id is string => Boolean(id));
+	}
+
+	return [];
+};
+
+const normalizeDeferredSession = (session: SessionData): SessionData => {
+	const normalized = cloneSession(session);
+
+	// Server session rows may omit encounter_history, but deterministic replay starts
+	// with the initial shown encounters already recorded.
+	if (!Array.isArray(normalized.encounter_history)) {
+		normalized.encounter_history = [];
+	}
+
+	if (normalized.encounter_history.length === 0 && normalized.phase === "encounter") {
+		const encounterIds = getCurrentOptionIds(normalized).filter((id) => id !== "combat_encounter");
+		if (encounterIds.length > 0) {
+			normalized.encounter_history = encounterIds;
+		}
+	}
+
+	return normalized;
+};
+
 const getOptionsList = (session: SessionData): unknown[] => {
 	const rawOptions = session.current_options;
 	if (!rawOptions) {
@@ -159,7 +199,7 @@ const ensureRunQueue = (session: SessionData): void => {
 };
 
 const syncDeferredSession = (session: SessionData): void => {
-	deferredSession = cloneSession(session);
+	deferredSession = normalizeDeferredSession(session);
 	ensureRunQueue(deferredSession);
 	persistDeferredSession(deferredSession);
 };
@@ -194,7 +234,10 @@ const submitDeferredManifestIfNeeded = async (): Promise<void> => {
 
 	if (result.accepted || result.idempotent) {
 		runQueue.clear();
-		clearDeferredRunState({ clearPersisted: true });
+		runQueue = null;
+		clearPersistedDeferredSession();
+		// Keep deferredSession so getPhaseOptions can still return the terminal phase
+		// for handleMultiplayerPhase to display the results UI
 	}
 };
 
@@ -216,7 +259,13 @@ export async function finalizeCompletedRun(): Promise<boolean> {
 
 	await submitDeferredManifestIfNeeded();
 
-	return !hasTerminalPhase(deferredSession);
+	if (runSubmitted) {
+		// Committed - fully disable deferred mode so future navigation doesn't see stale state
+		deferredModeActive = false;
+		clearDeferredRunState();
+	}
+
+	return true;
 }
 
 const buildPhaseOptionsFromSession = (session: SessionData): PhaseOptions => ({
@@ -278,6 +327,15 @@ const isFunctionsFetchError = (error: unknown): boolean => {
 
 	const maybeError = error as { name?: string };
 	return maybeError.name === "FunctionsFetchError";
+};
+
+const isNoRowsError = (error: unknown): boolean => {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+
+	const maybeError = error as { code?: string };
+	return maybeError.code === "PGRST116";
 };
 
 export function disableMultiplayer() {
@@ -413,10 +471,16 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 			.from("player_sessions")
 			.select("*")
 			.eq("player_id", playerId)
-			.single();
+			.maybeSingle();
 
-		if (error || !session) {
+		if (error && !isNoRowsError(error)) {
 			throw new Error("Failed to bootstrap deferred state from DB");
+		}
+
+		if (!session) {
+			deferredModeActive = false;
+			clearDeferredRunState({ clearPersisted: true });
+			throw new Error("No active multiplayer session");
 		}
 
 		syncDeferredSession(session as SessionData);
@@ -433,10 +497,14 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 		.from("player_sessions")
 		.select("*")
 		.eq("player_id", playerId)
-		.single();
+		.maybeSingle();
 
-	if (error || !session) {
+	if (error && !isNoRowsError(error)) {
 		throw new Error("Failed to fetch state from DB");
+	}
+
+	if (!session) {
+		throw new Error("No active multiplayer session");
 	}
 
 	let combatState: PhaseOptions["combatState"] = undefined;

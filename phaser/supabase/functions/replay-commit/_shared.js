@@ -8996,16 +8996,16 @@ var init_LocalServerAdapter = __esm({
 
 // src/lib/supabase.ts
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-var supabaseUrl, supabaseKey, supabaseClient, getSupabaseClient, supabase;
+var SUPABASE_URL, supabaseKey, supabaseClient, getSupabaseClient, supabase;
 var init_supabase = __esm({
   "src/lib/supabase.ts"() {
     "use strict";
-    supabaseUrl = "https://supabase-project-REDACTED.supabase.co";
+    SUPABASE_URL = "https://supabase-project-REDACTED.supabase.co";
     supabaseKey = "sb_publishable_REDACTED";
     supabaseClient = null;
     getSupabaseClient = () => {
       if (!supabaseClient) {
-        supabaseClient = createClient(supabaseUrl, supabaseKey);
+        supabaseClient = createClient(SUPABASE_URL, supabaseKey);
       }
       return supabaseClient;
     };
@@ -9137,8 +9137,7 @@ var init_RunActionQueue = __esm({
 
 // src/Core/DeferredSubmission.ts
 async function submitRunManifest(manifest, authToken) {
-  const supabaseUrl2 = typeof process !== "undefined" ? process.env.SUPABASE_URL ?? "" : "";
-  const endpoint = `${supabaseUrl2}/functions/v1/replay-commit`;
+  const endpoint = `${SUPABASE_URL}/functions/v1/replay-commit`;
   try {
     const response = await fetch(endpoint, {
       method: "POST",
@@ -9166,6 +9165,7 @@ async function submitRunManifest(manifest, authToken) {
 var init_DeferredSubmission = __esm({
   "src/Core/DeferredSubmission.ts"() {
     "use strict";
+    init_supabase();
   }
 });
 
@@ -9178,14 +9178,23 @@ async function sendOptionSelection(optionId, payload) {
       return false;
     }
     const teamSnapshot = cloneSession(deferredSession).team;
+    let result;
+    try {
+      result = transitionToNextState(
+        deferredSession,
+        optionId,
+        sanitizedPayload
+      );
+    } catch (error) {
+      logger20.error("Rejected deferred action during local transition", {
+        optionId,
+        error
+      });
+      return false;
+    }
     if (optionId !== "update_team" && runQueue) {
       runQueue.append(optionId, sanitizedPayload, teamSnapshot);
     }
-    const result = transitionToNextState(
-      deferredSession,
-      optionId,
-      sanitizedPayload
-    );
     syncDeferredSession(result.session);
     await submitDeferredManifestIfNeeded();
     return true;
@@ -9214,6 +9223,18 @@ async function getPhaseOptions(_state) {
   if (deferredModeActive) {
     if (deferredSession) {
       return buildPhaseOptionsFromSession(deferredSession);
+    }
+    const restored = restorePersistedDeferredSession();
+    if (restored) {
+      logger20.info("Restored deferred session from local storage", {
+        runId: restored.id,
+        phase: restored.phase,
+        round: restored.round
+      });
+      syncDeferredSession(restored);
+      if (deferredSession) {
+        return buildPhaseOptionsFromSession(deferredSession);
+      }
     }
     logger20.info("Bootstrapping deferred session from server");
     const { data: session2, error: error2 } = await supabase.from("player_sessions").select("*").eq("player_id", playerId).single();
@@ -9270,9 +9291,10 @@ function primeDeferredSession(session, selectedCrystalId) {
   deferredModeActive = true;
   deferredSelectedCrystalId = selectedCrystalId || deferredSelectedCrystalId;
   runSubmitted = false;
+  runQueue = null;
   syncDeferredSession(session);
 }
-var isMultiplayer, playerId, initPromise, deferredModeActive, deferredSession, runQueue, runSubmitted, deferredSelectedCrystalId, logger20, getClientVersion, cloneSession, getOptionsList, getCombatState, getSelectedCrystalIdFromSession, ensureRunQueue, syncDeferredSession, submitDeferredManifestIfNeeded, buildPhaseOptionsFromSession, storedId, safeClonePayload, isFunctionsFetchError;
+var isMultiplayer, playerId, initPromise, deferredModeActive, deferredSession, runQueue, runSubmitted, deferredSelectedCrystalId, logger20, DEFERRED_SESSION_STORAGE_KEY_PREFIX, getDeferredSessionStorageKey, persistDeferredSession, clearPersistedDeferredSession, clearDeferredRunState, restorePersistedDeferredSession, getClientVersion, cloneSession, getCurrentOptionIds, normalizeDeferredSession, getOptionsList, getCombatState, getSelectedCrystalIdFromSession, getDeferredRunId, ensureRunQueue, syncDeferredSession, submitDeferredManifestIfNeeded, buildPhaseOptionsFromSession, storedId, safeClonePayload, isFunctionsFetchError;
 var init_MultiplayerManager = __esm({
   "src/Multiplayer/MultiplayerManager.ts"() {
     "use strict";
@@ -9290,6 +9312,47 @@ var init_MultiplayerManager = __esm({
     runSubmitted = false;
     deferredSelectedCrystalId = null;
     logger20 = createLogger("MultiplayerManager");
+    DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
+    getDeferredSessionStorageKey = (id) => `${DEFERRED_SESSION_STORAGE_KEY_PREFIX}${id}`;
+    persistDeferredSession = (session) => {
+      localStorage.setItem(
+        getDeferredSessionStorageKey(playerId),
+        JSON.stringify({ ...session, player_id: playerId })
+      );
+    };
+    clearPersistedDeferredSession = () => {
+      localStorage.removeItem(getDeferredSessionStorageKey(playerId));
+    };
+    clearDeferredRunState = ({ clearPersisted = false } = {}) => {
+      if (clearPersisted) {
+        clearPersistedDeferredSession();
+      }
+      deferredSession = null;
+      runQueue = null;
+      runSubmitted = false;
+      deferredSelectedCrystalId = null;
+    };
+    restorePersistedDeferredSession = () => {
+      const raw = localStorage.getItem(getDeferredSessionStorageKey(playerId));
+      if (!raw) {
+        return null;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") {
+          return null;
+        }
+        if (parsed.player_id && parsed.player_id !== playerId) {
+          return null;
+        }
+        if (!parsed.phase || !parsed.round || !parsed.seed || !parsed.initial_seed || !parsed.team) {
+          return null;
+        }
+        return parsed;
+      } catch {
+        return null;
+      }
+    };
     getClientVersion = () => {
       try {
         return typeof process !== "undefined" && typeof process.env.APP_VERSION === "string" ? process.env.APP_VERSION : "dev";
@@ -9298,6 +9361,32 @@ var init_MultiplayerManager = __esm({
       }
     };
     cloneSession = (session) => JSON.parse(JSON.stringify(session));
+    getCurrentOptionIds = (session) => {
+      const rawOptions = session.current_options;
+      if (!rawOptions) {
+        return [];
+      }
+      if (Array.isArray(rawOptions)) {
+        return rawOptions.map((opt) => typeof opt?.id === "string" ? opt.id : void 0).filter((id) => Boolean(id));
+      }
+      if (typeof rawOptions === "object" && Array.isArray(rawOptions.options)) {
+        return rawOptions.options.map((opt) => typeof opt?.id === "string" ? opt.id : void 0).filter((id) => Boolean(id));
+      }
+      return [];
+    };
+    normalizeDeferredSession = (session) => {
+      const normalized = cloneSession(session);
+      if (!Array.isArray(normalized.encounter_history)) {
+        normalized.encounter_history = [];
+      }
+      if (normalized.encounter_history.length === 0 && normalized.phase === "encounter") {
+        const encounterIds = getCurrentOptionIds(normalized).filter((id) => id !== "combat_encounter");
+        if (encounterIds.length > 0) {
+          normalized.encounter_history = encounterIds;
+        }
+      }
+      return normalized;
+    };
     getOptionsList = (session) => {
       const rawOptions = session.current_options;
       if (!rawOptions) {
@@ -9322,11 +9411,22 @@ var init_MultiplayerManager = __esm({
       }
       return deferredSelectedCrystalId || "crystal_core";
     };
+    getDeferredRunId = (session) => {
+      const sessionId = session.id || `player-${playerId}`;
+      const runSeed = session.initial_seed || session.seed || `${Date.now()}`;
+      return `${sessionId}:${runSeed}`;
+    };
     ensureRunQueue = (session) => {
-      if (!deferredModeActive || runQueue) {
+      if (!deferredModeActive) {
         return;
       }
-      const runId = session.id || `run-${Date.now()}`;
+      const runId = getDeferredRunId(session);
+      if (runQueue && runQueue.runId === runId) {
+        return;
+      }
+      if (runQueue && runQueue.runId !== runId) {
+        runQueue = null;
+      }
       const resumed = RunActionQueue.resume(runId);
       if (resumed) {
         runQueue = resumed;
@@ -9343,8 +9443,9 @@ var init_MultiplayerManager = __esm({
       logger20.info("Started deferred run queue", { runId });
     };
     syncDeferredSession = (session) => {
-      deferredSession = cloneSession(session);
+      deferredSession = normalizeDeferredSession(session);
       ensureRunQueue(deferredSession);
+      persistDeferredSession(deferredSession);
     };
     submitDeferredManifestIfNeeded = async () => {
       if (!deferredModeActive || runSubmitted || !runQueue || !deferredSession) {
@@ -9369,6 +9470,10 @@ var init_MultiplayerManager = __esm({
         accepted: result.accepted,
         idempotent: result.idempotent
       });
+      if (result.accepted || result.idempotent) {
+        runQueue.clear();
+        clearDeferredRunState({ clearPersisted: true });
+      }
     };
     buildPhaseOptionsFromSession = (session) => ({
       phase: session.phase,
@@ -17431,6 +17536,15 @@ var init_PhaseValidator = __esm({
           "skip_encounter"
         ];
         if (systemActions.includes(actionId)) {
+          const meta2 = actionRegistry.get(actionId);
+          if (meta2?.fromPhase && meta2.fromPhase !== phase) {
+            return {
+              valid: false,
+              errors: [
+                `Action '${actionId}' is valid for phase '${meta2.fromPhase}', but current phase is '${phase}'.`
+              ]
+            };
+          }
           return { valid: true, errors: [] };
         }
         if (!current_options) {
