@@ -6,7 +6,7 @@ This file stores historical completed-task entries that were moved out of AGENTS
 
 Date: 2026-03-20
 
-- [x] Reused `MultiplayerPhaseManager` for local single-player flow by adding a transport abstraction and routing `PhaseManager.startPhase` through the shared handler with a local `IGameServer` transport (legacy local renderer retained as fallback); validated with focused Jest test and full typecheck (Copilot, 2026-03-23)
+- [x] Reused `MultiplayerPhaseManager` for local single-player flow by adding a transport abstraction and routing `PhaseManager.startPhase` through the shared handler with a local `IGameServer` transport (legacy local renderer retained as fallback); added parity coverage in `LocalServerAdapter.test.ts` for transition/system actions, added cross-mode transport tests in `MultiplayerPhaseManager.test.ts`, hardened single-player fallback completion actions in `PhaseManager.handlePhaseEnded`, and updated unification/roadmap status docs; validated with focused Jest suites and full typecheck (Copilot, 2026-03-23)
 
 - [x] Fixed i18n unused catch binding lint error in `phaser/src/i18n/i18n.ts` by removing the unused catch parameter; validated via lint + pre-commit typecheck (Copilot, 2026-03-20)
 - [x] Centralized timeout damage magic numbers into named constants in `phaser/src/Systems/TimeoutDamageSystem.ts` (`TIMEOUT_DAMAGE_INTERVAL_MS`, sudden-death threshold, base/growth tuning) with no behavior change (Copilot, 2026-03-20)

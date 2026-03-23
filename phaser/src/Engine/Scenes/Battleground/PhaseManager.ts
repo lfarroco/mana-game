@@ -45,6 +45,27 @@ function getColorPresetForPhase(phase: string): keyof typeof colorPresets {
 
 let currentEventEmitter: EventEmitter | undefined;
 
+const getPhaseCompletionAction = (phase: State["session"]["phase"]): string => {
+	switch (phase) {
+		case "encounter":
+			return "skip_encounter";
+		case "shop":
+			return "skip_shop";
+		case "orb_shop":
+			return "orb_shop_done";
+		case "upgrade_core":
+			return "upgrade_core_done";
+		case "add_reaction_core":
+			return "add_reaction_core_done";
+		case "combat":
+			return "combat_done";
+		case "victory":
+			return "victory";
+		default:
+			return "phase_complete";
+	}
+};
+
 const createLocalPhaseTransport = (): PhaseTransport => ({
 	getPhaseOptions: async () => {
 		const server = getServerAdapter();
@@ -245,15 +266,16 @@ export function handlePhaseEnded(state: State): void {
 	if (!isMultiplayer) {
 		const server = getServerAdapter();
 		const playerId = getPlayerId();
+		const completionAction = getPhaseCompletionAction(state.session.phase);
 
 		// Notify server of phase completion and get next phase
 		server
-			.handleAction(playerId, "phase_complete")
+			.handleAction(playerId, completionAction)
 			.then(() => {
 				startPhase(state, currentEventEmitter);
 			})
 			.catch((error) => {
-				logger.error("Failed to complete phase:", error);
+				logger.error("Failed to complete phase:", { error, completionAction });
 			});
 	} else {
 		startPhase(state, currentEventEmitter);

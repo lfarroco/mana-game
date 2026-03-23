@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseManager";
+import type { PhaseTransport } from "@Scenes/Battleground/MultiplayerPhaseManager";
 import { getPhaseOptions } from "@Multiplayer/MultiplayerManager";
 import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
+import { openOrbShop } from "@Systems/Shop/OrbShop";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	getPhaseOptions: jest.fn(),
@@ -87,6 +89,7 @@ jest.mock("@Systems/Shop/EffectCardShop", () => ({
 }));
 
 const mockGetPhaseOptions = getPhaseOptions as jest.MockedFunction<typeof getPhaseOptions>;
+const mockOpenOrbShop = openOrbShop as jest.MockedFunction<typeof openOrbShop>;
 
 describe("MultiplayerPhaseManager terminal phases", () => {
 	beforeEach(() => {
@@ -119,5 +122,99 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 
 		expect(ResultsUI.displayGameCompleteResults).toHaveBeenCalledWith(state, true);
 		expect(ResultsUI.slideIn).toHaveBeenCalled();
+	});
+
+	it("uses injected transport for local-mode compatible phase handling", async () => {
+		const getPhaseOptionsMock: jest.MockedFunction<PhaseTransport["getPhaseOptions"]> = jest.fn(
+			async () => ({
+				phase: "game_over",
+				round: 2,
+				options: [],
+				team: { units: [] },
+				wins: 1,
+				losses: 4,
+			})
+		);
+		const sendOptionSelectionMock: jest.MockedFunction<PhaseTransport["sendOptionSelection"]> =
+			jest.fn(async () => true);
+
+		const localTransport: PhaseTransport = {
+			getPhaseOptions: getPhaseOptionsMock,
+			sendOptionSelection: sendOptionSelectionMock,
+		};
+
+		const state = {
+			session: {
+				phase: "encounter",
+				current_options: null,
+				team: { units: [] },
+				wins: 0,
+				losses: 0,
+				round: 1,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state, localTransport);
+
+		expect(localTransport.getPhaseOptions).toHaveBeenCalledTimes(1);
+		expect(ResultsUI.displayGameCompleteResults).toHaveBeenCalledWith(state, true);
+	});
+
+	it("forwards orb actions through injected transport", async () => {
+		const getPhaseOptionsMock: jest.MockedFunction<PhaseTransport["getPhaseOptions"]> = jest.fn();
+		getPhaseOptionsMock
+			.mockResolvedValueOnce({
+				phase: "orb_shop",
+				round: 2,
+				options: [{ id: "upgrade_orb" }],
+				team: { units: [] },
+				wins: 1,
+				losses: 0,
+			})
+			.mockResolvedValueOnce({
+				phase: "game_over",
+				round: 2,
+				options: [],
+				team: { units: [] },
+				wins: 1,
+				losses: 4,
+			});
+
+		const sendOptionSelectionMock: jest.MockedFunction<PhaseTransport["sendOptionSelection"]> =
+			jest.fn(async () => true);
+
+		const localTransport: PhaseTransport = {
+			getPhaseOptions: getPhaseOptionsMock,
+			sendOptionSelection: sendOptionSelectionMock,
+		};
+
+		mockOpenOrbShop.mockImplementation(async (_state, _orbIds, applyOrb) => {
+			if (applyOrb) {
+				await applyOrb("upgrade_orb", "core-id");
+			}
+		});
+
+		const state = {
+			session: {
+				phase: "encounter",
+				current_options: null,
+				team: { units: [] },
+				wins: 0,
+				losses: 0,
+				round: 1,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state, localTransport);
+
+		expect(localTransport.sendOptionSelection).toHaveBeenCalledWith("apply_orb", {
+			orbId: "upgrade_orb",
+			targetUnitId: "core-id",
+			team: state.session.team,
+		});
+		expect(localTransport.sendOptionSelection).toHaveBeenCalledWith("orb_shop_done");
+		expect(localTransport.getPhaseOptions).toHaveBeenCalledTimes(2);
 	});
 });

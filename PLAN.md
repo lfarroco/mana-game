@@ -62,17 +62,18 @@ These tasks are essential for system stability and architectural consistency.
     5. Update documentation
 
 ### Single-Player/Multiplayer Unification
-- [ ] **Use multiplayer handler in single-player mode**
+- [x] **Use multiplayer handler in single-player mode**
   - **Context**: Both modes should use `IGameServer` interface consistently
   - **Impact**: Reduces code duplication, ensures parity between modes
   - **Effort**: Medium (2-3 days)
+  - **Status**: ✅ Completed (2026-03-23) - Single-player now routes through the shared multiplayer phase handler via local transport; added parity-focused adapter tests and cross-mode handler tests. Legacy fallback/deletion cleanup remains tracked in Phase 4.
   - **Docs**: [single-multiplayer-unification.md](docs/single-multiplayer-unification.md)
   - **Steps**:
-    1. Ensure `LocalServerAdapter` has complete feature parity
-    2. Update single-player initialization to use server adapter
-    3. Remove direct game logic calls from single-player UI
-    4. Comprehensive testing of both modes
-    5. Update Phase 3 status in unification doc
+    1. ✅ Ensure `LocalServerAdapter` has complete feature parity
+    2. ✅ Update single-player initialization to use server adapter
+    3. ✅ Remove direct game logic calls from single-player UI (primary path)
+    4. ✅ Comprehensive testing of both modes (adapter + shared handler test coverage)
+    5. ✅ Update Phase 3 status in unification doc
 
 ### Pure Logic Migration
 - [ ] **Make game logic pure (remove Phaser-mock dependencies)**
