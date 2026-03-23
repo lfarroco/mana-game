@@ -10,7 +10,6 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { popText } from "@Systems/Chara/Animations/popText";
 import { summonEffect } from "@Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
-import { loadUnitAssets } from "@Systems/Loader";
 
 export type Chara = Container;
 
@@ -148,15 +147,6 @@ async function createSprite(
 	_borderWidth: number = 3,
 	_borderColor: number = 0xffffff
 ) {
-	const animCacheKey = unit.pic + "-anims";
-	const animData = getCurrentScene().cache.json.get(animCacheKey);
-
-	const textureExists = getCurrentScene().textures.exists(unit.pic);
-
-	if ((!animData || !textureExists) && !unit.isCore) {
-		await loadUnitAssets([unit]);
-	}
-
 	const sprite = getCurrentScene().add.sprite(0, -30, unit.pic);
 	container.add(sprite);
 	configureSprite(sprite, unit);

@@ -12,7 +12,6 @@ import * as Encounter from "@Systems/Encounter";
 import { saveGameData } from "@Game/effects/saveGameData";
 import { cloudsBackground } from "@Systems/Setup";
 import { colorPresets } from "@Constants/colorPresets";
-import { loadUnitAssets } from "@Systems/Loader";
 import { getServerAdapter } from "@Core/ServerFactory";
 export { getServerAdapter }; // Re-export for convenience
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
@@ -151,11 +150,6 @@ async function renderPhase(state: State, options: PhaseOptions, _eventEmitter?: 
 		// Re-render units if not in combat (combat handles its own rendering)
 		if (options.phase !== "combat") {
 			Chara.clearAll();
-
-			// Preload all unit assets
-			if (state.session.team.units.length > 0) {
-				await loadUnitAssets(state.session.team.units);
-			}
 
 			await Promise.all(
 				state.session.team.units.map(async (u) => {
