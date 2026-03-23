@@ -36,6 +36,7 @@ jest.mock("@lib/supabase", () => ({
 describe("MultiplayerManager", () => {
 	beforeEach(() => {
 		disableMultiplayer();
+		localStorage.clear();
 		jest.clearAllMocks();
 	});
 
@@ -64,6 +65,7 @@ describe("MultiplayerManager", () => {
 		(supabase.from as jest.Mock).mockReturnValue({
 			select: jest.fn().mockReturnThis(),
 			eq: jest.fn().mockReturnThis(),
+			maybeSingle: singleMock,
 			single: singleMock,
 		});
 
@@ -113,20 +115,22 @@ describe("MultiplayerManager", () => {
 		appendSpy.mockRestore();
 	});
 
-	it("should treat session with core and options as active", async () => {
-		const maybeSingleMock = jest.fn().mockResolvedValue({
-			data: {
-				phase: "shop",
-				team: { units: [{ id: "core-1", isCore: true }] },
-				current_options: { options: [{ id: "card_a" }] },
-			},
-			error: null,
-		});
+	it("should treat a persisted non-terminal deferred session as active", async () => {
+		await enableMultiplayer("crystal_core");
 
-		(supabase.from as jest.Mock).mockReturnValue({
-			select: jest.fn().mockReturnThis(),
-			eq: jest.fn().mockReturnThis(),
-			maybeSingle: maybeSingleMock,
+		primeDeferredSession({
+			id: "sess-1",
+			player_id: "player-1",
+			phase: "shop",
+			round: 1,
+			step: 1,
+			seed: "seed-1",
+			initial_seed: "seed-1",
+			current_options: { options: [{ id: "card_a" }] },
+			team: { units: [{ id: "core-1", isCore: true }] },
+			wins: 0,
+			losses: 0,
+			action_log: [],
 		});
 
 		const isActive = await checkActiveSession();
@@ -134,20 +138,22 @@ describe("MultiplayerManager", () => {
 		expect(isActive).toBe(true);
 	});
 
-	it("should treat session without core as inactive", async () => {
-		const maybeSingleMock = jest.fn().mockResolvedValue({
-			data: {
-				phase: "shop",
-				team: { units: [{ id: "u1", isCore: false }] },
-				current_options: { options: [{ id: "card_a" }] },
-			},
-			error: null,
-		});
+	it("should treat persisted terminal deferred session as inactive", async () => {
+		await enableMultiplayer("crystal_core");
 
-		(supabase.from as jest.Mock).mockReturnValue({
-			select: jest.fn().mockReturnThis(),
-			eq: jest.fn().mockReturnThis(),
-			maybeSingle: maybeSingleMock,
+		primeDeferredSession({
+			id: "sess-1",
+			player_id: "player-1",
+			phase: "victory",
+			round: 10,
+			step: 1,
+			seed: "seed-1",
+			initial_seed: "seed-1",
+			current_options: { options: [] },
+			team: { units: [{ id: "core-1", isCore: true }] },
+			wins: 10,
+			losses: 0,
+			action_log: [],
 		});
 
 		const isActive = await checkActiveSession();
@@ -155,46 +161,10 @@ describe("MultiplayerManager", () => {
 		expect(isActive).toBe(false);
 	});
 
-	it("should treat non-combat session without options as inactive", async () => {
-		const maybeSingleMock = jest.fn().mockResolvedValue({
-			data: {
-				phase: "shop",
-				team: { units: [{ id: "core-1", isCore: true }] },
-				current_options: { options: [] },
-			},
-			error: null,
-		});
-
-		(supabase.from as jest.Mock).mockReturnValue({
-			select: jest.fn().mockReturnThis(),
-			eq: jest.fn().mockReturnThis(),
-			maybeSingle: maybeSingleMock,
-		});
-
+	it("should return false when there is no persisted deferred session", async () => {
 		const isActive = await checkActiveSession();
 
 		expect(isActive).toBe(false);
-	});
-
-	it("should allow combat session with combatState even if options list is empty", async () => {
-		const maybeSingleMock = jest.fn().mockResolvedValue({
-			data: {
-				phase: "combat",
-				team: { units: [{ id: "core-1", isCore: true }] },
-				current_options: { options: [], combatState: { logs: [] } },
-			},
-			error: null,
-		});
-
-		(supabase.from as jest.Mock).mockReturnValue({
-			select: jest.fn().mockReturnThis(),
-			eq: jest.fn().mockReturnThis(),
-			maybeSingle: maybeSingleMock,
-		});
-
-		const isActive = await checkActiveSession();
-
-		expect(isActive).toBe(true);
 	});
 
 	it("should handle successful registration enabling email confirmation", async () => {

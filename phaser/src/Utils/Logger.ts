@@ -66,7 +66,7 @@ const writeElectronLog = (payload: LogPayload): void => {
 		runtimeWindow as unknown as {
 			electronLogger?: { log: (level: LogLevel, payload: string) => void };
 		}
-	).electronLogger;
+	)?.electronLogger;
 
 	if (!electronLogger) return;
 
