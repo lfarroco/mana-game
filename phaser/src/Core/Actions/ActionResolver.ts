@@ -44,8 +44,10 @@ export function resolveAction(
 	const updates: string[] = [];
 
 	// Recruit or upgrade a unit by card ID
+	// Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
 	if (actionId.match(/^[a-z_]+$/) && actionId !== "update_team") {
-		const result = recruitUnit(session, actionId);
+		const sessionWithCopy = { ...session, team };
+		const result = recruitUnit(sessionWithCopy, actionId);
 		if (result.updated) {
 			return { team, updates: result.updates };
 		}
