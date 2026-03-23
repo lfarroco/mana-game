@@ -40,6 +40,7 @@ Date: 2026-03-20
 - [x] Centralized background overlay styling and animation constants in `phaser/src/Components/BackgroundOverlay.ts` (default overlay color/alpha, fade animation duration) (Copilot, 2026-03-20)
 - [x] Centralized arena lobby scene layout and styling constants in `phaser/src/Engine/Scenes/ArenaLobby/ArenaLobbyScene.ts` (title/profile/rating font sizes, positioning, button offsets) (Copilot, 2026-03-20)
 - [x] Centralized match result system screen styling and layout constants in `phaser/src/Systems/MatchResultSystem.ts` (fade duration, overlay color/alpha, text fonts, positioning offsets, drawing depths) (Copilot, 2026-03-20)
+- [x] Added deterministic server-side replay validation tests in `phaser/src/Core/ReplayManifest.test.ts`: seeded run simulation records ~10 valid actions plus combat logs/enemy teams, replays via `replayManifest`, and verifies replay snapshot/combat outcomes match original run; also covers sequence-gap rejection (Copilot, 2026-03-22)
 
 ## Migrated From AGENTS.md
 
