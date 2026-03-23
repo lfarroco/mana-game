@@ -240,6 +240,119 @@ describe("LocalServerAdapter", () => {
 			expect(nextSession?.phase).not.toBe("victory");
 			expect(nextSession?.phase).not.toBe("game_over");
 		});
+
+		it("should support skip_encounter transition", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "encounter",
+				current_options: { options: [{ id: "armory" }] },
+			});
+
+			const result = await adapter.handleAction(testPlayerId, "skip_encounter");
+			expect(result).toBe(true);
+
+			const updated = await adapter.getSession(testPlayerId);
+			expect(updated?.phase).toBe("shop");
+		});
+
+		it("should support skip_shop transition", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "shop",
+				step: 1,
+				current_options: { options: [{ id: "dummy_card" }] },
+			});
+
+			const result = await adapter.handleAction(testPlayerId, "skip_shop");
+			expect(result).toBe(true);
+
+			const updated = await adapter.getSession(testPlayerId);
+			expect(updated?.phase).toBe("encounter");
+			expect(updated?.step).toBe(2);
+		});
+
+		it("should keep orb_shop active when applying orb and exit with orb_shop_done", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+			const coreUnit = session.team.units.find((u) => u.isCore);
+			expect(coreUnit).toBeDefined();
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "orb_shop",
+				step: 1,
+				current_options: { options: [{ id: "upgrade_orb" }] },
+			});
+
+			const applyResult = await adapter.handleAction(testPlayerId, "apply_orb", {
+				orbId: "upgrade_orb",
+				targetUnitId: coreUnit!.id,
+			});
+			expect(applyResult).toBe(true);
+
+			const afterApply = await adapter.getSession(testPlayerId);
+			expect(afterApply?.phase).toBe("orb_shop");
+
+			const doneResult = await adapter.handleAction(testPlayerId, "orb_shop_done");
+			expect(doneResult).toBe(true);
+
+			const afterDone = await adapter.getSession(testPlayerId);
+			expect(afterDone?.phase).toBe("encounter");
+			expect(afterDone?.step).toBe(2);
+		});
+
+		it("should support upgrade_core_done transition", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "upgrade_core",
+				step: 3,
+				current_options: {
+					options: [
+						{ id: "increase_core_max_life" },
+						{ id: "upgrade_core_power" },
+						{ id: "decrease_core_cooldown" },
+					],
+				},
+			});
+
+			const result = await adapter.handleAction(testPlayerId, "upgrade_core_done");
+			expect(result).toBe(true);
+
+			const updated = await adapter.getSession(testPlayerId);
+			expect(updated?.phase).toBe("encounter");
+			expect(updated?.step).toBe(1);
+			expect(updated?.round).toBe(2);
+		});
+
+		it("should support add_reaction_core_done transition", async () => {
+			const session = await adapter.createSession(testPlayerId, testCrystalId);
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				phase: "add_reaction_core",
+				step: 3,
+				current_options: {
+					options: [
+						{ id: "on_100_damage_effect" },
+						{ id: "on_ally_death_effect" },
+						{ id: "on_crit_effect" },
+					],
+				},
+			});
+
+			const result = await adapter.handleAction(testPlayerId, "add_reaction_core_done");
+			expect(result).toBe(true);
+
+			const updated = await adapter.getSession(testPlayerId);
+			expect(updated?.phase).toBe("encounter");
+			expect(updated?.step).toBe(1);
+			expect(updated?.round).toBe(2);
+		});
 	});
 
 	describe("game flow", () => {

@@ -1,8 +1,8 @@
 # Single-Player and Multiplayer Logic Unification Plan
 
-**Status**: Phase 3 Complete - Client Refactoring Done ✅
+**Status**: Phase 3 Complete + Shared Handler Reuse Update ✅ (Phase 4 cleanup pending)
 **Created**: January 28, 2026  
-**Last Updated**: January 28, 2026
+**Last Updated**: March 23, 2026
 **Goal**: Unify single-player and multiplayer game logic to eliminate code duplication and enable single-player to use the same backend logic as multiplayer through a local server adapter.
 
 ## Table of Contents
@@ -784,7 +784,8 @@ describe('Server Parity', () => {
 3. ✅ Update `Encounter.open()` - remove logic
 4. ✅ Update `HeroShop.openHeroShop()` - remove logic (via itemClickPurchaseRequested)
 5. ✅ Update `CombatPhase` - use server enemy teams
-6. ⏸️ Delete `MultiplayerPhaseManager.ts` (deferred to Phase 4)
+6. ✅ Reuse `MultiplayerPhaseManager` flow for single-player through injected local transport (`IGameServer`)
+7. ⏸️ Delete `MultiplayerPhaseManager.ts` and legacy fallback paths (deferred to Phase 4)
 
 **Time Estimate**: 10-16 hours  
 **Risk**: High (major refactor, extensive testing needed)
@@ -978,6 +979,20 @@ mkdir -p phaser/src/Core
     - Supports both pre-computed units and enemy team only
   - Updated `itemClickPurchaseRequested.ts`:
     - Integrated `LocalServerAdapter` for single-player purchases
+
+### March 23, 2026 - Phase 3 Shared Handler Reuse Update ✅
+- **Unified phase UI flow further**:
+  - Updated `MultiplayerPhaseManager.ts` to accept an injected transport (`getPhaseOptions`, `sendOptionSelection`) so it can run against both remote multiplayer and local single-player adapters.
+  - Updated `PhaseManager.startPhase()` to route single-player through `MultiplayerPhaseManager` using a local `IGameServer` transport.
+  - Kept the legacy single-player renderer path as a fallback during migration.
+
+- **Parity and safety updates**:
+  - Expanded `LocalServerAdapter.test.ts` coverage for transition/system actions: `skip_encounter`, `skip_shop`, `apply_orb`/`orb_shop_done`, `upgrade_core_done`, `add_reaction_core_done`.
+  - Updated single-player fallback completion path to use phase-specific completion actions instead of generic `phase_complete`.
+
+- **Test coverage added for both mode paths**:
+  - Added transport-injection tests in `MultiplayerPhaseManager.test.ts` to validate both default multiplayer transport and local transport behavior.
+  - Verified with focused Jest runs and full TypeScript typecheck.
     - Both modes now use server delegation pattern
     - Maintained fallback to legacy logic for safety
     - Fixed duplicate variable declaration bug
