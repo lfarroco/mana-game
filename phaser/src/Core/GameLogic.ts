@@ -713,7 +713,16 @@ export function transitionToNextState(
  * order via `transitionToNextState`.  The resulting session can be compared
  * against the client-reported snapshot to validate the run.
  */
-export function replayManifest(manifest: RunManifest): {
+export type ReplayManifestOptions = {
+	/**
+	 * Server-generated enemy teams, indexed by combat order (0-based).
+	 * When provided, each combat uses the stored team instead of generating a new one.
+	 * This is the canonical team used to validate the run on the server.
+	 */
+	enemyTeams?: Unit[][];
+};
+
+export function replayManifest(manifest: RunManifest, replayOptions?: ReplayManifestOptions): {
 	session: SessionData;
 	rejectReason?: string;
 } {
@@ -740,6 +749,8 @@ export function replayManifest(manifest: RunManifest): {
 	// is identifiable separately from in-progress client sessions.
 	session.id = `replay-${manifest.runId}`;
 
+	let combatIndex = 0;
+
 	for (const envelope of manifest.actions) {
 		// Restore the board arrangement the player had set up before this
 		// decision.  Board moves are never stored as separate log entries;
@@ -751,7 +762,20 @@ export function replayManifest(manifest: RunManifest): {
 				session = { ...session, team };
 			}
 		}
-		const { session: next } = transitionToNextState(session, envelope.actionId, envelope.payload);
+		let combatEnemyTeamOptions: TransitionToNextStateOptions | undefined;
+		if (envelope.actionId === "combat_encounter") {
+			const storedTeam = replayOptions?.enemyTeams?.[combatIndex];
+			if (storedTeam !== undefined) {
+				combatEnemyTeamOptions = { combatEnemyTeam: storedTeam };
+			}
+			combatIndex++;
+		}
+		const { session: next } = transitionToNextState(
+			session,
+			envelope.actionId,
+			envelope.payload,
+			combatEnemyTeamOptions
+		);
 		session = next;
 	}
 

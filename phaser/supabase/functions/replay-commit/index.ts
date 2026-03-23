@@ -97,6 +97,17 @@ const deletePlayerSession = async (playerId: string): Promise<void> => {
 	}
 };
 
+const deleteCombatEncounters = async (runId: string, playerId: string): Promise<void> => {
+	const { error } = await supabaseAdmin
+		.from("combat_encounters")
+		.delete()
+		.eq("run_id", runId)
+		.eq("player_id", playerId);
+	if (error) {
+		console.error("[replay-commit] combat_encounters cleanup failed:", error.message);
+	}
+};
+
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -184,7 +195,22 @@ Deno.serve(async (req) => {
 		// ---------------------------------------------------------------------------
 		// Server-side replay
 		// ---------------------------------------------------------------------------
-		const { session: replayedSession, rejectReason } = GameLogic.replayManifest(manifest);
+		// Fetch any server-generated enemy teams for this run so the validator uses
+		// the exact teams that were generated at play-time (not re-randomised).
+		const { data: encounterRows } = await supabaseAdmin
+			.from("combat_encounters")
+			.select("combat_index, enemy_team")
+			.eq("run_id", runId)
+			.eq("player_id", playerId)
+			.order("combat_index", { ascending: true });
+
+		const enemyTeams = encounterRows
+			? encounterRows.map((row: { combat_index: number; enemy_team: unknown }) => row.enemy_team)
+			: [];
+
+		const { session: replayedSession, rejectReason } = GameLogic.replayManifest(manifest, {
+			enemyTeams,
+		});
 
 		if (rejectReason) {
 			return new Response(JSON.stringify({ success: false, rejectReason }), {
@@ -229,6 +255,7 @@ Deno.serve(async (req) => {
 		// ---------------------------------------------------------------------------
 		if (sessionCompleted) {
 			await deletePlayerSession(playerId);
+			deleteCombatEncounters(runId, playerId);
 
 			const ratingAmount = replayedSession.phase === "victory" ? 25 : -25;
 			supabaseAdmin

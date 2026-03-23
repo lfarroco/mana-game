@@ -5,6 +5,7 @@ import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import * as GameLogic from "@Core/GameLogic";
 import type { SessionData, ActionPayload } from "@Core/Types";
+import type { TransitionToNextStateOptions } from "@Core/GameLogic";
 import { RunActionQueue } from "@Core/RunActionQueue";
 import { submitRunManifest } from "@Core/DeferredSubmission";
 import { FORCE_ID_CPU } from "@Scenes/Battleground/ServerConstants";
@@ -329,6 +330,40 @@ const isFunctionsFetchError = (error: unknown): boolean => {
 	return maybeError.name === "FunctionsFetchError";
 };
 
+/**
+ * Ask the server to generate (or return the cached) enemy team for a given combat.
+ * The server stores the team in `combat_encounters` so that `replay-commit` can use
+ * the exact same team during validation instead of re-generating it.
+ */
+const fetchEnemyTeamFromServer = async (
+	runId: string,
+	combatIndex: number,
+	round: number,
+	wins: number
+): Promise<Unit[] | null> => {
+	const { data: authData } = await supabase.auth.getSession();
+	const token = authData.session?.access_token;
+	if (!token) {
+		logger.warn("fetchEnemyTeamFromServer: no auth token");
+		return null;
+	}
+
+	try {
+		const { data, error } = await supabase.functions.invoke("get-enemy-team", {
+			body: { runId, combatIndex, round, wins },
+		});
+		if (error || !data?.enemyTeam) {
+			logger.warn("fetchEnemyTeamFromServer: server error", { error });
+			return null;
+		}
+		logger.info("Received server enemy team", { combatIndex, unitCount: data.enemyTeam.length });
+		return data.enemyTeam as Unit[];
+	} catch (err) {
+		logger.warn("fetchEnemyTeamFromServer: network error", { err });
+		return null;
+	}
+};
+
 const isNoRowsError = (error: unknown): boolean => {
 	if (!error || typeof error !== "object") {
 		return false;
@@ -368,12 +403,38 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 		}
 
 		const teamSnapshot = cloneSession(deferredSession).team;
+		let transitionOptions: TransitionToNextStateOptions | undefined;
+
+		// For combat_encounter, request the enemy team from the server so it is stored
+		// server-side and can be used verbatim during replay-commit validation.
+		if (optionId === "combat_encounter" && runQueue) {
+			const combatIndex = runQueue
+				.build()
+				.actions.filter((a) => a.actionId === "combat_encounter").length;
+			const runId = getDeferredRunId(deferredSession);
+			const enemyTeam = await fetchEnemyTeamFromServer(
+				runId,
+				combatIndex,
+				deferredSession.round,
+				deferredSession.wins
+			);
+			if (enemyTeam) {
+				transitionOptions = { combatEnemyTeam: enemyTeam };
+			} else {
+				logger.warn(
+					"Could not get server enemy team — combat will use local generation and may fail validation",
+					{ combatIndex, round: deferredSession.round }
+				);
+			}
+		}
+
 		let result: ReturnType<typeof GameLogic.transitionToNextState>;
 		try {
 			result = GameLogic.transitionToNextState(
 				deferredSession,
 				optionId,
-				sanitizedPayload as ActionPayload | undefined
+				sanitizedPayload as ActionPayload | undefined,
+				transitionOptions
 			);
 		} catch (error) {
 			logger.error("Rejected deferred action during local transition", {
