@@ -54,14 +54,17 @@ const normalizeCombatLogs = (
 			normalized.unitStats = entry.unitStats.map(([, stats]) => {
 				const nextStats = { ...stats } as Record<string, unknown>;
 				delete nextStats.unitId;
+				delete nextStats.unitName;
 				return nextStats;
 			});
 		}
 
 		if (entry.currentCombatStats) {
-			normalized.currentCombatStats = entry.currentCombatStats.map(([, stats]) => ({
-				...stats,
-			}));
+			normalized.currentCombatStats = entry.currentCombatStats.map(([, stats]) => {
+				const nextStats = { ...stats } as Record<string, unknown>;
+				delete nextStats.unitName;
+				return nextStats;
+			});
 		}
 
 		return normalized;
