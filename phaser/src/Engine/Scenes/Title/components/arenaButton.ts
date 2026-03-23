@@ -7,7 +7,7 @@ import { getCurrentScene } from "@Models/State";
 
 export function arenaButton(y: number) {
 	const btn = createUIButton(
-		t("title.arena"),
+		t("title.multiplayer"),
 		vec2(constants.MIDDLE_SCREEN.x, y),
 		() => {
 			const playerId = localStorage.getItem("mana_player_id");

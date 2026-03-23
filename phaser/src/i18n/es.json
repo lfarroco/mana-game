@@ -1,4 +1,8 @@
 {
+	"title.singlePlayer": "UN JUGADOR",
+	"title.startContinue": "EMPEZAR / CONTINUAR",
+	"title.return": "VOLVER",
+	"title.multiplayer": "MULTIJUGADOR",
 	"title.newRun": "NUEVA PARTIDA",
 	"title.resume": "CONTINUAR",
 	"title.options": "OPCIONES",

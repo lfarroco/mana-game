@@ -1,4 +1,8 @@
 {
+	"title.singlePlayer": "SINGLE PLAYER",
+	"title.startContinue": "START / CONTINUE",
+	"title.return": "RETURN",
+	"title.multiplayer": "MULTIPLAYER",
 	"title.newRun": "NEW RUN",
 	"title.resume": "RESUME",
 	"title.options": "OPTIONS",

@@ -2,18 +2,17 @@ import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
-import { newSinglePlayerRunButton } from "@Scenes/Title/components/newSinglePlayerRunButton";
 import { arenaButton } from "@Scenes/Title/components/arenaButton";
 import { startGame } from "@Game/effects/startGame";
 import { cloudsBg } from "@Scenes/Title/components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "@Scenes/Title/components/optionsButton";
 import { collectionButton } from "@Scenes/Title/components/collectionButton";
-import { resumeGameButton } from "@Scenes/Title/components/resumeGameButton";
 import { logo } from "@Scenes/Title/components/logo";
 import { howToPlay } from "@Scenes/Title/components/howToPlay";
 import * as io from "@PhaserIO";
 import { languageButton } from "@Scenes/Title/components/languageButton";
 import { linksButton } from "@Scenes/Title/components/linksButton";
+import { singlePlayerButton } from "@Scenes/Title/components/singlePlayerButton";
 import * as StatsStore from "@Models/StatsStore";
 import { showUnlockModal } from "@Scenes/Title/components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
@@ -36,11 +35,14 @@ export default class TitleScene extends Phaser.Scene {
 
 		logo();
 
-		const arenaButton_ = process.env.NODE_ENV === "development" ? [arenaButton(700)] : [];
-
-		const buttons = [resumeGameButton(500), newSinglePlayerRunButton(600)]
-			.concat(arenaButton_)
-			.concat([optionsButton(800), collectionButton(900), linksButton(1000), languageButton()]);
+		const buttons = [
+			singlePlayerButton(500),
+			arenaButton(600),
+			optionsButton(700),
+			collectionButton(800),
+			linksButton(900),
+			languageButton(),
+		];
 
 		// Create a container for the main buttons so they can be hidden when showing submenu
 		const mainButtonsContainer = io.Container(

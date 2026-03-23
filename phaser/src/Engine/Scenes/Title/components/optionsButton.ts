@@ -90,13 +90,13 @@ export function setMainButtonsContainer(container: Container) {
 	mainButtonsContainer = container;
 }
 
-function hideMainButtons() {
+export function hideMainButtons() {
 	if (mainButtonsContainer) {
 		mainButtonsContainer.setVisible(false);
 	}
 }
 
-function showMainButtons() {
+export function showMainButtons() {
 	if (mainButtonsContainer) {
 		mainButtonsContainer.setVisible(true);
 	}
