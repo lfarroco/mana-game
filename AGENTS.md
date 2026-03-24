@@ -108,6 +108,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Medium Priority
 
 - [ ] Add comprehensive test coverage for the phase-system migration
+- [ ] Wire the new server-side LLM play service into automated leaderboard match runners
 
 ### Low Priority
 

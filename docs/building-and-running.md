@@ -36,11 +36,12 @@ Opens at `http://localhost:8080`
 
 ### Server & Multiplayer
 
-| Command                    | Description                      |
-|----------------------------|----------------------------------|
-| `npm run server`           | Run the multiplayer game server  |
-| `npm run deploy:functions` | Deploy Supabase edge functions   |
-| `npm run test:supabase`    | Run Supabase edge function tests |
+| Command                    | Description                        |
+|----------------------------|------------------------------------|
+| `npm run server`           | Run the headless agent game server |
+| `npm run server:agents`    | Run the headless agent game server |
+| `npm run deploy:functions` | Deploy Supabase edge functions     |
+| `npm run test:supabase`    | Run Supabase edge function tests   |
 
 ### Mobile
 
