@@ -29,7 +29,7 @@ export const loadUnitAssets = (units: Unit[]): Promise<void> =>
 					`assets/heroes/${unit.pic}.png`,
 					`assets/heroes/${unit.pic}.json`
 				);
-				scene.load.animation(`${unit.pic}-anims`, `assets/heroes/${unit.pic}-anims.json`);
+				scene.load.json(`${unit.pic}-anims`, `assets/heroes/${unit.pic}-anims.json`);
 				loadingCount++;
 			}
 		};
