@@ -26,6 +26,7 @@ A PVE, trigger-based autobattler in a 3x3 board, built with Phaser 3.
 
 Detailed documentation is organized by topic in the `docs` directory:
 
+- **[Project Architecture](docs/project-architecture.md)** - High-level architecture chart showing runtime, pure logic, combat playback, server abstraction, and platform layers.
 - **[Building and Running](docs/building-and-running.md)** - Setup instructions, available commands, and platform requirements
 - **[Unit Balance](docs/unit-balance.md)** - Complete guide to the unit power and cost calculation system, including action/reaction budgets, trigger frequencies, effect costs, and balancing formulas
 - **[Trigger System](docs/trigger-system.md)** - Documentation on the Action-Reaction model, including trigger conditions, targeting, and effect types
