@@ -53,7 +53,7 @@ jest.mock("../../../Game/effects/startGame", () => ({
 	startGame: jest.fn(),
 }));
 jest.mock("@Scenes/Battleground/PhaseManager", () => ({
-	handlePhaseEnded: jest.fn(),
+	startPhase: jest.fn(),
 }));
 jest.mock("@Models/State", () => ({
 	getState: jest.fn(() => ({ session: { team: { units: [] } } })),
