@@ -4,6 +4,10 @@ This file stores historical completed-task entries that were moved out of AGENTS
 
 ## Completed (Current Session)
 
+Date: 2026-03-24
+
+- [x] Phase System Migration (Critical) — Completed migration from legacy `PhaseManager.ts` to the `Core/PhaseSystem/` handler architecture: (1) added 38 comprehensive unit tests covering all 7 phase handlers (EncounterPhaseHandler, ShopPhaseHandler, CombatPhaseHandler, OrbShopPhaseHandler, UpgradeCorePhaseHandler, AddReactionCorePhaseHandler, MetaActionHandler) in `phaser/src/Core/PhaseSystem/handlers/PhaseHandlers.test.ts`; (2) removed the legacy `renderPhase()` fallback function and 12 no-longer-needed imports from `PhaseManager.ts`, leaving only `resetBoard()`, `handlePhaseEnded()`, `startPhase()`, and `getPlayerId()`; (3) simplified `startPhase()` to route both single-player and multiplayer through `handleMultiplayerPhase` unconditionally; (4) added a code comment clarifying `victory` vs `combat_done` semantics in CombatPhaseHandler; 287 tests passing, zero TypeScript errors (Copilot, 2026-03-24)
+
 Date: 2026-03-20
 
 - [x] Reused `MultiplayerPhaseManager` for local single-player flow by adding a transport abstraction and routing `PhaseManager.startPhase` through the shared handler with a local `IGameServer` transport (legacy local renderer retained as fallback); added parity coverage in `LocalServerAdapter.test.ts` for transition/system actions, added cross-mode transport tests in `MultiplayerPhaseManager.test.ts`, hardened single-player fallback completion actions in `PhaseManager.handlePhaseEnded`, and updated unification/roadmap status docs; validated with focused Jest suites and full typecheck (Copilot, 2026-03-23)

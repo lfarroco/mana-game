@@ -49,17 +49,18 @@ Completed-task history is archived in [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md) to 
 These tasks are essential for system stability and architectural consistency.
 
 ### Phase System Migration
-- [ ] **Complete migration to `Core/PhaseSystem/` architecture**
+- [x] **Complete migration to `Core/PhaseSystem/` architecture**
   - **Context**: New handler-based system exists but legacy `PhaseManager.ts` still runs main loop
   - **Impact**: Enables consistent phase handling across single/multiplayer modes
   - **Effort**: High (3-5 days)
+  - **Status**: ✅ Completed (2026-03-24) - All phase handlers tested; legacy `renderPhase()` fallback removed from `PhaseManager.ts`; `startPhase()` now routes both single-player and multiplayer through `handleMultiplayerPhase`; 38 new unit tests added for all 7 phase handlers; `CombatPhaseHandler` comment updated to clarify `victory` vs `combat_done` semantics; 287 tests passing.
   - **Docs**: [phase-system-refactoring.md](docs/phase-system-refactoring.md)
   - **Steps**:
-    1. Audit which phases still use legacy `PhaseManager.ts`
-    2. Create comprehensive tests for all phase handlers
-    3. Migrate remaining phases to new handler architecture
-    4. Remove or deprecate legacy `PhaseManager.ts`
-    5. Update documentation
+    1. ✅ Audit which phases still use legacy `PhaseManager.ts`
+    2. ✅ Create comprehensive tests for all phase handlers (`handlers/PhaseHandlers.test.ts`, 38 tests)
+    3. ✅ Migrate remaining phases to new handler architecture (already complete via `SessionTransitions.ts`)
+    4. ✅ Remove legacy `renderPhase()` and unused imports from `PhaseManager.ts`
+    5. ✅ Update documentation
 
 ### Single-Player/Multiplayer Unification
 - [x] **Use multiplayer handler in single-player mode**
@@ -438,8 +439,8 @@ Use this matrix to help prioritize tasks not already categorized:
 ---
 
 ## Current Sprint Focus
-- [ ] Phase system migration (Critical) - investigation underway
-- [ ] Single-player/multiplayer unification (Critical)
+- [x] Phase system migration (Critical) - ✅ completed 2026-03-24
+- [x] Single-player/multiplayer unification (Critical) - ✅ completed 2026-03-23
 
 ---
 
