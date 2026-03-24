@@ -65,7 +65,7 @@ jest.mock("@Models/StatsStore", () => ({
 }));
 jest.mock("@Scenes/CrystalSelection/CrystalSelectionScene", () => ({
 	__esModule: true,
-	default: class {},
+	default: class { },
 }));
 jest.mock("@Systems/CombatPhase", () => ({
 	handleCombatStartExecution: jest.fn(),
