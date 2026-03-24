@@ -7,7 +7,7 @@ import {
 	sendTeamUpdate,
 } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
-import { handlePhaseEnded } from "@Scenes/Battleground/PhaseManager";
+import { startPhase } from "@Scenes/Battleground/PhaseManager";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 /**
@@ -23,7 +23,7 @@ export const createRemoteGameController = (): GameController => {
 
 			if (success) {
 				await ShopPanel.slideOut();
-				handlePhaseEnded(getState());
+				startPhase(getState());
 			}
 
 			return success;
@@ -51,7 +51,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(actionId);
 
 			if (success) {
-				handlePhaseEnded(getState());
+				startPhase(getState());
 			}
 
 			return success;
@@ -61,7 +61,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(encounterId);
 
 			if (success) {
-				handlePhaseEnded(getState());
+				startPhase(getState());
 			}
 
 			return success;
@@ -87,7 +87,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(actionId, payload);
 
 			if (success && !isInPhaseUpgradeSelection) {
-				handlePhaseEnded(getState());
+				startPhase(getState());
 			}
 
 			return success;

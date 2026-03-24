@@ -143,7 +143,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		startPhase(state, this.eventEmitter);
+		startPhase(state);
 	};
 
 	update(time: number, delta: number): void {
