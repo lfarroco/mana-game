@@ -6,6 +6,41 @@ This directory contains server-side tests for the unified single-player and mult
 
 After the recent integration of single-player and multiplayer modes (see [single-multiplayer-unification.md](../docs/single-multiplayer-unification.md)), we now have comprehensive server-side tests that validate the complete game flow without requiring a UI or database.
 
+## Agent Server
+
+The same directory now also contains a headless HTTP server entrypoint for external agents:
+
+```bash
+npm run server:agents
+```
+
+Default address:
+
+```text
+http://127.0.0.1:8787
+```
+
+Optional CLI flags:
+
+```bash
+npm run server:agents -- --host 0.0.0.0 --port 9000
+```
+
+Primary endpoints:
+
+- `GET /health`
+- `POST /games` - create a new agent-playable run
+- `GET /games/:gameId/state` - full board + choices + replay snapshot
+- `GET /games/:gameId/board`
+- `POST /games/:gameId/board` - apply board rearrangements
+- `GET /games/:gameId/choices`
+- `POST /games/:gameId/choices` - make a choice by id or 1-based index
+- `GET /games/:gameId/cards/:cardId` - inspect a card definition
+- `GET /games/:gameId/manifest` - fetch the replay manifest accumulated so far
+- `DELETE /games/:gameId`
+
+This API is backed by the pure Core `LlmPlayerService`, so it stays server-side and deterministic.
+
 ## Test Files
 
 ### FullSessionFlow.test.ts
