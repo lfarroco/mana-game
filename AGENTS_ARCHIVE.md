@@ -6,6 +6,7 @@ This file stores historical completed-task entries that were moved out of AGENTS
 
 Date: 2026-03-24
 
+- [x] Dead-code cleanup slice from roadmap: removed orphaned module `phaser/src/Systems/MatchResultSystem.ts` (no imports/usages), removed duplicate `initializeVisualizer()` call from `phaser/src/Engine/Scenes/Battleground/BattlegroundScene.ts`, and validated no phase-system regressions with `src/Core/PhaseSystem/handlers/PhaseHandlers.test.ts` (38/38 passing) (Copilot, 2026-03-24)
 - [x] Phase System Migration (Critical) — Completed migration from legacy `PhaseManager.ts` to the `Core/PhaseSystem/` handler architecture: (1) added 38 comprehensive unit tests covering all 7 phase handlers (EncounterPhaseHandler, ShopPhaseHandler, CombatPhaseHandler, OrbShopPhaseHandler, UpgradeCorePhaseHandler, AddReactionCorePhaseHandler, MetaActionHandler) in `phaser/src/Core/PhaseSystem/handlers/PhaseHandlers.test.ts`; (2) removed the legacy `renderPhase()` fallback function and 12 no-longer-needed imports from `PhaseManager.ts`, leaving only `resetBoard()`, `handlePhaseEnded()`, `startPhase()`, and `getPlayerId()`; (3) simplified `startPhase()` to route both single-player and multiplayer through `handleMultiplayerPhase` unconditionally; (4) added a code comment clarifying `victory` vs `combat_done` semantics in CombatPhaseHandler; 287 tests passing, zero TypeScript errors (Copilot, 2026-03-24)
 
 Date: 2026-03-20

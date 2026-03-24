@@ -98,9 +98,6 @@ export class BattlegroundScene extends Phaser.Scene {
 			disableMultiplayer();
 		}
 
-		// Initialize the Visualizer early in the scene startup
-		initializeVisualizer();
-
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
 			Systems.Setup.initializeNewGame(selectedCrystalId);
