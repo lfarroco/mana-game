@@ -15,6 +15,8 @@ export const combatPhaseHandler = createPhaseHandler({
 			throw new Error(`Unexpected action ${actionId} in Combat handler`);
 		}
 
+		// 'victory' is accepted but treated as a regular continuation (endless mode);
+		// only 'combat_done' with wins >= 10 routes to the victory screen.
 		if (actionId === "combat_done" && session.wins >= 10) {
 			return {
 				nextPhase: "victory",

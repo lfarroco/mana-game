@@ -95,7 +95,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find or fix bugs.
 
-- [ ] Legacy `PhaseManager.ts` still runs the main game loop — new `Core/PhaseSystem/` handlers are registered but not fully migrated
+- (no open issues at this time)
 
 ## Task Queue
 
@@ -103,7 +103,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ### High Priority
 
-- [ ] Complete migration from legacy `PhaseManager.ts` to `Core/PhaseSystem/` handler architecture
+- [ ] Add comprehensive test coverage for the phase-system migration
 
 ### Medium Priority
 
