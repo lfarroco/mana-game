@@ -158,7 +158,7 @@ export default class Core extends Phaser.Scene {
 
 		for (const pic of uniquePics) {
 			this.load.atlas(pic, `assets/heroes/${pic}.png`, `assets/heroes/${pic}.json`);
-			this.load.animation(`${pic}-anims`, `assets/heroes/${pic}-anims.json`);
+			this.load.json(`${pic}-anims`, `assets/heroes/${pic}-anims.json`);
 		}
 	}
 
