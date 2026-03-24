@@ -1,4 +1,3 @@
-export * as Loader from "@Systems/Loader";
 export * as Regen from "@Systems/RegenSystem";
 export * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 export * as Poison from "@Systems/PoisonDamageSystem";
