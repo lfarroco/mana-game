@@ -6,7 +6,7 @@ This directory contains server-side tests for the unified single-player and mult
 
 After the recent integration of single-player and multiplayer modes (see [single-multiplayer-unification.md](../docs/single-multiplayer-unification.md)), we now have comprehensive server-side tests that validate the complete game flow without requiring a UI or database.
 
-## Agent Server
+## (Experimental)Agent Server
 
 The same directory now also contains a headless HTTP server entrypoint for external agents:
 
