@@ -84,7 +84,7 @@ export const resolveGamepadIntents = (
 	const wasPressed = (index: number) => previous?.buttons[index] ?? false;
 	const isPressed = (index: number) => current.buttons[index] ?? false;
 	const justPressed = (index: number) => isPressed(index) && !wasPressed(index);
-    const navigateIntentType = context === "battleground" ? "navigateBoard" : "navigateButtons";
+	const navigateIntentType = context === "battleground" ? "navigateBoard" : "navigateButtons";
 
 	if (justPressed(12)) intents.push({ type: navigateIntentType, direction: "up" });
 	if (justPressed(13)) intents.push({ type: navigateIntentType, direction: "down" });

@@ -12,6 +12,11 @@ const ICON_SIZE = 120;
 const ICON_X_OFFSET = 10;
 const CARD_HOVER_ALPHA = 0.4;
 const CARD_HOVER_ANIMATION_DURATION_MS = 400;
+const CARD_BORDER_WIDTH = 3;
+const CARD_BORDER_COLOR = 0xffffff;
+const CARD_BORDER_ALPHA = 0.2;
+const CARD_FOCUS_BORDER_COLOR = 0xffd700;
+const CARD_FOCUS_BORDER_ALPHA = 1;
 const TITLE_FONT_SIZE = "26px";
 const LABEL_FONT_SIZE = "22px";
 
@@ -36,6 +41,22 @@ export function createEncounterCard(
 	const scene = getCurrentScene();
 
 	const bg = io.Rectangle(vec2(x, y), dimensions, 0x1f1f1f, 1);
+	const border = scene.add.graphics();
+	let isFocused = false;
+
+	const drawBorder = (color: number, alpha: number) => {
+		border.clear();
+		border.lineStyle(CARD_BORDER_WIDTH, color, alpha);
+		border.strokeRoundedRect(
+			x - width / 2,
+			y - height / 2,
+			width,
+			height,
+			12
+		);
+	};
+
+	drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA);
 
 	const iconSize = ICON_SIZE;
 	const iconX = x - width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
@@ -86,6 +107,10 @@ export function createEncounterCard(
 	io.SetInteractiveRect(dimensions)(bg);
 
 	io.OnPointerOver(bg, () => {
+		if (isFocused) {
+			return;
+		}
+
 		io.Tween({
 			targets: [bg],
 			alpha: CARD_HOVER_ALPHA,
@@ -95,6 +120,10 @@ export function createEncounterCard(
 	});
 
 	io.OnPointerOut(bg, () => {
+		if (isFocused) {
+			return;
+		}
+
 		io.Tween({
 			targets: [bg],
 			alpha: 1,
@@ -108,7 +137,27 @@ export function createEncounterCard(
 		onClick();
 	});
 
-	container.add([bg, icon, title, label]);
+	container.add([bg, border, icon, title, label]);
 
-	return { bg, icon, title, label };
+	return {
+		bg,
+		icon,
+		title,
+		label,
+		setFocused: (focused: boolean) => {
+			isFocused = focused;
+			if (focused) {
+				bg.setAlpha(CARD_HOVER_ALPHA);
+				drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA);
+				return;
+			}
+
+			bg.setAlpha(1);
+			drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA);
+		},
+		activate: async () => {
+			playSoundEffect("sfx_unit_run_magical_4");
+			await onClick();
+		},
+	};
 }

@@ -7,6 +7,7 @@ import { State, getState } from "@Models/State";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
 import { getGameController } from "@Core/GameControllerFactory";
 import { createLogger } from "@Utils/Logger";
+import { getNextEncounterFocusIndex } from "@Systems/Controls/encounterFocusModel";
 
 const logger = createLogger("Encounter");
 
@@ -32,6 +33,64 @@ type EncounterItem = {
 
 let currentEncounters: EncounterItem[] = [];
 let isEncounterSelectionInProgress = false;
+let focusedEncounterIndex: number | null = null;
+
+type EncounterFocusEntry = {
+	setFocused: (focused: boolean) => void;
+	activate: () => Promise<void>;
+};
+
+let encounterFocusEntries: EncounterFocusEntry[] = [];
+
+const clearEncounterFocus = () => {
+	encounterFocusEntries.forEach((entry) => entry.setFocused(false));
+	encounterFocusEntries = [];
+	focusedEncounterIndex = null;
+};
+
+const setEncounterFocus = (nextIndex: number | null): void => {
+	if (encounterFocusEntries.length === 0) {
+		focusedEncounterIndex = null;
+		return;
+	}
+
+	encounterFocusEntries.forEach((entry, index) => entry.setFocused(index === nextIndex));
+	focusedEncounterIndex = nextIndex;
+};
+
+export const hasEncounterFocusTargets = (): boolean => encounterFocusEntries.length > 0;
+
+export const navigateEncounterFocus = (direction: "up" | "down" | "left" | "right"): boolean => {
+	const nextIndex = getNextEncounterFocusIndex(
+		focusedEncounterIndex,
+		encounterFocusEntries.length,
+		direction
+	);
+
+	if (nextIndex === null) {
+		return false;
+	}
+
+	setEncounterFocus(nextIndex);
+	return true;
+};
+
+export const confirmEncounterFocus = async (): Promise<boolean> => {
+	if (encounterFocusEntries.length === 0) {
+		return false;
+	}
+
+	if (focusedEncounterIndex === null) {
+		setEncounterFocus(0);
+	}
+
+	if (focusedEncounterIndex === null) {
+		return false;
+	}
+
+	await encounterFocusEntries[focusedEncounterIndex].activate();
+	return true;
+};
 
 export async function chooseEncounter(index: number) {
 	if (currentEncounters[index]) {
@@ -41,135 +100,135 @@ export async function chooseEncounter(index: number) {
 	return `Invalid encounter index: ${index}. Available: ${currentEncounters.length}`;
 }
 
-const noOp = async () => {};
+const noOp = async () => { };
 
 export const getEncounterItems = (
 	_state: State,
 	_container: Phaser.GameObjects.Container
 ): EncounterItem[] => [
-	{
-		name: t("encounters.upgrade_unit.name"),
-		pic: "ui/upgrade_unit",
-		description: t("encounters.upgrade_unit.desc"),
-		onClick: noOp,
-		id: "upgrade_unit",
-	},
-	improveType("ui/improve_damage", "damage"),
-	improveType("ui/improve_heal", "heal"),
-	improveType("ui/improve_shield", "shield"),
-	improveType("ui/toxic", "poison"),
-	improveType("ui/improve_regen", "regen"),
-	{
-		name: t("encounters.armory.name"),
-		pic: "ui/armory",
-		description: t("encounters.armory.desc"),
-		onClick: noOp,
-		id: "armory",
-	},
-	{
-		name: t("encounters.healing_tent.name"),
-		pic: "ui/improve_heal",
-		description: t("encounters.healing_tent.desc"),
-		onClick: noOp,
-		id: "healing_tent",
-	},
-	{
-		name: t("encounters.frontier_fort.name"),
-		pic: "ui/frontier_fort",
-		description: t("encounters.frontier_fort.desc"),
-		onClick: noOp,
-		id: "frontier_fort",
-	},
-	{
-		name: t("encounters.forest_pools.name"),
-		pic: "ui/forest_pools",
-		description: t("encounters.forest_pools.desc"),
-		onClick: noOp,
-		id: "forest_pools",
-	},
-	{
-		name: t("encounters.toxic_chamber.name"),
-		pic: "ui/toxic",
-		description: t("encounters.toxic_chamber.desc"),
-		onClick: noOp,
-		id: "toxic_chamber",
-	},
-	{
-		name: t("encounters.trial_circuit.name"),
-		pic: "ui/trial_circuit",
-		description: t("encounters.trial_circuit.desc"),
-		onClick: noOp,
-		id: "trial_circuit",
-	},
-	{
-		name: t("encounters.trappers_guild.name"),
-		pic: "ui/improve_slow",
-		description: t("encounters.trappers_guild.desc"),
-		onClick: noOp,
-		id: "trappers_guild",
-	},
-	{
-		name: t("encounters.thunder_spire.name"),
-		pic: "ui/thunder_spire",
-		description: t("encounters.thunder_spire.desc"),
-		onClick: noOp,
-		id: "thunder_spire",
-	},
-	{
-		name: t("encounters.commanders_tent.name"),
-		pic: "ui/commander",
-		description: t("encounters.commanders_tent.desc"),
-		onClick: noOp,
-		id: "commanders_tent",
-	},
-	{
-		name: t("encounters.assassins_hideout.name"),
-		pic: "ui/assassin",
-		description: t("encounters.assassins_hideout.desc"),
-		onClick: noOp,
-		id: "assassins_hideout",
-	},
-	{
-		name: t("encounters.power_distributor.name"),
-		pic: "ui/power_distributor",
-		description: t("encounters.power_distributor.desc"),
-		minRound: 3,
-		onClick: noOp,
-		id: "power_distributor",
-	},
-	{
-		name: t("encounters.power_absorber.name"),
-		pic: "ui/power_absorber",
-		description: t("encounters.power_absorber.desc"),
-		minRound: 3,
-		onClick: noOp,
-		id: "power_absorber",
-	},
-	{
-		name: t("encounters.silver_shop"),
-		pic: "ui/silver_medal",
-		description: t("encounters.silver_shop_desc"),
-		minRound: MIN_ROUND_FOR_SILVER_SHOP,
-		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
-		onClick: noOp,
-		id: "silver_shop",
-	},
-	{
-		name: t("encounters.gold_shop"),
-		pic: "ui/gold_medal",
-		description: t("encounters.gold_shop_desc"),
-		minRound: MIN_ROUND_FOR_GOLD_SHOP,
-		onClick: noOp,
-		id: "gold_shop",
-	},
-	{
-		name: t("encounters.combat.name"),
-		pic: "ui/armory",
-		description: t("encounters.combat.desc"),
-		onClick: async () => {}, // Overridden in MP
-		id: "combat_encounter",
-	},
-];
+		{
+			name: t("encounters.upgrade_unit.name"),
+			pic: "ui/upgrade_unit",
+			description: t("encounters.upgrade_unit.desc"),
+			onClick: noOp,
+			id: "upgrade_unit",
+		},
+		improveType("ui/improve_damage", "damage"),
+		improveType("ui/improve_heal", "heal"),
+		improveType("ui/improve_shield", "shield"),
+		improveType("ui/toxic", "poison"),
+		improveType("ui/improve_regen", "regen"),
+		{
+			name: t("encounters.armory.name"),
+			pic: "ui/armory",
+			description: t("encounters.armory.desc"),
+			onClick: noOp,
+			id: "armory",
+		},
+		{
+			name: t("encounters.healing_tent.name"),
+			pic: "ui/improve_heal",
+			description: t("encounters.healing_tent.desc"),
+			onClick: noOp,
+			id: "healing_tent",
+		},
+		{
+			name: t("encounters.frontier_fort.name"),
+			pic: "ui/frontier_fort",
+			description: t("encounters.frontier_fort.desc"),
+			onClick: noOp,
+			id: "frontier_fort",
+		},
+		{
+			name: t("encounters.forest_pools.name"),
+			pic: "ui/forest_pools",
+			description: t("encounters.forest_pools.desc"),
+			onClick: noOp,
+			id: "forest_pools",
+		},
+		{
+			name: t("encounters.toxic_chamber.name"),
+			pic: "ui/toxic",
+			description: t("encounters.toxic_chamber.desc"),
+			onClick: noOp,
+			id: "toxic_chamber",
+		},
+		{
+			name: t("encounters.trial_circuit.name"),
+			pic: "ui/trial_circuit",
+			description: t("encounters.trial_circuit.desc"),
+			onClick: noOp,
+			id: "trial_circuit",
+		},
+		{
+			name: t("encounters.trappers_guild.name"),
+			pic: "ui/improve_slow",
+			description: t("encounters.trappers_guild.desc"),
+			onClick: noOp,
+			id: "trappers_guild",
+		},
+		{
+			name: t("encounters.thunder_spire.name"),
+			pic: "ui/thunder_spire",
+			description: t("encounters.thunder_spire.desc"),
+			onClick: noOp,
+			id: "thunder_spire",
+		},
+		{
+			name: t("encounters.commanders_tent.name"),
+			pic: "ui/commander",
+			description: t("encounters.commanders_tent.desc"),
+			onClick: noOp,
+			id: "commanders_tent",
+		},
+		{
+			name: t("encounters.assassins_hideout.name"),
+			pic: "ui/assassin",
+			description: t("encounters.assassins_hideout.desc"),
+			onClick: noOp,
+			id: "assassins_hideout",
+		},
+		{
+			name: t("encounters.power_distributor.name"),
+			pic: "ui/power_distributor",
+			description: t("encounters.power_distributor.desc"),
+			minRound: 3,
+			onClick: noOp,
+			id: "power_distributor",
+		},
+		{
+			name: t("encounters.power_absorber.name"),
+			pic: "ui/power_absorber",
+			description: t("encounters.power_absorber.desc"),
+			minRound: 3,
+			onClick: noOp,
+			id: "power_absorber",
+		},
+		{
+			name: t("encounters.silver_shop"),
+			pic: "ui/silver_medal",
+			description: t("encounters.silver_shop_desc"),
+			minRound: MIN_ROUND_FOR_SILVER_SHOP,
+			maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
+			onClick: noOp,
+			id: "silver_shop",
+		},
+		{
+			name: t("encounters.gold_shop"),
+			pic: "ui/gold_medal",
+			description: t("encounters.gold_shop_desc"),
+			minRound: MIN_ROUND_FOR_GOLD_SHOP,
+			onClick: noOp,
+			id: "gold_shop",
+		},
+		{
+			name: t("encounters.combat.name"),
+			pic: "ui/armory",
+			description: t("encounters.combat.desc"),
+			onClick: async () => { }, // Overridden in MP
+			id: "combat_encounter",
+		},
+	];
 
 function improveType(pic: string, type: string): EncounterItem {
 	return {
@@ -185,6 +244,7 @@ function improveType(pic: string, type: string): EncounterItem {
 export async function open(state: State, options: string[]) {
 	const container = io.Container();
 	isEncounterSelectionInProgress = false;
+	clearEncounterFocus();
 
 	let encounters: EncounterItem[] = [];
 
@@ -222,6 +282,7 @@ export async function open(state: State, options: string[]) {
 	currentEncounters = encounters;
 
 	const nextRoundCallback = async () => {
+		clearEncounterFocus();
 		container.destroy(true);
 
 		// Use GameController to properly skip encounter phase
@@ -241,7 +302,7 @@ export async function open(state: State, options: string[]) {
 			y = SCREEN_HEIGHT / 2;
 		}
 
-		createEncounterCard(container, {
+		const card = createEncounterCard(container, {
 			x,
 			y,
 			width,
@@ -261,7 +322,14 @@ export async function open(state: State, options: string[]) {
 				await encounter.onClick();
 			},
 		});
+
+		encounterFocusEntries.push({
+			setFocused: card.setFocused,
+			activate: card.activate,
+		});
 	});
+
+	setEncounterFocus(encounterFocusEntries.length > 0 ? 0 : null);
 
 	// Only show skip button if:
 	// 1. Feature is enabled by controller (not multiplayer)
