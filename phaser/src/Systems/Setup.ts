@@ -37,7 +37,7 @@ export function setupSceneElements() {
 
 	scene.bgContainer = scene.add.container(0, 0);
 	scene.bgContainer.setDepth(-2000);
-	ControlsSystem.init(scene);
+	ControlsSystem.init(scene, { context: "battleground" });
 
 	scene.bgContainer.add([scene.cloudsBackground]);
 
