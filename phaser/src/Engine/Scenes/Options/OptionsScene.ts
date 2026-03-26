@@ -9,6 +9,7 @@ import { optionsLabel } from "@Scenes/Options/components/optionsLabel";
 import { tabButtons } from "@Scenes/Options/components/tabButtons";
 import { currentTab } from "@Scenes/Options/components/effects/showTab";
 import { Tabs } from "@Scenes/Options/components/Model";
+import * as ControlsSystem from "@Systems/Controls";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -65,6 +66,6 @@ export default class OptionsScene extends Phaser.Scene {
 
 		backButton();
 
-		this.input.keyboard?.on("keydown-ESC", returnToTitle);
+		ControlsSystem.init(this, { context: "buttons", onCancel: returnToTitle });
 	}
 }

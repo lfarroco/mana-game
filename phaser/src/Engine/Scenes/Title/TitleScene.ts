@@ -3,7 +3,6 @@ import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { setCurrentScene } from "@Models/State";
 import { arenaButton } from "@Scenes/Title/components/arenaButton";
-import { startGame } from "@Game/effects/startGame";
 import { cloudsBg } from "@Scenes/Title/components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "@Scenes/Title/components/optionsButton";
 import { collectionButton } from "@Scenes/Title/components/collectionButton";
@@ -16,6 +15,7 @@ import { singlePlayerButton } from "@Scenes/Title/components/singlePlayerButton"
 import * as StatsStore from "@Models/StatsStore";
 import { showUnlockModal } from "@Scenes/Title/components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
+import * as ControlsSystem from "@Systems/Controls";
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 
@@ -52,7 +52,7 @@ export default class TitleScene extends Phaser.Scene {
 
 		howToPlay();
 
-		this.input.keyboard?.on("keydown-ENTER", startGame);
+		ControlsSystem.init(this, { context: "buttons" });
 
 		// const PGIurl = 'https://cdn.jsdelivr.net/gh/SilverTree7622/Phaser3_GUI_Inspector@latest/dist/PGInspector.js';
 		// const PGIele = document.createElement('script');
