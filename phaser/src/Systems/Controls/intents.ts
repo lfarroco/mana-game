@@ -8,7 +8,8 @@ import {
 export type NavigationDirection = "up" | "down" | "left" | "right";
 
 export type ControlIntent =
-	| { type: "navigate"; direction: NavigationDirection }
+	| { type: "navigateButtons"; direction: NavigationDirection }
+	| { type: "navigateBoard"; direction: NavigationDirection }
 	| { type: "confirm" }
 	| { type: "cancel" }
 	| { type: "shortcut"; action: ShortcutAction };
@@ -37,11 +38,11 @@ export const resolveKeyboardIntents = (
 ): ControlIntent[] => {
 	const direction = DIRECTION_KEY_MAP[key];
 	if (direction) {
-		return [{ type: "navigate", direction }];
+		return [{ type: context === "battleground" ? "navigateBoard" : "navigateButtons", direction }];
 	}
 
 	if (key === "Tab") {
-		return [{ type: "navigate", direction: "down" }];
+		return [{ type: "navigateButtons", direction: "down" }];
 	}
 
 	if (key === "Enter") {
@@ -83,11 +84,12 @@ export const resolveGamepadIntents = (
 	const wasPressed = (index: number) => previous?.buttons[index] ?? false;
 	const isPressed = (index: number) => current.buttons[index] ?? false;
 	const justPressed = (index: number) => isPressed(index) && !wasPressed(index);
+    const navigateIntentType = context === "battleground" ? "navigateBoard" : "navigateButtons";
 
-	if (justPressed(12)) intents.push({ type: "navigate", direction: "up" });
-	if (justPressed(13)) intents.push({ type: "navigate", direction: "down" });
-	if (justPressed(14)) intents.push({ type: "navigate", direction: "left" });
-	if (justPressed(15)) intents.push({ type: "navigate", direction: "right" });
+	if (justPressed(12)) intents.push({ type: navigateIntentType, direction: "up" });
+	if (justPressed(13)) intents.push({ type: navigateIntentType, direction: "down" });
+	if (justPressed(14)) intents.push({ type: navigateIntentType, direction: "left" });
+	if (justPressed(15)) intents.push({ type: navigateIntentType, direction: "right" });
 
 	if (justPressed(0)) intents.push({ type: "confirm" });
 	if (justPressed(1) || justPressed(9)) intents.push({ type: "cancel" });
@@ -96,16 +98,16 @@ export const resolveGamepadIntents = (
 	const previousY = previous?.leftStickY ?? 0;
 
 	if (current.leftStickY <= -GAMEPAD_AXIS_THRESHOLD && previousY > -GAMEPAD_AXIS_THRESHOLD) {
-		intents.push({ type: "navigate", direction: "up" });
+		intents.push({ type: navigateIntentType, direction: "up" });
 	}
 	if (current.leftStickY >= GAMEPAD_AXIS_THRESHOLD && previousY < GAMEPAD_AXIS_THRESHOLD) {
-		intents.push({ type: "navigate", direction: "down" });
+		intents.push({ type: navigateIntentType, direction: "down" });
 	}
 	if (current.leftStickX <= -GAMEPAD_AXIS_THRESHOLD && previousX > -GAMEPAD_AXIS_THRESHOLD) {
-		intents.push({ type: "navigate", direction: "left" });
+		intents.push({ type: navigateIntentType, direction: "left" });
 	}
 	if (current.leftStickX >= GAMEPAD_AXIS_THRESHOLD && previousX < GAMEPAD_AXIS_THRESHOLD) {
-		intents.push({ type: "navigate", direction: "right" });
+		intents.push({ type: navigateIntentType, direction: "right" });
 	}
 
 	if (context === "battleground" && justPressed(3)) {

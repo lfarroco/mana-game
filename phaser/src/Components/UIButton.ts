@@ -361,15 +361,15 @@ export const focusNextSceneButton = (
 	};
 };
 
+export const hasFocusedSceneButton = (scene: Phaser.Scene): boolean => {
+	const focused = focusedButtons.get(scene);
+	return !!focused && isButtonNavigable(focused, scene);
+};
+
 export const activateFocusedSceneButton = (scene: Phaser.Scene): boolean => {
 	const focused = focusedButtons.get(scene);
 	if (!focused || !isButtonNavigable(focused, scene)) {
-		const firstButton = focusNextSceneButton(scene, "down");
-		if (!firstButton) {
-			return false;
-		}
-		firstButton.press();
-		return true;
+		return false;
 	}
 
 	focused.callback();
