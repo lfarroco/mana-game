@@ -11,6 +11,11 @@ import {
 } from "@Components/UIButton";
 import { createBoardCursorController } from "@Systems/Controls/boardCursor";
 import {
+	confirmEncounterFocus,
+	hasEncounterFocusTargets,
+	navigateEncounterFocus,
+} from "@Systems/Encounter";
+import {
 	ControlContext,
 	ControlIntent,
 	GamepadSnapshot,
@@ -71,11 +76,18 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 				focusNextSceneButton(scene, intent.direction);
 				return;
 			case "navigateBoard":
+				if (options.context === "battleground" && hasEncounterFocusTargets()) {
+					navigateEncounterFocus(intent.direction);
+					return;
+				}
 				boardCursor?.move(intent.direction);
 				return;
 			case "confirm":
 				if (hasFocusedSceneButton(scene)) {
 					activateFocusedSceneButton(scene);
+					return;
+				}
+				if (options.context === "battleground" && (await confirmEncounterFocus())) {
 					return;
 				}
 				boardCursor?.confirm();
