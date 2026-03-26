@@ -6,15 +6,17 @@ import {
 	activateFocusedSceneButton,
 	clearSceneButtonFocus,
 	focusNextSceneButton,
+	hasFocusedSceneButton,
 	hasNavigableButtons,
 } from "@Components/UIButton";
+import { createBoardCursorController } from "@Systems/Controls/boardCursor";
 import {
 	ControlContext,
 	ControlIntent,
+	GamepadSnapshot,
 	resolveGamepadIntents,
 	resolveKeyboardIntents,
 	shouldIgnoreShortcutEvent,
-	GamepadSnapshot,
 } from "@Systems/Controls/intents";
 
 type InitOptions = {
@@ -53,31 +55,41 @@ const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" 
 	}
 };
 
-const executeIntent = async (
-	scene: Phaser.Scene,
-	intent: ControlIntent,
-	options: InitOptions
-) => {
-	switch (intent.type) {
-		case "navigate":
-			focusNextSceneButton(scene, intent.direction);
-			return;
-		case "confirm":
-			if (hasNavigableButtons(scene)) {
-				activateFocusedSceneButton(scene);
-			}
-			return;
-		case "cancel":
-			options.onCancel?.();
-			return;
-		case "shortcut":
-			await executeShortcutAction(intent);
-	}
-};
-
 export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptions) {
 	const keyboard = scene.input.keyboard;
 	let previousGamepadSnapshot: GamepadSnapshot | undefined;
+	const boardCursor =
+		options.context === "battleground" ? createBoardCursorController(scene) : null;
+
+	if (options.context === "buttons" && hasNavigableButtons(scene)) {
+		focusNextSceneButton(scene, "down");
+	}
+
+	const executeIntent = async (intent: ControlIntent) => {
+		switch (intent.type) {
+			case "navigateButtons":
+				focusNextSceneButton(scene, intent.direction);
+				return;
+			case "navigateBoard":
+				boardCursor?.move(intent.direction);
+				return;
+			case "confirm":
+				if (hasFocusedSceneButton(scene)) {
+					activateFocusedSceneButton(scene);
+					return;
+				}
+				boardCursor?.confirm();
+				return;
+			case "cancel":
+				if (boardCursor?.cancel()) {
+					return;
+				}
+				options.onCancel?.();
+				return;
+			case "shortcut":
+				await executeShortcutAction(intent);
+		}
+	};
 
 	const onKeyDown = async (event: KeyboardEvent) => {
 		if (event.repeat || shouldIgnoreShortcutEvent(event)) {
@@ -91,13 +103,15 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 		event.preventDefault();
 		for (const intent of intents) {
-			await executeIntent(scene, intent, options);
+			await executeIntent(intent);
 		}
 	};
 
 	keyboard?.on("keydown", onKeyDown);
 
 	const onUpdate = async () => {
+		boardCursor?.refresh();
+
 		const snapshot = getGamepadSnapshot(scene);
 		if (!snapshot) {
 			previousGamepadSnapshot = undefined;
@@ -113,7 +127,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		previousGamepadSnapshot = snapshot;
 
 		for (const intent of intents) {
-			await executeIntent(scene, intent, options);
+			await executeIntent(intent);
 		}
 	};
 
@@ -121,6 +135,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 	scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
 		keyboard?.off("keydown", onKeyDown);
 		scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
+		boardCursor?.destroy();
 		clearSceneButtonFocus(scene);
 	});
 }

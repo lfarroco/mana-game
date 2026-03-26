@@ -42,7 +42,7 @@ const buildState = (phase: State["session"]["phase"], optionIds: string[] = []):
 describe("resolveKeyboardIntents", () => {
 	it("maps arrows and enter for button contexts", () => {
 		expect(resolveKeyboardIntents("buttons", buildState("encounter"), "ArrowDown")).toEqual([
-			{ type: "navigate", direction: "down" },
+			{ type: "navigateButtons", direction: "down" },
 		]);
 		expect(resolveKeyboardIntents("buttons", buildState("encounter"), "Enter")).toEqual([
 			{ type: "confirm" },
@@ -53,6 +53,9 @@ describe("resolveKeyboardIntents", () => {
 	});
 
 	it("keeps battleground shortcuts available", () => {
+		expect(resolveKeyboardIntents("battleground", buildState("shop"), "ArrowLeft")).toEqual([
+			{ type: "navigateBoard", direction: "left" },
+		]);
 		expect(resolveKeyboardIntents("battleground", buildState("shop", ["hero_a"]), "1")).toEqual([
 			{ type: "shortcut", action: { type: "purchaseUnit", optionId: "hero_a" } },
 		]);
@@ -80,7 +83,7 @@ describe("resolveGamepadIntents", () => {
 		);
 
 		expect(intents).toEqual([
-			{ type: "navigate", direction: "up" },
+			{ type: "navigateButtons", direction: "up" },
 			{ type: "confirm" },
 			{ type: "cancel" },
 		]);
@@ -103,7 +106,7 @@ describe("resolveGamepadIntents", () => {
 		);
 
 		expect(intents).toEqual([
-			{ type: "navigate", direction: "right" },
+			{ type: "navigateBoard", direction: "right" },
 			{ type: "shortcut", action: { type: "skipPhase" } },
 		]);
 	});
