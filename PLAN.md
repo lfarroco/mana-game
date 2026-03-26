@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 22, 2026
+**Last Updated**: March 26, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -129,6 +129,23 @@ These tasks significantly improve code quality, maintainability, and user experi
 ## Medium Priority
 
 These tasks enhance developer experience and expand documentation.
+
+### Input Support
+- [ ] **Add keyboard and controller support across menus and battleground flows**
+  - **Context**: Input is currently pointer-first, with limited keyboard shortcuts in battleground and a few scene-specific key listeners. Controller support needs a shared action/focus model instead of more direct listeners.
+  - **Impact**: Improves accessibility, desktop usability, Steam Deck/controller compatibility, and overall UX parity across platforms.
+  - **Effort**: High (4-6 days)
+  - **Risk**: Medium - most risk is in focus management and board interaction, not button binding.
+  - **Recommendation**: Deliver in phases, shipping keyboard-first on the shared input layer before adding controller polling.
+  - **Docs**: [ui-system.md](docs/ui-system.md), [options-system.md](docs/options-system.md), [battle-system.md](docs/battle-system.md)
+  - **Steps**:
+    1. Define semantic input actions (`navigate`, `confirm`, `cancel`, `pause`, `skip`, `show_details`) and route keyboard/controller through the same action resolver.
+    2. Replace scene-local raw key handlers with a shared input router per scene/context (title, options, battleground, modal/result screens).
+    3. Add a focus manager for UI buttons, shop options, and modal actions, including visible focused-state styling.
+    4. Add battleground board navigation with a cursor/select-confirm flow that reuses existing move/swap command paths instead of emulating drag-and-drop.
+    5. Add Phaser gamepad support with deadzone and repeat-rate handling for D-pad/left stick plus confirm/cancel/menu button mapping.
+    6. Extend options to support input-related settings and show on-screen button/key hints where helpful.
+    7. Add unit tests for action resolution/focus routing and E2E coverage for title, shop, and board movement flows.
 
 ### Code Organization
 - [ ] **Reorganize project file structure (from TODO.md)**
