@@ -1,6 +1,6 @@
 # Mana Battle - Development Roadmap
 
-**Last Updated**: March 26, 2026
+**Last Updated**: March 27, 2026
 
 This document outlines the development priorities and planned improvements for Mana Battle. Tasks are organized by priority and category to guide development efforts systematically.
 
@@ -129,6 +129,18 @@ These tasks significantly improve code quality, maintainability, and user experi
 ## Medium Priority
 
 These tasks enhance developer experience and expand documentation.
+
+### Game Balance
+- [ ] **Adjust unit encounter presentation and upgrade incentives**
+  - **Context**: Encounter options and upgrade rewards should better support clear progression from bronze to gold.
+  - **Impact**: Stronger progression clarity, better decision-making tension, and more meaningful upgrade planning.
+  - **Effort**: Medium (1-2 days)
+  - **Steps**:
+    1. Make the gold unit encounter display a single unit.
+    2. Make the silver unit encounter display two units to choose from.
+    3. Increase upgrade bonuses to create stronger incentive for the bronze -> gold upgrade path.
+    4. Explore adding a drawback to units that start at gold.
+    5. Explore making silver units more generic and formation-based so they function as wildcard units.
 
 ### Input Support
 - [ ] **Add keyboard and controller support across menus and battleground flows**
