@@ -153,14 +153,16 @@ These tasks enhance developer experience and expand documentation.
     4. ✅ Explore adding a drawback to units that start at gold (implemented as direct cooldown tuning in gold unit data rather than recruitment logic).
     5. ⏸️ Explore making silver units more generic and formation-based so they function as wildcard units (deferred for future iteration based on playtesting feedback).
 
-- [ ] **Restrict type-specific unit stores to bronze units**
+- [x] **Restrict type-specific unit stores to bronze units**
   - **Context**: Encounter stores like armory, healing tent, and other type-based recruiters currently filter by effect type across all ranks.
   - **Impact**: Keeps those stores focused on flexible early progression instead of bypassing the bronze -> silver -> gold path.
   - **Effort**: Low (0.5-1 day)
+  - **Status**: ✅ Completed (2026-03-27) - Type-specific recruit stores now offer only bronze units, while silver/gold stores retain their dedicated rank restrictions.
+  - **Testing**: Added `OptionGeneration.test.ts` coverage for all 10 type-specific stores plus silver/gold shop rank guards.
   - **Steps**:
-    1. Update type-based shop filtering so damage/heal/shield/regen/poison/haste/slow/charge/power/crit stores only offer rank 1 units.
-    2. Add or update tests covering store rank restrictions.
-    3. Re-evaluate encounter descriptions if the presentation needs to clarify bronze-only recruitment.
+    1. ✅ Update type-based shop filtering so damage/heal/shield/regen/poison/haste/slow/charge/power/crit stores only offer rank 1 units.
+    2. ✅ Add or update tests covering store rank restrictions.
+    3. ⏸️ Re-evaluate encounter descriptions if the presentation needs to clarify bronze-only recruitment.
 
 ### Input Support
 - [ ] **Add keyboard and controller support across menus and battleground flows**

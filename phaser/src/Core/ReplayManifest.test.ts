@@ -118,6 +118,11 @@ type RecordedRun = {
 	combatRecords: CombatRecord[];
 };
 
+const getOrbShopTargetUnitId = (session: SessionData): string => {
+	const targetUnit = session.team.units.find((unit) => !unit.isCore) ?? session.team.units[0];
+	return targetUnit.id;
+};
+
 const runDeterministicSession = ({
 	playerId,
 	crystalId,
@@ -135,6 +140,7 @@ const runDeterministicSession = ({
 
 	const actions: RunManifest["actions"] = [];
 	const combatRecords: CombatRecord[] = [];
+	const resolvedOrbShops = new Set<string>();
 
 	for (let sequence = 1; sequence <= maxActions; sequence++) {
 		if (isTerminal(session)) break;
@@ -142,14 +148,31 @@ const runDeterministicSession = ({
 		const options = getOptions(session);
 		if (options.length === 0) break;
 
-		const actionId = options[0];
+		let actionId = options[0];
+		let payload: RunManifest["actions"][number]["payload"];
+
+		if (session.phase === "orb_shop") {
+			const orbShopKey = `${session.round}:${session.step}`;
+			if (resolvedOrbShops.has(orbShopKey)) {
+				actionId = "orb_shop_done";
+			} else {
+				resolvedOrbShops.add(orbShopKey);
+				actionId = "apply_orb";
+				payload = {
+					orbId: options[0],
+					targetUnitId: getOrbShopTargetUnitId(session),
+				};
+			}
+		}
+
 		actions.push({
 			sequence,
 			actionId,
+			payload,
 			teamSnapshot: cloneTeamSnapshot(session),
 		});
 
-		const { session: next } = GameLogic.transitionToNextState(session, actionId);
+		const { session: next } = GameLogic.transitionToNextState(session, actionId, payload);
 		session = next;
 
 		if (actionId === "combat_encounter") {
