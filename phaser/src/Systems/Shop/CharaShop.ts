@@ -9,11 +9,22 @@ import { createDescription } from "@Systems/Chara/createDescription";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { Rectangle } from "@PhaserIO";
+import {
+	initializeEncounterFocusTargets,
+	registerEncounterFocusTarget,
+	resetEncounterFocusTargets,
+} from "@Systems/Encounter";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
+const SHOP_CARD_BORDER_WIDTH = 3;
+const SHOP_CARD_BORDER_COLOR = 0xffffff;
+const SHOP_CARD_BORDER_ALPHA = 0.2;
+const SHOP_CARD_FOCUS_BORDER_COLOR = 0xffd700;
+const SHOP_CARD_FOCUS_BORDER_ALPHA = 1;
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const scene = getCurrentScene();
+	resetEncounterFocusTargets();
 
 	const createdCharas: Chara.Chara[] = [];
 	const ownedCardIds = new Set(getState().session.team.units.map((u) => u.cardId));
@@ -27,6 +38,20 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		const bgSize = size(800, 280);
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
+		const rowBorder = scene.add.graphics();
+		let isFocused = false;
+		const drawRowBorder = (color: number, alpha: number) => {
+			rowBorder.clear();
+			rowBorder.lineStyle(SHOP_CARD_BORDER_WIDTH, color, alpha);
+			rowBorder.strokeRoundedRect(
+				position.x - bgSize.width / 2,
+				position.y - bgSize.height / 2,
+				bgSize.width,
+				bgSize.height,
+				12
+			);
+		};
+		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA);
 
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
@@ -36,9 +61,17 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			Phaser.Geom.Rectangle.Contains
 		);
 		bgRect.on("pointerover", () => {
+			if (isFocused) {
+				return;
+			}
+
 			bgRect.setAlpha(0.7);
 		});
 		bgRect.on("pointerout", () => {
+			if (isFocused) {
+				return;
+			}
+
 			bgRect.setAlpha(1);
 		});
 		bgRect.on("pointerup", (pointer: Phaser.Input.Pointer) => {
@@ -90,7 +123,25 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		ShopPanel.container.add([bgRect, chara, titleText, descriptionText]);
+		ShopPanel.container.add([bgRect, rowBorder, chara, titleText, descriptionText]);
+
+		registerEncounterFocusTarget({
+			setFocused: (focused: boolean) => {
+				isFocused = focused;
+				if (focused) {
+					bgRect.setAlpha(0.7);
+					drawRowBorder(SHOP_CARD_FOCUS_BORDER_COLOR, SHOP_CARD_FOCUS_BORDER_ALPHA);
+					return;
+				}
+
+				bgRect.setAlpha(1);
+				drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA);
+			},
+			activate: async () => {
+				chara.emit("pointerup", scene.input.activePointer);
+			},
+		});
+		initializeEncounterFocusTargets();
 
 		createdCharas.push(chara);
 	});

@@ -35,7 +35,7 @@ let currentEncounters: EncounterItem[] = [];
 let isEncounterSelectionInProgress = false;
 let focusedEncounterIndex: number | null = null;
 
-type EncounterFocusEntry = {
+export type EncounterFocusEntry = {
 	setFocused: (focused: boolean) => void;
 	activate: () => Promise<void>;
 };
@@ -60,6 +60,42 @@ const setEncounterFocus = (nextIndex: number | null): void => {
 
 export const hasEncounterFocusTargets = (): boolean => encounterFocusEntries.length > 0;
 
+export const resetEncounterFocusTargets = (): void => {
+	clearEncounterFocus();
+};
+
+export const registerEncounterFocusTarget = (entry: EncounterFocusEntry): void => {
+	encounterFocusEntries.push(entry);
+};
+
+export const initializeEncounterFocusTargets = (): void => {
+	setEncounterFocus(encounterFocusEntries.length > 0 ? 0 : null);
+};
+
+export const getEncounterFocusCount = (): number => encounterFocusEntries.length;
+
+export const getFocusedEncounterIndex = (): number | null => focusedEncounterIndex;
+
+export const hasFocusedEncounterTarget = (): boolean => {
+	return (
+		focusedEncounterIndex !== null &&
+		focusedEncounterIndex >= 0 &&
+		focusedEncounterIndex < encounterFocusEntries.length
+	);
+};
+
+export const ensureEncounterFocus = (): boolean => {
+	if (encounterFocusEntries.length === 0) {
+		return false;
+	}
+
+	if (focusedEncounterIndex === null) {
+		setEncounterFocus(0);
+	}
+
+	return hasFocusedEncounterTarget();
+};
+
 export const navigateEncounterFocus = (direction: "up" | "down" | "left" | "right"): boolean => {
 	const nextIndex = getNextEncounterFocusIndex(
 		focusedEncounterIndex,
@@ -80,11 +116,7 @@ export const confirmEncounterFocus = async (): Promise<boolean> => {
 		return false;
 	}
 
-	if (focusedEncounterIndex === null) {
-		setEncounterFocus(0);
-	}
-
-	if (focusedEncounterIndex === null) {
+	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
 		return false;
 	}
 
@@ -243,6 +275,7 @@ function improveType(pic: string, type: string): EncounterItem {
 
 export async function open(state: State, options: string[]) {
 	const container = io.Container();
+	container.once("destroy", clearEncounterFocus);
 	isEncounterSelectionInProgress = false;
 	clearEncounterFocus();
 
@@ -323,13 +356,13 @@ export async function open(state: State, options: string[]) {
 			},
 		});
 
-		encounterFocusEntries.push({
+		registerEncounterFocusTarget({
 			setFocused: card.setFocused,
 			activate: card.activate,
 		});
 	});
 
-	setEncounterFocus(encounterFocusEntries.length > 0 ? 0 : null);
+	initializeEncounterFocusTargets();
 
 	// Only show skip button if:
 	// 1. Feature is enabled by controller (not multiplayer)

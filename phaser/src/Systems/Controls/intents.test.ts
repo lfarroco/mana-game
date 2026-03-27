@@ -44,6 +44,9 @@ describe("resolveKeyboardIntents", () => {
 		expect(resolveKeyboardIntents("buttons", buildState("encounter"), "ArrowDown")).toEqual([
 			{ type: "navigateButtons", direction: "down" },
 		]);
+		expect(resolveKeyboardIntents("buttons", buildState("encounter"), "Tab")).toEqual([
+			{ type: "navigateButtons", direction: "down" },
+		]);
 		expect(resolveKeyboardIntents("buttons", buildState("encounter"), "Enter")).toEqual([
 			{ type: "confirm" },
 		]);
@@ -53,6 +56,9 @@ describe("resolveKeyboardIntents", () => {
 	});
 
 	it("keeps battleground shortcuts available", () => {
+		expect(resolveKeyboardIntents("battleground", buildState("shop"), "Tab")).toEqual([
+			{ type: "cycleLayer" },
+		]);
 		expect(resolveKeyboardIntents("battleground", buildState("shop"), "ArrowLeft")).toEqual([
 			{ type: "navigateBoard", direction: "left" },
 		]);
@@ -109,5 +115,24 @@ describe("resolveGamepadIntents", () => {
 			{ type: "navigateBoard", direction: "right" },
 			{ type: "shortcut", action: { type: "skipPhase" } },
 		]);
+	});
+
+	it("maps battleground shoulder buttons to layer cycling", () => {
+		const intents = resolveGamepadIntents(
+			"battleground",
+			buildState("shop"),
+			{
+				buttons: [false, false, false, false, true, false],
+				leftStickX: 0,
+				leftStickY: 0,
+			},
+			{
+				buttons: [false, false, false, false, false, false],
+				leftStickX: 0,
+				leftStickY: 0,
+			}
+		);
+
+		expect(intents).toEqual([{ type: "cycleLayer" }]);
 	});
 });

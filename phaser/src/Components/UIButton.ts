@@ -329,6 +329,27 @@ const clearButtonFocus = (state: State) => {
 
 export const hasNavigableButtons = (scene: Phaser.Scene): boolean => getSceneButtons(scene).length > 0;
 
+const normalizeButtonLabel = (label: string): string => label.trim().toLowerCase();
+
+export const focusSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
+	const target = normalizeButtonLabel(text);
+	const button = getSceneButtons(scene).find(
+		(state) => normalizeButtonLabel(state.text.text) === target
+	);
+
+	if (!button) {
+		return false;
+	}
+
+	setFocusedButton(button);
+	return true;
+};
+
+export const hasSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
+	const target = normalizeButtonLabel(text);
+	return getSceneButtons(scene).some((state) => normalizeButtonLabel(state.text.text) === target);
+};
+
 export const focusNextSceneButton = (
 	scene: Phaser.Scene,
 	direction: NavigationDirection
@@ -364,6 +385,15 @@ export const focusNextSceneButton = (
 export const hasFocusedSceneButton = (scene: Phaser.Scene): boolean => {
 	const focused = focusedButtons.get(scene);
 	return !!focused && isButtonNavigable(focused, scene);
+};
+
+export const getFocusedSceneButtonText = (scene: Phaser.Scene): string | null => {
+	const focused = focusedButtons.get(scene);
+	if (!focused || !isButtonNavigable(focused, scene)) {
+		return null;
+	}
+
+	return focused.text.text;
 };
 
 export const activateFocusedSceneButton = (scene: Phaser.Scene): boolean => {
