@@ -90,7 +90,10 @@ export const replayCombat = async (): Promise<void> => {
 	// After replay ends, show the results screen again
 	const onReplayEnd = async () => {
 		const ResultsUI = await import("./Results/ResultsUI");
-		const resultType = lastCombatOutcome === "player_won" ? "victory" : "defeat";
+		const resultType =
+			lastCombatOutcome === "player_lost"
+				? "defeat"
+				: "victory";
 
 		// Re-display the results with the same callbacks
 		ResultsUI.displayResults(lastCombatState!, resultType, lastNextPhaseCallback!, replayCombat);

@@ -129,7 +129,7 @@ export function determineCombatOutcome(
 	const outcomeLog = simLogs.find((l) => l.type === "outcome");
 
 	if (outcomeLog) {
-		return { won: outcomeLog.result === "player_won" };
+		return { won: outcomeLog.result === "player_won" || outcomeLog.result === "both_won" };
 	}
 
 	const core = playerUnits.find((u) => u.isCore);

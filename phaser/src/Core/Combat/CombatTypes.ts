@@ -7,7 +7,7 @@ import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import type { CountdownTimerState } from "@Systems/CountdownTimer";
 import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
-export type WaveOutcome = "player_won" | "player_lost";
+export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
 export type CombatEffects = {
 	onUnitPop: (unitId: string) => void;

@@ -19,9 +19,11 @@ const logger = createLogger("RunCombatCore");
 
 export type { WaveOutcome, CombatEffects } from "@Core/Combat/CombatTypes";
 
+const MAX_COMBAT_DURATION_MS = 120_000;
+
 export type CombatRunner = {
 	updateFrame: (state: State, time: number, delta: number) => void;
-	finishCombat: (state: State, outcome: "player_won" | "player_lost") => Promise<void>;
+	finishCombat: (state: State, outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
 	isActive: () => boolean;
 	stop: () => void;
 	getEnv: () => CombatEnvironment;
@@ -104,6 +106,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 
 	let statusEffectSystemState = StatusEffectSystem.initialize(state);
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
+	let combatElapsedMs = 0;
 
 	const updateFrame = (nextState: State, _time: number, delta: number): void => {
 		if (!runnerState.active) return;
@@ -111,6 +114,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		runnerState.env.state = nextState;
 
 		const scaledDelta = delta * effects.getTimeScale();
+		combatElapsedMs += scaledDelta;
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,
@@ -139,22 +143,33 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			scaledDelta
 		);
 
+		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
+			finishCombat(nextState, "both_won");
+			return;
+		}
+
 		const playerCore = getBattleCore(nextState)(FORCE_ID_PLAYER);
 		const cpuCore = getBattleCore(nextState)(FORCE_ID_CPU);
 		const playerLifeZero = !playerCore || playerCore.life <= 0;
 		const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
-		const outcome: "player_won" | "player_lost" | null = cpuLifeZero
-			? "player_won"
-			: playerLifeZero
-				? "player_lost"
-				: null;
+		const outcome: "player_won" | "player_lost" | "both_won" | null =
+			cpuLifeZero && playerLifeZero
+				? "both_won"
+				: cpuLifeZero
+					? "player_won"
+					: playerLifeZero
+						? "player_lost"
+						: null;
 
 		if (outcome) {
 			finishCombat(nextState, outcome);
 		}
 	};
 
-	const finishCombat = async (nextState: State, outcome: "player_won" | "player_lost") => {
+	const finishCombat = async (
+		nextState: State,
+		outcome: "player_won" | "player_lost" | "both_won"
+	) => {
 		if (!runnerState.active) return;
 
 		runnerState.active = false;

@@ -67,7 +67,7 @@ export async function handleCombatEnded(state: State, combatResult: string) {
 	}
 	StatsStore.save();
 
-	if (combatResult === "player_won") {
+	if (combatResult === "player_won" || combatResult === "both_won") {
 		await handleCombatEndedVictory(state);
 	} else {
 		await handleCombatEndedDefeat(state);

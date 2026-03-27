@@ -4,8 +4,8 @@ import { jest, describe, it, expect, beforeAll } from "@jest/globals";
 jest.mock("../../../i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (id: string) => id,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
@@ -48,7 +48,7 @@ describe("Server Side Combat", () => {
 		const outcomeLog = effects.logs.find((l) => l.type === "outcome");
 		expect(outcomeLog).toBeDefined();
 		if (outcomeLog && outcomeLog.type === "outcome") {
-			expect(["player_won", "player_lost"]).toContain(outcomeLog.result);
+			expect(["player_won", "player_lost", "both_won"]).toContain(outcomeLog.result);
 		}
 	});
 
@@ -71,5 +71,41 @@ describe("Server Side Combat", () => {
 		}
 
 		expect(frame).toBeGreaterThan(0);
+	});
+
+	it("should end with both_won when combat duration reaches 120s", () => {
+		const state = createMockState();
+
+		state.battleData.units.forEach((unit) => {
+			unit.effects = [];
+			unit.reactions = [];
+			unit.cooldown = 1_000_000_000;
+			if (unit.isCore) {
+				unit.maxLife = 1_000_000_000_000_000;
+				unit.life = unit.maxLife;
+				unit.shield = 0;
+			}
+		});
+
+		const effects = createServerCombatEffects(state);
+		const combatRunner = runCombat(state, effects);
+
+		let frame = 0;
+		const deltaTime = 100;
+		const SAFETY_MAX_FRAMES = 2000;
+
+		while (combatRunner.isActive() && frame < SAFETY_MAX_FRAMES) {
+			effects.setFrame(frame);
+			combatRunner.updateFrame(state, frame * deltaTime, deltaTime);
+			frame++;
+		}
+
+		expect(frame).toBeLessThan(SAFETY_MAX_FRAMES);
+
+		const outcomeLog = effects.logs.find((l) => l.type === "outcome");
+		expect(outcomeLog).toBeDefined();
+		if (outcomeLog && outcomeLog.type === "outcome") {
+			expect(outcomeLog.result).toBe("both_won");
+		}
 	});
 });
