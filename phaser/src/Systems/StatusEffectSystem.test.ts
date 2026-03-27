@@ -155,4 +155,58 @@ describe("StatusEffectSystem", () => {
 
 		expect(netLog).toBeDefined();
 	});
+
+	describe("poison/regen interaction matrix", () => {
+		it.each([
+			{ poison: 0, regen: 0, expectedDelta: null },
+			{ poison: 10, regen: 0, expectedDelta: -10 },
+			{ poison: 0, regen: 8, expectedDelta: 8 },
+			{ poison: 10, regen: 10, expectedDelta: null },
+			{ poison: 7, regen: 12, expectedDelta: 5 },
+			{ poison: 12, regen: 7, expectedDelta: -5 },
+		])(\
+			"poison=$poison regen=$regen => delta=$expectedDelta", \
+			({ poison, regen, expectedDelta }: { poison: number; regen: number; expectedDelta: number | null }) => {
+				const playerForceId = state.session.player_id;
+				const core = state.battleData.units.find(
+					(u: Unit) => u.force === playerForceId && u.isCore
+				);
+
+				if (core) {
+					core.life = 50;
+					core.maxLife = 100;
+				}
+
+				if (poison > 0) {
+					env.combatStates.poisonSystemState = applyPoison(
+						env.combatStates.poisonSystemState,
+						{ id: playerForceId } as Force,
+						poison
+					);
+				}
+
+				if (regen > 0) {
+					env.combatStates.regenSystemState = applyRegen(
+						env.combatStates.regenSystemState,
+						{ id: playerForceId } as Force,
+						regen
+					);
+				}
+
+				update(env, statusState, 1000);
+
+				const logs = effects.logs.filter((l: CombatLogEntry) => l.type === "life_display");
+				const playerLogs = logs.filter((l: CombatLogEntry) => l.force === playerForceId);
+
+				if (expectedDelta === null) {
+					const nonZeroLogs = playerLogs.filter((l: CombatLogEntry) => (l.delta || 0) !== 0);
+					expect(nonZeroLogs.length).toBe(0);
+					return;
+				}
+
+				const netLog = playerLogs.find((l: CombatLogEntry) => l.delta === expectedDelta);
+				expect(netLog).toBeDefined();
+			}
+		);
+	});
 });
