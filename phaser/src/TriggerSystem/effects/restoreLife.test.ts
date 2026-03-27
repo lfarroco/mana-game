@@ -7,11 +7,13 @@ import {
 import { runCombat } from "@Core/Combat/RunCombatCore";
 import { restoreLife } from "@TriggerSystem/effects/restoreLife";
 import { processEffectsIO } from "@TriggerSystem/TriggerSystem";
+import { applyPoison, getPoisonRate } from "@Systems/PoisonDamageSystem";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
+import { Force } from "@Models/Entities/Force";
 
 // Mock i18n
 jest.mock("../../i18n/i18n", () => ({
@@ -110,5 +112,45 @@ describe("Heal Effect Tests", () => {
 		)!;
 		expect(damageLog).toBeDefined();
 		expect(damageLog.sourceId).toBe(reactorUnit.id);
+	});
+
+	it("should reduce poison when heal amount is at least 20", async () => {
+		const sourceForceId = sourceUnit.force;
+
+		env.combatStates.poisonSystemState = applyPoison(
+			env.combatStates.poisonSystemState,
+			{ id: sourceForceId } as Force,
+			5
+		);
+
+		sourceUnit.power = 40;
+		sourceUnit.life = 20;
+		sourceUnit.maxLife = 100;
+
+		await restoreLife(env, sourceUnit);
+		effects.setFrame(30);
+
+		const poisonRateAfter = getPoisonRate(env.combatStates.poisonSystemState, sourceForceId);
+		expect(poisonRateAfter).toBe(3);
+	});
+
+	it("should not reduce poison when effective heal is below 20", async () => {
+		const sourceForceId = sourceUnit.force;
+
+		env.combatStates.poisonSystemState = applyPoison(
+			env.combatStates.poisonSystemState,
+			{ id: sourceForceId } as Force,
+			5
+		);
+
+		sourceUnit.power = 10;
+		sourceUnit.life = 10;
+		sourceUnit.maxLife = 100;
+
+		await restoreLife(env, sourceUnit);
+		effects.setFrame(30);
+
+		const poisonRateAfter = getPoisonRate(env.combatStates.poisonSystemState, sourceForceId);
+		expect(poisonRateAfter).toBe(5);
 	});
 });
