@@ -191,4 +191,23 @@ describe("ResultsPhase", () => {
 		expect(mockHandleAction).toHaveBeenCalledWith("player-1", "combat_done");
 		expect(mockStartPhase).toHaveBeenCalledWith(state);
 	});
+
+	it("treats both_won as a victory flow", async () => {
+		const state = createState();
+		let continueCallback: (() => Promise<void>) | undefined;
+
+		mockDisplayResults.mockImplementation((...args: unknown[]) => {
+			continueCallback = args[2] as () => Promise<void>;
+		});
+
+		await handleCombatEnded(state, "both_won");
+
+		expect(mockProcessVictory).toHaveBeenCalled();
+		expect(continueCallback).toBeDefined();
+
+		await continueCallback?.();
+
+		expect(mockHandleAction).toHaveBeenCalledWith("player-1", "combat_done");
+		expect(mockStartPhase).toHaveBeenCalledWith(state);
+	});
 });

@@ -143,13 +143,14 @@ describe("TimeoutDamageSystem", () => {
 		expect(damageLogs[0].damage).toBe(7);
 	});
 
-	it("should inflict infinite damage after 60s", () => {
+	it("should keep timeout damage finite at later timestamps", () => {
 		timeoutState.combatElapsedTime = TIMEOUT_DAMAGE_START_TIME + 60000;
 		timeoutState.timeSinceLastTick = 1000;
 
 		updateTimeoutDamageSystem(env, timeoutState, state, playerForce, cpuForce, 0);
 
 		const damageLogs = effects.logs.filter((l: CombatLogEntry) => l.type === "timeout_damage");
-		expect(damageLogs[0].damage).toBe(Infinity);
+		expect(Number.isFinite(damageLogs[0].damage || 0)).toBe(true);
+		expect((damageLogs[0].damage || 0) > 0).toBe(true);
 	});
 });

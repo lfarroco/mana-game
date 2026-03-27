@@ -56,7 +56,7 @@ export const createBrowserCombatEffects = (
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));
 				}
-			} else {
+			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));

@@ -221,7 +221,7 @@ export async function handleMultiplayerPhase(
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));
 				}
-			} else {
+			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
 				if (core) {
 					await Animations.shatter(getCharaById(core.id));
@@ -238,7 +238,7 @@ export async function handleMultiplayerPhase(
 			}
 			state.session.team.units.forEach(resetUnitStats);
 
-			const resultType = outcome === "player_won" ? "victory" : "defeat";
+			const resultType = outcome === "player_lost" ? "defeat" : "victory";
 
 			// Optimistically update top bar display only (not state)
 			// The state will be synced from server on next phase transition

@@ -9,7 +9,6 @@ import { createLogger } from "@Utils/Logger";
 const logger = createLogger("TimeoutDamageSystem");
 
 const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
-const TIMEOUT_SUDDEN_DEATH_MS = 60_000;
 const TIMEOUT_BASE_DAMAGE = 5;
 const TIMEOUT_GROWTH_RATE = 1.2;
 
@@ -87,14 +86,8 @@ function applyTimeoutDamage(
 	cpuForce: Force,
 	timeSinceTimeoutStarted: number
 ): void {
-	let currentDamage: number;
-
-	if (timeSinceTimeoutStarted >= TIMEOUT_SUDDEN_DEATH_MS) {
-		currentDamage = Infinity;
-	} else {
-		const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
-		currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
-	}
+	const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
+	const currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
 
 	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
