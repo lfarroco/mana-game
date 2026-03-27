@@ -135,8 +135,7 @@ These tasks enhance developer experience and expand documentation.
   - **Context**: Encounter options and upgrade rewards should better support clear progression from bronze to gold.
   - **Impact**: Stronger progression clarity, better decision-making tension, and more meaningful upgrade planning.
   - **Effort**: Medium (1-2 days)
-  - **Status**: ✅ Completed (2026-03-27) - Implemented all steps plus experimental gold unit drawback
-   - **Status**: ✅ Completed (2026-03-27) - Implemented encounter presentation updates and stronger upgrade incentives
+  - **Status**: ✅ Completed (2026-03-27) - Implemented encounter presentation updates, stronger upgrade incentives, and direct gold-unit cooldown tuning in unit data
   - **Changes Made**:
     1. ✅ **Gold shop now displays 1 unit** - Modified `generateShopOptions()` to return 1 option for gold_shop encounters instead of 3
     2. ✅ **Silver shop now displays 2 units** - Modified `generateShopOptions()` to return 2 options for silver_shop encounters instead of 3  
@@ -145,14 +144,23 @@ These tasks enhance developer experience and expand documentation.
        - Rank 2 (silver): 175 hp, 175 power (1.75x)
        - Rank 3 (gold): 306 hp, 306 power (1.75x × 175)
        - Rank 4 (platinum): 535 hp, 535 power (1.75x × 306)
-      4. ✅ **Kept cooldown values data-driven** - No encounter-specific cooldown penalty is applied in recruitment flow; if gold units need slower timing, that should be tuned in unit definitions directly
+    4. ✅ **Kept cooldown values data-driven** - No encounter-specific cooldown penalty is applied in recruitment flow; recruitable gold units now have their slower timing tuned directly in unit definitions
   - **Testing**: All 460 tests pass (55 test suites); verified via ActionResolver, LocalServerAdapter, and full test suite
   - **Steps**:
     1. ✅ Make the gold unit encounter display a single unit.
     2. ✅ Make the silver unit encounter display two units to choose from.
     3. ✅ Increase upgrade bonuses to create stronger incentive for the bronze -> gold upgrade path.
-      4. ✅ Explore adding a drawback to units that start at gold (decided not to implement in recruitment logic; balance should live in unit data).
+    4. ✅ Explore adding a drawback to units that start at gold (implemented as direct cooldown tuning in gold unit data rather than recruitment logic).
     5. ⏸️ Explore making silver units more generic and formation-based so they function as wildcard units (deferred for future iteration based on playtesting feedback).
+
+- [ ] **Restrict type-specific unit stores to bronze units**
+  - **Context**: Encounter stores like armory, healing tent, and other type-based recruiters currently filter by effect type across all ranks.
+  - **Impact**: Keeps those stores focused on flexible early progression instead of bypassing the bronze -> silver -> gold path.
+  - **Effort**: Low (0.5-1 day)
+  - **Steps**:
+    1. Update type-based shop filtering so damage/heal/shield/regen/poison/haste/slow/charge/power/crit stores only offer rank 1 units.
+    2. Add or update tests covering store rank restrictions.
+    3. Re-evaluate encounter descriptions if the presentation needs to clarify bronze-only recruitment.
 
 ### Input Support
 - [ ] **Add keyboard and controller support across menus and battleground flows**

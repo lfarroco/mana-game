@@ -960,7 +960,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_gnasher",
 		power: 145,
 		rank: 3,
-		cooldown: 6500,
+		cooldown: 7800,
 		effects: [
 			poison,
 			slow(2000, randomEnemy(2)),
@@ -974,7 +974,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenhammer",
 		power: 110,
 		rank: 3,
-		cooldown: 7000,
+		cooldown: 8400,
 		effects: [
 			shield,
 			increasePower(20, column),
@@ -988,7 +988,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_gauntletmaster",
 		power: 80,
 		rank: 3,
-		cooldown: 4300,
+		cooldown: 5160,
 		effects: [
 			damage,
 			haste(2000, column),
@@ -1002,7 +1002,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenjusticar",
 		power: 110,
 		rank: 3,
-		cooldown: 5200,
+		cooldown: 6240,
 		effects: [
 			regen,
 			haste(2000, row)
@@ -1016,7 +1016,7 @@ const cards: CardDefinition[] = [
 		pic: "neutral_goldenmantella",
 		power: 48,
 		rank: 3,
-		cooldown: 7400,
+		cooldown: 8880,
 		effects: [
 			heal,
 			increasePower(20, row),
