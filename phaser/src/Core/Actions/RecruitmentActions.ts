@@ -22,14 +22,19 @@ function getRecruitmentTargetRank(encounterId: string | null): number {
 
 /**
  * Apply rank-up bonuses to a unit.
- * Increases maxLife and power by 1.5x per rank level above 1.
+ * Increases maxLife and power by 1.75x per rank level above 1.
+ * This creates stronger progression incentive and makes silver/gold units more valuable.
+ * - Rank 1 (bronze): 100 hp, 100 power (baseline)
+ * - Rank 2 (silver): 175 hp, 175 power (1.75x)
+ * - Rank 3 (gold): 306 hp, 306 power (1.75x × 175)
  */
 function applyRankUpBonuses(unit: Unit, targetRank: number): void {
+	const rankMultiplier = 1.75;
 	const extraLevels = targetRank - 1;
 	for (let i = 0; i < extraLevels; i++) {
-		unit.maxLife = Math.floor(unit.maxLife * 1.5);
+		unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
 		unit.life = unit.maxLife;
-		unit.power = Math.floor(unit.power * 1.5);
+		unit.power = Math.floor(unit.power * rankMultiplier);
 	}
 }
 

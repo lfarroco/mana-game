@@ -14,13 +14,15 @@ const MIN_COOLDOWN_MS = 1000;
 const CORE_ROUND_SCALING = 10;
 
 /**
- * Apply upgrade_orb: Rank up a unit (increase stats by 1.5x).
+ * Apply upgrade_orb: Rank up a unit (increase stats by 1.75x).
+ * This aligns with the new bronze->silver->gold upgrade progression.
  */
 function applyUpgradeOrb(unit: Unit): void {
 	unit.rank = (unit.rank || 1) + 1;
-	unit.maxLife = Math.floor(unit.maxLife * 1.5);
+	const rankMultiplier = 1.75;
+	unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
 	unit.life = unit.maxLife;
-	unit.power = Math.floor(unit.power * 1.5);
+	unit.power = Math.floor(unit.power * rankMultiplier);
 }
 
 /**
