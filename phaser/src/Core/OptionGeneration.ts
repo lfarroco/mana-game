@@ -106,27 +106,38 @@ function getEncounterFilterType(encounterId: string | null): EncounterFilterType
 	return filterMap[encounterId] || "";
 }
 
+function getCardRank(card: Card.CardDefinition): number {
+	return card.rank ?? 1;
+}
+
+function cardMatchesEffectType(
+	card: Card.CardDefinition,
+	filterType: Exclude<EncounterFilterType, "silver" | "gold">
+): boolean {
+	return (
+		card.effects?.some((effect) => effect.id === filterType) ||
+		card.reactions?.some((reaction) => reaction.effects?.some((effect) => effect.id === filterType))
+	);
+}
+
 /**
  * Filter cards by effect type, supporting both direct effects and reactions.
  */
-function filterCardsByEffect(cards: any[], filterType: EncounterFilterType): any[] {
+function filterCardsByEffect(
+	cards: Card.CardDefinition[],
+	filterType: EncounterFilterType
+): Card.CardDefinition[] {
 	if (filterType === "silver") {
-		return cards.filter((card) => card.rank === 2);
+		return cards.filter((card) => getCardRank(card) === 2);
 	}
 
 	if (filterType === "gold") {
-		return cards.filter((card) => card.rank === 3);
+		return cards.filter((card) => getCardRank(card) === 3);
 	}
 
-	if (filterType) {
-		return cards.filter(
-			(card: any) =>
-				card.effects?.some((eff: any) => eff.id === filterType) ||
-				card.reactions?.some((react: any) => react.effects?.some((eff: any) => eff.id === filterType))
-		);
-	}
-
-	return cards;
+	return cards.filter(
+		(card) => getCardRank(card) === 1 && cardMatchesEffectType(card, filterType)
+	);
 }
 
 /**
@@ -166,10 +177,6 @@ export function generateShopOptions(
 
 	if (filterType) {
 		filteredCards = filterCardsByEffect(filteredCards, filterType);
-	}
-
-	if (filteredCards.length === 0) {
-		filteredCards = Card.getNonCores();
 	}
 
 	// Filter out cards where player already has a platinum (rank 4) unit
