@@ -10,6 +10,7 @@ export type NavigationDirection = "up" | "down" | "left" | "right";
 export type ControlIntent =
 	| { type: "navigateButtons"; direction: NavigationDirection }
 	| { type: "navigateBoard"; direction: NavigationDirection }
+	| { type: "cycleLayer" }
 	| { type: "confirm" }
 	| { type: "cancel" }
 	| { type: "shortcut"; action: ShortcutAction };
@@ -42,6 +43,10 @@ export const resolveKeyboardIntents = (
 	}
 
 	if (key === "Tab") {
+		if (context === "battleground") {
+			return [{ type: "cycleLayer" }];
+		}
+
 		return [{ type: "navigateButtons", direction: "down" }];
 	}
 
@@ -93,6 +98,9 @@ export const resolveGamepadIntents = (
 
 	if (justPressed(0)) intents.push({ type: "confirm" });
 	if (justPressed(1) || justPressed(9)) intents.push({ type: "cancel" });
+	if (context === "battleground" && (justPressed(4) || justPressed(5))) {
+		intents.push({ type: "cycleLayer" });
+	}
 
 	const previousX = previous?.leftStickX ?? 0;
 	const previousY = previous?.leftStickY ?? 0;

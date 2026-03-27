@@ -4,6 +4,7 @@ import { Button, createUIButton } from "@Components/UIButton";
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
+import { resetEncounterFocusTargets } from "@Systems/Encounter";
 
 const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 260;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 50;
@@ -14,6 +15,7 @@ export const onNextRoundClicked: (() => void) | null = null;
 
 export const create = (nextRoundCallback: (() => void) | null) => {
 	container?.destroy();
+	resetEncounterFocusTargets();
 
 	container = Container();
 
@@ -40,6 +42,7 @@ export const slideOut = async () => {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [container], y: c.SCREEN_HEIGHT * -1 });
 	container.removeAll(true);
+	resetEncounterFocusTargets();
 };
 
 export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {

@@ -23,6 +23,7 @@ export type BoardCursorController = {
 	move: (direction: NavigationDirection) => void;
 	confirm: () => boolean;
 	cancel: () => boolean;
+	canInteract: () => boolean;
 	refresh: () => void;
 	destroy: () => void;
 	getState: () => BoardCursorState;
@@ -125,6 +126,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		move,
 		confirm,
 		cancel,
+		canInteract: () => Board.isInputEnabled(),
 		refresh,
 		destroy,
 		getState: () => state,

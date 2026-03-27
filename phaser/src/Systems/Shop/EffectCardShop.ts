@@ -6,6 +6,11 @@ import * as io from "@PhaserIO";
 import { SCREEN_WIDTH } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createEncounterCard } from "@Systems/Components/EncounterCard";
+import {
+	initializeEncounterFocusTargets,
+	registerEncounterFocusTarget,
+	resetEncounterFocusTargets,
+} from "@Systems/Encounter";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 import { createLogger } from "@Utils/Logger";
@@ -23,6 +28,8 @@ const EFFECT_CARD_BASE_Y = 300;
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
+		container.once("destroy", resetEncounterFocusTargets);
+		resetEncounterFocusTargets();
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
@@ -63,7 +70,7 @@ function renderUpgradeCards(
 		const x = SCREEN_WIDTH - EFFECT_CARD_X_OFFSET;
 		const y = EFFECT_CARD_BASE_Y + index * spacing;
 
-		createEncounterCard(container, {
+		const card = createEncounterCard(container, {
 			x,
 			y,
 			width,
@@ -86,5 +93,12 @@ function renderUpgradeCards(
 				}
 			},
 		});
+
+		registerEncounterFocusTarget({
+			setFocused: card.setFocused,
+			activate: card.activate,
+		});
 	});
+
+	initializeEncounterFocusTargets();
 }
