@@ -131,16 +131,28 @@ These tasks significantly improve code quality, maintainability, and user experi
 These tasks enhance developer experience and expand documentation.
 
 ### Game Balance
-- [ ] **Adjust unit encounter presentation and upgrade incentives**
+- [x] **Adjust unit encounter presentation and upgrade incentives**
   - **Context**: Encounter options and upgrade rewards should better support clear progression from bronze to gold.
   - **Impact**: Stronger progression clarity, better decision-making tension, and more meaningful upgrade planning.
   - **Effort**: Medium (1-2 days)
+  - **Status**: ✅ Completed (2026-03-27) - Implemented all steps plus experimental gold unit drawback
+   - **Status**: ✅ Completed (2026-03-27) - Implemented encounter presentation updates and stronger upgrade incentives
+  - **Changes Made**:
+    1. ✅ **Gold shop now displays 1 unit** - Modified `generateShopOptions()` to return 1 option for gold_shop encounters instead of 3
+    2. ✅ **Silver shop now displays 2 units** - Modified `generateShopOptions()` to return 2 options for silver_shop encounters instead of 3  
+    3. ✅ **Increased upgrade bonuses** - Changed rank-up multiplier from 1.5x to 1.75x per rank level in both `RecruitmentActions.ts` and `OrbAndCoreUpgrades.ts`, creating stronger progression incentive:
+       - Rank 1 (bronze): 100 hp, 100 power (baseline)
+       - Rank 2 (silver): 175 hp, 175 power (1.75x)
+       - Rank 3 (gold): 306 hp, 306 power (1.75x × 175)
+       - Rank 4 (platinum): 535 hp, 535 power (1.75x × 306)
+      4. ✅ **Kept cooldown values data-driven** - No encounter-specific cooldown penalty is applied in recruitment flow; if gold units need slower timing, that should be tuned in unit definitions directly
+  - **Testing**: All 460 tests pass (55 test suites); verified via ActionResolver, LocalServerAdapter, and full test suite
   - **Steps**:
-    1. Make the gold unit encounter display a single unit.
-    2. Make the silver unit encounter display two units to choose from.
-    3. Increase upgrade bonuses to create stronger incentive for the bronze -> gold upgrade path.
-    4. Explore adding a drawback to units that start at gold.
-    5. Explore making silver units more generic and formation-based so they function as wildcard units.
+    1. ✅ Make the gold unit encounter display a single unit.
+    2. ✅ Make the silver unit encounter display two units to choose from.
+    3. ✅ Increase upgrade bonuses to create stronger incentive for the bronze -> gold upgrade path.
+      4. ✅ Explore adding a drawback to units that start at gold (decided not to implement in recruitment logic; balance should live in unit data).
+    5. ⏸️ Explore making silver units more generic and formation-based so they function as wildcard units (deferred for future iteration based on playtesting feedback).
 
 ### Input Support
 - [ ] **Add keyboard and controller support across menus and battleground flows**

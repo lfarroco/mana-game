@@ -130,7 +130,10 @@ function filterCardsByEffect(cards: any[], filterType: EncounterFilterType): any
 }
 
 /**
- * Generate the three shop card options available after an encounter.
+ * Generate the shop card options available after an encounter.
+ * - Gold shop: 1 option (high-quality unit)
+ * - Silver shop: 2 options (mid-tier units)
+ * - Other encounters: 3 options (standard selection)
  */
 export function generateShopOptions(
 	session: SessionData,
@@ -148,6 +151,14 @@ export function generateShopOptions(
 		);
 		const lastEncounterAction = encounterActions[encounterActions.length - 1];
 		encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+	}
+
+	// Determine number of options based on shop tier
+	let numOptions = 3; // Default for most encounters
+	if (encounterId === "gold_shop") {
+		numOptions = 1; // Gold shop: single premium unit
+	} else if (encounterId === "silver_shop") {
+		numOptions = 2; // Silver shop: two quality options
 	}
 
 	const filterType = getEncounterFilterType(encounterId);
@@ -171,7 +182,7 @@ export function generateShopOptions(
 	// We mix the current seed with "shop" and the encounter id to ensure
 	// encounter options and shop options never collide in their seed space.
 	const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-	const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, 3).map((card) => ({
+	const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
 		id: card.id,
 		cost: 10,
 	}));
