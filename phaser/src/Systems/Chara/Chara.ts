@@ -7,7 +7,6 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as RankDisplay from "@Systems/Chara/RankDisplay";
 import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import { popText } from "@Systems/Chara/Animations/popText";
 import { summonEffect } from "@Effects/summonEffect";
 import { getCurrentScene, getState } from "@Models/State";
 
@@ -214,58 +213,6 @@ export function getUnit(chara: Chara): Unit {
 
 export function getId(chara: Chara): string {
 	return mustGetState(chara).id;
-}
-
-export function updateUnitPower(chara: Chara, num: number, permanent?: boolean) {
-	const s = mustGetState(chara);
-	const { unit } = s;
-
-	unit.power += num;
-	if (permanent) {
-		unit.bonusPower += num;
-	}
-
-	PowerDisplay.updatePowerDisplay(s.id);
-
-	if (permanent && unit.force === constants.FORCE_ID_PLAYER) {
-		const playerUnit = getState().session.team.units.find((u) => u.id === unit.id)!;
-		playerUnit.power += num;
-		playerUnit.bonusPower += num;
-	}
-}
-
-export function updateUnitCritical(chara: Chara, num: number, permanent: boolean = false) {
-	const s = mustGetState(chara);
-	const { unit } = s;
-	const positive = num >= 0;
-	const text = `${positive ? "+" : "-"}${num} Crit`;
-
-	if (!unit.critical) unit.critical = 0;
-
-	unit.critical += num;
-
-	if (permanent) {
-		if (!unit.bonusCritical) unit.bonusCritical = 0;
-		unit.bonusCritical += num;
-	}
-
-	popText({
-		x: chara.x,
-		y: chara.y,
-		text,
-	});
-
-	if (unit.force === constants.FORCE_ID_PLAYER) {
-		const playerUnit = getState().session.team.units.find((u) => u.id === unit.id)!;
-		if (playerUnit && playerUnit !== unit) {
-			if (!playerUnit.critical) playerUnit.critical = 0;
-			playerUnit.critical += num;
-			if (permanent) {
-				if (!playerUnit.bonusCritical) playerUnit.bonusCritical = 0;
-				playerUnit.bonusCritical += num;
-			}
-		}
-	}
 }
 
 export function destroy(chara: Chara) {
