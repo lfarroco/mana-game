@@ -111,11 +111,11 @@ These tasks significantly improve code quality, maintainability, and user experi
   - **Context**: Post-refactoring cleanup needed
   - **Impact**: Smaller bundle size, easier maintenance
   - **Effort**: Medium (1-2 days)
-  - **Status**: 🚧 In progress (2026-03-24) - Ran ts-prune; deleted TestShader.ts, TestOrbShader.ts, TriggerSystem/examples.ts, and orphaned `src/Systems/MatchResultSystem.ts`; removed TURN_DURATION from config.ts and unused randomBetween/shuffle wrappers from utils.ts; removed duplicate `initializeVisualizer()` startup call in `BattlegroundScene`. Many remaining ts-prune results are false positives (barrel index exports, phaser.io.ts, MockPhaser.ts). Remaining real candidates need careful manual review.
+  - **Status**: 🚧 In progress (2026-03-29) - Ran ts-prune; deleted TestShader.ts, TestOrbShader.ts, TriggerSystem/examples.ts, and orphaned `src/Systems/MatchResultSystem.ts`; removed TURN_DURATION from config.ts and unused randomBetween/shuffle wrappers from utils.ts; removed duplicate `initializeVisualizer()` startup call in `BattlegroundScene`. Second pass (2026-03-29): deleted orphaned `SavedGame.ts`, `Vec2.ts`, `hpColor.ts`, `colors.ts`; removed `forceCheckUnlocks`, `finalizeRound`, `PhaseHandlerFactory`, `MagicOrbFactory`, `updateUnitPower`, `updateUnitCritical`, and unused `colorUtils` functions (vector3ToHex, hexToVector4, lerpHexColors, ShaderColors). Many remaining ts-prune results are false positives (barrel index exports, phaser.io.ts, MockPhaser.ts). Remaining real candidates need careful manual review.
   - **Steps**:
     1. ~~Run dead code detection tools (e.g., ts-prune)~~ ✅
-    2. Remove unused imports and functions - partially done
-    3. Check for orphaned files post-Systems migration
+    2. ~~Remove unused imports and functions~~ ✅
+    3. ~~Check for orphaned files post-Systems migration~~ ✅
 
 - [x] **Escalate ESLint warnings to errors**
   - **Context**: `no-explicit-any`, `no-unused-vars`, `no-console`, and `prefer-const` are all set to `warn` in `eslint.config.js`, allowing problematic code to be committed
