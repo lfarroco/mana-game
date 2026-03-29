@@ -54,4 +54,3 @@ export function createPhaseHandler(config: PhaseHandlerConfig): PhaseHandler {
 	return handler;
 }
 
-export type PhaseHandlerFactory = typeof createPhaseHandler;

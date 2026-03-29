@@ -14,8 +14,3 @@ export function processDefeat(): void {
 	UIManager.events.onLivesChanged(lives, -1);
 }
 
-export function finalizeRound(): void {
-	const state = getState();
-	state.session.round += 1;
-	UIManager.events.onRoundChanged(state.session.round);
-}
