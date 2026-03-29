@@ -9,7 +9,6 @@ const mockHandleAction = jest.fn<() => Promise<boolean>>().mockResolvedValue(tru
 const mockStartPhase = jest.fn();
 const mockProcessVictory = jest.fn();
 const mockProcessDefeat = jest.fn();
-const mockFinalizeRound = jest.fn();
 const mockSaveGameData = jest.fn();
 
 jest.mock("@Utils/animation", () => ({
@@ -28,7 +27,6 @@ jest.mock("@Scenes/Battleground/Results/ResultsUI", () => ({
 jest.mock("@Systems/PrestigeSystem", () => ({
 	processVictory: () => mockProcessVictory(),
 	processDefeat: () => mockProcessDefeat(),
-	finalizeRound: () => mockFinalizeRound(),
 }));
 
 jest.mock("@Scenes/Battleground/PhaseManager", () => ({
@@ -142,7 +140,6 @@ describe("ResultsPhase", () => {
 
 		await continueCallback?.();
 
-		expect(mockFinalizeRound).not.toHaveBeenCalled();
 		expect(state.session.round).toBe(1);
 		expect(mockSaveGameData).toHaveBeenCalled();
 		expect(mockResetBoard).toHaveBeenCalledWith(true);
@@ -184,7 +181,6 @@ describe("ResultsPhase", () => {
 
 		await continueCallback?.();
 
-		expect(mockFinalizeRound).not.toHaveBeenCalled();
 		expect(state.session.round).toBe(1);
 		expect(mockSaveGameData).toHaveBeenCalled();
 		expect(mockResetBoard).toHaveBeenCalledWith(true);

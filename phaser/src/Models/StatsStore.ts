@@ -302,6 +302,4 @@ export function lockUnit(unitId: string): void {
 	logger.info("Locked unit", { unitId });
 }
 
-export function forceCheckUnlocks(): void {
-	checkUnlockConditions();
-}
+
