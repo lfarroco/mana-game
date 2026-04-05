@@ -272,6 +272,12 @@ Deno.serve(async (req) => {
 		// Handle Start Session
 		if (actionId === "start_session") {
 			const selectedCrystalId = payload?.selectedCrystalId;
+			const requestedSessionType = payload?.sessionType;
+			const sessionType =
+				requestedSessionType === "multiplayer_ranked" ||
+					requestedSessionType === "multiplayer_casual"
+					? requestedSessionType
+					: "multiplayer_casual";
 			const newSession = GameLogic.createInitialSession(playerId, selectedCrystalId);
 
 			// Upsert Session
@@ -298,8 +304,12 @@ Deno.serve(async (req) => {
 				.single();
 
 			if (error) throw error;
-			setCachedSession(playerId, data);
-			return new Response(JSON.stringify(data), {
+			const responseData = {
+				...data,
+				session_type: sessionType,
+			};
+			setCachedSession(playerId, responseData);
+			return new Response(JSON.stringify(responseData), {
 				headers: { ...corsHeaders, "Content-Type": "application/json" },
 			});
 		}

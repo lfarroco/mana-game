@@ -11,6 +11,11 @@ import { submitRunManifest } from "@Core/DeferredSubmission";
 import { FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
 import type { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { createLogger } from "@Utils/Logger";
+import {
+	MultiplayerQueueType,
+	toMultiplayerSessionType,
+	parseMultiplayerQueueType,
+} from "@Multiplayer/MultiplayerTypes";
 
 // Internal state
 let isMultiplayer: boolean = false;
@@ -22,13 +27,17 @@ let deferredSession: SessionData | null = null;
 let runQueue: RunActionQueue | null = null;
 let runSubmitted = false;
 let deferredSelectedCrystalId: string | null = null;
+let currentMultiplayerQueueType: MultiplayerQueueType = "casual";
 const logger = createLogger("MultiplayerManager");
 const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
 
-const getDeferredSessionStorageKey = (id: string): string =>
-	`${DEFERRED_SESSION_STORAGE_KEY_PREFIX}${id}`;
+const getDeferredSessionStorageKey = (
+	id: string,
+	queueType: MultiplayerQueueType = currentMultiplayerQueueType
+): string => `${DEFERRED_SESSION_STORAGE_KEY_PREFIX}${id}_${queueType}`;
 
 const persistDeferredSession = (session: SessionData): void => {
+	session.session_type = toMultiplayerSessionType(currentMultiplayerQueueType);
 	localStorage.setItem(
 		getDeferredSessionStorageKey(playerId),
 		JSON.stringify({ ...session, player_id: playerId })
@@ -73,10 +82,25 @@ const restorePersistedDeferredSession = (): SessionData | null => {
 			return null;
 		}
 
+		const queueTypeFromSession = parseMultiplayerQueueType(parsed.session_type);
+		if (queueTypeFromSession) {
+			currentMultiplayerQueueType = queueTypeFromSession;
+		}
+
 		return parsed as SessionData;
 	} catch {
 		return null;
 	}
+};
+
+const restorePersistedDeferredSessionForMode = (
+	queueType: MultiplayerQueueType
+): SessionData | null => {
+	const previousQueueType = currentMultiplayerQueueType;
+	currentMultiplayerQueueType = queueType;
+	const restored = restorePersistedDeferredSession();
+	currentMultiplayerQueueType = previousQueueType;
+	return restored;
 };
 
 const getClientVersion = (): string => {
@@ -377,17 +401,23 @@ const isNoRowsError = (error: unknown): boolean => {
 export function disableMultiplayer() {
 	isMultiplayer = false;
 	deferredModeActive = false;
+	currentMultiplayerQueueType = "casual";
 	clearDeferredRunState();
 	logger.info("Multiplayer mode disabled");
 }
 
-export async function enableMultiplayer(selectedCrystalId?: string) {
+export async function enableMultiplayer(
+	selectedCrystalId?: string,
+	queueType: MultiplayerQueueType = "casual"
+) {
 	isMultiplayer = true;
 	deferredModeActive = true;
+	currentMultiplayerQueueType = queueType;
 	deferredSelectedCrystalId = selectedCrystalId || null;
 	await initializeAuthSession();
 	logger.info("Multiplayer mode enabled with deterministic deferred processing", {
 		hasSelectedCrystal: Boolean(selectedCrystalId),
+		queueType,
 	});
 	if (!selectedCrystalId) {
 		logger.info("Resuming existing session without crystal selection");
@@ -508,6 +538,23 @@ export async function checkActiveSession(): Promise<boolean> {
 	return false;
 }
 
+export async function checkActiveSessionByType(
+	queueType: MultiplayerQueueType
+): Promise<boolean> {
+	await initializeAuthSession();
+	const localSession = restorePersistedDeferredSessionForMode(queueType);
+	if (localSession) {
+		return !hasTerminalPhase(localSession);
+	}
+
+	return false;
+}
+
+export const getMultiplayerQueueType = (): MultiplayerQueueType => currentMultiplayerQueueType;
+
+export const getMultiplayerSessionType = (): string =>
+	toMultiplayerSessionType(currentMultiplayerQueueType);
+
 // Requests the current phase options from the server
 export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 	if (deferredModeActive) {
@@ -619,6 +666,11 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 }
 
 export function primeDeferredSession(session: SessionData, selectedCrystalId?: string) {
+	const queueTypeFromSession = parseMultiplayerQueueType(session.session_type);
+	if (queueTypeFromSession) {
+		currentMultiplayerQueueType = queueTypeFromSession;
+	}
+
 	deferredModeActive = true;
 	deferredSelectedCrystalId = selectedCrystalId || deferredSelectedCrystalId;
 	runSubmitted = false;
