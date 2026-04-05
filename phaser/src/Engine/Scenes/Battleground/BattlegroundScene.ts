@@ -17,12 +17,14 @@ import { createGameController } from "@Core/GameControllerFactory";
 import { disableMultiplayer, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
+import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 
 export type BattlegroundSceneData = {
 	state: State;
 	// TODO: instead of this, we need the list of current units
 	selectedCrystalId?: string;
 	isMultiplayer?: boolean;
+	multiplayerQueueType?: MultiplayerQueueType;
 };
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -81,7 +83,12 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.start({ ...data, state });
 	};
 
-	start = async ({ state, selectedCrystalId, isMultiplayer }: BattlegroundSceneData) => {
+	start = async ({
+		state,
+		selectedCrystalId,
+		isMultiplayer,
+		multiplayerQueueType,
+	}: BattlegroundSceneData) => {
 		// TODO: the start for this scene should be just:
 		// - render boards
 		// - render untis
@@ -93,7 +100,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		// Keep global mode state in sync so controller/server selection matches the current run type.
 		ServerFactory.setMultiplayer(multiplayerModeEnabled);
 		if (multiplayerModeEnabled) {
-			await enableMultiplayer(selectedCrystalId);
+			await enableMultiplayer(selectedCrystalId, multiplayerQueueType || "casual");
 		} else {
 			disableMultiplayer();
 		}

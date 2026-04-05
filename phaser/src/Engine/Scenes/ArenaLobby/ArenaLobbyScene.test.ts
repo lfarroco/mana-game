@@ -1,6 +1,6 @@
 import { ArenaLobbyScene } from "@Scenes/ArenaLobby/ArenaLobbyScene";
 import { SCENE_KEYS } from "@Constants/constants";
-import { checkActiveSession, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
+import { checkActiveSessionByType, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 
 const createdButtons: Array<() => void | Promise<void>> = [];
 
@@ -33,7 +33,7 @@ jest.mock("@Components/UIButton", () => ({
 }));
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
-	checkActiveSession: jest.fn(),
+	checkActiveSessionByType: jest.fn(),
 	enableMultiplayer: jest.fn(),
 	logout: jest.fn(),
 	getPlayerProfile: jest.fn(),
@@ -58,7 +58,7 @@ describe("ArenaLobbyScene", () => {
 	});
 
 	it("starts battleground in multiplayer mode when active session exists", async () => {
-		(checkActiveSession as jest.Mock).mockResolvedValue(true);
+		(checkActiveSessionByType as jest.Mock).mockResolvedValue(true);
 		(enableMultiplayer as jest.Mock).mockResolvedValue(undefined);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
@@ -72,14 +72,16 @@ describe("ArenaLobbyScene", () => {
 
 		await createdButtons[0]();
 
+		expect(checkActiveSessionByType).toHaveBeenCalledWith("casual");
 		expect(enableMultiplayer).toHaveBeenCalled();
 		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.BATTLEGROUND, {
 			isMultiplayer: true,
+			multiplayerQueueType: "casual",
 		});
 	});
 
 	it("routes to crystal selection when no active session exists", async () => {
-		(checkActiveSession as jest.Mock).mockResolvedValue(false);
+		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		scene.add = {
@@ -93,7 +95,29 @@ describe("ArenaLobbyScene", () => {
 		await createdButtons[0]();
 
 		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.CRYSTAL_SELECTION, {
-			isArena: true,
+			isMultiplayer: true,
+			multiplayerQueueType: "casual",
+		});
+	});
+
+	it("starts ranked flow when ranked button is clicked", async () => {
+		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
+
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		scene.add = {
+			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		await createdButtons[1]();
+
+		expect(checkActiveSessionByType).toHaveBeenCalledWith("ranked");
+		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.CRYSTAL_SELECTION, {
+			isMultiplayer: true,
+			multiplayerQueueType: "ranked",
 		});
 	});
 });

@@ -69,6 +69,7 @@ export type RunStats = {
 export type SessionData = {
 	id: string;
 	player_id: string;
+	session_type?: SessionType;
 	phase: PhaseType;
 	round: number;
 	step: number;
@@ -136,3 +137,8 @@ export type ReplaySnapshot = {
 	seed: string;
 	teamUnitIds: string[]; // sorted cardId list — order-independent identity
 };
+
+export type SessionType =
+	| "singleplayer"
+	| "multiplayer_casual"
+	| "multiplayer_ranked";

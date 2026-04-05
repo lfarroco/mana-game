@@ -12,6 +12,7 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
 import { createLogger } from "@Utils/Logger";
+import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 
 const logger = createLogger("CrystalSelectionScene");
 
@@ -19,6 +20,7 @@ const logger = createLogger("CrystalSelectionScene");
 interface CrystalSelectionData {
 	isMultiplayer?: boolean;
 	isArena?: boolean;
+	multiplayerQueueType?: MultiplayerQueueType;
 }
 
 // Layout positioning
@@ -81,6 +83,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	private isSeededRun: boolean = false;
 	private seedWarningText!: Phaser.GameObjects.Text;
 	private isMultiplayer: boolean = false;
+	private multiplayerQueueType: MultiplayerQueueType = "casual";
 
 	constructor() {
 		super(constants.SCENE_KEYS.CRYSTAL_SELECTION);
@@ -88,6 +91,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 
 	init(data: CrystalSelectionData) {
 		this.isMultiplayer = data.isMultiplayer || data.isArena || false;
+		this.multiplayerQueueType = data.multiplayerQueueType || "casual";
 		if (this.isMultiplayer) {
 			logger.debug("Entering Arena Mode (Multiplayer)");
 		}
@@ -299,6 +303,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 			selectedCrystalId: selectedCrystal.id,
 			isMultiplayer: this.isMultiplayer,
+			multiplayerQueueType: this.multiplayerQueueType,
 		});
 	}
 

@@ -2,6 +2,27 @@ import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { Unit } from "@Models/Entities/Unit";
 import { PhaseOption } from "@Core/Types";
 
+export type MultiplayerQueueType = "casual" | "ranked";
+export type MultiplayerSessionType = `multiplayer_${MultiplayerQueueType}`;
+
+export const toMultiplayerSessionType = (
+	queueType: MultiplayerQueueType
+): MultiplayerSessionType => `multiplayer_${queueType}`;
+
+export const parseMultiplayerQueueType = (
+	sessionType?: string | null
+): MultiplayerQueueType | null => {
+	if (sessionType === "multiplayer_casual") {
+		return "casual";
+	}
+
+	if (sessionType === "multiplayer_ranked") {
+		return "ranked";
+	}
+
+	return null;
+};
+
 export type PhaseType =
 	| "encounter"
 	| "shop"

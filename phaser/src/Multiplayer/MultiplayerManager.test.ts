@@ -7,6 +7,7 @@ import {
 	primeDeferredSession,
 	handleAuthRegister,
 	checkActiveSession,
+	checkActiveSessionByType,
 } from "@Multiplayer/MultiplayerManager";
 import { createInitialSession } from "@Core/SessionManagement";
 import { supabase } from "@lib/supabase";
@@ -169,6 +170,48 @@ describe("MultiplayerManager", () => {
 		const isActive = await checkActiveSession();
 
 		expect(isActive).toBe(false);
+	});
+
+	it("should keep casual and ranked deferred sessions isolated", async () => {
+		await enableMultiplayer("crystal_core", "casual");
+		primeDeferredSession({
+			id: "sess-casual",
+			player_id: "player-1",
+			session_type: "multiplayer_casual",
+			phase: "shop",
+			round: 2,
+			step: 1,
+			seed: "seed-casual",
+			initial_seed: "seed-casual",
+			current_options: { options: [{ id: "card_a" }] },
+			team: createDeferredCoreTeam("player-1", "seed-casual"),
+			wins: 1,
+			losses: 0,
+			action_log: [],
+		});
+
+		await enableMultiplayer("crystal_core", "ranked");
+		primeDeferredSession({
+			id: "sess-ranked",
+			player_id: "player-1",
+			session_type: "multiplayer_ranked",
+			phase: "shop",
+			round: 3,
+			step: 1,
+			seed: "seed-ranked",
+			initial_seed: "seed-ranked",
+			current_options: { options: [{ id: "card_b" }] },
+			team: createDeferredCoreTeam("player-1", "seed-ranked"),
+			wins: 2,
+			losses: 0,
+			action_log: [],
+		});
+
+		const hasCasualSession = await checkActiveSessionByType("casual");
+		const hasRankedSession = await checkActiveSessionByType("ranked");
+
+		expect(hasCasualSession).toBe(true);
+		expect(hasRankedSession).toBe(true);
 	});
 
 	it("should handle successful registration enabling email confirmation", async () => {

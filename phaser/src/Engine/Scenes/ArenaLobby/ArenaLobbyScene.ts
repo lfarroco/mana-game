@@ -5,7 +5,7 @@ import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {
-	checkActiveSession,
+	checkActiveSessionByType,
 	enableMultiplayer,
 	logout,
 	getPlayerProfile,
@@ -13,6 +13,7 @@ import {
 
 import { setCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
+import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 
 const logger = createLogger("ArenaLobbyScene");
 
@@ -61,26 +62,45 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = FIRST_BUTTON_Y;
 
-		createUIButton("Start / Continue Run", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
-			const hasActiveSession = await checkActiveSession();
-			if (hasActiveSession) {
-				await enableMultiplayer();
-				this.scene.start(SCENE_KEYS.BATTLEGROUND, { isMultiplayer: true });
-			} else {
-				this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, { isArena: true });
-			}
+		createUIButton("Casual", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
+			await this.startOrContinueRun("casual");
 		});
 
-		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), () => {
+		createUIButton("Ranked", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), async () => {
+			await this.startOrContinueRun("ranked");
+		});
+
+		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 2), () => {
 			logout();
 			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		});
 
-		createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + BACK_BUTTON_Y_OFFSET), () => {
-			this.scene.start(SCENE_KEYS.TITLE);
-		});
+		createUIButton(
+			t("ui.menu.back"),
+			vec2(MIDDLE_SCREEN.x, buttonY + BACK_BUTTON_Y_OFFSET + BUTTON_Y_OFFSET),
+			() => {
+				this.scene.start(SCENE_KEYS.TITLE);
+			}
+		);
 
 		this.refreshProfile();
+	}
+
+	private async startOrContinueRun(queueType: MultiplayerQueueType) {
+		const hasActiveSession = await checkActiveSessionByType(queueType);
+		if (hasActiveSession) {
+			await enableMultiplayer(undefined, queueType);
+			this.scene.start(SCENE_KEYS.BATTLEGROUND, {
+				isMultiplayer: true,
+				multiplayerQueueType: queueType,
+			});
+			return;
+		}
+
+		this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
+			isMultiplayer: true,
+			multiplayerQueueType: queueType,
+		});
 	}
 
 	async refreshProfile() {

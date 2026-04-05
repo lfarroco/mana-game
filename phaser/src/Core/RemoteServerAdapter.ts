@@ -3,7 +3,7 @@ import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from
 import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
-import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
+import { primeDeferredSession, getMultiplayerSessionType } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RemoteServerAdapter");
@@ -31,10 +31,11 @@ export class RemoteServerAdapter implements IGameServer {
 	}
 
 	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
+		const sessionType = getMultiplayerSessionType();
 		const { data, error } = await supabase.functions.invoke("action", {
 			body: {
 				actionId: "start_session",
-				payload: { selectedCrystalId: crystalId },
+				payload: { selectedCrystalId: crystalId, sessionType },
 			},
 		});
 
@@ -42,9 +43,10 @@ export class RemoteServerAdapter implements IGameServer {
 			throw new Error(`Failed to create session: ${error.message}`);
 		}
 
-		primeDeferredSession(data as SessionData, crystalId);
+		const session = { ...(data as SessionData), session_type: sessionType };
+		primeDeferredSession(session, crystalId);
 
-		return data as SessionData;
+		return session;
 	}
 
 	async getSession(playerId: string): Promise<SessionData | null> {
