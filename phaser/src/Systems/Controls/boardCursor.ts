@@ -24,6 +24,7 @@ export type BoardCursorController = {
 	confirm: () => boolean;
 	cancel: () => boolean;
 	canInteract: () => boolean;
+	setVisualActive: (active: boolean) => void;
 	refresh: () => void;
 	destroy: () => void;
 	getState: () => BoardCursorState;
@@ -51,12 +52,15 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	const cursorGraphics = scene.add.graphics();
 	const selectedGraphics = scene.add.graphics();
 	let state = createInitialBoardCursorState(getState().session.team.units);
+	let visualActive = true;
 
 	const refresh = () => {
-		if (!Board.isInputEnabled()) {
+		if (!Board.isInputEnabled() || !visualActive) {
 			cursorGraphics.setVisible(false);
 			selectedGraphics.setVisible(false);
-			state = clearBoardSelection(state);
+			if (!Board.isInputEnabled()) {
+				state = clearBoardSelection(state);
+			}
 			return;
 		}
 
@@ -127,6 +131,10 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		confirm,
 		cancel,
 		canInteract: () => Board.isInputEnabled(),
+		setVisualActive: (active: boolean) => {
+			visualActive = active;
+			refresh();
+		},
 		refresh,
 		destroy,
 		getState: () => state,

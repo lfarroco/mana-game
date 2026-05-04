@@ -14,6 +14,7 @@ import {
 } from "@Components/UIButton";
 import { createBoardCursorController } from "@Systems/Controls/boardCursor";
 import {
+	blurEncounterFocus,
 	confirmEncounterFocus,
 	ensureEncounterFocus,
 	getEncounterFocusCount,
@@ -135,6 +136,31 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		return layers;
 	};
 
+	const applyBattlegroundLayerVisualState = () => {
+		if (options.context !== "battleground") {
+			return;
+		}
+
+		boardCursor?.setVisualActive(activeBattlegroundLayer === "board");
+
+		switch (activeBattlegroundLayer) {
+			case "buttons":
+				blurEncounterFocus();
+				if (!hasFocusedSceneButton(scene)) {
+					focusNextSceneButton(scene, "down");
+				}
+				return;
+			case "encounter":
+				clearSceneButtonFocus(scene);
+				ensureEncounterFocus();
+				return;
+			case "board":
+			default:
+				clearSceneButtonFocus(scene);
+				blurEncounterFocus();
+		}
+	};
+
 	const normalizeBattlegroundLayer = () => {
 		if (options.context !== "battleground") {
 			return;
@@ -150,13 +176,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			activeBattlegroundLayer = available[0];
 		}
 
-		if (activeBattlegroundLayer === "buttons" && !hasFocusedSceneButton(scene)) {
-			focusNextSceneButton(scene, "down");
-		}
-
-		if (activeBattlegroundLayer === "encounter") {
-			ensureEncounterFocus();
-		}
+		applyBattlegroundLayerVisualState();
 	};
 
 	const cycleBattlegroundLayer = () => {
@@ -172,17 +192,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		const currentIndex = available.indexOf(activeBattlegroundLayer);
 		const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % available.length;
 		activeBattlegroundLayer = available[nextIndex];
-
-		if (activeBattlegroundLayer === "buttons") {
-			if (!hasFocusedSceneButton(scene)) {
-				focusNextSceneButton(scene, "down");
-			}
-			return;
-		}
-
-		if (activeBattlegroundLayer === "encounter") {
-			ensureEncounterFocus();
-		}
+		applyBattlegroundLayerVisualState();
 	};
 
 	const executeIntent = async (intent: ControlIntent) => {
@@ -192,6 +202,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			case "navigateButtons":
 				if (options.context === "battleground") {
 					activeBattlegroundLayer = "buttons";
+						applyBattlegroundLayerVisualState();
 				}
 				focusNextSceneButton(scene, intent.direction);
 				return;
@@ -214,7 +225,8 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 						hasEncounterFocusTargets()
 					) {
 						activeBattlegroundLayer = "encounter";
-						const focused = ensureEncounterFocus();
+						applyBattlegroundLayerVisualState();
+						const focused = hasFocusedEncounterTarget();
 						logDebug("right-edge handoff: board -> encounter", {
 							focused,
 							encounterIndex: getFocusedEncounterIndex(),
@@ -233,7 +245,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 									hasEncounterFocusTargets()
 								) {
 									activeBattlegroundLayer = "encounter";
-									ensureEncounterFocus();
+									applyBattlegroundLayerVisualState();
 									return;
 								}
 
@@ -249,6 +261,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 								if (focusedEncounterIndex !== null && encounterCount > 0) {
 									if (intent.direction === "up" && focusedEncounterIndex === 0) {
 										activeBattlegroundLayer = "buttons";
+										applyBattlegroundLayerVisualState();
 										logDebug("edge handoff: encounter(top) -> menu button", {
 											focusedEncounterIndex,
 										});
@@ -266,6 +279,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 										if (focusSceneButtonByText(scene, skipEncounterLabel)) {
 											activeBattlegroundLayer = "buttons";
+											applyBattlegroundLayerVisualState();
 										}
 										return;
 									}
@@ -290,7 +304,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 									hasEncounterFocusTargets()
 								) {
 									activeBattlegroundLayer = "encounter";
-									ensureEncounterFocus();
+									applyBattlegroundLayerVisualState();
 									return;
 								}
 
@@ -343,6 +357,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 				if (options.context === "battleground" && activeBattlegroundLayer === "buttons") {
 					clearSceneButtonFocus(scene);
 					activeBattlegroundLayer = "board";
+					applyBattlegroundLayerVisualState();
 					return;
 				}
 				if (boardCursor?.cancel()) {
