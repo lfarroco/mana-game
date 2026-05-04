@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton, Button } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {
@@ -36,6 +36,8 @@ const RATING_FONT_SIZE = "48px";
 export class ArenaLobbyScene extends Phaser.Scene {
 	private profileText?: Phaser.GameObjects.Text;
 	private ratingText?: Phaser.GameObjects.Text;
+	private buttons: Button[] = [];
+	private loadingOverlay?: Phaser.GameObjects.Container;
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOBBY);
@@ -62,45 +64,75 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = FIRST_BUTTON_Y;
 
-		createUIButton("Casual", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
+		const casualBtn = createUIButton("Casual", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
 			await this.startOrContinueRun("casual");
 		});
+		this.buttons.push(casualBtn);
 
-		createUIButton("Ranked", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), async () => {
+		const rankedBtn = createUIButton("Ranked", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), async () => {
 			await this.startOrContinueRun("ranked");
 		});
+		this.buttons.push(rankedBtn);
 
-		createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 2), () => {
-			logout();
+		const logoutBtn = createUIButton("Logout", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 2), async () => {
+			this.setLoading(true);
+			try {
+				await logout();
+			} finally {
+				this.setLoading(false);
+			}
 			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		});
+		this.buttons.push(logoutBtn);
 
-		createUIButton(
+		const backBtn = createUIButton(
 			t("ui.menu.back"),
 			vec2(MIDDLE_SCREEN.x, buttonY + BACK_BUTTON_Y_OFFSET + BUTTON_Y_OFFSET),
 			() => {
 				this.scene.start(SCENE_KEYS.TITLE);
 			}
 		);
+		this.buttons.push(backBtn);
 
+		const loadingBg = this.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.5)
+			.setOrigin(0);
+		const loadingLabel = this.add
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", { fontSize: "32px", color: "#ffffff" })
+			.setOrigin(0.5);
+		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
+		this.loadingOverlay.setVisible(false).setDepth(100);
+
+		this.setLoading(true);
 		this.refreshProfile();
 	}
 
+	private setLoading(isLoading: boolean) {
+		this.buttons.forEach(btn => isLoading ? btn.disable() : btn.enable());
+		this.loadingOverlay?.setVisible(isLoading);
+	}
+
 	private async startOrContinueRun(queueType: MultiplayerQueueType) {
-		const hasActiveSession = await checkActiveSessionByType(queueType);
-		if (hasActiveSession) {
-			await enableMultiplayer(undefined, queueType);
-			this.scene.start(SCENE_KEYS.BATTLEGROUND, {
+		this.setLoading(true);
+		try {
+			const hasActiveSession = await checkActiveSessionByType(queueType);
+			if (hasActiveSession) {
+				await enableMultiplayer(undefined, queueType);
+				this.scene.start(SCENE_KEYS.BATTLEGROUND, {
+					isMultiplayer: true,
+					multiplayerQueueType: queueType,
+				});
+				return;
+			}
+
+			this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
 				isMultiplayer: true,
 				multiplayerQueueType: queueType,
 			});
-			return;
+		} catch (e) {
+			logger.error('Failed to start run', e);
+			this.setLoading(false);
 		}
-
-		this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
-			isMultiplayer: true,
-			multiplayerQueueType: queueType,
-		});
 	}
 
 	async refreshProfile() {
@@ -112,6 +144,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				const profile = await getPlayerProfile(playerId);
 				this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
 				this.ratingText?.setText(`Rating: ${profile.rating}`);
+				this.setLoading(false);
 			} catch (e) {
 				logger.error("Profile Fetch Failed", e);
 				// Redirect to Login if invalid
