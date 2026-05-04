@@ -96,6 +96,10 @@ export const ensureEncounterFocus = (): boolean => {
 	return hasFocusedEncounterTarget();
 };
 
+export const blurEncounterFocus = (): void => {
+	setEncounterFocus(null);
+};
+
 export const navigateEncounterFocus = (direction: "up" | "down" | "left" | "right"): boolean => {
 	const nextIndex = getNextEncounterFocusIndex(
 		focusedEncounterIndex,
