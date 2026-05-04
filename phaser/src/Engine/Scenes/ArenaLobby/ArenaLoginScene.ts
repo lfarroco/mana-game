@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton, Button } from "@Components/UIButton";
 import { createModal } from "@Components/Modal";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
@@ -46,6 +46,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 	private isRegisterMode: boolean = false;
 	private buttonContainer: Phaser.GameObjects.Container | null = null;
 	private titleText?: Phaser.GameObjects.Text;
+	private buttons: Button[] = [];
+	private loadingOverlay?: Phaser.GameObjects.Container;
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOGIN);
@@ -64,6 +66,15 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		// Initial Render
 		this.renderForm();
+
+		const loadingBg = this.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.5)
+			.setOrigin(0);
+		const loadingLabel = this.add
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", { fontSize: "32px", color: "#ffffff" })
+			.setOrigin(0.5);
+		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
+		this.loadingOverlay.setVisible(false).setDepth(100);
 
 		if (isElectron() && !this.isRegisterMode) {
 			this.handleSteamLogin();
@@ -86,6 +97,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		if (this.buttonContainer) {
 			this.buttonContainer.removeAll(true);
 		}
+		this.buttons = [];
 
 		const buttonY = FIRST_BUTTON_Y;
 
@@ -111,6 +123,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const regBtn = createUIButton("Create Account", vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleRegister();
 			});
+			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
 
 			// Back to Login
@@ -122,6 +135,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					this.renderForm();
 				}
 			);
+			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
 		} else {
 			this.titleText?.setText("Arena Login");
@@ -143,6 +157,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleLogin();
 			});
+			this.buttons.push(loginBtn);
 			this.buttonContainer?.add(loginBtn.container);
 
 			// Register Switch
@@ -154,6 +169,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					this.renderForm();
 				}
 			);
+			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
 
 			// Guest
@@ -164,6 +180,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					this.handleGuest();
 				}
 			);
+			this.buttons.push(guestBtn);
 			this.buttonContainer?.add(guestBtn.container);
 
 			// Back to Title
@@ -174,6 +191,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					this.scene.start(SCENE_KEYS.TITLE);
 				}
 			);
+			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
 		}
 	}
@@ -213,6 +231,16 @@ export class ArenaLoginScene extends Phaser.Scene {
 		};
 	}
 
+	private setLoading(isLoading: boolean) {
+		this.buttons.forEach(btn => isLoading ? btn.disable() : btn.enable());
+		this.loadingOverlay?.setVisible(isLoading);
+		if (this.formElement) {
+			this.formElement.node.querySelectorAll('input').forEach(
+				input => ((input as HTMLInputElement).disabled = isLoading)
+			);
+		}
+	}
+
 	async handleLogin() {
 		const inputs = this.getInputs();
 		if (!inputs || !inputs.email || !inputs.pass) {
@@ -220,6 +248,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			return;
 		}
 
+		this.setLoading(true);
 		try {
 			const profile = await handleAuthLogin(inputs.email, inputs.pass);
 			if (!profile?.id) {
@@ -229,6 +258,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
 			this.showModal("Login Failed", (e as Error).message);
+			this.setLoading(false);
 		}
 	}
 
@@ -244,6 +274,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			return;
 		}
 
+		this.setLoading(true);
 		try {
 			// Pass username separately to updated handleAuthRegister
 			const result = (await handleAuthRegister(inputs.email, inputs.pass, inputs.username)) as
@@ -268,10 +299,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 			}
 		} catch (e) {
 			this.showModal("Registration Failed", (e as Error).message);
+			this.setLoading(false);
 		}
 	}
 
 	async handleGuest() {
+		this.setLoading(true);
 		try {
 			const profile = await handleAuthGuest();
 			if (!profile?.id) {
@@ -282,6 +315,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		} catch (e) {
 			logger.error("Guest login failed", e);
 			this.showModal("Guest Login Failed", (e as Error).message);
+			this.setLoading(false);
 		}
 	}
 
