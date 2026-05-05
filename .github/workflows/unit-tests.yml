@@ -1,0 +1,31 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Run Jest Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: phaser/package-lock.json
+
+      - name: Install dependencies
+        working-directory: phaser
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: phaser
+        run: npm run test:ci
