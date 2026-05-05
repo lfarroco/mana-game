@@ -39,6 +39,7 @@ export type EncounterFocusEntry = {
 	setFocused: (focused: boolean) => void;
 	activate: () => Promise<void>;
 	startHoldAction?: () => Promise<boolean> | boolean;
+	updateHoldAction?: (payload: { boardTile: Vec2 | null }) => Promise<boolean> | boolean;
 	releaseHoldAction?: (payload: { boardTile: Vec2 | null }) => Promise<boolean> | boolean;
 };
 
@@ -173,6 +174,25 @@ export const releaseEncounterFocusHoldAction = async (payload: {
 	}
 
 	return await entry.releaseHoldAction(payload);
+};
+
+export const updateEncounterFocusHoldAction = async (payload: {
+	boardTile: Vec2 | null;
+}): Promise<boolean> => {
+	if (encounterFocusEntries.length === 0) {
+		return false;
+	}
+
+	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
+		return false;
+	}
+
+	const entry = encounterFocusEntries[focusedEncounterIndex];
+	if (!entry.updateHoldAction) {
+		return false;
+	}
+
+	return await entry.updateHoldAction(payload);
 };
 
 export async function chooseEncounter(index: number) {

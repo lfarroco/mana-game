@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import * as Card from "@Models/Entities/Card";
 import * as makeUnit from "@Models/Entities/Unit";
 import { size, vec2 } from "@Models/Geometry";
+import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
 import * as sc from "@Systems/Shop/constants";
@@ -61,6 +62,8 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
+		let holdStartPosition: Vec2 | null = null;
+		let isHoldDragging = false;
 
 		bgRect.setInteractive(
 			new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height),
@@ -146,9 +149,34 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			activate: async () => {
 				chara.emit("pointerup", scene.input.activePointer);
 			},
-			startHoldAction: () => true,
-			releaseHoldAction: async ({ boardTile }) => {
+			startHoldAction: () => {
+				holdStartPosition = vec2(chara.x, chara.y);
+				isHoldDragging = true;
+				ShopPanel.container.bringToTop(chara);
+				chara.setAngle(-8);
+				return true;
+			},
+			updateHoldAction: async ({ boardTile }) => {
+				if (!isHoldDragging || !holdStartPosition) {
+					return false;
+				}
+
 				if (!boardTile) {
+					return true;
+				}
+
+				const boardSlot = Board.getSlotPosition(boardTile.y * 3 + boardTile.x, true);
+				chara.setPosition(boardSlot.x, boardSlot.y);
+				return true;
+			},
+			releaseHoldAction: async ({ boardTile }) => {
+				const dragStartPosition = holdStartPosition ?? vec2(chara.x, chara.y);
+				isHoldDragging = false;
+				holdStartPosition = null;
+				chara.setAngle(0);
+
+				if (!boardTile) {
+					chara.setPosition(dragStartPosition.x, dragStartPosition.y);
 					return false;
 				}
 
@@ -156,8 +184,8 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 					{ ...Chara.getUnit(chara) },
 					Chara.getUnit(chara).id,
 					boardTile,
-					chara.x,
-					chara.y
+					dragStartPosition.x,
+					dragStartPosition.y
 				);
 				return true;
 			},

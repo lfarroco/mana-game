@@ -1,6 +1,8 @@
 import Phaser from "phaser";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getState } from "@Models/State";
+import * as Board from "@Models/Board";
+import { getCharaById } from "@Systems/Chara/Chara";
 import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
 import {
 	activateFocusedSceneButton,
@@ -24,6 +26,7 @@ import {
 	hasEncounterFocusTargets,
 	navigateEncounterFocus,
 	startEncounterFocusHoldAction,
+	updateEncounterFocusHoldAction,
 	releaseEncounterFocusHoldAction,
 } from "@Systems/Encounter";
 import { t } from "@i18n/i18n";
@@ -94,6 +97,12 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		}
 		| undefined;
 	let keyboardEncounterHoldActive = false;
+	let boardHoldVisualState:
+		| {
+			unitId: string;
+			origin: Vec2;
+		}
+		| undefined;
 	const boardCursor =
 		options.context === "battleground" ? createBoardCursorController(scene) : null;
 	let activeBattlegroundLayer: BattlegroundLayer = "board";
@@ -410,6 +419,58 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		}
 	};
 
+	const getBoardCursorTilePosition = (tile: Vec2): Vec2 => {
+		const position = Board.getSlotPosition(tile.y * 3 + tile.x, true);
+		return { x: position.x, y: position.y };
+	};
+
+	const resetBoardHoldVisual = () => {
+		if (!boardHoldVisualState) {
+			return;
+		}
+
+		try {
+			const chara = getCharaById(boardHoldVisualState.unitId);
+			chara.setAngle(0);
+			chara.setPosition(boardHoldVisualState.origin.x, boardHoldVisualState.origin.y);
+		} catch {
+			// Ignore transient lifecycle race where chara was already destroyed.
+		}
+
+		boardHoldVisualState = undefined;
+	};
+
+	const updateBoardHoldVisual = () => {
+		if (!boardCursor?.canInteract()) {
+			resetBoardHoldVisual();
+			return;
+		}
+
+		const boardState = boardCursor.getState();
+		const isHoldActive = Boolean(keyboardDragHoldState || gamepadDragHoldState);
+		if (!isHoldActive || !boardState.selectedUnitId) {
+			resetBoardHoldVisual();
+			return;
+		}
+
+		const selectedUnitId = boardState.selectedUnitId;
+		try {
+			const selectedChara = getCharaById(selectedUnitId);
+			if (!boardHoldVisualState || boardHoldVisualState.unitId !== selectedUnitId) {
+				boardHoldVisualState = {
+					unitId: selectedUnitId,
+					origin: { x: selectedChara.x, y: selectedChara.y },
+				};
+			}
+
+			const tilePosition = getBoardCursorTilePosition(boardState.cursor);
+			selectedChara.setPosition(tilePosition.x, tilePosition.y);
+			selectedChara.setAngle(-8);
+		} catch {
+			resetBoardHoldVisual();
+		}
+	};
+
 	const onKeyDown = async (event: KeyboardEvent) => {
 		if (event.repeat || shouldIgnoreShortcutEvent(event)) {
 			return;
@@ -473,14 +534,14 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		}
 	};
 
-	const onKeyUp = (event: KeyboardEvent) => {
+	const onKeyUp = async (event: KeyboardEvent) => {
 		if (event.key === "Enter" && keyboardEncounterHoldActive && options.context === "battleground") {
 			event.preventDefault();
 			const boardTile =
 				activeBattlegroundLayer === "board" && boardCursor?.canInteract()
 					? boardCursor.getState().cursor
 					: null;
-			void releaseEncounterFocusHoldAction({ boardTile });
+			await releaseEncounterFocusHoldAction({ boardTile });
 			keyboardEncounterHoldActive = false;
 			return;
 		}
@@ -498,7 +559,10 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		event.preventDefault();
 		const boardState = boardCursor.getState();
 		if (keyboardDragHoldState.hasMovedCursor && boardState.selectedUnitId) {
+			resetBoardHoldVisual();
 			boardCursor.confirm();
+		} else {
+			resetBoardHoldVisual();
 		}
 		keyboardDragHoldState = undefined;
 	};
@@ -510,8 +574,18 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		normalizeBattlegroundLayer();
 		boardCursor?.refresh();
 
+		if (keyboardEncounterHoldActive) {
+			const boardTile =
+				activeBattlegroundLayer === "board" && boardCursor?.canInteract()
+					? boardCursor.getState().cursor
+					: null;
+			await updateEncounterFocusHoldAction({ boardTile });
+		}
+		updateBoardHoldVisual();
+
 		const snapshot = getGamepadSnapshot(scene);
 		if (!snapshot) {
+			resetBoardHoldVisual();
 			gamepadDragHoldState = undefined;
 			previousGamepadSnapshot = undefined;
 			return;
@@ -549,7 +623,10 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			if (!isActionPressed && wasActionPressed && gamepadDragHoldState) {
 				const boardState = boardCursor.getState();
 				if (gamepadDragHoldState.hasMovedCursor && boardState.selectedUnitId) {
+					resetBoardHoldVisual();
 					boardCursor.confirm();
+				} else {
+					resetBoardHoldVisual();
 				}
 				gamepadDragHoldState = undefined;
 			}
@@ -595,6 +672,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 		keyboard?.off("keydown", onKeyDown);
 		keyboard?.off("keyup", onKeyUp);
 		scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
+		resetBoardHoldVisual();
 		boardCursor?.destroy();
 		clearSceneButtonFocus(scene);
 	});
