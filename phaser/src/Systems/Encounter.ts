@@ -100,6 +100,15 @@ export const blurEncounterFocus = (): void => {
 	setEncounterFocus(null);
 };
 
+export const focusEncounterIndex = (index: number): boolean => {
+	if (encounterFocusEntries.length === 0 || index < 0 || index >= encounterFocusEntries.length) {
+		return false;
+	}
+
+	setEncounterFocus(index);
+	return true;
+};
+
 export const navigateEncounterFocus = (direction: "up" | "down" | "left" | "right"): boolean => {
 	const nextIndex = getNextEncounterFocusIndex(
 		focusedEncounterIndex,

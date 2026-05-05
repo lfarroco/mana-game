@@ -17,6 +17,7 @@ import {
 	blurEncounterFocus,
 	confirmEncounterFocus,
 	ensureEncounterFocus,
+	focusEncounterIndex,
 	getEncounterFocusCount,
 	getFocusedEncounterIndex,
 	hasFocusedEncounterTarget,
@@ -238,6 +239,18 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 						case "buttons":
 							if (hasNavigableButtons(scene)) {
 								const focusedButtonText = getFocusedSceneButtonText(scene);
+								if (
+									intent.direction === "up" &&
+									focusedButtonText &&
+									normalizeLabel(focusedButtonText) === normalizeLabel(skipEncounterLabel) &&
+									hasEncounterFocusTargets()
+								) {
+									activeBattlegroundLayer = "encounter";
+									applyBattlegroundLayerVisualState();
+									focusEncounterIndex(getEncounterFocusCount() - 1);
+									return;
+								}
+
 								if (
 									intent.direction === "down" &&
 									focusedButtonText &&
