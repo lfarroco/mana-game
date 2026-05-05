@@ -222,6 +222,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 	const executeIntent = async (intent: ControlIntent) => {
 		normalizeBattlegroundLayer();
+		const isBoardDragHoldActive = Boolean(keyboardDragHoldState || gamepadDragHoldState);
 
 		switch (intent.type) {
 			case "navigateButtons":
@@ -247,7 +248,8 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 						intent.direction === "right" &&
 						boardCursor?.canInteract() &&
 						boardCursor.getState().cursor.x === 2 &&
-						hasEncounterFocusTargets()
+						hasEncounterFocusTargets() &&
+						!isBoardDragHoldActive
 					) {
 						activeBattlegroundLayer = "encounter";
 						applyBattlegroundLayerVisualState();
@@ -350,7 +352,8 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 								if (
 									intent.direction === "right" &&
 									boardCursor.getState().cursor.x === 2 &&
-									hasEncounterFocusTargets()
+									hasEncounterFocusTargets() &&
+									!isBoardDragHoldActive
 								) {
 									activeBattlegroundLayer = "encounter";
 									applyBattlegroundLayerVisualState();
@@ -461,6 +464,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 					unitId: selectedUnitId,
 					origin: { x: selectedChara.x, y: selectedChara.y },
 				};
+				scene.children.bringToTop(selectedChara);
 			}
 
 			const tilePosition = getBoardCursorTilePosition(boardState.cursor);
