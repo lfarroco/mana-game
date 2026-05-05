@@ -258,6 +258,18 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 								const focusedEncounterIndex = getFocusedEncounterIndex();
 								const encounterCount = getEncounterFocusCount();
 
+								if (intent.direction === "left" && boardCursor?.canInteract()) {
+									activeBattlegroundLayer = "board";
+									applyBattlegroundLayerVisualState();
+									boardCursor.moveToRightmostColumn();
+									logDebug("edge handoff: encounter(left) -> board rightmost column", {
+										focusedEncounterIndex,
+										boardCursorX: boardCursor.getState().cursor.x,
+										boardCursorY: boardCursor.getState().cursor.y,
+									});
+									return;
+								}
+
 								if (focusedEncounterIndex !== null && encounterCount > 0) {
 									if (intent.direction === "up" && focusedEncounterIndex === 0) {
 										activeBattlegroundLayer = "buttons";
