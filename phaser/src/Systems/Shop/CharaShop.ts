@@ -21,6 +21,7 @@ const SHOP_CARD_BORDER_COLOR = 0xffffff;
 const SHOP_CARD_BORDER_ALPHA = 0.2;
 const SHOP_CARD_FOCUS_BORDER_COLOR = 0xffd700;
 const SHOP_CARD_FOCUS_BORDER_ALPHA = 1;
+const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const scene = getCurrentScene();
@@ -34,8 +35,12 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
-		const position = vec2(sc.ITEM_BASE_X + 400, sc.ITEM_BASE_Y + offsetY);
-		const bgSize = size(800, 280);
+		const baseBgWidth = 800;
+		const bgSize = size(baseBgWidth + SHOP_CARD_EXTRA_LEFT_PADDING, 280);
+		const position = vec2(
+			sc.ITEM_BASE_X + baseBgWidth / 2 - SHOP_CARD_EXTRA_LEFT_PADDING / 2,
+			sc.ITEM_BASE_Y + offsetY
+		);
 
 		const bgRect = Rectangle(position, bgSize, 0x1f1f1f, 0.8);
 		const rowBorder = scene.add.graphics();
