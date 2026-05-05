@@ -38,6 +38,8 @@ let focusedEncounterIndex: number | null = null;
 export type EncounterFocusEntry = {
 	setFocused: (focused: boolean) => void;
 	activate: () => Promise<void>;
+	startHoldAction?: () => Promise<boolean> | boolean;
+	releaseHoldAction?: (payload: { boardTile: Vec2 | null }) => Promise<boolean> | boolean;
 };
 
 let encounterFocusEntries: EncounterFocusEntry[] = [];
@@ -135,6 +137,42 @@ export const confirmEncounterFocus = async (): Promise<boolean> => {
 
 	await encounterFocusEntries[focusedEncounterIndex].activate();
 	return true;
+};
+
+export const startEncounterFocusHoldAction = async (): Promise<boolean> => {
+	if (encounterFocusEntries.length === 0) {
+		return false;
+	}
+
+	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
+		return false;
+	}
+
+	const entry = encounterFocusEntries[focusedEncounterIndex];
+	if (!entry.startHoldAction) {
+		return false;
+	}
+
+	return await entry.startHoldAction();
+};
+
+export const releaseEncounterFocusHoldAction = async (payload: {
+	boardTile: Vec2 | null;
+}): Promise<boolean> => {
+	if (encounterFocusEntries.length === 0) {
+		return false;
+	}
+
+	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
+		return false;
+	}
+
+	const entry = encounterFocusEntries[focusedEncounterIndex];
+	if (!entry.releaseHoldAction) {
+		return false;
+	}
+
+	return await entry.releaseHoldAction(payload);
 };
 
 export async function chooseEncounter(index: number) {

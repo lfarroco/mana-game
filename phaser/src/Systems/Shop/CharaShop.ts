@@ -8,6 +8,7 @@ import * as sc from "@Systems/Shop/constants";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { getCurrentScene, getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import * as Shop from "@Systems/Shop";
 import { Rectangle } from "@PhaserIO";
 import {
 	initializeEncounterFocusTargets,
@@ -106,7 +107,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 				repeat: -1,
 				ease: "Sine.easeInOut",
 				onUpdate: (tween) => {
-					const newWidth = tween.getValue();
+					const newWidth = tween.getValue() ?? currentWidth;
 					animatedBorder.clear();
 					animatedBorder.lineStyle(newWidth, 0xffd700, 1);
 					animatedBorder.strokeCircle(0, 0, borderRadius);
@@ -144,6 +145,21 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			},
 			activate: async () => {
 				chara.emit("pointerup", scene.input.activePointer);
+			},
+			startHoldAction: () => true,
+			releaseHoldAction: async ({ boardTile }) => {
+				if (!boardTile) {
+					return false;
+				}
+
+				Shop.events.itemDragPurchaseRequested(
+					{ ...Chara.getUnit(chara) },
+					Chara.getUnit(chara).id,
+					boardTile,
+					chara.x,
+					chara.y
+				);
+				return true;
 			},
 		});
 		initializeEncounterFocusTargets();
