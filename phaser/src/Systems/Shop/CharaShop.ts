@@ -59,7 +59,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA);
 
 		const chara = await Chara.create(unit);
-		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY);
+		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
 
 		bgRect.setInteractive(
 			new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height),
