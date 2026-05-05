@@ -21,6 +21,7 @@ const BORDER_PADDING = 6;
 
 export type BoardCursorController = {
 	move: (direction: NavigationDirection) => void;
+	moveToRightmostColumn: () => void;
 	confirm: () => boolean;
 	cancel: () => boolean;
 	canInteract: () => boolean;
@@ -92,6 +93,17 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		refresh();
 	};
 
+	const moveToRightmostColumn = () => {
+		state = {
+			...state,
+			cursor: {
+				x: 2,
+				y: Math.max(0, Math.min(2, state.cursor.y)),
+			},
+		};
+		refresh();
+	};
+
 	const confirm = (): boolean => {
 		if (!Board.isInputEnabled()) {
 			return false;
@@ -128,6 +140,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 
 	return {
 		move,
+		moveToRightmostColumn,
 		confirm,
 		cancel,
 		canInteract: () => Board.isInputEnabled(),
