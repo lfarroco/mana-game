@@ -23,6 +23,8 @@ import {
 	hasFocusedEncounterTarget,
 	hasEncounterFocusTargets,
 	navigateEncounterFocus,
+	startEncounterFocusHoldAction,
+	releaseEncounterFocusHoldAction,
 } from "@Systems/Encounter";
 import { t } from "@i18n/i18n";
 import { getOption } from "@Models/OptionsStore";
@@ -79,6 +81,19 @@ const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" 
 export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptions) {
 	const keyboard = scene.input.keyboard;
 	let previousGamepadSnapshot: GamepadSnapshot | undefined;
+	let gamepadDragHoldState:
+		| {
+			initialCursor: Vec2;
+			hasMovedCursor: boolean;
+		}
+		| undefined;
+	let keyboardDragHoldState:
+		| {
+			initialCursor: Vec2;
+			hasMovedCursor: boolean;
+		}
+		| undefined;
+	let keyboardEncounterHoldActive = false;
 	const boardCursor =
 		options.context === "battleground" ? createBoardCursorController(scene) : null;
 	let activeBattlegroundLayer: BattlegroundLayer = "board";
@@ -400,6 +415,28 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			return;
 		}
 
+		if (
+			event.key === "Enter" &&
+			options.context === "battleground" &&
+			activeBattlegroundLayer === "encounter"
+		) {
+			const started = await startEncounterFocusHoldAction();
+			if (started) {
+				keyboardEncounterHoldActive = true;
+				event.preventDefault();
+				return;
+			}
+		}
+
+		const shouldTrackKeyboardDragHold =
+			event.key === "Enter" &&
+			options.context === "battleground" &&
+			activeBattlegroundLayer === "board" &&
+			boardCursor?.canInteract();
+		const wasBoardUnitSelected = shouldTrackKeyboardDragHold
+			? Boolean(boardCursor?.getState().selectedUnitId)
+			: false;
+
 		const intents = resolveKeyboardIntents(options.context, getState(), event.key);
 		if (intents.length === 0) {
 			return;
@@ -412,11 +449,62 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 		event.preventDefault();
 		for (const intent of intents) {
+			const cursorBefore = boardCursor?.getState().cursor;
 			await executeIntent(intent);
+			if (intent.type === "navigateBoard" && keyboardDragHoldState && boardCursor && cursorBefore) {
+				const cursorAfter = boardCursor.getState().cursor;
+				if (
+					cursorAfter.x !== keyboardDragHoldState.initialCursor.x ||
+					cursorAfter.y !== keyboardDragHoldState.initialCursor.y
+				) {
+					keyboardDragHoldState.hasMovedCursor = true;
+				}
+			}
+		}
+
+		if (shouldTrackKeyboardDragHold && !wasBoardUnitSelected && boardCursor) {
+			const boardState = boardCursor.getState();
+			if (boardState.selectedUnitId) {
+				keyboardDragHoldState = {
+					initialCursor: { ...boardState.cursor },
+					hasMovedCursor: false,
+				};
+			}
 		}
 	};
 
+	const onKeyUp = (event: KeyboardEvent) => {
+		if (event.key === "Enter" && keyboardEncounterHoldActive && options.context === "battleground") {
+			event.preventDefault();
+			const boardTile =
+				activeBattlegroundLayer === "board" && boardCursor?.canInteract()
+					? boardCursor.getState().cursor
+					: null;
+			void releaseEncounterFocusHoldAction({ boardTile });
+			keyboardEncounterHoldActive = false;
+			return;
+		}
+
+		if (
+			event.key !== "Enter" ||
+			!keyboardDragHoldState ||
+			options.context !== "battleground" ||
+			activeBattlegroundLayer !== "board" ||
+			!boardCursor?.canInteract()
+		) {
+			return;
+		}
+
+		event.preventDefault();
+		const boardState = boardCursor.getState();
+		if (keyboardDragHoldState.hasMovedCursor && boardState.selectedUnitId) {
+			boardCursor.confirm();
+		}
+		keyboardDragHoldState = undefined;
+	};
+
 	keyboard?.on("keydown", onKeyDown);
+	keyboard?.on("keyup", onKeyUp);
 
 	const onUpdate = async () => {
 		normalizeBattlegroundLayer();
@@ -424,8 +512,47 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 		const snapshot = getGamepadSnapshot(scene);
 		if (!snapshot) {
+			gamepadDragHoldState = undefined;
 			previousGamepadSnapshot = undefined;
 			return;
+		}
+
+		let skipConfirmIntent = false;
+		if (options.context === "battleground" && boardCursor?.canInteract()) {
+			const wasActionPressed = previousGamepadSnapshot?.buttons[0] ?? false;
+			const isActionPressed = snapshot.buttons[0] ?? false;
+
+			if (isActionPressed && !wasActionPressed && activeBattlegroundLayer === "board") {
+				const boardState = boardCursor.getState();
+				if (!boardState.selectedUnitId && boardCursor.confirm()) {
+					const nextBoardState = boardCursor.getState();
+					if (nextBoardState.selectedUnitId) {
+						gamepadDragHoldState = {
+							initialCursor: { ...nextBoardState.cursor },
+							hasMovedCursor: false,
+						};
+						skipConfirmIntent = true;
+					}
+				}
+			}
+
+			if (isActionPressed && gamepadDragHoldState) {
+				const cursor = boardCursor.getState().cursor;
+				if (
+					cursor.x !== gamepadDragHoldState.initialCursor.x ||
+					cursor.y !== gamepadDragHoldState.initialCursor.y
+				) {
+					gamepadDragHoldState.hasMovedCursor = true;
+				}
+			}
+
+			if (!isActionPressed && wasActionPressed && gamepadDragHoldState) {
+				const boardState = boardCursor.getState();
+				if (gamepadDragHoldState.hasMovedCursor && boardState.selectedUnitId) {
+					boardCursor.confirm();
+				}
+				gamepadDragHoldState = undefined;
+			}
 		}
 
 		const intents = resolveGamepadIntents(
@@ -435,19 +562,38 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			previousGamepadSnapshot
 		);
 		previousGamepadSnapshot = snapshot;
+		const filteredIntents =
+			skipConfirmIntent && gamepadDragHoldState
+				? intents.filter((intent) => intent.type !== "confirm")
+				: intents;
 
-		if (intents.length > 0) {
-			logDebug("gamepad intents resolved", { intents });
+		if (filteredIntents.length > 0) {
+			logDebug("gamepad intents resolved", { intents: filteredIntents });
 		}
 
-		for (const intent of intents) {
+		for (const intent of filteredIntents) {
 			await executeIntent(intent);
+			if (
+				intent.type === "navigateBoard" &&
+				activeBattlegroundLayer === "board" &&
+				keyboardDragHoldState &&
+				boardCursor
+			) {
+				const cursor = boardCursor.getState().cursor;
+				if (
+					cursor.x !== keyboardDragHoldState.initialCursor.x ||
+					cursor.y !== keyboardDragHoldState.initialCursor.y
+				) {
+					keyboardDragHoldState.hasMovedCursor = true;
+				}
+			}
 		}
 	};
 
 	scene.events.on(Phaser.Scenes.Events.UPDATE, onUpdate);
 	scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
 		keyboard?.off("keydown", onKeyDown);
+		keyboard?.off("keyup", onKeyUp);
 		scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
 		boardCursor?.destroy();
 		clearSceneButtonFocus(scene);
