@@ -202,7 +202,7 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 			case "navigateButtons":
 				if (options.context === "battleground") {
 					activeBattlegroundLayer = "buttons";
-						applyBattlegroundLayerVisualState();
+					applyBattlegroundLayerVisualState();
 				}
 				focusNextSceneButton(scene, intent.direction);
 				return;
