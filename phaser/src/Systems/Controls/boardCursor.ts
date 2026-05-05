@@ -12,8 +12,8 @@ import {
 } from "@Systems/Controls/boardCursorModel";
 import { NavigationDirection } from "@Systems/Controls/intents";
 
-const CURSOR_BORDER_COLOR = 0xffffff;
-const CURSOR_BORDER_ALPHA = 0.8;
+const CURSOR_BORDER_COLOR = 0xffd700;
+const CURSOR_BORDER_ALPHA = 1;
 const SELECTED_BORDER_COLOR = 0xffd700;
 const SELECTED_BORDER_ALPHA = 1;
 const BORDER_WIDTH = 4;
