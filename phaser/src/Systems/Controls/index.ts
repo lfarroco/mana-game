@@ -585,7 +585,6 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 		const snapshot = getGamepadSnapshot(scene);
 		if (!snapshot) {
-			resetBoardHoldVisual();
 			gamepadDragHoldState = undefined;
 			previousGamepadSnapshot = undefined;
 			return;
