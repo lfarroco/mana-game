@@ -16,8 +16,8 @@ const CURSOR_BORDER_COLOR = 0xffd700;
 const CURSOR_BORDER_ALPHA = 1;
 const SELECTED_BORDER_COLOR = 0xffd700;
 const SELECTED_BORDER_ALPHA = 1;
-const SELECTED_BLINK_MIN_ALPHA = 0.25;
-const SELECTED_BLINK_DURATION_MS = 220;
+const CURSOR_BLINK_MIN_ALPHA = 0.25;
+const CURSOR_BLINK_DURATION_MS = 220;
 const BORDER_WIDTH = 4;
 const BORDER_PADDING = 6;
 
@@ -56,40 +56,40 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	const selectedGraphics = scene.add.graphics();
 	let state = createInitialBoardCursorState(getState().session.team.units);
 	let visualActive = true;
-	let selectedBlinkTween: Phaser.Tweens.Tween | null = null;
+	let cursorBlinkTween: Phaser.Tweens.Tween | null = null;
 
-	const startSelectedBlink = () => {
-		if (selectedBlinkTween) {
+	const startCursorBlink = () => {
+		if (cursorBlinkTween) {
 			return;
 		}
 
-		selectedGraphics.setAlpha(SELECTED_BORDER_ALPHA);
-		selectedBlinkTween = scene.tweens.add({
-			targets: selectedGraphics,
-			alpha: SELECTED_BLINK_MIN_ALPHA,
-			duration: SELECTED_BLINK_DURATION_MS,
+		cursorGraphics.setAlpha(CURSOR_BORDER_ALPHA);
+		cursorBlinkTween = scene.tweens.add({
+			targets: cursorGraphics,
+			alpha: CURSOR_BLINK_MIN_ALPHA,
+			duration: CURSOR_BLINK_DURATION_MS,
 			yoyo: true,
 			repeat: -1,
 			ease: "Sine.easeInOut",
 		});
 	};
 
-	const stopSelectedBlink = () => {
-		if (!selectedBlinkTween) {
+	const stopCursorBlink = () => {
+		if (!cursorBlinkTween) {
 			return;
 		}
 
-		selectedBlinkTween.stop();
-		selectedBlinkTween.remove();
-		selectedBlinkTween = null;
-		selectedGraphics.setAlpha(SELECTED_BORDER_ALPHA);
+		cursorBlinkTween.stop();
+		cursorBlinkTween.remove();
+		cursorBlinkTween = null;
+		cursorGraphics.setAlpha(CURSOR_BORDER_ALPHA);
 	};
 
 	const refresh = () => {
 		if (!Board.isInputEnabled() || !visualActive) {
 			cursorGraphics.setVisible(false);
 			selectedGraphics.setVisible(false);
-			stopSelectedBlink();
+			stopCursorBlink();
 			if (!Board.isInputEnabled()) {
 				state = clearBoardSelection(state);
 			}
@@ -103,7 +103,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		if (!selectedUnit) {
 			selectedGraphics.clear();
 			selectedGraphics.setVisible(false);
-			stopSelectedBlink();
+			stopCursorBlink();
 			return;
 		}
 
@@ -114,7 +114,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			SELECTED_BORDER_COLOR,
 			SELECTED_BORDER_ALPHA
 		);
-		startSelectedBlink();
+		startCursorBlink();
 	};
 
 	const move = (direction: NavigationDirection) => {
@@ -165,7 +165,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const destroy = () => {
-		stopSelectedBlink();
+		stopCursorBlink();
 		cursorGraphics.destroy();
 		selectedGraphics.destroy();
 	};
