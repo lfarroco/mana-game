@@ -278,7 +278,8 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 
 		expect(capturedEffects.onCombatEnd).toBeDefined();
 
-		await capturedEffects.onCombatEnd?.(state, "player_won", { forceStatsState: {} });
+		void capturedEffects.onCombatEnd?.(state, "player_won", { forceStatsState: {} });
+		await Promise.resolve();
 
 		expect(mockShatter).toHaveBeenCalled();
 		expect(mockSetEnemyBoardVisible).toHaveBeenCalledWith(true);
