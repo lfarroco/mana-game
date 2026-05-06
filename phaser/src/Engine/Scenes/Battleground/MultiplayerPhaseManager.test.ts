@@ -3,7 +3,13 @@ import { handleMultiplayerPhase } from "@Scenes/Battleground/MultiplayerPhaseMan
 import type { PhaseTransport } from "@Scenes/Battleground/MultiplayerPhaseManager";
 import { getPhaseOptions } from "@Multiplayer/MultiplayerManager";
 import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
+import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
+import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
+import { getBattleCore } from "@Models/Entities/Card";
+import { getCharaById } from "@Systems/Chara/Chara";
+import { setEnemyBoardVisible } from "@Models/Board";
+import { shatter } from "@Systems/Chara/Animations";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	getPhaseOptions: jest.fn(),
@@ -89,7 +95,17 @@ jest.mock("@Systems/Shop/EffectCardShop", () => ({
 }));
 
 const mockGetPhaseOptions = getPhaseOptions as jest.MockedFunction<typeof getPhaseOptions>;
+const mockCreateBrowserCombatEffects =
+	createBrowserCombatEffects as jest.MockedFunction<typeof createBrowserCombatEffects>;
+const mockCreateCombatPlaybackController =
+	createCombatPlaybackController as jest.MockedFunction<typeof createCombatPlaybackController>;
 const mockOpenOrbShop = openOrbShop as jest.MockedFunction<typeof openOrbShop>;
+const mockGetBattleCore = getBattleCore as jest.MockedFunction<typeof getBattleCore>;
+const mockGetCharaById = getCharaById as jest.MockedFunction<typeof getCharaById>;
+const mockSetEnemyBoardVisible = setEnemyBoardVisible as jest.MockedFunction<
+	typeof setEnemyBoardVisible
+>;
+const mockShatter = shatter as jest.MockedFunction<typeof shatter>;
 
 describe("MultiplayerPhaseManager terminal phases", () => {
 	beforeEach(() => {
@@ -216,5 +232,56 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 		});
 		expect(localTransport.sendOptionSelection).toHaveBeenCalledWith("orb_shop_done");
 		expect(localTransport.getPhaseOptions).toHaveBeenCalledTimes(2);
+	});
+
+	it("keeps the enemy board visible until after combat-end animations run", async () => {
+		const capturedEffects: { onCombatEnd?: Function } = {};
+
+		mockGetPhaseOptions.mockResolvedValue({
+			phase: "combat",
+			round: 3,
+			options: [{ id: "combat_done" }],
+			team: {
+				units: [{ id: "player-1", force: "player", position: { x: 0, y: 0 } }],
+			},
+			combatState: {
+				enemyTeam: [{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true }],
+				logs: [],
+				units: [
+					{ id: "player-1", force: "player", position: { x: 0, y: 0 } },
+					{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true },
+				],
+			},
+		} as Awaited<ReturnType<typeof getPhaseOptions>>);
+
+		mockCreateBrowserCombatEffects.mockImplementation(() => capturedEffects as never);
+		mockCreateCombatPlaybackController.mockReturnValue({
+			getEnv: () => ({ combatStates: {} }),
+		} as never);
+		mockGetBattleCore.mockReturnValue(() => ({ id: "enemy-core" }) as never);
+		mockGetCharaById.mockReturnValue({ id: "enemy-chara" } as never);
+		mockShatter.mockResolvedValue(undefined);
+
+		const state = {
+			session: {
+				phase: "combat",
+				current_options: null,
+				team: { units: [{ id: "player-1", force: "player", position: { x: 0, y: 0 } }] },
+				wins: 0,
+				losses: 0,
+				round: 2,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state);
+
+		expect(capturedEffects.onCombatEnd).toBeDefined();
+
+		await capturedEffects.onCombatEnd?.(state, "player_won", { forceStatsState: {} });
+
+		expect(mockShatter).toHaveBeenCalled();
+		expect(mockSetEnemyBoardVisible).toHaveBeenCalledWith(true);
+		expect(mockSetEnemyBoardVisible).not.toHaveBeenCalledWith(false);
 	});
 });

@@ -82,6 +82,7 @@ export async function handleMultiplayerPhase(
 		state.session.team.units = serverUnits;
 
 		if (result.phase !== "combat") {
+			setEnemyBoardVisible(false);
 			clearAll();
 			await Promise.all(
 				state.session.team.units.map(async (u) => {
@@ -215,7 +216,6 @@ export async function handleMultiplayerPhase(
 		const effects = createBrowserCombatEffects();
 		effects.onCombatEnd = async (state, outcome, combatStates) => {
 			setIsInputEnabled(true);
-			setEnemyBoardVisible(false);
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
