@@ -34,6 +34,1648 @@ if (typeof globalThis.Phaser === "undefined") {
 	};
 }
 
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/Models/Entities/Card.ts
+var dummy, cards2, registerCard, collections, registerCollection, getCardDefinition, hasCardDefinition, getCores, getNonCores, getAlliedCore, getEnemyCore, getBattleCore;
+var init_Card = __esm({
+  "src/Models/Entities/Card.ts"() {
+    "use strict";
+    dummy = {
+      id: "dummy_card",
+      pic: "boss_andromeda",
+      power: 10,
+      cooldown: 2300,
+      rank: 1,
+      reactions: [],
+      effects: [
+        {
+          id: "shield"
+        }
+      ]
+    };
+    cards2 = /* @__PURE__ */ new Map();
+    registerCard = (card) => {
+      cards2.set(card.id, card);
+    };
+    collections = /* @__PURE__ */ new Map();
+    registerCollection = (collection) => {
+      collections.set(collection.id, collection);
+      collection.cards.forEach(registerCard);
+    };
+    getCardDefinition = (id) => {
+      const card = cards2.get(id);
+      if (!card) {
+        return dummy;
+      }
+      return card;
+    };
+    hasCardDefinition = (id) => {
+      return cards2.has(id);
+    };
+    getCores = () => Array.from(cards2.values()).filter((card) => card.isCore);
+    getNonCores = () => Array.from(cards2.values()).filter((card) => !card.isCore);
+    getAlliedCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
+    getEnemyCore = (state) => (forceId) => state.battleData.units.find((u) => u.force !== forceId && u.isCore);
+    getBattleCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
+  }
+});
+
+// src/Utils/Random.ts
+function value(seed) {
+  const next = seed + 1831565813;
+  let t2 = next;
+  t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
+  t2 ^= t2 + Math.imul(t2 ^ t2 >>> 7, t2 | 61);
+  return {
+    result: ((t2 ^ t2 >>> 14) >>> 0) / 4294967296,
+    seed: next
+  };
+}
+function range(seed, min, max) {
+  const val = value(seed);
+  const result = Math.floor(val.result * (max - min + 1)) + min;
+  return {
+    result,
+    seed: val.seed
+  };
+}
+function shuffle(seed, array) {
+  const val = value(seed);
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(val.result * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return {
+    copy,
+    seed: val.seed
+  };
+}
+function pickRandom(seed, arr, n) {
+  return shuffle(seed, arr).copy.slice(0, n);
+}
+function nextValue() {
+  const result = value(globalSeed);
+  globalSeed = result.seed;
+  return result.result;
+}
+function nextPickRandom(arr, n) {
+  const result = shuffle(globalSeed, arr);
+  globalSeed = result.seed;
+  return result.copy.slice(0, n);
+}
+function setSeed(seed) {
+  globalSeed = seed;
+}
+var globalSeed;
+var init_Random = __esm({
+  "src/Utils/Random.ts"() {
+    "use strict";
+    globalSeed = Math.floor(Math.random() * 4294967295);
+  }
+});
+
+// src/Core/Seeding.ts
+function stringToSeed(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+function generateNextSeed(currentSeed, actionId) {
+  const input = currentSeed + actionId;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
+function getDeterministicRandomOptionIndex(seed, round, step, optionCount) {
+  const seededInput = `${seed}:${round}:${step}:${optionCount}`;
+  return range(stringToSeed(seededInput), 0, optionCount - 1).result;
+}
+function pickRandomItemsSeeded(seed, items, count) {
+  const seedNum = stringToSeed(seed);
+  return pickRandom(seedNum, items, count);
+}
+function shuffleWithSeed(items, seedNum) {
+  const shuffled = [...items];
+  let currentSeed = seedNum;
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const x = Math.sin(currentSeed++) * 1e4;
+    const rnd = x - Math.floor(x);
+    const j = Math.floor(rnd * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+var init_Seeding = __esm({
+  "src/Core/Seeding.ts"() {
+    "use strict";
+    init_Random();
+  }
+});
+
+// src/Core/PhaseSystem/PhaseConfig.ts
+function getPhaseForTurn(round, step) {
+  const stepIndex = step - 1;
+  const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
+  return roundPhases[stepIndex];
+}
+var ROUND_PHASES, DEFAULT_ROUND_PHASES;
+var init_PhaseConfig = __esm({
+  "src/Core/PhaseSystem/PhaseConfig.ts"() {
+    "use strict";
+    ROUND_PHASES = {
+      1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+      3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+      7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+      11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+      15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"]
+    };
+    DEFAULT_ROUND_PHASES = [
+      "encounter",
+      "encounter",
+      "encounter",
+      "combat",
+      "upgrade_core"
+    ];
+  }
+});
+
+// src/Core/OptionGeneration.ts
+var OptionGeneration_exports = {};
+__export(OptionGeneration_exports, {
+  generateEncounterOptions: () => generateEncounterOptions,
+  generateShopOptions: () => generateShopOptions
+});
+function generateEncounterOptions(session) {
+  const expectedPhase = getPhaseForTurn(session.round, session.step);
+  if (expectedPhase === "combat") {
+    return { options: [{ id: "combat_encounter" }] };
+  }
+  if (!session.encounter_history) {
+    session.encounter_history = [];
+  }
+  const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
+  const seedNum = stringToSeed(session.seed);
+  const shuffled = shuffleWithSeed(ENCOUNTER_IDS, seedNum);
+  const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
+  const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
+  const selectedOptions = encountersToShow.slice(0, 3);
+  session.encounter_history.push(...selectedOptions);
+  return { options: selectedOptions.map((id) => ({ id })) };
+}
+function getEncounterFilterType(encounterId) {
+  if (!encounterId) return "";
+  const filterMap = {
+    armory: "damage",
+    healing_tent: "heal",
+    frontier_fort: "shield",
+    forest_pools: "regen",
+    toxic_chamber: "poison",
+    trial_circuit: "haste",
+    trappers_guild: "slow",
+    thunder_spire: "charge",
+    commanders_tent: "increase_power",
+    assassins_hideout: "increase_critical",
+    silver_shop: "silver",
+    gold_shop: "gold"
+  };
+  return filterMap[encounterId] || "";
+}
+function getCardRank(card) {
+  return card.rank ?? 1;
+}
+function cardMatchesEffectType(card, filterType) {
+  return card.effects?.some((effect) => effect.id === filterType) || card.reactions?.some((reaction2) => reaction2.effects?.some((effect) => effect.id === filterType));
+}
+function filterCardsByEffect(cards3, filterType) {
+  if (filterType === "silver") {
+    return cards3.filter((card) => getCardRank(card) === 2);
+  }
+  if (filterType === "gold") {
+    return cards3.filter((card) => getCardRank(card) === 3);
+  }
+  return cards3.filter(
+    (card) => getCardRank(card) === 1 && cardMatchesEffectType(card, filterType)
+  );
+}
+function generateShopOptions(session, triggerActionId) {
+  let encounterId = null;
+  if (triggerActionId) {
+    encounterId = triggerActionId;
+  } else {
+    const previousStep = session.step - 1;
+    const encounterActions = session.action_log.filter(
+      (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
+    );
+    const lastEncounterAction = encounterActions[encounterActions.length - 1];
+    encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+  }
+  let numOptions = 3;
+  if (encounterId === "gold_shop") {
+    numOptions = 1;
+  } else if (encounterId === "silver_shop") {
+    numOptions = 2;
+  }
+  const filterType = getEncounterFilterType(encounterId);
+  let filteredCards = getNonCores();
+  if (filterType) {
+    filteredCards = filterCardsByEffect(filteredCards, filterType);
+  }
+  const playerUnits = session.team?.units || [];
+  const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
+  filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
+  const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
+  const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
+    id: card.id,
+    cost: 10
+  }));
+  return { options };
+}
+var ENCOUNTER_IDS;
+var init_OptionGeneration = __esm({
+  "src/Core/OptionGeneration.ts"() {
+    "use strict";
+    init_Card();
+    init_Seeding();
+    init_PhaseConfig();
+    ENCOUNTER_IDS = [
+      "upgrade_unit",
+      "armory",
+      "healing_tent",
+      "frontier_fort",
+      "forest_pools",
+      "toxic_chamber",
+      "trial_circuit",
+      "trappers_guild",
+      "thunder_spire",
+      "commanders_tent",
+      "assassins_hideout",
+      "power_distributor",
+      "power_absorber",
+      "silver_shop",
+      "gold_shop"
+    ];
+  }
+});
+
+// src/Data/BaseCollection.ts
+var regen = { id: "regen" };
+var damage = { id: "damage" };
+var heal = { id: "heal" };
+var shield = { id: "shield" };
+var poison = { id: "poison" };
+var haste = (duration, targets) => ({ id: "haste", duration, targets });
+var slow = (duration, targets) => ({ id: "slow", duration, targets });
+var charge = (duration, targets) => ({ id: "charge", duration, targets });
+var column = { id: "column_allies" };
+var row = { id: "row_allies" };
+var randomAlly = (count) => ({ id: "random_ally", count });
+var randomEnemy = (count) => ({ id: "random_enemy", count });
+var trigger = { id: "trigger" };
+var self = { id: "self" };
+var increasePower = (amount, targets, permanent = false) => ({ id: "increase_power", "amount": amount, permanent, "targets": targets });
+var decreasePower = (amount, targets, permanent = false) => ({ id: "decrease_power", amount, permanent, "targets": targets });
+var increaseCritical = (amount, targets) => ({ id: "increase_critical", amount, targets });
+var reaction = (effect, position, reactWith) => ({
+  position,
+  effectId: effect,
+  effects: [
+    reactWith
+  ]
+});
+var multiplyPower = (multiplier, targets) => ({ id: "multiply_power", multiplier, baseMultiplier: multiplier, targets });
+var left = { id: "left_ally" };
+var right = { id: "right_ally" };
+var top = { id: "top_ally" };
+var bottom = { id: "bottom_ally" };
+var weakestAlly = { id: "weakest_ally" };
+var strongestEnemy = { id: "strongest_enemy" };
+var strongestAlly = { id: "strongest_ally" };
+var weakestEnemy = { id: "weakest_enemy" };
+var allAllies = { id: "all_allies", ofType: "any" };
+var allAlliesOfType = (ofType) => ({ id: "all_allies", ofType });
+var distributePower = (targets) => ({ id: "distribute_power", targets });
+var absorbPower = (targets) => ({ id: "absorb_power", targets });
+var cards = [
+  {
+    id: "mana_crystal",
+    pic: "blue-stone",
+    life: 500,
+    power: 35,
+    cooldown: 5200,
+    isCore: true,
+    effects: [
+      regen,
+      increasePower(10, column)
+    ],
+    reactions: [
+      reaction("all", "row_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "critical_crystal",
+    pic: "red-stone",
+    life: 500,
+    power: 35,
+    cooldown: 5200,
+    isCore: true,
+    effects: [
+      damage,
+      increaseCritical(5, column)
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(5, column))
+    ]
+  },
+  {
+    id: "protective_crystal",
+    pic: "yellow-stone",
+    life: 600,
+    power: 35,
+    cooldown: 4500,
+    isCore: true,
+    reflect: 15,
+    effects: [
+      shield,
+      increasePower(5, randomAlly(1), true)
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(5, trigger))
+    ]
+  },
+  {
+    id: "growth_crystal",
+    pic: "green-stone",
+    life: 500,
+    power: 35,
+    cooldown: 4500,
+    isCore: true,
+    effects: [
+      heal,
+      increasePower(2, column, true)
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(5, trigger))
+    ]
+  },
+  {
+    id: "purple_crystal",
+    pic: "purple-stone",
+    life: 500,
+    power: 40,
+    cooldown: 4700,
+    isCore: true,
+    effects: [
+      poison,
+      slow(1e3, randomEnemy(1))
+    ],
+    reactions: [
+      reaction("slow", "allies", increasePower(4, trigger, true))
+    ]
+  },
+  {
+    id: "quickstone",
+    pic: "haste-stone",
+    life: 500,
+    power: 48,
+    cooldown: 5200,
+    isCore: true,
+    effects: [
+      regen,
+      haste(1e3, row)
+    ],
+    reactions: [
+      reaction("all", "row_allies", charge(500, column))
+    ]
+  },
+  {
+    id: "void_witch",
+    pic: "boss_andromeda",
+    power: 50,
+    cooldown: 5400,
+    effects: [
+      poison,
+      slow(1e3, randomEnemy(1))
+    ],
+    reactions: []
+  },
+  {
+    id: "living_armor",
+    pic: "f1_tank",
+    power: 30,
+    cooldown: 5100,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "column_allies", increasePower(5, trigger))
+    ]
+  },
+  {
+    id: "thunder_mech",
+    pic: "f3_mech",
+    power: 40,
+    cooldown: 5200,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("haste", "row_allies", increaseCritical(5, self))
+    ]
+  },
+  {
+    id: "timebender",
+    pic: "boss_spelleater",
+    power: 45,
+    cooldown: 5e3,
+    effects: [
+      shield,
+      increasePower(2, randomAlly(1), true)
+    ],
+    reactions: []
+  },
+  {
+    id: "tek_monk",
+    pic: "f3_windgiver",
+    power: 40,
+    cooldown: 4600,
+    effects: [
+      damage,
+      increasePower(1, self, true)
+    ],
+    reactions: []
+  },
+  {
+    id: "void_specter",
+    pic: "neutral_amu",
+    power: 35,
+    cooldown: 5200,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("regen", "column_allies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "plaguebearer",
+    pic: "f3_plague_totem",
+    power: 15,
+    cooldown: 3800,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("damage", "row_allies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "toxic_alchemist",
+    pic: "f5_drogon",
+    power: 30,
+    cooldown: 5200,
+    effects: [
+      poison,
+      increaseCritical(5, column)
+    ],
+    reactions: []
+  },
+  {
+    id: "venomous_viper",
+    pic: "neutral_serpenti",
+    power: 40,
+    cooldown: 5200,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("haste", "row_allies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "noxious_blight",
+    pic: "neutral_dreamgazer",
+    power: 40,
+    cooldown: 4300,
+    effects: [
+      poison,
+      slow(1e3, randomEnemy(1))
+    ],
+    reactions: []
+  },
+  {
+    id: "corrosive_slime",
+    pic: "f4_gloomchaser",
+    power: 30,
+    cooldown: 4300,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("shield", "enemies", increasePower(2, self))
+    ]
+  },
+  {
+    id: "infected_horror",
+    pic: "f4_horror",
+    power: 45,
+    cooldown: 5700,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("poison", "allies", increasePower(2, self))
+    ]
+  },
+  {
+    id: "skeletal_mage",
+    pic: "neutral_bonereaper",
+    power: 35,
+    cooldown: 4900,
+    effects: [
+      poison,
+      haste(1e3, column)
+    ],
+    reactions: []
+  },
+  {
+    id: "scourge_bringer",
+    pic: "f4_nocturn",
+    power: 45,
+    cooldown: 5500,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("poison", "allies", increasePower(2, trigger))
+    ]
+  },
+  {
+    id: "diana",
+    pic: "neutral_arrowwhistler",
+    power: 30,
+    cooldown: 5600,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("shield", "allies", haste(1e3, self))
+    ]
+  },
+  {
+    id: "moss_golem",
+    pic: "neutral_golemnature",
+    power: 55,
+    cooldown: 5200,
+    effects: [
+      shield,
+      increasePower(1, randomAlly(1), true)
+    ],
+    reactions: []
+  },
+  {
+    id: "stone_guardian",
+    pic: "neutral_golemstone",
+    power: 20,
+    cooldown: 4e3,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "allies", increasePower(1, self, true))
+    ]
+  },
+  {
+    id: "shadow_assassin",
+    pic: "boss_shadowlord",
+    power: 30,
+    "critical": 20,
+    cooldown: 4300,
+    effects: [
+      damage,
+      increaseCritical(5, self)
+    ],
+    reactions: []
+  },
+  {
+    id: "commander",
+    pic: "f1_shieldforger",
+    power: 50,
+    cooldown: 6e3,
+    effects: [
+      shield,
+      increasePower(5, row)
+    ],
+    reactions: []
+  },
+  {
+    id: "avatar_of_anger",
+    pic: "f2_chakriavatar",
+    power: 50,
+    critical: 10,
+    cooldown: 6e3,
+    effects: [
+      damage,
+      increasePower(2, self, true)
+    ],
+    reactions: []
+  },
+  {
+    id: "chaos_knight",
+    pic: "boss_chaosknight",
+    power: 50,
+    cooldown: 5500,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("slow", "row_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "thunder_conduit",
+    pic: "boss_borealjuggernaut",
+    power: 55,
+    cooldown: 6200,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("haste", "allies", increasePower(2, self))
+    ]
+  },
+  {
+    id: "arbiter",
+    pic: "f1_peacekeeper",
+    power: 35,
+    cooldown: 5200,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(2, self))
+    ]
+  },
+  {
+    id: "bastion",
+    pic: "f1_mech",
+    power: 30,
+    cooldown: 4200,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("heal", "left_ally", increasePower(6, column))
+    ]
+  },
+  {
+    id: "aegis_warden",
+    pic: "f2_demononi",
+    power: 45,
+    cooldown: 5100,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("poison", "column_allies", increasePower(4, trigger))
+    ]
+  },
+  {
+    id: "bulwark",
+    pic: "f1_solarius",
+    power: 12,
+    cooldown: 4400,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "row_allies", increasePower(4, column))
+    ]
+  },
+  {
+    id: "void_shield",
+    pic: "neutral_voidhunter",
+    power: 30,
+    cooldown: 4800,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("shield", "column_allies", increasePower(4, row))
+    ]
+  },
+  {
+    id: "fortress",
+    pic: "boss_city",
+    power: 20,
+    cooldown: 5200,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("shield", "allies", increasePower(6, left))
+    ]
+  },
+  {
+    id: "parry_master",
+    pic: "neutral_swordofakrane",
+    power: 20,
+    cooldown: 5800,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(2, column))
+    ]
+  },
+  {
+    id: "cleric",
+    pic: "neutral_healingmystictwitch",
+    power: 20,
+    cooldown: 4100,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("damage", "row_allies", increasePower(4, trigger))
+    ]
+  },
+  {
+    id: "battle_medic",
+    pic: "neutral_healingmysticbandainamco",
+    power: 30,
+    cooldown: 3800,
+    effects: [
+      heal,
+      increaseCritical(5, right)
+    ],
+    reactions: []
+  },
+  {
+    id: "light_priestess",
+    pic: "f3_duskweaver",
+    power: 40,
+    cooldown: 4700,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("shield", "row_allies", increasePower(1, top, true))
+    ]
+  },
+  {
+    id: "soul_weaver",
+    pic: "boss_soulstealer",
+    power: 40,
+    cooldown: 4500,
+    effects: [
+      heal,
+      increasePower(1, bottom, true)
+    ],
+    reactions: []
+  },
+  {
+    id: "mender_of_worlds",
+    pic: "f6_auroraguardian",
+    power: 35,
+    cooldown: 4200,
+    effects: [
+      heal,
+      increasePower(1, left, true)
+    ],
+    reactions: []
+  },
+  {
+    id: "divine_spark",
+    pic: "f3_obelyskduskwind",
+    power: 20,
+    cooldown: 4200,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("all", "column_allies", haste(1e3, row))
+    ]
+  },
+  {
+    id: "radiance_envoy",
+    pic: "boss_cindera",
+    power: 30,
+    cooldown: 5700,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("all", "row_allies", haste(1e3, column))
+    ]
+  },
+  {
+    id: "harmony_monk",
+    pic: "boss_harmony",
+    power: 25,
+    cooldown: 4800,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(4, column))
+    ]
+  },
+  {
+    id: "oracle",
+    pic: "neutral_timekeeper",
+    power: 25,
+    cooldown: 3300,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("all", "left_ally", increaseCritical(7, right))
+    ]
+  },
+  {
+    id: "chronomancer",
+    pic: "f4_klaxon",
+    power: 25,
+    cooldown: 3700,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("haste", "allies", increasePower(7, self))
+    ]
+  },
+  {
+    id: "spirit_of_the_forest",
+    pic: "boss_crystal",
+    power: 30,
+    cooldown: 4800,
+    effects: [
+      regen,
+      haste(1e3, row)
+    ],
+    reactions: []
+  },
+  {
+    id: "enchanted_tree",
+    pic: "f6_treant",
+    power: 25,
+    cooldown: 3300,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(1, self, true))
+    ]
+  },
+  {
+    id: "castle_vampire",
+    pic: "boss_vampire",
+    power: 20,
+    cooldown: 2900,
+    effects: [
+      regen,
+      increaseCritical(5, self)
+    ],
+    reactions: []
+  },
+  {
+    id: "plague_dr",
+    pic: "f4_plaguedr",
+    power: 20,
+    cooldown: 2900,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("poison", "column_allies", increasePower(4, self))
+    ]
+  },
+  {
+    id: "eternal_phoenix",
+    pic: "neutral_zurael",
+    power: 30,
+    cooldown: 4300,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("haste", "allies", increasePower(5, weakestAlly))
+    ]
+  },
+  {
+    id: "sand_shifter",
+    pic: "f3_sandhowler",
+    power: 50,
+    cooldown: 5800,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("slow", "column_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "crystalline_geode",
+    pic: "f6_crystalbeetle",
+    power: 22,
+    cooldown: 4200,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("regen", "allies", increaseCritical(5, self))
+    ]
+  },
+  {
+    id: "blood_catalyst",
+    pic: "neutral_bloodletter",
+    power: 30,
+    cooldown: 4200,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("heal", "allies", increasePower(1, self, true))
+    ]
+  },
+  {
+    id: "symbiote",
+    pic: "f5_mech",
+    power: 35,
+    cooldown: 4500,
+    effects: [
+      regen,
+      haste(1e3, left)
+    ],
+    reactions: []
+  },
+  {
+    id: "time_shifter",
+    pic: "f1_sister",
+    power: 50,
+    cooldown: 6200,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("haste", "allies", increasePower(4, column))
+    ]
+  },
+  {
+    id: "time_magus",
+    pic: "f2_mage4winds",
+    power: 45,
+    cooldown: 4900,
+    effects: [
+      damage,
+      slow(1e3, randomEnemy(1))
+    ],
+    reactions: []
+  },
+  {
+    id: "mana_source",
+    pic: "f4_furosa",
+    power: 100,
+    cooldown: 6400,
+    rank: 2,
+    effects: [
+      regen,
+      haste(1e3, row)
+    ],
+    reactions: [
+      reaction("all", "column_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "void_spawn",
+    pic: "f5_ankylos",
+    power: 40,
+    cooldown: 4800,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("poison", "column_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "arcane_anomaly",
+    pic: "f6_myriad",
+    power: 35,
+    cooldown: 7500,
+    effects: [
+      damage,
+      charge(500, column)
+    ],
+    reactions: []
+  },
+  {
+    id: "mirror_entity",
+    pic: "f3_nimbus",
+    power: 30,
+    cooldown: 4e3,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("all", "bottom_ally", increasePower(10, top))
+    ]
+  },
+  {
+    id: "spellbreaker",
+    pic: "neutral_spelljammer",
+    power: 30,
+    cooldown: 4500,
+    effects: [
+      damage,
+      haste(1e3, randomAlly(2))
+    ],
+    reactions: []
+  },
+  {
+    id: "duelist",
+    pic: "neutral_shuffler",
+    power: 10,
+    cooldown: 5200,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(4, self))
+    ]
+  },
+  {
+    id: "gambler",
+    pic: "neutral_gambler",
+    power: 30,
+    cooldown: 4200,
+    effects: [
+      shield,
+      increaseCritical(10, column)
+    ],
+    reactions: [
+      reaction("all", "row_allies", increaseCritical(5, randomEnemy(1)))
+    ]
+  },
+  {
+    id: "glass_cannon",
+    pic: "f1_sinergyunit",
+    power: 22,
+    cooldown: 4100,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("shield", "allies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "spellblade",
+    pic: "f1_rightfulheir",
+    power: 30,
+    cooldown: 4100,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("all", "row_allies", increaseCritical(5, self))
+    ]
+  },
+  {
+    id: "berserker",
+    pic: "neutral_beastmaster",
+    power: 30,
+    cooldown: 6e3,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("damage", "enemies", haste(500, self))
+    ]
+  },
+  {
+    id: "gunslinger",
+    pic: "neutral_hsuku",
+    power: 40,
+    cooldown: 5e3,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("shield", "column_allies", charge(500, self))
+    ]
+  },
+  {
+    id: "inquisitor",
+    pic: "neutral_inquisitorkron",
+    power: 20,
+    cooldown: 4800,
+    effects: [
+      damage
+    ],
+    reactions: [
+      reaction("poison", "enemies", increasePower(2, self, true))
+    ]
+  },
+  {
+    id: "grove_guardian",
+    pic: "neutral_keeperofthevale",
+    power: 45,
+    cooldown: 4800,
+    rank: 2,
+    effects: [
+      regen,
+      charge(500, row)
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(4, right))
+    ]
+  },
+  {
+    id: "thunder_core",
+    pic: "neutral_emp",
+    power: 75,
+    rank: 2,
+    cooldown: 5800,
+    effects: [
+      damage,
+      charge(1e3, left)
+    ],
+    reactions: [
+      reaction("haste", "column_allies", increasePower(6, self, true))
+    ]
+  },
+  {
+    id: "conduit_howler",
+    pic: "neutral_exun",
+    power: 45,
+    rank: 2,
+    cooldown: 4800,
+    effects: [
+      shield,
+      haste(2e3, column)
+    ],
+    reactions: [
+      reaction("haste", "row_allies", increasePower(4, column, true))
+    ]
+  },
+  {
+    id: "water_elemental",
+    pic: "neutral_fog",
+    power: 45,
+    rank: 2,
+    cooldown: 5800,
+    effects: [
+      heal,
+      charge(1e3, column)
+    ],
+    reactions: [
+      reaction("regen", "row_allies", increasePower(6, trigger, true))
+    ]
+  },
+  {
+    id: "master_of_thorns",
+    pic: "neutral_geargrinder",
+    power: 50,
+    rank: 2,
+    cooldown: 7e3,
+    effects: [
+      poison,
+      slow(2e3, randomEnemy(2))
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "coral_builder",
+    pic: "neutral_giantcrab",
+    power: 48,
+    rank: 2,
+    cooldown: 5800,
+    effects: [
+      regen,
+      haste(2e3, column)
+    ],
+    reactions: [
+      reaction("shield", "allies", increasePower(5, self))
+    ]
+  },
+  {
+    id: "toxicologist",
+    pic: "neutral_gnasher",
+    power: 145,
+    rank: 3,
+    cooldown: 7800,
+    effects: [
+      poison,
+      slow(2e3, randomEnemy(2))
+    ],
+    reactions: [
+      reaction("poison", "allies", increasePower(6, self))
+    ]
+  },
+  {
+    id: "expedition_leader",
+    pic: "neutral_goldenhammer",
+    power: 110,
+    rank: 3,
+    cooldown: 8400,
+    effects: [
+      shield,
+      increasePower(20, column)
+    ],
+    reactions: [
+      reaction("heal", "allies", increasePower(4, column))
+    ]
+  },
+  {
+    id: "vanguard",
+    pic: "neutral_gauntletmaster",
+    power: 80,
+    rank: 3,
+    cooldown: 5160,
+    effects: [
+      damage,
+      haste(2e3, column)
+    ],
+    reactions: [
+      reaction("haste", "allies", increasePower(2, self, true))
+    ]
+  },
+  {
+    id: "veteran_paladin",
+    pic: "neutral_goldenjusticar",
+    power: 110,
+    rank: 3,
+    cooldown: 6240,
+    effects: [
+      regen,
+      haste(2e3, row)
+    ],
+    reactions: [
+      reaction("shield", "column_allies", increasePower(2, self, true))
+    ]
+  },
+  {
+    id: "webert_the_old",
+    pic: "neutral_goldenmantella",
+    power: 48,
+    rank: 3,
+    cooldown: 8880,
+    effects: [
+      heal,
+      increasePower(20, row)
+    ],
+    reactions: [
+      reaction("regen", "column_allies", increasePower(5, row, true))
+    ]
+  },
+  {
+    // power distributor
+    id: "walking_reactor",
+    pic: "boss_protector",
+    power: 62,
+    rank: 3,
+    locked: true,
+    cooldown: 5e3,
+    effects: [
+      shield,
+      distributePower(row)
+    ],
+    reactions: [
+      reaction("all", "column_allies", increasePower(20, self))
+    ]
+  },
+  // power absorber
+  {
+    id: "spectral_knight",
+    pic: "boss_gol",
+    power: 18,
+    rank: 3,
+    locked: true,
+    cooldown: 5600,
+    effects: [
+      damage,
+      absorbPower(column)
+    ],
+    reactions: [
+      reaction("all", "row_allies", increasePower(20, column))
+    ]
+  },
+  // re-haste
+  {
+    id: "windlash_serpent",
+    pic: "boss_serpenti",
+    power: 95,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      shield,
+      haste(2e3, row)
+    ],
+    reactions: [
+      reaction("re_hasted", "allies", increasePower(5, self))
+    ]
+  },
+  // re-slow
+  {
+    id: "corruption_bringer",
+    pic: "boss_legion",
+    power: 80,
+    rank: 3,
+    locked: true,
+    cooldown: 5e3,
+    effects: [
+      poison,
+      slow(2e3, randomEnemy(2))
+    ],
+    reactions: [
+      reaction("re_slow", "allies", decreasePower(10, strongestEnemy))
+    ]
+  },
+  //on_crit
+  {
+    id: "frontline_dasher",
+    pic: "boss_kane",
+    power: 58,
+    rank: 3,
+    locked: true,
+    cooldown: 5700,
+    effects: [
+      damage,
+      increaseCritical(10, column)
+    ],
+    reactions: [
+      reaction("on_crit", "allies", increasePower(20, column))
+    ]
+  },
+  //over_heal
+  {
+    id: "life_balancekeeper",
+    pic: "f3_anubis",
+    life: 1500,
+    power: 105,
+    rank: 3,
+    locked: true,
+    cooldown: 4500,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("on_over_heal", "allies", increasePower(1, allAllies, true))
+    ]
+  },
+  //Balancer
+  {
+    id: "destiny_balancer",
+    pic: "f3_allomancer",
+    life: 1500,
+    power: 10,
+    rank: 3,
+    locked: true,
+    cooldown: 8600,
+    effects: [
+      shield,
+      decreasePower(100, strongestAlly),
+      multiplyPower(1.5, weakestAlly)
+    ],
+    reactions: []
+  },
+  //metronome
+  {
+    id: "cadence_warden",
+    pic: "f6_3rdgeneral",
+    life: 1500,
+    power: 70,
+    rank: 2,
+    locked: true,
+    cooldown: 5500,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("all", "left_ally", haste(2e3, right)),
+      reaction("all", "right_ally", haste(2e3, left))
+    ]
+  },
+  //damage -> poison
+  {
+    id: "essence_harvester",
+    pic: "boss_malyk",
+    power: 65,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("every_100_damage", "allies", increasePower(5, allAlliesOfType("poison")))
+    ]
+  },
+  //poison -> damage
+  {
+    id: "plague_incubator",
+    pic: "boss_manaman",
+    power: 65,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("every_10_poison", "allies", increasePower(5, allAlliesOfType("damage")))
+    ]
+  },
+  //shield -> damage
+  {
+    id: "tempest_ravager",
+    pic: "boss_invader",
+    power: 65,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("every_100_shield", "allies", increasePower(5, allAlliesOfType("damage")))
+    ]
+  },
+  //shield -> heal
+  {
+    id: "paragon",
+    pic: "boss_paragon",
+    power: 65,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("every_100_shield", "allies", increasePower(5, allAlliesOfType("heal")))
+    ]
+  },
+  //heal -> regen
+  {
+    id: "vitality_channeler",
+    pic: "f2_sepukku",
+    power: 65,
+    rank: 3,
+    locked: true,
+    cooldown: 4300,
+    effects: [
+      heal
+    ],
+    reactions: [
+      reaction("every_100_heal", "allies", increasePower(5, allAlliesOfType("regen")))
+    ]
+  },
+  //heal -> heal
+  {
+    id: "mend_sage",
+    pic: "boss_orias",
+    power: 40,
+    rank: 3,
+    locked: true,
+    cooldown: 5200,
+    effects: [
+      heal,
+      increasePower(5, allAlliesOfType("heal"))
+    ],
+    reactions: [
+      reaction("on_battle_start", "allies", haste(2e3, allAlliesOfType("heal")))
+    ]
+  },
+  //damage -> damage
+  {
+    id: "warbringer",
+    pic: "boss_solfist",
+    power: 60,
+    rank: 3,
+    locked: true,
+    cooldown: 6200,
+    effects: [
+      damage,
+      increasePower(10, allAlliesOfType("damage"))
+    ],
+    reactions: [
+      reaction("on_battle_start", "allies", haste(2e3, allAlliesOfType("damage")))
+    ]
+  },
+  //shield -> shield
+  {
+    id: "aegis_archon",
+    pic: "f3_tier2general",
+    power: 35,
+    rank: 3,
+    locked: true,
+    cooldown: 6200,
+    effects: [
+      shield
+    ],
+    reactions: [
+      reaction("damage", "enemies", increasePower(5, allAlliesOfType("shield")))
+    ]
+  },
+  //poison -> poison
+  {
+    id: "plague_sovereign",
+    pic: "f4_abomination",
+    power: 40,
+    rank: 3,
+    locked: true,
+    cooldown: 5200,
+    effects: [
+      poison
+    ],
+    reactions: [
+      reaction("on_battle_start", "allies", slow(2e3, randomEnemy(4))),
+      reaction("re_slow", "allies", increasePower(5, allAlliesOfType("poison")))
+    ]
+  },
+  //regen -> regen
+  {
+    id: "life_weaver",
+    pic: "f3_insightcaster",
+    power: 60,
+    rank: 3,
+    locked: true,
+    cooldown: 4200,
+    effects: [
+      regen
+    ],
+    reactions: [
+      reaction("every_10_regen", "allies", increasePower(20, weakestAlly))
+    ]
+  },
+  //gambler2
+  {
+    id: "fate_shifter",
+    pic: "boss_sandpanther",
+    power: 10,
+    rank: 3,
+    locked: true,
+    cooldown: 9200,
+    effects: [
+      damage,
+      multiplyPower(1.5, right),
+      multiplyPower(1.5, weakestEnemy)
+    ],
+    reactions: []
+  }
+];
+var BASE_COLLECTION_DATA = {
+  id: "base",
+  "name": "Base Set",
+  "cards": cards
+};
+
+// src/Core/GameLogic.ts
+init_Card();
 
 // node_modules/uuid/dist/esm-browser/stringify.js
 var byteToHex = [];
@@ -87,92 +1729,9 @@ function v4(options, buf, offset) {
 }
 var v4_default = v4;
 
-// src/Models/Entities/Card.ts
-var dummy = {
-  id: "dummy_card",
-  pic: "boss_andromeda",
-  power: 10,
-  cooldown: 2300,
-  rank: 1,
-  reactions: [],
-  effects: [
-    {
-      id: "shield"
-    }
-  ]
-};
-var cards = /* @__PURE__ */ new Map();
-var registerCard = (card) => {
-  cards.set(card.id, card);
-};
-var collections = /* @__PURE__ */ new Map();
-var registerCollection = (collection) => {
-  collections.set(collection.id, collection);
-  collection.cards.forEach(registerCard);
-};
-var getCardDefinition = (id) => {
-  const card = cards.get(id);
-  if (!card) {
-    return dummy;
-  }
-  return card;
-};
-var getCores = () => Array.from(cards.values()).filter((card) => card.isCore);
-var getNonCores = () => Array.from(cards.values()).filter((card) => !card.isCore);
-var getAlliedCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
-var getEnemyCore = (state) => (forceId) => state.battleData.units.find((u) => u.force !== forceId && u.isCore);
-var getBattleCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
-
-// src/Utils/Random.ts
-function value(seed) {
-  const next = seed + 1831565813;
-  let t2 = next;
-  t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
-  t2 ^= t2 + Math.imul(t2 ^ t2 >>> 7, t2 | 61);
-  return {
-    result: ((t2 ^ t2 >>> 14) >>> 0) / 4294967296,
-    seed: next
-  };
-}
-function range(seed, min, max) {
-  const val = value(seed);
-  const result = Math.floor(val.result * (max - min + 1)) + min;
-  return {
-    result,
-    seed: val.seed
-  };
-}
-function shuffle(seed, array) {
-  const val = value(seed);
-  const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(val.result * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return {
-    copy,
-    seed: val.seed
-  };
-}
-function pickRandom(seed, arr, n) {
-  return shuffle(seed, arr).copy.slice(0, n);
-}
-var globalSeed = Math.floor(Math.random() * 4294967295);
-function nextValue() {
-  const result = value(globalSeed);
-  globalSeed = result.seed;
-  return result.result;
-}
-function nextPickRandom(arr, n) {
-  const result = shuffle(globalSeed, arr);
-  globalSeed = result.seed;
-  return result.copy.slice(0, n);
-}
-function setSeed(seed) {
-  globalSeed = seed;
-}
-
 // src/Models/Entities/Unit.ts
+init_Card();
+init_Random();
 var makeUnit = (force, cardId, position = { x: 1, y: 1 }) => {
   const card = getCardDefinition(cardId);
   return createUnitFromCardSpec(force, card, position, v4_default());
@@ -271,6 +1830,95 @@ function upgradeUnitData(unit) {
   resetUnitEffectsToCardDefinition(unit, source);
   upgradeUnitEffects(unit);
 }
+function resetUnitStats(unit) {
+  const source = getCardDefinition(unit.cardId);
+  const startingRank = source.rank || 1;
+  const rankMultiplier = unit.rank - startingRank + 1;
+  unit.power = (source.power || 0) * rankMultiplier + unit.bonusPower;
+  unit.critical = (source.critical || 0) + (unit.bonusCritical || 0);
+  unit.shield = 0;
+  unit.charge = 0;
+  unit.hasted = 0;
+  unit.slowed = 0;
+  unit.life = unit.maxLife;
+}
+
+// src/Core/Combat/CombatConstants.ts
+var MIN_COOLDOWN = 200;
+var FORCE_ID_PLAYER = "PLAYER";
+var FORCE_ID_CPU = "CPU";
+
+// src/Core/SessionManagement.ts
+function createDefaultRunStats() {
+  return {
+    damageDealt: 0,
+    poisonDealt: 0,
+    shieldDealt: 0,
+    regenDealt: 0,
+    healDealt: 0,
+    mostPowerfulUnit: null,
+    totalUnitsRecruited: 0,
+    unitUsage: {}
+  };
+}
+function createInitialSession(playerId, selectedCrystalId, explicitSeed) {
+  const { generateEncounterOptions: generateEncounterOptions2 } = (init_OptionGeneration(), __toCommonJS(OptionGeneration_exports));
+  const seed = explicitSeed ?? Math.random().toString(36).substring(7);
+  const initialSeed = seed;
+  const team = { units: [] };
+  if (selectedCrystalId) {
+    const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
+    coreUnit.isCore = true;
+    team.units.push(coreUnit);
+  }
+  const session = {
+    id: "",
+    player_id: playerId,
+    session_type: "singleplayer",
+    phase: "encounter",
+    round: 1,
+    step: 1,
+    seed,
+    initial_seed: initialSeed,
+    action_log: [],
+    wins: 0,
+    losses: 0,
+    team,
+    current_options: null,
+    runStats: createDefaultRunStats()
+  };
+  const options = generateEncounterOptions2(session);
+  session.current_options = { options: options.options };
+  return session;
+}
+function validateAndApplyTeamUpdate(session, newTeam) {
+  const currentUnits = session.team?.units || [];
+  const newUnits = newTeam?.units || [];
+  if (currentUnits.length !== newUnits.length) {
+    return { team: session.team, valid: false };
+  }
+  const currentUnitMap = /* @__PURE__ */ new Map();
+  currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
+  const validatedUnits = [];
+  for (const newUnit of newUnits) {
+    const originalUnit = currentUnitMap.get(newUnit.id);
+    if (!originalUnit) {
+      return { team: session.team, valid: false };
+    }
+    if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
+      return { team: session.team, valid: false };
+    }
+    const validatedUnit = {
+      ...originalUnit,
+      position: newUnit.position
+    };
+    validatedUnits.push(validatedUnit);
+  }
+  return { team: { units: validatedUnits }, valid: true };
+}
+
+// src/Core/Actions/RecruitmentActions.ts
+init_Card();
 
 // src/Models/SharedGeometry.ts
 var vec2 = (x, y) => ({
@@ -314,10 +1962,289 @@ function createGrid() {
   ];
 }
 
-// src/Core/Combat/CombatConstants.ts
-var MIN_COOLDOWN = 200;
-var FORCE_ID_PLAYER = "PLAYER";
-var FORCE_ID_CPU = "CPU";
+// src/Core/Actions/RecruitmentActions.ts
+function getRecruitmentTargetRank(encounterId) {
+  if (encounterId === "silver_shop") return 2;
+  if (encounterId === "gold_shop") return 3;
+  return 1;
+}
+function applyRankUpBonuses(unit, targetRank) {
+  const rankMultiplier = 1.75;
+  const extraLevels = targetRank - 1;
+  for (let i = 0; i < extraLevels; i++) {
+    unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
+    unit.life = unit.maxLife;
+    unit.power = Math.floor(unit.power * rankMultiplier);
+  }
+}
+function getLastEncounterActionId(session) {
+  const previousStep = session.step - 1;
+  const encounterActions = session.action_log.filter(
+    (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
+  );
+  const lastEncounterAction = encounterActions[encounterActions.length - 1];
+  return lastEncounterAction ? lastEncounterAction.actionId : null;
+}
+function recruitUnit(session, cardId) {
+  const allCards = getNonCores();
+  const card = allCards.find((c) => c.id === cardId);
+  if (!card) {
+    return { updated: false, updates: [`Card ${cardId} not found`] };
+  }
+  const team = session.team || { units: [] };
+  const units = team.units || [];
+  const updates = [];
+  const existingUnitIndex = units.findIndex((u) => u.cardId === cardId);
+  if (existingUnitIndex >= 0) {
+    const existingUnit = units[existingUnitIndex];
+    if (existingUnit.rank < 4) {
+      existingUnit.rank++;
+      existingUnit.maxLife = Math.floor(existingUnit.maxLife * 1.5);
+      existingUnit.life = existingUnit.maxLife;
+      existingUnit.power = Math.floor(existingUnit.power * 1.5);
+      updates.push(`Upgraded unit ${cardId} to rank ${existingUnit.rank}`);
+      return { updated: true, unit: existingUnit, updates };
+    }
+  } else {
+    if (units.length < 9) {
+      const targetPos = getEmptySlot(units, FORCE_ID_PLAYER);
+      if (targetPos) {
+        const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
+        const encounterId = getLastEncounterActionId(session);
+        const targetRank = getRecruitmentTargetRank(encounterId);
+        if (targetRank > 1) {
+          newUnit.rank = targetRank;
+          applyRankUpBonuses(newUnit, targetRank);
+          updates.push(`Recruited unit ${cardId} at Rank ${newUnit.rank}`);
+        }
+        units.push(newUnit);
+        if (!session.runStats) {
+          session.runStats = {
+            damageDealt: 0,
+            poisonDealt: 0,
+            shieldDealt: 0,
+            regenDealt: 0,
+            healDealt: 0,
+            mostPowerfulUnit: null,
+            totalUnitsRecruited: 0,
+            unitUsage: {}
+          };
+        }
+        session.runStats.totalUnitsRecruited += 1;
+        session.runStats.unitUsage[cardId] = (session.runStats.unitUsage[cardId] || 0) + 1;
+        updates.push(`Added new unit ${cardId}`);
+        return { updated: true, unit: newUnit, updates };
+      }
+    }
+  }
+  return { updated: false, updates };
+}
+function discardUnit(units, unitId) {
+  const unitIndex = units.findIndex((u) => u.id === unitId);
+  if (unitIndex >= 0) {
+    const unit = units[unitIndex];
+    if (!unit.isCore) {
+      units.splice(unitIndex, 1);
+      return { updated: true, updates: [`Discarded unit ${unitId}`] };
+    }
+  }
+  return { updated: false, updates: ["Unit not found or is core"] };
+}
+
+// src/Core/Actions/OrbAndCoreUpgrades.ts
+var COOLDOWN_REDUCTION_FACTOR = 0.1;
+var CORE_STAT_SCALING_FACTOR = 0.1;
+var ORB_POWER_INCREASE_FACTOR = 0.1;
+var MIN_COOLDOWN_MS = 1e3;
+var CORE_ROUND_SCALING = 10;
+function applyUpgradeOrb(unit) {
+  unit.rank = (unit.rank || 1) + 1;
+  const rankMultiplier = 1.75;
+  unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
+  unit.life = unit.maxLife;
+  unit.power = Math.floor(unit.power * rankMultiplier);
+}
+function applyAbsorbPowerOrb(targetUnit, allUnits) {
+  let totalAbsorbed = 0;
+  allUnits.forEach((u) => {
+    if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
+      const absorbed = Math.floor(u.power * 0.25);
+      if (absorbed > 0) {
+        u.power = Math.max(0, u.power - absorbed);
+        totalAbsorbed += absorbed;
+      }
+    }
+  });
+  if (totalAbsorbed > 0) {
+    targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
+    targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
+  }
+  return totalAbsorbed;
+}
+function applyDistributePowerOrb(targetUnit, allUnits) {
+  const powerToDistribute = Math.floor(targetUnit.power * 0.5);
+  if (powerToDistribute <= 0) return 0;
+  targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
+  const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
+  targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
+  const targets = allUnits.filter(
+    (u) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
+  );
+  if (targets.length > 0) {
+    const powerPerTarget = Math.floor(powerToDistribute / targets.length);
+    targets.forEach((u) => {
+      u.power = (u.power || 0) + powerPerTarget;
+      u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
+    });
+  }
+  return powerToDistribute;
+}
+function applyIncreasePowerOrb(targetUnit, effectType) {
+  if (!targetUnit.effects?.some((e) => e.id === effectType)) {
+    return 0;
+  }
+  const pct = Math.floor(targetUnit.power * ORB_POWER_INCREASE_FACTOR);
+  targetUnit.power += pct;
+  return pct;
+}
+function applyIncreaseCriticalOrb(targetUnit, effectType) {
+  if (!targetUnit.effects?.some((e) => e.id === effectType)) {
+    return false;
+  }
+  targetUnit.effects = targetUnit.effects || [];
+  targetUnit.effects.push({
+    id: "increase_critical",
+    amount: 10,
+    targets: { id: "self" }
+  });
+  return true;
+}
+function applyDecreaseCooldownOrb(targetUnit, effectType) {
+  if (!targetUnit.effects?.some((e) => e.id === effectType)) {
+    return 0;
+  }
+  const reduction = targetUnit.cooldown * COOLDOWN_REDUCTION_FACTOR;
+  targetUnit.cooldown = Math.max(MIN_COOLDOWN_MS, targetUnit.cooldown - reduction);
+  return Math.floor(reduction);
+}
+function applyOrb(allUnits, targetUnitId, orbId) {
+  const targetUnit = allUnits.find((u) => u.id === targetUnitId);
+  if (!targetUnit) {
+    return [`Target unit ${targetUnitId} not found`];
+  }
+  const updates = [];
+  updates.push(`Applying orb ${orbId} to ${targetUnitId}`);
+  if (orbId === "upgrade_orb") {
+    applyUpgradeOrb(targetUnit);
+  } else if (orbId === "absorb_power_orb") {
+    const absorbed = applyAbsorbPowerOrb(targetUnit, allUnits);
+    if (absorbed > 0) {
+      updates.push(`Absorbed ${absorbed} power from row units`);
+    }
+  } else if (orbId === "distribute_power_orb") {
+    const distributed = applyDistributePowerOrb(targetUnit, allUnits);
+    if (distributed > 0) {
+      updates.push(`Distributed ${distributed} power to row units`);
+    }
+  } else if (orbId.startsWith("increase_power_on_")) {
+    const effectType = orbId.replace("increase_power_on_", "");
+    const boost = applyIncreasePowerOrb(targetUnit, effectType);
+    if (boost > 0) {
+      updates.push(`Increased power by ${boost} (on ${effectType})`);
+    }
+  } else if (orbId.startsWith("increase_critical_on_")) {
+    const effectType = orbId.replace("increase_critical_on_", "");
+    if (applyIncreaseCriticalOrb(targetUnit, effectType)) {
+      updates.push(`Increased critical (on ${effectType})`);
+    }
+  } else if (orbId.startsWith("decrease_cooldown_on_")) {
+    const effectType = orbId.replace("decrease_cooldown_on_", "");
+    const reduction = applyDecreaseCooldownOrb(targetUnit, effectType);
+    if (reduction > 0) {
+      updates.push(`Decreased cooldown by ${reduction}ms (on ${effectType})`);
+    }
+  }
+  return updates;
+}
+function upgradeCoreMaxLife(core, round) {
+  const lifeGain = Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
+  core.maxLife += lifeGain;
+  core.life = core.maxLife;
+  return `Increased Core Max Life by ${lifeGain}`;
+}
+function upgradeCorepower(core, round) {
+  const powerGain = Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
+  core.power += powerGain;
+  core.bonusPower = (core.bonusPower || 0) + powerGain;
+  return `Increased Core Power by ${powerGain}`;
+}
+function decreaseCoresCooldown(core) {
+  const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
+  core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
+  return `Decreased Core Cooldown by ${Math.floor(reduction)}`;
+}
+
+// src/Core/Actions/ActionResolver.ts
+function resolveAction(session, actionId, payload) {
+  if (actionId === "update_team" && payload && typeof payload === "object" && "team" in payload && payload.team && typeof payload.team === "object" && "units" in payload.team && Array.isArray(payload.team.units)) {
+    const { team: team2, valid } = validateAndApplyTeamUpdate(session, payload.team);
+    if (!valid) {
+      return { team: session.team, updates: ["Rejected invalid team update"] };
+    }
+    return { team: team2, updates: ["Updated team positioning"] };
+  }
+  const team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
+  const units = team.units || [];
+  const updates = [];
+  if (actionId.match(/^[a-z_]+$/) && actionId !== "update_team") {
+    const sessionWithCopy = { ...session, team };
+    const result = recruitUnit(sessionWithCopy, actionId);
+    if (result.updated) {
+      return { team, updates: result.updates };
+    }
+  }
+  if (actionId === "apply_orb" && payload && "orbId" in payload && "targetUnitId" in payload) {
+    const { orbId, targetUnitId } = payload;
+    const orbUpdates = applyOrb(units, targetUnitId, orbId);
+    return { team, updates: orbUpdates };
+  }
+  if (actionId === "discard_unit" && payload && "unitId" in payload) {
+    const result = discardUnit(units, payload.unitId);
+    return { team, updates: result.updates };
+  }
+  if (actionId === "increase_core_max_life") {
+    const core = units.find((u) => u.isCore);
+    if (core) {
+      const update2 = upgradeCoreMaxLife(core, session.round);
+      updates.push(update2);
+    }
+    return { team, updates };
+  }
+  if (actionId === "upgrade_core_power") {
+    const core = units.find((u) => u.isCore);
+    if (core) {
+      const update2 = upgradeCorepower(core, session.round);
+      updates.push(update2);
+    }
+    return { team, updates };
+  }
+  if (actionId === "decrease_core_cooldown") {
+    const core = units.find((u) => u.isCore);
+    if (core) {
+      const update2 = decreaseCoresCooldown(core);
+      updates.push(update2);
+    }
+    return { team, updates };
+  }
+  team.units = units;
+  return { team, updates };
+}
+
+// src/Core/EnemyGeneration.ts
+init_Card();
+
+// src/Models/Entities/Force.ts
+init_Card();
 
 // src/Utils/Logger.ts
 var LOG_LEVEL_PRIORITY = {
@@ -357,7 +2284,7 @@ var getConsoleMethod = (level) => {
 };
 var writeElectronLog = (payload) => {
   const runtimeWindow = typeof window !== "undefined" ? window : void 0;
-  const electronLogger = runtimeWindow.electronLogger;
+  const electronLogger = runtimeWindow?.electronLogger;
   if (!electronLogger) return;
   try {
     electronLogger.log(payload.level, JSON.stringify(payload));
@@ -488,6 +2415,9 @@ var getEnemyForce = (state, unitId) => {
   return state.battleData.forces.find((f) => f.id !== unit.force);
 };
 
+// src/Core/Combat/generateEnemyTeam.ts
+init_Card();
+
 // src/Models/ServerGeometry.ts
 var vec22 = (x, y) => ({
   x,
@@ -499,6 +2429,7 @@ var size = (width, height) => ({
 });
 
 // src/utils.ts
+init_Random();
 function pickRandom2(arr, n) {
   return nextPickRandom(arr, n);
 }
@@ -615,8 +2546,39 @@ function generateEnemyTeam(state, round, pool) {
   return units;
 }
 
+// src/Core/EnemyGeneration.ts
+function generateEnemyTeamForRound(round, wins) {
+  const allCards = getNonCores();
+  const mockState = {
+    battleData: {
+      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+      units: [],
+      grid: []
+    },
+    savedGames: [],
+    session: {
+      wins,
+      player_id: FORCE_ID_PLAYER
+    }
+  };
+  const units = generateEnemyTeam(mockState, round, allCards);
+  units.forEach((u) => u.force = FORCE_ID_CPU);
+  return units;
+}
+
+// src/Core/GameLogic.ts
+init_Seeding();
+init_OptionGeneration();
+
+// src/Core/Combat/CombatSimulation.ts
+init_Card();
+
 // src/i18n/en.json
 var en_default = {
+  "title.singlePlayer": "SINGLE PLAYER",
+  "title.startContinue": "START / CONTINUE",
+  "title.return": "RETURN",
+  "title.multiplayer": "MULTIPLAYER",
   "title.newRun": "NEW RUN",
   "title.resume": "RESUME",
   "title.options": "OPTIONS",
@@ -1115,6 +3077,10 @@ var en_default = {
 
 // src/i18n/es.json
 var es_default = {
+  "title.singlePlayer": "UN JUGADOR",
+  "title.startContinue": "EMPEZAR / CONTINUAR",
+  "title.return": "VOLVER",
+  "title.multiplayer": "MULTIJUGADOR",
   "title.newRun": "NUEVA PARTIDA",
   "title.resume": "CONTINUAR",
   "title.options": "OPCIONES",
@@ -1608,6 +3574,10 @@ var es_default = {
 
 // src/i18n/pt.json
 var pt_default = {
+  "title.singlePlayer": "UM JOGADOR",
+  "title.startContinue": "INICIAR / CONTINUAR",
+  "title.return": "VOLTAR",
+  "title.multiplayer": "MULTIJOGADOR",
   "title.newRun": "NOVA PARTIDA",
   "title.resume": "CONTINUAR",
   "title.options": "OP\xC7\xD5ES",
@@ -2101,6 +4071,10 @@ var pt_default = {
 
 // src/i18n/jp.json
 var jp_default = {
+  "title.singlePlayer": "\u30B7\u30F3\u30B0\u30EB\u30D7\u30EC\u30A4",
+  "title.startContinue": "\u958B\u59CB / \u518D\u958B",
+  "title.return": "\u623B\u308B",
+  "title.multiplayer": "\u30DE\u30EB\u30C1\u30D7\u30EC\u30A4",
   "title.newRun": "\u65B0\u898F\u30D7\u30EC\u30A4",
   "title.resume": "\u518D\u958B",
   "title.options": "\u8A2D\u5B9A",
@@ -2593,6 +4567,10 @@ var jp_default = {
 
 // src/i18n/cn.json
 var cn_default = {
+  "title.singlePlayer": "\u5355\u4EBA\u6E38\u620F",
+  "title.startContinue": "\u5F00\u59CB / \u7EE7\u7EED",
+  "title.return": "\u8FD4\u56DE",
+  "title.multiplayer": "\u591A\u4EBA\u6E38\u620F",
   "title.newRun": "\u65B0\u6E38\u620F",
   "title.resume": "\u7EE7\u7EED",
   "title.options": "\u9009\u9879",
@@ -3086,6 +5064,10 @@ var cn_default = {
 
 // src/i18n/ru.json
 var ru_default = {
+  "title.singlePlayer": "\u041E\u0414\u0418\u041D\u041E\u0427\u041D\u0410\u042F \u0418\u0413\u0420\u0410",
+  "title.startContinue": "\u0421\u0422\u0410\u0420\u0422 / \u041F\u0420\u041E\u0414\u041E\u041B\u0416\u0418\u0422\u042C",
+  "title.return": "\u0412\u041E\u0417\u0412\u0420\u0410\u0422",
+  "title.multiplayer": "\u041C\u0423\u041B\u042C\u0422\u0418\u041F\u041B\u0415\u0415\u0420",
   "title.newRun": "\u041D\u041E\u0412\u0410\u042F \u0418\u0413\u0420\u0410",
   "title.resume": "\u041F\u0420\u041E\u0414\u041E\u041B\u0416\u0418\u0422\u042C",
   "title.options": "\u041D\u0410\u0421\u0422\u0420\u041E\u0419\u041A\u0418",
@@ -3768,6 +5750,7 @@ function stop(trackerState, state) {
 }
 
 // src/TriggerSystem/effects/dealDamage.ts
+init_Card();
 function dealDamageLogicIO(env, sourceUnit, scale = 1, delayedExecution) {
   const damageAmount = sourceUnit.power;
   const targetForce = env.state.battleData.forces.find(
@@ -3831,6 +5814,7 @@ function dealDamageLogicIO(env, sourceUnit, scale = 1, delayedExecution) {
 }
 
 // src/TriggerSystem/effects/addShield.ts
+init_Card();
 var addShieldLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
   const baseAmount = sourceUnit.power;
   const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force);
@@ -3856,6 +5840,9 @@ var addShieldLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
     effect();
   }
 };
+
+// src/TriggerSystem/effects/restoreLife.ts
+init_Card();
 
 // src/Systems/PoisonDamageSystem.ts
 function initializePoisonSystem() {
@@ -3938,7 +5925,7 @@ var restoreLife = async (env, sourceUnit, scale = 1, delayedExecution) => {
 };
 
 // src/TriggerSystem/effects/increasePower.ts
-var increasePower = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
+var increasePower2 = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
   const effect = (targetUnit) => async () => {
     targetUnit.power += amount;
     if (permanent) {
@@ -3986,7 +5973,7 @@ var titleTextConfig = {
 var FORCE_ID_PLAYER2 = "PLAYER";
 
 // src/TriggerSystem/effects/distributePower.ts
-var distributePower = (env, sourceUnit, targets, permanent, delayedExecution) => {
+var distributePower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
   const { state } = env;
   const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
@@ -4002,7 +5989,7 @@ var distributePower = (env, sourceUnit, targets, permanent, delayedExecution) =>
     }
   }
   const powerPerTarget = Math.floor(powerToDistribute / targets.length);
-  increasePower(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
+  increasePower2(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
   const effects = env.effects;
   if (effects.onPowerUpdate) {
     effects.onPowerUpdate(sourceUnit.id);
@@ -4010,7 +5997,7 @@ var distributePower = (env, sourceUnit, targets, permanent, delayedExecution) =>
 };
 
 // src/TriggerSystem/effects/absorbPower.ts
-var absorbPower = (env, sourceUnit, targets, permanent, delayedExecution) => {
+var absorbPower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
   const { state } = env;
   let totalAbsorbed = 0;
@@ -4035,11 +6022,12 @@ var absorbPower = (env, sourceUnit, targets, permanent, delayedExecution) => {
     }
   });
   if (totalAbsorbed > 0) {
-    increasePower(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit, delayedExecution);
+    increasePower2(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit, delayedExecution);
   }
 };
 
 // src/TriggerSystem/effects/sacrificeEffect.ts
+init_Random();
 var sacrificeEffect = (env, sourceUnit, delayedExecution) => {
   const removableEffects = sourceUnit.effects;
   const removableReactions = sourceUnit.reactions;
@@ -4059,12 +6047,12 @@ var sacrificeEffect = (env, sourceUnit, delayedExecution) => {
     const reactionToRemove = pickRandom2(removableReactions, 1)[0];
     sourceUnit.reactions = sourceUnit.reactions.filter((r) => r !== reactionToRemove);
   }
-  increasePower(env, [sourceUnit], 10, false, sourceUnit, delayedExecution);
+  increasePower2(env, [sourceUnit], 10, false, sourceUnit, delayedExecution);
 };
 
 // src/TriggerSystem/effects/multiplyPower.ts
 var logger3 = createLogger("multiplyPower");
-var multiplyPower = async (options) => {
+var multiplyPower2 = async (options) => {
   const { targets, multiplier, env } = options;
   const effects = env.effects;
   for (const target of targets) {
@@ -4131,6 +6119,7 @@ function applyChargeLogicIO(env, sourceUnit, targets, amount, delayedExecution) 
 }
 
 // src/TriggerSystem/effects/applyPoison.ts
+init_Card();
 var logger4 = createLogger("applyPoison");
 var applyPoisonLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
   const baseAmount = sourceUnit.power * 0.1;
@@ -4173,6 +6162,9 @@ var applyPoisonLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) =>
     effect();
   }
 };
+
+// src/TriggerSystem/effects/applyRegen.ts
+init_Card();
 
 // src/Systems/RegenSystem.ts
 function initializeRegenSystem() {
@@ -4237,7 +6229,7 @@ var applyRegenLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => 
 };
 
 // src/TriggerSystem/effects/increaseCritical.ts
-var increaseCritical = (env, targets, amount, sourceUnit, permanent = false, delayedExecution) => {
+var increaseCritical2 = (env, targets, amount, sourceUnit, permanent = false, delayedExecution) => {
   const effect = (target) => async () => {
     const targetUnit = targets.find((u) => u.id === target);
     if (!targetUnit) return;
@@ -4259,7 +6251,7 @@ var increaseCritical = (env, targets, amount, sourceUnit, permanent = false, del
 };
 
 // src/TriggerSystem/effects/decreasePower.ts
-var decreasePower = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
+var decreasePower2 = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
   const effect = (targetUnit) => async () => {
     const newPower = Math.max(0, targetUnit.power - amount);
     const delta = newPower - targetUnit.power;
@@ -4336,7 +6328,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       break;
     case "increase_power":
       const increasePowerTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-      increasePower(
+      increasePower2(
         env,
         increasePowerTargets,
         effect.amount * scale,
@@ -4347,7 +6339,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       break;
     case "decrease_power":
       const decreasePowerTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-      decreasePower(
+      decreasePower2(
         env,
         decreasePowerTargets,
         effect.amount * scale,
@@ -4358,7 +6350,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       break;
     case "increase_critical":
       const increaseCriticalTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-      increaseCritical(
+      increaseCritical2(
         env,
         increaseCriticalTargets,
         effect.amount * scale,
@@ -4368,7 +6360,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       );
       break;
     case "multiply_power":
-      multiplyPower({
+      multiplyPower2({
         env,
         targets: resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
         sourceUnit,
@@ -4377,7 +6369,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       });
       break;
     case "distribute_power":
-      distributePower(
+      distributePower2(
         env,
         sourceUnit,
         resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
@@ -4386,7 +6378,7 @@ var processEffectIO = (env, sourceUnit, effect, isReaction, triggeringUnit, scal
       );
       break;
     case "absorb_power":
-      absorbPower(
+      absorbPower2(
         env,
         sourceUnit,
         resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
@@ -4542,7 +6534,6 @@ function resolveTargets(state, sourceUnit, effect, triggeringUnit) {
 // src/Systems/TimeoutDamageSystem.ts
 var logger7 = createLogger("TimeoutDamageSystem");
 var TIMEOUT_DAMAGE_INTERVAL_MS = 1e3;
-var TIMEOUT_SUDDEN_DEATH_MS = 6e4;
 var TIMEOUT_BASE_DAMAGE = 5;
 var TIMEOUT_GROWTH_RATE = 1.2;
 function initializeTimeoutDamageSystem() {
@@ -4588,13 +6579,8 @@ function updateTimeoutDamageSystem(env, timeoutState, state, playerForce2, cpuFo
   };
 }
 function applyTimeoutDamage(env, state, playerForce2, cpuForce2, timeSinceTimeoutStarted) {
-  let currentDamage;
-  if (timeSinceTimeoutStarted >= TIMEOUT_SUDDEN_DEATH_MS) {
-    currentDamage = Infinity;
-  } else {
-    const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
-    currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
-  }
+  const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
+  const currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
   logger7.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
   const effects = env.effects;
   const hitEffect = (force) => () => {
@@ -4678,6 +6664,9 @@ function update(env, statusEffectState, delta) {
 function stop2(_statusEffectState) {
 }
 
+// src/Core/Combat/RunCombatCore.ts
+init_Card();
+
 // src/Core/Combat/ForceStatsState.ts
 function initializeForceStatsState() {
   return {
@@ -4690,6 +6679,7 @@ function initializeForceStatsState() {
 
 // src/Core/Combat/RunCombatCore.ts
 var logger8 = createLogger("RunCombatCore");
+var MAX_COMBAT_DURATION_MS = 12e4;
 var runCombat = (state, effects) => {
   const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
   let countdownTimerState = effects.initCountdownTimer ? effects.initCountdownTimer(blackHoleState) : null;
@@ -4749,10 +6739,12 @@ var runCombat = (state, effects) => {
   });
   let statusEffectSystemState = initialize3(state);
   let timeoutSystemState = initializeTimeoutDamageSystem();
+  let combatElapsedMs = 0;
   const updateFrame = (nextState, _time, delta) => {
     if (!runnerState.active) return;
     runnerState.env.state = nextState;
     const scaledDelta = delta * effects.getTimeScale();
+    combatElapsedMs += scaledDelta;
     const unitsReadyToAct = chargeUnits(
       nextState,
       scaledDelta,
@@ -4776,11 +6768,15 @@ var runCombat = (state, effects) => {
       cpuForce(nextState),
       scaledDelta
     );
+    if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
+      finishCombat(nextState, "both_won");
+      return;
+    }
     const playerCore = getBattleCore(nextState)(FORCE_ID_PLAYER);
     const cpuCore = getBattleCore(nextState)(FORCE_ID_CPU);
     const playerLifeZero = !playerCore || playerCore.life <= 0;
     const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
-    const outcome = cpuLifeZero ? "player_won" : playerLifeZero ? "player_lost" : null;
+    const outcome = cpuLifeZero && playerLifeZero ? "both_won" : cpuLifeZero ? "player_won" : playerLifeZero ? "player_lost" : null;
     if (outcome) {
       finishCombat(nextState, outcome);
     }
@@ -5075,1323 +7071,85 @@ var createServerCombatEffects = (_state) => {
   };
 };
 
-// src/Data/BaseCollection.ts
-var regen = { id: "regen" };
-var damage = { id: "damage" };
-var heal = { id: "heal" };
-var shield = { id: "shield" };
-var poison = { id: "poison" };
-var haste = (duration, targets) => ({ id: "haste", duration, targets });
-var slow = (duration, targets) => ({ id: "slow", duration, targets });
-var charge = (duration, targets) => ({ id: "charge", duration, targets });
-var column = { id: "column_allies" };
-var row = { id: "row_allies" };
-var randomAlly = (count) => ({ id: "random_ally", count });
-var randomEnemy = (count) => ({ id: "random_enemy", count });
-var trigger = { id: "trigger" };
-var self = { id: "self" };
-var increasePower2 = (amount, targets, permanent = false) => ({ id: "increase_power", "amount": amount, permanent, "targets": targets });
-var decreasePower2 = (amount, targets, permanent = false) => ({ id: "decrease_power", amount, permanent, "targets": targets });
-var increaseCritical2 = (amount, targets) => ({ id: "increase_critical", amount, targets });
-var reaction = (effect, position, reactWith) => ({
-  position,
-  effectId: effect,
-  effects: [
-    reactWith
-  ]
-});
-var multiplyPower2 = (multiplier, targets) => ({ id: "multiply_power", multiplier, baseMultiplier: multiplier, targets });
-var left = { id: "left_ally" };
-var right = { id: "right_ally" };
-var top = { id: "top_ally" };
-var bottom = { id: "bottom_ally" };
-var weakestAlly = { id: "weakest_ally" };
-var strongestEnemy = { id: "strongest_enemy" };
-var strongestAlly = { id: "strongest_ally" };
-var weakestEnemy = { id: "weakest_enemy" };
-var allAllies = { id: "all_allies", ofType: "any" };
-var allAlliesOfType = (ofType) => ({ id: "all_allies", ofType });
-var distributePower2 = (targets) => ({ id: "distribute_power", targets });
-var absorbPower2 = (targets) => ({ id: "absorb_power", targets });
-var cards2 = [
-  {
-    id: "mana_crystal",
-    pic: "blue-stone",
-    life: 500,
-    power: 35,
-    cooldown: 5200,
-    isCore: true,
-    effects: [
-      regen,
-      increasePower2(10, column)
-    ],
-    reactions: [
-      reaction("all", "row_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "critical_crystal",
-    pic: "red-stone",
-    life: 500,
-    power: 35,
-    cooldown: 5200,
-    isCore: true,
-    effects: [
-      damage,
-      increaseCritical2(5, column)
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(5, column))
-    ]
-  },
-  {
-    id: "protective_crystal",
-    pic: "yellow-stone",
-    life: 600,
-    power: 35,
-    cooldown: 4500,
-    isCore: true,
-    reflect: 15,
-    effects: [
-      shield,
-      increasePower2(5, randomAlly(1), true)
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(5, trigger))
-    ]
-  },
-  {
-    id: "growth_crystal",
-    pic: "green-stone",
-    life: 500,
-    power: 35,
-    cooldown: 4500,
-    isCore: true,
-    effects: [
-      heal,
-      increasePower2(2, column, true)
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(5, trigger))
-    ]
-  },
-  {
-    id: "purple_crystal",
-    pic: "purple-stone",
-    life: 500,
-    power: 40,
-    cooldown: 4700,
-    isCore: true,
-    effects: [
-      poison,
-      slow(1e3, randomEnemy(1))
-    ],
-    reactions: [
-      reaction("slow", "allies", increasePower2(4, trigger, true))
-    ]
-  },
-  {
-    id: "quickstone",
-    pic: "haste-stone",
-    life: 500,
-    power: 48,
-    cooldown: 5200,
-    isCore: true,
-    effects: [
-      regen,
-      haste(1e3, row)
-    ],
-    reactions: [
-      reaction("all", "row_allies", charge(500, column))
-    ]
-  },
-  {
-    id: "void_witch",
-    pic: "boss_andromeda",
-    power: 50,
-    cooldown: 5400,
-    effects: [
-      poison,
-      slow(1e3, randomEnemy(1))
-    ],
-    reactions: []
-  },
-  {
-    id: "living_armor",
-    pic: "f1_tank",
-    power: 30,
-    cooldown: 5100,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "column_allies", increasePower2(5, trigger))
-    ]
-  },
-  {
-    id: "thunder_mech",
-    pic: "f3_mech",
-    power: 40,
-    cooldown: 5200,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("haste", "row_allies", increaseCritical2(5, self))
-    ]
-  },
-  {
-    id: "timebender",
-    pic: "boss_spelleater",
-    power: 45,
-    cooldown: 5e3,
-    effects: [
-      shield,
-      increasePower2(2, randomAlly(1), true)
-    ],
-    reactions: []
-  },
-  {
-    id: "tek_monk",
-    pic: "f3_windgiver",
-    power: 40,
-    cooldown: 4600,
-    effects: [
-      damage,
-      increasePower2(1, self, true)
-    ],
-    reactions: []
-  },
-  {
-    id: "void_specter",
-    pic: "neutral_amu",
-    power: 35,
-    cooldown: 5200,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("regen", "column_allies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "plaguebearer",
-    pic: "f3_plague_totem",
-    power: 15,
-    cooldown: 3800,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("damage", "row_allies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "toxic_alchemist",
-    pic: "f5_drogon",
-    power: 30,
-    cooldown: 5200,
-    effects: [
-      poison,
-      increaseCritical2(5, column)
-    ],
-    reactions: []
-  },
-  {
-    id: "venomous_viper",
-    pic: "neutral_serpenti",
-    power: 40,
-    cooldown: 5200,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("haste", "row_allies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "noxious_blight",
-    pic: "neutral_dreamgazer",
-    power: 40,
-    cooldown: 4300,
-    effects: [
-      poison,
-      slow(1e3, randomEnemy(1))
-    ],
-    reactions: []
-  },
-  {
-    id: "corrosive_slime",
-    pic: "f4_gloomchaser",
-    power: 30,
-    cooldown: 4300,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("shield", "enemies", increasePower2(2, self))
-    ]
-  },
-  {
-    id: "infected_horror",
-    pic: "f4_horror",
-    power: 45,
-    cooldown: 5700,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("poison", "allies", increasePower2(2, self))
-    ]
-  },
-  {
-    id: "skeletal_mage",
-    pic: "neutral_bonereaper",
-    power: 35,
-    cooldown: 4900,
-    effects: [
-      poison,
-      haste(1e3, column)
-    ],
-    reactions: []
-  },
-  {
-    id: "scourge_bringer",
-    pic: "f4_nocturn",
-    power: 45,
-    cooldown: 5500,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("poison", "allies", increasePower2(2, trigger))
-    ]
-  },
-  {
-    id: "diana",
-    pic: "neutral_arrowwhistler",
-    power: 30,
-    cooldown: 5600,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("shield", "allies", haste(1e3, self))
-    ]
-  },
-  {
-    id: "moss_golem",
-    pic: "neutral_golemnature",
-    power: 55,
-    cooldown: 5200,
-    effects: [
-      shield,
-      increasePower2(1, randomAlly(1), true)
-    ],
-    reactions: []
-  },
-  {
-    id: "stone_guardian",
-    pic: "neutral_golemstone",
-    power: 20,
-    cooldown: 4e3,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "allies", increasePower2(1, self, true))
-    ]
-  },
-  {
-    id: "shadow_assassin",
-    pic: "boss_shadowlord",
-    power: 30,
-    "critical": 20,
-    cooldown: 4300,
-    effects: [
-      damage,
-      increaseCritical2(5, self)
-    ],
-    reactions: []
-  },
-  {
-    id: "commander",
-    pic: "f1_shieldforger",
-    power: 50,
-    cooldown: 6e3,
-    effects: [
-      shield,
-      increasePower2(5, row)
-    ],
-    reactions: []
-  },
-  {
-    id: "avatar_of_anger",
-    pic: "f2_chakriavatar",
-    power: 50,
-    critical: 10,
-    cooldown: 6e3,
-    effects: [
-      damage,
-      increasePower2(2, self, true)
-    ],
-    reactions: []
-  },
-  {
-    id: "chaos_knight",
-    pic: "boss_chaosknight",
-    power: 50,
-    cooldown: 5500,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("slow", "row_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "thunder_conduit",
-    pic: "boss_borealjuggernaut",
-    power: 55,
-    cooldown: 6200,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("haste", "allies", increasePower2(2, self))
-    ]
-  },
-  {
-    id: "arbiter",
-    pic: "f1_peacekeeper",
-    power: 35,
-    cooldown: 5200,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(2, self))
-    ]
-  },
-  {
-    id: "bastion",
-    pic: "f1_mech",
-    power: 30,
-    cooldown: 4200,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("heal", "left_ally", increasePower2(6, column))
-    ]
-  },
-  {
-    id: "aegis_warden",
-    pic: "f2_demononi",
-    power: 45,
-    cooldown: 5100,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("poison", "column_allies", increasePower2(4, trigger))
-    ]
-  },
-  {
-    id: "bulwark",
-    pic: "f1_solarius",
-    power: 12,
-    cooldown: 4400,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "row_allies", increasePower2(4, column))
-    ]
-  },
-  {
-    id: "void_shield",
-    pic: "neutral_voidhunter",
-    power: 30,
-    cooldown: 4800,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("shield", "column_allies", increasePower2(4, row))
-    ]
-  },
-  {
-    id: "fortress",
-    pic: "boss_city",
-    power: 20,
-    cooldown: 5200,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("shield", "allies", increasePower2(6, left))
-    ]
-  },
-  {
-    id: "parry_master",
-    pic: "neutral_swordofakrane",
-    power: 20,
-    cooldown: 5800,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(2, column))
-    ]
-  },
-  {
-    id: "cleric",
-    pic: "neutral_healingmystictwitch",
-    power: 20,
-    cooldown: 4100,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("damage", "row_allies", increasePower2(4, trigger))
-    ]
-  },
-  {
-    id: "battle_medic",
-    pic: "neutral_healingmysticbandainamco",
-    power: 30,
-    cooldown: 3800,
-    effects: [
-      heal,
-      increaseCritical2(5, right)
-    ],
-    reactions: []
-  },
-  {
-    id: "light_priestess",
-    pic: "f3_duskweaver",
-    power: 40,
-    cooldown: 4700,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("shield", "row_allies", increasePower2(1, top, true))
-    ]
-  },
-  {
-    id: "soul_weaver",
-    pic: "boss_soulstealer",
-    power: 40,
-    cooldown: 4500,
-    effects: [
-      heal,
-      increasePower2(1, bottom, true)
-    ],
-    reactions: []
-  },
-  {
-    id: "mender_of_worlds",
-    pic: "f6_auroraguardian",
-    power: 35,
-    cooldown: 4200,
-    effects: [
-      heal,
-      increasePower2(1, left, true)
-    ],
-    reactions: []
-  },
-  {
-    id: "divine_spark",
-    pic: "f3_obelyskduskwind",
-    power: 20,
-    cooldown: 4200,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("all", "column_allies", haste(1e3, row))
-    ]
-  },
-  {
-    id: "radiance_envoy",
-    pic: "boss_cindera",
-    power: 30,
-    cooldown: 5700,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("all", "row_allies", haste(1e3, column))
-    ]
-  },
-  {
-    id: "harmony_monk",
-    pic: "boss_harmony",
-    power: 25,
-    cooldown: 4800,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(4, column))
-    ]
-  },
-  {
-    id: "oracle",
-    pic: "neutral_timekeeper",
-    power: 25,
-    cooldown: 3300,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("all", "left_ally", increaseCritical2(7, right))
-    ]
-  },
-  {
-    id: "chronomancer",
-    pic: "f4_klaxon",
-    power: 25,
-    cooldown: 3700,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("haste", "allies", increasePower2(7, self))
-    ]
-  },
-  {
-    id: "spirit_of_the_forest",
-    pic: "boss_crystal",
-    power: 30,
-    cooldown: 4800,
-    effects: [
-      regen,
-      haste(1e3, row)
-    ],
-    reactions: []
-  },
-  {
-    id: "enchanted_tree",
-    pic: "f6_treant",
-    power: 25,
-    cooldown: 3300,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(1, self, true))
-    ]
-  },
-  {
-    id: "castle_vampire",
-    pic: "boss_vampire",
-    power: 20,
-    cooldown: 2900,
-    effects: [
-      regen,
-      increaseCritical2(5, self)
-    ],
-    reactions: []
-  },
-  {
-    id: "plague_dr",
-    pic: "f4_plaguedr",
-    power: 20,
-    cooldown: 2900,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("poison", "column_allies", increasePower2(4, self))
-    ]
-  },
-  {
-    id: "eternal_phoenix",
-    pic: "neutral_zurael",
-    power: 30,
-    cooldown: 4300,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("haste", "allies", increasePower2(5, weakestAlly))
-    ]
-  },
-  {
-    id: "sand_shifter",
-    pic: "f3_sandhowler",
-    power: 50,
-    cooldown: 5800,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("slow", "column_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "crystalline_geode",
-    pic: "f6_crystalbeetle",
-    power: 22,
-    cooldown: 4200,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("regen", "allies", increaseCritical2(5, self))
-    ]
-  },
-  {
-    id: "blood_catalyst",
-    pic: "neutral_bloodletter",
-    power: 30,
-    cooldown: 4200,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("heal", "allies", increasePower2(1, self, true))
-    ]
-  },
-  {
-    id: "symbiote",
-    pic: "f5_mech",
-    power: 35,
-    cooldown: 4500,
-    effects: [
-      regen,
-      haste(1e3, left)
-    ],
-    reactions: []
-  },
-  {
-    id: "time_shifter",
-    pic: "f1_sister",
-    power: 50,
-    cooldown: 6200,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("haste", "allies", increasePower2(4, column))
-    ]
-  },
-  {
-    id: "time_magus",
-    pic: "f2_mage4winds",
-    power: 45,
-    cooldown: 4900,
-    effects: [
-      damage,
-      slow(1e3, randomEnemy(1))
-    ],
-    reactions: []
-  },
-  {
-    id: "mana_source",
-    pic: "f4_furosa",
-    power: 100,
-    cooldown: 6400,
-    rank: 2,
-    effects: [
-      regen,
-      haste(1e3, row)
-    ],
-    reactions: [
-      reaction("all", "column_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "void_spawn",
-    pic: "f5_ankylos",
-    power: 40,
-    cooldown: 4800,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("poison", "column_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "arcane_anomaly",
-    pic: "f6_myriad",
-    power: 35,
-    cooldown: 7500,
-    effects: [
-      damage,
-      charge(500, column)
-    ],
-    reactions: []
-  },
-  {
-    id: "mirror_entity",
-    pic: "f3_nimbus",
-    power: 30,
-    cooldown: 4e3,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("all", "bottom_ally", increasePower2(10, top))
-    ]
-  },
-  {
-    id: "spellbreaker",
-    pic: "neutral_spelljammer",
-    power: 30,
-    cooldown: 4500,
-    effects: [
-      damage,
-      haste(1e3, randomAlly(2))
-    ],
-    reactions: []
-  },
-  {
-    id: "duelist",
-    pic: "neutral_shuffler",
-    power: 10,
-    cooldown: 5200,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(4, self))
-    ]
-  },
-  {
-    id: "gambler",
-    pic: "neutral_gambler",
-    power: 30,
-    cooldown: 4200,
-    effects: [
-      shield,
-      increaseCritical2(10, column)
-    ],
-    reactions: [
-      reaction("all", "row_allies", increaseCritical2(5, randomEnemy(1)))
-    ]
-  },
-  {
-    id: "glass_cannon",
-    pic: "f1_sinergyunit",
-    power: 22,
-    cooldown: 4100,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("shield", "allies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "spellblade",
-    pic: "f1_rightfulheir",
-    power: 30,
-    cooldown: 4100,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("all", "row_allies", increaseCritical2(5, self))
-    ]
-  },
-  {
-    id: "berserker",
-    pic: "neutral_beastmaster",
-    power: 30,
-    cooldown: 6e3,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("damage", "enemies", haste(500, self))
-    ]
-  },
-  {
-    id: "gunslinger",
-    pic: "neutral_hsuku",
-    power: 40,
-    cooldown: 5e3,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("shield", "column_allies", charge(500, self))
-    ]
-  },
-  {
-    id: "inquisitor",
-    pic: "neutral_inquisitorkron",
-    power: 20,
-    cooldown: 4800,
-    effects: [
-      damage
-    ],
-    reactions: [
-      reaction("poison", "enemies", increasePower2(2, self, true))
-    ]
-  },
-  {
-    id: "grove_guardian",
-    pic: "neutral_keeperofthevale",
-    power: 45,
-    cooldown: 4800,
-    rank: 2,
-    effects: [
-      regen,
-      charge(500, row)
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(4, right))
-    ]
-  },
-  {
-    id: "thunder_core",
-    pic: "neutral_emp",
-    power: 75,
-    rank: 2,
-    cooldown: 5800,
-    effects: [
-      damage,
-      charge(1e3, left)
-    ],
-    reactions: [
-      reaction("haste", "column_allies", increasePower2(6, self, true))
-    ]
-  },
-  {
-    id: "conduit_howler",
-    pic: "neutral_exun",
-    power: 45,
-    rank: 2,
-    cooldown: 4800,
-    effects: [
-      shield,
-      haste(2e3, column)
-    ],
-    reactions: [
-      reaction("haste", "row_allies", increasePower2(4, column, true))
-    ]
-  },
-  {
-    id: "water_elemental",
-    pic: "neutral_fog",
-    power: 45,
-    rank: 2,
-    cooldown: 5800,
-    effects: [
-      heal,
-      charge(1e3, column)
-    ],
-    reactions: [
-      reaction("regen", "row_allies", increasePower2(6, trigger, true))
-    ]
-  },
-  {
-    id: "master_of_thorns",
-    pic: "neutral_geargrinder",
-    power: 50,
-    rank: 2,
-    cooldown: 7e3,
-    effects: [
-      poison,
-      slow(2e3, randomEnemy(2))
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "coral_builder",
-    pic: "neutral_giantcrab",
-    power: 48,
-    rank: 2,
-    cooldown: 5800,
-    effects: [
-      regen,
-      haste(2e3, column)
-    ],
-    reactions: [
-      reaction("shield", "allies", increasePower2(5, self))
-    ]
-  },
-  {
-    id: "toxicologist",
-    pic: "neutral_gnasher",
-    power: 145,
-    rank: 3,
-    cooldown: 6500,
-    effects: [
-      poison,
-      slow(2e3, randomEnemy(2))
-    ],
-    reactions: [
-      reaction("poison", "allies", increasePower2(6, self))
-    ]
-  },
-  {
-    id: "expedition_leader",
-    pic: "neutral_goldenhammer",
-    power: 110,
-    rank: 3,
-    cooldown: 7e3,
-    effects: [
-      shield,
-      increasePower2(20, column)
-    ],
-    reactions: [
-      reaction("heal", "allies", increasePower2(4, column))
-    ]
-  },
-  {
-    id: "vanguard",
-    pic: "neutral_gauntletmaster",
-    power: 80,
-    rank: 3,
-    cooldown: 4300,
-    effects: [
-      damage,
-      haste(2e3, column)
-    ],
-    reactions: [
-      reaction("haste", "allies", increasePower2(2, self, true))
-    ]
-  },
-  {
-    id: "veteran_paladin",
-    pic: "neutral_goldenjusticar",
-    power: 110,
-    rank: 3,
-    cooldown: 5200,
-    effects: [
-      regen,
-      haste(2e3, row)
-    ],
-    reactions: [
-      reaction("shield", "column_allies", increasePower2(2, self, true))
-    ]
-  },
-  {
-    id: "webert_the_old",
-    pic: "neutral_goldenmantella",
-    power: 48,
-    rank: 3,
-    cooldown: 7400,
-    effects: [
-      heal,
-      increasePower2(20, row)
-    ],
-    reactions: [
-      reaction("regen", "column_allies", increasePower2(5, row, true))
-    ]
-  },
-  {
-    // power distributor
-    id: "walking_reactor",
-    pic: "boss_protector",
-    power: 62,
-    rank: 3,
-    locked: true,
-    cooldown: 5e3,
-    effects: [
-      shield,
-      distributePower2(row)
-    ],
-    reactions: [
-      reaction("all", "column_allies", increasePower2(20, self))
-    ]
-  },
-  // power absorber
-  {
-    id: "spectral_knight",
-    pic: "boss_gol",
-    power: 18,
-    rank: 3,
-    locked: true,
-    cooldown: 5600,
-    effects: [
-      damage,
-      absorbPower2(column)
-    ],
-    reactions: [
-      reaction("all", "row_allies", increasePower2(20, column))
-    ]
-  },
-  // re-haste
-  {
-    id: "windlash_serpent",
-    pic: "boss_serpenti",
-    power: 95,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      shield,
-      haste(2e3, row)
-    ],
-    reactions: [
-      reaction("re_hasted", "allies", increasePower2(5, self))
-    ]
-  },
-  // re-slow
-  {
-    id: "corruption_bringer",
-    pic: "boss_legion",
-    power: 80,
-    rank: 3,
-    locked: true,
-    cooldown: 5e3,
-    effects: [
-      poison,
-      slow(2e3, randomEnemy(2))
-    ],
-    reactions: [
-      reaction("re_slow", "allies", decreasePower2(10, strongestEnemy))
-    ]
-  },
-  //on_crit
-  {
-    id: "frontline_dasher",
-    pic: "boss_kane",
-    power: 58,
-    rank: 3,
-    locked: true,
-    cooldown: 5700,
-    effects: [
-      damage,
-      increaseCritical2(10, column)
-    ],
-    reactions: [
-      reaction("on_crit", "allies", increasePower2(20, column))
-    ]
-  },
-  //over_heal
-  {
-    id: "life_balancekeeper",
-    pic: "f3_anubis",
-    life: 1500,
-    power: 105,
-    rank: 3,
-    locked: true,
-    cooldown: 4500,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("on_over_heal", "allies", increasePower2(1, allAllies, true))
-    ]
-  },
-  //Balancer
-  {
-    id: "destiny_balancer",
-    pic: "f3_allomancer",
-    life: 1500,
-    power: 10,
-    rank: 3,
-    locked: true,
-    cooldown: 8600,
-    effects: [
-      shield,
-      decreasePower2(100, strongestAlly),
-      multiplyPower2(1.5, weakestAlly)
-    ],
-    reactions: []
-  },
-  //metronome
-  {
-    id: "cadence_warden",
-    pic: "f6_3rdgeneral",
-    life: 1500,
-    power: 70,
-    rank: 2,
-    locked: true,
-    cooldown: 5500,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("all", "left_ally", haste(2e3, right)),
-      reaction("all", "right_ally", haste(2e3, left))
-    ]
-  },
-  //damage -> poison
-  {
-    id: "essence_harvester",
-    pic: "boss_malyk",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("every_100_damage", "allies", increasePower2(5, allAlliesOfType("poison")))
-    ]
-  },
-  //poison -> damage
-  {
-    id: "plague_incubator",
-    pic: "boss_manaman",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("every_10_poison", "allies", increasePower2(5, allAlliesOfType("damage")))
-    ]
-  },
-  //shield -> damage
-  {
-    id: "tempest_ravager",
-    pic: "boss_invader",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("every_100_shield", "allies", increasePower2(5, allAlliesOfType("damage")))
-    ]
-  },
-  //shield -> heal
-  {
-    id: "paragon",
-    pic: "boss_paragon",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("every_100_shield", "allies", increasePower2(5, allAlliesOfType("heal")))
-    ]
-  },
-  //heal -> regen
-  {
-    id: "vitality_channeler",
-    pic: "f2_sepukku",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [
-      heal
-    ],
-    reactions: [
-      reaction("every_100_heal", "allies", increasePower2(5, allAlliesOfType("regen")))
-    ]
-  },
-  //heal -> heal
-  {
-    id: "mend_sage",
-    pic: "boss_orias",
-    power: 40,
-    rank: 3,
-    locked: true,
-    cooldown: 5200,
-    effects: [
-      heal,
-      increasePower2(5, allAlliesOfType("heal"))
-    ],
-    reactions: [
-      reaction("on_battle_start", "allies", haste(2e3, allAlliesOfType("heal")))
-    ]
-  },
-  //damage -> damage
-  {
-    id: "warbringer",
-    pic: "boss_solfist",
-    power: 60,
-    rank: 3,
-    locked: true,
-    cooldown: 6200,
-    effects: [
-      damage,
-      increasePower2(10, allAlliesOfType("damage"))
-    ],
-    reactions: [
-      reaction("on_battle_start", "allies", haste(2e3, allAlliesOfType("damage")))
-    ]
-  },
-  //shield -> shield
-  {
-    id: "aegis_archon",
-    pic: "f3_tier2general",
-    power: 35,
-    rank: 3,
-    locked: true,
-    cooldown: 6200,
-    effects: [
-      shield
-    ],
-    reactions: [
-      reaction("damage", "enemies", increasePower2(5, allAlliesOfType("shield")))
-    ]
-  },
-  //poison -> poison
-  {
-    id: "plague_sovereign",
-    pic: "f4_abomination",
-    power: 40,
-    rank: 3,
-    locked: true,
-    cooldown: 5200,
-    effects: [
-      poison
-    ],
-    reactions: [
-      reaction("on_battle_start", "allies", slow(2e3, randomEnemy(4))),
-      reaction("re_slow", "allies", increasePower2(5, allAlliesOfType("poison")))
-    ]
-  },
-  //regen -> regen
-  {
-    id: "life_weaver",
-    pic: "f3_insightcaster",
-    power: 60,
-    rank: 3,
-    locked: true,
-    cooldown: 4200,
-    effects: [
-      regen
-    ],
-    reactions: [
-      reaction("every_10_regen", "allies", increasePower2(20, weakestAlly))
-    ]
-  },
-  //gambler2
-  {
-    id: "fate_shifter",
-    pic: "boss_sandpanther",
-    power: 10,
-    rank: 3,
-    locked: true,
-    cooldown: 9200,
-    effects: [
-      damage,
-      multiplyPower2(1.5, right),
-      multiplyPower2(1.5, weakestEnemy)
-    ],
-    reactions: []
+// src/Core/Combat/CombatSimulation.ts
+init_Random();
+init_Seeding();
+function createCombatState(session) {
+  let playerUnits = [];
+  if (session.team && session.team.units) {
+    playerUnits = JSON.parse(JSON.stringify(session.team.units));
+    playerUnits.forEach((u) => {
+      u.effects = u.effects || [];
+      u.reactions = u.reactions || [];
+      resetUnitStats(u);
+    });
   }
-];
-var BASE_COLLECTION_DATA = {
-  id: "base",
-  "name": "Base Set",
-  "cards": cards2
-};
+  const hasCore = playerUnits.some((u) => u.isCore);
+  if (!hasCore) {
+    const freeSlot = findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
+    if (freeSlot) {
+      const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
+      crystal.isCore = true;
+      playerUnits.push(crystal);
+    }
+  }
+  let enemyUnits = [];
+  if (session.current_options && typeof session.current_options === "object" && "combatState" in session.current_options && session.current_options.combatState?.enemyTeam) {
+    enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
+    enemyUnits.forEach(resetUnitStats);
+  } else {
+    const allCards = getNonCores();
+    const mockState = {
+      battleData: {
+        forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+        units: [],
+        grid: []
+      },
+      savedGames: [],
+      session: { ...session }
+    };
+    enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
+    enemyUnits.forEach((u) => u.force = FORCE_ID_CPU);
+  }
+  return {
+    savedGames: [],
+    session: {
+      ...session,
+      team: { units: playerUnits }
+    },
+    battleData: {
+      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
+      grid: createGrid(),
+      units: [...playerUnits, ...enemyUnits]
+    }
+  };
+}
+function simulateCombat(session) {
+  const combatState = createCombatState(session);
+  const seedVal = stringToSeed(session.initial_seed);
+  setSeed(seedVal);
+  const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
+  const effects = createServerCombatEffects(combatState);
+  const combatRunner = runCombat(combatState, effects);
+  const SIM_DELTA = 16.67;
+  let frame = 0;
+  const MAX_FRAMES = 1e4;
+  while (combatRunner.isActive() && frame < MAX_FRAMES) {
+    effects.setFrame(frame);
+    combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+    frame++;
+  }
+  return { finalState: combatState, initialUnits, logs: effects.logs };
+}
+function determineCombatOutcome(finalState, simLogs) {
+  const playerUnits = finalState.battleData.units.filter((u) => u.force === "PLAYER");
+  const outcomeLog = simLogs.find((l) => l.type === "outcome");
+  if (outcomeLog) {
+    return { won: outcomeLog.result === "player_won" || outcomeLog.result === "both_won" };
+  }
+  const core = playerUnits.find((u) => u.isCore);
+  return { won: !!(core && core.life > 0) };
+}
 
 // src/Core/PhaseSystem/ActionRegistry.ts
 var initialRegistry = {
@@ -6748,38 +7506,8 @@ var encounterPhaseHandler = createPhaseHandler({
   }
 });
 
-// src/Core/PhaseSystem/PhaseConfig.ts
-var ROUND_PHASES = {
-  1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-  3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-  7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-  11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-  15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"]
-};
-var DEFAULT_ROUND_PHASES = [
-  "encounter",
-  "encounter",
-  "encounter",
-  "combat",
-  "upgrade_core"
-];
-function getPhaseForTurn(round, step) {
-  const stepIndex = step - 1;
-  const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
-  return roundPhases[stepIndex];
-}
-
 // src/Core/PhaseSystem/handlers/ShopPhaseHandler.ts
+init_PhaseConfig();
 var shopPhaseHandler = createPhaseHandler({
   phase: "shop",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -6809,6 +7537,7 @@ var shopPhaseHandler = createPhaseHandler({
 });
 
 // src/Core/PhaseSystem/handlers/OrbShopPhaseHandler.ts
+init_PhaseConfig();
 var orbShopPhaseHandler = createPhaseHandler({
   phase: "orb_shop",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -6848,6 +7577,7 @@ var orbShopPhaseHandler = createPhaseHandler({
 });
 
 // src/Core/PhaseSystem/handlers/CombatPhaseHandler.ts
+init_PhaseConfig();
 var combatPhaseHandler = createPhaseHandler({
   phase: "combat",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -7008,456 +7738,8 @@ phaseManager.register(combatPhaseHandler);
 phaseManager.register(upgradeCorePhaseHandler);
 phaseManager.register(addReactionCorePhaseHandler);
 
-// src/Core/GameLogic.ts
-registerCollection(BASE_COLLECTION_DATA);
-function createDefaultRunStats() {
-  return {
-    damageDealt: 0,
-    poisonDealt: 0,
-    shieldDealt: 0,
-    regenDealt: 0,
-    healDealt: 0,
-    mostPowerfulUnit: null,
-    totalUnitsRecruited: 0,
-    unitUsage: {}
-  };
-}
-var ENCOUNTER_IDS = [
-  "upgrade_unit",
-  "armory",
-  "healing_tent",
-  "frontier_fort",
-  "forest_pools",
-  "toxic_chamber",
-  "trial_circuit",
-  "trappers_guild",
-  "thunder_spire",
-  "commanders_tent",
-  "assassins_hideout",
-  "power_distributor",
-  "power_absorber",
-  "silver_shop",
-  "gold_shop"
-];
-var COOLDOWN_REDUCTION_FACTOR = 0.1;
-var CORE_STAT_SCALING_FACTOR = 0.1;
-var ORB_POWER_INCREASE_FACTOR = 0.1;
-var MIN_COOLDOWN_MS = 1e3;
-var CORE_ROUND_SCALING = 10;
-function createInitialSession(playerId, selectedCrystalId, explicitSeed) {
-  const seed = explicitSeed ?? Math.random().toString(36).substring(7);
-  const initialSeed = seed;
-  const team = { units: [] };
-  if (selectedCrystalId) {
-    const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
-    coreUnit.isCore = true;
-    team.units.push(coreUnit);
-  }
-  const session = {
-    id: "",
-    player_id: playerId,
-    phase: "encounter",
-    round: 1,
-    step: 1,
-    seed,
-    initial_seed: initialSeed,
-    action_log: [],
-    wins: 0,
-    losses: 0,
-    team,
-    current_options: null,
-    runStats: createDefaultRunStats()
-  };
-  const options = generateEncounterOptions(session);
-  session.current_options = { options: options.options };
-  return session;
-}
-function generateEnemyTeamForRound(round, wins) {
-  const allCards = getNonCores();
-  const mockState = {
-    battleData: {
-      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
-      units: [],
-      grid: []
-    },
-    savedGames: [],
-    session: {
-      wins,
-      player_id: FORCE_ID_PLAYER
-    }
-  };
-  const units = generateEnemyTeam(mockState, round, allCards);
-  units.forEach((u) => u.force = FORCE_ID_CPU);
-  return units;
-}
-function stringToSeed(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
-}
-function generateNextSeed(currentSeed, actionId) {
-  const input = currentSeed + actionId;
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
-}
-function generateEncounterOptions(session) {
-  const expectedPhase = getPhaseForTurn(session.round, session.step);
-  if (expectedPhase === "combat") {
-    return { options: [{ id: "combat_encounter" }] };
-  }
-  if (!session.encounter_history) {
-    session.encounter_history = [];
-  }
-  const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
-  const seedNum = stringToSeed(session.seed);
-  const shuffled = [...ENCOUNTER_IDS];
-  let currentSeedVal = seedNum;
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const x = Math.sin(currentSeedVal++) * 1e4;
-    const rnd = x - Math.floor(x);
-    const j = Math.floor(rnd * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
-  const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
-  const selectedOptions = encountersToShow.slice(0, 3);
-  session.encounter_history.push(...selectedOptions);
-  return { options: selectedOptions.map((id) => ({ id })) };
-}
-function generateShopOptions(session, triggerActionId) {
-  let encounterId = null;
-  if (triggerActionId) {
-    encounterId = triggerActionId;
-  } else {
-    const previousStep = session.step - 1;
-    const encounterActions = session.action_log.filter(
-      (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-    );
-    const lastEncounterAction = encounterActions[encounterActions.length - 1];
-    encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
-  }
-  let filterType = "";
-  if (encounterId) {
-    if (encounterId === "armory") filterType = "damage";
-    else if (encounterId === "healing_tent") filterType = "heal";
-    else if (encounterId === "frontier_fort") filterType = "shield";
-    else if (encounterId === "forest_pools") filterType = "regen";
-    else if (encounterId === "toxic_chamber") filterType = "poison";
-    else if (encounterId === "trial_circuit") filterType = "haste";
-    else if (encounterId === "trappers_guild") filterType = "slow";
-    else if (encounterId === "thunder_spire") filterType = "charge";
-    else if (encounterId === "commanders_tent") filterType = "increase_power";
-    else if (encounterId === "assassins_hideout") filterType = "increase_critical";
-    else if (encounterId === "silver_shop") filterType = "silver";
-    else if (encounterId === "gold_shop") filterType = "gold";
-  }
-  const allCards = getNonCores();
-  let filteredCards = allCards;
-  if (filterType) {
-    if (filterType === "silver") {
-      filteredCards = allCards.filter((card) => card.rank === 2);
-    } else if (filterType === "gold") {
-      filteredCards = allCards.filter((card) => card.rank === 3);
-    } else {
-      filteredCards = allCards.filter(
-        (card) => card.effects?.some((eff) => eff.id === filterType) || card.reactions?.some((react) => react.effects?.some((eff) => eff.id === filterType))
-      );
-    }
-  }
-  if (filteredCards.length === 0) {
-    filteredCards = allCards;
-  }
-  const playerUnits = session.team?.units || [];
-  const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
-  filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
-  const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-  const shopSeedNum = stringToSeed(shopSeedInput);
-  const options = pickRandom(shopSeedNum, filteredCards, 3).map((card) => ({
-    id: card.id,
-    cost: 10
-  }));
-  return { options };
-}
-function resolveAction(session, actionId, payload) {
-  if (actionId === "update_team" && payload && typeof payload === "object" && "team" in payload && payload.team && typeof payload.team === "object" && "units" in payload.team && Array.isArray(payload.team.units)) {
-    const { team: team2, valid } = validateAndApplyTeamUpdate(session, payload.team);
-    if (!valid) {
-      return { team: session.team, updates: ["Rejected invalid team update"] };
-    }
-    return { team: team2, updates: ["Updated team positioning"] };
-  }
-  const availableCards = getNonCores();
-  const card = availableCards.find((c) => c.id === actionId);
-  const team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
-  const units = team.units || [];
-  const updates = [];
-  if (card) {
-    const existingUnitIndex = units.findIndex((u) => u.cardId === actionId);
-    if (existingUnitIndex >= 0) {
-      const existingUnit = units[existingUnitIndex];
-      if (existingUnit.rank < 4) {
-        existingUnit.rank++;
-        existingUnit.maxLife = Math.floor(existingUnit.maxLife * 1.5);
-        existingUnit.life = existingUnit.maxLife;
-        existingUnit.power = Math.floor(existingUnit.power * 1.5);
-        updates.push(`Upgraded unit ${actionId} to rank ${existingUnit.rank}`);
-      }
-    } else {
-      if (units.length < 9) {
-        const targetPos = getEmptySlot(units, FORCE_ID_PLAYER);
-        if (targetPos) {
-          const newUnit = makeUnit(FORCE_ID_PLAYER, actionId, targetPos);
-          const previousStep = session.step - 1;
-          const encounterActions = session.action_log.filter(
-            (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-          );
-          const lastEncounterAction = encounterActions[encounterActions.length - 1];
-          const encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
-          let targetRank = 1;
-          if (encounterId === "silver_shop") targetRank = 2;
-          if (encounterId === "gold_shop") targetRank = 3;
-          if (targetRank > 1) {
-            newUnit.rank = targetRank;
-            const extraLevels = targetRank - 1;
-            for (let i = 0; i < extraLevels; i++) {
-              newUnit.maxLife = Math.floor(newUnit.maxLife * 1.5);
-              newUnit.life = newUnit.maxLife;
-              newUnit.power = Math.floor(newUnit.power * 1.5);
-            }
-            updates.push(`Recruited unit ${actionId} at Rank ${newUnit.rank}`);
-          }
-          units.push(newUnit);
-          if (!session.runStats) {
-            session.runStats = createDefaultRunStats();
-          }
-          session.runStats.totalUnitsRecruited += 1;
-          session.runStats.unitUsage[actionId] = (session.runStats.unitUsage[actionId] || 0) + 1;
-          updates.push(`Added new unit ${actionId}`);
-        }
-      }
-    }
-  } else {
-    if (actionId === "apply_orb" && payload && "orbId" in payload && "targetUnitId" in payload) {
-      const { orbId, targetUnitId } = payload;
-      const targetUnit = units.find((u) => u.id === targetUnitId);
-      if (targetUnit) {
-        updates.push(`Applying orb ${orbId} to ${targetUnitId}`);
-        if (orbId === "upgrade_orb") {
-          targetUnit.rank = (targetUnit.rank || 1) + 1;
-          targetUnit.maxLife = Math.floor(targetUnit.maxLife * 1.5);
-          targetUnit.life = targetUnit.maxLife;
-          targetUnit.power = Math.floor(targetUnit.power * 1.5);
-        } else if (orbId === "absorb_power_orb") {
-          let totalAbsorbed = 0;
-          units.forEach((u) => {
-            if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
-              const absorbed = Math.floor(u.power * 0.25);
-              if (absorbed > 0) {
-                u.power = Math.max(0, u.power - absorbed);
-                totalAbsorbed += absorbed;
-              }
-            }
-          });
-          if (totalAbsorbed > 0) {
-            targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
-            targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
-          }
-        } else if (payload.orbId === "distribute_power_orb") {
-          const powerToDistribute = Math.floor(targetUnit.power * 0.5);
-          if (powerToDistribute > 0) {
-            targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
-            const bonusToLose = Math.max(
-              0,
-              Math.min(targetUnit.bonusPower || 0, powerToDistribute)
-            );
-            targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
-            const targets = units.filter(
-              (u) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
-            );
-            if (targets.length > 0) {
-              const powerPerTarget = Math.floor(powerToDistribute / targets.length);
-              targets.forEach((u) => {
-                u.power = (u.power || 0) + powerPerTarget;
-                u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
-              });
-            }
-          }
-        } else if (typeof orbId === "string" && orbId.startsWith("increase_power_on_")) {
-          const type = orbId.replace("increase_power_on_", "");
-          if (targetUnit.effects?.some((e) => e.id === type)) {
-            const pct = Math.floor(targetUnit.power * ORB_POWER_INCREASE_FACTOR);
-            targetUnit.power += pct;
-            updates.push(`Increased power of ${targetUnit.id} by ${pct} (on ${type})`);
-          }
-        } else if (typeof orbId === "string" && orbId.startsWith("increase_critical_on_")) {
-          const type = orbId.replace("increase_critical_on_", "");
-          if (targetUnit.effects?.some((e) => e.id === type)) {
-            targetUnit.effects = targetUnit.effects || [];
-            targetUnit.effects.push({
-              id: "increase_critical",
-              amount: 10,
-              targets: { id: "self" }
-            });
-            updates.push(`Increased critical of ${targetUnit.id} (on ${type})`);
-          }
-        } else if (typeof orbId === "string" && orbId.startsWith("decrease_cooldown_on_")) {
-          const type = orbId.replace("decrease_cooldown_on_", "");
-          if (targetUnit.effects?.some((e) => e.id === type)) {
-            targetUnit.cooldown = Math.max(
-              MIN_COOLDOWN_MS,
-              targetUnit.cooldown * (1 - COOLDOWN_REDUCTION_FACTOR)
-            );
-            updates.push(`Decreased cooldown of ${targetUnit.id} (on ${type})`);
-          }
-        }
-      }
-    } else if (actionId === "discard_unit" && payload && "unitId" in payload) {
-      const unitIndex = units.findIndex((u) => u.id === payload.unitId);
-      if (unitIndex >= 0) {
-        const unit = units[unitIndex];
-        if (!unit.isCore) {
-          units.splice(unitIndex, 1);
-          updates.push(`Discarded unit ${payload.unitId}`);
-        }
-      }
-    } else if (actionId === "increase_core_max_life") {
-      const core = units.find((u) => u.isCore);
-      if (core) {
-        const round = session.round;
-        const lifeGain = Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
-        core.maxLife += lifeGain;
-        core.life = core.maxLife;
-        updates.push(`Increased Core Max Life by ${lifeGain}`);
-      }
-    } else if (actionId === "upgrade_core_power") {
-      const core = units.find((u) => u.isCore);
-      if (core) {
-        const round = session.round;
-        const powerGain = Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
-        core.power += powerGain;
-        core.bonusPower = (core.bonusPower || 0) + powerGain;
-        updates.push(`Increased Core Power by ${powerGain}`);
-      }
-    } else if (actionId === "decrease_core_cooldown") {
-      const core = units.find((u) => u.isCore);
-      if (core) {
-        const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
-        core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
-        updates.push(`Decreased Core Cooldown by ${Math.floor(reduction)}`);
-      }
-    }
-  }
-  team.units = units;
-  return { team, updates };
-}
-function validateAndApplyTeamUpdate(session, newTeam) {
-  const currentUnits = session.team?.units || [];
-  const newUnits = newTeam?.units || [];
-  if (currentUnits.length !== newUnits.length) {
-    return { team: session.team, valid: false };
-  }
-  const currentUnitMap = /* @__PURE__ */ new Map();
-  currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
-  const validatedUnits = [];
-  for (const newUnit of newUnits) {
-    const originalUnit = currentUnitMap.get(newUnit.id);
-    if (!originalUnit) {
-      return { team: session.team, valid: false };
-    }
-    if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
-      return { team: session.team, valid: false };
-    }
-    const validatedUnit = {
-      ...originalUnit,
-      position: newUnit.position
-    };
-    validatedUnits.push(validatedUnit);
-  }
-  return { team: { units: validatedUnits }, valid: true };
-}
-function simulateCombat(session) {
-  const combatState = createCombatState(session);
-  const seedVal = stringToSeed(session.initial_seed);
-  setSeed(seedVal);
-  const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
-  const effects = createServerCombatEffects(combatState);
-  const combatRunner = runCombat(combatState, effects);
-  const SIM_DELTA = 16.67;
-  let frame = 0;
-  const MAX_FRAMES = 1e4;
-  while (combatRunner.isActive() && frame < MAX_FRAMES) {
-    effects.setFrame(frame);
-    combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
-    frame++;
-  }
-  return { finalState: combatState, initialUnits, logs: effects.logs };
-}
-function createCombatState(session) {
-  let playerUnits = [];
-  if (session.team && session.team.units) {
-    playerUnits = JSON.parse(JSON.stringify(session.team.units));
-    playerUnits.forEach((u) => {
-      u.effects = u.effects || [];
-      u.reactions = u.reactions || [];
-      u.life = u.maxLife;
-    });
-  }
-  const hasCore = playerUnits.some((u) => u.isCore);
-  if (!hasCore) {
-    const freeSlot = findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
-    if (freeSlot) {
-      const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
-      crystal.isCore = true;
-      playerUnits.push(crystal);
-    }
-  }
-  let enemyUnits = [];
-  if (session.current_options && typeof session.current_options === "object" && "combatState" in session.current_options && session.current_options.combatState?.enemyTeam) {
-    enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
-  } else {
-    const allCards = getNonCores();
-    const mockState = {
-      battleData: {
-        forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
-        units: [],
-        grid: []
-      },
-      savedGames: [],
-      session: { ...session }
-    };
-    enemyUnits = generateEnemyTeam(mockState, session.round, allCards);
-    enemyUnits.forEach((u) => u.force = FORCE_ID_CPU);
-  }
-  return {
-    savedGames: [],
-    session: {
-      ...session,
-      team: { units: playerUnits }
-      // ensure other required fields if session from input is partial?
-      // The input session is SessionData, so it should be fine.
-    },
-    battleData: {
-      forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
-      grid: createGrid(),
-      units: [...playerUnits, ...enemyUnits]
-    }
-  };
-}
-function processSessionTurn(session, actionId, payload) {
-  const { team, updates } = resolveAction(session, actionId, payload);
-  const nextSession = { ...session, team };
-  const combatResult = void 0;
-  return { session: nextSession, updates, combatResult };
-}
+// src/Core/SessionTransitions.ts
+init_Seeding();
 function transitionToNextState(session, actionId, payload, options) {
   const nextSession = JSON.parse(JSON.stringify(session));
   nextSession.runStats = nextSession.runStats || createDefaultRunStats();
@@ -7492,36 +7774,31 @@ function transitionToNextState(session, actionId, payload, options) {
   }
   let combatResult = void 0;
   if (nextSession.phase === "combat") {
-    const enemyTeam = options?.combatEnemyTeam ? JSON.parse(JSON.stringify(options.combatEnemyTeam)) : generateEnemyTeamForRound(nextSession.round, nextSession.wins);
-    nextSession.current_options = { combatState: { enemyTeam } };
-    const simResult = simulateCombat(nextSession);
-    const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
-    nextSession.runStats = simResult.finalState.session.runStats || nextSession.runStats;
-    const outcomeLog = simResult.logs.find((l) => l.type === "outcome");
-    let wonCombat = false;
-    if (outcomeLog) {
-      wonCombat = outcomeLog.result === "player_won";
-    } else {
-      const core = playerUnits.find((u) => u.isCore);
-      wonCombat = !!(core && core.life > 0);
-    }
-    nextSession.wins += wonCombat ? 1 : 0;
-    nextSession.losses += wonCombat ? 0 : 1;
-    const combatState = {
-      enemyTeam,
-      seed: nextSession.seed,
-      // Updated seed
-      wonCombat,
-      initialUnits: simResult.initialUnits,
-      finalPlayerUnits: playerUnits,
-      logs: simResult.logs
-    };
-    const continueOptions = [{ id: "combat_done", label: "Continue" }];
-    nextSession.current_options = { options: continueOptions, combatState };
-    combatResult = { won: wonCombat };
+    combatResult = executeCombatPhase(nextSession, options);
   }
   nextSession.updated_at = /* @__PURE__ */ new Date();
   return { session: nextSession, combatResult };
+}
+function executeCombatPhase(session, options) {
+  const enemyTeam = options?.combatEnemyTeam ? JSON.parse(JSON.stringify(options.combatEnemyTeam)) : generateEnemyTeamForRound(session.round, session.wins);
+  const simResult = simulateCombat(session);
+  const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
+  session.runStats = simResult.finalState.session.runStats || session.runStats;
+  const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
+  session.wins += wonCombat ? 1 : 0;
+  session.losses += wonCombat ? 0 : 1;
+  const combatState = {
+    enemyTeam,
+    units: simResult.finalState.battleData.units,
+    seed: session.seed,
+    wonCombat,
+    initialUnits: simResult.initialUnits,
+    finalPlayerUnits: playerUnits,
+    logs: simResult.logs
+  };
+  const continueOptions = [{ id: "combat_done", label: "Continue" }];
+  session.current_options = { options: continueOptions, combatState };
+  return { won: wonCombat };
 }
 function getCurrentOptions(session) {
   if (!session.current_options) {
@@ -7551,16 +7828,17 @@ function pickOption(session, selection, payload, options) {
   const option = resolveSelectedOption(session, selection);
   return transitionToNextState(session, option.id, payload, options).session;
 }
-function getDeterministicRandomOptionIndex(session, optionCount) {
-  const seededInput = `${session.seed}:${session.round}:${session.step}:${optionCount}`;
-  return range(stringToSeed(seededInput), 0, optionCount - 1).result;
-}
 function pickRandomOption(session, payload, options) {
   const currentOptions = getCurrentOptions(session);
   if (currentOptions.length === 0) {
     return session;
   }
-  const optionIndex = getDeterministicRandomOptionIndex(session, currentOptions.length);
+  const optionIndex = getDeterministicRandomOptionIndex(
+    session.seed,
+    session.round,
+    session.step,
+    currentOptions.length
+  );
   return pickOption(session, optionIndex + 1, payload, options);
 }
 function pickRandomOptionsUntilGameOver(session, config) {
@@ -7574,7 +7852,12 @@ function pickRandomOptionsUntilGameOver(session, config) {
     if (currentOptions.length === 0) {
       break;
     }
-    const optionIndex = getDeterministicRandomOptionIndex(currentSession, currentOptions.length);
+    const optionIndex = getDeterministicRandomOptionIndex(
+      currentSession.seed,
+      currentSession.round,
+      currentSession.step,
+      currentOptions.length
+    );
     const selectedOption = currentOptions[optionIndex];
     currentSession = pickOption(
       currentSession,
@@ -7585,6 +7868,8 @@ function pickRandomOptionsUntilGameOver(session, config) {
   }
   return currentSession;
 }
+
+// src/Core/ReplayManagement.ts
 function replayManifest(manifest, replayOptions) {
   for (let i = 0; i < manifest.actions.length; i++) {
     if (manifest.actions[i].sequence !== i + 1) {
@@ -7642,14 +7927,251 @@ function buildReplaySnapshot(session) {
     teamUnitIds
   };
 }
+
+// src/Core/LlmPlayerService.ts
+init_Card();
+init_Card();
+var BOARD_WIDTH2 = 3;
+var BOARD_HEIGHT2 = 3;
+registerCollection(BASE_COLLECTION_DATA);
+var cloneValue = (value2) => JSON.parse(JSON.stringify(value2));
+var serializeReactions = (reactions) => reactions.map((reaction2) => ({
+  trigger: reaction2.effectId,
+  position: reaction2.position,
+  effects: reaction2.effects.map((effect) => effect.id)
+}));
+var serializeBoardUnit = (unit) => ({
+  unitId: unit.id,
+  cardId: unit.cardId,
+  isCore: unit.isCore,
+  rank: unit.rank,
+  position: { x: unit.position.x, y: unit.position.y },
+  power: unit.power,
+  bonusPower: unit.bonusPower,
+  life: unit.life,
+  maxLife: unit.maxLife,
+  shield: unit.shield,
+  cooldown: unit.cooldown,
+  critical: unit.critical || 0,
+  evade: unit.evade,
+  effects: unit.effects.map((effect) => effect.id),
+  reactions: serializeReactions(unit.reactions)
+});
+var serializeCardDetails = (cardId) => {
+  if (!hasCardDefinition(cardId)) {
+    throw new Error(`Card ${cardId} is not registered`);
+  }
+  const card = getCardDefinition(cardId);
+  return {
+    id: card.id,
+    pic: card.pic,
+    isCore: !!card.isCore,
+    rank: card.rank || 1,
+    power: card.power || 0,
+    life: card.life || 0,
+    cooldown: card.cooldown,
+    critical: card.critical || 0,
+    reflect: card.reflect || 0,
+    effects: (card.effects || []).map((effect) => effect.id),
+    reactions: serializeReactions(card.reactions || [])
+  };
+};
+var createBoardCells = (units) => {
+  const cells = [];
+  for (let y = 0; y < BOARD_HEIGHT2; y++) {
+    for (let x = 0; x < BOARD_WIDTH2; x++) {
+      const occupant = units.find((unit) => unit.position.x === x && unit.position.y === y);
+      cells.push({
+        x,
+        y,
+        occupant: occupant ? {
+          unitId: occupant.id,
+          cardId: occupant.cardId,
+          isCore: occupant.isCore,
+          rank: occupant.rank
+        } : null
+      });
+    }
+  }
+  return cells;
+};
+var viewBoardFromSession = (session) => {
+  const sortedUnits = [...session.team.units].sort((left2, right2) => {
+    if (left2.position.y !== right2.position.y) {
+      return left2.position.y - right2.position.y;
+    }
+    return left2.position.x - right2.position.x;
+  });
+  return {
+    width: BOARD_WIDTH2,
+    height: BOARD_HEIGHT2,
+    units: sortedUnits.map(serializeBoardUnit),
+    cells: createBoardCells(sortedUnits)
+  };
+};
+var viewChoicesFromSession = (session) => {
+  const options = getCurrentOptions(session);
+  return {
+    phase: session.phase,
+    round: session.round,
+    step: session.step,
+    wins: session.wins,
+    losses: session.losses,
+    options: options.map((option, index) => ({
+      index: index + 1,
+      id: option.id,
+      ..."label" in option ? { label: option.label } : {},
+      ..."cost" in option ? { cost: option.cost } : {},
+      ...hasCardDefinition(option.id) ? { cardDetails: serializeCardDetails(option.id) } : {}
+    }))
+  };
+};
+var resolveChoice = (session, selection) => {
+  const options = getCurrentOptions(session);
+  if (typeof selection === "number") {
+    const option2 = options[selection - 1];
+    if (!option2) {
+      throw new Error(`Choice index ${selection} is out of range for ${options.length} options`);
+    }
+    return option2;
+  }
+  const option = options.find((currentOption) => currentOption.id === selection);
+  if (!option) {
+    throw new Error(`Choice ${selection} is not available in the current phase`);
+  }
+  return option;
+};
+var assertBoardMoveInputs = (moves, units) => {
+  const unitIds = new Set(units.map((unit) => unit.id));
+  const movedIds = /* @__PURE__ */ new Set();
+  for (const move of moves) {
+    if (!unitIds.has(move.unitId)) {
+      throw new Error(`Unit ${move.unitId} is not on the player board`);
+    }
+    if (movedIds.has(move.unitId)) {
+      throw new Error(`Unit ${move.unitId} was moved more than once in the same request`);
+    }
+    if (move.x < 0 || move.x >= BOARD_WIDTH2 || move.y < 0 || move.y >= BOARD_HEIGHT2) {
+      throw new Error(`Board position (${move.x},${move.y}) is outside the ${BOARD_WIDTH2}x${BOARD_HEIGHT2} board`);
+    }
+    movedIds.add(move.unitId);
+  }
+};
+var buildArrangedTeam = (session, moves) => {
+  assertBoardMoveInputs(moves, session.team.units);
+  const movesByUnitId = new Map(moves.map((move) => [move.unitId, move]));
+  const arrangedUnits = session.team.units.map((unit) => {
+    const move = movesByUnitId.get(unit.id);
+    if (!move) {
+      return cloneValue(unit);
+    }
+    return {
+      ...cloneValue(unit),
+      position: { x: move.x, y: move.y }
+    };
+  });
+  const occupiedPositions = /* @__PURE__ */ new Set();
+  for (const unit of arrangedUnits) {
+    const key = `${unit.position.x},${unit.position.y}`;
+    if (occupiedPositions.has(key)) {
+      throw new Error(`Board position (${unit.position.x},${unit.position.y}) is occupied by multiple units`);
+    }
+    occupiedPositions.add(key);
+  }
+  const { team, valid } = validateAndApplyTeamUpdate(session, { units: arrangedUnits });
+  if (!valid) {
+    throw new Error("Board arrangement was rejected by team validation");
+  }
+  return team;
+};
+var createManifest = (config, initialSeed, actions = []) => ({
+  runId: config.runId || `llm-run-${config.playerId}-${initialSeed}`,
+  playerId: config.playerId,
+  selectedCrystalId: config.selectedCrystalId,
+  initialSeed,
+  clientVersion: config.clientVersion || "llm-player-service",
+  actions
+});
+function createLlmPlayerService(config) {
+  let session = createInitialSession(
+    config.playerId,
+    config.selectedCrystalId,
+    config.initialSeed
+  );
+  let manifest = createManifest(config, session.initial_seed);
+  const buildState = () => ({
+    board: viewBoardFromSession(session),
+    choices: viewChoicesFromSession(session),
+    snapshot: buildReplaySnapshot(session),
+    actionCount: manifest.actions.length
+  });
+  return {
+    viewBoard() {
+      return viewBoardFromSession(session);
+    },
+    viewChoices() {
+      return viewChoicesFromSession(session);
+    },
+    viewCardDetails(cardId) {
+      return serializeCardDetails(cardId);
+    },
+    arrangeBoard(moves) {
+      session = {
+        ...session,
+        team: buildArrangedTeam(session, moves)
+      };
+      return viewBoardFromSession(session);
+    },
+    makeChoice(selection, payload) {
+      const selectedOption = resolveChoice(session, selection);
+      const nextAction = {
+        sequence: manifest.actions.length + 1,
+        actionId: selectedOption.id,
+        ...payload !== void 0 ? { payload } : {},
+        teamSnapshot: cloneValue(session.team)
+      };
+      manifest = {
+        ...manifest,
+        actions: [...manifest.actions, nextAction]
+      };
+      session = transitionToNextState(session, selectedOption.id, payload).session;
+      return {
+        selectedActionId: selectedOption.id,
+        state: buildState(),
+        manifest: cloneValue(manifest)
+      };
+    },
+    viewState() {
+      return buildState();
+    },
+    buildRunManifest() {
+      return cloneValue(manifest);
+    },
+    getSession() {
+      return cloneValue(session);
+    }
+  };
+}
+
+// src/Core/GameLogic.ts
+registerCollection(BASE_COLLECTION_DATA);
+function processSessionTurn(session, actionId, payload) {
+  const { team, updates } = resolveAction(session, actionId, payload);
+  const nextSession = { ...session, team };
+  const combatResult = void 0;
+  return { session: nextSession, updates, combatResult };
+}
 export {
   buildReplaySnapshot,
+  createDefaultRunStats,
   createInitialSession,
+  createLlmPlayerService,
   generateEncounterOptions,
   generateEnemyTeamForRound,
   generateNextSeed,
   generateShopOptions,
   getCurrentOptions,
+  getDeterministicRandomOptionIndex,
   pickOption,
   pickRandomOption,
   pickRandomOptionsUntilGameOver,
