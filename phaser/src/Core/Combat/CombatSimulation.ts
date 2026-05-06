@@ -10,7 +10,7 @@ import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
-import { makeUnit } from "@Models/Entities/Unit";
+import { makeUnit, resetUnitStats } from "@Models/Entities/Unit";
 import { makeForce } from "@Models/Entities/Force";
 import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
 import { runCombat } from "@Core/Combat/RunCombatCore";
@@ -30,7 +30,7 @@ export function createCombatState(session: SessionData): State {
 		playerUnits.forEach((u) => {
 			u.effects = u.effects || [];
 			u.reactions = u.reactions || [];
-			u.life = u.maxLife;
+			resetUnitStats(u);
 		});
 	}
 
@@ -54,6 +54,7 @@ export function createCombatState(session: SessionData): State {
 		session.current_options.combatState?.enemyTeam
 	) {
 		enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
+		enemyUnits.forEach(resetUnitStats);
 	} else {
 		const allCards = Card.getNonCores();
 		const mockState: State = {

@@ -271,6 +271,7 @@ export async function handleMultiplayerPhase(
 			});
 		};
 
+		state.battleData.units.forEach(resetUnitStats);
 		const controller = createCombatPlaybackController(state, combatState.logs, effects);
 		scene.combatRunner = controller;
 	}
