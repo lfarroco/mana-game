@@ -61,7 +61,7 @@
     },
     "homepage": "https://github.com/lfarroco/mana-game",
     "engines": {
-        "node": ">=20.0.0"
+        "node": ">=22.0.0"
     },
     "lint-staged": {
         "*.{ts,tsx}": [
