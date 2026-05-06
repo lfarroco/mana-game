@@ -28,7 +28,7 @@ jest.mock("@PhaserIO", () => ({
 jest.mock("@Components/UIButton", () => ({
 	createUIButton: jest.fn((_label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
 		createdButtons.push(onClick);
-		return { container: { destroy: jest.fn() } };
+		return { container: { destroy: jest.fn() }, disable: jest.fn(), enable: jest.fn() };
 	}),
 }));
 
@@ -62,8 +62,11 @@ describe("ArenaLobbyScene", () => {
 		(enableMultiplayer as jest.Mock).mockResolvedValue(undefined);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
 			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
 		scene.refreshProfile = jest.fn();
@@ -84,8 +87,11 @@ describe("ArenaLobbyScene", () => {
 		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
 			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
 		scene.refreshProfile = jest.fn();
@@ -104,8 +110,11 @@ describe("ArenaLobbyScene", () => {
 		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
 			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
 		scene.refreshProfile = jest.fn();
