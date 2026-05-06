@@ -13,3 +13,9 @@ export const UI_BUTTON_RESTART_X_OFFSET = 0;
 export const UI_BUTTON_RESTART_Y_OFFSET = 50;
 export const UI_BUTTON_MENU_X_OFFSET = 0;
 export const UI_BUTTON_MENU_Y_OFFSET = 150;
+
+// Button positioning for consistent alignment
+export const BATTLEGROUND_BUTTON_MARGIN_RIGHT = 50; // pixels from right edge
+export const BATTLEGROUND_BUTTON_MARGIN_TOP = 50; // pixels from top
+export const BATTLEGROUND_BUTTON_MARGIN_BOTTOM = 50; // pixels from bottom
+export const BATTLEGROUND_BUTTON_X = 1730; // right-aligned position for menu/skip buttons (280px button width + 50px right margin)

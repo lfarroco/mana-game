@@ -5,9 +5,10 @@ import { getCurrentScene, resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
+import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_TOP } from "@Scenes/Battleground/battlegroundConstants";
 
 export function create(state: State) {
-	const btn = createUIButton(t("ui.menu.button"), vec2(1800, 30), () => {
+	const btn = createUIButton(t("ui.menu.button"), vec2(BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_TOP), () => {
 		createPanel(state);
 	});
 

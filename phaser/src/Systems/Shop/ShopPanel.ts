@@ -5,9 +5,10 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 import { resetEncounterFocusTargets } from "@Systems/Encounter";
+import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_BOTTOM } from "@Scenes/Battleground/battlegroundConstants";
 
-const NEXT_ROUND_BUTTON_X = c.SCREEN_WIDTH - 260;
-const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - 50;
+const NEXT_ROUND_BUTTON_X = BATTLEGROUND_BUTTON_X;
+const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - BATTLEGROUND_BUTTON_MARGIN_BOTTOM;
 
 export let container: Container;
 export let nextRoundButton: Button;
