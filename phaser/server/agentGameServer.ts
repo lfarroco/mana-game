@@ -1,12 +1,12 @@
 import * as expressImport from "express";
-import type { Express, Request, Response } from "express";
+import type { Express, Response } from "express";
 import {
-	ActionPayload,
 	BoardMove,
 	createLlmPlayerService,
 	LlmPlayerService,
 	LlmPlayerServiceConfig,
 } from "../src/Core/GameLogic";
+import type { ActionPayload } from "../src/Core/Types";
 
 const express =
 	(expressImport as typeof import("express") & { default?: typeof import("express") }).default ||

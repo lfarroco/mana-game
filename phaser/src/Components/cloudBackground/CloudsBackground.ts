@@ -275,7 +275,7 @@ export class CloudsBackground {
 			duration: duration,
 			ease: ease,
 			onUpdate: (tween) => {
-				const progress = tween.getValue();
+				const progress = tween.getValue() ?? 0;
 
 				// Helper to interpolate vectors
 				const lerpVector = (
@@ -340,7 +340,7 @@ export class CloudsBackground {
 			duration: duration,
 			ease: ease,
 			onUpdate: (tween) => {
-				this.timeScale = tween.getValue();
+				this.timeScale = tween.getValue() ?? this.timeScale;
 				this.shader.setUniform("timeScale.value", this.timeScale);
 			},
 		});
@@ -363,7 +363,7 @@ export class CloudsBackground {
 			duration: duration,
 			ease: ease,
 			onUpdate: (tween) => {
-				this.alpha = tween.getValue();
+				this.alpha = tween.getValue() ?? this.alpha;
 				(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
 			},
 		});

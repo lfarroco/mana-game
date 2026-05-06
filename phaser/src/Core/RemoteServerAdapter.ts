@@ -1,5 +1,5 @@
 import { IGameServer } from "@Core/IGameServer";
-import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
+import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState, SessionType } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
@@ -31,7 +31,7 @@ export class RemoteServerAdapter implements IGameServer {
 	}
 
 	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
-		const sessionType = getMultiplayerSessionType();
+		const sessionType = getMultiplayerSessionType() as SessionType;
 		const { data, error } = await supabase.functions.invoke("action", {
 			body: {
 				actionId: "start_session",

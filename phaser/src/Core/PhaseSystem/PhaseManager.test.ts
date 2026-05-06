@@ -12,7 +12,7 @@
  */
 import { describe, expect, it, beforeEach } from "@jest/globals";
 import { phaseManager } from "@Core/PhaseSystem/PhaseManager";
-import { PhaseHandler, PhaseTransitionContext, PhaseTransitionResult, ActionType } from "@Core/PhaseSystem/types";
+import { PhaseHandler, ActionType } from "@Core/PhaseSystem/types";
 import { SessionData } from "@Core/Types";
 
 const createSession = (overrides: Partial<SessionData> = {}): SessionData => ({
@@ -35,7 +35,7 @@ const createMockHandler = (phase: string, canHandlePhase: boolean = true): Phase
 	phase: phase as any,
 	actionType: ActionType.PHASE_TRANSITION,
 	canHandle: (context) => canHandlePhase && context.session.phase === phase,
-	transition: (context) => ({
+	transition: () => ({
 		nextPhase: "shop",
 		nextOptions: [],
 	}),
@@ -152,7 +152,7 @@ describe("PhaseManager", () => {
 
 	describe("transition", () => {
 		it("throws when no handler found", () => {
-			const session = createSession({ phase: "unknown" });
+			const session = { ...createSession(), phase: "unknown" } as unknown as SessionData;
 
 			expect(() => {
 				phaseManager.transition({ session, actionId: "test" });
@@ -163,7 +163,7 @@ describe("PhaseManager", () => {
 			let transitionCalled = false;
 			const handler: PhaseHandler = {
 				...createMockHandler("encounter"),
-				transition: (context) => {
+				transition: () => {
 					transitionCalled = true;
 					return { nextPhase: "shop", nextOptions: [] };
 				},
@@ -384,7 +384,7 @@ describe("PhaseManager", () => {
 		it("recovers gracefully when handler lookup fails", () => {
 			phaseManager.register(createMockHandler("shop"));
 
-			const session = createSession({ phase: "unknown_phase" });
+			const session = { ...createSession(), phase: "unknown_phase" } as unknown as SessionData;
 
 			expect(() => {
 				phaseManager.transition({ session, actionId: "test" });

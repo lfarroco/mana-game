@@ -164,8 +164,8 @@ describe("StatusEffectSystem", () => {
 			{ poison: 10, regen: 10, expectedDelta: null },
 			{ poison: 7, regen: 12, expectedDelta: 5 },
 			{ poison: 12, regen: 7, expectedDelta: -5 },
-		])(\
-			"poison=$poison regen=$regen => delta=$expectedDelta", \
+		])(
+			"poison=$poison regen=$regen => delta=$expectedDelta",
 			({ poison, regen, expectedDelta }: { poison: number; regen: number; expectedDelta: number | null }) => {
 				const playerForceId = state.session.player_id;
 				const core = state.battleData.units.find(

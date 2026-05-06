@@ -41,7 +41,7 @@ describe("createPhaseHandler", () => {
 			const handler = createPhaseHandler({
 				phase: "encounter",
 				actionType: ActionType.PHASE_TRANSITION,
-				computeTransition: (context) => ({
+				computeTransition: () => ({
 					nextPhase: "shop",
 					nextOptions: [],
 				}),
@@ -209,7 +209,7 @@ describe("createPhaseHandler", () => {
 		});
 
 		it("passes through validator warnings and errors", () => {
-			const customValidate = (context: PhaseTransitionContext): ValidationResult => {
+			const customValidate = (_context: PhaseTransitionContext): ValidationResult => {
 				return {
 					valid: true,
 					errors: [],
@@ -262,7 +262,7 @@ describe("createPhaseHandler", () => {
 			const handler = createPhaseHandler({
 				phase: "encounter",
 				actionType: ActionType.PHASE_TRANSITION,
-				computeTransition: (context) => {
+				computeTransition: () => {
 					computeTransitionCalled = true;
 					return { nextPhase: "shop", nextOptions: [] };
 				},
@@ -368,7 +368,7 @@ describe("createPhaseHandler", () => {
 			const handler = createPhaseHandler({
 				phase: "shop",
 				actionType: ActionType.PHASE_SKIP,
-				computeTransition: (context) => {
+				computeTransition: () => {
 					return {
 						nextPhase: "encounter",
 						nextOptions: [{ id: "new_enc" }],
@@ -410,7 +410,7 @@ describe("createPhaseHandler", () => {
 
 			types.forEach((type) => {
 				const handler = createPhaseHandler({
-					phase: "test_phase",
+					phase: "encounter",
 					actionType: type,
 					computeTransition: () => ({
 						nextPhase: "shop",
