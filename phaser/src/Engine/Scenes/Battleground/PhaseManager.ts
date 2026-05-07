@@ -26,11 +26,18 @@ const createLocalPhaseTransport = (): PhaseTransport => ({
 	},
 });
 
-export async function startPhase(state: State) {
+export async function startPhase(
+	state: State,
+	options: {
+		showReadyOnInitialCombat?: boolean;
+	} = {}
+) {
 	// Both multiplayer and single-player use the same phase handler.
 	// Multiplayer uses the remote transport (default); single-player uses a local transport.
 	const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
-	await handleMultiplayerPhase(state, transport);
+	await handleMultiplayerPhase(state, transport, {
+		showReadyOnInitialCombat: options.showReadyOnInitialCombat || false,
+	});
 }
 
 // Helper to get player ID (from state or generate one)

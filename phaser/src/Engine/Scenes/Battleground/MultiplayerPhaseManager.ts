@@ -4,7 +4,7 @@ import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
 import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
@@ -24,6 +24,9 @@ import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import { createLogger } from "@Utils/Logger";
+import { createUIButton } from "@Components/UIButton";
+import { vec2 } from "@Models/Geometry";
+import { t } from "@i18n/i18n";
 import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
 
 const logger = createLogger("MultiplayerPhaseManager");
@@ -35,6 +38,11 @@ export type PhaseTransport = {
 	sendOptionSelection: (optionId: string, payload?: ActionPayload) => Promise<boolean>;
 };
 
+export type MultiplayerPhaseContext = {
+	showReadyOnInitialCombat?: boolean;
+	isInitialCall?: boolean;
+};
+
 const defaultMultiplayerTransport: PhaseTransport = {
 	getPhaseOptions,
 	sendOptionSelection,
@@ -42,9 +50,15 @@ const defaultMultiplayerTransport: PhaseTransport = {
 
 export async function handleMultiplayerPhase(
 	state: State,
-	transport: PhaseTransport = defaultMultiplayerTransport
+	transport: PhaseTransport = defaultMultiplayerTransport,
+	context: MultiplayerPhaseContext = {}
 ) {
 	logger.debug("Starting Multiplayer Phase handling...");
+	const isInitialCall = context.isInitialCall ?? true;
+	const childContext: MultiplayerPhaseContext = {
+		showReadyOnInitialCombat: context.showReadyOnInitialCombat || false,
+		isInitialCall: false,
+	};
 	const result = await transport.getPhaseOptions(state);
 
 	logger.debug(`Multiplayer Phase: ${result.phase}`);
@@ -96,13 +110,15 @@ export async function handleMultiplayerPhase(
 	switch (result.phase) {
 		case "combat":
 			if (result.combatState) {
-				await handleMultiplayerCombat(state, result.combatState);
+				const shouldRequireReady =
+					isInitialCall && Boolean(context.showReadyOnInitialCombat);
+				await handleMultiplayerCombat(state, result.combatState, shouldRequireReady);
 			} else {
 				logger.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
 				// Auto-skip
 				await transport.sendOptionSelection(combatOption.id);
-				await handleMultiplayerPhase(state, transport);
+				await handleMultiplayerPhase(state, transport, childContext);
 			}
 			break;
 
@@ -147,7 +163,7 @@ export async function handleMultiplayerPhase(
 			);
 			// After orb shop completes, notify server and get next phase
 			await transport.sendOptionSelection("orb_shop_done");
-			await handleMultiplayerPhase(state, transport);
+			await handleMultiplayerPhase(state, transport, childContext);
 			break;
 
 		case "upgrade_core":
@@ -155,7 +171,7 @@ export async function handleMultiplayerPhase(
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
 			await transport.sendOptionSelection("upgrade_core_done");
-			await handleMultiplayerPhase(state, transport);
+			await handleMultiplayerPhase(state, transport, childContext);
 			break;
 
 		case "add_reaction_core":
@@ -163,7 +179,7 @@ export async function handleMultiplayerPhase(
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			await transport.sendOptionSelection("add_reaction_core_done");
-			await handleMultiplayerPhase(state, transport);
+			await handleMultiplayerPhase(state, transport, childContext);
 			break;
 
 		case "victory":
@@ -181,7 +197,11 @@ export async function handleMultiplayerPhase(
 			break;
 	}
 
-	async function handleMultiplayerCombat(state: State, combatState: CombatState) {
+	async function handleMultiplayerCombat(
+		state: State,
+		combatState: CombatState,
+		requireReadyButton: boolean
+	) {
 		logger.debug("Initializing Multiplayer Combat:", combatState);
 
 		// Disable board input immediately - combat outcome is pre-calculated
@@ -210,69 +230,86 @@ export async function handleMultiplayerPhase(
 
 		const scene = getCurrentScene() as BattlegroundScene;
 
-		// Automatically start combat after a brief delay to allow teams to be visible
-		await delay(300);
-
-		const effects = createBrowserCombatEffects();
-		effects.onCombatEnd = async (state, outcome, combatStates) => {
-			setIsInputEnabled(true);
-			if (outcome === "player_lost") {
-				const core = getBattleCore(state)(FORCE_ID_PLAYER);
-				if (core) {
-					await Animations.shatter(getCharaById(core.id));
-				}
-			} else if (outcome === "player_won") {
-				const core = getBattleCore(state)(FORCE_ID_CPU);
-				if (core) {
-					await Animations.shatter(getCharaById(core.id));
-				}
-			}
-
+		const startCombatPlayback = async () => {
+			// Keep current pacing for transitions into playback.
 			await delay(300);
 
-			if (combatStates) {
-				let forceStatsState = combatStates.forceStatsState;
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
-				CombatSystemStates.updateForceStatsState(forceStatsState);
-			}
-			state.session.team.units.forEach(resetUnitStats);
-
-			const resultType = outcome === "player_lost" ? "defeat" : "victory";
-
-			// Optimistically update top bar display only (not state)
-			// The state will be synced from server on next phase transition
-			if (resultType === "victory") {
-				updateWinsDisplay((state.session.wins || 0) + 1);
-			} else {
-				updateLivesDisplay(4 - (state.session.losses || 0) - 1);
-			}
-
-			await new Promise<void>((resolve) => {
-				ResultsUI.displayResults(
-					state,
-					resultType,
-					() => {
-						// Continue Callback
-						resolve();
-						// Proceed to next phase
-						transport
-							.sendOptionSelection("combat_done")
-							.then(() => handleMultiplayerPhase(state, transport));
-					},
-					() => {
-						// Replay Callback
-						resolve();
-						// Restart combat
-						handleMultiplayerCombat(state, combatState);
+			const effects = createBrowserCombatEffects();
+			effects.onCombatEnd = async (state, outcome, combatStates) => {
+				setIsInputEnabled(true);
+				if (outcome === "player_lost") {
+					const core = getBattleCore(state)(FORCE_ID_PLAYER);
+					if (core) {
+						await Animations.shatter(getCharaById(core.id));
 					}
-				);
-				ResultsUI.slideIn();
-			});
+				} else if (outcome === "player_won") {
+					const core = getBattleCore(state)(FORCE_ID_CPU);
+					if (core) {
+						await Animations.shatter(getCharaById(core.id));
+					}
+				}
+
+				await delay(300);
+
+				if (combatStates) {
+					let forceStatsState = combatStates.forceStatsState;
+					forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
+					forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
+					CombatSystemStates.updateForceStatsState(forceStatsState);
+				}
+				state.session.team.units.forEach(resetUnitStats);
+
+				const resultType = outcome === "player_lost" ? "defeat" : "victory";
+
+				// Optimistically update top bar display only (not state)
+				// The state will be synced from server on next phase transition
+				if (resultType === "victory") {
+					updateWinsDisplay((state.session.wins || 0) + 1);
+				} else {
+					updateLivesDisplay(4 - (state.session.losses || 0) - 1);
+				}
+
+				await new Promise<void>((resolve) => {
+					ResultsUI.displayResults(
+						state,
+						resultType,
+						() => {
+							// Continue Callback
+							resolve();
+							// Proceed to next phase
+							transport
+								.sendOptionSelection("combat_done")
+								.then(() => handleMultiplayerPhase(state, transport, childContext));
+						},
+						() => {
+							// Replay Callback
+							resolve();
+							// Restart combat immediately
+							handleMultiplayerCombat(state, combatState, false);
+						}
+					);
+					ResultsUI.slideIn();
+				});
+			};
+
+			state.battleData.units.forEach(resetUnitStats);
+			const controller = createCombatPlaybackController(state, combatState.logs, effects);
+			scene.combatRunner = controller;
 		};
 
-		state.battleData.units.forEach(resetUnitStats);
-		const controller = createCombatPlaybackController(state, combatState.logs, effects);
-		scene.combatRunner = controller;
+		if (requireReadyButton) {
+			const readyButton = createUIButton(
+				t("ui.ready"),
+				vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100),
+				() => {
+					readyButton.container.destroy();
+					void startCombatPlayback();
+				}
+			);
+			readyButton.container.setDepth(1000);
+			return;
+		}
+
+		await startCombatPlayback();
 	}
 }

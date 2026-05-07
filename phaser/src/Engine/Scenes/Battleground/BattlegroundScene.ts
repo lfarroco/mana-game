@@ -147,7 +147,9 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		startPhase(state);
+		startPhase(state, {
+			showReadyOnInitialCombat: multiplayerModeEnabled && !selectedCrystalId,
+		});
 	};
 
 	update(time: number, delta: number): void {

@@ -6,6 +6,7 @@ import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
+import { createUIButton } from "@Components/UIButton";
 import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { setEnemyBoardVisible } from "@Models/Board";
@@ -100,6 +101,7 @@ const mockCreateBrowserCombatEffects =
 const mockCreateCombatPlaybackController =
 	createCombatPlaybackController as jest.MockedFunction<typeof createCombatPlaybackController>;
 const mockOpenOrbShop = openOrbShop as jest.MockedFunction<typeof openOrbShop>;
+const mockCreateUIButton = createUIButton as jest.MockedFunction<typeof createUIButton>;
 const mockGetBattleCore = getBattleCore as jest.MockedFunction<typeof getBattleCore>;
 const mockGetCharaById = getCharaById as jest.MockedFunction<typeof getCharaById>;
 const mockSetEnemyBoardVisible = setEnemyBoardVisible as jest.MockedFunction<
@@ -120,7 +122,7 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 			team: { units: [] },
 			wins: 3,
 			losses: 4,
-		} as Awaited<ReturnType<typeof getPhaseOptions>>);
+		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
 
 		const state = {
 			session: {
@@ -247,12 +249,13 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 			combatState: {
 				enemyTeam: [{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true }],
 				logs: [],
+				seed: "test-seed",
 				units: [
 					{ id: "player-1", force: "player", position: { x: 0, y: 0 } },
 					{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true },
 				],
 			},
-		} as Awaited<ReturnType<typeof getPhaseOptions>>);
+		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
 
 		mockCreateBrowserCombatEffects.mockImplementation(() => capturedEffects as never);
 		mockCreateCombatPlaybackController.mockReturnValue({
@@ -284,5 +287,65 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 		expect(mockShatter).toHaveBeenCalled();
 		expect(mockSetEnemyBoardVisible).toHaveBeenCalledWith(true);
 		expect(mockSetEnemyBoardVisible).not.toHaveBeenCalledWith(false);
+	});
+
+	it("shows Ready on initial resumed combat and starts playback only after click", async () => {
+		let onReadyClick: (() => void) | undefined;
+
+		mockGetPhaseOptions.mockResolvedValue({
+			phase: "combat",
+			round: 3,
+			options: [{ id: "combat_done" }],
+			team: {
+				units: [{ id: "player-1", force: "player", position: { x: 0, y: 0 } }],
+			},
+			combatState: {
+				enemyTeam: [{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true }],
+				logs: [],
+				seed: "test-seed",
+				units: [
+					{ id: "player-1", force: "player", position: { x: 0, y: 0 } },
+					{ id: "enemy-core", force: "cpu", position: { x: 0, y: 0 }, isCore: true },
+				],
+			},
+		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
+
+		mockCreateUIButton.mockImplementation((_label, _position, callback) => {
+			onReadyClick = callback;
+			return {
+				container: {
+					setDepth: jest.fn(),
+					destroy: jest.fn(),
+				},
+			} as never;
+		});
+
+		mockCreateBrowserCombatEffects.mockReturnValue({} as never);
+		mockCreateCombatPlaybackController.mockReturnValue({
+			getEnv: () => ({ combatStates: {} }),
+		} as never);
+
+		const state = {
+			session: {
+				phase: "combat",
+				current_options: null,
+				team: { units: [{ id: "player-1", force: "player", position: { x: 0, y: 0 } }] },
+				wins: 0,
+				losses: 0,
+				round: 2,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state, undefined, { showReadyOnInitialCombat: true });
+
+		expect(mockCreateUIButton).toHaveBeenCalledTimes(1);
+		expect(mockCreateCombatPlaybackController).not.toHaveBeenCalled();
+		expect(onReadyClick).toBeDefined();
+
+		onReadyClick?.();
+		await Promise.resolve();
+
+		expect(mockCreateCombatPlaybackController).toHaveBeenCalledTimes(1);
 	});
 });
