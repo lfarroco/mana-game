@@ -1,5 +1,5 @@
 import { PhaseOptions } from "@Multiplayer/MultiplayerTypes";
-import { PhaseType, PlayerProfile } from "@Multiplayer/MultiplayerTypes";
+import { PhaseType, PlayerProfile, RankedPlayersPage } from "@Multiplayer/MultiplayerTypes";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
@@ -794,6 +794,46 @@ export async function getPlayerProfile(profilePlayerId: string): Promise<PlayerP
 		return { id: profilePlayerId, username: "Guest", rating: 1000, matches_played: 0 };
 	}
 	return data;
+}
+
+export async function getTopRankedPlayers(
+	page: number = 1,
+	pageSize: number = 10
+): Promise<RankedPlayersPage> {
+	await initializeAuthSession();
+
+	const safePage = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
+	const safePageSize = Number.isFinite(pageSize)
+		? Math.max(1, Math.min(50, Math.floor(pageSize)))
+		: 10;
+	const from = (safePage - 1) * safePageSize;
+	const to = from + safePageSize - 1;
+
+	const { data, error, count } = await supabase
+		.from("players")
+		.select("id, username, rating, matches_played", { count: "exact" })
+		.order("rating", { ascending: false })
+		.order("matches_played", { ascending: false })
+		.order("id", { ascending: true })
+		.range(from, to);
+
+	if (error) {
+		logger.error("Failed to fetch ranked players", { safePage, safePageSize, error });
+		return {
+			players: [],
+			page: safePage,
+			hasNextPage: false,
+		};
+	}
+
+	const players = (data || []) as RankedPlayersPage["players"];
+	const totalCount = typeof count === "number" ? count : from + players.length;
+
+	return {
+		players,
+		page: safePage,
+		hasNextPage: totalCount > to + 1,
+	};
 }
 
 export async function logout() {

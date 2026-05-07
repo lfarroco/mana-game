@@ -1,6 +1,10 @@
 import { ArenaLobbyScene } from "@Scenes/ArenaLobby/ArenaLobbyScene";
 import { SCENE_KEYS } from "@Constants/constants";
-import { checkActiveSessionByType, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
+import {
+	checkActiveSessionByType,
+	enableMultiplayer,
+	getTopRankedPlayers,
+} from "@Multiplayer/MultiplayerManager";
 
 const createdButtons: Array<() => void | Promise<void>> = [];
 
@@ -28,7 +32,15 @@ jest.mock("@PhaserIO", () => ({
 jest.mock("@Components/UIButton", () => ({
 	createUIButton: jest.fn((_label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
 		createdButtons.push(onClick);
-		return { container: { destroy: jest.fn() }, disable: jest.fn(), enable: jest.fn() };
+		return {
+			container: {
+				destroy: jest.fn(),
+				setDepth: jest.fn().mockReturnThis(),
+				setVisible: jest.fn().mockReturnThis(),
+			},
+			disable: jest.fn(),
+			enable: jest.fn(),
+		};
 	}),
 }));
 
@@ -37,6 +49,7 @@ jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	enableMultiplayer: jest.fn(),
 	logout: jest.fn(),
 	getPlayerProfile: jest.fn(),
+	getTopRankedPlayers: jest.fn(),
 }));
 
 jest.mock("@Models/State", () => ({
@@ -128,5 +141,40 @@ describe("ArenaLobbyScene", () => {
 			isMultiplayer: true,
 			multiplayerQueueType: "ranked",
 		});
+	});
+
+	it("opens ranking and requests first page", async () => {
+		(getTopRankedPlayers as jest.Mock).mockResolvedValue({
+			players: [
+				{ id: "p1", username: "Alpha", rating: 1400, matches_played: 20 },
+				{ id: "p2", username: "Bravo", rating: 1300, matches_played: 18 },
+			],
+			page: 1,
+			hasNextPage: true,
+		});
+
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+			destroy: jest.fn(),
+		};
+		scene.add = {
+			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			text: jest.fn(() => ({
+				setOrigin: jest.fn().mockReturnThis(),
+				setText: jest.fn().mockReturnThis(),
+				text: "",
+			})),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		await createdButtons[2]();
+
+		expect(getTopRankedPlayers).toHaveBeenCalledWith(1, 10);
 	});
 });
