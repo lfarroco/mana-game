@@ -18,7 +18,7 @@ initState();
 
 export const game = new Phaser.Game({
 	type: Phaser.WEBGL,
-	pixelArt: true,
+	pixelArt: false,
 	scale: {
 		width: SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,
