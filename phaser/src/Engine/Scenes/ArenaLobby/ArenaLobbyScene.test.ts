@@ -44,6 +44,18 @@ jest.mock("@Components/UIButton", () => ({
 	}),
 }));
 
+jest.mock("@Components/Modal", () => ({
+	createModal: jest.fn(() => ({
+		container: {
+			add: jest.fn(),
+			destroy: jest.fn(),
+		},
+		close: jest.fn().mockResolvedValue(undefined),
+		onClose: Promise.resolve(),
+		panel: {},
+	})),
+}));
+
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	checkActiveSessionByType: jest.fn(),
 	enableMultiplayer: jest.fn(),
@@ -64,6 +76,21 @@ jest.mock("@Models/Geometry", () => ({
 	vec2: jest.fn((x: number, y: number) => ({ x, y })),
 }));
 
+const createMockRectangle = () => ({
+	setOrigin: jest.fn().mockReturnThis(),
+	setStrokeStyle: jest.fn().mockReturnThis(),
+	setVisible: jest.fn().mockReturnThis(),
+	setFillStyle: jest.fn().mockReturnThis(),
+});
+
+const createMockText = () => ({
+	setOrigin: jest.fn().mockReturnThis(),
+	setText: jest.fn().mockReturnThis(),
+	setVisible: jest.fn().mockReturnThis(),
+	setColor: jest.fn().mockReturnThis(),
+	text: "",
+});
+
 describe("ArenaLobbyScene", () => {
 	beforeEach(() => {
 		createdButtons.length = 0;
@@ -77,8 +104,8 @@ describe("ArenaLobbyScene", () => {
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
-			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
 			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
@@ -102,8 +129,8 @@ describe("ArenaLobbyScene", () => {
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
-			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
 			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
@@ -125,8 +152,8 @@ describe("ArenaLobbyScene", () => {
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
 		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
 		scene.add = {
-			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-			text: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
 			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
@@ -160,12 +187,8 @@ describe("ArenaLobbyScene", () => {
 			destroy: jest.fn(),
 		};
 		scene.add = {
-			rectangle: jest.fn(() => ({ setOrigin: jest.fn().mockReturnThis() })),
-			text: jest.fn(() => ({
-				setOrigin: jest.fn().mockReturnThis(),
-				setText: jest.fn().mockReturnThis(),
-				text: "",
-			})),
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
 			container: jest.fn(() => mockContainer),
 		} as unknown as typeof scene.add;
 		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
