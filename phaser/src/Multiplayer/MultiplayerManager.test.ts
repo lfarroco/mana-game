@@ -6,6 +6,7 @@ import {
 	sendOptionSelection,
 	primeDeferredSession,
 	handleAuthRegister,
+	handleGuestAccountUpgrade,
 	checkActiveSession,
 	checkActiveSessionByType,
 } from "@Multiplayer/MultiplayerManager";
@@ -21,6 +22,8 @@ jest.mock("@lib/supabase", () => ({
 			getSession: jest.fn().mockResolvedValue({ data: { session: null } }),
 			signUp: jest.fn(),
 			signInWithPassword: jest.fn(),
+			signInAnonymously: jest.fn(),
+			updateUser: jest.fn(),
 			signOut: jest.fn(),
 		},
 		functions: {
@@ -244,6 +247,51 @@ describe("MultiplayerManager", () => {
 			success: true,
 			requiresConfirmation: true,
 			user: expect.objectContaining({ email: "lfarroco@gmail.com" }),
+		});
+	});
+
+	it("upgrades an anonymous account into an email account", async () => {
+		(supabase.auth.getSession as jest.Mock).mockResolvedValue({
+			data: {
+				session: {
+					user: {
+						id: "guest-user-id",
+						is_anonymous: true,
+						user_metadata: {},
+					},
+				},
+			},
+			error: null,
+		});
+		(supabase.auth.updateUser as jest.Mock).mockResolvedValue({
+			data: {
+				user: {
+					id: "guest-user-id",
+				},
+			},
+			error: null,
+		});
+
+		const maybeSingleMock = jest.fn().mockResolvedValue({ data: null, error: null });
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+			single: maybeSingleMock,
+		});
+
+		const result = await handleGuestAccountUpgrade("guest@example.com", "password123", "UpgradedGuest");
+
+		expect(supabase.auth.updateUser).toHaveBeenCalledWith({
+			email: "guest@example.com",
+			password: "password123",
+			data: { username: "UpgradedGuest" },
+		});
+		expect(result).toEqual({
+			id: "guest-user-id",
+			username: "UpgradedGuest",
+			rating: 1000,
+			matches_played: 0,
 		});
 	});
 });

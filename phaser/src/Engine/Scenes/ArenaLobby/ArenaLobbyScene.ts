@@ -10,6 +10,7 @@ import {
 	enableMultiplayer,
 	logout,
 	getPlayerProfile,
+	getCurrentAccountState,
 	getTopRankedPlayers,
 } from "@Multiplayer/MultiplayerManager";
 
@@ -84,6 +85,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private rankingPrevButton?: Button;
 	private rankingNextButton?: Button;
 	private rankingCurrentPage: number = 1;
+	private accountButton?: Button;
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOBBY);
@@ -129,9 +131,22 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		);
 		this.buttons.push(leaderboardBtn);
 
+		this.accountButton = createUIButton(
+			"Account",
+			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			() => {
+				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
+					mode: "convertGuestAccount",
+					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+				});
+			}
+		);
+		this.buttons.push(this.accountButton);
+		this.accountButton.container.setVisible(false);
+
 		const logoutBtn = createUIButton(
 			"Logout",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
 			async () => {
 				this.setLoading(true);
 				try {
@@ -144,7 +159,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		);
 		this.buttons.push(logoutBtn);
 
-		const backBtn = createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4), () => {
+		const backBtn = createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 5), () => {
 			this.scene.start(SCENE_KEYS.TITLE);
 		});
 		this.buttons.push(backBtn);
@@ -165,6 +180,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private setLoading(isLoading: boolean) {
 		[...this.buttons, ...this.rankingButtons].forEach(btn => isLoading ? btn.disable() : btn.enable());
 		this.loadingOverlay?.setVisible(isLoading);
+	}
+
+	private setButtonVisibility(button: Button | undefined, visible: boolean) {
+		if (!button) {
+			return;
+		}
+
+		button.container.setVisible(visible);
 	}
 
 	private async openRankingModal() {
@@ -458,8 +481,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		} else {
 			try {
 				const profile = await getPlayerProfile(playerId);
-				this.profileText?.setText(profile.username || `Guest#${profile.id.substr(0, 4)}`);
+				const accountState = await getCurrentAccountState();
+				const displayName = accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
+				this.profileText?.setText(displayName);
 				this.ratingText?.setText(`Rating: ${profile.rating}`);
+				this.setButtonVisibility(this.accountButton, accountState.isGuest);
 				this.setLoading(false);
 			} catch (e) {
 				logger.error("Profile Fetch Failed", e);

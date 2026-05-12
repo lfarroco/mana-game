@@ -9,6 +9,7 @@ import {
 	handleAuthLogin,
 	handleAuthRegister,
 	handleAuthGuest,
+	handleGuestAccountUpgrade,
 	handleSteamAuth,
 } from "@Multiplayer/MultiplayerManager";
 import { setCurrentScene } from "@Models/State";
@@ -41,16 +42,29 @@ const MODAL_TEXT_FONT_SIZE = "24px";
 const MODAL_TEXT_WRAP_WIDTH = 360;
 const MODAL_BUTTON_Y_OFFSET = 100;
 
+type ArenaLoginSceneData = {
+	mode?: "login" | "register" | "convertGuestAccount";
+	returnSceneKey?: string;
+};
+
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
 	private isRegisterMode: boolean = false;
+	private guestUpgradeMode: boolean = false;
 	private buttonContainer: Phaser.GameObjects.Container | null = null;
 	private titleText?: Phaser.GameObjects.Text;
 	private buttons: Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
+	private returnSceneKey: string = SCENE_KEYS.TITLE;
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOGIN);
+	}
+
+	init(data?: ArenaLoginSceneData) {
+		this.guestUpgradeMode = data?.mode === "convertGuestAccount";
+		this.isRegisterMode = this.guestUpgradeMode || data?.mode === "register";
+		this.returnSceneKey = data?.returnSceneKey || SCENE_KEYS.TITLE;
 	}
 
 	create() {
@@ -102,7 +116,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		const buttonY = FIRST_BUTTON_Y;
 
 		if (this.isRegisterMode) {
-			this.titleText?.setText("Create Account");
+			this.titleText?.setText(this.guestUpgradeMode ? "Account" : "Create Account");
 
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
@@ -120,7 +134,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.formElement!.setOrigin(0.5);
 
 			// Register Button
-			const regBtn = createUIButton("Create Account", vec2(MIDDLE_SCREEN.x, buttonY), () => {
+			const regBtn = createUIButton(this.guestUpgradeMode ? "Convert Account" : "Create Account", vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleRegister();
 			});
 			this.buttons.push(regBtn);
@@ -128,9 +142,14 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 			// Back to Login
 			const backBtn = createUIButton(
-				"Back to Login",
+				this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
 				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
+					if (this.guestUpgradeMode) {
+						this.scene.start(this.returnSceneKey);
+						return;
+					}
+
 					this.isRegisterMode = false;
 					this.renderForm();
 				}
@@ -276,7 +295,19 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		this.setLoading(true);
 		try {
-			// Pass username separately to updated handleAuthRegister
+			if (this.guestUpgradeMode) {
+				const profile = await handleGuestAccountUpgrade(inputs.email, inputs.pass, inputs.username);
+				localStorage.setItem("mana_player_id", profile.id);
+				this.showModal(
+					"Account Updated",
+					"Your guest account can now use these login details. If a confirmation email was sent, confirm it to finish setup.",
+					() => {
+						this.scene.start(this.returnSceneKey);
+					}
+				);
+				return;
+			}
+
 			const result = (await handleAuthRegister(inputs.email, inputs.pass, inputs.username)) as
 				| { success?: boolean; requiresConfirmation?: boolean; id?: string }
 				| undefined;

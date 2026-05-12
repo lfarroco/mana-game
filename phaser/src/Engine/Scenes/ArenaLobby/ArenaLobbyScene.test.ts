@@ -3,10 +3,13 @@ import { SCENE_KEYS } from "@Constants/constants";
 import {
 	checkActiveSessionByType,
 	enableMultiplayer,
+	getCurrentAccountState,
+	getPlayerProfile,
 	getTopRankedPlayers,
 } from "@Multiplayer/MultiplayerManager";
 
 const createdButtons: Array<() => void | Promise<void>> = [];
+const createdButtonLabels: string[] = [];
 type MockButton = {
 	container: {
 		destroy: jest.Mock;
@@ -40,8 +43,9 @@ jest.mock("@PhaserIO", () => ({
 }));
 
 jest.mock("@Components/UIButton", () => ({
-	createUIButton: jest.fn((_label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
+	createUIButton: jest.fn((label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
 		createdButtons.push(onClick);
+		createdButtonLabels.push(label);
 		const button = {
 			container: {
 				destroy: jest.fn(),
@@ -73,6 +77,7 @@ jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	enableMultiplayer: jest.fn(),
 	logout: jest.fn(),
 	getPlayerProfile: jest.fn(),
+	getCurrentAccountState: jest.fn(),
 	getTopRankedPlayers: jest.fn(),
 }));
 
@@ -106,6 +111,7 @@ const createMockText = () => ({
 describe("ArenaLobbyScene", () => {
 	beforeEach(() => {
 		createdButtons.length = 0;
+		createdButtonLabels.length = 0;
 		buttonInstances.length = 0;
 		jest.clearAllMocks();
 	});
@@ -212,10 +218,10 @@ describe("ArenaLobbyScene", () => {
 		await createdButtons[2]();
 
 		expect(getTopRankedPlayers).toHaveBeenCalledWith(1, 10);
-		expect(buttonInstances[5].container.setVisible).toHaveBeenCalledWith(false);
-		expect(buttonInstances[5].disable).toHaveBeenCalled();
-		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(true);
-		expect(buttonInstances[6].enable).toHaveBeenCalled();
+		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(false);
+		expect(buttonInstances[6].disable).toHaveBeenCalled();
+		expect(buttonInstances[7].container.setVisible).toHaveBeenCalledWith(true);
+		expect(buttonInstances[7].enable).toHaveBeenCalled();
 	});
 
 	it("hides next button on the last ranking page", async () => {
@@ -245,9 +251,44 @@ describe("ArenaLobbyScene", () => {
 
 		await createdButtons[2]();
 
-		expect(buttonInstances[5].container.setVisible).toHaveBeenCalledWith(true);
-		expect(buttonInstances[5].enable).toHaveBeenCalled();
-		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(false);
-		expect(buttonInstances[6].disable).toHaveBeenCalled();
+		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(true);
+		expect(buttonInstances[6].enable).toHaveBeenCalled();
+		expect(buttonInstances[7].container.setVisible).toHaveBeenCalledWith(false);
+		expect(buttonInstances[7].disable).toHaveBeenCalled();
+	});
+
+	it("shows the account button for guest players and routes to conversion", async () => {
+		localStorage.setItem("mana_player_id", "guest-user-id");
+		(getPlayerProfile as jest.Mock).mockResolvedValue({
+			id: "guest-user-id",
+			username: "Guest",
+			rating: 1000,
+			matches_played: 0,
+		});
+		(getCurrentAccountState as jest.Mock).mockResolvedValue({
+			isGuest: true,
+		});
+
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+
+		scene.create();
+		await scene.refreshProfile();
+
+		expect(createdButtonLabels).toContain("Account");
+		expect(buttonInstances[3].container.setVisible).toHaveBeenCalledWith(true);
+
+		await createdButtons[3]();
+
+		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOGIN, {
+			mode: "convertGuestAccount",
+			returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+		});
 	});
 });

@@ -6,6 +6,7 @@ This file stores historical completed-task entries that were moved out of AGENTS
 
 Date: 2026-05-12
 
+- [x] Added a guest-only `Account` entry in the multiplayer lobby that opens the Arena account form in conversion mode, upgrades anonymous Supabase sessions to email/password accounts, and covers the flow with lobby/login/auth regression tests in `ArenaLobbyScene.test.ts`, `ArenaLoginScene.test.ts`, and `MultiplayerManager.test.ts`. (Copilot, 2026-05-12)
 - [x] Refreshed the Arena leaderboard modal in `phaser/src/Engine/Scenes/ArenaLobby/ArenaLobbyScene.ts` to use the shared modal styling and a formatted leaderboard table with headers, highlighted top ranks, improved empty/error states, and persistent pagination controls; updated `ArenaLobbyScene.test.ts` to cover the revised modal wiring. (Copilot, 2026-05-12)
 
 Date: 2026-03-24

@@ -31,6 +31,20 @@ let currentMultiplayerQueueType: MultiplayerQueueType = "casual";
 const logger = createLogger("MultiplayerManager");
 const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
 
+type CurrentAccountState = {
+	isGuest: boolean;
+	username?: string;
+};
+
+const getUsernameFromMetadata = (userMetadata: unknown): string | undefined => {
+	if (!userMetadata || typeof userMetadata !== "object") {
+		return undefined;
+	}
+
+	const username = (userMetadata as { username?: unknown }).username;
+	return typeof username === "string" && username.trim().length > 0 ? username : undefined;
+};
+
 const getDeferredSessionStorageKey = (
 	id: string,
 	queueType: MultiplayerQueueType = currentMultiplayerQueueType
@@ -777,6 +791,67 @@ export async function handleAuthRegister(
 			user: data.user,
 		};
 	}
+}
+
+export async function getCurrentAccountState(): Promise<CurrentAccountState> {
+	await initializeAuthSession();
+
+	const { data, error } = await supabase.auth.getSession();
+	if (error) {
+		logger.warn("Failed to read current auth session", { error });
+		return { isGuest: false };
+	}
+
+	const user = data.session?.user;
+	if (!user) {
+		return { isGuest: false };
+	}
+
+	return {
+		isGuest: user.is_anonymous === true,
+		username: getUsernameFromMetadata(user.user_metadata),
+	};
+}
+
+export async function handleGuestAccountUpgrade(
+	email: string,
+	password: string,
+	username: string
+): Promise<PlayerProfile> {
+	await initializeAuthSession();
+
+	const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+	if (sessionError) {
+		throw new Error(sessionError.message);
+	}
+
+	const currentUser = sessionData.session?.user;
+	if (!currentUser) {
+		throw new Error("No authenticated guest session was found.");
+	}
+
+	if (currentUser.is_anonymous !== true) {
+		throw new Error("This account is already registered.");
+	}
+
+	const { data, error } = await supabase.auth.updateUser({
+		email,
+		password,
+		data: { username },
+	});
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	const upgradedUserId = data.user?.id ?? currentUser.id;
+	updatePlayerId(upgradedUserId);
+
+	const profile = await getPlayerProfile(upgradedUserId);
+	return {
+		...profile,
+		username: profile.username && profile.username !== "Guest" ? profile.username : username,
+	};
 }
 
 export async function getPlayerProfile(profilePlayerId: string): Promise<PlayerProfile> {
