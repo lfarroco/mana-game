@@ -374,22 +374,27 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingPageText?.setText(
 			hasNextPage ? `Page ${page} | More challengers ahead` : `Page ${page} | End of leaderboard`
 		);
-		if (page <= 1) {
-			this.rankingPrevButton?.disable();
-		} else {
-			this.rankingPrevButton?.enable();
-		}
-
-		if (hasNextPage) {
-			this.rankingNextButton?.enable();
-		} else {
-			this.rankingNextButton?.disable();
-		}
+		this.setRankingButtonVisibility(this.rankingPrevButton, page > 1);
+		this.setRankingButtonVisibility(this.rankingNextButton, hasNextPage);
 	}
 
 	private renderRankingEmptyState(message: string) {
 		this.rankingRows.forEach((row) => this.setRankingRowVisible(row, false));
 		this.rankingEmptyStateText?.setText(message).setVisible(true);
+	}
+
+	private setRankingButtonVisibility(button: Button | undefined, visible: boolean) {
+		if (!button) {
+			return;
+		}
+
+		button.container.setVisible(visible);
+		if (visible) {
+			button.enable();
+			return;
+		}
+
+		button.disable();
 	}
 
 	private setRankingRowVisible(row: RankingRow, visible: boolean) {

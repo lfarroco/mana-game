@@ -7,6 +7,16 @@ import {
 } from "@Multiplayer/MultiplayerManager";
 
 const createdButtons: Array<() => void | Promise<void>> = [];
+type MockButton = {
+	container: {
+		destroy: jest.Mock;
+		setDepth: jest.Mock;
+		setVisible: jest.Mock;
+	};
+	disable: jest.Mock;
+	enable: jest.Mock;
+};
+const buttonInstances: MockButton[] = [];
 
 jest.mock("@Constants/constants", () => ({
 	SCREEN_WIDTH: 1920,
@@ -32,7 +42,7 @@ jest.mock("@PhaserIO", () => ({
 jest.mock("@Components/UIButton", () => ({
 	createUIButton: jest.fn((_label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
 		createdButtons.push(onClick);
-		return {
+		const button = {
 			container: {
 				destroy: jest.fn(),
 				setDepth: jest.fn().mockReturnThis(),
@@ -41,6 +51,8 @@ jest.mock("@Components/UIButton", () => ({
 			disable: jest.fn(),
 			enable: jest.fn(),
 		};
+		buttonInstances.push(button);
+		return button;
 	}),
 }));
 
@@ -94,6 +106,7 @@ const createMockText = () => ({
 describe("ArenaLobbyScene", () => {
 	beforeEach(() => {
 		createdButtons.length = 0;
+		buttonInstances.length = 0;
 		jest.clearAllMocks();
 	});
 
@@ -199,5 +212,42 @@ describe("ArenaLobbyScene", () => {
 		await createdButtons[2]();
 
 		expect(getTopRankedPlayers).toHaveBeenCalledWith(1, 10);
+		expect(buttonInstances[5].container.setVisible).toHaveBeenCalledWith(false);
+		expect(buttonInstances[5].disable).toHaveBeenCalled();
+		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(true);
+		expect(buttonInstances[6].enable).toHaveBeenCalled();
+	});
+
+	it("hides next button on the last ranking page", async () => {
+		(getTopRankedPlayers as jest.Mock).mockResolvedValue({
+			players: [
+				{ id: "p1", username: "Alpha", rating: 1400, matches_played: 20 },
+			],
+			page: 3,
+			hasNextPage: false,
+		});
+
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+			destroy: jest.fn(),
+		};
+		scene.add = {
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		await createdButtons[2]();
+
+		expect(buttonInstances[5].container.setVisible).toHaveBeenCalledWith(true);
+		expect(buttonInstances[5].enable).toHaveBeenCalled();
+		expect(buttonInstances[6].container.setVisible).toHaveBeenCalledWith(false);
+		expect(buttonInstances[6].disable).toHaveBeenCalled();
 	});
 });
