@@ -5,6 +5,7 @@ import { getSavedData } from "@Game/effects/getSavedData";
 import { startGame } from "@Game/effects/startGame";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
+import { collectionButton } from "@Scenes/Title/components/collectionButton";
 import { hideMainButtons, showMainButtons } from "@Scenes/Title/components/optionsButton";
 import * as io from "@PhaserIO";
 
@@ -50,9 +51,11 @@ function showSinglePlayerSubmenu() {
 		}
 	);
 
+	const collectionBtn = collectionButton(baseY + spacing * 2);
+
 	const returnBtn = createUIButton(
 		t("title.return"),
-		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
+		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		() => {
 			hideSinglePlayerSubmenu();
 			showMainButtons();
@@ -62,6 +65,7 @@ function showSinglePlayerSubmenu() {
 	submenuContainer = io.Container([
 		startOrContinueBtn.container,
 		newRunBtn.container,
+		collectionBtn.container,
 		returnBtn.container,
 	]);
 

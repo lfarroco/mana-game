@@ -4,14 +4,13 @@ You can play it for free on [itch](https://lfarroco.itch.io/mana-battle).
 
 The [Steam](https://store.steampowered.com/app/3757600/Mana_Battle) version offers Achievements and Cloud Saves.
 
-A PVE, trigger-based autobattler in a 3x3 board, built with Phaser 3.
+A trigger-based autobattler in a 3x3 board.
 
 ## Overview
 
 **Mana Battle** is a strategic auto-battler where players build teams and engage in tactical combat. Key features:
 
 - Real-time tactical combat with unit synergies
-- Unit management and progression system
 - Steam achievements and cloud saves
 - Cross-platform: Windows, macOS, Linux
 

@@ -5,7 +5,6 @@ import { setCurrentScene } from "@Models/State";
 import { arenaButton } from "@Scenes/Title/components/arenaButton";
 import { cloudsBg } from "@Scenes/Title/components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "@Scenes/Title/components/optionsButton";
-import { collectionButton } from "@Scenes/Title/components/collectionButton";
 import { logo } from "@Scenes/Title/components/logo";
 import { howToPlay } from "@Scenes/Title/components/howToPlay";
 import * as io from "@PhaserIO";
@@ -39,8 +38,7 @@ export default class TitleScene extends Phaser.Scene {
 			singlePlayerButton(500),
 			arenaButton(600),
 			optionsButton(700),
-			collectionButton(800),
-			linksButton(900),
+			linksButton(800),
 			languageButton(),
 		];
 
