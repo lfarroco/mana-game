@@ -87,14 +87,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(rankedBtn);
 
-		const rankingBtn = createUIButton(
-			"Ranking",
+		const leaderboardBtn = createUIButton(
+			"Leaderboard",
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 2),
 			async () => {
 				await this.openRankingModal();
 			}
 		);
-		this.buttons.push(rankingBtn);
+		this.buttons.push(leaderboardBtn);
 
 		const logoutBtn = createUIButton(
 			"Logout",
