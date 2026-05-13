@@ -49,6 +49,7 @@ jest.mock("@Components/UIButton", () => ({
 		const button = {
 			container: {
 				destroy: jest.fn(),
+				scene: {},
 				setDepth: jest.fn().mockReturnThis(),
 				setVisible: jest.fn().mockReturnThis(),
 			},
@@ -325,6 +326,27 @@ describe("ArenaLobbyScene", () => {
 		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOGIN, {
 			mode: "manageAccount",
 			returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+		});
+	});
+
+	it("resets stale button references when the lobby scene is created again", () => {
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+		const firstCreateButtons = buttonInstances.slice();
+
+		scene.create();
+
+		firstCreateButtons.forEach(button => {
+			expect(button.disable).toHaveBeenCalledTimes(1);
 		});
 	});
 });

@@ -94,6 +94,18 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 	create() {
 		setCurrentScene(this);
+		this.buttons = [];
+		this.rankingButtons = [];
+		this.rankingRows = [];
+		this.rankingModal = undefined;
+		this.rankingEmptyStateText = undefined;
+		this.rankingPageText = undefined;
+		this.rankingPrevButton = undefined;
+		this.rankingNextButton = undefined;
+		this.rankingCurrentPage = 1;
+		this.accountButton = undefined;
+		this.accountState = { isGuest: false };
+
 		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
 
 		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
@@ -179,7 +191,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	}
 
 	private setLoading(isLoading: boolean) {
-		[...this.buttons, ...this.rankingButtons].forEach(btn => isLoading ? btn.disable() : btn.enable());
+		[...this.buttons, ...this.rankingButtons]
+			.filter(btn => Boolean(btn.container.scene))
+			.forEach(btn => isLoading ? btn.disable() : btn.enable());
 		this.loadingOverlay?.setVisible(isLoading);
 	}
 
