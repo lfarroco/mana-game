@@ -9,6 +9,7 @@ import {
 	handleAuthLogin,
 	handleAuthRegister,
 	handleAuthGuest,
+	handlePasswordResetRequest,
 	handleGuestAccountUpgrade,
 	getCurrentAccountState,
 	handleRegisteredAccountUpdate,
@@ -24,18 +25,29 @@ const logger = createLogger("ArenaLoginScene");
 const TITLE_Y = 100;
 const TITLE_FONT_SIZE = "64px";
 const STEAM_LOGIN_Y = 600;
-const FORM_CONTENT_Y = 300;
-const FIRST_BUTTON_Y = 500;
+const FORM_CARD_Y = 500;
+const FORM_CARD_WIDTH = 520;
+const FORM_CARD_HEIGHT = 650;
+const FORM_CONTENT_Y = 330;
+const FIRST_BUTTON_Y = 510;
 const BUTTON_Y_OFFSET_REGISTER = 70;
-const BUTTON_Y_OFFSET_GUEST = 140;
-const BUTTON_Y_OFFSET_BACK = 210;
+const BUTTON_Y_OFFSET_BACK = 140;
 
 // Styling
 const BACKGROUND_COLOR = 0x1a1a2e;
 const STEAM_LOGIN_FONT_SIZE = "24px";
 const STEAM_LOGIN_COLOR = "#00aaff";
-const FORM_WIDTH = 300;
+const FORM_WIDTH = 404;
 const FORM_GAP = 15;
+const FORM_LABEL_COLOR = "#ffffff";
+const FORM_LABEL_FONT_SIZE = "16px";
+const FORM_INPUT_STYLE =
+	"width:100%; box-sizing:border-box; padding:12px; font-size:18px; border-radius:5px; border:none;";
+const FORM_CARD_FIELD_BG = 0x0f172a;
+const FORM_CARD_FIELD_BORDER = 0x334155;
+const FULL_WIDTH_BUTTON = 404;
+const HALF_WIDTH_BUTTON_GAP = 16;
+const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 
 // Modal styling
 const MODAL_WIDTH = 400;
@@ -62,12 +74,14 @@ type ArenaLoginSceneData = {
 export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
 	private isRegisterMode: boolean = false;
+	private isForgotPasswordMode: boolean = false;
 	private guestUpgradeMode: boolean = false;
 	private accountManagementMode: boolean = false;
 	private buttonContainer: Phaser.GameObjects.Container | null = null;
 	private titleText?: Phaser.GameObjects.Text;
 	private buttons: Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
+	private forgotPasswordLink?: HTMLButtonElement | null;
 	private returnSceneKey: string = SCENE_KEYS.TITLE;
 	private accountDefaults: { username?: string; email?: string } = {};
 
@@ -79,6 +93,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		this.guestUpgradeMode = data?.mode === "convertGuestAccount";
 		this.accountManagementMode = data?.mode === "manageAccount";
 		this.isRegisterMode = this.guestUpgradeMode || this.accountManagementMode || data?.mode === "register";
+		this.isForgotPasswordMode = false;
 		this.returnSceneKey = data?.returnSceneKey || SCENE_KEYS.TITLE;
 		this.accountDefaults = {};
 	}
@@ -86,6 +101,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 	create() {
 		setCurrentScene(this);
 		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
+
+		this.add
+			.rectangle(MIDDLE_SCREEN.x, FORM_CARD_Y, FORM_CARD_WIDTH, FORM_CARD_HEIGHT, FORM_CARD_FIELD_BG, 0.88)
+			.setOrigin(0.5)
+			.setStrokeStyle(2, FORM_CARD_FIELD_BORDER, 0.95);
+		this.add.rectangle(MIDDLE_SCREEN.x, FORM_CARD_Y - FORM_CARD_HEIGHT / 2 + 120, 220, 4, 0x60a5fa, 0.95).setOrigin(0.5);
 
 		this.titleText = io
 			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
@@ -106,7 +127,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
 
-		if (isElectron() && !this.isRegisterMode) {
+		if (isElectron() && !this.isRegisterMode && !this.isForgotPasswordMode) {
 			this.handleSteamLogin();
 			io.Text("Logging in with Steam...", {
 				fontSize: STEAM_LOGIN_FONT_SIZE,
@@ -136,6 +157,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.formElement.destroy();
 			this.formElement = undefined;
 		}
+		this.forgotPasswordLink = null;
 		// Clear buttons
 		if (this.buttonContainer) {
 			this.buttonContainer.removeAll(true);
@@ -144,26 +166,64 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		const buttonY = FIRST_BUTTON_Y;
 
-		if (this.isRegisterMode) {
+		if (this.isForgotPasswordMode) {
+			this.titleText?.setText("Forgot Password");
+
+			const formHTML = `
+                <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
+                    <label for="forgot-password-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
+                    <input id="forgot-password-email" type="text" name="email" placeholder="Enter email" style="${FORM_INPUT_STYLE}">
+                </div>
+            `;
+
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			this.formElement = (this.add as any)
+				.dom(MIDDLE_SCREEN.x, FORM_CONTENT_Y)
+				.createFromHTML(formHTML);
+			this.formElement!.setOrigin(0.5);
+
+			const cancelBtn = createUIButton(
+				"Cancel",
+				vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY),
+				() => {
+					this.isForgotPasswordMode = false;
+					this.renderForm();
+				},
+				HALF_WIDTH_BUTTON
+			);
+			this.buttons.push(cancelBtn);
+			this.buttonContainer?.add(cancelBtn.container);
+
+			const submitBtn = createUIButton(
+				"Submit",
+				vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY),
+				() => {
+					void this.handleForgotPasswordSubmit();
+				},
+				HALF_WIDTH_BUTTON
+			);
+			this.buttons.push(submitBtn);
+			this.buttonContainer?.add(submitBtn.container);
+		} else if (this.isRegisterMode) {
 			this.titleText?.setText(this.accountManagementMode || this.guestUpgradeMode ? "Account" : "Create Account");
 			const includePasswordFields = !this.accountManagementMode;
 			const passwordFields = includePasswordFields
 				? `
-                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="password" name="password" placeholder="Password" style="${FORM_INPUT_STYLE}">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="${FORM_INPUT_STYLE}">
                 `
 				: "";
 			const emailField = this.accountManagementMode
 				? ""
 				: `
-                    <label for="account-email" style="color:#ffffff; font-size:16px; margin-bottom:-8px;">Email</label>
-                    <input id="account-email" type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <label for="account-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
+                    <input id="account-email" type="text" name="email" placeholder="Email" style="${FORM_INPUT_STYLE}">
                 `;
 
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
-                    <label for="account-username" style="color:#ffffff; font-size:16px; margin-bottom:-8px;">Username</label>
-                    <input id="account-username" type="text" name="username" placeholder="Username" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <label for="account-username" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Username</label>
+                    <input id="account-username" type="text" name="username" placeholder="Username" style="${FORM_INPUT_STYLE}">
                     ${emailField}
                     ${passwordFields}
                 </div>
@@ -184,7 +244,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					: "Create Account";
 			const regBtn = createUIButton(primaryButtonLabel, vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleRegister();
-			});
+			}, FULL_WIDTH_BUTTON);
 			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
 
@@ -200,7 +260,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 					this.isRegisterMode = false;
 					this.renderForm();
-				}
+				},
+				FULL_WIDTH_BUTTON
 			);
 			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
@@ -209,8 +270,17 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
-                    <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <label for="login-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
+                    <input id="login-email" type="text" name="email" placeholder="Enter email" style="${FORM_INPUT_STYLE}">
+                    <label for="login-password" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Password</label>
+                    <input id="login-password" type="password" name="password" placeholder="Enter password" style="${FORM_INPUT_STYLE}">
+                    <button
+                        type="button"
+                        data-action="forgot-password"
+                        style="align-self:flex-end; background:none; border:none; color:#93c5fd; font-size:16px; padding:0; cursor:pointer;"
+                    >
+                        Forgot Password
+                    </button>
                 </div>
             `;
 
@@ -219,22 +289,24 @@ export class ArenaLoginScene extends Phaser.Scene {
 				.dom(MIDDLE_SCREEN.x, FORM_CONTENT_Y)
 				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
+			this.bindForgotPasswordLink();
 
 			// Login
 			const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleLogin();
-			});
+			}, FULL_WIDTH_BUTTON);
 			this.buttons.push(loginBtn);
 			this.buttonContainer?.add(loginBtn.container);
 
 			// Register Switch
 			const regBtn = createUIButton(
 				"Register",
-				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
+				vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
 					this.isRegisterMode = true;
 					this.renderForm();
-				}
+				},
+				HALF_WIDTH_BUTTON
 			);
 			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
@@ -242,10 +314,11 @@ export class ArenaLoginScene extends Phaser.Scene {
 			// Guest
 			const guestBtn = createUIButton(
 				"Play as Guest",
-				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_GUEST),
+				vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
 					this.handleGuest();
-				}
+				},
+				HALF_WIDTH_BUTTON
 			);
 			this.buttons.push(guestBtn);
 			this.buttonContainer?.add(guestBtn.container);
@@ -256,10 +329,48 @@ export class ArenaLoginScene extends Phaser.Scene {
 				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
 				() => {
 					this.scene.start(SCENE_KEYS.TITLE);
-				}
+				},
+				FULL_WIDTH_BUTTON
 			);
 			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
+		}
+	}
+
+	private bindForgotPasswordLink() {
+		if (!this.formElement || this.isRegisterMode) {
+			return;
+		}
+
+		const forgotPasswordButton = this.formElement.node.querySelector(
+			'[data-action="forgot-password"]'
+		) as HTMLButtonElement | null;
+		this.forgotPasswordLink = forgotPasswordButton;
+		this.forgotPasswordLink?.addEventListener("click", (event) => {
+			event.preventDefault();
+			this.isForgotPasswordMode = true;
+			this.renderForm();
+		});
+	}
+
+	private async handleForgotPasswordSubmit() {
+		const inputs = this.getInputs();
+		if (!inputs?.email) {
+			this.showModal("Error", "Please enter email.");
+			return;
+		}
+
+		this.setLoading(true);
+		try {
+			await handlePasswordResetRequest(inputs.email);
+			this.setLoading(false);
+			this.showModal("Password Recovery", "If an account exists for that email, a reset link has been sent.", () => {
+				this.isForgotPasswordMode = false;
+				this.renderForm();
+			});
+		} catch (error) {
+			this.setLoading(false);
+			this.showModal("Password Recovery Failed", (error as Error).message);
 		}
 	}
 
@@ -322,6 +433,9 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.formElement.node.querySelectorAll('input').forEach(
 				input => ((input as HTMLInputElement).disabled = isLoading)
 			);
+		}
+		if (this.forgotPasswordLink) {
+			this.forgotPasswordLink.disabled = isLoading;
 		}
 	}
 

@@ -23,10 +23,22 @@ const logger = createLogger("ArenaLobbyScene");
 // Layout positioning
 const BACKGROUND_COLOR = 0x1a1a2e;
 const TITLE_Y = 100;
-const PROFILE_TEXT_Y = 200;
-const RATING_TEXT_Y = 260;
-const FIRST_BUTTON_Y = 500;
-const BUTTON_Y_OFFSET = 70;
+const LOBBY_CARD_Y = 510;
+const LOBBY_CARD_WIDTH = 520;
+const LOBBY_CARD_HEIGHT = 720;
+const LOBBY_CARD_ACCENT_Y = 185;
+const LOBBY_SECTION_LABEL_Y_OFFSET = 140;
+const LOBBY_SECTION_VALUE_Y_OFFSET = 186;
+const LOBBY_SECOND_SECTION_LABEL_Y_OFFSET = 250;
+const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 296;
+const LOBBY_LABEL_X_PADDING = 58;
+const LOBBY_VALUE_BOX_WIDTH = 404;
+const LOBBY_VALUE_BOX_HEIGHT = 58;
+const FIRST_BUTTON_Y = 560;
+const BUTTON_Y_OFFSET = 78;
+const FULL_WIDTH_BUTTON = 404;
+const HALF_WIDTH_BUTTON_GAP = 16;
+const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 
 const RANKING_PAGE_SIZE = 10;
 const RANKING_PANEL_WIDTH = 1080;
@@ -56,6 +68,7 @@ const TITLE_FONT_SIZE = "64px";
 // Profile/Rating styling
 const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
+const FIELD_LABEL_FONT_SIZE = "18px";
 
 type RankedPlayer = {
 	id: string;
@@ -112,54 +125,115 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
-		this.profileText = io
-			.Text("Loading...", { fontSize: PROFILE_FONT_SIZE, color: "#aaaaaa" })
-			.setPosition(MIDDLE_SCREEN.x, PROFILE_TEXT_Y)
-			.setOrigin(0.5);
+		const cardTop = LOBBY_CARD_Y - LOBBY_CARD_HEIGHT / 2;
+		const cardLeft = MIDDLE_SCREEN.x - LOBBY_CARD_WIDTH / 2;
+		const fieldLabelX = cardLeft + LOBBY_LABEL_X_PADDING;
+		const fieldValueX = fieldLabelX + 18;
+		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			fontSize: FIELD_LABEL_FONT_SIZE,
+			color: "#94a3b8",
+			fontStyle: "bold",
+		};
 
-		this.ratingText = io
-			.Text("", { fontSize: RATING_FONT_SIZE, color: "#ffd700", fontStyle: "bold" })
-			.setPosition(MIDDLE_SCREEN.x, RATING_TEXT_Y)
-			.setOrigin(0.5);
+		this.add
+			.rectangle(MIDDLE_SCREEN.x, LOBBY_CARD_Y, LOBBY_CARD_WIDTH, LOBBY_CARD_HEIGHT, 0x0f172a, 0.88)
+			.setOrigin(0.5)
+			.setStrokeStyle(2, 0x334155, 0.95);
+		this.add.rectangle(MIDDLE_SCREEN.x, cardTop + LOBBY_CARD_ACCENT_Y, 220, 4, 0x60a5fa, 0.95).setOrigin(0.5);
+
+		this.add
+			.text(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET, "PLAYER", labelStyle)
+			.setOrigin(0, 0.5);
+		this.add
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
+				LOBBY_VALUE_BOX_WIDTH,
+				LOBBY_VALUE_BOX_HEIGHT,
+				0x111827,
+				0.95
+			)
+			.setOrigin(0.5)
+			.setStrokeStyle(1, 0x334155, 0.9);
+		this.profileText = this.add
+			.text(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET, "Loading...", {
+				fontSize: PROFILE_FONT_SIZE,
+				color: "#f8fafc",
+			})
+			.setOrigin(0, 0.5);
+
+		this.add
+			.text(fieldLabelX, cardTop + LOBBY_SECOND_SECTION_LABEL_Y_OFFSET, "RATING", labelStyle)
+			.setOrigin(0, 0.5);
+		this.add
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET,
+				LOBBY_VALUE_BOX_WIDTH,
+				LOBBY_VALUE_BOX_HEIGHT,
+				0x111827,
+				0.95
+			)
+			.setOrigin(0.5)
+			.setStrokeStyle(1, 0x334155, 0.9);
+		this.ratingText = this.add
+			.text(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET, "", {
+				fontSize: RATING_FONT_SIZE,
+				color: "#ffd700",
+				fontStyle: "bold",
+			})
+			.setOrigin(0, 0.5);
 
 		// Buttons
 		const buttonY = FIRST_BUTTON_Y;
 
-		const casualBtn = createUIButton("Casual", vec2(MIDDLE_SCREEN.x, buttonY), async () => {
-			await this.startOrContinueRun("casual");
-		});
+		const casualBtn = createUIButton(
+			"Casual",
+			vec2(MIDDLE_SCREEN.x, buttonY),
+			async () => {
+				await this.startOrContinueRun("casual");
+			},
+			FULL_WIDTH_BUTTON
+		);
 		this.buttons.push(casualBtn);
 
-		const rankedBtn = createUIButton("Ranked", vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET), async () => {
-			await this.startOrContinueRun("ranked");
-		});
+		const rankedBtn = createUIButton(
+			"Ranked",
+			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
+			async () => {
+				await this.startOrContinueRun("ranked");
+			},
+			FULL_WIDTH_BUTTON
+		);
 		this.buttons.push(rankedBtn);
 
 		const leaderboardBtn = createUIButton(
 			"Leaderboard",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 2),
+			vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			async () => {
 				await this.openRankingModal();
-			}
+			},
+			HALF_WIDTH_BUTTON
 		);
 		this.buttons.push(leaderboardBtn);
 
 		this.accountButton = createUIButton(
 			"Account",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			() => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
 					mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
 					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
 				});
-			}
+			},
+			HALF_WIDTH_BUTTON
 		);
 		this.buttons.push(this.accountButton);
 		this.accountButton.container.setVisible(false);
 
 		const logoutBtn = createUIButton(
 			"Logout",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
+			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
 			async () => {
 				this.setLoading(true);
 				try {
@@ -168,13 +242,19 @@ export class ArenaLobbyScene extends Phaser.Scene {
 					this.setLoading(false);
 				}
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN);
-			}
+			},
+			FULL_WIDTH_BUTTON
 		);
 		this.buttons.push(logoutBtn);
 
-		const backBtn = createUIButton(t("ui.menu.back"), vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 5), () => {
-			this.scene.start(SCENE_KEYS.TITLE);
-		});
+		const backBtn = createUIButton(
+			t("ui.menu.back"),
+			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
+			() => {
+				this.scene.start(SCENE_KEYS.TITLE);
+			},
+			FULL_WIDTH_BUTTON
+		);
 		this.buttons.push(backBtn);
 
 		const loadingBg = this.add
@@ -500,7 +580,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				this.accountState = accountState;
 				const displayName = accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
 				this.profileText?.setText(displayName);
-				this.ratingText?.setText(`Rating: ${profile.rating}`);
+				this.ratingText?.setText(`${profile.rating}`);
 				this.setButtonVisibility(this.accountButton, true);
 				this.setLoading(false);
 			} catch (e) {

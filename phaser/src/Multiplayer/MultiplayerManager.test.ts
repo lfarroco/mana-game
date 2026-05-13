@@ -5,6 +5,7 @@ import {
 	getPhaseOptions,
 	sendOptionSelection,
 	primeDeferredSession,
+	handlePasswordResetRequest,
 	handleAuthRegister,
 	handleGuestAccountUpgrade,
 	handleRegisteredAccountUpdate,
@@ -24,6 +25,7 @@ jest.mock("@lib/supabase", () => ({
 			signUp: jest.fn(),
 			signInWithPassword: jest.fn(),
 			signInAnonymously: jest.fn(),
+			resetPasswordForEmail: jest.fn(),
 			updateUser: jest.fn(),
 			signOut: jest.fn(),
 		},
@@ -249,6 +251,16 @@ describe("MultiplayerManager", () => {
 			success: true,
 			requiresConfirmation: true,
 			user: expect.objectContaining({ email: "lfarroco@gmail.com" }),
+		});
+	});
+
+	it("should request password reset emails through supabase auth", async () => {
+		(supabase.auth.resetPasswordForEmail as jest.Mock).mockResolvedValue({ error: null });
+
+		await handlePasswordResetRequest("player@example.com");
+
+		expect(supabase.auth.resetPasswordForEmail).toHaveBeenCalledWith("player@example.com", {
+			redirectTo: "https://manabattle.com/reset-password",
 		});
 	});
 

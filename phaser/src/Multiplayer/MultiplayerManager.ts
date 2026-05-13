@@ -30,6 +30,7 @@ let deferredSelectedCrystalId: string | null = null;
 let currentMultiplayerQueueType: MultiplayerQueueType = "casual";
 const logger = createLogger("MultiplayerManager");
 const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
+const PASSWORD_RESET_REDIRECT_URL = "https://manabattle.com/reset-password";
 
 type CurrentAccountState = {
 	isGuest: boolean;
@@ -778,6 +779,20 @@ export async function handleAuthLogin(
 	if (data.session) {
 		updatePlayerId(data.session.user.id);
 		return await getPlayerProfile(playerId);
+	}
+}
+
+export async function handlePasswordResetRequest(email: string): Promise<void> {
+	const normalizedEmail = email.trim();
+	if (!normalizedEmail) {
+		throw new Error("Please enter email.");
+	}
+
+	const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+		redirectTo: PASSWORD_RESET_REDIRECT_URL,
+	});
+	if (error) {
+		throw new Error(error.message);
 	}
 }
 
