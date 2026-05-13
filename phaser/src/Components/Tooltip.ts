@@ -3,6 +3,7 @@ import { titleTextConfig } from "@Constants/constants";
 import { tooltipFragmentShader } from "@Shaders/TooltipShader";
 import { getCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
+import { UI_TEXT_MUTED, UI_TOOLTIP_BG_COLOR, UI_TOOLTIP_BORDER_COLOR } from "@UI/theme";
 
 const logger = createLogger("Tooltip");
 
@@ -86,9 +87,6 @@ export function init() {
 	tooltipWidth = MIN_TOOLTIP_WIDTH;
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 
-	const bgColorVec3 = { x: 0.1, y: 0.21, z: 0.21 };
-	const borderColorVec3 = { x: 0.78, y: 0.64, z: 0.33 };
-
 	const baseShader = new Phaser.Display.BaseShader(
 		"TooltipShader",
 		tooltipFragmentShader,
@@ -96,8 +94,8 @@ export function init() {
 		{
 			time: { type: "1f", value: 0.0 },
 			resolution: { type: "2f", value: [tooltipWidth, tooltipHeight] },
-			bgColor: { type: "3f", value: bgColorVec3 },
-			borderColor: { type: "3f", value: borderColorVec3 },
+			bgColor: { type: "3f", value: UI_TOOLTIP_BG_COLOR },
+			borderColor: { type: "3f", value: UI_TOOLTIP_BORDER_COLOR },
 		}
 	);
 
@@ -109,7 +107,7 @@ export function init() {
 	container.add(titleText);
 
 	descriptionText = scene.add
-		.rexBBCodeText(0, 0, "")
+		.rexBBCodeText(0, 0, "", { color: UI_TEXT_MUTED })
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
 		.setAlign("left")

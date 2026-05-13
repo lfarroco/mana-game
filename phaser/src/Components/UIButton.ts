@@ -5,21 +5,28 @@ import * as io from "@PhaserIO";
 import { createLogger } from "@Utils/Logger";
 import { findNextFocusable, FocusableEntry } from "@Systems/Controls/navigation";
 import { NavigationDirection } from "@Systems/Controls/intents";
+import {
+	UI_SURFACE_ACTIVE_BORDER_WIDTH,
+	UI_SURFACE_BORDER_COLOR,
+	UI_SURFACE_COLOR,
+	UI_SURFACE_HOVER_BORDER_COLOR,
+	UI_TEXT_PRIMARY,
+} from "@UI/theme";
 
 const logger = createLogger("UIButton");
 
 // UI button styling constants
 const BUTTON_HEIGHT = 60;
-const BUTTON_BG_COLOR = 0x08121f;
+const BUTTON_BG_COLOR = UI_SURFACE_COLOR;
 const BUTTON_CORNER_RADIUS = 10;
 const BUTTON_TEXT_FONT_SIZE = "24px";
 const BUTTON_BORDER_WIDTH = 2;
-const BUTTON_ACTIVE_BORDER_WIDTH = 4;
-const BUTTON_BORDER_COLOR = 0x7ae7ff;
+const BUTTON_ACTIVE_BORDER_WIDTH = UI_SURFACE_ACTIVE_BORDER_WIDTH;
+const BUTTON_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
 const BUTTON_BORDER_ALPHA = 0.7;
-const BUTTON_HOVER_BORDER_COLOR = 0x9cefff;
+const BUTTON_HOVER_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
 const BUTTON_HOVER_BORDER_ALPHA = 1;
-const BUTTON_FOCUS_BORDER_COLOR = 0x7ae7ff;
+const BUTTON_FOCUS_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
 const BUTTON_FOCUS_BORDER_ALPHA = 1;
 const BUTTON_BG_ALPHA = 0.42;
 const BUTTON_HOVER_BG_ALPHA = 0.52;
@@ -75,7 +82,7 @@ const focusedButtons = new WeakMap<Phaser.Scene, State>();
 const textStyle = {
 	...titleTextConfig,
 	fontSize: BUTTON_TEXT_FONT_SIZE,
-	color: "#ffffff",
+	color: UI_TEXT_PRIMARY,
 	stroke: "#000000",
 	fontStyle: "bold",
 	strokeThickness: 2,

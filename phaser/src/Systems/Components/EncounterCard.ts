@@ -1,8 +1,16 @@
 import * as io from "@PhaserIO";
-import { size, vec2 } from "@Models/Geometry";
+import { size } from "@Models/Geometry";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { getCurrentScene } from "@Models/State";
 import { titleTextConfig } from "@Constants/constants";
+import {
+	UI_SURFACE_ACTIVE_BORDER_WIDTH,
+	UI_SURFACE_BORDER_COLOR,
+	UI_SURFACE_COLOR,
+	UI_SURFACE_HOVER_BORDER_COLOR,
+	UI_TEXT_MUTED,
+	UI_TEXT_PRIMARY,
+} from "@UI/theme";
 
 // Encounter card animation and layout constants
 const ICON_BOUNCE_BASE_DURATION_MS = 2000;
@@ -10,15 +18,18 @@ const ICON_BOUNCE_RANDOM_RANGE_MS = 200;
 const ICON_BOUNCE_Y_OFFSET = 10;
 const ICON_SIZE = 120;
 const ICON_X_OFFSET = 10;
-const CARD_HOVER_ALPHA = 0.4;
+const CARD_BASE_ALPHA = 0.88;
+const CARD_HOVER_ALPHA = 0.97;
 const CARD_HOVER_ANIMATION_DURATION_MS = 400;
-const CARD_BORDER_WIDTH = 3;
-const CARD_BORDER_COLOR = 0xffffff;
-const CARD_BORDER_ALPHA = 0.2;
-const CARD_FOCUS_BORDER_COLOR = 0xffd700;
+const CARD_BORDER_WIDTH = 2;
+const CARD_ACTIVE_BORDER_WIDTH = UI_SURFACE_ACTIVE_BORDER_WIDTH;
+const CARD_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
+const CARD_BORDER_ALPHA = 0.5;
+const CARD_FOCUS_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
 const CARD_FOCUS_BORDER_ALPHA = 1;
 const TITLE_FONT_SIZE = "26px";
 const LABEL_FONT_SIZE = "22px";
+const CARD_CORNER_RADIUS = 12;
 
 type EncounterCardProps = {
 	x: number;
@@ -40,23 +51,30 @@ export function createEncounterCard(
 	const dimensions = size(width, height);
 	const scene = getCurrentScene();
 
-	const bg = io.Rectangle(vec2(x, y), dimensions, 0x1f1f1f, 1);
+	const bg = scene.add.graphics({ x: x - width / 2, y: y - height / 2 });
 	const border = scene.add.graphics();
 	let isFocused = false;
+	const drawBackground = () => {
+		bg.clear();
+		bg.fillStyle(UI_SURFACE_COLOR, 1);
+		bg.fillRoundedRect(0, 0, width, height, CARD_CORNER_RADIUS);
+	};
 
-	const drawBorder = (color: number, alpha: number) => {
+	const drawBorder = (color: number, alpha: number, lineWidth: number) => {
 		border.clear();
-		border.lineStyle(CARD_BORDER_WIDTH, color, alpha);
+		border.lineStyle(lineWidth, color, alpha);
 		border.strokeRoundedRect(
 			x - width / 2,
 			y - height / 2,
 			width,
 			height,
-			12
+			CARD_CORNER_RADIUS
 		);
 	};
 
-	drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA);
+	drawBackground();
+	bg.setAlpha(CARD_BASE_ALPHA);
+	drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 
 	const iconSize = ICON_SIZE;
 	const iconX = x - width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
@@ -86,6 +104,7 @@ export function createEncounterCard(
 		.text(textX - 8, y - height / 2 + 20, name, {
 			...titleTextConfig,
 			fontSize: TITLE_FONT_SIZE,
+			color: UI_TEXT_PRIMARY,
 			align: "left",
 			wordWrap: { width: textWidth },
 		})
@@ -95,7 +114,7 @@ export function createEncounterCard(
 		.rexBBCodeText(textX, y - height / 2 + 75, description, {
 			fontSize: LABEL_FONT_SIZE,
 			fontFamily: "Arimo",
-			color: "#dddddd",
+			color: UI_TEXT_MUTED,
 			wrap: {
 				mode: 1, // Word wrap
 				width: textWidth,
@@ -126,7 +145,7 @@ export function createEncounterCard(
 
 		io.Tween({
 			targets: [bg],
-			alpha: 1,
+			alpha: CARD_BASE_ALPHA,
 			duration: CARD_HOVER_ANIMATION_DURATION_MS,
 			ease: "Linear",
 		});
@@ -148,12 +167,12 @@ export function createEncounterCard(
 			isFocused = focused;
 			if (focused) {
 				bg.setAlpha(CARD_HOVER_ALPHA);
-				drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA);
+				drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA, CARD_ACTIVE_BORDER_WIDTH);
 				return;
 			}
 
-			bg.setAlpha(1);
-			drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA);
+			bg.setAlpha(CARD_BASE_ALPHA);
+			drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 		},
 		activate: async () => {
 			playSoundEffect("sfx_unit_run_magical_4");

@@ -152,7 +152,7 @@ void main() {
     fillColor *= globalLum;
 
     vec3 coreBorderColor = borderColor * 1.45; // bright inner frame
-    vec3 glowColor = mix(borderColor, vec3(1.0, 0.78, 0.32), 0.38);
+    vec3 glowColor = mix(borderColor, vec3(0.72, 0.96, 1.25), 0.38);
 
     // Inner stroke (just inside border) for depth
     float innerStroke = 1.0 - smoothstep(-1.8, -0.6, dist);
@@ -163,7 +163,7 @@ void main() {
     fillColor = mix(fillColor, fillColor * 0.65, innerShadow);
     
     // Apply inner stroke highlight (slight warm tint)
-    vec3 strokeColor = mix(coreBorderColor, vec3(1.0,0.9,0.7), 0.25);
+    vec3 strokeColor = mix(coreBorderColor, vec3(0.92, 0.98, 1.05), 0.25);
     fillColor = mix(fillColor, strokeColor, innerStroke * 0.55);
 
     // Top edge highlight along border (only near top & near SDF border)
@@ -175,8 +175,8 @@ void main() {
     float topNoise = smoothNoise(vec2(uv.x * 40.0, time * 0.6)) * 0.5 + 0.5;
     float topHighlight = topMask * borderAlpha * (0.6 + 0.4 * topNoise);
     // Slightly reduce top highlight impact so plasma details stay visible
-    coreBorderColor += topHighlight * 0.55 * vec3(1.2, 1.0, 0.55);
-    glowColor += topHighlight * 0.25 * vec3(1.0,0.85,0.5);
+    coreBorderColor += topHighlight * 0.55 * vec3(0.78, 0.96, 1.35);
+    glowColor += topHighlight * 0.25 * vec3(0.62, 0.86, 1.18);
 
     // FLOWING PLASMA BORDER (moved after color bases to avoid undeclared vars)
     // Compute SDF gradient (approx) to derive tangent direction
@@ -204,7 +204,7 @@ void main() {
     float sparklePulse = 0.6 + 0.4 * sin(time * 18.0 + s * 0.08);
     sparkle *= sparklePulse;
     vec3 plasmaCool = mix(borderColor, vec3(0.3, 0.55, 1.15), 0.35);
-    vec3 plasmaHot  = vec3(1.25, 0.95, 0.45);
+    vec3 plasmaHot  = vec3(0.82, 1.0, 1.38);
     vec3 plasmaColor = mix(plasmaCool, plasmaHot, clamp(filaments * 1.15, 0.0, 1.0));
     plasmaColor += sparkle * vec3(1.6, 1.25, 0.65);
     coreBorderColor = mix(coreBorderColor, plasmaColor, 0.72 * edgeMask);
