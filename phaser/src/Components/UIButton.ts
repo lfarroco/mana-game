@@ -11,6 +11,7 @@ import {
 	UI_SURFACE_COLOR,
 	UI_SURFACE_HOVER_BORDER_COLOR,
 	UI_TEXT_PRIMARY,
+	UI_TOOLTIP_BORDER_THICKNESS,
 } from "@UI/theme";
 
 const logger = createLogger("UIButton");
@@ -93,6 +94,7 @@ type ButtonVisualStyle = {
 	borderColor: number;
 	borderAlpha: number;
 	borderWidth: number;
+	glowAlpha: number;
 	textAlpha: number;
 };
 
@@ -103,6 +105,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			borderColor: BUTTON_BORDER_COLOR,
 			borderAlpha: BUTTON_DISABLED_BORDER_ALPHA,
 			borderWidth: BUTTON_BORDER_WIDTH,
+			glowAlpha: 0,
 			textAlpha: 0.65,
 		};
 	}
@@ -112,7 +115,8 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_PRESSED_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
-			borderWidth: BUTTON_BORDER_WIDTH,
+			borderWidth: BUTTON_ACTIVE_BORDER_WIDTH,
+			glowAlpha: 0.28,
 			textAlpha: 1,
 		};
 	}
@@ -122,7 +126,8 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_HOVER_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
-			borderWidth: BUTTON_BORDER_WIDTH,
+			borderWidth: BUTTON_ACTIVE_BORDER_WIDTH,
+			glowAlpha: 0.22,
 			textAlpha: 1,
 		};
 	}
@@ -133,6 +138,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			borderColor: BUTTON_FOCUS_BORDER_COLOR,
 			borderAlpha: BUTTON_FOCUS_BORDER_ALPHA,
 			borderWidth: BUTTON_ACTIVE_BORDER_WIDTH,
+			glowAlpha: 0.32,
 			textAlpha: 1,
 		};
 	}
@@ -142,16 +148,40 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 		borderColor: BUTTON_BORDER_COLOR,
 		borderAlpha: BUTTON_BORDER_ALPHA,
 		borderWidth: BUTTON_BORDER_WIDTH,
+		glowAlpha: 0,
 		textAlpha: 1,
 	};
 };
 
 const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.clear();
+	if (visuals.glowAlpha > 0) {
+		const glowWidth = Math.max(UI_TOOLTIP_BORDER_THICKNESS + 1, visuals.borderWidth + 2);
+		state.graphics.lineStyle(glowWidth, visuals.borderColor, visuals.glowAlpha * 0.28);
+		state.graphics.strokeRoundedRect(
+			-glowWidth / 2,
+			-glowWidth / 2,
+			state.size.width + glowWidth,
+			state.size.height + glowWidth,
+			BUTTON_CORNER_RADIUS + glowWidth / 2
+		);
+		state.graphics.lineStyle(glowWidth - 2, visuals.borderColor, visuals.glowAlpha * 0.16);
+		state.graphics.strokeRoundedRect(
+			-glowWidth,
+			-glowWidth,
+			state.size.width + glowWidth * 2,
+			state.size.height + glowWidth * 2,
+			BUTTON_CORNER_RADIUS + glowWidth
+		);
+	}
 	state.graphics.lineStyle(visuals.borderWidth, visuals.borderColor, visuals.borderAlpha);
 	state.graphics.fillStyle(BUTTON_BG_COLOR, state.currentBackgroundAlpha);
 	state.graphics.fillRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
+	if (visuals.glowAlpha > 0) {
+		state.graphics.lineStyle(2, visuals.borderColor, Math.min(1, visuals.glowAlpha * 0.9));
+		state.graphics.strokeRoundedRect(3, 3, state.size.width - 6, state.size.height - 6, BUTTON_CORNER_RADIUS - 3);
+	}
 	state.text.setScale(1);
 	state.text.setAlpha(visuals.textAlpha);
 };
