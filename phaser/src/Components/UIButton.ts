@@ -14,6 +14,7 @@ const BUTTON_BG_COLOR = 0x08121f;
 const BUTTON_CORNER_RADIUS = 10;
 const BUTTON_TEXT_FONT_SIZE = "24px";
 const BUTTON_BORDER_WIDTH = 2;
+const BUTTON_ACTIVE_BORDER_WIDTH = 4;
 const BUTTON_BORDER_COLOR = 0x7ae7ff;
 const BUTTON_BORDER_ALPHA = 0.7;
 const BUTTON_HOVER_BORDER_COLOR = 0x9cefff;
@@ -84,6 +85,7 @@ type ButtonVisualStyle = {
 	backgroundAlpha: number;
 	borderColor: number;
 	borderAlpha: number;
+	borderWidth: number;
 	textAlpha: number;
 };
 
@@ -93,6 +95,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_DISABLED_BG_ALPHA,
 			borderColor: BUTTON_BORDER_COLOR,
 			borderAlpha: BUTTON_DISABLED_BORDER_ALPHA,
+			borderWidth: BUTTON_BORDER_WIDTH,
 			textAlpha: 0.65,
 		};
 	}
@@ -102,6 +105,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_PRESSED_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
+			borderWidth: BUTTON_BORDER_WIDTH,
 			textAlpha: 1,
 		};
 	}
@@ -111,6 +115,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_HOVER_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
+			borderWidth: BUTTON_BORDER_WIDTH,
 			textAlpha: 1,
 		};
 	}
@@ -120,6 +125,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_FOCUS_BG_ALPHA,
 			borderColor: BUTTON_FOCUS_BORDER_COLOR,
 			borderAlpha: BUTTON_FOCUS_BORDER_ALPHA,
+			borderWidth: BUTTON_ACTIVE_BORDER_WIDTH,
 			textAlpha: 1,
 		};
 	}
@@ -128,13 +134,14 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 		backgroundAlpha: BUTTON_BG_ALPHA,
 		borderColor: BUTTON_BORDER_COLOR,
 		borderAlpha: BUTTON_BORDER_ALPHA,
+		borderWidth: BUTTON_BORDER_WIDTH,
 		textAlpha: 1,
 	};
 };
 
 const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.clear();
-	state.graphics.lineStyle(BUTTON_BORDER_WIDTH, visuals.borderColor, visuals.borderAlpha);
+	state.graphics.lineStyle(visuals.borderWidth, visuals.borderColor, visuals.borderAlpha);
 	state.graphics.fillStyle(BUTTON_BG_COLOR, state.currentBackgroundAlpha);
 	state.graphics.fillRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
