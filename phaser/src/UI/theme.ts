@@ -37,3 +37,5 @@ export const UI_HTML_INPUT_STYLE =
 
 export const UI_TOOLTIP_BG_COLOR = { x: 0.03, y: 0.07, z: 0.12 };
 export const UI_TOOLTIP_BORDER_COLOR = { x: 0.48, y: 0.91, z: 1.0 };
+export const UI_TOOLTIP_FILL_ALPHA = 0.88;
+export const UI_TOOLTIP_BORDER_THICKNESS = 5;

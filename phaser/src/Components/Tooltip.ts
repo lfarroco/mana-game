@@ -3,7 +3,13 @@ import { titleTextConfig } from "@Constants/constants";
 import { tooltipFragmentShader } from "@Shaders/TooltipShader";
 import { getCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
-import { UI_TEXT_MUTED, UI_TOOLTIP_BG_COLOR, UI_TOOLTIP_BORDER_COLOR } from "@UI/theme";
+import {
+	UI_TEXT_MUTED,
+	UI_TOOLTIP_BG_COLOR,
+	UI_TOOLTIP_BORDER_COLOR,
+	UI_TOOLTIP_BORDER_THICKNESS,
+	UI_TOOLTIP_FILL_ALPHA,
+} from "@UI/theme";
 
 const logger = createLogger("Tooltip");
 
@@ -96,6 +102,8 @@ export function init() {
 			resolution: { type: "2f", value: [tooltipWidth, tooltipHeight] },
 			bgColor: { type: "3f", value: UI_TOOLTIP_BG_COLOR },
 			borderColor: { type: "3f", value: UI_TOOLTIP_BORDER_COLOR },
+			bgAlpha: { type: "1f", value: UI_TOOLTIP_FILL_ALPHA },
+			borderThickness: { type: "1f", value: UI_TOOLTIP_BORDER_THICKNESS },
 		}
 	);
 

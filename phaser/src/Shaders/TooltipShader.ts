@@ -8,6 +8,8 @@ uniform float time;
 uniform vec2 resolution;
 uniform vec3 bgColor;
 uniform vec3 borderColor;
+uniform float bgAlpha;
+uniform float borderThickness;
 
 varying vec2 fragCoord;
 
@@ -51,7 +53,6 @@ void main() {
     vec2 p = (uv - 0.5) * resolution;             // center in pixel space
 
     // CONFIG ------------------------------------------------------------
-    float borderThickness = 3.0;    // crisp core border
     float glowSize        = 14.0;   // outward halo range in pixels (extended)
     float cornerRadius    = min(resolution.x, resolution.y) * 0.0475; // relative radius
     
@@ -67,7 +68,7 @@ void main() {
 
     // BASE ALPHAS -------------------------------------------------------
     // Fill alpha quickly ramps to 1 just inside the border for crisp interior
-    float fillAlpha = 1.0 - smoothstep(-borderThickness * 2.2, -borderThickness * 0.7, dist);
+    float fillAlpha = (1.0 - smoothstep(-borderThickness * 2.2, -borderThickness * 0.7, dist)) * bgAlpha;
     
     // Border alpha localized very tightly around dist=0
     float borderAlpha = 1.0 - smoothstep(0.0, borderThickness, abs(dist)); // unchanged core border
