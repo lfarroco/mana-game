@@ -43,6 +43,16 @@ const MODAL_HEIGHT = 300;
 const MODAL_TEXT_FONT_SIZE = "24px";
 const MODAL_TEXT_WRAP_WIDTH = 360;
 const MODAL_BUTTON_Y_OFFSET = 100;
+const ACCOUNT_UPDATED_MODAL_WIDTH = 480;
+const ACCOUNT_UPDATED_MODAL_HEIGHT = 350;
+const ACCOUNT_UPDATED_MODAL_BUTTON_Y_OFFSET = 125;
+
+type SceneModalOptions = {
+	width?: number;
+	height?: number;
+	textWrapWidth?: number;
+	buttonYOffset?: number;
+};
 
 type ArenaLoginSceneData = {
 	mode?: "login" | "register" | "convertGuestAccount" | "manageAccount";
@@ -367,6 +377,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 					"Your username was updated.",
 					() => {
 						this.scene.start(this.returnSceneKey);
+					},
+					{
+						width: ACCOUNT_UPDATED_MODAL_WIDTH,
+						height: ACCOUNT_UPDATED_MODAL_HEIGHT,
+						textWrapWidth: ACCOUNT_UPDATED_MODAL_WIDTH - 40,
+						buttonYOffset: ACCOUNT_UPDATED_MODAL_BUTTON_Y_OFFSET,
 					}
 				);
 				return;
@@ -381,6 +397,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 					"Your guest account can now use these login details. If a confirmation email was sent, confirm it to finish setup.",
 					() => {
 						this.scene.start(this.returnSceneKey);
+					},
+					{
+						width: ACCOUNT_UPDATED_MODAL_WIDTH,
+						height: ACCOUNT_UPDATED_MODAL_HEIGHT,
+						textWrapWidth: ACCOUNT_UPDATED_MODAL_WIDTH - 40,
+						buttonYOffset: ACCOUNT_UPDATED_MODAL_BUTTON_Y_OFFSET,
 					}
 				);
 				return;
@@ -441,12 +463,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 			logger.error("Steam Login Failed:", e);
 		}
 	}
-	showModal(title: string, message: string, onClose?: () => void) {
+	showModal(title: string, message: string, onClose?: () => void, options: SceneModalOptions = {}) {
 		if (this.formElement) this.formElement.setVisible(false);
 
 		const modal = createModal({
-			width: MODAL_WIDTH,
-			height: MODAL_HEIGHT,
+			width: options.width ?? MODAL_WIDTH,
+			height: options.height ?? MODAL_HEIGHT,
 			title: title,
 		});
 
@@ -454,13 +476,13 @@ export class ArenaLoginScene extends Phaser.Scene {
 			.Text(message, {
 				fontSize: MODAL_TEXT_FONT_SIZE,
 				color: "#ffffff",
-				wordWrap: { width: MODAL_TEXT_WRAP_WIDTH },
+				wordWrap: { width: options.textWrapWidth ?? MODAL_TEXT_WRAP_WIDTH },
 			})
 			.setOrigin(0.5);
 
 		modal.panel.add(text);
 
-		const closeBtn = createUIButton("OK", vec2(0, MODAL_BUTTON_Y_OFFSET), () => {
+		const closeBtn = createUIButton("OK", vec2(0, options.buttonYOffset ?? MODAL_BUTTON_Y_OFFSET), () => {
 			if (this.formElement) this.formElement.setVisible(true);
 			modal.close();
 			if (onClose) onClose();

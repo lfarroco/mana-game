@@ -32,6 +32,7 @@ jest.mock("@lib/supabase", () => ({
 		},
 		from: jest.fn(() => ({
 			select: jest.fn().mockReturnThis(),
+			upsert: jest.fn().mockReturnThis(),
 			eq: jest.fn().mockReturnThis(),
 			single: jest.fn().mockResolvedValue({ data: null, error: null }),
 			maybeSingle: jest.fn(),
@@ -264,30 +265,52 @@ describe("MultiplayerManager", () => {
 			},
 			error: null,
 		});
-		(supabase.auth.updateUser as jest.Mock).mockResolvedValue({
-			data: {
-				user: {
-					id: "guest-user-id",
+		(supabase.auth.updateUser as jest.Mock)
+			.mockResolvedValueOnce({
+				data: {
+					user: {
+						id: "guest-user-id",
+					},
 				},
+				error: null,
+			})
+			.mockResolvedValueOnce({
+				data: {
+					user: {
+						id: "guest-user-id",
+						user_metadata: { username: "UpgradedGuest" },
+					},
+				},
+				error: null,
+			});
+
+		const singleMock = jest.fn().mockResolvedValue({
+			data: {
+				id: "guest-user-id",
+				username: "UpgradedGuest",
+				rating: 1000,
+				matches_played: 0,
 			},
 			error: null,
 		});
-
-		const maybeSingleMock = jest.fn().mockResolvedValue({ data: null, error: null });
 		(supabase.from as jest.Mock).mockReturnValue({
+			upsert: jest.fn().mockReturnThis(),
 			select: jest.fn().mockReturnThis(),
 			eq: jest.fn().mockReturnThis(),
-			maybeSingle: maybeSingleMock,
-			single: maybeSingleMock,
+			maybeSingle: jest.fn().mockResolvedValue({ data: null, error: null }),
+			single: singleMock,
 		});
 
 		const result = await handleGuestAccountUpgrade("guest@example.com", "password123", "UpgradedGuest");
 
-		expect(supabase.auth.updateUser).toHaveBeenCalledWith({
+		expect(supabase.auth.updateUser).toHaveBeenNthCalledWith(1, {
 			email: "guest@example.com",
 			password: "password123",
+		});
+		expect(supabase.auth.updateUser).toHaveBeenNthCalledWith(2, {
 			data: { username: "UpgradedGuest" },
 		});
+		expect(supabase.from).toHaveBeenCalledWith("players");
 		expect(result).toEqual({
 			id: "guest-user-id",
 			username: "UpgradedGuest",
@@ -329,6 +352,7 @@ describe("MultiplayerManager", () => {
 			error: null,
 		});
 		(supabase.from as jest.Mock).mockReturnValue({
+			upsert: jest.fn().mockReturnThis(),
 			select: jest.fn().mockReturnThis(),
 			eq: jest.fn().mockReturnThis(),
 			maybeSingle: maybeSingleMock,

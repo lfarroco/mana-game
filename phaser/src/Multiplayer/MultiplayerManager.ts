@@ -46,6 +46,26 @@ const getUsernameFromMetadata = (userMetadata: unknown): string | undefined => {
 	return typeof username === "string" && username.trim().length > 0 ? username : undefined;
 };
 
+const persistPlayerUsername = async (
+	profilePlayerId: string,
+	username: string
+): Promise<PlayerProfile> => {
+	const { data, error } = await supabase
+		.from("players")
+		.upsert({ id: profilePlayerId, username }, { onConflict: "id" })
+		.select("*")
+		.single();
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	return {
+		...(data as PlayerProfile),
+		username,
+	};
+};
+
 const getDeferredSessionStorageKey = (
 	id: string,
 	queueType: MultiplayerQueueType = currentMultiplayerQueueType
@@ -836,24 +856,27 @@ export async function handleGuestAccountUpgrade(
 		throw new Error("This account is already registered.");
 	}
 
-	const { data, error } = await supabase.auth.updateUser({
+	const { data: credentialsData, error: credentialsError } = await supabase.auth.updateUser({
 		email,
 		password,
+	});
+
+	if (credentialsError) {
+		throw new Error(credentialsError.message);
+	}
+
+	const { data: metadataData, error: metadataError } = await supabase.auth.updateUser({
 		data: { username },
 	});
 
-	if (error) {
-		throw new Error(error.message);
+	if (metadataError) {
+		throw new Error(metadataError.message);
 	}
 
-	const upgradedUserId = data.user?.id ?? currentUser.id;
+	const upgradedUserId = metadataData.user?.id ?? credentialsData.user?.id ?? currentUser.id;
 	updatePlayerId(upgradedUserId);
 
-	const profile = await getPlayerProfile(upgradedUserId);
-	return {
-		...profile,
-		username: profile.username && profile.username !== "Guest" ? profile.username : username,
-	};
+	return await persistPlayerUsername(upgradedUserId, username);
 }
 
 export async function handleRegisteredAccountUpdate(
@@ -886,11 +909,7 @@ export async function handleRegisteredAccountUpdate(
 	const updatedUserId = data.user?.id ?? currentUser.id;
 	updatePlayerId(updatedUserId);
 
-	const profile = await getPlayerProfile(updatedUserId);
-	return {
-		...profile,
-		username,
-	};
+	return await persistPlayerUsername(updatedUserId, username);
 }
 
 export async function getPlayerProfile(profilePlayerId: string): Promise<PlayerProfile> {
