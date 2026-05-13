@@ -291,4 +291,40 @@ describe("ArenaLobbyScene", () => {
 			returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
 		});
 	});
+
+	it("shows the account button for registered players and routes to account management", async () => {
+		localStorage.setItem("mana_player_id", "registered-user-id");
+		(getPlayerProfile as jest.Mock).mockResolvedValue({
+			id: "registered-user-id",
+			username: "RegisteredUser",
+			rating: 1450,
+			matches_played: 12,
+		});
+		(getCurrentAccountState as jest.Mock).mockResolvedValue({
+			isGuest: false,
+			username: "RegisteredUser",
+			email: "registered@example.com",
+		});
+
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle: jest.fn(() => createMockRectangle()),
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+
+		scene.create();
+		await scene.refreshProfile();
+
+		expect(buttonInstances[3].container.setVisible).toHaveBeenCalledWith(true);
+
+		await createdButtons[3]();
+
+		expect(scene.scene.start).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOGIN, {
+			mode: "manageAccount",
+			returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+		});
+	});
 });

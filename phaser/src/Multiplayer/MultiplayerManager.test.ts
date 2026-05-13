@@ -7,6 +7,7 @@ import {
 	primeDeferredSession,
 	handleAuthRegister,
 	handleGuestAccountUpgrade,
+	handleRegisteredAccountUpdate,
 	checkActiveSession,
 	checkActiveSessionByType,
 } from "@Multiplayer/MultiplayerManager";
@@ -292,6 +293,58 @@ describe("MultiplayerManager", () => {
 			username: "UpgradedGuest",
 			rating: 1000,
 			matches_played: 0,
+		});
+	});
+
+	it("updates a registered account username", async () => {
+		(supabase.auth.getSession as jest.Mock).mockResolvedValue({
+			data: {
+				session: {
+					user: {
+						id: "registered-user-id",
+						is_anonymous: false,
+						user_metadata: { username: "OriginalUser" },
+						email: "original@example.com",
+					},
+				},
+			},
+			error: null,
+		});
+		(supabase.auth.updateUser as jest.Mock).mockResolvedValue({
+			data: {
+				user: {
+					id: "registered-user-id",
+				},
+			},
+			error: null,
+		});
+
+		const maybeSingleMock = jest.fn().mockResolvedValue({
+			data: {
+				id: "registered-user-id",
+				username: "OriginalUser",
+				rating: 1337,
+				matches_played: 10,
+			},
+			error: null,
+		});
+		(supabase.from as jest.Mock).mockReturnValue({
+			select: jest.fn().mockReturnThis(),
+			eq: jest.fn().mockReturnThis(),
+			maybeSingle: maybeSingleMock,
+			single: maybeSingleMock,
+		});
+
+		const result = await handleRegisteredAccountUpdate("RenamedUser");
+
+		expect(supabase.auth.updateUser).toHaveBeenCalledWith({
+			data: { username: "RenamedUser" },
+		});
+		expect(result).toEqual({
+			id: "registered-user-id",
+			username: "RenamedUser",
+			rating: 1337,
+			matches_played: 10,
 		});
 	});
 });

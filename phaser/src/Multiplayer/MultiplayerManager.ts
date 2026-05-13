@@ -34,6 +34,7 @@ const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
 type CurrentAccountState = {
 	isGuest: boolean;
 	username?: string;
+	email?: string;
 };
 
 const getUsernameFromMetadata = (userMetadata: unknown): string | undefined => {
@@ -810,6 +811,7 @@ export async function getCurrentAccountState(): Promise<CurrentAccountState> {
 	return {
 		isGuest: user.is_anonymous === true,
 		username: getUsernameFromMetadata(user.user_metadata),
+		email: user.email,
 	};
 }
 
@@ -851,6 +853,43 @@ export async function handleGuestAccountUpgrade(
 	return {
 		...profile,
 		username: profile.username && profile.username !== "Guest" ? profile.username : username,
+	};
+}
+
+export async function handleRegisteredAccountUpdate(
+	username: string
+): Promise<PlayerProfile> {
+	await initializeAuthSession();
+
+	const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+	if (sessionError) {
+		throw new Error(sessionError.message);
+	}
+
+	const currentUser = sessionData.session?.user;
+	if (!currentUser) {
+		throw new Error("No authenticated account was found.");
+	}
+
+	if (currentUser.is_anonymous === true) {
+		throw new Error("Guest accounts must be converted before editing account details.");
+	}
+
+	const { data, error } = await supabase.auth.updateUser({
+		data: { username },
+	});
+
+	if (error) {
+		throw new Error(error.message);
+	}
+
+	const updatedUserId = data.user?.id ?? currentUser.id;
+	updatePlayerId(updatedUserId);
+
+	const profile = await getPlayerProfile(updatedUserId);
+	return {
+		...profile,
+		username,
 	};
 }
 

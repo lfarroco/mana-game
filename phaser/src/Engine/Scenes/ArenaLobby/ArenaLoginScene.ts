@@ -10,6 +10,8 @@ import {
 	handleAuthRegister,
 	handleAuthGuest,
 	handleGuestAccountUpgrade,
+	getCurrentAccountState,
+	handleRegisteredAccountUpdate,
 	handleSteamAuth,
 } from "@Multiplayer/MultiplayerManager";
 import { setCurrentScene } from "@Models/State";
@@ -43,7 +45,7 @@ const MODAL_TEXT_WRAP_WIDTH = 360;
 const MODAL_BUTTON_Y_OFFSET = 100;
 
 type ArenaLoginSceneData = {
-	mode?: "login" | "register" | "convertGuestAccount";
+	mode?: "login" | "register" | "convertGuestAccount" | "manageAccount";
 	returnSceneKey?: string;
 };
 
@@ -51,11 +53,13 @@ export class ArenaLoginScene extends Phaser.Scene {
 	private formElement?: Phaser.GameObjects.DOMElement;
 	private isRegisterMode: boolean = false;
 	private guestUpgradeMode: boolean = false;
+	private accountManagementMode: boolean = false;
 	private buttonContainer: Phaser.GameObjects.Container | null = null;
 	private titleText?: Phaser.GameObjects.Text;
 	private buttons: Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
 	private returnSceneKey: string = SCENE_KEYS.TITLE;
+	private accountDefaults: { username?: string; email?: string } = {};
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOGIN);
@@ -63,8 +67,10 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	init(data?: ArenaLoginSceneData) {
 		this.guestUpgradeMode = data?.mode === "convertGuestAccount";
-		this.isRegisterMode = this.guestUpgradeMode || data?.mode === "register";
+		this.accountManagementMode = data?.mode === "manageAccount";
+		this.isRegisterMode = this.guestUpgradeMode || this.accountManagementMode || data?.mode === "register";
 		this.returnSceneKey = data?.returnSceneKey || SCENE_KEYS.TITLE;
+		this.accountDefaults = {};
 	}
 
 	create() {
@@ -99,6 +105,19 @@ export class ArenaLoginScene extends Phaser.Scene {
 				.setPosition(MIDDLE_SCREEN.x, STEAM_LOGIN_Y)
 				.setOrigin(0.5);
 		}
+
+		if (this.accountManagementMode) {
+			void this.loadAccountDefaults();
+		}
+	}
+
+	private async loadAccountDefaults() {
+		try {
+			this.accountDefaults = await getCurrentAccountState();
+			this.applyAccountDefaults();
+		} catch (error) {
+			logger.error("Failed to load account details", error);
+		}
 	}
 
 	renderForm() {
@@ -116,14 +135,27 @@ export class ArenaLoginScene extends Phaser.Scene {
 		const buttonY = FIRST_BUTTON_Y;
 
 		if (this.isRegisterMode) {
-			this.titleText?.setText(this.guestUpgradeMode ? "Account" : "Create Account");
+			this.titleText?.setText(this.accountManagementMode || this.guestUpgradeMode ? "Account" : "Create Account");
+			const includePasswordFields = !this.accountManagementMode;
+			const passwordFields = includePasswordFields
+				? `
+                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                `
+				: "";
+			const emailField = this.accountManagementMode
+				? ""
+				: `
+                    <label for="account-email" style="color:#ffffff; font-size:16px; margin-bottom:-8px;">Email</label>
+                    <input id="account-email" type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                `;
 
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
-                    <input type="text" name="username" placeholder="Username" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                    <input type="text" name="email" placeholder="Email" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                    <input type="password" name="password" placeholder="Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
-                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    <label for="account-username" style="color:#ffffff; font-size:16px; margin-bottom:-8px;">Username</label>
+                    <input id="account-username" type="text" name="username" placeholder="Username" style="padding:12px; font-size:18px; border-radius:5px; border:none;">
+                    ${emailField}
+                    ${passwordFields}
                 </div>
             `;
 
@@ -132,9 +164,15 @@ export class ArenaLoginScene extends Phaser.Scene {
 				.dom(MIDDLE_SCREEN.x, FORM_CONTENT_Y)
 				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
+			this.applyAccountDefaults();
 
 			// Register Button
-			const regBtn = createUIButton(this.guestUpgradeMode ? "Convert Account" : "Create Account", vec2(MIDDLE_SCREEN.x, buttonY), () => {
+			const primaryButtonLabel = this.accountManagementMode
+				? "Save Account"
+				: this.guestUpgradeMode
+					? "Convert Account"
+					: "Create Account";
+			const regBtn = createUIButton(primaryButtonLabel, vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleRegister();
 			});
 			this.buttons.push(regBtn);
@@ -142,10 +180,10 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 			// Back to Login
 			const backBtn = createUIButton(
-				this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
+				this.accountManagementMode || this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
 				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
-					if (this.guestUpgradeMode) {
+					if (this.accountManagementMode || this.guestUpgradeMode) {
 						this.scene.start(this.returnSceneKey);
 						return;
 					}
@@ -212,6 +250,23 @@ export class ArenaLoginScene extends Phaser.Scene {
 			);
 			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
+		}
+	}
+
+	private applyAccountDefaults() {
+		if (!this.formElement || !this.isRegisterMode) {
+			return;
+		}
+
+		const usernameInput = this.formElement.getChildByName("username") as HTMLInputElement | null;
+		const emailInput = this.formElement.getChildByName("email") as HTMLInputElement | null;
+
+		if (usernameInput && this.accountDefaults.username) {
+			usernameInput.value = this.accountDefaults.username;
+		}
+
+		if (emailInput && this.accountDefaults.email) {
+			emailInput.value = this.accountDefaults.email;
 		}
 	}
 
@@ -283,21 +338,44 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	async handleRegister() {
 		const inputs = this.getInputs();
-		if (!inputs || !inputs.email || !inputs.pass || !inputs.username || !inputs.confirmPass) {
+		if (!inputs || !inputs.username || (!this.accountManagementMode && !inputs.email)) {
 			this.showModal("Error", "Please fill in all fields.");
 			return;
 		}
 
-		if (inputs.pass !== inputs.confirmPass) {
+		if (!this.accountManagementMode && (!inputs.pass || !inputs.confirmPass)) {
+			this.showModal("Error", "Please fill in all fields.");
+			return;
+		}
+
+		if (!this.accountManagementMode && inputs.pass !== inputs.confirmPass) {
 			this.showModal("Error", "Passwords do not match.");
 			return;
 		}
 
+		const password = inputs.pass;
+		const email = inputs.email;
+
 		this.setLoading(true);
 		try {
-			if (this.guestUpgradeMode) {
-				const profile = await handleGuestAccountUpgrade(inputs.email, inputs.pass, inputs.username);
+			if (this.accountManagementMode) {
+				const profile = await handleRegisteredAccountUpdate(inputs.username);
 				localStorage.setItem("mana_player_id", profile.id);
+				this.setLoading(false);
+				this.showModal(
+					"Account Updated",
+					"Your username was updated.",
+					() => {
+						this.scene.start(this.returnSceneKey);
+					}
+				);
+				return;
+			}
+
+			if (this.guestUpgradeMode) {
+				const profile = await handleGuestAccountUpgrade(email!, password!, inputs.username);
+				localStorage.setItem("mana_player_id", profile.id);
+				this.setLoading(false);
 				this.showModal(
 					"Account Updated",
 					"Your guest account can now use these login details. If a confirmation email was sent, confirm it to finish setup.",
@@ -308,11 +386,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 				return;
 			}
 
-			const result = (await handleAuthRegister(inputs.email, inputs.pass, inputs.username)) as
+			const result = (await handleAuthRegister(email!, password!, inputs.username)) as
 				| { success?: boolean; requiresConfirmation?: boolean; id?: string }
 				| undefined;
 
 			if (result && result.success && result.requiresConfirmation) {
+				this.setLoading(false);
 				this.showModal(
 					"Registration Successful",
 					"Registration successful! Please confirm your email.",

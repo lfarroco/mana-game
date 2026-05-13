@@ -1,6 +1,10 @@
 import { ArenaLoginScene } from "@Scenes/ArenaLobby/ArenaLoginScene";
 import { SCENE_KEYS } from "@Constants/constants";
-import { handleGuestAccountUpgrade } from "@Multiplayer/MultiplayerManager";
+import {
+	getCurrentAccountState,
+	handleGuestAccountUpgrade,
+	handleRegisteredAccountUpdate,
+} from "@Multiplayer/MultiplayerManager";
 
 jest.mock("phaser", () => ({
 	__esModule: true,
@@ -47,6 +51,8 @@ jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	handleAuthRegister: jest.fn(),
 	handleAuthGuest: jest.fn(),
 	handleGuestAccountUpgrade: jest.fn(),
+	handleRegisteredAccountUpdate: jest.fn(),
+	getCurrentAccountState: jest.fn(),
 	handleSteamAuth: jest.fn(),
 }));
 
@@ -107,6 +113,8 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		(scene as unknown as { formElement: unknown }).formElement = mockFormElement;
 		(scene as unknown as { showModal: (title: string, message: string, onClose?: () => void) => void }).showModal =
 			jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
+		const setLoading = jest.fn();
+		(scene as unknown as { setLoading: jest.Mock }).setLoading = setLoading;
 		(scene as unknown as { scene: { start: jest.Mock } }).scene = {
 			start: jest.fn(),
 		};
@@ -118,7 +126,54 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 			"password123",
 			"UpgradedGuest"
 		);
+		expect(setLoading.mock.calls).toEqual([[true], [false]]);
 		expect(localStorage.getItem("mana_player_id")).toBe("guest-user-id");
+		expect(
+			(scene as unknown as { scene: { start: jest.Mock } }).scene.start
+		).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOBBY);
+	});
+
+	it("routes registered account edits through the update handler", async () => {
+		(handleRegisteredAccountUpdate as jest.Mock).mockResolvedValue({
+			id: "registered-user-id",
+			username: "RenamedUser",
+			rating: 1200,
+			matches_played: 4,
+		});
+		(getCurrentAccountState as jest.Mock).mockResolvedValue({
+			isGuest: false,
+			username: "OriginalUser",
+			email: "original@example.com",
+		});
+
+		const scene = new ArenaLoginScene();
+		scene.init({
+			mode: "manageAccount",
+			returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+		});
+		const mockFormElement = {
+			getChildByName: jest.fn((name: string) => {
+				if (name === "username") return { value: "RenamedUser" };
+				return null;
+			}),
+			node: {
+				querySelectorAll: jest.fn(() => []),
+			},
+		};
+
+		(scene as unknown as { formElement: unknown }).formElement = mockFormElement;
+		(scene as unknown as { showModal: (title: string, message: string, onClose?: () => void) => void }).showModal =
+			jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
+		const setLoading = jest.fn();
+		(scene as unknown as { setLoading: jest.Mock }).setLoading = setLoading;
+		(scene as unknown as { scene: { start: jest.Mock } }).scene = {
+			start: jest.fn(),
+		};
+
+		await scene.handleRegister();
+
+		expect(handleRegisteredAccountUpdate).toHaveBeenCalledWith("RenamedUser");
+		expect(setLoading.mock.calls).toEqual([[true], [false]]);
 		expect(
 			(scene as unknown as { scene: { start: jest.Mock } }).scene.start
 		).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOBBY);

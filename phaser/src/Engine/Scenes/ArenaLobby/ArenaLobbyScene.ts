@@ -86,6 +86,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private rankingNextButton?: Button;
 	private rankingCurrentPage: number = 1;
 	private accountButton?: Button;
+	private accountState = { isGuest: false };
 
 	constructor() {
 		super(SCENE_KEYS.ARENA_LOBBY);
@@ -136,7 +137,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
 			() => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
-					mode: "convertGuestAccount",
+					mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
 					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
 				});
 			}
@@ -482,10 +483,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			try {
 				const profile = await getPlayerProfile(playerId);
 				const accountState = await getCurrentAccountState();
+				this.accountState = accountState;
 				const displayName = accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
 				this.profileText?.setText(displayName);
 				this.ratingText?.setText(`Rating: ${profile.rating}`);
-				this.setButtonVisibility(this.accountButton, accountState.isGuest);
+				this.setButtonVisibility(this.accountButton, true);
 				this.setLoading(false);
 			} catch (e) {
 				logger.error("Profile Fetch Failed", e);
