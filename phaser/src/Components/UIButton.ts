@@ -26,6 +26,7 @@ const BUTTON_FOCUS_BG_ALPHA = 0.5;
 const BUTTON_PRESSED_BG_ALPHA = 0.62;
 const BUTTON_DISABLED_BG_ALPHA = 0.18;
 const BUTTON_DISABLED_BORDER_ALPHA = 0.3;
+const BUTTON_HOVER_TRANSITION_DURATION_MS = 140;
 let buttonInstanceCounter = 0;
 
 export const activeButtons: Record<string, () => void> = {};
@@ -59,6 +60,7 @@ type State = {
 	isPressed: boolean;
 	isHovered: boolean;
 	isFocused: boolean;
+	currentBackgroundAlpha: number;
 	container: Container;
 	graphics: Phaser.GameObjects.Graphics;
 	text: Phaser.GameObjects.Text;
@@ -82,7 +84,6 @@ type ButtonVisualStyle = {
 	backgroundAlpha: number;
 	borderColor: number;
 	borderAlpha: number;
-	textScale: number;
 	textAlpha: number;
 };
 
@@ -92,7 +93,6 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_DISABLED_BG_ALPHA,
 			borderColor: BUTTON_BORDER_COLOR,
 			borderAlpha: BUTTON_DISABLED_BORDER_ALPHA,
-			textScale: 1,
 			textAlpha: 0.65,
 		};
 	}
@@ -102,7 +102,6 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_PRESSED_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
-			textScale: 0.99,
 			textAlpha: 1,
 		};
 	}
@@ -112,7 +111,6 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_HOVER_BG_ALPHA,
 			borderColor: BUTTON_HOVER_BORDER_COLOR,
 			borderAlpha: BUTTON_HOVER_BORDER_ALPHA,
-			textScale: 1.02,
 			textAlpha: 1,
 		};
 	}
@@ -122,7 +120,6 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 			backgroundAlpha: BUTTON_FOCUS_BG_ALPHA,
 			borderColor: BUTTON_FOCUS_BORDER_COLOR,
 			borderAlpha: BUTTON_FOCUS_BORDER_ALPHA,
-			textScale: 1.01,
 			textAlpha: 1,
 		};
 	}
@@ -131,20 +128,17 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 		backgroundAlpha: BUTTON_BG_ALPHA,
 		borderColor: BUTTON_BORDER_COLOR,
 		borderAlpha: BUTTON_BORDER_ALPHA,
-		textScale: 1,
 		textAlpha: 1,
 	};
 };
 
-const renderButtonGraphics = (state: State) => {
-	const visuals = getButtonVisualStyle(state);
-
+const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.clear();
 	state.graphics.lineStyle(BUTTON_BORDER_WIDTH, visuals.borderColor, visuals.borderAlpha);
-	state.graphics.fillStyle(BUTTON_BG_COLOR, visuals.backgroundAlpha);
+	state.graphics.fillStyle(BUTTON_BG_COLOR, state.currentBackgroundAlpha);
 	state.graphics.fillRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
-	state.text.setScale(visuals.textScale);
+	state.text.setScale(1);
 	state.text.setAlpha(visuals.textAlpha);
 };
 
@@ -178,7 +172,22 @@ export function createUIButton(
 	io.AddChildren(container, [buttonGraphics, buttonText]);
 
 	const syncVisualState = () => {
-		renderButtonGraphics(state);
+		const scene = state.container.scene;
+		if (!scene) {
+			return;
+		}
+
+		const visuals = getButtonVisualStyle(state);
+		scene.tweens.killTweensOf(state);
+		io.Tween({
+			targets: state,
+			currentBackgroundAlpha: visuals.backgroundAlpha,
+			duration: BUTTON_HOVER_TRANSITION_DURATION_MS,
+			ease: "Sine.easeOut",
+			onUpdate: () => renderButtonGraphics(state, visuals),
+			onComplete: () => renderButtonGraphics(state, getButtonVisualStyle(state)),
+		});
+		renderButtonGraphics(state, visuals);
 	};
 
 	const activate = () => {
@@ -221,10 +230,12 @@ export function createUIButton(
 	});
 
 	io.OnceDestroyed(container, () => {
+		const scene = container.scene;
+		scene?.tweens.killTweensOf(state);
 		registeredButtons.delete(state);
-		const focusedButton = focusedButtons.get(container.scene);
+		const focusedButton = scene ? focusedButtons.get(scene) : undefined;
 		if (focusedButton === state) {
-			focusedButtons.delete(container.scene);
+			focusedButtons.delete(scene);
 		}
 		buttonsIndex.delete(container);
 		unregisterButton(text);
@@ -236,6 +247,7 @@ export function createUIButton(
 		isPressed: false,
 		isHovered: false,
 		isFocused: false,
+		currentBackgroundAlpha: BUTTON_BG_ALPHA,
 		container,
 		graphics: buttonGraphics,
 		text: buttonText,
@@ -268,7 +280,7 @@ export function disableUIButton(state: State) {
 	if (state.isFocused) {
 		clearButtonFocus(state);
 	}
-	renderButtonGraphics(state);
+	renderButtonGraphics(state, getButtonVisualStyle(state));
 }
 
 export function enableUIButton(state: State) {
@@ -276,7 +288,7 @@ export function enableUIButton(state: State) {
 
 	io.SetInteractiveRect(state.size)(state.graphics);
 
-	renderButtonGraphics(state);
+	renderButtonGraphics(state, getButtonVisualStyle(state));
 }
 
 const isVisibleInHierarchy = (gameObject: Phaser.GameObjects.GameObject | null): boolean => {
@@ -323,13 +335,12 @@ const setFocusedButton = (state: State) => {
 
 	if (previous) {
 		previous.isFocused = false;
-		previous.text.setScale(1);
-		renderButtonGraphics(previous);
+		renderButtonGraphics(previous, getButtonVisualStyle(previous));
 	}
 
 	state.isFocused = true;
 	focusedButtons.set(scene, state);
-	renderButtonGraphics(state);
+	renderButtonGraphics(state, getButtonVisualStyle(state));
 };
 
 const clearButtonFocus = (state: State) => {
@@ -338,7 +349,7 @@ const clearButtonFocus = (state: State) => {
 	if (focused === state) {
 		focusedButtons.delete(state.container.scene);
 	}
-	renderButtonGraphics(state);
+	renderButtonGraphics(state, getButtonVisualStyle(state));
 };
 
 export const hasNavigableButtons = (scene: Phaser.Scene): boolean => getSceneButtons(scene).length > 0;
