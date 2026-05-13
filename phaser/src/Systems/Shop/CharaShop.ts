@@ -16,10 +16,13 @@ import {
 	resetEncounterFocusTargets,
 } from "@Systems/Encounter";
 import {
+	mixHexColors,
 	UI_SURFACE_ACTIVE_BORDER_WIDTH,
 	UI_SURFACE_ACCENT_COLOR,
+	UI_SURFACE_ALPHA,
 	UI_SURFACE_BORDER_COLOR,
 	UI_SURFACE_COLOR,
+	UI_SURFACE_HOVER_COLOR,
 	UI_SURFACE_HOVER_BORDER_COLOR,
 	UI_TEXT_MUTED,
 	UI_TEXT_PRIMARY,
@@ -33,8 +36,8 @@ const SHOP_CARD_BORDER_ALPHA = 0.5;
 const SHOP_CARD_FOCUS_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
 const SHOP_CARD_FOCUS_BORDER_ALPHA = 1;
 const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
-const SHOP_CARD_BASE_ALPHA = 0.82;
-const SHOP_CARD_HOVER_ALPHA = 0.94;
+const SHOP_CARD_HOVER_COLOR_MIX = 1;
+const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
 export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
 	const scene = getCurrentScene();
@@ -61,10 +64,22 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		});
 		const rowBorder = scene.add.graphics();
 		let isFocused = false;
+		const backgroundState = { mix: 0 };
 		const drawRowBackground = () => {
+			const fillColor = mixHexColors(UI_SURFACE_COLOR, UI_SURFACE_HOVER_COLOR, backgroundState.mix);
 			bgRect.clear();
-			bgRect.fillStyle(UI_SURFACE_COLOR, 1);
+			bgRect.fillStyle(fillColor, UI_SURFACE_ALPHA);
 			bgRect.fillRoundedRect(0, 0, bgSize.width, bgSize.height, 12);
+		};
+		const tweenRowBackground = (mix: number) => {
+			scene.tweens.killTweensOf(backgroundState);
+			scene.tweens.add({
+				targets: backgroundState,
+				mix,
+				duration: SHOP_CARD_HOVER_ANIMATION_DURATION_MS,
+				ease: "Sine.easeOut",
+				onUpdate: drawRowBackground,
+			});
 		};
 		const drawRowBorder = (color: number, alpha: number, lineWidth: number) => {
 			rowBorder.clear();
@@ -78,7 +93,6 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			);
 		};
 		drawRowBackground();
-		bgRect.setAlpha(SHOP_CARD_BASE_ALPHA);
 		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 
 		const chara = await Chara.create(unit);
@@ -95,14 +109,14 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 				return;
 			}
 
-			bgRect.setAlpha(SHOP_CARD_HOVER_ALPHA);
+			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
 		});
 		bgRect.on("pointerout", () => {
 			if (isFocused) {
 				return;
 			}
 
-			bgRect.setAlpha(SHOP_CARD_BASE_ALPHA);
+			tweenRowBackground(0);
 		});
 		bgRect.on("pointerup", (pointer: Phaser.Input.Pointer) => {
 			chara.emit("pointerup", pointer);
@@ -163,7 +177,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			setFocused: (focused: boolean) => {
 				isFocused = focused;
 				if (focused) {
-					bgRect.setAlpha(SHOP_CARD_HOVER_ALPHA);
+					tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
 					drawRowBorder(
 						SHOP_CARD_FOCUS_BORDER_COLOR,
 						SHOP_CARD_FOCUS_BORDER_ALPHA,
@@ -172,7 +186,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 					return;
 				}
 
-				bgRect.setAlpha(SHOP_CARD_BASE_ALPHA);
+				tweenRowBackground(0);
 				drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 			},
 			activate: async () => {

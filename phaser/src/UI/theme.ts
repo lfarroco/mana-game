@@ -3,6 +3,7 @@ export const UI_BACKGROUND_OVERLAY_COLOR = 0x06111c;
 export const UI_BACKGROUND_OVERLAY_ALPHA = 0.36;
 
 export const UI_SURFACE_COLOR = 0x08121f;
+export const UI_SURFACE_HOVER_COLOR = 0x102131;
 export const UI_SURFACE_ALPHA = 0.84;
 export const UI_SURFACE_BORDER_COLOR = 0x7ae7ff;
 export const UI_SURFACE_BORDER_ALPHA = 0.92;
@@ -39,3 +40,19 @@ export const UI_TOOLTIP_BG_COLOR = { x: 0.03, y: 0.07, z: 0.12 };
 export const UI_TOOLTIP_BORDER_COLOR = { x: 0.48, y: 0.91, z: 1.0 };
 export const UI_TOOLTIP_FILL_ALPHA = 0.88;
 export const UI_TOOLTIP_BORDER_THICKNESS = 5;
+
+export const mixHexColors = (from: number, to: number, amount: number): number => {
+	const progress = Math.max(0, Math.min(1, amount));
+	const fromR = (from >> 16) & 0xff;
+	const fromG = (from >> 8) & 0xff;
+	const fromB = from & 0xff;
+	const toR = (to >> 16) & 0xff;
+	const toG = (to >> 8) & 0xff;
+	const toB = to & 0xff;
+
+	const r = Math.round(fromR + (toR - fromR) * progress);
+	const g = Math.round(fromG + (toG - fromG) * progress);
+	const b = Math.round(fromB + (toB - fromB) * progress);
+
+	return (r << 16) | (g << 8) | b;
+};
