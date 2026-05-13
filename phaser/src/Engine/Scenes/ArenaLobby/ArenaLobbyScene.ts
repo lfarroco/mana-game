@@ -3,6 +3,7 @@ import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constan
 import * as io from "@PhaserIO";
 import { createModal, type Modal } from "@Components/Modal";
 import { createUIButton, Button } from "@Components/UIButton";
+import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {
@@ -21,7 +22,6 @@ import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 const logger = createLogger("ArenaLobbyScene");
 
 // Layout positioning
-const BACKGROUND_COLOR = 0x1a1a2e;
 const TITLE_Y = 100;
 const LOBBY_CARD_Y = 510;
 const LOBBY_CARD_WIDTH = 520;
@@ -69,6 +69,25 @@ const TITLE_FONT_SIZE = "64px";
 const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
+const LOBBY_BACKGROUND_OVERLAY_COLOR = 0x22070a;
+const LOBBY_BACKGROUND_OVERLAY_ALPHA = 0.35;
+const LOBBY_CARD_COLOR = 0x1f0f16;
+const LOBBY_CARD_ALPHA = 0.82;
+const LOBBY_CARD_BORDER_COLOR = 0x8b3a3a;
+const LOBBY_CARD_ACCENT_COLOR = 0xff7a59;
+const LOBBY_VALUE_BOX_COLOR = 0x2a1016;
+const LOBBY_VALUE_BOX_BORDER_COLOR = 0xa04949;
+const LOBBY_LABEL_COLOR = "#fecaca";
+const LOBBY_PROFILE_COLOR = "#fff7ed";
+const LOBBY_RATING_COLOR = "#fde68a";
+
+const LOBBY_BACKGROUND_COLORS = {
+	color1: { x: 0.08, y: 0.03, z: 0.08 },
+	color2: { x: 0.32, y: 0.06, z: 0.12 },
+	color3: { x: 0.82, y: 0.24, z: 0.16 },
+	color4: { x: 0.96, y: 0.48, z: 0.2 },
+	color5: { x: 1.0, y: 0.86, z: 0.72 },
+} as const;
 
 type RankedPlayer = {
 	id: string;
@@ -119,7 +138,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.accountButton = undefined;
 		this.accountState = { isGuest: false };
 
-		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
+		new CloudsBackground({
+			customColors: LOBBY_BACKGROUND_COLORS,
+			timeScale: 0.9,
+		});
+		this.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, LOBBY_BACKGROUND_OVERLAY_COLOR, LOBBY_BACKGROUND_OVERLAY_ALPHA)
+			.setOrigin(0);
 
 		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
@@ -131,15 +156,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const fieldValueX = fieldLabelX + 18;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			fontSize: FIELD_LABEL_FONT_SIZE,
-			color: "#94a3b8",
+			color: LOBBY_LABEL_COLOR,
 			fontStyle: "bold",
 		};
 
 		this.add
-			.rectangle(MIDDLE_SCREEN.x, LOBBY_CARD_Y, LOBBY_CARD_WIDTH, LOBBY_CARD_HEIGHT, 0x0f172a, 0.88)
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				LOBBY_CARD_Y,
+				LOBBY_CARD_WIDTH,
+				LOBBY_CARD_HEIGHT,
+				LOBBY_CARD_COLOR,
+				LOBBY_CARD_ALPHA
+			)
 			.setOrigin(0.5)
-			.setStrokeStyle(2, 0x334155, 0.95);
-		this.add.rectangle(MIDDLE_SCREEN.x, cardTop + LOBBY_CARD_ACCENT_Y, 220, 4, 0x60a5fa, 0.95).setOrigin(0.5);
+			.setStrokeStyle(2, LOBBY_CARD_BORDER_COLOR, 0.95);
+		this.add
+			.rectangle(MIDDLE_SCREEN.x, cardTop + LOBBY_CARD_ACCENT_Y, 220, 4, LOBBY_CARD_ACCENT_COLOR, 0.95)
+			.setOrigin(0.5);
 
 		this.add
 			.text(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET, "PLAYER", labelStyle)
@@ -150,15 +184,15 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
 				LOBBY_VALUE_BOX_WIDTH,
 				LOBBY_VALUE_BOX_HEIGHT,
-				0x111827,
+				LOBBY_VALUE_BOX_COLOR,
 				0.95
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, 0x334155, 0.9);
+			.setStrokeStyle(1, LOBBY_VALUE_BOX_BORDER_COLOR, 0.9);
 		this.profileText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET, "Loading...", {
 				fontSize: PROFILE_FONT_SIZE,
-				color: "#f8fafc",
+				color: LOBBY_PROFILE_COLOR,
 			})
 			.setOrigin(0, 0.5);
 
@@ -171,15 +205,15 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET,
 				LOBBY_VALUE_BOX_WIDTH,
 				LOBBY_VALUE_BOX_HEIGHT,
-				0x111827,
+				LOBBY_VALUE_BOX_COLOR,
 				0.95
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, 0x334155, 0.9);
+			.setStrokeStyle(1, LOBBY_VALUE_BOX_BORDER_COLOR, 0.9);
 		this.ratingText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET, "", {
 				fontSize: RATING_FONT_SIZE,
-				color: "#ffd700",
+				color: LOBBY_RATING_COLOR,
 				fontStyle: "bold",
 			})
 			.setOrigin(0, 0.5);

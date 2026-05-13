@@ -61,6 +61,12 @@ jest.mock("@Components/UIButton", () => ({
 	}),
 }));
 
+jest.mock("@Components/cloudBackground/CloudsBackground", () => ({
+	CloudsBackground: jest.fn(() => ({
+		destroy: jest.fn(),
+	})),
+}));
+
 jest.mock("@Components/Modal", () => ({
 	createModal: jest.fn(() => ({
 		container: {
