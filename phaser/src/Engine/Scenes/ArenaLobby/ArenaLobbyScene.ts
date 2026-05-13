@@ -18,6 +18,33 @@ import {
 import { setCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
+import {
+	ARENA_BACKGROUND_OVERLAY_ALPHA,
+	ARENA_BACKGROUND_OVERLAY_COLOR,
+	ARENA_FIELD_ALPHA,
+	ARENA_FIELD_BORDER_ALPHA,
+	ARENA_FIELD_BORDER_COLOR,
+	ARENA_FIELD_COLOR,
+	ARENA_OVERLAY_ALPHA,
+	ARENA_OVERLAY_COLOR,
+	ARENA_SURFACE_ACCENT_COLOR,
+	ARENA_SURFACE_ALPHA,
+	ARENA_SURFACE_BORDER_ALPHA,
+	ARENA_SURFACE_BORDER_COLOR,
+	ARENA_SURFACE_BORDER_WIDTH,
+	ARENA_SURFACE_COLOR,
+	ARENA_TABLE_BORDER_COLOR,
+	ARENA_TABLE_COLOR,
+	ARENA_TABLE_HEADER_COLOR,
+	ARENA_TABLE_ROW_BORDER_COLOR,
+	ARENA_TABLE_ROW_EVEN_COLOR,
+	ARENA_TABLE_ROW_ODD_COLOR,
+	ARENA_TEXT_ACCENT,
+	ARENA_TEXT_INFO,
+	ARENA_TEXT_LABEL,
+	ARENA_TEXT_MUTED,
+	ARENA_TEXT_PRIMARY,
+} from "@Scenes/ArenaLobby/arenaTheme";
 
 const logger = createLogger("ArenaLobbyScene");
 
@@ -69,24 +96,13 @@ const TITLE_FONT_SIZE = "64px";
 const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
-const LOBBY_BACKGROUND_OVERLAY_COLOR = 0x22070a;
-const LOBBY_BACKGROUND_OVERLAY_ALPHA = 0.35;
-const LOBBY_CARD_COLOR = 0x1f0f16;
-const LOBBY_CARD_ALPHA = 0.82;
-const LOBBY_CARD_BORDER_COLOR = 0x8b3a3a;
-const LOBBY_CARD_ACCENT_COLOR = 0xff7a59;
-const LOBBY_VALUE_BOX_COLOR = 0x2a1016;
-const LOBBY_VALUE_BOX_BORDER_COLOR = 0xa04949;
-const LOBBY_LABEL_COLOR = "#fecaca";
-const LOBBY_PROFILE_COLOR = "#fff7ed";
-const LOBBY_RATING_COLOR = "#fde68a";
 
 const LOBBY_BACKGROUND_COLORS = {
-	color1: { x: 0.08, y: 0.03, z: 0.08 },
-	color2: { x: 0.32, y: 0.06, z: 0.12 },
-	color3: { x: 0.82, y: 0.24, z: 0.16 },
-	color4: { x: 0.96, y: 0.48, z: 0.2 },
-	color5: { x: 1.0, y: 0.86, z: 0.72 },
+	color1: { x: 0.02, y: 0.05, z: 0.1 },
+	color2: { x: 0.04, y: 0.12, z: 0.2 },
+	color3: { x: 0.08, y: 0.24, z: 0.34 },
+	color4: { x: 0.18, y: 0.5, z: 0.66 },
+	color5: { x: 0.84, y: 0.97, z: 1.0 },
 } as const;
 
 type RankedPlayer = {
@@ -143,10 +159,17 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			timeScale: 0.9,
 		});
 		this.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, LOBBY_BACKGROUND_OVERLAY_COLOR, LOBBY_BACKGROUND_OVERLAY_ALPHA)
+			.rectangle(
+				0,
+				0,
+				SCREEN_WIDTH,
+				SCREEN_HEIGHT,
+				ARENA_BACKGROUND_OVERLAY_COLOR,
+				ARENA_BACKGROUND_OVERLAY_ALPHA
+			)
 			.setOrigin(0);
 
-		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
+		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: ARENA_TEXT_PRIMARY })
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
@@ -156,7 +179,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const fieldValueX = fieldLabelX + 18;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			fontSize: FIELD_LABEL_FONT_SIZE,
-			color: LOBBY_LABEL_COLOR,
+			color: ARENA_TEXT_LABEL,
 			fontStyle: "bold",
 		};
 
@@ -166,13 +189,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				LOBBY_CARD_Y,
 				LOBBY_CARD_WIDTH,
 				LOBBY_CARD_HEIGHT,
-				LOBBY_CARD_COLOR,
-				LOBBY_CARD_ALPHA
+				ARENA_SURFACE_COLOR,
+				ARENA_SURFACE_ALPHA
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(2, LOBBY_CARD_BORDER_COLOR, 0.95);
+			.setStrokeStyle(
+				ARENA_SURFACE_BORDER_WIDTH,
+				ARENA_SURFACE_BORDER_COLOR,
+				ARENA_SURFACE_BORDER_ALPHA
+			);
 		this.add
-			.rectangle(MIDDLE_SCREEN.x, cardTop + LOBBY_CARD_ACCENT_Y, 220, 4, LOBBY_CARD_ACCENT_COLOR, 0.95)
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				cardTop + LOBBY_CARD_ACCENT_Y,
+				220,
+				4,
+				ARENA_SURFACE_ACCENT_COLOR,
+				0.95
+			)
 			.setOrigin(0.5);
 
 		this.add
@@ -184,15 +218,15 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
 				LOBBY_VALUE_BOX_WIDTH,
 				LOBBY_VALUE_BOX_HEIGHT,
-				LOBBY_VALUE_BOX_COLOR,
-				0.95
+				ARENA_FIELD_COLOR,
+				ARENA_FIELD_ALPHA
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, LOBBY_VALUE_BOX_BORDER_COLOR, 0.9);
+			.setStrokeStyle(1, ARENA_FIELD_BORDER_COLOR, ARENA_FIELD_BORDER_ALPHA);
 		this.profileText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET, "Loading...", {
 				fontSize: PROFILE_FONT_SIZE,
-				color: LOBBY_PROFILE_COLOR,
+				color: ARENA_TEXT_PRIMARY,
 			})
 			.setOrigin(0, 0.5);
 
@@ -205,15 +239,15 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET,
 				LOBBY_VALUE_BOX_WIDTH,
 				LOBBY_VALUE_BOX_HEIGHT,
-				LOBBY_VALUE_BOX_COLOR,
-				0.95
+				ARENA_FIELD_COLOR,
+				ARENA_FIELD_ALPHA
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, LOBBY_VALUE_BOX_BORDER_COLOR, 0.9);
+			.setStrokeStyle(1, ARENA_FIELD_BORDER_COLOR, ARENA_FIELD_BORDER_ALPHA);
 		this.ratingText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET, "", {
 				fontSize: RATING_FONT_SIZE,
-				color: LOBBY_RATING_COLOR,
+				color: ARENA_TEXT_ACCENT,
 				fontStyle: "bold",
 			})
 			.setOrigin(0, 0.5);
@@ -291,11 +325,19 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		);
 		this.buttons.push(backBtn);
 
-		const loadingBg = this.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.5)
-			.setOrigin(0);
+		const loadingBg = this.add.rectangle(
+			0,
+			0,
+			SCREEN_WIDTH,
+			SCREEN_HEIGHT,
+			ARENA_OVERLAY_COLOR,
+			ARENA_OVERLAY_ALPHA
+		).setOrigin(0);
 		const loadingLabel = this.add
-			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", { fontSize: "32px", color: "#ffffff" })
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", {
+				fontSize: "32px",
+				color: ARENA_TEXT_PRIMARY,
+			})
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
@@ -332,6 +374,15 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			width: RANKING_PANEL_WIDTH,
 			height: RANKING_PANEL_HEIGHT,
 			title: "Leaderboard",
+			panelConfig: {
+				backgroundColor: ARENA_SURFACE_COLOR,
+				backgroundAlpha: ARENA_SURFACE_ALPHA,
+				borderColor: ARENA_SURFACE_BORDER_COLOR,
+				borderAlpha: ARENA_SURFACE_BORDER_ALPHA,
+				borderWidth: ARENA_SURFACE_BORDER_WIDTH,
+			},
+			overlayColor: ARENA_OVERLAY_COLOR,
+			overlayAlpha: ARENA_OVERLAY_ALPHA,
 		});
 
 		const createTableText = (
@@ -345,11 +396,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const subtitle = this.add
 			.text(0, RANKING_SUBTITLE_Y, "Top ranked players in Arena", {
 				fontSize: "24px",
-				color: "#cbd5e1",
+				color: ARENA_TEXT_MUTED,
 			})
 			.setOrigin(0.5);
 		const accent = this.add
-			.rectangle(0, RANKING_ACCENT_Y, 280, 4, 0x60a5fa, 0.95)
+			.rectangle(0, RANKING_ACCENT_Y, 280, 4, ARENA_SURFACE_ACCENT_COLOR, 0.95)
 			.setOrigin(0.5);
 		const tableCard = this.add
 			.rectangle(
@@ -357,24 +408,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				RANKING_TABLE_CARD_Y,
 				RANKING_TABLE_CARD_WIDTH,
 				RANKING_TABLE_CARD_HEIGHT,
-				0x0f172a,
+				ARENA_TABLE_COLOR,
 				0.82
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(2, 0x334155, 0.9);
+			.setStrokeStyle(2, ARENA_TABLE_BORDER_COLOR, 0.9);
 		const headerBackground = this.add
-			.rectangle(0, RANKING_HEADER_Y, RANKING_TABLE_WIDTH, 44, 0x1e293b, 0.95)
+			.rectangle(0, RANKING_HEADER_Y, RANKING_TABLE_WIDTH, 44, ARENA_TABLE_HEADER_COLOR, 0.95)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, 0x475569, 0.9);
+			.setStrokeStyle(1, ARENA_TABLE_BORDER_COLOR, 0.9);
 
 		const headerStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			fontSize: "22px",
-			color: "#93c5fd",
+			color: ARENA_TEXT_INFO,
 			fontStyle: "bold",
 		};
 		const rowStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			fontSize: "24px",
-			color: "#f8fafc",
+			color: ARENA_TEXT_PRIMARY,
 		};
 
 		const headers = [
@@ -392,11 +443,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 					rowY,
 					RANKING_ROW_WIDTH,
 					RANKING_ROW_HEIGHT,
-					index % 2 === 0 ? 0x172033 : 0x111827,
+					index % 2 === 0 ? ARENA_TABLE_ROW_EVEN_COLOR : ARENA_TABLE_ROW_ODD_COLOR,
 					0.92
 				)
 				.setOrigin(0.5)
-				.setStrokeStyle(1, 0x243041, 0.75);
+				.setStrokeStyle(1, ARENA_TABLE_ROW_BORDER_COLOR, 0.75);
 
 			const row: RankingRow = {
 				background,
@@ -413,7 +464,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingEmptyStateText = this.add
 			.text(0, -10, "", {
 				fontSize: "28px",
-				color: "#cbd5e1",
+				color: ARENA_TEXT_MUTED,
 				align: "center",
 				wordWrap: { width: 600 },
 			})
@@ -423,7 +474,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingPageText = this.add
 			.text(0, RANKING_PAGE_TEXT_Y, "", {
 				fontSize: "24px",
-				color: "#cbd5e1",
+				color: ARENA_TEXT_MUTED,
 			})
 			.setOrigin(0.5);
 
@@ -516,9 +567,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				const username = player.username || `Guest#${player.id.slice(0, 4)}`;
 				row.background.setFillStyle(this.getRankingRowColor(rank, index), 0.92);
 				row.rankText.setText(`#${rank}`).setColor(this.getRankingAccentColor(rank));
-				row.usernameText.setText(this.formatRankingUsername(username)).setColor("#f8fafc");
+				row.usernameText.setText(this.formatRankingUsername(username)).setColor(ARENA_TEXT_PRIMARY);
 				row.ratingText.setText(`${player.rating}`).setColor("#fde68a");
-				row.matchesText.setText(`${player.matches_played}`).setColor("#bfdbfe");
+				row.matchesText.setText(`${player.matches_played}`).setColor(ARENA_TEXT_INFO);
 				this.setRankingRowVisible(row, true);
 			});
 		}
@@ -561,14 +612,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		if (rank === 1) return "#facc15";
 		if (rank === 2) return "#e2e8f0";
 		if (rank === 3) return "#f59e0b";
-		return "#93c5fd";
+		return ARENA_TEXT_INFO;
 	}
 
 	private getRankingRowColor(rank: number, index: number): number {
 		if (rank === 1) return 0x3b2f0f;
 		if (rank === 2) return 0x243244;
 		if (rank === 3) return 0x3c2415;
-		return index % 2 === 0 ? 0x172033 : 0x111827;
+		return index % 2 === 0 ? ARENA_TABLE_ROW_EVEN_COLOR : ARENA_TABLE_ROW_ODD_COLOR;
 	}
 
 	private formatRankingUsername(username: string): string {

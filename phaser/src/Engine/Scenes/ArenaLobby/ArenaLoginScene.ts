@@ -18,6 +18,22 @@ import {
 import { setCurrentScene } from "@Models/State";
 import { isElectron } from "@Utils/environment";
 import { createLogger } from "@Utils/Logger";
+import {
+	ARENA_BACKGROUND_COLOR,
+	ARENA_HTML_INPUT_STYLE,
+	ARENA_OVERLAY_ALPHA,
+	ARENA_OVERLAY_COLOR,
+	ARENA_SURFACE_ACCENT_COLOR,
+	ARENA_SURFACE_ALPHA,
+	ARENA_SURFACE_BORDER_ALPHA,
+	ARENA_SURFACE_BORDER_COLOR,
+	ARENA_SURFACE_BORDER_WIDTH,
+	ARENA_SURFACE_COLOR,
+	ARENA_TEXT_INFO,
+	ARENA_TEXT_LABEL,
+	ARENA_TEXT_MUTED,
+	ARENA_TEXT_PRIMARY,
+} from "@Scenes/ArenaLobby/arenaTheme";
 
 const logger = createLogger("ArenaLoginScene");
 
@@ -34,17 +50,12 @@ const BUTTON_Y_OFFSET_REGISTER = 70;
 const BUTTON_Y_OFFSET_BACK = 140;
 
 // Styling
-const BACKGROUND_COLOR = 0x1a1a2e;
 const STEAM_LOGIN_FONT_SIZE = "24px";
-const STEAM_LOGIN_COLOR = "#00aaff";
+const STEAM_LOGIN_COLOR = ARENA_TEXT_MUTED;
 const FORM_WIDTH = 404;
 const FORM_GAP = 15;
-const FORM_LABEL_COLOR = "#ffffff";
+const FORM_LABEL_COLOR = ARENA_TEXT_LABEL;
 const FORM_LABEL_FONT_SIZE = "16px";
-const FORM_INPUT_STYLE =
-	"width:100%; box-sizing:border-box; padding:12px; font-size:18px; border-radius:5px; border:none;";
-const FORM_CARD_FIELD_BG = 0x0f172a;
-const FORM_CARD_FIELD_BORDER = 0x334155;
 const FULL_WIDTH_BUTTON = 404;
 const HALF_WIDTH_BUTTON_GAP = 16;
 const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
@@ -100,16 +111,36 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	create() {
 		setCurrentScene(this);
-		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR).setOrigin(0);
+		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_BACKGROUND_COLOR).setOrigin(0);
 
 		this.add
-			.rectangle(MIDDLE_SCREEN.x, FORM_CARD_Y, FORM_CARD_WIDTH, FORM_CARD_HEIGHT, FORM_CARD_FIELD_BG, 0.88)
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				FORM_CARD_Y,
+				FORM_CARD_WIDTH,
+				FORM_CARD_HEIGHT,
+				ARENA_SURFACE_COLOR,
+				ARENA_SURFACE_ALPHA
+			)
 			.setOrigin(0.5)
-			.setStrokeStyle(2, FORM_CARD_FIELD_BORDER, 0.95);
-		this.add.rectangle(MIDDLE_SCREEN.x, FORM_CARD_Y - FORM_CARD_HEIGHT / 2 + 120, 220, 4, 0x60a5fa, 0.95).setOrigin(0.5);
+			.setStrokeStyle(
+				ARENA_SURFACE_BORDER_WIDTH,
+				ARENA_SURFACE_BORDER_COLOR,
+				ARENA_SURFACE_BORDER_ALPHA
+			);
+		this.add
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				FORM_CARD_Y - FORM_CARD_HEIGHT / 2 + 120,
+				220,
+				4,
+				ARENA_SURFACE_ACCENT_COLOR,
+				0.95
+			)
+			.setOrigin(0.5);
 
 		this.titleText = io
-			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: "#ffffff" })
+			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: ARENA_TEXT_PRIMARY })
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
@@ -118,11 +149,19 @@ export class ArenaLoginScene extends Phaser.Scene {
 		// Initial Render
 		this.renderForm();
 
-		const loadingBg = this.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x000000, 0.5)
-			.setOrigin(0);
+		const loadingBg = this.add.rectangle(
+			0,
+			0,
+			SCREEN_WIDTH,
+			SCREEN_HEIGHT,
+			ARENA_OVERLAY_COLOR,
+			ARENA_OVERLAY_ALPHA
+		).setOrigin(0);
 		const loadingLabel = this.add
-			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", { fontSize: "32px", color: "#ffffff" })
+			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", {
+				fontSize: "32px",
+				color: ARENA_TEXT_PRIMARY,
+			})
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
@@ -172,7 +211,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
                     <label for="forgot-password-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
-                    <input id="forgot-password-email" type="text" name="email" placeholder="Enter email" style="${FORM_INPUT_STYLE}">
+                    <input id="forgot-password-email" type="text" name="email" placeholder="Enter email" style="${ARENA_HTML_INPUT_STYLE}">
                 </div>
             `;
 
@@ -209,21 +248,21 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const includePasswordFields = !this.accountManagementMode;
 			const passwordFields = includePasswordFields
 				? `
-                    <input type="password" name="password" placeholder="Password" style="${FORM_INPUT_STYLE}">
-                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="${FORM_INPUT_STYLE}">
+                    <input type="password" name="password" placeholder="Password" style="${ARENA_HTML_INPUT_STYLE}">
+                    <input type="password" name="confirm_password" placeholder="Confirm Password" style="${ARENA_HTML_INPUT_STYLE}">
                 `
 				: "";
 			const emailField = this.accountManagementMode
 				? ""
 				: `
                     <label for="account-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
-                    <input id="account-email" type="text" name="email" placeholder="Email" style="${FORM_INPUT_STYLE}">
+                    <input id="account-email" type="text" name="email" placeholder="Email" style="${ARENA_HTML_INPUT_STYLE}">
                 `;
 
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
                     <label for="account-username" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Username</label>
-                    <input id="account-username" type="text" name="username" placeholder="Username" style="${FORM_INPUT_STYLE}">
+                    <input id="account-username" type="text" name="username" placeholder="Username" style="${ARENA_HTML_INPUT_STYLE}">
                     ${emailField}
                     ${passwordFields}
                 </div>
@@ -271,13 +310,13 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const formHTML = `
                 <div style="display:flex; flex-direction:column; gap:${FORM_GAP}px; width: ${FORM_WIDTH}px; font-family: sans-serif;">
                     <label for="login-email" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Email</label>
-                    <input id="login-email" type="text" name="email" placeholder="Enter email" style="${FORM_INPUT_STYLE}">
+                    <input id="login-email" type="text" name="email" placeholder="Enter email" style="${ARENA_HTML_INPUT_STYLE}">
                     <label for="login-password" style="color:${FORM_LABEL_COLOR}; font-size:${FORM_LABEL_FONT_SIZE}; margin-bottom:-8px;">Password</label>
-                    <input id="login-password" type="password" name="password" placeholder="Enter password" style="${FORM_INPUT_STYLE}">
+                    <input id="login-password" type="password" name="password" placeholder="Enter password" style="${ARENA_HTML_INPUT_STYLE}">
                     <button
                         type="button"
                         data-action="forgot-password"
-                        style="align-self:flex-end; background:none; border:none; color:#93c5fd; font-size:16px; padding:0; cursor:pointer;"
+                        style="align-self:flex-end; background:none; border:none; color:${ARENA_TEXT_INFO}; font-size:16px; padding:0; cursor:pointer;"
                     >
                         Forgot Password
                     </button>
@@ -584,12 +623,21 @@ export class ArenaLoginScene extends Phaser.Scene {
 			width: options.width ?? MODAL_WIDTH,
 			height: options.height ?? MODAL_HEIGHT,
 			title: title,
+			panelConfig: {
+				backgroundColor: ARENA_SURFACE_COLOR,
+				backgroundAlpha: ARENA_SURFACE_ALPHA,
+				borderColor: ARENA_SURFACE_BORDER_COLOR,
+				borderAlpha: ARENA_SURFACE_BORDER_ALPHA,
+				borderWidth: ARENA_SURFACE_BORDER_WIDTH,
+			},
+			overlayColor: ARENA_OVERLAY_COLOR,
+			overlayAlpha: ARENA_OVERLAY_ALPHA,
 		});
 
 		const text = io
 			.Text(message, {
 				fontSize: MODAL_TEXT_FONT_SIZE,
-				color: "#ffffff",
+				color: ARENA_TEXT_PRIMARY,
 				wordWrap: { width: options.textWrapWidth ?? MODAL_TEXT_WRAP_WIDTH },
 			})
 			.setOrigin(0.5);

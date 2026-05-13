@@ -7,12 +7,18 @@ export type PanelConfig = {
 	borderRadius?: number;
 	backgroundColor?: number;
 	backgroundAlpha?: number;
-}
+	borderWidth?: number;
+	borderColor?: number;
+	borderAlpha?: number;
+};
 
 const DEFAULT_CONFIG: Required<Omit<PanelConfig, 'width' | 'height'>> = {
 	borderRadius: 20,
 	backgroundColor: 0x2c3e50,
 	backgroundAlpha: 0.95,
+	borderWidth: 2,
+	borderColor: 0xffffff,
+	borderAlpha: 0.5,
 };
 
 export type Panel = {
@@ -25,7 +31,16 @@ export type Panel = {
 }
 
 export function createPanel(position: Vec2, config: PanelConfig): Panel {
-	const { width, height, borderRadius, backgroundColor, backgroundAlpha } = {
+	const {
+		width,
+		height,
+		borderRadius,
+		backgroundColor,
+		backgroundAlpha,
+		borderWidth,
+		borderColor,
+		borderAlpha,
+	} = {
 		...DEFAULT_CONFIG,
 		...config,
 	};
@@ -37,6 +52,11 @@ export function createPanel(position: Vec2, config: PanelConfig): Panel {
 		backgroundColor,
 		backgroundAlpha
 	);
+	background.clear();
+	background.lineStyle(borderWidth, borderColor, borderAlpha);
+	background.fillStyle(backgroundColor, backgroundAlpha);
+	background.fillRoundedRect(0, 0, width, height, borderRadius);
+	background.strokeRoundedRect(0, 0, width, height, borderRadius);
 
 	const container = io.Container([background]);
 

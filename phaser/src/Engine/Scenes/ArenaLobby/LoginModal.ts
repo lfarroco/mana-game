@@ -3,6 +3,16 @@ import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "@Constants/constants
 import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { handleAuthLogin, handleAuthRegister } from "@Multiplayer/MultiplayerManager";
+import {
+	ARENA_OVERLAY_ALPHA,
+	ARENA_OVERLAY_COLOR,
+	ARENA_SURFACE_ACCENT_COLOR,
+	ARENA_SURFACE_ALPHA,
+	ARENA_SURFACE_BORDER_COLOR,
+	ARENA_SURFACE_BORDER_WIDTH,
+	ARENA_SURFACE_COLOR,
+	ARENA_TEXT_PRIMARY,
+} from "@Scenes/ArenaLobby/arenaTheme";
 
 // Layout positioning
 const MODAL_DEPTH = 100;
@@ -14,13 +24,8 @@ const CANCEL_BUTTON_Y_OFFSET = 150;
 // Panel styling
 const PANEL_WIDTH = 600;
 const PANEL_HEIGHT = 400;
-const PANEL_COLOR = 0x2c3e50;
-const PANEL_STROKE_WIDTH = 4;
-const PANEL_STROKE_COLOR = 0xffffff;
-
-// Overlay styling
-const OVERLAY_COLOR = 0x000000;
-const OVERLAY_ALPHA = 0.8;
+const PANEL_STROKE_WIDTH = ARENA_SURFACE_BORDER_WIDTH;
+const PANEL_STROKE_COLOR = ARENA_SURFACE_BORDER_COLOR;
 
 // Title styling
 const TITLE_FONT_SIZE = "32px";
@@ -42,23 +47,34 @@ export class LoginModal {
 	createUI() {
 		// Dark Overlay
 		const bg = this.scene.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, OVERLAY_COLOR, OVERLAY_ALPHA)
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_OVERLAY_COLOR, ARENA_OVERLAY_ALPHA)
 			.setOrigin(0);
 		bg.setInteractive(); // Block clicks
 		this.container.add(bg);
 
 		// Panel
 		const panel = this.scene.add
-			.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, PANEL_WIDTH, PANEL_HEIGHT, PANEL_COLOR)
+			.rectangle(
+				MIDDLE_SCREEN.x,
+				MIDDLE_SCREEN.y,
+				PANEL_WIDTH,
+				PANEL_HEIGHT,
+				ARENA_SURFACE_COLOR,
+				ARENA_SURFACE_ALPHA
+			)
 			.setOrigin(0.5);
 		panel.setStrokeStyle(PANEL_STROKE_WIDTH, PANEL_STROKE_COLOR);
 		this.container.add(panel);
+		const accent = this.scene.add
+			.rectangle(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - 100, 220, 4, ARENA_SURFACE_ACCENT_COLOR, 0.95)
+			.setOrigin(0.5);
+		this.container.add(accent);
 
 		// Title
 		const title = this.scene.add
 			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - TITLE_Y_OFFSET, "Authentication", {
 				fontSize: TITLE_FONT_SIZE,
-				color: "white",
+				color: ARENA_TEXT_PRIMARY,
 			})
 			.setOrigin(0.5);
 		this.container.add(title);

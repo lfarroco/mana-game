@@ -3,7 +3,7 @@ import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { getCurrentScene } from "@Models/State";
 import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
-import { createPanel, Panel } from "@Components/Panel";
+import { createPanel, Panel, PanelConfig } from "@Components/Panel";
 
 // Modal animation constants
 const MODAL_SCALE_IN_DURATION_MS = 500;
@@ -13,6 +13,9 @@ export type ModalConfig = {
 	width: number;
 	height: number;
 	title?: string;
+	panelConfig?: Omit<PanelConfig, "width" | "height">;
+	overlayColor?: number;
+	overlayAlpha?: number;
 };
 
 export type Modal = {
@@ -23,10 +26,11 @@ export type Modal = {
 };
 
 export function createModal(config: ModalConfig): Modal {
-	const { width, height, title } = config;
+	const { width, height, title, panelConfig, overlayColor, overlayAlpha } = config;
 
 	const overlay = createBackgroundOverlay({
-		alpha: 0.85,
+		color: overlayColor,
+		alpha: overlayAlpha ?? 0.85,
 		interactive: true,
 	});
 	overlay.show();
@@ -34,6 +38,7 @@ export function createModal(config: ModalConfig): Modal {
 	const panel = createPanel(vec2(0, 0), {
 		width,
 		height,
+		...panelConfig,
 	});
 
 	const children: Phaser.GameObjects.GameObject[] = [panel.container];
