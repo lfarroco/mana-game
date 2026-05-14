@@ -100,6 +100,17 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		let holdStartPosition: Vec2 | null = null;
 		let isHoldDragging = false;
 
+		chara.on("pointerover", () => {
+			if (isFocused) return;
+			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
+			drawRowBorder(SHOP_CARD_FOCUS_BORDER_COLOR, SHOP_CARD_FOCUS_BORDER_ALPHA, SHOP_CARD_ACTIVE_BORDER_WIDTH);
+		});
+		chara.on("pointerout", () => {
+			if (isFocused) return;
+			tweenRowBackground(0);
+			drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
+		});
+
 		bgRect.setInteractive(
 			new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height),
 			Phaser.Geom.Rectangle.Contains
