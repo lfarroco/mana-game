@@ -110,6 +110,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			}
 
 			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
+			drawRowBorder(SHOP_CARD_FOCUS_BORDER_COLOR, SHOP_CARD_FOCUS_BORDER_ALPHA, SHOP_CARD_ACTIVE_BORDER_WIDTH);
 		});
 		bgRect.on("pointerout", () => {
 			if (isFocused) {
@@ -117,6 +118,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			}
 
 			tweenRowBackground(0);
+			drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 		});
 		bgRect.on("pointerup", (pointer: Phaser.Input.Pointer) => {
 			chara.emit("pointerup", pointer);

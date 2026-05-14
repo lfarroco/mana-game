@@ -144,6 +144,7 @@ export function createEncounterCard(
 		}
 
 		tweenBackground(CARD_HOVER_COLOR_MIX);
+		drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA, CARD_ACTIVE_BORDER_WIDTH);
 	});
 
 	io.OnPointerOut(bg, () => {
@@ -152,6 +153,7 @@ export function createEncounterCard(
 		}
 
 		tweenBackground(0);
+		drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 	});
 
 	io.OnPointerUp(bg, () => {

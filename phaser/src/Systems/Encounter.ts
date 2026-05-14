@@ -72,7 +72,8 @@ export const registerEncounterFocusTarget = (entry: EncounterFocusEntry): void =
 };
 
 export const initializeEncounterFocusTargets = (): void => {
-	setEncounterFocus(encounterFocusEntries.length > 0 ? 0 : null);
+	// Focus is set lazily by ensureEncounterFocus() when the user navigates to the encounter layer.
+	// Do not auto-focus here to avoid cards appearing active before any keyboard interaction.
 };
 
 export const getEncounterFocusCount = (): number => encounterFocusEntries.length;

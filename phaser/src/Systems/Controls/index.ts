@@ -199,9 +199,8 @@ export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptio
 
 		if (!available.includes(activeBattlegroundLayer)) {
 			activeBattlegroundLayer = available[0];
+			applyBattlegroundLayerVisualState();
 		}
-
-		applyBattlegroundLayerVisualState();
 	};
 
 	const cycleBattlegroundLayer = () => {
