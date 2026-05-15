@@ -45,6 +45,10 @@ export function getAllCharas(): Chara[] {
 	return Array.from(charaById.values());
 }
 
+export function hasCharaById(id: string): boolean {
+	return charaById.has(id);
+}
+
 export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {

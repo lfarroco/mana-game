@@ -8,7 +8,6 @@ import {
 } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
 import { startPhase } from "@Scenes/Battleground/PhaseManager";
-import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 /**
  * Creates a remote game controller that handles actions through the multiplayer manager.
@@ -22,7 +21,6 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(cardId);
 
 			if (success) {
-				await ShopPanel.slideOut();
 				startPhase(getState());
 			}
 

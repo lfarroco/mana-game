@@ -3,7 +3,7 @@ import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerMa
 import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
-import { clearAll, create as createChara, enableTooltip } from "@Systems/Chara/Chara";
+import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
@@ -93,17 +93,40 @@ export async function handleMultiplayerPhase(
 		logger.debug("Syncing team from server...", result.team.units.length);
 		const serverUnits = result.team.units;
 
+		const previousUnitIds = new Set(state.session.team.units.map((u) => u.id));
 		state.session.team.units = serverUnits;
 
 		if (result.phase !== "combat") {
 			setEnemyBoardVisible(false);
-			clearAll();
+
+			// Remove charas for units no longer on the team (handles sold units and
+			// stale shop-preview charas left over after slideOut).
+			const newUnitIdSet = new Set(state.session.team.units.map((u) => u.id));
+			getAllCharas()
+				.filter((c) => !newUnitIdSet.has(getUnit(c).id))
+				.forEach(destroy);
+
+			// Only create charas for units that aren't already displayed.
+			// Newly summoned units (pre-placed by the controller) are skipped so
+			// they don't flicker; genuinely new units get the summon effect.
 			await Promise.all(
 				state.session.team.units.map(async (u) => {
-					const c = await createChara(u);
-					enableTooltip(c);
+					if (hasCharaById(u.id)) return;
+					if (!previousUnitIds.has(u.id)) {
+						await summon(u, true);
+					} else {
+						const c = await createChara(u);
+						enableTooltip(c);
+					}
 				})
 			);
+
+			// Slide the shop out after new units have appeared on board.
+			// This runs for any phase transition (shop → shop, shop → encounter, etc.)
+			// so the shop is always cleaned up before the next phase renders.
+			if (ShopPanel.container && ShopPanel.container.y > SCREEN_HEIGHT * -1) {
+				await ShopPanel.slideOut();
+			}
 		}
 	}
 
@@ -222,7 +245,7 @@ export async function handleMultiplayerPhase(
 
 		setEnemyBoardVisible(true);
 
-		clearAll();
+		getAllCharas().forEach(destroy);
 		for (const u of state.battleData.units) {
 			const c = await createChara(u);
 			enableTooltip(c);

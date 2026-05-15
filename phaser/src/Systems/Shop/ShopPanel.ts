@@ -6,6 +6,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 import { resetEncounterFocusTargets } from "@Systems/Encounter";
 import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_BOTTOM } from "@Scenes/Battleground/battlegroundConstants";
+import { getCurrentScene } from "@Models/State";
 
 const NEXT_ROUND_BUTTON_X = BATTLEGROUND_BUTTON_X;
 const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - BATTLEGROUND_BUTTON_MARGIN_BOTTOM;
@@ -35,11 +36,13 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 };
 
 export const slideIn = async () => {
+	getCurrentScene().tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 	await tween({ targets: [container], y: 0 });
 };
 
 export const slideOut = async () => {
+	getCurrentScene().tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [container], y: c.SCREEN_HEIGHT * -1 });
 	container.removeAll(true);

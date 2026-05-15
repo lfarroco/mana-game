@@ -95,6 +95,10 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		drawRowBackground();
 		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 
+		// Add background elements to the container synchronously (before any await)
+		// so they are guaranteed to be in the container when slideOut() is called.
+		ShopPanel.container.add([bgRect, rowBorder]);
+
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
 		let holdStartPosition: Vec2 | null = null;
@@ -184,7 +188,7 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		ShopPanel.container.add([bgRect, rowBorder, chara, titleText, descriptionText]);
+		ShopPanel.container.add([chara, titleText, descriptionText]);
 
 		registerEncounterFocusTarget({
 			setFocused: (focused: boolean) => {

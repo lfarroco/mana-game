@@ -37,6 +37,11 @@ jest.mock("@Systems/Chara/Chara", () => ({
 	create: jest.fn(),
 	enableTooltip: jest.fn(),
 	getCharaById: jest.fn(),
+	getAllCharas: jest.fn().mockReturnValue([]),
+	getUnit: jest.fn(),
+	destroy: jest.fn(),
+	hasCharaById: jest.fn().mockReturnValue(false),
+	summon: jest.fn().mockResolvedValue({} as never),
 	__esModule: true,
 }));
 jest.mock("@Components/UIButton", () => ({ createUIButton: jest.fn(), __esModule: true }));
