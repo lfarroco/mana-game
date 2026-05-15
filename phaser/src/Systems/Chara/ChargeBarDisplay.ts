@@ -22,10 +22,6 @@ export function create(unit: Unit, container: Container) {
 	charaBarsMap.set(unit.id, state);
 }
 
-export function clearAll(): void {
-	charaBarsMap.forEach(({ chargeBar }) => chargeBar.clear());
-}
-
 export function updateChargeBar(id: string): void {
 	const state = charaBarsMap.get(id);
 	if (!state) return;
