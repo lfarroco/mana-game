@@ -255,6 +255,13 @@ export async function upgradeUnit(unit: Unit) {
 
 	upgradeUnitData(unit);
 
-	chara.destroy();
-	summon(unit, true);
+	destroy(chara);
+	await summon(unit, true);
+}
+
+export async function refreshUnit(unit: Unit): Promise<void> {
+	if (!hasCharaById(unit.id)) return;
+	const chara = getCharaById(unit.id);
+	destroy(chara);
+	await summon(unit, true);
 }

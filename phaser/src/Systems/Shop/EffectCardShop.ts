@@ -14,6 +14,9 @@ import {
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 import { createLogger } from "@Utils/Logger";
+import { getServerAdapter } from "@Core/ServerFactory";
+import { getState } from "@Models/State";
+import * as Chara from "@Systems/Chara/Chara";
 
 const logger = createLogger("EffectCardShop");
 
@@ -90,6 +93,24 @@ function renderUpgradeCards(
 
 				if (success) {
 					playSoundEffect("sfx_spell_deathstrikeseal");
+
+					// Sync updated unit data from server and refresh visuals
+					const playerId = getState()?.session?.player_id;
+					if (playerId) {
+						const server = getServerAdapter();
+						const updatedSession = await server.getSession(playerId);
+						if (updatedSession) {
+							const state = getState();
+							for (const serverUnit of updatedSession.team.units) {
+								const localUnit = state.session.team.units.find(
+									(u) => u.id === serverUnit.id
+								);
+								if (localUnit) Object.assign(localUnit, serverUnit);
+								await Chara.refreshUnit(localUnit ?? serverUnit);
+							}
+						}
+					}
+
 					await onUpgradeSelected();
 				} else {
 					logger.warn("Upgrade action failed");

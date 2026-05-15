@@ -12,6 +12,8 @@ import * as io from "@PhaserIO";
 import { SCREEN_HEIGHT, titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createLogger } from "@Utils/Logger";
+import { getServerAdapter } from "@Core/ServerFactory";
+import * as Chara from "@Systems/Chara/Chara";
 
 const logger = createLogger("OrbShop");
 
@@ -124,6 +126,32 @@ export function renderOrbShop(
 
 		if (onOrbApply) {
 			await onOrbApply(orbSpec.id, existingUnit.id);
+
+			// Sync updated unit data from server and refresh visuals
+			const playerId = state?.session?.player_id;
+			if (playerId) {
+				const server = getServerAdapter();
+				const updatedSession = await server.getSession(playerId);
+				if (updatedSession) {
+					const rowY = existingUnit.position?.y;
+					const isRowOrb =
+						orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
+
+					for (const serverUnit of updatedSession.team.units) {
+						const isTarget = serverUnit.id === existingUnit.id;
+						const isInSameRow =
+							isRowOrb && serverUnit.position?.y === rowY && !isTarget;
+
+						if (isTarget || isInSameRow) {
+							const localUnit = state.session.team.units.find(
+								(u) => u.id === serverUnit.id
+							);
+							if (localUnit) Object.assign(localUnit, serverUnit);
+							await Chara.refreshUnit(localUnit ?? serverUnit);
+						}
+					}
+				}
+			}
 		}
 
 		onOrbUsed?.();
