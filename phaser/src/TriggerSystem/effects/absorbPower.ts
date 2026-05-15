@@ -13,15 +13,22 @@ export const absorbPower = (
 	if (targets.length === 0) return;
 
 	const { state } = env;
-	let totalAbsorbed = 0;
-
 	const { effects } = env;
 
-	targets.forEach((target) => {
-		const absorbedAmount = Math.floor(target.power * 0.25);
-		if (absorbedAmount > 0) {
-			target.power = Math.max(0, target.power - absorbedAmount);
-			totalAbsorbed += absorbedAmount;
+	// Compute absorbed amounts upfront before any callbacks fire
+	const absorptions = targets
+		.map((target) => ({ target, amount: Math.floor(target.power * 0.25) }))
+		.filter(({ amount }) => amount > 0);
+
+	if (absorptions.length === 0) return;
+
+	const totalAbsorbed = absorptions.reduce((sum, { amount }) => sum + amount, 0);
+
+	// For each drained unit, show a projectile flying toward the absorber.
+	// The actual power decrease is applied in onHit (when the projectile arrives).
+	absorptions.forEach(({ target, amount }) => {
+		const onHit = () => {
+			target.power = Math.max(0, target.power - amount);
 
 			if (effects.onPowerUpdate) {
 				effects.onPowerUpdate(target.id);
@@ -29,18 +36,20 @@ export const absorbPower = (
 
 			if (target.force === FORCE_ID_PLAYER && permanent) {
 				const persistentTarget = state.session.team.units.find((u) => u.id === target.id)!;
-
-				if (persistentTarget !== target) {
-					persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);
-					if (effects.onPowerUpdate) {
-						effects.onPowerUpdate(persistentTarget.id);
-					}
+				if (persistentTarget && persistentTarget !== target) {
+					persistentTarget.power = Math.max(0, persistentTarget.power - amount);
 				}
 			}
+		};
+
+		if (effects.onDecreasePower) {
+			// sourceId = drained unit, targetId = absorber → projectile flies from target → absorber
+			effects.onDecreasePower(target.id, sourceUnit.id, amount, permanent, onHit, delayedExecution);
+		} else {
+			onHit();
 		}
 	});
 
-	if (totalAbsorbed > 0) {
-		increasePower(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit, delayedExecution);
-	}
+	// Give the absorbed power to the absorber (no projectile needed — the drain visuals convey the flow)
+	increasePower(env, [sourceUnit], totalAbsorbed, permanent, undefined, delayedExecution);
 };
