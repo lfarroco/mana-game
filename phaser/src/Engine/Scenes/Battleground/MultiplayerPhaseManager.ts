@@ -3,7 +3,7 @@ import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerMa
 import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
-import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon, getCharaById, restoreSprite } from "@Systems/Chara/Chara";
+import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon, getCharaById } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
@@ -28,6 +28,7 @@ import { createUIButton } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
+import { resetBoard } from "@Scenes/Battleground/PhaseManager";
 
 const logger = createLogger("MultiplayerPhaseManager");
 
@@ -266,9 +267,7 @@ async function handleMultiplayerCombat(
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
-					const coreChara = getCharaById(core.id);
-					await Animations.shatter(coreChara);
-					restoreSprite(coreChara);
+					await Animations.shatter(getCharaById(core.id));
 				}
 			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
@@ -285,8 +284,14 @@ async function handleMultiplayerCombat(
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
-			state.session.team.units.forEach(resetUnitStats);
-			ChargeBarDisplay.clearAll();
+
+			// Reset visual state on the battleData player units (charge bars reference these objects)
+			state.battleData.units
+				.filter((u) => u.force === FORCE_ID_PLAYER)
+				.forEach((u) => {
+					resetUnitStats(u);
+					ChargeBarDisplay.updateChargeBar(u.id);
+				});
 
 			const resultType = outcome === "player_lost" ? "defeat" : "victory";
 
@@ -306,9 +311,11 @@ async function handleMultiplayerCombat(
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						transport
-							.sendOptionSelection("combat_done")
-							.then(() => handleMultiplayerPhase(state, transport, childContext));
+						resetBoard(true).then(() =>
+							transport
+								.sendOptionSelection("combat_done")
+								.then(() => handleMultiplayerPhase(state, transport, childContext))
+						);
 					},
 					() => {
 						// Replay Callback

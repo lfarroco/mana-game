@@ -219,10 +219,6 @@ export function getId(chara: Chara): string {
 	return mustGetState(chara).id;
 }
 
-export function restoreSprite(chara: Chara) {
-	mustGetState(chara).sprite.visible = true;
-}
-
 export function destroy(chara: Chara) {
 	chara.destroy();
 	charaById.delete(getId(chara));

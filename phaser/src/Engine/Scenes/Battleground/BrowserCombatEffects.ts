@@ -6,7 +6,8 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
-import { getCharaById, restoreSprite } from "@Systems/Chara/Chara";
+import { getCharaById } from "@Systems/Chara/Chara";
+import { resetUnitStats } from "@Models/Entities/Unit";
 
 import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
@@ -27,7 +28,6 @@ import { slowEffect } from "@Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
 import { getState } from "@Models/State";
-import { resetUnitStats } from "@Models/Entities/Unit";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { createLogger } from "@Utils/Logger";
 
@@ -54,9 +54,7 @@ export const createBrowserCombatEffects = (
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
-					const coreChara = getCharaById(core.id);
-					await Animations.shatter(coreChara);
-					restoreSprite(coreChara);
+					await Animations.shatter(getCharaById(core.id));
 				}
 			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
@@ -73,8 +71,14 @@ export const createBrowserCombatEffects = (
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
-			state.session.team.units.forEach(resetUnitStats);
-			ChargeBarDisplay.clearAll();
+
+			// Reset visual state on the battleData player units (charge bars reference these objects)
+			state.battleData.units
+				.filter((u) => u.force === FORCE_ID_PLAYER)
+				.forEach((u) => {
+					resetUnitStats(u);
+					ChargeBarDisplay.updateChargeBar(u.id);
+				});
 
 			// Only update game state (lives, wins, losses) if this is not a replay
 			if (!isReplay) {
