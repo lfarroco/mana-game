@@ -205,6 +205,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	}
 
 	createPaginationDots() {
+		this.paginationDots = [];
 		const totalDots = this.crystals.length;
 		const totalWidth = (totalDots - 1) * DOT_SPACING;
 		const startX = constants.MIDDLE_SCREEN_X - totalWidth / 2;
