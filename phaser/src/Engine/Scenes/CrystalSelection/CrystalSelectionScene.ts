@@ -13,6 +13,7 @@ import { getName, t } from "@i18n/i18n";
 import { getSeed, setSeed } from "@Utils/Random";
 import { createLogger } from "@Utils/Logger";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
+import * as ControlsSystem from "@Systems/Controls";
 
 const logger = createLogger("CrystalSelectionScene");
 
@@ -121,6 +122,8 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.createSeedDisplay();
 
 		this.updateDisplay();
+
+		ControlsSystem.init(this, { context: "buttons", onCancel: () => this.returnToTitle() });
 	}
 
     createBackground() {
