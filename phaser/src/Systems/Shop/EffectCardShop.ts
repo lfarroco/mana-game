@@ -94,7 +94,9 @@ function renderUpgradeCards(
 				if (success) {
 					playSoundEffect("sfx_spell_deathstrikeseal");
 
-					// Sync updated unit data from server and refresh visuals
+					// Sync updated unit data from server and refresh visuals.
+					// upgrade_core and add_reaction_core only modify the core unit,
+					// so only refresh the core to avoid re-summoning all board units.
 					const playerId = getState()?.session?.player_id;
 					if (playerId) {
 						const server = getServerAdapter();
@@ -106,7 +108,9 @@ function renderUpgradeCards(
 									(u) => u.id === serverUnit.id
 								);
 								if (localUnit) Object.assign(localUnit, serverUnit);
-								await Chara.refreshUnit(localUnit ?? serverUnit);
+								if (serverUnit.isCore) {
+									await Chara.refreshUnit(localUnit ?? serverUnit);
+								}
 							}
 						}
 					}
