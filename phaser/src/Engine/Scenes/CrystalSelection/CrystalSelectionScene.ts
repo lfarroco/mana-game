@@ -24,13 +24,15 @@ interface CrystalSelectionData {
 }
 
 // Layout positioning
-const CARD_DISPLAY_Y = 380;
-const DESCRIPTION_Y = 550;
-const PAGINATION_Y = 770;
-const PLAY_BUTTON_Y = 850;
-const BACK_BUTTON_Y = 950;
+const CARD_DISPLAY_Y = 400;
+const TITLE_Y = 120;
+const SPRITE_Y = 300;
+const CARD_NAME_Y = SPRITE_Y + 150;
+const DESCRIPTION_Y = 500;
+const PAGINATION_Y = 700;
+const PLAY_BUTTON_Y = 830;
+const BACK_BUTTON_Y = 930;
 const NAV_BUTTON_OFFSET_X = 350;
-const TITLE_Y = 100;
 
 // Pagination styling
 const DOT_SIZE = 16;
@@ -47,21 +49,20 @@ const TITLE_FONT_SIZE = "48px";
 const CRYSTAL_NAME_FONT_SIZE = "36px";
 const DESCRIPTION_FONT_SIZE = "24px";
 const DESCRIPTION_LINE_SPACING = 10;
-const DESCRIPTION_WRAP_WIDTH = 800;
+const DESCRIPTION_WRAP_WIDTH = 1100;
 const DESCRIPTION_ORIGIN_X = 0.5;
 const DESCRIPTION_ORIGIN_Y = 0;
 
 // Crystal display box
-const CARD_DISPLAY_BG_OFFSET_Y = 90;
-const CARD_DISPLAY_BG_WIDTH = 950;
-const CARD_DISPLAY_BG_HEIGHT = 650;
+const CARD_DISPLAY_BG_WIDTH = 1200;
+const CARD_DISPLAY_BG_HEIGHT = 700;
 const CARD_DISPLAY_BG_COLOR = 0x000000;
 const CARD_DISPLAY_BG_ALPHA = 0.8;
 
 // Crystal sprite
 const CRYSTAL_SPRITE_SIZE = 200;
 const CRYSTAL_FLOAT_ANIMATION_DURATION = 1500;
-const CRYSTAL_FLOAT_Y_OFFSET = 15;
+const CRYSTAL_FLOAT_Y_OFFSET = -10;
 const CRYSTAL_FLOAT_EASE = "Sine.InOut";
 
 // Navigation buttons
@@ -72,18 +73,18 @@ const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
 export default class CrystalSelectionScene extends Phaser.Scene {
-	private crystals: CardDefinition[] = [];
-	private currentIndex = 0;
-	private crystalSprite!: Phaser.GameObjects.Image;
-	private crystalName!: Phaser.GameObjects.Text;
-	private paginationDots: Phaser.GameObjects.Arc[] = [];
-	private seedText!: Phaser.GameObjects.Text;
+	crystals: CardDefinition[] = [];
+	currentIndex = 0;
+	crystalSprite!: Phaser.GameObjects.Image;
+	crystalName!: Phaser.GameObjects.Text;
+	paginationDots: Phaser.GameObjects.Arc[] = [];
+	seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
 	// @ts-expect-error - Used in keyboard callback functions below
-	private isSeededRun: boolean = false;
-	private seedWarningText!: Phaser.GameObjects.Text;
-	private isMultiplayer: boolean = false;
-	private multiplayerQueueType: MultiplayerQueueType = "casual";
+	isSeededRun: boolean = false;
+	seedWarningText!: Phaser.GameObjects.Text;
+	isMultiplayer: boolean = false;
+	multiplayerQueueType: MultiplayerQueueType = "casual";
 
 	constructor() {
 		super(constants.SCENE_KEYS.CRYSTAL_SELECTION);
@@ -105,12 +106,9 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.crystals = getCores();
 		this.currentIndex = 0;
 
-		io.Text(t("crystalSelection.title"), {
-			...constants.titleTextConfig,
-			fontSize: TITLE_FONT_SIZE,
-		})
-			.setPosition(constants.MIDDLE_SCREEN_X, TITLE_Y)
-			.setOrigin(0.5);
+        this.createBackground();
+
+        this.createTitle();
 
 		this.createCrystalDisplay();
 
@@ -125,24 +123,42 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		this.updateDisplay();
 	}
 
-	private createCrystalDisplay() {
+    createBackground() {
+          this.add.rectangle(
+              constants.MIDDLE_SCREEN_X,
+              CARD_DISPLAY_Y ,
+              CARD_DISPLAY_BG_WIDTH,
+              CARD_DISPLAY_BG_HEIGHT,
+              CARD_DISPLAY_BG_COLOR,
+              CARD_DISPLAY_BG_ALPHA
+          );
+
+    }
+
+    createTitle() {
+          io.Text(t("crystalSelection.title"), {
+              ...constants.titleTextConfig,
+              fontSize: TITLE_FONT_SIZE,
+          })
+              .setPosition(constants.MIDDLE_SCREEN_X, TITLE_Y)
+              .setOrigin(0.5);
+    }
+
+	createCrystalDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
-		this.add.rectangle(
-			constants.MIDDLE_SCREEN_X,
-			CARD_DISPLAY_Y + CARD_DISPLAY_BG_OFFSET_Y,
-			CARD_DISPLAY_BG_WIDTH,
-			CARD_DISPLAY_BG_HEIGHT,
-			CARD_DISPLAY_BG_COLOR,
-			CARD_DISPLAY_BG_ALPHA
-		);
 
-		this.crystalSprite = this.add.image(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y, crystal.pic);
+
+		this.crystalSprite = this.add.image(
+          constants.MIDDLE_SCREEN_X,
+          SPRITE_Y,
+          crystal.pic,
+        );
 		this.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
 		this.tweens.add({
 			targets: this.crystalSprite,
-			y: CARD_DISPLAY_Y - CRYSTAL_FLOAT_Y_OFFSET,
+			y: SPRITE_Y + CRYSTAL_FLOAT_Y_OFFSET,
 			duration: CRYSTAL_FLOAT_ANIMATION_DURATION,
 			ease: CRYSTAL_FLOAT_EASE,
 			yoyo: true,
@@ -153,7 +169,10 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			...constants.titleTextConfig,
 			fontSize: CRYSTAL_NAME_FONT_SIZE,
 		});
-		io.SetPosition(this.crystalName, vec2(constants.MIDDLE_SCREEN_X, CARD_DISPLAY_Y + 140));
+		io.SetPosition(
+          this.crystalName, 
+          vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y )
+        );
 		io.Centralize(this.crystalName);
 
 		this.descriptionText = this.add
@@ -169,7 +188,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 			.setWrapWidth(DESCRIPTION_WRAP_WIDTH);
 	}
 
-	private createNavigationButtons() {
+	createNavigationButtons() {
 		createUIButton(
 			t("crystalSelection.previous"),
 			vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
@@ -185,7 +204,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		);
 	}
 
-	private createPaginationDots() {
+	createPaginationDots() {
 		const totalDots = this.crystals.length;
 		const totalWidth = (totalDots - 1) * DOT_SPACING;
 		const startX = constants.MIDDLE_SCREEN_X - totalWidth / 2;
@@ -207,7 +226,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		}
 	}
 
-	private createActionButtons() {
+	createActionButtons() {
 		createUIButton(t("crystalSelection.play"), vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y), () =>
 			this.startGameWithCrystal()
 		);
@@ -217,17 +236,17 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		);
 	}
 
-	private navigateToPrevious() {
+	navigateToPrevious() {
 		this.currentIndex = (this.currentIndex - 1 + this.crystals.length) % this.crystals.length;
 		this.updateDisplay();
 	}
 
-	private navigateToNext() {
+	navigateToNext() {
 		this.currentIndex = (this.currentIndex + 1) % this.crystals.length;
 		this.updateDisplay();
 	}
 
-	private updateDisplay() {
+	updateDisplay() {
 		const crystal = this.crystals[this.currentIndex];
 
 		this.crystalSprite.setTexture(crystal.pic);
@@ -252,7 +271,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		}
 	}
 
-	private buildCrystalDescription(crystal: CardDefinition): string {
+	buildCrystalDescription(crystal: CardDefinition): string {
 		const power = crystal.power || 0;
 
 		const effectBlocks = crystal.effects
@@ -276,7 +295,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		return `${statsBlock}${lifeBlock}\n\n${allEffects || t("crystalSelection.noAbilities")}`;
 	}
 
-	private getColorPresetForCrystal(crystalId: string): keyof typeof colorPresets {
+	getColorPresetForCrystal(crystalId: string): keyof typeof colorPresets {
 		const colorMap: Record<string, keyof typeof colorPresets> = {
 			mana_crystal: "nebula",
 			critical_crystal: "sunset",
@@ -289,7 +308,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		return colorMap[crystalId] || "nebula";
 	}
 
-	private async startGameWithCrystal() {
+	async startGameWithCrystal() {
 		const selectedCrystal = this.crystals[this.currentIndex];
 
 		// Initialize game session through server adapter
@@ -307,15 +326,15 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		});
 	}
 
-	private returnToTitle() {
+	returnToTitle() {
 		this.scene.start(constants.SCENE_KEYS.TITLE);
 	}
 
-	private createSeedDisplay() {
+	createSeedDisplay() {
 		this.createSeedInput();
 	}
 
-	private createSeedInput() {
+	createSeedInput() {
 		const currentSeed = getSeed();
 
 		const x = constants.SCREEN_WIDTH - 20;
@@ -380,7 +399,7 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 		});
 	}
 
-	private createKeyboard(targetText: Phaser.GameObjects.Text) {
+	createKeyboard(targetText: Phaser.GameObjects.Text) {
 		if (document.getElementById("virtual-keyboard")) return;
 
 		const keyboardContainer = document.createElement("div");

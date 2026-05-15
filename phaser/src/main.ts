@@ -17,8 +17,8 @@ import { ArenaLoginScene } from "@Scenes/ArenaLobby/ArenaLoginScene";
 initState();
 
 export const game = new Phaser.Game({
-	type: Phaser.WEBGL,
-    pixelArt: true,
+	type: Phaser.AUTO,
+    pixelArt: false,
 	scale: {
 		width: SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,
