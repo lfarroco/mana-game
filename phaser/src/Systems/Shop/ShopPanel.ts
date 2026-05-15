@@ -35,6 +35,8 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 	nextRoundButton = nextRoundBtn;
 };
 
+export const isVisible = () => Boolean(container) && container.y > c.SCREEN_HEIGHT * -1;
+
 export const slideIn = async () => {
 	getCurrentScene().tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");

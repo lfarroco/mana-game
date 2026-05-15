@@ -39,14 +39,13 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara[] {
+export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
 	const scene = getCurrentScene();
 	resetEncounterFocusTargets();
 
-	const createdCharas: Chara.Chara[] = [];
 	const ownedCardIds = new Set(getState().session.team.units.map((u) => u.cardId));
 
-	cardDefs.forEach(async (spec, index) => {
+	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
 		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
@@ -252,8 +251,8 @@ export function renderTavernCharas(cardDefs: Card.CardDefinition[]): Chara.Chara
 		});
 		initializeEncounterFocusTargets();
 
-		createdCharas.push(chara);
-	});
+		return chara;
+	}));
 
 	return createdCharas;
 }

@@ -89,6 +89,7 @@ jest.mock("@Systems/Shop/ShopPanel", () => ({
 	create: jest.fn(),
 	slideIn: jest.fn(),
 	slideOut: jest.fn(),
+	isVisible: jest.fn().mockReturnValue(false),
 	__esModule: true,
 }));
 jest.mock("@Core/GameControllerFactory", () => ({
