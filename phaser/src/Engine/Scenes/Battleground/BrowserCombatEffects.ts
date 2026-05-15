@@ -6,7 +6,7 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
-import { getCharaById } from "@Systems/Chara/Chara";
+import { getCharaById, restoreSprite } from "@Systems/Chara/Chara";
 
 import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
@@ -54,7 +54,9 @@ export const createBrowserCombatEffects = (
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					const coreChara = getCharaById(core.id);
+					await Animations.shatter(coreChara);
+					restoreSprite(coreChara);
 				}
 			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
@@ -72,6 +74,7 @@ export const createBrowserCombatEffects = (
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 			state.session.team.units.forEach(resetUnitStats);
+			ChargeBarDisplay.clearAll();
 
 			// Only update game state (lives, wins, losses) if this is not a replay
 			if (!isReplay) {

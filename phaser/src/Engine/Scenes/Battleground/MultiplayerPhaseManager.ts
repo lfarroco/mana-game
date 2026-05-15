@@ -3,7 +3,7 @@ import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerMa
 import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
-import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon, getCharaById } from "@Systems/Chara/Chara";
+import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon, getCharaById, restoreSprite } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
@@ -12,6 +12,7 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { resetUnitStats } from "@Models/Entities/Unit";
+import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
@@ -265,7 +266,9 @@ async function handleMultiplayerCombat(
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					const coreChara = getCharaById(core.id);
+					await Animations.shatter(coreChara);
+					restoreSprite(coreChara);
 				}
 			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
@@ -283,6 +286,7 @@ async function handleMultiplayerCombat(
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 			state.session.team.units.forEach(resetUnitStats);
+			ChargeBarDisplay.clearAll();
 
 			const resultType = outcome === "player_lost" ? "defeat" : "victory";
 

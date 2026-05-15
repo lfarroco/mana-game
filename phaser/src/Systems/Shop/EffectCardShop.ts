@@ -33,7 +33,8 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
-			container.destroy();
+			// ShopPanel.slideOut() calls removeAll(true) which destroys all children,
+			// including the local container, so no explicit container.destroy() needed.
 			resolve();
 		};
 
@@ -41,6 +42,8 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 		container.add(title);
 
 		ShopPanel.create(completeSectionCallback);
+		// Add the local container to ShopPanel so it participates in slide-in/out animations.
+		ShopPanel.container.add(container);
 
 		renderUpgradeCards(container, encounters, async () => {
 			container.list.forEach((child) => child.disableInteractive());
