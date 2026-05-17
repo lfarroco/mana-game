@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
 		// ---------------------------------------------------------------------------
 		const { data: existing, error: lookupError } = await supabaseAdmin
 			.from("combat_encounters")
-			.select("enemy_team")
+			.select("enemy_team, enemy_player_name")
 			.eq("run_id", runId)
 			.eq("player_id", playerId)
 			.eq("combat_index", combatIndex)
@@ -157,9 +157,18 @@ Deno.serve(async (req) => {
 		}
 
 		if (existing) {
-			return new Response(JSON.stringify({ enemyTeam: existing.enemy_team }), {
-				headers: { ...corsHeaders, "Content-Type": "application/json" },
-			});
+			return new Response(
+				JSON.stringify({
+					enemyTeam: existing.enemy_team,
+					enemyPlayerName:
+						typeof existing.enemy_player_name === "string"
+							? existing.enemy_player_name
+							: undefined,
+				}),
+				{
+					headers: { ...corsHeaders, "Content-Type": "application/json" },
+				}
+			);
 		}
 
 		// ---------------------------------------------------------------------------
@@ -194,6 +203,7 @@ Deno.serve(async (req) => {
 			round,
 			wins,
 			enemy_team: enemyTeam,
+			enemy_player_name: enemyPlayerName,
 			created_at: new Date().toISOString(),
 		});
 
@@ -202,13 +212,19 @@ Deno.serve(async (req) => {
 			if (insertError.code === "23505") {
 				const { data: concurrent } = await supabaseAdmin
 					.from("combat_encounters")
-					.select("enemy_team")
+					.select("enemy_team, enemy_player_name")
 					.eq("run_id", runId)
 					.eq("player_id", playerId)
 					.eq("combat_index", combatIndex)
 					.single();
 				return new Response(
-					JSON.stringify({ enemyTeam: concurrent?.enemy_team ?? enemyTeam }),
+					JSON.stringify({
+						enemyTeam: concurrent?.enemy_team ?? enemyTeam,
+						enemyPlayerName:
+							typeof concurrent?.enemy_player_name === "string"
+								? concurrent.enemy_player_name
+								: enemyPlayerName,
+					}),
 					{ headers: { ...corsHeaders, "Content-Type": "application/json" } }
 				);
 			}

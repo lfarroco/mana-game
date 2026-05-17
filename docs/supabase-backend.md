@@ -11,6 +11,28 @@ The Supabase backend currently consists of two Edge Functions in `phaser/supabas
 
 Shared CORS policy is defined in `phaser/supabase/functions/_shared/cors.ts`.
 
+## Database Schema
+
+Supabase SQL migrations live in `phaser/supabase/migrations/`.
+
+The round-based multiplayer ghost pool is defined in:
+
+- `phaser/supabase/migrations/20260516220500_create_ghosts_table.sql`
+- `phaser/supabase/migrations/20260516225500_add_enemy_player_name_to_combat_encounters.sql`
+
+The `ghosts` table stores one team snapshot per player, round, and queue type:
+
+- `player_id`
+- `round`
+- `session_type` (`multiplayer_ranked` or `multiplayer_casual`)
+- `team`
+- `created_at`
+- `updated_at`
+
+It also enforces uniqueness on `(player_id, round, session_type)` and includes an index for round/queue lookup during matchmaking.
+
+`combat_encounters` also stores `enemy_player_name` so cached multiplayer combat fetches keep showing the ghost owner instead of falling back to `"CPU"`.
+
 ## Function Architecture
 
 ### `action` function
@@ -24,7 +46,7 @@ Responsibilities:
 - Creates or updates `player_sessions` records.
 - Applies team updates via `MultiplayerLogic.validateAndApplyTeamUpdate`.
 - Resolves progression through `MultiplayerLogic.transitionToNextState`.
-- On `combat_encounter`, attempts rating-based opponent team selection from nearby player sessions, then falls back to PvE generation when no suitable team is available.
+- On `combat_encounter`, saves the player's current team into a per-round ghost pool keyed by queue type, then matches against a random ghost from the same round and queue. When no ghost exists, it falls back to PvE generation.
 - Persists resulting state (phase, round, step, options, team, action log, rating side-effects).
 
 High-level request flow:
@@ -39,9 +61,9 @@ High-level request flow:
 5. Otherwise:
    - Load current `player_sessions` row.
    - If `update_team`, validate and persist team only (non-progression path).
-   - If `combat_encounter`, query `players` within rating window and try to select a valid enemy team from candidate `player_sessions`.
+   - If `combat_encounter`, save the current team to the `ghosts` table for the current round and queue, then try to select a valid enemy team from matching ghosts.
    - Else transition state through `transitionToNextState`, persist changes, and return phase transition payload.
-   - If matchmaking yields no valid team, transition uses the default PvE enemy team generation path.
+   - If no ghost exists for that round and queue, transition uses the default PvE enemy team generation path.
 6. If combat rating side-effect exists, invoke `increment_rating` RPC.
 
 ### `auth-steam` function
@@ -84,8 +106,6 @@ The bundle script uses `esbuild` to produce Deno-compatible ESM and aliases Phas
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `JWT_SECRET` (optional but recommended for local JWT verification path; falls back to `auth.getUser()` when unset)
-- `MATCHMAKING_RATING_DELTA` (optional, default `150`): max absolute rating difference used when selecting multiplayer combat opponents
-
 ### `auth-steam`
 
 - `SUPABASE_URL`
@@ -116,9 +136,10 @@ Current test model is mock-heavy and validates contract/logic paths without hitt
 
 From `phaser/package.json`:
 
-1. `npm run bundle:edge`
-2. `supabase functions deploy action`
-3. `supabase functions deploy auth-steam`
+1. Apply database migrations (`supabase db push` or your normal Supabase migration workflow)
+2. `npm run bundle:edge`
+3. `supabase functions deploy action`
+4. `supabase functions deploy auth-steam`
 
 Combined command:
 
