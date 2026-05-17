@@ -12,12 +12,14 @@ export const DEMO_CONFIG = {
 	MAX_VICTORIES: 5,
 	ENABLE_UNLOCKS: false,
 	ENABLE_ACHIEVEMENTS: false,
+	ENABLE_CONTROLLER_SUPPORT: false,
 } as const;
 
 export const FULL_CONFIG = {
 	MAX_VICTORIES: Infinity,
 	ENABLE_UNLOCKS: true,
 	ENABLE_ACHIEVEMENTS: true,
+	ENABLE_CONTROLLER_SUPPORT: false,
 } as const;
 
 export const GAME_CONFIG = IS_DEMO ? DEMO_CONFIG : FULL_CONFIG;

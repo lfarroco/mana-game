@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GAME_CONFIG } from "@config";
 import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
 import { getState } from "@Models/State";
@@ -86,11 +87,11 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const refresh = () => {
-		if (!Board.isInputEnabled() || !visualActive) {
+		if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT || !Board.isInputEnabled() || !visualActive) {
 			cursorGraphics.setVisible(false);
 			selectedGraphics.setVisible(false);
 			stopCursorBlink();
-			if (!Board.isInputEnabled()) {
+			if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT || !Board.isInputEnabled()) {
 				state = clearBoardSelection(state);
 			}
 			return;
@@ -118,7 +119,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const move = (direction: NavigationDirection) => {
-		if (!Board.isInputEnabled()) {
+		if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT || !Board.isInputEnabled()) {
 			return;
 		}
 
@@ -127,6 +128,10 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const moveToRightmostColumn = () => {
+		if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
+			return;
+		}
+
 		state = {
 			...state,
 			cursor: {
@@ -138,7 +143,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const confirm = (): boolean => {
-		if (!Board.isInputEnabled()) {
+		if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT || !Board.isInputEnabled()) {
 			return false;
 		}
 
@@ -155,6 +160,10 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 	};
 
 	const cancel = (): boolean => {
+		if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
+			return false;
+		}
+
 		if (!state.selectedUnitId) {
 			return false;
 		}
@@ -177,7 +186,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		moveToRightmostColumn,
 		confirm,
 		cancel,
-		canInteract: () => Board.isInputEnabled(),
+		canInteract: () => GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT && Board.isInputEnabled(),
 		setVisualActive: (active: boolean) => {
 			visualActive = active;
 			refresh();

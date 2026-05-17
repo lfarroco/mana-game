@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
 import { getState } from "@Models/State";
 import * as Board from "@Models/Board";
@@ -82,6 +83,10 @@ const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" 
 };
 
 export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptions) {
+	if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
+		return;
+	}
+
 	const keyboard = scene.input.keyboard;
 	let previousGamepadSnapshot: GamepadSnapshot | undefined;
 	let gamepadDragHoldState:
