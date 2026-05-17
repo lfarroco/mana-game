@@ -29,6 +29,7 @@ import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
 import { resetBoard } from "@Scenes/Battleground/PhaseManager";
+import { updateMultiplayerPlayerNamesDisplay } from "@UI/components/multiplayerPlayerNamesDisplay";
 
 const logger = createLogger("MultiplayerPhaseManager");
 
@@ -129,6 +130,10 @@ export async function handleMultiplayerPhase(
 				await ShopPanel.slideOut();
 			}
 		}
+	}
+
+	if (result.phase !== "combat") {
+		updateMultiplayerPlayerNamesDisplay({ enemyName: "" });
 	}
 
 	switch (result.phase) {
@@ -256,6 +261,9 @@ async function handleMultiplayerCombat(
 	}
 
 	const scene = getCurrentScene() as BattlegroundScene;
+	updateMultiplayerPlayerNamesDisplay({
+		enemyName: combatState.enemyPlayerName || "CPU",
+	});
 
 	const startCombatPlayback = async () => {
 		// Keep current pacing for transitions into playback.

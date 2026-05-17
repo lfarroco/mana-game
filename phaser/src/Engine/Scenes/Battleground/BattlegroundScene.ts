@@ -15,9 +15,15 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { disableMultiplayer, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
+import { getPlayerProfile } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
+import {
+	createMultiplayerPlayerNamesDisplay,
+	destroyMultiplayerPlayerNamesDisplay,
+	updateMultiplayerPlayerNamesDisplay,
+} from "@UI/components/multiplayerPlayerNamesDisplay";
 
 export type BattlegroundSceneData = {
 	state: State;
@@ -51,6 +57,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		Systems.Setup.destroy();
 
 		UIManager.destroy();
+		destroyMultiplayerPlayerNamesDisplay();
 	}
 
 	constructor() {
@@ -140,6 +147,17 @@ export class BattlegroundScene extends Phaser.Scene {
 		}
 
 		UIManager.init(state);
+		if (multiplayerModeEnabled) {
+			createMultiplayerPlayerNamesDisplay();
+
+			const profile = await getPlayerProfile(state.session.player_id);
+			updateMultiplayerPlayerNamesDisplay({
+				playerName: profile.username,
+				enemyName: "",
+			});
+		} else {
+			destroyMultiplayerPlayerNamesDisplay();
+		}
 
 		ResultsUI.createResultsUI();
 

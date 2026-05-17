@@ -38,6 +38,7 @@ export type CombatState = {
 	units: Unit[];
 	logs: CombatLogEntry[];
 	seed: string;
+	enemyPlayerName?: string;
 	wonCombat?: boolean;
 	finalPlayerUnits?: Unit[];
 	initialUnits?: Unit[];

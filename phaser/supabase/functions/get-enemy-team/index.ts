@@ -1,6 +1,10 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as GameLogic from "./_shared.js";
-import { pickMatchedEnemyTeam, readRatingDelta } from "../action/matchmaking.ts";
+import {
+	pickMatchedEnemySession,
+	readRatingDelta,
+	sanitizeEnemyTeam,
+} from "../action/matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -94,7 +98,9 @@ const supabaseAdmin = createClient(
 const DEFAULT_MATCHMAKING_RATING_DELTA = 50;
 const MATCHMAKING_CANDIDATE_LIMIT = 50;
 
-const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> => {
+const selectMatchedEnemyTeam = async (
+	playerId: string
+): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
 	const { data: selfPlayer, error: selfError } = await supabaseAdmin
 		.from("players")
 		.select("rating")
@@ -120,7 +126,7 @@ const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> =
 
 	const { data: candidatePlayers, error: candidateError } = await supabaseAdmin
 		.from("players")
-		.select("id")
+		.select("id, username")
 		.neq("id", playerId)
 		.gte("rating", minRating)
 		.lte("rating", maxRating)
@@ -134,6 +140,13 @@ const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> =
 	const candidateIds = Array.isArray(candidatePlayers)
 		? candidatePlayers.map((row) => row?.id).filter((id): id is string => typeof id === "string")
 		: [];
+	const usernamesById = new Map(
+		(Array.isArray(candidatePlayers) ? candidatePlayers : [])
+			.filter(
+				(row): row is { id: string; username?: string | null } => typeof row?.id === "string"
+			)
+			.map((row) => [row.id, typeof row.username === "string" ? row.username : undefined])
+	);
 
 	if (candidateIds.length === 0) {
 		return null;
@@ -151,7 +164,17 @@ const selectMatchedEnemyTeam = async (playerId: string): Promise<any[] | null> =
 		return null;
 	}
 
-	return pickMatchedEnemyTeam(Array.isArray(candidateSessions) ? candidateSessions : []);
+	const matchedSession = pickMatchedEnemySession(
+		Array.isArray(candidateSessions) ? candidateSessions : []
+	);
+	if (!matchedSession) {
+		return null;
+	}
+
+	return {
+		enemyTeam: sanitizeEnemyTeam(matchedSession.team as { units: any[] }),
+		enemyPlayerName: usernamesById.get(matchedSession.player_id ?? ""),
+	};
 };
 
 // ---------------------------------------------------------------------------
@@ -217,8 +240,9 @@ Deno.serve(async (req) => {
 		// Prefer a matched ghost from another player within rating range.
 		// Fall back to the single-player PvE generator only when no valid ghost exists.
 		// ---------------------------------------------------------------------------
-		const matchedEnemyTeam = await selectMatchedEnemyTeam(playerId);
-		const enemyTeam = matchedEnemyTeam ?? GameLogic.generateEnemyTeamForRound(round, wins);
+		const matchedEnemy = await selectMatchedEnemyTeam(playerId);
+		const enemyTeam = matchedEnemy?.enemyTeam ?? GameLogic.generateEnemyTeamForRound(round, wins);
+		const enemyPlayerName = matchedEnemy?.enemyPlayerName;
 
 		// ---------------------------------------------------------------------------
 		// Persist it so replay-commit can retrieve it later
@@ -251,7 +275,7 @@ Deno.serve(async (req) => {
 			throw insertError;
 		}
 
-		return new Response(JSON.stringify({ enemyTeam }), {
+		return new Response(JSON.stringify({ enemyTeam, enemyPlayerName }), {
 			headers: { ...corsHeaders, "Content-Type": "application/json" },
 		});
 	} catch (error: any) {

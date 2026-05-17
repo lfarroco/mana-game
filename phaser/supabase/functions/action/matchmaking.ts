@@ -42,17 +42,34 @@ export const pickRandom = <T>(items: T[], randomFn: () => number = Math.random):
 	return items[Math.floor(randomFn() * items.length)];
 };
 
-export const pickMatchedEnemyTeam = (
-	candidateSessions: Array<{ team?: unknown }>,
-	randomFn: () => number = Math.random
-): any[] | null => {
-	const validTeams = (Array.isArray(candidateSessions) ? candidateSessions : [])
-		.map((row) => row?.team)
-		.filter((team): team is { units: any[] } => hasValidCombatTeam(team));
+export type MatchCandidateSession = {
+	player_id?: string;
+	team?: unknown;
+};
 
-	if (validTeams.length === 0) {
+export const pickMatchedEnemySession = (
+	candidateSessions: MatchCandidateSession[],
+	randomFn: () => number = Math.random
+): MatchCandidateSession | null => {
+	const validSessions = (Array.isArray(candidateSessions) ? candidateSessions : []).filter(
+		(row): row is MatchCandidateSession & { team: { units: any[] } } => hasValidCombatTeam(row?.team)
+	);
+
+	if (validSessions.length === 0) {
 		return null;
 	}
 
-	return sanitizeEnemyTeam(pickRandom(validTeams, randomFn));
+	return pickRandom(validSessions, randomFn);
+};
+
+export const pickMatchedEnemyTeam = (
+	candidateSessions: MatchCandidateSession[],
+	randomFn: () => number = Math.random
+): any[] | null => {
+	const matchedSession = pickMatchedEnemySession(candidateSessions, randomFn);
+	if (!matchedSession || !hasValidCombatTeam(matchedSession.team)) {
+		return null;
+	}
+
+	return sanitizeEnemyTeam(matchedSession.team);
 };

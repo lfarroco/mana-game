@@ -42,6 +42,7 @@ export interface PhaseOptions {
 		logs: CombatLogEntry[];
 		seed: string;
 		units: Unit[]; // Include units here for full sync if needed
+		enemyPlayerName?: string;
 	};
 	team?: {
 		units: Unit[];

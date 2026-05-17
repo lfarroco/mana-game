@@ -5,6 +5,7 @@ import {
 } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import {
 	hasValidCombatTeam,
+	pickMatchedEnemySession,
 	pickMatchedEnemyTeam,
 	readRatingDelta,
 	sanitizeEnemyTeam,
@@ -65,6 +66,18 @@ Deno.test("pickMatchedEnemyTeam returns null when no valid candidate team exists
 		{ team: null },
 	]);
 	assertEquals(picked, null);
+});
+
+Deno.test("pickMatchedEnemySession returns the selected source session", () => {
+	const picked = pickMatchedEnemySession(
+		[
+			{ player_id: "player-a", team: { units: [{ id: "a", isCore: true }] } },
+			{ player_id: "player-b", team: { units: [{ id: "b", isCore: true }] } },
+		],
+		() => 0.99
+	);
+
+	assertEquals(picked?.player_id, "player-b");
 });
 
 Deno.test("pickMatchedEnemyTeam selects and sanitizes a valid team", () => {

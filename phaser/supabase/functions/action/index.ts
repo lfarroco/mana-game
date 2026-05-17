@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { pickMatchedEnemyTeam, readRatingDelta } from "./matchmaking.ts";
+import { pickMatchedEnemySession, readRatingDelta, sanitizeEnemyTeam } from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -182,7 +182,7 @@ const MATCHMAKING_CANDIDATE_LIMIT = 50;
 const selectMatchedEnemyTeam = async (
 	supabaseAdmin: ReturnType<typeof createClient>,
 	playerId: string
-): Promise<any[] | null> => {
+): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
 	const { data: selfPlayer, error: selfError } = await supabaseAdmin
 		.from("players")
 		.select("rating")
@@ -208,7 +208,7 @@ const selectMatchedEnemyTeam = async (
 
 	const { data: candidatePlayers, error: candidateError } = await supabaseAdmin
 		.from("players")
-		.select("id")
+		.select("id, username")
 		.neq("id", playerId)
 		.gte("rating", minRating)
 		.lte("rating", maxRating)
@@ -222,6 +222,13 @@ const selectMatchedEnemyTeam = async (
 	const candidateIds = Array.isArray(candidatePlayers)
 		? candidatePlayers.map((row) => row?.id).filter((id): id is string => typeof id === "string")
 		: [];
+	const usernamesById = new Map(
+		(Array.isArray(candidatePlayers) ? candidatePlayers : [])
+			.filter(
+				(row): row is { id: string; username?: string | null } => typeof row?.id === "string"
+			)
+			.map((row) => [row.id, typeof row.username === "string" ? row.username : undefined])
+	);
 
 	if (candidateIds.length === 0) {
 		return null;
@@ -239,7 +246,17 @@ const selectMatchedEnemyTeam = async (
 		return null;
 	}
 
-	return pickMatchedEnemyTeam(Array.isArray(candidateSessions) ? candidateSessions : []);
+	const matchedSession = pickMatchedEnemySession(
+		Array.isArray(candidateSessions) ? candidateSessions : []
+	);
+	if (!matchedSession) {
+		return null;
+	}
+
+	return {
+		enemyTeam: sanitizeEnemyTeam(matchedSession.team as { units: any[] }),
+		enemyPlayerName: usernamesById.get(matchedSession.player_id ?? ""),
+	};
 };
 
 type GameLogicModule = typeof import("./_shared.js");
@@ -362,11 +379,16 @@ Deno.serve(async (req) => {
 		// Logic: Transition State
 		// transitionToNextState already resolves the action and applies team updates,
 		// so calling resolveAction separately here would apply the same action twice.
-		let transitionOptions: { combatEnemyTeam?: any[] } | undefined;
+		let transitionOptions:
+			| { combatEnemyTeam?: any[]; combatEnemyPlayerName?: string }
+			| undefined;
 		if (actionId === "combat_encounter") {
-			const matchedEnemyTeam = await selectMatchedEnemyTeam(supabaseAdmin, playerId);
-			if (matchedEnemyTeam && matchedEnemyTeam.length > 0) {
-				transitionOptions = { combatEnemyTeam: matchedEnemyTeam };
+			const matchedEnemy = await selectMatchedEnemyTeam(supabaseAdmin, playerId);
+			if (matchedEnemy && matchedEnemy.enemyTeam.length > 0) {
+				transitionOptions = {
+					combatEnemyTeam: matchedEnemy.enemyTeam,
+					combatEnemyPlayerName: matchedEnemy.enemyPlayerName,
+				};
 			}
 		}
 

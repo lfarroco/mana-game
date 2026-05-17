@@ -16,6 +16,7 @@ import { generateEnemyTeamForRound } from "./EnemyGeneration";
 
 export type TransitionToNextStateOptions = {
 	combatEnemyTeam?: Unit[];
+	combatEnemyPlayerName?: string;
 };
 
 /**
@@ -118,6 +119,7 @@ function executeCombatPhase(
 		enemyTeam,
 		units: simResult.finalState.battleData.units,
 		seed: session.seed,
+		enemyPlayerName: options?.combatEnemyPlayerName,
 		wonCombat,
 		initialUnits: simResult.initialUnits,
 		finalPlayerUnits: playerUnits,

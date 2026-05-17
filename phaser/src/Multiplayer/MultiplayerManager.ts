@@ -401,7 +401,7 @@ const fetchEnemyTeamFromServer = async (
 	combatIndex: number,
 	round: number,
 	wins: number
-): Promise<Unit[] | null> => {
+): Promise<{ enemyTeam: Unit[]; enemyPlayerName?: string } | null> => {
 	const { data: authData } = await supabase.auth.getSession();
 	const token = authData.session?.access_token;
 	if (!token) {
@@ -418,7 +418,11 @@ const fetchEnemyTeamFromServer = async (
 			return null;
 		}
 		logger.info("Received server enemy team", { combatIndex, unitCount: data.enemyTeam.length });
-		return data.enemyTeam as Unit[];
+		return {
+			enemyTeam: data.enemyTeam as Unit[],
+			enemyPlayerName:
+				typeof data.enemyPlayerName === "string" ? data.enemyPlayerName : undefined,
+		};
 	} catch (err) {
 		logger.warn("fetchEnemyTeamFromServer: network error", { err });
 		return null;
@@ -479,14 +483,17 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 				.build()
 				.actions.filter((a) => a.actionId === "combat_encounter").length;
 			const runId = getDeferredRunId(deferredSession);
-			const enemyTeam = await fetchEnemyTeamFromServer(
+			const enemyCombatData = await fetchEnemyTeamFromServer(
 				runId,
 				combatIndex,
 				deferredSession.round,
 				deferredSession.wins
 			);
-			if (enemyTeam) {
-				transitionOptions = { combatEnemyTeam: enemyTeam };
+			if (enemyCombatData) {
+				transitionOptions = {
+					combatEnemyTeam: enemyCombatData.enemyTeam,
+					combatEnemyPlayerName: enemyCombatData.enemyPlayerName,
+				};
 			} else {
 				logger.warn(
 					"Could not get server enemy team — combat will use local generation and may fail validation",
@@ -668,6 +675,10 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 					: [],
 				logs: optionsCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
+				enemyPlayerName:
+					typeof optionsCombatState.enemyPlayerName === "string"
+						? optionsCombatState.enemyPlayerName
+						: undefined,
 			};
 		} else {
 			logger.warn("Combat logs missing from server response; simulating locally");

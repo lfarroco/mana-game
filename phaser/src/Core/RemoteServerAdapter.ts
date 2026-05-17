@@ -99,6 +99,10 @@ export class RemoteServerAdapter implements IGameServer {
 					enemyTeam,
 					logs: optionsCombatState.logs as CombatLogEntry[],
 					seed: session.seed,
+					enemyPlayerName:
+						typeof optionsCombatState.enemyPlayerName === "string"
+							? optionsCombatState.enemyPlayerName
+							: undefined,
 					wonCombat,
 					finalPlayerUnits,
 					initialUnits: units,

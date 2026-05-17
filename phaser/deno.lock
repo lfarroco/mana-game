@@ -70,7 +70,6 @@
         "npm:fast-check@^4.6.0",
         "npm:file-loader@^6.2.0",
         "npm:html-webpack-plugin@^5.6.0",
-        "npm:husky@^9.1.7",
         "npm:identity-obj-proxy@3",
         "npm:jest-environment-jsdom@^29.7.0",
         "npm:jest@^29.7.0",

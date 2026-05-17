@@ -11,6 +11,7 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { setEnemyBoardVisible } from "@Models/Board";
 import { shatter } from "@Systems/Chara/Animations";
+import { updateMultiplayerPlayerNamesDisplay } from "@UI/components/multiplayerPlayerNamesDisplay";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	getPhaseOptions: jest.fn(),
@@ -71,6 +72,7 @@ jest.mock("@Models/Entities/Unit", () => ({ resetUnitStats: jest.fn(), __esModul
 jest.mock("@Models/Entities/Card", () => ({
 	getBattleCore: jest.fn(),
 	getCardDefinition: jest.fn(),
+	registerCollection: jest.fn(),
 	__esModule: true,
 }));
 jest.mock("@Utils/animation", () => ({ delay: jest.fn(), __esModule: true }));
@@ -100,6 +102,10 @@ jest.mock("@Systems/Shop/EffectCardShop", () => ({
 	openUpgradeCorePhase: jest.fn(),
 	__esModule: true,
 }));
+jest.mock("@UI/components/multiplayerPlayerNamesDisplay", () => ({
+	updateMultiplayerPlayerNamesDisplay: jest.fn(),
+	__esModule: true,
+}));
 
 const mockGetPhaseOptions = getPhaseOptions as jest.MockedFunction<typeof getPhaseOptions>;
 const mockCreateBrowserCombatEffects =
@@ -114,6 +120,10 @@ const mockSetEnemyBoardVisible = setEnemyBoardVisible as jest.MockedFunction<
 	typeof setEnemyBoardVisible
 >;
 const mockShatter = shatter as jest.MockedFunction<typeof shatter>;
+const mockUpdateMultiplayerPlayerNamesDisplay =
+	updateMultiplayerPlayerNamesDisplay as jest.MockedFunction<
+		typeof updateMultiplayerPlayerNamesDisplay
+	>;
 
 describe("MultiplayerPhaseManager terminal phases", () => {
 	beforeEach(() => {
@@ -243,7 +253,13 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 	});
 
 	it("keeps the enemy board visible until after combat-end animations run", async () => {
-		const capturedEffects: { onCombatEnd?: Function } = {};
+		const capturedEffects: {
+			onCombatEnd?: (
+				state: unknown,
+				outcome: "player_won" | "player_lost",
+				combatStates?: { forceStatsState: unknown }
+			) => void;
+		} = {};
 
 		mockGetPhaseOptions.mockResolvedValue({
 			phase: "combat",
@@ -353,5 +369,41 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 		await Promise.resolve();
 
 		expect(mockCreateCombatPlaybackController).toHaveBeenCalledTimes(1);
+	});
+
+	it("updates the combat opponent label from multiplayer combat state", async () => {
+		mockGetPhaseOptions.mockResolvedValue({
+			phase: "combat",
+			round: 3,
+			options: [{ id: "combat_done", label: "Continue" }],
+			team: { units: [] },
+			combatState: {
+				units: [],
+				enemyTeam: [],
+				logs: [],
+				seed: "seed-1",
+				enemyPlayerName: "RivalMage",
+			},
+		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
+		mockCreateBrowserCombatEffects.mockReturnValue({} as never);
+		mockCreateCombatPlaybackController.mockImplementation(() => ({ start: jest.fn() }) as never);
+
+		const state = {
+			session: {
+				phase: "encounter",
+				current_options: null,
+				team: { units: [] },
+				wins: 0,
+				losses: 0,
+				round: 1,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state);
+
+		expect(mockUpdateMultiplayerPlayerNamesDisplay).toHaveBeenCalledWith({
+			enemyName: "RivalMage",
+		});
 	});
 });
