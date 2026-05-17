@@ -10,6 +10,7 @@ import {
 
 const createdButtons: Array<() => void | Promise<void>> = [];
 const createdButtonLabels: string[] = [];
+const createdButtonPositions: Array<{ x: number; y: number }> = [];
 type MockButton = {
 	container: {
 		destroy: jest.Mock;
@@ -43,9 +44,10 @@ jest.mock("@PhaserIO", () => ({
 }));
 
 jest.mock("@Components/UIButton", () => ({
-	createUIButton: jest.fn((label: string, _pos: unknown, onClick: () => void | Promise<void>) => {
+	createUIButton: jest.fn((label: string, pos: { x: number; y: number }, onClick: () => void | Promise<void>) => {
 		createdButtons.push(onClick);
 		createdButtonLabels.push(label);
+		createdButtonPositions.push(pos);
 		const button = {
 			container: {
 				destroy: jest.fn(),
@@ -119,6 +121,7 @@ describe("ArenaLobbyScene", () => {
 	beforeEach(() => {
 		createdButtons.length = 0;
 		createdButtonLabels.length = 0;
+		createdButtonPositions.length = 0;
 		buttonInstances.length = 0;
 		jest.clearAllMocks();
 	});
@@ -194,6 +197,76 @@ describe("ArenaLobbyScene", () => {
 			isMultiplayer: true,
 			multiplayerQueueType: "ranked",
 		});
+	});
+
+	it("sizes the lobby panel to contain the action buttons", () => {
+		const rectangle = jest.fn(() => createMockRectangle());
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle,
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const lobbyCardCall = rectangleCalls.find(
+			([x, y, width, height]) => x === 960 && y === 530 && width === 520 && height === 760
+		);
+		expect(lobbyCardCall).toBeDefined();
+
+		const lobbyButtonPositions = createdButtonPositions.slice(0, 5);
+		const topMostButtonY = Math.min(...lobbyButtonPositions.map(({ y }) => y));
+		const bottomMostButtonEdge = Math.max(...lobbyButtonPositions.map(({ y }) => y + 30));
+		const cardTop = 530 - 760 / 2;
+		const cardBottom = 530 + 760 / 2;
+
+		expect(topMostButtonY - cardTop).toBeLessThanOrEqual(340);
+		expect(bottomMostButtonEdge).toBeLessThanOrEqual(cardBottom);
+	});
+
+	it("renders lobby profile values without input-style boxes", () => {
+		const rectangle = jest.fn(() => createMockRectangle());
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle,
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const fieldBoxCalls = rectangleCalls.filter(([, , width, height]) => width === 404 && height === 58);
+
+		expect(fieldBoxCalls).toHaveLength(0);
+	});
+
+	it("does not render the old lobby accent line above the profile", () => {
+		const rectangle = jest.fn(() => createMockRectangle());
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		scene.add = {
+			rectangle,
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const accentLineCalls = rectangleCalls.filter(([, , width, height]) => width === 220 && height === 4);
+
+		expect(accentLineCalls).toHaveLength(0);
 	});
 
 	it("opens ranking and requests first page", async () => {

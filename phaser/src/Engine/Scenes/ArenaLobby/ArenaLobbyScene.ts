@@ -21,10 +21,6 @@ import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 import {
 	ARENA_BACKGROUND_OVERLAY_ALPHA,
 	ARENA_BACKGROUND_OVERLAY_COLOR,
-	ARENA_FIELD_ALPHA,
-	ARENA_FIELD_BORDER_ALPHA,
-	ARENA_FIELD_BORDER_COLOR,
-	ARENA_FIELD_COLOR,
 	ARENA_OVERLAY_ALPHA,
 	ARENA_OVERLAY_COLOR,
 	ARENA_SURFACE_ACCENT_COLOR,
@@ -50,19 +46,16 @@ const logger = createLogger("ArenaLobbyScene");
 
 // Layout positioning
 const TITLE_Y = 100;
-const LOBBY_CARD_Y = 510;
+const LOBBY_CARD_Y = 530;
 const LOBBY_CARD_WIDTH = 520;
-const LOBBY_CARD_HEIGHT = 720;
-const LOBBY_CARD_ACCENT_Y = 185;
-const LOBBY_SECTION_LABEL_Y_OFFSET = 140;
-const LOBBY_SECTION_VALUE_Y_OFFSET = 186;
-const LOBBY_SECOND_SECTION_LABEL_Y_OFFSET = 250;
-const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 296;
+const LOBBY_CARD_HEIGHT = 760;
+const LOBBY_SECTION_LABEL_Y_OFFSET = 88;
+const LOBBY_SECTION_VALUE_Y_OFFSET = 134;
+const LOBBY_SECOND_SECTION_LABEL_Y_OFFSET = 202;
+const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 248;
 const LOBBY_LABEL_X_PADDING = 58;
-const LOBBY_VALUE_BOX_WIDTH = 404;
-const LOBBY_VALUE_BOX_HEIGHT = 58;
-const FIRST_BUTTON_Y = 560;
-const BUTTON_Y_OFFSET = 78;
+const FIRST_BUTTON_Y_OFFSET = 340;
+const BUTTON_Y_OFFSET = 74;
 const FULL_WIDTH_BUTTON = 404;
 const HALF_WIDTH_BUTTON_GAP = 16;
 const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
@@ -176,7 +169,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const cardTop = LOBBY_CARD_Y - LOBBY_CARD_HEIGHT / 2;
 		const cardLeft = MIDDLE_SCREEN.x - LOBBY_CARD_WIDTH / 2;
 		const fieldLabelX = cardLeft + LOBBY_LABEL_X_PADDING;
-		const fieldValueX = fieldLabelX + 18;
+		const fieldValueX = fieldLabelX;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			fontSize: FIELD_LABEL_FONT_SIZE,
 			color: ARENA_TEXT_LABEL,
@@ -198,31 +191,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				ARENA_SURFACE_BORDER_COLOR,
 				ARENA_SURFACE_BORDER_ALPHA
 			);
-		this.add
-			.rectangle(
-				MIDDLE_SCREEN.x,
-				cardTop + LOBBY_CARD_ACCENT_Y,
-				220,
-				4,
-				ARENA_SURFACE_ACCENT_COLOR,
-				0.95
-			)
-			.setOrigin(0.5);
 
 		this.add
 			.text(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET, "PLAYER", labelStyle)
 			.setOrigin(0, 0.5);
-		this.add
-			.rectangle(
-				MIDDLE_SCREEN.x,
-				cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
-				LOBBY_VALUE_BOX_WIDTH,
-				LOBBY_VALUE_BOX_HEIGHT,
-				ARENA_FIELD_COLOR,
-				ARENA_FIELD_ALPHA
-			)
-			.setOrigin(0.5)
-			.setStrokeStyle(1, ARENA_FIELD_BORDER_COLOR, ARENA_FIELD_BORDER_ALPHA);
 		this.profileText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET, "Loading...", {
 				fontSize: PROFILE_FONT_SIZE,
@@ -233,17 +205,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.add
 			.text(fieldLabelX, cardTop + LOBBY_SECOND_SECTION_LABEL_Y_OFFSET, "RATING", labelStyle)
 			.setOrigin(0, 0.5);
-		this.add
-			.rectangle(
-				MIDDLE_SCREEN.x,
-				cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET,
-				LOBBY_VALUE_BOX_WIDTH,
-				LOBBY_VALUE_BOX_HEIGHT,
-				ARENA_FIELD_COLOR,
-				ARENA_FIELD_ALPHA
-			)
-			.setOrigin(0.5)
-			.setStrokeStyle(1, ARENA_FIELD_BORDER_COLOR, ARENA_FIELD_BORDER_ALPHA);
 		this.ratingText = this.add
 			.text(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET, "", {
 				fontSize: RATING_FONT_SIZE,
@@ -253,7 +214,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setOrigin(0, 0.5);
 
 		// Buttons
-		const buttonY = FIRST_BUTTON_Y;
+		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
 		const casualBtn = createUIButton(
 			"Casual",
