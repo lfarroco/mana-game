@@ -12,6 +12,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import { setEnemyBoardVisible } from "@Models/Board";
 import { shatter } from "@Systems/Chara/Animations";
 import { updateMultiplayerPlayerNamesDisplay } from "@UI/components/multiplayerPlayerNamesDisplay";
+import * as Encounter from "@Systems/Encounter";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
 	getPhaseOptions: jest.fn(),
@@ -42,6 +43,7 @@ jest.mock("@Systems/Chara/Chara", () => ({
 	getUnit: jest.fn(),
 	destroy: jest.fn(),
 	hasCharaById: jest.fn().mockReturnValue(false),
+	refreshUnit: jest.fn().mockResolvedValue(undefined),
 	summon: jest.fn().mockResolvedValue({} as never),
 	__esModule: true,
 }));
@@ -124,6 +126,7 @@ const mockUpdateMultiplayerPlayerNamesDisplay =
 	updateMultiplayerPlayerNamesDisplay as jest.MockedFunction<
 		typeof updateMultiplayerPlayerNamesDisplay
 	>;
+const mockEncounterOpen = Encounter.open as jest.MockedFunction<typeof Encounter.open>;
 
 describe("MultiplayerPhaseManager terminal phases", () => {
 	beforeEach(() => {
@@ -405,5 +408,63 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 		expect(mockUpdateMultiplayerPlayerNamesDisplay).toHaveBeenCalledWith({
 			enemyName: "RivalMage",
 		});
+	});
+
+	it("recreates existing board charas when the server updates a unit with the same id", async () => {
+		const oldUnit = {
+			id: "unit-1",
+			force: "player",
+			position: { x: 0, y: 0 },
+			rank: 2,
+			power: 50,
+		};
+		const updatedUnit = {
+			...oldUnit,
+			rank: 3,
+			power: 100,
+		};
+		const existingChara = { id: "chara-1" };
+		const charaModule = jest.requireMock("@Systems/Chara/Chara") as {
+			getAllCharas: jest.Mock;
+			getUnit: jest.Mock;
+			destroy: jest.Mock;
+			hasCharaById: jest.Mock;
+			create: jest.Mock;
+			refreshUnit: jest.Mock;
+			summon: jest.Mock;
+		};
+
+		mockGetPhaseOptions.mockResolvedValue({
+			phase: "encounter",
+			round: 3,
+			options: [{ id: "combat_encounter" }],
+			team: { units: [updatedUnit] },
+			wins: 2,
+			losses: 1,
+		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
+
+		charaModule.getAllCharas.mockReturnValue([existingChara]);
+		charaModule.getUnit.mockReturnValue(oldUnit);
+		charaModule.hasCharaById.mockImplementation((...args: unknown[]) => args[0] === updatedUnit.id);
+
+		const state = {
+			session: {
+				phase: "shop",
+				current_options: null,
+				team: { units: [oldUnit] },
+				wins: 0,
+				losses: 0,
+				round: 1,
+			},
+			battleData: { units: [] },
+		} as unknown as Parameters<typeof handleMultiplayerPhase>[0];
+
+		await handleMultiplayerPhase(state);
+
+		expect(charaModule.refreshUnit).toHaveBeenCalledWith(updatedUnit);
+		expect(charaModule.destroy).not.toHaveBeenCalledWith(existingChara);
+		expect(charaModule.create).not.toHaveBeenCalledWith(updatedUnit);
+		expect(charaModule.summon).not.toHaveBeenCalled();
+		expect(mockEncounterOpen).toHaveBeenCalledWith(state, ["combat_encounter"]);
 	});
 });

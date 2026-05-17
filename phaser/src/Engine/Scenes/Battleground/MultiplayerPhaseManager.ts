@@ -3,7 +3,17 @@ import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerMa
 import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "@Scenes/Battleground/BrowserCombatEffects";
 import { createCombatPlaybackController } from "@Scenes/Battleground/CombatPlaybackController";
-import { getAllCharas, getUnit, destroy, hasCharaById, create as createChara, enableTooltip, summon, getCharaById } from "@Systems/Chara/Chara";
+import {
+	getAllCharas,
+	getUnit,
+	destroy,
+	hasCharaById,
+	create as createChara,
+	enableTooltip,
+	summon,
+	refreshUnit,
+	getCharaById,
+} from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
@@ -44,6 +54,9 @@ export type MultiplayerPhaseContext = {
 	showReadyOnInitialCombat?: boolean;
 	isInitialCall?: boolean;
 };
+
+const hasUnitStateChanged = (previousUnit: unknown, nextUnit: unknown): boolean =>
+	JSON.stringify(previousUnit) !== JSON.stringify(nextUnit);
 
 const defaultMultiplayerTransport: PhaseTransport = {
 	getPhaseOptions,
@@ -94,6 +107,7 @@ export async function handleMultiplayerPhase(
 	if (result.team && result.team.units) {
 		logger.debug("Syncing team from server...", result.team.units.length);
 		const serverUnits = result.team.units;
+		const previousUnitsById = new Map(state.session.team.units.map((unit) => [unit.id, unit]));
 
 		const previousUnitIds = new Set(state.session.team.units.map((u) => u.id));
 		state.session.team.units = serverUnits;
@@ -113,7 +127,12 @@ export async function handleMultiplayerPhase(
 			// they don't flicker; genuinely new units get the summon effect.
 			await Promise.all(
 				state.session.team.units.map(async (u) => {
-					if (hasCharaById(u.id)) return;
+					const previousUnit = previousUnitsById.get(u.id);
+					if (hasCharaById(u.id)) {
+						if (!previousUnit || !hasUnitStateChanged(previousUnit, u)) return;
+						await refreshUnit(u);
+						return;
+					}
 					if (!previousUnitIds.has(u.id)) {
 						await summon(u, true);
 					} else {
