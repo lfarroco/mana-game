@@ -104,7 +104,7 @@ function executeCombatPhase(
 ): { won: boolean } {
 	const enemyTeam = options?.combatEnemyTeam
 		? JSON.parse(JSON.stringify(options.combatEnemyTeam))
-		: generateEnemyTeamForRound(session.round, session.wins);
+		: generateEnemyTeamForRound(session.round, session.wins, session.seed);
 
 	const combatSession: SessionData = {
 		...session,

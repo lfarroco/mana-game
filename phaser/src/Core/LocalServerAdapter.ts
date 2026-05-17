@@ -125,7 +125,11 @@ export class LocalServerAdapter implements IGameServer {
 						units: combatState.units || combatState.initialUnits,
 						initialUnits: combatState.initialUnits,
 					};
-					const enemyTeam = GameLogic.generateEnemyTeamForRound(session.round, session.wins);
+					const enemyTeam = GameLogic.generateEnemyTeamForRound(
+						session.round,
+						session.wins,
+						session.seed
+					);
 					const simResult = GameLogic.simulateCombat(session);
 					const playerUnits = simResult.finalState.battleData.units.filter(
 						(u: Unit) => u.force === "PLAYER"

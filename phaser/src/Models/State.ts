@@ -3,6 +3,7 @@ import { eqVec2 } from "@Models/ServerGeometry";
 import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
 import { SessionData } from "@Core/Types";
+import { stringToSeed } from "@Core/Seeding";
 
 export type State = {
 	savedGames: string[];
@@ -61,7 +62,7 @@ export const initState = () => {
 
 export function resetState() {
 	state.currentState = initialState();
-	setSeed(parseInt(state.currentState.session.seed));
+	setSeed(stringToSeed(state.currentState.session.seed));
 }
 
 declare global {
@@ -87,7 +88,7 @@ export const getState = (): State => {
  */
 export const setState = (newState: State): void => {
 	state.currentState = newState;
-	setSeed(parseInt(newState.session.seed));
+	setSeed(stringToSeed(newState.session.seed));
 };
 
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {

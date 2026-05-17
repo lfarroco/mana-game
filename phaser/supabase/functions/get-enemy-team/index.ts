@@ -117,6 +117,7 @@ Deno.serve(async (req) => {
 			combatIndex,
 			round,
 			wins,
+			seed,
 			sessionType: rawSessionType,
 			currentTeam,
 		} = body ?? {};
@@ -190,7 +191,9 @@ Deno.serve(async (req) => {
 			sessionType,
 			"get-enemy-team"
 		);
-		const enemyTeam = matchedEnemy?.enemyTeam ?? GameLogic.generateEnemyTeamForRound(round, wins);
+		const fallbackSeed = typeof seed === "string" && seed.length > 0 ? seed : runId;
+		const enemyTeam =
+			matchedEnemy?.enemyTeam ?? GameLogic.generateEnemyTeamForRound(round, wins, fallbackSeed);
 		const enemyPlayerName = matchedEnemy?.enemyPlayerName;
 
 		// ---------------------------------------------------------------------------

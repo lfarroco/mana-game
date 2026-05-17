@@ -12,6 +12,14 @@ const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
 const PLAYER_ID_RANDOM_MAX = 1_000_000;
 
+const generateSessionSeed = (): string => {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+		return crypto.randomUUID();
+	}
+
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
+
 /**
  * Remote implementation of the game server using Supabase.
  * Used for multiplayer mode - communicates with Supabase Edge Functions.
@@ -32,10 +40,11 @@ export class RemoteServerAdapter implements IGameServer {
 
 	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
 		const sessionType = getMultiplayerSessionType() as SessionType;
+		const seed = generateSessionSeed();
 		const { data, error } = await supabase.functions.invoke("action", {
 			body: {
 				actionId: "start_session",
-				payload: { selectedCrystalId: crystalId, sessionType },
+				payload: { selectedCrystalId: crystalId, sessionType, seed },
 			},
 		});
 

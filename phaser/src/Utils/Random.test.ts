@@ -1,4 +1,4 @@
-import { setSeed, nextValue, nextRange, nextShuffle, getSeed } from "@Utils/Random";
+import { setSeed, nextValue, nextRange, nextShuffle, getSeed, shuffle } from "@Utils/Random";
 
 describe("Random Module", () => {
 	it("should produce deterministic results with the same seed", () => {
@@ -47,6 +47,13 @@ describe("Random Module", () => {
 		expect(shuffled1).toEqual(shuffled2);
 		expect(shuffled1.length).toBe(arr.length);
 		arr.forEach((item) => expect(shuffled1).toContain(item));
+	});
+
+	it("should advance the shuffle seed for each swap", () => {
+		const shortShuffle = shuffle(42, [1, 2]);
+		const longShuffle = shuffle(42, [1, 2, 3, 4, 5]);
+
+		expect(shortShuffle.seed).not.toBe(longShuffle.seed);
 	});
 
 	it("should get and set seed correctly", () => {

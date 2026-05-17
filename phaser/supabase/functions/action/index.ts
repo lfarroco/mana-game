@@ -210,13 +210,14 @@ Deno.serve(async (req) => {
 		// Handle Start Session
 		if (actionId === "start_session") {
 			const selectedCrystalId = payload?.selectedCrystalId;
+			const explicitSeed = typeof payload?.seed === "string" ? payload.seed : undefined;
 			const requestedSessionType = payload?.sessionType;
 			const sessionType =
 				requestedSessionType === "multiplayer_ranked" ||
 					requestedSessionType === "multiplayer_casual"
 					? requestedSessionType
 					: "multiplayer_casual";
-			const newSession = GameLogic.createInitialSession(playerId, selectedCrystalId);
+			const newSession = GameLogic.createInitialSession(playerId, selectedCrystalId, explicitSeed);
 
 			// Upsert Session
 			const { data, error } = await supabaseAdmin

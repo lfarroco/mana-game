@@ -34,327 +34,6 @@ if (typeof globalThis.Phaser === "undefined") {
 	};
 }
 
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __esm = (fn, res) => function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/Models/Entities/Card.ts
-var dummy, cards2, registerCard, collections, registerCollection, getCardDefinition, hasCardDefinition, getCores, getNonCores, getAlliedCore, getEnemyCore, getBattleCore;
-var init_Card = __esm({
-  "src/Models/Entities/Card.ts"() {
-    "use strict";
-    dummy = {
-      id: "dummy_card",
-      pic: "boss_andromeda",
-      power: 10,
-      cooldown: 2300,
-      rank: 1,
-      reactions: [],
-      effects: [
-        {
-          id: "shield"
-        }
-      ]
-    };
-    cards2 = /* @__PURE__ */ new Map();
-    registerCard = (card) => {
-      cards2.set(card.id, card);
-    };
-    collections = /* @__PURE__ */ new Map();
-    registerCollection = (collection) => {
-      collections.set(collection.id, collection);
-      collection.cards.forEach(registerCard);
-    };
-    getCardDefinition = (id) => {
-      const card = cards2.get(id);
-      if (!card) {
-        return dummy;
-      }
-      return card;
-    };
-    hasCardDefinition = (id) => {
-      return cards2.has(id);
-    };
-    getCores = () => Array.from(cards2.values()).filter((card) => card.isCore);
-    getNonCores = () => Array.from(cards2.values()).filter((card) => !card.isCore);
-    getAlliedCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
-    getEnemyCore = (state) => (forceId) => state.battleData.units.find((u) => u.force !== forceId && u.isCore);
-    getBattleCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
-  }
-});
-
-// src/Utils/Random.ts
-function value(seed) {
-  const next = seed + 1831565813;
-  let t2 = next;
-  t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
-  t2 ^= t2 + Math.imul(t2 ^ t2 >>> 7, t2 | 61);
-  return {
-    result: ((t2 ^ t2 >>> 14) >>> 0) / 4294967296,
-    seed: next
-  };
-}
-function range(seed, min, max) {
-  const val = value(seed);
-  const result = Math.floor(val.result * (max - min + 1)) + min;
-  return {
-    result,
-    seed: val.seed
-  };
-}
-function shuffle(seed, array) {
-  const val = value(seed);
-  const copy = [...array];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(val.result * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return {
-    copy,
-    seed: val.seed
-  };
-}
-function pickRandom(seed, arr, n) {
-  return shuffle(seed, arr).copy.slice(0, n);
-}
-function nextValue() {
-  const result = value(globalSeed);
-  globalSeed = result.seed;
-  return result.result;
-}
-function nextPickRandom(arr, n) {
-  const result = shuffle(globalSeed, arr);
-  globalSeed = result.seed;
-  return result.copy.slice(0, n);
-}
-function setSeed(seed) {
-  globalSeed = seed;
-}
-var globalSeed;
-var init_Random = __esm({
-  "src/Utils/Random.ts"() {
-    "use strict";
-    globalSeed = Math.floor(Math.random() * 4294967295);
-  }
-});
-
-// src/Core/Seeding.ts
-function stringToSeed(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash);
-}
-function generateNextSeed(currentSeed, actionId) {
-  const input = currentSeed + actionId;
-  let hash = 0;
-  for (let i = 0; i < input.length; i++) {
-    const char = input.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return Math.abs(hash).toString(36);
-}
-function getDeterministicRandomOptionIndex(seed, round, step, optionCount) {
-  const seededInput = `${seed}:${round}:${step}:${optionCount}`;
-  return range(stringToSeed(seededInput), 0, optionCount - 1).result;
-}
-function pickRandomItemsSeeded(seed, items, count) {
-  const seedNum = stringToSeed(seed);
-  return pickRandom(seedNum, items, count);
-}
-function shuffleWithSeed(items, seedNum) {
-  const shuffled = [...items];
-  let currentSeed = seedNum;
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const x = Math.sin(currentSeed++) * 1e4;
-    const rnd = x - Math.floor(x);
-    const j = Math.floor(rnd * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-var init_Seeding = __esm({
-  "src/Core/Seeding.ts"() {
-    "use strict";
-    init_Random();
-  }
-});
-
-// src/Core/PhaseSystem/PhaseConfig.ts
-function getPhaseForTurn(round, step) {
-  const stepIndex = step - 1;
-  const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
-  return roundPhases[stepIndex];
-}
-var ROUND_PHASES, DEFAULT_ROUND_PHASES;
-var init_PhaseConfig = __esm({
-  "src/Core/PhaseSystem/PhaseConfig.ts"() {
-    "use strict";
-    ROUND_PHASES = {
-      1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-      3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-      7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-      11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-      15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"]
-    };
-    DEFAULT_ROUND_PHASES = [
-      "encounter",
-      "encounter",
-      "encounter",
-      "combat",
-      "upgrade_core"
-    ];
-  }
-});
-
-// src/Core/OptionGeneration.ts
-var OptionGeneration_exports = {};
-__export(OptionGeneration_exports, {
-  generateEncounterOptions: () => generateEncounterOptions,
-  generateShopOptions: () => generateShopOptions
-});
-function generateEncounterOptions(session) {
-  const expectedPhase = getPhaseForTurn(session.round, session.step);
-  if (expectedPhase === "combat") {
-    return { options: [{ id: "combat_encounter" }] };
-  }
-  if (!session.encounter_history) {
-    session.encounter_history = [];
-  }
-  const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
-  const seedNum = stringToSeed(session.seed);
-  const shuffled = shuffleWithSeed(ENCOUNTER_IDS, seedNum);
-  const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
-  const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
-  const selectedOptions = encountersToShow.slice(0, 3);
-  session.encounter_history.push(...selectedOptions);
-  return { options: selectedOptions.map((id) => ({ id })) };
-}
-function getEncounterFilterType(encounterId) {
-  if (!encounterId) return "";
-  const filterMap = {
-    armory: "damage",
-    healing_tent: "heal",
-    frontier_fort: "shield",
-    forest_pools: "regen",
-    toxic_chamber: "poison",
-    trial_circuit: "haste",
-    trappers_guild: "slow",
-    thunder_spire: "charge",
-    commanders_tent: "increase_power",
-    assassins_hideout: "increase_critical",
-    silver_shop: "silver",
-    gold_shop: "gold"
-  };
-  return filterMap[encounterId] || "";
-}
-function getCardRank(card) {
-  return card.rank ?? 1;
-}
-function cardMatchesEffectType(card, filterType) {
-  return card.effects?.some((effect) => effect.id === filterType) || card.reactions?.some((reaction2) => reaction2.effects?.some((effect) => effect.id === filterType));
-}
-function filterCardsByEffect(cards3, filterType) {
-  if (filterType === "silver") {
-    return cards3.filter((card) => getCardRank(card) === 2);
-  }
-  if (filterType === "gold") {
-    return cards3.filter((card) => getCardRank(card) === 3);
-  }
-  return cards3.filter(
-    (card) => getCardRank(card) === 1 && cardMatchesEffectType(card, filterType)
-  );
-}
-function generateShopOptions(session, triggerActionId) {
-  let encounterId = null;
-  if (triggerActionId) {
-    encounterId = triggerActionId;
-  } else {
-    const previousStep = session.step - 1;
-    const encounterActions = session.action_log.filter(
-      (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-    );
-    const lastEncounterAction = encounterActions[encounterActions.length - 1];
-    encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
-  }
-  let numOptions = 3;
-  if (encounterId === "gold_shop") {
-    numOptions = 1;
-  } else if (encounterId === "silver_shop") {
-    numOptions = 2;
-  }
-  const filterType = getEncounterFilterType(encounterId);
-  let filteredCards = getNonCores();
-  if (filterType) {
-    filteredCards = filterCardsByEffect(filteredCards, filterType);
-  }
-  const playerUnits = session.team?.units || [];
-  const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
-  filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
-  const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-  const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
-    id: card.id,
-    cost: 10
-  }));
-  return { options };
-}
-var ENCOUNTER_IDS;
-var init_OptionGeneration = __esm({
-  "src/Core/OptionGeneration.ts"() {
-    "use strict";
-    init_Card();
-    init_Seeding();
-    init_PhaseConfig();
-    ENCOUNTER_IDS = [
-      "upgrade_unit",
-      "armory",
-      "healing_tent",
-      "frontier_fort",
-      "forest_pools",
-      "toxic_chamber",
-      "trial_circuit",
-      "trappers_guild",
-      "thunder_spire",
-      "commanders_tent",
-      "assassins_hideout",
-      "power_distributor",
-      "power_absorber",
-      "silver_shop",
-      "gold_shop"
-    ];
-  }
-});
 
 // src/Data/BaseCollection.ts
 var regen = { id: "regen" };
@@ -1674,8 +1353,44 @@ var BASE_COLLECTION_DATA = {
   "cards": cards
 };
 
-// src/Core/GameLogic.ts
-init_Card();
+// src/Models/Entities/Card.ts
+var dummy = {
+  id: "dummy_card",
+  pic: "boss_andromeda",
+  power: 10,
+  cooldown: 2300,
+  rank: 1,
+  reactions: [],
+  effects: [
+    {
+      id: "shield"
+    }
+  ]
+};
+var cards2 = /* @__PURE__ */ new Map();
+var registerCard = (card) => {
+  cards2.set(card.id, card);
+};
+var collections = /* @__PURE__ */ new Map();
+var registerCollection = (collection) => {
+  collections.set(collection.id, collection);
+  collection.cards.forEach(registerCard);
+};
+var getCardDefinition = (id) => {
+  const card = cards2.get(id);
+  if (!card) {
+    return dummy;
+  }
+  return card;
+};
+var hasCardDefinition = (id) => {
+  return cards2.has(id);
+};
+var getCores = () => Array.from(cards2.values()).filter((card) => card.isCore);
+var getNonCores = () => Array.from(cards2.values()).filter((card) => !card.isCore);
+var getAlliedCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
+var getEnemyCore = (state) => (forceId) => state.battleData.units.find((u) => u.force !== forceId && u.isCore);
+var getBattleCore = (state) => (forceId) => state.battleData.units.find((u) => u.force === forceId && u.isCore);
 
 // node_modules/uuid/dist/esm-browser/stringify.js
 var byteToHex = [];
@@ -1729,9 +1444,61 @@ function v4(options, buf, offset) {
 }
 var v4_default = v4;
 
+// src/Utils/Random.ts
+function value(seed) {
+  const next = seed + 1831565813;
+  let t2 = next;
+  t2 = Math.imul(t2 ^ t2 >>> 15, t2 | 1);
+  t2 ^= t2 + Math.imul(t2 ^ t2 >>> 7, t2 | 61);
+  return {
+    result: ((t2 ^ t2 >>> 14) >>> 0) / 4294967296,
+    seed: next
+  };
+}
+function range(seed, min, max) {
+  const val = value(seed);
+  const result = Math.floor(val.result * (max - min + 1)) + min;
+  return {
+    result,
+    seed: val.seed
+  };
+}
+function shuffle(seed, array) {
+  let currentSeed = seed;
+  const copy = [...array];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const val = value(currentSeed);
+    currentSeed = val.seed;
+    const j = Math.floor(val.result * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return {
+    copy,
+    seed: currentSeed
+  };
+}
+function pickRandom(seed, arr, n) {
+  return shuffle(seed, arr).copy.slice(0, n);
+}
+var globalSeed = Math.floor(Math.random() * 4294967295);
+function nextValue() {
+  const result = value(globalSeed);
+  globalSeed = result.seed;
+  return result.result;
+}
+function nextPickRandom(arr, n) {
+  const result = shuffle(globalSeed, arr);
+  globalSeed = result.seed;
+  return result.copy.slice(0, n);
+}
+function setSeed(seed) {
+  globalSeed = seed;
+}
+function getSeed() {
+  return globalSeed;
+}
+
 // src/Models/Entities/Unit.ts
-init_Card();
-init_Random();
 var makeUnit = (force, cardId, position = { x: 1, y: 1 }) => {
   const card = getCardDefinition(cardId);
   return createUnitFromCardSpec(force, card, position, v4_default());
@@ -1848,7 +1615,188 @@ var MIN_COOLDOWN = 200;
 var FORCE_ID_PLAYER = "PLAYER";
 var FORCE_ID_CPU = "CPU";
 
+// src/Core/Seeding.ts
+function stringToSeed(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+}
+function generateNextSeed(currentSeed, actionId) {
+  const input = currentSeed + actionId;
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(36);
+}
+function getDeterministicRandomOptionIndex(seed, round, step, optionCount) {
+  const seededInput = `${seed}:${round}:${step}:${optionCount}`;
+  return range(stringToSeed(seededInput), 0, optionCount - 1).result;
+}
+function pickRandomItemsSeeded(seed, items, count) {
+  const seedNum = stringToSeed(seed);
+  return pickRandom(seedNum, items, count);
+}
+function shuffleWithSeed(items, seedNum) {
+  const shuffled = [...items];
+  let currentSeed = seedNum;
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const x = Math.sin(currentSeed++) * 1e4;
+    const rnd = x - Math.floor(x);
+    const j = Math.floor(rnd * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// src/Core/PhaseSystem/PhaseConfig.ts
+var ROUND_PHASES = {
+  1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+  3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+  7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
+  11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
+  15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"]
+};
+var DEFAULT_ROUND_PHASES = [
+  "encounter",
+  "encounter",
+  "encounter",
+  "combat",
+  "upgrade_core"
+];
+function getPhaseForTurn(round, step) {
+  const stepIndex = step - 1;
+  const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
+  return roundPhases[stepIndex];
+}
+
+// src/Core/OptionGeneration.ts
+var ENCOUNTER_IDS = [
+  "upgrade_unit",
+  "armory",
+  "healing_tent",
+  "frontier_fort",
+  "forest_pools",
+  "toxic_chamber",
+  "trial_circuit",
+  "trappers_guild",
+  "thunder_spire",
+  "commanders_tent",
+  "assassins_hideout",
+  "power_distributor",
+  "power_absorber",
+  "silver_shop",
+  "gold_shop"
+];
+function generateEncounterOptions(session) {
+  const expectedPhase = getPhaseForTurn(session.round, session.step);
+  if (expectedPhase === "combat") {
+    return { options: [{ id: "combat_encounter" }] };
+  }
+  if (!session.encounter_history) {
+    session.encounter_history = [];
+  }
+  const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
+  const seedNum = stringToSeed(session.seed);
+  const shuffled = shuffleWithSeed(ENCOUNTER_IDS, seedNum);
+  const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
+  const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
+  const selectedOptions = encountersToShow.slice(0, 3);
+  session.encounter_history.push(...selectedOptions);
+  return { options: selectedOptions.map((id) => ({ id })) };
+}
+function getEncounterFilterType(encounterId) {
+  if (!encounterId) return "";
+  const filterMap = {
+    armory: "damage",
+    healing_tent: "heal",
+    frontier_fort: "shield",
+    forest_pools: "regen",
+    toxic_chamber: "poison",
+    trial_circuit: "haste",
+    trappers_guild: "slow",
+    thunder_spire: "charge",
+    commanders_tent: "increase_power",
+    assassins_hideout: "increase_critical",
+    silver_shop: "silver",
+    gold_shop: "gold"
+  };
+  return filterMap[encounterId] || "";
+}
+function getCardRank(card) {
+  return card.rank ?? 1;
+}
+function cardMatchesEffectType(card, filterType) {
+  return card.effects?.some((effect) => effect.id === filterType) || card.reactions?.some((reaction2) => reaction2.effects?.some((effect) => effect.id === filterType));
+}
+function filterCardsByEffect(cards3, filterType) {
+  if (filterType === "silver") {
+    return cards3.filter((card) => getCardRank(card) === 2);
+  }
+  if (filterType === "gold") {
+    return cards3.filter((card) => getCardRank(card) === 3);
+  }
+  return cards3.filter(
+    (card) => getCardRank(card) === 1 && cardMatchesEffectType(card, filterType)
+  );
+}
+function generateShopOptions(session, triggerActionId) {
+  let encounterId = null;
+  if (triggerActionId) {
+    encounterId = triggerActionId;
+  } else {
+    const previousStep = session.step - 1;
+    const encounterActions = session.action_log.filter(
+      (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
+    );
+    const lastEncounterAction = encounterActions[encounterActions.length - 1];
+    encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+  }
+  let numOptions = 3;
+  if (encounterId === "gold_shop") {
+    numOptions = 1;
+  } else if (encounterId === "silver_shop") {
+    numOptions = 2;
+  }
+  const filterType = getEncounterFilterType(encounterId);
+  let filteredCards = getNonCores();
+  if (filterType) {
+    filteredCards = filterCardsByEffect(filteredCards, filterType);
+  }
+  const playerUnits = session.team?.units || [];
+  const maxRankCardIds = new Set(playerUnits.filter((u) => u.rank >= 4).map((u) => u.cardId));
+  filteredCards = filteredCards.filter((card) => !maxRankCardIds.has(card.id));
+  const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
+  const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
+    id: card.id,
+    cost: 10
+  }));
+  return { options };
+}
+
 // src/Core/SessionManagement.ts
+var generateRandomSessionSeed = () => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
 function createDefaultRunStats() {
   return {
     damageDealt: 0,
@@ -1862,8 +1810,7 @@ function createDefaultRunStats() {
   };
 }
 function createInitialSession(playerId, selectedCrystalId, explicitSeed) {
-  const { generateEncounterOptions: generateEncounterOptions2 } = (init_OptionGeneration(), __toCommonJS(OptionGeneration_exports));
-  const seed = explicitSeed ?? Math.random().toString(36).substring(7);
+  const seed = explicitSeed ?? generateRandomSessionSeed();
   const initialSeed = seed;
   const team = { units: [] };
   if (selectedCrystalId) {
@@ -1887,7 +1834,7 @@ function createInitialSession(playerId, selectedCrystalId, explicitSeed) {
     current_options: null,
     runStats: createDefaultRunStats()
   };
-  const options = generateEncounterOptions2(session);
+  const options = generateEncounterOptions(session);
   session.current_options = { options: options.options };
   return session;
 }
@@ -1916,9 +1863,6 @@ function validateAndApplyTeamUpdate(session, newTeam) {
   }
   return { team: { units: validatedUnits }, valid: true };
 }
-
-// src/Core/Actions/RecruitmentActions.ts
-init_Card();
 
 // src/Models/SharedGeometry.ts
 var vec2 = (x, y) => ({
@@ -2240,12 +2184,6 @@ function resolveAction(session, actionId, payload) {
   return { team, updates };
 }
 
-// src/Core/EnemyGeneration.ts
-init_Card();
-
-// src/Models/Entities/Force.ts
-init_Card();
-
 // src/Utils/Logger.ts
 var LOG_LEVEL_PRIORITY = {
   debug: 10,
@@ -2415,9 +2353,6 @@ var getEnemyForce = (state, unitId) => {
   return state.battleData.forces.find((f) => f.id !== unit.force);
 };
 
-// src/Core/Combat/generateEnemyTeam.ts
-init_Card();
-
 // src/Models/ServerGeometry.ts
 var vec22 = (x, y) => ({
   x,
@@ -2429,7 +2364,6 @@ var size = (width, height) => ({
 });
 
 // src/utils.ts
-init_Random();
 function pickRandom2(arr, n) {
   return nextPickRandom(arr, n);
 }
@@ -2547,7 +2481,7 @@ function generateEnemyTeam(state, round, pool) {
 }
 
 // src/Core/EnemyGeneration.ts
-function generateEnemyTeamForRound(round, wins) {
+function generateEnemyTeamForRound(round, wins, seed) {
   const allCards = getNonCores();
   const mockState = {
     battleData: {
@@ -2561,17 +2495,17 @@ function generateEnemyTeamForRound(round, wins) {
       player_id: FORCE_ID_PLAYER
     }
   };
+  const previousSeed = getSeed();
+  if (seed) {
+    setSeed(stringToSeed(`${seed}:enemy:${round}:${wins}`));
+  }
   const units = generateEnemyTeam(mockState, round, allCards);
+  if (seed) {
+    setSeed(previousSeed);
+  }
   units.forEach((u) => u.force = FORCE_ID_CPU);
   return units;
 }
-
-// src/Core/GameLogic.ts
-init_Seeding();
-init_OptionGeneration();
-
-// src/Core/Combat/CombatSimulation.ts
-init_Card();
 
 // src/i18n/en.json
 var en_default = {
@@ -5750,7 +5684,6 @@ function stop(trackerState, state) {
 }
 
 // src/TriggerSystem/effects/dealDamage.ts
-init_Card();
 function dealDamageLogicIO(env, sourceUnit, scale = 1, delayedExecution) {
   const damageAmount = sourceUnit.power;
   const targetForce = env.state.battleData.forces.find(
@@ -5814,7 +5747,6 @@ function dealDamageLogicIO(env, sourceUnit, scale = 1, delayedExecution) {
 }
 
 // src/TriggerSystem/effects/addShield.ts
-init_Card();
 var addShieldLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
   const baseAmount = sourceUnit.power;
   const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force);
@@ -5840,9 +5772,6 @@ var addShieldLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
     effect();
   }
 };
-
-// src/TriggerSystem/effects/restoreLife.ts
-init_Card();
 
 // src/Systems/PoisonDamageSystem.ts
 function initializePoisonSystem() {
@@ -6027,7 +5956,6 @@ var absorbPower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
 };
 
 // src/TriggerSystem/effects/sacrificeEffect.ts
-init_Random();
 var sacrificeEffect = (env, sourceUnit, delayedExecution) => {
   const removableEffects = sourceUnit.effects;
   const removableReactions = sourceUnit.reactions;
@@ -6119,7 +6047,6 @@ function applyChargeLogicIO(env, sourceUnit, targets, amount, delayedExecution) 
 }
 
 // src/TriggerSystem/effects/applyPoison.ts
-init_Card();
 var logger4 = createLogger("applyPoison");
 var applyPoisonLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) => {
   const baseAmount = sourceUnit.power * 0.1;
@@ -6162,9 +6089,6 @@ var applyPoisonLogicIO = async (env, sourceUnit, scale = 1, delayedExecution) =>
     effect();
   }
 };
-
-// src/TriggerSystem/effects/applyRegen.ts
-init_Card();
 
 // src/Systems/RegenSystem.ts
 function initializeRegenSystem() {
@@ -6664,9 +6588,6 @@ function update(env, statusEffectState, delta) {
 function stop2(_statusEffectState) {
 }
 
-// src/Core/Combat/RunCombatCore.ts
-init_Card();
-
 // src/Core/Combat/ForceStatsState.ts
 function initializeForceStatsState() {
   return {
@@ -7072,8 +6993,6 @@ var createServerCombatEffects = (_state) => {
 };
 
 // src/Core/Combat/CombatSimulation.ts
-init_Random();
-init_Seeding();
 function createCombatState(session) {
   let playerUnits = [];
   if (session.team && session.team.units) {
@@ -7507,7 +7426,6 @@ var encounterPhaseHandler = createPhaseHandler({
 });
 
 // src/Core/PhaseSystem/handlers/ShopPhaseHandler.ts
-init_PhaseConfig();
 var shopPhaseHandler = createPhaseHandler({
   phase: "shop",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -7537,7 +7455,6 @@ var shopPhaseHandler = createPhaseHandler({
 });
 
 // src/Core/PhaseSystem/handlers/OrbShopPhaseHandler.ts
-init_PhaseConfig();
 var orbShopPhaseHandler = createPhaseHandler({
   phase: "orb_shop",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -7577,7 +7494,6 @@ var orbShopPhaseHandler = createPhaseHandler({
 });
 
 // src/Core/PhaseSystem/handlers/CombatPhaseHandler.ts
-init_PhaseConfig();
 var combatPhaseHandler = createPhaseHandler({
   phase: "combat",
   actionType: "phase_transition" /* PHASE_TRANSITION */,
@@ -7739,7 +7655,6 @@ phaseManager.register(upgradeCorePhaseHandler);
 phaseManager.register(addReactionCorePhaseHandler);
 
 // src/Core/SessionTransitions.ts
-init_Seeding();
 function transitionToNextState(session, actionId, payload, options) {
   const nextSession = JSON.parse(JSON.stringify(session));
   nextSession.runStats = nextSession.runStats || createDefaultRunStats();
@@ -7780,7 +7695,7 @@ function transitionToNextState(session, actionId, payload, options) {
   return { session: nextSession, combatResult };
 }
 function executeCombatPhase(session, options) {
-  const enemyTeam = options?.combatEnemyTeam ? JSON.parse(JSON.stringify(options.combatEnemyTeam)) : generateEnemyTeamForRound(session.round, session.wins);
+  const enemyTeam = options?.combatEnemyTeam ? JSON.parse(JSON.stringify(options.combatEnemyTeam)) : generateEnemyTeamForRound(session.round, session.wins, session.seed);
   const combatSession = {
     ...session,
     current_options: {
@@ -7942,8 +7857,6 @@ function buildReplaySnapshot(session) {
 }
 
 // src/Core/LlmPlayerService.ts
-init_Card();
-init_Card();
 var BOARD_WIDTH2 = 3;
 var BOARD_HEIGHT2 = 3;
 registerCollection(BASE_COLLECTION_DATA);

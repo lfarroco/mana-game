@@ -7,6 +7,15 @@
 import { SessionData } from "@Core/Types";
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import { FORCE_ID_PLAYER } from "@Core/Combat/CombatConstants";
+import { generateEncounterOptions } from "./OptionGeneration";
+
+const generateRandomSessionSeed = (): string => {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+		return crypto.randomUUID();
+	}
+
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+};
 
 /**
  * Create default run statistics object.
@@ -34,10 +43,7 @@ export function createInitialSession(
 	selectedCrystalId?: string,
 	explicitSeed?: string
 ): SessionData {
-	// Import here to avoid circular dependency
-	const { generateEncounterOptions } = require("./OptionGeneration");
-
-	const seed = explicitSeed ?? Math.random().toString(36).substring(7);
+	const seed = explicitSeed ?? generateRandomSessionSeed();
 	const initialSeed = seed;
 
 	const team: { units: Unit[] } = { units: [] };

@@ -35,16 +35,17 @@ export function shuffle<T>(seed: number, array: T[]): {
 	copy: T[],
 	seed: number
 } {
-
-	const val = value(seed)
+	let currentSeed = seed;
 	const copy = [...array];
 	for (let i = copy.length - 1; i > 0; i--) {
+		const val = value(currentSeed);
+		currentSeed = val.seed;
 		const j = Math.floor(val.result * (i + 1));
 		[copy[i], copy[j]] = [copy[j], copy[i]];
 	}
 	return {
 		copy,
-		seed: val.seed
+		seed: currentSeed
 	}
 }
 

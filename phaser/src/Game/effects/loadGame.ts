@@ -4,6 +4,7 @@ import { getSavedData } from "@Game/effects/getSavedData";
 import { setSeed } from "@Utils/Random";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { SessionData } from "@Core/Types";
+import { stringToSeed } from "@Core/Seeding";
 
 export function loadGame() {
 	const data = getSavedData();
@@ -22,7 +23,7 @@ export function loadGame() {
 	}
 
 	// Set up game state
-	setSeed(parseInt(savedData.seed));
+	setSeed(stringToSeed(savedData.seed));
 	const state = getState();
 	state.session = savedData;
 

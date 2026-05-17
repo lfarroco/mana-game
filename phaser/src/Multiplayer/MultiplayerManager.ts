@@ -401,6 +401,7 @@ const fetchEnemyTeamFromServer = async (
 	combatIndex: number,
 	round: number,
 	wins: number,
+	seed: string,
 	sessionType: string,
 	currentTeam: unknown
 ): Promise<{ enemyTeam: Unit[]; enemyPlayerName?: string } | null> => {
@@ -413,7 +414,7 @@ const fetchEnemyTeamFromServer = async (
 
 	try {
 		const { data, error } = await supabase.functions.invoke("get-enemy-team", {
-			body: { runId, combatIndex, round, wins, sessionType, currentTeam },
+			body: { runId, combatIndex, round, wins, seed, sessionType, currentTeam },
 		});
 		if (error || !data?.enemyTeam) {
 			logger.warn("fetchEnemyTeamFromServer: server error", { error });
@@ -501,6 +502,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 				combatIndex,
 				deferredSession.round,
 				deferredSession.wins,
+				deferredSession.seed,
 				deferredSession.session_type || getMultiplayerSessionType(),
 				deferredSession.team
 			);
