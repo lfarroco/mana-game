@@ -75,6 +75,8 @@ describe("transitionToNextState - combat enemy selection", () => {
 			?.combatState;
 		expect(combatState?.enemyTeam?.[0]?.id).toBe("custom-enemy-0");
 		expect(combatState?.enemyTeam).toHaveLength(customEnemyTeam.length);
+		expect(combatState?.units.some((unit) => unit.id === "custom-enemy-0")).toBe(true);
+		expect(combatState?.initialUnits?.some((unit) => unit.id === "custom-enemy-0")).toBe(true);
 	});
 
 	it("generates a PvE enemy team when no override is provided", () => {

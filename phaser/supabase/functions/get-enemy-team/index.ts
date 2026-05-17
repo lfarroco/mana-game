@@ -1,9 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as GameLogic from "./_shared.js";
 import {
-	pickMatchedEnemySession,
-	readRatingDelta,
-	sanitizeEnemyTeam,
+	normalizeSessionType,
+	persistRoundGhost,
+	selectRoundGhostOpponent,
 } from "../action/matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
@@ -95,88 +95,6 @@ const supabaseAdmin = createClient(
 	Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 );
 
-const DEFAULT_MATCHMAKING_RATING_DELTA = 50;
-const MATCHMAKING_CANDIDATE_LIMIT = 50;
-
-const selectMatchedEnemyTeam = async (
-	playerId: string
-): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
-	const { data: selfPlayer, error: selfError } = await supabaseAdmin
-		.from("players")
-		.select("rating")
-		.eq("id", playerId)
-		.maybeSingle();
-
-	if (selfError) {
-		console.error("[get-enemy-team] failed to read player rating:", selfError.message);
-		return null;
-	}
-
-	const selfRating = Number(selfPlayer?.rating);
-	if (Number.isNaN(selfRating)) {
-		return null;
-	}
-
-	const delta = readRatingDelta(
-		Deno.env.get("MATCHMAKING_RATING_DELTA"),
-		DEFAULT_MATCHMAKING_RATING_DELTA
-	);
-	const minRating = selfRating - delta;
-	const maxRating = selfRating + delta;
-
-	const { data: candidatePlayers, error: candidateError } = await supabaseAdmin
-		.from("players")
-		.select("id, username")
-		.neq("id", playerId)
-		.gte("rating", minRating)
-		.lte("rating", maxRating)
-		.limit(MATCHMAKING_CANDIDATE_LIMIT);
-
-	if (candidateError) {
-		console.error("[get-enemy-team] failed to query candidate players:", candidateError.message);
-		return null;
-	}
-
-	const candidateIds = Array.isArray(candidatePlayers)
-		? candidatePlayers.map((row) => row?.id).filter((id): id is string => typeof id === "string")
-		: [];
-	const usernamesById = new Map(
-		(Array.isArray(candidatePlayers) ? candidatePlayers : [])
-			.filter(
-				(row): row is { id: string; username?: string | null } => typeof row?.id === "string"
-			)
-			.map((row) => [row.id, typeof row.username === "string" ? row.username : undefined])
-	);
-
-	if (candidateIds.length === 0) {
-		return null;
-	}
-
-	const { data: candidateSessions, error: sessionError } = await supabaseAdmin
-		.from("player_sessions")
-		.select("player_id, team")
-		.in("player_id", candidateIds)
-		.not("team", "is", null)
-		.limit(MATCHMAKING_CANDIDATE_LIMIT);
-
-	if (sessionError) {
-		console.error("[get-enemy-team] failed to query candidate sessions:", sessionError.message);
-		return null;
-	}
-
-	const matchedSession = pickMatchedEnemySession(
-		Array.isArray(candidateSessions) ? candidateSessions : []
-	);
-	if (!matchedSession) {
-		return null;
-	}
-
-	return {
-		enemyTeam: sanitizeEnemyTeam(matchedSession.team as { units: any[] }),
-		enemyPlayerName: usernamesById.get(matchedSession.player_id ?? ""),
-	};
-};
-
 // ---------------------------------------------------------------------------
 // Main handler
 // ---------------------------------------------------------------------------
@@ -194,7 +112,15 @@ Deno.serve(async (req) => {
 			req.json(),
 		]);
 
-		const { runId, combatIndex, round, wins } = body ?? {};
+		const {
+			runId,
+			combatIndex,
+			round,
+			wins,
+			sessionType: rawSessionType,
+			currentTeam,
+		} = body ?? {};
+		const sessionType = normalizeSessionType(rawSessionType);
 
 		if (
 			typeof runId !== "string" ||
@@ -237,10 +163,24 @@ Deno.serve(async (req) => {
 		}
 
 		// ---------------------------------------------------------------------------
-		// Prefer a matched ghost from another player within rating range.
+		// Prefer a stored ghost from the same round and queue.
 		// Fall back to the single-player PvE generator only when no valid ghost exists.
 		// ---------------------------------------------------------------------------
-		const matchedEnemy = await selectMatchedEnemyTeam(playerId);
+		await persistRoundGhost(
+			supabaseAdmin,
+			playerId,
+			round,
+			sessionType,
+			currentTeam,
+			"get-enemy-team"
+		);
+		const matchedEnemy = await selectRoundGhostOpponent(
+			supabaseAdmin,
+			playerId,
+			round,
+			sessionType,
+			"get-enemy-team"
+		);
 		const enemyTeam = matchedEnemy?.enemyTeam ?? GameLogic.generateEnemyTeamForRound(round, wins);
 		const enemyPlayerName = matchedEnemy?.enemyPlayerName;
 

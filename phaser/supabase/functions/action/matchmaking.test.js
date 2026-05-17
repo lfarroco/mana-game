@@ -5,10 +5,13 @@ import {
 } from "https://deno.land/std@0.208.0/assert/mod.ts";
 import {
 	hasValidCombatTeam,
+	normalizeSessionType,
 	pickMatchedEnemySession,
 	pickMatchedEnemyTeam,
+	persistRoundGhost,
 	readRatingDelta,
 	sanitizeEnemyTeam,
+	selectRoundGhostOpponent,
 } from "./matchmaking.ts";
 
 Deno.test("readRatingDelta returns fallback for invalid values", () => {
@@ -25,6 +28,13 @@ Deno.test("readRatingDelta floors valid positive values", () => {
 Deno.test("readRatingDelta supports a 50-point fallback window", () => {
 	assertEquals(readRatingDelta(undefined, 50), 50);
 	assertEquals(readRatingDelta("bad-value", 50), 50);
+});
+
+Deno.test("normalizeSessionType keeps ranked and defaults everything else to casual", () => {
+	assertEquals(normalizeSessionType("multiplayer_ranked"), "multiplayer_ranked");
+	assertEquals(normalizeSessionType("multiplayer_casual"), "multiplayer_casual");
+	assertEquals(normalizeSessionType("ranked"), "multiplayer_casual");
+	assertEquals(normalizeSessionType(undefined), "multiplayer_casual");
 });
 
 Deno.test("hasValidCombatTeam accepts non-empty team with a core", () => {
@@ -94,4 +104,117 @@ Deno.test("pickMatchedEnemyTeam selects and sanitizes a valid team", () => {
 	assertEquals(picked[0].force, "CPU");
 	assertEquals(picked[0].life, picked[0].maxLife);
 	assertMatch(picked[0].id, /^match-wolf-0$/);
+});
+
+Deno.test("persistRoundGhost replaces the previous ghost for the same round and queue", async () => {
+	const deleted = [];
+	const inserted = [];
+	const supabaseAdmin = {
+		from: (table) => {
+			assertEquals(table, "ghosts");
+			return {
+				delete: () => ({
+					eq: (column, value) => ({
+						eq: (column2, value2) => ({
+							eq: async (column3, value3) => {
+								deleted.push([column, value], [column2, value2], [column3, value3]);
+								return { error: null };
+							},
+						}),
+					}),
+				}),
+				insert: async (value) => {
+					inserted.push(value);
+					return { error: null };
+				},
+			};
+		},
+	};
+
+	await persistRoundGhost(
+		supabaseAdmin,
+		"player-a",
+		3,
+		"multiplayer_ranked",
+		{ units: [{ id: "core", isCore: true }] },
+		"test"
+	);
+
+	assertEquals(deleted, [
+		["player_id", "player-a"],
+		["round", 3],
+		["session_type", "multiplayer_ranked"],
+	]);
+	assertEquals(inserted.length, 1);
+	assertEquals(inserted[0].player_id, "player-a");
+	assertEquals(inserted[0].round, 3);
+	assertEquals(inserted[0].session_type, "multiplayer_ranked");
+});
+
+Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with username", async () => {
+	const supabaseAdmin = {
+		from: (table) => {
+			if (table === "ghosts") {
+				return {
+					select: () => ({
+						eq: () => ({
+							eq: () => ({
+								neq: () => ({
+									not: () => ({
+										limit: async () => ({
+											data: [
+												{
+													player_id: "player-b",
+													team: {
+														units: [
+															{
+																id: "ghost-core",
+																cardId: "wolf",
+																isCore: true,
+																life: 10,
+																maxLife: 12,
+															},
+														],
+													},
+												},
+											],
+											error: null,
+										}),
+									}),
+								}),
+							}),
+						}),
+					}),
+				};
+			}
+
+			if (table === "players") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: { username: "GhostPlayer" },
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
+
+			throw new Error(`Unexpected table ${table}`);
+		},
+	};
+
+	const opponent = await selectRoundGhostOpponent(
+		supabaseAdmin,
+		"player-a",
+		1,
+		"multiplayer_ranked",
+		"test"
+	);
+
+	assert(opponent);
+	assertEquals(opponent.enemyPlayerName, "GhostPlayer");
+	assertEquals(opponent.enemyTeam[0].force, "CPU");
+	assertEquals(opponent.enemyTeam[0].life, 12);
 });

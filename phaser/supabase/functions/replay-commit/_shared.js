@@ -6000,30 +6000,30 @@ var distributePower2 = (env, sourceUnit, targets, permanent, delayedExecution) =
 var absorbPower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
   const { state } = env;
-  let totalAbsorbed = 0;
   const { effects } = env;
-  targets.forEach((target) => {
-    const absorbedAmount = Math.floor(target.power * 0.25);
-    if (absorbedAmount > 0) {
-      target.power = Math.max(0, target.power - absorbedAmount);
-      totalAbsorbed += absorbedAmount;
+  const absorptions = targets.map((target) => ({ target, amount: Math.floor(target.power * 0.25) })).filter(({ amount }) => amount > 0);
+  if (absorptions.length === 0) return;
+  const totalAbsorbed = absorptions.reduce((sum, { amount }) => sum + amount, 0);
+  absorptions.forEach(({ target, amount }) => {
+    const onHit = () => {
+      target.power = Math.max(0, target.power - amount);
       if (effects.onPowerUpdate) {
         effects.onPowerUpdate(target.id);
       }
       if (target.force === FORCE_ID_PLAYER2 && permanent) {
         const persistentTarget = state.session.team.units.find((u) => u.id === target.id);
-        if (persistentTarget !== target) {
-          persistentTarget.power = Math.max(0, persistentTarget.power - absorbedAmount);
-          if (effects.onPowerUpdate) {
-            effects.onPowerUpdate(persistentTarget.id);
-          }
+        if (persistentTarget && persistentTarget !== target) {
+          persistentTarget.power = Math.max(0, persistentTarget.power - amount);
         }
       }
+    };
+    if (effects.onDecreasePower) {
+      effects.onDecreasePower(target.id, sourceUnit.id, amount, permanent, onHit, delayedExecution);
+    } else {
+      onHit();
     }
   });
-  if (totalAbsorbed > 0) {
-    increasePower2(env, [sourceUnit], totalAbsorbed, permanent, sourceUnit, delayedExecution);
-  }
+  increasePower2(env, [sourceUnit], totalAbsorbed, permanent, void 0, delayedExecution);
 };
 
 // src/TriggerSystem/effects/sacrificeEffect.ts
@@ -7781,7 +7781,19 @@ function transitionToNextState(session, actionId, payload, options) {
 }
 function executeCombatPhase(session, options) {
   const enemyTeam = options?.combatEnemyTeam ? JSON.parse(JSON.stringify(options.combatEnemyTeam)) : generateEnemyTeamForRound(session.round, session.wins);
-  const simResult = simulateCombat(session);
+  const combatSession = {
+    ...session,
+    current_options: {
+      options: [],
+      combatState: {
+        enemyTeam,
+        logs: [],
+        seed: session.seed,
+        units: session.team.units
+      }
+    }
+  };
+  const simResult = simulateCombat(combatSession);
   const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
   session.runStats = simResult.finalState.session.runStats || session.runStats;
   const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
@@ -7791,6 +7803,7 @@ function executeCombatPhase(session, options) {
     enemyTeam,
     units: simResult.finalState.battleData.units,
     seed: session.seed,
+    enemyPlayerName: options?.combatEnemyPlayerName,
     wonCombat,
     initialUnits: simResult.initialUnits,
     finalPlayerUnits: playerUnits,

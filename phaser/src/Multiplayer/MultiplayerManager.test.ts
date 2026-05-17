@@ -127,6 +127,46 @@ describe("MultiplayerManager", () => {
 		appendSpy.mockRestore();
 	});
 
+	it("should send the current team when fetching a deferred combat enemy", async () => {
+		const deferredTeam = createDeferredCoreTeam("player-1", "seed-1");
+		(supabase.auth.getSession as jest.Mock).mockResolvedValue({
+			data: { session: { access_token: "token-1" } },
+		});
+		(supabase.functions.invoke as jest.Mock).mockResolvedValue({
+			data: { enemyTeam: deferredTeam.units, enemyPlayerName: "Ghost" },
+			error: null,
+		});
+
+		await enableMultiplayer("crystal_core", "ranked");
+		primeDeferredSession({
+			id: "sess-combat",
+			player_id: "player-1",
+			session_type: "multiplayer_ranked",
+			phase: "encounter",
+			round: 2,
+			step: 1,
+			seed: "seed-1",
+			initial_seed: "seed-1",
+			current_options: { options: [{ id: "combat_encounter" }] },
+			team: deferredTeam,
+			wins: 1,
+			losses: 0,
+			action_log: [],
+		});
+
+		const success = await sendOptionSelection("combat_encounter");
+
+		expect(success).toBe(true);
+		expect(supabase.functions.invoke).toHaveBeenCalledWith("get-enemy-team", {
+			body: expect.objectContaining({
+				round: 2,
+				wins: 1,
+				sessionType: "multiplayer_ranked",
+				currentTeam: deferredTeam,
+			}),
+		});
+	});
+
 	it("should treat a persisted non-terminal deferred session as active", async () => {
 		await enableMultiplayer("crystal_core");
 

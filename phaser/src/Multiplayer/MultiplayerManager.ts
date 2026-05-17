@@ -400,7 +400,9 @@ const fetchEnemyTeamFromServer = async (
 	runId: string,
 	combatIndex: number,
 	round: number,
-	wins: number
+	wins: number,
+	sessionType: string,
+	currentTeam: unknown
 ): Promise<{ enemyTeam: Unit[]; enemyPlayerName?: string } | null> => {
 	const { data: authData } = await supabase.auth.getSession();
 	const token = authData.session?.access_token;
@@ -411,7 +413,7 @@ const fetchEnemyTeamFromServer = async (
 
 	try {
 		const { data, error } = await supabase.functions.invoke("get-enemy-team", {
-			body: { runId, combatIndex, round, wins },
+			body: { runId, combatIndex, round, wins, sessionType, currentTeam },
 		});
 		if (error || !data?.enemyTeam) {
 			logger.warn("fetchEnemyTeamFromServer: server error", { error });
@@ -466,6 +468,17 @@ export async function enableMultiplayer(
 }
 export async function sendOptionSelection(optionId: string, payload?: unknown): Promise<boolean> {
 	const sanitizedPayload = safeClonePayload(payload);
+	const effectivePayload =
+		optionId === "combat_encounter" &&
+		(sanitizedPayload === undefined ||
+			(typeof sanitizedPayload === "object" && sanitizedPayload !== null))
+			? {
+					...(typeof sanitizedPayload === "object" && sanitizedPayload !== null
+						? (sanitizedPayload as Record<string, unknown>)
+						: {}),
+					sessionType: getMultiplayerSessionType(),
+				}
+			: sanitizedPayload;
 
 	if (deferredModeActive) {
 		if (!deferredSession) {
@@ -487,7 +500,9 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 				runId,
 				combatIndex,
 				deferredSession.round,
-				deferredSession.wins
+				deferredSession.wins,
+				deferredSession.session_type || getMultiplayerSessionType(),
+				deferredSession.team
 			);
 			if (enemyCombatData) {
 				transitionOptions = {
@@ -507,7 +522,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 			result = GameLogic.transitionToNextState(
 				deferredSession,
 				optionId,
-				sanitizedPayload as ActionPayload | undefined,
+				effectivePayload as ActionPayload | undefined,
 				transitionOptions
 			);
 		} catch (error) {
@@ -519,7 +534,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 		}
 
 		if (optionId !== "update_team" && runQueue) {
-			runQueue.append(optionId, sanitizedPayload as ActionPayload | undefined, teamSnapshot);
+			runQueue.append(optionId, effectivePayload as ActionPayload | undefined, teamSnapshot);
 		}
 
 		syncDeferredSession(result.session);
@@ -528,13 +543,13 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 	}
 
 	const body =
-		sanitizedPayload === undefined
+		effectivePayload === undefined
 			? { actionId: optionId }
-			: { actionId: optionId, payload: sanitizedPayload };
+			: { actionId: optionId, payload: effectivePayload };
 
 	logger.debug("Sending option selection", {
 		optionId,
-		hasPayload: sanitizedPayload !== undefined,
+		hasPayload: effectivePayload !== undefined,
 	});
 
 	for (let attempt = 1; attempt <= 2; attempt += 1) {

@@ -1,4 +1,10 @@
 const DEFAULT_MATCHMAKING_RATING_DELTA = 150;
+const MATCHMAKING_CANDIDATE_LIMIT = 50;
+
+export type MultiplayerSessionType = "multiplayer_ranked" | "multiplayer_casual";
+
+export const normalizeSessionType = (rawValue: unknown): MultiplayerSessionType =>
+	rawValue === "multiplayer_ranked" ? "multiplayer_ranked" : "multiplayer_casual";
 
 export const readRatingDelta = (
 	rawValue: unknown,
@@ -47,6 +53,16 @@ export type MatchCandidateSession = {
 	team?: unknown;
 };
 
+type GhostCandidate = MatchCandidateSession;
+
+type SupabaseClientLike = {
+	from: (table: string) => {
+		select: (columns: string) => any;
+		delete: () => any;
+		insert: (values: Record<string, unknown>) => Promise<{ error: { message?: string } | null }>;
+	};
+};
+
 export const pickMatchedEnemySession = (
 	candidateSessions: MatchCandidateSession[],
 	randomFn: () => number = Math.random
@@ -72,4 +88,92 @@ export const pickMatchedEnemyTeam = (
 	}
 
 	return sanitizeEnemyTeam(matchedSession.team);
+};
+
+export const persistRoundGhost = async (
+	supabaseAdmin: SupabaseClientLike,
+	playerId: string,
+	round: number,
+	sessionType: MultiplayerSessionType,
+	team: unknown,
+	logPrefix: string
+): Promise<void> => {
+	if (round < 1 || !hasValidCombatTeam(team)) {
+		return;
+	}
+
+	const timestamp = new Date().toISOString();
+	const { error: deleteError } = await supabaseAdmin
+		.from("ghosts")
+		.delete()
+		.eq("player_id", playerId)
+		.eq("round", round)
+		.eq("session_type", sessionType);
+
+	if (deleteError) {
+		console.error(`[${logPrefix}] failed to delete previous ghost:`, deleteError.message);
+		return;
+	}
+
+	const { error: insertError } = await supabaseAdmin.from("ghosts").insert({
+		player_id: playerId,
+		round,
+		session_type: sessionType,
+		team,
+		created_at: timestamp,
+		updated_at: timestamp,
+	});
+
+	if (insertError) {
+		console.error(`[${logPrefix}] failed to save ghost:`, insertError.message);
+	}
+};
+
+export const selectRoundGhostOpponent = async (
+	supabaseAdmin: SupabaseClientLike,
+	playerId: string,
+	round: number,
+	sessionType: MultiplayerSessionType,
+	logPrefix: string
+): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
+	const { data: candidateGhosts, error: ghostError } = await supabaseAdmin
+		.from("ghosts")
+		.select("player_id, team")
+		.eq("round", round)
+		.eq("session_type", sessionType)
+		.neq("player_id", playerId)
+		.not("team", "is", null)
+		.limit(MATCHMAKING_CANDIDATE_LIMIT);
+
+	if (ghostError) {
+		console.error(`[${logPrefix}] failed to query ghosts:`, ghostError.message);
+		return null;
+	}
+
+	const matchedGhost = pickMatchedEnemySession(
+		Array.isArray(candidateGhosts) ? (candidateGhosts as GhostCandidate[]) : []
+	);
+	if (!matchedGhost || !hasValidCombatTeam(matchedGhost.team)) {
+		return null;
+	}
+
+	let enemyPlayerName: string | undefined;
+	if (typeof matchedGhost.player_id === "string") {
+		const { data: enemyPlayer, error: playerError } = await supabaseAdmin
+			.from("players")
+			.select("username")
+			.eq("id", matchedGhost.player_id)
+			.maybeSingle();
+
+		if (playerError) {
+			console.error(`[${logPrefix}] failed to read ghost owner username:`, playerError.message);
+		} else if (typeof enemyPlayer?.username === "string") {
+			enemyPlayerName = enemyPlayer.username;
+		}
+	}
+
+	return {
+		enemyTeam: sanitizeEnemyTeam(matchedGhost.team),
+		enemyPlayerName,
+	};
 };

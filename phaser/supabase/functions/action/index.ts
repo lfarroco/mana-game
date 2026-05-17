@@ -1,5 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { pickMatchedEnemySession, readRatingDelta, sanitizeEnemyTeam } from "./matchmaking.ts";
+import {
+	normalizeSessionType,
+	persistRoundGhost,
+	selectRoundGhostOpponent,
+} from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
 
@@ -176,89 +180,6 @@ const MAX_ACTION_LOG_SIZE = 100;
 const trimActionLog = (log: any[]): any[] =>
 	Array.isArray(log) && log.length > MAX_ACTION_LOG_SIZE ? log.slice(-MAX_ACTION_LOG_SIZE) : log;
 
-const DEFAULT_MATCHMAKING_RATING_DELTA = 150;
-const MATCHMAKING_CANDIDATE_LIMIT = 50;
-
-const selectMatchedEnemyTeam = async (
-	supabaseAdmin: ReturnType<typeof createClient>,
-	playerId: string
-): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
-	const { data: selfPlayer, error: selfError } = await supabaseAdmin
-		.from("players")
-		.select("rating")
-		.eq("id", playerId)
-		.maybeSingle();
-
-	if (selfError) {
-		console.error("Failed to read player rating for matchmaking:", selfError.message);
-		return null;
-	}
-
-	const selfRating = Number(selfPlayer?.rating);
-	if (Number.isNaN(selfRating)) {
-		return null;
-	}
-
-	const delta = readRatingDelta(
-		Deno.env.get("MATCHMAKING_RATING_DELTA"),
-		DEFAULT_MATCHMAKING_RATING_DELTA
-	);
-	const minRating = selfRating - delta;
-	const maxRating = selfRating + delta;
-
-	const { data: candidatePlayers, error: candidateError } = await supabaseAdmin
-		.from("players")
-		.select("id, username")
-		.neq("id", playerId)
-		.gte("rating", minRating)
-		.lte("rating", maxRating)
-		.limit(MATCHMAKING_CANDIDATE_LIMIT);
-
-	if (candidateError) {
-		console.error("Failed to query matchmaking candidates:", candidateError.message);
-		return null;
-	}
-
-	const candidateIds = Array.isArray(candidatePlayers)
-		? candidatePlayers.map((row) => row?.id).filter((id): id is string => typeof id === "string")
-		: [];
-	const usernamesById = new Map(
-		(Array.isArray(candidatePlayers) ? candidatePlayers : [])
-			.filter(
-				(row): row is { id: string; username?: string | null } => typeof row?.id === "string"
-			)
-			.map((row) => [row.id, typeof row.username === "string" ? row.username : undefined])
-	);
-
-	if (candidateIds.length === 0) {
-		return null;
-	}
-
-	const { data: candidateSessions, error: sessionError } = await supabaseAdmin
-		.from("player_sessions")
-		.select("player_id, team")
-		.in("player_id", candidateIds)
-		.not("team", "is", null)
-		.limit(MATCHMAKING_CANDIDATE_LIMIT);
-
-	if (sessionError) {
-		console.error("Failed to query candidate sessions:", sessionError.message);
-		return null;
-	}
-
-	const matchedSession = pickMatchedEnemySession(
-		Array.isArray(candidateSessions) ? candidateSessions : []
-	);
-	if (!matchedSession) {
-		return null;
-	}
-
-	return {
-		enemyTeam: sanitizeEnemyTeam(matchedSession.team as { units: any[] }),
-		enemyPlayerName: usernamesById.get(matchedSession.player_id ?? ""),
-	};
-};
-
 type GameLogicModule = typeof import("./_shared.js");
 let cachedGameLogicModule: GameLogicModule | null = null;
 
@@ -347,6 +268,9 @@ Deno.serve(async (req) => {
 
 		console.log(`Player ${playerId} requesting ${actionId}`);
 
+		const sessionType = normalizeSessionType(payload?.sessionType ?? session.session_type);
+		session = { ...session, session_type: sessionType };
+
 		// Handle Team Update (Non-progression)
 		if (actionId === "update_team" && payload && payload.team) {
 			// Validate and Apply Team Update (Security Check)
@@ -383,7 +307,21 @@ Deno.serve(async (req) => {
 			| { combatEnemyTeam?: any[]; combatEnemyPlayerName?: string }
 			| undefined;
 		if (actionId === "combat_encounter") {
-			const matchedEnemy = await selectMatchedEnemyTeam(supabaseAdmin, playerId);
+			await persistRoundGhost(
+				supabaseAdmin,
+				playerId,
+				session.round,
+				sessionType,
+				session.team,
+				"action"
+			);
+			const matchedEnemy = await selectRoundGhostOpponent(
+				supabaseAdmin,
+				playerId,
+				session.round,
+				sessionType,
+				"action"
+			);
 			if (matchedEnemy && matchedEnemy.enemyTeam.length > 0) {
 				transitionOptions = {
 					combatEnemyTeam: matchedEnemy.enemyTeam,
@@ -424,6 +362,7 @@ Deno.serve(async (req) => {
 			...nextSession,
 			id: session.id,
 			player_id: playerId,
+			session_type: sessionType,
 			updated_at: new Date().toISOString(),
 		});
 

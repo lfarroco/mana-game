@@ -128,8 +128,16 @@ export class RemoteServerAdapter implements IGameServer {
 		actionId: string,
 		payload?: ActionPayload
 	): Promise<boolean> {
+		const bodyPayload =
+			actionId === "combat_encounter" && (!payload || typeof payload === "object")
+				? {
+						...(payload || {}),
+						sessionType: getMultiplayerSessionType(),
+					}
+				: payload;
+
 		const { error } = await supabase.functions.invoke("action", {
-			body: { actionId, payload },
+			body: { actionId, payload: bodyPayload },
 		});
 
 		if (error) {

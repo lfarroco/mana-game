@@ -106,7 +106,20 @@ function executeCombatPhase(
 		? JSON.parse(JSON.stringify(options.combatEnemyTeam))
 		: generateEnemyTeamForRound(session.round, session.wins);
 
-	const simResult = simulateCombat(session);
+	const combatSession: SessionData = {
+		...session,
+		current_options: {
+			options: [],
+			combatState: {
+				enemyTeam,
+				logs: [],
+				seed: session.seed,
+				units: session.team.units,
+			},
+		},
+	};
+
+	const simResult = simulateCombat(combatSession);
 	const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 	session.runStats = simResult.finalState.session.runStats || session.runStats;
 
