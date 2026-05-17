@@ -50,6 +50,7 @@ export const pickRandom = <T>(items: T[], randomFn: () => number = Math.random):
 
 export type MatchCandidateSession = {
 	player_id?: string;
+	player_name?: string;
 	team?: unknown;
 };
 
@@ -102,6 +103,19 @@ export const persistRoundGhost = async (
 		return;
 	}
 
+	let playerName = "Guest";
+	const { data: playerRow, error: playerError } = await supabaseAdmin
+		.from("players")
+		.select("username")
+		.eq("id", playerId)
+		.maybeSingle();
+
+	if (playerError) {
+		console.error(`[${logPrefix}] failed to read player username for ghost:`, playerError.message);
+	} else if (typeof playerRow?.username === "string" && playerRow.username.trim().length > 0) {
+		playerName = playerRow.username.trim();
+	}
+
 	const timestamp = new Date().toISOString();
 	const { error: deleteError } = await supabaseAdmin
 		.from("ghosts")
@@ -117,6 +131,7 @@ export const persistRoundGhost = async (
 
 	const { error: insertError } = await supabaseAdmin.from("ghosts").insert({
 		player_id: playerId,
+		player_name: playerName,
 		round,
 		session_type: sessionType,
 		team,
@@ -138,7 +153,7 @@ export const selectRoundGhostOpponent = async (
 ): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
 	const { data: candidateGhosts, error: ghostError } = await supabaseAdmin
 		.from("ghosts")
-		.select("player_id, team")
+		.select("player_id, player_name, team")
 		.eq("round", round)
 		.eq("session_type", sessionType)
 		.neq("player_id", playerId)
@@ -157,8 +172,11 @@ export const selectRoundGhostOpponent = async (
 		return null;
 	}
 
-	let enemyPlayerName: string | undefined;
-	if (typeof matchedGhost.player_id === "string") {
+	let enemyPlayerName =
+		typeof matchedGhost.player_name === "string" && matchedGhost.player_name.trim().length > 0
+			? matchedGhost.player_name.trim()
+			: undefined;
+	if (!enemyPlayerName && typeof matchedGhost.player_id === "string") {
 		const { data: enemyPlayer, error: playerError } = await supabaseAdmin
 			.from("players")
 			.select("username")
@@ -168,12 +186,12 @@ export const selectRoundGhostOpponent = async (
 		if (playerError) {
 			console.error(`[${logPrefix}] failed to read ghost owner username:`, playerError.message);
 		} else if (typeof enemyPlayer?.username === "string") {
-			enemyPlayerName = enemyPlayer.username;
+			enemyPlayerName = enemyPlayer.username.trim() || undefined;
 		}
 	}
 
 	return {
 		enemyTeam: sanitizeEnemyTeam(matchedGhost.team),
-		enemyPlayerName,
+		enemyPlayerName: enemyPlayerName || "Guest",
 	};
 };

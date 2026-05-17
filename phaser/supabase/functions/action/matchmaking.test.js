@@ -111,6 +111,19 @@ Deno.test("persistRoundGhost replaces the previous ghost for the same round and 
 	const inserted = [];
 	const supabaseAdmin = {
 		from: (table) => {
+			if (table === "players") {
+				return {
+					select: () => ({
+						eq: () => ({
+							maybeSingle: async () => ({
+								data: { username: "PlayerA" },
+								error: null,
+							}),
+						}),
+					}),
+				};
+			}
+
 			assertEquals(table, "ghosts");
 			return {
 				delete: () => ({
@@ -147,11 +160,12 @@ Deno.test("persistRoundGhost replaces the previous ghost for the same round and 
 	]);
 	assertEquals(inserted.length, 1);
 	assertEquals(inserted[0].player_id, "player-a");
+	assertEquals(inserted[0].player_name, "PlayerA");
 	assertEquals(inserted[0].round, 3);
 	assertEquals(inserted[0].session_type, "multiplayer_ranked");
 });
 
-Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with username", async () => {
+Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with stored username", async () => {
 	const supabaseAdmin = {
 		from: (table) => {
 			if (table === "ghosts") {
@@ -165,6 +179,7 @@ Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with us
 											data: [
 												{
 													player_id: "player-b",
+													player_name: "GhostPlayer",
 													team: {
 														units: [
 															{
@@ -188,12 +203,59 @@ Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with us
 				};
 			}
 
+			throw new Error(`Unexpected table ${table}`);
+		},
+	};
+
+	const opponent = await selectRoundGhostOpponent(
+		supabaseAdmin,
+		"player-a",
+		1,
+		"multiplayer_ranked",
+		"test"
+	);
+
+	assert(opponent);
+	assertEquals(opponent.enemyPlayerName, "GhostPlayer");
+	assertEquals(opponent.enemyTeam[0].force, "CPU");
+	assertEquals(opponent.enemyTeam[0].life, 12);
+});
+
+Deno.test("selectRoundGhostOpponent falls back to Guest when no username is available", async () => {
+	const supabaseAdmin = {
+		from: (table) => {
+			if (table === "ghosts") {
+				return {
+					select: () => ({
+						eq: () => ({
+							eq: () => ({
+								neq: () => ({
+									not: () => ({
+										limit: async () => ({
+											data: [
+												{
+													player_id: "player-b",
+													team: {
+														units: [{ id: "ghost-core", cardId: "wolf", isCore: true }],
+													},
+												},
+											],
+											error: null,
+										}),
+									}),
+								}),
+							}),
+						}),
+					}),
+				};
+			}
+
 			if (table === "players") {
 				return {
 					select: () => ({
 						eq: () => ({
 							maybeSingle: async () => ({
-								data: { username: "GhostPlayer" },
+								data: null,
 								error: null,
 							}),
 						}),
@@ -214,7 +276,5 @@ Deno.test("selectRoundGhostOpponent returns a sanitized same-round ghost with us
 	);
 
 	assert(opponent);
-	assertEquals(opponent.enemyPlayerName, "GhostPlayer");
-	assertEquals(opponent.enemyTeam[0].force, "CPU");
-	assertEquals(opponent.enemyTeam[0].life, 12);
+	assertEquals(opponent.enemyPlayerName, "Guest");
 });
