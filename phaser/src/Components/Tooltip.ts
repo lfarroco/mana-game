@@ -3,6 +3,15 @@ import { titleTextConfig } from "@Constants/constants";
 import { getCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import {
+	TOOLTIP_HORIZONTAL_PADDING,
+	TOOLTIP_INTER_ELEMENT_PADDING,
+	TOOLTIP_MAX_WIDTH,
+	TOOLTIP_MIN_HEIGHT,
+	TOOLTIP_MIN_WIDTH,
+	TOOLTIP_TOP_PADDING,
+	getTooltipDimensions,
+} from "@Components/TooltipLayout";
+import {
 	UI_TOOLTIP_ACCENT_COLOR,
 	UI_TEXT_MUTED,
 	UI_TOOLTIP_BG_COLOR,
@@ -12,13 +21,6 @@ import {
 } from "@UI/theme";
 
 const logger = createLogger("Tooltip");
-
-const PADDING = 20;
-const INTER_ELEMENT_PADDING = PADDING / 2;
-
-const MIN_TOOLTIP_WIDTH = 800;
-const MIN_TOOLTIP_HEIGHT = 330;
-const MAX_TOOLTIP_WIDTH = 1040;
 
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
@@ -32,8 +34,8 @@ let descriptionText: BBCodeText | null = null;
 let currentTitle: string = "";
 let currentDescription: string = "";
 
-let tooltipWidth: number = MIN_TOOLTIP_WIDTH;
-let tooltipHeight: number = MIN_TOOLTIP_HEIGHT;
+let tooltipWidth: number = TOOLTIP_MIN_WIDTH;
+let tooltipHeight: number = TOOLTIP_MIN_HEIGHT;
 let lastAdjustedX: number | undefined;
 let lastAdjustedY: number | undefined;
 
@@ -105,8 +107,8 @@ export function destroyTooltip(): void {
 	descriptionText = null;
 	currentTitle = "";
 	currentDescription = "";
-	tooltipWidth = MIN_TOOLTIP_WIDTH;
-	tooltipHeight = MIN_TOOLTIP_HEIGHT;
+	tooltipWidth = TOOLTIP_MIN_WIDTH;
+	tooltipHeight = TOOLTIP_MIN_HEIGHT;
 	lastAdjustedX = undefined;
 	lastAdjustedY = undefined;
 }
@@ -116,8 +118,8 @@ export function init() {
 
 	container = scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
-	tooltipWidth = MIN_TOOLTIP_WIDTH;
-	tooltipHeight = MIN_TOOLTIP_HEIGHT;
+	tooltipWidth = TOOLTIP_MIN_WIDTH;
+	tooltipHeight = TOOLTIP_MIN_HEIGHT;
 
 	bg = scene.add.graphics();
 	drawTooltipBackground(tooltipWidth, tooltipHeight);
@@ -174,34 +176,51 @@ export function renderTooltip(
 	}
 
 	if (contentChanged || !container.visible) {
-		const maxWrapWidth = MAX_TOOLTIP_WIDTH - 2 * PADDING;
+		const maxWrapWidth = TOOLTIP_MAX_WIDTH - 2 * TOOLTIP_HORIZONTAL_PADDING;
+		const hasDescription = description.trim().length > 0;
+
+		titleText.setWordWrapWidth(maxWrapWidth);
 		descriptionText.setWordWrapWidth(maxWrapWidth);
 
 		descriptionText.updateText();
+		const initialDimensions = getTooltipDimensions({
+			titleWidth: titleText.width,
+			titleHeight: titleText.height,
+			descriptionWidth: hasDescription ? descriptionText.width : 0,
+			descriptionHeight: hasDescription ? descriptionText.height : 0,
+			hasDescription,
+		});
 
-		const contentWidth = Math.max(titleText.width, descriptionText.width);
-		tooltipWidth = Math.max(
-			MIN_TOOLTIP_WIDTH,
-			Math.min(contentWidth + 2 * PADDING, MAX_TOOLTIP_WIDTH)
-		);
-
-		const actualDescriptionWrapWidth = tooltipWidth - 2 * PADDING;
-		if (actualDescriptionWrapWidth < maxWrapWidth) {
-			descriptionText.setWordWrapWidth(actualDescriptionWrapWidth);
+		tooltipWidth = initialDimensions.width;
+		const actualContentWrapWidth = tooltipWidth - 2 * TOOLTIP_HORIZONTAL_PADDING;
+		if (actualContentWrapWidth < maxWrapWidth) {
+			titleText.setWordWrapWidth(actualContentWrapWidth);
+			descriptionText.setWordWrapWidth(actualContentWrapWidth);
 			descriptionText.updateText();
 		}
 
-		const totalContentHeight = titleText.height + INTER_ELEMENT_PADDING + descriptionText.height;
-		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalContentHeight + 2 * PADDING);
+		const finalDimensions = getTooltipDimensions({
+			titleWidth: titleText.width,
+			titleHeight: titleText.height,
+			descriptionWidth: hasDescription ? descriptionText.width : 0,
+			descriptionHeight: hasDescription ? descriptionText.height : 0,
+			hasDescription,
+		});
+
+		tooltipWidth = finalDimensions.width;
+		tooltipHeight = finalDimensions.height;
 
 		if (!bg) return;
 		drawTooltipBackground(tooltipWidth, tooltipHeight);
 
-		titleText.setPosition(PADDING, PADDING);
+		titleText.setPosition(TOOLTIP_HORIZONTAL_PADDING, TOOLTIP_TOP_PADDING);
+		descriptionText.setVisible(hasDescription);
 		descriptionText.setPosition(
-			PADDING + 7,
-			10 + PADDING + titleText.height + INTER_ELEMENT_PADDING
+			TOOLTIP_HORIZONTAL_PADDING + 7,
+			10 + TOOLTIP_TOP_PADDING + titleText.height + TOOLTIP_INTER_ELEMENT_PADDING
 		);
+		lastAdjustedX = undefined;
+		lastAdjustedY = undefined;
 	}
 
 	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, options);
