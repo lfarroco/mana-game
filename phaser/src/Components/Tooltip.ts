@@ -12,7 +12,6 @@ import {
 	getTooltipDimensions,
 } from "@Components/TooltipLayout";
 import {
-	UI_TOOLTIP_ACCENT_COLOR,
 	UI_TEXT_MUTED,
 	UI_TOOLTIP_BG_COLOR,
 	UI_TOOLTIP_BORDER_COLOR,
@@ -25,7 +24,6 @@ const logger = createLogger("Tooltip");
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
 const TOOLTIP_CORNER_RADIUS = 18;
-const TOOLTIP_INNER_BORDER_INSET = 6;
 
 let container: Phaser.GameObjects.Container | null = null;
 let bg: Phaser.GameObjects.Graphics | null = null;
@@ -86,15 +84,6 @@ function drawTooltipBackground(width: number, height: number): void {
 
 	bg.lineStyle(UI_TOOLTIP_BORDER_THICKNESS, UI_TOOLTIP_BORDER_COLOR, 0.92);
 	bg.strokeRoundedRect(0, 0, width, height, TOOLTIP_CORNER_RADIUS);
-
-	bg.lineStyle(2, UI_TOOLTIP_ACCENT_COLOR, 0.55);
-	bg.strokeRoundedRect(
-		TOOLTIP_INNER_BORDER_INSET,
-		TOOLTIP_INNER_BORDER_INSET,
-		width - TOOLTIP_INNER_BORDER_INSET * 2,
-		height - TOOLTIP_INNER_BORDER_INSET * 2,
-		Math.max(0, TOOLTIP_CORNER_RADIUS - TOOLTIP_INNER_BORDER_INSET / 2)
-	);
 }
 
 export function destroyTooltip(): void {

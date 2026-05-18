@@ -8,6 +8,7 @@ import { findNextFocusable, FocusableEntry } from "@Systems/Controls/navigation"
 import { NavigationDirection } from "@Systems/Controls/intents";
 import {
 	UI_SURFACE_ACTIVE_BORDER_WIDTH,
+	UI_SURFACE_ACCENT_COLOR,
 	UI_SURFACE_BORDER_COLOR,
 	UI_SURFACE_COLOR,
 	UI_SURFACE_HOVER_BORDER_COLOR,
@@ -41,6 +42,8 @@ const BUTTON_TOOLTIP_BOTTOM_OFFSET = 180;
 const BUTTON_TOOLTIP_RIGHT_OFFSET = 80;
 const BUTTON_TOP_HIGHLIGHT_HEIGHT = 24;
 const BUTTON_TOP_HIGHLIGHT_ALPHA = 0.14;
+const BUTTON_INNER_BORDER_WIDTH = 2;
+const BUTTON_INNER_BORDER_INSET = 6;
 let buttonInstanceCounter = 0;
 
 export const activeButtons: Record<string, () => void> = {};
@@ -199,9 +202,27 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 		BUTTON_CORNER_RADIUS
 	);
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
+	state.graphics.lineStyle(
+		BUTTON_INNER_BORDER_WIDTH,
+		UI_SURFACE_ACCENT_COLOR,
+		Math.max(0.18, visuals.borderAlpha * 0.6)
+	);
+	state.graphics.strokeRoundedRect(
+		BUTTON_INNER_BORDER_INSET,
+		BUTTON_INNER_BORDER_INSET,
+		state.size.width - BUTTON_INNER_BORDER_INSET * 2,
+		state.size.height - BUTTON_INNER_BORDER_INSET * 2,
+		Math.max(0, BUTTON_CORNER_RADIUS - BUTTON_INNER_BORDER_INSET / 2)
+	);
 	if (visuals.glowAlpha > 0) {
-		state.graphics.lineStyle(2, visuals.borderColor, Math.min(1, visuals.glowAlpha * 0.9));
-		state.graphics.strokeRoundedRect(3, 3, state.size.width - 6, state.size.height - 6, BUTTON_CORNER_RADIUS - 3);
+		state.graphics.lineStyle(2, visuals.borderColor, Math.min(1, visuals.glowAlpha * 0.5));
+		state.graphics.strokeRoundedRect(
+			BUTTON_INNER_BORDER_INSET,
+			BUTTON_INNER_BORDER_INSET,
+			state.size.width - BUTTON_INNER_BORDER_INSET * 2,
+			state.size.height - BUTTON_INNER_BORDER_INSET * 2,
+			Math.max(0, BUTTON_CORNER_RADIUS - BUTTON_INNER_BORDER_INSET / 2)
+		);
 	}
 	state.text.setScale(1);
 	state.text.setAlpha(visuals.textAlpha);
