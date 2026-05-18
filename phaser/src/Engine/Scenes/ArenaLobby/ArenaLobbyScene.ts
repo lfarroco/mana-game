@@ -186,13 +186,20 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			);
 
 		this.add
-			.text(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET, "PLAYER", labelStyle)
+			.text(
+              fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET,
+              "PLAYER",
+              labelStyle
+            )
 			.setOrigin(0, 0.5);
 		this.profileText = this.add
-			.text(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET, "Loading...", {
+			.text(
+              fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
+              "Loading...", 
+              {
 				fontSize: PROFILE_FONT_SIZE,
 				color: ARENA_TEXT_PRIMARY,
-			})
+			  })
 			.setOrigin(0, 0.5);
 
 		this.add
@@ -210,7 +217,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
 		const casualBtn = createUIButton(
-			"🏖️ CASUAL",
+			"🏖️ " + "CASUAL",
 			vec2(MIDDLE_SCREEN.x, buttonY),
 			async () => {
 				await this.startOrContinueRun("casual");
@@ -220,7 +227,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(casualBtn);
 
 		const rankedBtn = createUIButton(
-			"⚔️ RANKED",
+			"⚔️ "+"RANKED",
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
 			async () => {
 				await this.startOrContinueRun("ranked");
@@ -230,7 +237,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(rankedBtn);
 
 		const leaderboardBtn = createUIButton(
-			"🏆 LEADERBOARD",
+			"🏆 "+"LEADERBOARD",
 			vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			async () => {
 				await this.openRankingModal();
@@ -240,7 +247,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(leaderboardBtn);
 
 		this.accountButton = createUIButton(
-			"🔑 ACCOUNT",
+			"🔑 "+"ACCOUNT",
 			vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			() => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
@@ -254,7 +261,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.accountButton.container.setVisible(false);
 
 		const logoutBtn = createUIButton(
-			"Logout",
+			"LOGOUT",
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
 			async () => {
 				this.setLoading(true);
