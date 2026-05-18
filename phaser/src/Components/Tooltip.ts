@@ -13,7 +13,7 @@ import {
 
 const logger = createLogger("Tooltip");
 
-const PADDING = 40;
+const PADDING = 20;
 const INTER_ELEMENT_PADDING = PADDING / 2;
 
 const MIN_TOOLTIP_WIDTH = 800;
@@ -199,7 +199,7 @@ export function renderTooltip(
 
 		titleText.setPosition(PADDING, PADDING);
 		descriptionText.setPosition(
-			PADDING + 10,
+			PADDING + 7,
 			10 + PADDING + titleText.height + INTER_ELEMENT_PADDING
 		);
 	}
