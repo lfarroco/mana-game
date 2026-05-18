@@ -203,9 +203,7 @@ export function clickNewRun() {
 export function selectCrystal(index: number) {
 	const scene = getCurrentScene();
 	if (scene instanceof CrystalSelectionScene) {
-		// @ts-expect-error - Accessing private property for testing
 		scene.currentIndex = index;
-		// @ts-expect-error - Accessing private method for testing
 		scene.updateDisplay();
 		return `Selected crystal at index ${index}`;
 	}
@@ -215,7 +213,6 @@ export function selectCrystal(index: number) {
 export function confirmCrystalSelection() {
 	const scene = getCurrentScene();
 	if (scene instanceof CrystalSelectionScene) {
-		// @ts-expect-error - Accessing private method for testing
 		scene.startGameWithCrystal();
 		return "Confirmed crystal selection";
 	}

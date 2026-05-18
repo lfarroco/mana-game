@@ -81,7 +81,6 @@ export default class CrystalSelectionScene extends Phaser.Scene {
 	paginationDots: Phaser.GameObjects.Arc[] = [];
 	seedText!: Phaser.GameObjects.Text;
 	descriptionText!: BBCodeText;
-	// @ts-expect-error - Used in keyboard callback functions below
 	isSeededRun: boolean = false;
 	seedWarningText!: Phaser.GameObjects.Text;
 	isMultiplayer: boolean = false;

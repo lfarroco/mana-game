@@ -43,7 +43,7 @@ jest.mock("@Systems/Chara/Chara", () => ({
 	getUnit: jest.fn(),
 	destroy: jest.fn(),
 	hasCharaById: jest.fn().mockReturnValue(false),
-	refreshUnit: jest.fn().mockResolvedValue(undefined),
+	refreshUnit: jest.fn(async () => undefined),
 	summon: jest.fn().mockResolvedValue({} as never),
 	__esModule: true,
 }));
