@@ -71,7 +71,6 @@ const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 const RANKING_PAGE_SIZE = 10;
 const RANKING_PANEL_WIDTH = 1080;
 const RANKING_PANEL_HEIGHT = 840;
-const RANKING_SUBTITLE_Y = -300;
 const RANKING_ACCENT_Y = -270;
 const RANKING_TABLE_CARD_Y = -50;
 const RANKING_TABLE_CARD_WIDTH = RANKING_PANEL_WIDTH - 120;
@@ -375,12 +374,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			originX: number = 0
 		) => createArenaText(text, style).setPosition(x, y).setOrigin(originX, 0.5);
 
-		const subtitle = createArenaText("Top ranked players in Arena", {
-				fontSize: "24px",
-				color: ARENA_TEXT_MUTED,
-			})
-			.setPosition(0, RANKING_SUBTITLE_Y)
-			.setOrigin(0.5);
 		const accent = this.add
 			.rectangle(0, RANKING_ACCENT_Y, 280, 4, ARENA_SURFACE_ACCENT_COLOR, 0.95)
 			.setOrigin(0.5);
@@ -477,7 +470,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.rankingButtons = [this.rankingPrevButton, this.rankingNextButton, closeButton];
 		this.rankingModal.container.add([
-			subtitle,
 			accent,
 			tableCard,
 			headerBackground,
