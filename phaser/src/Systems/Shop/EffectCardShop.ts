@@ -17,6 +17,7 @@ import { createLogger } from "@Utils/Logger";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
+import { playUpgradeCrystalSelectionEffect } from "@Effects/upgradeCrystalSelectionEffect";
 
 const logger = createLogger("EffectCardShop");
 
@@ -65,6 +66,8 @@ function renderUpgradeCards(
 	encounterIds: string[],
 	onUpgradeSelected: () => void | Promise<void>
 ) {
+	let isResolvingSelection = false;
+
 	encounterIds.forEach((encounterId, index) => {
 		logger.debug("Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = orbsIndex[encounterId]();
@@ -85,6 +88,11 @@ function renderUpgradeCards(
 			pic: encounterSpec.icon,
 			description: encounterSpec.tooltip,
 			onClick: async () => {
+				if (isResolvingSelection) {
+					return;
+				}
+
+				isResolvingSelection = true;
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
 				// Use GameController to handle the upgrade selection
@@ -92,6 +100,13 @@ function renderUpgradeCards(
 				const success = await controller.handleAction(encounterId);
 
 				if (success) {
+					await playUpgradeCrystalSelectionEffect({
+						cardCenter: { x, y },
+						cardSize: { width, height },
+						cardObjects: card.allObjects,
+						accentColor: encounterSpec.color,
+					});
+
 					playSoundEffect("sfx_spell_deathstrikeseal");
 
 					// Sync updated unit data from server and refresh visuals.
@@ -117,6 +132,7 @@ function renderUpgradeCards(
 
 					await onUpgradeSelected();
 				} else {
+					isResolvingSelection = false;
 					logger.warn("Upgrade action failed");
 				}
 			},

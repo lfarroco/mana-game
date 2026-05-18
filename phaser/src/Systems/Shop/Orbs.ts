@@ -234,7 +234,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		return {
 			id: "increase_core_max_life",
 			name: t("shop.orbs.increaseMaxLife.name"),
-			color: 0x3399ff,
+			color: 0x32cd32,
 			tooltip: t("shop.orbs.increaseMaxLife.tooltip", { amount: lifeGain.toString() }),
 			icon: "ui/improve_heal",
 			effect: (unit: Unit) => {
@@ -256,7 +256,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		return {
 			id: "upgrade_core_power",
 			name: t("shop.orbs.upgradePower.name"),
-			color: 0x3399ff,
+			color: 0xee4b2b,
 			tooltip: t("shop.orbs.upgradePower.tooltip", { amount: powerGain.toString() }),
 			icon: "ui/upgrade_unit",
 			effect: (unit: Unit) => {
@@ -271,7 +271,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 	decrease_core_cooldown: () => ({
 		id: "decrease_core_cooldown",
 		name: t("shop.orbs.decreaseCoreCooldown.name"),
-		color: 0x3399ff,
+		color: 0x00eaff,
 		tooltip: t("shop.orbs.decreaseCoreCooldown.tooltip"),
 		icon: "ui/trial_circuit",
 		effect: (unit: Unit) => {

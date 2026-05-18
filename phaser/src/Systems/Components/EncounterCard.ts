@@ -165,9 +165,11 @@ export function createEncounterCard(
 
 	return {
 		bg,
+		border,
 		icon,
 		title,
 		label,
+		allObjects: [bg, border, icon, title, label],
 		setFocused: (focused: boolean) => {
 			isFocused = focused;
 			if (focused) {
