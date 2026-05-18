@@ -26,6 +26,23 @@ jest.mock("@Constants/constants", () => ({
 	SCREEN_WIDTH: 1920,
 	SCREEN_HEIGHT: 1080,
 	MIDDLE_SCREEN: { x: 960, y: 540 },
+	defaultTextConfig: {
+		fontSize: "20px",
+		color: "white",
+		fontFamily: "Arimo",
+		stroke: "black",
+		strokeThickness: 4,
+		align: "center",
+	},
+	titleTextConfig: {
+		fontSize: "28px",
+		color: "white",
+		fontFamily: "Arimo",
+		stroke: "black",
+		strokeThickness: 14,
+		fontStyle: "bold",
+		align: "center",
+	},
 	SCENE_KEYS: {
 		ARENA_LOBBY: "ArenaLobbyScene",
 		ARENA_LOGIN: "ArenaLoginScene",
@@ -38,6 +55,7 @@ jest.mock("@PhaserIO", () => ({
 		setPosition: jest.fn().mockReturnThis(),
 		setOrigin: jest.fn().mockReturnThis(),
 		setText: jest.fn().mockReturnThis(),
+		setVisible: jest.fn().mockReturnThis(),
 	})),
 }));
 
@@ -158,8 +176,13 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		expect(formHtml).toContain("Forgot Password");
 		expect(forgotPasswordButton.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
 
-		expect(createdButtons.map(button => button.label)).toEqual(["Login", "Register", "Play as Guest", "ui.menu.back"]);
-		expect(createdButtons.map(button => button.width)).toEqual([404, 194, 194, 404]);
+		expect(createdButtons.map(button => button.label)).toEqual([
+			"LOGIN",
+			"REGISTER",
+			"PLAY AS GUEST",
+			"ui.menu.back",
+		]);
+		expect(createdButtons.map(button => button.width)).toEqual([440, 212, 212, 440]);
 		expect(createdButtons[0].position.y).toBe(470);
 		expect(createdButtons[1].position.y).toBe(createdButtons[2].position.y);
 		expect(createdButtons[1].position.x).toBeLessThan(createdButtons[2].position.x);
@@ -214,7 +237,7 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		expect(forgotPasswordFormHtml).toContain("Email");
 		expect(forgotPasswordFormHtml).toContain('placeholder="Enter email"');
 		expect(createdButtons.slice(-2).map(button => button.label)).toEqual(["Cancel", "Submit"]);
-		expect(createdButtons.slice(-2).map(button => button.width)).toEqual([194, 194]);
+		expect(createdButtons.slice(-2).map(button => button.width)).toEqual([212, 212]);
 		expect(createdButtons[createdButtons.length - 2].position.y).toBe(470);
 		expect(createdButtons[createdButtons.length - 2].position.x).toBeLessThan(
 			createdButtons[createdButtons.length - 1].position.x

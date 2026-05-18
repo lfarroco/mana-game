@@ -1,5 +1,12 @@
 import Phaser from "phaser";
-import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
+import {
+	defaultTextConfig,
+	MIDDLE_SCREEN,
+	SCENE_KEYS,
+	SCREEN_HEIGHT,
+	SCREEN_WIDTH,
+	titleTextConfig,
+} from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { createModal, type Modal } from "@Components/Modal";
 import { createUIButton, Button } from "@Components/UIButton";
@@ -91,6 +98,16 @@ const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
 
+const createArenaText = (
+	text: string,
+	style: Phaser.Types.GameObjects.Text.TextStyle = {}
+) => io.Text(text, { ...defaultTextConfig, ...style });
+
+const createArenaTitleText = (
+	text: string,
+	style: Phaser.Types.GameObjects.Text.TextStyle = {}
+) => io.Text(text, { ...titleTextConfig, ...style });
+
 type RankedPlayer = {
 	id: string;
 	username: string;
@@ -155,7 +172,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			)
 			.setOrigin(0);
 
-		io.Text(t("title.arena"), { fontSize: TITLE_FONT_SIZE, color: ARENA_TEXT_PRIMARY })
+		createArenaTitleText(t("title.arena"), {
+			fontSize: TITLE_FONT_SIZE,
+			color: ARENA_TEXT_PRIMARY,
+		})
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
@@ -164,9 +184,24 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const fieldLabelX = cardLeft + LOBBY_LABEL_X_PADDING;
 		const fieldValueX = fieldLabelX;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			...defaultTextConfig,
 			fontSize: FIELD_LABEL_FONT_SIZE,
 			color: ARENA_TEXT_LABEL,
 			fontStyle: "bold",
+			align: "left",
+		};
+		const profileTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			...defaultTextConfig,
+			fontSize: PROFILE_FONT_SIZE,
+			color: ARENA_TEXT_PRIMARY,
+			align: "left",
+		};
+		const ratingTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			...defaultTextConfig,
+			fontSize: RATING_FONT_SIZE,
+			color: ARENA_TEXT_ACCENT,
+			fontStyle: "bold",
+			align: "left",
 		};
 
 		this.add
@@ -185,32 +220,18 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				ARENA_SURFACE_BORDER_ALPHA
 			);
 
-		this.add
-			.text(
-              fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET,
-              "PLAYER",
-              labelStyle
-            )
+		createArenaText("PLAYER", labelStyle)
+			.setPosition(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET)
 			.setOrigin(0, 0.5);
-		this.profileText = this.add
-			.text(
-              fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET,
-              "Loading...", 
-              {
-				fontSize: PROFILE_FONT_SIZE,
-				color: ARENA_TEXT_PRIMARY,
-			  })
+		this.profileText = createArenaText("Loading...", profileTextStyle)
+			.setPosition(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET)
 			.setOrigin(0, 0.5);
 
-		this.add
-			.text(fieldLabelX, cardTop + LOBBY_SECOND_SECTION_LABEL_Y_OFFSET, "RATING", labelStyle)
+		createArenaText("RATING", labelStyle)
+			.setPosition(fieldLabelX, cardTop + LOBBY_SECOND_SECTION_LABEL_Y_OFFSET)
 			.setOrigin(0, 0.5);
-		this.ratingText = this.add
-			.text(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET, "", {
-				fontSize: RATING_FONT_SIZE,
-				color: ARENA_TEXT_ACCENT,
-				fontStyle: "bold",
-			})
+		this.ratingText = createArenaText("", ratingTextStyle)
+			.setPosition(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET)
 			.setOrigin(0, 0.5);
 
 		// Buttons
@@ -294,11 +315,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			ARENA_OVERLAY_COLOR,
 			ARENA_OVERLAY_ALPHA
 		).setOrigin(0);
-		const loadingLabel = this.add
-			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", {
+		const loadingLabel = createArenaText("Loading...", {
 				fontSize: "32px",
 				color: ARENA_TEXT_PRIMARY,
 			})
+			.setPosition(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y)
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
@@ -352,13 +373,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			text: string,
 			style: Phaser.Types.GameObjects.Text.TextStyle,
 			originX: number = 0
-		) => this.add.text(x, y, text, style).setOrigin(originX, 0.5);
+		) => createArenaText(text, style).setPosition(x, y).setOrigin(originX, 0.5);
 
-		const subtitle = this.add
-			.text(0, RANKING_SUBTITLE_Y, "Top ranked players in Arena", {
+		const subtitle = createArenaText("Top ranked players in Arena", {
 				fontSize: "24px",
 				color: ARENA_TEXT_MUTED,
 			})
+			.setPosition(0, RANKING_SUBTITLE_Y)
 			.setOrigin(0.5);
 		const accent = this.add
 			.rectangle(0, RANKING_ACCENT_Y, 280, 4, ARENA_SURFACE_ACCENT_COLOR, 0.95)
@@ -380,13 +401,16 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setStrokeStyle(1, ARENA_TABLE_BORDER_COLOR, 0.9);
 
 		const headerStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			...defaultTextConfig,
 			fontSize: "22px",
 			color: ARENA_TEXT_INFO,
 			fontStyle: "bold",
 		};
 		const rowStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+			...defaultTextConfig,
 			fontSize: "24px",
 			color: ARENA_TEXT_PRIMARY,
+			align: "left",
 		};
 
 		const headers = [
@@ -422,21 +446,21 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			return row;
 		});
 
-		this.rankingEmptyStateText = this.add
-			.text(0, -10, "", {
+		this.rankingEmptyStateText = createArenaText("", {
 				fontSize: "28px",
 				color: ARENA_TEXT_MUTED,
 				align: "center",
 				wordWrap: { width: 600 },
 			})
+			.setPosition(0, -10)
 			.setOrigin(0.5)
 			.setVisible(false);
 
-		this.rankingPageText = this.add
-			.text(0, RANKING_PAGE_TEXT_Y, "", {
+		this.rankingPageText = createArenaText("", {
 				fontSize: "24px",
 				color: ARENA_TEXT_MUTED,
 			})
+			.setPosition(0, RANKING_PAGE_TEXT_Y)
 			.setOrigin(0.5);
 
 		this.rankingPrevButton = createUIButton("Previous", vec2(-210, RANKING_BUTTONS_Y), async () => {

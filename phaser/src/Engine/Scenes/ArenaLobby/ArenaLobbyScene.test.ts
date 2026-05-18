@@ -26,6 +26,23 @@ jest.mock("@Constants/constants", () => ({
 	SCREEN_WIDTH: 1920,
 	SCREEN_HEIGHT: 1080,
 	MIDDLE_SCREEN: { x: 960, y: 540 },
+	defaultTextConfig: {
+		fontSize: "20px",
+		color: "white",
+		fontFamily: "Arimo",
+		stroke: "black",
+		strokeThickness: 4,
+		align: "center",
+	},
+	titleTextConfig: {
+		fontSize: "28px",
+		color: "white",
+		fontFamily: "Arimo",
+		stroke: "black",
+		strokeThickness: 14,
+		fontStyle: "bold",
+		align: "center",
+	},
 	SCENE_KEYS: {
 		ARENA_LOBBY: "ArenaLobbyScene",
 		BATTLEGROUND: "BattlegroundScene",
@@ -40,6 +57,8 @@ jest.mock("@PhaserIO", () => ({
 		setPosition: jest.fn().mockReturnThis(),
 		setOrigin: jest.fn().mockReturnThis(),
 		setText: jest.fn().mockReturnThis(),
+		setVisible: jest.fn().mockReturnThis(),
+		setColor: jest.fn().mockReturnThis(),
 	})),
 }));
 
@@ -215,7 +234,7 @@ describe("ArenaLobbyScene", () => {
 
 		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
 		const lobbyCardCall = rectangleCalls.find(
-			([x, y, width, height]) => x === 960 && y === 530 && width === 520 && height === 760
+			([x, y, width, height]) => x === 960 && y === 530 && width === 560 && height === 760
 		);
 		expect(lobbyCardCall).toBeDefined();
 
@@ -361,7 +380,7 @@ describe("ArenaLobbyScene", () => {
 		scene.create();
 		await scene.refreshProfile();
 
-		expect(createdButtonLabels).toContain("Account");
+		expect(createdButtonLabels).toContain("🔑 ACCOUNT");
 		expect(buttonInstances[3].container.setVisible).toHaveBeenCalledWith(true);
 
 		await createdButtons[3]();

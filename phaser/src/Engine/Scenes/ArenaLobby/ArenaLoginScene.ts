@@ -1,5 +1,12 @@
 import Phaser from "phaser";
-import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constants/constants";
+import {
+	defaultTextConfig,
+	MIDDLE_SCREEN,
+	SCENE_KEYS,
+	SCREEN_HEIGHT,
+	SCREEN_WIDTH,
+	titleTextConfig,
+} from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { createUIButton, Button } from "@Components/UIButton";
 import { createModal } from "@Components/Modal";
@@ -71,6 +78,16 @@ const MODAL_BUTTON_Y_OFFSET = 100;
 const ACCOUNT_UPDATED_MODAL_WIDTH = 480;
 const ACCOUNT_UPDATED_MODAL_HEIGHT = 350;
 const ACCOUNT_UPDATED_MODAL_BUTTON_Y_OFFSET = 125;
+
+const createArenaText = (
+	text: string,
+	style: Phaser.Types.GameObjects.Text.TextStyle = {}
+) => io.Text(text, { ...defaultTextConfig, ...style });
+
+const createArenaTitleText = (
+	text: string,
+	style: Phaser.Types.GameObjects.Text.TextStyle = {}
+) => io.Text(text, { ...titleTextConfig, ...style });
 
 type SceneModalOptions = {
 	width?: number;
@@ -144,8 +161,10 @@ export class ArenaLoginScene extends Phaser.Scene {
 				ARENA_SURFACE_BORDER_ALPHA
 			);
 
-		this.titleText = io
-			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: ARENA_TEXT_PRIMARY })
+		this.titleText = createArenaTitleText("Arena Login", {
+			fontSize: TITLE_FONT_SIZE,
+			color: ARENA_TEXT_PRIMARY,
+		})
 			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
@@ -162,18 +181,18 @@ export class ArenaLoginScene extends Phaser.Scene {
 			ARENA_OVERLAY_COLOR,
 			ARENA_OVERLAY_ALPHA
 		).setOrigin(0);
-		const loadingLabel = this.add
-			.text(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y, "Loading...", {
+		const loadingLabel = createArenaText("Loading...", {
 				fontSize: "32px",
 				color: ARENA_TEXT_PRIMARY,
 			})
+			.setPosition(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y)
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
 
 		if (isElectron() && !this.isRegisterMode && !this.isForgotPasswordMode) {
 			this.handleSteamLogin();
-			io.Text("Logging in with Steam...", {
+			createArenaText("Logging in with Steam...", {
 				fontSize: STEAM_LOGIN_FONT_SIZE,
 				color: STEAM_LOGIN_COLOR,
 			})
@@ -639,12 +658,11 @@ export class ArenaLoginScene extends Phaser.Scene {
 			overlayAlpha: ARENA_OVERLAY_ALPHA,
 		});
 
-		const text = io
-			.Text(message, {
-				fontSize: MODAL_TEXT_FONT_SIZE,
-				color: ARENA_TEXT_PRIMARY,
-				wordWrap: { width: options.textWrapWidth ?? MODAL_TEXT_WRAP_WIDTH },
-			})
+		const text = createArenaText(message, {
+			fontSize: MODAL_TEXT_FONT_SIZE,
+			color: ARENA_TEXT_PRIMARY,
+			wordWrap: { width: options.textWrapWidth ?? MODAL_TEXT_WRAP_WIDTH },
+		})
 			.setOrigin(0.5);
 
 		modal.panel.add(text);
