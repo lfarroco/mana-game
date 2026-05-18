@@ -235,37 +235,40 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
 		const casualBtn = createUIButton(
-			"🏖️ " + "CASUAL",
+			"CASUAL",
 			vec2(MIDDLE_SCREEN.x, buttonY),
 			async () => {
 				await this.startOrContinueRun("casual");
 			},
-			FULL_WIDTH_BUTTON
+			FULL_WIDTH_BUTTON,
+			"🏖️"
 		);
 		this.buttons.push(casualBtn);
 
 		const rankedBtn = createUIButton(
-			"⚔️ "+"RANKED",
+			"RANKED",
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
 			async () => {
 				await this.startOrContinueRun("ranked");
 			},
-			FULL_WIDTH_BUTTON
+			FULL_WIDTH_BUTTON,
+			"⚔️"
 		);
 		this.buttons.push(rankedBtn);
 
 		const leaderboardBtn = createUIButton(
-			"🏆 "+"LEADERBOARD",
+			"LEADERBOARD",
 			vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			async () => {
 				await this.openRankingModal();
 			},
-			HALF_WIDTH_BUTTON
+			HALF_WIDTH_BUTTON,
+			"🏆"
 		);
 		this.buttons.push(leaderboardBtn);
 
 		this.accountButton = createUIButton(
-			"🔑 "+"ACCOUNT",
+			"ACCOUNT",
 			vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			() => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
@@ -273,7 +276,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
 				});
 			},
-			HALF_WIDTH_BUTTON
+			HALF_WIDTH_BUTTON,
+			"🔑"
 		);
 		this.buttons.push(this.accountButton);
 		this.accountButton.container.setVisible(false);

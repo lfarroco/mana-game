@@ -64,7 +64,12 @@ jest.mock("@PhaserIO", () => ({
 }));
 
 jest.mock("@Components/UIButton", () => ({
-	createUIButton: jest.fn((label: string, pos: { x: number; y: number }, onClick: () => void | Promise<void>) => {
+	createUIButton: jest.fn((
+		label: string,
+		pos: { x: number; y: number },
+		onClick: () => void | Promise<void>,
+		_width?: number
+	) => {
 		createdButtons.push(onClick);
 		createdButtonLabels.push(label);
 		createdButtonPositions.push(pos);
@@ -434,7 +439,7 @@ describe("ArenaLobbyScene", () => {
 		scene.create();
 		await scene.refreshProfile();
 
-		expect(createdButtonLabels).toContain("🔑 ACCOUNT");
+		expect(createdButtonLabels).toContain("ACCOUNT");
 		expect(buttonInstances[3].container.setVisible).toHaveBeenCalledWith(true);
 
 		await createdButtons[3]();

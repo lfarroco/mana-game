@@ -65,6 +65,7 @@ export type Button = {
 
 type State = {
 	id: string;
+	label: string;
 	size: Size;
 	isPressed: boolean;
 	isHovered: boolean;
@@ -88,6 +89,9 @@ const textStyle = {
 	fontStyle: "bold",
 	strokeThickness: 2,
 };
+
+const buildButtonDisplayText = (label: string, emoji?: string): string =>
+	emoji ? `${emoji} ${label}` : label;
 
 type ButtonVisualStyle = {
 	backgroundAlpha: number;
@@ -190,7 +194,8 @@ export function createUIButton(
 	text: string,
 	position: Vec2,
 	callback: () => void,
-	width?: number
+	width?: number,
+	emoji?: string
 ): Button {
 	logger.debug(`DEBUG: createUIButton called for ${text}`);
 	const size = {
@@ -198,6 +203,7 @@ export function createUIButton(
 		height: BUTTON_HEIGHT,
 	};
 	const container = io.Container();
+	const displayText = buildButtonDisplayText(text, emoji);
 
 	const buttonGraphics = io.BorderedRoundRect(
 		position,
@@ -209,7 +215,7 @@ export function createUIButton(
 
 	io.SetInteractiveRect(size)(buttonGraphics);
 
-	const buttonText = io.Text(text, textStyle);
+	const buttonText = io.Text(displayText, textStyle);
 	io.SetPosition(buttonText, position);
 	io.Centralize(buttonText);
 
@@ -287,6 +293,7 @@ export function createUIButton(
 
 	const state: State = {
 		id: `button-${buttonInstanceCounter++}`,
+		label: text,
 		size,
 		isPressed: false,
 		isHovered: false,
@@ -403,7 +410,7 @@ const normalizeButtonLabel = (label: string): string => label.trim().toLowerCase
 export const focusSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
 	const target = normalizeButtonLabel(text);
 	const button = getSceneButtons(scene).find(
-		(state) => normalizeButtonLabel(state.text.text) === target
+		(state) => normalizeButtonLabel(state.label) === target
 	);
 
 	if (!button) {
@@ -416,7 +423,7 @@ export const focusSceneButtonByText = (scene: Phaser.Scene, text: string): boole
 
 export const hasSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
 	const target = normalizeButtonLabel(text);
-	return getSceneButtons(scene).some((state) => normalizeButtonLabel(state.text.text) === target);
+	return getSceneButtons(scene).some((state) => normalizeButtonLabel(state.label) === target);
 };
 
 export const focusNextSceneButton = (
@@ -462,7 +469,7 @@ export const getFocusedSceneButtonText = (scene: Phaser.Scene): string | null =>
 		return null;
 	}
 
-	return focused.text.text;
+	return focused.label;
 };
 
 export const activateFocusedSceneButton = (scene: Phaser.Scene): boolean => {
