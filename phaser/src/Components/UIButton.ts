@@ -44,6 +44,7 @@ const BUTTON_TOP_HIGHLIGHT_HEIGHT = 24;
 const BUTTON_TOP_HIGHLIGHT_ALPHA = 0.14;
 const BUTTON_INNER_BORDER_WIDTH = 2;
 const BUTTON_INNER_BORDER_INSET = 6;
+const BUTTON_CURSOR = "pointer";
 let buttonInstanceCounter = 0;
 
 export const activeButtons: Record<string, () => void> = {};
@@ -253,6 +254,9 @@ export function createUIButton(
 	);
 
 	io.SetInteractiveRect(size)(buttonGraphics);
+	if (buttonGraphics.input) {
+		buttonGraphics.input.cursor = BUTTON_CURSOR;
+	}
 
 	const buttonText = io.Text(displayText, textStyle);
 	io.SetPosition(buttonText, position);
@@ -397,6 +401,9 @@ export function enableUIButton(state: State) {
 	io.SetAlpha(state.graphics, 1);
 
 	io.SetInteractiveRect(state.size)(state.graphics);
+	if (state.graphics.input) {
+		state.graphics.input.cursor = BUTTON_CURSOR;
+	}
 
 	renderButtonGraphics(state, getButtonVisualStyle(state));
 }
