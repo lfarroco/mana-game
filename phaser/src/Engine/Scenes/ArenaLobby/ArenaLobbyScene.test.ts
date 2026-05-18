@@ -1,5 +1,6 @@
 import { ArenaLobbyScene } from "@Scenes/ArenaLobby/ArenaLobbyScene";
 import { SCENE_KEYS } from "@Constants/constants";
+import { createModal } from "@Components/Modal";
 import {
 	checkActiveSessionByType,
 	enableMultiplayer,
@@ -321,6 +322,59 @@ describe("ArenaLobbyScene", () => {
 		expect(buttonInstances[6].disable).toHaveBeenCalled();
 		expect(buttonInstances[7].container.setVisible).toHaveBeenCalledWith(true);
 		expect(buttonInstances[7].enable).toHaveBeenCalled();
+	});
+
+	it("uses a taller leaderboard modal so all 10 rows fit vertically", async () => {
+		(getTopRankedPlayers as jest.Mock).mockResolvedValue({
+			players: Array.from({ length: 10 }, (_, index) => ({
+				id: `p${index + 1}`,
+				username: `Player${index + 1}`,
+				rating: 1500 - index * 10,
+				matches_played: 20 - index,
+			})),
+			page: 1,
+			hasNextPage: false,
+		});
+
+		const rectangle = jest.fn(() => createMockRectangle());
+		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+			destroy: jest.fn(),
+		};
+		scene.add = {
+			rectangle,
+			text: jest.fn(() => createMockText()),
+			container: jest.fn(() => mockContainer),
+		} as unknown as typeof scene.add;
+		scene.scene = { start: jest.fn() } as unknown as typeof scene.scene;
+		scene.refreshProfile = jest.fn();
+
+		scene.create();
+
+		await createdButtons[2]();
+
+		expect(createModal).toHaveBeenCalledWith(
+			expect.objectContaining({
+				height: 940,
+			})
+		);
+
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const leaderboardAccentCall = rectangleCalls.find(
+			([x, y, width, height]) => x === 0 && y === -270 && width === 280 && height === 4
+		);
+		const rankingHeaderCall = rectangleCalls.find(
+			([x, y, width, height]) => x === 0 && y === -290 && width === 920 && height === 44
+		);
+		const rankingTableCardCall = rectangleCalls.find(
+			([x, y, width, height]) => x === 0 && y === -90 && width === 960 && height === 520
+		);
+
+		expect(leaderboardAccentCall).toBeUndefined();
+		expect(rankingHeaderCall).toBeDefined();
+		expect(rankingTableCardCall).toBeDefined();
 	});
 
 	it("hides next button on the last ranking page", async () => {

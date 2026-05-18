@@ -31,7 +31,6 @@ import {
 	ARENA_BACKGROUND_SHADER_COLORS,
 	ARENA_OVERLAY_ALPHA,
 	ARENA_OVERLAY_COLOR,
-	ARENA_SURFACE_ACCENT_COLOR,
 	ARENA_SURFACE_ALPHA,
 	ARENA_SURFACE_BORDER_ALPHA,
 	ARENA_SURFACE_BORDER_COLOR,
@@ -70,24 +69,23 @@ const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 
 const RANKING_PAGE_SIZE = 10;
 const RANKING_PANEL_WIDTH = 1080;
-const RANKING_PANEL_HEIGHT = 840;
-const RANKING_ACCENT_Y = -270;
-const RANKING_TABLE_CARD_Y = -50;
+const RANKING_PANEL_HEIGHT = 940;
+const RANKING_TABLE_CARD_Y = -90;
 const RANKING_TABLE_CARD_WIDTH = RANKING_PANEL_WIDTH - 120;
-const RANKING_TABLE_CARD_HEIGHT = 470;
-const RANKING_HEADER_Y = -230;
+const RANKING_TABLE_CARD_HEIGHT = 520;
+const RANKING_HEADER_Y = -290;
 const RANKING_TABLE_WIDTH = RANKING_PANEL_WIDTH - 160;
 const RANKING_ROW_WIDTH = RANKING_TABLE_WIDTH - 30;
 const RANKING_ROW_HEIGHT = 36;
 const RANKING_ROW_SPACING = 42;
-const RANKING_FIRST_ROW_Y = -186;
+const RANKING_FIRST_ROW_Y = -246;
 const RANKING_RANK_X = -420;
 const RANKING_PLAYER_X = -285;
 const RANKING_RATING_X = 250;
 const RANKING_MATCHES_X = 410;
-const RANKING_PAGE_TEXT_Y = 214;
-const RANKING_BUTTONS_Y = 282;
-const RANKING_CLOSE_Y = 370;
+const RANKING_PAGE_TEXT_Y = 248;
+const RANKING_BUTTONS_Y = 322;
+const RANKING_CLOSE_Y = 408;
 
 // Title styling
 const TITLE_FONT_SIZE = "64px";
@@ -374,9 +372,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			originX: number = 0
 		) => createArenaText(text, style).setPosition(x, y).setOrigin(originX, 0.5);
 
-		const accent = this.add
-			.rectangle(0, RANKING_ACCENT_Y, 280, 4, ARENA_SURFACE_ACCENT_COLOR, 0.95)
-			.setOrigin(0.5);
 		const tableCard = this.add
 			.rectangle(
 				0,
@@ -445,7 +440,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				align: "center",
 				wordWrap: { width: 600 },
 			})
-			.setPosition(0, -10)
+			.setPosition(0, -70)
 			.setOrigin(0.5)
 			.setVisible(false);
 
@@ -470,7 +465,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.rankingButtons = [this.rankingPrevButton, this.rankingNextButton, closeButton];
 		this.rankingModal.container.add([
-			accent,
 			tableCard,
 			headerBackground,
 			...headers,
