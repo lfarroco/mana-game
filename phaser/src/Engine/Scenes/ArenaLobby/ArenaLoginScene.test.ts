@@ -6,6 +6,7 @@ import {
 	handleGuestAccountUpgrade,
 	handleRegisteredAccountUpdate,
 } from "@Multiplayer/MultiplayerManager";
+import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
 
 const createdButtons: Array<{
 	label: string;
@@ -51,6 +52,12 @@ jest.mock("@Components/UIButton", () => ({
 			enable: jest.fn(),
 		};
 	}),
+}));
+
+jest.mock("@Components/cloudBackground/CloudsBackground", () => ({
+	CloudsBackground: jest.fn(() => ({
+		destroy: jest.fn(),
+	})),
 }));
 
 jest.mock("@Components/Modal", () => ({
@@ -140,6 +147,10 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 
 		const firstCreateCall = createFromHTML.mock.calls[0] as unknown[] | undefined;
 		const formHtml = String(firstCreateCall?.[0] ?? "");
+		expect(CloudsBackground).toHaveBeenCalledWith({
+			customColors: expect.any(Object),
+			timeScale: 0.9,
+		});
 		expect(formHtml).toContain("Email");
 		expect(formHtml).toContain('placeholder="Enter email"');
 		expect(formHtml).toContain("Password");
@@ -149,6 +160,7 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 
 		expect(createdButtons.map(button => button.label)).toEqual(["Login", "Register", "Play as Guest", "ui.menu.back"]);
 		expect(createdButtons.map(button => button.width)).toEqual([404, 194, 194, 404]);
+		expect(createdButtons[0].position.y).toBe(470);
 		expect(createdButtons[1].position.y).toBe(createdButtons[2].position.y);
 		expect(createdButtons[1].position.x).toBeLessThan(createdButtons[2].position.x);
 	});
@@ -203,6 +215,7 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		expect(forgotPasswordFormHtml).toContain('placeholder="Enter email"');
 		expect(createdButtons.slice(-2).map(button => button.label)).toEqual(["Cancel", "Submit"]);
 		expect(createdButtons.slice(-2).map(button => button.width)).toEqual([194, 194]);
+		expect(createdButtons[createdButtons.length - 2].position.y).toBe(470);
 		expect(createdButtons[createdButtons.length - 2].position.x).toBeLessThan(
 			createdButtons[createdButtons.length - 1].position.x
 		);

@@ -3,6 +3,7 @@ import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN, SCENE_KEYS } from "@Constan
 import * as io from "@PhaserIO";
 import { createUIButton, Button } from "@Components/UIButton";
 import { createModal } from "@Components/Modal";
+import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {
@@ -19,11 +20,12 @@ import { setCurrentScene } from "@Models/State";
 import { isElectron } from "@Utils/environment";
 import { createLogger } from "@Utils/Logger";
 import {
-	ARENA_BACKGROUND_COLOR,
+	ARENA_BACKGROUND_OVERLAY_ALPHA,
+	ARENA_BACKGROUND_OVERLAY_COLOR,
+	ARENA_BACKGROUND_SHADER_COLORS,
 	ARENA_HTML_INPUT_STYLE,
 	ARENA_OVERLAY_ALPHA,
 	ARENA_OVERLAY_COLOR,
-	ARENA_SURFACE_ACCENT_COLOR,
 	ARENA_SURFACE_ALPHA,
 	ARENA_SURFACE_BORDER_ALPHA,
 	ARENA_SURFACE_BORDER_COLOR,
@@ -40,23 +42,23 @@ const logger = createLogger("ArenaLoginScene");
 // Layout positioning
 const TITLE_Y = 100;
 const TITLE_FONT_SIZE = "64px";
-const STEAM_LOGIN_Y = 600;
-const FORM_CARD_Y = 500;
+const STEAM_LOGIN_Y = 470;
+const FORM_CARD_Y = 430;
 const FORM_CARD_WIDTH = 520;
-const FORM_CARD_HEIGHT = 650;
-const FORM_CONTENT_Y = 330;
-const FIRST_BUTTON_Y = 510;
+const FORM_CARD_HEIGHT = 520;
+const FORM_CONTENT_Y = 300;
+const FIRST_BUTTON_Y = 470;
 const BUTTON_Y_OFFSET_REGISTER = 70;
 const BUTTON_Y_OFFSET_BACK = 140;
 
 // Styling
 const STEAM_LOGIN_FONT_SIZE = "24px";
 const STEAM_LOGIN_COLOR = ARENA_TEXT_MUTED;
-const FORM_WIDTH = 404;
+const FORM_WIDTH = 440;
 const FORM_GAP = 15;
 const FORM_LABEL_COLOR = ARENA_TEXT_LABEL;
 const FORM_LABEL_FONT_SIZE = "16px";
-const FULL_WIDTH_BUTTON = 404;
+const FULL_WIDTH_BUTTON = 440;
 const HALF_WIDTH_BUTTON_GAP = 16;
 const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 
@@ -111,7 +113,20 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 	create() {
 		setCurrentScene(this);
-		this.add.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_BACKGROUND_COLOR).setOrigin(0);
+		new CloudsBackground({
+			customColors: ARENA_BACKGROUND_SHADER_COLORS,
+			timeScale: 0.9,
+		});
+		this.add
+			.rectangle(
+				0,
+				0,
+				SCREEN_WIDTH,
+				SCREEN_HEIGHT,
+				ARENA_BACKGROUND_OVERLAY_COLOR,
+				ARENA_BACKGROUND_OVERLAY_ALPHA
+			)
+			.setOrigin(0);
 
 		this.add
 			.rectangle(
@@ -128,16 +143,6 @@ export class ArenaLoginScene extends Phaser.Scene {
 				ARENA_SURFACE_BORDER_COLOR,
 				ARENA_SURFACE_BORDER_ALPHA
 			);
-		this.add
-			.rectangle(
-				MIDDLE_SCREEN.x,
-				FORM_CARD_Y - FORM_CARD_HEIGHT / 2 + 120,
-				220,
-				4,
-				ARENA_SURFACE_ACCENT_COLOR,
-				0.95
-			)
-			.setOrigin(0.5);
 
 		this.titleText = io
 			.Text("Arena Login", { fontSize: TITLE_FONT_SIZE, color: ARENA_TEXT_PRIMARY })
@@ -331,7 +336,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.bindForgotPasswordLink();
 
 			// Login
-			const loginBtn = createUIButton("Login", vec2(MIDDLE_SCREEN.x, buttonY), () => {
+			const loginBtn = createUIButton("LOGIN", vec2(MIDDLE_SCREEN.x, buttonY), () => {
 				this.handleLogin();
 			}, FULL_WIDTH_BUTTON);
 			this.buttons.push(loginBtn);
@@ -339,7 +344,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 			// Register Switch
 			const regBtn = createUIButton(
-				"Register",
+				"REGISTER",
 				vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
 					this.isRegisterMode = true;
@@ -352,7 +357,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 			// Guest
 			const guestBtn = createUIButton(
-				"Play as Guest",
+				"PLAY AS GUEST",
 				vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				() => {
 					this.handleGuest();

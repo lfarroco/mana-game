@@ -21,6 +21,7 @@ import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 import {
 	ARENA_BACKGROUND_OVERLAY_ALPHA,
 	ARENA_BACKGROUND_OVERLAY_COLOR,
+	ARENA_BACKGROUND_SHADER_COLORS,
 	ARENA_OVERLAY_ALPHA,
 	ARENA_OVERLAY_COLOR,
 	ARENA_SURFACE_ACCENT_COLOR,
@@ -47,7 +48,7 @@ const logger = createLogger("ArenaLobbyScene");
 // Layout positioning
 const TITLE_Y = 100;
 const LOBBY_CARD_Y = 530;
-const LOBBY_CARD_WIDTH = 520;
+const LOBBY_CARD_WIDTH = 560;
 const LOBBY_CARD_HEIGHT = 760;
 const LOBBY_SECTION_LABEL_Y_OFFSET = 88;
 const LOBBY_SECTION_VALUE_Y_OFFSET = 134;
@@ -56,7 +57,7 @@ const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 248;
 const LOBBY_LABEL_X_PADDING = 58;
 const FIRST_BUTTON_Y_OFFSET = 340;
 const BUTTON_Y_OFFSET = 74;
-const FULL_WIDTH_BUTTON = 404;
+const FULL_WIDTH_BUTTON = 500;
 const HALF_WIDTH_BUTTON_GAP = 16;
 const HALF_WIDTH_BUTTON = (FULL_WIDTH_BUTTON - HALF_WIDTH_BUTTON_GAP) / 2;
 
@@ -89,14 +90,6 @@ const TITLE_FONT_SIZE = "64px";
 const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
-
-const LOBBY_BACKGROUND_COLORS = {
-	color1: { x: 0.02, y: 0.05, z: 0.1 },
-	color2: { x: 0.04, y: 0.12, z: 0.2 },
-	color3: { x: 0.08, y: 0.24, z: 0.34 },
-	color4: { x: 0.18, y: 0.5, z: 0.66 },
-	color5: { x: 0.84, y: 0.97, z: 1.0 },
-} as const;
 
 type RankedPlayer = {
 	id: string;
@@ -148,7 +141,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.accountState = { isGuest: false };
 
 		new CloudsBackground({
-			customColors: LOBBY_BACKGROUND_COLORS,
+			customColors: ARENA_BACKGROUND_SHADER_COLORS,
 			timeScale: 0.9,
 		});
 		this.add
@@ -217,7 +210,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
 		const casualBtn = createUIButton(
-			"Casual",
+			"🏖️ CASUAL",
 			vec2(MIDDLE_SCREEN.x, buttonY),
 			async () => {
 				await this.startOrContinueRun("casual");
@@ -227,7 +220,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(casualBtn);
 
 		const rankedBtn = createUIButton(
-			"Ranked",
+			"⚔️ RANKED",
 			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
 			async () => {
 				await this.startOrContinueRun("ranked");
@@ -237,7 +230,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(rankedBtn);
 
 		const leaderboardBtn = createUIButton(
-			"Leaderboard",
+			"🏆 LEADERBOARD",
 			vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			async () => {
 				await this.openRankingModal();
@@ -247,7 +240,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(leaderboardBtn);
 
 		this.accountButton = createUIButton(
-			"Account",
+			"🔑 ACCOUNT",
 			vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
 			() => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {

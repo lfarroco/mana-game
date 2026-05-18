@@ -27,3 +27,11 @@ export {
 	UI_TEXT_MUTED as ARENA_TEXT_MUTED,
 	UI_TEXT_PRIMARY as ARENA_TEXT_PRIMARY,
 } from "@UI/theme";
+
+export const ARENA_BACKGROUND_SHADER_COLORS = {
+	color1: { x: 0.02, y: 0.05, z: 0.1 },
+	color2: { x: 0.04, y: 0.12, z: 0.2 },
+	color3: { x: 0.08, y: 0.24, z: 0.34 },
+	color4: { x: 0.18, y: 0.5, z: 0.66 },
+	color5: { x: 0.84, y: 0.97, z: 1.0 },
+} as const;
