@@ -39,6 +39,7 @@ let lastAdjustedY: number | undefined;
 
 type TooltipRenderOptions = {
 	anchorX?: "center" | "left";
+	maxWidth?: number;
 };
 
 function getAdjustedPosition(
@@ -165,7 +166,8 @@ export function renderTooltip(
 	}
 
 	if (contentChanged || !container.visible) {
-		const maxWrapWidth = TOOLTIP_MAX_WIDTH - 2 * TOOLTIP_HORIZONTAL_PADDING;
+		const maxWidth = options?.maxWidth ?? TOOLTIP_MAX_WIDTH;
+		const maxWrapWidth = maxWidth - 2 * TOOLTIP_HORIZONTAL_PADDING;
 		const hasDescription = description.trim().length > 0;
 
 		titleText.setWordWrapWidth(maxWrapWidth);
@@ -178,6 +180,7 @@ export function renderTooltip(
 			descriptionWidth: hasDescription ? descriptionText.width : 0,
 			descriptionHeight: hasDescription ? descriptionText.height : 0,
 			hasDescription,
+			maxWidth,
 		});
 
 		tooltipWidth = initialDimensions.width;
@@ -194,6 +197,7 @@ export function renderTooltip(
 			descriptionWidth: hasDescription ? descriptionText.width : 0,
 			descriptionHeight: hasDescription ? descriptionText.height : 0,
 			hasDescription,
+			maxWidth,
 		});
 
 		tooltipWidth = finalDimensions.width;

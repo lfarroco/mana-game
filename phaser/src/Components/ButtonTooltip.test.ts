@@ -69,7 +69,7 @@ describe("attachButtonTooltip", () => {
 			440,
 			"Single Player",
 			"Start a solo run.",
-			{ anchorX: "center" }
+			{ anchorX: "center", maxWidth: 300 }
 		);
 	});
 
@@ -86,7 +86,7 @@ describe("attachButtonTooltip", () => {
 			440,
 			"Arena",
 			"Play online.",
-			{ anchorX: "center" }
+			{ anchorX: "center", maxWidth: 300 }
 		);
 	});
 

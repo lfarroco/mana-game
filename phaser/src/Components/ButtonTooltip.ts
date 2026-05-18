@@ -2,6 +2,7 @@ import type Phaser from "phaser";
 import { hideTooltip, renderTooltip } from "@Components/Tooltip";
 
 const BUTTON_TOOLTIP_VERTICAL_OFFSET = 180;
+const BUTTON_TOOLTIP_MAX_WIDTH = 600;
 const POINTER_OVER_EVENT = "pointerover";
 const POINTER_OUT_EVENT = "pointerout";
 const POINTER_DOWN_EVENT = "pointerdown";
@@ -60,6 +61,7 @@ export const attachButtonTooltip = (
 			tooltip.description,
 			{
 				anchorX: tooltip.position === "right" ? "left" : "center",
+				maxWidth: BUTTON_TOOLTIP_MAX_WIDTH,
 			}
 		);
 		isVisible = true;

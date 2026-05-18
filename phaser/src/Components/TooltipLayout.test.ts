@@ -55,4 +55,17 @@ describe("getTooltipDimensions", () => {
 			}).width
 		).toBe(TOOLTIP_MAX_WIDTH);
 	});
+
+	it("supports narrower width caps for specific tooltip variants", () => {
+		expect(
+			getTooltipDimensions({
+				titleWidth: 400,
+				titleHeight: 42,
+				descriptionWidth: 600,
+				descriptionHeight: 84,
+				hasDescription: true,
+				maxWidth: 300,
+			}).width
+		).toBe(300);
+	});
 });
