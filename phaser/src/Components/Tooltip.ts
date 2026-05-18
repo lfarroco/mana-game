@@ -1,9 +1,9 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { titleTextConfig } from "@Constants/constants";
-import { tooltipFragmentShader } from "@Shaders/TooltipShader";
 import { getCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import {
+	UI_TOOLTIP_ACCENT_COLOR,
 	UI_TEXT_MUTED,
 	UI_TOOLTIP_BG_COLOR,
 	UI_TOOLTIP_BORDER_COLOR,
@@ -22,14 +22,15 @@ const MAX_TOOLTIP_WIDTH = 1040;
 
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
+const TOOLTIP_CORNER_RADIUS = 18;
+const TOOLTIP_INNER_BORDER_INSET = 6;
 
 let container: Phaser.GameObjects.Container | null = null;
-let bg: Phaser.GameObjects.Shader | null = null;
+let bg: Phaser.GameObjects.Graphics | null = null;
 let titleText: Phaser.GameObjects.Text | null = null;
 let descriptionText: BBCodeText | null = null;
 let currentTitle: string = "";
 let currentDescription: string = "";
-let startTime: number = 0;
 
 let tooltipWidth: number = MIN_TOOLTIP_WIDTH;
 let tooltipHeight: number = MIN_TOOLTIP_HEIGHT;
@@ -74,6 +75,26 @@ function getAdjustedPosition(
 	return { x: adjustedX, y: adjustedY };
 }
 
+function drawTooltipBackground(width: number, height: number): void {
+	if (!bg) return;
+
+	bg.clear();
+	bg.fillStyle(UI_TOOLTIP_BG_COLOR, UI_TOOLTIP_FILL_ALPHA);
+	bg.fillRoundedRect(0, 0, width, height, TOOLTIP_CORNER_RADIUS);
+
+	bg.lineStyle(UI_TOOLTIP_BORDER_THICKNESS, UI_TOOLTIP_BORDER_COLOR, 0.92);
+	bg.strokeRoundedRect(0, 0, width, height, TOOLTIP_CORNER_RADIUS);
+
+	bg.lineStyle(2, UI_TOOLTIP_ACCENT_COLOR, 0.55);
+	bg.strokeRoundedRect(
+		TOOLTIP_INNER_BORDER_INSET,
+		TOOLTIP_INNER_BORDER_INSET,
+		width - TOOLTIP_INNER_BORDER_INSET * 2,
+		height - TOOLTIP_INNER_BORDER_INSET * 2,
+		Math.max(0, TOOLTIP_CORNER_RADIUS - TOOLTIP_INNER_BORDER_INSET / 2)
+	);
+}
+
 export function destroyTooltip(): void {
 	if (container) {
 		container.destroy(true);
@@ -88,33 +109,18 @@ export function destroyTooltip(): void {
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 	lastAdjustedX = undefined;
 	lastAdjustedY = undefined;
-	startTime = 0;
 }
 
 export function init() {
 	const scene = getCurrentScene();
-	startTime = scene.time.now;
 
 	container = scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
 	tooltipWidth = MIN_TOOLTIP_WIDTH;
 	tooltipHeight = MIN_TOOLTIP_HEIGHT;
 
-	const baseShader = new Phaser.Display.BaseShader(
-		"TooltipShader",
-		tooltipFragmentShader,
-		undefined,
-		{
-			time: { type: "1f", value: 0.0 },
-			resolution: { type: "2f", value: [tooltipWidth, tooltipHeight] },
-			bgColor: { type: "3f", value: UI_TOOLTIP_BG_COLOR },
-			borderColor: { type: "3f", value: UI_TOOLTIP_BORDER_COLOR },
-			bgAlpha: { type: "1f", value: UI_TOOLTIP_FILL_ALPHA },
-			borderThickness: { type: "1f", value: UI_TOOLTIP_BORDER_THICKNESS },
-		}
-	);
-
-	bg = scene.add.shader(baseShader, 0, 0, tooltipWidth, tooltipHeight).setOrigin(0, 0);
+	bg = scene.add.graphics();
+	drawTooltipBackground(tooltipWidth, tooltipHeight);
 
 	container.add(bg);
 
@@ -139,13 +145,6 @@ export function init() {
 	container.add(descriptionText);
 
 	container.setVisible(false);
-}
-
-function updateShaderAnimation(): void {
-	if (!bg || !container?.visible) return;
-
-	const elapsedTime = (getCurrentScene().time.now - startTime) / 1000;
-	bg.setUniform("time.value", elapsedTime);
 }
 
 export function renderTooltip(
@@ -196,11 +195,7 @@ export function renderTooltip(
 		tooltipHeight = Math.max(MIN_TOOLTIP_HEIGHT, totalContentHeight + 2 * PADDING);
 
 		if (!bg) return;
-		bg.setSize(tooltipWidth, tooltipHeight);
-		bg.setUniform("resolution.value", [tooltipWidth, tooltipHeight]);
-
-		const elapsedTime = (getCurrentScene().time.now - startTime) / 1000;
-		bg.setUniform("time.value", elapsedTime);
+		drawTooltipBackground(tooltipWidth, tooltipHeight);
 
 		titleText.setPosition(PADDING, PADDING);
 		descriptionText.setPosition(
@@ -218,8 +213,6 @@ export function renderTooltip(
 		container.setVisible(true);
 		getCurrentScene().children.bringToTop(container);
 	}
-
-	updateShaderAnimation();
 }
 
 export function moveTooltip(x: number, y: number, options?: TooltipRenderOptions): void {
@@ -229,8 +222,6 @@ export function moveTooltip(x: number, y: number, options?: TooltipRenderOptions
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
-
-	updateShaderAnimation();
 }
 
 export function hideTooltip() {

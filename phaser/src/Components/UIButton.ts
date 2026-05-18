@@ -39,6 +39,8 @@ const BUTTON_DISABLED_BORDER_ALPHA = 0.3;
 const BUTTON_HOVER_TRANSITION_DURATION_MS = 140;
 const BUTTON_TOOLTIP_BOTTOM_OFFSET = 180;
 const BUTTON_TOOLTIP_RIGHT_OFFSET = 80;
+const BUTTON_TOP_HIGHLIGHT_HEIGHT = 24;
+const BUTTON_TOP_HIGHLIGHT_ALPHA = 0.14;
 let buttonInstanceCounter = 0;
 
 export const activeButtons: Record<string, () => void> = {};
@@ -185,6 +187,17 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.lineStyle(visuals.borderWidth, visuals.borderColor, visuals.borderAlpha);
 	state.graphics.fillStyle(BUTTON_BG_COLOR, state.currentBackgroundAlpha);
 	state.graphics.fillRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
+	state.graphics.fillStyle(
+		visuals.borderColor,
+		Math.min(BUTTON_TOP_HIGHLIGHT_ALPHA, visuals.borderAlpha * BUTTON_TOP_HIGHLIGHT_ALPHA)
+	);
+	state.graphics.fillRoundedRect(
+		0,
+		0,
+		state.size.width,
+		Math.min(BUTTON_TOP_HIGHLIGHT_HEIGHT, state.size.height),
+		BUTTON_CORNER_RADIUS
+	);
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
 	if (visuals.glowAlpha > 0) {
 		state.graphics.lineStyle(2, visuals.borderColor, Math.min(1, visuals.glowAlpha * 0.9));

@@ -36,9 +36,10 @@ export const UI_TEXT_INFO = "#9fdcff";
 export const UI_HTML_INPUT_STYLE =
 	"width:100%; box-sizing:border-box; padding:12px; font-size:18px; border-radius:8px; border:1px solid #4eaecf; background:rgba(8,18,31,0.92); color:#ffffff;";
 
-export const UI_TOOLTIP_BG_COLOR = { x: 0.03, y: 0.07, z: 0.12 };
-export const UI_TOOLTIP_BORDER_COLOR = { x: 0.48, y: 0.91, z: 1.0 };
-export const UI_TOOLTIP_FILL_ALPHA = 0.88;
+export const UI_TOOLTIP_BG_COLOR = 0x123247;
+export const UI_TOOLTIP_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
+export const UI_TOOLTIP_ACCENT_COLOR = UI_SURFACE_BORDER_COLOR;
+export const UI_TOOLTIP_FILL_ALPHA = 0.78;
 export const UI_TOOLTIP_BORDER_THICKNESS = 5;
 
 export const mixHexColors = (from: number, to: number, amount: number): number => {
