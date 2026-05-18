@@ -36,30 +36,37 @@ let tooltipHeight: number = MIN_TOOLTIP_HEIGHT;
 let lastAdjustedX: number | undefined;
 let lastAdjustedY: number | undefined;
 
-function getAdjustedPosition(x: number, y: number): { x: number; y: number } {
+type TooltipRenderOptions = {
+	anchorX?: "center" | "left";
+};
+
+function getAdjustedPosition(
+	x: number,
+	y: number,
+	options?: TooltipRenderOptions
+): { x: number; y: number } {
 	if (!container) return { x, y };
 
 	const scene = getCurrentScene();
+	const anchorX = options?.anchorX ?? "center";
+	const halfTooltipWidth = tooltipWidth / 2;
+	const halfTooltipHeight = tooltipHeight / 2;
+	const desiredX = anchorX === "left" ? x : x - halfTooltipWidth;
+	const desiredY = y - halfTooltipHeight;
 
 	if (
 		lastAdjustedX !== undefined &&
 		lastAdjustedY !== undefined &&
-		Math.abs(x - (container.x + tooltipWidth / 2)) < 1 &&
-		Math.abs(y - (container.y + tooltipHeight / 2)) < 1
+		Math.abs(desiredX - lastAdjustedX) < 1 &&
+		Math.abs(desiredY - lastAdjustedY) < 1
 	) {
 		return { x: lastAdjustedX, y: lastAdjustedY };
 	}
 
 	const canvasWidth = scene.scale.width;
 	const canvasHeight = scene.scale.height;
-	const halfTooltipWidth = tooltipWidth / 2;
-	const halfTooltipHeight = tooltipHeight / 2;
-
-	const centerX = Math.max(halfTooltipWidth, Math.min(x, canvasWidth - halfTooltipWidth));
-	const centerY = Math.max(halfTooltipHeight, Math.min(y, canvasHeight - halfTooltipHeight));
-
-	const adjustedX = centerX - halfTooltipWidth;
-	const adjustedY = centerY - halfTooltipHeight;
+	const adjustedX = Math.max(0, Math.min(desiredX, canvasWidth - tooltipWidth));
+	const adjustedY = Math.max(0, Math.min(desiredY, canvasHeight - tooltipHeight));
 
 	lastAdjustedX = adjustedX;
 	lastAdjustedY = adjustedY;
@@ -141,7 +148,13 @@ function updateShaderAnimation(): void {
 	bg.setUniform("time.value", elapsedTime);
 }
 
-export function renderTooltip(x: number, y: number, title: string, description: string): void {
+export function renderTooltip(
+	x: number,
+	y: number,
+	title: string,
+	description: string,
+	options?: TooltipRenderOptions
+): void {
 	if (!container || !titleText || !descriptionText || !bg) {
 		logger.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
@@ -196,7 +209,7 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 		);
 	}
 
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, options);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}
@@ -209,10 +222,10 @@ export function renderTooltip(x: number, y: number, title: string, description: 
 	updateShaderAnimation();
 }
 
-export function moveTooltip(x: number, y: number): void {
+export function moveTooltip(x: number, y: number, options?: TooltipRenderOptions): void {
 	if (!container || !container.visible) return;
 
-	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y);
+	const { x: adjustedX, y: adjustedY } = getAdjustedPosition(x, y, options);
 	if (container.x !== adjustedX || container.y !== adjustedY) {
 		container.setPosition(adjustedX, adjustedY);
 	}

@@ -12,10 +12,18 @@ let submenuContainer: Container | null = null;
 let mainButtonsContainer: Container | null = null;
 
 export function optionsButton(y: number) {
+	const title = t("title.options");
 	const button = createUIButton(
-		t("title.options"),
+		title,
 		vec2(constants.MIDDLE_SCREEN_X, y),
-		showOptionsSubmenu
+		showOptionsSubmenu,
+		undefined,
+		undefined,
+		{
+			title,
+			description: t("title.tooltip.options"),
+			position: "right",
+		}
 	);
 	return button;
 }

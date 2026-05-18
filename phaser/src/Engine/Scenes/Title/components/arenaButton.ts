@@ -6,8 +6,9 @@ import { getCurrentScene } from "@Models/State";
 
 
 export function arenaButton(y: number) {
+	const title = t("title.multiplayer");
 	const btn = createUIButton(
-		t("title.multiplayer"),
+		title,
 		vec2(constants.MIDDLE_SCREEN.x, y),
 		() => {
 			const playerId = localStorage.getItem("mana_player_id");
@@ -16,6 +17,13 @@ export function arenaButton(y: number) {
 			} else {
 				getCurrentScene().scene.start(constants.SCENE_KEYS.ARENA_LOGIN);
 			}
+		},
+		undefined,
+		undefined,
+		{
+			title,
+			description: t("title.tooltip.multiplayer"),
+			position: "right",
 		}
 	);
 

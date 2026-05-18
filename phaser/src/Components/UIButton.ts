@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import * as io from "@PhaserIO";
+import { attachButtonTooltip, ButtonTooltipContent } from "@Components/ButtonTooltip";
 import { createLogger } from "@Utils/Logger";
 import { findNextFocusable, FocusableEntry } from "@Systems/Controls/navigation";
 import { NavigationDirection } from "@Systems/Controls/intents";
@@ -36,6 +37,8 @@ const BUTTON_PRESSED_BG_ALPHA = 0.62;
 const BUTTON_DISABLED_BG_ALPHA = 0.18;
 const BUTTON_DISABLED_BORDER_ALPHA = 0.3;
 const BUTTON_HOVER_TRANSITION_DURATION_MS = 140;
+const BUTTON_TOOLTIP_BOTTOM_OFFSET = 180;
+const BUTTON_TOOLTIP_RIGHT_OFFSET = 80;
 let buttonInstanceCounter = 0;
 
 export const activeButtons: Record<string, () => void> = {};
@@ -75,6 +78,7 @@ type State = {
 	graphics: Phaser.GameObjects.Graphics;
 	text: Phaser.GameObjects.Text;
 	callback: () => void;
+	tooltip?: ReturnType<typeof attachButtonTooltip>;
 };
 
 const buttonsIndex = new WeakMap<Container, State>();
@@ -195,7 +199,8 @@ export function createUIButton(
 	position: Vec2,
 	callback: () => void,
 	width?: number,
-	emoji?: string
+	emoji?: string,
+	tooltip?: ButtonTooltipContent
 ): Button {
 	logger.debug(`DEBUG: createUIButton called for ${text}`);
 	const size = {
@@ -282,6 +287,7 @@ export function createUIButton(
 	io.OnceDestroyed(container, () => {
 		const scene = container.scene;
 		scene?.tweens.killTweensOf(state);
+		state.tooltip?.destroy();
 		registeredButtons.delete(state);
 		const focusedButton = scene ? focusedButtons.get(scene) : undefined;
 		if (focusedButton === state) {
@@ -303,6 +309,24 @@ export function createUIButton(
 		graphics: buttonGraphics,
 		text: buttonText,
 		callback,
+		tooltip:
+			tooltip && tooltip.description.trim().length > 0
+				? attachButtonTooltip(
+						buttonGraphics,
+						tooltip,
+						() => !!buttonGraphics.input?.enabled,
+						() => ({
+							x:
+								tooltip.position === "right"
+									? position.x + size.width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
+									: position.x,
+							y:
+								tooltip.position === "right"
+									? position.y
+									: position.y + size.height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
+						})
+					)
+				: undefined,
 	};
 
 	buttonsIndex.set(container, state);
@@ -322,6 +346,7 @@ export function createUIButton(
 }
 
 export function disableUIButton(state: State) {
+	state.tooltip?.hide();
 	io.SetAlpha(state.graphics, 0.5);
 
 	io.DisableInteractive(state.graphics);

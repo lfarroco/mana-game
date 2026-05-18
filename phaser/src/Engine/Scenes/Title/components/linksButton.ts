@@ -5,10 +5,18 @@ import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 
 export function linksButton(y: number) {
+	const title = t("title.links");
 	const button = createUIButton(
-		`🔗 ${t("title.links")}`,
+		`🔗 ${title}`,
 		vec2(constants.MIDDLE_SCREEN_X, y),
-		openLinksPanel
+		openLinksPanel,
+		undefined,
+		undefined,
+		{
+			title,
+			description: t("title.tooltip.links"),
+			position: "right",
+		}
 	);
 	return button;
 }

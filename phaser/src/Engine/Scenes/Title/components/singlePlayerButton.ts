@@ -12,10 +12,18 @@ import * as io from "@PhaserIO";
 let submenuContainer: Container | null = null;
 
 export function singlePlayerButton(y: number) {
+	const title = t("title.singlePlayer");
 	return createUIButton(
-		t("title.singlePlayer"),
+		title,
 		vec2(constants.MIDDLE_SCREEN_X, y),
-		showSinglePlayerSubmenu
+		showSinglePlayerSubmenu,
+		undefined,
+		undefined,
+		{
+			title,
+			description: t("title.tooltip.singlePlayer"),
+			position: "right",
+		}
 	);
 }
 
