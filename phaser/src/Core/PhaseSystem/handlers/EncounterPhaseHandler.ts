@@ -51,6 +51,9 @@ export const encounterPhaseHandler = createPhaseHandler({
 			nextPhase: "shop",
 			nextOptions: shopResult.options,
 			stepIncrement: 0,
+			specialData: {
+				sourceEncounterId: actionId,
+			},
 		};
 	},
 });

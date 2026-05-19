@@ -6,6 +6,7 @@ import {
 } from "./matchmaking.ts";
 
 import { corsHeaders } from "../_shared/cors.ts";
+import { getMultiplayerRatingDelta } from "../_shared/multiplayer-rating.ts";
 
 // TODO: each action should have an isolated handler
 // should create new endpoints, one for each goal, instead of checking payload
@@ -214,7 +215,7 @@ Deno.serve(async (req) => {
 			const requestedSessionType = payload?.sessionType;
 			const sessionType =
 				requestedSessionType === "multiplayer_ranked" ||
-					requestedSessionType === "multiplayer_casual"
+				requestedSessionType === "multiplayer_casual"
 					? requestedSessionType
 					: "multiplayer_casual";
 			const newSession = GameLogic.createInitialSession(playerId, selectedCrystalId, explicitSeed);
@@ -304,9 +305,7 @@ Deno.serve(async (req) => {
 		// Logic: Transition State
 		// transitionToNextState already resolves the action and applies team updates,
 		// so calling resolveAction separately here would apply the same action twice.
-		let transitionOptions:
-			| { combatEnemyTeam?: any[]; combatEnemyPlayerName?: string }
-			| undefined;
+		let transitionOptions: { combatEnemyTeam?: any[]; combatEnemyPlayerName?: string } | undefined;
 		if (actionId === "combat_encounter") {
 			await persistRoundGhost(
 				supabaseAdmin,
@@ -370,7 +369,7 @@ Deno.serve(async (req) => {
 		// Side Effects (Rating) — apply only when a run is completed.
 		const sessionCompleted = nextSession.phase === "victory" || nextSession.phase === "game_over";
 		if (sessionCompleted) {
-			const ratingAmount = nextSession.phase === "victory" ? 25 : -25;
+			const ratingAmount = getMultiplayerRatingDelta(nextSession.wins);
 			supabaseAdmin
 				.rpc("increment_rating", { player_id: playerId, amount: ratingAmount })
 				.then(({ error }) => {

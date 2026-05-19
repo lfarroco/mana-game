@@ -39,15 +39,16 @@ function applyRankUpBonuses(unit: Unit, targetRank: number): void {
 }
 
 /**
- * Get the last encounter action ID from the previous step.
+ * Get the encounter that produced the currently open shop, if any.
  */
-function getLastEncounterActionId(session: SessionData): string | null {
-	const previousStep = session.step - 1;
-	const encounterActions = session.action_log.filter(
-		(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-	);
-	const lastEncounterAction = encounterActions[encounterActions.length - 1];
-	return lastEncounterAction ? lastEncounterAction.actionId : null;
+function getActiveShopSourceEncounterId(session: SessionData): string | null {
+	if (session.phase !== "shop" || !session.current_options || Array.isArray(session.current_options)) {
+		return null;
+	}
+
+	return typeof session.current_options.sourceEncounterId === "string"
+		? session.current_options.sourceEncounterId
+		: null;
 }
 
 /**
@@ -87,7 +88,7 @@ export function recruitUnit(session: SessionData, cardId: string): {
 			const targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
 			if (targetPos) {
 				const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
-				const encounterId = getLastEncounterActionId(session);
+				const encounterId = getActiveShopSourceEncounterId(session);
 				const targetRank = getRecruitmentTargetRank(encounterId);
 
 				if (targetRank > 1) {

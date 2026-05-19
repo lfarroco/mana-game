@@ -2,6 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import * as GameLogic from "./_shared.js";
 
 import { corsHeaders } from "../_shared/cors.ts";
+import { getMultiplayerRatingDelta } from "../_shared/multiplayer-rating.ts";
 
 // ---------------------------------------------------------------------------
 // JWT helpers (shared pattern from action/index.ts)
@@ -257,7 +258,7 @@ Deno.serve(async (req) => {
 			await deletePlayerSession(playerId);
 			deleteCombatEncounters(runId, playerId);
 
-			const ratingAmount = replayedSession.phase === "victory" ? 25 : -25;
+			const ratingAmount = getMultiplayerRatingDelta(replayedSession.wins);
 			supabaseAdmin
 				.rpc("increment_rating", { player_id: playerId, amount: ratingAmount })
 				.then(({ error }) => {

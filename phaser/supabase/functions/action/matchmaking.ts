@@ -1,14 +1,14 @@
-const DEFAULT_MATCHMAKING_RATING_DELTA = 150;
-const MATCHMAKING_CANDIDATE_LIMIT = 50;
+const DEFAULT_PLAYER_RATING = 1000;
+const CLOSEST_MATCHMAKING_POOL_SIZE = 5;
 
 export type MultiplayerSessionType = "multiplayer_ranked" | "multiplayer_casual";
 
 export const normalizeSessionType = (rawValue: unknown): MultiplayerSessionType =>
 	rawValue === "multiplayer_ranked" ? "multiplayer_ranked" : "multiplayer_casual";
 
-export const readRatingDelta = (
+export const normalizePlayerRating = (
 	rawValue: unknown,
-	fallback: number = DEFAULT_MATCHMAKING_RATING_DELTA
+	fallback: number = DEFAULT_PLAYER_RATING
 ): number => {
 	const raw = Number(rawValue ?? fallback);
 	if (Number.isNaN(raw) || raw < 0) {
@@ -51,6 +51,7 @@ export const pickRandom = <T>(items: T[], randomFn: () => number = Math.random):
 export type MatchCandidateSession = {
 	player_id?: string;
 	player_name?: string;
+	rating?: unknown;
 	team?: unknown;
 };
 
@@ -69,7 +70,8 @@ export const pickMatchedEnemySession = (
 	randomFn: () => number = Math.random
 ): MatchCandidateSession | null => {
 	const validSessions = (Array.isArray(candidateSessions) ? candidateSessions : []).filter(
-		(row): row is MatchCandidateSession & { team: { units: any[] } } => hasValidCombatTeam(row?.team)
+		(row): row is MatchCandidateSession & { team: { units: any[] } } =>
+			hasValidCombatTeam(row?.team)
 	);
 
 	if (validSessions.length === 0) {
@@ -77,6 +79,41 @@ export const pickMatchedEnemySession = (
 	}
 
 	return pickRandom(validSessions, randomFn);
+};
+
+export const pickClosestRatedEnemySession = (
+	candidateSessions: MatchCandidateSession[],
+	targetRating: number,
+	randomFn: () => number = Math.random
+): MatchCandidateSession | null => {
+	const validSessions = (Array.isArray(candidateSessions) ? candidateSessions : []).filter(
+		(row): row is MatchCandidateSession & { team: { units: any[] } } =>
+			hasValidCombatTeam(row?.team)
+	);
+
+	if (validSessions.length === 0) {
+		return null;
+	}
+
+	const closestSessions = validSessions
+		.map((session) => {
+			const rating = normalizePlayerRating(session.rating);
+			return {
+				session,
+				rating,
+				distance: Math.abs(rating - targetRating),
+			};
+		})
+		.sort(
+			(left, right) =>
+				left.distance - right.distance ||
+				left.rating - right.rating ||
+				String(left.session.player_id ?? "").localeCompare(String(right.session.player_id ?? ""))
+		)
+		.slice(0, CLOSEST_MATCHMAKING_POOL_SIZE)
+		.map(({ session }) => session);
+
+	return pickRandom(closestSessions, randomFn);
 };
 
 export const pickMatchedEnemyTeam = (
@@ -144,6 +181,55 @@ export const persistRoundGhost = async (
 	}
 };
 
+const readPlayerRating = async (
+	supabaseAdmin: SupabaseClientLike,
+	playerId: string,
+	logPrefix: string,
+	context: string
+): Promise<number> => {
+	const { data: playerRow, error: playerError } = await supabaseAdmin
+		.from("players")
+		.select("rating")
+		.eq("id", playerId)
+		.maybeSingle();
+
+	if (playerError) {
+		console.error(`[${logPrefix}] failed to read ${context} rating:`, playerError.message);
+		return DEFAULT_PLAYER_RATING;
+	}
+
+	return normalizePlayerRating(playerRow?.rating);
+};
+
+const buildPlayerRatingMap = async (
+	supabaseAdmin: SupabaseClientLike,
+	playerIds: string[],
+	logPrefix: string
+): Promise<Map<string, number>> => {
+	if (playerIds.length === 0) {
+		return new Map();
+	}
+
+	const { data: playerRows, error: playerError } = await supabaseAdmin
+		.from("players")
+		.select("id, rating")
+		.in("id", playerIds);
+
+	if (playerError) {
+		console.error(`[${logPrefix}] failed to read candidate ratings:`, playerError.message);
+		return new Map();
+	}
+
+	return new Map(
+		(Array.isArray(playerRows) ? playerRows : [])
+			.filter(
+				(row): row is { id: string; rating?: unknown } =>
+					Boolean(row) && typeof row === "object" && typeof row.id === "string"
+			)
+			.map((row) => [row.id, normalizePlayerRating(row.rating)])
+	);
+};
+
 export const selectRoundGhostOpponent = async (
 	supabaseAdmin: SupabaseClientLike,
 	playerId: string,
@@ -151,22 +237,42 @@ export const selectRoundGhostOpponent = async (
 	sessionType: MultiplayerSessionType,
 	logPrefix: string
 ): Promise<{ enemyTeam: any[]; enemyPlayerName?: string } | null> => {
+	const currentPlayerRating = await readPlayerRating(
+		supabaseAdmin,
+		playerId,
+		logPrefix,
+		"current player"
+	);
 	const { data: candidateGhosts, error: ghostError } = await supabaseAdmin
 		.from("ghosts")
 		.select("player_id, player_name, team")
 		.eq("round", round)
 		.eq("session_type", sessionType)
 		.neq("player_id", playerId)
-		.not("team", "is", null)
-		.limit(MATCHMAKING_CANDIDATE_LIMIT);
+		.not("team", "is", null);
 
 	if (ghostError) {
 		console.error(`[${logPrefix}] failed to query ghosts:`, ghostError.message);
 		return null;
 	}
 
-	const matchedGhost = pickMatchedEnemySession(
-		Array.isArray(candidateGhosts) ? (candidateGhosts as GhostCandidate[]) : []
+	const candidatePlayerIds = Array.from(
+		new Set(
+			(Array.isArray(candidateGhosts) ? candidateGhosts : [])
+				.map((ghost) => (typeof ghost?.player_id === "string" ? ghost.player_id : null))
+				.filter((ghostPlayerId): ghostPlayerId is string => ghostPlayerId !== null)
+		)
+	);
+	const playerRatings = await buildPlayerRatingMap(supabaseAdmin, candidatePlayerIds, logPrefix);
+	const matchedGhost = pickClosestRatedEnemySession(
+		(Array.isArray(candidateGhosts) ? candidateGhosts : []).map((ghost) => ({
+			...(ghost as GhostCandidate),
+			rating:
+				typeof ghost?.player_id === "string"
+					? playerRatings.get(ghost.player_id)
+					: DEFAULT_PLAYER_RATING,
+		})),
+		currentPlayerRating
 	);
 	if (!matchedGhost || !hasValidCombatTeam(matchedGhost.team)) {
 		return null;

@@ -74,7 +74,7 @@ export function transitionToNextState(
 	// Apply transition results
 	nextSession.phase = transitionResult.nextPhase;
 	nextSession.current_options = transitionResult.nextOptions
-		? { options: transitionResult.nextOptions }
+		? { options: transitionResult.nextOptions, ...transitionResult.specialData }
 		: null;
 
 	if (transitionResult.stepIncrement) {

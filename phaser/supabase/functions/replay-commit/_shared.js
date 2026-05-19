@@ -1921,13 +1921,11 @@ function applyRankUpBonuses(unit, targetRank) {
     unit.power = Math.floor(unit.power * rankMultiplier);
   }
 }
-function getLastEncounterActionId(session) {
-  const previousStep = session.step - 1;
-  const encounterActions = session.action_log.filter(
-    (a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-  );
-  const lastEncounterAction = encounterActions[encounterActions.length - 1];
-  return lastEncounterAction ? lastEncounterAction.actionId : null;
+function getActiveShopSourceEncounterId(session) {
+  if (session.phase !== "shop" || !session.current_options || Array.isArray(session.current_options)) {
+    return null;
+  }
+  return typeof session.current_options.sourceEncounterId === "string" ? session.current_options.sourceEncounterId : null;
 }
 function recruitUnit(session, cardId) {
   const allCards = getNonCores();
@@ -1954,7 +1952,7 @@ function recruitUnit(session, cardId) {
       const targetPos = getEmptySlot(units, FORCE_ID_PLAYER);
       if (targetPos) {
         const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
-        const encounterId = getLastEncounterActionId(session);
+        const encounterId = getActiveShopSourceEncounterId(session);
         const targetRank = getRecruitmentTargetRank(encounterId);
         if (targetRank > 1) {
           newUnit.rank = targetRank;
@@ -2523,6 +2521,11 @@ var en_default = {
   "title.stats": "STATS",
   "title.back": "BACK",
   "title.links": "Links",
+  "title.tooltip.singlePlayer": "Start a solo run against AI opponents.",
+  "title.tooltip.multiplayer": "Play online matches, climb the ladder, and view rankings.",
+  "title.tooltip.options": "Open settings, stats, and credits.",
+  "title.tooltip.links": "Open community and project links.",
+  "title.tooltip.language": "Change the game's language.",
   "title.arena": "ARENA",
   "title.arena_continue": "ARENA (CONTINUE)",
   "crystalSelection.title": "Choose Your Crystal",
@@ -3025,6 +3028,11 @@ var es_default = {
   "title.stats": "ESTAD\xCDSTICAS",
   "title.back": "VOLVER",
   "title.links": "Enlaces",
+  "title.tooltip.singlePlayer": "Inicia una partida en solitario contra oponentes controlados por la IA.",
+  "title.tooltip.multiplayer": "Juega partidas online, sube en la clasificaci\xF3n y consulta el ranking.",
+  "title.tooltip.options": "Abre la configuraci\xF3n, las estad\xEDsticas y los cr\xE9ditos.",
+  "title.tooltip.links": "Abre enlaces de la comunidad y del proyecto.",
+  "title.tooltip.language": "Cambia el idioma del juego.",
   "crystalSelection.title": "Elige tu Cristal",
   "credits.title": "Cr\xE9ditos",
   "credits.design": "Dise\xF1o de Juego y Programaci\xF3n",
@@ -3522,6 +3530,11 @@ var pt_default = {
   "title.stats": "ESTAT\xCDSTICAS",
   "title.back": "VOLTAR",
   "title.links": "Links",
+  "title.tooltip.singlePlayer": "Inicie uma partida solo contra oponentes controlados pela IA.",
+  "title.tooltip.multiplayer": "Jogue partidas online, suba no ranking e veja a classifica\xE7\xE3o.",
+  "title.tooltip.options": "Abra configura\xE7\xF5es, estat\xEDsticas e cr\xE9ditos.",
+  "title.tooltip.links": "Abra links da comunidade e do projeto.",
+  "title.tooltip.language": "Altere o idioma do jogo.",
   "crystalSelection.title": "Escolha Seu Cristal",
   "credits.title": "Cr\xE9ditos",
   "credits.design": "Game Design e Programa\xE7\xE3o",
@@ -4019,6 +4032,11 @@ var jp_default = {
   "title.stats": "\u7D71\u8A08",
   "title.back": "\u623B\u308B",
   "title.links": "\u95A2\u9023",
+  "title.tooltip.singlePlayer": "AI \u3092\u76F8\u624B\u306B\u30B7\u30F3\u30B0\u30EB\u30D7\u30EC\u30A4\u306E\u30E9\u30F3\u3092\u59CB\u3081\u307E\u3059\u3002",
+  "title.tooltip.multiplayer": "\u30AA\u30F3\u30E9\u30A4\u30F3\u5BFE\u6226\u3092\u3057\u3066\u3001\u9806\u4F4D\u8868\u3092\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002",
+  "title.tooltip.options": "\u8A2D\u5B9A\u3001\u7D71\u8A08\u3001\u30AF\u30EC\u30B8\u30C3\u30C8\u3092\u958B\u304D\u307E\u3059\u3002",
+  "title.tooltip.links": "\u30B3\u30DF\u30E5\u30CB\u30C6\u30A3\u3084\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u306E\u30EA\u30F3\u30AF\u3092\u958B\u304D\u307E\u3059\u3002",
+  "title.tooltip.language": "\u30B2\u30FC\u30E0\u306E\u8A00\u8A9E\u3092\u5909\u66F4\u3057\u307E\u3059\u3002",
   "crystalSelection.title": "\u30AF\u30EA\u30B9\u30BF\u30EB\u3092\u9078\u629E",
   "credits.title": "\u5236\u4F5C\u8005",
   "credits.design": "\u4F01\u753B & \u958B\u767A",
@@ -4515,6 +4533,11 @@ var cn_default = {
   "title.stats": "\u7EDF\u8BA1",
   "title.back": "\u8FD4\u56DE",
   "title.links": "\u94FE\u63A5",
+  "title.tooltip.singlePlayer": "\u5F00\u59CB\u4E00\u5C40\u4E0E AI \u5BF9\u624B\u5BF9\u6218\u7684\u5355\u4EBA\u6E38\u620F\u3002",
+  "title.tooltip.multiplayer": "\u8FDB\u884C\u5728\u7EBF\u5BF9\u6218\u3001\u51B2\u51FB\u6392\u884C\u699C\u5E76\u67E5\u770B\u6392\u540D\u3002",
+  "title.tooltip.options": "\u6253\u5F00\u8BBE\u7F6E\u3001\u7EDF\u8BA1\u548C\u5236\u4F5C\u4EBA\u5458\u4FE1\u606F\u3002",
+  "title.tooltip.links": "\u6253\u5F00\u793E\u533A\u548C\u9879\u76EE\u76F8\u5173\u94FE\u63A5\u3002",
+  "title.tooltip.language": "\u66F4\u6539\u6E38\u620F\u8BED\u8A00\u3002",
   "crystalSelection.title": "\u9009\u62E9\u4F60\u7684\u6C34\u6676",
   "credits.title": "\u5236\u4F5C\u4EBA\u5458",
   "credits.design": "\u6E38\u620F\u8BBE\u8BA1\u4E0E\u7F16\u7A0B",
@@ -5012,6 +5035,11 @@ var ru_default = {
   "title.stats": "\u0421\u0422\u0410\u0422\u0418\u0421\u0422\u0418\u041A\u0410",
   "title.back": "\u041D\u0410\u0417\u0410\u0414",
   "title.links": "\u0421\u0441\u044B\u043B\u043A\u0438",
+  "title.tooltip.singlePlayer": "\u041D\u0430\u0447\u0430\u0442\u044C \u043E\u0434\u0438\u043D\u043E\u0447\u043D\u044B\u0439 \u0437\u0430\u0431\u0435\u0433 \u043F\u0440\u043E\u0442\u0438\u0432 \u0441\u043E\u043F\u0435\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043E\u0434 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435\u043C \u0418\u0418.",
+  "title.tooltip.multiplayer": "\u0418\u0433\u0440\u0430\u0442\u044C \u043E\u043D\u043B\u0430\u0439\u043D, \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0442\u044C\u0441\u044F \u0432 \u0442\u0430\u0431\u043B\u0438\u0446\u0435 \u043B\u0438\u0434\u0435\u0440\u043E\u0432 \u0438 \u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0440\u0435\u0439\u0442\u0438\u043D\u0433.",
+  "title.tooltip.options": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u043D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438, \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0443 \u0438 \u0442\u0438\u0442\u0440\u044B.",
+  "title.tooltip.links": "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0441\u0441\u044B\u043B\u043A\u0438 \u0441\u043E\u043E\u0431\u0449\u0435\u0441\u0442\u0432\u0430 \u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.",
+  "title.tooltip.language": "\u0418\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u044F\u0437\u044B\u043A \u0438\u0433\u0440\u044B.",
   "crystalSelection.title": "\u0412\u044B\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u0432\u043E\u0439 \u043A\u0440\u0438\u0441\u0442\u0430\u043B\u043B",
   "credits.title": "\u0410\u0432\u0442\u043E\u0440\u044B",
   "credits.design": "\u0414\u0438\u0437\u0430\u0439\u043D \u0438\u0433\u0440\u044B \u0438 \u043F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435",
@@ -7420,7 +7448,10 @@ var encounterPhaseHandler = createPhaseHandler({
     return {
       nextPhase: "shop",
       nextOptions: shopResult.options,
-      stepIncrement: 0
+      stepIncrement: 0,
+      specialData: {
+        sourceEncounterId: actionId
+      }
     };
   }
 });
@@ -7680,7 +7711,7 @@ function transitionToNextState(session, actionId, payload, options) {
     payload
   });
   nextSession.phase = transitionResult.nextPhase;
-  nextSession.current_options = transitionResult.nextOptions ? { options: transitionResult.nextOptions } : null;
+  nextSession.current_options = transitionResult.nextOptions ? { options: transitionResult.nextOptions, ...transitionResult.specialData } : null;
   if (transitionResult.stepIncrement) {
     nextSession.step += transitionResult.stepIncrement;
   }
