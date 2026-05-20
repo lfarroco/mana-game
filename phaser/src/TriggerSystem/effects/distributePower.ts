@@ -1,7 +1,7 @@
-import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
-import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";
 
 export const distributePower = (
 	env: CombatEnvironment,
@@ -12,18 +12,10 @@ export const distributePower = (
 ) => {
 	if (targets.length === 0) return;
 
-	const { state } = env;
 	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
 	if (powerToDistribute <= 0) return;
 
-	const sourceDelta = applyPowerDelta(sourceUnit, -powerToDistribute, permanent);
-
-	if (sourceUnit.force === FORCE_ID_PLAYER && permanent) {
-		const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
-		if (playerUnit && playerUnit !== sourceUnit) {
-			applyPowerDelta(playerUnit, sourceDelta, permanent);
-		}
-	}
+	applyPersistentPowerDelta(env, sourceUnit, -powerToDistribute, permanent);
 
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 

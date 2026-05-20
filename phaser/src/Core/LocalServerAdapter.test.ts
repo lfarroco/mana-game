@@ -236,6 +236,45 @@ describe("LocalServerAdapter", () => {
 			expect(combatSession?.runStats?.mostPowerfulUnit).toBeTruthy();
 		});
 
+		it("should return stored combat snapshots while keeping permanent power gains on the team", async () => {
+			const session = await adapter.createSession(testPlayerId, "thunder_core");
+			const core = session.team.units.find((unit) => unit.isCore)!;
+			const buffAmount = 30;
+			const initialCore = { ...core };
+			const persistedCore = {
+				...core,
+				power: core.power + buffAmount,
+				bonusPower: (core.bonusPower || 0) + buffAmount,
+			};
+
+			adapter.sessionManager.updateSession(testPlayerId, {
+				...session,
+				team: { units: [persistedCore] },
+				phase: "combat",
+				current_options: {
+					options: [{ id: "combat_done", label: "Continue" }],
+					combatState: {
+						enemyTeam: [],
+						units: [persistedCore],
+						initialUnits: [initialCore],
+						finalPlayerUnits: [persistedCore],
+						logs: [],
+						seed: session.seed,
+						wonCombat: false,
+					},
+				},
+			});
+
+			const combatOptions = await adapter.getPhaseOptions(testPlayerId);
+			const returnedCore = combatOptions.team?.units.find((unit) => unit.id === core.id);
+			const returnedInitialCore = combatOptions.combatState?.initialUnits?.find((unit) => unit.id === core.id);
+
+			expect(combatOptions.phase).toBe("combat");
+			expect(returnedCore).toEqual(persistedCore);
+			expect(returnedInitialCore).toEqual(initialCore);
+			expect(combatOptions.combatState?.units).toEqual([initialCore]);
+		});
+
 		it("should allow victory action to continue infinite mode after 10 wins", async () => {
 			const session = await adapter.createSession(testPlayerId, testCrystalId);
 

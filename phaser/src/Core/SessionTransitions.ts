@@ -122,6 +122,7 @@ function executeCombatPhase(
 	const simResult = simulateCombat(combatSession);
 	const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 	session.runStats = simResult.finalState.session.runStats || session.runStats;
+	session.team.units = JSON.parse(JSON.stringify(simResult.finalState.session.team.units));
 
 	const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
 

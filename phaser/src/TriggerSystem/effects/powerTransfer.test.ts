@@ -1,6 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import { distributePower } from "@TriggerSystem/effects/distributePower";
 import { absorbPower } from "@TriggerSystem/effects/absorbPower";
+import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
@@ -149,5 +150,27 @@ describe("combat-only power transfer effects", () => {
 
 		expect(sessionSource.power).toBe(50);
 		expect(sessionSource.bonusPower).toBe(-30);
+	});
+
+	it("increase power syncs permanent gains to session state", () => {
+		const sessionUnit = makeUnit({
+			id: "source",
+			power: 35,
+			bonusPower: 5,
+		});
+		const battleUnit = makeUnit({
+			id: "source",
+			power: 35,
+			bonusPower: 5,
+		});
+
+		const env = createEnv([sessionUnit], [battleUnit]);
+
+		increasePower(env, [battleUnit], 12, true);
+
+		expect(battleUnit.power).toBe(47);
+		expect(battleUnit.bonusPower).toBe(17);
+		expect(sessionUnit.power).toBe(47);
+		expect(sessionUnit.bonusPower).toBe(17);
 	});
 });

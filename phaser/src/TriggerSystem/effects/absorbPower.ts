@@ -1,7 +1,7 @@
-import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
+import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
-import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";
 
 export const absorbPower = (
 	env: CombatEnvironment,
@@ -12,7 +12,6 @@ export const absorbPower = (
 ) => {
 	if (targets.length === 0) return;
 
-	const { state } = env;
 	const { effects } = env;
 
 	// Compute absorbed amounts upfront before any callbacks fire
@@ -28,17 +27,10 @@ export const absorbPower = (
 	// The actual power decrease is applied in onHit (when the projectile arrives).
 	absorptions.forEach(({ target, amount }) => {
 		const onHit = () => {
-			const targetDelta = applyPowerDelta(target, -amount, permanent);
+			applyPersistentPowerDelta(env, target, -amount, permanent);
 
 			if (effects.onPowerUpdate) {
 				effects.onPowerUpdate(target.id);
-			}
-
-			if (target.force === FORCE_ID_PLAYER && permanent) {
-				const persistentTarget = state.session.team.units.find((u) => u.id === target.id)!;
-				if (persistentTarget && persistentTarget !== target) {
-					applyPowerDelta(persistentTarget, targetDelta, permanent);
-				}
 			}
 		};
 

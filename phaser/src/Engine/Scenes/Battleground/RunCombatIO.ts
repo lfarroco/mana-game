@@ -16,6 +16,14 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RunCombatIO");
 
+const cloneState = <T>(value: T): T => {
+	if (typeof globalThis.structuredClone === "function") {
+		return globalThis.structuredClone(value);
+	}
+
+	return JSON.parse(JSON.stringify(value)) as T;
+};
+
 export type { WaveOutcome, CombatRunner } from "@Scenes/Battleground/RunCombatCore";
 
 registerCollection(BASE_COLLECTION_DATA);
@@ -30,7 +38,7 @@ let lastNextPhaseCallback: (() => Promise<void>) | null = null;
 export const runCombatIO = (): CombatRunner => {
 	const state = getState();
 
-	const combatResult = runServerSideCombat(state);
+	const combatResult = runServerSideCombat(cloneState(state));
 
 	// Store combat logs and initial units for replay
 	lastCombatLogs = combatResult.logs;

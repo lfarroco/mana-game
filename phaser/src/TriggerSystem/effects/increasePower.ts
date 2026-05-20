@@ -1,5 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";
 
 export const increasePower = (
 	env: CombatEnvironment,
@@ -10,10 +11,7 @@ export const increasePower = (
 	delayedExecution?: number
 ) => {
 	const effect = (targetUnit: Unit) => async () => {
-		targetUnit.power += amount;
-		if (permanent) {
-			targetUnit.bonusPower += amount;
-		}
+		applyPersistentPowerDelta(env, targetUnit, amount, permanent);
 	};
 
 	const effects = env.effects;

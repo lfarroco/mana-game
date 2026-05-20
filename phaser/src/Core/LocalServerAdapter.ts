@@ -9,7 +9,6 @@ import {
 	CombatState,
 	ActionPayload,
 } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("LocalServerAdapter");
@@ -127,29 +126,10 @@ export class LocalServerAdapter implements IGameServer {
 					if (!combatState) {
 						break;
 					}
-					// Normalize combatState structure
 					response.combatState = cloneValue({
 						...combatState,
-						units: combatState.units || combatState.initialUnits,
-						initialUnits: combatState.initialUnits,
-					});
-					const enemyTeam = GameLogic.generateEnemyTeamForRound(
-						session.round,
-						session.wins,
-						session.seed
-					);
-					const simResult = GameLogic.simulateCombat(session);
-					const playerUnits = simResult.finalState.battleData.units.filter(
-						(u: Unit) => u.force === "PLAYER"
-					);
-
-					response.combatState = cloneValue({
-						units: simResult.initialUnits,
-						logs: simResult.logs,
-						enemyTeam: enemyTeam,
-						seed: session.seed,
-						initialUnits: simResult.initialUnits,
-						finalPlayerUnits: playerUnits,
+						units: combatState.initialUnits || combatState.units || [],
+						initialUnits: combatState.initialUnits || combatState.units || [],
 					});
 					response.options = [{ id: "combat_done", label: "Continue" }];
 				}

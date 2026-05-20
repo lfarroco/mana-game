@@ -1794,7 +1794,8 @@ function generateShopOptions(session, triggerActionId) {
   const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
   const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
     id: card.id,
-    cost: 10
+    cost: 10,
+    recruitRank: getCardRank(card)
   }));
   return { options };
 }
@@ -1916,25 +1917,14 @@ function createGrid() {
 }
 
 // src/Core/Actions/RecruitmentActions.ts
-function getRecruitmentTargetRank(encounterId) {
-  if (encounterId === "silver_shop") return 2;
-  if (encounterId === "gold_shop") return 3;
-  return 1;
-}
-function applyRankUpBonuses(unit, targetRank) {
-  const rankMultiplier = 1.75;
-  const extraLevels = targetRank - 1;
-  for (let i = 0; i < extraLevels; i++) {
-    unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
-    unit.life = unit.maxLife;
-    unit.power = Math.floor(unit.power * rankMultiplier);
-  }
-}
-function getActiveShopSourceEncounterId(session) {
+function getShopRecruitRank(session, cardId) {
   if (session.phase !== "shop" || !session.current_options || Array.isArray(session.current_options)) {
-    return null;
+    return 1;
   }
-  return typeof session.current_options.sourceEncounterId === "string" ? session.current_options.sourceEncounterId : null;
+  const selectedOption = session.current_options.options.find(
+    (option) => option.id === cardId
+  );
+  return selectedOption?.recruitRank ?? 1;
 }
 function recruitUnit(session, cardId) {
   const allCards = getNonCores();
@@ -1961,11 +1951,9 @@ function recruitUnit(session, cardId) {
       const targetPos = getEmptySlot(units, FORCE_ID_PLAYER);
       if (targetPos) {
         const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
-        const encounterId = getActiveShopSourceEncounterId(session);
-        const targetRank = getRecruitmentTargetRank(encounterId);
-        if (targetRank > 1) {
-          newUnit.rank = targetRank;
-          applyRankUpBonuses(newUnit, targetRank);
+        const recruitRank = getShopRecruitRank(session, cardId);
+        newUnit.rank = recruitRank;
+        if (recruitRank > 1) {
           updates.push(`Recruited unit ${cardId} at Rank ${newUnit.rank}`);
         }
         units.push(newUnit);
@@ -5886,24 +5874,6 @@ var restoreLife = async (env, sourceUnit, scale = 1, delayedExecution) => {
   }
 };
 
-// src/TriggerSystem/effects/increasePower.ts
-var increasePower2 = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
-  const effect = (targetUnit) => async () => {
-    targetUnit.power += amount;
-    if (permanent) {
-      targetUnit.bonusPower += amount;
-    }
-  };
-  const effects = env.effects;
-  for (const target of targets) {
-    if (effects.onIncreasePower) {
-      effects.onIncreasePower(sourceUnit?.id, target.id, amount, permanent, effect(target), delayedExecution);
-    } else {
-      effect(target)();
-    }
-  }
-};
-
 // src/Constants/constants.ts
 var SCREEN_WIDTH = 1920;
 var SCREEN_HEIGHT = 1080;
@@ -5934,19 +5904,40 @@ var titleTextConfig = {
 };
 var FORCE_ID_PLAYER2 = "PLAYER";
 
+// src/TriggerSystem/effects/applyPersistentPowerDelta.ts
+var applyPersistentPowerDelta = (env, targetUnit, delta, permanent) => {
+  const appliedDelta = applyPowerDelta(targetUnit, delta, permanent);
+  if (!permanent || targetUnit.force !== FORCE_ID_PLAYER2) {
+    return appliedDelta;
+  }
+  const persistentUnit = env.state.session.team.units.find((unit) => unit.id === targetUnit.id);
+  if (persistentUnit && persistentUnit !== targetUnit) {
+    applyPowerDelta(persistentUnit, appliedDelta, permanent);
+  }
+  return appliedDelta;
+};
+
+// src/TriggerSystem/effects/increasePower.ts
+var increasePower2 = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
+  const effect = (targetUnit) => async () => {
+    applyPersistentPowerDelta(env, targetUnit, amount, permanent);
+  };
+  const effects = env.effects;
+  for (const target of targets) {
+    if (effects.onIncreasePower) {
+      effects.onIncreasePower(sourceUnit?.id, target.id, amount, permanent, effect(target), delayedExecution);
+    } else {
+      effect(target)();
+    }
+  }
+};
+
 // src/TriggerSystem/effects/distributePower.ts
 var distributePower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
-  const { state } = env;
   const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
   if (powerToDistribute <= 0) return;
-  const sourceDelta = applyPowerDelta(sourceUnit, -powerToDistribute, permanent);
-  if (sourceUnit.force === FORCE_ID_PLAYER2) {
-    const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
-    if (playerUnit && playerUnit !== sourceUnit) {
-      applyPowerDelta(playerUnit, sourceDelta, permanent);
-    }
-  }
+  applyPersistentPowerDelta(env, sourceUnit, -powerToDistribute, permanent);
   const powerPerTarget = Math.floor(powerToDistribute / targets.length);
   increasePower2(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
   const effects = env.effects;
@@ -5958,22 +5949,15 @@ var distributePower2 = (env, sourceUnit, targets, permanent, delayedExecution) =
 // src/TriggerSystem/effects/absorbPower.ts
 var absorbPower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   if (targets.length === 0) return;
-  const { state } = env;
   const { effects } = env;
   const absorptions = targets.map((target) => ({ target, amount: Math.floor(target.power * 0.25) })).filter(({ amount }) => amount > 0);
   if (absorptions.length === 0) return;
   const totalAbsorbed = absorptions.reduce((sum, { amount }) => sum + amount, 0);
   absorptions.forEach(({ target, amount }) => {
     const onHit = () => {
-      const targetDelta = applyPowerDelta(target, -amount, permanent);
+      applyPersistentPowerDelta(env, target, -amount, permanent);
       if (effects.onPowerUpdate) {
         effects.onPowerUpdate(target.id);
-      }
-      if (target.force === FORCE_ID_PLAYER2 && permanent) {
-        const persistentTarget = state.session.team.units.find((u) => u.id === target.id);
-        if (persistentTarget && persistentTarget !== target) {
-          applyPowerDelta(persistentTarget, targetDelta, permanent);
-        }
       }
     };
     if (effects.onDecreasePower) {
@@ -6207,12 +6191,7 @@ var increaseCritical2 = (env, targets, amount, sourceUnit, permanent = false, de
 // src/TriggerSystem/effects/decreasePower.ts
 var decreasePower2 = (env, targets, amount, permanent, sourceUnit, delayedExecution) => {
   const effect = (targetUnit) => async () => {
-    const newPower = Math.max(0, targetUnit.power - amount);
-    const delta = newPower - targetUnit.power;
-    targetUnit.power += delta;
-    if (permanent) {
-      targetUnit.bonusPower += delta;
-    }
+    applyPersistentPowerDelta(env, targetUnit, -amount, permanent);
   };
   const effects = env.effects;
   for (const target of targets) {
@@ -7450,10 +7429,7 @@ var encounterPhaseHandler = createPhaseHandler({
     return {
       nextPhase: "shop",
       nextOptions: shopResult.options,
-      stepIncrement: 0,
-      specialData: {
-        sourceEncounterId: actionId
-      }
+      stepIncrement: 0
     };
   }
 });
@@ -7744,6 +7720,7 @@ function executeCombatPhase(session, options) {
   const simResult = simulateCombat(combatSession);
   const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
   session.runStats = simResult.finalState.session.runStats || session.runStats;
+  session.team.units = JSON.parse(JSON.stringify(simResult.finalState.session.team.units));
   const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
   session.wins += wonCombat ? 1 : 0;
   session.losses += wonCombat ? 0 : 1;

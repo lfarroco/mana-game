@@ -1,5 +1,6 @@
 import * as GameLogic from "@Core/GameLogic";
 import type { CombatState } from "@Core/Types";
+import * as CombatSimulation from "@Core/Combat/CombatSimulation";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import type { Unit } from "@Models/Entities/Unit";
@@ -148,6 +149,51 @@ describe("transitionToNextState - combat enemy selection", () => {
 		const teamB = GameLogic.generateEnemyTeamForRound(3, 1, "enemy-seed-b");
 
 		expect(toEnemyTeamSnapshot(teamA)).not.toEqual(toEnemyTeamSnapshot(teamB));
+	});
+
+	it("persists permanent combat power gains onto the session team", () => {
+		const session = GameLogic.createInitialSession("p1", "thunder_core", "seed-match-3");
+		const core = session.team.units.find((unit) => unit.isCore)!;
+		const updatedCore = {
+			...core,
+			power: core.power + 25,
+			bonusPower: (core.bonusPower || 0) + 25,
+		};
+
+		const simulateCombatSpy = jest.spyOn(CombatSimulation, "simulateCombat").mockReturnValue({
+			finalState: {
+				savedGames: [],
+				session: {
+					...session,
+					team: { units: [updatedCore] },
+				},
+				battleData: {
+					forces: [],
+					grid: [],
+					units: [updatedCore],
+				},
+			},
+			initialUnits: [core],
+			logs: [],
+		});
+		const determineCombatOutcomeSpy = jest
+			.spyOn(CombatSimulation, "determineCombatOutcome")
+			.mockReturnValue({ won: false });
+
+		const { session: next } = GameLogic.transitionToNextState(
+			{
+				...session,
+				phase: "encounter",
+				current_options: { options: [{ id: "combat_encounter" }] },
+			},
+			"combat_encounter"
+		);
+
+		simulateCombatSpy.mockRestore();
+		determineCombatOutcomeSpy.mockRestore();
+
+		expect(next.phase).toBe("combat");
+		expect(next.team.units.find((unit) => unit.id === core.id)).toEqual(updatedCore);
 	});
 });
 
