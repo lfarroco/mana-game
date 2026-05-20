@@ -14,6 +14,14 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("LocalServerAdapter");
 
+const cloneValue = <T>(value: T): T => {
+	if (typeof globalThis.structuredClone === "function") {
+		return globalThis.structuredClone(value);
+	}
+
+	return JSON.parse(JSON.stringify(value)) as T;
+};
+
 /**
  * Local in-memory implementation of the game server.
  * Used for single-player mode - runs all game logic locally without network calls.
@@ -83,7 +91,7 @@ export class LocalServerAdapter implements IGameServer {
 			phase: session.phase as PhaseType,
 			round: session.round,
 			options: [],
-			team: session.team,
+			team: cloneValue(session.team),
 			wins: session.wins,
 			losses: session.losses,
 			runStats: session.runStats,
@@ -120,11 +128,11 @@ export class LocalServerAdapter implements IGameServer {
 						break;
 					}
 					// Normalize combatState structure
-					response.combatState = {
+					response.combatState = cloneValue({
 						...combatState,
 						units: combatState.units || combatState.initialUnits,
 						initialUnits: combatState.initialUnits,
-					};
+					});
 					const enemyTeam = GameLogic.generateEnemyTeamForRound(
 						session.round,
 						session.wins,
@@ -135,14 +143,14 @@ export class LocalServerAdapter implements IGameServer {
 						(u: Unit) => u.force === "PLAYER"
 					);
 
-					response.combatState = {
+					response.combatState = cloneValue({
 						units: simResult.initialUnits,
 						logs: simResult.logs,
 						enemyTeam: enemyTeam,
 						seed: session.seed,
 						initialUnits: simResult.initialUnits,
 						finalPlayerUnits: playerUnits,
-					};
+					});
 					response.options = [{ id: "combat_done", label: "Continue" }];
 				}
 				break;

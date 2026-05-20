@@ -1609,6 +1609,15 @@ function resetUnitStats(unit) {
   unit.slowed = 0;
   unit.life = unit.maxLife;
 }
+function applyPowerDelta(unit, delta, permanent) {
+  const nextPower = Math.max(0, unit.power + delta);
+  const appliedDelta = nextPower - unit.power;
+  unit.power = nextPower;
+  if (permanent) {
+    unit.bonusPower += appliedDelta;
+  }
+  return appliedDelta;
+}
 
 // src/Core/Combat/CombatConstants.ts
 var MIN_COOLDOWN = 200;
@@ -2012,31 +2021,27 @@ function applyAbsorbPowerOrb(targetUnit, allUnits) {
     if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
       const absorbed = Math.floor(u.power * 0.25);
       if (absorbed > 0) {
-        u.power = Math.max(0, u.power - absorbed);
+        applyPowerDelta(u, -absorbed, true);
         totalAbsorbed += absorbed;
       }
     }
   });
   if (totalAbsorbed > 0) {
-    targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
-    targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
+    applyPowerDelta(targetUnit, totalAbsorbed, true);
   }
   return totalAbsorbed;
 }
 function applyDistributePowerOrb(targetUnit, allUnits) {
   const powerToDistribute = Math.floor(targetUnit.power * 0.5);
   if (powerToDistribute <= 0) return 0;
-  targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
-  const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
-  targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
+  applyPowerDelta(targetUnit, -powerToDistribute, true);
   const targets = allUnits.filter(
     (u) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
   );
   if (targets.length > 0) {
     const powerPerTarget = Math.floor(powerToDistribute / targets.length);
     targets.forEach((u) => {
-      u.power = (u.power || 0) + powerPerTarget;
-      u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
+      applyPowerDelta(u, powerPerTarget, true);
     });
   }
   return powerToDistribute;
@@ -5935,14 +5940,11 @@ var distributePower2 = (env, sourceUnit, targets, permanent, delayedExecution) =
   const { state } = env;
   const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
   if (powerToDistribute <= 0) return;
-  sourceUnit.power = Math.max(0, sourceUnit.power - powerToDistribute);
-  const bonusToLose = Math.max(0, Math.min(sourceUnit.bonusPower, powerToDistribute));
-  sourceUnit.bonusPower -= bonusToLose;
+  const sourceDelta = applyPowerDelta(sourceUnit, -powerToDistribute, permanent);
   if (sourceUnit.force === FORCE_ID_PLAYER2) {
     const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
     if (playerUnit && playerUnit !== sourceUnit) {
-      playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
-      playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);
+      applyPowerDelta(playerUnit, sourceDelta, permanent);
     }
   }
   const powerPerTarget = Math.floor(powerToDistribute / targets.length);
@@ -5963,14 +5965,14 @@ var absorbPower2 = (env, sourceUnit, targets, permanent, delayedExecution) => {
   const totalAbsorbed = absorptions.reduce((sum, { amount }) => sum + amount, 0);
   absorptions.forEach(({ target, amount }) => {
     const onHit = () => {
-      target.power = Math.max(0, target.power - amount);
+      const targetDelta = applyPowerDelta(target, -amount, permanent);
       if (effects.onPowerUpdate) {
         effects.onPowerUpdate(target.id);
       }
       if (target.force === FORCE_ID_PLAYER2 && permanent) {
         const persistentTarget = state.session.team.units.find((u) => u.id === target.id);
         if (persistentTarget && persistentTarget !== target) {
-          persistentTarget.power = Math.max(0, persistentTarget.power - amount);
+          applyPowerDelta(persistentTarget, targetDelta, permanent);
         }
       }
     };

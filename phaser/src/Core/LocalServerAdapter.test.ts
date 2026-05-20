@@ -98,6 +98,19 @@ describe("LocalServerAdapter", () => {
 				"decrease_core_cooldown",
 			]);
 		});
+
+		it("returns cloned team data so client mutations do not leak into the stored session", async () => {
+			await adapter.createSession(testPlayerId, testCrystalId);
+
+			const options = await adapter.getPhaseOptions(testPlayerId);
+			expect(options.team).toBeDefined();
+
+			const originalPower = options.team!.units[0].power;
+			options.team!.units[0].power = originalPower + 999;
+
+			const session = await adapter.getSession(testPlayerId);
+			expect(session?.team.units[0].power).toBe(originalPower);
+		});
 	});
 
 	describe("handleAction", () => {

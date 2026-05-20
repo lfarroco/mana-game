@@ -1,4 +1,4 @@
-import { Unit } from "@Models/Entities/Unit";
+import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
@@ -16,16 +16,12 @@ export const distributePower = (
 	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
 	if (powerToDistribute <= 0) return;
 
-	sourceUnit.power = Math.max(0, sourceUnit.power - powerToDistribute);
+	const sourceDelta = applyPowerDelta(sourceUnit, -powerToDistribute, permanent);
 
-	const bonusToLose = Math.max(0, Math.min(sourceUnit.bonusPower, powerToDistribute));
-	sourceUnit.bonusPower -= bonusToLose;
-
-	if (sourceUnit.force === FORCE_ID_PLAYER) {
+	if (sourceUnit.force === FORCE_ID_PLAYER && permanent) {
 		const playerUnit = state.session.team.units.find((u) => u.id === sourceUnit.id);
 		if (playerUnit && playerUnit !== sourceUnit) {
-			playerUnit.bonusPower = Math.max(0, playerUnit.bonusPower - bonusToLose);
-			playerUnit.power = Math.max(0, playerUnit.power - bonusToLose);
+			applyPowerDelta(playerUnit, sourceDelta, permanent);
 		}
 	}
 

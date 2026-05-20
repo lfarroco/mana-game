@@ -5,7 +5,7 @@
  * Pure functions that modify unit state based on orb type or core upgrade action.
  */
 
-import { Unit } from "@Models/Entities/Unit";
+import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
 
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
 const CORE_STAT_SCALING_FACTOR = 0.1;
@@ -34,15 +34,14 @@ function applyAbsorbPowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 		if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
 			const absorbed = Math.floor(u.power * 0.25);
 			if (absorbed > 0) {
-				u.power = Math.max(0, u.power - absorbed);
+				applyPowerDelta(u, -absorbed, true);
 				totalAbsorbed += absorbed;
 			}
 		}
 	});
 
 	if (totalAbsorbed > 0) {
-		targetUnit.power = (targetUnit.power || 0) + totalAbsorbed;
-		targetUnit.bonusPower = (targetUnit.bonusPower || 0) + totalAbsorbed;
+		applyPowerDelta(targetUnit, totalAbsorbed, true);
 	}
 
 	return totalAbsorbed;
@@ -55,9 +54,7 @@ function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 	const powerToDistribute = Math.floor(targetUnit.power * 0.5);
 	if (powerToDistribute <= 0) return 0;
 
-	targetUnit.power = Math.max(0, targetUnit.power - powerToDistribute);
-	const bonusToLose = Math.max(0, Math.min(targetUnit.bonusPower || 0, powerToDistribute));
-	targetUnit.bonusPower = (targetUnit.bonusPower || 0) - bonusToLose;
+	applyPowerDelta(targetUnit, -powerToDistribute, true);
 
 	const targets = allUnits.filter(
 		(u: Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
@@ -66,8 +63,7 @@ function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 	if (targets.length > 0) {
 		const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 		targets.forEach((u: Unit) => {
-			u.power = (u.power || 0) + powerPerTarget;
-			u.bonusPower = (u.bonusPower || 0) + powerPerTarget;
+			applyPowerDelta(u, powerPerTarget, true);
 		});
 	}
 

@@ -42,9 +42,18 @@ const playPowerTransferEffect = (
 	impactColors: number[],
 	onHit: () => void
 ) => {
+	const refreshPowerDisplay = (unitId: string | undefined) => {
+		if (!unitId || !hasCharaById(unitId)) {
+			return;
+		}
+
+		updatePowerDisplay(unitId);
+	};
+
 	const effect = async () => {
 		onHit();
-		updatePowerDisplay(targetId);
+		refreshPowerDisplay(sourceId);
+		refreshPowerDisplay(targetId);
 	};
 
 	if (

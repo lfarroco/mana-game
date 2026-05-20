@@ -3,6 +3,7 @@ import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { createInitialSession } from "@Core/SessionManagement";
 import { transitionToNextState } from "@Core/SessionTransitions";
+import { getCardDefinition } from "@Models/Entities/Card";
 
 // Polyfill structuredClone for Jest environment
 if (typeof global.structuredClone === "undefined") {
@@ -91,6 +92,44 @@ describe("transitionToNextState - unit recruitment", () => {
 		const recruited = next.team.units.find((u) => u.cardId === CARD_ID);
 		expect(recruited).toBeDefined();
 		expect(recruited!.rank).toBe(3);
+	});
+
+	it("keeps silver shop recruits at their card-definition base stats", () => {
+		const session = createInitialSession("p1", "crystal_core", "test-silver-shop-stats");
+		const silverCardId = "mana_source";
+		const silverCard = getCardDefinition(silverCardId);
+		const silverShopSession = {
+			...session,
+			phase: "shop" as const,
+			current_options: { options: [{ id: silverCardId }], sourceEncounterId: "silver_shop" },
+		};
+
+		const { session: next } = transitionToNextState(silverShopSession, silverCardId);
+
+		const recruited = next.team.units.find((u) => u.cardId === silverCardId);
+		expect(recruited).toBeDefined();
+		expect(recruited!.rank).toBe(2);
+		expect(recruited!.power).toBe(silverCard.power);
+		expect(recruited!.maxLife).toBe(silverCard.life ?? 0);
+	});
+
+	it("keeps gold shop recruits at their card-definition base stats", () => {
+		const session = createInitialSession("p1", "crystal_core", "test-gold-shop-stats");
+		const goldCardId = "vanguard";
+		const goldCard = getCardDefinition(goldCardId);
+		const goldShopSession = {
+			...session,
+			phase: "shop" as const,
+			current_options: { options: [{ id: goldCardId }], sourceEncounterId: "gold_shop" },
+		};
+
+		const { session: next } = transitionToNextState(goldShopSession, goldCardId);
+
+		const recruited = next.team.units.find((u) => u.cardId === goldCardId);
+		expect(recruited).toBeDefined();
+		expect(recruited!.rank).toBe(3);
+		expect(recruited!.power).toBe(goldCard.power);
+		expect(recruited!.maxLife).toBe(goldCard.life ?? 0);
 	});
 
 	it("does not leak gold shop rank into later bronze shops", () => {

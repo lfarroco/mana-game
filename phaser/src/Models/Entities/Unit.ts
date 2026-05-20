@@ -215,3 +215,16 @@ export function resetUnitStats(unit: Unit) {
 	unit.slowed = 0;
 	unit.life = unit.maxLife;
 }
+
+export function applyPowerDelta(unit: Unit, delta: number, permanent: boolean): number {
+	const nextPower = Math.max(0, unit.power + delta);
+	const appliedDelta = nextPower - unit.power;
+
+	unit.power = nextPower;
+
+	if (permanent) {
+		unit.bonusPower += appliedDelta;
+	}
+
+	return appliedDelta;
+}

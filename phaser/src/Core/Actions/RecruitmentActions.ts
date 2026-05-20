@@ -21,17 +21,13 @@ function getRecruitmentTargetRank(encounterId: string | null): number {
 }
 
 /**
- * Apply rank-up bonuses to a unit.
- * Increases maxLife and power by 1.75x per rank level above 1.
- * This creates stronger progression incentive and makes silver/gold units more valuable.
- * - Rank 1 (bronze): 100 hp, 100 power (baseline)
- * - Rank 2 (silver): 175 hp, 175 power (1.75x)
- * - Rank 3 (gold): 306 hp, 306 power (1.75x × 175)
+ * Apply rank-up bonuses to a unit for extra levels above its current base rank.
+ * Silver/gold shop cards already carry their own tiered base stats in the card definition,
+ * so this helper is only for additional upgrades beyond that base tier.
  */
-function applyRankUpBonuses(unit: Unit, targetRank: number): void {
+function applyRankUpBonuses(unit: Unit, additionalLevels: number): void {
 	const rankMultiplier = 1.75;
-	const extraLevels = targetRank - 1;
-	for (let i = 0; i < extraLevels; i++) {
+	for (let i = 0; i < additionalLevels; i++) {
 		unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
 		unit.life = unit.maxLife;
 		unit.power = Math.floor(unit.power * rankMultiplier);
@@ -90,10 +86,11 @@ export function recruitUnit(session: SessionData, cardId: string): {
 				const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
 				const encounterId = getActiveShopSourceEncounterId(session);
 				const targetRank = getRecruitmentTargetRank(encounterId);
+				const currentRank = newUnit.rank || 1;
 
-				if (targetRank > 1) {
+				if (targetRank > currentRank) {
+					applyRankUpBonuses(newUnit, targetRank - currentRank);
 					newUnit.rank = targetRank;
-					applyRankUpBonuses(newUnit, targetRank);
 					updates.push(`Recruited unit ${cardId} at Rank ${newUnit.rank}`);
 				}
 

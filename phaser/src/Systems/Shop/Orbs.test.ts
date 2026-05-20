@@ -142,7 +142,7 @@ describe("power transfer orb visuals", () => {
 			})
 		);
 		expect(sourceUnit.power).toBe(50);
-		expect(sourceUnit.bonusPower).toBe(0);
+		expect(sourceUnit.bonusPower).toBe(-30);
 		expect(allyUnit.power).toBe(75);
 		expect(allyUnit.bonusPower).toBe(55);
 		expect(mockUpdatePowerDisplay).toHaveBeenCalledWith("source-unit");
@@ -185,6 +185,7 @@ describe("power transfer orb visuals", () => {
 		expect(sourceUnit.power).toBe(65);
 		expect(sourceUnit.bonusPower).toBe(25);
 		expect(allyUnit.power).toBe(75);
+		expect(allyUnit.bonusPower).toBe(-15);
 		expect(mockUpdatePowerDisplay).toHaveBeenCalledWith("ally-unit");
 		expect(mockUpdatePowerDisplay).toHaveBeenCalledWith("source-unit");
 	});

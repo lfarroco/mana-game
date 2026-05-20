@@ -5,6 +5,7 @@ import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
 import { compactNumber } from "utils";
 import { ABILITY_COLORS } from "@Models/Abilities";
+import { getState } from "@Models/State";
 
 export function create(unit: Unit, container: Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
@@ -28,9 +29,16 @@ export function create(unit: Unit, container: Chara) {
 
 export function updatePowerDisplay(id: string) {
 	const chara = getCharaById(id);
-	const state = getUnit(chara);
+	const charaUnit = getUnit(chara);
+	const state = getState();
+	const boardUnit = state.battleData.units.find((unit) => unit.id === id);
+	const sessionUnit = state.session.team.units.find((unit) => unit.id === id);
+	const latestUnit =
+		state.session.phase === "combat"
+			? boardUnit ?? sessionUnit ?? charaUnit
+			: sessionUnit ?? boardUnit ?? charaUnit;
 
-	const power = compactNumber(state.power);
+	const power = compactNumber(Math.floor(latestUnit.power));
 
 	updateChipText(id, power);
 }
