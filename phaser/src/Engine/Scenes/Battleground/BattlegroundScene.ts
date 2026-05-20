@@ -6,6 +6,8 @@ import { CombatRunner } from "@Scenes/Battleground/RunCombatIO";
 import { getOption } from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Systems from "@Systems/BattlegroundSystems";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { clearAll, getAllCharas } from "@Systems/Chara/Chara";
 import * as ResultsUI from "@Scenes/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
@@ -19,6 +21,9 @@ import { getPlayerProfile } from "@Multiplayer/MultiplayerManager";
 import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "@Engine/Visualizer";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
+import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
+import { initializeRegenSystem } from "@Systems/RegenSystem";
+import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
 import {
 	createMultiplayerPlayerNamesDisplay,
 	destroyMultiplayerPlayerNamesDisplay,
@@ -145,6 +150,15 @@ export class BattlegroundScene extends Phaser.Scene {
 		if (charas.length === 0 && state.session.phase !== "combat") {
 			await resetBoard();
 		}
+
+		let forceStatsState = ForceStats.initializeForceStatsState();
+		forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
+		CombatSystemStates.setCombatSystemStates({
+			poisonSystemState: initializePoisonSystem(),
+			regenSystemState: initializeRegenSystem(),
+			combatStatsTrackerState: initializeCombatStatsTracker(state),
+			forceStatsState,
+		});
 
 		UIManager.init(state);
 		if (multiplayerModeEnabled) {

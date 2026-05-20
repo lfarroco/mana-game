@@ -2,7 +2,7 @@ import { createChip, getChip, updateChipText } from "@Components/Chip";
 import { hideTooltip, renderTooltip } from "@Components/Tooltip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
-import { getBattleCore } from "@Models/Entities/Card";
+import { getBattleCore, getPlayerPersistentCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
@@ -15,6 +15,10 @@ import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 const logger = createLogger("ForceStats");
 
 export type { ForceStatsState } from "@Core/Combat/ForceStatsState";
+
+type ForceStatsUpdateOptions = {
+	preferPersistentCore?: boolean;
+};
 
 export function initializeForceStatsState(): ForceStatsState {
 	return {
@@ -189,6 +193,18 @@ export function createForceStats(state: ForceStatsState, force: string): ForceSt
 	return newState;
 }
 
+export function ensureForceStats(state: ForceStatsState, force: string): ForceStatsState {
+	if (force === FORCE_ID_PLAYER && state.playerStats) {
+		return state;
+	}
+
+	if (force === FORCE_ID_CPU && state.cpuStats) {
+		return state;
+	}
+
+	return createForceStats(state, force);
+}
+
 export function destroyForceStats(state: ForceStatsState, force: string): ForceStatsState {
 	const newState = { ...state };
 
@@ -207,7 +223,8 @@ export function updateLifeDisplay(
 	force: string,
 	life: number,
 	delta: number,
-	state?: ForceStatsState
+	state?: ForceStatsState,
+	options?: ForceStatsUpdateOptions
 ) {
 	let forceStatsState: ForceStatsState;
 
@@ -227,7 +244,7 @@ export function updateLifeDisplay(
 		logger.error(`No health bar found for force ${force}`);
 		return;
 	}
-	const core = getBattleCore(getState())(force);
+	const core = getForceStatsCore(force, options);
 	if (!core) {
 		logger.warn(`[ForceStats] Core not found for force ${force} in updateLifeDisplay`);
 		return;
@@ -269,7 +286,8 @@ export function updateShieldDisplay(
 	force: string,
 	shield: number,
 	delta: number,
-	state?: ForceStatsState
+	state?: ForceStatsState,
+	options?: ForceStatsUpdateOptions
 ) {
 	let forceStatsState: ForceStatsState;
 
@@ -291,7 +309,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = getBattleCore(gameState)(force);
+	const core = getForceStatsCore(force, options, gameState);
 	if (!core) {
 		logger.warn(`[ForceStats] Core not found for force ${force} in updateShieldDisplay`);
 		return;
@@ -327,6 +345,49 @@ export function updateShieldDisplay(
 	});
 
 	chip.container.add(textElement);
+}
+
+export function syncPlayerPersistentForceStats(state?: ForceStatsState): ForceStatsState {
+	const currentState = getState();
+	const playerCore = getPlayerPersistentCore(currentState);
+	if (!playerCore) {
+		logger.warn("[ForceStats] Player persistent core not found");
+		return state ?? initializeForceStatsState();
+	}
+
+	let forceStatsState = state;
+	if (!forceStatsState) {
+		forceStatsState = CombatSystemStates.isInitialized()
+			? CombatSystemStates.getCombatSystemStates().forceStatsState
+			: initializeForceStatsState();
+	}
+
+	forceStatsState = ensureForceStats(forceStatsState, FORCE_ID_PLAYER);
+	updateLifeDisplay(FORCE_ID_PLAYER, playerCore.life, 0, forceStatsState, {
+		preferPersistentCore: true,
+	});
+	updateShieldDisplay(FORCE_ID_PLAYER, playerCore.shield, 0, forceStatsState, {
+		preferPersistentCore: true,
+	});
+	updateRegenDisplay(FORCE_ID_PLAYER, 0, 0);
+	updatePoisonDisplay(FORCE_ID_PLAYER, 0, 0);
+
+	return forceStatsState;
+}
+
+function getForceStatsCore(
+	force: string,
+	options?: ForceStatsUpdateOptions,
+	state = getState()
+) {
+	if (options?.preferPersistentCore && force === FORCE_ID_PLAYER) {
+		return getPlayerPersistentCore(state);
+	}
+
+	return (
+		getBattleCore(state)(force) ||
+		(force === FORCE_ID_PLAYER ? getPlayerPersistentCore(state) : null)
+	);
 }
 
 export function updateRegenDisplay(force: string, regen: number, delta: number) {

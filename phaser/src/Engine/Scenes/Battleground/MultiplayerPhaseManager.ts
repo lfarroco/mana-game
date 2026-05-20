@@ -308,7 +308,7 @@ async function handleMultiplayerCombat(
 			if (combatStates) {
 				let forceStatsState = combatStates.forceStatsState;
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
+				forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 

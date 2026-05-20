@@ -68,7 +68,7 @@ export const createBrowserCombatEffects = (
 			if (combatStates) {
 				let forceStatsState = combatStates.forceStatsState;
 				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_PLAYER);
+				forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 
@@ -143,9 +143,11 @@ export const createBrowserCombatEffects = (
 		},
 
 		initForceStats: () => {
-			let state = ForceStats.initializeForceStatsState();
-			state = ForceStats.createForceStats(state, FORCE_ID_PLAYER);
-			state = ForceStats.createForceStats(state, FORCE_ID_CPU);
+			let state = CombatSystemStates.isInitialized()
+				? CombatSystemStates.getCombatSystemStates().forceStatsState
+				: ForceStats.initializeForceStatsState();
+			state = ForceStats.ensureForceStats(state, FORCE_ID_PLAYER);
+			state = ForceStats.ensureForceStats(state, FORCE_ID_CPU);
 			return state;
 		},
 

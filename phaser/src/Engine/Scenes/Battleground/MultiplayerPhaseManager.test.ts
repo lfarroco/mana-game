@@ -22,6 +22,7 @@ jest.mock("@Multiplayer/MultiplayerManager", () => ({
 
 jest.mock("@Models/State", () => ({
 	getCurrentScene: jest.fn(() => ({ add: { existing: jest.fn() } })),
+	getState: jest.fn(() => ({ session: { team: { units: [] } }, battleData: { units: [] } })),
 	__esModule: true,
 }));
 
@@ -64,6 +65,7 @@ jest.mock("@Scenes/Battleground/Results/ResultsUI", () => ({
 jest.mock("@Systems/Chara/Animations", () => ({ shatter: jest.fn(), __esModule: true }));
 jest.mock("@Scenes/Battleground/ForceStats", () => ({
 	destroyForceStats: jest.fn((state: unknown) => state),
+	syncPlayerPersistentForceStats: jest.fn((state: unknown) => state),
 	__esModule: true,
 }));
 jest.mock("@Systems/CombatSystemStates", () => ({
@@ -102,6 +104,10 @@ jest.mock("@Core/GameControllerFactory", () => ({
 }));
 jest.mock("@Systems/Shop/EffectCardShop", () => ({
 	openUpgradeCorePhase: jest.fn(),
+	__esModule: true,
+}));
+jest.mock("@Scenes/Battleground/PhaseManager", () => ({
+	resetBoard: jest.fn(async () => undefined),
 	__esModule: true,
 }));
 jest.mock("@UI/components/multiplayerPlayerNamesDisplay", () => ({
@@ -308,10 +314,17 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 
 		void capturedEffects.onCombatEnd?.(state, "player_won", { forceStatsState: {} });
 		await Promise.resolve();
+		await Promise.resolve();
 
 		expect(mockShatter).toHaveBeenCalled();
 		expect(mockSetEnemyBoardVisible).toHaveBeenCalledWith(true);
 		expect(mockSetEnemyBoardVisible).not.toHaveBeenCalledWith(false);
+		const forceStatsModule = jest.requireMock("@Scenes/Battleground/ForceStats") as {
+			destroyForceStats: jest.Mock;
+			syncPlayerPersistentForceStats: jest.Mock;
+		};
+		expect(forceStatsModule.destroyForceStats).toHaveBeenCalledTimes(1);
+		expect(forceStatsModule.syncPlayerPersistentForceStats).toHaveBeenCalledTimes(1);
 	});
 
 	it("shows Ready on initial resumed combat and starts playback only after click", async () => {

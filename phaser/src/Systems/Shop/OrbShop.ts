@@ -14,6 +14,7 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createLogger } from "@Utils/Logger";
 import { getServerAdapter } from "@Core/ServerFactory";
 import * as Chara from "@Systems/Chara/Chara";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
 
 const logger = createLogger("OrbShop");
 
@@ -150,6 +151,7 @@ export function renderOrbShop(
 							await Chara.refreshUnit(localUnit ?? serverUnit);
 						}
 					}
+					ForceStats.syncPlayerPersistentForceStats();
 				}
 			}
 		}

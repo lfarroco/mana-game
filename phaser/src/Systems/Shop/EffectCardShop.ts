@@ -18,6 +18,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { playUpgradeCrystalSelectionEffect } from "@Effects/upgradeCrystalSelectionEffect";
+import * as ForceStats from "@Scenes/Battleground/ForceStats";
 
 const logger = createLogger("EffectCardShop");
 
@@ -127,6 +128,7 @@ function renderUpgradeCards(
 									await Chara.refreshUnit(localUnit ?? serverUnit);
 								}
 							}
+							ForceStats.syncPlayerPersistentForceStats();
 						}
 					}
 
