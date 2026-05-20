@@ -84,7 +84,7 @@ describe("transitionToNextState - unit recruitment", () => {
 		const goldShopSession = {
 			...session,
 			phase: "shop" as const,
-			current_options: { options: [{ id: CARD_ID }], sourceEncounterId: "gold_shop" },
+			current_options: { options: [{ id: CARD_ID, recruitRank: 3 }] },
 		};
 
 		const { session: next } = transitionToNextState(goldShopSession, CARD_ID);
@@ -101,7 +101,7 @@ describe("transitionToNextState - unit recruitment", () => {
 		const silverShopSession = {
 			...session,
 			phase: "shop" as const,
-			current_options: { options: [{ id: silverCardId }], sourceEncounterId: "silver_shop" },
+			current_options: { options: [{ id: silverCardId, recruitRank: 2 }] },
 		};
 
 		const { session: next } = transitionToNextState(silverShopSession, silverCardId);
@@ -120,7 +120,7 @@ describe("transitionToNextState - unit recruitment", () => {
 		const goldShopSession = {
 			...session,
 			phase: "shop" as const,
-			current_options: { options: [{ id: goldCardId }], sourceEncounterId: "gold_shop" },
+			current_options: { options: [{ id: goldCardId, recruitRank: 3 }] },
 		};
 
 		const { session: next } = transitionToNextState(goldShopSession, goldCardId);

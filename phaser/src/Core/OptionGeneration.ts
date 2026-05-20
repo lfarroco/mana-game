@@ -192,6 +192,7 @@ export function generateShopOptions(
 	const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
 		id: card.id,
 		cost: 10,
+		recruitRank: getCardRank(card),
 	}));
 
 	return { options };

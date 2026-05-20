@@ -3,7 +3,7 @@ import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 
 // Option types for different phases
 export type PhaseOption =
-	| { id: string; cost?: number; label?: string } // Generic option with optional cost and label
+	| { id: string; cost?: number; label?: string; recruitRank?: number } // Generic option with optional cost, label, and shop recruit metadata
 	| { id: "combat_encounter" } // Pre-combat warning option
 	| { id: "combat_done"; label: string }; // Post-combat continue option
 
@@ -69,7 +69,6 @@ export type RunStats = {
 export type CurrentOptionsState = {
 	options: PhaseOption[];
 	combatState?: CombatState;
-	sourceEncounterId?: string;
 };
 
 // Session state (exists in both SP and MP)

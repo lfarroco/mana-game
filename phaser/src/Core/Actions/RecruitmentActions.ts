@@ -5,46 +5,25 @@
  * Pure functions that return updated unit arrays and status messages.
  */
 
-import { SessionData } from "@Core/Types";
+import { PhaseOption, SessionData } from "@Core/Types";
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
 import { FORCE_ID_PLAYER } from "@Core/Combat/CombatConstants";
 
 /**
- * Determine the target rank for a recruited unit based on the shop type.
+ * Determine the recruit rank encoded in the current shop option.
  */
-function getRecruitmentTargetRank(encounterId: string | null): number {
-	if (encounterId === "silver_shop") return 2;
-	if (encounterId === "gold_shop") return 3;
-	return 1;
-}
-
-/**
- * Apply rank-up bonuses to a unit for extra levels above its current base rank.
- * Silver/gold shop cards already carry their own tiered base stats in the card definition,
- * so this helper is only for additional upgrades beyond that base tier.
- */
-function applyRankUpBonuses(unit: Unit, additionalLevels: number): void {
-	const rankMultiplier = 1.75;
-	for (let i = 0; i < additionalLevels; i++) {
-		unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
-		unit.life = unit.maxLife;
-		unit.power = Math.floor(unit.power * rankMultiplier);
-	}
-}
-
-/**
- * Get the encounter that produced the currently open shop, if any.
- */
-function getActiveShopSourceEncounterId(session: SessionData): string | null {
+function getShopRecruitRank(session: SessionData, cardId: string): number {
 	if (session.phase !== "shop" || !session.current_options || Array.isArray(session.current_options)) {
-		return null;
+		return 1;
 	}
 
-	return typeof session.current_options.sourceEncounterId === "string"
-		? session.current_options.sourceEncounterId
-		: null;
+	const selectedOption = session.current_options.options.find(
+		(option): option is PhaseOption & { recruitRank?: number } => option.id === cardId
+	);
+
+	return selectedOption?.recruitRank ?? 1;
 }
 
 /**
@@ -84,13 +63,10 @@ export function recruitUnit(session: SessionData, cardId: string): {
 			const targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
 			if (targetPos) {
 				const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
-				const encounterId = getActiveShopSourceEncounterId(session);
-				const targetRank = getRecruitmentTargetRank(encounterId);
-				const currentRank = newUnit.rank || 1;
+				const recruitRank = getShopRecruitRank(session, cardId);
+				newUnit.rank = recruitRank;
 
-				if (targetRank > currentRank) {
-					applyRankUpBonuses(newUnit, targetRank - currentRank);
-					newUnit.rank = targetRank;
+				if (recruitRank > 1) {
 					updates.push(`Recruited unit ${cardId} at Rank ${newUnit.rank}`);
 				}
 

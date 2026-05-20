@@ -30,6 +30,7 @@ describe("generateShopOptions", () => {
 		options.forEach((option) => {
 			const card = getCardDefinition(option.id);
 			expect(card.rank ?? 1).toBe(1);
+			expect("recruitRank" in option ? option.recruitRank : undefined).toBe(1);
 		});
 	});
 
@@ -42,6 +43,7 @@ describe("generateShopOptions", () => {
 		options.forEach((option) => {
 			const card = getCardDefinition(option.id);
 			expect(card.rank ?? 1).toBe(2);
+			expect("recruitRank" in option ? option.recruitRank : undefined).toBe(2);
 		});
 	});
 
@@ -53,5 +55,6 @@ describe("generateShopOptions", () => {
 		expect(options).toHaveLength(1);
 		const card = getCardDefinition(options[0].id);
 		expect(card.rank ?? 1).toBe(3);
+		expect("recruitRank" in options[0] ? options[0].recruitRank : undefined).toBe(3);
 	});
 });
