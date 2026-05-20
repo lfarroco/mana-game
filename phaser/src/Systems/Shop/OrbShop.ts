@@ -15,6 +15,7 @@ import { createLogger } from "@Utils/Logger";
 import { getServerAdapter } from "@Core/ServerFactory";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 const logger = createLogger("OrbShop");
 
@@ -110,9 +111,14 @@ export function renderOrbShop(
 
 		logger.debug(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
+		const isRowOrb =
+			orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
+
 		// Only apply effect locally if no server callback is provided
-		// When onOrbApply is provided, the server will handle the upgrade
-		if (!onOrbApply) {
+		// When onOrbApply is provided, the server will handle the upgrade.
+		// Row power orbs still animate locally first so the board shows the transfer projectiles
+		// instead of only popping units after the server sync.
+		if (!onOrbApply || isRowOrb) {
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
 				logger.debug(`${orbSpec.name} effect returned false — returning orb to origin`);
@@ -135,8 +141,6 @@ export function renderOrbShop(
 				const updatedSession = await server.getSession(playerId);
 				if (updatedSession) {
 					const rowY = existingUnit.position?.y;
-					const isRowOrb =
-						orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
 
 					for (const serverUnit of updatedSession.team.units) {
 						const isTarget = serverUnit.id === existingUnit.id;
@@ -147,7 +151,17 @@ export function renderOrbShop(
 							const localUnit = state.session.team.units.find(
 								(u) => u.id === serverUnit.id
 							);
-							if (localUnit) Object.assign(localUnit, serverUnit);
+							if (localUnit) {
+								Object.assign(localUnit, serverUnit);
+							}
+
+							if (isRowOrb) {
+								if (Chara.hasCharaById(serverUnit.id)) {
+									updatePowerDisplay(serverUnit.id);
+								}
+								continue;
+							}
+
 							await Chara.refreshUnit(localUnit ?? serverUnit);
 						}
 					}

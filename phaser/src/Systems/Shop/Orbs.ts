@@ -17,7 +17,9 @@ import { getState, State } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
+import { arcaneMissileTargeted } from "@Effects/index";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import { getCharaById, hasCharaById } from "@Systems/Chara/Chara";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
@@ -32,6 +34,44 @@ const COOLDOWN_REDUCTION_FACTOR = 0.1;
 const HASTE_DURATION_MS = 1000;
 const SLOW_DURATION_MS = 1000;
 const CHARGE_DURATION_MS = 500;
+
+const playPowerTransferEffect = (
+	sourceId: string | undefined,
+	targetId: string,
+	colors: number[],
+	impactColors: number[],
+	onHit: () => void
+) => {
+	const effect = async () => {
+		onHit();
+		updatePowerDisplay(targetId);
+	};
+
+	if (
+		!sourceId ||
+		sourceId === targetId ||
+		!hasCharaById(sourceId) ||
+		!hasCharaById(targetId)
+	) {
+		effect();
+		return;
+	}
+
+	arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+		colors,
+		amplitudeMin: 5,
+		amplitudeMax: 15,
+		particleScale: 1.5,
+		impact: {
+			colors: impactColors,
+			scale: 2,
+			speed: 200,
+			lifespan: 300,
+			alpha: 0.4,
+		},
+		onHit: effect,
+	});
+};
 
 export type OrbSpec = {
 	id: string;
@@ -63,9 +103,24 @@ const getShopEnvironment = (state: State): CombatEnvironment => {
 			updateRegenDisplay: () => { },
 			updatePoisonDisplay: () => { },
 			onPowerUpdate: (unitId: string) => updatePowerDisplay(unitId),
-			// For shop, we might want to run the onHit callback immediately for other effects if they happen
-			onIncreasePower: (_s, _t, _amount, _permanent, onHit) => onHit(),
-			onDecreasePower: (_s, _t, _amount, _permanent, onHit) => onHit(),
+			onIncreasePower: (sourceId, targetId, _amount, _permanent, onHit) => {
+				playPowerTransferEffect(
+					sourceId,
+					targetId,
+					[0xffa500, 0xff8c00, 0xff4500],
+					[0xffa500, 0xff8c00],
+					onHit
+				);
+			},
+			onDecreasePower: (sourceId, targetId, _amount, _permanent, onHit) => {
+				playPowerTransferEffect(
+					sourceId,
+					targetId,
+					[0x8a2be2, 0x9400d3, 0x9932cc],
+					[0x8a2be2, 0x9400d3],
+					onHit
+				);
+			},
 			onIncreaseCritical: (_s, _t, onHit) => onHit(),
 		},
 		processReactions,
