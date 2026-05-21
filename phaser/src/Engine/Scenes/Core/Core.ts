@@ -1,8 +1,8 @@
-import { preload } from "@Scenes/Battleground/preload";
 import { images } from "@assets";
 import { SCENE_KEYS } from "@Constants/constants";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import { DISABLE_ASSETS } from "@config";
 
 export default class Core extends Phaser.Scene {
 	constructor() {
@@ -10,8 +10,6 @@ export default class Core extends Phaser.Scene {
 	}
 
 	preload() {
-		preload(this);
-		this.preloadAllUnitAssets();
 
 		const width = this.cameras.main.width;
 		const height = this.cameras.main.height;
@@ -72,14 +70,18 @@ export default class Core extends Phaser.Scene {
 			percentText.destroy();
 			assetText.destroy();
 		});
+		
+        if (DISABLE_ASSETS) return;
 
-		this.load.image("blue-stone", "assets/blue-stone.png");
-		this.load.image("haste-stone", "assets/haste-stone.png");
-		this.load.image("red-stone", "assets/red-stone.png");
-		this.load.image("yellow-stone", "assets/yellow-stone.png");
-		this.load.image("green-stone", "assets/green-stone.png");
-		this.load.image("purple-stone", "assets/purple-stone.png");
+		this.loadUnitAssets();
+        this.loadUIAssets();
+        this.loadAudioAssets();
 
+	}
+
+    loadUIAssets() {
+
+		this.load.image(images.logo);
 		this.load.image("ui/armory", "assets/ui/armory.png");
 		this.load.image("ui/assassin", "assets/ui/assassin.png");
 		this.load.image("ui/commander", "assets/ui/commander.png");
@@ -99,10 +101,40 @@ export default class Core extends Phaser.Scene {
 		this.load.image("ui/toxic", "assets/ui/toxic.png");
 		this.load.image("ui/trial_circuit", "assets/ui/trial_circuit.png");
 		this.load.image("ui/upgrade_unit", "assets/ui/upgrade_unit.png");
-
 		this.load.image("ui/silver_medal", "assets/ui/silver_medal.png");
 		this.load.image("ui/gold_medal", "assets/ui/gold_medal.png");
 
+    }
+
+	loadUnitAssets() {
+
+		const uniquePics = new Set(
+			BASE_COLLECTION_DATA
+              .cards
+              .filter((card) => !card.isCore)
+               .map((card) => card.pic)
+		);
+
+		for (const pic of uniquePics) {
+			this.load.atlas(
+              pic,
+              `assets/heroes/${pic}.png`,
+              `assets/heroes/${pic}.json`,
+            );
+			this.load.json(`${pic}-anims`, `assets/heroes/${pic}-anims.json`);
+		}
+
+
+        this.load.image("blue-stone", "assets/blue-stone.png");
+		this.load.image("haste-stone", "assets/haste-stone.png");
+		this.load.image("red-stone", "assets/red-stone.png");
+		this.load.image("yellow-stone", "assets/yellow-stone.png");
+		this.load.image("green-stone", "assets/green-stone.png");
+		this.load.image("purple-stone", "assets/purple-stone.png");
+
+	}
+
+    loadAudioAssets(){
 		//sfx_ui_error.m4a
 		this.load.audio("sfx_ui_error", "assets/audio/sfx_ui_error.m4a");
 
@@ -129,9 +161,7 @@ export default class Core extends Phaser.Scene {
 
 		this.load.audio("sfx_unit_run_magical_4", "assets/audio/sfx_unit_run_magical_4.m4a");
 
-		this.load.audio(
-			"sfx_voidhunter_attack_impact",
-			"assets/audio/sfx_voidhunter_attack_impact.m4a"
+		this.load.audio( "sfx_voidhunter_attack_impact", "assets/audio/sfx_voidhunter_attack_impact.m4a"
 		);
 		this.load.audio("sfx_spell_deathstrikeseal", "assets/audio/sfx_spell_deathstrikeseal.m4a");
 
@@ -144,23 +174,15 @@ export default class Core extends Phaser.Scene {
 		this.load.audio("music_battlemap_vetruv", "assets/music/music_battlemap_vetruv.m4a");
 		this.load.audio("music_playmode", "assets/music/music_playmode.m4a");
 
-		this.load.image(images.logo);
-
 		this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
+		
+        this.load.audio("sfx_notification", "assets/audio/notification.m4a");
 
-		this.load.audio("sfx_notification", "assets/audio/notification.m4a");
-	}
+        this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
+        this.load.audio("sfx_notification", "assets/audio/notification.m4a");
+        this.load.audio("sfx_spell_innerfocus", "assets/audio/sfx_spell_innerfocus.m4a");
 
-	private preloadAllUnitAssets() {
-		const uniquePics = new Set(
-			BASE_COLLECTION_DATA.cards.filter((card) => !card.isCore).map((card) => card.pic)
-		);
-
-		for (const pic of uniquePics) {
-			this.load.atlas(pic, `assets/heroes/${pic}.png`, `assets/heroes/${pic}.json`);
-			this.load.json(`${pic}-anims`, `assets/heroes/${pic}-anims.json`);
-		}
-	}
+    }
 
 	create() {
 		const collection = BASE_COLLECTION_DATA;
