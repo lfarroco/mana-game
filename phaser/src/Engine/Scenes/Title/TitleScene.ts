@@ -42,7 +42,9 @@ export default class TitleScene extends Phaser.Scene {
 			languageButton(),
 		];
 
-		// Create a container for the main buttons so they can be hidden when showing submenu
+		// Create a container for the main buttons so they can be hidden when
+        // showing submenu
+        // TODO: replace with "tab" system 
 		const mainButtonsContainer = io.Container(
 			buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
 		);
@@ -52,26 +54,27 @@ export default class TitleScene extends Phaser.Scene {
 
 		ControlsSystem.init(this, { context: "buttons" });
 
-		// const PGIurl = 'https://cdn.jsdelivr.net/gh/SilverTree7622/Phaser3_GUI_Inspector@latest/dist/PGInspector.js';
-		// const PGIele = document.createElement('script');
-		// PGIele.src = PGIurl;
-		// document.head.appendChild(PGIele);
-		// setTimeout(() => {
-		// 	//@ts-ignore
-		// 	PhaserGUIAction(this);
-		// }, 500)
-
 		this.checkUnlocks();
 
-		this.add
-			.text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
-				fontFamily: "Arimo",
-				fontSize: "16px",
-				color: "white",
-			})
-			.setOrigin(1, 0)
-			.setAlpha(0.5);
+        this.displayVersion();
+
 	}
+
+    /*
+     * Displays the game version in the top-right corner of the screen
+     */
+    displayVersion() {
+    
+        this.add
+            .text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
+                fontFamily: "Arimo",
+                fontSize: "16px",
+                color: "white",
+            })
+            .setOrigin(1, 0)
+			.setAlpha(0.5);
+
+    }
 
 	async checkUnlocks() {
 		const pendingUnlocks = StatsStore.getPendingUnlocks();

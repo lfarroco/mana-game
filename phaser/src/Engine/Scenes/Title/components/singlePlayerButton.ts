@@ -12,16 +12,19 @@ import * as io from "@PhaserIO";
 let submenuContainer: Container | null = null;
 
 export function singlePlayerButton(y: number) {
-	const title = t("title.singlePlayer");
+
+    const title = t("title.singlePlayer");
+    const description = t("title.tooltip.singlePlayer");
+
 	return createUIButton(
-		title,
+        title,
 		vec2(constants.MIDDLE_SCREEN_X, y),
 		showSinglePlayerSubmenu,
 		undefined,
 		undefined,
 		{
 			title,
-			description: t("title.tooltip.singlePlayer"),
+			description,
 			position: "right",
 		}
 	);
@@ -42,10 +45,12 @@ function showSinglePlayerSubmenu() {
 		() => {
 			hideSinglePlayerSubmenu();
 			if (hasSavedRun) {
+                // TODO: create "loadSinglePlayerGame"
 				loadGame();
 				return;
 			}
 
+            // TODO: replace with new effect "startSinglePlayer"
 			void startGame(false);
 		}
 	);
