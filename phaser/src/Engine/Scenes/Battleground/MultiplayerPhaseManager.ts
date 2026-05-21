@@ -26,8 +26,11 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
-import { updateLivesDisplay } from "@UI/components/livesDisplay";
+
+// TODO: fire events instead?
+import { updateLivesDisplay } from "./Components/livesDisplay";
 import { updateRoundDisplay } from "./Components/roundDisplay";
+
 import { updateWinsDisplay } from "@Scenes/Battleground/Components/winsDisplay";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
