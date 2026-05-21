@@ -36,7 +36,15 @@ export const absorbPower = (
 
 		if (effects.onDecreasePower) {
 			// sourceId = drained unit, targetId = absorber → projectile flies from target → absorber
-			effects.onDecreasePower(target.id, sourceUnit.id, amount, permanent, onHit, delayedExecution);
+			effects.onDecreasePower(
+				target.id,
+				sourceUnit.id,
+				amount,
+				permanent,
+				onHit,
+				delayedExecution,
+				target.id
+			);
 		} else {
 			onHit();
 		}

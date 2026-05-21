@@ -313,11 +313,13 @@ export const createBrowserCombatEffects = (
 			targetId: string,
 			_amount: number,
 			_permanent: boolean,
-			onHit: () => void
+			onHit: () => void,
+			_delayedExecution?: number,
+			affectedUnitId?: string
 		) => {
 			const effect = async () => {
 				onHit();
-				PowerDisplay.updatePowerDisplay(targetId);
+				PowerDisplay.updatePowerDisplay(affectedUnitId ?? targetId);
 			};
 
 			if (!sourceId) {

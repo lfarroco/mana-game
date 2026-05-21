@@ -183,19 +183,22 @@ export const createCombatPlaybackController = (
 					const decreaseTargetId = log.targetId;
 					const decreaseAmount = log.amount;
 					const decreasePermanent = log.permanent;
-					const decreaseTarget = state.battleData.units.find((u) => u.id === decreaseTargetId);
-					if (decreaseTarget) {
+					const affectedUnitId = log.affectedUnitId ?? decreaseTargetId;
+					const affectedUnit = state.battleData.units.find((u) => u.id === affectedUnitId);
+					if (affectedUnit) {
 						effects.onDecreasePower?.(
 							log.sourceId,
 							decreaseTargetId,
 							decreaseAmount,
 							decreasePermanent,
 							() => {
-								decreaseTarget.power -= decreaseAmount;
+								affectedUnit.power -= decreaseAmount;
 								if (decreasePermanent) {
-									decreaseTarget.bonusPower -= decreaseAmount;
+									affectedUnit.bonusPower -= decreaseAmount;
 								}
-							}
+							},
+							undefined,
+							log.affectedUnitId
 						);
 					}
 					break;

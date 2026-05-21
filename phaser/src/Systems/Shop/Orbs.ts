@@ -40,7 +40,8 @@ const playPowerTransferEffect = (
 	targetId: string,
 	colors: number[],
 	impactColors: number[],
-	onHit: () => void
+	onHit: () => void,
+	affectedUnitId?: string
 ) => {
 	const refreshPowerDisplay = (unitId: string | undefined) => {
 		if (!unitId || !hasCharaById(unitId)) {
@@ -54,6 +55,7 @@ const playPowerTransferEffect = (
 		onHit();
 		refreshPowerDisplay(sourceId);
 		refreshPowerDisplay(targetId);
+		refreshPowerDisplay(affectedUnitId);
 	};
 
 	if (
@@ -121,13 +123,14 @@ const getShopEnvironment = (state: State): CombatEnvironment => {
 					onHit
 				);
 			},
-			onDecreasePower: (sourceId, targetId, _amount, _permanent, onHit) => {
+			onDecreasePower: (sourceId, targetId, _amount, _permanent, onHit, _delay, affectedUnitId) => {
 				playPowerTransferEffect(
 					sourceId,
 					targetId,
 					[0x8a2be2, 0x9400d3, 0x9932cc],
 					[0x8a2be2, 0x9400d3],
-					onHit
+					onHit,
+					affectedUnitId
 				);
 			},
 			onIncreaseCritical: (_s, _t, onHit) => onHit(),

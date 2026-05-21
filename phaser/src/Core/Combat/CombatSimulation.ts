@@ -19,6 +19,14 @@ import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
 import * as Random from "@Utils/Random";
 import { stringToSeed } from "@Core/Seeding";
 
+const cloneValue = <T>(value: T): T => {
+	if (typeof globalThis.structuredClone === "function") {
+		return globalThis.structuredClone(value);
+	}
+
+	return JSON.parse(JSON.stringify(value)) as T;
+};
+
 /**
  * Build a complete combat state from a session.
  * Includes player units, enemy units, board grid, and forces.
@@ -114,6 +122,17 @@ export function simulateCombat(session: SessionData): {
 		combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
 		frame++;
 	}
+
+	const persistedTeamUnits = combatState.session.team.units.map((unit) => {
+		const persistentUnit = cloneValue(unit);
+		resetUnitStats(persistentUnit);
+		return persistentUnit;
+	});
+
+	combatState.session = {
+		...combatState.session,
+		team: { units: persistedTeamUnits },
+	};
 
 	return { finalState: combatState, initialUnits, logs: effects.logs };
 }

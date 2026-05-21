@@ -13,6 +13,7 @@ export type CombatLogEntry = {
 	result?: WaveOutcome;
 	sourceId?: string;
 	targetId?: string;
+	affectedUnitId?: string;
 	amount?: number;
 	effectDuration?: number;
 	permanent?: boolean;
@@ -242,13 +243,15 @@ export const createServerCombatEffects = (
 			amount: number,
 			permanent: boolean,
 			onHit: () => void,
-			delayedExecution?: number
+			delayedExecution?: number,
+			affectedUnitId?: string
 		) => {
 			const delay = sourceId ? DEFAULT_PROJECTILE_DURATION : INSTANT_EFFECT_DURATION;
 			logs.push({
 				type: "decrease_power",
 				sourceId,
 				targetId,
+				affectedUnitId,
 				amount,
 				permanent,
 				duration: delay,

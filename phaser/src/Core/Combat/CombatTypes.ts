@@ -109,7 +109,8 @@ export type CombatEffects = {
 		amount: number,
 		permanent: boolean,
 		onHit: () => void,
-		delayedExecution?: number
+		delayedExecution?: number,
+		affectedUnitId?: string
 	) => void;
 	onIncreaseCritical?: (
 		sourceId: string | undefined,

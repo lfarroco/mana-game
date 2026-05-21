@@ -18,7 +18,15 @@ export const decreasePower = (
 
 	for (const target of targets) {
 		if (effects.onDecreasePower) {
-			effects.onDecreasePower(sourceUnit?.id, target.id, amount, permanent, effect(target), delayedExecution);
+			effects.onDecreasePower(
+				sourceUnit?.id,
+				target.id,
+				amount,
+				permanent,
+				effect(target),
+				delayedExecution,
+				target.id
+			);
 		} else {
 			effect(target)();
 		}

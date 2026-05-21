@@ -56,7 +56,9 @@ const cards: CardDefinition[] = [
 		isCore: true,
 		effects: [
 			regen,
-			increasePower(10, column),
+			//increasePower(10, column),
+
+			absorbPower(column)
 		],
 		reactions: [
 			reaction("all", "row_allies", charge(500, self)),
