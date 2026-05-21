@@ -154,7 +154,7 @@ export default class Core extends Phaser.Scene {
           "sfx_victory_match",
           "sfx_artifact_equipmask",
           "sfx_notification",
-          "sfx_spell_innerfocus"
+          "sfx_spell_innerfocus",
           "music_ageofdisjunction",
           "music_battlemap_vetruv",
           "music_playmode",
