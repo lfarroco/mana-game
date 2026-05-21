@@ -135,52 +135,32 @@ export default class Core extends Phaser.Scene {
 	}
 
     loadAudioAssets(){
-		//sfx_ui_error.m4a
-		this.load.audio("sfx_ui_error", "assets/audio/sfx_ui_error.m4a");
 
-		//sfx_ui_modalwindow_swoosh_enter.m4a
-		this.load.audio(
-			"sfx_ui_modalwindow_swoosh_enter",
-			"assets/audio/sfx_ui_modalwindow_swoosh_enter.m4a"
-		);
-		//sfx_ui_modalwindow_swoosh_exit.m4a
-		this.load.audio(
-			"sfx_ui_modalwindow_swoosh_exit",
-			"assets/audio/sfx_ui_modalwindow_swoosh_exit.m4a"
-		);
-
-		//sfx_unit_onclick.m4a
-		this.load.audio("sfx_unit_onclick", "assets/audio/sfx_unit_onclick.m4a");
-
-		this.load.audio("sfx_artifact_equipweapon", "assets/audio/sfx_artifact_equipweapon.m4a");
-
-		this.load.audio("sfx_voidhunter_death", "assets/audio/sfx_voidhunter_death.m4a");
-		this.load.audio("sfx_spell_truestrike", "assets/audio/sfx_spell_truestrike.m4a");
-		this.load.audio("sfx_spell_tranquility", "assets/audio/sfx_spell_tranquility.m4a");
-		this.load.audio("sfx_spell_manavortex", "assets/audio/sfx_spell_manavortex.m4a");
-
-		this.load.audio("sfx_unit_run_magical_4", "assets/audio/sfx_unit_run_magical_4.m4a");
-
-		this.load.audio( "sfx_voidhunter_attack_impact", "assets/audio/sfx_voidhunter_attack_impact.m4a"
-		);
-		this.load.audio("sfx_spell_deathstrikeseal", "assets/audio/sfx_spell_deathstrikeseal.m4a");
-
-		this.load.audio("sfx_ui_select", "assets/audio/sfx_ui_select.m4a");
-
-		this.load.audio("sfx_victory_reward_chant", "assets/audio/sfx_victory_reward_chant.m4a");
-		this.load.audio("sfx_victory_match", "assets/audio/sfx_victory_match.m4a");
-
-		this.load.audio("music_ageofdisjunction", "assets/music/music_ageofdisjunction.m4a");
-		this.load.audio("music_battlemap_vetruv", "assets/music/music_battlemap_vetruv.m4a");
-		this.load.audio("music_playmode", "assets/music/music_playmode.m4a");
-
-		this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
-		
-        this.load.audio("sfx_notification", "assets/audio/notification.m4a");
-
-        this.load.audio("sfx_artifact_equipmask", "assets/audio/sfx_artifact_equipmask.m4a");
-        this.load.audio("sfx_notification", "assets/audio/notification.m4a");
-        this.load.audio("sfx_spell_innerfocus", "assets/audio/sfx_spell_innerfocus.m4a");
+        [
+          "sfx_ui_error",
+          "sfx_ui_modalwindow_swoosh_enter",
+          "sfx_ui_modalwindow_swoosh_exit",
+          "sfx_unit_onclick",
+          "sfx_artifact_equipweapon",
+          "sfx_voidhunter_death",
+          "sfx_spell_truestrike",
+          "sfx_spell_tranquility",
+          "sfx_spell_manavortex",
+          "sfx_unit_run_magical_4",
+          "sfx_voidhunter_attack_impact",
+          "sfx_spell_deathstrikeseal",
+          "sfx_ui_select",
+          "sfx_victory_reward_chant",
+          "sfx_victory_match",
+          "sfx_artifact_equipmask",
+          "sfx_notification",
+          "sfx_spell_innerfocus"
+          "music_ageofdisjunction",
+          "music_battlemap_vetruv",
+          "music_playmode",
+        ].forEach((key) => 
+          this.load.audio(key, `assets/audio/${key}.m4a`)
+        );
 
     }
 
