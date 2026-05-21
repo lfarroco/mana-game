@@ -27,7 +27,7 @@ import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import { updateLivesDisplay } from "@UI/components/livesDisplay";
-import { updateRoundDisplay } from "@UI/components/roundDisplay";
+import { updateRoundDisplay } from "./Components/roundDisplay";
 import { updateWinsDisplay } from "@UI/components/winsDisplay";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";

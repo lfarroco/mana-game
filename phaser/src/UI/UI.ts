@@ -2,7 +2,7 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip";
 import * as io from "@PhaserIO";
-import * as roundDisplay from "@UI/components/roundDisplay";
+import * as roundDisplay from "@Scenes/Battleground/Components/roundDisplay";
 import * as livesDisplay from "@UI/components/livesDisplay";
 import * as winsDisplay from "@UI/components/winsDisplay";
 import * as headerBackground from "@UI/components/headerBackground";

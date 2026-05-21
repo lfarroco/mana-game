@@ -4,7 +4,7 @@ import * as UI from "@UI/UI";
 import * as winsDisplay from "@UI/components/winsDisplay";
 import { winsChangeAnimation } from "@UI/components/winsDisplay";
 import * as livesDisplay from "@UI/components/livesDisplay";
-import * as roundDisplay from "@UI/components/roundDisplay";
+import * as roundDisplay from "@Scenes/Battleground/Components/roundDisplay";
 import { getCurrentScene } from "@Models/State";
 import { t } from "@i18n/i18n";
 
