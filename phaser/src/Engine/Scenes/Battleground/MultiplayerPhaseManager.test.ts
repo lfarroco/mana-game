@@ -11,7 +11,7 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { setEnemyBoardVisible } from "@Models/Board";
 import { shatter } from "@Systems/Chara/Animations";
-import { updateMultiplayerPlayerNamesDisplay } from "@UI/components/multiplayerPlayerNamesDisplay";
+import { updateMultiplayerPlayerNamesDisplay } from "@Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
 import * as Encounter from "@Systems/Encounter";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({

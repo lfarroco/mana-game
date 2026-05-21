@@ -28,7 +28,7 @@ import { delay } from "@Utils/animation";
 import { openOrbShop } from "@Systems/Shop/OrbShop";
 import { updateLivesDisplay } from "@UI/components/livesDisplay";
 import { updateRoundDisplay } from "./Components/roundDisplay";
-import { updateWinsDisplay } from "@UI/components/winsDisplay";
+import { updateWinsDisplay } from "@Scenes/Battleground/Components/winsDisplay";
 import { renderTavernCharas } from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
@@ -39,7 +39,7 @@ import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
 import { resetBoard } from "@Scenes/Battleground/PhaseManager";
-import { updateMultiplayerPlayerNamesDisplay } from "@UI/components/multiplayerPlayerNamesDisplay";
+import { updateMultiplayerPlayerNamesDisplay } from "@Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
 
 const logger = createLogger("MultiplayerPhaseManager");
 

@@ -378,7 +378,7 @@ export function defeatPlayer(state: State): string {
 }
 
 export async function setWins(wins: number): Promise<string> {
-	const { updateWinsDisplay } = await import("@UI/components/winsDisplay");
+	const { updateWinsDisplay } = await import("@Scenes/Battleground/Components/winsDisplay");
 	getState().session.wins = wins;
 	updateWinsDisplay(wins);
 	return `Wins set to ${wins}`;

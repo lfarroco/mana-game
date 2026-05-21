@@ -1,14 +1,14 @@
+import { vec2 } from "@Models/Geometry";
+import { State } from "@Models/State";
 import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip";
 import * as io from "@PhaserIO";
 import * as roundDisplay from "@Scenes/Battleground/Components/roundDisplay";
-import * as livesDisplay from "@UI/components/livesDisplay";
-import * as winsDisplay from "@UI/components/winsDisplay";
-import * as headerBackground from "@UI/components/headerBackground";
-import { vec2 } from "@Models/Geometry";
-import * as menuButton from "@UI/components/menuButton";
-import { State } from "@Models/State";
+import * as livesDisplay from "@Scenes/Battleground/Components/livesDisplay";
+import * as winsDisplay from "@Scenes/Battleground/Components/winsDisplay";
+import * as headerBackground from "@Scenes/Battleground/Components/headerBackground";
+import * as menuButton from "@Scenes/Battleground/Components/menuButton";
 export * as events from "@UI/events";
 
 let uiContainer: Container | null = null;

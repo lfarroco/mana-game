@@ -1,9 +1,9 @@
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as UI from "@UI/UI";
-import * as winsDisplay from "@UI/components/winsDisplay";
-import { winsChangeAnimation } from "@UI/components/winsDisplay";
-import * as livesDisplay from "@UI/components/livesDisplay";
+import * as winsDisplay from "@Scenes/Battleground/Components/winsDisplay";
+import { winsChangeAnimation } from "@Scenes/Battleground/Components/winsDisplay";
+import * as livesDisplay from "@Scenes/Battleground/Components/livesDisplay";
 import * as roundDisplay from "@Scenes/Battleground/Components/roundDisplay";
 import { getCurrentScene } from "@Models/State";
 import { t } from "@i18n/i18n";

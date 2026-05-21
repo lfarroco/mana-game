@@ -5,6 +5,7 @@ import { getCurrentScene, resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
+//TODO: this should be local
 import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_TOP } from "@Scenes/Battleground/battlegroundConstants";
 
 export function create(state: State) {

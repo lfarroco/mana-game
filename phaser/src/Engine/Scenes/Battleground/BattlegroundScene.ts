@@ -28,7 +28,7 @@ import {
 	createMultiplayerPlayerNamesDisplay,
 	destroyMultiplayerPlayerNamesDisplay,
 	updateMultiplayerPlayerNamesDisplay,
-} from "@UI/components/multiplayerPlayerNamesDisplay";
+} from "@Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
 
 export type BattlegroundSceneData = {
 	state: State;
