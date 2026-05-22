@@ -6,10 +6,10 @@ import { startGame } from "@Game/effects/startGame";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Scenes/Title/components/collectionButton";
-import { hideMainButtons, showMainButtons } from "Client/Scenes/Title/components/optionsButton";
 import * as io from "@PhaserIO";
+import * as TitleScene from "@Scenes/Title/TitleScene";
 
-let submenuContainer: Container | null = null;
+let submenuContainer: Container;
 
 export function singlePlayerButton(y: number) {
 
@@ -31,12 +31,11 @@ export function singlePlayerButton(y: number) {
 }
 
 function showSinglePlayerSubmenu() {
-	if (submenuContainer) return;
 
-	hideMainButtons();
+	TitleScene.hideMainButtons();
 
 	const baseY = 500;
-	const spacing = 90;
+	const spacing = 100;
 	const hasSavedRun = getSavedData() != null;
 
 	const resumeBtn = createUIButton(
@@ -65,12 +64,12 @@ function showSinglePlayerSubmenu() {
 
 	const collectionBtn = collectionButton(baseY + spacing * 2);
 
-	const returnBtn = createUIButton(
-		t("title.return"),
+	const backBtn = createUIButton(
+		t("title.back"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		() => {
 			hideSinglePlayerSubmenu();
-			showMainButtons();
+			TitleScene.showMainButtons();
 		}
 	);
 
@@ -78,17 +77,12 @@ function showSinglePlayerSubmenu() {
 		resumeBtn.container,
 		newRunBtn.container,
 		collectionBtn.container,
-		returnBtn.container,
+		backBtn.container,
 	]);
 
 	io.BringToTop(submenuContainer);
 }
 
 function hideSinglePlayerSubmenu() {
-	if (!submenuContainer) {
-		return;
-	}
-
 	submenuContainer.destroy(true);
-	submenuContainer = null;
 }

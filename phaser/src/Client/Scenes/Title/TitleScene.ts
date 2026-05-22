@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { arenaButton } from "Client/Scenes/Title/components/arenaButton";
 import { cloudsBg } from "Client/Scenes/Title/components/cloudsBg";
-import { optionsButton, setMainButtonsContainer } from "Client/Scenes/Title/components/optionsButton";
+import { optionsButton } from "Client/Scenes/Title/components/optionsButton";
 import { logo } from "Client/Scenes/Title/components/logo";
 import { howToPlay } from "Client/Scenes/Title/components/howToPlay";
 import * as io from "@PhaserIO";
@@ -15,6 +15,16 @@ import * as Tooltip from "@Components/Tooltip";
 import * as ControlsSystem from "@Systems/Controls";
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
+
+export let mainButtonsContainer: Container;
+
+export function hideMainButtons() {
+	mainButtonsContainer.setVisible(false);
+}
+
+export function showMainButtons() {
+	mainButtonsContainer.setVisible(true);
+}
 
 export function renderTitleScreen() {
 
@@ -35,10 +45,9 @@ export function renderTitleScreen() {
 	// Create a container for the main buttons so they can be hidden when
 	// showing submenu
 	// TODO: replace with "tab" system 
-	const mainButtonsContainer = io.Container(
+	mainButtonsContainer = io.Container(
 		buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
 	);
-	setMainButtonsContainer(mainButtonsContainer);
 
 	howToPlay();
 

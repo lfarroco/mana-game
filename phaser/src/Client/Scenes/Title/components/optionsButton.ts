@@ -7,9 +7,9 @@ import { openCredits } from "Client/Scenes/Title/components/CreditsPanel";
 import { openStats } from "Client/Scenes/Title/components/StatsPanel";
 import * as io from "@PhaserIO";
 import { getCloudsBg } from "Client/Scenes/Title/components/cloudsBg";
+import * as TitleScene from "@Scenes/Title/TitleScene";
 
-let submenuContainer: Container | null = null;
-let mainButtonsContainer: Container | null = null;
+let submenuContainer: Container;
 
 export function optionsButton(y: number) {
 	const title = t("title.options");
@@ -29,14 +29,12 @@ export function optionsButton(y: number) {
 }
 
 function showOptionsSubmenu() {
-	if (submenuContainer) return; // Already showing
 
-	// Hide main buttons
-	hideMainButtons();
+	TitleScene.hideMainButtons();
 
 	// Create submenu buttons
 	const baseY = 500;
-	const spacing = 90;
+	const spacing = 100;
 
 	const settingsBtn = createUIButton(
 		t("title.settings"),
@@ -73,7 +71,7 @@ function showOptionsSubmenu() {
 		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		() => {
 			hideOptionsSubmenu();
-			showMainButtons();
+			TitleScene.showMainButtons();
 		}
 	);
 
@@ -88,24 +86,5 @@ function showOptionsSubmenu() {
 }
 
 function hideOptionsSubmenu() {
-	if (submenuContainer) {
-		submenuContainer.destroy(true);
-		submenuContainer = null;
-	}
-}
-
-export function setMainButtonsContainer(container: Container) {
-	mainButtonsContainer = container;
-}
-
-export function hideMainButtons() {
-	if (mainButtonsContainer) {
-		mainButtonsContainer.setVisible(false);
-	}
-}
-
-export function showMainButtons() {
-	if (mainButtonsContainer) {
-		mainButtonsContainer.setVisible(true);
-	}
+	submenuContainer.destroy(true);
 }
