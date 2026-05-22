@@ -33,7 +33,6 @@ const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 let cloudsBackground: CloudsBackground.CloudsBackground | null = null;
 
 export type BattlegroundSceneData = {
-	state: State.State;
 	// TODO: instead of this, we need the list of current units
 	selectedCrystalId?: string;
 	isMultiplayer?: boolean;
@@ -41,7 +40,6 @@ export type BattlegroundSceneData = {
 };
 
 export class BattlegroundScene extends Phaser.Scene {
-	state: State.State;
 	combatRunner?: RunCombatIO.CombatRunner;
 
 	cleanup() {
@@ -70,14 +68,6 @@ export class BattlegroundScene extends Phaser.Scene {
 	}
 
 	create = async (data: BattlegroundSceneData) => {
-		const state = data?.state || State.getState();
-
-		this.state = state;
-
-		// Update global state when scene receives new state data (important for testing)
-		if (data?.state) {
-			State.setState(state);
-		}
 
 		State.setCurrentScene(this);
 
@@ -90,11 +80,10 @@ export class BattlegroundScene extends Phaser.Scene {
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
 
-		this.start({ ...data, state });
+		this.start({ ...data });
 	};
 
 	start = async ({
-		state,
 		selectedCrystalId,
 		isMultiplayer,
 		multiplayerQueueType,
@@ -103,6 +92,8 @@ export class BattlegroundScene extends Phaser.Scene {
 		// - render boards
 		// - render untis
 		// - display current phase
+
+		const state = State.getState();
 
 		const session = state.session;
 		const multiplayerModeEnabled = Boolean(isMultiplayer);
@@ -214,7 +205,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		Board.update(time);
 
 		if (this.combatRunner && this.combatRunner.isActive()) {
-			this.combatRunner.updateFrame(this.state, time, delta);
+			this.combatRunner.updateFrame(State.getState(), time, delta);
 		}
 	}
 }
