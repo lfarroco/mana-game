@@ -10,7 +10,7 @@ import { getGameController } from "@Core/GameControllerFactory";
 import { startGame } from "@Game/effects/startGame";
 import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
-import CrystalSelectionScene from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
+import * as CrystalSelectionScene from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
 import { handleCombatStartExecution } from "@Systems/CombatPhase";
 import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
@@ -201,22 +201,14 @@ export function clickNewRun() {
 }
 
 export function selectCrystal(index: number) {
-	const scene = getCurrentScene();
-	if (scene instanceof CrystalSelectionScene) {
-		scene.currentIndex = index;
-		scene.updateDisplay();
-		return `Selected crystal at index ${index}`;
-	}
-	return "Error: Current scene is not CrystalSelectionScene";
+	CrystalSelectionScene.currentIndex = index;
+	CrystalSelectionScene.updateDisplay();
+	return `Selected crystal at index ${index}`;
 }
 
 export function confirmCrystalSelection() {
-	const scene = getCurrentScene();
-	if (scene instanceof CrystalSelectionScene) {
-		scene.startGameWithCrystal();
-		return "Confirmed crystal selection";
-	}
-	return "Error: Current scene is not CrystalSelectionScene";
+	CrystalSelectionScene.startGameWithCrystal();
+	return "Confirmed crystal selection";
 }
 
 export function clickReady() {

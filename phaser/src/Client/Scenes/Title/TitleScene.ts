@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { getCurrentScene } from "@Models/State";
 import { arenaButton } from "Client/Scenes/Title/components/arenaButton";
 import { cloudsBg } from "Client/Scenes/Title/components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "Client/Scenes/Title/components/optionsButton";
@@ -18,9 +17,6 @@ import * as ControlsSystem from "@Systems/Controls";
 import pkg from "../../../../package.json";
 
 export function renderTitleScreen() {
-
-	const scene = getCurrentScene();
-
 
 	cloudsBg();
 
@@ -46,7 +42,7 @@ export function renderTitleScreen() {
 
 	howToPlay();
 
-	ControlsSystem.init(scene, { context: "buttons" });
+	ControlsSystem.init({ context: "buttons" });
 
 	checkUnlocks();
 
@@ -61,16 +57,10 @@ export function renderTitleScreen() {
  */
 function displayVersion() {
 
-	const scene = getCurrentScene();
-
-	scene.add
-		.text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
-			fontFamily: "Arimo",
-			fontSize: "16px",
-			color: "white",
-		})
-		.setOrigin(1, 0)
-		.setAlpha(0.5);
+	io.Text(`v${pkg.version}`, { fontSize: "16px", color: "white", })
+		.setPosition(constants.SCREEN_WIDTH - 30, 10)
+		.setAlpha(0.5)
+		.setOrigin(1, 0);
 
 }
 

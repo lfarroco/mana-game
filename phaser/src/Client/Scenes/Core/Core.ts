@@ -4,6 +4,7 @@ import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { DISABLE_ASSETS } from "@config";
 import * as TitleScene from "Client/Scenes/Title/TitleScene";
 import { setCurrentScene } from "@Models/State";
+import { initPhaserIO } from "@PhaserIO";
 
 export default class Core extends Phaser.Scene {
     constructor() {
@@ -158,6 +159,7 @@ export default class Core extends Phaser.Scene {
     create() {
 
         setCurrentScene(this);
+        initPhaserIO(this);
         registerCollection(BASE_COLLECTION_DATA);
 
         TitleScene.renderTitleScreen();

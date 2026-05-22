@@ -1,15 +1,18 @@
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import Phaser from "phaser";
 
+export let scene: Phaser.Scene;
+
+export function initPhaserIO(newScene: Phaser.Scene) {
+	scene = newScene;
+}
+
 export function BringToTop(obj: Phaser.GameObjects.GameObject): void {
-	const scene = getCurrentScene();
 	scene.children.bringToTop(obj);
 }
 
 export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): void {
-	const scene = getCurrentScene();
 	scene.children.moveBelow(a, b);
 }
 
@@ -25,7 +28,6 @@ type ContainerChild =
  * - Arrays of functions that compose together (each function receives the previous result)
  */
 export function Container(children?: ContainerChild[]): Phaser.GameObjects.Container {
-	const scene = getCurrentScene();
 	const container = scene.add.container();
 
 	if (children) {
@@ -51,7 +53,6 @@ export function Container(children?: ContainerChild[]): Phaser.GameObjects.Conta
 }
 
 export function Image(texture: string): Phaser.GameObjects.Image {
-	const scene = getCurrentScene();
 	return scene.add.image(0, 0, texture);
 }
 
@@ -82,7 +83,6 @@ export function Rect(position: Vec2, size: Size): Phaser.Geom.Rectangle {
 }
 
 export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig): void {
-	const scene = getCurrentScene();
 	scene.tweens.add(config);
 }
 
@@ -120,7 +120,6 @@ export function BorderedRoundRect(
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(2, 0xffffff, 0.5);
@@ -138,7 +137,6 @@ export function Rectangle(
 	alpha: number = 0.7,
 	stroke?: boolean
 ): Phaser.GameObjects.Graphics {
-	const scene = getCurrentScene();
 	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
@@ -156,7 +154,6 @@ export function Circle(
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const scene = getCurrentScene();
 	const g = scene.add.graphics({ x: position.x, y: position.y });
 	g.fillStyle(color, alpha);
 	g.fillCircle(0, 0, radius);
@@ -165,7 +162,6 @@ export function Circle(
 }
 
 export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size): Phaser.GameObjects.Zone {
-	const scene = getCurrentScene();
 
 	const zone = scene.add.zone(x, y, width, height);
 
@@ -184,7 +180,6 @@ export function Centralize(obj: Phaser.GameObjects.GameObject): Phaser.GameObjec
 export function Text(
 	text: string,
 	style = defaultTextConfig): Phaser.GameObjects.Text {
-	const scene = getCurrentScene();
 	return scene.add.text(0, 0, text, style);
 }
 
@@ -247,7 +242,6 @@ export function OnUpdate(
 	obj: Phaser.GameObjects.GameObject,
 	callback: (time: number, delta: number) => void
 ): void {
-	const scene = getCurrentScene();
 	scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
 	OnceDestroyed(obj, () => {
@@ -287,7 +281,6 @@ export function Shader(
 		}
 	)[]
 ): Phaser.GameObjects.Shader {
-	const scene = getCurrentScene();
 	const { x, y } = position;
 	const { width, height } = size;
 
@@ -325,9 +318,8 @@ export function SetStroke(text: Phaser.GameObjects.Text, color: string, thicknes
 	text.setStroke(color, thickness);
 }
 
-export async function Fade(duration: number, color: number) {
+export async function FadeOut(duration: number, color: number) {
 	return new Promise<void>((resolve) => {
-		const scene = getCurrentScene();
 
 		const r = (color >> 16) & 0xff;
 		const g = (color >> 8) & 0xff;
@@ -337,7 +329,13 @@ export async function Fade(duration: number, color: number) {
 	});
 }
 
+export async function FadeIn(duration: number) {
+	return new Promise<void>((resolve) => {
+		scene.cameras.main.fadeIn(duration);
+		scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
+	});
+}
+
 export function StartScene(key: string, data?: object): void {
-	const scene = getCurrentScene();
 	scene.scene.start(key, data);
 }

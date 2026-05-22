@@ -4,6 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
 import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
+import Core from "Client/Scenes/Core/Core";
 
 export type State = {
 	savedGames: string[];
@@ -96,13 +97,13 @@ export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
 };
 
 const currentScene = {
-	scene: {} as Phaser.Scene,
+	scene: {} as Core,
 };
 
-export const setCurrentScene = (scene: Phaser.Scene) => {
+export const setCurrentScene = (scene: Core) => {
 	currentScene.scene = scene;
 };
 
-export const getCurrentScene = (): Phaser.Scene => {
+export const getCurrentScene = (): Core => {
 	return currentScene.scene;
 };

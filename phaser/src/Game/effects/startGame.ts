@@ -1,9 +1,13 @@
-import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
+import { renderCrystalSelectionScreen } from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
 
 export async function startGame(isMultiplayer: boolean) {
 
-	await io.Fade(300, 0x000000);
+	await io.FadeOut(300, 0x000000);
 
-	io.StartScene(constants.SCENE_KEYS.CRYSTAL_SELECTION, { isMultiplayer });
+	io.scene.children.removeAll();
+
+	renderCrystalSelectionScreen(isMultiplayer)
+
+	await io.FadeIn(300);
 }

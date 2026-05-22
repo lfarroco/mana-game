@@ -1,10 +1,9 @@
 import Phaser from "phaser";
 import { GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
-import { getState } from "@Models/State";
+import { getCurrentScene, getState } from "@Models/State";
 import * as Board from "@Models/Board";
 import { getCharaById } from "@Systems/Chara/Chara";
-import BattlegroundScene from "Client/Scenes/Battleground/BattlegroundScene";
 import {
 	activateFocusedSceneButton,
 	clearSceneButtonFocus,
@@ -82,7 +81,10 @@ const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" 
 	}
 };
 
-export function init(scene: BattlegroundScene | Phaser.Scene, options: InitOptions) {
+export function init(options: InitOptions) {
+
+	const scene = getCurrentScene();
+
 	if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
 		return;
 	}
