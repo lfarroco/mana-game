@@ -72,6 +72,15 @@ export type Button = {
 	text: Phaser.GameObjects.Text;
 };
 
+export type CreateUIButtonConfig = {
+	text: string;
+	position: Vec2;
+	callback: () => void;
+	width?: number;
+	emoji?: string;
+	tooltip?: ButtonTooltipContent;
+};
+
 type State = {
 	id: string;
 	label: string;
@@ -229,17 +238,17 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.text.setAlpha(visuals.textAlpha);
 };
 
-export function createUIButton(
-	text: string,
-	position: Vec2,
-	callback: () => void,
-	width?: number,
-	emoji?: string,
-	tooltip?: ButtonTooltipContent
-): Button {
+export function createUIButton({
+	text,
+	position,
+	callback,
+	width = 280,
+	emoji,
+	tooltip,
+}: CreateUIButtonConfig): Button {
 	logger.debug(`DEBUG: createUIButton called for ${text}`);
 	const size = {
-		width: width || 280,
+		width,
 		height: BUTTON_HEIGHT,
 	};
 	const container = io.Container();
@@ -409,11 +418,13 @@ export function enableUIButton(state: State) {
 }
 
 const isVisibleInHierarchy = (gameObject: Phaser.GameObjects.GameObject | null): boolean => {
-	let current = gameObject as (Phaser.GameObjects.GameObject & {
-		visible?: boolean;
-		active?: boolean;
-		parentContainer?: Phaser.GameObjects.Container | null;
-	}) | null;
+	let current = gameObject as
+		| (Phaser.GameObjects.GameObject & {
+				visible?: boolean;
+				active?: boolean;
+				parentContainer?: Phaser.GameObjects.Container | null;
+		  })
+		| null;
 
 	while (current) {
 		if (current.active === false || current.visible === false) {
@@ -469,7 +480,8 @@ const clearButtonFocus = (state: State) => {
 	renderButtonGraphics(state, getButtonVisualStyle(state));
 };
 
-export const hasNavigableButtons = (scene: Phaser.Scene): boolean => getSceneButtons(scene).length > 0;
+export const hasNavigableButtons = (scene: Phaser.Scene): boolean =>
+	getSceneButtons(scene).length > 0;
 
 const normalizeButtonLabel = (label: string): string => label.trim().toLowerCase();
 
@@ -498,11 +510,7 @@ export const focusNextSceneButton = (
 ): Button | null => {
 	const buttons = getSceneButtons(scene);
 	const focused = focusedButtons.get(scene);
-	const next = findNextFocusable(
-		buttons.map(toFocusableEntry),
-		focused?.id ?? null,
-		direction
-	);
+	const next = findNextFocusable(buttons.map(toFocusableEntry), focused?.id ?? null, direction);
 	if (!next) {
 		return null;
 	}

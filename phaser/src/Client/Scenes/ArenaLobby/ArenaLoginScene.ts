@@ -79,15 +79,11 @@ const ACCOUNT_UPDATED_MODAL_WIDTH = 480;
 const ACCOUNT_UPDATED_MODAL_HEIGHT = 350;
 const ACCOUNT_UPDATED_MODAL_BUTTON_Y_OFFSET = 125;
 
-const createArenaText = (
-	text: string,
-	style: Phaser.Types.GameObjects.Text.TextStyle = {}
-) => io.Text(text, { ...defaultTextConfig, ...style });
+const createArenaText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
+	io.Text(text, { ...defaultTextConfig, ...style });
 
-const createArenaTitleText = (
-	text: string,
-	style: Phaser.Types.GameObjects.Text.TextStyle = {}
-) => io.Text(text, { ...titleTextConfig, ...style });
+const createArenaTitleText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
+	io.Text(text, { ...titleTextConfig, ...style });
 
 type SceneModalOptions = {
 	width?: number;
@@ -122,7 +118,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 	init(data?: ArenaLoginSceneData) {
 		this.guestUpgradeMode = data?.mode === "convertGuestAccount";
 		this.accountManagementMode = data?.mode === "manageAccount";
-		this.isRegisterMode = this.guestUpgradeMode || this.accountManagementMode || data?.mode === "register";
+		this.isRegisterMode =
+			this.guestUpgradeMode || this.accountManagementMode || data?.mode === "register";
 		this.isForgotPasswordMode = false;
 		this.returnSceneKey = data?.returnSceneKey || SCENE_KEYS.TITLE;
 		this.accountDefaults = {};
@@ -173,14 +170,9 @@ export class ArenaLoginScene extends Phaser.Scene {
 		// Initial Render
 		this.renderForm();
 
-		const loadingBg = this.add.rectangle(
-			0,
-			0,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			ARENA_OVERLAY_COLOR,
-			ARENA_OVERLAY_ALPHA
-		).setOrigin(0);
+		const loadingBg = this.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_OVERLAY_COLOR, ARENA_OVERLAY_ALPHA)
+			.setOrigin(0);
 		const loadingLabel = createArenaText("Loading...", {
 			fontSize: "32px",
 			color: ARENA_TEXT_PRIMARY,
@@ -245,30 +237,38 @@ export class ArenaLoginScene extends Phaser.Scene {
 				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
-			const cancelBtn = createUIButton(
-				"Cancel",
-				vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY),
-				() => {
+			const cancelBtn = createUIButton({
+				text: "Cancel",
+				position: vec2(
+					MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
+					buttonY
+				),
+				callback: () => {
 					this.isForgotPasswordMode = false;
 					this.renderForm();
 				},
-				HALF_WIDTH_BUTTON
-			);
+				width: HALF_WIDTH_BUTTON,
+			});
 			this.buttons.push(cancelBtn);
 			this.buttonContainer?.add(cancelBtn.container);
 
-			const submitBtn = createUIButton(
-				"Submit",
-				vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY),
-				() => {
+			const submitBtn = createUIButton({
+				text: "Submit",
+				position: vec2(
+					MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
+					buttonY
+				),
+				callback: () => {
 					void this.handleForgotPasswordSubmit();
 				},
-				HALF_WIDTH_BUTTON
-			);
+				width: HALF_WIDTH_BUTTON,
+			});
 			this.buttons.push(submitBtn);
 			this.buttonContainer?.add(submitBtn.container);
 		} else if (this.isRegisterMode) {
-			this.titleText?.setText(this.accountManagementMode || this.guestUpgradeMode ? "Account" : "Create Account");
+			this.titleText?.setText(
+				this.accountManagementMode || this.guestUpgradeMode ? "Account" : "Create Account"
+			);
 			const includePasswordFields = !this.accountManagementMode;
 			const passwordFields = includePasswordFields
 				? `
@@ -305,17 +305,23 @@ export class ArenaLoginScene extends Phaser.Scene {
 				: this.guestUpgradeMode
 					? "Convert Account"
 					: "Create Account";
-			const regBtn = createUIButton(primaryButtonLabel, vec2(MIDDLE_SCREEN.x, buttonY), () => {
-				this.handleRegister();
-			}, FULL_WIDTH_BUTTON);
+			const regBtn = createUIButton({
+				text: primaryButtonLabel,
+				position: vec2(MIDDLE_SCREEN.x, buttonY),
+				callback: () => {
+					this.handleRegister();
+				},
+				width: FULL_WIDTH_BUTTON,
+			});
 			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
 
 			// Back to Login
-			const backBtn = createUIButton(
-				this.accountManagementMode || this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
-				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
-				() => {
+			const backBtn = createUIButton({
+				text:
+					this.accountManagementMode || this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
+				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
+				callback: () => {
 					if (this.accountManagementMode || this.guestUpgradeMode) {
 						this.scene.start(this.returnSceneKey);
 						return;
@@ -324,8 +330,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 					this.isRegisterMode = false;
 					this.renderForm();
 				},
-				FULL_WIDTH_BUTTON
-			);
+				width: FULL_WIDTH_BUTTON,
+			});
 			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
 		} else {
@@ -355,46 +361,57 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.bindForgotPasswordLink();
 
 			// Login
-			const loginBtn = createUIButton("LOGIN", vec2(MIDDLE_SCREEN.x, buttonY), () => {
-				this.handleLogin();
-			}, FULL_WIDTH_BUTTON);
+			const loginBtn = createUIButton({
+				text: "LOGIN",
+				position: vec2(MIDDLE_SCREEN.x, buttonY),
+				callback: () => {
+					this.handleLogin();
+				},
+				width: FULL_WIDTH_BUTTON,
+			});
 			this.buttons.push(loginBtn);
 			this.buttonContainer?.add(loginBtn.container);
 
 			// Register Switch
-			const regBtn = createUIButton(
-				"REGISTER",
-				vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
-				() => {
+			const regBtn = createUIButton({
+				text: "REGISTER",
+				position: vec2(
+					MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
+					buttonY + BUTTON_Y_OFFSET_REGISTER
+				),
+				callback: () => {
 					this.isRegisterMode = true;
 					this.renderForm();
 				},
-				HALF_WIDTH_BUTTON
-			);
+				width: HALF_WIDTH_BUTTON,
+			});
 			this.buttons.push(regBtn);
 			this.buttonContainer?.add(regBtn.container);
 
 			// Guest
-			const guestBtn = createUIButton(
-				"PLAY AS GUEST",
-				vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET_REGISTER),
-				() => {
+			const guestBtn = createUIButton({
+				text: "PLAY AS GUEST",
+				position: vec2(
+					MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
+					buttonY + BUTTON_Y_OFFSET_REGISTER
+				),
+				callback: () => {
 					this.handleGuest();
 				},
-				HALF_WIDTH_BUTTON
-			);
+				width: HALF_WIDTH_BUTTON,
+			});
 			this.buttons.push(guestBtn);
 			this.buttonContainer?.add(guestBtn.container);
 
 			// Back to Title
-			const backBtn = createUIButton(
-				t("ui.menu.back"),
-				vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
-				() => {
+			const backBtn = createUIButton({
+				text: t("ui.menu.back"),
+				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
+				callback: () => {
 					this.scene.start(SCENE_KEYS.TITLE);
 				},
-				FULL_WIDTH_BUTTON
-			);
+				width: FULL_WIDTH_BUTTON,
+			});
 			this.buttons.push(backBtn);
 			this.buttonContainer?.add(backBtn.container);
 		}
@@ -427,10 +444,14 @@ export class ArenaLoginScene extends Phaser.Scene {
 		try {
 			await handlePasswordResetRequest(inputs.email);
 			this.setLoading(false);
-			this.showModal("Password Recovery", "If an account exists for that email, a reset link has been sent.", () => {
-				this.isForgotPasswordMode = false;
-				this.renderForm();
-			});
+			this.showModal(
+				"Password Recovery",
+				"If an account exists for that email, a reset link has been sent.",
+				() => {
+					this.isForgotPasswordMode = false;
+					this.renderForm();
+				}
+			);
 		} catch (error) {
 			this.setLoading(false);
 			this.showModal("Password Recovery Failed", (error as Error).message);
@@ -490,12 +511,12 @@ export class ArenaLoginScene extends Phaser.Scene {
 	}
 
 	private setLoading(isLoading: boolean) {
-		this.buttons.forEach(btn => isLoading ? btn.disable() : btn.enable());
+		this.buttons.forEach((btn) => (isLoading ? btn.disable() : btn.enable()));
 		this.loadingOverlay?.setVisible(isLoading);
 		if (this.formElement) {
-			this.formElement.node.querySelectorAll('input').forEach(
-				input => ((input as HTMLInputElement).disabled = isLoading)
-			);
+			this.formElement.node
+				.querySelectorAll("input")
+				.forEach((input) => ((input as HTMLInputElement).disabled = isLoading));
 		}
 		if (this.forgotPasswordLink) {
 			this.forgotPasswordLink.disabled = isLoading;
@@ -662,15 +683,18 @@ export class ArenaLoginScene extends Phaser.Scene {
 			fontSize: MODAL_TEXT_FONT_SIZE,
 			color: ARENA_TEXT_PRIMARY,
 			wordWrap: { width: options.textWrapWidth ?? MODAL_TEXT_WRAP_WIDTH },
-		})
-			.setOrigin(0.5);
+		}).setOrigin(0.5);
 
 		modal.panel.add(text);
 
-		const closeBtn = createUIButton("OK", vec2(0, options.buttonYOffset ?? MODAL_BUTTON_Y_OFFSET), () => {
-			if (this.formElement) this.formElement.setVisible(true);
-			modal.close();
-			if (onClose) onClose();
+		const closeBtn = createUIButton({
+			text: "OK",
+			position: vec2(0, options.buttonYOffset ?? MODAL_BUTTON_Y_OFFSET),
+			callback: () => {
+				if (this.formElement) this.formElement.setVisible(true);
+				modal.close();
+				if (onClose) onClose();
+			},
 		});
 		modal.panel.add(closeBtn.container);
 

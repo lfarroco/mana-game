@@ -46,11 +46,11 @@ export async function displayVictory(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], index) =>
-			createUIButton(
-				label,
-				vec2(panelX, baseY - (totalButtons - 1 - index) * verticalSpacing),
-				callback
-			).container
+			createUIButton({
+				text: label,
+				position: vec2(panelX, baseY - (totalButtons - 1 - index) * verticalSpacing),
+				callback: callback,
+			}).container
 	);
 
 	const { playerPanel, cpuPanel } = await createCombatStatsPanels(units, panelX, panelY);

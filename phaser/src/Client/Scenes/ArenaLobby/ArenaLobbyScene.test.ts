@@ -64,28 +64,33 @@ jest.mock("@PhaserIO", () => ({
 }));
 
 jest.mock("@Components/UIButton", () => ({
-	createUIButton: jest.fn((
-		label: string,
-		pos: { x: number; y: number },
-		onClick: () => void | Promise<void>,
-		_width?: number
-	) => {
-		createdButtons.push(onClick);
-		createdButtonLabels.push(label);
-		createdButtonPositions.push(pos);
-		const button = {
-			container: {
-				destroy: jest.fn(),
-				scene: {},
-				setDepth: jest.fn().mockReturnThis(),
-				setVisible: jest.fn().mockReturnThis(),
-			},
-			disable: jest.fn(),
-			enable: jest.fn(),
-		};
-		buttonInstances.push(button);
-		return button;
-	}),
+	createUIButton: jest.fn(
+		({
+			text,
+			position,
+			callback,
+		}: {
+			text: string;
+			position: { x: number; y: number };
+			callback: () => void | Promise<void>;
+		}) => {
+			createdButtons.push(callback);
+			createdButtonLabels.push(text);
+			createdButtonPositions.push(position);
+			const button = {
+				container: {
+					destroy: jest.fn(),
+					scene: {},
+					setDepth: jest.fn().mockReturnThis(),
+					setVisible: jest.fn().mockReturnThis(),
+				},
+				disable: jest.fn(),
+				enable: jest.fn(),
+			};
+			buttonInstances.push(button);
+			return button;
+		}
+	),
 }));
 
 jest.mock("@Components/cloudBackground/CloudsBackground", () => ({
@@ -156,7 +161,10 @@ describe("ArenaLobbyScene", () => {
 		(enableMultiplayer as jest.Mock).mockResolvedValue(undefined);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -181,7 +189,10 @@ describe("ArenaLobbyScene", () => {
 		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -204,7 +215,10 @@ describe("ArenaLobbyScene", () => {
 		(checkActiveSessionByType as jest.Mock).mockResolvedValue(false);
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -227,7 +241,10 @@ describe("ArenaLobbyScene", () => {
 	it("sizes the lobby panel to contain the action buttons", () => {
 		const rectangle = jest.fn(() => createMockRectangle());
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle,
 			text: jest.fn(() => createMockText()),
@@ -238,7 +255,9 @@ describe("ArenaLobbyScene", () => {
 
 		scene.create();
 
-		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<
+			[number, number, number, number]
+		>;
 		const lobbyCardCall = rectangleCalls.find(
 			([x, y, width, height]) => x === 960 && y === 530 && width === 560 && height === 760
 		);
@@ -257,7 +276,10 @@ describe("ArenaLobbyScene", () => {
 	it("renders lobby profile values without input-style boxes", () => {
 		const rectangle = jest.fn(() => createMockRectangle());
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle,
 			text: jest.fn(() => createMockText()),
@@ -268,8 +290,12 @@ describe("ArenaLobbyScene", () => {
 
 		scene.create();
 
-		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
-		const fieldBoxCalls = rectangleCalls.filter(([, , width, height]) => width === 404 && height === 58);
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<
+			[number, number, number, number]
+		>;
+		const fieldBoxCalls = rectangleCalls.filter(
+			([, , width, height]) => width === 404 && height === 58
+		);
 
 		expect(fieldBoxCalls).toHaveLength(0);
 	});
@@ -277,7 +303,10 @@ describe("ArenaLobbyScene", () => {
 	it("does not render the old lobby accent line above the profile", () => {
 		const rectangle = jest.fn(() => createMockRectangle());
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle,
 			text: jest.fn(() => createMockText()),
@@ -288,8 +317,12 @@ describe("ArenaLobbyScene", () => {
 
 		scene.create();
 
-		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
-		const accentLineCalls = rectangleCalls.filter(([, , width, height]) => width === 220 && height === 4);
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<
+			[number, number, number, number]
+		>;
+		const accentLineCalls = rectangleCalls.filter(
+			([, , width, height]) => width === 220 && height === 4
+		);
 
 		expect(accentLineCalls).toHaveLength(0);
 	});
@@ -366,7 +399,9 @@ describe("ArenaLobbyScene", () => {
 			})
 		);
 
-		const rectangleCalls = rectangle.mock.calls as unknown as Array<[number, number, number, number]>;
+		const rectangleCalls = rectangle.mock.calls as unknown as Array<
+			[number, number, number, number]
+		>;
 		const leaderboardAccentCall = rectangleCalls.find(
 			([x, y, width, height]) => x === 0 && y === -270 && width === 280 && height === 4
 		);
@@ -384,9 +419,7 @@ describe("ArenaLobbyScene", () => {
 
 	it("hides next button on the last ranking page", async () => {
 		(getTopRankedPlayers as jest.Mock).mockResolvedValue({
-			players: [
-				{ id: "p1", username: "Alpha", rating: 1400, matches_played: 20 },
-			],
+			players: [{ id: "p1", username: "Alpha", rating: 1400, matches_played: 20 }],
 			page: 3,
 			hasNextPage: false,
 		});
@@ -428,7 +461,10 @@ describe("ArenaLobbyScene", () => {
 		});
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -465,7 +501,10 @@ describe("ArenaLobbyScene", () => {
 		});
 
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -488,7 +527,10 @@ describe("ArenaLobbyScene", () => {
 
 	it("resets stale button references when the lobby scene is created again", () => {
 		const scene = new ArenaLobbyScene() as unknown as ArenaLobbyScene;
-		const mockContainer = { setVisible: jest.fn().mockReturnThis(), setDepth: jest.fn().mockReturnThis() };
+		const mockContainer = {
+			setVisible: jest.fn().mockReturnThis(),
+			setDepth: jest.fn().mockReturnThis(),
+		};
 		scene.add = {
 			rectangle: jest.fn(() => createMockRectangle()),
 			text: jest.fn(() => createMockText()),
@@ -502,7 +544,7 @@ describe("ArenaLobbyScene", () => {
 
 		scene.create();
 
-		firstCreateButtons.forEach(button => {
+		firstCreateButtons.forEach((button) => {
 			expect(button.disable).toHaveBeenCalledTimes(1);
 		});
 	});

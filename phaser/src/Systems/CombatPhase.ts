@@ -97,15 +97,15 @@ export async function transitionToCombatPhase(
 }
 
 export function showReadyButton(payload: { enemies: Unit[] }): Button {
-	const readyButton = createUIButton(
-		t("ui.ready"),
-		vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
-		() => {
+	const readyButton = createUIButton({
+		text: t("ui.ready"),
+		position: vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
+		callback: () => {
 			readyButton.container.destroy();
 			// Start playback of pre-calculated combat results
 			handleCombatStartExecution(payload);
-		}
-	);
+		},
+	});
 	return readyButton;
 }
 

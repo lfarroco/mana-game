@@ -80,14 +80,14 @@ export function openLinksPanel(): void {
 		return textObj;
 	});
 
-	const closeButton = createUIButton(
-		t("credits.close"),
-		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
-		() => {
+	const closeButton = createUIButton({
+		text: t("credits.close"),
+		position: vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+		callback: () => {
 			container.destroy(true);
 			isOpen = false;
-		}
-	);
+		},
+	});
 
 	const container = io.Container([overlay, panelBg, title, ...linkTexts, closeButton.container]);
 

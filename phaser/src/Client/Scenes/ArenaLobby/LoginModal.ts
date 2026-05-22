@@ -80,27 +80,27 @@ export class LoginModal {
 		this.container.add(title);
 
 		// Login Button
-		const loginBtn = createUIButton(
-			"Login",
-			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - LOGIN_BUTTON_Y_OFFSET),
-			() => this.handleLogin()
-		);
+		const loginBtn = createUIButton({
+			text: "Login",
+			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - LOGIN_BUTTON_Y_OFFSET),
+			callback: () => this.handleLogin(),
+		});
 		this.container.add(loginBtn.container);
 
 		// Register Button
-		const regBtn = createUIButton(
-			"Register",
-			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + REGISTER_BUTTON_Y_OFFSET),
-			() => this.handleRegister()
-		);
+		const regBtn = createUIButton({
+			text: "Register",
+			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + REGISTER_BUTTON_Y_OFFSET),
+			callback: () => this.handleRegister(),
+		});
 		this.container.add(regBtn.container);
 
 		// Cancel Button
-		const cancelBtn = createUIButton(
-			"Cancel",
-			vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + CANCEL_BUTTON_Y_OFFSET),
-			() => this.hide()
-		);
+		const cancelBtn = createUIButton({
+			text: "Cancel",
+			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + CANCEL_BUTTON_Y_OFFSET),
+			callback: () => this.hide(),
+		});
 		this.container.add(cancelBtn.container);
 	}
 

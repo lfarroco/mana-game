@@ -60,43 +60,32 @@ export function openCredits(): void {
 		t("credits.thanks"),
 		"My daughter (Laura) and my wife (Ercilia)",
 		"",
-		t("credits.phaser")
+		t("credits.phaser"),
 	];
 
 	const creditsTexts = creditsContent.map((text, index) => {
 		const isHeader = text && !creditsContent[index - 1]?.trim();
-		const textObj = scene.add.text(
-			c.MIDDLE_SCREEN_X,
-			c.MIDDLE_SCREEN_Y - 200 + index * 35,
-			text,
-			{
-				...c.titleTextConfig,
-				fontSize: isHeader ? "28px" : "22px",
-				color: isHeader ? "#f1c40f" : "#ecf0f1",
-			}
-		);
+		const textObj = scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
+			...c.titleTextConfig,
+			fontSize: isHeader ? "28px" : "22px",
+			color: isHeader ? "#f1c40f" : "#ecf0f1",
+		});
 		textObj.setOrigin(0.5, 0.5);
 		return textObj;
 	});
 
 	// Create close button
-	const closeButton = createUIButton(
-		t("credits.close"),
-		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
-		() => {
+	const closeButton = createUIButton({
+		text: t("credits.close"),
+		position: vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+		callback: () => {
 			container.destroy(true);
 			isOpen = false;
-		}
-	);
+		},
+	});
 
 	// Create container for all elements
-	const container = io.Container([
-		overlay,
-		panelBg,
-		title,
-		...creditsTexts,
-		closeButton.container,
-	]);
+	const container = io.Container([overlay, panelBg, title, ...creditsTexts, closeButton.container]);
 
 	io.BringToTop(container);
 }

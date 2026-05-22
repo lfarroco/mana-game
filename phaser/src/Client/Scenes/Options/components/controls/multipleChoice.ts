@@ -23,20 +23,20 @@ export function multipleChoice(
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
-	const decreaseButton = createUIButton(
-		"<",
-		vec2(
+	const decreaseButton = createUIButton({
+		text: "<",
+		position: vec2(
 			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
 			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
 		),
-		() => {
+		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
 			const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		BUTTONS.MULTICHOICE_BUTTON_WIDTH
-	);
+		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+	});
 
 	//   ~~~//~~~
 	const valueText = io.Text(formatLabel(), {
@@ -52,20 +52,20 @@ export function multipleChoice(
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
-	const increaseButton = createUIButton(
-		">",
-		vec2(
+	const increaseButton = createUIButton({
+		text: ">",
+		position: vec2(
 			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
 			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
 		),
-		() => {
+		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
 			const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		BUTTONS.MULTICHOICE_BUTTON_WIDTH
-	);
+		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+	});
 
 	//   ~~~//~~~
 	return [

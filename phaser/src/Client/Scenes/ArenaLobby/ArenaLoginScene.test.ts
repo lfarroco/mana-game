@@ -18,7 +18,7 @@ const createdButtons: Array<{
 jest.mock("phaser", () => ({
 	__esModule: true,
 	default: {
-		Scene: class Scene { },
+		Scene: class Scene {},
 	},
 }));
 
@@ -60,16 +60,28 @@ jest.mock("@PhaserIO", () => ({
 }));
 
 jest.mock("@Components/UIButton", () => ({
-	createUIButton: jest.fn((label: string, position: { x: number; y: number }, onClick: () => void, width?: number) => {
-		createdButtons.push({ label, position, width, onClick });
-		return {
-			container: {
-				setVisible: jest.fn().mockReturnThis(),
-			},
-			disable: jest.fn(),
-			enable: jest.fn(),
-		};
-	}),
+	createUIButton: jest.fn(
+		({
+			text,
+			position,
+			callback,
+			width,
+		}: {
+			text: string;
+			position: { x: number; y: number };
+			callback: () => void;
+			width?: number;
+		}) => {
+			createdButtons.push({ label: text, position, width, onClick: callback });
+			return {
+				container: {
+					setVisible: jest.fn().mockReturnThis(),
+				},
+				disable: jest.fn(),
+				enable: jest.fn(),
+			};
+		}
+	),
 }));
 
 jest.mock("@Components/cloudBackground/CloudsBackground", () => ({
@@ -174,15 +186,18 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		expect(formHtml).toContain("Password");
 		expect(formHtml).toContain('placeholder="Enter password"');
 		expect(formHtml).toContain("Forgot Password");
-		expect(forgotPasswordButton.addEventListener).toHaveBeenCalledWith("click", expect.any(Function));
+		expect(forgotPasswordButton.addEventListener).toHaveBeenCalledWith(
+			"click",
+			expect.any(Function)
+		);
 
-		expect(createdButtons.map(button => button.label)).toEqual([
+		expect(createdButtons.map((button) => button.label)).toEqual([
 			"LOGIN",
 			"REGISTER",
 			"PLAY AS GUEST",
 			"ui.menu.back",
 		]);
-		expect(createdButtons.map(button => button.width)).toEqual([440, 212, 212, 440]);
+		expect(createdButtons.map((button) => button.width)).toEqual([440, 212, 212, 440]);
 		expect(createdButtons[0].position.y).toBe(470);
 		expect(createdButtons[1].position.y).toBe(createdButtons[2].position.y);
 		expect(createdButtons[1].position.x).toBeLessThan(createdButtons[2].position.x);
@@ -192,9 +207,11 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		const scene = new ArenaLoginScene();
 		let forgotPasswordHandler: ((event: { preventDefault: () => void }) => void) | undefined;
 		const forgotPasswordButton = {
-			addEventListener: jest.fn((_event: string, handler: (event: { preventDefault: () => void }) => void) => {
-				forgotPasswordHandler = handler;
-			}),
+			addEventListener: jest.fn(
+				(_event: string, handler: (event: { preventDefault: () => void }) => void) => {
+					forgotPasswordHandler = handler;
+				}
+			),
 			disabled: false,
 		};
 		const createdDomElement = {
@@ -233,11 +250,13 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		scene.create();
 		forgotPasswordHandler?.({ preventDefault: jest.fn() });
 
-		const forgotPasswordFormHtml = String((createFromHTML.mock.calls[1] as unknown[] | undefined)?.[0] ?? "");
+		const forgotPasswordFormHtml = String(
+			(createFromHTML.mock.calls[1] as unknown[] | undefined)?.[0] ?? ""
+		);
 		expect(forgotPasswordFormHtml).toContain("Email");
 		expect(forgotPasswordFormHtml).toContain('placeholder="Enter email"');
-		expect(createdButtons.slice(-2).map(button => button.label)).toEqual(["Cancel", "Submit"]);
-		expect(createdButtons.slice(-2).map(button => button.width)).toEqual([212, 212]);
+		expect(createdButtons.slice(-2).map((button) => button.label)).toEqual(["Cancel", "Submit"]);
+		expect(createdButtons.slice(-2).map((button) => button.width)).toEqual([212, 212]);
 		expect(createdButtons[createdButtons.length - 2].position.y).toBe(470);
 		expect(createdButtons[createdButtons.length - 2].position.x).toBeLessThan(
 			createdButtons[createdButtons.length - 1].position.x
@@ -260,8 +279,11 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 
 		(scene as unknown as { formElement: unknown }).formElement = mockFormElement;
 		(scene as unknown as { isForgotPasswordMode: boolean }).isForgotPasswordMode = true;
-		(scene as unknown as { showModal: (title: string, message: string, onClose?: () => void) => void }).showModal =
-			jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
+		(
+			scene as unknown as {
+				showModal: (title: string, message: string, onClose?: () => void) => void;
+			}
+		).showModal = jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
 		const setLoading = jest.fn();
 		const renderForm = jest.fn();
 		(scene as unknown as { setLoading: jest.Mock }).setLoading = setLoading;
@@ -276,7 +298,9 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		expect(handlePasswordResetRequest).toHaveBeenCalledWith("player@example.com");
 		expect(setLoading.mock.calls).toEqual([[true], [false]]);
 		expect(renderForm).toHaveBeenCalled();
-		expect((scene as unknown as { isForgotPasswordMode: boolean }).isForgotPasswordMode).toBe(false);
+		expect((scene as unknown as { isForgotPasswordMode: boolean }).isForgotPasswordMode).toBe(
+			false
+		);
 	});
 
 	it("routes guest account conversion through the upgrade handler", async () => {
@@ -307,8 +331,11 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		};
 
 		(scene as unknown as { formElement: unknown }).formElement = mockFormElement;
-		(scene as unknown as { showModal: (title: string, message: string, onClose?: () => void) => void }).showModal =
-			jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
+		(
+			scene as unknown as {
+				showModal: (title: string, message: string, onClose?: () => void) => void;
+			}
+		).showModal = jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
 		const setLoading = jest.fn();
 		(scene as unknown as { setLoading: jest.Mock }).setLoading = setLoading;
 		(scene as unknown as { scene: { start: jest.Mock } }).scene = {
@@ -324,9 +351,9 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		);
 		expect(setLoading.mock.calls).toEqual([[true], [false]]);
 		expect(localStorage.getItem("mana_player_id")).toBe("guest-user-id");
-		expect(
-			(scene as unknown as { scene: { start: jest.Mock } }).scene.start
-		).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOBBY);
+		expect((scene as unknown as { scene: { start: jest.Mock } }).scene.start).toHaveBeenCalledWith(
+			SCENE_KEYS.ARENA_LOBBY
+		);
 	});
 
 	it("routes registered account edits through the update handler", async () => {
@@ -358,8 +385,11 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 		};
 
 		(scene as unknown as { formElement: unknown }).formElement = mockFormElement;
-		(scene as unknown as { showModal: (title: string, message: string, onClose?: () => void) => void }).showModal =
-			jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
+		(
+			scene as unknown as {
+				showModal: (title: string, message: string, onClose?: () => void) => void;
+			}
+		).showModal = jest.fn((_title: string, _message: string, onClose?: () => void) => onClose?.());
 		const setLoading = jest.fn();
 		(scene as unknown as { setLoading: jest.Mock }).setLoading = setLoading;
 		(scene as unknown as { scene: { start: jest.Mock } }).scene = {
@@ -370,8 +400,8 @@ describe("ArenaLoginScene guest upgrade flow", () => {
 
 		expect(handleRegisteredAccountUpdate).toHaveBeenCalledWith("RenamedUser");
 		expect(setLoading.mock.calls).toEqual([[true], [false]]);
-		expect(
-			(scene as unknown as { scene: { start: jest.Mock } }).scene.start
-		).toHaveBeenCalledWith(SCENE_KEYS.ARENA_LOBBY);
+		expect((scene as unknown as { scene: { start: jest.Mock } }).scene.start).toHaveBeenCalledWith(
+			SCENE_KEYS.ARENA_LOBBY
+		);
 	});
 });

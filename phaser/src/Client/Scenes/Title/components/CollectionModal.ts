@@ -26,7 +26,9 @@ export function showCollectionModal(): Promise<void> {
 			title: t("title.collection_modal.title"), // "COLLECTION"
 		});
 
-		const allCards = getAllCards().filter(c => !c.isCore && c.id !== "dummy" && c.id !== "dummy_card");
+		const allCards = getAllCards().filter(
+			(c) => !c.isCore && c.id !== "dummy" && c.id !== "dummy_card"
+		);
 
 		let currentTab: Tab = "unlocked";
 		let currentPage = 0;
@@ -38,7 +40,7 @@ export function showCollectionModal(): Promise<void> {
 		modal.container.add(charaContainer);
 
 		function getCardsForTab(tab: Tab) {
-			return allCards.filter(c => {
+			return allCards.filter((c) => {
 				const isUnlocked = !c.locked || StatsStore.isUnitUnlocked(c.id);
 				return tab === "unlocked" ? isUnlocked : !isUnlocked;
 			});
@@ -52,7 +54,7 @@ export function showCollectionModal(): Promise<void> {
 			isLoading = true;
 			try {
 				// Cleanup previous charas
-				charas.forEach(c => Chara.destroy(c));
+				charas.forEach((c) => Chara.destroy(c));
 				charas.length = 0;
 				charaContainer.removeAll(true);
 
@@ -132,59 +134,59 @@ export function showCollectionModal(): Promise<void> {
 			}
 		};
 
-		const prevButton = createUIButton(
-			"<",
-			vec2(-100, PANEL_HEIGHT / 2 - 120),
-			() => {
+		const prevButton = createUIButton({
+			text: "<",
+			position: vec2(-100, PANEL_HEIGHT / 2 - 120),
+			callback: () => {
 				if (isLoading) return;
 				if (currentPage > 0) {
 					currentPage--;
 					renderPage(currentPage);
 				}
 			},
-			60
-		);
+			width: 60,
+		});
 
-		const nextButton = createUIButton(
-			">",
-			vec2(100, PANEL_HEIGHT / 2 - 120),
-			() => {
+		const nextButton = createUIButton({
+			text: ">",
+			position: vec2(100, PANEL_HEIGHT / 2 - 120),
+			callback: () => {
 				if (isLoading) return;
 				if (currentPage < getTotalPages() - 1) {
 					currentPage++;
 					renderPage(currentPage);
 				}
 			},
-			60
-		);
+			width: 60,
+		});
 
-		const pageIndicator = io.Text("1 / 1", { fontSize: '24px', color: '#ffffff' });
+		const pageIndicator = io.Text("1 / 1", { fontSize: "24px", color: "#ffffff" });
 		io.Centralize(pageIndicator);
 		io.SetPosition(pageIndicator, vec2(0, PANEL_HEIGHT / 2 - 120));
 
-		const closeButton = createUIButton(
-			t("title.back"), // "BACK"
-			vec2(0, PANEL_HEIGHT / 2 - 40),
-			() => {
+		const closeButton = createUIButton({
+			text: t("title.back"),
+			position: vec2(0, PANEL_HEIGHT / 2 - 40),
+			callback: () => {
 				modal.close();
-			}
-		);
+			},
+		});
 
 		// Tabs
 		const tabY = -PANEL_HEIGHT / 2 + 110;
-		const unlockedTabBtn = createUIButton(
-			t("collection.tabs.unlocked"),
-			vec2(-150, tabY),
-			() => switchTab("unlocked"),
-			280
-		);
+		const unlockedTabBtn = createUIButton({
+			text: t("collection.tabs.unlocked"),
+			position: vec2(-150, tabY),
+			callback: () => switchTab("unlocked"),
+			width: 280,
+		});
 
-		const lockedTabBtn = createUIButton(
-			t("collection.tabs.locked"),
-			vec2(150, tabY),
-			() => switchTab("locked"),
-			280
-		);
+		const lockedTabBtn = createUIButton({
+			text: t("collection.tabs.locked"),
+			position: vec2(150, tabY),
+			callback: () => switchTab("locked"),
+			width: 280,
+		});
 
 		const switchTab = (tab: Tab) => {
 			if (isLoading) return;
@@ -212,9 +214,8 @@ export function showCollectionModal(): Promise<void> {
 			pageIndicator,
 			closeButton.container,
 			unlockedTabBtn.container,
-			lockedTabBtn.container
+			lockedTabBtn.container,
 		]);
-
 
 		const updateButtons = () => {
 			const totalPages = getTotalPages();
@@ -233,7 +234,7 @@ export function showCollectionModal(): Promise<void> {
 		renderPage(currentPage);
 
 		modal.onClose.then(() => {
-			charas.forEach(c => Chara.destroy(c));
+			charas.forEach((c) => Chara.destroy(c));
 			resolve();
 		});
 	});

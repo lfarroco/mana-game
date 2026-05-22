@@ -116,10 +116,12 @@ jest.mock("@UI/components/multiplayerPlayerNamesDisplay", () => ({
 }));
 
 const mockGetPhaseOptions = getPhaseOptions as jest.MockedFunction<typeof getPhaseOptions>;
-const mockCreateBrowserCombatEffects =
-	createBrowserCombatEffects as jest.MockedFunction<typeof createBrowserCombatEffects>;
-const mockCreateCombatPlaybackController =
-	createCombatPlaybackController as jest.MockedFunction<typeof createCombatPlaybackController>;
+const mockCreateBrowserCombatEffects = createBrowserCombatEffects as jest.MockedFunction<
+	typeof createBrowserCombatEffects
+>;
+const mockCreateCombatPlaybackController = createCombatPlaybackController as jest.MockedFunction<
+	typeof createCombatPlaybackController
+>;
 const mockOpenOrbShop = openOrbShop as jest.MockedFunction<typeof openOrbShop>;
 const mockCreateUIButton = createUIButton as jest.MockedFunction<typeof createUIButton>;
 const mockGetBattleCore = getBattleCore as jest.MockedFunction<typeof getBattleCore>;
@@ -128,10 +130,7 @@ const mockSetEnemyBoardVisible = setEnemyBoardVisible as jest.MockedFunction<
 	typeof setEnemyBoardVisible
 >;
 const mockShatter = shatter as jest.MockedFunction<typeof shatter>;
-const mockUpdateMultiplayerPlayerNamesDisplay =
-	update as jest.MockedFunction<
-		typeof update
-	>;
+const mockUpdateMultiplayerPlayerNamesDisplay = update as jest.MockedFunction<typeof update>;
 const mockEncounterOpen = Encounter.open as jest.MockedFunction<typeof Encounter.open>;
 
 describe("MultiplayerPhaseManager terminal phases", () => {
@@ -348,7 +347,7 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 			},
 		} as unknown as Awaited<ReturnType<typeof getPhaseOptions>>);
 
-		mockCreateUIButton.mockImplementation((_label, _position, callback) => {
+		mockCreateUIButton.mockImplementation(({ callback }) => {
 			onReadyClick = callback;
 			return {
 				container: {

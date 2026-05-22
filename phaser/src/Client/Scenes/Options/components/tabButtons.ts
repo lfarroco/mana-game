@@ -13,26 +13,26 @@ export function tabButtons() {
 	const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
 	const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
-	buttonIndex["audio"] = createUIButton(
-		t("options.tabs.audio"),
-		vec2(startX, tabButtonY),
-		() => showTab("audio"),
-		LAYOUT.TAB_BUTTON_WIDTH
-	);
+	buttonIndex["audio"] = createUIButton({
+		text: t("options.tabs.audio"),
+		position: vec2(startX, tabButtonY),
+		callback: () => showTab("audio"),
+		width: LAYOUT.TAB_BUTTON_WIDTH,
+	});
 
-	buttonIndex["graphics"] = createUIButton(
-		t("options.tabs.graphics"),
-		vec2(startX + buttonSpacing, tabButtonY),
-		() => showTab("graphics"),
-		LAYOUT.TAB_BUTTON_WIDTH
-	);
+	buttonIndex["graphics"] = createUIButton({
+		text: t("options.tabs.graphics"),
+		position: vec2(startX + buttonSpacing, tabButtonY),
+		callback: () => showTab("graphics"),
+		width: LAYOUT.TAB_BUTTON_WIDTH,
+	});
 
-	buttonIndex["game"] = createUIButton(
-		t("options.tabs.game"),
-		vec2(startX + buttonSpacing * 2, tabButtonY),
-		() => showTab("game"),
-		LAYOUT.TAB_BUTTON_WIDTH
-	);
+	buttonIndex["game"] = createUIButton({
+		text: t("options.tabs.game"),
+		position: vec2(startX + buttonSpacing * 2, tabButtonY),
+		callback: () => showTab("game"),
+		width: LAYOUT.TAB_BUTTON_WIDTH,
+	});
 
 	updateTabButtonStates();
 }

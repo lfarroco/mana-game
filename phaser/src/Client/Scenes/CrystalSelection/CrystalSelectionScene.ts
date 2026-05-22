@@ -87,7 +87,6 @@ let isMultiplayer: boolean = false;
 let multiplayerQueueType: MultiplayerQueueType = "casual";
 
 export function renderCrystalSelectionScreen(multiplayer: boolean) {
-
 	isMultiplayer = multiplayer;
 
 	cloudsBg();
@@ -145,11 +144,7 @@ function createTitle() {
 function createCrystalDisplay() {
 	const crystal = crystals[currentIndex];
 
-	crystalSprite = getCurrentScene().add.image(
-		constants.MIDDLE_SCREEN_X,
-		SPRITE_Y,
-		crystal.pic,
-	);
+	crystalSprite = getCurrentScene().add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
 	crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
 	getCurrentScene().tweens.add({
@@ -165,18 +160,21 @@ function createCrystalDisplay() {
 		...constants.titleTextConfig,
 		fontSize: CRYSTAL_NAME_FONT_SIZE,
 	});
-	io.SetPosition(
-		crystalName,
-		vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y)
-	);
+	io.SetPosition(crystalName, vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y));
 	io.Centralize(crystalName);
 
-	descriptionText = new BBCodeText(getCurrentScene(), constants.MIDDLE_SCREEN_X, DESCRIPTION_Y, "", {
-		fontSize: DESCRIPTION_FONT_SIZE,
-		fontFamily: "Arimo",
-		align: "center",
-		color: "#ffffff",
-	})
+	descriptionText = new BBCodeText(
+		getCurrentScene(),
+		constants.MIDDLE_SCREEN_X,
+		DESCRIPTION_Y,
+		"",
+		{
+			fontSize: DESCRIPTION_FONT_SIZE,
+			fontFamily: "Arimo",
+			align: "center",
+			color: "#ffffff",
+		}
+	)
 		.setOrigin(DESCRIPTION_ORIGIN_X, DESCRIPTION_ORIGIN_Y)
 		.setWrapMode(1)
 		.setLineSpacing(DESCRIPTION_LINE_SPACING)
@@ -185,19 +183,19 @@ function createCrystalDisplay() {
 }
 
 function createNavigationButtons() {
-	createUIButton(
-		t("crystalSelection.previous"),
-		vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
-		navigateToPrevious,
-		NAV_BUTTON_WIDTH
-	);
+	createUIButton({
+		text: t("crystalSelection.previous"),
+		position: vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
+		callback: navigateToPrevious,
+		width: NAV_BUTTON_WIDTH,
+	});
 
-	createUIButton(
-		t("crystalSelection.next"),
-		vec2(constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
-		navigateToNext,
-		NAV_BUTTON_WIDTH
-	);
+	createUIButton({
+		text: t("crystalSelection.next"),
+		position: vec2(constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X, CARD_DISPLAY_Y),
+		callback: navigateToNext,
+		width: NAV_BUTTON_WIDTH,
+	});
 }
 
 function createPaginationDots() {
@@ -224,22 +222,21 @@ function createPaginationDots() {
 }
 
 function createActionButtons() {
-	createUIButton(
-		t("crystalSelection.play"),
-		vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
-		startGameWithCrystal
-	);
-	createUIButton(
-		t("crystalSelection.back"),
-		vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
-		returnToTitle
-	);
+	createUIButton({
+		text: t("crystalSelection.play"),
+		position: vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
+		callback: startGameWithCrystal,
+	});
+	createUIButton({
+		text: t("crystalSelection.back"),
+		position: vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
+		callback: returnToTitle,
+	});
 }
 
 function navigateToPrevious() {
 	currentIndex = (currentIndex - 1 + crystals.length) % crystals.length;
 	updateDisplay();
-
 }
 
 function navigateToNext() {
@@ -318,7 +315,7 @@ export async function startGameWithCrystal() {
 
 	logger.info(">>> Starting game with crystal:", selectedCrystal.id);
 
-	logger.error("!! update code to start bg scene")
+	logger.error("!! update code to start bg scene");
 	// Pass to battleground scene which will initialize via server
 	// this.scene.start(constants.SCENE_KEYS.BATTLEGROUND, {
 	// 	selectedCrystalId: selectedCrystal.id,
@@ -328,7 +325,6 @@ export async function startGameWithCrystal() {
 }
 
 async function returnToTitle() {
-
 	await io.FadeOut(300, 0x000000);
 
 	io.scene.children.removeAll();
@@ -336,7 +332,6 @@ async function returnToTitle() {
 	io.screens.title();
 
 	await io.FadeIn(300);
-
 }
 
 function createSeedDisplay() {
@@ -352,8 +347,8 @@ function createSeedInput() {
 	const height = 40;
 
 	// Input Background
-	const bg = getCurrentScene().add
-		.rectangle(x, y, width, height, 0x000000, 0.5)
+	const bg = getCurrentScene()
+		.add.rectangle(x, y, width, height, 0x000000, 0.5)
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });

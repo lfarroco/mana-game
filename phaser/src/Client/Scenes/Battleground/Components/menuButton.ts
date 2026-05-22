@@ -9,11 +9,13 @@ import { getGameController } from "@Core/GameControllerFactory";
 import * as constants from "@Constants/constants";
 
 export function create(state: State) {
-	const btn = createUIButton(
-		t("ui.menu.button"),
-		vec2(constants.BATTLEGROUND_BUTTON_X, constants.BATTLEGROUND_BUTTON_MARGIN_TOP),
-		() => { createPanel(state) }
-	);
+	const btn = createUIButton({
+		text: t("ui.menu.button"),
+		position: vec2(constants.BATTLEGROUND_BUTTON_X, constants.BATTLEGROUND_BUTTON_MARGIN_TOP),
+		callback: () => {
+			createPanel(state);
+		},
+	});
 
 	return btn.container;
 }
@@ -28,7 +30,7 @@ export function createPanel(_state: State) {
 	const buttonDefs: [string, () => void][] = [];
 
 	const controller = getGameController();
-	if (controller.isFeatureEnabled('new_run_button')) {
+	if (controller.isFeatureEnabled("new_run_button")) {
 		buttonDefs.push([
 			t("ui.menu.newRun"),
 			() => {
@@ -57,7 +59,11 @@ export function createPanel(_state: State) {
 
 	const buttons = buttonDefs.map(
 		([label, callback], i) =>
-			createUIButton(label, vec2(panelX, startingY + i * 100), callback).container
+			createUIButton({
+				text: label,
+				position: vec2(panelX, startingY + i * 100),
+				callback: callback,
+			}).container
 	);
 
 	const container = io.Container([

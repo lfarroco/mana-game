@@ -237,19 +237,24 @@ export class DebugScene extends Phaser.Scene {
 			const row = Math.floor(index / columns);
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
-			const btn = createUIButton(key.toUpperCase(), vec2(x, y), () => this.runEffect(key), 320);
+			const btn = createUIButton({
+				text: key.toUpperCase(),
+				position: vec2(x, y),
+				callback: () => this.runEffect(key),
+				width: 320,
+			});
 			this.effectButtonsContainer.add(btn.container);
 		});
 
 		// Exit to Title button (only in list mode)
-		const exitBtn = createUIButton(
-			"EXIT",
-			vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
-			() => {
+		const exitBtn = createUIButton({
+			text: "EXIT",
+			position: vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
+			callback: () => {
 				this.scene.start(constants.SCENE_KEYS.TITLE);
 			},
-			200
-		);
+			width: 200,
+		});
 		this.effectButtonsContainer.add(exitBtn.container);
 	}
 
@@ -277,12 +282,12 @@ export class DebugScene extends Phaser.Scene {
 
 		// Create Back button if not existing
 		if (!this.backButton) {
-			this.backButton = createUIButton(
-				"BACK",
-				vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80),
-				() => this.returnToList(),
-				260
-			);
+			this.backButton = createUIButton({
+				text: "BACK",
+				position: vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80),
+				callback: () => this.returnToList(),
+				width: 260,
+			});
 		} else {
 			this.backButton.enable();
 		}

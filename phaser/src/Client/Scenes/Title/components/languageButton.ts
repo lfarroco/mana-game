@@ -11,10 +11,16 @@ export function languageButton() {
 
 	const currentLangName = getNativeName(getCurrentLocale());
 
-	const button = createUIButton(`あ/A ${currentLangName}`, vec2(x, y), openLanguagePanel, 200, undefined, {
-		title: t("language.title"),
-		description: t("title.tooltip.language"),
-		position: "right",
+	const button = createUIButton({
+		text: `あ/A ${currentLangName}`,
+		position: vec2(x, y),
+		callback: openLanguagePanel,
+		width: 200,
+		tooltip: {
+			title: t("language.title"),
+			description: t("title.tooltip.language"),
+			position: "right",
+		},
 	});
 
 	return button;

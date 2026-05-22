@@ -31,16 +31,16 @@ export function boolean(
 
 	//   ~~~//~~~
 
-	const toggleButton = createUIButton(
-		getValue() ? onText : offText,
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
-		() => {
+	const toggleButton = createUIButton({
+		text: getValue() ? onText : offText,
+		position: vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
+		callback: () => {
 			const newValue = !getValue();
 			setValue(newValue);
 			io.SetText(toggleButton.text, newValue ? onText : offText);
 		},
-		BUTTONS.BOOLEAN_TOGGLE_WIDTH
-	);
+		width: BUTTONS.BOOLEAN_TOGGLE_WIDTH,
+	});
 
 	//   ~~~//~~~
 

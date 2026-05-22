@@ -22,7 +22,7 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			title: "NEW UNIT UNLOCKED!",
 		});
 
-		const dummy = createUnitFromCardSpec("dummy", unitData, undefined, "")
+		const dummy = createUnitFromCardSpec("dummy", unitData, undefined, "");
 
 		const chara = await Chara.create(dummy);
 
@@ -30,12 +30,12 @@ export function showUnlockModal(unitId: string): Promise<void> {
 
 		const { title, description } = createDescription(chara);
 
-		const titleText = getCurrentScene().add
-			.text(0, chara.y + 180, title, c.titleTextConfig)
+		const titleText = getCurrentScene()
+			.add.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
-		const unlockConditionText = getCurrentScene().add
-			.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
+		const unlockConditionText = getCurrentScene()
+			.add.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
 				fontFamily: "Arimo",
 				fontSize: "20px",
 				color: "#ffff00",
@@ -43,30 +43,27 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			})
 			.setOrigin(0.5);
 
-		const descriptionText = getCurrentScene().add
-			.rexBBCodeText(
-				0,
-				unlockConditionText.y + 40,
-				description)
+		const descriptionText = getCurrentScene()
+			.add.rexBBCodeText(0, unlockConditionText.y + 40, description)
 			.setFontSize(30)
 			.setWrapMode(1)
 			.setFontFamily("Arimo")
 			.setOrigin(0.5, 0);
 
-		const confirmButton = createUIButton(
-			t("title.unlock_modal.confirm"),
-			vec2(0, descriptionText.y + descriptionText.height + 60),
-			() => {
+		const confirmButton = createUIButton({
+			text: t("title.unlock_modal.confirm"),
+			position: vec2(0, descriptionText.y + descriptionText.height + 60),
+			callback: () => {
 				modal.close();
-			}
-		);
+			},
+		});
 
 		modal.container.add([
 			chara,
 			titleText,
 			unlockConditionText,
 			descriptionText,
-			confirmButton.container
+			confirmButton.container,
 		]);
 
 		await modal.onClose;

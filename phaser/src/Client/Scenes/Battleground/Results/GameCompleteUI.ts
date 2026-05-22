@@ -161,7 +161,11 @@ export async function displayGameComplete(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
-			createUIButton(label, vec2(panelX, panelY + 50 + i * 100), callback).container
+			createUIButton({
+				text: label,
+				position: vec2(panelX, panelY + 50 + i * 100),
+				callback: callback,
+			}).container
 	);
 
 	const statsPanel = createRunStatsPanel(state.session.runStats);
@@ -216,14 +220,14 @@ export async function displayGameComplete(
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 
-		const btn = createUIButton(
-			t("results.buttons.wishlist"),
-			vec2(panelX, wishlistPanelY + 30),
-			async () => {
+		const btn = createUIButton({
+			text: t("results.buttons.wishlist"),
+			position: vec2(panelX, wishlistPanelY + 30),
+			callback: async () => {
 				window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 			},
-			400
-		);
+			width: 400,
+		});
 		container.add([wishlistBg, wishlistText, btn.container]);
 	}
 

@@ -95,15 +95,11 @@ const PROFILE_FONT_SIZE = "32px";
 const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
 
-const createArenaText = (
-	text: string,
-	style: Phaser.Types.GameObjects.Text.TextStyle = {}
-) => io.Text(text, { ...defaultTextConfig, ...style });
+const createArenaText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
+	io.Text(text, { ...defaultTextConfig, ...style });
 
-const createArenaTitleText = (
-	text: string,
-	style: Phaser.Types.GameObjects.Text.TextStyle = {}
-) => io.Text(text, { ...titleTextConfig, ...style });
+const createArenaTitleText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
+	io.Text(text, { ...titleTextConfig, ...style });
 
 type RankedPlayer = {
 	id: string;
@@ -234,58 +230,64 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
-		const casualBtn = createUIButton(
-			"CASUAL",
-			vec2(MIDDLE_SCREEN.x, buttonY),
-			async () => {
+		const casualBtn = createUIButton({
+			text: "CASUAL",
+			position: vec2(MIDDLE_SCREEN.x, buttonY),
+			callback: async () => {
 				await this.startOrContinueRun("casual");
 			},
-			FULL_WIDTH_BUTTON,
-			"🏖️"
-		);
+			width: FULL_WIDTH_BUTTON,
+			emoji: "🏖️",
+		});
 		this.buttons.push(casualBtn);
 
-		const rankedBtn = createUIButton(
-			"RANKED",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
-			async () => {
+		const rankedBtn = createUIButton({
+			text: "RANKED",
+			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
+			callback: async () => {
 				await this.startOrContinueRun("ranked");
 			},
-			FULL_WIDTH_BUTTON,
-			"⚔️"
-		);
+			width: FULL_WIDTH_BUTTON,
+			emoji: "⚔️",
+		});
 		this.buttons.push(rankedBtn);
 
-		const leaderboardBtn = createUIButton(
-			"LEADERBOARD",
-			vec2(MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
-			async () => {
+		const leaderboardBtn = createUIButton({
+			text: "LEADERBOARD",
+			position: vec2(
+				MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
+				buttonY + BUTTON_Y_OFFSET * 2
+			),
+			callback: async () => {
 				await this.openRankingModal();
 			},
-			HALF_WIDTH_BUTTON,
-			"🏆"
-		);
+			width: HALF_WIDTH_BUTTON,
+			emoji: "🏆",
+		});
 		this.buttons.push(leaderboardBtn);
 
-		this.accountButton = createUIButton(
-			"ACCOUNT",
-			vec2(MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2, buttonY + BUTTON_Y_OFFSET * 2),
-			() => {
+		this.accountButton = createUIButton({
+			text: "ACCOUNT",
+			position: vec2(
+				MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
+				buttonY + BUTTON_Y_OFFSET * 2
+			),
+			callback: () => {
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
 					mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
 					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
 				});
 			},
-			HALF_WIDTH_BUTTON,
-			"🔑"
-		);
+			width: HALF_WIDTH_BUTTON,
+			emoji: "🔑",
+		});
 		this.buttons.push(this.accountButton);
 		this.accountButton.container.setVisible(false);
 
-		const logoutBtn = createUIButton(
-			"LOGOUT",
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
-			async () => {
+		const logoutBtn = createUIButton({
+			text: "LOGOUT",
+			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			callback: async () => {
 				this.setLoading(true);
 				try {
 					await logout();
@@ -294,28 +296,23 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				}
 				this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			},
-			FULL_WIDTH_BUTTON
-		);
+			width: FULL_WIDTH_BUTTON,
+		});
 		this.buttons.push(logoutBtn);
 
-		const backBtn = createUIButton(
-			t("ui.menu.back"),
-			vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
-			() => {
+		const backBtn = createUIButton({
+			text: t("ui.menu.back"),
+			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
+			callback: () => {
 				this.scene.start(SCENE_KEYS.TITLE);
 			},
-			FULL_WIDTH_BUTTON
-		);
+			width: FULL_WIDTH_BUTTON,
+		});
 		this.buttons.push(backBtn);
 
-		const loadingBg = this.add.rectangle(
-			0,
-			0,
-			SCREEN_WIDTH,
-			SCREEN_HEIGHT,
-			ARENA_OVERLAY_COLOR,
-			ARENA_OVERLAY_ALPHA
-		).setOrigin(0);
+		const loadingBg = this.add
+			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_OVERLAY_COLOR, ARENA_OVERLAY_ALPHA)
+			.setOrigin(0);
 		const loadingLabel = createArenaText("Loading...", {
 			fontSize: "32px",
 			color: ARENA_TEXT_PRIMARY,
@@ -331,8 +328,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 	private setLoading(isLoading: boolean) {
 		[...this.buttons, ...this.rankingButtons]
-			.filter(btn => Boolean(btn.container.scene))
-			.forEach(btn => isLoading ? btn.disable() : btn.enable());
+			.filter((btn) => Boolean(btn.container.scene))
+			.forEach((btn) => (isLoading ? btn.disable() : btn.enable()));
 		this.loadingOverlay?.setVisible(isLoading);
 	}
 
@@ -455,16 +452,28 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setPosition(0, RANKING_PAGE_TEXT_Y)
 			.setOrigin(0.5);
 
-		this.rankingPrevButton = createUIButton("Previous", vec2(-210, RANKING_BUTTONS_Y), async () => {
-			if (this.rankingCurrentPage > 1) {
-				await this.loadRankingPage(this.rankingCurrentPage - 1);
-			}
+		this.rankingPrevButton = createUIButton({
+			text: "Previous",
+			position: vec2(-210, RANKING_BUTTONS_Y),
+			callback: async () => {
+				if (this.rankingCurrentPage > 1) {
+					await this.loadRankingPage(this.rankingCurrentPage - 1);
+				}
+			},
 		});
-		this.rankingNextButton = createUIButton("Next", vec2(210, RANKING_BUTTONS_Y), async () => {
-			await this.loadRankingPage(this.rankingCurrentPage + 1);
+		this.rankingNextButton = createUIButton({
+			text: "Next",
+			position: vec2(210, RANKING_BUTTONS_Y),
+			callback: async () => {
+				await this.loadRankingPage(this.rankingCurrentPage + 1);
+			},
 		});
-		const closeButton = createUIButton("Close", vec2(0, RANKING_CLOSE_Y), () => {
-			void this.closeRankingModal();
+		const closeButton = createUIButton({
+			text: "Close",
+			position: vec2(0, RANKING_CLOSE_Y),
+			callback: () => {
+				void this.closeRankingModal();
+			},
 		});
 
 		this.rankingButtons = [this.rankingPrevButton, this.rankingNextButton, closeButton];
@@ -519,11 +528,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		}
 	}
 
-	private renderRankingPage(
-		page: number,
-		hasNextPage: boolean,
-		players: RankedPlayer[]
-	) {
+	private renderRankingPage(page: number, hasNextPage: boolean, players: RankedPlayer[]) {
 		this.rankingCurrentPage = page;
 		const firstRankOnPage = (page - 1) * RANKING_PAGE_SIZE + 1;
 		if (players.length === 0) {
@@ -624,7 +629,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				multiplayerQueueType: queueType,
 			});
 		} catch (e) {
-			logger.error('Failed to start run', e);
+			logger.error("Failed to start run", e);
 			this.setLoading(false);
 		}
 	}
@@ -638,7 +643,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				const profile = await getPlayerProfile(playerId);
 				const accountState = await getCurrentAccountState();
 				this.accountState = accountState;
-				const displayName = accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
+				const displayName =
+					accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
 				this.profileText?.setText(displayName);
 				this.ratingText?.setText(`${profile.rating}`);
 				this.setButtonVisibility(this.accountButton, true);

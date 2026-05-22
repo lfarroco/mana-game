@@ -21,47 +21,50 @@ export function openLanguagePanel(): void {
 
 	overlay = createBackgroundOverlay({
 		alpha: 0.85,
-		interactive: true
+		interactive: true,
 	});
 	overlay.show();
 
-	const panel = createPanel(
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y),
-		{ width: panelWidth, height: panelHeight }
-	);
+	const panel = createPanel(vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y), {
+		width: panelWidth,
+		height: panelHeight,
+	});
 
 	const title = io.Title1(t("language.title"));
-	io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40));
+	io.SetPosition(
+		title,
+		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40)
+	);
 	io.Centralize(title);
 
 	const buttonYStart = constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 100;
 	const buttonSpacing = 70;
 
 	const langButtons = languages.map((lang, index) => {
-		return createUIButton(
-			getNativeName(lang),
-			vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
-			() => {
+		return createUIButton({
+			text: getNativeName(lang),
+			position: vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
+			callback: () => {
 				selectLanguage(lang);
 			},
-			200
-		);
+			width: 200,
+		});
 	});
 
-	const closeButton = createUIButton(
-		t("language.close"),
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
-		() => {
+	const closeButton = createUIButton({
+		text: t("language.close"),
+		position: vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
+		callback: () => {
 			closeLanguagePanel();
 		},
-		150
-	);
+		width: 150,
+	});
 
 	container = io.Container([
 		panel.container,
 		title,
-		...langButtons.map(b => b.container),
-		closeButton.container
+		...langButtons.map((b) => b.container),
+		closeButton.container,
 	]);
 
 	io.BringToTop(container);

@@ -8,7 +8,6 @@ import { resetEncounterFocusTargets } from "@Systems/Encounter";
 import { getCurrentScene } from "@Models/State";
 import * as constants from "@Constants/constants";
 
-
 export let container: Container;
 export let nextRoundButton: Button;
 export const onNextRoundClicked: (() => void) | null = null;
@@ -23,11 +22,14 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 
 	if (!nextRoundCallback) return;
 
-	const nextRoundBtn = createUIButton(
-		"Skip",
-		vec2(constants.BATTLEGROUND_BUTTON_X, c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM),
-		nextRoundCallback
-	);
+	const nextRoundBtn = createUIButton({
+		text: "Skip",
+		position: vec2(
+			constants.BATTLEGROUND_BUTTON_X,
+			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
+		),
+		callback: nextRoundCallback,
+	});
 
 	container.add(nextRoundBtn.container);
 	nextRoundButton = nextRoundBtn;

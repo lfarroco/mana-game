@@ -13,33 +13,30 @@ let submenuContainer: Container;
 
 export function optionsButton(y: number) {
 	const title = t("title.options");
-	const button = createUIButton(
-		title,
-		vec2(constants.MIDDLE_SCREEN_X, y),
-		showOptionsSubmenu,
-		undefined,
-		undefined,
-		{
+	const button = createUIButton({
+		text: title,
+		position: vec2(constants.MIDDLE_SCREEN_X, y),
+		callback: showOptionsSubmenu,
+		tooltip: {
 			title,
 			description: t("title.tooltip.options"),
 			position: "right",
-		}
-	);
+		},
+	});
 	return button;
 }
 
 function showOptionsSubmenu() {
-
 	TitleScene.hideMainButtons();
 
 	// Create submenu buttons
 	const baseY = 500;
 	const spacing = 100;
 
-	const settingsBtn = createUIButton(
-		t("title.settings"),
-		vec2(constants.MIDDLE_SCREEN_X, baseY),
-		() => {
+	const settingsBtn = createUIButton({
+		text: t("title.settings"),
+		position: vec2(constants.MIDDLE_SCREEN_X, baseY),
+		callback: () => {
 			hideOptionsSubmenu();
 			openOptions();
 
@@ -47,33 +44,33 @@ function showOptionsSubmenu() {
 			if (bg) {
 				bg.tweenToPreset("sunset", 2000, "Quad.easeInOut");
 			}
-		}
-	);
+		},
+	});
 
-	const statsBtn = createUIButton(
-		t("title.stats"),
-		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
-		() => {
+	const statsBtn = createUIButton({
+		text: t("title.stats"),
+		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
+		callback: () => {
 			openStats();
-		}
-	);
+		},
+	});
 
-	const creditsBtn = createUIButton(
-		t("title.credits"),
-		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
-		() => {
+	const creditsBtn = createUIButton({
+		text: t("title.credits"),
+		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
+		callback: () => {
 			openCredits();
-		}
-	);
+		},
+	});
 
-	const backBtn = createUIButton(
-		t("title.back"),
-		vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
-		() => {
+	const backBtn = createUIButton({
+		text: t("title.back"),
+		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
+		callback: () => {
 			hideOptionsSubmenu();
 			TitleScene.showMainButtons();
-		}
-	);
+		},
+	});
 
 	submenuContainer = io.Container([
 		settingsBtn.container,

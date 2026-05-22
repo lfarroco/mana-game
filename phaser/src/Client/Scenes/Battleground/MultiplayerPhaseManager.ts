@@ -161,9 +161,14 @@ export async function handleMultiplayerPhase(
 	switch (result.phase) {
 		case "combat":
 			if (result.combatState) {
-				const shouldRequireReady =
-					isInitialCall && Boolean(context.showReadyOnInitialCombat);
-				await handleMultiplayerCombat(state, result.combatState, shouldRequireReady, transport, childContext);
+				const shouldRequireReady = isInitialCall && Boolean(context.showReadyOnInitialCombat);
+				await handleMultiplayerCombat(
+					state,
+					result.combatState,
+					shouldRequireReady,
+					transport,
+					childContext
+				);
 			} else {
 				logger.error("Multiplayer Combat Phase missing combatState!");
 				const combatOption = result.options[0];
@@ -364,14 +369,14 @@ async function handleMultiplayerCombat(
 	};
 
 	if (requireReadyButton) {
-		const readyButton = createUIButton(
-			t("ui.ready"),
-			vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100),
-			() => {
+		const readyButton = createUIButton({
+			text: t("ui.ready"),
+			position: vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100),
+			callback: () => {
 				readyButton.container.destroy();
 				void startCombatPlayback();
-			}
-		);
+			},
+		});
 		readyButton.container.setDepth(1000);
 		return;
 	}
