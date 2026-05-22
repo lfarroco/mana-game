@@ -32,6 +32,7 @@ const CARD_NAME_Y = SPRITE_Y + 150;
 const DESCRIPTION_Y = 500;
 const PAGINATION_Y = 700;
 const PLAY_BUTTON_Y = 830;
+const BACK_BUTTON_Y = 930;
 //const BACK_BUTTON_Y = 930;
 const NAV_BUTTON_OFFSET_X = 350;
 
@@ -228,6 +229,11 @@ function createActionButtons() {
 		vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
 		startGameWithCrystal
 	);
+	createUIButton(
+		t("crystalSelection.back"),
+		vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
+		returnToTitle
+	);
 }
 
 function navigateToPrevious() {
@@ -321,8 +327,16 @@ export async function startGameWithCrystal() {
 	// });
 }
 
-function returnToTitle() {
-	logger.error("!! update code to return to title scene")
+async function returnToTitle() {
+
+	await io.FadeOut(300, 0x000000);
+
+	io.scene.children.removeAll();
+
+	io.screens.title();
+
+	await io.FadeIn(300);
+
 }
 
 function createSeedDisplay() {

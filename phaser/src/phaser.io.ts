@@ -1,8 +1,15 @@
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
+import { renderCrystalSelectionScreen } from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
+import { renderTitleScreen } from "Client/Scenes/Title/TitleScene";
 import Phaser from "phaser";
 
 export let scene: Phaser.Scene;
+
+export const screens = {
+	title: renderTitleScreen,
+	crystalSelection: renderCrystalSelectionScreen
+}
 
 export function initPhaserIO(newScene: Phaser.Scene) {
 	scene = newScene;
