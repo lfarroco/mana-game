@@ -5,11 +5,9 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 import { resetEncounterFocusTargets } from "@Systems/Encounter";
-import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_BOTTOM } from "Client/Scenes/Battleground/battlegroundConstants";
 import { getCurrentScene } from "@Models/State";
+import * as constants from "@Constants/constants";
 
-const NEXT_ROUND_BUTTON_X = BATTLEGROUND_BUTTON_X;
-const NEXT_ROUND_BUTTON_Y = c.SCREEN_HEIGHT - BATTLEGROUND_BUTTON_MARGIN_BOTTOM;
 
 export let container: Container;
 export let nextRoundButton: Button;
@@ -27,7 +25,7 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 
 	const nextRoundBtn = createUIButton(
 		"Skip",
-		vec2(NEXT_ROUND_BUTTON_X, NEXT_ROUND_BUTTON_Y),
+		vec2(constants.BATTLEGROUND_BUTTON_X, c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM),
 		nextRoundCallback
 	);
 

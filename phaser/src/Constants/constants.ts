@@ -28,6 +28,10 @@ export const PLAYER_BOARD_Y = (SCREEN_HEIGHT - (TILE_HEIGHT * 3 + 8 * 2)) / 2;
 export const CPU_BOARD_X = SCREEN_WIDTH - (TILE_WIDTH * 3 + 8 * 2) - 120;
 export const CPU_BOARD_Y = PLAYER_BOARD_Y;
 
+export const BATTLEGROUND_BUTTON_MARGIN_TOP = 50;
+export const BATTLEGROUND_BUTTON_MARGIN_BOTTOM = 50;
+export const BATTLEGROUND_BUTTON_X = SCREEN_WIDTH - 200;
+
 export const defaultTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	fontSize: "20px",
 	color: "white",

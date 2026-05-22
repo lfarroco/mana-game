@@ -6,12 +6,14 @@ import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 //TODO: this should be local
-import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_TOP } from "Client/Scenes/Battleground/battlegroundConstants";
+import * as constants from "@Constants/constants";
 
 export function create(state: State) {
-	const btn = createUIButton(t("ui.menu.button"), vec2(BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_TOP), () => {
-		createPanel(state);
-	});
+	const btn = createUIButton(
+		t("ui.menu.button"),
+		vec2(constants.BATTLEGROUND_BUTTON_X, constants.BATTLEGROUND_BUTTON_MARGIN_TOP),
+		() => { createPanel(state) }
+	);
 
 	return btn.container;
 }

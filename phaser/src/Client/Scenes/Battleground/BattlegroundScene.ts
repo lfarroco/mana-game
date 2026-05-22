@@ -27,7 +27,8 @@ import * as playerNamesDisplay from "Client/Scenes/Battleground/Components/playe
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
 import * as Unit from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
-import * as battlegroundConstants from "./battlegroundConstants";
+
+const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
 let cloudsBackground: CloudsBackground.CloudsBackground | null = null;
 
@@ -126,7 +127,7 @@ export class BattlegroundScene extends Phaser.Scene {
 			state.session.team.units.push(crystalUnit);
 			state.session.step = 0;
 
-			this.sound.setVolume(OptionsStore.getOption("soundVolume") ?? battlegroundConstants.DEFAULT_SCENE_SOUND_VOLUME);
+			this.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
 
 			// Create session via server adapter for unified logic
 			// This ensures the session exists before we try to get phase options
