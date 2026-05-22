@@ -39,21 +39,20 @@ function showSinglePlayerSubmenu() {
 	const spacing = 90;
 	const hasSavedRun = getSavedData() != null;
 
-	const startOrContinueBtn = createUIButton(
-		t("title.startContinue"),
+	const resumeBtn = createUIButton(
+		t("title.resume"),
 		vec2(constants.MIDDLE_SCREEN_X, baseY),
 		() => {
 			hideSinglePlayerSubmenu();
-			if (hasSavedRun) {
-				// TODO: create "loadSinglePlayerGame"
-				loadGame();
-				return;
-			}
+			loadGame();
 
-			// TODO: replace with new effect "startSinglePlayer"
-			void startGame(false);
 		}
 	);
+
+	if (!hasSavedRun) {
+		io.Hide(resumeBtn.container);
+		resumeBtn.disable();
+	}
 
 	const newRunBtn = createUIButton(
 		t("title.newRun"),
@@ -76,7 +75,7 @@ function showSinglePlayerSubmenu() {
 	);
 
 	submenuContainer = io.Container([
-		startOrContinueBtn.container,
+		resumeBtn.container,
 		newRunBtn.container,
 		collectionBtn.container,
 		returnBtn.container,
