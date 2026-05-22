@@ -28,7 +28,7 @@ const createNameText = (
 	return text;
 };
 
-export const createMultiplayerPlayerNamesDisplay = (): void => {
+export const create = (): void => {
 	if (!playerNameText || !playerNameText.scene) {
 		playerNameText = createNameText(LEFT_MARGIN, "left");
 	}
@@ -38,7 +38,7 @@ export const createMultiplayerPlayerNamesDisplay = (): void => {
 	}
 };
 
-export const updateMultiplayerPlayerNamesDisplay = ({
+export const update = ({
 	playerName,
 	enemyName,
 }: {
@@ -56,7 +56,7 @@ export const updateMultiplayerPlayerNamesDisplay = ({
 	}
 };
 
-export const destroyMultiplayerPlayerNamesDisplay = (): void => {
+export const destroy = (): void => {
 	playerNameText?.destroy();
 	enemyNameText?.destroy();
 	playerNameText = null;

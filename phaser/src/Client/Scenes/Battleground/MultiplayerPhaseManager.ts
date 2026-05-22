@@ -42,7 +42,7 @@ import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
 import { resetBoard } from "Client/Scenes/Battleground/PhaseManager";
-import { updateMultiplayerPlayerNamesDisplay } from "Client/Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
+import { update } from "Client/Scenes/Battleground/Components/playerNamesDisplay";
 
 const logger = createLogger("MultiplayerPhaseManager");
 
@@ -155,7 +155,7 @@ export async function handleMultiplayerPhase(
 	}
 
 	if (result.phase !== "combat") {
-		updateMultiplayerPlayerNamesDisplay({ enemyName: "" });
+		update({ enemyName: "" });
 	}
 
 	switch (result.phase) {
@@ -283,7 +283,7 @@ async function handleMultiplayerCombat(
 	}
 
 	const scene = getCurrentScene() as BattlegroundScene;
-	updateMultiplayerPlayerNamesDisplay({
+	update({
 		enemyName: combatState.enemyPlayerName || "CPU",
 	});
 

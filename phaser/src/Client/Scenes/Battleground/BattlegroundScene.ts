@@ -23,11 +23,7 @@ import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
 import { initializeRegenSystem } from "@Systems/RegenSystem";
 import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
-import {
-	createMultiplayerPlayerNamesDisplay,
-	destroyMultiplayerPlayerNamesDisplay,
-	updateMultiplayerPlayerNamesDisplay,
-} from "Client/Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
+import * as playerNamesDisplay from "Client/Scenes/Battleground/Components/playerNamesDisplay";
 
 export type BattlegroundSceneData = {
 	state: State;
@@ -58,7 +54,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		Systems.Setup.destroy();
 
 		UIManager.destroy();
-		destroyMultiplayerPlayerNamesDisplay();
+		playerNamesDisplay.destroy();
 	}
 
 	constructor() {
@@ -156,15 +152,15 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		UIManager.init(state);
 		if (multiplayerModeEnabled) {
-			createMultiplayerPlayerNamesDisplay();
+			playerNamesDisplay.create();
 
 			const profile = await getPlayerProfile(state.session.player_id);
-			updateMultiplayerPlayerNamesDisplay({
+			playerNamesDisplay.update({
 				playerName: profile.username,
 				enemyName: "",
 			});
 		} else {
-			destroyMultiplayerPlayerNamesDisplay();
+			playerNamesDisplay.destroy();
 		}
 
 		ResultsUI.createResultsUI();

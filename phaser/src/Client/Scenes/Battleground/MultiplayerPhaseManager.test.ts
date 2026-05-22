@@ -11,7 +11,7 @@ import { getBattleCore } from "@Models/Entities/Card";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { setEnemyBoardVisible } from "@Models/Board";
 import { shatter } from "@Systems/Chara/Animations";
-import { updateMultiplayerPlayerNamesDisplay } from "Client/Scenes/Battleground/Components/multiplayerPlayerNamesDisplay";
+import { update } from "Client/Scenes/Battleground/Components/playerNamesDisplay";
 import * as Encounter from "@Systems/Encounter";
 
 jest.mock("@Multiplayer/MultiplayerManager", () => ({
@@ -129,8 +129,8 @@ const mockSetEnemyBoardVisible = setEnemyBoardVisible as jest.MockedFunction<
 >;
 const mockShatter = shatter as jest.MockedFunction<typeof shatter>;
 const mockUpdateMultiplayerPlayerNamesDisplay =
-	updateMultiplayerPlayerNamesDisplay as jest.MockedFunction<
-		typeof updateMultiplayerPlayerNamesDisplay
+	update as jest.MockedFunction<
+		typeof update
 	>;
 const mockEncounterOpen = Encounter.open as jest.MockedFunction<typeof Encounter.open>;
 
