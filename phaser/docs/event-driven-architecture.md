@@ -260,10 +260,10 @@ This architecture follows the mana-battle-standards:
 - `phaser/src/Systems/Events.ts` - Event type definitions (new)
 - `phaser/src/Systems/Shop/PureShop.ts` - Pure shop functions (new)
 - `phaser/src/Systems/Shop/PureShop.test.ts` - Unit tests (new)
-- `phaser/src/Engine/Visualizer.ts` - Visualization layer (new)
+- `phaser/src/Client/Visualizer.ts` - Visualization layer (new)
 - `phaser/src/Systems/Shop/events/itemClickPurchaseRequested.ts` - Refactored
 - `phaser/src/Systems/Shop/events/ownedUnitSold.ts` - Refactored
-- `phaser/src/Engine/Scenes/Battleground/BattlegroundScene.ts` - Integrated Visualizer
+- `phaser/src/Client/Scenes/Battleground/BattlegroundScene.ts` - Integrated Visualizer
 - `phaser/ARCHITECTURE_PROPOSALS.md` - Updated status
 
 ## References

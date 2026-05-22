@@ -15,8 +15,8 @@ Core pipeline:
 
 Primary files:
 
-- `phaser/src/Engine/Scenes/Battleground/CombatPlaybackController.ts`
-- `phaser/src/Engine/Scenes/Battleground/BrowserCombatEffects.ts`
+- `phaser/src/Client/Scenes/Battleground/CombatPlaybackController.ts`
+- `phaser/src/Client/Scenes/Battleground/BrowserCombatEffects.ts`
 - `phaser/src/Effects/`
 - `phaser/src/TriggerSystem/effects/visuals/`
 
