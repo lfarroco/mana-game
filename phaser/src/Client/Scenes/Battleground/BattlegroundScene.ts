@@ -17,8 +17,7 @@ import * as ServerFactory_1 from "@Core/ServerFactory";
 import * as ServerFactory from "@Core/ServerFactory";
 import * as GameControllerFactory from "@Core/GameControllerFactory";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
-import * as MultiplayerManager_1 from "@Multiplayer/MultiplayerManager";
-import * as Visualizer from "Client/Visualizer";
+
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
@@ -32,11 +31,13 @@ const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
 let cloudsBackground: CloudsBackground.CloudsBackground | null = null;
 
+type Local = { type: "local" }
+type Online = { type: "online", queueType: MultiplayerTypes.MultiplayerQueueType }
+
 export type BattlegroundSceneData = {
 	// TODO: instead of this, we need the list of current units
 	selectedCrystalId?: string;
-	isMultiplayer?: boolean;
-	multiplayerQueueType?: MultiplayerTypes.MultiplayerQueueType;
+	sessionType: Local | Online;
 };
 
 export class BattlegroundScene extends Phaser.Scene {
@@ -48,9 +49,6 @@ export class BattlegroundScene extends Phaser.Scene {
 			this.combatRunner.stop();
 			this.combatRunner = undefined;
 		}
-
-		// Clean up event system
-		Visualizer.destroyVisualizer();
 
 		Chara.clearAll();
 		this.time.removeAllEvents();
@@ -73,10 +71,8 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
-		Visualizer.initializeVisualizer();
 
 		const speed = OptionsStore.getOption("speed");
-
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
 
@@ -85,8 +81,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 	start = async ({
 		selectedCrystalId,
-		isMultiplayer,
-		multiplayerQueueType,
+		sessionType,
 	}: BattlegroundSceneData) => {
 		// TODO: the start for this scene should be just:
 		// - render boards
@@ -96,12 +91,12 @@ export class BattlegroundScene extends Phaser.Scene {
 		const state = State.getState();
 
 		const session = state.session;
-		const multiplayerModeEnabled = Boolean(isMultiplayer);
+		const multiplayerModeEnabled = sessionType.type === "online";
 
 		// Keep global mode state in sync so controller/server selection matches the current run type.
 		ServerFactory.ServerFactory.setMultiplayer(multiplayerModeEnabled);
 		if (multiplayerModeEnabled) {
-			await MultiplayerManager.enableMultiplayer(selectedCrystalId, multiplayerQueueType || "casual");
+			await MultiplayerManager.enableMultiplayer(selectedCrystalId, sessionType.queueType);
 		} else {
 			MultiplayerManager.disableMultiplayer();
 		}
@@ -178,7 +173,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		if (multiplayerModeEnabled) {
 			playerNamesDisplay.create();
 
-			const profile = await MultiplayerManager_1.getPlayerProfile(state.session.player_id);
+			const profile = await MultiplayerManager.getPlayerProfile(state.session.player_id);
 			playerNamesDisplay.update({
 				playerName: profile.username,
 				enemyName: "",

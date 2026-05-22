@@ -1,7 +1,6 @@
-import * as Phaser from "phaser";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { setCurrentScene } from "@Models/State";
+import { getCurrentScene } from "@Models/State";
 import { arenaButton } from "Client/Scenes/Title/components/arenaButton";
 import { cloudsBg } from "Client/Scenes/Title/components/cloudsBg";
 import { optionsButton, setMainButtonsContainer } from "Client/Scenes/Title/components/optionsButton";
@@ -18,71 +17,69 @@ import * as ControlsSystem from "@Systems/Controls";
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 
-export default class TitleScene extends Phaser.Scene {
-	constructor() {
-		super(constants.SCENE_KEYS.TITLE);
-	}
+export function renderTitleScreen() {
 
-	create() {
-		setCurrentScene(this);
+	const scene = getCurrentScene();
 
-		AudioManager.playMusic("music_ageofdisjunction");
 
-		cloudsBg();
+	cloudsBg();
 
-		Tooltip.init();
+	Tooltip.init();
 
-		logo();
+	logo();
 
-		const buttons = [
-			singlePlayerButton(500),
-			arenaButton(600),
-			optionsButton(700),
-			linksButton(800),
-			languageButton(),
-		];
+	const buttons = [
+		singlePlayerButton(500),
+		arenaButton(600),
+		optionsButton(700),
+		linksButton(800),
+		languageButton(),
+	];
 
-		// Create a container for the main buttons so they can be hidden when
-		// showing submenu
-		// TODO: replace with "tab" system 
-		const mainButtonsContainer = io.Container(
-			buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
-		);
-		setMainButtonsContainer(mainButtonsContainer);
+	// Create a container for the main buttons so they can be hidden when
+	// showing submenu
+	// TODO: replace with "tab" system 
+	const mainButtonsContainer = io.Container(
+		buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
+	);
+	setMainButtonsContainer(mainButtonsContainer);
 
-		howToPlay();
+	howToPlay();
 
-		ControlsSystem.init(this, { context: "buttons" });
+	ControlsSystem.init(scene, { context: "buttons" });
 
-		this.checkUnlocks();
+	checkUnlocks();
 
-		this.displayVersion();
+	displayVersion();
 
-	}
+	AudioManager.playMusic("music_ageofdisjunction");
 
-	/*
-	 * Displays the game version in the top-right corner of the screen
-	 */
-	displayVersion() {
+}
 
-		this.add
-			.text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
-				fontFamily: "Arimo",
-				fontSize: "16px",
-				color: "white",
-			})
-			.setOrigin(1, 0)
-			.setAlpha(0.5);
+/*
+ * Displays the game version in the top-right corner of the screen
+ */
+function displayVersion() {
 
-	}
+	const scene = getCurrentScene();
 
-	async checkUnlocks() {
-		const pendingUnlocks = StatsStore.getPendingUnlocks();
+	scene.add
+		.text(constants.SCREEN_WIDTH - 30, 10, `v${pkg.version}`, {
+			fontFamily: "Arimo",
+			fontSize: "16px",
+			color: "white",
+		})
+		.setOrigin(1, 0)
+		.setAlpha(0.5);
 
-		for (const unitId of pendingUnlocks) {
-			await showUnlockModal(unitId);
-			StatsStore.confirmUnlock(unitId);
-			await new Promise((resolve) => setTimeout(resolve, 300));
-		}
+}
+
+async function checkUnlocks() {
+	const pendingUnlocks = StatsStore.getPendingUnlocks();
+
+	for (const unitId of pendingUnlocks) {
+		await showUnlockModal(unitId);
+		StatsStore.confirmUnlock(unitId);
+		await new Promise((resolve) => setTimeout(resolve, 300));
 	}
 }

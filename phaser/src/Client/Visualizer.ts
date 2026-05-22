@@ -30,16 +30,11 @@ type EventHandler<T extends SystemEvents.SystemEvent> = (event: T) => void | Pro
  * Event handlers map
  */
 const eventHandlers: Map<string, Set<EventHandler<SystemEvents.SystemEvent>>> = new Map();
-let isInitialized: boolean = false;
 
 /**
  * Initialize the visualizer and subscribe to system events
  */
 export function initialize(): void {
-	if (isInitialized) {
-		logger.warn("Visualizer already initialized");
-		return;
-	}
 
 	// Subscribe to Shop events
 	subscribe("ShopOpened", handleShopOpened);
@@ -52,7 +47,6 @@ export function initialize(): void {
 	subscribe("UnitSpawned", handleUnitSpawned);
 	subscribe("UnitUpgraded", handleUnitUpgraded);
 
-	isInitialized = true;
 	logger.debug("Visualizer initialized");
 }
 
@@ -98,15 +92,6 @@ export async function emit(event: SystemEvents.AllSystemEvents): Promise<void> {
 	}
 }
 
-/**
- * Cleanup and destroy the visualizer
- */
-export function destroy(): void {
-	eventHandlers.clear();
-	isInitialized = false;
-	logger.debug("Visualizer destroyed");
-}
-
 // ========================================================================
 // Shop Event Handlers
 // ========================================================================
@@ -125,56 +110,48 @@ async function handleShopClosed(_event: SystemEvents.ShopClosedEvent): Promise<v
 async function handleUnitPurchased(event: SystemEvents.UnitPurchasedEvent): Promise<void> {
 	logger.debug(`Visualizer: Unit purchased: ${event.cardId}, wasUpgrade: ${event.wasUpgrade}`);
 
+	// Shop item visuals may already be gone if phase transition happened immediately.
+	let shopChara: Chara.Chara | undefined;
 	try {
-		// Shop item visuals may already be gone if phase transition happened immediately.
-		let shopChara: Chara.Chara | undefined;
-		try {
-			shopChara = Chara.getCharaById(event.shopCharaId);
-		} catch {
-			shopChara = undefined;
-		}
+		shopChara = Chara.getCharaById(event.shopCharaId);
+	} catch {
+		shopChara = undefined;
+	}
 
-		// Handle visual feedback for successful purchase
-		if (event.wasUpgrade && event.upgradedUnit) {
-			// Unit was upgraded - animate the upgrade
-			await Chara.upgradeUnit(event.upgradedUnit);
-		} else if (event.unit) {
-			// New unit was created - summon it
-			await Chara.summon(event.unit, true);
-		}
+	// Handle visual feedback for successful purchase
+	if (event.wasUpgrade && event.upgradedUnit) {
+		// Unit was upgraded - animate the upgrade
+		await Chara.upgradeUnit(event.upgradedUnit);
+	} else if (event.unit) {
+		// New unit was created - summon it
+		await Chara.summon(event.unit, true);
+	}
 
-		// Play success animation on the shop character when still present
-		if (shopChara) {
-			charaEvents.onShopPurchaseSuccesful(shopChara);
-		}
+	// Play success animation on the shop character when still present
+	if (shopChara) {
+		charaEvents.onShopPurchaseSuccesful(shopChara);
+	}
 
-		// Close the shop UI
-		if (ShopUI.container) {
-			await ShopUI.slideOut();
-		}
-	} catch (error) {
-		logger.error("Error handling UnitPurchased event:", error);
+	// Close the shop UI
+	if (ShopUI.container) {
+		await ShopUI.slideOut();
 	}
 }
 
 function handlePurchaseFailed(event: SystemEvents.PurchaseFailedEvent): void {
 	logger.debug("Visualizer: Purchase failed:", event.reason);
 
-	try {
-		// Get the shop character for failure animation
-		const shopChara = Chara.getCharaById(event.shopCharaId);
+	// Get the shop character for failure animation
+	const shopChara = Chara.getCharaById(event.shopCharaId);
 
-		// Play failure animation on the shop character
-		charaEvents.onShopPurchaseFailed(
-			shopChara,
-			Geometry.vec2(event.dragStartPosition.x, event.dragStartPosition.y)
-		);
+	// Play failure animation on the shop character
+	charaEvents.onShopPurchaseFailed(
+		shopChara,
+		Geometry.vec2(event.dragStartPosition.x, event.dragStartPosition.y)
+	);
 
-		// Show UI feedback
-		uiEvents.onPurchaseFailed(event.unitName, event.reason, event.cost);
-	} catch (error) {
-		logger.error("Error handling PurchaseFailed event:", error);
-	}
+	// Show UI feedback
+	uiEvents.onPurchaseFailed(event.unitName, event.reason, event.cost);
 }
 
 function handleUnitSold(event: SystemEvents.UnitSoldEvent): void {
@@ -190,12 +167,8 @@ function handleUnitSold(event: SystemEvents.UnitSoldEvent): void {
 async function handleUnitSpawned(event: SystemEvents.UnitSpawnedEvent): Promise<void> {
 	logger.debug("Visualizer: Unit spawned:", event.unit.cardId);
 
-	try {
-		// Summon the unit with visual effects
-		await Chara.summon(event.unit, event.isFromShop);
-	} catch (error) {
-		logger.error("Error handling UnitSpawned event:", error);
-	}
+	// Summon the unit with visual effects
+	await Chara.summon(event.unit, event.isFromShop);
 }
 
 async function handleUnitUpgraded(event: SystemEvents.UnitUpgradedEvent): Promise<void> {
@@ -203,38 +176,16 @@ async function handleUnitUpgraded(event: SystemEvents.UnitUpgradedEvent): Promis
 		`Visualizer: Unit upgraded: ${event.unit.cardId} from rank ${event.previousRank} to ${event.unit.rank}`
 	);
 
-	try {
-		// Animate the upgrade
-		await Chara.upgradeUnit(event.unit);
-	} catch (error) {
-		logger.error("Error handling UnitUpgraded event:", error);
-	}
+	// Animate the upgrade
+	await Chara.upgradeUnit(event.unit);
 }
-
-/**
- * Global visualizer instance management
- */
-let globalVisualizerInitialized: boolean = false;
 
 /**
  * Initialize the global visualizer
  */
 export function initializeVisualizer(): void {
-	if (globalVisualizerInitialized) {
-		logger.warn("Global visualizer already exists, destroying and recreating");
-		destroyVisualizer();
-	}
 
 	initialize();
-	globalVisualizerInitialized = true;
-}
-
-/**
- * Destroy the global visualizer
- */
-export function destroyVisualizer(): void {
-	destroy();
-	globalVisualizerInitialized = false;
 }
 
 /**
@@ -242,9 +193,5 @@ export function destroyVisualizer(): void {
  * This is a convenience function that can be called from anywhere
  */
 export async function emitSystemEvent(event: SystemEvents.AllSystemEvents): Promise<void> {
-	if (globalVisualizerInitialized) {
-		await emit(event);
-	} else {
-		logger.warn("Cannot emit event - visualizer not initialized:", event.type);
-	}
+	await emit(event);
 }

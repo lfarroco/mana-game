@@ -4,17 +4,13 @@ import * as DebugController from "Client/Scenes/Debug/DebugController";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 import Core from "Client/Scenes/Core/Core";
-import { DebugScene } from "./Debug/DebugScene";
-import BattlegroundScene from "Client/Scenes/Battleground/BattlegroundScene";
-import TitleScene from "Client/Scenes/Title/TitleScene";
-import OptionsScene from "Client/Scenes/Options/OptionsScene";
-import CrystalSelectionScene from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import { initState } from "@Models/State";
-import { ArenaLobbyScene } from "Client/Scenes/ArenaLobby/ArenaLobbyScene";
-import { ArenaLoginScene } from "Client/Scenes/ArenaLobby/ArenaLoginScene";
+import * as Visualizer from "Client/Visualizer";
 
 initState();
+
+Visualizer.initializeVisualizer();
 
 export const game = new Phaser.Game({
 	type: Phaser.AUTO,
@@ -29,16 +25,7 @@ export const game = new Phaser.Game({
 		createContainer: true,
 	},
 	parent: "game-container",
-	scene: [
-		Core,
-		DebugScene,
-		BattlegroundScene,
-		TitleScene,
-		OptionsScene,
-		CrystalSelectionScene,
-		ArenaLobbyScene,
-		ArenaLoginScene,
-	],
+	scene: Core,
 	plugins: {
 		global: [
 			{
