@@ -14,7 +14,7 @@ import { playSoundEffect } from "@Systems/AudioManager";
 import { createLogger } from "@Utils/Logger";
 import { getServerAdapter } from "@Core/ServerFactory";
 import * as Chara from "@Systems/Chara/Chara";
-import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import * as ForceStats from "Client/Scenes/Battleground/ForceStats";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 const logger = createLogger("OrbShop");

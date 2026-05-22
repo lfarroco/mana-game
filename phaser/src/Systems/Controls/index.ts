@@ -4,7 +4,7 @@ import { getGameController } from "@Core/GameControllerFactory";
 import { getState } from "@Models/State";
 import * as Board from "@Models/Board";
 import { getCharaById } from "@Systems/Chara/Chara";
-import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import BattlegroundScene from "Client/Scenes/Battleground/BattlegroundScene";
 import {
 	activateFocusedSceneButton,
 	clearSceneButtonFocus,

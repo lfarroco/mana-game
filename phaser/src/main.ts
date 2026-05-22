@@ -1,24 +1,24 @@
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
-import * as DebugController from "@Scenes/Debug/DebugController";
+import * as DebugController from "Client/Scenes/Debug/DebugController";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
-import Core from "@Scenes/Core/Core";
+import Core from "Client/Scenes/Core/Core";
 import { DebugScene } from "./Debug/DebugScene";
-import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
-import TitleScene from "@Scenes/Title/TitleScene";
-import OptionsScene from "@Scenes/Options/OptionsScene";
-import CrystalSelectionScene from "@Scenes/CrystalSelection/CrystalSelectionScene";
+import BattlegroundScene from "Client/Scenes/Battleground/BattlegroundScene";
+import TitleScene from "Client/Scenes/Title/TitleScene";
+import OptionsScene from "Client/Scenes/Options/OptionsScene";
+import CrystalSelectionScene from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import { initState } from "@Models/State";
-import { ArenaLobbyScene } from "@Scenes/ArenaLobby/ArenaLobbyScene";
-import { ArenaLoginScene } from "@Scenes/ArenaLobby/ArenaLoginScene";
+import { ArenaLobbyScene } from "Client/Scenes/ArenaLobby/ArenaLobbyScene";
+import { ArenaLoginScene } from "Client/Scenes/ArenaLobby/ArenaLoginScene";
 
 initState();
 
 export const game = new Phaser.Game({
 	type: Phaser.AUTO,
-    pixelArt: false,
+	pixelArt: false,
 	scale: {
 		width: SCREEN_WIDTH,
 		height: SCREEN_HEIGHT,

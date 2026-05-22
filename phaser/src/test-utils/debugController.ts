@@ -2,7 +2,7 @@
 // Force refresh
 
 import { Page } from "@playwright/test";
-import type * as DebugController from "@Scenes/Debug/DebugController";
+import type * as DebugController from "Client/Scenes/Debug/DebugController";
 
 /**
  * Helper function to access debugController with full TypeScript support

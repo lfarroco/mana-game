@@ -1,0 +1,23 @@
+import { getOption, setOption } from "@Models/OptionsStore";
+import { getCurrentScene } from "@Models/State";
+import OptionsScene from "Client/Scenes/Options/OptionsScene";
+import { multipleChoice } from "Client/Scenes/Options/components/controls/multipleChoice";
+import { t } from "@i18n/i18n";
+
+type ParticlesOption = "low" | "medium" | "high";
+
+export function graphicsTab(startY: number) {
+	return multipleChoice(
+		t("options.graphics.particles"),
+		startY,
+		["low", "medium", "high"] as ParticlesOption[],
+		() => getOption("particles", "medium"),
+		(value) => {
+			setOption("particles", value as ParticlesOption);
+
+			const scene = getCurrentScene() as OptionsScene;
+			scene.cloudsBackground.updateParticleQuality();
+		},
+		(value) => t("options.graphics.values." + value)
+	);
+}

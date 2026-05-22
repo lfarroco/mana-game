@@ -3,7 +3,7 @@ import * as effects from "@TriggerSystem/effects";
 import { pickRandom } from "@utils";
 import { State } from "@Models/State";
 
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("TriggerSystem");
@@ -44,156 +44,156 @@ export type EffectReaction = {
 
 export type Effect =
 	| {
-			id: "damage";
-	  }
+		id: "damage";
+	}
 	| {
-			id: "heal";
-	  }
+		id: "heal";
+	}
 	| {
-			id: "shield";
-	  }
+		id: "shield";
+	}
 	| {
-			id: "poison";
-	  }
+		id: "poison";
+	}
 	| {
-			id: "regen";
-	  }
+		id: "regen";
+	}
 	| {
-			id: "haste";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "haste";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "slow";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "slow";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "charge";
-			duration: number;
-			targets: Targeting;
-	  }
+		id: "charge";
+		duration: number;
+		targets: Targeting;
+	}
 	| {
-			id: "increase_power";
-			amount: number;
-			permanent?: boolean;
-			targets: Targeting;
-	  }
+		id: "increase_power";
+		amount: number;
+		permanent?: boolean;
+		targets: Targeting;
+	}
 	| {
-			id: "decrease_power";
-			amount: number;
-			permanent?: boolean;
-			targets: Targeting;
-	  }
+		id: "decrease_power";
+		amount: number;
+		permanent?: boolean;
+		targets: Targeting;
+	}
 	| {
-			id: "multiply_power";
-			multiplier: number;
-			baseMultiplier: number;
-			targets: Targeting;
-	  }
+		id: "multiply_power";
+		multiplier: number;
+		baseMultiplier: number;
+		targets: Targeting;
+	}
 	| {
-			id: "increase_critical";
-			amount: number;
-			permanent?: boolean;
-			targets: Targeting;
-	  }
+		id: "increase_critical";
+		amount: number;
+		permanent?: boolean;
+		targets: Targeting;
+	}
 	| {
-			id: "distribute_power";
-			targets: Targeting;
-			permanent?: boolean;
-	  }
+		id: "distribute_power";
+		targets: Targeting;
+		permanent?: boolean;
+	}
 	| {
-			id: "absorb_power";
-			targets: Targeting;
-			permanent?: boolean;
-	  }
+		id: "absorb_power";
+		targets: Targeting;
+		permanent?: boolean;
+	}
 	| {
-			id: "sacrifice_effect";
-			targets: Targeting;
-	  }
+		id: "sacrifice_effect";
+		targets: Targeting;
+	}
 	| {
-			id: "re_hasted";
-	  }
+		id: "re_hasted";
+	}
 	| {
-			id: "re_slow";
-	  }
+		id: "re_slow";
+	}
 	| {
-			id: "on_crit";
-	  }
+		id: "on_crit";
+	}
 	| {
-			id: "every_100_damage";
-	  }
+		id: "every_100_damage";
+	}
 	| {
-			id: "every_100_shield";
-	  }
+		id: "every_100_shield";
+	}
 	| {
-			id: "every_100_heal";
-	  }
+		id: "every_100_heal";
+	}
 	| {
-			id: "every_10_poison";
-	  }
+		id: "every_10_poison";
+	}
 	| {
-			id: "every_10_regen";
-	  }
+		id: "every_10_regen";
+	}
 	| {
-			id: "on_over_heal";
-	  }
+		id: "on_over_heal";
+	}
 	| {
-			id: "on_battle_start";
-	  };
+		id: "on_battle_start";
+	};
 
 export type Targeting =
 	| {
-			id: "self";
-	  }
+		id: "self";
+	}
 	| {
-			id: "random_ally";
-			count: number;
-	  }
+		id: "random_ally";
+		count: number;
+	}
 	| {
-			id: "random_enemy";
-			count: number;
-	  }
+		id: "random_enemy";
+		count: number;
+	}
 	| {
-			id: "row_allies";
-	  }
+		id: "row_allies";
+	}
 	| {
-			id: "column_allies";
-	  }
+		id: "column_allies";
+	}
 	| {
-			id: "all_allies";
-			ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
-	  }
+		id: "all_allies";
+		ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
+	}
 	| {
-			id: "all_enemies";
-	  }
+		id: "all_enemies";
+	}
 	| {
-			id: "strongest_enemy";
-	  }
+		id: "strongest_enemy";
+	}
 	| {
-			id: "weakest_enemy";
-	  }
+		id: "weakest_enemy";
+	}
 	| {
-			id: "strongest_ally";
-	  }
+		id: "strongest_ally";
+	}
 	| {
-			id: "weakest_ally";
-	  }
+		id: "weakest_ally";
+	}
 	| {
-			id: "top_ally";
-	  }
+		id: "top_ally";
+	}
 	| {
-			id: "bottom_ally";
-	  }
+		id: "bottom_ally";
+	}
 	| {
-			id: "left_ally";
-	  }
+		id: "left_ally";
+	}
 	| {
-			id: "right_ally";
-	  }
+		id: "right_ally";
+	}
 	| {
-			id: "trigger";
-	  };
+		id: "trigger";
+	};
 
 export type EffectSourcePosition =
 	| "all"

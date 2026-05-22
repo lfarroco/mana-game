@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("multiplyPower");

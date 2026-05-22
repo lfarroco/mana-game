@@ -18,7 +18,7 @@ import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { playUpgradeCrystalSelectionEffect } from "@Effects/upgradeCrystalSelectionEffect";
-import * as ForceStats from "@Scenes/Battleground/ForceStats";
+import * as ForceStats from "Client/Scenes/Battleground/ForceStats";
 
 const logger = createLogger("EffectCardShop");
 

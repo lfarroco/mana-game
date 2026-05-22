@@ -1,6 +1,6 @@
 import { images } from "@assets";
 import { SCENE_KEYS } from "@Constants/constants";
-import { BattlegroundScene } from "@Scenes/Battleground/BattlegroundScene";
+import { BattlegroundScene } from "Client/Scenes/Battleground/BattlegroundScene";
 import * as effects from "@Effects/index";
 import { Button, createUIButton } from "@Components/UIButton";
 import * as constants from "@Constants/constants";

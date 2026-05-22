@@ -12,7 +12,7 @@ import { Unit } from "@Models/Entities/Unit";
 import * as StateModule from "@Models/State";
 import { State } from "@Models/State";
 import { getBattleCore } from "@Models/Entities/Card";
-import { FORCE_ID_PLAYER } from "@Scenes/Battleground/ServerConstants";
+import { FORCE_ID_PLAYER } from "Client/Scenes/Battleground/ServerConstants";
 import { processReactions, EffectReaction } from "@TriggerSystem/TriggerSystem";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 

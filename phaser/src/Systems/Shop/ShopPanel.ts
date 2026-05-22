@@ -5,7 +5,7 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 import { resetEncounterFocusTargets } from "@Systems/Encounter";
-import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_BOTTOM } from "@Scenes/Battleground/battlegroundConstants";
+import { BATTLEGROUND_BUTTON_X, BATTLEGROUND_BUTTON_MARGIN_BOTTOM } from "Client/Scenes/Battleground/battlegroundConstants";
 import { getCurrentScene } from "@Models/State";
 
 const NEXT_ROUND_BUTTON_X = BATTLEGROUND_BUTTON_X;

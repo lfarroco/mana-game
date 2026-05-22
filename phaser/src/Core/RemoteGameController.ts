@@ -7,7 +7,7 @@ import {
 	sendTeamUpdate,
 } from "@Multiplayer/MultiplayerManager";
 import { getState } from "@Models/State";
-import { startPhase } from "@Scenes/Battleground/PhaseManager";
+import { startPhase } from "Client/Scenes/Battleground/PhaseManager";
 
 /**
  * Creates a remote game controller that handles actions through the multiplayer manager.

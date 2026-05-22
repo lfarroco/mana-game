@@ -3,7 +3,7 @@ import { getEnemyForce } from "@Models/Entities/Force";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import { CombatEnvironment } from "@Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("applyPoison");

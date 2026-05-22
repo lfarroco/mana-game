@@ -1,10 +1,10 @@
 import { getCurrentScene, getState } from "@Models/State";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Board from "@Models/Board";
-import * as BG_CONSTANTS from "@Scenes/Battleground/battlegroundConstants";
+import * as BG_CONSTANTS from "Client/Scenes/Battleground/battlegroundConstants";
 import { getOption } from "@Models/OptionsStore";
 import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
-import BattlegroundScene from "@Scenes/Battleground/BattlegroundScene";
+import BattlegroundScene from "Client/Scenes/Battleground/BattlegroundScene";
 import { makeUnit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 

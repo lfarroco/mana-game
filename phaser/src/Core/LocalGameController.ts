@@ -3,7 +3,7 @@ import { ActionPayload } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { getServerAdapter } from "@Core/ServerFactory";
 import { getState } from "@Models/State";
-import * as PhaseManager from "@Scenes/Battleground/PhaseManager";
+import * as PhaseManager from "Client/Scenes/Battleground/PhaseManager";
 
 /**
  * Creates a local game controller that handles actions through the local server adapter.

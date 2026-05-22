@@ -3,7 +3,7 @@ import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as PureShop from "@Systems/Shop/PureShop";
-import { emitSystemEvent } from "@Engine/Visualizer";
+import { emitSystemEvent } from "Client/Visualizer";
 
 /**
  * Handle a unit purchase request from the shop
