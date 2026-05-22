@@ -1,41 +1,47 @@
 import Phaser from "phaser";
-import { setCurrentScene, State, getState, setState } from "@Models/State";
+import * as State from "@Models/State";
 import * as UIManager from "@UI/UI";
 import * as Board from "@Models/Board";
-import { CombatRunner } from "Client/Scenes/Battleground/RunCombatIO";
-import { getOption } from "@Models/OptionsStore";
+import * as RunCombatIO from "Client/Scenes/Battleground/RunCombatIO";
+import * as OptionsStore from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Systems from "@Systems/BattlegroundSystems";
+import * as ControlsSystem from "@Systems/Controls";
 import * as ForceStats from "Client/Scenes/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { clearAll, getAllCharas } from "@Systems/Chara/Chara";
+import * as Chara from "@Systems/Chara/Chara";
 import * as ResultsUI from "Client/Scenes/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import { startPhase, resetBoard } from "Client/Scenes/Battleground/PhaseManager";
+import * as PhaseManager from "Client/Scenes/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
-import { getServerAdapter } from "@Core/ServerFactory";
-import { ServerFactory } from "@Core/ServerFactory";
-import { createGameController } from "@Core/GameControllerFactory";
-import { disableMultiplayer, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
-import { getPlayerProfile } from "@Multiplayer/MultiplayerManager";
-import { initializeVisualizer, destroyVisualizer } from "Client/Visualizer";
-import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
-import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
-import { initializeRegenSystem } from "@Systems/RegenSystem";
-import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
+import * as ServerFactory_1 from "@Core/ServerFactory";
+import * as ServerFactory from "@Core/ServerFactory";
+import * as GameControllerFactory from "@Core/GameControllerFactory";
+import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
+import * as MultiplayerManager_1 from "@Multiplayer/MultiplayerManager";
+import * as Visualizer from "Client/Visualizer";
+import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
+import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as playerNamesDisplay from "Client/Scenes/Battleground/Components/playerNamesDisplay";
+import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
+import * as Unit from "@Models/Entities/Unit";
+import * as constants from "@Constants/constants";
+import * as battlegroundConstants from "./battlegroundConstants";
+
+let cloudsBackground: CloudsBackground.CloudsBackground | null = null;
 
 export type BattlegroundSceneData = {
-	state: State;
+	state: State.State;
 	// TODO: instead of this, we need the list of current units
 	selectedCrystalId?: string;
 	isMultiplayer?: boolean;
-	multiplayerQueueType?: MultiplayerQueueType;
+	multiplayerQueueType?: MultiplayerTypes.MultiplayerQueueType;
 };
 
 export class BattlegroundScene extends Phaser.Scene {
-	state: State;
-	combatRunner?: CombatRunner;
+	state: State.State;
+	combatRunner?: RunCombatIO.CombatRunner;
 
 	cleanup() {
 		// Stop the combat runner if it exists
@@ -45,13 +51,14 @@ export class BattlegroundScene extends Phaser.Scene {
 		}
 
 		// Clean up event system
-		destroyVisualizer();
+		Visualizer.destroyVisualizer();
 
-		clearAll();
+		Chara.clearAll();
 		this.time.removeAllEvents();
 		this.children.removeAll(true);
 
-		Systems.Setup.destroy();
+		cloudsBackground?.destroy();
+		cloudsBackground = null;
 
 		UIManager.destroy();
 		playerNamesDisplay.destroy();
@@ -62,22 +69,22 @@ export class BattlegroundScene extends Phaser.Scene {
 	}
 
 	create = async (data: BattlegroundSceneData) => {
-		const state = data?.state || getState();
+		const state = data?.state || State.getState();
 
 		this.state = state;
 
 		// Update global state when scene receives new state data (important for testing)
 		if (data?.state) {
-			setState(state);
+			State.setState(state);
 		}
 
-		setCurrentScene(this);
+		State.setCurrentScene(this);
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
-		initializeVisualizer();
+		Visualizer.initializeVisualizer();
 
-		const speed = getOption("speed");
+		const speed = OptionsStore.getOption("speed");
 
 		this.time.timeScale = speed;
 		this.tweens.timeScale = speed;
@@ -100,53 +107,78 @@ export class BattlegroundScene extends Phaser.Scene {
 		const multiplayerModeEnabled = Boolean(isMultiplayer);
 
 		// Keep global mode state in sync so controller/server selection matches the current run type.
-		ServerFactory.setMultiplayer(multiplayerModeEnabled);
+		ServerFactory.ServerFactory.setMultiplayer(multiplayerModeEnabled);
 		if (multiplayerModeEnabled) {
-			await enableMultiplayer(selectedCrystalId, multiplayerQueueType || "casual");
+			await MultiplayerManager.enableMultiplayer(selectedCrystalId, multiplayerQueueType || "casual");
 		} else {
-			disableMultiplayer();
+			MultiplayerManager.disableMultiplayer();
 		}
 
 		if (selectedCrystalId) {
 			// TODO: the game data should be initialized before even getting into this scene
-			Systems.Setup.initializeNewGame(selectedCrystalId);
+
+			state.session.team.units = [];
+			state.session.round = 1;
+			state.session.losses = 0; // BG_CONSTANTS.INITIAL_PLAYER_LIVES is 4, so 0 losses
+
+			// TODO: there are 2 FORCE_ID_PLAYER constants
+			const crystalUnit = Unit.makeUnit(constants.FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
+			state.session.team.units.push(crystalUnit);
+			state.session.step = 0;
+
+			this.sound.setVolume(OptionsStore.getOption("soundVolume") ?? battlegroundConstants.DEFAULT_SCENE_SOUND_VOLUME);
 
 			// Create session via server adapter for unified logic
 			// This ensures the session exists before we try to get phase options
-			const server = getServerAdapter();
+			const server = ServerFactory_1.getServerAdapter();
 			const playerId = state.session.player_id || "sp_player_" + Date.now();
 			state.session.player_id = playerId;
 
 			await server.createSession(playerId, selectedCrystalId);
 
 			// Initialize the GameController after session creation
-			createGameController(playerId);
+			GameControllerFactory.createGameController(playerId);
 		} else {
 			state.session = session;
 
 			// Ensure GameController is initialized for resumed sessions (e.g. multiplayer reconnect)
 			const playerId = state.session.player_id || "local_player";
-			createGameController(playerId);
+			GameControllerFactory.createGameController(playerId);
 		}
 
-		Systems.Setup.setupSceneElements();
+		cloudsBackground = new CloudsBackground.CloudsBackground({
+			preset: "forest",
+			depth: -2000,
+			timeScale: 0.3,
+		});
+
+
+		const cloudsBackgroundShader = cloudsBackground.getShader();
+
+		const bgContainer = this.add.container(0, 0);
+		bgContainer.setDepth(-2000);
+		bgContainer.add([cloudsBackgroundShader]);
+
+		Board.init();
+
+		ControlsSystem.init(this, { context: "battleground" });
 
 		Tooltip.init();
 
-		const charas = getAllCharas();
+		const charas = Chara.getAllCharas();
 
 		// Only summon units if there are no characters and we're not in combat phase
 		// Combat phase handles its own summoning in transitionToCombatPhase
 		if (charas.length === 0 && state.session.phase !== "combat") {
-			await resetBoard();
+			await PhaseManager.resetBoard();
 		}
 
 		let forceStatsState = ForceStats.initializeForceStatsState();
 		forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
 		CombatSystemStates.setCombatSystemStates({
-			poisonSystemState: initializePoisonSystem(),
-			regenSystemState: initializeRegenSystem(),
-			combatStatsTrackerState: initializeCombatStatsTracker(state),
+			poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
+			regenSystemState: RegenSystem.initializeRegenSystem(),
+			combatStatsTrackerState: CombatStatsTracker.initialize(state),
 			forceStatsState,
 		});
 
@@ -154,7 +186,7 @@ export class BattlegroundScene extends Phaser.Scene {
 		if (multiplayerModeEnabled) {
 			playerNamesDisplay.create();
 
-			const profile = await getPlayerProfile(state.session.player_id);
+			const profile = await MultiplayerManager_1.getPlayerProfile(state.session.player_id);
 			playerNamesDisplay.update({
 				playerName: profile.username,
 				enemyName: "",
@@ -169,7 +201,7 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		startPhase(state, {
+		PhaseManager.startPhase(state, {
 			showReadyOnInitialCombat: multiplayerModeEnabled && !selectedCrystalId,
 		});
 	};

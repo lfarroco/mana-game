@@ -4,7 +4,6 @@ export * as Poison from "@Systems/PoisonDamageSystem";
 export * as Timeout from "@Systems/TimeoutDamageSystem";
 export * as CombatPhase from "@Systems/CombatPhase";
 export * as ResultsPhase from "@Systems/ResultsPhase";
-export * as Setup from "@Systems/Setup";
 export * as CountdownTimer from "@Systems/CountdownTimer";
 
 // Export Shop with backward compatibility extensions
