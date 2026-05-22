@@ -33,15 +33,15 @@ export function setupSceneElements() {
 
 	const scene = getCurrentScene() as BattlegroundScene;
 
-	scene.cloudsBackground = cloudsBackground.getShader();
+	const cloudsBackgroundShader = cloudsBackground.getShader();
 
-	scene.bgContainer = scene.add.container(0, 0);
-	scene.bgContainer.setDepth(-2000);
-	ControlsSystem.init(scene, { context: "battleground" });
-
-	scene.bgContainer.add([scene.cloudsBackground]);
+	const bgContainer = scene.add.container(0, 0);
+	bgContainer.setDepth(-2000);
+	bgContainer.add([cloudsBackgroundShader]);
 
 	Board.init();
+
+	ControlsSystem.init(scene, { context: "battleground" });
 }
 
 export function destroy(): void {

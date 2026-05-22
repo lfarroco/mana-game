@@ -18,7 +18,6 @@ import { ServerFactory } from "@Core/ServerFactory";
 import { createGameController } from "@Core/GameControllerFactory";
 import { disableMultiplayer, enableMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { getPlayerProfile } from "@Multiplayer/MultiplayerManager";
-import { EventEmitter, SimpleEventEmitter } from "@Systems/Events";
 import { initializeVisualizer, destroyVisualizer } from "Client/Visualizer";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
@@ -39,11 +38,8 @@ export type BattlegroundSceneData = {
 };
 
 export class BattlegroundScene extends Phaser.Scene {
-	bgContainer!: Phaser.GameObjects.Container;
-	cloudsBackground!: Phaser.GameObjects.Shader;
 	state: State;
 	combatRunner?: CombatRunner;
-	eventEmitter: EventEmitter;
 
 	cleanup() {
 		// Stop the combat runner if it exists
@@ -83,8 +79,6 @@ export class BattlegroundScene extends Phaser.Scene {
 
 		this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
-		// Initialize event system per Architecture Proposal Item 3
-		this.eventEmitter = new SimpleEventEmitter();
 		initializeVisualizer();
 
 		const speed = getOption("speed");
@@ -185,9 +179,11 @@ export class BattlegroundScene extends Phaser.Scene {
 	};
 
 	update(time: number, delta: number): void {
+
+		//TODO: the board and combatrunner can plug themselves into the scene update via events 
+		//and remove themselves when not needed, instead of always updating every frame like this
 		Board.update(time);
 
-		// TODO: instead, we can have a "combat system", that informs if the simulation is running
 		if (this.combatRunner && this.combatRunner.isActive()) {
 			this.combatRunner.updateFrame(this.state, time, delta);
 		}
