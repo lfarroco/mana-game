@@ -3,7 +3,7 @@ import { getState } from "@Models/State";
 import { getName } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as PureShop from "@Systems/Shop/PureShop";
-import { emitSystemEvent } from "Client/Visualizer";
+import * as Events from "Client/Events";
 
 /**
  * Handle a unit purchase request from the shop
@@ -33,7 +33,7 @@ export async function itemClickPurchaseRequested(
 	// If validation failed, emit failure events and return
 	if (!purchaseResult.success) {
 		for (const event of purchaseResult.events) {
-			await emitSystemEvent(event);
+			await Events.emit(event);
 		}
 		return;
 	}
@@ -53,7 +53,7 @@ export async function itemClickPurchaseRequested(
 			shopCharaId,
 			dragStartPosition: { x: dragStartX, y: dragStartY },
 		};
-		await emitSystemEvent(failureEvent);
+		await Events.emit(failureEvent);
 		return;
 	}
 

@@ -1,24 +1,29 @@
 /**
- * System Events
+ * Client Events
  *
- * This module defines event types emitted by game systems.
- * Systems should be pure functions that accept game state and return events/mutations
- * instead of directly manipulating Phaser GameObjects.
+ * This module defines event types emitted by the game client.
+ * These events should not interact with server code or game logic directly.
+ * They are intended to manipulate game objects, trigger animations, 
+ * and update the UI in response to changes in game state.
+ * Systems should be pure functions that accept game state and return
+ * events/mutations instead of directly manipulating Phaser GameObjects.
  *
- * The Visualizer layer subscribes to these events and handles all visual updates.
  */
 
 import { Unit } from "@Models/Entities/Unit";
-
+import { eventHandlers } from "./Visualizer";
 
 export type ClientEvent = {
 	type: string;
 	timestamp: number;
 };
 
-// ============================================================================
+export type EventHandler<T extends ClientEvent> = (event: T) =>
+	void | Promise<void>;
+
+// ===========================================================================
 // Shop Events
-// ============================================================================
+// ===========================================================================
 
 export type ShopOpenedEvent = ClientEvent & {
 	type: "ShopOpened";
@@ -53,9 +58,9 @@ export type UnitSoldEvent = ClientEvent & {
 	unitId: string;
 };
 
-// ============================================================================
+// ===========================================================================
 // Unit Events
-// ============================================================================
+// ===========================================================================
 
 export type UnitSpawnedEvent = ClientEvent & {
 	type: "UnitSpawned";
@@ -81,9 +86,9 @@ export type UnitDestroyedEvent = ClientEvent & {
 	unitId: string;
 };
 
-// ============================================================================
+// ===========================================================================
 // Phase Events
-// ============================================================================
+// ===========================================================================
 
 export type PhaseSkippedEvent = ClientEvent & {
 	type: "PhaseSkipped";
@@ -100,9 +105,9 @@ export type PhaseEndedEvent = ClientEvent & {
 	phaseName: string;
 };
 
-// ============================================================================
+// ===========================================================================
 // UI Events
-// ============================================================================
+// ===========================================================================
 
 export type ResourcesChangedEvent = ClientEvent & {
 	type: "ResourcesChanged";
@@ -112,9 +117,9 @@ export type ResourcesChangedEvent = ClientEvent & {
 	round?: number;
 };
 
-// ============================================================================
+// ===========================================================================
 // Union Types
-// ============================================================================
+// ===========================================================================
 
 export type ShopEvent =
 	| ShopOpenedEvent
@@ -133,9 +138,9 @@ export type PhaseEvent = PhaseSkippedEvent | PhaseStartedEvent | PhaseEndedEvent
 
 export type AllSystemEvents = ShopEvent | UnitEvent | PhaseEvent | ResourcesChangedEvent;
 
-// ============================================================================
+// ===========================================================================
 // Event Creation Helpers
-// ============================================================================
+// ===========================================================================
 
 const createTimestamp = (): number => Date.now();
 
@@ -194,4 +199,29 @@ export const createPhaseSkippedEvent = (phaseName: string): PhaseSkippedEvent =>
 	type: "PhaseSkipped",
 	timestamp: createTimestamp(),
 	phaseName,
-});
+}); export function subscribe<T extends ClientEvent>(
+	eventType: T["type"],
+	handler: EventHandler<T>): void {
+	if (!eventHandlers.has(eventType)) {
+		eventHandlers.set(eventType, new Set());
+	}
+	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<ClientEvent>);
+}
+export async function emit(event: AllSystemEvents): Promise<void> {
+	const handlers = eventHandlers.get(event.type);
+	if (!handlers || handlers.size === 0) {
+		return;
+	}
+
+	const promises: Promise<void>[] = [];
+	for (const handler of handlers) {
+		const result = handler(event);
+		if (result instanceof Promise) {
+			promises.push(result);
+		}
+	}
+
+	if (promises.length > 0) {
+		await Promise.all(promises);
+	}
+}

@@ -5,12 +5,11 @@ import * as uiEvents from "@UI/events";
 import * as ShopUI from "@Systems/Shop/ShopPanel";
 import * as Geometry from "@Models/Geometry";
 import { createLogger } from "@Utils/Logger";
+import { EventHandler, subscribe } from "Client/Events";
 
 const logger = createLogger("Visualizer");
 
-type EventHandler<T extends SystemEvents.ClientEvent> = (event: T) => void | Promise<void>;
-
-const eventHandlers: Map<string, Set<EventHandler<SystemEvents.ClientEvent>>> = new Map();
+export const eventHandlers: Map<string, Set<EventHandler<SystemEvents.ClientEvent>>> = new Map();
 
 export function initializeVisualizer(): void {
 
@@ -25,38 +24,9 @@ export function initializeVisualizer(): void {
 
 }
 
-function subscribe<T extends SystemEvents.ClientEvent>(
-	eventType: T["type"],
-	handler: EventHandler<T>
-): void {
-	if (!eventHandlers.has(eventType)) {
-		eventHandlers.set(eventType, new Set());
-	}
-	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<SystemEvents.ClientEvent>);
-}
-
-export async function emit(event: SystemEvents.AllSystemEvents): Promise<void> {
-	const handlers = eventHandlers.get(event.type);
-	if (!handlers || handlers.size === 0) {
-		return;
-	}
-
-	const promises: Promise<void>[] = [];
-	for (const handler of handlers) {
-		const result = handler(event);
-		if (result instanceof Promise) {
-			promises.push(result);
-		}
-	}
-
-	if (promises.length > 0) {
-		await Promise.all(promises);
-	}
-}
-
-// ========================================================================
+// =============================================================================
 // Shop Event Handlers
-// ========================================================================
+// =============================================================================
 
 async function handleShopOpened(_event: SystemEvents.ShopOpenedEvent): Promise<void> {
 	logger.debug("Visualizer: Shop opened with cards:", _event.cardIds);
@@ -130,12 +100,4 @@ async function handleUnitUpgraded(event: SystemEvents.UnitUpgradedEvent): Promis
 	);
 
 	await Chara.upgradeUnit(event.unit);
-}
-
-/**
- * Emit a system event to the visualizer
- * This is a convenience function that can be called from anywhere
- */
-export async function emitSystemEvent(event: SystemEvents.AllSystemEvents): Promise<void> {
-	await emit(event);
 }

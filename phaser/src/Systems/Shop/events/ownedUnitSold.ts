@@ -3,7 +3,7 @@ import { getCharaById } from "@Systems/Chara/Chara";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import { getGameController } from "@Core/GameControllerFactory";
 import * as PureShop from "@Systems/Shop/PureShop";
-import { emitSystemEvent } from "Client/Visualizer";
+import * as Events from "Client/Events";
 
 /**
  * Handle a unit sale request
@@ -27,7 +27,7 @@ export function ownedUnitSold(unitId: string) {
 
 	// Step 4: Emit events for visual updates
 	for (const event of events) {
-		emitSystemEvent(event);
+		Events.emit(event);
 	}
 
 	// Step 5: Handle immediate visual cleanup
