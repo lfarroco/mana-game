@@ -2,6 +2,7 @@ import { getSeed, setSeed } from "@Utils/Random";
 import * as Phaser from "phaser";
 import * as _ from "../CrystalSelectionScene";
 
+
 export function keyboard(targetText: Phaser.GameObjects.Text) {
 	if (document.getElementById("virtual-keyboard")) return;
 
@@ -65,7 +66,6 @@ export function keyboard(targetText: Phaser.GameObjects.Text) {
 		"Back",
 		() => {
 			targetText.setText(`${getSeed()}`);
-			_.state.isSeededRun = false;
 			_.state.seedWarningText.setVisible(false);
 			if (document.body.contains(keyboardContainer)) {
 				document.body.removeChild(keyboardContainer);
@@ -114,21 +114,18 @@ export function keyboard(targetText: Phaser.GameObjects.Text) {
 				const newSeed = Date.now();
 				setSeed(newSeed);
 				targetText.setText(`${newSeed}`);
-				_.state.isSeededRun = false;
 				_.state.seedWarningText.setVisible(false);
 			} else {
 				const val = parseInt(targetText.text, 10);
 				if (!isNaN(val)) {
 					setSeed(val);
 					targetText.setText(`${val}`);
-					_.state.isSeededRun = true;
 					_.state.seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
 					const newSeed = Date.now();
 					setSeed(newSeed);
 					targetText.setText(`${newSeed}`);
-					_.state.isSeededRun = false;
 					_.state.seedWarningText.setVisible(false);
 				}
 			}
@@ -172,7 +169,6 @@ export function keyboard(targetText: Phaser.GameObjects.Text) {
 			const currentVal = parseInt(targetText.text, 10);
 			if (isNaN(currentVal) && targetText.text !== `${getSeed()}`) {
 				targetText.setText(`${getSeed()}`);
-				_.state.isSeededRun = false;
 				_.state.seedWarningText.setVisible(false);
 			}
 

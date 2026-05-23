@@ -6,6 +6,8 @@ export function cloudsBg() {
 	backgroundInstance = new CloudsBackground({
 		preset: "nebula",
 	});
+
+	return backgroundInstance;
 }
 
 export function getCloudsBg() {

@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
-import { getCurrentScene, getState } from "@Models/State";
+import { getState } from "@Models/State";
 import * as Board from "@Models/Board";
 import { getCharaById } from "@Systems/Chara/Chara";
 import {
@@ -40,6 +40,7 @@ import {
 	resolveKeyboardIntents,
 	shouldIgnoreShortcutEvent,
 } from "@Systems/Controls/intents";
+import * as io from "@PhaserIO";
 
 type InitOptions = {
 	context: ControlContext;
@@ -83,13 +84,11 @@ const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" 
 
 export function init(options: InitOptions) {
 
-	const scene = getCurrentScene();
-
 	if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
 		return;
 	}
 
-	const keyboard = scene.input.keyboard;
+	const keyboard = io.scene.input.keyboard;
 	let previousGamepadSnapshot: GamepadSnapshot | undefined;
 	let gamepadDragHoldState:
 		| {
@@ -111,7 +110,7 @@ export function init(options: InitOptions) {
 		}
 		| undefined;
 	const boardCursor =
-		options.context === "battleground" ? createBoardCursorController(scene) : null;
+		options.context === "battleground" ? createBoardCursorController(io.scene) : null;
 	let activeBattlegroundLayer: BattlegroundLayer = "board";
 	const menuButtonLabel = t("ui.menu.button");
 	const skipEncounterLabel = t("encounters.skip");
@@ -145,8 +144,8 @@ export function init(options: InitOptions) {
 		logger.info(`[input-debug] ${message}`, meta);
 	};
 
-	if (options.context === "buttons" && hasNavigableButtons(scene)) {
-		focusNextSceneButton(scene, "down");
+	if (options.context === "buttons" && hasNavigableButtons(io.scene)) {
+		focusNextSceneButton(io.scene, "down");
 	}
 
 	const getAvailableBattlegroundLayers = (): BattlegroundLayer[] => {
@@ -161,7 +160,7 @@ export function init(options: InitOptions) {
 		if (hasEncounterFocusTargets()) {
 			layers.push("encounter");
 		}
-		if (hasNavigableButtons(scene)) {
+		if (hasNavigableButtons(io.scene)) {
 			layers.push("buttons");
 		}
 
@@ -178,17 +177,17 @@ export function init(options: InitOptions) {
 		switch (activeBattlegroundLayer) {
 			case "buttons":
 				blurEncounterFocus();
-				if (!hasFocusedSceneButton(scene)) {
-					focusNextSceneButton(scene, "down");
+				if (!hasFocusedSceneButton(io.scene)) {
+					focusNextSceneButton(io.scene, "down");
 				}
 				return;
 			case "encounter":
-				clearSceneButtonFocus(scene);
+				clearSceneButtonFocus(io.scene);
 				ensureEncounterFocus();
 				return;
 			case "board":
 			default:
-				clearSceneButtonFocus(scene);
+				clearSceneButtonFocus(io.scene);
 				blurEncounterFocus();
 		}
 	};
@@ -236,7 +235,7 @@ export function init(options: InitOptions) {
 					activeBattlegroundLayer = "buttons";
 					applyBattlegroundLayerVisualState();
 				}
-				focusNextSceneButton(scene, intent.direction);
+				focusNextSceneButton(io.scene, intent.direction);
 				return;
 			case "navigateBoard":
 				if (options.context === "battleground") {
@@ -247,7 +246,7 @@ export function init(options: InitOptions) {
 						boardCursorX: boardCursor?.getState().cursor.x,
 						hasEncounterTargets: hasEncounterFocusTargets(),
 						hasFocusedEncounter: hasFocusedEncounterTarget(),
-						hasFocusedButton: hasFocusedSceneButton(scene),
+						hasFocusedButton: hasFocusedSceneButton(io.scene),
 					});
 
 					if (
@@ -269,8 +268,8 @@ export function init(options: InitOptions) {
 
 					switch (activeBattlegroundLayer) {
 						case "buttons":
-							if (hasNavigableButtons(scene)) {
-								const focusedButtonText = getFocusedSceneButtonText(scene);
+							if (hasNavigableButtons(io.scene)) {
+								const focusedButtonText = getFocusedSceneButtonText(io.scene);
 								if (
 									intent.direction === "up" &&
 									focusedButtonText &&
@@ -294,7 +293,7 @@ export function init(options: InitOptions) {
 									return;
 								}
 
-								focusNextSceneButton(scene, intent.direction);
+								focusNextSceneButton(io.scene, intent.direction);
 								return;
 							}
 							break;
@@ -322,8 +321,8 @@ export function init(options: InitOptions) {
 										logDebug("edge handoff: encounter(top) -> menu button", {
 											focusedEncounterIndex,
 										});
-										if (!focusSceneButtonByText(scene, menuButtonLabel)) {
-											focusNextSceneButton(scene, "up");
+										if (!focusSceneButtonByText(io.scene, menuButtonLabel)) {
+											focusNextSceneButton(io.scene, "up");
 										}
 										return;
 									}
@@ -331,10 +330,10 @@ export function init(options: InitOptions) {
 									if (intent.direction === "down" && focusedEncounterIndex === encounterCount - 1) {
 										logDebug("edge handoff: encounter(bottom) -> skip button", {
 											focusedEncounterIndex,
-											hasSkipButton: hasSceneButtonByText(scene, skipEncounterLabel),
+											hasSkipButton: hasSceneButtonByText(io.scene, skipEncounterLabel),
 										});
 
-										if (focusSceneButtonByText(scene, skipEncounterLabel)) {
+										if (focusSceneButtonByText(io.scene, skipEncounterLabel)) {
 											activeBattlegroundLayer = "buttons";
 											applyBattlegroundLayerVisualState();
 										}
@@ -381,7 +380,7 @@ export function init(options: InitOptions) {
 				if (options.context === "battleground") {
 					switch (activeBattlegroundLayer) {
 						case "buttons":
-							if (hasFocusedSceneButton(scene) && activateFocusedSceneButton(scene)) {
+							if (hasFocusedSceneButton(io.scene) && activateFocusedSceneButton(io.scene)) {
 								return;
 							}
 							break;
@@ -397,7 +396,7 @@ export function init(options: InitOptions) {
 							break;
 					}
 
-					if (hasFocusedSceneButton(scene) && activateFocusedSceneButton(scene)) {
+					if (hasFocusedSceneButton(io.scene) && activateFocusedSceneButton(io.scene)) {
 						return;
 					}
 					if (await confirmEncounterFocus()) {
@@ -407,13 +406,13 @@ export function init(options: InitOptions) {
 					return;
 				}
 
-				if (hasFocusedSceneButton(scene)) {
-					activateFocusedSceneButton(scene);
+				if (hasFocusedSceneButton(io.scene)) {
+					activateFocusedSceneButton(io.scene);
 				}
 				return;
 			case "cancel":
 				if (options.context === "battleground" && activeBattlegroundLayer === "buttons") {
-					clearSceneButtonFocus(scene);
+					clearSceneButtonFocus(io.scene);
 					activeBattlegroundLayer = "board";
 					applyBattlegroundLayerVisualState();
 					return;
@@ -470,7 +469,7 @@ export function init(options: InitOptions) {
 					unitId: selectedUnitId,
 					origin: { x: selectedChara.x, y: selectedChara.y },
 				};
-				scene.children.bringToTop(selectedChara);
+				io.scene.children.bringToTop(selectedChara);
 			}
 
 			const tilePosition = getBoardCursorTilePosition(boardState.cursor);
@@ -593,7 +592,7 @@ export function init(options: InitOptions) {
 		}
 		updateBoardHoldVisual();
 
-		const snapshot = getGamepadSnapshot(scene);
+		const snapshot = getGamepadSnapshot(io.scene);
 		if (!snapshot) {
 			gamepadDragHoldState = undefined;
 			previousGamepadSnapshot = undefined;
@@ -676,13 +675,13 @@ export function init(options: InitOptions) {
 		}
 	};
 
-	scene.events.on(Phaser.Scenes.Events.UPDATE, onUpdate);
-	scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+	io.scene.events.on(Phaser.Scenes.Events.UPDATE, onUpdate);
+	io.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
 		keyboard?.off("keydown", onKeyDown);
 		keyboard?.off("keyup", onKeyUp);
-		scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
+		io.scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
 		resetBoardHoldVisual();
 		boardCursor?.destroy();
-		clearSceneButtonFocus(scene);
+		clearSceneButtonFocus(io.scene);
 	});
 }

@@ -2,8 +2,10 @@ import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { getSeed } from "@Utils/Random";
 import * as Phaser from "phaser";
-import * as CrystalSelectionScene from "../CrystalSelectionScene";
+import * as _ from "../CrystalSelectionScene";
 import { keyboard } from "./keyboard";
+
+let seedText: Phaser.GameObjects.Text;
 
 export function seedInput() {
 	const currentSeed = getSeed();
@@ -13,13 +15,11 @@ export function seedInput() {
 	const width = 200;
 	const height = 40;
 
-	// Input Background
 	const bg = io.scene.add.rectangle(x, y, width, height, 0x000000, 0.5)
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
 
-	// Seed Label
 	io.Text("Seed: ", {
 		...constants.defaultTextConfig,
 		fontSize: "24px",
@@ -28,8 +28,7 @@ export function seedInput() {
 		.setOrigin(1, 0.5)
 		.setPosition(x - width - 10, y - height / 2);
 
-	// Seed Text
-	CrystalSelectionScene.state.seedText = io
+	seedText = io
 		.Text(`${currentSeed}`, {
 			...constants.defaultTextConfig,
 			fontSize: "24px",
@@ -38,8 +37,7 @@ export function seedInput() {
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
 
-	// Warning Text
-	CrystalSelectionScene.state.seedWarningText = io
+	_.state.seedWarningText = io
 		.Text("Unlocks and stats disabled when using a custom seed", {
 			...constants.defaultTextConfig,
 			fontSize: "16px",
@@ -51,14 +49,14 @@ export function seedInput() {
 
 	// Events
 	bg.on("pointerdown", () => {
-		keyboard(CrystalSelectionScene.state.seedText);
+		keyboard(seedText);
 	});
 
 	// Hover effects
 	bg.on("pointerover", () => bg.setStrokeStyle(1, 0xffffff));
 	bg.on("pointerout", () => bg.setStrokeStyle(1, 0x888888));
 
-	io.scene.add.existing(CrystalSelectionScene.state.seedText);
+	io.scene.add.existing(seedText);
 
 	// Cleanup on scene shutdown
 	io.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {

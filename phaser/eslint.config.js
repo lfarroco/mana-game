@@ -59,9 +59,9 @@ export default [
 				{
 					patterns: [
 						{
-							group: ["../*"],
+							group: ["../../*"],
 							message:
-								"Use path aliases (e.g. @Models/, @Systems/, @Core/) instead of relative cross-directory imports.",
+								"Use path aliases (e.g. @Models/, @Systems/, @Core/) instead of long relative cross-directory imports.",
 						},
 					],
 				},
