@@ -32,28 +32,8 @@ export type BattlegroundSceneData = {
 	selectedCrystalId?: string;
 	sessionType: Local | Online;
 };
-// cleanup() {
-// 		// Stop the combat runner if it exists
-// 		if (this.combatRunner) {
-// 			this.combatRunner.stop();
-// 			this.combatRunner = undefined;
-// 		}
-
-// 		Chara.clearAll();
-// 		this.time.removeAllEvents();
-// 		this.children.removeAll(true);
-
-// 		cloudsBackground?.destroy();
-// 		cloudsBackground = null;
-
-// 		UIManager.destroy();
-// 		playerNamesDisplay.destroy();
-// 	}
-
 
 export const createBattlegroundScreen = async (data: BattlegroundSceneData) => {
-
-	//this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.cleanup, this);
 
 	const speed = OptionsStore.getOption("speed");
 	io.scene.time.timeScale = speed;

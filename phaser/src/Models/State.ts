@@ -4,7 +4,6 @@ import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
 import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
-import Core from "Client/Screens/Preload/Preload";
 
 export type State = {
 	savedGames: string[];
@@ -53,53 +52,34 @@ const initialState = (): State => {
 	};
 };
 
-const state: {
-	currentState: State;
-} = {} as { currentState: State };
-
-export const initState = () => {
-	state.currentState = initialState();
-};
-
-export function resetState() {
-	state.currentState = initialState();
-	setSeed(stringToSeed(state.currentState.session.seed));
-}
-
+const state = initialState();
 declare global {
-	var state: {
-		currentState: State;
-	};
+	var state: State;
 }
 if (typeof window !== "undefined") {
 	window.state = state;
 }
 
-/**
- * Use this only for client-side operations
- * For anything related to combat, use state as a parameter
- */
-export const getState = (): State => {
-	return state.currentState;
-};
+export function resetState() {
+	const newState = initialState();
+
+	setState(newState);
+
+	setSeed(stringToSeed(state.session.seed));
+}
+
 
 /**
  * Update the global game state
  * Used primarily for testing and scene transitions
  */
 export const setState = (newState: State): void => {
-	state.currentState = newState;
+	for (const key in state) {
+		(state as Record<string, unknown>)[key] = (newState as Record<string, unknown>)[key];
+	}
 	setSeed(stringToSeed(newState.session.seed));
 };
 
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
 	return units.find((u) => eqVec2(u.position, position));
 };
-
-const currentScene = {
-	scene: {} as Core,
-};
-
-export const setCurrentScene = (scene: Core): void => {
-	currentScene.scene = scene;
-}
