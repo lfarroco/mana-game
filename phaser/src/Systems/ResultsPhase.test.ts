@@ -19,7 +19,7 @@ jest.mock("@Systems/AudioManager", () => ({
 	playSoundEffect: jest.fn(),
 }));
 
-jest.mock("@Scenes/Battleground/Results/ResultsUI", () => ({
+jest.mock("@Screens/Battleground/Results/ResultsUI", () => ({
 	displayResults: (...args: unknown[]) => mockDisplayResults(...args),
 	slideIn: () => mockSlideIn(),
 }));
@@ -29,7 +29,7 @@ jest.mock("@Systems/PrestigeSystem", () => ({
 	processDefeat: () => mockProcessDefeat(),
 }));
 
-jest.mock("@Scenes/Battleground/PhaseManager", () => ({
+jest.mock("@Screens/Battleground/PhaseManager", () => ({
 	resetBoard: (...args: unknown[]) =>
 		mockResetBoard(...(args as Parameters<typeof mockResetBoard>)),
 	getServerAdapter: () => ({
@@ -63,7 +63,7 @@ jest.mock("@i18n/i18n", () => ({
 	getName: (cardId: string) => cardId,
 }));
 
-jest.mock("@Scenes/Battleground/RunCombatIO", () => ({
+jest.mock("@Screens/Battleground/RunCombatIO", () => ({
 	replayCombat: jest.fn(),
 	storeCombatResult: jest.fn(),
 }));

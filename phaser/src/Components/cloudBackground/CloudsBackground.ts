@@ -1,9 +1,9 @@
 import * as Phaser from "phaser";
 import { cloudsBackgroundShader } from "@Shaders/CloudsBackground";
 import { colorPresets, IColorPreset } from "@Constants/colorPresets";
-import { getCurrentScene } from "@Models/State";
 import { getOption } from "@Models/OptionsStore";
 import { createLogger } from "@Utils/Logger";
+import * as io from "@PhaserIO";
 
 const logger = createLogger("CloudsBackground");
 
@@ -46,16 +46,21 @@ export class CloudsBackground {
 	private renderColors: IColorPreset;
 	private currentTween: Phaser.Tweens.Tween | null = null;
 	constructor(config: CloudsBackgroundConfig = {}) {
-		const scene = getCurrentScene();
+		const scene = this.resolveScene();
 		this.scene = scene;
+
+		const viewportWidth =
+			scene.scale?.width ?? scene.cameras?.main?.width ?? scene.game?.scale?.width ?? 1280;
+		const viewportHeight =
+			scene.scale?.height ?? scene.cameras?.main?.height ?? scene.game?.scale?.height ?? 720;
 
 		// Set default configuration
 		this.preset = config.preset || "nebula";
 		this.customColors = config.customColors;
-		this.x = config.x !== undefined ? config.x : scene.scale.width / 2;
-		this.y = config.y !== undefined ? config.y : scene.scale.height / 2;
-		this.width = config.width !== undefined ? config.width : scene.scale.width;
-		this.height = config.height !== undefined ? config.height : scene.scale.height;
+		this.x = config.x !== undefined ? config.x : viewportWidth / 2;
+		this.y = config.y !== undefined ? config.y : viewportHeight / 2;
+		this.width = config.width !== undefined ? config.width : viewportWidth;
+		this.height = config.height !== undefined ? config.height : viewportHeight;
 		this.depth = config.depth !== undefined ? config.depth : -1000;
 		this.alpha = config.alpha !== undefined ? config.alpha : 1;
 		this.timeScale = config.timeScale !== undefined ? config.timeScale : 1.0;
@@ -69,6 +74,12 @@ export class CloudsBackground {
 		}
 
 		this.createShader();
+	}
+
+	private resolveScene(): Phaser.Scene {
+
+		return io.scene;
+
 	}
 
 	private createShader(): void {

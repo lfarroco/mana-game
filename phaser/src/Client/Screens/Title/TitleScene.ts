@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { arenaButton } from "Client/Screens/Title/components/arenaButton";
-import { cloudsBg } from "Client/Screens/Title/components/cloudsBg";
+import * as cloudsBg from "Client/Screens/Title/components/cloudsBg";
 import { optionsButton } from "Client/Screens/Title/components/optionsButton";
 import { logo } from "Client/Screens/Title/components/logo";
 import { howToPlay } from "Client/Screens/Title/components/howToPlay";
@@ -28,7 +28,7 @@ export function showMainButtons() {
 
 export function renderTitleScreen() {
 
-	cloudsBg();
+	cloudsBg.cloudsBg();
 
 	Tooltip.init();
 

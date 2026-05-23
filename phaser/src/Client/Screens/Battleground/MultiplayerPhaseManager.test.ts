@@ -27,11 +27,11 @@ jest.mock("@Models/State", () => ({
 }));
 
 jest.mock("@Systems/Encounter", () => ({ open: jest.fn(), __esModule: true }));
-jest.mock("@Scenes/Battleground/BrowserCombatEffects", () => ({
+jest.mock("@Screens/Battleground/BrowserCombatEffects", () => ({
 	createBrowserCombatEffects: jest.fn(),
 	__esModule: true,
 }));
-jest.mock("@Scenes/Battleground/CombatPlaybackController", () => ({
+jest.mock("@Screens/Battleground/CombatPlaybackController", () => ({
 	createCombatPlaybackController: jest.fn(),
 	__esModule: true,
 }));
@@ -56,14 +56,14 @@ jest.mock("@Models/Board", () => ({
 	setEnemyBoardVisible: jest.fn(),
 	__esModule: true,
 }));
-jest.mock("@Scenes/Battleground/Results/ResultsUI", () => ({
+jest.mock("@Screens/Battleground/Results/ResultsUI", () => ({
 	displayResults: jest.fn(),
 	displayGameCompleteResults: jest.fn(),
 	slideIn: jest.fn(),
 	__esModule: true,
 }));
 jest.mock("@Systems/Chara/Animations", () => ({ shatter: jest.fn(), __esModule: true }));
-jest.mock("@Scenes/Battleground/ForceStats", () => ({
+jest.mock("@Screens/Battleground/ForceStats", () => ({
 	destroyForceStats: jest.fn((state: unknown) => state),
 	syncPlayerPersistentForceStats: jest.fn((state: unknown) => state),
 	__esModule: true,
@@ -106,7 +106,7 @@ jest.mock("@Systems/Shop/EffectCardShop", () => ({
 	openUpgradeCorePhase: jest.fn(),
 	__esModule: true,
 }));
-jest.mock("@Scenes/Battleground/PhaseManager", () => ({
+jest.mock("@Screens/Battleground/PhaseManager", () => ({
 	resetBoard: jest.fn(async () => undefined),
 	__esModule: true,
 }));
@@ -318,7 +318,7 @@ describe("MultiplayerPhaseManager terminal phases", () => {
 		expect(mockShatter).toHaveBeenCalled();
 		expect(mockSetEnemyBoardVisible).toHaveBeenCalledWith(true);
 		expect(mockSetEnemyBoardVisible).not.toHaveBeenCalledWith(false);
-		const forceStatsModule = jest.requireMock("@Scenes/Battleground/ForceStats") as {
+		const forceStatsModule = jest.requireMock("@Screens/Battleground/ForceStats") as {
 			destroyForceStats: jest.Mock;
 			syncPlayerPersistentForceStats: jest.Mock;
 		};

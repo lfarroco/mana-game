@@ -141,7 +141,7 @@ For the Combat system specifically, consider moving further toward an Entity-Com
 - **Directory Structure Update (Isolating View Logic)**:
     - Created `src/Engine` directory.
     - Moved `src/Scenes` to `src/Engine/Scenes` to distinguish View logic from Core logic and other Systems.
-    - Updated `tsconfig.json`, Webpack configurations (`config.dev.cjs`, `config.prod.cjs`), and Jest configuration to map `@Scenes` to `src/Engine/Scenes`.
+    - Updated `tsconfig.json`, Webpack configurations (`config.dev.cjs`, `config.prod.cjs`), and Jest configuration to map `@Screens` to `src/Engine/Scenes`.
     - Added new path aliases to `tsconfig.json` and `jest.config.cjs` to simplify imports and resolve compilation errors: `@Data`, `@Game`, `@TriggerSystem`, `@config`, `@assets`, `@utils`.
     - Refactored relative imports throughout the codebase to align with the new directory structure, replacing broken relative imports with consistent aliases.
 - **Systems Consolidation (Step 1 from Section 6)**:

@@ -9,8 +9,8 @@
             "@Models/*": [
                 "./src/Models/*"
             ],
-            "@Scenes/*": [
-                "./src/Engine/Scenes/*"
+            "@Screens/*": [
+                "./src/Client/Screens/*"
             ],
             "@Systems/*": [
                 "./src/Systems/*"

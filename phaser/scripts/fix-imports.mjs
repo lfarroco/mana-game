@@ -13,7 +13,7 @@ const SRC_DIR = resolve(import.meta.dirname, "../src");
 // Maps from src-relative directory prefix to alias prefix
 // Order matters: more-specific first
 const ALIAS_MAP = [
-	["Engine/Scenes", "@Scenes"],
+	["Engine/Scenes", "@Screens"],
 	["TriggerSystem", "@TriggerSystem"],
 	["Components", "@Components"],
 	["Multiplayer", "@Multiplayer"],

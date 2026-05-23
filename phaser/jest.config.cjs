@@ -21,8 +21,8 @@ module.exports = {
 	moduleNameMapper: {
 		"^@Models/(.*)\\.js$": "<rootDir>/src/Models/$1",
 		"^@Models/(.*)$": "<rootDir>/src/Models/$1",
-		"^@Scenes/(.*)\\.js$": "<rootDir>/src/Client/Screens/$1",
-		"^@Scenes/(.*)$": "<rootDir>/src/Client/Screens/$1",
+		"^@Screens/(.*)\\.js$": "<rootDir>/src/Client/Screens/$1",
+		"^@Screens/(.*)$": "<rootDir>/src/Client/Screens/$1",
 		"^@Systems/(.*)\\.js$": "<rootDir>/src/Systems/$1",
 		"^@Systems/(.*)$": "<rootDir>/src/Systems/$1",
 		"^@UI/(.*)\\.js$": "<rootDir>/src/UI/$1",

@@ -40,7 +40,7 @@
 			"@Engine/*": [
 				"../phaser/src/Engine/*"
 			],
-			"@Scenes/*": [
+			"@Screens/*": [
 				"../phaser/src/Engine/Scenes/*"
 			],
 			"@UI/*": [

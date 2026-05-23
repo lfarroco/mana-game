@@ -24,8 +24,6 @@ import * as io from "@PhaserIO";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
-let cloudsBackground: CloudsBackground.CloudsBackground | null = null;
-
 type Local = { type: "local" }
 type Online = { type: "online", queueType: MultiplayerTypes.MultiplayerQueueType }
 
@@ -87,13 +85,12 @@ const start = async ({
 		MultiplayerManager.disableMultiplayer();
 	}
 
-	console.log("???", state.session)
-
 	new CloudsBackground.CloudsBackground({
 		preset: "forest",
 		depth: -2000,
 		timeScale: 0.3,
 	});
+
 
 	// from here, check state to figure out what to render
 	//if (state.session.phase === ...

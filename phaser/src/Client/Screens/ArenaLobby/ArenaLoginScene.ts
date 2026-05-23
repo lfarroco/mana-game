@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import {
 	defaultTextConfig,
 	MIDDLE_SCREEN,
-	SCENE_KEYS,
 	SCREEN_HEIGHT,
 	SCREEN_WIDTH,
 	titleTextConfig,
@@ -23,7 +22,6 @@ import {
 	handleRegisteredAccountUpdate,
 	handleSteamAuth,
 } from "@Multiplayer/MultiplayerManager";
-import { setCurrentScene } from "@Models/State";
 import { isElectron } from "@Utils/environment";
 import { createLogger } from "@Utils/Logger";
 import {
@@ -108,12 +106,8 @@ export class ArenaLoginScene extends Phaser.Scene {
 	private buttons: Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
 	private forgotPasswordLink?: HTMLButtonElement | null;
-	private returnSceneKey: string = SCENE_KEYS.TITLE;
 	private accountDefaults: { username?: string; email?: string } = {};
 
-	constructor() {
-		super(SCENE_KEYS.ARENA_LOGIN);
-	}
 
 	init(data?: ArenaLoginSceneData) {
 		this.guestUpgradeMode = data?.mode === "convertGuestAccount";
@@ -121,12 +115,10 @@ export class ArenaLoginScene extends Phaser.Scene {
 		this.isRegisterMode =
 			this.guestUpgradeMode || this.accountManagementMode || data?.mode === "register";
 		this.isForgotPasswordMode = false;
-		this.returnSceneKey = data?.returnSceneKey || SCENE_KEYS.TITLE;
 		this.accountDefaults = {};
 	}
 
 	create() {
-		setCurrentScene(this);
 		new CloudsBackground({
 			customColors: ARENA_BACKGROUND_SHADER_COLORS,
 			timeScale: 0.9,
@@ -323,7 +315,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
 				callback: () => {
 					if (this.accountManagementMode || this.guestUpgradeMode) {
-						this.scene.start(this.returnSceneKey);
+						//this.scene.start(this.returnSceneKey);
 						return;
 					}
 
@@ -408,7 +400,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				text: t("ui.menu.back"),
 				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
 				callback: () => {
-					this.scene.start(SCENE_KEYS.TITLE);
+					//this.scene.start(SCENE_KEYS.TITLE);
 				},
 				width: FULL_WIDTH_BUTTON,
 			});
@@ -537,7 +529,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				throw new Error("Login succeeded but no profile id was returned");
 			}
 			localStorage.setItem("mana_player_id", profile.id);
-			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			//this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
 			this.showModal("Login Failed", (e as Error).message);
 			this.setLoading(false);
@@ -574,7 +566,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					"Account Updated",
 					"Your username was updated.",
 					() => {
-						this.scene.start(this.returnSceneKey);
+						//this.scene.start(this.returnSceneKey);
 					},
 					{
 						width: ACCOUNT_UPDATED_MODAL_WIDTH,
@@ -594,7 +586,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 					"Account Updated",
 					"Your guest account can now use these login details. If a confirmation email was sent, confirm it to finish setup.",
 					() => {
-						this.scene.start(this.returnSceneKey);
+						//this.scene.start(this.returnSceneKey);
 					},
 					{
 						width: ACCOUNT_UPDATED_MODAL_WIDTH,
@@ -623,7 +615,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			} else if (result?.id) {
 				localStorage.setItem("mana_player_id", result.id);
 				// this.showModal("Success", "Registration Successful!");
-				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+				// this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 			} else {
 				throw new Error("Registration succeeded but no profile id was returned");
 			}
@@ -641,7 +633,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				throw new Error("Guest login failed to return profile id");
 			}
 			localStorage.setItem("mana_player_id", profile.id);
-			this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+			//this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 		} catch (e) {
 			logger.error("Guest login failed", e);
 			this.showModal("Guest Login Failed", (e as Error).message);
@@ -655,7 +647,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			const profile = await handleSteamAuth();
 			if (profile?.id) {
 				localStorage.setItem("mana_player_id", profile.id);
-				this.scene.start(SCENE_KEYS.ARENA_LOBBY);
+				//this.scene.start(SCENE_KEYS.ARENA_LOBBY);
 			}
 		} catch (e) {
 			logger.error("Steam Login Failed:", e);

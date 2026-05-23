@@ -9,7 +9,7 @@ declare module "@TriggerSystem/*";
 declare module "@Storage/*";
 declare module "@Effects/*";
 declare module "@Engine/*";
-declare module "@Scenes/*";
+declare module "@Screens/*";
 declare module "@UI/*";
 declare module "@Constants/*";
 declare module "@Components/*";

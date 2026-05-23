@@ -7,7 +7,7 @@ import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Screens/Title/components/collectionButton";
 import * as io from "@PhaserIO";
-import * as TitleScene from "@Scenes/Title/TitleScene";
+import * as TitleScene from "@Screens/Title/TitleScene";
 
 let submenuContainer: Container;
 

@@ -1,11 +1,8 @@
 import { images } from "@assets";
-import { SCENE_KEYS } from "@Constants/constants";
-import { BattlegroundScene } from "Client/Screens/Battleground/BattlegroundScene";
 import * as effects from "@Effects/index";
 import { Button, createUIButton } from "@Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { setCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("DebugScene");
@@ -149,8 +146,8 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		scene.time.addEvent({
 			delay: 1200,
 			callback: () => {
-				effects.summonEffect(scene, { x: 100, y: 100 });
-				effects.summonEffect(scene, { x: 200, y: 200 });
+				effects.summonEffect({ x: 100, y: 100 });
+				effects.summonEffect({ x: 200, y: 200 });
 			},
 			repeat: -1,
 		});
@@ -183,20 +180,6 @@ export class DebugScene extends Phaser.Scene {
 	}
 
 	create() {
-		setCurrentScene(this);
-		// Ensure a headless battleground scene exists for effects that depend on its globals/systems.
-		if (!this.scene.get(SCENE_KEYS.BATTLEGROUND)) {
-			logger.debug(
-				"[DebugScene] Adding headless BattlegroundScene instance for effect dependencies."
-			);
-			this.scene.add(SCENE_KEYS.BATTLEGROUND, BattlegroundScene, true, { headless: true });
-		} else {
-			const bg = this.scene.get(SCENE_KEYS.BATTLEGROUND) as BattlegroundScene;
-			if (!bg.scene.isActive()) {
-				logger.debug("[DebugScene] Launching existing BattlegroundScene in headless mode.");
-				this.scene.launch(SCENE_KEYS.BATTLEGROUND, { headless: true });
-			}
-		}
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const effect = urlParams.get("vieweffect")?.toLowerCase();
@@ -251,7 +234,7 @@ export class DebugScene extends Phaser.Scene {
 			text: "EXIT",
 			position: vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
 			callback: () => {
-				this.scene.start(constants.SCENE_KEYS.TITLE);
+				//this.scene.start(constants.SCENE_KEYS.TITLE);
 			},
 			width: 200,
 		});

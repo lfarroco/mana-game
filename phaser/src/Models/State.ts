@@ -4,7 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
 import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
-import Core from "Client/Screens/Core/Core";
+import Core from "Client/Screens/Preload/Preload";
 
 export type State = {
 	savedGames: string[];
@@ -100,10 +100,6 @@ const currentScene = {
 	scene: {} as Core,
 };
 
-export const setCurrentScene = (scene: Core) => {
+export const setCurrentScene = (scene: Core): void => {
 	currentScene.scene = scene;
-};
-
-export const getCurrentScene = (): Core => {
-	return currentScene.scene;
-};
+}

@@ -1,7 +1,5 @@
 import * as Phaser from "phaser";
-import * as constants from "@Constants/constants";
 import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
-import { setCurrentScene } from "@Models/State";
 import { returnToTitle } from "Client/Screens/Options/effects/returnToTitle";
 import { showTab } from "Client/Screens/Options/components/effects/showTab";
 import { backButton } from "Client/Screens/Options/components/backButton";
@@ -49,12 +47,7 @@ export const STYLES = {
 export default class OptionsScene extends Phaser.Scene {
 	cloudsBackground!: CloudsBackground;
 
-	constructor() {
-		super(constants.SCENE_KEYS.OPTIONS);
-	}
-
 	create() {
-		setCurrentScene(this);
 
 		this.cloudsBackground = new CloudsBackground({ preset: "aurora" });
 
@@ -66,6 +59,6 @@ export default class OptionsScene extends Phaser.Scene {
 
 		backButton();
 
-		ControlsSystem.init(this, { context: "buttons", onCancel: returnToTitle });
+		ControlsSystem.init({ context: "buttons", onCancel: returnToTitle });
 	}
 }

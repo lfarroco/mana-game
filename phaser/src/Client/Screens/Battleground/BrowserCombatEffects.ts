@@ -1,4 +1,4 @@
-import { State, getCurrentScene } from "@Models/State";
+import * as State from "@Models/State";
 import { CombatEffects, WaveOutcome } from "Client/Screens/Battleground/RunCombatCore";
 import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
@@ -29,6 +29,7 @@ import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constan
 import { getState } from "@Models/State";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { createLogger } from "@Utils/Logger";
+import * as io from "@PhaserIO"
 
 const logger = createLogger("BrowserCombatEffects");
 
@@ -46,7 +47,7 @@ export const createBrowserCombatEffects = (
 		},
 
 		onCombatEnd: async (
-			state: State,
+			state: State.State,
 			outcome: WaveOutcome,
 			combatStates: CombatSystemStates.CombatSystemStates
 		) => {
@@ -89,11 +90,11 @@ export const createBrowserCombatEffects = (
 		},
 
 		getTimeScale: () => {
-			return getCurrentScene().time.timeScale;
+			return io.scene.time.timeScale;
 		},
 
 		getScene: () => {
-			return getCurrentScene();
+			return io.scene;
 		},
 
 		updateLifeDisplay: (
@@ -128,9 +129,9 @@ export const createBrowserCombatEffects = (
 
 		initCountdownTimer: (blackHoleState: BlackHoleState | null) => {
 			if (!blackHoleState) {
-				return CountdownTimer.initializeCountdownTimer(getCurrentScene(), initBlackHole());
+				return CountdownTimer.initializeCountdownTimer(io.scene, initBlackHole());
 			}
-			return CountdownTimer.initializeCountdownTimer(getCurrentScene(), blackHoleState);
+			return CountdownTimer.initializeCountdownTimer(io.scene, blackHoleState);
 		},
 
 		startCountdownTimer: (timerState: CountdownTimerState) => {
@@ -152,7 +153,7 @@ export const createBrowserCombatEffects = (
 
 		onReactionVisual: async (unitId: string) => {
 			const chara = getCharaById(unitId);
-			summonEffect(getCurrentScene(), chara);
+			summonEffect(chara);
 		},
 
 		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {

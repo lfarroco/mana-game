@@ -19,7 +19,7 @@ jest.mock("@Models/State", () => ({
 	__esModule: true,
 }));
 
-jest.mock("@Scenes/Battleground/PhaseManager", () => ({
+jest.mock("@Screens/Battleground/PhaseManager", () => ({
 	startPhase: jest.fn(),
 	__esModule: true,
 }));

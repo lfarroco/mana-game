@@ -3,13 +3,10 @@ import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { DISABLE_ASSETS } from "@config";
 import * as TitleScene from "Client/Screens/Title/TitleScene";
-import { setCurrentScene } from "@Models/State";
-import { initPhaserIO } from "@PhaserIO";
+import * as io from "@PhaserIO";
+import * as State from "@Models/State"
 
 export default class Core extends Phaser.Scene {
-    constructor() {
-        super("CoreScene");
-    }
 
     preload() {
 
@@ -72,30 +69,32 @@ export default class Core extends Phaser.Scene {
     }
 
     loadUIAssets() {
-
         this.load.image(images.logo);
-        this.load.image("ui/armory", "assets/ui/armory.png");
-        this.load.image("ui/assassin", "assets/ui/assassin.png");
-        this.load.image("ui/commander", "assets/ui/commander.png");
-        this.load.image("ui/dark_ritual", "assets/ui/dark_ritual.png");
-        this.load.image("ui/forest_pools", "assets/ui/forest_pools.png");
-        this.load.image("ui/frontier_fort", "assets/ui/frontier_fort.png");
-        this.load.image("ui/improve_damage", "assets/ui/improve_damage.png");
-        this.load.image("ui/improve_haste", "assets/ui/improve_haste.png");
-        this.load.image("ui/improve_heal", "assets/ui/improve_heal.png");
-        this.load.image("ui/improve_regen", "assets/ui/improve_regen.png");
-        this.load.image("ui/improve_shield", "assets/ui/improve_shield.png");
-        this.load.image("ui/improve_slow", "assets/ui/improve_slow.png");
-        this.load.image("ui/power_distributor", "assets/ui/power_distributor.png");
-        this.load.image("ui/power_absorber", "assets/ui/power_absorber.png");
-        this.load.image("ui/sacrifice", "assets/ui/sacrifice.png");
-        this.load.image("ui/thunder_spire", "assets/ui/thunder_spire.png");
-        this.load.image("ui/toxic", "assets/ui/toxic.png");
-        this.load.image("ui/trial_circuit", "assets/ui/trial_circuit.png");
-        this.load.image("ui/upgrade_unit", "assets/ui/upgrade_unit.png");
-        this.load.image("ui/silver_medal", "assets/ui/silver_medal.png");
-        this.load.image("ui/gold_medal", "assets/ui/gold_medal.png");
-
+        [
+            "ui/armory",
+            "ui/assassin",
+            "ui/commander",
+            "ui/dark_ritual",
+            "ui/forest_pools",
+            "ui/frontier_fort",
+            "ui/improve_damage",
+            "ui/improve_haste",
+            "ui/improve_heal",
+            "ui/improve_regen",
+            "ui/improve_shield",
+            "ui/improve_slow",
+            "ui/power_distributor",
+            "ui/power_absorber",
+            "ui/sacrifice",
+            "ui/thunder_spire",
+            "ui/toxic",
+            "ui/trial_circuit",
+            "ui/upgrade_unit",
+            "ui/silver_medal",
+            "ui/gold_medal"
+        ].forEach((key) =>
+            this.load.image(key, `assets/${key}.png`)
+        );
     }
 
     loadUnitAssets() {
@@ -158,8 +157,9 @@ export default class Core extends Phaser.Scene {
 
     create() {
 
-        setCurrentScene(this);
-        initPhaserIO(this);
+        State.setCurrentScene(this);
+
+        io.initPhaserIO(this);
         registerCollection(BASE_COLLECTION_DATA);
 
         TitleScene.renderTitleScreen();

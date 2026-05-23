@@ -5,7 +5,6 @@ import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
 import * as c from "@Constants/constants";
-import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { createPanel } from "@Components/Panel";
 import { getName, t } from "@i18n/i18n";
@@ -88,13 +87,13 @@ async function createStatsPanel(
 		const poison = Math.floor(stats.poisonApplied);
 		const regen = Math.floor(stats.regenApplied);
 
-		const sprite = getCurrentScene().add.sprite(
+		const sprite = io.scene.add.sprite(
 			position.x - PANEL_CONFIG.width / 2 + padding + 25,
 			currentY,
 			unit.pic
 		);
 
-		const frameNames = getCurrentScene().textures.get(unit.pic).getFrameNames();
+		const frameNames = io.scene.textures.get(unit.pic).getFrameNames();
 		const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 		idleFrames.sort((a, b) => {
 			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -109,7 +108,7 @@ async function createStatsPanel(
 			sprite.setFlipX(true);
 		}
 
-		if (getCurrentScene().anims.exists(unit.pic + "_idle")) {
+		if (io.scene.anims.exists(unit.pic + "_idle")) {
 			sprite.play(unit.pic + "_idle");
 		}
 
@@ -143,7 +142,7 @@ async function createStatsPanel(
 					[...effectBlocks, ...reactionBlocks].join("\n") || t("combatStats.tooltip.noAbilities");
 				const description = [statsBlock, descriptionString].join("\n");
 
-				const screenWidth = getCurrentScene().sys.game.config.width as number;
+				const screenWidth = io.scene.sys.game.config.width as number;
 				const isRightSide = sprite.x > screenWidth / 2;
 				const TOOLTIP_OFFSET_X = 300;
 				const tooltipX = isRightSide ? sprite.x - TOOLTIP_OFFSET_X : sprite.x + TOOLTIP_OFFSET_X;

@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import {
 	defaultTextConfig,
 	MIDDLE_SCREEN,
-	SCENE_KEYS,
 	SCREEN_HEIGHT,
 	SCREEN_WIDTH,
 	titleTextConfig,
@@ -22,7 +21,6 @@ import {
 	getTopRankedPlayers,
 } from "@Multiplayer/MultiplayerManager";
 
-import { setCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
 import {
@@ -130,14 +128,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private rankingNextButton?: Button;
 	private rankingCurrentPage: number = 1;
 	private accountButton?: Button;
-	private accountState = { isGuest: false };
-
-	constructor() {
-		super(SCENE_KEYS.ARENA_LOBBY);
-	}
 
 	create() {
-		setCurrentScene(this);
 		this.buttons = [];
 		this.rankingButtons = [];
 		this.rankingRows = [];
@@ -148,7 +140,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingNextButton = undefined;
 		this.rankingCurrentPage = 1;
 		this.accountButton = undefined;
-		this.accountState = { isGuest: false };
 
 		new CloudsBackground({
 			customColors: ARENA_BACKGROUND_SHADER_COLORS,
@@ -273,10 +264,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				buttonY + BUTTON_Y_OFFSET * 2
 			),
 			callback: () => {
-				this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
-					mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
-					returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
-				});
+				// this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
+				// 	mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
+				// 	returnSceneKey: SCENE_KEYS.ARENA_LOBBY,
+				// });
 			},
 			width: HALF_WIDTH_BUTTON,
 			emoji: "🔑",
@@ -294,7 +285,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				} finally {
 					this.setLoading(false);
 				}
-				this.scene.start(SCENE_KEYS.ARENA_LOGIN);
+				//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			},
 			width: FULL_WIDTH_BUTTON,
 		});
@@ -304,7 +295,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			text: t("ui.menu.back"),
 			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
 			callback: () => {
-				this.scene.start(SCENE_KEYS.TITLE);
+				//this.scene.start(SCENE_KEYS.TITLE);
 			},
 			width: FULL_WIDTH_BUTTON,
 		});
@@ -617,17 +608,17 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			const hasActiveSession = await checkActiveSessionByType(queueType);
 			if (hasActiveSession) {
 				await enableMultiplayer(undefined, queueType);
-				this.scene.start(SCENE_KEYS.BATTLEGROUND, {
-					isMultiplayer: true,
-					multiplayerQueueType: queueType,
-				});
+				// this.scene.start(SCENE_KEYS.BATTLEGROUND, {
+				// 	isMultiplayer: true,
+				// 	multiplayerQueueType: queueType,
+				// });
 				return;
 			}
 
-			this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
-				isMultiplayer: true,
-				multiplayerQueueType: queueType,
-			});
+			//this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
+			// 	isMultiplayer: true,
+			// 	multiplayerQueueType: queueType,
+			// });
 		} catch (e) {
 			logger.error("Failed to start run", e);
 			this.setLoading(false);
@@ -637,12 +628,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	async refreshProfile() {
 		const playerId = localStorage.getItem("mana_player_id");
 		if (!playerId) {
-			this.scene.start(SCENE_KEYS.ARENA_LOGIN);
+			//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		} else {
 			try {
 				const profile = await getPlayerProfile(playerId);
 				const accountState = await getCurrentAccountState();
-				this.accountState = accountState;
 				const displayName =
 					accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
 				this.profileText?.setText(displayName);
@@ -652,7 +642,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			} catch (e) {
 				logger.error("Profile Fetch Failed", e);
 				// Redirect to Login if invalid
-				this.scene.start(SCENE_KEYS.ARENA_LOGIN);
+				//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			}
 		}
 	}

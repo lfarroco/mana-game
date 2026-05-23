@@ -7,7 +7,7 @@ import { openCredits } from "Client/Screens/Title/components/CreditsPanel";
 import { openStats } from "Client/Screens/Title/components/StatsPanel";
 import * as io from "@PhaserIO";
 import { getCloudsBg } from "Client/Screens/Title/components/cloudsBg";
-import * as TitleScene from "@Scenes/Title/TitleScene";
+import * as TitleScene from "@Screens/Title/TitleScene";
 
 let submenuContainer: Container;
 

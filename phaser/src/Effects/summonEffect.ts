@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { delay } from "@Utils/animation";
 import { images } from "@assets";
 import { getOption } from "@Models/OptionsStore";
+import * as io from "@PhaserIO";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
@@ -14,7 +15,7 @@ const SUMMON_EFFECT_CONFIG = {
 	EMIT_ZONE_QUANTITY: 8,
 };
 
-export async function summonEffect(scene: Phaser.Scene, { x, y }: { x: number; y: number }) {
+export async function summonEffect({ x, y }: { x: number; y: number }) {
 	const {
 		LIFESPAN,
 		SCALE_START,
@@ -31,7 +32,7 @@ export async function summonEffect(scene: Phaser.Scene, { x, y }: { x: number; y
 	if (particlesOption === "low") multiplier = 0.5;
 	else if (particlesOption === "high") multiplier = 2;
 
-	const summonEffect = scene.add.particles(x, y, images.light_pillar.key, {
+	const summonEffect = io.scene.add.particles(x, y, images.light_pillar.key, {
 		lifespan: LIFESPAN,
 		scale: { start: SCALE_START, end: SCALE_END },
 		alpha: { start: 1, end: 0 },

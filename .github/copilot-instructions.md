@@ -80,7 +80,7 @@ Defined in `tsconfig.json` and webpack config. Key aliases:
 |---|---|
 | `@Core/*` | `src/Core/*` |
 | `@Models/*` | `src/Models/*` |
-| `@Scenes/*` | `src/Engine/Scenes/*` |
+| `@Screens/*` | `src/Engine/Scenes/*` |
 | `@Systems/*` | `src/Systems/*` |
 | `@TriggerSystem/*` | `src/TriggerSystem/*` |
 | `@Utils/*` | `src/Utils/*` |

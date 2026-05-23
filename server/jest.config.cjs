@@ -15,7 +15,7 @@ module.exports = {
 		"^@Storage/(.*)$": "<rootDir>/../phaser/src/Storage/$1",
 		"^@Effects/(.*)$": "<rootDir>/../phaser/src/Effects/$1",
 		"^@Engine/(.*)$": "<rootDir>/../phaser/src/Engine/$1",
-		"^@Scenes/(.*)$": "<rootDir>/../phaser/src/Engine/Scenes/$1",
+		"^@Screens/(.*)$": "<rootDir>/../phaser/src/Engine/Scenes/$1",
 		"^@UI/(.*)$": "<rootDir>/../phaser/src/UI/$1",
 		"^@Constants/(.*)$": "<rootDir>/../phaser/src/Constants/$1",
 		"^@Components/(.*)$": "<rootDir>/../phaser/src/Components/$1",

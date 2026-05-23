@@ -1,7 +1,7 @@
 import { createUIButton } from "@Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
-import { getCurrentScene, resetState, State } from "@Models/State";
+import { resetState, State } from "@Models/State";
 import * as io from "@PhaserIO";
 import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
@@ -35,7 +35,7 @@ export function createPanel(_state: State) {
 			t("ui.menu.newRun"),
 			() => {
 				resetState();
-				getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
+				//getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
 			},
 		]);
 	}
@@ -45,8 +45,8 @@ export function createPanel(_state: State) {
 			t("ui.menu.mainMenu"),
 			() => {
 				resetState();
-				getCurrentScene().scene.stop(getCurrentScene().scene.key);
-				getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+				//getCurrentScene().scene.stop(getCurrentScene().scene.key);
+				//getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
 			},
 		],
 		[

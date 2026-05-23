@@ -51,13 +51,3 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 export const FORCE_ID_PLAYER = "PLAYER";
 export const FORCE_ID_CPU = "CPU";
 
-export const SCENE_KEYS = {
-	DEBUG: "DebugScene",
-	BATTLEGROUND: "BattlegroundScene",
-	CRYSTAL_SELECTION: "CrystalSelectionScene",
-	CORE: "Core",
-	TITLE: "TitleScene",
-	OPTIONS: "OptionsScene",
-	ARENA_LOBBY: "ArenaLobbyScene",
-	ARENA_LOGIN: "ArenaLoginScene",
-} as const;

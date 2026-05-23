@@ -1,7 +1,7 @@
 import { createUIButton } from "@Components/UIButton";
 import { size, vec2 } from "@Models/Geometry";
 import { isElectron } from "@Utils/environment";
-import { getCurrentScene, resetState, State } from "@Models/State";
+import { resetState, State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import { playMusic } from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -21,7 +21,7 @@ import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
 import { t } from "@i18n/i18n";
 import { createRunStatsPanel } from "@UI/RunStatsPanel";
-import { MIDDLE_SCREEN_Y, SCENE_KEYS, titleTextConfig } from "@Constants/constants";
+import { MIDDLE_SCREEN_Y, titleTextConfig } from "@Constants/constants";
 import { IS_DEMO, GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
 
@@ -120,9 +120,9 @@ export async function displayGameComplete(
 				const controller = getGameController();
 				await controller.notifyGameComplete(completionAction);
 				resetState();
-				const currentScene = getCurrentScene();
-				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
-				currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
+				//const currentScene = getCurrentScene();
+				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
+				// currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
 			},
 		],
 		[
@@ -131,9 +131,9 @@ export async function displayGameComplete(
 				const controller = getGameController();
 				await controller.notifyGameComplete(completionAction);
 				resetState();
-				const currentScene = getCurrentScene();
-				currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
-				currentScene.game.scene.start(SCENE_KEYS.TITLE);
+				// const currentScene = getCurrentScene();
+				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
+				// currentScene.game.scene.start(SCENE_KEYS.TITLE);
 			},
 		]
 	);

@@ -2,7 +2,6 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
-import { getCurrentScene } from "@Models/State";
 
 export function arenaButton(y: number) {
 	const title = t("title.multiplayer");
@@ -12,9 +11,9 @@ export function arenaButton(y: number) {
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
 			if (playerId) {
-				getCurrentScene().scene.start(constants.SCENE_KEYS.ARENA_LOBBY);
+				//getCurrentScene().scene.start(constants.SCENE_KEYS.ARENA_LOBBY);
 			} else {
-				getCurrentScene().scene.start(constants.SCENE_KEYS.ARENA_LOGIN);
+				//getCurrentScene().scene.start(constants.SCENE_KEYS.ARENA_LOGIN);
 			}
 		},
 		tooltip: {
