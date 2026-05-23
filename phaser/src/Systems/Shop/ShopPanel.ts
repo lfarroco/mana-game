@@ -5,8 +5,8 @@ import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import { Container } from "@PhaserIO";
 import { resetEncounterFocusTargets } from "@Systems/Encounter";
-import { getCurrentScene } from "@Models/State";
 import * as constants from "@Constants/constants";
+import * as io from "@PhaserIO";
 
 export let container: Container;
 export let nextRoundButton: Button;
@@ -38,13 +38,13 @@ export const create = (nextRoundCallback: (() => void) | null) => {
 export const isVisible = () => Boolean(container) && container.y > c.SCREEN_HEIGHT * -1;
 
 export const slideIn = async () => {
-	getCurrentScene().tweens.killTweensOf(container);
+	io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 	await tween({ targets: [container], y: 0 });
 };
 
 export const slideOut = async () => {
-	getCurrentScene().tweens.killTweensOf(container);
+	io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await tween({ targets: [container], y: c.SCREEN_HEIGHT * -1 });
 	container.removeAll(true);

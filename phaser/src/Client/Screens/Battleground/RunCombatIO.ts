@@ -10,8 +10,6 @@ import { resetUnitStats, Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "Client/Screens/Battleground/ServerCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Board from "@Models/Board";
-import { getCurrentScene } from "@Models/State";
-import { BattlegroundScene } from "Client/Screens/Battleground/BattlegroundScene";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RunCombatIO");
@@ -80,7 +78,6 @@ export const replayCombat = async (): Promise<void> => {
 	}
 
 	const state = getState();
-	const scene = getCurrentScene() as BattlegroundScene;
 
 	// Clear the board and reset
 	Chara.clearAll();
@@ -115,5 +112,6 @@ export const replayCombat = async (): Promise<void> => {
 	const env = playbackController.getEnv();
 	CombatSystemStates.setCombatSystemStates(env.combatStates);
 
-	scene.combatRunner = playbackController;
+	// TODO: update this, this was the old way
+	//scene.combatRunner = playbackController;
 };

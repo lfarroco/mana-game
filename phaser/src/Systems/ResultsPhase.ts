@@ -1,4 +1,4 @@
-import { State, getCurrentScene } from "@Models/State";
+import { State } from "@Models/State";
 import { delay } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
@@ -103,7 +103,7 @@ async function handleDefeat(state: State): Promise<void> {
 			state.session.team.units,
 			true
 		);
-		getCurrentScene().add.existing(container);
+		io.scene.add.existing(container);
 		return;
 	}
 

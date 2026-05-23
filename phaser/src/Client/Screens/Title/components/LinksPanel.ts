@@ -1,7 +1,6 @@
 import * as c from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 
@@ -24,9 +23,7 @@ export function openLinksPanel(): void {
 	if (isOpen) return;
 	isOpen = true;
 
-	const scene = getCurrentScene();
-
-	const overlay = scene.add.rectangle(
+	const overlay = io.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -57,7 +54,7 @@ export function openLinksPanel(): void {
 	}
 
 	const linkTexts = links.map((link, index) => {
-		const textObj = scene.add.text(
+		const textObj = io.scene.add.text(
 			c.MIDDLE_SCREEN_X,
 			c.MIDDLE_SCREEN_Y - 120 + index * 60,
 			link.text,

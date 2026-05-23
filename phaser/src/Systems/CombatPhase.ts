@@ -1,4 +1,4 @@
-import { getCurrentScene, State } from "@Models/State";
+import { State } from "@Models/State";
 import { CombatState } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { delay } from "@Utils/animation";
@@ -9,9 +9,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import { createUIButton, Button } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { runCombatIO } from "Client/Screens/Battleground/RunCombatIO";
 import { t } from "@i18n/i18n";
-import { BattlegroundScene } from "Client/Screens/Battleground/BattlegroundScene";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("CombatPhase");
@@ -113,6 +111,6 @@ export async function handleCombatStartExecution(_payload: { enemies: Unit[] }):
 	// Board input is already disabled - begin playback of pre-calculated combat
 	await delay(COMBAT_START_DELAY_MS);
 
-	const scene = getCurrentScene() as BattlegroundScene;
-	scene.combatRunner = runCombatIO();
+	// TODO: rewrite this, this was the old way
+	//scene.combatRunner = runCombatIO();
 }

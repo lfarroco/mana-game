@@ -1,6 +1,5 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { titleTextConfig } from "@Constants/constants";
-import { getCurrentScene } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import {
 	TOOLTIP_HORIZONTAL_PADDING,
@@ -49,7 +48,6 @@ function getAdjustedPosition(
 ): { x: number; y: number } {
 	if (!container) return { x, y };
 
-	const scene = getCurrentScene();
 	const anchorX = options?.anchorX ?? "center";
 	const halfTooltipWidth = tooltipWidth / 2;
 	const halfTooltipHeight = tooltipHeight / 2;
@@ -65,8 +63,8 @@ function getAdjustedPosition(
 		return { x: lastAdjustedX, y: lastAdjustedY };
 	}
 
-	const canvasWidth = scene.scale.width;
-	const canvasHeight = scene.scale.height;
+	const canvasWidth = io.scene.scale.width;
+	const canvasHeight = io.scene.scale.height;
 	const adjustedX = Math.max(0, Math.min(desiredX, canvasWidth - tooltipWidth));
 	const adjustedY = Math.max(0, Math.min(desiredY, canvasHeight - tooltipHeight));
 
@@ -104,22 +102,20 @@ export function destroyTooltip(): void {
 }
 
 export function init() {
-	const scene = getCurrentScene();
-
-	container = scene.add.container(0, 0);
+	container = io.scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
 	tooltipWidth = TOOLTIP_MIN_WIDTH;
 	tooltipHeight = TOOLTIP_MIN_HEIGHT;
 
-	bg = scene.add.graphics();
+	bg = io.scene.add.graphics();
 	drawTooltipBackground(tooltipWidth, tooltipHeight);
 
 	container.add(bg);
 
-	titleText = scene.add.text(0, 0, "", titleTextConfig).setAlign("left");
+	titleText = io.scene.add.text(0, 0, "", titleTextConfig).setAlign("left");
 	container.add(titleText);
 
-	descriptionText = scene.add
+	descriptionText = io.scene.add
 		.rexBBCodeText(0, 0, "", { color: UI_TEXT_MUTED })
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
@@ -223,7 +219,7 @@ export function renderTooltip(
 
 	if (!container.visible) {
 		container.setVisible(true);
-		getCurrentScene().children.bringToTop(container);
+		io.scene.children.bringToTop(container);
 	}
 }
 

@@ -1,7 +1,6 @@
 import * as c from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 
@@ -19,10 +18,9 @@ export function openCredits(): void {
 	if (isOpen) return;
 	isOpen = true;
 
-	const scene = getCurrentScene();
 
 	// Create dark overlay background
-	const overlay = scene.add.rectangle(
+	const overlay = io.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -65,7 +63,7 @@ export function openCredits(): void {
 
 	const creditsTexts = creditsContent.map((text, index) => {
 		const isHeader = text && !creditsContent[index - 1]?.trim();
-		const textObj = scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
+		const textObj = io.scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
 			...c.titleTextConfig,
 			fontSize: isHeader ? "28px" : "22px",
 			color: isHeader ? "#f1c40f" : "#ecf0f1",

@@ -1,7 +1,6 @@
 import { EnergyBeam } from "./EnergyBeam";
 import { images } from "@assets";
 import { delay } from "@Utils/animation";
-import { getCurrentScene } from "@Models/State";
 import { getOption } from "@Models/OptionsStore";
 
 export interface TargetedArcaneMissileOptions {
@@ -28,7 +27,7 @@ export async function arcaneMissileTargeted(
 	target: Vec2,
 	options: TargetedArcaneMissileOptions = {}
 ): Promise<void> {
-	const scene = getCurrentScene();
+	const scene = io.scene;
 	const {
 		colors = [0x00ffff, 0x87ceeb, 0xadd8e6], // Light blue neon colors
 		amplitudeMin = 5,
@@ -45,7 +44,7 @@ export async function arcaneMissileTargeted(
 			alpha: 0.4,
 		},
 		blendMode = Phaser.BlendModes.ADD,
-		onHit = () => {},
+		onHit = () => { },
 	} = options;
 
 	const duration = 200;

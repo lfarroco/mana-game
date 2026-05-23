@@ -1,8 +1,7 @@
-import { State, getCurrentScene } from "@Models/State";
+import { State } from "@Models/State";
 import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
 import { createBrowserCombatEffects } from "Client/Screens/Battleground/BrowserCombatEffects";
-import { createCombatPlaybackController } from "Client/Screens/Battleground/CombatPlaybackController";
 import {
 	getAllCharas,
 	getUnit,
@@ -15,7 +14,6 @@ import {
 	getCharaById,
 } from "@Systems/Chara/Chara";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
-import { BattlegroundScene } from "Client/Screens/Battleground/BattlegroundScene";
 import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
@@ -287,7 +285,6 @@ async function handleMultiplayerCombat(
 		enableTooltip(c);
 	}
 
-	const scene = getCurrentScene() as BattlegroundScene;
 	update({
 		enemyName: combatState.enemyPlayerName || "CPU",
 	});
@@ -364,8 +361,10 @@ async function handleMultiplayerCombat(
 		};
 
 		state.battleData.units.forEach(resetUnitStats);
-		const controller = createCombatPlaybackController(state, combatState.logs, effects);
-		scene.combatRunner = controller;
+
+		// TODO: update this, this was the old way
+		//const controller = createCombatPlaybackController(state, combatState.logs, effects);
+		//io.scene.combatRunner = controller;
 	};
 
 	if (requireReadyButton) {

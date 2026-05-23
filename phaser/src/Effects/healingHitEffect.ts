@@ -1,4 +1,3 @@
-import Phaser from "phaser";
 import { delay } from "@Utils/animation";
 import { images } from "@assets";
 
@@ -16,11 +15,10 @@ const HEALING_HIT_EFFECT_CONFIG = {
 };
 
 export async function healingHitEffect(
-	scene: Phaser.Scene,
 	{ x, y }: { x: number; y: number },
 	lifespan: number
 ): Promise<void> {
-	const particles = scene.add.particles(x, y, images.white_dot.key, {
+	const particles = io.scene.add.particles(x, y, images.white_dot.key, {
 		speed: HEALING_HIT_EFFECT_CONFIG.PARTICLE_SPEED,
 		tint: HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS,
 		lifespan: lifespan,

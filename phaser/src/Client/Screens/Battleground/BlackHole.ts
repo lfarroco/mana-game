@@ -1,5 +1,4 @@
 import { MIDDLE_SCREEN } from "@Constants/constants";
-import { getCurrentScene } from "@Models/State";
 import { Shader } from "@PhaserIO";
 import { arcaneTornadoFragmentShader } from "@Shaders/ArcaneTornado";
 import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
@@ -33,11 +32,9 @@ export function initBlackHole(): BlackHoleState {
 export function activateBlackHole(state: BlackHoleState): BlackHoleState {
 	if (!state.blackHole) return state;
 
-	const scene = getCurrentScene();
-
 	if (state.timer) state.timer.destroy();
 
-	const timer = scene.time.addEvent({
+	const timer = io.scene.time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {
@@ -58,7 +55,7 @@ export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
 
 	if (state.timer) state.timer.destroy();
 
-	const timer = getCurrentScene().time.addEvent({
+	const timer = io.scene.time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {

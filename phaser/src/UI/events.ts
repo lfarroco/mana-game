@@ -5,8 +5,8 @@ import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay
 import { winsChangeAnimation } from "Client/Screens/Battleground/Components/winsDisplay";
 import * as livesDisplay from "Client/Screens/Battleground/Components/livesDisplay";
 import * as roundDisplay from "Client/Screens/Battleground/Components/roundDisplay";
-import { getCurrentScene } from "@Models/State";
 import { t } from "@i18n/i18n";
+import * as io from "@PhaserIO";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
@@ -34,7 +34,7 @@ async function livesChangeAnimation(lives: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const livesAmountText = getCurrentScene()
+	const livesAmountText = io.scene
 		.add.text(startX, startY, animationText, titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)

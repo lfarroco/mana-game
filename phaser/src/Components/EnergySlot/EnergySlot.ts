@@ -1,6 +1,5 @@
 import * as Phaser from "phaser";
 import { energySlotFragmentShader } from "@Shaders/EnergySlotShader";
-import { getCurrentScene } from "@Models/State";
 import { nextValue } from "@Utils/Random";
 
 export interface EnergySlotConfig {
@@ -13,14 +12,12 @@ export interface EnergySlotConfig {
 }
 
 export class EnergySlot {
-	private scene: Phaser.Scene;
 	private shader: Phaser.GameObjects.Shader;
 	private startTime: number;
 	private config: Required<Omit<EnergySlotConfig, "x" | "y">>;
 	private isDestroyed: boolean = false;
 
 	constructor(x: number, y: number, config: EnergySlotConfig = {}) {
-		this.scene = getCurrentScene();
 
 		// Set default config
 		const defaultConfig = {
@@ -31,7 +28,7 @@ export class EnergySlot {
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = this.scene.time.now;
+		this.startTime = io.scene.time.now;
 
 		this.createShader(x, y);
 	}
@@ -56,7 +53,7 @@ export class EnergySlot {
 		);
 
 		// Create the shader game object
-		this.shader = this.scene.add
+		this.shader = io.scene.add
 			.shader(baseShader, x, y, this.config.size, this.config.size)
 			.setOrigin(0.5, 0.5);
 	}

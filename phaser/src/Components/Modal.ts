@@ -1,7 +1,6 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { getCurrentScene } from "@Models/State";
 import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
 import { createPanel, Panel, PanelConfig } from "@Components/Panel";
 
@@ -56,8 +55,7 @@ export function createModal(config: ModalConfig): Modal {
 	io.BringToTop(container);
 
 	container.setScale(0);
-	const scene = getCurrentScene();
-	scene.tweens.add({
+	io.scene.tweens.add({
 		targets: container,
 		scale: 1,
 		duration: MODAL_SCALE_IN_DURATION_MS,

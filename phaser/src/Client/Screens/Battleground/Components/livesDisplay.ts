@@ -1,7 +1,6 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { getState } from "@Models/State";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { renderTooltip, hideTooltip } from "@Components/Tooltip";
 import * as i18n from "@i18n/i18n";
@@ -29,10 +28,9 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 			const heartIndex = currentLives - 1 - i;
 			if (heartIndex >= 0 && heartIndex < heartElements.length) {
 				const heart = heartElements[heartIndex];
-				const scene = getCurrentScene();
 
 				// Change the heart to black with a tween
-				scene.tweens.add({
+				io.scene.tweens.add({
 					targets: heart,
 					tint: 0x000000,
 					duration: 500,

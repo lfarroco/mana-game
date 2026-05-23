@@ -1,4 +1,3 @@
-import { getCurrentScene } from "@Models/State";
 import { playSoundEffect } from "@Systems/AudioManager";
 
 export type SliderConfig = {
@@ -29,15 +28,14 @@ const HANDLE_CORE_COLOR = 0xffffff;
 
 export function createSlider(position: Vec2, config: SliderConfig): Slider {
 	const { width, min, max, step, initialValue, onChange } = config;
-	const scene = getCurrentScene();
 
 	let currentValue = Math.max(min, Math.min(max, initialValue));
 	let isDragging = false;
 
-	const container = scene.add.container();
+	const container = io.scene.add.container();
 
 	// Track glow (outer glow effect)
-	const trackGlow = scene.add.graphics();
+	const trackGlow = io.scene.add.graphics();
 	trackGlow.lineStyle(4, TRACK_GLOW_COLOR, 0.3);
 	trackGlow.strokeRoundedRect(
 		position.x - width / 2 - 2,
@@ -49,7 +47,7 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 	container.add(trackGlow);
 
 	// Track background (unfilled part)
-	const trackBackground = scene.add.graphics();
+	const trackBackground = io.scene.add.graphics();
 	trackBackground.fillStyle(TRACK_COLOR, 1);
 	trackBackground.lineStyle(2, TRACK_BORDER_COLOR, 0.5);
 	trackBackground.fillRoundedRect(
@@ -69,15 +67,15 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 	container.add(trackBackground);
 
 	// Track fill (filled part showing progress)
-	const trackFill = scene.add.graphics();
+	const trackFill = io.scene.add.graphics();
 	container.add(trackFill);
 
 	// Handle
-	const handle = scene.add.graphics();
+	const handle = io.scene.add.graphics();
 	container.add(handle);
 
 	// Interactive area for the entire slider (track + handle area)
-	const hitArea = scene.add.rectangle(
+	const hitArea = io.scene.add.rectangle(
 		position.x,
 		position.y,
 		width + HANDLE_RADIUS * 2,
@@ -140,7 +138,7 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 		// Update handle with neon glow effect
 		handle.clear();
 		const handleColor = isDragging ? HANDLE_HOVER_COLOR : HANDLE_COLOR;
-		
+
 		// Outer glow layers
 		handle.fillStyle(handleColor, 0.15);
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 8);
@@ -148,11 +146,11 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 4);
 		handle.fillStyle(handleColor, 0.4);
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 2);
-		
+
 		// Main handle with bright border
 		handle.fillStyle(handleColor, 1);
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS);
-		
+
 		// Inner bright core
 		handle.fillStyle(HANDLE_CORE_COLOR, 0.9);
 		handle.fillCircle(handleX, position.y, HANDLE_RADIUS - 4);
@@ -193,7 +191,7 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 		if (!isDragging) {
 			handle.clear();
 			const handleX = valueToX(currentValue);
-			
+
 			// Outer glow layers (using hover color)
 			handle.fillStyle(HANDLE_HOVER_COLOR, 0.15);
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 8);
@@ -201,11 +199,11 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 4);
 			handle.fillStyle(HANDLE_HOVER_COLOR, 0.4);
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS + 2);
-			
+
 			// Main handle
 			handle.fillStyle(HANDLE_HOVER_COLOR, 1);
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS);
-			
+
 			// Inner bright core
 			handle.fillStyle(HANDLE_CORE_COLOR, 0.9);
 			handle.fillCircle(handleX, position.y, HANDLE_RADIUS - 4);

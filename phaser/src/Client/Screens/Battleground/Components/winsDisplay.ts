@@ -1,5 +1,5 @@
 import { vec2, size } from "@Models/Geometry";
-import { getState, getCurrentScene } from "@Models/State";
+import { getState } from "@Models/State";
 import * as io from "@PhaserIO";
 import { images } from "@assets";
 import { renderTooltip, hideTooltip } from "@Components/Tooltip";
@@ -123,13 +123,12 @@ function playWinEffect(index: number) {
 
 	// TODO: play sound effect (plim)
 
-	const scene = getCurrentScene();
 	const rect = winRects[index];
 
 	const x = rect.x + RECT_WIDTH / 2;
 	const y = rect.y + RECT_HEIGHT / 2;
 
-	const particles = scene.add.particles(x, y, images.light_pillar.key, {
+	const particles = io.scene.add.particles(x, y, images.light_pillar.key, {
 		lifespan: 300,
 		scale: { start: 0.3, end: 1.2 },
 		alpha: { start: 1, end: 0 },
@@ -149,11 +148,11 @@ function playWinEffect(index: number) {
 
 	mainContainer.add(particles);
 
-	scene.time.delayedCall(300, () => {
+	io.scene.time.delayedCall(300, () => {
 		particles.stop();
 	});
 
-	scene.time.delayedCall(600, () => {
+	io.scene.time.delayedCall(600, () => {
 		particles.destroy();
 	});
 }

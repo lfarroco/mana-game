@@ -6,6 +6,7 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 import Preload from "Client/Screens/Preload/Preload";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import { initState } from "@Models/State";
+import * as phaserIO from "@PhaserIO";
 
 initState();
 
@@ -41,6 +42,10 @@ export const game = new Phaser.Game({
 
 OptionsStore.init();
 StatsStore.init();
+
+declare global {
+	var io: typeof phaserIO;
+}
 
 // if (process.env.NODE_ENV === "development") {
 // 	//window.debugController = DebugController;

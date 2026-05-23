@@ -1,7 +1,6 @@
 import { compactNumber } from "@utils";
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { getStats, getMostUsedUnit } from "@Models/StatsStore";
@@ -17,7 +16,6 @@ export function openStats(): void {
 	if (isOpen) return;
 	isOpen = true;
 
-	const scene = getCurrentScene();
 	const stats = getStats();
 
 	const mostUsedName = getMostUsedUnit() || "-";
@@ -25,7 +23,7 @@ export function openStats(): void {
 		? `${stats.mostPowerfulUnit.name} (${stats.mostPowerfulUnit.power})`
 		: "-";
 
-	const overlay = scene.add.rectangle(
+	const overlay = io.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -109,7 +107,7 @@ export function openStats(): void {
 		data.forEach((stat, index) => {
 			const y = startY + index * rowSpacing;
 
-			const labelText = scene.add.text(labelX, y, stat.label, {
+			const labelText = io.scene.add.text(labelX, y, stat.label, {
 				fontFamily: "Arial",
 				fontSize: "22px",
 				color: "#ecf0f1",
@@ -118,7 +116,7 @@ export function openStats(): void {
 			labelText.setOrigin(1, 0.5);
 			statTexts.push(labelText);
 
-			const valueText = scene.add.text(valueX, y, stat.value, {
+			const valueText = io.scene.add.text(valueX, y, stat.value, {
 				fontFamily: "Arial",
 				fontSize: "24px",
 				color: stat.color || "#ffffff",

@@ -90,8 +90,14 @@ const EFFECT_REGISTRY: Record<string, EffectFactory> = {
 		scene.time.addEvent({
 			delay: 1200,
 			callback: () => {
-				effects.healingHitEffect(scene, { x: 100, y: 100 }, 1000);
-				effects.healingHitEffect(scene, { x: 200, y: 200 }, 1000);
+				effects.healingHitEffect(
+					{ x: 100, y: 100 },
+					1000
+				);
+				effects.healingHitEffect(
+					{ x: 200, y: 200 },
+					1000
+				);
 			},
 			repeat: -1,
 		});

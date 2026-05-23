@@ -7,7 +7,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
 import * as sc from "@Systems/Shop/constants";
 import { createDescription } from "@Systems/Chara/createDescription";
-import { getCurrentScene, getState } from "@Models/State";
+import { getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Shop from "@Systems/Shop";
 import {
@@ -40,7 +40,7 @@ const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
 export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
-	const scene = getCurrentScene();
+	const scene = io.scene;
 	resetEncounterFocusTargets();
 
 	const ownedCardIds = new Set(getState().session.team.units.map((u) => u.cardId));

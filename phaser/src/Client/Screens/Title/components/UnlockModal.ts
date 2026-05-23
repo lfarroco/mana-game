@@ -1,6 +1,5 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import { createUIButton } from "@Components/UIButton";
 import { getCardDefinition } from "@Models/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
@@ -30,11 +29,11 @@ export function showUnlockModal(unitId: string): Promise<void> {
 
 		const { title, description } = createDescription(chara);
 
-		const titleText = getCurrentScene()
+		const titleText = io.scene
 			.add.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
-		const unlockConditionText = getCurrentScene()
+		const unlockConditionText = io.scene
 			.add.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
 				fontFamily: "Arimo",
 				fontSize: "20px",
@@ -43,7 +42,7 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			})
 			.setOrigin(0.5);
 
-		const descriptionText = getCurrentScene()
+		const descriptionText = io.scene
 			.add.rexBBCodeText(0, unlockConditionText.y + 40, description)
 			.setFontSize(30)
 			.setWrapMode(1)

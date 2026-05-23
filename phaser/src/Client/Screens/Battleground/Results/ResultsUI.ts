@@ -1,7 +1,7 @@
 import { tween } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
-import { getCurrentScene, State } from "@Models/State";
+import { State } from "@Models/State";
 import { displayVictory } from "Client/Screens/Battleground/Results/VictoryUI";
 import { displayDefeat } from "Client/Screens/Battleground/Results/DefeatUI";
 import { displayGameComplete } from "Client/Screens/Battleground/Results/GameCompleteUI";
@@ -17,7 +17,6 @@ export let overlay: BackgroundOverlay;
 export let isOpen: boolean;
 
 export function createResultsUI() {
-	const scene = getCurrentScene();
 
 	overlay = createBackgroundOverlay({
 		color: RESULTS_PANEL.overlayColor,
@@ -25,7 +24,7 @@ export function createResultsUI() {
 		interactive: true,
 	});
 
-	resultsContainer = scene.add.container(0, 0);
+	resultsContainer = io.scene.add.container(0, 0);
 	isOpen = false;
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
@@ -60,9 +59,8 @@ export async function displayResults(
 	replayCallback?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
-	const scene = getCurrentScene();
-	scene.children.bringToTop(overlay.rectangle);
-	scene.children.bringToTop(resultsContainer);
+	io.scene.children.bringToTop(overlay.rectangle);
+	io.scene.children.bringToTop(resultsContainer);
 
 	const gameState = state;
 	const player = {
@@ -118,9 +116,8 @@ export async function displayGameCompleteResults(
 	nextPhaseCallback?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
-	const scene = getCurrentScene();
-	scene.children.bringToTop(overlay.rectangle);
-	scene.children.bringToTop(resultsContainer);
+	io.scene.children.bringToTop(overlay.rectangle);
+	io.scene.children.bringToTop(resultsContainer);
 
 	const ui = await displayGameComplete(
 		state,

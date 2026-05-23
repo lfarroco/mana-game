@@ -1,4 +1,3 @@
-import { getCurrentScene } from "@Models/State";
 import { tween } from "@Utils/animation";
 import Phaser from "phaser";
 import { Chara, mustGetState } from "@Systems/Chara/Chara";
@@ -16,8 +15,6 @@ const SHATTER_RING_RADIUS_NEAR = 1 / 10;
 const SHATTER_RING_RADIUS_FAR = 3 / 10;
 
 export async function shatter(chara: Chara) {
-	const scene = getCurrentScene();
-
 	const state = mustGetState(chara);
 
 	const { sprite } = state;
@@ -35,7 +32,7 @@ export async function shatter(chara: Chara) {
 
 	sprite.visible = false;
 
-	const image = scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
+	const image = io.scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
 
 	image.setScale(sprite.scaleX, sprite.scaleY);
 

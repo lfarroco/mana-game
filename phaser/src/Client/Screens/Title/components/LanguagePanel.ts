@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
@@ -72,7 +71,8 @@ export function openLanguagePanel(): void {
 
 function selectLanguage(lang: string) {
 	setLocale(lang);
-	getCurrentScene().scene.restart();
+	io.scene.children.removeAll();
+	io.screens.title();
 	isOpen = false;
 	container = null;
 	overlay = null;

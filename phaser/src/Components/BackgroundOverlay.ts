@@ -1,5 +1,4 @@
 import * as c from "@Constants/constants";
-import { getCurrentScene } from "@Models/State";
 
 // Default overlay styling
 const DEFAULT_OVERLAY_COLOR = 0x000000;
@@ -28,10 +27,9 @@ export type BackgroundOverlay = {
 };
 
 export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): BackgroundOverlay {
-	const scene = getCurrentScene();
 	const { color, alpha, interactive } = { ...DEFAULT_CONFIG, ...config };
 
-	const rectangle = scene.add.rectangle(
+	const rectangle = io.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -50,7 +48,7 @@ export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): B
 	const fadeIn = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
 			rectangle.setVisible(true);
-			scene.tweens.add({
+			io.scene.tweens.add({
 				targets: rectangle,
 				alpha: alpha,
 				duration,
@@ -61,7 +59,7 @@ export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): B
 
 	const fadeOut = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
-			scene.tweens.add({
+			io.scene.tweens.add({
 				targets: rectangle,
 				alpha: 0,
 				duration,

@@ -1,6 +1,5 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getCurrentScene } from "@Models/State";
 import * as io from "@PhaserIO";
 import { createUIButton } from "@Components/UIButton";
 import { t } from "@i18n/i18n";
@@ -17,7 +16,7 @@ import { regenFx } from "TriggerSystem/effects/visuals/regen";
 import { createDescription } from "@Systems/Chara/createDescription";
 
 const bbcode = (text: string, y: number) =>
-	getCurrentScene()
+	io.scene
 		.add.rexBBCodeText(0, 0, text)
 		.setPosition(c.MIDDLE_SCREEN_X, y)
 		.setFontSize(38)
@@ -25,6 +24,7 @@ const bbcode = (text: string, y: number) =>
 		.setAlign("left")
 		.setFontFamily("Arimo")
 		.setOrigin(0.5);
+
 const text = (str: string, y: number) =>
 	io.Text(str).setPosition(c.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
 
@@ -116,11 +116,12 @@ const slides = [
 					if (!s.sprite.active) return;
 					anim();
 
-					const effect = getCurrentScene().time.addEvent({
-						repeat: -1,
-						delay: 3000,
-						callback: anim,
-					});
+					const effect = io.scene
+						.time.addEvent({
+							repeat: -1,
+							delay: 3000,
+							callback: anim,
+						});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -166,11 +167,12 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = getCurrentScene().time.addEvent({
-						repeat: -1,
-						delay: 3000,
-						callback: anim,
-					});
+					const effect = io.scene
+						.time.addEvent({
+							repeat: -1,
+							delay: 3000,
+							callback: anim,
+						});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -218,11 +220,12 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = getCurrentScene().time.addEvent({
-						repeat: -1,
-						delay: 3000,
-						callback: anim,
-					});
+					const effect = io.scene
+						.time.addEvent({
+							repeat: -1,
+							delay: 3000,
+							callback: anim,
+						});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -257,22 +260,23 @@ const slides = [
 					await delay(1000);
 					if (!c.active) return;
 					regenFx(chara, chara2, () => {
-						const regen = getCurrentScene().time.addEvent({
-							repeat: -1,
-							delay: 1000,
-							callback: () => {
-								if (!c.active) {
-									regen.destroy();
-									return;
-								}
-								popText({
-									x: chara2.x,
-									y: chara2.y,
-									text: "+" + Math.floor(unit.power / 10),
-									type: "heal",
-								});
-							},
-						});
+						const regen = io.scene
+							.time.addEvent({
+								repeat: -1,
+								delay: 1000,
+								callback: () => {
+									if (!c.active) {
+										regen.destroy();
+										return;
+									}
+									popText({
+										x: chara2.x,
+										y: chara2.y,
+										text: "+" + Math.floor(unit.power / 10),
+										type: "heal",
+									});
+								},
+							});
 						chara.on("destroy", () => {
 							regen.destroy();
 						});
@@ -309,22 +313,23 @@ const slides = [
 					await delay(1000);
 					if (!c.active) return;
 					poisonFx(chara, chara2, () => {
-						const poisonTick = getCurrentScene().time.addEvent({
-							repeat: -1,
-							delay: 1000,
-							callback: () => {
-								if (!c.active) {
-									poisonTick.destroy();
-									return;
-								}
-								popText({
-									x: chara2.x,
-									y: chara2.y,
-									text: "-" + Math.floor(unit.power / 10),
-									type: "poison",
-								});
-							},
-						});
+						const poisonTick = io.scene
+							.time.addEvent({
+								repeat: -1,
+								delay: 1000,
+								callback: () => {
+									if (!c.active) {
+										poisonTick.destroy();
+										return;
+									}
+									popText({
+										x: chara2.x,
+										y: chara2.y,
+										text: "-" + Math.floor(unit.power / 10),
+										type: "poison",
+									});
+								},
+							});
 						chara.on("destroy", () => {
 							poisonTick.destroy();
 						});
@@ -388,11 +393,11 @@ const slides = [
 
 			const { title, description } = createDescription(chara);
 
-			const titleText = getCurrentScene()
+			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = getCurrentScene()
+			const descriptionText = io.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -422,11 +427,11 @@ const slides = [
 
 			const { title, description } = createDescription(chara);
 
-			const titleText = getCurrentScene()
+			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = getCurrentScene()
+			const descriptionText = io.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -461,11 +466,11 @@ const slides = [
 
 			const { title, description } = createDescription(chara);
 
-			const titleText = getCurrentScene()
+			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = getCurrentScene()
+			const descriptionText = io.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -500,11 +505,11 @@ const slides = [
 
 			const { title, description } = createDescription(chara);
 
-			const titleText = getCurrentScene()
+			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = getCurrentScene()
+			const descriptionText = io.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -542,11 +547,9 @@ export async function openTutorial(): Promise<void> {
 	if (isOpen) return;
 	isOpen = true;
 
-	const scene = getCurrentScene();
-
 	let currentSlide = 0;
 
-	const overlay = scene.add.rectangle(
+	const overlay = io.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,

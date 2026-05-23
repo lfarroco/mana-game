@@ -3,7 +3,7 @@ import * as Board from "@Models/Board";
 import { delay } from "@Utils/animation";
 import { pickRandom } from "@utils";
 import * as sc from "@Systems/Shop/constants";
-import { getCurrentScene, State } from "@Models/State";
+import { State } from "@Models/State";
 import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
 import { orbsIndex, OrbSpec } from "@Systems/Shop/Orbs";
 import { eqVec2 } from "@Models/Geometry";
@@ -70,7 +70,6 @@ export function renderOrbShop(
 	onOrbUsed?: () => void | Promise<void>,
 	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ) {
-	const scene = getCurrentScene();
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
@@ -191,13 +190,13 @@ export function renderOrbShop(
 
 		container.add(magicOrb.getShader());
 
-		const titleText = scene.add
+		const titleText = io.scene.add
 			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, titleTextConfig)
 			.setOrigin(0)
 			.setFontSize(ORB_TITLE_FONT_SIZE)
 			.setAlign("left");
 
-		const descriptionText = scene.add
+		const descriptionText = io.scene.add
 			.rexBBCodeText(
 				sc.ITEM_DESC_BASE_X + ORB_DESCRIPTION_X_OFFSET,
 				orbY - ORB_DESCRIPTION_Y_OFFSET,
@@ -218,9 +217,9 @@ export function renderOrbShop(
 		orbs.forEach((orb) => orb.update(time));
 	};
 
-	getCurrentScene().events.on("update", handler);
+	io.scene.events.on("update", handler);
 
 	container.on(Phaser.GameObjects.Events.DESTROY, () => {
-		getCurrentScene().events.off("update", handler);
+		io.scene.events.off("update", handler);
 	});
 }

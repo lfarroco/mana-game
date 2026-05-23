@@ -8,7 +8,7 @@ import * as RankDisplay from "@Systems/Chara/RankDisplay";
 import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { summonEffect } from "@Effects/summonEffect";
-import { getCurrentScene, getState } from "@Models/State";
+import { getState } from "@Models/State";
 
 export type Chara = Container;
 
@@ -52,7 +52,7 @@ export function hasCharaById(id: string): boolean {
 export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
-		summonEffect(getCurrentScene(), vec);
+		summonEffect(vec);
 	}
 	const chara = await create(unit);
 	enableTooltip(chara);
@@ -74,7 +74,7 @@ export function clearAll(): void {
 
 export async function create(unit: Unit): Promise<Chara> {
 	const position = getScreenPosition(unit);
-	const container = getCurrentScene().add.container(position.x, position.y);
+	const container = io.scene.add.container(position.x, position.y);
 
 	const sprite = await createSprite(container, unit);
 	if (unit.force === constants.FORCE_ID_CPU) {
@@ -150,7 +150,7 @@ async function createSprite(
 	_borderWidth: number = 3,
 	_borderColor: number = 0xffffff
 ) {
-	const sprite = getCurrentScene().add.sprite(0, -30, unit.pic);
+	const sprite = io.scene.add.sprite(0, -30, unit.pic);
 	container.add(sprite);
 	configureSprite(sprite, unit);
 
@@ -159,12 +159,12 @@ async function createSprite(
 
 function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	const animCacheKey = unit.pic + "-anims";
-	const animData = getCurrentScene().cache.json.get(animCacheKey);
+	const animData = io.scene.cache.json.get(animCacheKey);
 
 	if (animData && animData.anims) {
 		for (const anim of animData.anims) {
 			const animKey = unit.pic + "_" + anim.key;
-			if (!getCurrentScene().anims.exists(animKey)) {
+			if (!io.scene.anims.exists(animKey)) {
 				const animConfig = {
 					...anim,
 					key: animKey,
@@ -173,12 +173,12 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 						frame: f.frame,
 					})),
 				};
-				getCurrentScene().anims.create(animConfig);
+				io.scene.anims.create(animConfig);
 			}
 		}
 	}
 
-	const frameNames = getCurrentScene().textures.get(unit.pic).getFrameNames();
+	const frameNames = io.scene.textures.get(unit.pic).getFrameNames();
 	const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 	idleFrames.sort((a, b) => {
 		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -190,7 +190,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	sprite.setTexture(unit.pic, firstIdle);
 	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
 
-	if (getCurrentScene().anims.exists(unit.pic + "_idle")) {
+	if (io.scene.anims.exists(unit.pic + "_idle")) {
 		sprite.play(unit.pic + "_idle");
 	}
 

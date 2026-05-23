@@ -1,7 +1,6 @@
 import * as io from "@PhaserIO";
 import { size } from "@Models/Geometry";
 import { playSoundEffect } from "@Systems/AudioManager";
-import { getCurrentScene } from "@Models/State";
 import { titleTextConfig } from "@Constants/constants";
 import {
 	mixHexColors,
@@ -51,10 +50,9 @@ export function createEncounterCard(
 	const { x, y, width, height, name, pic, description, onClick } = props;
 	const padding = 20;
 	const dimensions = size(width, height);
-	const scene = getCurrentScene();
 
-	const bg = scene.add.graphics({ x: x - width / 2, y: y - height / 2 });
-	const border = scene.add.graphics();
+	const bg = io.scene.add.graphics({ x: x - width / 2, y: y - height / 2 });
+	const border = io.scene.add.graphics();
 	let isFocused = false;
 	const backgroundState = { mix: 0 };
 	const drawBackground = () => {
@@ -64,7 +62,7 @@ export function createEncounterCard(
 		bg.fillRoundedRect(0, 0, width, height, CARD_CORNER_RADIUS);
 	};
 	const tweenBackground = (mix: number) => {
-		scene.tweens.killTweensOf(backgroundState);
+		io.scene.tweens.killTweensOf(backgroundState);
 		io.Tween({
 			targets: backgroundState,
 			mix,
@@ -113,7 +111,7 @@ export function createEncounterCard(
 	const textX = x - width / 2 + padding + iconSize + 20;
 	const textWidth = width - (padding + iconSize + 40 + padding);
 
-	const title = scene.add
+	const title = io.scene.add
 		.text(textX - 8, y - height / 2 + 20, name, {
 			...titleTextConfig,
 			fontSize: TITLE_FONT_SIZE,
@@ -123,7 +121,7 @@ export function createEncounterCard(
 		})
 		.setOrigin(0, 0);
 
-	const label = scene.add
+	const label = io.scene.add
 		.rexBBCodeText(textX, y - height / 2 + 75, description, {
 			fontSize: LABEL_FONT_SIZE,
 			fontFamily: "Arimo",

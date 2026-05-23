@@ -1,6 +1,4 @@
 import { getOption, setOption } from "@Models/OptionsStore";
-import { getCurrentScene } from "@Models/State";
-import OptionsScene from "Client/Screens/Options/OptionsScene";
 import { multipleChoice } from "Client/Screens/Options/components/controls/multipleChoice";
 import { t } from "@i18n/i18n";
 
@@ -15,8 +13,8 @@ export function graphicsTab(startY: number) {
 		(value) => {
 			setOption("particles", value as ParticlesOption);
 
-			const scene = getCurrentScene() as OptionsScene;
-			scene.cloudsBackground.updateParticleQuality();
+			// TODO: update this
+			//scene.cloudsBackground.updateParticleQuality();
 		},
 		(value) => t("options.graphics.values." + value)
 	);

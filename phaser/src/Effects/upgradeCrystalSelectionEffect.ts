@@ -3,7 +3,7 @@ import { arcaneMissileTargeted } from "@Effects/arcaneMissileTargeted";
 import { healingHitEffect } from "@Effects/healingHitEffect";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
-import { getCurrentScene, getState } from "@Models/State";
+import { getState } from "@Models/State";
 import { getCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
 import { mixHexColors } from "@UI/theme";
 import { delay, tween } from "@Utils/animation";
@@ -36,7 +36,6 @@ export async function playUpgradeCrystalSelectionEffect({
 	cardObjects,
 	accentColor = DEFAULT_ACCENT_COLOR,
 }: UpgradeCrystalSelectionEffectProps): Promise<void> {
-	const scene = getCurrentScene();
 	const target = getCrystalTargetPoint();
 	const projectileColors = [
 		mixHexColors(accentColor, 0xffffff, 0.55),
@@ -45,14 +44,14 @@ export async function playUpgradeCrystalSelectionEffect({
 	];
 	const impactColors = [mixHexColors(accentColor, 0xffffff, 0.75), accentColor];
 
-	const shardEmitter = createCardDissolveEmitter(scene, cardCenter, cardSize, projectileColors);
+	const shardEmitter = createCardDissolveEmitter(cardCenter, cardSize, projectileColors);
 	const targetOrb = createCrystalAbsorptionOrb(target, accentColor);
 	const targetOrbUpdate = (time: number) => {
 		targetOrb.update(time);
 	};
 
-	scene.events.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
-	scene.time.delayedCall(TARGET_ORB_DISSOLVE_DELAY_MS, () => {
+	io.scene.events.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+	io.scene.time.delayedCall(TARGET_ORB_DISSOLVE_DELAY_MS, () => {
 		targetOrb.startDissolve();
 	});
 
@@ -87,7 +86,7 @@ export async function playUpgradeCrystalSelectionEffect({
 		await Promise.all([
 			fadeCardPromise,
 			Promise.all(projectilePromises),
-			delay(PROJECTILE_ORB_DELAY_MS).then(() => healingHitEffect(scene, target, 280)),
+			delay(PROJECTILE_ORB_DELAY_MS).then(() => healingHitEffect(target, 280)),
 			delay(SHARD_EMISSION_DURATION_MS).then(() => {
 				shardEmitter.stop();
 			}),
@@ -95,21 +94,20 @@ export async function playUpgradeCrystalSelectionEffect({
 
 		await delay(120);
 	} finally {
-		scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+		io.scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
 		shardEmitter.destroy();
 		targetOrb.destroy();
 	}
 }
 
 function createCardDissolveEmitter(
-	scene: Phaser.Scene,
 	cardCenter: Point,
 	cardSize: { width: number; height: number },
 	colors: number[]
 ): Phaser.GameObjects.Particles.ParticleEmitter {
-	ensureShardTexture(scene);
+	ensureShardTexture(io.scene);
 
-	return scene.add
+	return io.scene.add
 		.particles(cardCenter.x, cardCenter.y, SHARD_TEXTURE_KEY, {
 			tint: colors,
 			lifespan: { min: 260, max: 520 },
@@ -151,9 +149,8 @@ function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOr
 	orb.getShader().setScale(0.55);
 
 	const shader = orb.getShader();
-	const scene = getCurrentScene();
 
-	scene.tweens.add({
+	io.scene.tweens.add({
 		targets: shader,
 		scaleX: 1.08,
 		scaleY: 1.08,

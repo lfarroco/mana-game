@@ -1,5 +1,4 @@
-import type Phaser from "phaser";
-import { getCurrentScene } from "@Models/State";
+import * as io from "@PhaserIO"
 
 type CustomTweenProps = Omit<
 	Phaser.Types.Tweens.TweenBuilderConfig,
@@ -13,12 +12,6 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	const { targets, onComplete: userOnCompleteCallback, ...restOfConfig } = attributes;
 
 	if (targets.length === 0 || !targets[0]) {
-		return Promise.resolve();
-	}
-
-	const scene = getCurrentScene();
-	if (!scene || !scene.tweens) {
-		if (userOnCompleteCallback) userOnCompleteCallback();
 		return Promise.resolve();
 	}
 
@@ -36,7 +29,7 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	}
 
 	return new Promise<void>((resolve, _reject) => {
-		scene.tweens.add({
+		io.scene.tweens.add({
 			...phaserTweenConfig,
 			onComplete: () => {
 				if (userOnCompleteCallback) {
@@ -50,15 +43,10 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 
 export const delay = (duration: number) =>
 	new Promise<void>((resolve) => {
-		const scene = getCurrentScene();
-		if (scene && scene.time) {
-			scene.time.addEvent({
-				delay: duration,
-				callback: () => {
-					resolve();
-				},
-			});
-		} else {
-			setTimeout(resolve, duration);
-		}
+		io.scene.time.addEvent({
+			delay: duration,
+			callback: () => {
+				resolve();
+			},
+		});
 	});

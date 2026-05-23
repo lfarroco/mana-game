@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
-import { getCurrentScene, getState, State } from "@Models/State";
+import { getState, State } from "@Models/State";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@Models/BoardLogic";
 
@@ -30,7 +30,6 @@ export function createBoardState(): BoardState {
 }
 
 export function renderBoardSlots(board: BoardState): void {
-	const scene = getCurrentScene();
 
 	destroyVisuals(board);
 
@@ -90,7 +89,7 @@ export function renderBoardSlots(board: BoardState): void {
 			}
 
 			if (boardInfo.isPlayer) {
-				const dropZone = scene.add.zone(
+				const dropZone = io.scene.add.zone(
 					zoneX + constants.TILE_WIDTH / 2,
 					zoneY + constants.TILE_HEIGHT / 2,
 					constants.TILE_WIDTH,
@@ -129,11 +128,9 @@ export function setEnemyBoardVisible(visible: boolean): void {
 				slot.setVisible(true);
 				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
 
-				const scene = getCurrentScene();
+				io.scene.tweens.killTweensOf(slot.getShader());
 
-				scene.tweens.killTweensOf(slot.getShader());
-
-				scene.tweens.add({
+				io.scene.tweens.add({
 					targets: slot.getShader(),
 					x: targetX,
 					duration: 300,
@@ -143,11 +140,10 @@ export function setEnemyBoardVisible(visible: boolean): void {
 			});
 		} else {
 			board.cpuSlotShaders.forEach((slot, index) => {
-				const scene = getCurrentScene();
 
-				scene.tweens.killTweensOf(slot.getShader());
+				io.scene.tweens.killTweensOf(slot.getShader());
 
-				scene.tweens.add({
+				io.scene.tweens.add({
 					targets: slot.getShader(),
 					x: offScreenX,
 					duration: 300,
