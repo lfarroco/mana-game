@@ -21,12 +21,15 @@ export async function itemClickPurchaseRequested(
 ): Promise<void> {
 	const state = getState();
 
+	// TODO: only the server check is needed...
+
 	// Step 1: Use pure function to validate and determine purchase outcome
 	const purchaseResult = PureShop.processPurchase(state.session, shopUnitData.cardId, shopCharaId, {
 		x: dragStartX,
 		y: dragStartY,
 	});
 
+	// TODO: (might not be needed) should be building an event, not relaying
 	// If validation failed, emit failure events and return
 	if (!purchaseResult.success) {
 		for (const event of purchaseResult.events) {
@@ -54,6 +57,4 @@ export async function itemClickPurchaseRequested(
 		return;
 	}
 
-	// Success path is now fully driven by server-synced phase rendering in GameController.
-	// Do not mutate local state or emit UnitPurchased visuals here.
 }
