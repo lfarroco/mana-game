@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { createUIButton } from "@Components/UIButton";
 import { loadGame } from "@Game/effects/loadGame";
 import { getSavedData } from "@Game/effects/getSavedData";
-import { startGame } from "@Game/effects/startGame";
+import { startGame } from "Client/Scenes/Title/effects/startGame";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Scenes/Title/components/collectionButton";

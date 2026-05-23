@@ -7,10 +7,12 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Systems from "@Systems/BattlegroundSystems";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import { getGameController } from "@Core/GameControllerFactory";
-import { startGame } from "@Game/effects/startGame";
+import { startGame } from "Client/Scenes/Title/effects/startGame";
 import { State } from "@Models/State";
 import * as StatsStore from "@Models/StatsStore";
 import * as CrystalSelectionScene from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
+import * as updateDisplay from "../CrystalSelection/Effects/updateDisplay";
+import * as startGameWithCrystal from "../CrystalSelection/Effects/startGameWithCrystal";
 import { handleCombatStartExecution } from "@Systems/CombatPhase";
 import { chooseEncounter as executeEncounterChoice } from "@Systems/Encounter";
 import { getCurrentScene, getState } from "@Models/State";
@@ -201,13 +203,13 @@ export function clickNewRun() {
 }
 
 export function selectCrystal(index: number) {
-	CrystalSelectionScene.currentIndex = index;
-	CrystalSelectionScene.updateDisplay();
+	CrystalSelectionScene.state.currentIndex = index;
+	updateDisplay.updateDisplay();
 	return `Selected crystal at index ${index}`;
 }
 
 export function confirmCrystalSelection() {
-	CrystalSelectionScene.startGameWithCrystal();
+	startGameWithCrystal.startGameWithCrystal();
 	return "Confirmed crystal selection";
 }
 
