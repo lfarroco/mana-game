@@ -3,7 +3,7 @@ import * as constants from "@Constants/constants";
 import { Chara, getCharaById, getUnit } from "@Systems/Chara/Chara";
 import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
-import { compactNumber } from "utils";
+import { compactNumber } from "@utils";
 import { ABILITY_COLORS } from "@Models/Abilities";
 import { getState } from "@Models/State";
 

@@ -21,6 +21,15 @@ A trigger-based autobattler in a 3x3 board.
 - **Electron** - Desktop wrapper
 - **Steam** - Achievements & cloud saves
 
+## Architecture
+
+- Client
+  - Screens (Scenes)
+    - Components
+    - Effects
+  - Events
+- Server
+
 ## Documentation
 
 Detailed documentation is organized by topic in the `docs` directory:

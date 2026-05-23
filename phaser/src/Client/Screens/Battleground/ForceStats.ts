@@ -6,7 +6,7 @@ import { getBattleCore, getPlayerPersistentCore } from "@Models/Entities/Card";
 import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
-import { compactNumber } from "utils";
+import { compactNumber } from "@utils";
 import Phaser from "phaser";
 import { getState } from "@Models/State";
 import { createLogger } from "@Utils/Logger";

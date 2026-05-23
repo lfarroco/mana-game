@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { makeUnit, Unit } from "@Models/Entities/Unit";
-import { pickRandom } from "utils";
+import { pickRandom } from "@utils";
 import { generateNextSeed } from "@Models/Seed";
 
 type Session = {

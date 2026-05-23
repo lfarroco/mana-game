@@ -1,3 +1,4 @@
+import "phaser"
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
@@ -44,7 +45,7 @@ export const game = new Phaser.Game({
 OptionsStore.init();
 StatsStore.init();
 
-if (process.env.NODE_ENV === "development") {
-	//window.debugController = DebugController;
-	(window as Window & { game?: Phaser.Game }).game = game;
-}
+// if (process.env.NODE_ENV === "development") {
+// 	//window.debugController = DebugController;
+// 	(window as Window & { game?: Phaser.Game }).game = game;
+// }

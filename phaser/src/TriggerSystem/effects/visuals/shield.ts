@@ -1,8 +1,8 @@
-import { arcaneMissileTargeted } from "Effects";
+import * as Effects from "@Effects/index";
 
 export function shieldFx(source: Vec2, target: Vec2, onHit: () => void) {
 
-	arcaneMissileTargeted(source, target, {
+	Effects.arcaneMissileTargeted(source, target, {
 		//golden tones
 		colors: [
 			0xFFD700,

@@ -4,79 +4,85 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "outDir": "./dist/",
-        "baseUrl": "./src",
+        "rootDir": "./src/",
         "paths": {
             "@Models/*": [
-                "Models/*"
+                "./src/Models/*"
             ],
             "@Scenes/*": [
-                "Engine/Scenes/*"
+                "./src/Engine/Scenes/*"
             ],
             "@Systems/*": [
-                "Systems/*"
+                "./src/Systems/*"
             ],
             "@UI/*": [
-                "UI/*"
+                "./src/UI/*"
             ],
             "@Utils/*": [
-                "Utils/*"
+                "./src/Utils/*"
             ],
             "@Constants/*": [
-                "Constants/*"
+                "./src/Constants/*"
             ],
             "@PhaserIO": [
-                "phaser.io.ts"
+                "./src/phaser.io.ts"
             ],
             "@Components/*": [
-                "Components/*"
+                "./src/Components/*"
             ],
             "@Shaders/*": [
-                "Shaders/*"
+                "./src/Shaders/*"
             ],
             "@i18n/*": [
-                "i18n/*"
+                "./src/i18n/*"
             ],
             "@lib/*": [
-                "lib/*"
+                "./src/lib/*"
             ],
             "@Core/*": [
-                "Core/*"
+                "./src/Core/*"
             ],
             "@Multiplayer/*": [
-                "Multiplayer/*"
+                "./src/Multiplayer/*"
             ],
             "@Data/*": [
-                "Data/*"
+                "./src/Data/*"
             ],
             "@Game/*": [
-                "Game/*"
+                "./src/Game/*"
             ],
             "@TriggerSystem/*": [
-                "TriggerSystem/*"
+                "./src/TriggerSystem/*"
+            ],
+            "Client/*": [
+                "./src/Client/*"
+            ],
+            "TriggerSystem/*": [
+                "./src/TriggerSystem/*"
             ],
             "@config": [
-                "config.ts"
+                "./src/config.ts"
             ],
-                "@main": [
-                    "main.ts"
-                ],
+            "@main": [
+                "./src/main.ts"
+            ],
             "@Storage/*": [
-                "Storage/*"
+                "./src/Storage/*"
             ],
             "@Effects/*": [
-                "Effects/*"
+                "./src/Effects/*"
             ],
             "@Engine/*": [
-                "Engine/*"
+                "./src/Engine/*"
             ],
             "@assets": [
-                "assets.ts"
+                "./src/assets.ts"
             ],
             "@utils": [
-                "utils.ts"
+                "./src/utils.ts"
             ],
             "@test-utils/*": [
-                "test-utils/*"
+                "./src/test-utils/*"
             ]
         },
         "lib": [

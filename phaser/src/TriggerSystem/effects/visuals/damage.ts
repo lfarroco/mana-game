@@ -1,4 +1,4 @@
-import { arcaneMissileTargeted } from "Effects";
+import { arcaneMissileTargeted } from "@Effects/index";
 
 export function damageFx(source: Vec2, target: Vec2, onHit: () => void) {
 

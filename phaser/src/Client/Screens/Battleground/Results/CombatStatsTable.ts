@@ -9,7 +9,7 @@ import { getCurrentScene } from "@Models/State";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { createPanel } from "@Components/Panel";
 import { getName, t } from "@i18n/i18n";
-import { compactNumber } from "utils";
+import { compactNumber } from "@utils";
 
 const PANEL_CONFIG = {
 	width: 600,
