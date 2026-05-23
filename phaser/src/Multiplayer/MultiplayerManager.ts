@@ -457,6 +457,7 @@ export async function enableMultiplayer(
 	deferredModeActive = true;
 	currentMultiplayerQueueType = queueType;
 	deferredSelectedCrystalId = selectedCrystalId || null;
+	//TODO: this should be initialized before getting into the scene...
 	await initializeAuthSession();
 	logger.info("Multiplayer mode enabled with deterministic deferred processing", {
 		hasSelectedCrystal: Boolean(selectedCrystalId),
@@ -471,14 +472,14 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 	const sanitizedPayload = safeClonePayload(payload);
 	const effectivePayload =
 		optionId === "combat_encounter" &&
-		(sanitizedPayload === undefined ||
-			(typeof sanitizedPayload === "object" && sanitizedPayload !== null))
+			(sanitizedPayload === undefined ||
+				(typeof sanitizedPayload === "object" && sanitizedPayload !== null))
 			? {
-					...(typeof sanitizedPayload === "object" && sanitizedPayload !== null
-						? (sanitizedPayload as Record<string, unknown>)
-						: {}),
-					sessionType: getMultiplayerSessionType(),
-				}
+				...(typeof sanitizedPayload === "object" && sanitizedPayload !== null
+					? (sanitizedPayload as Record<string, unknown>)
+					: {}),
+				sessionType: getMultiplayerSessionType(),
+			}
 			: sanitizedPayload;
 
 	if (deferredModeActive) {

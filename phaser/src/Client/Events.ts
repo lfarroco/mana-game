@@ -21,9 +21,9 @@ export type ClientEvent = {
 export type EventHandler<T extends ClientEvent> = (event: T) =>
 	void | Promise<void>;
 
-// ===========================================================================
+// ==========================================================================
 // Shop Events
-// ===========================================================================
+// ==========================================================================
 
 export type ShopOpenedEvent = ClientEvent & {
 	type: "ShopOpened";
@@ -58,9 +58,9 @@ export type UnitSoldEvent = ClientEvent & {
 	unitId: string;
 };
 
-// ===========================================================================
+// ==========================================================================
 // Unit Events
-// ===========================================================================
+// ==========================================================================
 
 export type UnitSpawnedEvent = ClientEvent & {
 	type: "UnitSpawned";
@@ -86,9 +86,9 @@ export type UnitDestroyedEvent = ClientEvent & {
 	unitId: string;
 };
 
-// ===========================================================================
+// ==========================================================================
 // Phase Events
-// ===========================================================================
+// ==========================================================================
 
 export type PhaseSkippedEvent = ClientEvent & {
 	type: "PhaseSkipped";
@@ -105,9 +105,9 @@ export type PhaseEndedEvent = ClientEvent & {
 	phaseName: string;
 };
 
-// ===========================================================================
+// ==========================================================================
 // UI Events
-// ===========================================================================
+// ==========================================================================
 
 export type ResourcesChangedEvent = ClientEvent & {
 	type: "ResourcesChanged";
@@ -117,9 +117,9 @@ export type ResourcesChangedEvent = ClientEvent & {
 	round?: number;
 };
 
-// ===========================================================================
+// ==========================================================================
 // Union Types
-// ===========================================================================
+// ==========================================================================
 
 export type ShopEvent =
 	| ShopOpenedEvent
@@ -138,9 +138,9 @@ export type PhaseEvent = PhaseSkippedEvent | PhaseStartedEvent | PhaseEndedEvent
 
 export type AllSystemEvents = ShopEvent | UnitEvent | PhaseEvent | ResourcesChangedEvent;
 
-// ===========================================================================
+// ==========================================================================
 // Event Creation Helpers
-// ===========================================================================
+// ==========================================================================
 
 const createTimestamp = (): number => Date.now();
 
@@ -195,11 +195,14 @@ export const createUnitSoldEvent = (unitId: string): UnitSoldEvent => ({
 	unitId,
 });
 
-export const createPhaseSkippedEvent = (phaseName: string): PhaseSkippedEvent => ({
-	type: "PhaseSkipped",
-	timestamp: createTimestamp(),
-	phaseName,
-}); export function subscribe<T extends ClientEvent>(
+export const createPhaseSkippedEvent =
+	(phaseName: string): PhaseSkippedEvent => ({
+		type: "PhaseSkipped",
+		timestamp: createTimestamp(),
+		phaseName,
+	});
+
+export function subscribe<T extends ClientEvent>(
 	eventType: T["type"],
 	handler: EventHandler<T>): void {
 	if (!eventHandlers.has(eventType)) {
@@ -207,6 +210,7 @@ export const createPhaseSkippedEvent = (phaseName: string): PhaseSkippedEvent =>
 	}
 	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<ClientEvent>);
 }
+
 export async function emit(event: AllSystemEvents): Promise<void> {
 	const handlers = eventHandlers.get(event.type);
 	if (!handlers || handlers.size === 0) {

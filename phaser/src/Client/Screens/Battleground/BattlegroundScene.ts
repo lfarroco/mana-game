@@ -11,9 +11,7 @@ import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
-import * as ServerFactory_1 from "@Core/ServerFactory";
 import * as ServerFactory from "@Core/ServerFactory";
-import * as GameControllerFactory from "@Core/GameControllerFactory";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
@@ -22,8 +20,6 @@ import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
-import * as Unit from "@Models/Entities/Unit";
-import * as constants from "@Constants/constants";
 import * as io from "@PhaserIO";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
@@ -65,6 +61,8 @@ export const createBattlegroundScreen = async (data: BattlegroundSceneData) => {
 	io.scene.time.timeScale = speed;
 	io.scene.tweens.timeScale = speed;
 
+	io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
+
 	start({ ...data });
 };
 
@@ -79,7 +77,6 @@ const start = async ({
 
 	const state = State.getState();
 
-	const session = state.session;
 	const multiplayerModeEnabled = sessionType.type === "online";
 
 	// Keep global mode state in sync so controller/server selection matches the current run type.
@@ -90,50 +87,16 @@ const start = async ({
 		MultiplayerManager.disableMultiplayer();
 	}
 
-	if (selectedCrystalId) {
-		// TODO: the game data should be initialized before even getting into this scene
+	console.log("???", state.session)
 
-		state.session.team.units = [];
-		state.session.round = 1;
-		state.session.losses = 0; // BG_CONSTANTS.INITIAL_PLAYER_LIVES is 4, so 0 losses
-
-		// TODO: there are 2 FORCE_ID_PLAYER constants
-		const crystalUnit = Unit.makeUnit(constants.FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
-		state.session.team.units.push(crystalUnit);
-		state.session.step = 0;
-
-		io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
-
-		// Create session via server adapter for unified logic
-		// This ensures the session exists before we try to get phase options
-		const server = ServerFactory_1.getServerAdapter();
-		const playerId = state.session.player_id || "sp_player_" + Date.now();
-		state.session.player_id = playerId;
-
-		await server.createSession(playerId, selectedCrystalId);
-
-		// Initialize the GameController after session creation
-		GameControllerFactory.createGameController(playerId);
-	} else {
-		state.session = session;
-
-		// Ensure GameController is initialized for resumed sessions (e.g. multiplayer reconnect)
-		const playerId = state.session.player_id || "local_player";
-		GameControllerFactory.createGameController(playerId);
-	}
-
-	cloudsBackground = new CloudsBackground.CloudsBackground({
+	new CloudsBackground.CloudsBackground({
 		preset: "forest",
 		depth: -2000,
 		timeScale: 0.3,
 	});
 
-
-	const cloudsBackgroundShader = cloudsBackground.getShader();
-
-	const bgContainer = io.scene.add.container(0, 0);
-	bgContainer.setDepth(-2000);
-	bgContainer.add([cloudsBackgroundShader]);
+	// from here, check state to figure out what to render
+	//if (state.session.phase === ...
 
 	Board.init();
 

@@ -53,7 +53,7 @@ function showSinglePlayerSubmenu() {
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
 		callback: () => {
 			hideSinglePlayerSubmenu();
-			void startGame(false);
+			void startGame({ isMultiplayer: false });
 		},
 	});
 

@@ -1,7 +1,6 @@
 import { GameController } from "@Core/GameController";
 import { createLocalGameController } from "@Core/LocalGameController";
 import { createRemoteGameController } from "@Core/RemoteGameController";
-import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 
 /**
  * Global controller instance.
@@ -15,14 +14,15 @@ let gameController: GameController | null = null;
  * @param playerId - The player's ID (required for local mode)
  * @returns A GameController instance
  */
-export const createGameController = (playerId: string): GameController => {
-	if (isMultiplayer) {
-		gameController = createRemoteGameController();
-	} else {
-		gameController = createLocalGameController(playerId);
-	}
+export const createGameController = (
+	playerId: string,
+	isMultiplayer: boolean = false,
+): GameController => {
 
-	return gameController;
+	if (isMultiplayer)
+		return createRemoteGameController();
+	else
+		return createLocalGameController(playerId);
 };
 
 /**
