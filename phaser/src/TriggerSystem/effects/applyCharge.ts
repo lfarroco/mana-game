@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 
 export function applyChargeLogicIO(
 	env: CombatEnvironment,

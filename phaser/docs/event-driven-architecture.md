@@ -263,7 +263,7 @@ This architecture follows the mana-battle-standards:
 - `phaser/src/Client/Visualizer.ts` - Visualization layer (new)
 - `phaser/src/Systems/Shop/events/itemClickPurchaseRequested.ts` - Refactored
 - `phaser/src/Systems/Shop/events/ownedUnitSold.ts` - Refactored
-- `phaser/src/Client/Scenes/Battleground/BattlegroundScene.ts` - Integrated Visualizer
+- `phaser/src/Client/Screens/Battleground/BattlegroundScene.ts` - Integrated Visualizer
 - `phaser/ARCHITECTURE_PROPOSALS.md` - Updated status
 
 ## References

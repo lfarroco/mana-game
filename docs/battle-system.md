@@ -13,7 +13,7 @@ The battle system operates on a turn-based structure with distinct phases:
 
 ### Phase Management (`PhaseManager.ts`)
 
-Located in `phaser/src/Client/Scenes/Battleground/PhaseManager.ts`.
+Located in `phaser/src/Client/Screens/Battleground/PhaseManager.ts`.
 
 The PhaseManager orchestrates the game flow:
 - Delegates to `MultiplayerPhaseManager` for multiplayer mode

@@ -1,5 +1,5 @@
 import { Force } from "@Models/Entities/Force";
-import { CombatEffects } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEffects } from "Client/Screens/Battleground/CombatEnvironment";
 
 export type PoisonSystemState = {
 	poisonRates: Map<string, number>;

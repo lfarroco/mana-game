@@ -15,7 +15,7 @@ import { makeUnit, Unit } from "@Models/Entities/Unit";
 import * as Board from "@Models/Board";
 import { getName } from "@i18n/i18n";
 import { SessionData } from "@Core/Types";
-import * as SystemEvents from "@Systems/Events";
+import * as SystemEvents from "Client/Events";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("PureShop");
@@ -159,20 +159,17 @@ export function processPurchase(
  * @returns Events to emit
  */
 export function processSale(session: SessionData, unitId: string): SystemEvents.AllSystemEvents[] {
-	const events: SystemEvents.AllSystemEvents[] = [];
 
 	// Validate unit exists
 	const unit = session.team.units.find((u: Unit) => u.id === unitId);
 	if (!unit) {
 		logger.warn(`Unit with ID ${unitId} not found for sale`);
-		return events;
+		return [];
 	}
 
 	// Create sale event
-	const saleEvent = SystemEvents.createUnitSoldEvent(unitId);
-	events.push(saleEvent);
+	return [SystemEvents.createUnitSoldEvent(unitId)]
 
-	return events;
 }
 
 /**

@@ -9,9 +9,9 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import { createUIButton, Button } from "@Components/UIButton";
 import { vec2 } from "@Models/Geometry";
-import { runCombatIO } from "Client/Scenes/Battleground/RunCombatIO";
+import { runCombatIO } from "Client/Screens/Battleground/RunCombatIO";
 import { t } from "@i18n/i18n";
-import { BattlegroundScene } from "Client/Scenes/Battleground/BattlegroundScene";
+import { BattlegroundScene } from "Client/Screens/Battleground/BattlegroundScene";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("CombatPhase");

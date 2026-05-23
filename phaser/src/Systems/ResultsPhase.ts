@@ -1,16 +1,16 @@
 import { State, getCurrentScene } from "@Models/State";
 import { delay } from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as ResultsUI from "Client/Scenes/Battleground/Results/ResultsUI";
+import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as PrestigeSystem from "@Systems/PrestigeSystem";
-import * as PhaseManager from "Client/Scenes/Battleground/PhaseManager";
+import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import { saveGameData } from "@Game/effects/saveGameData";
 import { deleteSavedData } from "@Game/effects/deleteSavedData";
 import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
-import { replayCombat, storeCombatResult } from "Client/Scenes/Battleground/RunCombatIO";
-import { WINS_TO_WIN_GAME } from "Client/Scenes/Battleground/Results/ResultsConfig";
+import { replayCombat, storeCombatResult } from "Client/Screens/Battleground/RunCombatIO";
+import { WINS_TO_WIN_GAME } from "Client/Screens/Battleground/Results/ResultsConfig";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("ResultsPhase");
@@ -96,7 +96,7 @@ async function handleDefeat(state: State): Promise<void> {
 	if (lives <= 0) {
 		deleteSavedData();
 
-		const { displayGameComplete } = await import("Client/Scenes/Battleground/Results/GameCompleteUI");
+		const { displayGameComplete } = await import("Client/Screens/Battleground/Results/GameCompleteUI");
 		const container = await displayGameComplete(
 			state,
 			state.session.wins,

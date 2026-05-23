@@ -1,8 +1,8 @@
 import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
-import { FORCE_ID_PLAYER } from "Client/Scenes/Battleground/ServerConstants";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
+import { FORCE_ID_PLAYER } from "Client/Screens/Battleground/ServerConstants";
 import { createLogger } from "@Utils/Logger";
 import { EffectId, Effect } from "@TriggerSystem/TriggerSystem";
 

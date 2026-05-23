@@ -2,7 +2,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { nextValue } from "@Utils/Random";
 import { pickRandom } from "@utils";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 
 export const sacrificeEffect = (
 	env: CombatEnvironment,

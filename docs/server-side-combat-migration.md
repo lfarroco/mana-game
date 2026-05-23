@@ -17,7 +17,7 @@ Instead of running combat frame-by-frame on the client, the system now:
 ### Key Components
 
 #### 1. Server-Side Simulation (`serverCombatDemo.ts`)
-- **Location**: `phaser/src/Client/Scenes/Battleground/serverCombatDemo.ts`
+- **Location**: `phaser/src/Client/Screens/Battleground/serverCombatDemo.ts`
 - **Purpose**: Runs complete combat simulation using `ServerCombatEffects`
 - **Output**: Combat logs with frame numbers, event types, and durations
 - **Usage**: Can accept any game state, making it reusable for both demo and production
@@ -38,7 +38,7 @@ export const runServerSideCombat = (inputState?: State) => {
 ```
 
 #### 2. Server Combat Effects (`ServerCombatEffects.ts`)
-- **Location**: `phaser/src/Client/Scenes/Battleground/ServerCombatEffects.ts`
+- **Location**: `phaser/src/Client/Screens/Battleground/ServerCombatEffects.ts`
 - **Purpose**: Implements `CombatEffects` interface for logging
 - **Behavior**: Records all combat events with:
   - Frame number when event occurred
@@ -46,7 +46,7 @@ export const runServerSideCombat = (inputState?: State) => {
   - All relevant parameters (amounts, IDs, durations)
 
 #### 3. Playback Controller (`CombatPlaybackController.ts`)
-- **Location**: `phaser/src/Client/Scenes/Battleground/CombatPlaybackController.ts`
+- **Location**: `phaser/src/Client/Screens/Battleground/CombatPlaybackController.ts`
 - **Purpose**: Schedules and executes animations based on combat logs
 - **Features**:
   - Implements `CombatRunner` interface for compatibility
@@ -55,7 +55,7 @@ export const runServerSideCombat = (inputState?: State) => {
   - Handles combat end when all animations complete
 
 #### 4. Integration (`RunCombatIO.ts`)
-- **Location**: `phaser/src/Client/Scenes/Battleground/RunCombatIO.ts`
+- **Location**: `phaser/src/Client/Screens/Battleground/RunCombatIO.ts`
 - **Purpose**: Entry point for client-side combat
 - **Behavior**: 
   1. Calls `runServerSideCombat()` to get logs

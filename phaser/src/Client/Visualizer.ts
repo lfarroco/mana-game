@@ -1,4 +1,4 @@
-import * as SystemEvents from "@Systems/Events";
+import * as SystemEvents from "Client/Events";
 import * as Chara from "@Systems/Chara/Chara";
 import * as charaEvents from "@Systems/Chara/events";
 import * as uiEvents from "@UI/events";
@@ -8,9 +8,9 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("Visualizer");
 
-type EventHandler<T extends SystemEvents.SystemEvent> = (event: T) => void | Promise<void>;
+type EventHandler<T extends SystemEvents.ClientEvent> = (event: T) => void | Promise<void>;
 
-const eventHandlers: Map<string, Set<EventHandler<SystemEvents.SystemEvent>>> = new Map();
+const eventHandlers: Map<string, Set<EventHandler<SystemEvents.ClientEvent>>> = new Map();
 
 export function initializeVisualizer(): void {
 
@@ -25,14 +25,14 @@ export function initializeVisualizer(): void {
 
 }
 
-function subscribe<T extends SystemEvents.SystemEvent>(
+function subscribe<T extends SystemEvents.ClientEvent>(
 	eventType: T["type"],
 	handler: EventHandler<T>
 ): void {
 	if (!eventHandlers.has(eventType)) {
 		eventHandlers.set(eventType, new Set());
 	}
-	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<SystemEvents.SystemEvent>);
+	eventHandlers.get(eventType)!.add(handler as unknown as EventHandler<SystemEvents.ClientEvent>);
 }
 
 export async function emit(event: SystemEvents.AllSystemEvents): Promise<void> {

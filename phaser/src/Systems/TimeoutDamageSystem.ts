@@ -3,7 +3,7 @@ import { applyDamageToForce, Force } from "@Models/Entities/Force";
 
 import { State } from "@Models/State";
 import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("TimeoutDamageSystem");

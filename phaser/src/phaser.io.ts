@@ -1,7 +1,7 @@
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
-import { renderCrystalSelectionScreen } from "Client/Scenes/CrystalSelection/CrystalSelectionScene";
-import { renderTitleScreen } from "Client/Scenes/Title/TitleScene";
+import { renderCrystalSelectionScreen } from "Client/Screens/CrystalSelection/CrystalSelectionScene";
+import { renderTitleScreen } from "Client/Screens/Title/TitleScene";
 import Phaser from "phaser";
 
 export let scene: Phaser.Scene;

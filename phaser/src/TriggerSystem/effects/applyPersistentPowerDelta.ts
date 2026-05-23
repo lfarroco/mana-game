@@ -1,6 +1,6 @@
 import { FORCE_ID_PLAYER } from "@Constants/constants";
 import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 
 export const applyPersistentPowerDelta = (
 	env: CombatEnvironment,

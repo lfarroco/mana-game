@@ -4,11 +4,11 @@ import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip";
 import * as io from "@PhaserIO";
-import * as roundDisplay from "Client/Scenes/Battleground/Components/roundDisplay";
-import * as livesDisplay from "Client/Scenes/Battleground/Components/livesDisplay";
-import * as winsDisplay from "Client/Scenes/Battleground/Components/winsDisplay";
-import * as headerBackground from "Client/Scenes/Battleground/Components/headerBackground";
-import * as menuButton from "Client/Scenes/Battleground/Components/menuButton";
+import * as roundDisplay from "Client/Screens/Battleground/Components/roundDisplay";
+import * as livesDisplay from "Client/Screens/Battleground/Components/livesDisplay";
+import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
+import * as headerBackground from "Client/Screens/Battleground/Components/headerBackground";
+import * as menuButton from "Client/Screens/Battleground/Components/menuButton";
 export * as events from "@UI/events";
 
 let uiContainer: Container | null = null;

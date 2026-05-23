@@ -7,7 +7,7 @@ The Options system stores player preferences, renders the Options menu UI, and a
 Primary implementation areas:
 
 - `phaser/src/Models/OptionsStore.ts` (state, persistence, setters)
-- `phaser/src/Client/Scenes/Options/` (UI scene + tab controls)
+- `phaser/src/Client/Screens/Options/` (UI scene + tab controls)
 - `phaser/src/Systems/AudioManager.ts` (reacts to audio preference changes)
 
 At startup (`phaser/src/main.ts`), `OptionsStore.init()` loads persisted settings and applies runtime effects.

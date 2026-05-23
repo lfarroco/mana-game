@@ -4,7 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
 import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
-import Core from "Client/Scenes/Core/Core";
+import Core from "Client/Screens/Core/Core";
 
 export type State = {
 	savedGames: string[];

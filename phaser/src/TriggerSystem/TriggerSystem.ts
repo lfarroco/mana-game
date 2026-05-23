@@ -3,7 +3,7 @@ import * as effects from "@TriggerSystem/effects";
 import { pickRandom } from "@utils";
 import { State } from "@Models/State";
 
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("TriggerSystem");

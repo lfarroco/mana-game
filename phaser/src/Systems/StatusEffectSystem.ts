@@ -8,7 +8,7 @@ import {
 } from "@Models/Entities/Force";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
-import { CombatEnvironment } from "Client/Scenes/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
 
 const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;
 
