@@ -9,7 +9,6 @@ import { delay } from "@Utils/animation";
 import { getCharaById } from "@Systems/Chara/Chara";
 import { resetUnitStats } from "@Models/Entities/Unit";
 
-import * as Systems from "@Systems/BattlegroundSystems";
 import * as ForceStats from "Client/Scenes/Battleground/ForceStats";
 import { initBlackHole } from "Client/Scenes/Battleground/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
@@ -82,7 +81,7 @@ export const createBrowserCombatEffects = (
 
 			// Only update game state (lives, wins, losses) if this is not a replay
 			if (!isReplay) {
-				await Systems.ResultsPhase.handleCombatEnded(state, outcome);
+				//await Systems.ResultsPhase.handleCombatEnded(state, outcome);
 			} else if (onReplayEnd) {
 				// After replay ends, show the results screen again
 				await onReplayEnd();
