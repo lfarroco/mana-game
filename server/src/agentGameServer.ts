@@ -1,42 +1,38 @@
-import * as expressImport from "express";
-import type { Express, Response } from "express";
+import express, { type Express, type NextFunction, type Request, type Response } from "express";
 import {
-	BoardMove,
 	createLlmPlayerService,
-	LlmPlayerService,
-	LlmPlayerServiceConfig,
-} from "../src/Core/GameLogic";
-import type { ActionPayload } from "../src/Core/Types";
-
-const express =
-	(expressImport as typeof import("express") & { default?: typeof import("express") }).default ||
-	expressImport;
+} from "@game/Core/GameLogic";
 
 type AgentGameRecord = {
 	id: string;
-	service: LlmPlayerService;
+	service: any;
 	createdAt: string;
 };
 
 type AgentGameStore = {
 	games: Map<string, AgentGameRecord>;
-	createGame(config: LlmPlayerServiceConfig): AgentGameRecord;
+	createGame(config: any): AgentGameRecord;
 	getGame(gameId: string): AgentGameRecord | null;
 	deleteGame(gameId: string): boolean;
 	listGames(): AgentGameRecord[];
 };
 
-type CreateGameRequestBody = LlmPlayerServiceConfig & {
+type CreateGameRequestBody = {
+	playerId?: string;
+	selectedCrystalId?: string;
+	initialSeed?: string;
+	clientVersion?: string;
+	runId?: string;
 	gameId?: string;
 };
 
 type ArrangeBoardRequestBody = {
-	moves: BoardMove[];
+	moves: Array<{ unitId: string; x: number; y: number }>;
 };
 
 type MakeChoiceRequestBody = {
 	selection: number | string;
-	payload?: ActionPayload;
+	payload?: unknown;
 };
 
 const createGameId = (): string =>
@@ -59,7 +55,7 @@ const createStore = (): AgentGameStore => {
 	return {
 		games,
 
-		createGame(config: LlmPlayerServiceConfig): AgentGameRecord {
+		createGame(config: any): AgentGameRecord {
 			const id = config.runId || createGameId();
 			const record: AgentGameRecord = {
 				id,
@@ -87,7 +83,7 @@ const createStore = (): AgentGameStore => {
 	};
 };
 
-const parseCreateGameConfig = (body: unknown): LlmPlayerServiceConfig | { error: string } => {
+const parseCreateGameConfig = (body: unknown): any | { error: string } => {
 	if (!body || typeof body !== "object") {
 		return { error: "Request body must be a JSON object" };
 	}
@@ -130,11 +126,11 @@ export function createAgentGameServerApp(store: AgentGameStore = createStore()):
 	const app = express();
 
 	app.use(express.json());
-	app.use((_request, response, next) => {
+	app.use((request: Request, response: Response, next: NextFunction) => {
 		response.header("Access-Control-Allow-Origin", "*");
 		response.header("Access-Control-Allow-Headers", "Content-Type");
 		response.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
-		if (_request.method === "OPTIONS") {
+		if (request.method === "OPTIONS") {
 			response.sendStatus(204);
 			return;
 		}

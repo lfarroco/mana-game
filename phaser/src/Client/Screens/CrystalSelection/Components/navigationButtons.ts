@@ -5,19 +5,23 @@ import { vec2 } from "@Models/SharedGeometry";
 import * as _ from "../CrystalSelectionScene";
 import * as navigateToPrevious from "../Effects/navigateToPrevious";
 import * as navigateToNext from "../Effects/navigateToNext";
+import * as bg from "./background"
+
+const NAV_BUTTON_OFFSET_X = 350;
+const NAV_BUTTON_WIDTH = 200;
 
 export function navigationButtons() {
 	createUIButton({
 		text: t("crystalSelection.previous"),
-		position: vec2(constants.MIDDLE_SCREEN_X - _.NAV_BUTTON_OFFSET_X, _.CARD_DISPLAY_Y),
+		position: vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, bg.CARD_DISPLAY_Y),
 		callback: navigateToPrevious.navigateToPrevious,
-		width: _.NAV_BUTTON_WIDTH,
+		width: NAV_BUTTON_WIDTH,
 	});
 
 	createUIButton({
 		text: t("crystalSelection.next"),
-		position: vec2(constants.MIDDLE_SCREEN_X + _.NAV_BUTTON_OFFSET_X, _.CARD_DISPLAY_Y),
+		position: vec2(constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X, bg.CARD_DISPLAY_Y),
 		callback: navigateToNext.navigateToNext,
-		width: _.NAV_BUTTON_WIDTH,
+		width: NAV_BUTTON_WIDTH,
 	});
 }

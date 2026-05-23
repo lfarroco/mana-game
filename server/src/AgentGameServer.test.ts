@@ -4,8 +4,8 @@
 
 import { AddressInfo } from "net";
 import { createServer, request as httpRequest, Server } from "http";
-import { BASE_COLLECTION_DATA } from "../src/Data/BaseCollection";
-import { registerCollection } from "../src/Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@game/Data/BaseCollection";
+import { registerCollection } from "@game/Models/Entities/Card";
 import { createAgentGameServerApp, createAgentGameStore } from "./agentGameServer";
 
 beforeAll(() => {

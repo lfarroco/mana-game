@@ -1,0 +1,106 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"noEmit": false,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"baseUrl": ".",
+		"paths": {
+			"@game/*": [
+				"../phaser/src/*"
+			],
+			"@Core/*": [
+				"../phaser/src/Core/*"
+			],
+			"@Models/*": [
+				"../phaser/src/Models/*"
+			],
+			"@Data/*": [
+				"../phaser/src/Data/*"
+			],
+			"@Utils/*": [
+				"../phaser/src/Utils/*"
+			],
+			"@i18n/*": [
+				"../phaser/src/i18n/*"
+			],
+			"@Systems/*": [
+				"../phaser/src/Systems/*"
+			],
+			"@TriggerSystem/*": [
+				"../phaser/src/TriggerSystem/*"
+			],
+			"@Storage/*": [
+				"../phaser/src/Storage/*"
+			],
+			"@Effects/*": [
+				"../phaser/src/Effects/*"
+			],
+			"@Engine/*": [
+				"../phaser/src/Engine/*"
+			],
+			"@Scenes/*": [
+				"../phaser/src/Engine/Scenes/*"
+			],
+			"@UI/*": [
+				"../phaser/src/UI/*"
+			],
+			"@Constants/*": [
+				"../phaser/src/Constants/*"
+			],
+			"@Components/*": [
+				"../phaser/src/Components/*"
+			],
+			"@Shaders/*": [
+				"../phaser/src/Shaders/*"
+			],
+			"@Multiplayer/*": [
+				"../phaser/src/Multiplayer/*"
+			],
+			"@Game/*": [
+				"../phaser/src/Game/*"
+			],
+			"@lib/*": [
+				"../phaser/src/lib/*"
+			],
+			"Client/*": [
+				"../phaser/src/Client/*"
+			],
+			"TriggerSystem/*": [
+				"../phaser/src/TriggerSystem/*"
+			],
+			"@test-utils/*": [
+				"../phaser/src/test-utils/*"
+			],
+			"@config": [
+				"../phaser/src/config.ts"
+			],
+			"@main": [
+				"../phaser/src/main.ts"
+			],
+			"@assets": [
+				"../phaser/src/assets.ts"
+			],
+			"@utils": [
+				"../phaser/src/utils.ts"
+			],
+			"@PhaserIO": [
+				"../phaser/src/phaser.io.ts"
+			]
+		},
+		"types": [
+			"node"
+		],
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true
+	},
+	"exclude": [
+		"dist",
+		"node_modules",
+		"src/**/*.test.ts",
+		"src/mocks.ts"
+	]
+}

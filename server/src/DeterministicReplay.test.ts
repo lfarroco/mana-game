@@ -10,17 +10,16 @@
  * disagree on the final run outcome.
  */
 
-import { registerCollection } from "../src/Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "../src/Data/BaseCollection";
-import * as GameLogic from "../src/Core/GameLogic";
-import { RunActionQueue } from "../src/Core/RunActionQueue";
-import type { SessionData } from "../src/Core/Types";
+import { registerCollection } from "@game/Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@game/Data/BaseCollection";
+import * as GameLogic from "@game/Core/GameLogic";
+import { RunActionQueue } from "@game/Core/RunActionQueue";
 
-jest.mock("../src/i18n/i18n", () => ({
+jest.mock("@game/i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (key: string) => key,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
@@ -79,7 +78,7 @@ const RUN_ID = "golden-run-001";
  * Each action is recorded with a `teamSnapshot` of the board state at decision
  * time, mirroring how the client works in practice.
  */
-function driveSession(session: SessionData, queue: RunActionQueue, maxActions = 6): SessionData {
+function driveSession(session: any, queue: any, maxActions = 6): any {
 	const specialEncounters = ["upgrade_unit", "power_distributor", "power_absorber"];
 	let current = session;
 	let taken = 0;

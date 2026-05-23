@@ -6,15 +6,18 @@ import * as _ from "../CrystalSelectionScene";
 import { returnToTitle } from "../Effects/returnToTitle";
 import { startGameWithCrystal } from "../Effects/startGameWithCrystal";
 
+const PLAY_BUTTON_Y = 830;
+const BACK_BUTTON_Y = 930;
+
 export function actionButtons() {
 	createUIButton({
 		text: t("crystalSelection.play"),
-		position: vec2(constants.MIDDLE_SCREEN_X, _.PLAY_BUTTON_Y),
+		position: vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),
 		callback: startGameWithCrystal,
 	});
 	createUIButton({
 		text: t("crystalSelection.back"),
-		position: vec2(constants.MIDDLE_SCREEN_X, _.BACK_BUTTON_Y),
+		position: vec2(constants.MIDDLE_SCREEN_X, BACK_BUTTON_Y),
 		callback: returnToTitle,
 	});
 }

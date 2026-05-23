@@ -12,24 +12,22 @@
  *
  * Uses LocalServerAdapter which provides in-memory server-side logic without requiring a database.
  */
-import { LocalServerAdapter } from "../src/Core/LocalServerAdapter";
-import { IGameServer } from "../src/Core/IGameServer";
-import { registerCollection } from "../src/Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "../src/Data/BaseCollection";
-import { SessionData } from "../src/Core/Types";
+import { LocalServerAdapter } from "@game/Core/LocalServerAdapter";
+import { registerCollection } from "@game/Models/Entities/Card";
+import { BASE_COLLECTION_DATA } from "@game/Data/BaseCollection";
 
-jest.mock("../src/i18n/i18n", () => ({
+jest.mock("@game/i18n/i18n", () => ({
 	t: (key: string) => key,
 	getName: (key: string) => key,
-	initialize: () => {},
-	setLocale: () => {},
+	initialize: () => { },
+	setLocale: () => { },
 	getCurrentLocale: () => "en",
 	getAvailableLocales: () => ["en"],
 	getNativeName: () => "English",
 }));
 
 describe("Full Session Flow - Server Side", () => {
-	let manager: IGameServer;
+	let manager: any;
 
 	beforeAll(() => {
 		registerCollection(BASE_COLLECTION_DATA);
@@ -42,7 +40,7 @@ describe("Full Session Flow - Server Side", () => {
 	/**
 	 * Helper function to complete a single round (Encounter -> Shop -> Encounter -> Shop -> Encounter -> Shop -> Combat -> Upgrade)
 	 */
-	async function completeRound(playerId: string): Promise<{ won: boolean; session: SessionData }> {
+	async function completeRound(playerId: string): Promise<{ won: boolean; session: any }> {
 		// Pick a non-special encounter to avoid orb_shop
 		const specialEncounters = ["upgrade_unit", "power_distributor", "power_absorber"];
 

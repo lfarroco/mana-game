@@ -2,6 +2,27 @@
 
 This directory contains server-side tests for the unified single-player and multiplayer game logic.
 
+## Standalone TypeScript Project
+
+This folder is now a standalone TypeScript Node project.
+
+```bash
+cd server
+npm install
+```
+
+Available scripts:
+
+```bash
+npm run dev        # run agent server with tsx
+npm run test       # run server tests
+npm run typecheck  # tsc --noEmit
+npm run build      # emit dist/ for production
+npm run start      # run built server from dist/
+```
+
+Note: server code imports game logic from `../phaser/src` through the `@game/*` alias.
+
 ## Overview
 
 After the recent integration of single-player and multiplayer modes (see [single-multiplayer-unification.md](../docs/single-multiplayer-unification.md)), we now have comprehensive server-side tests that validate the complete game flow without requiring a UI or database.
@@ -87,13 +108,13 @@ A comprehensive test suite that validates the entire game session flow from star
 
 ```bash
 # Run all server tests
-npm test server/
+npm run test
 
 # Run only the full session flow tests
-npm test server/FullSessionFlow.test.ts
+npm run test -- FullSessionFlow.test.ts
 
 # Run with verbose output
-npm test server/FullSessionFlow.test.ts --verbose
+npm run test -- FullSessionFlow.test.ts --verbose
 ```
 
 ## Implementation Details

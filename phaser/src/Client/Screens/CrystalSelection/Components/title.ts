@@ -1,7 +1,9 @@
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import * as io from "@PhaserIO";
-import { TITLE_FONT_SIZE, TITLE_Y } from "../CrystalSelectionScene";
+
+export const TITLE_Y = 120;
+const TITLE_FONT_SIZE = "48px";
 
 export function title() {
 	return io.Text(t("crystalSelection.title"), {

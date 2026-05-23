@@ -1,11 +1,15 @@
 import { getName } from "@i18n/i18n";
 import * as io from "@PhaserIO";
-import { getCloudsBg } from "../../Title/components/cloudsBg";
+import { getCloudsBg } from "Client/Screens/Title/components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import * as _ from "../CrystalSelectionScene";
 import { CardDefinition } from "@Models/Entities/Card";
 import { colorPresets } from "@Constants/colorPresets";
 import { t } from "@i18n/i18n";
+import * as paginationDots from "../Components/paginationDots"
+
+const CLOUD_BG_ANIMATION_DURATION = 1500;
+const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
 export function updateDisplay() {
 	const crystal = _.state.crystals[_.state.currentIndex];
@@ -20,15 +24,18 @@ export function updateDisplay() {
 
 	_.state.paginationDots.forEach((dot, i) => {
 		dot.setFillStyle(
-			_.PAGINATION_DOT_COLOR,
-			i === _.state.currentIndex ? _.PAGINATION_DOT_ACTIVE_ALPHA : _.PAGINATION_DOT_INACTIVE_ALPHA
+			paginationDots.PAGINATION_DOT_COLOR
+			,
+			i === _.state.currentIndex ? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA : paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
 		);
 	});
 
 	const bg = getCloudsBg();
 	if (bg) {
 		const preset = getColorPresetForCrystal(crystal.id);
-		bg.tweenToPreset(preset, _.CLOUD_BG_ANIMATION_DURATION, _.CLOUD_BG_ANIMATION_EASE);
+		bg.tweenToPreset(
+			preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE,
+		);
 	}
 }
 
