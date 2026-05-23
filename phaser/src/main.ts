@@ -8,6 +8,11 @@ import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.
 import { initState } from "@Models/State";
 import * as phaserIO from "@PhaserIO";
 
+declare global {
+	var io: typeof phaserIO;
+}
+window.io = phaserIO;
+
 initState();
 
 export const game = new Phaser.Game({
@@ -43,9 +48,6 @@ export const game = new Phaser.Game({
 OptionsStore.init();
 StatsStore.init();
 
-declare global {
-	var io: typeof phaserIO;
-}
 
 // if (process.env.NODE_ENV === "development") {
 // 	//window.debugController = DebugController;
