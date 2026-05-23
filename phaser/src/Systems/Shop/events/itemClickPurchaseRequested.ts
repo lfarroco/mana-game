@@ -1,9 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { getState } from "@Models/State";
-import { getName } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
-import * as PureShop from "@Systems/Shop/PureShop";
-import * as Events from "Client/Events";
 
 /**
  * Handle a unit purchase request from the shop
@@ -15,46 +11,16 @@ import * as Events from "Client/Events";
  */
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
-	shopCharaId: string,
-	dragStartX: number,
-	dragStartY: number
+	_shopCharaId: string,
+	_dragStartX: number,
+	_dragStartY: number
 ): Promise<void> {
-	const state = getState();
 
-	// TODO: only the server check is needed...
-
-	// Step 1: Use pure function to validate and determine purchase outcome
-	const purchaseResult = PureShop.processPurchase(state.session, shopUnitData.cardId, shopCharaId, {
-		x: dragStartX,
-		y: dragStartY,
-	});
-
-	// TODO: (might not be needed) should be building an event, not relaying
-	// If validation failed, emit failure events and return
-	if (!purchaseResult.success) {
-		for (const event of purchaseResult.events) {
-			await Events.emit(event);
-		}
-		return;
-	}
-
-	// Step 2: Call GameController for server validation
 	const controller = getGameController();
 	const serverSuccess = await controller.purchaseUnit(shopUnitData.cardId);
 
 	if (!serverSuccess) {
-		// Server rejected the purchase - emit failure event
-		const failureEvent = {
-			type: "PurchaseFailed" as const,
-			timestamp: Date.now(),
-			cardId: shopUnitData.cardId,
-			unitName: getName(shopUnitData.cardId),
-			reason: "SERVER_REJECTED",
-			shopCharaId,
-			dragStartPosition: { x: dragStartX, y: dragStartY },
-		};
-		await Events.emit(failureEvent);
-		return;
+		throw new Error("Purchase failed on server");
 	}
 
 }

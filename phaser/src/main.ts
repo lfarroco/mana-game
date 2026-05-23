@@ -6,11 +6,8 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 import Core from "Client/Screens/Core/Core";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import { initState } from "@Models/State";
-import * as Visualizer from "Client/Visualizer";
 
 initState();
-
-Visualizer.initializeVisualizer();
 
 export const game = new Phaser.Game({
 	type: Phaser.AUTO,
