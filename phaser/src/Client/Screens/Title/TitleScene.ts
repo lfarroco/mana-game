@@ -1,16 +1,16 @@
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { arenaButton } from "Client/Screens/Title/components/arenaButton";
-import * as cloudsBg from "Client/Screens/Title/components/cloudsBg";
-import { optionsButton } from "Client/Screens/Title/components/optionsButton";
-import { logo } from "Client/Screens/Title/components/logo";
-import { howToPlay } from "Client/Screens/Title/components/howToPlay";
+import { arenaButton } from "Client/Screens/Title/Components/arenaButton";
+import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
+import { optionsButton } from "Client/Screens/Title/Components/optionsButton";
+import { logo } from "Client/Screens/Title/Components/logo";
+import { howToPlay } from "Client/Screens/Title/Components/howToPlay";
 import * as io from "@PhaserIO";
-import { languageButton } from "Client/Screens/Title/components/languageButton";
-import { linksButton } from "Client/Screens/Title/components/linksButton";
-import { singlePlayerButton } from "Client/Screens/Title/components/singlePlayerButton";
+import { languageButton } from "Client/Screens/Title/Components/languageButton";
+import { linksButton } from "Client/Screens/Title/Components/linksButton";
+import { singlePlayerButton } from "Client/Screens/Title/Components/singlePlayerButton";
 import * as StatsStore from "@Models/StatsStore";
-import { showUnlockModal } from "Client/Screens/Title/components/UnlockModal";
+import { showUnlockModal } from "Client/Screens/Title/Components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
 import * as ControlsSystem from "@Systems/Controls";
 // eslint-disable-next-line no-restricted-imports

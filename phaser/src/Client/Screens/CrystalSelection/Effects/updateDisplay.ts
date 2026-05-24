@@ -1,6 +1,6 @@
 import { getName } from "@i18n/i18n";
 import * as io from "@PhaserIO";
-import { getCloudsBg } from "Client/Screens/Title/components/cloudsBg";
+import { getCloudsBg } from "Client/Screens/Title/Components/cloudsBg";
 import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import * as _ from "../CrystalSelectionScene";
 import { CardDefinition } from "@Models/Entities/Card";

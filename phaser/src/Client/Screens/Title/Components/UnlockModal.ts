@@ -1,0 +1,71 @@
+import * as c from "@Constants/constants";
+import { vec2 } from "@Models/Geometry";
+import { createUIButton } from "@Components/UIButton";
+import { getCardDefinition } from "@Models/Entities/Card";
+import * as Chara from "@Systems/Chara/Chara";
+import { createUnitFromCardSpec } from "@Models/Entities/Unit";
+import { createDescription } from "@Systems/Chara/createDescription";
+import { createModal } from "@Components/Modal";
+import { t } from "@i18n/i18n";
+
+const PANEL_WIDTH = 1100;
+const PANEL_HEIGHT = 700;
+
+export function showUnlockModal(unitId: string): Promise<void> {
+	return new Promise(async (resolve) => {
+		const unitData = getCardDefinition(unitId);
+
+		const modal = createModal({
+			width: PANEL_WIDTH,
+			height: PANEL_HEIGHT,
+			title: "NEW UNIT UNLOCKED!",
+		});
+
+		const dummy = createUnitFromCardSpec("dummy", unitData, undefined, "");
+
+		const chara = await Chara.create(dummy);
+
+		chara.setPosition(0, -180);
+
+		const { title, description } = createDescription(chara);
+
+		const titleText = io.scene
+			.add.text(0, chara.y + 180, title, c.titleTextConfig)
+			.setOrigin(0.5);
+
+		const unlockConditionText = io.scene
+			.add.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
+				fontFamily: "Arimo",
+				fontSize: "20px",
+				color: "#ffff00",
+				align: "center",
+			})
+			.setOrigin(0.5);
+
+		const descriptionText = io.scene
+			.add.rexBBCodeText(0, unlockConditionText.y + 40, description)
+			.setFontSize(30)
+			.setWrapMode(1)
+			.setFontFamily("Arimo")
+			.setOrigin(0.5, 0);
+
+		const confirmButton = createUIButton({
+			text: t("title.unlock_modal.confirm"),
+			position: vec2(0, descriptionText.y + descriptionText.height + 60),
+			callback: () => {
+				modal.close();
+			},
+		});
+
+		modal.container.add([
+			chara,
+			titleText,
+			unlockConditionText,
+			descriptionText,
+			confirmButton.container,
+		]);
+
+		await modal.onClose;
+		resolve();
+	});
+}
