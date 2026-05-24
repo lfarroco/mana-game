@@ -75,7 +75,7 @@ export type CurrentOptionsState = {
 export type SessionData = {
 	id: string;
 	player_id: string;
-	session_type?: SessionType;
+	session_type: SessionType;
 	phase: PhaseType;
 	round: number;
 	step: number;
@@ -145,6 +145,7 @@ export type ReplaySnapshot = {
 };
 
 export type SessionType =
-	| "singleplayer"
-	| "multiplayer_casual"
-	| "multiplayer_ranked";
+	{ type: "singleplayer" } |
+	{ type: "multiplayer", queueType: MultiplayerQueueType };
+
+type MultiplayerQueueType = "casual" | "ranked";

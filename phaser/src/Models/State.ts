@@ -23,6 +23,7 @@ const initialState = (): State => {
 			id: "local_session",
 			player_id: "local_player",
 			phase: "encounter",
+			session_type: { type: "singleplayer" },
 			round: 1,
 			step: 0,
 			seed: initialSeed,

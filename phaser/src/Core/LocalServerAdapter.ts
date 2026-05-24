@@ -1,4 +1,4 @@
-import { IGameServer } from "@Core/IGameServer";
+import { GameServer } from "@Core/GameServer";
 import { SessionManager } from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
 import {
@@ -25,7 +25,7 @@ const cloneValue = <T>(value: T): T => {
  * Local in-memory implementation of the game server.
  * Used for single-player mode - runs all game logic locally without network calls.
  */
-export class LocalServerAdapter implements IGameServer {
+export class LocalServerAdapter implements GameServer {
 	// Made public to allow debugging/testing scenarios to set up arbitrary session states
 	// See: DebugController.startBattlegroundWithSession()
 	sessionManager = new SessionManager();

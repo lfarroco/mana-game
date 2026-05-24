@@ -1,4 +1,4 @@
-import { PhaseOptions } from "@Multiplayer/MultiplayerTypes";
+import { MultiplayerQueueType, PhaseOptions } from "@Multiplayer/MultiplayerTypes";
 import { PhaseType, PlayerProfile, RankedPlayersPage } from "@Multiplayer/MultiplayerTypes";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
@@ -11,11 +11,6 @@ import { submitRunManifest } from "@Core/DeferredSubmission";
 import { FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
 import type { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { createLogger } from "@Utils/Logger";
-import {
-	MultiplayerQueueType,
-	toMultiplayerSessionType,
-	parseMultiplayerQueueType,
-} from "@Multiplayer/MultiplayerTypes";
 
 // Internal state
 let isMultiplayer: boolean = false;
@@ -27,6 +22,8 @@ let deferredSession: SessionData | null = null;
 let runQueue: RunActionQueue | null = null;
 let runSubmitted = false;
 let deferredSelectedCrystalId: string | null = null;
+
+// TODO: deprecate this, use multiplayer_casual and multiplayer_ranked session types instead
 let currentMultiplayerQueueType: MultiplayerQueueType = "casual";
 const logger = createLogger("MultiplayerManager");
 const DEFERRED_SESSION_STORAGE_KEY_PREFIX = "mana_deferred_session_";
@@ -73,7 +70,11 @@ const getDeferredSessionStorageKey = (
 ): string => `${DEFERRED_SESSION_STORAGE_KEY_PREFIX}${id}_${queueType}`;
 
 const persistDeferredSession = (session: SessionData): void => {
-	session.session_type = toMultiplayerSessionType(currentMultiplayerQueueType);
+	// TODO: this is not needed?
+	session.session_type = {
+		type: "multiplayer",
+		queueType: currentMultiplayerQueueType,
+	}
 	localStorage.setItem(
 		getDeferredSessionStorageKey(playerId),
 		JSON.stringify({ ...session, player_id: playerId })
@@ -104,29 +105,27 @@ const restorePersistedDeferredSession = (): SessionData | null => {
 		return null;
 	}
 
-	try {
-		const parsed = JSON.parse(raw) as Partial<SessionData>;
-		if (!parsed || typeof parsed !== "object") {
-			return null;
-		}
-
-		if (parsed.player_id && parsed.player_id !== playerId) {
-			return null;
-		}
-
-		if (!parsed.phase || !parsed.round || !parsed.seed || !parsed.initial_seed || !parsed.team) {
-			return null;
-		}
-
-		const queueTypeFromSession = parseMultiplayerQueueType(parsed.session_type);
-		if (queueTypeFromSession) {
-			currentMultiplayerQueueType = queueTypeFromSession;
-		}
-
-		return parsed as SessionData;
-	} catch {
+	const parsed = JSON.parse(raw) as Partial<SessionData>;
+	if (!parsed || typeof parsed !== "object") {
 		return null;
 	}
+
+	if (parsed.player_id && parsed.player_id !== playerId) {
+		return null;
+	}
+
+	if (!parsed.phase || !parsed.round || !parsed.seed || !parsed.initial_seed || !parsed.team) {
+		return null;
+	}
+
+	if (parsed.session_type) {
+		if (parsed.session_type.type === "singleplayer") {
+			throw new Error("Invalid session type in persisted deferred session");
+		}
+		currentMultiplayerQueueType = parsed.session_type.queueType;
+	}
+
+	return parsed as SessionData;
 };
 
 const restorePersistedDeferredSessionForMode = (
@@ -140,13 +139,9 @@ const restorePersistedDeferredSessionForMode = (
 };
 
 const getClientVersion = (): string => {
-	try {
-		return typeof process !== "undefined" && typeof process.env.APP_VERSION === "string"
-			? process.env.APP_VERSION
-			: "dev";
-	} catch {
-		return "dev";
-	}
+	return typeof process !== "undefined" && typeof process.env.APP_VERSION === "string"
+		? process.env.APP_VERSION
+		: "dev";
 };
 
 const cloneSession = (session: SessionData): SessionData =>
@@ -478,7 +473,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 				...(typeof sanitizedPayload === "object" && sanitizedPayload !== null
 					? (sanitizedPayload as Record<string, unknown>)
 					: {}),
-				sessionType: getMultiplayerSessionType(),
+				sessionType: state.session.session_type.type,
 			}
 			: sanitizedPayload;
 
@@ -504,7 +499,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 				deferredSession.round,
 				deferredSession.wins,
 				deferredSession.seed,
-				deferredSession.session_type || getMultiplayerSessionType(),
+				deferredSession.session_type.type,
 				deferredSession.team
 			);
 			if (enemyCombatData) {
@@ -612,9 +607,6 @@ export async function checkActiveSessionByType(
 }
 
 export const getMultiplayerQueueType = (): MultiplayerQueueType => currentMultiplayerQueueType;
-
-export const getMultiplayerSessionType = (): string =>
-	toMultiplayerSessionType(currentMultiplayerQueueType);
 
 // Requests the current phase options from the server
 export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
@@ -731,7 +723,10 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 }
 
 export function primeDeferredSession(session: SessionData, selectedCrystalId?: string) {
-	const queueTypeFromSession = parseMultiplayerQueueType(session.session_type);
+	if (session.session_type.type === "singleplayer") {
+		throw new Error("Cannot prime deferred session for singleplayer mode");
+	}
+	const queueTypeFromSession = session.session_type.queueType;
 	if (queueTypeFromSession) {
 		currentMultiplayerQueueType = queueTypeFromSession;
 	}

@@ -2,26 +2,8 @@ import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { Unit } from "@Models/Entities/Unit";
 import { PhaseOption } from "@Core/Types";
 
+// TODO: those types are not multiplayer specific... check for duplicated logic in server
 export type MultiplayerQueueType = "casual" | "ranked";
-export type MultiplayerSessionType = `multiplayer_${MultiplayerQueueType}`;
-
-export const toMultiplayerSessionType = (
-	queueType: MultiplayerQueueType
-): MultiplayerSessionType => `multiplayer_${queueType}`;
-
-export const parseMultiplayerQueueType = (
-	sessionType?: string | null
-): MultiplayerQueueType | null => {
-	if (sessionType === "multiplayer_casual") {
-		return "casual";
-	}
-
-	if (sessionType === "multiplayer_ranked") {
-		return "ranked";
-	}
-
-	return null;
-};
 
 export type PhaseType =
 	| "encounter"
@@ -51,17 +33,6 @@ export interface PhaseOptions {
 	losses?: number;
 }
 
-// For Encounter Phase
-export interface EncounterOption {
-	id: string;
-	// Potentially other server-sent data like custom description override
-}
-
-// For Shop Phase
-export interface ShopOption {
-	id: string; // "card:archer" etc
-	cost: number;
-}
 
 export type PlayerProfile = {
 	id: string;

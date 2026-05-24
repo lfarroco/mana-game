@@ -10,7 +10,6 @@ import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
-import * as ServerFactory from "@Core/ServerFactory";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
@@ -45,21 +44,19 @@ export const createBattlegroundScreen = async (data: BattlegroundSceneData) => {
 
 const start = async ({
 	selectedCrystalId,
-	sessionType,
 }: BattlegroundSceneData) => {
 	// TODO: the start for this scene should be just:
 	// - render boards
 	// - render untis
 	// - display current phase
 
-	const multiplayerModeEnabled = sessionType.type === "online";
 
 	// Keep global mode state in sync so controller/server selection matches the current run type.
-	ServerFactory.ServerFactory.setMultiplayer(multiplayerModeEnabled);
-	if (multiplayerModeEnabled) {
-		await MultiplayerManager.enableMultiplayer(selectedCrystalId, sessionType.queueType);
-	} else {
+	if (state.session.session_type.type === "singleplayer") {
+
 		MultiplayerManager.disableMultiplayer();
+	} else {
+		await MultiplayerManager.enableMultiplayer(selectedCrystalId, state.session.session_type.queueType);
 	}
 
 	new CloudsBackground.CloudsBackground({
@@ -67,7 +64,6 @@ const start = async ({
 		depth: -2000,
 		timeScale: 0.3,
 	});
-
 
 	// from here, check state to figure out what to render
 	//if (state.session.phase === ...
@@ -96,7 +92,8 @@ const start = async ({
 	});
 
 	UIManager.init(state);
-	if (multiplayerModeEnabled) {
+
+	if (state.session.session_type.type !== "singleplayer") {
 		playerNamesDisplay.create();
 
 		const profile = await MultiplayerManager.getPlayerProfile(state.session.player_id);
@@ -115,7 +112,7 @@ const start = async ({
 	AudioManager.playMusic("music_battlemap_vetruv");
 
 	PhaseManager.startPhase(state, {
-		showReadyOnInitialCombat: multiplayerModeEnabled && !selectedCrystalId,
+		showReadyOnInitialCombat: true
 	});
 };
 

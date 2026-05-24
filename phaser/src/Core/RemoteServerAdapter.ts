@@ -1,9 +1,9 @@
-import { IGameServer } from "@Core/IGameServer";
-import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState, SessionType } from "@Core/Types";
+import { GameServer } from "@Core/GameServer";
+import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { supabase } from "@lib/supabase";
-import { primeDeferredSession, getMultiplayerSessionType } from "@Multiplayer/MultiplayerManager";
+import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("RemoteServerAdapter");
@@ -24,7 +24,7 @@ const generateSessionSeed = (): string => {
  * Remote implementation of the game server using Supabase.
  * Used for multiplayer mode - communicates with Supabase Edge Functions.
  */
-export class RemoteServerAdapter implements IGameServer {
+export class RemoteServerAdapter implements GameServer {
 	private playerId: string;
 
 	constructor(playerId?: string) {
@@ -39,7 +39,7 @@ export class RemoteServerAdapter implements IGameServer {
 	}
 
 	async createSession(_playerId: string, crystalId: string): Promise<SessionData> {
-		const sessionType = getMultiplayerSessionType() as SessionType;
+		const sessionType = state.session.session_type;
 		const seed = generateSessionSeed();
 		const { data, error } = await supabase.functions.invoke("action", {
 			body: {
@@ -140,9 +140,9 @@ export class RemoteServerAdapter implements IGameServer {
 		const bodyPayload =
 			actionId === "combat_encounter" && (!payload || typeof payload === "object")
 				? {
-						...(payload || {}),
-						sessionType: getMultiplayerSessionType(),
-					}
+					...(payload || {}),
+					sessionType: state.session.session_type,
+				}
 				: payload;
 
 		const { error } = await supabase.functions.invoke("action", {

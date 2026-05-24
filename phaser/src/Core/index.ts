@@ -20,7 +20,7 @@ export { SessionManager } from "@Core/SessionManager";
 export { PhaseTransitions } from "@Core/PhaseTransitions";
 
 // Server Interface & Implementations
-export type { IGameServer } from "@Core/IGameServer";
+export type { GameServer as IGameServer } from "@Core/GameServer";
 export { LocalServerAdapter } from "@Core/LocalServerAdapter";
 export { RemoteServerAdapter } from "@Core/RemoteServerAdapter";
 export { ServerFactory, getServerAdapter } from "@Core/ServerFactory";

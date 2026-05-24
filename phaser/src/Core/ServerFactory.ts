@@ -1,45 +1,26 @@
-import { IGameServer } from "@Core/IGameServer";
+import { GameServer } from "@Core/GameServer";
 import { LocalServerAdapter } from "@Core/LocalServerAdapter";
 import { RemoteServerAdapter } from "@Core/RemoteServerAdapter";
 
 type ServerFactoryApi = {
-	getServer: () => IGameServer;
-	setMultiplayer: (multiplayer: boolean) => void;
-	isInMultiplayerMode: () => boolean;
-	reset: () => void;
+	getServer: () => GameServer;
 };
 
-let instance: IGameServer | null = null;
-let multiplayerMode = false;
+let instance: GameServer | null = null;
 
-const getServer = (): IGameServer => {
+const getServer = (): GameServer => {
 	if (!instance) {
-		instance = multiplayerMode ? new RemoteServerAdapter() : new LocalServerAdapter();
+		instance = state.session.session_type.type === "singleplayer" ?
+			new LocalServerAdapter() :
+			new RemoteServerAdapter();
 	}
 	return instance;
 };
 
-const setMultiplayer = (multiplayer: boolean): void => {
-	if (multiplayerMode !== multiplayer) {
-		multiplayerMode = multiplayer;
-		instance = multiplayer ? new RemoteServerAdapter() : new LocalServerAdapter();
-	}
-};
-
-const isInMultiplayerMode = (): boolean => multiplayerMode;
-
-const reset = (): void => {
-	instance = null;
-	multiplayerMode = false;
-};
-
 export const ServerFactory: ServerFactoryApi = {
 	getServer,
-	setMultiplayer,
-	isInMultiplayerMode,
-	reset,
 };
 
-export function getServerAdapter(): IGameServer {
+export function getServerAdapter(): GameServer {
 	return getServer();
 }
