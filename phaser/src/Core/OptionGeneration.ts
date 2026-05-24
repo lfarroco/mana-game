@@ -32,16 +32,13 @@ const ENCOUNTER_IDS = [
  * Generate the three encounter options available to the player.
  * Uses recent encounter history to avoid repetition within the last 12 encounters.
  */
-export function generateEncounterOptions(session: Types.SessionData): {
-	options: Types.PhaseOption[];
-	nextPhase?: string;
-} {
+export function generateEncounterOptions(session: Types.SessionData): Types.PhaseOption[] {
 	// Check what phase we should be at for this turn
 	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, session.step);
 
 	// If the expected phase is combat, show combat_encounter as the only option (pre-combat warning)
 	if (expectedPhase === "combat") {
-		return { options: [{ id: "combat_encounter" }] };
+		return [{ id: "combat_encounter" }];
 	}
 
 	// Initialize encounter history if it doesn't exist
@@ -65,7 +62,7 @@ export function generateEncounterOptions(session: Types.SessionData): {
 	// Add these encounters to the history
 	session.encounter_history.push(...selectedOptions);
 
-	return { options: selectedOptions.map((id) => ({ id })) };
+	return selectedOptions.map((id) => ({ id }));
 }
 
 type EncounterFilterType =

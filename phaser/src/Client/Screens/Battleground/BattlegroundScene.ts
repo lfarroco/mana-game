@@ -7,7 +7,6 @@ import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
@@ -16,6 +15,7 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
 import * as io from "@PhaserIO";
+import * as Encounter from "@Systems/Encounter";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -87,9 +87,12 @@ const start = async () => {
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
-	PhaseManager.startPhase({
-		showReadyOnInitialCombat: true
-	});
+	// PhaseManager.startPhase({
+	// 	showReadyOnInitialCombat: true
+	// });
+
+	if (state.session.phase === "encounter")
+		Encounter.open()
 };
 
 // update(time: number, delta: number): void {

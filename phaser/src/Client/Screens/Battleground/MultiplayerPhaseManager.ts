@@ -55,7 +55,6 @@ const defaultMultiplayerTransport: PhaseTransport = {
 };
 
 export async function handleMultiplayerPhase(
-	state: State.State,
 	transport: PhaseTransport = defaultMultiplayerTransport,
 	context: MultiplayerPhaseContext = {}
 ) {
@@ -162,7 +161,7 @@ export async function handleMultiplayerPhase(
 				const combatOption = result.options[0];
 				// Auto-skip
 				await transport.sendOptionSelection(combatOption.id);
-				await handleMultiplayerPhase(state, transport, childContext);
+				await handleMultiplayerPhase(transport, childContext);
 			}
 			break;
 
@@ -206,7 +205,7 @@ export async function handleMultiplayerPhase(
 			);
 			// After orb shop completes, notify server and get next phase
 			await transport.sendOptionSelection("orb_shop_done");
-			await handleMultiplayerPhase(state, transport, childContext);
+			await handleMultiplayerPhase(transport, childContext);
 			break;
 
 		case "upgrade_core":
@@ -214,7 +213,7 @@ export async function handleMultiplayerPhase(
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
 			await transport.sendOptionSelection("upgrade_core_done");
-			await handleMultiplayerPhase(state, transport, childContext);
+			await handleMultiplayerPhase(transport, childContext);
 			break;
 
 		case "add_reaction_core":
@@ -222,7 +221,7 @@ export async function handleMultiplayerPhase(
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			await transport.sendOptionSelection("add_reaction_core_done");
-			await handleMultiplayerPhase(state, transport, childContext);
+			await handleMultiplayerPhase(transport, childContext);
 			break;
 
 		case "victory":
@@ -335,7 +334,7 @@ async function handleMultiplayerCombat(
 						PhaseManager.resetBoard(true).then(() =>
 							transport
 								.sendOptionSelection("combat_done")
-								.then(() => handleMultiplayerPhase(state, transport, childContext))
+								.then(() => handleMultiplayerPhase(transport, childContext))
 						);
 					},
 					() => {

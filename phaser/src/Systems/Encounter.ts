@@ -6,10 +6,7 @@ import * as constants from "@Constants/constants";
 import * as State from "@Models/State";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
-import * as Logger from "@Utils/Logger";
 import * as encounterFocusModel from "@Systems/Controls/encounterFocusModel";
-
-const logger = Logger.createLogger("Encounter");
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -28,7 +25,7 @@ type EncounterItem = {
 	onClick: () => Promise<void>;
 	minRound?: number;
 	maxRound?: number;
-	id?: string;
+	id: string;
 };
 
 let currentEncounters: EncounterItem[] = [];
@@ -345,7 +342,7 @@ function improveType(pic: string, type: string): EncounterItem {
 	};
 }
 
-export async function open(state: State.State, options: string[]) {
+export async function open() {
 	const container = io.Container();
 	container.once("destroy", clearEncounterFocus);
 	isEncounterSelectionInProgress = false;
@@ -353,35 +350,30 @@ export async function open(state: State.State, options: string[]) {
 
 	let encounters: EncounterItem[] = [];
 
-	if (options) {
-		// Server-provided encounter options (both SP and MP use this now)
-		const all = getEncounterItems(state, container);
-		encounters = options
-			.map((id) => all.find((e) => e.id === id))
-			.filter((e) => !!e) as EncounterItem[];
+	// Server-provided encounter options (both SP and MP use this now)
+	const all = getEncounterItems(state, container);
+	encounters = state.session.current_options
+		.map((option) => all.find((e) => e.id === option.id))
+		.filter((e) => !!e) as EncounterItem[];
 
-		// Override onClick to use GameController
-		encounters.forEach((e) => {
-			e.onClick = async () => {
-				if (isEncounterSelectionInProgress) {
-					return;
-				}
+	// Override onClick to use GameController
+	encounters.forEach((e) => {
+		e.onClick = async () => {
+			if (isEncounterSelectionInProgress) {
+				return;
+			}
 
-				isEncounterSelectionInProgress = true;
-				container.destroy(true);
+			isEncounterSelectionInProgress = true;
+			container.destroy(true);
 
-				const success = await GameController.selectEncounter(e.id || "");
-				if (success) {
-					return;
-				}
+			const success = await GameController.selectEncounter(e.id || "");
+			if (success) {
+				return;
+			}
 
-				isEncounterSelectionInProgress = false;
-			};
-		});
-	} else {
-		logger.warn("No encounter options provided from server");
-		return;
-	}
+			isEncounterSelectionInProgress = false;
+		};
+	});
 
 	currentEncounters = encounters;
 

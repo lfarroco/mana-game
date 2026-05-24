@@ -40,15 +40,7 @@ function getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
 }
 
 function getCurrentOptions(session: SessionData): PhaseOption[] {
-	if (!session.current_options) {
-		return [];
-	}
-
-	if (Array.isArray(session.current_options)) {
-		return session.current_options;
-	}
-
-	return session.current_options.options || [];
+	return session.current_options;
 }
 
 function getCurrentCombatState(session: SessionData): CombatState | null {
@@ -71,6 +63,7 @@ export async function getSession(playerId: string): Promise<SessionData | null> 
 }
 
 export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
+
 	const session = SessionManager.getSession(playerId);
 	if (!session) {
 		// here

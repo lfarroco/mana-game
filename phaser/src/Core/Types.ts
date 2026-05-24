@@ -66,11 +66,6 @@ export type RunStats = {
 	unitUsage: Record<string, number>;
 };
 
-export type CurrentOptionsState = {
-	options: PhaseOption[];
-	combatState?: CombatState;
-};
-
 // Session state (exists in both SP and MP)
 export type SessionData = {
 	id: string;
@@ -81,7 +76,7 @@ export type SessionData = {
 	step: number;
 	seed: string;
 	initial_seed: string;
-	current_options: PhaseOption[] | CurrentOptionsState | null;
+	current_options: PhaseOption[]; //| CurrentOptionsState | null;
 	team: { units: Unit[] };
 	wins: number;
 	losses: number;
