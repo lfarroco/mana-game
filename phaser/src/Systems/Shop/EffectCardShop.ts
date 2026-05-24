@@ -1,25 +1,20 @@
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Board from "@Models/Board";
-import { delay } from "@Utils/animation";
-import { orbsIndex } from "@Systems/Shop/Orbs";
-import * as io from "@PhaserIO";
-import { SCREEN_WIDTH } from "@Constants/constants";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { createEncounterCard } from "@Systems/Components/EncounterCard";
-import {
-	initializeEncounterFocusTargets,
-	registerEncounterFocusTarget,
-	resetEncounterFocusTargets,
-} from "@Systems/Encounter";
-import { t } from "@i18n/i18n";
-import { getGameController } from "@Core/GameControllerFactory";
-import { createLogger } from "@Utils/Logger";
-import { getServerAdapter } from "@Core/GameServer";
+import * as animation from "@Utils/animation";
+import * as Orbs from "@Systems/Shop/Orbs";
+import * as constants from "@Constants/constants";
+import * as AudioManager from "@Systems/AudioManager";
+import * as EncounterCard from "@Systems/Components/EncounterCard";
+import * as Encounter from "@Systems/Encounter";
+import * as i18n from "@i18n/i18n";
+import * as GameControllerFactory from "@Core/GameControllerFactory";
+import * as GameServer from "@Core/GameServer";
+import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
-import { playUpgradeCrystalSelectionEffect } from "@Effects/upgradeCrystalSelectionEffect";
+import * as upgradeCrystalSelectionEffect from "@Effects/upgradeCrystalSelectionEffect";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 
-const logger = createLogger("EffectCardShop");
+const logger = Logger.createLogger("EffectCardShop");
 
 // Effect card shop constants (same as Encounter display)
 const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -32,8 +27,8 @@ const EFFECT_CARD_BASE_Y = 300;
 export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
-		container.once("destroy", resetEncounterFocusTargets);
-		resetEncounterFocusTargets();
+		container.once("destroy", Encounter.resetEncounterFocusTargets);
+		Encounter.resetEncounterFocusTargets();
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
@@ -42,7 +37,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 			resolve();
 		};
 
-		const title = io.Title1(t(titleText)).setPosition(SCREEN_WIDTH / 2 + 180, 130);
+		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
 		ShopPanel.create(completeSectionCallback);
@@ -51,7 +46,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 
 		renderUpgradeCards(container, encounters, async () => {
 			container.list.forEach((child) => child.disableInteractive());
-			await delay(EFFECT_CARD_COMPLETION_DELAY_MS);
+			await animation.delay(EFFECT_CARD_COMPLETION_DELAY_MS);
 			completeSectionCallback();
 		});
 
@@ -70,16 +65,16 @@ function renderUpgradeCards(
 
 	encounterIds.forEach((encounterId, index) => {
 		logger.debug("Rendering upgrade card for encounter:", encounterId);
-		const encounterSpec = orbsIndex[encounterId]();
+		const encounterSpec = Orbs.orbsIndex[encounterId]();
 
 		const width = EFFECT_CARD_WIDTH;
 		const height = EFFECT_CARD_HEIGHT;
 		const spacing = EFFECT_CARD_SPACING;
 
-		const x = SCREEN_WIDTH - EFFECT_CARD_X_OFFSET;
+		const x = constants.SCREEN_WIDTH - EFFECT_CARD_X_OFFSET;
 		const y = EFFECT_CARD_BASE_Y + index * spacing;
 
-		const card = createEncounterCard(container, {
+		const card = EncounterCard.createEncounterCard(container, {
 			x,
 			y,
 			width,
@@ -96,25 +91,25 @@ function renderUpgradeCards(
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
 				// Use GameController to handle the upgrade selection
-				const controller = getGameController();
+				const controller = GameControllerFactory.getGameController();
 				const success = await controller.handleAction(encounterId);
 
 				if (success) {
-					await playUpgradeCrystalSelectionEffect({
+					await upgradeCrystalSelectionEffect.playUpgradeCrystalSelectionEffect({
 						cardCenter: { x, y },
 						cardSize: { width, height },
 						cardObjects: card.allObjects,
 						accentColor: encounterSpec.color,
 					});
 
-					playSoundEffect("sfx_spell_deathstrikeseal");
+					AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 
 					// Sync updated unit data from server and refresh visuals.
 					// upgrade_core and add_reaction_core only modify the core unit,
 					// so only refresh the core to avoid re-summoning all board units.
 					const playerId = state.session?.player_id;
 					if (playerId) {
-						const server = getServerAdapter();
+						const server = GameServer.getServer();
 						const updatedSession = await server.getSession(playerId);
 						if (updatedSession) {
 							for (const serverUnit of updatedSession.team.units) {
@@ -138,11 +133,11 @@ function renderUpgradeCards(
 			},
 		});
 
-		registerEncounterFocusTarget({
+		Encounter.registerEncounterFocusTarget({
 			setFocused: card.setFocused,
 			activate: card.activate,
 		});
 	});
 
-	initializeEncounterFocusTargets();
+	Encounter.initializeEncounterFocusTargets();
 }

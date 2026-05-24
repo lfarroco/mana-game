@@ -1,8 +1,8 @@
-import { GameController, GameFeature } from "@Core/GameController";
-import { ActionPayload } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
-import { getServerAdapter } from "./GameServer";
+import * as GameController from "@Core/GameController";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
+import * as GameServer from "@Core/GameServer";
 
 /**
  * Creates a local game controller that handles actions through the local server adapter.
@@ -11,10 +11,10 @@ import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
  * @param playerId - The player's ID
  * @returns A GameController instance for local gameplay
  */
-export const createLocalGameController = (playerId: string): GameController => {
+export const createLocalGameController = (playerId: string): GameController.GameController => {
 	return {
 		purchaseUnit: async (cardId: string, _targetSlot?: number): Promise<boolean> => {
-			const server = getServerAdapter();
+			const server = GameServer.getServer();
 			const success = await server.handleAction(playerId, cardId);
 
 			if (success) {
@@ -27,12 +27,12 @@ export const createLocalGameController = (playerId: string): GameController => {
 		},
 
 		sellUnit: async (unitId: string): Promise<boolean> => {
-			const server = getServerAdapter();
+			const server = GameServer.getServer();
 			return await server.handleAction(playerId, "discard_unit", { unitId });
 		},
 
 		skipPhase: async (): Promise<boolean> => {
-			const server = getServerAdapter();
+			const server = GameServer.getServer();
 
 			// Determine the appropriate skip action based on current phase
 			let actionId = "skip";
@@ -58,7 +58,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 		},
 
 		selectEncounter: async (encounterId: string): Promise<boolean> => {
-			const server = getServerAdapter();
+			const server = GameServer.getServer();
 			const success = await server.handleAction(playerId, encounterId);
 
 			if (success) {
@@ -68,8 +68,8 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return success;
 		},
 
-		handleAction: async (actionId: string, payload?: ActionPayload): Promise<boolean> => {
-			const server = getServerAdapter();
+		handleAction: async (actionId: string, payload?: Types.ActionPayload): Promise<boolean> => {
+			const server = GameServer.getServer();
 			const inUpgradePhase = state.session.phase === "upgrade_core";
 			const inReactionPhase = state.session.phase === "add_reaction_core";
 			const isInPhaseUpgradeSelection =
@@ -94,8 +94,8 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return success;
 		},
 
-		updateTeam: async (team: { units: Unit[] }): Promise<boolean> => {
-			const server = getServerAdapter();
+		updateTeam: async (team: { units: Unit.Unit[] }): Promise<boolean> => {
+			const server = GameServer.getServer();
 			return await server.handleAction(playerId, "update_team", { team });
 		},
 
@@ -105,7 +105,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			return true;
 		},
 
-		isFeatureEnabled: (_feature: GameFeature): boolean => {
+		isFeatureEnabled: (_feature: GameController.GameFeature): boolean => {
 			// In single-player mode, all features are enabled
 			return true;
 		},

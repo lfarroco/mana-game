@@ -1,23 +1,22 @@
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Board from "@Models/Board";
-import { delay } from "@Utils/animation";
-import { pickRandom } from "@utils";
+import * as animation from "@Utils/animation";
+import * as Utils from "@utils";
 import * as sc from "@Systems/Shop/constants";
-import { State } from "@Models/State";
-import { MagicOrb, MagicOrbCallbacks } from "@Components/MagicOrb/MagicOrb";
-import { orbsIndex, OrbSpec } from "@Systems/Shop/Orbs";
-import { eqVec2 } from "@Models/Geometry";
-import { hexToVector3 } from "@Utils/colorUtils";
-import * as io from "@PhaserIO";
-import { SCREEN_HEIGHT, titleTextConfig } from "@Constants/constants";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { createLogger } from "@Utils/Logger";
-import { getServerAdapter } from "@Core/GameServer";
+import * as State from "@Models/State";
+import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
+import * as Orbs from "@Systems/Shop/Orbs";
+import * as Geometry from "@Models/Geometry";
+import * as colorUtils from "@Utils/colorUtils";
+import * as constants from "@Constants/constants";
+import * as AudioManager from "@Systems/AudioManager";
+import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
-import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
+import * as GameServer from "@Core/GameServer";
 
-const logger = createLogger("OrbShop");
+const logger = Logger.createLogger("OrbShop");
 
 // Orb shop UI constants
 const ORB_SHOP_COMPLETION_DELAY_MS = 300;
@@ -28,14 +27,14 @@ const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
 export async function openOrbShop(
-	state: State,
+	state: State.State,
 	orbs: string[],
 	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 
-		const selectedOrbs = pickRandom(orbs, 3);
+		const selectedOrbs = Utils.pickRandom(orbs, 3);
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.slideOut();
@@ -51,7 +50,7 @@ export async function openOrbShop(
 			container,
 			selectedOrbs,
 			async () => {
-				await delay(ORB_SHOP_COMPLETION_DELAY_MS);
+				await animation.delay(ORB_SHOP_COMPLETION_DELAY_MS);
 				completeSectionCallback();
 			},
 			onOrbApply
@@ -64,7 +63,7 @@ export async function openOrbShop(
 }
 
 export function renderOrbShop(
-	state: State,
+	state: State.State,
 	container: Phaser.GameObjects.Container,
 	orbIds: string[],
 	onOrbUsed?: () => void | Promise<void>,
@@ -73,20 +72,20 @@ export function renderOrbShop(
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
-	const firstOrbY = SCREEN_HEIGHT / 2 - totalOrbSpan / 2;
+	const firstOrbY = constants.SCREEN_HEIGHT / 2 - totalOrbSpan / 2;
 
 	async function handleOrbDrop(params: {
-		orb: MagicOrb;
+		orb: MagicOrb.MagicOrb;
 		target: Phaser.GameObjects.GameObject;
-		orbSpec: OrbSpec;
-		magicOrb: MagicOrb;
+		orbSpec: Orbs.OrbSpec;
+		magicOrb: MagicOrb.MagicOrb;
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
 		const playerBoard = Board.getBoardState();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
 			logger.debug(`${orbSpec.name} dropped on non-board target:`, target);
-			MagicOrbCallbacks.returnToPosition(orb, target);
+			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
@@ -99,12 +98,12 @@ export function renderOrbShop(
 		);
 
 		const existingUnit = state?.session?.team?.units?.find((unit) =>
-			eqVec2(unit.position, { x: tileX, y: tileY })
+			Geometry.eqVec2(unit.position, { x: tileX, y: tileY })
 		);
 
 		if (!existingUnit) {
 			logger.debug(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
-			MagicOrbCallbacks.returnToPosition(orb, target);
+			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
@@ -121,12 +120,12 @@ export function renderOrbShop(
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
 				logger.debug(`${orbSpec.name} effect returned false — returning orb to origin`);
-				MagicOrbCallbacks.returnToPosition(orb, target);
+				MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 				return;
 			}
 		}
 
-		playSoundEffect("sfx_spell_deathstrikeseal");
+		AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 
 		magicOrb.startDissolve();
 
@@ -136,7 +135,7 @@ export function renderOrbShop(
 			// Sync updated unit data from server and refresh visuals
 			const playerId = state?.session?.player_id;
 			if (playerId) {
-				const server = getServerAdapter();
+				const server = GameServer.getServer();
 				const updatedSession = await server.getSession(playerId);
 				if (updatedSession) {
 					const rowY = existingUnit.position?.y;
@@ -156,7 +155,7 @@ export function renderOrbShop(
 
 							if (isRowOrb) {
 								if (Chara.hasCharaById(serverUnit.id)) {
-									updatePowerDisplay(serverUnit.id);
+									PowerDisplay.updatePowerDisplay(serverUnit.id);
 								}
 								continue;
 							}
@@ -173,13 +172,13 @@ export function renderOrbShop(
 	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {
-		const orbSpec = orbsIndex[orbId]();
+		const orbSpec = Orbs.orbsIndex[orbId]();
 
 		const orbY = firstOrbY + index * orbSpacing;
 
-		const magicOrb = new MagicOrb(sc.ITEM_BASE_X, orbY, {
+		const magicOrb = new MagicOrb.MagicOrb(sc.ITEM_BASE_X, orbY, {
 			size: 240,
-			color: hexToVector3(orbSpec.color),
+			color: colorUtils.hexToVector3(orbSpec.color),
 			intensity: 1.2,
 			speed: 1.0,
 			enableDrag: true,
@@ -191,7 +190,7 @@ export function renderOrbShop(
 		container.add(magicOrb.getShader());
 
 		const titleText = io.scene.add
-			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, titleTextConfig)
+			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, constants.titleTextConfig)
 			.setOrigin(0)
 			.setFontSize(ORB_TITLE_FONT_SIZE)
 			.setAlign("left");

@@ -5,22 +5,21 @@ import { delay } from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { getServerAdapter } from "@Core/GameServer";
-export { getServerAdapter }; // Re-export for convenience
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { ActionPayload } from "@Core/Types";
 import * as Board from "@Models/Board";
 import { handleMultiplayerPhase } from "Client/Screens/Battleground/MultiplayerPhaseManager";
 import type { PhaseTransport } from "Client/Screens/Battleground/MultiplayerPhaseManager";
+import * as GameServer from "@Core/GameServer";
 
 const createLocalPhaseTransport = (): PhaseTransport => ({
 	getPhaseOptions: async () => {
-		const server = getServerAdapter();
+		const server = GameServer.getServer();
 		const playerId = getPlayerId();
 		return await server.getPhaseOptions(playerId);
 	},
 	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
-		const server = getServerAdapter();
+		const server = GameServer.getServer();
 		const playerId = getPlayerId();
 		return await server.handleAction(playerId, optionId, payload);
 	},

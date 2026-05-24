@@ -1,10 +1,10 @@
-import { getServerAdapter } from "@Core/GameServer";
 import { createLogger } from "@Utils/Logger";
+import * as GameServer from "@Core/GameServer";
 
 const logger = createLogger("deleteSavedData");
 
 export const deleteSavedData = () => {
-	const server = getServerAdapter();
+	const server = GameServer.getServer();
 
 	if (state.session?.player_id && "sessionManager" in server) {
 		// Delete the session from SessionManager (which also removes from localStorage)
