@@ -1,72 +1,129 @@
-import { Unit } from "@Models/Entities/Unit";
-import { ActionPayload } from "@Core/Types";
+import * as GameController from "@Core/GameController";
+import * as Types from "@Core/Types";
+import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
+import * as GameServer from "@Core/GameServer";
+import * as Unit from "@Models/Entities/Unit";
 
-/**
- * GameController type - Unified interface for game actions.
- * Hides the implementation detail of whether the game is local or multiplayer.
- *
- * This pattern eliminates the need for `isMultiplayer` checks scattered throughout
- * the UI and event handling code.
- */
-export type GameController = {
-	/**
-	 * Purchase a unit from the shop.
-	 * @param cardId - The ID of the card to purchase
-	 * @param targetSlot - Optional target slot for the unit
-	 * @returns Promise that resolves when the action completes
-	 */
-	purchaseUnit(cardId: string, targetSlot?: number): Promise<boolean>;
+export async function purchaseUnit(
+	cardId: string,
+	_targetSlot?: number
+): Promise<boolean> {
+	const server = GameServer.getServer();
+	const success = await server.handleAction(
+		state.session.player_id,
+		cardId,
+	);
 
-	/**
-	 * Sell a unit from the player's team.
-	 * @param unitId - The ID of the unit to sell
-	 * @returns Promise that resolves when the action completes
-	 */
-	sellUnit(unitId: string): Promise<boolean>;
+	if (success) {
+		await PhaseManager.startPhase(state);
+	}
 
-	/**
-	 * Skip or end the current phase.
-	 * @returns Promise that resolves when the action completes
-	 */
-	skipPhase(): Promise<boolean>;
+	return success;
+}
 
-	/**
-	 * Select an encounter option.
-	 * @param encounterId - The ID of the encounter to select
-	 * @returns Promise that resolves when the action completes
-	 */
-	selectEncounter(encounterId: string): Promise<boolean>;
+export async function sellUnit(unitId: string): Promise<boolean> {
+	const server = GameServer.getServer();
+	return await server.handleAction(
+		state.session.player_id,
+		"discard_unit",
+		{ unitId },
+	);
+}
 
-	/**
-	 * Handle a generic action with optional payload.
-	 * @param actionId - The action identifier
-	 * @param payload - Optional payload for the action
-	 * @returns Promise that resolves when the action completes
-	 */
-	handleAction(actionId: string, payload?: ActionPayload): Promise<boolean>;
+export async function skipPhase(): Promise<boolean> {
+	const server = GameServer.getServer();
 
-	/**
-	 * Update the team composition (for drag-and-drop repositioning).
-	 * @param team - The updated team structure
-	 * @returns Promise that resolves when the action completes
-	 */
-	updateTeam(team: { units: Unit[] }): Promise<boolean>;
+	// Determine the appropriate skip action based on current phase
+	let actionId = "skip";
+	if (state.session.phase === "encounter") {
+		actionId = "skip_encounter";
+	} else if (state.session.phase === "shop") {
+		actionId = "skip_shop";
+	} else if (state.session.phase === "orb_shop") {
+		actionId = "orb_shop_done";
+	} else if (state.session.phase === "upgrade_core") {
+		actionId = "upgrade_core_done";
+	} else if (state.session.phase === "add_reaction_core") {
+		actionId = "add_reaction_core_done";
+	}
 
-	/**
-	 * Notify game completion (used for new run, main menu, etc.).
-	 * @param actionId - The completion action ('combat_done', 'new_run', etc.)
-	 * @returns Promise that resolves when the action completes
-	 */
-	notifyGameComplete(actionId: string): Promise<boolean>;
+	const success = await server.handleAction(
+		state.session.player_id,
+		actionId,
+	);
 
-	/**
-	 * Check if a feature is enabled in the current game mode.
-	 * This abstracts mode-dependent UI feature availability.
-	 * @param feature - The feature to check ('new_run_button', 'infinite_mode', 'skip_encounter', etc.)
-	 * @returns Whether the feature is enabled
-	 */
-	isFeatureEnabled(feature: GameFeature): boolean;
-};
+	if (success) {
+		await PhaseManager.startPhase(state);
+	}
+
+	return success;
+}
+
+export async function selectEncounter(encounterId: string): Promise<boolean> {
+	const server = GameServer.getServer();
+	const success = await server.handleAction(
+		state.session.player_id,
+		encounterId,
+	);
+
+	if (success) {
+		await PhaseManager.startPhase(state);
+	}
+
+	return success;
+}
+
+export async function handleAction(actionId: string, payload?: Types.ActionPayload): Promise<boolean> {
+	const server = GameServer.getServer();
+	const inUpgradePhase = state.session.phase === "upgrade_core";
+	const inReactionPhase = state.session.phase === "add_reaction_core";
+	const isInPhaseUpgradeSelection =
+		(inUpgradePhase &&
+			["increase_core_max_life", "upgrade_core_power", "decrease_core_cooldown"].includes(
+				actionId
+			)) ||
+		(inReactionPhase &&
+			[
+				"on_100_damage_effect",
+				"on_ally_death_effect",
+				"on_crit_effect",
+				"on_battle_start_effect",
+			].includes(actionId));
+
+	const success = await server.handleAction(
+		state.session.player_id,
+		actionId,
+		payload
+	);
+
+	if (success && !isInPhaseUpgradeSelection) {
+		await PhaseManager.startPhase(state);
+	}
+
+	return success;
+}
+
+export async function updateTeam(
+	team: { units: Unit.Unit[] }
+): Promise<boolean> {
+	const server = GameServer.getServer();
+	return await server.handleAction(
+		state.session.player_id,
+		"update_team",
+		{ team }
+	);
+}
+
+export async function notifyGameComplete(_actionId: string): Promise<boolean> {
+	// In single-player, no server notification is needed for game completion
+	// Just return true to allow the UI to proceed
+	return true;
+}
+
+export function isFeatureEnabled(_feature: GameController.GameFeature): boolean {
+	// In single-player mode, all features are enabled
+	return true;
+}
 
 /**
  * Features that can be enabled/disabled based on game mode.

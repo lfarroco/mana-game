@@ -1,48 +1,38 @@
-import { createUIButton } from "@Components/UIButton";
-import { size, vec2 } from "@Models/Geometry";
-import { isElectron } from "@Utils/environment";
-import { resetState, State } from "@Models/State";
-import { Unit } from "@Models/Entities/Unit";
-import { playMusic } from "@Systems/AudioManager";
+import * as UIButton from "@Components/UIButton";
+import * as Geometry from "@Models/Geometry";
+import * as environment from "@Utils/environment";
+import * as State from "@Models/State";
+import * as Unit from "@Models/Entities/Unit";
+import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
-import { deleteSavedData } from "@Game/effects/deleteSavedData";
-import {
-	getVictoryTier,
-	END_GAME_MESSAGES,
-	INFINITE_MODE_THRESHOLD,
-	RESULTS_FONT_SIZES,
-	RESULTS_PANEL,
-	GOLD_VICTORY_THRESHOLD,
-	SILVER_VICTORY_THRESHOLD,
-	BRONZE_VICTORY_THRESHOLD,
-	RIGHT_PANEL_X,
-} from "Client/Screens/Battleground/Results/ResultsConfig";
+import * as deleteSavedData from "@Game/effects/deleteSavedData";
+import * as ResultsConfig from "Client/Screens/Battleground/Results/ResultsConfig";
 import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
-import { t } from "@i18n/i18n";
-import { createRunStatsPanel } from "@UI/RunStatsPanel";
-import { MIDDLE_SCREEN_Y, titleTextConfig } from "@Constants/constants";
-import { IS_DEMO, GAME_CONFIG } from "@config";
-import { getGameController } from "@Core/GameControllerFactory";
+import * as i18n from "@i18n/i18n";
+import * as RunStatsPanel from "@UI/RunStatsPanel";
+import * as constants from "@Constants/constants";
+import * as Config from "@config";
+import * as GameController from "@Core/GameController";
 
 export async function displayGameComplete(
-	state: State,
+	state: State.State,
 	wins: number,
-	units: Unit[],
+	units: Unit.Unit[],
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	completionAction: "victory" | "game_over" = isGameOver ? "game_over" : "victory"
 ): Promise<Phaser.GameObjects.Container> {
-	deleteSavedData();
+	deleteSavedData.deleteSavedData();
 
-	playMusic("music_playmode", true, 1000);
+	AudioManager.playMusic("music_playmode", true, 1000);
 
 	const panelWidth = 800;
 	const panelHeight = 700;
-	const panelX = RIGHT_PANEL_X;
-	const panelY = MIDDLE_SCREEN_Y;
+	const panelX = ResultsConfig.RIGHT_PANEL_X;
+	const panelY = constants.MIDDLE_SCREEN_Y;
 
-	const { message, color } = getVictoryTier(wins, isGameOver);
+	const { message, color } = ResultsConfig.getVictoryTier(wins, isGameOver);
 
 	const playerCore = units.find((unit) => unit.isCore);
 	if (playerCore && wins >= 5) {
@@ -51,15 +41,15 @@ export async function displayGameComplete(
 
 	if (true) {
 		StatsStore.incrementRunsPlayed();
-		if (wins >= GOLD_VICTORY_THRESHOLD) {
+		if (wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
 			StatsStore.recordVictory("gold", playerCore?.cardId);
-		} else if (wins >= SILVER_VICTORY_THRESHOLD) {
+		} else if (wins >= ResultsConfig.SILVER_VICTORY_THRESHOLD) {
 			StatsStore.recordVictory("silver", playerCore?.cardId);
-		} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
+		} else if (wins >= ResultsConfig.BRONZE_VICTORY_THRESHOLD) {
 			StatsStore.recordVictory("bronze", playerCore?.cardId);
 		}
 
-		if (wins > INFINITE_MODE_THRESHOLD) {
+		if (wins > ResultsConfig.INFINITE_MODE_THRESHOLD) {
 			StatsStore.updateFurthestInfiniteRound(wins);
 		}
 
@@ -79,20 +69,20 @@ export async function displayGameComplete(
 	}
 
 	// Check if demo limit reached
-	const isDemoComplete = IS_DEMO && wins >= GAME_CONFIG.MAX_VICTORIES;
+	const isDemoComplete = Config.IS_DEMO && wins >= Config.GAME_CONFIG.MAX_VICTORIES;
 
-	let subtitleText = END_GAME_MESSAGES.default;
+	let subtitleText = ResultsConfig.END_GAME_MESSAGES.default;
 	if (isDemoComplete) {
 		// Demo complete message
-		subtitleText = t("demo.complete.message");
-	} else if (isGameOver && wins > INFINITE_MODE_THRESHOLD) {
-		subtitleText = END_GAME_MESSAGES.infinite(wins);
-	} else if (wins >= GOLD_VICTORY_THRESHOLD) {
-		subtitleText = END_GAME_MESSAGES.gold;
-	} else if (wins >= SILVER_VICTORY_THRESHOLD) {
-		subtitleText = END_GAME_MESSAGES.silver;
-	} else if (wins >= BRONZE_VICTORY_THRESHOLD) {
-		subtitleText = END_GAME_MESSAGES.bronze;
+		subtitleText = i18n.t("demo.complete.message");
+	} else if (isGameOver && wins > ResultsConfig.INFINITE_MODE_THRESHOLD) {
+		subtitleText = ResultsConfig.END_GAME_MESSAGES.infinite(wins);
+	} else if (wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
+		subtitleText = ResultsConfig.END_GAME_MESSAGES.gold;
+	} else if (wins >= ResultsConfig.SILVER_VICTORY_THRESHOLD) {
+		subtitleText = ResultsConfig.END_GAME_MESSAGES.silver;
+	} else if (wins >= ResultsConfig.BRONZE_VICTORY_THRESHOLD) {
+		subtitleText = ResultsConfig.END_GAME_MESSAGES.bronze;
 	}
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [];
@@ -100,7 +90,7 @@ export async function displayGameComplete(
 	// Buy Full Game button for demo when limit reached - make it first/primary
 	if (isDemoComplete) {
 		buttonDefinitions.push([
-			t("demo.buy_full_game"),
+			i18n.t("demo.buy_full_game"),
 			async () => {
 				const win = window as Window & { openExternalURL?: (url: string) => void };
 				if (win.openExternalURL) {
@@ -115,22 +105,23 @@ export async function displayGameComplete(
 	// Standard buttons
 	buttonDefinitions.push(
 		[
-			t("results.buttons.new_run"),
+			i18n.t("results.buttons.new_run"),
 			async () => {
-				const controller = getGameController();
-				await controller.notifyGameComplete(completionAction);
-				resetState();
+
+				await GameController
+					.notifyGameComplete(completionAction);
+
+				State.resetState();
 				//const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
 			},
 		],
 		[
-			t("results.buttons.main_menu"),
+			i18n.t("results.buttons.main_menu"),
 			async () => {
-				const controller = getGameController();
-				await controller.notifyGameComplete(completionAction);
-				resetState();
+				await GameController.notifyGameComplete(completionAction);
+				State.resetState();
 				// const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.TITLE);
@@ -139,21 +130,20 @@ export async function displayGameComplete(
 	);
 
 	// Infinite mode button - disabled in demo and when not enabled by controller
-	const controller = getGameController();
 	if (
-		wins >= INFINITE_MODE_THRESHOLD &&
+		wins >= ResultsConfig.INFINITE_MODE_THRESHOLD &&
 		nextPhaseCallback &&
 		!isGameOver &&
-		!IS_DEMO &&
-		controller.isFeatureEnabled("infinite_mode")
+		!Config.IS_DEMO &&
+		GameController.isFeatureEnabled("infinite_mode")
 	) {
 		buttonDefinitions.push([
-			t("results.buttons.infinite_mode"),
+			i18n.t("results.buttons.infinite_mode"),
 			async () => {
 				const { slideOut } = await import("./ResultsUI");
 				await slideOut();
 
-				playMusic("music_battlemap_vetruv");
+				AudioManager.playMusic("music_battlemap_vetruv");
 				nextPhaseCallback();
 			},
 		]);
@@ -161,68 +151,68 @@ export async function displayGameComplete(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
-			createUIButton({
+			UIButton.createUIButton({
 				text: label,
-				position: vec2(panelX, panelY + 50 + i * 100),
+				position: Geometry.vec2(panelX, panelY + 50 + i * 100),
 				callback: callback,
 			}).container
 	);
 
-	const statsPanel = createRunStatsPanel(state.session.runStats);
+	const statsPanel = RunStatsPanel.createRunStatsPanel(state.session.runStats);
 
 	const container = io.Container([
 		statsPanel,
 		io.BorderedRoundRect(
-			vec2(panelX, panelY),
-			size(panelWidth, panelHeight),
-			RESULTS_PANEL.borderRadius,
-			RESULTS_PANEL.backgroundColor,
-			RESULTS_PANEL.backgroundAlpha
+			Geometry.vec2(panelX, panelY),
+			Geometry.size(panelWidth, panelHeight),
+			ResultsConfig.RESULTS_PANEL.borderRadius,
+			ResultsConfig.RESULTS_PANEL.backgroundColor,
+			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		),
 		[
 			() =>
-				io.Text(t("results.wins_title", { count: wins.toString() }), {
-					...titleTextConfig,
-					fontSize: RESULTS_FONT_SIZES.titleExtraLarge,
+				io.Text(i18n.t("results.wins_title", { count: wins.toString() }), {
+					...constants.titleTextConfig,
+					fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
 					color: "#FFFFFF",
 				}),
-			(text) => io.SetPosition(text, vec2(panelX, panelY - 250)),
+			(text) => io.SetPosition(text, Geometry.vec2(panelX, panelY - 250)),
 			(text) => io.Centralize(text),
 		],
 		[
-			() => io.Title1(isDemoComplete ? t("demo.complete.title") : message).setColor(color),
-			(title) => io.SetPosition(title, vec2(panelX, panelY - 150)),
+			() => io.Title1(isDemoComplete ? i18n.t("demo.complete.title") : message).setColor(color),
+			(title) => io.SetPosition(title, Geometry.vec2(panelX, panelY - 150)),
 			(title) => io.Centralize(title),
 		],
 		[
 			() => io.Label(subtitleText),
-			(label) => io.SetPosition(label, vec2(panelX, panelY - 50)),
+			(label) => io.SetPosition(label, Geometry.vec2(panelX, panelY - 50)),
 			(label) => io.Centralize(label),
 		],
 
 		...buttons,
 	]);
 
-	if (!isElectron() && !isGameOver && wins >= GOLD_VICTORY_THRESHOLD) {
+	if (!environment.isElectron() && !isGameOver && wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
 		const wishlistPanelHeight = 150;
 		const wishlistPanelY = panelY + panelHeight / 2 + 15 + wishlistPanelHeight / 2;
 
 		const wishlistBg = io.BorderedRoundRect(
-			vec2(panelX, wishlistPanelY),
-			size(panelWidth, wishlistPanelHeight),
-			RESULTS_PANEL.borderRadius,
-			RESULTS_PANEL.backgroundColor,
-			RESULTS_PANEL.backgroundAlpha
+			Geometry.vec2(panelX, wishlistPanelY),
+			Geometry.size(panelWidth, wishlistPanelHeight),
+			ResultsConfig.RESULTS_PANEL.borderRadius,
+			ResultsConfig.RESULTS_PANEL.backgroundColor,
+			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		);
 
 		const wishlistText = io
-			.Label(t("results.messages.wishlist"))
+			.Label(i18n.t("results.messages.wishlist"))
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 
-		const btn = createUIButton({
-			text: t("results.buttons.wishlist"),
-			position: vec2(panelX, wishlistPanelY + 30),
+		const btn = UIButton.createUIButton({
+			text: i18n.t("results.buttons.wishlist"),
+			position: Geometry.vec2(panelX, wishlistPanelY + 30),
 			callback: async () => {
 				window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 			},

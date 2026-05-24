@@ -24,3 +24,30 @@ export const getServer = (): GameServer => {
 	else
 		return RemoteServer;
 };
+
+
+// End goal:
+// You don’t even need separate LocalServer and RemoteServer gameplay logic.
+
+// Instead:
+
+// GameSimulation
+
+// shared by both.
+
+// Example:
+
+// RemoteServer
+//   → wraps GameSimulation over network
+
+// LocalServer
+//   → wraps same GameSimulation in-process
+
+// That’s usually the ideal end-state because:
+
+// rules stay identical
+// balance stays identical
+// desyncs disappear
+// multiplayer bugs drop massively
+
+// That’s the architecture used in many RTS, tactics, and simulation-heavy games.

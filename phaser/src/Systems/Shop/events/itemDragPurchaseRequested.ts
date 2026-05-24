@@ -5,7 +5,7 @@ import { getUnitAt } from "@Models/State";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
-import { getGameController } from "@Core/GameControllerFactory";
+import * as GameController from "@Core/GameController";
 import { getName } from "@i18n/i18n";
 
 export async function itemDragPurchaseRequested(
@@ -44,8 +44,7 @@ export async function itemDragPurchaseRequested(
 	}
 
 	// Use the GameController to handle the purchase
-	const controller = getGameController();
-	const success = await controller.purchaseUnit(shopUnitData.cardId);
+	const success = await GameController.purchaseUnit(shopUnitData.cardId);
 
 	if (!success) {
 		if (shopChara) {

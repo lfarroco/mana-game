@@ -7,7 +7,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as Encounter from "@Systems/Encounter";
 import * as i18n from "@i18n/i18n";
-import * as GameControllerFactory from "@Core/GameControllerFactory";
+import * as GameController from "@Core/GameController";
 import * as GameServer from "@Core/GameServer";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
@@ -91,8 +91,7 @@ function renderUpgradeCards(
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
 				// Use GameController to handle the upgrade selection
-				const controller = GameControllerFactory.getGameController();
-				const success = await controller.handleAction(encounterId);
+				const success = await GameController.handleAction(encounterId);
 
 				if (success) {
 					await upgradeCrystalSelectionEffect.playUpgradeCrystalSelectionEffect({

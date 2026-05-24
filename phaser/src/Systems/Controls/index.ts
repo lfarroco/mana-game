@@ -1,56 +1,27 @@
 import Phaser from "phaser";
-import { GAME_CONFIG } from "@config";
-import { getGameController } from "@Core/GameControllerFactory";
+import * as Config from "@config";
+import * as GameController from "@Core/GameController";
 import * as Board from "@Models/Board";
-import { getCharaById } from "@Systems/Chara/Chara";
-import {
-	activateFocusedSceneButton,
-	clearSceneButtonFocus,
-	focusSceneButtonByText,
-	focusNextSceneButton,
-	getFocusedSceneButtonText,
-	hasSceneButtonByText,
-	hasFocusedSceneButton,
-	hasNavigableButtons,
-} from "@Components/UIButton";
-import { createBoardCursorController } from "@Systems/Controls/boardCursor";
-import {
-	blurEncounterFocus,
-	confirmEncounterFocus,
-	ensureEncounterFocus,
-	focusEncounterIndex,
-	getEncounterFocusCount,
-	getFocusedEncounterIndex,
-	hasFocusedEncounterTarget,
-	hasEncounterFocusTargets,
-	navigateEncounterFocus,
-	startEncounterFocusHoldAction,
-	updateEncounterFocusHoldAction,
-	releaseEncounterFocusHoldAction,
-} from "@Systems/Encounter";
-import { t } from "@i18n/i18n";
-import { getOption } from "@Models/OptionsStore";
-import { createLogger } from "@Utils/Logger";
-import {
-	ControlContext,
-	ControlIntent,
-	GamepadSnapshot,
-	resolveGamepadIntents,
-	resolveKeyboardIntents,
-	shouldIgnoreShortcutEvent,
-} from "@Systems/Controls/intents";
+import * as Chara from "@Systems/Chara/Chara";
+import * as UIButton from "@Components/UIButton";
+import * as BoardCursor from "@Systems/Controls/boardCursor";
+import * as Encounter from "@Systems/Encounter";
+import * as i18n from "@i18n/i18n";
+import * as OptionsStore from "@Models/OptionsStore";
+import * as Logger from "@Utils/Logger";
+import * as Intents from "@Systems/Controls/intents";
 import * as io from "@PhaserIO";
 
 type InitOptions = {
-	context: ControlContext;
+	context: Intents.ControlContext;
 	onCancel?: () => void;
 };
 
 type BattlegroundLayer = "board" | "encounter" | "buttons";
 
-const logger = createLogger("Controls");
+const logger = Logger.createLogger("Controls");
 
-const getGamepadSnapshot = (scene: Phaser.Scene): GamepadSnapshot | null => {
+const getGamepadSnapshot = (scene: Phaser.Scene): Intents.GamepadSnapshot | null => {
 	const gamepad = scene.input.gamepad?.gamepads.find((pad) => pad && pad.connected);
 	if (!gamepad) {
 		return null;
@@ -63,32 +34,31 @@ const getGamepadSnapshot = (scene: Phaser.Scene): GamepadSnapshot | null => {
 	};
 };
 
-const executeShortcutAction = async (action: ControlIntent & { type: "shortcut" }) => {
-	const controller = getGameController();
+const executeShortcutAction = async (action: Intents.ControlIntent & { type: "shortcut" }) => {
 	switch (action.action.type) {
 		case "skipPhase":
-			await controller.skipPhase();
+			await GameController.skipPhase();
 			break;
 		case "purchaseUnit":
-			await controller.purchaseUnit(action.action.optionId);
+			await GameController.purchaseUnit(action.action.optionId);
 			break;
 		case "selectEncounter":
-			await controller.selectEncounter(action.action.optionId);
+			await GameController.selectEncounter(action.action.optionId);
 			break;
 		case "handleAction":
-			await controller.handleAction(action.action.optionId);
+			await GameController.handleAction(action.action.optionId);
 			break;
 	}
 };
 
 export function init(options: InitOptions) {
 
-	if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
+	if (!Config.GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT) {
 		return;
 	}
 
 	const keyboard = io.scene.input.keyboard;
-	let previousGamepadSnapshot: GamepadSnapshot | undefined;
+	let previousGamepadSnapshot: Intents.GamepadSnapshot | undefined;
 	let gamepadDragHoldState:
 		| {
 			initialCursor: Vec2;
@@ -109,13 +79,13 @@ export function init(options: InitOptions) {
 		}
 		| undefined;
 	const boardCursor =
-		options.context === "battleground" ? createBoardCursorController(io.scene) : null;
+		options.context === "battleground" ? BoardCursor.createBoardCursorController(io.scene) : null;
 	let activeBattlegroundLayer: BattlegroundLayer = "board";
-	const menuButtonLabel = t("ui.menu.button");
-	const skipEncounterLabel = t("encounters.skip");
+	const menuButtonLabel = i18n.t("ui.menu.button");
+	const skipEncounterLabel = i18n.t("encounters.skip");
 	const normalizeLabel = (label: string): string => label.trim().toLowerCase();
 	const isInputDebugEnabled = (): boolean => {
-		const optionDebug = getOption("debug", false);
+		const optionDebug = OptionsStore.getOption("debug", false);
 		if (optionDebug) {
 			return true;
 		}
@@ -143,8 +113,8 @@ export function init(options: InitOptions) {
 		logger.info(`[input-debug] ${message}`, meta);
 	};
 
-	if (options.context === "buttons" && hasNavigableButtons(io.scene)) {
-		focusNextSceneButton(io.scene, "down");
+	if (options.context === "buttons" && UIButton.hasNavigableButtons(io.scene)) {
+		UIButton.focusNextSceneButton(io.scene, "down");
 	}
 
 	const getAvailableBattlegroundLayers = (): BattlegroundLayer[] => {
@@ -156,10 +126,10 @@ export function init(options: InitOptions) {
 		if (boardCursor?.canInteract()) {
 			layers.push("board");
 		}
-		if (hasEncounterFocusTargets()) {
+		if (Encounter.hasEncounterFocusTargets()) {
 			layers.push("encounter");
 		}
-		if (hasNavigableButtons(io.scene)) {
+		if (UIButton.hasNavigableButtons(io.scene)) {
 			layers.push("buttons");
 		}
 
@@ -175,19 +145,19 @@ export function init(options: InitOptions) {
 
 		switch (activeBattlegroundLayer) {
 			case "buttons":
-				blurEncounterFocus();
-				if (!hasFocusedSceneButton(io.scene)) {
-					focusNextSceneButton(io.scene, "down");
+				Encounter.blurEncounterFocus();
+				if (!UIButton.hasFocusedSceneButton(io.scene)) {
+					UIButton.focusNextSceneButton(io.scene, "down");
 				}
 				return;
 			case "encounter":
-				clearSceneButtonFocus(io.scene);
-				ensureEncounterFocus();
+				UIButton.clearSceneButtonFocus(io.scene);
+				Encounter.ensureEncounterFocus();
 				return;
 			case "board":
 			default:
-				clearSceneButtonFocus(io.scene);
-				blurEncounterFocus();
+				UIButton.clearSceneButtonFocus(io.scene);
+				Encounter.blurEncounterFocus();
 		}
 	};
 
@@ -224,7 +194,7 @@ export function init(options: InitOptions) {
 		applyBattlegroundLayerVisualState();
 	};
 
-	const executeIntent = async (intent: ControlIntent) => {
+	const executeIntent = async (intent: Intents.ControlIntent) => {
 		normalizeBattlegroundLayer();
 		const isBoardDragHoldActive = Boolean(keyboardDragHoldState || gamepadDragHoldState);
 
@@ -234,7 +204,7 @@ export function init(options: InitOptions) {
 					activeBattlegroundLayer = "buttons";
 					applyBattlegroundLayerVisualState();
 				}
-				focusNextSceneButton(io.scene, intent.direction);
+				UIButton.focusNextSceneButton(io.scene, intent.direction);
 				return;
 			case "navigateBoard":
 				if (options.context === "battleground") {
@@ -243,41 +213,41 @@ export function init(options: InitOptions) {
 						activeBattlegroundLayer,
 						boardCanInteract: boardCursor?.canInteract() ?? false,
 						boardCursorX: boardCursor?.getState().cursor.x,
-						hasEncounterTargets: hasEncounterFocusTargets(),
-						hasFocusedEncounter: hasFocusedEncounterTarget(),
-						hasFocusedButton: hasFocusedSceneButton(io.scene),
+						hasEncounterTargets: Encounter.hasEncounterFocusTargets(),
+						hasFocusedEncounter: Encounter.hasFocusedEncounterTarget(),
+						hasFocusedButton: UIButton.hasFocusedSceneButton(io.scene),
 					});
 
 					if (
 						intent.direction === "right" &&
 						boardCursor?.canInteract() &&
 						boardCursor.getState().cursor.x === 2 &&
-						hasEncounterFocusTargets() &&
+						Encounter.hasEncounterFocusTargets() &&
 						!isBoardDragHoldActive
 					) {
 						activeBattlegroundLayer = "encounter";
 						applyBattlegroundLayerVisualState();
-						const focused = hasFocusedEncounterTarget();
+						const focused = Encounter.hasFocusedEncounterTarget();
 						logDebug("right-edge handoff: board -> encounter", {
 							focused,
-							encounterIndex: getFocusedEncounterIndex(),
+							encounterIndex: Encounter.getFocusedEncounterIndex(),
 						});
 						return;
 					}
 
 					switch (activeBattlegroundLayer) {
 						case "buttons":
-							if (hasNavigableButtons(io.scene)) {
-								const focusedButtonText = getFocusedSceneButtonText(io.scene);
+							if (UIButton.hasNavigableButtons(io.scene)) {
+								const focusedButtonText = UIButton.getFocusedSceneButtonText(io.scene);
 								if (
 									intent.direction === "up" &&
 									focusedButtonText &&
 									normalizeLabel(focusedButtonText) === normalizeLabel(skipEncounterLabel) &&
-									hasEncounterFocusTargets()
+									Encounter.hasEncounterFocusTargets()
 								) {
 									activeBattlegroundLayer = "encounter";
 									applyBattlegroundLayerVisualState();
-									focusEncounterIndex(getEncounterFocusCount() - 1);
+									Encounter.focusEncounterIndex(Encounter.getEncounterFocusCount() - 1);
 									return;
 								}
 
@@ -285,21 +255,21 @@ export function init(options: InitOptions) {
 									intent.direction === "down" &&
 									focusedButtonText &&
 									normalizeLabel(focusedButtonText) === normalizeLabel(menuButtonLabel) &&
-									hasEncounterFocusTargets()
+									Encounter.hasEncounterFocusTargets()
 								) {
 									activeBattlegroundLayer = "encounter";
 									applyBattlegroundLayerVisualState();
 									return;
 								}
 
-								focusNextSceneButton(io.scene, intent.direction);
+								UIButton.focusNextSceneButton(io.scene, intent.direction);
 								return;
 							}
 							break;
 						case "encounter":
-							if (hasEncounterFocusTargets()) {
-								const focusedEncounterIndex = getFocusedEncounterIndex();
-								const encounterCount = getEncounterFocusCount();
+							if (Encounter.hasEncounterFocusTargets()) {
+								const focusedEncounterIndex = Encounter.getFocusedEncounterIndex();
+								const encounterCount = Encounter.getEncounterFocusCount();
 
 								if (intent.direction === "left" && boardCursor?.canInteract()) {
 									activeBattlegroundLayer = "board";
@@ -320,8 +290,8 @@ export function init(options: InitOptions) {
 										logDebug("edge handoff: encounter(top) -> menu button", {
 											focusedEncounterIndex,
 										});
-										if (!focusSceneButtonByText(io.scene, menuButtonLabel)) {
-											focusNextSceneButton(io.scene, "up");
+										if (!UIButton.focusSceneButtonByText(io.scene, menuButtonLabel)) {
+											UIButton.focusNextSceneButton(io.scene, "up");
 										}
 										return;
 									}
@@ -329,10 +299,10 @@ export function init(options: InitOptions) {
 									if (intent.direction === "down" && focusedEncounterIndex === encounterCount - 1) {
 										logDebug("edge handoff: encounter(bottom) -> skip button", {
 											focusedEncounterIndex,
-											hasSkipButton: hasSceneButtonByText(io.scene, skipEncounterLabel),
+											hasSkipButton: UIButton.hasSceneButtonByText(io.scene, skipEncounterLabel),
 										});
 
-										if (focusSceneButtonByText(io.scene, skipEncounterLabel)) {
+										if (UIButton.focusSceneButtonByText(io.scene, skipEncounterLabel)) {
 											activeBattlegroundLayer = "buttons";
 											applyBattlegroundLayerVisualState();
 										}
@@ -344,9 +314,9 @@ export function init(options: InitOptions) {
 									direction: intent.direction,
 									beforeIndex: focusedEncounterIndex,
 								});
-								navigateEncounterFocus(intent.direction);
+								Encounter.navigateEncounterFocus(intent.direction);
 								logDebug("encounter navigation applied", {
-									afterIndex: getFocusedEncounterIndex(),
+									afterIndex: Encounter.getFocusedEncounterIndex(),
 								});
 								return;
 							}
@@ -356,7 +326,7 @@ export function init(options: InitOptions) {
 								if (
 									intent.direction === "right" &&
 									boardCursor.getState().cursor.x === 2 &&
-									hasEncounterFocusTargets() &&
+									Encounter.hasEncounterFocusTargets() &&
 									!isBoardDragHoldActive
 								) {
 									activeBattlegroundLayer = "encounter";
@@ -379,12 +349,12 @@ export function init(options: InitOptions) {
 				if (options.context === "battleground") {
 					switch (activeBattlegroundLayer) {
 						case "buttons":
-							if (hasFocusedSceneButton(io.scene) && activateFocusedSceneButton(io.scene)) {
+							if (UIButton.hasFocusedSceneButton(io.scene) && UIButton.activateFocusedSceneButton(io.scene)) {
 								return;
 							}
 							break;
 						case "encounter":
-							if (await confirmEncounterFocus()) {
+							if (await Encounter.confirmEncounterFocus()) {
 								return;
 							}
 							break;
@@ -395,23 +365,23 @@ export function init(options: InitOptions) {
 							break;
 					}
 
-					if (hasFocusedSceneButton(io.scene) && activateFocusedSceneButton(io.scene)) {
+					if (UIButton.hasFocusedSceneButton(io.scene) && UIButton.activateFocusedSceneButton(io.scene)) {
 						return;
 					}
-					if (await confirmEncounterFocus()) {
+					if (await Encounter.confirmEncounterFocus()) {
 						return;
 					}
 					boardCursor?.confirm();
 					return;
 				}
 
-				if (hasFocusedSceneButton(io.scene)) {
-					activateFocusedSceneButton(io.scene);
+				if (UIButton.hasFocusedSceneButton(io.scene)) {
+					UIButton.activateFocusedSceneButton(io.scene);
 				}
 				return;
 			case "cancel":
 				if (options.context === "battleground" && activeBattlegroundLayer === "buttons") {
-					clearSceneButtonFocus(io.scene);
+					UIButton.clearSceneButtonFocus(io.scene);
 					activeBattlegroundLayer = "board";
 					applyBattlegroundLayerVisualState();
 					return;
@@ -437,7 +407,7 @@ export function init(options: InitOptions) {
 		}
 
 		try {
-			const chara = getCharaById(boardHoldVisualState.unitId);
+			const chara = Chara.getCharaById(boardHoldVisualState.unitId);
 			chara.setAngle(0);
 			chara.setPosition(boardHoldVisualState.origin.x, boardHoldVisualState.origin.y);
 		} catch {
@@ -462,7 +432,7 @@ export function init(options: InitOptions) {
 
 		const selectedUnitId = boardState.selectedUnitId;
 		try {
-			const selectedChara = getCharaById(selectedUnitId);
+			const selectedChara = Chara.getCharaById(selectedUnitId);
 			if (!boardHoldVisualState || boardHoldVisualState.unitId !== selectedUnitId) {
 				boardHoldVisualState = {
 					unitId: selectedUnitId,
@@ -480,7 +450,7 @@ export function init(options: InitOptions) {
 	};
 
 	const onKeyDown = async (event: KeyboardEvent) => {
-		if (event.repeat || shouldIgnoreShortcutEvent(event)) {
+		if (event.repeat || Intents.shouldIgnoreShortcutEvent(event)) {
 			return;
 		}
 
@@ -489,7 +459,7 @@ export function init(options: InitOptions) {
 			options.context === "battleground" &&
 			activeBattlegroundLayer === "encounter"
 		) {
-			const started = await startEncounterFocusHoldAction();
+			const started = await Encounter.startEncounterFocusHoldAction();
 			if (started) {
 				keyboardEncounterHoldActive = true;
 				event.preventDefault();
@@ -506,7 +476,7 @@ export function init(options: InitOptions) {
 			? Boolean(boardCursor?.getState().selectedUnitId)
 			: false;
 
-		const intents = resolveKeyboardIntents(options.context, state, event.key);
+		const intents = Intents.resolveKeyboardIntents(options.context, state, event.key);
 		if (intents.length === 0) {
 			return;
 		}
@@ -549,7 +519,7 @@ export function init(options: InitOptions) {
 				activeBattlegroundLayer === "board" && boardCursor?.canInteract()
 					? boardCursor.getState().cursor
 					: null;
-			await releaseEncounterFocusHoldAction({ boardTile });
+			await Encounter.releaseEncounterFocusHoldAction({ boardTile });
 			keyboardEncounterHoldActive = false;
 			return;
 		}
@@ -587,7 +557,7 @@ export function init(options: InitOptions) {
 				activeBattlegroundLayer === "board" && boardCursor?.canInteract()
 					? boardCursor.getState().cursor
 					: null;
-			await updateEncounterFocusHoldAction({ boardTile });
+			await Encounter.updateEncounterFocusHoldAction({ boardTile });
 		}
 		updateBoardHoldVisual();
 
@@ -639,7 +609,7 @@ export function init(options: InitOptions) {
 			}
 		}
 
-		const intents = resolveGamepadIntents(
+		const intents = Intents.resolveGamepadIntents(
 			options.context,
 			state,
 			snapshot,
@@ -681,6 +651,6 @@ export function init(options: InitOptions) {
 		io.scene.events.off(Phaser.Scenes.Events.UPDATE, onUpdate);
 		resetBoardHoldVisual();
 		boardCursor?.destroy();
-		clearSceneButtonFocus(io.scene);
+		UIButton.clearSceneButtonFocus(io.scene);
 	});
 }

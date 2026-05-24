@@ -1,19 +1,16 @@
-import { tween } from "@Utils/animation";
-import * as Geometry from "@Models/Geometry";
-import { Unit } from "@Models/Entities/Unit";
-
 import * as constants from "@Constants/constants";
-import * as Shop from "@Systems/Shop";
+import * as GameController from "@Core/GameController";
 import * as Board from "@Models/Board";
+import * as Geometry from "@Models/Geometry";
+import * as Unit from "@Models/Entities/Unit";
+import * as animation from "@Utils/animation";
+import * as Shop from "@Systems/Shop";
 import * as Tooltip from "@Components/Tooltip";
-
 import * as Chara from "@Systems/Chara/Chara";
 import * as events from "@Systems/Chara/events";
-import { onCharaPointerOut, onCharaPointerOver } from "@Systems/Chara/CharaTooltip";
-
+import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
-import { getGameController } from "@Core/GameControllerFactory";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -91,7 +88,7 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 
 	const { chara } = handlerState;
 
-	tween({
+	animation.tween({
 		targets: [chara],
 		angle: 0,
 		duration: 100,
@@ -104,7 +101,7 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 
 	if (!handlerState.wasDragSuccessful) {
 		const vec = chara.getData("dragStartVec") as Vec2;
-		tween({
+		animation.tween({
 			targets: [chara],
 			...vec,
 			duration: 150,
@@ -137,7 +134,7 @@ export const onDragStart =
 			io.scene.children.bringToTop(chara);
 		}
 
-		tween({
+		animation.tween({
 			targets: [chara],
 			angle: -10,
 			duration: 100,
@@ -194,12 +191,11 @@ export const processOwnedUnitMoveRequest = (
 	_executeMove(unit, targetTile, units);
 };
 
-const saveUnitPositions = (units: Unit[]) => {
-	const controller = getGameController();
-	controller.updateTeam({ units });
+const saveUnitPositions = (units: Unit.Unit[]) => {
+	GameController.updateTeam({ units });
 };
 
-const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
+const _executeMove = (unit: Unit.Unit, target: Vec2, units: Unit.Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -208,7 +204,7 @@ const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	saveUnitPositions(units);
 };
 
-const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
+const _executeSwap = (unit: Unit.Unit, _occupier: Unit.Unit, target: Vec2, units: Unit.Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -217,21 +213,21 @@ const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) 
 	saveUnitPositions(units);
 };
 
-const applyMoveVisual = (movedUnit: Unit) => {
+const applyMoveVisual = (movedUnit: Unit.Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
 	const pos = Chara.getScreenPosition(movedUnit);
 
-	tween({ targets: [movedChara], ...pos });
+	animation.tween({ targets: [movedChara], ...pos });
 };
 
-const applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
+const applySwapVisual = (movedUnit: Unit.Unit, swappedUnit: Unit.Unit) => {
 	const movedChara = Chara.getCharaById(movedUnit.id);
 	const swappedChara = Chara.getCharaById(swappedUnit.id);
 	const movedPos = Chara.getScreenPosition(movedUnit);
 	const swappedPos = Chara.getScreenPosition(swappedUnit);
 
-	tween({ targets: [movedChara], ...movedPos });
-	tween({ targets: [swappedChara], ...swappedPos });
+	animation.tween({ targets: [movedChara], ...movedPos });
+	animation.tween({ targets: [swappedChara], ...swappedPos });
 };
 
 const movementRejected = (
@@ -243,7 +239,7 @@ const movementRejected = (
 	const failedChara = Chara.getCharaById(unitId);
 	Tooltip.hideTooltip();
 
-	tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
+	animation.tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
 };
 
 export const onPointerDown =
@@ -253,7 +249,7 @@ export const onPointerDown =
 			handlerState.longPressTimer = io.scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
 				handlerState.isLongPressActive = true;
 				const { chara } = handlerState;
-				onCharaPointerOver(chara);
+				CharaTooltip.onCharaPointerOver(chara);
 			});
 		};
 
@@ -268,7 +264,7 @@ export const onPointerUp =
 			if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
 				handlerState.isLongPressActive = false;
 
-				onCharaPointerOut();
+				CharaTooltip.onCharaPointerOut();
 			}
 		};
 
@@ -286,7 +282,7 @@ export const onPointerUpShopItem =
 				handlerState.isLongPressActive = false;
 				const vec = handlerState.chara.getData("dragStartVec") as Vec2;
 
-				tween({
+				animation.tween({
 					targets: [handlerState.chara],
 					...vec,
 					duration: 150,

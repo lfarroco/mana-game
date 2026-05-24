@@ -1,54 +1,44 @@
-import { State } from "@Models/State";
-import { getPhaseOptions, sendOptionSelection } from "@Multiplayer/MultiplayerManager";
+import * as State from "@Models/State";
+import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
-import { createBrowserCombatEffects } from "Client/Screens/Battleground/BrowserCombatEffects";
-import {
-	getAllCharas,
-	getUnit,
-	destroy,
-	hasCharaById,
-	create as createChara,
-	enableTooltip,
-	summon,
-	refreshUnit,
-	getCharaById,
-} from "@Systems/Chara/Chara";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU, SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
-import { setIsInputEnabled, setEnemyBoardVisible } from "@Models/Board";
+import * as BrowserCombatEffects from "Client/Screens/Battleground/BrowserCombatEffects";
+import * as Chara from "@Systems/Chara/Chara";
+import * as constants from "@Constants/constants";
+import * as Board from "@Models/Board";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { resetUnitStats } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
-import { getBattleCore, getCardDefinition } from "@Models/Entities/Card";
-import { delay } from "@Utils/animation";
-import { openOrbShop } from "@Systems/Shop/OrbShop";
+import * as Card from "@Models/Entities/Card";
+import * as animation from "@Utils/animation";
+import * as OrbShop from "@Systems/Shop/OrbShop";
 
 // TODO: fire events instead?
-import { updateLivesDisplay } from "./Components/livesDisplay";
-import { updateRoundDisplay } from "./Components/roundDisplay";
+import * as livesDisplay from "./Components/livesDisplay";
+import * as roundDisplay from "./Components/roundDisplay";
 
-import { updateWinsDisplay } from "Client/Screens/Battleground/Components/winsDisplay";
-import { renderTavernCharas } from "@Systems/Shop/CharaShop";
+import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
+import * as CharaShop from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
-import { getGameController } from "@Core/GameControllerFactory";
+import * as GameController from "@Core/GameController";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
-import { createLogger } from "@Utils/Logger";
-import { createUIButton } from "@Components/UIButton";
-import { vec2 } from "@Models/Geometry";
-import { t } from "@i18n/i18n";
-import type { ActionPayload, PhaseOption, CombatState, PhaseOptions } from "@Core/Types";
-import { resetBoard } from "Client/Screens/Battleground/PhaseManager";
-import { update } from "Client/Screens/Battleground/Components/playerNamesDisplay";
+import * as Logger from "@Utils/Logger";
+import * as UIButton from "@Components/UIButton";
+import * as Geometry from "@Models/Geometry";
+import * as i18n from "@i18n/i18n";
+import type * as Types from "@Core/Types";
+import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
+import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
 
-const logger = createLogger("MultiplayerPhaseManager");
+const logger = Logger.createLogger("MultiplayerPhaseManager");
 
-type PhaseOptionsResult = Omit<PhaseOptions, "round"> & { round?: number };
+type PhaseOptionsResult = Omit<Types.PhaseOptions, "round"> & { round?: number };
 
 export type PhaseTransport = {
-	getPhaseOptions: (state: State) => Promise<PhaseOptionsResult>;
-	sendOptionSelection: (optionId: string, payload?: ActionPayload) => Promise<boolean>;
+	getPhaseOptions: (state: State.State) => Promise<PhaseOptionsResult>;
+	sendOptionSelection: (optionId: string, payload?: Types.ActionPayload) => Promise<boolean>;
 };
 
 export type MultiplayerPhaseContext = {
@@ -60,12 +50,12 @@ const hasUnitStateChanged = (previousUnit: unknown, nextUnit: unknown): boolean 
 	JSON.stringify(previousUnit) !== JSON.stringify(nextUnit);
 
 const defaultMultiplayerTransport: PhaseTransport = {
-	getPhaseOptions,
-	sendOptionSelection,
+	getPhaseOptions: MultiplayerManager.getPhaseOptions,
+	sendOptionSelection: MultiplayerManager.sendOptionSelection,
 };
 
 export async function handleMultiplayerPhase(
-	state: State,
+	state: State.State,
 	transport: PhaseTransport = defaultMultiplayerTransport,
 	context: MultiplayerPhaseContext = {}
 ) {
@@ -90,18 +80,18 @@ export async function handleMultiplayerPhase(
 	if (result.round !== undefined) {
 		logger.debug(`Syncing round: ${result.round}`);
 		state.session.round = result.round;
-		updateRoundDisplay(state.session.round);
+		roundDisplay.updateRoundDisplay(state.session.round);
 	}
 	// Don't sync wins/losses when entering combat phase, since the combat hasn't been shown yet
 	// The optimistic update after combat will handle the display, and the next phase will sync correctly
 	if (result.phase !== "combat") {
 		if (result.wins !== undefined) {
 			state.session.wins = result.wins;
-			updateWinsDisplay(state.session.wins);
+			winsDisplay.updateWinsDisplay(state.session.wins);
 		}
 		if (result.losses !== undefined) {
 			state.session.losses = result.losses;
-			updateLivesDisplay(4 - state.session.losses);
+			livesDisplay.updateLivesDisplay(4 - state.session.losses);
 		}
 	}
 
@@ -114,14 +104,14 @@ export async function handleMultiplayerPhase(
 		state.session.team.units = serverUnits;
 
 		if (result.phase !== "combat") {
-			setEnemyBoardVisible(false);
+			Board.setEnemyBoardVisible(false);
 
 			// Remove charas for units no longer on the team (handles sold units and
 			// stale shop-preview charas left over after slideOut).
 			const newUnitIdSet = new Set(state.session.team.units.map((u) => u.id));
-			getAllCharas()
-				.filter((c) => !newUnitIdSet.has(getUnit(c).id))
-				.forEach(destroy);
+			Chara.getAllCharas()
+				.filter((c) => !newUnitIdSet.has(Chara.getUnit(c).id))
+				.forEach(Chara.destroy);
 
 			// Only create charas for units that aren't already displayed.
 			// Newly summoned units (pre-placed by the controller) are skipped so
@@ -129,16 +119,16 @@ export async function handleMultiplayerPhase(
 			await Promise.all(
 				state.session.team.units.map(async (u) => {
 					const previousUnit = previousUnitsById.get(u.id);
-					if (hasCharaById(u.id)) {
+					if (Chara.hasCharaById(u.id)) {
 						if (!previousUnit || !hasUnitStateChanged(previousUnit, u)) return;
-						await refreshUnit(u);
+						await Chara.refreshUnit(u);
 						return;
 					}
 					if (!previousUnitIds.has(u.id)) {
-						await summon(u, true);
+						await Chara.summon(u, true);
 					} else {
-						const c = await createChara(u);
-						enableTooltip(c);
+						const c = await Chara.create(u);
+						Chara.enableTooltip(c);
 					}
 				})
 			);
@@ -153,7 +143,7 @@ export async function handleMultiplayerPhase(
 	}
 
 	if (result.phase !== "combat") {
-		update({ enemyName: "" });
+		playerNamesDisplay.update({ enemyName: "" });
 	}
 
 	switch (result.phase) {
@@ -177,21 +167,20 @@ export async function handleMultiplayerPhase(
 			break;
 
 		case "encounter":
-			const encounterIds = result.options.map((o: PhaseOption) => o.id);
+			const encounterIds = result.options.map((o: Types.PhaseOption) => o.id);
 			await Encounter.open(state, encounterIds);
 			break;
 
 		case "shop":
-			const shopCardIds = result.options.map((o: PhaseOption) => o.id);
-			const cardDefs = shopCardIds.map((id: string) => getCardDefinition(id)).filter(Boolean);
-			const controller = getGameController();
+			const shopCardIds = result.options.map((o: Types.PhaseOption) => o.id);
+			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 			ShopPanel.create(async () => {
 				await ShopPanel.slideOut();
-				await controller.skipPhase();
+				await GameController.skipPhase();
 			});
 
-			await renderTavernCharas(cardDefs);
+			await CharaShop.renderTavernCharas(cardDefs);
 
 			await ShopPanel.slideIn();
 			break;
@@ -203,9 +192,9 @@ export async function handleMultiplayerPhase(
 				return;
 			}
 			logger.debug("Opening Orb Shop with options:", orbOptions);
-			await openOrbShop(
+			await OrbShop.openOrbShop(
 				state,
-				orbOptions.map((o: PhaseOption) => o.id),
+				orbOptions.map((o: Types.PhaseOption) => o.id),
 				async (orbId, targetId) => {
 					logger.debug(`Sending Orb Apply: ${orbId} -> ${targetId}`);
 					await transport.sendOptionSelection("apply_orb", {
@@ -221,7 +210,7 @@ export async function handleMultiplayerPhase(
 			break;
 
 		case "upgrade_core":
-			const upgradeIds = result.options.map((o: PhaseOption) => o.id);
+			const upgradeIds = result.options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
 			await transport.sendOptionSelection("upgrade_core_done");
@@ -229,7 +218,7 @@ export async function handleMultiplayerPhase(
 			break;
 
 		case "add_reaction_core":
-			const reactionIds = result.options.map((o: PhaseOption) => o.id);
+			const reactionIds = result.options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			await transport.sendOptionSelection("add_reaction_core_done");
@@ -253,8 +242,8 @@ export async function handleMultiplayerPhase(
 }
 
 async function handleMultiplayerCombat(
-	state: State,
-	combatState: CombatState,
+	state: State.State,
+	combatState: Types.CombatState,
 	requireReadyButton: boolean,
 	transport: PhaseTransport,
 	childContext: MultiplayerPhaseContext
@@ -262,7 +251,7 @@ async function handleMultiplayerCombat(
 	logger.debug("Initializing Multiplayer Combat:", combatState);
 
 	// Disable board input immediately - combat outcome is pre-calculated
-	setIsInputEnabled(false);
+	Board.setIsInputEnabled(false);
 
 	let allUnits = [];
 	if (combatState.units) {
@@ -271,57 +260,57 @@ async function handleMultiplayerCombat(
 	} else {
 		const playerUnits = state.session.team.units;
 		const enemyUnits = combatState.enemyTeam;
-		playerUnits.forEach((u) => (u.force = FORCE_ID_PLAYER));
+		playerUnits.forEach((u) => (u.force = constants.FORCE_ID_PLAYER));
 		allUnits = [...playerUnits, ...enemyUnits];
 	}
 
 	state.battleData.units = allUnits;
 
-	setEnemyBoardVisible(true);
+	Board.setEnemyBoardVisible(true);
 
-	getAllCharas().forEach(destroy);
+	Chara.getAllCharas().forEach(Chara.destroy);
 	for (const u of state.battleData.units) {
-		const c = await createChara(u);
-		enableTooltip(c);
+		const c = await Chara.create(u);
+		Chara.enableTooltip(c);
 	}
 
-	update({
+	playerNamesDisplay.update({
 		enemyName: combatState.enemyPlayerName || "CPU",
 	});
 
 	const startCombatPlayback = async () => {
 		// Keep current pacing for transitions into playback.
-		await delay(300);
+		await animation.delay(300);
 
-		const effects = createBrowserCombatEffects();
+		const effects = BrowserCombatEffects.createBrowserCombatEffects();
 		effects.onCombatEnd = async (state, outcome, combatStates) => {
-			setIsInputEnabled(true);
+			Board.setIsInputEnabled(true);
 			if (outcome === "player_lost") {
-				const core = getBattleCore(state)(FORCE_ID_PLAYER);
+				const core = Card.getBattleCore(state)(constants.FORCE_ID_PLAYER);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					await Animations.shatter(Chara.getCharaById(core.id));
 				}
 			} else if (outcome === "player_won") {
-				const core = getBattleCore(state)(FORCE_ID_CPU);
+				const core = Card.getBattleCore(state)(constants.FORCE_ID_CPU);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					await Animations.shatter(Chara.getCharaById(core.id));
 				}
 			}
 
-			await delay(300);
+			await animation.delay(300);
 
 			if (combatStates) {
 				let forceStatsState = combatStates.forceStatsState;
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, FORCE_ID_CPU);
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, constants.FORCE_ID_CPU);
 				forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 
 			// Reset visual state on the battleData player units (charge bars reference these objects)
 			state.battleData.units
-				.filter((u) => u.force === FORCE_ID_PLAYER)
+				.filter((u) => u.force === constants.FORCE_ID_PLAYER)
 				.forEach((u) => {
-					resetUnitStats(u);
+					Unit.resetUnitStats(u);
 					ChargeBarDisplay.updateChargeBar(u.id);
 				});
 
@@ -330,9 +319,9 @@ async function handleMultiplayerCombat(
 			// Optimistically update top bar display only (not state)
 			// The state will be synced from server on next phase transition
 			if (resultType === "victory") {
-				updateWinsDisplay((state.session.wins || 0) + 1);
+				winsDisplay.updateWinsDisplay((state.session.wins || 0) + 1);
 			} else {
-				updateLivesDisplay(4 - (state.session.losses || 0) - 1);
+				livesDisplay.updateLivesDisplay(4 - (state.session.losses || 0) - 1);
 			}
 
 			await new Promise<void>((resolve) => {
@@ -343,7 +332,7 @@ async function handleMultiplayerCombat(
 						// Continue Callback
 						resolve();
 						// Proceed to next phase
-						resetBoard(true).then(() =>
+						PhaseManager.resetBoard(true).then(() =>
 							transport
 								.sendOptionSelection("combat_done")
 								.then(() => handleMultiplayerPhase(state, transport, childContext))
@@ -360,7 +349,7 @@ async function handleMultiplayerCombat(
 			});
 		};
 
-		state.battleData.units.forEach(resetUnitStats);
+		state.battleData.units.forEach(Unit.resetUnitStats);
 
 		// TODO: update this, this was the old way
 		//const controller = createCombatPlaybackController(state, combatState.logs, effects);
@@ -368,9 +357,9 @@ async function handleMultiplayerCombat(
 	};
 
 	if (requireReadyButton) {
-		const readyButton = createUIButton({
-			text: t("ui.ready"),
-			position: vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100),
+		const readyButton = UIButton.createUIButton({
+			text: i18n.t("ui.ready"),
+			position: Geometry.vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 			callback: () => {
 				readyButton.container.destroy();
 				void startCombatPlayback();
