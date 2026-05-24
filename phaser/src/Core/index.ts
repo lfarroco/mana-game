@@ -21,6 +21,6 @@ export { PhaseTransitions } from "@Core/PhaseTransitions";
 
 // Server Interface & Implementations
 export type { GameServer as IGameServer } from "@Core/GameServer";
-export { LocalServerAdapter } from "@Core/LocalServerAdapter";
-export { RemoteServerAdapter } from "@Core/RemoteServerAdapter";
+export { LocalServer } from "@Core/LocalServer";
+export { RemoteServer } from "@Core/RemoteServer";
 export { ServerFactory, getServerAdapter } from "@Core/ServerFactory";

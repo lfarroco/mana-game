@@ -56,8 +56,8 @@ RunCombatIO.ts → serverCombatDemo.ts → CombatPlaybackController.ts
 ```
 The server-side simulation produces `CombatLogEntry[]`; the client consumes those logs to drive animations. The actual game state mutation and the visual playback are separate concerns.
 
-### IGameServer / ServerFactory
-Single-player and multiplayer share the same `IGameServer` interface (`Core/IGameServer.ts`). Use `getServerAdapter()` from `Core/ServerFactory.ts` to get the correct adapter — never instantiate `LocalServerAdapter` or `RemoteServerAdapter` directly.
+### IGameServer / ServerFactory (OUTDATED)
+Single-player and multiplayer share the same `IGameServer` interface (`Core/IGameServer.ts`). Use `getServerAdapter()` from `Core/ServerFactory.ts` to get the correct adapter — never instantiate `LocalServer` or `RemoteServer` directly.
 
 ### Phase System
 New handler-based system lives in `Core/PhaseSystem/`. Each game phase has a `PhaseHandler` (see `types.ts` for the interface). Create handlers with `createPhaseHandler()` from `BasePhaseHandler.ts` — don't implement the interface manually. The legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still drives the main loop.

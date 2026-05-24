@@ -6,7 +6,7 @@ import { supabase } from "@lib/supabase";
 import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";
 
-const logger = createLogger("RemoteServerAdapter");
+const logger = createLogger("RemoteServer");
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
@@ -24,7 +24,7 @@ const generateSessionSeed = (): string => {
  * Remote implementation of the game server using Supabase.
  * Used for multiplayer mode - communicates with Supabase Edge Functions.
  */
-export class RemoteServerAdapter implements GameServer {
+export class RemoteServer implements GameServer {
 	private playerId: string;
 
 	constructor(playerId?: string) {

@@ -2,7 +2,7 @@ import { SessionData, PhaseOptions, ActionPayload } from "@Core/Types";
 
 /**
  * Interface for game server implementations.
- * Both LocalServerAdapter and RemoteServerAdapter implement this interface.
+ * Both LocalServer and RemoteServer implement this interface.
  */
 export type GameServer = {
 

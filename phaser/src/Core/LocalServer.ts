@@ -25,7 +25,7 @@ const cloneValue = <T>(value: T): T => {
  * Local in-memory implementation of the game server.
  * Used for single-player mode - runs all game logic locally without network calls.
  */
-export class LocalServerAdapter implements GameServer {
+export class LocalServer implements GameServer {
 	// Made public to allow debugging/testing scenarios to set up arbitrary session states
 	// See: DebugController.startBattlegroundWithSession()
 	sessionManager = new SessionManager();
