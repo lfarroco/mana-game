@@ -8,7 +8,6 @@ import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "@utils";
 import Phaser from "phaser";
-import { getState } from "@Models/State";
 import { createLogger } from "@Utils/Logger";
 import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
@@ -286,19 +285,18 @@ export function updateShieldDisplay(
 	force: string,
 	shield: number,
 	delta: number,
-	state?: ForceStatsState,
+	statsState?: ForceStatsState,
 	options?: ForceStatsUpdateOptions
 ) {
 	let forceStatsState: ForceStatsState;
 
-	if (state) {
-		forceStatsState = state;
+	if (statsState) {
+		forceStatsState = statsState;
 	} else {
 		const combatStates = CombatSystemStates.getCombatSystemStates();
 		forceStatsState = combatStates.forceStatsState;
 	}
 
-	const gameState = getState();
 	const chipId = `shield-display/${force}`;
 	updateChipText(chipId, compactNumber(shield));
 
@@ -309,7 +307,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = getForceStatsCore(force, options, gameState);
+	const core = getForceStatsCore(force, options, state);
 	if (!core) {
 		logger.warn(`[ForceStats] Core not found for force ${force} in updateShieldDisplay`);
 		return;
@@ -347,15 +345,14 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
-export function syncPlayerPersistentForceStats(state?: ForceStatsState): ForceStatsState {
-	const currentState = getState();
-	const playerCore = getPlayerPersistentCore(currentState);
+export function syncPlayerPersistentForceStats(statsState?: ForceStatsState): ForceStatsState {
+	const playerCore = getPlayerPersistentCore(state);
 	if (!playerCore) {
 		logger.warn("[ForceStats] Player persistent core not found");
-		return state ?? initializeForceStatsState();
+		return statsState ?? initializeForceStatsState();
 	}
 
-	let forceStatsState = state;
+	let forceStatsState = statsState;
 	if (!forceStatsState) {
 		forceStatsState = CombatSystemStates.isInitialized()
 			? CombatSystemStates.getCombatSystemStates().forceStatsState
@@ -378,15 +375,15 @@ export function syncPlayerPersistentForceStats(state?: ForceStatsState): ForceSt
 function getForceStatsCore(
 	force: string,
 	options?: ForceStatsUpdateOptions,
-	state = getState()
+	gameState = state
 ) {
 	if (options?.preferPersistentCore && force === FORCE_ID_PLAYER) {
-		return getPlayerPersistentCore(state);
+		return getPlayerPersistentCore(gameState);
 	}
 
 	return (
-		getBattleCore(state)(force) ||
-		(force === FORCE_ID_PLAYER ? getPlayerPersistentCore(state) : null)
+		getBattleCore(gameState)(force) ||
+		(force === FORCE_ID_PLAYER ? getPlayerPersistentCore(gameState) : null)
 	);
 }
 

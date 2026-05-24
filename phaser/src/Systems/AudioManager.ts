@@ -20,10 +20,6 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		return;
 	}
 
-	if (!game || !game.sound) {
-		// Silently fail or log warning if game sound system is not ready (common in tests)
-		return;
-	}
 
 	if (currentMusic && currentMusic.isPlaying) {
 		currentMusic.stop();

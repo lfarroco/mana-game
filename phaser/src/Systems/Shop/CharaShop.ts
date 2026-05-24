@@ -7,7 +7,6 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
 import * as sc from "@Systems/Shop/constants";
 import { createDescription } from "@Systems/Chara/createDescription";
-import { getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Shop from "@Systems/Shop";
 import {
@@ -43,7 +42,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	const scene = io.scene;
 	resetEncounterFocusTargets();
 
-	const ownedCardIds = new Set(getState().session.team.units.map((u) => u.cardId));
+	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
 		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, vec2(0, 0));
@@ -138,7 +137,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 			chara.emit("pointerup", pointer);
 		});
 
-		const existingUnit = getState().session.team.units.find((u) => u.cardId === spec.id);
+		const existingUnit = state.session.team.units.find((u) => u.cardId === spec.id);
 		if (existingUnit) {
 			unit.rank = existingUnit.rank;
 			makeUnit.upgradeUnitEffects(unit);

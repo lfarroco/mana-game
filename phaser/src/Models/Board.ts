@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@Models/BoardLogic";
 
@@ -255,7 +255,6 @@ export function updateUnitPosition(
 	swappedUnit?: Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
-	const state = getState();
 	const oldPositionOfMovedUnit = { ...unitToMove.position };
 
 	const moveCheck = BoardLogic.checkMove(unitToMove, newBoardPosition, unitsOnBoard);

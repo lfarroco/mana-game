@@ -6,7 +6,6 @@ import {
 	sendOptionSelection,
 	sendTeamUpdate,
 } from "@Multiplayer/MultiplayerManager";
-import { getState } from "@Models/State";
 import { startPhase } from "Client/Screens/Battleground/PhaseManager";
 
 /**
@@ -21,7 +20,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(cardId);
 
 			if (success) {
-				startPhase(getState());
+				startPhase(state);
 			}
 
 			return success;
@@ -32,7 +31,6 @@ export const createRemoteGameController = (): GameController => {
 		},
 
 		skipPhase: async (): Promise<boolean> => {
-			const state = getState();
 
 			// Determine the appropriate skip action based on current phase
 			let actionId = "skip";
@@ -49,7 +47,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(actionId);
 
 			if (success) {
-				startPhase(getState());
+				startPhase(state);
 			}
 
 			return success;
@@ -59,14 +57,13 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(encounterId);
 
 			if (success) {
-				startPhase(getState());
+				startPhase(state);
 			}
 
 			return success;
 		},
 
 		handleAction: async (actionId: string, payload?: ActionPayload): Promise<boolean> => {
-			const state = getState();
 			const inUpgradePhase = state.session.phase === "upgrade_core";
 			const inReactionPhase = state.session.phase === "add_reaction_core";
 			const isInPhaseUpgradeSelection =
@@ -85,7 +82,7 @@ export const createRemoteGameController = (): GameController => {
 			const success = await sendOptionSelection(actionId, payload);
 
 			if (success && !isInPhaseUpgradeSelection) {
-				startPhase(getState());
+				startPhase(state);
 			}
 
 			return success;
@@ -96,7 +93,6 @@ export const createRemoteGameController = (): GameController => {
 		},
 
 		notifyGameComplete: async (actionId: string): Promise<boolean> => {
-			const state = getState();
 
 			// Deferred multiplayer runs are already terminal by the time the game-complete UI
 			// is shown, so there is nothing left to notify. Sending another transition action

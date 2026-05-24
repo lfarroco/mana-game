@@ -5,15 +5,13 @@ import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 import Preload from "Client/Screens/Preload/Preload";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
-import { initState } from "@Models/State";
+import "@Models/State"; // start global state
 import * as phaserIO from "@PhaserIO";
 
 declare global {
 	var io: typeof phaserIO;
 }
 window.io = phaserIO;
-
-initState();
 
 export const game = new Phaser.Game({
 	type: Phaser.AUTO,

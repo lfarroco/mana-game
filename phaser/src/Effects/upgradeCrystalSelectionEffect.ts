@@ -3,7 +3,6 @@ import { arcaneMissileTargeted } from "@Effects/arcaneMissileTargeted";
 import { healingHitEffect } from "@Effects/healingHitEffect";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
-import { getState } from "@Models/State";
 import { getCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
 import { mixHexColors } from "@UI/theme";
 import { delay, tween } from "@Utils/animation";
@@ -163,7 +162,6 @@ function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOr
 }
 
 function getCrystalTargetPoint(): Point {
-	const state = getState();
 	const core = getPlayerPersistentCore(state);
 
 	if (hasCharaById(core.id)) {

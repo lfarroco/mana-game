@@ -1,4 +1,3 @@
-import * as State from "@Models/State";
 import * as UIManager from "@UI/UI";
 import * as Board from "@Models/Board";
 import * as OptionsStore from "@Models/OptionsStore";
@@ -52,8 +51,6 @@ const start = async ({
 	// - render boards
 	// - render untis
 	// - display current phase
-
-	const state = State.getState();
 
 	const multiplayerModeEnabled = sessionType.type === "online";
 

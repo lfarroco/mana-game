@@ -1,6 +1,5 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { getState } from "@Models/State";
 import * as io from "@PhaserIO";
 import { renderTooltip, hideTooltip } from "@Components/Tooltip";
 import * as i18n from "@i18n/i18n";
@@ -50,7 +49,7 @@ export const LIVES_DISPLAY_X = 60;
 export const LIVES_DISPLAY_Y = 50;
 
 export function create() {
-	const initialLives = 4 - getState().session.losses;
+	const initialLives = 4 - state.session.losses;
 	currentLives = initialLives;
 
 	const hearts = createHearts();

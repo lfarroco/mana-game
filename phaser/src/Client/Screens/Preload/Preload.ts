@@ -3,8 +3,6 @@ import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { DISABLE_ASSETS } from "@config";
 import * as TitleScene from "Client/Screens/Title/TitleScene";
-import * as io from "@PhaserIO";
-import * as State from "@Models/State"
 
 export default class Core extends Phaser.Scene {
 
@@ -156,8 +154,6 @@ export default class Core extends Phaser.Scene {
     }
 
     create() {
-
-        State.setCurrentScene(this);
 
         io.initPhaserIO(this);
         registerCollection(BASE_COLLECTION_DATA);

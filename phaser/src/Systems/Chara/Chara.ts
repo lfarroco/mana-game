@@ -8,7 +8,6 @@ import * as RankDisplay from "@Systems/Chara/RankDisplay";
 import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import { summonEffect } from "@Effects/summonEffect";
-import { getState } from "@Models/State";
 
 export type Chara = Container;
 
@@ -208,7 +207,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 }
 
 export function isShopItem(id: string): boolean {
-	return !getState().session.team.units.find((u) => u.id === id);
+	return !!state.session.team.units.find((u) => u.id === id);
 }
 
 export function getUnit(chara: Chara): Unit {

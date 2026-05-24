@@ -2,7 +2,6 @@ import { GameController, GameFeature } from "@Core/GameController";
 import { ActionPayload } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { getServerAdapter } from "@Core/ServerFactory";
-import { getState } from "@Models/State";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 
 /**
@@ -21,7 +20,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			if (success) {
 				// Render the next phase. handleMultiplayerPhase will summon the new unit
 				// on the board first, then slide the shop out, then slide the new shop in.
-				await PhaseManager.startPhase(getState());
+				await PhaseManager.startPhase(state);
 			}
 
 			return success;
@@ -34,7 +33,6 @@ export const createLocalGameController = (playerId: string): GameController => {
 
 		skipPhase: async (): Promise<boolean> => {
 			const server = getServerAdapter();
-			const state = getState();
 
 			// Determine the appropriate skip action based on current phase
 			let actionId = "skip";
@@ -53,7 +51,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			const success = await server.handleAction(playerId, actionId);
 
 			if (success) {
-				await PhaseManager.startPhase(getState());
+				await PhaseManager.startPhase(state);
 			}
 
 			return success;
@@ -64,7 +62,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			const success = await server.handleAction(playerId, encounterId);
 
 			if (success) {
-				await PhaseManager.startPhase(getState());
+				await PhaseManager.startPhase(state);
 			}
 
 			return success;
@@ -72,7 +70,6 @@ export const createLocalGameController = (playerId: string): GameController => {
 
 		handleAction: async (actionId: string, payload?: ActionPayload): Promise<boolean> => {
 			const server = getServerAdapter();
-			const state = getState();
 			const inUpgradePhase = state.session.phase === "upgrade_core";
 			const inReactionPhase = state.session.phase === "add_reaction_core";
 			const isInPhaseUpgradeSelection =
@@ -91,7 +88,7 @@ export const createLocalGameController = (playerId: string): GameController => {
 			const success = await server.handleAction(playerId, actionId, payload);
 
 			if (success && !isInPhaseUpgradeSelection) {
-				await PhaseManager.startPhase(getState());
+				await PhaseManager.startPhase(state);
 			}
 
 			return success;

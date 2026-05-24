@@ -1,4 +1,3 @@
-import { getState } from "@Models/State";
 import { getSavedData } from "@Game/effects/getSavedData";
 import { setSeed } from "@Utils/Random";
 import { getServerAdapter } from "@Core/ServerFactory";
@@ -23,7 +22,6 @@ export function loadGame() {
 
 	// Set up game state
 	setSeed(stringToSeed(savedData.seed));
-	const state = getState();
 	state.session = savedData;
 
 	//getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, { state: state });

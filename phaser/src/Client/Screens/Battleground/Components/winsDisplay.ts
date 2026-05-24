@@ -1,5 +1,4 @@
 import { vec2, size } from "@Models/Geometry";
-import { getState } from "@Models/State";
 import * as io from "@PhaserIO";
 import { images } from "@assets";
 import { renderTooltip, hideTooltip } from "@Components/Tooltip";
@@ -25,7 +24,7 @@ export const WINS_DISPLAY_X = 240;
 export const WINS_DISPLAY_Y = 35;
 
 export function create() {
-	const initialWins = getState().session.wins;
+	const initialWins = state.session.wins;
 	currentWins = initialWins;
 
 	const rects = createRects();

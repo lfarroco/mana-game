@@ -26,7 +26,6 @@ import { hasteEffect } from "@Effects/hasteEffect";
 import { slowEffect } from "@Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { MIDDLE_SCREEN, FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Constants/constants";
-import { getState } from "@Models/State";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { createLogger } from "@Utils/Logger";
 import * as io from "@PhaserIO"
@@ -371,7 +370,6 @@ export const createBrowserCombatEffects = (
 		},
 
 		onTimeoutDamageVisual: (targetForceId: string, _damage: number, onHit: () => void) => {
-			const state = getState();
 			const target = getBattleCore(state)(targetForceId);
 
 			if (!target) {

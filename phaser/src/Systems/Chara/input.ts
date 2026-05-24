@@ -12,8 +12,6 @@ import * as events from "@Systems/Chara/events";
 import { onCharaPointerOut, onCharaPointerOver } from "@Systems/Chara/CharaTooltip";
 
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
-import * as ph from "@PhaserIO";
-import { getState } from "@Models/State";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import { getGameController } from "@Core/GameControllerFactory";
 
@@ -46,12 +44,12 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
-		ph.WhenDroppedOnZone(chara, DiscardZone.name, () => {
+		io.WhenDroppedOnZone(chara, DiscardZone.name, () => {
 			if (!Board.isInputEnabled()) return;
 			if (isPlayerUnit) events.onDiscard(state.unitId);
 		});
 
-		ph.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+		io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
 			if (!Board.isInputEnabled()) return;
 
 			const x = zone.getData("cell-x") as number;
@@ -172,7 +170,7 @@ export const processOwnedUnitMoveRequest = (
 	dragStartX: number,
 	dragStartY: number
 ) => {
-	const units = getState().session.team.units;
+	const units = state.session.team.units;
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {

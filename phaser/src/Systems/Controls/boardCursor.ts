@@ -2,7 +2,6 @@ import Phaser from "phaser";
 import { GAME_CONFIG } from "@config";
 import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
-import { getState } from "@Models/State";
 import { processOwnedUnitMoveRequest } from "@Systems/Chara/input";
 import {
 	BoardCursorState,
@@ -55,7 +54,7 @@ const drawTileOutline = (
 export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorController => {
 	const cursorGraphics = scene.add.graphics();
 	const selectedGraphics = scene.add.graphics();
-	let state = createInitialBoardCursorState(getState().session.team.units);
+	let cursorState = createInitialBoardCursorState(state.session.team.units);
 	let visualActive = true;
 	let cursorBlinkTween: Phaser.Tweens.Tween | null = null;
 
@@ -92,15 +91,15 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			selectedGraphics.setVisible(false);
 			stopCursorBlink();
 			if (!GAME_CONFIG.ENABLE_CONTROLLER_SUPPORT || !Board.isInputEnabled()) {
-				state = clearBoardSelection(state);
+				cursorState = clearBoardSelection(cursorState);
 			}
 			return;
 		}
 
 		cursorGraphics.setVisible(true);
-		drawTileOutline(cursorGraphics, state.cursor, CURSOR_BORDER_COLOR, CURSOR_BORDER_ALPHA);
+		drawTileOutline(cursorGraphics, cursorState.cursor, CURSOR_BORDER_COLOR, CURSOR_BORDER_ALPHA);
 
-		const selectedUnit = getState().session.team.units.find((unit) => unit.id === state.selectedUnitId);
+		const selectedUnit = state.session.team.units.find((unit) => unit.id === cursorState.selectedUnitId);
 		if (!selectedUnit) {
 			selectedGraphics.clear();
 			selectedGraphics.setVisible(false);
@@ -123,7 +122,7 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			return;
 		}
 
-		state = moveBoardCursor(state, direction);
+		cursorState = moveBoardCursor(cursorState, direction);
 		refresh();
 	};
 
@@ -132,11 +131,11 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			return;
 		}
 
-		state = {
-			...state,
+		cursorState = {
+			...cursorState,
 			cursor: {
 				x: 2,
-				y: Math.max(0, Math.min(2, state.cursor.y)),
+				y: Math.max(0, Math.min(2, cursorState.cursor.y)),
 			},
 		};
 		refresh();
@@ -147,8 +146,8 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			return false;
 		}
 
-		const result = resolveBoardConfirm(state, getState().session.team.units);
-		state = result.nextState;
+		const result = resolveBoardConfirm(cursorState, state.session.team.units);
+		cursorState = result.nextState;
 
 		if (result.move) {
 			const dragStart = Board.getSlotPosition(result.move.from.y * 3 + result.move.from.x, true);
@@ -164,11 +163,11 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 			return false;
 		}
 
-		if (!state.selectedUnitId) {
+		if (!cursorState.selectedUnitId) {
 			return false;
 		}
 
-		state = clearBoardSelection(state);
+		cursorState = clearBoardSelection(cursorState);
 		refresh();
 		return true;
 	};
@@ -193,6 +192,6 @@ export const createBoardCursorController = (scene: Phaser.Scene): BoardCursorCon
 		},
 		refresh,
 		destroy,
-		getState: () => state,
+		getState: () => cursorState,
 	};
 };

@@ -1,4 +1,4 @@
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
@@ -42,7 +42,6 @@ export async function startPhase(
 
 // Helper to get player ID (from state or generate one)
 export function getPlayerId(): string {
-	const state = getState();
 	// Use a consistent player ID for single-player
 	if (!state.session.player_id) {
 		state.session.player_id = "sp_player_" + Date.now();
@@ -51,7 +50,6 @@ export function getPlayerId(): string {
 }
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
-	const state = getState();
 
 	// Hide enemy board after combat
 	Board.setEnemyBoardVisible(false);

@@ -1,7 +1,6 @@
 import Phaser from "phaser";
 import { GAME_CONFIG } from "@config";
 import { getGameController } from "@Core/GameControllerFactory";
-import { getState } from "@Models/State";
 import * as Board from "@Models/Board";
 import { getCharaById } from "@Systems/Chara/Chara";
 import {
@@ -507,7 +506,7 @@ export function init(options: InitOptions) {
 			? Boolean(boardCursor?.getState().selectedUnitId)
 			: false;
 
-		const intents = resolveKeyboardIntents(options.context, getState(), event.key);
+		const intents = resolveKeyboardIntents(options.context, state, event.key);
 		if (intents.length === 0) {
 			return;
 		}
@@ -642,7 +641,7 @@ export function init(options: InitOptions) {
 
 		const intents = resolveGamepadIntents(
 			options.context,
-			getState(),
+			state,
 			snapshot,
 			previousGamepadSnapshot
 		);

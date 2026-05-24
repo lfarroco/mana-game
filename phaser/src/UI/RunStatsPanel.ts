@@ -1,25 +1,18 @@
-import { RunStats } from "@Core/Types";
-import { getState } from "@Models/State";
 import { size, vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
 import { t, getName } from "@i18n/i18n";
 import { LEFT_PANEL_X, RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
 import { MIDDLE_SCREEN_Y } from "@Constants/constants";
 
-const defaultRunStats: RunStats = {
-	damageDealt: 0,
-	poisonDealt: 0,
-	shieldDealt: 0,
-	regenDealt: 0,
-	healDealt: 0,
-	mostPowerfulUnit: null,
-	totalUnitsRecruited: 0,
-	unitUsage: {},
-};
 
 export function createRunStatsPanel(
-	runStats: RunStats = getState().session.runStats || defaultRunStats
+	runStats = state.session.runStats
 ): Phaser.GameObjects.Container {
+
+	if (!runStats) {
+		throw new Error("RunStatsPanel: runStats is undefined");
+	}
+
 	const panelWidth = 700;
 	const panelHeight = 700;
 	const panelX = LEFT_PANEL_X;

@@ -1,7 +1,6 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { getState } from "@Models/State";
 import { t } from "@i18n/i18n";
 
 export let roundTextElement: TextObj | null = null;
@@ -9,7 +8,7 @@ const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
 
 export function create() {
-	const initialRound = getState().session.round;
+	const initialRound = state.session.round;
 
 	const label = label_();
 

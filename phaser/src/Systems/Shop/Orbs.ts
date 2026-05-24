@@ -13,7 +13,7 @@ import {
 	processReactions,
 } from "@TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "@Constants/constants";
-import { getState, State } from "@Models/State";
+import { State } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
@@ -150,11 +150,11 @@ const increasePowerOnType = (type: string) => () => ({
 
 		const pct = Math.floor(unit.power * 0.1);
 
-		const env = getShopEnvironment(getState());
+		const env = getShopEnvironment(state);
 		increasePower(env, [unit], pct, false);
 
 		if (unit.force === FORCE_ID_PLAYER) {
-			getState().session.team.units.find((u) => u.id === unit.id)!.power = unit.power;
+			state.session.team.units.find((u) => u.id === unit.id)!.power = unit.power;
 		}
 		logger.debug(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
@@ -172,7 +172,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 
 		// Use processEffectsIO with permanent=true for shop orbs
 		processEffectsIO(
-			getShopEnvironment(getState()),
+			getShopEnvironment(state),
 			unit,
 			[
 				{
@@ -204,7 +204,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 		unit.cooldown = Math.max(MIN_COOLDOWN_MS, unit.cooldown * (1 - COOLDOWN_REDUCTION_FACTOR));
 
 		if (unit.force === FORCE_ID_PLAYER) {
-			getState().session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
+			state.session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
 		logger.debug(
@@ -291,7 +291,6 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		},
 	}),
 	increase_core_max_life: () => {
-		const state = getState();
 
 		const core = getPlayerPersistentCore(state);
 
@@ -313,8 +312,6 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		};
 	},
 	upgrade_core_power: () => {
-		const state = getState();
-
 		const core = getPlayerPersistentCore(state);
 
 		const round = state.session.round;
@@ -599,13 +596,13 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		tooltip: t("shop.orbs.distributePower.tooltip"),
 		icon: "ui/power_distributor",
 		effect: (unit: Unit) => {
-			const targets = resolveTargets(getState(), unit, {
+			const targets = resolveTargets(state, unit, {
 				id: "distribute_power",
 				targets: {
 					id: "row_allies",
 				},
 			});
-			const env = getShopEnvironment(getState());
+			const env = getShopEnvironment(state);
 			distributePower(env, unit, targets, true); // permanent=true in shop
 			return true;
 		},
@@ -617,14 +614,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		tooltip: t("shop.orbs.absorbPower.tooltip"),
 		icon: "ui/power_absorber",
 		effect: (unit: Unit) => {
-			const targets = resolveTargets(getState(), unit, {
+			const targets = resolveTargets(state, unit, {
 				id: "absorb_power",
 				targets: {
 					id: "row_allies",
 				},
 			});
 
-			const env = getShopEnvironment(getState());
+			const env = getShopEnvironment(state);
 			absorbPower(env, unit, targets, true);
 			return true;
 		},
@@ -636,7 +633,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		tooltip: t("shop.orbs.darkRitual.tooltip"),
 		icon: "ui/dark_ritual",
 		effect: (unit: Unit) => {
-			const env = getShopEnvironment(getState());
+			const env = getShopEnvironment(state);
 			sacrificeEffect(env, unit);
 			return true;
 		},

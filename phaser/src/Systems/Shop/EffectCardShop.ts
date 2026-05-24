@@ -15,7 +15,6 @@ import { t } from "@i18n/i18n";
 import { getGameController } from "@Core/GameControllerFactory";
 import { createLogger } from "@Utils/Logger";
 import { getServerAdapter } from "@Core/ServerFactory";
-import { getState } from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import { playUpgradeCrystalSelectionEffect } from "@Effects/upgradeCrystalSelectionEffect";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
@@ -113,12 +112,11 @@ function renderUpgradeCards(
 					// Sync updated unit data from server and refresh visuals.
 					// upgrade_core and add_reaction_core only modify the core unit,
 					// so only refresh the core to avoid re-summoning all board units.
-					const playerId = getState()?.session?.player_id;
+					const playerId = state.session?.player_id;
 					if (playerId) {
 						const server = getServerAdapter();
 						const updatedSession = await server.getSession(playerId);
 						if (updatedSession) {
-							const state = getState();
 							for (const serverUnit of updatedSession.team.units) {
 								const localUnit = state.session.team.units.find(
 									(u) => u.id === serverUnit.id

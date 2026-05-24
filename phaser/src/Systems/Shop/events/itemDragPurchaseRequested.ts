@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
-import { getState, getUnitAt } from "@Models/State";
+import { getUnitAt } from "@Models/State";
 import { getCharaById } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
@@ -15,20 +15,14 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const shopChara = (() => {
-		try {
-			return getCharaById(shopCharaId);
-		} catch {
-			return undefined;
-		}
-	})();
+	const shopChara = getCharaById(shopCharaId);
 
-	const existingUnit = getState().session.team.units.find((u) => u.cardId === shopUnitData.cardId);
+	const existingUnit = state.session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	// Validate before purchase - party full check (only if not an upgrade)
 	if (
 		(!existingUnit || existingUnit.rank > 3) &&
-		getState().session.team.units.length >= constants.MAX_PARTY_SIZE
+		state.session.team.units.length >= constants.MAX_PARTY_SIZE
 	) {
 		if (shopChara) {
 			charaEvents.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
@@ -39,7 +33,7 @@ export async function itemDragPurchaseRequested(
 
 	// Validate slot occupation (only if not an upgrade)
 	if (!existingUnit || existingUnit.rank > 3) {
-		const occupier = getUnitAt(getState().session.team.units)(targetTile);
+		const occupier = getUnitAt(state.session.team.units)(targetTile);
 		if (occupier) {
 			if (shopChara) {
 				charaEvents.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
