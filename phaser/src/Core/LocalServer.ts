@@ -1,5 +1,5 @@
 import { GameServer } from "@Core/GameServer";
-import { SessionManager } from "@Core/SessionManager";
+import * as SessionManager from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
 import {
 	SessionData,
@@ -21,163 +21,164 @@ const cloneValue = <T>(value: T): T => {
 	return JSON.parse(JSON.stringify(value)) as T;
 };
 
+function getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
+	switch (phase) {
+		case "upgrade_core":
+			return [
+				{ id: "increase_core_max_life" },
+				{ id: "upgrade_core_power" },
+				{ id: "decrease_core_cooldown" },
+			];
+		case "add_reaction_core":
+			return [
+				{ id: "on_100_damage_effect" },
+				{ id: "on_crit_effect" },
+				{ id: "on_battle_start_effect" },
+			];
+		default:
+			return [];
+	}
+}
+
+function getCurrentOptions(session: SessionData): PhaseOption[] {
+	if (!session.current_options) {
+		return [];
+	}
+
+	if (Array.isArray(session.current_options)) {
+		return session.current_options;
+	}
+
+	return session.current_options.options || [];
+}
+
+function getCurrentCombatState(session: SessionData): CombatState | null {
+	if (!session.current_options || Array.isArray(session.current_options)) {
+		return null;
+	}
+
+	return session.current_options.combatState || null;
+}
+
 /**
  * Local in-memory implementation of the game server.
  * Used for single-player mode - runs all game logic locally without network calls.
  */
-export class LocalServer implements GameServer {
-	// Made public to allow debugging/testing scenarios to set up arbitrary session states
-	// See: DebugController.startBattlegroundWithSession()
-	sessionManager = new SessionManager();
+export const LocalServer: GameServer = {
+	createSession,
+	getSession,
+	getPhaseOptions,
+	handleAction,
+}
 
-	private getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
-		switch (phase) {
-			case "upgrade_core":
-				return [
-					{ id: "increase_core_max_life" },
-					{ id: "upgrade_core_power" },
-					{ id: "decrease_core_cooldown" },
-				];
-			case "add_reaction_core":
-				return [
-					{ id: "on_100_damage_effect" },
-					{ id: "on_crit_effect" },
-					{ id: "on_battle_start_effect" },
-				];
-			default:
-				return [];
-		}
+async function createSession(playerId: string, crystalId: string): Promise<SessionData> {
+	const session = GameLogic.createInitialSession(playerId, crystalId);
+	session.id = `local-${playerId}-${Date.now()}`;
+	SessionManager.updateSession(playerId, session);
+	return session;
+}
+
+async function getSession(playerId: string): Promise<SessionData | null> {
+	return SessionManager.getSession(playerId);
+}
+
+async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
+	const session = SessionManager.getSession(playerId);
+	if (!session) {
+		throw new Error(`No session found for player ${playerId}`);
 	}
 
-	private getCurrentOptions(session: SessionData): PhaseOption[] {
-		if (!session.current_options) {
-			return [];
-		}
+	const response: PhaseOptions = {
+		phase: session.phase as PhaseType,
+		round: session.round,
+		options: [],
+		team: cloneValue(session.team),
+		wins: session.wins,
+		losses: session.losses,
+		runStats: session.runStats,
+	};
 
-		if (Array.isArray(session.current_options)) {
-			return session.current_options;
-		}
+	switch (session.phase) {
+		case "encounter":
+			if (session.current_options) {
+				response.options = getCurrentOptions(session);
+			} else {
+				const encOpts = GameLogic.generateEncounterOptions(session);
+				response.options = encOpts.options;
+				session.current_options = { options: encOpts.options };
+				SessionManager.updateSession(playerId, session);
+			}
+			break;
 
-		return session.current_options.options || [];
-	}
+		case "shop":
+			if (session.current_options) {
+				response.options = getCurrentOptions(session);
+			} else {
+				const shopOpts = GameLogic.generateShopOptions(session);
+				response.options = shopOpts.options;
+				session.current_options = { options: shopOpts.options };
+				SessionManager.updateSession(playerId, session);
+			}
+			break;
 
-	private getCurrentCombatState(session: SessionData): CombatState | null {
-		if (!session.current_options || Array.isArray(session.current_options)) {
-			return null;
-		}
-
-		return session.current_options.combatState || null;
-	}
-
-	async createSession(playerId: string, crystalId: string): Promise<SessionData> {
-		const session = GameLogic.createInitialSession(playerId, crystalId);
-		session.id = `local-${playerId}-${Date.now()}`;
-		this.sessionManager.updateSession(playerId, session);
-		return session;
-	}
-
-	async getSession(playerId: string): Promise<SessionData | null> {
-		return this.sessionManager.getSession(playerId);
-	}
-
-	async getPhaseOptions(playerId: string): Promise<PhaseOptions> {
-		const session = this.sessionManager.getSession(playerId);
-		if (!session) {
-			throw new Error(`No session found for player ${playerId}`);
-		}
-
-		const response: PhaseOptions = {
-			phase: session.phase as PhaseType,
-			round: session.round,
-			options: [],
-			team: cloneValue(session.team),
-			wins: session.wins,
-			losses: session.losses,
-			runStats: session.runStats,
-		};
-
-		switch (session.phase) {
-			case "encounter":
-				if (session.current_options) {
-					response.options = this.getCurrentOptions(session);
-				} else {
-					const encOpts = GameLogic.generateEncounterOptions(session);
-					response.options = encOpts.options;
-					session.current_options = { options: encOpts.options };
-					this.sessionManager.updateSession(playerId, session);
+		case "combat":
+			// Combat state should already be in session.current_options from transitionToNextState
+			{
+				const combatState = getCurrentCombatState(session);
+				if (!combatState) {
+					break;
 				}
-				break;
+				response.combatState = cloneValue({
+					...combatState,
+					units: combatState.initialUnits || combatState.units || [],
+					initialUnits: combatState.initialUnits || combatState.units || [],
+				});
+				response.options = [{ id: "combat_done", label: "Continue" }];
+			}
+			break;
 
-			case "shop":
-				if (session.current_options) {
-					response.options = this.getCurrentOptions(session);
-				} else {
-					const shopOpts = GameLogic.generateShopOptions(session);
-					response.options = shopOpts.options;
-					session.current_options = { options: shopOpts.options };
-					this.sessionManager.updateSession(playerId, session);
+		case "orb_shop":
+		case "upgrade_core":
+		case "add_reaction_core":
+			if (session.current_options) {
+				response.options = getCurrentOptions(session);
+			}
+
+			if (response.options.length === 0) {
+				const fallbackOptions = getFallbackOptionsForPhase(session.phase as PhaseType);
+				if (fallbackOptions.length > 0) {
+					response.options = fallbackOptions;
+					session.current_options = { options: fallbackOptions };
+					SessionManager.updateSession(playerId, session);
 				}
-				break;
-
-			case "combat":
-				// Combat state should already be in session.current_options from transitionToNextState
-				{
-					const combatState = this.getCurrentCombatState(session);
-					if (!combatState) {
-						break;
-					}
-					response.combatState = cloneValue({
-						...combatState,
-						units: combatState.initialUnits || combatState.units || [],
-						initialUnits: combatState.initialUnits || combatState.units || [],
-					});
-					response.options = [{ id: "combat_done", label: "Continue" }];
-				}
-				break;
-
-			case "orb_shop":
-			case "upgrade_core":
-			case "add_reaction_core":
-				if (session.current_options) {
-					response.options = this.getCurrentOptions(session);
-				}
-
-				if (response.options.length === 0) {
-					const fallbackOptions = this.getFallbackOptionsForPhase(session.phase as PhaseType);
-					if (fallbackOptions.length > 0) {
-						response.options = fallbackOptions;
-						session.current_options = { options: fallbackOptions };
-						this.sessionManager.updateSession(playerId, session);
-					}
-				}
-				break;
-		}
-
-		return response;
+			}
+			break;
 	}
 
-	async handleAction(
-		playerId: string,
-		actionId: string,
-		payload?: ActionPayload
-	): Promise<boolean> {
-		const session = this.sessionManager.getSession(playerId);
-		if (!session) {
-			logger.error("Session not found", { playerId });
-			return false;
-		}
+	return response;
+}
 
-		try {
-			// Handle the action and transition to next state
-			const result = GameLogic.transitionToNextState(session, actionId, payload);
+async function handleAction(
+	playerId: string,
+	actionId: string,
+	payload?: ActionPayload
+): Promise<boolean> {
+	const session = SessionManager.getSession(playerId);
+	if (!session) {
+		logger.error("Session not found", { playerId });
+		return false;
+	}
 
-			// Update the session in the manager (this saves to localStorage with SessionManager's format)
-			this.sessionManager.updateSession(playerId, result.session);
+	try {
+		// Handle the action and transition to next state
+		const result = GameLogic.transitionToNextState(session, actionId, payload);
 
-			return true;
-		} catch (error) {
-			logger.error("Failed to handle action", { playerId, actionId, error });
-			return false;
-		}
+		// Update the session in the manager (this saves to localStorage with SessionManager's format)
+		SessionManager.updateSession(playerId, result.session);
+
+		return true;
+	} catch (error) {
+		logger.error("Failed to handle action", { playerId, actionId, error });
+		return false;
 	}
 }

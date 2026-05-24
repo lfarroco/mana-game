@@ -16,10 +16,9 @@ export * from "@Core/Types";
 
 // Core Logic
 export * from "@Core/GameLogic";
-export { SessionManager } from "@Core/SessionManager";
 export { PhaseTransitions } from "@Core/PhaseTransitions";
 
 // Server Interface & Implementations
-export type { GameServer, ServerFactory, getServerAdapter } from "@Core/GameServer";
+export type { GameServer } from "@Core/GameServer";
 export { LocalServer } from "@Core/LocalServer";
 export { RemoteServer } from "@Core/RemoteServer";
