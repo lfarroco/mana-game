@@ -1,6 +1,6 @@
 import { SessionData, PhaseOptions, ActionPayload } from "@Core/Types";
-import { LocalServer } from "./LocalServer";
-import { RemoteServer } from "./RemoteServer";
+import * as LocalServer from "./LocalServer";
+import * as RemoteServer from "./RemoteServer";
 
 /**
  * Interface for game server implementations.

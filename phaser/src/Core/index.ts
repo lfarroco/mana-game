@@ -20,5 +20,5 @@ export { PhaseTransitions } from "@Core/PhaseTransitions";
 
 // Server Interface & Implementations
 export type { GameServer } from "@Core/GameServer";
-export { LocalServer } from "@Core/LocalServer";
-export { RemoteServer } from "@Core/RemoteServer";
+export * as  LocalServer from "@Core/LocalServer";
+export * as  RemoteServer from "@Core/RemoteServer";

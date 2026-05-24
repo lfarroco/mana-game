@@ -1,4 +1,3 @@
-import { GameServer } from "@Core/GameServer";
 import * as SessionManager from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
 import {
@@ -60,29 +59,18 @@ function getCurrentCombatState(session: SessionData): CombatState | null {
 	return session.current_options.combatState || null;
 }
 
-/**
- * Local in-memory implementation of the game server.
- * Used for single-player mode - runs all game logic locally without network calls.
- */
-export const LocalServer: GameServer = {
-	createSession,
-	getSession,
-	getPhaseOptions,
-	handleAction,
-}
-
-async function createSession(playerId: string, crystalId: string): Promise<SessionData> {
+export async function createSession(playerId: string, crystalId: string): Promise<SessionData> {
 	const session = GameLogic.createInitialSession(playerId, crystalId);
 	session.id = `local-${playerId}-${Date.now()}`;
 	SessionManager.updateSession(playerId, session);
 	return session;
 }
 
-async function getSession(playerId: string): Promise<SessionData | null> {
+export async function getSession(playerId: string): Promise<SessionData | null> {
 	return SessionManager.getSession(playerId);
 }
 
-async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
+export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	const session = SessionManager.getSession(playerId);
 	if (!session) {
 		throw new Error(`No session found for player ${playerId}`);
@@ -158,7 +146,7 @@ async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	return response;
 }
 
-async function handleAction(
+export async function handleAction(
 	playerId: string,
 	actionId: string,
 	payload?: ActionPayload
