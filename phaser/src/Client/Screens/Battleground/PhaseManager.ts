@@ -5,7 +5,7 @@ import { delay } from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "@Core/GameServer";
 export { getServerAdapter }; // Re-export for convenience
 import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
 import { ActionPayload } from "@Core/Types";

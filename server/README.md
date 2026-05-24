@@ -121,7 +121,7 @@ npm run test -- FullSessionFlow.test.ts --verbose
 
 ### Server Adapter
 
-The tests use `LocalServerAdapter` which implements the `IGameServer` interface. This provides:
+The tests use `LocalServerAdapter` which implements the `GameServer` interface. This provides:
 
 - **In-memory session management** - No database required
 - **Pure game logic** - No Phaser or UI dependencies
@@ -133,7 +133,7 @@ The tests use `LocalServerAdapter` which implements the `IGameServer` interface.
 Each test follows this pattern:
 
 1. Create a new session with a selected crystal
-2. Perform actions through the `IGameServer` interface
+2. Perform actions through the `GameServer` interface
 3. Verify state changes and phase transitions
 4. Assert expected outcomes
 

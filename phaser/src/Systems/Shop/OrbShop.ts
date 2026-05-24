@@ -12,7 +12,7 @@ import * as io from "@PhaserIO";
 import { SCREEN_HEIGHT, titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { createLogger } from "@Utils/Logger";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "@Core/GameServer";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";

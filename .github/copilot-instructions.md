@@ -37,7 +37,7 @@ npm run check-balance -- --filter
 
 | Directory | Key files | Purpose |
 |---|---|---|
-| `Core/` | `LocalServerAdapter.ts`, `GameLogic.ts`, `IGameServer.ts`, `PhaseSystem/` | Pure game logic: session management, phase transitions, server adapters |
+| `Core/` | `LocalServerAdapter.ts`, `GameLogic.ts`, `GameServer.ts`, `PhaseSystem/` | Pure game logic: session management, phase transitions, server adapters |
 | `Engine/Scenes/Battleground/` | `PhaseManager.ts`, `RunCombatCore.ts`, `CombatPlaybackController.ts` | Phaser scene orchestration, combat playback |
 | `Systems/` | `CombatPhase.ts`, `AudioManager.ts`, `AchievementSystem.ts`, `Chara/`, `Shop/`, `Encounter.ts` | Gameplay systems: combat, shop, audio, achievements |
 | `Models/` | `Entities/Unit.ts`, `Entities/Card.ts`, `Board.ts`, `BoardLogic.ts`, `State.ts` | Data types and board logic |
@@ -56,8 +56,8 @@ RunCombatIO.ts → serverCombatDemo.ts → CombatPlaybackController.ts
 ```
 The server-side simulation produces `CombatLogEntry[]`; the client consumes those logs to drive animations. The actual game state mutation and the visual playback are separate concerns.
 
-### IGameServer / ServerFactory (OUTDATED)
-Single-player and multiplayer share the same `IGameServer` interface (`Core/IGameServer.ts`). Use `getServerAdapter()` from `Core/ServerFactory.ts` to get the correct adapter — never instantiate `LocalServer` or `RemoteServer` directly.
+### GameServer / ServerFactory (OUTDATED)
+Single-player and multiplayer share the same `GameServer` interface (`Core/GameServer.ts`). Use `getServerAdapter()` from `Core/ServerFactory.ts` to get the correct adapter — never instantiate `LocalServer` or `RemoteServer` directly.
 
 ### Phase System
 New handler-based system lives in `Core/PhaseSystem/`. Each game phase has a `PhaseHandler` (see `types.ts` for the interface). Create handlers with `createPhaseHandler()` from `BasePhaseHandler.ts` — don't implement the interface manually. The legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still drives the main loop.

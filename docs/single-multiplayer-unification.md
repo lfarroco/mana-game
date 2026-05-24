@@ -116,7 +116,7 @@ Player Action
   ↓
 UI Layer (Phaser-dependent)
   ↓
-Server Interface (IGameServer)
+Server Interface (GameServer)
   ├─ Local Mode: LocalServerAdapter (in-memory)
   └─ Multiplayer: RemoteServerAdapter (Supabase)
   ↓
@@ -126,14 +126,14 @@ State/Session Management
 ```
 
 ### Key Principles
-1. **Interface Segregation**: Client only knows about `IGameServer` interface
+1. **Interface Segregation**: Client only knows about `GameServer` interface
 2. **Dependency Inversion**: Core logic doesn't know about Phaser or network
 3. **Single Responsibility**: Each layer has one job
 4. **Reusability**: Same core logic runs in browser, server, and edge functions
 
 ### Server Interface
 ```typescript
-interface IGameServer {
+interface GameServer {
   // Session management
   createSession(playerId: string, crystalId: string): Promise<SessionData>;
   getSession(playerId: string): Promise<SessionData | null>;
@@ -262,10 +262,10 @@ export class PhaseTransitions {
 
 **New Files to Create**:
 
-#### 2.1 `src/Core/IGameServer.ts`
+#### 2.1 `src/Core/GameServer.ts`
 The contract both adapters implement:
 ```typescript
-export interface IGameServer {
+export interface GameServer {
   // Session
   createSession(playerId: string, crystalId: string): Promise<SessionData>;
   getSession(playerId: string): Promise<SessionData | null>;
@@ -279,11 +279,11 @@ export interface IGameServer {
 #### 2.2 `src/Core/LocalServerAdapter.ts`
 Local in-memory implementation:
 ```typescript
-import { IGameServer } from './IGameServer';
+import { GameServer } from './GameServer';
 import { SessionManager } from './SessionManager';
 import { GameLogic } from './GameLogic';
 
-export class LocalServerAdapter implements IGameServer {
+export class LocalServerAdapter implements GameServer {
   private sessionManager = new SessionManager();
   
   async createSession(playerId: string, crystalId: string): Promise<SessionData> {
@@ -347,10 +347,10 @@ export class LocalServerAdapter implements IGameServer {
 #### 2.3 `src/Core/RemoteServerAdapter.ts`
 Wrapper around Supabase calls (already exists conceptually in MultiplayerManager):
 ```typescript
-import { IGameServer } from './IGameServer';
+import { GameServer } from './GameServer';
 import { supabase } from '@lib/supabase';
 
-export class RemoteServerAdapter implements IGameServer {
+export class RemoteServerAdapter implements GameServer {
   async createSession(playerId: string, crystalId: string): Promise<SessionData> {
     const { data, error } = await supabase.functions.invoke('action', {
       body: { actionId: 'start_session', payload: { selectedCrystalId: crystalId } }
@@ -382,10 +382,10 @@ export class RemoteServerAdapter implements IGameServer {
 ```
 
 **Migration Steps**:
-1. Create `src/Core/IGameServer.ts`
+1. Create `src/Core/GameServer.ts`
 2. Create `src/Core/LocalServerAdapter.ts` - implements interface using Core logic
 3. Create `src/Core/RemoteServerAdapter.ts` - wraps existing Supabase calls
-4. Update `MultiplayerServerManager.ts` to implement `IGameServer` interface
+4. Update `MultiplayerServerManager.ts` to implement `GameServer` interface
 5. Test local adapter with unit tests
 
 **Validation**:
@@ -401,12 +401,12 @@ export class RemoteServerAdapter implements IGameServer {
 #### 3.1 Update `src/Multiplayer/MultiplayerManager.ts`
 Add server adapter selection:
 ```typescript
-import { IGameServer } from '@Core/IGameServer';
+import { GameServer } from '@Core/GameServer';
 import { LocalServerAdapter } from '@Core/LocalServerAdapter';
 import { RemoteServerAdapter } from '@Core/RemoteServerAdapter';
 
 export class MultiplayerManager {
-  private server: IGameServer;
+  private server: GameServer;
   
   constructor(isMultiplayer: boolean) {
     this.server = isMultiplayer 
@@ -565,27 +565,27 @@ import { GameLogic } from '@Core/GameLogic';
 ## File Migration Map
 
 ### Files to Create (New)
-| File                              | Purpose                 | Dependencies           |
-|-----------------------------------|-------------------------|------------------------|
-| `src/Core/Types.ts`               | Shared type definitions | None (pure types)      |
-| `src/Core/GameLogic.ts`           | Core game rules         | Types, Models          |
-| `src/Core/SessionManager.ts`      | Session lifecycle       | Types                  |
-| `src/Core/PhaseTransitions.ts`    | Phase flow logic        | Types                  |
-| `src/Core/IGameServer.ts`         | Server interface        | Types                  |
-| `src/Core/LocalServerAdapter.ts`  | Local implementation    | IGameServer, GameLogic |
-| `src/Core/RemoteServerAdapter.ts` | Remote implementation   | IGameServer, Supabase  |
-| `src/Core/ServerFactory.ts`       | Adapter factory         | Both adapters          |
+| File                              | Purpose                 | Dependencies          |
+|-----------------------------------|-------------------------|-----------------------|
+| `src/Core/Types.ts`               | Shared type definitions | None (pure types)     |
+| `src/Core/GameLogic.ts`           | Core game rules         | Types, Models         |
+| `src/Core/SessionManager.ts`      | Session lifecycle       | Types                 |
+| `src/Core/PhaseTransitions.ts`    | Phase flow logic        | Types                 |
+| `src/Core/GameServer.ts`          | Server interface        | Types                 |
+| `src/Core/LocalServerAdapter.ts`  | Local implementation    | GameServer, GameLogic |
+| `src/Core/RemoteServerAdapter.ts` | Remote implementation   | GameServer, Supabase  |
+| `src/Core/ServerFactory.ts`       | Adapter factory         | Both adapters         |
 
 ### Files to Refactor (Update)
 | File                                               | Changes                       | Difficulty |
 |----------------------------------------------------|-------------------------------|------------|
 | `src/Multiplayer/MultiplayerLogic.ts`              | Re-export from Core or delete | Easy       |
-| `src/Multiplayer/MultiplayerManager.ts`            | Use IGameServer interface     | Medium     |
+| `src/Multiplayer/MultiplayerManager.ts`            | Use GameServer interface      | Medium     |
 | `src/Scenes/Battleground/PhaseManager.ts`          | Remove logic, use server      | Hard       |
 | `src/Scenes/Battleground/Systems/Encounter.ts`     | Remove logic, keep UI         | Medium     |
 | `src/Scenes/Battleground/Systems/Shop/HeroShop.ts` | Remove logic, keep UI         | Medium     |
 | `src/Scenes/Battleground/Systems/CombatPhase.ts`   | Use server's enemy team       | Easy       |
-| `server/MultiplayerServerManager.ts`               | Implement IGameServer         | Easy       |
+| `server/MultiplayerServerManager.ts`               | Implement GameServer          | Easy       |
 
 ### Files to Delete (After Migration)
 | File                                                 | Reason                     | When    |
@@ -768,7 +768,7 @@ describe('Server Parity', () => {
 **Completed**: January 28, 2026
 
 ### Phase 2: Local Server Adapter ✅ COMPLETE
-1. ✅ Create `src/Core/IGameServer.ts`
+1. ✅ Create `src/Core/GameServer.ts`
 2. ✅ Create `src/Core/LocalServerAdapter.ts`
 3. ✅ Create `src/Core/RemoteServerAdapter.ts`
 4. ✅ Update `MultiplayerServerManager` to implement interface
@@ -784,7 +784,7 @@ describe('Server Parity', () => {
 3. ✅ Update `Encounter.open()` - remove logic
 4. ✅ Update `HeroShop.openHeroShop()` - remove logic (via itemClickPurchaseRequested)
 5. ✅ Update `CombatPhase` - use server enemy teams
-6. ✅ Reuse `MultiplayerPhaseManager` flow for single-player through injected local transport (`IGameServer`)
+6. ✅ Reuse `MultiplayerPhaseManager` flow for single-player through injected local transport (`GameServer`)
 7. ⏸️ Delete `MultiplayerPhaseManager.ts` and legacy fallback paths (deferred to Phase 4)
 
 **Time Estimate**: 10-16 hours  
@@ -937,11 +937,11 @@ mkdir -p phaser/src/Core
 
 ### January 28, 2026 - Phase 2 Complete
 - **Created Server Interface & Adapters**:
-  - `phaser/src/Core/IGameServer.ts`: Defined common interface for local and remote server implementations.
+  - `phaser/src/Core/GameServer.ts`: Defined common interface for local and remote server implementations.
   - `phaser/src/Core/LocalServerAdapter.ts`: Implemented in-memory local server for single-player mode using Core logic.
   - `phaser/src/Core/RemoteServerAdapter.ts`: Implemented remote server adapter wrapping Supabase Edge Functions.
   - `phaser/src/Core/ServerFactory.ts`: Created factory pattern for selecting appropriate adapter based on game mode.
-  - Updated `phaser/server/MultiplayerServerManager.ts` to implement `IGameServer` interface for consistency.
+  - Updated `phaser/server/MultiplayerServerManager.ts` to implement `GameServer` interface for consistency.
 
 - **Fixed Critical Issues**:
   - **Random Module**: Completed the stateful compatibility layer in `Random.ts` with `nextPickRandom`, `nextShuffle`, `nextRange`, `nextValue`, `setSeed`, and `getSeed` functions to support legacy code that relied on global RNG state.
@@ -983,7 +983,7 @@ mkdir -p phaser/src/Core
 ### March 23, 2026 - Phase 3 Shared Handler Reuse Update ✅
 - **Unified phase UI flow further**:
   - Updated `MultiplayerPhaseManager.ts` to accept an injected transport (`getPhaseOptions`, `sendOptionSelection`) so it can run against both remote multiplayer and local single-player adapters.
-  - Updated `PhaseManager.startPhase()` to route single-player through `MultiplayerPhaseManager` using a local `IGameServer` transport.
+  - Updated `PhaseManager.startPhase()` to route single-player through `MultiplayerPhaseManager` using a local `GameServer` transport.
   - Kept the legacy single-player renderer path as a fallback during migration.
 
 - **Parity and safety updates**:
@@ -1031,7 +1031,7 @@ mkdir -p phaser/src/Core
     - Combat state now properly extracted from `session.current_options` (created by `transitionToNextState`)
     - Added fallback to generate combat state if not present
   - Fixed type compatibility in `MultiplayerServerManager.ts`:
-    - Changed `PlayerSession` references to `SessionData` for consistency with `IGameServer` interface
+    - Changed `PlayerSession` references to `SessionData` for consistency with `GameServer` interface
     - Updated import to use `PhaseOptions` from `Core/Types` instead of `MultiplayerTypes`
     - Fixed return type from `undefined` to `null` in `getSession()` to match interface
 
@@ -1043,14 +1043,14 @@ mkdir -p phaser/src/Core
 
 - **Architecture Verification**:
   - ✅ Core modules remain Phaser-free (validated via grep)
-  - ✅ Both adapters (Local and Remote) implement `IGameServer` correctly
+  - ✅ Both adapters (Local and Remote) implement `GameServer` correctly
   - ✅ Type consistency across Core, adapters, and server manager
   - ✅ Phase transition logic working correctly for all game flow paths (encounter → shop/orb_shop → combat)
 
 - **Key Technical Insights**:
   - Phase flow is more complex than initially documented: encounters can lead to either `shop` or `orb_shop` depending on which encounter is selected (upgrade_unit, power_distributor, power_absorber trigger orb_shop)
   - `transitionToNextState` in `GameLogic` already creates the full combat state (including wonCombat, finalPlayerUnits, etc.), so adapters should use that instead of re-simulating
-  - The architecture is now properly layered: Client → IGameServer → Core Logic → State
+  - The architecture is now properly layered: Client → GameServer → Core Logic → State
 
 - **Remaining Phase 4 Tasks**:
   - Manual E2E testing of both single-player and multiplayer modes
@@ -1068,7 +1068,7 @@ mkdir -p phaser/src/Core
   - ✅ Added missing `break` statement after combat case in `LocalServerAdapter.ts` (prevents fall-through)
   - ✅ Added documentation comments to phase definitions in `PhaseManager.ts` noting they're kept for backward compatibility
   - ✅ Fixed TypeScript compilation errors:
-    - Used `export type` for `IGameServer` interface to satisfy `isolatedModules` requirement
+    - Used `export type` for `GameServer` interface to satisfy `isolatedModules` requirement
     - Prefixed unused parameters with underscore (`_playerId`) in RemoteServerAdapter
   - ✅ Created `src/Core/index.ts` - centralized export file for all Core modules with documentation
   - ✅ Deleted deprecated files:
@@ -1096,7 +1096,7 @@ mkdir -p phaser/src/Core
   ├── GameLogic.ts          # Pure game rules
   ├── SessionManager.ts     # Session lifecycle
   ├── PhaseTransitions.ts   # Phase flow logic
-  ├── IGameServer.ts        # Server interface
+  ├── GameServer.ts        # Server interface
   ├── LocalServerAdapter.ts # Local implementation
   ├── RemoteServerAdapter.ts # Remote implementation
   └── ServerFactory.ts      # Adapter factory
@@ -1138,17 +1138,17 @@ mkdir -p phaser/src/Core
 ### ✅ Phase 2: Create Local Server Adapter - **COMPLETE**
 
 **Requirements Met**:
-- ✅ Created `src/Core/IGameServer.ts` - Server interface defined
+- ✅ Created `src/Core/GameServer.ts` - Server interface defined
 - ✅ Created `src/Core/LocalServerAdapter.ts` - Local in-memory implementation
 - ✅ Created `src/Core/RemoteServerAdapter.ts` - Supabase wrapper
 - ✅ Created `src/Core/ServerFactory.ts` - Adapter factory with getServerAdapter()
-- ✅ `MultiplayerServerManager.ts` implements `IGameServer` interface
+- ✅ `MultiplayerServerManager.ts` implements `GameServer` interface
 - ✅ LocalServerAdapter tests passing (12/12 tests)
 - ✅ ServerFactory tests passing (11/11 tests)
 - ✅ Both adapters are interchangeable via interface
 
 **Evidence**:
-- `MultiplayerServerManager` class declaration: `implements IGameServer`
+- `MultiplayerServerManager` class declaration: `implements GameServer`
 - All adapter methods return proper types matching interface
 - Factory correctly returns appropriate adapter based on mode
 

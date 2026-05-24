@@ -1,6 +1,6 @@
 import { getSavedData } from "@Game/effects/getSavedData";
 import { setSeed } from "@Utils/Random";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "@Core/GameServer";
 import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
 

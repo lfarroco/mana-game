@@ -1,7 +1,7 @@
 import { GameController, GameFeature } from "@Core/GameController";
 import { ActionPayload } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "./GameServer";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 
 /**

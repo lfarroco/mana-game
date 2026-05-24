@@ -30,7 +30,7 @@ Engine/Scenes/Battleground ----------------------------------------+
             |          |                      |
             |          +--------------------->+--> Effects + Audio
             |
-            +--> Core/IGameServer --> LocalServerAdapter
+            +--> Core/GameServer --> LocalServerAdapter
             |                    |
             |                    +--> MultiplayerManager --> Supabase Backend
             |
@@ -53,7 +53,7 @@ the client replays those logs through `CombatPlaybackController` and browser-sid
 effects. This keeps authoritative combat resolution separate from Phaser-driven
 animation and audio.
 
-The same core logic also talks to the `IGameServer` abstraction so single-player
+The same core logic also talks to the `GameServer` abstraction so single-player
 and multiplayer share one server-facing interface. Around that, the scene layer
 integrates storage, localization, and platform targets such as Electron and
 Capacitor, while multiplayer-specific backend concerns flow through Supabase.
@@ -63,4 +63,4 @@ Capacitor, while multiplayer-specific backend concerns flow through Supabase.
 - Core and Models represent replay-critical pure logic (no Phaser dependency).
 - Engine/Scenes coordinates game phases and presentation.
 - Combat is simulated first, then played back through logged events.
-- Single-player and multiplayer both use the same game server interface (`IGameServer`).
+- Single-player and multiplayer both use the same game server interface (`GameServer`).

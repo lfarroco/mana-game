@@ -64,7 +64,7 @@ These tasks are essential for system stability and architectural consistency.
 
 ### Single-Player/Multiplayer Unification
 - [x] **Use multiplayer handler in single-player mode**
-  - **Context**: Both modes should use `IGameServer` interface consistently
+  - **Context**: Both modes should use `GameServer` interface consistently
   - **Impact**: Reduces code duplication, ensures parity between modes
   - **Effort**: Medium (2-3 days)
   - **Status**: ✅ Completed (2026-03-23) - Single-player now routes through the shared multiplayer phase handler via local transport; added parity-focused adapter tests and cross-mode handler tests. Legacy fallback/deletion cleanup remains tracked in Phase 4.
@@ -499,7 +499,7 @@ Use this matrix to help prioritize tasks not already categorized:
 
 ### Architectural Decisions
 - **Functional Programming Preferred**: Classes only for Phaser integration (see mana-battle-standards.instructions.md)
-- **Server Adapter Pattern**: All game modes go through `IGameServer` interface
+- **Server Adapter Pattern**: All game modes go through `GameServer` interface
 - **Combat Playback**: Server simulates combat, client plays back via logs
 
 ### Migration Status

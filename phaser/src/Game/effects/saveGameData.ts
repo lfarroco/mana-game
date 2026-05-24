@@ -1,5 +1,5 @@
 import { getState } from "@Models/State";
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "@Core/GameServer";
 import { createLogger } from "@Utils/Logger";
 import { SessionData } from "@Core/Types";
 

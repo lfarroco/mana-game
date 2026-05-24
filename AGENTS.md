@@ -45,7 +45,7 @@ All application code lives under `phaser/src/`:
 
 - `Core/`
   - Purpose: Pure game logic, no Phaser deps
-  - Key files: `LocalServerAdapter.ts`, `GameLogic.ts`, `IGameServer.ts`, `PhaseSystem/`
+  - Key files: `LocalServerAdapter.ts`, `GameLogic.ts`, `GameServer.ts`, `PhaseSystem/`
 - `Engine/Scenes/`
   - Purpose: Phaser scene orchestration
   - Key files: `Battleground/PhaseManager.ts`, `Battleground/RunCombatCore.ts`, `Battleground/CombatPlaybackController.ts`
@@ -89,7 +89,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [unit-balance.md](docs/unit-balance.md): Power budget, cost formulas, trigger frequencies
 - [phase-system-refactoring.md](docs/phase-system-refactoring.md): New PhaseSystem handler architecture
 - [purity-boundary.md](docs/purity-boundary.md): Pure logic boundary, replay-critical import rules
-- [single-multiplayer-unification.md](docs/single-multiplayer-unification.md): IGameServer interface, LocalServerAdapter, unification plan
+- [single-multiplayer-unification.md](docs/single-multiplayer-unification.md): GameServer interface, LocalServerAdapter, unification plan
 - [multiplayer-architecture.md](docs/multiplayer-architecture.md): MultiplayerManager, server-driven phases
 - [server-side-combat-migration.md](docs/server-side-combat-migration.md): Headless combat simulation (completed)
 - [storage-system.md](docs/storage-system.md): Provider pattern, Steam Cloud, localStorage
@@ -105,7 +105,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Key Architectural Patterns
 
 1. **Combat Playback**: Combat is simulated server-side → produces logs → client plays back animations. Entry: `RunCombatIO.ts` → `serverCombatDemo.ts` → `CombatPlaybackController.ts`.
-2. **Server Adapter**: Single-player and multiplayer both go through `IGameServer` interface. `getServerAdapter()` in `Core/ServerFactory.ts` returns the right adapter.
+2. **Server Adapter**: Single-player and multiplayer both go through `GameServer` interface. `getServerAdapter()` in `Core/ServerFactory.ts` returns the right adapter.
 3. **Phase System**: New handler-based system in `Core/PhaseSystem/` with `PhaseHandler` interface. Legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still runs the main loop.
 4. **Trigger System**: Units have `effects` (actions on cooldown) and `reactions` (responses to other units' effects). Defined in `TriggerSystem/TriggerSystem.ts`.
 

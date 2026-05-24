@@ -1,4 +1,4 @@
-import { getServerAdapter } from "@Core/ServerFactory";
+import { getServerAdapter } from "@Core/GameServer";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("deleteSavedData");
