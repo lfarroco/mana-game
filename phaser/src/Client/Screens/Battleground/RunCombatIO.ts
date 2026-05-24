@@ -1,18 +1,18 @@
-import { getState, State } from "@Models/State";
-import { CombatRunner, WaveOutcome } from "Client/Screens/Battleground/RunCombatCore";
-import { createBrowserCombatEffects } from "Client/Screens/Battleground/BrowserCombatEffects";
+import * as State from "@Models/State";
+import * as RunCombatCore from "Client/Screens/Battleground/RunCombatCore";
+import * as BrowserCombatEffects from "Client/Screens/Battleground/BrowserCombatEffects";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { runServerSideCombat } from "Client/Screens/Battleground/serverCombatDemo";
-import { createCombatPlaybackController } from "Client/Screens/Battleground/CombatPlaybackController";
-import { registerCollection } from "@Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
-import { resetUnitStats, Unit } from "@Models/Entities/Unit";
-import { CombatLogEntry } from "Client/Screens/Battleground/ServerCombatEffects";
+import * as serverCombatDemo from "Client/Screens/Battleground/serverCombatDemo";
+import * as CombatPlaybackController from "Client/Screens/Battleground/CombatPlaybackController";
+import * as Card from "@Models/Entities/Card";
+import * as BaseCollection from "@Data/BaseCollection";
+import * as Unit from "@Models/Entities/Unit";
+import * as ServerCombatEffects from "Client/Screens/Battleground/ServerCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Board from "@Models/Board";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("RunCombatIO");
+const logger = Logger.createLogger("RunCombatIO");
 
 const cloneState = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -24,28 +24,27 @@ const cloneState = <T>(value: T): T => {
 
 export type { WaveOutcome, CombatRunner } from "Client/Screens/Battleground/RunCombatCore";
 
-registerCollection(BASE_COLLECTION_DATA);
+Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
 // Store combat data for replay functionality
-let lastCombatLogs: CombatLogEntry[] | null = null;
-let lastCombatInitialUnits: Unit[] | null = null;
-let lastCombatOutcome: WaveOutcome | null = null;
-let lastCombatState: State | null = null;
+let lastCombatLogs: ServerCombatEffects.CombatLogEntry[] | null = null;
+let lastCombatInitialUnits: Unit.Unit[] | null = null;
+let lastCombatOutcome: RunCombatCore.WaveOutcome | null = null;
+let lastCombatState: State.State | null = null;
 let lastNextPhaseCallback: (() => Promise<void>) | null = null;
 
-export const runCombatIO = (): CombatRunner => {
-	const state = getState();
+export const runCombatIO = (): RunCombatCore.CombatRunner => {
 
-	const combatResult = runServerSideCombat(cloneState(state));
+	const combatResult = serverCombatDemo.runServerSideCombat(cloneState(state));
 
 	// Store combat logs and initial units for replay
 	lastCombatLogs = combatResult.logs;
 	lastCombatInitialUnits = JSON.parse(JSON.stringify(state.battleData.units));
 
-	state.battleData.units.forEach(resetUnitStats);
+	state.battleData.units.forEach(Unit.resetUnitStats);
 
-	const effects = createBrowserCombatEffects();
-	const playbackController = createCombatPlaybackController(state, combatResult.logs, effects);
+	const effects = BrowserCombatEffects.createBrowserCombatEffects();
+	const playbackController = CombatPlaybackController.createCombatPlaybackController(state, combatResult.logs, effects);
 
 	const env = playbackController.getEnv();
 	CombatSystemStates.setCombatSystemStates(env.combatStates);
@@ -55,8 +54,8 @@ export const runCombatIO = (): CombatRunner => {
 
 // Store the last combat result for replay functionality
 export const storeCombatResult = (
-	outcome: WaveOutcome,
-	state: State,
+	outcome: RunCombatCore.WaveOutcome,
+	state: State.State,
 	nextPhaseCallback: () => Promise<void>
 ) => {
 	lastCombatOutcome = outcome;
@@ -77,8 +76,6 @@ export const replayCombat = async (): Promise<void> => {
 		return;
 	}
 
-	const state = getState();
-
 	// Clear the board and reset
 	Chara.clearAll();
 	Board.setIsInputEnabled(false);
@@ -86,7 +83,7 @@ export const replayCombat = async (): Promise<void> => {
 
 	// Restore initial units
 	state.battleData.units = JSON.parse(JSON.stringify(lastCombatInitialUnits));
-	state.battleData.units.forEach(resetUnitStats);
+	state.battleData.units.forEach(Unit.resetUnitStats);
 
 	// Re-summon all units
 	const summonPromises = state.battleData.units.map((u) => Chara.summon(u, false));
@@ -106,8 +103,8 @@ export const replayCombat = async (): Promise<void> => {
 	};
 
 	// Start combat playback with stored logs, using isReplay=true to prevent state updates
-	const effects = createBrowserCombatEffects(true, onReplayEnd);
-	const playbackController = createCombatPlaybackController(state, lastCombatLogs, effects);
+	const effects = BrowserCombatEffects.createBrowserCombatEffects(true, onReplayEnd);
+	const playbackController = CombatPlaybackController.createCombatPlaybackController(state, lastCombatLogs, effects);
 
 	const env = playbackController.getEnv();
 	CombatSystemStates.setCombatSystemStates(env.combatStates);
