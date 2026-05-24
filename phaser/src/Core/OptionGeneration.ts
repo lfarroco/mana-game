@@ -5,10 +5,10 @@
  * Deterministic based on session seed to ensure reproducibility across replays.
  */
 
-import { SessionData, PhaseOption } from "@Core/Types";
+import * as Types from "@Core/Types";
 import * as Card from "@Models/Entities/Card";
-import { stringToSeed, pickRandomItemsSeeded, shuffleWithSeed } from "./Seeding";
-import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
+import * as Seeding from "./Seeding";
+import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
 
 const ENCOUNTER_IDS = [
 	"upgrade_unit",
@@ -32,12 +32,12 @@ const ENCOUNTER_IDS = [
  * Generate the three encounter options available to the player.
  * Uses recent encounter history to avoid repetition within the last 12 encounters.
  */
-export function generateEncounterOptions(session: SessionData): {
-	options: PhaseOption[];
+export function generateEncounterOptions(session: Types.SessionData): {
+	options: Types.PhaseOption[];
 	nextPhase?: string;
 } {
 	// Check what phase we should be at for this turn
-	const expectedPhase = getPhaseForTurn(session.round, session.step);
+	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, session.step);
 
 	// If the expected phase is combat, show combat_encounter as the only option (pre-combat warning)
 	if (expectedPhase === "combat") {
@@ -52,8 +52,8 @@ export function generateEncounterOptions(session: SessionData): {
 	// Get the last 12 encounters (4 phases × 3 options each)
 	const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
 
-	const seedNum = stringToSeed(session.seed);
-	const shuffled = shuffleWithSeed(ENCOUNTER_IDS, seedNum);
+	const seedNum = Seeding.stringToSeed(session.seed);
+	const shuffled = Seeding.shuffleWithSeed(ENCOUNTER_IDS, seedNum);
 
 	// Filter out recently shown encounters
 	const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
@@ -88,6 +88,8 @@ type EncounterFilterType =
 function getEncounterFilterType(encounterId: string | null): EncounterFilterType | "" {
 	if (!encounterId) return "";
 
+	// TODO: should have a single id for type, this map should
+	// not be necessary
 	const filterMap: Record<string, EncounterFilterType> = {
 		armory: "damage",
 		healing_tent: "heal",
@@ -147,9 +149,9 @@ function filterCardsByEffect(
  * - Other encounters: 3 options (standard selection)
  */
 export function generateShopOptions(
-	session: SessionData,
+	session: Types.SessionData,
 	triggerActionId?: string
-): { options: PhaseOption[] } {
+): { options: Types.PhaseOption[] } {
 	let encounterId = null;
 
 	if (triggerActionId) {
@@ -189,7 +191,7 @@ export function generateShopOptions(
 	// We mix the current seed with "shop" and the encounter id to ensure
 	// encounter options and shop options never collide in their seed space.
 	const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-	const options = pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
+	const options = Seeding.pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
 		id: card.id,
 		cost: 10,
 		recruitRank: getCardRank(card),

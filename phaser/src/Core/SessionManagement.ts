@@ -56,7 +56,7 @@ export function createInitialSession(
 	const session: SessionData = {
 		id: "",
 		player_id: playerId,
-		session_type: "singleplayer",
+		session_type: { type: "singleplayer" },
 		phase: "encounter",
 		round: 1,
 		step: 1,

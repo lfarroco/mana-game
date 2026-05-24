@@ -5,14 +5,11 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import * as Chara from "@Systems/Chara/Chara";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
-
-import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
@@ -22,42 +19,21 @@ import * as io from "@PhaserIO";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
-type Local = { type: "local" }
-type Online = { type: "online", queueType: MultiplayerTypes.MultiplayerQueueType }
-
-export type BattlegroundSceneData = {
-	// TODO: instead of this, we need the list of current units
-	selectedCrystalId?: string;
-	sessionType: Local | Online;
-};
-
-export const createBattlegroundScreen = async (data: BattlegroundSceneData) => {
-
+export const createBattlegroundScreen = async () => {
 	const speed = OptionsStore.getOption("speed");
 	io.scene.time.timeScale = speed;
 	io.scene.tweens.timeScale = speed;
 
 	io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
 
-	start({ ...data });
+	start();
 };
 
-const start = async ({
-	selectedCrystalId,
-}: BattlegroundSceneData) => {
+const start = async () => {
 	// TODO: the start for this scene should be just:
 	// - render boards
 	// - render untis
 	// - display current phase
-
-
-	// Keep global mode state in sync so controller/server selection matches the current run type.
-	if (state.session.session_type.type === "singleplayer") {
-
-		MultiplayerManager.disableMultiplayer();
-	} else {
-		await MultiplayerManager.enableMultiplayer(selectedCrystalId, state.session.session_type.queueType);
-	}
 
 	new CloudsBackground.CloudsBackground({
 		preset: "forest",
@@ -74,13 +50,13 @@ const start = async ({
 
 	Tooltip.init();
 
-	const charas = Chara.getAllCharas();
+	//const charas = Chara.getAllCharas();
 
 	// Only summon units if there are no characters and we're not in combat phase
 	// Combat phase handles its own summoning in transitionToCombatPhase
-	if (charas.length === 0 && state.session.phase !== "combat") {
-		await PhaseManager.resetBoard();
-	}
+	// if (charas.length === 0 && state.session.phase !== "combat") {
+	// 	await PhaseManager.resetBoard();
+	//}
 
 	let forceStatsState = ForceStats.initializeForceStatsState();
 	forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
@@ -111,7 +87,7 @@ const start = async ({
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
-	PhaseManager.startPhase(state, {
+	PhaseManager.startPhase({
 		showReadyOnInitialCombat: true
 	});
 };

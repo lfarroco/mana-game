@@ -73,6 +73,7 @@ export async function getSession(playerId: string): Promise<SessionData | null> 
 export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	const session = SessionManager.getSession(playerId);
 	if (!session) {
+		// here
 		throw new Error(`No session found for player ${playerId}`);
 	}
 

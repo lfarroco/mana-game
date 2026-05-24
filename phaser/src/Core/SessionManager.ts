@@ -23,7 +23,10 @@ function loadSessionsFromStorage(): void {
 }
 
 function saveSessionToStorage(playerId: string, session: SessionData): void {
-	localStorage.setItem(STORAGE_PREFIX + playerId, JSON.stringify(session));
+	localStorage.setItem(
+		STORAGE_PREFIX + playerId,
+		JSON.stringify(session),
+	);
 }
 
 function removeSessionFromStorage(playerId: string): void {

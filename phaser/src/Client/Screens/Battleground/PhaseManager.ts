@@ -1,42 +1,40 @@
-import { State } from "@Models/State";
 import * as c from "@Constants/constants";
 import { clearAll, summon } from "@Systems/Chara/Chara";
 import { delay } from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { isMultiplayer } from "@Multiplayer/MultiplayerManager";
-import { ActionPayload } from "@Core/Types";
+//import { ActionPayload } from "@Core/Types";
 import * as Board from "@Models/Board";
-import { handleMultiplayerPhase } from "Client/Screens/Battleground/MultiplayerPhaseManager";
-import type { PhaseTransport } from "Client/Screens/Battleground/MultiplayerPhaseManager";
-import * as GameServer from "@Core/GameServer";
+// import type { PhaseTransport } from "Client/Screens/Battleground/MultiplayerPhaseManager";
+// import * as GameServer from "@Core/GameServer";
 
-const createLocalPhaseTransport = (): PhaseTransport => ({
-	getPhaseOptions: async () => {
-		const server = GameServer.getServer();
-		const playerId = getPlayerId();
-		return await server.getPhaseOptions(playerId);
-	},
-	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
-		const server = GameServer.getServer();
-		const playerId = getPlayerId();
-		return await server.handleAction(playerId, optionId, payload);
-	},
-});
+// const createLocalPhaseTransport = (): PhaseTransport => ({
+// 	getPhaseOptions: async () => {
+// 		const server = GameServer.getServer();
+// 		const playerId = getPlayerId();
+// 		// TODO: we can abstract even more, by not requiring
+// 		// the instanciation of a server
+// 		return await server.getPhaseOptions(playerId);
+// 	},
+// 	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
+// 		const server = GameServer.getServer();
+// 		const playerId = getPlayerId();
+// 		return await server.handleAction(playerId, optionId, payload);
+// 	},
+// });
 
 export async function startPhase(
-	state: State,
-	options: {
+	_options: {
 		showReadyOnInitialCombat?: boolean;
 	} = {}
 ) {
 	// Both multiplayer and single-player use the same phase handler.
 	// Multiplayer uses the remote transport (default); single-player uses a local transport.
-	const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
-	await handleMultiplayerPhase(state, transport, {
-		showReadyOnInitialCombat: options.showReadyOnInitialCombat || false,
-	});
+	// const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
+	// await handleMultiplayerPhase(state, transport, {
+	// 	showReadyOnInitialCombat: options.showReadyOnInitialCombat || false,
+	// });
 }
 
 // Helper to get player ID (from state or generate one)

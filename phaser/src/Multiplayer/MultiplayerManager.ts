@@ -13,7 +13,6 @@ import type { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { createLogger } from "@Utils/Logger";
 
 // Internal state
-let isMultiplayer: boolean = false;
 let playerId: string;
 let initPromise: Promise<void> = Promise.resolve();
 let authInitialized = false;
@@ -363,8 +362,6 @@ const initializeAuthSession = (): Promise<void> => {
 
 logger.info("Initialized multiplayer manager", { playerId });
 
-export { isMultiplayer };
-
 const safeClonePayload = (payload: unknown): unknown => {
 	if (payload === undefined) {
 		return undefined;
@@ -436,33 +433,7 @@ const isNoRowsError = (error: unknown): boolean => {
 	return maybeError.code === "PGRST116";
 };
 
-export function disableMultiplayer() {
-	isMultiplayer = false;
-	deferredModeActive = false;
-	currentMultiplayerQueueType = "casual";
-	clearDeferredRunState();
-	logger.info("Multiplayer mode disabled");
-}
 
-export async function enableMultiplayer(
-	selectedCrystalId?: string,
-	queueType: MultiplayerQueueType = "casual"
-) {
-	isMultiplayer = true;
-	deferredModeActive = true;
-	currentMultiplayerQueueType = queueType;
-	deferredSelectedCrystalId = selectedCrystalId || null;
-	//TODO: this should be initialized before getting into the scene...
-	await initializeAuthSession();
-	logger.info("Multiplayer mode enabled with deterministic deferred processing", {
-		hasSelectedCrystal: Boolean(selectedCrystalId),
-		queueType,
-	});
-	if (!selectedCrystalId) {
-		logger.info("Resuming existing session without crystal selection");
-	}
-	logger.info("Connected to multiplayer session");
-}
 export async function sendOptionSelection(optionId: string, payload?: unknown): Promise<boolean> {
 	const sanitizedPayload = safeClonePayload(payload);
 	const effectivePayload =

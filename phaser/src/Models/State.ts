@@ -20,7 +20,7 @@ const initialState = (): State => {
 	return {
 		savedGames: [],
 		session: {
-			id: "local_session",
+			id: "default_local_session",
 			player_id: "local_player",
 			phase: "encounter",
 			session_type: { type: "singleplayer" },
