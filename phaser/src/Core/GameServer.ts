@@ -10,8 +10,11 @@ export type GameServer = {
 
 	createSession(playerId: string, crystalId: string): Promise<SessionData>;
 
+	// TODO: this might be unecessary (actions update
+	// the session in the state)
 	getSession(playerId: string): Promise<SessionData | null>;
 
+	// TODO: same as above
 	getPhaseOptions(playerId: string): Promise<PhaseOptions>;
 
 	handleAction(playerId: string, actionId: string, payload?: ActionPayload): Promise<boolean>;

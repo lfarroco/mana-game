@@ -116,10 +116,10 @@ export async function handlePhase() {
 			const shopCardIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-			ShopPanel.create(async () => {
-				await ShopPanel.slideOut();
-				await GameController.skipPhase();
-			});
+			// ShopPanel.create(async () => {
+			// 	await ShopPanel.slideOut();
+			// 	await GameController.skipPhase();
+			// });
 
 			await CharaShop.renderTavernCharas(cardDefs);
 

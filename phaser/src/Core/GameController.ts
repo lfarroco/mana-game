@@ -3,6 +3,7 @@ import * as Types from "@Core/Types";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
+import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 export async function purchaseUnit(
 	cardId: string,
@@ -15,6 +16,8 @@ export async function purchaseUnit(
 	);
 
 	if (success) {
+
+		await ShopPanel.slideOut();
 		await PhaseManager.startPhase();
 	}
 

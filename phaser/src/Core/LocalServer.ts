@@ -136,3 +136,7 @@ export async function handleAction(
 	return true;
 
 }
+
+export async function getSession(_playerId: string): Promise<Types.SessionData> {
+	return Promise.resolve(state.session);
+}
