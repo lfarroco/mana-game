@@ -40,17 +40,9 @@ export async function createSession(playerId: string, crystalId: string): Promis
 	return session;
 }
 
-export async function getSession(playerId: string): Promise<Types.SessionData | null> {
-	return SessionManager.getSession(playerId);
-}
-
 export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOptions> {
 
-	const session = SessionManager.getSession(playerId);
-	if (!session) {
-		// here
-		throw new Error(`No session found for player ${playerId}`);
-	}
+	const { session } = state;
 
 	const response: Types.PhaseOptions = {
 		phase: session.phase as Types.PhaseType,
@@ -128,15 +120,15 @@ export async function handleAction(
 	payload?: Types.ActionPayload
 ): Promise<boolean> {
 
-	// Handle the action and transition to next state
 	const result = GameLogic.transitionToNextState(
 		state.session,
 		actionId,
 		payload,
 	);
 
-	// Update the session in the manager (this saves to localStorage with SessionManager's format)
 	SessionManager.updateSession(playerId, result.session);
+
+	state.session = result.session;
 
 	return true;
 

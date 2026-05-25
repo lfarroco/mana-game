@@ -66,6 +66,8 @@ export async function selectEncounter(encounterId: string): Promise<boolean> {
 		encounterId,
 	);
 
+	console.log(">>>", success)
+
 	if (success) {
 		await PhaseManager.startPhase();
 	}
