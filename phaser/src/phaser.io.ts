@@ -3,6 +3,7 @@ import { sumVec2 } from "@Models/Geometry";
 import { renderCrystalSelectionScreen } from "Client/Screens/CrystalSelection/CrystalSelectionScene";
 import { renderTitleScreen } from "Client/Screens/Title/TitleScene";
 import { createBattlegroundScreen } from "Client/Screens/Battleground/BattlegroundScene";
+import { delay } from "@Utils/animation";
 
 export let scene: Phaser.Scene;
 
@@ -326,24 +327,31 @@ export function SetStroke(text: Phaser.GameObjects.Text, color: string, thicknes
 	text.setStroke(color, thickness);
 }
 
-export async function FadeOut(duration: number, color: number) {
-	return new Promise<void>((resolve) => {
-
+export const FadeOut = async (duration: number, color: number) =>
+	new Promise<void>((resolve) => {
 		const r = (color >> 16) & 0xff;
 		const g = (color >> 8) & 0xff;
 		const b = color & 0xff;
 		scene.cameras.main.fade(duration, r, g, b);
-		scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
+		scene.cameras.main.once(
+			Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
+			resolve,
+		);
 	});
-}
 
-export async function FadeIn(duration: number) {
-	return new Promise<void>((resolve) => {
+export const FadeIn = async (duration: number) =>
+	new Promise<void>((resolve) => {
 		scene.cameras.main.fadeIn(duration);
-		scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
+		scene.cameras.main.once(
+			Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
+			resolve,
+		);
 	});
-}
 
 export function StartScene(key: string, data?: object): void {
 	scene.scene.start(key, data);
+}
+
+export function Delay(duration: number): Promise<void> {
+	return delay(duration);
 }

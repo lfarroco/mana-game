@@ -15,7 +15,7 @@ export async function purchaseUnit(
 	);
 
 	if (success) {
-		await PhaseManager.startPhase(state);
+		await PhaseManager.startPhase();
 	}
 
 	return success;
@@ -53,7 +53,7 @@ export async function skipPhase(): Promise<boolean> {
 	);
 
 	if (success) {
-		await PhaseManager.startPhase(state);
+		await PhaseManager.startPhase();
 	}
 
 	return success;
@@ -62,12 +62,12 @@ export async function skipPhase(): Promise<boolean> {
 export async function selectEncounter(encounterId: string): Promise<boolean> {
 	const server = GameServer.getServer();
 	const success = await server.handleAction(
-		state.session.player_id,
+		state.session.player_id, // TODO: remove arg
 		encounterId,
 	);
 
 	if (success) {
-		await PhaseManager.startPhase(state);
+		await PhaseManager.startPhase();
 	}
 
 	return success;
@@ -97,7 +97,7 @@ export async function handleAction(actionId: string, payload?: Types.ActionPaylo
 	);
 
 	if (success && !isInPhaseUpgradeSelection) {
-		await PhaseManager.startPhase(state);
+		await PhaseManager.startPhase();
 	}
 
 	return success;

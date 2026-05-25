@@ -53,11 +53,12 @@ export function init(chara: Chara.Chara) {
 			const y = zone.getData("cell-y") as number;
 			const tile = Geometry.vec2(x, y);
 
-			if (!Chara.isShopItem(state.unitId)) {
+			if (Chara.isShopItem(state.unitId)) {
+
+				handleDropShopItem(chara)(tile);
+			} else {
 				const vec = chara.getData("dragStartVec");
 				processOwnedUnitMoveRequest(state.unitId, tile, vec.x, vec.y);
-			} else {
-				handleDropShopItem(chara)(tile);
 			}
 			state.wasDragSuccessful = true;
 		});

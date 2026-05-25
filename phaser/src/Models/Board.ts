@@ -300,9 +300,6 @@ export function isInputEnabled() {
 }
 
 export function init() {
-	if (_playerBoardState) {
-		destroy(_playerBoardState);
-	}
 	_playerBoardState = createBoardState();
 	renderBoardSlots(_playerBoardState);
 }

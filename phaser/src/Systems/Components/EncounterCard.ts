@@ -44,14 +44,17 @@ type EncounterCardProps = {
 };
 
 export function createEncounterCard(
-	container: Phaser.GameObjects.Container,
+	parent: Phaser.GameObjects.Container,
 	props: EncounterCardProps
 ) {
+	const container = io.Container();
 	const { x, y, width, height, name, pic, description, onClick } = props;
+
+	io.SetPosition(container, { x, y });
 	const padding = 20;
 	const dimensions = size(width, height);
 
-	const bg = io.scene.add.graphics({ x: x - width / 2, y: y - height / 2 });
+	const bg = io.scene.add.graphics({ x: - width / 2, y: - height / 2 });
 	const border = io.scene.add.graphics();
 	let isFocused = false;
 	const backgroundState = { mix: 0 };
@@ -76,8 +79,8 @@ export function createEncounterCard(
 		border.clear();
 		border.lineStyle(lineWidth, color, alpha);
 		border.strokeRoundedRect(
-			x - width / 2,
-			y - height / 2,
+			- width / 2,
+			- height / 2,
 			width,
 			height,
 			CARD_CORNER_RADIUS
@@ -88,8 +91,8 @@ export function createEncounterCard(
 	drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 
 	const iconSize = ICON_SIZE;
-	const iconX = x - width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
-	const iconY = y;
+	const iconX = - width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
+	const iconY = 0;
 
 	const icon = io
 		.Image(pic)
@@ -108,11 +111,11 @@ export function createEncounterCard(
 		},
 	});
 
-	const textX = x - width / 2 + padding + iconSize + 20;
+	const textX = - width / 2 + padding + iconSize + 20;
 	const textWidth = width - (padding + iconSize + 40 + padding);
 
 	const title = io.scene.add
-		.text(textX - 8, y - height / 2 + 20, name, {
+		.text(textX - 8, - height / 2 + 20, name, {
 			...titleTextConfig,
 			fontSize: TITLE_FONT_SIZE,
 			color: UI_TEXT_PRIMARY,
@@ -122,7 +125,7 @@ export function createEncounterCard(
 		.setOrigin(0, 0);
 
 	const label = io.scene.add
-		.rexBBCodeText(textX, y - height / 2 + 75, description, {
+		.rexBBCodeText(textX, - height / 2 + 75, description, {
 			fontSize: LABEL_FONT_SIZE,
 			fontFamily: "Arimo",
 			color: UI_TEXT_MUTED,
@@ -160,10 +163,12 @@ export function createEncounterCard(
 	});
 
 	container.add([bg, border, icon, title, label]);
+	parent.add(container);
 
 	return {
 		bg,
 		border,
+		container,
 		icon,
 		title,
 		label,

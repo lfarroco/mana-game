@@ -4,40 +4,31 @@ import { delay } from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { ActionPayload } from "@Core/Types";
 import * as Board from "@Models/Board";
-import { handleMultiplayerPhase, type PhaseTransport } from "Client/Screens/Battleground/MultiplayerPhaseManager";
-import * as GameServer from "@Core/GameServer";
+import { handlePhase } from "Client/Screens/Battleground/MultiplayerPhaseManager";
 
-const createLocalPhaseTransport = (): PhaseTransport => ({
-	getPhaseOptions: async () => {
-		const server = GameServer.getServer();
-		const playerId = getPlayerId();
-		// TODO: we can abstract even more, by not requiring
-		// the instanciation of a server
-		return await server.getPhaseOptions(playerId);
-	},
-	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
-		const server = GameServer.getServer();
-		const playerId = getPlayerId();
-		return await server.handleAction(playerId, optionId, payload);
-	},
-});
+// const createLocalPhaseTransport = (): PhaseTransport => ({
+// 	getPhaseOptions: async () => {
+// 		const server = GameServer.getServer();
+// 		const playerId = getPlayerId();
+// 		// TODO: we can abstract even more, by not requiring
+// 		// the instanciation of a server
+// 		return await server.getPhaseOptions(playerId);
+// 	},
+// 	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
+// 		const server = GameServer.getServer();
+// 		const playerId = getPlayerId();
+// 		return await server.handleAction(playerId, optionId, payload);
+// 	},
+// });
 
-export async function startPhase(
-	options: {
-		showReadyOnInitialCombat?: boolean;
-	} = {}
-) {
+export async function startPhase() {
 	// Both multiplayer and single-player use the same phase handler.
 	// Multiplayer uses the remote transport (default); single-player uses a local transport.
-	const isMultiplayer = state.session.session_type.type !== "singleplayer";
-	const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
-	await handleMultiplayerPhase(
-		transport,
-		{
-			showReadyOnInitialCombat: options.showReadyOnInitialCombat || false,
-		},
+	// const isMultiplayer = state.session.session_type.type !== "singleplayer";
+	// const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
+	await handlePhase(
+		//transport,
 	);
 }
 

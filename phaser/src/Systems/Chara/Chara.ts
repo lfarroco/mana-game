@@ -207,7 +207,8 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 }
 
 export function isShopItem(id: string): boolean {
-	return !!state.session.team.units.find((u) => u.id === id);
+	const found = state.session.team.units.find((u) => u.id === id);
+	return !found;
 }
 
 export function getUnit(chara: Chara): Unit {

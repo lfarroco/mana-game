@@ -12,6 +12,7 @@ import { getName } from "@i18n/i18n";
 import { replayCombat, storeCombatResult } from "Client/Screens/Battleground/RunCombatIO";
 import { WINS_TO_WIN_GAME } from "Client/Screens/Battleground/Results/ResultsConfig";
 import { createLogger } from "@Utils/Logger";
+import * as GameServer from "@Core/GameServer";
 
 const logger = createLogger("ResultsPhase");
 
@@ -82,11 +83,11 @@ async function handleVictory(state: State): Promise<void> {
 	await PhaseManager.resetBoard(true);
 
 	// Notify server of combat completion and get next phase
-	const server = PhaseManager.getServerAdapter();
+	const server = GameServer.getServer();
 	const playerId = PhaseManager.getPlayerId();
 	const completionAction = state.session.wins >= WINS_TO_WIN_GAME ? "victory" : "combat_done";
 	await server.handleAction(playerId, completionAction);
-	PhaseManager.startPhase(state);
+	PhaseManager.startPhase();
 }
 
 async function handleDefeat(state: State): Promise<void> {
@@ -112,8 +113,8 @@ async function handleDefeat(state: State): Promise<void> {
 	await PhaseManager.resetBoard(true);
 
 	// Notify server of combat completion and get next phase
-	const server = PhaseManager.getServerAdapter();
 	const playerId = PhaseManager.getPlayerId();
+	const server = GameServer.getServer();
 	await server.handleAction(playerId, "combat_done");
-	PhaseManager.startPhase(state);
+	PhaseManager.startPhase();
 }

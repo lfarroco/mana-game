@@ -1,16 +1,6 @@
 import * as SessionManager from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
-import {
-	SessionData,
-	PhaseOptions,
-	PhaseType,
-	PhaseOption,
-	CombatState,
-	ActionPayload,
-} from "@Core/Types";
-import { createLogger } from "@Utils/Logger";
-
-const logger = createLogger("LocalServerAdapter");
+import * as Types from "@Core/Types";
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -20,7 +10,7 @@ const cloneValue = <T>(value: T): T => {
 	return JSON.parse(JSON.stringify(value)) as T;
 };
 
-function getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
+function getFallbackOptionsForPhase(phase: Types.PhaseType): Types.PhaseOption[] {
 	switch (phase) {
 		case "upgrade_core":
 			return [
@@ -39,30 +29,22 @@ function getFallbackOptionsForPhase(phase: PhaseType): PhaseOption[] {
 	}
 }
 
-function getCurrentOptions(session: SessionData): PhaseOption[] {
+function getCurrentOptions(session: Types.SessionData): Types.PhaseOption[] {
 	return session.current_options;
 }
 
-function getCurrentCombatState(session: SessionData): CombatState | null {
-	if (!session.current_options || Array.isArray(session.current_options)) {
-		return null;
-	}
-
-	return session.current_options.combatState || null;
-}
-
-export async function createSession(playerId: string, crystalId: string): Promise<SessionData> {
+export async function createSession(playerId: string, crystalId: string): Promise<Types.SessionData> {
 	const session = GameLogic.createInitialSession(playerId, crystalId);
 	session.id = `local-${playerId}-${Date.now()}`;
 	SessionManager.updateSession(playerId, session);
 	return session;
 }
 
-export async function getSession(playerId: string): Promise<SessionData | null> {
+export async function getSession(playerId: string): Promise<Types.SessionData | null> {
 	return SessionManager.getSession(playerId);
 }
 
-export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
+export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOptions> {
 
 	const session = SessionManager.getSession(playerId);
 	if (!session) {
@@ -70,8 +52,8 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 		throw new Error(`No session found for player ${playerId}`);
 	}
 
-	const response: PhaseOptions = {
-		phase: session.phase as PhaseType,
+	const response: Types.PhaseOptions = {
+		phase: session.phase as Types.PhaseType,
 		round: session.round,
 		options: [],
 		team: cloneValue(session.team),
@@ -86,8 +68,8 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 				response.options = getCurrentOptions(session);
 			} else {
 				const encOpts = GameLogic.generateEncounterOptions(session);
-				response.options = encOpts.options;
-				session.current_options = { options: encOpts.options };
+				response.options = encOpts;
+				session.current_options = encOpts;
 				SessionManager.updateSession(playerId, session);
 			}
 			break;
@@ -98,7 +80,7 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 			} else {
 				const shopOpts = GameLogic.generateShopOptions(session);
 				response.options = shopOpts.options;
-				session.current_options = { options: shopOpts.options };
+				session.current_options = shopOpts.options;
 				SessionManager.updateSession(playerId, session);
 			}
 			break;
@@ -106,16 +88,16 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 		case "combat":
 			// Combat state should already be in session.current_options from transitionToNextState
 			{
-				const combatState = getCurrentCombatState(session);
-				if (!combatState) {
-					break;
-				}
-				response.combatState = cloneValue({
-					...combatState,
-					units: combatState.initialUnits || combatState.units || [],
-					initialUnits: combatState.initialUnits || combatState.units || [],
-				});
-				response.options = [{ id: "combat_done", label: "Continue" }];
+				// const combatState = getCurrentCombatState(session);
+				// if (!combatState) {
+				// 	break;
+				// }
+				// response.combatState = cloneValue({
+				// 	...combatState,
+				// 	units: combatState.initialUnits || combatState.units || [],
+				// 	initialUnits: combatState.initialUnits || combatState.units || [],
+				// });
+				// response.options = [{ id: "combat_done", label: "Continue" }];
 			}
 			break;
 
@@ -127,10 +109,10 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 			}
 
 			if (response.options.length === 0) {
-				const fallbackOptions = getFallbackOptionsForPhase(session.phase as PhaseType);
+				const fallbackOptions = getFallbackOptionsForPhase(session.phase as Types.PhaseType);
 				if (fallbackOptions.length > 0) {
 					response.options = fallbackOptions;
-					session.current_options = { options: fallbackOptions };
+					session.current_options = fallbackOptions;
 					SessionManager.updateSession(playerId, session);
 				}
 			}
@@ -143,24 +125,19 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 export async function handleAction(
 	playerId: string,
 	actionId: string,
-	payload?: ActionPayload
+	payload?: Types.ActionPayload
 ): Promise<boolean> {
-	const session = SessionManager.getSession(playerId);
-	if (!session) {
-		logger.error("Session not found", { playerId });
-		return false;
-	}
 
-	try {
-		// Handle the action and transition to next state
-		const result = GameLogic.transitionToNextState(session, actionId, payload);
+	// Handle the action and transition to next state
+	const result = GameLogic.transitionToNextState(
+		state.session,
+		actionId,
+		payload,
+	);
 
-		// Update the session in the manager (this saves to localStorage with SessionManager's format)
-		SessionManager.updateSession(playerId, result.session);
+	// Update the session in the manager (this saves to localStorage with SessionManager's format)
+	SessionManager.updateSession(playerId, result.session);
 
-		return true;
-	} catch (error) {
-		logger.error("Failed to handle action", { playerId, actionId, error });
-		return false;
-	}
+	return true;
+
 }

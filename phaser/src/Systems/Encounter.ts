@@ -201,7 +201,7 @@ export async function chooseEncounter(index: number) {
 	return `Invalid encounter index: ${index}. Available: ${currentEncounters.length}`;
 }
 
-const noOp = async () => { };
+const noop = async () => { };
 
 export const getEncounterItems = (
 	_state: State.State,
@@ -211,7 +211,7 @@ export const getEncounterItems = (
 			name: i18n.t("encounters.upgrade_unit.name"),
 			pic: "ui/upgrade_unit",
 			description: i18n.t("encounters.upgrade_unit.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "upgrade_unit",
 		},
 		improveType("ui/improve_damage", "damage"),
@@ -223,70 +223,70 @@ export const getEncounterItems = (
 			name: i18n.t("encounters.armory.name"),
 			pic: "ui/armory",
 			description: i18n.t("encounters.armory.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "armory",
 		},
 		{
 			name: i18n.t("encounters.healing_tent.name"),
 			pic: "ui/improve_heal",
 			description: i18n.t("encounters.healing_tent.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "healing_tent",
 		},
 		{
 			name: i18n.t("encounters.frontier_fort.name"),
 			pic: "ui/frontier_fort",
 			description: i18n.t("encounters.frontier_fort.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "frontier_fort",
 		},
 		{
 			name: i18n.t("encounters.forest_pools.name"),
 			pic: "ui/forest_pools",
 			description: i18n.t("encounters.forest_pools.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "forest_pools",
 		},
 		{
 			name: i18n.t("encounters.toxic_chamber.name"),
 			pic: "ui/toxic",
 			description: i18n.t("encounters.toxic_chamber.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "toxic_chamber",
 		},
 		{
 			name: i18n.t("encounters.trial_circuit.name"),
 			pic: "ui/trial_circuit",
 			description: i18n.t("encounters.trial_circuit.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "trial_circuit",
 		},
 		{
 			name: i18n.t("encounters.trappers_guild.name"),
 			pic: "ui/improve_slow",
 			description: i18n.t("encounters.trappers_guild.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "trappers_guild",
 		},
 		{
 			name: i18n.t("encounters.thunder_spire.name"),
 			pic: "ui/thunder_spire",
 			description: i18n.t("encounters.thunder_spire.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "thunder_spire",
 		},
 		{
 			name: i18n.t("encounters.commanders_tent.name"),
 			pic: "ui/commander",
 			description: i18n.t("encounters.commanders_tent.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "commanders_tent",
 		},
 		{
 			name: i18n.t("encounters.assassins_hideout.name"),
 			pic: "ui/assassin",
 			description: i18n.t("encounters.assassins_hideout.desc"),
-			onClick: noOp,
+			onClick: noop,
 			id: "assassins_hideout",
 		},
 		{
@@ -294,7 +294,7 @@ export const getEncounterItems = (
 			pic: "ui/power_distributor",
 			description: i18n.t("encounters.power_distributor.desc"),
 			minRound: 3,
-			onClick: noOp,
+			onClick: noop,
 			id: "power_distributor",
 		},
 		{
@@ -302,7 +302,7 @@ export const getEncounterItems = (
 			pic: "ui/power_absorber",
 			description: i18n.t("encounters.power_absorber.desc"),
 			minRound: 3,
-			onClick: noOp,
+			onClick: noop,
 			id: "power_absorber",
 		},
 		{
@@ -311,7 +311,7 @@ export const getEncounterItems = (
 			description: i18n.t("encounters.silver_shop_desc"),
 			minRound: MIN_ROUND_FOR_SILVER_SHOP,
 			maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
-			onClick: noOp,
+			onClick: noop,
 			id: "silver_shop",
 		},
 		{
@@ -319,14 +319,14 @@ export const getEncounterItems = (
 			pic: "ui/gold_medal",
 			description: i18n.t("encounters.gold_shop_desc"),
 			minRound: MIN_ROUND_FOR_GOLD_SHOP,
-			onClick: noOp,
+			onClick: noop,
 			id: "gold_shop",
 		},
 		{
 			name: i18n.t("encounters.combat.name"),
 			pic: "ui/armory",
 			description: i18n.t("encounters.combat.desc"),
-			onClick: async () => { }, // Overridden in MP
+			onClick: noop,
 			id: "combat_encounter",
 		},
 	];
@@ -337,26 +337,31 @@ function improveType(pic: string, type: string): EncounterItem {
 		pic,
 		minRound: 4,
 		description: i18n.t("encounters.improve_type.desc", { type }),
-		onClick: noOp,
+		onClick: noop,
 		id: `improve_${type}`,
 	};
 }
 
-export async function open() {
+export async function displayOptions() {
+
 	const container = io.Container();
-	container.once("destroy", clearEncounterFocus);
+	io.OnceDestroyed(container, clearEncounterFocus);
+
 	isEncounterSelectionInProgress = false;
 	clearEncounterFocus();
 
 	let encounters: EncounterItem[] = [];
 
-	// Server-provided encounter options (both SP and MP use this now)
 	const all = getEncounterItems(state, container);
 	encounters = state.session.current_options
-		.map((option) => all.find((e) => e.id === option.id))
-		.filter((e) => !!e) as EncounterItem[];
+		.reduce((acc, option) => {
+			const encounter = all.find((e) => e.id === option.id);
+			if (encounter) {
+				return acc.concat([encounter]);
+			}
+			return acc;
+		}, [] as EncounterItem[]);
 
-	// Override onClick to use GameController
 	encounters.forEach((e) => {
 		e.onClick = async () => {
 			if (isEncounterSelectionInProgress) {
@@ -366,7 +371,8 @@ export async function open() {
 			isEncounterSelectionInProgress = true;
 			container.destroy(true);
 
-			const success = await GameController.selectEncounter(e.id || "");
+			const success = await GameController.selectEncounter(e.id);
+			console.log("Encounter selection result:", success);
 			if (success) {
 				return;
 			}
@@ -385,7 +391,7 @@ export async function open() {
 		await GameController.skipPhase();
 	};
 
-	encounters.forEach((encounter, index) => {
+	encounters.forEach(async (encounter, index) => {
 		const width = ENCOUNTER_CARD_WIDTH;
 		const height = ENCOUNTER_CARD_HEIGHT;
 		const spacing = ENCOUNTER_CARD_SPACING;
@@ -398,7 +404,7 @@ export async function open() {
 		}
 
 		const card = EncounterCard.createEncounterCard(container, {
-			x,
+			x: x + width + 200,
 			y,
 			width,
 			height,
@@ -421,15 +427,22 @@ export async function open() {
 			setFocused: card.setFocused,
 			activate: card.activate,
 		});
+
+		await io.Delay(100 * index)
+		io.Tween({
+			targets: card.container,
+			x,
+			duration: 300,
+			ease: "Power2",
+		});
 	});
 
 	initializeEncounterFocusTargets();
 
 	// Only show skip button if:
-	// 1. Feature is enabled by controller (not multiplayer)
-	// 2. Not showing combat_encounter (pre-combat phase)
-	const isCombatEncounter = encounters.length === 1 && encounters[0].id === "combat_encounter";
-	if (GameController.isFeatureEnabled("skip_encounter") && !isCombatEncounter) {
+	// 1. Not showing combat_encounter (pre-combat phase)
+	const isCombatEncounter = encounters[0].id === "combat_encounter";
+	if (!isCombatEncounter) {
 		const btn = UIButton.createUIButton({
 			text: i18n.t("encounters.skip"),
 			position: Geometry.vec2(constants.SCREEN_WIDTH - 260, constants.SCREEN_HEIGHT - 50),
@@ -438,4 +451,5 @@ export async function open() {
 
 		container.add(btn.container);
 	}
+
 }

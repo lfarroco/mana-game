@@ -15,7 +15,10 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
 import * as io from "@PhaserIO";
-import * as Encounter from "@Systems/Encounter";
+import * as animation from "@Utils/animation";
+import * as Chara from "@Systems/Chara/Chara";
+import * as Shop from "@Systems/Shop/ShopPanel";
+import * as PhaseManager from "./PhaseManager";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -49,8 +52,6 @@ const start = async () => {
 	ControlsSystem.init({ context: "battleground" });
 
 	Tooltip.init();
-
-	//const charas = Chara.getAllCharas();
 
 	// Only summon units if there are no characters and we're not in combat phase
 	// Combat phase handles its own summoning in transitionToCombatPhase
@@ -91,9 +92,23 @@ const start = async () => {
 	// 	showReadyOnInitialCombat: true
 	// });
 
-	if (state.session.phase === "encounter")
-		Encounter.open()
+	const summonPromises = state.session.team.units.map(async (unit, index) => {
+		await animation.delay(index * 200);
+		await Chara.summon(unit, true);
+	});
+	await Promise.all(summonPromises);
+
+	Shop.create(null);
+
+	Board.setIsInputEnabled(true);
+
+	// ~~~~~ // ~~~~~
+
+	PhaseManager.startPhase();
+
 };
+
+
 
 // update(time: number, delta: number): void {
 
