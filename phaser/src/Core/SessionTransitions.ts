@@ -35,7 +35,7 @@ export function transitionToNextState(
 	payload?: ActionPayload,
 	options?: TransitionToNextStateOptions
 ): { session: SessionData; combatResult?: { won: boolean } } {
-	const nextSession = JSON.parse(JSON.stringify(session)); // Deep copy
+	const nextSession: SessionData = JSON.parse(JSON.stringify(session)); // Deep copy
 	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
 
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
@@ -74,8 +74,6 @@ export function transitionToNextState(
 	// Apply transition results
 	nextSession.phase = transitionResult.nextPhase;
 	nextSession.current_options = transitionResult.nextOptions
-		? { options: transitionResult.nextOptions, ...transitionResult.specialData }
-		: null;
 
 	if (transitionResult.stepIncrement) {
 		nextSession.step += transitionResult.stepIncrement;

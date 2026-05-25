@@ -126,6 +126,9 @@ export async function handleAction(
 		payload,
 	);
 
+	//eslint-disable-next-line no-console
+	console.log("next state:: ", result)
+
 	SessionManager.updateSession(playerId, result.session);
 
 	state.session = result.session;

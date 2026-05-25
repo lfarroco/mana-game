@@ -17,14 +17,14 @@ export const shopPhaseHandler = createPhaseHandler({
 		if (expectedPhase === "encounter") {
 			nextPhase = "encounter";
 			const encounterResult = GameLogic.generateEncounterOptions(session);
-			nextOptions = encounterResult.options;
+			nextOptions = encounterResult;
 		} else if (expectedPhase === "combat") {
 			nextPhase = "encounter";
 			nextOptions = [{ id: "combat_encounter" }];
 		} else {
 			nextPhase = "encounter";
 			const encounterResult = GameLogic.generateEncounterOptions(session);
-			nextOptions = encounterResult.options;
+			nextOptions = encounterResult;
 		}
 
 		return {
