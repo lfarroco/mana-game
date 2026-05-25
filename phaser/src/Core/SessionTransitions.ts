@@ -5,19 +5,263 @@
  * Orchestrates action resolution, seed advancement, and phase transitions.
  */
 
-import { SessionData, ActionPayload, CombatState } from "@Core/Types";
+import { SessionData, ActionPayload, CombatState, PhaseOption, PhaseType } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
-import { phaseManager } from "@Core/PhaseSystem";
 import { resolveAction } from "./Actions/ActionResolver";
 import { generateNextSeed, getDeterministicRandomOptionIndex } from "./Seeding";
 import { createDefaultRunStats } from "./SessionManagement";
 import { simulateCombat, determineCombatOutcome } from "./Combat/CombatSimulation";
 import { generateEnemyTeamForRound } from "./EnemyGeneration";
+import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
+import * as GameLogic from "@Core/GameLogic";
 
 export type TransitionToNextStateOptions = {
 	combatEnemyTeam?: Unit[];
 	combatEnemyPlayerName?: string;
 };
+
+type TransitionResult = {
+	nextPhase: PhaseType;
+	nextOptions: PhaseOption[];
+	stepIncrement?: number;
+	roundIncrement?: number;
+};
+
+type ActionTransitionHandler = (session: SessionData, actionId: string) => TransitionResult;
+
+function getCurrentPhaseOptions(session: SessionData): PhaseOption[] {
+	const optionsState = session.current_options as unknown;
+	if (!optionsState) {
+		return [];
+	}
+
+	if (Array.isArray(optionsState)) {
+		return optionsState as PhaseOption[];
+	}
+
+	if (
+		typeof optionsState === "object" &&
+		"options" in optionsState &&
+		Array.isArray((optionsState as { options?: unknown }).options)
+	) {
+		return (optionsState as { options: PhaseOption[] }).options;
+	}
+
+	return [];
+}
+
+function transitionToNextEncounterStep(session: SessionData): TransitionResult {
+	const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
+
+	if (expectedPhase === "combat") {
+		return {
+			nextPhase: "encounter",
+			nextOptions: [{ id: "combat_encounter" }],
+			stepIncrement: 1,
+		};
+	}
+
+	const encounterOptions = GameLogic.generateEncounterOptions(session);
+	return {
+		nextPhase: "encounter",
+		nextOptions: encounterOptions,
+		stepIncrement: 1,
+	};
+}
+
+function transitionToNextRoundEncounter(session: SessionData): TransitionResult {
+	const nextRound = session.round + 1;
+	const tempSession = { ...session, round: nextRound, step: 1 };
+	const encounterResult = GameLogic.generateEncounterOptions(tempSession);
+
+	return {
+		nextPhase: "encounter",
+		nextOptions: encounterResult,
+		stepIncrement: 1 - session.step,
+		roundIncrement: 1,
+	};
+}
+
+function transitionFromCombat(session: SessionData, actionId: string): TransitionResult {
+	if (actionId !== "combat_done" && actionId !== "victory") {
+		throw new Error(`Unexpected action ${actionId} in Combat transition`);
+	}
+
+	if (actionId === "combat_done" && session.wins >= 10) {
+		return {
+			nextPhase: "victory",
+			nextOptions: [
+				{ id: "victory", label: "Continue Endless" },
+				{ id: "return_to_menu", label: "Return to Menu" },
+			],
+		};
+	}
+
+	if (session.losses >= 4) {
+		return {
+			nextPhase: "game_over",
+			nextOptions: [{ id: "return_to_menu", label: "Return to Menu" }],
+		};
+	}
+
+	const nextStep = session.step + 1;
+	const expectedPhase = getPhaseForTurn(session.round, nextStep);
+
+	if (expectedPhase === "upgrade_core") {
+		return {
+			nextPhase: "upgrade_core",
+			nextOptions: [
+				{ id: "increase_core_max_life" },
+				{ id: "upgrade_core_power" },
+				{ id: "decrease_core_cooldown" },
+			],
+			stepIncrement: 1,
+		};
+	}
+
+	if (expectedPhase === "add_reaction_core") {
+		return {
+			nextPhase: "add_reaction_core",
+			nextOptions: [
+				{ id: "on_100_damage_effect" },
+				{ id: "on_crit_effect" },
+				{ id: "on_battle_start_effect" },
+			],
+			stepIncrement: 1,
+		};
+	}
+
+	return transitionToNextRoundEncounter(session);
+}
+
+const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
+	// Meta actions: team mutation with no phase change.
+	discard_unit: (session) => ({
+		nextPhase: session.phase,
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+		roundIncrement: 0,
+	}),
+	update_team: (session) => ({
+		nextPhase: session.phase,
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+		roundIncrement: 0,
+	}),
+
+	// Encounter special transitions.
+	combat_encounter: () => ({
+		nextPhase: "combat",
+		nextOptions: [],
+	}),
+	upgrade_unit: () => ({
+		nextPhase: "orb_shop",
+		nextOptions: [{ id: "upgrade_orb" }],
+		stepIncrement: 0,
+	}),
+	power_distributor: () => ({
+		nextPhase: "orb_shop",
+		nextOptions: [{ id: "distribute_power_orb" }],
+		stepIncrement: 0,
+	}),
+	power_absorber: () => ({
+		nextPhase: "orb_shop",
+		nextOptions: [{ id: "absorb_power_orb" }],
+		stepIncrement: 0,
+	}),
+	skip_encounter: (session) => ({
+		nextPhase: "shop",
+		nextOptions: GameLogic.generateShopOptions(session).options,
+		stepIncrement: 0,
+	}),
+
+	// Shop transitions.
+	skip_shop: (session) => transitionToNextEncounterStep(session),
+
+	// Orb shop transitions.
+	apply_orb: (session) => ({
+		nextPhase: "orb_shop",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	orb_shop_done: (session) => transitionToNextEncounterStep(session),
+
+	// Combat transitions.
+	combat_done: (session, actionId) => transitionFromCombat(session, actionId),
+	victory: (session, actionId) => transitionFromCombat(session, actionId),
+
+	// Upgrade core transitions.
+	increase_core_max_life: (session) => ({
+		nextPhase: "upgrade_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	upgrade_core_power: (session) => ({
+		nextPhase: "upgrade_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	decrease_core_cooldown: (session) => ({
+		nextPhase: "upgrade_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	upgrade_core_done: (session) => transitionToNextRoundEncounter(session),
+
+	// Add reaction core transitions.
+	on_100_damage_effect: (session) => ({
+		nextPhase: "add_reaction_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	on_ally_death_effect: (session) => ({
+		nextPhase: "add_reaction_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	on_crit_effect: (session) => ({
+		nextPhase: "add_reaction_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	on_battle_start_effect: (session) => ({
+		nextPhase: "add_reaction_core",
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+	}),
+	add_reaction_core_done: (session) => transitionToNextRoundEncounter(session),
+
+	// End-state/no-op action.
+	return_to_menu: (session) => ({
+		nextPhase: session.phase,
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+		roundIncrement: 0,
+	}),
+};
+
+const PHASE_FALLBACK_HANDLERS: Partial<Record<PhaseType, ActionTransitionHandler>> = {
+	encounter: (session, actionId) => ({
+		nextPhase: "shop",
+		nextOptions: GameLogic.generateShopOptions(session, actionId).options,
+		stepIncrement: 0,
+	}),
+	shop: (session) => transitionToNextEncounterStep(session),
+};
+
+function computeTransition(session: SessionData, actionId: string): TransitionResult {
+	const actionHandler = ACTION_HANDLERS[actionId];
+	if (actionHandler) {
+		return actionHandler(session, actionId);
+	}
+
+	const fallbackHandler = PHASE_FALLBACK_HANDLERS[session.phase];
+	if (fallbackHandler) {
+		return fallbackHandler(session, actionId);
+	}
+
+	throw new Error(`No transition handler for phase '${session.phase}' and action '${actionId}'`);
+}
 
 /**
  * Transition a session to the next phase based on a player action.
@@ -25,7 +269,7 @@ export type TransitionToNextStateOptions = {
  * Steps:
  * 1. Resolve the action (modify team/units)
  * 2. Advance the seed
- * 3. Use PhaseManager to determine next phase and options
+ * 3. Determine next phase and options via actionId dispatch
  * 4. Execute combat if entering combat phase
  * 5. Return updated session with new phase state
  */
@@ -64,16 +308,11 @@ export function transitionToNextState(
 		nextSession.seed = generateNextSeed(nextSession.seed, actionId);
 	}
 
-	// Use PhaseManager for transition logic
-	const transitionResult = phaseManager.transition({
-		session: nextSession,
-		actionId,
-		payload,
-	});
+	const transitionResult = computeTransition(nextSession, actionId);
 
 	// Apply transition results
 	nextSession.phase = transitionResult.nextPhase;
-	nextSession.current_options = transitionResult.nextOptions
+	nextSession.current_options = transitionResult.nextOptions;
 
 	if (transitionResult.stepIncrement) {
 		nextSession.step += transitionResult.stepIncrement;
@@ -114,7 +353,7 @@ function executeCombatPhase(
 				seed: session.seed,
 				units: session.team.units,
 			},
-		},
+		} as unknown as SessionData["current_options"],
 	};
 
 	const simResult = simulateCombat(combatSession);
@@ -138,8 +377,11 @@ function executeCombatPhase(
 		logs: simResult.logs,
 	};
 
-	const continueOptions = [{ id: "combat_done", label: "Continue" }];
-	session.current_options = { options: continueOptions, combatState };
+	const continueOptions: PhaseOption[] = [{ id: "combat_done", label: "Continue" }];
+	session.current_options = {
+		options: continueOptions,
+		combatState,
+	} as unknown as SessionData["current_options"];
 
 	return { won: wonCombat };
 }
@@ -148,15 +390,7 @@ function executeCombatPhase(
  * Get the current available options for the session.
  */
 export function getCurrentOptions(session: SessionData) {
-	if (!session.current_options) {
-		return [];
-	}
-
-	if (Array.isArray(session.current_options)) {
-		return session.current_options;
-	}
-
-	return session.current_options.options;
+	return getCurrentPhaseOptions(session);
 }
 
 /**
