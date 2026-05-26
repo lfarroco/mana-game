@@ -1,28 +1,18 @@
-import * as getSavedData from "@Game/effects/getSavedData";
+import * as getSavedData from "@Game/effects/getSinglePlayerData";
 import * as Random from "@Utils/Random";
 import * as Types from "@Core/Types";
 import * as Seeding from "@Core/Seeding";
-import * as GameServer from "@Core/GameServer";
 
 export function loadGame() {
-	const data = getSavedData.getSavedData();
+	const data = getSavedData.getSinglePlayerData();
 	if (!data) return;
 
 	const savedData = JSON.parse(data) as Types.SessionData;
 
-	// Restore session into SessionManager
-	const server = GameServer.getServer();
-	if ("sessionManager" in server) {
-		(
-			server as unknown as {
-				sessionManager: { updateSession(id: string, session: Types.SessionData): void };
-			}
-		).sessionManager.updateSession(savedData.player_id, savedData);
-	}
-
 	// Set up game state
+	// TODO: this is needed? review random system
 	Random.setSeed(Seeding.stringToSeed(savedData.seed));
+
 	state.session = savedData;
 
-	//getCurrentScene().scene.start(SCENE_KEYS.BATTLEGROUND, { state: state });
 }

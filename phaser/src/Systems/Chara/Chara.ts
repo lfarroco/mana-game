@@ -210,7 +210,17 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	const firstIdle = idleFrames[0] || frameNames[0];
 
 	sprite.setTexture(unit.pic, firstIdle);
-	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
+	sprite.setDisplaySize(
+		constants.TILE_WIDTH * 1.2,
+		constants.TILE_HEIGHT * 1.2,
+	);
+	// if the sprite has no texture, reduce its size
+	if (sprite.texture.key === "__MISSING") {
+		sprite.setDisplaySize(
+			constants.TILE_WIDTH * 0.5,
+			constants.TILE_HEIGHT * 0.5
+		);
+	}
 
 	if (io.scene.anims.exists(unit.pic + "_idle")) {
 		sprite.play(unit.pic + "_idle");

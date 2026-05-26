@@ -1,13 +1,13 @@
 import * as constants from "@Constants/constants";
 import { createUIButton } from "@Components/UIButton";
-import { loadGame } from "@Game/effects/loadGame";
-import { getSavedData } from "@Game/effects/getSavedData";
+import { getSinglePlayerData } from "@Game/effects/getSinglePlayerData";
 import { startGame } from "@Screens/Title/Effects/startGame";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Screens/Title/Components/collectionButton";
 import * as io from "@PhaserIO";
 import * as TitleScene from "@Screens/Title/TitleScene";
+import * as resumeSinglePlayerGame from "../Effects/resumeSinglePlayerGame";
 
 let submenuContainer: Container;
 
@@ -32,15 +32,12 @@ function showSinglePlayerSubmenu() {
 
 	const baseY = 500;
 	const spacing = 100;
-	const hasSavedRun = getSavedData() != null;
+	const hasSavedRun = getSinglePlayerData() != null;
 
 	const resumeBtn = createUIButton({
 		text: t("title.resume"),
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY),
-		callback: () => {
-			hideSinglePlayerSubmenu();
-			loadGame();
-		},
+		callback: resumeSinglePlayerGame.resumeSinglePlayerGame
 	});
 
 	if (!hasSavedRun) {

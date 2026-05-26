@@ -4,19 +4,17 @@ import * as Geometry from "@Models/Geometry";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
 
-export function create(state: State.State) {
+export function create() {
 	const btn = UIButton.createUIButton({
 		text: i18n.t("ui.menu.button"),
 		position: Geometry.vec2(c.BATTLEGROUND_BUTTON_X, c.BATTLEGROUND_BUTTON_MARGIN_TOP),
-		callback: () => {
-			createPanel(state);
-		},
+		callback: createPanel
 	});
 
 	return btn.container;
 }
 
-export function createPanel(_state: State.State) {
+export function createPanel() {
 	const panelWidth = 650;
 	const panelHeight = 500;
 	const panelX = c.MIDDLE_SCREEN.x;

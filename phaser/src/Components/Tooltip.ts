@@ -102,6 +102,7 @@ export function destroyTooltip(): void {
 }
 
 export function init() {
+	if (container) container.destroy(true);
 	container = io.scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
 	tooltipWidth = TOOLTIP_MIN_WIDTH;

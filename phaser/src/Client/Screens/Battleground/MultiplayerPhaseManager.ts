@@ -28,7 +28,7 @@ import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import type * as Types from "@Core/Types";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
-import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
+import * as NameDisply from "@Screens/Battleground/Components/namesDisplay";
 
 const logger = Logger.createLogger("MultiplayerPhaseManager");
 
@@ -72,10 +72,8 @@ export async function handlePhase() {
 		await Promise.all(
 			state.session.team.units.map(async (u) => {
 				if (Chara.hasCharaById(u.id)) {
-					console.log(">>> noop", u)
 					//Chara.refreshUnit(u);
 				} else {
-					console.log(">>> summon", u)
 					await Chara.summon(u, true);
 				}
 			})
@@ -84,7 +82,7 @@ export async function handlePhase() {
 	}
 
 	if (session.phase !== "combat") {
-		playerNamesDisplay.update({ enemyName: "" });
+		NameDisply.updateNameDisplay({ enemyName: "" });
 	}
 
 	switch (session.phase) {
@@ -216,7 +214,7 @@ export async function handlePhase() {
 			Chara.enableTooltip(c);
 		}
 
-		playerNamesDisplay.update({
+		NameDisply.updateNameDisplay({
 			enemyName: combatState.enemyPlayerName || "CPU",
 		});
 
@@ -277,7 +275,7 @@ export async function handlePhase() {
 							PhaseManager.resetBoard(true).then(() =>
 								transport
 									.sendOptionSelection("combat_done")
-									.then(() => handlePhase(transport, childContext))
+									.then(() => handlePhase())
 							);
 						},
 						() => {
