@@ -31,7 +31,11 @@ function getShopRecruitRank(session: SessionData, cardId: string): number {
  * If the card already exists in the team, upgrade it instead.
  * Returns { updated: boolean, unit?: Unit, updates: string[] }
  */
-export function recruitUnit(session: SessionData, cardId: string): {
+export function recruitUnit(
+	session: SessionData,
+	cardId: string,
+	targetPosition?: { x: number; y: number }
+): {
 	updated: boolean;
 	unit?: Unit;
 	updates: string[];
@@ -60,7 +64,33 @@ export function recruitUnit(session: SessionData, cardId: string): {
 		}
 	} else {
 		if (units.length < 9) {
-			const targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
+			let targetPos = BoardLogic.getEmptySlot(units, FORCE_ID_PLAYER);
+
+			if (targetPosition) {
+				const isWithinBounds =
+					targetPosition.x >= 0 &&
+					targetPosition.x <= 2 &&
+					targetPosition.y >= 0 &&
+					targetPosition.y <= 2;
+
+				if (!isWithinBounds) {
+					return { updated: false, updates: ["Invalid target slot"] };
+				}
+
+				const occupied = units.some(
+					(unit) =>
+						unit.force === FORCE_ID_PLAYER &&
+						unit.position.x === targetPosition.x &&
+						unit.position.y === targetPosition.y
+				);
+
+				if (occupied) {
+					return { updated: false, updates: ["Target slot occupied"] };
+				}
+
+				targetPos = targetPosition;
+			}
+
 			if (targetPos) {
 				const newUnit = makeUnit(FORCE_ID_PLAYER, cardId, targetPos);
 				const recruitRank = getShopRecruitRank(session, cardId);

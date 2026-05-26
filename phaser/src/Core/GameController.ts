@@ -1,4 +1,3 @@
-import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as GameServer from "@Core/GameServer";
@@ -6,12 +5,13 @@ import * as Unit from "@Models/Entities/Unit";
 
 export async function purchaseUnit(
 	cardId: string,
-	_targetSlot?: number
+	targetSlot?: number
 ): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 	const success = await server.handleAction(
 		state.session.player_id,
 		cardId,
+		typeof targetSlot === "number" ? { targetSlot } : undefined,
 	);
 
 	return success;

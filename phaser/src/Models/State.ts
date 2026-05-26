@@ -81,6 +81,8 @@ export const setState = (newState: State): void => {
 	setSeed(stringToSeed(newState.session.seed));
 };
 
+export const getState = (): State => state;
+
 export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
 	return units.find((u) => eqVec2(u.position, position));
 };

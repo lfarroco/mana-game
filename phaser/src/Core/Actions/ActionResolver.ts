@@ -20,6 +20,17 @@ export function resolveAction(
 	actionId: string,
 	payload?: ActionPayload
 ): { team: { units: Unit[] }; updates?: string[] } {
+	const targetSlotToPosition = (targetSlot: number): { x: number; y: number } | null => {
+		if (!Number.isInteger(targetSlot) || targetSlot < 0 || targetSlot > 8) {
+			return null;
+		}
+
+		return {
+			x: targetSlot % 3,
+			y: Math.floor(targetSlot / 3),
+		};
+	};
+
 	// Handle team repositioning
 	if (
 		actionId === "update_team" &&
@@ -47,7 +58,11 @@ export function resolveAction(
 	// Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
 	if (actionId.match(/^[a-z_]+$/) && actionId !== "update_team") {
 		const sessionWithCopy = { ...session, team };
-		const result = recruitUnit(sessionWithCopy, actionId);
+		const targetPosition =
+			payload && typeof payload === "object" && "targetSlot" in payload
+				? targetSlotToPosition(payload.targetSlot as number)
+				: undefined;
+		const result = recruitUnit(sessionWithCopy, actionId, targetPosition);
 		if (result.updated) {
 			return { team, updates: result.updates };
 		}

@@ -4,13 +4,11 @@ import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
-import * as Shop from "@Systems/Shop";
 import * as Tooltip from "@Components/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as events from "@Systems/Chara/events";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "@Systems/Shop/DiscardZone";
-import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -35,7 +33,11 @@ export function init(chara: Chara.Chara) {
 	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER;
 	const isShopUnit = Chara.isShopItem(state.unitId);
 
-	if (isPlayerUnit || (unit.force === constants.FORCE_ID_PLAYER && isShopUnit)) {
+	if (isShopUnit || !isPlayerUnit) {
+		return state;
+	}
+
+	if (isPlayerUnit) {
 		io.scene.input.setDraggable(chara, true);
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
@@ -52,14 +54,8 @@ export function init(chara: Chara.Chara) {
 			const x = zone.getData("cell-x") as number;
 			const y = zone.getData("cell-y") as number;
 			const tile = Geometry.vec2(x, y);
-
-			if (Chara.isShopItem(state.unitId)) {
-
-				handleDropShopItem(chara)(tile);
-			} else {
-				const vec = chara.getData("dragStartVec");
-				processOwnedUnitMoveRequest(state.unitId, tile, vec.x, vec.y);
-			}
+			const vec = chara.getData("dragStartVec");
+			processOwnedUnitMoveRequest(state.unitId, tile, vec.x, vec.y);
 			state.wasDragSuccessful = true;
 		});
 
@@ -67,10 +63,6 @@ export function init(chara: Chara.Chara) {
 
 		chara.on(Phaser.Input.Events.POINTER_DOWN, onPointerDown(state));
 		chara.on(Phaser.Input.Events.POINTER_UP, onPointerUp(state));
-
-		if (!isShopUnit) return;
-
-		chara.on(Phaser.Input.Events.POINTER_UP, onPointerUpShopItem(state));
 	}
 
 	return state;
@@ -96,9 +88,7 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 		ease: "Cubic.Out",
 	});
 
-	if (!Chara.isShopItem(handlerState.unitId)) {
-		DiscardZone.hide();
-	}
+	DiscardZone.hide();
 
 	if (!handlerState.wasDragSuccessful) {
 		const vec = chara.getData("dragStartVec") as Vec2;
@@ -129,11 +119,7 @@ export const onDragStart =
 		}
 		handlerState.isLongPressActive = false;
 
-		if (Chara.isShopItem(handlerState.unitId)) {
-			ShopPanel.bringChildToTop(chara);
-		} else {
-			io.scene.children.bringToTop(chara);
-		}
+		io.scene.children.bringToTop(chara);
 
 		animation.tween({
 			targets: [chara],
@@ -144,23 +130,12 @@ export const onDragStart =
 
 		const unit = Chara.getUnit(chara);
 
-		if (!Chara.isShopItem(handlerState.unitId) && !unit.isCore) {
+		if (!unit.isCore) {
 			DiscardZone.show();
 		}
 
 		Tooltip.hideTooltip();
 	};
-
-const handleDropShopItem = (chara: Chara.Chara) => (tile: Vec2) => {
-	const vec = chara.getData("dragStartVec") as Vec2;
-	Shop.events.itemDragPurchaseRequested(
-		{ ...Chara.getUnit(chara) },
-		Chara.getUnit(chara).id,
-		tile,
-		vec.x,
-		vec.y
-	);
-};
 
 export const processOwnedUnitMoveRequest = (
 	unitId: string,
@@ -262,40 +237,9 @@ export const onPointerUp =
 				handlerState.longPressTimer = undefined;
 			}
 
-			if (handlerState.isLongPressActive && !Chara.isShopItem(handlerState.unitId)) {
+			if (handlerState.isLongPressActive) {
 				handlerState.isLongPressActive = false;
 
 				CharaTooltip.onCharaPointerOut();
 			}
-		};
-
-export const onPointerUpShopItem =
-	(handlerState: InputHandler) =>
-		(pointer: Pointer): void => {
-			if (!Chara.isShopItem(handlerState.unitId) || !handlerState.chara.input?.enabled) return;
-
-			if (pointer.getDistance() > constants.DRAG_CLICK_THRESHOLD) {
-				return;
-			}
-
-			// Don't trigger shop click if it was a long press, and snap back to original position
-			if (handlerState.isLongPressActive) {
-				handlerState.isLongPressActive = false;
-				const vec = handlerState.chara.getData("dragStartVec") as Vec2;
-
-				animation.tween({
-					targets: [handlerState.chara],
-					...vec,
-					duration: 150,
-				});
-				return;
-			}
-
-			processShopItemClick(handlerState.chara, handlerState.unitId)(pointer.x, pointer.y);
-		};
-
-const processShopItemClick =
-	(chara: Chara.Chara, unitId: string) =>
-		(_clickX: number, _clickY: number): void => {
-			Shop.events.itemClickPurchaseRequested({ ...Chara.getUnit(chara) }, unitId, chara.x, chara.y);
 		};

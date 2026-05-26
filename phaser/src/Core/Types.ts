@@ -20,6 +20,7 @@ export type ActionLogEntry = {
 export type ActionPayload =
 	| { orbId: string; targetUnitId: string } // orb shop actions
 	| { unitId: string } // discard unit action
+	| { targetSlot: number } // targeted shop recruit slot
 	| { team: { units: Unit[] } } // team update
 	| Record<string, unknown>; // other generic payloads
 

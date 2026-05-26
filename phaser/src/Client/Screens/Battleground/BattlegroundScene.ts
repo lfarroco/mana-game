@@ -20,6 +20,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Shop from "@Systems/Shop/ShopPanel";
 import * as Encounter from "@Systems/Encounter";
 import * as Types from "@Core/Types";
+import * as GameController from "@Core/GameController";
 import * as Card from "@Models/Entities/Card";
 import * as CharaShop from "@Systems/Shop/CharaShop";
 import { Unit } from "@Models/Entities/Unit";
@@ -141,28 +142,36 @@ async function handleShopPhase(): Promise<Types.SessionData> {
 	const shopCardIds = session.current_options.map((o) => o.id);
 	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-	await CharaShop.renderTavernCharas(cardDefs);
+	Shop.refresh(async () => {
+		await GameController.skipPhase();
+	});
+
+	console.log(">>> Entering shop phase, shop options:", cardDefs.map(c => c.id));
+	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);
+	console.log(">>> Rendered tavern charas:", tavernCharas.map((c) => Chara.getId(c)));
+
+	console.log(">>> Awaiting shop interactions...");
 
 	await Shop.SlideIn();
 
-	const result = await new Promise<Types.SessionData>(resolve => {
-		io.scene.events.once("sessionUpdated", ({ session }: {
-			actionId: string,
-			session: Types.SessionData
-		}) => {
+	console.log(">>> finished sliding in shop, enabling interactions...");
 
-			resolve(session);
-		});
+	const interactionResult = await CharaShop.enableShopInteractions(tavernCharas);
+	const result = interactionResult.session;
 
-	});
+	if (interactionResult.kind === "purchased") {
+		const purchasedUnit = result.team.units.find(
+			(unit: Unit) =>
+				unit.cardId === interactionResult.shopUnit.cardId && !Chara.hasCharaById(unit.id)
+		);
 
-	result.team.units.forEach((unit: Unit) => {
-		Chara.refreshChara(unit);
-	});
+		if (purchasedUnit) {
+			await Chara.refreshChara(purchasedUnit);
+		}
+	}
 
 	await Shop.SlideOut();
-
-	console.log(">>> Unit purchased from shop:", result);
+	Shop.refresh(null);
 
 	return result;
 }

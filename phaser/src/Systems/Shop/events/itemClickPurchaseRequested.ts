@@ -1,9 +1,11 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as GameController from "@Core/GameController";
+import * as Chara from "@Systems/Chara/Chara";
+import * as shopCharaFeedback from "@Systems/Shop/events/shopCharaFeedback";
 
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit,
-	_shopCharaId: string,
+	shopCharaId: string,
 	_dragStartX: number,
 	_dragStartY: number
 ): Promise<void> {
@@ -15,5 +17,11 @@ export async function itemClickPurchaseRequested(
 	if (!serverSuccess) {
 		throw new Error("Purchase failed on server");
 	}
+
+	if (!Chara.hasCharaById(shopCharaId)) {
+		return;
+	}
+
+	shopCharaFeedback.onShopPurchaseSuccesful(Chara.mustGetCharaById(shopCharaId));
 
 }

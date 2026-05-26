@@ -11,6 +11,7 @@ import * as ShopPanel from "@Systems/Shop/ShopPanel";
 import * as Shop from "@Systems/Shop";
 import * as Encounter from "@Systems/Encounter";
 import * as theme from "@UI/theme";
+import * as Types from "@Core/Types";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -22,6 +23,81 @@ const SHOP_CARD_FOCUS_BORDER_ALPHA = 1;
 const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
+
+export type ShopInteractionResult =
+	| {
+		kind: "purchased";
+		session: Types.SessionData;
+		shopUnit: makeUnit.Unit;
+	}
+	| {
+		kind: "skipped";
+		session: Types.SessionData;
+	};
+
+export function enableShopInteractions(tavernCharas: Chara.Chara[]): Promise<ShopInteractionResult> {
+	return new Promise((resolve) => {
+		let purchasedShopUnit: makeUnit.Unit | null = null;
+		let pendingPurchaseSession: Types.SessionData | null = null;
+		const tavernShopUnits = tavernCharas.map((chara) => Chara.getUnit(chara));
+		const tavernCardIds = new Set(tavernShopUnits.map((unit) => unit.cardId));
+
+		const tryResolvePurchased = () => {
+			if (!purchasedShopUnit || !pendingPurchaseSession) {
+				return;
+			}
+
+			cleanup();
+			resolve({
+				kind: "purchased",
+				session: pendingPurchaseSession,
+				shopUnit: purchasedShopUnit,
+			});
+		};
+
+		const purchaseListeners = tavernCharas.map((chara) => {
+			const onPurchaseSuccessful = (unit: makeUnit.Unit) => {
+				purchasedShopUnit = { ...unit };
+				tryResolvePurchased();
+			};
+
+			chara.on("chara:purchaseSuccessful", onPurchaseSuccessful);
+			return { chara, onPurchaseSuccessful };
+		});
+
+		const cleanup = () => {
+			purchaseListeners.forEach(({ chara, onPurchaseSuccessful }) => {
+				chara.off("chara:purchaseSuccessful", onPurchaseSuccessful);
+			});
+			io.scene.events.off("sessionUpdated", onSessionUpdated);
+		};
+
+		const onSessionUpdated = ({ actionId, session }: { actionId: string; session: Types.SessionData }) => {
+			if (actionId === "skip_shop") {
+				cleanup();
+				resolve({ kind: "skipped", session });
+				return;
+			}
+
+			if (!tavernCardIds.has(actionId)) {
+				return;
+			}
+
+			pendingPurchaseSession = session;
+
+			if (!purchasedShopUnit) {
+				const inferredShopUnit = tavernShopUnits.find((unit) => unit.cardId === actionId);
+				if (inferredShopUnit) {
+					purchasedShopUnit = { ...inferredShopUnit };
+				}
+			}
+
+			tryResolvePurchased();
+		};
+
+		io.scene.events.on("sessionUpdated", onSessionUpdated);
+	});
+}
 
 export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
 
@@ -84,6 +160,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 
 		const chara = await Chara.create(unit);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
+		initShopCharaInput(chara);
 		let holdStartPosition: Vec2 | null = null;
 		let isHoldDragging = false;
 
@@ -239,4 +316,90 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	}));
 
 	return createdCharas;
+}
+
+function initShopCharaInput(chara: Chara.Chara): void {
+	io.scene.input.setDraggable(chara, true);
+
+	let wasDragSuccessful = false;
+
+	chara.on(Phaser.Input.Events.DRAG_START, () => {
+		if (!Board.isInputEnabled()) {
+			return;
+		}
+
+		const dragStartVec = Geometry.vec2(chara.x, chara.y);
+		chara.setData("dragStartVec", dragStartVec);
+		wasDragSuccessful = false;
+
+		ShopPanel.bringChildToTop(chara);
+		chara.setAngle(-8);
+	});
+
+	chara.on(Phaser.Input.Events.DRAG, (_pointer: Pointer, dragX: number, dragY: number) => {
+		if (!Board.isInputEnabled()) {
+			return;
+		}
+
+		chara.x = dragX;
+		chara.y = dragY;
+	});
+
+	io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+		if (!Board.isInputEnabled()) {
+			return;
+		}
+
+		const x = zone.getData("cell-x") as number;
+		const y = zone.getData("cell-y") as number;
+		const tile = Geometry.vec2(x, y);
+		const vec = chara.getData("dragStartVec") as Vec2;
+
+		Shop.events.itemDragPurchaseRequested(
+			{ ...Chara.getUnit(chara) },
+			Chara.getUnit(chara).id,
+			tile,
+			vec.x,
+			vec.y
+		);
+
+		wasDragSuccessful = true;
+	});
+
+	chara.on(Phaser.Input.Events.DRAG_END, () => {
+		if (!Board.isInputEnabled()) {
+			return;
+		}
+
+		chara.setAngle(0);
+
+		if (!wasDragSuccessful) {
+			const vec = chara.getData("dragStartVec") as Vec2;
+			io.scene.tweens.add({
+				targets: [chara],
+				x: vec.x,
+				y: vec.y,
+				duration: 150,
+			});
+		}
+
+		wasDragSuccessful = false;
+	});
+
+	chara.on(Phaser.Input.Events.POINTER_UP, (pointer: Pointer) => {
+		if (!Board.isInputEnabled() || !chara.input?.enabled) {
+			return;
+		}
+
+		if (pointer.getDistance() > c.DRAG_CLICK_THRESHOLD) {
+			return;
+		}
+
+		Shop.events.itemClickPurchaseRequested(
+			{ ...Chara.getUnit(chara) },
+			Chara.getUnit(chara).id,
+			chara.x,
+			chara.y
+		);
+	});
 }
