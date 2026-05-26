@@ -16,7 +16,7 @@ import {
 	UI_TOOLTIP_BORDER_COLOR,
 	UI_TOOLTIP_BORDER_THICKNESS,
 	UI_TOOLTIP_FILL_ALPHA,
-} from "@UI/theme";
+} from "@Screens/Battleground/Components/UI/theme";
 
 const logger = createLogger("Tooltip");
 

@@ -3,7 +3,7 @@ import * as Geometry from "@Models/Geometry";
 import * as Unit from "@Models/Entities/Unit";
 import * as State from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
-import * as uiEvents from "@UI/events";
+import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "@Core/GameController";
 import * as i18n from "@i18n/i18n";
 import * as shopCharaFeedback from "@Screens/Battleground/Shop/events/shopCharaFeedback";

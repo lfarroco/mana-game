@@ -10,7 +10,7 @@ import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as Shop from "@Screens/Battleground/Shop";
 import * as Encounter from "@Systems/Encounter";
-import * as theme from "@UI/theme";
+import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as Types from "@Core/Types";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;

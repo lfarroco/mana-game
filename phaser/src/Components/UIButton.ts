@@ -14,7 +14,7 @@ import {
 	UI_SURFACE_HOVER_BORDER_COLOR,
 	UI_TEXT_PRIMARY,
 	UI_TOOLTIP_BORDER_THICKNESS,
-} from "@UI/theme";
+} from "@Screens/Battleground/Components/UI/theme";
 
 const logger = createLogger("UIButton");
 
@@ -359,20 +359,20 @@ export function createUIButton({
 		tooltip:
 			tooltip && tooltip.description.trim().length > 0
 				? attachButtonTooltip(
-						buttonGraphics,
-						tooltip,
-						() => !!buttonGraphics.input?.enabled,
-						() => ({
-							x:
-								tooltip.position === "right"
-									? position.x + size.width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
-									: position.x,
-							y:
-								tooltip.position === "right"
-									? position.y
-									: position.y + size.height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
-						})
-					)
+					buttonGraphics,
+					tooltip,
+					() => !!buttonGraphics.input?.enabled,
+					() => ({
+						x:
+							tooltip.position === "right"
+								? position.x + size.width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
+								: position.x,
+						y:
+							tooltip.position === "right"
+								? position.y
+								: position.y + size.height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
+					})
+				)
 				: undefined,
 	};
 
@@ -420,10 +420,10 @@ export function enableUIButton(state: State) {
 const isVisibleInHierarchy = (gameObject: Phaser.GameObjects.GameObject | null): boolean => {
 	let current = gameObject as
 		| (Phaser.GameObjects.GameObject & {
-				visible?: boolean;
-				active?: boolean;
-				parentContainer?: Phaser.GameObjects.Container | null;
-		  })
+			visible?: boolean;
+			active?: boolean;
+			parentContainer?: Phaser.GameObjects.Container | null;
+		})
 		| null;
 
 	while (current) {

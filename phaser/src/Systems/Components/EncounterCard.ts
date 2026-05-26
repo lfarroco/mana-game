@@ -12,7 +12,7 @@ import {
 	UI_SURFACE_HOVER_BORDER_COLOR,
 	UI_TEXT_MUTED,
 	UI_TEXT_PRIMARY,
-} from "@UI/theme";
+} from "@Screens/Battleground/Components/UI/theme";
 
 // Encounter card animation and layout constants
 const ICON_BOUNCE_BASE_DURATION_MS = 2000;

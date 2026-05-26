@@ -4,7 +4,7 @@ import { healingHitEffect } from "@Effects/healingHitEffect";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { mustGetCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
-import { mixHexColors } from "@UI/theme";
+import { mixHexColors } from "@Screens/Battleground/Components/UI/theme";
 import { delay, tween } from "@Utils/animation";
 import { hexToVector3 } from "@Utils/colorUtils";
 

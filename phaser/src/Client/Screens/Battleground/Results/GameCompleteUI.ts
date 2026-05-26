@@ -10,7 +10,7 @@ import * as ResultsConfig from "Client/Screens/Battleground/Results/ResultsConfi
 import * as io from "@PhaserIO";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
-import * as RunStatsPanel from "@UI/RunStatsPanel";
+import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
 import * as constants from "@Constants/constants";
 import * as Config from "@config";
 import * as GameController from "@Core/GameController";

@@ -16,7 +16,7 @@
                 "./src/Systems/*"
             ],
             "@UI/*": [
-                "./src/UI/*"
+                "src/Client/Screens/Battleground/Components/UI/*"
             ],
             "@Utils/*": [
                 "./src/Utils/*"

@@ -1,5 +1,5 @@
 import { getState } from "@Models/State";
-import * as UIManager from "@UI/UI";
+import * as UIManager from "@Screens/Battleground/Components/UI/UI";
 
 export function processVictory(): void {
 	const state = getState();

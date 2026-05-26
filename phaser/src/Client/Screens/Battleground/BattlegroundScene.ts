@@ -1,4 +1,3 @@
-import * as UIManager from "@UI/UI";
 import * as Board from "@Models/Board";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as AudioManager from "@Systems/AudioManager";
@@ -22,12 +21,6 @@ export const createBattlegroundScreen = async () => {
 	io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
 
 	Components.create();
-
-
-
-	UIManager.init(state);
-
-
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 

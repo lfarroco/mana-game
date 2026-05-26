@@ -15,10 +15,10 @@ import * as animation from "@Utils/animation";
 import * as OrbShop from "@Screens/Battleground/Shop/OrbShop";
 
 // TODO: fire events instead?
-import * as livesDisplay from "./Components/livesDisplay";
-import * as roundDisplay from "./Components/roundDisplay";
+import * as livesDisplay from "./Components/UI/livesDisplay";
+import * as roundDisplay from "./Components/UI/roundDisplay";
 
-import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
+import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
 import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
@@ -28,7 +28,7 @@ import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import type * as Types from "@Core/Types";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
-import * as NameDisply from "@Screens/Battleground/Components/namesDisplay";
+import * as NameDisply from "@Screens/Battleground/Components/UI/namesDisplay";
 
 const logger = Logger.createLogger("MultiplayerPhaseManager");
 

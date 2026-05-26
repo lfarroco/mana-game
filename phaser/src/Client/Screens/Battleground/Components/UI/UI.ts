@@ -1,19 +1,18 @@
 import { vec2 } from "@Models/Geometry";
-import { State } from "@Models/State";
 import * as c from "@Constants/constants";
 import { tween } from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip";
 import * as io from "@PhaserIO";
-import * as roundDisplay from "Client/Screens/Battleground/Components/roundDisplay";
-import * as livesDisplay from "Client/Screens/Battleground/Components/livesDisplay";
-import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
-import * as headerBackground from "Client/Screens/Battleground/Components/headerBackground";
+import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
+import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
+import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
+import * as headerBackground from "@Screens/Battleground/Components/UI/headerBackground";
 import * as menuButton from "Client/Screens/Battleground/Components/menuButton";
-export * as events from "@UI/events";
+export * as events from "@Screens/Battleground/Components/UI/events";
 
 let uiContainer: Container | null = null;
 
-export function init(state: State) {
+export function createUI() {
 	const headerContainer = io.Container([
 		headerBackground.create,
 		roundDisplay.create,
@@ -22,7 +21,7 @@ export function init(state: State) {
 	]);
 	io.SetPosition(headerContainer, vec2(580, 0));
 
-	uiContainer = io.Container([headerContainer, menuButton.create(state)]);
+	uiContainer = io.Container([headerContainer, menuButton.create()]);
 }
 
 export async function handleUserMessageRequested(payload: {

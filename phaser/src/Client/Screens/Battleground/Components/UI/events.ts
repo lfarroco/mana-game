@@ -1,10 +1,10 @@
 import { titleTextConfig } from "@Constants/constants";
 import { tween } from "@Utils/animation";
-import * as UI from "@UI/UI";
-import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
-import { winsChangeAnimation } from "Client/Screens/Battleground/Components/winsDisplay";
-import * as livesDisplay from "Client/Screens/Battleground/Components/livesDisplay";
-import * as roundDisplay from "Client/Screens/Battleground/Components/roundDisplay";
+import * as UI from "@Screens/Battleground/Components/UI/UI";
+import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
+import { winsChangeAnimation } from "@Screens/Battleground/Components/UI/winsDisplay";
+import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
+import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import { t } from "@i18n/i18n";
 import * as io from "@PhaserIO";
 

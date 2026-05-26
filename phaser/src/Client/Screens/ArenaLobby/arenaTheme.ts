@@ -26,7 +26,7 @@ export {
 	UI_TEXT_LABEL as ARENA_TEXT_LABEL,
 	UI_TEXT_MUTED as ARENA_TEXT_MUTED,
 	UI_TEXT_PRIMARY as ARENA_TEXT_PRIMARY,
-} from "@UI/theme";
+} from "@Screens/Battleground/Components/UI/theme";
 
 export const ARENA_BACKGROUND_SHADER_COLORS = {
 	color1: { x: 0.02, y: 0.05, z: 0.1 },
