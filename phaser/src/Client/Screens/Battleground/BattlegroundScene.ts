@@ -7,7 +7,6 @@ import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Tooltip from "@Components/Tooltip";
-import * as DiscardZone from "@Systems/Shop/DiscardZone";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
@@ -16,9 +15,10 @@ import * as playerNamesDisplay from "Client/Screens/Battleground/Components/play
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Shop from "@Systems/Shop/ShopPanel";
 import * as Encounter from "@Systems/Encounter";
-import { handleShopPhase } from "./Shop/handleShopPhase";
+import * as handleShopPhase from "./Shop/handleShopPhase";
+import * as DiscardZone from "./Shop/DiscardZone";
+import * as Shop from "./Shop/ShopPanel";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -95,7 +95,7 @@ async function runPhaseLoop() {
 				break;
 
 			case "shop":
-				state.session = await handleShopPhase();
+				state.session = await handleShopPhase.handleShopPhase();
 				break;
 			case "game_over":
 				return;

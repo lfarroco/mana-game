@@ -374,7 +374,6 @@ export async function displayOptions() {
 				container.destroy(true);
 
 				const response = await GameController.selectEncounter(e.id);
-				console.log("Encounter selection result:", response);
 
 				resolve(response);
 

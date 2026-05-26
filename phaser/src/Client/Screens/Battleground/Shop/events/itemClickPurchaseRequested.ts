@@ -1,10 +1,10 @@
-import { Unit } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
 import * as GameController from "@Core/GameController";
 import * as Chara from "@Systems/Chara/Chara";
-import * as shopCharaFeedback from "@Systems/Shop/events/shopCharaFeedback";
+import * as shopCharaFeedback from "@Screens/Battleground/Shop/events/shopCharaFeedback";
 
 export async function itemClickPurchaseRequested(
-	shopUnitData: Unit,
+	shopUnitData: Unit.Unit,
 	shopCharaId: string,
 	_dragStartX: number,
 	_dragStartY: number

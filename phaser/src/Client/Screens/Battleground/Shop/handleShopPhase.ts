@@ -1,10 +1,10 @@
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 import * as Card from "@Models/Entities/Card";
-import { Unit } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
-import * as CharaShop from "@Systems/Shop/CharaShop";
-import * as Shop from "@Systems/Shop/ShopPanel";
+import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
+import * as Shop from "@Screens/Battleground/Shop/ShopPanel";
 
 export async function handleShopPhase(): Promise<Types.SessionData> {
 
@@ -26,7 +26,7 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 
 	if (interactionResult.kind === "purchased") {
 		const purchasedUnit = result.team.units.find(
-			(unit: Unit) => unit.cardId === interactionResult.shopUnit.cardId && !Chara.hasCharaById(unit.id)
+			(unit: Unit.Unit) => unit.cardId === interactionResult.shopUnit.cardId && !Chara.hasCharaById(unit.id)
 		);
 
 		if (purchasedUnit) {

@@ -12,16 +12,16 @@ import * as Unit from "@Models/Entities/Unit";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
-import * as OrbShop from "@Systems/Shop/OrbShop";
+import * as OrbShop from "@Screens/Battleground/Shop/OrbShop";
 
 // TODO: fire events instead?
 import * as livesDisplay from "./Components/livesDisplay";
 import * as roundDisplay from "./Components/roundDisplay";
 
 import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
-import * as CharaShop from "@Systems/Shop/CharaShop";
-import * as ShopPanel from "@Systems/Shop/ShopPanel";
-import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
+import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
+import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
+import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
 import * as Logger from "@Utils/Logger";
 import * as UIButton from "@Components/UIButton";
 import * as Geometry from "@Models/Geometry";

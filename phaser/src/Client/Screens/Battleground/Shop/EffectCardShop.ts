@@ -1,7 +1,7 @@
-import * as ShopPanel from "@Systems/Shop/ShopPanel";
+import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import * as animation from "@Utils/animation";
-import * as Orbs from "@Systems/Shop/Orbs";
+import * as Orbs from "@Screens/Battleground/Shop/Orbs";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as EncounterCard from "@Systems/Components/EncounterCard";

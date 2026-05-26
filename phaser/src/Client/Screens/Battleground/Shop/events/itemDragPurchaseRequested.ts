@@ -1,23 +1,23 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { Unit } from "@Models/Entities/Unit";
-import { getUnitAt } from "@Models/State";
-import { mustGetCharaById } from "@Systems/Chara/Chara";
+import * as Geometry from "@Models/Geometry";
+import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/State";
+import * as Chara from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as GameController from "@Core/GameController";
-import { getName } from "@i18n/i18n";
-import * as shopCharaFeedback from "@Systems/Shop/events/shopCharaFeedback";
+import * as i18n from "@i18n/i18n";
+import * as shopCharaFeedback from "@Screens/Battleground/Shop/events/shopCharaFeedback";
 
 export async function itemDragPurchaseRequested(
-	shopUnitData: Unit,
+	shopUnitData: Unit.Unit,
 	shopCharaId: string,
-	targetTile: Vec2,
+	targetTile: Geometry.Vec2,
 	dragStartX: number,
 	dragStartY: number
 ) {
-	let shopChara: ReturnType<typeof mustGetCharaById> | null = null;
+	let shopChara: ReturnType<typeof Chara.mustGetCharaById> | null = null;
 	try {
-		shopChara = mustGetCharaById(shopCharaId);
+		shopChara = Chara.mustGetCharaById(shopCharaId);
 	} catch {
 		shopChara = null;
 	}
@@ -32,20 +32,20 @@ export async function itemDragPurchaseRequested(
 		session.team.units.length >= constants.MAX_PARTY_SIZE
 	) {
 		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+			shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
 		}
-		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "PARTY_FULL");
+		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
 
 	// Validate slot occupation (only if not an upgrade)
 	if (!existingUnit || existingUnit.rank > 3) {
-		const occupier = getUnitAt(session.team.units)(targetTile);
+		const occupier = State.getUnitAt(session.team.units)(targetTile);
 		if (occupier) {
 			if (shopChara) {
-				shopCharaFeedback.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+				shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
 			}
-			uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SLOT_OCCUPIED");
+			uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 			return;
 		}
 	}
@@ -56,9 +56,9 @@ export async function itemDragPurchaseRequested(
 
 	if (!success) {
 		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, vec2(dragStartX, dragStartY));
+			shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
 		}
-		uiEvents.onPurchaseFailed(getName(shopUnitData.cardId), "SERVER_REJECTED");
+		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SERVER_REJECTED");
 		return;
 	}
 
