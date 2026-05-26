@@ -18,19 +18,22 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 
 	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);
 
-
 	await Shop.SlideIn();
 
 	const interactionResult = await CharaShop.enableShopInteractions(tavernCharas);
 	const result = interactionResult.session;
 
 	if (interactionResult.kind === "purchased") {
-		const purchasedUnit = result.team.units.find(
-			(unit: Unit.Unit) => unit.cardId === interactionResult.shopUnit.cardId && !Chara.hasCharaById(unit.id)
-		);
+		if (Chara.hasCharaById(interactionResult.shopUnit.id)) {
+			Chara.destroy(Chara.mustGetCharaById(interactionResult.shopUnit.id));
+		}
+
+		const previousUnitIds = new Set(session.team.units.map((unit: Unit.Unit) => unit.id));
+		const purchasedUnit = result.team.units.find((unit: Unit.Unit) => !previousUnitIds.has(unit.id));
 
 		if (purchasedUnit) {
 			await Chara.refreshChara(purchasedUnit);
+			Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
 		}
 	}
 

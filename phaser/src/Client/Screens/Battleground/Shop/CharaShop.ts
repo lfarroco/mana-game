@@ -159,6 +159,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		ShopPanel.container.add([bgRect, rowBorder]);
 
 		const chara = await Chara.create(unit);
+		Chara.markAsShopChara(chara);
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
 		initShopCharaInput(chara);
 		let holdStartPosition: Vec2 | null = null;

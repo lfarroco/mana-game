@@ -21,6 +21,7 @@ type CharaState = {
 const charaState = new WeakMap<Chara, CharaState>();
 
 const charaById = new Map<string, Chara>();
+const shopCharas = new WeakSet<Chara>();
 
 const CORE_FLOAT_MIN_OFFSET_Y = -10;
 const CORE_FLOAT_RANDOM_OFFSET_RANGE_Y = -20;
@@ -122,6 +123,28 @@ export function enableTooltip(chara: Chara) {
 	});
 }
 
+export function enableBoardInteractivity(chara: Chara): void {
+	const unit = getUnit(chara);
+
+	if (unit.force !== constants.FORCE_ID_PLAYER || isShopChara(chara)) {
+		return;
+	}
+
+	if (chara.input) {
+		chara.input.enabled = true;
+	}
+
+	io.scene.input.setDraggable(chara, true);
+}
+
+export function markAsShopChara(chara: Chara): void {
+	shopCharas.add(chara);
+}
+
+export function isShopChara(chara: Chara): boolean {
+	return shopCharas.has(chara);
+}
+
 export function getScreenPosition(unit: Unit) {
 	const slotSpacing = 8;
 	const offsetX =
@@ -206,11 +229,6 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	}
 }
 
-export function isShopItem(id: string): boolean {
-	const found = state.session.team.units.find((u) => u.id === id);
-	return !found;
-}
-
 export function getUnit(chara: Chara): Unit {
 	return mustGetState(chara).unit;
 }
@@ -221,6 +239,7 @@ export function getId(chara: Chara): string {
 
 export function destroy(chara: Chara) {
 	chara.destroy();
+	shopCharas.delete(chara);
 	charaById.delete(getId(chara));
 }
 

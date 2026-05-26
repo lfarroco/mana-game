@@ -31,7 +31,7 @@ export function init(chara: Chara.Chara) {
 	};
 
 	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER;
-	const isShopUnit = Chara.isShopItem(state.unitId);
+	const isShopUnit = Chara.isShopChara(chara);
 
 	if (isShopUnit || !isPlayerUnit) {
 		return state;
