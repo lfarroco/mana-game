@@ -3,7 +3,7 @@ import { arcaneMissileTargeted } from "@Effects/arcaneMissileTargeted";
 import { healingHitEffect } from "@Effects/healingHitEffect";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
-import { getCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
+import { mustGetCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
 import { mixHexColors } from "@UI/theme";
 import { delay, tween } from "@Utils/animation";
 import { hexToVector3 } from "@Utils/colorUtils";
@@ -165,7 +165,7 @@ function getCrystalTargetPoint(): Point {
 	const core = getPlayerPersistentCore(state);
 
 	if (hasCharaById(core.id)) {
-		const coreChara = getCharaById(core.id);
+		const coreChara = mustGetCharaById(core.id);
 		return { x: coreChara.x, y: coreChara.y - 30 };
 	}
 

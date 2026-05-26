@@ -13,7 +13,7 @@ export async function ownedUnitSold(unitId: string) {
 			.units
 			.filter((u) => u.id !== unitId);
 
-	const chara = Chara.getCharaById(unitId);
+	const chara = Chara.mustGetCharaById(unitId);
 	chara?.destroy();
 	DiscardZone.hide();
 }

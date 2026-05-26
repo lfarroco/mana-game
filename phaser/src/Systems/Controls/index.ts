@@ -407,7 +407,7 @@ export function init(options: InitOptions) {
 		}
 
 		try {
-			const chara = Chara.getCharaById(boardHoldVisualState.unitId);
+			const chara = Chara.mustGetCharaById(boardHoldVisualState.unitId);
 			chara.setAngle(0);
 			chara.setPosition(boardHoldVisualState.origin.x, boardHoldVisualState.origin.y);
 		} catch {
@@ -432,7 +432,7 @@ export function init(options: InitOptions) {
 
 		const selectedUnitId = boardState.selectedUnitId;
 		try {
-			const selectedChara = Chara.getCharaById(selectedUnitId);
+			const selectedChara = Chara.mustGetCharaById(selectedUnitId);
 			if (!boardHoldVisualState || boardHoldVisualState.unitId !== selectedUnitId) {
 				boardHoldVisualState = {
 					unitId: selectedUnitId,

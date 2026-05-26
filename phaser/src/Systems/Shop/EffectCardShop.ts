@@ -31,7 +31,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 		Encounter.resetEncounterFocusTargets();
 
 		const completeSectionCallback = async () => {
-			await ShopPanel.slideOut();
+			await ShopPanel.SlideOut();
 			// ShopPanel.slideOut() calls removeAll(true) which destroys all children,
 			// including the local container, so no explicit container.destroy() needed.
 			resolve();
@@ -40,7 +40,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
-		ShopPanel.create(completeSectionCallback);
+		ShopPanel.refresh(completeSectionCallback);
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
 		ShopPanel.container.add(container);
 
@@ -52,7 +52,7 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 
 		Board.setEnemyBoardVisible(false);
 
-		await ShopPanel.slideIn();
+		await ShopPanel.SlideIn();
 	});
 }
 
@@ -117,7 +117,7 @@ function renderUpgradeCards(
 								);
 								if (localUnit) Object.assign(localUnit, serverUnit);
 								if (serverUnit.isCore) {
-									await Chara.refreshUnit(localUnit ?? serverUnit);
+									await Chara.refreshChara(localUnit ?? serverUnit);
 								}
 							}
 							ForceStats.syncPlayerPersistentForceStats();

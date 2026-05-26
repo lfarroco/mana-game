@@ -37,13 +37,13 @@ export async function openOrbShop(
 		const selectedOrbs = Utils.pickRandom(orbs, 3);
 
 		const completeSectionCallback = async () => {
-			await ShopPanel.slideOut();
+			await ShopPanel.SlideOut();
 			container.destroy();
 
 			resolve();
 		};
 
-		ShopPanel.create(completeSectionCallback);
+		ShopPanel.refresh(completeSectionCallback);
 
 		renderOrbShop(
 			state,
@@ -58,7 +58,7 @@ export async function openOrbShop(
 
 		Board.setEnemyBoardVisible(false);
 
-		await ShopPanel.slideIn();
+		await ShopPanel.SlideIn();
 	});
 }
 
@@ -160,7 +160,7 @@ export function renderOrbShop(
 								continue;
 							}
 
-							await Chara.refreshUnit(localUnit ?? serverUnit);
+							await Chara.refreshChara(localUnit ?? serverUnit);
 						}
 					}
 					ForceStats.syncPlayerPersistentForceStats();

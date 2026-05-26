@@ -18,7 +18,11 @@ import * as io from "@PhaserIO";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Shop from "@Systems/Shop/ShopPanel";
-import * as PhaseManager from "./PhaseManager";
+import * as Encounter from "@Systems/Encounter";
+import * as Types from "@Core/Types";
+import * as Card from "@Models/Entities/Card";
+import * as CharaShop from "@Systems/Shop/CharaShop";
+import { Unit } from "@Models/Entities/Unit";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -88,26 +92,80 @@ const start = async () => {
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
-	// PhaseManager.startPhase({
-	// 	showReadyOnInitialCombat: true
-	// });
-
 	const summonPromises = state.session.team.units.map(async (unit, index) => {
 		await animation.delay(index * 200);
 		await Chara.summon(unit, true);
 	});
 	await Promise.all(summonPromises);
 
-	Shop.create(null);
+	Shop.refresh(null);
 
 	Board.setIsInputEnabled(true);
 
 	// ~~~~~ // ~~~~~
 
-	PhaseManager.startPhase();
+	//PhaseManager.startPhase();
+	await runPhaseLoop();
+	console.log(">>> Exited phase loop");
 
 };
 
+async function runPhaseLoop() {
+	while (true) {
+
+		console.log(">>> Starting phase loop iteration, current phase:", state.session.phase);
+
+		switch (state.session.phase) {
+			case "encounter":
+				state.session = await Encounter.displayOptions();
+				break;
+
+			case "shop":
+				state.session = await handleShopPhase();
+				break;
+			case "game_over":
+				console.log(">>> Game over phase reached");
+				return;
+			default:
+				console.log("Unknown phase, skipping...", state.session.phase);
+				return;
+
+		}
+
+	}
+}
+
+async function handleShopPhase(): Promise<Types.SessionData> {
+
+	const { session } = state;
+	const shopCardIds = session.current_options.map((o) => o.id);
+	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
+
+	await CharaShop.renderTavernCharas(cardDefs);
+
+	await Shop.SlideIn();
+
+	const result = await new Promise<Types.SessionData>(resolve => {
+		io.scene.events.once("sessionUpdated", ({ session }: {
+			actionId: string,
+			session: Types.SessionData
+		}) => {
+
+			resolve(session);
+		});
+
+	});
+
+	result.team.units.forEach((unit: Unit) => {
+		Chara.refreshChara(unit);
+	});
+
+	await Shop.SlideOut();
+
+	console.log(">>> Unit purchased from shop:", result);
+
+	return result;
+}
 
 
 // update(time: number, delta: number): void {

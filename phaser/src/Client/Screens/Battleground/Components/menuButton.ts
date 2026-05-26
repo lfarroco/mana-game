@@ -3,7 +3,6 @@ import * as c from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "@Core/GameController";
 
 export function create(state: State.State) {
 	const btn = UIButton.createUIButton({
@@ -26,15 +25,13 @@ export function createPanel(_state: State.State) {
 
 	const buttonDefs: [string, () => void][] = [];
 
-	if (GameController.isFeatureEnabled("new_run_button")) {
-		buttonDefs.push([
-			i18n.t("ui.menu.newRun"),
-			() => {
-				State.resetState();
-				//getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
-			},
-		]);
-	}
+	buttonDefs.push([
+		i18n.t("ui.menu.newRun"),
+		() => {
+			State.resetState();
+			//getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
+		},
+	]);
 
 	buttonDefs.push(
 		[

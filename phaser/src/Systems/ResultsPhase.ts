@@ -87,7 +87,7 @@ async function handleVictory(state: State): Promise<void> {
 	const playerId = PhaseManager.getPlayerId();
 	const completionAction = state.session.wins >= WINS_TO_WIN_GAME ? "victory" : "combat_done";
 	await server.handleAction(playerId, completionAction);
-	PhaseManager.startPhase();
+	//PhaseManager.startPhase();
 }
 
 async function handleDefeat(state: State): Promise<void> {
@@ -116,5 +116,5 @@ async function handleDefeat(state: State): Promise<void> {
 	const playerId = PhaseManager.getPlayerId();
 	const server = GameServer.getServer();
 	await server.handleAction(playerId, "combat_done");
-	PhaseManager.startPhase();
+	//PhaseManager.startPhase();
 }

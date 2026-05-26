@@ -34,7 +34,7 @@ const SHAKE_RANGE_X = 20;
 const SHAKE_DURATION_MS = 100;
 const SHAKE_REPEAT_COUNT = 3;
 
-export function getCharaById(id: string): Chara {
+export function mustGetCharaById(id: string): Chara {
 	const c = charaById.get(id);
 	if (!c) throw new Error(`Chara with id ${id} not found`);
 	return c;
@@ -251,7 +251,7 @@ export function shake(chara: Chara) {
 }
 
 export async function upgradeUnit(unit: Unit) {
-	const chara = getCharaById(unit.id);
+	const chara = mustGetCharaById(unit.id);
 
 	upgradeUnitData(unit);
 
@@ -259,9 +259,9 @@ export async function upgradeUnit(unit: Unit) {
 	await summon(unit, true);
 }
 
-export async function refreshUnit(unit: Unit): Promise<void> {
-	if (!hasCharaById(unit.id)) return;
-	const chara = getCharaById(unit.id);
-	destroy(chara);
+// TODO: this should be reworked
+// it should just update power values and ranking, if needed
+export async function refreshChara(unit: Unit): Promise<void> {
+	if (hasCharaById(unit.id)) return;
 	await summon(unit, true);
 }

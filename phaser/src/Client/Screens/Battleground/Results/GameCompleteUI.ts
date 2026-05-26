@@ -108,8 +108,6 @@ export async function displayGameComplete(
 			i18n.t("results.buttons.new_run"),
 			async () => {
 
-				await GameController
-					.notifyGameComplete(completionAction);
 
 				State.resetState();
 				//const currentScene = getCurrentScene();
@@ -120,7 +118,6 @@ export async function displayGameComplete(
 		[
 			i18n.t("results.buttons.main_menu"),
 			async () => {
-				await GameController.notifyGameComplete(completionAction);
 				State.resetState();
 				// const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
@@ -134,8 +131,7 @@ export async function displayGameComplete(
 		wins >= ResultsConfig.INFINITE_MODE_THRESHOLD &&
 		nextPhaseCallback &&
 		!isGameOver &&
-		!Config.IS_DEMO &&
-		GameController.isFeatureEnabled("infinite_mode")
+		!Config.IS_DEMO
 	) {
 		buttonDefinitions.push([
 			i18n.t("results.buttons.infinite_mode"),

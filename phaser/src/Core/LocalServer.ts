@@ -118,7 +118,7 @@ export async function handleAction(
 	playerId: string,
 	actionId: string,
 	payload?: Types.ActionPayload
-): Promise<boolean> {
+): Promise<Types.SessionData> {
 
 	const result = GameLogic.transitionToNextState(
 		state.session,
@@ -127,13 +127,16 @@ export async function handleAction(
 	);
 
 	//eslint-disable-next-line no-console
-	console.log("next state:: ", result)
+	console.log("next state:: ", result);
+
+	io.scene.events.emit("sessionUpdated", {
+		actionId,
+		session: result.session,
+	})
 
 	SessionManager.updateSession(playerId, result.session);
 
-	state.session = result.session;
-
-	return true;
+	return result.session;
 
 }
 

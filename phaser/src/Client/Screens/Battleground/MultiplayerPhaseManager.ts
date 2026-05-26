@@ -1,5 +1,4 @@
 import * as State from "@Models/State";
-import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 import * as Encounter from "@Systems/Encounter";
 import * as BrowserCombatEffects from "Client/Screens/Battleground/BrowserCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
@@ -22,7 +21,6 @@ import * as roundDisplay from "./Components/roundDisplay";
 import * as winsDisplay from "Client/Screens/Battleground/Components/winsDisplay";
 import * as CharaShop from "@Systems/Shop/CharaShop";
 import * as ShopPanel from "@Systems/Shop/ShopPanel";
-import * as GameController from "@Core/GameController";
 import * as EffectCardShop from "@Systems/Shop/EffectCardShop";
 import * as Logger from "@Utils/Logger";
 import * as UIButton from "@Components/UIButton";
@@ -74,8 +72,10 @@ export async function handlePhase() {
 		await Promise.all(
 			state.session.team.units.map(async (u) => {
 				if (Chara.hasCharaById(u.id)) {
-					Chara.refreshUnit(u);
+					console.log(">>> noop", u)
+					//Chara.refreshUnit(u);
 				} else {
+					console.log(">>> summon", u)
 					await Chara.summon(u, true);
 				}
 			})
@@ -88,6 +88,25 @@ export async function handlePhase() {
 	}
 
 	switch (session.phase) {
+		case "encounter":
+			const response = await Encounter.displayOptions();
+			state.session = response;
+			handlePhase();
+			break;
+
+		case "shop":
+			const shopCardIds = session.current_options.map((o: Types.PhaseOption) => o.id);
+			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
+
+			// ShopPanel.create(async () => {
+			// 	await ShopPanel.slideOut();
+			// 	await GameController.skipPhase();
+			// });
+
+			await CharaShop.renderTavernCharas(cardDefs);
+
+			await ShopPanel.SlideIn();
+			break;
 		case "combat":
 			// if (session.combatState) {
 			// 	const shouldRequireReady = isInitialCall && Boolean(context.showReadyOnInitialCombat);
@@ -107,24 +126,7 @@ export async function handlePhase() {
 			// }
 			break;
 
-		case "encounter":
-			await Encounter.displayOptions();
-			console.log("Encounter options displayed");
-			break;
 
-		case "shop":
-			const shopCardIds = session.current_options.map((o: Types.PhaseOption) => o.id);
-			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
-
-			// ShopPanel.create(async () => {
-			// 	await ShopPanel.slideOut();
-			// 	await GameController.skipPhase();
-			// });
-
-			await CharaShop.renderTavernCharas(cardDefs);
-
-			await ShopPanel.slideIn();
-			break;
 
 		case "orb_shop":
 			const orbOptions = session.current_options;
@@ -151,19 +153,19 @@ export async function handlePhase() {
 			break;
 
 		case "upgrade_core":
-			const upgradeIds = session.options.map((o: Types.PhaseOption) => o.id);
+			const upgradeIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// After upgrade completes, notify server and get next phase
-			await transport.sendOptionSelection("upgrade_core_done");
-			await handlePhase(transport, childContext);
+			//await transport.sendOptionSelection("upgrade_core_done");
+			await handlePhase();
 			break;
 
 		case "add_reaction_core":
-			const reactionIds = session.options.map((o: Types.PhaseOption) => o.id);
+			const reactionIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
-			await transport.sendOptionSelection("add_reaction_core_done");
-			await handlePhase(transport, childContext);
+			//await transport.sendOptionSelection("add_reaction_core_done");
+			await handlePhase();
 			break;
 
 		case "victory":
@@ -228,12 +230,12 @@ export async function handlePhase() {
 				if (outcome === "player_lost") {
 					const core = Card.getBattleCore(state)(constants.FORCE_ID_PLAYER);
 					if (core) {
-						await Animations.shatter(Chara.getCharaById(core.id));
+						await Animations.shatter(Chara.mustGetCharaById(core.id));
 					}
 				} else if (outcome === "player_won") {
 					const core = Card.getBattleCore(state)(constants.FORCE_ID_CPU);
 					if (core) {
-						await Animations.shatter(Chara.getCharaById(core.id));
+						await Animations.shatter(Chara.mustGetCharaById(core.id));
 					}
 				}
 

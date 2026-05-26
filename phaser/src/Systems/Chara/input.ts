@@ -215,15 +215,15 @@ const _executeSwap = (unit: Unit.Unit, _occupier: Unit.Unit, target: Vec2, units
 };
 
 const applyMoveVisual = (movedUnit: Unit.Unit) => {
-	const movedChara = Chara.getCharaById(movedUnit.id);
+	const movedChara = Chara.mustGetCharaById(movedUnit.id);
 	const pos = Chara.getScreenPosition(movedUnit);
 
 	animation.tween({ targets: [movedChara], ...pos });
 };
 
 const applySwapVisual = (movedUnit: Unit.Unit, swappedUnit: Unit.Unit) => {
-	const movedChara = Chara.getCharaById(movedUnit.id);
-	const swappedChara = Chara.getCharaById(swappedUnit.id);
+	const movedChara = Chara.mustGetCharaById(movedUnit.id);
+	const swappedChara = Chara.mustGetCharaById(swappedUnit.id);
 	const movedPos = Chara.getScreenPosition(movedUnit);
 	const swappedPos = Chara.getScreenPosition(swappedUnit);
 
@@ -237,7 +237,7 @@ const movementRejected = (
 	dragStartY: number,
 	_reason: string
 ) => {
-	const failedChara = Chara.getCharaById(unitId);
+	const failedChara = Chara.mustGetCharaById(unitId);
 	Tooltip.hideTooltip();
 
 	animation.tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });

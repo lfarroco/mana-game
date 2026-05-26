@@ -1,10 +1,10 @@
 import { tween } from "@Utils/animation";
-import { getCharaById, mustGetState } from "@Systems/Chara/Chara";
+import { mustGetCharaById, mustGetState } from "@Systems/Chara/Chara";
 
 const POP_ANIMATION_DURATION_MS = 300;
 
 export async function pop(id: string) {
-	const chara = getCharaById(id);
+	const chara = mustGetCharaById(id);
 	const s = mustGetState(chara);
 	if (s.isAnimating) return;
 	s.isAnimating = true;

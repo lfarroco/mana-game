@@ -144,7 +144,7 @@ export async function handleAction(
 	_playerId: string,
 	actionId: string,
 	payload?: ActionPayload
-): Promise<boolean> {
+): Promise<SessionData> {
 	const bodyPayload =
 		actionId === "combat_encounter" && (!payload || typeof payload === "object")
 			? {
@@ -153,16 +153,16 @@ export async function handleAction(
 			}
 			: payload;
 
-	const { error } = await supabase.functions.invoke("action", {
+	const response = await supabase.functions.invoke("action", {
 		body: { actionId, payload: bodyPayload },
 	});
 
-	if (error) {
-		logger.error(`Failed to handle action ${actionId}:`, error);
-		return false;
+	if (response.error) {
+		logger.error(`Failed to handle action ${actionId}:`, response.error);
+		throw new Error(`Failed to handle action ${actionId}: ${response.error.message}`);
 	}
 
-	return true;
+	return response.data as SessionData;
 }
 
 /**

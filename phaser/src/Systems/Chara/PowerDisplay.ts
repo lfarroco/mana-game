@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
-import { Chara, getCharaById, getUnit } from "@Systems/Chara/Chara";
+import { Chara, mustGetCharaById, getUnit } from "@Systems/Chara/Chara";
 import { createChip, updateChipText } from "@Components/Chip";
 import { vec2 } from "@Models/Geometry";
 import { compactNumber } from "@utils";
@@ -27,7 +27,7 @@ export function create(unit: Unit, container: Chara) {
 }
 
 export function updatePowerDisplay(id: string) {
-	const chara = getCharaById(id);
+	const chara = mustGetCharaById(id);
 	const charaUnit = getUnit(chara);
 	const boardUnit = state.battleData.units.find((unit) => unit.id === id);
 	const sessionUnit = state.session.team.units.find((unit) => unit.id === id);

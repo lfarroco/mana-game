@@ -19,7 +19,7 @@ import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { arcaneMissileTargeted } from "@Effects/index";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
-import { getCharaById, hasCharaById } from "@Systems/Chara/Chara";
+import { mustGetCharaById, hasCharaById } from "@Systems/Chara/Chara";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
@@ -68,7 +68,7 @@ const playPowerTransferEffect = (
 		return;
 	}
 
-	arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+	arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 		colors,
 		amplitudeMin: 5,
 		amplitudeMax: 15,

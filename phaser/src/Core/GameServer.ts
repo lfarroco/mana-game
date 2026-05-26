@@ -17,7 +17,7 @@ export type GameServer = {
 	// TODO: same as above
 	getPhaseOptions(playerId: string): Promise<PhaseOptions>;
 
-	handleAction(playerId: string, actionId: string, payload?: ActionPayload): Promise<boolean>;
+	handleAction(playerId: string, actionId: string, payload?: ActionPayload): Promise<SessionData>;
 }
 
 

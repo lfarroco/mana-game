@@ -7,6 +7,7 @@ import * as State from "@Models/State";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
 import * as encounterFocusModel from "@Systems/Controls/encounterFocusModel";
+import { SessionData } from "@Core/Types";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
@@ -343,113 +344,114 @@ function improveType(pic: string, type: string): EncounterItem {
 }
 
 export async function displayOptions() {
+	return new Promise<SessionData>((resolve) => {
 
-	const container = io.Container();
-	io.OnceDestroyed(container, clearEncounterFocus);
+		const container = io.Container();
+		io.OnceDestroyed(container, clearEncounterFocus);
 
-	isEncounterSelectionInProgress = false;
-	clearEncounterFocus();
+		isEncounterSelectionInProgress = false;
+		clearEncounterFocus();
 
-	let encounters: EncounterItem[] = [];
+		let encounters: EncounterItem[] = [];
 
-	const all = getEncounterItems(state, container);
-	encounters = state.session.current_options
-		.reduce((acc, option) => {
-			const encounter = all.find((e) => e.id === option.id);
-			if (encounter) {
-				return acc.concat([encounter]);
-			}
-			return acc;
-		}, [] as EncounterItem[]);
+		const all = getEncounterItems(state, container);
+		encounters = state.session.current_options
+			.reduce((acc, option) => {
+				const encounter = all.find((e) => e.id === option.id);
+				if (encounter) {
+					return acc.concat([encounter]);
+				}
+				return acc;
+			}, [] as EncounterItem[]);
 
-	encounters.forEach((e) => {
-		e.onClick = async () => {
-			if (isEncounterSelectionInProgress) {
-				return;
-			}
+		encounters.forEach((e) => {
+			e.onClick = async () => {
+				if (isEncounterSelectionInProgress) {
+					return;
+				}
 
-			isEncounterSelectionInProgress = true;
+				isEncounterSelectionInProgress = true;
+				container.destroy(true);
+
+				const response = await GameController.selectEncounter(e.id);
+				console.log("Encounter selection result:", response);
+
+				resolve(response);
+
+			};
+		});
+
+		currentEncounters = encounters;
+
+		const nextRoundCallback = async () => {
+			clearEncounterFocus();
 			container.destroy(true);
 
-			const success = await GameController.selectEncounter(e.id);
-			console.log("Encounter selection result:", success);
-			if (success) {
-				return;
+			// Use GameController to properly skip encounter phase
+			await GameController.skipPhase();
+		};
+
+		encounters.forEach(async (encounter, index) => {
+			const width = ENCOUNTER_CARD_WIDTH;
+			const height = ENCOUNTER_CARD_HEIGHT;
+			const spacing = ENCOUNTER_CARD_SPACING;
+
+			const x = constants.SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
+			let y = ENCOUNTER_CARD_BASE_Y + index * spacing;
+
+			if (encounters.length === 1) {
+				y = constants.SCREEN_HEIGHT / 2;
 			}
 
-			isEncounterSelectionInProgress = false;
-		};
-	});
+			const card = EncounterCard.createEncounterCard(container, {
+				x: x + width + 200,
+				y,
+				width,
+				height,
+				name: encounter.name,
+				pic: encounter.pic,
+				description: encounter.description,
+				onClick: async () => {
+					if (encounter.id) {
+						state.session.encounter_history = state.session.encounter_history || [];
+						state.session.encounter_history.push(encounter.id);
+						if (state.session.encounter_history.length > 3) {
+							state.session.encounter_history.shift();
+						}
+					}
+					await encounter.onClick();
+				},
+			});
 
-	currentEncounters = encounters;
+			registerEncounterFocusTarget({
+				setFocused: card.setFocused,
+				activate: card.activate,
+			});
 
-	const nextRoundCallback = async () => {
-		clearEncounterFocus();
-		container.destroy(true);
+			await io.Delay(100 * index)
+			io.Tween({
+				targets: card.container,
+				x,
+				duration: 300,
+				ease: "Power2",
+			});
+		});
 
-		// Use GameController to properly skip encounter phase
-		await GameController.skipPhase();
-	};
+		initializeEncounterFocusTargets();
 
-	encounters.forEach(async (encounter, index) => {
-		const width = ENCOUNTER_CARD_WIDTH;
-		const height = ENCOUNTER_CARD_HEIGHT;
-		const spacing = ENCOUNTER_CARD_SPACING;
+		// Only show skip button if:
+		// 1. Not showing combat_encounter (pre-combat phase)
+		const isCombatEncounter = encounters[0].id === "combat_encounter";
+		if (!isCombatEncounter) {
+			const btn = UIButton.createUIButton({
+				text: i18n.t("encounters.skip"),
+				position: Geometry.vec2(constants.SCREEN_WIDTH - 260, constants.SCREEN_HEIGHT - 50),
+				callback: nextRoundCallback,
+			});
 
-		const x = constants.SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
-		let y = ENCOUNTER_CARD_BASE_Y + index * spacing;
-
-		if (encounters.length === 1) {
-			y = constants.SCREEN_HEIGHT / 2;
+			container.add(btn.container);
 		}
 
-		const card = EncounterCard.createEncounterCard(container, {
-			x: x + width + 200,
-			y,
-			width,
-			height,
-			name: encounter.name,
-			pic: encounter.pic,
-			description: encounter.description,
-			onClick: async () => {
-				if (encounter.id) {
-					state.session.encounter_history = state.session.encounter_history || [];
-					state.session.encounter_history.push(encounter.id);
-					if (state.session.encounter_history.length > 3) {
-						state.session.encounter_history.shift();
-					}
-				}
-				await encounter.onClick();
-			},
-		});
-
-		registerEncounterFocusTarget({
-			setFocused: card.setFocused,
-			activate: card.activate,
-		});
-
-		await io.Delay(100 * index)
-		io.Tween({
-			targets: card.container,
-			x,
-			duration: 300,
-			ease: "Power2",
-		});
 	});
-
-	initializeEncounterFocusTargets();
-
-	// Only show skip button if:
-	// 1. Not showing combat_encounter (pre-combat phase)
-	const isCombatEncounter = encounters[0].id === "combat_encounter";
-	if (!isCombatEncounter) {
-		const btn = UIButton.createUIButton({
-			text: i18n.t("encounters.skip"),
-			position: Geometry.vec2(constants.SCREEN_WIDTH - 260, constants.SCREEN_HEIGHT - 50),
-			callback: nextRoundCallback,
-		});
-
-		container.add(btn.container);
-	}
 
 }

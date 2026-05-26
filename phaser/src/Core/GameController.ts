@@ -3,28 +3,21 @@ import * as Types from "@Core/Types";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
-import * as ShopPanel from "@Systems/Shop/ShopPanel";
 
 export async function purchaseUnit(
 	cardId: string,
 	_targetSlot?: number
-): Promise<boolean> {
+): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 	const success = await server.handleAction(
 		state.session.player_id,
 		cardId,
 	);
 
-	if (success) {
-
-		await ShopPanel.slideOut();
-		await PhaseManager.startPhase();
-	}
-
 	return success;
 }
 
-export async function sellUnit(unitId: string): Promise<boolean> {
+export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 	return await server.handleAction(
 		state.session.player_id,
@@ -33,7 +26,7 @@ export async function sellUnit(unitId: string): Promise<boolean> {
 	);
 }
 
-export async function skipPhase(): Promise<boolean> {
+export async function skipPhase(): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 
 	// Determine the appropriate skip action based on current phase
@@ -62,23 +55,17 @@ export async function skipPhase(): Promise<boolean> {
 	return success;
 }
 
-export async function selectEncounter(encounterId: string): Promise<boolean> {
+export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
-	const success = await server.handleAction(
+	const response = await server.handleAction(
 		state.session.player_id, // TODO: remove arg
 		encounterId,
 	);
 
-	console.log(">>>", success)
-
-	if (success) {
-		await PhaseManager.startPhase();
-	}
-
-	return success;
+	return response;
 }
 
-export async function handleAction(actionId: string, payload?: Types.ActionPayload): Promise<boolean> {
+export async function handleAction(actionId: string, payload?: Types.ActionPayload): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 	const inUpgradePhase = state.session.phase === "upgrade_core";
 	const inReactionPhase = state.session.phase === "add_reaction_core";
@@ -110,7 +97,7 @@ export async function handleAction(actionId: string, payload?: Types.ActionPaylo
 
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
-): Promise<boolean> {
+): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
 	return await server.handleAction(
 		state.session.player_id,
@@ -119,16 +106,7 @@ export async function updateTeam(
 	);
 }
 
-export async function notifyGameComplete(_actionId: string): Promise<boolean> {
-	// In single-player, no server notification is needed for game completion
-	// Just return true to allow the UI to proceed
-	return true;
-}
 
-export function isFeatureEnabled(_feature: GameController.GameFeature): boolean {
-	// In single-player mode, all features are enabled
-	return true;
-}
 
 /**
  * Features that can be enabled/disabled based on game mode.

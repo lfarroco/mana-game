@@ -6,7 +6,7 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import { getBattleCore } from "@Models/Entities/Card";
 import { delay } from "@Utils/animation";
-import { getCharaById } from "@Systems/Chara/Chara";
+import { mustGetCharaById } from "@Systems/Chara/Chara";
 import { resetUnitStats } from "@Models/Entities/Unit";
 
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
@@ -53,12 +53,12 @@ export const createBrowserCombatEffects = (
 			if (outcome === "player_lost") {
 				const core = getBattleCore(state)(FORCE_ID_PLAYER);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					await Animations.shatter(mustGetCharaById(core.id));
 				}
 			} else if (outcome === "player_won") {
 				const core = getBattleCore(state)(FORCE_ID_CPU);
 				if (core) {
-					await Animations.shatter(getCharaById(core.id));
+					await Animations.shatter(mustGetCharaById(core.id));
 				}
 			}
 
@@ -151,35 +151,35 @@ export const createBrowserCombatEffects = (
 		},
 
 		onReactionVisual: async (unitId: string) => {
-			const chara = getCharaById(unitId);
+			const chara = mustGetCharaById(unitId);
 			summonEffect(chara);
 		},
 
 		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect("sfx_spell_truestrike");
-			damageFx(getCharaById(sourceId), getCharaById(targetId), () => {
+			damageFx(mustGetCharaById(sourceId), mustGetCharaById(targetId), () => {
 				onHit();
-				shake(getCharaById(targetId));
+				shake(mustGetCharaById(targetId));
 			});
 		},
 
 		onHeal: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			healFx(getCharaById(sourceId), getCharaById(targetId), onHit);
+			healFx(mustGetCharaById(sourceId), mustGetCharaById(targetId), onHit);
 		},
 
 		onShield: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect("sfx_spell_manavortex");
-			shieldFx(getCharaById(sourceId), getCharaById(targetId), onHit);
+			shieldFx(mustGetCharaById(sourceId), mustGetCharaById(targetId), onHit);
 		},
 
 		onPoison: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			poisonFx(getCharaById(sourceId), getCharaById(targetId), onHit);
+			poisonFx(mustGetCharaById(sourceId), mustGetCharaById(targetId), onHit);
 		},
 
 		onRegen: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			playSoundEffect("sfx_spell_tranquility");
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -198,14 +198,14 @@ export const createBrowserCombatEffects = (
 		onHaste: (sourceId: string, targetId: string, _duration: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				hasteEffect(getCharaById(targetId), {
+				hasteEffect(mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0x00eaff,
 				});
 			};
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0x00ffff, 0x87ceeb, 0xadd8e6],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -224,14 +224,14 @@ export const createBrowserCombatEffects = (
 		onSlow: (sourceId: string, targetId: string, _duration: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				slowEffect(getCharaById(targetId), {
+				slowEffect(mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0xd2691e,
 				});
 			};
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0x6e260e, 0x7b3f00, 0x6f4e37],
 				amplitudeMin: 5,
 				amplitudeMax: 20,
@@ -251,14 +251,14 @@ export const createBrowserCombatEffects = (
 		onCharge: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				hasteEffect(getCharaById(targetId), {
+				hasteEffect(mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0xffd700,
 				});
 			};
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0xffd700, 0xffa500, 0xff8c00],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -291,7 +291,7 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0xffa500, 0xff8c00, 0xff4500],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -326,7 +326,7 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0x8a2be2, 0x9400d3, 0x9932cc],
 				impact: {
 					colors: [0x8a2be2, 0x9400d3],
@@ -349,7 +349,7 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			arcaneMissileTargeted(getCharaById(sourceId), getCharaById(targetId), {
+			arcaneMissileTargeted(mustGetCharaById(sourceId), mustGetCharaById(targetId), {
 				colors: [0xffa500, 0xff8c00, 0xff4500],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -380,7 +380,7 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			const core = getCharaById(target.id);
+			const core = mustGetCharaById(target.id);
 			const colors = [0x000000];
 
 			playSoundEffect("sfx_voidhunter_attack_impact");

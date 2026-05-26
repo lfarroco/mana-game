@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
 import { getUnitAt } from "@Models/State";
-import { getCharaById } from "@Systems/Chara/Chara";
+import { mustGetCharaById } from "@Systems/Chara/Chara";
 import * as uiEvents from "@UI/events";
 import * as charaEvents from "@Systems/Chara/events";
 import * as GameController from "@Core/GameController";
@@ -15,7 +15,7 @@ export async function itemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ) {
-	const shopChara = getCharaById(shopCharaId);
+	const shopChara = mustGetCharaById(shopCharaId);
 
 	const existingUnit = state.session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
