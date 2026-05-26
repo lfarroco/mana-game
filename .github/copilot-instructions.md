@@ -84,7 +84,6 @@ Defined in `tsconfig.json` and webpack config. Key aliases:
 | `@Systems/*` | `src/Systems/*` |
 | `@TriggerSystem/*` | `src/TriggerSystem/*` |
 | `@Utils/*` | `src/Utils/*` |
-| `@UI/*` | `src/UI/*` |
 | `@Data/*` | `src/Data/*` |
 | `@i18n/*` | `src/i18n/*` |
 

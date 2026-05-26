@@ -130,7 +130,7 @@ export function initializeForceStatsState(): ForceStatsState {
 Before committing changes to Core, Models, or TriggerSystem:
 
 - [ ] No `import` of non-type Phaser symbols (use `import type` instead)
-- [ ] No imports from `@Engine/Scenes/`, `@Systems/`, `@Effects/`, or `@UI/`
+- [ ] No imports from `@Engine/Scenes/`, `@Systems/`, `@Effects/`
 - [ ] No Phaser constructor calls (e.g., `new Phaser.Scene()`, `new Phaser.Vector2()`)
 - [ ] No Phaser static method calls (e.g., `Phaser.VERSION`, `Phaser.BlendModes.ADD`)
 - [ ] No calls to browser-only APIs (`fetch`, `localStorage` direct access, `setTimeout` with async behavior)

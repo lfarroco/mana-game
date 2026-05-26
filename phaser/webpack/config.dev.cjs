@@ -29,7 +29,6 @@ module.exports = {
             "@Models": path.resolve(__dirname, "../src/Models"),
             "@Screens": path.resolve(__dirname, "../src/Client/Screens"),
             "@Systems": path.resolve(__dirname, "../src/Systems"),
-            "@UI": path.resolve(__dirname, "../src/UI"),
             "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
             "@Constants": path.resolve(__dirname, "../src/Constants"),
             "@Utils": path.resolve(__dirname, "../src/Utils"),

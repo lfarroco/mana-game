@@ -43,9 +43,6 @@
 			"@Screens/*": [
 				"../phaser/src/Engine/Scenes/*"
 			],
-			"@UI/*": [
-				"../phaser/src/UI/*"
-			],
 			"@Constants/*": [
 				"../phaser/src/Constants/*"
 			],

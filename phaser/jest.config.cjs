@@ -25,8 +25,6 @@ module.exports = {
 		"^@Screens/(.*)$": "<rootDir>/src/Client/Screens/$1",
 		"^@Systems/(.*)\\.js$": "<rootDir>/src/Systems/$1",
 		"^@Systems/(.*)$": "<rootDir>/src/Systems/$1",
-		"^@UI/(.*)\\.js$": "<rootDir>/src/UI/$1",
-		"^@UI/(.*)$": "<rootDir>/src/UI/$1",
 		"^@Utils/(.*)\\.js$": "<rootDir>/src/Utils/$1",
 		"^@Utils/(.*)$": "<rootDir>/src/Utils/$1",
 		"^@Constants/(.*)\\.js$": "<rootDir>/src/Constants/$1",
