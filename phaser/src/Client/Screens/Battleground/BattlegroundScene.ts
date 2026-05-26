@@ -14,16 +14,11 @@ import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as playerNamesDisplay from "Client/Screens/Battleground/Components/playerNamesDisplay";
 import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
-import * as io from "@PhaserIO";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Shop from "@Systems/Shop/ShopPanel";
 import * as Encounter from "@Systems/Encounter";
-import * as Types from "@Core/Types";
-import * as GameController from "@Core/GameController";
-import * as Card from "@Models/Entities/Card";
-import * as CharaShop from "@Systems/Shop/CharaShop";
-import { Unit } from "@Models/Entities/Unit";
+import { handleShopPhase } from "./Shop/handleShopPhase";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -34,35 +29,17 @@ export const createBattlegroundScreen = async () => {
 
 	io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
 
-	start();
-};
-
-const start = async () => {
-	// TODO: the start for this scene should be just:
-	// - render boards
-	// - render untis
-	// - display current phase
-
 	new CloudsBackground.CloudsBackground({
 		preset: "forest",
 		depth: -2000,
 		timeScale: 0.3,
 	});
 
-	// from here, check state to figure out what to render
-	//if (state.session.phase === ...
-
 	Board.init();
 
 	ControlsSystem.init({ context: "battleground" });
 
 	Tooltip.init();
-
-	// Only summon units if there are no characters and we're not in combat phase
-	// Combat phase handles its own summoning in transitionToCombatPhase
-	// if (charas.length === 0 && state.session.phase !== "combat") {
-	// 	await PhaseManager.resetBoard();
-	//}
 
 	let forceStatsState = ForceStats.initializeForceStatsState();
 	forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
@@ -103,18 +80,14 @@ const start = async () => {
 
 	Board.setIsInputEnabled(true);
 
-	// ~~~~~ // ~~~~~
+	// ~~~~~ // ~~~~~ //
 
-	//PhaseManager.startPhase();
 	await runPhaseLoop();
-	console.log(">>> Exited phase loop");
 
 };
 
 async function runPhaseLoop() {
 	while (true) {
-
-		console.log(">>> Starting phase loop iteration, current phase:", state.session.phase);
 
 		switch (state.session.phase) {
 			case "encounter":
@@ -125,10 +98,9 @@ async function runPhaseLoop() {
 				state.session = await handleShopPhase();
 				break;
 			case "game_over":
-				console.log(">>> Game over phase reached");
 				return;
 			default:
-				console.log("Unknown phase, skipping...", state.session.phase);
+				throw new Error(`Unknown phase: ${state.session.phase}`);
 				return;
 
 		}
@@ -136,57 +108,4 @@ async function runPhaseLoop() {
 	}
 }
 
-async function handleShopPhase(): Promise<Types.SessionData> {
 
-	const { session } = state;
-	const shopCardIds = session.current_options.map((o) => o.id);
-	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
-
-	Shop.refresh(async () => {
-		await GameController.skipPhase();
-	});
-
-	console.log(">>> Entering shop phase, shop options:", cardDefs.map(c => c.id));
-	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);
-	console.log(">>> Rendered tavern charas:", tavernCharas.map((c) => Chara.getId(c)));
-
-	console.log(">>> Awaiting shop interactions...");
-
-	await Shop.SlideIn();
-
-	console.log(">>> finished sliding in shop, enabling interactions...");
-
-	const interactionResult = await CharaShop.enableShopInteractions(tavernCharas);
-	const result = interactionResult.session;
-
-	if (interactionResult.kind === "purchased") {
-		const purchasedUnit = result.team.units.find(
-			(unit: Unit) =>
-				unit.cardId === interactionResult.shopUnit.cardId && !Chara.hasCharaById(unit.id)
-		);
-
-		if (purchasedUnit) {
-			await Chara.refreshChara(purchasedUnit);
-		}
-	}
-
-	await Shop.SlideOut();
-	Shop.refresh(null);
-
-	return result;
-}
-
-
-// update(time: number, delta: number): void {
-
-// 	//TODO: the board and combatrunner can plug themselves into the scene update via events 
-// 	//and remove themselves when not needed, instead of always updating every frame like this
-// 	Board.update(time);
-
-// 	if(this.combatRunner && this.combatRunner.isActive()) {
-// 	this.combatRunner.updateFrame(State.getState(), time, delta);
-// }
-// 	}
-// }
-
-//export default BattlegroundScene;
