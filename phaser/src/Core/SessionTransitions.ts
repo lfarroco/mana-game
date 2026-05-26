@@ -30,24 +30,7 @@ type TransitionResult = {
 type ActionTransitionHandler = (session: SessionData, actionId: string) => TransitionResult;
 
 function getCurrentPhaseOptions(session: SessionData): PhaseOption[] {
-	const optionsState = session.current_options as unknown;
-	if (!optionsState) {
-		return [];
-	}
-
-	if (Array.isArray(optionsState)) {
-		return optionsState as PhaseOption[];
-	}
-
-	if (
-		typeof optionsState === "object" &&
-		"options" in optionsState &&
-		Array.isArray((optionsState as { options?: unknown }).options)
-	) {
-		return (optionsState as { options: PhaseOption[] }).options;
-	}
-
-	return [];
+	return session.current_options;
 }
 
 function transitionToNextEncounterStep(session: SessionData): TransitionResult {
@@ -278,7 +261,7 @@ export function transitionToNextState(
 	actionId: string,
 	payload?: ActionPayload,
 	options?: TransitionToNextStateOptions
-): { session: SessionData; combatResult?: { won: boolean } } {
+): { session: SessionData; combatResult?: { won: boolean }; combatState?: CombatState } {
 	const nextSession: SessionData = JSON.parse(JSON.stringify(session)); // Deep copy
 	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
 
@@ -323,13 +306,19 @@ export function transitionToNextState(
 
 	// Handle combat execution (side effect)
 	let combatResult = undefined;
+	let combatState: CombatState | undefined = undefined;
 
 	if (nextSession.phase === "combat") {
-		combatResult = executeCombatPhase(nextSession, options);
+		const combatOutcome = executeCombatPhase(nextSession, options);
+		combatResult = combatOutcome.combatResult;
+		combatState = combatOutcome.combatState;
+		nextSession.combatState = combatState;
+	} else {
+		nextSession.combatState = undefined;
 	}
 
 	nextSession.updated_at = new Date();
-	return { session: nextSession, combatResult };
+	return { session: nextSession, combatResult, combatState };
 }
 
 /**
@@ -338,22 +327,19 @@ export function transitionToNextState(
 function executeCombatPhase(
 	session: SessionData,
 	options?: TransitionToNextStateOptions
-): { won: boolean } {
+): { combatResult: { won: boolean }; combatState: CombatState } {
 	const enemyTeam = options?.combatEnemyTeam
 		? JSON.parse(JSON.stringify(options.combatEnemyTeam))
 		: generateEnemyTeamForRound(session.round, session.wins, session.seed);
 
 	const combatSession: SessionData = {
 		...session,
-		current_options: {
-			options: [],
-			combatState: {
-				enemyTeam,
-				logs: [],
-				seed: session.seed,
-				units: session.team.units,
-			},
-		} as unknown as SessionData["current_options"],
+		combatState: {
+			enemyTeam,
+			logs: [],
+			seed: session.seed,
+			units: session.team.units,
+		},
 	};
 
 	const simResult = simulateCombat(combatSession);
@@ -378,12 +364,10 @@ function executeCombatPhase(
 	};
 
 	const continueOptions: PhaseOption[] = [{ id: "combat_done", label: "Continue" }];
-	session.current_options = {
-		options: continueOptions,
-		combatState,
-	} as unknown as SessionData["current_options"];
+	session.current_options = continueOptions;
+	session.combatState = combatState;
 
-	return { won: wonCombat };
+	return { combatResult: { won: wonCombat }, combatState };
 }
 
 /**

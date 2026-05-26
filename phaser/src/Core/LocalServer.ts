@@ -78,18 +78,8 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 			break;
 
 		case "combat":
-			// Combat state should already be in session.current_options from transitionToNextState
-			{
-				// const combatState = getCurrentCombatState(session);
-				// if (!combatState) {
-				// 	break;
-				// }
-				// response.combatState = cloneValue({
-				// 	...combatState,
-				// 	units: combatState.initialUnits || combatState.units || [],
-				// 	initialUnits: combatState.initialUnits || combatState.units || [],
-				// });
-				// response.options = [{ id: "combat_done", label: "Continue" }];
+			if (state.combatState || session.combatState) {
+				response.combatState = cloneValue(state.combatState ?? session.combatState);
 			}
 			break;
 
@@ -125,6 +115,8 @@ export async function handleAction(
 		actionId,
 		payload,
 	);
+	state.session = result.session;
+	state.combatState = result.combatState ?? result.session.combatState ?? null;
 
 	//eslint-disable-next-line no-console
 	console.log("next state:: ", result);

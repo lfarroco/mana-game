@@ -15,11 +15,11 @@ import { FORCE_ID_PLAYER } from "@Core/Combat/CombatConstants";
  * Determine the recruit rank encoded in the current shop option.
  */
 function getShopRecruitRank(session: SessionData, cardId: string): number {
-	if (session.phase !== "shop" || !session.current_options || Array.isArray(session.current_options)) {
+	if (session.phase !== "shop" || !session.current_options) {
 		return 1;
 	}
 
-	const selectedOption = session.current_options.options.find(
+	const selectedOption = session.current_options.find(
 		(option): option is PhaseOption & { recruitRank?: number } => option.id === cardId
 	);
 

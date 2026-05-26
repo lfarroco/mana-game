@@ -31,7 +31,7 @@ const cloneValue = <T>(value: T): T => {
  * Build a complete combat state from a session.
  * Includes player units, enemy units, board grid, and forces.
  */
-export function createCombatState(session: SessionData): State {
+export function createCombatState(session: SessionData, enemyTeam?: Unit[]): State {
 	let playerUnits: Unit[] = [];
 	if (session.team && session.team.units) {
 		playerUnits = JSON.parse(JSON.stringify(session.team.units));
@@ -55,13 +55,11 @@ export function createCombatState(session: SessionData): State {
 
 	// Retrieve or generate enemy team
 	let enemyUnits: Unit[] = [];
-	if (
-		session.current_options &&
-		typeof session.current_options === "object" &&
-		"combatState" in session.current_options &&
-		session.current_options.combatState?.enemyTeam
-	) {
-		enemyUnits = JSON.parse(JSON.stringify(session.current_options.combatState.enemyTeam));
+	if (enemyTeam) {
+		enemyUnits = JSON.parse(JSON.stringify(enemyTeam));
+		enemyUnits.forEach(resetUnitStats);
+	} else if (session.combatState?.enemyTeam) {
+		enemyUnits = JSON.parse(JSON.stringify(session.combatState.enemyTeam));
 		enemyUnits.forEach(resetUnitStats);
 	} else {
 		const allCards = Card.getNonCores();
@@ -101,7 +99,7 @@ export function simulateCombat(session: SessionData): {
 	initialUnits: Unit[];
 	logs: CombatLogEntry[];
 } {
-	const combatState = createCombatState(session);
+	const combatState = createCombatState(session, session.combatState?.enemyTeam);
 
 	const seedVal = stringToSeed(session.initial_seed);
 	Random.setSeed(seedVal);

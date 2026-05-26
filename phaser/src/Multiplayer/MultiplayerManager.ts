@@ -147,24 +147,9 @@ const cloneSession = (session: SessionData): SessionData =>
 	JSON.parse(JSON.stringify(session)) as SessionData;
 
 const getCurrentOptionIds = (session: SessionData): string[] => {
-	const rawOptions = session.current_options;
-	if (!rawOptions) {
-		return [];
-	}
-
-	if (Array.isArray(rawOptions)) {
-		return rawOptions
-			.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
-			.filter((id): id is string => Boolean(id));
-	}
-
-	if (typeof rawOptions === "object" && Array.isArray(rawOptions.options)) {
-		return rawOptions.options
-			.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
-			.filter((id): id is string => Boolean(id));
-	}
-
-	return [];
+	return session.current_options
+		.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
+		.filter((id): id is string => Boolean(id));
 };
 
 const normalizeDeferredSession = (session: SessionData): SessionData => {
@@ -187,22 +172,16 @@ const normalizeDeferredSession = (session: SessionData): SessionData => {
 };
 
 const getOptionsList = (session: SessionData): unknown[] => {
-	const rawOptions = session.current_options;
-	if (!rawOptions) {
-		return [];
-	}
-
-	if (Array.isArray(rawOptions)) {
-		return rawOptions;
-	}
-
-	return rawOptions.options || [];
+	return session.current_options;
 };
 
 const getCombatState = (session: SessionData): PhaseOptions["combatState"] => {
-	const rawOptions = session.current_options;
-	if (rawOptions && !Array.isArray(rawOptions) && rawOptions.combatState) {
-		return rawOptions.combatState;
+	if (state.combatState) {
+		return state.combatState;
+	}
+
+	if (session.combatState) {
+		return session.combatState;
 	}
 	return undefined;
 };
@@ -642,23 +621,20 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 
 	let combatState: PhaseOptions["combatState"] = undefined;
 	if (session.phase === "combat") {
-		const optionsCombatState = (session.current_options as Record<string, unknown>)?.combatState as
-			| Record<string, unknown>
-			| undefined;
-		if (optionsCombatState && Array.isArray(optionsCombatState.logs)) {
+		if (session.combatState && Array.isArray(session.combatState.logs)) {
 			logger.debug("Using server-provided combat logs");
 			combatState = {
-				units: Array.isArray(optionsCombatState.initialUnits)
-					? (optionsCombatState.initialUnits as Unit[])
+				units: Array.isArray(session.combatState.initialUnits)
+					? (session.combatState.initialUnits as Unit[])
 					: [],
-				enemyTeam: Array.isArray(optionsCombatState.enemyTeam)
-					? (optionsCombatState.enemyTeam as Unit[])
+				enemyTeam: Array.isArray(session.combatState.enemyTeam)
+					? (session.combatState.enemyTeam as Unit[])
 					: [],
-				logs: optionsCombatState.logs as CombatLogEntry[],
+				logs: session.combatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
-					typeof optionsCombatState.enemyPlayerName === "string"
-						? optionsCombatState.enemyPlayerName
+					typeof session.combatState.enemyPlayerName === "string"
+						? session.combatState.enemyPlayerName
 						: undefined,
 			};
 		} else {

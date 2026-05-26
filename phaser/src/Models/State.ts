@@ -1,13 +1,14 @@
+import { CombatState, SessionData } from "@Core/Types";
 import { Force } from "@Models/Entities/Force";
 import { eqVec2 } from "@Models/ServerGeometry";
 import { Unit } from "@Models/Entities/Unit";
 import { setSeed } from "@Utils/Random";
-import { SessionData } from "@Core/Types";
 import { stringToSeed } from "@Core/Seeding";
 
 export type State = {
 	savedGames: string[];
 	session: SessionData;
+	combatState: CombatState | null;
 	battleData: {
 		forces: Force[];
 		grid: number[][];
@@ -29,6 +30,7 @@ const initialState = (): State => {
 			seed: initialSeed,
 			initial_seed: initialSeed,
 			current_options: [],
+			combatState: null,
 			team: { units: [] },
 			wins: 0,
 			losses: 0,

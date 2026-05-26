@@ -1,6 +1,8 @@
 import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
 import { Unit } from "@Models/Entities/Unit";
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
+import { FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
+import * as GameLogic from "@Core/GameLogic";
 import { supabase } from "@lib/supabase";
 import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
 import { createLogger } from "@Utils/Logger";
@@ -94,40 +96,47 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 
 	let combatState: CombatState | undefined = undefined;
 	if (session.phase === "combat") {
-		const optionsCombatState = (session.current_options as Record<string, unknown>)
-			?.combatState as Record<string, unknown> | undefined;
-		if (optionsCombatState && Array.isArray(optionsCombatState.logs)) {
+		if (session.combatState && Array.isArray(session.combatState.logs)) {
 			logger.debug("Using server-provided combat logs");
-			const enemyTeam = Array.isArray(optionsCombatState.enemyTeam)
-				? (optionsCombatState.enemyTeam as Unit[])
+			const enemyTeam = Array.isArray(session.combatState.enemyTeam)
+				? (session.combatState.enemyTeam as Unit[])
 				: [];
-			const units = Array.isArray(optionsCombatState.initialUnits)
-				? (optionsCombatState.initialUnits as Unit[])
+			const units = Array.isArray(session.combatState.initialUnits)
+				? (session.combatState.initialUnits as Unit[])
 				: [];
-			const finalPlayerUnits = Array.isArray(optionsCombatState.finalPlayerUnits)
-				? (optionsCombatState.finalPlayerUnits as Unit[])
+			const finalPlayerUnits = Array.isArray(session.combatState.finalPlayerUnits)
+				? (session.combatState.finalPlayerUnits as Unit[])
 				: undefined;
 			const wonCombat =
-				typeof optionsCombatState.wonCombat === "boolean"
-					? optionsCombatState.wonCombat
+				typeof session.combatState.wonCombat === "boolean"
+					? session.combatState.wonCombat
 					: undefined;
 			combatState = {
 				units,
 				enemyTeam,
-				logs: optionsCombatState.logs as CombatLogEntry[],
+				logs: session.combatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
-					typeof optionsCombatState.enemyPlayerName === "string"
-						? optionsCombatState.enemyPlayerName
+					typeof session.combatState.enemyPlayerName === "string"
+						? session.combatState.enemyPlayerName
 						: undefined,
 				wonCombat,
 				finalPlayerUnits,
 				initialUnits: units,
 			};
+		} else {
+			logger.warn("Combat logs missing from session; simulating locally");
+			const simResult = GameLogic.simulateCombat(session as unknown as SessionData);
+			combatState = {
+				units: simResult.initialUnits,
+				enemyTeam: simResult.initialUnits.filter((u: Unit) => u.force === FORCE_ID_CPU),
+				logs: simResult.logs,
+				seed: session.seed,
+			};
 		}
 	}
 
-	const optionsList = session.current_options?.options || [];
+	const optionsList = session.current_options || [];
 
 	return {
 		phase: session.phase as PhaseType,
@@ -162,6 +171,8 @@ export async function handleAction(
 		throw new Error(`Failed to handle action ${actionId}: ${response.error.message}`);
 	}
 
+	state.session = response.data as SessionData;
+	state.combatState = state.session.combatState ?? null;
 	return response.data as SessionData;
 }
 
