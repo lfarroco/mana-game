@@ -78,8 +78,8 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 			break;
 
 		case "combat":
-			if (state.combatState || session.combatState) {
-				response.combatState = cloneValue(state.combatState ?? session.combatState);
+			if (state.combatState) {
+				response.combatState = cloneValue(state.combatState);
 			}
 			break;
 
@@ -116,7 +116,7 @@ export async function handleAction(
 		payload,
 	);
 	state.session = result.session;
-	state.combatState = result.combatState ?? result.session.combatState ?? null;
+	state.combatState = result.combatState ?? null;
 
 	//eslint-disable-next-line no-console
 	console.log("next state:: ", result);

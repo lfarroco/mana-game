@@ -4,7 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import * as GameLogic from "@Core/GameLogic";
-import type { SessionData, ActionPayload } from "@Core/Types";
+import type { SessionData, ActionPayload, CombatState } from "@Core/Types";
 import type { TransitionToNextStateOptions } from "@Core/GameLogic";
 import { RunActionQueue } from "@Core/RunActionQueue";
 import { submitRunManifest } from "@Core/DeferredSubmission";
@@ -175,13 +175,9 @@ const getOptionsList = (session: SessionData): unknown[] => {
 	return session.current_options;
 };
 
-const getCombatState = (session: SessionData): PhaseOptions["combatState"] => {
+const getCombatState = (): PhaseOptions["combatState"] => {
 	if (state.combatState) {
 		return state.combatState;
-	}
-
-	if (session.combatState) {
-		return session.combatState;
 	}
 	return undefined;
 };
@@ -310,7 +306,7 @@ const buildPhaseOptionsFromSession = (session: SessionData): PhaseOptions => ({
 	team: session.team,
 	wins: session.wins,
 	losses: session.losses,
-	combatState: getCombatState(session),
+	combatState: getCombatState(),
 });
 
 // Initialize the player ID
@@ -486,6 +482,8 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 		}
 
 		syncDeferredSession(result.session);
+		state.session = result.session;
+		state.combatState = result.combatState ?? null;
 		await submitDeferredManifestIfNeeded();
 		return true;
 	}
@@ -618,23 +616,24 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 	if (!session) {
 		throw new Error("No active multiplayer session");
 	}
+	const sessionCombatState = (session as { combatState?: CombatState }).combatState;
 
 	let combatState: PhaseOptions["combatState"] = undefined;
 	if (session.phase === "combat") {
-		if (session.combatState && Array.isArray(session.combatState.logs)) {
+		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
 			logger.debug("Using server-provided combat logs");
 			combatState = {
-				units: Array.isArray(session.combatState.initialUnits)
-					? (session.combatState.initialUnits as Unit[])
+				units: Array.isArray(sessionCombatState.initialUnits)
+					? (sessionCombatState.initialUnits as Unit[])
 					: [],
-				enemyTeam: Array.isArray(session.combatState.enemyTeam)
-					? (session.combatState.enemyTeam as Unit[])
+				enemyTeam: Array.isArray(sessionCombatState.enemyTeam)
+					? (sessionCombatState.enemyTeam as Unit[])
 					: [],
-				logs: session.combatState.logs as CombatLogEntry[],
+				logs: sessionCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
-					typeof session.combatState.enemyPlayerName === "string"
-						? session.combatState.enemyPlayerName
+					typeof sessionCombatState.enemyPlayerName === "string"
+						? sessionCombatState.enemyPlayerName
 						: undefined,
 			};
 		} else {
@@ -648,15 +647,9 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 			};
 		}
 	}
+	state.combatState = combatState ?? null;
 
-	// Map DB session to PhaseOptions
-	// Handle both Array and Object format for options
-	const rawOptions = session.current_options;
-	const rawOptionsRecord =
-		rawOptions && typeof rawOptions === "object" ? (rawOptions as Record<string, unknown>) : null;
-	const optionsList = Array.isArray(rawOptions)
-		? rawOptions
-		: (rawOptionsRecord?.options as unknown[] | undefined) || [];
+	const optionsList = session.current_options || [];
 
 	return {
 		phase: session.phase as PhaseType,

@@ -20,6 +20,7 @@ const initialState = (): State => {
 	const initialSeed = Date.now().toString();
 	return {
 		savedGames: [],
+		combatState: null,
 		session: {
 			id: "default_local_session",
 			player_id: "local_player",
@@ -30,7 +31,6 @@ const initialState = (): State => {
 			seed: initialSeed,
 			initial_seed: initialSeed,
 			current_options: [],
-			combatState: null,
 			team: { units: [] },
 			wins: 0,
 			losses: 0,

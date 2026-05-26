@@ -312,9 +312,6 @@ export function transitionToNextState(
 		const combatOutcome = executeCombatPhase(nextSession, options);
 		combatResult = combatOutcome.combatResult;
 		combatState = combatOutcome.combatState;
-		nextSession.combatState = combatState;
-	} else {
-		nextSession.combatState = undefined;
 	}
 
 	nextSession.updated_at = new Date();
@@ -334,15 +331,9 @@ function executeCombatPhase(
 
 	const combatSession: SessionData = {
 		...session,
-		combatState: {
-			enemyTeam,
-			logs: [],
-			seed: session.seed,
-			units: session.team.units,
-		},
 	};
 
-	const simResult = simulateCombat(combatSession);
+	const simResult = simulateCombat(combatSession, enemyTeam);
 	const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 	session.runStats = simResult.finalState.session.runStats || session.runStats;
 	session.team.units = JSON.parse(JSON.stringify(simResult.finalState.session.team.units));
@@ -365,7 +356,6 @@ function executeCombatPhase(
 
 	const continueOptions: PhaseOption[] = [{ id: "combat_done", label: "Continue" }];
 	session.current_options = continueOptions;
-	session.combatState = combatState;
 
 	return { combatResult: { won: wonCombat }, combatState };
 }

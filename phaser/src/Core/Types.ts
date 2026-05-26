@@ -78,7 +78,6 @@ export type SessionData = {
 	seed: string;
 	initial_seed: string;
 	current_options: PhaseOption[];
-	combatState?: CombatState;
 	team: { units: Unit[] };
 	wins: number;
 	losses: number;

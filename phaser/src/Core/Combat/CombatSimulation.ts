@@ -58,12 +58,10 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
 	if (enemyTeam) {
 		enemyUnits = JSON.parse(JSON.stringify(enemyTeam));
 		enemyUnits.forEach(resetUnitStats);
-	} else if (session.combatState?.enemyTeam) {
-		enemyUnits = JSON.parse(JSON.stringify(session.combatState.enemyTeam));
-		enemyUnits.forEach(resetUnitStats);
 	} else {
 		const allCards = Card.getNonCores();
 		const mockState: State = {
+			combatState: null,
 			battleData: {
 				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
 				units: [],
@@ -78,6 +76,7 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
 
 	return {
 		savedGames: [],
+		combatState: null,
 		session: {
 			...session,
 			team: { units: playerUnits },
@@ -94,12 +93,12 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
  * Run a complete combat simulation for a session.
  * Returns final state, initial units snapshot, and combat logs.
  */
-export function simulateCombat(session: SessionData): {
+export function simulateCombat(session: SessionData, enemyTeam?: Unit[]): {
 	finalState: State;
 	initialUnits: Unit[];
 	logs: CombatLogEntry[];
 } {
-	const combatState = createCombatState(session, session.combatState?.enemyTeam);
+	const combatState = createCombatState(session, enemyTeam);
 
 	const seedVal = stringToSeed(session.initial_seed);
 	Random.setSeed(seedVal);

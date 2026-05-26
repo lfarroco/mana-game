@@ -31,6 +31,15 @@ const generateSessionSeed = (): string => {
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
+const getSessionCombatState = (session: unknown): CombatState | undefined => {
+	const combatState = (session as { combatState?: unknown })?.combatState;
+	if (!combatState || typeof combatState !== "object") {
+		return undefined;
+	}
+
+	return combatState as CombatState;
+};
+
 // export class RemoteServer implements GameServer {
 // 	private playerId: string;
 
@@ -93,32 +102,33 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	if (error || !session) {
 		throw new Error(`Failed to fetch phase options: ${error?.message || "No session found"}`);
 	}
+	const sessionCombatState = getSessionCombatState(session);
 
 	let combatState: CombatState | undefined = undefined;
 	if (session.phase === "combat") {
-		if (session.combatState && Array.isArray(session.combatState.logs)) {
+		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
 			logger.debug("Using server-provided combat logs");
-			const enemyTeam = Array.isArray(session.combatState.enemyTeam)
-				? (session.combatState.enemyTeam as Unit[])
+			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
+				? (sessionCombatState.enemyTeam as Unit[])
 				: [];
-			const units = Array.isArray(session.combatState.initialUnits)
-				? (session.combatState.initialUnits as Unit[])
+			const units = Array.isArray(sessionCombatState.initialUnits)
+				? (sessionCombatState.initialUnits as Unit[])
 				: [];
-			const finalPlayerUnits = Array.isArray(session.combatState.finalPlayerUnits)
-				? (session.combatState.finalPlayerUnits as Unit[])
+			const finalPlayerUnits = Array.isArray(sessionCombatState.finalPlayerUnits)
+				? (sessionCombatState.finalPlayerUnits as Unit[])
 				: undefined;
 			const wonCombat =
-				typeof session.combatState.wonCombat === "boolean"
-					? session.combatState.wonCombat
+				typeof sessionCombatState.wonCombat === "boolean"
+					? sessionCombatState.wonCombat
 					: undefined;
 			combatState = {
 				units,
 				enemyTeam,
-				logs: session.combatState.logs as CombatLogEntry[],
+				logs: sessionCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
-					typeof session.combatState.enemyPlayerName === "string"
-						? session.combatState.enemyPlayerName
+					typeof sessionCombatState.enemyPlayerName === "string"
+						? sessionCombatState.enemyPlayerName
 						: undefined,
 				wonCombat,
 				finalPlayerUnits,
@@ -135,6 +145,7 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 			};
 		}
 	}
+	state.combatState = combatState ?? null;
 
 	const optionsList = session.current_options || [];
 
@@ -171,9 +182,10 @@ export async function handleAction(
 		throw new Error(`Failed to handle action ${actionId}: ${response.error.message}`);
 	}
 
-	state.session = response.data as SessionData;
-	state.combatState = state.session.combatState ?? null;
-	return response.data as SessionData;
+	const nextSession = response.data as SessionData;
+	state.session = nextSession;
+	state.combatState = getSessionCombatState(response.data) ?? null;
+	return nextSession;
 }
 
 /**
