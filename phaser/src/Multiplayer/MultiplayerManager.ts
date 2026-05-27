@@ -176,8 +176,8 @@ const getOptionsList = (session: SessionData): unknown[] => {
 };
 
 const getCombatState = (): PhaseOptions["combatState"] => {
-	if (state.combatState) {
-		return state.combatState;
+	if (state.session.combatState) {
+		return state.session.combatState;
 	}
 	return undefined;
 };
@@ -483,7 +483,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 
 		syncDeferredSession(result.session);
 		state.session = result.session;
-		state.combatState = result.combatState ?? null;
+		state.session.combatState = result.combatState ?? undefined;
 		await submitDeferredManifestIfNeeded();
 		return true;
 	}
@@ -647,7 +647,7 @@ export async function getPhaseOptions(_state: State): Promise<PhaseOptions> {
 			};
 		}
 	}
-	state.combatState = combatState ?? null;
+	(state.session as SessionData).combatState = combatState ?? undefined;
 
 	const optionsList = session.current_options || [];
 

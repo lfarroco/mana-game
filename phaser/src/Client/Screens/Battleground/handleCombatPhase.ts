@@ -51,12 +51,12 @@ const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
 
 export async function handleCombatPhase(): Promise<SessionData> {
 	const server = GameServer.getServer();
-	let combatState = state.combatState;
+	let combatState = state.session.combatState ?? null;
 
 	if (!combatState) {
 		const phaseOptions = await server.getPhaseOptions(state.session.player_id);
 		combatState = phaseOptions.combatState ?? null;
-		state.combatState = combatState;
+		state.session.combatState = combatState ?? undefined;
 	}
 
 	if (!combatState) {

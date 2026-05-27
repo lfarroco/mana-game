@@ -250,6 +250,10 @@ export function constructCombatState(
 		return null;
 	}
 
+	if (session.combatState) {
+		return cloneValue(session.combatState);
+	}
+
 	if (existingCombatState) {
 		return cloneValue(existingCombatState);
 	}

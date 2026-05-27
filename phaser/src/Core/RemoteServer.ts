@@ -145,7 +145,7 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 			};
 		}
 	}
-	state.combatState = combatState ?? null;
+	state.session.combatState = combatState ?? undefined;
 
 	const optionsList = session.current_options || [];
 
@@ -183,8 +183,8 @@ export async function handleAction(
 	}
 
 	const nextSession = response.data as SessionData;
+	nextSession.combatState = getSessionCombatState(response.data);
 	state.session = nextSession;
-	state.combatState = getSessionCombatState(response.data) ?? null;
 	return nextSession;
 }
 

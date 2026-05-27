@@ -83,6 +83,7 @@ export type SessionData = {
 	losses: number;
 	action_log: ActionLogEntry[];
 	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
+	combatState?: CombatState;
 	runStats?: RunStats;
 	updated_at?: Date;
 };

@@ -61,7 +61,6 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
 	} else {
 		const allCards = Card.getNonCores();
 		const mockState: State = {
-			combatState: null,
 			battleData: {
 				forces: [makeForce(FORCE_ID_PLAYER), makeForce(FORCE_ID_CPU)],
 				units: [],
@@ -76,7 +75,6 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
 
 	return {
 		savedGames: [],
-		combatState: null,
 		session: {
 			...session,
 			team: { units: playerUnits },

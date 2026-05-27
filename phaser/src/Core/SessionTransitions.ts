@@ -314,6 +314,12 @@ export function transitionToNextState(
 		combatState = combatOutcome.combatState;
 	}
 
+	if (combatState) {
+		nextSession.combatState = JSON.parse(JSON.stringify(combatState));
+	} else {
+		delete nextSession.combatState;
+	}
+
 	nextSession.updated_at = new Date();
 	return { session: nextSession, combatResult, combatState };
 }
