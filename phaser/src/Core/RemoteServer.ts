@@ -133,6 +133,10 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 				wonCombat,
 				finalPlayerUnits,
 				initialUnits: units,
+				nextSession:
+					typeof sessionCombatState.nextSession === "object" && sessionCombatState.nextSession
+						? (sessionCombatState.nextSession as SessionData)
+						: undefined,
 			};
 		} else {
 			logger.warn("Combat logs missing from session; simulating locally");

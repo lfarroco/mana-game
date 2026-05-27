@@ -65,12 +65,8 @@ function transitionToNextRoundEncounter(session: SessionData): TransitionResult 
 	};
 }
 
-function transitionFromCombat(session: SessionData, actionId: string): TransitionResult {
-	if (actionId !== "combat_done" && actionId !== "victory") {
-		throw new Error(`Unexpected action ${actionId} in Combat transition`);
-	}
-
-	if (actionId === "combat_done" && session.wins >= 10) {
+function transitionAfterCombat(session: SessionData): TransitionResult {
+	if (session.wins >= 10) {
 		return {
 			nextPhase: "victory",
 			nextOptions: [
@@ -80,6 +76,44 @@ function transitionFromCombat(session: SessionData, actionId: string): Transitio
 		};
 	}
 
+	if (session.losses >= 4) {
+		return {
+			nextPhase: "game_over",
+			nextOptions: [{ id: "return_to_menu", label: "Return to Menu" }],
+		};
+	}
+
+	const nextStep = session.step + 1;
+	const expectedPhase = getPhaseForTurn(session.round, nextStep);
+
+	if (expectedPhase === "upgrade_core") {
+		return {
+			nextPhase: "upgrade_core",
+			nextOptions: [
+				{ id: "increase_core_max_life" },
+				{ id: "upgrade_core_power" },
+				{ id: "decrease_core_cooldown" },
+			],
+			stepIncrement: 1,
+		};
+	}
+
+	if (expectedPhase === "add_reaction_core") {
+		return {
+			nextPhase: "add_reaction_core",
+			nextOptions: [
+				{ id: "on_100_damage_effect" },
+				{ id: "on_crit_effect" },
+				{ id: "on_battle_start_effect" },
+			],
+			stepIncrement: 1,
+		};
+	}
+
+	return transitionToNextRoundEncounter(session);
+}
+
+function transitionAfterVictory(session: SessionData): TransitionResult {
 	if (session.losses >= 4) {
 		return {
 			nextPhase: "game_over",
@@ -171,8 +205,7 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	apply_orb: (session) => transitionToNextEncounterStep(session),
 
 	// Combat transitions.
-	combat_done: (session, actionId) => transitionFromCombat(session, actionId),
-	victory: (session, actionId) => transitionFromCombat(session, actionId),
+	victory: (session) => transitionAfterVictory(session),
 
 	// Upgrade core transitions.
 	increase_core_max_life: (session) => transitionToNextRoundEncounter(session),
@@ -326,10 +359,21 @@ function executeCombatPhase(
 		initialUnits: simResult.initialUnits,
 		finalPlayerUnits: playerUnits,
 		logs: simResult.logs,
+		nextSession: undefined,
 	};
 
-	const continueOptions: PhaseOption[] = [{ id: "combat_done", label: "Continue" }];
-	session.current_options = continueOptions;
+	const transitionResult = transitionAfterCombat(session);
+	const nextSession = JSON.parse(JSON.stringify(session)) as SessionData;
+	nextSession.phase = transitionResult.nextPhase;
+	nextSession.current_options = transitionResult.nextOptions;
+	if (transitionResult.stepIncrement) {
+		nextSession.step += transitionResult.stepIncrement;
+	}
+	if (transitionResult.roundIncrement) {
+		nextSession.round += transitionResult.roundIncrement;
+	}
+	delete nextSession.combatState;
+	combatState.nextSession = nextSession;
 
 	return { combatResult: { won: wonCombat }, combatState };
 }

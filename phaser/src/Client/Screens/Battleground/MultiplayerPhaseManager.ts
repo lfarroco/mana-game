@@ -271,11 +271,14 @@ export async function handlePhase() {
 							// Continue Callback
 							resolve();
 							// Proceed to next phase
-							PhaseManager.resetBoard(true).then(() =>
-								transport
-									.sendOptionSelection("combat_done")
-									.then(() => handlePhase())
-							);
+							PhaseManager.resetBoard(true).then(() => {
+								const nextSession = combatState.nextSession;
+								if (!nextSession) {
+									throw new Error("Missing post-combat session while leaving combat phase");
+								}
+								state.session = nextSession;
+								void handlePhase();
+							});
 						},
 						() => {
 							// Replay Callback

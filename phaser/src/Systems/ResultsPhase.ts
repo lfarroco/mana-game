@@ -10,9 +10,7 @@ import * as StatsStore from "@Models/StatsStore";
 import * as c from "@Constants/constants";
 import { getName } from "@i18n/i18n";
 import { replayCombat, storeCombatResult } from "Client/Screens/Battleground/RunCombatIO";
-import { WINS_TO_WIN_GAME } from "Client/Screens/Battleground/Results/ResultsConfig";
 import { createLogger } from "@Utils/Logger";
-import * as GameServer from "@Core/GameServer";
 
 const logger = createLogger("ResultsPhase");
 
@@ -82,11 +80,11 @@ async function handleVictory(state: State): Promise<void> {
 
 	await PhaseManager.resetBoard(true);
 
-	// Notify server of combat completion and get next phase
-	const server = GameServer.getServer();
-	const playerId = PhaseManager.getPlayerId();
-	const completionAction = state.session.wins >= WINS_TO_WIN_GAME ? "victory" : "combat_done";
-	await server.handleAction(playerId, completionAction);
+	const nextSession = state.session.combatState?.nextSession;
+	if (!nextSession) {
+		throw new Error("Missing post-combat session while handling victory");
+	}
+	state.session = nextSession as typeof state.session;
 	//PhaseManager.startPhase();
 }
 
@@ -112,9 +110,10 @@ async function handleDefeat(state: State): Promise<void> {
 
 	await PhaseManager.resetBoard(true);
 
-	// Notify server of combat completion and get next phase
-	const playerId = PhaseManager.getPlayerId();
-	const server = GameServer.getServer();
-	await server.handleAction(playerId, "combat_done");
+	const nextSession = state.session.combatState?.nextSession;
+	if (!nextSession) {
+		throw new Error("Missing post-combat session while handling defeat");
+	}
+	state.session = nextSession as typeof state.session;
 	//PhaseManager.startPhase();
 }

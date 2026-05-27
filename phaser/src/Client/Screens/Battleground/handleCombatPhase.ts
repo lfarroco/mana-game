@@ -81,7 +81,10 @@ export async function handleCombatPhase(): Promise<SessionData> {
 			try {
 				await PhaseManager.resetBoard(true);
 				namesDisplay.updateNameDisplay({ enemyName: "" });
-				const nextSession = await server.handleAction(state.session.player_id, "combat_done");
+				const nextSession = combatState.nextSession;
+				if (!nextSession) {
+					throw new Error("Missing post-combat session while leaving combat phase");
+				}
 				resolve(nextSession);
 			} catch (error) {
 				reject(error);
