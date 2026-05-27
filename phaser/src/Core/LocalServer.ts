@@ -78,6 +78,10 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 			break;
 
 		case "combat":
+			if (!state.combatState) {
+				state.combatState = GameLogic.reconstructCombatState(session);
+			}
+
 			if (state.combatState) {
 				response.combatState = cloneValue(state.combatState);
 			}

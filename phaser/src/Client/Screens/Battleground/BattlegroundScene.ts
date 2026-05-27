@@ -6,6 +6,7 @@ import * as Tooltip from "@Components/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "@Systems/Encounter";
+import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
 import * as handleShopPhase from "./Shop/handleShopPhase";
 
 import * as Shop from "./Shop/ShopPanel";
@@ -50,6 +51,10 @@ async function runPhaseLoop() {
 		switch (state.session.phase) {
 			case "encounter":
 				state.session = await Encounter.displayOptions();
+				break;
+
+			case "combat":
+				state.session = await handleCombatPhase.handleCombatPhase();
 				break;
 
 			case "shop":
