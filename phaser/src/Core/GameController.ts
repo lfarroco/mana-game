@@ -35,8 +35,6 @@ export async function skipPhase(): Promise<Types.SessionData> {
 		actionId = "skip_encounter";
 	} else if (state.session.phase === "shop") {
 		actionId = "skip_shop";
-	} else if (state.session.phase === "orb_shop") {
-		actionId = "orb_shop_done";
 	} else if (state.session.phase === "upgrade_core") {
 		actionId = "upgrade_core_done";
 	} else if (state.session.phase === "add_reaction_core") {

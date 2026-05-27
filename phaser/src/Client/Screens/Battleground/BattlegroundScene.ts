@@ -13,6 +13,7 @@ import * as Shop from "./Shop/ShopPanel";
 import * as Components from "./Components"
 import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
 import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
+import * as handleOrbShopPhase from "./Shop/handleOrbShopPhase";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -67,6 +68,9 @@ async function runPhaseLoop() {
 				break;
 			case "add_reaction_core":
 				state.session = await handleAddReactionCorePhase.handleAddReactionCorePhase();
+				break;
+			case "orb_shop":
+				state.session = await handleOrbShopPhase.handleOrbShopPhase();
 				break;
 			case "game_over":
 				return;

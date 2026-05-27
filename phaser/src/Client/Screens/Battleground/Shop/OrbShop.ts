@@ -1,9 +1,7 @@
 import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import * as animation from "@Utils/animation";
-import * as Utils from "@utils";
 import * as sc from "@Screens/Battleground/Shop/constants";
-import * as State from "@Models/State";
 import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
 import * as Orbs from "@Screens/Battleground/Shop/Orbs";
 import * as Geometry from "@Models/Geometry";
@@ -27,14 +25,11 @@ const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
 export async function openOrbShop(
-	state: State.State,
-	orbs: string[],
 	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {
-		const container = io.Container();
 
-		const selectedOrbs = Utils.pickRandom(orbs, 3);
+		const container = io.Container();
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.SlideOut();
@@ -43,12 +38,10 @@ export async function openOrbShop(
 			resolve();
 		};
 
-		ShopPanel.refresh(completeSectionCallback);
+		ShopPanel.refresh(null);
 
 		renderOrbShop(
-			state,
 			container,
-			selectedOrbs,
 			async () => {
 				await animation.delay(ORB_SHOP_COMPLETION_DELAY_MS);
 				completeSectionCallback();
@@ -63,12 +56,12 @@ export async function openOrbShop(
 }
 
 export function renderOrbShop(
-	state: State.State,
 	container: Phaser.GameObjects.Container,
-	orbIds: string[],
 	onOrbUsed?: () => void | Promise<void>,
 	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ) {
+
+	const orbIds = state.session.current_options.map((o) => o.id);
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);

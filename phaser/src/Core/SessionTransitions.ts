@@ -159,15 +159,16 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	}),
 
 	// Shop transitions.
+	skip: (session) => ({
+		nextPhase: session.phase,
+		nextOptions: getCurrentPhaseOptions(session),
+		stepIncrement: 0,
+		roundIncrement: 0,
+	}),
 	skip_shop: (session) => transitionToNextEncounterStep(session),
 
 	// Orb shop transitions.
-	apply_orb: (session) => ({
-		nextPhase: "orb_shop",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	orb_shop_done: (session) => transitionToNextEncounterStep(session),
+	apply_orb: (session) => transitionToNextEncounterStep(session),
 
 	// Combat transitions.
 	combat_done: (session, actionId) => transitionFromCombat(session, actionId),
@@ -255,7 +256,6 @@ export function transitionToNextState(
 
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
 	const isPureTransition =
-		(nextSession.phase === "orb_shop" && actionId === "orb_shop_done") ||
 		(nextSession.phase === "upgrade_core" && actionId === "upgrade_core_done") ||
 		(nextSession.phase === "add_reaction_core" && actionId === "add_reaction_core_done");
 

@@ -146,7 +146,7 @@ export async function handlePhase() {
 				}
 			);
 			// After orb shop completes, notify server and get next phase
-			//await transport.sendOptionSelection("orb_shop_done");
+			//await transport.sendOptionSelection("skip");
 			//await handlePhase();
 			break;
 
