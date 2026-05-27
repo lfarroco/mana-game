@@ -1,5 +1,7 @@
 import * as Board from "@Models/Board";
 import * as OptionsStore from "@Models/OptionsStore";
+import * as GameController from "@Core/GameController";
+import type { SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "@Components/Tooltip";
@@ -7,6 +9,7 @@ import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
+import * as ResultsUI from "./Results/ResultsUI";
 import * as handleShopPhase from "./Shop/handleShopPhase";
 
 import * as Shop from "./Shop/ShopPanel";
@@ -48,6 +51,35 @@ export const createBattlegroundScreen = async () => {
 
 };
 
+async function handleVictoryPhase(): Promise<SessionData | null> {
+	let nextSession: SessionData | null = null;
+
+	await new Promise<void>((resolve) => {
+		void ResultsUI.displayGameCompleteResults(
+			state,
+			false,
+			async () => {
+				nextSession = await GameController.handleAction("victory");
+			},
+			() => {
+				resolve();
+			}
+		);
+		void ResultsUI.slideIn();
+	});
+
+	return nextSession;
+}
+
+async function handleGameOverPhase(): Promise<null> {
+	await new Promise<void>((resolve) => {
+		void ResultsUI.displayGameCompleteResults(state, true, undefined, resolve);
+		void ResultsUI.slideIn();
+	});
+
+	return null;
+}
+
 async function runPhaseLoop() {
 	while (true) {
 
@@ -72,7 +104,16 @@ async function runPhaseLoop() {
 			case "orb_shop":
 				state.session = await handleOrbShopPhase.handleOrbShopPhase();
 				break;
+			case "victory": {
+				const nextSession = await handleVictoryPhase();
+				if (!nextSession) {
+					return;
+				}
+				state.session = nextSession;
+				break;
+			}
 			case "game_over":
+				await handleGameOverPhase();
 				return;
 			default:
 				throw new Error(`Unknown phase: ${state.session.phase}`);

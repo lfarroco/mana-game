@@ -13,7 +13,6 @@ import * as i18n from "@i18n/i18n";
 import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
 import * as constants from "@Constants/constants";
 import * as Config from "@config";
-import * as GameController from "@Core/GameController";
 
 export async function displayGameComplete(
 	state: State.State,
@@ -21,7 +20,7 @@ export async function displayGameComplete(
 	units: Unit.Unit[],
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
-	completionAction: "victory" | "game_over" = isGameOver ? "game_over" : "victory"
+	onComplete?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	deleteSavedData.deleteSavedData();
 
@@ -110,6 +109,7 @@ export async function displayGameComplete(
 
 
 				State.resetState();
+				onComplete?.();
 				//const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
@@ -119,6 +119,7 @@ export async function displayGameComplete(
 			i18n.t("results.buttons.main_menu"),
 			async () => {
 				State.resetState();
+				onComplete?.();
 				// const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.TITLE);
@@ -141,6 +142,7 @@ export async function displayGameComplete(
 
 				AudioManager.playMusic("music_battlemap_vetruv");
 				nextPhaseCallback();
+				onComplete?.();
 			},
 		]);
 	}

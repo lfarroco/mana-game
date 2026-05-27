@@ -113,7 +113,8 @@ export async function displayResults(
 export async function displayGameCompleteResults(
 	state: State,
 	isGameOver: boolean,
-	nextPhaseCallback?: () => void
+	nextPhaseCallback?: () => void,
+	onComplete?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
 	io.scene.children.bringToTop(overlay.rectangle);
@@ -125,7 +126,7 @@ export async function displayGameCompleteResults(
 		state.session.team.units,
 		isGameOver,
 		nextPhaseCallback,
-		isGameOver ? "game_over" : "victory"
+		onComplete
 	);
 	resultsContainer.add(ui);
 }
