@@ -153,8 +153,7 @@ export async function handlePhase() {
 		case "upgrade_core":
 			const upgradeIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
-			// After upgrade completes, notify server and get next phase
-			//await transport.sendOptionSelection("upgrade_core_done");
+			// selection should already return the next phase
 			await handlePhase();
 			break;
 

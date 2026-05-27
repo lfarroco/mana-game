@@ -178,7 +178,6 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	increase_core_max_life: (session) => transitionToNextRoundEncounter(session),
 	upgrade_core_power: (session) => transitionToNextRoundEncounter(session),
 	decrease_core_cooldown: (session) => transitionToNextRoundEncounter(session),
-	upgrade_core_done: (session) => transitionToNextRoundEncounter(session),
 
 	// Add reaction core transitions.
 	on_100_damage_effect: (session) => transitionToNextRoundEncounter(session),
@@ -238,9 +237,7 @@ export function transitionToNextState(
 	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
 
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
-	const isPureTransition =
-		(nextSession.phase === "upgrade_core" && actionId === "upgrade_core_done") ||
-		false;
+	const isPureTransition = false;
 
 	if (!isPureTransition) {
 		const { team } = resolveAction(nextSession, actionId, payload);
