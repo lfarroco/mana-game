@@ -181,27 +181,10 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	upgrade_core_done: (session) => transitionToNextRoundEncounter(session),
 
 	// Add reaction core transitions.
-	on_100_damage_effect: (session) => ({
-		nextPhase: "add_reaction_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	on_ally_death_effect: (session) => ({
-		nextPhase: "add_reaction_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	on_crit_effect: (session) => ({
-		nextPhase: "add_reaction_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	on_battle_start_effect: (session) => ({
-		nextPhase: "add_reaction_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	add_reaction_core_done: (session) => transitionToNextRoundEncounter(session),
+	on_100_damage_effect: (session) => transitionToNextRoundEncounter(session),
+	on_ally_death_effect: (session) => transitionToNextRoundEncounter(session),
+	on_crit_effect: (session) => transitionToNextRoundEncounter(session),
+	on_battle_start_effect: (session) => transitionToNextRoundEncounter(session),
 
 	// End-state/no-op action.
 	return_to_menu: (session) => ({
@@ -257,7 +240,7 @@ export function transitionToNextState(
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
 	const isPureTransition =
 		(nextSession.phase === "upgrade_core" && actionId === "upgrade_core_done") ||
-		(nextSession.phase === "add_reaction_core" && actionId === "add_reaction_core_done");
+		false;
 
 	if (!isPureTransition) {
 		const { team } = resolveAction(nextSession, actionId, payload);

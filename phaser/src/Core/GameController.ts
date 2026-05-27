@@ -37,8 +37,6 @@ export async function skipPhase(): Promise<Types.SessionData> {
 		actionId = "skip_shop";
 	} else if (state.session.phase === "upgrade_core") {
 		actionId = "upgrade_core_done";
-	} else if (state.session.phase === "add_reaction_core") {
-		actionId = "add_reaction_core_done";
 	}
 
 	const success = await server.handleAction(

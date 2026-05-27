@@ -9,6 +9,7 @@ import * as Encounter from "@Systems/Encounter";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "@Core/GameController";
 import * as GameServer from "@Core/GameServer";
+import * as Types from "@Core/Types";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as upgradeCrystalSelectionEffect from "@Effects/upgradeCrystalSelectionEffect";
@@ -27,7 +28,8 @@ const EFFECT_CARD_BASE_Y = 300;
 export async function openUpgradeCorePhase(
 	titleText: string,
 	encounters: string[],
-	onSkip?: () => void | Promise<void>
+	onSkip?: () => void | Promise<void>,
+	onUpgradeApplied?: (nextSession: Types.SessionData) => void | Promise<void>
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
@@ -44,17 +46,18 @@ export async function openUpgradeCorePhase(
 		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
-		ShopPanel.refresh(async () => {
-			if (onSkip) {
-				await onSkip();
-			}
-
-			await completeSectionCallback();
-		});
+		ShopPanel.refresh(
+			onSkip
+				? async () => {
+					await onSkip();
+					await completeSectionCallback();
+				}
+				: null
+		);
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
 		ShopPanel.container.add(container);
 
-		renderUpgradeCards(container, encounters, async () => {
+		renderUpgradeCards(container, encounters, onUpgradeApplied, async () => {
 			container.list.forEach((child) => child.disableInteractive());
 			await animation.delay(EFFECT_CARD_COMPLETION_DELAY_MS);
 			completeSectionCallback();
@@ -69,6 +72,7 @@ export async function openUpgradeCorePhase(
 function renderUpgradeCards(
 	container: Container,
 	encounterIds: string[],
+	onUpgradeApplied: ((nextSession: Types.SessionData) => void | Promise<void>) | undefined,
 	onUpgradeSelected: () => void | Promise<void>
 ) {
 	let isResolvingSelection = false;
@@ -104,6 +108,8 @@ function renderUpgradeCards(
 				const success = await GameController.handleAction(encounterId);
 
 				if (success) {
+					await onUpgradeApplied?.(success);
+
 					await upgradeCrystalSelectionEffect.playUpgradeCrystalSelectionEffect({
 						cardCenter: { x, y },
 						cardSize: { width, height },

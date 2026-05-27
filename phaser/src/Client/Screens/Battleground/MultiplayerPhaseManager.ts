@@ -162,7 +162,7 @@ export async function handlePhase() {
 			const reactionIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
-			//await transport.sendOptionSelection("add_reaction_core_done");
+			// selection should already return the next phase
 			await handlePhase();
 			break;
 
