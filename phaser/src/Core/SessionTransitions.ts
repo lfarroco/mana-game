@@ -174,21 +174,9 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	victory: (session, actionId) => transitionFromCombat(session, actionId),
 
 	// Upgrade core transitions.
-	increase_core_max_life: (session) => ({
-		nextPhase: "upgrade_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	upgrade_core_power: (session) => ({
-		nextPhase: "upgrade_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
-	decrease_core_cooldown: (session) => ({
-		nextPhase: "upgrade_core",
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-	}),
+	increase_core_max_life: (session) => transitionToNextRoundEncounter(session),
+	upgrade_core_power: (session) => transitionToNextRoundEncounter(session),
+	decrease_core_cooldown: (session) => transitionToNextRoundEncounter(session),
 	upgrade_core_done: (session) => transitionToNextRoundEncounter(session),
 
 	// Add reaction core transitions.

@@ -24,7 +24,11 @@ const EFFECT_CARD_SPACING = 240;
 const EFFECT_CARD_X_OFFSET = 450;
 const EFFECT_CARD_BASE_Y = 300;
 
-export async function openUpgradeCorePhase(titleText: string, encounters: string[]): Promise<void> {
+export async function openUpgradeCorePhase(
+	titleText: string,
+	encounters: string[],
+	onSkip?: () => void | Promise<void>
+): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
 		container.once("destroy", Encounter.resetEncounterFocusTargets);
@@ -40,7 +44,13 @@ export async function openUpgradeCorePhase(titleText: string, encounters: string
 		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
-		ShopPanel.refresh(completeSectionCallback);
+		ShopPanel.refresh(async () => {
+			if (onSkip) {
+				await onSkip();
+			}
+
+			await completeSectionCallback();
+		});
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
 		ShopPanel.container.add(container);
 
