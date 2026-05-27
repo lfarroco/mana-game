@@ -2,6 +2,7 @@ import * as getSavedData from "@Game/effects/getSinglePlayerData";
 import * as Random from "@Utils/Random";
 import * as Types from "@Core/Types";
 import * as Seeding from "@Core/Seeding";
+import * as GameLogic from "@Core/GameLogic";
 
 export function loadGame() {
 	const data = getSavedData.getSinglePlayerData();
@@ -14,5 +15,6 @@ export function loadGame() {
 	Random.setSeed(Seeding.stringToSeed(savedData.seed));
 
 	state.session = savedData;
+	state.combatState = GameLogic.constructCombatState(savedData);
 
 }

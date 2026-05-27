@@ -78,9 +78,7 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 			break;
 
 		case "combat":
-			if (!state.combatState) {
-				state.combatState = GameLogic.reconstructCombatState(session);
-			}
+			state.combatState = GameLogic.constructCombatState(session, state.combatState);
 
 			if (state.combatState) {
 				response.combatState = cloneValue(state.combatState);
@@ -120,7 +118,7 @@ export async function handleAction(
 		payload,
 	);
 	state.session = result.session;
-	state.combatState = result.combatState ?? null;
+	state.combatState = GameLogic.constructCombatState(result.session, result.combatState);
 
 	//eslint-disable-next-line no-console
 	console.log("next state:: ", result);

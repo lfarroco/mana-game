@@ -9,6 +9,14 @@ import { Unit } from "@Models/Entities/Unit";
 import { transitionToNextState } from "./SessionTransitions";
 import { createInitialSession, validateAndApplyTeamUpdate } from "./SessionManagement";
 
+const cloneValue = <T>(value: T): T => {
+	if (typeof globalThis.structuredClone === "function") {
+		return globalThis.structuredClone(value);
+	}
+
+	return JSON.parse(JSON.stringify(value)) as T;
+};
+
 export type ReplayManifestOptions = {
 	/**
 	 * Server-generated enemy teams, indexed by combat order (0-based).
@@ -189,7 +197,7 @@ function applySavedCombatPositions(baseSession: SessionData, savedSession: Sessi
 	};
 }
 
-export function reconstructCombatState(session: SessionData): CombatState | null {
+function reconstructCombatState(session: SessionData): CombatState | null {
 	if (session.phase !== "combat") {
 		return null;
 	}
@@ -232,4 +240,19 @@ export function reconstructCombatState(session: SessionData): CombatState | null
 	}
 
 	return reconstructedCombatState;
+}
+
+export function constructCombatState(
+	session: SessionData,
+	existingCombatState?: CombatState | null
+): CombatState | null {
+	if (session.phase !== "combat") {
+		return null;
+	}
+
+	if (existingCombatState) {
+		return cloneValue(existingCombatState);
+	}
+
+	return reconstructCombatState(session);
 }

@@ -65,7 +65,7 @@ export {
 
 // Re-export replay management
 export { replayManifest, buildReplaySnapshot, type ReplayManifestOptions } from "./ReplayManagement";
-export { reconstructCombatState } from "./ReplayManagement";
+export { constructCombatState } from "./ReplayManagement";
 
 // Register base collection to ensure unit definitions exist
 registerCollection(BASE_COLLECTION_DATA);
