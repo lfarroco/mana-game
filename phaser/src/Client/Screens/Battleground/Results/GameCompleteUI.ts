@@ -22,6 +22,8 @@ export async function displayGameComplete(
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void
 ): Promise<Phaser.GameObjects.Container> {
+	const complete = typeof onComplete === "function" ? onComplete : undefined;
+
 	deleteSavedData.deleteSavedData();
 
 	AudioManager.playMusic("music_playmode", true, 1000);
@@ -109,7 +111,7 @@ export async function displayGameComplete(
 
 
 				State.resetState();
-				onComplete?.();
+				complete?.();
 				//const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
@@ -119,7 +121,7 @@ export async function displayGameComplete(
 			i18n.t("results.buttons.main_menu"),
 			async () => {
 				State.resetState();
-				onComplete?.();
+				complete?.();
 				// const currentScene = getCurrentScene();
 				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
 				// currentScene.game.scene.start(SCENE_KEYS.TITLE);
@@ -142,7 +144,7 @@ export async function displayGameComplete(
 
 				AudioManager.playMusic("music_battlemap_vetruv");
 				nextPhaseCallback();
-				onComplete?.();
+				complete?.();
 			},
 		]);
 	}

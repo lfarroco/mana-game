@@ -85,8 +85,7 @@ export async function displayResults(
 				currentWins,
 				playerUnits,
 				gameOver,
-				nextPhaseCallback,
-				gameOver ? "game_over" : "victory"
+				nextPhaseCallback
 			);
 			resultsContainer.add(ui);
 		} else {
