@@ -74,10 +74,6 @@ export async function completeVictory(): Promise<Types.SessionData> {
 	return await dispatchAction("victory");
 }
 
-export async function getCurrentSession(): Promise<Types.SessionData | null> {
-	return await getServer().getSession(getCurrentPlayerId());
-}
-
 export async function getCurrentPhaseOptions(): Promise<Types.PhaseOptions> {
 	return await getServer().getPhaseOptions(getCurrentPlayerId());
 }

@@ -120,19 +120,16 @@ function renderUpgradeCards(
 					// Sync updated unit data from server and refresh visuals.
 					// upgrade_core and add_reaction_core only modify the core unit,
 					// so only refresh the core to avoid re-summoning all board units.
-					const updatedSession = await GameController.getCurrentSession();
-					if (updatedSession) {
-						for (const serverUnit of updatedSession.team.units) {
-							const localUnit = state.session.team.units.find(
-								(u) => u.id === serverUnit.id
-							);
-							if (localUnit) Object.assign(localUnit, serverUnit);
-							if (serverUnit.isCore) {
-								await Chara.refreshChara(localUnit ?? serverUnit);
-							}
+					for (const serverUnit of state.session.team.units) {
+						const localUnit = state.session.team.units.find(
+							(u) => u.id === serverUnit.id
+						);
+						if (localUnit) Object.assign(localUnit, serverUnit);
+						if (serverUnit.isCore) {
+							await Chara.refreshChara(localUnit ?? serverUnit);
 						}
-						ForceStats.syncPlayerPersistentForceStats();
 					}
+					ForceStats.syncPlayerPersistentForceStats();
 
 					await onUpgradeSelected();
 				} else {

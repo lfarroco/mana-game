@@ -12,7 +12,6 @@ import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as GameController from "@Core/GameController";
 
 const logger = Logger.createLogger("OrbShop");
 
@@ -125,36 +124,33 @@ export function renderOrbShop(
 		if (onOrbApply) {
 			await onOrbApply(orbSpec.id, existingUnit.id);
 
-			// Sync updated unit data from server and refresh visuals
-			const updatedSession = await GameController.getCurrentSession();
-			if (updatedSession) {
-				const rowY = existingUnit.position?.y;
+			// The resolved action already updated state.session locally.
+			const rowY = existingUnit.position?.y;
 
-				for (const serverUnit of updatedSession.team.units) {
-					const isTarget = serverUnit.id === existingUnit.id;
-					const isInSameRow =
-						isRowOrb && serverUnit.position?.y === rowY && !isTarget;
+			for (const serverUnit of state.session.team.units) {
+				const isTarget = serverUnit.id === existingUnit.id;
+				const isInSameRow =
+					isRowOrb && serverUnit.position?.y === rowY && !isTarget;
 
-					if (isTarget || isInSameRow) {
-						const localUnit = state.session.team.units.find(
-							(u) => u.id === serverUnit.id
-						);
-						if (localUnit) {
-							Object.assign(localUnit, serverUnit);
-						}
-
-						if (isRowOrb) {
-							if (Chara.hasCharaById(serverUnit.id)) {
-								PowerDisplay.updatePowerDisplay(serverUnit.id);
-							}
-							continue;
-						}
-
-						await Chara.refreshChara(localUnit ?? serverUnit);
+				if (isTarget || isInSameRow) {
+					const localUnit = state.session.team.units.find(
+						(u) => u.id === serverUnit.id
+					);
+					if (localUnit) {
+						Object.assign(localUnit, serverUnit);
 					}
+
+					if (isRowOrb) {
+						if (Chara.hasCharaById(serverUnit.id)) {
+							PowerDisplay.updatePowerDisplay(serverUnit.id);
+						}
+						continue;
+					}
+
+					await Chara.refreshChara(localUnit ?? serverUnit);
 				}
-				ForceStats.syncPlayerPersistentForceStats();
 			}
+			ForceStats.syncPlayerPersistentForceStats();
 		}
 
 		onOrbUsed?.();
