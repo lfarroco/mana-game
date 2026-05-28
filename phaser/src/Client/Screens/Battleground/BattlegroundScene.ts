@@ -11,14 +11,35 @@ import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as handleShopPhase from "./Shop/handleShopPhase";
+import * as SessionManager from "@Core/SessionManager";
 
 import * as Shop from "./Shop/ShopPanel";
 import * as Components from "./Components"
+import * as UIManager from "./Components/UI/UI";
 import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
 import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
 import * as handleOrbShopPhase from "./Shop/handleOrbShopPhase";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
+
+const getLivesFromSession = (session: SessionData) => 4 - session.losses;
+
+const updateSessionState = (nextSession: SessionData) => {
+	const previousSession = state.session;
+	const winsDelta = nextSession.wins - previousSession.wins;
+	const previousLives = getLivesFromSession(previousSession);
+	const nextLives = getLivesFromSession(nextSession);
+	const livesDelta = nextLives - previousLives;
+
+	state.session = nextSession;
+
+	UIManager.events.onWinsChanged(nextSession.wins, winsDelta);
+	if (livesDelta !== 0) {
+		UIManager.events.onLivesChanged(nextLives, livesDelta);
+	}
+	UIManager.events.onRoundChanged(nextSession.round);
+	SessionManager.updateSession(nextSession.player_id, nextSession);
+};
 
 export const createBattlegroundScreen = async () => {
 	const speed = OptionsStore.getOption("speed");
@@ -85,7 +106,7 @@ async function runPhaseLoop() {
 
 		switch (state.session.phase) {
 			case "encounter":
-				state.session = await Encounter.displayOptions();
+				updateSessionState(await Encounter.displayOptions());
 				break;
 
 			case "combat":
@@ -95,28 +116,28 @@ async function runPhaseLoop() {
 						return;
 					}
 
-					state.session = result.session;
+					updateSessionState(result.session);
 				}
 				break;
 
 			case "shop":
-				state.session = await handleShopPhase.handleShopPhase();
+				updateSessionState(await handleShopPhase.handleShopPhase());
 				break;
 			case "upgrade_core":
-				state.session = await handleUpgradeCorePhase.handleUpgradeCorePhase();
+				updateSessionState(await handleUpgradeCorePhase.handleUpgradeCorePhase());
 				break;
 			case "add_reaction_core":
-				state.session = await handleAddReactionCorePhase.handleAddReactionCorePhase();
+				updateSessionState(await handleAddReactionCorePhase.handleAddReactionCorePhase());
 				break;
 			case "orb_shop":
-				state.session = await handleOrbShopPhase.handleOrbShopPhase();
+				updateSessionState(await handleOrbShopPhase.handleOrbShopPhase());
 				break;
 			case "victory": {
 				const nextSession = await handleVictoryPhase();
 				if (!nextSession) {
 					return;
 				}
-				state.session = nextSession;
+				updateSessionState(nextSession);
 				break;
 			}
 			case "game_over":
