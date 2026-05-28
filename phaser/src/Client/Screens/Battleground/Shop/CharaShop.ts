@@ -73,7 +73,7 @@ export function enableShopInteractions(tavernCharas: Chara.Chara[]): Promise<Sho
 		};
 
 		const onSessionUpdated = ({ actionId, session }: { actionId: string; session: Types.SessionData }) => {
-			if (actionId === "skip_shop") {
+			if (actionId === "skip" || actionId === "skip_shop") {
 				cleanup();
 				resolve({ kind: "skipped", session });
 				return;

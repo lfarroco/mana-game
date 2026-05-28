@@ -193,12 +193,25 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	}),
 
 	// Shop transitions.
-	skip: (session) => ({
-		nextPhase: session.phase,
-		nextOptions: getCurrentPhaseOptions(session),
-		stepIncrement: 0,
-		roundIncrement: 0,
-	}),
+	skip: (session) => {
+		switch (session.phase) {
+			case "encounter":
+				return {
+					nextPhase: "shop",
+					nextOptions: GameLogic.generateShopOptions(session).options,
+					stepIncrement: 0,
+				};
+			case "shop":
+				return transitionToNextEncounterStep(session);
+			default:
+				return {
+					nextPhase: session.phase,
+					nextOptions: getCurrentPhaseOptions(session),
+					stepIncrement: 0,
+					roundIncrement: 0,
+				};
+		}
+	},
 	skip_shop: (session) => transitionToNextEncounterStep(session),
 
 	// Orb shop transitions.

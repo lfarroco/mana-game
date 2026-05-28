@@ -33,15 +33,7 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 }
 
 export async function skipPhase(): Promise<Types.SessionData> {
-	// Determine the appropriate skip action based on current phase
-	let actionId = "skip";
-	if (state.session.phase === "encounter") {
-		actionId = "skip_encounter";
-	} else if (state.session.phase === "shop") {
-		actionId = "skip_shop";
-	}
-
-	const success = await dispatchAction(actionId);
+	const success = await dispatchAction("skip");
 
 	return success;
 }
