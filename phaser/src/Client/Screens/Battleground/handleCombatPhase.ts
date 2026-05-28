@@ -1,4 +1,3 @@
-import * as GameController from "@Core/GameController";
 import type { CombatState, SessionData } from "@Core/Types";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
@@ -10,8 +9,15 @@ import * as CombatPlaybackController from "./CombatPlaybackController";
 import * as PhaseManager from "./PhaseManager";
 import * as ResultsUI from "./Results/ResultsUI";
 import * as namesDisplay from "./Components/UI/namesDisplay";
+import * as BattlegroundNavigation from "./battlegroundNavigation";
 
 const COMBAT_START_DELAY_MS = 300;
+
+type PlaybackDisposer = () => void;
+
+export type CombatPhaseResult =
+	| { type: "completed"; session: SessionData }
+	| { type: "cancelled" };
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -33,6 +39,118 @@ const getInitialCombatUnits = (combatState: CombatState) => {
 	return cloneValue(combatState.enemyTeam);
 };
 
+const getNextSession = (combatState: CombatState): SessionData => {
+	const nextSession = combatState.nextSession;
+	if (!nextSession) {
+		throw new Error("Missing post-combat session while leaving combat phase");
+	}
+
+	return nextSession;
+};
+
+const getCombatResultType = (outcome: string) =>
+	outcome === "player_lost" ? "defeat" : "victory";
+
+const createPlaybackDisposerManager = () => {
+	let disposePlayback: PlaybackDisposer = () => { };
+
+	return {
+		replace(nextDisposer: PlaybackDisposer) {
+			disposePlayback();
+			disposePlayback = nextDisposer;
+		},
+		dispose() {
+			disposePlayback();
+			disposePlayback = () => { };
+		},
+	};
+};
+
+const showCombatResults = ({
+	resultType,
+	onContinue,
+	onReplay,
+}: {
+	resultType: "defeat" | "victory";
+	onContinue: () => void;
+	onReplay: () => void;
+}) => {
+	return new Promise<void>((resultHandled) => {
+		void ResultsUI.displayResults(
+			state,
+			resultType,
+			() => {
+				resultHandled();
+				onContinue();
+			},
+			() => {
+				resultHandled();
+				onReplay();
+			}
+		);
+		void ResultsUI.slideIn();
+	});
+};
+
+const createCombatEffects = ({
+	onContinue,
+	onReplay,
+}: {
+	onContinue: () => void;
+	onReplay: () => void;
+}) => {
+	const effects = BrowserCombatEffects.createBrowserCombatEffects();
+	const baseOnCombatEnd = effects.onCombatEnd;
+
+	effects.onCombatEnd = async (playbackState, outcome, combatStates) => {
+		await baseOnCombatEnd?.(playbackState, outcome, combatStates);
+		Board.setIsInputEnabled(true);
+
+		await showCombatResults({
+			resultType: getCombatResultType(outcome),
+			onContinue,
+			onReplay,
+		});
+	};
+
+	return effects;
+};
+
+const startCombatPlayback = async ({
+	combatState,
+	disposers,
+	onContinue,
+	onReplay,
+}: {
+	combatState: CombatState;
+	disposers: ReturnType<typeof createPlaybackDisposerManager>;
+	onContinue: () => void;
+	onReplay: () => void;
+}) => {
+	await setupCombatBoard(combatState);
+	await animation.delay(COMBAT_START_DELAY_MS);
+
+	const effects = createCombatEffects({ onContinue, onReplay });
+	const controller = CombatPlaybackController.createCombatPlaybackController(
+		state,
+		combatState.logs,
+		effects
+	);
+	const updateHandler = (time: number, delta: number) => {
+		controller.updateFrame(state, time, delta);
+		if (!controller.isActive()) {
+			io.scene.events.off("update", updateHandler);
+		}
+	};
+
+	disposers.replace(() => {
+		io.scene.events.off("update", updateHandler);
+		controller.stop();
+	});
+
+	io.scene.events.on("update", updateHandler);
+};
+
 const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
 	Board.setIsInputEnabled(false);
 	Board.setEnemyBoardVisible(true);
@@ -49,99 +167,52 @@ const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
 	state.battleData.units.forEach(Unit.resetUnitStats);
 };
 
-export async function handleCombatPhase(): Promise<SessionData> {
-	let combatState = state.session.combatState ?? null;
-
-	if (!combatState) {
-		combatState = await GameController.getCurrentCombatState();
-		state.session.combatState = combatState ?? undefined;
-	}
+export async function handleCombatPhase(): Promise<CombatPhaseResult> {
+	const { combatState } = state.session;
 
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
-	return await new Promise<SessionData>((resolve, reject) => {
-		let disposePlayback = () => { };
-
-		const disposeCurrentPlayback = () => {
-			disposePlayback();
-			disposePlayback = () => { };
-		};
+	return await new Promise<CombatPhaseResult>((resolve, reject) => {
+		const disposers = createPlaybackDisposerManager();
 
 		const cleanup = () => {
-			disposeCurrentPlayback();
-			io.scene.events.off("shutdown", cleanup);
+			disposers.dispose();
+			unsubscribeFromExit();
 		};
+
+		const cancelPlayback = () => {
+			cleanup();
+			resolve({ type: "cancelled" });
+		};
+
+		const unsubscribeFromExit = BattlegroundNavigation.onBattlegroundExit(cancelPlayback);
 
 		const continueToNextPhase = async () => {
 			cleanup();
 			try {
 				await PhaseManager.resetBoard(true);
 				namesDisplay.updateNameDisplay({ enemyName: "" });
-				const nextSession = combatState.nextSession;
-				if (!nextSession) {
-					throw new Error("Missing post-combat session while leaving combat phase");
-				}
-				resolve(nextSession);
+				resolve({ type: "completed", session: getNextSession(combatState) });
 			} catch (error) {
 				reject(error);
 			}
 		};
 
 		const startPlayback = async () => {
-			disposeCurrentPlayback();
-			await setupCombatBoard(combatState);
-			await animation.delay(COMBAT_START_DELAY_MS);
-
-			const effects = BrowserCombatEffects.createBrowserCombatEffects();
-			const baseOnCombatEnd = effects.onCombatEnd;
-
-			effects.onCombatEnd = async (playbackState, outcome, combatStates) => {
-				await baseOnCombatEnd?.(playbackState, outcome, combatStates);
-				Board.setIsInputEnabled(true);
-
-				const resultType = outcome === "player_lost" ? "defeat" : "victory";
-
-				await new Promise<void>((resultHandled) => {
-					void ResultsUI.displayResults(
-						state,
-						resultType,
-						() => {
-							resultHandled();
-							void continueToNextPhase();
-						},
-						() => {
-							resultHandled();
-							void startPlayback().catch(reject);
-						}
-					);
-					void ResultsUI.slideIn();
-				});
-			};
-
-			const controller = CombatPlaybackController.createCombatPlaybackController(
-				state,
-				combatState.logs,
-				effects
-			);
-
-			const updateHandler = (time: number, delta: number) => {
-				controller.updateFrame(state, time, delta);
-				if (!controller.isActive()) {
-					io.scene.events.off("update", updateHandler);
-				}
-			};
-
-			disposePlayback = () => {
-				io.scene.events.off("update", updateHandler);
-				controller.stop();
-			};
-
-			io.scene.events.on("update", updateHandler);
+			await startCombatPlayback({
+				combatState,
+				disposers,
+				onContinue: () => {
+					void continueToNextPhase();
+				},
+				onReplay: () => {
+					void startPlayback().catch(reject);
+				},
+			});
 		};
 
-		io.scene.events.on("shutdown", cleanup);
 		void startPlayback().catch((error) => {
 			cleanup();
 			reject(error);

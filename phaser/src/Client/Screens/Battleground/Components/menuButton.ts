@@ -3,6 +3,7 @@ import * as c from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
+import * as BattlegroundNavigation from "../battlegroundNavigation";
 
 export function create() {
 	const btn = UIButton.createUIButton({
@@ -27,7 +28,7 @@ export function createPanel() {
 		i18n.t("ui.menu.newRun"),
 		() => {
 			State.resetState();
-			//getCurrentScene().game.scene.start(c.SCENE_KEYS.CRYSTAL_SELECTION);
+			void BattlegroundNavigation.startNewRun();
 		},
 	]);
 
@@ -36,8 +37,7 @@ export function createPanel() {
 			i18n.t("ui.menu.mainMenu"),
 			() => {
 				State.resetState();
-				//getCurrentScene().scene.stop(getCurrentScene().scene.key);
-				//getCurrentScene().game.scene.start(c.SCENE_KEYS.TITLE);
+				void BattlegroundNavigation.returnToMainMenu();
 			},
 		],
 		[

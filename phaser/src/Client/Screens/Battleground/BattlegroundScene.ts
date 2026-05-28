@@ -89,7 +89,14 @@ async function runPhaseLoop() {
 				break;
 
 			case "combat":
-				state.session = await handleCombatPhase.handleCombatPhase();
+				{
+					const result = await handleCombatPhase.handleCombatPhase();
+					if (result.type === "cancelled") {
+						return;
+					}
+
+					state.session = result.session;
+				}
 				break;
 
 			case "shop":

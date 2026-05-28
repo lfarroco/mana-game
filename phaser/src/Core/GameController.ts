@@ -78,11 +78,6 @@ export async function getCurrentPhaseOptions(): Promise<Types.PhaseOptions> {
 	return await getServer().getPhaseOptions(getCurrentPlayerId());
 }
 
-export async function getCurrentCombatState(): Promise<Types.CombatState | null> {
-	const phaseOptions = await getCurrentPhaseOptions();
-	return phaseOptions.combatState ?? null;
-}
-
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
 ): Promise<Types.SessionData> {
@@ -92,13 +87,3 @@ export async function updateTeam(
 	);
 }
 
-
-
-/**
- * Features that can be enabled/disabled based on game mode.
- */
-export type GameFeature =
-	| "new_run_button" // Allow starting a new run from menu
-	| "infinite_mode" // Allow entering infinite mode after victory
-	| "skip_encounter" // Allow skipping encounters
-	| "seed_selection"; // Allow selecting custom seeds
