@@ -10,7 +10,7 @@ const mockSlideIn = jest.fn();
 const mockSlideOut = jest.fn();
 
 jest.mock("@Core/GameController", () => ({
-	skipPhase: (options?: { autoStartPhase?: boolean }) => mockSkipPhase(options),
+	skipPhase: () => mockSkipPhase(),
 }));
 
 jest.mock("@Models/Entities/Card", () => ({
@@ -71,7 +71,7 @@ describe("handleShopPhase", () => {
 		mockSlideOut.mockResolvedValue(undefined);
 	});
 
-	it("uses skipPhase without legacy auto-start during shop skip", async () => {
+	it("uses the controller skip path during shop skip", async () => {
 		const skippedSession = {
 			...(globalThis as typeof globalThis & { state: TestState }).state.session,
 			phase: "encounter",
@@ -94,7 +94,7 @@ describe("handleShopPhase", () => {
 
 		const result = await handleShopPhase();
 
-		expect(mockSkipPhase).toHaveBeenCalledWith({ autoStartPhase: false });
+		expect(mockSkipPhase).toHaveBeenCalledWith();
 		expect(result).toBe(skippedSession);
 		expect(mockSlideIn).toHaveBeenCalledTimes(1);
 		expect(mockSlideOut).toHaveBeenCalledTimes(1);

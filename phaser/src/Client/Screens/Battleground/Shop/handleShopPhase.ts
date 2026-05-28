@@ -13,7 +13,7 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 	Shop.refresh(async () => {
-		await GameController.skipPhase({ autoStartPhase: false });
+		await GameController.skipPhase();
 	});
 
 	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);

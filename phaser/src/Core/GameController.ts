@@ -1,11 +1,6 @@
 import * as Types from "@Core/Types";
-import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
-
-type ActionExecutionOptions = {
-	autoStartPhase?: boolean;
-};
 
 export async function purchaseUnit(
 	cardId: string,
@@ -30,11 +25,8 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 	);
 }
 
-export async function skipPhase(
-	options: ActionExecutionOptions = {}
-): Promise<Types.SessionData> {
+export async function skipPhase(): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
-	const { autoStartPhase = true } = options;
 
 	// Determine the appropriate skip action based on current phase
 	let actionId = "skip";
@@ -48,10 +40,6 @@ export async function skipPhase(
 		state.session.player_id,
 		actionId,
 	);
-
-	if (success && autoStartPhase) {
-		await PhaseManager.startPhase();
-	}
 
 	return success;
 }
@@ -68,35 +56,15 @@ export async function selectEncounter(encounterId: string): Promise<Types.Sessio
 
 export async function handleAction(
 	actionId: string,
-	payload?: Types.ActionPayload,
-	options: ActionExecutionOptions = {}
+	payload?: Types.ActionPayload
 ): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
-	const { autoStartPhase = true } = options;
-	const inUpgradePhase = state.session.phase === "upgrade_core";
-	const inReactionPhase = state.session.phase === "add_reaction_core";
-	const isInPhaseUpgradeSelection =
-		(inUpgradePhase &&
-			["increase_core_max_life", "upgrade_core_power", "decrease_core_cooldown"].includes(
-				actionId
-			)) ||
-		(inReactionPhase &&
-			[
-				"on_100_damage_effect",
-				"on_ally_death_effect",
-				"on_crit_effect",
-				"on_battle_start_effect",
-			].includes(actionId));
 
 	const success = await server.handleAction(
 		state.session.player_id,
 		actionId,
 		payload
 	);
-
-	if (success && !isInPhaseUpgradeSelection && autoStartPhase) {
-		await PhaseManager.startPhase();
-	}
 
 	return success;
 }
