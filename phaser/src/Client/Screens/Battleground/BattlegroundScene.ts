@@ -1,7 +1,7 @@
 import * as Board from "@Models/Board";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as GameController from "@Core/GameController";
-import type { SessionData } from "@Core/Types";
+import type { PhaseType, SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "@Components/Tooltip";
@@ -14,7 +14,7 @@ import * as handleShopPhase from "./Shop/handleShopPhase";
 import * as SessionManager from "@Core/SessionManager";
 
 import * as Shop from "./Shop/ShopPanel";
-import * as Components from "./Components"
+import * as Components from "./Components";
 import * as UIManager from "./Components/UI/UI";
 import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
 import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
@@ -22,7 +22,13 @@ import * as handleOrbShopPhase from "./Shop/handleOrbShopPhase";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
+type PhaseExecutionResult = SessionData | null;
+
 const getLivesFromSession = (session: SessionData) => 4 - session.losses;
+
+const assertNeverPhase = (phase: never): never => {
+	throw new Error(`Unknown phase: ${phase}`);
+};
 
 const updateSessionState = (nextSession: SessionData) => {
 	const previousSession = state.session;
@@ -101,53 +107,48 @@ async function handleGameOverPhase(): Promise<null> {
 	return null;
 }
 
+async function executePhase(phase: PhaseType): Promise<PhaseExecutionResult> {
+	switch (phase) {
+		case "encounter":
+			return await Encounter.displayOptions();
+
+		case "combat":
+			{
+				const result = await handleCombatPhase.handleCombatPhase();
+				return result.type === "cancelled" ? null : result.session;
+			}
+
+		case "shop":
+			return await handleShopPhase.handleShopPhase();
+
+		case "upgrade_core":
+			return await handleUpgradeCorePhase.handleUpgradeCorePhase();
+
+		case "add_reaction_core":
+			return await handleAddReactionCorePhase.handleAddReactionCorePhase();
+
+		case "orb_shop":
+			return await handleOrbShopPhase.handleOrbShopPhase();
+
+		case "victory":
+			return await handleVictoryPhase();
+
+		case "game_over":
+			return await handleGameOverPhase();
+
+		default:
+			return assertNeverPhase(phase);
+	}
+}
+
 async function runPhaseLoop() {
 	while (true) {
-
-		switch (state.session.phase) {
-			case "encounter":
-				updateSessionState(await Encounter.displayOptions());
-				break;
-
-			case "combat":
-				{
-					const result = await handleCombatPhase.handleCombatPhase();
-					if (result.type === "cancelled") {
-						return;
-					}
-
-					updateSessionState(result.session);
-				}
-				break;
-
-			case "shop":
-				updateSessionState(await handleShopPhase.handleShopPhase());
-				break;
-			case "upgrade_core":
-				updateSessionState(await handleUpgradeCorePhase.handleUpgradeCorePhase());
-				break;
-			case "add_reaction_core":
-				updateSessionState(await handleAddReactionCorePhase.handleAddReactionCorePhase());
-				break;
-			case "orb_shop":
-				updateSessionState(await handleOrbShopPhase.handleOrbShopPhase());
-				break;
-			case "victory": {
-				const nextSession = await handleVictoryPhase();
-				if (!nextSession) {
-					return;
-				}
-				updateSessionState(nextSession);
-				break;
-			}
-			case "game_over":
-				await handleGameOverPhase();
-				return;
-			default:
-				throw new Error(`Unknown phase: ${state.session.phase}`);
-				return;
-
+		const nextSession = await executePhase(state.session.phase);
+		if (!nextSession) {
+			return;
 		}
+
+		updateSessionState(nextSession);
 
 	}
 }
