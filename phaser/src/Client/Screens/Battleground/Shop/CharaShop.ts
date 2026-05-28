@@ -158,8 +158,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		// so they are guaranteed to be in the container when slideOut() is called.
 		ShopPanel.container.add([bgRect, rowBorder]);
 
-		const chara = await Chara.create(unit);
-		Chara.markAsShopChara(chara);
+		const chara = await Chara.create(unit, { isShopChara: true });
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
 		initShopCharaInput(chara);
 		let holdStartPosition: Vec2 | null = null;

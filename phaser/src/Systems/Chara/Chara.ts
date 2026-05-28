@@ -11,17 +11,21 @@ import { summonEffect } from "@Effects/summonEffect";
 
 export type Chara = Container;
 
+type CreateCharaOptions = {
+	isShopChara?: boolean;
+};
+
 type CharaState = {
 	unit: Unit;
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
+	isShopChara: boolean;
 };
 
 const charaState = new WeakMap<Chara, CharaState>();
 
 const charaById = new Map<string, Chara>();
-const shopCharas = new WeakSet<Chara>();
 
 const CORE_FLOAT_MIN_OFFSET_Y = -10;
 const CORE_FLOAT_RANDOM_OFFSET_RANGE_Y = -20;
@@ -72,7 +76,7 @@ export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }
 
-export async function create(unit: Unit): Promise<Chara> {
+export async function create(unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
 	const position = getScreenPosition(unit);
 	const container = io.scene.add.container(position.x, position.y);
 
@@ -96,6 +100,7 @@ export async function create(unit: Unit): Promise<Chara> {
 		id: unit.id,
 		isAnimating: false,
 		sprite,
+		isShopChara: options.isShopChara ?? false,
 	};
 
 	charaState.set(container, state);
@@ -126,7 +131,7 @@ export function enableTooltip(chara: Chara) {
 export function enableBoardInteractivity(chara: Chara): void {
 	const unit = getUnit(chara);
 
-	if (unit.force !== constants.FORCE_ID_PLAYER || isShopChara(chara)) {
+	if (unit.force !== constants.FORCE_ID_PLAYER || mustGetState(chara).isShopChara) {
 		return;
 	}
 
@@ -135,14 +140,6 @@ export function enableBoardInteractivity(chara: Chara): void {
 	}
 
 	io.scene.input.setDraggable(chara, true);
-}
-
-export function markAsShopChara(chara: Chara): void {
-	shopCharas.add(chara);
-}
-
-export function isShopChara(chara: Chara): boolean {
-	return shopCharas.has(chara);
 }
 
 export function getScreenPosition(unit: Unit) {
@@ -249,7 +246,6 @@ export function getId(chara: Chara): string {
 
 export function destroy(chara: Chara) {
 	chara.destroy();
-	shopCharas.delete(chara);
 	charaById.delete(getId(chara));
 }
 
