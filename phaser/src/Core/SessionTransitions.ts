@@ -359,9 +359,9 @@ function executeCombatPhase(
 	session.team.units = JSON.parse(JSON.stringify(simResult.finalState.session.team.units));
 
 	const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
-
-	session.wins += wonCombat ? 1 : 0;
-	session.losses += wonCombat ? 0 : 1;
+	const postCombatSession = JSON.parse(JSON.stringify(session)) as SessionData;
+	postCombatSession.wins += wonCombat ? 1 : 0;
+	postCombatSession.losses += wonCombat ? 0 : 1;
 
 	const combatState: CombatState = {
 		enemyTeam,
@@ -375,8 +375,8 @@ function executeCombatPhase(
 		nextSession: undefined,
 	};
 
-	const transitionResult = transitionAfterCombat(session);
-	const nextSession = JSON.parse(JSON.stringify(session)) as SessionData;
+	const transitionResult = transitionAfterCombat(postCombatSession);
+	const nextSession = JSON.parse(JSON.stringify(postCombatSession)) as SessionData;
 	nextSession.phase = transitionResult.nextPhase;
 	nextSession.current_options = transitionResult.nextOptions;
 	if (transitionResult.stepIncrement) {
