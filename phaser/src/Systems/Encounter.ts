@@ -387,7 +387,8 @@ export async function displayOptions() {
 			container.destroy(true);
 
 			// Use GameController to properly skip encounter phase
-			await GameController.skipPhase();
+			const response = await GameController.skipPhase({ autoStartPhase: false });
+			resolve(response);
 		};
 
 		encounters.forEach(async (encounter, index) => {

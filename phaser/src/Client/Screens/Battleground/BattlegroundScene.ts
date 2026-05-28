@@ -59,7 +59,9 @@ async function handleVictoryPhase(): Promise<SessionData | null> {
 			state,
 			false,
 			async () => {
-				nextSession = await GameController.handleAction("victory");
+				nextSession = await GameController.handleAction("victory", undefined, {
+					autoStartPhase: false,
+				});
 			},
 			() => {
 				resolve();

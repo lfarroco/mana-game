@@ -105,7 +105,9 @@ function renderUpgradeCards(
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
 				// Use GameController to handle the upgrade selection
-				const success = await GameController.handleAction(encounterId);
+				const success = await GameController.handleAction(encounterId, undefined, {
+					autoStartPhase: false,
+				});
 
 				if (success) {
 					await onUpgradeApplied?.(success);

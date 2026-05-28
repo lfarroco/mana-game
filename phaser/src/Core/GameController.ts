@@ -3,6 +3,10 @@ import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 
+type ActionExecutionOptions = {
+	autoStartPhase?: boolean;
+};
+
 export async function purchaseUnit(
 	cardId: string,
 	targetSlot?: number
@@ -26,8 +30,11 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 	);
 }
 
-export async function skipPhase(): Promise<Types.SessionData> {
+export async function skipPhase(
+	options: ActionExecutionOptions = {}
+): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
+	const { autoStartPhase = true } = options;
 
 	// Determine the appropriate skip action based on current phase
 	let actionId = "skip";
@@ -42,7 +49,7 @@ export async function skipPhase(): Promise<Types.SessionData> {
 		actionId,
 	);
 
-	if (success) {
+	if (success && autoStartPhase) {
 		await PhaseManager.startPhase();
 	}
 
@@ -59,8 +66,13 @@ export async function selectEncounter(encounterId: string): Promise<Types.Sessio
 	return response;
 }
 
-export async function handleAction(actionId: string, payload?: Types.ActionPayload): Promise<Types.SessionData> {
+export async function handleAction(
+	actionId: string,
+	payload?: Types.ActionPayload,
+	options: ActionExecutionOptions = {}
+): Promise<Types.SessionData> {
 	const server = GameServer.getServer();
+	const { autoStartPhase = true } = options;
 	const inUpgradePhase = state.session.phase === "upgrade_core";
 	const inReactionPhase = state.session.phase === "add_reaction_core";
 	const isInPhaseUpgradeSelection =
@@ -82,7 +94,7 @@ export async function handleAction(actionId: string, payload?: Types.ActionPaylo
 		payload
 	);
 
-	if (success && !isInPhaseUpgradeSelection) {
+	if (success && !isInPhaseUpgradeSelection && autoStartPhase) {
 		await PhaseManager.startPhase();
 	}
 
