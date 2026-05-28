@@ -12,7 +12,7 @@ import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "Client/Screens/Battleground/ForceStats";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as GameServer from "@Core/GameServer";
+import * as GameController from "@Core/GameController";
 
 const logger = Logger.createLogger("OrbShop");
 
@@ -126,38 +126,34 @@ export function renderOrbShop(
 			await onOrbApply(orbSpec.id, existingUnit.id);
 
 			// Sync updated unit data from server and refresh visuals
-			const playerId = state?.session?.player_id;
-			if (playerId) {
-				const server = GameServer.getServer();
-				const updatedSession = await server.getSession(playerId);
-				if (updatedSession) {
-					const rowY = existingUnit.position?.y;
+			const updatedSession = await GameController.getCurrentSession();
+			if (updatedSession) {
+				const rowY = existingUnit.position?.y;
 
-					for (const serverUnit of updatedSession.team.units) {
-						const isTarget = serverUnit.id === existingUnit.id;
-						const isInSameRow =
-							isRowOrb && serverUnit.position?.y === rowY && !isTarget;
+				for (const serverUnit of updatedSession.team.units) {
+					const isTarget = serverUnit.id === existingUnit.id;
+					const isInSameRow =
+						isRowOrb && serverUnit.position?.y === rowY && !isTarget;
 
-						if (isTarget || isInSameRow) {
-							const localUnit = state.session.team.units.find(
-								(u) => u.id === serverUnit.id
-							);
-							if (localUnit) {
-								Object.assign(localUnit, serverUnit);
-							}
-
-							if (isRowOrb) {
-								if (Chara.hasCharaById(serverUnit.id)) {
-									PowerDisplay.updatePowerDisplay(serverUnit.id);
-								}
-								continue;
-							}
-
-							await Chara.refreshChara(localUnit ?? serverUnit);
+					if (isTarget || isInSameRow) {
+						const localUnit = state.session.team.units.find(
+							(u) => u.id === serverUnit.id
+						);
+						if (localUnit) {
+							Object.assign(localUnit, serverUnit);
 						}
+
+						if (isRowOrb) {
+							if (Chara.hasCharaById(serverUnit.id)) {
+								PowerDisplay.updatePowerDisplay(serverUnit.id);
+							}
+							continue;
+						}
+
+						await Chara.refreshChara(localUnit ?? serverUnit);
 					}
-					ForceStats.syncPlayerPersistentForceStats();
 				}
+				ForceStats.syncPlayerPersistentForceStats();
 			}
 		}
 

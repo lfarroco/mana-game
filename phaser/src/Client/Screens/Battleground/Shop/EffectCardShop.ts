@@ -8,7 +8,6 @@ import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as Encounter from "@Systems/Encounter";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "@Core/GameController";
-import * as GameServer from "@Core/GameServer";
 import * as Types from "@Core/Types";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
@@ -104,8 +103,7 @@ function renderUpgradeCards(
 				isResolvingSelection = true;
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
-				// Use GameController to handle the upgrade selection
-				const success = await GameController.handleAction(encounterId);
+				const success = await GameController.selectPhaseOption(encounterId);
 
 				if (success) {
 					await onUpgradeApplied?.(success);
@@ -122,22 +120,18 @@ function renderUpgradeCards(
 					// Sync updated unit data from server and refresh visuals.
 					// upgrade_core and add_reaction_core only modify the core unit,
 					// so only refresh the core to avoid re-summoning all board units.
-					const playerId = state.session?.player_id;
-					if (playerId) {
-						const server = GameServer.getServer();
-						const updatedSession = await server.getSession(playerId);
-						if (updatedSession) {
-							for (const serverUnit of updatedSession.team.units) {
-								const localUnit = state.session.team.units.find(
-									(u) => u.id === serverUnit.id
-								);
-								if (localUnit) Object.assign(localUnit, serverUnit);
-								if (serverUnit.isCore) {
-									await Chara.refreshChara(localUnit ?? serverUnit);
-								}
+					const updatedSession = await GameController.getCurrentSession();
+					if (updatedSession) {
+						for (const serverUnit of updatedSession.team.units) {
+							const localUnit = state.session.team.units.find(
+								(u) => u.id === serverUnit.id
+							);
+							if (localUnit) Object.assign(localUnit, serverUnit);
+							if (serverUnit.isCore) {
+								await Chara.refreshChara(localUnit ?? serverUnit);
 							}
-							ForceStats.syncPlayerPersistentForceStats();
 						}
+						ForceStats.syncPlayerPersistentForceStats();
 					}
 
 					await onUpgradeSelected();

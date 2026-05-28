@@ -36,6 +36,7 @@ Key rules:
 - **Prefer functional programming**: plain objects, pure functions, immutability, higher-order functions.
 - **Classes only for Phaser integration**: scenes, game objects extending Phaser classes.
 - **Minimize inheritance**: no unnecessary inheritance chains.
+- **Client-server boundary**: battleground screens, phase handlers, and related UI flows should call `Core/GameController.ts` rather than importing `Core/GameServer.ts` directly.
 
 ## Knowledge Index
 
@@ -108,6 +109,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 2. **Server Adapter**: Single-player and multiplayer both go through `GameServer` interface. `getServerAdapter()` in `Core/ServerFactory.ts` returns the right adapter.
 3. **Phase System**: New handler-based system in `Core/PhaseSystem/` with `PhaseHandler` interface. Legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still runs the main loop.
 4. **Trigger System**: Units have `effects` (actions on cooldown) and `reactions` (responses to other units' effects). Defined in `TriggerSystem/TriggerSystem.ts`.
+5. **Battleground phase orchestration**: `Client/Screens/Battleground/BattlegroundScene.ts` owns the phase loop; phase handlers and battleground UI modules should route server actions and reads through `Core/GameController.ts`.
 
 ## Current Issues
 

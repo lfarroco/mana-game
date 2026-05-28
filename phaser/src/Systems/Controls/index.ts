@@ -46,7 +46,7 @@ const executeShortcutAction = async (action: Intents.ControlIntent & { type: "sh
 			await GameController.selectEncounter(action.action.optionId);
 			break;
 		case "handleAction":
-			await GameController.handleAction(action.action.optionId);
+			await GameController.selectPhaseOption(action.action.optionId);
 			break;
 	}
 };

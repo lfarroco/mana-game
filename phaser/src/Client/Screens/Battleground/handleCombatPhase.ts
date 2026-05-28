@@ -1,4 +1,4 @@
-import * as GameServer from "@Core/GameServer";
+import * as GameController from "@Core/GameController";
 import type { CombatState, SessionData } from "@Core/Types";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
@@ -50,12 +50,10 @@ const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
 };
 
 export async function handleCombatPhase(): Promise<SessionData> {
-	const server = GameServer.getServer();
 	let combatState = state.session.combatState ?? null;
 
 	if (!combatState) {
-		const phaseOptions = await server.getPhaseOptions(state.session.player_id);
-		combatState = phaseOptions.combatState ?? null;
+		combatState = await GameController.getCurrentCombatState();
 		state.session.combatState = combatState ?? undefined;
 	}
 

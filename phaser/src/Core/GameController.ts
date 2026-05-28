@@ -2,13 +2,22 @@ import * as Types from "@Core/Types";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 
+const getServer = () => GameServer.getServer();
+
+const getCurrentPlayerId = () => state.session.player_id;
+
+async function dispatchAction(
+	actionId: string,
+	payload?: Types.ActionPayload
+): Promise<Types.SessionData> {
+	return await getServer().handleAction(getCurrentPlayerId(), actionId, payload);
+}
+
 export async function purchaseUnit(
 	cardId: string,
 	targetSlot?: number
 ): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-	const success = await server.handleAction(
-		state.session.player_id,
+	const success = await dispatchAction(
 		cardId,
 		typeof targetSlot === "number" ? { targetSlot } : undefined,
 	);
@@ -17,17 +26,13 @@ export async function purchaseUnit(
 }
 
 export async function sellUnit(unitId: string): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-	return await server.handleAction(
-		state.session.player_id,
+	return await dispatchAction(
 		"discard_unit",
 		{ unitId },
 	);
 }
 
 export async function skipPhase(): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-
 	// Determine the appropriate skip action based on current phase
 	let actionId = "skip";
 	if (state.session.phase === "encounter") {
@@ -36,45 +41,56 @@ export async function skipPhase(): Promise<Types.SessionData> {
 		actionId = "skip_shop";
 	}
 
-	const success = await server.handleAction(
-		state.session.player_id,
-		actionId,
-	);
+	const success = await dispatchAction(actionId);
 
 	return success;
 }
 
 export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-	const response = await server.handleAction(
-		state.session.player_id, // TODO: remove arg
-		encounterId,
-	);
+	return await selectPhaseOption(encounterId);
+}
 
-	return response;
+export async function selectPhaseOption(optionId: string): Promise<Types.SessionData> {
+	return await dispatchAction(optionId);
 }
 
 export async function handleAction(
 	actionId: string,
 	payload?: Types.ActionPayload
 ): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-
-	const success = await server.handleAction(
-		state.session.player_id,
-		actionId,
-		payload
-	);
+	const success = await dispatchAction(actionId, payload);
 
 	return success;
+}
+
+export async function applyOrb(
+	orbId: string,
+	targetUnitId: string
+): Promise<Types.SessionData> {
+	return await dispatchAction("apply_orb", { orbId, targetUnitId });
+}
+
+export async function completeVictory(): Promise<Types.SessionData> {
+	return await dispatchAction("victory");
+}
+
+export async function getCurrentSession(): Promise<Types.SessionData | null> {
+	return await getServer().getSession(getCurrentPlayerId());
+}
+
+export async function getCurrentPhaseOptions(): Promise<Types.PhaseOptions> {
+	return await getServer().getPhaseOptions(getCurrentPlayerId());
+}
+
+export async function getCurrentCombatState(): Promise<Types.CombatState | null> {
+	const phaseOptions = await getCurrentPhaseOptions();
+	return phaseOptions.combatState ?? null;
 }
 
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
 ): Promise<Types.SessionData> {
-	const server = GameServer.getServer();
-	return await server.handleAction(
-		state.session.player_id,
+	return await dispatchAction(
 		"update_team",
 		{ team }
 	);
