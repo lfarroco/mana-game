@@ -4,7 +4,7 @@ import { openLinksPanel } from "Client/Screens/Title/Components/LinksPanel";
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 
-export function linksButton(y: number) {
+export function render(y: number) {
 	const title = t("title.links");
 	const button = createUIButton({
 		text: `🔗 ${title}`,

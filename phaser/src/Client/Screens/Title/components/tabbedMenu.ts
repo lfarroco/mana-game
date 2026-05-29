@@ -1,5 +1,5 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
+import * as Geometry from "@Models/Geometry";
 import * as io from "@PhaserIO";
 
 const PANEL_WIDTH = 1180;
@@ -39,7 +39,7 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 	const container = io.Container();
 	const scene = container.scene;
 	const background = io.BorderedRoundRect(
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y),
+		Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y),
 		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
 		PANEL_RADIUS,
 		PANEL_BACKGROUND_COLOR,
@@ -88,12 +88,12 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 		addMenuButtons: (buttons) => {
 			io.AddChildren(container, buttons);
 		},
-		getMenuButtonPosition: (index) => vec2(menuX, menuStartY + menuSpacing * index),
+		getMenuButtonPosition: (index) => Geometry.vec2(menuX, menuStartY + menuSpacing * index),
 		getContentButtonPosition: (index) =>
-			vec2(contentCenterX, contentButtonStartY + contentButtonSpacing * index),
+			Geometry.vec2(contentCenterX, contentButtonStartY + contentButtonSpacing * index),
 		createTabTitle: (text) => {
 			const title = io.Title1(text);
-			io.SetPosition(title, vec2(contentCenterX, contentTitleY));
+			io.SetPosition(title, Geometry.vec2(contentCenterX, contentTitleY));
 			io.Centralize(title);
 			return title;
 		},

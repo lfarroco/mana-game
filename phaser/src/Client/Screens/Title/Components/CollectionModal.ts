@@ -1,14 +1,13 @@
-import { getAllCards } from "@Models/Entities/Card";
-import { createUnitFromCardSpec } from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
+import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
-import { createModal } from "@Components/Modal";
-import { createUIButton } from "@Components/UIButton";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { t } from "@i18n/i18n";
+import * as Modal from "@Components/Modal";
+import * as UIButton from "@Components/UIButton";
+import * as Geometry from "@Models/Geometry";
+import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
-import { hideTooltip, renderTooltip } from "@Components/Tooltip";
-import { createDescription } from "@Systems/Chara/createDescription";
+import * as Tooltip from "@Components/Tooltip";
+import * as createDescription from "@Systems/Chara/createDescription";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;
@@ -20,13 +19,13 @@ type Tab = "unlocked" | "locked";
 
 export function showCollectionModal(): Promise<void> {
 	return new Promise((resolve) => {
-		const modal = createModal({
+		const modal = Modal.createModal({
 			width: PANEL_WIDTH,
 			height: PANEL_HEIGHT,
-			title: t("title.collection_modal.title"), // "COLLECTION"
+			title: i18n.t("title.collection_modal.title"), // "COLLECTION"
 		});
 
-		const allCards = getAllCards().filter(
+		const allCards = Card.getAllCards().filter(
 			(c) => !c.isCore && c.id !== "dummy" && c.id !== "dummy_card"
 		);
 
@@ -76,7 +75,7 @@ export function showCollectionModal(): Promise<void> {
 					// Unique ID for dummy unit to avoid conflicts
 					const dummyId = `collection_dummy_${card.id}_${pageIndex}`;
 					// Use "NEUTRAL" force to avoid drag logic in input.ts (checks for PLAYER)
-					const dummyUnit = createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
+					const dummyUnit = Unit.createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
 
 					// Create chara
 					const chara = await Chara.create(dummyUnit);
@@ -87,10 +86,10 @@ export function showCollectionModal(): Promise<void> {
 						sprite.preFX?.addColorMatrix().grayscale(1);
 
 						const unlockDescKey = `unlock_description.${card.id}`;
-						const unlockDesc = t(unlockDescKey);
+						const unlockDesc = i18n.t(unlockDescKey);
 
 						chara.on(Phaser.Input.Events.POINTER_OVER, () => {
-							const { title, description: normalDescription } = createDescription(chara);
+							const { title, description: normalDescription } = createDescription.createDescription(chara);
 							const description = `${normalDescription}\n\n[color=#ff9999]LOCKED[/color]\n${unlockDesc}`;
 
 							const worldMatrix = chara.getWorldTransformMatrix();
@@ -113,10 +112,10 @@ export function showCollectionModal(): Promise<void> {
 							const EXTRA_OFFSET = -20;
 							const tooltipY = CHAR_TOP + EXTRA_OFFSET;
 
-							renderTooltip(tooltipX, tooltipY, title, description);
+							Tooltip.renderTooltip(tooltipX, tooltipY, title, description);
 						});
 						chara.on(Phaser.Input.Events.POINTER_OUT, () => {
-							hideTooltip();
+							Tooltip.hideTooltip();
 						});
 					} else {
 						Chara.enableTooltip(chara);
@@ -134,9 +133,9 @@ export function showCollectionModal(): Promise<void> {
 			}
 		};
 
-		const prevButton = createUIButton({
+		const prevButton = UIButton.createUIButton({
 			text: "<",
-			position: vec2(-100, PANEL_HEIGHT / 2 - 120),
+			position: Geometry.vec2(-100, PANEL_HEIGHT / 2 - 120),
 			callback: () => {
 				if (isLoading) return;
 				if (currentPage > 0) {
@@ -147,9 +146,9 @@ export function showCollectionModal(): Promise<void> {
 			width: 60,
 		});
 
-		const nextButton = createUIButton({
+		const nextButton = UIButton.createUIButton({
 			text: ">",
-			position: vec2(100, PANEL_HEIGHT / 2 - 120),
+			position: Geometry.vec2(100, PANEL_HEIGHT / 2 - 120),
 			callback: () => {
 				if (isLoading) return;
 				if (currentPage < getTotalPages() - 1) {
@@ -162,11 +161,11 @@ export function showCollectionModal(): Promise<void> {
 
 		const pageIndicator = io.Text("1 / 1", { fontSize: "24px", color: "#ffffff" });
 		io.Centralize(pageIndicator);
-		io.SetPosition(pageIndicator, vec2(0, PANEL_HEIGHT / 2 - 120));
+		io.SetPosition(pageIndicator, Geometry.vec2(0, PANEL_HEIGHT / 2 - 120));
 
-		const closeButton = createUIButton({
-			text: t("title.back"),
-			position: vec2(0, PANEL_HEIGHT / 2 - 40),
+		const closeButton = UIButton.createUIButton({
+			text: i18n.t("title.back"),
+			position: Geometry.vec2(0, PANEL_HEIGHT / 2 - 40),
 			callback: () => {
 				modal.close();
 			},
@@ -174,16 +173,16 @@ export function showCollectionModal(): Promise<void> {
 
 		// Tabs
 		const tabY = -PANEL_HEIGHT / 2 + 110;
-		const unlockedTabBtn = createUIButton({
-			text: t("collection.tabs.unlocked"),
-			position: vec2(-150, tabY),
+		const unlockedTabBtn = UIButton.createUIButton({
+			text: i18n.t("collection.tabs.unlocked"),
+			position: Geometry.vec2(-150, tabY),
 			callback: () => switchTab("unlocked"),
 			width: 280,
 		});
 
-		const lockedTabBtn = createUIButton({
-			text: t("collection.tabs.locked"),
-			position: vec2(150, tabY),
+		const lockedTabBtn = UIButton.createUIButton({
+			text: i18n.t("collection.tabs.locked"),
+			position: Geometry.vec2(150, tabY),
 			callback: () => switchTab("locked"),
 			width: 280,
 		});

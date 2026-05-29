@@ -1,10 +1,8 @@
 import * as c from "@Constants/constants";
-import { t } from "@i18n/i18n";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
-
-import { isElectron } from "@Utils/environment";
+import * as i18n from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as environment from "@Utils/environment";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 800;
@@ -34,19 +32,19 @@ export function openLinksPanel(): void {
 	overlay.setInteractive();
 
 	const panelBg = io.BorderedRoundRect(
-		vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
+		Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
 		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
 		20,
 		0x2c3e50,
 		0.95
 	);
 
-	const title = io.Title1(t("title.links"));
-	io.SetPosition(title, vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80));
+	const title = io.Title1(i18n.t("title.links"));
+	io.SetPosition(title, Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80));
 	io.Centralize(title);
 
 	const links = [...baseLinks];
-	if (!isElectron()) {
+	if (!environment.isElectron()) {
 		links.push({
 			text: "Steam",
 			url: "https://store.steampowered.com/app/3757600/Mana_Battle",
@@ -77,9 +75,9 @@ export function openLinksPanel(): void {
 		return textObj;
 	});
 
-	const closeButton = createUIButton({
-		text: t("credits.close"),
-		position: vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+	const closeButton = UIButton.createUIButton({
+		text: i18n.t("credits.close"),
+		position: Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;

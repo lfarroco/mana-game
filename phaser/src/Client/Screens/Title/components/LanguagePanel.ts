@@ -1,38 +1,37 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
-import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
-import { createPanel } from "@Components/Panel";
-import { getAvailableLocales, setLocale, getNativeName, t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as BackgroundOverlay from "@Components/BackgroundOverlay";
+import * as Panel from "@Components/Panel";
+import * as i18n from "@i18n/i18n";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
-let overlay: ReturnType<typeof createBackgroundOverlay> | null = null;
+let overlay: ReturnType<typeof BackgroundOverlay.createBackgroundOverlay> | null = null;
 
 export function openLanguagePanel(): void {
 	if (isOpen) return;
 	isOpen = true;
 
 	const panelWidth = 400;
-	const languages = getAvailableLocales();
+	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);
 
-	overlay = createBackgroundOverlay({
+	overlay = BackgroundOverlay.createBackgroundOverlay({
 		alpha: 0.85,
 		interactive: true,
 	});
 	overlay.show();
 
-	const panel = createPanel(vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y), {
+	const panel = Panel.createPanel(Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y), {
 		width: panelWidth,
 		height: panelHeight,
 	});
 
-	const title = io.Title1(t("language.title"));
+	const title = io.Title1(i18n.t("language.title"));
 	io.SetPosition(
 		title,
-		vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40)
+		Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40)
 	);
 	io.Centralize(title);
 
@@ -40,9 +39,9 @@ export function openLanguagePanel(): void {
 	const buttonSpacing = 70;
 
 	const langButtons = languages.map((lang, index) => {
-		return createUIButton({
-			text: getNativeName(lang),
-			position: vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
+		return UIButton.createUIButton({
+			text: i18n.getNativeName(lang),
+			position: Geometry.vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
 			callback: () => {
 				selectLanguage(lang);
 			},
@@ -50,9 +49,9 @@ export function openLanguagePanel(): void {
 		});
 	});
 
-	const closeButton = createUIButton({
-		text: t("language.close"),
-		position: vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
+	const closeButton = UIButton.createUIButton({
+		text: i18n.t("language.close"),
+		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
 		callback: () => {
 			closeLanguagePanel();
 		},
@@ -70,7 +69,7 @@ export function openLanguagePanel(): void {
 }
 
 function selectLanguage(lang: string) {
-	setLocale(lang);
+	i18n.setLocale(lang);
 	io.scene.children.removeAll();
 	io.screens.title();
 	isOpen = false;

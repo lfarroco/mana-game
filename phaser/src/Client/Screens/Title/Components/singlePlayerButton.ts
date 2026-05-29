@@ -6,12 +6,13 @@ import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Screens/Title/Components/collectionButton";
 import * as io from "@PhaserIO";
-import * as TitleScene from "@Screens/Title/TitleScene";
+import * as hideMainButtons from "../Effects/hideMainButtons";
+import * as showMainButtons from "../Effects/showMainButtons";
 import * as resumeSinglePlayerGame from "../Effects/resumeSinglePlayerGame";
 
 let submenuContainer: Container;
 
-export function singlePlayerButton(y: number) {
+export function render(y: number) {
 	const title = t("title.singlePlayer");
 	const description = t("title.tooltip.singlePlayer");
 
@@ -28,7 +29,7 @@ export function singlePlayerButton(y: number) {
 }
 
 function showSinglePlayerSubmenu() {
-	TitleScene.hideMainButtons();
+	hideMainButtons.hideMainButtons();
 
 	const baseY = 500;
 	const spacing = 100;
@@ -61,7 +62,7 @@ function showSinglePlayerSubmenu() {
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		callback: () => {
 			hideSinglePlayerSubmenu();
-			TitleScene.showMainButtons();
+			showMainButtons.showMainButtons();
 		},
 	});
 

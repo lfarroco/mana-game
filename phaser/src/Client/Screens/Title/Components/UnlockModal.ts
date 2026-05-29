@@ -1,40 +1,40 @@
 import * as c from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
-import { getCardDefinition } from "@Models/Entities/Card";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as Card from "@Models/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
-import { createUnitFromCardSpec } from "@Models/Entities/Unit";
-import { createDescription } from "@Systems/Chara/createDescription";
-import { createModal } from "@Components/Modal";
-import { t } from "@i18n/i18n";
+import * as Unit from "@Models/Entities/Unit";
+import * as createDescription from "@Systems/Chara/createDescription";
+import * as Modal from "@Components/Modal";
+import * as i18n from "@i18n/i18n";
 
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;
 
 export function showUnlockModal(unitId: string): Promise<void> {
 	return new Promise(async (resolve) => {
-		const unitData = getCardDefinition(unitId);
+		const unitData = Card.getCardDefinition(unitId);
 
-		const modal = createModal({
+		const modal = Modal.createModal({
 			width: PANEL_WIDTH,
 			height: PANEL_HEIGHT,
 			title: "NEW UNIT UNLOCKED!",
 		});
 
-		const dummy = createUnitFromCardSpec("dummy", unitData, undefined, "");
+		const dummy = Unit.createUnitFromCardSpec("dummy", unitData, undefined, "");
 
 		const chara = await Chara.create(dummy);
 
 		chara.setPosition(0, -180);
 
-		const { title, description } = createDescription(chara);
+		const { title, description } = createDescription.createDescription(chara);
 
 		const titleText = io.scene
 			.add.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
 		const unlockConditionText = io.scene
-			.add.text(0, titleText.y + 35, t(`unlock_description.${unitId}`), {
+			.add.text(0, titleText.y + 35, i18n.t(`unlock_description.${unitId}`), {
 				fontFamily: "Arimo",
 				fontSize: "20px",
 				color: "#ffff00",
@@ -49,9 +49,9 @@ export function showUnlockModal(unitId: string): Promise<void> {
 			.setFontFamily("Arimo")
 			.setOrigin(0.5, 0);
 
-		const confirmButton = createUIButton({
-			text: t("title.unlock_modal.confirm"),
-			position: vec2(0, descriptionText.y + descriptionText.height + 60),
+		const confirmButton = UIButton.createUIButton({
+			text: i18n.t("title.unlock_modal.confirm"),
+			position: Geometry.vec2(0, descriptionText.y + descriptionText.height + 60),
 			callback: () => {
 				modal.close();
 			},

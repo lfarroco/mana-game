@@ -1,15 +1,15 @@
-import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
-import { showCollectionModal } from "Client/Screens/Title/Components/CollectionModal";
-import { t } from "@i18n/i18n";
-import { MIDDLE_SCREEN_X } from "@Constants/constants";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as CollectionModal from "Client/Screens/Title/Components/CollectionModal";
+import * as i18n from "@i18n/i18n";
+import * as constants from "@Constants/constants";
 
 export function collectionButton(y: number) {
-	return createUIButton({
-		text: t("title.collection"),
-		position: vec2(MIDDLE_SCREEN_X, y),
+	return UIButton.createUIButton({
+		text: i18n.t("title.collection"),
+		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
 		callback: () => {
-			showCollectionModal();
+			CollectionModal.showCollectionModal();
 		},
 	});
 }

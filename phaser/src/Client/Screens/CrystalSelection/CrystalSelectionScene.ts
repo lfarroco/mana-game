@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import { getCores, CardDefinition } from "@Models/Entities/Card";
-import { cloudsBg } from "Client/Screens/Title/Components/cloudsBg";
+import { render } from "Client/Screens/Title/Components/cloudsBg";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import { createLogger } from "@Utils/Logger";
 import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
@@ -49,7 +49,7 @@ export function renderCrystalSelectionScreen(multiplayer: boolean) {
 	state.crystals = getCores();
 	state.currentIndex = 0;
 
-	cloudsBg();
+	render();
 	background();
 	title();
 	crystalDisplay();

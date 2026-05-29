@@ -7,11 +7,12 @@ import { openCredits } from "Client/Screens/Title/Components/CreditsPanel";
 import { openStats } from "Client/Screens/Title/Components/StatsPanel";
 import * as io from "@PhaserIO";
 import { getCloudsBg } from "Client/Screens/Title/Components/cloudsBg";
-import * as TitleScene from "@Screens/Title/TitleScene";
+import * as hideMainButtons from "../Effects/hideMainButtons";
+import * as showMainButtons from "../Effects/showMainButtons";
 
 let submenuContainer: Container;
 
-export function optionsButton(y: number) {
+export function render(y: number) {
 	const title = t("title.options");
 	const button = createUIButton({
 		text: title,
@@ -27,7 +28,7 @@ export function optionsButton(y: number) {
 }
 
 function showOptionsSubmenu() {
-	TitleScene.hideMainButtons();
+	hideMainButtons.hideMainButtons();
 
 	// Create submenu buttons
 	const baseY = 500;
@@ -68,7 +69,7 @@ function showOptionsSubmenu() {
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		callback: () => {
 			hideOptionsSubmenu();
-			TitleScene.showMainButtons();
+			showMainButtons.showMainButtons();
 		},
 	});
 

@@ -1,13 +1,13 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
-import { startGame } from "@Screens/Title/Effects/startGame";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as Effects from "../Effects";
+import * as i18n from "@i18n/i18n";
 
 export function newSinglePlayerRunButton(y: number) {
-	return createUIButton({
-		text: t("title.newRun"),
-		position: vec2(constants.MIDDLE_SCREEN.x, y),
-		callback: () => startGame({ isMultiplayer: false }),
+	return UIButton.createUIButton({
+		text: i18n.t("title.newRun"),
+		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
+		callback: () => Effects.startGame({ isMultiplayer: false }),
 	});
 }

@@ -1,13 +1,13 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as i18n from "@i18n/i18n";
 
-export function arenaButton(y: number) {
-	const title = t("title.multiplayer");
-	const btn = createUIButton({
+export function render(y: number) {
+	const title = i18n.t("title.multiplayer");
+	const btn = UIButton.createUIButton({
 		text: title,
-		position: vec2(constants.MIDDLE_SCREEN.x, y),
+		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
 			if (playerId) {
@@ -18,7 +18,7 @@ export function arenaButton(y: number) {
 		},
 		tooltip: {
 			title,
-			description: t("title.tooltip.multiplayer"),
+			description: i18n.t("title.tooltip.multiplayer"),
 			position: "right",
 		},
 	});

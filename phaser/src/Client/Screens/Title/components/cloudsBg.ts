@@ -1,9 +1,9 @@
-import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
+import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
 
-let backgroundInstance: CloudsBackground | null = null;
+let backgroundInstance: CloudsBackground.CloudsBackground | null = null;
 
-export function cloudsBg() {
-	backgroundInstance = new CloudsBackground({
+export function render() {
+	backgroundInstance = new CloudsBackground.CloudsBackground({
 		preset: "nebula",
 	});
 

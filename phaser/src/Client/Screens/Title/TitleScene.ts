@@ -17,28 +17,20 @@ import pkg from "../../../../package.json";
 
 export let mainButtonsContainer: Container;
 
-export function hideMainButtons() {
-	mainButtonsContainer.setVisible(false);
-}
-
-export function showMainButtons() {
-	mainButtonsContainer.setVisible(true);
-}
-
 export function renderTitleScreen() {
 
-	cloudsBg.cloudsBg();
+	cloudsBg.render();
 
 	Tooltip.init();
 
-	logo.logo();
+	logo.render();
 
 	const buttons = [
-		singlePlayerButton.singlePlayerButton(500),
-		arenaButton.arenaButton(600),
-		optionsButton.optionsButton(700),
-		linksButton.linksButton(800),
-		languageButton.languageButton(),
+		singlePlayerButton.render(500),
+		arenaButton.render(600),
+		optionsButton.render(700),
+		linksButton.render(800),
+		languageButton.render(),
 	];
 
 	// Create a container for the main buttons so they can be hidden when
@@ -48,7 +40,7 @@ export function renderTitleScreen() {
 		buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
 	);
 
-	howToPlay.howToPlay();
+	howToPlay.render();
 
 	ControlsSystem.init({ context: "buttons" });
 

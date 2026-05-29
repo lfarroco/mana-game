@@ -1,19 +1,18 @@
 import * as c from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
-import { t } from "@i18n/i18n";
-import { mustGetState, summon } from "@Systems/Chara/Chara";
-import { makeUnit } from "@Models/Entities/Unit";
-import { ABILITY_COLORS } from "@Models/Abilities";
-import { delay } from "@Utils/animation";
-import { damageFx } from "TriggerSystem/effects/visuals/damage";
-import { shieldFx } from "TriggerSystem/effects/visuals/shield";
-import { popText } from "@Systems/Chara/Animations";
-import { healFx } from "TriggerSystem/effects/visuals/heal";
-import { poisonFx } from "TriggerSystem/effects/visuals/poison";
-import { regenFx } from "TriggerSystem/effects/visuals/regen";
-import { createDescription } from "@Systems/Chara/createDescription";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "@Components/UIButton";
+import * as i18n from "@i18n/i18n";
+import * as Chara from "@Systems/Chara/Chara";
+import * as Unit from "@Models/Entities/Unit";
+import * as Abilities from "@Models/Abilities";
+import * as animation from "@Utils/animation";
+import * as damage from "TriggerSystem/effects/visuals/damage";
+import * as shield from "TriggerSystem/effects/visuals/shield";
+import * as Animations from "@Systems/Chara/Animations";
+import * as heal from "TriggerSystem/effects/visuals/heal";
+import * as poison from "TriggerSystem/effects/visuals/poison";
+import * as regen from "TriggerSystem/effects/visuals/regen";
+import * as createDescription from "@Systems/Chara/createDescription";
 
 const bbcode = (text: string, y: number) =>
 	io.scene
@@ -31,16 +30,16 @@ const text = (str: string, y: number) =>
 const slides = [
 	() =>
 		io.Container([
-			text(t("tutorial.slide1.row1"), 100),
-			text(t("tutorial.slide1.row2"), 150),
-			text(t("tutorial.slide1.row3"), 200),
+			text(i18n.t("tutorial.slide1.row1"), 100),
+			text(i18n.t("tutorial.slide1.row2"), 150),
+			text(i18n.t("tutorial.slide1.row3"), 200),
 			() => {
 				const cont = io.Container();
-				const unit = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 });
-				const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
+				const unit = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 });
+				const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
 
 				const anim = async () => {
-					const charas = await Promise.all([summon(unit), summon(enemy)]);
+					const charas = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
 					cont.add(charas);
 				};
 
@@ -49,23 +48,23 @@ const slides = [
 				return cont;
 			},
 			io
-				.Title1(t("tutorial.slide1.row4"))
+				.Title1(i18n.t("tutorial.slide1.row4"))
 				.setOrigin(0.5)
 				.setPosition(c.MIDDLE_SCREEN_X - 330, 620),
 			io
-				.Title1(t("tutorial.slide1.row5"))
+				.Title1(i18n.t("tutorial.slide1.row5"))
 				.setOrigin(0.5)
 				.setPosition(c.MIDDLE_SCREEN_X + 200, 620),
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide2.row1"), 100),
-			text(t("tutorial.slide2.row2"), 150),
-			text(t("tutorial.slide2.row3"), 200),
+			text(i18n.t("tutorial.slide2.row1"), 100),
+			text(i18n.t("tutorial.slide2.row2"), 150),
+			text(i18n.t("tutorial.slide2.row3"), 200),
 			() => {
 				const cont = io.Container([]);
 				const fn = async (x: number, y: number, sprite: string) => {
-					const chara = await summon(makeUnit("PLAYER_FORCE", sprite, { x, y }));
+					const chara = await Chara.summon(Unit.makeUnit("PLAYER_FORCE", sprite, { x, y }));
 
 					cont.add(chara);
 				};
@@ -81,19 +80,19 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide3.row1"), 100),
+			text(i18n.t("tutorial.slide3.row1"), 100),
 			bbcode(
-				`[color=${ABILITY_COLORS.damage}]${t("tooltip.effects.damage")}[/color]: ${t("tutorial.slide3.row2")}`,
+				`[color=${Abilities.ABILITY_COLORS.damage}]${i18n.t("tooltip.effects.damage")}[/color]: ${i18n.t("tutorial.slide3.row2")}`,
 				150
 			),
 			() => {
 				const c = io.Container();
 				const summonUnits = async () => {
-					const unit = makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 0.5 });
-					const enemy = makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 0.5 });
+					const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
 
-					const [chara, chara2] = await Promise.all([summon(unit), summon(enemy)]);
-					const s = mustGetState(chara);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
+					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
@@ -101,10 +100,10 @@ const slides = [
 					const anim = async () => {
 						s.sprite.anims.play(`${unit.pic}_attack`, true);
 						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
-						await delay(1000);
+						await animation.delay(1000);
 						if (s.sprite.active)
-							damageFx(chara, chara2, () => {
-								popText({
+							damage.damageFx(chara, chara2, () => {
+								Animations.popText({
 									x: chara2.x,
 									y: chara2.y,
 									text: "-" + unit.power,
@@ -135,18 +134,18 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide4.row1"), 100),
+			text(i18n.t("tutorial.slide4.row1"), 100),
 			bbcode(
-				`[color=${ABILITY_COLORS.shield}]${t("tooltip.effects.shield")}[/color]: ${t("tutorial.slide4.row2")}`,
+				`[color=${Abilities.ABILITY_COLORS.shield}]${i18n.t("tooltip.effects.shield")}[/color]: ${i18n.t("tutorial.slide4.row2")}`,
 				150
 			),
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 0.5 });
-					const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
-					const [chara, chara2] = await Promise.all([summon(unit), summon(ally)]);
-					const s = mustGetState(chara);
+					const unit = Unit.makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 0.5 });
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
+					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
@@ -154,11 +153,11 @@ const slides = [
 					const anim = async () => {
 						s.sprite.anims.play(`${unit.pic}_attack`, true);
 						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
-						await delay(1000);
+						await animation.delay(1000);
 
 						if (s.sprite.active)
-							shieldFx(chara, chara2, () => {
-								popText({
+							shield.shieldFx(chara, chara2, () => {
+								Animations.popText({
 									x: chara2.x,
 									y: chara2.y,
 									text: "+" + unit.power,
@@ -186,21 +185,21 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide5.row1"), 100),
+			text(i18n.t("tutorial.slide5.row1"), 100),
 			bbcode(
-				`[color=${ABILITY_COLORS.heal}]${t("tooltip.effects.heal")}[/color]: ${t("tutorial.slide5.row2")}`,
+				`[color=${Abilities.ABILITY_COLORS.heal}]${i18n.t("tooltip.effects.heal")}[/color]: ${i18n.t("tutorial.slide5.row2")}`,
 				150
 			),
 
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 0.5 });
-					const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 0.5 });
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
 
-					const [chara, chara2] = await Promise.all([summon(unit), summon(ally)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
-					const s = mustGetState(chara);
+					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
@@ -208,10 +207,10 @@ const slides = [
 					const anim = async () => {
 						s.sprite.anims.play(`${unit.pic}_attack`, true);
 						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
-						await delay(1000);
+						await animation.delay(1000);
 						if (s.sprite.active)
-							healFx(chara, chara2, () => {
-								popText({
+							heal.healFx(chara, chara2, () => {
+								Animations.popText({
 									x: chara2.x,
 									y: chara2.y,
 									text: "+" + unit.power,
@@ -239,27 +238,27 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide6.row1"), 100),
+			text(i18n.t("tutorial.slide6.row1"), 100),
 			bbcode(
-				`[color=${ABILITY_COLORS.regen}]${t("tooltip.effects.regen")}[/color]: ${t("tutorial.slide6.row2")}`,
+				`[color=${Abilities.ABILITY_COLORS.regen}]${i18n.t("tooltip.effects.regen")}[/color]: ${i18n.t("tutorial.slide6.row2")}`,
 				150
 			),
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 0.5 });
-					const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 0.5 });
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
 
-					const [chara, chara2] = await Promise.all([summon(unit), summon(ally)]);
-					const s = mustGetState(chara);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
+					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
 					s.sprite.anims.play(`${unit.pic}_attack`, true);
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
-					await delay(1000);
+					await animation.delay(1000);
 					if (!c.active) return;
-					regenFx(chara, chara2, () => {
+					regen.regenFx(chara, chara2, () => {
 						const regen = io.scene
 							.time.addEvent({
 								repeat: -1,
@@ -269,7 +268,7 @@ const slides = [
 										regen.destroy();
 										return;
 									}
-									popText({
+									Animations.popText({
 										x: chara2.x,
 										y: chara2.y,
 										text: "+" + Math.floor(unit.power / 10),
@@ -290,29 +289,29 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			text(t("tutorial.slide7.row1"), 100),
+			text(i18n.t("tutorial.slide7.row1"), 100),
 			bbcode(
-				`[color=${ABILITY_COLORS.poison}]${t("tooltip.effects.poison")}[/color]: ${t("tutorial.slide7.row2")}`,
+				`[color=${Abilities.ABILITY_COLORS.poison}]${i18n.t("tooltip.effects.poison")}[/color]: ${i18n.t("tutorial.slide7.row2")}`,
 				150
 			),
 
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 0.5 });
 
-					const ally = makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 0.5 });
-					const [chara, chara2] = await Promise.all([summon(unit), summon(ally)]);
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 0.5 });
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
-					const s = mustGetState(chara);
+					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
 					s.sprite.anims.play(`${unit.pic}_attack`, true);
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
-					await delay(1000);
+					await animation.delay(1000);
 					if (!c.active) return;
-					poisonFx(chara, chara2, () => {
+					poison.poisonFx(chara, chara2, () => {
 						const poisonTick = io.scene
 							.time.addEvent({
 								repeat: -1,
@@ -322,7 +321,7 @@ const slides = [
 										poisonTick.destroy();
 										return;
 									}
-									popText({
+									Animations.popText({
 										x: chara2.x,
 										y: chara2.y,
 										text: "-" + Math.floor(unit.power / 10),
@@ -343,55 +342,55 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			io.Title1(t("tutorial.slide8.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-			text(t("tutorial.slide8.row2"), 150),
+			io.Title1(i18n.t("tutorial.slide8.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			text(i18n.t("tutorial.slide8.row2"), 150),
 			bbcode(
-				`[color=${ABILITY_COLORS.haste}]${t("tooltip.effects.haste")}[/color]: ${t("tutorial.slide8.row3")}`,
+				`[color=${Abilities.ABILITY_COLORS.haste}]${i18n.t("tooltip.effects.haste")}[/color]: ${i18n.t("tutorial.slide8.row3")}`,
 				200
 			),
 			bbcode(
-				`[color=${ABILITY_COLORS.slow}]${t("tooltip.effects.slow")}[/color]: ${t("tutorial.slide8.row4")}`,
+				`[color=${Abilities.ABILITY_COLORS.slow}]${i18n.t("tooltip.effects.slow")}[/color]: ${i18n.t("tutorial.slide8.row4")}`,
 				250
 			),
 			bbcode(
-				`[color=${ABILITY_COLORS.charge}]${t("tooltip.effects.charge")}[/color]: ${t("tutorial.slide8.row5")}`,
+				`[color=${Abilities.ABILITY_COLORS.charge}]${i18n.t("tooltip.effects.charge")}[/color]: ${i18n.t("tutorial.slide8.row5")}`,
 				300
 			),
 			bbcode(
-				`[color=${ABILITY_COLORS.increase_power}]+x[/color]: ${t("tutorial.slide8.row6")}`,
+				`[color=${Abilities.ABILITY_COLORS.increase_power}]+x[/color]: ${i18n.t("tutorial.slide8.row6")}`,
 				350
 			),
 			bbcode(
-				`[color=${ABILITY_COLORS.increase_power}]+x*[/color]: ${t("tutorial.slide8.row7")}`,
+				`[color=${Abilities.ABILITY_COLORS.increase_power}]+x*[/color]: ${i18n.t("tutorial.slide8.row7")}`,
 				400
 			),
 			bbcode(
-				`[color=${ABILITY_COLORS.increase_critical}]+x% crit[/color]: ${t("tutorial.slide8.row8")}`,
+				`[color=${Abilities.ABILITY_COLORS.increase_critical}]+x% crit[/color]: ${i18n.t("tutorial.slide8.row8")}`,
 				450
 			),
 		]),
 	() =>
 		io.Container([
-			io.Title1(t("tutorial.slide9.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-			text(t("tutorial.slide9.row3"), 200),
-			text(t("tutorial.slide9.row4"), 250),
-			text(t("tutorial.slide9.row5"), 300),
+			io.Title1(i18n.t("tutorial.slide9.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			text(i18n.t("tutorial.slide9.row3"), 200),
+			text(i18n.t("tutorial.slide9.row4"), 250),
+			text(i18n.t("tutorial.slide9.row5"), 300),
 		]),
 	() => {
 		const cont = io.Container();
 		const title = io
-			.Title1(t("tutorial.slide10.row1"))
+			.Title1(i18n.t("tutorial.slide10.row1"))
 			.setPosition(c.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 });
 
 		const anim = async () => {
-			const chara = await summon(unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
-			const { title, description } = createDescription(chara);
+			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
@@ -404,7 +403,7 @@ const slides = [
 				.setWrapMode(1)
 				.setFontFamily("Arimo");
 
-			cont.add([titleText, descriptionText, text(t("tutorial.slide10.row2"), 600)]);
+			cont.add([titleText, descriptionText, text(i18n.t("tutorial.slide10.row2"), 600)]);
 		};
 
 		anim();
@@ -414,18 +413,18 @@ const slides = [
 	() => {
 		const cont = io.Container();
 		const title = io
-			.Title1(t("tutorial.slide11.row1"))
+			.Title1(i18n.t("tutorial.slide11.row1"))
 			.setPosition(c.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 });
 
 		const anim = async () => {
-			const chara = await summon(unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
-			const { title, description } = createDescription(chara);
+			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
@@ -441,8 +440,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(t("tutorial.slide11.row2"), 600),
-				text(t("tutorial.slide11.row3"), 650),
+				text(i18n.t("tutorial.slide11.row2"), 600),
+				text(i18n.t("tutorial.slide11.row3"), 650),
 			]);
 		};
 
@@ -453,18 +452,18 @@ const slides = [
 	() => {
 		const cont = io.Container();
 		const title = io
-			.Title1(t("tutorial.slide12.row1"))
+			.Title1(i18n.t("tutorial.slide12.row1"))
 			.setPosition(c.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 });
 
 		const anim = async () => {
-			const chara = await summon(unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
-			const { title, description } = createDescription(chara);
+			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
@@ -480,8 +479,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(t("tutorial.slide12.row2"), 600),
-				text(t("tutorial.slide12.row3"), 650),
+				text(i18n.t("tutorial.slide12.row2"), 600),
+				text(i18n.t("tutorial.slide12.row3"), 650),
 			]);
 		};
 
@@ -492,18 +491,18 @@ const slides = [
 	() => {
 		const cont = io.Container();
 		const title = io
-			.Title1(t("tutorial.slide13.row1"))
+			.Title1(i18n.t("tutorial.slide13.row1"))
 			.setPosition(c.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 });
 
 		const anim = async () => {
-			const chara = await summon(unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
-			const { title, description } = createDescription(chara);
+			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
 				.add.text(800, 300, title, c.titleTextConfig)
@@ -519,9 +518,9 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(t("tutorial.slide13.row2"), 600),
-				text(t("tutorial.slide13.row3"), 650),
-				text(t("tutorial.slide13.row4"), 700),
+				text(i18n.t("tutorial.slide13.row2"), 600),
+				text(i18n.t("tutorial.slide13.row3"), 650),
+				text(i18n.t("tutorial.slide13.row4"), 700),
 			]);
 		};
 
@@ -531,10 +530,10 @@ const slides = [
 	},
 	() =>
 		io.Container([
-			text(t("tutorial.slide14.row1"), 200),
-			text(t("tutorial.slide14.row2"), 250),
-			text(t("tutorial.slide14.row3"), 300),
-			text(t("tutorial.slide14.row4"), 350),
+			text(i18n.t("tutorial.slide14.row1"), 200),
+			text(i18n.t("tutorial.slide14.row2"), 250),
+			text(i18n.t("tutorial.slide14.row3"), 300),
+			text(i18n.t("tutorial.slide14.row4"), 350),
 		]),
 ];
 
@@ -581,9 +580,9 @@ export async function openTutorial(): Promise<void> {
 		}
 	};
 
-	const prevButton = createUIButton({
-		text: t("tutorial.previous"),
-		position: vec2(200, c.MIDDLE_SCREEN_Y),
+	const prevButton = UIButton.createUIButton({
+		text: i18n.t("tutorial.previous"),
+		position: Geometry.vec2(200, c.MIDDLE_SCREEN_Y),
 		callback: () => {
 			if (currentSlide > 0) {
 				currentSlide--;
@@ -592,9 +591,9 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const nextButton = createUIButton({
-		text: t("tutorial.next"),
-		position: vec2(c.SCREEN_WIDTH - 200, c.MIDDLE_SCREEN_Y),
+	const nextButton = UIButton.createUIButton({
+		text: i18n.t("tutorial.next"),
+		position: Geometry.vec2(c.SCREEN_WIDTH - 200, c.MIDDLE_SCREEN_Y),
 		callback: () => {
 			if (currentSlide < slides.length - 1) {
 				currentSlide++;
@@ -603,9 +602,9 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const exitButton = createUIButton({
-		text: t("tutorial.exit"),
-		position: vec2(c.MIDDLE_SCREEN_X, BUTTON_Y),
+	const exitButton = UIButton.createUIButton({
+		text: i18n.t("tutorial.exit"),
+		position: Geometry.vec2(c.MIDDLE_SCREEN_X, BUTTON_Y),
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;

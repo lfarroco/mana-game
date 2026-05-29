@@ -5,7 +5,7 @@ import { createUIButton } from "@Components/UIButton";
 import { openLanguagePanel } from "Client/Screens/Title/Components/LanguagePanel";
 import { t } from "@i18n/i18n";
 
-export function languageButton() {
+export function render() {
 	const x = 120;
 	const y = constants.SCREEN_HEIGHT - 60;
 

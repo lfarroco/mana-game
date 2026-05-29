@@ -4,7 +4,7 @@ import * as io from "@PhaserIO";
 import { openTutorial } from "Client/Screens/Title/Components/TutorialOverlay";
 import { t } from "@i18n/i18n";
 
-export function howToPlay() {
+export function render() {
 	const text = io.Title1(t("title.howToPlay"));
 	io.SetPosition(text, vec2(0, 80));
 	io.Centralize(text);
