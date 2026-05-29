@@ -16,7 +16,7 @@ import * as Components from "./Components";
 import * as UIManager from "./Components/UI/UI";
 import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
 import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
-import * as handleOrbShopPhase from "./Shop/handleOrbShopPhase";
+import * as handleOrbShopPhase from "./Phases/handleOrbShopPhase";
 import { handleGameOverPhase } from "./Phases/handleGameOverPhase";
 import { handleVictoryPhase } from "./Phases/handleVictoryPhase";
 
