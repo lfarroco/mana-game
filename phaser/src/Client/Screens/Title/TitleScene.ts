@@ -15,15 +15,7 @@ export function renderTitleScreen() {
 
 	Components.logo.render();
 
-	const buttons = [
-		Components.singlePlayerButton.render(500),
-		Components.arenaButton.render(600),
-		Components.optionsButton.render(700),
-		Components.linksButton.render(800),
-		Components.languageButton.render(),
-	].map(btn => btn.container)
-
-	mainButtonsContainer = io.Container(buttons);
+	renderMainButtons();
 
 	Components.howToPlay.render();
 
@@ -39,15 +31,24 @@ export function renderTitleScreen() {
 
 }
 
+function renderMainButtons() {
+	mainButtonsContainer = io.Container([
+		() => Components.singlePlayerButton.render(500).container,
+		() => Components.arenaButton.render(600).container,
+		() => Components.optionsButton.render(700).container,
+		() => Components.linksButton.render(800).container,
+		() => Components.languageButton.render().container,
+	]);
+}
+
 /*
  * Displays the game version in the top-right corner of the screen
  */
 function displayVersion() {
-
-	io.Text(`v${pkg.version}`, { fontSize: "16px", color: "white", })
-		.setPosition(constants.SCREEN_WIDTH - 30, 10)
-		.setAlpha(0.5)
-		.setOrigin(1, 0);
+	const versionText = io.Text(`v${pkg.version}`, { fontSize: "16px", color: "white", });
+	io.SetPosition(versionText, { x: constants.SCREEN_WIDTH - 30, y: 10 });
+	io.SetAlpha(versionText, 0.5);
+	versionText.setOrigin(1, 0);
 
 }
 
