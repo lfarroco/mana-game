@@ -1,17 +1,9 @@
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
-import * as arenaButton from "Client/Screens/Title/Components/arenaButton";
-import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
-import * as optionsButton from "Client/Screens/Title/Components/optionsButton";
-import * as logo from "Client/Screens/Title/Components/logo";
-import * as howToPlay from "Client/Screens/Title/Components/howToPlay";
-import * as languageButton from "Client/Screens/Title/Components/languageButton";
-import * as linksButton from "Client/Screens/Title/Components/linksButton";
-import * as singlePlayerButton from "Client/Screens/Title/Components/singlePlayerButton";
 import * as StatsStore from "@Models/StatsStore";
-import * as UnlockModal from "Client/Screens/Title/Components/UnlockModal";
 import * as Tooltip from "@Components/Tooltip";
 import * as ControlsSystem from "@Systems/Controls";
+import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 
@@ -19,34 +11,29 @@ export let mainButtonsContainer: Container;
 
 export function renderTitleScreen() {
 
-	cloudsBg.render();
+	Components.cloudsBg.render();
 
-	Tooltip.init();
-
-	logo.render();
+	Components.logo.render();
 
 	const buttons = [
-		singlePlayerButton.render(500),
-		arenaButton.render(600),
-		optionsButton.render(700),
-		linksButton.render(800),
-		languageButton.render(),
-	];
+		Components.singlePlayerButton.render(500),
+		Components.arenaButton.render(600),
+		Components.optionsButton.render(700),
+		Components.linksButton.render(800),
+		Components.languageButton.render(),
+	].map(btn => btn.container)
 
-	// Create a container for the main buttons so they can be hidden when
-	// showing submenu
-	// TODO: replace with "tab" system 
-	mainButtonsContainer = io.Container(
-		buttons.filter((b): b is NonNullable<typeof b> => b != null).map((b) => b.container)
-	);
+	mainButtonsContainer = io.Container(buttons);
 
-	howToPlay.render();
+	Components.howToPlay.render();
 
 	ControlsSystem.init({ context: "buttons" });
 
 	checkUnlocks();
 
 	displayVersion();
+
+	Tooltip.init();
 
 	AudioManager.playMusic("music_ageofdisjunction");
 
@@ -68,7 +55,7 @@ async function checkUnlocks() {
 	const pendingUnlocks = StatsStore.getPendingUnlocks();
 
 	for (const unitId of pendingUnlocks) {
-		await UnlockModal.showUnlockModal(unitId);
+		await Components.UnlockModal.render(unitId);
 		StatsStore.confirmUnlock(unitId);
 		await new Promise((resolve) => setTimeout(resolve, 300));
 	}

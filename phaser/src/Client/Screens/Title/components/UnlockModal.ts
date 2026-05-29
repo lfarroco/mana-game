@@ -11,7 +11,7 @@ import * as i18n from "@i18n/i18n";
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;
 
-export function showUnlockModal(unitId: string): Promise<void> {
+export function render(unitId: string): Promise<void> {
 	return new Promise(async (resolve) => {
 		const unitData = Card.getCardDefinition(unitId);
 
