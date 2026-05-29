@@ -13,38 +13,64 @@ declare global {
 }
 window.io = phaserIO;
 
-export const game = new Phaser.Game({
-	type: Phaser.AUTO,
-	pixelArt: false,
-	scale: {
-		width: SCREEN_WIDTH,
-		height: SCREEN_HEIGHT,
-		mode: Phaser.Scale.FIT,
-		autoCenter: Phaser.Scale.CENTER_BOTH,
-	},
-	dom: {
-		createContainer: true,
-	},
-	parent: "game-container",
-	scene: Preload,
-	plugins: {
-		global: [
-			{
-				key: "rexBBCodeTextPlugin",
-				plugin: BBCodeTextPlugin,
-				start: true,
-			},
-			{
-				key: "rexShatterImagePlugin",
-				plugin: ShatterImagePlugin,
-				start: true,
-			},
-		],
-	},
-});
+const STARTUP_FONT_FAMILY = "Arimo";
+const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";
 
-OptionsStore.init();
-StatsStore.init();
+export let game: Phaser.Game;
+
+async function loadStartupFontIO(): Promise<void> {
+	if (typeof window === "undefined" || !("FontFace" in window)) {
+		return;
+	}
+
+	const startupFont = new FontFace(
+		STARTUP_FONT_FAMILY,
+		`url("${STARTUP_FONT_URL}")`,
+	);
+
+	await startupFont.load();
+	document.fonts.add(startupFont);
+	await document.fonts.load(`16px "${STARTUP_FONT_FAMILY}"`);
+}
+
+async function startGameIO(): Promise<void> {
+	await loadStartupFontIO();
+
+	game = new Phaser.Game({
+		type: Phaser.AUTO,
+		pixelArt: false,
+		scale: {
+			width: SCREEN_WIDTH,
+			height: SCREEN_HEIGHT,
+			mode: Phaser.Scale.FIT,
+			autoCenter: Phaser.Scale.CENTER_BOTH,
+		},
+		dom: {
+			createContainer: true,
+		},
+		parent: "game-container",
+		scene: Preload,
+		plugins: {
+			global: [
+				{
+					key: "rexBBCodeTextPlugin",
+					plugin: BBCodeTextPlugin,
+					start: true,
+				},
+				{
+					key: "rexShatterImagePlugin",
+					plugin: ShatterImagePlugin,
+					start: true,
+				},
+			],
+		},
+	});
+
+	OptionsStore.init();
+	StatsStore.init();
+}
+
+void startGameIO();
 
 
 // if (process.env.NODE_ENV === "development") {
