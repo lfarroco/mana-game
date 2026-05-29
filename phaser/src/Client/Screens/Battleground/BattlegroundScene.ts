@@ -1,6 +1,5 @@
 import * as Board from "@Models/Board";
 import * as OptionsStore from "@Models/OptionsStore";
-import * as GameController from "@Core/GameController";
 import type { PhaseType, SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
@@ -9,7 +8,6 @@ import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
-import * as ResultsUI from "./Results/ResultsUI";
 import * as handleShopPhase from "./Shop/handleShopPhase";
 import * as SessionManager from "@Core/SessionManager";
 
@@ -19,6 +17,8 @@ import * as UIManager from "./Components/UI/UI";
 import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
 import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
 import * as handleOrbShopPhase from "./Shop/handleOrbShopPhase";
+import { handleGameOverPhase } from "./Phases/handleGameOverPhase";
+import { handleVictoryPhase } from "./Phases/handleVictoryPhase";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -77,35 +77,6 @@ export const createBattlegroundScreen = async () => {
 	await runPhaseLoop();
 
 };
-
-async function handleVictoryPhase(): Promise<SessionData | null> {
-	let nextSession: SessionData | null = null;
-
-	await new Promise<void>((resolve) => {
-		void ResultsUI.displayGameCompleteResults(
-			state,
-			false,
-			async () => {
-				nextSession = await GameController.completeVictory();
-			},
-			() => {
-				resolve();
-			}
-		);
-		void ResultsUI.slideIn();
-	});
-
-	return nextSession;
-}
-
-async function handleGameOverPhase(): Promise<null> {
-	await new Promise<void>((resolve) => {
-		void ResultsUI.displayGameCompleteResults(state, true, undefined, resolve);
-		void ResultsUI.slideIn();
-	});
-
-	return null;
-}
 
 async function executePhase(phase: PhaseType): Promise<PhaseExecutionResult> {
 	switch (phase) {
