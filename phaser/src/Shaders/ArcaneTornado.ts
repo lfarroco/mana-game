@@ -11,7 +11,6 @@ uniform float dissolveProgress;
 
 varying vec2 fragCoord;
 
-// --- helpers
 float rand(vec2 co) {
     return fract(sin(dot(co.xy, vec2(12.9898,78.233))) * 43758.5453);
 }
@@ -27,12 +26,15 @@ float smoothNoise(vec2 p) {
     return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
-vec2 radialTwist(vec2 uv, float t, float strength) {
-    float r = length(uv);
-    float angle = atan(uv.y, uv.x);
-    float twist = strength * (1.0 - smoothstep(0.0, 0.8, r)) * (1.0 - r);
-    float a = angle + twist * (1.0 + 0.5 * sin(t * 1.6 + r * 10.0));
-    return vec2(cos(a), sin(a)) * r;
+mat2 rotation(float angle) {
+    float s = sin(angle);
+    float c = cos(angle);
+    return mat2(c, -s, s, c);
+}
+
+float squareMask(vec2 localUv, float size, float feather) {
+    float dist = max(abs(localUv.x), abs(localUv.y));
+    return 1.0 - smoothstep(size, size + feather, dist);
 }
 
 void main() {
@@ -40,48 +42,64 @@ void main() {
     uv -= 0.5;
     uv.x *= resolution.x / resolution.y;
 
-    float dist = length(uv);
-    float edgeFade = smoothstep(0.6, 0.1, dist);
-    float t = time * speed * 2.5;
+    float radius = length(uv);
+    float edgeFade = smoothstep(0.9, 0.12, radius);
+    float t = time * speed * 1.8;
+    float angle = atan(uv.y, uv.x);
 
-    vec2 twisted = radialTwist(uv, t, 2.2 + speed * 0.4);
-    float angle = atan(twisted.y, twisted.x);
-    float radius = length(twisted);
+    float squareField = 0.0;
+    float glowField = 0.0;
 
-    float arms = 4.5;
-    float tightness = 2.0;
-    float rotationSpeed = 2.0 * speed;
-    float rotatingAngle = angle + t * rotationSpeed + radius * tightness;
-    float spiral = sin(rotatingAngle * arms - radius * (tightness * 0.8));
-    spiral = smoothstep(-0.5, 0.5, spiral) * (1.0 - radius);
+    for (int layer = 0; layer < 3; layer++) {
+        float layerIndex = float(layer);
+        float layerTime = t * (1.0 + layerIndex * 0.22);
 
-    float n = smoothNoise(uv * 6.0 + vec2(t * 0.35, -t * 0.5));
-    float shimmer = smoothstep(0.2, 0.8, n + 0.3 * sin(t * 3.0 + radius * 12.0));
+        vec2 layerUv = uv;
+        float swirl = layerTime
+            + (1.9 + layerIndex * 0.55) / (radius * 2.4 + 0.3)
+            + radius * (5.0 + layerIndex * 1.5)
+            + sin(radius * 14.0 - layerTime * 2.0 + layerIndex * 1.7) * 0.25;
+        layerUv = rotation(swirl) * layerUv;
+        layerUv *= 1.0 + 0.12 * sin(layerTime * 1.3 + radius * 10.0 + layerIndex * 2.1);
 
-    float coreMask = smoothstep(0.0, 0.5, 0.5 - radius);
-    float rimMask = smoothstep(0.7, 0.25, radius);
+        float layerRadius = length(layerUv);
+        float layerAngle = atan(layerUv.y, layerUv.x);
+        float gridScale = 9.0 + layerIndex * 4.0;
+        vec2 gridUv = layerUv * gridScale;
+        vec2 cellId = floor(gridUv);
+        vec2 localUv = fract(gridUv) - 0.5;
 
-    float colorMix = spiral * 0.8 + shimmer * 0.4;
-    vec3 baseColor = mix(color1, color2, colorMix);
-    vec3 glowColor = mix(color1, color2, rimMask * 0.8);
+        float cellNoise = rand(cellId + vec2(layerIndex * 17.31, layerIndex * 11.73));
+        float orbitalBands = 0.5 + 0.5 * sin(layerAngle * (6.0 + layerIndex * 1.5) - layerRadius * 24.0 - layerTime * (3.4 + layerIndex));
+        float inwardFlow = smoothstep(0.88, 0.16, layerRadius) * smoothstep(0.05, 0.18 + layerIndex * 0.08, layerRadius);
+        float occupancy = step(0.74 - layerIndex * 0.08, cellNoise * 0.65 + orbitalBands * 0.85);
+        float square = squareMask(localUv, 0.12 + 0.14 * cellNoise, 0.06);
 
-    vec3 color = baseColor * (1.0 + shimmer * 0.6);
-    color += glowColor * (rimMask * 1.2 + spiral * 0.6);
-    color *= (1.2 - radius * 0.7);
+        float layerSquares = square * occupancy * inwardFlow;
+        squareField += layerSquares * (0.75 - layerIndex * 0.12);
+        glowField += layerSquares * (0.4 + orbitalBands * 0.6);
+    }
 
-    float pulse = 0.7 + 0.5 * sin(t * 2.0);
-    color += color2 * coreMask * 0.8 * pulse;
+    float coreMask = 1.0 - smoothstep(0.03, 0.16, radius);
+    float rimMask = smoothstep(0.72, 0.22, radius);
+    float shimmer = smoothstep(0.25, 0.85, smoothNoise(uv * 11.0 + vec2(t * 0.35, -t * 0.45)));
+
+    vec3 squareColor = mix(color1, color2, clamp(glowField * 0.45 + shimmer * 0.25, 0.0, 1.0));
+    vec3 coreColor = mix(color1, color2, 0.35 + 0.65 * (1.0 - smoothstep(0.0, 0.2, radius)));
+
+    vec3 color = squareColor * (0.8 + glowField * 0.9);
+    color += coreColor * coreMask * (0.4 + 0.3 * sin(t * 2.3));
+    color += mix(color1, color2, 0.7) * rimMask * 0.18;
 
     float dissolve = 1.0 - dissolveProgress * 1.2;
-    float dissolveMask = smoothstep(0.0, 0.35, smoothNoise(uv * 10.0 + t * 0.6) - dissolve);
+    float dissolveMask = smoothstep(0.0, 0.3, smoothNoise(uv * 12.0 + vec2(t * 0.7, -t * 0.45)) - dissolve);
 
-    float alpha = clamp((coreMask * 1.2 + spiral * 0.8 + rimMask * 0.4) * dissolveMask, 0.0, 1.0);
-    alpha *= (1.1 - radius * 0.8) * edgeFade;
+    float alpha = clamp((squareField * 1.45 + glowField * 0.35 + coreMask * 0.9) * dissolveMask, 0.0, 1.0);
+    alpha *= edgeFade;
 
     color *= intensity;
     color = pow(color, vec3(0.9));
 
-    // --- Remove background color completely
     color *= alpha;
 
     gl_FragColor = vec4(color, alpha);
