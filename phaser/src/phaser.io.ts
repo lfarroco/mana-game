@@ -43,7 +43,6 @@ export function Container(children?: ContainerChild[]): Phaser.GameObjects.Conta
 		const elements: Phaser.GameObjects.GameObject[] = [];
 
 		children.forEach((child) => {
-			if (!child) return;
 			if (typeof child === "function") {
 				elements.push(child());
 			} else if (Array.isArray(child)) {
