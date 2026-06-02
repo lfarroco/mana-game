@@ -16,9 +16,9 @@ export function healFx(
 			particleScale: 1.5,
 			impact: {
 				colors: [0x00ff00, 0x32cd32],
-				scale: 2,
+				scale: 4,
 				speed: 200,
-				lifespan: 300,
+				lifespan: 600,
 				alpha: 0.4,
 			},
 			onHit,

@@ -3,7 +3,7 @@ import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
-import Preload from "Client/Screens/Preload/Preload";
+import Core from "@Screens/Preload/Core";
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import "@Models/State"; // start global state
 import * as phaserIO from "@PhaserIO";
@@ -49,7 +49,7 @@ async function startGameIO(): Promise<void> {
 			createContainer: true,
 		},
 		parent: "game-container",
-		scene: Preload,
+		scene: Core,
 		plugins: {
 			global: [
 				{

@@ -1,12 +1,12 @@
 import * as Phaser from "phaser";
 import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
-import { returnToTitle } from "Client/Screens/Options/effects/returnToTitle";
-import { showTab } from "Client/Screens/Options/components/effects/showTab";
-import { backButton } from "Client/Screens/Options/components/backButton";
-import { optionsLabel } from "Client/Screens/Options/components/optionsLabel";
-import { tabButtons } from "Client/Screens/Options/components/tabButtons";
-import { currentTab } from "Client/Screens/Options/components/effects/showTab";
-import { Tabs } from "Client/Screens/Options/components/Model";
+import { returnToTitle } from "@Screens/Options/Effects/returnToTitle";
+import { showTab } from "@Screens/Options/Components/effects/showTab";
+import { backButton } from "@Screens/Options/Components/backButton";
+import { optionsLabel } from "@Screens/Options/Components/optionsLabel";
+import { tabButtons } from "@Screens/Options/Components/tabButtons";
+import { currentTab } from "@Screens/Options/Components/effects/showTab";
+import { Tabs } from "@Screens/Options/Components/Model";
 import * as ControlsSystem from "@Systems/Controls";
 
 export const LAYOUT = {
@@ -44,7 +44,7 @@ export const STYLES = {
 	VALUE_TEXT_COLOR: "#FFD700",
 } as const;
 
-export default class OptionsScene extends Phaser.Scene {
+export default class OptionsScreen extends Phaser.Scene {
 	cloudsBackground!: CloudsBackground;
 
 	create() {

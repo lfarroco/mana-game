@@ -10,9 +10,9 @@ export function damageFx(source: Vec2, target: Vec2, onHit: () => void) {
 		particleScale: 1.5,
 		impact: {
 			colors: [0xd2691e, 0xcd853f],
-			scale: 2,
+			scale: 4,
 			speed: 200,
-			lifespan: 300,
+			lifespan: 600,
 			alpha: 0.4,
 		},
 		onHit,

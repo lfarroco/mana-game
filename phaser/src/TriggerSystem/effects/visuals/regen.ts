@@ -15,7 +15,7 @@ export function regenFx(
 			particleScale: 1.5,
 			impact: {
 				colors: [0x00ff00, 0x32cd32],
-				scale: 2,
+				scale: 4,
 				speed: 200,
 				lifespan: 300,
 				alpha: 0.4,

@@ -1,5 +1,4 @@
 import { EnergyBeam } from "./EnergyBeam";
-import { images } from "@assets";
 import { delay } from "@Utils/animation";
 import { getOption } from "@Models/OptionsStore";
 
@@ -11,7 +10,7 @@ export interface TargetedArcaneMissileOptions {
 	frequencyMin?: number;
 	frequencyMax?: number;
 	particleScale?: number;
-	speedMultiplier?: number;
+	speedMultiplier?: number; // TODO: remove, we use scene speed instead
 	impact?: {
 		colors?: number[];
 		scale?: number;
@@ -35,7 +34,6 @@ export async function arcaneMissileTargeted(
 		frequencyMin = 1,
 		frequencyMax = 2,
 		particleScale = 1.5,
-		speedMultiplier = 2,
 		impact = {
 			colors: [0x00ffff, 0x87ceeb],
 			scale: 2,
@@ -89,7 +87,7 @@ export async function arcaneMissileTargeted(
 	beam.destroy();
 	const totalSegments = points.length - 1;
 	const amplitudeForSegments = amplitude * 2.2;
-	const travelTime = duration * speedMultiplier;
+	const travelTime = duration;
 	const segmentDelay = travelTime / totalSegments;
 
 	const vec = new Phaser.Math.Vector2(target.x - source.x, target.y - source.y);
@@ -130,22 +128,49 @@ export async function arcaneMissileTargeted(
 		});
 	}
 
-	await delay(duration * speedMultiplier);
+	await delay(duration);
 
 	const impactLifespan = impact.lifespan || 300;
+	const impactSpeed = impact.speed || 200;
+	const impactColors = impact.colors || [0x00ffff, 0x87ceeb];
+	const impactAlpha = impact.alpha || 0.4;
+	const impactScale = (impact.scale || 2) * 4;
+	const impactRectCount = Math.max(8, Math.round(impactScale * 2));
+	const impactRects: Phaser.GameObjects.Rectangle[] = [];
 
-	const impactParticles = scene.add.particles(target.x, target.y, images.white_dot.key, {
-		speed: impact.speed || 200,
-		tint: impact.colors || [0x00ffff, 0x87ceeb],
-		lifespan: impactLifespan,
-		alpha: { start: impact.alpha || 0.4, end: 0 },
-		scale: { start: impact.scale || 2, end: 0 },
-		blendMode: "ADD",
-	});
+	for (let i = 0; i < impactRectCount; i++) {
+		const angle = Math.random() * Math.PI * 2;
+		const speed = impactSpeed * (0.6 + Math.random() * 0.8);
+		const travelDistance = (speed * impactLifespan) / 1000;
+		const color = impactColors[Math.floor(Math.random() * impactColors.length)];
+		const size = Phaser.Math.FloatBetween(40, 60);
+
+		const rect = scene.add.rectangle(target.x, target.y, size, size, color, impactAlpha);
+		rect.setBlendMode(blendMode);
+		impactRects.push(rect);
+
+		scene.tweens.add({
+			targets: rect,
+			x: target.x + Math.cos(angle) * travelDistance,
+			y: target.y + Math.sin(angle) * travelDistance,
+			alpha: 0,
+			scaleX: 0,
+			scaleY: 0,
+			duration: impactLifespan,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				rect.destroy();
+			},
+		});
+	}
 
 	onHit();
 
 	await delay(impactLifespan);
 
-	impactParticles.destroy();
+	impactRects.forEach((rect) => {
+		if (rect.active) {
+			rect.destroy();
+		}
+	});
 }
