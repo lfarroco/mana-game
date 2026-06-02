@@ -1,12 +1,13 @@
 import "phaser"
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "@Constants/constants";
-import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
+import * as constants from "@Constants/constants";
 import Core from "@Screens/Preload/Core";
-import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import "@Models/State"; // start global state
 import * as phaserIO from "@PhaserIO";
+
+import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
+import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
 	var io: typeof phaserIO;
@@ -40,8 +41,8 @@ async function startGameIO(): Promise<void> {
 		type: Phaser.AUTO,
 		pixelArt: false,
 		scale: {
-			width: SCREEN_WIDTH,
-			height: SCREEN_HEIGHT,
+			width: constants.SCREEN_WIDTH,
+			height: constants.SCREEN_HEIGHT,
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},

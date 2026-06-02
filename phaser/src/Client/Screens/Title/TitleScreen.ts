@@ -37,6 +37,7 @@ function renderMainButtons() {
 		() => Components.arenaButton.render(600).container,
 		() => Components.optionsButton.render(700).container,
 		() => Components.linksButton.render(800).container,
+		() => Components.exitButton.render(900).container,
 		() => Components.languageButton.render().container,
 	]);
 }

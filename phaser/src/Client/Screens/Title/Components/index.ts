@@ -8,3 +8,4 @@ export * as linksButton from "./linksButton";
 export * as newSinglePlayerRunButton from "./newSinglePlayerRunButton";
 export * as UnlockModal from "./UnlockModal";
 export * as singlePlayerButton from "./singlePlayerButton";
+export * as exitButton from "./exitButton";
