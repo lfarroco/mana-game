@@ -1,4 +1,4 @@
-import { mainButtonsContainer } from "../TitleScene";
+import { mainButtonsContainer } from "../TitleScreen";
 
 
 export function hideMainButtons() {

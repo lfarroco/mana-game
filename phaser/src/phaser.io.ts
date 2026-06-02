@@ -1,7 +1,7 @@
 import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
 import { renderCrystalSelectionScreen } from "Client/Screens/CrystalSelection/CrystalSelectionScene";
-import { renderTitleScreen } from "Client/Screens/Title/TitleScene";
+import { renderTitleScreen } from "@Screens/Title/TitleScreen";
 import { createBattlegroundScreen } from "Client/Screens/Battleground/BattlegroundScene";
 import { delay } from "@Utils/animation";
 

@@ -2,7 +2,7 @@ import { images } from "@assets";
 import { registerCollection } from "@Models/Entities/Card";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { DISABLE_ASSETS } from "@config";
-import * as TitleScene from "Client/Screens/Title/TitleScene";
+import * as TitleScreen from "@Screens/Title/TitleScreen";
 
 export default class Core extends Phaser.Scene {
 
@@ -158,6 +158,6 @@ export default class Core extends Phaser.Scene {
         io.initPhaserIO(this);
         registerCollection(BASE_COLLECTION_DATA);
 
-        TitleScene.renderTitleScreen();
+        TitleScreen.renderTitleScreen();
     }
 }
