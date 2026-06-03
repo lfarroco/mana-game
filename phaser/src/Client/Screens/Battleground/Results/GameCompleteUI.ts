@@ -1,4 +1,4 @@
-import * as UIButton from "@Components/UIButton";
+import * as UIButton from "Client/Components/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as environment from "@Utils/environment";
 import * as State from "@Models/State";

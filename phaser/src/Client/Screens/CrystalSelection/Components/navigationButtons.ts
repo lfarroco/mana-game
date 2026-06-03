@@ -1,4 +1,4 @@
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/SharedGeometry";

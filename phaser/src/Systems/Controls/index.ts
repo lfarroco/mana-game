@@ -3,7 +3,7 @@ import * as Config from "@config";
 import * as GameController from "@Core/GameController";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
-import * as UIButton from "@Components/UIButton";
+import * as UIButton from "Client/Components/UIButton";
 import * as BoardCursor from "@Systems/Controls/boardCursor";
 import * as Encounter from "@Systems/Encounter";
 import * as i18n from "@i18n/i18n";

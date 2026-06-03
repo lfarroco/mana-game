@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createSlider } from "@Components/Slider";
+import { createSlider } from "Client/Components/Slider";
 import { LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
 
 const VOLUME_STEP = 0.1;

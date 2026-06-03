@@ -1,6 +1,6 @@
 import * as Geometry from "@Models/Geometry";
 import * as c from "@Constants/constants";
-import * as UIButton from "@Components/UIButton";
+import * as UIButton from "Client/Components/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Encounter from "@Systems/Encounter";

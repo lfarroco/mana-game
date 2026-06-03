@@ -1,7 +1,7 @@
 import { getCurrentLocale, getNativeName } from "@i18n/i18n";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import { openLanguagePanel } from "Client/Screens/Title/Components/LanguagePanel";
 import { t } from "@i18n/i18n";
 

@@ -3,7 +3,7 @@ import * as OptionsStore from "@Models/OptionsStore";
 import type { PhaseType, SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
-import * as Tooltip from "@Components/Tooltip";
+import * as Tooltip from "Client/Components/Tooltip";
 import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
 import * as handleShopPhase from "./Shop/handleShopPhase";

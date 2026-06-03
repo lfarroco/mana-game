@@ -7,7 +7,7 @@ import { displayDefeat } from "Client/Screens/Battleground/Results/DefeatUI";
 import { displayGameComplete } from "Client/Screens/Battleground/Results/GameCompleteUI";
 import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
-import { createBackgroundOverlay, BackgroundOverlay } from "@Components/BackgroundOverlay";
+import { createBackgroundOverlay, BackgroundOverlay } from "Client/Components/BackgroundOverlay";
 import { determineGameOutcome } from "Client/Screens/Battleground/Results/ResultsOutcome";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;

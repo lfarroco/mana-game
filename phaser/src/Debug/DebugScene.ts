@@ -1,6 +1,6 @@
 import { images } from "@assets";
 import * as effects from "@Effects/index";
-import { Button, createUIButton } from "@Components/UIButton";
+import { Button, createUIButton } from "Client/Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { createLogger } from "@Utils/Logger";

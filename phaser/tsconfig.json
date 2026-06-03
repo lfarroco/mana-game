@@ -25,7 +25,7 @@
                 "./src/phaser.io.ts"
             ],
             "@Components/*": [
-                "./src/Components/*"
+                "./src/Client/Components/*"
             ],
             "@Shaders/*": [
                 "./src/Shaders/*"

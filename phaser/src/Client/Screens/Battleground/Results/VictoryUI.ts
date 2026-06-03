@@ -1,4 +1,4 @@
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import * as c from "@Constants/constants";
 import { size, vec2 } from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";

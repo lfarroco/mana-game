@@ -1,4 +1,4 @@
-import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
+import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
 
 export function createBackground() {
 	new CloudsBackground.CloudsBackground({

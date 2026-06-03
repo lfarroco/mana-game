@@ -1,8 +1,8 @@
 import * as constants from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "@Components/UIButton";
-import * as BackgroundOverlay from "@Components/BackgroundOverlay";
-import * as Panel from "@Components/Panel";
+import * as UIButton from "Client/Components/UIButton";
+import * as BackgroundOverlay from "Client/Components/BackgroundOverlay";
+import * as Panel from "Client/Components/Panel";
 import * as i18n from "@i18n/i18n";
 
 let isOpen = false;

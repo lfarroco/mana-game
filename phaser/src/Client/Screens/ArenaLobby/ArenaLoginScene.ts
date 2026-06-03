@@ -7,9 +7,9 @@ import {
 	titleTextConfig,
 } from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { createUIButton, Button } from "@Components/UIButton";
-import { createModal } from "@Components/Modal";
-import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
+import { createUIButton, Button } from "Client/Components/UIButton";
+import { createModal } from "Client/Components/Modal";
+import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {

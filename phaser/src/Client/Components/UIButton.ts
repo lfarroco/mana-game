@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { titleTextConfig } from "@Constants/constants";
 import { playSoundEffect } from "@Systems/AudioManager";
 import * as io from "@PhaserIO";
-import { attachButtonTooltip, ButtonTooltipContent } from "@Components/ButtonTooltip";
+import { attachButtonTooltip, ButtonTooltipContent } from "Client/Components/ButtonTooltip";
 import { createLogger } from "@Utils/Logger";
 import { findNextFocusable, FocusableEntry } from "@Systems/Controls/navigation";
 import { NavigationDirection } from "@Systems/Controls/intents";

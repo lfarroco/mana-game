@@ -23,7 +23,7 @@ import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
 import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
 import * as Logger from "@Utils/Logger";
-import * as UIButton from "@Components/UIButton";
+import * as UIButton from "Client/Components/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import type * as Types from "@Core/Types";

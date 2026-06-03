@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as Board from "@Models/Board";
-import * as Tooltip from "@Components/Tooltip";
+import * as Tooltip from "Client/Components/Tooltip";
 import { magicOrbFragmentShader } from "@Shaders/MagicOrbShader";
 import { nextValue } from "@Utils/Random";
 import { createLogger } from "@Utils/Logger";

@@ -1,7 +1,7 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { renderTooltip, hideTooltip } from "@Components/Tooltip";
+import { renderTooltip, hideTooltip } from "Client/Components/Tooltip";
 import * as i18n from "@i18n/i18n";
 import Phaser from "phaser";
 

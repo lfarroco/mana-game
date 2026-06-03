@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
-import * as Tooltip from "@Components/Tooltip";
+import * as Tooltip from "Client/Components/Tooltip";
 import * as ControlsSystem from "@Systems/Controls";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"

@@ -1,5 +1,5 @@
 import * as Chara from "@Systems/Chara/Chara";
-import { hideTooltip } from "@Components/Tooltip";
+import { hideTooltip } from "Client/Components/Tooltip";
 import { tween } from "@Utils/animation";
 import { playSoundEffect } from "@Systems/AudioManager";
 

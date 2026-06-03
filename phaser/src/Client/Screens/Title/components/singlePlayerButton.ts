@@ -1,5 +1,5 @@
 import * as constants from "@Constants/constants";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import { getSinglePlayerData } from "@Game/effects/getSinglePlayerData";
 import { startGame } from "@Screens/Title/Effects/startGame";
 import { t } from "@i18n/i18n";

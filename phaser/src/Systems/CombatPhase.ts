@@ -7,7 +7,7 @@ import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
-import { createUIButton, Button } from "@Components/UIButton";
+import { createUIButton, Button } from "Client/Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import { createLogger } from "@Utils/Logger";

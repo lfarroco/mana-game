@@ -2,7 +2,7 @@ import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import * as animation from "@Utils/animation";
 import * as sc from "@Screens/Battleground/Shop/constants";
-import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
+import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
 import * as Orbs from "@Screens/Battleground/Shop/Orbs";
 import * as Geometry from "@Models/Geometry";
 import * as colorUtils from "@Utils/colorUtils";

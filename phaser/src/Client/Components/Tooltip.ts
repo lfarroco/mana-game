@@ -9,7 +9,7 @@ import {
 	TOOLTIP_MIN_WIDTH,
 	TOOLTIP_TOP_PADDING,
 	getTooltipDimensions,
-} from "@Components/TooltipLayout";
+} from "Client/Components/TooltipLayout";
 import {
 	UI_TEXT_MUTED,
 	UI_TOOLTIP_BG_COLOR,

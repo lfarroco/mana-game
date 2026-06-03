@@ -1,5 +1,5 @@
 import type Phaser from "phaser";
-import { hideTooltip, renderTooltip } from "@Components/Tooltip";
+import { hideTooltip, renderTooltip } from "Client/Components/Tooltip";
 
 const BUTTON_TOOLTIP_VERTICAL_OFFSET = 180;
 const BUTTON_TOOLTIP_MAX_WIDTH = 600;

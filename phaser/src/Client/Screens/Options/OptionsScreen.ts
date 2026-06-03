@@ -1,5 +1,5 @@
 import * as Phaser from "phaser";
-import { CloudsBackground } from "@Components/cloudBackground/CloudsBackground";
+import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
 import { returnToTitle } from "@Screens/Options/Effects/returnToTitle";
 import { showTab } from "@Screens/Options/Components/effects/showTab";
 import { backButton } from "@Screens/Options/Components/backButton";

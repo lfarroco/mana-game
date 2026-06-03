@@ -31,7 +31,7 @@ module.exports = {
             "@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
             "@Constants": path.resolve(__dirname, "../src/Constants"),
             "@Utils": path.resolve(__dirname, "../src/Utils"),
-            "@Components": path.resolve(__dirname, "../src/Components"),
+            "@Components": path.resolve(__dirname, "../src/Client/Components"),
             "@Shaders": path.resolve(__dirname, "../src/Shaders"),
             "@i18n": path.resolve(__dirname, "../src/i18n")
         }

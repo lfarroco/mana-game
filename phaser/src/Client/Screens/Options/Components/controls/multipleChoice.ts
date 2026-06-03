@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import * as Phaser from "phaser";
 import { BUTTONS, LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
 

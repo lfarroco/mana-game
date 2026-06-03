@@ -1,7 +1,7 @@
 import { Unit } from "@Models/Entities/Unit";
 import * as constants from "@Constants/constants";
 import { Chara, mustGetCharaById, getUnit } from "@Systems/Chara/Chara";
-import { createChip, updateChipText } from "@Components/Chip";
+import { createChip, updateChipText } from "Client/Components/Chip";
 import { vec2 } from "@Models/Geometry";
 import { compactNumber } from "@utils";
 import { ABILITY_COLORS } from "@Models/Abilities";

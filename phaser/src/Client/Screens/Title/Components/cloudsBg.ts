@@ -1,4 +1,4 @@
-import * as CloudsBackground from "@Components/cloudBackground/CloudsBackground";
+import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
 
 let backgroundInstance: CloudsBackground.CloudsBackground | null = null;
 

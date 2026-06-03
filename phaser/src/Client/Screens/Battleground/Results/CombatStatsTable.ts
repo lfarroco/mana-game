@@ -6,7 +6,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
 import * as c from "@Constants/constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import { createPanel } from "@Components/Panel";
+import { createPanel } from "Client/Components/Panel";
 import { getName, t } from "@i18n/i18n";
 import { compactNumber } from "@utils";
 
@@ -115,7 +115,7 @@ async function createStatsPanel(
 		sprite.setInteractive();
 
 		sprite.on("pointerover", () => {
-			import("@Components/Tooltip").then(({ renderTooltip }) => {
+			import("Client/Components/Tooltip").then(({ renderTooltip }) => {
 				const title = getName(unit.cardId);
 
 				const effectBlocks = unit.effects

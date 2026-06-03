@@ -2,7 +2,7 @@ import * as constants from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
-import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
+import * as EnergySlot from "Client/Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@Models/BoardLogic";
 
 export interface BoardState {

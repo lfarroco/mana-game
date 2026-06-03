@@ -1,6 +1,6 @@
 import { Chara } from "@Systems/Chara/Chara";
 import { Effect, EffectReaction, Targeting } from "@TriggerSystem/TriggerSystem";
-import { hideTooltip, renderTooltip } from "@Components/Tooltip";
+import { hideTooltip, renderTooltip } from "Client/Components/Tooltip";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { t } from "@i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";

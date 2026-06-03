@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { arcaneMissileTargeted } from "@Effects/arcaneMissileTargeted";
 import { healingHitEffect } from "@Effects/healingHitEffect";
-import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
+import { MagicOrb } from "Client/Components/MagicOrb/MagicOrb";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
 import { mustGetCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
 import { mixHexColors } from "@Screens/Battleground/Components/UI/theme";

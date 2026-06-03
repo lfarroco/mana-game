@@ -4,7 +4,7 @@ import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
-import * as Tooltip from "@Components/Tooltip";
+import * as Tooltip from "Client/Components/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as events from "@Systems/Chara/events";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";

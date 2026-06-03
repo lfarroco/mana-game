@@ -1,5 +1,5 @@
-import { createChip, getChip, updateChipText } from "@Components/Chip";
-import { hideTooltip, renderTooltip } from "@Components/Tooltip";
+import { createChip, getChip, updateChipText } from "Client/Components/Chip";
+import { hideTooltip, renderTooltip } from "Client/Components/Tooltip";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
 import * as i18n from "@i18n/i18n";
 import { getBattleCore, getPlayerPersistentCore } from "@Models/Entities/Card";

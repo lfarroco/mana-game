@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "@Components/UIButton";
+import { createUIButton } from "Client/Components/UIButton";
 import { openOptions } from "@Screens/Title/Effects/openOptions";
 import { openCredits } from "Client/Screens/Title/Components/CreditsPanel";
 import { openStats } from "Client/Screens/Title/Components/StatsPanel";

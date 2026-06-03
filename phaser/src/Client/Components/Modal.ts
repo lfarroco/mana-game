@@ -1,8 +1,8 @@
 import * as c from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createBackgroundOverlay } from "@Components/BackgroundOverlay";
-import { createPanel, Panel, PanelConfig } from "@Components/Panel";
+import { createBackgroundOverlay } from "Client/Components/BackgroundOverlay";
+import { createPanel, Panel, PanelConfig } from "Client/Components/Panel";
 
 // Modal animation constants
 const MODAL_SCALE_IN_DURATION_MS = 500;
