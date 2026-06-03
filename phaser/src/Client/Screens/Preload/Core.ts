@@ -1,8 +1,11 @@
-import { images } from "@assets";
-import { registerCollection } from "@Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
-import { DISABLE_ASSETS } from "@config";
+import * as Assets from "@assets";
+import * as Card from "@Models/Entities/Card";
+import * as BaseCollection from "@Data/BaseCollection";
+import * as Config from "@config";
 import * as TitleScreen from "@Screens/Title/TitleScreen";
+import * as OptionsStore from "@Models/OptionsStore";
+
+const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
 export default class Core extends Phaser.Scene {
 
@@ -10,7 +13,7 @@ export default class Core extends Phaser.Scene {
 
         this.createLoadingBar();
 
-        if (DISABLE_ASSETS) return;
+        if (Config.DISABLE_ASSETS) return;
 
         this.loadUnitAssets();
         this.loadUIAssets();
@@ -67,7 +70,7 @@ export default class Core extends Phaser.Scene {
     }
 
     loadUIAssets() {
-        this.load.image(images.logo);
+        this.load.image(Assets.images.logo);
         [
             "ui/armory",
             "ui/assassin",
@@ -98,7 +101,7 @@ export default class Core extends Phaser.Scene {
     loadUnitAssets() {
 
         const uniquePics = new Set(
-            BASE_COLLECTION_DATA
+            BaseCollection.BASE_COLLECTION_DATA
                 .cards
                 .filter((card) => !card.isCore)
                 .map((card) => card.pic)
@@ -156,7 +159,14 @@ export default class Core extends Phaser.Scene {
     create() {
 
         io.initPhaserIO(this);
-        registerCollection(BASE_COLLECTION_DATA);
+        Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
+
+        io.scene.sound.setVolume(
+            OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME
+        );
+        const speed = OptionsStore.getOption("speed");
+        io.scene.time.timeScale = speed;
+        io.scene.tweens.timeScale = speed;
 
         TitleScreen.renderTitleScreen();
     }

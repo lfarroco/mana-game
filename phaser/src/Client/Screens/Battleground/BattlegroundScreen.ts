@@ -1,5 +1,4 @@
 import * as Board from "@Models/Board";
-import * as OptionsStore from "@Models/OptionsStore";
 import type { PhaseType, SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
@@ -19,8 +18,6 @@ import { handleGameOverPhase } from "./Phases/handleGameOverPhase";
 import { handleVictoryPhase } from "./Phases/handleVictoryPhase";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
-
-const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
 type PhaseExecutionResult = SessionData | null;
 
@@ -77,21 +74,10 @@ const updateSessionState = (nextSession: SessionData) => {
 };
 
 export const createBattlegroundScreen = async () => {
-	const speed = OptionsStore.getOption("speed");
-	io.scene.time.timeScale = speed;
-	io.scene.tweens.timeScale = speed;
-
-	io.scene.sound.setVolume(OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME);
 
 	Components.create();
 
 	AudioManager.playMusic("music_battlemap_vetruv");
-
-	// const summonPromises = state.session.team.units.map(async (unit, index) => {
-	// 	await animation.delay(index * 200);
-	// 	await Chara.summon(unit, true);
-	// });
-	// await Promise.all(summonPromises);
 
 	Shop.refresh(null);
 
