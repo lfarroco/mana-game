@@ -107,12 +107,13 @@ export const createBattlegroundScreen = async () => {
 
 };
 
-async function executePhase(phase: PhaseType): Promise<PhaseExecutionResult> {
+async function executePhase(
+	phase: PhaseType,
+): Promise<PhaseExecutionResult> {
 
-
-
-
-	await syncPlayerBoardUnitsIO();
+	if (phase !== 'combat') {
+		await syncPlayerBoardUnitsIO();
+	}
 
 	switch (phase) {
 		case "encounter":
