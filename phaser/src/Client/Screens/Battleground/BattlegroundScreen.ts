@@ -4,8 +4,6 @@ import type { PhaseType, SessionData } from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "@Components/Tooltip";
-import * as animation from "@Utils/animation";
-import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
 import * as handleShopPhase from "./Shop/handleShopPhase";
@@ -19,6 +17,8 @@ import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase
 import * as handleOrbShopPhase from "./Phases/handleOrbShopPhase";
 import { handleGameOverPhase } from "./Phases/handleGameOverPhase";
 import { handleVictoryPhase } from "./Phases/handleVictoryPhase";
+import * as Chara from "@Systems/Chara/Chara";
+import * as animation from "@Utils/animation";
 
 const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
 
@@ -28,6 +28,35 @@ const getLivesFromSession = (session: SessionData) => 4 - session.losses;
 
 const assertNeverPhase = (phase: never): never => {
 	throw new Error(`Unknown phase: ${phase}`);
+};
+
+const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
+	if (!Chara.hasCharaById(unitId)) {
+		return false;
+	}
+
+	const renderedUnit = Chara.getUnit(Chara.mustGetCharaById(unitId));
+	return renderedUnit.power !== expectedPower || renderedUnit.rank !== expectedRank;
+};
+
+const syncPlayerBoardUnitsIO = async (): Promise<void> => {
+	const summonPromises = state.session.team.units.map(async (unit, index) => {
+		if (!Chara.hasCharaById(unit.id)) {
+			await animation.delay(index * 200);
+			await Chara.summon(unit, true);
+			return;
+		}
+
+		if (!shouldRefreshPlayerUnit(unit.id, unit.power, unit.rank)) {
+			return;
+		}
+
+		const chara = Chara.mustGetCharaById(unit.id);
+		Chara.destroy(chara);
+		await Chara.summon(unit, true);
+	});
+
+	await Promise.all(summonPromises);
 };
 
 const updateSessionState = (nextSession: SessionData) => {
@@ -58,11 +87,11 @@ export const createBattlegroundScreen = async () => {
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
-	const summonPromises = state.session.team.units.map(async (unit, index) => {
-		await animation.delay(index * 200);
-		await Chara.summon(unit, true);
-	});
-	await Promise.all(summonPromises);
+	// const summonPromises = state.session.team.units.map(async (unit, index) => {
+	// 	await animation.delay(index * 200);
+	// 	await Chara.summon(unit, true);
+	// });
+	// await Promise.all(summonPromises);
 
 	Shop.refresh(null);
 
@@ -79,6 +108,12 @@ export const createBattlegroundScreen = async () => {
 };
 
 async function executePhase(phase: PhaseType): Promise<PhaseExecutionResult> {
+
+
+
+
+	await syncPlayerBoardUnitsIO();
+
 	switch (phase) {
 		case "encounter":
 			return await Encounter.displayOptions();
