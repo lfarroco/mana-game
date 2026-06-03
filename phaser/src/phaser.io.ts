@@ -36,14 +36,16 @@ type ContainerChild =
  * - Functions that return GameObjects
  * - Arrays of functions that compose together (each function receives the previous result)
  */
-export function Container(children?: ContainerChild[]): Phaser.GameObjects.Container {
+export function Container(children?: (ContainerChild | null)[]): Phaser.GameObjects.Container {
 	const container = scene.add.container();
 
 	if (children) {
 		const elements: Phaser.GameObjects.GameObject[] = [];
 
 		children.forEach((child) => {
-			if (typeof child === "function") {
+			if (!child) {
+				return;
+			} else if (typeof child === "function") {
 				elements.push(child());
 			} else if (Array.isArray(child)) {
 				if (child.length === 0) {

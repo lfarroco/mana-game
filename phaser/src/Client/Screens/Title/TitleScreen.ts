@@ -3,6 +3,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip";
 import * as ControlsSystem from "@Systems/Controls";
+import * as environment from "@Utils/environment";
 import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
@@ -37,7 +38,9 @@ function renderMainButtons() {
 		() => Components.arenaButton.render(600).container,
 		() => Components.optionsButton.render(700).container,
 		() => Components.linksButton.render(800).container,
-		() => Components.exitButton.render(900).container,
+		environment.isElectron() ?
+			() => Components.exitButton.render(900).container :
+			null,
 		() => Components.languageButton.render().container,
 	]);
 }
