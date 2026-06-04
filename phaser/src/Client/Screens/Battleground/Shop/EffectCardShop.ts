@@ -12,7 +12,7 @@ import * as Types from "@Core/Types";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as upgradeCrystalSelectionEffect from "@Effects/upgradeCrystalSelectionEffect";
-import * as ForceStats from "Client/Screens/Battleground/ForceStats";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 const logger = Logger.createLogger("EffectCardShop");
 

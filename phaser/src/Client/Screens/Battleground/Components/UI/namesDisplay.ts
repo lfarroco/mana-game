@@ -1,4 +1,4 @@
-import * as ForceStats from "Client/Screens/Battleground/ForceStats";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";

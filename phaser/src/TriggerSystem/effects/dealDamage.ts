@@ -2,7 +2,7 @@ import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/En
 import { Unit, calculateCritical } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { getEnemyCore } from "@Models/Entities/Card";
-import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scale: number = 1, delayedExecution?: number) {
 	const damageAmount = sourceUnit.power;

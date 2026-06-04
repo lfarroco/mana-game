@@ -1,4 +1,4 @@
-import { runCombat } from "Client/Screens/Battleground/RunCombatCore";
+import { runCombat } from "@Core/Combat/RunCombatCore";
 import { createServerCombatEffects } from "Client/Screens/Battleground/ServerCombatEffects";
 import { createMockState } from "@test-utils/serverCombatUtils";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "Client/Screens/Battleground/ServerConstants";

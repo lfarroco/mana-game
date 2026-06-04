@@ -1,7 +1,7 @@
 import { State } from "@Models/State";
-import { CombatRunner, WaveOutcome } from "Client/Screens/Battleground/RunCombatCore";
+import { CombatRunner, WaveOutcome } from "@Core/Combat/RunCombatCore";
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
-import { CombatEffects } from "Client/Screens/Battleground/CombatEnvironment";
+import { CombatEffects } from "@Core/Combat/CombatTypes";
 import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import type { CountdownTimerState } from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";

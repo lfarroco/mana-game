@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { activateBlackHole, deactivateBlackHole } from "Client/Screens/Battleground/BlackHole";
+import { activateBlackHole, deactivateBlackHole } from "@Screens/Battleground/Components/BlackHole";
 import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
 

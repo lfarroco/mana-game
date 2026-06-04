@@ -5,41 +5,7 @@ import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Board from "@Models/Board";
-import { handlePhase } from "Client/Screens/Battleground/MultiplayerPhaseManager";
 
-// const createLocalPhaseTransport = (): PhaseTransport => ({
-// 	getPhaseOptions: async () => {
-// 		const server = GameServer.getServer();
-// 		const playerId = getPlayerId();
-// 		// TODO: we can abstract even more, by not requiring
-// 		// the instanciation of a server
-// 		return await server.getPhaseOptions(playerId);
-// 	},
-// 	sendOptionSelection: async (optionId: string, payload?: ActionPayload) => {
-// 		const server = GameServer.getServer();
-// 		const playerId = getPlayerId();
-// 		return await server.handleAction(playerId, optionId, payload);
-// 	},
-// });
-
-export async function startPhase() {
-	// Both multiplayer and single-player use the same phase handler.
-	// Multiplayer uses the remote transport (default); single-player uses a local transport.
-	// const isMultiplayer = state.session.session_type.type !== "singleplayer";
-	// const transport = isMultiplayer ? undefined : createLocalPhaseTransport();
-	await handlePhase(
-		//transport,
-	);
-}
-
-// Helper to get player ID (from state or generate one)
-export function getPlayerId(): string {
-	// Use a consistent player ID for single-player
-	if (!state.session.player_id) {
-		state.session.player_id = "sp_player_" + Date.now();
-	}
-	return state.session.player_id;
-}
 
 export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
 

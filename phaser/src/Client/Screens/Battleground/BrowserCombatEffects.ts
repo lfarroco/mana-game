@@ -1,5 +1,5 @@
 import * as State from "@Models/State";
-import { CombatEffects, WaveOutcome } from "Client/Screens/Battleground/RunCombatCore";
+import { CombatEffects, WaveOutcome } from "@Core/Combat/RunCombatCore";
 import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 import * as Animations from "@Systems/Chara/Animations";
@@ -9,8 +9,8 @@ import { delay } from "@Utils/animation";
 import { mustGetCharaById } from "@Systems/Chara/Chara";
 import { resetUnitStats } from "@Models/Entities/Unit";
 
-import * as ForceStats from "Client/Screens/Battleground/ForceStats";
-import { initBlackHole } from "Client/Screens/Battleground/BlackHole";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import { initBlackHole } from "@Screens/Battleground/Components/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import { CountdownTimerState } from "@Systems/CountdownTimer";
 import { summonEffect } from "@Effects/summonEffect";
@@ -32,8 +32,10 @@ import * as io from "@PhaserIO"
 
 const logger = createLogger("BrowserCombatEffects");
 
+// TODO: this should not be necessary
+// When simulating combat in the backend, these can simply be skipped
+// as there is nothing to replace it
 export const createBrowserCombatEffects = (
-	isReplay: boolean = false,
 	onReplayEnd?: () => void
 ): CombatEffects => {
 	return {
@@ -79,10 +81,7 @@ export const createBrowserCombatEffects = (
 					ChargeBarDisplay.updateChargeBar(u.id);
 				});
 
-			// Only update game state (lives, wins, losses) if this is not a replay
-			if (!isReplay) {
-				//await Systems.ResultsPhase.handleCombatEnded(state, outcome);
-			} else if (onReplayEnd) {
+			if (onReplayEnd) {
 				// After replay ends, show the results screen again
 				await onReplayEnd();
 			}

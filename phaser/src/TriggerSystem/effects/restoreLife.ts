@@ -3,7 +3,7 @@ import { Force, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force"
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
-import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 export const restoreLife = async (
 	env: CombatEnvironment,

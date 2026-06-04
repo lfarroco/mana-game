@@ -1,6 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
-import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";
 
 export const absorbPower = (

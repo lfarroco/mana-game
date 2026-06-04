@@ -2,7 +2,7 @@ import { getAlliedCore } from "@Models/Entities/Card";
 import { calculateCritical, Unit } from "@Models/Entities/Unit";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import { CombatEnvironment } from "Client/Screens/Battleground/CombatEnvironment";
+import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("applyRegen");

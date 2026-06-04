@@ -21,8 +21,6 @@ import * as animation from "@Utils/animation";
 
 type PhaseExecutionResult = SessionData | null;
 
-const getLivesFromSession = (session: SessionData) => 4 - session.losses;
-
 const assertNeverPhase = (phase: never): never => {
 	throw new Error(`Unknown phase: ${phase}`);
 };
@@ -59,8 +57,8 @@ const syncPlayerBoardUnitsIO = async (): Promise<void> => {
 const updateSessionState = (nextSession: SessionData) => {
 	const previousSession = state.session;
 	const winsDelta = nextSession.wins - previousSession.wins;
-	const previousLives = getLivesFromSession(previousSession);
-	const nextLives = getLivesFromSession(nextSession);
+	const previousLives = SessionManager.getRemainingLives(previousSession);
+	const nextLives = SessionManager.getRemainingLives(nextSession);
 	const livesDelta = nextLives - previousLives;
 
 	state.session = nextSession;

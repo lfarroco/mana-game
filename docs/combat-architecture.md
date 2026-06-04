@@ -25,7 +25,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner
 
 ### 2. The Interface (`CombatEffects`)
 
-- **Location**: `phaser/src/Client/Screens/Battleground/CombatEnvironment.ts`
+- **Location**: `phaser/src/@Core/Combat/CombatTypes.ts`
 - **Responsibility**: Defines the contract for all side-effects. The Core Logic calls these methods to "announce" what happened, without knowing *how* it is presented.
 
 Key methods include (all optional — implementations only provide what they need):

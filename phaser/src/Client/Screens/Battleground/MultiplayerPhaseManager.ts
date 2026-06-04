@@ -6,7 +6,7 @@ import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
-import * as ForceStats from "Client/Screens/Battleground/ForceStats";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Unit from "@Models/Entities/Unit";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";

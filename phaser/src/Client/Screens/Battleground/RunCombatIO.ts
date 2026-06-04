@@ -1,5 +1,5 @@
 import * as State from "@Models/State";
-import * as RunCombatCore from "Client/Screens/Battleground/RunCombatCore";
+import * as RunCombatCore from "@Core/Combat/RunCombatCore";
 import * as BrowserCombatEffects from "Client/Screens/Battleground/BrowserCombatEffects";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as serverCombatDemo from "Client/Screens/Battleground/serverCombatDemo";
@@ -22,7 +22,6 @@ const cloneState = <T>(value: T): T => {
 	return JSON.parse(JSON.stringify(value)) as T;
 };
 
-export type { WaveOutcome, CombatRunner } from "Client/Screens/Battleground/RunCombatCore";
 
 Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
@@ -103,7 +102,7 @@ export const replayCombat = async (): Promise<void> => {
 	};
 
 	// Start combat playback with stored logs, using isReplay=true to prevent state updates
-	const effects = BrowserCombatEffects.createBrowserCombatEffects(true, onReplayEnd);
+	const effects = BrowserCombatEffects.createBrowserCombatEffects(onReplayEnd);
 	const playbackController = CombatPlaybackController.createCombatPlaybackController(state, lastCombatLogs, effects);
 
 	const env = playbackController.getEnv();

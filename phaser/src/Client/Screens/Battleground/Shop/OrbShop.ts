@@ -10,7 +10,7 @@ import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
-import * as ForceStats from "Client/Screens/Battleground/ForceStats";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 
 const logger = Logger.createLogger("OrbShop");
