@@ -16,10 +16,6 @@ import * as animation from "@Utils/animation";
 
 type PhaseExecutionResult = Types.SessionData | null;
 
-const assertNeverPhase = (phase: never): never => {
-	throw new Error(`Unknown phase: ${phase}`);
-};
-
 const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
 	if (!Chara.hasCharaById(unitId)) {
 		return false;
@@ -29,7 +25,7 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 	return renderedUnit.power !== expectedPower || renderedUnit.rank !== expectedRank;
 };
 
-const syncPlayerBoardUnitsIO = async (): Promise<void> => {
+const syncPlayerBoardUnits = async (): Promise<void> => {
 	const summonPromises = state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
 			await animation.delay(index * 200);
@@ -91,7 +87,7 @@ async function executePhase(
 ): Promise<PhaseExecutionResult> {
 
 	if (phase !== 'combat') {
-		await syncPlayerBoardUnitsIO();
+		await syncPlayerBoardUnits();
 	}
 
 	switch (phase) {
@@ -123,7 +119,8 @@ async function executePhase(
 			return await Phases.handleGameOverPhase();
 
 		default:
-			return assertNeverPhase(phase);
+			((_: never) => { })(phase)
+			return null;
 	}
 }
 
