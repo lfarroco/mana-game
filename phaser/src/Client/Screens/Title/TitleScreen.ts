@@ -36,7 +36,7 @@ function renderMainButtons() {
 	mainButtonsContainer = io.Container([
 		() => Components.singlePlayerButton.render(500).container,
 		() => Components.arenaButton.render(600).container,
-		() => Components.optionsButton.render(700).container,
+		() => Components.optionsButton.create(700).container,
 		() => Components.linksButton.render(800).container,
 		environment.isElectron() ?
 			() => Components.exitButton.render(900).container :
