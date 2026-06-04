@@ -5,8 +5,8 @@ import * as animation from "@Utils/animation";
 import * as io from "@PhaserIO";
 import * as Chara from "@Systems/Chara/Chara";
 
-import * as BrowserCombatEffects from "@Screens/Battleground/BrowserCombatEffects";
-import * as CombatPlaybackController from "@Screens/Battleground/CombatPlaybackController";
+import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
+import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
 import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 import * as BattlegroundNavigation from "@Screens/Battleground/battlegroundNavigation";

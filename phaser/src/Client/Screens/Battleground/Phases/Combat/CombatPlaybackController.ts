@@ -1,20 +1,20 @@
-import { State } from "@Models/State";
-import { CombatRunner, WaveOutcome } from "@Core/Combat/RunCombatCore";
-import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
-import { CombatEffects } from "@Core/Combat/CombatTypes";
-import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
-import type { CountdownTimerState } from "@Systems/CountdownTimer";
+import * as State from "@Models/State";
+import * as RunCombatCore from "@Core/Combat/RunCombatCore";
+import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import type * as CountdownTimer from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { initializePoisonSystem } from "@Systems/PoisonDamageSystem";
-import { initializeRegenSystem } from "@Systems/RegenSystem";
-import { initialize as initializeCombatStatsTracker } from "@Systems/CombatStatsTracker";
-import { createLogger } from "@Utils/Logger";
-import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";
+import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
+import * as Logger from "@Utils/Logger";
+import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
-const logger = createLogger("CombatPlaybackController");
+const logger = Logger.createLogger("CombatPlaybackController");
 
 type ScheduledAnimation = {
-	log: CombatLogEntry;
+	log: ServerCombatEffects.CombatLogEntry;
 	startTime: number;
 	endTime: number;
 	executed: boolean;
@@ -24,29 +24,30 @@ type PlaybackState = {
 	active: boolean;
 	currentTime: number;
 	animations: ScheduledAnimation[];
-	outcome: WaveOutcome | null;
+	outcome: RunCombatCore.WaveOutcome | null;
 	combatStates: CombatSystemStates.CombatSystemStates;
-	blackHoleState?: BlackHoleState;
-	countdownTimerState?: CountdownTimerState;
+	blackHoleState?: BlackHoleState.BlackHoleState;
+	countdownTimerState?: CountdownTimer.CountdownTimerState;
 };
 
+// TODO: this is bad
 // Must match ServerConstants.MIN_COOLDOWN
 const MIN_COOLDOWN = 200;
 
 export const createCombatPlaybackController = (
-	state: State,
-	logs: CombatLogEntry[],
-	effects: CombatEffects
-): CombatRunner => {
+	state: State.State,
+	logs: ServerCombatEffects.CombatLogEntry[],
+	effects: CombatTypes.CombatEffects
+): RunCombatCore.CombatRunner => {
 	const FRAME_DURATION = 16.67;
 
 	const forceStatsState = effects.initForceStats ? effects.initForceStats() : null;
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
-		poisonSystemState: initializePoisonSystem(),
-		regenSystemState: initializeRegenSystem(),
-		combatStatsTrackerState: initializeCombatStatsTracker(state),
-		forceStatsState: forceStatsState ?? initializeForceStatsState(),
+		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
+		regenSystemState: RegenSystem.initializeRegenSystem(),
+		combatStatsTrackerState: CombatStatsTracker.initialize(state),
+		forceStatsState: forceStatsState ?? ForceStatsState.initializeForceStatsState(),
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
@@ -328,7 +329,7 @@ export const createCombatPlaybackController = (
 		}
 	};
 
-	const updateFrame = (_state: State, _time: number, delta: number): void => {
+	const updateFrame = (_state: State.State, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
 		try {
@@ -359,7 +360,7 @@ export const createCombatPlaybackController = (
 		}
 	};
 
-	const finishCombat = async (state: State, outcome: WaveOutcome): Promise<void> => {
+	const finishCombat = async (state: State.State, outcome: RunCombatCore.WaveOutcome): Promise<void> => {
 		if (!playbackState.active) return;
 
 		playbackState.active = false;

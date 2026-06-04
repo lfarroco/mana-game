@@ -1,6 +1,6 @@
 import * as State from "@Models/State";
 import * as Encounter from "@Systems/Encounter";
-import * as BrowserCombatEffects from "Client/Screens/Battleground/BrowserCombatEffects";
+import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
