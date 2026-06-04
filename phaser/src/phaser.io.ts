@@ -2,15 +2,17 @@ import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
 import { sumVec2 } from "@Models/Geometry";
 import { renderCrystalSelectionScreen } from "Client/Screens/CrystalSelection/CrystalSelectionScene";
 import { renderTitleScreen } from "@Screens/Title/TitleScreen";
-import { createBattlegroundScreen } from "@Screens/Battleground/BattlegroundScreen";
+import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
 import { delay } from "@Utils/animation";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 export let scene: Phaser.Scene;
 
 export const screens = {
 	title: renderTitleScreen,
 	crystalSelection: renderCrystalSelectionScreen,
-	battleground: createBattlegroundScreen,
+	battleground: BattlegroundScreen.createBattlegroundScreen,
+	options: OptionsScreen.create
 }
 
 export function initPhaserIO(newScene: Phaser.Scene) {

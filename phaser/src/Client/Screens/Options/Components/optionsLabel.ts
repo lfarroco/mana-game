@@ -1,14 +1,15 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
+import * as Geometry from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { LAYOUT } from "@Screens/Options/OptionsScreen";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
-import { t } from "@i18n/i18n";
-export function optionsLabel() {
-	const optionsLabel = io.Text(t("options.title"), {
+import * as i18n from "@i18n/i18n";
+
+export function create() {
+	const optionsLabel = io.Text(i18n.t("options.title"), {
 		...constants.titleTextConfig,
-		fontSize: LAYOUT.TITLE_FONT_SIZE,
+		fontSize: OptionsScreen.LAYOUT.TITLE_FONT_SIZE,
 	});
-	io.SetPosition(optionsLabel, vec2(constants.MIDDLE_SCREEN_X, LAYOUT.TITLE_Y));
+	io.SetPosition(optionsLabel, Geometry.vec2(constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.TITLE_Y));
 	io.Centralize(optionsLabel);
 }

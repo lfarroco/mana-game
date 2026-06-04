@@ -1,14 +1,14 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "Client/Components/UIButton";
-import { LAYOUT } from "@Screens/Options/OptionsScreen";
-import { returnToTitle } from "@Screens/Options/Effects/returnToTitle";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "Client/Components/UIButton";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import * as returnToTitle from "@Screens/Options/Effects/returnToTitle";
+import * as i18n from "@i18n/i18n";
 
-export function backButton() {
-	createUIButton({
-		text: t("options.back"),
-		position: vec2(constants.MIDDLE_SCREEN_X, LAYOUT.BACK_BUTTON_Y),
-		callback: returnToTitle,
+export function create() {
+	UIButton.createUIButton({
+		text: i18n.t("options.back"),
+		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.BACK_BUTTON_Y),
+		callback: returnToTitle.returnToTitle,
 	});
 }

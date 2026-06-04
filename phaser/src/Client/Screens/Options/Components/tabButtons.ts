@@ -1,38 +1,38 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { Button, createUIButton } from "Client/Components/UIButton";
-import { LAYOUT } from "@Screens/Options/OptionsScreen";
-import { showTab } from "@Screens/Options/Components/effects/showTab";
-import { updateTabButtonStates } from "@Screens/Options/Components/effects/updateTabButtonStates";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "Client/Components/UIButton";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import * as showTab from "@Screens/Options/Components/effects/showTab";
+import * as updateTabButtonStates from "@Screens/Options/Components/effects/updateTabButtonStates";
+import * as i18n from "@i18n/i18n";
 
-export const buttonIndex: { [key: string]: Button } = {};
+export const buttonIndex: { [key: string]: UIButton.Button } = {};
 
-export function tabButtons() {
-	const tabButtonY = LAYOUT.TAB_BUTTON_Y;
-	const buttonSpacing = LAYOUT.TAB_BUTTON_SPACING;
+export function create() {
+	const tabButtonY = OptionsScreen.LAYOUT.TAB_BUTTON_Y;
+	const buttonSpacing = OptionsScreen.LAYOUT.TAB_BUTTON_SPACING;
 	const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
-	buttonIndex["audio"] = createUIButton({
-		text: t("options.tabs.audio"),
-		position: vec2(startX, tabButtonY),
-		callback: () => showTab("audio"),
-		width: LAYOUT.TAB_BUTTON_WIDTH,
+	buttonIndex["audio"] = UIButton.createUIButton({
+		text: i18n.t("options.tabs.audio"),
+		position: Geometry.vec2(startX, tabButtonY),
+		callback: () => showTab.showTab("audio"),
+		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
-	buttonIndex["graphics"] = createUIButton({
-		text: t("options.tabs.graphics"),
-		position: vec2(startX + buttonSpacing, tabButtonY),
-		callback: () => showTab("graphics"),
-		width: LAYOUT.TAB_BUTTON_WIDTH,
+	buttonIndex["graphics"] = UIButton.createUIButton({
+		text: i18n.t("options.tabs.graphics"),
+		position: Geometry.vec2(startX + buttonSpacing, tabButtonY),
+		callback: () => showTab.showTab("graphics"),
+		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
-	buttonIndex["game"] = createUIButton({
-		text: t("options.tabs.game"),
-		position: vec2(startX + buttonSpacing * 2, tabButtonY),
-		callback: () => showTab("game"),
-		width: LAYOUT.TAB_BUTTON_WIDTH,
+	buttonIndex["game"] = UIButton.createUIButton({
+		text: i18n.t("options.tabs.game"),
+		position: Geometry.vec2(startX + buttonSpacing * 2, tabButtonY),
+		callback: () => showTab.showTab("game"),
+		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
-	updateTabButtonStates();
+	updateTabButtonStates.updateTabButtonStates();
 }

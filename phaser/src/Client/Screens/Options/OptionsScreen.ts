@@ -1,12 +1,10 @@
-import * as Phaser from "phaser";
-import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
-import { returnToTitle } from "@Screens/Options/Effects/returnToTitle";
-import { showTab } from "@Screens/Options/Components/effects/showTab";
-import { backButton } from "@Screens/Options/Components/backButton";
-import { optionsLabel } from "@Screens/Options/Components/optionsLabel";
-import { tabButtons } from "@Screens/Options/Components/tabButtons";
-import { currentTab } from "@Screens/Options/Components/effects/showTab";
-import { Tabs } from "@Screens/Options/Components/Model";
+import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
+import * as returnToTitle from "@Screens/Options/Effects/returnToTitle";
+import * as showTab from "@Screens/Options/Components/effects/showTab";
+import * as backButton from "@Screens/Options/Components/backButton";
+import * as optionsLabel from "@Screens/Options/Components/optionsLabel";
+import * as tabButtons from "@Screens/Options/Components/tabButtons";
+import * as Model from "@Screens/Options/Components/Model";
 import * as ControlsSystem from "@Systems/Controls";
 
 export const LAYOUT = {
@@ -44,21 +42,21 @@ export const STYLES = {
 	VALUE_TEXT_COLOR: "#FFD700",
 } as const;
 
-export default class OptionsScreen extends Phaser.Scene {
-	cloudsBackground!: CloudsBackground;
+export function create() {
 
-	create() {
+	new CloudsBackground.CloudsBackground({ preset: "aurora" });
 
-		this.cloudsBackground = new CloudsBackground({ preset: "aurora" });
+	optionsLabel.create();
 
-		optionsLabel();
+	tabButtons.create();
 
-		tabButtons();
+	showTab.showTab(showTab.currentTab.key as Model.Tabs);
 
-		showTab(currentTab.key as Tabs);
+	backButton.create();
 
-		backButton();
-
-		ControlsSystem.init({ context: "buttons", onCancel: returnToTitle });
-	}
+	ControlsSystem.init(
+		{
+			context: "buttons",
+			onCancel: returnToTitle.returnToTitle,
+		});
 }
