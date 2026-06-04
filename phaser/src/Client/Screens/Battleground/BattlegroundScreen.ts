@@ -4,7 +4,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "Client/Components/Tooltip";
 import * as Encounter from "@Systems/Encounter";
-import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
+import * as handleCombatPhase from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
 import * as SessionManager from "@Core/SessionManager";
 
 import * as Shop from "./Shop/ShopPanel";

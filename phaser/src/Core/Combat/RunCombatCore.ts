@@ -36,6 +36,7 @@ type CombatRunnerState = {
 	blackHoleState: BlackHoleState | null;
 };
 
+// TODO: make effects optional, for server-side runs
 export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
 	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
 	let countdownTimerState = effects.initCountdownTimer

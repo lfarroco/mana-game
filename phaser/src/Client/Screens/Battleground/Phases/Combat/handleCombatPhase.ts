@@ -4,12 +4,21 @@ import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
 import * as io from "@PhaserIO";
 import * as Chara from "@Systems/Chara/Chara";
-import * as BrowserCombatEffects from "./BrowserCombatEffects";
-import * as CombatPlaybackController from "./CombatPlaybackController";
-import * as PhaseManager from "./PhaseManager";
-import * as ResultsUI from "./Results/ResultsUI";
-import * as namesDisplay from "./Components/UI/namesDisplay";
-import * as BattlegroundNavigation from "./battlegroundNavigation";
+
+import * as BrowserCombatEffects from "@Screens/Battleground/BrowserCombatEffects";
+import * as CombatPlaybackController from "@Screens/Battleground/CombatPlaybackController";
+import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
+import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
+import * as BattlegroundNavigation from "@Screens/Battleground/battlegroundNavigation";
+
+import * as c from "@Constants/constants";
+import { clearAll, summon } from "@Systems/Chara/Chara";
+import { delay } from "@Utils/animation";
+import * as PoisonSystem from "@Systems/PoisonDamageSystem";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatSystemStates from "@Systems/CombatSystemStates";
+
+
 
 const COMBAT_START_DELAY_MS = 300;
 
@@ -192,7 +201,7 @@ export async function handleCombatPhase(): Promise<CombatPhaseResult> {
 		const continueToNextPhase = async () => {
 			cleanup();
 			try {
-				await PhaseManager.resetBoard(true);
+				await resetBoard(true);
 				namesDisplay.updateNameDisplay({ enemyName: "" });
 				resolve({ type: "completed", session: getNextSession(combatState) });
 			} catch (error) {
@@ -218,4 +227,41 @@ export async function handleCombatPhase(): Promise<CombatPhaseResult> {
 			reject(error);
 		});
 	});
+}
+
+
+export async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
+
+	// Hide enemy board after combat
+	Board.setEnemyBoardVisible(false);
+
+	// Re-enable board input after combat
+	Board.setIsInputEnabled(true);
+
+	if (shouldResummonUnits) {
+		clearAll();
+		state.battleData.units = [];
+	}
+
+	if (CombatSystemStates.isInitialized()) {
+		const combatStates = CombatSystemStates.getCombatSystemStates();
+		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
+		newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
+		CombatSystemStates.updateRegenSystemState(newRegenState);
+
+		let newPoisonState = PoisonSystem.clearPoison(
+			combatStates.poisonSystemState,
+			c.FORCE_ID_PLAYER
+		);
+		newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
+		CombatSystemStates.updatePoisonSystemState(newPoisonState);
+	}
+
+	if (shouldResummonUnits) {
+		const summonPromises = state.session.team.units.map(async (unit, index) => {
+			await delay(index * 200);
+			await summon(unit, true);
+		});
+		await Promise.all(summonPromises);
+	}
 }
