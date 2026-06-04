@@ -5,7 +5,6 @@ import * as Orbs from "@Screens/Battleground/Shop/Orbs";
 import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
-import * as Encounter from "@Systems/Encounter";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
@@ -32,8 +31,6 @@ export async function openUpgradeCorePhase(
 ): Promise<void> {
 	return new Promise<void>(async (resolve) => {
 		const container = io.Container();
-		container.once("destroy", Encounter.resetEncounterFocusTargets);
-		Encounter.resetEncounterFocusTargets();
 
 		const completeSectionCallback = async () => {
 			await ShopPanel.SlideOut();
@@ -139,11 +136,7 @@ function renderUpgradeCards(
 			},
 		});
 
-		Encounter.registerEncounterFocusTarget({
-			setFocused: card.setFocused,
-			activate: card.activate,
-		});
+
 	});
 
-	Encounter.initializeEncounterFocusTargets();
 }

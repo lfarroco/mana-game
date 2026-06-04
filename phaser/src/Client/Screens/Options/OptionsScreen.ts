@@ -1,11 +1,9 @@
 import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
-import * as returnToTitle from "@Screens/Options/Effects/returnToTitle";
 import * as showTab from "@Screens/Options/Components/effects/showTab";
 import * as backButton from "@Screens/Options/Components/backButton";
 import * as optionsLabel from "@Screens/Options/Components/optionsLabel";
 import * as tabButtons from "@Screens/Options/Components/tabButtons";
 import * as Model from "@Screens/Options/Components/Model";
-import * as ControlsSystem from "@Systems/Controls";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -54,9 +52,4 @@ export function create() {
 
 	backButton.create();
 
-	ControlsSystem.init(
-		{
-			context: "buttons",
-			onCancel: returnToTitle.returnToTitle,
-		});
 }

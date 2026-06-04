@@ -3,7 +3,6 @@ import * as c from "@Constants/constants";
 import * as UIButton from "Client/Components/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Encounter from "@Systems/Encounter";
 import * as constants from "@Constants/constants";
 
 export let container: Container;
@@ -16,7 +15,6 @@ export const refresh = (
 		container = io.Container();
 	}
 	container.removeAll(true);
-	Encounter.resetEncounterFocusTargets();
 
 	container.setY(c.SCREEN_HEIGHT * -1);
 
@@ -51,7 +49,6 @@ export const SlideOut = async () => {
 		y: c.SCREEN_HEIGHT * -1,
 	});
 	container.removeAll(true);
-	Encounter.resetEncounterFocusTargets();
 };
 
 export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {

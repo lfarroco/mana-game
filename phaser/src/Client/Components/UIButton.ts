@@ -1,39 +1,24 @@
-import Phaser from "phaser";
-import { titleTextConfig } from "@Constants/constants";
-import { playSoundEffect } from "@Systems/AudioManager";
-import * as io from "@PhaserIO";
-import { attachButtonTooltip, ButtonTooltipContent } from "Client/Components/ButtonTooltip";
-import { createLogger } from "@Utils/Logger";
-import { findNextFocusable, FocusableEntry } from "@Systems/Controls/navigation";
-import { NavigationDirection } from "@Systems/Controls/intents";
-import {
-	UI_SURFACE_ACTIVE_BORDER_WIDTH,
-	UI_SURFACE_ACCENT_COLOR,
-	UI_SURFACE_BORDER_COLOR,
-	UI_SURFACE_COLOR,
-	UI_SURFACE_HOVER_BORDER_COLOR,
-	UI_TEXT_PRIMARY,
-	UI_TOOLTIP_BORDER_THICKNESS,
-} from "@Screens/Battleground/Components/UI/theme";
+import * as constants from "@Constants/constants";
+import * as AudioManager from "@Systems/AudioManager";
+import * as ButtonTooltip from "Client/Components/ButtonTooltip";
+import * as Logger from "@Utils/Logger";
+import * as theme from "@Screens/Battleground/Components/UI/theme";
 
-const logger = createLogger("UIButton");
+const logger = Logger.createLogger("UIButton");
 
 // UI button styling constants
 const BUTTON_HEIGHT = 60;
-const BUTTON_BG_COLOR = UI_SURFACE_COLOR;
+const BUTTON_BG_COLOR = theme.UI_SURFACE_COLOR;
 const BUTTON_CORNER_RADIUS = 10;
 const BUTTON_TEXT_FONT_SIZE = "24px";
 const BUTTON_BORDER_WIDTH = 2;
-const BUTTON_ACTIVE_BORDER_WIDTH = UI_SURFACE_ACTIVE_BORDER_WIDTH;
-const BUTTON_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
+const BUTTON_ACTIVE_BORDER_WIDTH = theme.UI_SURFACE_ACTIVE_BORDER_WIDTH;
+const BUTTON_BORDER_COLOR = theme.UI_SURFACE_BORDER_COLOR;
 const BUTTON_BORDER_ALPHA = 0.7;
-const BUTTON_HOVER_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
+const BUTTON_HOVER_BORDER_COLOR = theme.UI_SURFACE_HOVER_BORDER_COLOR;
 const BUTTON_HOVER_BORDER_ALPHA = 1;
-const BUTTON_FOCUS_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
-const BUTTON_FOCUS_BORDER_ALPHA = 1;
 const BUTTON_BG_ALPHA = 0.42;
 const BUTTON_HOVER_BG_ALPHA = 0.52;
-const BUTTON_FOCUS_BG_ALPHA = 0.5;
 const BUTTON_PRESSED_BG_ALPHA = 0.62;
 const BUTTON_DISABLED_BG_ALPHA = 0.18;
 const BUTTON_DISABLED_BORDER_ALPHA = 0.3;
@@ -65,8 +50,6 @@ export function unregisterButton(text: string) {
 export type Button = {
 	disable: () => void;
 	enable: () => void;
-	focus: () => void;
-	blur: () => void;
 	press: () => void;
 	container: Container;
 	text: Phaser.GameObjects.Text;
@@ -78,7 +61,7 @@ export type CreateUIButtonConfig = {
 	callback: () => void;
 	width?: number;
 	emoji?: string;
-	tooltip?: ButtonTooltipContent;
+	tooltip?: ButtonTooltip.ButtonTooltipContent;
 };
 
 type State = {
@@ -87,23 +70,21 @@ type State = {
 	size: Size;
 	isPressed: boolean;
 	isHovered: boolean;
-	isFocused: boolean;
 	currentBackgroundAlpha: number;
 	container: Container;
 	graphics: Phaser.GameObjects.Graphics;
 	text: Phaser.GameObjects.Text;
 	callback: () => void;
-	tooltip?: ReturnType<typeof attachButtonTooltip>;
+	tooltip?: ReturnType<typeof ButtonTooltip.attachButtonTooltip>;
 };
 
 const buttonsIndex = new WeakMap<Container, State>();
 const registeredButtons = new Set<State>();
-const focusedButtons = new WeakMap<Phaser.Scene, State>();
 
 const textStyle = {
-	...titleTextConfig,
+	...constants.titleTextConfig,
 	fontSize: BUTTON_TEXT_FONT_SIZE,
-	color: UI_TEXT_PRIMARY,
+	color: theme.UI_TEXT_PRIMARY,
 	stroke: "#000000",
 	fontStyle: "bold",
 	strokeThickness: 2,
@@ -155,17 +136,6 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 		};
 	}
 
-	if (state.isFocused) {
-		return {
-			backgroundAlpha: BUTTON_FOCUS_BG_ALPHA,
-			borderColor: BUTTON_FOCUS_BORDER_COLOR,
-			borderAlpha: BUTTON_FOCUS_BORDER_ALPHA,
-			borderWidth: BUTTON_ACTIVE_BORDER_WIDTH,
-			glowAlpha: 0.32,
-			textAlpha: 1,
-		};
-	}
-
 	return {
 		backgroundAlpha: BUTTON_BG_ALPHA,
 		borderColor: BUTTON_BORDER_COLOR,
@@ -179,7 +149,7 @@ const getButtonVisualStyle = (state: State): ButtonVisualStyle => {
 const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.clear();
 	if (visuals.glowAlpha > 0) {
-		const glowWidth = Math.max(UI_TOOLTIP_BORDER_THICKNESS + 1, visuals.borderWidth + 2);
+		const glowWidth = Math.max(theme.UI_TOOLTIP_BORDER_THICKNESS + 1, visuals.borderWidth + 2);
 		state.graphics.lineStyle(glowWidth, visuals.borderColor, visuals.glowAlpha * 0.28);
 		state.graphics.strokeRoundedRect(
 			-glowWidth / 2,
@@ -214,7 +184,7 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
 	state.graphics.lineStyle(
 		BUTTON_INNER_BORDER_WIDTH,
-		UI_SURFACE_ACCENT_COLOR,
+		theme.UI_SURFACE_ACCENT_COLOR,
 		Math.max(0.18, visuals.borderAlpha * 0.6)
 	);
 	state.graphics.strokeRoundedRect(
@@ -294,7 +264,7 @@ export function createUIButton({
 
 	const activate = () => {
 		if (!buttonGraphics.input?.enabled) return;
-		playSoundEffect("sfx_unit_onclick");
+		AudioManager.playSoundEffect("sfx_unit_onclick");
 		callback();
 	};
 
@@ -336,10 +306,7 @@ export function createUIButton({
 		scene?.tweens.killTweensOf(state);
 		state.tooltip?.destroy();
 		registeredButtons.delete(state);
-		const focusedButton = scene ? focusedButtons.get(scene) : undefined;
-		if (focusedButton === state) {
-			focusedButtons.delete(scene);
-		}
+
 		buttonsIndex.delete(container);
 		unregisterButton(text);
 	});
@@ -350,7 +317,6 @@ export function createUIButton({
 		size,
 		isPressed: false,
 		isHovered: false,
-		isFocused: false,
 		currentBackgroundAlpha: BUTTON_BG_ALPHA,
 		container,
 		graphics: buttonGraphics,
@@ -358,7 +324,7 @@ export function createUIButton({
 		callback,
 		tooltip:
 			tooltip && tooltip.description.trim().length > 0
-				? attachButtonTooltip(
+				? ButtonTooltip.attachButtonTooltip(
 					buttonGraphics,
 					tooltip,
 					() => !!buttonGraphics.input?.enabled,
@@ -384,8 +350,6 @@ export function createUIButton({
 	return {
 		disable: () => disableUIButton(state),
 		enable: () => enableUIButton(state),
-		focus: () => setFocusedButton(state),
-		blur: () => clearButtonFocus(state),
 		press: activate,
 		text: buttonText,
 		container,
@@ -400,9 +364,7 @@ export function disableUIButton(state: State) {
 
 	state.isPressed = false;
 	state.isHovered = false;
-	if (state.isFocused) {
-		clearButtonFocus(state);
-	}
+
 	renderButtonGraphics(state, getButtonVisualStyle(state));
 }
 
@@ -416,151 +378,3 @@ export function enableUIButton(state: State) {
 
 	renderButtonGraphics(state, getButtonVisualStyle(state));
 }
-
-const isVisibleInHierarchy = (gameObject: Phaser.GameObjects.GameObject | null): boolean => {
-	let current = gameObject as
-		| (Phaser.GameObjects.GameObject & {
-			visible?: boolean;
-			active?: boolean;
-			parentContainer?: Phaser.GameObjects.Container | null;
-		})
-		| null;
-
-	while (current) {
-		if (current.active === false || current.visible === false) {
-			return false;
-		}
-		current = current.parentContainer ?? null;
-	}
-
-	return true;
-};
-
-const isButtonNavigable = (state: State, scene: Phaser.Scene): boolean => {
-	return (
-		state.container.scene === scene &&
-		!!state.graphics.input?.enabled &&
-		isVisibleInHierarchy(state.container)
-	);
-};
-
-const getSceneButtons = (scene: Phaser.Scene): State[] => {
-	return [...registeredButtons].filter((state) => isButtonNavigable(state, scene));
-};
-
-const toFocusableEntry = (state: State): FocusableEntry => ({
-	id: state.id,
-	x: state.text.x,
-	y: state.text.y,
-});
-
-const setFocusedButton = (state: State) => {
-	const scene = state.container.scene;
-	const previous = focusedButtons.get(scene);
-	if (previous === state) {
-		return;
-	}
-
-	if (previous) {
-		previous.isFocused = false;
-		renderButtonGraphics(previous, getButtonVisualStyle(previous));
-	}
-
-	state.isFocused = true;
-	focusedButtons.set(scene, state);
-	renderButtonGraphics(state, getButtonVisualStyle(state));
-};
-
-const clearButtonFocus = (state: State) => {
-	state.isFocused = false;
-	const focused = focusedButtons.get(state.container.scene);
-	if (focused === state) {
-		focusedButtons.delete(state.container.scene);
-	}
-	renderButtonGraphics(state, getButtonVisualStyle(state));
-};
-
-export const hasNavigableButtons = (scene: Phaser.Scene): boolean =>
-	getSceneButtons(scene).length > 0;
-
-const normalizeButtonLabel = (label: string): string => label.trim().toLowerCase();
-
-export const focusSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
-	const target = normalizeButtonLabel(text);
-	const button = getSceneButtons(scene).find(
-		(state) => normalizeButtonLabel(state.label) === target
-	);
-
-	if (!button) {
-		return false;
-	}
-
-	setFocusedButton(button);
-	return true;
-};
-
-export const hasSceneButtonByText = (scene: Phaser.Scene, text: string): boolean => {
-	const target = normalizeButtonLabel(text);
-	return getSceneButtons(scene).some((state) => normalizeButtonLabel(state.label) === target);
-};
-
-export const focusNextSceneButton = (
-	scene: Phaser.Scene,
-	direction: NavigationDirection
-): Button | null => {
-	const buttons = getSceneButtons(scene);
-	const focused = focusedButtons.get(scene);
-	const next = findNextFocusable(buttons.map(toFocusableEntry), focused?.id ?? null, direction);
-	if (!next) {
-		return null;
-	}
-
-	const target = buttons.find((state) => state.id === next.id);
-	if (!target) {
-		return null;
-	}
-
-	setFocusedButton(target);
-	return {
-		disable: () => disableUIButton(target),
-		enable: () => enableUIButton(target),
-		focus: () => setFocusedButton(target),
-		blur: () => clearButtonFocus(target),
-		press: () => target.callback(),
-		container: target.container,
-		text: target.text,
-	};
-};
-
-export const hasFocusedSceneButton = (scene: Phaser.Scene): boolean => {
-	const focused = focusedButtons.get(scene);
-	return !!focused && isButtonNavigable(focused, scene);
-};
-
-export const getFocusedSceneButtonText = (scene: Phaser.Scene): string | null => {
-	const focused = focusedButtons.get(scene);
-	if (!focused || !isButtonNavigable(focused, scene)) {
-		return null;
-	}
-
-	return focused.label;
-};
-
-export const activateFocusedSceneButton = (scene: Phaser.Scene): boolean => {
-	const focused = focusedButtons.get(scene);
-	if (!focused || !isButtonNavigable(focused, scene)) {
-		return false;
-	}
-
-	focused.callback();
-	return true;
-};
-
-export const clearSceneButtonFocus = (scene: Phaser.Scene): void => {
-	const focused = focusedButtons.get(scene);
-	if (!focused) {
-		return;
-	}
-
-	clearButtonFocus(focused);
-};

@@ -1,38 +1,35 @@
-import * as Phaser from "phaser";
-import { getCores, CardDefinition } from "@Models/Entities/Card";
-import { render } from "Client/Screens/Title/Components/cloudsBg";
+import * as Card from "@Models/Entities/Card";
+import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { createLogger } from "@Utils/Logger";
-import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
-import * as ControlsSystem from "@Systems/Controls";
+import * as Logger from "@Utils/Logger";
+import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 
-import { paginationDots } from "./Components/paginationDots";
-import { crystalDisplay } from "./Components/crystalDisplay";
-import { navigationButtons } from "./Components/navigationButtons";
-import { actionButtons } from "./Components/actionButtons";
-import { seedInput } from "./Components/seedInput";
-import { background } from "./Components/background";
-import { title } from "./Components/title";
+import * as paginationDots from "./Components/paginationDots";
+import * as crystalDisplay from "./Components/crystalDisplay";
+import * as navigationButtons from "./Components/navigationButtons";
+import * as actionButtons from "./Components/actionButtons";
+import * as seedInput from "./Components/seedInput";
+import * as background from "./Components/background";
+import * as title from "./Components/title";
 
-import { returnToTitle } from "./Effects/returnToTitle";
-import { updateDisplay } from "./Effects/updateDisplay";
+import * as updateDisplay from "./Effects/updateDisplay";
 
-export const logger = createLogger("CrystalSelectionScene");
+export const logger = Logger.createLogger("CrystalSelectionScene");
 
 //TODO: should also disable seed selection in multiplayer mode
 
 export const state: {
-	crystals: CardDefinition[];
+	crystals: Card.CardDefinition[];
 	currentIndex: number;
 	crystalSprite: Phaser.GameObjects.Image;
 	crystalName: Phaser.GameObjects.Text;
 	descriptionText: BBCodeText;
 	seedWarningText: Phaser.GameObjects.Text;
 	isMultiplayer: boolean;
-	multiplayerQueueType: MultiplayerQueueType;
+	multiplayerQueueType: MultiplayerTypes.MultiplayerQueueType;
 	paginationDots: Phaser.GameObjects.Arc[];
 } = {
-	crystals: [] as CardDefinition[],
+	crystals: [] as Card.CardDefinition[],
 	currentIndex: 0,
 	crystalSprite: {} as Phaser.GameObjects.Image,
 	crystalName: {} as Phaser.GameObjects.Text,
@@ -46,22 +43,17 @@ export const state: {
 export function renderCrystalSelectionScreen(multiplayer: boolean) {
 
 	state.isMultiplayer = multiplayer;
-	state.crystals = getCores();
+	state.crystals = Card.getCores();
 	state.currentIndex = 0;
 
-	render();
-	background();
-	title();
-	crystalDisplay();
-	navigationButtons();
-	paginationDots();
-	actionButtons();
-	seedInput();
-	updateDisplay();
-
-	ControlsSystem.init({
-		context: "buttons",
-		onCancel: returnToTitle,
-	});
+	cloudsBg.render();
+	background.background();
+	title.title();
+	crystalDisplay.crystalDisplay();
+	navigationButtons.navigationButtons();
+	paginationDots.paginationDots();
+	actionButtons.actionButtons();
+	seedInput.seedInput();
+	updateDisplay.updateDisplay();
 }
 

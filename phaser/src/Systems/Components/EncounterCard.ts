@@ -1,18 +1,8 @@
 import * as io from "@PhaserIO";
-import { size } from "@Models/Geometry";
-import { playSoundEffect } from "@Systems/AudioManager";
-import { titleTextConfig } from "@Constants/constants";
-import {
-	mixHexColors,
-	UI_SURFACE_ACTIVE_BORDER_WIDTH,
-	UI_SURFACE_ALPHA,
-	UI_SURFACE_BORDER_COLOR,
-	UI_SURFACE_COLOR,
-	UI_SURFACE_HOVER_COLOR,
-	UI_SURFACE_HOVER_BORDER_COLOR,
-	UI_TEXT_MUTED,
-	UI_TEXT_PRIMARY,
-} from "@Screens/Battleground/Components/UI/theme";
+import * as Geometry from "@Models/Geometry";
+import * as AudioManager from "@Systems/AudioManager";
+import * as constants from "@Constants/constants";
+import * as theme from "@Screens/Battleground/Components/UI/theme";
 
 // Encounter card animation and layout constants
 const ICON_BOUNCE_BASE_DURATION_MS = 2000;
@@ -23,11 +13,8 @@ const ICON_X_OFFSET = 10;
 const CARD_HOVER_COLOR_MIX = 1;
 const CARD_HOVER_ANIMATION_DURATION_MS = 220;
 const CARD_BORDER_WIDTH = 2;
-const CARD_ACTIVE_BORDER_WIDTH = UI_SURFACE_ACTIVE_BORDER_WIDTH;
-const CARD_BORDER_COLOR = UI_SURFACE_BORDER_COLOR;
+const CARD_BORDER_COLOR = theme.UI_SURFACE_BORDER_COLOR;
 const CARD_BORDER_ALPHA = 0.5;
-const CARD_FOCUS_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
-const CARD_FOCUS_BORDER_ALPHA = 1;
 const TITLE_FONT_SIZE = "26px";
 const LABEL_FONT_SIZE = "22px";
 const CARD_CORNER_RADIUS = 12;
@@ -52,16 +39,15 @@ export function createEncounterCard(
 
 	io.SetPosition(container, { x, y });
 	const padding = 20;
-	const dimensions = size(width, height);
+	const dimensions = Geometry.size(width, height);
 
 	const bg = io.scene.add.graphics({ x: - width / 2, y: - height / 2 });
 	const border = io.scene.add.graphics();
-	let isFocused = false;
 	const backgroundState = { mix: 0 };
 	const drawBackground = () => {
-		const fillColor = mixHexColors(UI_SURFACE_COLOR, UI_SURFACE_HOVER_COLOR, backgroundState.mix);
+		const fillColor = theme.mixHexColors(theme.UI_SURFACE_COLOR, theme.UI_SURFACE_HOVER_COLOR, backgroundState.mix);
 		bg.clear();
-		bg.fillStyle(fillColor, UI_SURFACE_ALPHA);
+		bg.fillStyle(fillColor, theme.UI_SURFACE_ALPHA);
 		bg.fillRoundedRect(0, 0, width, height, CARD_CORNER_RADIUS);
 	};
 	const tweenBackground = (mix: number) => {
@@ -116,9 +102,9 @@ export function createEncounterCard(
 
 	const title = io.scene.add
 		.text(textX - 8, - height / 2 + 20, name, {
-			...titleTextConfig,
+			...constants.titleTextConfig,
 			fontSize: TITLE_FONT_SIZE,
-			color: UI_TEXT_PRIMARY,
+			color: theme.UI_TEXT_PRIMARY,
 			align: "left",
 			wordWrap: { width: textWidth },
 		})
@@ -128,7 +114,7 @@ export function createEncounterCard(
 		.rexBBCodeText(textX, - height / 2 + 75, description, {
 			fontSize: LABEL_FONT_SIZE,
 			fontFamily: "Arimo",
-			color: UI_TEXT_MUTED,
+			color: theme.UI_TEXT_MUTED,
 			wrap: {
 				mode: 1, // Word wrap
 				width: textWidth,
@@ -140,25 +126,16 @@ export function createEncounterCard(
 	io.SetInteractiveRect(dimensions)(bg);
 
 	io.OnPointerOver(bg, () => {
-		if (isFocused) {
-			return;
-		}
-
 		tweenBackground(CARD_HOVER_COLOR_MIX);
-		drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA, CARD_ACTIVE_BORDER_WIDTH);
 	});
 
 	io.OnPointerOut(bg, () => {
-		if (isFocused) {
-			return;
-		}
-
 		tweenBackground(0);
 		drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 	});
 
 	io.OnPointerUp(bg, () => {
-		playSoundEffect("sfx_unit_run_magical_4");
+		AudioManager.playSoundEffect("sfx_unit_run_magical_4");
 		onClick();
 	});
 
@@ -173,19 +150,8 @@ export function createEncounterCard(
 		title,
 		label,
 		allObjects: [bg, border, icon, title, label],
-		setFocused: (focused: boolean) => {
-			isFocused = focused;
-			if (focused) {
-				tweenBackground(CARD_HOVER_COLOR_MIX);
-				drawBorder(CARD_FOCUS_BORDER_COLOR, CARD_FOCUS_BORDER_ALPHA, CARD_ACTIVE_BORDER_WIDTH);
-				return;
-			}
-
-			tweenBackground(0);
-			drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
-		},
 		activate: async () => {
-			playSoundEffect("sfx_unit_run_magical_4");
+			AudioManager.playSoundEffect("sfx_unit_run_magical_4");
 			await onClick();
 		},
 	};

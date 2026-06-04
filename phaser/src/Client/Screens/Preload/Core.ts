@@ -168,6 +168,6 @@ export default class Core extends Phaser.Scene {
         io.scene.time.timeScale = speed;
         io.scene.tweens.timeScale = speed;
 
-        TitleScreen.renderTitleScreen();
+        TitleScreen.create();
     }
 }

@@ -2,7 +2,6 @@ import * as constants from "@Constants/constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "Client/Components/Tooltip";
-import * as ControlsSystem from "@Systems/Controls";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
@@ -10,7 +9,7 @@ import pkg from "../../../../package.json";
 
 export let mainButtonsContainer: Container;
 
-export function renderTitleScreen() {
+export function create() {
 
 	Components.cloudsBg.render();
 
@@ -19,8 +18,6 @@ export function renderTitleScreen() {
 	renderMainButtons();
 
 	Components.howToPlay.render();
-
-	ControlsSystem.init({ context: "buttons" });
 
 	checkUnlocks();
 

@@ -5,7 +5,6 @@ import * as Geometry from "@Models/Geometry";
 import * as constants from "@Constants/constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
-import * as encounterFocusModel from "@Systems/Controls/encounterFocusModel";
 import * as Types from "@Core/Types";
 
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
@@ -28,168 +27,6 @@ type EncounterItem = {
 };
 
 let disableInteraction = false;
-let focusedEncounterIndex: number | null = null;
-
-export type EncounterFocusEntry = {
-	setFocused: (focused: boolean) => void;
-	activate: () => Promise<void>;
-	startHoldAction?: () => Promise<boolean> | boolean;
-	updateHoldAction?: (payload: { boardTile: Vec2 | null }) => Promise<boolean> | boolean;
-	releaseHoldAction?: (payload: { boardTile: Vec2 | null }) => Promise<boolean> | boolean;
-};
-
-let encounterFocusEntries: EncounterFocusEntry[] = [];
-
-const clearEncounterFocus = () => {
-	encounterFocusEntries.forEach((entry) => entry.setFocused(false));
-	encounterFocusEntries = [];
-	focusedEncounterIndex = null;
-};
-
-const setEncounterFocus = (nextIndex: number | null): void => {
-	if (encounterFocusEntries.length === 0) {
-		focusedEncounterIndex = null;
-		return;
-	}
-
-	encounterFocusEntries.forEach((entry, index) => entry.setFocused(index === nextIndex));
-	focusedEncounterIndex = nextIndex;
-};
-
-export const hasEncounterFocusTargets = (): boolean => encounterFocusEntries.length > 0;
-
-export const resetEncounterFocusTargets = (): void => {
-	clearEncounterFocus();
-};
-
-export const registerEncounterFocusTarget = (entry: EncounterFocusEntry): void => {
-	encounterFocusEntries.push(entry);
-};
-
-export const initializeEncounterFocusTargets = (): void => {
-	// Focus is set lazily by ensureEncounterFocus() when the user navigates to the encounter layer.
-	// Do not auto-focus here to avoid cards appearing active before any keyboard interaction.
-};
-
-export const getEncounterFocusCount = (): number => encounterFocusEntries.length;
-
-export const getFocusedEncounterIndex = (): number | null => focusedEncounterIndex;
-
-export const hasFocusedEncounterTarget = (): boolean => {
-	return (
-		focusedEncounterIndex !== null &&
-		focusedEncounterIndex >= 0 &&
-		focusedEncounterIndex < encounterFocusEntries.length
-	);
-};
-
-export const ensureEncounterFocus = (): boolean => {
-	if (encounterFocusEntries.length === 0) {
-		return false;
-	}
-
-	if (focusedEncounterIndex === null) {
-		setEncounterFocus(0);
-	}
-
-	return hasFocusedEncounterTarget();
-};
-
-export const blurEncounterFocus = (): void => {
-	setEncounterFocus(null);
-};
-
-export const focusEncounterIndex = (index: number): boolean => {
-	if (encounterFocusEntries.length === 0 || index < 0 || index >= encounterFocusEntries.length) {
-		return false;
-	}
-
-	setEncounterFocus(index);
-	return true;
-};
-
-export const navigateEncounterFocus = (direction: "up" | "down" | "left" | "right"): boolean => {
-	const nextIndex = encounterFocusModel.getNextEncounterFocusIndex(
-		focusedEncounterIndex,
-		encounterFocusEntries.length,
-		direction
-	);
-
-	if (nextIndex === null) {
-		return false;
-	}
-
-	setEncounterFocus(nextIndex);
-	return true;
-};
-
-export const confirmEncounterFocus = async (): Promise<boolean> => {
-	if (encounterFocusEntries.length === 0) {
-		return false;
-	}
-
-	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
-		return false;
-	}
-
-	await encounterFocusEntries[focusedEncounterIndex].activate();
-	return true;
-};
-
-export const startEncounterFocusHoldAction = async (): Promise<boolean> => {
-	if (encounterFocusEntries.length === 0) {
-		return false;
-	}
-
-	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
-		return false;
-	}
-
-	const entry = encounterFocusEntries[focusedEncounterIndex];
-	if (!entry.startHoldAction) {
-		return false;
-	}
-
-	return await entry.startHoldAction();
-};
-
-export const releaseEncounterFocusHoldAction = async (payload: {
-	boardTile: Vec2 | null;
-}): Promise<boolean> => {
-	if (encounterFocusEntries.length === 0) {
-		return false;
-	}
-
-	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
-		return false;
-	}
-
-	const entry = encounterFocusEntries[focusedEncounterIndex];
-	if (!entry.releaseHoldAction) {
-		return false;
-	}
-
-	return await entry.releaseHoldAction(payload);
-};
-
-export const updateEncounterFocusHoldAction = async (payload: {
-	boardTile: Vec2 | null;
-}): Promise<boolean> => {
-	if (encounterFocusEntries.length === 0) {
-		return false;
-	}
-
-	if (!ensureEncounterFocus() || focusedEncounterIndex === null) {
-		return false;
-	}
-
-	const entry = encounterFocusEntries[focusedEncounterIndex];
-	if (!entry.updateHoldAction) {
-		return false;
-	}
-
-	return await entry.updateHoldAction(payload);
-};
 
 const improveType = (pic: string, type: string): EncounterItem => ({
 	name: i18n.t("encounters.improve_type.name", { type }),
@@ -311,10 +148,8 @@ export const allEncounters: EncounterItem[] = [
 export const displayOptions = async () => new Promise<Types.SessionData>((resolve) => {
 
 	const container = io.Container();
-	io.OnceDestroyed(container, clearEncounterFocus);
 
 	disableInteraction = false;
-	clearEncounterFocus();
 
 	const encounters = state.session.current_options
 		.reduce((acc, option) => {
@@ -343,7 +178,6 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 	};
 
 	const nextRoundCallback = async () => {
-		clearEncounterFocus();
 		container.destroy(true);
 
 		// Use GameController to properly skip encounter phase
@@ -375,11 +209,6 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 			onClick: () => onSelectEncounter(encounter.id),
 		});
 
-		registerEncounterFocusTarget({
-			setFocused: card.setFocused,
-			activate: card.activate,
-		});
-
 		await io.Delay(100 * index)
 		io.Tween({
 			targets: card.container,
@@ -388,8 +217,6 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 			ease: "Power2",
 		});
 	});
-
-	initializeEncounterFocusTargets();
 
 	// Only show skip button if:
 	// 1. Not showing combat_encounter (pre-combat phase)
