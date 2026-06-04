@@ -1,4 +1,4 @@
-import * as ResultsUI from "../Results/ResultsUI";
+import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
 
 export async function handleGameOverPhase(): Promise<null> {
 	await new Promise<void>((resolve) => {

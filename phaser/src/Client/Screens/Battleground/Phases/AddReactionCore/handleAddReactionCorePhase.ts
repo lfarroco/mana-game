@@ -1,9 +1,9 @@
 import * as Types from "@Core/Types";
-import * as EffectCardShop from "../Shop/EffectCardShop";
+import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
 
 export async function handleAddReactionCorePhase(): Promise<Types.SessionData> {
 	const reactionIds = state.session.current_options.map((option) => option.id);
-	let nextSession: Types.SessionData | null = null;
+	let nextSession = null;
 
 	await EffectCardShop.openUpgradeCorePhase(
 		"effectCardShop.title",

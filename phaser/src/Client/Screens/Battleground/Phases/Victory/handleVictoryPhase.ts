@@ -1,6 +1,6 @@
 import * as GameController from "@Core/GameController";
 import type { SessionData } from "@Core/Types";
-import * as ResultsUI from "../Results/ResultsUI";
+import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
 
 export async function handleVictoryPhase(): Promise<SessionData | null> {
 	let nextSession: SessionData | null = null;

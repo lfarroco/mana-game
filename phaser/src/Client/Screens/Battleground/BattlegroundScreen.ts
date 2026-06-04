@@ -5,17 +5,12 @@ import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "Client/Components/Tooltip";
 import * as Encounter from "@Systems/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/handleCombatPhase";
-import * as handleShopPhase from "./Shop/handleShopPhase";
 import * as SessionManager from "@Core/SessionManager";
 
 import * as Shop from "./Shop/ShopPanel";
 import * as Components from "./Components";
 import * as UIManager from "./Components/UI/UI";
-import * as handleUpgradeCorePhase from "./Phases/handleUpgradeCorePhase";
-import * as handleAddReactionCorePhase from "./Phases/handleAddReactionCorePhase";
-import * as handleOrbShopPhase from "./Phases/handleOrbShopPhase";
-import { handleGameOverPhase } from "./Phases/handleGameOverPhase";
-import { handleVictoryPhase } from "./Phases/handleVictoryPhase";
+import * as Phases from "./Phases";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
 
@@ -110,22 +105,22 @@ async function executePhase(
 			}
 
 		case "shop":
-			return await handleShopPhase.handleShopPhase();
+			return await Phases.handleShopPhase();
 
 		case "upgrade_core":
-			return await handleUpgradeCorePhase.handleUpgradeCorePhase();
+			return await Phases.handleUpgradeCorePhase();
 
 		case "add_reaction_core":
-			return await handleAddReactionCorePhase.handleAddReactionCorePhase();
+			return await Phases.handleAddReactionCorePhase();
 
 		case "orb_shop":
-			return await handleOrbShopPhase.handleOrbShopPhase();
+			return await Phases.handleOrbShopPhase();
 
 		case "victory":
-			return await handleVictoryPhase();
+			return await Phases.handleVictoryPhase();
 
 		case "game_over":
-			return await handleGameOverPhase();
+			return await Phases.handleGameOverPhase();
 
 		default:
 			return assertNeverPhase(phase);
