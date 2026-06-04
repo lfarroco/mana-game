@@ -1,9 +1,10 @@
-import { t } from "@i18n/i18n";
-import { SCREEN_WIDTH } from "@Constants/constants";
+import * as i18n from "@i18n/i18n";
+import * as constants from "@Constants/constants";
 
 export const LEFT_PANEL_X = 450;
-export const RIGHT_PANEL_X = SCREEN_WIDTH - LEFT_PANEL_X;
+export const RIGHT_PANEL_X = constants.SCREEN_WIDTH - LEFT_PANEL_X;
 
+// TODO: this is part of the logic, not presentation
 export const WINS_TO_WIN_GAME = 10;
 export const INFINITE_MODE_THRESHOLD = 10;
 
@@ -54,11 +55,11 @@ export const RESULTS_PANEL = {
 } as const;
 
 export const END_GAME_MESSAGES = {
-	infinite: (wins: number) => t("results.messages.infinite", { wins: wins.toString() }),
-	gold: t("results.messages.gold"),
-	silver: t("results.messages.silver"),
-	bronze: t("results.messages.bronze"),
-	default: t("results.messages.default"),
+	infinite: (wins: number) => i18n.t("results.messages.infinite", { wins: wins.toString() }),
+	gold: i18n.t("results.messages.gold"),
+	silver: i18n.t("results.messages.silver"),
+	bronze: i18n.t("results.messages.bronze"),
+	default: i18n.t("results.messages.default"),
 };
 
 export type VictoryTier = {
@@ -69,17 +70,17 @@ export type VictoryTier = {
 export function getVictoryTier(wins: number, isGameOver: boolean): VictoryTier {
 	if (wins >= GOLD_VICTORY_THRESHOLD) {
 		if (isGameOver) {
-			return { message: t("results.victory.run_complete"), color: RESULTS_COLORS.defeat };
+			return { message: i18n.t("results.victory.run_complete"), color: RESULTS_COLORS.defeat };
 		}
-		return { message: t("results.victory.gold"), color: RESULTS_COLORS.gold };
+		return { message: i18n.t("results.victory.gold"), color: RESULTS_COLORS.gold };
 	}
 
 	if (wins >= SILVER_VICTORY_THRESHOLD) {
-		return { message: t("results.victory.silver"), color: RESULTS_COLORS.silver };
+		return { message: i18n.t("results.victory.silver"), color: RESULTS_COLORS.silver };
 	}
 
 	if (wins >= BRONZE_VICTORY_THRESHOLD) {
-		return { message: t("results.victory.bronze"), color: RESULTS_COLORS.bronze };
+		return { message: i18n.t("results.victory.bronze"), color: RESULTS_COLORS.bronze };
 	}
 
 	return { message: "", color: RESULTS_COLORS.white };

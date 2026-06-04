@@ -1,5 +1,5 @@
 import * as Board from "@Models/Board";
-import type { PhaseType, SessionData } from "@Core/Types";
+import type * as Types from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ControlsSystem from "@Systems/Controls";
 import * as Tooltip from "Client/Components/Tooltip";
@@ -14,7 +14,7 @@ import * as Phases from "./Phases";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
 
-type PhaseExecutionResult = SessionData | null;
+type PhaseExecutionResult = Types.SessionData | null;
 
 const assertNeverPhase = (phase: never): never => {
 	throw new Error(`Unknown phase: ${phase}`);
@@ -49,7 +49,7 @@ const syncPlayerBoardUnitsIO = async (): Promise<void> => {
 	await Promise.all(summonPromises);
 };
 
-const updateSessionState = (nextSession: SessionData) => {
+const updateSessionState = (nextSession: Types.SessionData) => {
 	const previousSession = state.session;
 	const winsDelta = nextSession.wins - previousSession.wins;
 	const previousLives = SessionManager.getRemainingLives(previousSession);
@@ -87,7 +87,7 @@ export const createBattlegroundScreen = async () => {
 };
 
 async function executePhase(
-	phase: PhaseType,
+	phase: Types.PhaseType,
 ): Promise<PhaseExecutionResult> {
 
 	if (phase !== 'combat') {

@@ -1,26 +1,38 @@
-import { tween } from "@Utils/animation";
+import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
-import { State } from "@Models/State";
-import { displayVictory } from "Client/Screens/Battleground/Results/VictoryUI";
-import { displayDefeat } from "Client/Screens/Battleground/Results/DefeatUI";
-import { displayGameComplete } from "Client/Screens/Battleground/Results/GameCompleteUI";
-import { Unit } from "@Models/Entities/Unit";
-import { RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
-import { createBackgroundOverlay, BackgroundOverlay } from "Client/Components/BackgroundOverlay";
-import { determineGameOutcome } from "Client/Screens/Battleground/Results/ResultsOutcome";
+import * as State from "@Models/State";
+import * as VictoryUI from "Client/Screens/Battleground/Results/VictoryUI";
+import * as DefeatUI from "Client/Screens/Battleground/Results/DefeatUI";
+import * as GameCompleteUI from "Client/Screens/Battleground/Results/GameCompleteUI";
+import * as Unit from "@Models/Entities/Unit";
+import * as ResultsConfig from "Client/Screens/Battleground/Results/ResultsConfig";
+import * as BackgroundOverlay from "Client/Components/BackgroundOverlay";
+import * as Config from "@config";
+
+export function determineGameOutcome(
+	resultType: "victory" | "defeat",
+	currentWins: number,
+	currentLives: number
+): { gameWon: boolean; gameOver: boolean } {
+	// In demo mode, treat reaching MAX_VICTORIES as "game won" to trigger demo complete screen
+	const demoComplete = resultType === "victory" && currentWins >= Config.GAME_CONFIG.MAX_VICTORIES;
+	const gameWon = resultType === "victory" && (currentWins === ResultsConfig.WINS_TO_WIN_GAME || demoComplete);
+	const gameOver = resultType === "defeat" && currentLives <= 0;
+	return { gameWon, gameOver };
+}
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
 export let resultsContainer: Phaser.GameObjects.Container;
-export let overlay: BackgroundOverlay;
+export let overlay: BackgroundOverlay.BackgroundOverlay;
 export let isOpen: boolean;
 
 export function createResultsUI() {
 
-	overlay = createBackgroundOverlay({
-		color: RESULTS_PANEL.overlayColor,
-		alpha: RESULTS_PANEL.overlayAlpha,
+	overlay = BackgroundOverlay.createBackgroundOverlay({
+		color: ResultsConfig.RESULTS_PANEL.overlayColor,
+		alpha: ResultsConfig.RESULTS_PANEL.overlayAlpha,
 		interactive: true,
 	});
 
@@ -42,18 +54,18 @@ async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
 	nextPhaseCallback: () => void,
-	units: Unit[],
+	units: Unit.Unit[],
 	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	if (resultType === "victory") {
-		return displayVictory(units, nextPhaseCallback, replayCallback);
+		return VictoryUI.displayVictory(units, nextPhaseCallback, replayCallback);
 	} else {
-		return displayDefeat(livesChange, units, nextPhaseCallback, replayCallback);
+		return DefeatUI.displayDefeat(livesChange, units, nextPhaseCallback, replayCallback);
 	}
 }
 
 export async function displayResults(
-	state: State,
+	state: State.State,
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void,
 	replayCallback?: () => void
@@ -81,7 +93,7 @@ export async function displayResults(
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
 			const playerUnits = allBattleUnits.filter((u) => u.force === c.FORCE_ID_PLAYER);
-			const ui = await displayGameComplete(
+			const ui = await GameCompleteUI.displayGameComplete(
 				state,
 				currentWins,
 				playerUnits,
@@ -111,7 +123,7 @@ export async function displayResults(
 }
 
 export async function displayGameCompleteResults(
-	state: State,
+	state: State.State,
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void
@@ -120,7 +132,7 @@ export async function displayGameCompleteResults(
 	io.scene.children.bringToTop(overlay.rectangle);
 	io.scene.children.bringToTop(resultsContainer);
 
-	const ui = await displayGameComplete(
+	const ui = await GameCompleteUI.displayGameComplete(
 		state,
 		state.session.wins,
 		state.session.team.units,
@@ -136,7 +148,7 @@ export async function slideIn(): Promise<void> {
 
 	overlay.fadeIn(300);
 
-	await tween({ targets: [resultsContainer], y: 0 });
+	await animation.tween({ targets: [resultsContainer], y: 0 });
 
 	isOpen = true;
 }
@@ -146,7 +158,7 @@ export async function slideOut(): Promise<void> {
 
 	overlay.fadeOut(300);
 
-	await tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
+	await animation.tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
 
 	resultsContainer.removeAll(true);
 
