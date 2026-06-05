@@ -10,9 +10,6 @@ export const ShopState: { container: Container | null } = {
 	container: null,
 };
 
-//@ts-expect-error wee
-window.zz = ShopState;
-
 export const create = () => {
 
 	if (__DEV__) {
@@ -46,7 +43,6 @@ export const addSkipButton = (callback: () => void): void => {
 }
 
 export const SlideIn = async () => {
-	//io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 	await animation.tween({
 		targets: [ShopState.container!],
@@ -55,7 +51,6 @@ export const SlideIn = async () => {
 };
 
 export const SlideOut = async () => {
-	//io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await animation.tween({
 		targets: [ShopState.container!],
@@ -64,8 +59,7 @@ export const SlideOut = async () => {
 	ShopState.container?.removeAll(true);
 };
 
-export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {
-	ShopState.container?.bringToTop(child);
-};
+export const bringToTop = (child: Phaser.GameObjects.GameObject) => ShopState.container?.bringToTop(child);
 
+export const add = (child: Phaser.GameObjects.GameObject | Phaser.GameObjects.GameObject[]) => ShopState.container?.add(child);
 

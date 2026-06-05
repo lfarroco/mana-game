@@ -51,7 +51,7 @@ export async function openUpgradeCorePhase(
 			);
 
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
-		ShopPanel.ShopState.container?.add(container);
+		ShopPanel.add(container);
 
 		renderUpgradeCards(container, encounters, onUpgradeApplied, async () => {
 			container.list.forEach((child) => child.disableInteractive());
