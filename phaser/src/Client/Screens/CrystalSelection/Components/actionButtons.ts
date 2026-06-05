@@ -9,7 +9,7 @@ import { startNewGame } from "../Effects/startNewGame";
 const PLAY_BUTTON_Y = 830;
 const BACK_BUTTON_Y = 930;
 
-export function actionButtons() {
+export function create() {
 	createUIButton({
 		text: t("crystalSelection.play"),
 		position: vec2(constants.MIDDLE_SCREEN_X, PLAY_BUTTON_Y),

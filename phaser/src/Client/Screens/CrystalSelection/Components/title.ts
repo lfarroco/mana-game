@@ -5,7 +5,7 @@ import * as io from "@PhaserIO";
 export const TITLE_Y = 120;
 const TITLE_FONT_SIZE = "48px";
 
-export function title() {
+export function create() {
 	return io.Text(t("crystalSelection.title"), {
 		...constants.titleTextConfig,
 		fontSize: TITLE_FONT_SIZE,

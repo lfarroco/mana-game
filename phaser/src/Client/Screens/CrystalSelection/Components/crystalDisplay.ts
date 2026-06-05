@@ -22,7 +22,7 @@ const DESCRIPTION_ORIGIN_X = 0.5;
 const DESCRIPTION_ORIGIN_Y = 0;
 const DESCRIPTION_Y = 500;
 
-export function crystalDisplay() {
+export function create() {
 	const crystal = _.state.crystals[_.state.currentIndex];
 
 	_.state.crystalSprite = io.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);

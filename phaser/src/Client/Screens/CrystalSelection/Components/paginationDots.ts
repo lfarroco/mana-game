@@ -12,7 +12,7 @@ const PAGINATION_DOT_STROKE_ALPHA = 0.5;
 export const PAGINATION_DOT_COLOR = 0xffffff;
 export const PAGINATION_DOT_ACTIVE_ALPHA = 1;
 
-export function paginationDots() {
+export function create() {
 	_.state.paginationDots = [];
 	const totalDots = _.state.crystals.length;
 	const totalWidth = (totalDots - 1) * DOT_SPACING;

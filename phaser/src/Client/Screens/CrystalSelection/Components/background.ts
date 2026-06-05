@@ -8,7 +8,7 @@ export const CARD_DISPLAY_BG_HEIGHT = 700;
 export const CARD_DISPLAY_BG_COLOR = 0x000000;
 export const CARD_DISPLAY_BG_ALPHA = 0.8;
 
-export function background() {
+export function create() {
 	return io.scene.add.rectangle(
 		constants.MIDDLE_SCREEN_X,
 		CARD_DISPLAY_Y,

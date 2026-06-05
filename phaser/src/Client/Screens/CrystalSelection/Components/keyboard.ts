@@ -3,7 +3,7 @@ import * as Phaser from "phaser";
 import * as _ from "../CrystalSelectionScene";
 
 
-export function keyboard(targetText: Phaser.GameObjects.Text) {
+export function create(targetText: Phaser.GameObjects.Text) {
 	if (document.getElementById("virtual-keyboard")) return;
 
 	const keyboardContainer = document.createElement("div");

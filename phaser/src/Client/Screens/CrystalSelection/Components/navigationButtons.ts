@@ -10,7 +10,7 @@ import * as bg from "./background"
 const NAV_BUTTON_OFFSET_X = 350;
 const NAV_BUTTON_WIDTH = 200;
 
-export function navigationButtons() {
+export function create() {
 	createUIButton({
 		text: t("crystalSelection.previous"),
 		position: vec2(constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X, bg.CARD_DISPLAY_Y),

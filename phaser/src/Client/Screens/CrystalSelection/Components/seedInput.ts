@@ -1,14 +1,12 @@
 import * as constants from "@Constants/constants";
-import * as io from "@PhaserIO";
-import { getSeed } from "@Utils/Random";
-import * as Phaser from "phaser";
+import * as Random from "@Utils/Random";
 import * as _ from "../CrystalSelectionScene";
-import { keyboard } from "./keyboard";
+import * as keyboard from "./keyboard";
 
 let seedText: Phaser.GameObjects.Text;
 
-export function seedInput() {
-	const currentSeed = getSeed();
+export function create() {
+	const currentSeed = Random.getSeed();
 
 	const x = constants.SCREEN_WIDTH - 20;
 	const y = constants.SCREEN_HEIGHT - 20;
@@ -49,7 +47,7 @@ export function seedInput() {
 
 	// Events
 	bg.on("pointerdown", () => {
-		keyboard(seedText);
+		keyboard.create(seedText);
 	});
 
 	// Hover effects
