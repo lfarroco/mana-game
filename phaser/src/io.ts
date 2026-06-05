@@ -6,6 +6,7 @@ import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
 import * as animation from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
+export let game: Phaser.Game;
 export let scene: Phaser.Scene;
 
 export const screens = {
@@ -24,6 +25,7 @@ export const clean = () => {
 
 export function initPhaserIO(newScene: Phaser.Scene) {
 	scene = newScene;
+	game = newScene.game;
 }
 
 export function BringToTop(obj: Phaser.GameObjects.GameObject): void {

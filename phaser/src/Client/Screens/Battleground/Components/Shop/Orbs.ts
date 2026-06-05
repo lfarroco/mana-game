@@ -13,7 +13,6 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Card from "@Models/Entities/Card";
 import * as Effects from "@Effects";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as Chara_1 from "@Systems/Chara/Chara";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
@@ -38,7 +37,7 @@ const playPowerTransferEffect = (
 	affectedUnitId?: string
 ) => {
 	const refreshPowerDisplay = (unitId: string | undefined) => {
-		if (!unitId || !Chara_1.hasCharaById(unitId)) {
+		if (!unitId || !Chara.hasCharaById(unitId)) {
 			return;
 		}
 
@@ -55,14 +54,14 @@ const playPowerTransferEffect = (
 	if (
 		!sourceId ||
 		sourceId === targetId ||
-		!Chara_1.hasCharaById(sourceId) ||
-		!Chara_1.hasCharaById(targetId)
+		!Chara.hasCharaById(sourceId) ||
+		!Chara.hasCharaById(targetId)
 	) {
 		effect();
 		return;
 	}
 
-	Effects.arcaneMissileTargeted(Chara_1.mustGetCharaById(sourceId), Chara_1.mustGetCharaById(targetId), {
+	Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
 		colors,
 		amplitudeMin: 5,
 		amplitudeMax: 15,

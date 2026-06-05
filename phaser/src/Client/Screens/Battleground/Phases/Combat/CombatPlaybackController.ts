@@ -35,7 +35,6 @@ type PlaybackState = {
 const MIN_COOLDOWN = 200;
 
 export const createCombatPlaybackController = (
-	state: State.State,
 	logs: ServerCombatEffects.CombatLogEntry[],
 	effects: CombatTypes.CombatEffects
 ): RunCombatCore.CombatRunner => {

@@ -1,11 +1,10 @@
-import type * as Phaser from "phaser";
-import type { State } from "@Models/State";
-import type { Unit } from "@Models/Entities/Unit";
-import type { CombatSystemStates } from "@Systems/CombatSystemStates";
-import type { Effect } from "@TriggerSystem/TriggerSystem";
-import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
-import type { CountdownTimerState } from "@Systems/CountdownTimer";
-import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
+import type * as State from "@Models/State";
+import type * as Unit from "@Models/Entities/Unit";
+import type * as CombatSystemStates from "@Systems/CombatSystemStates";
+import type * as TriggerSystem from "@TriggerSystem/TriggerSystem";
+import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import type * as CountdownTimer from "@Systems/CountdownTimer";
+import type * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
@@ -13,9 +12,9 @@ export type CombatEffects = {
 	onUnitPop: (unitId: string) => void;
 	onChargeBarUpdate: (unitId: string) => void;
 	onCombatEnd: (
-		state: State,
+		state: State.State,
 		outcome: WaveOutcome,
-		combatStates: CombatSystemStates
+		combatStates: CombatSystemStates.CombatSystemStates
 	) => Promise<void>;
 	getTimeScale: () => number;
 	getScene: () => Phaser.Scene | null;
@@ -23,21 +22,21 @@ export type CombatEffects = {
 		force: string,
 		life: number,
 		delta: number,
-		forceStatsState?: ForceStatsState
+		forceStatsState?: ForceStatsState.ForceStatsState
 	) => void;
 	updateShieldDisplay: (
 		force: string,
 		shield: number,
 		delta: number,
-		forceStatsState?: ForceStatsState
+		forceStatsState?: ForceStatsState.ForceStatsState
 	) => void;
 	updateRegenDisplay: (force: string, regen: number, delta: number) => void;
 	updatePoisonDisplay: (force: string, poison: number, delta: number) => void;
-	initBlackHole?: () => BlackHoleState | null;
-	initCountdownTimer?: (blackHoleState: BlackHoleState | null) => CountdownTimerState;
-	startCountdownTimer?: (timerState: CountdownTimerState) => CountdownTimerState;
-	stopCountdownTimer?: (timerState: CountdownTimerState) => CountdownTimerState;
-	initForceStats?: () => ForceStatsState;
+	initBlackHole?: () => BlackHoleState.BlackHoleState | null;
+	initCountdownTimer?: (blackHoleState: BlackHoleState.BlackHoleState | null) => CountdownTimer.CountdownTimerState;
+	startCountdownTimer?: (timerState: CountdownTimer.CountdownTimerState) => CountdownTimer.CountdownTimerState;
+	stopCountdownTimer?: (timerState: CountdownTimer.CountdownTimerState) => CountdownTimer.CountdownTimerState;
+	initForceStats?: () => ForceStatsState.ForceStatsState;
 	onReactionVisual?: (unitId: string) => Promise<void>;
 	onDamage?: (
 		sourceId: string,
@@ -126,13 +125,13 @@ export type CombatEffects = {
 };
 
 export type CombatEnvironment = {
-	state: State;
-	combatStates: CombatSystemStates;
+	state: State.State;
+	combatStates: CombatSystemStates.CombatSystemStates;
 	effects: CombatEffects;
 	processReactions: (
 		env: CombatEnvironment,
-		triggeringUnit: Unit,
-		effect: Effect,
+		triggeringUnit: Unit.Unit,
+		effect: TriggerSystem.Effect,
 		scale?: number
 	) => void;
 };

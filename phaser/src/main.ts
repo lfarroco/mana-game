@@ -1,30 +1,24 @@
-import "phaser"
-import * as OptionsStore from "@Models/OptionsStore";
-import * as StatsStore from "@Models/StatsStore";
+
 import * as constants from "./Constants";
-import Core from "@Screens/Preload/Core";
-import "@Models/State"; // start global state
-import * as phaserIO from "./io";
+import Client from "Client/Client";
+import * as State from "@Models/State";
+import * as io_ from "./io";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
-	var io: typeof phaserIO;
+	var io: typeof io_;
+	var state: State.State;
 	const __DEV__: boolean;
 }
-window.io = phaserIO;
+window.io = io_;
+window.state = State.initialState();
 
 const STARTUP_FONT_FAMILY = "Arimo";
 const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";
 
-export let game: Phaser.Game;
-
 async function loadStartupFontIO(): Promise<void> {
-	if (typeof window === "undefined" || !("FontFace" in window)) {
-		return;
-	}
-
 	const startupFont = new FontFace(
 		STARTUP_FONT_FAMILY,
 		`url("${STARTUP_FONT_URL}")`,
@@ -38,8 +32,7 @@ async function loadStartupFontIO(): Promise<void> {
 async function startGameIO(): Promise<void> {
 	await loadStartupFontIO();
 
-	game = new Phaser.Game({
-		type: Phaser.AUTO,
+	new Phaser.Game({
 		pixelArt: false,
 		scale: {
 			width: constants.SCREEN_WIDTH,
@@ -47,11 +40,7 @@ async function startGameIO(): Promise<void> {
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},
-		dom: {
-			createContainer: true,
-		},
-		parent: "game-container",
-		scene: Core,
+		scene: Client,
 		plugins: {
 			global: [
 				{
@@ -67,15 +56,6 @@ async function startGameIO(): Promise<void> {
 			],
 		},
 	});
-
-	OptionsStore.init();
-	StatsStore.init();
 }
 
 void startGameIO();
-
-
-// if (process.env.NODE_ENV === "development") {
-// 	//window.debugController = DebugController;
-// 	(window as Window & { game?: Phaser.Game }).game = game;
-// }

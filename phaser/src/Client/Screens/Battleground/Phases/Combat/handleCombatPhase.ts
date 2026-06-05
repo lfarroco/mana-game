@@ -2,7 +2,6 @@ import type { CombatState, SessionData } from "@Core/Types";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
-import * as io from "../../../../../io";
 import * as Chara from "@Systems/Chara/Chara";
 
 import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
@@ -11,13 +10,10 @@ import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 import * as BattlegroundNavigation from "@Screens/Battleground/Navigation";
 
-import * as c from "../../../../../Constants";
-import * as animation_1 from "@Utils/animation";
+import * as Constants from "@Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-
-
 
 const COMBAT_START_DELAY_MS = 300;
 
@@ -28,11 +24,12 @@ export type CombatPhaseResult =
 	| { type: "cancelled" };
 
 const cloneValue = <T>(value: T): T => {
-	if (typeof globalThis.structuredClone === "function") {
-		return globalThis.structuredClone(value);
-	}
+	return value
+	// if (typeof globalThis.structuredClone === "function") {
+	// 	return globalThis.structuredClone(value);
+	// }
 
-	return JSON.parse(JSON.stringify(value)) as T;
+	// return JSON.parse(JSON.stringify(value)) as T;
 };
 
 const getInitialCombatUnits = (combatState: CombatState) => {
@@ -107,10 +104,11 @@ const createCombatEffects = ({
 	onContinue: () => void;
 	onReplay: () => void;
 }) => {
-	const effects = BrowserCombatEffects.createBrowserCombatEffects();
-	const baseOnCombatEnd = effects.onCombatEnd;
+	const effectsIndex = BrowserCombatEffects.createBrowserCombatEffects();
+	const baseOnCombatEnd = effectsIndex.onCombatEnd;
 
-	effects.onCombatEnd = async (playbackState, outcome, combatStates) => {
+	//wtf
+	effectsIndex.onCombatEnd = async (playbackState, outcome, combatStates) => {
 		await baseOnCombatEnd?.(playbackState, outcome, combatStates);
 		Board.setIsInputEnabled(true);
 
@@ -121,7 +119,7 @@ const createCombatEffects = ({
 		});
 	};
 
-	return effects;
+	return effectsIndex;
 };
 
 const startCombatPlayback = async ({
@@ -138,11 +136,10 @@ const startCombatPlayback = async ({
 	await setupCombatBoard(combatState);
 	await animation.delay(COMBAT_START_DELAY_MS);
 
-	const effects = createCombatEffects({ onContinue, onReplay });
+	const effectsIndex = createCombatEffects({ onContinue, onReplay });
 	const controller = CombatPlaybackController.createCombatPlaybackController(
-		state,
 		combatState.logs,
-		effects
+		effectsIndex
 	);
 	const updateHandler = (time: number, delta: number) => {
 		controller.updateFrame(state, time, delta);
@@ -244,21 +241,21 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 
 	if (CombatSystemStates.isInitialized()) {
 		const combatStates = CombatSystemStates.getCombatSystemStates();
-		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, c.FORCE_ID_PLAYER);
-		newRegenState = RegenSystem.clearRegen(newRegenState, c.FORCE_ID_CPU);
+		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, Constants.FORCE_ID_PLAYER);
+		newRegenState = RegenSystem.clearRegen(newRegenState, Constants.FORCE_ID_CPU);
 		CombatSystemStates.updateRegenSystemState(newRegenState);
 
 		let newPoisonState = PoisonSystem.clearPoison(
 			combatStates.poisonSystemState,
-			c.FORCE_ID_PLAYER
+			Constants.FORCE_ID_PLAYER
 		);
-		newPoisonState = PoisonSystem.clearPoison(newPoisonState, c.FORCE_ID_CPU);
+		newPoisonState = PoisonSystem.clearPoison(newPoisonState, Constants.FORCE_ID_CPU);
 		CombatSystemStates.updatePoisonSystemState(newPoisonState);
 	}
 
 	if (shouldResummonUnits) {
 		const summonPromises = state.session.team.units.map(async (unit, index) => {
-			await animation_1.delay(index * 200);
+			await animation.delay(index * 200);
 			await Chara.summon(unit, true);
 		});
 		await Promise.all(summonPromises);

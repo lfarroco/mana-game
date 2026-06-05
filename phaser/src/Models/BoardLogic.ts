@@ -1,12 +1,8 @@
-import { Unit } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
 import * as Geometry from "@Models/Geometry";
 
-// Hardcoding these or moving to SharedConstants since we can't import full constants if they have phaser deps
-// But constants usually safe. Let's use parameters or simple logic.
-// Board size is fixed 3x3 for now.
-
 export function getEmptySlot(
-	units: Unit[],
+	units: Unit.Unit[],
 	forceId: string,
 	width: number = 3,
 	height: number = 3
@@ -19,7 +15,7 @@ export function getEmptySlot(
 
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
-			const currentPos = vec2(x, y);
+			const currentPos = Geometry.vec2(x, y);
 			const occupied = units.find(
 				(u) => u.force === forceId && u.position.x === x && u.position.y === y
 			);
@@ -33,7 +29,7 @@ export function getEmptySlot(
 }
 
 export function findFreeSlot(
-	units: Unit[],
+	units: Unit.Unit[],
 	forceId: string,
 	preferredPos?: Geometry.Vec2
 ): Geometry.Vec2 | null {
@@ -49,10 +45,10 @@ export function findFreeSlot(
 }
 
 export function checkMove(
-	unit: Unit,
+	unit: Unit.Unit,
 	newPos: Geometry.Vec2,
-	units: Unit[]
-): { valid: boolean; occupant?: Unit } {
+	units: Unit.Unit[]
+): { valid: boolean; occupant?: Unit.Unit } {
 	if (Geometry.eqVec2(unit.position, newPos)) {
 		return { valid: false };
 	}

@@ -4,10 +4,9 @@ import * as BaseCollection from "@Data/BaseCollection";
 import * as Config from "@config";
 import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as OptionsStore from "@Models/OptionsStore";
+import * as StatsStore from "@Models/StatsStore";
 
-const DEFAULT_SCENE_SOUND_VOLUME = 0.05;
-
-export default class Core extends Phaser.Scene {
+export default class Client extends Phaser.Scene {
 
     preload() {
 
@@ -159,14 +158,12 @@ export default class Core extends Phaser.Scene {
     create() {
 
         io.initPhaserIO(this);
+
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
-        io.scene.sound.setVolume(
-            OptionsStore.getOption("soundVolume") ?? DEFAULT_SCENE_SOUND_VOLUME
-        );
-        const speed = OptionsStore.getOption("speed");
-        io.scene.time.timeScale = speed;
-        io.scene.tweens.timeScale = speed;
+        OptionsStore.init();
+
+        StatsStore.init();
 
         TitleScreen.create();
     }

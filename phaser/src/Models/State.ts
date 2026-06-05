@@ -15,7 +15,7 @@ export type State = {
 	};
 };
 
-const initialState = (): State => {
+export const initialState = (): State => {
 	const initialSeed = Date.now().toString();
 	return {
 		savedGames: [],
@@ -53,13 +53,7 @@ const initialState = (): State => {
 	};
 };
 
-const state = initialState();
-declare global {
-	var state: State;
-}
-if (typeof window !== "undefined") {
-	window.state = state;
-}
+
 
 export function resetState() {
 	const newState = initialState();

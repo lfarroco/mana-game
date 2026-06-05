@@ -1,4 +1,3 @@
-import { game } from "@main";
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
 import { createLogger } from "@Utils/Logger";
@@ -23,7 +22,7 @@ export const init = () => {
 		Object.assign(currentOptions, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
-	game.sound.volume = currentOptions.masterVolume;
+	io.game.sound.volume = currentOptions.masterVolume;
 	AudioManager.onOptionsChanged();
 };
 
@@ -63,7 +62,7 @@ export function setOption<K extends keyof Options>(key: K, value: Options[K]): v
 		return;
 	}
 	if (key === "masterVolume") {
-		game.sound.volume = value as number;
+		io.game.sound.volume = value as number;
 		return;
 	}
 	if (key === "soundVolume" || key === "musicVolume") {
@@ -78,11 +77,9 @@ export function saveOptions(): void {
 function setGameSpeed(speed: number) {
 	const newSpeed = Math.max(0, speed);
 
-	game.scene.getScenes(true).forEach((scene) => {
-		//https://phaser.discourse.group/t/how-to-add-time-scale-that-affects-tweens-animations-and-so-on-solved/1357/2
-		scene.time.timeScale = newSpeed;
-		scene.tweens.timeScale = newSpeed;
-	});
+	//https://phaser.discourse.group/t/how-to-add-time-scale-that-affects-tweens-animations-and-so-on-solved/1357/2
+	io.scene.time.timeScale = newSpeed;
+	io.scene.tweens.timeScale = newSpeed;
 }
 
 function loadOptionsFromStorage(): Partial<Options> | null {
