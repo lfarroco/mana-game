@@ -1,4 +1,4 @@
-import { SessionData, PhaseOptions, ActionPayload } from "@Core/Types";
+import * as Types from "@Core/Types";
 import * as LocalServer from "./LocalServer";
 import * as RemoteServer from "./RemoteServer";
 
@@ -8,14 +8,20 @@ import * as RemoteServer from "./RemoteServer";
  */
 export type GameServer = {
 
-	createSession(playerId: string, crystalId: string): Promise<SessionData>;
+	// TODO: this might not be necessary if we do
+	// handleAction("create_session", { crystalId })
+	createSession(
+		playerId: string,
+		crystalId: string,
+	): Promise<Types.SessionData>;
 
-	// TODO: same as above
-	getPhaseOptions(playerId: string): Promise<PhaseOptions>;
+	handleAction(
+		playerId: string,
+		actionId: string,
+		payload?: Types.ActionPayload,
+	): Promise<Types.SessionData>;
 
-	handleAction(playerId: string, actionId: string, payload?: ActionPayload): Promise<SessionData>;
 }
-
 
 export const getServer = (): GameServer => {
 	if (state.session.session_type.type === "singleplayer")
@@ -23,30 +29,3 @@ export const getServer = (): GameServer => {
 	else
 		return RemoteServer;
 };
-
-
-// End goal:
-// You don’t even need separate LocalServer and RemoteServer gameplay logic.
-
-// Instead:
-
-// GameSimulation
-
-// shared by both.
-
-// Example:
-
-// RemoteServer
-//   → wraps GameSimulation over network
-
-// LocalServer
-//   → wraps same GameSimulation in-process
-
-// That’s usually the ideal end-state because:
-
-// rules stay identical
-// balance stays identical
-// desyncs disappear
-// multiplayer bugs drop massively
-
-// That’s the architecture used in many RTS, tactics, and simulation-heavy games.
