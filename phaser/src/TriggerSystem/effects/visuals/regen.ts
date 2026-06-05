@@ -1,4 +1,4 @@
-import { arcaneMissileTargeted } from "@Effects/index";
+import { arcaneMissileTargeted } from "@Effects";
 
 export function regenFx(
 	source: Vec2,

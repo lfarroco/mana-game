@@ -1,4 +1,4 @@
-import { arcaneMissileTargeted } from "@Effects/index";
+import { arcaneMissileTargeted } from "@Effects";
 
 export function healFx(
 	source: Vec2,

@@ -66,8 +66,8 @@
             "@Storage/*": [
                 "./src/Storage/*"
             ],
-            "@Effects/*": [
-                "./src/Effects/*"
+            "@Effects": [
+                "./src/Effects.ts"
             ],
             "@Engine/*": [
                 "./src/Engine/*"

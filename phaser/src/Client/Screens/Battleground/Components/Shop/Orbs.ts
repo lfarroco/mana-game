@@ -17,7 +17,7 @@ import { State } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";
 import { getPlayerPersistentCore } from "@Models/Entities/Card";
-import { arcaneMissileTargeted } from "@Effects/index";
+import { arcaneMissileTargeted } from "@Effects";
 import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 import { mustGetCharaById, hasCharaById } from "@Systems/Chara/Chara";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";

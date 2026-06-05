@@ -1,12 +1,11 @@
-import Phaser from "phaser";
-import { arcaneMissileTargeted } from "@Effects/arcaneMissileTargeted";
-import { healingHitEffect } from "@Effects/healingHitEffect";
-import { MagicOrb } from "Client/Components/MagicOrb/MagicOrb";
-import { getPlayerPersistentCore } from "@Models/Entities/Card";
-import { mustGetCharaById, getScreenPosition, hasCharaById } from "@Systems/Chara/Chara";
-import { mixHexColors } from "@Screens/Battleground/Components/UI/theme";
-import { delay, tween } from "@Utils/animation";
-import { hexToVector3 } from "@Utils/colorUtils";
+import * as arcaneMissileTargeted from "./arcaneMissileTargeted";
+import * as healingHitEffect from "./healingHitEffect";
+import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
+import * as Card from "@Models/Entities/Card";
+import * as Chara from "@Systems/Chara/Chara";
+import * as theme from "@Screens/Battleground/Components/UI/theme";
+import * as animation from "@Utils/animation";
+import * as colorUtils from "@Utils/colorUtils";
 
 const DEFAULT_ACCENT_COLOR = 0x7ae7ff;
 const SHARD_TEXTURE_KEY = "upgrade-crystal-shard";
@@ -37,11 +36,11 @@ export async function playUpgradeCrystalSelectionEffect({
 }: UpgradeCrystalSelectionEffectProps): Promise<void> {
 	const target = getCrystalTargetPoint();
 	const projectileColors = [
-		mixHexColors(accentColor, 0xffffff, 0.55),
+		theme.mixHexColors(accentColor, 0xffffff, 0.55),
 		accentColor,
-		mixHexColors(accentColor, 0x08121f, 0.15),
+		theme.mixHexColors(accentColor, 0x08121f, 0.15),
 	];
-	const impactColors = [mixHexColors(accentColor, 0xffffff, 0.75), accentColor];
+	const impactColors = [theme.mixHexColors(accentColor, 0xffffff, 0.75), accentColor];
 
 	const shardEmitter = createCardDissolveEmitter(cardCenter, cardSize, projectileColors);
 	const targetOrb = createCrystalAbsorptionOrb(target, accentColor);
@@ -54,7 +53,7 @@ export async function playUpgradeCrystalSelectionEffect({
 		targetOrb.startDissolve();
 	});
 
-	const fadeCardPromise = tween({
+	const fadeCardPromise = animation.tween({
 		targets: cardObjects,
 		alpha: 0,
 		duration: CARD_DISSOLVE_DURATION_MS,
@@ -62,10 +61,10 @@ export async function playUpgradeCrystalSelectionEffect({
 	});
 
 	const projectilePromises = Array.from({ length: PROJECTILE_COUNT }, async (_, index) => {
-		await delay(index * PROJECTILE_STAGGER_MS);
+		await animation.delay(index * PROJECTILE_STAGGER_MS);
 		const source = randomPointWithin(cardCenter, cardSize);
 
-		await arcaneMissileTargeted(source, target, {
+		await arcaneMissileTargeted.arcaneMissileTargeted(source, target, {
 			colors: projectileColors,
 			amplitudeMin: 4,
 			amplitudeMax: 12,
@@ -85,13 +84,13 @@ export async function playUpgradeCrystalSelectionEffect({
 		await Promise.all([
 			fadeCardPromise,
 			Promise.all(projectilePromises),
-			delay(PROJECTILE_ORB_DELAY_MS).then(() => healingHitEffect(target, 280)),
-			delay(SHARD_EMISSION_DURATION_MS).then(() => {
+			animation.delay(PROJECTILE_ORB_DELAY_MS).then(() => healingHitEffect.healingHitEffect(target, 280)),
+			animation.delay(SHARD_EMISSION_DURATION_MS).then(() => {
 				shardEmitter.stop();
 			}),
 		]);
 
-		await delay(120);
+		await animation.delay(120);
 	} finally {
 		io.scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
 		shardEmitter.destroy();
@@ -131,10 +130,10 @@ function createCardDissolveEmitter(
 		.setDepth(1200);
 }
 
-function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOrb {
-	const orb = new MagicOrb(target.x, target.y, {
+function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOrb.MagicOrb {
+	const orb = new MagicOrb.MagicOrb(target.x, target.y, {
 		size: TARGET_ORB_SIZE,
-		color: hexToVector3(mixHexColors(accentColor, 0xffffff, 0.25)),
+		color: colorUtils.hexToVector3(theme.mixHexColors(accentColor, 0xffffff, 0.25)),
 		intensity: 1.5,
 		speed: 1.1,
 		dissolveDuration: 0.45,
@@ -162,14 +161,14 @@ function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOr
 }
 
 function getCrystalTargetPoint(): Point {
-	const core = getPlayerPersistentCore(state);
+	const core = Card.getPlayerPersistentCore(state);
 
-	if (hasCharaById(core.id)) {
-		const coreChara = mustGetCharaById(core.id);
+	if (Chara.hasCharaById(core.id)) {
+		const coreChara = Chara.mustGetCharaById(core.id);
 		return { x: coreChara.x, y: coreChara.y - 30 };
 	}
 
-	const position = getScreenPosition(core);
+	const position = Chara.getScreenPosition(core);
 	return { x: position.x, y: position.y - 30 };
 }
 

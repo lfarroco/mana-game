@@ -13,17 +13,14 @@ import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as CountdownTimer_1 from "@Systems/CountdownTimer";
-import * as summonEffect from "@Effects/summonEffect";
 import * as damage from "@TriggerSystem/effects/visuals/damage";
 import * as heal from "@TriggerSystem/effects/visuals/heal";
 import * as shield from "@TriggerSystem/effects/visuals/shield";
 import * as poison from "@TriggerSystem/effects/visuals/poison";
-import * as Effects from "@Effects/index";
+import * as Effects from "@Effects";
 
 import * as AudioManager from "@Systems/AudioManager";
 import * as Chara_1 from "@Systems/Chara/Chara";
-import * as hasteEffect from "@Effects/hasteEffect";
-import * as slowEffect from "@Effects/slowEffect";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as constants from "@Constants/constants";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
@@ -150,7 +147,7 @@ export const createBrowserCombatEffects = (
 
 		onReactionVisual: async (unitId: string) => {
 			const chara = Chara.mustGetCharaById(unitId);
-			summonEffect.summonEffect(chara);
+			Effects.summonEffect(chara);
 		},
 
 		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
@@ -196,7 +193,7 @@ export const createBrowserCombatEffects = (
 		onHaste: (sourceId: string, targetId: string, _duration: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				hasteEffect.hasteEffect(Chara.mustGetCharaById(targetId), {
+				Effects.hasteEffect(Chara.mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0x00eaff,
@@ -222,7 +219,7 @@ export const createBrowserCombatEffects = (
 		onSlow: (sourceId: string, targetId: string, _duration: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				slowEffect.slowEffect(Chara.mustGetCharaById(targetId), {
+				Effects.slowEffect(Chara.mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0xd2691e,
@@ -249,7 +246,7 @@ export const createBrowserCombatEffects = (
 		onCharge: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			const effect = async () => {
 				onHit();
-				hasteEffect.hasteEffect(Chara.mustGetCharaById(targetId), {
+				Effects.hasteEffect(Chara.mustGetCharaById(targetId), {
 					duration: 1000,
 					intensity: 1.5,
 					color: 0xffd700,

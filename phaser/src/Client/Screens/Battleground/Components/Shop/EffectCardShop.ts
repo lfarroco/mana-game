@@ -10,8 +10,8 @@ import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
-import * as upgradeCrystalSelectionEffect from "@Effects/upgradeCrystalSelectionEffect";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import * as Effects from "@Effects";
 
 const logger = Logger.createLogger("EffectCardShop");
 
@@ -105,7 +105,7 @@ function renderUpgradeCards(
 				if (success) {
 					await onUpgradeApplied?.(success);
 
-					await upgradeCrystalSelectionEffect.playUpgradeCrystalSelectionEffect({
+					await Effects.playUpgradeCrystalSelectionEffect({
 						cardCenter: { x, y },
 						cardSize: { width, height },
 						cardObjects: card.allObjects,
