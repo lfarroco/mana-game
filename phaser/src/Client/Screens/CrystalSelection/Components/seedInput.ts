@@ -1,6 +1,6 @@
 import * as constants from "@Constants/constants";
 import * as Random from "@Utils/Random";
-import * as _ from "../CrystalSelectionScene";
+import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./Keyboard";
 
 let seedText: Phaser.GameObjects.Text;
@@ -35,7 +35,7 @@ export function create() {
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
 
-	_.state.seedWarningText = io
+	parent.state.seedWarningText = io
 		.Text("Unlocks and stats disabled when using a custom seed", {
 			...constants.defaultTextConfig,
 			fontSize: "16px",

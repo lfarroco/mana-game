@@ -1,12 +1,11 @@
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { openTutorial } from "Client/Screens/Title/Components/TutorialOverlay";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as TutorialOverlay from "Client/Screens/Title/Components/TutorialOverlay";
+import * as i18n from "@i18n/i18n";
 
-export function render() {
-	const text = io.Title1(t("title.howToPlay"));
-	io.SetPosition(text, vec2(0, 80));
+export function create() {
+	const text = io.Title1(i18n.t("title.howToPlay"));
+	io.SetPosition(text, Geometry.vec2(0, 80));
 	io.Centralize(text);
 	io.Tween({
 		targets: text,
@@ -36,6 +35,6 @@ export function render() {
 	});
 
 	container.on("pointerdown", () => {
-		openTutorial();
+		TutorialOverlay.openTutorial();
 	});
 }

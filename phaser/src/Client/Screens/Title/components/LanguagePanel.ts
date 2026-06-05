@@ -9,7 +9,7 @@ let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
 let overlay: ReturnType<typeof BackgroundOverlay.createBackgroundOverlay> | null = null;
 
-export function openLanguagePanel(): void {
+export function create(): void {
 	if (isOpen) return;
 	isOpen = true;
 

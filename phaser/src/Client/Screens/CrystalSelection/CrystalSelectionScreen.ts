@@ -36,7 +36,7 @@ export function create() {
 	state.crystals = Card.getCores();
 	state.currentIndex = 0;
 
-	cloudsBg.render();
+	cloudsBg.create();
 
 	Components.create();
 

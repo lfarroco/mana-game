@@ -11,13 +11,13 @@ export let mainButtonsContainer: Container;
 
 export function create() {
 
-	Components.cloudsBg.render();
+	Components.cloudsBg.create();
 
 	Components.logo.render();
 
 	renderMainButtons();
 
-	Components.howToPlay.render();
+	Components.howToPlay.create();
 
 	checkUnlocks();
 
@@ -34,11 +34,11 @@ function renderMainButtons() {
 		() => Components.singlePlayerButton.render(500).container,
 		() => Components.arenaButton.render(600).container,
 		() => Components.optionsButton.create(700).container,
-		() => Components.linksButton.render(800).container,
+		() => Components.linksButton.create(800).container,
 		environment.isElectron() ?
-			() => Components.exitButton.render(900).container :
+			() => Components.exitButton.create(900).container :
 			null,
-		() => Components.languageButton.render().container,
+		() => Components.languageButton.create().container,
 	]);
 }
 

@@ -1,7 +1,7 @@
-import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
-import { sumVec2 } from "@Models/Geometry";
-import { create } from "Client/Screens/CrystalSelection/CrystalSelectionScene";
-import { create } from "@Screens/Title/TitleScreen";
+import * as constants from "@Constants/constants";
+import * as Geometry from "@Models/Geometry";
+import * as CrystalSelectionScene from "@Screens/CrystalSelection/CrystalSelectionScreen";
+import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
 import { delay } from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
@@ -9,8 +9,8 @@ import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 export let scene: Phaser.Scene;
 
 export const screens = {
-	title: create,
-	crystalSelection: create,
+	title: TitleScreen.create,
+	crystalSelection: CrystalSelectionScene.create,
 	battleground: BattlegroundScreen.createBattlegroundScreen,
 	options: OptionsScreen.create
 }
@@ -147,7 +147,7 @@ export function BorderedRoundRect(
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
+	const actualPos = Geometry.sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(2, 0xffffff, 0.5);
 	g.fillStyle(color, alpha);
@@ -164,7 +164,7 @@ export function Rectangle(
 	alpha: number = 0.7,
 	stroke?: boolean
 ): Phaser.GameObjects.Graphics {
-	const actualPos = sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
+	const actualPos = Geometry.sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
 	const g = scene.add.graphics(actualPos);
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
@@ -206,20 +206,20 @@ export function Centralize(obj: Phaser.GameObjects.GameObject): Phaser.GameObjec
 
 export function Text(
 	text: string,
-	style = defaultTextConfig): Phaser.GameObjects.Text {
+	style = constants.defaultTextConfig): Phaser.GameObjects.Text {
 	return scene.add.text(0, 0, text, style);
 }
 
 export function Title1(text: string) {
-	return Text(text, titleTextConfig)
+	return Text(text, constants.titleTextConfig)
 }
 
 export function Title2(text: string) {
-	return Text(text, { ...titleTextConfig, fontSize: "22px" })
+	return Text(text, { ...constants.titleTextConfig, fontSize: "22px" })
 }
 
 export function Label(text: string) {
-	return Text(text, defaultTextConfig)
+	return Text(text, constants.defaultTextConfig)
 }
 
 export function SetStyle(

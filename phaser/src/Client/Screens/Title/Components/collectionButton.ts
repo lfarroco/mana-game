@@ -7,9 +7,10 @@ import * as constants from "@Constants/constants";
 export function collectionButton(y: number) {
 	return UIButton.create({
 		text: i18n.t("title.collection"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
-		callback: () => {
-			CollectionModal.showCollectionModal();
-		},
+		position: Geometry.vec2(
+			constants.MIDDLE_SCREEN_X,
+			y,
+		),
+		callback: CollectionModal.create
 	});
 }

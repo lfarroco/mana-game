@@ -1,9 +1,8 @@
 import * as constants from "@Constants/constants";
-import { getName } from "@i18n/i18n";
-import { vec2 } from "@Models/SharedGeometry";
-import * as io from "@PhaserIO";
+import * as i18n from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import * as _ from "../CrystalSelectionScene";
+import * as parent from "../CrystalSelectionScreen";
 
 const SPRITE_Y = 300;
 const CARD_NAME_Y = SPRITE_Y + 150;
@@ -23,13 +22,13 @@ const DESCRIPTION_ORIGIN_Y = 0;
 const DESCRIPTION_Y = 500;
 
 export function create() {
-	const crystal = _.state.crystals[_.state.currentIndex];
+	const crystal = parent.state.crystals[parent.state.currentIndex];
 
-	_.state.crystalSprite = io.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
-	_.state.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
+	parent.state.crystalSprite = io.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
+	parent.state.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
 	io.scene.tweens.add({
-		targets: _.state.crystalSprite,
+		targets: parent.state.crystalSprite,
 		y: SPRITE_Y + CRYSTAL_FLOAT_Y_OFFSET,
 		duration: CRYSTAL_FLOAT_ANIMATION_DURATION,
 		ease: CRYSTAL_FLOAT_EASE,
@@ -37,14 +36,14 @@ export function create() {
 		repeat: -1,
 	});
 
-	_.state.crystalName = io.Text(getName(crystal.id), {
+	parent.state.crystalName = io.Text(i18n.getName(crystal.id), {
 		...constants.titleTextConfig,
 		fontSize: CRYSTAL_NAME_FONT_SIZE,
 	});
-	io.SetPosition(_.state.crystalName, vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y));
-	io.Centralize(_.state.crystalName);
+	io.SetPosition(parent.state.crystalName, Geometry.vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y));
+	io.Centralize(parent.state.crystalName);
 
-	_.state.descriptionText = new BBCodeText(
+	parent.state.descriptionText = new BBCodeText(
 		io.scene,
 		constants.MIDDLE_SCREEN_X,
 		DESCRIPTION_Y,
@@ -60,5 +59,5 @@ export function create() {
 		.setWrapMode(1)
 		.setLineSpacing(DESCRIPTION_LINE_SPACING)
 		.setWrapWidth(DESCRIPTION_WRAP_WIDTH);
-	io.scene.add.existing(_.state.descriptionText);
+	io.scene.add.existing(parent.state.descriptionText);
 }

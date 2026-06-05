@@ -1,6 +1,5 @@
 import * as constants from "@Constants/constants";
-import * as io from "@PhaserIO";
-import * as _ from "../CrystalSelectionScene";
+import * as parent from "../CrystalSelectionScreen";
 
 const PAGINATION_Y = 700;
 const DOT_SIZE = 16;
@@ -13,8 +12,8 @@ export const PAGINATION_DOT_COLOR = 0xffffff;
 export const PAGINATION_DOT_ACTIVE_ALPHA = 1;
 
 export function create() {
-	_.state.paginationDots = [];
-	const totalDots = _.state.crystals.length;
+	parent.state.paginationDots = [];
+	const totalDots = parent.state.crystals.length;
 	const totalWidth = (totalDots - 1) * DOT_SPACING;
 	const startX = constants.MIDDLE_SCREEN_X - totalWidth / 2;
 
@@ -31,6 +30,6 @@ export function create() {
 			PAGINATION_DOT_STROKE_COLOR,
 			PAGINATION_DOT_STROKE_ALPHA
 		);
-		_.state.paginationDots.push(dot);
+		parent.state.paginationDots.push(dot);
 	}
 }

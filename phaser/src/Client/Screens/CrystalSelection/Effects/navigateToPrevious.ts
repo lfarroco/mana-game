@@ -1,8 +1,12 @@
-import * as _ from "../CrystalSelectionScene";
-import { updateDisplay } from "./updateDisplay";
+import * as parent from "../CrystalSelectionScreen";
+import * as updateDisplay from "./updateDisplay";
 
 
 export function navigateToPrevious() {
-	_.state.currentIndex = (_.state.currentIndex - 1 + _.state.crystals.length) % _.state.crystals.length;
-	updateDisplay();
+
+	const { currentIndex, crystals } = parent.state;
+
+	parent.state.currentIndex = (currentIndex - 1 + crystals.length) % crystals.length;
+
+	updateDisplay.updateDisplay();
 }

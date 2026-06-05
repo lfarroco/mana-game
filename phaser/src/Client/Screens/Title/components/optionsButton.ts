@@ -50,7 +50,7 @@ function showOptionsSubmenu() {
 		text: i18n.t("title.credits"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
 		callback: () => {
-			CreditsPanel.openCredits();
+			CreditsPanel.create();
 		},
 	});
 

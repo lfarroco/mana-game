@@ -3,7 +3,7 @@ import * as config from "@config"
 
 let backgroundInstance: CloudsBackground.CloudsBackground | null = null;
 
-export function render() {
+export function create() {
 
 	if (config.DISABLE_ASSETS) return null;
 

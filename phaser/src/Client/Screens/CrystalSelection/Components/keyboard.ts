@@ -1,7 +1,6 @@
 import { getSeed, setSeed } from "@Utils/Random";
 import * as Phaser from "phaser";
-import * as _ from "../CrystalSelectionScene";
-
+import * as parent from "../CrystalSelectionScreen";
 
 export function create(targetText: Phaser.GameObjects.Text) {
 	if (document.getElementById("virtual-keyboard")) return;
@@ -66,7 +65,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 		"Back",
 		() => {
 			targetText.setText(`${getSeed()}`);
-			_.state.seedWarningText.setVisible(false);
+			parent.state.seedWarningText.setVisible(false);
 			if (document.body.contains(keyboardContainer)) {
 				document.body.removeChild(keyboardContainer);
 			}
@@ -114,19 +113,19 @@ export function create(targetText: Phaser.GameObjects.Text) {
 				const newSeed = Date.now();
 				setSeed(newSeed);
 				targetText.setText(`${newSeed}`);
-				_.state.seedWarningText.setVisible(false);
+				parent.state.seedWarningText.setVisible(false);
 			} else {
 				const val = parseInt(targetText.text, 10);
 				if (!isNaN(val)) {
 					setSeed(val);
 					targetText.setText(`${val}`);
-					_.state.seedWarningText.setVisible(true);
+					parent.state.seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
 					const newSeed = Date.now();
 					setSeed(newSeed);
 					targetText.setText(`${newSeed}`);
-					_.state.seedWarningText.setVisible(false);
+					parent.state.seedWarningText.setVisible(false);
 				}
 			}
 
@@ -169,7 +168,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 			const currentVal = parseInt(targetText.text, 10);
 			if (isNaN(currentVal) && targetText.text !== `${getSeed()}`) {
 				targetText.setText(`${getSeed()}`);
-				_.state.seedWarningText.setVisible(false);
+				parent.state.seedWarningText.setVisible(false);
 			}
 
 			document.removeEventListener("mousedown", outsideClickListener);

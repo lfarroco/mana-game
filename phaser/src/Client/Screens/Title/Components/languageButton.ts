@@ -1,24 +1,24 @@
-import { getCurrentLocale, getNativeName } from "@i18n/i18n";
 import * as constants from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import { create } from "Client/Components/UIButton";
-import { openLanguagePanel } from "Client/Screens/Title/Components/LanguagePanel";
-import { t } from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as UIButton from "Client/Components/UIButton";
+import * as LanguagePanel from "Client/Screens/Title/Components/LanguagePanel";
+import * as i18n from "@i18n/i18n";
 
-export function render() {
-	const x = 120;
-	const y = constants.SCREEN_HEIGHT - 60;
+const BUTTON_X = 120;
+const BUTTON_Y = constants.SCREEN_HEIGHT - 60;
 
-	const currentLangName = getNativeName(getCurrentLocale());
+export function create() {
 
-	const button = create({
+	const currentLangName = i18n.getNativeName(i18n.getCurrentLocale());
+
+	const button = UIButton.create({
 		text: `あ/A ${currentLangName}`,
-		position: vec2(x, y),
-		callback: openLanguagePanel,
+		position: Geometry.vec2(BUTTON_X, BUTTON_Y),
+		callback: LanguagePanel.create,
 		width: 200,
 		tooltip: {
-			title: t("language.title"),
-			description: t("title.tooltip.language"),
+			title: i18n.t("language.title"),
+			description: i18n.t("title.tooltip.language"),
 			position: "right",
 		},
 	});

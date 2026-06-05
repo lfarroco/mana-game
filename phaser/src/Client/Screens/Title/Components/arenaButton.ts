@@ -4,10 +4,13 @@ import * as UIButton from "Client/Components/UIButton";
 import * as i18n from "@i18n/i18n";
 
 export function render(y: number) {
-	const title = i18n.t("title.multiplayer");
-	const btn = UIButton.create({
-		text: title,
-		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
+	const label = i18n.t("title.multiplayer");
+	return UIButton.create({
+		text: label,
+		position: Geometry.vec2(
+			constants.MIDDLE_SCREEN.x,
+			y,
+		),
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
 			if (playerId) {
@@ -17,11 +20,9 @@ export function render(y: number) {
 			}
 		},
 		tooltip: {
-			title,
+			title: label,
 			description: i18n.t("title.tooltip.multiplayer"),
 			position: "right",
 		},
 	});
-
-	return btn;
 }

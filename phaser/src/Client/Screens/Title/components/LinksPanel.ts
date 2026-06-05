@@ -17,7 +17,7 @@ const baseLinks = [
 	{ text: "YouTube", url: "https://www.youtube.com/@manabattle" },
 ];
 
-export function openLinksPanel(): void {
+export function create(): void {
 	if (isOpen) return;
 	isOpen = true;
 

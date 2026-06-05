@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import * as Geometry from "@Models/SharedGeometry";
+import * as Geometry from "@Models/Geometry";
 
 // Hardcoding these or moving to SharedConstants since we can't import full constants if they have phaser deps
 // But constants usually safe. Let's use parameters or simple logic.
@@ -10,7 +10,7 @@ export function getEmptySlot(
 	forceId: string,
 	width: number = 3,
 	height: number = 3
-): Geometry.Vec2 | null {
+): Vec2 | null {
 	const maxSlots = width * height;
 
 	if (units.filter((u) => u.force === forceId).length >= maxSlots) {
@@ -19,7 +19,7 @@ export function getEmptySlot(
 
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
-			const currentPos = Geometry.vec2(x, y);
+			const currentPos = vec2(x, y);
 			const occupied = units.find(
 				(u) => u.force === forceId && u.position.x === x && u.position.y === y
 			);

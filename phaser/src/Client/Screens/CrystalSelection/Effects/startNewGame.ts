@@ -1,8 +1,9 @@
-import * as _ from "../CrystalSelectionScene";
+import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "@Core/GameServer";
 
 export async function startNewGame() {
-	const selectedCrystal = _.state.crystals[_.state.currentIndex];
+	const { currentIndex, crystals } = parent.state;
+	const selectedCrystal = crystals[currentIndex];
 
 	await io.FadeOut(300, 0x000000);
 
