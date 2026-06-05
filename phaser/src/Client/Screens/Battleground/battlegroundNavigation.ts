@@ -17,7 +17,7 @@ export const emitBattlegroundExit = () => {
 const transitionFromBattleground = async (renderScreen: () => void) => {
 	emitBattlegroundExit();
 	await io.FadeOut(300, 0x000000);
-	io.scene.children.removeAll();
+	io.clean();
 	renderScreen();
 	await io.FadeIn(300);
 };

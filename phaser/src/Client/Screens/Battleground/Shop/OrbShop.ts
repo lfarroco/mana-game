@@ -37,8 +37,6 @@ export async function openOrbShop(
 			resolve();
 		};
 
-		ShopPanel.refresh(null);
-
 		renderOrbShop(
 			container,
 			async () => {

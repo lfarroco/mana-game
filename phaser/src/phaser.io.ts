@@ -15,6 +15,11 @@ export const screens = {
 	options: OptionsScreen.create
 }
 
+export const clean = () => {
+	scene.children.each(c => c.destroy())
+	scene.children.removeAll();
+}
+
 export function initPhaserIO(newScene: Phaser.Scene) {
 	scene = newScene;
 }

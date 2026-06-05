@@ -149,7 +149,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 
 		// Add background elements to the container synchronously (before any await)
 		// so they are guaranteed to be in the container when slideOut() is called.
-		ShopPanel.container.add([bgRect, rowBorder]);
+		ShopPanel.ShopState.container?.add([bgRect, rowBorder]);
 
 		const chara = await Chara.create(unit, { isShopChara: true });
 		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
@@ -229,7 +229,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		ShopPanel.container.add([chara, titleText, descriptionText]);
+		ShopPanel.ShopState.container?.add([chara, titleText, descriptionText]);
 
 		return chara;
 	}));

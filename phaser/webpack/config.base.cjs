@@ -71,7 +71,8 @@ const createSharedDefineValues = ({ webglDebug, experimental, logLevel } = {}) =
 	"typeof FEATURE_SOUND": JSON.stringify(true),
 	"IS_DEMO_BUILD": JSON.stringify(process.env.IS_DEMO === "true"),
 	...(logLevel ? { "process.env.LOG_LEVEL": JSON.stringify(logLevel) } : {}),
-	"process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version || "dev")
+	"process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version || "dev"),
+	"__DEV__": JSON.stringify(process.env.NODE_ENV !== "production")
 });
 
 module.exports = {

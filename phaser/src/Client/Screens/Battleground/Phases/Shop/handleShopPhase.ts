@@ -12,7 +12,7 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 	const shopCardIds = session.current_options.map((o) => o.id);
 	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-	Shop.refresh(async () => {
+	Shop.addSkipButton(async () => {
 		await GameController.skipPhase();
 	});
 
@@ -38,7 +38,6 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 	}
 
 	await Shop.SlideOut();
-	Shop.refresh(null);
 
 	return result;
 }

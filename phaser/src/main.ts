@@ -11,6 +11,7 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
 	var io: typeof phaserIO;
+	const __DEV__: boolean;
 }
 window.io = phaserIO;
 

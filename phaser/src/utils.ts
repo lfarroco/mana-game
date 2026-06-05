@@ -20,3 +20,12 @@ export function pickOneUnique<a>(arr: a[], exclude: a[]): a {
 const formatter = new Intl.NumberFormat("en-US", { notation: "compact" });
 
 export const compactNumber = (n: number) => formatter.format(parseInt(n.toFixed(0)));
+
+export function assert(
+	condition: boolean,
+	message?: string
+): asserts condition {
+	if (!condition) {
+		throw new Error(message || "Assertion failed");
+	}
+}

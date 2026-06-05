@@ -4,55 +4,68 @@ import * as UIButton from "Client/Components/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants/constants";
+import * as utils from "@utils"
 
-export let container: Container;
+export const ShopState: { container: Container | null } = {
+	container: null,
+};
 
-export const refresh = (
-	// TODO: remove arg
-	nextRoundCallback: (() => void) | null
-) => {
-	if (!container) {
-		container = io.Container();
+//@ts-expect-error wee
+window.zz = ShopState;
+
+export const create = () => {
+
+	if (__DEV__) {
+		utils.assert(
+			ShopState.container === null,
+			"ShopPanel container already exists"
+		);
 	}
-	container.removeAll(true);
 
-	container.setY(c.SCREEN_HEIGHT * -1);
+	ShopState.container = io.Container();
 
-	if (!nextRoundCallback) return;
+	ShopState.container.on(Phaser.GameObjects.Events.DESTROY, () => {
+		ShopState.container?.removeAllListeners();
+		ShopState.container = null;
+	});
 
-	const nextRoundBtn = UIButton.createUIButton({
+	ShopState.container.setY(c.SCREEN_HEIGHT * -1);
+};
+
+export const addSkipButton = (callback: () => void): void => {
+	const skipButton = UIButton.createUIButton({
 		text: "Skip",
 		position: Geometry.vec2(
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		),
-		callback: nextRoundCallback,
+		callback,
 	});
 
-	container.add(nextRoundBtn.container);
-};
+	ShopState.container?.add(skipButton.container);
+}
 
 export const SlideIn = async () => {
-	io.scene.tweens.killTweensOf(container);
+	//io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 	await animation.tween({
-		targets: [container],
+		targets: [ShopState.container!],
 		y: 0,
 	});
 };
 
 export const SlideOut = async () => {
-	io.scene.tweens.killTweensOf(container);
+	//io.scene.tweens.killTweensOf(container);
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 	await animation.tween({
-		targets: [container],
+		targets: [ShopState.container!],
 		y: c.SCREEN_HEIGHT * -1,
 	});
-	container.removeAll(true);
+	ShopState.container?.removeAll(true);
 };
 
 export const bringChildToTop = (child: Phaser.GameObjects.GameObject): void => {
-	container.bringToTop(child);
+	ShopState.container?.bringToTop(child);
 };
 
 

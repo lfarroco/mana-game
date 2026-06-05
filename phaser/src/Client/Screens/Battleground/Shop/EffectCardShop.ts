@@ -42,16 +42,16 @@ export async function openUpgradeCorePhase(
 		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
-		ShopPanel.refresh(
-			onSkip
-				? async () => {
+		if (onSkip)
+			ShopPanel.addSkipButton(
+				async () => {
 					await onSkip();
 					await completeSectionCallback();
 				}
-				: null
-		);
+			);
+
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
-		ShopPanel.container.add(container);
+		ShopPanel.ShopState.container?.add(container);
 
 		renderUpgradeCards(container, encounters, onUpgradeApplied, async () => {
 			container.list.forEach((child) => child.disableInteractive());

@@ -67,10 +67,11 @@ export const createBattlegroundScreen = async () => {
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
-	Shop.refresh(null);
+	Shop.create();
 
 	Tooltip.init();
 
+	// TODO: input enable/disable should be screen-scoped
 	Board.setIsInputEnabled(true);
 
 	// ~~~~~ // ~~~~~ //
