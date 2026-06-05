@@ -18,6 +18,8 @@ export const screens = {
 export const clean = () => {
 	scene.children.each(c => c.destroy())
 	scene.children.removeAll();
+	scene.tweens.killAll();
+	scene.time.removeAllEvents();
 }
 
 export function initPhaserIO(newScene: Phaser.Scene) {

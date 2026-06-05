@@ -1,7 +1,6 @@
-import Phaser from "phaser";
-import { activateBlackHole, deactivateBlackHole } from "@Screens/Battleground/Components/BlackHole";
-import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
-import { MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
+import * as BlackHole from "@Screens/Battleground/Components/BlackHole";
+import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as constants from "@Constants/constants";
 
 const MS_PER_SECOND = 1000;
 const TIMER_TICK_DELAY_MS = 1000;
@@ -15,12 +14,12 @@ export type CountdownTimerState = {
 	timerCircle: Phaser.GameObjects.Arc | null;
 	timerValue: number;
 	timerEvent: Phaser.Time.TimerEvent | null;
-	blackHoleState: BlackHoleState;
+	blackHoleState: BlackHoleState.BlackHoleState;
 };
 
 export function initializeCountdownTimer(
 	gameScene: Phaser.Scene,
-	blackHoleState: BlackHoleState
+	blackHoleState: BlackHoleState.BlackHoleState
 ): CountdownTimerState {
 	return {
 		scene: gameScene,
@@ -33,11 +32,11 @@ export function initializeCountdownTimer(
 }
 
 export function start(timerState: CountdownTimerState): CountdownTimerState {
-	const newTimerValue = TIMEOUT_DAMAGE_START_TIME / MS_PER_SECOND;
+	const newTimerValue = constants.TIMEOUT_DAMAGE_START_TIME / MS_PER_SECOND;
 
 	const timerCircle = timerState.scene.add.circle(
-		MIDDLE_SCREEN_X,
-		MIDDLE_SCREEN_Y,
+		constants.MIDDLE_SCREEN_X,
+		constants.MIDDLE_SCREEN_Y,
 		40,
 		0x000000,
 		0.8
@@ -47,7 +46,7 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
 	timerCircle.setVisible(false);
 
 	const timerText = timerState.scene.add
-		.text(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y, newTimerValue.toString(), {
+		.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y, newTimerValue.toString(), {
 			fontSize: "48px",
 			color: "#ffffff",
 			stroke: "#000000",
@@ -94,7 +93,7 @@ function makeUpdateTimer(
 			timerText.setVisible(false);
 			timerCircle.setVisible(false);
 
-			timerState.blackHoleState = activateBlackHole(timerState.blackHoleState);
+			timerState.blackHoleState = BlackHole.activateBlackHole(timerState.blackHoleState);
 		}
 	};
 }
@@ -111,7 +110,7 @@ export function stop(timerState: CountdownTimerState): CountdownTimerState {
 	}
 
 	if (timerState.blackHoleState.blackHole) {
-		timerState.blackHoleState = deactivateBlackHole(timerState.blackHoleState);
+		timerState.blackHoleState = BlackHole.deactivateBlackHole(timerState.blackHoleState);
 	}
 
 	return {
