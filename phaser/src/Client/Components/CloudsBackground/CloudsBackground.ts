@@ -1,17 +1,17 @@
 import * as Phaser from "phaser";
-import { cloudsBackgroundShader } from "@Shaders/CloudsBackground";
-import { colorPresets, IColorPreset } from "@Constants/colorPresets";
-import { getOption } from "@Models/OptionsStore";
-import { createLogger } from "@Utils/Logger";
-import * as io from "@PhaserIO";
+import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBackgroundShader";
+import * as colorPresets from "./colorPresets";
+import * as OptionsStore from "@Models/OptionsStore";
+import * as Logger from "@Utils/Logger";
+import * as io from "../../../io";
 
-const logger = createLogger("CloudsBackground");
+const logger = Logger.createLogger("CloudsBackground");
 
-export interface CloudsBackgroundConfig {
+export type CloudsBackgroundConfig = {
 	/** Initial color preset to use */
-	preset?: keyof typeof colorPresets;
+	preset?: keyof typeof colorPresets.colorPresets;
 	/** Custom color preset (overrides preset) */
-	customColors?: IColorPreset;
+	customColors?: colorPresets.IColorPreset;
 	/** X position of the background */
 	x?: number;
 	/** Y position of the background */
@@ -32,8 +32,8 @@ export interface CloudsBackgroundConfig {
 export class CloudsBackground {
 	private scene: Phaser.Scene;
 	private shader: Phaser.GameObjects.Shader;
-	private preset: keyof typeof colorPresets;
-	private customColors?: IColorPreset;
+	private preset: keyof typeof colorPresets.colorPresets;
+	private customColors?: colorPresets.IColorPreset;
 	private x: number;
 	private y: number;
 	private width: number;
@@ -43,7 +43,7 @@ export class CloudsBackground {
 	private timeScale: number;
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
-	private renderColors: IColorPreset;
+	private renderColors: colorPresets.IColorPreset;
 	private currentTween: Phaser.Tweens.Tween | null = null;
 	constructor(config: CloudsBackgroundConfig = {}) {
 		const scene = this.resolveScene();
@@ -65,7 +65,7 @@ export class CloudsBackground {
 		this.alpha = config.alpha !== undefined ? config.alpha : 1;
 		this.timeScale = config.timeScale !== undefined ? config.timeScale : 1.0;
 
-		this.presetKeys = Object.keys(colorPresets);
+		this.presetKeys = Object.keys(colorPresets.colorPresets);
 
 		// Find the starting preset index
 		this.currentPresetIndex = this.presetKeys.indexOf(this.preset as string);
@@ -90,7 +90,7 @@ export class CloudsBackground {
 		// Create the shader
 		const backgroundShader = new Phaser.Display.BaseShader(
 			"cloudsBackground",
-			cloudsBackgroundShader,
+			CloudsBackgroundShader.cloudsBackgroundShader,
 			undefined,
 			{
 				color1: { type: "3f", value: colors.color1 },
@@ -111,13 +111,13 @@ export class CloudsBackground {
 		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
 	}
 
-	private getCurrentColors(): IColorPreset {
+	private getCurrentColors(): colorPresets.IColorPreset {
 		if (this.customColors) {
 			return this.customColors;
 		}
 
 		const presetKey = this.presetKeys[this.currentPresetIndex];
-		return colorPresets[presetKey];
+		return colorPresets.colorPresets[presetKey];
 	}
 
 	/**
@@ -145,7 +145,7 @@ export class CloudsBackground {
 	/**
 	 * Set a specific preset by name
 	 */
-	public setPreset(presetName: keyof typeof colorPresets): void {
+	public setPreset(presetName: keyof typeof colorPresets.colorPresets): void {
 		if (this.customColors) {
 			logger.warn("Cannot set preset when using custom colors");
 			return;
@@ -170,7 +170,7 @@ export class CloudsBackground {
 	/**
 	 * Set custom colors
 	 */
-	public setCustomColors(colors: IColorPreset): void {
+	public setCustomColors(colors: colorPresets.IColorPreset): void {
 		this.customColors = colors;
 
 		this.shader.setUniform("color1.value", colors.color1);
@@ -234,7 +234,7 @@ export class CloudsBackground {
 	 */
 	private getParticleQualityValue(): number {
 		try {
-			const particles = getOption("particles");
+			const particles = OptionsStore.getOption("particles");
 
 			switch (particles) {
 				case "low":
@@ -268,7 +268,7 @@ export class CloudsBackground {
 	 * @param ease Phaser ease string (default: 'Linear')
 	 */
 	public tweenColors(
-		targetColors: IColorPreset,
+		targetColors: colorPresets.IColorPreset,
 		duration: number = 2000,
 		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
@@ -322,11 +322,11 @@ export class CloudsBackground {
 	 * Tween to a specific named preset
 	 */
 	public tweenToPreset(
-		presetName: keyof typeof colorPresets,
+		presetName: keyof typeof colorPresets.colorPresets,
 		duration: number = 2000,
 		ease: string = "Linear"
 	): void {
-		const targetPreset = colorPresets[presetName];
+		const targetPreset = colorPresets.colorPresets[presetName];
 		if (targetPreset) {
 			this.tweenColors(targetPreset, duration, ease);
 		} else {

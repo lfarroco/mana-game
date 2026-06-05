@@ -1,6 +1,6 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../../io";
 
 const PANEL_WIDTH = 1180;
 const PANEL_HEIGHT = 500;

@@ -82,7 +82,7 @@
 			"@utils": [
 				"../phaser/src/utils.ts"
 			],
-			"@PhaserIO": [
+			"@IO": [
 				"../phaser/src/phaser.io.ts"
 			]
 		},

@@ -1,7 +1,7 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as i18n from "@i18n/i18n";
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as openOptions from "@Screens/Title/Effects/openOptions";
 import * as CreditsPanel from "Client/Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "Client/Screens/Title/Components/StatsPanel";

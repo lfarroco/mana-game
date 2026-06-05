@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { delay } from "@Utils/animation";
 import { images } from "@assets";
 import { getOption } from "@Models/OptionsStore";
-import * as io from "@PhaserIO";
+import * as io from "../io";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,

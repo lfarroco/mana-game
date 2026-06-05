@@ -5,11 +5,11 @@ import {
 	SCREEN_HEIGHT,
 	SCREEN_WIDTH,
 	titleTextConfig,
-} from "@Constants/constants";
-import * as io from "@PhaserIO";
-import { create, Button } from "Client/Components/UIButton";
-import { createModal } from "Client/Components/Modal";
-import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
+} from "../../../Constants";
+import * as io from "../../../io";
+import { create, Button } from "@Components/Button/UIButton";
+import { createModal } from "@Components/Modal/Modal";
+import { CloudsBackground } from "@Components/CloudsBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import {

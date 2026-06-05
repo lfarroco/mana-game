@@ -1,7 +1,7 @@
-import * as c from "@Constants/constants";
+import * as c from "../../../../Constants";
 import * as i18n from "@i18n/i18n";
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
 
 const OVERLAY_ALPHA = 0.85;

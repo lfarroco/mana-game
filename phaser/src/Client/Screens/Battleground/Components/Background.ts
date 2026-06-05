@@ -1,4 +1,4 @@
-import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
+import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
 
 import * as config from "@config"
 

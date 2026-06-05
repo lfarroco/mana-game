@@ -10,7 +10,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Unit from "@Models/Entities/Unit";
 
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
-import * as BlackHole from "@Screens/Battleground/Components/BlackHole";
+import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as CountdownTimer_1 from "@Systems/CountdownTimer";
 import * as damage from "@TriggerSystem/effects/visuals/damage";
@@ -22,7 +22,7 @@ import * as Effects from "@Effects";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Chara_1 from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../../Constants";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Logger from "@Utils/Logger";
 

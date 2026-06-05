@@ -1,4 +1,4 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Random from "@Utils/Random";
 import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./Keyboard";

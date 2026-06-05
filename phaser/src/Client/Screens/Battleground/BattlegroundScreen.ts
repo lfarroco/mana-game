@@ -1,7 +1,7 @@
 import * as Board from "@Models/Board";
 import * as Types from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Tooltip from "Client/Components/Tooltip";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 import * as SessionManager from "@Core/SessionManager";
@@ -14,6 +14,7 @@ import * as animation from "@Utils/animation";
 
 type PhaseExecutionResult = Types.SessionData | null;
 
+// TODO: should be part of the player board logic
 const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
 	if (!Chara.hasCharaById(unitId)) {
 		return false;
@@ -23,6 +24,7 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 	return renderedUnit.power !== expectedPower || renderedUnit.rank !== expectedRank;
 };
 
+// TODO: should be part of the player board logic
 const syncPlayerBoardUnits = async (): Promise<void> => {
 	const summonPromises = state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {

@@ -9,7 +9,7 @@ const sharedResolve = {
 		"@Models": path.resolve(__dirname, "../src/Models"),
 		"@Screens": path.resolve(__dirname, "../src/Client/Screens"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),
-		"@PhaserIO": path.resolve(__dirname, "../src/phaser.io.ts"),
+		"@IO": path.resolve(__dirname, "../src/phaser.io.ts"),
 		"@Constants": path.resolve(__dirname, "../src/Constants"),
 		"@Utils": path.resolve(__dirname, "../src/Utils"),
 		"@Components": path.resolve(__dirname, "../src/Client/Components"),

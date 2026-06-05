@@ -1,4 +1,4 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as i18n from "@i18n/i18n";
 import * as Geometry from "@Models/Geometry";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";

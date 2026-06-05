@@ -1,6 +1,4 @@
-import * as Phaser from "phaser";
-
-export interface IColorPreset {
+export type IColorPreset = {
 	color1: Phaser.Types.Math.Vector3Like;
 	color2: Phaser.Types.Math.Vector3Like;
 	color3: Phaser.Types.Math.Vector3Like;

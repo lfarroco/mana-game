@@ -1,7 +1,7 @@
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Effects from "../Effects";
 
 export const create = (y: number) =>

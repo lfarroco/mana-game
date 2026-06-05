@@ -1,5 +1,4 @@
-import type Phaser from "phaser";
-import { hideTooltip, renderTooltip } from "Client/Components/Tooltip";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 
 const BUTTON_TOOLTIP_VERTICAL_OFFSET = 180;
 const BUTTON_TOOLTIP_MAX_WIDTH = 600;
@@ -45,7 +44,7 @@ export const attachButtonTooltip = (
 		if (!isVisible) {
 			return;
 		}
-		hideTooltip();
+		Tooltip.hideTooltip();
 		isVisible = false;
 	};
 
@@ -54,7 +53,7 @@ export const attachButtonTooltip = (
 			return;
 		}
 		const position = getTooltipPosition?.() ?? { x: 0, y: BUTTON_TOOLTIP_VERTICAL_OFFSET };
-		renderTooltip(
+		Tooltip.renderTooltip(
 			position.x,
 			position.y,
 			tooltip.title,
@@ -83,7 +82,7 @@ export const attachButtonTooltip = (
 
 	const onPointerUp = () => {
 		if (!isHovered && isVisible) {
-			hideTooltip();
+			Tooltip.hideTooltip();
 			isVisible = false;
 		}
 	};

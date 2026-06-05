@@ -1,8 +1,8 @@
 import { size, vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import { t, getName } from "@i18n/i18n";
 import { LEFT_PANEL_X, RESULTS_PANEL } from "../Results/ResultsConfig";
-import { MIDDLE_SCREEN_Y } from "@Constants/constants";
+import { MIDDLE_SCREEN_Y } from "../../../../../Constants";
 
 
 export function createRunStatsPanel(

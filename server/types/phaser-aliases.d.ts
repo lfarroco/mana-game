@@ -23,4 +23,4 @@ declare module "@config";
 declare module "@main";
 declare module "@assets";
 declare module "@utils";
-declare module "@PhaserIO";
+declare module "@IO";

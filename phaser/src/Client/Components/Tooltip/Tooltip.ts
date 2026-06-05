@@ -1,24 +1,10 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import { titleTextConfig } from "@Constants/constants";
-import { createLogger } from "@Utils/Logger";
-import {
-	TOOLTIP_HORIZONTAL_PADDING,
-	TOOLTIP_INTER_ELEMENT_PADDING,
-	TOOLTIP_MAX_WIDTH,
-	TOOLTIP_MIN_HEIGHT,
-	TOOLTIP_MIN_WIDTH,
-	TOOLTIP_TOP_PADDING,
-	getTooltipDimensions,
-} from "Client/Components/TooltipLayout";
-import {
-	UI_TEXT_MUTED,
-	UI_TOOLTIP_BG_COLOR,
-	UI_TOOLTIP_BORDER_COLOR,
-	UI_TOOLTIP_BORDER_THICKNESS,
-	UI_TOOLTIP_FILL_ALPHA,
-} from "@Screens/Battleground/Components/UI/theme";
+import * as constants from "@Constants";
+import * as Logger from "@Utils/Logger";
+import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
+import * as theme from "@Screens/Battleground/Components/UI/theme";
 
-const logger = createLogger("Tooltip");
+const logger = Logger.createLogger("Tooltip");
 
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
@@ -31,8 +17,8 @@ let descriptionText: BBCodeText | null = null;
 let currentTitle: string = "";
 let currentDescription: string = "";
 
-let tooltipWidth: number = TOOLTIP_MIN_WIDTH;
-let tooltipHeight: number = TOOLTIP_MIN_HEIGHT;
+let tooltipWidth: number = TooltipLayout.TOOLTIP_MIN_WIDTH;
+let tooltipHeight: number = TooltipLayout.TOOLTIP_MIN_HEIGHT;
 let lastAdjustedX: number | undefined;
 let lastAdjustedY: number | undefined;
 
@@ -78,10 +64,10 @@ function drawTooltipBackground(width: number, height: number): void {
 	if (!bg) return;
 
 	bg.clear();
-	bg.fillStyle(UI_TOOLTIP_BG_COLOR, UI_TOOLTIP_FILL_ALPHA);
+	bg.fillStyle(theme.UI_TOOLTIP_BG_COLOR, theme.UI_TOOLTIP_FILL_ALPHA);
 	bg.fillRoundedRect(0, 0, width, height, TOOLTIP_CORNER_RADIUS);
 
-	bg.lineStyle(UI_TOOLTIP_BORDER_THICKNESS, UI_TOOLTIP_BORDER_COLOR, 0.92);
+	bg.lineStyle(theme.UI_TOOLTIP_BORDER_THICKNESS, theme.UI_TOOLTIP_BORDER_COLOR, 0.92);
 	bg.strokeRoundedRect(0, 0, width, height, TOOLTIP_CORNER_RADIUS);
 }
 
@@ -95,8 +81,8 @@ export function destroyTooltip(): void {
 	descriptionText = null;
 	currentTitle = "";
 	currentDescription = "";
-	tooltipWidth = TOOLTIP_MIN_WIDTH;
-	tooltipHeight = TOOLTIP_MIN_HEIGHT;
+	tooltipWidth = TooltipLayout.TOOLTIP_MIN_WIDTH;
+	tooltipHeight = TooltipLayout.TOOLTIP_MIN_HEIGHT;
 	lastAdjustedX = undefined;
 	lastAdjustedY = undefined;
 }
@@ -105,19 +91,19 @@ export function init() {
 	if (container) container.destroy(true);
 	container = io.scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
-	tooltipWidth = TOOLTIP_MIN_WIDTH;
-	tooltipHeight = TOOLTIP_MIN_HEIGHT;
+	tooltipWidth = TooltipLayout.TOOLTIP_MIN_WIDTH;
+	tooltipHeight = TooltipLayout.TOOLTIP_MIN_HEIGHT;
 
 	bg = io.scene.add.graphics();
 	drawTooltipBackground(tooltipWidth, tooltipHeight);
 
 	container.add(bg);
 
-	titleText = io.scene.add.text(0, 0, "", titleTextConfig).setAlign("left");
+	titleText = io.scene.add.text(0, 0, "", constants.titleTextConfig).setAlign("left");
 	container.add(titleText);
 
 	descriptionText = io.scene.add
-		.rexBBCodeText(0, 0, "", { color: UI_TEXT_MUTED })
+		.rexBBCodeText(0, 0, "", { color: theme.UI_TEXT_MUTED })
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
 		.setAlign("left")
@@ -163,15 +149,15 @@ export function renderTooltip(
 	}
 
 	if (contentChanged || !container.visible) {
-		const maxWidth = options?.maxWidth ?? TOOLTIP_MAX_WIDTH;
-		const maxWrapWidth = maxWidth - 2 * TOOLTIP_HORIZONTAL_PADDING;
+		const maxWidth = options?.maxWidth ?? TooltipLayout.TOOLTIP_MAX_WIDTH;
+		const maxWrapWidth = maxWidth - 2 * TooltipLayout.TOOLTIP_HORIZONTAL_PADDING;
 		const hasDescription = description.trim().length > 0;
 
 		titleText.setWordWrapWidth(maxWrapWidth);
 		descriptionText.setWordWrapWidth(maxWrapWidth);
 
 		descriptionText.updateText();
-		const initialDimensions = getTooltipDimensions({
+		const initialDimensions = TooltipLayout.getTooltipDimensions({
 			titleWidth: titleText.width,
 			titleHeight: titleText.height,
 			descriptionWidth: hasDescription ? descriptionText.width : 0,
@@ -181,14 +167,14 @@ export function renderTooltip(
 		});
 
 		tooltipWidth = initialDimensions.width;
-		const actualContentWrapWidth = tooltipWidth - 2 * TOOLTIP_HORIZONTAL_PADDING;
+		const actualContentWrapWidth = tooltipWidth - 2 * TooltipLayout.TOOLTIP_HORIZONTAL_PADDING;
 		if (actualContentWrapWidth < maxWrapWidth) {
 			titleText.setWordWrapWidth(actualContentWrapWidth);
 			descriptionText.setWordWrapWidth(actualContentWrapWidth);
 			descriptionText.updateText();
 		}
 
-		const finalDimensions = getTooltipDimensions({
+		const finalDimensions = TooltipLayout.getTooltipDimensions({
 			titleWidth: titleText.width,
 			titleHeight: titleText.height,
 			descriptionWidth: hasDescription ? descriptionText.width : 0,
@@ -203,11 +189,11 @@ export function renderTooltip(
 		if (!bg) return;
 		drawTooltipBackground(tooltipWidth, tooltipHeight);
 
-		titleText.setPosition(TOOLTIP_HORIZONTAL_PADDING, TOOLTIP_TOP_PADDING);
+		titleText.setPosition(TooltipLayout.TOOLTIP_HORIZONTAL_PADDING, TooltipLayout.TOOLTIP_TOP_PADDING);
 		descriptionText.setVisible(hasDescription);
 		descriptionText.setPosition(
-			TOOLTIP_HORIZONTAL_PADDING + 7,
-			10 + TOOLTIP_TOP_PADDING + titleText.height + TOOLTIP_INTER_ELEMENT_PADDING
+			TooltipLayout.TOOLTIP_HORIZONTAL_PADDING + 7,
+			10 + TooltipLayout.TOOLTIP_TOP_PADDING + titleText.height + TooltipLayout.TOOLTIP_INTER_ELEMENT_PADDING
 		);
 		lastAdjustedX = undefined;
 		lastAdjustedY = undefined;

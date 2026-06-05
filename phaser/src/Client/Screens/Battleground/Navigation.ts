@@ -1,4 +1,4 @@
-import * as io from "@PhaserIO";
+import * as io from "../../../io";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 

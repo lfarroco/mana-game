@@ -1,12 +1,12 @@
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import * as Geometry from "@Models/Geometry";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Unit from "@Models/Entities/Unit";
 import * as ResultsConfig from "./ResultsConfig";
-import * as c from "@Constants/constants";
+import * as c from "../../../../../Constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as Panel from "Client/Components/Panel";
+import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as Utils from "@utils";
 
@@ -115,7 +115,7 @@ async function createStatsPanel(
 		sprite.setInteractive();
 
 		sprite.on("pointerover", () => {
-			import("Client/Components/Tooltip").then(({ renderTooltip }) => {
+			import("@Components/Tooltip/Tooltip").then(({ renderTooltip }) => {
 				const title = i18n.getName(unit.cardId);
 
 				const effectBlocks = unit.effects

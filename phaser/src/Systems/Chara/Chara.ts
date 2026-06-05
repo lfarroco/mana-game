@@ -1,5 +1,5 @@
 import * as Unit from "@Models/Entities/Unit";
-import * as constants from "@Constants/constants";
+import * as constants from "../../Constants";
 import * as animation from "@Utils/animation";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";

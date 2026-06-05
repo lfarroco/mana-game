@@ -1,16 +1,16 @@
-import { MIDDLE_SCREEN } from "@Constants/constants";
-import { Shader } from "@PhaserIO";
-import { arcaneTornadoFragmentShader } from "@Shaders/ArcaneTornado";
-import type { BlackHoleState } from "@Core/Combat/BlackHoleState";
+import * as constants from "../../../../../Constants";
+import * as PhaserIO from "../../../../../io";
+import * as ArcaneTornado from "@Screens/Battleground/Components/BlackHole/ArcaneTornadoShader";
+import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
 
 export type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 
-export function initBlackHole(): BlackHoleState {
+export function initBlackHole(): BlackHoleState.BlackHoleState {
 	const dissolve = 0;
 
-	const blackHole = Shader(
-		arcaneTornadoFragmentShader,
-		MIDDLE_SCREEN,
+	const blackHole = PhaserIO.Shader(
+		ArcaneTornado.arcaneTornadoFragmentShader,
+		constants.MIDDLE_SCREEN,
 		{ width: 800, height: 800 }, [
 		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "color2", type: "3f", value: [0.0, 0.0, 0.0] },
@@ -29,7 +29,7 @@ export function initBlackHole(): BlackHoleState {
 	};
 }
 
-export function activateBlackHole(state: BlackHoleState): BlackHoleState {
+export function activateBlackHole(state: BlackHoleState.BlackHoleState): BlackHoleState.BlackHoleState {
 	if (!state.blackHole) return state;
 
 	if (state.timer) state.timer.destroy();
@@ -50,7 +50,7 @@ export function activateBlackHole(state: BlackHoleState): BlackHoleState {
 	};
 }
 
-export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
+export function deactivateBlackHole(state: BlackHoleState.BlackHoleState): BlackHoleState.BlackHoleState {
 	if (!state.blackHole) return state;
 
 	if (state.timer) state.timer.destroy();

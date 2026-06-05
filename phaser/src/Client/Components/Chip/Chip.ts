@@ -1,5 +1,5 @@
 import { size } from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../io";
 
 // Chip styling
 const CHIP_FONT_SIZE = 32;

@@ -1,4 +1,4 @@
-import * as CloudsBackground from "Client/Components/cloudBackground/CloudsBackground";
+import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
 import * as showTab from "@Screens/Options/Components/effects/showTab";
 import * as backButton from "@Screens/Options/Components/backButton";
 import * as optionsLabel from "@Screens/Options/Components/optionsLabel";

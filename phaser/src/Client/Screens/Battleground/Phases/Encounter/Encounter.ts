@@ -1,8 +1,8 @@
-import * as io from "@PhaserIO";
-import * as UIButton from "Client/Components/UIButton";
+import * as io from "../../../../../io";
+import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Geometry from "@Models/Geometry";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../../Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";

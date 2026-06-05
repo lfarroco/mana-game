@@ -1,7 +1,7 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
-import * as Tooltip from "Client/Components/Tooltip";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports

@@ -1,11 +1,11 @@
-import * as constants from "@Constants/constants";
-import { create } from "Client/Components/UIButton";
+import * as constants from "../../../../Constants";
+import { create } from "@Components/Button/UIButton";
 import { getSinglePlayerData } from "@Game/effects/getSinglePlayerData";
 import { startGame } from "@Screens/Title/Effects/startGame";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
 import { collectionButton } from "Client/Screens/Title/Components/collectionButton";
-import * as io from "@PhaserIO";
+import * as io from "../../../../io";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
 import * as resumeSinglePlayerGame from "../Effects/resumeSinglePlayerGame";

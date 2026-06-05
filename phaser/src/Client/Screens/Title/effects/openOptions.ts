@@ -1,4 +1,4 @@
-import * as io from "@PhaserIO";
+import * as io from "../../../../io";
 
 export async function openOptions() {
 	await io.FadeOut(300, 0x000000);

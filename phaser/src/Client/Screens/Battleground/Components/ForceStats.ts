@@ -1,9 +1,9 @@
-import { createChip, getChip, updateChipText } from "Client/Components/Chip";
-import { hideTooltip, renderTooltip } from "Client/Components/Tooltip";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@Constants/constants";
+import { createChip, getChip, updateChipText } from "@Components/Chip/Chip";
+import { hideTooltip, renderTooltip } from "@Components/Tooltip/Tooltip";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../../Constants";
 import * as i18n from "@i18n/i18n";
 import { getBattleCore, getPlayerPersistentCore } from "@Models/Entities/Card";
-import { Container, OnceDestroyed, Rectangle, Rect } from "@PhaserIO";
+import { Container, OnceDestroyed, Rectangle, Rect } from "../../../../io";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import { popText } from "@Systems/Chara/Animations";
 import { compactNumber } from "@utils";

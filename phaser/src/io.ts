@@ -1,9 +1,9 @@
-import * as constants from "@Constants/constants";
+import * as constants from "@Constants";
 import * as Geometry from "@Models/Geometry";
 import * as CrystalSelectionScene from "@Screens/CrystalSelection/CrystalSelectionScreen";
 import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
-import { delay } from "@Utils/animation";
+import * as animation from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 export let scene: Phaser.Scene;
@@ -371,5 +371,5 @@ export function StartScene(key: string, data?: object): void {
 }
 
 export function Delay(duration: number): Promise<void> {
-	return delay(duration);
+	return animation.delay(duration);
 }

@@ -2,7 +2,7 @@ import { applyDamageToForce, Force } from "@Models/Entities/Force";
 // Removed browser-specific imports
 
 import { State } from "@Models/State";
-import { TIMEOUT_DAMAGE_START_TIME } from "@Constants/constants";
+import { TIMEOUT_DAMAGE_START_TIME } from "../Constants";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { createLogger } from "@Utils/Logger";
 

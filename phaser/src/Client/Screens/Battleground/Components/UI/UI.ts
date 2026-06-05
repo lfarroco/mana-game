@@ -1,8 +1,8 @@
 import { vec2 } from "@Models/Geometry";
-import * as c from "@Constants/constants";
+import * as c from "../../../../../Constants";
 import { tween } from "@Utils/animation";
-import * as Tooltip from "Client/Components/Tooltip";
-import * as io from "@PhaserIO";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as io from "../../../../../io";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";

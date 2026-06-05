@@ -29,7 +29,7 @@ module.exports = {
 		"^@main$": "<rootDir>/../phaser/src/main.ts",
 		"^@assets$": "<rootDir>/../phaser/src/assets.ts",
 		"^@utils$": "<rootDir>/../phaser/src/utils.ts",
-		"^@PhaserIO$": "<rootDir>/../phaser/src/phaser.io.ts",
+		"^@IO$": "<rootDir>/../phaser/src/phaser.io.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1"
 	},
 	transform: {

@@ -12,7 +12,7 @@ import {
 	resolveTargets,
 	processReactions,
 } from "@TriggerSystem/TriggerSystem";
-import { FORCE_ID_PLAYER } from "@Constants/constants";
+import { FORCE_ID_PLAYER } from "../../../../../Constants";
 import { State } from "@Models/State";
 import { t } from "@i18n/i18n";
 import { getReactionDescription } from "@Systems/Chara/CharaTooltip";

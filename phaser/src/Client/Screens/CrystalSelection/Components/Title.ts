@@ -1,4 +1,4 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as i18n from "@i18n/i18n";
 
 export const TITLE_Y = 120;

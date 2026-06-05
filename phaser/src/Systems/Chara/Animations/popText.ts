@@ -1,5 +1,5 @@
 import { tween } from "@Utils/animation";
-import { defaultTextConfig, titleTextConfig } from "@Constants/constants";
+import { defaultTextConfig, titleTextConfig } from "../../../Constants";
 
 // Pop text animation configuration
 const POP_TEXT_MAX_ROTATION_ANGLE = 30;

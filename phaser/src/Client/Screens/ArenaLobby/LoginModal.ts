@@ -1,6 +1,6 @@
 import Phaser from "phaser";
-import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "@Constants/constants";
-import { create } from "Client/Components/UIButton";
+import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "../../../Constants";
+import { create } from "@Components/Button/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { handleAuthLogin, handleAuthRegister } from "@Multiplayer/MultiplayerManager";
 import {

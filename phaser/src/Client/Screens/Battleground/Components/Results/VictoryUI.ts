@@ -1,9 +1,9 @@
-import * as UIButton from "Client/Components/UIButton";
-import * as c from "@Constants/constants";
+import * as UIButton from "@Components/Button/UIButton";
+import * as c from "../../../../../Constants";
 import * as Geometry from "@Models/Geometry";
 import * as Unit from "@Models/Entities/Unit";
 import * as ResultsConfig from "./ResultsConfig";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
 

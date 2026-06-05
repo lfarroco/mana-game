@@ -1,6 +1,6 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../../io";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 import * as i18n from "@i18n/i18n";

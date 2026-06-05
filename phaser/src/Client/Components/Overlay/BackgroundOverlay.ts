@@ -1,4 +1,4 @@
-import * as c from "@Constants/constants";
+import * as c from "../../../Constants";
 
 // Default overlay styling
 const DEFAULT_OVERLAY_COLOR = 0x000000;
@@ -26,7 +26,7 @@ export type BackgroundOverlay = {
 	destroy: () => void;
 };
 
-export function createBackgroundOverlay(config: BackgroundOverlayConfig = {}): BackgroundOverlay {
+export function create(config: BackgroundOverlayConfig = {}): BackgroundOverlay {
 	const { color, alpha, interactive } = { ...DEFAULT_CONFIG, ...config };
 
 	const rectangle = io.scene.add.rectangle(

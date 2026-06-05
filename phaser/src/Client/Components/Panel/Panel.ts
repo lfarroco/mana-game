@@ -1,5 +1,4 @@
-import * as io from "@PhaserIO";
-import { size } from "@Models/Geometry";
+import * as Geometry from "@Models/Geometry";
 
 export type PanelConfig = {
 	width: number;
@@ -47,7 +46,7 @@ export function createPanel(position: Vec2, config: PanelConfig): Panel {
 
 	const background = io.BorderedRoundRect(
 		position,
-		size(width, height),
+		Geometry.size(width, height),
 		borderRadius,
 		backgroundColor,
 		backgroundAlpha

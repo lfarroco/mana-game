@@ -1,5 +1,5 @@
-import { defaultTextConfig } from "@Constants/constants";
-import * as io from "@PhaserIO";
+import { defaultTextConfig } from "../../../../../Constants";
+import * as io from "../../../../../io";
 import { t } from "@i18n/i18n";
 
 // Discard zone UI constants

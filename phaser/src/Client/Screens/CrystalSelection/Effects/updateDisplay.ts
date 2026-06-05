@@ -3,7 +3,7 @@ import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as parent from "../CrystalSelectionScreen";
 import * as Card from "@Models/Entities/Card";
-import * as colorPresets from "@Constants/colorPresets";
+import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/PaginationDots"
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;

@@ -1,4 +1,7 @@
-import { size, vec2 } from "@Models/ServerGeometry";
+import * as ServerGeometry from "@Models/ServerGeometry";
+
+// TODO: separate client-side, rendering/ui constants
+// from game logic constants.
 
 export const SCREEN_WIDTH = 1920;
 export const SCREEN_HEIGHT = 1080;
@@ -6,9 +9,9 @@ export const SCREEN_HEIGHT = 1080;
 export const MIDDLE_SCREEN_X = SCREEN_WIDTH / 2;
 export const MIDDLE_SCREEN_Y = SCREEN_HEIGHT / 2;
 
-export const MIDDLE_SCREEN = vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
+export const MIDDLE_SCREEN = ServerGeometry.vec2(MIDDLE_SCREEN_X, MIDDLE_SCREEN_Y);
 
-export const WHOLE_SCREEN = size(SCREEN_WIDTH, SCREEN_HEIGHT);
+export const WHOLE_SCREEN = ServerGeometry.size(SCREEN_WIDTH, SCREEN_HEIGHT);
 
 export const TIMEOUT_DAMAGE_START_TIME = 30000;
 

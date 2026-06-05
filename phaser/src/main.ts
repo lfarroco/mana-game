@@ -1,10 +1,10 @@
 import "phaser"
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
-import * as constants from "@Constants/constants";
+import * as constants from "./Constants";
 import Core from "@Screens/Preload/Core";
 import "@Models/State"; // start global state
-import * as phaserIO from "@PhaserIO";
+import * as phaserIO from "./io";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";

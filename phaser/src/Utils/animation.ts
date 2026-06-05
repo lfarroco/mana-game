@@ -1,4 +1,4 @@
-import * as io from "@PhaserIO"
+import * as io from "../io"
 
 type CustomTweenProps = Omit<
 	Phaser.Types.Tweens.TweenBuilderConfig,

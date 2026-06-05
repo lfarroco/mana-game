@@ -1,13 +1,13 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
-import * as BackgroundOverlay from "Client/Components/BackgroundOverlay";
-import * as Panel from "Client/Components/Panel";
+import * as UIButton from "@Components/Button/UIButton";
+import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
+import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
-let overlay: ReturnType<typeof BackgroundOverlay.createBackgroundOverlay> | null = null;
+let overlay: ReturnType<typeof BackgroundOverlay.create> | null = null;
 
 export function create(): void {
 	if (isOpen) return;
@@ -17,7 +17,7 @@ export function create(): void {
 	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);
 
-	overlay = BackgroundOverlay.createBackgroundOverlay({
+	overlay = BackgroundOverlay.create({
 		alpha: 0.85,
 		interactive: true,
 	});

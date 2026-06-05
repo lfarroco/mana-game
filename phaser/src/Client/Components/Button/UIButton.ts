@@ -1,6 +1,6 @@
-import * as constants from "@Constants/constants";
+import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import * as ButtonTooltip from "Client/Components/ButtonTooltip";
+import * as ButtonTooltip from "@Components/Button/ButtonTooltip";
 import * as Logger from "@Utils/Logger";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 

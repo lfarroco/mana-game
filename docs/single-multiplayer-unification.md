@@ -252,7 +252,7 @@ export class PhaseTransitions {
   - Other Core files
   - `@Models/` (State, Unit, Force - already Phaser-free)
   - Pure utilities
-- **Zero imports from Phaser or @PhaserIO**
+- **Zero imports from Phaser or @IO**
 - Run: `grep -r "from.*phaser" src/Core/` should return nothing
 
 ---

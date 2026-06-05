@@ -1,8 +1,8 @@
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as CollectionModal from "Client/Screens/Title/Components/CollectionModal";
 import * as i18n from "@i18n/i18n";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 
 export function collectionButton(y: number) {
 	return UIButton.create({

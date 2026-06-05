@@ -1,12 +1,12 @@
 import * as Card from "@Models/Entities/Card";
 import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Modal from "Client/Components/Modal";
-import * as UIButton from "Client/Components/UIButton";
+import * as Modal from "@Components/Modal/Modal";
+import * as UIButton from "@Components/Button/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
-import * as Tooltip from "Client/Components/Tooltip";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as createDescription from "@Systems/Chara/createDescription";
 
 const PANEL_WIDTH = 1200;

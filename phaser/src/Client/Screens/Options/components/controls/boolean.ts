@@ -1,7 +1,7 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../../Constants";
 import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { create } from "Client/Components/UIButton";
+import * as io from "../../../../../io";
+import { create } from "@Components/Button/UIButton";
 import { LAYOUT, STYLES, BUTTONS } from "@Screens/Options/OptionsScreen";
 import { t } from "@i18n/i18n";
 

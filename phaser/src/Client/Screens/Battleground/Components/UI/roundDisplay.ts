@@ -1,6 +1,6 @@
-import * as c from "@Constants/constants";
+import * as c from "../../../../../Constants";
 import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import { t } from "@i18n/i18n";
 
 export let roundTextElement: TextObj | null = null;

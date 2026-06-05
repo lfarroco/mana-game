@@ -18,11 +18,11 @@
             "@Utils/*": [
                 "./src/Utils/*"
             ],
-            "@Constants/*": [
-                "./src/Constants/*"
+            "@Constants": [
+                "./src/Constants"
             ],
-            "@PhaserIO": [
-                "./src/phaser.io.ts"
+            "@IO": [
+                "./src/io.ts"
             ],
             "@Components/*": [
                 "./src/Client/Components/*"

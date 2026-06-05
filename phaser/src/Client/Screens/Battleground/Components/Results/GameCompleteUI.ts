@@ -1,4 +1,4 @@
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as environment from "@Utils/environment";
 import * as State from "@Models/State";
@@ -7,11 +7,11 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as deleteSavedData from "@Game/effects/deleteSavedData";
 import * as ResultsConfig from "./ResultsConfig";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
 import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../../Constants";
 import * as Config from "@config";
 
 export async function displayGameComplete(

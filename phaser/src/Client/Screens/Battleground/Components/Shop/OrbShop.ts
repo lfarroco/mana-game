@@ -6,7 +6,7 @@ import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
 import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
 import * as Geometry from "@Models/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../../Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";

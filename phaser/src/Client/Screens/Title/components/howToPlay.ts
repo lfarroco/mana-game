@@ -1,4 +1,4 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
 import * as TutorialOverlay from "Client/Screens/Title/Components/TutorialOverlay";
 import * as i18n from "@i18n/i18n";

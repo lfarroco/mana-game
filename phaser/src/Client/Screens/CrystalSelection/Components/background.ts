@@ -1,5 +1,5 @@
-import * as constants from "@Constants/constants";
-import * as io from "@PhaserIO";
+import * as constants from "../../../../Constants";
+import * as io from "../../../../io";
 
 export const CARD_DISPLAY_Y = 400;
 export const CARD_DISPLAY_BG_WIDTH = 1200;

@@ -1,5 +1,5 @@
-import * as UIButton from "Client/Components/UIButton";
-import * as c from "@Constants/constants";
+import * as UIButton from "@Components/Button/UIButton";
+import * as c from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";

@@ -1,10 +1,9 @@
-import * as Phaser from "phaser";
-import { energySlotFragmentShader } from "@Shaders/EnergySlotShader";
-import { nextValue } from "@Utils/Random";
+import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
+import * as Random from "@Utils/Random";
 
 export interface EnergySlotConfig {
 	size?: number;
-	color?: Phaser.Types.Math.Vector3Like; // Use Phaser's Vector3Like format
+	color?: Phaser.Types.Math.Vector3Like;
 	intensity?: number;
 	speed?: number;
 	x?: number;
@@ -35,12 +34,12 @@ export class EnergySlot {
 
 	private createShader(x: number, y: number): void {
 		// Calculate animation phase offset - randomized for variety
-		const animationPhaseOffset = nextValue() * Math.PI * 2;
+		const animationPhaseOffset = Random.nextValue() * Math.PI * 2;
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(
 			"EnergySlot",
-			energySlotFragmentShader,
+			EnergySlotShader.energySlotFragmentShader,
 			undefined,
 			{
 				time: { type: "1f", value: 0.0 },

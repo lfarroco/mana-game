@@ -1,4 +1,4 @@
-import { playSoundEffect } from "@Systems/AudioManager";
+import * as AudioManager from "@Systems/AudioManager";
 
 export type SliderConfig = {
 	width: number;
@@ -172,7 +172,7 @@ export function createSlider(position: Vec2, config: SliderConfig): Slider {
 		isDragging = true;
 		const newValue = xToValue(pointer.x);
 		setValue(newValue);
-		playSoundEffect("sfx_unit_onclick");
+		AudioManager.playSoundEffect("sfx_unit_onclick");
 	});
 
 	hitArea.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {

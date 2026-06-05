@@ -1,6 +1,6 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../../../../Constants";
 import * as Geometry from "@Models/Geometry";
-import * as UIButton from "Client/Components/UIButton";
+import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as showTab from "@Screens/Options/Components/effects/showTab";
 import * as updateTabButtonStates from "@Screens/Options/Components/effects/updateTabButtonStates";

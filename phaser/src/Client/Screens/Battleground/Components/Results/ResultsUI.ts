@@ -1,13 +1,13 @@
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as c from "@Constants/constants";
+import * as c from "../../../../../Constants";
 import * as State from "@Models/State";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";
 import * as GameCompleteUI from "./GameCompleteUI";
 import * as Unit from "@Models/Entities/Unit";
 import * as ResultsConfig from "./ResultsConfig";
-import * as BackgroundOverlay from "Client/Components/BackgroundOverlay";
+import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
 
 export function determineGameOutcome(
@@ -30,7 +30,7 @@ export let isOpen: boolean;
 
 export function create() {
 
-	overlay = BackgroundOverlay.createBackgroundOverlay({
+	overlay = BackgroundOverlay.create({
 		color: ResultsConfig.RESULTS_PANEL.overlayColor,
 		alpha: ResultsConfig.RESULTS_PANEL.overlayAlpha,
 		interactive: true,

@@ -1,10 +1,10 @@
 import { Chara } from "@Systems/Chara/Chara";
 import { Unit } from "@Models/Entities/Unit";
 import { hexToVector3 } from "@Utils/colorUtils";
-import { TILE_WIDTH } from "@Constants/constants";
-import { Shader } from "@PhaserIO";
+import { TILE_WIDTH } from "../../Constants";
+import { Shader } from "../../io";
 import { size, vec2 } from "@Models/Geometry";
-import { simpleMagicOrbFragmentShader } from "@Shaders/MagicOrbShader";
+import { simpleMagicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
 
 const bronze = 0x804a00;
 const silver = 0xc0c0c0;

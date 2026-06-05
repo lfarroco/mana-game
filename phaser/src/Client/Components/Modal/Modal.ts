@@ -1,8 +1,7 @@
-import * as c from "@Constants/constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "@PhaserIO";
-import { createBackgroundOverlay } from "Client/Components/BackgroundOverlay";
-import { createPanel, Panel, PanelConfig } from "Client/Components/Panel";
+import * as constants from "@Constants";
+import * as Geometry from "@Models/Geometry";
+import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
+import * as Panel from "@Components/Panel/Panel";
 
 // Modal animation constants
 const MODAL_SCALE_IN_DURATION_MS = 500;
@@ -12,14 +11,14 @@ export type ModalConfig = {
 	width: number;
 	height: number;
 	title?: string;
-	panelConfig?: Omit<PanelConfig, "width" | "height">;
+	panelConfig?: Omit<Panel.PanelConfig, "width" | "height">;
 	overlayColor?: number;
 	overlayAlpha?: number;
 };
 
 export type Modal = {
 	container: Phaser.GameObjects.Container;
-	panel: Panel;
+	panel: Panel.Panel;
 	close: () => Promise<void>;
 	onClose: Promise<void>;
 };
@@ -27,14 +26,14 @@ export type Modal = {
 export function createModal(config: ModalConfig): Modal {
 	const { width, height, title, panelConfig, overlayColor, overlayAlpha } = config;
 
-	const overlay = createBackgroundOverlay({
+	const overlay = BackgroundOverlay.create({
 		color: overlayColor,
 		alpha: overlayAlpha ?? 0.85,
 		interactive: true,
 	});
 	overlay.show();
 
-	const panel = createPanel(vec2(0, 0), {
+	const panel = Panel.createPanel(Geometry.vec2(0, 0), {
 		width,
 		height,
 		...panelConfig,
@@ -44,13 +43,13 @@ export function createModal(config: ModalConfig): Modal {
 
 	if (title) {
 		const modalTitle = io.Title1(title);
-		io.SetPosition(modalTitle, vec2(0, -height / 2 + 50));
+		io.SetPosition(modalTitle, Geometry.vec2(0, -height / 2 + 50));
 		io.Centralize(modalTitle);
 		children.push(modalTitle);
 	}
 
 	const container = io.Container(children);
-	container.setPosition(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y);
+	container.setPosition(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y);
 
 	io.BringToTop(container);
 

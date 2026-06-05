@@ -1,4 +1,4 @@
-import * as constants from "@Constants/constants";
+import * as constants from "../Constants";
 import * as Geometry from "@Models/Geometry";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";

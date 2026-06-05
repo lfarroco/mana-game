@@ -1,7 +1,7 @@
-import * as io from "@PhaserIO";
+import * as io from "../../io";
 import * as Geometry from "@Models/Geometry";
 import * as AudioManager from "@Systems/AudioManager";
-import * as constants from "@Constants/constants";
+import * as constants from "../../Constants";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 
 // Encounter card animation and layout constants

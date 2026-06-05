@@ -1,6 +1,6 @@
-import * as BlackHole from "@Screens/Battleground/Components/BlackHole";
+import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
-import * as constants from "@Constants/constants";
+import * as constants from "../Constants";
 
 const MS_PER_SECOND = 1000;
 const TIMER_TICK_DELAY_MS = 1000;

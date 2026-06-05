@@ -2,7 +2,7 @@ import type { CombatState, SessionData } from "@Core/Types";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import * as Chara from "@Systems/Chara/Chara";
 
 import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
@@ -11,7 +11,7 @@ import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 import * as BattlegroundNavigation from "@Screens/Battleground/Navigation";
 
-import * as c from "@Constants/constants";
+import * as c from "../../../../../Constants";
 import * as animation_1 from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";

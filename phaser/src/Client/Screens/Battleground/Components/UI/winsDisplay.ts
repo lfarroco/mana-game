@@ -1,7 +1,7 @@
 import { vec2, size } from "@Models/Geometry";
-import * as io from "@PhaserIO";
+import * as io from "../../../../../io";
 import { images } from "@assets";
-import { renderTooltip, hideTooltip } from "Client/Components/Tooltip";
+import { renderTooltip, hideTooltip } from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
 import Phaser from "phaser";
 
