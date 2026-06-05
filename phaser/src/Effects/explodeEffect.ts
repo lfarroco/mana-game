@@ -2,6 +2,7 @@ import { images } from "@assets";
 import { delay } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 
+// TODO: reuse this for impact effect in arcane missile
 export async function explodeEffect(scene: Phaser.Scene, source: { x: number; y: number }) {
 	const lifespan = 1000;
 

@@ -5,21 +5,21 @@
  * Handles team updates, recruitment, orb application, and core upgrades.
  */
 
-import { SessionData, ActionPayload } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
-import { validateAndApplyTeamUpdate } from "../SessionManagement";
-import { recruitUnit, discardUnit } from "./RecruitmentActions";
-import { applyOrb, upgradeCoreMaxLife, upgradeCorepower, decreaseCoresCooldown } from "./OrbAndCoreUpgrades";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
+import * as SessionManagement from "../SessionManagement";
+import * as RecruitmentActions from "./RecruitmentActions";
+import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
 
 /**
  * Resolve a player action and return the updated team.
  * Dispatches to specialized handlers based on action type.
  */
 export function resolveAction(
-	session: SessionData,
+	session: Types.SessionData,
 	actionId: string,
-	payload?: ActionPayload
-): { team: { units: Unit[] }; updates?: string[] } {
+	payload?: Types.ActionPayload
+): { team: { units: Unit.Unit[] }; updates?: string[] } {
 	const targetSlotToPosition = (targetSlot: number): { x: number; y: number } | null => {
 		if (!Number.isInteger(targetSlot) || targetSlot < 0 || targetSlot > 8) {
 			return null;
@@ -42,7 +42,7 @@ export function resolveAction(
 		"units" in payload.team &&
 		Array.isArray(payload.team.units)
 	) {
-		const { team, valid } = validateAndApplyTeamUpdate(session, payload.team as { units: Unit[] });
+		const { team, valid } = SessionManagement.validateAndApplyTeamUpdate(session, payload.team as { units: Unit.Unit[] });
 		if (!valid) {
 			return { team: session.team, updates: ["Rejected invalid team update"] };
 		}
@@ -51,7 +51,7 @@ export function resolveAction(
 
 	// Make a working copy of the team
 	const team = session.team ? JSON.parse(JSON.stringify(session.team)) : { units: [] };
-	const units: Unit[] = team.units || [];
+	const units: Unit.Unit[] = team.units || [];
 	const updates: string[] = [];
 
 	// Recruit or upgrade a unit by card ID
@@ -59,10 +59,11 @@ export function resolveAction(
 	if (actionId.match(/^[a-z_]+$/) && actionId !== "update_team") {
 		const sessionWithCopy = { ...session, team };
 		const targetPosition =
+			// wtf
 			payload && typeof payload === "object" && "targetSlot" in payload
 				? targetSlotToPosition(payload.targetSlot as number)
-				: undefined;
-		const result = recruitUnit(sessionWithCopy, actionId, targetPosition);
+				: null;
+		const result = RecruitmentActions.recruitUnit(sessionWithCopy, actionId, targetPosition);
 		if (result.updated) {
 			return { team, updates: result.updates };
 		}
@@ -70,14 +71,14 @@ export function resolveAction(
 
 	// Orb application
 	if (actionId === "apply_orb" && payload && "orbId" in payload && "targetUnitId" in payload) {
-		const { orbId, targetUnitId } = payload as any;
-		const orbUpdates = applyOrb(units, targetUnitId as string, orbId as string);
+		const { orbId, targetUnitId } = payload;
+		const orbUpdates = OrbAndCoreUpgrades.applyOrb(units, targetUnitId as string, orbId as string);
 		return { team, updates: orbUpdates };
 	}
 
 	// Discard a unit
 	if (actionId === "discard_unit" && payload && "unitId" in payload) {
-		const result = discardUnit(units, payload.unitId as string);
+		const result = RecruitmentActions.discardUnit(units, payload.unitId as string);
 		return { team, updates: result.updates };
 	}
 
@@ -85,7 +86,7 @@ export function resolveAction(
 	if (actionId === "increase_core_max_life") {
 		const core = units.find((u) => u.isCore);
 		if (core) {
-			const update = upgradeCoreMaxLife(core, session.round);
+			const update = OrbAndCoreUpgrades.upgradeCoreMaxLife(core, session.round);
 			updates.push(update);
 		}
 		return { team, updates };
@@ -94,7 +95,7 @@ export function resolveAction(
 	if (actionId === "upgrade_core_power") {
 		const core = units.find((u) => u.isCore);
 		if (core) {
-			const update = upgradeCorepower(core, session.round);
+			const update = OrbAndCoreUpgrades.upgradeCorepower(core, session.round);
 			updates.push(update);
 		}
 		return { team, updates };
@@ -103,7 +104,7 @@ export function resolveAction(
 	if (actionId === "decrease_core_cooldown") {
 		const core = units.find((u) => u.isCore);
 		if (core) {
-			const update = decreaseCoresCooldown(core);
+			const update = OrbAndCoreUpgrades.decreaseCoresCooldown(core);
 			updates.push(update);
 		}
 		return { team, updates };

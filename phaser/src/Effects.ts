@@ -6,7 +6,6 @@ export * from "./Effects/hasteEffect";
 export * from "./Effects/slowEffect";
 export * from "./Effects/impactEffect";
 export * from "./Effects/summonEffect";
-export * from "./Effects/arcaneMissile";
 export * from "./Effects/arcaneMissileTargeted";
 export * from "./Effects/explodeEffect";
 export * from "./Effects/upgradeCrystalSelectionEffect";

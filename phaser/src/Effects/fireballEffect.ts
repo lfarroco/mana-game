@@ -3,6 +3,8 @@ import { delay, tween } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 import { createLogger } from "@Utils/Logger";
 
+// TODO: try this for some alternative effects (power up, absorb,orb upgrade)
+
 const logger = createLogger("fireballEffect");
 
 // --- Effect Configuration Constants ---

@@ -1,5 +1,5 @@
-import { images } from "@assets";
-import { delay } from "@Utils/animation";
+import * as Assets from "@assets";
+import * as animation from "@Utils/animation";
 
 export const create = (
 	scene: Phaser.Scene,
@@ -11,7 +11,8 @@ export const create = (
 	const container = scene.add.container(x, y);
 
 	// use particle emitter to create a glowing orb
-	const orb = scene.add.particles(0, 0, images.white_dot.key, {
+	const orb = scene.add.particles(0, 0,
+		Assets.images.white_dot.key, {
 		speed: { min: 100, max: 100 },
 		scale: { start: 5, end: 1 },
 		alpha: { start: 0.8, end: 0 },
@@ -24,7 +25,7 @@ export const create = (
 	});
 
 	// radial rays of light that follow the orb
-	const rays = scene.add.particles(10, 5, images.light_pillar.key, {
+	const rays = scene.add.particles(10, 5, Assets.images.light_pillar.key, {
 		speed: 100,
 		scaleX: { min: 0.02, max: 0.04 },
 		scaleY: { min: 0.4, max: 0.5 },
@@ -37,7 +38,7 @@ export const create = (
 	});
 
 	// Create explosion emitter
-	const explosionEmitter = scene.add.particles(0, 0, images.white_dot.key, {
+	const explosionEmitter = scene.add.particles(0, 0, Assets.images.white_dot.key, {
 		speed: { min: 200, max: 300 },
 		angle: { min: 0, max: 360 },
 		scale: { start: 8, end: 0 },
@@ -62,7 +63,7 @@ export const create = (
 
 			explosionEmitter.explode(50, orb.x, orb.y);
 
-			await delay(duration * 2);
+			await animation.delay(duration * 2);
 			container.destroy();
 		},
 	});

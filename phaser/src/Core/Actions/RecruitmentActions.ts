@@ -34,7 +34,7 @@ function getShopRecruitRank(session: SessionData, cardId: string): number {
 export function recruitUnit(
 	session: SessionData,
 	cardId: string,
-	targetPosition?: { x: number; y: number }
+	targetPosition: { x: number; y: number } | null
 ): {
 	updated: boolean;
 	unit?: Unit;

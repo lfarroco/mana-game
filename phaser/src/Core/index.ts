@@ -11,6 +11,9 @@
  * - Unit tests (Node.js)
  */
 
+// long term goal: extract this outside the phaserjs project
+// to force separation
+
 // Types
 export * from "@Core/Types";
 

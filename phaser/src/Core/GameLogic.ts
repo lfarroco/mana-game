@@ -14,10 +14,10 @@
  * New code should import directly from specialized modules.
  */
 
-import { SessionData, ActionPayload } from "@Core/Types";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
-import { registerCollection } from "@Models/Entities/Card";
-import { resolveAction } from "./Actions/ActionResolver";
+import * as Types from "@Core/Types";
+import * as BaseCollection from "@Data/BaseCollection";
+import * as Card from "@Models/Entities/Card";
+import * as ActionResolver from "./Actions/ActionResolver";
 
 // Re-export core session management
 export {
@@ -44,7 +44,6 @@ export { simulateCombat } from "./Combat/CombatSimulation";
 // Re-export session transitions and phase logic
 export {
 	transitionToNextState,
-	getCurrentOptions,
 	pickOption,
 	pickRandomOption,
 	pickRandomOptionsUntilGameOver,
@@ -68,18 +67,18 @@ export { replayManifest, buildReplaySnapshot, type ReplayManifestOptions } from 
 export { constructCombatState } from "./ReplayManagement";
 
 // Register base collection to ensure unit definitions exist
-registerCollection(BASE_COLLECTION_DATA);
+Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
 /**
  * Process a single turn: resolve action and return updated session without transitioning phase.
  * Kept for backward compatibility; new code should use transitionToNextState directly.
  */
 export function processSessionTurn(
-	session: SessionData,
+	session: Types.SessionData,
 	actionId: string,
-	payload?: ActionPayload
-): { session: SessionData; updates: string[] | undefined; combatResult?: { won: boolean } } {
-	const { team, updates } = resolveAction(session, actionId, payload);
+	payload?: Types.ActionPayload
+): { session: Types.SessionData; updates: string[] | undefined; combatResult?: { won: boolean } } {
+	const { team, updates } = ActionResolver.resolveAction(session, actionId, payload);
 	const nextSession = { ...session, team };
 	const combatResult = undefined;
 

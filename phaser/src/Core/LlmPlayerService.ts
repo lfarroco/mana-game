@@ -1,6 +1,6 @@
 import { buildReplaySnapshot } from "@Core/ReplayManagement";
 import { createInitialSession, validateAndApplyTeamUpdate } from "@Core/SessionManagement";
-import { getCurrentOptions, transitionToNextState } from "@Core/SessionTransitions";
+import { transitionToNextState } from "@Core/SessionTransitions";
 import { ActionPayload, PhaseOption, ReplaySnapshot, RunManifest, SessionData } from "@Core/Types";
 import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
 import { getCardDefinition, hasCardDefinition } from "@Models/Entities/Card";
@@ -209,7 +209,7 @@ const viewBoardFromSession = (session: SessionData): LlmBoardView => {
 };
 
 const viewChoicesFromSession = (session: SessionData): LlmChoicesView => {
-	const options = getCurrentOptions(session);
+	const options = session.current_options;
 
 	return {
 		phase: session.phase,
@@ -230,7 +230,7 @@ const viewChoicesFromSession = (session: SessionData): LlmChoicesView => {
 };
 
 const resolveChoice = (session: SessionData, selection: number | string): PhaseOption => {
-	const options = getCurrentOptions(session);
+	const options = session.current_options;
 
 	if (typeof selection === "number") {
 		const option = options[selection - 1];

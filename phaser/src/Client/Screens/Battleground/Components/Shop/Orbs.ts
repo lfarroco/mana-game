@@ -83,7 +83,8 @@ export type OrbSpec = {
 	color: number;
 	tooltip: string;
 	icon: string;
-	// return false to indicate the effect was not applied and the orb should return
+	// return false to indicate the effect was not
+	// applied and the orb should return
 	effect: (unit: Unit.Unit) => boolean;
 };
 

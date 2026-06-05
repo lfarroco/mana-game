@@ -4,10 +4,10 @@
  * Handles building replay manifests, snapshots, and replaying recorded runs.
  */
 
-import { SessionData, RunManifest, ReplaySnapshot, CombatState } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
-import { transitionToNextState } from "./SessionTransitions";
-import { createInitialSession, validateAndApplyTeamUpdate } from "./SessionManagement";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
+import * as SessionTransitions from "./SessionTransitions";
+import * as SessionManagement from "./SessionManagement";
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -23,7 +23,7 @@ export type ReplayManifestOptions = {
 	 * When provided, each combat uses the stored team instead of generating a new one.
 	 * This is the canonical team used to validate the run on the server.
 	 */
-	enemyTeams?: Unit[][];
+	enemyTeams?: Unit.Unit[][];
 };
 
 /**
@@ -33,15 +33,15 @@ export type ReplayManifestOptions = {
  * then applies every ActionEnvelope in sequence order via transitionToNextState.
  * The resulting session can be compared against client-reported snapshot to validate the run.
  */
-export function replayManifest(manifest: RunManifest, replayOptions?: ReplayManifestOptions): {
-	session: SessionData;
+export function replayManifest(manifest: Types.RunManifest, replayOptions?: ReplayManifestOptions): {
+	session: Types.SessionData;
 	rejectReason?: string;
 } {
 	// Validate that actions are in order with no gaps
 	for (let i = 0; i < manifest.actions.length; i++) {
 		if (manifest.actions[i].sequence !== i + 1) {
 			return {
-				session: createInitialSession(
+				session: SessionManagement.createInitialSession(
 					manifest.playerId,
 					manifest.selectedCrystalId,
 					manifest.initialSeed
@@ -51,7 +51,7 @@ export function replayManifest(manifest: RunManifest, replayOptions?: ReplayMani
 		}
 	}
 
-	let session = createInitialSession(
+	let session = SessionManagement.createInitialSession(
 		manifest.playerId,
 		manifest.selectedCrystalId,
 		manifest.initialSeed
@@ -68,13 +68,13 @@ export function replayManifest(manifest: RunManifest, replayOptions?: ReplayMani
 		// Board moves are never stored as separate log entries;
 		// instead each decision envelope carries a snapshot of the team state at decision time.
 		if (envelope.teamSnapshot) {
-			const { team, valid } = validateAndApplyTeamUpdate(session, envelope.teamSnapshot);
+			const { team, valid } = SessionManagement.validateAndApplyTeamUpdate(session, envelope.teamSnapshot);
 			if (valid) {
 				session = { ...session, team };
 			}
 		}
 
-		let combatEnemyTeamOptions: { combatEnemyTeam?: Unit[] } | undefined;
+		let combatEnemyTeamOptions: { combatEnemyTeam?: Unit.Unit[] } | undefined;
 		if (envelope.actionId === "combat_encounter") {
 			const storedTeam = replayOptions?.enemyTeams?.[combatIndex];
 			if (storedTeam !== undefined) {
@@ -83,7 +83,7 @@ export function replayManifest(manifest: RunManifest, replayOptions?: ReplayMani
 			combatIndex++;
 		}
 
-		const { session: next } = transitionToNextState(
+		const { session: next } = SessionTransitions.transitionToNextState(
 			session,
 			envelope.actionId,
 			envelope.payload,
@@ -99,7 +99,7 @@ export function replayManifest(manifest: RunManifest, replayOptions?: ReplayMani
  * Build a ReplaySnapshot — the canonical, minimal description of a session
  * used as the comparison contract between client and server.
  */
-export function buildReplaySnapshot(session: SessionData): ReplaySnapshot {
+export function buildReplaySnapshot(session: Types.SessionData): Types.ReplaySnapshot {
 	const teamUnitIds = [...(session.team?.units ?? [])].map((u) => u.cardId).sort();
 
 	return {
@@ -113,11 +113,11 @@ export function buildReplaySnapshot(session: SessionData): ReplaySnapshot {
 	};
 }
 
-function getSelectedCrystalId(session: SessionData): string | undefined {
+function getSelectedCrystalId(session: Types.SessionData): string | undefined {
 	return session.team.units.find((unit) => unit.isCore)?.cardId;
 }
 
-function buildTeamStateSignature(session: SessionData): string {
+function buildTeamStateSignature(session: Types.SessionData): string {
 	return JSON.stringify(
 		[...(session.team?.units ?? [])]
 			.map((unit) => ({
@@ -148,7 +148,7 @@ function buildTeamStateSignature(session: SessionData): string {
 	);
 }
 
-function getStableUnitOrdering(units: Unit[]) {
+function getStableUnitOrdering(units: Unit.Unit[]) {
 	return [...units].sort((left, right) => {
 		const coreCompare = Number(right.isCore) - Number(left.isCore);
 		if (coreCompare !== 0) {
@@ -176,7 +176,7 @@ function getStableUnitOrdering(units: Unit[]) {
 	});
 }
 
-function applySavedCombatPositions(baseSession: SessionData, savedSession: SessionData): SessionData {
+function applySavedCombatPositions(baseSession: Types.SessionData, savedSession: Types.SessionData): Types.SessionData {
 	const replayUnits = getStableUnitOrdering(baseSession.team.units);
 	const savedUnits = getStableUnitOrdering(savedSession.team.units);
 
@@ -197,7 +197,7 @@ function applySavedCombatPositions(baseSession: SessionData, savedSession: Sessi
 	};
 }
 
-function reconstructCombatState(session: SessionData): CombatState | null {
+function reconstructCombatState(session: Types.SessionData): Types.CombatState | null {
 	if (session.phase !== "combat") {
 		return null;
 	}
@@ -207,19 +207,19 @@ function reconstructCombatState(session: SessionData): CombatState | null {
 		return null;
 	}
 
-	let replaySession = createInitialSession(
+	let replaySession = SessionManagement.createInitialSession(
 		session.player_id,
 		selectedCrystalId,
 		session.initial_seed
 	);
-	let reconstructedCombatState: CombatState | null = null;
+	let reconstructedCombatState: Types.CombatState | null = null;
 
 	for (const entry of session.action_log ?? []) {
 		if (entry.actionId === "combat_encounter") {
 			replaySession = applySavedCombatPositions(replaySession, session);
 		}
 
-		const result = transitionToNextState(replaySession, entry.actionId, entry.payload);
+		const result = SessionTransitions.transitionToNextState(replaySession, entry.actionId, entry.payload);
 		replaySession = result.session;
 		if (result.combatState) {
 			reconstructedCombatState = result.combatState;
@@ -243,9 +243,9 @@ function reconstructCombatState(session: SessionData): CombatState | null {
 }
 
 export function constructCombatState(
-	session: SessionData,
-	existingCombatState?: CombatState | null
-): CombatState | null {
+	session: Types.SessionData,
+	existingCombatState?: Types.CombatState | null
+): Types.CombatState | null {
 	if (session.phase !== "combat") {
 		return null;
 	}

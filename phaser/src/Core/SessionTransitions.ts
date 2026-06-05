@@ -5,36 +5,32 @@
  * Orchestrates action resolution, seed advancement, and phase transitions.
  */
 
-import { SessionData, ActionPayload, CombatState, PhaseOption, PhaseType } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
-import { resolveAction } from "./Actions/ActionResolver";
-import { generateNextSeed, getDeterministicRandomOptionIndex } from "./Seeding";
-import { createDefaultRunStats } from "./SessionManagement";
-import { simulateCombat, determineCombatOutcome } from "./Combat/CombatSimulation";
-import { generateEnemyTeamForRound } from "./EnemyGeneration";
-import { getPhaseForTurn } from "@Core/PhaseSystem/PhaseConfig";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
+import * as ActionResolver from "./Actions/ActionResolver";
+import * as Seeding from "./Seeding";
+import * as SessionManagement from "./SessionManagement";
+import * as CombatSimulation from "./Combat/CombatSimulation";
+import * as EnemyGeneration from "./EnemyGeneration";
+import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
 import * as GameLogic from "@Core/GameLogic";
 
 export type TransitionToNextStateOptions = {
-	combatEnemyTeam?: Unit[];
+	combatEnemyTeam?: Unit.Unit[];
 	combatEnemyPlayerName?: string;
 };
 
 type TransitionResult = {
-	nextPhase: PhaseType;
-	nextOptions: PhaseOption[];
+	nextPhase: Types.PhaseType;
+	nextOptions: Types.PhaseOption[];
 	stepIncrement?: number;
 	roundIncrement?: number;
 };
 
-type ActionTransitionHandler = (session: SessionData, actionId: string) => TransitionResult;
+type ActionTransitionHandler = (session: Types.SessionData, actionId: string) => TransitionResult;
 
-function getCurrentPhaseOptions(session: SessionData): PhaseOption[] {
-	return session.current_options;
-}
-
-function transitionToNextEncounterStep(session: SessionData): TransitionResult {
-	const expectedPhase = getPhaseForTurn(session.round, session.step + 1);
+function transitionToNextEncounterStep(session: Types.SessionData): TransitionResult {
+	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, session.step + 1);
 
 	if (expectedPhase === "combat") {
 		return {
@@ -52,7 +48,7 @@ function transitionToNextEncounterStep(session: SessionData): TransitionResult {
 	};
 }
 
-function transitionToNextRoundEncounter(session: SessionData): TransitionResult {
+function transitionToNextRoundEncounter(session: Types.SessionData): TransitionResult {
 	const nextRound = session.round + 1;
 	const tempSession = { ...session, round: nextRound, step: 1 };
 	const encounterResult = GameLogic.generateEncounterOptions(tempSession);
@@ -65,7 +61,7 @@ function transitionToNextRoundEncounter(session: SessionData): TransitionResult 
 	};
 }
 
-function transitionAfterCombat(session: SessionData): TransitionResult {
+function transitionAfterCombat(session: Types.SessionData): TransitionResult {
 	if (session.wins >= 10) {
 		return {
 			nextPhase: "victory",
@@ -84,7 +80,7 @@ function transitionAfterCombat(session: SessionData): TransitionResult {
 	}
 
 	const nextStep = session.step + 1;
-	const expectedPhase = getPhaseForTurn(session.round, nextStep);
+	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
 
 	if (expectedPhase === "upgrade_core") {
 		return {
@@ -113,7 +109,7 @@ function transitionAfterCombat(session: SessionData): TransitionResult {
 	return transitionToNextRoundEncounter(session);
 }
 
-function transitionAfterVictory(session: SessionData): TransitionResult {
+function transitionAfterVictory(session: Types.SessionData): TransitionResult {
 	if (session.losses >= 4) {
 		return {
 			nextPhase: "game_over",
@@ -122,7 +118,7 @@ function transitionAfterVictory(session: SessionData): TransitionResult {
 	}
 
 	const nextStep = session.step + 1;
-	const expectedPhase = getPhaseForTurn(session.round, nextStep);
+	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
 
 	if (expectedPhase === "upgrade_core") {
 		return {
@@ -155,13 +151,13 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	// Meta actions: team mutation with no phase change.
 	discard_unit: (session) => ({
 		nextPhase: session.phase,
-		nextOptions: getCurrentPhaseOptions(session),
+		nextOptions: session.current_options,
 		stepIncrement: 0,
 		roundIncrement: 0,
 	}),
 	update_team: (session) => ({
 		nextPhase: session.phase,
-		nextOptions: getCurrentPhaseOptions(session),
+		nextOptions: session.current_options,
 		stepIncrement: 0,
 		roundIncrement: 0,
 	}),
@@ -206,7 +202,7 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 			default:
 				return {
 					nextPhase: session.phase,
-					nextOptions: getCurrentPhaseOptions(session),
+					nextOptions: session.current_options,
 					stepIncrement: 0,
 					roundIncrement: 0,
 				};
@@ -234,13 +230,13 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	// End-state/no-op action.
 	return_to_menu: (session) => ({
 		nextPhase: session.phase,
-		nextOptions: getCurrentPhaseOptions(session),
+		nextOptions: session.current_options,
 		stepIncrement: 0,
 		roundIncrement: 0,
 	}),
 };
 
-const PHASE_FALLBACK_HANDLERS: Partial<Record<PhaseType, ActionTransitionHandler>> = {
+const PHASE_FALLBACK_HANDLERS: Partial<Record<Types.PhaseType, ActionTransitionHandler>> = {
 	encounter: (session, actionId) => ({
 		nextPhase: "shop",
 		nextOptions: GameLogic.generateShopOptions(session, actionId).options,
@@ -249,7 +245,7 @@ const PHASE_FALLBACK_HANDLERS: Partial<Record<PhaseType, ActionTransitionHandler
 	shop: (session) => transitionToNextEncounterStep(session),
 };
 
-function computeTransition(session: SessionData, actionId: string): TransitionResult {
+function computeTransition(session: Types.SessionData, actionId: string): TransitionResult {
 	const actionHandler = ACTION_HANDLERS[actionId];
 	if (actionHandler) {
 		return actionHandler(session, actionId);
@@ -274,19 +270,19 @@ function computeTransition(session: SessionData, actionId: string): TransitionRe
  * 5. Return updated session with new phase state
  */
 export function transitionToNextState(
-	session: SessionData,
+	session: Types.SessionData,
 	actionId: string,
-	payload?: ActionPayload,
+	payload?: Types.ActionPayload,
 	options?: TransitionToNextStateOptions
-): { session: SessionData; combatResult?: { won: boolean }; combatState?: CombatState } {
-	const nextSession: SessionData = JSON.parse(JSON.stringify(session)); // Deep copy
-	nextSession.runStats = nextSession.runStats || createDefaultRunStats();
+): { session: Types.SessionData; combatResult?: { won: boolean }; combatState?: Types.CombatState } {
+	const nextSession: Types.SessionData = JSON.parse(JSON.stringify(session)); // Deep copy
+	nextSession.runStats = nextSession.runStats || SessionManagement.createDefaultRunStats();
 
 	// Handle exclusions for resolving action (pure transitions that don't modify team)
 	const isPureTransition = false;
 
 	if (!isPureTransition) {
-		const { team } = resolveAction(nextSession, actionId, payload);
+		const { team } = ActionResolver.resolveAction(nextSession, actionId, payload);
 		nextSession.team = team;
 
 		const actionEntry = {
@@ -302,7 +298,7 @@ export function transitionToNextState(
 	// Generate new seed — board repositioning does not advance the run seed
 	// because update_team never appears in the deferred-submission action log.
 	if (actionId !== "update_team") {
-		nextSession.seed = generateNextSeed(nextSession.seed, actionId);
+		nextSession.seed = Seeding.generateNextSeed(nextSession.seed, actionId);
 	}
 
 	const transitionResult = computeTransition(nextSession, actionId);
@@ -320,7 +316,7 @@ export function transitionToNextState(
 
 	// Handle combat execution (side effect)
 	let combatResult = undefined;
-	let combatState: CombatState | undefined = undefined;
+	let combatState: Types.CombatState | undefined = undefined;
 
 	if (nextSession.phase === "combat") {
 		const combatOutcome = executeCombatPhase(nextSession, options);
@@ -342,28 +338,28 @@ export function transitionToNextState(
  * Execute combat phase: simulate, determine outcome, and set up results screen.
  */
 function executeCombatPhase(
-	session: SessionData,
+	session: Types.SessionData,
 	options?: TransitionToNextStateOptions
-): { combatResult: { won: boolean }; combatState: CombatState } {
+): { combatResult: { won: boolean }; combatState: Types.CombatState } {
 	const enemyTeam = options?.combatEnemyTeam
 		? JSON.parse(JSON.stringify(options.combatEnemyTeam))
-		: generateEnemyTeamForRound(session.round, session.wins, session.seed);
+		: EnemyGeneration.generateEnemyTeamForRound(session.round, session.wins, session.seed);
 
-	const combatSession: SessionData = {
+	const combatSession: Types.SessionData = {
 		...session,
 	};
 
-	const simResult = simulateCombat(combatSession, enemyTeam);
+	const simResult = CombatSimulation.simulateCombat(combatSession, enemyTeam);
 	const playerUnits = simResult.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 	session.runStats = simResult.finalState.session.runStats || session.runStats;
 	session.team.units = JSON.parse(JSON.stringify(simResult.finalState.session.team.units));
 
-	const { won: wonCombat } = determineCombatOutcome(simResult.finalState, simResult.logs);
-	const postCombatSession = JSON.parse(JSON.stringify(session)) as SessionData;
+	const { won: wonCombat } = CombatSimulation.determineCombatOutcome(simResult.finalState, simResult.logs);
+	const postCombatSession = JSON.parse(JSON.stringify(session)) as Types.SessionData;
 	postCombatSession.wins += wonCombat ? 1 : 0;
 	postCombatSession.losses += wonCombat ? 0 : 1;
 
-	const combatState: CombatState = {
+	const combatState: Types.CombatState = {
 		enemyTeam,
 		units: simResult.finalState.battleData.units,
 		seed: session.seed,
@@ -376,7 +372,7 @@ function executeCombatPhase(
 	};
 
 	const transitionResult = transitionAfterCombat(postCombatSession);
-	const nextSession = JSON.parse(JSON.stringify(postCombatSession)) as SessionData;
+	const nextSession = JSON.parse(JSON.stringify(postCombatSession)) as Types.SessionData;
 	nextSession.phase = transitionResult.nextPhase;
 	nextSession.current_options = transitionResult.nextOptions;
 	if (transitionResult.stepIncrement) {
@@ -392,17 +388,11 @@ function executeCombatPhase(
 }
 
 /**
- * Get the current available options for the session.
- */
-export function getCurrentOptions(session: SessionData) {
-	return getCurrentPhaseOptions(session);
-}
-
-/**
  * Resolve a numeric or string selection to an actual option.
  */
-function resolveSelectedOption(session: SessionData, selection: number | string) {
-	const options = getCurrentOptions(session);
+function resolveSelectedOption(session: Types.SessionData, selection: number | string) {
+
+	const options = session.current_options;
 
 	if (typeof selection === "number") {
 		const option = options[selection - 1];
@@ -424,11 +414,11 @@ function resolveSelectedOption(session: SessionData, selection: number | string)
  * Pick a specific option (by index or ID) and transition.
  */
 export function pickOption(
-	session: SessionData,
+	session: Types.SessionData,
 	selection: number | string,
-	payload?: ActionPayload,
+	payload?: Types.ActionPayload,
 	options?: TransitionToNextStateOptions
-): SessionData {
+): Types.SessionData {
 	const option = resolveSelectedOption(session, selection);
 	return transitionToNextState(session, option.id, payload, options).session;
 }
@@ -437,16 +427,16 @@ export function pickOption(
  * Randomly pick an available option and transition (deterministic based on seed).
  */
 export function pickRandomOption(
-	session: SessionData,
-	payload?: ActionPayload,
+	session: Types.SessionData,
+	payload?: Types.ActionPayload,
 	options?: TransitionToNextStateOptions
-): SessionData {
-	const currentOptions = getCurrentOptions(session);
+): Types.SessionData {
+	const currentOptions = session.current_options;
 	if (currentOptions.length === 0) {
 		return session;
 	}
 
-	const optionIndex = getDeterministicRandomOptionIndex(
+	const optionIndex = Seeding.getDeterministicRandomOptionIndex(
 		session.seed,
 		session.round,
 		session.step,
@@ -460,16 +450,16 @@ export function pickRandomOption(
  * Useful for testing and AI play-through.
  */
 export function pickRandomOptionsUntilGameOver(
-	session: SessionData,
+	session: Types.SessionData,
 	config?: {
 		maxActions?: number;
 		transitionOptionsForAction?: (
-			currentSession: SessionData,
+			currentSession: Types.SessionData,
 			actionId: string,
 			index: number
 		) => TransitionToNextStateOptions | undefined;
 	}
-): SessionData {
+): Types.SessionData {
 	const maxActions = config?.maxActions ?? 128;
 	let currentSession = session;
 
@@ -478,12 +468,12 @@ export function pickRandomOptionsUntilGameOver(
 			break;
 		}
 
-		const currentOptions = getCurrentOptions(currentSession);
+		const currentOptions = currentSession.current_options;
 		if (currentOptions.length === 0) {
 			break;
 		}
 
-		const optionIndex = getDeterministicRandomOptionIndex(
+		const optionIndex = Seeding.getDeterministicRandomOptionIndex(
 			currentSession.seed,
 			currentSession.round,
 			currentSession.step,
