@@ -1,8 +1,8 @@
-import { arcaneMissileTargeted } from "@Effects";
+import * as Effects from "@Effects";
 
 export function damageFx(source: Vec2, target: Vec2, onHit: () => void) {
 
-	arcaneMissileTargeted(source, target, {
+	Effects.arcaneMissileTargeted(source, target, {
 		// Red tones
 		colors: [0x880808, 0xee4b2b, 0xd22b2b], //blood red, bright red, cadmium red
 		amplitudeMin: 5,

@@ -1,6 +1,7 @@
-import { game } from "@main";
-import { getOption } from "@Models/OptionsStore";
-import { createLogger } from "@Utils/Logger";
+import * as OptionsStore from "@Models/OptionsStore";
+import * as Logger from "@Utils/Logger";
+
+const { game } = io.scene;
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;
@@ -8,14 +9,14 @@ let currentMusicKey: string | null = null;
 const soundEffects: Map<string, Phaser.Sound.BaseSound> = new Map();
 const soundEffectCooldowns: Map<string, number> = new Map();
 const SOUND_EFFECT_COOLDOWN_MS = 1000;
-const logger = createLogger("AudioManager");
+const logger = Logger.createLogger("AudioManager");
 
 type VolumeSound = Phaser.Sound.BaseSound & {
 	setVolume: (volume: number) => Phaser.Sound.BaseSound;
 };
 
 export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
-	if (!getOption("music")) {
+	if (!OptionsStore.getOption("music")) {
 		logger.debug("Music disabled - skipping playback", { musicKey });
 		return;
 	}
@@ -28,7 +29,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 	let music;
 	try {
 		music = game.sound.add(musicKey, {
-			volume: getOption("musicVolume"),
+			volume: OptionsStore.getOption("musicVolume"),
 			loop: loop,
 		});
 	} catch (e) {
@@ -44,7 +45,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 
 	if (fadeIn > 0) {
 		// Start at 0 volume and fade in using Phaser tween
-		const targetVolume = getOption("musicVolume");
+		const targetVolume = OptionsStore.getOption("musicVolume");
 		const volumeMusic = music as VolumeSound;
 		volumeMusic.setVolume(0);
 		music.play();
@@ -102,7 +103,7 @@ export const stopMusic = (fadeOut: number = 0) => {
 };
 
 export const playSoundEffect = (soundKey: string, volume?: number) => {
-	if (!getOption("sound")) {
+	if (!OptionsStore.getOption("sound")) {
 		logger.debug("Sound effects disabled - skipping playback", { soundKey });
 		return;
 	}
@@ -123,7 +124,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		return;
 	}
 
-	const effectVolume = volume ?? getOption("soundVolume");
+	const effectVolume = volume ?? OptionsStore.getOption("soundVolume");
 	const soundEffect = game.sound.add(soundKey, {
 		volume: effectVolume,
 	});
@@ -152,10 +153,10 @@ export const stopAllSoundEffects = () => {
 };
 
 export const onOptionsChanged = () => {
-	const soundEnabled = getOption("sound");
-	const musicEnabled = getOption("music");
-	const soundVolume = getOption("soundVolume");
-	const musicVolume = getOption("musicVolume");
+	const soundEnabled = OptionsStore.getOption("sound");
+	const musicEnabled = OptionsStore.getOption("music");
+	const soundVolume = OptionsStore.getOption("soundVolume");
+	const musicVolume = OptionsStore.getOption("musicVolume");
 
 	if (currentMusic && currentMusic.isPlaying) {
 		//phaserjs misstyping

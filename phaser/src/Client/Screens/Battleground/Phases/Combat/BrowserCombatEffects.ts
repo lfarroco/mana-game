@@ -12,7 +12,6 @@ import * as Unit from "@Models/Entities/Unit";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import * as CountdownTimer_1 from "@Systems/CountdownTimer";
 import * as damage from "@TriggerSystem/effects/visuals/damage";
 import * as heal from "@TriggerSystem/effects/visuals/heal";
 import * as shield from "@TriggerSystem/effects/visuals/shield";
@@ -22,7 +21,7 @@ import * as Effects from "@Effects";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Chara_1 from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as constants from "../../../../../Constants";
+import * as constants from "@Constants";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Logger from "@Utils/Logger";
 
@@ -128,11 +127,11 @@ export const createBrowserCombatEffects = (
 			return CountdownTimer.initializeCountdownTimer(io.scene, blackHoleState);
 		},
 
-		startCountdownTimer: (timerState: CountdownTimer_1.CountdownTimerState) => {
+		startCountdownTimer: (timerState: CountdownTimer.CountdownTimerState) => {
 			return CountdownTimer.start(timerState);
 		},
 
-		stopCountdownTimer: (timerState: CountdownTimer_1.CountdownTimerState) => {
+		stopCountdownTimer: (timerState: CountdownTimer.CountdownTimerState) => {
 			return CountdownTimer.stop(timerState);
 		},
 

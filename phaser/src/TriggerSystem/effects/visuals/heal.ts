@@ -1,12 +1,11 @@
-import { arcaneMissileTargeted } from "@Effects";
+import * as Effects from "@Effects";
 
 export function healFx(
 	source: Vec2,
 	target: Vec2,
 	onHit: () => void
 ) {
-
-	arcaneMissileTargeted(
+	Effects.arcaneMissileTargeted(
 		source,
 		target,
 		{
