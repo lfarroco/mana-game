@@ -2,15 +2,13 @@ import * as Types from "@Core/Types";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 
-const getServer = () => GameServer.getServer();
-
 const getCurrentPlayerId = () => state.session.player_id;
 
 async function dispatchAction(
 	actionId: string,
 	payload?: Types.ActionPayload
 ): Promise<Types.SessionData> {
-	return await getServer().handleAction(getCurrentPlayerId(), actionId, payload);
+	return await GameServer.getServer().handleAction(getCurrentPlayerId(), actionId, payload);
 }
 
 export async function purchaseUnit(
@@ -33,13 +31,11 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 }
 
 export async function skipPhase(): Promise<Types.SessionData> {
-	const success = await dispatchAction("skip");
-
-	return success;
+	return await dispatchAction("skip");
 }
 
 export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {
-	return await selectPhaseOption(encounterId);
+	return await dispatchAction(encounterId);
 }
 
 export async function selectPhaseOption(optionId: string): Promise<Types.SessionData> {
@@ -64,10 +60,6 @@ export async function applyOrb(
 
 export async function completeVictory(): Promise<Types.SessionData> {
 	return await dispatchAction("victory");
-}
-
-export async function getCurrentPhaseOptions(): Promise<Types.PhaseOptions> {
-	return await getServer().getPhaseOptions(getCurrentPlayerId());
 }
 
 export async function updateTeam(

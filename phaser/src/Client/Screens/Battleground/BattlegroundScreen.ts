@@ -2,8 +2,8 @@ import * as Board from "@Models/Board";
 import * as Types from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "Client/Components/Tooltip";
-import * as Encounter from "@Screens/Battleground/Phases/Encounter/Encounter";
-import * as handleCombatPhase from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
+import * as Encounter from "./Phases/Encounter/Encounter";
+import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 import * as SessionManager from "@Core/SessionManager";
 
 import * as Components from "./Components";
@@ -89,11 +89,10 @@ async function executePhase(
 		case "encounter":
 			return await Encounter.displayOptions();
 
-		case "combat":
-			{
-				const result = await handleCombatPhase.handleCombatPhase();
-				return result.type === "cancelled" ? null : result.session;
-			}
+		case "combat": {
+			const result = await handleCombatPhase.handleCombatPhase();
+			return result.type === "cancelled" ? null : result.session;
+		}
 
 		case "shop":
 			return await Phases.handleShopPhase();
