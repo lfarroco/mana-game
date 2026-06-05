@@ -11,8 +11,6 @@ export function create(unit: Unit, container: Chara) {
 
 	const effect = unit.effects.find((effect) => displayableEffects.includes(effect.id));
 
-	if (!effect) return;
-
 	const displayedPower = compactNumber(Math.floor(unit.power));
 
 	const powerDisplayPosition = vec2(0, constants.HALF_TILE_HEIGHT - 10);

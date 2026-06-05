@@ -55,6 +55,7 @@ const cards: CardDefinition[] = [
 		cooldown: 5200,
 		isCore: true,
 		effects: [
+			regen,
 			increasePower(10, column),
 			absorbPower(column)
 		],
