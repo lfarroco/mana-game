@@ -8,7 +8,7 @@ import * as Tooltip from "Client/Components/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as events from "@Systems/Chara/events";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as DiscardZone from "@Screens/Battleground/Shop/DiscardZone";
+import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 

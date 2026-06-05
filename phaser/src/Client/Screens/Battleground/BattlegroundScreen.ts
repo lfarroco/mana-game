@@ -1,12 +1,11 @@
 import * as Board from "@Models/Board";
-import type * as Types from "@Core/Types";
+import * as Types from "@Core/Types";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "Client/Components/Tooltip";
 import * as Encounter from "@Screens/Battleground/Phases/Encounter/Encounter";
 import * as handleCombatPhase from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
 import * as SessionManager from "@Core/SessionManager";
 
-import * as Shop from "./Shop/ShopPanel";
 import * as Components from "./Components";
 import * as UIManager from "./Components/UI/UI";
 import * as Phases from "./Phases";
@@ -66,8 +65,6 @@ export const createBattlegroundScreen = async () => {
 	Components.create();
 
 	AudioManager.playMusic("music_battlemap_vetruv");
-
-	Shop.create();
 
 	Tooltip.init();
 

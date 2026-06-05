@@ -1,6 +1,6 @@
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
-import * as OrbShop from "@Screens/Battleground/Shop/OrbShop";
+import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 
 export async function handleOrbShopPhase(): Promise<Types.SessionData> {
 	let nextSession: Types.SessionData | null = null;

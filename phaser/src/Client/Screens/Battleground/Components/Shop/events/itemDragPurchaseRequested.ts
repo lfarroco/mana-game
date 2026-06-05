@@ -6,7 +6,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "@Core/GameController";
 import * as i18n from "@i18n/i18n";
-import * as shopCharaFeedback from "@Screens/Battleground/Shop/events/shopCharaFeedback";
+import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
 export async function itemDragPurchaseRequested(
 	shopUnitData: Unit.Unit,

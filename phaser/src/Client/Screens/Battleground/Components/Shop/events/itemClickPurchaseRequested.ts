@@ -1,7 +1,7 @@
 import * as Unit from "@Models/Entities/Unit";
 import * as GameController from "@Core/GameController";
 import * as Chara from "@Systems/Chara/Chara";
-import * as shopCharaFeedback from "@Screens/Battleground/Shop/events/shopCharaFeedback";
+import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
 export async function itemClickPurchaseRequested(
 	shopUnitData: Unit.Unit,

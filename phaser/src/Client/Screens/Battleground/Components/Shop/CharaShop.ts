@@ -5,10 +5,10 @@ import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as c from "@Constants/constants";
-import * as sc from "@Screens/Battleground/Shop/constants";
+import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
-import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
-import * as Shop from "@Screens/Battleground/Shop";
+import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
+import * as Shop from "@Screens/Battleground/Components/Shop";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as Types from "@Core/Types";
 

@@ -1,17 +1,16 @@
-import { titleTextConfig } from "@Constants/constants";
-import { tween } from "@Utils/animation";
+import * as constants from "@Constants/constants";
+import * as animation from "@Utils/animation";
 import * as UI from "@Screens/Battleground/Components/UI/UI";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
-import { winsChangeAnimation } from "@Screens/Battleground/Components/UI/winsDisplay";
+import * as winsDisplay_1 from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
-import { t } from "@i18n/i18n";
-import * as io from "@PhaserIO";
+import * as i18n from "@i18n/i18n";
 
 export function onWinsChanged(newTotalWins: number, winsDelta: number) {
 	winsDisplay.updateWinsDisplay(newTotalWins);
 	if (winsDelta !== 0) {
-		winsChangeAnimation(winsDelta);
+		winsDisplay_1.winsChangeAnimation(winsDelta);
 	}
 }
 
@@ -35,20 +34,20 @@ async function livesChangeAnimation(lives: number) {
 	const startY = bounds.centerY;
 
 	const livesAmountText = io.scene
-		.add.text(startX, startY, animationText, titleTextConfig)
+		.add.text(startX, startY, animationText, constants.titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)
 		.setDepth(1000);
 
-	await tween({
+	await animation.tween({
 		targets: [livesAmountText],
 		alpha: 1,
 		scale: 1.2,
 		y: startY - 30,
 	});
 
-	await tween({
+	await animation.tween({
 		targets: [livesAmountText],
 		alpha: 0,
 		scale: 1,
@@ -64,19 +63,19 @@ export function onPurchaseFailed(unitName: string, reason: string, cost?: number
 
 	switch (reason) {
 		case "PARTY_FULL":
-			reasonText = t("shop.messages.partyFull");
+			reasonText = i18n.t("shop.messages.partyFull");
 			break;
 		case "INSUFFICIENT_GOLD":
-			reasonText = t("shop.messages.insufficientGold", { cost: (cost ?? "N/A").toString() });
+			reasonText = i18n.t("shop.messages.insufficientGold", { cost: (cost ?? "N/A").toString() });
 			break;
 		case "SLOT_OCCUPIED":
-			reasonText = t("shop.messages.slotOccupied");
+			reasonText = i18n.t("shop.messages.slotOccupied");
 			break;
 		default:
-			reasonText = t("shop.messages.unknown");
+			reasonText = i18n.t("shop.messages.unknown");
 	}
 
-	const message = t("shop.messages.purchaseFailed", { unitName, reason: reasonText });
+	const message = i18n.t("shop.messages.purchaseFailed", { unitName, reason: reasonText });
 
 	UI.handleUserMessageRequested({ text: message, type: "error" });
 }

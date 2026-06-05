@@ -3,8 +3,8 @@ import * as Types from "@Core/Types";
 import * as Card from "@Models/Entities/Card";
 import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
-import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
-import * as Shop from "@Screens/Battleground/Shop/ShopPanel";
+import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
+import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 
 export async function handleShopPhase(): Promise<Types.SessionData> {
 

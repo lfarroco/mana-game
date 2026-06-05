@@ -1,14 +1,14 @@
 import * as io from "@PhaserIO";
-import { vec2 } from "@Models/Geometry";
+import * as Geometry from "@Models/Geometry";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import { Unit } from "@Models/Entities/Unit";
-import { RESULTS_PANEL } from "Client/Screens/Battleground/Results/ResultsConfig";
+import * as Unit from "@Models/Entities/Unit";
+import * as ResultsConfig from "./ResultsConfig";
 import * as c from "@Constants/constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import { createPanel } from "Client/Components/Panel";
-import { getName, t } from "@i18n/i18n";
-import { compactNumber } from "@utils";
+import * as Panel from "Client/Components/Panel";
+import * as i18n from "@i18n/i18n";
+import * as Utils from "@utils";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -25,11 +25,11 @@ const PANEL_CONFIG = {
 };
 
 async function createStatsPanel(
-	units: Unit[],
+	units: Unit.Unit[],
 	position: Vec2,
 	title: string,
 	titleColor: string,
-	forceFilter: (unit: Unit) => boolean
+	forceFilter: (unit: Unit.Unit) => boolean
 ): Promise<Phaser.GameObjects.Container> {
 	const { padding } = PANEL_CONFIG;
 
@@ -37,12 +37,12 @@ async function createStatsPanel(
 
 	const panelHeight = PANEL_CONFIG.baseHeight + filteredUnits.length * PANEL_CONFIG.rowHeight + 40;
 
-	const panel = createPanel(position, {
+	const panel = Panel.createPanel(position, {
 		width: PANEL_CONFIG.width,
 		height: panelHeight,
-		borderRadius: RESULTS_PANEL.borderRadius,
-		backgroundColor: RESULTS_PANEL.backgroundColor,
-		backgroundAlpha: RESULTS_PANEL.backgroundAlpha,
+		borderRadius: ResultsConfig.RESULTS_PANEL.borderRadius,
+		backgroundColor: ResultsConfig.RESULTS_PANEL.backgroundColor,
+		backgroundAlpha: ResultsConfig.RESULTS_PANEL.backgroundAlpha,
 	});
 
 	const titleText = io.Text(title, {
@@ -50,16 +50,16 @@ async function createStatsPanel(
 		color: titleColor,
 		fontStyle: "bold",
 	});
-	io.SetPosition(titleText, vec2(position.x, position.y - panelHeight / 2 + 30));
+	io.SetPosition(titleText, Geometry.vec2(position.x, position.y - panelHeight / 2 + 30));
 	io.Centralize(titleText);
 	panel.add(titleText);
 
 	const headers = [
-		t("combatStats.headers.dmg"),
-		t("combatStats.headers.heal"),
-		t("combatStats.headers.shield"),
-		t("combatStats.headers.poison"),
-		t("combatStats.headers.regen"),
+		i18n.t("combatStats.headers.dmg"),
+		i18n.t("combatStats.headers.heal"),
+		i18n.t("combatStats.headers.shield"),
+		i18n.t("combatStats.headers.poison"),
+		i18n.t("combatStats.headers.regen"),
 	];
 	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
 	const startY = position.y - panelHeight / 2 + 70;
@@ -70,7 +70,7 @@ async function createStatsPanel(
 			color: PANEL_CONFIG.headerColor,
 			fontStyle: "bold",
 		});
-		io.SetPosition(headerText, vec2(startX, startY));
+		io.SetPosition(headerText, Geometry.vec2(startX, startY));
 		panel.add(headerText);
 		startX += PANEL_CONFIG.columnWidths[index + 1];
 	});
@@ -116,7 +116,7 @@ async function createStatsPanel(
 
 		sprite.on("pointerover", () => {
 			import("Client/Components/Tooltip").then(({ renderTooltip }) => {
-				const title = getName(unit.cardId);
+				const title = i18n.getName(unit.cardId);
 
 				const effectBlocks = unit.effects
 					.map((e) => CharaTooltip.buildEffectBlock(e, unit.power))
@@ -127,19 +127,19 @@ async function createStatsPanel(
 
 				const cdAsSeconds = (unit.cooldown / 1000).toFixed(1);
 				const cdBlock = [
-					`[color=#c0c0c0]${t("combatStats.tooltip.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`,
+					`[color=#c0c0c0]${i18n.t("combatStats.tooltip.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`,
 				];
 
 				const critBlock =
 					(unit.critical || 0) > 0
 						? [
-							`[color=#c0c0c0]${t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
+							`[color=#c0c0c0]${i18n.t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
 						]
 						: [];
 
 				const statsBlock = [...cdBlock, ...critBlock].join(" | ");
 				const descriptionString =
-					[...effectBlocks, ...reactionBlocks].join("\n") || t("combatStats.tooltip.noAbilities");
+					[...effectBlocks, ...reactionBlocks].join("\n") || i18n.t("combatStats.tooltip.noAbilities");
 				const description = [statsBlock, descriptionString].join("\n");
 
 				const screenWidth = io.scene.sys.game.config.width as number;
@@ -158,11 +158,11 @@ async function createStatsPanel(
 		panel.add(sprite);
 
 		const rowData = [
-			totalDamage > 0 ? compactNumber(totalDamage) : "-",
-			totalHeal > 0 ? compactNumber(totalHeal) : "-",
-			shield > 0 ? compactNumber(shield) : "-",
-			poison > 0 ? compactNumber(poison) : "-",
-			regen > 0 ? compactNumber(regen) : "-",
+			totalDamage > 0 ? Utils.compactNumber(totalDamage) : "-",
+			totalHeal > 0 ? Utils.compactNumber(totalHeal) : "-",
+			shield > 0 ? Utils.compactNumber(shield) : "-",
+			poison > 0 ? Utils.compactNumber(poison) : "-",
+			regen > 0 ? Utils.compactNumber(regen) : "-",
 		];
 
 		let currentX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0];
@@ -171,7 +171,7 @@ async function createStatsPanel(
 				fontSize: PANEL_CONFIG.fontSize,
 				color: "#FFFFFF",
 			});
-			io.SetPosition(cellText, vec2(currentX, currentY));
+			io.SetPosition(cellText, Geometry.vec2(currentX, currentY));
 			panel.add(cellText);
 			currentX += PANEL_CONFIG.columnWidths[index + 1];
 		});
@@ -183,7 +183,7 @@ async function createStatsPanel(
 }
 
 export async function createCombatStatsPanels(
-	units: Unit[],
+	units: Unit.Unit[],
 	centerPanelX: number,
 	panelY: number
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {
@@ -194,16 +194,16 @@ export async function createCombatStatsPanels(
 
 	const playerPanel = await createStatsPanel(
 		units,
-		vec2(centerPanelX - panelSpacing, panelY),
-		t("combatStats.playerTeam"),
+		Geometry.vec2(centerPanelX - panelSpacing, panelY),
+		i18n.t("combatStats.playerTeam"),
 		PANEL_CONFIG.playerColor,
 		(unit) => unit.force === playerForceId
 	);
 
 	const cpuPanel = await createStatsPanel(
 		units,
-		vec2(centerPanelX + panelSpacing, panelY),
-		t("combatStats.enemyTeam"),
+		Geometry.vec2(centerPanelX + panelSpacing, panelY),
+		i18n.t("combatStats.enemyTeam"),
 		PANEL_CONFIG.cpuColor,
 		(unit) => unit.force === cpuForceId
 	);

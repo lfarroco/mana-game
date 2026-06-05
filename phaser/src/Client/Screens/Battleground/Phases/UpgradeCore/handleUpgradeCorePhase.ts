@@ -1,5 +1,5 @@
 import * as Types from "@Core/Types";
-import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
+import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
 
 export async function handleUpgradeCorePhase(): Promise<Types.SessionData> {
 	const upgradeIds = state.session.current_options.map((option) => option.id);

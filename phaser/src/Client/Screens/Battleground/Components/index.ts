@@ -1,16 +1,19 @@
-
-import * as background from "./background";
-import * as namesDisplay from "./UI/namesDisplay";
-import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
-import * as DiscardZone from "../Shop/DiscardZone";
+import * as Background from "./Background";
+import * as NamesDisplay from "./UI/namesDisplay";
+import * as ResultsUI from "./Results/ResultsUI";
 import * as Board from "@Models/Board";
 import * as UI from "./UI/UI";
+import * as Shop from "./Shop/ShopPanel";
+import * as DiscardZone from "./Shop/DiscardZone";
 
 export function create() {
-	background.createBackground();
-	namesDisplay.create();
-	Board.init();
-	ResultsUI.createResultsUI();
-	DiscardZone.create();
-	UI.createUI();
+	[
+		Background,
+		NamesDisplay,
+		Board,
+		ResultsUI,
+		DiscardZone,
+		UI,
+		Shop
+	].forEach(c => c.create());
 }

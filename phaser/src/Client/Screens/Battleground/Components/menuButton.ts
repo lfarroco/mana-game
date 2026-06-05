@@ -3,7 +3,7 @@ import * as c from "@Constants/constants";
 import * as Geometry from "@Models/Geometry";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
-import * as BattlegroundNavigation from "../battlegroundNavigation";
+import * as BattlegroundNavigation from "../Navigation";
 
 export function create() {
 	const btn = UIButton.createUIButton({

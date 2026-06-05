@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-nocheck deprecated
+
 import * as State from "@Models/State";
 import * as Encounter from "@Screens/Battleground/Phases/Encounter/Encounter";
 import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
@@ -12,16 +15,16 @@ import * as Unit from "@Models/Entities/Unit";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
-import * as OrbShop from "@Screens/Battleground/Shop/OrbShop";
+import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 
 // TODO: fire events instead?
 import * as livesDisplay from "./Components/UI/livesDisplay";
 import * as roundDisplay from "./Components/UI/roundDisplay";
 
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
-import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
-import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
-import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
+import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
+import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
+import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
 import * as Logger from "@Utils/Logger";
 import * as UIButton from "Client/Components/UIButton";
 import * as Geometry from "@Models/Geometry";
@@ -180,6 +183,7 @@ export async function handlePhase() {
 			break;
 	}
 
+	//eslint-disable-next-line @typescript-eslint/no-unused-vars
 	async function handleMultiplayerCombat(
 		state: State.State,
 		combatState: Types.CombatState,

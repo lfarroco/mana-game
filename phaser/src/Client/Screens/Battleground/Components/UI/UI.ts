@@ -12,7 +12,7 @@ export * as events from "@Screens/Battleground/Components/UI/events";
 
 let uiContainer: Container | null = null;
 
-export function createUI() {
+export function create() {
 	const headerContainer = io.Container([
 		headerBackground.create,
 		roundDisplay.create,

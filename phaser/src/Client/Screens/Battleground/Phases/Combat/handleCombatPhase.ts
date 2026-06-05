@@ -7,13 +7,12 @@ import * as Chara from "@Systems/Chara/Chara";
 
 import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
-import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
+import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
-import * as BattlegroundNavigation from "@Screens/Battleground/battlegroundNavigation";
+import * as BattlegroundNavigation from "@Screens/Battleground/Navigation";
 
 import * as c from "@Constants/constants";
-import { clearAll, summon } from "@Systems/Chara/Chara";
-import { delay } from "@Utils/animation";
+import * as animation_1 from "@Utils/animation";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
@@ -239,7 +238,7 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 	Board.setIsInputEnabled(true);
 
 	if (shouldResummonUnits) {
-		clearAll();
+		Chara.clearAll();
 		state.battleData.units = [];
 	}
 
@@ -259,8 +258,8 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 
 	if (shouldResummonUnits) {
 		const summonPromises = state.session.team.units.map(async (unit, index) => {
-			await delay(index * 200);
-			await summon(unit, true);
+			await animation_1.delay(index * 200);
+			await Chara.summon(unit, true);
 		});
 		await Promise.all(summonPromises);
 	}

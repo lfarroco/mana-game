@@ -1,9 +1,9 @@
 import * as GameController from "@Core/GameController";
-import type { SessionData } from "@Core/Types";
-import * as ResultsUI from "@Screens/Battleground/Results/ResultsUI";
+import * as Types from "@Core/Types";
+import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 
-export async function handleVictoryPhase(): Promise<SessionData | null> {
-	let nextSession: SessionData | null = null;
+export async function handleVictoryPhase(): Promise<Types.SessionData | null> {
+	let nextSession: Types.SessionData | null = null;
 
 	await new Promise<void>((resolve) => {
 		void ResultsUI.displayGameCompleteResults(

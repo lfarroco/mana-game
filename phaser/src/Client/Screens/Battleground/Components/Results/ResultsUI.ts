@@ -2,11 +2,11 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants/constants";
 import * as State from "@Models/State";
-import * as VictoryUI from "Client/Screens/Battleground/Results/VictoryUI";
-import * as DefeatUI from "Client/Screens/Battleground/Results/DefeatUI";
-import * as GameCompleteUI from "Client/Screens/Battleground/Results/GameCompleteUI";
+import * as VictoryUI from "./VictoryUI";
+import * as DefeatUI from "./DefeatUI";
+import * as GameCompleteUI from "./GameCompleteUI";
 import * as Unit from "@Models/Entities/Unit";
-import * as ResultsConfig from "Client/Screens/Battleground/Results/ResultsConfig";
+import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "Client/Components/BackgroundOverlay";
 import * as Config from "@config";
 
@@ -28,7 +28,7 @@ export let resultsContainer: Phaser.GameObjects.Container;
 export let overlay: BackgroundOverlay.BackgroundOverlay;
 export let isOpen: boolean;
 
-export function createResultsUI() {
+export function create() {
 
 	overlay = BackgroundOverlay.createBackgroundOverlay({
 		color: ResultsConfig.RESULTS_PANEL.overlayColor,

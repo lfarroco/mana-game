@@ -1,9 +1,9 @@
-import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
+import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import * as animation from "@Utils/animation";
-import * as sc from "@Screens/Battleground/Shop/constants";
+import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
-import * as Orbs from "@Screens/Battleground/Shop/Orbs";
+import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
 import * as Geometry from "@Models/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants/constants";

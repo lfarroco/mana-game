@@ -299,7 +299,7 @@ export function isInputEnabled() {
 	return _inputEnabled;
 }
 
-export function init() {
+export function create() {
 	_playerBoardState = createBoardState();
 	//TODO: rendering inside a model, lol
 	renderBoardSlots(_playerBoardState);
