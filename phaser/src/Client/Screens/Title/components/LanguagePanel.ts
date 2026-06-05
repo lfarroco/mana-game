@@ -39,7 +39,7 @@ export function openLanguagePanel(): void {
 	const buttonSpacing = 70;
 
 	const langButtons = languages.map((lang, index) => {
-		return UIButton.createUIButton({
+		return UIButton.create({
 			text: i18n.getNativeName(lang),
 			position: Geometry.vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
 			callback: () => {
@@ -49,7 +49,7 @@ export function openLanguagePanel(): void {
 		});
 	});
 
-	const closeButton = UIButton.createUIButton({
+	const closeButton = UIButton.create({
 		text: i18n.t("language.close"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
 		callback: () => {

@@ -49,7 +49,7 @@ export function render(unitId: string): Promise<void> {
 			.setFontFamily("Arimo")
 			.setOrigin(0.5, 0);
 
-		const confirmButton = UIButton.createUIButton({
+		const confirmButton = UIButton.create({
 			text: i18n.t("title.unlock_modal.confirm"),
 			position: Geometry.vec2(0, descriptionText.y + descriptionText.height + 60),
 			callback: () => {

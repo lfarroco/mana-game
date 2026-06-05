@@ -1,7 +1,7 @@
 import { getCurrentLocale, getNativeName } from "@i18n/i18n";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import { openLanguagePanel } from "Client/Screens/Title/Components/LanguagePanel";
 import { t } from "@i18n/i18n";
 
@@ -11,7 +11,7 @@ export function render() {
 
 	const currentLangName = getNativeName(getCurrentLocale());
 
-	const button = createUIButton({
+	const button = create({
 		text: `あ/A ${currentLangName}`,
 		position: vec2(x, y),
 		callback: openLanguagePanel,

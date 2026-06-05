@@ -12,7 +12,7 @@ let submenuContainer: Container;
 
 export function create(y: number) {
 	const title = i18n.t("title.options");
-	const button = UIButton.createUIButton({
+	const button = UIButton.create({
 		text: title,
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
 		callback: showOptionsSubmenu,
@@ -32,13 +32,13 @@ function showOptionsSubmenu() {
 	const baseY = 500;
 	const spacing = 100;
 
-	const settingsBtn = UIButton.createUIButton({
+	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY),
 		callback: openOptions.openOptions,
 	});
 
-	const statsBtn = UIButton.createUIButton({
+	const statsBtn = UIButton.create({
 		text: i18n.t("title.stats"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
 		callback: () => {
@@ -46,7 +46,7 @@ function showOptionsSubmenu() {
 		},
 	});
 
-	const creditsBtn = UIButton.createUIButton({
+	const creditsBtn = UIButton.create({
 		text: i18n.t("title.credits"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
 		callback: () => {
@@ -54,7 +54,7 @@ function showOptionsSubmenu() {
 		},
 	});
 
-	const backBtn = UIButton.createUIButton({
+	const backBtn = UIButton.create({
 		text: i18n.t("title.back"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		callback: () => {

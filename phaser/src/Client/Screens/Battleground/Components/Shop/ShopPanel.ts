@@ -30,7 +30,7 @@ export const create = () => {
 };
 
 export const addSkipButton = (callback: () => void): void => {
-	const skipButton = UIButton.createUIButton({
+	const skipButton = UIButton.create({
 		text: "Skip",
 		position: Geometry.vec2(
 			constants.BATTLEGROUND_BUTTON_X,

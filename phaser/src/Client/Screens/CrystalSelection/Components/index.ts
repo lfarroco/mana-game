@@ -1,10 +1,10 @@
-import * as paginationDots from "./paginationDots";
-import * as crystalDisplay from "./crystalDisplay";
-import * as navigationButtons from "./navigationButtons";
-import * as actionButtons from "./actionButtons";
+import * as paginationDots from "./PaginationDots";
+import * as crystalDisplay from "./CrystalDisplay";
+import * as navigationButtons from "./NavigationButtons";
+import * as actionButtons from "./ActionButtons";
 import * as seedInput from "./seedInput";
-import * as background from "./background";
-import * as title from "./title";
+import * as background from "./Background";
+import * as title from "./Title";
 
 export function create() {
 	[

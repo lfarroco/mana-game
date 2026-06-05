@@ -46,7 +46,7 @@ export async function displayDefeat(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], index) =>
-			UIButton.createUIButton({
+			UIButton.create({
 				text: label,
 				position: Geometry.vec2(panelX, baseY - (totalButtons - 1 - index) * verticalSpacing),
 				callback: callback,

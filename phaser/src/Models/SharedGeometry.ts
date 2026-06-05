@@ -1,3 +1,5 @@
+// TODO: this should not exist, geom is geom
+// free geom from phaser
 
 export interface Vec2 {
 	x: number;

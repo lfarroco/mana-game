@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import * as Phaser from "phaser";
 import { BUTTONS, LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
 
@@ -23,7 +23,7 @@ export function multipleChoice(
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
-	const decreaseButton = createUIButton({
+	const decreaseButton = create({
 		text: "<",
 		position: vec2(
 			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
@@ -52,7 +52,7 @@ export function multipleChoice(
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
-	const increaseButton = createUIButton({
+	const increaseButton = create({
 		text: ">",
 		position: vec2(
 			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,

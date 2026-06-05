@@ -6,7 +6,7 @@ import * as _ from "../CrystalSelectionScene";
 import { CardDefinition } from "@Models/Entities/Card";
 import { colorPresets } from "@Constants/colorPresets";
 import { t } from "@i18n/i18n";
-import * as paginationDots from "../Components/paginationDots"
+import * as paginationDots from "../Components/PaginationDots"
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";

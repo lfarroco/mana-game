@@ -580,7 +580,7 @@ export async function openTutorial(): Promise<void> {
 		}
 	};
 
-	const prevButton = UIButton.createUIButton({
+	const prevButton = UIButton.create({
 		text: i18n.t("tutorial.previous"),
 		position: Geometry.vec2(200, c.MIDDLE_SCREEN_Y),
 		callback: () => {
@@ -591,7 +591,7 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const nextButton = UIButton.createUIButton({
+	const nextButton = UIButton.create({
 		text: i18n.t("tutorial.next"),
 		position: Geometry.vec2(c.SCREEN_WIDTH - 200, c.MIDDLE_SCREEN_Y),
 		callback: () => {
@@ -602,7 +602,7 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const exitButton = UIButton.createUIButton({
+	const exitButton = UIButton.create({
 		text: i18n.t("tutorial.exit"),
 		position: Geometry.vec2(c.MIDDLE_SCREEN_X, BUTTON_Y),
 		callback: () => {

@@ -5,7 +5,7 @@ import * as i18n from "@i18n/i18n";
 
 export function render(y: number) {
 	const title = i18n.t("title.multiplayer");
-	const btn = UIButton.createUIButton({
+	const btn = UIButton.create({
 		text: title,
 		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
 		callback: () => {

@@ -1,5 +1,5 @@
 import * as constants from "@Constants/constants";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import { getSinglePlayerData } from "@Game/effects/getSinglePlayerData";
 import { startGame } from "@Screens/Title/Effects/startGame";
 import { t } from "@i18n/i18n";
@@ -16,7 +16,7 @@ export function render(y: number) {
 	const title = t("title.singlePlayer");
 	const description = t("title.tooltip.singlePlayer");
 
-	return createUIButton({
+	return create({
 		text: title,
 		position: vec2(constants.MIDDLE_SCREEN_X, y),
 		callback: showSinglePlayerSubmenu,
@@ -35,7 +35,7 @@ function showSinglePlayerSubmenu() {
 	const spacing = 100;
 	const hasSavedRun = getSinglePlayerData() != null;
 
-	const resumeBtn = createUIButton({
+	const resumeBtn = create({
 		text: t("title.resume"),
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY),
 		callback: resumeSinglePlayerGame.resumeSinglePlayerGame
@@ -46,7 +46,7 @@ function showSinglePlayerSubmenu() {
 		resumeBtn.disable();
 	}
 
-	const newRunBtn = createUIButton({
+	const newRunBtn = create({
 		text: t("title.newRun"),
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
 		callback: () => {
@@ -57,7 +57,7 @@ function showSinglePlayerSubmenu() {
 
 	const collectionBtn = collectionButton(baseY + spacing * 2);
 
-	const backBtn = createUIButton({
+	const backBtn = create({
 		text: t("title.back"),
 		position: vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
 		callback: () => {

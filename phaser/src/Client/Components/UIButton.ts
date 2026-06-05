@@ -208,7 +208,7 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.text.setAlpha(visuals.textAlpha);
 };
 
-export function createUIButton({
+export function create({
 	text,
 	position,
 	callback,

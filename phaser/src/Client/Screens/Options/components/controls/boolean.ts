@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import * as io from "@PhaserIO";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import { LAYOUT, STYLES, BUTTONS } from "@Screens/Options/OptionsScreen";
 import { t } from "@i18n/i18n";
 
@@ -31,7 +31,7 @@ export function boolean(
 
 	//   ~~~//~~~
 
-	const toggleButton = createUIButton({
+	const toggleButton = create({
 		text: getValue() ? onText : offText,
 		position: vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y),
 		callback: () => {

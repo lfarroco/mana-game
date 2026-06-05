@@ -133,7 +133,7 @@ export function showCollectionModal(): Promise<void> {
 			}
 		};
 
-		const prevButton = UIButton.createUIButton({
+		const prevButton = UIButton.create({
 			text: "<",
 			position: Geometry.vec2(-100, PANEL_HEIGHT / 2 - 120),
 			callback: () => {
@@ -146,7 +146,7 @@ export function showCollectionModal(): Promise<void> {
 			width: 60,
 		});
 
-		const nextButton = UIButton.createUIButton({
+		const nextButton = UIButton.create({
 			text: ">",
 			position: Geometry.vec2(100, PANEL_HEIGHT / 2 - 120),
 			callback: () => {
@@ -163,7 +163,7 @@ export function showCollectionModal(): Promise<void> {
 		io.Centralize(pageIndicator);
 		io.SetPosition(pageIndicator, Geometry.vec2(0, PANEL_HEIGHT / 2 - 120));
 
-		const closeButton = UIButton.createUIButton({
+		const closeButton = UIButton.create({
 			text: i18n.t("title.back"),
 			position: Geometry.vec2(0, PANEL_HEIGHT / 2 - 40),
 			callback: () => {
@@ -173,14 +173,14 @@ export function showCollectionModal(): Promise<void> {
 
 		// Tabs
 		const tabY = -PANEL_HEIGHT / 2 + 110;
-		const unlockedTabBtn = UIButton.createUIButton({
+		const unlockedTabBtn = UIButton.create({
 			text: i18n.t("collection.tabs.unlocked"),
 			position: Geometry.vec2(-150, tabY),
 			callback: () => switchTab("unlocked"),
 			width: 280,
 		});
 
-		const lockedTabBtn = UIButton.createUIButton({
+		const lockedTabBtn = UIButton.create({
 			text: i18n.t("collection.tabs.locked"),
 			position: Geometry.vec2(150, tabY),
 			callback: () => switchTab("locked"),

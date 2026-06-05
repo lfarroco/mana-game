@@ -222,7 +222,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 	// 1. Not showing combat_encounter (pre-combat phase)
 	const isCombatEncounter = encounters[0].id === "combat_encounter";
 	if (!isCombatEncounter) {
-		const btn = UIButton.createUIButton({
+		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: Geometry.vec2(constants.SCREEN_WIDTH - 260, constants.SCREEN_HEIGHT - 50),
 			callback: nextRoundCallback,

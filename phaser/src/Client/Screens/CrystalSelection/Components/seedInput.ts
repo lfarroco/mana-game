@@ -1,7 +1,7 @@
 import * as constants from "@Constants/constants";
 import * as Random from "@Utils/Random";
 import * as _ from "../CrystalSelectionScene";
-import * as keyboard from "./keyboard";
+import * as keyboard from "./Keyboard";
 
 let seedText: Phaser.GameObjects.Text;
 

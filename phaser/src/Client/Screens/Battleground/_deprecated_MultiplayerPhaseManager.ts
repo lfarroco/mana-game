@@ -303,7 +303,7 @@ export async function handlePhase() {
 		};
 
 		if (requireReadyButton) {
-			const readyButton = UIButton.createUIButton({
+			const readyButton = UIButton.create({
 				text: i18n.t("ui.ready"),
 				position: Geometry.vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 				callback: () => {

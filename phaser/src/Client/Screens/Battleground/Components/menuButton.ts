@@ -6,7 +6,7 @@ import * as i18n from "@i18n/i18n";
 import * as BattlegroundNavigation from "../Navigation";
 
 export function create() {
-	const btn = UIButton.createUIButton({
+	const btn = UIButton.create({
 		text: i18n.t("ui.menu.button"),
 		position: Geometry.vec2(c.BATTLEGROUND_BUTTON_X, c.BATTLEGROUND_BUTTON_MARGIN_TOP),
 		callback: createPanel
@@ -50,7 +50,7 @@ export function createPanel() {
 
 	const buttons = buttonDefs.map(
 		([label, callback], i) =>
-			UIButton.createUIButton({
+			UIButton.create({
 				text: label,
 				position: Geometry.vec2(panelX, startingY + i * 100),
 				callback: callback,

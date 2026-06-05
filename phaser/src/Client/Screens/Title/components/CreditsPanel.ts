@@ -72,7 +72,7 @@ export function openCredits(): void {
 	});
 
 	// Create close button
-	const closeButton = UIButton.createUIButton({
+	const closeButton = UIButton.create({
 		text: i18n.t("credits.close"),
 		position: Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
 		callback: () => {

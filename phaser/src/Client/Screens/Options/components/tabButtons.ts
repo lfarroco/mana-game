@@ -13,21 +13,21 @@ export function create() {
 	const buttonSpacing = OptionsScreen.LAYOUT.TAB_BUTTON_SPACING;
 	const startX = constants.MIDDLE_SCREEN_X - buttonSpacing;
 
-	buttonIndex["audio"] = UIButton.createUIButton({
+	buttonIndex["audio"] = UIButton.create({
 		text: i18n.t("options.tabs.audio"),
 		position: Geometry.vec2(startX, tabButtonY),
 		callback: () => showTab.showTab("audio"),
 		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
-	buttonIndex["graphics"] = UIButton.createUIButton({
+	buttonIndex["graphics"] = UIButton.create({
 		text: i18n.t("options.tabs.graphics"),
 		position: Geometry.vec2(startX + buttonSpacing, tabButtonY),
 		callback: () => showTab.showTab("graphics"),
 		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
-	buttonIndex["game"] = UIButton.createUIButton({
+	buttonIndex["game"] = UIButton.create({
 		text: i18n.t("options.tabs.game"),
 		position: Geometry.vec2(startX + buttonSpacing * 2, tabButtonY),
 		callback: () => showTab.showTab("game"),

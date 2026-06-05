@@ -5,7 +5,7 @@ import * as constants from "@Constants/constants";
 import * as Effects from "../Effects";
 
 export const render = (y: number) =>
-	UIButton.createUIButton({
+	UIButton.create({
 		text: i18n.t("title.exit"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
 		callback: Effects.exitGame,

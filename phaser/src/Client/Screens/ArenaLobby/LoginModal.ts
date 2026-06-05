@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { SCREEN_WIDTH, SCREEN_HEIGHT, MIDDLE_SCREEN } from "@Constants/constants";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { handleAuthLogin, handleAuthRegister } from "@Multiplayer/MultiplayerManager";
 import {
@@ -80,7 +80,7 @@ export class LoginModal {
 		this.container.add(title);
 
 		// Login Button
-		const loginBtn = createUIButton({
+		const loginBtn = create({
 			text: "Login",
 			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y - LOGIN_BUTTON_Y_OFFSET),
 			callback: () => this.handleLogin(),
@@ -88,7 +88,7 @@ export class LoginModal {
 		this.container.add(loginBtn.container);
 
 		// Register Button
-		const regBtn = createUIButton({
+		const regBtn = create({
 			text: "Register",
 			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + REGISTER_BUTTON_Y_OFFSET),
 			callback: () => this.handleRegister(),
@@ -96,7 +96,7 @@ export class LoginModal {
 		this.container.add(regBtn.container);
 
 		// Cancel Button
-		const cancelBtn = createUIButton({
+		const cancelBtn = create({
 			text: "Cancel",
 			position: vec2(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y + CANCEL_BUTTON_Y_OFFSET),
 			callback: () => this.hide(),

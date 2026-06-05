@@ -1,12 +1,12 @@
 import { vec2 } from "@Models/Geometry";
-import { createUIButton } from "Client/Components/UIButton";
+import { create } from "Client/Components/UIButton";
 import { openLinksPanel } from "Client/Screens/Title/Components/LinksPanel";
 import * as constants from "@Constants/constants";
 import { t } from "@i18n/i18n";
 
 export function render(y: number) {
 	const title = t("title.links");
-	const button = createUIButton({
+	const button = create({
 		text: `🔗 ${title}`,
 		position: vec2(constants.MIDDLE_SCREEN_X, y),
 		callback: openLinksPanel,

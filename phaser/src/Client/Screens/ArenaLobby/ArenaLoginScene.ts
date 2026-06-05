@@ -7,7 +7,7 @@ import {
 	titleTextConfig,
 } from "@Constants/constants";
 import * as io from "@PhaserIO";
-import { createUIButton, Button } from "Client/Components/UIButton";
+import { create, Button } from "Client/Components/UIButton";
 import { createModal } from "Client/Components/Modal";
 import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
@@ -229,7 +229,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				.createFromHTML(formHTML);
 			this.formElement!.setOrigin(0.5);
 
-			const cancelBtn = createUIButton({
+			const cancelBtn = create({
 				text: "Cancel",
 				position: vec2(
 					MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
@@ -244,7 +244,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttons.push(cancelBtn);
 			this.buttonContainer?.add(cancelBtn.container);
 
-			const submitBtn = createUIButton({
+			const submitBtn = create({
 				text: "Submit",
 				position: vec2(
 					MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
@@ -297,7 +297,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 				: this.guestUpgradeMode
 					? "Convert Account"
 					: "Create Account";
-			const regBtn = createUIButton({
+			const regBtn = create({
 				text: primaryButtonLabel,
 				position: vec2(MIDDLE_SCREEN.x, buttonY),
 				callback: () => {
@@ -309,7 +309,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(regBtn.container);
 
 			// Back to Login
-			const backBtn = createUIButton({
+			const backBtn = create({
 				text:
 					this.accountManagementMode || this.guestUpgradeMode ? "Back to Lobby" : "Back to Login",
 				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_REGISTER),
@@ -353,7 +353,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.bindForgotPasswordLink();
 
 			// Login
-			const loginBtn = createUIButton({
+			const loginBtn = create({
 				text: "LOGIN",
 				position: vec2(MIDDLE_SCREEN.x, buttonY),
 				callback: () => {
@@ -365,7 +365,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(loginBtn.container);
 
 			// Register Switch
-			const regBtn = createUIButton({
+			const regBtn = create({
 				text: "REGISTER",
 				position: vec2(
 					MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
@@ -381,7 +381,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(regBtn.container);
 
 			// Guest
-			const guestBtn = createUIButton({
+			const guestBtn = create({
 				text: "PLAY AS GUEST",
 				position: vec2(
 					MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
@@ -396,7 +396,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 			this.buttonContainer?.add(guestBtn.container);
 
 			// Back to Title
-			const backBtn = createUIButton({
+			const backBtn = create({
 				text: t("ui.menu.back"),
 				position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET_BACK),
 				callback: () => {
@@ -679,7 +679,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		modal.panel.add(text);
 
-		const closeBtn = createUIButton({
+		const closeBtn = create({
 			text: "OK",
 			position: vec2(0, options.buttonYOffset ?? MODAL_BUTTON_Y_OFFSET),
 			callback: () => {

@@ -1,6 +1,6 @@
 import { images } from "@assets";
 import * as effects from "@Effects/index";
-import { Button, createUIButton } from "Client/Components/UIButton";
+import { Button, create } from "Client/Components/UIButton";
 import * as constants from "@Constants/constants";
 import { vec2 } from "@Models/Geometry";
 import { createLogger } from "@Utils/Logger";
@@ -226,7 +226,7 @@ export class DebugScene extends Phaser.Scene {
 			const row = Math.floor(index / columns);
 			const x = startX + col * columnWidth;
 			const y = startY + row * verticalSpacing;
-			const btn = createUIButton({
+			const btn = create({
 				text: key.toUpperCase(),
 				position: vec2(x, y),
 				callback: () => this.runEffect(key),
@@ -236,7 +236,7 @@ export class DebugScene extends Phaser.Scene {
 		});
 
 		// Exit to Title button (only in list mode)
-		const exitBtn = createUIButton({
+		const exitBtn = create({
 			text: "EXIT",
 			position: vec2(constants.SCREEN_WIDTH - 180, constants.SCREEN_HEIGHT - 80),
 			callback: () => {
@@ -271,7 +271,7 @@ export class DebugScene extends Phaser.Scene {
 
 		// Create Back button if not existing
 		if (!this.backButton) {
-			this.backButton = createUIButton({
+			this.backButton = create({
 				text: "BACK",
 				position: vec2(constants.MIDDLE_SCREEN_X, constants.SCREEN_HEIGHT - 80),
 				callback: () => this.returnToList(),

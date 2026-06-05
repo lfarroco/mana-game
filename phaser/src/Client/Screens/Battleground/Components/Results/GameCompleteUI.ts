@@ -151,7 +151,7 @@ export async function displayGameComplete(
 
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
-			UIButton.createUIButton({
+			UIButton.create({
 				text: label,
 				position: Geometry.vec2(panelX, panelY + 50 + i * 100),
 				callback: callback,
@@ -210,7 +210,7 @@ export async function displayGameComplete(
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 
-		const btn = UIButton.createUIButton({
+		const btn = UIButton.create({
 			text: i18n.t("results.buttons.wishlist"),
 			position: Geometry.vec2(panelX, wishlistPanelY + 30),
 			callback: async () => {

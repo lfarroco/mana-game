@@ -7,7 +7,7 @@ import * as GhostStore from "@Models/GhostStore";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
-import { createUIButton, Button } from "Client/Components/UIButton";
+import { create, Button } from "Client/Components/UIButton";
 import { vec2 } from "@Models/Geometry";
 import { t } from "@i18n/i18n";
 import { createLogger } from "@Utils/Logger";
@@ -95,7 +95,7 @@ export async function transitionToCombatPhase(
 }
 
 export function showReadyButton(payload: { enemies: Unit[] }): Button {
-	const readyButton = createUIButton({
+	const readyButton = create({
 		text: t("ui.ready"),
 		position: vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
 		callback: () => {

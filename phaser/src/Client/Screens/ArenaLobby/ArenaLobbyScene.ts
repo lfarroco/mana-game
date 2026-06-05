@@ -8,7 +8,7 @@ import {
 } from "@Constants/constants";
 import * as io from "@PhaserIO";
 import { createModal, type Modal } from "Client/Components/Modal";
-import { createUIButton, Button } from "Client/Components/UIButton";
+import { create, Button } from "Client/Components/UIButton";
 import { CloudsBackground } from "Client/Components/cloudBackground/CloudsBackground";
 import { t } from "@i18n/i18n";
 import { vec2 } from "@Models/Geometry";
@@ -221,7 +221,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
-		const casualBtn = createUIButton({
+		const casualBtn = create({
 			text: "CASUAL",
 			position: vec2(MIDDLE_SCREEN.x, buttonY),
 			callback: async () => {
@@ -232,7 +232,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(casualBtn);
 
-		const rankedBtn = createUIButton({
+		const rankedBtn = create({
 			text: "RANKED",
 			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
 			callback: async () => {
@@ -243,7 +243,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(rankedBtn);
 
-		const leaderboardBtn = createUIButton({
+		const leaderboardBtn = create({
 			text: "LEADERBOARD",
 			position: vec2(
 				MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
@@ -257,7 +257,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(leaderboardBtn);
 
-		this.accountButton = createUIButton({
+		this.accountButton = create({
 			text: "ACCOUNT",
 			position: vec2(
 				MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
@@ -275,7 +275,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(this.accountButton);
 		this.accountButton.container.setVisible(false);
 
-		const logoutBtn = createUIButton({
+		const logoutBtn = create({
 			text: "LOGOUT",
 			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
 			callback: async () => {
@@ -291,7 +291,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(logoutBtn);
 
-		const backBtn = createUIButton({
+		const backBtn = create({
 			text: t("ui.menu.back"),
 			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
 			callback: () => {
@@ -443,7 +443,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setPosition(0, RANKING_PAGE_TEXT_Y)
 			.setOrigin(0.5);
 
-		this.rankingPrevButton = createUIButton({
+		this.rankingPrevButton = create({
 			text: "Previous",
 			position: vec2(-210, RANKING_BUTTONS_Y),
 			callback: async () => {
@@ -452,14 +452,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				}
 			},
 		});
-		this.rankingNextButton = createUIButton({
+		this.rankingNextButton = create({
 			text: "Next",
 			position: vec2(210, RANKING_BUTTONS_Y),
 			callback: async () => {
 				await this.loadRankingPage(this.rankingCurrentPage + 1);
 			},
 		});
-		const closeButton = createUIButton({
+		const closeButton = create({
 			text: "Close",
 			position: vec2(0, RANKING_CLOSE_Y),
 			callback: () => {

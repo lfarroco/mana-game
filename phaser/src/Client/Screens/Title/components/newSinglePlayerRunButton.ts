@@ -5,7 +5,7 @@ import * as Effects from "../Effects";
 import * as i18n from "@i18n/i18n";
 
 export function render(y: number) {
-	return UIButton.createUIButton({
+	return UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
 		callback: () => Effects.startGame({ isMultiplayer: false }),
