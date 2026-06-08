@@ -4,10 +4,13 @@
  * Handles creation of new sessions and default state setup.
  */
 
-import { SessionData } from "@Core/Types";
-import { Unit, makeUnit } from "@Models/Entities/Unit";
-import { FORCE_ID_PLAYER } from "@Core/Combat/CombatConstants";
-import { generateEncounterOptions } from "./OptionGeneration";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
+import * as CombatConstants from "@Core/Combat/CombatConstants";
+import * as OptionGeneration from "./OptionGeneration";
+import * as logger from "@Utils/Logger";
+
+const log = logger.createLogger("SessionManagement");
 
 const generateRandomSessionSeed = (): string => {
 	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -42,18 +45,18 @@ export function createInitialSession(
 	playerId: string,
 	selectedCrystalId?: string,
 	explicitSeed?: string
-): SessionData {
+): Types.SessionData {
 	const seed = explicitSeed ?? generateRandomSessionSeed();
 	const initialSeed = seed;
 
-	const team: { units: Unit[] } = { units: [] };
+	const team: { units: Unit.Unit[] } = { units: [] };
 	if (selectedCrystalId) {
-		const coreUnit = makeUnit(FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
+		const coreUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
 		coreUnit.isCore = true;
 		team.units.push(coreUnit);
 	}
 
-	const session: SessionData = {
+	const session: Types.SessionData = {
 		id: "",
 		player_id: playerId,
 		session_type: { type: "singleplayer" },
@@ -71,7 +74,7 @@ export function createInitialSession(
 	};
 
 	// Generate initial options
-	const options = generateEncounterOptions(session);
+	const options = OptionGeneration.createEncounterOptions(session);
 	session.current_options = options;
 
 	return session;
@@ -81,19 +84,19 @@ export function createInitialSession(
  * Validate and apply a team repositioning update.
  * Ensures units are not added/removed/modified, only repositioned.
  */
-export function validateAndApplyTeamUpdate(
-	session: SessionData,
-	newTeam: { units: Unit[] }
-): { team: { units: Unit[] }; valid: boolean } {
+export function updateTeamAction(
+	session: Types.SessionData,
+	newUnits: Unit.Unit[]
+): Types.SessionData {
 	const currentUnits = session.team?.units || [];
-	const newUnits = newTeam?.units || [];
 
 	// Must have same number of units
 	if (currentUnits.length !== newUnits.length) {
-		return { team: session.team, valid: false };
+		log.warn(`Team update rejected: expected ${currentUnits.length} units, got ${newUnits.length}`);
+		return session;
 	}
 
-	const currentUnitMap = new Map<string, Unit>();
+	const currentUnitMap = new Map<string, Unit.Unit>();
 	currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
 
 	const validatedUnits = [];
@@ -103,12 +106,14 @@ export function validateAndApplyTeamUpdate(
 
 		// Must be an existing unit
 		if (!originalUnit) {
-			return { team: session.team, valid: false };
+			log.warn(`Team update rejected: unit with ID ${newUnit.id} does not exist in current team`);
+			return session;
 		}
 
 		// Card and rank must not change
 		if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
-			return { team: session.team, valid: false };
+			log.warn(`Team update rejected: unit with ID ${newUnit.id} has mismatched cardId or rank`);
+			return session;
 		}
 
 		// Position can change, everything else stays the same
@@ -119,5 +124,7 @@ export function validateAndApplyTeamUpdate(
 		validatedUnits.push(validatedUnit);
 	}
 
-	return { team: { units: validatedUnits }, valid: true };
+	session.team.units = validatedUnits;
+
+	return session;
 }

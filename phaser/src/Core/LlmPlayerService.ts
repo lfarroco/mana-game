@@ -1,16 +1,15 @@
-import { buildReplaySnapshot } from "@Core/ReplayManagement";
-import { createInitialSession, validateAndApplyTeamUpdate } from "@Core/SessionManagement";
-import { transitionToNextState } from "@Core/SessionTransitions";
-import { ActionPayload, PhaseOption, ReplaySnapshot, RunManifest, SessionData } from "@Core/Types";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
-import { getCardDefinition, hasCardDefinition } from "@Models/Entities/Card";
-import { registerCollection } from "@Models/Entities/Card";
-import { Unit } from "@Models/Entities/Unit";
+import * as ReplayManagement from "@Core/ReplayManagement";
+import * as SessionManagement from "@Core/SessionManagement";
+import * as SessionTransitions from "@Core/SessionTransitions";
+import * as Types from "@Core/Types";
+import * as BaseCollection from "@Data/BaseCollection";
+import * as Card from "@Models/Entities/Card";
+import * as Unit from "@Models/Entities/Unit";
 
 const BOARD_WIDTH = 3;
 const BOARD_HEIGHT = 3;
 
-registerCollection(BASE_COLLECTION_DATA);
+Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
 export type LlmPlayerServiceConfig = {
 	playerId: string;
@@ -88,7 +87,7 @@ export type LlmChoiceOption = {
 };
 
 export type LlmChoicesView = {
-	phase: SessionData["phase"];
+	phase: Types.SessionData["phase"];
 	round: number;
 	step: number;
 	wins: number;
@@ -99,14 +98,14 @@ export type LlmChoicesView = {
 export type LlmStateView = {
 	board: LlmBoardView;
 	choices: LlmChoicesView;
-	snapshot: ReplaySnapshot;
+	snapshot: Types.ReplaySnapshot;
 	actionCount: number;
 };
 
 export type LlmChoiceResult = {
 	selectedActionId: string;
 	state: LlmStateView;
-	manifest: RunManifest;
+	manifest: Types.RunManifest;
 };
 
 export type LlmPlayerService = {
@@ -114,22 +113,22 @@ export type LlmPlayerService = {
 	viewChoices(): LlmChoicesView;
 	viewCardDetails(cardId: string): LlmCardDetails;
 	arrangeBoard(moves: BoardMove[]): LlmBoardView;
-	makeChoice(selection: number | string, payload?: ActionPayload): LlmChoiceResult;
+	makeChoice(selection: number | string, payload?: Types.Action): LlmChoiceResult;
 	viewState(): LlmStateView;
-	buildRunManifest(): RunManifest;
-	getSession(): SessionData;
+	buildRunManifest(): Types.RunManifest;
+	getSession(): Types.SessionData;
 };
 
 const cloneValue = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
-const serializeReactions = (reactions: Unit["reactions"]): LlmCardDetails["reactions"] =>
+const serializeReactions = (reactions: Unit.Unit["reactions"]): LlmCardDetails["reactions"] =>
 	reactions.map((reaction) => ({
 		trigger: reaction.effectId,
 		position: reaction.position,
 		effects: reaction.effects.map((effect) => effect.id),
 	}));
 
-const serializeBoardUnit = (unit: Unit): LlmBoardUnit => ({
+const serializeBoardUnit = (unit: Unit.Unit): LlmBoardUnit => ({
 	unitId: unit.id,
 	cardId: unit.cardId,
 	isCore: unit.isCore,
@@ -148,11 +147,11 @@ const serializeBoardUnit = (unit: Unit): LlmBoardUnit => ({
 });
 
 const serializeCardDetails = (cardId: string): LlmCardDetails => {
-	if (!hasCardDefinition(cardId)) {
+	if (!Card.hasCardDefinition(cardId)) {
 		throw new Error(`Card ${cardId} is not registered`);
 	}
 
-	const card = getCardDefinition(cardId);
+	const card = Card.getCardDefinition(cardId);
 	return {
 		id: card.id,
 		pic: card.pic,
@@ -168,7 +167,7 @@ const serializeCardDetails = (cardId: string): LlmCardDetails => {
 	};
 };
 
-const createBoardCells = (units: Unit[]): LlmBoardCell[] => {
+const createBoardCells = (units: Unit.Unit[]): LlmBoardCell[] => {
 	const cells: LlmBoardCell[] = [];
 
 	for (let y = 0; y < BOARD_HEIGHT; y++) {
@@ -192,7 +191,7 @@ const createBoardCells = (units: Unit[]): LlmBoardCell[] => {
 	return cells;
 };
 
-const viewBoardFromSession = (session: SessionData): LlmBoardView => {
+const viewBoardFromSession = (session: Types.SessionData): LlmBoardView => {
 	const sortedUnits = [...session.team.units].sort((left, right) => {
 		if (left.position.y !== right.position.y) {
 			return left.position.y - right.position.y;
@@ -208,7 +207,7 @@ const viewBoardFromSession = (session: SessionData): LlmBoardView => {
 	};
 };
 
-const viewChoicesFromSession = (session: SessionData): LlmChoicesView => {
+const viewChoicesFromSession = (session: Types.SessionData): LlmChoicesView => {
 	const options = session.current_options;
 
 	return {
@@ -222,14 +221,14 @@ const viewChoicesFromSession = (session: SessionData): LlmChoicesView => {
 			id: option.id,
 			...("label" in option ? { label: option.label } : {}),
 			...("cost" in option ? { cost: option.cost } : {}),
-			...(hasCardDefinition(option.id)
+			...(Card.hasCardDefinition(option.id)
 				? { cardDetails: serializeCardDetails(option.id) }
 				: {}),
 		})),
 	};
 };
 
-const resolveChoice = (session: SessionData, selection: number | string): PhaseOption => {
+const resolveChoice = (session: Types.SessionData, selection: number | string): Types.PhaseOption => {
 	const options = session.current_options;
 
 	if (typeof selection === "number") {
@@ -248,7 +247,7 @@ const resolveChoice = (session: SessionData, selection: number | string): PhaseO
 	return option;
 };
 
-const assertBoardMoveInputs = (moves: BoardMove[], units: Unit[]): void => {
+const assertBoardMoveInputs = (moves: BoardMove[], units: Unit.Unit[]): void => {
 	const unitIds = new Set(units.map((unit) => unit.id));
 	const movedIds = new Set<string>();
 
@@ -269,7 +268,7 @@ const assertBoardMoveInputs = (moves: BoardMove[], units: Unit[]): void => {
 	}
 };
 
-const buildArrangedTeam = (session: SessionData, moves: BoardMove[]): { units: Unit[] } => {
+const buildArrangedTeam = (session: Types.SessionData, moves: BoardMove[]): { units: Unit.Unit[] } => {
 	assertBoardMoveInputs(moves, session.team.units);
 
 	const movesByUnitId = new Map(moves.map((move) => [move.unitId, move]));
@@ -294,7 +293,7 @@ const buildArrangedTeam = (session: SessionData, moves: BoardMove[]): { units: U
 		occupiedPositions.add(key);
 	}
 
-	const { team, valid } = validateAndApplyTeamUpdate(session, { units: arrangedUnits });
+	const { team, valid } = SessionManagement.updateTeamAction(session, { units: arrangedUnits });
 	if (!valid) {
 		throw new Error("Board arrangement was rejected by team validation");
 	}
@@ -305,18 +304,17 @@ const buildArrangedTeam = (session: SessionData, moves: BoardMove[]): { units: U
 const createManifest = (
 	config: LlmPlayerServiceConfig,
 	initialSeed: string,
-	actions: RunManifest["actions"] = []
-): RunManifest => ({
+): Types.RunManifest => ({
 	runId: config.runId || `llm-run-${config.playerId}-${initialSeed}`,
 	playerId: config.playerId,
 	selectedCrystalId: config.selectedCrystalId,
 	initialSeed,
 	clientVersion: config.clientVersion || "llm-player-service",
-	actions,
+	actions: [],
 });
 
 export function createLlmPlayerService(config: LlmPlayerServiceConfig): LlmPlayerService {
-	let session = createInitialSession(
+	let session = SessionManagement.createInitialSession(
 		config.playerId,
 		config.selectedCrystalId,
 		config.initialSeed
@@ -326,7 +324,7 @@ export function createLlmPlayerService(config: LlmPlayerServiceConfig): LlmPlaye
 	const buildState = (): LlmStateView => ({
 		board: viewBoardFromSession(session),
 		choices: viewChoicesFromSession(session),
-		snapshot: buildReplaySnapshot(session),
+		snapshot: ReplayManagement.buildReplaySnapshot(session),
 		actionCount: manifest.actions.length,
 	});
 
@@ -352,21 +350,23 @@ export function createLlmPlayerService(config: LlmPlayerServiceConfig): LlmPlaye
 			return viewBoardFromSession(session);
 		},
 
-		makeChoice(selection: number | string, payload?: ActionPayload): LlmChoiceResult {
+		makeChoice(selection: number | string, action: Types.Action): LlmChoiceResult {
 			const selectedOption = resolveChoice(session, selection);
 			const nextAction = {
 				sequence: manifest.actions.length + 1,
-				actionId: selectedOption.id,
-				...(payload !== undefined ? { payload } : {}),
+				action,
 				teamSnapshot: cloneValue(session.team),
 			};
 
 			manifest = {
 				...manifest,
-				actions: [...manifest.actions, nextAction],
+				actions: [
+					...manifest.actions,
+					nextAction,
+				],
 			};
 
-			session = transitionToNextState(session, selectedOption.id, payload).session;
+			session = SessionTransitions.transitionToNextState(session, action).session;
 
 			return {
 				selectedActionId: selectedOption.id,
@@ -379,11 +379,11 @@ export function createLlmPlayerService(config: LlmPlayerServiceConfig): LlmPlaye
 			return buildState();
 		},
 
-		buildRunManifest(): RunManifest {
+		buildRunManifest(): Types.RunManifest {
 			return cloneValue(manifest);
 		},
 
-		getSession(): SessionData {
+		getSession(): Types.SessionData {
 			return cloneValue(session);
 		},
 	};

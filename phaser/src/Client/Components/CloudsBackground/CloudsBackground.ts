@@ -3,7 +3,6 @@ import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBack
 import * as colorPresets from "./colorPresets";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as Logger from "@Utils/Logger";
-import * as io from "../../../io";
 
 const logger = Logger.createLogger("CloudsBackground");
 

@@ -1,13 +1,13 @@
-import { SessionData, PhaseOptions, PhaseType, ActionPayload, CombatState } from "@Core/Types";
-import { Unit } from "@Models/Entities/Unit";
-import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
-import { FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
+import * as Types from "@Core/Types";
+import * as Unit from "@Models/Entities/Unit";
+import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
+import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as GameLogic from "@Core/GameLogic";
-import { supabase } from "@lib/supabase";
-import { primeDeferredSession } from "@Multiplayer/MultiplayerManager";
-import { createLogger } from "@Utils/Logger";
+import * as supabase from "@lib/supabase";
+import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("RemoteServer");
+const logger = Logger.createLogger("RemoteServer");
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
@@ -31,13 +31,13 @@ const generateSessionSeed = (): string => {
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 };
 
-const getSessionCombatState = (session: unknown): CombatState | undefined => {
+const getSessionCombatState = (session: unknown): Types.CombatState | undefined => {
 	const combatState = (session as { combatState?: unknown })?.combatState;
 	if (!combatState || typeof combatState !== "object") {
 		return undefined;
 	}
 
-	return combatState as CombatState;
+	return combatState as Types.CombatState;
 };
 
 // export class RemoteServer implements GameServer {
@@ -57,10 +57,10 @@ const getSessionCombatState = (session: unknown): CombatState | undefined => {
 
 
 
-export async function createSession(_playerId: string, crystalId: string): Promise<SessionData> {
+export async function createSession(_playerId: string, crystalId: string): Promise<Types.SessionData> {
 	const sessionType = state.session.session_type;
 	const seed = generateSessionSeed();
-	const { data, error } = await supabase.functions.invoke("action", {
+	const { data, error } = await supabase.supabase.functions.invoke("action", {
 		body: {
 			actionId: "start_session",
 			payload: { selectedCrystalId: crystalId, sessionType, seed },
@@ -71,14 +71,14 @@ export async function createSession(_playerId: string, crystalId: string): Promi
 		throw new Error(`Failed to create session: ${error.message}`);
 	}
 
-	const session = { ...(data as SessionData), session_type: sessionType };
-	primeDeferredSession(session, crystalId);
+	const session = { ...(data as Types.SessionData), session_type: sessionType };
+	MultiplayerManager.primeDeferredSession(session, crystalId);
 
 	return session;
 }
 
-export async function getSession(playerId: string): Promise<SessionData | null> {
-	const { data, error } = await supabase
+export async function getSession(playerId: string): Promise<Types.SessionData | null> {
+	const { data, error } = await supabase.supabase
 		.from("player_sessions")
 		.select("*")
 		.eq("player_id", playerId)
@@ -89,11 +89,11 @@ export async function getSession(playerId: string): Promise<SessionData | null> 
 		return null;
 	}
 
-	return data as SessionData | null;
+	return data as Types.SessionData | null;
 }
 
-export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
-	const { data: session, error } = await supabase
+export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOptions> {
+	const { data: session, error } = await supabase.supabase
 		.from("player_sessions")
 		.select("*")
 		.eq("player_id", playerId)
@@ -104,18 +104,18 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	}
 	const sessionCombatState = getSessionCombatState(session);
 
-	let combatState: CombatState | undefined = undefined;
+	let combatState: Types.CombatState | undefined = undefined;
 	if (session.phase === "combat") {
 		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
 			logger.debug("Using server-provided combat logs");
 			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
-				? (sessionCombatState.enemyTeam as Unit[])
+				? (sessionCombatState.enemyTeam as Unit.Unit[])
 				: [];
 			const units = Array.isArray(sessionCombatState.initialUnits)
-				? (sessionCombatState.initialUnits as Unit[])
+				? (sessionCombatState.initialUnits as Unit.Unit[])
 				: [];
 			const finalPlayerUnits = Array.isArray(sessionCombatState.finalPlayerUnits)
-				? (sessionCombatState.finalPlayerUnits as Unit[])
+				? (sessionCombatState.finalPlayerUnits as Unit.Unit[])
 				: undefined;
 			const wonCombat =
 				typeof sessionCombatState.wonCombat === "boolean"
@@ -124,7 +124,7 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 			combatState = {
 				units,
 				enemyTeam,
-				logs: sessionCombatState.logs as CombatLogEntry[],
+				logs: sessionCombatState.logs as ServerCombatEffects.CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
 					typeof sessionCombatState.enemyPlayerName === "string"
@@ -135,15 +135,15 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 				initialUnits: units,
 				nextSession:
 					typeof sessionCombatState.nextSession === "object" && sessionCombatState.nextSession
-						? (sessionCombatState.nextSession as SessionData)
+						? (sessionCombatState.nextSession as Types.SessionData)
 						: undefined,
 			};
 		} else {
 			logger.warn("Combat logs missing from session; simulating locally");
-			const simResult = GameLogic.simulateCombat(session as unknown as SessionData);
+			const simResult = GameLogic.simulateCombat(session as unknown as Types.SessionData);
 			combatState = {
 				units: simResult.initialUnits,
-				enemyTeam: simResult.initialUnits.filter((u: Unit) => u.force === FORCE_ID_CPU),
+				enemyTeam: simResult.initialUnits.filter((u: Unit.Unit) => u.force === CombatConstants.FORCE_ID_CPU),
 				logs: simResult.logs,
 				seed: session.seed,
 			};
@@ -154,7 +154,7 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 	const optionsList = session.current_options || [];
 
 	return {
-		phase: session.phase as PhaseType,
+		phase: session.phase as Types.PhaseType,
 		round: session.round,
 		options: optionsList,
 		team: session.team,
@@ -166,27 +166,26 @@ export async function getPhaseOptions(playerId: string): Promise<PhaseOptions> {
 
 export async function handleAction(
 	_playerId: string,
-	actionId: string,
-	payload?: ActionPayload
-): Promise<SessionData> {
+	action: Types.Action
+): Promise<Types.SessionData> {
 	const bodyPayload =
-		actionId === "combat_encounter" && (!payload || typeof payload === "object")
+		action.type === "combat_encounter" && (!action || typeof action === "object")
 			? {
-				...(payload || {}),
+				...(action || {}),
 				sessionType: state.session.session_type,
 			}
-			: payload;
+			: action;
 
-	const response = await supabase.functions.invoke("action", {
-		body: { actionId, payload: bodyPayload },
+	const response = await supabase.supabase.functions.invoke("action", {
+		body: { action: bodyPayload },
 	});
 
 	if (response.error) {
-		logger.error(`Failed to handle action ${actionId}:`, response.error);
-		throw new Error(`Failed to handle action ${actionId}: ${response.error.message}`);
+		logger.error(`Failed to handle action ${action.type}:`, response.error);
+		throw new Error(`Failed to handle action ${action.type}: ${response.error.message}`);
 	}
 
-	const nextSession = response.data as SessionData;
+	const nextSession = response.data as Types.SessionData;
 	nextSession.combatState = getSessionCombatState(response.data);
 	state.session = nextSession;
 	return nextSession;

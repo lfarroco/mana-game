@@ -39,7 +39,7 @@ type PhaseOptionsResult = Omit<Types.PhaseOptions, "round"> & { round?: number }
 
 export type PhaseTransport = {
 	getPhaseOptions: (state: State.State) => Promise<PhaseOptionsResult>;
-	sendOptionSelection: (optionId: string, payload?: Types.ActionPayload) => Promise<boolean>;
+	sendOptionSelection: (optionId: string, payload?: Types.Action) => Promise<boolean>;
 };
 
 

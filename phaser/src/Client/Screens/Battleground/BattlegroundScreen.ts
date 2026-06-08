@@ -91,6 +91,9 @@ async function executePhase(
 		case "encounter":
 			return await Encounter.displayOptions();
 
+		case "combat_encounter":
+			return await Encounter.displayOptions();
+
 		case "combat": {
 			const result = await handleCombatPhase.handleCombatPhase();
 			return result.type === "cancelled" ? null : result.session;

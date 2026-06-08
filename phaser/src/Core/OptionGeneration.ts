@@ -8,7 +8,6 @@
 import * as Types from "@Core/Types";
 import * as Card from "@Models/Entities/Card";
 import * as Seeding from "./Seeding";
-import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
 
 const ENCOUNTER_IDS = [
 	"upgrade_unit",
@@ -28,18 +27,9 @@ const ENCOUNTER_IDS = [
 	"gold_shop",
 ];
 
-/**
- * Generate the three encounter options available to the player.
- * Uses recent encounter history to avoid repetition within the last 12 encounters.
- */
-export function generateEncounterOptions(session: Types.SessionData): Types.PhaseOption[] {
-	// Check what phase we should be at for this turn
-	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, session.step);
-
-	// If the expected phase is combat, show combat_encounter as the only option (pre-combat warning)
-	if (expectedPhase === "combat") {
-		return [{ id: "combat_encounter" }];
-	}
+export function createEncounterOptions(
+	session: Types.SessionData,
+): Types.PhaseOption[] {
 
 	// Initialize encounter history if it doesn't exist
 	if (!session.encounter_history) {
@@ -147,21 +137,28 @@ function filterCardsByEffect(
  */
 export function generateShopOptions(
 	session: Types.SessionData,
-	triggerActionId?: string
+	action: Types.Action
 ): { options: Types.PhaseOption[] } {
-	let encounterId = null;
 
-	if (triggerActionId) {
-		encounterId = triggerActionId;
-	} else {
-		const previousStep = session.step - 1;
-		// Look for the most recent ENCOUNTER action at the previous step
-		const encounterActions = session.action_log.filter(
-			(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-		);
-		const lastEncounterAction = encounterActions[encounterActions.length - 1];
-		encounterId = lastEncounterAction ? lastEncounterAction.actionId : null;
+	if (action.type !== "select_encounter") {
+		throw new Error(`Expected action type 'select_encounter' for generating shop options, got '${action.type}'`);
 	}
+
+	const { encounterId } = action;
+
+	console.log("!! generating shop options for session:", session);
+
+	// if (triggerActionId) {
+	// 	encounterId = triggerActionId;
+	// } else {
+	// 	const previousStep = session.step - 1;
+	// 	// Look for the most recent ENCOUNTER action at the previous step
+	// 	const encounterActions = session.action_log.filter(
+	// 		(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
+	// 	);
+	// 	const lastEncounterAction = encounterActions[encounterActions.length - 1];
+	// 	encounterId = lastEncounterAction ? lastEncounterAction.action.type : null;
+	// }
 
 	// Determine number of options based on shop tier
 	let numOptions = 3; // Default for most encounters
@@ -172,10 +169,14 @@ export function generateShopOptions(
 	}
 
 	const filterType = getEncounterFilterType(encounterId);
+	console.log("!! will filter by encounter:", encounterId, "with filter type:", filterType);
 	let filteredCards = Card.getNonCores();
 
 	if (filterType) {
-		filteredCards = filterCardsByEffect(filteredCards, filterType);
+		filteredCards = filterCardsByEffect(
+			filteredCards,
+			filterType,
+		);
 	}
 
 	// Filter out cards where player already has a platinum (rank 4) unit

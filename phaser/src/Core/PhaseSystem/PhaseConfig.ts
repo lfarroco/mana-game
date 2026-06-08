@@ -1,33 +1,58 @@
-import { PhaseType } from "@Core/Types";
+import * as Types from "@Core/Types";
 
-export const ROUND_PHASES: Record<number, PhaseType[]> = {
-	1: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	2: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	3: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	4: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	5: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	6: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	7: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	8: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	9: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	10: ["encounter", "encounter", "encounter", "combat", "add_reaction_core"],
-	11: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	12: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	13: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	14: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-	15: ["encounter", "encounter", "encounter", "combat", "upgrade_core"],
-};
-
-export const DEFAULT_ROUND_PHASES: PhaseType[] = [
+// TODO: after round 10, stop adding upgrades
+const DEFAULT: Types.PhaseType[] = [
 	"encounter",
 	"encounter",
 	"encounter",
+	"combat_encounter",
 	"combat",
 	"upgrade_core",
 ];
 
-export function getPhaseForTurn(round: number, step: number): PhaseType {
-	const stepIndex = step - 1;
-	const roundPhases = ROUND_PHASES[round] || DEFAULT_ROUND_PHASES;
-	return roundPhases[stepIndex];
+const ADD_REACTION_PHASES: Types.PhaseType[] = [
+	"encounter",
+	"encounter",
+	"encounter",
+	"combat_encounter",
+	"combat",
+	"add_reaction_core",
+];
+
+export const ROUND_PHASES: Record<number, Types.PhaseType[]> = {
+	1: DEFAULT,
+	2: ADD_REACTION_PHASES,
+	3: DEFAULT,
+	4: DEFAULT,
+	5: DEFAULT,
+	6: ADD_REACTION_PHASES,
+	7: DEFAULT,
+	8: DEFAULT,
+	9: DEFAULT,
+	10: ADD_REACTION_PHASES,
+	11: DEFAULT,
+	12: DEFAULT,
+	13: DEFAULT,
+	14: DEFAULT,
+	15: DEFAULT,
+};
+
+export function advanceToNextPhase(session: Types.SessionData) {
+
+	const nextPhase = getPhaseForTurn(session.round, session.step + 1);
+	if (!nextPhase) {
+		session.step = 0;
+		session.round += 1;
+	} else {
+		session.step += 1;
+	}
+	const phase = nextPhase ? nextPhase : getPhaseForTurn(session.round, session.step);
+
+	session.phase = phase;
+	session.current_options = [];
+}
+
+export function getPhaseForTurn(round: number, step: number): Types.PhaseType {
+	const roundPhases = ROUND_PHASES[round] || DEFAULT;
+	return roundPhases[step];
 }

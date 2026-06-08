@@ -68,14 +68,14 @@ export function replayManifest(manifest: Types.RunManifest, replayOptions?: Repl
 		// Board moves are never stored as separate log entries;
 		// instead each decision envelope carries a snapshot of the team state at decision time.
 		if (envelope.teamSnapshot) {
-			const { team, valid } = SessionManagement.validateAndApplyTeamUpdate(session, envelope.teamSnapshot);
+			const { team, valid } = SessionManagement.updateTeamAction(session, envelope.teamSnapshot);
 			if (valid) {
 				session = { ...session, team };
 			}
 		}
 
 		let combatEnemyTeamOptions: { combatEnemyTeam?: Unit.Unit[] } | undefined;
-		if (envelope.actionId === "combat_encounter") {
+		if (envelope.action.type === "combat_encounter") {
 			const storedTeam = replayOptions?.enemyTeams?.[combatIndex];
 			if (storedTeam !== undefined) {
 				combatEnemyTeamOptions = { combatEnemyTeam: storedTeam };
@@ -85,8 +85,7 @@ export function replayManifest(manifest: Types.RunManifest, replayOptions?: Repl
 
 		const { session: next } = SessionTransitions.transitionToNextState(
 			session,
-			envelope.actionId,
-			envelope.payload,
+			envelope.action,
 			combatEnemyTeamOptions
 		);
 		session = next;
@@ -215,11 +214,11 @@ function reconstructCombatState(session: Types.SessionData): Types.CombatState |
 	let reconstructedCombatState: Types.CombatState | null = null;
 
 	for (const entry of session.action_log ?? []) {
-		if (entry.actionId === "combat_encounter") {
+		if (entry.action.type === "combat_encounter") {
 			replaySession = applySavedCombatPositions(replaySession, session);
 		}
 
-		const result = SessionTransitions.transitionToNextState(replaySession, entry.actionId, entry.payload);
+		const result = SessionTransitions.transitionToNextState(replaySession, entry.action);
 		replaySession = result.session;
 		if (result.combatState) {
 			reconstructedCombatState = result.combatState;

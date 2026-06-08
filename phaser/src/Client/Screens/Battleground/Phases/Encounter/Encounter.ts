@@ -1,8 +1,7 @@
-import * as io from "../../../../../io";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Geometry from "@Models/Geometry";
-import * as constants from "../../../../../Constants";
+import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
@@ -191,11 +190,11 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		const height = ENCOUNTER_CARD_HEIGHT;
 		const spacing = ENCOUNTER_CARD_SPACING;
 
-		const x = constants.SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
+		const x = Constants.SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
 		let y = ENCOUNTER_CARD_BASE_Y + index * spacing;
 
 		if (encounters.length === 1) {
-			y = constants.SCREEN_HEIGHT / 2;
+			y = Constants.SCREEN_HEIGHT / 2;
 		}
 
 		const card = EncounterCard.createEncounterCard(container, {
@@ -224,7 +223,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 	if (!isCombatEncounter) {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
-			position: Geometry.vec2(constants.SCREEN_WIDTH - 260, constants.SCREEN_HEIGHT - 50),
+			position: Geometry.vec2(Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50),
 			callback: nextRoundCallback,
 		});
 

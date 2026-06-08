@@ -1,4 +1,4 @@
-import type { ActionEnvelope, ActionPayload, RunManifest } from "@Core/Types";
+import type { ActionEnvelope, Action, RunManifest } from "@Core/Types";
 
 const STORAGE_KEY_PREFIX = "mana_run_manifest_";
 
@@ -124,13 +124,13 @@ export class RunActionQueue {
 	 */
 	append(
 		actionId: string,
-		payload?: ActionPayload,
+		payload?: Action,
 		teamSnapshot?: ActionEnvelope["teamSnapshot"]
 	): void {
 		const envelope: ActionEnvelope = {
 			sequence: this._actions.length + 1,
 			actionId,
-			...(payload !== undefined ? { payload } : {}),
+			...(payload !== undefined ? { action: payload } : {}),
 			...(teamSnapshot !== undefined ? { teamSnapshot } : {}),
 		};
 		this._actions = [...this._actions, envelope];

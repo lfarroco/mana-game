@@ -1,10 +1,12 @@
-import { Unit } from "@Models/Entities/Unit";
-import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
+import * as Unit from "@Models/Entities/Unit";
+import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
 
 // Option types for different phases
 export type PhaseOption =
 	| { id: string; cost?: number; label?: string; recruitRank?: number } // Generic option with optional cost, label, and shop recruit metadata
-	| { id: "combat_encounter" }; // Pre-combat warning option
+	| { id: "combat_encounter" }
+	| { id: "end_combat" } // the combat result is in the sesion's combat state
+	;
 
 export type CombatContinuation = Omit<SessionData, "combatState">;
 
@@ -13,17 +15,24 @@ export type ActionLogEntry = {
 	round: number;
 	phase: PhaseType;
 	step: number;
-	actionId: string;
-	payload?: ActionPayload;
+	action: Action;
 };
 
 // Payload types for different actions
-export type ActionPayload =
-	| { orbId: string; targetUnitId: string } // orb shop actions
-	| { unitId: string } // discard unit action
-	| { targetSlot: number } // targeted shop recruit slot
-	| { team: { units: Unit[] } } // team update
-	| Record<string, unknown>; // other generic payloads
+export type Action =
+	| { type: "skip" }
+	| { type: "apply_orb"; orbId: string; targetUnitId: string }
+	| { type: "increase_core_max_life" }
+	| { type: "upgrade_core_power" }
+	| { type: "decrease_core_cooldown" }
+	| { type: "discard_unit"; unitId: string }
+	| { type: "recruit_unit"; unitId: string; targetSlot: Vec2 | null }
+	| { type: "update_team"; team: { units: Unit.Unit[] } }
+	| { type: "combat_encounter" } // can use "select_encounter" with a single option
+	| { type: "start_combat" }
+	| { type: "select_encounter"; encounterId: string; }
+	| { type: "victory" }
+	;
 
 export type PhaseType =
 	| "encounter"
@@ -32,18 +41,19 @@ export type PhaseType =
 	| "upgrade_core"
 	| "add_reaction_core"
 	| "combat"
+	| "combat_encounter"
 	| "victory"
 	| "game_over";
 
 export type CombatState = {
-	enemyTeam: Unit[];
-	units: Unit[];
-	logs: CombatLogEntry[];
+	enemyTeam: Unit.Unit[];
+	units: Unit.Unit[];
+	logs: ServerCombatEffects.CombatLogEntry[];
 	seed: string;
 	enemyPlayerName?: string;
 	wonCombat?: boolean;
-	finalPlayerUnits?: Unit[];
-	initialUnits?: Unit[];
+	finalPlayerUnits?: Unit.Unit[];
+	initialUnits?: Unit.Unit[];
 	nextSession?: CombatContinuation;
 };
 
@@ -52,7 +62,7 @@ export type PhaseOptions = {
 	round: number;
 	options: PhaseOption[];
 	combatState?: CombatState;
-	team?: { units: Unit[] };
+	team?: { units: Unit.Unit[] };
 	wins?: number;
 	losses?: number;
 	runStats?: RunStats;
@@ -80,7 +90,7 @@ export type SessionData = {
 	seed: string;
 	initial_seed: string;
 	current_options: PhaseOption[];
-	team: { units: Unit[] };
+	team: { units: Unit.Unit[] };
 	wins: number;
 	losses: number;
 	action_log: ActionLogEntry[];
@@ -106,10 +116,9 @@ export type SessionData = {
  */
 export type ActionEnvelope = {
 	sequence: number;
-	actionId: string;
-	payload?: ActionPayload;
+	action: Action;
 	/** Board state at the moment this decision was taken. */
-	teamSnapshot?: { units: Unit[] };
+	teamSnapshot?: { units: Unit.Unit[] };
 };
 
 /**

@@ -4,7 +4,7 @@ import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { supabase } from "@lib/supabase";
 import * as GameLogic from "@Core/GameLogic";
-import type { SessionData, ActionPayload, CombatState } from "@Core/Types";
+import type { SessionData, Action, CombatState } from "@Core/Types";
 import type { TransitionToNextStateOptions } from "@Core/GameLogic";
 import { RunActionQueue } from "@Core/RunActionQueue";
 import { submitRunManifest } from "@Core/DeferredSubmission";
@@ -466,7 +466,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 			result = GameLogic.transitionToNextState(
 				deferredSession,
 				optionId,
-				effectivePayload as ActionPayload | undefined,
+				effectivePayload as Action | undefined,
 				transitionOptions
 			);
 		} catch (error) {
@@ -478,7 +478,7 @@ export async function sendOptionSelection(optionId: string, payload?: unknown): 
 		}
 
 		if (optionId !== "update_team" && runQueue) {
-			runQueue.append(optionId, effectivePayload as ActionPayload | undefined, teamSnapshot);
+			runQueue.append(optionId, effectivePayload as Action | undefined, teamSnapshot);
 		}
 
 		syncDeferredSession(result.session);

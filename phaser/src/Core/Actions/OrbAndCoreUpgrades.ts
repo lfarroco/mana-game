@@ -5,7 +5,10 @@
  * Pure functions that modify unit state based on orb type or core upgrade action.
  */
 
-import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
+import * as Logger from "@Utils/Logger";
+
+const logger = Logger.createLogger("orbAndCoreUpgrades");
 
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
 const CORE_STAT_SCALING_FACTOR = 0.1;
@@ -17,7 +20,7 @@ const CORE_ROUND_SCALING = 10;
  * Apply upgrade_orb: Rank up a unit (increase stats by 1.75x).
  * This aligns with the new bronze->silver->gold upgrade progression.
  */
-function applyUpgradeOrb(unit: Unit): void {
+function applyUpgradeOrb(unit: Unit.Unit): void {
 	unit.rank = (unit.rank || 1) + 1;
 	const rankMultiplier = 1.75;
 	unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
@@ -28,20 +31,20 @@ function applyUpgradeOrb(unit: Unit): void {
 /**
  * Apply absorb_power_orb: Take 25% power from units in the same row.
  */
-function applyAbsorbPowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
+function applyAbsorbPowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): number {
 	let totalAbsorbed = 0;
-	allUnits.forEach((u: Unit) => {
+	allUnits.forEach((u: Unit.Unit) => {
 		if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
 			const absorbed = Math.floor(u.power * 0.25);
 			if (absorbed > 0) {
-				applyPowerDelta(u, -absorbed, true);
+				Unit.applyPowerDelta(u, -absorbed, true);
 				totalAbsorbed += absorbed;
 			}
 		}
 	});
 
 	if (totalAbsorbed > 0) {
-		applyPowerDelta(targetUnit, totalAbsorbed, true);
+		Unit.applyPowerDelta(targetUnit, totalAbsorbed, true);
 	}
 
 	return totalAbsorbed;
@@ -50,20 +53,20 @@ function applyAbsorbPowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 /**
  * Apply distribute_power_orb: Give 50% of unit's power to units in the same row.
  */
-function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
+function applyDistributePowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): number {
 	const powerToDistribute = Math.floor(targetUnit.power * 0.5);
 	if (powerToDistribute <= 0) return 0;
 
-	applyPowerDelta(targetUnit, -powerToDistribute, true);
+	Unit.applyPowerDelta(targetUnit, -powerToDistribute, true);
 
 	const targets = allUnits.filter(
-		(u: Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
+		(u: Unit.Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
 	);
 
 	if (targets.length > 0) {
 		const powerPerTarget = Math.floor(powerToDistribute / targets.length);
-		targets.forEach((u: Unit) => {
-			applyPowerDelta(u, powerPerTarget, true);
+		targets.forEach((u: Unit.Unit) => {
+			Unit.applyPowerDelta(u, powerPerTarget, true);
 		});
 	}
 
@@ -73,7 +76,7 @@ function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 /**
  * Apply increase_power_on_X orb: Boost power of units with a specific effect.
  */
-function applyIncreasePowerOrb(targetUnit: Unit, effectType: string): number {
+function applyIncreasePowerOrb(targetUnit: Unit.Unit, effectType: string): number {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return 0;
 	}
@@ -86,7 +89,7 @@ function applyIncreasePowerOrb(targetUnit: Unit, effectType: string): number {
 /**
  * Apply increase_critical_on_X orb: Add critical strike chance to units with a specific effect.
  */
-function applyIncreaseCriticalOrb(targetUnit: Unit, effectType: string): boolean {
+function applyIncreaseCriticalOrb(targetUnit: Unit.Unit, effectType: string): boolean {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return false;
 	}
@@ -103,7 +106,7 @@ function applyIncreaseCriticalOrb(targetUnit: Unit, effectType: string): boolean
 /**
  * Apply decrease_cooldown_on_X orb: Reduce cooldown for units with a specific effect.
  */
-function applyDecreaseCooldownOrb(targetUnit: Unit, effectType: string): number {
+function applyDecreaseCooldownOrb(targetUnit: Unit.Unit, effectType: string): number {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return 0;
 	}
@@ -118,56 +121,53 @@ function applyDecreaseCooldownOrb(targetUnit: Unit, effectType: string): number 
  * Returns the list of update messages describing what happened.
  */
 export function applyOrb(
-	allUnits: Unit[],
+	allUnits: Unit.Unit[],
 	targetUnitId: string,
 	orbId: string
-): string[] {
-	const targetUnit = allUnits.find((u: Unit) => u.id === targetUnitId);
+) {
+	const targetUnit = allUnits.find((u: Unit.Unit) => u.id === targetUnitId);
 	if (!targetUnit) {
-		return [`Target unit ${targetUnitId} not found`];
+		logger.warn(`Orb application failed: target unit with ID ${targetUnitId} not found`);
+		return;
 	}
-
-	const updates: string[] = [];
-	updates.push(`Applying orb ${orbId} to ${targetUnitId}`);
 
 	if (orbId === "upgrade_orb") {
 		applyUpgradeOrb(targetUnit);
 	} else if (orbId === "absorb_power_orb") {
 		const absorbed = applyAbsorbPowerOrb(targetUnit, allUnits);
 		if (absorbed > 0) {
-			updates.push(`Absorbed ${absorbed} power from row units`);
+			logger.info(`Absorbed ${absorbed} power from row units`);
 		}
 	} else if (orbId === "distribute_power_orb") {
 		const distributed = applyDistributePowerOrb(targetUnit, allUnits);
 		if (distributed > 0) {
-			updates.push(`Distributed ${distributed} power to row units`);
+			logger.info(`Distributed ${distributed} power to row units`);
 		}
 	} else if (orbId.startsWith("increase_power_on_")) {
 		const effectType = orbId.replace("increase_power_on_", "");
 		const boost = applyIncreasePowerOrb(targetUnit, effectType);
 		if (boost > 0) {
-			updates.push(`Increased power by ${boost} (on ${effectType})`);
+			logger.info(`Increased power by ${boost} (on ${effectType})`);
 		}
 	} else if (orbId.startsWith("increase_critical_on_")) {
 		const effectType = orbId.replace("increase_critical_on_", "");
 		if (applyIncreaseCriticalOrb(targetUnit, effectType)) {
-			updates.push(`Increased critical (on ${effectType})`);
+			logger.info(`Increased critical (on ${effectType})`);
 		}
 	} else if (orbId.startsWith("decrease_cooldown_on_")) {
 		const effectType = orbId.replace("decrease_cooldown_on_", "");
 		const reduction = applyDecreaseCooldownOrb(targetUnit, effectType);
 		if (reduction > 0) {
-			updates.push(`Decreased cooldown by ${reduction}ms (on ${effectType})`);
+			logger.info(`Decreased cooldown by ${reduction}ms (on ${effectType})`);
 		}
 	}
 
-	return updates;
 }
 
 /**
  * Upgrade core max life by (10% of current + 10 * round).
  */
-export function upgradeCoreMaxLife(core: Unit, round: number): string {
+export function upgradeCoreMaxLife(core: Unit.Unit, round: number): string {
 	const lifeGain =
 		Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 	core.maxLife += lifeGain;
@@ -178,7 +178,7 @@ export function upgradeCoreMaxLife(core: Unit, round: number): string {
 /**
  * Upgrade core power by (10% of current + 10 * round).
  */
-export function upgradeCorepower(core: Unit, round: number): string {
+export function upgradeCorepower(core: Unit.Unit, round: number): string {
 	const powerGain =
 		Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 	core.power += powerGain;
@@ -189,7 +189,7 @@ export function upgradeCorepower(core: Unit, round: number): string {
 /**
  * Reduce core cooldown by 10%.
  */
-export function decreaseCoresCooldown(core: Unit): string {
+export function decreaseCoresCooldown(core: Unit.Unit): string {
 	const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
 	core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
 	return `Decreased Core Cooldown by ${Math.floor(reduction)}`;

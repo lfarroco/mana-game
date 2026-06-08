@@ -4,7 +4,7 @@ import * as makeUnit from "@Models/Entities/Unit";
 import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
-import * as c from "../../../../../Constants";
+import * as Constants from "@Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
@@ -31,12 +31,13 @@ export type ShopInteractionResult =
 		session: Types.SessionData;
 	};
 
-export function enableShopInteractions(tavernCharas: Chara.Chara[]): Promise<ShopInteractionResult> {
+export function enableShopInteractions(
+	tavernCharas: Chara.Chara[]
+): Promise<ShopInteractionResult> {
 	return new Promise((resolve) => {
 		let purchasedShopUnit: makeUnit.Unit | null = null;
 		let pendingPurchaseSession: Types.SessionData | null = null;
 		const tavernShopUnits = tavernCharas.map((chara) => Chara.getUnit(chara));
-		const tavernCardIds = new Set(tavernShopUnits.map((unit) => unit.cardId));
 
 		const tryResolvePurchased = () => {
 			if (!purchasedShopUnit || !pendingPurchaseSession) {
@@ -68,21 +69,19 @@ export function enableShopInteractions(tavernCharas: Chara.Chara[]): Promise<Sho
 			io.scene.events.off("sessionUpdated", onSessionUpdated);
 		};
 
-		const onSessionUpdated = ({ actionId, session }: { actionId: string; session: Types.SessionData }) => {
-			if (actionId === "skip" || actionId === "skip_shop") {
+		const onSessionUpdated = ({ action, session }: { action: Types.Action; session: Types.SessionData }) => {
+			if (action.type === "skip") {
 				cleanup();
 				resolve({ kind: "skipped", session });
 				return;
 			}
 
-			if (!tavernCardIds.has(actionId)) {
-				return;
-			}
+			if (action.type !== "recruit_unit") return
 
 			pendingPurchaseSession = session;
 
 			if (!purchasedShopUnit) {
-				const inferredShopUnit = tavernShopUnits.find((unit) => unit.cardId === actionId);
+				const inferredShopUnit = tavernShopUnits.find((unit) => unit.cardId === action.unitId);
 				if (inferredShopUnit) {
 					purchasedShopUnit = { ...inferredShopUnit };
 				}
@@ -91,6 +90,7 @@ export function enableShopInteractions(tavernCharas: Chara.Chara[]): Promise<Sho
 			tryResolvePurchased();
 		};
 
+		// TODO: this is bad
 		io.scene.events.on("sessionUpdated", onSessionUpdated);
 	});
 }
@@ -100,7 +100,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
-		const unit = makeUnit.makeUnit(c.FORCE_ID_PLAYER, spec.id, Geometry.vec2(0, 0));
+		const unit = makeUnit.makeUnit(Constants.FORCE_ID_PLAYER, spec.id, Geometry.vec2(0, 0));
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
@@ -187,7 +187,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		}
 
 		if (ownedCardIds.has(spec.id)) {
-			const borderRadius = (c.TILE_WIDTH * 0.8) / 2;
+			const borderRadius = (Constants.TILE_WIDTH * 0.8) / 2;
 			const animatedBorder = io.scene.add.graphics();
 			animatedBorder.lineStyle(2, theme.UI_SURFACE_ACCENT_COLOR, 1);
 			animatedBorder.strokeCircle(0, 0, borderRadius);
@@ -215,7 +215,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 
 		const titleText = io.scene.add
 			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title, {
-				...c.titleTextConfig,
+				...Constants.titleTextConfig,
 				color: theme.UI_TEXT_PRIMARY,
 			})
 			.setAlign("left");
@@ -310,7 +310,7 @@ function initShopCharaInput(chara: Chara.Chara): void {
 			return;
 		}
 
-		if (pointer.getDistance() > c.DRAG_CLICK_THRESHOLD) {
+		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD) {
 			return;
 		}
 

@@ -14,16 +14,14 @@
  * New code should import directly from specialized modules.
  */
 
-import * as Types from "@Core/Types";
 import * as BaseCollection from "@Data/BaseCollection";
 import * as Card from "@Models/Entities/Card";
-import * as ActionResolver from "./Actions/ActionResolver";
 
 // Re-export core session management
 export {
 	createInitialSession,
 	createDefaultRunStats,
-	validateAndApplyTeamUpdate,
+	updateTeamAction as validateAndApplyTeamUpdate,
 } from "./SessionManagement";
 
 // Re-export enemy generation
@@ -33,10 +31,7 @@ export { generateEnemyTeamForRound } from "./EnemyGeneration";
 export { stringToSeed, generateNextSeed, getDeterministicRandomOptionIndex } from "./Seeding";
 
 // Re-export option generation
-export { generateEncounterOptions, generateShopOptions } from "./OptionGeneration";
-
-// Re-export action resolution
-export { resolveAction } from "./Actions/ActionResolver";
+export { createEncounterOptions as generateEncounterOptions, generateShopOptions } from "./OptionGeneration";
 
 // Re-export combat simulation
 export { simulateCombat } from "./Combat/CombatSimulation";
@@ -44,9 +39,6 @@ export { simulateCombat } from "./Combat/CombatSimulation";
 // Re-export session transitions and phase logic
 export {
 	transitionToNextState,
-	pickOption,
-	pickRandomOption,
-	pickRandomOptionsUntilGameOver,
 	type TransitionToNextStateOptions,
 } from "./SessionTransitions";
 
@@ -69,18 +61,4 @@ export { constructCombatState } from "./ReplayManagement";
 // Register base collection to ensure unit definitions exist
 Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
-/**
- * Process a single turn: resolve action and return updated session without transitioning phase.
- * Kept for backward compatibility; new code should use transitionToNextState directly.
- */
-export function processSessionTurn(
-	session: Types.SessionData,
-	actionId: string,
-	payload?: Types.ActionPayload
-): { session: Types.SessionData; updates: string[] | undefined; combatResult?: { won: boolean } } {
-	const { team, updates } = ActionResolver.resolveAction(session, actionId, payload);
-	const nextSession = { ...session, team };
-	const combatResult = undefined;
 
-	return { session: nextSession, updates, combatResult };
-}

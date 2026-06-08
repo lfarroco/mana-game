@@ -5,48 +5,48 @@ import * as Unit from "@Models/Entities/Unit";
 const getCurrentPlayerId = () => state.session.player_id;
 
 async function dispatchAction(
-	actionId: string,
-	payload?: Types.ActionPayload
+	action: Types.Action
 ): Promise<Types.SessionData> {
-	return await GameServer.getServer().handleAction(getCurrentPlayerId(), actionId, payload);
+	return await GameServer.getServer().handleAction(getCurrentPlayerId(), action);
 }
 
 export async function purchaseUnit(
-	cardId: string,
-	targetSlot?: number
+	unitId: string,
+	targetSlot: Vec2 | null
 ): Promise<Types.SessionData> {
-	const success = await dispatchAction(
-		cardId,
-		typeof targetSlot === "number" ? { targetSlot } : undefined,
-	);
+	const success = await dispatchAction({
+		type: "recruit_unit",
+		unitId,
+		targetSlot
+	});
 
 	return success;
 }
 
 export async function sellUnit(unitId: string): Promise<Types.SessionData> {
-	return await dispatchAction(
-		"discard_unit",
-		{ unitId },
-	);
+	return await dispatchAction({
+		type: "discard_unit",
+		unitId
+	});
 }
 
 export async function skipPhase(): Promise<Types.SessionData> {
-	return await dispatchAction("skip");
+	return await dispatchAction({
+		type: "skip"
+	});
 }
 
 export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {
-	return await dispatchAction(encounterId);
-}
-
-export async function selectPhaseOption(optionId: string): Promise<Types.SessionData> {
-	return await dispatchAction(optionId);
+	return await dispatchAction({
+		type: "select_encounter",
+		encounterId
+	});
 }
 
 export async function handleAction(
-	actionId: string,
-	payload?: Types.ActionPayload
+	payload: Types.Action
 ): Promise<Types.SessionData> {
-	const success = await dispatchAction(actionId, payload);
+	const success = await dispatchAction(payload);
 
 	return success;
 }
@@ -55,19 +55,25 @@ export async function applyOrb(
 	orbId: string,
 	targetUnitId: string
 ): Promise<Types.SessionData> {
-	return await dispatchAction("apply_orb", { orbId, targetUnitId });
+	return await dispatchAction({
+		type: "apply_orb",
+		orbId,
+		targetUnitId
+	});
 }
 
 export async function completeVictory(): Promise<Types.SessionData> {
-	return await dispatchAction("victory");
+	return await dispatchAction({
+		type: "victory"
+	});
 }
 
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
 ): Promise<Types.SessionData> {
-	return await dispatchAction(
-		"update_team",
-		{ team }
-	);
+	return await dispatchAction({
+		type: "update_team",
+		team
+	});
 }
 

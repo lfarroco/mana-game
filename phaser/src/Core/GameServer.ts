@@ -17,8 +17,7 @@ export type GameServer = {
 
 	handleAction(
 		playerId: string,
-		actionId: string,
-		payload?: Types.ActionPayload,
+		action: Types.Action,
 	): Promise<Types.SessionData>;
 
 }

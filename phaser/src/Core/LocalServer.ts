@@ -2,7 +2,6 @@ import * as SessionManager from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
 import * as Types from "@Core/Types";
 
-
 export async function createSession(
 	playerId: string,
 	crystalId: string,
@@ -15,26 +14,24 @@ export async function createSession(
 
 export async function handleAction(
 	playerId: string,
-	actionId: string,
-	payload?: Types.ActionPayload
+	action: Types.Action
 ): Promise<Types.SessionData> {
 
 	const result = GameLogic.transitionToNextState(
 		state.session,
-		actionId,
-		payload,
+		action,
 	);
-	state.session = result.session;
+	state.session = result;
 
 	state.session.combatState = result.combatState;
 
 	io.scene.events.emit("sessionUpdated", {
-		actionId,
-		session: result.session,
+		action,
+		session: result,
 	})
 
-	SessionManager.updateSession(playerId, result.session);
+	SessionManager.updateSession(playerId, result);
 
-	return result.session;
+	return result;
 
 }
