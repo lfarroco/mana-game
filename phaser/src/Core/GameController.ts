@@ -68,6 +68,12 @@ export async function completeVictory(): Promise<Types.SessionData> {
 	});
 }
 
+export async function completeCombatEncounter(): Promise<Types.SessionData> {
+	return await dispatchAction({
+		type: "end_combat"
+	});
+}
+
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
 ): Promise<Types.SessionData> {

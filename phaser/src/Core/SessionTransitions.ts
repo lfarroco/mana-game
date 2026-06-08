@@ -58,6 +58,18 @@ function transitionToNextRoundEncounter(
 }
 
 function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
+
+	if (!session.combatState) {
+		throw new Error("Missing combat state on session after combat completion");
+	}
+
+	const { wonCombat } = session.combatState;
+
+	if (wonCombat)
+		session.wins += 1;
+	else
+		session.losses += 1;
+
 	if (session.wins >= 10) {
 		// TODO: it should be just "victory", the client decides the rest
 		return {
@@ -152,15 +164,39 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 }
 
 const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
-	select_encounter: (session, action) => ({
-		...session,
-		// For now it's ok, but it should depend on the selected encounter
-		phase: "shop",
-		current_options: GameLogic.generateShopOptions(
-			session,
-			action,
-		).options,
-	}),
+	select_encounter: (session, action) => {
+
+		if (
+			action.type === "select_encounter"
+			&& action.encounterId === "combat_encounter"
+		) {
+
+			logger.debug("Entering combat encounter phase. Executing combat...", session);
+
+			const nextSession = executeCombatPhase(session);
+
+			logger.debug("Combat phase completed. Session after combat:", nextSession);
+
+			return nextSession;
+
+		}
+
+		return {
+			...session,
+			// For now it's ok, but it should depend on the selected encounter
+			phase: "shop",
+			current_options: GameLogic.generateShopOptions(
+				session,
+				action,
+			).options,
+		}
+	},
+	end_combat: (session) => {
+
+		const session_ = transitionAfterCombat(session);
+
+		return session_;
+	},
 	// Recruit or upgrade a unit by card ID
 	// Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
 	recruit_unit: (session, action) => {
@@ -264,7 +300,14 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	// Encounter special transitions.
 	combat_encounter: (session) => {
 		// Handle combat execution (side effect)
-		return executeCombatPhase(session);
+
+		logger.debug("Entering combat encounter phase. Executing combat...", session);
+
+		const nextSession = executeCombatPhase(session);
+
+		logger.debug("Combat phase completed. Session after combat:", nextSession);
+
+		return nextSession;
 	},
 	upgrade_unit: (session) => ({
 		...session,
@@ -389,6 +432,8 @@ export function transitionToNextState(
 function executeCombatPhase(
 	session: Types.SessionData,
 ): Types.SessionData {
+
+	session.phase = "combat";
 	// TODO: support multiplayer
 	const enemyTeam =
 		EnemyGeneration.generateEnemyTeamForRound(

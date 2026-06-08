@@ -1,6 +1,6 @@
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as c from "../../../../../Constants";
+import * as c from "@Constants";
 import * as State from "@Models/State";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";

@@ -11,6 +11,9 @@ import * as UIManager from "./Components/UI/UI";
 import * as Phases from "./Phases";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
+import * as Logger from "@Utils/Logger";
+
+const logger = Logger.createLogger("BattlegroundScreen");
 
 type PhaseExecutionResult = Types.SessionData | null;
 
@@ -95,8 +98,7 @@ async function executePhase(
 			return await Encounter.displayOptions();
 
 		case "combat": {
-			const result = await handleCombatPhase.handleCombatPhase();
-			return result.type === "cancelled" ? null : result.session;
+			return await handleCombatPhase.handleCombatPhase();
 		}
 
 		case "shop":
@@ -129,6 +131,11 @@ async function runPhaseLoop() {
 		if (!nextSession) {
 			return;
 		}
+
+		logger.debug(
+			`Phase ${state.session.phase} completed. Transitioning to next phase...`,
+			nextSession,
+		);
 
 		updateSessionState(nextSession);
 

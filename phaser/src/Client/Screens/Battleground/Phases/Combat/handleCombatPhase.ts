@@ -1,4 +1,4 @@
-import type { CombatState, SessionData } from "@Core/Types";
+import * as Types from "@Core/Types";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
@@ -14,13 +14,14 @@ import * as Constants from "@Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import * as GameController from "@Core/GameController";
 
 const COMBAT_START_DELAY_MS = 300;
 
 type PlaybackDisposer = () => void;
 
 export type CombatPhaseResult =
-	| { type: "completed"; session: SessionData }
+	| { type: "completed"; session: Types.SessionData }
 	| { type: "cancelled" };
 
 const cloneValue = <T>(value: T): T => {
@@ -32,7 +33,7 @@ const cloneValue = <T>(value: T): T => {
 	// return JSON.parse(JSON.stringify(value)) as T;
 };
 
-const getInitialCombatUnits = (combatState: CombatState) => {
+const getInitialCombatUnits = (combatState: Types.CombatState) => {
 	if (combatState.initialUnits && combatState.initialUnits.length > 0) {
 		return cloneValue(combatState.initialUnits);
 	}
@@ -44,7 +45,7 @@ const getInitialCombatUnits = (combatState: CombatState) => {
 	return cloneValue(combatState.enemyTeam);
 };
 
-const getNextSession = (combatState: CombatState): SessionData => {
+const getNextSession = (combatState: Types.CombatState): Types.SessionData => {
 	const nextSession = combatState.nextSession;
 	if (!nextSession) {
 		throw new Error("Missing post-combat session while leaving combat phase");
@@ -128,7 +129,7 @@ const startCombatPlayback = async ({
 	onContinue,
 	onReplay,
 }: {
-	combatState: CombatState;
+	combatState: Types.CombatState;
 	disposers: ReturnType<typeof createPlaybackDisposerManager>;
 	onContinue: () => void;
 	onReplay: () => void;
@@ -156,7 +157,7 @@ const startCombatPlayback = async ({
 	io.scene.events.on("update", updateHandler);
 };
 
-const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
+const setupCombatBoard = async (combatState: Types.CombatState): Promise<void> => {
 	Board.setIsInputEnabled(false);
 	Board.setEnemyBoardVisible(true);
 
@@ -172,14 +173,14 @@ const setupCombatBoard = async (combatState: CombatState): Promise<void> => {
 	state.battleData.units.forEach(Unit.resetUnitStats);
 };
 
-export async function handleCombatPhase(): Promise<CombatPhaseResult> {
+export async function handleCombatPhase(): Promise<Types.SessionData | null> {
 	const { combatState } = state.session;
 
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
-	return await new Promise<CombatPhaseResult>((resolve, reject) => {
+	return await new Promise((resolve, reject) => {
 		const disposers = createPlaybackDisposerManager();
 
 		const cleanup = () => {
@@ -189,20 +190,18 @@ export async function handleCombatPhase(): Promise<CombatPhaseResult> {
 
 		const cancelPlayback = () => {
 			cleanup();
-			resolve({ type: "cancelled" });
+			resolve(null);
 		};
 
 		const unsubscribeFromExit = BattlegroundNavigation.onBattlegroundExit(cancelPlayback);
 
 		const continueToNextPhase = async () => {
 			cleanup();
-			try {
-				await resetBoard(true);
-				namesDisplay.updateNameDisplay({ enemyName: "" });
-				resolve({ type: "completed", session: getNextSession(combatState) });
-			} catch (error) {
-				reject(error);
-			}
+			await resetBoard(true);
+			namesDisplay.updateNameDisplay({ enemyName: "" });
+
+			const session = await GameController.completeCombatEncounter();
+			resolve(session);
 		};
 
 		const startPlayback = async () => {
@@ -218,10 +217,7 @@ export async function handleCombatPhase(): Promise<CombatPhaseResult> {
 			});
 		};
 
-		void startPlayback().catch((error) => {
-			cleanup();
-			reject(error);
-		});
+		void startPlayback()
 	});
 }
 

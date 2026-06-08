@@ -30,6 +30,7 @@ export type Action =
 	| { type: "update_team"; team: { units: Unit.Unit[] } }
 	| { type: "combat_encounter" } // can use "select_encounter" with a single option
 	| { type: "start_combat" }
+	| { type: "end_combat" }
 	| { type: "select_encounter"; encounterId: string; }
 	| { type: "victory" }
 	;
