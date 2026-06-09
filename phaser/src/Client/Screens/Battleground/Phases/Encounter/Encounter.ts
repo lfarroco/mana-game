@@ -150,7 +150,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 
 	disableInteraction = false;
 
-	const encounters = state.session.options
+	const options = state.session.options
 		.reduce((acc, option) => {
 			const encounter = allEncounters.find((e) => e.id === option.id);
 			if (encounter) {
@@ -175,17 +175,18 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		resolve(response);
 
 	};
-
-	const nextRoundCallback = async () => {
+	const okSkip = async (session_: Types.SessionData) => {
+		io.events.off("phaseSkipped", okSkip);
 		container.destroy(true);
+		resolve(session_);
+	}
+	container.on("destroy", () => {
+		io.events.off("phaseSkipped", okSkip);
+	});
 
-		// Use GameController to properly skip encounter phase
-		// TODO: this works, but shouldn't be the way
-		const response = await GameController.skipPhase();
-		resolve(response);
-	};
+	io.events.once("phaseSkipped", okSkip);
 
-	encounters.forEach(async (encounter, index) => {
+	options.forEach(async (encounter, index) => {
 		const width = ENCOUNTER_CARD_WIDTH;
 		const height = ENCOUNTER_CARD_HEIGHT;
 		const spacing = ENCOUNTER_CARD_SPACING;
@@ -193,7 +194,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		const x = Constants.SCREEN_WIDTH - ENCOUNTER_CARD_X_OFFSET;
 		let y = ENCOUNTER_CARD_BASE_Y + index * spacing;
 
-		if (encounters.length === 1) {
+		if (options.length === 1) {
 			y = Constants.SCREEN_HEIGHT / 2;
 		}
 
@@ -215,14 +216,11 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		});
 	});
 
-	// Only show skip button if:
-	// 1. Not showing combat_encounter (pre-combat phase)
-	const isCombatEncounter = encounters[0].id === "pre_combat";
-	if (!isCombatEncounter) {
+	if (state.session.phase !== "pre_combat") {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
-			callback: nextRoundCallback,
+			callback: io.Controller.skipPhase
 		});
 
 		container.add(btn.container);

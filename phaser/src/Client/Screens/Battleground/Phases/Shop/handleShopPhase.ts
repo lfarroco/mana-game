@@ -1,4 +1,3 @@
-import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 import * as Card from "@Models/Entities/Card";
 import * as Unit from "@Models/Entities/Unit";
@@ -12,9 +11,7 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 	const shopCardIds = session.options.map((o) => o.id);
 	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-	Shop.addSkipButton(async () => {
-		await GameController.skipPhase();
-	});
+	Shop.addSkipButton();
 
 	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);
 

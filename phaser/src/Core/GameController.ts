@@ -31,9 +31,14 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 }
 
 export async function skipPhase(): Promise<Types.SessionData> {
-	return await dispatchAction({
+
+	const session = await dispatchAction({
 		type: "skip"
 	});
+
+	io.events.emit("phaseSkipped", session);
+
+	return session;
 }
 
 export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {

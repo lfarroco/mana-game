@@ -7,11 +7,14 @@ import * as animation from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
 import * as Controller_ from "@Core/GameController";
+import events_ from "events";
 
 export let game: Phaser.Game;
 export let scene: Phaser.Scene;
 
 export const i18n = i18n_.t;
+
+export const events = new events_.EventEmitter();
 
 export const Controller = Controller_;
 

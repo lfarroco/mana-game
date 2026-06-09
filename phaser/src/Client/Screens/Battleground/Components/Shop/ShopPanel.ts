@@ -28,14 +28,14 @@ export const create = () => {
 	ShopState.container.setY(c.SCREEN_HEIGHT * -1);
 };
 
-export const addSkipButton = (callback: () => void): void => {
+export const addSkipButton = (): void => {
 	const skipButton = UIButton.create({
 		text: "Skip",
 		position: [
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
-		callback,
+		callback: io.Controller.skipPhase
 	});
 
 	ShopState.container?.add(skipButton.container);

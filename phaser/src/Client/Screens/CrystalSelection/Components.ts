@@ -8,12 +8,12 @@ import * as title from "./Components/Title";
 
 export function create() {
 	[
+		background,
 		paginationDots,
 		crystalDisplay,
 		navigationButtons,
 		actionButtons,
 		seedInput,
-		background,
 		title
 	].forEach(c => c.create());
 }
