@@ -17,6 +17,14 @@ const logger = Logger.createLogger("BattlegroundScreen");
 
 type PhaseExecutionResult = Types.SessionData | null;
 
+let initialized = false;
+function init() {
+	io.events.on("phase_finished", (nextSession: Types.SessionData) => {
+		logger.debug("Received phase_finished event. Transitioning to next phase...", nextSession);
+		handleCurrentPhase();
+	});
+}
+
 // TODO: should be part of the player board logic
 const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
 	if (!Chara.hasCharaById(unitId)) {
@@ -67,6 +75,11 @@ const updateSessionState = (nextSession: Types.SessionData) => {
 
 export const createBattlegroundScreen = async () => {
 
+	if (!initialized) {
+		init();
+		initialized = true;
+	}
+
 	Components.create();
 
 	AudioManager.playMusic("music_battlemap_vetruv");
@@ -78,7 +91,7 @@ export const createBattlegroundScreen = async () => {
 
 	// ~~~~~ // ~~~~~ //
 
-	await runPhaseLoop();
+	io.events.emit("phase_finished", state.session);
 
 };
 
@@ -125,21 +138,21 @@ async function executePhase(
 	}
 }
 
-async function runPhaseLoop() {
-	while (true) {
-		const nextSession = await executePhase(state.session.phase);
-		if (!nextSession) {
-			return;
-		}
-
-		logger.debug(
-			`Phase ${state.session.phase} completed. Transitioning to next phase...`,
-			nextSession,
-		);
-
-		updateSessionState(nextSession);
-
+async function handleCurrentPhase() {
+	const nextSession = await executePhase(state.session.phase);
+	if (!nextSession) {
+		return;
 	}
+
+	logger.debug(
+		`Phase ${state.session.phase} completed. Transitioning to next phase...`,
+		nextSession,
+	);
+
+	updateSessionState(nextSession);
+
+	io.events.emit("phase_finished", nextSession);
+
 }
 
 
