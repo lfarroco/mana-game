@@ -58,7 +58,7 @@ export function renderOrbShop(
 	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
 ) {
 
-	const orbIds = state.session.current_options.map((o) => o.id);
+	const orbIds = state.session.options.map((o) => o.id);
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);

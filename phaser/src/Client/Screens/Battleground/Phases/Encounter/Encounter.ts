@@ -150,7 +150,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 
 	disableInteraction = false;
 
-	const encounters = state.session.current_options
+	const encounters = state.session.options
 		.reduce((acc, option) => {
 			const encounter = allEncounters.find((e) => e.id === option.id);
 			if (encounter) {

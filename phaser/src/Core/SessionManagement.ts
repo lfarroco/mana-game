@@ -69,13 +69,13 @@ export function createInitialSession(
 		wins: 0,
 		losses: 0,
 		team,
-		current_options: [],
+		options: [],
 		runStats: createDefaultRunStats(),
 	};
 
 	// Generate initial options
 	const options = OptionGeneration.createEncounterOptions(session);
-	session.current_options = options;
+	session.options = options;
 
 	return session;
 }

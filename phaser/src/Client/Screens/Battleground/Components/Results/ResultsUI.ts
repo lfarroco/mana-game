@@ -75,7 +75,7 @@ export async function displayResults(
 	io.scene.children.bringToTop(resultsContainer);
 
 	const gameState = state;
-	const postCombatSession = gameState.session.combatState?.nextSession;
+	const postCombatSession = gameState.session;
 	const player = {
 		wins: postCombatSession?.wins ?? gameState.session.wins,
 		lives: 4 - (postCombatSession?.losses ?? gameState.session.losses),

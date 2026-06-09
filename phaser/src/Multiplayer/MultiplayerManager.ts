@@ -147,7 +147,7 @@ const cloneSession = (session: SessionData): SessionData =>
 	JSON.parse(JSON.stringify(session)) as SessionData;
 
 const getCurrentOptionIds = (session: SessionData): string[] => {
-	return session.current_options
+	return session.options
 		.map((opt) => (typeof opt?.id === "string" ? opt.id : undefined))
 		.filter((id): id is string => Boolean(id));
 };
@@ -172,7 +172,7 @@ const normalizeDeferredSession = (session: SessionData): SessionData => {
 };
 
 const getOptionsList = (session: SessionData): unknown[] => {
-	return session.current_options;
+	return session.options;
 };
 
 const getCombatState = (): PhaseOptions["combatState"] => {

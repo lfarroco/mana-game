@@ -18,44 +18,13 @@ import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("SessionTransitions");
 
+// @deprecated deleteme
 export type TransitionToNextStateOptions = {
 	combatEnemyTeam?: Unit.Unit[];
 	combatEnemyPlayerName?: string;
 };
 
-type ActionTransitionHandler = (
-	session: Types.SessionData,
-	action: Types.Action,
-) => Types.SessionData;
 
-// function transitionToNextEncounterStep(
-// 	session: Types.SessionData,
-// ): Types.SessionData {
-// 	const phase = PhaseConfig.getPhaseForTurn(session.round, session.step + 1);
-
-// 	const options = GameLogic.generateEncounterOptions(session);
-// 	return {
-// 		...session,
-// 		phase,
-// 		current_options: options,
-// 	}
-// }
-
-function transitionToNextRoundEncounter(
-	session: Types.SessionData,
-): Types.SessionData {
-	const nextRound = session.round + 1;
-	const tempSession = { ...session, round: nextRound, step: 1 };
-	const encounterResult = GameLogic.generateEncounterOptions(tempSession);
-
-	return {
-		...session,
-		phase: "encounter",
-		current_options: encounterResult,
-		step: 0,
-		round: session.round + 1,
-	};
-}
 
 function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 
@@ -64,6 +33,8 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 	}
 
 	const { wonCombat } = session.combatState;
+
+	session.combatState = undefined;
 
 	if (wonCombat)
 		session.wins += 1;
@@ -75,9 +46,8 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "victory",
-			current_options: [
-				{ id: "victory", label: "Continue Endless" },
-				{ id: "return_to_menu", label: "Return to Menu" },
+			options: [
+				{ id: "victory" },
 			],
 		};
 	}
@@ -86,7 +56,7 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "game_over",
-			current_options: [{ id: "return_to_menu", label: "Return to Menu" }],
+			options: [],
 		};
 	}
 
@@ -97,12 +67,12 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "upgrade_core",
-			current_options: [
+			options: [
 				{ id: "increase_core_max_life" },
 				{ id: "upgrade_core_power" },
 				{ id: "decrease_core_cooldown" },
 			],
-			step: session.step + 1,
+			step: nextStep,
 		};
 	}
 
@@ -110,16 +80,24 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "add_reaction_core",
-			current_options: [
+			options: [
 				{ id: "on_100_damage_effect" },
 				{ id: "on_crit_effect" },
 				{ id: "on_battle_start_effect" },
 			],
-			step: session.step + 1,
+			step: nextStep,
 		};
 	}
 
-	return transitionToNextRoundEncounter(session);
+	const encounterResult = GameLogic.generateEncounterOptions(session);
+
+	return {
+		...session,
+		phase: "encounter",
+		options: encounterResult,
+		step: 0,
+		round: session.round + 1,
+	};
 }
 
 function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
@@ -127,7 +105,7 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "game_over",
-			current_options: [{ id: "return_to_menu", label: "Return to Menu" }],
+			options: [],
 		};
 	}
 
@@ -138,7 +116,7 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "upgrade_core",
-			current_options: [
+			options: [
 				{ id: "increase_core_max_life" },
 				{ id: "upgrade_core_power" },
 				{ id: "decrease_core_cooldown" },
@@ -151,7 +129,7 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 		return {
 			...session,
 			phase: "add_reaction_core",
-			current_options: [
+			options: [
 				{ id: "on_100_damage_effect" },
 				{ id: "on_crit_effect" },
 				{ id: "on_battle_start_effect" },
@@ -163,44 +141,32 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 	return session;
 }
 
-const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
+const ACTION_HANDLERS: Record<string, (
+	session: Types.SessionData,
+	action: Types.Action,
+) => Types.SessionData> = {
 	select_encounter: (session, action) => {
 
-		if (
-			action.type === "select_encounter"
-			&& action.encounterId === "combat_encounter"
-		) {
+		if (action.type !== "select_encounter") throw new Error();
 
-			logger.debug("Entering combat encounter phase. Executing combat...", session);
-
-			const nextSession = executeCombatPhase(session);
-
-			logger.debug("Combat phase completed. Session after combat:", nextSession);
-
-			return nextSession;
-
-		}
+		if (action.encounterId === "combat_encounter")
+			return executeCombatPhase(session);
 
 		return {
 			...session,
 			// For now it's ok, but it should depend on the selected encounter
 			phase: "shop",
-			current_options: GameLogic.generateShopOptions(
+			options: GameLogic.generateShopOptions(
 				session,
 				action,
-			).options,
+			),
 		}
 	},
-	end_combat: (session) => {
-
-		const session_ = transitionAfterCombat(session);
-
-		return session_;
-	},
+	end_combat: transitionAfterCombat,
 	// Recruit or upgrade a unit by card ID
 	// Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
 	recruit_unit: (session, action) => {
-		mustBeOfType("recruit_unit", action);
+		if (action.type !== "recruit_unit") throw new Error();
 		const updatedSession = RecruitmentActions.recruitUnit(
 			session,
 			action.unitId,
@@ -210,7 +176,7 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 		return transitionToNextStep(updatedSession);
 	},
 	update_team: (session, action) => {
-		mustBeOfType("update_team", action);
+		if (action.type !== "update_team") throw new Error();
 
 		return SessionManagement.updateTeamAction(
 			session,
@@ -218,7 +184,7 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 		);
 	},
 	start_combat: (session, action) => {
-		mustBeOfType("start_combat", action);
+		if (action.type !== "start_combat") throw new Error();
 
 		return executeCombatPhase(session);
 	},
@@ -271,7 +237,7 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	// 	roundIncrement: 0,
 	// }),
 	discard_unit: (session, action) => {
-		mustBeOfType("discard_unit", action);
+		if (action.type !== "discard_unit") throw new Error();
 
 		RecruitmentActions.discardUnit(
 			session.team.units,
@@ -281,7 +247,8 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	},
 
 	apply_orb: (session, action) => {
-		mustBeOfType("apply_orb", action);
+		if (action.type !== "apply_orb") throw new Error();
+
 		const { orbId, targetUnitId } = action;
 		OrbAndCoreUpgrades.applyOrb(
 			session.team.units,
@@ -312,28 +279,33 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	upgrade_unit: (session) => ({
 		...session,
 		phase: "orb_shop",
-		current_options: [{ id: "upgrade_orb" }],
+		options: [{ id: "upgrade_orb" }],
 	}),
 	power_distributor: (session) => ({
 		...session,
 		phase: "orb_shop",
-		current_options: [{ id: "distribute_power_orb" }],
+		options: [{ id: "distribute_power_orb" }],
 	}),
 	power_absorber: (session) => ({
 		...session,
 		phase: "orb_shop",
-		current_options: [{ id: "absorb_power_orb" }],
+		options: [{ id: "absorb_power_orb" }],
 	}),
-	// TODO: the below logic is very wrong
-	// skip_encounter: (session) => ({
-	// 	nextPhase: "shop",
-	// 	nextOptions: GameLogic.generateShopOptions(session).options,
-	// 	stepIncrement: 0,
-	// }),
-
-	// Shop transitions.
 	skip: (session) => {
-		return transitionToNextEncounterStep(session);
+		const allowedSkipPhases: Types.PhaseType[] = [
+			"encounter",
+			"shop",
+			"orb_shop",
+			"upgrade_core",
+			"add_reaction_core"
+		];
+
+		if (!allowedSkipPhases.includes(session.phase)) {
+			logger.warn(`Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
+			return session;
+		}
+
+		return transitionToNextStep(session);
 	},
 	// Orb shop transitions.
 	//apply_orb: (session) => transitionToNextEncounterStep(session),
@@ -352,13 +324,6 @@ const ACTION_HANDLERS: Record<string, ActionTransitionHandler> = {
 	// on_crit_effect: (session) => transitionToNextRoundEncounter(session),
 	// on_battle_start_effect: (session) => transitionToNextRoundEncounter(session),
 
-	// return_to_menu: (session) => ({
-	// 	nextPhase: session.phase,
-	// 	nextOptions: session.current_options,
-	// 	stepIncrement: 0,
-	// 	roundIncrement: 0,
-	// }),
-
 	//shop: (session) => transitionToNextEncounterStep(session),
 };
 
@@ -373,7 +338,7 @@ function transitionToNextStep(
 	if (nextPhase === "encounter") {
 
 		const options = GameLogic.generateEncounterOptions(session);
-		session.current_options = options;
+		session.options = options;
 		session.phase = nextPhase;
 		session.step = session.step + 1;
 		return session;
@@ -381,7 +346,7 @@ function transitionToNextStep(
 	}
 
 	if (nextPhase === "combat_encounter") {
-		session.current_options = [
+		session.options = [
 			{ id: "combat_encounter" }
 		];
 		session.phase = nextPhase;
@@ -391,26 +356,16 @@ function transitionToNextStep(
 
 	return {
 		...session,
+		step: session.step + 1,
 		phase: nextPhase,
-		current_options: [],
+		options: [],
 	}
 }
 
 
-/**
- * Transition a session to the next phase based on a player action.
- *
- * Steps:
- * 1. Resolve the action (modify team/units)
- * 2. Advance the seed
- * 3. Determine next phase and options via actionId dispatch
- * 4. Execute combat if entering combat phase
- * 5. Return updated session with new phase state
- */
 export function transitionToNextState(
 	session: Types.SessionData,
 	action: Types.Action,
-	//options?: TransitionToNextStateOptions
 ): Types.SessionData {
 
 	logger.debug("Transitioning session with action:", action);
@@ -426,14 +381,12 @@ export function transitionToNextState(
 
 }
 
-/**
- * Execute combat phase: simulate, determine outcome, and set up results screen.
- */
 function executeCombatPhase(
 	session: Types.SessionData,
 ): Types.SessionData {
 
-	session.phase = "combat";
+	logger.debug("Entering combat encounter phase. Executing combat...", session);
+
 	// TODO: support multiplayer
 	const enemyTeam =
 		EnemyGeneration.generateEnemyTeamForRound(
@@ -450,45 +403,28 @@ function executeCombatPhase(
 	//session.runStats = simulation.finalState.session.runStats || session.runStats;
 	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
 
-	const { won: wonCombat } = CombatSimulation.determineCombatOutcome(simulation.finalState, simulation.logs);
-
 	const combatState: Types.CombatState = {
 		enemyTeam,
 		units: simulation.finalState.battleData.units,
 		seed: session.seed,
 		enemyPlayerName: "CPU",
-		wonCombat,
+		wonCombat: simulation.playerWon,
 		initialUnits: simulation.initialUnits,
 		finalPlayerUnits: playerUnits,
 		logs: simulation.logs,
-		nextSession: undefined,
 	};
 
-	session.combatState = combatState;
-
-	return {
+	const nextSession: Types.SessionData = {
 		...session,
-		current_options: [{
+		phase: "combat",
+		options: [{
 			id: "end_combat"
-		}]
-	}
+		}],
+		combatState: combatState
+	};
 
-	// const transitionResult = transitionAfterCombat(session);
+	logger.debug("Combat phase completed. Session after combat:", nextSession);
 
-	// session.phase = transitionResult.phase;
-	// session.current_options = transitionResult.current_options;
+	return nextSession;
 
-	// session.step = transitionResult.step;
-
-	// session.round = transitionResult.round;
-
-	// combatState.nextSession = session;
-
-	// return session;
-}
-
-function mustBeOfType<T extends Types.Action["type"]>(expectedType: T, action: Types.Action): asserts action is Extract<Types.Action, { type: T }> {
-	if (action.type !== expectedType) {
-		throw new Error(`Expected action of type ${expectedType}, but got ${action.type}`);
-	}
 }

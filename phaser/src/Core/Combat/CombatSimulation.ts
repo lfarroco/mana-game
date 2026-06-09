@@ -95,6 +95,7 @@ export function simulateCombat(session: SessionData, enemyTeam?: Unit[]): {
 	finalState: State;
 	initialUnits: Unit[];
 	logs: CombatLogEntry[];
+	playerWon: boolean;
 } {
 	const combatState = createCombatState(session, enemyTeam);
 
@@ -129,24 +130,20 @@ export function simulateCombat(session: SessionData, enemyTeam?: Unit[]): {
 		team: { units: persistedTeamUnits },
 	};
 
-	return { finalState: combatState, initialUnits, logs: effects.logs };
+	return {
+		finalState: combatState,
+		initialUnits,
+		logs: effects.logs,
+		playerWon: determineCombatOutcome(effects.logs),
+	};
 }
 
-/**
- * Determine combat outcome from simulation result.
- * Checks for outcome log or falls back to checking if core survived.
- */
+
 export function determineCombatOutcome(
-	finalState: State,
 	simLogs: CombatLogEntry[]
-): { won: boolean } {
-	const playerUnits = finalState.battleData.units.filter((u) => u.force === "PLAYER");
-	const outcomeLog = simLogs.find((l) => l.type === "outcome");
+): boolean {
+	const outcomeLog = simLogs.find((l) => l.type === "outcome")!;
 
-	if (outcomeLog) {
-		return { won: outcomeLog.result === "player_won" || outcomeLog.result === "both_won" };
-	}
+	return outcomeLog.result === "player_won" || outcomeLog.result === "both_won";
 
-	const core = playerUnits.find((u) => u.isCore);
-	return { won: !!(core && core.life > 0) };
 }

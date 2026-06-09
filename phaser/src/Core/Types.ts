@@ -51,11 +51,10 @@ export type CombatState = {
 	units: Unit.Unit[];
 	logs: ServerCombatEffects.CombatLogEntry[];
 	seed: string;
-	enemyPlayerName?: string;
-	wonCombat?: boolean;
-	finalPlayerUnits?: Unit.Unit[];
-	initialUnits?: Unit.Unit[];
-	nextSession?: CombatContinuation;
+	enemyPlayerName: string;
+	wonCombat: boolean;
+	finalPlayerUnits: Unit.Unit[];
+	initialUnits: Unit.Unit[];
 };
 
 export type PhaseOptions = {
@@ -90,7 +89,7 @@ export type SessionData = {
 	step: number;
 	seed: string;
 	initial_seed: string;
-	current_options: PhaseOption[];
+	options: PhaseOption[]; // IDEA: use to list allowed actions (including 'update_team')
 	team: { units: Unit.Unit[] };
 	wins: number;
 	losses: number;

@@ -96,7 +96,7 @@ export async function handlePhase() {
 			break;
 
 		case "shop":
-			const shopCardIds = session.current_options.map((o: Types.PhaseOption) => o.id);
+			const shopCardIds = session.options.map((o: Types.PhaseOption) => o.id);
 			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 			// ShopPanel.create(async () => {
@@ -130,7 +130,7 @@ export async function handlePhase() {
 
 
 		case "orb_shop":
-			const orbOptions = session.current_options;
+			const orbOptions = session.options;
 			if (!orbOptions || orbOptions.length === 0) {
 				logger.warn("Orb Shop options missing");
 				return;
@@ -154,14 +154,14 @@ export async function handlePhase() {
 			break;
 
 		case "upgrade_core":
-			const upgradeIds = session.current_options.map((o: Types.PhaseOption) => o.id);
+			const upgradeIds = session.options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// selection should already return the next phase
 			await handlePhase();
 			break;
 
 		case "add_reaction_core":
-			const reactionIds = session.current_options.map((o: Types.PhaseOption) => o.id);
+			const reactionIds = session.options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			// selection should already return the next phase

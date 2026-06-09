@@ -49,7 +49,7 @@ export function advanceToNextPhase(session: Types.SessionData) {
 	const phase = nextPhase ? nextPhase : getPhaseForTurn(session.round, session.step);
 
 	session.phase = phase;
-	session.current_options = [];
+	session.options = [];
 }
 
 export function getPhaseForTurn(round: number, step: number): Types.PhaseType {

@@ -28,7 +28,7 @@ export const initialState = (): State => {
 			step: 0,
 			seed: initialSeed,
 			initial_seed: initialSeed,
-			current_options: [],
+			options: [],
 			team: { units: [] },
 			wins: 0,
 			losses: 0,

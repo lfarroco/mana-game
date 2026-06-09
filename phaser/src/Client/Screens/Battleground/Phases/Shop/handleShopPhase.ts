@@ -9,7 +9,7 @@ import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 export async function handleShopPhase(): Promise<Types.SessionData> {
 
 	const { session } = state;
-	const shopCardIds = session.current_options.map((o) => o.id);
+	const shopCardIds = session.options.map((o) => o.id);
 	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 	Shop.addSkipButton(async () => {

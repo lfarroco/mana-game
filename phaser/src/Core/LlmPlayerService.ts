@@ -208,7 +208,7 @@ const viewBoardFromSession = (session: Types.SessionData): LlmBoardView => {
 };
 
 const viewChoicesFromSession = (session: Types.SessionData): LlmChoicesView => {
-	const options = session.current_options;
+	const options = session.options;
 
 	return {
 		phase: session.phase,
@@ -229,7 +229,7 @@ const viewChoicesFromSession = (session: Types.SessionData): LlmChoicesView => {
 };
 
 const resolveChoice = (session: Types.SessionData, selection: number | string): Types.PhaseOption => {
-	const options = session.current_options;
+	const options = session.options;
 
 	if (typeof selection === "number") {
 		const option = options[selection - 1];

@@ -138,27 +138,13 @@ function filterCardsByEffect(
 export function generateShopOptions(
 	session: Types.SessionData,
 	action: Types.Action
-): { options: Types.PhaseOption[] } {
+): Types.PhaseOption[] {
 
 	if (action.type !== "select_encounter") {
 		throw new Error(`Expected action type 'select_encounter' for generating shop options, got '${action.type}'`);
 	}
 
 	const { encounterId } = action;
-
-	console.log("!! generating shop options for session:", session);
-
-	// if (triggerActionId) {
-	// 	encounterId = triggerActionId;
-	// } else {
-	// 	const previousStep = session.step - 1;
-	// 	// Look for the most recent ENCOUNTER action at the previous step
-	// 	const encounterActions = session.action_log.filter(
-	// 		(a) => a.round === session.round && a.step === previousStep && a.phase === "encounter"
-	// 	);
-	// 	const lastEncounterAction = encounterActions[encounterActions.length - 1];
-	// 	encounterId = lastEncounterAction ? lastEncounterAction.action.type : null;
-	// }
 
 	// Determine number of options based on shop tier
 	let numOptions = 3; // Default for most encounters
@@ -169,7 +155,6 @@ export function generateShopOptions(
 	}
 
 	const filterType = getEncounterFilterType(encounterId);
-	console.log("!! will filter by encounter:", encounterId, "with filter type:", filterType);
 	let filteredCards = Card.getNonCores();
 
 	if (filterType) {
@@ -195,5 +180,5 @@ export function generateShopOptions(
 		recruitRank: getCardRank(card),
 	}));
 
-	return { options };
+	return options;
 }

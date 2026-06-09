@@ -45,15 +45,6 @@ const getInitialCombatUnits = (combatState: Types.CombatState) => {
 	return cloneValue(combatState.enemyTeam);
 };
 
-const getNextSession = (combatState: Types.CombatState): Types.SessionData => {
-	const nextSession = combatState.nextSession;
-	if (!nextSession) {
-		throw new Error("Missing post-combat session while leaving combat phase");
-	}
-
-	return nextSession;
-};
-
 const getCombatResultType = (outcome: string) =>
 	outcome === "player_lost" ? "defeat" : "victory";
 
