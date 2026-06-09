@@ -51,7 +51,11 @@ export function createInitialSession(
 
 	const team: { units: Unit.Unit[] } = { units: [] };
 	if (selectedCrystalId) {
-		const coreUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, selectedCrystalId, { x: 1, y: 1 });
+		const coreUnit = Unit.makeUnit(
+			CombatConstants.FORCE_ID_PLAYER,
+			selectedCrystalId,
+			[1, 1],
+		);
 		coreUnit.isCore = true;
 		team.units.push(coreUnit);
 	}

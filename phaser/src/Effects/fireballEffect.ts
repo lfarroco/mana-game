@@ -1,11 +1,11 @@
-import { images } from "@assets";
-import { delay, tween } from "@Utils/animation";
-import { impactEffect } from "./impactEffect";
-import { createLogger } from "@Utils/Logger";
+import * as Assets from "@assets";
+import * as animation from "@Utils/animation";
+import * as impactEffect from "./impactEffect";
+import * as Logger from "@Utils/Logger";
 
 // TODO: try this for some alternative effects (power up, absorb,orb upgrade)
 
-const logger = createLogger("fireballEffect");
+const logger = Logger.createLogger("fireballEffect");
 
 // --- Effect Configuration Constants ---
 const FIREBALL_TRACE_LIFESPAN = 200;
@@ -26,35 +26,33 @@ const WARN_ZERO_COORDINATE_PREFIX = "[fireballEffect] Aborting: Source or target
 
 export async function fireballEffect(
 	scene: Phaser.Scene,
-	source: { x: number; y: number },
-	target: { x: number; y: number }
+	[sx, sy]: Vec2,
+	[tx, ty]: Vec2
 ) {
 	if (
-		(source.x === ZERO_COORDINATE_VALUE && source.y === ZERO_COORDINATE_VALUE) ||
-		(target.x === ZERO_COORDINATE_VALUE && target.y === ZERO_COORDINATE_VALUE)
+		(sx === ZERO_COORDINATE_VALUE && sy === ZERO_COORDINATE_VALUE) ||
+		(tx === ZERO_COORDINATE_VALUE && ty === ZERO_COORDINATE_VALUE)
 	) {
 		logger.warn(
-			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${source.x},${source.y}), Target: (${target.x},${target.y})`
+			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${sx},${sy}), Target: (${tx},${ty})`
 		);
 		return;
 	}
 
 	const particles = fireball(
-		source,
-		target,
-		scene,
+		[sx, sy],
+		[tx, ty],
 		FIREBALL_TRACE_LIFESPAN,
 		FIREBALL_TRAVEL_DURATION
 	);
 	particles.setScale(FIREBALL_INITIAL_SCALE);
 
-	await delay(FIREBALL_TRAVEL_DURATION / 2);
+	await animation.delay(FIREBALL_TRAVEL_DURATION / 2);
 
-	await impactEffect({
-		scene,
-		location: target,
-		pointA: source,
-		pointB: target,
+	await impactEffect.impactEffect({
+		location: [tx, ty],
+		pointA: [sx, sy],
+		pointB: [tx, ty],
 	});
 
 	// Note: The centralized impactEffect handles its own cleanup
@@ -69,14 +67,16 @@ export async function fireballEffect(
 }
 
 function fireball(
-	source: Vec2,
-	target: Vec2,
-	scene: Scene,
+	[sx, sy]: Vec2,
+	[tx, ty]: Vec2,
 	lifespan: number,
 	travelDuration: number
 ) {
-	const angle = Phaser.Math.Angle.BetweenPoints(source, target);
-	const particles = scene.add.particles(source.x, source.y, images.white_dot.key, {
+	const angle = Phaser.Math.Angle.BetweenPoints(
+		{ x: sx, y: sy },
+		{ x: tx, y: ty },
+	);
+	const particles = io.scene.add.particles(sx, sy, Assets.images.white_dot.key, {
 		// make particles move in the direction of the angle, using the speed
 		speedX: {
 			min:
@@ -99,10 +99,10 @@ function fireball(
 		radial: true,
 	});
 
-	tween({
+	animation.tween({
 		targets: [particles],
-		x: target.x,
-		y: target.y,
+		x: tx,
+		y: ty,
 		duration: travelDuration,
 		onComplete: () => particles.stop(),
 	});

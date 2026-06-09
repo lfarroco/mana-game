@@ -61,7 +61,10 @@ const playPowerTransferEffect = (
 		return;
 	}
 
-	Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+	const source = Chara.mustGetCharaById(sourceId);
+	const target = Chara.mustGetCharaById(targetId);
+
+	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 		colors,
 		amplitudeMin: 5,
 		amplitudeMax: 15,

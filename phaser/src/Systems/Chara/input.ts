@@ -1,4 +1,4 @@
-import * as constants from "../../Constants";
+import * as constants from "@Constants";
 import * as GameController from "@Core/GameController";
 import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
@@ -53,9 +53,9 @@ export function init(chara: Chara.Chara) {
 
 			const x = zone.getData("cell-x") as number;
 			const y = zone.getData("cell-y") as number;
-			const tile = Geometry.vec2(x, y);
-			const vec = chara.getData("dragStartVec");
-			processOwnedUnitMoveRequest(state.unitId, tile, vec.x, vec.y);
+			const tile: Vec2 = [x, y];
+			const [sx, sy] = chara.getData("dragStartVec") as Vec2;
+			processOwnedUnitMoveRequest(state.unitId, tile, sx, sy);
 			state.wasDragSuccessful = true;
 		});
 
@@ -108,8 +108,7 @@ export const onDragStart =
 
 		const { chara } = handlerState;
 
-		const dragStartVec = Geometry.vec2(chara.x, chara.y);
-		chara.setData("dragStartVec", dragStartVec);
+		chara.setData("dragStartVec", [chara.x, chara.y]);
 
 		handlerState.wasDragSuccessful = false;
 
@@ -157,7 +156,7 @@ export const processOwnedUnitMoveRequest = (
 	}
 
 	const occupier = units.find(
-		(u) => u.id !== unitId && u.position.x === targetTile.x && u.position.y === targetTile.y
+		(u) => u.id !== unitId && Geometry.eqVec2(u.position, targetTile)
 	);
 	if (occupier) {
 		_executeSwap(unit, occupier, targetTile, units);
@@ -215,7 +214,12 @@ const movementRejected = (
 	const failedChara = Chara.mustGetCharaById(unitId);
 	Tooltip.hideTooltip();
 
-	animation.tween({ targets: [failedChara], ...Geometry.vec2(dragStartX, dragStartY) });
+	animation.tween({
+		targets: [failedChara],
+		x: dragStartX,
+		y: dragStartY,
+	});
+
 };
 
 export const onPointerDown =

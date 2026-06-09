@@ -5,7 +5,7 @@ import * as State from "@Models/State";
 import * as Encounter from "@Screens/Battleground/Phases/Encounter/Encounter";
 import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
 import * as Chara from "@Systems/Chara/Chara";
-import * as constants from "../../../Constants";
+import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
 import * as ResultsUI from "Client/Screens/Battleground/Results/ResultsUI";
 import * as Animations from "@Systems/Chara/Animations";
@@ -15,18 +15,18 @@ import * as Unit from "@Models/Entities/Unit";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
-import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
+import * as OrbShop from "@Screens/Battleground/Shop/OrbShop";
 
 // TODO: fire events instead?
 import * as livesDisplay from "./Components/UI/livesDisplay";
 import * as roundDisplay from "./Components/UI/roundDisplay";
 
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
-import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
-import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
-import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
+import * as CharaShop from "@Screens/Battleground/Shop/CharaShop";
+import * as ShopPanel from "@Screens/Battleground/Shop/ShopPanel";
+import * as EffectCardShop from "@Screens/Battleground/Shop/EffectCardShop";
 import * as Logger from "@Utils/Logger";
-import * as UIButton from "@Components/Button/UIButton";
+import * as UIButton from "Client/Components/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import type * as Types from "@Core/Types";
@@ -39,7 +39,7 @@ type PhaseOptionsResult = Omit<Types.PhaseOptions, "round"> & { round?: number }
 
 export type PhaseTransport = {
 	getPhaseOptions: (state: State.State) => Promise<PhaseOptionsResult>;
-	sendOptionSelection: (optionId: string, payload?: Types.Action) => Promise<boolean>;
+	sendOptionSelection: (optionId: string, payload?: Types.ActionPayload) => Promise<boolean>;
 };
 
 
@@ -96,7 +96,7 @@ export async function handlePhase() {
 			break;
 
 		case "shop":
-			const shopCardIds = session.options.map((o: Types.PhaseOption) => o.id);
+			const shopCardIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 			// ShopPanel.create(async () => {
@@ -130,7 +130,7 @@ export async function handlePhase() {
 
 
 		case "orb_shop":
-			const orbOptions = session.options;
+			const orbOptions = session.current_options;
 			if (!orbOptions || orbOptions.length === 0) {
 				logger.warn("Orb Shop options missing");
 				return;
@@ -154,14 +154,14 @@ export async function handlePhase() {
 			break;
 
 		case "upgrade_core":
-			const upgradeIds = session.options.map((o: Types.PhaseOption) => o.id);
+			const upgradeIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("upgradeCrystal.title", upgradeIds);
 			// selection should already return the next phase
 			await handlePhase();
 			break;
 
 		case "add_reaction_core":
-			const reactionIds = session.options.map((o: Types.PhaseOption) => o.id);
+			const reactionIds = session.current_options.map((o: Types.PhaseOption) => o.id);
 			await EffectCardShop.openUpgradeCorePhase("effectCardShop.title", reactionIds);
 			// After reaction card completes, notify server and get next phase
 			// selection should already return the next phase
@@ -303,9 +303,9 @@ export async function handlePhase() {
 		};
 
 		if (requireReadyButton) {
-			const readyButton = UIButton.create({
+			const readyButton = UIButton.createUIButton({
 				text: i18n.t("ui.ready"),
-				position: Geometry.vec2(constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100),
+				position: [constants.SCREEN_WIDTH / 2, constants.SCREEN_HEIGHT - 100],
 				callback: () => {
 					readyButton.container.destroy();
 					void startCombatPlayback();

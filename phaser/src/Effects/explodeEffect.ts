@@ -3,10 +3,10 @@ import { delay } from "@Utils/animation";
 import { impactEffect } from "./impactEffect";
 
 // TODO: reuse this for impact effect in arcane missile
-export async function explodeEffect(scene: Phaser.Scene, source: { x: number; y: number }) {
+export async function explodeEffect([x, y]: Vec2) {
 	const lifespan = 1000;
 
-	const sparks = scene.add.particles(source.x, source.y, images.light_pillar.key, {
+	const sparks = io.scene.add.particles(x, y, images.light_pillar.key, {
 		speed: 0,
 		tint: [0xff0000, 0xffff00, 0xffa500],
 		lifespan: lifespan,
@@ -20,7 +20,7 @@ export async function explodeEffect(scene: Phaser.Scene, source: { x: number; y:
 	});
 
 	// round particles moving towards the center
-	const energy = scene.add.particles(source.x, source.y, images.white_dot.key, {
+	const energy = io.scene.add.particles(x, y, images.white_dot.key, {
 		lifespan: lifespan,
 		alpha: { start: 0.5, end: 0 },
 		scale: { start: 2, end: 0 },
@@ -56,9 +56,8 @@ export async function explodeEffect(scene: Phaser.Scene, source: { x: number; y:
 	energy.destroy();
 
 	await impactEffect({
-		scene,
-		location: source,
-		pointA: source,
-		pointB: source,
+		location: [x, y],
+		pointA: [x, y],
+		pointB: [x, y],
 	});
 }

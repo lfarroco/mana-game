@@ -1,6 +1,5 @@
 import * as UIButton from "@Components/Button/UIButton";
-import * as c from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as c from "@Constants";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
 import * as BattlegroundNavigation from "../Navigation";
@@ -8,7 +7,7 @@ import * as BattlegroundNavigation from "../Navigation";
 export function create() {
 	const btn = UIButton.create({
 		text: i18n.t("ui.menu.button"),
-		position: Geometry.vec2(c.BATTLEGROUND_BUTTON_X, c.BATTLEGROUND_BUTTON_MARGIN_TOP),
+		position: [c.BATTLEGROUND_BUTTON_X, c.BATTLEGROUND_BUTTON_MARGIN_TOP],
 		callback: createPanel
 	});
 
@@ -18,7 +17,7 @@ export function create() {
 export function createPanel() {
 	const panelWidth = 650;
 	const panelHeight = 500;
-	const panelX = c.MIDDLE_SCREEN.x;
+	const panelX = c.MIDDLE_SCREEN_X;
 	const panelY = 600;
 	const startingY = panelY - 100;
 
@@ -52,7 +51,7 @@ export function createPanel() {
 		([label, callback], i) =>
 			UIButton.create({
 				text: label,
-				position: Geometry.vec2(panelX, startingY + i * 100),
+				position: [panelX, startingY + i * 100],
 				callback: callback,
 			}).container
 	);
@@ -60,12 +59,12 @@ export function createPanel() {
 	const container = io.Container([
 		[
 			() => io.Rectangle(c.MIDDLE_SCREEN, c.WHOLE_SCREEN, 0x000000, 0.1),
-			io.SetInteractiveRect(Geometry.size(c.SCREEN_WIDTH, c.SCREEN_HEIGHT)),
+			io.SetInteractiveRect([c.SCREEN_WIDTH, c.SCREEN_HEIGHT]),
 		],
-		io.BorderedRoundRect(Geometry.vec2(panelX, panelY), Geometry.size(panelWidth, panelHeight), 10, 0x2c3e50, 1),
+		io.BorderedRoundRect([panelX, panelY], [panelWidth, panelHeight], 10, 0x2c3e50, 1),
 		[
 			() => io.Text(i18n.t("ui.menu.title"), c.titleTextConfig),
-			(title) => io.SetPosition(title, Geometry.vec2(panelX, panelY - panelHeight / 2 + 50)),
+			(title) => io.SetPosition(title, [panelX, panelY - panelHeight / 2 + 50]),
 			(title) => io.Centralize(title),
 		],
 		...buttons,

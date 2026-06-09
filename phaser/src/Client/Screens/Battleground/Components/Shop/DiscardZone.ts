@@ -1,6 +1,5 @@
-import { defaultTextConfig } from "../../../../../Constants";
-import * as io from "../../../../../io";
-import { t } from "@i18n/i18n";
+import * as Constants from "@Constants";
+import * as i18n from "@i18n/i18n";
 
 // Discard zone UI constants
 const DISCARD_ZONE_X = 1400;
@@ -21,14 +20,14 @@ let container: Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
 let rect: Graphics | null = null;
 
-const position = { x: DISCARD_ZONE_X, y: DISCARD_ZONE_Y };
-const size = { width: DISCARD_ZONE_WIDTH, height: DISCARD_ZONE_HEIGHT };
+const position = [DISCARD_ZONE_X, DISCARD_ZONE_Y] as Vec2;
+const size = [DISCARD_ZONE_WIDTH, DISCARD_ZONE_HEIGHT] as Vec2;
 const color = DISCARD_ZONE_COLOR;
 const alpha = DISCARD_ZONE_ALPHA;
 
 export const name = "shop_discard_zone";
 const textStyle = {
-	...defaultTextConfig,
+	...Constants.defaultTextConfig,
 	fontSize: DISCARD_ZONE_LABEL_FONT_SIZE,
 	color: "#fff",
 	fontStyle: "bold",
@@ -77,7 +76,7 @@ export function destroy() {
 const createRect = () => io.BorderedRoundRect(position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
 
 const createLabel = () => {
-	const text = io.Text(t("shop.discard"), textStyle);
+	const text = io.Text(i18n.t("shop.discard"), textStyle);
 
 	io.SetPosition(text, position);
 

@@ -1,6 +1,5 @@
-import * as constants from "../../../../Constants";
+import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
 import * as UIButton from "@Components/Button/UIButton";
 import * as openOptions from "@Screens/Title/Effects/openOptions";
 import * as CreditsPanel from "Client/Screens/Title/Components/CreditsPanel";
@@ -14,7 +13,7 @@ export function create(y: number) {
 	const title = i18n.t("title.options");
 	const button = UIButton.create({
 		text: title,
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
+		position: [constants.MIDDLE_SCREEN_X, y],
 		callback: showOptionsSubmenu,
 		tooltip: {
 			title,
@@ -34,13 +33,13 @@ function showOptionsSubmenu() {
 
 	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY),
+		position: [constants.MIDDLE_SCREEN_X, baseY],
 		callback: openOptions.openOptions,
 	});
 
 	const statsBtn = UIButton.create({
 		text: i18n.t("title.stats"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing),
+		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
 		callback: () => {
 			StatsPanel.openStats();
 		},
@@ -48,7 +47,7 @@ function showOptionsSubmenu() {
 
 	const creditsBtn = UIButton.create({
 		text: i18n.t("title.credits"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 2),
+		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 2],
 		callback: () => {
 			CreditsPanel.create();
 		},
@@ -56,7 +55,7 @@ function showOptionsSubmenu() {
 
 	const backBtn = UIButton.create({
 		text: i18n.t("title.back"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, baseY + spacing * 3),
+		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
 			hideOptionsSubmenu();
 			showMainButtons.showMainButtons();

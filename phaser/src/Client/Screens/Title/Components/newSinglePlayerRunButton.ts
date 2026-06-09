@@ -1,5 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as Effects from "../Effects";
 import * as i18n from "@i18n/i18n";
@@ -7,7 +6,7 @@ import * as i18n from "@i18n/i18n";
 export function render(y: number) {
 	return UIButton.create({
 		text: i18n.t("title.newRun"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN.x, y),
+		position: [constants.MIDDLE_SCREEN_X, y],
 		callback: () => Effects.startGame({ isMultiplayer: false }),
 	});
 }

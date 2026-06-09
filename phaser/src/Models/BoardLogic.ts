@@ -15,13 +15,12 @@ export function getEmptySlot(
 
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
-			const currentPos = Geometry.vec2(x, y);
-			const occupied = units.find(
-				(u) => u.force === forceId && u.position.x === x && u.position.y === y
-			);
-			// console.log(`[BoardLogic] Checking ${x},${y} -> ${occupied ? 'OCCUPIED' : 'FREE'}`);
+			const occupied = units
+				.filter(u => u.force === forceId)
+				.find(u => Geometry.eqVec2(u.position, [x, y]));
+
 			if (!occupied) {
-				return currentPos;
+				return [x, y];
 			}
 		}
 	}
@@ -31,14 +30,13 @@ export function getEmptySlot(
 export function findFreeSlot(
 	units: Unit.Unit[],
 	forceId: string,
-	preferredPos?: Geometry.Vec2
+	preferredPos?: Vec2
 ): Geometry.Vec2 | null {
 	// If preference checks out
 	if (preferredPos) {
-		const occupied = units.find(
-			(u) =>
-				u.force === forceId && u.position.x === preferredPos.x && u.position.y === preferredPos.y
-		);
+		const occupied = units
+			.filter(u => u.force === forceId)
+			.find(u => Geometry.eqVec2(u.position, preferredPos));
 		if (!occupied) return preferredPos;
 	}
 	return getEmptySlot(units, forceId);

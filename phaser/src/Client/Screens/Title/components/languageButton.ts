@@ -1,5 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as LanguagePanel from "Client/Screens/Title/Components/LanguagePanel";
 import * as i18n from "@i18n/i18n";
@@ -13,7 +12,7 @@ export function create() {
 
 	const button = UIButton.create({
 		text: `あ/A ${currentLangName}`,
-		position: Geometry.vec2(BUTTON_X, BUTTON_Y),
+		position: [BUTTON_X, BUTTON_Y],
 		callback: LanguagePanel.create,
 		width: 200,
 		tooltip: {

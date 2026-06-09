@@ -1,8 +1,6 @@
-import { vec2 } from "@Models/Geometry";
-import * as c from "../../../../../Constants";
-import { tween } from "@Utils/animation";
+import * as Constants from "@Constants";
+import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as io from "../../../../../io";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
@@ -19,7 +17,7 @@ export function create() {
 		livesDisplay.create,
 		winsDisplay.create,
 	]);
-	io.SetPosition(headerContainer, vec2(580, 0));
+	io.SetPosition(headerContainer, [580, 0]);
 
 	uiContainer = io.Container([headerContainer, menuButton.create()]);
 }
@@ -28,12 +26,12 @@ export async function handleUserMessageRequested(payload: {
 	text: string;
 	type: "error" | "info" | "warning" | "success";
 }): Promise<void> {
-	const text = io.Text(payload.text, c.titleTextConfig);
+	const text = io.Text(payload.text, Constants.titleTextConfig);
 
 	io.Centralize(text);
-	io.SetPosition(text, vec2(c.SCREEN_WIDTH / 2, c.SCREEN_HEIGHT - 100));
+	io.SetPosition(text, [Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - 100]);
 
-	await tween({
+	await animation.tween({
 		targets: [text],
 		scaleX: 1.05,
 		scaleY: 1.05,
@@ -43,7 +41,7 @@ export async function handleUserMessageRequested(payload: {
 		repeat: 0,
 	});
 
-	await tween({ targets: [text], alpha: 0 });
+	await animation.tween({ targets: [text], alpha: 0 });
 
 	io.Destroy(text);
 }

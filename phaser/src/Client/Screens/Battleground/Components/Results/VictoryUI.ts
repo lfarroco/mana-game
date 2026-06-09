@@ -1,9 +1,7 @@
 import * as UIButton from "@Components/Button/UIButton";
-import * as c from "../../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as c from "@Constants";
 import * as Unit from "@Models/Entities/Unit";
 import * as ResultsConfig from "./ResultsConfig";
-import * as io from "../../../../../io";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
 
@@ -43,7 +41,10 @@ export async function displayVictory(
 		([label, callback], index) =>
 			UIButton.create({
 				text: label,
-				position: Geometry.vec2(panelX, baseY - (totalButtons - 1 - index) * verticalSpacing),
+				position: [
+					panelX,
+					baseY - (totalButtons - 1 - index) * verticalSpacing
+				],
 				callback: callback,
 			}).container
 	);
@@ -52,8 +53,8 @@ export async function displayVictory(
 
 	const container = io.Container([
 		io.BorderedRoundRect(
-			Geometry.vec2(panelX, panelY),
-			Geometry.size(panelWidth, panelHeight),
+			[panelX, panelY],
+			[panelWidth, panelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
 			ResultsConfig.RESULTS_PANEL.backgroundColor,
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
@@ -66,7 +67,7 @@ export async function displayVictory(
 					color: ResultsConfig.RESULTS_COLORS.victory,
 				}),
 			(title) =>
-				io.SetPosition(title, Geometry.vec2(panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY)),
+				io.SetPosition(title, [panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY]),
 			(title) => io.Centralize(title),
 		],
 		playerPanel,

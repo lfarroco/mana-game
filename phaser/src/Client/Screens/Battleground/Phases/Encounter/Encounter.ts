@@ -1,6 +1,5 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
@@ -199,10 +198,8 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		}
 
 		const card = EncounterCard.createEncounterCard(container, {
-			x: x + width + 200,
-			y,
-			width,
-			height,
+			position: [x + width + 200, y],
+			size: [width, height],
 			name: encounter.name,
 			pic: encounter.pic,
 			description: encounter.description,
@@ -224,7 +221,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 	if (!isCombatEncounter) {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
-			position: Geometry.vec2(Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50),
+			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
 			callback: nextRoundCallback,
 		});
 

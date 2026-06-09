@@ -1,6 +1,3 @@
-import { size } from "@Models/Geometry";
-import * as io from "../../../io";
-
 // Chip styling
 const CHIP_FONT_SIZE = 32;
 const CHIP_PADDING = 12;
@@ -28,7 +25,7 @@ const index = new Map<
 
 export function createChip(
 	id: string,
-	position: Vec2,
+	[x, y]: Vec2,
 	color: number,
 	value: string,
 	minWidth?: number
@@ -36,30 +33,30 @@ export function createChip(
 	const text = io.Label(value).setFontSize(CHIP_FONT_SIZE);
 	io.Centralize(text);
 
-	const chipSize = size(
+	const [width, height] = [
 		Math.max(text.width + CHIP_PADDING, minWidth ?? 0),
 		text.height + CHIP_PADDING
-	);
+	];
 	const bg = text.scene.add.graphics();
 
 	bg.lineStyle(CHIP_STROKE_WIDTH, CHIP_STROKE_COLOR, CHIP_STROKE_ALPHA);
 	bg.fillStyle(color, CHIP_FILL_ALPHA);
 	bg.fillRoundedRect(
-		-chipSize.width / 2,
-		-chipSize.height / 2,
-		chipSize.width,
-		chipSize.height,
+		-width / 2,
+		-height / 2,
+		width,
+		height,
 		CHIP_CORNER_RADIUS
 	);
 	bg.strokeRoundedRect(
-		-chipSize.width / 2,
-		-chipSize.height / 2,
-		chipSize.width,
-		chipSize.height,
+		-width / 2,
+		-height / 2,
+		width,
+		height,
 		CHIP_CORNER_RADIUS
 	);
 
-	const container = text.scene.add.container(position.x, position.y, [bg, text]);
+	const container = text.scene.add.container(x, y, [bg, text]);
 
 	index.set(id, { container, bg, text, color, minWidth });
 
@@ -67,7 +64,10 @@ export function createChip(
 		index.delete(id);
 	});
 
-	return { container, bg, text, size: chipSize };
+	return {
+		container, bg, text,
+		size: [width, height] as Vec2
+	};
 }
 
 export function updateChipText(id: string, value: string) {

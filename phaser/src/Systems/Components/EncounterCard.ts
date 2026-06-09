@@ -1,7 +1,5 @@
-import * as io from "../../io";
-import * as Geometry from "@Models/Geometry";
 import * as AudioManager from "@Systems/AudioManager";
-import * as constants from "../../Constants";
+import * as constants from "@Constants";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 
 // Encounter card animation and layout constants
@@ -20,10 +18,8 @@ const LABEL_FONT_SIZE = "22px";
 const CARD_CORNER_RADIUS = 12;
 
 type EncounterCardProps = {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
+	position: Vec2;
+	size: Size;
 	name: string;
 	pic: string;
 	description: string;
@@ -35,11 +31,12 @@ export function createEncounterCard(
 	props: EncounterCardProps
 ) {
 	const container = io.Container();
-	const { x, y, width, height, name, pic, description, onClick } = props;
+	const [x, y] = props.position;
+	const [width, height] = props.size;
+	const { name, pic, description, onClick } = props;
 
-	io.SetPosition(container, { x, y });
+	io.SetPosition(container, [x, y]);
 	const padding = 20;
-	const dimensions = Geometry.size(width, height);
 
 	const bg = io.scene.add.graphics({ x: - width / 2, y: - height / 2 });
 	const border = io.scene.add.graphics();
@@ -123,7 +120,7 @@ export function createEncounterCard(
 		.setAlign("left")
 		.setOrigin(0, 0);
 
-	io.SetInteractiveRect(dimensions)(bg);
+	io.SetInteractiveRect([width, height])(bg);
 
 	io.OnPointerOver(bg, () => {
 		tweenBackground(CARD_HOVER_COLOR_MIX);

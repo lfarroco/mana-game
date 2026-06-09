@@ -1,14 +1,13 @@
-import * as Geometry from "@Models/Geometry";
 import * as UIButton from "@Components/Button/UIButton";
 import * as LinksPanel from "Client/Screens/Title/Components/LinksPanel";
-import * as constants from "../../../../Constants";
+import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 
 export function create(y: number) {
 	const title = i18n.t("title.links");
 	return UIButton.create({
 		text: `🔗 ${title}`,
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, y),
+		position: [constants.MIDDLE_SCREEN_X, y],
 		callback: LinksPanel.create,
 		tooltip: {
 			title,

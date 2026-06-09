@@ -1,8 +1,6 @@
-import * as constants from "../../../../../Constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "../../../../../io";
-import { createSlider } from "@Components/Slider/Slider";
-import { LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
+import * as constants from "@Constants";
+import * as Slider from "@Components/Slider/Slider";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 const VOLUME_STEP = 0.1;
 const VOLUME_MIN = 0;
@@ -20,21 +18,21 @@ export function volume(
 	//   ~~~//~~~
 
 	const title = io.Text(label, constants.titleTextConfig);
-	io.SetPosition(title, vec2(constants.MIDDLE_SCREEN_X, yPos));
+	io.SetPosition(title, [constants.MIDDLE_SCREEN_X, yPos]);
 	io.Centralize(title);
 
 	//   ~~~//~~~
 
 	const valueText = io.Text(formatLabel(getValue()), {
 		...constants.titleTextConfig,
-		color: STYLES.VALUE_TEXT_COLOR,
+		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
-	io.SetPosition(valueText, vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y - 20));
+	io.SetPosition(valueText, [constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y - 20]);
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
 
-	const slider = createSlider(vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.VALUE_OFFSET_Y + 20), {
+	const slider = Slider.createSlider([constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y + 20], {
 		width: SLIDER_WIDTH,
 		min: VOLUME_MIN,
 		max: VOLUME_MAX,

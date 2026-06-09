@@ -1,32 +1,34 @@
-import { Unit } from "@Models/Entities/Unit";
-import * as constants from "../../Constants";
-import { Chara, mustGetCharaById, getUnit } from "@Systems/Chara/Chara";
-import { createChip, updateChipText } from "@Components/Chip/Chip";
-import { vec2 } from "@Models/Geometry";
-import { compactNumber } from "@utils";
-import { ABILITY_COLORS } from "@Models/Abilities";
+import * as Unit from "@Models/Entities/Unit";
+import * as constants from "@Constants";
+import * as Chara from "@Systems/Chara/Chara";
+import * as Chip from "@Components/Chip/Chip";
+import * as Utils from "@utils";
+import * as Abilities from "@Models/Abilities";
 
-export function create(unit: Unit, container: Chara) {
+export function create(unit: Unit.Unit, container: Chara.Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
 	const effect = unit.effects.find((effect) => displayableEffects.includes(effect.id));
 
-	const displayedPower = compactNumber(Math.floor(unit.power));
-
-	const powerDisplayPosition = vec2(0, constants.HALF_TILE_HEIGHT - 10);
+	const displayedPower = Utils.compactNumber(Math.floor(unit.power));
 
 	const bgColor = effect
-		? parseInt(ABILITY_COLORS[effect.id].replace(/^#/, "").substring(0, 6), 16)
+		? parseInt(Abilities.ABILITY_COLORS[effect.id].replace(/^#/, "").substring(0, 6), 16)
 		: 0xeaeaea;
 
-	const chip = createChip(unit.id, powerDisplayPosition, bgColor, displayedPower.toString());
+	const chip = Chip.createChip(
+		unit.id,
+		[0, constants.HALF_TILE_HEIGHT - 10],
+		bgColor,
+		displayedPower.toString()
+	);
 
 	container.add(chip.container);
 }
 
 export function updatePowerDisplay(id: string) {
-	const chara = mustGetCharaById(id);
-	const charaUnit = getUnit(chara);
+	const chara = Chara.mustGetCharaById(id);
+	const charaUnit = Chara.getUnit(chara);
 	const boardUnit = state.battleData.units.find((unit) => unit.id === id);
 	const sessionUnit = state.session.team.units.find((unit) => unit.id === id);
 	const latestUnit =
@@ -34,7 +36,7 @@ export function updatePowerDisplay(id: string) {
 			? boardUnit ?? sessionUnit ?? charaUnit
 			: sessionUnit ?? boardUnit ?? charaUnit;
 
-	const power = compactNumber(Math.floor(latestUnit.power));
+	const power = Utils.compactNumber(Math.floor(latestUnit.power));
 
-	updateChipText(id, power);
+	Chip.updateChipText(id, power);
 }

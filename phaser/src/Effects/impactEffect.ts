@@ -1,5 +1,5 @@
-import { images } from "@assets";
-import { delay } from "@Utils/animation";
+import * as Assets from "@assets";
+import * as animation from "@Utils/animation";
 
 export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,
@@ -12,16 +12,24 @@ export const IMPACT_EFFECT_CONFIG = {
 } as const;
 
 type ImpactEffctProps = {
-	scene: Phaser.Scene;
-	location: { x: number; y: number };
-	pointA: { x: number; y: number };
-	pointB: { x: number; y: number };
+	location: Vec2;
+	pointA: Vec2;
+	pointB: Vec2;
 };
 
-export async function impactEffect({ scene, location, pointA, pointB }: ImpactEffctProps) {
-	const angle = Phaser.Math.Angle.BetweenPoints(pointA, pointB);
+export async function impactEffect({ location, pointA, pointB }: ImpactEffctProps) {
+	const angle = Phaser.Math.Angle.BetweenPoints(
+		{
+			x: pointA[0],
+			y: pointA[1],
+		},
+		{
+			x: pointB[0],
+			y: pointB[1],
+		}
+	);
 
-	const particles = scene.add.particles(location.x, location.y, images.white_dot.key, {
+	const particles = io.scene.add.particles(location[0], location[1], Assets.images.white_dot.key, {
 		speed: IMPACT_EFFECT_CONFIG.PARTICLE_SPEED,
 		lifespan: IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN,
 		angle: {
@@ -35,7 +43,7 @@ export async function impactEffect({ scene, location, pointA, pointB }: ImpactEf
 		stopAfter: IMPACT_EFFECT_CONFIG.STOP_AFTER,
 	});
 
-	await delay(IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN);
+	await animation.delay(IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN);
 
 	particles.destroy();
 }

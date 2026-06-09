@@ -1,5 +1,4 @@
-import * as c from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as Card from "@Models/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
@@ -51,7 +50,7 @@ export function render(unitId: string): Promise<void> {
 
 		const confirmButton = UIButton.create({
 			text: i18n.t("title.unlock_modal.confirm"),
-			position: Geometry.vec2(0, descriptionText.y + descriptionText.height + 60),
+			position: [0, descriptionText.y + descriptionText.height + 60],
 			callback: () => {
 				modal.close();
 			},

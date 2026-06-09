@@ -1,10 +1,8 @@
-import * as io from "../../../../../io";
-import * as Geometry from "@Models/Geometry";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Unit from "@Models/Entities/Unit";
 import * as ResultsConfig from "./ResultsConfig";
-import * as c from "../../../../../Constants";
+import * as Constants from "@Constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
@@ -50,7 +48,8 @@ async function createStatsPanel(
 		color: titleColor,
 		fontStyle: "bold",
 	});
-	io.SetPosition(titleText, Geometry.vec2(position.x, position.y - panelHeight / 2 + 30));
+	const [px, py] = position;
+	io.SetPosition(titleText, [px, py - panelHeight / 2 + 30]);
 	io.Centralize(titleText);
 	panel.add(titleText);
 
@@ -61,8 +60,8 @@ async function createStatsPanel(
 		i18n.t("combatStats.headers.poison"),
 		i18n.t("combatStats.headers.regen"),
 	];
-	let startX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
-	const startY = position.y - panelHeight / 2 + 70;
+	let startX = px - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0]; // Start after sprite column
+	const startY = py - panelHeight / 2 + 70;
 
 	headers.forEach((header, index) => {
 		const headerText = io.Text(header, {
@@ -70,7 +69,7 @@ async function createStatsPanel(
 			color: PANEL_CONFIG.headerColor,
 			fontStyle: "bold",
 		});
-		io.SetPosition(headerText, Geometry.vec2(startX, startY));
+		io.SetPosition(headerText, [startX, startY]);
 		panel.add(headerText);
 		startX += PANEL_CONFIG.columnWidths[index + 1];
 	});
@@ -88,7 +87,7 @@ async function createStatsPanel(
 		const regen = Math.floor(stats.regenApplied);
 
 		const sprite = io.scene.add.sprite(
-			position.x - PANEL_CONFIG.width / 2 + padding + 25,
+			px - PANEL_CONFIG.width / 2 + padding + 25,
 			currentY,
 			unit.pic
 		);
@@ -104,7 +103,7 @@ async function createStatsPanel(
 		sprite.setTexture(unit.pic, firstIdle);
 		sprite.setDisplaySize(90, 90);
 
-		if (unit.force === c.FORCE_ID_CPU) {
+		if (unit.force === Constants.FORCE_ID_CPU) {
 			sprite.setFlipX(true);
 		}
 
@@ -165,13 +164,13 @@ async function createStatsPanel(
 			regen > 0 ? Utils.compactNumber(regen) : "-",
 		];
 
-		let currentX = position.x - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0];
+		let currentX = px - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0];
 		rowData.forEach((data, index) => {
 			const cellText = io.Text(data, {
 				fontSize: PANEL_CONFIG.fontSize,
 				color: "#FFFFFF",
 			});
-			io.SetPosition(cellText, Geometry.vec2(currentX, currentY));
+			io.SetPosition(cellText, [currentX, currentY]);
 			panel.add(cellText);
 			currentX += PANEL_CONFIG.columnWidths[index + 1];
 		});
@@ -189,12 +188,12 @@ export async function createCombatStatsPanels(
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {
 	const panelSpacing = 600;
 
-	const playerForceId = c.FORCE_ID_PLAYER;
-	const cpuForceId = c.FORCE_ID_CPU;
+	const playerForceId = Constants.FORCE_ID_PLAYER;
+	const cpuForceId = Constants.FORCE_ID_CPU;
 
 	const playerPanel = await createStatsPanel(
 		units,
-		Geometry.vec2(centerPanelX - panelSpacing, panelY),
+		[centerPanelX - panelSpacing, panelY],
 		i18n.t("combatStats.playerTeam"),
 		PANEL_CONFIG.playerColor,
 		(unit) => unit.force === playerForceId
@@ -202,7 +201,7 @@ export async function createCombatStatsPanels(
 
 	const cpuPanel = await createStatsPanel(
 		units,
-		Geometry.vec2(centerPanelX + panelSpacing, panelY),
+		[centerPanelX + panelSpacing, panelY],
 		i18n.t("combatStats.enemyTeam"),
 		PANEL_CONFIG.cpuColor,
 		(unit) => unit.force === cpuForceId

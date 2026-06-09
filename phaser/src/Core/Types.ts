@@ -3,12 +3,10 @@ import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
 
 // Option types for different phases
 export type PhaseOption =
+	// TODO: this is too flexible
 	| { id: string; cost?: number; label?: string; recruitRank?: number } // Generic option with optional cost, label, and shop recruit metadata
-	| { id: "combat_encounter" }
-	| { id: "end_combat" } // the combat result is in the sesion's combat state
+	| { id: "start_combat" }
 	;
-
-export type CombatContinuation = Omit<SessionData, "combatState">;
 
 // Action log entry for tracking player actions
 export type ActionLogEntry = {
@@ -34,18 +32,19 @@ export type Action =
 	| { type: "victory" }
 	;
 
-// Don't confuse this with actions. This represents the current screen that the
+// Don't confuse this with actions. This represents the current stage that the
 // player is on
 export type PhaseType =
-	| "encounter"
-	| "shop"
-	| "orb_shop"
-	| "upgrade_core"
-	| "add_reaction_core"
-	| "pre_combat"
-	| "combat"
+	| "encounter" //skipabble
+	| "shop" //skipabble
+	| "orb_shop" //skipabble
+	| "upgrade_core" //skipabble
+	| "add_reaction_core" //skipabble
+	| "pre_combat" // advances with "start_combat"
+	| "combat" // advances with "end_combat"
 	| "victory"
-	| "game_over";
+	| "game_over"
+	;
 
 export type CombatState = {
 	enemyTeam: Unit.Unit[];

@@ -1,5 +1,4 @@
 import * as constants from "@Constants";
-import * as Geometry from "@Models/Geometry";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 
@@ -33,7 +32,7 @@ export function createModal(config: ModalConfig): Modal {
 	});
 	overlay.show();
 
-	const panel = Panel.createPanel(Geometry.vec2(0, 0), {
+	const panel = Panel.createPanel([0, 0], {
 		width,
 		height,
 		...panelConfig,
@@ -43,7 +42,7 @@ export function createModal(config: ModalConfig): Modal {
 
 	if (title) {
 		const modalTitle = io.Title1(title);
-		io.SetPosition(modalTitle, Geometry.vec2(0, -height / 2 + 50));
+		io.SetPosition(modalTitle, [0, -height / 2 + 50]);
 		io.Centralize(modalTitle);
 		children.push(modalTitle);
 	}

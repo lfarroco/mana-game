@@ -3,7 +3,7 @@ import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import * as c from "../../../../../Constants";
+import * as c from "@Constants";
 import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 const LEFT_MARGIN = 40;

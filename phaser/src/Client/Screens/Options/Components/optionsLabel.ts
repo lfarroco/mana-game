@@ -1,6 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
-import * as io from "../../../../io";
+import * as constants from "@Constants";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 import * as i18n from "@i18n/i18n";
@@ -10,6 +8,6 @@ export function create() {
 		...constants.titleTextConfig,
 		fontSize: OptionsScreen.LAYOUT.TITLE_FONT_SIZE,
 	});
-	io.SetPosition(optionsLabel, Geometry.vec2(constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.TITLE_Y));
+	io.SetPosition(optionsLabel, [constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.TITLE_Y]);
 	io.Centralize(optionsLabel);
 }

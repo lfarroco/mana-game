@@ -1,6 +1,5 @@
 import * as Utils from "@utils";
-import * as c from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
@@ -33,22 +32,22 @@ export function openStats(): void {
 	overlay.setInteractive();
 
 	const panelBg = io.BorderedRoundRect(
-		Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
-		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
+		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y],
+		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
 		0x2c3e50,
 		0.95
 	);
 
 	const title = io.Title1(i18n.t("stats.title"));
-	io.SetPosition(title, Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50));
+	io.SetPosition(title, [c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50]);
 	io.Centralize(title);
 
 	// --- Left Column: Battle Totals ---
 	const leftTitle = io.Title2(i18n.t("stats.battleTotals"));
 	io.SetPosition(
 		leftTitle,
-		Geometry.vec2(c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100)
+		[c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100]
 	);
 	io.Centralize(leftTitle);
 
@@ -66,7 +65,7 @@ export function openStats(): void {
 	const rightTitle = io.Title2(i18n.t("stats.careerStats"));
 	io.SetPosition(
 		rightTitle,
-		Geometry.vec2(c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100)
+		[c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100]
 	);
 	io.Centralize(rightTitle);
 
@@ -132,7 +131,7 @@ export function openStats(): void {
 
 	const closeButton = UIButton.create({
 		text: i18n.t("stats.close"),
-		position: Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+		position: [c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60],
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;

@@ -1,7 +1,5 @@
-import Phaser from "phaser";
 import * as Card from "@Models/Entities/Card";
 import * as makeUnit from "@Models/Entities/Unit";
-import * as Geometry from "@Models/Geometry";
 import * as Board from "@Models/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
@@ -100,20 +98,20 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
-		const unit = makeUnit.makeUnit(Constants.FORCE_ID_PLAYER, spec.id, Geometry.vec2(0, 0));
+		const unit = makeUnit.makeUnit(Constants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
 		const baseBgWidth = 800;
-		const bgSize = Geometry.size(baseBgWidth + SHOP_CARD_EXTRA_LEFT_PADDING, 280);
-		const position = Geometry.vec2(
+		const bgSize = [baseBgWidth + SHOP_CARD_EXTRA_LEFT_PADDING, 280];
+		const position = [
 			sc.ITEM_BASE_X + baseBgWidth / 2 - SHOP_CARD_EXTRA_LEFT_PADDING / 2,
 			sc.ITEM_BASE_Y + offsetY
-		);
+		];
 
 		const bgRect = io.scene.add.graphics({
-			x: position.x - bgSize.width / 2,
-			y: position.y - bgSize.height / 2,
+			x: position[0] - bgSize[0] / 2,
+			y: position[1] - bgSize[1] / 2,
 		});
 		const rowBorder = io.scene.add.graphics();
 		const backgroundState = { mix: 0 };
@@ -121,7 +119,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 			const fillColor = theme.mixHexColors(theme.UI_SURFACE_COLOR, theme.UI_SURFACE_HOVER_COLOR, backgroundState.mix);
 			bgRect.clear();
 			bgRect.fillStyle(fillColor, theme.UI_SURFACE_ALPHA);
-			bgRect.fillRoundedRect(0, 0, bgSize.width, bgSize.height, 12);
+			bgRect.fillRoundedRect(0, 0, bgSize[0], bgSize[1], 12);
 		};
 		const tweenRowBackground = (mix: number) => {
 			io.scene.tweens.killTweensOf(backgroundState);
@@ -137,10 +135,10 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 			rowBorder.clear();
 			rowBorder.lineStyle(lineWidth, color, alpha);
 			rowBorder.strokeRoundedRect(
-				position.x - bgSize.width / 2,
-				position.y - bgSize.height / 2,
-				bgSize.width,
-				bgSize.height,
+				position[0] - bgSize[0] / 2,
+				position[1] - bgSize[1] / 2,
+				bgSize[0],
+				bgSize[1],
 				12
 			);
 		};
@@ -164,7 +162,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		});
 
 		bgRect.setInteractive(
-			new Phaser.Geom.Rectangle(0, 0, bgSize.width, bgSize.height),
+			new Phaser.Geom.Rectangle(0, 0, bgSize[0], bgSize[1]),
 			Phaser.Geom.Rectangle.Contains
 		);
 		bgRect.on("pointerover", () => {
@@ -247,7 +245,7 @@ function initShopCharaInput(chara: Chara.Chara): void {
 			return;
 		}
 
-		const dragStartVec = Geometry.vec2(chara.x, chara.y);
+		const dragStartVec = [chara.x, chara.y];
 		chara.setData("dragStartVec", dragStartVec);
 		wasDragSuccessful = false;
 
@@ -271,15 +269,15 @@ function initShopCharaInput(chara: Chara.Chara): void {
 
 		const x = zone.getData("cell-x") as number;
 		const y = zone.getData("cell-y") as number;
-		const tile = Geometry.vec2(x, y);
-		const vec = chara.getData("dragStartVec") as Vec2;
+		const tile: Vec2 = [x, y];
+		const vec = chara.getData("dragStartVec") as [number, number];
 
 		Shop.events.itemDragPurchaseRequested(
 			{ ...Chara.getUnit(chara) },
 			Chara.getUnit(chara).id,
 			tile,
-			vec.x,
-			vec.y
+			vec[0],
+			vec[1]
 		);
 
 		wasDragSuccessful = true;
@@ -293,11 +291,11 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		chara.setAngle(0);
 
 		if (!wasDragSuccessful) {
-			const vec = chara.getData("dragStartVec") as Vec2;
+			const [x, y] = chara.getData("dragStartVec") as Vec2;
 			io.scene.tweens.add({
 				targets: [chara],
-				x: vec.x,
-				y: vec.y,
+				x,
+				y,
 				duration: 150,
 			});
 		}

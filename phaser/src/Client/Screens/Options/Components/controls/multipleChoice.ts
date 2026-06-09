@@ -1,9 +1,6 @@
-import * as constants from "../../../../../Constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "../../../../../io";
-import { create } from "@Components/Button/UIButton";
-import * as Phaser from "phaser";
-import { BUTTONS, LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
+import * as constants from "@Constants";
+import * as UIButton from "@Components/Button/UIButton";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 export function multipleChoice(
 	label: string,
@@ -19,52 +16,49 @@ export function multipleChoice(
 	//   ~~~//~~~
 	const labelText = io.Text(label, constants.titleTextConfig);
 
-	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
+	io.SetPosition(labelText, [constants.MIDDLE_SCREEN_X, yPos]);
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
-	const decreaseButton = create({
+	const decreaseButton = UIButton.create({
 		text: "<",
-		position: vec2(
-			constants.MIDDLE_SCREEN_X - BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
-		),
+		position: [constants.MIDDLE_SCREEN_X - OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
 			const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+		width: OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_WIDTH,
 	});
 
 	//   ~~~//~~~
 	const valueText = io.Text(formatLabel(), {
 		...constants.titleTextConfig,
 		fontSize: "32px",
-		color: STYLES.VALUE_TEXT_COLOR,
+		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
 
 	io.SetPosition(
 		valueText,
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y)
+		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y]
 	);
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
-	const increaseButton = create({
+	const increaseButton = UIButton.create({
 		text: ">",
-		position: vec2(
-			constants.MIDDLE_SCREEN_X + BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
-		),
+		position: [
+			constants.MIDDLE_SCREEN_X + OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
+		],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
 			const newIndex = currentIndex < choices.length - 1 ? currentIndex + 1 : 0;
 			setValue(choices[newIndex]);
 			updateLabel();
 		},
-		width: BUTTONS.MULTICHOICE_BUTTON_WIDTH,
+		width: OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_WIDTH,
 	});
 
 	//   ~~~//~~~

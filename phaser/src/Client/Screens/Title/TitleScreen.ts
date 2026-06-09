@@ -1,4 +1,4 @@
-import * as constants from "../../../Constants";
+import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
@@ -47,7 +47,7 @@ function renderMainButtons() {
  */
 function displayVersion() {
 	const versionText = io.Text(`v${pkg.version}`, { fontSize: "16px", color: "white", });
-	io.SetPosition(versionText, { x: constants.SCREEN_WIDTH - 30, y: 10 });
+	io.SetPosition(versionText, [constants.SCREEN_WIDTH - 30, 10]);
 	io.SetAlpha(versionText, 0.5);
 	versionText.setOrigin(1, 0);
 

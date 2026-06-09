@@ -1,17 +1,16 @@
-import * as constants from "../../../../../Constants";
-import * as PhaserIO from "../../../../../io";
+import * as Constants from "@Constants";
 import * as ArcaneTornado from "@Screens/Battleground/Components/BlackHole/ArcaneTornadoShader";
-import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 
 export type { BlackHoleState } from "@Core/Combat/BlackHoleState";
 
 export function initBlackHole(): BlackHoleState.BlackHoleState {
 	const dissolve = 0;
 
-	const blackHole = PhaserIO.Shader(
+	const blackHole = io.Shader(
 		ArcaneTornado.arcaneTornadoFragmentShader,
-		constants.MIDDLE_SCREEN,
-		{ width: 800, height: 800 }, [
+		Constants.MIDDLE_SCREEN,
+		[800, 800], [
 		{ key: "color1", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "color2", type: "3f", value: [0.0, 0.0, 0.0] },
 		{ key: "intensity", type: "1f", value: 0.1 },

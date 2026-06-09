@@ -1,9 +1,8 @@
-import * as Geometry from "@Models/Geometry";
-import * as c from "../../../../../Constants";
+import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
-import * as constants from "../../../../../Constants";
+import * as constants from "@Constants";
 import * as utils from "@utils"
 
 export const ShopState: { container: Container | null } = {
@@ -32,10 +31,10 @@ export const create = () => {
 export const addSkipButton = (callback: () => void): void => {
 	const skipButton = UIButton.create({
 		text: "Skip",
-		position: Geometry.vec2(
+		position: [
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
-		),
+		],
 		callback,
 	});
 

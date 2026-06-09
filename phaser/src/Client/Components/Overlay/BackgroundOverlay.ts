@@ -1,4 +1,4 @@
-import * as c from "../../../Constants";
+import * as c from "@Constants";
 
 // Default overlay styling
 const DEFAULT_OVERLAY_COLOR = 0x000000;

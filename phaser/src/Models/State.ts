@@ -1,17 +1,17 @@
-import { SessionData } from "@Core/Types";
-import { Force } from "@Models/Entities/Force";
-import { eqVec2 } from "@Models/ServerGeometry";
-import { Unit } from "@Models/Entities/Unit";
-import { setSeed } from "@Utils/Random";
-import { stringToSeed } from "@Core/Seeding";
+import * as Types from "@Core/Types";
+import * as Force from "@Models/Entities/Force";
+import * as Unit from "@Models/Entities/Unit";
+import * as Random from "@Utils/Random";
+import * as Seeding from "@Core/Seeding";
+import * as Geometry from "@Models/Geometry";
 
 export type State = {
 	savedGames: string[];
-	session: SessionData;
+	session: Types.SessionData;
 	battleData: {
-		forces: Force[];
+		forces: Force.Force[];
 		grid: number[][];
-		units: Unit[];
+		units: Unit.Unit[];
 	};
 };
 
@@ -60,7 +60,7 @@ export function resetState() {
 
 	setState(newState);
 
-	setSeed(stringToSeed(state.session.seed));
+	Random.setSeed(Seeding.stringToSeed(state.session.seed));
 }
 
 
@@ -72,11 +72,10 @@ export const setState = (newState: State): void => {
 	for (const key in state) {
 		(state as Record<string, unknown>)[key] = (newState as Record<string, unknown>)[key];
 	}
-	setSeed(stringToSeed(newState.session.seed));
+	Random.setSeed(Seeding.stringToSeed(newState.session.seed));
 };
 
 export const getState = (): State => state;
 
-export const getUnitAt = (units: Unit[]) => (position: Vec2) => {
-	return units.find((u) => eqVec2(u.position, position));
-};
+export const getUnitAt = (units: Unit.Unit[]) => (position: Vec2) =>
+	units.find((u) => Geometry.eqVec2(u.position, position));

@@ -1,9 +1,7 @@
-import * as constants from "../../../../../Constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "../../../../../io";
-import { createSlider } from "@Components/Slider/Slider";
+import * as constants from "@Constants";
+import * as Slider from "@Components/Slider/Slider";
 import * as Phaser from "phaser";
-import { LAYOUT, STYLES } from "@Screens/Options/OptionsScreen";
+import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 
 const SPEED_STEP = 0.1;
 const SPEED_MIN = 0.1;
@@ -21,24 +19,24 @@ export function speed(
 	//   ~~~//~~~
 	const labelText = io.Text(label, constants.titleTextConfig);
 
-	io.SetPosition(labelText, vec2(constants.MIDDLE_SCREEN_X, yPos));
+	io.SetPosition(labelText, [constants.MIDDLE_SCREEN_X, yPos]);
 	io.Centralize(labelText);
 
 	//   ~~~//~~~
 	const valueText = io.Text(formatLabel(getValue()), {
 		...constants.titleTextConfig,
-		color: STYLES.VALUE_TEXT_COLOR,
+		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
 
 	io.SetPosition(
 		valueText,
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y - 20)
+		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y - 20]
 	);
 	io.Centralize(valueText);
 
 	//   ~~~//~~~
-	const slider = createSlider(
-		vec2(constants.MIDDLE_SCREEN_X, yPos + LAYOUT.SPEED_VALUE_OFFSET_Y + 20),
+	const slider = Slider.createSlider(
+		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y + 20],
 		{
 			width: SLIDER_WIDTH,
 			min: SPEED_MIN,

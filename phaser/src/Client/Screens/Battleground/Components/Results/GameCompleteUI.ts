@@ -1,5 +1,4 @@
 import * as UIButton from "@Components/Button/UIButton";
-import * as Geometry from "@Models/Geometry";
 import * as environment from "@Utils/environment";
 import * as State from "@Models/State";
 import * as Unit from "@Models/Entities/Unit";
@@ -7,11 +6,10 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as deleteSavedData from "@Game/effects/deleteSavedData";
 import * as ResultsConfig from "./ResultsConfig";
-import * as io from "../../../../../io";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
 import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
-import * as constants from "../../../../../Constants";
+import * as constants from "@Constants";
 import * as Config from "@config";
 
 export async function displayGameComplete(
@@ -153,7 +151,7 @@ export async function displayGameComplete(
 		([label, callback], i) =>
 			UIButton.create({
 				text: label,
-				position: Geometry.vec2(panelX, panelY + 50 + i * 100),
+				position: [panelX, panelY + 50 + i * 100],
 				callback: callback,
 			}).container
 	);
@@ -163,8 +161,8 @@ export async function displayGameComplete(
 	const container = io.Container([
 		statsPanel,
 		io.BorderedRoundRect(
-			Geometry.vec2(panelX, panelY),
-			Geometry.size(panelWidth, panelHeight),
+			[panelX, panelY],
+			[panelWidth, panelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
 			ResultsConfig.RESULTS_PANEL.backgroundColor,
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
@@ -176,17 +174,17 @@ export async function displayGameComplete(
 					fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
 					color: "#FFFFFF",
 				}),
-			(text) => io.SetPosition(text, Geometry.vec2(panelX, panelY - 250)),
+			(text) => io.SetPosition(text, [panelX, panelY - 250]),
 			(text) => io.Centralize(text),
 		],
 		[
 			() => io.Title1(isDemoComplete ? i18n.t("demo.complete.title") : message).setColor(color),
-			(title) => io.SetPosition(title, Geometry.vec2(panelX, panelY - 150)),
+			(title) => io.SetPosition(title, [panelX, panelY - 150]),
 			(title) => io.Centralize(title),
 		],
 		[
 			() => io.Label(subtitleText),
-			(label) => io.SetPosition(label, Geometry.vec2(panelX, panelY - 50)),
+			(label) => io.SetPosition(label, [panelX, panelY - 50]),
 			(label) => io.Centralize(label),
 		],
 
@@ -198,8 +196,8 @@ export async function displayGameComplete(
 		const wishlistPanelY = panelY + panelHeight / 2 + 15 + wishlistPanelHeight / 2;
 
 		const wishlistBg = io.BorderedRoundRect(
-			Geometry.vec2(panelX, wishlistPanelY),
-			Geometry.size(panelWidth, wishlistPanelHeight),
+			[panelX, wishlistPanelY],
+			[panelWidth, wishlistPanelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
 			ResultsConfig.RESULTS_PANEL.backgroundColor,
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
@@ -212,7 +210,7 @@ export async function displayGameComplete(
 
 		const btn = UIButton.create({
 			text: i18n.t("results.buttons.wishlist"),
-			position: Geometry.vec2(panelX, wishlistPanelY + 30),
+			position: [panelX, wishlistPanelY + 30],
 			callback: async () => {
 				window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 			},

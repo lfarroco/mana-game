@@ -3,7 +3,6 @@ import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Modal from "@Components/Modal/Modal";
 import * as UIButton from "@Components/Button/UIButton";
-import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
@@ -135,7 +134,7 @@ export const create = () => new Promise<void>((resolve) => {
 
 	const prevButton = UIButton.create({
 		text: "<",
-		position: Geometry.vec2(-100, PANEL_HEIGHT / 2 - 120),
+		position: [-100, PANEL_HEIGHT / 2 - 120],
 		callback: () => {
 			if (isLoading) return;
 			if (currentPage > 0) {
@@ -148,7 +147,7 @@ export const create = () => new Promise<void>((resolve) => {
 
 	const nextButton = UIButton.create({
 		text: ">",
-		position: Geometry.vec2(100, PANEL_HEIGHT / 2 - 120),
+		position: [100, PANEL_HEIGHT / 2 - 120],
 		callback: () => {
 			if (isLoading) return;
 			if (currentPage < getTotalPages() - 1) {
@@ -161,11 +160,11 @@ export const create = () => new Promise<void>((resolve) => {
 
 	const pageIndicator = io.Text("1 / 1", { fontSize: "24px", color: "#ffffff" });
 	io.Centralize(pageIndicator);
-	io.SetPosition(pageIndicator, Geometry.vec2(0, PANEL_HEIGHT / 2 - 120));
+	io.SetPosition(pageIndicator, [0, PANEL_HEIGHT / 2 - 120]);
 
 	const closeButton = UIButton.create({
 		text: i18n.t("title.back"),
-		position: Geometry.vec2(0, PANEL_HEIGHT / 2 - 40),
+		position: [0, PANEL_HEIGHT / 2 - 40],
 		callback: () => {
 			modal.close();
 		},
@@ -175,14 +174,14 @@ export const create = () => new Promise<void>((resolve) => {
 	const tabY = -PANEL_HEIGHT / 2 + 110;
 	const unlockedTabBtn = UIButton.create({
 		text: i18n.t("collection.tabs.unlocked"),
-		position: Geometry.vec2(-150, tabY),
+		position: [-150, tabY],
 		callback: () => switchTab("unlocked"),
 		width: 280,
 	});
 
 	const lockedTabBtn = UIButton.create({
 		text: i18n.t("collection.tabs.locked"),
-		position: Geometry.vec2(150, tabY),
+		position: [150, tabY],
 		callback: () => switchTab("locked"),
 		width: 280,
 	});

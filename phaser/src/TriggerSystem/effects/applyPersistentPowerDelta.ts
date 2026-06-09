@@ -1,4 +1,4 @@
-import { FORCE_ID_PLAYER } from "../../Constants";
+import { FORCE_ID_PLAYER } from "@Constants";
 import { applyPowerDelta, Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 

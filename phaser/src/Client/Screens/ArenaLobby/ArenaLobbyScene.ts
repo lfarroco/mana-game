@@ -1,53 +1,17 @@
 import Phaser from "phaser";
-import {
-	defaultTextConfig,
-	MIDDLE_SCREEN,
-	SCREEN_HEIGHT,
-	SCREEN_WIDTH,
-	titleTextConfig,
-} from "../../../Constants";
-import * as io from "../../../io";
-import { createModal, type Modal } from "@Components/Modal/Modal";
-import { create, Button } from "@Components/Button/UIButton";
-import { CloudsBackground } from "@Components/CloudsBackground/CloudsBackground";
-import { t } from "@i18n/i18n";
-import { vec2 } from "@Models/Geometry";
-import {
-	checkActiveSessionByType,
-	enableMultiplayer,
-	logout,
-	getPlayerProfile,
-	getCurrentAccountState,
-	getTopRankedPlayers,
-} from "@Multiplayer/MultiplayerManager";
+import * as Constants from "@Constants";
+import * as Modal from "@Components/Modal/Modal";
+import * as UIButton from "@Components/Button/UIButton";
+import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
+import * as i18n from "@i18n/i18n";
+import * as Geometry from "@Models/Geometry";
+import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
-import { createLogger } from "@Utils/Logger";
-import { MultiplayerQueueType } from "@Multiplayer/MultiplayerTypes";
-import {
-	ARENA_BACKGROUND_OVERLAY_ALPHA,
-	ARENA_BACKGROUND_OVERLAY_COLOR,
-	ARENA_BACKGROUND_SHADER_COLORS,
-	ARENA_OVERLAY_ALPHA,
-	ARENA_OVERLAY_COLOR,
-	ARENA_SURFACE_ALPHA,
-	ARENA_SURFACE_BORDER_ALPHA,
-	ARENA_SURFACE_BORDER_COLOR,
-	ARENA_SURFACE_BORDER_WIDTH,
-	ARENA_SURFACE_COLOR,
-	ARENA_TABLE_BORDER_COLOR,
-	ARENA_TABLE_COLOR,
-	ARENA_TABLE_HEADER_COLOR,
-	ARENA_TABLE_ROW_BORDER_COLOR,
-	ARENA_TABLE_ROW_EVEN_COLOR,
-	ARENA_TABLE_ROW_ODD_COLOR,
-	ARENA_TEXT_ACCENT,
-	ARENA_TEXT_INFO,
-	ARENA_TEXT_LABEL,
-	ARENA_TEXT_MUTED,
-	ARENA_TEXT_PRIMARY,
-} from "Client/Screens/ArenaLobby/arenaTheme";
+import * as Logger from "@Utils/Logger";
+import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
+import * as arenaTheme from "Client/Screens/ArenaLobby/arenaTheme";
 
-const logger = createLogger("ArenaLobbyScene");
+const logger = Logger.createLogger("ArenaLobbyScene");
 
 // Layout positioning
 const TITLE_Y = 100;
@@ -94,10 +58,10 @@ const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
 
 const createArenaText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
-	io.Text(text, { ...defaultTextConfig, ...style });
+	io.Text(text, { ...Constants.defaultTextConfig, ...style });
 
 const createArenaTitleText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
-	io.Text(text, { ...titleTextConfig, ...style });
+	io.Text(text, { ...Constants.titleTextConfig, ...style });
 
 type RankedPlayer = {
 	id: string;
@@ -117,17 +81,17 @@ type RankingRow = {
 export class ArenaLobbyScene extends Phaser.Scene {
 	private profileText?: Phaser.GameObjects.Text;
 	private ratingText?: Phaser.GameObjects.Text;
-	private buttons: Button[] = [];
-	private rankingButtons: Button[] = [];
+	private buttons: UIButton.Button[] = [];
+	private rankingButtons: UIButton.Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
-	private rankingModal?: Modal;
+	private rankingModal?: Modal.Modal;
 	private rankingRows: RankingRow[] = [];
 	private rankingEmptyStateText?: Phaser.GameObjects.Text;
 	private rankingPageText?: Phaser.GameObjects.Text;
-	private rankingPrevButton?: Button;
-	private rankingNextButton?: Button;
+	private rankingPrevButton?: UIButton.Button;
+	private rankingNextButton?: UIButton.Button;
 	private rankingCurrentPage: number = 1;
-	private accountButton?: Button;
+	private accountButton?: UIButton.Button;
 
 	create() {
 		this.buttons = [];
@@ -141,67 +105,67 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingCurrentPage = 1;
 		this.accountButton = undefined;
 
-		new CloudsBackground({
-			customColors: ARENA_BACKGROUND_SHADER_COLORS,
+		new CloudsBackground.CloudsBackground({
+			customColors: arenaTheme.ARENA_BACKGROUND_SHADER_COLORS,
 			timeScale: 0.9,
 		});
 		this.add
 			.rectangle(
 				0,
 				0,
-				SCREEN_WIDTH,
-				SCREEN_HEIGHT,
-				ARENA_BACKGROUND_OVERLAY_COLOR,
-				ARENA_BACKGROUND_OVERLAY_ALPHA
+				Constants.SCREEN_WIDTH,
+				Constants.SCREEN_HEIGHT,
+				arenaTheme.ARENA_BACKGROUND_OVERLAY_COLOR,
+				arenaTheme.ARENA_BACKGROUND_OVERLAY_ALPHA
 			)
 			.setOrigin(0);
 
-		createArenaTitleText(t("title.arena"), {
+		createArenaTitleText(i18n.t("title.arena"), {
 			fontSize: TITLE_FONT_SIZE,
-			color: ARENA_TEXT_PRIMARY,
+			color: arenaTheme.ARENA_TEXT_PRIMARY,
 		})
-			.setPosition(MIDDLE_SCREEN.x, TITLE_Y)
+			.setPosition(Constants.MIDDLE_SCREEN.x, TITLE_Y)
 			.setOrigin(0.5);
 
 		const cardTop = LOBBY_CARD_Y - LOBBY_CARD_HEIGHT / 2;
-		const cardLeft = MIDDLE_SCREEN.x - LOBBY_CARD_WIDTH / 2;
+		const cardLeft = Constants.MIDDLE_SCREEN.x - LOBBY_CARD_WIDTH / 2;
 		const fieldLabelX = cardLeft + LOBBY_LABEL_X_PADDING;
 		const fieldValueX = fieldLabelX;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...defaultTextConfig,
+			...Constants.defaultTextConfig,
 			fontSize: FIELD_LABEL_FONT_SIZE,
-			color: ARENA_TEXT_LABEL,
+			color: arenaTheme.ARENA_TEXT_LABEL,
 			fontStyle: "bold",
 			align: "left",
 		};
 		const profileTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...defaultTextConfig,
+			...Constants.defaultTextConfig,
 			fontSize: PROFILE_FONT_SIZE,
-			color: ARENA_TEXT_PRIMARY,
+			color: arenaTheme.ARENA_TEXT_PRIMARY,
 			align: "left",
 		};
 		const ratingTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...defaultTextConfig,
+			...Constants.defaultTextConfig,
 			fontSize: RATING_FONT_SIZE,
-			color: ARENA_TEXT_ACCENT,
+			color: arenaTheme.ARENA_TEXT_ACCENT,
 			fontStyle: "bold",
 			align: "left",
 		};
 
 		this.add
 			.rectangle(
-				MIDDLE_SCREEN.x,
+				Constants.MIDDLE_SCREEN_X,
 				LOBBY_CARD_Y,
 				LOBBY_CARD_WIDTH,
 				LOBBY_CARD_HEIGHT,
-				ARENA_SURFACE_COLOR,
-				ARENA_SURFACE_ALPHA
+				arenaTheme.ARENA_SURFACE_COLOR,
+				arenaTheme.ARENA_SURFACE_ALPHA
 			)
 			.setOrigin(0.5)
 			.setStrokeStyle(
-				ARENA_SURFACE_BORDER_WIDTH,
-				ARENA_SURFACE_BORDER_COLOR,
-				ARENA_SURFACE_BORDER_ALPHA
+				arenaTheme.ARENA_SURFACE_BORDER_WIDTH,
+				arenaTheme.ARENA_SURFACE_BORDER_COLOR,
+				arenaTheme.ARENA_SURFACE_BORDER_ALPHA
 			);
 
 		createArenaText("PLAYER", labelStyle)
@@ -221,9 +185,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		// Buttons
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
-		const casualBtn = create({
+		const casualBtn = UIButton.create({
 			text: "CASUAL",
-			position: vec2(MIDDLE_SCREEN.x, buttonY),
+			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY),
 			callback: async () => {
 				await this.startOrContinueRun("casual");
 			},
@@ -232,9 +196,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(casualBtn);
 
-		const rankedBtn = create({
+		const rankedBtn = UIButton.create({
 			text: "RANKED",
-			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
+			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
 			callback: async () => {
 				await this.startOrContinueRun("ranked");
 			},
@@ -243,10 +207,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(rankedBtn);
 
-		const leaderboardBtn = create({
+		const leaderboardBtn = UIButton.create({
 			text: "LEADERBOARD",
-			position: vec2(
-				MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
+			position: Geometry.vec2(
+				Constants.MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
 				buttonY + BUTTON_Y_OFFSET * 2
 			),
 			callback: async () => {
@@ -257,10 +221,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(leaderboardBtn);
 
-		this.accountButton = create({
+		this.accountButton = UIButton.create({
 			text: "ACCOUNT",
-			position: vec2(
-				MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
+			position: Geometry.vec2(
+				Constants.MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
 				buttonY + BUTTON_Y_OFFSET * 2
 			),
 			callback: () => {
@@ -275,13 +239,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(this.accountButton);
 		this.accountButton.container.setVisible(false);
 
-		const logoutBtn = create({
+		const logoutBtn = UIButton.create({
 			text: "LOGOUT",
-			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
 			callback: async () => {
 				this.setLoading(true);
 				try {
-					await logout();
+					await MultiplayerManager.logout();
 				} finally {
 					this.setLoading(false);
 				}
@@ -291,9 +255,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.buttons.push(logoutBtn);
 
-		const backBtn = create({
-			text: t("ui.menu.back"),
-			position: vec2(MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
+		const backBtn = UIButton.create({
+			text: i18n.t("ui.menu.back"),
+			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
 			callback: () => {
 				//this.scene.start(SCENE_KEYS.TITLE);
 			},
@@ -302,13 +266,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(backBtn);
 
 		const loadingBg = this.add
-			.rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ARENA_OVERLAY_COLOR, ARENA_OVERLAY_ALPHA)
+			.rectangle(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, arenaTheme.ARENA_OVERLAY_COLOR, arenaTheme.ARENA_OVERLAY_ALPHA)
 			.setOrigin(0);
 		const loadingLabel = createArenaText("Loading...", {
 			fontSize: "32px",
-			color: ARENA_TEXT_PRIMARY,
+			color: arenaTheme.ARENA_TEXT_PRIMARY,
 		})
-			.setPosition(MIDDLE_SCREEN.x, MIDDLE_SCREEN.y)
+			.setPosition(Constants.MIDDLE_SCREEN.x, Constants.MIDDLE_SCREEN.y)
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
@@ -324,7 +288,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.loadingOverlay?.setVisible(isLoading);
 	}
 
-	private setButtonVisibility(button: Button | undefined, visible: boolean) {
+	private setButtonVisibility(button: UIButton.Button | undefined, visible: boolean) {
 		if (!button) {
 			return;
 		}
@@ -341,19 +305,19 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	}
 
 	private createRankingModal() {
-		this.rankingModal = createModal({
+		this.rankingModal = Modal.createModal({
 			width: RANKING_PANEL_WIDTH,
 			height: RANKING_PANEL_HEIGHT,
 			title: "Leaderboard",
 			panelConfig: {
-				backgroundColor: ARENA_SURFACE_COLOR,
-				backgroundAlpha: ARENA_SURFACE_ALPHA,
-				borderColor: ARENA_SURFACE_BORDER_COLOR,
-				borderAlpha: ARENA_SURFACE_BORDER_ALPHA,
-				borderWidth: ARENA_SURFACE_BORDER_WIDTH,
+				backgroundColor: arenaTheme.ARENA_SURFACE_COLOR,
+				backgroundAlpha: arenaTheme.ARENA_SURFACE_ALPHA,
+				borderColor: arenaTheme.ARENA_SURFACE_BORDER_COLOR,
+				borderAlpha: arenaTheme.ARENA_SURFACE_BORDER_ALPHA,
+				borderWidth: arenaTheme.ARENA_SURFACE_BORDER_WIDTH,
 			},
-			overlayColor: ARENA_OVERLAY_COLOR,
-			overlayAlpha: ARENA_OVERLAY_ALPHA,
+			overlayColor: arenaTheme.ARENA_OVERLAY_COLOR,
+			overlayAlpha: arenaTheme.ARENA_OVERLAY_ALPHA,
 		});
 
 		const createTableText = (
@@ -370,26 +334,26 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				RANKING_TABLE_CARD_Y,
 				RANKING_TABLE_CARD_WIDTH,
 				RANKING_TABLE_CARD_HEIGHT,
-				ARENA_TABLE_COLOR,
+				arenaTheme.ARENA_TABLE_COLOR,
 				0.82
 			)
 			.setOrigin(0.5)
-			.setStrokeStyle(2, ARENA_TABLE_BORDER_COLOR, 0.9);
+			.setStrokeStyle(2, arenaTheme.ARENA_TABLE_BORDER_COLOR, 0.9);
 		const headerBackground = this.add
-			.rectangle(0, RANKING_HEADER_Y, RANKING_TABLE_WIDTH, 44, ARENA_TABLE_HEADER_COLOR, 0.95)
+			.rectangle(0, RANKING_HEADER_Y, RANKING_TABLE_WIDTH, 44, arenaTheme.ARENA_TABLE_HEADER_COLOR, 0.95)
 			.setOrigin(0.5)
-			.setStrokeStyle(1, ARENA_TABLE_BORDER_COLOR, 0.9);
+			.setStrokeStyle(1, arenaTheme.ARENA_TABLE_BORDER_COLOR, 0.9);
 
 		const headerStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...defaultTextConfig,
+			...Constants.defaultTextConfig,
 			fontSize: "22px",
-			color: ARENA_TEXT_INFO,
+			color: arenaTheme.ARENA_TEXT_INFO,
 			fontStyle: "bold",
 		};
 		const rowStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...defaultTextConfig,
+			...Constants.defaultTextConfig,
 			fontSize: "24px",
-			color: ARENA_TEXT_PRIMARY,
+			color: arenaTheme.ARENA_TEXT_PRIMARY,
 			align: "left",
 		};
 
@@ -408,11 +372,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 					rowY,
 					RANKING_ROW_WIDTH,
 					RANKING_ROW_HEIGHT,
-					index % 2 === 0 ? ARENA_TABLE_ROW_EVEN_COLOR : ARENA_TABLE_ROW_ODD_COLOR,
+					index % 2 === 0 ? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR : arenaTheme.ARENA_TABLE_ROW_ODD_COLOR,
 					0.92
 				)
 				.setOrigin(0.5)
-				.setStrokeStyle(1, ARENA_TABLE_ROW_BORDER_COLOR, 0.75);
+				.setStrokeStyle(1, arenaTheme.ARENA_TABLE_ROW_BORDER_COLOR, 0.75);
 
 			const row: RankingRow = {
 				background,
@@ -428,7 +392,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.rankingEmptyStateText = createArenaText("", {
 			fontSize: "28px",
-			color: ARENA_TEXT_MUTED,
+			color: arenaTheme.ARENA_TEXT_MUTED,
 			align: "center",
 			wordWrap: { width: 600 },
 		})
@@ -438,30 +402,30 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.rankingPageText = createArenaText("", {
 			fontSize: "24px",
-			color: ARENA_TEXT_MUTED,
+			color: arenaTheme.ARENA_TEXT_MUTED,
 		})
 			.setPosition(0, RANKING_PAGE_TEXT_Y)
 			.setOrigin(0.5);
 
-		this.rankingPrevButton = create({
+		this.rankingPrevButton = UIButton.create({
 			text: "Previous",
-			position: vec2(-210, RANKING_BUTTONS_Y),
+			position: Geometry.vec2(-210, RANKING_BUTTONS_Y),
 			callback: async () => {
 				if (this.rankingCurrentPage > 1) {
 					await this.loadRankingPage(this.rankingCurrentPage - 1);
 				}
 			},
 		});
-		this.rankingNextButton = create({
+		this.rankingNextButton = UIButton.create({
 			text: "Next",
-			position: vec2(210, RANKING_BUTTONS_Y),
+			position: Geometry.vec2(210, RANKING_BUTTONS_Y),
 			callback: async () => {
 				await this.loadRankingPage(this.rankingCurrentPage + 1);
 			},
 		});
-		const closeButton = create({
+		const closeButton = UIButton.create({
 			text: "Close",
-			position: vec2(0, RANKING_CLOSE_Y),
+			position: Geometry.vec2(0, RANKING_CLOSE_Y),
 			callback: () => {
 				void this.closeRankingModal();
 			},
@@ -506,7 +470,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private async loadRankingPage(page: number) {
 		this.setLoading(true);
 		try {
-			const result = await getTopRankedPlayers(page, RANKING_PAGE_SIZE);
+			const result = await MultiplayerManager.getTopRankedPlayers(page, RANKING_PAGE_SIZE);
 			this.renderRankingPage(result.page, result.hasNextPage, result.players);
 		} catch (error) {
 			logger.error("Failed to load ranking page", { page, error });
@@ -538,9 +502,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				const username = player.username || `Guest#${player.id.slice(0, 4)}`;
 				row.background.setFillStyle(this.getRankingRowColor(rank, index), 0.92);
 				row.rankText.setText(`#${rank}`).setColor(this.getRankingAccentColor(rank));
-				row.usernameText.setText(this.formatRankingUsername(username)).setColor(ARENA_TEXT_PRIMARY);
+				row.usernameText.setText(this.formatRankingUsername(username)).setColor(arenaTheme.ARENA_TEXT_PRIMARY);
 				row.ratingText.setText(`${player.rating}`).setColor("#fde68a");
-				row.matchesText.setText(`${player.matches_played}`).setColor(ARENA_TEXT_INFO);
+				row.matchesText.setText(`${player.matches_played}`).setColor(arenaTheme.ARENA_TEXT_INFO);
 				this.setRankingRowVisible(row, true);
 			});
 		}
@@ -557,7 +521,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.rankingEmptyStateText?.setText(message).setVisible(true);
 	}
 
-	private setRankingButtonVisibility(button: Button | undefined, visible: boolean) {
+	private setRankingButtonVisibility(button: UIButton.Button | undefined, visible: boolean) {
 		if (!button) {
 			return;
 		}
@@ -583,14 +547,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		if (rank === 1) return "#facc15";
 		if (rank === 2) return "#e2e8f0";
 		if (rank === 3) return "#f59e0b";
-		return ARENA_TEXT_INFO;
+		return arenaTheme.ARENA_TEXT_INFO;
 	}
 
 	private getRankingRowColor(rank: number, index: number): number {
 		if (rank === 1) return 0x3b2f0f;
 		if (rank === 2) return 0x243244;
 		if (rank === 3) return 0x3c2415;
-		return index % 2 === 0 ? ARENA_TABLE_ROW_EVEN_COLOR : ARENA_TABLE_ROW_ODD_COLOR;
+		return index % 2 === 0 ? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR : arenaTheme.ARENA_TABLE_ROW_ODD_COLOR;
 	}
 
 	private formatRankingUsername(username: string): string {
@@ -602,12 +566,12 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		return `${username.slice(0, maxLength - 3)}...`;
 	}
 
-	private async startOrContinueRun(queueType: MultiplayerQueueType) {
+	private async startOrContinueRun(queueType: MultiplayerTypes.MultiplayerQueueType) {
 		this.setLoading(true);
 		try {
-			const hasActiveSession = await checkActiveSessionByType(queueType);
+			const hasActiveSession = await MultiplayerManager.checkActiveSessionByType(queueType);
 			if (hasActiveSession) {
-				await enableMultiplayer(undefined, queueType);
+				await MultiplayerManager.enableMultiplayer(undefined, queueType);
 				// this.scene.start(SCENE_KEYS.BATTLEGROUND, {
 				// 	isMultiplayer: true,
 				// 	multiplayerQueueType: queueType,
@@ -631,8 +595,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		} else {
 			try {
-				const profile = await getPlayerProfile(playerId);
-				const accountState = await getCurrentAccountState();
+				const profile = await MultiplayerManager.getPlayerProfile(playerId);
+				const accountState = await MultiplayerManager.getCurrentAccountState();
 				const displayName =
 					accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
 				this.profileText?.setText(displayName);

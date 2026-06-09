@@ -1,5 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as showTab from "@Screens/Options/Components/effects/showTab";
@@ -15,21 +14,21 @@ export function create() {
 
 	buttonIndex["audio"] = UIButton.create({
 		text: i18n.t("options.tabs.audio"),
-		position: Geometry.vec2(startX, tabButtonY),
+		position: [startX, tabButtonY],
 		callback: () => showTab.showTab("audio"),
 		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
 	buttonIndex["graphics"] = UIButton.create({
 		text: i18n.t("options.tabs.graphics"),
-		position: Geometry.vec2(startX + buttonSpacing, tabButtonY),
+		position: [startX + buttonSpacing, tabButtonY],
 		callback: () => showTab.showTab("graphics"),
 		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});
 
 	buttonIndex["game"] = UIButton.create({
 		text: i18n.t("options.tabs.game"),
-		position: Geometry.vec2(startX + buttonSpacing * 2, tabButtonY),
+		position: [startX + buttonSpacing * 2, tabButtonY],
 		callback: () => showTab.showTab("game"),
 		width: OptionsScreen.LAYOUT.TAB_BUTTON_WIDTH,
 	});

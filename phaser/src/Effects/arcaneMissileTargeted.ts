@@ -1,6 +1,7 @@
-import { EnergyBeam } from "./EnergyBeam";
-import { delay } from "@Utils/animation";
-import { getOption } from "@Models/OptionsStore";
+import * as EnergyBeam from "./EnergyBeam";
+import * as animation from "@Utils/animation";
+import * as OptionsStore from "@Models/OptionsStore";
+import * as Geometry from "@Models/Geometry";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];
@@ -47,19 +48,19 @@ export async function arcaneMissileTargeted(
 
 	const duration = 200;
 
-	const distance = Phaser.Math.Distance.BetweenPoints(source, target);
+	const distance = Geometry.distanceBetween(source, target);
 
 	const positiveOrNegative = Math.random() > 0.5 ? 1 : -1;
 	const amplitude =
 		(Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
 	const frequency = Math.floor(Math.random() * (frequencyMax - frequencyMin + 1) + frequencyMin);
 
-	const particlesOption = getOption("particles");
+	const particlesOption = OptionsStore.getOption("particles");
 	let particleDivisor = 30;
 	if (particlesOption === "low") particleDivisor = 45;
 	else if (particlesOption === "high") particleDivisor = 15;
 
-	const beam = new EnergyBeam(scene, {
+	const beam = new EnergyBeam.EnergyBeam({
 		start: source,
 		end: target,
 		thickness: 1,
@@ -90,7 +91,10 @@ export async function arcaneMissileTargeted(
 	const travelTime = duration;
 	const segmentDelay = travelTime / totalSegments;
 
-	const vec = new Phaser.Math.Vector2(target.x - source.x, target.y - source.y);
+	const [sx, sy] = source;
+	const [tx, ty] = target;
+
+	const vec = new Phaser.Math.Vector2(tx - sx, ty - sy);
 	const normal = new Phaser.Math.Vector2(-vec.y, vec.x).normalize();
 
 	for (let i = 0; i < totalSegments; i++) {
@@ -128,7 +132,7 @@ export async function arcaneMissileTargeted(
 		});
 	}
 
-	await delay(duration);
+	await animation.delay(duration);
 
 	const impactLifespan = impact.lifespan || 300;
 	const impactSpeed = impact.speed || 200;
@@ -145,14 +149,14 @@ export async function arcaneMissileTargeted(
 		const color = impactColors[Math.floor(Math.random() * impactColors.length)];
 		const size = Phaser.Math.FloatBetween(40, 60);
 
-		const rect = scene.add.rectangle(target.x, target.y, size, size, color, impactAlpha);
+		const rect = scene.add.rectangle(tx, ty, size, size, color, impactAlpha);
 		rect.setBlendMode(blendMode);
 		impactRects.push(rect);
 
 		scene.tweens.add({
 			targets: rect,
-			x: target.x + Math.cos(angle) * travelDistance,
-			y: target.y + Math.sin(angle) * travelDistance,
+			x: tx + Math.cos(angle) * travelDistance,
+			y: ty + Math.sin(angle) * travelDistance,
 			alpha: 0,
 			scaleX: 0,
 			scaleY: 0,
@@ -166,7 +170,7 @@ export async function arcaneMissileTargeted(
 
 	onHit();
 
-	await delay(impactLifespan);
+	await animation.delay(impactLifespan);
 
 	impactRects.forEach((rect) => {
 		if (rect.active) {

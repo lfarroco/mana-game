@@ -1,5 +1,5 @@
 import * as Unit from "@Models/Entities/Unit";
-import * as constants from "../../Constants";
+import * as constants from "@Constants";
 import * as animation from "@Utils/animation";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
@@ -148,15 +148,15 @@ export function getScreenPosition(unit: Unit.Unit) {
 	const offsetY =
 		unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
-	let visualX = unit.position.x;
+	let visualX = unit.position[0];
 	if (unit.force === constants.FORCE_ID_CPU) {
-		visualX = 2 - unit.position.x;
+		visualX = 2 - unit.position[0];
 	}
 
 	return {
 		x: visualX * (constants.TILE_WIDTH + slotSpacing) + constants.HALF_TILE_WIDTH + offsetX,
 		y:
-			unit.position.y * (constants.TILE_HEIGHT + slotSpacing) +
+			unit.position[1] * (constants.TILE_HEIGHT + slotSpacing) +
 			constants.HALF_TILE_HEIGHT +
 			offsetY,
 	};

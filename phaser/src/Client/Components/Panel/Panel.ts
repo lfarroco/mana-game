@@ -1,4 +1,3 @@
-import * as Geometry from "@Models/Geometry";
 
 export type PanelConfig = {
 	width: number;
@@ -46,7 +45,7 @@ export function createPanel(position: Vec2, config: PanelConfig): Panel {
 
 	const background = io.BorderedRoundRect(
 		position,
-		Geometry.size(width, height),
+		[width, height],
 		borderRadius,
 		backgroundColor,
 		backgroundAlpha

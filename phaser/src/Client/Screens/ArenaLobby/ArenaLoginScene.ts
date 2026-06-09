@@ -5,7 +5,7 @@ import {
 	SCREEN_HEIGHT,
 	SCREEN_WIDTH,
 	titleTextConfig,
-} from "../../../Constants";
+} from "@Constants";
 import * as io from "../../../io";
 import { create, Button } from "@Components/Button/UIButton";
 import { createModal } from "@Components/Modal/Modal";
@@ -136,7 +136,7 @@ export class ArenaLoginScene extends Phaser.Scene {
 
 		this.add
 			.rectangle(
-				MIDDLE_SCREEN.x,
+				MIDDLE_SCREEN_X,
 				FORM_CARD_Y,
 				FORM_CARD_WIDTH,
 				FORM_CARD_HEIGHT,

@@ -1,10 +1,8 @@
-import { Chara } from "@Systems/Chara/Chara";
-import { Unit } from "@Models/Entities/Unit";
-import { hexToVector3 } from "@Utils/colorUtils";
-import { TILE_WIDTH } from "../../Constants";
-import { Shader } from "../../io";
-import { size, vec2 } from "@Models/Geometry";
-import { simpleMagicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
+import * as Chara from "@Systems/Chara/Chara";
+import * as Unit from "@Models/Entities/Unit";
+import * as colorUtils from "@Utils/colorUtils";
+import * as Constants from "@Constants";
+import * as MagicOrbShader from "@Components/MagicOrb/MagicOrbShader";
 
 const bronze = 0x804a00;
 const silver = 0xc0c0c0;
@@ -13,13 +11,13 @@ const platinum = 0xb9f2ff;
 
 const colors = [bronze, silver, gold, platinum];
 
-export function create(unit: Unit, chara: Chara) {
-	const { x, y, z } = hexToVector3(colors[unit.rank - 1] || bronze);
+export function create(unit: Unit.Unit, chara: Chara.Chara) {
+	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
 
-	const orb = Shader(
-		simpleMagicOrbFragmentShader,
-		vec2(0, 0),
-		size(TILE_WIDTH * 0.7, TILE_WIDTH * 0.7),
+	const orb = io.Shader(
+		MagicOrbShader.simpleMagicOrbFragmentShader,
+		[0, 0],
+		[Constants.TILE_WIDTH * 0.7, Constants.TILE_WIDTH * 0.7],
 		[
 			{
 				key: "color1",

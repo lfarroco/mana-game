@@ -1,45 +1,31 @@
 
-export interface Vec2 {
-	x: number;
-	y: number;
-}
 
-export interface Size {
-	width: number;
-	height: number;
-}
+export type Vec2 = [number, number];
 
-export const vec2 = (x: number, y: number): Vec2 => ({
-	x,
-	y,
-});
+export type Size = [number, number];
 
-export const size = (width: number, height: number): Size => ({
-	width,
-	height,
-});
+export const eqVec2 = ([x1, y1]: Vec2, [x2, y2]: Vec2) => x1 === x2 && y1 === y2;
 
-export const asVec2 = ({ x, y }: { x: number; y: number }): Vec2 => vec2(x, y);
+export const sumVec2 = ([x1, y1]: Vec2, [x2, y2]: Vec2) => [x1 + x2, y1 + y2];
 
-export const eqVec2 = (v1: Vec2, v2: Vec2) => v1.x === v2.x && v1.y === v2.y;
+export const centerOf = ([width, height]: Size) => [width / 2, height / 2];
 
-export const sumVec2 = (v1: Vec2, v2: Vec2) => vec2(v1.x + v2.x, v1.y + v2.y);
-
-export const centerOf = (dim: Size) => vec2(dim.width / 2, dim.height / 2);
-
-export const snakeDistanceBetween = (a: Vec2, b: Vec2): number => {
-	const dx = Math.abs(a.x - b.x);
-	const dy = Math.abs(a.y - b.y);
+export const snakeDistanceBetween = ([x1, y1]: Vec2, [x2, y2]: Vec2): number => {
+	const dx = Math.abs(x1 - x2);
+	const dy = Math.abs(y1 - y2);
 	return dx + dy;
 }
 
+export const distanceBetween = ([x1, y1]: Vec2, [x2, y2]: Vec2): number => {
+	const dx = x1 - x2;
+	const dy = y1 - y2;
+	return Math.sqrt(dx * dx + dy * dy);
+}
+
 export function isInside(
-	x: number,
-	y: number,
-	w: number,
-	h: number,
-	px: number,
-	py: number
+	[x, y]: Vec2,
+	[w, h]: Size,
+	[px, py]: Vec2
 ): boolean {
 	const rectX = w < 0 ? x + w : x;
 	const rectY = h < 0 ? y + h : y;

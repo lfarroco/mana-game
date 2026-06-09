@@ -1,5 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 
@@ -7,10 +6,10 @@ export function render(y: number) {
 	const label = i18n.t("title.multiplayer");
 	return UIButton.create({
 		text: label,
-		position: Geometry.vec2(
-			constants.MIDDLE_SCREEN.x,
+		position: [
+			constants.MIDDLE_SCREEN_X,
 			y,
-		),
+		],
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
 			if (playerId) {

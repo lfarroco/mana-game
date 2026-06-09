@@ -1,5 +1,5 @@
 import * as i18n from "@i18n/i18n";
-import * as constants from "../../../../../Constants";
+import * as constants from "@Constants";
 
 export const LEFT_PANEL_X = 450;
 export const RIGHT_PANEL_X = constants.SCREEN_WIDTH - LEFT_PANEL_X;

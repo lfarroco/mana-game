@@ -57,7 +57,7 @@ export type Button = {
 
 export type CreateUIButtonConfig = {
 	text: string;
-	position: Vec2;
+	position: [number, number];
 	callback: () => void;
 	width?: number;
 	emoji?: string;
@@ -154,22 +154,22 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 		state.graphics.strokeRoundedRect(
 			-glowWidth / 2,
 			-glowWidth / 2,
-			state.size.width + glowWidth,
-			state.size.height + glowWidth,
+			state.size[0] + glowWidth,
+			state.size[1] + glowWidth,
 			BUTTON_CORNER_RADIUS + glowWidth / 2
 		);
 		state.graphics.lineStyle(glowWidth - 2, visuals.borderColor, visuals.glowAlpha * 0.16);
 		state.graphics.strokeRoundedRect(
 			-glowWidth,
 			-glowWidth,
-			state.size.width + glowWidth * 2,
-			state.size.height + glowWidth * 2,
+			state.size[0] + glowWidth * 2,
+			state.size[1] + glowWidth * 2,
 			BUTTON_CORNER_RADIUS + glowWidth
 		);
 	}
 	state.graphics.lineStyle(visuals.borderWidth, visuals.borderColor, visuals.borderAlpha);
 	state.graphics.fillStyle(BUTTON_BG_COLOR, state.currentBackgroundAlpha);
-	state.graphics.fillRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
+	state.graphics.fillRoundedRect(0, 0, state.size[0], state.size[1], BUTTON_CORNER_RADIUS);
 	state.graphics.fillStyle(
 		visuals.borderColor,
 		Math.min(BUTTON_TOP_HIGHLIGHT_ALPHA, visuals.borderAlpha * BUTTON_TOP_HIGHLIGHT_ALPHA)
@@ -177,11 +177,11 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.fillRoundedRect(
 		0,
 		0,
-		state.size.width,
-		Math.min(BUTTON_TOP_HIGHLIGHT_HEIGHT, state.size.height),
+		state.size[0],
+		Math.min(BUTTON_TOP_HIGHLIGHT_HEIGHT, state.size[1]),
 		BUTTON_CORNER_RADIUS
 	);
-	state.graphics.strokeRoundedRect(0, 0, state.size.width, state.size.height, BUTTON_CORNER_RADIUS);
+	state.graphics.strokeRoundedRect(0, 0, state.size[0], state.size[1], BUTTON_CORNER_RADIUS);
 	state.graphics.lineStyle(
 		BUTTON_INNER_BORDER_WIDTH,
 		theme.UI_SURFACE_ACCENT_COLOR,
@@ -190,8 +190,8 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 	state.graphics.strokeRoundedRect(
 		BUTTON_INNER_BORDER_INSET,
 		BUTTON_INNER_BORDER_INSET,
-		state.size.width - BUTTON_INNER_BORDER_INSET * 2,
-		state.size.height - BUTTON_INNER_BORDER_INSET * 2,
+		state.size[0] - BUTTON_INNER_BORDER_INSET * 2,
+		state.size[1] - BUTTON_INNER_BORDER_INSET * 2,
 		Math.max(0, BUTTON_CORNER_RADIUS - BUTTON_INNER_BORDER_INSET / 2)
 	);
 	if (visuals.glowAlpha > 0) {
@@ -199,8 +199,8 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 		state.graphics.strokeRoundedRect(
 			BUTTON_INNER_BORDER_INSET,
 			BUTTON_INNER_BORDER_INSET,
-			state.size.width - BUTTON_INNER_BORDER_INSET * 2,
-			state.size.height - BUTTON_INNER_BORDER_INSET * 2,
+			state.size[0] - BUTTON_INNER_BORDER_INSET * 2,
+			state.size[1] - BUTTON_INNER_BORDER_INSET * 2,
 			Math.max(0, BUTTON_CORNER_RADIUS - BUTTON_INNER_BORDER_INSET / 2)
 		);
 	}
@@ -210,22 +210,20 @@ const renderButtonGraphics = (state: State, visuals: ButtonVisualStyle) => {
 
 export function create({
 	text,
-	position,
+	position: [x, y],
 	callback,
 	width = 280,
 	emoji,
 	tooltip,
 }: CreateUIButtonConfig): Button {
 	logger.debug(`DEBUG: createUIButton called for ${text}`);
-	const size = {
-		width,
-		height: BUTTON_HEIGHT,
-	};
+	const size: [number, number] = [width, BUTTON_HEIGHT];
+	const [_, height] = size;
 	const container = io.Container();
 	const displayText = buildButtonDisplayText(text, emoji);
 
 	const buttonGraphics = io.BorderedRoundRect(
-		position,
+		[x, y],
 		size,
 		BUTTON_CORNER_RADIUS,
 		BUTTON_BG_COLOR,
@@ -238,7 +236,7 @@ export function create({
 	}
 
 	const buttonText = io.Text(displayText, textStyle);
-	io.SetPosition(buttonText, position);
+	io.SetPosition(buttonText, [x, y]);
 	io.Centralize(buttonText);
 
 	io.AddChildren(container, [buttonGraphics, buttonText]);
@@ -331,12 +329,12 @@ export function create({
 					() => ({
 						x:
 							tooltip.position === "right"
-								? position.x + size.width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
-								: position.x,
+								? x + width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
+								: x,
 						y:
 							tooltip.position === "right"
-								? position.y
-								: position.y + size.height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
+								? y
+								: y + height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
 					})
 				)
 				: undefined,

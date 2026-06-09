@@ -1,6 +1,5 @@
-import * as constants from "../../../../Constants";
+import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import * as parent from "../CrystalSelectionScreen";
 
@@ -40,7 +39,10 @@ export function create() {
 		...constants.titleTextConfig,
 		fontSize: CRYSTAL_NAME_FONT_SIZE,
 	});
-	io.SetPosition(parent.state.crystalName, Geometry.vec2(constants.MIDDLE_SCREEN_X, CARD_NAME_Y));
+	io.SetPosition(
+		parent.state.crystalName,
+		[constants.MIDDLE_SCREEN_X, CARD_NAME_Y]
+	);
 	io.Centralize(parent.state.crystalName);
 
 	parent.state.descriptionText = new BBCodeText(

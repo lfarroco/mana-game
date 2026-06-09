@@ -1,4 +1,4 @@
-import * as constants from "../../../../Constants";
+import * as constants from "@Constants";
 import * as io from "../../../../io";
 
 export const CARD_DISPLAY_Y = 400;

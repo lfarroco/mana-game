@@ -1,5 +1,4 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
@@ -23,7 +22,7 @@ export function create(): void {
 	});
 	overlay.show();
 
-	const panel = Panel.createPanel(Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y), {
+	const panel = Panel.createPanel([constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y], {
 		width: panelWidth,
 		height: panelHeight,
 	});
@@ -31,7 +30,7 @@ export function create(): void {
 	const title = io.Title1(i18n.t("language.title"));
 	io.SetPosition(
 		title,
-		Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40)
+		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40]
 	);
 	io.Centralize(title);
 
@@ -41,7 +40,7 @@ export function create(): void {
 	const langButtons = languages.map((lang, index) => {
 		return UIButton.create({
 			text: i18n.getNativeName(lang),
-			position: Geometry.vec2(constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing),
+			position: [constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing],
 			callback: () => {
 				selectLanguage(lang);
 			},
@@ -51,7 +50,7 @@ export function create(): void {
 
 	const closeButton = UIButton.create({
 		text: i18n.t("language.close"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50),
+		position: [constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50],
 		callback: () => {
 			closeLanguagePanel();
 		},

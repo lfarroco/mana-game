@@ -1,8 +1,8 @@
 import Phaser from "phaser";
 
 export type BeamOptions = {
-	start: { x: number; y: number };
-	end: { x: number; y: number };
+	start: Vec2;
+	end: Vec2;
 	segments?: number;
 	amplitude?: number;
 	frequency?: number;
@@ -12,8 +12,8 @@ export type BeamOptions = {
 };
 
 export class EnergyBeam extends Phaser.GameObjects.Graphics {
-	start: { x: number; y: number };
-	end: { x: number; y: number };
+	start: Vec2;
+	end: Vec2;
 	segments: number;
 	amplitude: number;
 	frequency: number;
@@ -24,11 +24,10 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	points: Phaser.Math.Vector2[];
 
 	constructor(
-		scene: Phaser.Scene,
 		config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options
 	) {
-		super(scene, config);
-		scene.add.existing(this);
+		super(io.scene, config);
+		io.scene.add.existing(this);
 
 		this.setBlendMode(Phaser.BlendModes.ADD);
 
@@ -48,7 +47,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	updateBeam() {
 		this.clear();
 
-		const vec = new Phaser.Math.Vector2(this.end.x - this.start.x, this.end.y - this.start.y);
+		const vec = new Phaser.Math.Vector2(this.end[0] - this.start[0], this.end[1] - this.start[1]);
 
 		const normalized = vec.clone().normalize();
 		const normal = new Phaser.Math.Vector2(-normalized.y, normalized.x);
@@ -58,7 +57,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 			const t = i / this.segments;
 			const wave = Math.sin(t * Math.PI * this.frequency + this.phase);
 
-			const basePos = new Phaser.Math.Vector2(this.start.x, this.start.y).add(vec.clone().scale(t));
+			const basePos = new Phaser.Math.Vector2(this.start[0], this.start[1]).add(vec.clone().scale(t));
 
 			const offset = normal.clone().scale(wave * this.amplitude);
 			const pos = basePos.add(offset);

@@ -1,5 +1,4 @@
-import * as constants from "../../../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as Unit from "@Models/Entities/Unit";
 import * as State from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
@@ -11,7 +10,7 @@ import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events
 export async function itemDragPurchaseRequested(
 	shopUnitData: Unit.Unit,
 	shopCharaId: string,
-	targetTile: Geometry.Vec2,
+	targetTile: Vec2,
 	dragStartX: number,
 	dragStartY: number
 ) {
@@ -32,7 +31,7 @@ export async function itemDragPurchaseRequested(
 		session.team.units.length >= constants.MAX_PARTY_SIZE
 	) {
 		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
+			shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
 		}
 		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
@@ -43,7 +42,7 @@ export async function itemDragPurchaseRequested(
 		const occupier = State.getUnitAt(session.team.units)(targetTile);
 		if (occupier) {
 			if (shopChara) {
-				shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
+				shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
 			}
 			uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 			return;
@@ -51,12 +50,11 @@ export async function itemDragPurchaseRequested(
 	}
 
 	// Use the GameController to handle the purchase
-	const targetSlot = targetTile.y * 3 + targetTile.x;
-	const success = await GameController.purchaseUnit(shopUnitData.cardId, targetSlot);
+	const success = await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
 
 	if (!success) {
 		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, Geometry.vec2(dragStartX, dragStartY));
+			shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
 		}
 		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SERVER_REJECTED");
 		return;

@@ -1,7 +1,7 @@
-import * as constants from "../Constants";
+import * as constants from "@Constants";
 import * as Geometry from "@Models/Geometry";
-import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
+import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/State";
 import * as EnergySlot from "Client/Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@Models/BoardLogic";
 
@@ -40,7 +40,7 @@ export function renderBoardSlots(board: BoardState): void {
 
 	const cells: Vec2[] = [];
 	for (let tileY = 0; tileY < 3; tileY++)
-		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
+		for (let tileX = 0; tileX < 3; tileX++) cells.push([tileX, tileY]);
 
 	const boards = [
 		{ x: constants.PLAYER_BOARD_X, y: constants.PLAYER_BOARD_Y, isPlayer: true },
@@ -48,14 +48,14 @@ export function renderBoardSlots(board: BoardState): void {
 	];
 
 	boards.forEach((boardInfo) => {
-		cells.forEach((cell) => {
-			let visualX = cell.x;
+		cells.forEach(([cx, cy]) => {
+			let visualX = cx;
 			if (!boardInfo.isPlayer) {
-				visualX = 2 - cell.x;
+				visualX = 2 - cx;
 			}
 
 			const zoneX = boardInfo.x + visualX * (constants.TILE_WIDTH + slotSpacing);
-			const zoneY = boardInfo.y + cell.y * (constants.TILE_HEIGHT + slotSpacing);
+			const zoneY = boardInfo.y + cy * (constants.TILE_HEIGHT + slotSpacing);
 
 			const slotX = zoneX + constants.TILE_WIDTH / 2;
 			const slotY = zoneY + constants.TILE_HEIGHT / 2;
@@ -97,8 +97,8 @@ export function renderBoardSlots(board: BoardState): void {
 				);
 				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
 				dropZone.setName("board-cell");
-				dropZone.setData("cell-x", cell.x);
-				dropZone.setData("cell-y", cell.y);
+				dropZone.setData("cell-x", cx);
+				dropZone.setData("cell-y", cy);
 				board.dropZones.push(dropZone);
 			}
 		});
@@ -185,7 +185,7 @@ export function destroy(board: BoardState): void {
 	destroyVisuals(board);
 }
 
-export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
+export function getEmptySlot(units: Unit.Unit[], forceId: string): Vec2 | null {
 	const board = getBoardState();
 
 	const boardWidthInTiles = Math.floor(board.width / constants.TILE_WIDTH);
@@ -214,7 +214,7 @@ export function getTileAt(board: BoardState, pointer: { x: number; y: number }):
 		const tileY = Math.floor((pointer.y - board.y) / heightWithSpacing);
 
 		if (tileX >= 0 && tileX < 3 && tileY >= 0 && tileY < 3) {
-			return Geometry.vec2(tileX, tileY);
+			return [tileX, tileY];
 		}
 	}
 	return null;
@@ -224,35 +224,37 @@ export function getSlotPosition(slotIndex: number, isPlayerBoard: boolean = true
 	const slotSpacing = 8;
 	const cells = [];
 	for (let tileY = 0; tileY < 3; tileY++)
-		for (let tileX = 0; tileX < 3; tileX++) cells.push(Geometry.vec2(tileX, tileY));
+		for (let tileX = 0; tileX < 3; tileX++) cells.push([tileX, tileY]);
 
 	const cell = cells[slotIndex];
-	if (!cell) return Geometry.vec2(0, 0);
+	if (!cell) return [0, 0];
 
-	let visualX = cell.x;
+	const [cx, cy] = cell;
+
+	let visualX = cx;
 	if (!isPlayerBoard) {
-		visualX = 2 - cell.x;
+		visualX = 2 - cx;
 	}
 
 	const boardX = isPlayerBoard ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const boardY = isPlayerBoard ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
 	const zoneX = boardX + visualX * (constants.TILE_WIDTH + slotSpacing);
-	const zoneY = boardY + cell.y * (constants.TILE_HEIGHT + slotSpacing);
+	const zoneY = boardY + cy * (constants.TILE_HEIGHT + slotSpacing);
 
 	const slotX = zoneX + constants.TILE_WIDTH / 2;
 	const slotY = zoneY + constants.TILE_HEIGHT / 2;
 
-	return Geometry.vec2(slotX, slotY);
+	return [slotX, slotY];
 }
 
 export function updateUnitPosition(
-	unitToMove: Unit,
+	unitToMove: Unit.Unit,
 	newBoardPosition: Vec2,
-	unitsOnBoard: Unit[]
+	unitsOnBoard: Unit.Unit[]
 ): {
-	movedUnit: Unit;
-	swappedUnit?: Unit;
+	movedUnit: Unit.Unit;
+	swappedUnit?: Unit.Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
 	const oldPositionOfMovedUnit = { ...unitToMove.position };
@@ -312,22 +314,22 @@ export function getBoardState(): BoardState {
 	return _playerBoardState;
 }
 
-export function getColumnNeighbors(state: State, unit: Unit) {
+export function getColumnNeighbors(state: State.State, unit: Unit.Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
-		.filter((u) => u.position.x === unit.position.x && u.id !== unit.id);
+		.filter((u) => u.position[0] === unit.position[0] && u.id !== unit.id);
 }
 
-export function getRowNeighbors(state: State, unit: Unit) {
+export function getRowNeighbors(state: State.State, unit: Unit.Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
-		.filter((u) => u.position.y === unit.position.y && u.id !== unit.id);
+		.filter((u) => u.position[1] === unit.position[1] && u.id !== unit.id);
 }
 
-export function getNeighbors(state: State, unit: Unit) {
+export function getNeighbors(state: State.State, unit: Unit.Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
 		.filter((u) => u.id !== unit.id)
-		.filter((u) => u.position.x >= unit.position.x - 1 && u.position.x <= unit.position.x + 1)
-		.filter((u) => u.position.y >= unit.position.y - 1 && u.position.y <= unit.position.y + 1);
+		.filter((u) => u.position[0] >= unit.position[0] - 1 && u.position[0] <= unit.position[0] + 1)
+		.filter((u) => u.position[1] >= unit.position[1] - 1 && u.position[1] <= unit.position[1] + 1);
 }

@@ -39,7 +39,9 @@ export type Unit = {
 	isCore: boolean;
 };
 
-export const makeUnit = (force: string, cardId: string, position = { x: 1, y: 1 }): Unit => {
+export const makeUnit = (
+	force: string,
+	cardId: string, position: Vec2 = [1, 1]): Unit => {
 	const card = getCardDefinition(cardId);
 
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
@@ -48,7 +50,7 @@ export const makeUnit = (force: string, cardId: string, position = { x: 1, y: 1 
 export function createUnitFromCardSpec(
 	force: string,
 	cardDef: CardDefinition,
-	position: Vec2 = { x: 0, y: 0 },
+	position: Vec2 = [0, 0],
 	id: string
 ): Unit {
 	const effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));

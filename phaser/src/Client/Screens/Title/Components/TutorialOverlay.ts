@@ -1,5 +1,4 @@
-import * as c from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as Constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Chara from "@Systems/Chara/Chara";
@@ -17,7 +16,7 @@ import * as createDescription from "@Systems/Chara/createDescription";
 const bbcode = (text: string, y: number) =>
 	io.scene
 		.add.rexBBCodeText(0, 0, text)
-		.setPosition(c.MIDDLE_SCREEN_X, y)
+		.setPosition(Constants.MIDDLE_SCREEN_X, y)
 		.setFontSize(38)
 		.setOrigin(0)
 		.setAlign("left")
@@ -25,7 +24,7 @@ const bbcode = (text: string, y: number) =>
 		.setOrigin(0.5);
 
 const text = (str: string, y: number) =>
-	io.Text(str).setPosition(c.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
+	io.Text(str).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
 
 const slides = [
 	() =>
@@ -35,8 +34,8 @@ const slides = [
 			text(i18n.t("tutorial.slide1.row3"), 200),
 			() => {
 				const cont = io.Container();
-				const unit = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -2, y: 0.5 });
-				const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
+				const unit = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
+				const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
 				const anim = async () => {
 					const charas = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
@@ -50,11 +49,11 @@ const slides = [
 			io
 				.Title1(i18n.t("tutorial.slide1.row4"))
 				.setOrigin(0.5)
-				.setPosition(c.MIDDLE_SCREEN_X - 330, 620),
+				.setPosition(Constants.MIDDLE_SCREEN_X - 330, 620),
 			io
 				.Title1(i18n.t("tutorial.slide1.row5"))
 				.setOrigin(0.5)
-				.setPosition(c.MIDDLE_SCREEN_X + 200, 620),
+				.setPosition(Constants.MIDDLE_SCREEN_X + 200, 620),
 		]),
 	() =>
 		io.Container([
@@ -64,7 +63,7 @@ const slides = [
 			() => {
 				const cont = io.Container([]);
 				const fn = async (x: number, y: number, sprite: string) => {
-					const chara = await Chara.summon(Unit.makeUnit("PLAYER_FORCE", sprite, { x, y }));
+					const chara = await Chara.summon(Unit.makeUnit("PLAYER_FORCE", sprite, [x, y]));
 
 					cont.add(chara);
 				};
@@ -88,8 +87,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnits = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "avatar_of_anger", { x: -2, y: 0.5 });
-					const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", { x: 0, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
+					const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
 					const s = Chara.mustGetState(chara);
@@ -102,14 +101,16 @@ const slides = [
 						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 						await animation.delay(1000);
 						if (s.sprite.active)
-							damage.damageFx(chara, chara2, () => {
-								Animations.popText({
-									x: chara2.x,
-									y: chara2.y,
-									text: "-" + unit.power,
-									type: "damage",
+							damage.damageFx(
+								[chara.x, chara.y],
+								[chara2.x, chara2.y], () => {
+									Animations.popText({
+										x: chara2.x,
+										y: chara2.y,
+										text: "-" + unit.power,
+										type: "damage",
+									});
 								});
-							});
 					};
 
 					if (!s.sprite.active) return;
@@ -142,8 +143,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "living_armor", { x: 0, y: 0.5 });
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
 
@@ -156,7 +157,7 @@ const slides = [
 						await animation.delay(1000);
 
 						if (s.sprite.active)
-							shield.shieldFx(chara, chara2, () => {
+							shield.shieldFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
 								Animations.popText({
 									x: chara2.x,
 									y: chara2.y,
@@ -194,8 +195,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "battle_medic", { x: 0, y: 0.5 });
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
@@ -209,7 +210,7 @@ const slides = [
 						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 						await animation.delay(1000);
 						if (s.sprite.active)
-							heal.healFx(chara, chara2, () => {
+							heal.healFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
 								Animations.popText({
 									x: chara2.x,
 									y: chara2.y,
@@ -246,8 +247,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "enchanted_treant", { x: 0, y: 0.5 });
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: -1, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
@@ -258,7 +259,7 @@ const slides = [
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 					await animation.delay(1000);
 					if (!c.active) return;
-					regen.regenFx(chara, chara2, () => {
+					regen.regenFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
 						const regen = io.scene
 							.time.addEvent({
 								repeat: -1,
@@ -298,9 +299,9 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "venomous_viper", { x: -2, y: 0.5 });
+					const unit = Unit.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
 
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", { x: 0, y: 0.5 });
+					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [0, 0.5]);
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
 					const s = Chara.mustGetState(chara);
@@ -311,7 +312,7 @@ const slides = [
 					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
 					await animation.delay(1000);
 					if (!c.active) return;
-					poison.poisonFx(chara, chara2, () => {
+					poison.poisonFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
 						const poisonTick = io.scene
 							.time.addEvent({
 								repeat: -1,
@@ -342,7 +343,7 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			io.Title1(i18n.t("tutorial.slide8.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			io.Title1(i18n.t("tutorial.slide8.row1")).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide8.row2"), 150),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.haste}]${i18n.t("tooltip.effects.haste")}[/color]: ${i18n.t("tutorial.slide8.row3")}`,
@@ -371,7 +372,7 @@ const slides = [
 		]),
 	() =>
 		io.Container([
-			io.Title1(i18n.t("tutorial.slide9.row1")).setPosition(c.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			io.Title1(i18n.t("tutorial.slide9.row1")).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide9.row3"), 200),
 			text(i18n.t("tutorial.slide9.row4"), 250),
 			text(i18n.t("tutorial.slide9.row5"), 300),
@@ -380,10 +381,10 @@ const slides = [
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide10.row1"))
-			.setPosition(c.MIDDLE_SCREEN_X, 100)
+			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "thunder_conduit", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "thunder_conduit", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -393,7 +394,7 @@ const slides = [
 			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
-				.add.text(800, 300, title, c.titleTextConfig)
+				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
 			const descriptionText = io.scene
@@ -414,10 +415,10 @@ const slides = [
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide11.row1"))
-			.setPosition(c.MIDDLE_SCREEN_X, 100)
+			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "gunslinger", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "gunslinger", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -427,7 +428,7 @@ const slides = [
 			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
-				.add.text(800, 300, title, c.titleTextConfig)
+				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
 			const descriptionText = io.scene
@@ -453,10 +454,10 @@ const slides = [
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide12.row1"))
-			.setPosition(c.MIDDLE_SCREEN_X, 100)
+			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "radiance_envoy", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "radiance_envoy", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -466,7 +467,7 @@ const slides = [
 			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
-				.add.text(800, 300, title, c.titleTextConfig)
+				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
 			const descriptionText = io.scene
@@ -492,10 +493,10 @@ const slides = [
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide13.row1"))
-			.setPosition(c.MIDDLE_SCREEN_X, 100)
+			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "grove_guardian", { x: -2, y: 0.5 });
+		const unit = Unit.makeUnit("FORCE_PLAYER", "grove_guardian", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -505,7 +506,7 @@ const slides = [
 			const { title, description } = createDescription.createDescription(chara);
 
 			const titleText = io.scene
-				.add.text(800, 300, title, c.titleTextConfig)
+				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
 			const descriptionText = io.scene
@@ -538,7 +539,7 @@ const slides = [
 ];
 
 const OVERLAY_ALPHA = 0.85;
-const BUTTON_Y = c.SCREEN_HEIGHT - 80;
+const BUTTON_Y = Constants.SCREEN_HEIGHT - 80;
 
 let isOpen = false;
 
@@ -549,10 +550,10 @@ export async function openTutorial(): Promise<void> {
 	let currentSlide = 0;
 
 	const overlay = io.scene.add.rectangle(
-		c.MIDDLE_SCREEN_X,
-		c.MIDDLE_SCREEN_Y,
-		c.SCREEN_WIDTH,
-		c.SCREEN_HEIGHT,
+		Constants.MIDDLE_SCREEN_X,
+		Constants.MIDDLE_SCREEN_Y,
+		Constants.SCREEN_WIDTH,
+		Constants.SCREEN_HEIGHT,
 		0x000000,
 		OVERLAY_ALPHA
 	);
@@ -582,7 +583,7 @@ export async function openTutorial(): Promise<void> {
 
 	const prevButton = UIButton.create({
 		text: i18n.t("tutorial.previous"),
-		position: Geometry.vec2(200, c.MIDDLE_SCREEN_Y),
+		position: [200, Constants.MIDDLE_SCREEN_Y],
 		callback: () => {
 			if (currentSlide > 0) {
 				currentSlide--;
@@ -593,7 +594,7 @@ export async function openTutorial(): Promise<void> {
 
 	const nextButton = UIButton.create({
 		text: i18n.t("tutorial.next"),
-		position: Geometry.vec2(c.SCREEN_WIDTH - 200, c.MIDDLE_SCREEN_Y),
+		position: [Constants.SCREEN_WIDTH - 200, Constants.MIDDLE_SCREEN_Y],
 		callback: () => {
 			if (currentSlide < slides.length - 1) {
 				currentSlide++;
@@ -604,7 +605,7 @@ export async function openTutorial(): Promise<void> {
 
 	const exitButton = UIButton.create({
 		text: i18n.t("tutorial.exit"),
-		position: Geometry.vec2(c.MIDDLE_SCREEN_X, BUTTON_Y),
+		position: [Constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;

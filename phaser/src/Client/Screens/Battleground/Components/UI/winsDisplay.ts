@@ -1,9 +1,6 @@
-import { vec2, size } from "@Models/Geometry";
-import * as io from "../../../../../io";
-import { images } from "@assets";
-import { renderTooltip, hideTooltip } from "@Components/Tooltip/Tooltip";
+import * as Assets from "@assets";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import Phaser from "phaser";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;
@@ -32,7 +29,7 @@ export function create() {
 	updateRectColors(currentWins);
 
 	mainContainer = io.Container([...rects, ...indicators]);
-	io.SetPosition(mainContainer, vec2(WINS_DISPLAY_X, WINS_DISPLAY_Y));
+	io.SetPosition(mainContainer, [WINS_DISPLAY_X, WINS_DISPLAY_Y]);
 
 	const containerWidth = MAX_WINS * RECT_WIDTH + (MAX_WINS - 1) * GAP;
 	mainContainer
@@ -41,7 +38,7 @@ export function create() {
 			Phaser.Geom.Rectangle.Contains
 		)
 		.on("pointerover", () => {
-			renderTooltip(
+			Tooltip.renderTooltip(
 				WINS_DISPLAY_X + 100,
 				WINS_DISPLAY_Y + 200,
 				i18n.t("winsDisplay.title"),
@@ -49,7 +46,7 @@ export function create() {
 			);
 		})
 		.on("pointerout", () => {
-			hideTooltip();
+			Tooltip.hideTooltip();
 		});
 
 	return mainContainer;
@@ -59,10 +56,10 @@ function createRects(): Phaser.GameObjects.Graphics[] {
 	winRects = [];
 
 	for (let i = 0; i < MAX_WINS; i++) {
-		const rect = io.Rectangle(vec2(0, 0), size(RECT_WIDTH, RECT_HEIGHT), COLOR_GRAY);
+		const rect = io.Rectangle([0, 0], [RECT_WIDTH, RECT_HEIGHT], COLOR_GRAY);
 
 		const xOffset = i * (RECT_WIDTH + GAP);
-		io.SetPosition(rect, vec2(xOffset, 0));
+		io.SetPosition(rect, [xOffset, 0]);
 
 		winRects.push(rect);
 	}
@@ -82,7 +79,7 @@ function createBonusIndicators(): Phaser.GameObjects.Graphics[] {
 		const xOffset = bonus.index * (RECT_WIDTH + GAP) + RECT_WIDTH / 2;
 		const yOffset = RECT_HEIGHT + 15;
 
-		const circle = io.Circle(vec2(xOffset, yOffset), CIRCLE_RADIUS, bonus.color);
+		const circle = io.Circle([xOffset, yOffset], CIRCLE_RADIUS, bonus.color);
 		indicators.push(circle);
 	}
 
@@ -127,7 +124,7 @@ function playWinEffect(index: number) {
 	const x = rect.x + RECT_WIDTH / 2;
 	const y = rect.y + RECT_HEIGHT / 2;
 
-	const particles = io.scene.add.particles(x, y, images.light_pillar.key, {
+	const particles = io.scene.add.particles(x, y, Assets.images.light_pillar.key, {
 		lifespan: 300,
 		scale: { start: 0.3, end: 1.2 },
 		alpha: { start: 1, end: 0 },

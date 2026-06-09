@@ -102,13 +102,15 @@ export function SetName(obj: Phaser.GameObjects.GameObject, name: string): void 
 	obj.setName(name);
 }
 
-export const SetInteractiveRect = (size: Size) => (obj: Phaser.GameObjects.GameObject) => {
-	obj.setInteractive(Rect({ x: 0, y: 0 }, size), Phaser.Geom.Rectangle.Contains);
+export const SetInteractiveRect = ([width, height]: Size) => (
+	obj: Phaser.GameObjects.GameObject
+) => {
+	obj.setInteractive(Rect([0, 0], [width, height]), Phaser.Geom.Rectangle.Contains);
 	return obj;
 };
 
-export function Rect(position: Vec2, size: Size): Phaser.Geom.Rectangle {
-	return new Phaser.Geom.Rectangle(position.x, position.y, size.width, size.height);
+export function Rect([x, y]: Vec2, [w, h]: Size): Phaser.Geom.Rectangle {
+	return new Phaser.Geom.Rectangle(x, y, w, h);
 }
 
 export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig): void {
@@ -117,9 +119,10 @@ export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig): void {
 
 export function SetPosition(
 	obj: Phaser.GameObjects.GameObject,
-	vec: Vec2
+	[x, y]: Vec2
 ): Phaser.GameObjects.GameObject {
-	(obj as unknown as Phaser.GameObjects.Components.Transform).setPosition(vec.x, vec.y);
+	(obj as unknown as Phaser.GameObjects.Components.Transform)
+		.setPosition(x, y);
 	return obj;
 }
 
@@ -143,54 +146,56 @@ export function Destroy(obj: Phaser.GameObjects.GameObject): void {
 	obj.destroy(true);
 }
 export function BorderedRoundRect(
-	position: Vec2,
-	size: Size,
+	[x, y]: [number, number],
+	[w, h]: [number, number],
 	cornerRadius: number = 10,
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const actualPos = Geometry.sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
-	const g = scene.add.graphics(actualPos);
+	// origin
+	const [ox, oy] = Geometry.sumVec2([x, y], [-w / 2, -h / 2]);
+	const g = scene.add.graphics({ x: ox, y: oy });
 	g.lineStyle(2, 0xffffff, 0.5);
 	g.fillStyle(color, alpha);
-	g.fillRoundedRect(0, 0, size.width, size.height, cornerRadius);
-	g.strokeRoundedRect(0, 0, size.width, size.height, cornerRadius);
+	g.fillRoundedRect(0, 0, w, h, cornerRadius);
+	g.strokeRoundedRect(0, 0, w, h, cornerRadius);
 
 	return g;
 }
 
 export function Rectangle(
-	position: Vec2,
-	size: Size,
+	[x, y]: [number, number],
+	[w, h]: [number, number],
 	color: number = 0xffa500,
 	alpha: number = 0.7,
 	stroke?: boolean
 ): Phaser.GameObjects.Graphics {
-	const actualPos = Geometry.sumVec2(position, { x: -size.width / 2, y: -size.height / 2 });
-	const g = scene.add.graphics(actualPos);
+	// origin
+	const [ox, oy] = Geometry.sumVec2([x, y], [-w / 2, -h / 2]);
+	const g = scene.add.graphics({ x: ox, y: oy });
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
-	g.fillRect(0, 0, size.width, size.height);
+	g.fillRect(0, 0, w, h);
 
-	if (stroke) g.strokeRect(0, 0, size.width, size.height);
+	if (stroke) g.strokeRect(0, 0, w, h);
 
 	return g;
 }
 
 export function Circle(
-	position: Vec2,
+	[x, y]: Vec2,
 	radius: number,
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const g = scene.add.graphics({ x: position.x, y: position.y });
+	const g = scene.add.graphics({ x, y });
 	g.fillStyle(color, alpha);
 	g.fillCircle(0, 0, radius);
 
 	return g;
 }
 
-export function RectangularDropZone(name: string, { x, y }: Vec2, { width, height }: Size): Phaser.GameObjects.Zone {
+export function RectangularDropZone(name: string, [x, y]: Vec2, [width, height]: Size): Phaser.GameObjects.Zone {
 
 	const zone = scene.add.zone(x, y, width, height);
 
@@ -290,8 +295,8 @@ type ShaderUniform = {
 
 export function Shader(
 	frag: string,
-	position: Vec2,
-	size: Size,
+	[x, y]: Vec2,
+	[w, h]: Size,
 	uniforms: (
 		| {
 			key: string;
@@ -310,8 +315,6 @@ export function Shader(
 		}
 	)[]
 ): Phaser.GameObjects.Shader {
-	const { x, y } = position;
-	const { width, height } = size;
 
 	const shaderUniforms: Record<string, ShaderUniform> = {};
 	uniforms.forEach((uniform) => {
@@ -327,7 +330,7 @@ export function Shader(
 	});
 
 	const base = new Phaser.Display.BaseShader("magic-button", frag, undefined, shaderUniforms);
-	const shader = scene.add.shader(base, x, y, width, height);
+	const shader = scene.add.shader(base, x, y, w, h);
 	return shader;
 }
 

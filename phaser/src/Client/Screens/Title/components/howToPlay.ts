@@ -1,11 +1,10 @@
-import * as constants from "../../../../Constants";
-import * as Geometry from "@Models/Geometry";
+import * as constants from "@Constants";
 import * as TutorialOverlay from "Client/Screens/Title/Components/TutorialOverlay";
 import * as i18n from "@i18n/i18n";
 
 export function create() {
 	const text = io.Title1(i18n.t("title.howToPlay"));
-	io.SetPosition(text, Geometry.vec2(0, 80));
+	io.SetPosition(text, [0, 80]);
 	io.Centralize(text);
 	io.Tween({
 		targets: text,

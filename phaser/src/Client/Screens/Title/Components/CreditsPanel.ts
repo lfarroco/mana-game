@@ -1,6 +1,5 @@
-import * as constants from "../../../../Constants";
+import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
 import * as UIButton from "@Components/Button/UIButton";
 
 // UI positioning
@@ -30,8 +29,8 @@ export function create(): void {
 
 	// Create panel background
 	const panelBg = io.BorderedRoundRect(
-		Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y),
-		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
+		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y],
+		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
 		0x2c3e50,
 		0.95
@@ -41,9 +40,7 @@ export function create(): void {
 	const title = io.Title1(i18n.t("credits.title"));
 	io.SetPosition(
 		title,
-		Geometry.vec2(
-			constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70
-		)
+		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70]
 	);
 	io.Centralize(title);
 
@@ -78,7 +75,7 @@ export function create(): void {
 	// Create close button
 	const closeButton = UIButton.create({
 		text: i18n.t("credits.close"),
-		position: Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+		position: [constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60],
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;

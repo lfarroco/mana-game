@@ -1,4 +1,4 @@
-import * as constants from "../../../../../Constants";
+import * as constants from "@Constants";
 import * as animation from "@Utils/animation";
 import * as UI from "@Screens/Battleground/Components/UI/UI";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";

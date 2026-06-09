@@ -1,7 +1,5 @@
-import * as c from "../../../../../Constants";
-import { vec2 } from "@Models/Geometry";
-import * as io from "../../../../../io";
-import { t } from "@i18n/i18n";
+import * as Constants from "@Constants";
+import * as i18n from "@i18n/i18n";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;
@@ -15,7 +13,7 @@ export function create() {
 	const text_ = text(initialRound);
 
 	const container = io.Container([label, text_]);
-	io.SetPosition(container, vec2(ROUND_DISPLAY_X, ROUND_DISPLAY_Y));
+	io.SetPosition(container, [ROUND_DISPLAY_X, ROUND_DISPLAY_Y]);
 
 	return container;
 }
@@ -30,19 +28,19 @@ export const updateRoundDisplay = (newTotalRound: number): void => {
 
 function text(initialRound: number) {
 	roundTextElement = io.Text(initialRound.toString(), {
-		...c.titleTextConfig,
+		...Constants.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	});
-	io.SetPosition(roundTextElement, vec2(75, 0));
+	io.SetPosition(roundTextElement, [75, 0]);
 	io.Centralize(roundTextElement);
 
 	return roundTextElement;
 }
 
 function label_() {
-	const label = io.Text(t("ui.round"), {
-		...c.titleTextConfig,
+	const label = io.Text(i18n.t("ui.round"), {
+		...Constants.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	});

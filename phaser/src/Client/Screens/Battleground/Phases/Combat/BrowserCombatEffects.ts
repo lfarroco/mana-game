@@ -1,7 +1,7 @@
 import * as State from "@Models/State";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
-import type * as ForceStatsState from "@Core/Combat/ForceStatsState";
-import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as ForceStatsState from "@Core/Combat/ForceStatsState";
+import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Card from "@Models/Entities/Card";
@@ -19,7 +19,6 @@ import * as poison from "@TriggerSystem/effects/visuals/poison";
 import * as Effects from "@Effects";
 
 import * as AudioManager from "@Systems/AudioManager";
-import * as Chara_1 from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as constants from "@Constants";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
@@ -151,42 +150,65 @@ export const createBrowserCombatEffects = (
 
 		onDamage: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			AudioManager.playSoundEffect("sfx_spell_truestrike");
-			damage.damageFx(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), () => {
+			const chara = Chara.mustGetCharaById(sourceId);
+
+			const target = Chara.mustGetCharaById(targetId)
+			damage.damageFx([chara.x, chara.y], [target.x, target.y], () => {
 				onHit();
-				Chara_1.shake(Chara.mustGetCharaById(targetId));
+				Chara.shake(target);
 			});
 		},
 
 		onHeal: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			heal.healFx(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), onHit);
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			heal.healFx([source.x, source.y], [target.x, target.y], () => {
+				onHit();
+				Chara.shake(target);
+			});
 		},
 
 		onShield: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			AudioManager.playSoundEffect("sfx_spell_manavortex");
-			shield.shieldFx(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), onHit);
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			shield.shieldFx([source.x, source.y], [target.x, target.y], () => {
+				onHit();
+				Chara.shake(target);
+			});
 		},
 
 		onPoison: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
-			poison.poisonFx(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), onHit);
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			poison.poisonFx([source.x, source.y], [target.x, target.y], () => {
+				onHit();
+				Chara.shake(target);
+			});
 		},
 
 		onRegen: (sourceId: string, targetId: string, _amount: number, onHit: () => void) => {
 			AudioManager.playSoundEffect("sfx_spell_tranquility");
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
-				colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones
-				amplitudeMin: 5,
-				amplitudeMax: 15,
-				particleScale: 1.5,
-				impact: {
-					colors: [0x00ff00, 0x32cd32],
-					scale: 2,
-					speed: 200,
-					lifespan: 300,
-					alpha: 0.4,
-				},
-				onHit,
-			});
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted(
+				[source.x, source.y],
+				[target.x, target.y],
+				{
+					colors: [0x00ff00, 0x32cd32, 0x7fff00, 0x00ff00], //dark green tones
+					amplitudeMin: 5,
+					amplitudeMax: 15,
+					particleScale: 1.5,
+					impact: {
+						colors: [0x00ff00, 0x32cd32],
+						scale: 2,
+						speed: 200,
+						lifespan: 300,
+						alpha: 0.4,
+					},
+					onHit,
+				});
 		},
 
 		onHaste: (sourceId: string, targetId: string, _duration: number, onHit: () => void) => {
@@ -199,7 +221,9 @@ export const createBrowserCombatEffects = (
 				});
 			};
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0x00ffff, 0x87ceeb, 0xadd8e6],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -225,7 +249,9 @@ export const createBrowserCombatEffects = (
 				});
 			};
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0x6e260e, 0x7b3f00, 0x6f4e37],
 				amplitudeMin: 5,
 				amplitudeMax: 20,
@@ -252,7 +278,9 @@ export const createBrowserCombatEffects = (
 				});
 			};
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0xffd700, 0xffa500, 0xff8c00],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -285,7 +313,9 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0xffa500, 0xff8c00, 0xff4500],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -320,7 +350,9 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0x8a2be2, 0x9400d3, 0x9932cc],
 				impact: {
 					colors: [0x8a2be2, 0x9400d3],
@@ -343,7 +375,9 @@ export const createBrowserCombatEffects = (
 				return;
 			}
 
-			Effects.arcaneMissileTargeted(Chara.mustGetCharaById(sourceId), Chara.mustGetCharaById(targetId), {
+			const source = Chara.mustGetCharaById(sourceId);
+			const target = Chara.mustGetCharaById(targetId);
+			Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
 				colors: [0xffa500, 0xff8c00, 0xff4500],
 				amplitudeMin: 5,
 				amplitudeMax: 15,
@@ -379,12 +413,12 @@ export const createBrowserCombatEffects = (
 
 			AudioManager.playSoundEffect("sfx_voidhunter_attack_impact");
 
-			Effects.arcaneMissileTargeted(constants.MIDDLE_SCREEN, core, {
+			Effects.arcaneMissileTargeted(constants.MIDDLE_SCREEN, [core.x, core.y], {
 				colors,
 				blendMode: Phaser.BlendModes.NORMAL,
 				onHit: () => {
 					onHit();
-					Chara_1.shake(core);
+					Chara.shake(core);
 				},
 			});
 		},

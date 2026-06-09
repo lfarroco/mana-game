@@ -1,6 +1,5 @@
-import * as c from "../../../../Constants";
+import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
 import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
 
@@ -32,15 +31,18 @@ export function create(): void {
 	overlay.setInteractive();
 
 	const panelBg = io.BorderedRoundRect(
-		Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y),
-		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
+		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y],
+		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
 		0x2c3e50,
 		0.95
 	);
 
 	const title = io.Title1(i18n.t("title.links"));
-	io.SetPosition(title, Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80));
+	io.SetPosition(
+		title,
+		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80],
+	);
 	io.Centralize(title);
 
 	const links = [...baseLinks];
@@ -77,7 +79,7 @@ export function create(): void {
 
 	const closeButton = UIButton.create({
 		text: i18n.t("credits.close"),
-		position: Geometry.vec2(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60),
+		position: [c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y + PANEL_HEIGHT / 2 - 60],
 		callback: () => {
 			container.destroy(true);
 			isOpen = false;
