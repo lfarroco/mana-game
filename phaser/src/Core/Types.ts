@@ -28,21 +28,22 @@ export type Action =
 	| { type: "discard_unit"; unitId: string }
 	| { type: "recruit_unit"; unitId: string; targetSlot: Vec2 | null }
 	| { type: "update_team"; team: { units: Unit.Unit[] } }
-	| { type: "combat_encounter" } // can use "select_encounter" with a single option
 	| { type: "start_combat" }
 	| { type: "end_combat" }
 	| { type: "select_encounter"; encounterId: string; }
 	| { type: "victory" }
 	;
 
+// Don't confuse this with actions. This represents the current screen that the
+// player is on
 export type PhaseType =
 	| "encounter"
 	| "shop"
 	| "orb_shop"
 	| "upgrade_core"
 	| "add_reaction_core"
+	| "pre_combat"
 	| "combat"
-	| "combat_encounter"
 	| "victory"
 	| "game_over";
 

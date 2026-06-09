@@ -94,7 +94,7 @@ async function executePhase(
 		case "encounter":
 			return await Encounter.displayOptions();
 
-		case "combat_encounter":
+		case "pre_combat":
 			return await Encounter.displayOptions();
 
 		case "combat": {

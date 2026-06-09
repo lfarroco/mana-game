@@ -6,6 +6,7 @@ import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 
+// TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
 
@@ -140,7 +141,7 @@ export const allEncounters: EncounterItem[] = [
 		name: i18n.t("encounters.combat.name"),
 		pic: "ui/armory",
 		description: i18n.t("encounters.combat.desc"),
-		id: "combat_encounter",
+		id: "start_combat",
 	},
 ];
 
@@ -219,7 +220,7 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 
 	// Only show skip button if:
 	// 1. Not showing combat_encounter (pre-combat phase)
-	const isCombatEncounter = encounters[0].id === "combat_encounter";
+	const isCombatEncounter = encounters[0].id === "pre_combat";
 	if (!isCombatEncounter) {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),

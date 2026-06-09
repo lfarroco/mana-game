@@ -24,8 +24,6 @@ export type TransitionToNextStateOptions = {
 	combatEnemyPlayerName?: string;
 };
 
-
-
 function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 
 	if (!session.combatState) {
@@ -101,13 +99,6 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 }
 
 function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
-	if (session.losses >= 4) {
-		return {
-			...session,
-			phase: "game_over",
-			options: [],
-		};
-	}
 
 	const nextStep = session.step + 1;
 	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
@@ -149,7 +140,7 @@ const ACTION_HANDLERS: Record<string, (
 
 		if (action.type !== "select_encounter") throw new Error();
 
-		if (action.encounterId === "combat_encounter")
+		if (action.encounterId === "start_combat")
 			return executeCombatPhase(session);
 
 		return {
@@ -265,17 +256,17 @@ const ACTION_HANDLERS: Record<string, (
 	// }),
 
 	// Encounter special transitions.
-	combat_encounter: (session) => {
-		// Handle combat execution (side effect)
+	// start_combat: (session) => {
+	// 	// Handle combat execution (side effect)
 
-		logger.debug("Entering combat encounter phase. Executing combat...", session);
+	// 	logger.debug("Entering combat phase. Executing combat...", session);
 
-		const nextSession = executeCombatPhase(session);
+	// 	const nextSession = executeCombatPhase(session);
 
-		logger.debug("Combat phase completed. Session after combat:", nextSession);
+	// 	logger.debug("Combat phase completed. Session after combat:", nextSession);
 
-		return nextSession;
-	},
+	// 	return nextSession;
+	// },
 	upgrade_unit: (session) => ({
 		...session,
 		phase: "orb_shop",
@@ -311,7 +302,7 @@ const ACTION_HANDLERS: Record<string, (
 	//apply_orb: (session) => transitionToNextEncounterStep(session),
 
 	// Combat transitions.
-	victory: (session) => transitionAfterVictory(session),
+	victory: transitionAfterVictory,
 
 	// Upgrade core transitions.
 	//increase_core_max_life: (session) => transitionToNextRoundEncounter(session),
@@ -345,9 +336,9 @@ function transitionToNextStep(
 
 	}
 
-	if (nextPhase === "combat_encounter") {
+	if (nextPhase === "pre_combat") {
 		session.options = [
-			{ id: "combat_encounter" }
+			{ id: "start_combat" }
 		];
 		session.phase = nextPhase;
 		session.step = session.step + 1;

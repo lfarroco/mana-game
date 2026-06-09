@@ -5,7 +5,7 @@ const DEFAULT: Types.PhaseType[] = [
 	"encounter",
 	"encounter",
 	"encounter",
-	"combat_encounter",
+	"pre_combat",
 	"combat",
 	"upgrade_core",
 ];
@@ -14,7 +14,7 @@ const ADD_REACTION_PHASES: Types.PhaseType[] = [
 	"encounter",
 	"encounter",
 	"encounter",
-	"combat_encounter",
+	"pre_combat",
 	"combat",
 	"add_reaction_core",
 ];

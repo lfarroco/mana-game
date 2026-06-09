@@ -75,7 +75,7 @@ export function replayManifest(manifest: Types.RunManifest, replayOptions?: Repl
 		}
 
 		let combatEnemyTeamOptions: { combatEnemyTeam?: Unit.Unit[] } | undefined;
-		if (envelope.action.type === "combat_encounter") {
+		if (envelope.action.type === "start_combat") {
 			const storedTeam = replayOptions?.enemyTeams?.[combatIndex];
 			if (storedTeam !== undefined) {
 				combatEnemyTeamOptions = { combatEnemyTeam: storedTeam };
