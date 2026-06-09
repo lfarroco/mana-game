@@ -2,7 +2,6 @@ import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as getSinglePlayerData from "@Game/effects/getSinglePlayerData";
 import * as startGame from "@Screens/Title/Effects/startGame";
-import * as i18n from "@i18n/i18n";
 import * as collectionButton from "Client/Screens/Title/Components/collectionButton";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
@@ -11,8 +10,8 @@ import * as resumeSinglePlayerGame from "../Effects/resumeSinglePlayerGame";
 let submenuContainer: Container;
 
 export function render(y: number) {
-	const title = i18n.t("title.singlePlayer");
-	const description = i18n.t("title.tooltip.singlePlayer");
+	const title = io.i18n("title.singlePlayer");
+	const description = io.i18n("title.tooltip.singlePlayer");
 
 	return UIButton.create({
 		text: title,
@@ -34,7 +33,7 @@ function showSinglePlayerSubmenu() {
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;
 
 	const resumeBtn = UIButton.create({
-		text: i18n.t("title.resume"),
+		text: io.i18n("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
 		callback: resumeSinglePlayerGame.resumeSinglePlayerGame
 	});
@@ -45,7 +44,7 @@ function showSinglePlayerSubmenu() {
 	}
 
 	const newRunBtn = UIButton.create({
-		text: i18n.t("title.newRun"),
+		text: io.i18n("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
 		callback: () => {
 			hideSinglePlayerSubmenu();
@@ -56,7 +55,7 @@ function showSinglePlayerSubmenu() {
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);
 
 	const backBtn = UIButton.create({
-		text: i18n.t("title.back"),
+		text: io.i18n("title.back"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
 			hideSinglePlayerSubmenu();

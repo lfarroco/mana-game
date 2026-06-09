@@ -1,5 +1,4 @@
 import * as Unit from "@Models/Entities/Unit";
-import * as GameController from "@Core/GameController";
 import * as Chara from "@Systems/Chara/Chara";
 import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
@@ -10,8 +9,9 @@ export async function itemClickPurchaseRequested(
 	_dragStartY: number
 ): Promise<void> {
 
-	const serverSuccess = await GameController.purchaseUnit(
+	const serverSuccess = await io.Controller.purchaseUnit(
 		shopUnitData.cardId,
+		null
 	);
 
 	if (!serverSuccess) {

@@ -5,9 +5,15 @@ import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
 import * as animation from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import * as i18n_ from "@i18n/i18n";
+import * as Controller_ from "@Core/GameController";
 
 export let game: Phaser.Game;
 export let scene: Phaser.Scene;
+
+export const i18n = i18n_.t;
+
+export const Controller = Controller_;
 
 export const screens = {
 	title: TitleScreen.create,
