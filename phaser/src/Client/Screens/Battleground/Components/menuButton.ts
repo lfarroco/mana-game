@@ -3,7 +3,6 @@ import * as c from "@Constants";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
 import * as BattlegroundNavigation from "../Navigation";
-import * as handleCombatPhase from "../Phases/Combat/handleCombatPhase";
 
 export function create() {
 	const btn = UIButton.create({
@@ -16,7 +15,7 @@ export function create() {
 }
 
 export function createPanel() {
-	handleCombatPhase.pauseCombat();
+	io.screens.battleground.events.combatPauseRequested.emit();
 
 	const panelWidth = 650;
 	const panelHeight = 500;
@@ -45,7 +44,7 @@ export function createPanel() {
 		[
 			i18n.t("ui.menu.back"),
 			() => {
-				handleCombatPhase.resumeCombat();
+				io.screens.battleground.events.combatResumeRequested.emit(undefined);
 				io.Destroy(container);
 			},
 		]

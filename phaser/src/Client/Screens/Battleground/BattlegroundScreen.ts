@@ -18,6 +18,8 @@ type BattlegroundScreenEvents = {
 	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string }>;
 	combatContinueRequested: Types.Event<void>;
 	combatReplayRequested: Types.Event<void>;
+	combatPauseRequested: Types.Event<void>;
+	combatResumeRequested: Types.Event<void>;
 }
 
 export let events: BattlegroundScreenEvents;
@@ -71,6 +73,8 @@ function init() {
 		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
 		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
 		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
+		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),
+		combatResumeRequested: io.createEvent<void>("combatResumeRequested"),
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase);

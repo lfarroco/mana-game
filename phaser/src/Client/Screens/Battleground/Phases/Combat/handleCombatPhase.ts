@@ -27,13 +27,13 @@ let stopActivePlayback: PlaybackDisposer = () => { };
 let activeCombatState: Types.CombatState | null = null;
 let isPaused = false;
 
-export const pauseCombat = (): void => {
+const pauseCombat = (): void => {
 	isPaused = true;
 	io.scene.tweens.pauseAll();
 	io.scene.time.paused = true;
 };
 
-export const resumeCombat = (): void => {
+const resumeCombat = (): void => {
 	isPaused = false;
 	io.scene.tweens.resumeAll();
 	io.scene.time.paused = false;
@@ -47,6 +47,8 @@ function init() {
 	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase);
 	io.screens.battleground.events.combatContinueRequested.listen(handleCombatContinueRequested);
 	io.screens.battleground.events.combatReplayRequested.listen(handleCombatReplayRequested);
+	io.screens.battleground.events.combatPauseRequested.listen(pauseCombat);
+	io.screens.battleground.events.combatResumeRequested.listen(resumeCombat);
 
 }
 
