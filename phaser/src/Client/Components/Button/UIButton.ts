@@ -23,6 +23,7 @@ const BUTTON_PRESSED_BG_ALPHA = 0.62;
 const BUTTON_DISABLED_BG_ALPHA = 0.18;
 const BUTTON_DISABLED_BORDER_ALPHA = 0.3;
 const BUTTON_HOVER_TRANSITION_DURATION_MS = 140;
+const BUTTON_DOUBLE_CLICK_GUARD_MS = 300;
 const BUTTON_TOOLTIP_BOTTOM_OFFSET = 180;
 const BUTTON_TOOLTIP_RIGHT_OFFSET = 80;
 const BUTTON_TOP_HIGHLIGHT_HEIGHT = 24;
@@ -70,6 +71,7 @@ type State = {
 	size: Size;
 	isPressed: boolean;
 	isHovered: boolean;
+	lastActivatedAtMs: number;
 	currentBackgroundAlpha: number;
 	container: Container;
 	graphics: Phaser.GameObjects.Graphics;
@@ -262,6 +264,12 @@ export function create({
 
 	const activate = () => {
 		if (!buttonGraphics.input?.enabled) return;
+		const now = Date.now();
+		if (now - state.lastActivatedAtMs < BUTTON_DOUBLE_CLICK_GUARD_MS) {
+			logger.debug(`DEBUG: UIButton activation ignored during double-click guard for ${text}`);
+			return;
+		}
+		state.lastActivatedAtMs = now;
 		AudioManager.playSoundEffect("sfx_unit_onclick");
 		callback();
 	};
@@ -315,6 +323,7 @@ export function create({
 		size,
 		isPressed: false,
 		isHovered: false,
+		lastActivatedAtMs: -BUTTON_DOUBLE_CLICK_GUARD_MS,
 		currentBackgroundAlpha: BUTTON_BG_ALPHA,
 		container,
 		graphics: buttonGraphics,
@@ -342,7 +351,7 @@ export function create({
 
 	buttonsIndex.set(container, state);
 	registeredButtons.add(state);
-	registerButton(text, callback);
+	registerButton(text, activate);
 	syncVisualState();
 
 	return {
