@@ -88,16 +88,28 @@ export async function applyOrb(
 	});
 }
 
-export async function completeVictory(): Promise<Types.SessionData> {
-	return await dispatchAction({
+export async function completeVictory() {
+
+	const previousPhase = state.session.phase;
+
+	const session = await dispatchAction({
 		type: "victory"
 	});
+	state.session = session;
+
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
 }
 
-export async function completeCombatEncounter(): Promise<Types.SessionData> {
-	return await dispatchAction({
+export async function completeCombatEncounter() {
+
+	const previousPhase = state.session.phase;
+	const session = await dispatchAction({
 		type: "end_combat"
 	});
+
+	state.session = session;
+
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
 }
 
 export async function updateTeam(

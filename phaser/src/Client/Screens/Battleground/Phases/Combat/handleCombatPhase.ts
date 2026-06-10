@@ -24,25 +24,51 @@ export type CombatPhaseResult =
 	| { type: "completed"; session: Types.SessionData }
 	| { type: "cancelled" };
 
-const cloneValue = <T>(value: T): T => {
-	return value
-	// if (typeof globalThis.structuredClone === "function") {
-	// 	return globalThis.structuredClone(value);
-	// }
-
-	// return JSON.parse(JSON.stringify(value)) as T;
+type ActiveCombatRun = {
+	disposePlayback: PlaybackDisposer;
+	unsubscribeFromExit: () => void;
 };
+
+let activeCombatRun: ActiveCombatRun | null = null;
+
+let initialized = false;
+function init() {
+	if (initialized) return;
+	initialized = true;
+
+	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase);
+
+}
+
+async function finishCombatPhase(phase: Types.PhaseType): Promise<void> {
+	if (phase !== "combat") return;
+
+	cleanupActiveCombatRun();
+	await resetBoard(true);
+	namesDisplay.updateNameDisplay({ enemyName: "" });
+
+}
+
+function cleanupActiveCombatRun(): void {
+	if (!activeCombatRun) {
+		return;
+	}
+
+	activeCombatRun.disposePlayback();
+	activeCombatRun.unsubscribeFromExit();
+	activeCombatRun = null;
+}
 
 const getInitialCombatUnits = (combatState: Types.CombatState) => {
 	if (combatState.initialUnits && combatState.initialUnits.length > 0) {
-		return cloneValue(combatState.initialUnits);
+		return combatState.initialUnits;
 	}
 
 	if (combatState.units && combatState.units.length > 0) {
-		return cloneValue(combatState.units);
+		return combatState.units;
 	}
 
-	return cloneValue(combatState.enemyTeam);
+	return combatState.enemyTeam;
 };
 
 const getCombatResultType = (outcome: string) =>
@@ -116,12 +142,10 @@ const createCombatEffects = ({
 
 const startCombatPlayback = async ({
 	combatState,
-	disposers,
 	onContinue,
 	onReplay,
 }: {
 	combatState: Types.CombatState;
-	disposers: ReturnType<typeof createPlaybackDisposerManager>;
 	onContinue: () => void;
 	onReplay: () => void;
 }) => {
@@ -140,10 +164,10 @@ const startCombatPlayback = async ({
 		}
 	};
 
-	disposers.replace(() => {
+	return () => {
 		io.scene.events.off("update", updateHandler);
 		controller.stop();
-	});
+	};
 
 	io.scene.events.on("update", updateHandler);
 };
@@ -164,52 +188,52 @@ const setupCombatBoard = async (combatState: Types.CombatState): Promise<void> =
 	state.battleData.units.forEach(Unit.resetUnitStats);
 };
 
-export async function handleCombatPhase(): Promise<Types.SessionData | null> {
+export async function handleCombatPhase(): Promise<void> {
+
+	init();
+
 	const { combatState } = state.session;
 
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
-	return await new Promise((resolve, reject) => {
-		const disposers = createPlaybackDisposerManager();
+	cleanupActiveCombatRun();
 
-		const cleanup = () => {
-			disposers.dispose();
-			unsubscribeFromExit();
-		};
-
-		const cancelPlayback = () => {
-			cleanup();
-			resolve(null);
-		};
-
-		const unsubscribeFromExit = BattlegroundNavigation.onBattlegroundExit(cancelPlayback);
-
-		const continueToNextPhase = async () => {
-			cleanup();
-			await resetBoard(true);
-			namesDisplay.updateNameDisplay({ enemyName: "" });
-
-			const session = await GameController.completeCombatEncounter();
-			resolve(session);
-		};
-
-		const startPlayback = async () => {
-			await startCombatPlayback({
-				combatState,
-				disposers,
-				onContinue: () => {
-					void continueToNextPhase();
-				},
-				onReplay: () => {
-					void startPlayback().catch(reject);
-				},
-			});
-		};
-
-		void startPlayback()
+	const playbackDisposers = createPlaybackDisposerManager();
+	const unsubscribeFromExit = BattlegroundNavigation.onBattlegroundExit(() => {
+		cleanupActiveCombatRun();
 	});
+
+	activeCombatRun = {
+		disposePlayback: () => playbackDisposers.dispose(),
+		unsubscribeFromExit,
+	};
+
+	const startPlayback = async () => {
+		if (!activeCombatRun) {
+			return;
+		}
+
+		const disposePlayback = await startCombatPlayback({
+			combatState,
+			onContinue: () => {
+				void GameController.completeCombatEncounter();
+			},
+			onReplay: () => {
+				void startPlayback();
+			},
+		});
+
+		playbackDisposers.replace(disposePlayback);
+	};
+
+	try {
+		await startPlayback();
+	} catch (error) {
+		cleanupActiveCombatRun();
+		throw error;
+	}
 }
 
 
