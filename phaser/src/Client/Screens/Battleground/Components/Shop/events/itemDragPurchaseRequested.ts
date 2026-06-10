@@ -49,16 +49,15 @@ export async function itemDragPurchaseRequested(
 		}
 	}
 
-	// Use the GameController to handle the purchase
-	const success = await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
+	await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
 
-	if (!success) {
-		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
-		}
-		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SERVER_REJECTED");
-		return;
-	}
+	// if (!success) {
+	// 	if (shopChara) {
+	// 		shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
+	// 	}
+	// 	uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SERVER_REJECTED");
+	// 	return;
+	// }
 
 	// Keep server as source of truth for purchased/updated units.
 	// The phase refresh triggered by GameController will sync team state and visuals.

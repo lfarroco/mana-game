@@ -13,14 +13,24 @@ async function dispatchAction(
 export async function purchaseUnit(
 	unitId: string,
 	targetSlot: Vec2 | null
-): Promise<Types.SessionData> {
-	const success = await dispatchAction({
+) {
+	const previousPhase = state.session.phase;
+
+	const session = await dispatchAction({
 		type: "recruit_unit",
 		unitId,
 		targetSlot
 	});
 
-	return success;
+	state.session = session;
+
+	io.screens.battleground.events.onUnitPurchased.emit({
+		session,
+		unitId
+	});
+
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+
 }
 
 export async function sellUnit(unitId: string): Promise<Types.SessionData> {

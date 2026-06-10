@@ -9,14 +9,14 @@ export async function itemClickPurchaseRequested(
 	_dragStartY: number
 ): Promise<void> {
 
-	const serverSuccess = await io.Controller.purchaseUnit(
+	await io.Controller.purchaseUnit(
 		shopUnitData.cardId,
 		null
 	);
 
-	if (!serverSuccess) {
-		throw new Error("Purchase failed on server");
-	}
+	// if (!serverSuccess) {
+	// 	throw new Error("Purchase failed on server");
+	// }
 
 	if (!Chara.hasCharaById(shopCharaId)) {
 		return;
