@@ -8,9 +8,9 @@ export const ShopState: { container: Container | null } = {
 	container: null,
 };
 
+// TODO: long term goal: have each phase have its elements all enable after
+// calling init, then events pull them into the screen as needed
 export const create = () => {
-
-	if (ShopState.container) return;
 
 	ShopState.container = io.Container();
 

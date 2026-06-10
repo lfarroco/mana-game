@@ -10,6 +10,7 @@ import * as Controller_ from "@Core/GameController";
 import events_ from "events";
 import * as Types from "@Core/Types";
 import * as Logger from "@Utils/Logger";
+import * as Chara from "@Systems/Chara/Chara";
 
 const logger = Logger.createLogger("io");
 
@@ -44,6 +45,8 @@ export const screens = {
 }
 
 export const clean = () => {
+
+	Chara.clearAll();
 	scene.children.each(c => c.destroy())
 	scene.children.removeAll();
 	scene.tweens.killAll();

@@ -3,13 +3,13 @@ import * as Types from "@Core/Types";
 import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
 import * as UI from "./Components/UI/UI";
-import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
 
 type BattlegroundScreenEvents = {
