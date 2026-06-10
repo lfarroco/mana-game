@@ -24,6 +24,7 @@ export type CombatPhaseResult =
 	| { type: "cancelled" };
 
 let stopActivePlayback: PlaybackDisposer = () => { };
+let activeCombatState: Types.CombatState | null = null;
 
 let initialized = false;
 function init() {
@@ -31,6 +32,8 @@ function init() {
 	initialized = true;
 
 	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase);
+	io.screens.battleground.events.combatContinueRequested.listen(handleCombatContinueRequested);
+	io.screens.battleground.events.combatReplayRequested.listen(handleCombatReplayRequested);
 
 }
 
@@ -38,6 +41,7 @@ async function finishCombatPhase(phase: Types.PhaseType): Promise<void> {
 	if (phase !== "combat") return;
 
 	cleanupPlayback();
+	activeCombatState = null;
 	await resetBoard(true);
 	namesDisplay.updateNameDisplay({ enemyName: "" });
 
@@ -65,12 +69,8 @@ const getCombatResultType = (outcome: string) =>
 
 const showCombatResults = ({
 	resultType,
-	onContinue,
-	onReplay,
 }: {
 	resultType: "defeat" | "victory";
-	onContinue: () => void;
-	onReplay: () => void;
 }) => {
 	return new Promise<void>((resultHandled) => {
 		void ResultsUI.displayResults(
@@ -78,24 +78,18 @@ const showCombatResults = ({
 			resultType,
 			() => {
 				resultHandled();
-				onContinue();
+				io.screens.battleground.events.combatContinueRequested.emit(undefined);
 			},
 			() => {
 				resultHandled();
-				onReplay();
+				io.screens.battleground.events.combatReplayRequested.emit(undefined);
 			}
 		);
 		void ResultsUI.slideIn();
 	});
 };
 
-const createCombatEffects = ({
-	onContinue,
-	onReplay,
-}: {
-	onContinue: () => void;
-	onReplay: () => void;
-}) => {
+const createCombatEffects = () => {
 	const effectsIndex = BrowserCombatEffects.createBrowserCombatEffects();
 	const baseOnCombatEnd = effectsIndex.onCombatEnd;
 
@@ -106,8 +100,6 @@ const createCombatEffects = ({
 
 		await showCombatResults({
 			resultType: getCombatResultType(outcome),
-			onContinue,
-			onReplay,
 		});
 	};
 
@@ -116,17 +108,13 @@ const createCombatEffects = ({
 
 const startCombatPlayback = async ({
 	combatState,
-	onContinue,
-	onReplay,
 }: {
 	combatState: Types.CombatState;
-	onContinue: () => void;
-	onReplay: () => void;
 }) => {
 	await setupCombatBoard(combatState);
 	await animation.delay(COMBAT_START_DELAY_MS);
 
-	const effectsIndex = createCombatEffects({ onContinue, onReplay });
+	const effectsIndex = createCombatEffects();
 	const controller = CombatPlaybackController.createCombatPlaybackController(
 		combatState.logs,
 		effectsIndex
@@ -145,6 +133,33 @@ const startCombatPlayback = async ({
 		controller.stop();
 	};
 };
+
+async function beginCombatPlayback(): Promise<void> {
+	if (!activeCombatState || state.session.phase !== "combat") {
+		return;
+	}
+
+	cleanupPlayback();
+	stopActivePlayback = await startCombatPlayback({
+		combatState: activeCombatState,
+	});
+}
+
+function handleCombatContinueRequested(): void {
+	if (state.session.phase !== "combat") {
+		return;
+	}
+
+	void GameController.completeCombatEncounter();
+}
+
+function handleCombatReplayRequested(): void {
+	if (state.session.phase !== "combat") {
+		return;
+	}
+
+	void beginCombatPlayback();
+}
 
 const setupCombatBoard = async (combatState: Types.CombatState): Promise<void> => {
 	Board.setIsInputEnabled(false);
@@ -172,21 +187,8 @@ export async function handleCombatPhase(): Promise<void> {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
-	cleanupPlayback();
-
-	const startPlayback = async () => {
-		cleanupPlayback();
-
-		const disposePlayback = await startCombatPlayback({
-			combatState,
-			onContinue: GameController.completeCombatEncounter,
-			onReplay: startPlayback,
-		});
-
-		stopActivePlayback = disposePlayback;
-	};
-
-	await startPlayback();
+	activeCombatState = combatState;
+	await beginCombatPlayback();
 }
 
 

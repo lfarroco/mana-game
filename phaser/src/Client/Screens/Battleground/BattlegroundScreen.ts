@@ -14,6 +14,8 @@ type BattlegroundScreenEvents = {
 	phaseFinished: Types.Event<Types.PhaseType>;
 	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
 	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string }>;
+	combatContinueRequested: Types.Event<void>;
+	combatReplayRequested: Types.Event<void>;
 }
 
 export let events: BattlegroundScreenEvents;
@@ -26,6 +28,8 @@ function init() {
 		phaseFinished: io.createEvent<Types.PhaseType>("phaseFinished"),
 		sessionUpdated: io.createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
 		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
+		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
+		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase);
