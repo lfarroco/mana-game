@@ -70,7 +70,7 @@ export function create(): void {
 function selectLanguage(lang: string) {
 	i18n.setLocale(lang);
 	io.scene.children.removeAll();
-	io.screens.title();
+	io.screens.title.create();
 	isOpen = false;
 	container = null;
 	overlay = null;

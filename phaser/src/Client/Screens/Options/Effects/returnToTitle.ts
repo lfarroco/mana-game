@@ -4,7 +4,7 @@ export async function returnToTitle() {
 
 	io.scene.children.removeAll();
 
-	io.screens.title();
+	io.screens.title.create();
 
 	await io.FadeIn(300);
 }

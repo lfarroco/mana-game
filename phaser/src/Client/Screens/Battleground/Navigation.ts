@@ -1,5 +1,3 @@
-import * as io from "../../../io";
-
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
 export const onBattlegroundExit = (callback: () => void) => {
@@ -23,13 +21,9 @@ const transitionFromBattleground = async (renderScreen: () => void) => {
 };
 
 export const returnToMainMenu = async () => {
-	await transitionFromBattleground(() => {
-		io.screens.title();
-	});
+	await transitionFromBattleground(io.screens.title.create);
 };
 
 export const startNewRun = async () => {
-	await transitionFromBattleground(() => {
-		io.screens.crystalSelection(false);
-	});
+	await transitionFromBattleground(io.screens.crystalSelection);
 };

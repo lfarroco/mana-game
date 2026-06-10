@@ -1,15 +1,13 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as getSinglePlayerData from "@Game/effects/getSinglePlayerData";
-import * as startGame from "@Screens/Title/Effects/startGame";
 import * as collectionButton from "Client/Screens/Title/Components/collectionButton";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
-import * as resumeSinglePlayerGame from "../Effects/resumeSinglePlayerGame";
 
 let submenuContainer: Container;
 
-export function render(y: number) {
+export function create(y: number) {
 	const title = io.i18n("title.singlePlayer");
 	const description = io.i18n("title.tooltip.singlePlayer");
 
@@ -35,7 +33,7 @@ function showSinglePlayerSubmenu() {
 	const resumeBtn = UIButton.create({
 		text: io.i18n("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: resumeSinglePlayerGame.resumeSinglePlayerGame
+		callback: io.screens.title.events.resumeGameButtonClicked.emit
 	});
 
 	if (!hasSavedRun) {
@@ -46,10 +44,7 @@ function showSinglePlayerSubmenu() {
 	const newRunBtn = UIButton.create({
 		text: io.i18n("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: () => {
-			hideSinglePlayerSubmenu();
-			void startGame.startGame({ isMultiplayer: false });
-		},
+		callback: io.screens.title.events.newGameButtonClicked.emit
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);

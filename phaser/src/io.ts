@@ -22,43 +22,38 @@ export const emitter = new events_.EventEmitter();
 
 export const Controller = Controller_;
 
-export const screens = {
-	title: TitleScreen.create,
-	crystalSelection: CrystalSelectionScene.create,
-	battleground: BattlegroundScreen.createBattlegroundScreen,
-	options: OptionsScreen.create
-}
-
-type Event<T> = {
-	listen: (callback: (payload: T) => void) => void;
-	emit: (payload: T) => void;
-	once: (callback: (payload: T) => void) => void;
-}
-
-const createEvent = <T>(event: string): Event<T> => {
+export const createEvent = <T>(event: string): Types.Event<T> => {
 	return {
 		listen: (callback: (payload: T) => void) => {
-			logger.debug(`>>Listening to event: ${event}`);
+			logger.debug(`~~~Listening to event: ${event}`);
 			emitter.on(event, callback);
 		},
 		emit: (payload: T) => {
-			logger.debug(`>>>Emitting event: ${event}`, payload);
+			logger.debug(`~~~Emitting event: ${event}`, payload);
 			emitter.emit(event, payload);
 		},
 		once: (callback: (payload: T) => void) => {
-			logger.debug(`>>Listening once to event: ${event}`);
+			logger.debug(`~~~Listening once to event: ${event}`);
 			emitter.once(event, callback);
 		}
 	};
 }
 
 export const events = {
+
 	phaseFinished: createEvent<Types.SessionData>("phaseFinished"),
 	onPhaseSkipped: createEvent<{ session: Types.SessionData, phase: string }>("onPhaseSkipped"),
 	sessionUpdated: createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
 	onShopPhaseCompleted: createEvent<Types.SessionData>("onShopPhaseCompleted"),
 	onUnitPurchased: createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
 	onEncounterPhaseCompleted: createEvent<void>("onEncounterPhaseCompleted"),
+}
+
+export const screens = {
+	title: TitleScreen,
+	crystalSelection: CrystalSelectionScene.create,
+	battleground: BattlegroundScreen.createBattlegroundScreen,
+	options: OptionsScreen.create
 }
 
 export const clean = () => {

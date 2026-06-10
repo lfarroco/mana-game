@@ -2,7 +2,7 @@ import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 
-export function render(y: number) {
+export function create(y: number) {
 	const label = i18n.t("title.multiplayer");
 	return UIButton.create({
 		text: label,

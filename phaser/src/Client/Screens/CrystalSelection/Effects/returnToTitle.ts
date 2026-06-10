@@ -3,7 +3,7 @@ export async function returnToTitle() {
 
 	io.clean();
 
-	io.screens.title();
+	io.screens.title.create();
 
 	await io.FadeIn(300);
 }
