@@ -1,5 +1,6 @@
 import * as Board from "@Models/Board";
 import * as Types from "@Core/Types";
+import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Encounter from "./Phases/Encounter/Encounter";
@@ -7,6 +8,7 @@ import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
+import * as UI from "./Components/UI/UI";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
 
@@ -19,6 +21,45 @@ type BattlegroundScreenEvents = {
 }
 
 export let events: BattlegroundScreenEvents;
+
+type SessionHudSnapshot = {
+	round: number;
+	wins: number;
+	lives: number;
+};
+
+let previousSessionHudSnapshot: SessionHudSnapshot | null = null;
+
+const createSessionHudSnapshot = (session: Types.SessionData): SessionHudSnapshot => ({
+	round: session.round,
+	wins: session.wins,
+	lives: SessionManager.getRemainingLives(session),
+});
+
+function updateHudFromSessionChanges(_previousPhase: Types.PhaseType): void {
+	const currentSnapshot = createSessionHudSnapshot(state.session);
+
+	if (!previousSessionHudSnapshot) {
+		previousSessionHudSnapshot = currentSnapshot;
+		return;
+	}
+
+	const winsDelta = currentSnapshot.wins - previousSessionHudSnapshot.wins;
+	if (winsDelta !== 0) {
+		UI.events.onWinsChanged(currentSnapshot.wins, winsDelta);
+	}
+
+	const livesDelta = currentSnapshot.lives - previousSessionHudSnapshot.lives;
+	if (livesDelta !== 0) {
+		UI.events.onLivesChanged(currentSnapshot.lives, livesDelta);
+	}
+
+	if (currentSnapshot.round !== previousSessionHudSnapshot.round) {
+		UI.events.onRoundChanged(currentSnapshot.round);
+	}
+
+	previousSessionHudSnapshot = currentSnapshot;
+}
 
 let initialized = false;
 function init() {
@@ -33,6 +74,7 @@ function init() {
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase);
+	events.phaseFinished.listen(updateHudFromSessionChanges);
 }
 
 // TODO: should be part of the player board logic
@@ -88,6 +130,7 @@ export const create = async () => {
 	init();
 
 	Components.create();
+	previousSessionHudSnapshot = createSessionHudSnapshot(state.session);
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
