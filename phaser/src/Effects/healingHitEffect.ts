@@ -15,7 +15,7 @@ const HEALING_HIT_EFFECT_CONFIG = {
 };
 
 export async function healingHitEffect(
-	{ x, y }: { x: number; y: number },
+	[x, y]: Vec2,
 	lifespan: number
 ): Promise<void> {
 	const particles = io.scene.add.particles(x, y, images.white_dot.key, {

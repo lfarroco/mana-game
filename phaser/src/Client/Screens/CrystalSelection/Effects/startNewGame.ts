@@ -17,7 +17,7 @@ export async function startNewGame() {
 
 	state.session = session;
 
-	io.screens.battleground();
+	io.screens.battleground.create();
 
 	await io.FadeIn(300);
 }

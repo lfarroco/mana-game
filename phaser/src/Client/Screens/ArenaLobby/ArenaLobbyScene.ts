@@ -4,8 +4,7 @@ import * as Modal from "@Components/Modal/Modal";
 import * as UIButton from "@Components/Button/UIButton";
 import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
 import * as i18n from "@i18n/i18n";
-import * as Geometry from "@Models/Geometry";
-import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
+//import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 import * as Logger from "@Utils/Logger";
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
@@ -19,9 +18,9 @@ const LOBBY_CARD_Y = 530;
 const LOBBY_CARD_WIDTH = 560;
 const LOBBY_CARD_HEIGHT = 760;
 const LOBBY_SECTION_LABEL_Y_OFFSET = 88;
-const LOBBY_SECTION_VALUE_Y_OFFSET = 134;
+//const LOBBY_SECTION_VALUE_Y_OFFSET = 134;
 const LOBBY_SECOND_SECTION_LABEL_Y_OFFSET = 202;
-const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 248;
+//const LOBBY_SECOND_SECTION_VALUE_Y_OFFSET = 248;
 const LOBBY_LABEL_X_PADDING = 58;
 const FIRST_BUTTON_Y_OFFSET = 340;
 const BUTTON_Y_OFFSET = 74;
@@ -53,8 +52,8 @@ const RANKING_CLOSE_Y = 408;
 const TITLE_FONT_SIZE = "64px";
 
 // Profile/Rating styling
-const PROFILE_FONT_SIZE = "32px";
-const RATING_FONT_SIZE = "48px";
+// const PROFILE_FONT_SIZE = "32px";
+// const RATING_FONT_SIZE = "48px";
 const FIELD_LABEL_FONT_SIZE = "18px";
 
 const createArenaText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
@@ -79,8 +78,8 @@ type RankingRow = {
 };
 
 export class ArenaLobbyScene extends Phaser.Scene {
-	private profileText?: Phaser.GameObjects.Text;
-	private ratingText?: Phaser.GameObjects.Text;
+	// private profileText?: Phaser.GameObjects.Text;
+	// private ratingText?: Phaser.GameObjects.Text;
 	private buttons: UIButton.Button[] = [];
 	private rankingButtons: UIButton.Button[] = [];
 	private loadingOverlay?: Phaser.GameObjects.Container;
@@ -124,13 +123,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			fontSize: TITLE_FONT_SIZE,
 			color: arenaTheme.ARENA_TEXT_PRIMARY,
 		})
-			.setPosition(Constants.MIDDLE_SCREEN.x, TITLE_Y)
+			.setPosition(Constants.MIDDLE_SCREEN_X, TITLE_Y)
 			.setOrigin(0.5);
 
 		const cardTop = LOBBY_CARD_Y - LOBBY_CARD_HEIGHT / 2;
-		const cardLeft = Constants.MIDDLE_SCREEN.x - LOBBY_CARD_WIDTH / 2;
+		const cardLeft = Constants.MIDDLE_SCREEN_X - LOBBY_CARD_WIDTH / 2;
 		const fieldLabelX = cardLeft + LOBBY_LABEL_X_PADDING;
-		const fieldValueX = fieldLabelX;
+		//const fieldValueX = fieldLabelX;
 		const labelStyle: Phaser.Types.GameObjects.Text.TextStyle = {
 			...Constants.defaultTextConfig,
 			fontSize: FIELD_LABEL_FONT_SIZE,
@@ -138,19 +137,19 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			fontStyle: "bold",
 			align: "left",
 		};
-		const profileTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...Constants.defaultTextConfig,
-			fontSize: PROFILE_FONT_SIZE,
-			color: arenaTheme.ARENA_TEXT_PRIMARY,
-			align: "left",
-		};
-		const ratingTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
-			...Constants.defaultTextConfig,
-			fontSize: RATING_FONT_SIZE,
-			color: arenaTheme.ARENA_TEXT_ACCENT,
-			fontStyle: "bold",
-			align: "left",
-		};
+		// const profileTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+		// 	...Constants.defaultTextConfig,
+		// 	fontSize: PROFILE_FONT_SIZE,
+		// 	color: arenaTheme.ARENA_TEXT_PRIMARY,
+		// 	align: "left",
+		// };
+		// const ratingTextStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+		// 	...Constants.defaultTextConfig,
+		// 	fontSize: RATING_FONT_SIZE,
+		// 	color: arenaTheme.ARENA_TEXT_ACCENT,
+		// 	fontStyle: "bold",
+		// 	align: "left",
+		// };
 
 		this.add
 			.rectangle(
@@ -171,23 +170,23 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		createArenaText("PLAYER", labelStyle)
 			.setPosition(fieldLabelX, cardTop + LOBBY_SECTION_LABEL_Y_OFFSET)
 			.setOrigin(0, 0.5);
-		this.profileText = createArenaText("Loading...", profileTextStyle)
-			.setPosition(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET)
-			.setOrigin(0, 0.5);
+		// this.profileText = createArenaText("Loading...", profileTextStyle)
+		// 	.setPosition(fieldValueX, cardTop + LOBBY_SECTION_VALUE_Y_OFFSET)
+		// 	.setOrigin(0, 0.5);
 
 		createArenaText("RATING", labelStyle)
 			.setPosition(fieldLabelX, cardTop + LOBBY_SECOND_SECTION_LABEL_Y_OFFSET)
 			.setOrigin(0, 0.5);
-		this.ratingText = createArenaText("", ratingTextStyle)
-			.setPosition(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET)
-			.setOrigin(0, 0.5);
+		// this.ratingText = createArenaText("", ratingTextStyle)
+		// 	.setPosition(fieldValueX, cardTop + LOBBY_SECOND_SECTION_VALUE_Y_OFFSET)
+		// 	.setOrigin(0, 0.5);
 
 		// Buttons
 		const buttonY = cardTop + FIRST_BUTTON_Y_OFFSET;
 
 		const casualBtn = UIButton.create({
 			text: "CASUAL",
-			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY),
+			position: [Constants.MIDDLE_SCREEN_X, buttonY],
 			callback: async () => {
 				await this.startOrContinueRun("casual");
 			},
@@ -198,7 +197,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		const rankedBtn = UIButton.create({
 			text: "RANKED",
-			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET),
+			position: [Constants.MIDDLE_SCREEN_X, buttonY + BUTTON_Y_OFFSET],
 			callback: async () => {
 				await this.startOrContinueRun("ranked");
 			},
@@ -209,10 +208,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		const leaderboardBtn = UIButton.create({
 			text: "LEADERBOARD",
-			position: Geometry.vec2(
-				Constants.MIDDLE_SCREEN.x - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
+			position: [
+				Constants.MIDDLE_SCREEN_X - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
 				buttonY + BUTTON_Y_OFFSET * 2
-			),
+			],
 			callback: async () => {
 				await this.openRankingModal();
 			},
@@ -223,10 +222,10 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.accountButton = UIButton.create({
 			text: "ACCOUNT",
-			position: Geometry.vec2(
-				Constants.MIDDLE_SCREEN.x + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
+			position: [
+				Constants.MIDDLE_SCREEN_X + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
 				buttonY + BUTTON_Y_OFFSET * 2
-			),
+			],
 			callback: () => {
 				// this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
 				// 	mode: this.accountState.isGuest ? "convertGuestAccount" : "manageAccount",
@@ -241,11 +240,11 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		const logoutBtn = UIButton.create({
 			text: "LOGOUT",
-			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 3),
+			position: [Constants.MIDDLE_SCREEN_X, buttonY + BUTTON_Y_OFFSET * 3],
 			callback: async () => {
 				this.setLoading(true);
 				try {
-					await MultiplayerManager.logout();
+					//await MultiplayerManager.logout();
 				} finally {
 					this.setLoading(false);
 				}
@@ -257,7 +256,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		const backBtn = UIButton.create({
 			text: i18n.t("ui.menu.back"),
-			position: Geometry.vec2(Constants.MIDDLE_SCREEN.x, buttonY + BUTTON_Y_OFFSET * 4),
+			position: [Constants.MIDDLE_SCREEN_X, buttonY + BUTTON_Y_OFFSET * 4],
 			callback: () => {
 				//this.scene.start(SCENE_KEYS.TITLE);
 			},
@@ -272,7 +271,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			fontSize: "32px",
 			color: arenaTheme.ARENA_TEXT_PRIMARY,
 		})
-			.setPosition(Constants.MIDDLE_SCREEN.x, Constants.MIDDLE_SCREEN.y)
+			.setPosition(Constants.MIDDLE_SCREEN_X, Constants.MIDDLE_SCREEN_Y)
 			.setOrigin(0.5);
 		this.loadingOverlay = this.add.container(0, 0, [loadingBg, loadingLabel]);
 		this.loadingOverlay.setVisible(false).setDepth(100);
@@ -288,13 +287,13 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.loadingOverlay?.setVisible(isLoading);
 	}
 
-	private setButtonVisibility(button: UIButton.Button | undefined, visible: boolean) {
-		if (!button) {
-			return;
-		}
+	// private setButtonVisibility(button: UIButton.Button | undefined, visible: boolean) {
+	// 	if (!button) {
+	// 		return;
+	// 	}
 
-		button.container.setVisible(visible);
-	}
+	// 	button.container.setVisible(visible);
+	// }
 
 	private async openRankingModal() {
 		if (!this.rankingModal) {
@@ -409,7 +408,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 
 		this.rankingPrevButton = UIButton.create({
 			text: "Previous",
-			position: Geometry.vec2(-210, RANKING_BUTTONS_Y),
+			position: [-210, RANKING_BUTTONS_Y],
 			callback: async () => {
 				if (this.rankingCurrentPage > 1) {
 					await this.loadRankingPage(this.rankingCurrentPage - 1);
@@ -418,14 +417,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		});
 		this.rankingNextButton = UIButton.create({
 			text: "Next",
-			position: Geometry.vec2(210, RANKING_BUTTONS_Y),
+			position: [210, RANKING_BUTTONS_Y],
 			callback: async () => {
 				await this.loadRankingPage(this.rankingCurrentPage + 1);
 			},
 		});
 		const closeButton = UIButton.create({
 			text: "Close",
-			position: Geometry.vec2(0, RANKING_CLOSE_Y),
+			position: [0, RANKING_CLOSE_Y],
 			callback: () => {
 				void this.closeRankingModal();
 			},
@@ -470,7 +469,8 @@ export class ArenaLobbyScene extends Phaser.Scene {
 	private async loadRankingPage(page: number) {
 		this.setLoading(true);
 		try {
-			const result = await MultiplayerManager.getTopRankedPlayers(page, RANKING_PAGE_SIZE);
+			//const result = await MultiplayerManager.getTopRankedPlayers(page, RANKING_PAGE_SIZE);
+			//@ts-expect-error test
 			this.renderRankingPage(result.page, result.hasNextPage, result.players);
 		} catch (error) {
 			logger.error("Failed to load ranking page", { page, error });
@@ -566,18 +566,18 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		return `${username.slice(0, maxLength - 3)}...`;
 	}
 
-	private async startOrContinueRun(queueType: MultiplayerTypes.MultiplayerQueueType) {
+	private async startOrContinueRun(_queueType: MultiplayerTypes.MultiplayerQueueType) {
 		this.setLoading(true);
 		try {
-			const hasActiveSession = await MultiplayerManager.checkActiveSessionByType(queueType);
-			if (hasActiveSession) {
-				await MultiplayerManager.enableMultiplayer(undefined, queueType);
-				// this.scene.start(SCENE_KEYS.BATTLEGROUND, {
-				// 	isMultiplayer: true,
-				// 	multiplayerQueueType: queueType,
-				// });
-				return;
-			}
+			//const hasActiveSession = await MultiplayerManager.checkActiveSessionByType(queueType);
+			//if (hasActiveSession) {
+			//await MultiplayerManager.enableMultiplayer(undefined, queueType);
+			// this.scene.start(SCENE_KEYS.BATTLEGROUND, {
+			// 	isMultiplayer: true,
+			// 	multiplayerQueueType: queueType,
+			// });
+			//return;
+			//}
 
 			//this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
 			// 	isMultiplayer: true,
@@ -595,14 +595,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 		} else {
 			try {
-				const profile = await MultiplayerManager.getPlayerProfile(playerId);
-				const accountState = await MultiplayerManager.getCurrentAccountState();
-				const displayName =
-					accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
-				this.profileText?.setText(displayName);
-				this.ratingText?.setText(`${profile.rating}`);
-				this.setButtonVisibility(this.accountButton, true);
-				this.setLoading(false);
+				// const profile = await MultiplayerManager.getPlayerProfile(playerId);
+				// const accountState = await MultiplayerManager.getCurrentAccountState();
+				// const displayName =
+				// 	accountState.username || profile.username || `Guest#${profile.id.slice(0, 4)}`;
+				// this.profileText?.setText(displayName);
+				// this.ratingText?.setText(`${profile.rating}`);
+				// this.setButtonVisibility(this.accountButton, true);
+				// this.setLoading(false);
 			} catch (e) {
 				logger.error("Profile Fetch Failed", e);
 				// Redirect to Login if invalid

@@ -19,11 +19,9 @@ const TARGET_ORB_SIZE = 180;
 const TARGET_ORB_DISSOLVE_DELAY_MS = 220;
 const TARGET_ORB_LIFETIME_MS = 900;
 
-type Point = { x: number; y: number };
-
 type UpgradeCrystalSelectionEffectProps = {
-	cardCenter: Point;
-	cardSize: { width: number; height: number };
+	cardCenter: Vec2;
+	cardSize: Size;
 	cardObjects: Phaser.GameObjects.GameObject[];
 	accentColor?: number;
 };
@@ -64,20 +62,23 @@ export async function playUpgradeCrystalSelectionEffect({
 		await animation.delay(index * PROJECTILE_STAGGER_MS);
 		const source = randomPointWithin(cardCenter, cardSize);
 
-		await arcaneMissileTargeted.arcaneMissileTargeted(source, target, {
-			colors: projectileColors,
-			amplitudeMin: 4,
-			amplitudeMax: 12,
-			particleScale: 1.2,
-			speedMultiplier: 1.4,
-			impact: {
-				colors: impactColors,
-				scale: 1.4,
-				speed: 140,
-				lifespan: 180,
-				alpha: 0.7,
-			},
-		});
+		await arcaneMissileTargeted.arcaneMissileTargeted(
+			source,
+			target,
+			{
+				colors: projectileColors,
+				amplitudeMin: 4,
+				amplitudeMax: 12,
+				particleScale: 1.2,
+				speedMultiplier: 1.4,
+				impact: {
+					colors: impactColors,
+					scale: 1.4,
+					speed: 140,
+					lifespan: 180,
+					alpha: 0.7,
+				},
+			});
 	});
 
 	try {
@@ -99,14 +100,14 @@ export async function playUpgradeCrystalSelectionEffect({
 }
 
 function createCardDissolveEmitter(
-	cardCenter: Point,
-	cardSize: { width: number; height: number },
+	[x, y]: Vec2,
+	[w, h]: Size,
 	colors: number[]
 ): Phaser.GameObjects.Particles.ParticleEmitter {
 	ensureShardTexture(io.scene);
 
 	return io.scene.add
-		.particles(cardCenter.x, cardCenter.y, SHARD_TEXTURE_KEY, {
+		.particles(x, y, SHARD_TEXTURE_KEY, {
 			tint: colors,
 			lifespan: { min: 260, max: 520 },
 			alpha: { start: 0.95, end: 0 },
@@ -119,10 +120,10 @@ function createCardDissolveEmitter(
 			blendMode: "ADD",
 			emitZone: {
 				source: new Phaser.Geom.Rectangle(
-					-cardSize.width / 2,
-					-cardSize.height / 2,
-					cardSize.width,
-					cardSize.height
+					-w / 2,
+					-h / 2,
+					w,
+					h
 				),
 				type: "random",
 			} as Phaser.Types.GameObjects.Particles.EmitZoneData,
@@ -130,8 +131,11 @@ function createCardDissolveEmitter(
 		.setDepth(1200);
 }
 
-function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOrb.MagicOrb {
-	const orb = new MagicOrb.MagicOrb(target.x, target.y, {
+function createCrystalAbsorptionOrb(
+	[x, y]: Vec2,
+	accentColor: number,
+): MagicOrb.MagicOrb {
+	const orb = new MagicOrb.MagicOrb(x, y, {
 		size: TARGET_ORB_SIZE,
 		color: colorUtils.hexToVector3(theme.mixHexColors(accentColor, 0xffffff, 0.25)),
 		intensity: 1.5,
@@ -160,26 +164,26 @@ function createCrystalAbsorptionOrb(target: Point, accentColor: number): MagicOr
 	return orb;
 }
 
-function getCrystalTargetPoint(): Point {
+function getCrystalTargetPoint(): Vec2 {
 	const core = Card.getPlayerPersistentCore(state);
 
 	if (Chara.hasCharaById(core.id)) {
 		const coreChara = Chara.mustGetCharaById(core.id);
-		return { x: coreChara.x, y: coreChara.y - 30 };
+		return [coreChara.x, coreChara.y - 30];
 	}
 
 	const position = Chara.getScreenPosition(core);
-	return { x: position.x, y: position.y - 30 };
+	return [position.x, position.y - 30];
 }
 
 function randomPointWithin(
-	cardCenter: Point,
-	cardSize: { width: number; height: number }
-): Point {
-	return {
-		x: cardCenter.x + (Math.random() - 0.5) * cardSize.width,
-		y: cardCenter.y + (Math.random() - 0.5) * cardSize.height,
-	};
+	[x, y]: Vec2,
+	[w, h]: Size
+): Vec2 {
+	return [
+		x + (Math.random() - 0.5) * w,
+		y + (Math.random() - 0.5) * h,
+	];
 }
 
 function ensureShardTexture(scene: Phaser.Scene): void {

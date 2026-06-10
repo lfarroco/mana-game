@@ -34,7 +34,7 @@ function applyUpgradeOrb(unit: Unit.Unit): void {
 function applyAbsorbPowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): number {
 	let totalAbsorbed = 0;
 	allUnits.forEach((u: Unit.Unit) => {
-		if (u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y) {
+		if (u.id !== targetUnit.id && u.position && u.position[1] === targetUnit.position[1]) {
 			const absorbed = Math.floor(u.power * 0.25);
 			if (absorbed > 0) {
 				Unit.applyPowerDelta(u, -absorbed, true);
@@ -59,9 +59,10 @@ function applyDistributePowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): 
 
 	Unit.applyPowerDelta(targetUnit, -powerToDistribute, true);
 
-	const targets = allUnits.filter(
-		(u: Unit.Unit) => u.id !== targetUnit.id && u.position && u.position.y === targetUnit.position.y
-	);
+	const targets = allUnits
+		.filter(u => u.id !== targetUnit.id)
+		.filter(u => u.position[1] === targetUnit.position[1]
+		);
 
 	if (targets.length > 0) {
 		const powerPerTarget = Math.floor(powerToDistribute / targets.length);

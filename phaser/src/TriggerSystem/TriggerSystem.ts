@@ -405,32 +405,32 @@ export function processReactions(
 					case "enemies":
 						return !sameForce(u, triggeringUnit);
 					case "row_allies":
-						return sameForce(u, triggeringUnit) && u.position.y === triggeringUnit.position.y;
+						return sameForce(u, triggeringUnit) && u.position[1] === triggeringUnit.position[1];
 					case "column_allies":
-						return sameForce(u, triggeringUnit) && u.position.x === triggeringUnit.position.x;
+						return sameForce(u, triggeringUnit) && u.position[0] === triggeringUnit.position[0];
 					case "top_ally":
 						return (
 							sameForce(u, triggeringUnit) &&
-							triggeringUnit.position.y === u.position.y - 1 &&
-							triggeringUnit.position.x === u.position.x
+							triggeringUnit.position[1] === u.position[1] - 1 &&
+							triggeringUnit.position[0] === u.position[0]
 						);
 					case "bottom_ally":
 						return (
 							sameForce(u, triggeringUnit) &&
-							triggeringUnit.position.y === u.position.y + 1 &&
-							triggeringUnit.position.x === u.position.x
+							triggeringUnit.position[1] === u.position[1] + 1 &&
+							triggeringUnit.position[0] === u.position[0]
 						);
 					case "left_ally":
 						return (
 							sameForce(u, triggeringUnit) &&
-							triggeringUnit.position.x === u.position.x - 1 &&
-							triggeringUnit.position.y === u.position.y
+							triggeringUnit.position[0] === u.position[0] - 1 &&
+							triggeringUnit.position[1] === u.position[1]
 						);
 					case "right_ally":
 						return (
 							sameForce(u, triggeringUnit) &&
-							triggeringUnit.position.x === u.position.x + 1 &&
-							triggeringUnit.position.y === u.position.y
+							triggeringUnit.position[0] === u.position[0] + 1 &&
+							triggeringUnit.position[1] === u.position[1]
 						);
 					case "self":
 						return u.id === triggeringUnit.id;
@@ -484,12 +484,12 @@ export function resolveTargets(
 		case "row_allies":
 			return allies
 				.filter((u) => u.id !== sourceUnit.id)
-				.filter((u) => u.position.y === sourceUnit.position.y);
+				.filter((u) => u.position[1] === sourceUnit.position[1]);
 
 		case "column_allies":
 			return allies
 				.filter((u) => u.id !== sourceUnit.id)
-				.filter((u) => u.position.x === sourceUnit.position.x);
+				.filter((u) => u.position[0] === sourceUnit.position[0]);
 
 		case "all_allies":
 			const validType = effect.targets.ofType;
@@ -521,22 +521,22 @@ export function resolveTargets(
 
 		case "top_ally":
 			return allies.filter(
-				(u) => u.position.y === sourceUnit.position.y - 1 && u.position.x === sourceUnit.position.x
+				(u) => u.position[1] === sourceUnit.position[1] - 1 && u.position[0] === sourceUnit.position[0]
 			);
 
 		case "bottom_ally":
 			return allies.filter(
-				(u) => u.position.y === sourceUnit.position.y + 1 && u.position.x === sourceUnit.position.x
+				(u) => u.position[1] === sourceUnit.position[1] + 1 && u.position[0] === sourceUnit.position[0]
 			);
 
 		case "left_ally":
 			return allies.filter(
-				(u) => u.position.x === sourceUnit.position.x - 1 && u.position.y === sourceUnit.position.y
+				(u) => u.position[0] === sourceUnit.position[0] - 1 && u.position[1] === sourceUnit.position[1]
 			);
 
 		case "right_ally":
 			return allies.filter(
-				(u) => u.position.x === sourceUnit.position.x + 1 && u.position.y === sourceUnit.position.y
+				(u) => u.position[0] === sourceUnit.position[0] + 1 && u.position[1] === sourceUnit.position[1]
 			);
 
 		case "trigger":

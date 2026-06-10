@@ -1,7 +1,6 @@
 import { Unit, makeUnit } from "@Models/Entities/Unit";
 import { hasCardDefinition } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
-import { vec2 } from "@Models/Geometry";
 import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
 import { storage } from "@Storage/index";
 import { nextValue } from "@Utils/Random";
@@ -72,8 +71,8 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], lives: num
 
 	const ghostUnits: GhostUnit[] = playerUnits.map((u) => ({
 		cardId: u.cardId,
-		x: u.position.x,
-		y: u.position.y,
+		x: u.position[0],
+		y: u.position[1],
 		power: u.power,
 		effects: u.effects?.map((e) => ({ ...e })),
 		reactions: u.reactions?.map((r) => ({
@@ -132,7 +131,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 
 export function instantiateGhostUnits(state: State, entry: GhostEntry): Unit[] {
 	return entry.units.map((g) => {
-		const unit = makeUnit(cpuForce(state).id, g.cardId, vec2(g.x, g.y));
+		const unit = makeUnit(cpuForce(state).id, g.cardId, [g.x, g.y]);
 		if (g.power && g.power > 0) unit.power = g.power;
 		if (g.effects) unit.effects = g.effects.map((e) => ({ ...e }));
 		if (g.reactions)

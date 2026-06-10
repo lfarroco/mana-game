@@ -45,7 +45,7 @@ export function createCombatState(session: SessionData, enemyTeam?: Unit[]): Sta
 	// Ensure player always has a core
 	const hasCore = playerUnits.some((u) => u.isCore);
 	if (!hasCore) {
-		const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, { x: 1, y: 1 });
+		const freeSlot = BoardLogic.findFreeSlot(playerUnits, FORCE_ID_PLAYER, [1, 1]);
 		if (freeSlot) {
 			const crystal = makeUnit(FORCE_ID_PLAYER, "crystal_core", freeSlot);
 			crystal.isCore = true;

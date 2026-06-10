@@ -25,10 +25,7 @@ export async function handleAction(
 
 	state.session.combatState = result.combatState;
 
-	io.scene.events.emit("sessionUpdated", {
-		action,
-		session: result,
-	})
+
 
 	SessionManager.updateSession(playerId, result);
 

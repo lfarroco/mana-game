@@ -72,16 +72,6 @@ export class CloudsBackground {
 			this.currentPresetIndex = 0;
 		}
 
-		this.createShader();
-	}
-
-	private resolveScene(): Phaser.Scene {
-
-		return io.scene;
-
-	}
-
-	private createShader(): void {
 		// Initialize renderColors with a deep copy of current settings
 		this.renderColors = JSON.parse(JSON.stringify(this.getCurrentColors()));
 		const colors = this.renderColors;
@@ -108,6 +98,11 @@ export class CloudsBackground {
 			.setDepth(this.depth);
 
 		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
+	}
+	private resolveScene(): Phaser.Scene {
+
+		return io.scene;
+
 	}
 
 	private getCurrentColors(): colorPresets.IColorPreset {

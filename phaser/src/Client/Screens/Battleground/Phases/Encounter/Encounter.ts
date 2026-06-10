@@ -32,13 +32,14 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	io.events.onPhaseSkipped.listen(onEncounterSkipped);
+	const { events } = io.screens.battleground;
+
+	events.phaseFinished.listen(onEncounterSkipped);
 
 }
-const onEncounterSkipped = ({ phase }: { phase: string }) => {
+const onEncounterSkipped = (phase: Types.PhaseType) => {
 	if (phase !== "encounter") return;
 	container.destroy(true);
-	io.events.onEncounterPhaseCompleted.emit();
 }
 
 const improveType = (pic: string, type: string): EncounterItem => ({
@@ -188,8 +189,6 @@ export const displayOptions = () => {
 
 		await GameController.selectEncounter(id);
 
-		io.events.onEncounterPhaseCompleted.emit();
-
 	};
 
 	options.forEach(async (encounter, index) => {
@@ -231,11 +230,4 @@ export const displayOptions = () => {
 
 		container.add(btn.container);
 	}
-
-	return new Promise<Types.SessionData>((resolve) => {
-		io.events.onEncounterPhaseCompleted.once(() => {
-			resolve(state.session);
-		});
-	});
-
 }

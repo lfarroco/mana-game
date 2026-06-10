@@ -8,7 +8,7 @@ export async function resumeGame() {
 
 	loadGame.loadGame();
 
-	io.screens.battleground();
+	io.screens.battleground.create();
 
 	io.FadeIn(300);
 }

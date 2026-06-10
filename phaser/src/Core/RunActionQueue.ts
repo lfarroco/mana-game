@@ -115,7 +115,7 @@ export class RunActionQueue {
 	 * Record a player decision and persist the updated manifest.
 	 *
 	 * @param actionId     The chosen action (encounter id, card id, etc.)
-	 * @param payload      Optional structured payload for the action.
+	 * @param action      Optional structured payload for the action.
 	 * @param teamSnapshot Current board arrangement at decision time.  Pass
 	 *                     a deep copy of `session.team` so the server can
 	 *                     restore exact unit positions during replay.
@@ -123,14 +123,13 @@ export class RunActionQueue {
 	 *                     are captured here instead of as separate log entries.
 	 */
 	append(
-		actionId: string,
-		payload?: Action,
+		action: Action,
 		teamSnapshot?: ActionEnvelope["teamSnapshot"]
 	): void {
 		const envelope: ActionEnvelope = {
 			sequence: this._actions.length + 1,
-			actionId,
-			...(payload !== undefined ? { action: payload } : {}),
+			action,
+			...(action !== undefined ? { action: action } : {}),
 			...(teamSnapshot !== undefined ? { teamSnapshot } : {}),
 		};
 		this._actions = [...this._actions, envelope];

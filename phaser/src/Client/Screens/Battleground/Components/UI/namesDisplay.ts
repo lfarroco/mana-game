@@ -4,7 +4,7 @@ import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as c from "@Constants";
-import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
+//import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 const LEFT_MARGIN = 40;
 const RIGHT_MARGIN = 40;
@@ -32,10 +32,10 @@ export const create = async () => {
 		enemyNameText = createNameText(c.SCREEN_WIDTH - RIGHT_MARGIN, "right");
 	}
 
-	const profile = await MultiplayerManager.getPlayerProfile(state.session.player_id);
+	//const profile = await MultiplayerManager.getPlayerProfile(state.session.player_id);
 
 	updateNameDisplay({
-		playerName: profile.username,
+		playerName: "Player",
 		enemyName: "",
 	});
 

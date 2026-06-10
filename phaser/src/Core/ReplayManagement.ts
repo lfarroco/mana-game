@@ -33,7 +33,7 @@ export type ReplayManifestOptions = {
  * then applies every ActionEnvelope in sequence order via transitionToNextState.
  * The resulting session can be compared against client-reported snapshot to validate the run.
  */
-export function replayManifest(manifest: Types.RunManifest, replayOptions?: ReplayManifestOptions): {
+export function replayManifest(manifest: Types.RunManifest): {
 	session: Types.SessionData;
 	rejectReason?: string;
 } {
@@ -61,32 +61,11 @@ export function replayManifest(manifest: Types.RunManifest, replayOptions?: Repl
 	// is identifiable separately from in-progress client sessions.
 	session.id = `replay-${manifest.runId}`;
 
-	let combatIndex = 0;
-
 	for (const envelope of manifest.actions) {
-		// Restore the board arrangement the player had set up before this decision.
-		// Board moves are never stored as separate log entries;
-		// instead each decision envelope carries a snapshot of the team state at decision time.
-		if (envelope.teamSnapshot) {
-			const { team, valid } = SessionManagement.updateTeamAction(session, envelope.teamSnapshot);
-			if (valid) {
-				session = { ...session, team };
-			}
-		}
 
-		let combatEnemyTeamOptions: { combatEnemyTeam?: Unit.Unit[] } | undefined;
-		if (envelope.action.type === "start_combat") {
-			const storedTeam = replayOptions?.enemyTeams?.[combatIndex];
-			if (storedTeam !== undefined) {
-				combatEnemyTeamOptions = { combatEnemyTeam: storedTeam };
-			}
-			combatIndex++;
-		}
-
-		const { session: next } = SessionTransitions.transitionToNextState(
+		const next = SessionTransitions.transitionToNextState(
 			session,
 			envelope.action,
-			combatEnemyTeamOptions
 		);
 		session = next;
 	}
@@ -138,11 +117,11 @@ function buildTeamStateSignature(session: Types.SessionData): string {
 					return left.rank - right.rank;
 				}
 
-				if (left.position.x !== right.position.x) {
-					return left.position.x - right.position.x;
+				if (left.position[0] !== right.position[0]) {
+					return left.position[0] - right.position[0];
 				}
 
-				return left.position.y - right.position.y;
+				return left.position[1] - right.position[1];
 			})
 	);
 }
@@ -214,12 +193,12 @@ function reconstructCombatState(session: Types.SessionData): Types.CombatState |
 	let reconstructedCombatState: Types.CombatState | null = null;
 
 	for (const entry of session.action_log ?? []) {
-		if (entry.action.type === "combat_encounter") {
+		if (entry.action.type === "start_combat") {
 			replaySession = applySavedCombatPositions(replaySession, session);
 		}
 
 		const result = SessionTransitions.transitionToNextState(replaySession, entry.action);
-		replaySession = result.session;
+		replaySession = result;
 		if (result.combatState) {
 			reconstructedCombatState = result.combatState;
 		}

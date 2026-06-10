@@ -31,28 +31,15 @@ export const createEvent = <T>(event: string): Types.Event<T> => {
 		emit: (payload: T) => {
 			logger.debug(`~~~Emitting event: ${event}`, payload);
 			emitter.emit(event, payload);
-		},
-		once: (callback: (payload: T) => void) => {
-			logger.debug(`~~~Listening once to event: ${event}`);
-			emitter.once(event, callback);
 		}
 	};
 }
 
-export const events = {
-
-	phaseFinished: createEvent<Types.SessionData>("phaseFinished"),
-	onPhaseSkipped: createEvent<{ session: Types.SessionData, phase: string }>("onPhaseSkipped"),
-	sessionUpdated: createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
-	onShopPhaseCompleted: createEvent<Types.SessionData>("onShopPhaseCompleted"),
-	onUnitPurchased: createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
-	onEncounterPhaseCompleted: createEvent<void>("onEncounterPhaseCompleted"),
-}
 
 export const screens = {
 	title: TitleScreen,
 	crystalSelection: CrystalSelectionScene.create,
-	battleground: BattlegroundScreen.createBattlegroundScreen,
+	battleground: BattlegroundScreen,
 	options: OptionsScreen.create
 }
 

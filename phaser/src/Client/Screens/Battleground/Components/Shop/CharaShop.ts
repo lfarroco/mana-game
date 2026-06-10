@@ -17,15 +17,6 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-let initialized = false;
-export const init = () => {
-	if (initialized) return;
-	initialized = true;
-
-	//io.events.onUnitPurchased.listen(onPurchaseSuccessful);
-};
-
-
 export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
 
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));

@@ -1,5 +1,6 @@
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const path = require("path");
 const webpack = require("webpack");
 const {
@@ -41,6 +42,16 @@ module.exports = {
                 experimental: true
             })
         ),
+        new ForkTsCheckerWebpackPlugin({
+            typescript: {
+                configFile: path.resolve(__dirname, "../tsconfig.json"),
+                diagnosticOptions: {
+                    semantic: true,
+                    syntactic: true
+                },
+                mode: "write-references"
+            }
+        }),
         new HtmlWebpackPlugin({
             template: "./index.html"
         }),

@@ -88,7 +88,7 @@ export function renderOrbShop(
 		);
 
 		const existingUnit = state?.session?.team?.units?.find((unit) =>
-			Geometry.eqVec2(unit.position, { x: tileX, y: tileY })
+			Geometry.eqVec2(unit.position, [tileX, tileY])
 		);
 
 		if (!existingUnit) {
@@ -123,12 +123,13 @@ export function renderOrbShop(
 			await onOrbApply(orbSpec.id, existingUnit.id);
 
 			// The resolved action already updated state.session locally.
-			const rowY = existingUnit.position?.y;
+			const [, y] = existingUnit.position;
 
 			for (const serverUnit of state.session.team.units) {
+				const [, sy] = serverUnit.position;
 				const isTarget = serverUnit.id === existingUnit.id;
 				const isInSameRow =
-					isRowOrb && serverUnit.position?.y === rowY && !isTarget;
+					isRowOrb && sy === y && !isTarget;
 
 				if (isTarget || isInSameRow) {
 					const localUnit = state.session.team.units.find(

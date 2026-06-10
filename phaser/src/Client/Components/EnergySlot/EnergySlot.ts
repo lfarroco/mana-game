@@ -29,10 +29,6 @@ export class EnergySlot {
 		this.config = { ...defaultConfig, ...config };
 		this.startTime = io.scene.time.now;
 
-		this.createShader(x, y);
-	}
-
-	private createShader(x: number, y: number): void {
 		// Calculate animation phase offset - randomized for variety
 		const animationPhaseOffset = Random.nextValue() * Math.PI * 2;
 

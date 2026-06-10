@@ -18,5 +18,10 @@ export const onShopPurchaseSuccesful = (chara: Chara.Chara) => {
 	Tooltip.hideTooltip();
 	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
 	const charaState = Chara.mustGetState(chara);
-	io.events.onUnitPurchased.emit({ unitId: charaState.unit.id, session: state.session });
+	const { events } = io.screens.battleground;
+
+	events.onUnitPurchased.emit({
+		unitId: charaState.unit.id,
+		session: state.session
+	});
 };

@@ -30,30 +30,39 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 	});
 }
 
-export async function skipPhase(): Promise<Types.SessionData> {
+export async function skipPhase() {
 
-	const currentPhase = state.session.phase;
+	const previousPhase = state.session.phase;
 
 	const session = await dispatchAction({
 		type: "skip"
 	});
 
-	io.events.onPhaseSkipped.emit({ phase: currentPhase, session });
+	state.session = session;
 
-	return session;
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+
 }
 
-export async function selectEncounter(encounterId: string): Promise<Types.SessionData> {
-	return await dispatchAction({
+export async function selectEncounter(encounterId: string) {
+	const previousPhase = state.session.phase;
+	const session = await dispatchAction({
 		type: "select_encounter",
 		encounterId
 	});
+	state.session = session;
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
 }
 
 export async function handleAction(
 	payload: Types.Action
 ): Promise<Types.SessionData> {
 	const success = await dispatchAction(payload);
+
+	io.screens.battleground.events.sessionUpdated.emit({
+		action: payload,
+		session: success,
+	});
 
 	return success;
 }

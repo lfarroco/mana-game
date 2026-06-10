@@ -6,6 +6,10 @@ export type Size = [number, number];
 
 export const eqVec2 = ([x1, y1]: Vec2, [x2, y2]: Vec2) => x1 === x2 && y1 === y2;
 
+export const eqX = ([x1]: Vec2, [x2]: Vec2) => x1 === x2;
+
+export const eqY = ([, y1]: Vec2, [, y2]: Vec2) => y1 === y2;
+
 export const sumVec2 = ([x1, y1]: Vec2, [x2, y2]: Vec2) => [x1 + x2, y1 + y2];
 
 export const centerOf = ([width, height]: Size) => [width / 2, height / 2];

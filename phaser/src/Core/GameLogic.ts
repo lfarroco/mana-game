@@ -42,18 +42,6 @@ export {
 	type TransitionToNextStateOptions,
 } from "./SessionTransitions";
 
-export {
-	createLlmPlayerService,
-	type BoardMove,
-	type LlmBoardView,
-	type LlmCardDetails,
-	type LlmChoiceResult,
-	type LlmChoicesView,
-	type LlmPlayerService,
-	type LlmPlayerServiceConfig,
-	type LlmStateView,
-} from "./LlmPlayerService";
-
 // Re-export replay management
 export { replayManifest, buildReplaySnapshot, type ReplayManifestOptions } from "./ReplayManagement";
 export { constructCombatState } from "./ReplayManagement";

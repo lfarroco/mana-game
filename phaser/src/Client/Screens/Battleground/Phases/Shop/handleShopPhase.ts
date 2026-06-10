@@ -11,17 +11,20 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	io.events.onUnitPurchased.listen(onUnitPurchased);
-	io.events.onPhaseSkipped.listen(onShopSkipped);
+	const { events } = io.screens.battleground;
+
+	events.onUnitPurchased.listen(onUnitPurchased);
+	events.phaseFinished.listen(closeShop)
 }
 
-export async function handleShopPhase(): Promise<Types.SessionData> {
+export async function handleShopPhase() {
 
 	init();
 
 	const { session } = state;
 	const shopCardIds = session.options.map((o) => o.id);
-	const cardDefs = shopCardIds.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
+	const cardDefs = shopCardIds
+		.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
 	Shop.addSkipButton();
 
@@ -29,19 +32,11 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 
 	await Shop.SlideIn();
 
-	return await new Promise((resolve) => {
-		io.events.onShopPhaseCompleted.once(async (updatedSession) => {
-			await Shop.SlideOut();
-			resolve(updatedSession);
-		});
-	});
-
 }
 
-async function onShopSkipped({ phase, session }: { phase: string, session: Types.SessionData }) {
+async function closeShop(phase: Types.PhaseType) {
 	if (phase !== "shop") return;
 	await Shop.SlideOut();
-	io.events.onShopPhaseCompleted.emit(session);
 }
 
 async function onUnitPurchased({ session, unitId }: { session: Types.SessionData, unitId: string }) {
@@ -57,6 +52,5 @@ async function onUnitPurchased({ session, unitId }: { session: Types.SessionData
 		Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
 	}
 
-
-	io.events.onShopPhaseCompleted.emit(session);
+	await Shop.SlideOut();
 }

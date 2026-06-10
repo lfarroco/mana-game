@@ -4,7 +4,6 @@ import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as GameLogic from "@Core/GameLogic";
 import * as supabase from "@lib/supabase";
-import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("RemoteServer");
@@ -72,7 +71,7 @@ export async function createSession(_playerId: string, crystalId: string): Promi
 	}
 
 	const session = { ...(data as Types.SessionData), session_type: sessionType };
-	MultiplayerManager.primeDeferredSession(session, crystalId);
+	//MultiplayerManager.primeDeferredSession(session, crystalId);
 
 	return session;
 }
@@ -116,11 +115,11 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 				: [];
 			const finalPlayerUnits = Array.isArray(sessionCombatState.finalPlayerUnits)
 				? (sessionCombatState.finalPlayerUnits as Unit.Unit[])
-				: undefined;
+				: [];
 			const wonCombat =
 				typeof sessionCombatState.wonCombat === "boolean"
 					? sessionCombatState.wonCombat
-					: undefined;
+					: false;
 			combatState = {
 				units,
 				enemyTeam,
@@ -129,19 +128,17 @@ export async function getPhaseOptions(playerId: string): Promise<Types.PhaseOpti
 				enemyPlayerName:
 					typeof sessionCombatState.enemyPlayerName === "string"
 						? sessionCombatState.enemyPlayerName
-						: undefined,
+						: "",
 				wonCombat,
 				finalPlayerUnits,
 				initialUnits: units,
-				nextSession:
-					typeof sessionCombatState.nextSession === "object" && sessionCombatState.nextSession
-						? (sessionCombatState.nextSession as Types.SessionData)
-						: undefined,
+
 			};
 		} else {
 			logger.warn("Combat logs missing from session; simulating locally");
 			const simResult = GameLogic.simulateCombat(session as unknown as Types.SessionData);
 			combatState = {
+				...session.combatState, // TODO: probably wrong
 				units: simResult.initialUnits,
 				enemyTeam: simResult.initialUnits.filter((u: Unit.Unit) => u.force === CombatConstants.FORCE_ID_CPU),
 				logs: simResult.logs,
@@ -169,7 +166,7 @@ export async function handleAction(
 	action: Types.Action
 ): Promise<Types.SessionData> {
 	const bodyPayload =
-		action.type === "combat_encounter" && (!action || typeof action === "object")
+		action.type === "start_combat"
 			? {
 				...(action || {}),
 				sessionType: state.session.session_type,

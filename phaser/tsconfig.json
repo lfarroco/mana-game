@@ -94,10 +94,15 @@
         "isolatedModules": true,
         /* Linting */
         "strict": true,
-        "strictPropertyInitialization": false,
+        "strictPropertyInitialization": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictBindCallApply": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true
     },
     "include": [
         "src",

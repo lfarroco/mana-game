@@ -1,6 +1,4 @@
 import * as constants from "@Constants";
-import * as Geometry from "@Models/Geometry";
-import * as io from "../../../../io";
 
 const PANEL_WIDTH = 1180;
 const PANEL_HEIGHT = 500;
@@ -39,8 +37,8 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 	const container = io.Container();
 	const scene = container.scene;
 	const background = io.BorderedRoundRect(
-		Geometry.vec2(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y),
-		{ width: PANEL_WIDTH, height: PANEL_HEIGHT },
+		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y],
+		[PANEL_WIDTH, PANEL_HEIGHT],
 		PANEL_RADIUS,
 		PANEL_BACKGROUND_COLOR,
 		PANEL_BACKGROUND_ALPHA
@@ -88,12 +86,12 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 		addMenuButtons: (buttons) => {
 			io.AddChildren(container, buttons);
 		},
-		getMenuButtonPosition: (index) => Geometry.vec2(menuX, menuStartY + menuSpacing * index),
+		getMenuButtonPosition: (index) => [menuX, menuStartY + menuSpacing * index],
 		getContentButtonPosition: (index) =>
-			Geometry.vec2(contentCenterX, contentButtonStartY + contentButtonSpacing * index),
+			[contentCenterX, contentButtonStartY + contentButtonSpacing * index],
 		createTabTitle: (text) => {
 			const title = io.Title1(text);
-			io.SetPosition(title, Geometry.vec2(contentCenterX, contentTitleY));
+			io.SetPosition(title, [contentCenterX, contentTitleY]);
 			io.Centralize(title);
 			return title;
 		},

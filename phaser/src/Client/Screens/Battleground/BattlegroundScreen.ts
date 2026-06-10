@@ -4,24 +4,31 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
-import * as SessionManager from "@Core/SessionManager";
 
 import * as Components from "./Components";
-import * as UIManager from "./Components/UI/UI";
 import * as Phases from "./Phases";
 import * as Chara from "@Systems/Chara/Chara";
 import * as animation from "@Utils/animation";
-import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("BattlegroundScreen");
+type BattlegroundScreenEvents = {
+	phaseFinished: Types.Event<Types.PhaseType>;
+	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
+	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string }>;
+}
 
-type PhaseExecutionResult = Types.SessionData | null;
+export let events: BattlegroundScreenEvents;
 
 let initialized = false;
 function init() {
 	if (initialized) return;
 	initialized = true;
-	io.events.phaseFinished.listen(handleCurrentPhase);
+	events = {
+		phaseFinished: io.createEvent<Types.PhaseType>("phaseFinished"),
+		sessionUpdated: io.createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
+		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
+	};
+
+	events.phaseFinished.listen(handleCurrentPhase);
 }
 
 // TODO: should be part of the player board logic
@@ -55,24 +62,24 @@ const syncPlayerBoardUnits = async (): Promise<void> => {
 	await Promise.all(summonPromises);
 };
 
-const updateSessionState = (nextSession: Types.SessionData) => {
-	const previousSession = state.session;
-	const winsDelta = nextSession.wins - previousSession.wins;
-	const previousLives = SessionManager.getRemainingLives(previousSession);
-	const nextLives = SessionManager.getRemainingLives(nextSession);
-	const livesDelta = nextLives - previousLives;
+// const updateSessionState = (nextSession: Types.SessionData) => {
+// 	const previousSession = state.session;
+// 	const winsDelta = nextSession.wins - previousSession.wins;
+// 	const previousLives = SessionManager.getRemainingLives(previousSession);
+// 	const nextLives = SessionManager.getRemainingLives(nextSession);
+// 	const livesDelta = nextLives - previousLives;
 
-	state.session = nextSession;
+// 	state.session = nextSession;
 
-	UIManager.events.onWinsChanged(nextSession.wins, winsDelta);
-	if (livesDelta !== 0) {
-		UIManager.events.onLivesChanged(nextLives, livesDelta);
-	}
-	UIManager.events.onRoundChanged(nextSession.round);
-	SessionManager.updateSession(nextSession.player_id, nextSession);
-};
+// 	UIManager.events.onWinsChanged(nextSession.wins, winsDelta);
+// 	if (livesDelta !== 0) {
+// 		UIManager.events.onLivesChanged(nextLives, livesDelta);
+// 	}
+// 	UIManager.events.onRoundChanged(nextSession.round);
+// 	SessionManager.updateSession(nextSession.player_id, nextSession);
+// };
 
-export const createBattlegroundScreen = async () => {
+export const create = async () => {
 
 	init();
 
@@ -87,13 +94,13 @@ export const createBattlegroundScreen = async () => {
 
 	// ~~~~~ // ~~~~~ //
 
-	io.events.phaseFinished.emit(state.session);
+	handleCurrentPhase();
 
 };
 
 async function executePhase(
 	phase: Types.PhaseType,
-): Promise<PhaseExecutionResult> {
+) {
 
 	if (phase !== 'combat') {
 		await syncPlayerBoardUnits();
@@ -111,7 +118,7 @@ async function executePhase(
 		}
 
 		case "shop":
-			return await Phases.handleShopPhase();
+			return Phases.handleShopPhase();
 
 		case "upgrade_core":
 			return await Phases.handleUpgradeCorePhase();
@@ -135,19 +142,12 @@ async function executePhase(
 }
 
 async function handleCurrentPhase() {
-	const nextSession = await executePhase(state.session.phase);
-	if (!nextSession) {
-		return;
-	}
 
-	logger.debug(
-		`Phase ${state.session.phase} completed. Transitioning to next phase...`,
-		nextSession,
-	);
+	//updateSessionState(state.session);
 
-	updateSessionState(nextSession);
+	executePhase(state.session.phase);
 
-	io.events.phaseFinished.emit(nextSession);
+	//events.phaseFinished.emit(previousPhase);
 
 }
 
