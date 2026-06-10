@@ -25,6 +25,19 @@ export type CombatPhaseResult =
 
 let stopActivePlayback: PlaybackDisposer = () => { };
 let activeCombatState: Types.CombatState | null = null;
+let isPaused = false;
+
+export const pauseCombat = (): void => {
+	isPaused = true;
+	io.scene.tweens.pauseAll();
+	io.scene.time.paused = true;
+};
+
+export const resumeCombat = (): void => {
+	isPaused = false;
+	io.scene.tweens.resumeAll();
+	io.scene.time.paused = false;
+};
 
 let initialized = false;
 function init() {
@@ -48,6 +61,9 @@ async function finishCombatPhase(phase: Types.PhaseType): Promise<void> {
 }
 
 function cleanupPlayback(): void {
+	isPaused = false;
+	io.scene.tweens.resumeAll();
+	io.scene.time.paused = false;
 	stopActivePlayback();
 	stopActivePlayback = () => { };
 }
@@ -120,6 +136,7 @@ const startCombatPlayback = async ({
 		effectsIndex
 	);
 	const updateHandler = (time: number, delta: number) => {
+		if (isPaused) return;
 		controller.updateFrame(state, time, delta);
 		if (!controller.isActive()) {
 			io.scene.events.off("update", updateHandler);
