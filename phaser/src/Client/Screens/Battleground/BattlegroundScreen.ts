@@ -19,10 +19,9 @@ type PhaseExecutionResult = Types.SessionData | null;
 
 let initialized = false;
 function init() {
-	io.events.on("phase_finished", (nextSession: Types.SessionData) => {
-		logger.debug("Received phase_finished event. Transitioning to next phase...", nextSession);
-		handleCurrentPhase();
-	});
+	if (initialized) return;
+	initialized = true;
+	io.events.phaseFinished.listen(handleCurrentPhase);
 }
 
 // TODO: should be part of the player board logic
@@ -75,10 +74,7 @@ const updateSessionState = (nextSession: Types.SessionData) => {
 
 export const createBattlegroundScreen = async () => {
 
-	if (!initialized) {
-		init();
-		initialized = true;
-	}
+	init();
 
 	Components.create();
 
@@ -91,7 +87,7 @@ export const createBattlegroundScreen = async () => {
 
 	// ~~~~~ // ~~~~~ //
 
-	io.events.emit("phase_finished", state.session);
+	io.events.phaseFinished.emit(state.session);
 
 };
 
@@ -151,7 +147,7 @@ async function handleCurrentPhase() {
 
 	updateSessionState(nextSession);
 
-	io.events.emit("phase_finished", nextSession);
+	io.events.phaseFinished.emit(nextSession);
 
 }
 

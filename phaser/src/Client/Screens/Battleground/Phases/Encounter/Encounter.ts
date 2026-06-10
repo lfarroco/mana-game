@@ -26,6 +26,20 @@ type EncounterItem = {
 };
 
 let disableInteraction = false;
+let container: Phaser.GameObjects.Container;
+let initialized = false;
+function init() {
+	if (initialized) return;
+	initialized = true;
+
+	io.events.onPhaseSkipped.listen(onEncounterSkipped);
+
+}
+const onEncounterSkipped = ({ phase }: { phase: string }) => {
+	if (phase !== "encounter") return;
+	container.destroy(true);
+	io.events.onEncounterPhaseCompleted.emit();
+}
 
 const improveType = (pic: string, type: string): EncounterItem => ({
 	name: i18n.t("encounters.improve_type.name", { type }),
@@ -144,9 +158,11 @@ export const allEncounters: EncounterItem[] = [
 	},
 ];
 
-export const displayOptions = async () => new Promise<Types.SessionData>((resolve) => {
+export const displayOptions = () => {
 
-	const container = io.Container();
+	init();
+
+	container = io.Container();
 
 	disableInteraction = false;
 
@@ -170,21 +186,11 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		state.session.encounter_history = state.session.encounter_history || [];
 		state.session.encounter_history.push(id);
 
-		const response = await GameController.selectEncounter(id);
+		await GameController.selectEncounter(id);
 
-		resolve(response);
+		io.events.onEncounterPhaseCompleted.emit();
 
 	};
-	const okSkip = async (session_: Types.SessionData) => {
-		io.events.off("phaseSkipped", okSkip);
-		container.destroy(true);
-		resolve(session_);
-	}
-	container.on("destroy", () => {
-		io.events.off("phaseSkipped", okSkip);
-	});
-
-	io.events.once("phaseSkipped", okSkip);
 
 	options.forEach(async (encounter, index) => {
 		const width = ENCOUNTER_CARD_WIDTH;
@@ -226,4 +232,10 @@ export const displayOptions = async () => new Promise<Types.SessionData>((resolv
 		container.add(btn.container);
 	}
 
-});
+	return new Promise<Types.SessionData>((resolve) => {
+		io.events.onEncounterPhaseCompleted.once(() => {
+			resolve(state.session);
+		});
+	});
+
+}

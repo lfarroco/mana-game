@@ -8,13 +8,17 @@ import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
 import * as Controller_ from "@Core/GameController";
 import events_ from "events";
+import * as Types from "@Core/Types";
+import * as Logger from "@Utils/Logger";
+
+const logger = Logger.createLogger("io");
 
 export let game: Phaser.Game;
 export let scene: Phaser.Scene;
 
 export const i18n = i18n_.t;
 
-export const events = new events_.EventEmitter();
+export const emitter = new events_.EventEmitter();
 
 export const Controller = Controller_;
 
@@ -23,6 +27,38 @@ export const screens = {
 	crystalSelection: CrystalSelectionScene.create,
 	battleground: BattlegroundScreen.createBattlegroundScreen,
 	options: OptionsScreen.create
+}
+
+type Event<T> = {
+	listen: (callback: (payload: T) => void) => void;
+	emit: (payload: T) => void;
+	once: (callback: (payload: T) => void) => void;
+}
+
+const createEvent = <T>(event: string): Event<T> => {
+	return {
+		listen: (callback: (payload: T) => void) => {
+			logger.debug(`>>Listening to event: ${event}`);
+			emitter.on(event, callback);
+		},
+		emit: (payload: T) => {
+			logger.debug(`>>>Emitting event: ${event}`, payload);
+			emitter.emit(event, payload);
+		},
+		once: (callback: (payload: T) => void) => {
+			logger.debug(`>>Listening once to event: ${event}`);
+			emitter.once(event, callback);
+		}
+	};
+}
+
+export const events = {
+	phaseFinished: createEvent<Types.SessionData>("phaseFinished"),
+	onPhaseSkipped: createEvent<{ session: Types.SessionData, phase: string }>("onPhaseSkipped"),
+	sessionUpdated: createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
+	onShopPhaseCompleted: createEvent<Types.SessionData>("onShopPhaseCompleted"),
+	onUnitPurchased: createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
+	onEncounterPhaseCompleted: createEvent<void>("onEncounterPhaseCompleted"),
 }
 
 export const clean = () => {

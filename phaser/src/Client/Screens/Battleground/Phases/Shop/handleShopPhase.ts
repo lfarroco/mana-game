@@ -5,7 +5,19 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 
+let initialized = false;
+
+function init() {
+	if (initialized) return;
+	initialized = true;
+
+	io.events.onUnitPurchased.listen(onUnitPurchased);
+	io.events.onPhaseSkipped.listen(onShopSkipped);
+}
+
 export async function handleShopPhase(): Promise<Types.SessionData> {
+
+	init();
 
 	const { session } = state;
 	const shopCardIds = session.options.map((o) => o.id);
@@ -13,28 +25,38 @@ export async function handleShopPhase(): Promise<Types.SessionData> {
 
 	Shop.addSkipButton();
 
-	const tavernCharas = await CharaShop.renderTavernCharas(cardDefs);
+	await CharaShop.renderTavernCharas(cardDefs);
 
 	await Shop.SlideIn();
 
-	const interactionResult = await CharaShop.enableShopInteractions(tavernCharas);
-	const result = interactionResult.session;
+	return await new Promise((resolve) => {
+		io.events.onShopPhaseCompleted.once(async (updatedSession) => {
+			await Shop.SlideOut();
+			resolve(updatedSession);
+		});
+	});
 
-	if (interactionResult.kind === "purchased") {
-		if (Chara.hasCharaById(interactionResult.shopUnit.id)) {
-			Chara.destroy(Chara.mustGetCharaById(interactionResult.shopUnit.id));
-		}
+}
 
-		const previousUnitIds = new Set(session.team.units.map((unit: Unit.Unit) => unit.id));
-		const purchasedUnit = result.team.units.find((unit: Unit.Unit) => !previousUnitIds.has(unit.id));
+async function onShopSkipped({ phase, session }: { phase: string, session: Types.SessionData }) {
+	if (phase !== "shop") return;
+	await Shop.SlideOut();
+	io.events.onShopPhaseCompleted.emit(session);
+}
 
-		if (purchasedUnit) {
-			await Chara.refreshChara(purchasedUnit);
-			Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
-		}
+async function onUnitPurchased({ session, unitId }: { session: Types.SessionData, unitId: string }) {
+	if (Chara.hasCharaById(unitId)) {
+		Chara.destroy(Chara.mustGetCharaById(unitId));
 	}
 
-	await Shop.SlideOut();
+	const previousUnitIds = new Set(session.team.units.map((unit: Unit.Unit) => unit.id));
+	const purchasedUnit = session.team.units.find((unit: Unit.Unit) => !previousUnitIds.has(unit.id));
 
-	return result;
+	if (purchasedUnit) {
+		await Chara.refreshChara(purchasedUnit);
+		Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
+	}
+
+
+	io.events.onShopPhaseCompleted.emit(session);
 }

@@ -32,11 +32,13 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 
 export async function skipPhase(): Promise<Types.SessionData> {
 
+	const currentPhase = state.session.phase;
+
 	const session = await dispatchAction({
 		type: "skip"
 	});
 
-	io.events.emit("phaseSkipped", session);
+	io.events.onPhaseSkipped.emit({ phase: currentPhase, session });
 
 	return session;
 }

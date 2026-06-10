@@ -8,7 +8,6 @@ import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Shop from "@Screens/Battleground/Components/Shop";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
-import * as Types from "@Core/Types";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -18,80 +17,14 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export type ShopInteractionResult =
-	| {
-		kind: "purchased";
-		session: Types.SessionData;
-		shopUnit: makeUnit.Unit;
-	}
-	| {
-		kind: "skipped";
-		session: Types.SessionData;
-	};
+let initialized = false;
+export const init = () => {
+	if (initialized) return;
+	initialized = true;
 
-export function enableShopInteractions(
-	tavernCharas: Chara.Chara[]
-): Promise<ShopInteractionResult> {
-	return new Promise((resolve) => {
-		let purchasedShopUnit: makeUnit.Unit | null = null;
-		let pendingPurchaseSession: Types.SessionData | null = null;
-		const tavernShopUnits = tavernCharas.map((chara) => Chara.getUnit(chara));
+	//io.events.onUnitPurchased.listen(onPurchaseSuccessful);
+};
 
-		const tryResolvePurchased = () => {
-			if (!purchasedShopUnit || !pendingPurchaseSession) {
-				return;
-			}
-
-			cleanup();
-			resolve({
-				kind: "purchased",
-				session: pendingPurchaseSession,
-				shopUnit: purchasedShopUnit,
-			});
-		};
-
-		const purchaseListeners = tavernCharas.map((chara) => {
-			const onPurchaseSuccessful = (unit: makeUnit.Unit) => {
-				purchasedShopUnit = { ...unit };
-				tryResolvePurchased();
-			};
-
-			chara.on("chara:purchaseSuccessful", onPurchaseSuccessful);
-			return { chara, onPurchaseSuccessful };
-		});
-
-		const cleanup = () => {
-			purchaseListeners.forEach(({ chara, onPurchaseSuccessful }) => {
-				chara.off("chara:purchaseSuccessful", onPurchaseSuccessful);
-			});
-			io.scene.events.off("sessionUpdated", onSessionUpdated);
-		};
-
-		const onSessionUpdated = ({ action, session }: { action: Types.Action; session: Types.SessionData }) => {
-			if (action.type === "skip") {
-				cleanup();
-				resolve({ kind: "skipped", session });
-				return;
-			}
-
-			if (action.type !== "recruit_unit") return
-
-			pendingPurchaseSession = session;
-
-			if (!purchasedShopUnit) {
-				const inferredShopUnit = tavernShopUnits.find((unit) => unit.cardId === action.unitId);
-				if (inferredShopUnit) {
-					purchasedShopUnit = { ...inferredShopUnit };
-				}
-			}
-
-			tryResolvePurchased();
-		};
-
-		// TODO: this is bad
-		io.scene.events.on("sessionUpdated", onSessionUpdated);
-	});
-}
 
 export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
 
