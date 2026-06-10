@@ -8,7 +8,6 @@ import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/Brows
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
-import * as BattlegroundNavigation from "@Screens/Battleground/Navigation";
 
 import * as Constants from "@Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
@@ -24,12 +23,7 @@ export type CombatPhaseResult =
 	| { type: "completed"; session: Types.SessionData }
 	| { type: "cancelled" };
 
-type ActiveCombatRun = {
-	disposePlayback: PlaybackDisposer;
-	unsubscribeFromExit: () => void;
-};
-
-let activeCombatRun: ActiveCombatRun | null = null;
+let stopActivePlayback: PlaybackDisposer = () => { };
 
 let initialized = false;
 function init() {
@@ -43,20 +37,15 @@ function init() {
 async function finishCombatPhase(phase: Types.PhaseType): Promise<void> {
 	if (phase !== "combat") return;
 
-	cleanupActiveCombatRun();
+	cleanupPlayback();
 	await resetBoard(true);
 	namesDisplay.updateNameDisplay({ enemyName: "" });
 
 }
 
-function cleanupActiveCombatRun(): void {
-	if (!activeCombatRun) {
-		return;
-	}
-
-	activeCombatRun.disposePlayback();
-	activeCombatRun.unsubscribeFromExit();
-	activeCombatRun = null;
+function cleanupPlayback(): void {
+	stopActivePlayback();
+	stopActivePlayback = () => { };
 }
 
 const getInitialCombatUnits = (combatState: Types.CombatState) => {
@@ -73,21 +62,6 @@ const getInitialCombatUnits = (combatState: Types.CombatState) => {
 
 const getCombatResultType = (outcome: string) =>
 	outcome === "player_lost" ? "defeat" : "victory";
-
-const createPlaybackDisposerManager = () => {
-	let disposePlayback: PlaybackDisposer = () => { };
-
-	return {
-		replace(nextDisposer: PlaybackDisposer) {
-			disposePlayback();
-			disposePlayback = nextDisposer;
-		},
-		dispose() {
-			disposePlayback();
-			disposePlayback = () => { };
-		},
-	};
-};
 
 const showCombatResults = ({
 	resultType,
@@ -164,12 +138,12 @@ const startCombatPlayback = async ({
 		}
 	};
 
+	io.scene.events.on("update", updateHandler);
+
 	return () => {
 		io.scene.events.off("update", updateHandler);
 		controller.stop();
 	};
-
-	io.scene.events.on("update", updateHandler);
 };
 
 const setupCombatBoard = async (combatState: Types.CombatState): Promise<void> => {
@@ -198,42 +172,21 @@ export async function handleCombatPhase(): Promise<void> {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
-	cleanupActiveCombatRun();
-
-	const playbackDisposers = createPlaybackDisposerManager();
-	const unsubscribeFromExit = BattlegroundNavigation.onBattlegroundExit(() => {
-		cleanupActiveCombatRun();
-	});
-
-	activeCombatRun = {
-		disposePlayback: () => playbackDisposers.dispose(),
-		unsubscribeFromExit,
-	};
+	cleanupPlayback();
 
 	const startPlayback = async () => {
-		if (!activeCombatRun) {
-			return;
-		}
+		cleanupPlayback();
 
 		const disposePlayback = await startCombatPlayback({
 			combatState,
-			onContinue: () => {
-				void GameController.completeCombatEncounter();
-			},
-			onReplay: () => {
-				void startPlayback();
-			},
+			onContinue: GameController.completeCombatEncounter,
+			onReplay: startPlayback,
 		});
 
-		playbackDisposers.replace(disposePlayback);
+		stopActivePlayback = disposePlayback;
 	};
 
-	try {
-		await startPlayback();
-	} catch (error) {
-		cleanupActiveCombatRun();
-		throw error;
-	}
+	await startPlayback();
 }
 
 
