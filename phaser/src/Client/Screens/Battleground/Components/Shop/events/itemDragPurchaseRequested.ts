@@ -30,9 +30,10 @@ export async function itemDragPurchaseRequested(
 		(!existingUnit || existingUnit.rank > 3) &&
 		session.team.units.length >= constants.MAX_PARTY_SIZE
 	) {
-		if (shopChara) {
-			shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
-		}
+		io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+			shopCharaId,
+			dragStartVec: [dragStartX, dragStartY],
+		});
 		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "PARTY_FULL");
 		return;
 	}
@@ -41,9 +42,10 @@ export async function itemDragPurchaseRequested(
 	if (!existingUnit || existingUnit.rank > 3) {
 		const occupier = State.getUnitAt(session.team.units)(targetTile);
 		if (occupier) {
-			if (shopChara) {
-				shopCharaFeedback.onShopPurchaseFailed(shopChara, [dragStartX, dragStartY]);
-			}
+			io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+				shopCharaId,
+				dragStartVec: [dragStartX, dragStartY],
+			});
 			uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SLOT_OCCUPIED");
 			return;
 		}

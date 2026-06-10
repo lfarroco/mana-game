@@ -7,9 +7,11 @@ const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 
 export const onShopPurchaseFailed = (chara: Chara.Chara, vec: Vec2) => {
 	Tooltip.hideTooltip();
+	const [x, y] = vec;
 	animation.tween({
 		targets: [chara],
-		...vec,
+		x,
+		y,
 		duration: PURCHASE_FAILED_SNAP_DURATION_MS,
 	});
 };

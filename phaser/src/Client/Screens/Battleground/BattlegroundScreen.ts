@@ -16,6 +16,7 @@ type BattlegroundScreenEvents = {
 	phaseFinished: Types.Event<Types.PhaseType>;
 	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
 	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string }>;
+	onShopUnitDragPurchaseFailed: Types.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
 	combatContinueRequested: Types.Event<void>;
 	combatReplayRequested: Types.Event<void>;
 	combatPauseRequested: Types.Event<void>;
@@ -71,6 +72,7 @@ function init() {
 		phaseFinished: io.createEvent<Types.PhaseType>("phaseFinished"),
 		sessionUpdated: io.createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
 		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
+		onShopUnitDragPurchaseFailed: io.createEvent<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
 		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
 		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
 		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),

@@ -4,6 +4,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
+import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
 let initialized = false;
 
@@ -14,6 +15,7 @@ function init() {
 	const { events } = io.screens.battleground;
 
 	events.onUnitPurchased.listen(onUnitPurchased);
+	events.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
 	events.phaseFinished.listen(closeShop)
 }
 
@@ -53,4 +55,15 @@ async function onUnitPurchased({ session, unitId }: { session: Types.SessionData
 	}
 
 	await Shop.SlideOut();
+}
+
+function onShopUnitDragPurchaseFailed({
+	shopCharaId,
+	dragStartVec,
+}: {
+	shopCharaId: string;
+	dragStartVec: Vec2;
+}) {
+
+	shopCharaFeedback.onShopPurchaseFailed(Chara.mustGetCharaById(shopCharaId), dragStartVec);
 }
