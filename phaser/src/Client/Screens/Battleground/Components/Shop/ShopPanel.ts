@@ -3,7 +3,6 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
-import * as utils from "@utils"
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -11,12 +10,7 @@ export const ShopState: { container: Container | null } = {
 
 export const create = () => {
 
-	if (__DEV__) {
-		utils.assert(
-			ShopState.container === null,
-			"ShopPanel container already exists"
-		);
-	}
+	if (ShopState.container) return;
 
 	ShopState.container = io.Container();
 
