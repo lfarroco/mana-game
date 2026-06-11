@@ -27,7 +27,7 @@ export async function purchaseUnit(
 
 	state.session = session;
 
-	io.screens.battleground.events.onUnitPurchased.emit({
+	await io.screens.battleground.events.onUnitPurchased.emitAsync({
 		session,
 		unitId,
 		previousTeamUnits,
@@ -85,6 +85,7 @@ export async function selectEncounter(encounterId: string) {
 		encounterId
 	});
 	state.session = session;
+
 	io.screens.battleground.events.phaseFinished.emit(previousPhase);
 }
 

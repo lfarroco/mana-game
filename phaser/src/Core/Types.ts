@@ -58,8 +58,9 @@ export type CombatState = {
 };
 
 export type Event<T> = {
-	listen: (callback: (payload: T) => void) => void;
+	listen: (callback: (payload: T) => void | Promise<void>) => void;
 	emit: (payload: T) => void;
+	emitAsync: (payload: T) => Promise<void>;
 }
 
 export type PhaseOptions = {

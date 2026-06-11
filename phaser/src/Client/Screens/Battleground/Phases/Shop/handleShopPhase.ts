@@ -77,8 +77,6 @@ async function onUnitPurchased({
 	if (sourceChara) {
 		Chara.destroy(sourceChara);
 	}
-
-	await Shop.SlideOut();
 }
 
 async function handleUpgradedUnitPurchase(
@@ -90,7 +88,9 @@ async function handleUpgradedUnitPurchase(
 		: null;
 
 	if (sourceChara && targetChara) {
-		await playShopUpgradeEffect(sourceChara, targetChara);
+		const source: Vec2 = [sourceChara.x, sourceChara.y];
+		const target: Vec2 = [targetChara.x, targetChara.y - 30];
+		await playShopUpgradeEffect(source, target);
 	}
 
 	await Chara.refreshChara(upgradedUnit);
@@ -130,10 +130,7 @@ function onShopUnitDragPurchaseFailed({
 	});
 }
 
-async function playShopUpgradeEffect(sourceChara: Chara.Chara, targetChara: Chara.Chara): Promise<void> {
-	const source: Vec2 = [sourceChara.x, sourceChara.y];
-	const target: Vec2 = [targetChara.x, targetChara.y - 30];
-
+async function playShopUpgradeEffect(source: Vec2, target: Vec2): Promise<void> {
 	await Promise.all(
 		Array.from({ length: SHOP_UPGRADE_PROJECTILE_COUNT }, async (_, index) => {
 			await animation.delay(index * SHOP_UPGRADE_PROJECTILE_STAGGER_MS);
