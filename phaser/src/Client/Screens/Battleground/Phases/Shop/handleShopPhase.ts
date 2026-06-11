@@ -52,39 +52,54 @@ async function closeShop(phase: Types.PhaseType) {
 
 async function onUnitPurchased({
 	session,
-	unitId,
 	previousTeamUnits,
+	shopCharaId,
 }: {
 	session: Types.SessionData,
-	unitId: string,
 	previousTeamUnits: Unit.Unit[],
+	shopCharaId: string | null,
 }) {
-	if (!Chara.hasCharaById(unitId)) {
-		await Shop.SlideOut();
-		return;
-	}
-
-	const sourceChara = Chara.mustGetCharaById(unitId);
-	Tooltip.hideTooltip();
-	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
-	const purchasedUnit = findUpdatedUnit(previousTeamUnits, session.team.units);
-
-	if (purchasedUnit) {
-		const targetChara = Chara.hasCharaById(purchasedUnit.id)
-			? Chara.mustGetCharaById(purchasedUnit.id)
+	const purchaseResult = classifyPurchaseResult(previousTeamUnits, session.team.units);
+	const sourceChara =
+		shopCharaId && Chara.hasCharaById(shopCharaId)
+			? Chara.mustGetCharaById(shopCharaId)
 			: null;
 
-		if (targetChara) {
-			await playShopUpgradeEffect(sourceChara, targetChara);
-		}
+	Tooltip.hideTooltip();
+	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
 
-		await Chara.refreshChara(purchasedUnit);
-		Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
+	if (purchaseResult?.type === "upgrade") {
+		await handleUpgradedUnitPurchase(purchaseResult.unit, sourceChara);
+	} else if (purchaseResult?.type === "new") {
+		await handleNewUnitPurchase(purchaseResult.unit);
 	}
 
-	Chara.destroy(sourceChara);
+	if (sourceChara) {
+		Chara.destroy(sourceChara);
+	}
 
 	await Shop.SlideOut();
+}
+
+async function handleUpgradedUnitPurchase(
+	upgradedUnit: Unit.Unit,
+	sourceChara: Chara.Chara | null,
+): Promise<void> {
+	const targetChara = Chara.hasCharaById(upgradedUnit.id)
+		? Chara.mustGetCharaById(upgradedUnit.id)
+		: null;
+
+	if (sourceChara && targetChara) {
+		await playShopUpgradeEffect(sourceChara, targetChara);
+	}
+
+	await Chara.refreshChara(upgradedUnit);
+	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
+}
+
+async function handleNewUnitPurchase(newUnit: Unit.Unit): Promise<void> {
+	await Chara.refreshChara(newUnit);
+	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }
 
 function onUnitSold({ unitId }: { session: Types.SessionData, unitId: string }) {
@@ -152,4 +167,22 @@ function findUpdatedUnit(previousTeamUnits: Unit.Unit[], nextTeamUnits: Unit.Uni
 
 	const newUnit = nextTeamUnits.find((unit) => !previousUnitsById.has(unit.id));
 	return newUnit ?? null;
+}
+
+function classifyPurchaseResult(
+	previousTeamUnits: Unit.Unit[],
+	nextTeamUnits: Unit.Unit[]
+): { type: "upgrade" | "new"; unit: Unit.Unit } | null {
+	const purchasedUnit = findUpdatedUnit(previousTeamUnits, nextTeamUnits);
+	if (!purchasedUnit) {
+		return null;
+	}
+
+	const existedBeforePurchase = previousTeamUnits.some((unit) => unit.id === purchasedUnit.id);
+
+	if (existedBeforePurchase) {
+		return { type: "upgrade", unit: purchasedUnit };
+	}
+
+	return { type: "new", unit: purchasedUnit };
 }

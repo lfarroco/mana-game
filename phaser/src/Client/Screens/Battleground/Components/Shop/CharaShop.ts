@@ -236,7 +236,7 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		const unit = { ...Chara.getUnit(chara) };
 
 
-		GameController.purchaseUnit(unit.cardId, null);
+		void GameController.purchaseUnit(unit.cardId, null, unit.id);
 	});
 }
 
@@ -271,5 +271,5 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
+	await GameController.purchaseUnit(shopUnitData.cardId, targetTile, shopCharaId);
 }

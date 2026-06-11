@@ -13,7 +13,8 @@ async function dispatchAction(
 
 export async function purchaseUnit(
 	unitId: string,
-	targetSlot: Vec2 | null
+	targetSlot: Vec2 | null,
+	shopCharaId: string | null = null
 ) {
 	const previousPhase = state.session.phase;
 	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit.Unit[];
@@ -30,6 +31,7 @@ export async function purchaseUnit(
 		session,
 		unitId,
 		previousTeamUnits,
+		shopCharaId,
 	});
 
 	io.screens.battleground.events.phaseFinished.emit(previousPhase);
