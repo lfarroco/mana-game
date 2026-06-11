@@ -1,13 +1,17 @@
 import * as Card from "@Models/Entities/Card";
 import * as makeUnit from "@Models/Entities/Unit";
 import * as Board from "@Models/Board";
+import * as State from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
-import * as Shop from "@Screens/Battleground/Components/Shop";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
+import * as uiEvents from "@Screens/Battleground/Components/UI/events";
+import * as GameController from "@Core/GameController";
+import * as i18n from "@i18n/i18n";
+import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -195,14 +199,9 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		const y = zone.getData("cell-y") as number;
 		const tile: Vec2 = [x, y];
 		const vec = chara.getData("dragStartVec") as [number, number];
+		const unit = { ...Chara.getUnit(chara) };
 
-		Shop.events.itemDragPurchaseRequested(
-			{ ...Chara.getUnit(chara) },
-			Chara.getUnit(chara).id,
-			tile,
-			vec[0],
-			vec[1]
-		);
+		void handleItemDragPurchaseRequested(unit, unit.id, tile, vec[0], vec[1]);
 
 		wasDragSuccessful = true;
 	});
@@ -235,12 +234,66 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD) {
 			return;
 		}
+		const unit = { ...Chara.getUnit(chara) };
 
-		Shop.events.itemClickPurchaseRequested(
-			{ ...Chara.getUnit(chara) },
-			Chara.getUnit(chara).id,
-			chara.x,
-			chara.y
-		);
+		void handleItemClickPurchaseRequested(unit, unit.id);
 	});
+}
+
+async function handleItemClickPurchaseRequested(
+	shopUnitData: makeUnit.Unit,
+	shopCharaId: string
+): Promise<void> {
+	await GameController.purchaseUnit(shopUnitData.cardId, null);
+
+	if (!Chara.hasCharaById(shopCharaId)) {
+		return;
+	}
+
+	shopCharaFeedback.onShopPurchaseSuccesful(Chara.mustGetCharaById(shopCharaId));
+}
+
+async function handleItemDragPurchaseRequested(
+	shopUnitData: makeUnit.Unit,
+	shopCharaId: string,
+	targetTile: Vec2,
+	dragStartX: number,
+	dragStartY: number
+): Promise<void> {
+	let shopChara: ReturnType<typeof Chara.mustGetCharaById> | null = null;
+	try {
+		shopChara = Chara.mustGetCharaById(shopCharaId);
+	} catch {
+		shopChara = null;
+	}
+
+	const { session } = state;
+	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
+
+	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= Constants.MAX_PARTY_SIZE) {
+		io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+			shopCharaId,
+			dragStartVec: [dragStartX, dragStartY],
+		});
+		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "PARTY_FULL");
+		return;
+	}
+
+	if (!existingUnit || existingUnit.rank > 3) {
+		const occupier = State.getUnitAt(session.team.units)(targetTile);
+		if (occupier) {
+			io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+				shopCharaId,
+				dragStartVec: [dragStartX, dragStartY],
+			});
+			uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SLOT_OCCUPIED");
+			return;
+		}
+	}
+
+	await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
+
+	if (shopChara) {
+		shopCharaFeedback.onShopPurchaseSuccesful(shopChara);
+	}
 }
