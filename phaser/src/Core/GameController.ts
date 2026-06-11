@@ -103,11 +103,28 @@ export async function completeVictory() {
 export async function completeCombatEncounter() {
 
 	const previousPhase = state.session.phase;
+
+	const { wins, losses, round } = state.session;
 	const session = await dispatchAction({
 		type: "end_combat"
 	});
 
 	state.session = session;
+
+	const { events } = io.screens.battleground;
+
+	const winDelta = session.wins - wins;
+	if (winDelta !== 0)
+		events.onWinsChanged.emit({ wins, delta: winDelta })
+
+
+	const lossesDelta = losses - session.losses;
+	if (lossesDelta !== 0)
+		events.onLivesChanged.emit({ lives: 4 - session.losses, delta: session.losses - losses })
+
+	const roundDelta = round - session.round;
+	if (roundDelta !== 0)
+		events.onRoundChanged.emit({ round: session.round, delta: roundDelta })
 
 	io.screens.battleground.events.phaseFinished.emit(previousPhase);
 }

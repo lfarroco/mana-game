@@ -2,25 +2,24 @@ import * as constants from "@Constants";
 import * as animation from "@Utils/animation";
 import * as UI from "@Screens/Battleground/Components/UI/UI";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
-import * as winsDisplay_1 from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as i18n from "@i18n/i18n";
 
-export function onWinsChanged(newTotalWins: number, winsDelta: number) {
-	winsDisplay.updateWinsDisplay(newTotalWins);
-	if (winsDelta !== 0) {
-		winsDisplay_1.winsChangeAnimation(winsDelta);
+export function onWinsChanged({ wins, delta }: { wins: number; delta: number; }) {
+	winsDisplay.updateWinsDisplay(wins);
+	if (delta !== 0) {
+		winsDisplay.winsChangeAnimation(delta);
 	}
 }
 
-export function onLivesChanged(newTotalLives: number, livesDelta: number) {
-	livesDisplay.updateLivesDisplay(newTotalLives);
-	livesChangeAnimation(livesDelta);
+export function onLivesChanged({ lives, delta }: { lives: number; delta: number; }) {
+	livesDisplay.updateLivesDisplay(lives);
+	livesChangeAnimation(delta);
 }
 
-export function onRoundChanged(newRound: number) {
-	roundDisplay.updateRoundDisplay(newRound);
+export function onRoundChanged({ round }: { round: number; }) {
+	roundDisplay.updateRoundDisplay(round);
 }
 
 async function livesChangeAnimation(lives: number) {

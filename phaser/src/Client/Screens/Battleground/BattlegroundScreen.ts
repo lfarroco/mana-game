@@ -21,6 +21,9 @@ type BattlegroundScreenEvents = {
 	combatReplayRequested: Types.Event<void>;
 	combatPauseRequested: Types.Event<void>;
 	combatResumeRequested: Types.Event<void>;
+	onWinsChanged: Types.Event<{ wins: number, delta: number }>;
+	onLivesChanged: Types.Event<{ lives: number, delta: number }>;
+	onRoundChanged: Types.Event<{ round: number, delta: number }>;
 }
 
 export let events: BattlegroundScreenEvents;
@@ -49,16 +52,13 @@ function updateHudFromSessionChanges(_previousPhase: Types.PhaseType): void {
 
 	const winsDelta = currentSnapshot.wins - previousSessionHudSnapshot.wins;
 	if (winsDelta !== 0) {
-		UI.events.onWinsChanged(currentSnapshot.wins, winsDelta);
 	}
 
 	const livesDelta = currentSnapshot.lives - previousSessionHudSnapshot.lives;
 	if (livesDelta !== 0) {
-		UI.events.onLivesChanged(currentSnapshot.lives, livesDelta);
 	}
 
 	if (currentSnapshot.round !== previousSessionHudSnapshot.round) {
-		UI.events.onRoundChanged(currentSnapshot.round);
 	}
 
 	previousSessionHudSnapshot = currentSnapshot;
@@ -77,10 +77,23 @@ function init() {
 		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
 		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),
 		combatResumeRequested: io.createEvent<void>("combatResumeRequested"),
+		onWinsChanged: io.createEvent<{ wins: number, delta: number }>("onWinsChanged"),
+		onLivesChanged: io.createEvent<{ lives: number, delta: number }>("onLivesChanged"),
+		onRoundChanged: io.createEvent<{ round: number, delta: number }>("onRoundChanged"),
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase);
 	events.phaseFinished.listen(updateHudFromSessionChanges);
+	events.onWinsChanged.listen(({ wins, delta }) => {
+		UI.events.onWinsChanged({ wins, delta });
+	});
+	events.onLivesChanged.listen(({ lives, delta }) => {
+		UI.events.onLivesChanged({ lives, delta });
+	});
+	events.onRoundChanged.listen(({ round }) => {
+		UI.events.onRoundChanged({ round });
+	});
+
 }
 
 // TODO: should be part of the player board logic

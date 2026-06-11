@@ -1,43 +1,43 @@
-import { State } from "@Models/State";
-import { Unit } from "@Models/Entities/Unit";
-import { processEffectsIO, processReactions } from "@TriggerSystem/TriggerSystem";
-import { cpuForce, playerForce } from "@Models/Entities/Force";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU, MIN_COOLDOWN } from "@Core/Combat/CombatConstants";
+import * as State from "@Models/State";
+import * as Unit from "@Models/Entities/Unit";
+import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
+import * as Force from "@Models/Entities/Force";
+import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as Timeout from "@Systems/TimeoutDamageSystem";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as StatusEffectSystem from "@Systems/StatusEffectSystem";
-import { getBattleCore } from "@Models/Entities/Card";
-import { CombatEffects, CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { BlackHoleState } from "@Core/Combat/BlackHoleState";
-import { CountdownTimerState } from "@Systems/CountdownTimer";
-import { createLogger } from "@Utils/Logger";
-import { initializeForceStatsState } from "@Core/Combat/ForceStatsState";
+import * as Card from "@Models/Entities/Card";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as CountdownTimer from "@Systems/CountdownTimer";
+import * as Logger from "@Utils/Logger";
+import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
-const logger = createLogger("RunCombatCore");
+const logger = Logger.createLogger("RunCombatCore");
 
 export type { WaveOutcome, CombatEffects } from "@Core/Combat/CombatTypes";
 
 const MAX_COMBAT_DURATION_MS = 120_000;
 
 export type CombatRunner = {
-	updateFrame: (state: State, time: number, delta: number) => void;
-	finishCombat: (state: State, outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
+	updateFrame: (state: State.State, time: number, delta: number) => void;
+	finishCombat: (state: State.State, outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
 	isActive: () => boolean;
 	stop: () => void;
-	getEnv: () => CombatEnvironment;
+	getEnv: () => CombatTypes.CombatEnvironment;
 };
 
 type CombatRunnerState = {
 	active: boolean;
-	env: CombatEnvironment;
-	countdownTimerState: CountdownTimerState | null;
-	blackHoleState: BlackHoleState | null;
+	env: CombatTypes.CombatEnvironment;
+	countdownTimerState: CountdownTimer.CountdownTimerState | null;
+	blackHoleState: BlackHoleState.BlackHoleState | null;
 };
 
 // TODO: make effects optional, for server-side runs
-export const runCombat = (state: State, effects: CombatEffects): CombatRunner => {
+export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects): CombatRunner => {
 	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
 	let countdownTimerState = effects.initCountdownTimer
 		? effects.initCountdownTimer(blackHoleState)
@@ -47,7 +47,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		countdownTimerState = effects.startCountdownTimer(countdownTimerState);
 	}
 
-	const env: CombatEnvironment = {
+	const env: CombatTypes.CombatEnvironment = {
 		state,
 		effects,
 		combatStates: {
@@ -56,9 +56,9 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
 			forceStatsState: effects.initForceStats
 				? effects.initForceStats()
-				: initializeForceStatsState(),
+				: ForceStatsState.initializeForceStatsState(),
 		},
-		processReactions,
+		processReactions: TriggerSystem.processReactions,
 	};
 
 	const runnerState: CombatRunnerState = {
@@ -68,8 +68,8 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 		blackHoleState,
 	};
 
-	[FORCE_ID_PLAYER, FORCE_ID_CPU].forEach((forceId) => {
-		const core = getBattleCore(state)(forceId);
+	[CombatConstants.FORCE_ID_PLAYER, CombatConstants.FORCE_ID_CPU].forEach((forceId) => {
+		const core = Card.getBattleCore(state)(forceId);
 		if (!core) {
 			return;
 		}
@@ -101,7 +101,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 	state.battleData.units.forEach((unit) => {
 		const battleStartReactions = unit.reactions.filter((reaction) => reaction.effectId === "on_battle_start");
 		battleStartReactions.forEach((reaction) => {
-			processEffectsIO(env, unit, reaction.effects, true);
+			TriggerSystem.processEffectsIO(env, unit, reaction.effects, true);
 		});
 	});
 
@@ -109,7 +109,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
 	let combatElapsedMs = 0;
 
-	const updateFrame = (nextState: State, _time: number, delta: number): void => {
+	const updateFrame = (nextState: State.State, _time: number, delta: number): void => {
 		if (!runnerState.active) return;
 
 		runnerState.env.state = nextState;
@@ -130,7 +130,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			CombatStatsTracker.trackAction(runnerState.env.combatStates.combatStatsTrackerState, {
 				unit,
 			});
-			processEffectsIO(env, unit, unit.effects, false);
+			TriggerSystem.processEffectsIO(env, unit, unit.effects, false);
 		}
 
 		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, scaledDelta);
@@ -139,8 +139,8 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			env,
 			timeoutSystemState,
 			nextState,
-			playerForce(nextState),
-			cpuForce(nextState),
+			Force.playerForce(nextState),
+			Force.cpuForce(nextState),
 			scaledDelta
 		);
 
@@ -149,8 +149,8 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 			return;
 		}
 
-		const playerCore = getBattleCore(nextState)(FORCE_ID_PLAYER);
-		const cpuCore = getBattleCore(nextState)(FORCE_ID_CPU);
+		const playerCore = Card.getBattleCore(nextState)(CombatConstants.FORCE_ID_PLAYER);
+		const cpuCore = Card.getBattleCore(nextState)(CombatConstants.FORCE_ID_CPU);
 		const playerLifeZero = !playerCore || playerCore.life <= 0;
 		const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
 		const outcome: "player_won" | "player_lost" | "both_won" | null =
@@ -168,7 +168,7 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 	};
 
 	const finishCombat = async (
-		nextState: State,
+		nextState: State.State,
 		outcome: "player_won" | "player_lost" | "both_won"
 	) => {
 		if (!runnerState.active) return;
@@ -198,13 +198,13 @@ export const runCombat = (state: State, effects: CombatEffects): CombatRunner =>
 };
 
 export const chargeUnits = (
-	state: State,
+	state: State.State,
 	delta: number,
 	onChargeBarUpdate: (unitId: string) => void,
 	onHasteEnd?: (unitId: string) => void,
 	onSlowEnd?: (unitId: string) => void
-): Unit[] => {
-	const performingUnits: Unit[] = [];
+): Unit.Unit[] => {
+	const performingUnits: Unit.Unit[] = [];
 
 	for (const unit of state.battleData.units) {
 		const cooldownMultiplier =
@@ -233,7 +233,7 @@ export const chargeUnits = (
 
 		if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 			unit.charge = unit.charge - unit.cooldown;
-			unit.refresh = MIN_COOLDOWN;
+			unit.refresh = CombatConstants.MIN_COOLDOWN;
 			performingUnits.push(unit);
 		}
 
