@@ -2,6 +2,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
+import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 
 // TODO: this is a game logic rule, not UI thing
@@ -186,7 +187,12 @@ export const displayOptions = () => {
 		state.session.encounter_history = state.session.encounter_history || [];
 		state.session.encounter_history.push(id);
 
-		io.screens.battleground.events.encounterSelectRequested.emit({ encounterId: id });
+		// TODO: audit all gamecontroller calls
+		// the state mutations from above should happen inside the controller
+		// this way operating the game via the controller has the same effect
+		// as operating it via the UI
+
+		await GameController.selectEncounter(id);
 
 	};
 

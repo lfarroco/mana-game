@@ -5,6 +5,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as deleteSavedData from "@Game/effects/deleteSavedData";
+import * as GameController from "@Core/GameController";
 import * as ResultsConfig from "./ResultsConfig";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
@@ -106,14 +107,14 @@ export async function displayGameComplete(
 		[
 			i18n.t("results.buttons.new_run"),
 			async () => {
-				io.screens.battleground.events.newRunRequested.emit(undefined);
+				GameController.requestNewRun();
 				complete?.();
 			},
 		],
 		[
 			i18n.t("results.buttons.main_menu"),
 			async () => {
-				io.screens.battleground.events.mainMenuRequested.emit(undefined);
+				GameController.requestMainMenu();
 				complete?.();
 			},
 		]
