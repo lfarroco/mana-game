@@ -5,7 +5,10 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
-import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as animation from "@Utils/animation";
+
+const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 
 let initialized = false;
 
@@ -74,6 +77,20 @@ function onShopUnitDragPurchaseFailed({
 	shopCharaId: string;
 	dragStartVec: Vec2;
 }) {
+	// TODO: this function is redundant, and can be moved
+	// within the controller
+	onShopPurchaseFailed(Chara.mustGetCharaById(shopCharaId), dragStartVec);
 
-	shopCharaFeedback.onShopPurchaseFailed(Chara.mustGetCharaById(shopCharaId), dragStartVec);
+}
+
+function onShopPurchaseFailed(chara: Chara.Chara, vec: Vec2): void {
+	// TODO: this can exist within the controller
+	Tooltip.hideTooltip();
+	const [x, y] = vec;
+	void animation.tween({
+		targets: [chara],
+		x,
+		y,
+		duration: PURCHASE_FAILED_SNAP_DURATION_MS,
+	});
 }

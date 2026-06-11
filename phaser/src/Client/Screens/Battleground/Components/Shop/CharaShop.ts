@@ -11,7 +11,8 @@ import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "@Core/GameController";
 import * as i18n from "@i18n/i18n";
-import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as AudioManager from "@Systems/AudioManager";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -246,11 +247,13 @@ async function handleItemClickPurchaseRequested(
 ): Promise<void> {
 	await GameController.purchaseUnit(shopUnitData.cardId, null);
 
+	//TODO: move the below into the controller
+
 	if (!Chara.hasCharaById(shopCharaId)) {
 		return;
 	}
 
-	shopCharaFeedback.onShopPurchaseSuccesful(Chara.mustGetCharaById(shopCharaId));
+	onShopPurchaseSuccesful(Chara.mustGetCharaById(shopCharaId));
 }
 
 async function handleItemDragPurchaseRequested(
@@ -294,6 +297,19 @@ async function handleItemDragPurchaseRequested(
 	await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
 
 	if (shopChara) {
-		shopCharaFeedback.onShopPurchaseSuccesful(shopChara);
+		onShopPurchaseSuccesful(shopChara);
 	}
+}
+
+function onShopPurchaseSuccesful(chara: Chara.Chara): void {
+	// TODO: this can exist within the controller
+	Tooltip.hideTooltip();
+	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
+	const charaState = Chara.mustGetState(chara);
+	const { events } = io.screens.battleground;
+
+	events.onUnitPurchased.emit({
+		unitId: charaState.unit.id,
+		session: state.session,
+	});
 }
