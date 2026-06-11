@@ -286,6 +286,8 @@ export async function upgradeUnit(unit: Unit.Unit) {
 // TODO: this should be reworked
 // it should just update power values and ranking, if needed
 export async function refreshChara(unit: Unit.Unit): Promise<void> {
-	if (hasCharaById(unit.id)) return;
+	if (hasCharaById(unit.id)) {
+		destroy(mustGetCharaById(unit.id));
+	}
 	await summon(unit, true);
 }

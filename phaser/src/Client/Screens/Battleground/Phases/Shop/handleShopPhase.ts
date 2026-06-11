@@ -5,10 +5,14 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
+import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
+import * as Effects from "@Effects";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
+const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
+const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
 let initialized = false;
 
@@ -46,18 +50,39 @@ async function closeShop(phase: Types.PhaseType) {
 	await Shop.SlideOut();
 }
 
-async function onUnitPurchased({ session, unitId }: { session: Types.SessionData, unitId: string }) {
-	if (Chara.hasCharaById(unitId)) {
-		Chara.destroy(Chara.mustGetCharaById(unitId));
+async function onUnitPurchased({
+	session,
+	unitId,
+	previousTeamUnits,
+}: {
+	session: Types.SessionData,
+	unitId: string,
+	previousTeamUnits: Unit.Unit[],
+}) {
+	if (!Chara.hasCharaById(unitId)) {
+		await Shop.SlideOut();
+		return;
 	}
 
-	const previousUnitIds = new Set(session.team.units.map((unit: Unit.Unit) => unit.id));
-	const purchasedUnit = session.team.units.find((unit: Unit.Unit) => !previousUnitIds.has(unit.id));
+	const sourceChara = Chara.mustGetCharaById(unitId);
+	Tooltip.hideTooltip();
+	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
+	const purchasedUnit = findUpdatedUnit(previousTeamUnits, session.team.units);
 
 	if (purchasedUnit) {
+		const targetChara = Chara.hasCharaById(purchasedUnit.id)
+			? Chara.mustGetCharaById(purchasedUnit.id)
+			: null;
+
+		if (targetChara) {
+			await playShopUpgradeEffect(sourceChara, targetChara);
+		}
+
 		await Chara.refreshChara(purchasedUnit);
 		Chara.enableBoardInteractivity(Chara.mustGetCharaById(purchasedUnit.id));
 	}
+
+	Chara.destroy(sourceChara);
 
 	await Shop.SlideOut();
 }
@@ -77,20 +102,54 @@ function onShopUnitDragPurchaseFailed({
 	shopCharaId: string;
 	dragStartVec: Vec2;
 }) {
-	// TODO: this function is redundant, and can be moved
-	// within the controller
-	onShopPurchaseFailed(Chara.mustGetCharaById(shopCharaId), dragStartVec);
 
-}
+	const chara = Chara.mustGetCharaById(shopCharaId)
 
-function onShopPurchaseFailed(chara: Chara.Chara, vec: Vec2): void {
-	// TODO: this can exist within the controller
 	Tooltip.hideTooltip();
-	const [x, y] = vec;
+	const [x, y] = dragStartVec;
 	void animation.tween({
 		targets: [chara],
 		x,
 		y,
 		duration: PURCHASE_FAILED_SNAP_DURATION_MS,
 	});
+}
+
+async function playShopUpgradeEffect(sourceChara: Chara.Chara, targetChara: Chara.Chara): Promise<void> {
+	const source: Vec2 = [sourceChara.x, sourceChara.y];
+	const target: Vec2 = [targetChara.x, targetChara.y - 30];
+
+	await Promise.all(
+		Array.from({ length: SHOP_UPGRADE_PROJECTILE_COUNT }, async (_, index) => {
+			await animation.delay(index * SHOP_UPGRADE_PROJECTILE_STAGGER_MS);
+			await Effects.arcaneMissileTargeted(source, target, {
+				amplitudeMin: 4,
+				amplitudeMax: 12,
+				particleScale: 1.2,
+				speedMultiplier: 1.4,
+				impact: {
+					scale: 1.4,
+					speed: 140,
+					lifespan: 180,
+					alpha: 0.7,
+				},
+			});
+		})
+	);
+}
+
+function findUpdatedUnit(previousTeamUnits: Unit.Unit[], nextTeamUnits: Unit.Unit[]): Unit.Unit | null {
+	const previousUnitsById = new Map(previousTeamUnits.map((unit) => [unit.id, unit] as const));
+
+	const upgradedUnit = nextTeamUnits.find((unit) => {
+		const previousUnit = previousUnitsById.get(unit.id);
+		return previousUnit ? previousUnit.rank !== unit.rank : false;
+	});
+
+	if (upgradedUnit) {
+		return upgradedUnit;
+	}
+
+	const newUnit = nextTeamUnits.find((unit) => !previousUnitsById.has(unit.id));
+	return newUnit ?? null;
 }

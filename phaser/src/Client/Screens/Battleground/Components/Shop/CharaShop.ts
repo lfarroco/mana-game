@@ -11,8 +11,6 @@ import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "@Core/GameController";
 import * as i18n from "@i18n/i18n";
-import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as AudioManager from "@Systems/AudioManager";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -237,23 +235,9 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		}
 		const unit = { ...Chara.getUnit(chara) };
 
-		void handleItemClickPurchaseRequested(unit, unit.id);
+
+		GameController.purchaseUnit(unit.cardId, null);
 	});
-}
-
-async function handleItemClickPurchaseRequested(
-	shopUnitData: makeUnit.Unit,
-	shopCharaId: string
-): Promise<void> {
-	await GameController.purchaseUnit(shopUnitData.cardId, null);
-
-	//TODO: move the below into the controller
-
-	if (!Chara.hasCharaById(shopCharaId)) {
-		return;
-	}
-
-	onShopPurchaseSuccesful(Chara.mustGetCharaById(shopCharaId));
 }
 
 async function handleItemDragPurchaseRequested(
@@ -263,13 +247,6 @@ async function handleItemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ): Promise<void> {
-	let shopChara: ReturnType<typeof Chara.mustGetCharaById> | null = null;
-	try {
-		shopChara = Chara.mustGetCharaById(shopCharaId);
-	} catch {
-		shopChara = null;
-	}
-
 	const { session } = state;
 	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
@@ -295,21 +272,4 @@ async function handleItemDragPurchaseRequested(
 	}
 
 	await GameController.purchaseUnit(shopUnitData.cardId, targetTile);
-
-	if (shopChara) {
-		onShopPurchaseSuccesful(shopChara);
-	}
-}
-
-function onShopPurchaseSuccesful(chara: Chara.Chara): void {
-	// TODO: this can exist within the controller
-	Tooltip.hideTooltip();
-	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
-	const charaState = Chara.mustGetState(chara);
-	const { events } = io.screens.battleground;
-
-	events.onUnitPurchased.emit({
-		unitId: charaState.unit.id,
-		session: state.session,
-	});
 }
