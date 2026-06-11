@@ -18,6 +18,12 @@ import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("SessionTransitions");
 
+const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Types.PhaseOption[]> = {
+	upgrade_unit: [{ id: "upgrade_orb" }],
+	power_distributor: [{ id: "distribute_power_orb" }],
+	power_absorber: [{ id: "absorb_power_orb" }],
+};
+
 // @deprecated deleteme
 export type TransitionToNextStateOptions = {
 	combatEnemyTeam?: Unit.Unit[];
@@ -143,9 +149,17 @@ const ACTION_HANDLERS: Record<string, (
 		if (action.encounterId === "start_combat")
 			return executeCombatPhase(session);
 
+		const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
+		if (orbOptions) {
+			return {
+				...session,
+				phase: "orb_shop",
+				options: orbOptions,
+			};
+		}
+
 		return {
 			...session,
-			// For now it's ok, but it should depend on the selected encounter
 			phase: "shop",
 			options: GameLogic.generateShopOptions(
 				session,
