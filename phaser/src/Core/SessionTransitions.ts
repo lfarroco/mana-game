@@ -260,7 +260,7 @@ const ACTION_HANDLERS: Record<string, (
 			targetUnitId,
 			orbId,
 		);
-		return session;
+		return transitionToNextStep(session);
 	},
 	// update_team: (session) => ({
 	// 	nextPhase: session.phase,
