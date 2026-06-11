@@ -52,14 +52,18 @@ async function closeShop(phase: Types.PhaseType) {
 
 async function onUnitPurchased({
 	session,
+	unitId: cardId,
 	previousTeamUnits,
 	shopCharaId,
 }: {
 	session: Types.SessionData,
+	unitId: string,
 	previousTeamUnits: Unit.Unit[],
 	shopCharaId: string | null,
 }) {
-	const purchaseResult = classifyPurchaseResult(previousTeamUnits, session.team.units);
+	const unit = session.team.units.find((u) => u.cardId === cardId);
+	if (!unit) return;
+
 	const sourceChara =
 		shopCharaId && Chara.hasCharaById(shopCharaId)
 			? Chara.mustGetCharaById(shopCharaId)
@@ -68,10 +72,12 @@ async function onUnitPurchased({
 	Tooltip.hideTooltip();
 	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
 
-	if (purchaseResult?.type === "upgrade") {
-		await handleUpgradedUnitPurchase(purchaseResult.unit, sourceChara);
-	} else if (purchaseResult?.type === "new") {
-		await handleNewUnitPurchase(purchaseResult.unit);
+	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
+
+	if (wasUpgrade) {
+		await handleUpgradedUnitPurchase(unit, sourceChara);
+	} else {
+		await handleNewUnitPurchase(unit);
 	}
 
 	if (sourceChara) {
@@ -148,38 +154,4 @@ async function playShopUpgradeEffect(source: Vec2, target: Vec2): Promise<void> 
 			});
 		})
 	);
-}
-
-function findUpdatedUnit(previousTeamUnits: Unit.Unit[], nextTeamUnits: Unit.Unit[]): Unit.Unit | null {
-	const previousUnitsById = new Map(previousTeamUnits.map((unit) => [unit.id, unit] as const));
-
-	const upgradedUnit = nextTeamUnits.find((unit) => {
-		const previousUnit = previousUnitsById.get(unit.id);
-		return previousUnit ? previousUnit.rank !== unit.rank : false;
-	});
-
-	if (upgradedUnit) {
-		return upgradedUnit;
-	}
-
-	const newUnit = nextTeamUnits.find((unit) => !previousUnitsById.has(unit.id));
-	return newUnit ?? null;
-}
-
-function classifyPurchaseResult(
-	previousTeamUnits: Unit.Unit[],
-	nextTeamUnits: Unit.Unit[]
-): { type: "upgrade" | "new"; unit: Unit.Unit } | null {
-	const purchasedUnit = findUpdatedUnit(previousTeamUnits, nextTeamUnits);
-	if (!purchasedUnit) {
-		return null;
-	}
-
-	const existedBeforePurchase = previousTeamUnits.some((unit) => unit.id === purchasedUnit.id);
-
-	if (existedBeforePurchase) {
-		return { type: "upgrade", unit: purchasedUnit };
-	}
-
-	return { type: "new", unit: purchasedUnit };
 }
