@@ -4,6 +4,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
+import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 import * as shopCharaFeedback from "@Screens/Battleground/Components/Shop/events/shopCharaFeedback";
 
 let initialized = false;
@@ -15,6 +16,7 @@ function init() {
 	const { events } = io.screens.battleground;
 
 	events.onUnitPurchased.listen(onUnitPurchased);
+	events.onUnitSold.listen(onUnitSold);
 	events.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
 	events.phaseFinished.listen(closeShop)
 }
@@ -55,6 +57,14 @@ async function onUnitPurchased({ session, unitId }: { session: Types.SessionData
 	}
 
 	await Shop.SlideOut();
+}
+
+function onUnitSold({ unitId }: { session: Types.SessionData, unitId: string }) {
+	if (Chara.hasCharaById(unitId)) {
+		Chara.destroy(Chara.mustGetCharaById(unitId));
+	}
+
+	DiscardZone.hide();
 }
 
 function onShopUnitDragPurchaseFailed({

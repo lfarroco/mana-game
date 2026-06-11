@@ -42,6 +42,11 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 
 	state.session = session;
 
+	io.screens.battleground.events.onUnitSold.emit({
+		session,
+		unitId,
+	});
+
 	io.screens.battleground.events.sessionUpdated.emit({
 		action: {
 			type: "discard_unit",
