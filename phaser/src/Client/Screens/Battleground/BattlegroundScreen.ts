@@ -187,9 +187,10 @@ export const create = async () => {
 
 async function executePhase(
 	phase: Types.PhaseType,
+	previousPhase?: Types.PhaseType,
 ) {
 
-	if (phase !== 'combat') {
+	if (phase !== 'combat' && previousPhase !== 'combat') {
 		await syncPlayerBoardUnits();
 	}
 
@@ -228,11 +229,11 @@ async function executePhase(
 	}
 }
 
-async function handleCurrentPhase() {
+async function handleCurrentPhase(previousPhase?: Types.PhaseType) {
 
 	//updateSessionState(state.session);
 
-	executePhase(state.session.phase);
+	await executePhase(state.session.phase, previousPhase);
 
 	//events.phaseFinished.emit(previousPhase);
 
