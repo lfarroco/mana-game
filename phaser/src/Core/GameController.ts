@@ -1,6 +1,7 @@
 import * as Types from "@Core/Types";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/State";
 
 const getCurrentPlayerId = () => state.session.player_id;
 
@@ -150,5 +151,15 @@ export async function updateTeam(
 		type: "update_team",
 		team
 	});
+}
+
+export function requestNewRun(): void {
+	State.resetState();
+	io.screens.battleground.events.newRunRequested.emit(undefined);
+}
+
+export function requestMainMenu(): void {
+	State.resetState();
+	io.screens.battleground.events.mainMenuRequested.emit(undefined);
 }
 

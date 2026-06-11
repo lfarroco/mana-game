@@ -12,6 +12,20 @@ import * as Phases from "./Phases";
 import * as UI from "./Components/UI/UI";
 import * as animation from "@Utils/animation";
 
+const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
+
+const emitBattlegroundExit = () => {
+	io.scene.events.emit(BATTLEGROUND_EXIT_EVENT);
+};
+
+const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {
+	emitBattlegroundExit();
+	await io.FadeOut(300, 0x000000);
+	io.clean();
+	renderScreen();
+	await io.FadeIn(300);
+};
+
 type BattlegroundScreenEvents = {
 	phaseFinished: Types.Event<Types.PhaseType>;
 	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
@@ -23,6 +37,8 @@ type BattlegroundScreenEvents = {
 	combatReplayRequested: Types.Event<void>;
 	combatPauseRequested: Types.Event<void>;
 	combatResumeRequested: Types.Event<void>;
+	newRunRequested: Types.Event<void>;
+	mainMenuRequested: Types.Event<void>;
 	onWinsChanged: Types.Event<{ wins: number, delta: number }>;
 	onLivesChanged: Types.Event<{ lives: number, delta: number }>;
 	onRoundChanged: Types.Event<{ round: number, delta: number }>;
@@ -81,6 +97,8 @@ function init() {
 		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
 		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),
 		combatResumeRequested: io.createEvent<void>("combatResumeRequested"),
+		newRunRequested: io.createEvent<void>("newRunRequested"),
+		mainMenuRequested: io.createEvent<void>("mainMenuRequested"),
 		onWinsChanged: io.createEvent<{ wins: number, delta: number }>("onWinsChanged"),
 		onLivesChanged: io.createEvent<{ lives: number, delta: number }>("onLivesChanged"),
 		onRoundChanged: io.createEvent<{ round: number, delta: number }>("onRoundChanged"),
@@ -96,6 +114,12 @@ function init() {
 	});
 	events.onRoundChanged.listen(({ round }) => {
 		UI.events.onRoundChanged({ round });
+	});
+	events.newRunRequested.listen(() => {
+		void transitionFromBattleground(io.screens.crystalSelection);
+	});
+	events.mainMenuRequested.listen(() => {
+		void transitionFromBattleground(io.screens.title.create);
 	});
 
 }

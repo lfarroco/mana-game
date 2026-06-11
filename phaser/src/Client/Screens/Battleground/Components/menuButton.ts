@@ -1,8 +1,7 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
-import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
-import * as BattlegroundNavigation from "../Navigation";
+import * as GameController from "@Core/GameController";
 
 export function create() {
 	const btn = UIButton.create({
@@ -28,8 +27,7 @@ export function createPanel() {
 	buttonDefs.push([
 		i18n.t("ui.menu.newRun"),
 		() => {
-			State.resetState();
-			void BattlegroundNavigation.startNewRun();
+			GameController.requestNewRun();
 		},
 	]);
 
@@ -37,8 +35,7 @@ export function createPanel() {
 		[
 			i18n.t("ui.menu.mainMenu"),
 			() => {
-				State.resetState();
-				void BattlegroundNavigation.returnToMainMenu();
+				GameController.requestMainMenu();
 			},
 		],
 		[

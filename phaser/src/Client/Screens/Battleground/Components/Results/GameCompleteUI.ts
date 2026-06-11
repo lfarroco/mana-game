@@ -5,6 +5,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as deleteSavedData from "@Game/effects/deleteSavedData";
+import * as GameController from "@Core/GameController";
 import * as ResultsConfig from "./ResultsConfig";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
@@ -106,23 +107,15 @@ export async function displayGameComplete(
 		[
 			i18n.t("results.buttons.new_run"),
 			async () => {
-
-
-				State.resetState();
+				GameController.requestNewRun();
 				complete?.();
-				//const currentScene = getCurrentScene();
-				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
-				// currentScene.game.scene.start(SCENE_KEYS.CRYSTAL_SELECTION);
 			},
 		],
 		[
 			i18n.t("results.buttons.main_menu"),
 			async () => {
-				State.resetState();
+				GameController.requestMainMenu();
 				complete?.();
-				// const currentScene = getCurrentScene();
-				// currentScene.scene.stop(SCENE_KEYS.BATTLEGROUND);
-				// currentScene.game.scene.start(SCENE_KEYS.TITLE);
 			},
 		]
 	);
