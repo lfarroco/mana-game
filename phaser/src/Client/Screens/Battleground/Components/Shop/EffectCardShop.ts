@@ -4,7 +4,6 @@ import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
 import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "@Core/GameController";
 import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("EffectCardShop");
@@ -90,7 +89,7 @@ function renderUpgradeCards(
 				isResolvingSelection = true;
 				logger.debug(`Selected upgrade: ${encounterSpec.name}`);
 
-				await GameController.selectEncounter(encounterId);
+				io.screens.battleground.events.encounterSelectRequested.emit({ encounterId });
 
 
 				// TODO: handle upgrade success (as event, before phase completion)

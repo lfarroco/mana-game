@@ -6,11 +6,36 @@ import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay"
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as headerBackground from "@Screens/Battleground/Components/UI/headerBackground";
 import * as menuButton from "Client/Screens/Battleground/Components/menuButton";
+import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 export * as events from "@Screens/Battleground/Components/UI/events";
 
 let uiContainer: Container | null = null;
+let listenersBound = false;
+
+function bindBattlegroundEvents(): void {
+	if (listenersBound) {
+		return;
+	}
+
+	listenersBound = true;
+	const { events } = io.screens.battleground;
+
+	events.onWinsChanged.listen(({ wins, delta }) => {
+		uiEvents.onWinsChanged({ wins, delta });
+	});
+
+	events.onLivesChanged.listen(({ lives, delta }) => {
+		uiEvents.onLivesChanged({ lives, delta });
+	});
+
+	events.onRoundChanged.listen(({ round }) => {
+		uiEvents.onRoundChanged({ round });
+	});
+}
 
 export function create() {
+	bindBattlegroundEvents();
+
 	const headerContainer = io.Container([
 		headerBackground.create,
 		roundDisplay.create,

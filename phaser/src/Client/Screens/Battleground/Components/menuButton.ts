@@ -1,7 +1,6 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "@Core/GameController";
 
 export function create() {
 	const btn = UIButton.create({
@@ -27,7 +26,7 @@ export function createPanel() {
 	buttonDefs.push([
 		i18n.t("ui.menu.newRun"),
 		() => {
-			GameController.requestNewRun();
+			io.screens.battleground.events.newRunRequested.emit(undefined);
 		},
 	]);
 
@@ -35,7 +34,7 @@ export function createPanel() {
 		[
 			i18n.t("ui.menu.mainMenu"),
 			() => {
-				GameController.requestMainMenu();
+				io.screens.battleground.events.mainMenuRequested.emit(undefined);
 			},
 		],
 		[

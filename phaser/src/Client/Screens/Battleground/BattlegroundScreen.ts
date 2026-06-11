@@ -4,12 +4,13 @@ import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
+import * as GameController from "@Core/GameController";
+import * as State from "@Models/State";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
-import * as UI from "./Components/UI/UI";
 import * as animation from "@Utils/animation";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
@@ -42,6 +43,7 @@ type BattlegroundScreenEvents = {
 	onWinsChanged: Types.Event<{ wins: number, delta: number }>;
 	onLivesChanged: Types.Event<{ lives: number, delta: number }>;
 	onRoundChanged: Types.Event<{ round: number, delta: number }>;
+	encounterSelectRequested: Types.Event<{ encounterId: string }>;
 }
 
 export let events: BattlegroundScreenEvents;
@@ -102,23 +104,20 @@ function init() {
 		onWinsChanged: io.createEvent<{ wins: number, delta: number }>("onWinsChanged"),
 		onLivesChanged: io.createEvent<{ lives: number, delta: number }>("onLivesChanged"),
 		onRoundChanged: io.createEvent<{ round: number, delta: number }>("onRoundChanged"),
+		encounterSelectRequested: io.createEvent<{ encounterId: string }>("encounterSelectRequested"),
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase);
 	events.phaseFinished.listen(updateHudFromSessionChanges);
-	events.onWinsChanged.listen(({ wins, delta }) => {
-		UI.events.onWinsChanged({ wins, delta });
-	});
-	events.onLivesChanged.listen(({ lives, delta }) => {
-		UI.events.onLivesChanged({ lives, delta });
-	});
-	events.onRoundChanged.listen(({ round }) => {
-		UI.events.onRoundChanged({ round });
+	events.encounterSelectRequested.listen(({ encounterId }) => {
+		void GameController.selectEncounter(encounterId);
 	});
 	events.newRunRequested.listen(() => {
+		State.resetState();
 		void transitionFromBattleground(io.screens.crystalSelection);
 	});
 	events.mainMenuRequested.listen(() => {
+		State.resetState();
 		void transitionFromBattleground(io.screens.title.create);
 	});
 
