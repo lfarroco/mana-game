@@ -17,6 +17,8 @@ type BattlegroundScreenEvents = {
 	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
 	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string }>;
 	onShopUnitDragPurchaseFailed: Types.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
+	orbApplyRequested: Types.Event<{ orbId: string, targetUnitId: string }>;
+	orbApplied: Types.Event<{ session: Types.SessionData, orbId: string, targetUnitId: string }>;
 	combatContinueRequested: Types.Event<void>;
 	combatReplayRequested: Types.Event<void>;
 	combatPauseRequested: Types.Event<void>;
@@ -73,6 +75,8 @@ function init() {
 		sessionUpdated: io.createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
 		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitPurchased"),
 		onShopUnitDragPurchaseFailed: io.createEvent<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
+		orbApplyRequested: io.createEvent<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
+		orbApplied: io.createEvent<{ session: Types.SessionData, orbId: string, targetUnitId: string }>("orbApplied"),
 		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
 		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
 		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),

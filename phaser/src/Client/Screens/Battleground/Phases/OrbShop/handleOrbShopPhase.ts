@@ -1,13 +1,74 @@
 import * as GameController from "@Core/GameController";
 import * as Types from "@Core/Types";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
+import * as Chara from "@Systems/Chara/Chara";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 
-export async function handleOrbShopPhase(): Promise<Types.SessionData> {
-	let nextSession: Types.SessionData | null = null;
+let initialized = false;
 
-	await OrbShop.openOrbShop(async (orbId, targetUnitId) => {
-		nextSession = await GameController.applyOrb(orbId, targetUnitId);
-	});
+function init() {
+	if (initialized) return;
+	initialized = true;
 
-	return nextSession ?? state.session;
+	const { events } = io.screens.battleground;
+	events.orbApplyRequested.listen(onOrbApplyRequested);
+	events.orbApplied.listen(onOrbApplied);
+	events.phaseFinished.listen(closeOrbShop);
+}
+
+export async function handleOrbShopPhase(): Promise<void> {
+	init();
+	await OrbShop.openOrbShop();
+}
+
+async function onOrbApplyRequested({
+	orbId,
+	targetUnitId,
+}: {
+	orbId: string;
+	targetUnitId: string;
+}) {
+	if (state.session.phase !== "orb_shop") return;
+	await GameController.applyOrb(orbId, targetUnitId);
+}
+
+async function onOrbApplied({
+	session,
+	orbId,
+	targetUnitId,
+}: {
+	session: Types.SessionData;
+	orbId: string;
+	targetUnitId: string;
+}) {
+	const isRowOrb = orbId === "absorb_power_orb" || orbId === "distribute_power_orb";
+	const targetUnit = session.team.units.find((unit) => unit.id === targetUnitId);
+	if (!targetUnit) return;
+
+	const [, targetRow] = targetUnit.position;
+
+	for (const serverUnit of session.team.units) {
+		const [, row] = serverUnit.position;
+		const isTarget = serverUnit.id === targetUnitId;
+		const isInSameRow = isRowOrb && row === targetRow && !isTarget;
+
+		if (!isTarget && !isInSameRow) continue;
+
+		if (isRowOrb) {
+			if (Chara.hasCharaById(serverUnit.id)) {
+				PowerDisplay.updatePowerDisplay(serverUnit.id);
+			}
+			continue;
+		}
+
+		await Chara.refreshChara(serverUnit);
+	}
+
+	ForceStats.syncPlayerPersistentForceStats();
+}
+
+async function closeOrbShop(phase: Types.PhaseType) {
+	if (phase !== "orb_shop") return;
+	await OrbShop.closeOrbShop();
 }

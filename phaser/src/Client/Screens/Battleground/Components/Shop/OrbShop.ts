@@ -1,6 +1,5 @@
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Board from "@Models/Board";
-import * as animation from "@Utils/animation";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
 import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
@@ -9,53 +8,39 @@ import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Logger from "@Utils/Logger";
-import * as Chara from "@Systems/Chara/Chara";
-import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
-import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 
 const logger = Logger.createLogger("OrbShop");
 
 // Orb shop UI constants
-const ORB_SHOP_COMPLETION_DELAY_MS = 300;
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
 const ORB_TITLE_FONT_SIZE = 40;
 const ORB_TITLE_Y_OFFSET = 80;
 const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
-export async function openOrbShop(
-	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
-): Promise<void> {
-	return new Promise<void>(async (resolve) => {
+let container: Container | null = null;
 
-		const container = io.Container();
+export async function openOrbShop(): Promise<void> {
 
-		const completeSectionCallback = async () => {
-			await ShopPanel.SlideOut();
-			container.destroy();
+	container?.destroy();
+	container = io.Container();
 
-			resolve();
-		};
+	renderOrbShop(container);
 
-		renderOrbShop(
-			container,
-			async () => {
-				await animation.delay(ORB_SHOP_COMPLETION_DELAY_MS);
-				completeSectionCallback();
-			},
-			onOrbApply
-		);
+	Board.setEnemyBoardVisible(false);
 
-		Board.setEnemyBoardVisible(false);
+	await ShopPanel.SlideIn();
+}
 
-		await ShopPanel.SlideIn();
-	});
+export async function closeOrbShop(): Promise<void> {
+
+	await ShopPanel.SlideOut();
+	container?.destroy();
+	container = null;
 }
 
 export function renderOrbShop(
-	container: Phaser.GameObjects.Container,
-	onOrbUsed?: () => void | Promise<void>,
-	onOrbApply?: (orbId: string, targetId: string) => void | Promise<void>
+	container: Phaser.GameObjects.Container
 ) {
 
 	const orbIds = state.session.options.map((o) => o.id);
@@ -64,7 +49,7 @@ export function renderOrbShop(
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
 	const firstOrbY = constants.SCREEN_HEIGHT / 2 - totalOrbSpan / 2;
 
-	async function handleOrbDrop(params: {
+	function handleOrbDrop(params: {
 		orb: MagicOrb.MagicOrb;
 		target: Phaser.GameObjects.GameObject;
 		orbSpec: Orbs.OrbSpec;
@@ -102,11 +87,8 @@ export function renderOrbShop(
 		const isRowOrb =
 			orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
 
-		// Only apply effect locally if no server callback is provided
-		// When onOrbApply is provided, the server will handle the upgrade.
-		// Row power orbs still animate locally first so the board shows the transfer projectiles
-		// instead of only popping units after the server sync.
-		if (!onOrbApply || isRowOrb) {
+		// Row power orbs animate their transfer locally before server reconciliation.
+		if (isRowOrb) {
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
 				logger.debug(`${orbSpec.name} effect returned false — returning orb to origin`);
@@ -119,40 +101,10 @@ export function renderOrbShop(
 
 		magicOrb.startDissolve();
 
-		if (onOrbApply) {
-			await onOrbApply(orbSpec.id, existingUnit.id);
-
-			// The resolved action already updated state.session locally.
-			const [, y] = existingUnit.position;
-
-			for (const serverUnit of state.session.team.units) {
-				const [, sy] = serverUnit.position;
-				const isTarget = serverUnit.id === existingUnit.id;
-				const isInSameRow =
-					isRowOrb && sy === y && !isTarget;
-
-				if (isTarget || isInSameRow) {
-					const localUnit = state.session.team.units.find(
-						(u) => u.id === serverUnit.id
-					);
-					if (localUnit) {
-						Object.assign(localUnit, serverUnit);
-					}
-
-					if (isRowOrb) {
-						if (Chara.hasCharaById(serverUnit.id)) {
-							PowerDisplay.updatePowerDisplay(serverUnit.id);
-						}
-						continue;
-					}
-
-					await Chara.refreshChara(localUnit ?? serverUnit);
-				}
-			}
-			ForceStats.syncPlayerPersistentForceStats();
-		}
-
-		onOrbUsed?.();
+		io.screens.battleground.events.orbApplyRequested.emit({
+			orbId: orbSpec.id,
+			targetUnitId: existingUnit.id,
+		});
 	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {

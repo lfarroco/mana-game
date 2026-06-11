@@ -81,11 +81,25 @@ export async function applyOrb(
 	orbId: string,
 	targetUnitId: string
 ): Promise<Types.SessionData> {
-	return await dispatchAction({
+	const previousPhase = state.session.phase;
+
+	const session = await dispatchAction({
 		type: "apply_orb",
 		orbId,
 		targetUnitId
 	});
+
+	state.session = session;
+
+	io.screens.battleground.events.orbApplied.emit({
+		session,
+		orbId,
+		targetUnitId,
+	});
+
+	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+
+	return session;
 }
 
 export async function completeVictory() {
