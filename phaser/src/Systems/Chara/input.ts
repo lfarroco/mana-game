@@ -6,7 +6,6 @@ import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
-import * as events from "@Systems/Chara/events";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 
@@ -45,7 +44,9 @@ export function init(chara: Chara.Chara) {
 
 		io.WhenDroppedOnZone(chara, DiscardZone.name, () => {
 			if (!Board.isInputEnabled()) return;
-			if (isPlayerUnit) events.onDiscard(state.unitId);
+			if (isPlayerUnit) GameController.sellUnit(state.unitId);
+
+
 		});
 
 		io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
