@@ -35,10 +35,22 @@ export async function purchaseUnit(
 }
 
 export async function sellUnit(unitId: string): Promise<Types.SessionData> {
-	return await dispatchAction({
+	const session = await dispatchAction({
 		type: "discard_unit",
 		unitId
 	});
+
+	state.session = session;
+
+	io.screens.battleground.events.sessionUpdated.emit({
+		action: {
+			type: "discard_unit",
+			unitId,
+		},
+		session,
+	});
+
+	return session;
 }
 
 export async function skipPhase() {
@@ -57,6 +69,8 @@ export async function skipPhase() {
 
 export async function selectEncounter(encounterId: string) {
 	const previousPhase = state.session.phase;
+	state.session.encounter_history = state.session.encounter_history || [];
+	state.session.encounter_history.push(encounterId);
 	const session = await dispatchAction({
 		type: "select_encounter",
 		encounterId

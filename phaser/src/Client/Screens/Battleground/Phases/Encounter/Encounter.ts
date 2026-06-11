@@ -184,14 +184,6 @@ export const displayOptions = () => {
 		disableInteraction = true;
 		container.destroy(true);
 
-		state.session.encounter_history = state.session.encounter_history || [];
-		state.session.encounter_history.push(id);
-
-		// TODO: audit all gamecontroller calls
-		// the state mutations from above should happen inside the controller
-		// this way operating the game via the controller has the same effect
-		// as operating it via the UI
-
 		await GameController.selectEncounter(id);
 
 	};

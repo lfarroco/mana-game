@@ -6,13 +6,6 @@ export async function ownedUnitSold(unitId: string) {
 
 	await GameController.sellUnit(unitId);
 
-	state.session.team.units =
-		state
-			.session
-			.team
-			.units
-			.filter((u) => u.id !== unitId);
-
 	const chara = Chara.mustGetCharaById(unitId);
 	chara?.destroy();
 	DiscardZone.hide();
