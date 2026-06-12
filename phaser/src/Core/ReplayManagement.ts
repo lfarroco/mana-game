@@ -164,7 +164,7 @@ function applySavedCombatPositions(baseSession: Types.SessionData, savedSession:
 
 	const positionedUnits = replayUnits.map((unit, index) => ({
 		...unit,
-		position: { ...savedUnits[index].position },
+		position: structuredClone(savedUnits[index].position),
 	}));
 
 	return {

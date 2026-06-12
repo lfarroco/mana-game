@@ -256,7 +256,7 @@ export function updateUnitPosition(
 	swappedUnit?: Unit.Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
-	const oldPositionOfMovedUnit = { ...unitToMove.position };
+	const oldPositionOfMovedUnit = structuredClone(unitToMove.position);
 
 	const moveCheck = BoardLogic.checkMove(unitToMove, newBoardPosition, unitsOnBoard);
 
