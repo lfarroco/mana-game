@@ -22,8 +22,6 @@ function init() {
 
 	const { events } = io.screens.battleground;
 
-	events.onUnitPurchased.listen(onUnitPurchased);
-	events.onUnitSold.listen(onUnitSold);
 	events.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
 	events.phaseFinished.listen(closeShop)
 }
@@ -50,7 +48,7 @@ async function closeShop(phase: Types.PhaseType) {
 	await Shop.SlideOut();
 }
 
-async function onUnitPurchased({
+export async function onUnitPurchased({
 	session,
 	unitId: cardId,
 	previousTeamUnits,
@@ -62,7 +60,9 @@ async function onUnitPurchased({
 	shopCharaId: string | null,
 }) {
 	const unit = session.team.units.find((u) => u.cardId === cardId);
-	if (!unit) return;
+	if (!unit) {
+		throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
+	};
 
 	const sourceChara =
 		shopCharaId && Chara.hasCharaById(shopCharaId)
@@ -108,7 +108,7 @@ async function handleNewUnitPurchase(newUnit: Unit.Unit): Promise<void> {
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }
 
-function onUnitSold({ unitId }: { session: Types.SessionData, unitId: string }) {
+export async function onUnitSold(unitId: string) {
 	if (Chara.hasCharaById(unitId)) {
 		Chara.destroy(Chara.mustGetCharaById(unitId));
 	}

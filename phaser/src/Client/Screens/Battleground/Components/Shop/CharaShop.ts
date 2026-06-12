@@ -76,9 +76,15 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		// so they are guaranteed to be in the container when slideOut() is called.
 		ShopPanel.add([bgRect, rowBorder]);
 
-		const chara = await Chara.create(unit, { isShopChara: true });
-		chara.setPosition(sc.ITEM_BASE_X, sc.ITEM_BASE_Y + offsetY - 10);
-		initShopCharaInput(chara);
+		const chara = await Chara.create(
+			unit,
+			{ isShopChara: true }
+		);
+		chara.setPosition(
+			sc.ITEM_BASE_X,
+			sc.ITEM_BASE_Y + offsetY - 10
+		);
+		initShopCharaInput(chara, unit);
 
 		chara.on("pointerover", () => {
 			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
@@ -162,7 +168,10 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	return createdCharas;
 }
 
-function initShopCharaInput(chara: Chara.Chara): void {
+function initShopCharaInput(
+	chara: Chara.Chara,
+	unit: makeUnit.Unit
+): void {
 	io.scene.input.setDraggable(chara, true);
 
 	let wasDragSuccessful = false;
@@ -180,14 +189,17 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		chara.setAngle(-8);
 	});
 
-	chara.on(Phaser.Input.Events.DRAG, (_pointer: Pointer, dragX: number, dragY: number) => {
-		if (!Board.isInputEnabled()) {
-			return;
-		}
+	//TODO: io.onDrag...
+	chara.on(
+		Phaser.Input.Events.DRAG,
+		(_pointer: Pointer, dragX: number, dragY: number) => {
+			if (!Board.isInputEnabled()) {
+				return;
+			}
 
-		chara.x = dragX;
-		chara.y = dragY;
-	});
+			chara.x = dragX;
+			chara.y = dragY;
+		});
 
 	io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
 		if (!Board.isInputEnabled()) {
@@ -198,9 +210,14 @@ function initShopCharaInput(chara: Chara.Chara): void {
 		const y = zone.getData("cell-y") as number;
 		const tile: Vec2 = [x, y];
 		const vec = chara.getData("dragStartVec") as [number, number];
-		const unit = { ...Chara.getUnit(chara) };
 
-		void handleItemDragPurchaseRequested(unit, unit.id, tile, vec[0], vec[1]);
+		void handleItemDragPurchaseRequested(
+			unit,
+			unit.id,
+			tile,
+			vec[0],
+			vec[1]
+		);
 
 		wasDragSuccessful = true;
 	});
@@ -226,17 +243,17 @@ function initShopCharaInput(chara: Chara.Chara): void {
 	});
 
 	chara.on(Phaser.Input.Events.POINTER_UP, (pointer: Pointer) => {
-		if (!Board.isInputEnabled() || !chara.input?.enabled) {
+		if (!Board.isInputEnabled() || !chara.input?.enabled)
 			return;
-		}
 
-		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD) {
+		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD)
 			return;
-		}
-		const unit = { ...Chara.getUnit(chara) };
 
-
-		void GameController.purchaseUnit(unit.cardId, null, unit.id);
+		void GameController.purchaseUnit({
+			unitId: unit.cardId,
+			targetSlot: null,
+			shopCharaId: unit.id
+		});
 	});
 }
 
@@ -271,5 +288,5 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	await GameController.purchaseUnit(shopUnitData.cardId, targetTile, shopCharaId);
+	await GameController.purchaseUnit({ unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
 }

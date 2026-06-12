@@ -1,6 +1,5 @@
 import * as Board from "@Models/Board";
 import * as Types from "@Core/Types";
-import * as Unit from "@Models/Entities/Unit";
 import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
@@ -28,9 +27,6 @@ const transitionFromBattleground = async (renderScreen: () => void): Promise<voi
 
 type BattlegroundScreenEvents = {
 	phaseFinished: Types.Event<Types.PhaseType>;
-	sessionUpdated: Types.Event<{ session: Types.SessionData, action: Types.Action }>;
-	onUnitPurchased: Types.Event<{ session: Types.SessionData, unitId: string, previousTeamUnits: Unit.Unit[], shopCharaId: string | null }>;
-	onUnitSold: Types.Event<{ session: Types.SessionData, unitId: string }>;
 	onShopUnitDragPurchaseFailed: Types.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
 	orbApplyRequested: Types.Event<{ orbId: string, targetUnitId: string }>;
 	orbApplied: Types.Event<{ session: Types.SessionData, orbId: string, targetUnitId: string }>;
@@ -89,9 +85,6 @@ function init() {
 	initialized = true;
 	events = {
 		phaseFinished: io.createEvent<Types.PhaseType>("phaseFinished"),
-		sessionUpdated: io.createEvent<{ session: Types.SessionData, action: Types.Action }>("sessionUpdated"),
-		onUnitPurchased: io.createEvent<{ session: Types.SessionData, unitId: string, previousTeamUnits: Unit.Unit[], shopCharaId: string | null }>("onUnitPurchased"),
-		onUnitSold: io.createEvent<{ session: Types.SessionData, unitId: string }>("onUnitSold"),
 		onShopUnitDragPurchaseFailed: io.createEvent<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
 		orbApplyRequested: io.createEvent<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
 		orbApplied: io.createEvent<{ session: Types.SessionData, orbId: string, targetUnitId: string }>("orbApplied"),

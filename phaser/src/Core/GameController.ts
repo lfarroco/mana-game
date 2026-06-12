@@ -2,6 +2,7 @@ import * as Types from "@Core/Types";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 import * as State from "@Models/State";
+import * as handleShopPhase from "@Screens/Battleground/Phases/Shop/handleShopPhase";
 
 const getCurrentPlayerId = () => state.session.player_id;
 
@@ -12,9 +13,15 @@ async function dispatchAction(
 }
 
 export async function purchaseUnit(
-	unitId: string,
-	targetSlot: Vec2 | null,
-	shopCharaId: string | null = null
+	{
+		unitId,
+		targetSlot,
+		shopCharaId = null,
+	}: {
+		unitId: string;
+		targetSlot: Vec2 | null;
+		shopCharaId?: string | null;
+	}
 ) {
 	const previousPhase = state.session.phase;
 	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit.Unit[];
@@ -27,7 +34,7 @@ export async function purchaseUnit(
 
 	state.session = session;
 
-	await io.screens.battleground.events.onUnitPurchased.emitAsync({
+	await handleShopPhase.onUnitPurchased({
 		session,
 		unitId,
 		previousTeamUnits,
@@ -46,18 +53,7 @@ export async function sellUnit(unitId: string): Promise<Types.SessionData> {
 
 	state.session = session;
 
-	io.screens.battleground.events.onUnitSold.emit({
-		session,
-		unitId,
-	});
-
-	io.screens.battleground.events.sessionUpdated.emit({
-		action: {
-			type: "discard_unit",
-			unitId,
-		},
-		session,
-	});
+	await handleShopPhase.onUnitSold(unitId);
 
 	return session;
 }
@@ -87,19 +83,6 @@ export async function selectEncounter(encounterId: string) {
 	state.session = session;
 
 	io.screens.battleground.events.phaseFinished.emit(previousPhase);
-}
-
-export async function handleAction(
-	payload: Types.Action
-): Promise<Types.SessionData> {
-	const success = await dispatchAction(payload);
-
-	io.screens.battleground.events.sessionUpdated.emit({
-		action: payload,
-		session: success,
-	});
-
-	return success;
 }
 
 export async function applyOrb(

@@ -24,21 +24,15 @@ export const emitter = new events_.EventEmitter();
 export const Controller = Controller_;
 
 export const createEvent = <T>(event: string): Types.Event<T> => {
-	const listeners: ((payload: T) => void | Promise<void>)[] = [];
 
 	return {
-		listen: (callback: (payload: T) => void | Promise<void>) => {
+		listen: (callback: (payload: T) => void) => {
 			logger.debug(`~~~Listening to event: ${event}`);
-			listeners.push(callback);
 			emitter.on(event, callback);
 		},
 		emit: (payload: T) => {
 			logger.debug(`~~~Emitting event: ${event}`, payload);
 			emitter.emit(event, payload);
-		},
-		emitAsync: async (payload: T): Promise<void> => {
-			logger.debug(`~~~Emitting async event: ${event}`, payload);
-			await Promise.all(listeners.map((l) => l(payload)));
 		},
 	};
 }

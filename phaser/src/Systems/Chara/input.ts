@@ -92,10 +92,11 @@ export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => 
 	DiscardZone.hide();
 
 	if (!handlerState.wasDragSuccessful) {
-		const vec = chara.getData("dragStartVec") as Vec2;
+		const [x, y] = chara.getData("dragStartVec") as Vec2;
 		animation.tween({
 			targets: [chara],
-			...vec,
+			x,
+			y,
 			duration: 150,
 		});
 	}
