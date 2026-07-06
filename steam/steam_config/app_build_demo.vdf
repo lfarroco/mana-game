@@ -2,8 +2,8 @@
 {
 	"appid"	"4233280"
 	"desc" "Demo Version"
-	"buildoutput" "../dist-steam-demo"
-	"contentroot" "../dist-electron"
+	"buildoutput" "../../phaser/dist-steam-demo"
+	"contentroot" "../../phaser/dist-electron"
 	"setlive" ""
 	"preview" "0"
 	"local"	""

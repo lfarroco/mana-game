@@ -2,8 +2,8 @@
 {
 	"appid"	"3757600"
 	"desc" "Alpha Version"
-	"buildoutput" "../dist-steam"
-	"contentroot" "../dist-electron"
+	"buildoutput" "../../phaser/dist-steam"
+	"contentroot" "../../phaser/dist-electron"
 	"setlive" ""
 	"preview" "0"
 	"local"	""

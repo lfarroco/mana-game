@@ -4,6 +4,7 @@
   "webDir": "dist",
   "bundledWebRuntime": false,
   "android": {
+    "path": "../android",
     "fullscreen": true
   }
 }

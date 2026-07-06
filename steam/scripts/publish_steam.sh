@@ -9,12 +9,13 @@ if ! command -v steamcmd &> /dev/null; then
     exit 1
 fi
 
-# Navigate to project root
-cd "$(dirname "$0")/.."
-PROJECT_ROOT=$(pwd)
+# Resolve repo and project paths
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
+PHASER_DIR="$REPO_ROOT/phaser"
 
 # Configuration
-STEAM_CONFIG_DIR="$PROJECT_ROOT/steam_config"
+STEAM_CONFIG_DIR="$REPO_ROOT/steam/steam_config"
 APP_BUILD_VDF="app_build.vdf"
 
 echo "Starting Steam Upload..."

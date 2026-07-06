@@ -60,7 +60,7 @@ npm run publish:steam
 
 Or directly:
 ```bash
-./scripts/publish_steam.sh
+./steam/scripts/publish_steam.sh
 ```
 
 ### Demo Upload
@@ -71,7 +71,7 @@ npm run publish:steam:demo
 
 Or directly:
 ```bash
-./scripts/publish_steam_demo.sh
+./steam/scripts/publish_steam_demo.sh
 ```
 
 ---
@@ -193,14 +193,14 @@ export STEAM_USERNAME="your_username"
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| Build full game (all platforms) | `npm run electron:build:all` |
-| Build demo (all platforms) | See "Building for Steam" section |
-| Upload full game | `npm run publish:steam` |
-| Upload demo | `npm run publish:steam:demo` |
-| Test full game locally | `npm run electron:dev` |
-| Test demo locally | `IS_DEMO=true npm run electron:dev` |
+| Task                            | Command                             |
+|---------------------------------|-------------------------------------|
+| Build full game (all platforms) | `npm run electron:build:all`        |
+| Build demo (all platforms)      | See "Building for Steam" section    |
+| Upload full game                | `npm run publish:steam`             |
+| Upload demo                     | `npm run publish:steam:demo`        |
+| Test full game locally          | `npm run electron:dev`              |
+| Test demo locally               | `IS_DEMO=true npm run electron:dev` |
 
 ---
 

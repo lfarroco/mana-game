@@ -1,7 +1,7 @@
 "DepotBuildConfig"
 {
 	"DepotID" "4233282"
-	"ContentRoot"	"../dist-electron/win-unpacked"
+	"ContentRoot"	"../../phaser/dist-electron/win-unpacked"
 
 	"FileMapping"
 	{
