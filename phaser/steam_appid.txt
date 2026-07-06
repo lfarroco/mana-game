@@ -1,1 +1,1 @@
-3757600
+../steam/steam_appid.txt

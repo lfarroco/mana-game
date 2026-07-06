@@ -1,1 +1,1 @@
-4233280
+../steam/steam_appid_demo.txt
