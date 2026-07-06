@@ -66,7 +66,7 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 
 ## Publishing
 
-- Steam: run `npm run electron:build:all`, then `sh scripts/publish_steam.sh` from the `phaser` directory.
-- Stem Demo: `npm run electron:build:demo`, then `sh scripts/publish_steam_demo.sh` from the `phaser` directory.
+- Steam: run `make electron-build-all`, then `make steam-publish`.
+- Stem Demo: run `make electron-build-demo`, then `make steam-publish-demo`.
 - Itch: `npm run build`, zip the contents of `dist`, and upload to Itch.io.
-- Android: run `npm run android:build` in `phaser`, then, in Android Studio, Build > Generate Signed Bundle / APK.
+- Android: run `make android-build`, then, in Android Studio, Build > Generate Signed Bundle / APK.

@@ -28,11 +28,11 @@ Opens at `http://localhost:8080`
 
 ### Desktop (Electron)
 
-| Command                      | Description                                                 |
-|------------------------------|-------------------------------------------------------------|
-| `npm run electron:dev`       | Run desktop app in development mode                         |
-| `npm run electron:build`     | Build desktop app for current platform                      |
-| `npm run electron:build:all` | Build desktop app for all platforms (Windows, macOS, Linux) |
+| Command                   | Description                                                 |
+|---------------------------|-------------------------------------------------------------|
+| `make electron-dev`       | Run desktop app in development mode                         |
+| `make electron-build`     | Build desktop app for current platform                      |
+| `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
 
 ### Server & Multiplayer
 
@@ -45,17 +45,17 @@ Opens at `http://localhost:8080`
 
 ### Mobile
 
-| Command                 | Description                     |
-|-------------------------|---------------------------------|
-| `npm run android:build` | Build for Android via Capacitor |
-| `npm run android:open`  | Open project in Android Studio  |
+| Command              | Description                     |
+|----------------------|---------------------------------|
+| `make android-build` | Build for Android via Capacitor |
+| `make android-open`  | Open project in Android Studio  |
 
 ### Publishing
 
-| Command                      | Description                |
-|------------------------------|----------------------------|
-| `npm run publish:steam`      | Upload build to Steam      |
-| `npm run publish:steam:demo` | Upload demo build to Steam |
+| Command                   | Description                |
+|---------------------------|----------------------------|
+| `make steam-publish`      | Upload build to Steam      |
+| `make steam-publish-demo` | Upload demo build to Steam |
 
 ## Development Server
 
@@ -77,7 +77,7 @@ Creates an optimized production build in the `dist` directory.
 ### Desktop Build
 
 ```bash
-npm run electron:build:all
+make electron-build-all
 ```
 
 Builds standalone executables for:

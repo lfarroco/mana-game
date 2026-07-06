@@ -29,7 +29,7 @@ echo ""
 if [ ! -d "$PHASER_DIR/dist-electron" ]; then
     echo "Error: dist-electron directory not found!"
     echo "Please build the demo version first:"
-    echo "  npm run electron:build:demo"
+    echo "  make electron-build-demo"
     exit 1
 fi
 

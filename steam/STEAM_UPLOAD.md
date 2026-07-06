@@ -26,24 +26,24 @@ This guide covers how to build and upload both the **full game** and **demo vers
 
 ```bash
 # Build for all platforms
-npm run electron:build:all
+make electron-build-all
 
 # Or build for specific platform
-npm run electron:build:win
-npm run electron:build:mac
-npm run electron:build:linux
+make electron-build-win
+make electron-build-mac
+make electron-build-linux
 ```
 
 ### Demo Version
 
 ```bash
 # Build demo for all platforms
-IS_DEMO=true npm run build && IS_DEMO=true electron-builder --win --mac --linux
+make electron-build-demo
 
 # Or build for specific platform
-npm run electron:build:demo:win
-npm run electron:build:demo:mac
-npm run electron:build:demo:linux
+make electron-build-demo-win
+make electron-build-demo-mac
+make electron-build-demo-linux
 ```
 
 **Important**: Always build with `IS_DEMO=true` for the demo version!
@@ -55,7 +55,7 @@ npm run electron:build:demo:linux
 ### Full Game Upload
 
 ```bash
-npm run publish:steam
+make steam-publish
 ```
 
 Or directly:
@@ -66,7 +66,7 @@ Or directly:
 ### Demo Upload
 
 ```bash
-npm run publish:steam:demo
+make steam-publish-demo
 ```
 
 Or directly:
@@ -102,17 +102,17 @@ Or directly:
 
 1. **Build the game**:
    ```bash
-   npm run electron:build:all
+   make electron-build-all
    ```
 
 2. **Test locally** (optional but recommended):
    ```bash
-   npm run electron:dev
+   make electron-dev
    ```
 
 3. **Upload to Steam**:
    ```bash
-   npm run publish:steam
+   make steam-publish
    ```
    - Enter your Steam username when prompted
    - Enter password and 2FA code if required
@@ -126,14 +126,14 @@ Or directly:
 
 1. **Build the demo**:
    ```bash
-   npm run electron:build:demo:win
-   npm run electron:build:demo:mac
-   npm run electron:build:demo:linux
+   make electron-build-demo-win
+   make electron-build-demo-mac
+   make electron-build-demo-linux
    ```
 
 2. **Test locally** (IMPORTANT!):
    ```bash
-   IS_DEMO=true npm run electron:dev
+   make electron-dev-demo
    ```
    
    Verify:
@@ -145,7 +145,7 @@ Or directly:
 
 3. **Upload to Steam**:
    ```bash
-   npm run publish:steam:demo
+   make steam-publish-demo
    ```
 
 4. **Verify on Steamworks**:
@@ -193,14 +193,14 @@ export STEAM_USERNAME="your_username"
 
 ## Quick Reference
 
-| Task                            | Command                             |
-|---------------------------------|-------------------------------------|
-| Build full game (all platforms) | `npm run electron:build:all`        |
-| Build demo (all platforms)      | See "Building for Steam" section    |
-| Upload full game                | `npm run publish:steam`             |
-| Upload demo                     | `npm run publish:steam:demo`        |
-| Test full game locally          | `npm run electron:dev`              |
-| Test demo locally               | `IS_DEMO=true npm run electron:dev` |
+| Task                            | Command                          |
+|---------------------------------|----------------------------------|
+| Build full game (all platforms) | `make electron-build-all`        |
+| Build demo (all platforms)      | See "Building for Steam" section |
+| Upload full game                | `make steam-publish`             |
+| Upload demo                     | `make steam-publish-demo`        |
+| Test full game locally          | `make electron-dev`              |
+| Test demo locally               | `make electron-dev-demo`         |
 
 ---
 
