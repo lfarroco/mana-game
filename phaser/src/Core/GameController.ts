@@ -3,6 +3,7 @@ import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 import * as State from "@Models/State";
 import * as handleShopPhase from "@Screens/Battleground/Phases/Shop/handleShopPhase";
+import { onOrbApplied } from "@Screens/Battleground/Phases/OrbShop/handleOrbShopPhase";
 
 const getCurrentPlayerId = () => state.session.player_id;
 
@@ -41,7 +42,7 @@ export async function purchaseUnit(
 		shopCharaId,
 	});
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 
 }
 
@@ -68,7 +69,7 @@ export async function skipPhase() {
 
 	state.session = session;
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 
 }
 
@@ -82,7 +83,7 @@ export async function selectEncounter(encounterId: string) {
 	});
 	state.session = session;
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
 
 export async function applyOrb(
@@ -99,13 +100,9 @@ export async function applyOrb(
 
 	state.session = session;
 
-	io.screens.battleground.events.orbApplied.emit({
-		session,
-		orbId,
-		targetUnitId,
-	});
+	await onOrbApplied({ session, orbId, targetUnitId, })
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 
 	return session;
 }
@@ -119,7 +116,7 @@ export async function completeVictory() {
 	});
 	state.session = session;
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
 
 export async function completeCombatEncounter() {
@@ -148,7 +145,7 @@ export async function completeCombatEncounter() {
 	if (roundDelta !== 0)
 		events.onRoundChanged.emit({ round: session.round, delta: roundDelta })
 
-	io.screens.battleground.events.phaseFinished.emit(previousPhase);
+	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
 
 export async function updateTeam(

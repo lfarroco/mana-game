@@ -13,7 +13,6 @@ function init() {
 
 	const { events } = io.screens.battleground;
 	events.orbApplyRequested.listen(onOrbApplyRequested);
-	events.orbApplied.listen(onOrbApplied);
 	events.phaseFinished.listen(closeOrbShop);
 }
 
@@ -33,7 +32,7 @@ async function onOrbApplyRequested({
 	await GameController.applyOrb(orbId, targetUnitId);
 }
 
-async function onOrbApplied({
+export async function onOrbApplied({
 	session,
 	orbId,
 	targetUnitId,
@@ -68,7 +67,7 @@ async function onOrbApplied({
 	ForceStats.syncPlayerPersistentForceStats();
 }
 
-async function closeOrbShop(phase: Types.PhaseType) {
-	if (phase !== "orb_shop") return;
+async function closeOrbShop({ previousPhase }: { previousPhase: Types.PhaseType }) {
+	if (previousPhase !== "orb_shop") return;
 	await OrbShop.closeOrbShop();
 }

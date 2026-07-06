@@ -43,8 +43,8 @@ export async function handleShopPhase() {
 
 }
 
-async function closeShop(phase: Types.PhaseType) {
-	if (phase !== "shop") return;
+async function closeShop({ previousPhase }: { previousPhase: Types.PhaseType }) {
+	if (previousPhase !== "shop") return;
 	await Shop.SlideOut();
 }
 

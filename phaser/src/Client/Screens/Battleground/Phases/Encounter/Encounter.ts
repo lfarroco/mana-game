@@ -37,8 +37,8 @@ function init() {
 	events.phaseFinished.listen(onEncounterSkipped);
 
 }
-const onEncounterSkipped = (phase: Types.PhaseType) => {
-	if (phase !== "encounter") return;
+const onEncounterSkipped = ({ previousPhase }: { previousPhase: Types.PhaseType }) => {
+	if (previousPhase !== "encounter") return;
 	container.destroy(true);
 }
 

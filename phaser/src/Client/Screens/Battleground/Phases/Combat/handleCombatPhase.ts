@@ -52,8 +52,8 @@ function init() {
 
 }
 
-async function finishCombatPhase(phase: Types.PhaseType): Promise<void> {
-	if (phase !== "combat") return;
+async function finishCombatPhase({ previousPhase }: { previousPhase: Types.PhaseType }): Promise<void> {
+	if (previousPhase !== "combat") return;
 
 	cleanupPlayback();
 	activeCombatState = null;
