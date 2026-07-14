@@ -5,7 +5,7 @@
  * Deterministic based on session seed to ensure reproducibility across replays.
  */
 
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Card from "@Models/Entities/Card";
 import * as Seeding from "./Seeding";
 
@@ -28,8 +28,8 @@ const ENCOUNTER_IDS = [
 ];
 
 export function createEncounterOptions(
-	session: Types.SessionData,
-): Types.PhaseOption[] {
+	session: Models.SessionData,
+): Models.PhaseOption[] {
 
 	// Initialize encounter history if it doesn't exist
 	if (!session.encounter_history) {
@@ -136,9 +136,9 @@ function filterCardsByEffect(
  * - Other encounters: 3 options (standard selection)
  */
 export function generateShopOptions(
-	session: Types.SessionData,
-	action: Types.Action
-): Types.PhaseOption[] {
+	session: Models.SessionData,
+	action: Models.Action
+): Models.PhaseOption[] {
 
 	if (action.type !== "select_encounter") {
 		throw new Error(`Expected action type 'select_encounter' for generating shop options, got '${action.type}'`);

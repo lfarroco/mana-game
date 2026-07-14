@@ -1,11 +1,11 @@
 import * as SessionManager from "@Core/SessionManager";
 import * as GameLogic from "@Core/GameLogic";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 
 export async function createSession(
 	playerId: string,
 	crystalId: string,
-): Promise<Types.SessionData> {
+): Promise<Models.SessionData> {
 	const session = GameLogic.createInitialSession(playerId, crystalId);
 	session.id = `local-${playerId}-${Date.now()}`;
 	SessionManager.updateSession(playerId, session);
@@ -14,8 +14,8 @@ export async function createSession(
 
 export async function handleAction(
 	playerId: string,
-	action: Types.Action
-): Promise<Types.SessionData> {
+	action: Models.Action
+): Promise<Models.SessionData> {
 
 	const result = GameLogic.transitionToNextState(
 		state.session,

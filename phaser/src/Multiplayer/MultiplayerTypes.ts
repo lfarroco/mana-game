@@ -1,6 +1,6 @@
 import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
 import { Unit } from "@Models/Entities/Unit";
-import { PhaseOption } from "@Core/Types";
+import { PhaseOption } from "@Core/Models";
 
 // TODO: candidate for deletion
 

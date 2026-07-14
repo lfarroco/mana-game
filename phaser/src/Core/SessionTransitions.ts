@@ -5,7 +5,7 @@
  * Orchestrates action resolution, seed advancement, and phase transitions.
  */
 
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as SessionManagement from "./SessionManagement";
 import * as CombatSimulation from "./Combat/CombatSimulation";
@@ -18,7 +18,7 @@ import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("SessionTransitions");
 
-const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Types.PhaseOption[]> = {
+const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
 	upgrade_unit: [{ id: "upgrade_orb" }],
 	power_distributor: [{ id: "distribute_power_orb" }],
 	power_absorber: [{ id: "absorb_power_orb" }],
@@ -30,7 +30,7 @@ export type TransitionToNextStateOptions = {
 	combatEnemyPlayerName?: string;
 };
 
-function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
+function transitionAfterCombat(session: Models.SessionData): Models.SessionData {
 
 	if (!session.combatState) {
 		throw new Error("Missing combat state on session after combat completion");
@@ -104,7 +104,7 @@ function transitionAfterCombat(session: Types.SessionData): Types.SessionData {
 	};
 }
 
-function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
+function transitionAfterVictory(session: Models.SessionData): Models.SessionData {
 
 	const nextStep = session.step + 1;
 	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
@@ -139,9 +139,9 @@ function transitionAfterVictory(session: Types.SessionData): Types.SessionData {
 }
 
 const ACTION_HANDLERS: Record<string, (
-	session: Types.SessionData,
-	action: Types.Action,
-) => Types.SessionData> = {
+	session: Models.SessionData,
+	action: Models.Action,
+) => Models.SessionData> = {
 	select_encounter: (session, action) => {
 
 		if (action.type !== "select_encounter") throw new Error();
@@ -297,7 +297,7 @@ const ACTION_HANDLERS: Record<string, (
 		options: [{ id: "absorb_power_orb" }],
 	}),
 	skip: (session) => {
-		const allowedSkipPhases: Types.PhaseType[] = [
+		const allowedSkipPhases: Models.PhaseType[] = [
 			"encounter",
 			"shop",
 			"orb_shop",
@@ -333,8 +333,8 @@ const ACTION_HANDLERS: Record<string, (
 };
 
 function transitionToNextStep(
-	session: Types.SessionData,
-): Types.SessionData {
+	session: Models.SessionData,
+): Models.SessionData {
 	const nextPhase = PhaseConfig.getPhaseForTurn(
 		session.round,
 		session.step + 1,
@@ -369,9 +369,9 @@ function transitionToNextStep(
 
 
 export function transitionToNextState(
-	session: Types.SessionData,
-	action: Types.Action,
-): Types.SessionData {
+	session: Models.SessionData,
+	action: Models.Action,
+): Models.SessionData {
 
 	logger.debug("Transitioning session with action:", action);
 
@@ -387,8 +387,8 @@ export function transitionToNextState(
 }
 
 function executeCombatPhase(
-	session: Types.SessionData,
-): Types.SessionData {
+	session: Models.SessionData,
+): Models.SessionData {
 
 	logger.debug("Entering combat encounter phase. Executing combat...", session);
 
@@ -408,7 +408,7 @@ function executeCombatPhase(
 	//session.runStats = simulation.finalState.session.runStats || session.runStats;
 	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
 
-	const combatState: Types.CombatState = {
+	const combatState: Models.CombatState = {
 		enemyTeam,
 		units: simulation.finalState.battleData.units,
 		seed: session.seed,
@@ -419,7 +419,7 @@ function executeCombatPhase(
 		logs: simulation.logs,
 	};
 
-	const nextSession: Types.SessionData = {
+	const nextSession: Models.SessionData = {
 		...session,
 		phase: "combat",
 		options: [{

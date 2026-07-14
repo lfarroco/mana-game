@@ -1,4 +1,4 @@
-import { PhaseType } from "@Core/Types";
+import { PhaseType } from "@Core/Models";
 
 const loopPhases: PhaseType[] = ["encounter", "encounter", "encounter", "combat", "upgrade_core"];
 

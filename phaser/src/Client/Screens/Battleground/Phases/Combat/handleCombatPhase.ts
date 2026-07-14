@@ -1,4 +1,4 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Board from "@Models/Board";
 import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
@@ -20,11 +20,11 @@ const COMBAT_START_DELAY_MS = 300;
 type PlaybackDisposer = () => void;
 
 export type CombatPhaseResult =
-	| { type: "completed"; session: Types.SessionData }
+	| { type: "completed"; session: Models.SessionData }
 	| { type: "cancelled" };
 
 let stopActivePlayback: PlaybackDisposer = () => { };
-let activeCombatState: Types.CombatState | null = null;
+let activeCombatState: Models.CombatState | null = null;
 let isPaused = false;
 
 const pauseCombat = (): void => {
@@ -52,7 +52,7 @@ function init() {
 
 }
 
-async function finishCombatPhase({ previousPhase }: { previousPhase: Types.PhaseType }): Promise<void> {
+async function finishCombatPhase({ previousPhase }: { previousPhase: Models.PhaseType }): Promise<void> {
 	if (previousPhase !== "combat") return;
 
 	cleanupPlayback();
@@ -70,7 +70,7 @@ function cleanupPlayback(): void {
 	stopActivePlayback = () => { };
 }
 
-const getInitialCombatUnits = (combatState: Types.CombatState) => {
+const getInitialCombatUnits = (combatState: Models.CombatState) => {
 	if (combatState.initialUnits && combatState.initialUnits.length > 0) {
 		return combatState.initialUnits;
 	}
@@ -127,7 +127,7 @@ const createCombatEffects = () => {
 const startCombatPlayback = async ({
 	combatState,
 }: {
-	combatState: Types.CombatState;
+	combatState: Models.CombatState;
 }) => {
 	await setupCombatBoard(combatState);
 	await animation.delay(COMBAT_START_DELAY_MS);
@@ -180,7 +180,7 @@ function handleCombatReplayRequested(): void {
 	void beginCombatPlayback();
 }
 
-const setupCombatBoard = async (combatState: Types.CombatState): Promise<void> => {
+const setupCombatBoard = async (combatState: Models.CombatState): Promise<void> => {
 	Board.setIsInputEnabled(false);
 	Board.setEnemyBoardVisible(true);
 

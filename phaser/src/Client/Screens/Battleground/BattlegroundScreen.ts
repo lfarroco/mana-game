@@ -1,5 +1,5 @@
 import * as Board from "@Models/Board";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
@@ -26,18 +26,18 @@ const transitionFromBattleground = async (renderScreen: () => void): Promise<voi
 };
 
 type BattlegroundScreenEvents = {
-	phaseFinished: Types.Event<{ previousPhase: Types.PhaseType }>;
-	onShopUnitDragPurchaseFailed: Types.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
-	orbApplyRequested: Types.Event<{ orbId: string, targetUnitId: string }>;
-	combatContinueRequested: Types.Event<void>;
-	combatReplayRequested: Types.Event<void>;
-	combatPauseRequested: Types.Event<void>;
-	combatResumeRequested: Types.Event<void>;
-	newRunRequested: Types.Event<void>;
-	mainMenuRequested: Types.Event<void>;
-	onWinsChanged: Types.Event<{ wins: number, delta: number }>;
-	onLivesChanged: Types.Event<{ lives: number, delta: number }>;
-	onRoundChanged: Types.Event<{ round: number, delta: number }>;
+	phaseFinished: Models.Event<{ previousPhase: Models.PhaseType }>;
+	onShopUnitDragPurchaseFailed: Models.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
+	orbApplyRequested: Models.Event<{ orbId: string, targetUnitId: string }>;
+	combatContinueRequested: Models.Event<void>;
+	combatReplayRequested: Models.Event<void>;
+	combatPauseRequested: Models.Event<void>;
+	combatResumeRequested: Models.Event<void>;
+	newRunRequested: Models.Event<void>;
+	mainMenuRequested: Models.Event<void>;
+	onWinsChanged: Models.Event<{ wins: number, delta: number }>;
+	onLivesChanged: Models.Event<{ lives: number, delta: number }>;
+	onRoundChanged: Models.Event<{ round: number, delta: number }>;
 }
 
 export let events: BattlegroundScreenEvents;
@@ -50,13 +50,13 @@ type SessionHudSnapshot = {
 
 let previousSessionHudSnapshot: SessionHudSnapshot | null = null;
 
-const createSessionHudSnapshot = (session: Types.SessionData): SessionHudSnapshot => ({
+const createSessionHudSnapshot = (session: Models.SessionData): SessionHudSnapshot => ({
 	round: session.round,
 	wins: session.wins,
 	lives: SessionManager.getRemainingLives(session),
 });
 
-function updateHudFromSessionChanges(_payload: { previousPhase: Types.PhaseType }): void {
+function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType }): void {
 	const currentSnapshot = createSessionHudSnapshot(state.session);
 
 	if (!previousSessionHudSnapshot) {
@@ -83,7 +83,7 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 	events = {
-		phaseFinished: io.createEvent<{ previousPhase: Types.PhaseType }>("phaseFinished"),
+		phaseFinished: io.createEvent<{ previousPhase: Models.PhaseType }>("phaseFinished"),
 		onShopUnitDragPurchaseFailed: io.createEvent<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
 		orbApplyRequested: io.createEvent<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
 		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
@@ -177,8 +177,8 @@ export const create = async () => {
 };
 
 async function executePhase(
-	phase: Types.PhaseType,
-	previousPhase?: Types.PhaseType,
+	phase: Models.PhaseType,
+	previousPhase?: Models.PhaseType,
 ) {
 
 	if (phase !== 'combat' && previousPhase !== 'combat') {
@@ -220,7 +220,7 @@ async function executePhase(
 	}
 }
 
-async function handleCurrentPhase({ previousPhase }: { previousPhase?: Types.PhaseType }) {
+async function handleCurrentPhase({ previousPhase }: { previousPhase?: Models.PhaseType }) {
 
 	//updateSessionState(state.session);
 

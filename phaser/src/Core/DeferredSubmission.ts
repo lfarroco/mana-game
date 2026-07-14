@@ -1,4 +1,4 @@
-import type { RunManifest } from "@Core/Types";
+import type { RunManifest } from "@Core/Models";
 import { SUPABASE_URL } from "@lib/supabase";
 
 /**

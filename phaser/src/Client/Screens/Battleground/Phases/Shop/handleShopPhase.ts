@@ -1,4 +1,4 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Card from "@Models/Entities/Card";
 import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
@@ -43,7 +43,7 @@ export async function handleShopPhase() {
 
 }
 
-async function closeShop({ previousPhase }: { previousPhase: Types.PhaseType }) {
+async function closeShop({ previousPhase }: { previousPhase: Models.PhaseType }) {
 	if (previousPhase !== "shop") return;
 	await Shop.SlideOut();
 }
@@ -54,7 +54,7 @@ export async function onUnitPurchased({
 	previousTeamUnits,
 	shopCharaId,
 }: {
-	session: Types.SessionData,
+	session: Models.SessionData,
 	unitId: string,
 	previousTeamUnits: Unit.Unit[],
 	shopCharaId: string | null,

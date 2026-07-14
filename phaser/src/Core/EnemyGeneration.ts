@@ -7,7 +7,7 @@
 import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";
-import { SessionData } from "@Core/Types";
+import { SessionData } from "@Core/Models";
 import { makeForce } from "@Models/Entities/Force";
 import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";

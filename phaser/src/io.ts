@@ -8,7 +8,7 @@ import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
 import * as Controller_ from "@Core/GameController";
 import events_ from "events";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 
@@ -23,7 +23,7 @@ export const emitter = new events_.EventEmitter();
 
 export const Controller = Controller_;
 
-export const createEvent = <T>(event: string): Types.Event<T> => {
+export const createEvent = <T>(event: string): Models.Event<T> => {
 
 	return {
 		listen: (callback: (payload: T) => void) => {

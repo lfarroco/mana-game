@@ -1,7 +1,7 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 
 // TODO: after round 10, stop adding upgrades
-const DEFAULT: Types.PhaseType[] = [
+const DEFAULT: Models.PhaseType[] = [
 	"encounter",
 	"encounter",
 	"encounter",
@@ -10,7 +10,7 @@ const DEFAULT: Types.PhaseType[] = [
 	"upgrade_core",
 ];
 
-const ADD_REACTION_PHASES: Types.PhaseType[] = [
+const ADD_REACTION_PHASES: Models.PhaseType[] = [
 	"encounter",
 	"encounter",
 	"encounter",
@@ -19,7 +19,7 @@ const ADD_REACTION_PHASES: Types.PhaseType[] = [
 	"add_reaction_core",
 ];
 
-export const ROUND_PHASES: Record<number, Types.PhaseType[]> = {
+export const ROUND_PHASES: Record<number, Models.PhaseType[]> = {
 	1: DEFAULT,
 	2: ADD_REACTION_PHASES,
 	3: DEFAULT,
@@ -37,7 +37,7 @@ export const ROUND_PHASES: Record<number, Types.PhaseType[]> = {
 	15: DEFAULT,
 };
 
-export function advanceToNextPhase(session: Types.SessionData) {
+export function advanceToNextPhase(session: Models.SessionData) {
 
 	const nextPhase = getPhaseForTurn(session.round, session.step + 1);
 	if (!nextPhase) {
@@ -52,7 +52,7 @@ export function advanceToNextPhase(session: Types.SessionData) {
 	session.options = [];
 }
 
-export function getPhaseForTurn(round: number, step: number): Types.PhaseType {
+export function getPhaseForTurn(round: number, step: number): Models.PhaseType {
 	const roundPhases = ROUND_PHASES[round] || DEFAULT;
 	return roundPhases[step];
 }

@@ -5,7 +5,7 @@
  * Pure functions that return updated unit arrays and status messages.
  */
 
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
@@ -17,13 +17,13 @@ const logger = Logger.createLogger("recruitmentActions");
 /**
  * Determine the recruit rank encoded in the current shop option.
  */
-function getShopRecruitRank(session: Types.SessionData, cardId: string): number {
+function getShopRecruitRank(session: Models.SessionData, cardId: string): number {
 	if (session.phase !== "shop" || !session.options) {
 		return 1;
 	}
 
 	const selectedOption = session.options.find(
-		(option): option is Types.PhaseOption & { recruitRank?: number } => option.id === cardId
+		(option): option is Models.PhaseOption & { recruitRank?: number } => option.id === cardId
 	);
 
 	return selectedOption?.recruitRank ?? 1;
@@ -35,10 +35,10 @@ function getShopRecruitRank(session: Types.SessionData, cardId: string): number 
  * Returns { updated: boolean, unit?: Unit, updates: string[] }
  */
 export function recruitUnit(
-	session: Types.SessionData,
+	session: Models.SessionData,
 	cardId: string,
 	targetPosition: Vec2 | null
-): Types.SessionData {
+): Models.SessionData {
 	const allCards = Card.getNonCores();
 	const card = allCards.find((c) => c.id === cardId);
 

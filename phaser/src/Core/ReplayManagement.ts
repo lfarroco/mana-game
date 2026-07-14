@@ -4,7 +4,7 @@
  * Handles building replay manifests, snapshots, and replaying recorded runs.
  */
 
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as SessionTransitions from "./SessionTransitions";
 import * as SessionManagement from "./SessionManagement";
@@ -33,8 +33,8 @@ export type ReplayManifestOptions = {
  * then applies every ActionEnvelope in sequence order via transitionToNextState.
  * The resulting session can be compared against client-reported snapshot to validate the run.
  */
-export function replayManifest(manifest: Types.RunManifest): {
-	session: Types.SessionData;
+export function replayManifest(manifest: Models.RunManifest): {
+	session: Models.SessionData;
 	rejectReason?: string;
 } {
 	// Validate that actions are in order with no gaps
@@ -77,7 +77,7 @@ export function replayManifest(manifest: Types.RunManifest): {
  * Build a ReplaySnapshot — the canonical, minimal description of a session
  * used as the comparison contract between client and server.
  */
-export function buildReplaySnapshot(session: Types.SessionData): Types.ReplaySnapshot {
+export function buildReplaySnapshot(session: Models.SessionData): Models.ReplaySnapshot {
 	const teamUnitIds = [...(session.team?.units ?? [])].map((u) => u.cardId).sort();
 
 	return {
@@ -91,11 +91,11 @@ export function buildReplaySnapshot(session: Types.SessionData): Types.ReplaySna
 	};
 }
 
-function getSelectedCrystalId(session: Types.SessionData): string | undefined {
+function getSelectedCrystalId(session: Models.SessionData): string | undefined {
 	return session.team.units.find((unit) => unit.isCore)?.cardId;
 }
 
-function buildTeamStateSignature(session: Types.SessionData): string {
+function buildTeamStateSignature(session: Models.SessionData): string {
 	return JSON.stringify(
 		[...(session.team?.units ?? [])]
 			.map((unit) => ({
@@ -154,7 +154,7 @@ function getStableUnitOrdering(units: Unit.Unit[]) {
 	});
 }
 
-function applySavedCombatPositions(baseSession: Types.SessionData, savedSession: Types.SessionData): Types.SessionData {
+function applySavedCombatPositions(baseSession: Models.SessionData, savedSession: Models.SessionData): Models.SessionData {
 	const replayUnits = getStableUnitOrdering(baseSession.team.units);
 	const savedUnits = getStableUnitOrdering(savedSession.team.units);
 
@@ -175,7 +175,7 @@ function applySavedCombatPositions(baseSession: Types.SessionData, savedSession:
 	};
 }
 
-function reconstructCombatState(session: Types.SessionData): Types.CombatState | null {
+function reconstructCombatState(session: Models.SessionData): Models.CombatState | null {
 	if (session.phase !== "combat") {
 		return null;
 	}
@@ -190,7 +190,7 @@ function reconstructCombatState(session: Types.SessionData): Types.CombatState |
 		selectedCrystalId,
 		session.initial_seed
 	);
-	let reconstructedCombatState: Types.CombatState | null = null;
+	let reconstructedCombatState: Models.CombatState | null = null;
 
 	for (const entry of session.action_log ?? []) {
 		if (entry.action.type === "start_combat") {
@@ -221,9 +221,9 @@ function reconstructCombatState(session: Types.SessionData): Types.CombatState |
 }
 
 export function constructCombatState(
-	session: Types.SessionData,
-	existingCombatState?: Types.CombatState | null
-): Types.CombatState | null {
+	session: Models.SessionData,
+	existingCombatState?: Models.CombatState | null
+): Models.CombatState | null {
 	if (session.phase !== "combat") {
 		return null;
 	}

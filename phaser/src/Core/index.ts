@@ -15,7 +15,7 @@
 // to force separation
 
 // Types
-export * from "@Core/Types";
+export * from "@Core/Models";
 
 // Core Logic
 export * from "@Core/GameLogic";

@@ -29,7 +29,7 @@ import * as Logger from "@Utils/Logger";
 import * as UIButton from "Client/Components/UIButton";
 import * as Geometry from "@Models/Geometry";
 import * as i18n from "@i18n/i18n";
-import type * as Types from "@Core/Types";
+import type * as Types from "@Core/Models";
 import * as PhaseManager from "Client/Screens/Battleground/PhaseManager";
 import * as NameDisply from "@Screens/Battleground/Components/UI/namesDisplay";
 

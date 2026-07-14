@@ -1,6 +1,6 @@
 import * as State from "@Models/State";
 import * as Logger from "@Utils/Logger";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as GameServer from "@Core/GameServer"
 
 const logger = Logger.createLogger("saveGameData");
@@ -17,7 +17,7 @@ export function saveGameData() {
 	if (state.session?.player_id && "sessionManager" in server) {
 		(
 			server as unknown as {
-				sessionManager: { updateSession(id: string, session: Types.SessionData): void };
+				sessionManager: { updateSession(id: string, session: Models.SessionData): void };
 			}
 		).sessionManager.updateSession(state.session.player_id, state.session);
 	} else {

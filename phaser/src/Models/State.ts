@@ -1,4 +1,4 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Force from "@Models/Entities/Force";
 import * as Unit from "@Models/Entities/Unit";
 import * as Random from "@Utils/Random";
@@ -7,7 +7,7 @@ import * as Geometry from "@Models/Geometry";
 
 export type State = {
 	savedGames: string[];
-	session: Types.SessionData;
+	session: Models.SessionData;
 	battleData: {
 		forces: Force.Force[];
 		grid: number[][];
@@ -53,8 +53,6 @@ export const initialState = (): State => {
 	};
 };
 
-
-
 export function resetState() {
 	const newState = initialState();
 
@@ -62,7 +60,6 @@ export function resetState() {
 
 	Random.setSeed(Seeding.stringToSeed(state.session.seed));
 }
-
 
 /**
  * Update the global game state

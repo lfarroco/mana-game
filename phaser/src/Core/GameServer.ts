@@ -1,4 +1,4 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as LocalServer from "./LocalServer";
 import * as RemoteServer from "./RemoteServer";
 
@@ -13,12 +13,12 @@ export type GameServer = {
 	createSession(
 		playerId: string,
 		crystalId: string,
-	): Promise<Types.SessionData>;
+	): Promise<Models.SessionData>;
 
 	handleAction(
 		playerId: string,
-		action: Types.Action,
-	): Promise<Types.SessionData>;
+		action: Models.Action,
+	): Promise<Models.SessionData>;
 
 }
 

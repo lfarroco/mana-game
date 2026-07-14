@@ -7,11 +7,11 @@ import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 import * as Effects from "./Effects"
-import * as Types from "@Core/Types"
+import * as Models from "@Core/Models"
 
 type TitleScreenEvents = {
-	newGameButtonClicked: Types.Event<void>
-	resumeGameButtonClicked: Types.Event<void>
+	newGameButtonClicked: Models.Event<void>
+	resumeGameButtonClicked: Models.Event<void>
 }
 
 export let events: TitleScreenEvents;

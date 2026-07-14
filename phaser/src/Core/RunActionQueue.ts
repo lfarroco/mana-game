@@ -1,4 +1,4 @@
-import type { ActionEnvelope, Action, RunManifest } from "@Core/Types";
+import type { ActionEnvelope, Action, RunManifest } from "@Core/Models";
 
 const STORAGE_KEY_PREFIX = "mana_run_manifest_";
 

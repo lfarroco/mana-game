@@ -1,5 +1,5 @@
 import * as GameController from "@Core/GameController";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
@@ -37,7 +37,7 @@ export async function onOrbApplied({
 	orbId,
 	targetUnitId,
 }: {
-	session: Types.SessionData;
+	session: Models.SessionData;
 	orbId: string;
 	targetUnitId: string;
 }) {
@@ -67,7 +67,7 @@ export async function onOrbApplied({
 	ForceStats.syncPlayerPersistentForceStats();
 }
 
-async function closeOrbShop({ previousPhase }: { previousPhase: Types.PhaseType }) {
+async function closeOrbShop({ previousPhase }: { previousPhase: Models.PhaseType }) {
 	if (previousPhase !== "orb_shop") return;
 	await OrbShop.closeOrbShop();
 }

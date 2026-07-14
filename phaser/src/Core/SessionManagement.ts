@@ -4,7 +4,7 @@
  * Handles creation of new sessions and default state setup.
  */
 
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as OptionGeneration from "./OptionGeneration";
@@ -45,7 +45,7 @@ export function createInitialSession(
 	playerId: string,
 	selectedCrystalId?: string,
 	explicitSeed?: string
-): Types.SessionData {
+): Models.SessionData {
 	const seed = explicitSeed ?? generateRandomSessionSeed();
 	const initialSeed = seed;
 
@@ -60,7 +60,7 @@ export function createInitialSession(
 		team.units.push(coreUnit);
 	}
 
-	const session: Types.SessionData = {
+	const session: Models.SessionData = {
 		id: "",
 		player_id: playerId,
 		session_type: { type: "singleplayer" },
@@ -89,9 +89,9 @@ export function createInitialSession(
  * Ensures units are not added/removed/modified, only repositioned.
  */
 export function updateTeamAction(
-	session: Types.SessionData,
+	session: Models.SessionData,
 	newUnits: Unit.Unit[]
-): Types.SessionData {
+): Models.SessionData {
 	const currentUnits = session.team?.units || [];
 
 	// Must have same number of units

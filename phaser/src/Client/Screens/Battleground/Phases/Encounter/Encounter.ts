@@ -3,7 +3,7 @@ import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "@Core/GameController";
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 
 // TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
@@ -37,7 +37,7 @@ function init() {
 	events.phaseFinished.listen(onEncounterSkipped);
 
 }
-const onEncounterSkipped = ({ previousPhase }: { previousPhase: Types.PhaseType }) => {
+const onEncounterSkipped = ({ previousPhase }: { previousPhase: Models.PhaseType }) => {
 	if (previousPhase !== "encounter") return;
 	container.destroy(true);
 }

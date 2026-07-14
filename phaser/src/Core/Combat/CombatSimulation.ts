@@ -5,7 +5,7 @@
  * the combat simulation loop.
  */
 
-import { SessionData } from "@Core/Types";
+import { SessionData } from "@Core/Models";
 import { State } from "@Models/State";
 import { Unit } from "@Models/Entities/Unit";
 import * as Card from "@Models/Entities/Card";

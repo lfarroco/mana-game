@@ -1,4 +1,4 @@
-import { RunStats } from "@Core/Types";
+import { RunStats } from "@Core/Models";
 import { storage } from "@Storage/index";
 import { GAME_CONFIG } from "@config";
 import { createLogger } from "@Utils/Logger";

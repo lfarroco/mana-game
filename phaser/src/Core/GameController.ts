@@ -1,4 +1,4 @@
-import * as Types from "@Core/Types";
+import * as Models from "@Core/Models";
 import * as GameServer from "@Core/GameServer";
 import * as Unit from "@Models/Entities/Unit";
 import * as State from "@Models/State";
@@ -8,8 +8,8 @@ import { onOrbApplied } from "@Screens/Battleground/Phases/OrbShop/handleOrbShop
 const getCurrentPlayerId = () => state.session.player_id;
 
 async function dispatchAction(
-	action: Types.Action
-): Promise<Types.SessionData> {
+	action: Models.Action
+): Promise<Models.SessionData> {
 	return await GameServer.getServer().handleAction(getCurrentPlayerId(), action);
 }
 
@@ -46,7 +46,7 @@ export async function purchaseUnit(
 
 }
 
-export async function sellUnit(unitId: string): Promise<Types.SessionData> {
+export async function sellUnit(unitId: string): Promise<Models.SessionData> {
 	const session = await dispatchAction({
 		type: "discard_unit",
 		unitId
@@ -89,7 +89,7 @@ export async function selectEncounter(encounterId: string) {
 export async function applyOrb(
 	orbId: string,
 	targetUnitId: string
-): Promise<Types.SessionData> {
+): Promise<Models.SessionData> {
 	const previousPhase = state.session.phase;
 
 	const session = await dispatchAction({
@@ -150,7 +150,7 @@ export async function completeCombatEncounter() {
 
 export async function updateTeam(
 	team: { units: Unit.Unit[] }
-): Promise<Types.SessionData> {
+): Promise<Models.SessionData> {
 	return await dispatchAction({
 		type: "update_team",
 		team
