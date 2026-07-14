@@ -4,6 +4,7 @@ import * as Board from "@Models/Board";
 import * as State from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
+import * as CoreConstants from "@Core/Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
@@ -25,7 +26,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
-		const unit = makeUnit.makeUnit(Constants.FORCE_ID_PLAYER, spec.id, [0, 0]);
+		const unit = makeUnit.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
@@ -267,7 +268,7 @@ async function handleItemDragPurchaseRequested(
 	const { session } = state;
 	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
-	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= Constants.MAX_PARTY_SIZE) {
+	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
 		io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],

@@ -9,7 +9,7 @@ import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/C
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 
-import * as Constants from "@Constants";
+import * as Constants from "@Core/Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";

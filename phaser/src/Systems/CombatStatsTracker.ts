@@ -4,7 +4,7 @@ import { State } from "@Models/State";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { createLogger } from "@Utils/Logger";
 import { EffectId, Effect } from "@TriggerSystem/TriggerSystem";
-import { FORCE_ID_PLAYER } from "@Constants";
+import { FORCE_ID_PLAYER } from "../Core/Constants";
 
 const logger = createLogger("CombatStatsTracker");
 

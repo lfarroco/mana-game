@@ -6,7 +6,7 @@ import * as distributePower from "@TriggerSystem/effects/distributePower";
 import * as absorbPower from "@TriggerSystem/effects/absorbPower";
 import * as sacrificeEffect from "@TriggerSystem/effects/sacrificeEffect";
 import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
-import * as Constants from "@Constants";
+import * as Constants from "@Core/Constants";
 import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";

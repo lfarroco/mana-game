@@ -1,7 +1,7 @@
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 import * as GameServer from "@Core/GameServer";
 
-const logger = createLogger("deleteSavedData");
+const logger = Logger.createLogger("deleteSavedData");
 
 export const deleteSavedData = () => {
 	const server = GameServer.getServer();

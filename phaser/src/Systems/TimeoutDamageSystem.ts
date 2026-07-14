@@ -1,12 +1,10 @@
-import { applyDamageToForce, Force } from "@Models/Entities/Force";
-// Removed browser-specific imports
+import * as Force from "@Models/Entities/Force";
+import * as CoreConstants from "@Core/Constants";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as Logger from "@Utils/Logger";
+import * as State from "@Models/State";
 
-import { State } from "@Models/State";
-import { TIMEOUT_DAMAGE_START_TIME } from "@Constants";
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { createLogger } from "@Utils/Logger";
-
-const logger = createLogger("TimeoutDamageSystem");
+const logger = Logger.createLogger("TimeoutDamageSystem");
 
 const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
 const TIMEOUT_BASE_DAMAGE = 5;
@@ -31,11 +29,11 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 // spawnStar function removed, logic moved to BrowserCombatEffects
 
 export function updateTimeoutDamageSystem(
-	env: CombatEnvironment,
+	env: CombatTypes.CombatEnvironment,
 	timeoutState: TimeoutSystemState,
-	state: State,
-	playerForce: Force,
-	cpuForce: Force,
+	state: State.State,
+	playerForce: Force.Force,
+	cpuForce: Force.Force,
 	delta: number
 ): TimeoutSystemState {
 	if (!timeoutState.isActive) return timeoutState;
@@ -43,7 +41,7 @@ export function updateTimeoutDamageSystem(
 	const newCombatElapsedTime = timeoutState.combatElapsedTime + delta;
 	const newTimeSinceLastTick = timeoutState.timeSinceLastTick + delta;
 
-	if (newCombatElapsedTime < TIMEOUT_DAMAGE_START_TIME) {
+	if (newCombatElapsedTime < CoreConstants.TIMEOUT_DAMAGE_START_TIME) {
 		return {
 			...timeoutState,
 			combatElapsedTime: newCombatElapsedTime,
@@ -51,7 +49,7 @@ export function updateTimeoutDamageSystem(
 		};
 	}
 
-	const timeSinceTimeoutStarted = newCombatElapsedTime - TIMEOUT_DAMAGE_START_TIME;
+	const timeSinceTimeoutStarted = newCombatElapsedTime - CoreConstants.TIMEOUT_DAMAGE_START_TIME;
 
 	if (newTimeSinceLastTick >= TIMEOUT_DAMAGE_INTERVAL_MS) {
 		applyTimeoutDamage(env, state, playerForce, cpuForce, timeSinceTimeoutStarted);
@@ -64,7 +62,7 @@ export function updateTimeoutDamageSystem(
 
 	// Check for storm start
 	let stormStarted = timeoutState.stormStarted;
-	if (!stormStarted && newCombatElapsedTime >= TIMEOUT_DAMAGE_START_TIME) {
+	if (!stormStarted && newCombatElapsedTime >= CoreConstants.TIMEOUT_DAMAGE_START_TIME) {
 		stormStarted = true;
 		if (env.effects.onTimeoutStart) {
 			env.effects.onTimeoutStart();
@@ -80,10 +78,10 @@ export function updateTimeoutDamageSystem(
 }
 
 function applyTimeoutDamage(
-	env: CombatEnvironment,
-	state: State,
-	playerForce: Force,
-	cpuForce: Force,
+	env: CombatTypes.CombatEnvironment,
+	state: State.State,
+	playerForce: Force.Force,
+	cpuForce: Force.Force,
 	timeSinceTimeoutStarted: number
 ): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
@@ -93,8 +91,8 @@ function applyTimeoutDamage(
 
 	const effects = env.effects;
 
-	const hitEffect = (force: Force) => () => {
-		applyDamageToForce(
+	const hitEffect = (force: Force.Force) => () => {
+		Force.applyDamageToForce(
 			state,
 			force,
 			currentDamage,
@@ -128,12 +126,12 @@ export function onTimeoutDamageCombatEnd(timeoutState: TimeoutSystemState): Time
 
 export function getTimeoutDamageConfig(timeoutState: TimeoutSystemState) {
 	return {
-		timeoutDamageStartTime: TIMEOUT_DAMAGE_START_TIME,
+		timeoutDamageStartTime: CoreConstants.TIMEOUT_DAMAGE_START_TIME,
 		timeoutDamageInterval: TIMEOUT_DAMAGE_INTERVAL_MS,
 		isActive: timeoutState.isActive,
 		combatElapsed: timeoutState.combatElapsedTime,
 		stormState: {
-			stormStarted: timeoutState.combatElapsedTime >= TIMEOUT_DAMAGE_START_TIME,
+			stormStarted: timeoutState.combatElapsedTime >= CoreConstants.TIMEOUT_DAMAGE_START_TIME,
 		},
 	};
 }

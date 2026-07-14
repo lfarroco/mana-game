@@ -1,4 +1,4 @@
-import * as constants from "@Constants";
+import * as CoreConstants from "@Core/Constants";
 import * as GameController from "@Core/GameController";
 import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
@@ -29,7 +29,7 @@ export function init(chara: Chara.Chara) {
 		isLongPressActive: false,
 	};
 
-	const isPlayerUnit = Chara.getUnit(chara).force === constants.FORCE_ID_PLAYER;
+	const isPlayerUnit = Chara.getUnit(chara).force === CoreConstants.FORCE_ID_PLAYER;
 	const isShopUnit = Chara.mustGetState(chara).isShopChara;
 
 	if (isShopUnit || !isPlayerUnit) {

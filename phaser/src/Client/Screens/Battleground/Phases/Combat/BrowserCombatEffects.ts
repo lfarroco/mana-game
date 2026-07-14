@@ -21,6 +21,7 @@ import * as Effects from "Client/FX";
 import * as AudioManager from "@Systems/AudioManager";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as constants from "@Constants";
+import * as CoreConstants from "@Core/Constants";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Logger from "@Utils/Logger";
 
@@ -47,12 +48,12 @@ export const createBrowserCombatEffects = (
 			combatStates: CombatSystemStates.CombatSystemStates
 		) => {
 			if (outcome === "player_lost") {
-				const core = Card.getBattleCore(state)(constants.FORCE_ID_PLAYER);
+				const core = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
 				if (core) {
 					await Animations.shatter(Chara.mustGetCharaById(core.id));
 				}
 			} else if (outcome === "player_won") {
-				const core = Card.getBattleCore(state)(constants.FORCE_ID_CPU);
+				const core = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
 				if (core) {
 					await Animations.shatter(Chara.mustGetCharaById(core.id));
 				}
@@ -62,14 +63,14 @@ export const createBrowserCombatEffects = (
 
 			if (combatStates) {
 				let forceStatsState = combatStates.forceStatsState;
-				forceStatsState = ForceStats.destroyForceStats(forceStatsState, constants.FORCE_ID_CPU);
+				forceStatsState = ForceStats.destroyForceStats(forceStatsState, CoreConstants.FORCE_ID_CPU);
 				forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
 				CombatSystemStates.updateForceStatsState(forceStatsState);
 			}
 
 			// Reset visual state on the battleData player units (charge bars reference these objects)
 			state.battleData.units
-				.filter((u) => u.force === constants.FORCE_ID_PLAYER)
+				.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
 				.forEach((u) => {
 					Unit.resetUnitStats(u);
 					ChargeBarDisplay.updateChargeBar(u.id);
@@ -138,8 +139,8 @@ export const createBrowserCombatEffects = (
 			let state = CombatSystemStates.isInitialized()
 				? CombatSystemStates.getCombatSystemStates().forceStatsState
 				: ForceStats.initializeForceStatsState();
-			state = ForceStats.ensureForceStats(state, constants.FORCE_ID_PLAYER);
-			state = ForceStats.ensureForceStats(state, constants.FORCE_ID_CPU);
+			state = ForceStats.ensureForceStats(state, CoreConstants.FORCE_ID_PLAYER);
+			state = ForceStats.ensureForceStats(state, CoreConstants.FORCE_ID_CPU);
 			return state;
 		},
 

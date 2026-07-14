@@ -1,6 +1,6 @@
 import * as Chip from "@Components/Chip/Chip";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as Constants from "@Constants";
+import * as Constants from "@Core/Constants";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@Models/Entities/Card";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";

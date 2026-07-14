@@ -1,6 +1,7 @@
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants";
+import * as Constants from "@Core/Constants";
 import * as State from "@Models/State";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";
@@ -92,7 +93,7 @@ export async function displayResults(
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
-			const playerUnits = allBattleUnits.filter((u) => u.force === c.FORCE_ID_PLAYER);
+			const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
 			const ui = await GameCompleteUI.displayGameComplete(
 				state,
 				currentWins,

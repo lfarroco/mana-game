@@ -1,5 +1,6 @@
 import * as Unit from "@Models/Entities/Unit";
 import * as constants from "@Constants";
+import * as CoreConstants from "@Core/Constants";
 import * as animation from "@Utils/animation";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
@@ -80,7 +81,7 @@ export async function create(unit: Unit.Unit, options: CreateCharaOptions = {}):
 	const container = io.scene.add.container(position.x, position.y);
 
 	const sprite = await createSprite(container, unit);
-	if (unit.force === constants.FORCE_ID_CPU) {
+	if (unit.force === CoreConstants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
 
@@ -130,7 +131,7 @@ export function enableTooltip(chara: Chara) {
 export function enableBoardInteractivity(chara: Chara): void {
 	const unit = getUnit(chara);
 
-	if (unit.force !== constants.FORCE_ID_PLAYER || mustGetState(chara).isShopChara) {
+	if (unit.force !== CoreConstants.FORCE_ID_PLAYER || mustGetState(chara).isShopChara) {
 		return;
 	}
 
@@ -144,12 +145,12 @@ export function enableBoardInteractivity(chara: Chara): void {
 export function getScreenPosition(unit: Unit.Unit) {
 	const slotSpacing = 8;
 	const offsetX =
-		unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
+		unit.force === CoreConstants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
 	const offsetY =
-		unit.force === constants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
+		unit.force === CoreConstants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
 
 	let visualX = unit.position[0];
-	if (unit.force === constants.FORCE_ID_CPU) {
+	if (unit.force === CoreConstants.FORCE_ID_CPU) {
 		visualX = 2 - unit.position[0];
 	}
 
