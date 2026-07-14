@@ -1,4 +1,4 @@
-import * as Effects from "@Effects";
+import * as Effects from "@FX";
 
 export function shieldFx(source: Vec2, target: Vec2, onHit: () => void) {
 

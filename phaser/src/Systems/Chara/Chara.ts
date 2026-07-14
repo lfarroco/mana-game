@@ -6,7 +6,7 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as RankDisplay from "@Systems/Chara/RankDisplay";
 import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as Effects from "@Effects";
+import * as Effects from "@FX";
 
 export type Chara = Container;
 

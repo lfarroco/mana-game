@@ -11,7 +11,7 @@ import * as State from "@Models/State";
 import * as i18n from "@i18n/i18n";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Card from "@Models/Entities/Card";
-import * as Effects from "@Effects";
+import * as Effects from "@FX";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Poison from "@Systems/PoisonDamageSystem";

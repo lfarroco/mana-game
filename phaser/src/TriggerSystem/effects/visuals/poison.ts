@@ -1,4 +1,4 @@
-import { arcaneMissileTargeted } from "@Effects";
+import { arcaneMissileTargeted } from "@FX";
 
 export function poisonFx(
 	source: Vec2,
