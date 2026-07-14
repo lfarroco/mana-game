@@ -8,7 +8,7 @@ import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone"
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
-import * as Effects from "@FX";
+import * as Effects from "Client/FX";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;

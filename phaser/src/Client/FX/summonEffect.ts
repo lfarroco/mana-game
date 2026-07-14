@@ -1,8 +1,6 @@
-import Phaser from "phaser";
-import { delay } from "@Utils/animation";
-import { images } from "@assets";
-import { getOption } from "@Models/OptionsStore";
-import * as io from "../io";
+import * as animation from "@Utils/animation";
+import * as Assets from "@assets";
+import * as OptionsStore from "@Models/OptionsStore";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
@@ -27,12 +25,12 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 		EMIT_ZONE_QUANTITY,
 	} = SUMMON_EFFECT_CONFIG;
 
-	const particlesOption = getOption("particles");
+	const particlesOption = OptionsStore.getOption("particles");
 	let multiplier = 1;
 	if (particlesOption === "low") multiplier = 0.5;
 	else if (particlesOption === "high") multiplier = 2;
 
-	const summonEffect = io.scene.add.particles(x, y, images.light_pillar.key, {
+	const summonEffect = io.scene.add.particles(x, y, Assets.images.light_pillar.key, {
 		lifespan: LIFESPAN,
 		scale: { start: SCALE_START, end: SCALE_END },
 		alpha: { start: 1, end: 0 },
@@ -49,11 +47,11 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 		},
 	});
 
-	await delay(LIFESPAN);
+	await animation.delay(LIFESPAN);
 
 	summonEffect.stop();
 
-	await delay(LIFESPAN);
+	await animation.delay(LIFESPAN);
 
 	summonEffect.destroy();
 }

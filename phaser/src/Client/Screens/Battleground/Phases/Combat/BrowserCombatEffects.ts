@@ -16,7 +16,7 @@ import * as damage from "@TriggerSystem/effects/visuals/damage";
 import * as heal from "@TriggerSystem/effects/visuals/heal";
 import * as shield from "@TriggerSystem/effects/visuals/shield";
 import * as poison from "@TriggerSystem/effects/visuals/poison";
-import * as Effects from "@FX";
+import * as Effects from "Client/FX";
 
 import * as AudioManager from "@Systems/AudioManager";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
