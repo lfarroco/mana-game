@@ -4,7 +4,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 
-import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
+import * as CombatEffects from "@Screens/Battleground/Phases/Combat/Effects";
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
@@ -108,7 +108,7 @@ const showCombatResults = ({
 };
 
 const createCombatEffects = () => {
-	const effectsIndex = BrowserCombatEffects.createBrowserCombatEffects();
+	const effectsIndex = CombatEffects.createCombatEffects();
 	const baseOnCombatEnd = effectsIndex.onCombatEnd;
 
 	//wtf

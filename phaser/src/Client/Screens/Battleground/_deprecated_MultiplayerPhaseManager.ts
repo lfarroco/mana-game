@@ -3,7 +3,7 @@
 
 import * as State from "@Models/State";
 import * as Encounter from "@Screens/Battleground/Phases/Encounter/Encounter";
-import * as BrowserCombatEffects from "@Screens/Battleground/Phases/Combat/BrowserCombatEffects";
+import * as CombatEffects from "@Screens/Battleground/Phases/Combat/Effects";
 import * as Chara from "@Systems/Chara/Chara";
 import * as constants from "@Constants/constants";
 import * as Board from "@Models/Board";
@@ -225,7 +225,7 @@ export async function handlePhase() {
 			// Keep current pacing for transitions into playback.
 			await animation.delay(300);
 
-			const effects = BrowserCombatEffects.createBrowserCombatEffects();
+			const effects = CombatEffects.createCombatEffects();
 			effects.onCombatEnd = async (state, outcome, combatStates) => {
 				Board.setIsInputEnabled(true);
 				if (outcome === "player_lost") {
