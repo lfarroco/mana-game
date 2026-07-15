@@ -387,7 +387,6 @@ export const createCombatPlaybackController = (
 	const getEnv = () => {
 		return {
 			state,
-			effects,
 			logger: CombatLogger.createCombatLogger(),
 			combatStates: playbackState.combatStates,
 			processReactions: () => { },

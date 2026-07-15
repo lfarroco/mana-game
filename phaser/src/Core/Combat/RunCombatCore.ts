@@ -50,7 +50,6 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 
 	const env: CombatTypes.CombatEnvironment = {
 		state,
-		effects,
 		logger: CombatLogger.createCombatLogger(),
 		combatStates: {
 			poisonSystemState: Poison.initializePoisonSystem(),

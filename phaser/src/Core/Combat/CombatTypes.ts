@@ -14,6 +14,8 @@ export type WaveOutcome = "player_won" | "player_lost" | "both_won";
  *
  * All data capture during combat simulation is done through CombatLogger.
  * This interface is only for visual effects that run during client playback.
+ * It is NOT part of CombatEnvironment — it is passed separately to the
+ * combat runner and playback controller, keeping the pure-data env clean.
  */
 export type CombatEffects = {
 	onUnitPop: (unitId: string) => void;
@@ -67,10 +69,15 @@ export type CombatEffects = {
 	onSlowEnd?: (unitId: string) => void;
 };
 
+/**
+ * The pure-data combat environment passed through trigger effects and systems.
+ * Contains only state, combat system states, logger, and reaction processing.
+ * Visual effects (CombatEffects) are NOT part of this env — they are handled
+ * separately by RunCombatCore and CombatPlaybackController.
+ */
 export type CombatEnvironment = {
 	state: State.State;
 	combatStates: CombatSystemStates.CombatSystemStates;
-	effects: CombatEffects;
 	logger: CombatLogger.CombatLogger;
 	processReactions: (
 		env: CombatEnvironment,
