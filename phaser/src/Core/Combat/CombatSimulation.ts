@@ -135,6 +135,7 @@ export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Uni
 		finalState: combatState,
 		initialUnits,
 		logs,
+		// TODO: the result may be contained in the env itself, or returned by the simulation
 		playerWon: determineCombatOutcome(logs),
 	};
 }

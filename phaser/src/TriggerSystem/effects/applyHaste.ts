@@ -3,7 +3,7 @@ import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export const applyHasteLogicIO = async (
+export const applyHaste = async (
 	env: CombatEnvironment,
 	targets: Unit[],
 	sourceUnit: Unit,

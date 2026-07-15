@@ -404,6 +404,7 @@ function executeCombatPhase(
 		session,
 		enemyTeam,
 	);
+
 	const playerUnits = simulation.finalState.battleData.units.filter((u) => u.force === "PLAYER");
 	//session.runStats = simulation.finalState.session.runStats || session.runStats;
 	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));

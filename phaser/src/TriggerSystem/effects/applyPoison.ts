@@ -10,7 +10,7 @@ const logger = Logger.createLogger("applyPoison");
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export const applyPoisonLogicIO = async (
+export const applyPoison = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,

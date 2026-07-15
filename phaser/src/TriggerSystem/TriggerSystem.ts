@@ -233,23 +233,23 @@ const processEffectIO = (
 ) => {
 	switch (effect.id) {
 		case "damage":
-			effects.dealDamageLogicIO(env, sourceUnit, scale, delayedExecution);
+			effects.dealDamage(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "heal":
 			effects.restoreLife(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "shield":
-			effects.addShieldLogicIO(env, sourceUnit, scale, delayedExecution);
+			effects.addShield(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "poison":
-			effects.applyPoisonLogicIO(env, sourceUnit, scale, delayedExecution);
+			effects.applyPoison(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "regen":
-			effects.applyRegenLogicIO(env, sourceUnit, scale, delayedExecution);
+			effects.applyRegen(env, sourceUnit, scale, delayedExecution);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applyHasteLogicIO(
+			effects.applyHaste(
 				env,
 				hasteTargets,
 				sourceUnit,
@@ -260,7 +260,7 @@ const processEffectIO = (
 			break;
 		case "slow":
 			const slowTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applySlowLogicIO(
+			effects.applySlow(
 				env,
 				sourceUnit,
 				slowTargets,
@@ -271,7 +271,7 @@ const processEffectIO = (
 			break;
 		case "charge":
 			const chargeTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
-			effects.applyChargeLogicIO(
+			effects.applyCharge(
 				env,
 				sourceUnit,
 				chargeTargets,

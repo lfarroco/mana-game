@@ -18,7 +18,6 @@ export type Unit = {
 	lifesteal?: boolean;
 	critical?: number;
 	bonusCritical?: number;
-	reflect?: number;
 
 	// Core attributes
 	life: number;

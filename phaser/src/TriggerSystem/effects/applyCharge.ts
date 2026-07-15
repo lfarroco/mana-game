@@ -3,7 +3,7 @@ import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export function applyChargeLogicIO(
+export function applyCharge(
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	targets: Unit[],

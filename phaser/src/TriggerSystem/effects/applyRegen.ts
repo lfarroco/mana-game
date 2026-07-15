@@ -9,7 +9,7 @@ const logger = Logger.createLogger("applyRegen");
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export const applyRegenLogicIO = async (
+export const applyRegen = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,

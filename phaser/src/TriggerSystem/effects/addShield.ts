@@ -6,7 +6,7 @@ import * as CombatTypes from "@Core/Combat/CombatTypes";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export const addShieldLogicIO = async (
+export const addShield = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
