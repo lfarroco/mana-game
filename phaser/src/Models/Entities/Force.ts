@@ -1,18 +1,16 @@
-import { Unit } from "@Models/Entities/Unit";
-import { getBattleCore } from "@Models/Entities/Card";
-import { State } from "@Models/State";
-import { CombatEffects } from "@Core/Combat/CombatTypes";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
-import { createLogger } from "@Utils/Logger";
-import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
+import * as Unit from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
+import * as State from "@Models/State";
+import * as CombatConstants from "@Core/Combat/CombatConstants";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("Force");
+const logger = Logger.createLogger("Force");
 
 export type Force = {
 	id: string;
 	name: string;
 	color: string;
-	units: Unit[];
+	units: Unit.Unit[];
 	lives: number;
 	wins: number;
 	losses: number;
@@ -30,35 +28,21 @@ export const makeForce = (id: string): Force => {
 	};
 };
 
-export const playerForce = (state: State): Force => {
-	return state.battleData.forces.find((f) => f.id === FORCE_ID_PLAYER)!;
+export const playerForce = (state: State.State): Force => {
+	return state.battleData.forces.find((f) => f.id === CombatConstants.FORCE_ID_PLAYER)!;
 };
 
-export const cpuForce = (state: State): Force => {
-	return state.battleData.forces.find((f) => f.id === FORCE_ID_CPU)!;
+export const cpuForce = (state: State.State): Force => {
+	return state.battleData.forces.find((f) => f.id === CombatConstants.FORCE_ID_CPU)!;
 };
-
-// Helper to get forceStatsState from env.effects if accessible, but Force.ts imports CombatEffects which doesn't have reference to Environment context directly unless passed.
-// Wait, manipulateCoreLife receives effects: CombatEffects.
-// BUT it doesn't receive the environment or combatStates directly.
-// And CombatEffects is just functions.
-// We should probably change manipulateCoreLife to accept CombatEnvironment?
-// Or we assume 'effects' passed to it IS the environment's effects which might be bound?
-// No, they are just functions.
-// The caller (dealDamage, etc) has access to env.
-// So we should pass env.combatStates.forceStatsState to manipulateCoreLife?
-// Or just pass 'env' to manipulateCoreLife?
-// Passing 'env' is cleaner.
 
 export const manipulateCoreLife = (
-	state: State,
+	state: State.State,
 	targetForce: Force,
 	amount: number,
 	_critical = false,
-	effects?: CombatEffects,
-	forceStatsState?: ForceStatsState
 ): number => {
-	const core = getBattleCore(state)(targetForce.id);
+	const core = Card.getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot restore life or take damage
 	if (core.life <= 0) {
@@ -73,23 +57,16 @@ export const manipulateCoreLife = (
 	}
 	const actualChange = core.life - oldLife;
 
-	if (effects) {
-		effects.updateLifeDisplay(targetForce.id, core.life, amount, forceStatsState);
-	}
-
 	return actualChange;
 };
 
 export const manipulateCoreShield = (
-	state: State,
+	state: State.State,
 	targetForce: Force,
 	amount: number,
 	_isCritical: boolean,
-	displayFeedback: boolean = true,
-	effects?: CombatEffects,
-	forceStatsState?: ForceStatsState
 ): number => {
-	const core = getBattleCore(state)(targetForce.id);
+	const core = Card.getBattleCore(state)(targetForce.id);
 
 	// If core life is 0, it cannot restore shield
 	if (core.life <= 0 && amount > 0) {
@@ -104,26 +81,20 @@ export const manipulateCoreShield = (
 	}
 	const actualChange = core.shield - oldShield;
 
-	if (effects && displayFeedback) {
-		effects.updateShieldDisplay(targetForce.id, core.shield, actualChange, forceStatsState);
-	}
-
 	return actualChange;
 };
 
 export const applyDamageToForce = (
-	state: State,
+	state: State.State,
 	targetForce: Force,
 	damage: number,
 	shieldPiercingPercentage: number = 0,
 	damageType?: "poison" | "normal" | "timeout",
 	_critical = false,
-	effects?: CombatEffects,
-	forceStatsState?: ForceStatsState
 ): number => {
 	if (damage <= 0) return 0;
 
-	const core = getBattleCore(state)(targetForce.id);
+	const core = Card.getBattleCore(state)(targetForce.id);
 
 	if (!core) {
 		logger.warn(`[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
@@ -143,8 +114,6 @@ export const applyDamageToForce = (
 			targetForce,
 			-damage,
 			false,
-			effects,
-			forceStatsState
 		);
 
 		return Math.abs(lifeChage);
@@ -163,27 +132,24 @@ export const applyDamageToForce = (
 			targetForce,
 			-shieldAbsorbed,
 			false,
-			true,
-			effects,
-			forceStatsState
 		);
 		remainingDamage -= shieldAbsorbed;
 	}
 
 	const lifeChange =
 		remainingDamage > 0
-			? manipulateCoreLife(state, targetForce, -remainingDamage, false, effects, forceStatsState)
+			? manipulateCoreLife(state, targetForce, -remainingDamage, false)
 			: 0;
 
 	return Math.abs(lifeChange);
 };
 
-export const getUnitForce = (state: State, unitId: string) => {
+export const getUnitForce = (state: State.State, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id === unit.force)!;
 };
 
-export const getEnemyForce = (state: State, unitId: string) => {
+export const getEnemyForce = (state: State.State, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id !== unit.force)!;
 };

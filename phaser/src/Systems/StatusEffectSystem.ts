@@ -1,14 +1,8 @@
-import { State } from "@Models/State";
-import {
-	cpuForce,
-	Force,
-	manipulateCoreLife,
-	playerForce,
-	applyDamageToForce,
-} from "@Models/Entities/Force";
+import * as State from "@Models/State";
+import * as Force from "@Models/Entities/Force";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
 
 const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;
 
@@ -16,16 +10,16 @@ export type StatusEffectSystemState = {
 	elapsed: number;
 };
 
-export function initialize(_state: State): StatusEffectSystemState {
+export function initialize(_state: State.State): StatusEffectSystemState {
 	return { elapsed: 0 };
 }
 
-const tick = (env: CombatEnvironment) => () => {
-	tickForce(env, playerForce(env.state));
-	tickForce(env, cpuForce(env.state));
+const tick = (env: CombatTypes.CombatEnvironment) => () => {
+	tickForce(env, Force.playerForce(env.state));
+	tickForce(env, Force.cpuForce(env.state));
 };
 
-function tickForce(env: CombatEnvironment, force: Force): void {
+function tickForce(env: CombatTypes.CombatEnvironment, force: Force.Force): void {
 	const { combatStates } = env;
 	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, force.id);
 	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, force.id);
@@ -33,30 +27,26 @@ function tickForce(env: CombatEnvironment, force: Force): void {
 	const netHealing = regenAmount - poisonAmount;
 
 	if (netHealing > 0) {
-		manipulateCoreLife(
+		Force.manipulateCoreLife(
 			env.state,
 			force,
 			netHealing,
 			false,
-			env.effects,
-			env.combatStates.forceStatsState
 		);
 	} else if (netHealing < 0) {
-		applyDamageToForce(
+		Force.applyDamageToForce(
 			env.state,
 			force,
 			Math.abs(netHealing),
 			0,
 			"poison",
 			false,
-			env.effects,
-			env.combatStates.forceStatsState
 		);
 	}
 }
 
 export function update(
-	env: CombatEnvironment,
+	env: CombatTypes.CombatEnvironment,
 	statusEffectState: StatusEffectSystemState,
 	delta: number
 ): StatusEffectSystemState {

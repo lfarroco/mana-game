@@ -1,23 +1,23 @@
-import { getAlliedCore } from "@Models/Entities/Card";
-import { calculateCritical, Unit } from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
+import * as Unit from "@Models/Entities/Unit";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { createLogger } from "@Utils/Logger";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("applyRegen");
+const logger = Logger.createLogger("applyRegen");
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
 export const applyRegenLogicIO = async (
-	env: CombatEnvironment,
-	sourceUnit: Unit,
+	env: CombatTypes.CombatEnvironment,
+	sourceUnit: Unit.Unit,
 	scale: number = 1,
 	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = Unit.calculateCritical(sourceUnit);
 
 	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
@@ -34,7 +34,6 @@ export const applyRegenLogicIO = async (
 		targetForce,
 		amount,
 		crit.isCritical,
-		env.effects
 	);
 
 	combatStates.regenSystemState = newRegenState;
@@ -45,7 +44,7 @@ export const applyRegenLogicIO = async (
 		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
 
-	const alliedCore = getAlliedCore(env.state)(sourceUnit.force);
+	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 
 	// Log the event for playback (pure data, no callback)
 	env.logger.log({

@@ -26,8 +26,6 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 	};
 }
 
-// spawnStar function removed, logic moved to BrowserCombatEffects
-
 export function updateTimeoutDamageSystem(
 	env: CombatTypes.CombatEnvironment,
 	timeoutState: TimeoutSystemState,
@@ -64,9 +62,10 @@ export function updateTimeoutDamageSystem(
 	let stormStarted = timeoutState.stormStarted;
 	if (!stormStarted && newCombatElapsedTime >= CoreConstants.TIMEOUT_DAMAGE_START_TIME) {
 		stormStarted = true;
-		if (env.effects.onTimeoutStart) {
-			env.effects.onTimeoutStart();
-		}
+		env.logger.log({
+			type: "storm_start",
+			frame: env.logger.getCurrentFrame(),
+		});
 	}
 
 	return {
@@ -89,28 +88,41 @@ function applyTimeoutDamage(
 
 	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
-	const effects = env.effects;
+	// Apply damage immediately (no callback indirection)
+	Force.applyDamageToForce(
+		state,
+		playerForce,
+		currentDamage,
+		0,
+		"timeout",
+		false,
+	);
+	Force.applyDamageToForce(
+		state,
+		cpuForce,
+		currentDamage,
+		0,
+		"timeout",
+		false,
+	);
 
-	const hitEffect = (force: Force.Force) => () => {
-		Force.applyDamageToForce(
-			state,
-			force,
-			currentDamage,
-			0,
-			"timeout",
-			false,
-			env.effects,
-			env.combatStates.forceStatsState
-		);
-	};
-
-	if (effects.onTimeoutDamageVisual) {
-		effects.onTimeoutDamageVisual(playerForce.id, currentDamage, hitEffect(playerForce));
-		effects.onTimeoutDamageVisual(cpuForce.id, currentDamage, hitEffect(cpuForce));
-	} else {
-		hitEffect(playerForce)();
-		hitEffect(cpuForce)();
-	}
+	// Log the timeout damage for playback
+	env.logger.log({
+		type: "timeout_damage",
+		frame: env.logger.getCurrentFrame(),
+		force: playerForce.id,
+		damage: currentDamage,
+		duration: 0,
+		applyTime: env.logger.getCurrentFrame(),
+	});
+	env.logger.log({
+		type: "timeout_damage",
+		frame: env.logger.getCurrentFrame(),
+		force: cpuForce.id,
+		damage: currentDamage,
+		duration: 0,
+		applyTime: env.logger.getCurrentFrame(),
+	});
 }
 
 export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {

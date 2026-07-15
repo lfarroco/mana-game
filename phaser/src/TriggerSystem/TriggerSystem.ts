@@ -1,12 +1,12 @@
-import { Unit } from "@Models/Entities/Unit";
+import * as Unit from "@Models/Entities/Unit";
 import * as effects from "@TriggerSystem/effects";
-import { pickRandom } from "@utils";
-import { State } from "@Models/State";
+import * as Utils from "@utils";
+import * as State from "@Models/State";
 
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { createLogger } from "@Utils/Logger";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("TriggerSystem");
+const logger = Logger.createLogger("TriggerSystem");
 
 export type EffectId =
 	| "damage"
@@ -209,11 +209,11 @@ export type EffectSourcePosition =
 
 // Process a list of effects that originate from a given source unit
 export const processEffectsIO = (
-	env: CombatEnvironment,
-	sourceUnit: Unit,
+	env: CombatTypes.CombatEnvironment,
+	sourceUnit: Unit.Unit,
 	effectsList: Effect[],
 	isReaction: boolean,
-	triggeringUnit?: Unit,
+	triggeringUnit?: Unit.Unit,
 	scale: number = 1,
 	delayedExecution?: number
 ) => {
@@ -223,11 +223,11 @@ export const processEffectsIO = (
 };
 
 const processEffectIO = (
-	env: CombatEnvironment,
-	sourceUnit: Unit,
+	env: CombatTypes.CombatEnvironment,
+	sourceUnit: Unit.Unit,
 	effect: Effect,
 	isReaction: boolean,
-	triggeringUnit?: Unit,
+	triggeringUnit?: Unit.Unit,
 	scale: number = 1,
 	delayedExecution?: number
 ) => {
@@ -254,7 +254,7 @@ const processEffectIO = (
 				hasteTargets,
 				sourceUnit,
 				effect.duration * scale,
-				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
 				delayedExecution
 			);
 			break;
@@ -265,7 +265,7 @@ const processEffectIO = (
 				sourceUnit,
 				slowTargets,
 				effect.duration * scale,
-				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
 				delayedExecution
 			);
 			break;
@@ -363,7 +363,7 @@ const processEffectIO = (
 	if (!isReaction) processReactions(env, sourceUnit, effect, scale);
 };
 
-const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
+const sameForce = (unit: Unit.Unit, triggeringUnit: Unit.Unit) => unit.force === triggeringUnit.force;
 
 const GLOBAL_REACTIONS = [
 	"on_crit",
@@ -378,8 +378,8 @@ const GLOBAL_REACTIONS = [
 const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"];
 
 export function processReactions(
-	env: CombatEnvironment,
-	triggeringUnit: Unit,
+	env: CombatTypes.CombatEnvironment,
+	triggeringUnit: Unit.Unit,
 	effect: Effect,
 	scale: number = 1
 ) {
@@ -446,20 +446,22 @@ export function processReactions(
 				return;
 			}
 
-			if (env.effects.onReactionVisual) {
-				env.effects.onReactionVisual(u.id);
-			}
+			env.logger.log({
+				type: "reaction",
+				unitId: u.id,
+				frame: env.logger.getCurrentFrame(),
+			});
 			processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, 200);
 		});
 	});
 }
 
 export function resolveTargets(
-	state: State,
-	sourceUnit: Unit,
+	state: State.State,
+	sourceUnit: Unit.Unit,
 	effect: Effect,
-	triggeringUnit?: Unit
-): Unit[] {
+	triggeringUnit?: Unit.Unit
+): Unit.Unit[] {
 	if (!("targets" in effect)) {
 		logger.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
@@ -476,10 +478,10 @@ export function resolveTargets(
 
 		case "random_ally":
 			const otherAllies = allies.filter((u) => u.id !== sourceUnit.id);
-			return pickRandom(otherAllies, effect.targets.count);
+			return Utils.pickRandom(otherAllies, effect.targets.count);
 
 		case "random_enemy":
-			return pickRandom(enemies, effect.targets.count);
+			return Utils.pickRandom(enemies, effect.targets.count);
 
 		case "row_allies":
 			return allies

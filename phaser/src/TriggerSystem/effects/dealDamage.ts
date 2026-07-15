@@ -1,32 +1,30 @@
-import { applyDamageToForce, getUnitForce, manipulateCoreLife } from "@Models/Entities/Force";
-import { Unit, calculateCritical } from "@Models/Entities/Unit";
+import * as Force from "@Models/Entities/Force";
+import * as Unit from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import { getEnemyCore } from "@Models/Entities/Card";
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
+import * as Card from "@Models/Entities/Card";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
-export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scale: number = 1, delayedExecution?: number) {
+export function dealDamageLogicIO(env: CombatTypes.CombatEnvironment, sourceUnit: Unit.Unit, scale: number = 1, delayedExecution?: number) {
 	const damageAmount = sourceUnit.power;
 
 	const targetForce = env.state.battleData.forces.find(
 		(force: { id: string }) => force.id !== sourceUnit.force
 	)!;
 
-	const enemyCore = getEnemyCore(env.state)(sourceUnit.force);
+	const enemyCore = Card.getEnemyCore(env.state)(sourceUnit.force);
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = Unit.calculateCritical(sourceUnit);
 	const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-	const actualLifeChanged = applyDamageToForce(
+	const actualLifeChanged = Force.applyDamageToForce(
 		env.state,
 		targetForce,
 		damage,
 		0,
 		"normal",
 		crit.isCritical,
-		env.effects,
-		env.combatStates.forceStatsState
 	);
 
 	const { combatStates } = env;
@@ -37,13 +35,11 @@ export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scal
 	}
 
 	if (sourceUnit.lifesteal) {
-		manipulateCoreLife(
+		Force.manipulateCoreLife(
 			env.state,
-			getUnitForce(env.state, sourceUnit.force),
+			Force.getUnitForce(env.state, sourceUnit.force),
 			damage,
 			false,
-			env.effects,
-			env.combatStates.forceStatsState
 		);
 	}
 
@@ -51,15 +47,13 @@ export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scal
 		const reflected = (damage * enemyCore.reflect) / 100;
 
 		if (reflected > 0) {
-			const actualReflectedChange = applyDamageToForce(
+			const actualReflectedChange = Force.applyDamageToForce(
 				env.state,
 				targetForce,
 				reflected,
 				0,
 				"normal",
 				false,
-				env.effects,
-				env.combatStates.forceStatsState
 			);
 
 			const { combatStates } = env;

@@ -131,7 +131,12 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 		);
 
 		for (const unit of unitsReadyToAct) {
-			effects.onUnitPop(unit.id);
+			env.logger.log({
+				type: "unit_pop",
+				unitId: unit.id,
+				frame: env.logger.getCurrentFrame(),
+				duration: 0,
+			});
 
 			CombatStatsTracker.trackAction(runnerState.env.combatStates.combatStatsTrackerState, {
 				unit,
@@ -186,6 +191,24 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
+
+		// Log combat stats before outcome
+		if (runnerState.env.combatStates?.combatStatsTrackerState) {
+			const { unitStats, currentCombatStats } = runnerState.env.combatStates.combatStatsTrackerState;
+			runnerState.env.logger.log({
+				type: "combat_stats",
+				unitStats: Array.from(unitStats.entries()),
+				currentCombatStats: Array.from(currentCombatStats.entries()),
+				frame: runnerState.env.logger.getCurrentFrame(),
+			});
+		}
+
+		// Log outcome
+		runnerState.env.logger.log({
+			type: "outcome",
+			result: outcome,
+			frame: runnerState.env.logger.getCurrentFrame(),
+		});
 
 		logger.debug("[RunCombatSystem] Combat ended. Outcome:", outcome);
 		await effects.onCombatEnd(nextState, outcome, runnerState.env.combatStates);

@@ -1,6 +1,6 @@
 import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
-import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as GameLogic from "@Core/GameLogic";
 import * as supabase from "@lib/supabase";
@@ -123,7 +123,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 			combatState = {
 				units,
 				enemyTeam,
-				logs: sessionCombatState.logs as ServerCombatEffects.CombatLogEntry[],
+				logs: sessionCombatState.logs as CombatLogger.CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
 					typeof sessionCombatState.enemyPlayerName === "string"

@@ -1,28 +1,28 @@
-import { getEnemyCore } from "@Models/Entities/Card";
-import { getEnemyForce } from "@Models/Entities/Force";
-import { calculateCritical, Unit } from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
+import * as Force from "@Models/Entities/Force";
+import * as Unit from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import { CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { createLogger } from "@Utils/Logger";
+import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("applyPoison");
+const logger = Logger.createLogger("applyPoison");
 
 const DEFAULT_PROJECTILE_DURATION = 400;
 
 export const applyPoisonLogicIO = async (
-	env: CombatEnvironment,
-	sourceUnit: Unit,
+	env: CombatTypes.CombatEnvironment,
+	sourceUnit: Unit.Unit,
 	scale: number = 1,
 	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = Unit.calculateCritical(sourceUnit);
 
 	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
-	const targetForce = getEnemyForce(env.state, sourceUnit.id);
+	const targetForce = Force.getEnemyForce(env.state, sourceUnit.id);
 
 	logger.debug(
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
@@ -35,7 +35,6 @@ export const applyPoisonLogicIO = async (
 		targetForce,
 		amount,
 		crit.isCritical,
-		env.effects
 	);
 	combatStates.poisonSystemState = newPoisonState;
 
@@ -55,7 +54,7 @@ export const applyPoisonLogicIO = async (
 		type: "poison",
 		frame: env.logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
-		targetId: getEnemyCore(env.state)(sourceUnit.force).id,
+		targetId: Card.getEnemyCore(env.state)(sourceUnit.force).id,
 		amount: amount,
 		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,

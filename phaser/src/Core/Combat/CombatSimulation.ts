@@ -13,11 +13,11 @@ import * as BoardLogic from "@Models/BoardLogic";
 import * as Force from "@Models/Entities/Force";
 import * as generateEnemyTeam from "@Core/Combat/generateEnemyTeam";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
-import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as Random from "@Utils/Random";
-import { stringToSeed } from "@Core/Seeding";
+import * as Seeding from "@Core/Seeding";
+import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -88,6 +88,40 @@ export function createCombatState(session: Models.SessionData, enemyTeam?: Unit.
 }
 
 /**
+ * Create a minimal no-op CombatEffects for server-side simulation.
+ * All data capture is done through CombatLogger; effects just need
+ * to provide no-op stubs for the combat runner to function.
+ */
+const createNoopEffects = (): RunCombatCore.CombatEffects => {
+	return {
+		onUnitPop: () => { },
+		onChargeBarUpdate: () => { },
+		onCombatEnd: async () => { },
+		getTimeScale: () => 1,
+		getScene: () => null,
+		updateLifeDisplay: () => { },
+		updateShieldDisplay: () => { },
+		updateRegenDisplay: () => { },
+		updatePoisonDisplay: () => { },
+		initBlackHole: () => null,
+		initForceStats: () => ForceStatsState.initializeForceStatsState(),
+		onHasteEnd: (_unitId: string) => {
+			// Logged through CombatLogger by RunCombatCore
+		},
+		onSlowEnd: (_unitId: string) => {
+			// Logged through CombatLogger by RunCombatCore
+		},
+	};
+};
+
+/**
+ * Create a minimal no-op CombatEffects for server-side simulation.
+ */
+const createNoopServerEffects = (): RunCombatCore.CombatEffects => {
+	return createNoopEffects();
+};
+
+/**
  * Run a complete combat simulation for a session.
  * Returns final state, initial units snapshot, and combat logs.
  */
@@ -99,13 +133,13 @@ export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Uni
 } {
 	const combatState = createCombatState(session, enemyTeam);
 
-	const seedVal = stringToSeed(session.initial_seed);
+	const seedVal = Seeding.stringToSeed(session.initial_seed);
 	Random.setSeed(seedVal);
 
 	// Snapshot initial units for replay
 	const initialUnits = JSON.parse(JSON.stringify(combatState.battleData.units));
 
-	const effects = ServerCombatEffects.createServerCombatEffects(combatState);
+	const effects = createNoopServerEffects();
 	const combatRunner = RunCombatCore.runCombat(combatState, effects);
 
 	const SIM_DELTA = 16.67;
@@ -114,7 +148,6 @@ export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Uni
 
 	// Run the combat loop until resolution or max frames
 	while (combatRunner.isActive() && frame < MAX_FRAMES) {
-		effects.setFrame(frame);
 		combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
 		frame++;
 	}
@@ -130,11 +163,15 @@ export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Uni
 		team: { units: persistedTeamUnits },
 	};
 
+	// Extract logs from the combat environment's logger
+	const env = combatRunner.getEnv();
+	const logs = env.logger.getLogs();
+
 	return {
 		finalState: combatState,
 		initialUnits,
-		logs: effects.logs,
-		playerWon: determineCombatOutcome(effects.logs),
+		logs,
+		playerWon: determineCombatOutcome(logs),
 	};
 }
 

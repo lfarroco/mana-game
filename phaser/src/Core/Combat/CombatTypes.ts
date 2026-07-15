@@ -9,6 +9,12 @@ import type * as CombatLogger from "@Core/Combat/CombatLogger";
 
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
+/**
+ * Client-side visual effects called during combat playback.
+ *
+ * All data capture during combat simulation is done through CombatLogger.
+ * This interface is only for visual effects that run during client playback.
+ */
 export type CombatEffects = {
 	onUnitPop: (unitId: string) => void;
 	onChargeBarUpdate: (unitId: string) => void;
@@ -39,88 +45,24 @@ export type CombatEffects = {
 	stopCountdownTimer?: (timerState: CountdownTimer.CountdownTimerState) => CountdownTimer.CountdownTimerState;
 	initForceStats?: () => ForceStatsState.ForceStatsState;
 	onReactionVisual?: (unitId: string) => Promise<void>;
-	onDamage?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onHeal?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onShield?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onPoison?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onRegen?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onHaste?: (
-		sourceId: string,
-		targetId: string,
-		duration: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onSlow?: (
-		sourceId: string,
-		targetId: string,
-		duration: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onCharge?: (
-		sourceId: string,
-		targetId: string,
-		amount: number,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onIncreasePower?: (
-		sourceId: string | undefined,
-		targetId: string,
-		amount: number,
-		permanent: boolean,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
-	onDecreasePower?: (
-		sourceId: string | undefined,
-		targetId: string,
-		amount: number,
-		permanent: boolean,
-		onHit: () => void,
-		delayedExecution?: number,
-		affectedUnitId?: string
-	) => void;
-	onIncreaseCritical?: (
-		sourceId: string | undefined,
-		targetId: string,
-		onHit: () => void,
-		delayedExecution?: number
-	) => void;
+
+	// Client-side visual effects for damage/heal/status - dispatched by CombatPlaybackController from logs
+	onDamage?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onHeal?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onShield?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onPoison?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onRegen?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onHaste?: (sourceId: string, targetId: string, duration: number, onHit: () => void, delayedExecution?: number) => void;
+	onSlow?: (sourceId: string, targetId: string, duration: number, onHit: () => void, delayedExecution?: number) => void;
+	onCharge?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
+	onIncreasePower?: (sourceId: string | undefined, targetId: string, amount: number, permanent: boolean, onHit: () => void, delayedExecution?: number) => void;
+	onDecreasePower?: (sourceId: string | undefined, targetId: string, amount: number, permanent: boolean, onHit: () => void, delayedExecution?: number, affectedUnitId?: string) => void;
+	onIncreaseCritical?: (sourceId: string | undefined, targetId: string, onHit: () => void, delayedExecution?: number) => void;
 	onPowerUpdate?: (unitId: string) => void;
 	onTimeoutDamageVisual?: (targetForceId: string, damage: number, onHit: () => void) => void;
 	onTimeoutStart?: () => void;
+
+	// Server-side log-only callbacks - used by RunCombatCore to log through CombatLogger
 	onHasteEnd?: (unitId: string) => void;
 	onSlowEnd?: (unitId: string) => void;
 };
