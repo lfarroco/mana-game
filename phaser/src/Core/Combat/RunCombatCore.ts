@@ -14,6 +14,7 @@ import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as Logger from "@Utils/Logger";
 import * as ForceStatsState from "@Core/Combat/ForceStatsState";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 
 const logger = Logger.createLogger("RunCombatCore");
 
@@ -50,6 +51,7 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 	const env: CombatTypes.CombatEnvironment = {
 		state,
 		effects,
+		logger: CombatLogger.createCombatLogger(),
 		combatStates: {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),

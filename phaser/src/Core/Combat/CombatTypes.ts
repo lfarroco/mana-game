@@ -5,6 +5,7 @@ import type * as TriggerSystem from "@TriggerSystem/TriggerSystem";
 import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import type * as CountdownTimer from "@Systems/CountdownTimer";
 import type * as ForceStatsState from "@Core/Combat/ForceStatsState";
+import type * as CombatLogger from "@Core/Combat/CombatLogger";
 
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
@@ -128,6 +129,7 @@ export type CombatEnvironment = {
 	state: State.State;
 	combatStates: CombatSystemStates.CombatSystemStates;
 	effects: CombatEffects;
+	logger: CombatLogger.CombatLogger;
 	processReactions: (
 		env: CombatEnvironment,
 		triggeringUnit: Unit.Unit,

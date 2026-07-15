@@ -1,4 +1,4 @@
-import { CombatLogEntry } from "@Core/Combat/ServerCombatEffects";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import { Unit } from "@Models/Entities/Unit";
 import { PhaseOption } from "@Core/Models";
 
@@ -23,7 +23,7 @@ export interface PhaseOptions {
 	options: PhaseOption[]; // Specific options depending on phase
 	combatState?: {
 		enemyTeam: Unit[];
-		logs: CombatLogEntry[];
+		logs: CombatLogger.CombatLogEntry[];
 		seed: string;
 		units: Unit[]; // Include units here for full sync if needed
 		enemyPlayerName?: string;

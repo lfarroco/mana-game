@@ -4,6 +4,8 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import { getEnemyCore } from "@Models/Entities/Card";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
+const DEFAULT_PROJECTILE_DURATION = 400;
+
 export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scale: number = 1, delayedExecution?: number) {
 	const damageAmount = sourceUnit.power;
 
@@ -13,66 +15,66 @@ export function dealDamageLogicIO(env: CombatEnvironment, sourceUnit: Unit, scal
 
 	const enemyCore = getEnemyCore(env.state)(sourceUnit.force);
 
-	const effect = () => {
-		const crit = calculateCritical(sourceUnit);
-		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
+	const crit = calculateCritical(sourceUnit);
+	const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-		const actualLifeChanged = applyDamageToForce(
+	const actualLifeChanged = applyDamageToForce(
+		env.state,
+		targetForce,
+		damage,
+		0,
+		"normal",
+		crit.isCritical,
+		env.effects,
+		env.combatStates.forceStatsState
+	);
+
+	const { combatStates } = env;
+	CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, env, sourceUnit.id, actualLifeChanged);
+
+	if (crit.isCritical) {
+		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+	}
+
+	if (sourceUnit.lifesteal) {
+		manipulateCoreLife(
 			env.state,
-			targetForce,
+			getUnitForce(env.state, sourceUnit.force),
 			damage,
-			0,
-			"normal",
-			crit.isCritical,
+			false,
 			env.effects,
 			env.combatStates.forceStatsState
 		);
+	}
 
-		const { combatStates } = env;
-		CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, env, sourceUnit.id, actualLifeChanged);
+	if (enemyCore.reflect) {
+		const reflected = (damage * enemyCore.reflect) / 100;
 
-		if (crit.isCritical) {
-			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-		}
-
-		if (sourceUnit.lifesteal) {
-			manipulateCoreLife(
+		if (reflected > 0) {
+			const actualReflectedChange = applyDamageToForce(
 				env.state,
-				getUnitForce(env.state, sourceUnit.force),
-				damage,
+				targetForce,
+				reflected,
+				0,
+				"normal",
 				false,
 				env.effects,
 				env.combatStates.forceStatsState
 			);
+
+			const { combatStates } = env;
+			CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, env, enemyCore.id, actualReflectedChange);
 		}
-
-		if (enemyCore.reflect) {
-			const reflected = (damage * enemyCore.reflect) / 100;
-
-			if (reflected > 0) {
-				const actualLifeChanged = applyDamageToForce(
-					env.state,
-					targetForce,
-					reflected,
-					0,
-					"normal",
-					false,
-					env.effects,
-					env.combatStates.forceStatsState
-				);
-
-				const { combatStates } = env;
-				CombatStatsTracker.trackDamage(combatStates.combatStatsTrackerState, env, enemyCore.id, actualLifeChanged);
-			}
-		}
-	};
-
-	const effects = env.effects;
-	if (effects.onDamage) {
-		const crit = calculateCritical(sourceUnit);
-		const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
-		effects.onDamage(sourceUnit.id, enemyCore!.id, damage, effect, delayedExecution);
-	} else {
-		effect();
 	}
+
+	env.logger.log({
+		type: "damage",
+		frame: env.logger.getCurrentFrame(),
+		sourceId: sourceUnit.id,
+		targetId: enemyCore!.id,
+		amount: damage,
+		duration: DEFAULT_PROJECTILE_DURATION,
+		delayed: delayedExecution,
+		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
+	});
 }

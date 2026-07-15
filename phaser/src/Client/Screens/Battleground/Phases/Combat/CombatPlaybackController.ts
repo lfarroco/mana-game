@@ -1,6 +1,6 @@
 import * as State from "@Models/State";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
-import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import type * as CountdownTimer from "@Systems/CountdownTimer";
@@ -14,7 +14,7 @@ import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 const logger = Logger.createLogger("CombatPlaybackController");
 
 type ScheduledAnimation = {
-	log: ServerCombatEffects.CombatLogEntry;
+	log: CombatLogger.CombatLogEntry;
 	startTime: number;
 	endTime: number;
 	executed: boolean;
@@ -35,7 +35,7 @@ type PlaybackState = {
 const MIN_COOLDOWN = 200;
 
 export const createCombatPlaybackController = (
-	logs: ServerCombatEffects.CombatLogEntry[],
+	logs: CombatLogger.CombatLogEntry[],
 	effects: CombatTypes.CombatEffects
 ): RunCombatCore.CombatRunner => {
 	const FRAME_DURATION = 16.67;
@@ -388,6 +388,7 @@ export const createCombatPlaybackController = (
 		return {
 			state,
 			effects,
+			logger: CombatLogger.createCombatLogger(),
 			combatStates: playbackState.combatStates,
 			processReactions: () => { },
 		};

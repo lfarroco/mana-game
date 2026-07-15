@@ -14,6 +14,7 @@ import * as Card from "@Models/Entities/Card";
 import * as Effects from "Client/FX";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
@@ -133,6 +134,7 @@ const getShopEnvironment = (state: State.State): CombatTypes.CombatEnvironment =
 			onIncreaseCritical: (_s, _t, onHit) => onHit(),
 		},
 		processReactions: TriggerSystem.processReactions,
+		logger: CombatLogger.createCombatLogger(),
 	};
 };
 

@@ -1,5 +1,5 @@
 import * as Unit from "@Models/Entities/Unit";
-import * as ServerCombatEffects from "@Core/Combat/ServerCombatEffects";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 
 // Option types for different phases
 export type PhaseOption =
@@ -49,7 +49,7 @@ export type PhaseType =
 export type CombatState = {
 	enemyTeam: Unit.Unit[];
 	units: Unit.Unit[];
-	logs: ServerCombatEffects.CombatLogEntry[];
+	logs: CombatLogger.CombatLogEntry[];
 	seed: string;
 	enemyPlayerName: string;
 	wonCombat: boolean;
