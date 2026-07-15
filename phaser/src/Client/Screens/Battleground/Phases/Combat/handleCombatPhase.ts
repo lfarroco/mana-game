@@ -4,7 +4,6 @@ import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 
-import * as CombatEffects from "@Screens/Battleground/Phases/Combat/Effects";
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
@@ -107,23 +106,6 @@ const showCombatResults = ({
 	});
 };
 
-const createCombatEffects = () => {
-	const effectsIndex = CombatEffects.createCombatEffects();
-	const baseOnCombatEnd = effectsIndex.onCombatEnd;
-
-	//wtf
-	effectsIndex.onCombatEnd = async (playbackState, outcome, combatStates) => {
-		await baseOnCombatEnd?.(playbackState, outcome, combatStates);
-		Board.setIsInputEnabled(true);
-
-		await showCombatResults({
-			resultType: getCombatResultType(outcome),
-		});
-	};
-
-	return effectsIndex;
-};
-
 const startCombatPlayback = async ({
 	combatState,
 }: {
@@ -132,10 +114,14 @@ const startCombatPlayback = async ({
 	await setupCombatBoard(combatState);
 	await animation.delay(COMBAT_START_DELAY_MS);
 
-	const effectsIndex = createCombatEffects();
 	const controller = CombatPlaybackController.createCombatPlaybackController(
 		combatState.logs,
-		effectsIndex
+		async (outcome) => {
+			Board.setIsInputEnabled(true);
+			await showCombatResults({
+				resultType: getCombatResultType(outcome),
+			});
+		}
 	);
 	const updateHandler = (time: number, delta: number) => {
 		if (isPaused) return;

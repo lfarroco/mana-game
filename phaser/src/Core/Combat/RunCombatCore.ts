@@ -18,7 +18,7 @@ import * as CombatLogger from "@Core/Combat/CombatLogger";
 
 const logger = Logger.createLogger("RunCombatCore");
 
-export type { WaveOutcome, CombatEffects } from "@Core/Combat/CombatTypes";
+export type { WaveOutcome } from "@Core/Combat/CombatTypes";
 
 const MAX_COMBAT_DURATION_MS = 120_000;
 
@@ -37,16 +37,14 @@ type CombatRunnerState = {
 	blackHoleState: BlackHoleState.BlackHoleState | null;
 };
 
-// TODO: make effects optional, for server-side runs
-export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects): CombatRunner => {
-	const blackHoleState = effects.initBlackHole ? effects.initBlackHole() : null;
-	let countdownTimerState = effects.initCountdownTimer
-		? effects.initCountdownTimer(blackHoleState)
-		: null;
-
-	if (countdownTimerState && effects.startCountdownTimer) {
-		countdownTimerState = effects.startCountdownTimer(countdownTimerState);
-	}
+/**
+ * Server-side combat simulation runner.
+ * All visual effects are no-ops — they are handled separately by CombatPlaybackController
+ * during client-side playback of the combat logs.
+ */
+export const runCombat = (state: State.State): CombatRunner => {
+	const blackHoleState: BlackHoleState.BlackHoleState | null = null;
+	const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
 	const env: CombatTypes.CombatEnvironment = {
 		state,
@@ -55,9 +53,7 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-			forceStatsState: effects.initForceStats
-				? effects.initForceStats()
-				: ForceStatsState.initializeForceStatsState(),
+			forceStatsState: ForceStatsState.initializeForceStatsState(),
 		},
 		processReactions: TriggerSystem.processReactions,
 	};
@@ -68,36 +64,6 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 		countdownTimerState,
 		blackHoleState,
 	};
-
-	[CombatConstants.FORCE_ID_PLAYER, CombatConstants.FORCE_ID_CPU].forEach((forceId) => {
-		const core = Card.getBattleCore(state)(forceId);
-		if (!core) {
-			return;
-		}
-
-		effects.updateLifeDisplay(
-			forceId,
-			core.life,
-			0,
-			runnerState.env.combatStates.forceStatsState
-		);
-		effects.updateShieldDisplay(
-			forceId,
-			core.shield,
-			0,
-			runnerState.env.combatStates.forceStatsState
-		);
-		effects.updateRegenDisplay(
-			forceId,
-			Regen.getRegenRate(runnerState.env.combatStates.regenSystemState, forceId),
-			0
-		);
-		effects.updatePoisonDisplay(
-			forceId,
-			Poison.getPoisonRate(runnerState.env.combatStates.poisonSystemState, forceId),
-			0
-		);
-	});
 
 	state.battleData.units.forEach((unit) => {
 		const battleStartReactions = unit.reactions.filter((reaction) => reaction.effectId === "on_battle_start");
@@ -115,7 +81,7 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 
 		runnerState.env.state = nextState;
 
-		const scaledDelta = delta * effects.getTimeScale();
+		const scaledDelta = delta;
 		combatElapsedMs += scaledDelta;
 
 		// Update logger frame for pure-data log entries
@@ -124,9 +90,6 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,
-			effects.onChargeBarUpdate,
-			effects.onHasteEnd,
-			effects.onSlowEnd
 		);
 
 		for (const unit of unitsReadyToAct) {
@@ -210,7 +173,6 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 		});
 
 		logger.debug("[RunCombatSystem] Combat ended. Outcome:", outcome);
-		await effects.onCombatEnd(nextState, outcome, runnerState.env.combatStates);
 	};
 
 	return {
@@ -228,9 +190,6 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 export const chargeUnits = (
 	state: State.State,
 	delta: number,
-	onChargeBarUpdate: (unitId: string) => void,
-	onHasteEnd?: (unitId: string) => void,
-	onSlowEnd?: (unitId: string) => void
 ): Unit.Unit[] => {
 	const performingUnits: Unit.Unit[] = [];
 
@@ -242,19 +201,11 @@ export const chargeUnits = (
 		unit.charge += delta * chargeRate;
 
 		if (unit.hasted > 0) {
-			const previousHasted = unit.hasted;
 			unit.hasted = Math.max(0, unit.hasted - delta);
-			if (previousHasted > 0 && unit.hasted === 0 && onHasteEnd) {
-				onHasteEnd(unit.id);
-			}
 		}
 
 		if (unit.slowed > 0) {
-			const previousSlowed = unit.slowed;
 			unit.slowed = Math.max(0, unit.slowed - delta);
-			if (previousSlowed > 0 && unit.slowed === 0 && onSlowEnd) {
-				onSlowEnd(unit.id);
-			}
 		}
 
 		unit.refresh = Math.max(0, unit.refresh - delta);
@@ -264,8 +215,6 @@ export const chargeUnits = (
 			unit.refresh = CombatConstants.MIN_COOLDOWN;
 			performingUnits.push(unit);
 		}
-
-		onChargeBarUpdate(unit.id);
 	}
 
 	return performingUnits;

@@ -8,13 +8,13 @@
  * separating the concerns of "log what happened" from "play back visuals."
  */
 
-import type { WaveOutcome } from "@Core/Combat/CombatTypes";
+import type * as CombatTypes from "@Core/Combat/CombatTypes";
 
 export type CombatLogEntry = {
 	type: string;
 	frame: number;
 	duration?: number;
-	result?: WaveOutcome;
+	result?: CombatTypes.WaveOutcome;
 	sourceId?: string;
 	targetId?: string;
 	affectedUnitId?: string;
