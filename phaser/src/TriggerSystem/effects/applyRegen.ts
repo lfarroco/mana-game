@@ -7,6 +7,8 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("applyRegen");
 
+const DEFAULT_PROJECTILE_DURATION = 400;
+
 export const applyRegenLogicIO = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
@@ -25,30 +27,35 @@ export const applyRegenLogicIO = async (
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
-	const effect = () => {
-		const { combatStates } = env;
-		const newRegenState = RegenSystem.applyRegen(
-			combatStates.regenSystemState,
-			targetForce,
-			amount,
-			crit.isCritical,
-			env.effects
-		);
+	// Apply regen immediately (no callback indirection)
+	const { combatStates } = env;
+	const newRegenState = RegenSystem.applyRegen(
+		combatStates.regenSystemState,
+		targetForce,
+		amount,
+		crit.isCritical,
+		env.effects
+	);
 
-		combatStates.regenSystemState = newRegenState;
+	combatStates.regenSystemState = newRegenState;
 
-		CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, env, sourceUnit.id, amount);
-		if (crit.isCritical) {
-			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-		}
-	};
+	CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, env, sourceUnit.id, amount);
+
+	if (crit.isCritical) {
+		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+	}
 
 	const alliedCore = getAlliedCore(env.state)(sourceUnit.force);
 
-	const effects = env.effects;
-	if (effects.onRegen) {
-		effects.onRegen(sourceUnit.id, alliedCore.id, amount, effect, delayedExecution);
-	} else {
-		effect();
-	}
+	// Log the event for playback (pure data, no callback)
+	env.logger.log({
+		type: "regen",
+		frame: env.logger.getCurrentFrame(),
+		sourceId: sourceUnit.id,
+		targetId: alliedCore.id,
+		amount: amount,
+		duration: DEFAULT_PROJECTILE_DURATION,
+		delayed: delayedExecution,
+		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
+	});
 };

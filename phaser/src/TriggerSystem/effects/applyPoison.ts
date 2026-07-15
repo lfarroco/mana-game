@@ -8,6 +8,8 @@ import { createLogger } from "@Utils/Logger";
 
 const logger = createLogger("applyPoison");
 
+const DEFAULT_PROJECTILE_DURATION = 400;
+
 export const applyPoisonLogicIO = async (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
@@ -26,38 +28,37 @@ export const applyPoisonLogicIO = async (
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 
-	const effect = () => {
-		const { combatStates } = env;
-		const newPoisonState = PoisonSystem.applyPoison(
-			combatStates.poisonSystemState,
-			targetForce,
-			amount,
-			crit.isCritical,
-			env.effects
-		);
-		combatStates.poisonSystemState = newPoisonState;
+	// Apply poison immediately (no callback indirection)
+	const { combatStates } = env;
+	const newPoisonState = PoisonSystem.applyPoison(
+		combatStates.poisonSystemState,
+		targetForce,
+		amount,
+		crit.isCritical,
+		env.effects
+	);
+	combatStates.poisonSystemState = newPoisonState;
 
-		CombatStatsTracker.trackPoison(
-			combatStates.combatStatsTrackerState,
-			env,
-			sourceUnit.id,
-			amount
-		);
-		if (crit.isCritical) {
-			env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-		}
-	};
+	CombatStatsTracker.trackPoison(
+		combatStates.combatStatsTrackerState,
+		env,
+		sourceUnit.id,
+		amount
+	);
 
-	const effects = env.effects;
-	if (effects.onPoison) {
-		effects.onPoison(
-			sourceUnit.id,
-			getEnemyCore(env.state)(sourceUnit.force).id,
-			amount,
-			effect,
-			delayedExecution
-		);
-	} else {
-		effect();
+	if (crit.isCritical) {
+		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
+
+	// Log the event for playback (pure data, no callback)
+	env.logger.log({
+		type: "poison",
+		frame: env.logger.getCurrentFrame(),
+		sourceId: sourceUnit.id,
+		targetId: getEnemyCore(env.state)(sourceUnit.force).id,
+		amount: amount,
+		duration: DEFAULT_PROJECTILE_DURATION,
+		delayed: delayedExecution,
+		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
+	});
 };
