@@ -118,6 +118,10 @@ export const runCombat = (state: State.State, effects: CombatTypes.CombatEffects
 
 		const scaledDelta = delta * effects.getTimeScale();
 		combatElapsedMs += scaledDelta;
+
+		// Update logger frame for pure-data log entries
+		const LOGGER_FRAME_DURATION = 16.67;
+		runnerState.env.logger.setFrame(Math.floor(combatElapsedMs / LOGGER_FRAME_DURATION));
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,

@@ -1,6 +1,8 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
+const DEFAULT_PROJECTILE_DURATION = 400;
+
 export const increaseCritical = (
 	env: CombatEnvironment,
 	targets: Unit[],
@@ -9,27 +11,25 @@ export const increaseCritical = (
 	permanent: boolean = false,
 	delayedExecution?: number
 ) => {
-	const effect = (target: string) => async () => {
-		// Logic update only
-		const targetUnit = targets.find(u => u.id === target);
-		if (!targetUnit) return;
-
-		if (!targetUnit.critical) targetUnit.critical = 0;
-		targetUnit.critical += amount;
+	for (const target of targets) {
+		// Apply critical increase immediately (no callback indirection)
+		if (!target.critical) target.critical = 0;
+		target.critical += amount;
 
 		if (permanent) {
-			if (!targetUnit.bonusCritical) targetUnit.bonusCritical = 0;
-			targetUnit.bonusCritical += amount;
+			if (!target.bonusCritical) target.bonusCritical = 0;
+			target.bonusCritical += amount;
 		}
-	};
 
-	const effects = env.effects;
-
-	for (const target of targets) {
-		if (effects.onIncreaseCritical) {
-			effects.onIncreaseCritical(sourceUnit?.id, target.id, effect(target.id), delayedExecution);
-		} else {
-			effect(target.id)();
-		}
+		// Log the event for playback (pure data, no callback)
+		env.logger.log({
+			type: "increase_critical",
+			frame: env.logger.getCurrentFrame(),
+			sourceId: sourceUnit?.id,
+			targetId: target.id,
+			duration: sourceUnit ? DEFAULT_PROJECTILE_DURATION : 0,
+			delayed: delayedExecution,
+			applyTime: env.logger.getCurrentFrame() + (sourceUnit ? Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67) : 0),
+		});
 	}
 };

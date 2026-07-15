@@ -18,7 +18,6 @@ export const sacrificeEffect = (
 	if (!hasEffects && !hasReactions) return;
 
 	// Random choice between effect or reaction
-
 	let removeType: "effect" | "reaction";
 	if (hasEffects && hasReactions) {
 		removeType = nextValue() < 0.5 ? "effect" : "reaction";

@@ -20,9 +20,4 @@ export const distributePower = (
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
 	increasePower(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
-
-	const effects = env.effects;
-	if (effects.onPowerUpdate) {
-		effects.onPowerUpdate(sourceUnit.id);
-	}
 };

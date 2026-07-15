@@ -1,6 +1,8 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
+const DEFAULT_PROJECTILE_DURATION = 400;
+
 export function applyChargeLogicIO(
 	env: CombatEnvironment,
 	sourceUnit: Unit,
@@ -8,17 +10,20 @@ export function applyChargeLogicIO(
 	amount: number,
 	delayedExecution?: number
 ) {
-	const effects = env.effects;
-
 	for (const target of targets) {
-		const effect = () => {
-			target.charge += amount;
-		};
+		// Apply charge immediately (no callback indirection)
+		target.charge += amount;
 
-		if (effects.onCharge) {
-			effects.onCharge(sourceUnit.id, target.id, amount, effect, delayedExecution);
-		} else {
-			effect();
-		}
+		// Log the event for playback (pure data, no callback)
+		env.logger.log({
+			type: "charge",
+			frame: env.logger.getCurrentFrame(),
+			sourceId: sourceUnit.id,
+			targetId: target.id,
+			amount: amount,
+			duration: DEFAULT_PROJECTILE_DURATION,
+			delayed: delayedExecution,
+			applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
+		});
 	}
 }

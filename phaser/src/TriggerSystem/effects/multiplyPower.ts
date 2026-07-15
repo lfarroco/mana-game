@@ -13,8 +13,6 @@ export const multiplyPower = async (options: {
 }) => {
 	const { targets, multiplier, env } = options;
 
-	const effects = env.effects;
-
 	for (const target of targets) {
 		logger.debug(`Multiplying power of ${target.id} by ${multiplier}`);
 		const currentPower = target.power;
@@ -23,8 +21,16 @@ export const multiplyPower = async (options: {
 
 		target.power += powerDifference;
 
-		if (effects.onPowerUpdate) {
-			effects.onPowerUpdate(target.id);
-		}
+		// Log the event for playback (pure data, no callback)
+		env.logger.log({
+			type: "increase_power",
+			frame: env.logger.getCurrentFrame(),
+			sourceId: options.sourceUnit.id,
+			targetId: target.id,
+			amount: powerDifference,
+			permanent: false,
+			duration: 0,
+			applyTime: env.logger.getCurrentFrame(),
+		});
 	}
 };
