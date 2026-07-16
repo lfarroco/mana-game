@@ -17,8 +17,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as CoreConstants from "@Core/Constants";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
-import { executeLogHandler } from "./logHandlers";
-import type { PlaybackState as LogHandlerPlaybackState } from "./logHandlers";
+import * as logHandlers from "./logHandlers";
 
 const logger = Logger.createLogger("CombatPlaybackController");
 
@@ -100,7 +99,7 @@ export const createCombatPlaybackController = (
 			Animations.pop(log.sourceId);
 
 		// Dispatch to the extracted log handlers
-		executeLogHandler(log, playbackState as unknown as LogHandlerPlaybackState);
+		logHandlers.executeLogHandler(log, playbackState);
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
 		if (log.type === "storm_start") {
@@ -120,6 +119,14 @@ export const createCombatPlaybackController = (
 				unit.hasted > 0 && unit.slowed > 0 ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 			const chargeRate = 1 / cooldownMultiplier;
 			unit.charge += delta * chargeRate;
+
+			if (unit.hasted > 0) {
+				unit.hasted = Math.max(0, unit.hasted - delta);
+			}
+
+			if (unit.slowed > 0) {
+				unit.slowed = Math.max(0, unit.slowed - delta);
+			}
 
 			if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 				unit.charge = unit.charge - unit.cooldown;
