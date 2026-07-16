@@ -38,6 +38,8 @@ type PlaybackState = {
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
 };
 
+const DEFAULT_ANIMATION_DURATION = 400;
+
 // TODO: this is bad
 // Must match ServerConstants.MIN_COOLDOWN
 const MIN_COOLDOWN = 200;
@@ -91,7 +93,7 @@ export const createCombatPlaybackController = (
 	const scheduleAnimations = () => {
 		logs.forEach((log) => {
 			const startTime = log.frame * FRAME_DURATION;
-			const duration = log.duration || 0;
+			const duration = log.duration || DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;
 
 			playbackState.animations.push({

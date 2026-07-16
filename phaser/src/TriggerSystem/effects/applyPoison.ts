@@ -8,8 +8,6 @@ import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("applyPoison");
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const applyPoison = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
@@ -56,8 +54,6 @@ export const applyPoison = async (
 		sourceId: sourceUnit.id,
 		targetId: Card.getEnemyCore(env.state)(sourceUnit.force).id,
 		amount: amount,
-		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,
-		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 	});
 };

@@ -2,8 +2,6 @@ import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const decreasePower = (
 	env: CombatEnvironment,
 	targets: Unit[],
@@ -25,9 +23,7 @@ export const decreasePower = (
 			amount: amount,
 			permanent: permanent,
 			affectedUnitId: target.id,
-			duration: sourceUnit ? DEFAULT_PROJECTILE_DURATION : 0,
 			delayed: delayedExecution,
-			applyTime: env.logger.getCurrentFrame() + (sourceUnit ? Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67) : 0),
 		});
 	}
 };

@@ -5,8 +5,6 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const restoreLife = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
@@ -49,8 +47,6 @@ export const restoreLife = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: healAmount,
-		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,
-		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 	});
 };

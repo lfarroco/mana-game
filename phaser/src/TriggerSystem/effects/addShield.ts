@@ -4,8 +4,6 @@ import * as Unit from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const addShield = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
@@ -39,8 +37,6 @@ export const addShield = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: shieldAmount,
-		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,
-		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 	});
 };

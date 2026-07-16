@@ -1,8 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const increaseCritical = (
 	env: CombatEnvironment,
 	targets: Unit[],
@@ -27,9 +25,7 @@ export const increaseCritical = (
 			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit?.id,
 			targetId: target.id,
-			duration: sourceUnit ? DEFAULT_PROJECTILE_DURATION : 0,
 			delayed: delayedExecution,
-			applyTime: env.logger.getCurrentFrame() + (sourceUnit ? Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67) : 0),
 		});
 	}
 };

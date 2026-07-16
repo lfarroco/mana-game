@@ -30,7 +30,6 @@ export const multiplyPower = async (options: {
 			amount: powerDifference,
 			permanent: false,
 			duration: 0,
-			applyTime: env.logger.getCurrentFrame(),
 		});
 	}
 };

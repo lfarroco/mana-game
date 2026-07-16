@@ -1,8 +1,6 @@
 import { Unit } from "@Models/Entities/Unit";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export async function applySlow(
 	env: CombatEnvironment,
 	sourceUnit: Unit,
@@ -25,9 +23,7 @@ export async function applySlow(
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			effectDuration: duration,
-			duration: DEFAULT_PROJECTILE_DURATION,
 			delayed: delayedExecution,
-			applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 		});
 	}
 }

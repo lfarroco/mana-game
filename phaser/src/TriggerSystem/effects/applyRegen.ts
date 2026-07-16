@@ -7,8 +7,6 @@ import * as Logger from "@Utils/Logger";
 
 const logger = Logger.createLogger("applyRegen");
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export const applyRegen = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
@@ -53,8 +51,6 @@ export const applyRegen = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: amount,
-		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,
-		applyTime: env.logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 	});
 };

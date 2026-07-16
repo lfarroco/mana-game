@@ -113,7 +113,6 @@ function applyTimeoutDamage(
 		force: playerForce.id,
 		damage: currentDamage,
 		duration: 0,
-		applyTime: env.logger.getCurrentFrame(),
 	});
 	env.logger.log({
 		type: "timeout_damage",
@@ -121,7 +120,6 @@ function applyTimeoutDamage(
 		force: cpuForce.id,
 		damage: currentDamage,
 		duration: 0,
-		applyTime: env.logger.getCurrentFrame(),
 	});
 }
 

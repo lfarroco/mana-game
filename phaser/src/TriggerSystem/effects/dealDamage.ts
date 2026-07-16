@@ -4,8 +4,6 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Card from "@Models/Entities/Card";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 
-const DEFAULT_PROJECTILE_DURATION = 400;
-
 export function dealDamage(
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
@@ -60,8 +58,6 @@ export function dealDamage(
 		sourceId: sourceUnit.id,
 		targetId: enemyCore!.id,
 		amount: damage,
-		duration: DEFAULT_PROJECTILE_DURATION,
 		delayed: delayedExecution,
-		applyTime: logger.getCurrentFrame() + Math.ceil(DEFAULT_PROJECTILE_DURATION / 16.67),
 	});
 }
