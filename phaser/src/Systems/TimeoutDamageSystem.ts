@@ -64,7 +64,6 @@ export function updateTimeoutDamageSystem(
 		stormStarted = true;
 		env.logger.log({
 			type: "storm_start",
-			frame: env.logger.getCurrentFrame(),
 		});
 	}
 
@@ -109,14 +108,12 @@ function applyTimeoutDamage(
 	// Log the timeout damage for playback
 	env.logger.log({
 		type: "timeout_damage",
-		frame: env.logger.getCurrentFrame(),
 		force: playerForce.id,
 		damage: currentDamage,
 		duration: 0,
 	});
 	env.logger.log({
 		type: "timeout_damage",
-		frame: env.logger.getCurrentFrame(),
 		force: cpuForce.id,
 		damage: currentDamage,
 		duration: 0,

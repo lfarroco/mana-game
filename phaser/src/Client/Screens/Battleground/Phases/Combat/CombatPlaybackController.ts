@@ -48,8 +48,6 @@ export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: RunCombatCore.WaveOutcome) => void
 ): RunCombatCore.CombatRunner => {
-	const FRAME_DURATION = 16.67;
-
 	const { state } = window as unknown as { state: State.State };
 
 	const forceStatsState = ForceStats.initializeForceStatsState();
@@ -92,7 +90,7 @@ export const createCombatPlaybackController = (
 
 	const scheduleAnimations = () => {
 		logs.forEach((log) => {
-			const startTime = log.frame * FRAME_DURATION;
+			const startTime = log.timeMs;
 			const duration = log.duration || DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;
 

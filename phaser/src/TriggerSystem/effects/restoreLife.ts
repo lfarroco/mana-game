@@ -42,7 +42,6 @@ export const restoreLife = async (
 	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "heal",
-		frame: env.logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: healAmount,

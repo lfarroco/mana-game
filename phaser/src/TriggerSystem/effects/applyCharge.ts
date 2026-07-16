@@ -14,7 +14,6 @@ export function applyCharge(
 		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "charge",
-			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			amount: amount,

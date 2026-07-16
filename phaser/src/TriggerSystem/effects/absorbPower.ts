@@ -27,7 +27,6 @@ export const absorbPower = (
 		// Log the decrease event for each drained unit
 		env.logger.log({
 			type: "decrease_power",
-			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			amount: amount,

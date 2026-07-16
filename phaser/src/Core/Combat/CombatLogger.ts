@@ -4,15 +4,14 @@
  * Pure data logger for combat simulation. Collects CombatLogEntry objects
  * during simulation with no side effects, callbacks, or visual logic.
  *
- * This replaces the role that ServerCombatEffects played for logging,
- * separating the concerns of "log what happened" from "play back visuals."
  */
 
 import type * as CombatTypes from "@Core/Combat/CombatTypes";
 
 export type CombatLogEntry = {
 	type: string;
-	frame: number;
+	/** Combat time in ms since the combat started (auto-stamped by the logger) */
+	timeMs: number;
 	duration?: number;
 	result?: CombatTypes.WaveOutcome;
 	sourceId?: string;
@@ -33,38 +32,37 @@ export type CombatLogEntry = {
 	currentCombatStats?: [string, import("@Systems/CombatStatsTracker").CurrentCombatStats][];
 };
 
+/**
+ * Input type for logging — the timeMs field is auto-stamped by the logger.
+ */
+export type CombatLogInput = Omit<CombatLogEntry, "timeMs">;
+
 export type CombatLogger = {
-	/** Log a combat event */
-	log: (entry: CombatLogEntry) => void;
+	/** Log a combat event with auto-stamped timeMs */
+	log: (entry: CombatLogInput) => void;
 
-	/** Set the current frame number (called each frame during simulation) */
-	setFrame: (frame: number) => void;
-
-	/** Get the current frame number */
-	getCurrentFrame: () => number;
+	/** Set the current combat time in ms (called each frame during simulation) */
+	setCurrentTimeMs: (timeMs: number) => void;
 
 	/** Get all collected logs */
 	getLogs: () => CombatLogEntry[];
 };
 
-/**
- * Create a new CombatLogger.
- * @param frameDurationMs - The duration of one frame in ms (default: 16.67)
- */
-export const createCombatLogger = (_frameDurationMs: number = 16.67): CombatLogger => {
-	let currentFrame = 0;
+export const createCombatLogger = (): CombatLogger => {
+	let currentTimeMs = 0;
 	const logs: CombatLogEntry[] = [];
 
 	return {
-		log: (entry: CombatLogEntry) => {
-			logs.push(entry);
+		log: (entry: CombatLogInput) => {
+			logs.push({
+				...entry,
+				timeMs: currentTimeMs,
+			});
 		},
 
-		setFrame: (frame: number) => {
-			currentFrame = frame;
+		setCurrentTimeMs: (timeMs: number) => {
+			currentTimeMs = timeMs;
 		},
-
-		getCurrentFrame: () => currentFrame,
 
 		getLogs: () => logs,
 	};

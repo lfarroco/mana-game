@@ -32,7 +32,6 @@ export const addShield = async (
 	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "shield",
-		frame: env.logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: shieldAmount,

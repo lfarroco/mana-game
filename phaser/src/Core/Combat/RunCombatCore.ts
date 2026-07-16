@@ -84,9 +84,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 		const scaledDelta = delta;
 		combatElapsedMs += scaledDelta;
 
-		// Update logger frame for pure-data log entries
-		const LOGGER_FRAME_DURATION = 16.67;
-		runnerState.env.logger.setFrame(Math.floor(combatElapsedMs / LOGGER_FRAME_DURATION));
+		runnerState.env.logger.setCurrentTimeMs(combatElapsedMs);
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,
@@ -154,7 +152,6 @@ export const runCombat = (state: State.State): CombatRunner => {
 				type: "combat_stats",
 				unitStats: Array.from(unitStats.entries()),
 				currentCombatStats: Array.from(currentCombatStats.entries()),
-				frame: runnerState.env.logger.getCurrentFrame(),
 			});
 		}
 
@@ -162,7 +159,6 @@ export const runCombat = (state: State.State): CombatRunner => {
 		runnerState.env.logger.log({
 			type: "outcome",
 			result: outcome,
-			frame: runnerState.env.logger.getCurrentFrame(),
 		});
 
 		logger.debug("[RunCombatSystem] Combat ended. Outcome:", outcome);

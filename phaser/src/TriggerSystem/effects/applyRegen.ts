@@ -46,7 +46,6 @@ export const applyRegen = async (
 	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "regen",
-		frame: env.logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: amount,

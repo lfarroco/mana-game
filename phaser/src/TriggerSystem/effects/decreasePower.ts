@@ -16,7 +16,6 @@ export const decreasePower = (
 		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "decrease_power",
-			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit?.id,
 			targetId: target.id,
 			amount: amount,

@@ -21,7 +21,6 @@ export const increaseCritical = (
 		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "increase_critical",
-			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit?.id,
 			targetId: target.id,
 		});

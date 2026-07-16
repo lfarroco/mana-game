@@ -53,7 +53,6 @@ export function dealDamage(
 
 	logger.log({
 		type: "damage",
-		frame: logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
 		targetId: enemyCore!.id,
 		amount: damage,

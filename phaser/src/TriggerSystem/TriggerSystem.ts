@@ -438,7 +438,6 @@ export function processReactions(
 			env.logger.log({
 				type: "reaction",
 				unitId: u.id,
-				frame: env.logger.getCurrentFrame(),
 			});
 			processEffectsIO(env, u, r.effects, true, triggeringUnit, scale);
 		});

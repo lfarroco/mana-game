@@ -49,7 +49,6 @@ export const applyPoison = async (
 	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "poison",
-		frame: env.logger.getCurrentFrame(),
 		sourceId: sourceUnit.id,
 		targetId: Card.getEnemyCore(env.state)(sourceUnit.force).id,
 		amount: amount,
