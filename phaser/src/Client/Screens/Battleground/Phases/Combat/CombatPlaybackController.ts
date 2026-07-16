@@ -61,6 +61,25 @@ export const createCombatPlaybackController = (
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
 
+	// Initialize force stats display from game state
+	ForceStats.ensureForceStats(combatStates.forceStatsState, CoreConstants.FORCE_ID_PLAYER);
+	ForceStats.ensureForceStats(combatStates.forceStatsState, CoreConstants.FORCE_ID_CPU);
+
+	const initCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
+	if (initCore) {
+		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_PLAYER, initCore.life, 0, combatStates.forceStatsState);
+		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_PLAYER, initCore.shield, 0, combatStates.forceStatsState);
+	}
+	const cpuCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
+	if (cpuCore) {
+		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_CPU, cpuCore.life, 0, combatStates.forceStatsState);
+		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_CPU, cpuCore.shield, 0, combatStates.forceStatsState);
+	}
+	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
+	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_CPU, 0, 0);
+	ForceStats.updatePoisonDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
+	ForceStats.updatePoisonDisplay(CoreConstants.FORCE_ID_CPU, 0, 0);
+
 	const playbackState: PlaybackState = {
 		active: true,
 		currentTime: 0,
@@ -90,6 +109,91 @@ export const createCombatPlaybackController = (
 		playbackState.animations.sort((a, b) => a.startTime - b.startTime);
 	};
 
+	const coreLifeState = {
+		playerLife: 0,
+		playerShield: 0,
+		playerMaxLife: 0,
+		cpuLife: 0,
+		cpuShield: 0,
+		cpuMaxLife: 0,
+	};
+
+	const initForceStats = () => {
+		const playerCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
+		if (playerCore) {
+			coreLifeState.playerLife = playerCore.life;
+			coreLifeState.playerShield = playerCore.shield;
+			coreLifeState.playerMaxLife = playerCore.maxLife;
+		}
+		const cpuCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
+		if (cpuCore) {
+			coreLifeState.cpuLife = cpuCore.life;
+			coreLifeState.cpuShield = cpuCore.shield;
+			coreLifeState.cpuMaxLife = cpuCore.maxLife;
+		}
+	};
+	initForceStats();
+
+	const syncForceStatsDisplay = () => {
+		const fss = playbackState.combatStates.forceStatsState;
+		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_PLAYER, coreLifeState.playerLife, 0, fss);
+		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_PLAYER, coreLifeState.playerShield, 0, fss);
+		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_CPU, coreLifeState.cpuLife, 0, fss);
+		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_CPU, coreLifeState.cpuShield, 0, fss);
+	};
+
+	const applyForceStatChange = (log: CombatLogger.CombatLogEntry) => {
+		const { amount } = log;
+		if (amount === undefined) return;
+
+		// Determine target force from the log's targetId
+		const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
+		if (!targetUnit) return;
+
+		const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
+		const life = isPlayer ? coreLifeState.playerLife : coreLifeState.cpuLife;
+		const shield = isPlayer ? coreLifeState.playerShield : coreLifeState.cpuShield;
+		const maxLife = isPlayer ? coreLifeState.playerMaxLife : coreLifeState.cpuMaxLife;
+
+		switch (log.type) {
+			case "damage":
+			case "timeout_damage": {
+				// Damage goes through shield first
+				let remaining = amount;
+				const shieldAbsorbed = Math.min(remaining, shield);
+				const newShield = shield - shieldAbsorbed;
+				remaining -= shieldAbsorbed;
+				const newLife = Math.max(0, life - remaining);
+				if (isPlayer) {
+					coreLifeState.playerShield = newShield;
+					coreLifeState.playerLife = newLife;
+				} else {
+					coreLifeState.cpuShield = newShield;
+					coreLifeState.cpuLife = newLife;
+				}
+				break;
+			}
+			case "heal": {
+				const newLife = Math.min(maxLife, life + amount);
+				if (isPlayer) {
+					coreLifeState.playerLife = newLife;
+				} else {
+					coreLifeState.cpuLife = newLife;
+				}
+				break;
+			}
+			case "shield": {
+				const newShield = shield + amount;
+				if (isPlayer) {
+					coreLifeState.playerShield = newShield;
+				} else {
+					coreLifeState.cpuShield = newShield;
+				}
+				break;
+			}
+		}
+	};
+
 	const executeAnimation = async (animation: ScheduledAnimation) => {
 		if (!playbackState.active) return;
 
@@ -100,6 +204,21 @@ export const createCombatPlaybackController = (
 
 		// Dispatch to the extracted log handlers
 		logHandlers.executeLogHandler(log, playbackState);
+
+		// Keep track of force stats changes from log events
+		if (
+			log.type === "damage" ||
+			log.type === "heal" ||
+			log.type === "shield" ||
+			log.type === "poison" ||
+			log.type === "regen" ||
+			log.type === "timeout_damage"
+		) {
+			if (log.type === "damage" || log.type === "heal" || log.type === "shield" || log.type === "timeout_damage") {
+				applyForceStatChange(log);
+			}
+			syncForceStatsDisplay();
+		}
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
 		if (log.type === "storm_start") {

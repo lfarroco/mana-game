@@ -16,13 +16,6 @@ import {
 	handleDecreasePower,
 } from "./powerHandlers";
 import {
-	handleCrystalLife,
-	handleLifeDisplay,
-	handleShieldDisplay,
-	handleRegenDisplay,
-	handlePoisonDisplay,
-} from "./forceStatsHandlers";
-import {
 	handleHasteEnd,
 	handleSlowEnd,
 } from "./statusHandlers";
@@ -42,11 +35,6 @@ const logHandlers: Record<string, LogHandler> = {
 	increase_power: handleIncreasePower,
 	decrease_power: handleDecreasePower,
 	increase_critical: emptyHandler,
-	crystal_life: handleCrystalLife,
-	life_display: handleLifeDisplay,
-	shield_display: handleShieldDisplay,
-	regen_display: handleRegenDisplay,
-	poison_display: handlePoisonDisplay,
 	timeout_damage: emptyHandler,
 	reaction: emptyHandler,
 	haste_end: handleHasteEnd,
