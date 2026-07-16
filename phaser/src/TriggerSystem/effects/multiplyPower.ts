@@ -20,7 +20,6 @@ export const multiplyPower = async (options: {
 
 		target.power += powerDifference;
 
-		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "increase_power",
 			sourceId: options.sourceUnit.id,

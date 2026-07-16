@@ -9,13 +9,11 @@ export async function applySlow(
 	onReSlow?: (target: Unit) => void,
 ) {
 	for (const target of targets) {
-		// Apply slow immediately (no callback indirection)
 		if (target.slowed > 0 && onReSlow) {
 			onReSlow(target);
 		}
 		target.slowed += duration;
 
-		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "slow",
 			sourceId: sourceUnit.id,

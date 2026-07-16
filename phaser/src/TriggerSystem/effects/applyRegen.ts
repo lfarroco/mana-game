@@ -24,7 +24,6 @@ export const applyRegen = async (
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 
-	// Apply regen immediately (no callback indirection)
 	const { combatStates } = env;
 	const newRegenState = RegenSystem.applyRegen(
 		combatStates.regenSystemState,
@@ -43,7 +42,6 @@ export const applyRegen = async (
 
 	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 
-	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "regen",
 		sourceId: sourceUnit.id,

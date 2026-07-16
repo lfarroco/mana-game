@@ -18,7 +18,6 @@ export const restoreLife = async (
 	const sourceForce = Force.getUnitForce(env.state, sourceUnit.id);
 	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 
-	// Apply heal immediately (no callback indirection)
 	const actualHealing = Force.manipulateCoreLife(env.state, sourceForce, healAmount, crit.isCritical);
 
 	const { combatStates } = env;
@@ -39,7 +38,6 @@ export const restoreLife = async (
 		env.processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
 	}
 
-	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "heal",
 		sourceId: sourceUnit.id,

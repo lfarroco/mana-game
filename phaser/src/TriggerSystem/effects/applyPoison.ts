@@ -25,7 +25,6 @@ export const applyPoison = async (
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 
-	// Apply poison immediately (no callback indirection)
 	const { combatStates } = env;
 	const newPoisonState = PoisonSystem.applyPoison(
 		combatStates.poisonSystemState,
@@ -46,7 +45,6 @@ export const applyPoison = async (
 		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
 
-	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "poison",
 		sourceId: sourceUnit.id,

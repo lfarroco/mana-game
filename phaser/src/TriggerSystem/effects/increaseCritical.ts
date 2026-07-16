@@ -9,7 +9,6 @@ export const increaseCritical = (
 	permanent: boolean = false,
 ) => {
 	for (const target of targets) {
-		// Apply critical increase immediately (no callback indirection)
 		if (!target.critical) target.critical = 0;
 		target.critical += amount;
 
@@ -18,7 +17,6 @@ export const increaseCritical = (
 			target.bonusCritical += amount;
 		}
 
-		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "increase_critical",
 			sourceId: sourceUnit?.id,

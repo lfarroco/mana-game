@@ -17,7 +17,6 @@ export const addShield = async (
 
 	const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
-	// Apply shield immediately (no callback indirection)
 	const actualShieldChange = Force.manipulateCoreShield(env.state, sourceForce, shieldAmount, crit.isCritical);
 
 	if (actualShieldChange > 0) {
@@ -29,7 +28,6 @@ export const addShield = async (
 		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
 
-	// Log the event for playback (pure data, no callback)
 	env.logger.log({
 		type: "shield",
 		sourceId: sourceUnit.id,

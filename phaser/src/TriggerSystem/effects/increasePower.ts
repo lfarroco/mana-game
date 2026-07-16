@@ -10,10 +10,8 @@ export const increasePower = (
 	sourceUnit?: Unit,
 ) => {
 	for (const target of targets) {
-		// Apply power delta immediately (no callback indirection)
 		applyPersistentPowerDelta(env, target, amount, permanent);
 
-		// Log the event for playback (pure data, no callback)
 		env.logger.log({
 			type: "increase_power",
 			sourceId: sourceUnit?.id,

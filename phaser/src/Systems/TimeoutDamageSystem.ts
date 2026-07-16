@@ -87,7 +87,6 @@ function applyTimeoutDamage(
 
 	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
-	// Apply damage immediately (no callback indirection)
 	Force.applyDamageToForce(
 		state,
 		playerForce,
@@ -105,7 +104,6 @@ function applyTimeoutDamage(
 		false,
 	);
 
-	// Log the timeout damage for playback
 	env.logger.log({
 		type: "timeout_damage",
 		force: playerForce.id,
