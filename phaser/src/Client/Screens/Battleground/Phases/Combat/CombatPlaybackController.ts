@@ -118,6 +118,9 @@ export const createCombatPlaybackController = (
 		cpuMaxLife: 0,
 	};
 
+	const regenRates = { player: 0, cpu: 0 };
+	const poisonRates = { player: 0, cpu: 0 };
+
 	const initForceStats = () => {
 		const playerCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
 		if (playerCore) {
@@ -134,21 +137,70 @@ export const createCombatPlaybackController = (
 	};
 	initForceStats();
 
-	const syncForceStatsDisplay = () => {
+	const prevDisplayedLife = { player: 0, cpu: 0 };
+	const prevDisplayedShield = { player: 0, cpu: 0 };
+	const prevDisplayedRegen = { player: 0, cpu: 0 };
+	const prevDisplayedPoison = { player: 0, cpu: 0 };
+
+	const syncForceStatsLife = (force: string) => {
+		const life = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerLife : coreLifeState.cpuLife;
+		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedLife.player : prevDisplayedLife.cpu;
+		if (life === prev) return;
+
 		const fss = playbackState.combatStates.forceStatsState;
-		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_PLAYER, coreLifeState.playerLife, 0, fss);
-		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_PLAYER, coreLifeState.playerShield, 0, fss);
-		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_CPU, coreLifeState.cpuLife, 0, fss);
-		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_CPU, coreLifeState.cpuShield, 0, fss);
+		ForceStats.updateLifeDisplay(force, life, 0, fss);
+		if (force === CoreConstants.FORCE_ID_PLAYER) {
+			prevDisplayedLife.player = life;
+		} else {
+			prevDisplayedLife.cpu = life;
+		}
 	};
 
-	const applyForceStatChange = (log: CombatLogger.CombatLogEntry) => {
+	const syncForceStatsShield = (force: string) => {
+		const shield = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerShield : coreLifeState.cpuShield;
+		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedShield.player : prevDisplayedShield.cpu;
+		if (shield === prev) return;
+
+		const fss = playbackState.combatStates.forceStatsState;
+		ForceStats.updateShieldDisplay(force, shield, 0, fss);
+		if (force === CoreConstants.FORCE_ID_PLAYER) {
+			prevDisplayedShield.player = shield;
+		} else {
+			prevDisplayedShield.cpu = shield;
+		}
+	};
+
+	const syncForceStatsRegen = (force: string, regen: number) => {
+		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedRegen.player : prevDisplayedRegen.cpu;
+		if (regen === prev) return;
+
+		ForceStats.updateRegenDisplay(force, regen, 0);
+		if (force === CoreConstants.FORCE_ID_PLAYER) {
+			prevDisplayedRegen.player = regen;
+		} else {
+			prevDisplayedRegen.cpu = regen;
+		}
+	};
+
+	const syncForceStatsPoison = (force: string, poison: number) => {
+		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedPoison.player : prevDisplayedPoison.cpu;
+		if (poison === prev) return;
+
+		ForceStats.updatePoisonDisplay(force, poison, 0);
+		if (force === CoreConstants.FORCE_ID_PLAYER) {
+			prevDisplayedPoison.player = poison;
+		} else {
+			prevDisplayedPoison.cpu = poison;
+		}
+	};
+
+	const applyForceStatChange = (log: CombatLogger.CombatLogEntry): string | null => {
 		const { amount } = log;
-		if (amount === undefined) return;
+		if (amount === undefined) return null;
 
 		// Determine target force from the log's targetId
 		const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
-		if (!targetUnit) return;
+		if (!targetUnit) return null;
 
 		const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
 		const life = isPlayer ? coreLifeState.playerLife : coreLifeState.cpuLife;
@@ -192,6 +244,7 @@ export const createCombatPlaybackController = (
 				break;
 			}
 		}
+		return isPlayer ? CoreConstants.FORCE_ID_PLAYER : CoreConstants.FORCE_ID_CPU;
 	};
 
 	const executeAnimation = async (animation: ScheduledAnimation) => {
@@ -210,14 +263,45 @@ export const createCombatPlaybackController = (
 			log.type === "damage" ||
 			log.type === "heal" ||
 			log.type === "shield" ||
-			log.type === "poison" ||
-			log.type === "regen" ||
 			log.type === "timeout_damage"
 		) {
-			if (log.type === "damage" || log.type === "heal" || log.type === "shield" || log.type === "timeout_damage") {
-				applyForceStatChange(log);
+			const affectedForce = applyForceStatChange(log);
+			if (affectedForce) {
+				syncForceStatsLife(affectedForce);
+				syncForceStatsShield(affectedForce);
 			}
-			syncForceStatsDisplay();
+		}
+
+		// Track cumulative poison/regen rates from log amounts
+		if (log.type === "poison") {
+			if (log.amount !== undefined) {
+				const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
+				if (targetUnit) {
+					const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
+					if (isPlayer) {
+						poisonRates.player += log.amount;
+					} else {
+						poisonRates.cpu += log.amount;
+					}
+				}
+			}
+			syncForceStatsPoison(CoreConstants.FORCE_ID_PLAYER, poisonRates.player);
+			syncForceStatsPoison(CoreConstants.FORCE_ID_CPU, poisonRates.cpu);
+		}
+		if (log.type === "regen") {
+			if (log.amount !== undefined) {
+				const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
+				if (targetUnit) {
+					const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
+					if (isPlayer) {
+						regenRates.player += log.amount;
+					} else {
+						regenRates.cpu += log.amount;
+					}
+				}
+			}
+			syncForceStatsRegen(CoreConstants.FORCE_ID_PLAYER, regenRates.player);
+			syncForceStatsRegen(CoreConstants.FORCE_ID_CPU, regenRates.cpu);
 		}
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
