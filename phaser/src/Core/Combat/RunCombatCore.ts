@@ -93,13 +93,6 @@ export const runCombat = (state: State.State): CombatRunner => {
 		);
 
 		for (const unit of unitsReadyToAct) {
-			env.logger.log({
-				type: "unit_pop",
-				unitId: unit.id,
-				frame: env.logger.getCurrentFrame(),
-				duration: 0,
-			});
-
 			CombatStatsTracker.trackAction(runnerState.env.combatStates.combatStatsTrackerState, {
 				unit,
 			});

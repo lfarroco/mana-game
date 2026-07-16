@@ -101,6 +101,9 @@ export const createCombatPlaybackController = (
 		try {
 			const { log } = animation;
 
+			if (log.sourceId)
+				Animations.pop(log.sourceId);
+
 			switch (log.type) {
 				case "damage":
 					if (!log.sourceId || !log.targetId || log.amount === undefined) break;
@@ -368,10 +371,6 @@ export const createCombatPlaybackController = (
 							ChargeBarDisplay.updateChargeBar(log.unitId);
 						}
 					}
-					break;
-				case "unit_pop":
-					if (!log.unitId) break;
-					Animations.pop(log.unitId);
 					break;
 				case "combat_stats":
 					if (
