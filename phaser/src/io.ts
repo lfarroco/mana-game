@@ -12,7 +12,6 @@ import * as Models from "@Core/Models";
 import * as Logger from "@Utils/Logger";
 import * as Chara from "@Systems/Chara/Chara";
 
-const logger = Logger.createLogger("io");
 
 export let game: Phaser.Game;
 export let scene: Phaser.Scene;
@@ -27,11 +26,11 @@ export const createEvent = <T>(event: string): Models.Event<T> => {
 
 	return {
 		listen: (callback: (payload: T) => void) => {
-			logger.debug(`~~~Listening to event: ${event}`);
+			Logger.debug("io", `~~~Listening to event: ${event}`);
 			emitter.on(event, callback);
 		},
 		emit: (payload: T) => {
-			logger.debug(`~~~Emitting event: ${event}`, payload);
+			Logger.debug("io", `~~~Emitting event: ${event}`, payload);
 			emitter.emit(event, payload);
 		},
 	};

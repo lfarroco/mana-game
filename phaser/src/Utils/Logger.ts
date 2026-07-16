@@ -5,7 +5,7 @@ type LogLevel = "debug" | "info" | "warn" | "error";
 type LogPayload = {
 	ts: string;
 	level: LogLevel;
-	scope: string;
+	context: string;
 	message: string;
 	meta?: unknown;
 };
@@ -22,6 +22,11 @@ const overrideLogLevel: LogLevel | null = null;
 const getEnv = (): Record<string, string | undefined> => {
 	if (typeof process === "undefined" || !process.env) return {};
 	return process.env as Record<string, string | undefined>;
+};
+
+const isTestEnv = (): boolean => {
+	const env = getEnv();
+	return env.JEST_WORKER_ID !== undefined || env.NODE_ENV === "test";
 };
 
 const resolveConfiguredLogLevel = (): LogLevel => {
@@ -77,13 +82,13 @@ const writeElectronLog = (payload: LogPayload): void => {
 	}
 };
 
-const writeLog = (scope: string, level: LogLevel, message: string, meta?: unknown): void => {
+const writeLog = (level: LogLevel, context: string, message: string, meta?: unknown): void => {
 	if (!shouldLog(level)) return;
 
 	const payload: LogPayload = {
 		ts: new Date().toISOString(),
 		level,
-		scope,
+		context,
 		message,
 		...(meta !== undefined ? { meta } : {}),
 	};
@@ -92,11 +97,38 @@ const writeLog = (scope: string, level: LogLevel, message: string, meta?: unknow
 	writeElectronLog(payload);
 };
 
-export const createLogger = (scope: string) => ({
-	debug: (message: string, meta?: unknown): void => writeLog(scope, "debug", message, meta),
-	info: (message: string, meta?: unknown): void => writeLog(scope, "info", message, meta),
-	warn: (message: string, meta?: unknown): void => writeLog(scope, "warn", message, meta),
-	error: (message: string, meta?: unknown): void => writeLog(scope, "error", message, meta),
-});
+const noop = (): void => {};
+
+/**
+ * Log a debug-level message. First argument is the context (module/scope).
+ */
+export const debug = (context: string, message: string, meta?: unknown): void => {
+	if (isTestEnv()) return noop();
+	writeLog("debug", context, message, meta);
+};
+
+/**
+ * Log an info-level message. First argument is the context (module/scope).
+ */
+export const info = (context: string, message: string, meta?: unknown): void => {
+	if (isTestEnv()) return noop();
+	writeLog("info", context, message, meta);
+};
+
+/**
+ * Log a warning-level message. First argument is the context (module/scope).
+ */
+export const warn = (context: string, message: string, meta?: unknown): void => {
+	if (isTestEnv()) return noop();
+	writeLog("warn", context, message, meta);
+};
+
+/**
+ * Log an error-level message. First argument is the context (module/scope).
+ */
+export const error = (context: string, message: string, meta?: unknown): void => {
+	if (isTestEnv()) return noop();
+	writeLog("error", context, message, meta);
+};
 
 export type { LogLevel };

@@ -4,7 +4,6 @@ import * as State from "@Models/State";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("Force");
 
 export type Force = {
 	id: string;
@@ -97,7 +96,7 @@ export const applyDamageToForce = (
 	const core = Card.getBattleCore(state)(targetForce.id);
 
 	if (!core) {
-		logger.warn(`[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
+		Logger.warn("Force", `[Force] applyDamageToForce: No core found for force ${targetForce.id}`);
 		return 0;
 	}
 

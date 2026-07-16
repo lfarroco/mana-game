@@ -19,7 +19,6 @@ import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
 import * as logHandlers from "./logHandlers";
 
-const logger = Logger.createLogger("CombatPlaybackController");
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -413,7 +412,7 @@ export const createCombatPlaybackController = (
 			await onReplayEnd(outcome);
 		}
 
-		logger.debug("[CombatPlaybackController] Combat ended. Outcome:", outcome);
+		Logger.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
 	};
 
 	const isActive = (): boolean => {
@@ -421,7 +420,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const stop = (): void => {
-		logger.debug("[CombatPlaybackController] Stopping combat playback");
+		Logger.debug("CombatPlaybackController", "[CombatPlaybackController] Stopping combat playback");
 		playbackState.active = false;
 	};
 

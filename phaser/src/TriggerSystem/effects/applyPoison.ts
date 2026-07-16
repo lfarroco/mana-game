@@ -6,7 +6,6 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("applyPoison");
 
 export const applyPoison = async (
 	env: CombatTypes.CombatEnvironment,
@@ -21,7 +20,7 @@ export const applyPoison = async (
 
 	const targetForce = Force.getEnemyForce(env.state, sourceUnit.id);
 
-	logger.debug(
+	Logger.debug("applyPoison", 
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 

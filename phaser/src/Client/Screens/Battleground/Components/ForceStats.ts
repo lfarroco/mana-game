@@ -9,7 +9,6 @@ import * as Utils from "@utils";
 import * as Logger from "@Utils/Logger";
 import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
-const logger = Logger.createLogger("ForceStats");
 
 export type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
@@ -238,12 +237,12 @@ export function updateLifeDisplay(
 
 	const bar = forceStatsState.healthBars.get(force);
 	if (!bar) {
-		logger.error(`No health bar found for force ${force}`);
+		Logger.error("ForceStats", `No health bar found for force ${force}`);
 		return;
 	}
 	const core = getForceStatsCore(force, options);
 	if (!core) {
-		logger.warn(`[ForceStats] Core not found for force ${force} in updateLifeDisplay`);
+		Logger.warn("ForceStats", `[ForceStats] Core not found for force ${force} in updateLifeDisplay`);
 		return;
 	}
 	const maxLife = core.maxLife || 1;
@@ -265,7 +264,7 @@ export function updateLifeDisplay(
 	const chip = Chip.getChip(chipId);
 
 	if (!chip) {
-		logger.error("No chip found for id", chipId);
+		Logger.error("ForceStats", "No chip found for id", chipId);
 		return;
 	}
 
@@ -301,13 +300,13 @@ export function updateShieldDisplay(
 	const bar = forceStatsState.shieldBars.get(force);
 
 	if (!bar) {
-		logger.error("No bar for force", force);
+		Logger.error("ForceStats", "No bar for force", force);
 		return;
 	}
 
 	const core = getForceStatsCore(force, options, state);
 	if (!core) {
-		logger.warn(`[ForceStats] Core not found for force ${force} in updateShieldDisplay`);
+		Logger.warn("ForceStats", `[ForceStats] Core not found for force ${force} in updateShieldDisplay`);
 		return;
 	}
 	const maxLife = core.maxLife || 1;
@@ -329,7 +328,7 @@ export function updateShieldDisplay(
 	const chip = Chip.getChip(chipId);
 
 	if (!chip) {
-		logger.error("No chip found for id", chipId);
+		Logger.error("ForceStats", "No chip found for id", chipId);
 		return;
 	}
 
@@ -346,7 +345,7 @@ export function updateShieldDisplay(
 export function syncPlayerPersistentForceStats(statsState?: ForceStatsState.ForceStatsState): ForceStatsState.ForceStatsState {
 	const playerCore = Card.getPlayerPersistentCore(state);
 	if (!playerCore) {
-		logger.warn("[ForceStats] Player persistent core not found");
+		Logger.warn("ForceStats", "[ForceStats] Player persistent core not found");
 		return statsState ?? initializeForceStatsState();
 	}
 

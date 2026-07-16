@@ -6,7 +6,6 @@ import * as State from "@Models/State";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("TriggerSystem");
 
 export type EffectId =
 	| "damage"
@@ -451,7 +450,7 @@ export function resolveTargets(
 	triggeringUnit?: Unit.Unit
 ): Unit.Unit[] {
 	if (!("targets" in effect)) {
-		logger.warn(`Invalid trigger data. Effect ${effect.id} should have targets`);
+		Logger.warn("TriggerSystem", `Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];
 	}
 	const isInBattle = state.battleData.units.length > 0;

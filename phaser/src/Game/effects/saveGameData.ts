@@ -3,7 +3,6 @@ import * as Logger from "@Utils/Logger";
 import * as Models from "@Core/Models";
 import * as GameServer from "@Core/GameServer"
 
-const logger = Logger.createLogger("saveGameData");
 
 /**
  * Save game data through the SessionManager.
@@ -21,6 +20,6 @@ export function saveGameData() {
 			}
 		).sessionManager.updateSession(state.session.player_id, state.session);
 	} else {
-		logger.warn("[saveGameData] Unable to save: SessionManager not available or no player_id");
+		Logger.warn("saveGameData", "[saveGameData] Unable to save: SessionManager not available or no player_id");
 	}
 }

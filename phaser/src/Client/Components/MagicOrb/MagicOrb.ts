@@ -3,9 +3,8 @@ import * as Board from "@Models/Board";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import { magicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
 import { nextValue } from "@Utils/Random";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("MagicOrb");
 
 export interface MagicOrbConfig {
 	size?: number;
@@ -59,7 +58,7 @@ export class MagicOrb {
 		this.originalPosition = { x, y };
 
 		const animationPhaseOffset = nextValue() * Math.PI * 2;
-		logger.debug(`MagicOrb randomization: phase offset=${animationPhaseOffset}`);
+		Logger.debug("MagicOrb", `MagicOrb randomization: phase offset=${animationPhaseOffset}`);
 
 		const baseShader = new Phaser.Display.BaseShader(
 			"MagicOrb",
@@ -80,7 +79,7 @@ export class MagicOrb {
 			}
 		);
 
-		logger.debug("BaseShader created successfully");
+		Logger.debug("MagicOrb", "BaseShader created successfully");
 
 		this.shader = io.scene.add
 			.shader(baseShader, x, y, this.config.size, this.config.size)
@@ -90,9 +89,9 @@ export class MagicOrb {
 			this.setupInteractivity();
 		}
 
-		logger.debug("Shader game object created:", this.shader);
-		logger.debug("Shader visible:", this.shader.visible);
-		logger.debug("Shader active:", this.shader.active);
+		Logger.debug("MagicOrb", "Shader game object created:", this.shader);
+		Logger.debug("MagicOrb", "Shader visible:", this.shader.visible);
+		Logger.debug("MagicOrb", "Shader active:", this.shader.active);
 	}
 
 	private setupInteractivity(): void {
@@ -158,7 +157,7 @@ export class MagicOrb {
 		if (playerBoard && playerBoard.dropZones) {
 			for (const zone of playerBoard.dropZones) {
 				if (objectsAtPointer.includes(zone)) {
-					logger.debug(
+					Logger.debug("MagicOrb", 
 						"Magic orb dropped on board zone at index:",
 						playerBoard.dropZones.indexOf(zone)
 					);
@@ -173,7 +172,7 @@ export class MagicOrb {
 
 		for (const obj of objectsAtPointer) {
 			if (obj.name && this.config.dropTargetNames.includes(obj.name)) {
-				logger.debug("Magic orb dropped on named target:", obj.name);
+				Logger.debug("MagicOrb", "Magic orb dropped on named target:", obj.name);
 				return obj;
 			}
 
@@ -182,11 +181,11 @@ export class MagicOrb {
 				const objId = obj.getData("id");
 
 				if (objType && this.config.dropTargetNames.includes(objType)) {
-					logger.debug("Magic orb dropped on object with type:", objType);
+					Logger.debug("MagicOrb", "Magic orb dropped on object with type:", objType);
 					return obj;
 				}
 				if (objId && this.config.dropTargetNames.includes(objId)) {
-					logger.debug("Magic orb dropped on object with id:", objId);
+					Logger.debug("MagicOrb", "Magic orb dropped on object with id:", objId);
 					return obj;
 				}
 			}
@@ -211,11 +210,11 @@ export class MagicOrb {
 			this.shader.setUniform("dissolveTime.value", dissolveElapsed);
 
 			if (Math.floor(dissolveElapsed * 10) % 10 === 0) {
-				logger.debug(`Dissolve progress: ${(dissolveProgress * 100).toFixed(1)}%`);
+				Logger.debug("MagicOrb", `Dissolve progress: ${(dissolveProgress * 100).toFixed(1)}%`);
 			}
 
 			if (dissolveProgress >= 1.0) {
-				logger.debug("Dissolve animation complete, destroying orb");
+				Logger.debug("MagicOrb", "Dissolve animation complete, destroying orb");
 				this.destroy();
 			}
 		}
@@ -266,7 +265,7 @@ export class MagicOrb {
 		if (!this.isDissolving) {
 			this.isDissolving = true;
 			this.dissolveStartTime = io.scene.time.now;
-			logger.debug("Starting dissolve animation at time:", this.dissolveStartTime);
+			Logger.debug("MagicOrb", "Starting dissolve animation at time:", this.dissolveStartTime);
 		}
 		return this;
 	}
@@ -357,17 +356,17 @@ export class MagicOrb {
 
 export class MagicOrbCallbacks {
 	static returnToPosition(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
-		logger.debug("Orb effect: Returning to position after touching", target.name || "target");
+		Logger.debug("MagicOrb", "Orb effect: Returning to position after touching", target.name || "target");
 		orb.returnToOriginalPosition();
 	}
 
 	static dissolveOnDrop(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
-		logger.debug("Orb effect: Dissolving after touching", target.name || "target");
+		Logger.debug("MagicOrb", "Orb effect: Dissolving after touching", target.name || "target");
 		orb.startDissolve();
 	}
 
 	static healingEffect(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
-		logger.debug("Orb effect: Healing", target.name || "target");
+		Logger.debug("MagicOrb", "Orb effect: Healing", target.name || "target");
 		orb.setIntensity(2.0);
 		orb.setOrbColor(0.3, 1.0, 0.4);
 		setTimeout(() => {
@@ -376,7 +375,7 @@ export class MagicOrbCallbacks {
 	}
 
 	static damageEffect(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
-		logger.debug("Orb effect: Damaging", target.name || "target");
+		Logger.debug("MagicOrb", "Orb effect: Damaging", target.name || "target");
 		orb.setOrbColor(1.0, 0.3, 0.2); // Red damage color
 		orb.setIntensity(2.5);
 		setTimeout(() => {
@@ -391,7 +390,7 @@ export class MagicOrbCallbacks {
 		delay: number = 1000
 	): (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => void {
 		return (orb: MagicOrb, target: Phaser.GameObjects.GameObject) => {
-			logger.debug("Orb effect: Custom effect on", target.name || "target");
+			Logger.debug("MagicOrb", "Orb effect: Custom effect on", target.name || "target");
 			orb.setOrbColor(color.r, color.g, color.b);
 			orb.setIntensity(intensity);
 			setTimeout(() => {

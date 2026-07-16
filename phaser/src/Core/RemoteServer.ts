@@ -6,7 +6,6 @@ import * as GameLogic from "@Core/GameLogic";
 import * as supabase from "@lib/supabase";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("RemoteServer");
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
@@ -84,7 +83,7 @@ export async function getSession(playerId: string): Promise<Models.SessionData |
 		.maybeSingle();
 
 	if (error) {
-		logger.error("Failed to fetch session:", error);
+		Logger.error("RemoteServer", "Failed to fetch session:", error);
 		return null;
 	}
 
@@ -106,7 +105,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	let combatState: Models.CombatState | undefined = undefined;
 	if (session.phase === "combat") {
 		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
-			logger.debug("Using server-provided combat logs");
+			Logger.debug("RemoteServer", "Using server-provided combat logs");
 			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
 				? (sessionCombatState.enemyTeam as Unit.Unit[])
 				: [];
@@ -135,7 +134,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 
 			};
 		} else {
-			logger.warn("Combat logs missing from session; simulating locally");
+			Logger.warn("RemoteServer", "Combat logs missing from session; simulating locally");
 			const simResult = GameLogic.simulateCombat(session as unknown as Models.SessionData);
 			combatState = {
 				...session.combatState, // TODO: probably wrong
@@ -178,7 +177,7 @@ export async function handleAction(
 	});
 
 	if (response.error) {
-		logger.error(`Failed to handle action ${action.type}:`, response.error);
+		Logger.error("RemoteServer", `Failed to handle action ${action.type}:`, response.error);
 		throw new Error(`Failed to handle action ${action.type}: ${response.error.message}`);
 	}
 

@@ -4,7 +4,6 @@ import * as Logger from "@Utils/Logger";
 import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 
-const logger = Logger.createLogger("Tooltip");
 
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
@@ -130,7 +129,7 @@ export function renderTooltip(
 	options?: TooltipRenderOptions
 ): void {
 	if (!container || !titleText || !descriptionText || !bg) {
-		logger.warn("Tooltip not initialized. Call initializeTooltip(scene) first.");
+		Logger.warn("Tooltip", "Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
 	}
 

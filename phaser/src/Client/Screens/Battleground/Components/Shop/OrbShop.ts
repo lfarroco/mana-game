@@ -9,7 +9,6 @@ import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("OrbShop");
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -59,7 +58,7 @@ export function renderOrbShop(
 		const playerBoard = Board.getBoardState();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
-			logger.debug(`${orbSpec.name} dropped on non-board target:`, target);
+			Logger.debug("OrbShop", `${orbSpec.name} dropped on non-board target:`, target);
 			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
@@ -68,7 +67,7 @@ export function renderOrbShop(
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
 
-		logger.debug(
+		Logger.debug("OrbShop", 
 			`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
 		);
 
@@ -77,12 +76,12 @@ export function renderOrbShop(
 		);
 
 		if (!existingUnit) {
-			logger.debug(`No unit at position [${tileX}, ${tileY}] - orb returns to position`);
+			Logger.debug("OrbShop", `No unit at position [${tileX}, ${tileY}] - orb returns to position`);
 			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
-		logger.debug(`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
+		Logger.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
 		const isRowOrb =
 			orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
@@ -91,7 +90,7 @@ export function renderOrbShop(
 		if (isRowOrb) {
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
-				logger.debug(`${orbSpec.name} effect returned false — returning orb to origin`);
+				Logger.debug("OrbShop", `${orbSpec.name} effect returned false — returning orb to origin`);
 				MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 				return;
 			}

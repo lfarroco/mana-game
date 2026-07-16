@@ -5,7 +5,6 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("applyRegen");
 
 export const applyRegen = async (
 	env: CombatTypes.CombatEnvironment,
@@ -20,7 +19,7 @@ export const applyRegen = async (
 
 	const targetForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
-	logger.debug(
+	Logger.debug("applyRegen", 
 		`[ApplyRegen] Unit power: ${sourceUnit.power}, Regen rate: ${amount}, Total healing over time: ${amount * 10}`
 	);
 

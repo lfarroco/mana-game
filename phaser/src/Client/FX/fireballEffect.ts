@@ -5,7 +5,6 @@ import * as Logger from "@Utils/Logger";
 
 // TODO: try this for some alternative effects (power up, absorb,orb upgrade)
 
-const logger = Logger.createLogger("fireballEffect");
 
 // --- Effect Configuration Constants ---
 const FIREBALL_TRACE_LIFESPAN = 200;
@@ -33,7 +32,7 @@ export async function fireballEffect(
 		(sx === ZERO_COORDINATE_VALUE && sy === ZERO_COORDINATE_VALUE) ||
 		(tx === ZERO_COORDINATE_VALUE && ty === ZERO_COORDINATE_VALUE)
 	) {
-		logger.warn(
+		Logger.warn("fireballEffect", 
 			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${sx},${sy}), Target: (${tx},${ty})`
 		);
 		return;

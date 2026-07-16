@@ -19,18 +19,22 @@ Each log event includes:
 
 ## Usage
 
-Create a scoped logger in each module:
+The module exports `debug`, `info`, `warn`, and `error` functions directly — no
+instance creation required. The **first argument is always the context**
+(module/scope name), followed by the message and an optional `meta` object:
 
 ```ts
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("AudioManager");
-
-logger.debug("Sound effect on cooldown", { soundKey, cooldownMs: 1000 });
-logger.info("Playing music", { musicKey, loop });
-logger.warn("Steamworks not available");
-logger.error("Failed to fetch profile", { playerId, error });
+Logger.debug("AudioManager", "Sound effect on cooldown", { soundKey, cooldownMs: 1000 });
+Logger.info("AudioManager", "Playing music", { musicKey, loop });
+Logger.warn("AudioManager", "Steamworks not available");
+Logger.error("AudioManager", "Failed to fetch profile", { playerId, error });
 ```
+
+In test environments (when `process.env.JEST_WORKER_ID` is set or
+`process.env.NODE_ENV === "test"`) every logger function is a **no-op** and
+never writes to the console or touches browser/Electron globals.
 
 ## Log Level Resolution
 

@@ -5,9 +5,8 @@ import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
 import { storage } from "@Storage/index";
 import { nextValue } from "@Utils/Random";
 import { State } from "@Models/State";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("GhostStore");
 
 const STORAGE_KEY = "mana-game-ghosts-v1";
 
@@ -48,7 +47,7 @@ function saveStore(store: GhostStoreData) {
 	try {
 		storage.setItem(STORAGE_KEY, JSON.stringify(store));
 	} catch (err) {
-		logger.warn("[GhostStore] Failed to persist ghosts", err);
+		Logger.warn("GhostStore", "[GhostStore] Failed to persist ghosts", err);
 	}
 }
 
@@ -100,7 +99,7 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], lives: num
 	list.sort((a, b) => b.savedAt - a.savedAt);
 	store[round] = list.slice(0, MAX_PER_ROUND);
 	saveStore(store);
-	logger.debug(
+	Logger.debug("GhostStore", 
 		`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`
 	);
 }
@@ -116,7 +115,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 	});
 
 	if (validList.length < list.length) {
-		logger.debug(
+		Logger.debug("GhostStore", 
 			`[GhostStore] Removing ${list.length - validList.length} invalid ghosts for round ${round}`
 		);
 		store[round] = validList;

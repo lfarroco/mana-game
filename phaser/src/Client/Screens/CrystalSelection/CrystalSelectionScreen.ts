@@ -1,13 +1,11 @@
 import * as Card from "@Models/Entities/Card";
 import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import * as Logger from "@Utils/Logger";
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 
 import * as Components from "./Components";
 import * as Effects from "./Effects";
 
-export const logger = Logger.createLogger("CrystalSelectionScene");
 
 //TODO: should also disable seed selection in multiplayer mode
 

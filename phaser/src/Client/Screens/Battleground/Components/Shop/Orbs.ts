@@ -20,7 +20,6 @@ import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Logger from "@Utils/Logger";
 import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
-const logger = Logger.createLogger("Orbs");
 
 const MIN_COOLDOWN_MS = 1000;
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
@@ -70,7 +69,7 @@ const increasePowerOnType = (type: string) => () => ({
 		if (unit.force === Constants.FORCE_ID_PLAYER) {
 			state.session.team.units.find((u) => u.id === unit.id)!.power = unit.power;
 		}
-		logger.debug(`Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
+		Logger.debug("Orbs", `Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
 	},
 });
@@ -99,7 +98,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 			false
 		);
 
-		logger.debug(
+		Logger.debug("Orbs", 
 			`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`
 		);
 		return true;
@@ -121,7 +120,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 			state.session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
-		logger.debug(
+		Logger.debug("Orbs", 
 			`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`
 		);
 		return true;

@@ -1,8 +1,7 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("OptionsStore");
 
 const currentOptions: Options = {
 	sound: true,
@@ -91,7 +90,7 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 	const parsed = JSON.parse(savedOptions);
 
 	if (typeof parsed !== "object" || parsed === null) {
-		logger.warn("Invalid options format in storage:", parsed);
+		Logger.warn("OptionsStore", "Invalid options format in storage:", parsed);
 		return null;
 	}
 
@@ -135,6 +134,6 @@ function saveOptionsToStorage(): void {
 	try {
 		storage.setItem(STORAGE_KEY, JSON.stringify(currentOptions));
 	} catch (error) {
-		logger.warn("Failed to save options to storage:", error);
+		Logger.warn("OptionsStore", "Failed to save options to storage:", error);
 	}
 }

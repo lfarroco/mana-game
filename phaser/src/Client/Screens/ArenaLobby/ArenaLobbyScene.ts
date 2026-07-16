@@ -10,7 +10,6 @@ import * as Logger from "@Utils/Logger";
 import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 import * as arenaTheme from "Client/Screens/ArenaLobby/arenaTheme";
 
-const logger = Logger.createLogger("ArenaLobbyScene");
 
 // Layout positioning
 const TITLE_Y = 100;
@@ -473,7 +472,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			//@ts-expect-error test
 			this.renderRankingPage(result.page, result.hasNextPage, result.players);
 		} catch (error) {
-			logger.error("Failed to load ranking page", { page, error });
+			Logger.error("ArenaLobbyScene", "Failed to load ranking page", { page, error });
 			this.renderRankingEmptyState("Failed to load ranking. Please try again.");
 			this.rankingPageText?.setText(`Page ${page}`);
 			this.rankingPrevButton?.disable();
@@ -584,7 +583,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			// 	multiplayerQueueType: queueType,
 			// });
 		} catch (e) {
-			logger.error("Failed to start run", e);
+			Logger.error("ArenaLobbyScene", "Failed to start run", e);
 			this.setLoading(false);
 		}
 	}
@@ -604,7 +603,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				// this.setButtonVisibility(this.accountButton, true);
 				// this.setLoading(false);
 			} catch (e) {
-				logger.error("Profile Fetch Failed", e);
+				Logger.error("ArenaLobbyScene", "Profile Fetch Failed", e);
 				// Redirect to Login if invalid
 				//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			}

@@ -8,7 +8,6 @@
 import * as Unit from "@Models/Entities/Unit";
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("orbAndCoreUpgrades");
 
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
 const CORE_STAT_SCALING_FACTOR = 0.1;
@@ -128,7 +127,7 @@ export function applyOrb(
 ) {
 	const targetUnit = allUnits.find((u: Unit.Unit) => u.id === targetUnitId);
 	if (!targetUnit) {
-		logger.warn(`Orb application failed: target unit with ID ${targetUnitId} not found`);
+		Logger.warn("orbAndCoreUpgrades", `Orb application failed: target unit with ID ${targetUnitId} not found`);
 		return;
 	}
 
@@ -137,29 +136,29 @@ export function applyOrb(
 	} else if (orbId === "absorb_power_orb") {
 		const absorbed = applyAbsorbPowerOrb(targetUnit, allUnits);
 		if (absorbed > 0) {
-			logger.info(`Absorbed ${absorbed} power from row units`);
+			Logger.info("orbAndCoreUpgrades", `Absorbed ${absorbed} power from row units`);
 		}
 	} else if (orbId === "distribute_power_orb") {
 		const distributed = applyDistributePowerOrb(targetUnit, allUnits);
 		if (distributed > 0) {
-			logger.info(`Distributed ${distributed} power to row units`);
+			Logger.info("orbAndCoreUpgrades", `Distributed ${distributed} power to row units`);
 		}
 	} else if (orbId.startsWith("increase_power_on_")) {
 		const effectType = orbId.replace("increase_power_on_", "");
 		const boost = applyIncreasePowerOrb(targetUnit, effectType);
 		if (boost > 0) {
-			logger.info(`Increased power by ${boost} (on ${effectType})`);
+			Logger.info("orbAndCoreUpgrades", `Increased power by ${boost} (on ${effectType})`);
 		}
 	} else if (orbId.startsWith("increase_critical_on_")) {
 		const effectType = orbId.replace("increase_critical_on_", "");
 		if (applyIncreaseCriticalOrb(targetUnit, effectType)) {
-			logger.info(`Increased critical (on ${effectType})`);
+			Logger.info("orbAndCoreUpgrades", `Increased critical (on ${effectType})`);
 		}
 	} else if (orbId.startsWith("decrease_cooldown_on_")) {
 		const effectType = orbId.replace("decrease_cooldown_on_", "");
 		const reduction = applyDecreaseCooldownOrb(targetUnit, effectType);
 		if (reduction > 0) {
-			logger.info(`Decreased cooldown by ${reduction}ms (on ${effectType})`);
+			Logger.info("orbAndCoreUpgrades", `Decreased cooldown by ${reduction}ms (on ${effectType})`);
 		}
 	}
 

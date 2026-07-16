@@ -2,11 +2,10 @@ import { getName } from "@i18n/i18n";
 import { Unit } from "@Models/Entities/Unit";
 import { State } from "@Models/State";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 import { EffectId, Effect } from "@TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "../Core/Constants";
 
-const logger = createLogger("CombatStatsTracker");
 
 export type UnitCombatStats = {
 	unitId: string;
@@ -69,7 +68,7 @@ export function initialize(state: State): CombatStatsTrackerState {
 		});
 	}
 
-	logger.debug("[CombatStatsTracker] Initialized for new combat");
+	Logger.debug("CombatStatsTracker", "[CombatStatsTracker] Initialized for new combat");
 
 	return { unitStats, currentCombatStats };
 }
@@ -78,7 +77,7 @@ export function trackAction(trackerState: CombatStatsTrackerState, payload: { un
 	const stats = trackerState.unitStats.get(payload.unit.id)!;
 
 	stats.actionsPerformed += 1;
-	logger.debug(
+	Logger.debug("CombatStatsTracker", 
 		`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`
 	);
 }
@@ -245,5 +244,5 @@ export function stop(trackerState: CombatStatsTrackerState, state: State): void 
 		}
 	}
 
-	logger.debug("[CombatStatsTracker] Stopped and finalized stats");
+	Logger.debug("CombatStatsTracker", "[CombatStatsTracker] Stopped and finalized stats");
 }

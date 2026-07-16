@@ -4,9 +4,8 @@
  */
 
 import { GAME_CONFIG } from "@config";
-import { createLogger } from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const logger = createLogger("AchievementSystem");
 
 // Declare window.steamworks type for TypeScript
 declare const window: Window & {
@@ -90,14 +89,14 @@ function unlockAchievement(achievementId: string): boolean {
 		const success = achievement.activate(achievementId);
 
 		if (success) {
-			logger.debug(`[Achievement] ✅ Unlocked: ${achievementId}`);
+			Logger.debug("AchievementSystem", `[Achievement] ✅ Unlocked: ${achievementId}`);
 		} else {
-			logger.warn(`[Achievement] ❌ Failed to unlock: ${achievementId}`);
+			Logger.warn("AchievementSystem", `[Achievement] ❌ Failed to unlock: ${achievementId}`);
 		}
 
 		return success;
 	} catch (error) {
-		logger.error(`[Achievement] Error unlocking ${achievementId}:`, error);
+		Logger.error("AchievementSystem", `[Achievement] Error unlocking ${achievementId}:`, error);
 		return false;
 	}
 }
@@ -110,18 +109,18 @@ function unlockAchievement(achievementId: string): boolean {
  * @param coreCardId - The card ID of the player's core crystal
  */
 export function checkVictoryAchievements(wins: number, coreCardId: string): void {
-	logger.debug(`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`);
+	Logger.debug("AchievementSystem", `[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`);
 
 	// Demo mode: achievements disabled
 	if (!GAME_CONFIG.ENABLE_ACHIEVEMENTS) {
-		logger.debug("[Achievement] Achievements disabled in demo mode");
+		Logger.debug("AchievementSystem", "[Achievement] Achievements disabled in demo mode");
 		return;
 	}
 
 	// Determine victory tier
 	const tier = getVictoryTier(wins);
 	if (!tier) {
-		logger.debug("[Achievement] Not enough wins for achievements (need 5+)");
+		Logger.debug("AchievementSystem", "[Achievement] Not enough wins for achievements (need 5+)");
 		return;
 	}
 
@@ -136,7 +135,7 @@ export function checkVictoryAchievements(wins: number, coreCardId: string): void
 	];
 
 	if (!validCrystals.includes(coreCardId as CrystalType)) {
-		logger.debug(`[Achievement] Core ${coreCardId} is not eligible for achievements`);
+		Logger.debug("AchievementSystem", `[Achievement] Core ${coreCardId} is not eligible for achievements`);
 		return;
 	}
 

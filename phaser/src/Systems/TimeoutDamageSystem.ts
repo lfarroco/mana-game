@@ -4,7 +4,6 @@ import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 import * as State from "@Models/State";
 
-const logger = Logger.createLogger("TimeoutDamageSystem");
 
 const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
 const TIMEOUT_BASE_DAMAGE = 5;
@@ -85,7 +84,7 @@ function applyTimeoutDamage(
 	const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
 	const currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
 
-	logger.debug(`[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
+	Logger.debug("TimeoutDamageSystem", `[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
 	Force.applyDamageToForce(
 		state,

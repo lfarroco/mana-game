@@ -16,7 +16,6 @@ import * as RecruitmentActions from "@Core/Actions/RecruitmentActions"
 import * as OrbAndCoreUpgrades from "@Core/Actions/OrbAndCoreUpgrades"
 import * as Logger from "@Utils/Logger";
 
-const logger = Logger.createLogger("SessionTransitions");
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
 	upgrade_unit: [{ id: "upgrade_orb" }],
@@ -199,7 +198,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			logger.warn("No core found in team when applying cooldown decrease");
+			Logger.warn("SessionTransitions", "No core found in team when applying cooldown decrease");
 			return session;
 		}
 
@@ -212,7 +211,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			logger.warn("No core found in team when applying power increase");
+			Logger.warn("SessionTransitions", "No core found in team when applying power increase");
 			return session;
 		}
 
@@ -226,7 +225,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			logger.warn("No core found in team when applying life increase");
+			Logger.warn("SessionTransitions", "No core found in team when applying life increase");
 			return session;
 		}
 
@@ -273,11 +272,11 @@ const ACTION_HANDLERS: Record<string, (
 	// start_combat: (session) => {
 	// 	// Handle combat execution (side effect)
 
-	// 	logger.debug("Entering combat phase. Executing combat...", session);
+	// 	Logger.debug("SessionTransitions", "Entering combat phase. Executing combat...", session);
 
 	// 	const nextSession = executeCombatPhase(session);
 
-	// 	logger.debug("Combat phase completed. Session after combat:", nextSession);
+	// 	Logger.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
 
 	// 	return nextSession;
 	// },
@@ -306,7 +305,7 @@ const ACTION_HANDLERS: Record<string, (
 		];
 
 		if (!allowedSkipPhases.includes(session.phase)) {
-			logger.warn(`Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
+			Logger.warn("SessionTransitions", `Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
 			return session;
 		}
 
@@ -373,7 +372,7 @@ export function transitionToNextState(
 	action: Models.Action,
 ): Models.SessionData {
 
-	logger.debug("Transitioning session with action:", action);
+	Logger.debug("SessionTransitions", "Transitioning session with action:", action);
 
 	const nextSession = structuredClone(session);
 
@@ -390,7 +389,7 @@ function executeCombatPhase(
 	session: Models.SessionData,
 ): Models.SessionData {
 
-	logger.debug("Entering combat encounter phase. Executing combat...", session);
+	Logger.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
 
 	// TODO: support multiplayer
 	const enemyTeam =
@@ -429,7 +428,7 @@ function executeCombatPhase(
 		combatState: combatState
 	};
 
-	logger.debug("Combat phase completed. Session after combat:", nextSession);
+	Logger.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
 
 	return nextSession;
 

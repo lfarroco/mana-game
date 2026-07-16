@@ -16,7 +16,6 @@ import * as Logger from "@Utils/Logger";
 import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 
-const logger = Logger.createLogger("RunCombatCore");
 
 export type { WaveOutcome } from "@Core/Combat/CombatTypes";
 
@@ -161,7 +160,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 			result: outcome,
 		});
 
-		logger.debug("[RunCombatSystem] Combat ended. Outcome:", outcome);
+		Logger.debug("RunCombatCore", "[RunCombatSystem] Combat ended. Outcome:", outcome);
 	};
 
 	return {
@@ -169,7 +168,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 		finishCombat,
 		isActive: () => runnerState.active,
 		stop: () => {
-			logger.debug("[RunCombatCore] Stopping combat");
+			Logger.debug("RunCombatCore", "[RunCombatCore] Stopping combat");
 			runnerState.active = false;
 		},
 		getEnv: () => runnerState.env,

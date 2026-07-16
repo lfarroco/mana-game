@@ -8,9 +8,8 @@ import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as OptionGeneration from "./OptionGeneration";
-import * as logger from "@Utils/Logger";
+import * as Logger from "@Utils/Logger";
 
-const log = logger.createLogger("SessionManagement");
 
 const generateRandomSessionSeed = (): string => {
 	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -96,7 +95,7 @@ export function updateTeamAction(
 
 	// Must have same number of units
 	if (currentUnits.length !== newUnits.length) {
-		log.warn(`Team update rejected: expected ${currentUnits.length} units, got ${newUnits.length}`);
+		Logger.warn("SessionManagement", `Team update rejected: expected ${currentUnits.length} units, got ${newUnits.length}`);
 		return session;
 	}
 
@@ -110,13 +109,13 @@ export function updateTeamAction(
 
 		// Must be an existing unit
 		if (!originalUnit) {
-			log.warn(`Team update rejected: unit with ID ${newUnit.id} does not exist in current team`);
+			Logger.warn("SessionManagement", `Team update rejected: unit with ID ${newUnit.id} does not exist in current team`);
 			return session;
 		}
 
 		// Card and rank must not change
 		if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
-			log.warn(`Team update rejected: unit with ID ${newUnit.id} has mismatched cardId or rank`);
+			Logger.warn("SessionManagement", `Team update rejected: unit with ID ${newUnit.id} has mismatched cardId or rank`);
 			return session;
 		}
 
