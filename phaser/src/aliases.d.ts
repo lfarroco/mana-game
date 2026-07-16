@@ -10,6 +10,13 @@ declare global {
 	type Pointer = Phaser.Input.Pointer;
 	type Vec2 = [number, number];
 	type Size = [number, number];
+
+	// Minimal declaration for the Node.js `process` global (used in Electron and
+	// replaced at build-time by webpack DefinePlugin for process.env.*).
+	var process: {
+		env: Record<string, string | undefined>;
+		[key: string]: unknown;
+	};
 }
 
 export { };

@@ -19,7 +19,7 @@ export let scene: Phaser.Scene;
 
 export const i18n = i18n_.t;
 
-export const emitter = new events_.EventEmitter();
+export const emitter = new events_();
 
 export const Controller = Controller_;
 
