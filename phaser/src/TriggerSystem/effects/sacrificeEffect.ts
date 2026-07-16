@@ -7,7 +7,6 @@ import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 export const sacrificeEffect = (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
-	delayedExecution?: number
 ) => {
 	const removableEffects = sourceUnit.effects;
 	const removableReactions = sourceUnit.reactions;
@@ -33,5 +32,5 @@ export const sacrificeEffect = (
 		sourceUnit.reactions = sourceUnit.reactions.filter((r) => r !== reactionToRemove);
 	}
 
-	increasePower(env, [sourceUnit], 10, false, sourceUnit, delayedExecution);
+	increasePower(env, [sourceUnit], 10, false, sourceUnit);
 };

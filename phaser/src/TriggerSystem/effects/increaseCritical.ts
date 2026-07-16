@@ -7,7 +7,6 @@ export const increaseCritical = (
 	amount: number,
 	sourceUnit: Unit | undefined,
 	permanent: boolean = false,
-	delayedExecution?: number
 ) => {
 	for (const target of targets) {
 		// Apply critical increase immediately (no callback indirection)
@@ -25,7 +24,6 @@ export const increaseCritical = (
 			frame: env.logger.getCurrentFrame(),
 			sourceId: sourceUnit?.id,
 			targetId: target.id,
-			delayed: delayedExecution,
 		});
 	}
 };

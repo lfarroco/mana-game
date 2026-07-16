@@ -8,7 +8,6 @@ export const distributePower = (
 	sourceUnit: Unit,
 	targets: Unit[],
 	permanent: boolean,
-	delayedExecution?: number
 ) => {
 	if (targets.length === 0) return;
 
@@ -19,5 +18,5 @@ export const distributePower = (
 
 	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
-	increasePower(env, targets, powerPerTarget, permanent, sourceUnit, delayedExecution);
+	increasePower(env, targets, powerPerTarget, permanent, sourceUnit);
 };

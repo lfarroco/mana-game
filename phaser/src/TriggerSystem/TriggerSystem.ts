@@ -215,10 +215,9 @@ export const processEffectsIO = (
 	isReaction: boolean,
 	triggeringUnit?: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	effectsList.forEach((effect) => {
-		processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale, delayedExecution);
+		processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale);
 	});
 };
 
@@ -229,23 +228,22 @@ const processEffectIO = (
 	isReaction: boolean,
 	triggeringUnit?: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	switch (effect.id) {
 		case "damage":
-			effects.dealDamage(env, sourceUnit, scale, delayedExecution);
+			effects.dealDamage(env, sourceUnit, scale);
 			break;
 		case "heal":
-			effects.restoreLife(env, sourceUnit, scale, delayedExecution);
+			effects.restoreLife(env, sourceUnit, scale);
 			break;
 		case "shield":
-			effects.addShield(env, sourceUnit, scale, delayedExecution);
+			effects.addShield(env, sourceUnit, scale);
 			break;
 		case "poison":
-			effects.applyPoison(env, sourceUnit, scale, delayedExecution);
+			effects.applyPoison(env, sourceUnit, scale);
 			break;
 		case "regen":
-			effects.applyRegen(env, sourceUnit, scale, delayedExecution);
+			effects.applyRegen(env, sourceUnit, scale);
 			break;
 		case "haste":
 			const hasteTargets = resolveTargets(env.state, sourceUnit, effect, triggeringUnit);
@@ -255,7 +253,6 @@ const processEffectIO = (
 				sourceUnit,
 				effect.duration * scale,
 				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
-				delayedExecution
 			);
 			break;
 		case "slow":
@@ -266,7 +263,6 @@ const processEffectIO = (
 				slowTargets,
 				effect.duration * scale,
 				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
-				delayedExecution
 			);
 			break;
 		case "charge":
@@ -276,7 +272,6 @@ const processEffectIO = (
 				sourceUnit,
 				chargeTargets,
 				effect.duration * scale,
-				delayedExecution
 			);
 			break;
 		case "increase_power":
@@ -287,7 +282,6 @@ const processEffectIO = (
 				effect.amount * scale,
 				effect.permanent || false,
 				sourceUnit,
-				delayedExecution
 			);
 			break;
 		case "decrease_power":
@@ -298,7 +292,6 @@ const processEffectIO = (
 				effect.amount * scale,
 				effect.permanent || false,
 				sourceUnit,
-				delayedExecution
 			);
 			break;
 		case "increase_critical":
@@ -309,7 +302,6 @@ const processEffectIO = (
 				effect.amount * scale,
 				sourceUnit,
 				effect.permanent || false,
-				delayedExecution
 			);
 			break;
 		case "multiply_power":
@@ -318,7 +310,6 @@ const processEffectIO = (
 				targets: resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
 				sourceUnit,
 				multiplier: Math.pow(effect.multiplier, scale),
-				delayedExecution,
 			});
 			break;
 		case "distribute_power":
@@ -327,7 +318,6 @@ const processEffectIO = (
 				sourceUnit,
 				resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
 				effect.permanent || false,
-				delayedExecution
 			);
 			break;
 		case "absorb_power":
@@ -336,11 +326,10 @@ const processEffectIO = (
 				sourceUnit,
 				resolveTargets(env.state, sourceUnit, effect, triggeringUnit),
 				effect.permanent || false,
-				delayedExecution
 			);
 			break;
 		case "sacrifice_effect":
-			effects.sacrificeEffect(env, sourceUnit, delayedExecution);
+			effects.sacrificeEffect(env, sourceUnit);
 			break;
 		case "re_hasted":
 			break;
@@ -451,7 +440,7 @@ export function processReactions(
 				unitId: u.id,
 				frame: env.logger.getCurrentFrame(),
 			});
-			processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, 200);
+			processEffectsIO(env, u, r.effects, true, triggeringUnit, scale);
 		});
 	});
 }

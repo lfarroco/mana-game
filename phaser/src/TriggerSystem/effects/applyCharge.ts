@@ -6,7 +6,6 @@ export function applyCharge(
 	sourceUnit: Unit,
 	targets: Unit[],
 	amount: number,
-	delayedExecution?: number
 ) {
 	for (const target of targets) {
 		// Apply charge immediately (no callback indirection)
@@ -19,7 +18,6 @@ export function applyCharge(
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			amount: amount,
-			delayed: delayedExecution,
 		});
 	}
 }

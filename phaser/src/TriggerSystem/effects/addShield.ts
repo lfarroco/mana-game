@@ -8,7 +8,6 @@ export const addShield = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power;
 	const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
@@ -37,6 +36,5 @@ export const addShield = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: shieldAmount,
-		delayed: delayedExecution,
 	});
 };

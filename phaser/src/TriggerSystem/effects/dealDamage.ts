@@ -8,7 +8,6 @@ export function dealDamage(
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number,
 ) {
 	const { state, combatStates, processReactions, logger } = env;
 
@@ -58,6 +57,5 @@ export function dealDamage(
 		sourceId: sourceUnit.id,
 		targetId: enemyCore!.id,
 		amount: damage,
-		delayed: delayedExecution,
 	});
 }

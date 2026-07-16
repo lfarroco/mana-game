@@ -11,7 +11,6 @@ export const applyRegen = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -51,6 +50,5 @@ export const applyRegen = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: amount,
-		delayed: delayedExecution,
 	});
 };

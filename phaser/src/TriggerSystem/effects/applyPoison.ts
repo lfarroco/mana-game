@@ -12,7 +12,6 @@ export const applyPoison = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
@@ -54,6 +53,5 @@ export const applyPoison = async (
 		sourceId: sourceUnit.id,
 		targetId: Card.getEnemyCore(env.state)(sourceUnit.force).id,
 		amount: amount,
-		delayed: delayedExecution,
 	});
 };

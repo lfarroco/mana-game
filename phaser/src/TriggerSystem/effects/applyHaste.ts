@@ -7,7 +7,6 @@ export const applyHaste = async (
 	sourceUnit: Unit,
 	duration: number,
 	onReHaste: (target: Unit) => void,
-	delayedExecution?: number
 ) => {
 	for (const target of targets) {
 		// Apply haste immediately (no callback indirection)
@@ -23,7 +22,6 @@ export const applyHaste = async (
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			effectDuration: duration,
-			delayed: delayedExecution,
 		});
 	}
 };

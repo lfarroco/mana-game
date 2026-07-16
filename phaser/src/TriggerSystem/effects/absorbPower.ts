@@ -8,7 +8,6 @@ export const absorbPower = (
 	sourceUnit: Unit,
 	targets: Unit[],
 	permanent: boolean,
-	delayedExecution?: number
 ) => {
 	if (targets.length === 0) return;
 
@@ -34,10 +33,9 @@ export const absorbPower = (
 			amount: amount,
 			permanent: permanent,
 			affectedUnitId: target.id,
-			delayed: delayedExecution,
 		});
 	});
 
 	// Give the absorbed power to the absorber
-	increasePower(env, [sourceUnit], totalAbsorbed, permanent, undefined, delayedExecution);
+	increasePower(env, [sourceUnit], totalAbsorbed, permanent);
 };

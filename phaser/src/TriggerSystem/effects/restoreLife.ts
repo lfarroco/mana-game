@@ -9,7 +9,6 @@ export const restoreLife = async (
 	env: CombatTypes.CombatEnvironment,
 	sourceUnit: Unit.Unit,
 	scale: number = 1,
-	delayedExecution?: number
 ) => {
 	const baseAmount = sourceUnit.power;
 
@@ -47,6 +46,5 @@ export const restoreLife = async (
 		sourceId: sourceUnit.id,
 		targetId: alliedCore.id,
 		amount: healAmount,
-		delayed: delayedExecution,
 	});
 };

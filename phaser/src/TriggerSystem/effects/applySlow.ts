@@ -7,7 +7,6 @@ export async function applySlow(
 	targets: Unit[],
 	duration: number,
 	onReSlow?: (target: Unit) => void,
-	delayedExecution?: number
 ) {
 	for (const target of targets) {
 		// Apply slow immediately (no callback indirection)
@@ -23,7 +22,6 @@ export async function applySlow(
 			sourceId: sourceUnit.id,
 			targetId: target.id,
 			effectDuration: duration,
-			delayed: delayedExecution,
 		});
 	}
 }

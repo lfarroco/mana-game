@@ -8,7 +8,6 @@ export const decreasePower = (
 	amount: number,
 	permanent: boolean,
 	sourceUnit: Unit | undefined,
-	delayedExecution?: number
 ) => {
 	for (const target of targets) {
 		// Apply power delta immediately (no callback indirection)
@@ -23,7 +22,6 @@ export const decreasePower = (
 			amount: amount,
 			permanent: permanent,
 			affectedUnitId: target.id,
-			delayed: delayedExecution,
 		});
 	}
 };

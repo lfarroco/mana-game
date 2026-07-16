@@ -31,7 +31,6 @@ export type CombatLogEntry = {
 	unitId?: string;
 	unitStats?: [string, import("@Systems/CombatStatsTracker").UnitCombatStats][];
 	currentCombatStats?: [string, import("@Systems/CombatStatsTracker").CurrentCombatStats][];
-	delayed?: number;
 };
 
 export type CombatLogger = {
