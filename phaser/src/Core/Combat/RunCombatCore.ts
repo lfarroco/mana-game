@@ -13,7 +13,6 @@ import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as Logger from "@Utils/Logger";
-import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 
 
@@ -52,7 +51,6 @@ export const runCombat = (state: State.State): CombatRunner => {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-			forceStatsState: ForceStatsState.initializeForceStatsState(),
 		},
 		processReactions: TriggerSystem.processReactions,
 	};

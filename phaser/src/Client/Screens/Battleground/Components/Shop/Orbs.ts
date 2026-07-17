@@ -18,7 +18,6 @@ import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Logger from "@Utils/Logger";
-import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 
 
 const MIN_COOLDOWN_MS = 1000;
@@ -45,7 +44,6 @@ const getShopEnvironment = (state: State.State): CombatTypes.CombatEnvironment =
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-			forceStatsState: ForceStatsState.initializeForceStatsState(),
 		},
 		processReactions: TriggerSystem.processReactions,
 		logger: CombatLogger.createCombatLogger(),
@@ -98,7 +96,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 			false
 		);
 
-		Logger.debug("Orbs", 
+		Logger.debug("Orbs",
 			`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`
 		);
 		return true;
@@ -120,7 +118,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 			state.session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
-		Logger.debug("Orbs", 
+		Logger.debug("Orbs",
 			`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`
 		);
 		return true;

@@ -1,13 +1,11 @@
-import { PoisonSystemState } from "@Systems/PoisonDamageSystem";
-import { RegenSystemState } from "@Systems/RegenSystem";
-import { CombatStatsTrackerState } from "@Systems/CombatStatsTracker";
-import type { ForceStatsState } from "@Core/Combat/ForceStatsState";
+import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
+import * as RegenSystem from "@Systems/RegenSystem";
+import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 
 export type CombatSystemStates = {
-	poisonSystemState: PoisonSystemState;
-	regenSystemState: RegenSystemState;
-	combatStatsTrackerState: CombatStatsTrackerState;
-	forceStatsState: ForceStatsState;
+	poisonSystemState: PoisonDamageSystem.PoisonSystemState;
+	regenSystemState: RegenSystem.RegenSystemState;
+	combatStatsTrackerState: CombatStatsTracker.CombatStatsTrackerState;
 };
 
 // Global storage for Browser UI / Legacy access
@@ -29,20 +27,16 @@ export const isInitialized = (): boolean => {
 };
 
 // Helper update functions required by PhaseManager
-export const updateRegenSystemState = (newState: RegenSystemState) => {
+export const updateRegenSystemState = (newState: RegenSystem.RegenSystemState) => {
 	if (currentCombatStates) {
 		currentCombatStates.regenSystemState = newState;
 	}
 };
 
-export const updatePoisonSystemState = (newState: PoisonSystemState) => {
+export const updatePoisonSystemState = (newState: PoisonDamageSystem.PoisonSystemState) => {
 	if (currentCombatStates) {
 		currentCombatStates.poisonSystemState = newState;
 	}
 };
 
-export const updateForceStatsState = (newState: ForceStatsState) => {
-	if (currentCombatStates) {
-		currentCombatStates.forceStatsState = newState;
-	}
-};
+

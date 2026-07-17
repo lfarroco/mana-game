@@ -2,7 +2,6 @@ import * as GameController from "@Core/GameController";
 import * as Models from "@Core/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
-import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 
 let initialized = false;
@@ -64,7 +63,7 @@ export async function onOrbApplied({
 		await Chara.refreshChara(serverUnit);
 	}
 
-	ForceStats.syncPlayerPersistentForceStats();
+	//ForceStats.syncPlayerPersistentForceStats();
 }
 
 async function closeOrbShop({ previousPhase }: { previousPhase: Models.PhaseType }) {

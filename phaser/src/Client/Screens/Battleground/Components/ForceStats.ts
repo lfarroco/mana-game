@@ -3,29 +3,25 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Constants from "@Core/Constants";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@Models/Entities/Card";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
 import * as Logger from "@Utils/Logger";
-import * as ForceStatsState from "@Core/Combat/ForceStatsState";
-
-
-export type { ForceStatsState } from "@Core/Combat/ForceStatsState";
 
 type ForceStatsUpdateOptions = {
 	preferPersistentCore?: boolean;
 };
 
-export function initializeForceStatsState(): ForceStatsState.ForceStatsState {
-	return {
-		playerStats: null,
-		cpuStats: null,
-		healthBars: new Map<string, Phaser.GameObjects.Graphics>(),
-		shieldBars: new Map<string, Phaser.GameObjects.Graphics>(),
-	};
-}
+const statsState: ForceStatsState = ({
+	playerStats: null,
+	cpuStats: null,
+	healthBars: new Map<string, Phaser.GameObjects.Graphics>(),
+	shieldBars: new Map<string, Phaser.GameObjects.Graphics>(),
+});
 
-export function createForceStats(state: ForceStatsState.ForceStatsState, force: string): ForceStatsState.ForceStatsState {
+export function createForceStats() {
+	[Constants.FORCE_ID_PLAYER, Constants.FORCE_ID_CPU].forEach(createStatsForForce)
+}
+const createStatsForForce = (force: string) => {
 	const x = force === Constants.FORCE_ID_PLAYER ? 300 : 1200;
 	const y = 1000;
 
@@ -150,8 +146,8 @@ export function createForceStats(state: ForceStatsState.ForceStatsState, force: 
 			Tooltip.hideTooltip();
 		});
 
-	const newHealthBars = new Map(state.healthBars);
-	const newShieldBars = new Map(state.shieldBars);
+	const newHealthBars = new Map(statsState.healthBars);
+	const newShieldBars = new Map(statsState.shieldBars);
 
 	newHealthBars.set(force, healthBar);
 	newShieldBars.set(force, shieldBar);
@@ -170,72 +166,43 @@ export function createForceStats(state: ForceStatsState.ForceStatsState, force: 
 		shieldBar,
 	];
 
-	const newState = {
-		...state,
-		healthBars: newHealthBars,
-		shieldBars: newShieldBars,
-	};
+	statsState.healthBars = newHealthBars;
+	statsState.shieldBars = newShieldBars;
 
 	if (force === Constants.FORCE_ID_PLAYER) {
-		newState.playerStats?.destroy();
-		newState.playerStats = io.Container(elements);
-		newState.playerStats.setDepth(1000); // Ensure it's on top
+		statsState.playerStats?.destroy();
+		statsState.playerStats = io.Container(elements);
+		statsState.playerStats.setDepth(1000); // Ensure it's on top
 	} else if (force === Constants.FORCE_ID_CPU) {
-		newState.cpuStats?.destroy();
-		newState.cpuStats = io.Container(elements);
-		newState.cpuStats.setDepth(1000); // Ensure it's on top
+		statsState.cpuStats?.destroy();
+		statsState.cpuStats = io.Container(elements);
+		statsState.cpuStats.setDepth(1000); // Ensure it's on top
 	}
 
-	return newState;
 }
 
-export function ensureForceStats(state: ForceStatsState.ForceStatsState, force: string): ForceStatsState.ForceStatsState {
-	if (force === Constants.FORCE_ID_PLAYER && state.playerStats) {
-		return state;
-	}
-
-	if (force === Constants.FORCE_ID_CPU && state.cpuStats) {
-		return state;
-	}
-
-	return createForceStats(state, force);
-}
-
-export function destroyForceStats(state: ForceStatsState.ForceStatsState, force: string): ForceStatsState.ForceStatsState {
-	const newState = { ...state };
-
+export function destroyForceStats(force: string) {
 	if (force === Constants.FORCE_ID_PLAYER) {
-		newState.playerStats?.destroy();
-		newState.playerStats = null;
+		statsState.playerStats?.destroy();
+		statsState.playerStats = null;
 	} else if (force === Constants.FORCE_ID_CPU) {
-		newState.cpuStats?.destroy();
-		newState.cpuStats = null;
+		statsState.cpuStats?.destroy();
+		statsState.cpuStats = null;
 	}
-
-	return newState;
 }
 
 export function updateLifeDisplay(
 	force: string,
 	life: number,
 	delta: number,
-	state?: ForceStatsState.ForceStatsState,
 	options?: ForceStatsUpdateOptions
 ) {
-	let forceStatsState: ForceStatsState.ForceStatsState;
-
-	if (state) {
-		forceStatsState = state;
-	} else {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		forceStatsState = combatStates.forceStatsState;
-	}
 
 	const chipId = `life-display/${force}`;
 
 	Chip.updateChipText(chipId, Utils.compactNumber(life));
 
-	const bar = forceStatsState.healthBars.get(force);
+	const bar = statsState.healthBars.get(force);
 	if (!bar) {
 		Logger.error("ForceStats", `No health bar found for force ${force}`);
 		return;
@@ -282,22 +249,13 @@ export function updateShieldDisplay(
 	force: string,
 	shield: number,
 	delta: number,
-	statsState?: ForceStatsState.ForceStatsState,
 	options?: ForceStatsUpdateOptions
 ) {
-	let forceStatsState: ForceStatsState.ForceStatsState;
-
-	if (statsState) {
-		forceStatsState = statsState;
-	} else {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		forceStatsState = combatStates.forceStatsState;
-	}
 
 	const chipId = `shield-display/${force}`;
 	Chip.updateChipText(chipId, Utils.compactNumber(shield));
 
-	const bar = forceStatsState.shieldBars.get(force);
+	const bar = statsState.shieldBars.get(force);
 
 	if (!bar) {
 		Logger.error("ForceStats", "No bar for force", force);
@@ -342,32 +300,23 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
-export function syncPlayerPersistentForceStats(statsState?: ForceStatsState.ForceStatsState): ForceStatsState.ForceStatsState {
-	const playerCore = Card.getPlayerPersistentCore(state);
-	if (!playerCore) {
-		Logger.warn("ForceStats", "[ForceStats] Player persistent core not found");
-		return statsState ?? initializeForceStatsState();
-	}
+// export function syncPlayerPersistentForceStats() {
+// 	const playerCore = Card.getPlayerPersistentCore(state);
+// 	if (!playerCore) {
+// 		Logger.warn("ForceStats", "[ForceStats] Player persistent core not found");
+// 		return statsState ?? initializeForceStatsState();
+// 	}
 
-	let forceStatsState = statsState;
-	if (!forceStatsState) {
-		forceStatsState = CombatSystemStates.isInitialized()
-			? CombatSystemStates.getCombatSystemStates().forceStatsState
-			: initializeForceStatsState();
-	}
+// 	updateLifeDisplay(Constants.FORCE_ID_PLAYER, playerCore.life, 0, {
+// 		preferPersistentCore: true,
+// 	});
+// 	updateShieldDisplay(Constants.FORCE_ID_PLAYER, playerCore.shield, 0, {
+// 		preferPersistentCore: true,
+// 	});
+// 	updateRegenDisplay(Constants.FORCE_ID_PLAYER, 0, 0);
+// 	updatePoisonDisplay(Constants.FORCE_ID_PLAYER, 0, 0);
 
-	forceStatsState = ensureForceStats(forceStatsState, Constants.FORCE_ID_PLAYER);
-	updateLifeDisplay(Constants.FORCE_ID_PLAYER, playerCore.life, 0, forceStatsState, {
-		preferPersistentCore: true,
-	});
-	updateShieldDisplay(Constants.FORCE_ID_PLAYER, playerCore.shield, 0, forceStatsState, {
-		preferPersistentCore: true,
-	});
-	updateRegenDisplay(Constants.FORCE_ID_PLAYER, 0, 0);
-	updatePoisonDisplay(Constants.FORCE_ID_PLAYER, 0, 0);
-
-	return forceStatsState;
-}
+// }
 
 function getForceStatsCore(
 	force: string,
@@ -427,3 +376,10 @@ export function updatePoisonDisplay(force: string, poison: number, delta: number
 
 	chip.container.add(textElement);
 }
+
+export type ForceStatsState = {
+	playerStats: Phaser.GameObjects.Container | null;
+	cpuStats: Phaser.GameObjects.Container | null;
+	healthBars: Map<string, Phaser.GameObjects.Graphics>;
+	shieldBars: Map<string, Phaser.GameObjects.Graphics>;
+};

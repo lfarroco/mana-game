@@ -8,6 +8,8 @@ import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/C
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+
 import * as Constants from "@Core/Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
@@ -112,6 +114,9 @@ const startCombatPlayback = async ({
 	combatState: Models.CombatState;
 }) => {
 	await setupCombatBoard(combatState);
+
+	ForceStats.createForceStats();
+
 	await animation.delay(COMBAT_START_DELAY_MS);
 
 	const controller = CombatPlaybackController.createCombatPlaybackController(

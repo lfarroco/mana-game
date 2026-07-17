@@ -1,10 +1,4 @@
-import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
-import * as RegenSystem from "@Systems/RegenSystem";
-import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as c from "@Constants";
-//import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
 const LEFT_MARGIN = 40;
 const RIGHT_MARGIN = 40;
@@ -15,14 +9,6 @@ let playerNameText: Phaser.GameObjects.Text | null = null;
 let enemyNameText: Phaser.GameObjects.Text | null = null;
 
 export const create = async () => {
-	let forceStatsState = ForceStats.initializeForceStatsState();
-	forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
-	CombatSystemStates.setCombatSystemStates({
-		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
-		regenSystemState: RegenSystem.initializeRegenSystem(),
-		combatStatsTrackerState: CombatStatsTracker.initialize(state),
-		forceStatsState,
-	});
 
 	if (!playerNameText || !playerNameText.scene) {
 		playerNameText = createNameText(LEFT_MARGIN, "left");
@@ -31,8 +17,6 @@ export const create = async () => {
 	if (!enemyNameText || !enemyNameText.scene) {
 		enemyNameText = createNameText(c.SCREEN_WIDTH - RIGHT_MARGIN, "right");
 	}
-
-	//const profile = await MultiplayerManager.getPlayerProfile(state.session.player_id);
 
 	updateNameDisplay({
 		playerName: "Player",

@@ -8,7 +8,6 @@ import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Logger from "@Utils/Logger";
-import * as ForceStatsState from "@Core/Combat/ForceStatsState";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
@@ -49,31 +48,15 @@ export const createCombatPlaybackController = (
 ): RunCombatCore.CombatRunner => {
 	const { state } = window as unknown as { state: State.State };
 
-	const forceStatsState = ForceStats.initializeForceStatsState();
-
 	const combatStates: CombatSystemStates.CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
 		regenSystemState: RegenSystem.initializeRegenSystem(),
 		combatStatsTrackerState: CombatStatsTracker.initialize(state),
-		forceStatsState: forceStatsState ?? ForceStatsState.initializeForceStatsState(),
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
 
-	// Initialize force stats display from game state
-	ForceStats.ensureForceStats(combatStates.forceStatsState, CoreConstants.FORCE_ID_PLAYER);
-	ForceStats.ensureForceStats(combatStates.forceStatsState, CoreConstants.FORCE_ID_CPU);
 
-	const initCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
-	if (initCore) {
-		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_PLAYER, initCore.life, 0, combatStates.forceStatsState);
-		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_PLAYER, initCore.shield, 0, combatStates.forceStatsState);
-	}
-	const cpuCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
-	if (cpuCore) {
-		ForceStats.updateLifeDisplay(CoreConstants.FORCE_ID_CPU, cpuCore.life, 0, combatStates.forceStatsState);
-		ForceStats.updateShieldDisplay(CoreConstants.FORCE_ID_CPU, cpuCore.shield, 0, combatStates.forceStatsState);
-	}
 	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
 	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_CPU, 0, 0);
 	ForceStats.updatePoisonDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
@@ -146,8 +129,7 @@ export const createCombatPlaybackController = (
 		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedLife.player : prevDisplayedLife.cpu;
 		if (life === prev) return;
 
-		const fss = playbackState.combatStates.forceStatsState;
-		ForceStats.updateLifeDisplay(force, life, 0, fss);
+		ForceStats.updateLifeDisplay(force, life, 0);
 		if (force === CoreConstants.FORCE_ID_PLAYER) {
 			prevDisplayedLife.player = life;
 		} else {
@@ -160,8 +142,7 @@ export const createCombatPlaybackController = (
 		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedShield.player : prevDisplayedShield.cpu;
 		if (shield === prev) return;
 
-		const fss = playbackState.combatStates.forceStatsState;
-		ForceStats.updateShieldDisplay(force, shield, 0, fss);
+		ForceStats.updateShieldDisplay(force, shield, 0);
 		if (force === CoreConstants.FORCE_ID_PLAYER) {
 			prevDisplayedShield.player = shield;
 		} else {
@@ -393,12 +374,12 @@ export const createCombatPlaybackController = (
 
 		await animation.delay(300);
 
-		if (playbackState.combatStates) {
-			let forceStatsState = playbackState.combatStates.forceStatsState;
-			forceStatsState = ForceStats.destroyForceStats(forceStatsState, CoreConstants.FORCE_ID_CPU);
-			forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
-			CombatSystemStates.updateForceStatsState(forceStatsState);
-		}
+		// if (playbackState.combatStates) {
+		// 	let forceStatsState = playbackState.combatStates.forceStatsState;
+		// 	forceStatsState = ForceStats.destroyForceStats(forceStatsState, CoreConstants.FORCE_ID_CPU);
+		// 	forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
+		// 	CombatSystemStates.updateForceStatsState(forceStatsState);
+		// }
 
 		// Reset visual state on the battleData player units
 		state.battleData.units
