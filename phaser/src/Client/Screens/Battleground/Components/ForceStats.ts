@@ -8,11 +8,19 @@ import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
 import * as Logger from "@Utils/Logger";
 
+const initialForceStats: () => ForceStats = () => ({
+	display: null,
+	healthBar: null,
+	shieldBar: null,
+	life: 0,
+	shield: 0,
+	poison: 0,
+	regen: 0
+})
+
 const statsState: ForceStatsState = ({
-	playerDisplay: null,
-	cpuDisplay: null,
-	healthBars: new Map<string, Phaser.GameObjects.Graphics>(),
-	shieldBars: new Map<string, Phaser.GameObjects.Graphics>(),
+	player: initialForceStats(),
+	cpu: initialForceStats(),
 });
 
 export function createForceStats() {
@@ -22,6 +30,8 @@ export function createForceStats() {
 const createStatsForForce = (force: string) => {
 	const x = force === Constants.FORCE_ID_PLAYER ? 300 : 1200;
 	const y = 1000;
+
+	const stats = force === Constants.FORCE_ID_PLAYER ? statsState.player : statsState.cpu;
 
 	const core = Card.getBattleCore(state)(force);
 
@@ -40,16 +50,10 @@ const createStatsForForce = (force: string) => {
 
 	const { healthBar, bgBar } = createHealthBar(healthBarPos, barWidth, barHeight, x, y);
 
-	const { shieldBar, bgShieldBar } = createShieidbar(shieldBarPos, barWidth, barHeight, x, y);
+	const { shieldBar, bgShieldBar } = createShieldbar(shieldBarPos, barWidth, barHeight, x, y);
 
-	const newHealthBars = new Map(statsState.healthBars);
-	const newShieldBars = new Map(statsState.shieldBars);
-
-	newHealthBars.set(force, healthBar);
-	newShieldBars.set(force, shieldBar);
-
-	io.OnceDestroyed(healthBar, () => newHealthBars.delete(force));
-	io.OnceDestroyed(shieldBar, () => newShieldBars.delete(force));
+	stats.healthBar = healthBar;
+	stats.shieldBar = shieldBar;
 
 	const elements = [
 		lifeDisplay.container,
@@ -62,22 +66,23 @@ const createStatsForForce = (force: string) => {
 		shieldBar,
 	];
 
-	statsState.healthBars = newHealthBars;
-	statsState.shieldBars = newShieldBars;
+	stats.display?.destroy();
+	stats.display = io.Container(elements);
+	stats.display.setDepth(1000); // Ensure it's on top
 
-	if (force === Constants.FORCE_ID_PLAYER) {
-		statsState.playerDisplay?.destroy();
-		statsState.playerDisplay = io.Container(elements);
-		statsState.playerDisplay.setDepth(1000); // Ensure it's on top
-	} else if (force === Constants.FORCE_ID_CPU) {
-		statsState.cpuDisplay?.destroy();
-		statsState.cpuDisplay = io.Container(elements);
-		statsState.cpuDisplay.setDepth(1000); // Ensure it's on top
-	}
+	io.OnceDestroyed(stats.display, () => {
+		stats.display = null;
+		stats.healthBar = null;
+		stats.shieldBar = null;
+		stats.life = 0;
+		stats.shield = 0;
+		stats.regen = 0;
+		stats.poison = 0;
+	});
 
 }
 
-function createShieidbar(shieldBarPos: Vec2, barWidth: number, barHeight: number, x: number, y: number) {
+function createShieldbar(shieldBarPos: Vec2, barWidth: number, barHeight: number, x: number, y: number) {
 	const bgShieldBar = io.Rectangle(
 		shieldBarPos,
 		[barWidth, barHeight],
@@ -217,14 +222,8 @@ function createLifeDisplay(force: string, x: number, y: number, core: Unit.Unit)
 	return lifeDisplay;
 }
 
-export function destroyForceStats(force: string) {
-	if (force === Constants.FORCE_ID_PLAYER) {
-		statsState.playerDisplay?.destroy();
-		statsState.playerDisplay = null;
-	} else if (force === Constants.FORCE_ID_CPU) {
-		statsState.cpuDisplay?.destroy();
-		statsState.cpuDisplay = null;
-	}
+function getForceStats(force: string) {
+	return force === Constants.FORCE_ID_PLAYER ? statsState.player : statsState.cpu;
 }
 
 export function updateLifeDisplay(
@@ -232,20 +231,19 @@ export function updateLifeDisplay(
 	life: number,
 	delta: number,
 ) {
+	const stats = getForceStats(force);
 
 	const chipId = `life-display/${force}`;
 
 	Chip.updateChipText(chipId, Utils.compactNumber(life));
 
-	const bar = statsState.healthBars.get(force);
+	const bar = stats.healthBar;
 	if (!bar) {
 		Logger.error("ForceStats", `No health bar found for force ${force}`);
 		return;
 	}
-	const core = Card.getBattleCore(state)(force)!;
-
-	const maxLife = core.maxLife || 1;
-	const percent = Math.max(0, Math.min(1, life / maxLife));
+	const core = Card.getBattleCore(state)(force);
+	const percent = Math.max(0, Math.min(1, life / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
 
@@ -286,7 +284,7 @@ export function updateShieldDisplay(
 	const chipId = `shield-display/${force}`;
 	Chip.updateChipText(chipId, Utils.compactNumber(shield));
 
-	const bar = statsState.shieldBars.get(force);
+	const bar = getForceStats(force).shieldBar;
 
 	if (!bar) {
 		Logger.error("ForceStats", "No bar for force", force);
@@ -294,9 +292,7 @@ export function updateShieldDisplay(
 	}
 
 	const core = Card.getBattleCore(state)(force);
-
-	const maxLife = core.maxLife || 1;
-	const percent = Math.max(0, Math.min(1, shield / maxLife));
+	const percent = Math.max(0, Math.min(1, shield / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
 
@@ -372,9 +368,17 @@ export function updatePoisonDisplay(force: string, poison: number, delta: number
 	chip.container.add(textElement);
 }
 
+type ForceStats = {
+	display: Phaser.GameObjects.Container | null;
+	healthBar: Phaser.GameObjects.Graphics | null,
+	shieldBar: Phaser.GameObjects.Graphics | null,
+	life: number,
+	shield: number,
+	poison: number,
+	regen: number,
+}
+
 export type ForceStatsState = {
-	playerDisplay: Phaser.GameObjects.Container | null;
-	cpuDisplay: Phaser.GameObjects.Container | null;
-	healthBars: Map<string, Phaser.GameObjects.Graphics>;
-	shieldBars: Map<string, Phaser.GameObjects.Graphics>;
+	player: ForceStats,
+	cpu: ForceStats
 };

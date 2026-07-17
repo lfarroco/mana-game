@@ -11,7 +11,6 @@ import * as Logger from "@Utils/Logger";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
-import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as Unit from "@Models/Entities/Unit";
 import * as CoreConstants from "@Core/Constants";
 import * as Card from "@Models/Entities/Card";
@@ -84,95 +83,6 @@ export const createCombatPlaybackController = (
 		playbackState.animations.sort((a, b) => a.startTime - b.startTime);
 	};
 
-	const coreLifeState = {
-		playerLife: 0,
-		playerShield: 0,
-		playerMaxLife: 0,
-		cpuLife: 0,
-		cpuShield: 0,
-		cpuMaxLife: 0,
-	};
-
-	const regenRates = { player: 0, cpu: 0 };
-	const poisonRates = { player: 0, cpu: 0 };
-
-
-	const syncForceStatsLife = (force: string) => {
-		const life = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerLife : coreLifeState.cpuLife;
-
-		ForceStats.updateLifeDisplay(force, life, 0);
-
-	};
-
-	const syncForceStatsShield = (force: string) => {
-		const shield = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerShield : coreLifeState.cpuShield;
-
-		ForceStats.updateShieldDisplay(force, shield, 0);
-	};
-
-	const syncForceStatsRegen = (force: string, regen: number) => {
-
-		ForceStats.updateRegenDisplay(force, regen, 0);
-	};
-
-	const syncForceStatsPoison = (force: string, poison: number) => {
-
-		ForceStats.updatePoisonDisplay(force, poison, 0);
-	};
-
-	const applyForceStatChange = (log: CombatLogger.CombatLogEntry): string | null => {
-		const { amount } = log;
-		if (amount === undefined) return null;
-
-		// Determine target force from the log's targetId
-		const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
-		if (!targetUnit) return null;
-
-		const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
-		const life = isPlayer ? coreLifeState.playerLife : coreLifeState.cpuLife;
-		const shield = isPlayer ? coreLifeState.playerShield : coreLifeState.cpuShield;
-		const maxLife = isPlayer ? coreLifeState.playerMaxLife : coreLifeState.cpuMaxLife;
-
-		switch (log.type) {
-			case "damage":
-			case "timeout_damage": {
-				// Damage goes through shield first
-				let remaining = amount;
-				const shieldAbsorbed = Math.min(remaining, shield);
-				const newShield = shield - shieldAbsorbed;
-				remaining -= shieldAbsorbed;
-				const newLife = Math.max(0, life - remaining);
-				if (isPlayer) {
-					coreLifeState.playerShield = newShield;
-					coreLifeState.playerLife = newLife;
-				} else {
-					coreLifeState.cpuShield = newShield;
-					coreLifeState.cpuLife = newLife;
-				}
-				break;
-			}
-			case "heal": {
-				const newLife = Math.min(maxLife, life + amount);
-				if (isPlayer) {
-					coreLifeState.playerLife = newLife;
-				} else {
-					coreLifeState.cpuLife = newLife;
-				}
-				break;
-			}
-			case "shield": {
-				const newShield = shield + amount;
-				if (isPlayer) {
-					coreLifeState.playerShield = newShield;
-				} else {
-					coreLifeState.cpuShield = newShield;
-				}
-				break;
-			}
-		}
-		return isPlayer ? CoreConstants.FORCE_ID_PLAYER : CoreConstants.FORCE_ID_CPU;
-	};
-
 	const executeAnimation = async (animation: ScheduledAnimation) => {
 		if (!playbackState.active) return;
 
@@ -183,52 +93,6 @@ export const createCombatPlaybackController = (
 
 		// Dispatch to the extracted log handlers
 		logHandlers.executeLogHandler(log, playbackState);
-
-		// Keep track of force stats changes from log events
-		if (
-			log.type === "damage" ||
-			log.type === "heal" ||
-			log.type === "shield" ||
-			log.type === "timeout_damage"
-		) {
-			const affectedForce = applyForceStatChange(log);
-			if (affectedForce) {
-				syncForceStatsLife(affectedForce);
-				syncForceStatsShield(affectedForce);
-			}
-		}
-
-		// Track cumulative poison/regen rates from log amounts
-		if (log.type === "poison") {
-			if (log.amount !== undefined) {
-				const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
-				if (targetUnit) {
-					const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
-					if (isPlayer) {
-						poisonRates.player += log.amount;
-					} else {
-						poisonRates.cpu += log.amount;
-					}
-				}
-			}
-			syncForceStatsPoison(CoreConstants.FORCE_ID_PLAYER, poisonRates.player);
-			syncForceStatsPoison(CoreConstants.FORCE_ID_CPU, poisonRates.cpu);
-		}
-		if (log.type === "regen") {
-			if (log.amount !== undefined) {
-				const targetUnit = state.battleData.units.find((u) => u.id === log.targetId);
-				if (targetUnit) {
-					const isPlayer = targetUnit.force === CoreConstants.FORCE_ID_PLAYER;
-					if (isPlayer) {
-						regenRates.player += log.amount;
-					} else {
-						regenRates.cpu += log.amount;
-					}
-				}
-			}
-			syncForceStatsRegen(CoreConstants.FORCE_ID_PLAYER, regenRates.player);
-			syncForceStatsRegen(CoreConstants.FORCE_ID_CPU, regenRates.cpu);
-		}
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
 		if (log.type === "storm_start") {
