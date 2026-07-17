@@ -90,6 +90,11 @@ function applyTimeoutDamage(
 	const playerCore = Card.getBattleCore(state)(playerForce.id);
 	const cpuCore = Card.getBattleCore(state)(cpuForce.id);
 
+	const oldPlayerLife = playerCore?.life ?? 0;
+	const oldPlayerShield = playerCore?.shield ?? 0;
+	const oldCpuLife = cpuCore?.life ?? 0;
+	const oldCpuShield = cpuCore?.shield ?? 0;
+
 	Force.applyDamageToForce(
 		state,
 		playerForce,
@@ -105,6 +110,8 @@ function applyTimeoutDamage(
 		duration: 0,
 		newLife: playerCore?.life,
 		newShield: playerCore?.shield,
+		lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
+		shieldDelta: (playerCore?.shield ?? 0) - oldPlayerShield,
 	});
 
 	Force.applyDamageToForce(
@@ -122,6 +129,8 @@ function applyTimeoutDamage(
 		duration: 0,
 		newLife: cpuCore?.life,
 		newShield: cpuCore?.shield,
+		lifeDelta: (cpuCore?.life ?? 0) - oldCpuLife,
+		shieldDelta: (cpuCore?.shield ?? 0) - oldCpuShield,
 	});
 }
 

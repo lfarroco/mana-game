@@ -49,9 +49,26 @@ export type CombatLogEntry = {
 	 */
 	newPoison?: number;
 	/**
-	 * For regen_hit entries: the target force's regen rate after application.
+	 * For reagend_hit entries: the target force's regen rate after application.
 	 */
 	newRegen?: number;
+	/**
+	 * For poison_hit entries: how much the poison rate changed.
+	 */
+	poisonDelta?: number;
+	/**
+	 * For regen_hit entries: how much the regen rate changed.
+	 */
+	regenDelta?: number;
+	/**
+	 * For _hit and _tick entries: how much life changed (positive = heal, negative = damage).
+	 * The client uses this for visual popups without touching battleData.
+	 */
+	lifeDelta?: number;
+	/**
+	 * For _hit and _tick entries: how much shield changed (positive = gained, negative = lost).
+	 */
+	shieldDelta?: number;
 };
 
 /**

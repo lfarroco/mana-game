@@ -75,6 +75,10 @@ export function applyDamageHit(
 		(force: { id: string }) => force.id !== state.battleData.units.find(u => u.id === hit.sourceId)?.force
 	)!;
 
+	const enemyCore = Card.getEnemyCore(state)(state.battleData.units.find(u => u.id === hit.sourceId)!.force);
+	const oldLife = enemyCore?.life ?? 0;
+	const oldShield = enemyCore?.shield ?? 0;
+
 	const actualLifeChanged = Force.applyDamageToForce(
 		state,
 		targetForce,
@@ -83,8 +87,6 @@ export function applyDamageHit(
 		"normal",
 		hit.isCritical ?? false,
 	);
-
-	const enemyCore = Card.getEnemyCore(state)(state.battleData.units.find(u => u.id === hit.sourceId)!.force);
 
 	CombatStatsTracker.trackDamage(
 		env.combatStates.combatStatsTrackerState,
@@ -100,7 +102,6 @@ export function applyDamageHit(
 		}
 	}
 
-	// Log the hit with resulting state
 	logger.log({
 		type: "damage_hit",
 		sourceId: hit.sourceId,
@@ -108,5 +109,7 @@ export function applyDamageHit(
 		amount: hit.amount,
 		newLife: enemyCore?.life,
 		newShield: enemyCore?.shield,
+		lifeDelta: (enemyCore?.life ?? 0) - oldLife,
+		shieldDelta: (enemyCore?.shield ?? 0) - oldShield,
 	});
 }

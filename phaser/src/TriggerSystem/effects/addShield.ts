@@ -52,6 +52,9 @@ export function applyShieldHit(
 	if (!sourceUnit) return;
 
 	const sourceForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
+	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
+	const oldShield = alliedCore.shield;
+
 	const actualShieldChange = Force.manipulateCoreShield(env.state, sourceForce, hit.amount, hit.isCritical ?? false);
 
 	if (actualShieldChange > 0) {
@@ -62,13 +65,12 @@ export function applyShieldHit(
 		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
 
-	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
-
 	env.logger.log({
 		type: "shield_hit",
 		sourceId: hit.sourceId,
 		targetId: hit.targetId,
 		amount: hit.amount,
 		newShield: alliedCore.shield,
+		shieldDelta: alliedCore.shield - oldShield,
 	});
 }

@@ -82,6 +82,7 @@
                 "./src/test-utils/*"
             ]
         },
+        "types": ["jest"],
         "lib": [
             "ES2020",
             "DOM",
@@ -109,8 +110,6 @@
         "server"
     ],
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts",
-        "**/*.test.ts"
+        "node_modules"
     ],
 }

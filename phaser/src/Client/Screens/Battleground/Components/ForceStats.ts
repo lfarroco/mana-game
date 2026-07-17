@@ -324,6 +324,7 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
+// TODO: update these functions to have the target unit as arg, and locate the force from there.
 export function updateRegenDisplay(force: string, regen: number, delta: number) {
 	const chipId = `regen-display/${force}`;
 

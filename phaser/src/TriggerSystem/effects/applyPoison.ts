@@ -62,6 +62,8 @@ export function applyPoisonHit(
 	const targetForce = Force.getEnemyForce(state, hit.sourceId);
 
 	const { combatStates } = env;
+	const oldPoison = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, targetForce.id);
+
 	const newPoisonState = PoisonSystem.applyPoison(
 		combatStates.poisonSystemState,
 		targetForce,
@@ -89,5 +91,6 @@ export function applyPoisonHit(
 		targetId: hit.targetId,
 		amount: hit.amount,
 		newPoison: poisonRate,
+		poisonDelta: poisonRate - oldPoison,
 	});
 }

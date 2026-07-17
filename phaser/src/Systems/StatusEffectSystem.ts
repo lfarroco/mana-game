@@ -30,6 +30,7 @@ function tickForce(env: CombatTypes.CombatEnvironment, force: Force.Force): void
 
 	// Apply poison damage
 	if (poisonAmount > 0) {
+		const oldLife = core.life;
 		Force.applyDamageToForce(
 			env.state,
 			force,
@@ -43,12 +44,13 @@ function tickForce(env: CombatTypes.CombatEnvironment, force: Force.Force): void
 			force: force.id,
 			amount: poisonAmount,
 			newLife: core.life,
-			newShield: core.shield,
+			lifeDelta: core.life - oldLife,
 		});
 	}
 
 	// Apply regen healing (only if core is still alive after poison)
 	if (regenAmount > 0 && core.life > 0) {
+		const oldLife = core.life;
 		Force.manipulateCoreLife(
 			env.state,
 			force,
@@ -60,7 +62,7 @@ function tickForce(env: CombatTypes.CombatEnvironment, force: Force.Force): void
 			force: force.id,
 			amount: regenAmount,
 			newLife: core.life,
-			newShield: core.shield,
+			lifeDelta: core.life - oldLife,
 		});
 	}
 }
@@ -84,6 +86,3 @@ export function update(
 	};
 }
 
-export function stop(_statusEffectState: StatusEffectSystemState): void {
-	// No cleanup needed
-}

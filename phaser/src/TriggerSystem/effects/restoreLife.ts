@@ -49,14 +49,17 @@ export function applyHealHit(
 	env: CombatTypes.CombatEnvironment,
 	hit: ScheduledEffects.PendingHit,
 ) {
-	const { state } = env;
+	const { state, combatStates } = env;
 	const sourceUnit = state.battleData.units.find(u => u.id === hit.sourceId);
 	if (!sourceUnit) return;
 
 	const sourceForce = Force.getUnitForce(state, hit.sourceId);
+
+	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
+	const oldLife = alliedCore.life;
+
 	const actualHealing = Force.manipulateCoreLife(state, sourceForce, hit.amount, hit.isCritical ?? false);
 
-	const { combatStates } = env;
 	CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, env, hit.sourceId, actualHealing);
 
 	const newPoisonState = PoisonSystem.reducePoison(
@@ -74,7 +77,6 @@ export function applyHealHit(
 		env.processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
 	}
 
-	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 	const poisonRate = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, sourceForce.id);
 
 	env.logger.log({
@@ -84,5 +86,6 @@ export function applyHealHit(
 		amount: hit.amount,
 		newLife: alliedCore.life,
 		newPoison: poisonRate,
+		lifeDelta: alliedCore.life - oldLife,
 	});
 }

@@ -4,8 +4,8 @@
  * any browser APIs — the combat logic is pure data transformations.
  */
 
-import { registerCollection } from "@Models/Entities/Card";
-import { BASE_COLLECTION_DATA } from "@Data/BaseCollection";
+import * as Card from "@Models/Entities/Card";
+import * as BaseCollection from "@Data/BaseCollection";
 import * as Unit from "@Models/Entities/Unit";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as CombatSimulation from "@Core/Combat/CombatSimulation";
@@ -14,23 +14,8 @@ import * as Seeding from "@Core/Seeding";
 import * as Random from "@Utils/Random";
 import * as BoardLogic from "@Models/BoardLogic";
 
-// Mock i18n (needed by some transitive imports)
-jest.mock("@i18n/i18n", () => ({
-	t: (key: string) => key,
-	getName: (key: string) => key,
-	initialize: () => { },
-	setLocale: () => { },
-	getCurrentLocale: () => "en",
-	getAvailableLocales: () => ["en"],
-	getNativeName: () => "English",
-}));
-
-if (typeof global.structuredClone === "undefined") {
-	global.structuredClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj)) as T;
-}
-
 beforeAll(() => {
-	registerCollection(BASE_COLLECTION_DATA);
+	Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 });
 
 /**
@@ -285,6 +270,9 @@ describe("Poison and Regen log entries", () => {
 		}
 		for (const hit of hits) {
 			expect(typeof hit.newPoison).toBe("number");
+			expect(hit.poisonDelta).toBeDefined();
+			expect(typeof hit.poisonDelta).toBe("number");
+			expect(hit.poisonDelta).toBeGreaterThan(0);
 		}
 	});
 
@@ -303,6 +291,9 @@ describe("Poison and Regen log entries", () => {
 
 		for (const hit of hits) {
 			expect(typeof hit.newRegen).toBe("number");
+			expect(hit.regenDelta).toBeDefined();
+			expect(typeof hit.regenDelta).toBe("number");
+			expect(hit.regenDelta).toBeGreaterThan(0);
 		}
 	});
 
@@ -386,6 +377,62 @@ describe("Poison and Regen log entries", () => {
 		const ticks = logs.filter((l) => l.type === "poison_tick");
 		if (ticks.length >= 2) {
 			expect(ticks[1].newLife!).toBeLessThan(ticks[0].newLife!);
+		}
+	});
+
+});
+
+describe("Shield accumulation and damage routing", () => {
+	it("shield accumulates across multiple shield_hit log entries", () => {
+		const shieldUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
+		shieldUnit.cooldown = 100;
+		shieldUnit.power = 10; // 10 shield per cast
+
+		const { session, enemyTeam } = createCustomCombat([shieldUnit], 5000, 1, "test-shield-accum-001");
+		// Run enough frames for 2+ shield casts to hit
+		const logs = simulateCombatForFrames(session, enemyTeam, 100);
+
+		const shieldHits = logs.filter((l) => l.type === "shield_hit");
+		expect(shieldHits.length).toBeGreaterThanOrEqual(2);
+
+		// Shield should increase with each hit
+		const newShields = shieldHits.map((h) => h.newShield!).filter(s => s !== undefined);
+		for (let i = 1; i < newShields.length; i++) {
+			expect(newShields[i]).toBeGreaterThan(newShields[i - 1]);
+		}
+	});
+
+	it("shield_hit entries carry newShield", () => {
+		const shieldUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
+		shieldUnit.cooldown = 100;
+
+		const { session, enemyTeam } = createCustomCombat([shieldUnit], 5000, 1, "test-shield-new-001");
+		const logs = simulateCombatForFrames(session, enemyTeam, 50);
+
+		const shieldHits = logs.filter((l) => l.type === "shield_hit");
+		expect(shieldHits.length).toBeGreaterThan(0);
+
+		for (const hit of shieldHits) {
+			expect(typeof hit.newShield).toBe("number");
+			expect(hit.newShield).toBeGreaterThan(0);
+		}
+	});
+
+	it("damage_hit carries both newLife and newShield", () => {
+		const { session, enemyTeam } = createTestCombat(500, 500);
+		Random.setSeed(Seeding.stringToSeed("test-dmg-shield-001"));
+
+		const result = CombatSimulation.simulateCombat(session, enemyTeam);
+
+		const damageHits = result.logs.filter((l) => l.type === "damage_hit");
+		expect(damageHits.length).toBeGreaterThan(0);
+
+		for (const hit of damageHits) {
+			expect(typeof hit.newLife).toBe("number");
+			expect(typeof hit.newShield).toBe("number");
+			expect(hit.lifeDelta).toBeDefined();
+			expect(typeof hit.lifeDelta).toBe("number");
+			expect(hit.lifeDelta).toBeLessThanOrEqual(0); // damage is never positive
 		}
 	});
 

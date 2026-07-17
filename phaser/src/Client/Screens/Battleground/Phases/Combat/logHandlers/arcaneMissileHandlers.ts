@@ -1,9 +1,9 @@
 import type { LogHandler } from "./types";
-import * as State from "@Models/State";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Effects from "Client/FX";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 // ---- Cast handlers (launch missile) ----
 
@@ -94,13 +94,14 @@ export const handleChargeCast: LogHandler = (log, _playbackState) => {
 
 // ---- Hit handlers (apply effect to unit state) ----
 
-export const handleRegenHit: LogHandler = (_log, _playbackState) => {
-	// Regen is applied to a system state; visual is handled by regen_cast
+export const handleRegenHit: LogHandler = (log, _playbackState) => {
+	const target = Chara.mustGetCharaById(log.targetId!);
+	const unit = Chara.getUnit(target);
+	ForceStats.updateRegenDisplay(unit.force, log.newRegen!, log.amount!)
 };
 
 export const handleHasteHit: LogHandler = (log, _playbackState) => {
 	if (!log.targetId || log.effectDuration === undefined) return;
-	const { state } = window as unknown as { state: State.State };
 	const hasteTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (hasteTarget) {
 		hasteTarget.hasted += log.effectDuration;
@@ -115,7 +116,6 @@ export const handleHasteHit: LogHandler = (log, _playbackState) => {
 
 export const handleSlowHit: LogHandler = (log, _playbackState) => {
 	if (!log.targetId || log.effectDuration === undefined) return;
-	const { state } = window as unknown as { state: State.State };
 	const slowTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (slowTarget) {
 		slowTarget.slowed += log.effectDuration;
@@ -130,7 +130,6 @@ export const handleSlowHit: LogHandler = (log, _playbackState) => {
 
 export const handleChargeHit: LogHandler = (log, _playbackState) => {
 	if (!log.targetId || log.amount === undefined) return;
-	const { state } = window as unknown as { state: State.State };
 	const chargeTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (chargeTarget) {
 		chargeTarget.charge += log.amount;

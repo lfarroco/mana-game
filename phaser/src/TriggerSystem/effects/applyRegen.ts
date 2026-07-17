@@ -61,6 +61,8 @@ export function applyRegenHit(
 	const targetForce = env.state.battleData.forces.find((force) => force.id === sourceUnit.force)!;
 
 	const { combatStates } = env;
+	const oldRegen = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce.id);
+
 	const newRegenState = RegenSystem.applyRegen(
 		combatStates.regenSystemState,
 		targetForce,
@@ -83,5 +85,6 @@ export function applyRegenHit(
 		targetId: hit.targetId,
 		amount: hit.amount,
 		newRegen: regenRate,
+		regenDelta: regenRate - oldRegen,
 	});
 }
