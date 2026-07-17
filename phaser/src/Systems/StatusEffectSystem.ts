@@ -3,6 +3,7 @@ import * as Force from "@Models/Entities/Force";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as Card from "@Models/Entities/Card";
 
 const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;
 
@@ -20,28 +21,47 @@ const tick = (env: CombatTypes.CombatEnvironment) => () => {
 };
 
 function tickForce(env: CombatTypes.CombatEnvironment, force: Force.Force): void {
-	const { combatStates } = env;
+	const { combatStates, logger } = env;
 	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, force.id);
 	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, force.id);
 
-	const netHealing = regenAmount - poisonAmount;
+	const core = Card.getBattleCore(env.state)(force.id);
+	if (!core || core.life <= 0) return;
 
-	if (netHealing > 0) {
-		Force.manipulateCoreLife(
-			env.state,
-			force,
-			netHealing,
-			false,
-		);
-	} else if (netHealing < 0) {
+	// Apply poison damage
+	if (poisonAmount > 0) {
 		Force.applyDamageToForce(
 			env.state,
 			force,
-			Math.abs(netHealing),
+			poisonAmount,
 			0,
 			"poison",
 			false,
 		);
+		logger.log({
+			type: "poison_tick",
+			force: force.id,
+			amount: poisonAmount,
+			newLife: core.life,
+			newShield: core.shield,
+		});
+	}
+
+	// Apply regen healing (only if core is still alive after poison)
+	if (regenAmount > 0 && core.life > 0) {
+		Force.manipulateCoreLife(
+			env.state,
+			force,
+			regenAmount,
+			false,
+		);
+		logger.log({
+			type: "regen_tick",
+			force: force.id,
+			amount: regenAmount,
+			newLife: core.life,
+			newShield: core.shield,
+		});
 	}
 }
 

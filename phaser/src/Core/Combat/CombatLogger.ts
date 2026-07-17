@@ -30,6 +30,28 @@ export type CombatLogEntry = {
 	unitId?: string;
 	unitStats?: [string, import("@Systems/CombatStatsTracker").UnitCombatStats][];
 	currentCombatStats?: [string, import("@Systems/CombatStatsTracker").CurrentCombatStats][];
+	/**
+	 * For _cast entries: how long (ms) until the projectile reaches the target.
+	 * The corresponding _hit entry will be logged at timeMs + travelTime.
+	 */
+	travelTime?: number;
+	/**
+	 * For _hit entries: the target's life after the hit lands.
+	 * Allows the client to apply the correct value without recomputing.
+	 */
+	newLife?: number;
+	/**
+	 * For _hit entries: the target's shield after the hit lands.
+	 */
+	newShield?: number;
+	/**
+	 * For poison_hit entries: the target force's poison rate after application.
+	 */
+	newPoison?: number;
+	/**
+	 * For regen_hit entries: the target force's regen rate after application.
+	 */
+	newRegen?: number;
 };
 
 /**
@@ -43,6 +65,9 @@ export type CombatLogger = {
 
 	/** Set the current combat time in ms (called each frame during simulation) */
 	setCurrentTimeMs: (timeMs: number) => void;
+
+	/** Get the current combat time in ms */
+	getCurrentTimeMs: () => number;
 
 	/** Get all collected logs */
 	getLogs: () => CombatLogEntry[];
@@ -63,6 +88,8 @@ export const createCombatLogger = (): CombatLogger => {
 		setCurrentTimeMs: (timeMs: number) => {
 			currentTimeMs = timeMs;
 		},
+
+		getCurrentTimeMs: () => currentTimeMs,
 
 		getLogs: () => logs,
 	};

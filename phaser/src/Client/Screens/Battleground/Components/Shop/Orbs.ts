@@ -13,6 +13,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Card from "@Models/Entities/Card";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
@@ -40,6 +41,7 @@ export type OrbSpec = {
 const getShopEnvironment = (state: State.State): CombatTypes.CombatEnvironment => {
 	return {
 		state,
+		scheduledEffects: ScheduledEffects.initialize(),
 		combatStates: {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),

@@ -4,6 +4,9 @@ import * as Unit from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
+import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
+
+const PROJECTILE_TRAVEL_MS = 200;
 
 export const restoreLife = async (
 	env: CombatTypes.CombatEnvironment,
@@ -11,17 +14,50 @@ export const restoreLife = async (
 	scale: number = 1,
 ) => {
 	const baseAmount = sourceUnit.power;
-
 	const crit = Unit.calculateCritical(sourceUnit);
-
 	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 	const sourceForce = Force.getUnitForce(env.state, sourceUnit.id);
 	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 
-	const actualHealing = Force.manipulateCoreLife(env.state, sourceForce, healAmount, crit.isCritical);
+	// Log the cast
+	env.logger.log({
+		type: "heal_cast",
+		sourceId: sourceUnit.id,
+		targetId: alliedCore.id,
+		amount: healAmount,
+		travelTime: PROJECTILE_TRAVEL_MS,
+	});
+
+	// Schedule the hit
+	const currentTimeMs = env.logger.getCurrentTimeMs();
+	env.scheduledEffects = ScheduledEffects.scheduleHit(
+		env.scheduledEffects,
+		{
+			type: "heal",
+			hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+			sourceId: sourceUnit.id,
+			targetId: alliedCore.id,
+			amount: healAmount,
+			isCritical: crit.isCritical,
+			hasOnCritReaction: crit.isCritical,
+			hasOnOverHealReaction: (Card.getBattleCore(env.state)(sourceForce.id).life + healAmount > Card.getBattleCore(env.state)(sourceForce.id).maxLife),
+		},
+	);
+};
+
+export function applyHealHit(
+	env: CombatTypes.CombatEnvironment,
+	hit: ScheduledEffects.PendingHit,
+) {
+	const { state } = env;
+	const sourceUnit = state.battleData.units.find(u => u.id === hit.sourceId);
+	if (!sourceUnit) return;
+
+	const sourceForce = Force.getUnitForce(state, hit.sourceId);
+	const actualHealing = Force.manipulateCoreLife(state, sourceForce, hit.amount, hit.isCritical ?? false);
 
 	const { combatStates } = env;
-	CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, env, sourceUnit.id, actualHealing);
+	CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, env, hit.sourceId, actualHealing);
 
 	const newPoisonState = PoisonSystem.reducePoison(
 		combatStates.poisonSystemState,
@@ -30,18 +66,23 @@ export const restoreLife = async (
 	);
 	combatStates.poisonSystemState = newPoisonState;
 
-	if (crit.isCritical) {
+	if (hit.hasOnCritReaction && hit.isCritical) {
 		env.processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 	}
 
-	if (Card.getBattleCore(env.state)(sourceForce.id).life + healAmount > Card.getBattleCore(env.state)(sourceForce.id).maxLife) {
+	if (hit.hasOnOverHealReaction) {
 		env.processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
 	}
 
+	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
+	const poisonRate = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, sourceForce.id);
+
 	env.logger.log({
-		type: "heal",
-		sourceId: sourceUnit.id,
-		targetId: alliedCore.id,
-		amount: healAmount,
+		type: "heal_hit",
+		sourceId: hit.sourceId,
+		targetId: hit.targetId,
+		amount: hit.amount,
+		newLife: alliedCore.life,
+		newPoison: poisonRate,
 	});
-};
+}

@@ -14,6 +14,7 @@ import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as Logger from "@Utils/Logger";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
+import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 
 
 export type { WaveOutcome } from "@Core/Combat/CombatTypes";
@@ -36,6 +37,21 @@ type CombatRunnerState = {
 };
 
 /**
+ * Check if combat should end based on core life totals.
+ */
+const checkCombatOutcome = (state: State.State): "player_won" | "player_lost" | "both_won" | null => {
+	const playerCore = Card.getBattleCore(state)(CombatConstants.FORCE_ID_PLAYER);
+	const cpuCore = Card.getBattleCore(state)(CombatConstants.FORCE_ID_CPU);
+	const playerLifeZero = !playerCore || playerCore.life <= 0;
+	const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
+
+	if (cpuLifeZero && playerLifeZero) return "both_won";
+	if (cpuLifeZero) return "player_won";
+	if (playerLifeZero) return "player_lost";
+	return null;
+};
+
+/**
  * Server-side combat simulation runner.
  * All visual effects are no-ops — they are handled separately by CombatPlaybackController
  * during client-side playback of the combat logs.
@@ -47,6 +63,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 	const env: CombatTypes.CombatEnvironment = {
 		state,
 		logger: CombatLogger.createCombatLogger(),
+		scheduledEffects: ScheduledEffects.initialize(),
 		combatStates: {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
@@ -82,6 +99,25 @@ export const runCombat = (state: State.State): CombatRunner => {
 		combatElapsedMs += scaledDelta;
 
 		runnerState.env.logger.setCurrentTimeMs(combatElapsedMs);
+
+		// 1. Process scheduled hits that are due (projectiles landing this frame)
+		const { dueHits, remaining } = ScheduledEffects.getDueHits(
+			runnerState.env.scheduledEffects,
+			combatElapsedMs,
+		);
+		runnerState.env.scheduledEffects = remaining;
+		for (const hit of dueHits) {
+			ScheduledEffects.processHit(runnerState.env, hit);
+		}
+
+		// 2. Check combat outcome after hits landed
+		const hitOutcome = checkCombatOutcome(nextState);
+		if (hitOutcome) {
+			finishCombat(nextState, hitOutcome);
+			return;
+		}
+
+		// 3. Charge units and process effects (these log _cast and schedule _hit)
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,
@@ -94,8 +130,10 @@ export const runCombat = (state: State.State): CombatRunner => {
 			TriggerSystem.processEffectsIO(env, unit, unit.effects, false);
 		}
 
+		// 4. Status effects tick (poison/regen)
 		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, scaledDelta);
 
+		// 5. Timeout damage
 		timeoutSystemState = Timeout.updateTimeoutDamageSystem(
 			env,
 			timeoutSystemState,
@@ -105,26 +143,17 @@ export const runCombat = (state: State.State): CombatRunner => {
 			scaledDelta
 		);
 
+		// 6. Max duration check
 		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
 			finishCombat(nextState, "both_won");
 			return;
 		}
 
-		const playerCore = Card.getBattleCore(nextState)(CombatConstants.FORCE_ID_PLAYER);
-		const cpuCore = Card.getBattleCore(nextState)(CombatConstants.FORCE_ID_CPU);
-		const playerLifeZero = !playerCore || playerCore.life <= 0;
-		const cpuLifeZero = !cpuCore || cpuCore.life <= 0;
-		const outcome: "player_won" | "player_lost" | "both_won" | null =
-			cpuLifeZero && playerLifeZero
-				? "both_won"
-				: cpuLifeZero
-					? "player_won"
-					: playerLifeZero
-						? "player_lost"
-						: null;
-
-		if (outcome) {
-			finishCombat(nextState, outcome);
+		// 7. Check combat outcome after status effects and timeout damage
+		const tickOutcome = checkCombatOutcome(nextState);
+		if (tickOutcome) {
+			finishCombat(nextState, tickOutcome);
+			return;
 		}
 	};
 

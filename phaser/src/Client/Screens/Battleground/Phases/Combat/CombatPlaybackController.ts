@@ -15,6 +15,7 @@ import * as Unit from "@Models/Entities/Unit";
 import * as CoreConstants from "@Core/Constants";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
+import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 
 type ScheduledAnimation = {
@@ -219,6 +220,7 @@ export const createCombatPlaybackController = (
 		return {
 			state,
 			logger: CombatLogger.createCombatLogger(),
+			scheduledEffects: ScheduledEffects.initialize(),
 			combatStates: playbackState.combatStates,
 			processReactions: () => { },
 		};

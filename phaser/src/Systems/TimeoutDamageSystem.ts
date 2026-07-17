@@ -3,6 +3,7 @@ import * as CoreConstants from "@Core/Constants";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 import * as State from "@Models/State";
+import * as Card from "@Models/Entities/Card";
 
 
 const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
@@ -86,6 +87,9 @@ function applyTimeoutDamage(
 
 	Logger.debug("TimeoutDamageSystem", `[TimeoutDamageSystem] Timeout damage tick: ${currentDamage} damage to both forces`);
 
+	const playerCore = Card.getBattleCore(state)(playerForce.id);
+	const cpuCore = Card.getBattleCore(state)(cpuForce.id);
+
 	Force.applyDamageToForce(
 		state,
 		playerForce,
@@ -94,6 +98,15 @@ function applyTimeoutDamage(
 		"timeout",
 		false,
 	);
+	env.logger.log({
+		type: "timeout_damage",
+		force: playerForce.id,
+		damage: currentDamage,
+		duration: 0,
+		newLife: playerCore?.life,
+		newShield: playerCore?.shield,
+	});
+
 	Force.applyDamageToForce(
 		state,
 		cpuForce,
@@ -102,18 +115,13 @@ function applyTimeoutDamage(
 		"timeout",
 		false,
 	);
-
-	env.logger.log({
-		type: "timeout_damage",
-		force: playerForce.id,
-		damage: currentDamage,
-		duration: 0,
-	});
 	env.logger.log({
 		type: "timeout_damage",
 		force: cpuForce.id,
 		damage: currentDamage,
 		duration: 0,
+		newLife: cpuCore?.life,
+		newShield: cpuCore?.shield,
 	});
 }
 
