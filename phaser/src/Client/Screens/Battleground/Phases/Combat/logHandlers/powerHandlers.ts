@@ -1,36 +1,33 @@
-import type { LogHandler } from "./types";
-import * as State from "@Models/State";
+import type { PlaybackState } from "./types";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 
-export const handleIncreasePower: LogHandler = (log, _playbackState) => {
-	if (!log.targetId || log.amount === undefined || log.permanent === undefined) return;
-	const { state } = window as unknown as { state: State.State };
-	const powerTargetId = log.targetId;
-	const powerAmount = log.amount;
-	const powerPermanent = log.permanent;
-	const powerTarget = state.battleData.units.find((u) => u.id === powerTargetId);
+
+export const handleIncreasePower = (
+	log: CombatLogger.IncreasePowerEntry,
+	_playbackState: PlaybackState,
+) => {
+	const powerTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (powerTarget) {
-		powerTarget.power += powerAmount;
-		if (powerPermanent) {
-			powerTarget.bonusPower += powerAmount;
+		powerTarget.power += log.amount;
+		// TODO: check if the end-combat logs follow this
+		if (log.permanent) {
+			powerTarget.bonusPower += log.amount;
 		}
-		ChargeBarDisplay.updateChargeBar(powerTargetId);
+		ChargeBarDisplay.updateChargeBar(log.targetId);
 	}
 };
 
-export const handleDecreasePower: LogHandler = (log, _playbackState) => {
-	if (!log.targetId || log.amount === undefined || log.permanent === undefined) return;
-	const { state } = window as unknown as { state: State.State };
-	const decreaseTargetId = log.targetId;
-	const decreaseAmount = log.amount;
-	const decreasePermanent = log.permanent;
-	const affectedUnitId = log.affectedUnitId ?? decreaseTargetId;
-	const affectedUnit = state.battleData.units.find((u) => u.id === affectedUnitId);
+export const handleDecreasePower = (
+	log: CombatLogger.DecreasePowerEntry,
+	_playbackState: PlaybackState,
+) => {
+	const affectedUnit = state.battleData.units.find((u) => u.id === log.affectedUnitId);
 	if (affectedUnit) {
-		affectedUnit.power -= decreaseAmount;
-		if (decreasePermanent) {
-			affectedUnit.bonusPower -= decreaseAmount;
+		affectedUnit.power -= log.amount;
+		if (log.permanent) {
+			affectedUnit.bonusPower -= log.amount;
 		}
-		ChargeBarDisplay.updateChargeBar(affectedUnitId);
+		ChargeBarDisplay.updateChargeBar(log.affectedUnitId);
 	}
 };

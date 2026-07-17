@@ -1,14 +1,18 @@
-import type { LogHandler } from "./types";
+import type { PlaybackState } from "./types";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Effects from "Client/FX";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
+
 // ---- Cast handlers (launch missile) ----
 
-export const handleRegenCast: LogHandler = (log, _playbackState) => {
-	if (!log.sourceId || !log.targetId || log.amount === undefined) return;
+export const handleRegenCast = (
+	log: CombatLogger.RegenCastEntry,
+	_playbackState: PlaybackState,
+) => {
 	AudioManager.playSoundEffect("sfx_spell_tranquility");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
@@ -31,8 +35,10 @@ export const handleRegenCast: LogHandler = (log, _playbackState) => {
 		});
 };
 
-export const handleHasteCast: LogHandler = (log, _playbackState) => {
-	if (!log.sourceId || !log.targetId || log.effectDuration === undefined) return;
+export const handleHasteCast = (
+	log: CombatLogger.HasteCastEntry,
+	_playbackState: PlaybackState,
+) => {
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
@@ -51,8 +57,10 @@ export const handleHasteCast: LogHandler = (log, _playbackState) => {
 	});
 };
 
-export const handleSlowCast: LogHandler = (log, _playbackState) => {
-	if (!log.sourceId || !log.targetId || log.effectDuration === undefined) return;
+export const handleSlowCast = (
+	log: CombatLogger.SlowCastEntry,
+	_playbackState: PlaybackState,
+) => {
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
@@ -72,8 +80,10 @@ export const handleSlowCast: LogHandler = (log, _playbackState) => {
 	});
 };
 
-export const handleChargeCast: LogHandler = (log, _playbackState) => {
-	if (!log.sourceId || !log.targetId || log.amount === undefined) return;
+export const handleChargeCast = (
+	log: CombatLogger.ChargeCastEntry,
+	_playbackState: PlaybackState,
+) => {
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
@@ -94,14 +104,19 @@ export const handleChargeCast: LogHandler = (log, _playbackState) => {
 
 // ---- Hit handlers (apply effect to unit state) ----
 
-export const handleRegenHit: LogHandler = (log, _playbackState) => {
-	const target = Chara.mustGetCharaById(log.targetId!);
+export const handleRegenHit = (
+	log: CombatLogger.RegenHitEntry,
+	_playbackState: PlaybackState,
+) => {
+	const target = Chara.mustGetCharaById(log.targetId);
 	const unit = Chara.getUnit(target);
-	ForceStats.updateRegenDisplay(unit.force, log.newRegen!, log.amount!)
+	ForceStats.updateRegenDisplay(unit.force, log.newRegen, log.amount);
 };
 
-export const handleHasteHit: LogHandler = (log, _playbackState) => {
-	if (!log.targetId || log.effectDuration === undefined) return;
+export const handleHasteHit = (
+	log: CombatLogger.HasteHitEntry,
+	_playbackState: PlaybackState,
+) => {
 	const hasteTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (hasteTarget) {
 		hasteTarget.hasted += log.effectDuration;
@@ -114,8 +129,10 @@ export const handleHasteHit: LogHandler = (log, _playbackState) => {
 	}
 };
 
-export const handleSlowHit: LogHandler = (log, _playbackState) => {
-	if (!log.targetId || log.effectDuration === undefined) return;
+export const handleSlowHit = (
+	log: CombatLogger.SlowHitEntry,
+	_playbackState: PlaybackState,
+) => {
 	const slowTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (slowTarget) {
 		slowTarget.slowed += log.effectDuration;
@@ -128,8 +145,10 @@ export const handleSlowHit: LogHandler = (log, _playbackState) => {
 	}
 };
 
-export const handleChargeHit: LogHandler = (log, _playbackState) => {
-	if (!log.targetId || log.amount === undefined) return;
+export const handleChargeHit = (
+	log: CombatLogger.ChargeHitEntry,
+	_playbackState: PlaybackState,
+) => {
 	const chargeTarget = state.battleData.units.find((u) => u.id === log.targetId);
 	if (chargeTarget) {
 		chargeTarget.charge += log.amount;

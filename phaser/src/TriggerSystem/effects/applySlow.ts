@@ -55,6 +55,6 @@ export function applySlowHit(
 		type: "slow_hit",
 		sourceId: hit.sourceId,
 		targetId: hit.targetId,
-		effectDuration: hit.effectDuration,
+		effectDuration: hit.effectDuration ?? 0,
 	});
 }

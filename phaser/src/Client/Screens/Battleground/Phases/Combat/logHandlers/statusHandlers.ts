@@ -1,23 +1,22 @@
-import type { LogHandler } from "./types";
-import * as State from "@Models/State";
+import type { PlaybackState } from "./types";
+import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 
-export const handleHasteEnd: LogHandler = (log, _playbackState) => {
-	if (!log.unitId) return;
-	const { state } = window as unknown as { state: State.State };
-	const hasteEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
-	if (hasteEndTarget) {
-		hasteEndTarget.hasted = 0;
-		ChargeBarDisplay.updateChargeBar(log.unitId);
-	}
+
+export const handleHasteEnd = (
+	log: CombatLogger.HasteEndEntry,
+	_playbackState: PlaybackState,
+) => {
+	const target = state.battleData.units.find((u) => u.id === log.unitId)!;
+	target.hasted = 0;
+	ChargeBarDisplay.updateChargeBar(log.unitId);
 };
 
-export const handleSlowEnd: LogHandler = (log, _playbackState) => {
-	if (!log.unitId) return;
-	const { state } = window as unknown as { state: State.State };
-	const slowEndTarget = state.battleData.units.find((u) => u.id === log.unitId);
-	if (slowEndTarget) {
-		slowEndTarget.slowed = 0;
-		ChargeBarDisplay.updateChargeBar(log.unitId);
-	}
+export const handleSlowEnd = (
+	log: CombatLogger.SlowEndEntry,
+	_playbackState: PlaybackState,
+) => {
+	const target = state.battleData.units.find((u) => u.id === log.unitId)!;
+	target.slowed = 0;
+	ChargeBarDisplay.updateChargeBar(log.unitId);
 };

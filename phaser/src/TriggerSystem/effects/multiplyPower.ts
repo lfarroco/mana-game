@@ -25,7 +25,6 @@ export const multiplyPower = async (options: {
 			targetId: target.id,
 			amount: powerDifference,
 			permanent: false,
-			duration: 0,
 		});
 	}
 };

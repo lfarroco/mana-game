@@ -156,7 +156,9 @@ describe("Combat simulation log generation", () => {
 
 		const lastLog = result.logs[result.logs.length - 1];
 		expect(lastLog.type).toBe("outcome");
-		expect(["player_won", "player_lost", "both_won"]).toContain(lastLog.result);
+		if (lastLog.type === "outcome") {
+			expect(["player_won", "player_lost", "both_won"]).toContain(lastLog.result);
+		}
 
 		const damageLogs = result.logs.filter((l) => l.type === "damage_cast");
 		expect(damageLogs.length).toBeGreaterThan(0);
@@ -182,7 +184,9 @@ describe("Combat simulation log generation", () => {
 
 		const lastLog = result.logs[result.logs.length - 1];
 		expect(lastLog.type).toBe("outcome");
-		expect(lastLog.result).toBe("player_lost");
+		if (lastLog.type === "outcome") {
+			expect(lastLog.result).toBe("player_lost");
+		}
 	});
 
 	it("player wins when player core has more life than cpu core (500 vs 100)", () => {
@@ -194,7 +198,9 @@ describe("Combat simulation log generation", () => {
 
 		const lastLog = result.logs[result.logs.length - 1];
 		expect(lastLog.type).toBe("outcome");
-		expect(lastLog.result).toBe("player_won");
+		if (lastLog.type === "outcome") {
+			expect(lastLog.result).toBe("player_won");
+		}
 	});
 
 	it("both_won when combat times out (both cores alive after max duration)", () => {
@@ -206,7 +212,9 @@ describe("Combat simulation log generation", () => {
 
 		const lastLog = result.logs[result.logs.length - 1];
 		expect(lastLog.type).toBe("outcome");
-		expect(lastLog.result).toBe("both_won");
+		if (lastLog.type === "outcome") {
+			expect(lastLog.result).toBe("both_won");
+		}
 	});
 
 	it("includes combat_stats log entry", () => {

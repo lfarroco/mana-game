@@ -1,4 +1,4 @@
-import * as CombatLogger from "@Core/Combat/CombatLogger";
+import type * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import type * as CountdownTimer from "@Systems/CountdownTimer";
@@ -13,5 +13,3 @@ export type PlaybackState = {
 	blackHoleState?: BlackHoleState.BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
 };
-
-export type LogHandler = (log: CombatLogger.CombatLogEntry, playbackState: PlaybackState) => void;

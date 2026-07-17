@@ -66,7 +66,7 @@ export const createCombatPlaybackController = (
 	const scheduleAnimations = () => {
 		logs.forEach((log) => {
 			const startTime = log.timeMs;
-			const duration = log.duration || DEFAULT_ANIMATION_DURATION;
+			const duration = log.type === "timeout_damage" ? log.duration : DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;
 
 			playbackState.animations.push({
@@ -76,7 +76,7 @@ export const createCombatPlaybackController = (
 				executed: false,
 			});
 
-			if (log.type === "outcome" && log.result) {
+			if (log.type === "outcome") {
 				playbackState.outcome = log.result;
 			}
 		});
@@ -89,13 +89,13 @@ export const createCombatPlaybackController = (
 
 		const { log } = animation;
 
-		if (log.sourceId)
+		if ("sourceId" in log && log.sourceId)
 			Animations.pop(log.sourceId);
 
-		// Dispatch to the extracted log handlers
 		logHandlers.executeLogHandler(log, playbackState);
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
+		// TODO: the black hole does no need state, or expose it, because it can be driven by logs
 		if (log.type === "storm_start") {
 			if (playbackState.blackHoleState && playbackState.blackHoleState.blackHole) {
 				playbackState.blackHoleState.blackHole.setVisible(true);

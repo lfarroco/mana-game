@@ -2,6 +2,10 @@
 
 This file stores historical completed-task entries that were moved out of AGENTS.md and PLAN.md to keep the active agent guide concise.
 
+Date: 2026-07-17
+
+- [x] Refactored `CombatLogEntry` from a single flat type with ~25 optional properties into a discriminated union of 26 specific entry types (DamageCastEntry, DamageHitEntry, HealCastEntry, HealHitEntry, ShieldCastEntry, ShieldHitEntry, PoisonCastEntry, PoisonHitEntry, RegenCastEntry, RegenHitEntry, HasteCastEntry, HasteHitEntry, SlowCastEntry, SlowHitEntry, ChargeCastEntry, ChargeHitEntry, HasteEndEntry, SlowEndEntry, IncreasePowerEntry, DecreasePowerEntry, IncreaseCriticalEntry, PoisonTickEntry, RegenTickEntry, TimeoutDamageEntry, StormStartEntry, CombatStatsEntry, OutcomeEntry, ReactionEntry). Changed the type design to `CombatLogInput` (union of input types without timeMs) and `CombatLogEntry = CombatLogInput & { timeMs: number }` (output with stamped timeMs). Updated 13 files: all producers (dealDamage, restoreLife, addShield, applyPoison, applyRegen, applyHaste, applySlow, applyCharge, increasePower, decreasePower, multiplyPower, StatusEffectSystem, TimeoutDamageSystem, TriggerSystem, RunCombatCore), all consumers (CombatPlaybackController, logHandlers index + 5 handler modules), and tests. Removed manual property-guard patterns (`if (!log.newLife || !log.lifeDelta) throw...`) now enforced by TypeScript narrowing via switch dispatch. (Cline, 2026-07-17)
+
 ## Completed (Current Session)
 
 Date: 2026-05-12
