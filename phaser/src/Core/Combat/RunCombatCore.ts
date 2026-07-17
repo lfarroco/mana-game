@@ -121,6 +121,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			scaledDelta,
+			runnerState.env.logger,
 		);
 
 		for (const unit of unitsReadyToAct) {
@@ -205,6 +206,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 export const chargeUnits = (
 	state: State.State,
 	delta: number,
+	logger: CombatLogger.CombatLogger,
 ): Unit.Unit[] => {
 	const performingUnits: Unit.Unit[] = [];
 
@@ -215,12 +217,23 @@ export const chargeUnits = (
 
 		unit.charge += delta * chargeRate;
 
+		const wasHasted = unit.hasted > 0;
+		const wasSlowed = unit.slowed > 0;
+
 		if (unit.hasted > 0) {
 			unit.hasted = Math.max(0, unit.hasted - delta);
 		}
 
 		if (unit.slowed > 0) {
 			unit.slowed = Math.max(0, unit.slowed - delta);
+		}
+
+		if (logger && wasHasted && unit.hasted <= 0) {
+			logger.log({ type: "haste_end", unitId: unit.id });
+		}
+
+		if (logger && wasSlowed && unit.slowed <= 0) {
+			logger.log({ type: "slow_end", unitId: unit.id });
 		}
 
 		unit.refresh = Math.max(0, unit.refresh - delta);

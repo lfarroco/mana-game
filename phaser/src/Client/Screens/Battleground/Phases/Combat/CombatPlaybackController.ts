@@ -114,14 +114,6 @@ export const createCombatPlaybackController = (
 			const chargeRate = 1 / cooldownMultiplier;
 			unit.charge += delta * chargeRate;
 
-			if (unit.hasted > 0) {
-				unit.hasted = Math.max(0, unit.hasted - delta);
-			}
-
-			if (unit.slowed > 0) {
-				unit.slowed = Math.max(0, unit.slowed - delta);
-			}
-
 			if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 				unit.charge = unit.charge - unit.cooldown;
 				unit.refresh = MIN_COOLDOWN;

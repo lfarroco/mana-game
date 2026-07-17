@@ -445,3 +445,180 @@ describe("Shield accumulation and damage routing", () => {
 	});
 
 });
+
+describe("Haste / Slow status effect log generation", () => {
+	it("generates haste_end log when haste duration expires", () => {
+		const { session, enemyTeam } = createCustomCombat(
+			[],
+			5000,
+			1,
+			"test-haste-end-001",
+		);
+
+		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
+		const seedVal = Seeding.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
+		const combatRunner = RunCombatCore.runCombat(combatState);
+		const env = combatRunner.getEnv();
+
+		const playerCore = combatState.battleData.units.find(
+			(u) => u.force === CombatConstants.FORCE_ID_PLAYER && u.isCore,
+		)!;
+		playerCore.hasted = 50;
+
+		let frame = 0;
+		const SIM_DELTA = 16.67;
+		while (combatRunner.isActive() && frame < 20) {
+			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+			frame++;
+		}
+		const allLogs = env.logger.getLogs();
+
+		const hasteEndLogs = allLogs.filter((l) => l.type === "haste_end");
+		expect(hasteEndLogs.length).toBe(1);
+		expect(hasteEndLogs[0].unitId).toBe(playerCore.id);
+		expect(playerCore.hasted).toBeLessThanOrEqual(0);
+	});
+
+	it("generates slow_end log when slow duration expires", () => {
+		const { session, enemyTeam } = createCustomCombat(
+			[],
+			5000,
+			1,
+			"test-slow-end-001",
+		);
+
+		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
+		const seedVal = Seeding.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
+		const combatRunner = RunCombatCore.runCombat(combatState);
+		const env = combatRunner.getEnv();
+
+		const cpuCore = combatState.battleData.units.find(
+			(u) => u.force === CombatConstants.FORCE_ID_CPU && u.isCore,
+		)!;
+		cpuCore.slowed = 50;
+
+		let frame = 0;
+		const SIM_DELTA = 16.67;
+		while (combatRunner.isActive() && frame < 20) {
+			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+			frame++;
+		}
+		const allLogs = env.logger.getLogs();
+
+		const slowEndLogs = allLogs.filter((l) => l.type === "slow_end");
+		expect(slowEndLogs.length).toBe(1);
+		expect(slowEndLogs[0].unitId).toBe(cpuCore.id);
+		expect(cpuCore.slowed).toBeLessThanOrEqual(0);
+	});
+
+	it("generates both haste_end and slow_end when unit has both and they expire", () => {
+		const { session, enemyTeam } = createCustomCombat(
+			[],
+			5000,
+			1,
+			"test-both-end-001",
+		);
+
+		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
+		const seedVal = Seeding.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
+		const combatRunner = RunCombatCore.runCombat(combatState);
+		const env = combatRunner.getEnv();
+
+		const playerCore = combatState.battleData.units.find(
+			(u) => u.force === CombatConstants.FORCE_ID_PLAYER && u.isCore,
+		)!;
+		playerCore.hasted = 1500;
+		playerCore.slowed = 1000;
+		playerCore.charge = 0;
+
+		let frame = 0;
+		const SIM_DELTA = 16.67;
+		while (combatRunner.isActive() && frame < 120) {
+			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+			frame++;
+		}
+		const allLogs = env.logger.getLogs();
+
+		const hasteEndLogs = allLogs.filter((l) => l.type === "haste_end");
+		const slowEndLogs = allLogs.filter((l) => l.type === "slow_end");
+
+		expect(slowEndLogs.length).toBe(1);
+		expect(hasteEndLogs.length).toBe(1);
+		expect(slowEndLogs[0].timeMs).toBeLessThan(hasteEndLogs[0].timeMs);
+		expect(playerCore.hasted).toBeLessThanOrEqual(0);
+		expect(playerCore.slowed).toBeLessThanOrEqual(0);
+	});
+
+	it("cooldown multiplier is 1 when both hasted and slowed are active", () => {
+		const { session, enemyTeam } = createCustomCombat(
+			[],
+			5000,
+			1,
+			"test-both-multiplier-001",
+		);
+
+		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
+		const seedVal = Seeding.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
+		const combatRunner = RunCombatCore.runCombat(combatState);
+		const env = combatRunner.getEnv();
+
+		const playerCore = combatState.battleData.units.find(
+			(u) => u.force === CombatConstants.FORCE_ID_PLAYER && u.isCore,
+		)!;
+		playerCore.hasted = 500;
+		playerCore.slowed = 500;
+		playerCore.charge = 0;
+		playerCore.cooldown = 10000;
+		playerCore.refresh = 0;
+
+		const SIM_DELTA = 16.67;
+		combatRunner.updateFrame(combatState, 0, SIM_DELTA);
+
+		expect(playerCore.charge).toBeCloseTo(SIM_DELTA, 0);
+		expect(playerCore.hasted).toBeGreaterThan(0);
+		expect(playerCore.slowed).toBeGreaterThan(0);
+
+		const allLogs = env.logger.getLogs();
+		const endLogs = allLogs.filter(
+			(l) => l.type === "haste_end" || l.type === "slow_end",
+		);
+		expect(endLogs.length).toBe(0);
+	});
+
+	it("no haste_end or slow_end logs when status never applied", () => {
+		const { session, enemyTeam } = createCustomCombat(
+			[],
+			5000,
+			1,
+			"test-never-applied-001",
+		);
+
+		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
+		const seedVal = Seeding.stringToSeed(session.initial_seed);
+		Random.setSeed(seedVal);
+
+		const combatRunner = RunCombatCore.runCombat(combatState);
+		const env = combatRunner.getEnv();
+
+		let frame = 0;
+		const SIM_DELTA = 16.67;
+		while (combatRunner.isActive() && frame < 30) {
+			combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+			frame++;
+		}
+		const allLogs = env.logger.getLogs();
+
+		const hasteEndLogs = allLogs.filter((l) => l.type === "haste_end");
+		const slowEndLogs = allLogs.filter((l) => l.type === "slow_end");
+		expect(hasteEndLogs.length).toBe(0);
+		expect(slowEndLogs.length).toBe(0);
+	});
+});
