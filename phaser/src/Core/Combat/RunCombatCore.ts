@@ -142,7 +142,8 @@ export const runCombat = (state: State.State): CombatRunner => {
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
 
-		// Log combat stats before outcome
+		// Log combat stats before outcomeA
+		// TOOD: include this in the outcome
 		if (runnerState.env.combatStates?.combatStatsTrackerState) {
 			const { unitStats, currentCombatStats } = runnerState.env.combatStates.combatStatsTrackerState;
 			runnerState.env.logger.log({

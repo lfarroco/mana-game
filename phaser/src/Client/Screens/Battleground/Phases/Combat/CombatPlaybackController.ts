@@ -1,8 +1,8 @@
 import * as State from "@Models/State";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
-import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
-import type * as CountdownTimer from "@Systems/CountdownTimer";
+import * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
@@ -17,7 +17,6 @@ import * as CoreConstants from "@Core/Constants";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
 import * as logHandlers from "./logHandlers";
-
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -55,12 +54,6 @@ export const createCombatPlaybackController = (
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
-
-
-	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
-	ForceStats.updateRegenDisplay(CoreConstants.FORCE_ID_CPU, 0, 0);
-	ForceStats.updatePoisonDisplay(CoreConstants.FORCE_ID_PLAYER, 0, 0);
-	ForceStats.updatePoisonDisplay(CoreConstants.FORCE_ID_CPU, 0, 0);
 
 	const playbackState: PlaybackState = {
 		active: true,
@@ -103,75 +96,28 @@ export const createCombatPlaybackController = (
 	const regenRates = { player: 0, cpu: 0 };
 	const poisonRates = { player: 0, cpu: 0 };
 
-	const initForceStats = () => {
-		const playerCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
-		if (playerCore) {
-			coreLifeState.playerLife = playerCore.life;
-			coreLifeState.playerShield = playerCore.shield;
-			coreLifeState.playerMaxLife = playerCore.maxLife;
-		}
-		const cpuCore = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
-		if (cpuCore) {
-			coreLifeState.cpuLife = cpuCore.life;
-			coreLifeState.cpuShield = cpuCore.shield;
-			coreLifeState.cpuMaxLife = cpuCore.maxLife;
-		}
-	};
-	initForceStats();
-
-	const prevDisplayedLife = { player: 0, cpu: 0 };
-	const prevDisplayedShield = { player: 0, cpu: 0 };
-	const prevDisplayedRegen = { player: 0, cpu: 0 };
-	const prevDisplayedPoison = { player: 0, cpu: 0 };
 
 	const syncForceStatsLife = (force: string) => {
 		const life = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerLife : coreLifeState.cpuLife;
-		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedLife.player : prevDisplayedLife.cpu;
-		if (life === prev) return;
 
 		ForceStats.updateLifeDisplay(force, life, 0);
-		if (force === CoreConstants.FORCE_ID_PLAYER) {
-			prevDisplayedLife.player = life;
-		} else {
-			prevDisplayedLife.cpu = life;
-		}
+
 	};
 
 	const syncForceStatsShield = (force: string) => {
 		const shield = force === CoreConstants.FORCE_ID_PLAYER ? coreLifeState.playerShield : coreLifeState.cpuShield;
-		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedShield.player : prevDisplayedShield.cpu;
-		if (shield === prev) return;
 
 		ForceStats.updateShieldDisplay(force, shield, 0);
-		if (force === CoreConstants.FORCE_ID_PLAYER) {
-			prevDisplayedShield.player = shield;
-		} else {
-			prevDisplayedShield.cpu = shield;
-		}
 	};
 
 	const syncForceStatsRegen = (force: string, regen: number) => {
-		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedRegen.player : prevDisplayedRegen.cpu;
-		if (regen === prev) return;
 
 		ForceStats.updateRegenDisplay(force, regen, 0);
-		if (force === CoreConstants.FORCE_ID_PLAYER) {
-			prevDisplayedRegen.player = regen;
-		} else {
-			prevDisplayedRegen.cpu = regen;
-		}
 	};
 
 	const syncForceStatsPoison = (force: string, poison: number) => {
-		const prev = force === CoreConstants.FORCE_ID_PLAYER ? prevDisplayedPoison.player : prevDisplayedPoison.cpu;
-		if (poison === prev) return;
 
 		ForceStats.updatePoisonDisplay(force, poison, 0);
-		if (force === CoreConstants.FORCE_ID_PLAYER) {
-			prevDisplayedPoison.player = poison;
-		} else {
-			prevDisplayedPoison.cpu = poison;
-		}
 	};
 
 	const applyForceStatChange = (log: CombatLogger.CombatLogEntry): string | null => {
