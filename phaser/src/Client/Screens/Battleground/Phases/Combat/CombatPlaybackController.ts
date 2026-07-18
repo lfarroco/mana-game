@@ -18,6 +18,7 @@ import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
 import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
+import * as OptionsStore from "@Models/OptionsStore";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -135,14 +136,16 @@ export const createCombatPlaybackController = (
 	const updateFrame = (_state: State.State, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
-		playbackState.currentTime += delta;
+		const speed = OptionsStore.getOption("speed", 1.0);
+		const scaledDelta = delta * speed;
 
-		// Drive the countdown timer with raw delta (not scene-time-dependent)
+		playbackState.currentTime += scaledDelta;
+
 		if (playbackState.countdownTimerState) {
-			CountdownTimer.updateFromDelta(playbackState.countdownTimerState, delta);
+			CountdownTimer.updateFromDelta(playbackState.countdownTimerState, scaledDelta);
 		}
 
-		updateChargeBars(delta);
+		updateChargeBars(scaledDelta);
 
 		const animationsToExecute = playbackState.animations.filter(
 			(anim) => !anim.executed && anim.startTime <= playbackState.currentTime

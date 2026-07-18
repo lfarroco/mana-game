@@ -66,10 +66,13 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
 }
 
 /**
- * Drive the countdown using raw real-time delta (not affected by scene timeScale).
+ * Drive the countdown using the provided delta (should already be scaled by game speed).
  * Should be called every frame from the playback update loop.
  */
-export function updateFromDelta(timerState: CountdownTimerState, delta: number): CountdownTimerState {
+export function updateFromDelta(
+	timerState: CountdownTimerState,
+	delta: number,
+): CountdownTimerState {
 	if (timerState.timerValue <= 0) return timerState;
 
 	timerState.accumulatedMs += delta;
