@@ -7,7 +7,7 @@
 
 import * as Models from "@Core/Models";
 import * as Card from "@Models/Entities/Card";
-import * as Seeding from "./Seeding";
+import * as Seeding from "@game/Seeding";
 
 const ENCOUNTER_IDS = [
 	"upgrade_unit",

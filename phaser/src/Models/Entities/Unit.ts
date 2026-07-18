@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
 import { CardDefinition, getCardDefinition } from "@Models/Entities/Card";
 import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
-import { nextValue } from "@Utils/Random";
+import { nextValue } from "@game/Random";
 
 export type Unit = {
 	id: string;

@@ -5,7 +5,7 @@
  * All functions are pure and stateless, enabling reproducible game runs.
  */
 
-import * as Random from "@Utils/Random";
+import * as Random from "./Random";
 
 /**
  * Convert a string seed into a numeric hash suitable for RNG.

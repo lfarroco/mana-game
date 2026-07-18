@@ -19,6 +19,8 @@ module.exports = {
 		"\\.e2e\\.",
 	],
 	moduleNameMapper: {
+		"^@game/(.*)\\.js$": "<rootDir>/../core/src/$1",
+		"^@game/(.*)$": "<rootDir>/../core/src/$1",
 		"^@Models/(.*)\\.js$": "<rootDir>/src/Models/$1",
 		"^@Models/(.*)$": "<rootDir>/src/Models/$1",
 		"^@Screens/(.*)\\.js$": "<rootDir>/src/Client/Screens/$1",

@@ -10,8 +10,8 @@ import * as Unit from "@Models/Entities/Unit";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as CombatSimulation from "@Core/Combat/CombatSimulation";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
-import * as Seeding from "@Core/Seeding";
-import * as Random from "@Utils/Random";
+import * as Seeding from "@game/Seeding";
+import * as Random from "@game/Random";
 import * as BoardLogic from "@Models/BoardLogic";
 
 beforeAll(() => {

@@ -1,5 +1,5 @@
 import { Unit } from "@Models/Entities/Unit";
-import { nextValue } from "@Utils/Random";
+import { nextValue } from "@game/Random";
 import { pickRandom } from "@utils";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";

@@ -4,8 +4,11 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "outDir": "./dist/",
-        "rootDir": "./src/",
+        "rootDir": "../",
         "paths": {
+            "@game/*": [
+                "../core/src/*"
+            ],
             "@Models/*": [
                 "./src/Models/*"
             ],

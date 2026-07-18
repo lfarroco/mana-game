@@ -28,7 +28,7 @@ export {
 export { generateEnemyTeamForRound } from "./EnemyGeneration";
 
 // Re-export seeding and randomization
-export { stringToSeed, generateNextSeed, getDeterministicRandomOptionIndex } from "./Seeding";
+export { stringToSeed, generateNextSeed, getDeterministicRandomOptionIndex } from "@game/Seeding";
 
 // Re-export option generation
 export { createEncounterOptions as generateEncounterOptions, generateShopOptions } from "./OptionGeneration";

@@ -1,4 +1,4 @@
-import { getSeed, setSeed } from "@Utils/Random";
+import { getSeed, setSeed } from "@game/Random";
 import * as Phaser from "phaser";
 import * as parent from "../CrystalSelectionScreen";
 

@@ -6,6 +6,7 @@ const sharedResolve = {
 	// Keep webpack path resolution aligned with TypeScript path aliases.
 	plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, "../tsconfig.json") })],
 	alias: {
+		"@game": path.resolve(__dirname, "../../core/src"),
 		"@Models": path.resolve(__dirname, "../src/Models"),
 		"@Screens": path.resolve(__dirname, "../src/Client/Screens"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),

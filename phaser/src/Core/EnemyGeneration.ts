@@ -11,8 +11,8 @@ import { SessionData } from "@Core/Models";
 import { makeForce } from "@Models/Entities/Force";
 import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@Core/Combat/CombatConstants";
-import { stringToSeed } from "@Core/Seeding";
-import { getSeed, setSeed } from "@Utils/Random";
+import { stringToSeed } from "@game/Seeding";
+import { getSeed, setSeed } from "@game/Random";
 
 /**
  * Generate the enemy team for a specific round and win count.

@@ -1,0 +1,14 @@
+{
+	"name": "@mana/core",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Pure, framework-agnostic game logic shared by the Phaser client, the Node agent server, and Supabase edge functions.",
+	"type": "module",
+	"exports": {
+		"./*": "./src/*.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"smoke": "tsx scripts/smoke.ts"
+	}
+}

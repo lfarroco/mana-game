@@ -1,5 +1,5 @@
 import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
-import * as Random from "@Utils/Random";
+import * as Random from "@game/Random";
 
 export interface EnergySlotConfig {
 	size?: number;

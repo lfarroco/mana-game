@@ -1,7 +1,7 @@
 import * as getSavedData from "@Game/effects/getSinglePlayerData";
-import * as Random from "@Utils/Random";
+import * as Random from "@game/Random";
 import * as Models from "@Core/Models";
-import * as Seeding from "@Core/Seeding";
+import * as Seeding from "@game/Seeding";
 
 export function loadGame() {
 	const data = getSavedData.getSinglePlayerData();

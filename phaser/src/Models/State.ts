@@ -1,8 +1,8 @@
 import * as Models from "@Core/Models";
 import * as Force from "@Models/Entities/Force";
 import * as Unit from "@Models/Entities/Unit";
-import * as Random from "@Utils/Random";
-import * as Seeding from "@Core/Seeding";
+import * as Random from "@game/Random";
+import * as Seeding from "@game/Seeding";
 import * as Geometry from "@Models/Geometry";
 
 export type State = {

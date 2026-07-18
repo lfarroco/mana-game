@@ -15,8 +15,8 @@ import * as generateEnemyTeam from "@Core/Combat/generateEnemyTeam";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
-import * as Random from "@Utils/Random";
-import * as Seeding from "@Core/Seeding";
+import * as Random from "@game/Random";
+import * as Seeding from "@game/Seeding";
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {

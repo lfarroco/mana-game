@@ -3,7 +3,7 @@ import { hasCardDefinition } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
 import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
 import { storage } from "@Storage/index";
-import { nextValue } from "@Utils/Random";
+import { nextValue } from "@game/Random";
 import { State } from "@Models/State";
 import * as Logger from "@Utils/Logger";
 

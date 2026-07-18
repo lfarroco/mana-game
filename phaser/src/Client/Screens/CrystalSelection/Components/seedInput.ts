@@ -1,5 +1,5 @@
 import * as constants from "@Constants";
-import * as Random from "@Utils/Random";
+import * as Random from "@game/Random";
 import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./Keyboard";
 

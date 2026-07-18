@@ -1,4 +1,4 @@
-import { nextPickRandom as rngPickRandom } from "@Utils/Random";
+import { nextPickRandom as rngPickRandom } from "@game/Random";
 
 // picks n random elements from an array using Fisher-Yates shuffle
 export function pickRandom<T>(arr: T[], n: number): T[] {
