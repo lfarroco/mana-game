@@ -6,7 +6,7 @@ import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
 import * as animation from "@Utils/animation";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
-import * as Controller_ from "@Core/GameController";
+import * as Controller_ from "Client/GameController";
 import events_ from "events";
 import * as Models from "@Core/Models";
 import * as Logger from "@Utils/Logger";

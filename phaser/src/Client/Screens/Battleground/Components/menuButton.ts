@@ -1,7 +1,7 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 
 export function create() {
 	const btn = UIButton.create({

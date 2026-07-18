@@ -2,9 +2,9 @@ import * as Models from "@Core/Models";
 import * as Unit from "@Models/Entities/Unit";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
-import * as GameLogic from "@Core/GameLogic";
 import * as supabase from "@lib/supabase";
 import * as Logger from "@Utils/Logger";
+import * as CombatSimulation from "./Combat/CombatSimulation";
 
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
@@ -135,7 +135,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 			};
 		} else {
 			Logger.warn("RemoteServer", "Combat logs missing from session; simulating locally");
-			const simResult = GameLogic.simulateCombat(session as unknown as Models.SessionData);
+			const simResult = CombatSimulation.simulateCombat(session as unknown as Models.SessionData);
 			combatState = {
 				...session.combatState, // TODO: probably wrong
 				units: simResult.initialUnits,

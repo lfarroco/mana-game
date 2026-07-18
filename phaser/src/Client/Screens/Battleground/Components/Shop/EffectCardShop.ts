@@ -4,7 +4,7 @@ import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
 import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 import * as Logger from "@Utils/Logger";
 
 

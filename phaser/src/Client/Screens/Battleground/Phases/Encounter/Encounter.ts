@@ -2,7 +2,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 import * as Models from "@Core/Models";
 
 // TODO: this is a game logic rule, not UI thing

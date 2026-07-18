@@ -14,7 +14,7 @@ import * as Constants from "@Core/Constants";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 
 const COMBAT_START_DELAY_MS = 300;
 

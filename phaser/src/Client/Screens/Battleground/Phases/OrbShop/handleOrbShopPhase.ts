@@ -1,4 +1,4 @@
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 import * as Models from "@Core/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";

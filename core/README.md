@@ -100,7 +100,8 @@ Known leaks found in the July 2026 audit that block moving larger modules:
 
 - `Core/GameController.ts` imports `@Screens/...` UI modules and uses the
   `state`/`io` browser globals → move it to `phaser/src/Client/` (it is
-  client orchestration) or invert the UI calls behind events.
+  client orchestration) or invert the UI calls behind events. (done, moved to
+  /Client)
 - `Core/SessionManager.ts` and `Core/RemoteServer.ts` touch `localStorage`
   at module scope; `RemoteServer` imports `@lib/supabase` → keep both in the
   client, or inject storage/networking.

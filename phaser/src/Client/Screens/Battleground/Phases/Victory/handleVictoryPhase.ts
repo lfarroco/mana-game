@@ -1,4 +1,4 @@
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 
 export async function handleVictoryPhase() {

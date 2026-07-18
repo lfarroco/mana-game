@@ -1,5 +1,5 @@
 import * as CoreConstants from "@Core/Constants";
-import * as GameController from "@Core/GameController";
+import * as GameController from "Client/GameController";
 import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
 import * as Unit from "@Models/Entities/Unit";

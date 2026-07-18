@@ -11,10 +11,10 @@ import * as SessionManagement from "./SessionManagement";
 import * as CombatSimulation from "./Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
 import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
-import * as GameLogic from "@Core/GameLogic";
 import * as RecruitmentActions from "@Core/Actions/RecruitmentActions"
 import * as OrbAndCoreUpgrades from "@Core/Actions/OrbAndCoreUpgrades"
 import * as Logger from "@Utils/Logger";
+import * as OptionGeneration from "./OptionGeneration";
 
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
@@ -92,7 +92,7 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		};
 	}
 
-	const encounterResult = GameLogic.generateEncounterOptions(session);
+	const encounterResult = OptionGeneration.createEncounterOptions(session);
 
 	return {
 		...session,
@@ -160,7 +160,7 @@ const ACTION_HANDLERS: Record<string, (
 		return {
 			...session,
 			phase: "shop",
-			options: GameLogic.generateShopOptions(
+			options: OptionGeneration.generateShopOptions(
 				session,
 				action,
 			),
@@ -341,7 +341,7 @@ function transitionToNextStep(
 
 	if (nextPhase === "encounter") {
 
-		const options = GameLogic.generateEncounterOptions(session);
+		const options = OptionGeneration.createEncounterOptions(session);
 		session.options = options;
 		session.phase = nextPhase;
 		session.step = session.step + 1;

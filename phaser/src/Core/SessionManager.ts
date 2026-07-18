@@ -1,5 +1,5 @@
 import * as Models from "@Core/Models";
-import * as GameLogic from "@Core/GameLogic";
+import * as SessionManagement from "./SessionManagement";
 
 const STORAGE_PREFIX = "mana_session_";
 
@@ -34,7 +34,7 @@ function removeSessionFromStorage(playerId: string): void {
 }
 
 export function createSession(playerId: string, crystalId?: string): Models.SessionData {
-	const session = GameLogic.createInitialSession(playerId, crystalId);
+	const session = SessionManagement.createInitialSession(playerId, crystalId);
 	sessions.set(playerId, session);
 	saveSessionToStorage(playerId, session);
 	return session;
