@@ -2,6 +2,7 @@ import * as State from "@Models/State";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
+import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
@@ -61,12 +62,13 @@ export const createCombatPlaybackController = (
 		animations: [],
 		outcome: null,
 		combatStates,
+		blackHoleState: BlackHole.initBlackHole(),
 	};
 
 	const scheduleAnimations = () => {
 		logs.forEach((log) => {
 			const startTime = log.timeMs;
-			const duration = log.type === "timeout_damage" ? log.duration : DEFAULT_ANIMATION_DURATION;
+			const duration = DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;
 
 			playbackState.animations.push({
@@ -97,8 +99,8 @@ export const createCombatPlaybackController = (
 		// storm_start is a special case handled inline since it accesses blackHoleState
 		// TODO: the black hole does no need state, or expose it, because it can be driven by logs
 		if (log.type === "storm_start") {
-			if (playbackState.blackHoleState && playbackState.blackHoleState.blackHole) {
-				playbackState.blackHoleState.blackHole.setVisible(true);
+			if (playbackState.blackHoleState) {
+				playbackState.blackHoleState = BlackHole.activateBlackHole(playbackState.blackHoleState);
 			}
 		}
 

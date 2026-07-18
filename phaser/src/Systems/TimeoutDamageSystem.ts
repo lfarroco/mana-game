@@ -95,6 +95,27 @@ function applyTimeoutDamage(
 	const oldCpuLife = cpuCore?.life ?? 0;
 	const oldCpuShield = cpuCore?.shield ?? 0;
 
+	const travelTime = 400;
+
+	// Cast entries — launch projectiles
+	env.logger.log({
+		type: "timeout_damage_cast",
+		force: playerForce.id,
+		damage: currentDamage,
+		travelTime,
+	});
+	env.logger.log({
+		type: "timeout_damage_cast",
+		force: cpuForce.id,
+		damage: currentDamage,
+		travelTime,
+	});
+
+	// Advance logger time so hit entries land after travelTime
+	const castTime = env.logger.getCurrentTimeMs();
+	env.logger.setCurrentTimeMs(castTime + travelTime);
+
+	// Apply damage and log hit entries
 	Force.applyDamageToForce(
 		state,
 		playerForce,
@@ -104,10 +125,9 @@ function applyTimeoutDamage(
 		false,
 	);
 	env.logger.log({
-		type: "timeout_damage",
+		type: "timeout_damage_hit",
 		force: playerForce.id,
 		damage: currentDamage,
-		duration: 0,
 		newLife: playerCore?.life,
 		newShield: playerCore?.shield,
 		lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
@@ -123,15 +143,17 @@ function applyTimeoutDamage(
 		false,
 	);
 	env.logger.log({
-		type: "timeout_damage",
+		type: "timeout_damage_hit",
 		force: cpuForce.id,
 		damage: currentDamage,
-		duration: 0,
 		newLife: cpuCore?.life,
 		newShield: cpuCore?.shield,
 		lifeDelta: (cpuCore?.life ?? 0) - oldCpuLife,
 		shieldDelta: (cpuCore?.shield ?? 0) - oldCpuShield,
 	});
+
+	// Restore original logger time
+	env.logger.setCurrentTimeMs(castTime);
 }
 
 export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {

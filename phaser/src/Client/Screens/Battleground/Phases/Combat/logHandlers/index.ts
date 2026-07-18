@@ -11,7 +11,8 @@ import {
 	handlePoisonHit,
 	handlePoisonTick,
 	handleRegenTick,
-	handleTimeoutDamage,
+	handleTimeoutDamageCast,
+	handleTimeoutDamageHit,
 } from "./projectileHandlers";
 import {
 	handleRegenCast,
@@ -92,8 +93,11 @@ export const executeLogHandler = (log: CombatLogger.CombatLogEntry, playbackStat
 		case "increase_critical":
 			// no-op
 			break;
-		case "timeout_damage":
-			handleTimeoutDamage(log, playbackState);
+		case "timeout_damage_cast":
+			handleTimeoutDamageCast(log, playbackState);
+			break;
+		case "timeout_damage_hit":
+			handleTimeoutDamageHit(log, playbackState);
 			break;
 		case "reaction":
 			// no-op

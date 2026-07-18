@@ -205,11 +205,17 @@ export type RegenTickEntry = {
 
 // Timeout / storm
 
-export type TimeoutDamageEntry = {
-	type: "timeout_damage";
+export type TimeoutDamageCastEntry = {
+	type: "timeout_damage_cast";
 	force: string;
 	damage: number;
-	duration: number;
+	travelTime: number;
+};
+
+export type TimeoutDamageHitEntry = {
+	type: "timeout_damage_hit";
+	force: string;
+	damage: number;
 	newLife: number;
 	newShield: number;
 	lifeDelta: number;
@@ -262,7 +268,8 @@ export type CombatLogInput =
 	| IncreaseCriticalEntry
 	| PoisonTickEntry
 	| RegenTickEntry
-	| TimeoutDamageEntry
+	| TimeoutDamageCastEntry
+	| TimeoutDamageHitEntry
 	| StormStartEntry
 	| CombatStatsEntry
 	| OutcomeEntry

@@ -7,6 +7,9 @@ import * as healFx from "@TriggerSystem/effects/visuals/heal";
 import * as shieldFx from "@TriggerSystem/effects/visuals/shield";
 import * as poisonFx from "@TriggerSystem/effects/visuals/poison";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import * as Card from "@Models/Entities/Card";
+import * as Effects from "Client/FX";
+import * as Constants from "@Constants";
 
 // ---- Cast handlers (launch missile) ----
 
@@ -142,10 +145,41 @@ export const handleRegenTick = (
 	);
 };
 
-export const handleTimeoutDamage = (
-	log: CombatLogger.TimeoutDamageEntry,
+export const handleTimeoutDamageCast = (
+	log: CombatLogger.TimeoutDamageCastEntry,
 	_playbackState: PlaybackState,
 ) => {
+	// Fire a projectile from the black hole at center to the force's core
+	const core = Card.getBattleCore(state)(log.force);
+	const coreChara = Chara.mustGetCharaById(core.id);
+	void Effects.arcaneMissileTargeted(
+		Constants.MIDDLE_SCREEN,
+		[coreChara.x, coreChara.y],
+		{
+			colors: [0x4b0082, 0x8b00ff, 0x9400d3], // dark violet / purple
+			amplitudeMin: 8,
+			amplitudeMax: 25,
+			particleScale: 2,
+			impact: {
+				colors: [0x4b0082, 0x800080],
+				scale: 5,
+				speed: 250,
+				lifespan: 500,
+				alpha: 0.5,
+			},
+		},
+	);
+};
+
+export const handleTimeoutDamageHit = (
+	log: CombatLogger.TimeoutDamageHitEntry,
+	_playbackState: PlaybackState,
+) => {
+	// Shake the core chara when projectile lands
+	const core = Card.getBattleCore(state)(log.force);
+	const coreChara = Chara.mustGetCharaById(core.id);
+	Chara.shake(coreChara);
+
 	ForceStats.updateLifeDisplay(
 		log.force,
 		log.newLife,
