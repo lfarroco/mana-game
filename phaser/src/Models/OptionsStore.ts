@@ -10,7 +10,7 @@ const currentOptions: Options = {
 	musicVolume: 0.4,
 	masterVolume: 1,
 	debug: false,
-	speed: 1.5,
+	speed: 4,
 	particles: "medium",
 	compactTooltips: false,
 };

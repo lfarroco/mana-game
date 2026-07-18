@@ -61,6 +61,10 @@ async function finishCombatPhase({ previousPhase }: { previousPhase: Models.Phas
 	await resetBoard(true);
 	namesDisplay.updateNameDisplay({ enemyName: "" });
 
+	// Clean up enemy ForceStats and reset player's to post-combat state
+	ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
+	ForceStats.resetPlayerForceStats();
+
 }
 
 function cleanupPlayback(): void {

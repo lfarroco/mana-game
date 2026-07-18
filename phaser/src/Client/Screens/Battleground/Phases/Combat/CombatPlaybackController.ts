@@ -189,13 +189,6 @@ export const createCombatPlaybackController = (
 
 		await animation.delay(300);
 
-		// if (playbackState.combatStates) {
-		// 	let forceStatsState = playbackState.combatStates.forceStatsState;
-		// 	forceStatsState = ForceStats.destroyForceStats(forceStatsState, CoreConstants.FORCE_ID_CPU);
-		// 	forceStatsState = ForceStats.syncPlayerPersistentForceStats(forceStatsState);
-		// 	CombatSystemStates.updateForceStatsState(forceStatsState);
-		// }
-
 		// Reset visual state on the battleData player units
 		state.battleData.units
 			.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
