@@ -56,13 +56,18 @@ export const createCombatPlaybackController = (
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
 
+	const blackHoleState = BlackHole.initBlackHole();
+	const countdownTimerState = CountdownTimer.initializeCountdownTimer(io.scene, blackHoleState);
+	CountdownTimer.start(countdownTimerState);
+
 	const playbackState: PlaybackState = {
 		active: true,
 		currentTime: 0,
 		animations: [],
 		outcome: null,
 		combatStates,
-		blackHoleState: BlackHole.initBlackHole(),
+		blackHoleState,
+		countdownTimerState,
 	};
 
 	const scheduleAnimations = () => {
@@ -132,6 +137,11 @@ export const createCombatPlaybackController = (
 
 		playbackState.currentTime += delta;
 
+		// Drive the countdown timer with raw delta (not scene-time-dependent)
+		if (playbackState.countdownTimerState) {
+			CountdownTimer.updateFromDelta(playbackState.countdownTimerState, delta);
+		}
+
 		updateChargeBars(delta);
 
 		const animationsToExecute = playbackState.animations.filter(
@@ -162,7 +172,7 @@ export const createCombatPlaybackController = (
 		playbackState.active = false;
 
 		if (playbackState.countdownTimerState) {
-			// no countdown stop action needed in playback
+			playbackState.countdownTimerState = CountdownTimer.stop(playbackState.countdownTimerState);
 		}
 
 		if (outcome === "player_lost") {

@@ -4,7 +4,6 @@ import * as constants from "@Constants";
 import * as CoreConstants from "@Core/Constants";
 
 const MS_PER_SECOND = 1000;
-const TIMER_TICK_DELAY_MS = 1000;
 const TIMER_CIRCLE_DEPTH = 1000;
 const TIMER_TEXT_DEPTH = 1001;
 const TIMER_WARNING_THRESHOLD_SECONDS = 10;
@@ -14,7 +13,7 @@ export type CountdownTimerState = {
 	timerText: Phaser.GameObjects.Text | null;
 	timerCircle: Phaser.GameObjects.Arc | null;
 	timerValue: number;
-	timerEvent: Phaser.Time.TimerEvent | null;
+	accumulatedMs: number;
 	blackHoleState: BlackHoleState.BlackHoleState;
 };
 
@@ -27,7 +26,7 @@ export function initializeCountdownTimer(
 		timerText: null,
 		timerCircle: null,
 		timerValue: 30,
-		timerEvent: null,
+		accumulatedMs: 0,
 		blackHoleState,
 	};
 }
@@ -57,52 +56,49 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
 	timerText.setDepth(TIMER_TEXT_DEPTH);
 	timerText.setVisible(false);
 
-	const updateTimer = makeUpdateTimer(timerState, timerText, timerCircle);
-
-	const timerEvent = timerState.scene.time.addEvent({
-		delay: TIMER_TICK_DELAY_MS,
-		callback: updateTimer,
-		callbackScope: null,
-		loop: true,
-	});
-
-	// Mutate the state object so that the closure in makeUpdateTimer sees the new values
+	// Mutate the state object so the caller can use it
 	timerState.timerValue = newTimerValue;
+	timerState.accumulatedMs = 0;
 	timerState.timerCircle = timerCircle;
 	timerState.timerText = timerText;
-	timerState.timerEvent = timerEvent;
 
 	return timerState;
 }
 
-function makeUpdateTimer(
-	timerState: CountdownTimerState,
-	timerText: Phaser.GameObjects.Text,
-	timerCircle: Phaser.GameObjects.Arc
-) {
-	return function updateTimer(): void {
-		timerState.timerValue--;
-		timerText.setText(timerState.timerValue.toString());
-		if (timerState.timerValue <= TIMER_WARNING_THRESHOLD_SECONDS) {
-			timerText.setVisible(true);
-			timerCircle.setVisible(true);
-		}
-		if (timerState.timerValue <= 0) {
-			timerState.timerEvent?.destroy();
-			timerState.timerEvent = null;
+/**
+ * Drive the countdown using raw real-time delta (not affected by scene timeScale).
+ * Should be called every frame from the playback update loop.
+ */
+export function updateFromDelta(timerState: CountdownTimerState, delta: number): CountdownTimerState {
+	if (timerState.timerValue <= 0) return timerState;
 
-			timerText.setVisible(false);
-			timerCircle.setVisible(false);
+	timerState.accumulatedMs += delta;
+
+	while (timerState.accumulatedMs >= MS_PER_SECOND && timerState.timerValue > 0) {
+		timerState.accumulatedMs -= MS_PER_SECOND;
+		timerState.timerValue--;
+
+		if (timerState.timerText) {
+			timerState.timerText.setText(timerState.timerValue.toString());
+		}
+
+		if (timerState.timerValue <= TIMER_WARNING_THRESHOLD_SECONDS && timerState.timerValue > 0) {
+			timerState.timerText?.setVisible(true);
+			timerState.timerCircle?.setVisible(true);
+		}
+
+		if (timerState.timerValue <= 0) {
+			timerState.timerText?.setVisible(false);
+			timerState.timerCircle?.setVisible(false);
 
 			timerState.blackHoleState = BlackHole.activateBlackHole(timerState.blackHoleState);
 		}
-	};
+	}
+
+	return timerState;
 }
 
 export function stop(timerState: CountdownTimerState): CountdownTimerState {
-	if (timerState.timerEvent) {
-		timerState.timerEvent.destroy();
-	}
 	if (timerState.timerText) {
 		timerState.timerText.destroy();
 	}
@@ -116,7 +112,6 @@ export function stop(timerState: CountdownTimerState): CountdownTimerState {
 
 	return {
 		...timerState,
-		timerEvent: null,
 		timerText: null,
 		timerCircle: null,
 	};
