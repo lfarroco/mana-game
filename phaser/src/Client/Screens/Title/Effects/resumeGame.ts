@@ -1,4 +1,4 @@
-import * as loadGame from "@Game/effects/loadGame";
+import * as loadGame from "Client/Storage/loadGame"
 
 export async function resumeGame() {
 

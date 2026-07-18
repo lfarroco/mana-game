@@ -1,7 +1,7 @@
 import * as uuid from "uuid";
-import { CardDefinition, getCardDefinition } from "@Models/Entities/Card";
+import * as Card from "@Models/Entities/Card";
 import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
-import { nextValue } from "@game/Random";
+import * as Random from "@game/Random";
 
 export type Unit = {
 	id: string;
@@ -41,14 +41,14 @@ export type Unit = {
 export const makeUnit = (
 	force: string,
 	cardId: string, position: Vec2 = [1, 1]): Unit => {
-	const card = getCardDefinition(cardId);
+	const card = Card.getCardDefinition(cardId);
 
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
 };
 
 export function createUnitFromCardSpec(
 	force: string,
-	cardDef: CardDefinition,
+	cardDef: Card.CardDefinition,
 	position: Vec2 = [0, 0],
 	id: string
 ): Unit {
@@ -113,7 +113,7 @@ export function calculateCritical(u: Unit): {
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
 
-	const isCritical = critChance > 0 && nextValue() < effectiveCritChance / 100;
+	const isCritical = critChance > 0 && Random.nextValue() < effectiveCritChance / 100;
 
 	if (isCritical) {
 		const multiplier = 2;
@@ -160,7 +160,7 @@ function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
 }
 
 export function upgradeUnitEffects(unit: Unit) {
-	const source = getCardDefinition(unit.cardId);
+	const source = Card.getCardDefinition(unit.cardId);
 	const startingRank = source.rank || 1;
 	const rankMultiplier = unit.rank - startingRank + 1;
 
@@ -175,7 +175,7 @@ export function upgradeUnitEffects(unit: Unit) {
 	});
 }
 
-export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefinition) {
+export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: Card.CardDefinition) {
 	const newReactions = unit.reactions.filter((r) => {
 		return !cardDef.reactions.some((c) => c.effectId === r.effectId);
 	});
@@ -184,7 +184,7 @@ export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefini
 }
 
 export function upgradeUnitData(unit: Unit) {
-	const source = getCardDefinition(unit.cardId);
+	const source = Card.getCardDefinition(unit.cardId);
 
 	unit.rank += 1;
 
@@ -204,7 +204,7 @@ export function upgradeUnitData(unit: Unit) {
 }
 
 export function resetUnitStats(unit: Unit) {
-	const source = getCardDefinition(unit.cardId);
+	const source = Card.getCardDefinition(unit.cardId);
 
 	const startingRank = source.rank || 1;
 	const rankMultiplier = unit.rank - startingRank + 1;

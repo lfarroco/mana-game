@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as getSinglePlayerData from "@Game/effects/getSinglePlayerData";
+import * as getSinglePlayerData from "Client/Storage/getSinglePlayerData";
 import * as collectionButton from "Client/Screens/Title/Components/collectionButton";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";

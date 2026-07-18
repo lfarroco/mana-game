@@ -4,7 +4,7 @@ import * as State from "@Models/State";
 import * as Unit from "@Models/Entities/Unit";
 import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
-import * as deleteSavedData from "@Game/effects/deleteSavedData";
+import * as deleteSavedData from "Client/Storage/deleteSavedData";
 import * as GameController from "Client/GameController";
 import * as ResultsConfig from "./ResultsConfig";
 import * as StatsStore from "@Models/StatsStore";
