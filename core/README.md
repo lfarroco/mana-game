@@ -7,12 +7,12 @@ _Started: July 18, 2026 (proof of concept)_
 Mana Battle's game rules must execute identically in three environments:
 
 1. **The Phaser client** (`phaser/`) — single-player runs combat simulation
-   in-process through a local server adapter; multiplayer deferred mode runs
-   client-side prediction with the same logic.
-2. **The Node agent server** (`server/`) — the LLM play service drives games
-   through `GameLogic`.
-3. **Supabase edge functions** (`phaser/supabase/functions/`) — replay
-   validation (`replay-commit`), action handling, enemy team generation.
+   in-process through a local server adapter. Offline single-player on
+   desktop/Android is a core feature, so the logic ships in the client bundle.
+2. **The Node agent server** (`server/`) — an experimental LLM play service
+   that drives games through `GameLogic` (exploratory, not yet running).
+3. **Supabase edge functions** (`phaser/supabase/functions/`) — action
+   handling, replay validation (`replay-commit`), enemy team generation.
 
 Historically all of this logic lived inside `phaser/src/`, with the boundary
 maintained only by convention. This package moves the **pure, deterministic
@@ -24,13 +24,23 @@ every consumer imports. Server-only runtime code (session persistence, edge
 handlers, the express app) does **not** belong here and is never imported by
 the client.
 
+### Multiplayer model
+
+Multiplayer uses a straightforward request-response pattern: the client sends
+an action, the server processes it and returns the new session state (with
+pre-computed combat logs if the action leads to combat). The server is always
+authoritative; the client never runs game logic to predict or validate. This
+keeps the core package's scope narrow — it powers single-player (in-process
+via `LocalServer`) and the edge functions that validate replays and generate
+enemies.
+
 ## The three-layer model
 
-| Layer | Location | Contents | Imported by |
-|---|---|---|---|
-| **Shared core** | `core/` | Pure game logic: no Phaser, no browser globals, no Node APIs, no I/O | client, server, edge |
-| **Client runtime** | `phaser/src/` | Scenes, UI, audio, playback, client adapters (`GameController`, `RemoteServer`, `GameServer` selection) | client only |
-| **Server runtime** | `server/`, `phaser/supabase/functions/` | Persistence, validation, networking, credentials | server/edge only |
+| Layer              | Location                                | Contents                                                                                                | Imported by          |
+|--------------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------|
+| **Shared core**    | `core/`                                 | Pure game logic: no Phaser, no browser globals, no Node APIs, no I/O                                    | client, server, edge |
+| **Client runtime** | `phaser/src/`                           | Scenes, UI, audio, playback, client adapters (`GameController`, `RemoteServer`, `GameServer` selection) | client only          |
+| **Server runtime** | `server/`, `phaser/supabase/functions/` | Persistence, validation, networking, credentials                                                        | server/edge only     |
 
 **Import rules:**
 
@@ -39,9 +49,9 @@ the client.
   aliases exist that point outside the package.
 - Client and server never import each other's runtime code.
 
-Note: the client shipping the game logic in its bundle is **not** a leak —
-single-player (desktop/Android) must work offline, and multiplayer authority
-comes from server-side replay validation, not from hiding the rules.
+The client shipping the game logic in its bundle is **by design** — single-player
+(desktop/Android) must work offline. Multiplayer does not use this bundle path:
+the client sends actions and receives server-authoritative results.
 
 ## Enforcement gates
 
@@ -125,7 +135,8 @@ Keep the existing alias names (`@Models/*`, `@Core/*`, …) but repoint them to
 - Extend ESLint boundaries: ban imports of `@Screens`/`@Client`/`@Systems`
   from anything that moves into `core/`.
 - Tighten multiplayer: the "server logs missing → simulate locally" fallback
-  in `MultiplayerManager` should fail visibly rather than bypass the server.
+  in `MultiplayerManager` is dead code (MP is always request-response, so
+  the server always provides logs). Remove it or make it fail visibly.
 
 ## Validation commands
 
