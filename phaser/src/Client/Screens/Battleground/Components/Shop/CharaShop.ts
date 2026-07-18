@@ -250,6 +250,12 @@ function initShopCharaInput(
 		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD)
 			return;
 
+		const existingUnit = state.session.team.units.find((u) => u.cardId === unit.cardId);
+		if ((!existingUnit || existingUnit.rank > 3) && state.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
+			uiEvents.onPurchaseFailed(i18n.getName(unit.cardId), "PARTY_FULL");
+			return;
+		}
+
 		void GameController.purchaseUnit({
 			unitId: unit.cardId,
 			targetSlot: null,

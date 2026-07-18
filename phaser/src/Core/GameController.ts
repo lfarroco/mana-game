@@ -27,11 +27,24 @@ export async function purchaseUnit(
 	const previousPhase = state.session.phase;
 	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit.Unit[];
 
+	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
+
 	const session = await dispatchAction({
 		type: "recruit_unit",
 		unitId,
 		targetSlot
 	});
+
+	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === unitId);
+	const didAddUnit = session.team.units.find(
+		(u) => u.cardId === unitId && !previousTeamUnitIds.has(u.id)
+	);
+
+	// TODO: check if this is necessary
+	if (!wasUpgrade && !didAddUnit) {
+		// Purchase silently failed (e.g., board is full) — skip UI playback.
+		return;
+	}
 
 	state.session = session;
 
