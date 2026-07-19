@@ -7,7 +7,7 @@
 import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as Card from "@game/Entities/Card";
-import * as CombatConstants from "@game/CombatConstants";
+import * as Constants from "@game/Constants";
 import * as OptionGeneration from "./OptionGeneration";
 
 
@@ -51,7 +51,7 @@ export function createInitialSession(
 	const team: { units: Unit[] } = { units: [] };
 	if (selectedCrystalId) {
 		const coreUnit = Card.makeUnit(
-			CombatConstants.FORCE_ID_PLAYER,
+			Constants.FORCE_ID_PLAYER,
 			selectedCrystalId,
 			[1, 1],
 		);

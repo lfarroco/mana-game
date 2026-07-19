@@ -8,7 +8,7 @@
 import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
-import * as CombatSimulation from "../../../core/src/CombatSimulation";
+import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
 import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
 import * as RecruitmentActions from "@Core/Actions/RecruitmentActions"

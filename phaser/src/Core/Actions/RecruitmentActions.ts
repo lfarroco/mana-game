@@ -9,7 +9,7 @@ import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as Card from "@game/Entities/Card";
 import * as BoardLogic from "@game/BoardLogic";
-import * as CombatConstants from "@game/CombatConstants";
+import * as Constants from "@game/Constants";
 
 
 /**
@@ -73,7 +73,7 @@ export function recruitUnit(
 
 	if (units.length < 9) {
 		console.debug("recruitmentActions", `Recruiting new unit with card ID ${cardId}`);
-		let targetPos = BoardLogic.getEmptySlot(units, CombatConstants.FORCE_ID_PLAYER);
+		let targetPos = BoardLogic.getEmptySlot(units, Constants.FORCE_ID_PLAYER);
 
 		if (targetPosition) {
 			const [x, y] = targetPosition;
@@ -89,7 +89,7 @@ export function recruitUnit(
 			}
 
 			const occupied = units
-				.filter((unit) => unit.force === CombatConstants.FORCE_ID_PLAYER)
+				.filter((unit) => unit.force === Constants.FORCE_ID_PLAYER)
 				.some(
 					(unit) => {
 						const [ux, uy] = unit.position;
@@ -108,7 +108,7 @@ export function recruitUnit(
 		}
 
 		if (targetPos) {
-			const newUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, cardId, targetPos);
+			const newUnit = Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, targetPos);
 			const recruitRank = getShopRecruitRank(session, cardId);
 			newUnit.rank = recruitRank;
 

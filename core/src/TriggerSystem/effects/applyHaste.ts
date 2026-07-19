@@ -1,6 +1,5 @@
-import { Unit } from "../../Models";
-import { CombatEnvironment } from "../../CombatTypes";
-import * as ScheduledEffects from "../../ScheduledEffects";
+import { CombatEnvironment, Unit } from "../../Models";
+import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 
 const PROJECTILE_TRAVEL_MS = 200;
 

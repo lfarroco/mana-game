@@ -1,17 +1,16 @@
 import * as Card from "../../Entities/Card";
 import * as Force from "../../Entities/Force";
-import * as CombatStatsTracker from "../../CombatStatsTracker";
-import * as PoisonSystem from "../../PoisonDamageSystem";
-import * as CombatTypes from "../../CombatTypes";
-import * as ScheduledEffects from "../../ScheduledEffects";
+import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
+import * as PoisonSystem from "../../Combat/PoisonDamageSystem";
+import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 import { calculateCritical } from "../../Entities/Unit";
-import { Unit } from "../../Models";
+import { CombatEnvironment, Unit } from "../../Models";
 import { processReactions } from "../TriggerSystem";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
 export const restoreLife = async (
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
@@ -48,7 +47,7 @@ export const restoreLife = async (
 };
 
 export function applyHealHit(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	hit: ScheduledEffects.PendingHit,
 ) {
 	const { combatState: state, combatStates } = env;

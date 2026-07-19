@@ -1,5 +1,4 @@
-import { Unit } from "../../Models";
-import { CombatEnvironment } from "../../CombatTypes";
+import { CombatEnvironment, Unit } from "../../Models";
 
 export const increaseCritical = (
 	env: CombatEnvironment,

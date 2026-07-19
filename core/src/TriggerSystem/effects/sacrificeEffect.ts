@@ -1,7 +1,6 @@
-import { Unit } from "../../Models";
+import { CombatEnvironment, Unit } from "../../Models";
 import { nextValue, pickRandom } from "../../Random";
 import { increasePower } from "./increasePower";
-import { CombatEnvironment } from "../../CombatTypes";
 
 export const sacrificeEffect = (
 	env: CombatEnvironment,

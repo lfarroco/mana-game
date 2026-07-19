@@ -1,5 +1,5 @@
-import type * as CombatTypes from "./CombatTypes";
-import * as effects from "./TriggerSystem/effects";
+import { CombatEnvironment } from "../Models";
+import * as effects from "../TriggerSystem/effects";
 
 /**
  * A pending hit that has been cast but not yet landed.
@@ -74,7 +74,7 @@ export const getDueHits = (
  * Process a single pending hit: apply the effect and log the _hit entry.
  */
 export const processHit = (
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	hit: PendingHit,
 ): void => {
 	const { combatState: { units } } = env;

@@ -8,8 +8,8 @@
  * on each entry. CombatLogEntry = CombatLogInput & { timeMs: number }.
  */
 
+import { WaveOutcome } from "../Models";
 import { CurrentCombatStats, UnitCombatStats } from "./CombatStatsTracker";
-import type * as CombatTypes from "./CombatTypes";
 
 // Cast entries — projectile launched, hit pending
 
@@ -236,7 +236,7 @@ export type CombatStatsEntry = {
 
 export type OutcomeEntry = {
 	type: "outcome";
-	result: CombatTypes.WaveOutcome;
+	result: WaveOutcome;
 };
 
 export type ReactionEntry = {

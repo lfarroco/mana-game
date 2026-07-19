@@ -1,7 +1,6 @@
-import * as CombatStatsTracker from "../../CombatStatsTracker";
-import * as CombatTypes from "../../CombatTypes";
-import * as ScheduledEffects from "../../ScheduledEffects";
-import { Unit } from "../../Models";
+import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
+import * as ScheduledEffects from "../../Combat/ScheduledEffects";
+import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { getAlliedCore } from "../../Entities/Card";
 import { manipulateCoreShield } from "../../Entities/Force";
@@ -10,7 +9,7 @@ import { processReactions } from "../TriggerSystem";
 const PROJECTILE_TRAVEL_MS = 200;
 
 export const addShield = async (
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
@@ -46,7 +45,7 @@ export const addShield = async (
 };
 
 export function applyShieldHit(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	hit: ScheduledEffects.PendingHit,
 ) {
 	const { combatState: state } = env;

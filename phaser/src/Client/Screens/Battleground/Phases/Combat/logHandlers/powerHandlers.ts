@@ -1,5 +1,5 @@
 import type { PlaybackState } from "./types";
-import * as CombatLogger from "@game/CombatLogger";
+import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 
 

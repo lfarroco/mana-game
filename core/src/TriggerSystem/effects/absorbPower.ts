@@ -1,6 +1,5 @@
-import { Unit } from "../../Models";
+import { CombatEnvironment, Unit } from "../../Models";
 import { increasePower } from "./increasePower";
-import { CombatEnvironment } from "../../CombatTypes";
 import { applyPersistentPowerDelta } from "./applyPersistentPowerDelta";
 
 export const absorbPower = (

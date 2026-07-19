@@ -1,10 +1,9 @@
-import * as Force from "./Entities/Force";
+import * as Force from "../Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
-import * as CombatTypes from "./CombatTypes";
-import * as Card from "./Entities/Card";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "./Constants";
-import { CombatState } from "./Models";
+import * as Card from "../Entities/Card";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Constants";
+import { CombatEnvironment, CombatState } from "../Models";
 
 const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;
 
@@ -16,12 +15,12 @@ export function initialize(_state: CombatState): StatusEffectSystemState {
 	return { elapsed: 0 };
 }
 
-const tick = (env: CombatTypes.CombatEnvironment) => () => {
+const tick = (env: CombatEnvironment) => () => {
 	tickForce(env, FORCE_ID_PLAYER);
 	tickForce(env, FORCE_ID_CPU);
 };
 
-function tickForce(env: CombatTypes.CombatEnvironment, forceId: string): void {
+function tickForce(env: CombatEnvironment, forceId: string): void {
 	const { combatStates, logger } = env;
 	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, forceId);
 	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, forceId);
@@ -69,7 +68,7 @@ function tickForce(env: CombatTypes.CombatEnvironment, forceId: string): void {
 }
 
 export function update(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	statusEffectState: StatusEffectSystemState,
 	delta: number
 ): StatusEffectSystemState {

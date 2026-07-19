@@ -1,19 +1,16 @@
-import { CombatState, SessionData, Unit } from "./Models";
-import * as TriggerSystem from "./TriggerSystem/TriggerSystem";
-import * as CombatConstants from "./CombatConstants";
+import { CombatEnvironment, CombatState, SessionData, Unit } from "../Models";
+import * as TriggerSystem from "../TriggerSystem/TriggerSystem";
+import * as Constants from "../Constants";
 import * as Timeout from "./TimeoutDamageSystem";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import * as StatusEffectSystem from "./StatusEffectSystem";
-import * as CombatTypes from "./CombatTypes";
 import * as CombatLogger from "./CombatLogger";
 import * as ScheduledEffects from "./ScheduledEffects";
 
 // import * as BlackHoleState from "./BlackHoleState";
 // import * as CountdownTimer from "@Systems/CountdownTimer";
-
-export type { WaveOutcome } from "./CombatTypes";
 
 const MAX_COMBAT_DURATION_MS = 120_000;
 
@@ -23,12 +20,12 @@ export type CombatRunner = {
 	finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
 	isActive: () => boolean;
 	stop: () => void;
-	getEnv: () => CombatTypes.CombatEnvironment;
+	getEnv: () => CombatEnvironment;
 };
 
 type CombatRunnerState = {
 	active: boolean;
-	env: CombatTypes.CombatEnvironment;
+	env: CombatEnvironment;
 	// countdownTimerState: CountdownTimer.CountdownTimerState | null;
 	// blackHoleState: BlackHoleState.BlackHoleState | null;
 };
@@ -56,7 +53,7 @@ export const runCombat = (
 	// const blackHoleState: BlackHoleState.BlackHoleState | null = null;
 	// const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
-	const env: CombatTypes.CombatEnvironment = {
+	const env: CombatEnvironment = {
 		session,
 		combatState: combatState,
 		logger: CombatLogger.createCombatLogger(),
@@ -239,7 +236,7 @@ export const chargeUnits = (
 
 		if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 			unit.charge = unit.charge - unit.cooldown;
-			unit.refresh = CombatConstants.MIN_COOLDOWN;
+			unit.refresh = Constants.MIN_COOLDOWN;
 			performingUnits.push(unit);
 		}
 	}

@@ -1,17 +1,16 @@
 import * as Card from "../../Entities/Card";
-import * as RegenSystem from "../../RegenSystem";
-import * as CombatStatsTracker from "../../CombatStatsTracker";
-import * as CombatTypes from "../../CombatTypes";
-import * as ScheduledEffects from "../../ScheduledEffects";
+import * as RegenSystem from "../../Combat/RegenSystem";
+import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
+import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 ;
-import { Unit } from "../../Models";
+import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { processReactions } from "../TriggerSystem";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
 export const applyRegen = async (
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
@@ -49,7 +48,7 @@ export const applyRegen = async (
 };
 
 export function applyRegenHit(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	hit: ScheduledEffects.PendingHit,
 ) {
 	const { combatState: state, combatStates } = env;

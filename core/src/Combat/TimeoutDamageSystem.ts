@@ -1,7 +1,7 @@
-import * as Force from "./Entities/Force";
-import * as Constants from "./Constants";
-import * as CombatTypes from "./CombatTypes";
-import * as Card from "./Entities/Card";
+import * as Force from "../Entities/Force";
+import * as Constants from "../Constants";
+import * as Card from "../Entities/Card";
+import { CombatEnvironment } from "../Models";
 
 
 const TIMEOUT_DAMAGE_INTERVAL_MS = 1000;
@@ -25,7 +25,7 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 }
 
 export function updateTimeoutDamageSystem(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	timeoutState: TimeoutSystemState,
 	delta: number
 ): TimeoutSystemState {
@@ -71,7 +71,7 @@ export function updateTimeoutDamageSystem(
 }
 
 function applyTimeoutDamage(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	timeSinceTimeoutStarted: number
 ): void {
 	const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;

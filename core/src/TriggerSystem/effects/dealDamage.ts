@@ -1,9 +1,8 @@
 import * as Force from "../../Entities/Force";
-import * as CombatStatsTracker from "../../CombatStatsTracker";
+import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
 import * as Card from "../../Entities/Card";
-import * as CombatTypes from "../../CombatTypes";
-import * as ScheduledEffects from "../../ScheduledEffects";
-import { Unit } from "../../Models";
+import * as ScheduledEffects from "../../Combat/ScheduledEffects";
+import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { processReactions } from "../TriggerSystem";
 
@@ -14,7 +13,7 @@ const PROJECTILE_TRAVEL_MS = 200;
  * The actual damage is applied later when the projectile lands.
  */
 export function dealDamage(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,
 ) {
@@ -59,7 +58,7 @@ export function dealDamage(
  * Called from ScheduledEffects.processHit when the projectile lands.
  */
 export function applyDamageHit(
-	env: CombatTypes.CombatEnvironment,
+	env: CombatEnvironment,
 	hit: ScheduledEffects.PendingHit,
 ) {
 	const { combatState: state, logger } = env;

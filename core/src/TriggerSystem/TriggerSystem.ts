@@ -1,15 +1,14 @@
-import { BASIC_ABILITIES, Unit, Effect, GLOBAL_REACTIONS } from "../Models";
+import * as Models from "../Models";
 import * as effects from "./effects";
-import * as CombatTypes from "../CombatTypes";
 import { pickRandom } from "../Random";
 
 // Process a list of effects that originate from a given source unit
 export const processEffectsIO = (
-	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit,
-	effectsList: Effect[],
+	env: Models.CombatEnvironment,
+	sourceUnit: Models.Unit,
+	effectsList: Models.Effect[],
 	isReaction: boolean,
-	triggeringUnit?: Unit,
+	triggeringUnit?: Models.Unit,
 	scale: number = 1,
 ) => {
 	effectsList.forEach((effect) => {
@@ -18,11 +17,11 @@ export const processEffectsIO = (
 };
 
 const processEffectIO = (
-	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit,
-	effect: Effect,
+	env: Models.CombatEnvironment,
+	sourceUnit: Models.Unit,
+	effect: Models.Effect,
 	isReaction: boolean,
-	triggeringUnit?: Unit,
+	triggeringUnit?: Models.Unit,
 	scale: number = 1,
 ) => {
 	switch (effect.id) {
@@ -53,7 +52,7 @@ const processEffectIO = (
 				hasteTargets,
 				sourceUnit,
 				effect.duration * scale,
-				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+				(_target: Models.Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
 			);
 			break;
 		case "slow":
@@ -63,7 +62,7 @@ const processEffectIO = (
 				sourceUnit,
 				slowTargets,
 				effect.duration * scale,
-				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+				(_target: Models.Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
 			);
 			break;
 		case "charge":
@@ -153,26 +152,26 @@ const processEffectIO = (
 	if (!isReaction) processReactions(env, sourceUnit, effect, scale);
 };
 
-const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
+const sameForce = (unit: Models.Unit, triggeringUnit: Models.Unit) => unit.force === triggeringUnit.force;
 
 export function processReactions(
-	env: CombatTypes.CombatEnvironment,
-	triggeringUnit: Unit,
-	effect: Effect,
+	env: Models.CombatEnvironment,
+	triggeringUnit: Models.Unit,
+	effect: Models.Effect,
 	scale: number = 1
 ) {
 	if (["charge", "increase_power", "decrease_power", "multiply_power"].includes(effect.id)) {
 		return;
 	}
 	const candidates = env.combatState.units.filter(
-		(u) => u.id != triggeringUnit.id || GLOBAL_REACTIONS.includes(effect.id)
+		(u) => u.id != triggeringUnit.id || Models.GLOBAL_REACTIONS.includes(effect.id)
 	);
 
 	candidates.forEach((u) => {
 		const reactions = u.reactions
 			.filter(
 				(r) =>
-					r.effectId === effect.id || (r.effectId === "all" && BASIC_ABILITIES.includes(effect.id))
+					r.effectId === effect.id || (r.effectId === "all" && Models.BASIC_ABILITIES.includes(effect.id))
 			)
 			.filter((r) => {
 				switch (r.position) {
@@ -234,11 +233,11 @@ export function processReactions(
 }
 
 export function resolveTargets(
-	{ session, combatState }: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit,
-	effect: Effect,
-	triggeringUnit?: Unit
-): Unit[] {
+	{ session, combatState }: Models.CombatEnvironment,
+	sourceUnit: Models.Unit,
+	effect: Models.Effect,
+	triggeringUnit?: Models.Unit
+): Models.Unit[] {
 	if (!("targets" in effect)) {
 		return [];
 	}

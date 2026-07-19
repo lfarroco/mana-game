@@ -1,12 +1,12 @@
 import * as RunCombatCore from "@game/RunCombatCore";
-import * as CombatLogger from "@game/CombatLogger";
+import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import * as CombatSystemStates from "@game/CombatSystemStates";
-import * as PoisonDamageSystem from "@game/PoisonDamageSystem";
-import * as RegenSystem from "@game/RegenSystem";
-import * as CombatStatsTracker from "@game/CombatStatsTracker";
+import * as CombatSystemStates from "@game/Combat/CombatSystemStates";
+import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
+import * as RegenSystem from "@game/Combat/RegenSystem";
+import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
@@ -16,7 +16,7 @@ import * as ScheduledEffects from "@game/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
 import { resetUnitStats } from "@game/Entities/Unit";
-import { CombatState } from "@game/Models";
+import { CombatState, WaveOutcome } from "@game/Models";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -29,7 +29,7 @@ type PlaybackState = {
 	active: boolean;
 	currentTime: number;
 	animations: ScheduledAnimation[];
-	outcome: RunCombatCore.WaveOutcome | null;
+	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates.CombatSystemStates;
 	blackHoleState?: BlackHoleState.BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
@@ -43,7 +43,7 @@ const MIN_COOLDOWN = 200;
 
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
-	onReplayEnd?: (outcome: RunCombatCore.WaveOutcome) => void
+	onReplayEnd?: (outcome: WaveOutcome) => void
 ): RunCombatCore.CombatRunner => {
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
@@ -164,7 +164,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const finishCombat = async (
-		outcome: RunCombatCore.WaveOutcome
+		outcome: WaveOutcome
 	): Promise<void> => {
 		if (!playbackState.active) return;
 

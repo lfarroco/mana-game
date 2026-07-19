@@ -1,5 +1,5 @@
 import type * as types from "./types";
-import * as CombatLogger from "@game/CombatLogger";
+import * as CombatLogger from "@game/Combat/CombatLogger";
 
 export const handleCombatStats = (
 	log: CombatLogger.CombatStatsEntry,

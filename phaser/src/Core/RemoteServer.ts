@@ -2,8 +2,8 @@ import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as supabase from "@lib/supabase";
 ;
-import * as CombatSimulation from "../../../core/src/CombatSimulation";
-import { CombatLogEntry } from "@game/CombatLogger";
+import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
+import { CombatLogEntry } from "@game/Combat/CombatLogger";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../core/src/Constants";
 
 

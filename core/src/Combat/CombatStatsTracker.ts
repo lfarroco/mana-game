@@ -1,6 +1,5 @@
-import { CombatState, EffectId, SessionData, Unit } from "./Models";
-import { CombatEnvironment } from "./CombatTypes";
-import { FORCE_ID_PLAYER } from "./Constants";
+import { CombatEnvironment, CombatState, EffectId, SessionData, Unit } from "../Models";
+import { FORCE_ID_PLAYER } from "../Constants";
 
 
 export type UnitCombatStats = {

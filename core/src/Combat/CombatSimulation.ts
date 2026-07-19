@@ -5,11 +5,11 @@
  * the combat simulation loop.
  */
 
-import * as Models from "./Models";
-import * as RunCombatCore from "./RunCombatCore";
+import * as Models from "../Models";
+import * as RunCombatCore from "./CombatRunner";
 import * as CombatLogger from "./CombatLogger";
-import * as Random from "./Random";
-import * as Seeding from "./Seeding";
+import * as Random from "../Random";
+import * as Seeding from "../Seeding";
 
 const clone = <A>(json: A): A => {
 	return JSON.parse(JSON.stringify(json));

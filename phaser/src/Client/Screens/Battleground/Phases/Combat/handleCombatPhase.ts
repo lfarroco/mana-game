@@ -10,9 +10,9 @@ import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay"
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 import * as Constants from "@game/Constants";
-import * as PoisonSystem from "@game/PoisonDamageSystem";
-import * as RegenSystem from "@game/RegenSystem";
-import * as CombatSystemStates from "@game/CombatSystemStates";
+import * as PoisonSystem from "@game/Combat/PoisonDamageSystem";
+import * as RegenSystem from "@game/Combat/RegenSystem";
+import * as CombatSystemStates from "@game/Combat/CombatSystemStates";
 import * as GameController from "Client/GameController";
 import { resetUnitStats } from "@game/Entities/Unit";
 

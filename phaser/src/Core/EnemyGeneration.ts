@@ -10,7 +10,7 @@ import * as Card from "@game/Entities/Card";
 import { SessionData } from "@game/Models";
 import { makeForce } from "@game/Entities/Force";
 import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
-import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@game/CombatConstants";
+import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@game/Constants";
 import { stringToSeed } from "@game/Seeding";
 import { getSeed, setSeed } from "@game/Random";
 
