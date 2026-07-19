@@ -1,9 +1,8 @@
-import type * as State from "@Models/State";
-import type * as Unit from "@Models/Entities/Unit";
+import type * as State from "@Models/ClientState";
 import type * as CombatSystemStates from "@Systems/CombatSystemStates";
-import type * as TriggerSystem from "@TriggerSystem/TriggerSystem";
 import type * as CombatLogger from "@Core/Combat/CombatLogger";
 import type * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
+import { Effect, Unit } from "@game/Models";
 
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
@@ -14,14 +13,14 @@ export type WaveOutcome = "player_won" | "player_lost" | "both_won";
  * CombatPlaybackController during client-side playback.
  */
 export type CombatEnvironment = {
-	state: State.State;
+	state: State.ClientState;
 	combatStates: CombatSystemStates.CombatSystemStates;
 	logger: CombatLogger.CombatLogger;
 	scheduledEffects: ScheduledEffects.ScheduledEffectsState;
 	processReactions: (
 		env: CombatEnvironment,
-		triggeringUnit: Unit.Unit,
-		effect: TriggerSystem.Effect,
+		triggeringUnit: Unit,
+		effect: Effect,
 		scale?: number
 	) => void;
 };

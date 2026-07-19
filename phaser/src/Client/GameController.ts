@@ -1,7 +1,7 @@
 import * as Models from "@Core/Models";
 import * as GameServer from "@Core/GameServer";
-import * as Unit from "@Models/Entities/Unit";
-import * as State from "@Models/State";
+import { Unit } from "@game/Models";
+import * as State from "@Models/ClientState";
 import * as handleShopPhase from "@Screens/Battleground/Phases/Shop/handleShopPhase";
 import { onOrbApplied } from "@Screens/Battleground/Phases/OrbShop/handleOrbShopPhase";
 
@@ -25,7 +25,7 @@ export async function purchaseUnit(
 	}
 ) {
 	const previousPhase = state.session.phase;
-	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit.Unit[];
+	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit[];
 
 	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
@@ -162,7 +162,7 @@ export async function completeCombatEncounter() {
 }
 
 export async function updateTeam(
-	team: { units: Unit.Unit[] }
+	team: { units: Unit[] }
 ): Promise<Models.SessionData> {
 	return await dispatchAction({
 		type: "update_team",

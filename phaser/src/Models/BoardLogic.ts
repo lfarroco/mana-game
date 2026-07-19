@@ -1,8 +1,8 @@
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as Geometry from "@Models/Geometry";
 
 export function getEmptySlot(
-	units: Unit.Unit[],
+	units: Unit[],
 	forceId: string,
 	width: number = 3,
 	height: number = 3
@@ -28,7 +28,7 @@ export function getEmptySlot(
 }
 
 export function findFreeSlot(
-	units: Unit.Unit[],
+	units: Unit[],
 	forceId: string,
 	preferredPos?: Vec2
 ): Geometry.Vec2 | null {
@@ -43,10 +43,10 @@ export function findFreeSlot(
 }
 
 export function checkMove(
-	unit: Unit.Unit,
+	unit: Unit,
 	newPos: Geometry.Vec2,
-	units: Unit.Unit[]
-): { valid: boolean; occupant?: Unit.Unit } {
+	units: Unit[]
+): { valid: boolean; occupant?: Unit } {
 	if (Geometry.eqVec2(unit.position, newPos)) {
 		return { valid: false };
 	}

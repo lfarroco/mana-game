@@ -1,8 +1,7 @@
 import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as Card from "@Models/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Unit from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
@@ -20,7 +19,7 @@ export function render(unitId: string): Promise<void> {
 			title: "NEW UNIT UNLOCKED!",
 		});
 
-		const dummy = Unit.createUnitFromCardSpec("dummy", unitData, undefined, "");
+		const dummy = Card.createUnitFromCardSpec("dummy", unitData, undefined, "");
 
 		const chara = await Chara.create(dummy);
 

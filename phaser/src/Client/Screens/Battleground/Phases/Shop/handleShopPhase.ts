@@ -1,6 +1,6 @@
 import * as Models from "@Core/Models";
 import * as Card from "@Models/Entities/Card";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
@@ -56,7 +56,7 @@ export async function onUnitPurchased({
 }: {
 	session: Models.SessionData,
 	unitId: string,
-	previousTeamUnits: Unit.Unit[],
+	previousTeamUnits: Unit[],
 	shopCharaId: string | null,
 }) {
 	const unit = session.team.units.find((u) => u.cardId === cardId);
@@ -86,7 +86,7 @@ export async function onUnitPurchased({
 }
 
 async function handleUpgradedUnitPurchase(
-	upgradedUnit: Unit.Unit,
+	upgradedUnit: Unit,
 	sourceChara: Chara.Chara | null,
 ): Promise<void> {
 	const targetChara = Chara.hasCharaById(upgradedUnit.id)
@@ -103,7 +103,7 @@ async function handleUpgradedUnitPurchase(
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
 }
 
-async function handleNewUnitPurchase(newUnit: Unit.Unit): Promise<void> {
+async function handleNewUnitPurchase(newUnit: Unit): Promise<void> {
 	await Chara.refreshChara(newUnit);
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }

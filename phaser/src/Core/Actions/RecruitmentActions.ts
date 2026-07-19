@@ -6,7 +6,7 @@
  */
 
 import * as Models from "@Core/Models";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
@@ -49,7 +49,7 @@ export function recruitUnit(
 	const team = session.team
 	const units = team.units
 
-	const existingUnitIndex = units.findIndex((u: Unit.Unit) => u.cardId === cardId);
+	const existingUnitIndex = units.findIndex((u: Unit) => u.cardId === cardId);
 	if (existingUnitIndex >= 0) {
 		Logger.debug("recruitmentActions", `Unit with card ID ${cardId} already exists, attempting upgrade`);
 
@@ -109,7 +109,7 @@ export function recruitUnit(
 		}
 
 		if (targetPos) {
-			const newUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, cardId, targetPos);
+			const newUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, cardId, targetPos);
 			const recruitRank = getShopRecruitRank(session, cardId);
 			newUnit.rank = recruitRank;
 
@@ -153,10 +153,10 @@ export function recruitUnit(
  * Discard a unit from the player's team (if it's not the core).
  */
 export function discardUnit(
-	units: Unit.Unit[],
+	units: Unit[],
 	unitId: string
 ): { updated: boolean; updates: string[] } {
-	const unitIndex = units.findIndex((u: Unit.Unit) => u.id === unitId);
+	const unitIndex = units.findIndex((u: Unit) => u.id === unitId);
 	if (unitIndex >= 0) {
 		const unit = units[unitIndex];
 		if (!unit.isCore) {

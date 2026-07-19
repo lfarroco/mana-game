@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
-import * as Unit from "@Models/Entities/Unit";
-import * as State from "@Models/State";
+import { Unit } from "@game/Models";
+import * as State from "@Models/ClientState";
 import * as EnergySlot from "Client/Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@Models/BoardLogic";
 
@@ -184,7 +184,7 @@ export function destroy(board: BoardState): void {
 	destroyVisuals(board);
 }
 
-export function getEmptySlot(units: Unit.Unit[], forceId: string): Vec2 | null {
+export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const board = getBoardState();
 
 	const boardWidthInTiles = Math.floor(board.width / constants.TILE_WIDTH);
@@ -248,12 +248,12 @@ export function getSlotPosition(slotIndex: number, isPlayerBoard: boolean = true
 }
 
 export function updateUnitPosition(
-	unitToMove: Unit.Unit,
+	unitToMove: Unit,
 	newBoardPosition: Vec2,
-	unitsOnBoard: Unit.Unit[]
+	unitsOnBoard: Unit[]
 ): {
-	movedUnit: Unit.Unit;
-	swappedUnit?: Unit.Unit;
+	movedUnit: Unit;
+	swappedUnit?: Unit;
 	oldPositionOfMovedUnit: Vec2;
 } | null {
 	const oldPositionOfMovedUnit = structuredClone(unitToMove.position);
@@ -313,19 +313,19 @@ export function getBoardState(): BoardState {
 	return _playerBoardState;
 }
 
-export function getColumnNeighbors(state: State.State, unit: Unit.Unit) {
+export function getColumnNeighbors(state: State.ClientState, unit: Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
 		.filter((u) => u.position[0] === unit.position[0] && u.id !== unit.id);
 }
 
-export function getRowNeighbors(state: State.State, unit: Unit.Unit) {
+export function getRowNeighbors(state: State.ClientState, unit: Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
 		.filter((u) => u.position[1] === unit.position[1] && u.id !== unit.id);
 }
 
-export function getNeighbors(state: State.State, unit: Unit.Unit) {
+export function getNeighbors(state: State.ClientState, unit: Unit) {
 	return state.battleData.units
 		.filter((u) => u.force === unit.force)
 		.filter((u) => u.id !== unit.id)

@@ -1,4 +1,4 @@
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as Force from "@Models/Entities/Force";
 import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
@@ -11,7 +11,7 @@ export type StatusEffectSystemState = {
 	elapsed: number;
 };
 
-export function initialize(_state: State.State): StatusEffectSystemState {
+export function initialize(_state: State.ClientState): StatusEffectSystemState {
 	return { elapsed: 0 };
 }
 

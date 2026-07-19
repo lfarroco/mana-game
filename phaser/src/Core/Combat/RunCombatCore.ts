@@ -1,5 +1,5 @@
-import * as State from "@Models/State";
-import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/ClientState";
+import { Unit } from "@game/Models";
 import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
 import * as Force from "@Models/Entities/Force";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
@@ -22,8 +22,8 @@ export type { WaveOutcome } from "@Core/Combat/CombatTypes";
 const MAX_COMBAT_DURATION_MS = 120_000;
 
 export type CombatRunner = {
-	updateFrame: (state: State.State, time: number, delta: number) => void;
-	finishCombat: (state: State.State, outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
+	updateFrame: (state: State.ClientState, time: number, delta: number) => void;
+	finishCombat: (state: State.ClientState, outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
 	isActive: () => boolean;
 	stop: () => void;
 	getEnv: () => CombatTypes.CombatEnvironment;
@@ -39,7 +39,7 @@ type CombatRunnerState = {
 /**
  * Check if combat should end based on core life totals.
  */
-const checkCombatOutcome = (state: State.State): "player_won" | "player_lost" | "both_won" | null => {
+const checkCombatOutcome = (state: State.ClientState): "player_won" | "player_lost" | "both_won" | null => {
 	const playerCore = Card.getBattleCore(state)(CombatConstants.FORCE_ID_PLAYER);
 	const cpuCore = Card.getBattleCore(state)(CombatConstants.FORCE_ID_CPU);
 	const playerLifeZero = !playerCore || playerCore.life <= 0;
@@ -56,7 +56,7 @@ const checkCombatOutcome = (state: State.State): "player_won" | "player_lost" | 
  * All visual effects are no-ops — they are handled separately by CombatPlaybackController
  * during client-side playback of the combat logs.
  */
-export const runCombat = (state: State.State): CombatRunner => {
+export const runCombat = (state: State.ClientState): CombatRunner => {
 	const blackHoleState: BlackHoleState.BlackHoleState | null = null;
 	const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
@@ -90,7 +90,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
 	let combatElapsedMs = 0;
 
-	const updateFrame = (nextState: State.State, _time: number, delta: number): void => {
+	const updateFrame = (nextState: State.ClientState, _time: number, delta: number): void => {
 		if (!runnerState.active) return;
 
 		runnerState.env.state = nextState;
@@ -159,7 +159,7 @@ export const runCombat = (state: State.State): CombatRunner => {
 	};
 
 	const finishCombat = async (
-		nextState: State.State,
+		nextState: State.ClientState,
 		outcome: "player_won" | "player_lost" | "both_won"
 	) => {
 		if (!runnerState.active) return;
@@ -204,11 +204,11 @@ export const runCombat = (state: State.State): CombatRunner => {
 };
 
 export const chargeUnits = (
-	state: State.State,
+	state: State.ClientState,
 	delta: number,
 	logger: CombatLogger.CombatLogger,
-): Unit.Unit[] => {
-	const performingUnits: Unit.Unit[] = [];
+): Unit[] => {
+	const performingUnits: Unit[] = [];
 
 	for (const unit of state.battleData.units) {
 		const cooldownMultiplier =

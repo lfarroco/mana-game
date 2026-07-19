@@ -2,7 +2,7 @@ import * as Constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Unit from "@Models/Entities/Unit";
+import * as Card from "@Models/Entities/Card";
 import * as Abilities from "@Models/Abilities";
 import * as animation from "@Utils/animation";
 import * as damage from "TriggerSystem/effects/visuals/damage";
@@ -34,8 +34,8 @@ const slides = [
 			text(i18n.t("tutorial.slide1.row3"), 200),
 			() => {
 				const cont = io.Container();
-				const unit = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
-				const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
+				const unit = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
+				const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
 				const anim = async () => {
 					const charas = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
@@ -63,7 +63,7 @@ const slides = [
 			() => {
 				const cont = io.Container([]);
 				const fn = async (x: number, y: number, sprite: string) => {
-					const chara = await Chara.summon(Unit.makeUnit("PLAYER_FORCE", sprite, [x, y]));
+					const chara = await Chara.summon(Card.makeUnit("PLAYER_FORCE", sprite, [x, y]));
 
 					cont.add(chara);
 				};
@@ -87,8 +87,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnits = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
-					const enemy = Unit.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
+					const unit = Card.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
+					const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
 					const s = Chara.mustGetState(chara);
@@ -143,8 +143,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
+					const unit = Card.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
+					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
 
@@ -195,8 +195,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
+					const unit = Card.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
+					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
@@ -247,8 +247,8 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
+					const unit = Card.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
+					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
@@ -299,9 +299,9 @@ const slides = [
 			() => {
 				const c = io.Container();
 				const summonUnit = async () => {
-					const unit = Unit.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
+					const unit = Card.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
 
-					const ally = Unit.makeUnit("PLAYER_FORCE", "mana_crystal", [0, 0.5]);
+					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [0, 0.5]);
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
 					const s = Chara.mustGetState(chara);
@@ -384,7 +384,7 @@ const slides = [
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "thunder_conduit", [-2, 0.5]);
+		const unit = Card.makeUnit("FORCE_PLAYER", "thunder_conduit", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -418,7 +418,7 @@ const slides = [
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "gunslinger", [-2, 0.5]);
+		const unit = Card.makeUnit("FORCE_PLAYER", "gunslinger", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -457,7 +457,7 @@ const slides = [
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "radiance_envoy", [-2, 0.5]);
+		const unit = Card.makeUnit("FORCE_PLAYER", "radiance_envoy", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);
@@ -496,7 +496,7 @@ const slides = [
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
-		const unit = Unit.makeUnit("FORCE_PLAYER", "grove_guardian", [-2, 0.5]);
+		const unit = Card.makeUnit("FORCE_PLAYER", "grove_guardian", [-2, 0.5]);
 
 		const anim = async () => {
 			const chara = await Chara.summon(unit);

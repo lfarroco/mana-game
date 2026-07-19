@@ -4,8 +4,8 @@
  * Generates enemy teams for given rounds and player win counts.
  */
 
-import { State } from "@Models/State";
-import { Unit } from "@Models/Entities/Unit";
+import { ClientState } from "@Models/ClientState";
+import { Unit } from "@game/Models";
 import * as Card from "@Models/Entities/Card";
 import { SessionData } from "@Core/Models";
 import { makeForce } from "@Models/Entities/Force";
@@ -31,7 +31,7 @@ export function generateEnemyTeamForRound(round: number, wins: number, seed?: st
 			wins,
 			player_id: FORCE_ID_PLAYER,
 		} as SessionData,
-	} as State;
+	} as ClientState;
 
 	const previousSeed = getSeed();
 	if (seed) {

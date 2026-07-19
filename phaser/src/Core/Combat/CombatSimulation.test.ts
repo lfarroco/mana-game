@@ -4,9 +4,9 @@
  * any browser APIs — the combat logic is pure data transformations.
  */
 
-import * as Card from "@Models/Entities/Card";
 import * as BaseCollection from "@Data/BaseCollection";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
+import * as Card from "@Models/Entities/Card";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as CombatSimulation from "@Core/Combat/CombatSimulation";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
@@ -29,14 +29,14 @@ function createTestCombat(
 	cpuPower: number = 35,
 	seed: string = "test-seed",
 ) {
-	const playerCore = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "critical_crystal", [0, 0]);
+	const playerCore = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "critical_crystal", [0, 0]);
 	playerCore.life = playerCoreLife;
 	playerCore.maxLife = playerCoreLife;
 	playerCore.power = playerPower;
 	playerCore.charge = 0;
 	playerCore.refresh = 0;
 
-	const cpuCore = Unit.makeUnit(CombatConstants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
+	const cpuCore = Card.makeUnit(CombatConstants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
 	cpuCore.life = cpuCoreLife;
 	cpuCore.maxLife = cpuCoreLife;
 	cpuCore.power = cpuPower;
@@ -68,7 +68,7 @@ function createTestCombat(
  * Both cores are set with very long cooldowns so they don't fire during tests.
  */
 function createCustomCombat(
-	playerUnits: Unit.Unit[],
+	playerUnits: Unit[],
 	cpuCoreLife: number = 500,
 	cpuCorePower: number = 1,
 	seed: string = "test-custom-seed",
@@ -82,7 +82,7 @@ function createCustomCombat(
 	const hasPlayerCore = playerUnits.some((u) => u.isCore);
 	if (!hasPlayerCore) {
 		const freeSlot = BoardLogic.findFreeSlot(playerUnits, CombatConstants.FORCE_ID_PLAYER, [1, 1]);
-		const core = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "critical_crystal", freeSlot || [1, 1]);
+		const core = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "critical_crystal", freeSlot || [1, 1]);
 		core.power = 1;
 		core.cooldown = 99999;
 		playerUnits.push(core);
@@ -92,7 +92,7 @@ function createCustomCombat(
 		playerCore.charge = 0;
 	}
 
-	const cpuCore = Unit.makeUnit(CombatConstants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
+	const cpuCore = Card.makeUnit(CombatConstants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
 	cpuCore.life = cpuCoreLife;
 	cpuCore.maxLife = cpuCoreLife;
 	cpuCore.power = cpuCorePower;
@@ -123,7 +123,7 @@ function createCustomCombat(
 /** Run combat for a specific number of frames to control timing precisely. */
 function simulateCombatForFrames(
 	session: import("@Core/Models").SessionData,
-	enemyTeam: Unit.Unit[],
+	enemyTeam: Unit[],
 	maxFrames: number,
 ) {
 	const combatState = CombatSimulation.createCombatState(session, enemyTeam);
@@ -260,7 +260,7 @@ describe("Combat simulation log generation", () => {
 
 describe("Poison and Regen log entries", () => {
 	it("poison_cast and poison_hit are logged when a poison unit acts", () => {
-		const poisonUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
+		const poisonUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
 		poisonUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([poisonUnit], 5000, 1, "test-poison-001");
@@ -285,7 +285,7 @@ describe("Poison and Regen log entries", () => {
 	});
 
 	it("regen_cast and regen_hit are logged when a regen unit acts", () => {
-		const regenUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "life_weaver", [1, 0]);
+		const regenUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "life_weaver", [1, 0]);
 		regenUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([regenUnit], 5000, 1, "test-regen-001");
@@ -306,7 +306,7 @@ describe("Poison and Regen log entries", () => {
 	});
 
 	it("poison_tick entries appear at ~1s intervals after poison is applied", () => {
-		const poisonUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
+		const poisonUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
 		poisonUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([poisonUnit], 5000, 1, "test-poison-tick-001");
@@ -330,7 +330,7 @@ describe("Poison and Regen log entries", () => {
 	});
 
 	it("regen_tick entries appear at ~1s intervals after regen is applied", () => {
-		const regenUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "life_weaver", [1, 0]);
+		const regenUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "life_weaver", [1, 0]);
 		regenUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([regenUnit], 5000, 1, "test-regen-tick-001");
@@ -354,7 +354,7 @@ describe("Poison and Regen log entries", () => {
 	});
 
 	it("poison_hit arrives exactly 200ms after poison_cast (travelTime respected)", () => {
-		const poisonUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
+		const poisonUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
 		poisonUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([poisonUnit], 5000, 1, "test-poison-travel-001");
@@ -376,7 +376,7 @@ describe("Poison and Regen log entries", () => {
 	});
 
 	it("newLife field tracks poison tick damage correctly", () => {
-		const poisonUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
+		const poisonUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "plague_incubator", [1, 0]);
 		poisonUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([poisonUnit], 5000, 1, "test-poison-life-001");
@@ -392,7 +392,7 @@ describe("Poison and Regen log entries", () => {
 
 describe("Shield accumulation and damage routing", () => {
 	it("shield accumulates across multiple shield_hit log entries", () => {
-		const shieldUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
+		const shieldUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
 		shieldUnit.cooldown = 100;
 		shieldUnit.power = 10; // 10 shield per cast
 
@@ -411,7 +411,7 @@ describe("Shield accumulation and damage routing", () => {
 	});
 
 	it("shield_hit entries carry newShield", () => {
-		const shieldUnit = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
+		const shieldUnit = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "aegis_archon", [1, 0]);
 		shieldUnit.cooldown = 100;
 
 		const { session, enemyTeam } = createCustomCombat([shieldUnit], 5000, 1, "test-shield-new-001");

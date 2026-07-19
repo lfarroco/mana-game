@@ -7,6 +7,7 @@
 
 import * as Models from "@Core/Models";
 import * as Card from "@Models/Entities/Card";
+import { CardDefinition } from "@game/Models";
 import * as Seeding from "@game/Seeding";
 
 const ENCOUNTER_IDS = [
@@ -95,12 +96,12 @@ function getEncounterFilterType(encounterId: string | null): EncounterFilterType
 	return filterMap[encounterId] || "";
 }
 
-function getCardRank(card: Card.CardDefinition): number {
+function getCardRank(card: CardDefinition): number {
 	return card.rank ?? 1;
 }
 
 function cardMatchesEffectType(
-	card: Card.CardDefinition,
+	card: CardDefinition,
 	filterType: Exclude<EncounterFilterType, "silver" | "gold">
 ): boolean {
 	return (
@@ -113,9 +114,9 @@ function cardMatchesEffectType(
  * Filter cards by effect type, supporting both direct effects and reactions.
  */
 function filterCardsByEffect(
-	cards: Card.CardDefinition[],
+	cards: CardDefinition[],
 	filterType: EncounterFilterType
-): Card.CardDefinition[] {
+): CardDefinition[] {
 	if (filterType === "silver") {
 		return cards.filter((card) => getCardRank(card) === 2);
 	}

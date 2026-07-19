@@ -3,7 +3,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Constants from "@Core/Constants";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@Models/Entities/Card";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
 import * as Logger from "@Utils/Logger";
@@ -189,7 +189,7 @@ function createRegenDisplay(
 function createShieldDisplay(
 	force: string,
 	[x, y]: Vec2,
-	core: Unit.Unit,
+	core: Unit,
 ) {
 	const shieldDisplayId = `shield-display/${force}`;
 	const shieldDisplay = Chip.createChip(
@@ -218,7 +218,7 @@ function createShieldDisplay(
 
 function createLifeDisplay(
 	[x, y]: Vec2,
-	core: Unit.Unit,
+	core: Unit,
 ) {
 	const lifeDisplayId = `life-display/${core.force}`;
 

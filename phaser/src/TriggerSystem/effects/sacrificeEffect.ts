@@ -1,4 +1,4 @@
-import { Unit } from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import { nextValue } from "@game/Random";
 import { pickRandom } from "@utils";
 import { increasePower } from "@TriggerSystem/effects/increasePower";

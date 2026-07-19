@@ -1,5 +1,5 @@
 import * as Models from "@Core/Models";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as supabase from "@lib/supabase";
@@ -107,13 +107,13 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
 			Logger.debug("RemoteServer", "Using server-provided combat logs");
 			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
-				? (sessionCombatState.enemyTeam as Unit.Unit[])
+				? (sessionCombatState.enemyTeam as Unit[])
 				: [];
 			const units = Array.isArray(sessionCombatState.initialUnits)
-				? (sessionCombatState.initialUnits as Unit.Unit[])
+				? (sessionCombatState.initialUnits as Unit[])
 				: [];
 			const finalPlayerUnits = Array.isArray(sessionCombatState.finalPlayerUnits)
-				? (sessionCombatState.finalPlayerUnits as Unit.Unit[])
+				? (sessionCombatState.finalPlayerUnits as Unit[])
 				: [];
 			const wonCombat =
 				typeof sessionCombatState.wonCombat === "boolean"
@@ -139,7 +139,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 			combatState = {
 				...session.combatState, // TODO: probably wrong
 				units: simResult.initialUnits,
-				enemyTeam: simResult.initialUnits.filter((u: Unit.Unit) => u.force === CombatConstants.FORCE_ID_CPU),
+				enemyTeam: simResult.initialUnits.filter((u: Unit) => u.force === CombatConstants.FORCE_ID_CPU),
 				logs: simResult.logs,
 				seed: session.seed,
 			};

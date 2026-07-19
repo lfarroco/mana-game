@@ -2,9 +2,9 @@ import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as parent from "../CrystalSelectionScreen";
-import * as Card from "@Models/Entities/Card";
 import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/PaginationDots"
+import { CardDefinition } from "@game/Models";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
@@ -52,7 +52,7 @@ export function getColorPresetForCrystal(crystalId: string): keyof typeof colorP
 
 
 
-function buildCrystalDescription(crystal: Card.CardDefinition): string {
+function buildCrystalDescription(crystal: CardDefinition): string {
 	const power = crystal.power || 0;
 
 	const effectBlocks = crystal.effects

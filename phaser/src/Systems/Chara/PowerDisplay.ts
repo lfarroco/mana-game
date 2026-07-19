@@ -1,11 +1,11 @@
-import * as Unit from "@Models/Entities/Unit";
 import * as constants from "@Constants";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Chip from "@Components/Chip/Chip";
 import * as Utils from "@utils";
 import * as Abilities from "@Models/Abilities";
+import { Unit } from "@game/Models";
 
-export function create(unit: Unit.Unit, container: Chara.Chara) {
+export function create(unit: Unit, container: Chara.Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
 
 	const effect = unit.effects.find((effect) => displayableEffects.includes(effect.id));

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { Unit } from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 
 export type CharaBars = {
 	chargeBar: Graphics;

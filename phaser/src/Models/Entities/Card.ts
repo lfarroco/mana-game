@@ -1,6 +1,6 @@
-import { State } from "@Models/State";
-
-import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
+import * as State from "@Models/ClientState";
+import { Unit, CardDefinition, CardCollection, Effect } from "../../../../core/src/Models";
+import * as uuid from "uuid";
 
 const dummy: CardDefinition = {
 	id: "dummy_card",
@@ -29,33 +29,6 @@ export const registerCollection = (collection: CardCollection): void => {
 	collection.cards
 		//.slice(0, 5)
 		.forEach(registerCard);
-};
-
-export type CardCollection = {
-	id: string;
-	name: string;
-	cards: CardDefinition[];
-};
-
-/**
- * Defines the "blueprint" or "specification" for a game entity (often a character or creature).
- * It holds all the static, inherent properties of a type of unit, such as its name,
- * visual appearance (pic), base stats (attack, defense, cooldown).
- * A `CardDefinition` is used to create `Unit` instances.
- */
-export type CardDefinition = {
-	id: string;
-	pic: string;
-	power?: number;
-	cooldown: number;
-	effects: Effect[];
-	reactions: EffectReaction[];
-	isCore?: boolean;
-	locked?: boolean;
-	rank?: number;
-	life?: number;
-	critical?: number;
-	reflect?: number;
 };
 
 export const getCardDefinition = (id: string): CardDefinition => {
@@ -91,13 +64,57 @@ export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =
 		(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
 	);
 
-export const getAlliedCore = (state: State) => (forceId: string) =>
+export const getAlliedCore = (state: State.ClientState) => (forceId: string) =>
 	state.battleData.units.find((u) => u.force === forceId && u.isCore)!;
-export const getEnemyCore = (state: State) => (forceId: string) =>
+export const getEnemyCore = (state: State.ClientState) => (forceId: string) =>
 	state.battleData.units.find((u) => u.force !== forceId && u.isCore)!;
 
-export const getBattleCore = (state: State) => (forceId: string) =>
+export const getBattleCore = (state: State.ClientState) => (forceId: string) =>
 	state.battleData.units.find((u) => u.force === forceId && u.isCore)!;
 
-export const getPlayerPersistentCore = (state: State) =>
+export const getPlayerPersistentCore = (state: State.ClientState) =>
 	state.session.team.units.find((u) => u.isCore)!;
+
+// TODO: this is the same as createUnitFromCardSpec
+export const makeUnit = (
+	force: string,
+	cardId: string, position: Vec2 = [1, 1]): Unit => {
+	const card = getCardDefinition(cardId);
+
+	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
+};
+
+export function createUnitFromCardSpec(
+	force: string,
+	cardDef: CardDefinition,
+	position: Vec2 = [0, 0],
+	id: string
+): Unit {
+	const effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
+	const reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? []));
+
+	return {
+		id,
+		cardId: cardDef.id,
+		pic: cardDef.pic,
+		force,
+		position,
+		power: cardDef.power || 0,
+		cooldown: cardDef.cooldown,
+		evade: 0,
+		rank: cardDef.rank || 1,
+		effects,
+		reactions,
+		charge: 0,
+		refresh: 0,
+		hasted: 0,
+		slowed: 0,
+		isCore: cardDef.isCore || false,
+		life: cardDef.life || 0,
+		maxLife: cardDef.life || 0,
+		critical: cardDef.critical || 0,
+		shield: 0,
+		bonusPower: 0,
+	};
+}
+

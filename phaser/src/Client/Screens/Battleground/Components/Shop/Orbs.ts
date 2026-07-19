@@ -1,4 +1,4 @@
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as effects from "@TriggerSystem/effects";
 import * as Utils from "@utils";
 import * as Chara from "@Systems/Chara/Chara";
@@ -7,7 +7,7 @@ import * as absorbPower from "@TriggerSystem/effects/absorbPower";
 import * as sacrificeEffect from "@TriggerSystem/effects/sacrificeEffect";
 import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
 import * as Constants from "@Core/Constants";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as i18n from "@i18n/i18n";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Card from "@Models/Entities/Card";
@@ -19,7 +19,9 @@ import * as Poison from "@Systems/PoisonDamageSystem";
 import * as Regen from "@Systems/RegenSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Logger from "@Utils/Logger";
+import { Effect, EffectReaction } from "@game/Models";
 
+// TODO: this file is gigantic, we should extract the effects
 
 const MIN_COOLDOWN_MS = 1000;
 const COOLDOWN_REDUCTION_FACTOR = 0.1;
@@ -35,10 +37,10 @@ export type OrbSpec = {
 	icon: string;
 	// return false to indicate the effect was not
 	// applied and the orb should return
-	effect: (unit: Unit.Unit) => boolean;
+	effect: (unit: Unit) => boolean;
 };
 
-const getShopEnvironment = (state: State.State): CombatTypes.CombatEnvironment => {
+const getShopEnvironment = (state: State.ClientState): CombatTypes.CombatEnvironment => {
 	return {
 		state,
 		scheduledEffects: ScheduledEffects.initialize(),
@@ -58,7 +60,7 @@ const increasePowerOnType = (type: string) => () => ({
 	color: 0xff3333,
 	tooltip: i18n.t("shop.orbs.increasePower.tooltip", { type }),
 	icon: "ui/commander",
-	effect: (unit: Unit.Unit) => {
+	effect: (unit: Unit) => {
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
 		const pct = Math.floor(unit.power * 0.1);
@@ -80,7 +82,7 @@ const increaseCriticalOnType = (type: string) => () => ({
 	color: 0xff3333,
 	tooltip: i18n.t("shop.orbs.increaseCritical.tooltip", { type }),
 	icon: "ui/assassin",
-	effect: (unit: Unit.Unit) => {
+	effect: (unit: Unit) => {
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
 		// Use processEffectsIO with permanent=true for shop orbs
@@ -111,7 +113,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 	color: 0xff3333,
 	tooltip: i18n.t("shop.orbs.decreaseCooldown.tooltip", { type }),
 	icon: "ui/trial_circuit",
-	effect: (unit: Unit.Unit) => {
+	effect: (unit: Unit) => {
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
 		unit.cooldown = Math.max(MIN_COOLDOWN_MS, unit.cooldown * (1 - COOLDOWN_REDUCTION_FACTOR));
@@ -130,7 +132,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 //re-haste: target triggering
 const increasePowerOnTypeEffect = (
 	type: "damage" | "heal" | "shield" | "poison" | "regen"
-): TriggerSystem.Effect => ({
+): Effect => ({
 	id: "increase_power",
 	amount: 2,
 	targets: {
@@ -138,39 +140,39 @@ const increasePowerOnTypeEffect = (
 		ofType: type,
 	},
 });
-const increaseCriticalEffect: TriggerSystem.Effect = {
+const increaseCriticalEffect: Effect = {
 	id: "increase_critical",
 	amount: 5,
 	targets: { id: "random_ally", count: 1 },
 };
-const increasePowerOnWeakest: TriggerSystem.Effect = {
+const increasePowerOnWeakest: Effect = {
 	id: "increase_power",
 	amount: 10,
 	targets: { id: "weakest_ally" },
 };
-const decreaseRandomEnemyPowerEffect: TriggerSystem.Effect = {
+const decreaseRandomEnemyPowerEffect: Effect = {
 	id: "decrease_power",
 	amount: 10,
 	targets: { id: "random_enemy", count: 1 },
 };
-const decreaseStrongestEnemyPowerEffect: TriggerSystem.Effect = {
+const decreaseStrongestEnemyPowerEffect: Effect = {
 	id: "decrease_power",
 	amount: 10,
 	targets: { id: "random_enemy", count: 1 },
 };
 //multiply power on spammable effects is extremelly OP
 //const multiplyAllyPowerEffect: Effect = { id: "multiply_power", multiplier: 1.1, targets: { id: "random_ally", count: 1 } }
-const hasteEffect: TriggerSystem.Effect = {
+const hasteEffect: Effect = {
 	id: "haste",
 	duration: HASTE_DURATION_MS,
 	targets: { id: "random_ally", count: 2 },
 };
-const slowEffect: TriggerSystem.Effect = {
+const slowEffect: Effect = {
 	id: "slow",
 	duration: SLOW_DURATION_MS,
 	targets: { id: "random_enemy", count: 2 },
 };
-const chargeEffect: TriggerSystem.Effect = {
+const chargeEffect: Effect = {
 	id: "charge",
 	duration: CHARGE_DURATION_MS,
 	targets: { id: "random_ally", count: 2 },
@@ -198,7 +200,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0x3399ff,
 		tooltip: i18n.t("shop.orbs.upgrade.tooltip"),
 		icon: "ui/upgrade_unit",
-		effect: (unit: Unit.Unit) => {
+		effect: (unit: Unit) => {
 			Chara.upgradeUnit(unit);
 			return true;
 		},
@@ -216,7 +218,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x32cd32,
 			tooltip: i18n.t("shop.orbs.increaseMaxLife.tooltip", { amount: lifeGain.toString() }),
 			icon: "ui/improve_heal",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				if (!unit.isCore) return false;
 				unit.maxLife = core.maxLife + lifeGain;
 				unit.life = core.maxLife;
@@ -236,7 +238,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0xee4b2b,
 			tooltip: i18n.t("shop.orbs.upgradePower.tooltip", { amount: powerGain.toString() }),
 			icon: "ui/upgrade_unit",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				if (!unit.isCore) return false;
 				unit.power = unit.power + powerGain;
 				unit.bonusPower = (unit.bonusPower || 0) + powerGain;
@@ -251,7 +253,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0x00eaff,
 		tooltip: i18n.t("shop.orbs.decreaseCoreCooldown.tooltip"),
 		icon: "ui/trial_circuit",
-		effect: (unit: Unit.Unit) => {
+		effect: (unit: Unit) => {
 			if (!unit.isCore) return false;
 			const reduction = unit.cooldown * COOLDOWN_REDUCTION_FACTOR;
 			unit.cooldown = Math.max(MIN_COOLDOWN_MS, unit.cooldown - reduction);
@@ -259,7 +261,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		},
 	}),
 	on_100_damage_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "every_100_damage",
 			effects: [
@@ -278,14 +280,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_100_shield_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "every_100_shield",
 			effects: [
@@ -304,14 +306,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_100_heal_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "every_100_heal",
 			effects: [
@@ -331,14 +333,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_10_regen_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "every_10_regen",
 			effects: [
@@ -357,14 +359,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_10_poison_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "every_10_poison",
 			effects: [
@@ -383,14 +385,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_re_slow_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "re_slow",
 			effects: [
@@ -408,14 +410,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_re_haste_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "re_hasted",
 			effects: [
@@ -433,14 +435,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_over_heal_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "on_over_heal",
 			effects: [Utils.pickOne([increaseCriticalEffect, hasteEffect, increasePowerOnWeakest])],
@@ -451,14 +453,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_crit_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "on_crit",
 			effects: [
@@ -477,14 +479,14 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
 		};
 	},
 	on_battle_start_effect: () => {
-		const reaction: TriggerSystem.EffectReaction = {
+		const reaction: EffectReaction = {
 			position: "allies",
 			effectId: "on_battle_start",
 			effects: [Utils.pickOne([hasteEffect, slowEffect, chargeEffect])],
@@ -495,7 +497,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 			color: 0x3399ff,
 			tooltip: CharaTooltip.getReactionDescription(reaction, 0),
 			icon: "ui/forest_pools",
-			effect: (unit: Unit.Unit) => {
+			effect: (unit: Unit) => {
 				unit.reactions.push(reaction);
 				return true;
 			},
@@ -508,7 +510,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0xffaa00,
 		tooltip: i18n.t("shop.orbs.distributePower.tooltip"),
 		icon: "ui/power_distributor",
-		effect: (unit: Unit.Unit) => {
+		effect: (unit: Unit) => {
 			const targets = TriggerSystem.resolveTargets(state, unit, {
 				id: "distribute_power",
 				targets: {
@@ -526,7 +528,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0xaa00ff,
 		tooltip: i18n.t("shop.orbs.absorbPower.tooltip"),
 		icon: "ui/power_absorber",
-		effect: (unit: Unit.Unit) => {
+		effect: (unit: Unit) => {
 			const targets = TriggerSystem.resolveTargets(state, unit, {
 				id: "absorb_power",
 				targets: {
@@ -545,7 +547,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0x550000,
 		tooltip: i18n.t("shop.orbs.darkRitual.tooltip"),
 		icon: "ui/dark_ritual",
-		effect: (unit: Unit.Unit) => {
+		effect: (unit: Unit) => {
 			const env = getShopEnvironment(state);
 			sacrificeEffect.sacrificeEffect(env, unit);
 			return true;

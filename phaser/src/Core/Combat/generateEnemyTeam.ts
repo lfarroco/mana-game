@@ -1,8 +1,10 @@
-import * as Card from "@Models/Entities/Card";
 import * as Force from "@Models/Entities/Force";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
+import * as Card from "@Models/Entities/Card";
 import * as Utils from "@utils";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
+import { CardDefinition } from "@game/Models";
+import { upgradeUnitData } from "@Models/Entities/Unit";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -20,7 +22,7 @@ function calculateUpgradesForRound(round: number): number {
 	return (round - roundsToFillBoard) * UNITS_PER_ROUND;
 }
 
-function distributeUpgrades(units: Unit.Unit[], upgradeCount: number): void {
+function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 	const maxPossibleUpgrades = units.length * 3;
 	const cappedUpgradeCount = Math.min(upgradeCount, maxPossibleUpgrades);
 	const upgradesPerUnit = Math.floor(cappedUpgradeCount / units.length);
@@ -28,19 +30,19 @@ function distributeUpgrades(units: Unit.Unit[], upgradeCount: number): void {
 
 	units.forEach((unit) => {
 		for (let i = 0; i < upgradesPerUnit && unit.rank < 4; i++) {
-			Unit.upgradeUnitData(unit);
+			upgradeUnitData(unit);
 		}
 	});
 
 	for (let i = 0; i < remainder; i++) {
 		const unit = Utils.pickOne(units);
 		if (unit.rank < 4) {
-			Unit.upgradeUnitData(unit);
+			upgradeUnitData(unit);
 		}
 	}
 }
 
-function distributePowerPoints(units: Unit.Unit[], powerPoints: number, multiplier: number = 1): void {
+function distributePowerPoints(units: Unit[], powerPoints: number, multiplier: number = 1): void {
 	const scaledPowerPoints = Math.floor(powerPoints * multiplier);
 	const pointsPerUnit = Math.floor(scaledPowerPoints / units.length);
 	units.forEach((unit) => {
@@ -63,7 +65,7 @@ function getRandomEmptyPosition(occupiedPositions: Set<string>): Vec2 {
 	return Utils.pickOne(availablePositions);
 }
 
-export function generateEnemyTeam(state: State.State, round: number, pool: Card.CardDefinition[]) {
+export function generateEnemyTeam(state: State.ClientState, round: number, pool: CardDefinition[]) {
 	if (round < 0) {
 		throw new Error("Round must be a non-negative number");
 	}
@@ -73,14 +75,14 @@ export function generateEnemyTeam(state: State.State, round: number, pool: Card.
 
 	const unitCount = calculateUnitsForRound(round);
 	const upgradeCount = calculateUpgradesForRound(round);
-	const units: Unit.Unit[] = [];
-	const pickedCards: Card.CardDefinition[] = [];
+	const units: Unit[] = [];
+	const pickedCards: CardDefinition[] = [];
 	const occupiedPositions = new Set<string>();
 
 	const coreCard = Utils.pickOne(Card.getCores());
 	const corePosition = getRandomEmptyPosition(occupiedPositions);
 	occupiedPositions.add(`${corePosition[0]},${corePosition[1]}`);
-	const coreUnit = Unit.makeUnit(Force.cpuForce(state).id, coreCard.id, corePosition);
+	const coreUnit = Card.makeUnit(Force.cpuForce(state).id, coreCard.id, corePosition);
 	units.push(coreUnit);
 
 	const filteredPool = Card.getNonCores().filter((unit) => {
@@ -101,7 +103,7 @@ export function generateEnemyTeam(state: State.State, round: number, pool: Card.
 		}
 
 		occupiedPositions.add(`${position[0]},${position[1]}`);
-		units.push(Unit.makeUnit(Force.cpuForce(state).id, card.id, position));
+		units.push(Card.makeUnit(Force.cpuForce(state).id, card.id, position));
 	}
 
 	coreUnit.life = (coreCard.life || 500) + 100 * (round - 1);

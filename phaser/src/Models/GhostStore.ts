@@ -1,10 +1,12 @@
-import { Unit, makeUnit } from "@Models/Entities/Unit";
+import { Unit } from "../../../core/src/Models";
+import { makeUnit } from "./Entities/Card";
 import { hasCardDefinition } from "@Models/Entities/Card";
 import { cpuForce } from "@Models/Entities/Force";
-import { Effect, EffectReaction } from "@TriggerSystem/TriggerSystem";
+import { Effect } from "../../../core/src/Models";
+import { EffectReaction } from "../../../core/src/Models";
 import { storage } from "@Storage/index";
 import { nextValue } from "@game/Random";
-import { State } from "@Models/State";
+import { ClientState } from "@Models/ClientState";
 import * as Logger from "@Utils/Logger";
 
 
@@ -99,7 +101,7 @@ export function saveGhostForRound(round: number, playerUnits: Unit[], lives: num
 	list.sort((a, b) => b.savedAt - a.savedAt);
 	store[round] = list.slice(0, MAX_PER_ROUND);
 	saveStore(store);
-	Logger.debug("GhostStore", 
+	Logger.debug("GhostStore",
 		`[GhostStore] Saved ghost for round ${round}. Total for round: ${store[round].length}`
 	);
 }
@@ -115,7 +117,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 	});
 
 	if (validList.length < list.length) {
-		Logger.debug("GhostStore", 
+		Logger.debug("GhostStore",
 			`[GhostStore] Removing ${list.length - validList.length} invalid ghosts for round ${round}`
 		);
 		store[round] = validList;
@@ -128,7 +130,7 @@ export function pickRandomGhost(round: number): GhostEntry | null {
 	return validList[idx];
 }
 
-export function instantiateGhostUnits(state: State, entry: GhostEntry): Unit[] {
+export function instantiateGhostUnits(state: ClientState, entry: GhostEntry): Unit[] {
 	return entry.units.map((g) => {
 		const unit = makeUnit(cpuForce(state).id, g.cardId, [g.x, g.y]);
 		if (g.power && g.power > 0) unit.power = g.power;

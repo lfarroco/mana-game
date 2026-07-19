@@ -6,8 +6,8 @@
  */
 
 import * as Models from "@Core/Models";
-import * as State from "@Models/State";
-import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/ClientState";
+import { Unit } from "@game/Models";
 import * as Card from "@Models/Entities/Card";
 import * as BoardLogic from "@Models/BoardLogic";
 import * as Force from "@Models/Entities/Force";
@@ -17,6 +17,7 @@ import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as Random from "@game/Random";
 import * as Seeding from "@game/Seeding";
+import { resetUnitStats } from "@Models/Entities/Unit";
 
 const cloneValue = <T>(value: T): T => {
 	if (typeof globalThis.structuredClone === "function") {
@@ -30,14 +31,17 @@ const cloneValue = <T>(value: T): T => {
  * Build a complete combat state from a session.
  * Includes player units, enemy units, board grid, and forces.
  */
-export function createCombatState(session: Models.SessionData, enemyTeam?: Unit.Unit[]): State.State {
-	let playerUnits: Unit.Unit[] = [];
+export function createCombatState(
+	session: Models.SessionData,
+	enemyTeam?: Unit[],
+): State.ClientState {
+	let playerUnits: Unit[] = [];
 	if (session.team && session.team.units) {
 		playerUnits = JSON.parse(JSON.stringify(session.team.units));
 		playerUnits.forEach((u) => {
 			u.effects = u.effects || [];
 			u.reactions = u.reactions || [];
-			Unit.resetUnitStats(u);
+			resetUnitStats(u);
 		});
 	}
 
@@ -46,20 +50,20 @@ export function createCombatState(session: Models.SessionData, enemyTeam?: Unit.
 	if (!hasCore) {
 		const freeSlot = BoardLogic.findFreeSlot(playerUnits, CombatConstants.FORCE_ID_PLAYER, [1, 1]);
 		if (freeSlot) {
-			const crystal = Unit.makeUnit(CombatConstants.FORCE_ID_PLAYER, "crystal_core", freeSlot);
+			const crystal = Card.makeUnit(CombatConstants.FORCE_ID_PLAYER, "crystal_core", freeSlot);
 			crystal.isCore = true;
 			playerUnits.push(crystal);
 		}
 	}
 
 	// Retrieve or generate enemy team
-	let enemyUnits: Unit.Unit[] = [];
+	let enemyUnits: Unit[] = [];
 	if (enemyTeam) {
 		enemyUnits = JSON.parse(JSON.stringify(enemyTeam));
-		enemyUnits.forEach(Unit.resetUnitStats);
+		enemyUnits.forEach(resetUnitStats);
 	} else {
 		const allCards = Card.getNonCores();
-		const mockState: State.State = {
+		const mockState: State.ClientState = {
 			battleData: {
 				forces: [Force.makeForce(CombatConstants.FORCE_ID_PLAYER), Force.makeForce(CombatConstants.FORCE_ID_CPU)],
 				units: [],
@@ -90,9 +94,9 @@ export function createCombatState(session: Models.SessionData, enemyTeam?: Unit.
  * Run a complete combat simulation for a session.
  * Returns final state, initial units snapshot, and combat logs.
  */
-export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Unit[]): {
-	finalState: State.State;
-	initialUnits: Unit.Unit[];
+export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit[]): {
+	finalState: State.ClientState;
+	initialUnits: Unit[];
 	logs: CombatLogger.CombatLogEntry[];
 	playerWon: boolean;
 } {
@@ -118,7 +122,7 @@ export function simulateCombat(session: Models.SessionData, enemyTeam?: Unit.Uni
 
 	const persistedTeamUnits = combatState.session.team.units.map((unit) => {
 		const persistentUnit = cloneValue(unit);
-		Unit.resetUnitStats(persistentUnit);
+		resetUnitStats(persistentUnit);
 		return persistentUnit;
 	});
 

@@ -5,7 +5,8 @@
  */
 
 import * as Models from "@Core/Models";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
+import * as Card from "@Models/Entities/Card";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as OptionGeneration from "./OptionGeneration";
 import * as Logger from "@Utils/Logger";
@@ -48,9 +49,9 @@ export function createInitialSession(
 	const seed = explicitSeed ?? generateRandomSessionSeed();
 	const initialSeed = seed;
 
-	const team: { units: Unit.Unit[] } = { units: [] };
+	const team: { units: Unit[] } = { units: [] };
 	if (selectedCrystalId) {
-		const coreUnit = Unit.makeUnit(
+		const coreUnit = Card.makeUnit(
 			CombatConstants.FORCE_ID_PLAYER,
 			selectedCrystalId,
 			[1, 1],
@@ -89,7 +90,7 @@ export function createInitialSession(
  */
 export function updateTeamAction(
 	session: Models.SessionData,
-	newUnits: Unit.Unit[]
+	newUnits: Unit[]
 ): Models.SessionData {
 	const currentUnits = session.team?.units || [];
 
@@ -99,7 +100,7 @@ export function updateTeamAction(
 		return session;
 	}
 
-	const currentUnitMap = new Map<string, Unit.Unit>();
+	const currentUnitMap = new Map<string, Unit>();
 	currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
 
 	const validatedUnits = [];

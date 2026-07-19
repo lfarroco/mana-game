@@ -1,5 +1,11 @@
-import { CardCollection, CardDefinition } from "@Models/Entities/Card";
-import { Effect, EffectId, EffectReaction, EffectSourcePosition, Targeting } from "TriggerSystem/TriggerSystem";
+import {
+	CardCollection, CardDefinition,
+	EffectId,
+	Targeting,
+	EffectSourcePosition,
+	Effect,
+	EffectReaction
+} from "@game/Models";
 
 // Refer to the Readme for instructions on how to balance units
 // When adding/updating units, run "npm run check-balance -- --filter" to check if they are balanced 
@@ -85,7 +91,6 @@ const cards: CardDefinition[] = [
 		power: 35,
 		cooldown: 4500,
 		isCore: true,
-		reflect: 15,
 		effects: [
 			shield,
 			increasePower(5, randomAlly(1), true),

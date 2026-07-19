@@ -1,7 +1,7 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
-import * as State from "@Models/State";
-import * as Unit from "@Models/Entities/Unit";
+import * as State from "@Models/ClientState";
+import { Unit } from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as deleteSavedData from "Client/Storage/deleteSavedData";
@@ -14,9 +14,9 @@ import * as constants from "@Constants";
 import * as Config from "@config";
 
 export async function displayGameComplete(
-	state: State.State,
+	state: State.ClientState,
 	wins: number,
-	units: Unit.Unit[],
+	units: Unit[],
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void

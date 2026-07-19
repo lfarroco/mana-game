@@ -1,6 +1,5 @@
 import * as Models from "@Core/Models";
 import * as Board from "@Models/Board";
-import * as Unit from "@Models/Entities/Unit";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 
@@ -15,6 +14,7 @@ import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as RegenSystem from "@Systems/RegenSystem";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
 import * as GameController from "Client/GameController";
+import { resetUnitStats } from "@Models/Entities/Unit";
 
 const COMBAT_START_DELAY_MS = 300;
 
@@ -188,7 +188,7 @@ const setupCombatBoard = async (combatState: Models.CombatState): Promise<void> 
 
 	const summonPromises = state.battleData.units.map((unit) => Chara.summon(unit, false));
 	await Promise.all(summonPromises);
-	state.battleData.units.forEach(Unit.resetUnitStats);
+	state.battleData.units.forEach(resetUnitStats);
 };
 
 export async function handleCombatPhase(): Promise<void> {

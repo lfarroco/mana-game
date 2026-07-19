@@ -5,7 +5,8 @@
  * Pure functions that modify unit state based on orb type or core upgrade action.
  */
 
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
+import { applyPowerDelta } from "@Models/Entities/Unit";
 import * as Logger from "@Utils/Logger";
 
 
@@ -19,7 +20,7 @@ const CORE_ROUND_SCALING = 10;
  * Apply upgrade_orb: Rank up a unit (increase stats by 1.75x).
  * This aligns with the new bronze->silver->gold upgrade progression.
  */
-function applyUpgradeOrb(unit: Unit.Unit): void {
+function applyUpgradeOrb(unit: Unit): void {
 	unit.rank = (unit.rank || 1) + 1;
 	const rankMultiplier = 1.75;
 	unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
@@ -30,20 +31,20 @@ function applyUpgradeOrb(unit: Unit.Unit): void {
 /**
  * Apply absorb_power_orb: Take 25% power from units in the same row.
  */
-function applyAbsorbPowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): number {
+function applyAbsorbPowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 	let totalAbsorbed = 0;
-	allUnits.forEach((u: Unit.Unit) => {
+	allUnits.forEach((u: Unit) => {
 		if (u.id !== targetUnit.id && u.position && u.position[1] === targetUnit.position[1]) {
 			const absorbed = Math.floor(u.power * 0.25);
 			if (absorbed > 0) {
-				Unit.applyPowerDelta(u, -absorbed, true);
+				applyPowerDelta(u, -absorbed, true);
 				totalAbsorbed += absorbed;
 			}
 		}
 	});
 
 	if (totalAbsorbed > 0) {
-		Unit.applyPowerDelta(targetUnit, totalAbsorbed, true);
+		applyPowerDelta(targetUnit, totalAbsorbed, true);
 	}
 
 	return totalAbsorbed;
@@ -52,11 +53,11 @@ function applyAbsorbPowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): numb
 /**
  * Apply distribute_power_orb: Give 50% of unit's power to units in the same row.
  */
-function applyDistributePowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): number {
+function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 	const powerToDistribute = Math.floor(targetUnit.power * 0.5);
 	if (powerToDistribute <= 0) return 0;
 
-	Unit.applyPowerDelta(targetUnit, -powerToDistribute, true);
+	applyPowerDelta(targetUnit, -powerToDistribute, true);
 
 	const targets = allUnits
 		.filter(u => u.id !== targetUnit.id)
@@ -65,8 +66,8 @@ function applyDistributePowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): 
 
 	if (targets.length > 0) {
 		const powerPerTarget = Math.floor(powerToDistribute / targets.length);
-		targets.forEach((u: Unit.Unit) => {
-			Unit.applyPowerDelta(u, powerPerTarget, true);
+		targets.forEach((u: Unit) => {
+			applyPowerDelta(u, powerPerTarget, true);
 		});
 	}
 
@@ -76,7 +77,7 @@ function applyDistributePowerOrb(targetUnit: Unit.Unit, allUnits: Unit.Unit[]): 
 /**
  * Apply increase_power_on_X orb: Boost power of units with a specific effect.
  */
-function applyIncreasePowerOrb(targetUnit: Unit.Unit, effectType: string): number {
+function applyIncreasePowerOrb(targetUnit: Unit, effectType: string): number {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return 0;
 	}
@@ -89,7 +90,7 @@ function applyIncreasePowerOrb(targetUnit: Unit.Unit, effectType: string): numbe
 /**
  * Apply increase_critical_on_X orb: Add critical strike chance to units with a specific effect.
  */
-function applyIncreaseCriticalOrb(targetUnit: Unit.Unit, effectType: string): boolean {
+function applyIncreaseCriticalOrb(targetUnit: Unit, effectType: string): boolean {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return false;
 	}
@@ -106,7 +107,7 @@ function applyIncreaseCriticalOrb(targetUnit: Unit.Unit, effectType: string): bo
 /**
  * Apply decrease_cooldown_on_X orb: Reduce cooldown for units with a specific effect.
  */
-function applyDecreaseCooldownOrb(targetUnit: Unit.Unit, effectType: string): number {
+function applyDecreaseCooldownOrb(targetUnit: Unit, effectType: string): number {
 	if (!targetUnit.effects?.some((e: { id: string }) => e.id === effectType)) {
 		return 0;
 	}
@@ -121,11 +122,11 @@ function applyDecreaseCooldownOrb(targetUnit: Unit.Unit, effectType: string): nu
  * Returns the list of update messages describing what happened.
  */
 export function applyOrb(
-	allUnits: Unit.Unit[],
+	allUnits: Unit[],
 	targetUnitId: string,
 	orbId: string
 ) {
-	const targetUnit = allUnits.find((u: Unit.Unit) => u.id === targetUnitId);
+	const targetUnit = allUnits.find((u: Unit) => u.id === targetUnitId);
 	if (!targetUnit) {
 		Logger.warn("orbAndCoreUpgrades", `Orb application failed: target unit with ID ${targetUnitId} not found`);
 		return;
@@ -167,7 +168,7 @@ export function applyOrb(
 /**
  * Upgrade core max life by (10% of current + 10 * round).
  */
-export function upgradeCoreMaxLife(core: Unit.Unit, round: number): string {
+export function upgradeCoreMaxLife(core: Unit, round: number): string {
 	const lifeGain =
 		Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 	core.maxLife += lifeGain;
@@ -178,7 +179,7 @@ export function upgradeCoreMaxLife(core: Unit.Unit, round: number): string {
 /**
  * Upgrade core power by (10% of current + 10 * round).
  */
-export function upgradeCorepower(core: Unit.Unit, round: number): string {
+export function upgradeCorepower(core: Unit, round: number): string {
 	const powerGain =
 		Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 	core.power += powerGain;
@@ -189,7 +190,7 @@ export function upgradeCorepower(core: Unit.Unit, round: number): string {
 /**
  * Reduce core cooldown by 10%.
  */
-export function decreaseCoresCooldown(core: Unit.Unit): string {
+export function decreaseCoresCooldown(core: Unit): string {
 	const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
 	core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
 	return `Decreased Core Cooldown by ${Math.floor(reduction)}`;

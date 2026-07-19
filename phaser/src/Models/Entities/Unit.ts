@@ -1,84 +1,6 @@
-import * as uuid from "uuid";
 import * as Card from "@Models/Entities/Card";
-import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
 import * as Random from "@game/Random";
-
-export type Unit = {
-	id: string;
-	cardId: string;
-	pic: string;
-	force: string;
-	position: Vec2;
-
-	rank: number;
-
-	power: number;
-	bonusPower: number;
-
-	lifesteal?: boolean;
-	critical?: number;
-	bonusCritical?: number;
-
-	// Core attributes
-	life: number;
-	maxLife: number;
-	shield: number;
-	cooldown: number;
-	evade: number;
-
-	effects: TriggerSystem.Effect[];
-	reactions: TriggerSystem.EffectReaction[];
-
-	charge: number; // each tick the job's agi is added here. when it reaches 100, the job can act
-	refresh: number; // the time it takes for the job to act again. Even if charged, this must be 0
-
-	hasted: number;
-	slowed: number;
-
-	isCore: boolean;
-};
-
-export const makeUnit = (
-	force: string,
-	cardId: string, position: Vec2 = [1, 1]): Unit => {
-	const card = Card.getCardDefinition(cardId);
-
-	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
-};
-
-export function createUnitFromCardSpec(
-	force: string,
-	cardDef: Card.CardDefinition,
-	position: Vec2 = [0, 0],
-	id: string
-): Unit {
-	const effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
-	const reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? []));
-
-	return {
-		id,
-		cardId: cardDef.id,
-		pic: cardDef.pic,
-		force,
-		position,
-		power: cardDef.power || 0,
-		cooldown: cardDef.cooldown,
-		evade: 0,
-		rank: cardDef.rank || 1,
-		effects,
-		reactions,
-		charge: 0,
-		refresh: 0,
-		hasted: 0,
-		slowed: 0,
-		isCore: cardDef.isCore || false,
-		life: cardDef.life || 0,
-		maxLife: cardDef.life || 0,
-		critical: cardDef.critical || 0,
-		shield: 0,
-		bonusPower: 0,
-	};
-}
+import { CardDefinition, Effect, Unit } from "../../../../core/src/Models";
 
 export const testCardDefinitions = {
 	basicWarrior: {
@@ -128,7 +50,7 @@ export function isCritical(u: Unit): boolean {
 	return calculateCritical(u).isCritical;
 }
 
-function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
+function upgradeEffect(rankMultiplier: number, eff: Effect) {
 	if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id)) return;
 
 	if (["increase_power", "decrease_power", "increase_critical"].includes(eff.id)) {
@@ -160,6 +82,7 @@ function upgradeEffect(rankMultiplier: number, eff: TriggerSystem.Effect) {
 }
 
 export function upgradeUnitEffects(unit: Unit) {
+	// TODO: make this part of the unit data
 	const source = Card.getCardDefinition(unit.cardId);
 	const startingRank = source.rank || 1;
 	const rankMultiplier = unit.rank - startingRank + 1;
@@ -175,7 +98,7 @@ export function upgradeUnitEffects(unit: Unit) {
 	});
 }
 
-export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: Card.CardDefinition) {
+export function resetUnitEffectsToCardDefinition(unit: Unit, cardDef: CardDefinition) {
 	const newReactions = unit.reactions.filter((r) => {
 		return !cardDef.reactions.some((c) => c.effectId === r.effectId);
 	});

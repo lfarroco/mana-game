@@ -5,12 +5,13 @@ import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 
 import * as Components from "./Components";
 import * as Effects from "./Effects";
+import * as Models from "@game/Models";
 
 
 //TODO: should also disable seed selection in multiplayer mode
 
 export const state: {
-	crystals: Card.CardDefinition[];
+	crystals: Models.CardDefinition[];
 	currentIndex: number;
 	crystalSprite: Phaser.GameObjects.Image;
 	crystalName: Phaser.GameObjects.Text;
@@ -19,7 +20,7 @@ export const state: {
 	multiplayerQueueType: MultiplayerTypes.MultiplayerQueueType;
 	paginationDots: Phaser.GameObjects.Arc[];
 } = {
-	crystals: [] as Card.CardDefinition[],
+	crystals: [] as Models.CardDefinition[],
 	currentIndex: 0,
 	crystalSprite: {} as Phaser.GameObjects.Image,
 	crystalName: {} as Phaser.GameObjects.Text,

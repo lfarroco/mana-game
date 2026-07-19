@@ -6,7 +6,7 @@
  */
 
 import * as Models from "@Core/Models";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 import * as CombatSimulation from "./Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
@@ -25,7 +25,7 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
 
 // @deprecated deleteme
 export type TransitionToNextStateOptions = {
-	combatEnemyTeam?: Unit.Unit[];
+	combatEnemyTeam?: Unit[];
 	combatEnemyPlayerName?: string;
 };
 

@@ -1,26 +1,27 @@
 import * as Card from "@Models/Entities/Card";
 import * as Force from "@Models/Entities/Force";
-import * as Unit from "@Models/Entities/Unit";
 import * as PoisonSystem from "@Systems/PoisonDamageSystem";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 import * as Logger from "@Utils/Logger";
+import { Unit } from "@game/Models";
+import { calculateCritical } from "@Models/Entities/Unit";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
 export const applyPoison = async (
 	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit.Unit,
+	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
-	const crit = Unit.calculateCritical(sourceUnit);
+	const crit = calculateCritical(sourceUnit);
 
 	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
-	Logger.debug("applyPoison", 
+	Logger.debug("applyPoison",
 		`[ApplyPoison] Unit power: ${sourceUnit.power}, Poison rate: ${amount}, Total damage over time: ${amount * 10}`
 	);
 

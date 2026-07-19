@@ -1,4 +1,4 @@
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as Logger from "@Utils/Logger";
 import * as Models from "@Core/Models";
 import * as GameServer from "@Core/GameServer"

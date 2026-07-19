@@ -1,5 +1,4 @@
 import * as Card from "@Models/Entities/Card";
-import * as Unit from "@Models/Entities/Unit";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Modal from "@Components/Modal/Modal";
 import * as UIButton from "@Components/Button/UIButton";
@@ -74,7 +73,7 @@ export const create = () => new Promise<void>((resolve) => {
 				// Unique ID for dummy unit to avoid conflicts
 				const dummyId = `collection_dummy_${card.id}_${pageIndex}`;
 				// Use "NEUTRAL" force to avoid drag logic in input.ts (checks for PLAYER)
-				const dummyUnit = Unit.createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
+				const dummyUnit = Card.createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
 
 				// Create chara
 				const chara = await Chara.create(dummyUnit);

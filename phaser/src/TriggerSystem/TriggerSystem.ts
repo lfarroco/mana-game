@@ -1,218 +1,18 @@
-import * as Unit from "@Models/Entities/Unit";
+import { BASIC_ABILITIES, Unit, Effect, GLOBAL_REACTIONS } from "@game/Models";
 import * as effects from "@TriggerSystem/effects";
 import * as Utils from "@utils";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 
-
-export type EffectId =
-	| "damage"
-	| "heal"
-	| "shield"
-	| "poison"
-	| "regen"
-	| "haste"
-	| "slow"
-	| "slow"
-	| "charge"
-	| "increase_power"
-	| "decrease_power"
-	| "multiply_power"
-	| "increase_critical"
-	| "distribute_power"
-	| "absorb_power"
-	| "sacrifice_effect"
-	| "re_hasted"
-	| "re_slow"
-	| "on_crit"
-	| "every_100_damage"
-	| "every_100_shield"
-	| "every_100_heal"
-	| "every_10_poison"
-	| "every_10_regen"
-	| "on_over_heal"
-	| "on_battle_start";
-
-export type EffectReaction = {
-	position: EffectSourcePosition;
-	effectId: EffectId | "all";
-	effects: Effect[];
-};
-
-export type Effect =
-	| {
-		id: "damage";
-	}
-	| {
-		id: "heal";
-	}
-	| {
-		id: "shield";
-	}
-	| {
-		id: "poison";
-	}
-	| {
-		id: "regen";
-	}
-	| {
-		id: "haste";
-		duration: number;
-		targets: Targeting;
-	}
-	| {
-		id: "slow";
-		duration: number;
-		targets: Targeting;
-	}
-	| {
-		id: "charge";
-		duration: number;
-		targets: Targeting;
-	}
-	| {
-		id: "increase_power";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
-	| {
-		id: "decrease_power";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
-	| {
-		id: "multiply_power";
-		multiplier: number;
-		baseMultiplier: number;
-		targets: Targeting;
-	}
-	| {
-		id: "increase_critical";
-		amount: number;
-		permanent?: boolean;
-		targets: Targeting;
-	}
-	| {
-		id: "distribute_power";
-		targets: Targeting;
-		permanent?: boolean;
-	}
-	| {
-		id: "absorb_power";
-		targets: Targeting;
-		permanent?: boolean;
-	}
-	| {
-		id: "sacrifice_effect";
-		targets: Targeting;
-	}
-	| {
-		id: "re_hasted";
-	}
-	| {
-		id: "re_slow";
-	}
-	| {
-		id: "on_crit";
-	}
-	| {
-		id: "every_100_damage";
-	}
-	| {
-		id: "every_100_shield";
-	}
-	| {
-		id: "every_100_heal";
-	}
-	| {
-		id: "every_10_poison";
-	}
-	| {
-		id: "every_10_regen";
-	}
-	| {
-		id: "on_over_heal";
-	}
-	| {
-		id: "on_battle_start";
-	};
-
-export type Targeting =
-	| {
-		id: "self";
-	}
-	| {
-		id: "random_ally";
-		count: number;
-	}
-	| {
-		id: "random_enemy";
-		count: number;
-	}
-	| {
-		id: "row_allies";
-	}
-	| {
-		id: "column_allies";
-	}
-	| {
-		id: "all_allies";
-		ofType: "any" | "damage" | "heal" | "shield" | "poison" | "regen";
-	}
-	| {
-		id: "all_enemies";
-	}
-	| {
-		id: "strongest_enemy";
-	}
-	| {
-		id: "weakest_enemy";
-	}
-	| {
-		id: "strongest_ally";
-	}
-	| {
-		id: "weakest_ally";
-	}
-	| {
-		id: "top_ally";
-	}
-	| {
-		id: "bottom_ally";
-	}
-	| {
-		id: "left_ally";
-	}
-	| {
-		id: "right_ally";
-	}
-	| {
-		id: "trigger";
-	};
-
-export type EffectSourcePosition =
-	| "all"
-	| "allies"
-	| "enemies"
-	| "row_allies"
-	| "column_allies"
-	| "top_ally"
-	| "bottom_ally"
-	| "left_ally"
-	| "right_ally"
-	| "self";
-
 // Process a list of effects that originate from a given source unit
 export const processEffectsIO = (
 	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit.Unit,
+	sourceUnit: Unit,
 	effectsList: Effect[],
 	isReaction: boolean,
-	triggeringUnit?: Unit.Unit,
+	triggeringUnit?: Unit,
 	scale: number = 1,
 ) => {
 	effectsList.forEach((effect) => {
@@ -222,10 +22,10 @@ export const processEffectsIO = (
 
 const processEffectIO = (
 	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit.Unit,
+	sourceUnit: Unit,
 	effect: Effect,
 	isReaction: boolean,
-	triggeringUnit?: Unit.Unit,
+	triggeringUnit?: Unit,
 	scale: number = 1,
 ) => {
 	switch (effect.id) {
@@ -251,7 +51,7 @@ const processEffectIO = (
 				hasteTargets,
 				sourceUnit,
 				effect.duration * scale,
-				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
 			);
 			break;
 		case "slow":
@@ -261,7 +61,7 @@ const processEffectIO = (
 				sourceUnit,
 				slowTargets,
 				effect.duration * scale,
-				(_target: Unit.Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+				(_target: Unit) => processReactions(env, sourceUnit, { id: "re_slow" }, scale),
 			);
 			break;
 		case "charge":
@@ -351,23 +151,11 @@ const processEffectIO = (
 	if (!isReaction) processReactions(env, sourceUnit, effect, scale);
 };
 
-const sameForce = (unit: Unit.Unit, triggeringUnit: Unit.Unit) => unit.force === triggeringUnit.force;
-
-const GLOBAL_REACTIONS = [
-	"on_crit",
-	"every_100_damage",
-	"every_100_shield",
-	"every_100_heal",
-	"every_10_poison",
-	"every_10_regen",
-	"on_over_heal",
-	"on_battle_start",
-];
-const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"];
+const sameForce = (unit: Unit, triggeringUnit: Unit) => unit.force === triggeringUnit.force;
 
 export function processReactions(
 	env: CombatTypes.CombatEnvironment,
-	triggeringUnit: Unit.Unit,
+	triggeringUnit: Unit,
 	effect: Effect,
 	scale: number = 1
 ) {
@@ -444,11 +232,11 @@ export function processReactions(
 }
 
 export function resolveTargets(
-	state: State.State,
-	sourceUnit: Unit.Unit,
+	state: State.ClientState,
+	sourceUnit: Unit,
 	effect: Effect,
-	triggeringUnit?: Unit.Unit
-): Unit.Unit[] {
+	triggeringUnit?: Unit
+): Unit[] {
 	if (!("targets" in effect)) {
 		Logger.warn("TriggerSystem", `Invalid trigger data. Effect ${effect.id} should have targets`);
 		return [];

@@ -1,7 +1,7 @@
 
 import * as constants from "./Constants";
 import Client from "Client/Client";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as io_ from "./io";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
@@ -9,7 +9,7 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
 	var io: typeof io_;
-	var state: State.State;
+	var state: State.ClientState;
 	const __DEV__: boolean;
 }
 window.io = io_;

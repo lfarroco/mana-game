@@ -17,7 +17,7 @@ Defines the `Unit` type with all properties:
 - **Stats**: `power`, `bonusPower`, `life`, `maxLife`, `shield`, `cooldown`, `rank`
 - **Abilities**: `effects` (actions), `reactions` (responses)
 - **State**: `charge`, `refresh`, `hasted`, `slowed`
-- **Special**: `critical?`, `bonusCritical?`, `lifesteal?`, `reflect?`, `evade`
+- **Special**: `critical?`, `bonusCritical?`, `evade`
 
 Key functions:
 - `makeUnit()`: Creates unit from card definition

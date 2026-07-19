@@ -1,5 +1,7 @@
-import * as Unit from "@Models/Entities/Unit";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
+import { Unit } from "@game/Models";
+
+// TODO: move to core/
 
 // Option types for different phases
 export type PhaseOption =
@@ -25,7 +27,7 @@ export type Action =
 	| { type: "decrease_core_cooldown" }
 	| { type: "discard_unit"; unitId: string }
 	| { type: "recruit_unit"; unitId: string; targetSlot: Vec2 | null }
-	| { type: "update_team"; team: { units: Unit.Unit[] } }
+	| { type: "update_team"; team: { units: Unit[] } }
 	| { type: "start_combat" }
 	| { type: "end_combat" }
 	| { type: "select_encounter"; encounterId: string; }
@@ -47,14 +49,14 @@ export type PhaseType =
 	;
 
 export type CombatState = {
-	enemyTeam: Unit.Unit[];
-	units: Unit.Unit[];
+	enemyTeam: Unit[];
+	units: Unit[];
 	logs: CombatLogger.CombatLogEntry[];
 	seed: string;
 	enemyPlayerName: string;
 	wonCombat: boolean;
-	finalPlayerUnits: Unit.Unit[];
-	initialUnits: Unit.Unit[];
+	finalPlayerUnits: Unit[];
+	initialUnits: Unit[];
 };
 
 export type Event<T> = {
@@ -67,7 +69,7 @@ export type PhaseOptions = {
 	round: number;
 	options: PhaseOption[];
 	combatState?: CombatState;
-	team?: { units: Unit.Unit[] };
+	team?: { units: Unit[] };
 	wins?: number;
 	losses?: number;
 	runStats?: RunStats;
@@ -95,7 +97,7 @@ export type SessionData = {
 	seed: string;
 	initial_seed: string;
 	options: PhaseOption[]; // IDEA: use to list allowed actions (including 'update_team')
-	team: { units: Unit.Unit[] };
+	team: { units: Unit[] };
 	wins: number;
 	losses: number;
 	action_log: ActionLogEntry[];
@@ -123,7 +125,7 @@ export type ActionEnvelope = {
 	sequence: number;
 	action: Action;
 	/** Board state at the moment this decision was taken. */
-	teamSnapshot?: { units: Unit.Unit[] };
+	teamSnapshot?: { units: Unit[] };
 };
 
 /**

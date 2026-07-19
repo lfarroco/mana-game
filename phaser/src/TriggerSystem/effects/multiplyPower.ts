@@ -1,4 +1,4 @@
-import { Unit } from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
 

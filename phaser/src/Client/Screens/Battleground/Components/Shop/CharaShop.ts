@@ -1,7 +1,6 @@
 import * as Card from "@Models/Entities/Card";
-import * as makeUnit from "@Models/Entities/Unit";
 import * as Board from "@Models/Board";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@Core/Constants";
@@ -12,6 +11,8 @@ import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "Client/GameController";
 import * as i18n from "@i18n/i18n";
+import * as Models from "@game/Models";
+import { upgradeUnitEffects } from "@Models/Entities/Unit";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -21,12 +22,12 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promise<Chara.Chara[]> {
+export async function renderTavernCharas(cardDefs: Models.CardDefinition[]): Promise<Chara.Chara[]> {
 
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
-		const unit = makeUnit.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
+		const unit = Card.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
 		const offsetY = index * sc.TAVERN_CHARA_SPACING;
 
@@ -115,7 +116,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 		const existingUnit = state.session.team.units.find((u) => u.cardId === spec.id);
 		if (existingUnit) {
 			unit.rank = existingUnit.rank;
-			makeUnit.upgradeUnitEffects(unit);
+			upgradeUnitEffects(unit);
 		}
 
 		if (ownedCardIds.has(spec.id)) {
@@ -171,7 +172,7 @@ export async function renderTavernCharas(cardDefs: Card.CardDefinition[]): Promi
 
 function initShopCharaInput(
 	chara: Chara.Chara,
-	unit: makeUnit.Unit
+	unit: Models.Unit
 ): void {
 	io.scene.input.setDraggable(chara, true);
 
@@ -262,10 +263,11 @@ function initShopCharaInput(
 			shopCharaId: unit.id
 		});
 	});
+
 }
 
 async function handleItemDragPurchaseRequested(
-	shopUnitData: makeUnit.Unit,
+	shopUnitData: Models.Unit,
 	shopCharaId: string,
 	targetTile: Vec2,
 	dragStartX: number,

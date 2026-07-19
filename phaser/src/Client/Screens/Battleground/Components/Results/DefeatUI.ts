@@ -1,13 +1,13 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
 
 export async function displayDefeat(
 	livesChange: number,
-	units: Unit.Unit[],
+	units: Unit[],
 	nextPhaseCallback: () => void,
 	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {

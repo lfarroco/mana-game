@@ -5,7 +5,7 @@
  */
 
 import * as Models from "@Core/Models";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as SessionTransitions from "./SessionTransitions";
 import * as SessionManagement from "./SessionManagement";
 
@@ -23,7 +23,7 @@ export type ReplayManifestOptions = {
 	 * When provided, each combat uses the stored team instead of generating a new one.
 	 * This is the canonical team used to validate the run on the server.
 	 */
-	enemyTeams?: Unit.Unit[][];
+	enemyTeams?: Unit[][];
 };
 
 /**
@@ -126,7 +126,7 @@ function buildTeamStateSignature(session: Models.SessionData): string {
 	);
 }
 
-function getStableUnitOrdering(units: Unit.Unit[]) {
+function getStableUnitOrdering(units: Unit[]) {
 	return [...units].sort((left, right) => {
 		const coreCompare = Number(right.isCore) - Number(left.isCore);
 		if (coreCompare !== 0) {

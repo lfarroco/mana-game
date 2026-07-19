@@ -1,6 +1,6 @@
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as Constants from "@Core/Constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
@@ -23,11 +23,11 @@ const PANEL_CONFIG = {
 };
 
 async function createStatsPanel(
-	units: Unit.Unit[],
+	units: Unit[],
 	position: Vec2,
 	title: string,
 	titleColor: string,
-	forceFilter: (unit: Unit.Unit) => boolean
+	forceFilter: (unit: Unit) => boolean
 ): Promise<Phaser.GameObjects.Container> {
 	const { padding } = PANEL_CONFIG;
 
@@ -182,7 +182,7 @@ async function createStatsPanel(
 }
 
 export async function createCombatStatsPanels(
-	units: Unit.Unit[],
+	units: Unit[],
 	centerPanelX: number,
 	panelY: number
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {

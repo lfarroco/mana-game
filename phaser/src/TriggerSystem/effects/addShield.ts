@@ -1,21 +1,22 @@
 import * as Card from "@Models/Entities/Card";
 import * as Force from "@Models/Entities/Force";
-import * as Unit from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
+import { Unit } from "@game/Models";
+import { calculateCritical } from "@Models/Entities/Unit";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
 export const addShield = async (
 	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit.Unit,
+	sourceUnit: Unit,
 	scale: number = 1,
 ) => {
 	const baseAmount = sourceUnit.power;
 	const alliedCore = Card.getAlliedCore(env.state)(sourceUnit.force);
 
-	const crit = Unit.calculateCritical(sourceUnit);
+	const crit = calculateCritical(sourceUnit);
 	const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 	// Log the cast

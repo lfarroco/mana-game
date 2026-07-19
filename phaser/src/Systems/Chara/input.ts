@@ -2,7 +2,7 @@ import * as CoreConstants from "@Core/Constants";
 import * as GameController from "Client/GameController";
 import * as Board from "@Models/Board";
 import * as Geometry from "@Models/Geometry";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
@@ -168,11 +168,11 @@ export const processOwnedUnitMoveRequest = (
 	_executeMove(unit, targetTile, units);
 };
 
-const saveUnitPositions = (units: Unit.Unit[]) => {
+const saveUnitPositions = (units: Unit[]) => {
 	GameController.updateTeam({ units });
 };
 
-const _executeMove = (unit: Unit.Unit, target: Vec2, units: Unit.Unit[]) => {
+const _executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -181,7 +181,7 @@ const _executeMove = (unit: Unit.Unit, target: Vec2, units: Unit.Unit[]) => {
 	saveUnitPositions(units);
 };
 
-const _executeSwap = (unit: Unit.Unit, _occupier: Unit.Unit, target: Vec2, units: Unit.Unit[]) => {
+const _executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -190,14 +190,14 @@ const _executeSwap = (unit: Unit.Unit, _occupier: Unit.Unit, target: Vec2, units
 	saveUnitPositions(units);
 };
 
-const applyMoveVisual = (movedUnit: Unit.Unit) => {
+const applyMoveVisual = (movedUnit: Unit) => {
 	const movedChara = Chara.mustGetCharaById(movedUnit.id);
 	const pos = Chara.getScreenPosition(movedUnit);
 
 	animation.tween({ targets: [movedChara], ...pos });
 };
 
-const applySwapVisual = (movedUnit: Unit.Unit, swappedUnit: Unit.Unit) => {
+const applySwapVisual = (movedUnit: Unit, swappedUnit: Unit) => {
 	const movedChara = Chara.mustGetCharaById(movedUnit.id);
 	const swappedChara = Chara.mustGetCharaById(swappedUnit.id);
 	const movedPos = Chara.getScreenPosition(movedUnit);

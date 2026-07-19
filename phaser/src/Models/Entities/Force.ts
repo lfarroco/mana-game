@@ -1,6 +1,6 @@
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as Card from "@Models/Entities/Card";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as Logger from "@Utils/Logger";
 
@@ -9,7 +9,7 @@ export type Force = {
 	id: string;
 	name: string;
 	color: string;
-	units: Unit.Unit[];
+	units: Unit[];
 	lives: number;
 	wins: number;
 	losses: number;
@@ -27,16 +27,16 @@ export const makeForce = (id: string): Force => {
 	};
 };
 
-export const playerForce = (state: State.State): Force => {
+export const playerForce = (state: State.ClientState): Force => {
 	return state.battleData.forces.find((f) => f.id === CombatConstants.FORCE_ID_PLAYER)!;
 };
 
-export const cpuForce = (state: State.State): Force => {
+export const cpuForce = (state: State.ClientState): Force => {
 	return state.battleData.forces.find((f) => f.id === CombatConstants.FORCE_ID_CPU)!;
 };
 
 export const manipulateCoreLife = (
-	state: State.State,
+	state: State.ClientState,
 	targetForce: Force,
 	amount: number,
 	_critical = false,
@@ -60,7 +60,7 @@ export const manipulateCoreLife = (
 };
 
 export const manipulateCoreShield = (
-	state: State.State,
+	state: State.ClientState,
 	targetForce: Force,
 	amount: number,
 	_isCritical: boolean,
@@ -84,7 +84,7 @@ export const manipulateCoreShield = (
 };
 
 export const applyDamageToForce = (
-	state: State.State,
+	state: State.ClientState,
 	targetForce: Force,
 	damage: number,
 	shieldPiercingPercentage: number = 0,
@@ -143,12 +143,12 @@ export const applyDamageToForce = (
 	return Math.abs(lifeChange);
 };
 
-export const getUnitForce = (state: State.State, unitId: string) => {
+export const getUnitForce = (state: State.ClientState, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id === unit.force)!;
 };
 
-export const getEnemyForce = (state: State.State, unitId: string) => {
+export const getEnemyForce = (state: State.ClientState, unitId: string) => {
 	const unit = state.battleData.units.find((u) => u.id === unitId)!;
 	return state.battleData.forces.find((f) => f.id !== unit.force)!;
 };

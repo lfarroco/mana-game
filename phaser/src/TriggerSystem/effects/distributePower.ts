@@ -1,4 +1,4 @@
-import { Unit } from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import { increasePower } from "@TriggerSystem/effects/increasePower";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import { applyPersistentPowerDelta } from "@TriggerSystem/effects/applyPersistentPowerDelta";

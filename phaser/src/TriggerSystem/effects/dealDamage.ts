@@ -1,9 +1,10 @@
 import * as Force from "@Models/Entities/Force";
-import * as Unit from "@Models/Entities/Unit";
 import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
 import * as Card from "@Models/Entities/Card";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
+import { Unit } from "@game/Models";
+import { calculateCritical } from "@Models/Entities/Unit";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
@@ -13,7 +14,7 @@ const PROJECTILE_TRAVEL_MS = 200;
  */
 export function dealDamage(
 	env: CombatTypes.CombatEnvironment,
-	sourceUnit: Unit.Unit,
+	sourceUnit: Unit,
 	scale: number = 1,
 ) {
 	const { state, logger } = env;
@@ -22,7 +23,7 @@ export function dealDamage(
 
 	const enemyCore = Card.getEnemyCore(state)(sourceUnit.force);
 
-	const crit = Unit.calculateCritical(sourceUnit);
+	const crit = calculateCritical(sourceUnit);
 	const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 	// Log the cast
@@ -50,15 +51,6 @@ export function dealDamage(
 		},
 	);
 
-	if (sourceUnit.lifesteal) {
-		// Lifesteal happens at cast time (immediate)
-		Force.manipulateCoreLife(
-			state,
-			Force.getUnitForce(state, sourceUnit.force),
-			damage,
-			false,
-		);
-	}
 }
 
 /**

@@ -1,4 +1,4 @@
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as RunCombatCore from "@Core/Combat/RunCombatCore";
 import * as CombatLogger from "@Core/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
@@ -12,13 +12,13 @@ import * as Logger from "@Utils/Logger";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
-import * as Unit from "@Models/Entities/Unit";
 import * as CoreConstants from "@Core/Constants";
 import * as Card from "@Models/Entities/Card";
 import * as animation from "@Utils/animation";
 import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
+import { resetUnitStats } from "@Models/Entities/Unit";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -47,7 +47,7 @@ export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: RunCombatCore.WaveOutcome) => void
 ): RunCombatCore.CombatRunner => {
-	const { state } = window as unknown as { state: State.State };
+	const { state } = window as unknown as { state: State.ClientState };
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
@@ -133,7 +133,7 @@ export const createCombatPlaybackController = (
 
 	};
 
-	const updateFrame = (_state: State.State, _time: number, delta: number): void => {
+	const updateFrame = (_state: State.ClientState, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
 		const speed = OptionsStore.getOption("speed", 1.0);
@@ -167,7 +167,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const finishCombat = async (
-		state: State.State,
+		state: State.ClientState,
 		outcome: RunCombatCore.WaveOutcome
 	): Promise<void> => {
 		if (!playbackState.active) return;
@@ -196,7 +196,7 @@ export const createCombatPlaybackController = (
 		state.battleData.units
 			.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
 			.forEach((u) => {
-				Unit.resetUnitStats(u);
+				resetUnitStats(u);
 				ChargeBarDisplay.updateChargeBar(u.id);
 			});
 

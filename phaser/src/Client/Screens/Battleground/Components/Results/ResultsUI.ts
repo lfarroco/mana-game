@@ -2,11 +2,11 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants";
 import * as Constants from "@Core/Constants";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";
 import * as GameCompleteUI from "./GameCompleteUI";
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
@@ -55,7 +55,7 @@ async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
 	nextPhaseCallback: () => void,
-	units: Unit.Unit[],
+	units: Unit[],
 	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	if (resultType === "victory") {
@@ -66,7 +66,7 @@ async function displayAppropriateUI(
 }
 
 export async function displayResults(
-	state: State.State,
+	state: State.ClientState,
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void,
 	replayCallback?: () => void
@@ -124,7 +124,7 @@ export async function displayResults(
 }
 
 export async function displayGameCompleteResults(
-	state: State.State,
+	state: State.ClientState,
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void

@@ -29,7 +29,7 @@ export const distanceBetween = ([x1, y1]: Vec2, [x2, y2]: Vec2): number => {
 export function isInside(
 	[x, y]: Vec2,
 	[w, h]: Size,
-	[px, py]: Vec2
+	[pointX, pointY]: Vec2
 ): boolean {
 	const rectX = w < 0 ? x + w : x;
 	const rectY = h < 0 ? y + h : y;
@@ -37,9 +37,9 @@ export function isInside(
 	const rectHeight = Math.abs(h);
 
 	return (
-		px >= rectX &&
-		px <= rectX + rectWidth &&
-		py >= rectY &&
-		py <= rectY + rectHeight
+		pointX >= rectX &&
+		pointX <= rectX + rectWidth &&
+		pointY >= rectY &&
+		pointY <= rectY + rectHeight
 	);
 }	

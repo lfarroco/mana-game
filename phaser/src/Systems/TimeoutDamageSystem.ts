@@ -2,7 +2,7 @@ import * as Force from "@Models/Entities/Force";
 import * as CoreConstants from "@Core/Constants";
 import * as CombatTypes from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
-import * as State from "@Models/State";
+import * as State from "@Models/ClientState";
 import * as Card from "@Models/Entities/Card";
 
 
@@ -29,7 +29,7 @@ export function initializeTimeoutDamageSystem(): TimeoutSystemState {
 export function updateTimeoutDamageSystem(
 	env: CombatTypes.CombatEnvironment,
 	timeoutState: TimeoutSystemState,
-	state: State.State,
+	state: State.ClientState,
 	playerForce: Force.Force,
 	cpuForce: Force.Force,
 	delta: number
@@ -77,7 +77,7 @@ export function updateTimeoutDamageSystem(
 
 function applyTimeoutDamage(
 	env: CombatTypes.CombatEnvironment,
-	state: State.State,
+	state: State.ClientState,
 	playerForce: Force.Force,
 	cpuForce: Force.Force,
 	timeSinceTimeoutStarted: number

@@ -1,4 +1,4 @@
-import * as Unit from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import * as constants from "@Constants";
 import * as CoreConstants from "@Core/Constants";
 import * as animation from "@Utils/animation";
@@ -8,6 +8,7 @@ import * as RankDisplay from "@Systems/Chara/RankDisplay";
 import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Effects from "Client/FX";
+import { upgradeUnitData } from "@Models/Entities/Unit";
 
 export type Chara = Container;
 
@@ -16,7 +17,7 @@ type CreateCharaOptions = {
 };
 
 type CharaState = {
-	unit: Unit.Unit;
+	unit: Unit;
 	id: string;
 	isAnimating: boolean;
 	sprite: Phaser.GameObjects.Sprite;
@@ -53,7 +54,7 @@ export function hasCharaById(id: string): boolean {
 	return charaById.has(id);
 }
 
-export async function summon(unit: Unit.Unit, useSummonEffect: boolean = true): Promise<Chara> {
+export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
 		Effects.summonEffect(vec);
@@ -76,7 +77,7 @@ export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }
 
-export async function create(unit: Unit.Unit, options: CreateCharaOptions = {}): Promise<Chara> {
+export async function create(unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
 	const position = getScreenPosition(unit);
 	const container = io.scene.add.container(position.x, position.y);
 
@@ -142,7 +143,7 @@ export function enableBoardInteractivity(chara: Chara): void {
 	io.scene.input.setDraggable(chara, true);
 }
 
-export function getScreenPosition(unit: Unit.Unit) {
+export function getScreenPosition(unit: Unit) {
 	const slotSpacing = 8;
 	const offsetX =
 		unit.force === CoreConstants.FORCE_ID_PLAYER ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
@@ -165,7 +166,7 @@ export function getScreenPosition(unit: Unit.Unit) {
 
 async function createSprite(
 	container: Chara,
-	unit: Unit.Unit,
+	unit: Unit,
 	_borderWidth: number = 3,
 	_borderColor: number = 0xffffff
 ) {
@@ -176,7 +177,7 @@ async function createSprite(
 	return sprite;
 }
 
-function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit.Unit) {
+function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	const animCacheKey = unit.pic + "-anims";
 	const animData = io.scene.cache.json.get(animCacheKey);
 
@@ -236,7 +237,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit.Unit) {
 	}
 }
 
-export function getUnit(chara: Chara): Unit.Unit {
+export function getUnit(chara: Chara): Unit {
 	return mustGetState(chara).unit;
 }
 
@@ -275,10 +276,10 @@ export function shake(chara: Chara) {
 	});
 }
 
-export async function upgradeUnit(unit: Unit.Unit) {
+export async function upgradeUnit(unit: Unit) {
 	const chara = mustGetCharaById(unit.id);
 
-	Unit.upgradeUnitData(unit);
+	upgradeUnitData(unit);
 
 	destroy(chara);
 	await summon(unit, true);
@@ -286,7 +287,7 @@ export async function upgradeUnit(unit: Unit.Unit) {
 
 // TODO: this should be reworked
 // it should just update power values and ranking, if needed
-export async function refreshChara(unit: Unit.Unit): Promise<void> {
+export async function refreshChara(unit: Unit): Promise<void> {
 	if (hasCharaById(unit.id)) {
 		destroy(mustGetCharaById(unit.id));
 	}

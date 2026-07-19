@@ -1,5 +1,5 @@
 import * as CombatLogger from "@Core/Combat/CombatLogger";
-import { Unit } from "@Models/Entities/Unit";
+import { Unit } from "@game/Models";
 import { PhaseOption } from "@Core/Models";
 
 // TODO: candidate for deletion

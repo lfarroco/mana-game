@@ -1,9 +1,8 @@
 import { getName } from "@i18n/i18n";
-import { Unit } from "@Models/Entities/Unit";
-import { State } from "@Models/State";
+import { Effect, EffectId, Unit } from "@game/Models";
+import { ClientState } from "@Models/ClientState";
 import { CombatEnvironment } from "@Core/Combat/CombatTypes";
 import * as Logger from "@Utils/Logger";
-import { EffectId, Effect } from "@TriggerSystem/TriggerSystem";
 import { FORCE_ID_PLAYER } from "../Core/Constants";
 
 
@@ -13,7 +12,6 @@ export type UnitCombatStats = {
 	forceId: string;
 
 	actionsPerformed: number;
-	reflected: number;
 	damageDealt: number;
 	poisonApplied: number;
 	healingDone: number;
@@ -47,7 +45,7 @@ function getForceStats(trackerState: CombatStatsTrackerState, forceId: string): 
 	return trackerState.currentCombatStats.get(forceId)!;
 }
 
-export function initialize(state: State): CombatStatsTrackerState {
+export function initialize(state: ClientState): CombatStatsTrackerState {
 	const unitStats = new Map<string, UnitCombatStats>();
 	const currentCombatStats = new Map<string, CurrentCombatStats>();
 
@@ -59,7 +57,6 @@ export function initialize(state: State): CombatStatsTrackerState {
 			unitName: getName(unit.cardId),
 			forceId: unit.force,
 			damageDealt: 0,
-			reflected: 0,
 			poisonApplied: 0,
 			healingDone: 0,
 			regenApplied: 0,
@@ -77,7 +74,7 @@ export function trackAction(trackerState: CombatStatsTrackerState, payload: { un
 	const stats = trackerState.unitStats.get(payload.unit.id)!;
 
 	stats.actionsPerformed += 1;
-	Logger.debug("CombatStatsTracker", 
+	Logger.debug("CombatStatsTracker",
 		`[CombatStatsTracker] Unit ${payload.unit.id} performed an action (total: ${stats.actionsPerformed})`
 	);
 }
@@ -211,7 +208,7 @@ export function getUnitStats(
 	return trackerState.unitStats.get(unitId);
 }
 
-export function stop(trackerState: CombatStatsTrackerState, state: State): void {
+export function stop(trackerState: CombatStatsTrackerState, state: ClientState): void {
 	const session = state.session;
 	if (!session.runStats) {
 		session.runStats = {
