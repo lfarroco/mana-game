@@ -347,6 +347,12 @@ export type CombatState = {
 	finalPlayerUnits: Unit[];
 	// Used to reset board for replays
 	initialUnits: Unit[];
+	// Derived indexes (built once in createCombatState, valid for entire combat)
+	unitById: Map<string, Unit>;
+	playerCore: Unit;
+	cpuCore: Unit;
+	playerUnits: Unit[];
+	cpuUnits: Unit[];
 };
 export type Event<T> = {
 	listen: (callback: (payload: T) => void) => void;

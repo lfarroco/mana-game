@@ -34,15 +34,11 @@ type CombatRunnerState = {
  * Check if combat should end based on core life totals.
  */
 const checkCombatOutcome = (state: CombatState): "player_won" | "player_lost" | "both_won" | null => {
-	const playerCore = state.units.find(
-		(u) => u.force === Constants.FORCE_ID_PLAYER && u.isCore,
-	);
-	const cpuCore = state.units.find(
-		(u) => u.force === Constants.FORCE_ID_CPU && u.isCore,
-	);
+	const playerCore = state.playerCore;
+	const cpuCore = state.cpuCore;
 
-	const playerDead = !playerCore || playerCore.life <= 0;
-	const cpuDead = !cpuCore || cpuCore.life <= 0;
+	const playerDead = playerCore.life <= 0;
+	const cpuDead = cpuCore.life <= 0;
 
 	if (playerDead && cpuDead) {
 		return "both_won";

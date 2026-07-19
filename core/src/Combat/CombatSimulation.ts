@@ -20,9 +20,14 @@ export function createCombatState(
 	enemyTeam: Models.Unit[],
 ): Models.CombatState {
 
+	const units = clone([...session.team.units, ...enemyTeam]);
+	const unitById = new Map(units.map(u => [u.id, u]));
+	const playerCore = units.find(u => u.isCore && u.force === session.team.units[0]?.force)!;
+	const cpuCore = units.find(u => u.isCore && u.force !== session.team.units[0]?.force)!;
+
 	return {
 		enemyTeam: clone(enemyTeam),
-		units: clone(([...session.team.units, ...enemyTeam])),
+		units,
 		logs: [],
 		seed: session.seed,
 		playerCoreId: session.team.units.find(u => u.isCore)!.id,
@@ -30,8 +35,13 @@ export function createCombatState(
 		enemyPlayerName: "CPU",
 		wonCombat: false,
 		finalPlayerUnits: clone(session.team.units),
-		initialUnits: clone([...session.team.units, ...enemyTeam])
-	}
+		initialUnits: clone([...session.team.units, ...enemyTeam]),
+		unitById,
+		playerCore,
+		cpuCore,
+		playerUnits: units.filter(u => u.force === playerCore.force),
+		cpuUnits: units.filter(u => u.force === cpuCore.force),
+	};
 
 }
 
