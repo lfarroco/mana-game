@@ -34,11 +34,27 @@ type CombatRunnerState = {
  * Check if combat should end based on core life totals.
  */
 const checkCombatOutcome = (state: CombatState): "player_won" | "player_lost" | "both_won" | null => {
+	const playerCore = state.units.find(
+		(u) => u.force === Constants.FORCE_ID_PLAYER && u.isCore,
+	);
+	const cpuCore = state.units.find(
+		(u) => u.force === Constants.FORCE_ID_CPU && u.isCore,
+	);
 
-	if (state.wonCombat)
-		return "player_won"
-	else
+	const playerDead = !playerCore || playerCore.life <= 0;
+	const cpuDead = !cpuCore || cpuCore.life <= 0;
+
+	if (playerDead && cpuDead) {
+		return "both_won";
+	}
+	if (playerDead) {
 		return "player_lost";
+	}
+	if (cpuDead) {
+		return "player_won";
+	}
+
+	return null;
 };
 
 /**
@@ -98,6 +114,13 @@ export const runCombat = (
 
 		runnerState.env.logger.setCurrentTimeMs(combatElapsedMs);
 
+		// 0. Max duration check — first thing, before any damage, so
+		//    cores that survived all previous frames get both_won
+		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
+			finishCombat("both_won");
+			return;
+		}
+
 		// 1. Process scheduled hits that are due (projectiles landing this frame)
 		const { dueHits, remaining } = ScheduledEffects.getDueHits(
 			runnerState.env.scheduledEffects,
@@ -132,18 +155,18 @@ export const runCombat = (
 		// 4. Status effects tick (poison/regen)
 		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, scaledDelta);
 
-		// 5. Timeout damage
+		// 5. Max duration check — before timeout damage so both cores alive = both_won
+		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
+			finishCombat("both_won");
+			return;
+		}
+
+		// 6. Timeout damage (storm)
 		timeoutSystemState = Timeout.updateTimeoutDamageSystem(
 			env,
 			timeoutSystemState,
 			scaledDelta
 		);
-
-		// 6. Max duration check
-		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
-			finishCombat("both_won");
-			return;
-		}
 
 		// 7. Check combat outcome after status effects and timeout damage
 		const tickOutcome = checkCombatOutcome(nextState);
