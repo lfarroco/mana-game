@@ -1,10 +1,10 @@
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
-import * as CombatLogger from "@Core/Combat/CombatLogger";
-import * as CombatConstants from "@Core/Combat/CombatConstants";
 import * as supabase from "@lib/supabase";
-import * as Logger from "@Utils/Logger";
-import * as CombatSimulation from "./Combat/CombatSimulation";
+;
+import * as CombatSimulation from "../../../core/src/CombatSimulation";
+import { CombatLogEntry } from "@game/CombatLogger";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../core/src/Constants";
 
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
@@ -83,7 +83,7 @@ export async function getSession(playerId: string): Promise<Models.SessionData |
 		.maybeSingle();
 
 	if (error) {
-		Logger.error("RemoteServer", "Failed to fetch session:", error);
+		console.error("RemoteServer", "Failed to fetch session:", error);
 		return null;
 	}
 
@@ -105,7 +105,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	let combatState: Models.CombatState | undefined = undefined;
 	if (session.phase === "combat") {
 		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
-			Logger.debug("RemoteServer", "Using server-provided combat logs");
+			console.debug("RemoteServer", "Using server-provided combat logs");
 			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
 				? (sessionCombatState.enemyTeam as Unit[])
 				: [];
@@ -122,7 +122,9 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 			combatState = {
 				units,
 				enemyTeam,
-				logs: sessionCombatState.logs as CombatLogger.CombatLogEntry[],
+				playerCoreId: units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!.id,
+				cpuCoreId: units.find(u => u.isCore && u.force === FORCE_ID_CPU)!.id,
+				logs: sessionCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
 					typeof sessionCombatState.enemyPlayerName === "string"
@@ -134,15 +136,8 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 
 			};
 		} else {
-			Logger.warn("RemoteServer", "Combat logs missing from session; simulating locally");
-			const simResult = CombatSimulation.simulateCombat(session as unknown as Models.SessionData);
-			combatState = {
-				...session.combatState, // TODO: probably wrong
-				units: simResult.initialUnits,
-				enemyTeam: simResult.initialUnits.filter((u: Unit) => u.force === CombatConstants.FORCE_ID_CPU),
-				logs: simResult.logs,
-				seed: session.seed,
-			};
+			console.warn("RemoteServer", "Combat logs missing from session; simulating locally");
+			combatState = CombatSimulation.simulateCombat(session, session.combatState as unknown as Models.CombatState);
 		}
 	}
 	state.session.combatState = combatState ?? undefined;
@@ -177,7 +172,7 @@ export async function handleAction(
 	});
 
 	if (response.error) {
-		Logger.error("RemoteServer", `Failed to handle action ${action.type}:`, response.error);
+		console.error("RemoteServer", `Failed to handle action ${action.type}:`, response.error);
 		throw new Error(`Failed to handle action ${action.type}: ${response.error.message}`);
 	}
 

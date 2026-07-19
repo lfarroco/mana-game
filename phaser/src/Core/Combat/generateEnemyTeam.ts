@@ -1,10 +1,10 @@
-import * as Force from "@Models/Entities/Force";
 import { Unit } from "@game/Models";
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as Utils from "@utils";
 import * as State from "@Models/ClientState";
 import { CardDefinition } from "@game/Models";
-import { upgradeUnitData } from "@Models/Entities/Unit";
+import { upgradeUnitData } from "@game/Entities/Unit";
+import { FORCE_ID_CPU } from "@game/Constants";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -82,7 +82,7 @@ export function generateEnemyTeam(state: State.ClientState, round: number, pool:
 	const coreCard = Utils.pickOne(Card.getCores());
 	const corePosition = getRandomEmptyPosition(occupiedPositions);
 	occupiedPositions.add(`${corePosition[0]},${corePosition[1]}`);
-	const coreUnit = Card.makeUnit(Force.cpuForce(state).id, coreCard.id, corePosition);
+	const coreUnit = Card.makeUnit(FORCE_ID_CPU, coreCard.id, corePosition);
 	units.push(coreUnit);
 
 	const filteredPool = Card.getNonCores().filter((unit) => {
@@ -103,7 +103,7 @@ export function generateEnemyTeam(state: State.ClientState, round: number, pool:
 		}
 
 		occupiedPositions.add(`${position[0]},${position[1]}`);
-		units.push(Card.makeUnit(Force.cpuForce(state).id, card.id, position));
+		units.push(Card.makeUnit(FORCE_ID_CPU, card.id, position));
 	}
 
 	coreUnit.life = (coreCard.life || 500) + 100 * (round - 1);

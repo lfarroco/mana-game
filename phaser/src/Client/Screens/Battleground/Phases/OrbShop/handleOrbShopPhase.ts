@@ -1,5 +1,5 @@
 import * as GameController from "Client/GameController";
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";

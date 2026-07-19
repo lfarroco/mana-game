@@ -15,7 +15,7 @@
 // to force separation
 
 // Types
-export * from "@Core/Models";
+export * from "@game/Models";
 
 // Core Logic
 export { PhaseTransitions } from "@Core/PhaseTransitions";

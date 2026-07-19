@@ -1,8 +1,8 @@
-import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import * as CombatStatsTracker from "@game/CombatStatsTracker";
+import * as CombatSystemStates from "@game/CombatSystemStates";
 import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
-import * as Constants from "@Core/Constants";
+import * as Constants from "@game/Constants";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";

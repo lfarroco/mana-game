@@ -3,12 +3,10 @@ import * as Board from "@Models/Board";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
 import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
-import * as Geometry from "@Models/Geometry";
+import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Logger from "@Utils/Logger";
-
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -58,7 +56,7 @@ export function renderOrbShop(
 		const playerBoard = Board.getBoardState();
 
 		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
-			Logger.debug("OrbShop", `${orbSpec.name} dropped on non-board target:`, target);
+			console.debug("OrbShop", `${orbSpec.name} dropped on non-board target:`, target);
 			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
@@ -67,7 +65,7 @@ export function renderOrbShop(
 		const tileX = slotIndex % 3;
 		const tileY = Math.floor(slotIndex / 3);
 
-		Logger.debug("OrbShop", 
+		console.debug("OrbShop",
 			`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
 		);
 
@@ -76,12 +74,12 @@ export function renderOrbShop(
 		);
 
 		if (!existingUnit) {
-			Logger.debug("OrbShop", `No unit at position [${tileX}, ${tileY}] - orb returns to position`);
+			console.debug("OrbShop", `No unit at position [${tileX}, ${tileY}] - orb returns to position`);
 			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 			return;
 		}
 
-		Logger.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
+		console.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
 		const isRowOrb =
 			orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
@@ -90,7 +88,7 @@ export function renderOrbShop(
 		if (isRowOrb) {
 			const applied = !!orbSpec.effect(existingUnit);
 			if (!applied) {
-				Logger.debug("OrbShop", `${orbSpec.name} effect returned false — returning orb to origin`);
+				console.debug("OrbShop", `${orbSpec.name} effect returned false — returning orb to origin`);
 				MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
 				return;
 			}

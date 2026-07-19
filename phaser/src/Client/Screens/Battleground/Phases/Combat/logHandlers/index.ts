@@ -1,5 +1,5 @@
 import type { PlaybackState } from "./types";
-import * as CombatLogger from "@Core/Combat/CombatLogger";
+import * as CombatLogger from "@game/CombatLogger";
 import {
 	handleDamageCast,
 	handleHealCast,

@@ -1,12 +1,11 @@
 import * as Chip from "@Components/Chip/Chip";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as Constants from "@Core/Constants";
+import * as Constants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
-import * as Logger from "@Utils/Logger";
 
 const initialForceStats: () => ForceStats = () => ({
 	display: null,
@@ -41,7 +40,7 @@ const createStatsForForce = (force: string) => {
 
 	stats.display?.destroy();
 
-	const core = Card.getBattleCore(state)(force);
+	const core = Card.getBattleCore(state.session.combatState!)(force);
 
 	const lifeDisplay = createLifeDisplay([x, y], core);
 
@@ -258,10 +257,10 @@ export function updateLifeDisplay(
 
 	const bar = stats.healthBar;
 	if (!bar) {
-		Logger.error("ForceStats", `No health bar found for force ${force}`);
+		console.error("ForceStats", `No health bar found for force ${force}`);
 		return;
 	}
-	const core = Card.getBattleCore(state)(force);
+	const core = Card.getBattleCore(state.session.combatState!)(force);
 	const percent = Math.max(0, Math.min(1, life / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
@@ -279,7 +278,7 @@ export function updateLifeDisplay(
 	const chip = Chip.getChip(chipId);
 
 	if (!chip) {
-		Logger.error("ForceStats", "No chip found for id", chipId);
+		console.error("ForceStats", "No chip found for id", chipId);
 		return;
 	}
 
@@ -307,11 +306,11 @@ export function updateShieldDisplay(
 	const bar = getForceStats(force).shieldBar;
 
 	if (!bar) {
-		Logger.error("ForceStats", "No bar for force", force);
+		console.error("ForceStats", "No bar for force", force);
 		return;
 	}
 
-	const core = Card.getBattleCore(state)(force);
+	const core = Card.getBattleCore(state.session.combatState!)(force);
 	const percent = Math.max(0, Math.min(1, shield / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
@@ -330,7 +329,7 @@ export function updateShieldDisplay(
 	const chip = Chip.getChip(chipId);
 
 	if (!chip) {
-		Logger.error("ForceStats", "No chip found for id", chipId);
+		console.error("ForceStats", "No chip found for id", chipId);
 		return;
 	}
 
@@ -415,7 +414,7 @@ export function resetPlayerForceStats() {
 
 	if (!healthBar || !shieldBar || !display) throw new Error("invalid state");
 
-	const core = Card.getPlayerPersistentCore(state);
+	const core = Card.getPlayerPersistentCore(state.session);
 
 	if (!core) throw new Error("invalid state");
 

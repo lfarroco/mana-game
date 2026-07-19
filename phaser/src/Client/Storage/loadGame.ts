@@ -1,6 +1,6 @@
 import * as getSavedData from "Client/Storage/getSinglePlayerData";
 import * as Random from "@game/Random";
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as Seeding from "@game/Seeding";
 
 export function loadGame() {

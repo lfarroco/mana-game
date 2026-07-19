@@ -1,9 +1,8 @@
-import { Unit } from "@game/Models";
-import * as Models from "@Core/Models";
-import * as Force from "@Models/Entities/Force";
+import * as Models from "@game/Models";
+import * as Force from "@game/Entities/Force";
 import * as Random from "@game/Random";
 import * as Seeding from "@game/Seeding";
-import * as Geometry from "@Models/Geometry";
+import * as Geometry from "@game/Geometry";
 
 export type ClientState = {
 	savedGames: string[];
@@ -11,7 +10,7 @@ export type ClientState = {
 	battleData: {
 		forces: Force.Force[];
 		grid: number[][];
-		units: Unit[];
+		units: Models.Unit[];
 	};
 };
 
@@ -74,5 +73,5 @@ export const setState = (newState: ClientState): void => {
 
 export const getState = (): ClientState => state;
 
-export const getUnitAt = (units: Unit[]) => (position: Vec2) =>
+export const getUnitAt = (units: Models.Unit[]) => (position: Vec2) =>
 	units.find((u) => Geometry.eqVec2(u.position, position));

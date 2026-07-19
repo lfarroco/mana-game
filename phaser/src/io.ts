@@ -1,5 +1,5 @@
 import * as constants from "@Constants";
-import * as Geometry from "@Models/Geometry";
+import * as Geometry from "@game/Geometry";
 import * as CrystalSelectionScene from "@Screens/CrystalSelection/CrystalSelectionScreen";
 import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "@Screens/Battleground/BattlegroundScreen";
@@ -8,8 +8,8 @@ import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
 import * as Controller_ from "Client/GameController";
 import events_ from "events";
-import * as Models from "@Core/Models";
-import * as Logger from "@Utils/Logger";
+import * as Models from "@game/Models";
+;
 import * as Chara from "@Systems/Chara/Chara";
 
 
@@ -26,11 +26,11 @@ export const createEvent = <T>(event: string): Models.Event<T> => {
 
 	return {
 		listen: (callback: (payload: T) => void) => {
-			Logger.debug("io", `~~~Listening to event: ${event}`);
+			console.debug("io", `~~~Listening to event: ${event}`);
 			emitter.on(event, callback);
 		},
 		emit: (payload: T) => {
-			Logger.debug("io", `~~~Emitting event: ${event}`, payload);
+			console.debug("io", `~~~Emitting event: ${event}`, payload);
 			emitter.emit(event, payload);
 		},
 	};

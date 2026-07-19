@@ -6,8 +6,7 @@ import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground
 import * as i18n from "@i18n/i18n";
 //import * as MultiplayerManager from "@Multiplayer/MultiplayerManager";
 
-import * as Logger from "@Utils/Logger";
-import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
+import * as Models from "@game/Models";
 import * as arenaTheme from "Client/Screens/ArenaLobby/arenaTheme";
 
 
@@ -472,7 +471,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			//@ts-expect-error test
 			this.renderRankingPage(result.page, result.hasNextPage, result.players);
 		} catch (error) {
-			Logger.error("ArenaLobbyScene", "Failed to load ranking page", { page, error });
+			console.error("ArenaLobbyScene", "Failed to load ranking page", { page, error });
 			this.renderRankingEmptyState("Failed to load ranking. Please try again.");
 			this.rankingPageText?.setText(`Page ${page}`);
 			this.rankingPrevButton?.disable();
@@ -565,7 +564,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		return `${username.slice(0, maxLength - 3)}...`;
 	}
 
-	private async startOrContinueRun(_queueType: MultiplayerTypes.MultiplayerQueueType) {
+	private async startOrContinueRun(_queueType: Models.MultiplayerQueueType) {
 		this.setLoading(true);
 		try {
 			//const hasActiveSession = await MultiplayerManager.checkActiveSessionByType(queueType);
@@ -583,7 +582,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			// 	multiplayerQueueType: queueType,
 			// });
 		} catch (e) {
-			Logger.error("ArenaLobbyScene", "Failed to start run", e);
+			console.error("ArenaLobbyScene", "Failed to start run", e);
 			this.setLoading(false);
 		}
 	}
@@ -603,7 +602,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				// this.setButtonVisibility(this.accountButton, true);
 				// this.setLoading(false);
 			} catch (e) {
-				Logger.error("ArenaLobbyScene", "Profile Fetch Failed", e);
+				console.error("ArenaLobbyScene", "Profile Fetch Failed", e);
 				// Redirect to Login if invalid
 				//this.scene.start(SCENE_KEYS.ARENA_LOGIN);
 			}

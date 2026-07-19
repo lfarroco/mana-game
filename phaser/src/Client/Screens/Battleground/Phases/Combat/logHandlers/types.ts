@@ -1,8 +1,8 @@
-import type * as CombatLogger from "@Core/Combat/CombatLogger";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import type * as CombatLogger from "@game/CombatLogger";
+import * as CombatSystemStates from "@game/CombatSystemStates";
 import type * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import type * as CountdownTimer from "@Systems/CountdownTimer";
-import * as RunCombatCore from "@Core/Combat/RunCombatCore";
+import * as RunCombatCore from "@game/RunCombatCore";
 
 export type PlaybackState = {
 	active: boolean;

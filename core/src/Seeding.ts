@@ -5,6 +5,7 @@
  * All functions are pure and stateless, enabling reproducible game runs.
  */
 
+import { SessionData } from "./Models";
 import * as Random from "./Random";
 
 /**
@@ -55,12 +56,11 @@ export function getDeterministicRandomOptionIndex(
  * Useful for shop generation and encounter options.
  */
 export function pickRandomItemsSeeded<T>(
-	seed: string,
+	env: SessionData,
 	items: T[],
 	count: number
 ): T[] {
-	const seedNum = stringToSeed(seed);
-	return Random.pickRandom(seedNum, items, count);
+	return Random.pickRandom(env, items, count);
 }
 
 /**

@@ -1,4 +1,4 @@
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as Board from "@Models/Board";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
@@ -9,12 +9,12 @@ import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay"
 
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
-import * as Constants from "@Core/Constants";
-import * as PoisonSystem from "@Systems/PoisonDamageSystem";
-import * as RegenSystem from "@Systems/RegenSystem";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
+import * as Constants from "@game/Constants";
+import * as PoisonSystem from "@game/PoisonDamageSystem";
+import * as RegenSystem from "@game/RegenSystem";
+import * as CombatSystemStates from "@game/CombatSystemStates";
 import * as GameController from "Client/GameController";
-import { resetUnitStats } from "@Models/Entities/Unit";
+import { resetUnitStats } from "@game/Entities/Unit";
 
 const COMBAT_START_DELAY_MS = 300;
 
@@ -134,7 +134,7 @@ const startCombatPlayback = async ({
 	);
 	const updateHandler = (time: number, delta: number) => {
 		if (isPaused) return;
-		controller.updateFrame(state, time, delta);
+		controller.updateFrame(combatState, time, delta);
 		if (!controller.isActive()) {
 			io.scene.events.off("update", updateHandler);
 		}

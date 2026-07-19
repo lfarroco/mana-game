@@ -1,6 +1,5 @@
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import * as constants from "@Constants";
-import * as Logger from "@Utils/Logger";
 import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 
@@ -129,7 +128,7 @@ export function renderTooltip(
 	options?: TooltipRenderOptions
 ): void {
 	if (!container || !titleText || !descriptionText || !bg) {
-		Logger.warn("Tooltip", "Tooltip not initialized. Call initializeTooltip(scene) first.");
+		console.warn("Tooltip", "Tooltip not initialized. Call initializeTooltip(scene) first.");
 		return;
 	}
 

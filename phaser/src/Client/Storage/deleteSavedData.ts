@@ -1,4 +1,4 @@
-import * as Logger from "@Utils/Logger";
+;
 import * as GameServer from "@Core/GameServer";
 
 
@@ -10,8 +10,8 @@ export const deleteSavedData = () => {
 		(
 			server as unknown as { sessionManager: { deleteSession(id: string): void } }
 		).sessionManager.deleteSession(state.session.player_id);
-		Logger.debug("deleteSavedData", `[deleteSavedData] Session deleted for player: ${state.session.player_id}`);
+		console.debug("deleteSavedData", `[deleteSavedData] Session deleted for player: ${state.session.player_id}`);
 	} else {
-		Logger.warn("deleteSavedData", "[deleteSavedData] No session found to delete");
+		console.warn("deleteSavedData", "[deleteSavedData] No session found to delete");
 	}
 };

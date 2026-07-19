@@ -3,7 +3,7 @@ import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "Client/GameController";
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 
 // TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;

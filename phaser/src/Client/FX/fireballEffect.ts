@@ -1,7 +1,6 @@
 import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
 import * as impactEffect from "./impactEffect";
-import * as Logger from "@Utils/Logger";
 
 // TODO: try this for some alternative effects (power up, absorb,orb upgrade)
 
@@ -32,7 +31,7 @@ export async function fireballEffect(
 		(sx === ZERO_COORDINATE_VALUE && sy === ZERO_COORDINATE_VALUE) ||
 		(tx === ZERO_COORDINATE_VALUE && ty === ZERO_COORDINATE_VALUE)
 	) {
-		Logger.warn("fireballEffect", 
+		console.warn("fireballEffect",
 			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${sx},${sy}), Target: (${tx},${ty})`
 		);
 		return;

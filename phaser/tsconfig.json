@@ -52,13 +52,13 @@
                 "./src/Game/*"
             ],
             "@TriggerSystem/*": [
-                "./src/TriggerSystem/*"
+                "../core/src/TriggerSystem/*"
             ],
             "Client/*": [
                 "./src/Client/*"
             ],
             "TriggerSystem/*": [
-                "./src/TriggerSystem/*"
+                "../core/src/TriggerSystem/*"
             ],
             "@config": [
                 "./src/config.ts"
@@ -113,8 +113,24 @@
     "include": [
         "src",
         "server",
-        "../core/src/Models.ts"
-    ],
+        "../core/src/Models.ts",
+        "../core/src/CombatLogger.ts",
+        "../core/src/CombatTypes.ts",
+        "../core/src/CombatStatsTracker.ts",
+        "../core/src/ScheduledEffects.ts",
+        "../core/src/TriggerSystem",
+        "../core/src/Entities",
+        "../core/src/CombatSystemStates.ts",
+        "../core/src/PoisonDamageSystem.ts",
+        "../core/src/RegenSystem.ts",
+        "../core/src/TimeoutDamageSystem.ts",
+        "../core/src/Constants.ts",
+        "../core/src/StatusEffectSystem.ts",
+        "../core/src/RunCombatCore.ts",
+        "../core/src/CombatConstants.ts",
+        "../core/src/CombatSimulation.test.ts",
+        "../core/src/CombatSimulation.ts"
+, "../core/src/BaseCollection.ts", "../core/src/Geometry.ts", "../core/src/BoardLogic.ts"    ],
     "exclude": [
         "node_modules"
     ],

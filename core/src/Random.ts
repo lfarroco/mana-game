@@ -1,3 +1,5 @@
+import { SessionData } from "./Models";
+
 /**
  * Returns a pseudo-random number between 0 (inclusive) and 1 (exclusive).
  * Implements the Mulberry32 algorithm.
@@ -49,10 +51,13 @@ export function shuffle<T>(seed: number, array: T[]): {
 	}
 }
 
-export function pickRandom<T>(seed: number, arr: T[], n: number): T[] {
-	return shuffle(seed, arr).copy.slice(0, n);
+export function pickRandom<T>(session: SessionData, arr: T[], n: number): T[] {
+	const next = nextValue();
+	session.seed = next.toString();
+	return shuffle(next, arr).copy.slice(0, n);
 }
 
+// TODO: save seed in the env
 // Stateful compatibility layer for legacy code
 // This allows code that relied on global RNG state to continue working
 let globalSeed: number = Math.floor(Math.random() * 0xFFFFFFFF);

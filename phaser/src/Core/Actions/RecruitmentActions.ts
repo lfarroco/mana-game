@@ -5,12 +5,11 @@
  * Pure functions that return updated unit arrays and status messages.
  */
 
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
-import * as Card from "@Models/Entities/Card";
-import * as BoardLogic from "@Models/BoardLogic";
-import * as CombatConstants from "@Core/Combat/CombatConstants";
-import * as Logger from "@Utils/Logger";
+import * as Card from "@game/Entities/Card";
+import * as BoardLogic from "@game/BoardLogic";
+import * as CombatConstants from "@game/CombatConstants";
 
 
 /**
@@ -42,7 +41,7 @@ export function recruitUnit(
 	const card = allCards.find((c) => c.id === cardId);
 
 	if (!card) {
-		Logger.error("recruitmentActions", `Card with ID ${cardId} not found for recruitment`);
+		console.error("recruitmentActions", `Card with ID ${cardId} not found for recruitment`);
 		return session;
 	}
 
@@ -51,11 +50,11 @@ export function recruitUnit(
 
 	const existingUnitIndex = units.findIndex((u: Unit) => u.cardId === cardId);
 	if (existingUnitIndex >= 0) {
-		Logger.debug("recruitmentActions", `Unit with card ID ${cardId} already exists, attempting upgrade`);
+		console.debug("recruitmentActions", `Unit with card ID ${cardId} already exists, attempting upgrade`);
 
 		const existingUnit = units[existingUnitIndex];
 		if (existingUnit.rank < 4) {
-			Logger.debug("recruitmentActions", `Upgrading unit ${existingUnit.id} from Rank ${existingUnit.rank} to Rank ${existingUnit.rank + 1}`);
+			console.debug("recruitmentActions", `Upgrading unit ${existingUnit.id} from Rank ${existingUnit.rank} to Rank ${existingUnit.rank + 1}`);
 
 			existingUnit.rank++;
 			existingUnit.maxLife = Math.floor(existingUnit.maxLife * 1.5);
@@ -73,7 +72,7 @@ export function recruitUnit(
 	}
 
 	if (units.length < 9) {
-		Logger.debug("recruitmentActions", `Recruiting new unit with card ID ${cardId}`);
+		console.debug("recruitmentActions", `Recruiting new unit with card ID ${cardId}`);
 		let targetPos = BoardLogic.getEmptySlot(units, CombatConstants.FORCE_ID_PLAYER);
 
 		if (targetPosition) {
@@ -85,7 +84,7 @@ export function recruitUnit(
 				y <= 2;
 
 			if (!isWithinBounds) {
-				Logger.warn("recruitmentActions", `Target position ${x},${y} is out of bounds, ignoring target slot`);
+				console.warn("recruitmentActions", `Target position ${x},${y} is out of bounds, ignoring target slot`);
 				return session;
 			}
 
@@ -101,7 +100,7 @@ export function recruitUnit(
 				);
 
 			if (occupied) {
-				Logger.warn("recruitmentActions", `Target position ${x},${y} is already occupied, ignoring target slot`);
+				console.warn("recruitmentActions", `Target position ${x},${y} is already occupied, ignoring target slot`);
 				return session;
 			}
 
@@ -114,7 +113,7 @@ export function recruitUnit(
 			newUnit.rank = recruitRank;
 
 			if (recruitRank > 1) {
-				Logger.debug("recruitmentActions", `Recruited unit ${cardId} at Rank ${newUnit.rank}`);
+				console.debug("recruitmentActions", `Recruited unit ${cardId} at Rank ${newUnit.rank}`);
 			}
 
 			units.push(newUnit);
@@ -132,7 +131,7 @@ export function recruitUnit(
 			}
 			session.runStats.totalUnitsRecruited += 1;
 			session.runStats.unitUsage[cardId] = (session.runStats.unitUsage[cardId] || 0) + 1;
-			Logger.debug("recruitmentActions", `Added new unit ${cardId}`);
+			console.debug("recruitmentActions", `Added new unit ${cardId}`);
 			return {
 				...session,
 				team: {
@@ -144,7 +143,7 @@ export function recruitUnit(
 	}
 
 	// should never happen
-	Logger.warn("recruitmentActions", `Failed to recruit unit with card ID ${cardId}: team is full`);
+	console.warn("recruitmentActions", `Failed to recruit unit with card ID ${cardId}: team is full`);
 
 	return session;
 }

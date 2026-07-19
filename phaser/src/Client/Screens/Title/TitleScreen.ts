@@ -7,7 +7,7 @@ import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../../package.json";
 import * as Effects from "./Effects"
-import * as Models from "@Core/Models"
+import * as Models from "@game/Models"
 
 type TitleScreenEvents = {
 	newGameButtonClicked: Models.Event<void>

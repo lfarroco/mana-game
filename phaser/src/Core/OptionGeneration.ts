@@ -5,8 +5,8 @@
  * Deterministic based on session seed to ensure reproducibility across replays.
  */
 
-import * as Models from "@Core/Models";
-import * as Card from "@Models/Entities/Card";
+import * as Models from "@game/Models";
+import * as Card from "@game/Entities/Card";
 import { CardDefinition } from "@game/Models";
 import * as Seeding from "@game/Seeding";
 
@@ -174,8 +174,8 @@ export function generateShopOptions(
 	// deterministic and reproducible during server-side replay.
 	// We mix the current seed with "shop" and the encounter id to ensure
 	// encounter options and shop options never collide in their seed space.
-	const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-	const options = Seeding.pickRandomItemsSeeded(shopSeedInput, filteredCards, numOptions).map((card) => ({
+	//const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
+	const options = Seeding.pickRandomItemsSeeded(session, filteredCards, numOptions).map((card) => ({
 		id: card.id,
 		cost: 10,
 		recruitRank: getCardRank(card),

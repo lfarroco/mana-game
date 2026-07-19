@@ -3,8 +3,12 @@
 		"target": "ES2020",
 		"module": "ESNext",
 		"moduleResolution": "Bundler",
-		"lib": ["ES2020"],
-		"types": [],
+		"lib": [
+			"ES2020"
+		],
+		"types": [
+			"jest"
+		],
 		"strict": true,
 		"noImplicitAny": true,
 		"noUnusedLocals": true,
@@ -13,8 +17,12 @@
 		"isolatedModules": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"noEmit": true
+		"noEmit": true,
 	},
-	"include": ["src/**/*.ts"],
-	"exclude": ["node_modules"]
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }

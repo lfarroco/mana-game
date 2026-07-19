@@ -1,4 +1,4 @@
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Modal from "@Components/Modal/Modal";
 import * as UIButton from "@Components/Button/UIButton";

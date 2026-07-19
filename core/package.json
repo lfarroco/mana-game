@@ -10,5 +10,11 @@
 	"scripts": {
 		"typecheck": "tsc --noEmit -p tsconfig.json",
 		"smoke": "tsx scripts/smoke.ts"
+	},
+	"dependencies": {
+		"uuid": "^14.0.1"
+	},
+	"devDependencies": {
+		"@types/jest": "^30.0.0"
 	}
 }

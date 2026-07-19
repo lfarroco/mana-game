@@ -1,24 +1,22 @@
-import * as State from "@Models/ClientState";
-import * as RunCombatCore from "@Core/Combat/RunCombatCore";
-import * as CombatLogger from "@Core/Combat/CombatLogger";
+import * as RunCombatCore from "@game/RunCombatCore";
+import * as CombatLogger from "@game/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import * as CombatSystemStates from "@Systems/CombatSystemStates";
-import * as PoisonDamageSystem from "@Systems/PoisonDamageSystem";
-import * as RegenSystem from "@Systems/RegenSystem";
-import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import * as Logger from "@Utils/Logger";
+import * as CombatSystemStates from "@game/CombatSystemStates";
+import * as PoisonDamageSystem from "@game/PoisonDamageSystem";
+import * as RegenSystem from "@game/RegenSystem";
+import * as CombatStatsTracker from "@game/CombatStatsTracker";
 import * as Animations from "@Systems/Chara/Animations";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
-import * as CoreConstants from "@Core/Constants";
-import * as Card from "@Models/Entities/Card";
+import * as CoreConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
-import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
+import * as ScheduledEffects from "@game/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
-import { resetUnitStats } from "@Models/Entities/Unit";
+import { resetUnitStats } from "@game/Entities/Unit";
+import { CombatState } from "@game/Models";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -47,12 +45,11 @@ export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: RunCombatCore.WaveOutcome) => void
 ): RunCombatCore.CombatRunner => {
-	const { state } = window as unknown as { state: State.ClientState };
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
 		regenSystemState: RegenSystem.initializeRegenSystem(),
-		combatStatsTrackerState: CombatStatsTracker.initialize(state),
+		combatStatsTrackerState: CombatStatsTracker.initialize(state.session.combatState!),
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
@@ -133,7 +130,7 @@ export const createCombatPlaybackController = (
 
 	};
 
-	const updateFrame = (_state: State.ClientState, _time: number, delta: number): void => {
+	const updateFrame = (_combatState: CombatState, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
 		const speed = OptionsStore.getOption("speed", 1.0);
@@ -161,13 +158,12 @@ export const createCombatPlaybackController = (
 			playbackState.currentTime >= Math.max(...playbackState.animations.map((a) => a.endTime));
 
 		if (allAnimationsComplete && lastAnimationEnded && playbackState.outcome) {
-			finishCombat(state, playbackState.outcome);
+			finishCombat(playbackState.outcome);
 		}
 
 	};
 
 	const finishCombat = async (
-		state: State.ClientState,
 		outcome: RunCombatCore.WaveOutcome
 	): Promise<void> => {
 		if (!playbackState.active) return;
@@ -179,15 +175,9 @@ export const createCombatPlaybackController = (
 		}
 
 		if (outcome === "player_lost") {
-			const core = Card.getBattleCore(state)(CoreConstants.FORCE_ID_PLAYER);
-			if (core) {
-				await Animations.shatter(Chara.mustGetCharaById(core.id));
-			}
+			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.playerCoreId));
 		} else if (outcome === "player_won") {
-			const core = Card.getBattleCore(state)(CoreConstants.FORCE_ID_CPU);
-			if (core) {
-				await Animations.shatter(Chara.mustGetCharaById(core.id));
-			}
+			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.cpuCoreId));
 		}
 
 		await animation.delay(300);
@@ -204,7 +194,7 @@ export const createCombatPlaybackController = (
 			await onReplayEnd(outcome);
 		}
 
-		Logger.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
+		console.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
 	};
 
 	const isActive = (): boolean => {
@@ -212,17 +202,17 @@ export const createCombatPlaybackController = (
 	};
 
 	const stop = (): void => {
-		Logger.debug("CombatPlaybackController", "[CombatPlaybackController] Stopping combat playback");
+		console.debug("CombatPlaybackController", "[CombatPlaybackController] Stopping combat playback");
 		playbackState.active = false;
 	};
 
 	const getEnv = () => {
 		return {
-			state,
+			session: state.session,
+			combatState: state.session.combatState!,
 			logger: CombatLogger.createCombatLogger(),
 			scheduledEffects: ScheduledEffects.initialize(),
 			combatStates: playbackState.combatStates,
-			processReactions: () => { },
 		};
 	};
 

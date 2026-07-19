@@ -1,5 +1,5 @@
 import * as Board from "@Models/Board";
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as SessionManager from "@Core/SessionManager";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";

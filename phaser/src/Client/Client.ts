@@ -1,6 +1,6 @@
 import * as Assets from "@assets";
-import * as Card from "@Models/Entities/Card";
-import * as BaseCollection from "@Data/BaseCollection";
+import * as Card from "@game/Entities/Card";
+import * as BaseCollection from "@game/BaseCollection";
 import * as Config from "@config";
 import * as TitleScreen from "@Screens/Title/TitleScreen";
 import * as OptionsStore from "@Models/OptionsStore";

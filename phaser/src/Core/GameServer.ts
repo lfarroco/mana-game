@@ -1,4 +1,4 @@
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as LocalServer from "./LocalServer";
 import * as RemoteServer from "./RemoteServer";
 

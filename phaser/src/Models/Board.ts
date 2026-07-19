@@ -2,7 +2,7 @@ import * as constants from "@Constants";
 import { Unit } from "@game/Models";
 import * as State from "@Models/ClientState";
 import * as EnergySlot from "Client/Components/EnergySlot/EnergySlot";
-import * as BoardLogic from "@Models/BoardLogic";
+import * as BoardLogic from "@game/BoardLogic";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];

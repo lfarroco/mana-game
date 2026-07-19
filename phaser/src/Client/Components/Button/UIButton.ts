@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ButtonTooltip from "@Components/Button/ButtonTooltip";
-import * as Logger from "@Utils/Logger";
+;
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 
 
@@ -217,7 +217,7 @@ export function create({
 	emoji,
 	tooltip,
 }: CreateUIButtonConfig): Button {
-	Logger.debug("UIButton", `DEBUG: createUIButton called for ${text}`);
+	console.debug("UIButton", `DEBUG: createUIButton called for ${text}`);
 	const size: [number, number] = [width, BUTTON_HEIGHT];
 	const [_, height] = size;
 	const container = io.Container();
@@ -265,7 +265,7 @@ export function create({
 		if (!buttonGraphics.input?.enabled) return;
 		const now = Date.now();
 		if (now - state.lastActivatedAtMs < BUTTON_DOUBLE_CLICK_GUARD_MS) {
-			Logger.debug("UIButton", `DEBUG: UIButton activation ignored during double-click guard for ${text}`);
+			console.debug("UIButton", `DEBUG: UIButton activation ignored during double-click guard for ${text}`);
 			return;
 		}
 		state.lastActivatedAtMs = now;
@@ -274,21 +274,21 @@ export function create({
 	};
 
 	io.OnPointerDown(buttonGraphics, () => {
-		Logger.debug("UIButton", `DEBUG: UIButton PointerDown ${text}`);
+		console.debug("UIButton", `DEBUG: UIButton PointerDown ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
 		syncVisualState();
 	});
 
 	io.OnPointerUp(buttonGraphics, () => {
-		Logger.debug("UIButton", `DEBUG: UIButton PointerUp ${text}`);
+		console.debug("UIButton", `DEBUG: UIButton PointerUp ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		const wasPressed = state.isPressed;
 		state.isPressed = false;
 		if (wasPressed) {
 			activate();
 		} else {
-			Logger.debug("UIButton", `DEBUG: UIButton PointerUp but not pressed`);
+			console.debug("UIButton", `DEBUG: UIButton PointerUp but not pressed`);
 		}
 		syncVisualState();
 	});

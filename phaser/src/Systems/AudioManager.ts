@@ -1,5 +1,5 @@
 import * as OptionsStore from "@Models/OptionsStore";
-import * as Logger from "@Utils/Logger";
+;
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;
@@ -14,7 +14,7 @@ type VolumeSound = Phaser.Sound.BaseSound & {
 
 export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
 	if (!OptionsStore.getOption("music")) {
-		Logger.debug("AudioManager", "Music disabled - skipping playback", { musicKey });
+		console.debug("AudioManager", "Music disabled - skipping playback", { musicKey });
 		return;
 	}
 
@@ -31,7 +31,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		});
 	} catch (e) {
 		// Warn but do not crash the app/test
-		Logger.warn("AudioManager", "Failed to load/play music", { musicKey, error: e });
+		console.warn("AudioManager", "Failed to load/play music", { musicKey, error: e });
 		return;
 	}
 
@@ -64,7 +64,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		music.play();
 	}
 
-	Logger.info("AudioManager", "Playing music", { musicKey, loop });
+	console.info("AudioManager", "Playing music", { musicKey, loop });
 };
 
 export const stopMusic = (fadeOut: number = 0) => {
@@ -94,14 +94,14 @@ export const stopMusic = (fadeOut: number = 0) => {
 		currentMusic.stop();
 	}
 
-	Logger.info("AudioManager", "Stopped music", { currentMusicKey });
+	console.info("AudioManager", "Stopped music", { currentMusicKey });
 	currentMusic = null;
 	currentMusicKey = null;
 };
 
 export const playSoundEffect = (soundKey: string, volume?: number) => {
 	if (!OptionsStore.getOption("sound")) {
-		Logger.debug("AudioManager", "Sound effects disabled - skipping playback", { soundKey });
+		console.debug("AudioManager", "Sound effects disabled - skipping playback", { soundKey });
 		return;
 	}
 
@@ -110,14 +110,14 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	}
 
 	if (!io.game.cache.audio.has(soundKey)) {
-		Logger.warn("AudioManager", "Audio key not found in cache - skipping", { soundKey });
+		console.warn("AudioManager", "Audio key not found in cache - skipping", { soundKey });
 		return;
 	}
 
 	const now = Date.now();
 	const lastPlayed = soundEffectCooldowns.get(soundKey);
 	if (lastPlayed && now - lastPlayed < SOUND_EFFECT_COOLDOWN_MS) {
-		Logger.debug("AudioManager", "Sound effect on cooldown", { soundKey, cooldownMs: SOUND_EFFECT_COOLDOWN_MS });
+		console.debug("AudioManager", "Sound effect on cooldown", { soundKey, cooldownMs: SOUND_EFFECT_COOLDOWN_MS });
 		return;
 	}
 
@@ -136,7 +136,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		soundEffects.delete(soundKey);
 	});
 
-	Logger.debug("AudioManager", "Playing sound effect", { soundKey, volume: effectVolume });
+	console.debug("AudioManager", "Playing sound effect", { soundKey, volume: effectVolume });
 };
 
 export const stopAllSoundEffects = () => {
@@ -146,7 +146,7 @@ export const stopAllSoundEffects = () => {
 		}
 	});
 	soundEffects.clear();
-	Logger.debug("AudioManager", "Stopped all sound effects");
+	console.debug("AudioManager", "Stopped all sound effects");
 };
 
 export const onOptionsChanged = () => {

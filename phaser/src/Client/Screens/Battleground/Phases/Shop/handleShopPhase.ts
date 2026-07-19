@@ -1,5 +1,5 @@
-import * as Models from "@Core/Models";
-import * as Card from "@Models/Entities/Card";
+import * as Models from "@game/Models";
+import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";

@@ -1,4 +1,4 @@
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 
 // TODO: after round 10, stop adding upgrades
 const DEFAULT: Models.PhaseType[] = [

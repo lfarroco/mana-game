@@ -1,24 +1,15 @@
 import { Unit } from "@game/Models";
-import * as effects from "@TriggerSystem/effects";
 import * as Utils from "@utils";
 import * as Chara from "@Systems/Chara/Chara";
-import * as distributePower from "@TriggerSystem/effects/distributePower";
-import * as absorbPower from "@TriggerSystem/effects/absorbPower";
-import * as sacrificeEffect from "@TriggerSystem/effects/sacrificeEffect";
-import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
-import * as Constants from "@Core/Constants";
-import * as State from "@Models/ClientState";
+// import * as distributePower from "@TriggerSystem/effects/distributePower";
+// import * as absorbPower from "@TriggerSystem/effects/absorbPower";
+// import * as sacrificeEffect from "@TriggerSystem/effects/sacrificeEffect";
+// import * as TriggerSystem from "@TriggerSystem/TriggerSystem";
+import * as Constants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import * as CombatTypes from "@Core/Combat/CombatTypes";
-import * as ScheduledEffects from "@Core/Combat/ScheduledEffects";
-import * as CombatLogger from "@Core/Combat/CombatLogger";
-import * as Poison from "@Systems/PoisonDamageSystem";
-import * as Regen from "@Systems/RegenSystem";
-import * as CombatStatsTracker from "@Systems/CombatStatsTracker";
-import * as Logger from "@Utils/Logger";
 import { Effect, EffectReaction } from "@game/Models";
 
 // TODO: this file is gigantic, we should extract the effects
@@ -40,19 +31,20 @@ export type OrbSpec = {
 	effect: (unit: Unit) => boolean;
 };
 
-const getShopEnvironment = (state: State.ClientState): CombatTypes.CombatEnvironment => {
-	return {
-		state,
-		scheduledEffects: ScheduledEffects.initialize(),
-		combatStates: {
-			poisonSystemState: Poison.initializePoisonSystem(),
-			regenSystemState: Regen.initializeRegenSystem(),
-			combatStatsTrackerState: CombatStatsTracker.initialize(state),
-		},
-		processReactions: TriggerSystem.processReactions,
-		logger: CombatLogger.createCombatLogger(),
-	};
-};
+// TOOD: removed this because this mixes combat and shop...
+// const getShopEnvironment = (state: SessionData): CombatTypes.CombatEnvironment => {
+// 	return {
+// 		combatState: state,
+// 		scheduledEffects: ScheduledEffects.initialize(),
+// 		combatStates: {
+// 			poisonSystemState: Poison.initializePoisonSystem(),
+// 			regenSystemState: Regen.initializeRegenSystem(),
+// 			combatStatsTrackerState: CombatStatsTracker.initialize(state),
+// 		},
+// 		processReactions: TriggerSystem.processReactions,
+// 		logger: CombatLogger.createCombatLogger(),
+// 	};
+// };
 
 const increasePowerOnType = (type: string) => () => ({
 	id: `increase_power_on_${type}`,
@@ -63,15 +55,16 @@ const increasePowerOnType = (type: string) => () => ({
 	effect: (unit: Unit) => {
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
-		const pct = Math.floor(unit.power * 0.1);
+		//const pct = Math.floor(unit.power * 0.1);
 
-		const env = getShopEnvironment(state);
-		effects.increasePower(env, [unit], pct, false);
+		//const env = getShopEnvironment(state);
+		// TOOD: create new effect type to perform this outside of combat
+		//effects.increasePower(env, [unit], pct, false);
 
 		if (unit.force === Constants.FORCE_ID_PLAYER) {
 			state.session.team.units.find((u) => u.id === unit.id)!.power = unit.power;
 		}
-		Logger.debug("Orbs", `Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
+		console.debug("Orbs", `Increase Power (${type}) applied to ${unit.id}, new power: ${unit.power}`);
 		return true;
 	},
 });
@@ -86,21 +79,21 @@ const increaseCriticalOnType = (type: string) => () => ({
 		if (!unit.effects.find((eff) => eff.id === type)) return false;
 
 		// Use processEffectsIO with permanent=true for shop orbs
-		TriggerSystem.processEffectsIO(
-			getShopEnvironment(state),
-			unit,
-			[
-				{
-					id: "increase_critical",
-					amount: 10,
-					targets: { id: "self" },
-					permanent: true,
-				},
-			],
-			false
-		);
+		// TriggerSystem.processEffectsIO(
+		// 	getShopEnvironment(state),
+		// 	unit,
+		// 	[
+		// 		{
+		// 			id: "increase_critical",
+		// 			amount: 10,
+		// 			targets: { id: "self" },
+		// 			permanent: true,
+		// 		},
+		// 	],
+		// 	false
+		// );
 
-		Logger.debug("Orbs",
+		console.debug("Orbs",
 			`Increase Critical (${type}) applied to ${unit.id}, new critical: ${unit.critical}`
 		);
 		return true;
@@ -122,7 +115,7 @@ const decreaseCooldownOnType = (type: string) => () => ({
 			state.session.team.units.find((u) => u.id === unit.id)!.cooldown = unit.cooldown;
 		}
 
-		Logger.debug("Orbs",
+		console.debug("Orbs",
 			`Decrease Cooldown (${type}) applied to ${unit.id}, new cooldown: ${unit.cooldown}`
 		);
 		return true;
@@ -207,7 +200,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 	}),
 	increase_core_max_life: () => {
 
-		const core = Card.getPlayerPersistentCore(state);
+		const core = Card.getPlayerPersistentCore(state.session);
 
 		const round = state.session.round;
 		const lifeGain = Math.floor(core.maxLife * 0.1) + round * 10;
@@ -227,7 +220,7 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		};
 	},
 	upgrade_core_power: () => {
-		const core = Card.getPlayerPersistentCore(state);
+		const core = Card.getPlayerPersistentCore(state.session);
 
 		const round = state.session.round;
 		const powerGain = Math.floor(core.power * 0.1) + round * 10;
@@ -510,15 +503,15 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0xffaa00,
 		tooltip: i18n.t("shop.orbs.distributePower.tooltip"),
 		icon: "ui/power_distributor",
-		effect: (unit: Unit) => {
-			const targets = TriggerSystem.resolveTargets(state, unit, {
-				id: "distribute_power",
-				targets: {
-					id: "row_allies",
-				},
-			});
-			const env = getShopEnvironment(state);
-			distributePower.distributePower(env, unit, targets, true); // permanent=true in shop
+		effect: (_unit: Unit) => {
+			// const targets = TriggerSystem.resolveTargets(state, unit, {
+			// 	id: "distribute_power",
+			// 	targets: {
+			// 		id: "row_allies",
+			// 	},
+			// });
+			// const env = getShopEnvironment(state);
+			// distributePower.distributePower(env, unit, targets, true); // permanent=true in shop
 			return true;
 		},
 	}),
@@ -528,16 +521,16 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0xaa00ff,
 		tooltip: i18n.t("shop.orbs.absorbPower.tooltip"),
 		icon: "ui/power_absorber",
-		effect: (unit: Unit) => {
-			const targets = TriggerSystem.resolveTargets(state, unit, {
-				id: "absorb_power",
-				targets: {
-					id: "row_allies",
-				},
-			});
+		effect: (_unit: Unit) => {
+			// const targets = TriggerSystem.resolveTargets(state, unit, {
+			// 	id: "absorb_power",
+			// 	targets: {
+			// 		id: "row_allies",
+			// 	},
+			// });
 
-			const env = getShopEnvironment(state);
-			absorbPower.absorbPower(env, unit, targets, true);
+			// const env = getShopEnvironment(state);
+			// absorbPower.absorbPower(env, unit, targets, true);
 			return true;
 		},
 	}),
@@ -547,9 +540,9 @@ export const orbsIndex: Record<string, () => OrbSpec> = {
 		color: 0x550000,
 		tooltip: i18n.t("shop.orbs.darkRitual.tooltip"),
 		icon: "ui/dark_ritual",
-		effect: (unit: Unit) => {
-			const env = getShopEnvironment(state);
-			sacrificeEffect.sacrificeEffect(env, unit);
+		effect: (_unit: Unit) => {
+			// const env = getShopEnvironment(state);
+			// sacrificeEffect.sacrificeEffect(env, unit);
 			return true;
 		},
 	}),

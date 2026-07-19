@@ -1,6 +1,6 @@
 import * as State from "@Models/ClientState";
-import * as Logger from "@Utils/Logger";
-import * as Models from "@Core/Models";
+;
+import * as Models from "@game/Models";
 import * as GameServer from "@Core/GameServer"
 
 
@@ -20,6 +20,6 @@ export function saveGameData() {
 			}
 		).sessionManager.updateSession(state.session.player_id, state.session);
 	} else {
-		Logger.warn("saveGameData", "[saveGameData] Unable to save: SessionManager not available or no player_id");
+		console.warn("saveGameData", "[saveGameData] Unable to save: SessionManager not available or no player_id");
 	}
 }

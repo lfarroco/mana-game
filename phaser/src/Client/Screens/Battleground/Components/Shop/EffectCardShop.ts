@@ -5,8 +5,6 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "Client/GameController";
-import * as Logger from "@Utils/Logger";
-
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -65,7 +63,7 @@ function renderUpgradeCards(
 	let isResolvingSelection = false;
 
 	encounterIds.forEach((encounterId, index) => {
-		Logger.debug("EffectCardShop", "Rendering upgrade card for encounter:", encounterId);
+		console.debug("EffectCardShop", "Rendering upgrade card for encounter:", encounterId);
 		const encounterSpec = Orbs.orbsIndex[encounterId]();
 
 		const width = EFFECT_CARD_WIDTH;
@@ -87,7 +85,7 @@ function renderUpgradeCards(
 				}
 
 				isResolvingSelection = true;
-				Logger.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
+				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
 				await GameController.selectEncounter(encounterId);
 

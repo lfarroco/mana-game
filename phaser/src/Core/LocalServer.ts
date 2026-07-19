@@ -1,5 +1,5 @@
 import * as SessionManager from "@Core/SessionManager";
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 import * as SessionTransitions from "./SessionTransitions";
 

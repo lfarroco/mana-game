@@ -1,9 +1,9 @@
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as Board from "@Models/Board";
 import * as State from "@Models/ClientState";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
-import * as CoreConstants from "@Core/Constants";
+import * as CoreConstants from "@game/Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
@@ -12,7 +12,7 @@ import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as GameController from "Client/GameController";
 import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
-import { upgradeUnitEffects } from "@Models/Entities/Unit";
+import { upgradeUnitEffects } from "@game/Entities/Unit";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;

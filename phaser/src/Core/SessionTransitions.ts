@@ -5,15 +5,15 @@
  * Orchestrates action resolution, seed advancement, and phase transitions.
  */
 
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
-import * as CombatSimulation from "./Combat/CombatSimulation";
+import * as CombatSimulation from "../../../core/src/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
 import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
 import * as RecruitmentActions from "@Core/Actions/RecruitmentActions"
 import * as OrbAndCoreUpgrades from "@Core/Actions/OrbAndCoreUpgrades"
-import * as Logger from "@Utils/Logger";
+	;
 import * as OptionGeneration from "./OptionGeneration";
 
 
@@ -198,7 +198,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			Logger.warn("SessionTransitions", "No core found in team when applying cooldown decrease");
+			console.warn("SessionTransitions", "No core found in team when applying cooldown decrease");
 			return session;
 		}
 
@@ -211,7 +211,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			Logger.warn("SessionTransitions", "No core found in team when applying power increase");
+			console.warn("SessionTransitions", "No core found in team when applying power increase");
 			return session;
 		}
 
@@ -225,7 +225,7 @@ const ACTION_HANDLERS: Record<string, (
 		const core = units.find((u) => u.isCore);
 
 		if (!core) {
-			Logger.warn("SessionTransitions", "No core found in team when applying life increase");
+			console.warn("SessionTransitions", "No core found in team when applying life increase");
 			return session;
 		}
 
@@ -272,11 +272,11 @@ const ACTION_HANDLERS: Record<string, (
 	// start_combat: (session) => {
 	// 	// Handle combat execution (side effect)
 
-	// 	Logger.debug("SessionTransitions", "Entering combat phase. Executing combat...", session);
+	// 	console.debug("SessionTransitions", "Entering combat phase. Executing combat...", session);
 
 	// 	const nextSession = executeCombatPhase(session);
 
-	// 	Logger.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
+	// 	console.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
 
 	// 	return nextSession;
 	// },
@@ -305,7 +305,7 @@ const ACTION_HANDLERS: Record<string, (
 		];
 
 		if (!allowedSkipPhases.includes(session.phase)) {
-			Logger.warn("SessionTransitions", `Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
+			console.warn("SessionTransitions", `Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
 			return session;
 		}
 
@@ -372,7 +372,7 @@ export function transitionToNextState(
 	action: Models.Action,
 ): Models.SessionData {
 
-	Logger.debug("SessionTransitions", "Transitioning session with action:", action);
+	console.debug("SessionTransitions", "Transitioning session with action:", action);
 
 	const nextSession = structuredClone(session);
 
@@ -389,7 +389,7 @@ function executeCombatPhase(
 	session: Models.SessionData,
 ): Models.SessionData {
 
-	Logger.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
+	console.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
 
 	// TODO: support multiplayer
 	const enemyTeam =
@@ -399,25 +399,27 @@ function executeCombatPhase(
 			session.seed,
 		);
 
-	const simulation = CombatSimulation.simulateCombat(
-		session,
-		enemyTeam,
-	);
-
-	const playerUnits = simulation.finalState.battleData.units.filter((u) => u.force === "PLAYER");
-	//session.runStats = simulation.finalState.session.runStats || session.runStats;
-	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
-
 	const combatState: Models.CombatState = {
 		enemyTeam,
-		units: simulation.finalState.battleData.units,
+		units: [...session.team.units, ...enemyTeam],
 		seed: session.seed,
+		playerCoreId: session.team.units.find(u => u.isCore)!.id,
+		cpuCoreId: enemyTeam.find(u => u.isCore)!.id,
 		enemyPlayerName: "CPU",
-		wonCombat: simulation.playerWon,
-		initialUnits: simulation.initialUnits,
-		finalPlayerUnits: playerUnits,
-		logs: simulation.logs,
+		wonCombat: false,
+		initialUnits: structuredClone([...session.team.units, ...enemyTeam]),
+		finalPlayerUnits: [],
+		logs: [],
 	};
+
+	const finalCombatState = CombatSimulation.simulateCombat(
+		state.session,
+		combatState
+	);
+
+	//const playerUnits = simulation.finalState.battleData.units.filter((u) => u.force === "PLAYER");
+	//session.runStats = simulation.finalState.session.runStats || session.runStats;
+	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
 
 	const nextSession: Models.SessionData = {
 		...session,
@@ -425,10 +427,10 @@ function executeCombatPhase(
 		options: [{
 			id: "end_combat"
 		}],
-		combatState: combatState
+		combatState: finalCombatState
 	};
 
-	Logger.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
+	console.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
 
 	return nextSession;
 

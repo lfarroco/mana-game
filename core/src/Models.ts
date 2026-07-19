@@ -1,3 +1,4 @@
+import * as CombatLogger from "./CombatLogger";
 
 export type CardCollection = {
 	id: string;
@@ -257,4 +258,142 @@ export type Unit = {
 
 	isCore: boolean;
 };
+// Option types for different phases
 
+
+
+export type PhaseOption =
+	// TODO: this is too flexible
+	{ id: string; cost?: number; label?: string; recruitRank?: number; } // Generic option with optional cost, label, and shop recruit metadata
+	|
+	{ id: "start_combat"; };
+// Action log entry for tracking player actions
+
+
+
+export type ActionLogEntry = {
+	round: number;
+	phase: PhaseType;
+	step: number;
+	action: Action;
+};
+// Payload types for different actions
+
+
+
+export type Action = { type: "skip"; } |
+{ type: "apply_orb"; orbId: string; targetUnitId: string; } |
+{ type: "increase_core_max_life"; } |
+{ type: "upgrade_core_power"; } |
+{ type: "decrease_core_cooldown"; } |
+{ type: "discard_unit"; unitId: string; } |
+{ type: "recruit_unit"; unitId: string; targetSlot: [number, number] | null; } |
+{ type: "update_team"; team: { units: Unit[]; }; } |
+{ type: "start_combat"; } |
+{ type: "end_combat"; } |
+{ type: "select_encounter"; encounterId: string; } |
+{ type: "victory"; };
+// Don't confuse this with actions. This represents the current stage that the
+// player is on
+
+
+
+export type PhaseType = "encounter" //skipabble
+	|
+	"shop" //skipabble
+	|
+	"orb_shop" //skipabble
+	|
+	"upgrade_core" //skipabble
+	|
+	"add_reaction_core" //skipabble
+	|
+	"pre_combat" // advances with "start_combat"
+	|
+	"combat" // advances with "end_combat"
+	|
+	"victory" |
+	"game_over";
+
+export type CombatState = {
+	enemyTeam: Unit[];
+	// Hot, mutable units for simulation
+	units: Unit[];
+	logs: CombatLogger.CombatLogEntry[];
+	seed: string;
+	playerCoreId: string;
+	cpuCoreId: string;
+	enemyPlayerName: string;
+	wonCombat: boolean;
+	// Permanent buffs should be applied here
+	finalPlayerUnits: Unit[];
+	// Used to reset board for replays
+	initialUnits: Unit[];
+};
+export type Event<T> = {
+	listen: (callback: (payload: T) => void) => void;
+	emit: (payload: T) => void;
+};
+export type PhaseOptions = {
+	phase: PhaseType;
+	round: number;
+	options: PhaseOption[];
+	combatState?: CombatState;
+	team?: { units: Unit[]; };
+	wins?: number;
+	losses?: number;
+	runStats?: RunStats;
+};
+export type RunStats = {
+	damageDealt: number;
+	poisonDealt: number;
+	shieldDealt: number;
+	regenDealt: number;
+	healDealt: number;
+	mostPowerfulUnit: { cardId: string; power: number; } | null;
+	totalUnitsRecruited: number;
+	unitUsage: Record<string, number>;
+};
+// Session state (exists in both SP and MP)
+
+
+export type SessionData = {
+	id: string;
+	player_id: string;
+	session_type: SessionType;
+	phase: PhaseType;
+	round: number;
+	step: number;
+	seed: string;
+	initial_seed: string;
+	options: PhaseOption[]; // IDEA: use to list allowed actions (including 'update_team')
+	team: { units: Unit[]; };
+	wins: number;
+	losses: number;
+	action_log: ActionLogEntry[];
+	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
+	combatState?: CombatState;
+	runStats?: RunStats;
+	updated_at?: Date;
+};
+export type MultiplayerQueueType = "casual" | "ranked";
+export type SessionType =
+	{ type: "singleplayer"; } |
+	{ type: "multiplayer"; queueType: MultiplayerQueueType; };
+
+
+
+export type PlayerProfile = {
+	id: string;
+	username: string;
+	rating: number;
+	matches_played: number;
+};
+
+export type RankedPlayer = Pick<PlayerProfile, "id" | "username" | "rating" | "matches_played">;
+
+export type RankedPlayersPage = {
+	players: RankedPlayer[];
+	page: number;
+	hasNextPage: boolean;
+};

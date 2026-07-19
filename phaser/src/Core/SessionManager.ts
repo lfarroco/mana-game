@@ -1,4 +1,4 @@
-import * as Models from "@Core/Models";
+import * as Models from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 
 const STORAGE_PREFIX = "mana_session_";

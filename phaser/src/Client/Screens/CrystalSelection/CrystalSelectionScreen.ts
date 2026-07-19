@@ -1,7 +1,7 @@
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as cloudsBg from "Client/Screens/Title/Components/cloudsBg";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
+//import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 
 import * as Components from "./Components";
 import * as Effects from "./Effects";
@@ -17,7 +17,7 @@ export const state: {
 	crystalName: Phaser.GameObjects.Text;
 	descriptionText: BBCodeText;
 	seedWarningText: Phaser.GameObjects.Text;
-	multiplayerQueueType: MultiplayerTypes.MultiplayerQueueType;
+	multiplayerQueueType: Models.MultiplayerQueueType;
 	paginationDots: Phaser.GameObjects.Arc[];
 } = {
 	crystals: [] as Models.CardDefinition[],

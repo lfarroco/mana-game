@@ -1,5 +1,5 @@
 import { StorageProvider } from "./IStorageProvider";
-import * as Logger from "@Utils/Logger";
+;
 
 
 export const createLocalStorageProvider = (): StorageProvider => ({
@@ -7,7 +7,7 @@ export const createLocalStorageProvider = (): StorageProvider => ({
 		try {
 			return localStorage.getItem(key);
 		} catch (error) {
-			Logger.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to get item "${key}":`, error);
+			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to get item "${key}":`, error);
 			return null;
 		}
 	},
@@ -16,7 +16,7 @@ export const createLocalStorageProvider = (): StorageProvider => ({
 		try {
 			localStorage.setItem(key, value);
 		} catch (error) {
-			Logger.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to set item "${key}":`, error);
+			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to set item "${key}":`, error);
 		}
 	},
 
@@ -24,7 +24,7 @@ export const createLocalStorageProvider = (): StorageProvider => ({
 		try {
 			localStorage.removeItem(key);
 		} catch (error) {
-			Logger.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to remove item "${key}":`, error);
+			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to remove item "${key}":`, error);
 		}
 	},
 });

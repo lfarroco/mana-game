@@ -1,7 +1,7 @@
-import { RunStats } from "@Core/Models";
+import { RunStats } from "@game/Models";
 import { storage } from "@Storage/index";
 import { GAME_CONFIG } from "@config";
-import * as Logger from "@Utils/Logger";
+;
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
 const INFINITE_ROUND_UNLOCK_THRESHOLD = 20;
@@ -51,7 +51,7 @@ let currentStats: PlayerStats = { ...defaultStats };
 function checkUnlockConditions() {
 	// Demo mode: no unlocks allowed
 	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
-		Logger.debug("StatsStore", "Unlock checks skipped in demo mode");
+		console.debug("StatsStore", "Unlock checks skipped in demo mode");
 		return;
 	}
 
@@ -153,7 +153,7 @@ function loadStats(): void {
 			pendingUnlockUnits: Array.isArray(parsed.pendingUnlockUnits) ? parsed.pendingUnlockUnits : [],
 		};
 	} catch (error) {
-		Logger.warn("StatsStore", "Failed to load stats", { error });
+		console.warn("StatsStore", "Failed to load stats", { error });
 	}
 }
 
@@ -161,7 +161,7 @@ function saveStats(): void {
 	try {
 		storage.setItem(STORAGE_KEY, JSON.stringify(currentStats));
 	} catch (error) {
-		Logger.warn("StatsStore", "Failed to save stats", { error });
+		console.warn("StatsStore", "Failed to save stats", { error });
 	}
 }
 
@@ -177,7 +177,7 @@ export function getStats(): PlayerStats {
 export function incrementRunsPlayed(): void {
 	currentStats.totalRuns++;
 	saveStats();
-	Logger.info("StatsStore", "Runs played incremented", { totalRuns: currentStats.totalRuns });
+	console.info("StatsStore", "Runs played incremented", { totalRuns: currentStats.totalRuns });
 }
 
 export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
@@ -198,12 +198,12 @@ export function recordVictory(tier: VictoryTier, coreUnitId?: string): void {
 			currentStats.coreUnitWins[coreUnitId] = { bronze: 0, silver: 0, gold: 0 };
 		}
 		currentStats.coreUnitWins[coreUnitId][tier]++;
-		Logger.info("StatsStore", "Recorded tiered core victory", { tier, coreUnitId });
+		console.info("StatsStore", "Recorded tiered core victory", { tier, coreUnitId });
 	}
 
 	checkUnlockConditions();
 	saveStats();
-	Logger.info("StatsStore", "Recorded tiered victory", { tier });
+	console.info("StatsStore", "Recorded tiered victory", { tier });
 }
 
 export function updateFurthestInfiniteRound(wins: number): void {
@@ -211,7 +211,7 @@ export function updateFurthestInfiniteRound(wins: number): void {
 		currentStats.furthestInfiniteRound = wins;
 		checkUnlockConditions();
 		saveStats();
-		Logger.info("StatsStore", "Updated furthest infinite round", { wins });
+		console.info("StatsStore", "Updated furthest infinite round", { wins });
 	}
 }
 
@@ -233,7 +233,7 @@ export function recordUnitUsage(name: string): void {
 export function checkMostPowerfulUnit(name: string, power: number): void {
 	if (!currentStats.mostPowerfulUnit || power > currentStats.mostPowerfulUnit.power) {
 		currentStats.mostPowerfulUnit = { name, power: Math.floor(power) };
-		Logger.info("StatsStore", "Updated most powerful unit", { name, power: Math.floor(power) });
+		console.info("StatsStore", "Updated most powerful unit", { name, power: Math.floor(power) });
 	}
 }
 
@@ -261,7 +261,7 @@ export function save(): void {
 export function unlockUnit(unitId: string): void {
 	// Demo mode: no unlocks allowed
 	if (!GAME_CONFIG.ENABLE_UNLOCKS) {
-		Logger.debug("StatsStore", "Unlock blocked in demo mode", { unitId });
+		console.debug("StatsStore", "Unlock blocked in demo mode", { unitId });
 		return;
 	}
 
@@ -271,7 +271,7 @@ export function unlockUnit(unitId: string): void {
 	) {
 		currentStats.pendingUnlockUnits.push(unitId);
 		saveStats();
-		Logger.info("StatsStore", "Queued pending unit unlock", { unitId });
+		console.info("StatsStore", "Queued pending unit unlock", { unitId });
 	}
 }
 
@@ -282,7 +282,7 @@ export function confirmUnlock(unitId: string): void {
 			currentStats.unlockedUnits.push(unitId);
 		}
 		saveStats();
-		Logger.info("StatsStore", "Confirmed unit unlock", { unitId });
+		console.info("StatsStore", "Confirmed unit unlock", { unitId });
 	}
 }
 
@@ -298,7 +298,7 @@ export function lockUnit(unitId: string): void {
 	currentStats.unlockedUnits = currentStats.unlockedUnits.filter((id) => id !== unitId);
 	currentStats.pendingUnlockUnits = currentStats.pendingUnlockUnits.filter((id) => id !== unitId);
 	saveStats();
-	Logger.info("StatsStore", "Locked unit", { unitId });
+	console.info("StatsStore", "Locked unit", { unitId });
 }
 
 

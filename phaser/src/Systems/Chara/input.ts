@@ -1,7 +1,7 @@
-import * as CoreConstants from "@Core/Constants";
+import * as CoreConstants from "@game/Constants";
 import * as GameController from "Client/GameController";
 import * as Board from "@Models/Board";
-import * as Geometry from "@Models/Geometry";
+import * as Geometry from "@game/Geometry";
 import { Unit } from "@game/Models";
 import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";

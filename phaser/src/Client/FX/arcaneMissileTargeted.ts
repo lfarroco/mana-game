@@ -1,7 +1,7 @@
 import * as EnergyBeam from "./EnergyBeam";
 import * as animation from "@Utils/animation";
 import * as OptionsStore from "@Models/OptionsStore";
-import * as Geometry from "@Models/Geometry";
+import * as Geometry from "@game/Geometry";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];

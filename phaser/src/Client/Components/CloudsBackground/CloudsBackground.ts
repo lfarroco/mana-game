@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBackgroundShader";
 import * as colorPresets from "./colorPresets";
 import * as OptionsStore from "@Models/OptionsStore";
-import * as Logger from "@Utils/Logger";
+;
 
 
 export type CloudsBackgroundConfig = {
@@ -118,7 +118,7 @@ export class CloudsBackground {
 	 */
 	public changePreset(): void {
 		if (this.customColors) {
-			Logger.warn("CloudsBackground", "Cannot change presets when using custom colors");
+			console.warn("CloudsBackground", "Cannot change presets when using custom colors");
 			return;
 		}
 
@@ -140,13 +140,13 @@ export class CloudsBackground {
 	 */
 	public setPreset(presetName: keyof typeof colorPresets.colorPresets): void {
 		if (this.customColors) {
-			Logger.warn("CloudsBackground", "Cannot set preset when using custom colors");
+			console.warn("CloudsBackground", "Cannot set preset when using custom colors");
 			return;
 		}
 
 		const index = this.presetKeys.indexOf(presetName as string);
 		if (index === -1) {
-			Logger.warn("CloudsBackground", `Preset '${presetName}' not found`);
+			console.warn("CloudsBackground", `Preset '${presetName}' not found`);
 			return;
 		}
 
@@ -241,7 +241,7 @@ export class CloudsBackground {
 			}
 		} catch {
 			// Fallback to medium quality if OptionsStore is not available
-			Logger.warn("CloudsBackground", "Could not access OptionsStore, defaulting to medium particle quality");
+			console.warn("CloudsBackground", "Could not access OptionsStore, defaulting to medium particle quality");
 			return 1.0;
 		}
 	}
@@ -323,7 +323,7 @@ export class CloudsBackground {
 		if (targetPreset) {
 			this.tweenColors(targetPreset, duration, ease);
 		} else {
-			Logger.warn("CloudsBackground", `Preset ${presetName} not found`);
+			console.warn("CloudsBackground", `Preset ${presetName} not found`);
 		}
 	}
 

@@ -1,13 +1,12 @@
 import type { PlaybackState } from "./types";
-import * as CombatLogger from "@Core/Combat/CombatLogger";
+import * as CombatLogger from "@game/CombatLogger";
 import * as Chara from "@Systems/Chara/Chara";
 import * as AudioManager from "@Systems/AudioManager";
-import * as damageFx from "@TriggerSystem/effects/visuals/damage";
-import * as healFx from "@TriggerSystem/effects/visuals/heal";
-import * as shieldFx from "@TriggerSystem/effects/visuals/shield";
-import * as poisonFx from "@TriggerSystem/effects/visuals/poison";
+import * as damageFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/damage";
+import * as healFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/heal";
+import * as shieldFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/shield";
+import * as poisonFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
-import * as Card from "@Models/Entities/Card";
 import * as Effects from "Client/FX";
 import * as Constants from "@Constants";
 
@@ -150,7 +149,7 @@ export const handleTimeoutDamageCast = (
 	_playbackState: PlaybackState,
 ) => {
 	// Fire a projectile from the black hole at center to the force's core
-	const core = Card.getBattleCore(state)(log.force);
+	const core = state.battleData.units.find(u => u.force === log.force && u.isCore)!;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	void Effects.arcaneMissileTargeted(
 		Constants.MIDDLE_SCREEN,
@@ -176,7 +175,7 @@ export const handleTimeoutDamageHit = (
 	_playbackState: PlaybackState,
 ) => {
 	// Shake the core chara when projectile lands
-	const core = Card.getBattleCore(state)(log.force);
+	const core = state.battleData.units.find(u => u.force === log.force && u.isCore)!;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	Chara.shake(coreChara);
 

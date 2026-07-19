@@ -1,7 +1,7 @@
 import * as arcaneMissileTargeted from "./arcaneMissileTargeted";
 import * as healingHitEffect from "./healingHitEffect";
 import * as MagicOrb from "Client/Components/MagicOrb/MagicOrb";
-import * as Card from "@Models/Entities/Card";
+import * as Card from "@game/Entities/Card";
 import * as Chara from "@Systems/Chara/Chara";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as animation from "@Utils/animation";
@@ -165,7 +165,7 @@ function createCrystalAbsorptionOrb(
 }
 
 function getCrystalTargetPoint(): Vec2 {
-	const core = Card.getPlayerPersistentCore(state);
+	const core = Card.getPlayerPersistentCore(state.session);
 
 	if (Chara.hasCharaById(core.id)) {
 		const coreChara = Chara.mustGetCharaById(core.id);
