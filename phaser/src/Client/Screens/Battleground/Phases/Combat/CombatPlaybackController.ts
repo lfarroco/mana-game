@@ -1,4 +1,4 @@
-import * as RunCombatCore from "@game/RunCombatCore";
+import * as CombatRunner from "@game/Combat/CombatRunner";
 import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
@@ -12,7 +12,7 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CoreConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
-import * as ScheduledEffects from "@game/ScheduledEffects";
+import * as ScheduledEffects from "@game/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
 import { resetUnitStats } from "@game/Entities/Unit";
@@ -44,7 +44,7 @@ const MIN_COOLDOWN = 200;
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: WaveOutcome) => void
-): RunCombatCore.CombatRunner => {
+): CombatRunner.CombatRunner => {
 
 	const combatStates: CombatSystemStates.CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
