@@ -80,11 +80,7 @@ const getInitialCombatUnits = (combatState: Models.CombatState) => {
 		return combatState.initialUnits;
 	}
 
-	if (combatState.units && combatState.units.length > 0) {
-		return combatState.units;
-	}
-
-	return combatState.enemyTeam;
+	return combatState.units;
 };
 
 const getCombatResultType = (outcome: string) =>

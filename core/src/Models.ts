@@ -334,13 +334,10 @@ export type PhaseType = "encounter" //skipabble
 	"game_over";
 
 export type CombatState = {
-	enemyTeam: Unit[];
 	// Hot, mutable units for simulation
 	units: Unit[];
 	logs: CombatLogger.CombatLogEntry[];
 	seed: string;
-	playerCoreId: string;
-	cpuCoreId: string;
 	enemyPlayerName: string;
 	wonCombat: boolean;
 	// Permanent buffs should be applied here

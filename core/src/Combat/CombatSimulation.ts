@@ -26,12 +26,9 @@ export function createCombatState(
 	const cpuCore = units.find(u => u.isCore && u.force !== session.team.units[0]?.force)!;
 
 	return {
-		enemyTeam: clone(enemyTeam),
 		units,
 		logs: [],
 		seed: session.seed,
-		playerCoreId: session.team.units.find(u => u.isCore)!.id,
-		cpuCoreId: enemyTeam.find(u => u.isCore)!.id,
 		enemyPlayerName: "CPU",
 		wonCombat: false,
 		finalPlayerUnits: clone(session.team.units),

@@ -175,9 +175,9 @@ export const createCombatPlaybackController = (
 		}
 
 		if (outcome === "player_lost") {
-			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.playerCoreId));
+			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.playerCore.id));
 		} else if (outcome === "player_won") {
-			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.cpuCoreId));
+			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.cpuCore.id));
 		}
 
 		await animation.delay(300);

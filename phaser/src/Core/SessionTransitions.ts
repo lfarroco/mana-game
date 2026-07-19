@@ -399,18 +399,7 @@ function executeCombatPhase(
 			session.seed,
 		);
 
-	const combatState: Models.CombatState = {
-		enemyTeam,
-		units: [...session.team.units, ...enemyTeam],
-		seed: session.seed,
-		playerCoreId: session.team.units.find(u => u.isCore)!.id,
-		cpuCoreId: enemyTeam.find(u => u.isCore)!.id,
-		enemyPlayerName: "CPU",
-		wonCombat: false,
-		initialUnits: structuredClone([...session.team.units, ...enemyTeam]),
-		finalPlayerUnits: [],
-		logs: [],
-	};
+	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, enemyTeam);
 
 	const finalCombatState = CombatSimulation.simulateCombat(
 		state.session,

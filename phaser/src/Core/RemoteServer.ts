@@ -106,9 +106,6 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	if (session.phase === "combat") {
 		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
 			console.debug("RemoteServer", "Using server-provided combat logs");
-			const enemyTeam = Array.isArray(sessionCombatState.enemyTeam)
-				? (sessionCombatState.enemyTeam as Unit[])
-				: [];
 			const units = Array.isArray(sessionCombatState.initialUnits)
 				? (sessionCombatState.initialUnits as Unit[])
 				: [];
@@ -119,11 +116,11 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 				typeof sessionCombatState.wonCombat === "boolean"
 					? sessionCombatState.wonCombat
 					: false;
+			const unitById = new Map(units.map(u => [u.id, u]));
+			const playerCore = units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!;
+			const cpuCore = units.find(u => u.isCore && u.force === FORCE_ID_CPU)!;
 			combatState = {
 				units,
-				enemyTeam,
-				playerCoreId: units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!.id,
-				cpuCoreId: units.find(u => u.isCore && u.force === FORCE_ID_CPU)!.id,
 				logs: sessionCombatState.logs as CombatLogEntry[],
 				seed: session.seed,
 				enemyPlayerName:
@@ -133,7 +130,11 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 				wonCombat,
 				finalPlayerUnits,
 				initialUnits: units,
-
+				unitById,
+				playerCore,
+				cpuCore,
+				playerUnits: units.filter(u => u.force === FORCE_ID_PLAYER),
+				cpuUnits: units.filter(u => u.force === FORCE_ID_CPU),
 			};
 		} else {
 			console.warn("RemoteServer", "Combat logs missing from session; simulating locally");
