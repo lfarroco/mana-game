@@ -80,3 +80,53 @@ export function nextRandomValue(rng: { seed: string }): { result: number; seed: 
 	const { result, seed: nextSeed } = value(seedNum);
 	return { result, seed: nextSeed.toString(36) };
 }
+
+/**
+ * Derive the next seed from the current seed and an action ID.
+ * Used to maintain determinism across player actions and decisions.
+ */
+export function generateNextSeed(currentSeed: string, actionId: string): string {
+	const input = currentSeed + actionId;
+	let hash = 0;
+	for (let i = 0; i < input.length; i++) {
+		const char = input.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash;
+	}
+	return Math.abs(hash).toString(36);
+}
+
+/**
+ * Deterministically select a random option index based on session state.
+ * Same seed, round, step, and optionCount always produces the same result.
+ */
+export function getDeterministicRandomOptionIndex(
+	seed: string,
+	round: number,
+	step: number,
+	optionCount: number
+): number {
+	const seededInput = `${seed}:${round}:${step}:${optionCount}`;
+	return range(stringToSeed(seededInput), 0, optionCount - 1).result;
+}
+
+/**
+ * Deterministically pick N random items using a seeded RNG.
+ * Mutates the session's seed to advance the RNG state.
+ */
+export function pickRandomItemsSeeded<T>(
+	rng: { seed: string },
+	items: T[],
+	count: number
+): T[] {
+	return pickRandom(rng, items, count);
+}
+
+/**
+ * Deterministic Fisher-Yates shuffle using a numeric seed.
+ * Same seed always produces the same shuffle order.
+ */
+export function shuffleWithSeed<T>(items: T[], seedNum: number): T[] {
+	const { copy } = shuffle(seedNum, items);
+	return copy;
+}

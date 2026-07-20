@@ -72,10 +72,7 @@ the client sends actions and receives server-authoritative results.
 
 Moved so far:
 
-- `core/src/Random.ts` (from `phaser/src/Utils/Random.ts`) — Mulberry32
-  seeded RNG, zero dependencies.
-- `core/src/Seeding.ts` (from `phaser/src/Core/Seeding.ts`) — seed
-  derivation; now imports `./Random` relatively.
+- `core/src/Random.ts` — Mulberry32 seeded RNG, string-to-seed hashing, seed derivation, deterministic shuffles/picks. Zero dependencies.
 
 Consumption points:
 

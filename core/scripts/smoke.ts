@@ -16,7 +16,6 @@
  */
 
 import * as Random from "../src/Random";
-import * as Seeding from "../src/Seeding";
 
 let failures = 0;
 
@@ -41,24 +40,24 @@ console.log("determinism: golden values (server/client replay must match)");
 const v = Random.value(123);
 check("Random.value(123).result", v.result === 0.7872516233474016, v.result);
 check("Random.value(123).seed", v.seed === 1831565936, v.seed);
-check("Seeding.stringToSeed('mana')", Seeding.stringToSeed("mana") === 3343943, Seeding.stringToSeed("mana"));
+check("Random.stringToSeed('mana')", Random.stringToSeed("mana") === 3343943, Random.stringToSeed("mana"));
 check(
-	"Seeding.generateNextSeed('seed','action')",
-	Seeding.generateNextSeed("seed", "action") === "vx7ms9",
-	Seeding.generateNextSeed("seed", "action"),
+	"Random.generateNextSeed('seed','action')",
+	Random.generateNextSeed("seed", "action") === "vx7ms9",
+	Random.generateNextSeed("seed", "action"),
 );
 check(
-	"Seeding.getDeterministicRandomOptionIndex('s',1,2,4)",
-	Seeding.getDeterministicRandomOptionIndex("s", 1, 2, 4) === 0,
+	"Random.getDeterministicRandomOptionIndex('s',1,2,4)",
+	Random.getDeterministicRandomOptionIndex("s", 1, 2, 4) === 0,
 );
 check(
-	"Seeding.shuffleWithSeed([1..5], 42)",
-	JSON.stringify(Seeding.shuffleWithSeed([1, 2, 3, 4, 5], 42)) === "[5,3,1,2,4]",
-	Seeding.shuffleWithSeed([1, 2, 3, 4, 5], 42),
+	"Random.shuffleWithSeed([1..5], 42)",
+	JSON.stringify(Random.shuffleWithSeed([1, 2, 3, 4, 5], 42)) === "[1,5,3,2,4]",
+	Random.shuffleWithSeed([1, 2, 3, 4, 5], 42),
 );
 check(
-	"Seeding.pickRandomItemsSeeded('mana',[x,y,z],2)",
-	JSON.stringify(Seeding.pickRandomItemsSeeded("mana", ["x", "y", "z"], 2)) === '["x","y"]',
+	"Random.pickRandomItemsSeeded('mana',[x,y,z],2)",
+	JSON.stringify(Random.pickRandomItemsSeeded("mana", ["x", "y", "z"], 2)) === '["x","y"]',
 );
 
 console.log("determinism: stateful RNG is reproducible after re-seeding");

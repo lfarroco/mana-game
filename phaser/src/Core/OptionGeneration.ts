@@ -8,7 +8,7 @@
 import * as Models from "@game/Models";
 import * as Card from "@game/Entities/Card";
 import { CardDefinition } from "@game/Models";
-import * as Seeding from "@game/Seeding";
+import * as Random from "@game/Random";
 
 const ENCOUNTER_IDS = [
 	"upgrade_unit",
@@ -40,8 +40,8 @@ export function createEncounterOptions(
 	// Get the last 12 encounters (4 phases × 3 options each)
 	const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
 
-	const seedNum = Seeding.stringToSeed(session.seed);
-	const shuffled = Seeding.shuffleWithSeed(ENCOUNTER_IDS, seedNum);
+	const seedNum = Random.stringToSeed(session.seed);
+	const shuffled = Random.shuffleWithSeed(ENCOUNTER_IDS, seedNum);
 
 	// Filter out recently shown encounters
 	const availableEncounters = shuffled.filter((id) => !recentlyShownEncounters.has(id));
@@ -175,7 +175,7 @@ export function generateShopOptions(
 	// We mix the current seed with "shop" and the encounter id to ensure
 	// encounter options and shop options never collide in their seed space.
 	//const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-	const options = Seeding.pickRandomItemsSeeded(session, filteredCards, numOptions).map((card) => ({
+	const options = Random.pickRandomItemsSeeded(session, filteredCards, numOptions).map((card) => ({
 		id: card.id,
 		cost: 10,
 		recruitRank: getCardRank(card),
