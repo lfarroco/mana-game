@@ -11,7 +11,7 @@ export type WaveOutcome = "player_won" | "player_lost" | "both_won";
  * CombatPlaybackController during client-side playback.
  */
 export type CombatEnvironment = {
-	session: SessionData, // needed for current seed
+	seed: string; // mutable seed, advanced during combat for deterministic RNG
 	combatState: CombatState;
 	combatStates: CombatSystemStates.CombatSystemStates;
 	logger: CombatLogger.CombatLogger;
@@ -337,7 +337,6 @@ export type CombatState = {
 	// Hot, mutable units for simulation
 	units: Unit[];
 	logs: CombatLogger.CombatLogEntry[];
-	seed: string;
 	enemyPlayerName: string;
 	wonCombat: boolean;
 	// Permanent buffs should be applied here
@@ -393,9 +392,17 @@ export type SessionData = {
 	losses: number;
 	action_log: ActionLogEntry[];
 	encounter_history?: string[]; // Track all shown encounters (for non-repetition logic)
-	combatState?: CombatState;
 	runStats?: RunStats;
 	updated_at?: Date;
+};
+
+/**
+ * Result of an action dispatch.
+ * Carries updated session and optional phase-specific data (e.g., combat results).
+ */
+export type ActionResponse = {
+	session: SessionData;
+	combatState?: CombatState;
 };
 export type MultiplayerQueueType = "casual" | "ranked";
 export type SessionType =

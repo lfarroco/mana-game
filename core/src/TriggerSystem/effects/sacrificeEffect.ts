@@ -23,11 +23,11 @@ export const sacrificeEffect = (
 	}
 
 	if (removeType === "effect") {
-		const effectToRemove = pickRandom(env.session, removableEffects, 1)[0];
+		const effectToRemove = pickRandom(env, removableEffects, 1)[0];
 		sourceUnit.effects = sourceUnit.effects.filter((e) => e !== effectToRemove);
 	} else {
 		const reactionToRemove = pickRandom(
-			env.session,
+			env,
 			removableReactions,
 			1)[0];
 		sourceUnit.reactions = sourceUnit.reactions.filter((r) => r !== reactionToRemove);

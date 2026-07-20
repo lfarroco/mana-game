@@ -6,7 +6,6 @@
  */
 
 import * as Models from "@game/Models";
-import { Unit } from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
@@ -23,21 +22,20 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
 	power_absorber: [{ id: "absorb_power_orb" }],
 };
 
-// @deprecated deleteme
-export type TransitionToNextStateOptions = {
-	combatEnemyTeam?: Unit[];
-	combatEnemyPlayerName?: string;
-};
+/**
+ * Stores the most recent combat result so it can be consumed by
+ * the end_combat transition without being embedded in SessionData.
+ */
+let pendingCombatState: Models.CombatState | null = null;
 
 function transitionAfterCombat(session: Models.SessionData): Models.SessionData {
 
-	if (!session.combatState) {
-		throw new Error("Missing combat state on session after combat completion");
+	if (!pendingCombatState) {
+		throw new Error("Missing combat state for end_combat transition");
 	}
 
-	const { wonCombat } = session.combatState;
-
-	session.combatState = undefined;
+	const { wonCombat } = pendingCombatState;
+	pendingCombatState = null;
 
 	if (wonCombat)
 		session.wins += 1;
@@ -370,7 +368,7 @@ function transitionToNextStep(
 export function transitionToNextState(
 	session: Models.SessionData,
 	action: Models.Action,
-): Models.SessionData {
+): Models.ActionResponse {
 
 	console.debug("SessionTransitions", "Transitioning session with action:", action);
 
@@ -381,7 +379,18 @@ export function transitionToNextState(
 	if (!actionHandler)
 		throw new Error(`No transition handler for phase '${nextSession.phase}' and action '${action.type}'`);
 
-	return actionHandler(nextSession, action);
+	const resultSession = actionHandler(nextSession, action);
+
+	// If a combat was just executed (start_combat), carry the combatState in the response
+	const combatState = pendingCombatState;
+	// For start_combat, the handler calls executeCombatPhase which sets pendingCombatState.
+	// For any other action, pendingCombatState will be null (or stale from a previous combat).
+	// Only attach it when the session phase is "combat" (meaning a combat just started).
+	if (resultSession.phase === "combat" && combatState) {
+		return { session: resultSession, combatState };
+	}
+
+	return { session: resultSession };
 
 }
 
@@ -410,13 +419,14 @@ function executeCombatPhase(
 	//session.runStats = simulation.finalState.session.runStats || session.runStats;
 	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
 
+	pendingCombatState = finalCombatState;
+
 	const nextSession: Models.SessionData = {
 		...session,
 		phase: "combat",
 		options: [{
 			id: "end_combat"
 		}],
-		combatState: finalCombatState
 	};
 
 	console.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);

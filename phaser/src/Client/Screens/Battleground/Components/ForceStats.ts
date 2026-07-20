@@ -40,7 +40,7 @@ const createStatsForForce = (force: string) => {
 
 	stats.display?.destroy();
 
-	const core = Card.getBattleCore(state.session.combatState!)(force);
+	const core = Card.getBattleCore(state.combatState!)(force);
 
 	const lifeDisplay = createLifeDisplay([x, y], core);
 
@@ -260,7 +260,7 @@ export function updateLifeDisplay(
 		console.error("ForceStats", `No health bar found for force ${force}`);
 		return;
 	}
-	const core = Card.getBattleCore(state.session.combatState!)(force);
+	const core = Card.getBattleCore(state.combatState!)(force);
 	const percent = Math.max(0, Math.min(1, life / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
@@ -310,7 +310,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = Card.getBattleCore(state.session.combatState!)(force);
+	const core = Card.getBattleCore(state.combatState!)(force);
 	const percent = Math.max(0, Math.min(1, shield / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;

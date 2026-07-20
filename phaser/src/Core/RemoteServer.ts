@@ -1,10 +1,8 @@
 import * as Models from "@game/Models";
-import { Unit } from "@game/Models";
-import * as supabase from "@lib/supabase";
-;
-import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@game/Constants";
 import { CombatLogEntry } from "@game/Combat/CombatLogger";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../../../core/src/Constants";
+
+import * as supabase from "@lib/supabase";
 
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
@@ -100,48 +98,34 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	if (error || !session) {
 		throw new Error(`Failed to fetch phase options: ${error?.message || "No session found"}`);
 	}
-	const sessionCombatState = getSessionCombatState(session);
+	const sessionCombatState = getSessionCombatState(session)!;
 
 	let combatState: Models.CombatState | undefined = undefined;
 	if (session.phase === "combat") {
-		if (sessionCombatState && Array.isArray(sessionCombatState.logs)) {
-			console.debug("RemoteServer", "Using server-provided combat logs");
-			const units = Array.isArray(sessionCombatState.initialUnits)
-				? (sessionCombatState.initialUnits as Unit[])
-				: [];
-			const finalPlayerUnits = Array.isArray(sessionCombatState.finalPlayerUnits)
-				? (sessionCombatState.finalPlayerUnits as Unit[])
-				: [];
-			const wonCombat =
-				typeof sessionCombatState.wonCombat === "boolean"
-					? sessionCombatState.wonCombat
-					: false;
-			const unitById = new Map(units.map(u => [u.id, u]));
-			const playerCore = units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!;
-			const cpuCore = units.find(u => u.isCore && u.force === FORCE_ID_CPU)!;
-			combatState = {
-				units,
-				logs: sessionCombatState.logs as CombatLogEntry[],
-				seed: session.seed,
-				enemyPlayerName:
-					typeof sessionCombatState.enemyPlayerName === "string"
-						? sessionCombatState.enemyPlayerName
-						: "",
-				wonCombat,
-				finalPlayerUnits,
-				initialUnits: units,
-				unitById,
-				playerCore,
-				cpuCore,
-				playerUnits: units.filter(u => u.force === FORCE_ID_PLAYER),
-				cpuUnits: units.filter(u => u.force === FORCE_ID_CPU),
-			};
-		} else {
-			console.warn("RemoteServer", "Combat logs missing from session; simulating locally");
-			combatState = CombatSimulation.simulateCombat(session, session.combatState as unknown as Models.CombatState);
-		}
+		console.debug("RemoteServer", "Using server-provided combat logs");
+		const units = sessionCombatState.initialUnits;
+		const finalPlayerUnits = sessionCombatState.finalPlayerUnits;
+		const wonCombat = sessionCombatState.wonCombat;
+		const unitById = new Map(units.map(u => [u.id, u]));
+		const playerCore = units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!;
+		const cpuCore = units.find(u => u.isCore && u.force === FORCE_ID_CPU)!;
+		combatState = {
+			units,
+			logs: sessionCombatState.logs as CombatLogEntry[],
+			enemyPlayerName:
+				typeof sessionCombatState.enemyPlayerName === "string"
+					? sessionCombatState.enemyPlayerName
+					: "",
+			wonCombat,
+			finalPlayerUnits,
+			initialUnits: units,
+			unitById,
+			playerCore,
+			cpuCore,
+			playerUnits: units.filter(u => u.force === FORCE_ID_PLAYER),
+			cpuUnits: units.filter(u => u.force === FORCE_ID_CPU),
+		};
 	}
-	state.session.combatState = combatState ?? undefined;
 
 	const optionsList = session.current_options || [];
 
@@ -159,7 +143,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 export async function handleAction(
 	_playerId: string,
 	action: Models.Action
-): Promise<Models.SessionData> {
+): Promise<Models.ActionResponse> {
 	const bodyPayload =
 		action.type === "start_combat"
 			? {
@@ -178,9 +162,9 @@ export async function handleAction(
 	}
 
 	const nextSession = response.data as Models.SessionData;
-	nextSession.combatState = getSessionCombatState(response.data);
+	const combatState = getSessionCombatState(response.data);
 	state.session = nextSession;
-	return nextSession;
+	return { session: nextSession, combatState };
 }
 
 /**

@@ -28,7 +28,6 @@ export function createCombatState(
 	return {
 		units,
 		logs: [],
-		seed: session.seed,
 		enemyPlayerName: "CPU",
 		wonCombat: false,
 		finalPlayerUnits: clone(session.team.units),
@@ -51,7 +50,7 @@ export function simulateCombat(
 	combatState: Models.CombatState,
 ): Models.CombatState {
 
-	const seedVal = Seeding.stringToSeed(combatState.seed);
+	const seedVal = Seeding.stringToSeed(session.seed);
 	Random.setSeed(seedVal);
 
 	const combatRunner = RunCombatCore.runCombat(session, combatState);

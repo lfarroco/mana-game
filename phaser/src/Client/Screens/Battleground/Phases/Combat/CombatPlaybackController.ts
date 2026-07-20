@@ -49,7 +49,7 @@ export const createCombatPlaybackController = (
 	const combatStates: CombatSystemStates.CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
 		regenSystemState: RegenSystem.initializeRegenSystem(),
-		combatStatsTrackerState: CombatStatsTracker.initialize(state.session.combatState!),
+		combatStatsTrackerState: CombatStatsTracker.initialize(state.combatState!),
 	};
 
 	CombatSystemStates.setCombatSystemStates(combatStates);
@@ -175,9 +175,9 @@ export const createCombatPlaybackController = (
 		}
 
 		if (outcome === "player_lost") {
-			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.playerCore.id));
+			await Animations.shatter(Chara.mustGetCharaById(state.combatState!.playerCore.id));
 		} else if (outcome === "player_won") {
-			await Animations.shatter(Chara.mustGetCharaById(state.session.combatState!.cpuCore.id));
+			await Animations.shatter(Chara.mustGetCharaById(state.combatState!.cpuCore.id));
 		}
 
 		await animation.delay(300);
@@ -208,8 +208,8 @@ export const createCombatPlaybackController = (
 
 	const getEnv = () => {
 		return {
-			session: state.session,
-			combatState: state.session.combatState!,
+			seed: state.session.seed,
+			combatState: state.combatState!,
 			logger: CombatLogger.createCombatLogger(),
 			scheduledEffects: ScheduledEffects.initialize(),
 			combatStates: playbackState.combatStates,

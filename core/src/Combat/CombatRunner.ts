@@ -53,11 +53,6 @@ const checkCombatOutcome = (state: CombatState): "player_won" | "player_lost" | 
 	return null;
 };
 
-/**
- * Server-side combat simulation runner.
- * All visual effects are no-ops — they are handled separately by CombatPlaybackController
- * during client-side playback of the combat logs.
- */
 export const runCombat = (
 	session: SessionData,
 	combatState: CombatState,
@@ -65,8 +60,9 @@ export const runCombat = (
 	// const blackHoleState: BlackHoleState.BlackHoleState | null = null;
 	// const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
+	// TODO: check, when combat is done, if the seed is saved back into the session
 	const env: CombatEnvironment = {
-		session,
+		seed: session.seed,
 		combatState: combatState,
 		logger: CombatLogger.createCombatLogger(),
 		scheduledEffects: ScheduledEffects.initialize(),

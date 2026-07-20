@@ -233,7 +233,7 @@ export function processReactions(
 }
 
 export function resolveTargets(
-	{ session, combatState }: Models.CombatEnvironment,
+	env: Models.CombatEnvironment,
 	sourceUnit: Models.Unit,
 	effect: Models.Effect,
 	triggeringUnit?: Models.Unit
@@ -242,7 +242,7 @@ export function resolveTargets(
 		return [];
 	}
 
-	const allUnits = combatState.units;
+	const allUnits = env.combatState.units;
 	const allies = allUnits.filter((u) => u.force === sourceUnit.force);
 	const enemies = allUnits.filter((u) => u.force !== sourceUnit.force);
 
@@ -252,10 +252,10 @@ export function resolveTargets(
 
 		case "random_ally":
 			const otherAllies = allies.filter((u) => u.id !== sourceUnit.id);
-			return pickRandom(session, otherAllies, effect.targets.count);
+			return pickRandom(env, otherAllies, effect.targets.count);
 
 		case "random_enemy":
-			return pickRandom(session, enemies, effect.targets.count);
+			return pickRandom(env, enemies, effect.targets.count);
 
 		case "row_allies":
 			return allies

@@ -58,6 +58,7 @@ async function finishCombatPhase({ previousPhase }: { previousPhase: Models.Phas
 
 	cleanupPlayback();
 	activeCombatState = null;
+	state.combatState = undefined;
 	await resetBoard(true);
 	namesDisplay.updateNameDisplay({ enemyName: "" });
 
@@ -191,7 +192,7 @@ export async function handleCombatPhase(): Promise<void> {
 
 	init();
 
-	const { combatState } = state.session;
+	const combatState = state.combatState;
 
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");

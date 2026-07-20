@@ -3,6 +3,8 @@ import * as Models from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 import * as SessionTransitions from "./SessionTransitions";
 
+const COMBAT_STORAGE_PREFIX = "mana_combat_";
+
 export async function createSession(
 	playerId: string,
 	crystalId: string,
@@ -16,17 +18,31 @@ export async function createSession(
 export async function handleAction(
 	playerId: string,
 	action: Models.Action
-): Promise<Models.SessionData> {
+): Promise<Models.ActionResponse> {
 
 	const result = SessionTransitions.transitionToNextState(
 		state.session,
 		action,
 	);
-	state.session = result;
+	state.session = result.session;
 
-	state.session.combatState = result.combatState;
+	SessionManager.updateSession(playerId, result.session);
 
-	SessionManager.updateSession(playerId, result);
+	// Persist or clean up combat state so mid-combat progress survives restarts
+	if (result.combatState) {
+		// Convert Maps to arrays for JSON serialization (Maps don't serialize natively)
+		const serializable = {
+			...result.combatState,
+			unitById: Array.from(result.combatState.unitById.entries()),
+		};
+		localStorage.setItem(
+			COMBAT_STORAGE_PREFIX + playerId,
+			JSON.stringify(serializable),
+		);
+		console.debug("LocalServer", `Combat state persisted to localStorage (${COMBAT_STORAGE_PREFIX}${playerId})`);
+	} else {
+		localStorage.removeItem(COMBAT_STORAGE_PREFIX + playerId);
+	}
 
 	return result;
 

@@ -9,7 +9,7 @@ const getCurrentPlayerId = () => state.session.player_id;
 
 async function dispatchAction(
 	action: Models.Action
-): Promise<Models.SessionData> {
+): Promise<Models.ActionResponse> {
 	return await GameServer.getServer().handleAction(getCurrentPlayerId(), action);
 }
 
@@ -29,7 +29,7 @@ export async function purchaseUnit(
 
 	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "recruit_unit",
 		unitId,
 		targetSlot
@@ -60,7 +60,7 @@ export async function purchaseUnit(
 }
 
 export async function sellUnit(unitId: string): Promise<Models.SessionData> {
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "discard_unit",
 		unitId
 	});
@@ -76,7 +76,7 @@ export async function skipPhase() {
 
 	const previousPhase = state.session.phase;
 
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "skip"
 	});
 
@@ -90,11 +90,14 @@ export async function selectEncounter(encounterId: string) {
 	const previousPhase = state.session.phase;
 	state.session.encounter_history = state.session.encounter_history || [];
 	state.session.encounter_history.push(encounterId);
-	const session = await dispatchAction({
+	const { session, combatState } = await dispatchAction({
 		type: "select_encounter",
 		encounterId
 	});
 	state.session = session;
+	if (combatState) {
+		state.combatState = combatState;
+	}
 
 	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
@@ -105,7 +108,7 @@ export async function applyOrb(
 ): Promise<Models.SessionData> {
 	const previousPhase = state.session.phase;
 
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "apply_orb",
 		orbId,
 		targetUnitId
@@ -124,7 +127,7 @@ export async function completeVictory() {
 
 	const previousPhase = state.session.phase;
 
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "victory"
 	});
 	state.session = session;
@@ -137,7 +140,7 @@ export async function completeCombatEncounter() {
 	const previousPhase = state.session.phase;
 
 	const { wins, losses, round } = state.session;
-	const session = await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "end_combat"
 	});
 
@@ -164,10 +167,11 @@ export async function completeCombatEncounter() {
 export async function updateTeam(
 	team: { units: Unit[] }
 ): Promise<Models.SessionData> {
-	return await dispatchAction({
+	const { session } = await dispatchAction({
 		type: "update_team",
 		team
 	});
+	return session;
 }
 
 export function requestNewRun(): void {

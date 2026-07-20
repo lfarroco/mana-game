@@ -7,6 +7,7 @@ import * as Geometry from "@game/Geometry";
 export type ClientState = {
 	savedGames: string[];
 	session: Models.SessionData;
+	combatState?: Models.CombatState;
 	battleData: {
 		forces: Force.Force[];
 		grid: number[][];

@@ -1,5 +1,3 @@
-import { SessionData } from "./Models";
-
 /**
  * Returns a pseudo-random number between 0 (inclusive) and 1 (exclusive).
  * Implements the Mulberry32 algorithm.
@@ -51,9 +49,9 @@ export function shuffle<T>(seed: number, array: T[]): {
 	}
 }
 
-export function pickRandom<T>(session: SessionData, arr: T[], n: number): T[] {
+export function pickRandom<T>(rng: { seed: string }, arr: T[], n: number): T[] {
 	const next = nextValue();
-	session.seed = next.toString();
+	rng.seed = next.toString();
 	return shuffle(next, arr).copy.slice(0, n);
 }
 

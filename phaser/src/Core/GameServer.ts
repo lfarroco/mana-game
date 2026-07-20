@@ -18,7 +18,7 @@ export type GameServer = {
 	handleAction(
 		playerId: string,
 		action: Models.Action,
-	): Promise<Models.SessionData>;
+	): Promise<Models.ActionResponse>;
 
 }
 
