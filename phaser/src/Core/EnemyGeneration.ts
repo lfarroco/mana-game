@@ -11,14 +11,12 @@ import { SessionData } from "@game/Models";
 import { makeForce } from "@game/Entities/Force";
 import { generateEnemyTeam } from "@Core/Combat/generateEnemyTeam";
 import { FORCE_ID_PLAYER, FORCE_ID_CPU } from "@game/Constants";
-import { stringToSeed } from "@game/Seeding";
-import { getSeed, setSeed } from "@game/Random";
 
 /**
  * Generate the enemy team for a specific round and win count.
  * CPU team has access to all non-core units regardless of unlock status.
  */
-export function generateEnemyTeamForRound(round: number, wins: number, seed?: string): Unit[] {
+export function generateEnemyTeamForRound(round: number, wins: number, _seed?: string): Unit[] {
 	const allCards = Card.getNonCores();
 	const mockState = {
 		battleData: {
@@ -33,16 +31,7 @@ export function generateEnemyTeamForRound(round: number, wins: number, seed?: st
 		} as SessionData,
 	} as ClientState;
 
-	const previousSeed = getSeed();
-	if (seed) {
-		setSeed(stringToSeed(`${seed}:enemy:${round}:${wins}`));
-	}
-
 	const units = generateEnemyTeam(mockState, round, allCards);
-	if (seed) {
-		setSeed(previousSeed);
-	}
-
 	// Explicitly assign to CPU force to ensure correctness regardless of mock state nuances
 	units.forEach((u) => (u.force = FORCE_ID_CPU));
 	return units;

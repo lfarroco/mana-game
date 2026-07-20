@@ -1,12 +1,11 @@
 import * as constants from "@Constants";
-import * as Random from "@game/Random";
 import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./Keyboard";
 
 let seedText: Phaser.GameObjects.Text;
 
 export function create() {
-	const currentSeed = Random.getSeed();
+	const currentSeed = state.session.seed;
 
 	const x = constants.SCREEN_WIDTH - 20;
 	const y = constants.SCREEN_HEIGHT - 20;

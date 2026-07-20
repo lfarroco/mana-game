@@ -1,5 +1,5 @@
 import { CombatEnvironment, Unit } from "../../Models";
-import { nextValue, pickRandom } from "../../Random";
+import { nextRandomValue, pickRandom } from "../../Random";
 import { increasePower } from "./increasePower";
 
 export const sacrificeEffect = (
@@ -17,7 +17,9 @@ export const sacrificeEffect = (
 	// Random choice between effect or reaction
 	let removeType: "effect" | "reaction";
 	if (hasEffects && hasReactions) {
-		removeType = nextValue() < 0.5 ? "effect" : "reaction";
+		const { result: roll, seed: nextSeed } = nextRandomValue(env);
+		env.seed = nextSeed;
+		removeType = roll < 0.5 ? "effect" : "reaction";
 	} else {
 		removeType = hasEffects ? "effect" : "reaction";
 	}

@@ -8,8 +8,6 @@
 import * as Models from "../Models";
 import * as RunCombatCore from "./CombatRunner";
 import * as CombatLogger from "./CombatLogger";
-import * as Random from "../Random";
-import * as Seeding from "../Seeding";
 
 const clone = <A>(json: A): A => {
 	return JSON.parse(JSON.stringify(json));
@@ -49,9 +47,6 @@ export function simulateCombat(
 	session: Models.SessionData,
 	combatState: Models.CombatState,
 ): Models.CombatState {
-
-	const seedVal = Seeding.stringToSeed(session.seed);
-	Random.setSeed(seedVal);
 
 	const combatRunner = RunCombatCore.runCombat(session, combatState);
 

@@ -23,7 +23,8 @@ export function dealDamage(
 
 	const enemyCore = Card.getEnemyCore(combatState)(sourceUnit.force);
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = calculateCritical(env, sourceUnit);
+	env.seed = crit.seed;
 	const damage = ((damageAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 	// Log the cast

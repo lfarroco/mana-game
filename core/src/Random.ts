@@ -1,4 +1,18 @@
 /**
+ * Deterministic string-to-number hash for seeding.
+ * Same input always produces the same output.
+ */
+export function stringToSeed(str: string): number {
+	let hash = 0;
+	for (let i = 0; i < str.length; i++) {
+		const char = str.charCodeAt(i);
+		hash = (hash << 5) - hash + char;
+		hash = hash & hash;
+	}
+	return Math.abs(hash);
+}
+
+/**
  * Returns a pseudo-random number between 0 (inclusive) and 1 (exclusive).
  * Implements the Mulberry32 algorithm.
  */
@@ -50,44 +64,19 @@ export function shuffle<T>(seed: number, array: T[]): {
 }
 
 export function pickRandom<T>(rng: { seed: string }, arr: T[], n: number): T[] {
-	const next = nextValue();
-	rng.seed = next.toString();
-	return shuffle(next, arr).copy.slice(0, n);
+	const seedNum = stringToSeed(rng.seed);
+	const { copy, seed: nextNum } = shuffle(seedNum, arr);
+	rng.seed = nextNum.toString(36);
+	return copy.slice(0, n);
 }
 
-// TODO: save seed in the env
-// Stateful compatibility layer for legacy code
-// This allows code that relied on global RNG state to continue working
-let globalSeed: number = Math.floor(Math.random() * 0xFFFFFFFF);
-
-export function nextValue(): number {
-	const result = value(globalSeed);
-	globalSeed = result.seed;
-	return result.result;
-}
-
-export function nextRange(min: number, max: number): number {
-	const result = range(globalSeed, min, max);
-	globalSeed = result.seed;
-	return result.result;
-}
-
-export function nextShuffle<T>(array: T[]): T[] {
-	const result = shuffle(globalSeed, array);
-	globalSeed = result.seed;
-	return result.copy;
-}
-
-export function nextPickRandom<T>(arr: T[], n: number): T[] {
-	const result = shuffle(globalSeed, arr);
-	globalSeed = result.seed;
-	return result.copy.slice(0, n);
-}
-
-export function setSeed(seed: number): void {
-	globalSeed = seed;
-}
-
-export function getSeed(): number {
-	return globalSeed;
+/**
+ * Generate a single random value from a seed, returning the advanced seed.
+ * Used for single-shot randomness (critical hits, 50/50 choices, etc.)
+ * without needing the full shuffle machinery.
+ */
+export function nextRandomValue(rng: { seed: string }): { result: number; seed: string } {
+	const seedNum = stringToSeed(rng.seed);
+	const { result, seed: nextSeed } = value(seedNum);
+	return { result, seed: nextSeed.toString(36) };
 }

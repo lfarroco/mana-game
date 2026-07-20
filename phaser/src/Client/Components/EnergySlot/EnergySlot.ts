@@ -1,5 +1,4 @@
 import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
-import * as Random from "@game/Random";
 
 export interface EnergySlotConfig {
 	size?: number;
@@ -30,7 +29,7 @@ export class EnergySlot {
 		this.startTime = io.scene.time.now;
 
 		// Calculate animation phase offset - randomized for variety
-		const animationPhaseOffset = Random.nextValue() * Math.PI * 2;
+		const animationPhaseOffset = Math.random() * Math.PI * 2;
 
 		// Create the base shader
 		const baseShader = new Phaser.Display.BaseShader(

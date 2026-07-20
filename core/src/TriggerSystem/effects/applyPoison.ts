@@ -16,7 +16,8 @@ export const applyPoison = async (
 ) => {
 	const baseAmount = sourceUnit.power * 0.1;
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = calculateCritical(env, sourceUnit);
+	env.seed = crit.seed;
 
 	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 

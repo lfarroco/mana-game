@@ -9,8 +9,6 @@ import * as Card from "../Entities/Card";
 import * as Constants from "../Constants";
 import * as CombatSimulation from "./CombatSimulation";
 import * as RunCombatCore from "./CombatRunner";
-import * as Seeding from "../Seeding";
-import * as Random from "../Random";
 import * as BoardLogic from "../BoardLogic";
 import { BASE_COLLECTION_DATA } from "../BaseCollection";
 
@@ -130,8 +128,6 @@ function simulateCombatForFrames(
 	maxFrames: number,
 ) {
 	const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-	const seedVal = Seeding.stringToSeed(session.initial_seed);
-	Random.setSeed(seedVal);
 
 	const combatRunner = RunCombatCore.runCombat(session, combatState);
 
@@ -150,8 +146,6 @@ function simulateCombatForFrames(
 describe("Combat simulation log generation", () => {
 	it("generates combat logs when two cores fight (player 100 HP, cpu 200 HP)", () => {
 		const state = createTestCombat(100, 200);
-		const seedVal = Seeding.stringToSeed("test-seed-001");
-		Random.setSeed(seedVal);
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -180,8 +174,6 @@ describe("Combat simulation log generation", () => {
 
 	it("a 100 HP core dies before a 200 HP core (both have same damage)", () => {
 		const { session, combatState } = createTestCombat(100, 200);
-		const seedVal = Seeding.stringToSeed("test-seed-002");
-		Random.setSeed(seedVal);
 
 		const result = CombatSimulation.simulateCombat(session, combatState);
 
@@ -194,8 +186,6 @@ describe("Combat simulation log generation", () => {
 
 	it("player wins when player core has more life than cpu core (500 vs 100)", () => {
 		const state = createTestCombat(500, 100);
-		const seedVal = Seeding.stringToSeed("test-seed-003");
-		Random.setSeed(seedVal);
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -208,8 +198,6 @@ describe("Combat simulation log generation", () => {
 
 	it("both_won when combat times out (both cores alive after max duration)", () => {
 		const state = createTestCombat(99999, 99999, 1, 1, "test-seed-004");
-		const seedVal = Seeding.stringToSeed("test-seed-004");
-		Random.setSeed(seedVal);
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -222,7 +210,6 @@ describe("Combat simulation log generation", () => {
 
 	it("includes combat_stats log entry", () => {
 		const state = createTestCombat(100, 200);
-		Random.setSeed(Seeding.stringToSeed("test-seed-005"));
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -236,7 +223,6 @@ describe("Combat simulation log generation", () => {
 
 	it("damage_cast and damage_hit are logged as separate entries with travelTime", () => {
 		const state = createTestCombat(200, 200);
-		Random.setSeed(Seeding.stringToSeed("test-seed-010"));
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -431,7 +417,6 @@ describe("Shield accumulation and damage routing", () => {
 
 	it("damage_hit carries both newLife and newShield", () => {
 		const state = createTestCombat(500, 500);
-		Random.setSeed(Seeding.stringToSeed("test-dmg-shield-001"));
 
 		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
 
@@ -459,8 +444,6 @@ describe("Haste / Slow status effect log generation", () => {
 		);
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-		const seedVal = Seeding.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
 
 		const combatRunner = RunCombatCore.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
@@ -493,8 +476,6 @@ describe("Haste / Slow status effect log generation", () => {
 		);
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-		const seedVal = Seeding.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
 
 		const combatRunner = RunCombatCore.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
@@ -527,8 +508,6 @@ describe("Haste / Slow status effect log generation", () => {
 		);
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-		const seedVal = Seeding.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
 
 		const combatRunner = RunCombatCore.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
@@ -567,8 +546,6 @@ describe("Haste / Slow status effect log generation", () => {
 		);
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-		const seedVal = Seeding.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
 
 		const combatRunner = RunCombatCore.runCombat(session,
 			combatState);
@@ -606,8 +583,6 @@ describe("Haste / Slow status effect log generation", () => {
 		);
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
-		const seedVal = Seeding.stringToSeed(session.initial_seed);
-		Random.setSeed(seedVal);
 
 		const combatRunner = RunCombatCore.runCombat(session, combatState);
 		const env = combatRunner.getEnv();

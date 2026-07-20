@@ -26,28 +26,30 @@ export const testCardDefinitions = {
 	},
 } as const;
 
-export function calculateCritical(u: Unit): {
+export function calculateCritical(rng: { seed: string }, u: Unit): {
 	isCritical: boolean;
 	multiplier: number;
 	bonusPower: number;
+	seed: string;
 } {
 	const critChance = u.critical || 0;
 	const effectiveCritChance = Math.min(critChance, 100);
 	const excessCrit = Math.max(critChance - 100, 0);
 
-	const isCritical = critChance > 0 && Random.nextValue() < effectiveCritChance / 100;
+	const { result: roll, seed: nextSeed } = Random.nextRandomValue(rng);
+	const isCritical = critChance > 0 && roll < effectiveCritChance / 100;
 
 	if (isCritical) {
 		const multiplier = 2;
 		const bonusPower = Math.floor(excessCrit / 5);
-		return { isCritical: true, multiplier, bonusPower };
+		return { isCritical: true, multiplier, bonusPower, seed: nextSeed };
 	}
 
-	return { isCritical: false, multiplier: 1, bonusPower: 0 };
+	return { isCritical: false, multiplier: 1, bonusPower: 0, seed: nextSeed };
 }
 
 export function isCritical(u: Unit): boolean {
-	return calculateCritical(u).isCritical;
+	return calculateCritical({ seed: "0" }, u).isCritical;
 }
 
 function upgradeEffect(rankMultiplier: number, eff: Effect) {

@@ -2,7 +2,6 @@ import * as Phaser from "phaser";
 import * as Board from "@Models/Board";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import { magicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
-import { nextValue } from "@game/Random";
 ;
 
 
@@ -57,7 +56,7 @@ export class MagicOrb {
 		this.startTime = io.scene.time.now;
 		this.originalPosition = { x, y };
 
-		const animationPhaseOffset = nextValue() * Math.PI * 2;
+		const animationPhaseOffset = Math.random() * Math.PI * 2;
 		console.debug("MagicOrb", `MagicOrb randomization: phase offset=${animationPhaseOffset}`);
 
 		const baseShader = new Phaser.Display.BaseShader(

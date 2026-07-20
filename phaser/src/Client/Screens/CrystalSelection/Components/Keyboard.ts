@@ -1,4 +1,3 @@
-import { getSeed, setSeed } from "@game/Random";
 import * as Phaser from "phaser";
 import * as parent from "../CrystalSelectionScreen";
 
@@ -64,7 +63,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 	const backBtn = createActionBtn(
 		"Back",
 		() => {
-			targetText.setText(`${getSeed()}`);
+			targetText.setText(state.session.seed);
 			parent.state.seedWarningText.setVisible(false);
 			if (document.body.contains(keyboardContainer)) {
 				document.body.removeChild(keyboardContainer);
@@ -110,21 +109,21 @@ export function create(targetText: Phaser.GameObjects.Text) {
 		"Enter",
 		() => {
 			if (targetText.text === "") {
-				const newSeed = Date.now();
-				setSeed(newSeed);
-				targetText.setText(`${newSeed}`);
+				const newSeed = String(Date.now());
+				state.session.seed = newSeed;
+				targetText.setText(newSeed);
 				parent.state.seedWarningText.setVisible(false);
 			} else {
 				const val = parseInt(targetText.text, 10);
 				if (!isNaN(val)) {
-					setSeed(val);
+					state.session.seed = String(val);
 					targetText.setText(`${val}`);
 					parent.state.seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
-					const newSeed = Date.now();
-					setSeed(newSeed);
-					targetText.setText(`${newSeed}`);
+					const newSeed = String(Date.now());
+					state.session.seed = newSeed;
+					targetText.setText(newSeed);
 					parent.state.seedWarningText.setVisible(false);
 				}
 			}
@@ -166,8 +165,8 @@ export function create(targetText: Phaser.GameObjects.Text) {
 				document.body.removeChild(keyboardContainer);
 			}
 			const currentVal = parseInt(targetText.text, 10);
-			if (isNaN(currentVal) && targetText.text !== `${getSeed()}`) {
-				targetText.setText(`${getSeed()}`);
+			if (isNaN(currentVal) && targetText.text !== state.session.seed) {
+				targetText.setText(state.session.seed);
 				parent.state.seedWarningText.setVisible(false);
 			}
 

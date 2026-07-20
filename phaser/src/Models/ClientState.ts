@@ -1,7 +1,5 @@
 import * as Models from "@game/Models";
 import * as Force from "@game/Entities/Force";
-import * as Random from "@game/Random";
-import * as Seeding from "@game/Seeding";
 import * as Geometry from "@game/Geometry";
 
 export type ClientState = {
@@ -57,8 +55,6 @@ export function resetState() {
 	const newState = initialState();
 
 	setState(newState);
-
-	Random.setSeed(Seeding.stringToSeed(state.session.seed));
 }
 
 /**
@@ -69,7 +65,6 @@ export const setState = (newState: ClientState): void => {
 	for (const key in state) {
 		(state as Record<string, unknown>)[key] = (newState as Record<string, unknown>)[key];
 	}
-	Random.setSeed(Seeding.stringToSeed(newState.session.seed));
 };
 
 export const getState = (): ClientState => state;

@@ -16,7 +16,8 @@ export const addShield = async (
 	const baseAmount = sourceUnit.power;
 	const alliedCore = env.combatState.units.find(u => u.force === sourceUnit.force && u.isCore)!;
 
-	const crit = calculateCritical(sourceUnit);
+	const crit = calculateCritical(env, sourceUnit);
+	env.seed = crit.seed;
 	const shieldAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
 
 	// Log the cast
