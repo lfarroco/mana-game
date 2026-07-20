@@ -1,5 +1,4 @@
 import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { getAlliedCore } from "../../Entities/Card";
@@ -29,49 +28,41 @@ export const addShield = (
 		travelTime: PROJECTILE_TRAVEL_MS,
 	});
 
-	// Schedule the hit
+	// Schedule the hit as a deferred event
 	const currentTimeMs = env.logger.getCurrentTimeMs();
-	env.scheduledEffects = ScheduledEffects.scheduleHit(
-		env.scheduledEffects,
-		{
-			type: "shield",
-			hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-			sourceId: sourceUnit.id,
-			targetId: alliedCore.id,
-			amount: shieldAmount,
-			isCritical: crit.isCritical,
-			hasOnCritReaction: crit.isCritical,
+	const sourceId = sourceUnit.id;
+	const targetId = alliedCore.id;
+	const isCritical = crit.isCritical;
+	const sourceForce = sourceUnit.force;
+
+	env.deferredEvents.push({
+		timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+		execute: (env) => {
+			const { combatState: state } = env;
+			const sourceUnit = state.units.find(u => u.id === sourceId);
+			if (!sourceUnit) return;
+
+			const alliedCore = getAlliedCore(env.combatState)(sourceUnit.force);
+			const oldShield = alliedCore.shield;
+
+			const actualShieldChange = manipulateCoreShield(env.combatState, sourceForce, shieldAmount, isCritical);
+
+			if (actualShieldChange > 0) {
+				CombatStatsTracker.trackShield(env.combatStates.combatStatsTrackerState, env, sourceId, actualShieldChange);
+			}
+
+			if (isCritical) {
+				processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+			}
+
+			env.logger.log({
+				type: "shield_hit",
+				sourceId: sourceId,
+				targetId: targetId,
+				amount: shieldAmount,
+				newShield: alliedCore.shield,
+				shieldDelta: alliedCore.shield - oldShield,
+			});
 		},
-	);
-};
-
-export function applyShieldHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state } = env;
-	const sourceUnit = state.units.find(u => u.id === hit.sourceId);
-	if (!sourceUnit) return;
-
-	const alliedCore = getAlliedCore(env.combatState)(sourceUnit.force);
-	const oldShield = alliedCore.shield;
-
-	const actualShieldChange = manipulateCoreShield(env.combatState, sourceUnit.force, hit.amount, hit.isCritical ?? false);
-
-	if (actualShieldChange > 0) {
-		CombatStatsTracker.trackShield(env.combatStates.combatStatsTrackerState, env, hit.sourceId, actualShieldChange);
-	}
-
-	if (hit.hasOnCritReaction && hit.isCritical) {
-		processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-	}
-
-	env.logger.log({
-		type: "shield_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		amount: hit.amount,
-		newShield: alliedCore.shield,
-		shieldDelta: alliedCore.shield - oldShield,
 	});
-}
+};

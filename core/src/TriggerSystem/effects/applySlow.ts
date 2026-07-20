@@ -1,5 +1,4 @@
 import { CombatEnvironment, Unit } from "../../Models";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
@@ -24,36 +23,27 @@ export function applySlow(
 			travelTime: PROJECTILE_TRAVEL_MS,
 		});
 
-		// Schedule the hit
+		// Schedule the hit as a deferred event
 		const currentTimeMs = env.logger.getCurrentTimeMs();
-		env.scheduledEffects = ScheduledEffects.scheduleHit(
-			env.scheduledEffects,
-			{
-				type: "slow",
-				hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-				sourceId: sourceUnit.id,
-				targetId: target.id,
-				amount: 0,
-				effectDuration: duration,
+		const targetId = target.id;
+		const sourceId = sourceUnit.id;
+
+		env.deferredEvents.push({
+			timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+			execute: (env) => {
+				const { combatState: state } = env;
+				const target = state.units.find(u => u.id === targetId);
+				if (!target) return;
+
+				target.slowed += duration;
+
+				env.logger.log({
+					type: "slow_hit",
+					sourceId: sourceId,
+					targetId: targetId,
+					effectDuration: duration,
+				});
 			},
-		);
+		});
 	}
-}
-
-export function applySlowHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state } = env;
-	const target = state.units.find(u => u.id === hit.targetId);
-	if (!target) return;
-
-	target.slowed += (hit.effectDuration ?? 0);
-
-	env.logger.log({
-		type: "slow_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		effectDuration: hit.effectDuration ?? 0,
-	});
-}
+};

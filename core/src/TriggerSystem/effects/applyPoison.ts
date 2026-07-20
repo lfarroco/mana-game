@@ -2,7 +2,6 @@ import * as Card from "../../Entities/Card";
 import * as Force from "../../Entities/Force";
 import * as PoisonSystem from "../../Combat/PoisonDamageSystem";
 import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { processReactions } from "../TriggerSystem";
@@ -32,62 +31,52 @@ export const applyPoison = (
 		travelTime: PROJECTILE_TRAVEL_MS,
 	});
 
-	// Schedule the hit
+	// Schedule the hit as a deferred event
 	const currentTimeMs = env.logger.getCurrentTimeMs();
-	env.scheduledEffects = ScheduledEffects.scheduleHit(
-		env.scheduledEffects,
-		{
-			type: "poison",
-			hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-			sourceId: sourceUnit.id,
-			targetId: enemyCore.id,
-			amount: amount,
-			isCritical: crit.isCritical,
-			hasOnCritReaction: crit.isCritical,
+	const sourceId = sourceUnit.id;
+	const targetId = enemyCore.id;
+	const isCritical = crit.isCritical;
+
+	env.deferredEvents.push({
+		timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+		execute: (env) => {
+			const { combatState: state, combatStates } = env;
+			const sourceUnit = state.units.find(u => u.id === sourceId);
+			if (!sourceUnit) return;
+
+			const targetForce = Force.getEnemyForce(state, sourceId);
+
+			const oldPoison = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, targetForce);
+
+			const newPoisonState = PoisonSystem.applyPoison(
+				combatStates.poisonSystemState,
+				targetForce,
+				amount,
+				isCritical,
+			);
+			combatStates.poisonSystemState = newPoisonState;
+
+			CombatStatsTracker.trackPoison(
+				combatStates.combatStatsTrackerState,
+				env,
+				sourceId,
+				amount
+			);
+
+			if (isCritical) {
+				processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+			}
+
+			const poisonRate = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, targetForce);
+
+			env.logger.log({
+				type: "poison_hit",
+				sourceId: sourceId,
+				targetId: targetId,
+				amount: amount,
+				newPoison: poisonRate,
+				poisonDelta: poisonRate - oldPoison,
+			});
 		},
-	);
-};
-
-export function applyPoisonHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state } = env;
-	const sourceUnit = state.units.find(u => u.id === hit.sourceId);
-	if (!sourceUnit) return;
-
-	const targetForce = Force.getEnemyForce(state, hit.sourceId);
-
-	const { combatStates } = env;
-	const oldPoison = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, targetForce);
-
-	const newPoisonState = PoisonSystem.applyPoison(
-		combatStates.poisonSystemState,
-		targetForce,
-		hit.amount,
-		hit.isCritical ?? false,
-	);
-	combatStates.poisonSystemState = newPoisonState;
-
-	CombatStatsTracker.trackPoison(
-		combatStates.combatStatsTrackerState,
-		env,
-		hit.sourceId,
-		hit.amount
-	);
-
-	if (hit.hasOnCritReaction && hit.isCritical) {
-		processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-	}
-
-	const poisonRate = PoisonSystem.getPoisonRate(combatStates.poisonSystemState, targetForce);
-
-	env.logger.log({
-		type: "poison_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		amount: hit.amount,
-		newPoison: poisonRate,
-		poisonDelta: poisonRate - oldPoison,
 	});
-}
+};

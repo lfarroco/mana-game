@@ -1,7 +1,6 @@
 import * as Force from "../../Entities/Force";
 import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
 import * as Card from "../../Entities/Card";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { processReactions } from "../TriggerSystem";
@@ -9,8 +8,8 @@ import { processReactions } from "../TriggerSystem";
 const PROJECTILE_TRAVEL_MS = 200;
 
 /**
- * Cast damage: calculate the amount, log the cast, and schedule the hit.
- * The actual damage is applied later when the projectile lands.
+ * Cast damage: calculate the amount, log the cast, and schedule the hit
+ * as a deferred event that will execute when the projectile lands.
  */
 export function dealDamage(
 	env: CombatEnvironment,
@@ -36,71 +35,56 @@ export function dealDamage(
 		travelTime: PROJECTILE_TRAVEL_MS,
 	});
 
-	// Schedule the hit
+	// Schedule the hit as a deferred event
 	const currentTimeMs = logger.getCurrentTimeMs();
+	const sourceId = sourceUnit.id;
+	const targetId = enemyCore!.id;
+	const isCritical = crit.isCritical;
 
-	env.scheduledEffects = ScheduledEffects.scheduleHit(
-		env.scheduledEffects,
-		{
-			type: "damage",
-			hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-			sourceId: sourceUnit.id,
-			targetId: enemyCore!.id,
-			amount: damage,
-			isCritical: crit.isCritical,
-			hasOnCritReaction: crit.isCritical,
+	env.deferredEvents.push({
+		timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+		execute: (env) => {
+			const { combatState: state, logger } = env;
+
+			const source = state.units.find(u => u.id === sourceId);
+
+			const enemyCore = Card.getEnemyCore(state)(source!.force);
+			const oldLife = enemyCore?.life ?? 0;
+			const oldShield = enemyCore?.shield ?? 0;
+
+			const actualLifeChanged = Force.applyDamageToForce(
+				state,
+				enemyCore!.force,
+				damage,
+				0,
+				"normal",
+				isCritical,
+			);
+
+			CombatStatsTracker.trackDamage(
+				env.combatStates.combatStatsTrackerState,
+				env,
+				sourceId,
+				actualLifeChanged,
+			);
+
+			if (isCritical) {
+				const sourceUnit = state.units.find(u => u.id === sourceId);
+				if (sourceUnit) {
+					processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+				}
+			}
+
+			logger.log({
+				type: "damage_hit",
+				sourceId: sourceId,
+				targetId: targetId,
+				amount: damage,
+				newLife: enemyCore?.life,
+				newShield: enemyCore?.shield,
+				lifeDelta: (enemyCore?.life ?? 0) - oldLife,
+				shieldDelta: (enemyCore?.shield ?? 0) - oldShield,
+			});
 		},
-	);
-
-}
-
-/**
- * Apply a damage hit that was previously scheduled.
- * Called from ScheduledEffects.processHit when the projectile lands.
- */
-export function applyDamageHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state, logger } = env;
-
-	const source = state.units.find(u => u.id === hit.sourceId)!;
-
-	const enemyCore = Card.getEnemyCore(state)(source.force);
-	const oldLife = enemyCore?.life ?? 0;
-	const oldShield = enemyCore?.shield ?? 0;
-
-	const actualLifeChanged = Force.applyDamageToForce(
-		state,
-		enemyCore.force,
-		hit.amount,
-		0,
-		"normal",
-		hit.isCritical ?? false,
-	);
-
-	CombatStatsTracker.trackDamage(
-		env.combatStates.combatStatsTrackerState,
-		env,
-		hit.sourceId,
-		actualLifeChanged,
-	);
-
-	if (hit.hasOnCritReaction && hit.isCritical) {
-		const sourceUnit = state.units.find(u => u.id === hit.sourceId);
-		if (sourceUnit) {
-			processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-		}
-	}
-
-	logger.log({
-		type: "damage_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		amount: hit.amount,
-		newLife: enemyCore?.life,
-		newShield: enemyCore?.shield,
-		lifeDelta: (enemyCore?.life ?? 0) - oldLife,
-		shieldDelta: (enemyCore?.shield ?? 0) - oldShield,
 	});
 }

@@ -1,5 +1,4 @@
 import { CombatEnvironment, Unit } from "../../Models";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
@@ -19,35 +18,27 @@ export function applyCharge(
 			travelTime: PROJECTILE_TRAVEL_MS,
 		});
 
-		// Schedule the hit
+		// Schedule the hit as a deferred event
 		const currentTimeMs = env.logger.getCurrentTimeMs();
-		env.scheduledEffects = ScheduledEffects.scheduleHit(
-			env.scheduledEffects,
-			{
-				type: "charge",
-				hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-				sourceId: sourceUnit.id,
-				targetId: target.id,
-				amount: amount,
+		const targetId = target.id;
+		const sourceId = sourceUnit.id;
+
+		env.deferredEvents.push({
+			timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+			execute: (env) => {
+				const { combatState: state } = env;
+				const target = state.units.find(u => u.id === targetId);
+				if (!target) return;
+
+				target.charge += amount;
+
+				env.logger.log({
+					type: "charge_hit",
+					sourceId: sourceId,
+					targetId: targetId,
+					amount: amount,
+				});
 			},
-		);
+		});
 	}
-}
-
-export function applyChargeHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state } = env;
-	const target = state.units.find(u => u.id === hit.targetId);
-	if (!target) return;
-
-	target.charge += hit.amount;
-
-	env.logger.log({
-		type: "charge_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		amount: hit.amount,
-	});
-}
+};

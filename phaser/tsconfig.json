@@ -117,7 +117,6 @@
         "../core/src/Combat/CombatLogger.ts",
         "../core/src/CombatTypes.ts",
         "../core/src/Combat/CombatStatsTracker.ts",
-        "../core/src/Combat/ScheduledEffects.ts",
         "../core/src/TriggerSystem",
         "../core/src/Entities",
         "../core/src/Combat/PoisonDamageSystem.ts",

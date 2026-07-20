@@ -1,8 +1,6 @@
 import * as Card from "../../Entities/Card";
 import * as RegenSystem from "../../Combat/RegenSystem";
 import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
-import * as ScheduledEffects from "../../Combat/ScheduledEffects";
-;
 import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
 import { processReactions } from "../TriggerSystem";
@@ -32,56 +30,47 @@ export const applyRegen = (
 		travelTime: PROJECTILE_TRAVEL_MS,
 	});
 
-	// Schedule the hit
+	// Schedule the hit as a deferred event
 	const currentTimeMs = env.logger.getCurrentTimeMs();
-	env.scheduledEffects = ScheduledEffects.scheduleHit(
-		env.scheduledEffects,
-		{
-			type: "regen",
-			hitTimeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
-			sourceId: sourceUnit.id,
-			targetId: alliedCore.id,
-			amount: amount,
-			isCritical: crit.isCritical,
-			hasOnCritReaction: crit.isCritical,
+	const sourceId = sourceUnit.id;
+	const targetId = alliedCore.id;
+	const isCritical = crit.isCritical;
+
+	env.deferredEvents.push({
+		timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
+		execute: (env) => {
+			const { combatState: state, combatStates } = env;
+			const sourceUnit = state.units.find(u => u.id === sourceId);
+			if (!sourceUnit) return;
+
+			const targetForce = state.units.find(u => u.id === sourceId)!.force;
+
+			const oldRegen = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce);
+
+			const newRegenState = RegenSystem.applyRegen(
+				combatStates.regenSystemState,
+				targetForce,
+				amount,
+				isCritical,
+			);
+			combatStates.regenSystemState = newRegenState;
+
+			CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, env, sourceId, amount);
+
+			if (isCritical) {
+				processReactions(env, sourceUnit, { id: "on_crit" }, 1);
+			}
+
+			const regenRate = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce);
+
+			env.logger.log({
+				type: "regen_hit",
+				sourceId: sourceId,
+				targetId: targetId,
+				amount: amount,
+				newRegen: regenRate,
+				regenDelta: regenRate - oldRegen,
+			});
 		},
-	);
-};
-
-export function applyRegenHit(
-	env: CombatEnvironment,
-	hit: ScheduledEffects.PendingHit,
-) {
-	const { combatState: state, combatStates } = env;
-	const sourceUnit = state.units.find(u => u.id === hit.sourceId);
-	if (!sourceUnit) return;
-
-	const targetForce = state.units.find(u => u.id === hit.sourceId)!.force;
-
-	const oldRegen = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce);
-
-	const newRegenState = RegenSystem.applyRegen(
-		combatStates.regenSystemState,
-		targetForce,
-		hit.amount,
-		hit.isCritical ?? false,
-	);
-	combatStates.regenSystemState = newRegenState;
-
-	CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, env, hit.sourceId, hit.amount);
-
-	if (hit.hasOnCritReaction && hit.isCritical) {
-		processReactions(env, sourceUnit, { id: "on_crit" }, 1);
-	}
-
-	const regenRate = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce);
-
-	env.logger.log({
-		type: "regen_hit",
-		sourceId: hit.sourceId,
-		targetId: hit.targetId,
-		amount: hit.amount,
-		newRegen: regenRate,
-		regenDelta: regenRate - oldRegen,
 	});
-}
+};

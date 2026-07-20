@@ -1,4 +1,4 @@
-import { CombatEnvironment, CombatState, SessionData, Unit } from "../Models";
+import { CombatEnvironment, CombatState, SessionData, Unit, DeferredEvent } from "../Models";
 import * as TriggerSystem from "../TriggerSystem/TriggerSystem";
 import * as Constants from "../Constants";
 import * as Timeout from "./TimeoutDamageSystem";
@@ -7,7 +7,6 @@ import * as Regen from "./RegenSystem";
 import * as CombatStatsTracker from "./CombatStatsTracker";
 import * as StatusEffectSystem from "./StatusEffectSystem";
 import * as CombatLogger from "./CombatLogger";
-import * as ScheduledEffects from "./ScheduledEffects";
 
 // import * as BlackHoleState from "./BlackHoleState";
 // import * as CountdownTimer from "@Systems/CountdownTimer";
@@ -65,7 +64,7 @@ export const runCombat = (
 		seed: session.seed,
 		combatState: combatState,
 		logger: CombatLogger.createCombatLogger(),
-		scheduledEffects: ScheduledEffects.initialize(),
+		deferredEvents: [],
 		combatStates: {
 			poisonSystemState: Poison.initializePoisonSystem(),
 			regenSystemState: Regen.initializeRegenSystem(),
@@ -113,14 +112,21 @@ export const runCombat = (
 			return;
 		}
 
-		// 1. Process scheduled hits that are due (projectiles landing this frame)
-		const { dueHits, remaining } = ScheduledEffects.getDueHits(
-			runnerState.env.scheduledEffects,
-			combatElapsedMs,
-		);
-		runnerState.env.scheduledEffects = remaining;
-		for (const hit of dueHits) {
-			ScheduledEffects.processHit(runnerState.env, hit);
+		// 1. Process deferred events that are due (projectiles landing this frame)
+		const dueEvents: DeferredEvent[] = [];
+		const remainingEvents: DeferredEvent[] = [];
+		for (const event of runnerState.env.deferredEvents) {
+			if (event.timeMs <= combatElapsedMs) {
+				dueEvents.push(event);
+			} else {
+				remainingEvents.push(event);
+			}
+		}
+		// Sort due events by time for deterministic processing
+		dueEvents.sort((a, b) => a.timeMs - b.timeMs);
+		runnerState.env.deferredEvents = remainingEvents;
+		for (const event of dueEvents) {
+			event.execute(runnerState.env);
 		}
 
 		// 2. Check combat outcome after hits landed
@@ -195,11 +201,12 @@ export const runCombat = (
 			});
 		}
 
-		// Log outcome
+		// Log outcome — use current time so sorting keeps it last
+		const currentTime = runnerState.env.logger.getCurrentTimeMs();
 		runnerState.env.logger.log({
 			type: "outcome",
 			result: outcome,
-		});
+		}, currentTime);
 
 	};
 

@@ -280,7 +280,7 @@ export type CombatLogInput =
 export type CombatLogEntry = CombatLogInput & { timeMs: number };
 
 export type CombatLogger = {
-	log: (entry: CombatLogInput) => void;
+	log: (entry: CombatLogInput, timeMs?: number) => void;
 
 	setCurrentTimeMs: (timeMs: number) => void;
 
@@ -294,10 +294,10 @@ export const createCombatLogger = (): CombatLogger => {
 	const logs: CombatLogEntry[] = [];
 
 	return {
-		log: (entry: CombatLogInput) => {
+		log: (entry: CombatLogInput, timeMs?: number) => {
 			logs.push({
 				...entry,
-				timeMs: currentTimeMs,
+				timeMs: timeMs ?? currentTimeMs,
 			});
 		},
 

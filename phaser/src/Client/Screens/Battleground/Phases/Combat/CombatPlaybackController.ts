@@ -11,7 +11,6 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CoreConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
-import * as ScheduledEffects from "@game/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
 import { resetUnitStats } from "@game/Entities/Unit";
@@ -208,7 +207,7 @@ export const createCombatPlaybackController = (
 			seed: state.session.seed,
 			combatState: state.combatState!,
 			logger: CombatLogger.createCombatLogger(),
-			scheduledEffects: ScheduledEffects.initialize(),
+			deferredEvents: [],
 			combatStates: playbackState.combatStates,
 		};
 	};

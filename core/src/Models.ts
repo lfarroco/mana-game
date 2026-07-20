@@ -1,5 +1,4 @@
 import * as CombatLogger from "./Combat/CombatLogger";
-import type * as ScheduledEffects from "./Combat/ScheduledEffects";
 
 // Inlined from Combat/CombatSystemStates.ts — just a data type, no runtime deps
 import type * as PoisonDamageSystem from "./Combat/PoisonDamageSystem";
@@ -15,8 +14,17 @@ export type CombatSystemStates = {
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
 /**
+ * A deferred event scheduled to execute at a future simulation time.
+ * The execute closure applies the effect to game state and logs the _hit entry.
+ */
+export type DeferredEvent = {
+	timeMs: number;
+	execute: (env: CombatEnvironment) => void;
+};
+
+/**
  * The pure-data combat environment passed through trigger effects and systems.
- * Contains only state, combat system states, logger, scheduled effects, and reaction processing.
+ * Contains only state, combat system states, logger, deferred events, and reaction processing.
  * Visual effects are NOT part of this env — they are handled separately by
  * CombatPlaybackController during client-side playback.
  */
@@ -25,7 +33,7 @@ export type CombatEnvironment = {
 	combatState: CombatState;
 	combatStates: CombatSystemStates;
 	logger: CombatLogger.CombatLogger;
-	scheduledEffects: ScheduledEffects.ScheduledEffectsState;
+	deferredEvents: DeferredEvent[];
 };
 
 export type CardCollection = {

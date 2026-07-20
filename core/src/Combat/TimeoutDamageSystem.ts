@@ -86,8 +86,9 @@ function applyTimeoutDamage(
 	const oldCpuShield = cpuCore?.shield ?? 0;
 
 	const travelTime = 400;
+	const currentTimeMs = env.logger.getCurrentTimeMs();
 
-	// Cast entries — launch projectiles
+	// Log cast entries
 	env.logger.log({
 		type: "timeout_damage_cast",
 		force: Constants.FORCE_ID_PLAYER,
@@ -101,11 +102,7 @@ function applyTimeoutDamage(
 		travelTime,
 	});
 
-	// Advance logger time so hit entries land after travelTime
-	const castTime = env.logger.getCurrentTimeMs();
-	env.logger.setCurrentTimeMs(castTime + travelTime);
-
-	// Apply damage and log hit entries
+	// Apply damage immediately (state change happens now)
 	Force.applyDamageToForce(
 		env.combatState,
 		Constants.FORCE_ID_PLAYER,
@@ -114,16 +111,6 @@ function applyTimeoutDamage(
 		"timeout",
 		false,
 	);
-	env.logger.log({
-		type: "timeout_damage_hit",
-		force: Constants.FORCE_ID_PLAYER,
-		damage: currentDamage,
-		newLife: playerCore?.life,
-		newShield: playerCore?.shield,
-		lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
-		shieldDelta: (playerCore?.shield ?? 0) - oldPlayerShield,
-	});
-
 	Force.applyDamageToForce(
 		env.combatState,
 		Constants.FORCE_ID_CPU,
@@ -132,6 +119,17 @@ function applyTimeoutDamage(
 		"timeout",
 		false,
 	);
+
+	// Log hit entries with future timestamp (for playback ordering)
+	env.logger.log({
+		type: "timeout_damage_hit",
+		force: Constants.FORCE_ID_PLAYER,
+		damage: currentDamage,
+		newLife: playerCore?.life,
+		newShield: playerCore?.shield,
+		lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
+		shieldDelta: (playerCore?.shield ?? 0) - oldPlayerShield,
+	}, currentTimeMs + travelTime);
 	env.logger.log({
 		type: "timeout_damage_hit",
 		force: Constants.FORCE_ID_CPU,
@@ -140,10 +138,7 @@ function applyTimeoutDamage(
 		newShield: cpuCore?.shield,
 		lifeDelta: (cpuCore?.life ?? 0) - oldCpuLife,
 		shieldDelta: (cpuCore?.shield ?? 0) - oldCpuShield,
-	});
-
-	// Restore original logger time
-	env.logger.setCurrentTimeMs(castTime);
+	}, currentTimeMs + travelTime);
 }
 
 export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {

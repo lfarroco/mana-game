@@ -64,6 +64,17 @@ export function simulateCombat(
 	const env = combatRunner.getEnv();
 	const logs = env.logger.getLogs();
 
+	// Sort logs by timeMs to ensure proper playback ordering
+	// (deferred events and timeout damage log entries with future timestamps)
+	logs.sort((a, b) => a.timeMs - b.timeMs);
+
+	// Ensure outcome entry is always last regardless of timestamp
+	const outcomeIndex = logs.findIndex((l) => l.type === "outcome");
+	if (outcomeIndex !== -1 && outcomeIndex < logs.length - 1) {
+		const outcome = logs.splice(outcomeIndex, 1)[0];
+		logs.push(outcome);
+	}
+
 	// Propagate the advanced seed back to the session so subsequent
 	// combats and out-of-combat random operations continue from where
 	// the RNG left off (env.seed was advanced by pickRandom calls during combat).
