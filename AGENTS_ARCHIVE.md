@@ -2,6 +2,12 @@
 
 This file stores historical completed-task entries that were moved out of AGENTS.md and PLAN.md to keep the active agent guide concise.
 
+
+## Completed (2026-07-20)
+
+- [x] Added comprehensive pure unit tests for the core module. Created 12 new test files covering: Geometry (Vec2 math, distances, point-in-rect), Random (deterministic RNG, seed derivation, shuffle, golden values), BoardLogic (slot finding, movement validation), Constants (exported values), PoisonDamageSystem (apply/stack/reduce/clear poison), RegenSystem (apply/stack/clear regen), CombatLogger (log creation, time stamping, entry preservation), TimeoutDamageSystem (init, stop, config), CombatStatsTracker (init, trackDamage/Heal/Poison/Regen/Shield, stop/runStats), Unit (calculateCritical, applyPowerDelta), Force (makeForce, manipulateCoreLife/Shield, applyDamageToForce, unit/enemy force), Card (registry creation, CRUD operations, available cards filtering, unit creation). Fixed a type error in Force test (manipulateCoreShield expects 4th boolean arg). All 191 tests pass, `npm run typecheck` clean. (Cline, 2026-07-20)
+
+
 Date: 2026-07-17
 
 - [x] Refactored `CombatLogEntry` from a single flat type with ~25 optional properties into a discriminated union of 26 specific entry types (DamageCastEntry, DamageHitEntry, HealCastEntry, HealHitEntry, ShieldCastEntry, ShieldHitEntry, PoisonCastEntry, PoisonHitEntry, RegenCastEntry, RegenHitEntry, HasteCastEntry, HasteHitEntry, SlowCastEntry, SlowHitEntry, ChargeCastEntry, ChargeHitEntry, HasteEndEntry, SlowEndEntry, IncreasePowerEntry, DecreasePowerEntry, IncreaseCriticalEntry, PoisonTickEntry, RegenTickEntry, TimeoutDamageEntry, StormStartEntry, CombatStatsEntry, OutcomeEntry, ReactionEntry). Changed the type design to `CombatLogInput` (union of input types without timeMs) and `CombatLogEntry = CombatLogInput & { timeMs: number }` (output with stamped timeMs). Updated 13 files: all producers (dealDamage, restoreLife, addShield, applyPoison, applyRegen, applyHaste, applySlow, applyCharge, increasePower, decreasePower, multiplyPower, StatusEffectSystem, TimeoutDamageSystem, TriggerSystem, RunCombatCore), all consumers (CombatPlaybackController, logHandlers index + 5 handler modules), and tests. Removed manual property-guard patterns (`if (!log.newLife || !log.lifeDelta) throw...`) now enforced by TypeScript narrowing via switch dispatch. (Cline, 2026-07-17)
