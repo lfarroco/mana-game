@@ -5,8 +5,8 @@
  * Pure functions that modify unit state based on orb type or core upgrade action.
  */
 
-import { Unit } from "@game/Models";
-import { applyPowerDelta } from "@game/Entities/Unit";
+import { Unit } from "../Models";
+import { applyPowerDelta } from "../Entities/Unit";
 
 
 const COOLDOWN_REDUCTION_FACTOR = 0.1;

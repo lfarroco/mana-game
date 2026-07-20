@@ -5,10 +5,10 @@
  * Deterministic based on session seed to ensure reproducibility across replays.
  */
 
-import * as Models from "@game/Models";
-import * as Card from "@game/Entities/Card";
-import { CardDefinition } from "@game/Models";
-import * as Random from "@game/Random";
+import * as Models from "./Models";
+import * as Card from "./Entities/Card";
+import { CardDefinition } from "./Models";
+import * as Random from "./Random";
 
 const ENCOUNTER_IDS = [
 	"upgrade_unit",

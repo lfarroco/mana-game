@@ -8,7 +8,7 @@ import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import * as Card from "@game/Entities/Card";
 import * as Constants from "@game/Constants";
-import * as OptionGeneration from "./OptionGeneration";
+import * as OptionGeneration from "@game/OptionGeneration";
 
 
 const generateRandomSessionSeed = (): string => {

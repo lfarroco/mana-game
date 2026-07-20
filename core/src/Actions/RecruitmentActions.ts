@@ -5,12 +5,13 @@
  * Pure functions that return updated unit arrays and status messages.
  */
 
-import * as Models from "@game/Models";
-import { Unit } from "@game/Models";
-import * as Card from "@game/Entities/Card";
-import * as BoardLogic from "@game/BoardLogic";
-import * as Constants from "@game/Constants";
-import { isSome, some } from "@game/Functional";
+import * as Models from "../Models";
+import { Unit } from "../Models";
+import * as Card from "../Entities/Card";
+import * as BoardLogic from "../BoardLogic";
+import * as Constants from "../Constants";
+import { isSome, some } from "../Functional";
+import type { Vec2 } from "../Geometry";
 
 
 /**

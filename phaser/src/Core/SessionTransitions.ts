@@ -9,11 +9,11 @@ import * as Models from "@game/Models";
 import * as SessionManagement from "./SessionManagement";
 import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
-import * as PhaseConfig from "@Core/PhaseSystem/PhaseConfig";
-import * as RecruitmentActions from "@Core/Actions/RecruitmentActions"
-import * as OrbAndCoreUpgrades from "@Core/Actions/OrbAndCoreUpgrades"
+import * as PhaseConfig from "@game/PhaseSystem/PhaseConfig";
+import * as RecruitmentActions from "@game/Actions/RecruitmentActions"
+import * as OrbAndCoreUpgrades from "@game/Actions/OrbAndCoreUpgrades"
 	;
-import * as OptionGeneration from "./OptionGeneration";
+import * as OptionGeneration from "@game/OptionGeneration";
 
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
