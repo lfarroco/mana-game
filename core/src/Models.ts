@@ -443,3 +443,23 @@ export type RankedPlayersPage = {
 	page: number;
 	hasNextPage: boolean;
 };
+/**
+ * Interface for game server implementations.
+ * Both LocalServer and RemoteServer implement this interface.
+ */
+
+export type GameServer = {
+
+	// TODO: this might not be necessary if we do
+	// handleAction("create_session", { crystalId })
+	createSession(
+		playerId: string,
+		crystalId: string
+	): Promise<SessionData>;
+
+	handleAction(
+		playerId: string,
+		action: Action
+	): Promise<ActionResponse>;
+
+};

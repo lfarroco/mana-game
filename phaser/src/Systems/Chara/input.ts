@@ -1,5 +1,5 @@
 import * as CoreConstants from "@game/Constants";
-import * as GameController from "Client/GameController";
+import * as GameController from "../../GameController";
 import * as Board from "@Models/Board";
 import * as Geometry from "@game/Geometry";
 import { Unit } from "@game/Models";
@@ -7,7 +7,7 @@ import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
+import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 

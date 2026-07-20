@@ -13,7 +13,7 @@
                 "./src/Models/*"
             ],
             "@Screens/*": [
-                "./src/Client/Screens/*"
+                "./src/Screens/*"
             ],
             "@Systems/*": [
                 "./src/Systems/*"
@@ -28,7 +28,7 @@
                 "./src/io.ts"
             ],
             "@Components/*": [
-                "./src/Client/Components/*"
+                "./src/Components/*"
             ],
             "@Shaders/*": [
                 "./src/Shaders/*"
@@ -39,23 +39,14 @@
             "@lib/*": [
                 "./src/lib/*"
             ],
-            "@Core/*": [
-                "./src/Core/*"
-            ],
             "@Multiplayer/*": [
                 "./src/Multiplayer/*"
             ],
             "@Data/*": [
                 "./src/Data/*"
             ],
-            "@Game/*": [
-                "./src/Game/*"
-            ],
             "@TriggerSystem/*": [
                 "../core/src/TriggerSystem/*"
-            ],
-            "Client/*": [
-                "./src/Client/*"
             ],
             "TriggerSystem/*": [
                 "../core/src/TriggerSystem/*"
@@ -70,7 +61,7 @@
                 "./src/Storage/*"
             ],
             "@FX": [
-                "./src/Client/FX.ts"
+                "./src/FX.ts"
             ],
             "@Engine/*": [
                 "./src/Engine/*"

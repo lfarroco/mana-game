@@ -61,9 +61,6 @@
 			"@lib/*": [
 				"../phaser/src/lib/*"
 			],
-			"Client/*": [
-				"../phaser/src/Client/*"
-			],
 			"TriggerSystem/*": [
 				"../phaser/src/TriggerSystem/*"
 			],

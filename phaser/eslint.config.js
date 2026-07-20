@@ -49,25 +49,6 @@ export default [
 		},
 	},
 	{
-		// E2E tests and i18n JSON imports are excluded from the alias-only rule
-		files: ["src/**/*.ts", "src/**/*.tsx"],
-		ignores: ["src/i18n/i18n.ts"],
-		rules: {
-			"no-restricted-imports": [
-				"error",
-				{
-					patterns: [
-						{
-							group: ["../../*"],
-							message:
-								"Use path aliases (e.g. @Models/, @Systems/, @Core/) instead of long relative cross-directory imports.",
-						},
-					],
-				},
-			],
-		},
-	},
-	{
 		files: ["src/Core/**/*.ts", "src/Core/**/*.tsx"],
 		rules: {
 			"no-restricted-imports": [

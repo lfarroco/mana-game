@@ -8,12 +8,12 @@ const sharedResolve = {
 	alias: {
 		"@game": path.resolve(__dirname, "../../core/src"),
 		"@Models": path.resolve(__dirname, "../src/Models"),
-		"@Screens": path.resolve(__dirname, "../src/Client/Screens"),
+		"@Screens": path.resolve(__dirname, "../src/Screens"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),
 		"@IO": path.resolve(__dirname, "../src/phaser.io.ts"),
 		"@Constants": path.resolve(__dirname, "../src/Constants"),
 		"@Utils": path.resolve(__dirname, "../src/Utils"),
-		"@Components": path.resolve(__dirname, "../src/Client/Components"),
+		"@Components": path.resolve(__dirname, "../src/Components"),
 		"@Shaders": path.resolve(__dirname, "../src/Shaders"),
 		"@i18n": path.resolve(__dirname, "../src/i18n")
 	}

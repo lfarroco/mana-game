@@ -1,6 +1,6 @@
 
 import * as constants from "./Constants";
-import Client from "Client/Client";
+import Client from "./Client";
 import * as State from "@Models/ClientState";
 import * as io_ from "./io";
 
