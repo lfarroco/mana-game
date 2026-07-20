@@ -77,14 +77,6 @@ function applyTimeoutDamage(
 	const tickCount = Math.floor(timeSinceTimeoutStarted / TIMEOUT_DAMAGE_INTERVAL_MS) + 1;
 	const currentDamage = Math.floor(TIMEOUT_BASE_DAMAGE * Math.pow(TIMEOUT_GROWTH_RATE, tickCount - 1));
 
-	const playerCore = Card.getBattleCore(env.combatState)(Constants.FORCE_ID_PLAYER);
-	const cpuCore = Card.getBattleCore(env.combatState)(Constants.FORCE_ID_CPU);
-
-	const oldPlayerLife = playerCore?.life ?? 0;
-	const oldPlayerShield = playerCore?.shield ?? 0;
-	const oldCpuLife = cpuCore?.life ?? 0;
-	const oldCpuShield = cpuCore?.shield ?? 0;
-
 	const travelTime = 400;
 	const currentTimeMs = env.logger.getCurrentTimeMs();
 
@@ -102,43 +94,55 @@ function applyTimeoutDamage(
 		travelTime,
 	});
 
-	// Apply damage immediately (state change happens now)
-	Force.applyDamageToForce(
-		env.combatState,
-		Constants.FORCE_ID_PLAYER,
-		currentDamage,
-		0,
-		"timeout",
-		false,
-	);
-	Force.applyDamageToForce(
-		env.combatState,
-		Constants.FORCE_ID_CPU,
-		currentDamage,
-		0,
-		"timeout",
-		false,
-	);
+	// Schedule the hits as deferred events
+	env.deferredEvents.push({
+		timeMs: currentTimeMs + travelTime,
+		execute: (env) => {
+			const playerCore = Card.getBattleCore(env.combatState)(Constants.FORCE_ID_PLAYER);
+			const cpuCore = Card.getBattleCore(env.combatState)(Constants.FORCE_ID_CPU);
 
-	// Log hit entries with future timestamp (for playback ordering)
-	env.logger.log({
-		type: "timeout_damage_hit",
-		force: Constants.FORCE_ID_PLAYER,
-		damage: currentDamage,
-		newLife: playerCore?.life,
-		newShield: playerCore?.shield,
-		lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
-		shieldDelta: (playerCore?.shield ?? 0) - oldPlayerShield,
-	}, currentTimeMs + travelTime);
-	env.logger.log({
-		type: "timeout_damage_hit",
-		force: Constants.FORCE_ID_CPU,
-		damage: currentDamage,
-		newLife: cpuCore?.life,
-		newShield: cpuCore?.shield,
-		lifeDelta: (cpuCore?.life ?? 0) - oldCpuLife,
-		shieldDelta: (cpuCore?.shield ?? 0) - oldCpuShield,
-	}, currentTimeMs + travelTime);
+			const oldPlayerLife = playerCore?.life ?? 0;
+			const oldPlayerShield = playerCore?.shield ?? 0;
+			const oldCpuLife = cpuCore?.life ?? 0;
+			const oldCpuShield = cpuCore?.shield ?? 0;
+
+			Force.applyDamageToForce(
+				env.combatState,
+				Constants.FORCE_ID_PLAYER,
+				currentDamage,
+				0,
+				"timeout",
+				false,
+			);
+			Force.applyDamageToForce(
+				env.combatState,
+				Constants.FORCE_ID_CPU,
+				currentDamage,
+				0,
+				"timeout",
+				false,
+			);
+
+			env.logger.log({
+				type: "timeout_damage_hit",
+				force: Constants.FORCE_ID_PLAYER,
+				damage: currentDamage,
+				newLife: playerCore?.life,
+				newShield: playerCore?.shield,
+				lifeDelta: (playerCore?.life ?? 0) - oldPlayerLife,
+				shieldDelta: (playerCore?.shield ?? 0) - oldPlayerShield,
+			});
+			env.logger.log({
+				type: "timeout_damage_hit",
+				force: Constants.FORCE_ID_CPU,
+				damage: currentDamage,
+				newLife: cpuCore?.life,
+				newShield: cpuCore?.shield,
+				lifeDelta: (cpuCore?.life ?? 0) - oldCpuLife,
+				shieldDelta: (cpuCore?.shield ?? 0) - oldCpuShield,
+			});
+		},
+	});
 }
 
 export function stopTimeoutDamageSystem(timeoutState: TimeoutSystemState): TimeoutSystemState {
