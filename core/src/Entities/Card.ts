@@ -1,6 +1,8 @@
 import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData } from "../Models";
 import * as uuid from "uuid";
 
+// TODO: the card registration step is probably not needed
+
 const dummy: CardDefinition = {
 	id: "dummy_card",
 	pic: "boss_andromeda",
@@ -15,53 +17,104 @@ const dummy: CardDefinition = {
 	],
 };
 
-const cards = new Map<string, CardDefinition>();
-
-const registerCard = (card: CardDefinition): void => {
-	cards.set(card.id, card);
+export type CardRegistry = {
+	getCardDefinition: (id: string) => CardDefinition;
+	hasCardDefinition: (id: string) => boolean;
+	getCollection: (id: string) => CardCollection;
+	getAllCards: () => CardDefinition[];
+	getCores: () => CardDefinition[];
+	getNonCores: () => CardDefinition[];
+	getAvailableCards: (unlockedUnitIds: string[]) => CardDefinition[];
+	registerCollection: (collection: CardCollection) => void;
+	reset: () => void; // For test isolation
 };
 
-const collections = new Map<string, CardCollection>();
-export const registerCollection = (collection: CardCollection): void => {
-	collections.set(collection.id, collection);
+export const createCardRegistry = (): CardRegistry => {
+	const cards = new Map<string, CardDefinition>();
+	const collections = new Map<string, CardCollection>();
 
-	collection.cards
-		//.slice(0, 5)
-		.forEach(registerCard);
+	const registerCard = (card: CardDefinition): void => {
+		cards.set(card.id, card);
+	};
+
+	const registerCollection = (collection: CardCollection): void => {
+		collections.set(collection.id, collection);
+		collection.cards.forEach(registerCard);
+	};
+
+	return {
+		getCardDefinition: (id: string): CardDefinition => {
+			const card = cards.get(id);
+			if (!card) {
+				return dummy;
+			}
+			return card;
+		},
+
+		hasCardDefinition: (id: string): boolean => {
+			return cards.has(id);
+		},
+
+		getCollection: (id: string): CardCollection => {
+			const collection = collections.get(id);
+			if (!collection) {
+				throw new Error(`Collection with id ${id} not found`);
+			}
+			return collection;
+		},
+
+		getAllCards: (): CardDefinition[] => Array.from(cards.values()),
+
+		getCores: (): CardDefinition[] =>
+			Array.from(cards.values()).filter((card) => card.isCore),
+
+		getNonCores: (): CardDefinition[] =>
+			Array.from(cards.values()).filter((card) => !card.isCore),
+
+		getAvailableCards: (unlockedUnitIds: string[]): CardDefinition[] =>
+			Array.from(cards.values()).filter(
+				(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
+			),
+
+		registerCollection,
+
+		reset: () => {
+			cards.clear();
+			collections.clear();
+		},
+	};
 };
 
-export const getCardDefinition = (id: string): CardDefinition => {
-	const card = cards.get(id);
-	if (!card) {
-		return dummy;
-	}
-	return card;
-};
+// Default global registry — populated at startup via registerCollection.
+// Tests should use createCardRegistry() for isolation.
+const defaultRegistry = createCardRegistry();
 
-export const hasCardDefinition = (id: string): boolean => {
-	return cards.has(id);
-};
+export const registerCollection = (collection: CardCollection): void =>
+	defaultRegistry.registerCollection(collection);
 
-export const getCollection = (id: string): CardCollection => {
-	const collection = collections.get(id);
-	if (!collection) {
-		throw new Error(`Collection with id ${id} not found`);
-	}
-	return collection;
-};
+export const getCardDefinition = (id: string): CardDefinition =>
+	defaultRegistry.getCardDefinition(id);
 
-export const getAllCards = (): CardDefinition[] => Array.from(cards.values());
+export const hasCardDefinition = (id: string): boolean =>
+	defaultRegistry.hasCardDefinition(id);
+
+export const getCollection = (id: string): CardCollection =>
+	defaultRegistry.getCollection(id);
+
+export const getAllCards = (): CardDefinition[] =>
+	defaultRegistry.getAllCards();
 
 export const getCores = (): CardDefinition[] =>
-	Array.from(cards.values()).filter((card) => card.isCore);
+	defaultRegistry.getCores();
 
 export const getNonCores = (): CardDefinition[] =>
-	Array.from(cards.values()).filter((card) => !card.isCore);
+	defaultRegistry.getNonCores();
 
 export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =>
-	Array.from(cards.values()).filter(
-		(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
-	);
+	defaultRegistry.getAvailableCards(unlockedUnitIds);
+
+/** Reset the global registry — for test isolation. */
+export const resetRegistry = (): void => defaultRegistry.reset();
 
 export const getAlliedCore = (state: CombatState) => (forceId: string) =>
 	state.units.find((u) => u.force === forceId && u.isCore)!;

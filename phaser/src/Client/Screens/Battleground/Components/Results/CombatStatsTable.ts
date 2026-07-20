@@ -1,5 +1,4 @@
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
-import * as CombatSystemStates from "@game/Combat/CombatSystemStates";
 import { Unit } from "@game/Models";
 import * as Constants from "@game/Constants";
 import * as ResultsConfig from "./ResultsConfig";
@@ -7,6 +6,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as Utils from "@utils";
+import { getLastCombatTrackerState } from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
 
 const PANEL_CONFIG = {
 	width: 600,
@@ -76,8 +76,9 @@ async function createStatsPanel(
 
 	let currentY = startY + PANEL_CONFIG.rowHeight;
 	for (const unit of filteredUnits) {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		const stats = CombatStatsTracker.getUnitStats(combatStates.combatStatsTrackerState, unit.id);
+		const trackerState = getLastCombatTrackerState();
+		if (!trackerState) continue;
+		const stats = CombatStatsTracker.getUnitStats(trackerState, unit.id);
 		if (!stats) continue;
 
 		const totalDamage = Math.floor(stats.damageDealt);

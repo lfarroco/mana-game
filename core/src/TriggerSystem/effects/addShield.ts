@@ -8,7 +8,7 @@ import { processReactions } from "../TriggerSystem";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
-export const addShield = async (
+export const addShield = (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,

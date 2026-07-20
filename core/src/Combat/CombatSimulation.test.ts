@@ -3,6 +3,7 @@
  * These tests run in Jest (jsdom environment) but don't require
  * any browser APIs — the combat logic is pure data transformations.
  */
+/// <reference types="jest" />
 
 import * as Models from "../Models";
 import * as Card from "../Entities/Card";
@@ -14,6 +15,10 @@ import { BASE_COLLECTION_DATA } from "../BaseCollection";
 
 beforeAll(() => {
 	Card.registerCollection(BASE_COLLECTION_DATA);
+});
+
+afterAll(() => {
+	Card.resetRegistry();
 });
 
 /**

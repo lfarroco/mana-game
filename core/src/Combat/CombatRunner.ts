@@ -17,7 +17,7 @@ const MAX_COMBAT_DURATION_MS = 120_000;
 export type CombatRunner = {
 	updateFrame: (state: CombatState, time: number, delta: number) => void;
 	// TOOD: redundant, maybe move outcome to combatstate
-	finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => Promise<void>;
+	finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => void;
 	isActive: () => boolean;
 	stop: () => void;
 	getEnv: () => CombatEnvironment;
@@ -168,7 +168,7 @@ export const runCombat = (
 		}
 	};
 
-	const finishCombat = async (
+	const finishCombat = (
 		outcome: "player_won" | "player_lost" | "both_won"
 	) => {
 		if (!runnerState.active) return;

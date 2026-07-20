@@ -3,7 +3,7 @@ import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
-export const applyHaste = async (
+export const applyHaste = (
 	env: CombatEnvironment,
 	targets: Unit[],
 	sourceUnit: Unit,

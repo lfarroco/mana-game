@@ -9,7 +9,7 @@ import { processReactions } from "../TriggerSystem";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
-export const applyPoison = async (
+export const applyPoison = (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,

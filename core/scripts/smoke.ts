@@ -57,15 +57,24 @@ check(
 );
 check(
 	"Random.pickRandomItemsSeeded('mana',[x,y,z],2)",
-	JSON.stringify(Random.pickRandomItemsSeeded("mana", ["x", "y", "z"], 2)) === '["x","y"]',
+	JSON.stringify(Random.pickRandomItemsSeeded({ seed: "mana" }, ["x", "y", "z"], 2)) === '["x","y"]',
 );
 
 console.log("determinism: stateful RNG is reproducible after re-seeding");
-Random.setSeed(7);
-const first = [Random.nextValue(), Random.nextValue(), Random.nextValue()];
-Random.setSeed(7);
-const second = [Random.nextValue(), Random.nextValue(), Random.nextValue()];
-check("setSeed(7) reproduces the same sequence", JSON.stringify(first) === JSON.stringify(second), { first, second });
+const rng = { seed: "7" };
+const v1 = Random.nextRandomValue(rng);
+const v2 = Random.nextRandomValue(rng);
+const v3 = Random.nextRandomValue(rng);
+
+const rng2 = { seed: "7" };
+const w1 = Random.nextRandomValue(rng2);
+const w2 = Random.nextRandomValue(rng2);
+const w3 = Random.nextRandomValue(rng2);
+check(
+	"same seed produces same sequence of nextRandomValue",
+	v1.result === w1.result && v2.result === w2.result && v3.result === w3.result,
+	{ first: [v1.result, v2.result, v3.result], second: [w1.result, w2.result, w3.result] },
+);
 
 if (failures > 0) {
 	console.error(`\n@mana/core smoke test FAILED (${failures} failure(s))`);

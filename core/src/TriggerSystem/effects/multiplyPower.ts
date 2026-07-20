@@ -1,6 +1,6 @@
-import { CombatEnvironment, Unit } from "../..//Models";
+import { CombatEnvironment, Unit } from "../../Models";
 
-export const multiplyPower = async (options: {
+export const multiplyPower = (options: {
 	env: CombatEnvironment;
 	targets: Unit[];
 	sourceUnit: Unit;

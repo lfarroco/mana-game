@@ -10,11 +10,16 @@ import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay"
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 import * as Constants from "@game/Constants";
-import * as PoisonSystem from "@game/Combat/PoisonDamageSystem";
-import * as RegenSystem from "@game/Combat/RegenSystem";
-import * as CombatSystemStates from "@game/Combat/CombatSystemStates";
+import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import * as GameController from "Client/GameController";
 import { resetUnitStats } from "@game/Entities/Unit";
+
+// Store the last combat's tracker state for the results UI to read.
+// This lives here because it's the combat phase handler's responsibility
+// to bridge between the combat simulation and the UI.
+let lastCombatTrackerState: CombatStatsTracker.CombatStatsTrackerState | null = null;
+export const getLastCombatTrackerState = (): CombatStatsTracker.CombatStatsTrackerState | null =>
+	lastCombatTrackerState;
 
 const COMBAT_START_DELAY_MS = 300;
 
@@ -74,6 +79,7 @@ function cleanupPlayback(): void {
 	io.scene.time.paused = false;
 	stopActivePlayback();
 	stopActivePlayback = () => { };
+	lastCombatTrackerState = null;
 }
 
 const getInitialCombatUnits = (combatState: Models.CombatState) => {
@@ -124,6 +130,7 @@ const startCombatPlayback = async ({
 		combatState.logs,
 		async (outcome) => {
 			Board.setIsInputEnabled(true);
+			lastCombatTrackerState = controller.getEnv().combatStates.combatStatsTrackerState;
 			await showCombatResults({
 				resultType: getCombatResultType(outcome),
 			});
@@ -212,20 +219,6 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 	if (shouldResummonUnits) {
 		Chara.clearAll();
 		state.battleData.units = [];
-	}
-
-	if (CombatSystemStates.isInitialized()) {
-		const combatStates = CombatSystemStates.getCombatSystemStates();
-		let newRegenState = RegenSystem.clearRegen(combatStates.regenSystemState, Constants.FORCE_ID_PLAYER);
-		newRegenState = RegenSystem.clearRegen(newRegenState, Constants.FORCE_ID_CPU);
-		CombatSystemStates.updateRegenSystemState(newRegenState);
-
-		let newPoisonState = PoisonSystem.clearPoison(
-			combatStates.poisonSystemState,
-			Constants.FORCE_ID_PLAYER
-		);
-		newPoisonState = PoisonSystem.clearPoison(newPoisonState, Constants.FORCE_ID_CPU);
-		CombatSystemStates.updatePoisonSystemState(newPoisonState);
 	}
 
 	if (shouldResummonUnits) {

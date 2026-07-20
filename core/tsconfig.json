@@ -6,9 +6,7 @@
 		"lib": [
 			"ES2020"
 		],
-		"types": [
-			"jest"
-		],
+		"types": [],
 		"strict": true,
 		"noImplicitAny": true,
 		"noUnusedLocals": true,

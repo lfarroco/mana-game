@@ -15,11 +15,6 @@ export function initialize(_state: CombatState): StatusEffectSystemState {
 	return { elapsed: 0 };
 }
 
-const tick = (env: CombatEnvironment) => () => {
-	tickForce(env, FORCE_ID_PLAYER);
-	tickForce(env, FORCE_ID_CPU);
-};
-
 function tickForce(env: CombatEnvironment, forceId: string): void {
 	const { combatStates, logger } = env;
 	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, forceId);
@@ -75,7 +70,8 @@ export function update(
 	const newElapsed = statusEffectState.elapsed + delta;
 
 	if (newElapsed >= STATUS_EFFECT_TICK_INTERVAL_MS) {
-		tick(env)();
+		tickForce(env, FORCE_ID_PLAYER);
+		tickForce(env, FORCE_ID_CPU);
 		return {
 			elapsed: newElapsed - STATUS_EFFECT_TICK_INTERVAL_MS,
 		};

@@ -3,7 +3,7 @@ import * as ScheduledEffects from "../../Combat/ScheduledEffects";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
-export async function applySlow(
+export function applySlow(
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	targets: Unit[],

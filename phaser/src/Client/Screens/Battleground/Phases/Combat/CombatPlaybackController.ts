@@ -3,7 +3,7 @@ import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import * as CombatSystemStates from "@game/Combat/CombatSystemStates";
+import type * as CombatSystemStates from "@game/Combat/CombatSystemStates";
 import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
 import * as RegenSystem from "@game/Combat/RegenSystem";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
@@ -51,8 +51,6 @@ export const createCombatPlaybackController = (
 		regenSystemState: RegenSystem.initializeRegenSystem(),
 		combatStatsTrackerState: CombatStatsTracker.initialize(state.combatState!),
 	};
-
-	CombatSystemStates.setCombatSystemStates(combatStates);
 
 	const blackHoleState = BlackHole.initBlackHole();
 	const countdownTimerState = CountdownTimer.initializeCountdownTimer(io.scene, blackHoleState);

@@ -9,7 +9,7 @@ import { processReactions } from "../TriggerSystem";
 
 const PROJECTILE_TRAVEL_MS = 200;
 
-export const applyRegen = async (
+export const applyRegen = (
 	env: CombatEnvironment,
 	sourceUnit: Unit,
 	scale: number = 1,
@@ -56,7 +56,7 @@ export function applyRegenHit(
 	const sourceUnit = state.units.find(u => u.id === hit.sourceId);
 	if (!sourceUnit) return;
 
-	const targetForce = state.units.find(u => u.force !== sourceUnit.force)!.force;
+	const targetForce = state.units.find(u => u.id === hit.sourceId)!.force;
 
 	const oldRegen = RegenSystem.getRegenRate(combatStates.regenSystemState, targetForce);
 
