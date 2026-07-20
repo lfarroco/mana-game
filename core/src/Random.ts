@@ -123,6 +123,34 @@ export function pickRandomItemsSeeded<T>(
 }
 
 /**
+ * Deterministically pick a single random item using a seeded RNG.
+ * Advances the RNG seed. Throws if the array is empty.
+ */
+export function pickOneSeeded<T>(
+	rng: { seed: string },
+	items: T[],
+): T {
+	const [item] = pickRandom(rng, items, 1);
+	return item;
+}
+
+/**
+ * Deterministically pick a single random item excluding certain values.
+ * Advances the RNG seed. Throws if no unique items are available.
+ */
+export function pickOneUniqueSeeded<T>(
+	rng: { seed: string },
+	items: T[],
+	exclude: T[],
+): T {
+	const filtered = items.filter((item) => !exclude.includes(item));
+	if (filtered.length === 0) {
+		throw new Error("No unique items available to pick");
+	}
+	return pickOneSeeded(rng, filtered);
+}
+
+/**
  * Deterministic Fisher-Yates shuffle using a numeric seed.
  * Same seed always produces the same shuffle order.
  */

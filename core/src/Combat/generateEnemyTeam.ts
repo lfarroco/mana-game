@@ -1,10 +1,10 @@
-import { Unit } from "@game/Models";
-import * as Card from "@game/Entities/Card";
-import * as Utils from "@utils";
-import * as State from "@Models/ClientState";
-import { CardDefinition } from "@game/Models";
-import { upgradeUnitData } from "@game/Entities/Unit";
-import { FORCE_ID_CPU } from "@game/Constants";
+import { Unit } from "../Models";
+import * as Card from "../Entities/Card";
+import { CardDefinition } from "../Models";
+import { upgradeUnitData } from "../Entities/Unit";
+import { FORCE_ID_CPU } from "../Constants";
+import * as Random from "../Random";
+import type { Vec2 } from "../Geometry";
 
 const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
@@ -35,7 +35,7 @@ function distributeUpgrades(units: Unit[], upgradeCount: number): void {
 	});
 
 	for (let i = 0; i < remainder; i++) {
-		const unit = Utils.pickOne(units);
+		const unit = units[i % units.length];
 		if (unit.rank < 4) {
 			upgradeUnitData(unit);
 		}
@@ -50,7 +50,10 @@ function distributePowerPoints(units: Unit[], powerPoints: number, multiplier: n
 	});
 }
 
-function getRandomEmptyPosition(occupiedPositions: Set<string>): Vec2 {
+function getRandomEmptyPosition(
+	rng: { seed: string },
+	occupiedPositions: Set<string>,
+): Vec2 {
 	const availablePositions: Vec2[] = [];
 
 	for (let y = 0; y < BOARD_HEIGHT; y++) {
@@ -62,10 +65,19 @@ function getRandomEmptyPosition(occupiedPositions: Set<string>): Vec2 {
 		}
 	}
 
-	return Utils.pickOne(availablePositions);
+	return Random.pickOneSeeded(rng, availablePositions);
 }
 
-export function generateEnemyTeam(state: State.ClientState, round: number, pool: CardDefinition[]) {
+/**
+ * Generate an enemy team for the given round and win count.
+ * Uses a deterministic seeded RNG so the same seed always produces the same team.
+ */
+export function generateEnemyTeam(
+	seed: string,
+	wins: number,
+	round: number,
+	pool: CardDefinition[],
+): Unit[] {
 	if (round < 0) {
 		throw new Error("Round must be a non-negative number");
 	}
@@ -73,14 +85,16 @@ export function generateEnemyTeam(state: State.ClientState, round: number, pool:
 		throw new Error("Card pool cannot be empty");
 	}
 
+	const rng = { seed };
+
 	const unitCount = calculateUnitsForRound(round);
 	const upgradeCount = calculateUpgradesForRound(round);
 	const units: Unit[] = [];
 	const pickedCards: CardDefinition[] = [];
 	const occupiedPositions = new Set<string>();
 
-	const coreCard = Utils.pickOne(Card.getCores());
-	const corePosition = getRandomEmptyPosition(occupiedPositions);
+	const coreCard = Random.pickOneSeeded(rng, Card.getCores());
+	const corePosition = getRandomEmptyPosition(rng, occupiedPositions);
 	occupiedPositions.add(`${corePosition[0]},${corePosition[1]}`);
 	const coreUnit = Card.makeUnit(FORCE_ID_CPU, coreCard.id, corePosition);
 	units.push(coreUnit);
@@ -95,9 +109,9 @@ export function generateEnemyTeam(state: State.ClientState, round: number, pool:
 	});
 
 	for (let i = 1; i < unitCount; i++) {
-		const card = Utils.pickOneUnique(filteredPool, pickedCards);
+		const card = Random.pickOneUniqueSeeded(rng, filteredPool, pickedCards);
 		pickedCards.push(card);
-		const position = getRandomEmptyPosition(occupiedPositions);
+		const position = getRandomEmptyPosition(rng, occupiedPositions);
 		if (!position) {
 			break;
 		}
@@ -112,7 +126,7 @@ export function generateEnemyTeam(state: State.ClientState, round: number, pool:
 	distributeUpgrades(units, upgradeCount);
 
 	const powerPoints = round * 10;
-	if (state.session.wins >= 10) {
+	if (wins >= 10) {
 		const multiplier = Math.pow(1.2, round - 10);
 		coreUnit.life = Math.floor(coreUnit.life * multiplier);
 		coreUnit.maxLife = Math.floor(coreUnit.maxLife * multiplier);

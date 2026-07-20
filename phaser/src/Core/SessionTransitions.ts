@@ -6,9 +6,9 @@
  */
 
 import * as Models from "@game/Models";
-import * as SessionManagement from "./SessionManagement";
+import * as SessionManagement from "@game/SessionManagement";
 import * as CombatSimulation from "../../../core/src/Combat/CombatSimulation";
-import * as EnemyGeneration from "./EnemyGeneration";
+import * as EnemyGeneration from "@game/EnemyGeneration";
 import * as PhaseConfig from "@game/PhaseSystem/PhaseConfig";
 import * as RecruitmentActions from "@game/Actions/RecruitmentActions"
 import * as OrbAndCoreUpgrades from "@game/Actions/OrbAndCoreUpgrades"

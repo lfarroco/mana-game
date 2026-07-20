@@ -1,6 +1,5 @@
 import * as SessionManager from "@Core/SessionManager";
 import * as Models from "@game/Models";
-import * as SessionManagement from "./SessionManagement";
 import * as SessionTransitions from "./SessionTransitions";
 
 const COMBAT_STORAGE_PREFIX = "mana_combat_";
@@ -9,7 +8,7 @@ export async function createSession(
 	playerId: string,
 	crystalId: string,
 ): Promise<Models.SessionData> {
-	const session = SessionManagement.createInitialSession(playerId, crystalId);
+	const session = SessionManager.createSession(playerId, crystalId);
 	session.id = `local-${playerId}-${Date.now()}`;
 	SessionManager.updateSession(playerId, session);
 	return session;

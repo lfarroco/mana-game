@@ -1,11 +1,18 @@
 import * as Models from "@game/Models";
-import * as SessionManagement from "./SessionManagement";
+import * as SessionManagement from "@game/SessionManagement";
 
 const STORAGE_PREFIX = "mana_session_";
 
 const sessions: Map<string, Models.SessionData> = new Map();
 
 loadSessionsFromStorage();
+
+function generateSessionSeed(): string {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+		return crypto.randomUUID();
+	}
+	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
 
 function loadSessionsFromStorage(): void {
 	// Get all session keys from localStorage
@@ -34,7 +41,8 @@ function removeSessionFromStorage(playerId: string): void {
 }
 
 export function createSession(playerId: string, crystalId?: string): Models.SessionData {
-	const session = SessionManagement.createInitialSession(playerId, crystalId);
+	const seed = generateSessionSeed();
+	const session = SessionManagement.createInitialSession(playerId, crystalId, seed);
 	sessions.set(playerId, session);
 	saveSessionToStorage(playerId, session);
 	return session;

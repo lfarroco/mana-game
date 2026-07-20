@@ -2,22 +2,19 @@
  * Session Initialization and Management
  *
  * Handles creation of new sessions and default state setup.
+ * Pure functions — seed generation is left to the caller.
  */
 
-import * as Models from "@game/Models";
-import { Unit } from "@game/Models";
-import * as Card from "@game/Entities/Card";
-import * as Constants from "@game/Constants";
-import * as OptionGeneration from "@game/OptionGeneration";
+import * as Models from "./Models";
+import { Unit } from "./Models";
+import * as Card from "./Entities/Card";
+import * as Constants from "./Constants";
+import * as OptionGeneration from "./OptionGeneration";
 
 
-const generateRandomSessionSeed = (): string => {
-	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-		return crypto.randomUUID();
-	}
-
+function generateDefaultSeed(): string {
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-};
+}
 
 /**
  * Create default run statistics object.
@@ -37,16 +34,17 @@ export function createDefaultRunStats() {
 
 /**
  * Create a new session for a player.
+ * Requires an explicit seed so session creation is deterministic.
  * Optionally seeds with a crystal core if selectedCrystalId is provided.
  * Generates initial encounter options.
  */
 export function createInitialSession(
 	playerId: string,
 	selectedCrystalId?: string,
-	explicitSeed?: string
+	seed?: string,
 ): Models.SessionData {
-	const seed = explicitSeed ?? generateRandomSessionSeed();
-	const initialSeed = seed;
+	const sessionSeed = seed ?? generateDefaultSeed();
+	const initialSeed = sessionSeed;
 
 	const team: { units: Unit[] } = { units: [] };
 	if (selectedCrystalId) {
@@ -66,7 +64,7 @@ export function createInitialSession(
 		phase: "encounter",
 		round: 1,
 		step: 1,
-		seed,
+		seed: sessionSeed,
 		initial_seed: initialSeed,
 		action_log: [],
 		wins: 0,
