@@ -120,7 +120,6 @@
         "../core/src/Combat/ScheduledEffects.ts",
         "../core/src/TriggerSystem",
         "../core/src/Entities",
-        "../core/src/Combat/CombatSystemStates.ts",
         "../core/src/Combat/PoisonDamageSystem.ts",
         "../core/src/Combat/RegenSystem.ts",
         "../core/src/Combat/TimeoutDamageSystem.ts",

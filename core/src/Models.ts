@@ -1,6 +1,16 @@
 import * as CombatLogger from "./Combat/CombatLogger";
-import type * as CombatSystemStates from "./Combat/CombatSystemStates";
 import type * as ScheduledEffects from "./Combat/ScheduledEffects";
+
+// Inlined from Combat/CombatSystemStates.ts — just a data type, no runtime deps
+import type * as PoisonDamageSystem from "./Combat/PoisonDamageSystem";
+import type * as RegenSystem from "./Combat/RegenSystem";
+import type * as CombatStatsTracker from "./Combat/CombatStatsTracker";
+
+export type CombatSystemStates = {
+	poisonSystemState: PoisonDamageSystem.PoisonSystemState;
+	regenSystemState: RegenSystem.RegenSystemState;
+	combatStatsTrackerState: CombatStatsTracker.CombatStatsTrackerState;
+};
 
 export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 
@@ -13,7 +23,7 @@ export type WaveOutcome = "player_won" | "player_lost" | "both_won";
 export type CombatEnvironment = {
 	seed: string; // mutable seed, advanced during combat for deterministic RNG
 	combatState: CombatState;
-	combatStates: CombatSystemStates.CombatSystemStates;
+	combatStates: CombatSystemStates;
 	logger: CombatLogger.CombatLogger;
 	scheduledEffects: ScheduledEffects.ScheduledEffectsState;
 };

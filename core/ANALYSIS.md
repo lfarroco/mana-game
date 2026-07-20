@@ -6,10 +6,11 @@ _Date: July 20, 2026 — Updated after purity hardening_
 
 ### 🚨 Purity Violations
 
-1. **`CombatSystemStates.ts` — Global mutable singleton** ✅ FIXED
+1. **`CombatSystemStates.ts` — Global mutable singleton** ✅ FIXED + DELETED
    - Deleted `let currentCombatStates`, `setCombatSystemStates`, `getCombatSystemStates`, `isInitialized`, `updateRegenSystemState`, `updatePoisonSystemState`.
    - State is now passed explicitly through `CombatEnvironment.combatStates`.
-   - Phaser-side consumers updated: `CombatPlaybackController.ts` (removed `setCombatSystemStates` call, changed to `import type`), `handleCombatPhase.ts` (removed dead code block, removed unused imports), `CombatStatsTable.ts` (now gets tracker state from `handleCombatPhase.getLastCombatTrackerState()`).
+   - **Entire file deleted** — the `CombatSystemStates` type was inlined directly into `Models.ts`.
+   - Phaser-side consumers updated: `CombatPlaybackController.ts` (removed `setCombatSystemStates` call, now imports type from `Models`), `handleCombatPhase.ts` (removed dead code block, removed unused imports, added `getLastCombatTrackerState()` bridge), `CombatStatsTable.ts` (now reads tracker state from `handleCombatPhase`), `logHandlers/types.ts` (imports from `Models`).
 
 2. **`Entities/Card.ts` — Module-level mutable registries** ✅ FIXED
    - Created `CardRegistry` type and `createCardRegistry()` factory.

@@ -3,7 +3,6 @@ import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as BlackHoleState from "@Core/Combat/BlackHoleState";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Systems/CountdownTimer";
-import type * as CombatSystemStates from "@game/Combat/CombatSystemStates";
 import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
 import * as RegenSystem from "@game/Combat/RegenSystem";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
@@ -16,7 +15,7 @@ import * as ScheduledEffects from "@game/Combat/ScheduledEffects";
 import * as logHandlers from "./logHandlers";
 import * as OptionsStore from "@Models/OptionsStore";
 import { resetUnitStats } from "@game/Entities/Unit";
-import { CombatState, WaveOutcome } from "@game/Models";
+import { CombatState, WaveOutcome, type CombatSystemStates } from "@game/Models";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -30,7 +29,7 @@ type PlaybackState = {
 	currentTime: number;
 	animations: ScheduledAnimation[];
 	outcome: WaveOutcome | null;
-	combatStates: CombatSystemStates.CombatSystemStates;
+	combatStates: CombatSystemStates;
 	blackHoleState?: BlackHoleState.BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
 };
@@ -46,7 +45,7 @@ export const createCombatPlaybackController = (
 	onReplayEnd?: (outcome: WaveOutcome) => void
 ): CombatRunner.CombatRunner => {
 
-	const combatStates: CombatSystemStates.CombatSystemStates = {
+	const combatStates: CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
 		regenSystemState: RegenSystem.initializeRegenSystem(),
 		combatStatsTrackerState: CombatStatsTracker.initialize(state.combatState!),
