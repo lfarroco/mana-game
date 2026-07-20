@@ -5,7 +5,7 @@
  * all options; the caller picks one using a seeded RNG at apply time.
  */
 
-import { Effect } from "../Models";
+import { Effect, EffectId } from "../Models";
 import * as OrbConstants from "./OrbConstants";
 
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@ export type OrbDefinition =
   | {
       id: string;
       kind: "reaction";
-      effectId: string;
+      effectId: EffectId;
       position: "allies";
       possibleEffects: Effect[];
     };
