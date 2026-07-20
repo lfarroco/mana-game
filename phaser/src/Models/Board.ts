@@ -3,6 +3,7 @@ import { Unit } from "@game/Models";
 import * as State from "@Models/ClientState";
 import * as EnergySlot from "Client/Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@game/BoardLogic";
+import { isSome } from "@game/Functional";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];
@@ -192,10 +193,12 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 
 	const slot = BoardLogic.getEmptySlot(units, forceId, boardWidthInTiles, boardHeightInTiles);
 
-	if (!slot) {
+	if (isSome(slot)) {
+		return slot.value;
+	} else {
 		// Board full, no empty slot available
+		return null;
 	}
-	return slot;
 }
 
 export function getTileAt(board: BoardState, pointer: { x: number; y: number }): Vec2 | null {

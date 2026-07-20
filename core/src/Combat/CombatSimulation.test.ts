@@ -11,6 +11,7 @@ import * as Constants from "../Constants";
 import * as CombatSimulation from "./CombatSimulation";
 import * as RunCombatCore from "./CombatRunner";
 import * as BoardLogic from "../BoardLogic";
+import * as F from "../Functional";
 import { BASE_COLLECTION_DATA } from "../BaseCollection";
 
 beforeAll(() => {
@@ -88,7 +89,7 @@ function createCustomCombat(
 	const hasPlayerCore = playerUnits.some((u) => u.isCore);
 	if (!hasPlayerCore) {
 		const freeSlot = BoardLogic.findFreeSlot(playerUnits, Constants.FORCE_ID_PLAYER, [1, 1]);
-		const core = Card.makeUnit(Constants.FORCE_ID_PLAYER, "critical_crystal", freeSlot || [1, 1]);
+		const core = Card.makeUnit(Constants.FORCE_ID_PLAYER, "critical_crystal", F.getOrElse(freeSlot, [1, 1]));
 		core.power = 1;
 		core.cooldown = 99999;
 		playerUnits.push(core);

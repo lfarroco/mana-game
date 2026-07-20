@@ -49,6 +49,56 @@ enemies.
   aliases exist that point outside the package.
 - Client and server never import each other's runtime code.
 
+### Functional programming conventions
+
+All code in `core/` follows these rules, enforced by the `Functional.ts`
+primitives (`Option<T>`, `Result<T, E>`):
+
+1. **No `null` / `undefined` in return types** — use `Option<T>`.
+   ```ts
+   // Before
+   function getEmptySlot(…): Vec2 | null { … }
+
+   // After
+   import { Option, none, some } from "./Functional";
+   function getEmptySlot(…): Option<Vec2> { … }
+   ```
+
+2. **No `throw` in pure functions** — use `Result<T, E>`.
+   ```ts
+   // Before
+   function getCollection(id: string): CardCollection {
+     if (!exists) throw new Error(`Collection ${id} not found`);
+     …
+   }
+
+   // After
+   import { Result, ok, err } from "./Functional";
+   function getCollection(id: string): Result<CardCollection> {
+     if (!exists) return err(`Collection ${id} not found`);
+     return ok(collection);
+   }
+   ```
+
+3. **Match exhaustively** — always handle both tags. TypeScript narrows
+   `Option` and `Result` via their `_tag` discriminant, so a
+   `default: never` branch catches missing cases at compile time.
+
+4. **Prefer `readonly` on all shared data types** — mutable state on
+   shared objects (poison rates, RNG seeds, combat state) is the single
+   biggest source of non-determinism bugs. Use `ReadonlyMap`, `ReadonlyArray`,
+   `readonly` properties, and return new copies instead of mutating in place.
+
+5. **Consumers unwrap at the boundary** — Phaser scenes, server endpoints,
+   and edge functions that import from `@game/*` are responsible for
+   converting `Option`/`Result` to their native idioms (null checks,
+   try/catch) at the I/O boundary.
+   ```ts
+   import { isSome, getOrElse, unwrapOr } from "@game/Functional";
+   const slot = BoardLogic.getEmptySlot(units, "PLAYER");
+   const pos = getOrElse(slot, [0, 0]); // supply a default
+   ```
+
 The client shipping the game logic in its bundle is **by design** — single-player
 (desktop/Android) must work offline. Multiplayer does not use this bundle path:
 the client sends actions and receives server-authoritative results.

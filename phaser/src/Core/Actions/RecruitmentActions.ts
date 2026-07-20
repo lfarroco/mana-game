@@ -10,6 +10,7 @@ import { Unit } from "@game/Models";
 import * as Card from "@game/Entities/Card";
 import * as BoardLogic from "@game/BoardLogic";
 import * as Constants from "@game/Constants";
+import { isSome, some } from "@game/Functional";
 
 
 /**
@@ -104,11 +105,11 @@ export function recruitUnit(
 				return session;
 			}
 
-			targetPos = targetPosition;
+			targetPos = some(targetPosition);
 		}
 
-		if (targetPos) {
-			const newUnit = Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, targetPos);
+		if (isSome(targetPos)) {
+			const newUnit = Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, targetPos.value);
 			const recruitRank = getShopRecruitRank(session, cardId);
 			newUnit.rank = recruitRank;
 

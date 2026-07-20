@@ -2,6 +2,7 @@
 
 import * as BoardLogic from "./BoardLogic";
 import * as Models from "./Models";
+import * as F from "./Functional";
 
 function makeUnit(id: string, force: string, pos: [number, number], isCore = false): Models.Unit {
 	return {
@@ -33,13 +34,13 @@ describe("BoardLogic", () => {
 	describe("getEmptySlot", () => {
 		it("returns [0,0] for empty board", () => {
 			const slot = BoardLogic.getEmptySlot([], "A");
-			expect(slot).toEqual([0, 0]);
+			expect(slot).toEqual(F.some([0, 0]));
 		});
 
 		it("returns next empty slot when some are occupied", () => {
 			const units = [makeUnit("1", "A", [0, 0]), makeUnit("2", "A", [1, 0])];
 			const slot = BoardLogic.getEmptySlot(units, "A");
-			expect(slot).toEqual([2, 0]);
+			expect(slot).toEqual(F.some([2, 0]));
 		});
 
 		it("returns null when board is full for a force", () => {
@@ -50,7 +51,7 @@ describe("BoardLogic", () => {
 				}
 			}
 			const slot = BoardLogic.getEmptySlot(units, "A");
-			expect(slot).toBeNull();
+			expect(slot).toEqual(F.none);
 		});
 
 		it("ignores units from other forces", () => {
@@ -59,7 +60,7 @@ describe("BoardLogic", () => {
 				makeUnit("2", "B", [0, 1]),
 			];
 			const slot = BoardLogic.getEmptySlot(units, "A");
-			expect(slot).toEqual([0, 0]);
+			expect(slot).toEqual(F.some([0, 0]));
 		});
 	});
 
@@ -67,7 +68,7 @@ describe("BoardLogic", () => {
 		it("returns preferred position when free", () => {
 			const units = [makeUnit("1", "A", [0, 0])];
 			const slot = BoardLogic.findFreeSlot(units, "A", [1, 1]);
-			expect(slot).toEqual([1, 1]);
+			expect(slot).toEqual(F.some([1, 1]));
 		});
 
 		it("returns another slot when preferred is occupied", () => {
@@ -76,13 +77,13 @@ describe("BoardLogic", () => {
 				makeUnit("2", "A", [0, 0]),
 			];
 			const slot = BoardLogic.findFreeSlot(units, "A", [1, 1]);
-			expect(slot).toEqual([1, 0]);
+			expect(slot).toEqual(F.some([1, 0]));
 		});
 
 		it("returns first empty when no preference given", () => {
 			const units = [makeUnit("1", "A", [0, 0])];
 			const slot = BoardLogic.findFreeSlot(units, "A");
-			expect(slot).toEqual([1, 0]);
+			expect(slot).toEqual(F.some([1, 0]));
 		});
 
 		it("returns null when board is full", () => {
@@ -93,7 +94,7 @@ describe("BoardLogic", () => {
 				}
 			}
 			const slot = BoardLogic.findFreeSlot(units, "A", [0, 0]);
-			expect(slot).toBeNull();
+			expect(slot).toEqual(F.none);
 		});
 	});
 

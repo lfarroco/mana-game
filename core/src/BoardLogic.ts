@@ -1,16 +1,17 @@
 import { Unit } from "./Models";
 import * as geom from "./Geometry";
+import { Option, none, some } from "./Functional";
 
 export function getEmptySlot(
 	units: Unit[],
 	forceId: string,
 	width: number = 3,
 	height: number = 3
-): geom.Vec2 | null {
+): Option<geom.Vec2> {
 	const maxSlots = width * height;
 
 	if (units.filter((u) => u.force === forceId).length >= maxSlots) {
-		return null;
+		return none;
 	}
 
 	for (let y = 0; y < height; y++) {
@@ -20,24 +21,24 @@ export function getEmptySlot(
 				.find(u => geom.eqVec2(u.position, [x, y]));
 
 			if (!occupied) {
-				return [x, y];
+				return some([x, y]);
 			}
 		}
 	}
-	return null;
+	return none;
 }
 
 export function findFreeSlot(
 	units: Unit[],
 	forceId: string,
 	preferredPos?: geom.Vec2
-): geom.Vec2 | null {
+): Option<geom.Vec2> {
 	// If preference checks out
 	if (preferredPos) {
 		const occupied = units
 			.filter(u => u.force === forceId)
 			.find(u => geom.eqVec2(u.position, preferredPos));
-		if (!occupied) return preferredPos;
+		if (!occupied) return some(preferredPos);
 	}
 	return getEmptySlot(units, forceId);
 }
