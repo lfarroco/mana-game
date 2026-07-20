@@ -69,6 +69,11 @@ export function simulateCombat(
 	const env = combatRunner.getEnv();
 	const logs = env.logger.getLogs();
 
+	// Propagate the advanced seed back to the session so subsequent
+	// combats and out-of-combat random operations continue from where
+	// the RNG left off (env.seed was advanced by pickRandom calls during combat).
+	session.seed = env.seed;
+
 	combatState.logs = logs;
 
 	return combatState;
