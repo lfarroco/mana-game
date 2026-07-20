@@ -256,6 +256,7 @@ const ACTION_HANDLERS: Record<string, (
 			session.team.units,
 			targetUnitId,
 			orbId,
+			{ seed: session.seed },
 		);
 		return transitionToNextStep(session);
 	},

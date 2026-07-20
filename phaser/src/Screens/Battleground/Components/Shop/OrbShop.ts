@@ -2,7 +2,7 @@ import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Board from "@Models/Board";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
-import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
+import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPresentation";
 import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
@@ -49,7 +49,7 @@ export function renderOrbShop(
 	function handleOrbDrop(params: {
 		orb: MagicOrb.MagicOrb;
 		target: Phaser.GameObjects.GameObject;
-		orbSpec: Orbs.OrbSpec;
+		orbSpec: OrbPresentation.OrbPresentation;
 		magicOrb: MagicOrb.MagicOrb;
 	}) {
 		const { orb, target, orbSpec, magicOrb } = params;
@@ -81,19 +81,6 @@ export function renderOrbShop(
 
 		console.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
 
-		const isRowOrb =
-			orbSpec.id === "absorb_power_orb" || orbSpec.id === "distribute_power_orb";
-
-		// Row power orbs animate their transfer locally before server reconciliation.
-		if (isRowOrb) {
-			const applied = !!orbSpec.effect(existingUnit);
-			if (!applied) {
-				console.debug("OrbShop", `${orbSpec.name} effect returned false — returning orb to origin`);
-				MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
-				return;
-			}
-		}
-
 		AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 
 		magicOrb.startDissolve();
@@ -105,7 +92,7 @@ export function renderOrbShop(
 	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {
-		const orbSpec = Orbs.orbsIndex[orbId]();
+		const orbSpec = OrbPresentation.getOrbPresentation(orbId);
 
 		const orbY = firstOrbY + index * orbSpacing;
 

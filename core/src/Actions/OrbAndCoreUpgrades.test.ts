@@ -29,11 +29,13 @@ function makeUnit(overrides: Partial<Unit> = {}): Unit {
 	};
 }
 
+const dummyRng = { seed: "test-seed" };
+
 describe("OrbAndCoreUpgrades", () => {
 	describe("applyOrb", () => {
 		it("upgrade_orb ranks up and multiplies stats", () => {
 			const unit = makeUnit({ rank: 1, power: 100, maxLife: 200, life: 150 });
-			OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb");
+			OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb", dummyRng);
 			expect(unit.rank).toBe(2);
 			expect(unit.power).toBe(Math.floor(100 * 1.75));
 			expect(unit.maxLife).toBe(Math.floor(200 * 1.75));
@@ -43,7 +45,7 @@ describe("OrbAndCoreUpgrades", () => {
 		it("absorb_power_orb absorbs from same-row units", () => {
 			const target = makeUnit({ id: "u1", position: [1, 0], power: 100 });
 			const neighbor = makeUnit({ id: "u2", position: [0, 0], power: 200 });
-			OrbAndCoreUpgrades.applyOrb([target, neighbor], "u1", "absorb_power_orb");
+			OrbAndCoreUpgrades.applyOrb([target, neighbor], "u1", "absorb_power_orb", dummyRng);
 			// Absorbed 25% = 50 from neighbor
 			expect(neighbor.power).toBeLessThan(200);
 			expect(target.power).toBeGreaterThan(100);
@@ -53,7 +55,7 @@ describe("OrbAndCoreUpgrades", () => {
 			const donor = makeUnit({ id: "donor", position: [0, 0], power: 100 });
 			const receiver = makeUnit({ id: "recv", position: [1, 0], power: 50 });
 			const other = makeUnit({ id: "other", position: [0, 1], power: 50 });
-			OrbAndCoreUpgrades.applyOrb([donor, receiver, other], "donor", "distribute_power_orb");
+			OrbAndCoreUpgrades.applyOrb([donor, receiver, other], "donor", "distribute_power_orb", dummyRng);
 			expect(donor.power).toBeLessThan(100); // Lost 50%
 			expect(receiver.power).toBeGreaterThan(50); // Gained something
 			expect(other.power).toBe(50); // Different row, unchanged
@@ -61,7 +63,7 @@ describe("OrbAndCoreUpgrades", () => {
 
 		it("does nothing for non-existent unit", () => {
 			const unit = makeUnit();
-			OrbAndCoreUpgrades.applyOrb([unit], "nonexistent", "upgrade_orb");
+			OrbAndCoreUpgrades.applyOrb([unit], "nonexistent", "upgrade_orb", dummyRng);
 			expect(unit.rank).toBe(1); // unchanged
 		});
 	});

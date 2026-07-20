@@ -1,6 +1,6 @@
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Board from "@Models/Board";
-import * as Orbs from "@Screens/Battleground/Components/Shop/Orbs";
+import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPresentation";
 import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
@@ -64,7 +64,7 @@ function renderUpgradeCards(
 
 	encounterIds.forEach((encounterId, index) => {
 		console.debug("EffectCardShop", "Rendering upgrade card for encounter:", encounterId);
-		const encounterSpec = Orbs.orbsIndex[encounterId]();
+		const encounterSpec = OrbPresentation.getOrbPresentation(encounterId);
 
 		const width = EFFECT_CARD_WIDTH;
 		const height = EFFECT_CARD_HEIGHT;
