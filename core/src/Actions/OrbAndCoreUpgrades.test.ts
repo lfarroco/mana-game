@@ -1,0 +1,103 @@
+/// <reference types="jest" />
+
+import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
+import { Unit } from "../Models";
+
+function makeUnit(overrides: Partial<Unit> = {}): Unit {
+	return {
+		id: "u1",
+		cardId: "test_card",
+		pic: "",
+		force: "PLAYER",
+		position: [0, 0],
+		rank: 1,
+		power: 100,
+		bonusPower: 0,
+		life: 200,
+		maxLife: 200,
+		shield: 0,
+		cooldown: 5000,
+		evade: 0,
+		effects: [],
+		reactions: [],
+		charge: 0,
+		refresh: 0,
+		hasted: 0,
+		slowed: 0,
+		isCore: false,
+		...overrides,
+	};
+}
+
+describe("OrbAndCoreUpgrades", () => {
+	describe("applyOrb", () => {
+		it("upgrade_orb ranks up and multiplies stats", () => {
+			const unit = makeUnit({ rank: 1, power: 100, maxLife: 200, life: 150 });
+			OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb");
+			expect(unit.rank).toBe(2);
+			expect(unit.power).toBe(Math.floor(100 * 1.75));
+			expect(unit.maxLife).toBe(Math.floor(200 * 1.75));
+			expect(unit.life).toBe(unit.maxLife);
+		});
+
+		it("absorb_power_orb absorbs from same-row units", () => {
+			const target = makeUnit({ id: "u1", position: [1, 0], power: 100 });
+			const neighbor = makeUnit({ id: "u2", position: [0, 0], power: 200 });
+			OrbAndCoreUpgrades.applyOrb([target, neighbor], "u1", "absorb_power_orb");
+			// Absorbed 25% = 50 from neighbor
+			expect(neighbor.power).toBeLessThan(200);
+			expect(target.power).toBeGreaterThan(100);
+		});
+
+		it("distribute_power_orb gives 50% of power to same-row units", () => {
+			const donor = makeUnit({ id: "donor", position: [0, 0], power: 100 });
+			const receiver = makeUnit({ id: "recv", position: [1, 0], power: 50 });
+			const other = makeUnit({ id: "other", position: [0, 1], power: 50 });
+			OrbAndCoreUpgrades.applyOrb([donor, receiver, other], "donor", "distribute_power_orb");
+			expect(donor.power).toBeLessThan(100); // Lost 50%
+			expect(receiver.power).toBeGreaterThan(50); // Gained something
+			expect(other.power).toBe(50); // Different row, unchanged
+		});
+
+		it("does nothing for non-existent unit", () => {
+			const unit = makeUnit();
+			OrbAndCoreUpgrades.applyOrb([unit], "nonexistent", "upgrade_orb");
+			expect(unit.rank).toBe(1); // unchanged
+		});
+	});
+
+	describe("upgradeCoreMaxLife", () => {
+		it("increases maxLife and heals to full", () => {
+			const core = makeUnit({ id: "core", maxLife: 500, life: 300, isCore: true });
+			const msg = OrbAndCoreUpgrades.upgradeCoreMaxLife(core, 5);
+			expect(core.maxLife).toBeGreaterThan(500);
+			expect(core.life).toBe(core.maxLife);
+			expect(typeof msg).toBe("string");
+		});
+	});
+
+	describe("upgradeCorepower", () => {
+		it("increases power", () => {
+			const core = makeUnit({ id: "core", power: 100, isCore: true });
+			const msg = OrbAndCoreUpgrades.upgradeCorepower(core, 5);
+			expect(core.power).toBeGreaterThan(100);
+			expect(core.bonusPower).toBeGreaterThan(0);
+			expect(typeof msg).toBe("string");
+		});
+	});
+
+	describe("decreaseCoresCooldown", () => {
+		it("reduces cooldown", () => {
+			const core = makeUnit({ id: "core", cooldown: 5000, isCore: true });
+			const msg = OrbAndCoreUpgrades.decreaseCoresCooldown(core);
+			expect(core.cooldown).toBeLessThan(5000);
+			expect(typeof msg).toBe("string");
+		});
+
+		it("does not go below minimum cooldown", () => {
+			const core = makeUnit({ id: "core", cooldown: 500, isCore: true });
+			OrbAndCoreUpgrades.decreaseCoresCooldown(core);
+			expect(core.cooldown).toBeGreaterThanOrEqual(500);
+		});
+	});
+});
