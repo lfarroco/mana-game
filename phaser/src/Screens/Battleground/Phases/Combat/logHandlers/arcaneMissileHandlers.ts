@@ -117,7 +117,7 @@ export const handleHasteHit = (
 	log: CombatLogger.HasteHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const hasteTarget = state.battleData.units.find((u) => u.id === log.targetId);
+	const hasteTarget = state.combatState?.unitById.get(log.targetId);
 	if (hasteTarget) {
 		hasteTarget.hasted += log.effectDuration;
 		ChargeBarDisplay.updateChargeBar(log.targetId);
@@ -133,7 +133,7 @@ export const handleSlowHit = (
 	log: CombatLogger.SlowHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const slowTarget = state.battleData.units.find((u) => u.id === log.targetId);
+	const slowTarget = state.combatState?.unitById.get(log.targetId);
 	if (slowTarget) {
 		slowTarget.slowed += log.effectDuration;
 		ChargeBarDisplay.updateChargeBar(log.targetId);
@@ -149,7 +149,7 @@ export const handleChargeHit = (
 	log: CombatLogger.ChargeHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const chargeTarget = state.battleData.units.find((u) => u.id === log.targetId);
+	const chargeTarget = state.combatState?.unitById.get(log.targetId);
 	if (chargeTarget) {
 		chargeTarget.charge += log.amount;
 		ChargeBarDisplay.updateChargeBar(log.targetId);

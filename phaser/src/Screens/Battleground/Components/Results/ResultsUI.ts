@@ -88,7 +88,7 @@ export async function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
 
-	const allBattleUnits = gameState.battleData.units;
+	const allBattleUnits = state.combatState?.units ?? [];
 
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {

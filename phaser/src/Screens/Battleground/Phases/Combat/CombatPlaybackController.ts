@@ -109,7 +109,10 @@ export const createCombatPlaybackController = (
 	const updateChargeBars = (delta: number) => {
 		if (!playbackState.active) return;
 
-		for (const unit of state.battleData.units) {
+		const units = state.combatState?.units;
+		if (!units) return;
+
+		for (const unit of units) {
 			const cooldownMultiplier =
 				unit.hasted > 0 && unit.slowed > 0 ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
 			const chargeRate = 1 / cooldownMultiplier;
@@ -178,8 +181,8 @@ export const createCombatPlaybackController = (
 
 		await animation.delay(300);
 
-		// Reset visual state on the battleData player units
-		state.battleData.units
+		// Reset visual state on the combatState player units
+		state.combatState!.units
 			.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
 			.forEach((u) => {
 				resetUnitStats(u);

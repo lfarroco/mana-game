@@ -188,11 +188,12 @@ const setupCombatBoard = async (combatState: Models.CombatState): Promise<void> 
 	});
 
 	Chara.clearAll();
-	state.battleData.units = getInitialCombatUnits(combatState);
 
-	const summonPromises = state.battleData.units.map((unit) => Chara.summon(unit, false));
+	const initialCombatUnits = getInitialCombatUnits(combatState);
+
+	const summonPromises = initialCombatUnits.map((unit) => Chara.summon(unit, false));
 	await Promise.all(summonPromises);
-	state.battleData.units.forEach(resetUnitStats);
+	initialCombatUnits.forEach(resetUnitStats);
 };
 
 export async function handleCombatPhase(): Promise<void> {
@@ -218,7 +219,6 @@ export async function resetBoard(shouldResummonUnits: boolean = true): Promise<v
 
 	if (shouldResummonUnits) {
 		Chara.clearAll();
-		state.battleData.units = [];
 	}
 
 	if (shouldResummonUnits) {

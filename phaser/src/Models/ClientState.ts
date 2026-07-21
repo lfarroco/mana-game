@@ -1,16 +1,10 @@
 import * as Models from "@game/Models";
-import * as Force from "@game/Entities/Force";
 import * as Geometry from "@game/Geometry";
 
 export type ClientState = {
 	savedGames: string[];
 	session: Models.SessionData;
 	combatState?: Models.CombatState;
-	battleData: {
-		forces: Force.Force[];
-		grid: number[][];
-		units: Models.Unit[];
-	};
 };
 
 export const initialState = (): ClientState => {
@@ -42,11 +36,6 @@ export const initialState = (): ClientState => {
 				totalUnitsRecruited: 0,
 				unitUsage: {},
 			},
-		},
-		battleData: {
-			forces: [],
-			grid: [],
-			units: [],
 		},
 	};
 };

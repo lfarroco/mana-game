@@ -9,6 +9,7 @@ import * as poisonFx from "@Screens/Battleground/Phases/Combat/logHandlers/visua
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as Effects from "@FX";
 import * as Constants from "@Constants";
+import * as CoreConstants from "@game/Constants";
 
 // ---- Cast handlers (launch missile) ----
 
@@ -149,7 +150,9 @@ export const handleTimeoutDamageCast = (
 	_playbackState: PlaybackState,
 ) => {
 	// Fire a projectile from the black hole at center to the force's core
-	const core = state.battleData.units.find(u => u.force === log.force && u.isCore)!;
+	const core = log.force === CoreConstants.FORCE_ID_PLAYER
+		? state.combatState!.playerCore
+		: state.combatState!.cpuCore;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	void Effects.arcaneMissileTargeted(
 		Constants.MIDDLE_SCREEN,
@@ -175,7 +178,9 @@ export const handleTimeoutDamageHit = (
 	_playbackState: PlaybackState,
 ) => {
 	// Shake the core chara when projectile lands
-	const core = state.battleData.units.find(u => u.force === log.force && u.isCore)!;
+	const core = log.force === CoreConstants.FORCE_ID_PLAYER
+		? state.combatState!.playerCore
+		: state.combatState!.cpuCore;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	Chara.shake(coreChara);
 

@@ -1,6 +1,5 @@
 import * as constants from "@Constants";
 import { Unit } from "@game/Models";
-import * as State from "@Models/ClientState";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@game/BoardLogic";
 import { isSome } from "@game/Functional";
@@ -272,22 +271,9 @@ export function updateUnitPosition(
 	if (occupierUnit) {
 		occupierUnit.position = oldPositionOfMovedUnit;
 		unitToMove.position = newBoardPosition;
-		if (state.battleData.units.length > 0) {
-			// sync battledata
-			const bdOccupier = state.battleData.units.find((u) => u.id === occupierUnit.id);
-			if (bdOccupier) bdOccupier.position = oldPositionOfMovedUnit;
-
-			const bdMoved = state.battleData.units.find((u) => u.id === unitToMove.id);
-			if (bdMoved) bdMoved.position = newBoardPosition;
-		}
 		return { movedUnit: unitToMove, swappedUnit: occupierUnit, oldPositionOfMovedUnit };
 	} else {
 		unitToMove.position = newBoardPosition;
-		if (state.battleData.units.length > 0) {
-			//sync battledata
-			const bdMoved = state.battleData.units.find((u) => u.id === unitToMove.id);
-			if (bdMoved) bdMoved.position = newBoardPosition;
-		}
 		return { movedUnit: unitToMove, oldPositionOfMovedUnit };
 	}
 }
@@ -314,24 +300,4 @@ export function getBoardState(): BoardState {
 		throw new Error("Board state not initialized");
 	}
 	return _playerBoardState;
-}
-
-export function getColumnNeighbors(state: State.ClientState, unit: Unit) {
-	return state.battleData.units
-		.filter((u) => u.force === unit.force)
-		.filter((u) => u.position[0] === unit.position[0] && u.id !== unit.id);
-}
-
-export function getRowNeighbors(state: State.ClientState, unit: Unit) {
-	return state.battleData.units
-		.filter((u) => u.force === unit.force)
-		.filter((u) => u.position[1] === unit.position[1] && u.id !== unit.id);
-}
-
-export function getNeighbors(state: State.ClientState, unit: Unit) {
-	return state.battleData.units
-		.filter((u) => u.force === unit.force)
-		.filter((u) => u.id !== unit.id)
-		.filter((u) => u.position[0] >= unit.position[0] - 1 && u.position[0] <= unit.position[0] + 1)
-		.filter((u) => u.position[1] >= unit.position[1] - 1 && u.position[1] <= unit.position[1] + 1);
 }

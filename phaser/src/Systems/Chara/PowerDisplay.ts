@@ -29,7 +29,7 @@ export function create(unit: Unit, container: Chara.Chara) {
 export function updatePowerDisplay(id: string) {
 	const chara = Chara.mustGetCharaById(id);
 	const charaUnit = Chara.getUnit(chara);
-	const boardUnit = state.battleData.units.find((unit) => unit.id === id);
+	const boardUnit = state.combatState?.unitById.get(id);
 	const sessionUnit = state.session.team.units.find((unit) => unit.id === id);
 	const latestUnit =
 		state.session.phase === "combat"

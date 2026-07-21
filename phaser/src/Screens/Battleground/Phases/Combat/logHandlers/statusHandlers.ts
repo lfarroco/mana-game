@@ -7,7 +7,7 @@ export const handleHasteEnd = (
 	log: CombatLogger.HasteEndEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const target = state.battleData.units.find((u) => u.id === log.unitId)!;
+	const target = state.combatState?.unitById.get(log.unitId)!;
 	target.hasted = 0;
 	ChargeBarDisplay.updateChargeBar(log.unitId);
 };
@@ -16,7 +16,7 @@ export const handleSlowEnd = (
 	log: CombatLogger.SlowEndEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const target = state.battleData.units.find((u) => u.id === log.unitId)!;
+	const target = state.combatState?.unitById.get(log.unitId)!;
 	target.slowed = 0;
 	ChargeBarDisplay.updateChargeBar(log.unitId);
 };
