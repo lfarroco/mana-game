@@ -10,3 +10,10 @@ declare var console: {
 	warn(...data: unknown[]): void;
 	error(...data: unknown[]): void;
 };
+
+/** Available in Node 17+, all modern browsers, and Edge Functions. */
+declare function structuredClone<T>(value: T, options?: StructuredSerializeOptions): T;
+
+interface StructuredSerializeOptions {
+	transfer?: any[];
+}

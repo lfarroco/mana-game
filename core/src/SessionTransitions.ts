@@ -5,15 +5,15 @@
  * Orchestrates action resolution, seed advancement, and phase transitions.
  */
 
-import * as Models from "@game/Models";
-import * as SessionManagement from "@game/SessionManagement";
-import * as CombatSimulation from "@game/Combat/CombatSimulation";
-import * as EnemyGeneration from "@game/EnemyGeneration";
-import * as PhaseConfig from "@game/PhaseSystem/PhaseConfig";
-import * as RecruitmentActions from "@game/Actions/RecruitmentActions"
-import * as OrbAndCoreUpgrades from "@game/Actions/OrbAndCoreUpgrades"
+import * as Models from "./Models";
+import * as SessionManagement from "./SessionManagement";
+import * as CombatSimulation from "./Combat/CombatSimulation";
+import * as EnemyGeneration from "./EnemyGeneration";
+import * as PhaseConfig from "./PhaseSystem/PhaseConfig";
+import * as RecruitmentActions from "./Actions/RecruitmentActions"
+import * as OrbAndCoreUpgrades from "./Actions/OrbAndCoreUpgrades"
 	;
-import * as OptionGeneration from "@game/OptionGeneration";
+import * as OptionGeneration from "./OptionGeneration";
 
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
@@ -412,7 +412,7 @@ function executeCombatPhase(
 	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, enemyTeam);
 
 	const finalCombatState = CombatSimulation.simulateCombat(
-		state.session,
+		session,
 		combatState
 	);
 
