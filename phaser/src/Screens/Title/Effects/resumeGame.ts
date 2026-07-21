@@ -1,6 +1,7 @@
+import { ClientState } from "@Models/ClientState";
 import * as loadGame from "../../../Storage/loadGame"
 
-export async function resumeGame() {
+export const resumeGame = (clientState: ClientState) => async () => {
 
 	io.FadeOut(500, 0x000);
 
@@ -8,7 +9,7 @@ export async function resumeGame() {
 
 	loadGame.loadGame();
 
-	io.screens.battleground.create();
+	io.screens.battleground.create(clientState);
 
 	io.FadeIn(300);
 }

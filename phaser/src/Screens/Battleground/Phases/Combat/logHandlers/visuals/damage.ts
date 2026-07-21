@@ -1,4 +1,4 @@
-import * as Effects from "@FX";
+import * as Effects from "../../../../../../FX";
 
 export function damageFx(source: Vec2, target: Vec2, onHit: () => void) {
 

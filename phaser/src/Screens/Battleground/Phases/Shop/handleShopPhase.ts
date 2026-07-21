@@ -9,6 +9,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
+import { ClientState } from "@Models/ClientState";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
@@ -26,7 +27,9 @@ function init() {
 	events.phaseFinished.listen(closeShop)
 }
 
-export async function handleShopPhase() {
+export async function handleShopPhase(
+	clientState: ClientState,
+) {
 
 	init();
 
@@ -35,9 +38,9 @@ export async function handleShopPhase() {
 	const cardDefs = shopCardIds
 		.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-	Shop.addSkipButton();
+	Shop.addSkipButton(clientState);
 
-	await CharaShop.renderTavernCharas(cardDefs);
+	await CharaShop.renderTavernCharas(clientState, cardDefs);
 
 	await Shop.SlideIn();
 
@@ -49,17 +52,17 @@ async function closeShop({ previousPhase }: { previousPhase: Models.PhaseType })
 }
 
 export async function onUnitPurchased({
-	session,
+	clientState,
 	unitId: cardId,
 	previousTeamUnits,
 	shopCharaId,
 }: {
-	session: Models.SessionData,
+	clientState: ClientState,
 	unitId: string,
 	previousTeamUnits: Unit[],
 	shopCharaId: string | null,
 }) {
-	const unit = session.team.units.find((u) => u.cardId === cardId);
+	const unit = clientState.session.team.units.find((u) => u.cardId === cardId);
 	if (!unit) {
 		throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
 	};
@@ -75,9 +78,9 @@ export async function onUnitPurchased({
 	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
 
 	if (wasUpgrade) {
-		await handleUpgradedUnitPurchase(unit, sourceChara);
+		await handleUpgradedUnitPurchase(clientState, unit, sourceChara);
 	} else {
-		await handleNewUnitPurchase(unit);
+		await handleNewUnitPurchase(clientState, unit);
 	}
 
 	if (sourceChara) {
@@ -86,6 +89,7 @@ export async function onUnitPurchased({
 }
 
 async function handleUpgradedUnitPurchase(
+	clientState: ClientState,
 	upgradedUnit: Unit,
 	sourceChara: Chara.Chara | null,
 ): Promise<void> {
@@ -99,12 +103,12 @@ async function handleUpgradedUnitPurchase(
 		await playShopUpgradeEffect(source, target);
 	}
 
-	await Chara.refreshChara(upgradedUnit);
+	await Chara.refreshChara(clientState, upgradedUnit);
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
 }
 
-async function handleNewUnitPurchase(newUnit: Unit): Promise<void> {
-	await Chara.refreshChara(newUnit);
+async function handleNewUnitPurchase(clientState: ClientState, newUnit: Unit): Promise<void> {
+	await Chara.refreshChara(clientState, newUnit);
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }
 

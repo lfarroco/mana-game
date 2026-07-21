@@ -1,8 +1,9 @@
 import * as constants from "@Constants";
 import * as TutorialOverlay from "../../../Screens/Title/Components/TutorialOverlay";
 import * as i18n from "@i18n/i18n";
+import { ClientState } from "@Models/ClientState";
 
-export function create() {
+export function create(clientState: ClientState) {
 	const text = io.Title1(i18n.t("title.howToPlay"));
 	io.SetPosition(text, [0, 80]);
 	io.Centralize(text);
@@ -34,6 +35,6 @@ export function create() {
 	});
 
 	container.on("pointerdown", () => {
-		TutorialOverlay.openTutorial();
+		TutorialOverlay.openTutorial(clientState);
 	});
 }

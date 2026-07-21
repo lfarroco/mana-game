@@ -10,6 +10,7 @@ import * as Components from "./Components";
 import * as Phases from "./Phases";
 import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
+import { ClientState } from "@Models/ClientState";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -79,7 +80,7 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 }
 
 let initialized = false;
-function init() {
+function init(clientState: ClientState) {
 	if (initialized) return;
 	initialized = true;
 	events = {
@@ -97,13 +98,13 @@ function init() {
 		onRoundChanged: io.createEvent<{ round: number, delta: number }>("onRoundChanged"),
 	};
 
-	events.phaseFinished.listen(handleCurrentPhase);
+	events.phaseFinished.listen(handleCurrentPhase(clientState));
 	events.phaseFinished.listen(updateHudFromSessionChanges);
 	events.newRunRequested.listen(() => {
-		void transitionFromBattleground(io.screens.crystalSelection);
+		void transitionFromBattleground(() => io.screens.crystalSelection(clientState));
 	});
 	events.mainMenuRequested.listen(() => {
-		void transitionFromBattleground(io.screens.title.create);
+		void transitionFromBattleground(() => io.screens.title.create(clientState));
 	});
 
 }
@@ -119,11 +120,11 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 };
 
 // TODO: should be part of the player board logic
-const syncPlayerBoardUnits = async (): Promise<void> => {
+const syncPlayerBoardUnits = async (clientState: ClientState): Promise<void> => {
 	const summonPromises = state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
 			await animation.delay(index * 200);
-			await Chara.summon(unit, true);
+			await Chara.summon(clientState, unit, true);
 			return;
 		}
 
@@ -133,7 +134,7 @@ const syncPlayerBoardUnits = async (): Promise<void> => {
 
 		const chara = Chara.mustGetCharaById(unit.id);
 		Chara.destroy(chara);
-		await Chara.summon(unit, true);
+		await Chara.summon(clientState, unit, true);
 	});
 
 	await Promise.all(summonPromises);
@@ -156,9 +157,9 @@ const syncPlayerBoardUnits = async (): Promise<void> => {
 // 	SessionManager.updateSession(nextSession.player_id, nextSession);
 // };
 
-export const create = async () => {
+export const create = async (clientState: ClientState) => {
 
-	init();
+	init(clientState);
 
 	Components.create();
 	previousSessionHudSnapshot = createSessionHudSnapshot(state.session);
@@ -172,44 +173,45 @@ export const create = async () => {
 
 	// ~~~~~ // ~~~~~ //
 
-	handleCurrentPhase({});
+	handleCurrentPhase(clientState)({});
 
 };
 
 async function executePhase(
+	clientState: ClientState,
 	phase: Models.PhaseType,
 	previousPhase?: Models.PhaseType,
 ) {
 
 	if (phase !== 'combat' && previousPhase !== 'combat') {
-		await syncPlayerBoardUnits();
+		await syncPlayerBoardUnits(clientState);
 	}
 
 	switch (phase) {
 		case "encounter":
-			return await Encounter.displayOptions();
+			return await Encounter.displayOptions(clientState);
 
 		case "pre_combat":
-			return await Encounter.displayOptions();
+			return await Encounter.displayOptions(clientState);
 
 		case "combat": {
-			return await handleCombatPhase.handleCombatPhase();
+			return await handleCombatPhase.handleCombatPhase(clientState);
 		}
 
 		case "shop":
-			return Phases.handleShopPhase();
+			return Phases.handleShopPhase(clientState);
 
 		case "upgrade_core":
-			return await Phases.handleUpgradeCorePhase();
+			return await Phases.handleUpgradeCorePhase(clientState);
 
 		case "add_reaction_core":
-			return await Phases.handleAddReactionCorePhase();
+			return await Phases.handleAddReactionCorePhase(clientState);
 
 		case "orb_shop":
-			return await Phases.handleOrbShopPhase();
+			return await Phases.handleOrbShopPhase(clientState);
 
 		case "victory":
-			return await Phases.handleVictoryPhase();
+			return await Phases.handleVictoryPhase(clientState);
 
 		case "game_over":
 			return await Phases.handleGameOverPhase();
@@ -220,14 +222,18 @@ async function executePhase(
 	}
 }
 
-async function handleCurrentPhase({ previousPhase }: { previousPhase?: Models.PhaseType }) {
+const handleCurrentPhase = (
+	clientState: ClientState,
+) => async ({ previousPhase }: {
+	previousPhase?: Models.PhaseType
+}) => {
 
-	//updateSessionState(state.session);
+		//updateSessionState(state.session);
 
-	await executePhase(state.session.phase, previousPhase);
+		await executePhase(clientState, state.session.phase, previousPhase);
 
-	//events.phaseFinished.emit(previousPhase);
+		//events.phaseFinished.emit(previousPhase);
 
-}
+	}
 
 

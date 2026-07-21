@@ -40,7 +40,7 @@ async function startGameIO(): Promise<void> {
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},
-		scene: Client,
+		scene: Client(window.state),
 		plugins: {
 			global: [
 				{

@@ -22,7 +22,9 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export async function renderTavernCharas(cardDefs: Models.CardDefinition[]): Promise<Chara.Chara[]> {
+export async function renderTavernCharas(
+	clientState: State.ClientState,
+	cardDefs: Models.CardDefinition[]): Promise<Chara.Chara[]> {
 
 	const ownedCardIds = new Set(state.session.team.units.map((u) => u.cardId));
 
@@ -79,6 +81,7 @@ export async function renderTavernCharas(cardDefs: Models.CardDefinition[]): Pro
 		ShopPanel.add([bgRect, rowBorder]);
 
 		const chara = await Chara.create(
+			clientState,
 			unit,
 			{ isShopChara: true }
 		);
@@ -86,7 +89,7 @@ export async function renderTavernCharas(cardDefs: Models.CardDefinition[]): Pro
 			sc.ITEM_BASE_X,
 			sc.ITEM_BASE_Y + offsetY - 10
 		);
-		initShopCharaInput(chara, unit);
+		initShopCharaInput(clientState, chara, unit);
 
 		chara.on("pointerover", () => {
 			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
@@ -171,6 +174,7 @@ export async function renderTavernCharas(cardDefs: Models.CardDefinition[]): Pro
 }
 
 function initShopCharaInput(
+	clientState: State.ClientState,
 	chara: Chara.Chara,
 	unit: Models.Unit
 ): void {
@@ -214,6 +218,7 @@ function initShopCharaInput(
 		const vec = chara.getData("dragStartVec") as [number, number];
 
 		void handleItemDragPurchaseRequested(
+			clientState,
 			unit,
 			unit.id,
 			tile,
@@ -258,6 +263,7 @@ function initShopCharaInput(
 		}
 
 		void GameController.purchaseUnit({
+			clientState,
 			unitId: unit.cardId,
 			targetSlot: null,
 			shopCharaId: unit.id
@@ -267,6 +273,7 @@ function initShopCharaInput(
 }
 
 async function handleItemDragPurchaseRequested(
+	clientState: State.ClientState,
 	shopUnitData: Models.Unit,
 	shopCharaId: string,
 	targetTile: Vec2,
@@ -297,5 +304,5 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	await GameController.purchaseUnit({ unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
+	await GameController.purchaseUnit({ clientState, unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
 }

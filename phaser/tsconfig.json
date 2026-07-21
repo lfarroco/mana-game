@@ -61,7 +61,7 @@
                 "./src/Storage/*"
             ],
             "@FX": [
-                "./src/FX.ts"
+                "./src/FX/index.ts"
             ],
             "@Engine/*": [
                 "./src/Engine/*"

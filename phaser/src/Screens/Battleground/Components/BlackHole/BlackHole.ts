@@ -1,6 +1,6 @@
 import * as Constants from "@Constants";
 import * as ArcaneTornado from "@Screens/Battleground/Components/BlackHole/ArcaneTornadoShader";
-import { BlackHoleState } from "../../../../BlackHoleState";
+import { BlackHoleState } from "../../Phases/Combat/BlackHoleState";
 
 
 export function initBlackHole(): BlackHoleState {

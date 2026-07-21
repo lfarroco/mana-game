@@ -1,6 +1,5 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
-;
 
 
 const currentOptions: Options = {

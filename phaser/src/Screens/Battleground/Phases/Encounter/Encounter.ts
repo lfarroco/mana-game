@@ -4,6 +4,7 @@ import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "../../../../GameController";
 import * as Models from "@game/Models";
+import { ClientState } from "@Models/ClientState";
 
 // TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
@@ -159,7 +160,7 @@ export const allEncounters: EncounterItem[] = [
 	},
 ];
 
-export const displayOptions = () => {
+export const displayOptions = (clientState: ClientState) => {
 
 	init();
 
@@ -184,7 +185,7 @@ export const displayOptions = () => {
 		disableInteraction = true;
 		container.destroy(true);
 
-		await GameController.selectEncounter(id);
+		await GameController.selectEncounter(clientState, id);
 
 	};
 
@@ -222,7 +223,7 @@ export const displayOptions = () => {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
-			callback: io.Controller.skipPhase
+			callback: () => io.Controller.skipPhase(clientState)
 		});
 
 		container.add(btn.container);

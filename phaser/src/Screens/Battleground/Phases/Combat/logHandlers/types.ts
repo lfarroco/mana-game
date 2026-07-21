@@ -1,7 +1,7 @@
 import type * as CombatLogger from "@game/Combat/CombatLogger";
 import type * as CountdownTimer from "@Systems/CountdownTimer";
 import { WaveOutcome, CombatSystemStates } from "@game/Models";
-import { BlackHoleState } from "../../../../../BlackHoleState";
+import { BlackHoleState } from "../BlackHoleState";
 
 export type PlaybackState = {
 	active: boolean;

@@ -3,12 +3,13 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
+import { ClientState } from "@Models/ClientState";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
 let overlay: ReturnType<typeof BackgroundOverlay.create> | null = null;
 
-export function create(): void {
+export const create = (clientState: ClientState) => () => {
 	if (isOpen) return;
 	isOpen = true;
 
@@ -42,7 +43,7 @@ export function create(): void {
 			text: i18n.getNativeName(lang),
 			position: [constants.MIDDLE_SCREEN_X, buttonYStart + index * buttonSpacing],
 			callback: () => {
-				selectLanguage(lang);
+				selectLanguage(clientState, lang);
 			},
 			width: 200,
 		});
@@ -67,10 +68,10 @@ export function create(): void {
 	io.BringToTop(container);
 }
 
-function selectLanguage(lang: string) {
+function selectLanguage(clientState: ClientState, lang: string) {
 	i18n.setLocale(lang);
 	io.scene.children.removeAll();
-	io.screens.title.create();
+	io.screens.title.create(clientState);
 	isOpen = false;
 	container = null;
 	overlay = null;

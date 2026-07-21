@@ -4,17 +4,18 @@ import * as getSinglePlayerData from "../../../Storage/getSinglePlayerData";
 import * as collectionButton from "../../../Screens/Title/Components/collectionButton";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
+import { ClientState } from "@Models/ClientState";
 
 let submenuContainer: Container;
 
-export function create(y: number) {
+export function create(clientState: ClientState, y: number) {
 	const title = io.i18n("title.singlePlayer");
 	const description = io.i18n("title.tooltip.singlePlayer");
 
 	return UIButton.create({
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, y],
-		callback: showSinglePlayerSubmenu,
+		callback: showSinglePlayerSubmenu(clientState),
 		tooltip: {
 			title,
 			description,
@@ -23,7 +24,7 @@ export function create(y: number) {
 	});
 }
 
-function showSinglePlayerSubmenu() {
+const showSinglePlayerSubmenu = (clientState: ClientState) => () => {
 	hideMainButtons.hideMainButtons();
 
 	const baseY = 500;
@@ -47,7 +48,7 @@ function showSinglePlayerSubmenu() {
 		callback: io.screens.title.events.newGameButtonClicked.emit
 	});
 
-	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);
+	const collectionBtn = collectionButton.collectionButton(clientState, baseY + spacing * 2);
 
 	const backBtn = UIButton.create({
 		text: io.i18n("title.back"),

@@ -4,6 +4,7 @@ import * as backButton from "@Screens/Options/Components/backButton";
 import * as optionsLabel from "@Screens/Options/Components/optionsLabel";
 import * as tabButtons from "@Screens/Options/Components/tabButtons";
 import * as Model from "@Screens/Options/Components/Model";
+import { ClientState } from "@Models/ClientState";
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -40,7 +41,7 @@ export const STYLES = {
 	VALUE_TEXT_COLOR: "#FFD700",
 } as const;
 
-export function create() {
+export function create(clientState: ClientState) {
 
 	new CloudsBackground.CloudsBackground({ preset: "aurora" });
 
@@ -50,6 +51,6 @@ export function create() {
 
 	showTab.showTab(showTab.currentTab.key as Model.Tabs);
 
-	backButton.create();
+	backButton.create(clientState);
 
 }

@@ -6,6 +6,7 @@ import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as createDescription from "@Systems/Chara/createDescription";
+import { ClientState } from "@Models/ClientState";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;
@@ -15,7 +16,7 @@ const CARDS_PER_PAGE = ROWS * COLS;
 
 type Tab = "unlocked" | "locked";
 
-export const create = () => new Promise<void>((resolve) => {
+export const create = (clientState: ClientState) => () => new Promise<void>((resolve) => {
 
 	const modal = Modal.createModal({
 		width: PANEL_WIDTH,
@@ -76,7 +77,7 @@ export const create = () => new Promise<void>((resolve) => {
 				const dummyUnit = Card.createUnitFromCardSpec(dummyId, card, undefined, "NEUTRAL");
 
 				// Create chara
-				const chara = await Chara.create(dummyUnit);
+				const chara = await Chara.create(clientState, dummyUnit);
 				// Check if locked
 				const isUnlocked = !card.locked || StatsStore.isUnitUnlocked(card.id);
 				if (!isUnlocked) {

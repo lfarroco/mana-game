@@ -7,7 +7,7 @@ import * as healFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals
 import * as shieldFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/shield";
 import * as poisonFx from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
-import * as Effects from "@FX";
+import * as Effects from "../../../../../FX";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
 

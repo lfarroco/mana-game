@@ -1,4 +1,4 @@
-import { arcaneMissileTargeted } from "@FX";
+import { arcaneMissileTargeted } from "../../../../../../FX";
 
 export function shieldFx(source: Vec2, target: Vec2, onHit: () => void) {
 

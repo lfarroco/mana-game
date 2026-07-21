@@ -5,12 +5,13 @@ import * as Card from "@game/Entities/Card";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
+import { ClientState } from "@Models/ClientState";
 
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;
 
-export function render(unitId: string): Promise<void> {
-	return new Promise(async (resolve) => {
+export const render = (clientState: ClientState, unitId: string) =>
+	new Promise<void>(async (resolve) => {
 		const unitData = Card.getCardDefinition(unitId);
 
 		const modal = Modal.createModal({
@@ -21,7 +22,7 @@ export function render(unitId: string): Promise<void> {
 
 		const dummy = Card.createUnitFromCardSpec("dummy", unitData, undefined, "");
 
-		const chara = await Chara.create(dummy);
+		const chara = await Chara.create(clientState, dummy);
 
 		chara.setPosition(0, -180);
 
@@ -66,4 +67,3 @@ export function render(unitId: string): Promise<void> {
 		await modal.onClose;
 		resolve();
 	});
-}

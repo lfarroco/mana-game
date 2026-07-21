@@ -9,6 +9,7 @@ import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Effects from "../../FX";
 import { upgradeUnitData } from "@game/Entities/Unit";
+import { ClientState } from "@Models/ClientState";
 
 export type Chara = Container;
 
@@ -54,12 +55,14 @@ export function hasCharaById(id: string): boolean {
 	return charaById.has(id);
 }
 
-export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
+export async function summon(
+	clientState: ClientState,
+	unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
 		Effects.summonEffect(vec);
 	}
-	const chara = await create(unit);
+	const chara = await create(clientState, unit);
 	enableTooltip(chara);
 	chara.setScale(0);
 	chara.setAngle(-10);
@@ -77,7 +80,7 @@ export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }
 
-export async function create(unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
+export async function create(clientState: ClientState, unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
 	const position = getScreenPosition(unit);
 	const container = io.scene.add.container(position.x, position.y);
 
@@ -109,7 +112,7 @@ export async function create(unit: Unit, options: CreateCharaOptions = {}): Prom
 	RankDisplay.create(unit, container);
 	container.moveUp(sprite);
 
-	input.init(container);
+	input.init(clientState, container);
 
 	charaById.set(unit.id, container);
 
@@ -276,20 +279,26 @@ export function shake(chara: Chara) {
 	});
 }
 
-export async function upgradeUnit(unit: Unit) {
+export async function upgradeUnit(
+	clientState: ClientState,
+	unit: Unit,
+) {
 	const chara = mustGetCharaById(unit.id);
 
 	upgradeUnitData(unit);
 
 	destroy(chara);
-	await summon(unit, true);
+	await summon(clientState, unit, true);
 }
 
 // TODO: this should be reworked
 // it should just update power values and ranking, if needed
-export async function refreshChara(unit: Unit): Promise<void> {
+export async function refreshChara(
+	clientState: ClientState,
+	unit: Unit,
+): Promise<void> {
 	if (hasCharaById(unit.id)) {
 		destroy(mustGetCharaById(unit.id));
 	}
-	await summon(unit, true);
+	await summon(clientState, unit, true);
 }

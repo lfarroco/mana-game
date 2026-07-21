@@ -6,15 +6,16 @@ import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
+import { ClientState } from "@Models/ClientState";
 
 let submenuContainer: Container;
 
-export function create(y: number) {
+export function create(clientState: ClientState, y: number) {
 	const title = i18n.t("title.options");
 	const button = UIButton.create({
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, y],
-		callback: showOptionsSubmenu,
+		callback: showOptionsSubmenu(clientState),
 		tooltip: {
 			title,
 			description: i18n.t("title.tooltip.options"),
@@ -24,7 +25,7 @@ export function create(y: number) {
 	return button;
 }
 
-function showOptionsSubmenu() {
+const showOptionsSubmenu = (clientState: ClientState) => () => {
 	hideMainButtons.hideMainButtons();
 
 	// Create submenu buttons
@@ -34,7 +35,8 @@ function showOptionsSubmenu() {
 	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: openOptions.openOptions,
+		callback: openOptions.openOptions(clientState
+		),
 	});
 
 	const statsBtn = UIButton.create({

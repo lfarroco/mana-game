@@ -1,4 +1,4 @@
-import * as Effects from "@FX";
+import * as Effects from "../../../../../../FX";
 
 export function healFx(
 	source: Vec2,

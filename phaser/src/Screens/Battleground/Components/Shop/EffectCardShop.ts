@@ -5,6 +5,7 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "../../../../GameController";
+import { ClientState } from "@Models/ClientState";
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -15,6 +16,7 @@ const EFFECT_CARD_X_OFFSET = 450;
 const EFFECT_CARD_BASE_Y = 300;
 
 export async function openUpgradeCorePhase(
+	clientState: ClientState,
 	titleText: string,
 	encounters: string[],
 	// onSkip?: () => void | Promise<void>,
@@ -33,7 +35,7 @@ export async function openUpgradeCorePhase(
 		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
 		container.add(title);
 
-		ShopPanel.addSkipButton();
+		ShopPanel.addSkipButton(clientState);
 		// 	async () => {
 		// 		await onSkip();
 		// 		await completeSectionCallback();
@@ -43,7 +45,7 @@ export async function openUpgradeCorePhase(
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
 		ShopPanel.add(container);
 
-		renderUpgradeCards(container, encounters,
+		renderUpgradeCards(clientState, container, encounters,
 			//onUpgradeApplied, 
 			// async () => { container.list.forEach((child) => child.disableInteractive());
 			//await animation.delay(EFFECT_CARD_COMPLETION_DELAY_MS); completeSectionCallback();
@@ -57,6 +59,7 @@ export async function openUpgradeCorePhase(
 }
 
 function renderUpgradeCards(
+	clientState: ClientState,
 	container: Container,
 	encounterIds: string[],
 ) {
@@ -87,7 +90,7 @@ function renderUpgradeCards(
 				isResolvingSelection = true;
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
-				await GameController.selectEncounter(encounterId);
+				await GameController.selectEncounter(clientState, encounterId);
 
 
 				// TODO: handle upgrade success (as event, before phase completion)

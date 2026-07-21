@@ -5,8 +5,9 @@ import * as Config from "@config";
 import * as TitleScreen from "./Screens/Title/TitleScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
+import { ClientState } from "@Models/ClientState";
 
-export default class Client extends Phaser.Scene {
+export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
     preload() {
 
@@ -165,6 +166,6 @@ export default class Client extends Phaser.Scene {
 
         StatsStore.init();
 
-        TitleScreen.create();
+        TitleScreen.create(clientState);
     }
 }
