@@ -1,6 +1,6 @@
 import * as CoreConstants from "@game/Constants";
 import * as GameController from "../../GameController";
-import * as Board from "@Models/Board";
+import * as Board from "@Components/Board/Board";
 import * as Geometry from "@game/Geometry";
 import { Unit } from "@game/Models";
 import * as animation from "@Utils/animation";

@@ -1,5 +1,5 @@
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
-import * as Board from "@Models/Board";
+import * as Board from "@Components/Board/Board";
 import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPresentation";
 import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";

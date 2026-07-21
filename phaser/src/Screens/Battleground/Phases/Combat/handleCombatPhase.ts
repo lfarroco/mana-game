@@ -1,5 +1,5 @@
 import * as Models from "@game/Models";
-import * as Board from "@Models/Board";
+import * as Board from "@Components/Board/Board";
 import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 

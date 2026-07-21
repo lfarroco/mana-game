@@ -1,5 +1,5 @@
 import * as Card from "@game/Entities/Card";
-import * as Board from "@Models/Board";
+import * as Board from "@Components/Board/Board";
 import * as State from "@Models/ClientState";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";

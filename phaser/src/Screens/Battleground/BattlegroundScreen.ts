@@ -1,4 +1,4 @@
-import * as Board from "@Models/Board";
+import * as Board from "@Components/Board/Board";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
