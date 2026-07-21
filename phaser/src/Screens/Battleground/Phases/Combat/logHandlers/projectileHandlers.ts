@@ -10,6 +10,7 @@ import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as Effects from "../../../../../FX";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
+import { getCombatState } from "./combatStateStore";
 
 // ---- Cast handlers (launch missile) ----
 
@@ -151,8 +152,8 @@ export const handleTimeoutDamageCast = (
 ) => {
 	// Fire a projectile from the black hole at center to the force's core
 	const core = log.force === CoreConstants.FORCE_ID_PLAYER
-		? state.combatState!.playerCore
-		: state.combatState!.cpuCore;
+		? getCombatState()!.playerCore
+		: getCombatState()!.cpuCore;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	void Effects.arcaneMissileTargeted(
 		Constants.MIDDLE_SCREEN,
@@ -179,8 +180,8 @@ export const handleTimeoutDamageHit = (
 ) => {
 	// Shake the core chara when projectile lands
 	const core = log.force === CoreConstants.FORCE_ID_PLAYER
-		? state.combatState!.playerCore
-		: state.combatState!.cpuCore;
+		? getCombatState()!.playerCore
+		: getCombatState()!.cpuCore;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	Chara.shake(coreChara);
 

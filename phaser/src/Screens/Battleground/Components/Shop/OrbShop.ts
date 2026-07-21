@@ -7,6 +7,7 @@ import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
+import { ClientState } from "@Models/ClientState";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -17,12 +18,12 @@ const ORB_DESCRIPTION_Y_OFFSET = 20;
 
 let container: Container | null = null;
 
-export async function openOrbShop(): Promise<void> {
+export async function openOrbShop(clientState: ClientState): Promise<void> {
 
 	container?.destroy();
 	container = io.Container();
 
-	renderOrbShop(container);
+	renderOrbShop(container, clientState);
 
 	Board.setEnemyBoardVisible(false);
 
@@ -37,10 +38,11 @@ export async function closeOrbShop(): Promise<void> {
 }
 
 export function renderOrbShop(
-	container: Phaser.GameObjects.Container
+	container: Phaser.GameObjects.Container,
+	clientState: ClientState
 ) {
 
-	const orbIds = state.session.options.map((o) => o.id);
+	const orbIds = clientState.session.options.map((o) => o.id);
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
@@ -69,7 +71,7 @@ export function renderOrbShop(
 			`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
 		);
 
-		const existingUnit = state?.session?.team?.units?.find((unit) =>
+		const existingUnit = clientState?.session?.team?.units?.find((unit) =>
 			Geometry.eqVec2(unit.position, [tileX, tileY])
 		);
 

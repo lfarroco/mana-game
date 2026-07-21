@@ -6,7 +6,7 @@ export async function handleVictoryPhase(clientState: ClientState) {
 
 	await new Promise<void>((resolve) => {
 		void ResultsUI.displayGameCompleteResults(
-			state,
+			clientState,
 			false,
 			() => GameController.completeVictory(clientState),
 			() => {

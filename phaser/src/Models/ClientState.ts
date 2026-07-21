@@ -40,23 +40,5 @@ export const initialState = (): ClientState => {
 	};
 };
 
-export function resetState() {
-	const newState = initialState();
-
-	setState(newState);
-}
-
-/**
- * Update the global game state
- * Used primarily for testing and scene transitions
- */
-export const setState = (newState: ClientState): void => {
-	for (const key in state) {
-		(state as Record<string, unknown>)[key] = (newState as Record<string, unknown>)[key];
-	}
-};
-
-export const getState = (): ClientState => state;
-
 export const getUnitAt = (units: Models.Unit[]) => (position: Vec2) =>
 	units.find((u) => Geometry.eqVec2(u.position, position));

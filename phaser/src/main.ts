@@ -9,11 +9,9 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
 	var io: typeof io_;
-	var state: State.ClientState;
 	const __DEV__: boolean;
 }
 window.io = io_;
-window.state = State.initialState();
 
 const STARTUP_FONT_FAMILY = "Arimo";
 const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";
@@ -40,7 +38,7 @@ async function startGameIO(): Promise<void> {
 			mode: Phaser.Scale.FIT,
 			autoCenter: Phaser.Scale.CENTER_BOTH,
 		},
-		scene: Client(window.state),
+		scene: Client(State.initialState()),
 		plugins: {
 			global: [
 				{

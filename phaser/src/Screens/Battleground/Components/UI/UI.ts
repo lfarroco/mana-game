@@ -7,6 +7,7 @@ import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as headerBackground from "@Screens/Battleground/Components/UI/headerBackground";
 import * as menuButton from "@Screens/Battleground/Components/menuButton";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
+import { ClientState } from "@Models/ClientState";
 export * as events from "@Screens/Battleground/Components/UI/events";
 
 let uiContainer: Container | null = null;
@@ -33,14 +34,14 @@ function bindBattlegroundEvents(): void {
 	});
 }
 
-export function create() {
+export function create(clientState: ClientState) {
 	bindBattlegroundEvents();
 
 	const headerContainer = io.Container([
 		headerBackground.create,
-		roundDisplay.create,
-		livesDisplay.create,
-		winsDisplay.create,
+		() => roundDisplay.create(clientState),
+		() => livesDisplay.create(clientState),
+		() => winsDisplay.create(clientState),
 	]);
 	io.SetPosition(headerContainer, [580, 0]);
 

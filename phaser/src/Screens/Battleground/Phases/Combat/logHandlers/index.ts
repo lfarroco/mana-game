@@ -34,6 +34,8 @@ import {
 } from "./statusHandlers";
 import { handleCombatStats } from "./combatStatsHandlers";
 
+export { setCombatState } from "./combatStateStore";
+
 export const executeLogHandler = (log: CombatLogger.CombatLogEntry, playbackState: PlaybackState): void => {
 	switch (log.type) {
 		case "damage_cast":

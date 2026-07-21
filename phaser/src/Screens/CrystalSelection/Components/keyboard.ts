@@ -1,7 +1,8 @@
 import * as Phaser from "phaser";
 import * as parent from "../CrystalSelectionScreen";
+import { ClientState } from "@Models/ClientState";
 
-export function create(targetText: Phaser.GameObjects.Text) {
+export function create(clientState: ClientState, targetText: Phaser.GameObjects.Text) {
 	if (document.getElementById("virtual-keyboard")) return;
 
 	const keyboardContainer = document.createElement("div");
@@ -63,7 +64,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 	const backBtn = createActionBtn(
 		"Back",
 		() => {
-			targetText.setText(state.session.seed);
+			targetText.setText(clientState.session.seed);
 			parent.state.seedWarningText.setVisible(false);
 			if (document.body.contains(keyboardContainer)) {
 				document.body.removeChild(keyboardContainer);
@@ -110,19 +111,19 @@ export function create(targetText: Phaser.GameObjects.Text) {
 		() => {
 			if (targetText.text === "") {
 				const newSeed = String(Date.now());
-				state.session.seed = newSeed;
+				clientState.session.seed = newSeed;
 				targetText.setText(newSeed);
 				parent.state.seedWarningText.setVisible(false);
 			} else {
 				const val = parseInt(targetText.text, 10);
 				if (!isNaN(val)) {
-					state.session.seed = String(val);
+					clientState.session.seed = String(val);
 					targetText.setText(`${val}`);
 					parent.state.seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
 					const newSeed = String(Date.now());
-					state.session.seed = newSeed;
+					clientState.session.seed = newSeed;
 					targetText.setText(newSeed);
 					parent.state.seedWarningText.setVisible(false);
 				}
@@ -165,8 +166,8 @@ export function create(targetText: Phaser.GameObjects.Text) {
 				document.body.removeChild(keyboardContainer);
 			}
 			const currentVal = parseInt(targetText.text, 10);
-			if (isNaN(currentVal) && targetText.text !== state.session.seed) {
-				targetText.setText(state.session.seed);
+			if (isNaN(currentVal) && targetText.text !== clientState.session.seed) {
+				targetText.setText(clientState.session.seed);
 				parent.state.seedWarningText.setVisible(false);
 			}
 

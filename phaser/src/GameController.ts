@@ -1,16 +1,16 @@
 import * as Models from "@game/Models";
 import * as GameServer from "./GameServer";
 import { Unit } from "@game/Models";
-import * as State from "@Models/ClientState";
+import { ClientState } from "@Models/ClientState";
 import * as handleShopPhase from "./Screens/Battleground/Phases/Shop/handleShopPhase";
 import { onOrbApplied } from "./Screens/Battleground/Phases/OrbShop/handleOrbShopPhase";
 
 async function dispatchAction(
-	clientState: State.ClientState,
+	clientState: ClientState,
 	action: Models.Action
 ): Promise<Models.ActionResponse> {
-	return await GameServer.getServer()
-		.handleAction(clientState.session.player_id, action);
+	return await GameServer.getServer(clientState)
+		.handleAction(clientState, clientState.session.player_id, action);
 }
 
 export async function purchaseUnit(
@@ -20,14 +20,14 @@ export async function purchaseUnit(
 		targetSlot,
 		shopCharaId = null,
 	}: {
-		clientState: State.ClientState
+		clientState: ClientState
 		unitId: string;
 		targetSlot: Vec2 | null;
 		shopCharaId?: string | null;
 	}
 ) {
-	const previousPhase = state.session.phase;
-	const previousTeamUnits = JSON.parse(JSON.stringify(state.session.team.units)) as Unit[];
+	const previousPhase = clientState.session.phase;
+	const previousTeamUnits = JSON.parse(JSON.stringify(clientState.session.team.units)) as Unit[];
 
 	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
@@ -48,7 +48,7 @@ export async function purchaseUnit(
 		return;
 	}
 
-	state.session = session;
+	clientState.session = session;
 
 	await handleShopPhase.onUnitPurchased({
 		clientState,
@@ -61,61 +61,61 @@ export async function purchaseUnit(
 
 }
 
-export async function sellUnit(clientState: State.ClientState, unitId: string): Promise<Models.SessionData> {
+export async function sellUnit(clientState: ClientState, unitId: string): Promise<Models.SessionData> {
 	const { session } = await dispatchAction(clientState, {
 		type: "discard_unit",
 		unitId
 	});
 
-	state.session = session;
+	clientState.session = session;
 
 	await handleShopPhase.onUnitSold(unitId);
 
 	return session;
 }
 
-export async function skipPhase(clientState: State.ClientState) {
+export async function skipPhase(clientState: ClientState) {
 
-	const previousPhase = state.session.phase;
+	const previousPhase = clientState.session.phase;
 
 	const { session } = await dispatchAction(
 		clientState,
 		{ type: "skip" }
 	);
 
-	state.session = session;
+	clientState.session = session;
 
 	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 
 }
 
 export async function selectEncounter(
-	clientState: State.ClientState,
+	clientState: ClientState,
 	encounterId: string
 ) {
-	const previousPhase = state.session.phase;
-	state.session.encounter_history = state.session.encounter_history || [];
-	state.session.encounter_history.push(encounterId);
+	const previousPhase = clientState.session.phase;
+	clientState.session.encounter_history = clientState.session.encounter_history || [];
+	clientState.session.encounter_history.push(encounterId);
 	const { session, combatState } = await dispatchAction(
 		clientState,
 		{
 			type: "select_encounter",
 			encounterId
 		});
-	state.session = session;
+	clientState.session = session;
 	if (combatState) {
-		state.combatState = combatState;
+		clientState.combatState = combatState;
 	}
 
 	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
 
 export async function applyOrb(
-	clientState: State.ClientState,
+	clientState: ClientState,
 	orbId: string,
 	targetUnitId: string
 ): Promise<Models.SessionData> {
-	const previousPhase = state.session.phase;
+	const previousPhase = clientState.session.phase;
 
 	const { session } = await dispatchAction(
 		clientState,
@@ -125,7 +125,7 @@ export async function applyOrb(
 			targetUnitId
 		});
 
-	state.session = session;
+	clientState.session = session;
 
 	await onOrbApplied({ clientState, orbId, targetUnitId, })
 
@@ -134,32 +134,32 @@ export async function applyOrb(
 	return session;
 }
 
-export async function completeVictory(clientState: State.ClientState) {
+export async function completeVictory(clientState: ClientState) {
 
-	const previousPhase = state.session.phase;
+	const previousPhase = clientState.session.phase;
 
 	const { session } = await dispatchAction(
 		clientState,
 		{
 			type: "victory"
 		});
-	state.session = session;
+	clientState.session = session;
 
 	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
 }
 
-export async function completeCombatEncounter(clientState: State.ClientState) {
+export async function completeCombatEncounter(clientState: ClientState) {
 
-	const previousPhase = state.session.phase;
+	const previousPhase = clientState.session.phase;
 
-	const { wins, losses, round } = state.session;
+	const { wins, losses, round } = clientState.session;
 	const { session } = await dispatchAction(
 		clientState,
 		{
 			type: "end_combat"
 		});
 
-	state.session = session;
+	clientState.session = session;
 
 	const { events } = io.screens.battleground;
 
@@ -180,7 +180,7 @@ export async function completeCombatEncounter(clientState: State.ClientState) {
 }
 
 export async function updateTeam(
-	clientState: State.ClientState,
+	clientState: ClientState,
 	team: { units: Unit[] }
 ): Promise<Models.SessionData> {
 	const { session } = await dispatchAction(
@@ -193,12 +193,10 @@ export async function updateTeam(
 }
 
 export function requestNewRun(): void {
-	State.resetState();
 	io.screens.battleground.events.newRunRequested.emit(undefined);
 }
 
 export function requestMainMenu(): void {
-	State.resetState();
 	io.screens.battleground.events.mainMenuRequested.emit(undefined);
 }
 

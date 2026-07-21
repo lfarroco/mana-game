@@ -1,13 +1,14 @@
 import type { PlaybackState } from "./types";
 import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
+import { getCombatState } from "./combatStateStore";
 
 
 export const handleIncreasePower = (
 	log: CombatLogger.IncreasePowerEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const powerTarget = state.combatState?.unitById.get(log.targetId);
+	const powerTarget = getCombatState()?.unitById.get(log.targetId);
 	if (powerTarget) {
 		powerTarget.power += log.amount;
 		// TODO: check if the end-combat logs follow this
@@ -22,7 +23,7 @@ export const handleDecreasePower = (
 	log: CombatLogger.DecreasePowerEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const affectedUnit = state.combatState?.unitById.get(log.affectedUnitId);
+	const affectedUnit = getCombatState()?.unitById.get(log.affectedUnitId);
 	if (affectedUnit) {
 		affectedUnit.power -= log.amount;
 		if (log.permanent) {

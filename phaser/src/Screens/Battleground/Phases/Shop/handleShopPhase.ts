@@ -33,7 +33,7 @@ export async function handleShopPhase(
 
 	init();
 
-	const { session } = state;
+	const { session } = clientState;
 	const shopCardIds = session.options.map((o) => o.id);
 	const cardDefs = shopCardIds
 		.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);

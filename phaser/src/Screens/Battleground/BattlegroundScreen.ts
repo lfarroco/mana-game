@@ -10,7 +10,7 @@ import * as Components from "./Components";
 import * as Phases from "./Phases";
 import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
-import { ClientState } from "@Models/ClientState";
+import { ClientState, initialState } from "@Models/ClientState";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -57,8 +57,8 @@ const createSessionHudSnapshot = (session: Models.SessionData): SessionHudSnapsh
 	lives: getRemainingLives(session),
 });
 
-function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType }): void {
-	const currentSnapshot = createSessionHudSnapshot(state.session);
+function updateHudFromSessionChanges(clientState: ClientState, _payload: { previousPhase: Models.PhaseType }): void {
+	const currentSnapshot = createSessionHudSnapshot(clientState.session);
 
 	if (!previousSessionHudSnapshot) {
 		previousSessionHudSnapshot = currentSnapshot;
@@ -99,11 +99,13 @@ function init(clientState: ClientState) {
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase(clientState));
-	events.phaseFinished.listen(updateHudFromSessionChanges);
+	events.phaseFinished.listen((payload) => updateHudFromSessionChanges(clientState, payload));
 	events.newRunRequested.listen(() => {
+		Object.assign(clientState, initialState());
 		void transitionFromBattleground(() => io.screens.crystalSelection(clientState));
 	});
 	events.mainMenuRequested.listen(() => {
+		Object.assign(clientState, initialState());
 		void transitionFromBattleground(() => io.screens.title.create(clientState));
 	});
 
@@ -121,7 +123,7 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 
 // TODO: should be part of the player board logic
 const syncPlayerBoardUnits = async (clientState: ClientState): Promise<void> => {
-	const summonPromises = state.session.team.units.map(async (unit, index) => {
+	const summonPromises = clientState.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
 			await animation.delay(index * 200);
 			await Chara.summon(clientState, unit, true);
@@ -161,8 +163,8 @@ export const create = async (clientState: ClientState) => {
 
 	init(clientState);
 
-	Components.create();
-	previousSessionHudSnapshot = createSessionHudSnapshot(state.session);
+	Components.create(clientState);
+	previousSessionHudSnapshot = createSessionHudSnapshot(clientState.session);
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
@@ -214,7 +216,7 @@ async function executePhase(
 			return await Phases.handleVictoryPhase(clientState);
 
 		case "game_over":
-			return await Phases.handleGameOverPhase();
+			return await Phases.handleGameOverPhase(clientState);
 
 		default:
 			((_: never) => { })(phase)
@@ -230,7 +232,7 @@ const handleCurrentPhase = (
 
 		//updateSessionState(state.session);
 
-		await executePhase(clientState, state.session.phase, previousPhase);
+		await executePhase(clientState, clientState.session.phase, previousPhase);
 
 		//events.phaseFinished.emit(previousPhase);
 

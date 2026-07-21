@@ -1,6 +1,7 @@
 import * as Models from "@game/Models";
 import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@game/Constants";
 import { CombatLogEntry } from "@game/Combat/CombatLogger";
+import { ClientState } from "@Models/ClientState";
 
 import * as supabase from "@lib/supabase";
 
@@ -53,8 +54,8 @@ const getSessionCombatState = (session: unknown): Models.CombatState | undefined
 
 
 
-export async function createSession(_playerId: string, crystalId: string): Promise<Models.SessionData> {
-	const sessionType = state.session.session_type;
+export async function createSession(clientState: ClientState, _playerId: string, crystalId: string): Promise<Models.SessionData> {
+	const sessionType = clientState.session.session_type;
 	const seed = generateSessionSeed();
 	const { data, error } = await supabase.supabase.functions.invoke("action", {
 		body: {
@@ -141,6 +142,7 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 }
 
 export async function handleAction(
+	clientState: ClientState,
 	_playerId: string,
 	action: Models.Action
 ): Promise<Models.ActionResponse> {
@@ -148,7 +150,7 @@ export async function handleAction(
 		action.type === "start_combat"
 			? {
 				...(action || {}),
-				sessionType: state.session.session_type,
+				sessionType: clientState.session.session_type,
 			}
 			: action;
 
@@ -163,7 +165,7 @@ export async function handleAction(
 
 	const nextSession = response.data as Models.SessionData;
 	const combatState = getSessionCombatState(response.data);
-	state.session = nextSession;
+	clientState.session = nextSession;
 	return { session: nextSession, combatState };
 }
 

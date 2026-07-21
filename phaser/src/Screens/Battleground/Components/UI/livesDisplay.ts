@@ -1,6 +1,7 @@
 import * as Constants from "@Constants";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
+import { ClientState } from "@Models/ClientState";
 
 const MAX_LIVES = 4;
 const GREEN_HEART = "💚";
@@ -45,8 +46,8 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 export const LIVES_DISPLAY_X = 60;
 export const LIVES_DISPLAY_Y = 50;
 
-export function create() {
-	const initialLives = 4 - state.session.losses;
+export function create(clientState: ClientState) {
+	const initialLives = 4 - clientState.session.losses;
 	currentLives = initialLives;
 
 	const hearts = createHearts();

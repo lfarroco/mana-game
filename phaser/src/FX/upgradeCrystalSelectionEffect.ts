@@ -6,6 +6,7 @@ import * as theme from "../Screens/Battleground/Components/UI/theme";
 import * as animation from "@Utils/animation";
 import * as colorUtils from "@Utils/colorUtils";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
+import { ClientState } from "@Models/ClientState";
 
 const DEFAULT_ACCENT_COLOR = 0x7ae7ff;
 const SHARD_TEXTURE_KEY = "upgrade-crystal-shard";
@@ -24,6 +25,7 @@ type UpgradeCrystalSelectionEffectProps = {
 	cardSize: Size;
 	cardObjects: Phaser.GameObjects.GameObject[];
 	accentColor?: number;
+	clientState: ClientState;
 };
 
 export async function playUpgradeCrystalSelectionEffect({
@@ -31,8 +33,9 @@ export async function playUpgradeCrystalSelectionEffect({
 	cardSize,
 	cardObjects,
 	accentColor = DEFAULT_ACCENT_COLOR,
+	clientState,
 }: UpgradeCrystalSelectionEffectProps): Promise<void> {
-	const target = getCrystalTargetPoint();
+	const target = getCrystalTargetPoint(clientState);
 	const projectileColors = [
 		theme.mixHexColors(accentColor, 0xffffff, 0.55),
 		accentColor,
@@ -164,8 +167,8 @@ function createCrystalAbsorptionOrb(
 	return orb;
 }
 
-function getCrystalTargetPoint(): Vec2 {
-	const core = Card.getPlayerPersistentCore(state.session);
+function getCrystalTargetPoint(clientState: ClientState): Vec2 {
+	const core = Card.getPlayerPersistentCore(clientState.session);
 
 	if (Chara.hasCharaById(core.id)) {
 		const coreChara = Chara.mustGetCharaById(core.id);

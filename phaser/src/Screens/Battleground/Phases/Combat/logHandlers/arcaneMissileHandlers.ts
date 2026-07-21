@@ -5,6 +5,7 @@ import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Effects from "../../../../../FX";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import { getCombatState } from "./combatStateStore";
 
 
 // ---- Cast handlers (launch missile) ----
@@ -117,7 +118,7 @@ export const handleHasteHit = (
 	log: CombatLogger.HasteHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const hasteTarget = state.combatState?.unitById.get(log.targetId);
+	const hasteTarget = getCombatState()?.unitById.get(log.targetId);
 	if (hasteTarget) {
 		hasteTarget.hasted += log.effectDuration;
 		ChargeBarDisplay.updateChargeBar(log.targetId);
@@ -133,7 +134,7 @@ export const handleSlowHit = (
 	log: CombatLogger.SlowHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const slowTarget = state.combatState?.unitById.get(log.targetId);
+	const slowTarget = getCombatState()?.unitById.get(log.targetId);
 	if (slowTarget) {
 		slowTarget.slowed += log.effectDuration;
 		ChargeBarDisplay.updateChargeBar(log.targetId);
@@ -149,7 +150,7 @@ export const handleChargeHit = (
 	log: CombatLogger.ChargeHitEntry,
 	_playbackState: PlaybackState,
 ) => {
-	const chargeTarget = state.combatState?.unitById.get(log.targetId);
+	const chargeTarget = getCombatState()?.unitById.get(log.targetId);
 	if (chargeTarget) {
 		chargeTarget.charge += log.amount;
 		ChargeBarDisplay.updateChargeBar(log.targetId);

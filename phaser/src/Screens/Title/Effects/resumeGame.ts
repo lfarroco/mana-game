@@ -7,7 +7,7 @@ export const resumeGame = (clientState: ClientState) => async () => {
 
 	io.scene.children.removeAll();
 
-	loadGame.loadGame();
+	loadGame.loadGame(clientState);
 
 	io.screens.battleground.create(clientState);
 

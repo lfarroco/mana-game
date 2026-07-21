@@ -2,7 +2,7 @@ import { ClientState } from "@Models/ClientState";
 import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
 
 export async function handleAddReactionCorePhase(clientState: ClientState) {
-	const reactionIds = state.session.options.map((option) => option.id);
+	const reactionIds = clientState.session.options.map((option) => option.id);
 	// let nextSession = null;
 
 	await EffectCardShop.openUpgradeCorePhase(

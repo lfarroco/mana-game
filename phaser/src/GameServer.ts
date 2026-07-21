@@ -1,9 +1,15 @@
 import * as LocalServer from "./LocalServer";
 import * as RemoteServer from "./RemoteServer";
-import { GameServer } from "@game/Models";
+import * as Models from "@game/Models";
+import { ClientState } from "@Models/ClientState";
 
-export const getServer = (): GameServer => {
-	if (state.session.session_type.type === "singleplayer")
+export type ServerAdapter = {
+	createSession(clientState: ClientState, playerId: string, crystalId: string): Promise<Models.SessionData>;
+	handleAction(clientState: ClientState, playerId: string, action: Models.Action): Promise<Models.ActionResponse>;
+};
+
+export const getServer = (clientState: ClientState): ServerAdapter => {
+	if (clientState.session.session_type.type === "singleplayer")
 		return LocalServer;
 	else
 		return RemoteServer;

@@ -168,7 +168,7 @@ export const displayOptions = (clientState: ClientState) => {
 
 	disableInteraction = false;
 
-	const options = state.session.options
+	const options = clientState.session.options
 		.reduce((acc, option) => {
 			const encounter = allEncounters.find((e) => e.id === option.id);
 			if (encounter) {
@@ -219,7 +219,7 @@ export const displayOptions = (clientState: ClientState) => {
 		});
 	});
 
-	if (state.session.phase !== "pre_combat") {
+	if (clientState.session.phase !== "pre_combat") {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],

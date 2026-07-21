@@ -10,13 +10,14 @@ export const startNewGame = (clientState: ClientState) => async () => {
 
 	io.scene.children.removeAll();
 
-	const server = GameServer.getServer();
+	const server = GameServer.getServer(clientState);
 	const session = await server.createSession(
+		clientState,
 		"local-player",
 		selectedCrystal.id,
 	);
 
-	state.session = session;
+	clientState.session = session;
 
 	io.screens.battleground.create(clientState);
 

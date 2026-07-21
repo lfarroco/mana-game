@@ -6,6 +6,7 @@ import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
+import { ClientState } from "@Models/ClientState";
 
 const initialForceStats: () => ForceStats = () => ({
 	display: null,
@@ -22,12 +23,22 @@ const statsState: ForceStatsState = ({
 	cpu: initialForceStats(),
 });
 
-export const createForceStats = () =>
+let currentCombatState: import("@game/Models").CombatState | undefined;
+let currentSession: import("@game/Models").SessionData | undefined;
+
+export function setCombatClientState(clientState: ClientState) {
+	currentCombatState = clientState.combatState;
+	currentSession = clientState.session;
+}
+
+export const createForceStats = (clientState: ClientState) => {
+	setCombatClientState(clientState);
 	[
 		Constants.FORCE_ID_PLAYER,
 		Constants.FORCE_ID_CPU,
 	]
 		.forEach(createStatsForForce)
+}
 
 
 const createStatsForForce = (force: string) => {
@@ -40,7 +51,7 @@ const createStatsForForce = (force: string) => {
 
 	stats.display?.destroy();
 
-	const core = Card.getBattleCore(state.combatState!)(force);
+	const core = Card.getBattleCore(currentCombatState!)(force);
 
 	const lifeDisplay = createLifeDisplay([x, y], core);
 
@@ -260,7 +271,7 @@ export function updateLifeDisplay(
 		console.error("ForceStats", `No health bar found for force ${force}`);
 		return;
 	}
-	const core = Card.getBattleCore(state.combatState!)(force);
+	const core = Card.getBattleCore(currentCombatState!)(force);
 	const percent = Math.max(0, Math.min(1, life / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
@@ -310,7 +321,7 @@ export function updateShieldDisplay(
 		return;
 	}
 
-	const core = Card.getBattleCore(state.combatState!)(force);
+	const core = Card.getBattleCore(currentCombatState!)(force);
 	const percent = Math.max(0, Math.min(1, shield / core.maxLife));
 	const barWidth = 600;
 	const barHeight = 20;
@@ -414,7 +425,7 @@ export function resetPlayerForceStats() {
 
 	if (!healthBar || !shieldBar || !display) throw new Error("invalid state");
 
-	const core = Card.getPlayerPersistentCore(state.session);
+	const core = Card.getPlayerPersistentCore(currentSession!);
 
 	if (!core) throw new Error("invalid state");
 

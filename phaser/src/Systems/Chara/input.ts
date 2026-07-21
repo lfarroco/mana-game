@@ -147,7 +147,7 @@ export const processOwnedUnitMoveRequest = (
 	dragStartX: number,
 	dragStartY: number
 ) => {
-	const units = state.session.team.units;
+	const units = clientState.session.team.units;
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {

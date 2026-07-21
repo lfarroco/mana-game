@@ -2,7 +2,6 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants";
 import * as Constants from "@game/Constants";
-import * as State from "@Models/ClientState";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";
 import * as GameCompleteUI from "./GameCompleteUI";
@@ -10,6 +9,7 @@ import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
+import { ClientState } from "@Models/ClientState";
 
 export function determineGameOutcome(
 	resultType: "victory" | "defeat",
@@ -66,7 +66,7 @@ async function displayAppropriateUI(
 }
 
 export async function displayResults(
-	state: State.ClientState,
+	clientState: ClientState,
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void,
 	replayCallback?: () => void
@@ -75,7 +75,7 @@ export async function displayResults(
 	io.scene.children.bringToTop(overlay.rectangle);
 	io.scene.children.bringToTop(resultsContainer);
 
-	const gameState = state;
+	const gameState = clientState;
 	const postCombatSession = gameState.session;
 	const player = {
 		wins: postCombatSession?.wins ?? gameState.session.wins,
@@ -88,14 +88,14 @@ export async function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
 
-	const allBattleUnits = state.combatState?.units ?? [];
+	const allBattleUnits = clientState.combatState?.units ?? [];
 
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
 			const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
 			const ui = await GameCompleteUI.displayGameComplete(
-				state,
+				clientState,
 				currentWins,
 				playerUnits,
 				gameOver,
@@ -124,7 +124,7 @@ export async function displayResults(
 }
 
 export async function displayGameCompleteResults(
-	state: State.ClientState,
+	clientState: ClientState,
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void
@@ -134,9 +134,9 @@ export async function displayGameCompleteResults(
 	io.scene.children.bringToTop(resultsContainer);
 
 	const ui = await GameCompleteUI.displayGameComplete(
-		state,
-		state.session.wins,
-		state.session.team.units,
+		clientState,
+		clientState.session.wins,
+		clientState.session.team.units,
 		isGameOver,
 		nextPhaseCallback,
 		onComplete

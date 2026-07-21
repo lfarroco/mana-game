@@ -15,6 +15,7 @@ import * as OptionsStore from "@Models/OptionsStore";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { CombatState, WaveOutcome, type CombatSystemStates } from "@game/Models";
 import { BlackHoleState } from "./BlackHoleState";
+import { ClientState } from "@Models/ClientState";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -40,14 +41,17 @@ const DEFAULT_ANIMATION_DURATION = 400;
 const MIN_COOLDOWN = 200;
 
 export const createCombatPlaybackController = (
+	clientState: ClientState,
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: WaveOutcome) => void
 ): CombatRunner.CombatRunner => {
 
+	logHandlers.setCombatState(clientState.combatState!);
+
 	const combatStates: CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
 		regenSystemState: RegenSystem.initializeRegenSystem(),
-		combatStatsTrackerState: CombatStatsTracker.initialize(state.combatState!),
+		combatStatsTrackerState: CombatStatsTracker.initialize(clientState.combatState!),
 	};
 
 	const blackHoleState = BlackHole.initBlackHole();
@@ -109,7 +113,7 @@ export const createCombatPlaybackController = (
 	const updateChargeBars = (delta: number) => {
 		if (!playbackState.active) return;
 
-		const units = state.combatState?.units;
+		const units = clientState.combatState?.units;
 		if (!units) return;
 
 		for (const unit of units) {
@@ -174,15 +178,15 @@ export const createCombatPlaybackController = (
 		}
 
 		if (outcome === "player_lost") {
-			await Animations.shatter(Chara.mustGetCharaById(state.combatState!.playerCore.id));
+			await Animations.shatter(Chara.mustGetCharaById(clientState.combatState!.playerCore.id));
 		} else if (outcome === "player_won") {
-			await Animations.shatter(Chara.mustGetCharaById(state.combatState!.cpuCore.id));
+			await Animations.shatter(Chara.mustGetCharaById(clientState.combatState!.cpuCore.id));
 		}
 
 		await animation.delay(300);
 
 		// Reset visual state on the combatState player units
-		state.combatState!.units
+		clientState.combatState!.units
 			.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
 			.forEach((u) => {
 				resetUnitStats(u);
@@ -207,8 +211,8 @@ export const createCombatPlaybackController = (
 
 	const getEnv = () => {
 		return {
-			seed: state.session.seed,
-			combatState: state.combatState!,
+			seed: clientState.session.seed,
+			combatState: clientState.combatState!,
 			logger: CombatLogger.createCombatLogger(),
 			deferredEvents: [],
 			combatStates: playbackState.combatStates,

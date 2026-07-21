@@ -18,7 +18,7 @@ function init(clientState: ClientState) {
 
 export async function handleOrbShopPhase(clientState: ClientState): Promise<void> {
 	init(clientState);
-	await OrbShop.openOrbShop();
+	await OrbShop.openOrbShop(clientState);
 }
 
 async function onOrbApplyRequested({
@@ -30,7 +30,7 @@ async function onOrbApplyRequested({
 	orbId: string;
 	targetUnitId: string;
 }) {
-	if (state.session.phase !== "orb_shop") return;
+	if (clientState.session.phase !== "orb_shop") return;
 	await GameController.applyOrb(
 		clientState, orbId, targetUnitId);
 }
@@ -59,7 +59,7 @@ export async function onOrbApplied({
 
 		if (isRowOrb) {
 			if (Chara.hasCharaById(serverUnit.id)) {
-				PowerDisplay.updatePowerDisplay(serverUnit.id);
+				PowerDisplay.updatePowerDisplay(clientState, serverUnit.id);
 			}
 			continue;
 		}
