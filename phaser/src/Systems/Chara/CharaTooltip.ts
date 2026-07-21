@@ -4,7 +4,7 @@ import { hideTooltip, renderTooltip } from "@Components/Tooltip/Tooltip";
 import { createDescription } from "@Systems/Chara/createDescription";
 import { t } from "@i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";
-import { getOption } from "@Models/OptionsStore";
+import { getSettings } from "@Models/OptionsStore";
 
 const MS_PER_SECOND = 1000;
 
@@ -151,7 +151,7 @@ export const buildCompactEffectBlock = (effect: Effect, unitPower: number): stri
 };
 
 export const buildEffectBlock = (effect: Effect, unitPower: number): string | null => {
-	if (getOption("compactTooltips")) {
+	if (getSettings().compactTooltips) {
 		return buildCompactEffectBlock(effect, unitPower);
 	}
 
@@ -277,7 +277,7 @@ const getPositionDescription = (position: string): string => {
 };
 
 export const getReactionDescription = (reaction: EffectReaction, unitPower: number): string => {
-	if (getOption("compactTooltips")) {
+	if (getSettings().compactTooltips) {
 		const style = ABILITY_COLORS[reaction.effectId];
 		const color = style || "#51cf66";
 		const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;

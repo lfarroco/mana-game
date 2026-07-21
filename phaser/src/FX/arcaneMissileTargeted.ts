@@ -1,6 +1,6 @@
 import * as EnergyBeam from "./EnergyBeam";
 import * as animation from "@Utils/animation";
-import * as OptionsStore from "@Models/OptionsStore";
+import { getSettings } from "@Models/OptionsStore";
 import * as Geometry from "@game/Geometry";
 
 export interface TargetedArcaneMissileOptions {
@@ -55,7 +55,7 @@ export async function arcaneMissileTargeted(
 		(Math.random() * (amplitudeMax - amplitudeMin) + amplitudeMin) * positiveOrNegative;
 	const frequency = Math.floor(Math.random() * (frequencyMax - frequencyMin + 1) + frequencyMin);
 
-	const particlesOption = OptionsStore.getOption("particles");
+	const particlesOption = getSettings().particles;
 	let particleDivisor = 30;
 	if (particlesOption === "low") particleDivisor = 45;
 	else if (particlesOption === "high") particleDivisor = 15;

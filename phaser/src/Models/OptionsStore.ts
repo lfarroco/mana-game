@@ -1,8 +1,10 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
+import { ClientState, type PlayerSettings } from "@Models/ClientState";
 
+let clientStateRef: ClientState | null = null;
 
-const currentOptions: Options = {
+const currentOptions: PlayerSettings = {
 	sound: true,
 	soundVolume: 0.6,
 	music: true,
@@ -14,40 +16,33 @@ const currentOptions: Options = {
 	compactTooltips: false,
 };
 
-export const init = () => {
+export const init = (clientState: ClientState) => {
+	clientStateRef = clientState;
 	const savedOptions = loadOptionsFromStorage();
 	if (savedOptions) {
 		Object.assign(currentOptions, savedOptions);
+		Object.assign(clientState.settings, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
 	io.game.sound.volume = currentOptions.masterVolume;
 	AudioManager.onOptionsChanged();
 };
 
-export type Options = {
-	sound: boolean;
-	soundVolume: number;
-	music: boolean;
-	musicVolume: number;
-	masterVolume: number;
-	debug: boolean;
-	speed: number;
-	particles: "low" | "medium" | "high";
-	compactTooltips: boolean;
-};
+export type Options = PlayerSettings;
 
 const STORAGE_KEY = "mana-game-options";
 
-export function getOptions(): Readonly<Options> {
-	return { ...currentOptions };
+export function getSettings(): PlayerSettings {
+	return currentOptions;
 }
 
-export function getOption<K extends keyof Options>(key: K, default_?: Options[K]): Options[K] {
-	return currentOptions[key] ?? default_;
-}
-
-export function setOption<K extends keyof Options>(key: K, value: Options[K]): void {
+export function setOption<K extends keyof PlayerSettings>(key: K, value: PlayerSettings[K]): void {
 	currentOptions[key] = value;
+
+	// Keep clientState.settings in sync
+	if (clientStateRef) {
+		clientStateRef.settings[key] = value;
+	}
 
 	saveOptionsToStorage();
 
@@ -80,7 +75,7 @@ function setGameSpeed(speed: number) {
 	io.scene.tweens.timeScale = newSpeed;
 }
 
-function loadOptionsFromStorage(): Partial<Options> | null {
+function loadOptionsFromStorage(): Partial<PlayerSettings> | null {
 	const savedOptions = storage.getItem(STORAGE_KEY);
 	if (!savedOptions) {
 		return null;
@@ -93,7 +88,7 @@ function loadOptionsFromStorage(): Partial<Options> | null {
 		return null;
 	}
 
-	const validOptions: Partial<Options> = {};
+	const validOptions: Partial<PlayerSettings> = {};
 
 	if (typeof parsed.sound === "boolean") validOptions.sound = parsed.sound;
 	if (

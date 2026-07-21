@@ -1,4 +1,4 @@
-import * as OptionsStore from "@Models/OptionsStore";
+import { getSettings } from "@Models/OptionsStore";
 ;
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
@@ -13,7 +13,7 @@ type VolumeSound = Phaser.Sound.BaseSound & {
 };
 
 export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number = 0) => {
-	if (!OptionsStore.getOption("music")) {
+	if (!getSettings().music) {
 		console.debug("AudioManager", "Music disabled - skipping playback", { musicKey });
 		return;
 	}
@@ -26,7 +26,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 	let music;
 	try {
 		music = io.game.sound.add(musicKey, {
-			volume: OptionsStore.getOption("musicVolume"),
+			volume: getSettings().musicVolume,
 			loop: loop,
 		});
 	} catch (e) {
@@ -42,7 +42,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 
 	if (fadeIn > 0) {
 		// Start at 0 volume and fade in using Phaser tween
-		const targetVolume = OptionsStore.getOption("musicVolume");
+		const targetVolume = getSettings().musicVolume;
 		const volumeMusic = music as VolumeSound;
 		volumeMusic.setVolume(0);
 		music.play();
@@ -100,7 +100,7 @@ export const stopMusic = (fadeOut: number = 0) => {
 };
 
 export const playSoundEffect = (soundKey: string, volume?: number) => {
-	if (!OptionsStore.getOption("sound")) {
+	if (!getSettings().sound) {
 		console.debug("AudioManager", "Sound effects disabled - skipping playback", { soundKey });
 		return;
 	}
@@ -121,7 +121,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		return;
 	}
 
-	const effectVolume = volume ?? OptionsStore.getOption("soundVolume");
+	const effectVolume = volume ?? getSettings().soundVolume;
 	const soundEffect = io.game.sound.add(soundKey, {
 		volume: effectVolume,
 	});
@@ -150,10 +150,11 @@ export const stopAllSoundEffects = () => {
 };
 
 export const onOptionsChanged = () => {
-	const soundEnabled = OptionsStore.getOption("sound");
-	const musicEnabled = OptionsStore.getOption("music");
-	const soundVolume = OptionsStore.getOption("soundVolume");
-	const musicVolume = OptionsStore.getOption("musicVolume");
+	const settings = getSettings();
+	const soundEnabled = settings.sound;
+	const musicEnabled = settings.music;
+	const soundVolume = settings.soundVolume;
+	const musicVolume = settings.musicVolume;
 
 	if (currentMusic && currentMusic.isPlaying) {
 		//phaserjs misstyping

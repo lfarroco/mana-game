@@ -11,11 +11,10 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as CoreConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
 import * as logHandlers from "./logHandlers";
-import * as OptionsStore from "@Models/OptionsStore";
-import { resetUnitStats } from "@game/Entities/Unit";
 import { CombatState, WaveOutcome, type CombatSystemStates } from "@game/Models";
 import { BlackHoleState } from "./BlackHoleState";
 import { ClientState } from "@Models/ClientState";
+import { resetUnitStats } from "@game/Entities/Unit";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -136,7 +135,7 @@ export const createCombatPlaybackController = (
 	const updateFrame = (_combatState: CombatState, _time: number, delta: number): void => {
 		if (!playbackState.active) return;
 
-		const speed = OptionsStore.getOption("speed", 1.0);
+		const speed = clientState.settings.speed;
 		const scaledDelta = delta * speed;
 
 		playbackState.currentTime += scaledDelta;

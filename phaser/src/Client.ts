@@ -162,7 +162,7 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
-        OptionsStore.init();
+        OptionsStore.init(clientState);
 
         StatsStore.init();
 

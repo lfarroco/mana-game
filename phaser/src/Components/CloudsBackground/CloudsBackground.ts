@@ -1,7 +1,7 @@
 import * as Phaser from "phaser";
 import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBackgroundShader";
 import * as colorPresets from "./colorPresets";
-import * as OptionsStore from "@Models/OptionsStore";
+import { getSettings } from "@Models/OptionsStore";
 ;
 
 
@@ -226,23 +226,17 @@ export class CloudsBackground {
 	 * Get the numeric value for particle quality based on options
 	 */
 	private getParticleQualityValue(): number {
-		try {
-			const particles = OptionsStore.getOption("particles");
+		const particles = getSettings().particles;
 
-			switch (particles) {
-				case "low":
-					return 0.0;
-				case "medium":
-					return 1.0;
-				case "high":
-					return 2.0;
-				default:
-					return 1.0; // Default to medium
-			}
-		} catch {
-			// Fallback to medium quality if OptionsStore is not available
-			console.warn("CloudsBackground", "Could not access OptionsStore, defaulting to medium particle quality");
-			return 1.0;
+		switch (particles) {
+			case "low":
+				return 0.0;
+			case "medium":
+				return 1.0;
+			case "high":
+				return 2.0;
+			default:
+				return 1.0; // Default to medium
 		}
 	}
 

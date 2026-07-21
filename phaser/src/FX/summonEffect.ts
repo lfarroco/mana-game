@@ -1,6 +1,6 @@
 import * as animation from "@Utils/animation";
 import * as Assets from "@assets";
-import * as OptionsStore from "@Models/OptionsStore";
+import { getSettings } from "@Models/OptionsStore";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
@@ -25,7 +25,7 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 		EMIT_ZONE_QUANTITY,
 	} = SUMMON_EFFECT_CONFIG;
 
-	const particlesOption = OptionsStore.getOption("particles");
+	const particlesOption = getSettings().particles;
 	let multiplier = 1;
 	if (particlesOption === "low") multiplier = 0.5;
 	else if (particlesOption === "high") multiplier = 2;

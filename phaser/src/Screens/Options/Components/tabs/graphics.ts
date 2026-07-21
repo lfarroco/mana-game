@@ -1,4 +1,4 @@
-import { getOption, setOption } from "@Models/OptionsStore";
+import { getSettings, setOption } from "@Models/OptionsStore";
 import { multipleChoice } from "@Screens/Options/Components/controls/multipleChoice";
 import { t } from "@i18n/i18n";
 
@@ -9,7 +9,7 @@ export function graphicsTab(startY: number) {
 		t("options.graphics.particles"),
 		startY,
 		["low", "medium", "high"] as ParticlesOption[],
-		() => getOption("particles", "medium"),
+		() => getSettings().particles,
 		(value) => {
 			setOption("particles", value as ParticlesOption);
 
