@@ -11,6 +11,7 @@ import * as Phases from "./Phases";
 import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
 import { ClientState, initialState } from "@Models/ClientState";
+import { env } from "../../Env";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -20,10 +21,10 @@ const emitBattlegroundExit = () => {
 
 const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {
 	emitBattlegroundExit();
-	await io.FadeOut(300, 0x000000);
-	io.clean();
+	await env.phaser.FadeOut(300, 0x000000);
+	env.phaser.clean();
 	renderScreen();
-	await io.FadeIn(300);
+	await env.phaser.FadeIn(300);
 };
 
 type BattlegroundScreenEvents = {
@@ -84,18 +85,18 @@ function init(clientState: ClientState) {
 	if (initialized) return;
 	initialized = true;
 	events = {
-		phaseFinished: io.createEvent<{ previousPhase: Models.PhaseType }>("phaseFinished"),
-		onShopUnitDragPurchaseFailed: io.createEvent<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
-		orbApplyRequested: io.createEvent<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
-		combatContinueRequested: io.createEvent<void>("combatContinueRequested"),
-		combatReplayRequested: io.createEvent<void>("combatReplayRequested"),
-		combatPauseRequested: io.createEvent<void>("combatPauseRequested"),
-		combatResumeRequested: io.createEvent<void>("combatResumeRequested"),
-		newRunRequested: io.createEvent<void>("newRunRequested"),
-		mainMenuRequested: io.createEvent<void>("mainMenuRequested"),
-		onWinsChanged: io.createEvent<{ wins: number, delta: number }>("onWinsChanged"),
-		onLivesChanged: io.createEvent<{ lives: number, delta: number }>("onLivesChanged"),
-		onRoundChanged: io.createEvent<{ round: number, delta: number }>("onRoundChanged"),
+		phaseFinished: env.createEventChannel<{ previousPhase: Models.PhaseType }>("phaseFinished"),
+		onShopUnitDragPurchaseFailed: env.createEventChannel<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
+		orbApplyRequested: env.createEventChannel<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
+		combatContinueRequested: env.createEventChannel<void>("combatContinueRequested"),
+		combatReplayRequested: env.createEventChannel<void>("combatReplayRequested"),
+		combatPauseRequested: env.createEventChannel<void>("combatPauseRequested"),
+		combatResumeRequested: env.createEventChannel<void>("combatResumeRequested"),
+		newRunRequested: env.createEventChannel<void>("newRunRequested"),
+		mainMenuRequested: env.createEventChannel<void>("mainMenuRequested"),
+		onWinsChanged: env.createEventChannel<{ wins: number, delta: number }>("onWinsChanged"),
+		onLivesChanged: env.createEventChannel<{ lives: number, delta: number }>("onLivesChanged"),
+		onRoundChanged: env.createEventChannel<{ round: number, delta: number }>("onRoundChanged"),
 	};
 
 	events.phaseFinished.listen(handleCurrentPhase(clientState));

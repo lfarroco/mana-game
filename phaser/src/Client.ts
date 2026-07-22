@@ -5,6 +5,8 @@ import * as Config from "@config";
 import * as TitleScreen from "./Screens/Title/TitleScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
+import * as GameServer from "./GameServer";
+import { createEnv } from "./Env";
 import { ClientState } from "@Models/ClientState";
 
 export default (clientState: ClientState) => class Client extends Phaser.Scene {
@@ -158,7 +160,15 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
     create() {
 
-        io.initPhaserIO(this);
+        const env = createEnv(
+            this,
+            clientState,
+            (action) => GameServer.getServer(clientState)
+                .handleAction(clientState, clientState.session.player_id, action),
+        );
+
+        // ~~~ Bridge to legacy io global (transitional — removed in Phase 5) ~~~
+        io.setEnv(env);
 
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 

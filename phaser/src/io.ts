@@ -11,6 +11,27 @@ import events_ from "events";
 import * as Models from "@game/Models";
 ;
 import * as Chara from "@Systems/Chara/Chara";
+import type { Env } from "./Env";
+
+// ---------------------------------------------------------------------------
+// Env bridge — transitional, removed in Phase 5.
+// During migration, `createEnv()` in Client.ts feeds the env here so that
+// both old (`io.xxx`) and new (`env.xxx`) call sites stay functional.
+// ---------------------------------------------------------------------------
+
+let _env: Env | null = null;
+
+/** Called by Client.ts after `createEnv()`. Feeds env to the global bridge. */
+export function setEnv(env: Env): void {
+  _env = env;
+  scene = env.phaser.scene;
+  game = env.phaser.game;
+}
+
+/** Access the current env. Returns null before `setEnv` is called. */
+export function getEnv(): Env | null {
+  return _env;
+}
 
 
 export let game: Phaser.Game;

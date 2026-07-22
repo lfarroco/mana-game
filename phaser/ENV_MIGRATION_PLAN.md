@@ -56,8 +56,10 @@ Benefits:
 
 - [x] Create `phaser/src/Env.ts` with `Env` type and `createEnv()` factory
 - [x] Include Phaser context (scene, game) and event bus
-- [ ] Add more Phaser wrappers to `Env.phaser` (currently only scene/game)
-- [ ] Keep `window.io` working for backward compatibility during transition
+- [x] Add all Phaser wrappers to `Env.phaser` (Container, Text, Tween, FadeOut, FadeIn, Shader, etc.)
+- [x] Add `io.setEnv()`/`io.getEnv()` bridge for backward compatibility
+- [x] Wire `createEnv()` into `Client.ts` — env is created at startup
+- [x] Thread `env` through `BattlegroundScreen.ts` (POC — `createEventChannel`, `transitionFromBattleground`, `init`, `create`)
 
 ### Phase 2 — Migrate Phaser wrappers into `Env.phaser`
 
@@ -83,7 +85,7 @@ Benefits:
 
 ### Phase 4 — Thread `env` through UI modules
 
-- [ ] `BattlegroundScreen` receives `env` and passes it to phase handlers
+- [x] `BattlegroundScreen` receives `env` and passes it to phase handlers (events use `createEventChannel`, transitions use `env.phaser.*`)
 - [ ] `Encounter.ts` receives `env` instead of importing Controller directly
 - [ ] `CharaShop.ts` receives `env` instead of importing Controller directly
 - [ ] `EffectCardShop.ts` receives `env` instead of importing Controller directly
@@ -102,6 +104,24 @@ Benefits:
 - [ ] All imports of `io.ts` replaced with `env` parameter
 
 ## Design Decisions
+
+### Module-scoped singleton (not a global)
+`env` is exported as `export let env: Env` from `Env.ts`. It's set once at startup by `createEnv()`.
+Consumers import it explicitly: `import { env } from "./Env"`. Unlike `window.io`, there's no implicit
+global — every file that uses `env` declares its dependency via the import. But unlike a threaded
+parameter, there's no null-guard boilerplate because env is guaranteed to exist when scene code runs.
+
+### `createEventChannel` lives on env
+Instead of importing `createEventChannel` and passing `env.emitter` separately:
+```typescript
+// ❌ Old
+import { createEventChannel } from "./Env";
+createEventChannel(env.emitter, "eventName");
+
+// ✅ New
+env.createEventChannel<T>("eventName");
+```
+Everything flows from the single `env` import. No separate imports needed.
 
 ### Why not just improve `io.ts` incrementally?
 
