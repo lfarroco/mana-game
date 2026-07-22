@@ -8,6 +8,7 @@ import * as i18n from "@i18n/i18n";
 
 import * as Models from "@game/Models";
 import * as arenaTheme from "@Screens/ArenaLobby/arenaTheme";
+import { env } from "../../Env";
 
 
 // Layout positioning
@@ -55,10 +56,10 @@ const TITLE_FONT_SIZE = "64px";
 const FIELD_LABEL_FONT_SIZE = "18px";
 
 const createArenaText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
-	io.Text(text, { ...Constants.defaultTextConfig, ...style });
+	env.scene.add.text(0, 0, text, { ...Constants.defaultTextConfig, ...style });
 
 const createArenaTitleText = (text: string, style: Phaser.Types.GameObjects.Text.TextStyle = {}) =>
-	io.Text(text, { ...Constants.titleTextConfig, ...style });
+	env.scene.add.text(0, 0, text, { ...Constants.titleTextConfig, ...style });
 
 type RankedPlayer = {
 	id: string;

@@ -7,7 +7,8 @@ import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { env } from "../../../../Env";
+import { env, makeContainer as container } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -16,14 +17,14 @@ const ORB_TITLE_Y_OFFSET = 80;
 const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
-let container: Container | null = null;
+let shopContainer: Container | null = null;
 
 export async function openOrbShop(): Promise<void> {
 
-	container?.destroy();
-	container = io.Container();
+	shopContainer?.destroy();
+	shopContainer = container(env.scene);
 
-	renderOrbShop(container);
+	renderOrbShop(shopContainer);
 
 	Board.setEnemyBoardVisible(false);
 
@@ -33,8 +34,8 @@ export async function openOrbShop(): Promise<void> {
 export async function closeOrbShop(): Promise<void> {
 
 	await ShopPanel.SlideOut();
-	container?.destroy();
-	container = null;
+	shopContainer?.destroy();
+	shopContainer = null;
 }
 
 export function renderOrbShop(
@@ -86,7 +87,7 @@ export function renderOrbShop(
 
 		magicOrb.startDissolve();
 
-		io.screens.battleground.events.orbApplyRequested.emit({
+		BattlegroundEvent.orbApplyRequested.emit({
 			orbId: orbSpec.id,
 			targetUnitId: existingUnit.id,
 		});

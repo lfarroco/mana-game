@@ -9,6 +9,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
 import { env } from "../../Env";
+import { whenDroppedOnZone } from "../../phaser-helpers";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -43,13 +44,13 @@ export function init(chara: Chara.Chara) {
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
 
-		io.WhenDroppedOnZone(chara, DiscardZone.name, () => {
+		whenDroppedOnZone(chara, DiscardZone.name, () => {
 			if (!Board.isInputEnabled()) return;
 			if (isPlayerUnit) GameController.sellUnit(state.unitId);
 
 		});
 
-		io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+		whenDroppedOnZone(chara, "board-cell", (zone) => {
 			if (!Board.isInputEnabled()) return;
 
 			const x = zone.getData("cell-x") as number;

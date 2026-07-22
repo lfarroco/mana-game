@@ -8,6 +8,8 @@ import * as headerBackground from "@Screens/Battleground/Components/UI/headerBac
 import * as menuButton from "@Screens/Battleground/Components/menuButton";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 export * as events from "@Screens/Battleground/Components/UI/events";
+import { env, makeContainer as container } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 let uiContainer: Container | null = null;
 let listenersBound = false;
@@ -18,7 +20,7 @@ function bindBattlegroundEvents(): void {
 	}
 
 	listenersBound = true;
-	const { events } = io.screens.battleground;
+	const events = BattlegroundEvent;
 
 	events.onWinsChanged.listen(({ wins, delta }) => {
 		uiEvents.onWinsChanged({ wins, delta });
@@ -36,25 +38,25 @@ function bindBattlegroundEvents(): void {
 export function create() {
 	bindBattlegroundEvents();
 
-	const headerContainer = io.Container([
+	const headerContainer = container(env.scene, [
 		headerBackground.create,
 		roundDisplay.create,
 		livesDisplay.create,
 		winsDisplay.create,
 	]);
-	io.SetPosition(headerContainer, [580, 0]);
+	headerContainer.setPosition(580, 0);
 
-	uiContainer = io.Container([headerContainer, menuButton.create()]);
+	uiContainer = container(env.scene, [headerContainer, menuButton.create()]);
 }
 
 export async function handleUserMessageRequested(payload: {
 	text: string;
 	type: "error" | "info" | "warning" | "success";
 }): Promise<void> {
-	const text = io.Text(payload.text, Constants.titleTextConfig);
+	const text = env.scene.add.text(0, 0, payload.text, Constants.titleTextConfig);
 
-	io.Centralize(text);
-	io.SetPosition(text, [Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - 100]);
+	text.setOrigin(0.5);
+	text.setPosition(Constants.SCREEN_WIDTH / 2, Constants.SCREEN_HEIGHT - 100);
 
 	await animation.tween({
 		targets: [text],
@@ -68,7 +70,7 @@ export async function handleUserMessageRequested(payload: {
 
 	await animation.tween({ targets: [text], alpha: 0 });
 
-	io.Destroy(text);
+	text.destroy(true);
 }
 
 export function destroy(): void {

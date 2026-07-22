@@ -1,6 +1,6 @@
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../../Env";
+import { env, makeContainer as container } from "../../../../Env";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;
@@ -13,10 +13,10 @@ export function create() {
 
 	const text_ = text(initialRound);
 
-	const container = io.Container([label, text_]);
-	io.SetPosition(container, [ROUND_DISPLAY_X, ROUND_DISPLAY_Y]);
+	const uiContainer = container(env.scene, [label, text_]);
+	uiContainer.setPosition(ROUND_DISPLAY_X, ROUND_DISPLAY_Y);
 
-	return container;
+	return uiContainer;
 }
 
 export const updateRoundDisplay = (newTotalRound: number): void => {
@@ -28,23 +28,23 @@ export const updateRoundDisplay = (newTotalRound: number): void => {
 };
 
 function text(initialRound: number) {
-	roundTextElement = io.Text(initialRound.toString(), {
+	roundTextElement = env.scene.add.text(0, 0, initialRound.toString(), {
 		...Constants.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	});
-	io.SetPosition(roundTextElement, [75, 0]);
-	io.Centralize(roundTextElement);
+	roundTextElement.setPosition(75, 0);
+	roundTextElement.setOrigin(0.5);
 
 	return roundTextElement;
 }
 
 function label_() {
-	const label = io.Text(i18n.t("ui.round"), {
+	const label = env.scene.add.text(0, 0, i18n.t("ui.round"), {
 		...Constants.titleTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	});
-	io.Centralize(label);
+	label.setOrigin(0.5);
 	return label;
 }

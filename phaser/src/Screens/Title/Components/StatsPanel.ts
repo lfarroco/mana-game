@@ -32,7 +32,7 @@ export function openStats(): void {
 	);
 	overlay.setInteractive();
 
-	const panelBg = io.BorderedRoundRect(
+	const panelBg = env.borderedRoundRect(
 		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y],
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
@@ -40,17 +40,14 @@ export function openStats(): void {
 		0.95
 	);
 
-	const title = io.Title1(i18n.t("stats.title"));
-	io.SetPosition(title, [c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50]);
-	io.Centralize(title);
+	const title = env.scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50, i18n.t("stats.title"), c.titleTextConfig).setOrigin(0.5);
 
 	// --- Left Column: Battle Totals ---
-	const leftTitle = io.Title2(i18n.t("stats.battleTotals"));
-	io.SetPosition(
-		leftTitle,
-		[c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100]
-	);
-	io.Centralize(leftTitle);
+	const leftTitle = env.scene.add.text(
+		c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
+		i18n.t("stats.battleTotals"),
+		{...c.titleTextConfig, fontSize: "24px"}
+	).setOrigin(0.5);
 
 	type StatItem = { label: string; value: string; color?: string };
 
@@ -63,12 +60,11 @@ export function openStats(): void {
 	];
 
 	// --- Right Column: Career Stats ---
-	const rightTitle = io.Title2(i18n.t("stats.careerStats"));
-	io.SetPosition(
-		rightTitle,
-		[c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100]
-	);
-	io.Centralize(rightTitle);
+	const rightTitle = env.scene.add.text(
+		c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
+		i18n.t("stats.careerStats"),
+		{...c.titleTextConfig, fontSize: "24px"}
+	).setOrigin(0.5);
 
 	const rightStatsData: StatItem[] = [
 		{ label: i18n.t("stats.totalRuns"), value: stats.totalRuns.toString() },
@@ -139,7 +135,7 @@ export function openStats(): void {
 		},
 	});
 
-	const container = io.Container([
+	const container = env.container([
 		overlay,
 		panelBg,
 		title,
@@ -149,5 +145,5 @@ export function openStats(): void {
 		closeButton.container,
 	]);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 }

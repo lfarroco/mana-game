@@ -13,6 +13,7 @@ import * as poison from "@Screens/Battleground/Phases/Combat/logHandlers/visuals
 import * as regen from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/regen";
 import * as createDescription from "@Systems/Chara/createDescription";
 import { env } from "../../../Env";
+import { makeContainer } from "../../../Env";
 
 const bbcode = (text: string, y: number) =>
 	env.scene
@@ -25,16 +26,16 @@ const bbcode = (text: string, y: number) =>
 		.setOrigin(0.5);
 
 const text = (str: string, y: number) =>
-	io.Text(str).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
+	env.scene.add.text(0, 0, str, Constants.defaultTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
 
 const slides = [
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide1.row1"), 100),
 			text(i18n.t("tutorial.slide1.row2"), 150),
 			text(i18n.t("tutorial.slide1.row3"), 200),
 			() => {
-				const cont = io.Container();
+				const cont = makeContainer(env.scene);
 				const unit = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
 				const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
@@ -47,22 +48,20 @@ const slides = [
 
 				return cont;
 			},
-			io
-				.Title1(i18n.t("tutorial.slide1.row4"))
+			env.scene.add.text(0, 0, i18n.t("tutorial.slide1.row4"), Constants.titleTextConfig)
 				.setOrigin(0.5)
 				.setPosition(Constants.MIDDLE_SCREEN_X - 330, 620),
-			io
-				.Title1(i18n.t("tutorial.slide1.row5"))
+			env.scene.add.text(0, 0, i18n.t("tutorial.slide1.row5"), Constants.titleTextConfig)
 				.setOrigin(0.5)
 				.setPosition(Constants.MIDDLE_SCREEN_X + 200, 620),
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide2.row1"), 100),
 			text(i18n.t("tutorial.slide2.row2"), 150),
 			text(i18n.t("tutorial.slide2.row3"), 200),
 			() => {
-				const cont = io.Container([]);
+				const cont = makeContainer(env.scene);
 				const fn = async (x: number, y: number, sprite: string) => {
 					const chara = await Chara.summon(Card.makeUnit("PLAYER_FORCE", sprite, [x, y]));
 
@@ -79,14 +78,14 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide3.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.damage}]${i18n.t("tooltip.effects.damage")}[/color]: ${i18n.t("tutorial.slide3.row2")}`,
 				150
 			),
 			() => {
-				const c = io.Container();
+				const c = makeContainer(env.scene);
 				const summonUnits = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
 					const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
@@ -135,14 +134,14 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide4.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.shield}]${i18n.t("tooltip.effects.shield")}[/color]: ${i18n.t("tutorial.slide4.row2")}`,
 				150
 			),
 			() => {
-				const c = io.Container();
+				const c = makeContainer(env.scene);
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -186,7 +185,7 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide5.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.heal}]${i18n.t("tooltip.effects.heal")}[/color]: ${i18n.t("tutorial.slide5.row2")}`,
@@ -194,7 +193,7 @@ const slides = [
 			),
 
 			() => {
-				const c = io.Container();
+				const c = makeContainer(env.scene);
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -239,14 +238,14 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide6.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.regen}]${i18n.t("tooltip.effects.regen")}[/color]: ${i18n.t("tutorial.slide6.row2")}`,
 				150
 			),
 			() => {
-				const c = io.Container();
+				const c = makeContainer(env.scene);
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -290,7 +289,7 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide7.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.poison}]${i18n.t("tooltip.effects.poison")}[/color]: ${i18n.t("tutorial.slide7.row2")}`,
@@ -298,7 +297,7 @@ const slides = [
 			),
 
 			() => {
-				const c = io.Container();
+				const c = makeContainer(env.scene);
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
 
@@ -343,8 +342,8 @@ const slides = [
 			},
 		]),
 	() =>
-		io.Container([
-			io.Title1(i18n.t("tutorial.slide8.row1")).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+		makeContainer(env.scene, [
+			env.scene.add.text(0, 0, i18n.t("tutorial.slide8.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide8.row2"), 150),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.haste}]${i18n.t("tooltip.effects.haste")}[/color]: ${i18n.t("tutorial.slide8.row3")}`,
@@ -372,16 +371,15 @@ const slides = [
 			),
 		]),
 	() =>
-		io.Container([
-			io.Title1(i18n.t("tutorial.slide9.row1")).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+		makeContainer(env.scene, [
+			env.scene.add.text(0, 0, i18n.t("tutorial.slide9.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide9.row3"), 200),
 			text(i18n.t("tutorial.slide9.row4"), 250),
 			text(i18n.t("tutorial.slide9.row5"), 300),
 		]),
 	() => {
-		const cont = io.Container();
-		const title = io
-			.Title1(i18n.t("tutorial.slide10.row1"))
+		const cont = makeContainer(env.scene);
+		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide10.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -413,9 +411,8 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = io.Container();
-		const title = io
-			.Title1(i18n.t("tutorial.slide11.row1"))
+		const cont = makeContainer(env.scene);
+		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide11.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -452,9 +449,8 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = io.Container();
-		const title = io
-			.Title1(i18n.t("tutorial.slide12.row1"))
+		const cont = makeContainer(env.scene);
+		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide12.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -491,9 +487,8 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = io.Container();
-		const title = io
-			.Title1(i18n.t("tutorial.slide13.row1"))
+		const cont = makeContainer(env.scene);
+		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide13.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -531,7 +526,7 @@ const slides = [
 		return cont;
 	},
 	() =>
-		io.Container([
+		makeContainer(env.scene, [
 			text(i18n.t("tutorial.slide14.row1"), 200),
 			text(i18n.t("tutorial.slide14.row2"), 250),
 			text(i18n.t("tutorial.slide14.row3"), 300),
@@ -613,7 +608,7 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const container = io.Container([
+	const container = makeContainer(env.scene, [
 		overlay,
 		slide,
 		prevButton.container,

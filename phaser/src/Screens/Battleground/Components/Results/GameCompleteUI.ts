@@ -11,7 +11,7 @@ import * as constants from "@Constants";
 import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
 import { requestMainMenu, requestNewRun } from "../../../../GameController";
-import { env } from "../../../../Env";
+import { env, makeContainer, borderedRoundRect } from "../../../../Env";
 
 export async function displayGameComplete(
 	wins: number,
@@ -150,36 +150,38 @@ export async function displayGameComplete(
 
 	const statsPanel = RunStatsPanel.createRunStatsPanel();
 
-	const container = io.Container([
+	// Victory title text
+	const victoryTitle = env.scene.add.text(0, 0, i18n.t("results.wins_title", { count: wins.toString() }), {
+		...constants.titleTextConfig,
+		fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
+		color: "#FFFFFF",
+	}).setOrigin(0.5);
+	victoryTitle.setPosition(panelX, panelY - 250);
+
+	// Message text
+	const messageText = env.scene.add.text(0, 0, isDemoComplete ? i18n.t("demo.complete.title") : message, {
+		...constants.titleTextConfig,
+		color: color,
+	}).setOrigin(0.5);
+	messageText.setPosition(panelX, panelY - 150);
+
+	// Subtitle text
+	const subtitle = env.scene.add.text(0, 0, subtitleText, constants.defaultTextConfig).setOrigin(0.5);
+	subtitle.setPosition(panelX, panelY - 50);
+
+	const container = makeContainer(env.scene, [
 		statsPanel,
-		io.BorderedRoundRect(
+		borderedRoundRect(
+			env.scene,
 			[panelX, panelY],
 			[panelWidth, panelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
 			ResultsConfig.RESULTS_PANEL.backgroundColor,
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		),
-		[
-			() =>
-				io.Text(i18n.t("results.wins_title", { count: wins.toString() }), {
-					...constants.titleTextConfig,
-					fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
-					color: "#FFFFFF",
-				}),
-			(text) => io.SetPosition(text, [panelX, panelY - 250]),
-			(text) => io.Centralize(text),
-		],
-		[
-			() => io.Title1(isDemoComplete ? i18n.t("demo.complete.title") : message).setColor(color),
-			(title) => io.SetPosition(title, [panelX, panelY - 150]),
-			(title) => io.Centralize(title),
-		],
-		[
-			() => io.Label(subtitleText),
-			(label) => io.SetPosition(label, [panelX, panelY - 50]),
-			(label) => io.Centralize(label),
-		],
-
+		victoryTitle,
+		messageText,
+		subtitle,
 		...buttons,
 	]);
 
@@ -187,7 +189,8 @@ export async function displayGameComplete(
 		const wishlistPanelHeight = 150;
 		const wishlistPanelY = panelY + panelHeight / 2 + 15 + wishlistPanelHeight / 2;
 
-		const wishlistBg = io.BorderedRoundRect(
+		const wishlistBg = borderedRoundRect(
+			env.scene,
 			[panelX, wishlistPanelY],
 			[panelWidth, wishlistPanelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
@@ -195,8 +198,7 @@ export async function displayGameComplete(
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		);
 
-		const wishlistText = io
-			.Label(i18n.t("results.messages.wishlist"))
+		const wishlistText = env.scene.add.text(0, 0, i18n.t("results.messages.wishlist"), constants.defaultTextConfig)
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 

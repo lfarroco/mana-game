@@ -3,6 +3,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
+import * as TitleScreen from "../TitleScreen";
 import { env } from "../../../Env";
 
 let isOpen = false;
@@ -28,12 +29,7 @@ export const create = () => {
 		height: panelHeight,
 	});
 
-	const title = io.Title1(i18n.t("language.title"));
-	io.SetPosition(
-		title,
-		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40]
-	);
-	io.Centralize(title);
+	const title = env.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40, i18n.t("language.title"), constants.titleTextConfig).setOrigin(0.5);
 
 	const buttonYStart = constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 100;
 	const buttonSpacing = 70;
@@ -58,20 +54,20 @@ export const create = () => {
 		width: 150,
 	});
 
-	container = io.Container([
+	container = env.container([
 		panel.container,
 		title,
 		...langButtons.map((b) => b.container),
 		closeButton.container,
 	]);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 }
 
 function selectLanguage(lang: string) {
 	i18n.setLocale(lang);
 	env.scene.children.removeAll();
-	io.screens.title.create();
+	TitleScreen.create();
 	isOpen = false;
 	container = null;
 	overlay = null;

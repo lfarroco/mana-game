@@ -28,7 +28,7 @@ import EventEmitter from "events";
 // Re-export phaser-helpers for convenience
 // ---------------------------------------------------------------------------
 
-export { container as makeContainer, borderedRoundRect, centeredRect, rectangularDropZone, shader as makeShader } from "./phaser-helpers";
+export { container as makeContainer, borderedRoundRect, centeredRect, rectangularDropZone, shader as makeShader, whenDroppedOnZone } from "./phaser-helpers";
 
 // ---------------------------------------------------------------------------
 // Event channel

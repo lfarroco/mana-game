@@ -6,6 +6,7 @@ import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
+import { env } from "../../../Env";
 
 let submenuContainer: Container;
 
@@ -63,14 +64,14 @@ const showOptionsSubmenu = () => () => {
 		},
 	});
 
-	submenuContainer = io.Container([
+	submenuContainer = env.container([
 		settingsBtn.container,
 		statsBtn.container,
 		creditsBtn.container,
 		backBtn.container,
 	]);
 
-	io.BringToTop(submenuContainer);
+	env.scene.children.bringToTop(submenuContainer);
 }
 
 function hideOptionsSubmenu() {

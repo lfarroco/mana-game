@@ -1,12 +1,11 @@
 import * as constants from "@Constants";
 import * as TutorialOverlay from "../../../Screens/Title/Components/TutorialOverlay";
 import * as i18n from "@i18n/i18n";
+import { env } from "../../../Env";
 
 export function create() {
-	const text = io.Title1(i18n.t("title.howToPlay"));
-	io.SetPosition(text, [0, 80]);
-	io.Centralize(text);
-	io.Tween({
+	const text = env.scene.add.text(0, 80, i18n.t("title.howToPlay"), constants.titleTextConfig).setOrigin(0.5);
+	env.scene.tweens.add({
 		targets: text,
 		duration: 1000,
 		ease: "Power1InOut",
@@ -15,7 +14,7 @@ export function create() {
 		scale: 1.2,
 	});
 
-	const container = io.Container([text]);
+	const container = env.container([text]);
 	container.rotation = -0.1;
 	container.x = constants.SCREEN_WIDTH - 200;
 	container.y = constants.SCREEN_HEIGHT - 200;

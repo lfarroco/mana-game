@@ -5,6 +5,7 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "../../../../GameController";
+import { env, makeContainer as container } from "../../../../Env";
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -21,7 +22,7 @@ export async function openUpgradeCorePhase(
 	// onUpgradeApplied?: (nextSession: Types.SessionData) => void | Promise<void>
 ): Promise<void> {
 	return new Promise<void>(async () => {
-		const container = io.Container();
+		const c = container(env.scene);
 
 		// const completeSectionCallback = async () => {
 		// 	await ShopPanel.SlideOut();
@@ -30,8 +31,8 @@ export async function openUpgradeCorePhase(
 		// 	resolve();
 		// };
 
-		const title = io.Title1(i18n.t(titleText)).setPosition(constants.SCREEN_WIDTH / 2 + 180, 130);
-		container.add(title);
+		const title = env.scene.add.text(constants.SCREEN_WIDTH / 2 + 180, 130, i18n.t(titleText), constants.titleTextConfig).setOrigin(0.5);
+		c.add(title);
 
 		ShopPanel.addSkipButton();
 		// 	async () => {
@@ -41,9 +42,9 @@ export async function openUpgradeCorePhase(
 		// );
 
 		// Add the local container to ShopPanel so it participates in slide-in/out animations.
-		ShopPanel.add(container);
+		ShopPanel.add(c);
 
-		renderUpgradeCards(container, encounters,
+		renderUpgradeCards(c, encounters,
 			//onUpgradeApplied, 
 			// async () => { container.list.forEach((child) => child.disableInteractive());
 			//await animation.delay(EFFECT_CARD_COMPLETION_DELAY_MS); completeSectionCallback();

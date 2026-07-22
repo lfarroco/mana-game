@@ -4,7 +4,9 @@ import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "../../../../GameController";
 import * as Models from "@game/Models";
+import * as animation from "@Utils/animation";
 import { env } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 // TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
@@ -33,9 +35,7 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	const { events } = io.screens.battleground;
-
-	events.phaseFinished.listen(onEncounterSkipped);
+	BattlegroundEvent.phaseFinished.listen(onEncounterSkipped);
 
 }
 const onEncounterSkipped = ({ previousPhase }: { previousPhase: Models.PhaseType }) => {
@@ -164,7 +164,7 @@ export const displayOptions = () => {
 
 	init();
 
-	container = io.Container();
+	container = env.scene.add.container();
 
 	disableInteraction = false;
 
@@ -210,8 +210,8 @@ export const displayOptions = () => {
 			onClick: () => onSelectEncounter(encounter.id),
 		});
 
-		await io.Delay(100 * index)
-		io.Tween({
+		await animation.delay(100 * index)
+		env.scene.tweens.add({
 			targets: card.container,
 			x,
 			duration: 300,
@@ -223,7 +223,7 @@ export const displayOptions = () => {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
-			callback: () => io.Controller.skipPhase()
+			callback: () => GameController.skipPhase()
 		});
 
 		container.add(btn.container);

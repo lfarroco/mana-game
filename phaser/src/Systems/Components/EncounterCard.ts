@@ -1,7 +1,7 @@
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
-import { env } from "../../Env";
+import { env, makeContainer } from "../../Env";
 
 // Encounter card animation and layout constants
 const ICON_BOUNCE_BASE_DURATION_MS = 2000;
@@ -31,12 +31,12 @@ export function createEncounterCard(
 	parent: Phaser.GameObjects.Container,
 	props: EncounterCardProps
 ) {
-	const container = io.Container();
+	const container = makeContainer(env.scene);
 	const [x, y] = props.position;
 	const [width, height] = props.size;
 	const { name, pic, description, onClick } = props;
 
-	io.SetPosition(container, [x, y]);
+	container.setPosition(x, y);
 	const padding = 20;
 
 	const bg = env.scene.add.graphics({ x: - width / 2, y: - height / 2 });
@@ -50,7 +50,7 @@ export function createEncounterCard(
 	};
 	const tweenBackground = (mix: number) => {
 		env.scene.tweens.killTweensOf(backgroundState);
-		io.Tween({
+		env.scene.tweens.add({
 			targets: backgroundState,
 			mix,
 			duration: CARD_HOVER_ANIMATION_DURATION_MS,
@@ -82,7 +82,7 @@ export function createEncounterCard(
 		.setDisplaySize(iconSize, iconSize)
 		.setPosition(iconX, iconY + ICON_BOUNCE_Y_OFFSET);
 
-	io.Tween({
+	env.scene.tweens.add({
 		targets: [icon],
 		repeat: -1,
 		duration: ICON_BOUNCE_RANDOM_RANGE_MS * Math.random() + ICON_BOUNCE_BASE_DURATION_MS,
@@ -120,18 +120,18 @@ export function createEncounterCard(
 		.setAlign("left")
 		.setOrigin(0, 0);
 
-	io.SetInteractiveRect([width, height])(bg);
+	bg.setInteractive(new Phaser.Geom.Rectangle(0, 0, width, height), Phaser.Geom.Rectangle.Contains);
 
-	io.OnPointerOver(bg, () => {
+	bg.on(Phaser.Input.Events.POINTER_OVER, () => {
 		tweenBackground(CARD_HOVER_COLOR_MIX);
 	});
 
-	io.OnPointerOut(bg, () => {
+	bg.on(Phaser.Input.Events.POINTER_OUT, () => {
 		tweenBackground(0);
 		drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 	});
 
-	io.OnPointerUp(bg, () => {
+	bg.on(Phaser.Input.Events.POINTER_UP, () => {
 		AudioManager.playSoundEffect("sfx_unit_run_magical_4");
 		onClick();
 	});

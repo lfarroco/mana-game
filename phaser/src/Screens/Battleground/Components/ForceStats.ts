@@ -7,6 +7,7 @@ import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
 import { env } from "../../../Env";
+import { makeContainer, centeredRect } from "../../../Env";
 
 const initialForceStats: () => ForceStats = () => ({
 	display: null,
@@ -84,7 +85,7 @@ const createStatsForForce = (force: string) => {
 		shieldBar,
 	];
 
-	stats.display = io.Container(elements);
+	stats.display = makeContainer(env.scene, elements);
 }
 
 function createShieldbar(
@@ -93,13 +94,14 @@ function createShieldbar(
 	barHeight: number,
 	[x, y]: Vec2,
 ) {
-	const bgShieldBar = io.Rectangle(
+	const bgShieldBar = centeredRect(
+		env.scene,
 		shieldBarPos,
 		[barWidth, barHeight],
 		0x000000,
 		0.5
 	);
-	const shieldBar = io.Rectangle(shieldBarPos, [barWidth, barHeight], 0xffff00, 1);
+	const shieldBar = centeredRect(env.scene, shieldBarPos, [barWidth, barHeight], 0xffff00, 1);
 	shieldBar.clear();
 	shieldBar
 		.setInteractive(
@@ -126,8 +128,8 @@ function createHealthBar(
 	barHeight: number,
 	[x, y]: Vec2,
 ) {
-	const bgBar = io.Rectangle(healthBarPos, [barWidth, barHeight], 0x000000, 0.5);
-	const healthBar = io.Rectangle(healthBarPos, [barWidth, barHeight], 0x29a1b9ff, 1);
+	const bgBar = centeredRect(env.scene, healthBarPos, [barWidth, barHeight], 0x000000, 0.5);
+	const healthBar = centeredRect(env.scene, healthBarPos, [barWidth, barHeight], 0x29a1b9ff, 1);
 	healthBar
 		.setInteractive(
 			new Phaser.Geom.Rectangle(0, 0, barWidth, barHeight),
@@ -179,8 +181,7 @@ function createRegenDisplay(
 	[x, y]: Vec2,
 ) {
 	const regenDisplay = Chip.createChip(`regen-display/${force}`, [x + 300, y], 0x337a31, "0", 100);
-	io.OnPointerOver(
-		regenDisplay.bg,
+	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OVER,
 		() => {
 			Tooltip.renderTooltip(
 				x + 300,
@@ -189,8 +190,7 @@ function createRegenDisplay(
 				i18n.t("forceStats.regen.description")
 			);
 		});
-	io.OnPointerOut(
-		regenDisplay.bg,
+	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OUT,
 		Tooltip.hideTooltip
 	);
 	return regenDisplay;
@@ -234,7 +234,7 @@ function createLifeDisplay(
 
 	const lifeDisplay = Chip.createChip(lifeDisplayId, [x, y], 0x29a1b9ff, "0", 100);
 
-	io.OnPointerOver(lifeDisplay.bg, () => {
+	lifeDisplay.bg.on(Phaser.Input.Events.POINTER_OVER, () => {
 		Tooltip.renderTooltip(
 			x,
 			y - 250,
@@ -242,7 +242,7 @@ function createLifeDisplay(
 			i18n.t("forceStats.life.description")
 		);
 	});
-	io.OnPointerOut(lifeDisplay.bg, Tooltip.hideTooltip);
+	lifeDisplay.bg.on(Phaser.Input.Events.POINTER_OUT, Tooltip.hideTooltip);
 
 	Chip.updateChipText(lifeDisplayId, core.life.toString());
 	return lifeDisplay;

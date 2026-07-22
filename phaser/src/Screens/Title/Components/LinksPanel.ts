@@ -31,7 +31,7 @@ export function create(): void {
 	);
 	overlay.setInteractive();
 
-	const panelBg = io.BorderedRoundRect(
+	const panelBg = env.borderedRoundRect(
 		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y],
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
@@ -39,12 +39,7 @@ export function create(): void {
 		0.95
 	);
 
-	const title = io.Title1(i18n.t("title.links"));
-	io.SetPosition(
-		title,
-		[c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80],
-	);
-	io.Centralize(title);
+	const title = env.scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80, i18n.t("title.links"), c.titleTextConfig).setOrigin(0.5);
 
 	const links = [...baseLinks];
 	if (!environment.isElectron()) {
@@ -87,7 +82,7 @@ export function create(): void {
 		},
 	});
 
-	const container = io.Container([overlay, panelBg, title, ...linkTexts, closeButton.container]);
+	const container = env.container([overlay, panelBg, title, ...linkTexts, closeButton.container]);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 }

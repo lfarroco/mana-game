@@ -4,6 +4,7 @@ import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { env } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 let initialized = false;
 
@@ -11,9 +12,8 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	const { events } = io.screens.battleground;
-	events.orbApplyRequested.listen(onOrbApplyRequested);
-	events.phaseFinished.listen(closeOrbShop);
+	BattlegroundEvent.orbApplyRequested.listen(onOrbApplyRequested);
+	BattlegroundEvent.phaseFinished.listen(closeOrbShop);
 }
 
 export async function handleOrbShopPhase(): Promise<void> {

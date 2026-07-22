@@ -24,9 +24,6 @@
             "@Constants": [
                 "./src/Constants"
             ],
-            "@IO": [
-                "./src/io.ts"
-            ],
             "@Env": [
                 "./src/Env"
             ],

@@ -1,4 +1,5 @@
 import * as constants from "@Constants";
+import { env, makeContainer, borderedRoundRect } from "../../../Env";
 
 const PANEL_WIDTH = 1180;
 const PANEL_HEIGHT = 500;
@@ -34,9 +35,10 @@ type TabbedMenuDefinition = {
 };
 
 export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
-	const container = io.Container();
+	const container = makeContainer(env.scene);
 	const scene = container.scene;
-	const background = io.BorderedRoundRect(
+	const background = borderedRoundRect(
+		env.scene,
 		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y],
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		PANEL_RADIUS,
@@ -78,9 +80,9 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 			}
 
 			closeTab();
-			activeContentContainer = io.Container(tab.buildContent(api));
+			activeContentContainer = makeContainer(env.scene, tab.buildContent(api));
 			container.add([activeContentContainer]);
-			io.BringToTop(activeContentContainer);
+			env.scene.children.bringToTop(activeContentContainer);
 			activeTabKey = key;
 		},
 		addMenuButtons: (buttons) => {
@@ -90,9 +92,8 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 		getContentButtonPosition: (index) =>
 			[contentCenterX, contentButtonStartY + contentButtonSpacing * index],
 		createTabTitle: (text) => {
-			const title = io.Title1(text);
-			io.SetPosition(title, [contentCenterX, contentTitleY]);
-			io.Centralize(title);
+			const title = env.scene.add.text(0, 0, text, constants.titleTextConfig).setOrigin(0.5);
+			title.setPosition(contentCenterX, contentTitleY);
 			return title;
 		},
 	};

@@ -78,9 +78,6 @@
 			],
 			"@utils": [
 				"../phaser/src/utils.ts"
-			],
-			"@IO": [
-				"../phaser/src/phaser.io.ts"
 			]
 		},
 		"types": [

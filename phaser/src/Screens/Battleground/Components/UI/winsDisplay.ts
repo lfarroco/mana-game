@@ -1,7 +1,7 @@
 import * as Assets from "@assets";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../../Env";
+import { env, makeContainer as container, centeredRect } from "../../../../Env";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;
@@ -29,8 +29,8 @@ export function create() {
 	const indicators = createBonusIndicators();
 	updateRectColors(currentWins);
 
-	mainContainer = io.Container([...rects, ...indicators]);
-	io.SetPosition(mainContainer, [WINS_DISPLAY_X, WINS_DISPLAY_Y]);
+	mainContainer = container(env.scene, [...rects, ...indicators]);
+	mainContainer.setPosition(WINS_DISPLAY_X, WINS_DISPLAY_Y);
 
 	const containerWidth = MAX_WINS * RECT_WIDTH + (MAX_WINS - 1) * GAP;
 	mainContainer
@@ -57,10 +57,8 @@ function createRects(): Phaser.GameObjects.Graphics[] {
 	winRects = [];
 
 	for (let i = 0; i < MAX_WINS; i++) {
-		const rect = io.Rectangle([0, 0], [RECT_WIDTH, RECT_HEIGHT], COLOR_GRAY);
-
 		const xOffset = i * (RECT_WIDTH + GAP);
-		io.SetPosition(rect, [xOffset, 0]);
+		const rect = centeredRect(env.scene, [xOffset, 0], [RECT_WIDTH, RECT_HEIGHT], COLOR_GRAY);
 
 		winRects.push(rect);
 	}
@@ -80,7 +78,9 @@ function createBonusIndicators(): Phaser.GameObjects.Graphics[] {
 		const xOffset = bonus.index * (RECT_WIDTH + GAP) + RECT_WIDTH / 2;
 		const yOffset = RECT_HEIGHT + 15;
 
-		const circle = io.Circle([xOffset, yOffset], CIRCLE_RADIUS, bonus.color);
+		const circle = env.scene.add.graphics({ x: xOffset, y: yOffset });
+		circle.fillStyle(bonus.color, 1);
+		circle.fillCircle(0, 0, CIRCLE_RADIUS);
 		indicators.push(circle);
 	}
 

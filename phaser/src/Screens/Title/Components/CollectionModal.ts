@@ -6,6 +6,7 @@ import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as createDescription from "@Systems/Chara/createDescription";
+import { env } from "../../../Env";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;
@@ -33,7 +34,7 @@ export const create = () => new Promise<void>((resolve) => {
 	let displayCards = getCardsForTab(currentTab);
 	let isLoading = false;
 
-	const charaContainer = io.Container();
+	const charaContainer = env.container();
 	modal.container.add(charaContainer);
 
 	function getCardsForTab(tab: Tab) {
@@ -157,9 +158,7 @@ export const create = () => new Promise<void>((resolve) => {
 		width: 60,
 	});
 
-	const pageIndicator = io.Text("1 / 1", { fontSize: "24px", color: "#ffffff" });
-	io.Centralize(pageIndicator);
-	io.SetPosition(pageIndicator, [0, PANEL_HEIGHT / 2 - 120]);
+	const pageIndicator = env.scene.add.text(0, PANEL_HEIGHT / 2 - 120, "1 / 1", { fontSize: "24px", color: "#ffffff" }).setOrigin(0.5);
 
 	const closeButton = UIButton.create({
 		text: i18n.t("title.back"),

@@ -3,6 +3,7 @@ import * as colorUtils from "@Utils/colorUtils";
 import * as Constants from "@Constants";
 import * as MagicOrbShader from "@Components/MagicOrb/MagicOrbShader";
 import { Unit } from "@game/Models";
+import { env } from "../../Env";
 
 const bronze = 0x804a00;
 const silver = 0xc0c0c0;
@@ -14,7 +15,7 @@ const colors = [bronze, silver, gold, platinum];
 export function create(unit: Unit, chara: Chara.Chara) {
 	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
 
-	const orb = io.Shader(
+	const orb = env.shader(
 		MagicOrbShader.simpleMagicOrbFragmentShader,
 		[0, 0],
 		[Constants.TILE_WIDTH * 0.7, Constants.TILE_WIDTH * 0.7],

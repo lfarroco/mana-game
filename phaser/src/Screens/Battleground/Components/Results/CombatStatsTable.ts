@@ -44,14 +44,14 @@ async function createStatsPanel(
 		backgroundAlpha: ResultsConfig.RESULTS_PANEL.backgroundAlpha,
 	});
 
-	const titleText = io.Text(title, {
+	const titleText = env.scene.add.text(0, 0, title, {
 		fontSize: PANEL_CONFIG.titleFontSize,
 		color: titleColor,
 		fontStyle: "bold",
 	});
 	const [px, py] = position;
-	io.SetPosition(titleText, [px, py - panelHeight / 2 + 30]);
-	io.Centralize(titleText);
+	titleText.setPosition(px, py - panelHeight / 2 + 30);
+	titleText.setOrigin(0.5);
 	panel.add(titleText);
 
 	const headers = [
@@ -65,12 +65,12 @@ async function createStatsPanel(
 	const startY = py - panelHeight / 2 + 70;
 
 	headers.forEach((header, index) => {
-		const headerText = io.Text(header, {
+		const headerText = env.scene.add.text(0, 0, header, {
 			fontSize: PANEL_CONFIG.headerFontSize,
 			color: PANEL_CONFIG.headerColor,
 			fontStyle: "bold",
 		});
-		io.SetPosition(headerText, [startX, startY]);
+		headerText.setPosition(startX, startY);
 		panel.add(headerText);
 		startX += PANEL_CONFIG.columnWidths[index + 1];
 	});
@@ -168,11 +168,11 @@ async function createStatsPanel(
 
 		let currentX = px - PANEL_CONFIG.width / 2 + padding + PANEL_CONFIG.columnWidths[0];
 		rowData.forEach((data, index) => {
-			const cellText = io.Text(data, {
+			const cellText = env.scene.add.text(0, 0, data, {
 				fontSize: PANEL_CONFIG.fontSize,
 				color: "#FFFFFF",
 			});
-			io.SetPosition(cellText, [currentX, currentY]);
+			cellText.setPosition(currentX, currentY);
 			panel.add(cellText);
 			currentX += PANEL_CONFIG.columnWidths[index + 1];
 		});

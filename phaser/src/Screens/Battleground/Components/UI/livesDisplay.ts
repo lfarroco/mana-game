@@ -1,7 +1,7 @@
 import * as Constants from "@Constants";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../../Env";
+import { env, makeContainer as container } from "../../../../Env";
 
 const MAX_LIVES = 4;
 const GREEN_HEART = "💚";
@@ -52,10 +52,10 @@ export function create() {
 
 	const hearts = createHearts();
 
-	const container = io.Container([...hearts]);
-	io.SetPosition(container, [LIVES_DISPLAY_X, LIVES_DISPLAY_Y]);
+	const containerEl = container(env.scene, [...hearts]);
+	containerEl.setPosition(LIVES_DISPLAY_X, LIVES_DISPLAY_Y);
 
-	containerElement = container;
+	containerElement = containerEl;
 
 	const bounds = containerElement.getBounds();
 	containerElement.setInteractive(new Phaser.Geom.Rectangle(0, -bounds.height / 2, bounds.width, bounds.height), Phaser.Geom.Rectangle.Contains)
@@ -71,7 +71,7 @@ export function create() {
 			Tooltip.hideTooltip();
 		});
 
-	return container;
+	return containerEl;
 }
 
 function createHearts(): Phaser.GameObjects.Text[] {
@@ -81,7 +81,7 @@ function createHearts(): Phaser.GameObjects.Text[] {
 		const isAlive = i < currentLives;
 		const heartIcon = isAlive ? GREEN_HEART : GRAY_HEART;
 
-		const heart = io.Text(heartIcon, {
+		const heart = env.scene.add.text(0, 0, heartIcon, {
 			...Constants.titleTextConfig,
 			fontSize: "36px",
 			color: "#ffffff",
@@ -92,8 +92,8 @@ function createHearts(): Phaser.GameObjects.Text[] {
 		}
 
 		const xOffset = i * 40;
-		io.SetPosition(heart, [xOffset, 0]);
-		io.Centralize(heart);
+		heart.setPosition(xOffset, 0);
+		heart.setOrigin(0.5);
 
 		heartElements.push(heart);
 	}

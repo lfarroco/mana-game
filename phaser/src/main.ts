@@ -1,7 +1,6 @@
 import * as constants from "./Constants";
 import Client from "./Client";
 import * as State from "@Models/ClientState";
-import * as io_ from "./io";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
@@ -9,14 +8,6 @@ import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 declare global {
 	const __DEV__: boolean;
 }
-// ~~~ DEPRECATED: window.io will be removed in a future cleanup.
-// New code should import { env } from "./Env" directly.
-// eslint-disable-next-line @typescript-eslint/no-namespace
-declare global {
-	// eslint-disable-next-line no-var
-	var io: typeof io_;
-}
-window.io = io_;
 
 const STARTUP_FONT_FAMILY = "Arimo";
 const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";

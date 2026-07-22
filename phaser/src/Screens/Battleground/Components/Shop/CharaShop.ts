@@ -13,7 +13,8 @@ import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import * as GameController from "../../../../GameController";
-import { env } from "../../../../Env";
+import { env, whenDroppedOnZone } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -205,7 +206,7 @@ function initShopCharaInput(
 			chara.y = dragY;
 		});
 
-	io.WhenDroppedOnZone(chara, "board-cell", (zone) => {
+	whenDroppedOnZone(chara, "board-cell", (zone: Phaser.GameObjects.Zone) => {
 		if (!Board.isInputEnabled()) {
 			return;
 		}
@@ -279,7 +280,7 @@ async function handleItemDragPurchaseRequested(
 	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
-		io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+		BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],
 		});
@@ -290,7 +291,7 @@ async function handleItemDragPurchaseRequested(
 	if (!existingUnit || existingUnit.rank > 3) {
 		const occupier = getUnitAt(session.team.units)(targetTile);
 		if (occupier) {
-			io.screens.battleground.events.onShopUnitDragPurchaseFailed.emit({
+			BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
 				shopCharaId,
 				dragStartVec: [dragStartX, dragStartY],
 			});

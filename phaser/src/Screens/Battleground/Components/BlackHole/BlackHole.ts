@@ -7,7 +7,7 @@ import { env } from "../../../../Env";
 export function initBlackHole(): BlackHoleState {
 	const dissolve = 0;
 
-	const blackHole = io.Shader(
+	const blackHole = env.shader(
 		ArcaneTornado.arcaneTornadoFragmentShader,
 		Constants.MIDDLE_SCREEN,
 		[800, 800], [

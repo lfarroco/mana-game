@@ -29,7 +29,7 @@ export function create(): void {
 	overlay.setInteractive(); // Block clicks to elements behind
 
 	// Create panel background
-	const panelBg = io.BorderedRoundRect(
+	const panelBg = env.borderedRoundRect(
 		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y],
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
@@ -38,12 +38,7 @@ export function create(): void {
 	);
 
 	// Create title
-	const title = io.Title1(i18n.t("credits.title"));
-	io.SetPosition(
-		title,
-		[constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70]
-	);
-	io.Centralize(title);
+	const title = env.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70, i18n.t("credits.title"), constants.titleTextConfig).setOrigin(0.5);
 
 	// Create credits text container - you can add your credits here
 	const creditsContent = [
@@ -84,7 +79,7 @@ export function create(): void {
 	});
 
 	// Create container for all elements
-	const container = io.Container([overlay, panelBg, title, ...creditsTexts, closeButton.container]);
+	const container = env.container([overlay, panelBg, title, ...creditsTexts, closeButton.container]);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 }

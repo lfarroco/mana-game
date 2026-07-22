@@ -4,6 +4,7 @@ import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
+import { env, makeContainer as container, borderedRoundRect } from "../../../../Env";
 
 export async function displayDefeat(
 	livesChange: number,
@@ -56,8 +57,9 @@ export async function displayDefeat(
 
 	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY);
 
-	const container = io.Container([
-		io.BorderedRoundRect(
+	const resultContainer = container(env.scene, [
+		borderedRoundRect(
+			env.scene,
 			[panelX, panelY],
 			[panelWidth, panelHeight],
 			ResultsConfig.RESULTS_PANEL.borderRadius,
@@ -66,30 +68,30 @@ export async function displayDefeat(
 		),
 		[
 			() =>
-				io.Text(i18n.t("results.titles.defeat"), {
+				env.scene.add.text(0, 0, i18n.t("results.titles.defeat"), {
 					...c.titleTextConfig,
 					fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleMedium,
 					color: ResultsConfig.RESULTS_COLORS.defeat,
 				}),
 			(title) =>
-				io.SetPosition(title, [panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY]),
-			(title) => io.Centralize(title),
+				(title as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY),
+			(title) => (title as Phaser.GameObjects.Text).setOrigin(0.5),
 		],
 		[
 			() =>
-				io.Text(livesText, {
+				env.scene.add.text(0, 0, livesText, {
 					...c.defaultTextConfig,
 					fontSize: ResultsConfig.RESULTS_FONT_SIZES.messageSmall,
 					color: livesColor,
 					fontStyle: "bold",
 				}),
-			(label) => io.SetPosition(label, [panelX, panelY - panelHeight / 2 + 160]),
-			(label) => io.Centralize(label),
+			(label) => (label as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + 160),
+			(label) => (label as Phaser.GameObjects.Text).setOrigin(0.5),
 		],
 		playerPanel,
 		cpuPanel,
 		...buttons,
 	]);
 
-	return container;
+	return resultContainer;
 }

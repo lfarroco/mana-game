@@ -3,6 +3,8 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
+import { env, makeContainer as container } from "../../../../Env";
+import { skipPhase } from "../../../../GameController";
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -12,7 +14,7 @@ export const ShopState: { container: Container | null } = {
 // calling init, then events pull them into the screen as needed
 export const create = () => {
 
-	ShopState.container = io.Container();
+	ShopState.container = container(env.scene);
 
 	ShopState.container.on(Phaser.GameObjects.Events.DESTROY, () => {
 		ShopState.container?.removeAllListeners();
@@ -29,7 +31,7 @@ export const addSkipButton = (): void => {
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
-		callback: () => io.Controller.skipPhase()
+		callback: () => skipPhase()
 	});
 
 	ShopState.container?.add(skipButton.container);

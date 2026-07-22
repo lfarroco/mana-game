@@ -2,6 +2,8 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
 import { requestMainMenu, requestNewRun } from "../../../GameController";
+import { env, makeContainer, borderedRoundRect, centeredRect } from "../../../Env";
+import { BattlegroundEvent } from "../../../Events";
 
 export function create() {
 	const btn = UIButton.create({
@@ -14,7 +16,7 @@ export function create() {
 }
 
 export function createPanel() {
-	io.screens.battleground.events.combatPauseRequested.emit();
+	BattlegroundEvent.combatPauseRequested.emit(undefined);
 
 	const panelWidth = 650;
 	const panelHeight = 500;
@@ -41,8 +43,8 @@ export function createPanel() {
 		[
 			i18n.t("ui.menu.back"),
 			() => {
-				io.screens.battleground.events.combatResumeRequested.emit(undefined);
-				io.Destroy(container);
+				BattlegroundEvent.combatResumeRequested.emit(undefined);
+				container.destroy(true);
 			},
 		]
 	);
@@ -56,21 +58,26 @@ export function createPanel() {
 			}).container
 	);
 
-	const container = io.Container([
-		[
-			() => io.Rectangle(c.MIDDLE_SCREEN, c.WHOLE_SCREEN, 0x000000, 0.1),
-			io.SetInteractiveRect([c.SCREEN_WIDTH, c.SCREEN_HEIGHT]),
-		],
-		io.BorderedRoundRect([panelX, panelY], [panelWidth, panelHeight], 10, 0x2c3e50, 1),
-		[
-			() => io.Text(i18n.t("ui.menu.title"), c.titleTextConfig),
-			(title) => io.SetPosition(title, [panelX, panelY - panelHeight / 2 + 50]),
-			(title) => io.Centralize(title),
-		],
+	// Overlay background
+	const overlayBg = centeredRect(env.scene, c.MIDDLE_SCREEN, c.WHOLE_SCREEN, 0x000000, 0.1);
+	overlayBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, c.SCREEN_WIDTH, c.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+
+	// Panel background
+	const panelBg = borderedRoundRect(env.scene, [panelX, panelY], [panelWidth, panelHeight], 10, 0x2c3e50, 1);
+
+	// Title text
+	const titleText = env.scene.add.text(0, 0, i18n.t("ui.menu.title"), c.titleTextConfig);
+	titleText.setPosition(panelX, panelY - panelHeight / 2 + 50);
+	titleText.setOrigin(0.5);
+
+	const container = makeContainer(env.scene, [
+		overlayBg,
+		panelBg,
+		titleText,
 		...buttons,
 	]);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 
 	return container;
 }

@@ -1,5 +1,5 @@
 import { getSettings } from "@Models/OptionsStore";
-;
+import { env } from "../Env";
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;
@@ -25,7 +25,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 
 	let music;
 	try {
-		music = io.game.sound.add(musicKey, {
+		music = env.scene.game.sound.add(musicKey, {
 			volume: getSettings().musicVolume,
 			loop: loop,
 		});
@@ -48,7 +48,7 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		music.play();
 
 		// Get active scene for tween manager
-		const activeScene = io.game.scene.getScenes(true)[0];
+		const activeScene = env.scene.game.scene.getScenes(true)[0];
 		if (activeScene) {
 			activeScene.tweens.add({
 				targets: music,
@@ -74,7 +74,7 @@ export const stopMusic = (fadeOut: number = 0) => {
 
 	if (fadeOut > 0) {
 		// Fade out using Phaser tween
-		const activeScene = io.game.scene.getScenes(true)[0];
+		const activeScene = env.scene.game.scene.getScenes(true)[0];
 		if (activeScene) {
 			const musicToStop = currentMusic;
 			activeScene.tweens.add({
@@ -105,11 +105,11 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 		return;
 	}
 
-	if (!io.game.sound) {
+	if (!env.scene.game.sound) {
 		return;
 	}
 
-	if (!io.game.cache.audio.has(soundKey)) {
+	if (!env.scene.game.cache.audio.has(soundKey)) {
 		console.warn("AudioManager", "Audio key not found in cache - skipping", { soundKey });
 		return;
 	}
@@ -122,7 +122,7 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	}
 
 	const effectVolume = volume ?? getSettings().soundVolume;
-	const soundEffect = io.game.sound.add(soundKey, {
+	const soundEffect = env.scene.game.sound.add(soundKey, {
 		volume: effectVolume,
 	});
 

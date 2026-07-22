@@ -14,6 +14,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { completeCombatEncounter } from "../../../../GameController";
 import { env } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 // Store the last combat's tracker state for the results UI to read.
 // This lives here because it's the combat phase handler's responsibility
@@ -51,11 +52,11 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase);
-	io.screens.battleground.events.combatContinueRequested.listen(handleCombatContinueRequested);
-	io.screens.battleground.events.combatReplayRequested.listen(handleCombatReplayRequested());
-	io.screens.battleground.events.combatPauseRequested.listen(pauseCombat);
-	io.screens.battleground.events.combatResumeRequested.listen(resumeCombat);
+	BattlegroundEvent.phaseFinished.listen(finishCombatPhase);
+	BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested);
+	BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested());
+	BattlegroundEvent.combatPauseRequested.listen(pauseCombat);
+	BattlegroundEvent.combatResumeRequested.listen(resumeCombat);
 
 }
 
@@ -107,11 +108,11 @@ const showCombatResults = ({
 			resultType,
 			() => {
 				resultHandled();
-				io.screens.battleground.events.combatContinueRequested.emit(undefined);
+			BattlegroundEvent.combatContinueRequested.emit(undefined);
 			},
 			() => {
 				resultHandled();
-				io.screens.battleground.events.combatReplayRequested.emit(undefined);
+				BattlegroundEvent.combatReplayRequested.emit(undefined);
 			}
 		);
 		void ResultsUI.slideIn();

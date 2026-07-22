@@ -10,6 +10,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { env } from "../../../../Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
@@ -21,10 +22,8 @@ function init() {
 	if (initialized) return;
 	initialized = true;
 
-	const { events } = io.screens.battleground;
-
-	events.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
-	events.phaseFinished.listen(closeShop)
+	BattlegroundEvent.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
+	BattlegroundEvent.phaseFinished.listen(closeShop)
 }
 
 export async function handleShopPhase() {

@@ -1,5 +1,6 @@
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
+import { env, makeContainer as container, borderedRoundRect, rectangularDropZone } from "../../../../Env";
 
 // Discard zone UI constants
 const DISCARD_ZONE_X = 1400;
@@ -16,9 +17,9 @@ const DISCARD_ZONE_SHADOW_OFFSET_Y = 2;
 const DISCARD_ZONE_SHADOW_BLUR = 4;
 
 export let zone: Phaser.GameObjects.Zone | null = null;
-let container: Container | null = null;
+let zoneContainer: Phaser.GameObjects.Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
-let rect: Graphics | null = null;
+let rect: Phaser.GameObjects.Graphics | null = null;
 
 const position = [DISCARD_ZONE_X, DISCARD_ZONE_Y] as Vec2;
 const size = [DISCARD_ZONE_WIDTH, DISCARD_ZONE_HEIGHT] as Vec2;
@@ -44,43 +45,43 @@ const textStyle = {
 };
 
 export function create() {
-	container = io.Container();
+	zoneContainer = container(env.scene);
 
 	rect = createRect();
 
 	labelText = createLabel();
 
-	zone = io.RectangularDropZone(name, position, size);
+	zone = rectangularDropZone(env.scene, name, position, size);
 
-	container.add([zone, rect, labelText]);
+	zoneContainer.add([zone, rect, labelText]);
 
-	io.Hide(container);
+	zoneContainer.setVisible(false);
 
-	return container;
+	return zoneContainer;
 }
 
 export function show() {
-	io.BringToTop(container!);
-	io.Show(container!);
+	env.scene.children.bringToTop(zoneContainer!);
+	zoneContainer!.setVisible(true);
 }
 
 export function hide() {
-	io.Hide(container!);
+	zoneContainer!.setVisible(false);
 }
 
 export function destroy() {
-	io.Destroy(container!);
-	container = null;
+	zoneContainer!.destroy(true);
+	zoneContainer = null;
 }
 
-const createRect = () => io.BorderedRoundRect(position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
+const createRect = () => borderedRoundRect(env.scene, position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
 
 const createLabel = () => {
-	const text = io.Text(i18n.t("shop.discard"), textStyle);
+	const text = env.scene.add.text(0, 0, i18n.t("shop.discard"), textStyle);
 
-	io.SetPosition(text, position);
+	text.setPosition(position[0], position[1]);
 
-	io.Centralize(text);
+	text.setOrigin(0.5);
 
 	return text;
 };
