@@ -21,10 +21,20 @@ const emitBattlegroundExit = () => {
 
 const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {
 	emitBattlegroundExit();
-	await env.phaser.FadeOut(300, 0x000000);
-	env.phaser.clean();
+	const cam = env.scene.cameras.main;
+	await new Promise<void>((resolve) => {
+		cam.fade(300, 0, 0, 0);
+		cam.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
+	});
+	env.scene.children.each((c) => c.destroy());
+	env.scene.children.removeAll();
+	env.scene.tweens.killAll();
+	env.scene.time.removeAllEvents();
 	renderScreen();
-	await env.phaser.FadeIn(300);
+	await new Promise<void>((resolve) => {
+		cam.fadeIn(300);
+		cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
+	});
 };
 
 type BattlegroundScreenEvents = {

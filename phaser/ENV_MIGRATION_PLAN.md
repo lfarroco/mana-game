@@ -63,18 +63,12 @@ Benefits:
 
 ### Phase 2 — Migrate Phaser wrappers into `Env.phaser`
 
-- [ ] Move `io.Container()` → `env.phaser.container()`
-- [ ] Move `io.Text()` → `env.phaser.text()`
-- [ ] Move `io.Tween()` → `env.phaser.tween()`
-- [ ] Move `io.FadeOut()` / `io.FadeIn()` → `env.phaser.fadeOut()` / `env.phaser.fadeIn()`
-- [ ] Move `io.OnPointerDown()`, `io.OnPointerUp()`, … → `env.phaser.*`
-- [ ] Move `io.WhenDroppedOnZone()` → `env.phaser.*`
-- [ ] Move `io.Shader()`, `io.SetUniform()`, … → `env.phaser.*`
-- [ ] Move `io.BringToTop()`, `io.MoveBelow()`, … → `env.phaser.*`
-- [ ] Move `io.DisableInteractive()` → `env.phaser.*`
-- [ ] Move `io.clean()` → `env.phaser.*`
-- [ ] Move `io.Delay()` → `env.phaser.*`
-- [ ] Move `io.StartScene()` → `env.screens.*`
+- [x] **Dropped entirely** — replaced by direct `env.scene` access
+- [x] Created `phaser-helpers.ts` for genuinely useful composables (container with children, centered bordered rect, drop zones by name, shader with tuple uniforms)
+- [x] Removed all 40+ wrapper functions from Env — Phaser's native API is the API
+- [x] Added `env.time` (promise-based delay, delta, scale)
+- [x] Added `env.audio` (absorbs AudioManager — sfx, music, stop, volume refresh)
+- [x] Updated `BattlegroundScreen.ts` to use `env.scene.cameras.main.fade` directly
 
 ### Phase 3 — Refactor Controller to be pure
 

@@ -24,8 +24,8 @@ let _env: Env | null = null;
 /** Called by Client.ts after `createEnv()`. Feeds env to the global bridge. */
 export function setEnv(env: Env): void {
   _env = env;
-  scene = env.phaser.scene;
-  game = env.phaser.game;
+  scene = env.scene;
+  game = env.scene.game;
 }
 
 /** Access the current env. Returns null before `setEnv` is called. */
