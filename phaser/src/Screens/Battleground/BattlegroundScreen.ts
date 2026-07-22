@@ -5,6 +5,8 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
+import * as ShopPhase from "./Phases/Shop/handleShopPhase";
+import * as OrbShopPhase from "./Phases/OrbShop/handleOrbShopPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
@@ -15,6 +17,7 @@ import { env } from "@Env";
 import { BattlegroundEvent } from "../../Events";
 import * as CrystalSelectionScreen from "../CrystalSelection/CrystalSelectionScreen";
 import * as TitleScreen from "../Title/TitleScreen";
+import * as UI from "./Components/UI/UI";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -77,11 +80,14 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 	previousSessionHudSnapshot = currentSnapshot;
 }
 
-let initialized = false;
-function init() {
-	if (initialized) return;
-	initialized = true;
-
+/**
+ * Centralized wiring of all BattlegroundEvent listeners.
+ * Called once at app startup (from Client.ts), before any screen is created.
+ * Each module exports its own registerListeners() for its
+ * phase-specific event subscriptions.
+ */
+export function wireBattlegroundEvents(): void {
+	// Cross-cutting listeners
 	BattlegroundEvent.phaseFinished.listen(handleCurrentPhase);
 	BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges);
 	BattlegroundEvent.newRunRequested.listen(() => {
@@ -93,6 +99,12 @@ function init() {
 		void transitionFromBattleground(TitleScreen.create);
 	});
 
+	// Phase-specific listeners
+	UI.registerListeners();
+	Encounter.registerListeners();
+	handleCombatPhase.registerListeners();
+	ShopPhase.registerListeners();
+	OrbShopPhase.registerListeners();
 }
 
 // TODO: should be part of the player board logic
@@ -144,8 +156,6 @@ const syncPlayerBoardUnits = async (): Promise<void> => {
 // };
 
 export const create = async () => {
-
-	init();
 
 	Components.create();
 	previousSessionHudSnapshot = createSessionHudSnapshot();

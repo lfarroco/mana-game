@@ -46,17 +46,12 @@ const resumeCombat = (): void => {
 	env.scene.time.paused = false;
 };
 
-let initialized = false;
-function init() {
-	if (initialized) return;
-	initialized = true;
-
+export function registerListeners(): void {
 	BattlegroundEvent.phaseFinished.listen(finishCombatPhase);
 	BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested);
 	BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested());
 	BattlegroundEvent.combatPauseRequested.listen(pauseCombat);
 	BattlegroundEvent.combatResumeRequested.listen(resumeCombat);
-
 }
 
 const finishCombatPhase = async ({ previousPhase }: {
@@ -213,8 +208,6 @@ const setupCombatBoard = async (): Promise<void> => {
 };
 
 export async function handleCombatPhase(): Promise<void> {
-
-	init();
 
 	const combatState = env.state.combatState;
 

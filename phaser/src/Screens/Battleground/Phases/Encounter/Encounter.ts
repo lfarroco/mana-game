@@ -29,14 +29,11 @@ type EncounterItem = {
 
 let disableInteraction = false;
 let container: Phaser.GameObjects.Container;
-let initialized = false;
-function init() {
-	if (initialized) return;
-	initialized = true;
 
+export function registerListeners(): void {
 	BattlegroundEvent.phaseFinished.listen(onEncounterSkipped);
-
 }
+
 const onEncounterSkipped = ({ previousPhase }: { previousPhase: Models.PhaseType }) => {
 	if (previousPhase !== "encounter") return;
 	container.destroy(true);
@@ -160,8 +157,6 @@ export const allEncounters: EncounterItem[] = [
 ];
 
 export const displayOptions = () => {
-
-	init();
 
 	container = env.scene.add.container();
 

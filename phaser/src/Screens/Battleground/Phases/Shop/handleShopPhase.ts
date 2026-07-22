@@ -16,12 +16,7 @@ const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
 const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
-let initialized = false;
-
-function init() {
-	if (initialized) return;
-	initialized = true;
-
+export function registerListeners(): void {
 	BattlegroundEvent.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
 	BattlegroundEvent.phaseFinished.listen(closeShop);
 	BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased);
@@ -29,8 +24,6 @@ function init() {
 }
 
 export async function handleShopPhase() {
-
-	init();
 
 	const { session } = env.state;
 	const shopCardIds = session.options.map((o) => o.id);

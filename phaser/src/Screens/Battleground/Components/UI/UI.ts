@@ -12,31 +12,22 @@ import { env, makeContainer as container } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 let uiContainer: Container | null = null;
-let listenersBound = false;
 
-function bindBattlegroundEvents(): void {
-	if (listenersBound) {
-		return;
-	}
-
-	listenersBound = true;
-	const events = BattlegroundEvent;
-
-	events.onWinsChanged.listen(({ wins, delta }) => {
+export function registerListeners(): void {
+	BattlegroundEvent.onWinsChanged.listen(({ wins, delta }) => {
 		uiEvents.onWinsChanged({ wins, delta });
 	});
 
-	events.onLivesChanged.listen(({ lives, delta }) => {
+	BattlegroundEvent.onLivesChanged.listen(({ lives, delta }) => {
 		uiEvents.onLivesChanged({ lives, delta });
 	});
 
-	events.onRoundChanged.listen(({ round }) => {
+	BattlegroundEvent.onRoundChanged.listen(({ round }) => {
 		uiEvents.onRoundChanged({ round });
 	});
 }
 
 export function create() {
-	bindBattlegroundEvents();
 
 	const headerContainer = container(env.scene, [
 		headerBackground.create,

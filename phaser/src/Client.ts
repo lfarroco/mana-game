@@ -3,6 +3,7 @@ import * as Card from "@game/Entities/Card";
 import * as BaseCollection from "@game/BaseCollection";
 import * as Config from "@config";
 import * as TitleScreen from "./Screens/Title/TitleScreen";
+import * as BattlegroundScreen from "./Screens/Battleground/BattlegroundScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as GameServer from "./GameServer";
@@ -166,6 +167,8 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
             (action) => GameServer.getServer()
                 .handleAction(clientState.session.player_id, action),
         );
+
+        BattlegroundScreen.wireBattlegroundEvents();
 
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
