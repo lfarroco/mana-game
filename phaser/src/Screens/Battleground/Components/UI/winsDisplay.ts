@@ -1,7 +1,7 @@
 import * as Assets from "@assets";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../../Env";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;
@@ -21,8 +21,8 @@ let mainContainer: Phaser.GameObjects.Container | null = null;
 export const WINS_DISPLAY_X = 240;
 export const WINS_DISPLAY_Y = 35;
 
-export function create(clientState: ClientState) {
-	const initialWins = clientState.session.wins;
+export function create() {
+	const initialWins = env.state.session.wins;
 	currentWins = initialWins;
 
 	const rects = createRects();

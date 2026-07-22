@@ -8,7 +8,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../Env";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -20,7 +20,7 @@ export type InputHandler = {
 	isLongPressActive: boolean;
 };
 
-export function init(clientState: ClientState, chara: Chara.Chara) {
+export function init(chara: Chara.Chara) {
 	const unit = Chara.getUnit(chara);
 
 	const state: InputHandler = {
@@ -45,7 +45,7 @@ export function init(clientState: ClientState, chara: Chara.Chara) {
 
 		io.WhenDroppedOnZone(chara, DiscardZone.name, () => {
 			if (!Board.isInputEnabled()) return;
-			if (isPlayerUnit) GameController.sellUnit(clientState, state.unitId);
+			if (isPlayerUnit) GameController.sellUnit(state.unitId);
 
 		});
 
@@ -57,7 +57,6 @@ export function init(clientState: ClientState, chara: Chara.Chara) {
 			const tile: Vec2 = [x, y];
 			const [sx, sy] = chara.getData("dragStartVec") as Vec2;
 			processOwnedUnitMoveRequest(
-				clientState,
 				state.unitId, tile, sx, sy);
 			state.wasDragSuccessful = true;
 		});
@@ -141,13 +140,12 @@ export const onDragStart =
 	};
 
 export const processOwnedUnitMoveRequest = (
-	clientState: ClientState,
 	unitId: string,
 	targetTile: Vec2,
 	dragStartX: number,
 	dragStartY: number
 ) => {
-	const units = clientState.session.team.units;
+	const units = env.state.session.team.units;
 	const unit = units.find((u) => u.id === unitId);
 
 	if (!unit) {
@@ -164,45 +162,36 @@ export const processOwnedUnitMoveRequest = (
 		(u) => u.id !== unitId && Geometry.eqVec2(u.position, targetTile)
 	);
 	if (occupier) {
-		executeSwap(clientState, unit, occupier, targetTile, units);
+		executeSwap(unit, occupier, targetTile, units);
 		return;
 	}
 
-	executeMove(clientState, unit, targetTile, units);
+	executeMove(unit, targetTile, units);
 };
 
 const saveUnitPositions = (
-	clientState: ClientState,
 	units: Unit[]) => {
-	GameController.updateTeam(
-		clientState,
-		{ units });
+	GameController.updateTeam({ units });
 };
 
 const executeMove = (
-	clientState: ClientState,
 	unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
 	applyMoveVisual(result.movedUnit);
 
-	saveUnitPositions(
-		clientState,
-		units);
+	saveUnitPositions(units);
 };
 
 const executeSwap = (
-	clientState: ClientState,
 	unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
 	applySwapVisual(result.movedUnit, result.swappedUnit!);
 
-	saveUnitPositions(
-		clientState,
-		units);
+	saveUnitPositions(units);
 };
 
 const applyMoveVisual = (movedUnit: Unit) => {

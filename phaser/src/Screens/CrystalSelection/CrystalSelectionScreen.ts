@@ -6,7 +6,6 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 import * as Components from "./Components";
 import * as Effects from "./Effects";
 import * as Models from "@game/Models";
-import { ClientState } from "@Models/ClientState";
 
 
 //TODO: should also disable seed selection in multiplayer mode
@@ -31,14 +30,14 @@ export const state: {
 	multiplayerQueueType: "casual",
 };
 
-export function create(clientState: ClientState) {
+export function create() {
 
 	state.crystals = Card.getCores();
 	state.currentIndex = 0;
 
 	cloudsBg.create();
 
-	Components.create(clientState);
+	Components.create();
 
 	Effects.updateDisplay();
 }

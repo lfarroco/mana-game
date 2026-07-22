@@ -4,7 +4,7 @@ import * as Chip from "@Components/Chip/Chip";
 import * as Utils from "@utils";
 import * as Abilities from "@Models/Abilities";
 import { Unit } from "@game/Models";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../Env";
 
 export function create(unit: Unit, container: Chara.Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];
@@ -27,13 +27,13 @@ export function create(unit: Unit, container: Chara.Chara) {
 	container.add(chip.container);
 }
 
-export function updatePowerDisplay(clientState: ClientState, id: string) {
+export function updatePowerDisplay(id: string) {
 	const chara = Chara.mustGetCharaById(id);
 	const charaUnit = Chara.getUnit(chara);
-	const boardUnit = clientState.combatState?.unitById.get(id);
-	const sessionUnit = clientState.session.team.units.find((unit) => unit.id === id);
+	const boardUnit = env.state.combatState?.unitById.get(id);
+	const sessionUnit = env.state.session.team.units.find((unit) => unit.id === id);
 	const latestUnit =
-		clientState.session.phase === "combat"
+		env.state.session.phase === "combat"
 			? boardUnit ?? sessionUnit ?? charaUnit
 			: sessionUnit ?? boardUnit ?? charaUnit;
 

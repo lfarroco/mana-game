@@ -3,7 +3,6 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
-import { ClientState } from "@Models/ClientState";
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -23,16 +22,14 @@ export const create = () => {
 	ShopState.container.setY(c.SCREEN_HEIGHT * -1);
 };
 
-export const addSkipButton = (clientState: ClientState): void => {
+export const addSkipButton = (): void => {
 	const skipButton = UIButton.create({
 		text: "Skip",
 		position: [
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
-		callback: () => io.Controller.skipPhase(clientState
-
-		)
+		callback: () => io.Controller.skipPhase()
 	});
 
 	ShopState.container?.add(skipButton.container);

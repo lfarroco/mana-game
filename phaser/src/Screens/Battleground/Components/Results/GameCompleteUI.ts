@@ -1,6 +1,5 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
-import { ClientState } from "@Models/ClientState";
 import { Unit } from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as AchievementSystem from "@Systems/AchievementSystem";
@@ -12,9 +11,9 @@ import * as constants from "@Constants";
 import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
 import { requestMainMenu, requestNewRun } from "../../../../GameController";
+import { env } from "../../../../Env";
 
 export async function displayGameComplete(
-	clientState: ClientState,
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
@@ -23,7 +22,7 @@ export async function displayGameComplete(
 ): Promise<Phaser.GameObjects.Container> {
 	const complete = typeof onComplete === "function" ? onComplete : undefined;
 
-	deleteSavedData(clientState);
+	deleteSavedData();
 
 	AudioManager.playMusic("music_playmode", true, 1000);
 
@@ -63,7 +62,7 @@ export async function displayGameComplete(
 			totalUnitsRecruited: 0,
 			unitUsage: {},
 		};
-		StatsStore.recordRunStats(clientState.session.runStats || defaultRunStats);
+		StatsStore.recordRunStats(env.state.session.runStats || defaultRunStats);
 
 		StatsStore.save();
 	}
@@ -149,7 +148,7 @@ export async function displayGameComplete(
 			}).container
 	);
 
-	const statsPanel = RunStatsPanel.createRunStatsPanel(clientState);
+	const statsPanel = RunStatsPanel.createRunStatsPanel();
 
 	const container = io.Container([
 		statsPanel,

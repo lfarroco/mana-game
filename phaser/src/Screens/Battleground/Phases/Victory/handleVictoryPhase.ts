@@ -1,17 +1,13 @@
-import { ClientState } from "@Models/ClientState";
 import * as GameController from "../../../../GameController";
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 
-export async function handleVictoryPhase(clientState: ClientState) {
+export async function handleVictoryPhase() {
 
 	await new Promise<void>((resolve) => {
 		void ResultsUI.displayGameCompleteResults(
-			clientState,
 			false,
-			() => GameController.completeVictory(clientState),
-			() => {
-				resolve();
-			}
+			GameController.completeVictory,
+			resolve
 		);
 		void ResultsUI.slideIn();
 	});

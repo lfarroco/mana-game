@@ -1,12 +1,11 @@
-import { ClientState } from "@Models/ClientState";
 
-export const startGame = (clientState: ClientState) => async () => {
+export const startGame = async () => {
 
 	await io.FadeOut(300, 0x000000);
 
 	io.scene.children.removeAll();
 
-	io.screens.crystalSelection(clientState);
+	io.screens.crystalSelection();
 
 	await io.FadeIn(300);
 }

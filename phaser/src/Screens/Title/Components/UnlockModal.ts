@@ -5,12 +5,11 @@ import * as Card from "@game/Entities/Card";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
-import { ClientState } from "@Models/ClientState";
 
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;
 
-export const render = (clientState: ClientState, unitId: string) =>
+export const render = (unitId: string) =>
 	new Promise<void>(async (resolve) => {
 		const unitData = Card.getCardDefinition(unitId);
 
@@ -22,7 +21,7 @@ export const render = (clientState: ClientState, unitId: string) =>
 
 		const dummy = Card.createUnitFromCardSpec("dummy", unitData, undefined, "");
 
-		const chara = await Chara.create(clientState, dummy);
+		const chara = await Chara.create(dummy);
 
 		chara.setPosition(0, -180);
 

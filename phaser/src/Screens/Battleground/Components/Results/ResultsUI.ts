@@ -9,7 +9,7 @@ import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../../Env";
 
 export function determineGameOutcome(
 	resultType: "victory" | "defeat",
@@ -66,7 +66,6 @@ async function displayAppropriateUI(
 }
 
 export async function displayResults(
-	clientState: ClientState,
 	resultType: "victory" | "defeat",
 	nextPhaseCallback: () => void,
 	replayCallback?: () => void
@@ -75,7 +74,7 @@ export async function displayResults(
 	io.scene.children.bringToTop(overlay.rectangle);
 	io.scene.children.bringToTop(resultsContainer);
 
-	const gameState = clientState;
+	const gameState = env.state;
 	const postCombatSession = gameState.session;
 	const player = {
 		wins: postCombatSession?.wins ?? gameState.session.wins,
@@ -88,14 +87,13 @@ export async function displayResults(
 
 	const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
 
-	const allBattleUnits = clientState.combatState?.units ?? [];
+	const allBattleUnits = env.state.combatState?.units ?? [];
 
 	const handleContinue = async () => {
 		if (gameWon || gameOver) {
 			resultsContainer.removeAll(true);
 			const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
 			const ui = await GameCompleteUI.displayGameComplete(
-				clientState,
 				currentWins,
 				playerUnits,
 				gameOver,
@@ -124,7 +122,6 @@ export async function displayResults(
 }
 
 export async function displayGameCompleteResults(
-	clientState: ClientState,
 	isGameOver: boolean,
 	nextPhaseCallback?: () => void,
 	onComplete?: () => void
@@ -134,9 +131,8 @@ export async function displayGameCompleteResults(
 	io.scene.children.bringToTop(resultsContainer);
 
 	const ui = await GameCompleteUI.displayGameComplete(
-		clientState,
-		clientState.session.wins,
-		clientState.session.team.units,
+		env.state.session.wins,
+		env.state.session.team.units,
 		isGameOver,
 		nextPhaseCallback,
 		onComplete

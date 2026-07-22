@@ -1,12 +1,11 @@
 import * as SessionManager from "./SessionManager";
 import * as Models from "@game/Models";
 import * as SessionTransitions from "@game/SessionTransitions";
-import { ClientState } from "@Models/ClientState";
+import { env } from "./Env";
 
 const COMBAT_STORAGE_PREFIX = "mana_combat_";
 
 export async function createSession(
-	_clientState: ClientState,
 	playerId: string,
 	crystalId: string,
 ): Promise<Models.SessionData> {
@@ -17,16 +16,15 @@ export async function createSession(
 }
 
 export async function handleAction(
-	clientState: ClientState,
 	playerId: string,
 	action: Models.Action
 ): Promise<Models.ActionResponse> {
 
 	const result = SessionTransitions.transitionToNextState(
-		clientState.session,
+		env.state.session,
 		action,
 	);
-	clientState.session = result.session;
+	env.state.session = result.session;
 
 	SessionManager.updateSession(playerId, result.session);
 

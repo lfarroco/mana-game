@@ -1,13 +1,13 @@
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../../Env";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
 
-export function create(clientState: ClientState) {
-	const initialRound = clientState.session.round;
+export function create() {
+	const initialRound = env.state.session.round;
 
 	const label = label_();
 

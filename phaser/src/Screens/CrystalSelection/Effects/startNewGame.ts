@@ -1,8 +1,8 @@
 import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../Env";
 
-export const startNewGame = (clientState: ClientState) => async () => {
+export const startNewGame = async () => {
 	const { currentIndex, crystals } = parent.state;
 	const selectedCrystal = crystals[currentIndex];
 
@@ -10,16 +10,15 @@ export const startNewGame = (clientState: ClientState) => async () => {
 
 	io.scene.children.removeAll();
 
-	const server = GameServer.getServer(clientState);
+	const server = GameServer.getServer();
 	const session = await server.createSession(
-		clientState,
 		"local-player",
 		selectedCrystal.id,
 	);
 
-	clientState.session = session;
+	env.state.session = session;
 
-	io.screens.battleground.create(clientState);
+	io.screens.battleground.create();
 
 	await io.FadeIn(300);
 }

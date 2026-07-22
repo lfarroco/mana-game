@@ -1,11 +1,10 @@
-import { ClientState } from "@Models/ClientState";
 
-export const returnToTitle = (clientState: ClientState) => async () => {
+export const returnToTitle = async () => {
 	await io.FadeOut(300, 0x000000);
 
 	io.clean();
 
-	io.screens.title.create(clientState);
+	io.screens.title.create();
 
 	await io.FadeIn(300);
 }

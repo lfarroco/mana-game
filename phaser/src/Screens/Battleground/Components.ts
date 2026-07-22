@@ -5,9 +5,8 @@ import * as Board from "@Components/Board/Board";
 import * as UI from "./Components/UI/UI";
 import * as Shop from "./Components/Shop/ShopPanel";
 import * as DiscardZone from "./Components/Shop/DiscardZone";
-import { ClientState } from "@Models/ClientState";
 
-export function create(clientState: ClientState) {
+export function create() {
 	[
 		Background,
 		NamesDisplay,
@@ -15,6 +14,6 @@ export function create(clientState: ClientState) {
 		ResultsUI,
 		DiscardZone,
 	].forEach(c => c.create());
-	UI.create(clientState);
+	UI.create();
 	Shop.create();
 }

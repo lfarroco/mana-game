@@ -12,7 +12,6 @@ import * as heal from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/h
 import * as poison from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as regen from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/regen";
 import * as createDescription from "@Systems/Chara/createDescription";
-import { ClientState } from "@Models/ClientState";
 
 const bbcode = (text: string, y: number) =>
 	io.scene
@@ -28,7 +27,7 @@ const text = (str: string, y: number) =>
 	io.Text(str).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
 
 const slides = [
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide1.row1"), 100),
 			text(i18n.t("tutorial.slide1.row2"), 150),
@@ -39,7 +38,7 @@ const slides = [
 				const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
 				const anim = async () => {
-					const charas = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, enemy)]);
+					const charas = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
 					cont.add(charas);
 				};
 
@@ -56,7 +55,7 @@ const slides = [
 				.setOrigin(0.5)
 				.setPosition(Constants.MIDDLE_SCREEN_X + 200, 620),
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide2.row1"), 100),
 			text(i18n.t("tutorial.slide2.row2"), 150),
@@ -64,7 +63,7 @@ const slides = [
 			() => {
 				const cont = io.Container([]);
 				const fn = async (x: number, y: number, sprite: string) => {
-					const chara = await Chara.summon(clientState, Card.makeUnit("PLAYER_FORCE", sprite, [x, y]));
+					const chara = await Chara.summon(Card.makeUnit("PLAYER_FORCE", sprite, [x, y]));
 
 					cont.add(chara);
 				};
@@ -78,7 +77,7 @@ const slides = [
 				return cont;
 			},
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide3.row1"), 100),
 			bbcode(
@@ -91,7 +90,7 @@ const slides = [
 					const unit = Card.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
 					const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
-					const [chara, chara2] = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, enemy)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(enemy)]);
 					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
@@ -134,7 +133,7 @@ const slides = [
 				return c;
 			},
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide4.row1"), 100),
 			bbcode(
@@ -146,7 +145,7 @@ const slides = [
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
-					const [chara, chara2] = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, ally)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
@@ -185,7 +184,7 @@ const slides = [
 				return c;
 			},
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide5.row1"), 100),
 			bbcode(
@@ -199,7 +198,7 @@ const slides = [
 					const unit = Card.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
-					const [chara, chara2] = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, ally)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
 					const s = Chara.mustGetState(chara);
 
@@ -238,7 +237,7 @@ const slides = [
 				return c;
 			},
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide6.row1"), 100),
 			bbcode(
@@ -251,7 +250,7 @@ const slides = [
 					const unit = Card.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
-					const [chara, chara2] = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, ally)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
@@ -289,7 +288,7 @@ const slides = [
 				return c;
 			},
 		]),
-	(clientState: ClientState) =>
+	() =>
 		io.Container([
 			text(i18n.t("tutorial.slide7.row1"), 100),
 			bbcode(
@@ -303,7 +302,7 @@ const slides = [
 					const unit = Card.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
 
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [0, 0.5]);
-					const [chara, chara2] = await Promise.all([Chara.summon(clientState, unit), Chara.summon(clientState, ally)]);
+					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
 					const s = Chara.mustGetState(chara);
 
@@ -342,7 +341,7 @@ const slides = [
 				return c;
 			},
 		]),
-	(_clientState: ClientState) =>
+	() =>
 		io.Container([
 			io.Title1(i18n.t("tutorial.slide8.row1")).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide8.row2"), 150),
@@ -378,7 +377,7 @@ const slides = [
 			text(i18n.t("tutorial.slide9.row4"), 250),
 			text(i18n.t("tutorial.slide9.row5"), 300),
 		]),
-	(clientState: ClientState) => {
+	() => {
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide10.row1"))
@@ -388,7 +387,7 @@ const slides = [
 		const unit = Card.makeUnit("FORCE_PLAYER", "thunder_conduit", [-2, 0.5]);
 
 		const anim = async () => {
-			const chara = await Chara.summon(clientState, unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
@@ -412,7 +411,7 @@ const slides = [
 
 		return cont;
 	},
-	(clientState: ClientState) => {
+	() => {
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide11.row1"))
@@ -422,7 +421,7 @@ const slides = [
 		const unit = Card.makeUnit("FORCE_PLAYER", "gunslinger", [-2, 0.5]);
 
 		const anim = async () => {
-			const chara = await Chara.summon(clientState, unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
@@ -451,7 +450,7 @@ const slides = [
 
 		return cont;
 	},
-	(clientState: ClientState) => {
+	() => {
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide12.row1"))
@@ -461,7 +460,7 @@ const slides = [
 		const unit = Card.makeUnit("FORCE_PLAYER", "radiance_envoy", [-2, 0.5]);
 
 		const anim = async () => {
-			const chara = await Chara.summon(clientState, unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
@@ -490,7 +489,7 @@ const slides = [
 
 		return cont;
 	},
-	(clientState: ClientState) => {
+	() => {
 		const cont = io.Container();
 		const title = io
 			.Title1(i18n.t("tutorial.slide13.row1"))
@@ -500,7 +499,7 @@ const slides = [
 		const unit = Card.makeUnit("FORCE_PLAYER", "grove_guardian", [-2, 0.5]);
 
 		const anim = async () => {
-			const chara = await Chara.summon(clientState, unit);
+			const chara = await Chara.summon(unit);
 
 			cont.add(chara);
 
@@ -544,7 +543,7 @@ const BUTTON_Y = Constants.SCREEN_HEIGHT - 80;
 
 let isOpen = false;
 
-export async function openTutorial(clientState: ClientState): Promise<void> {
+export async function openTutorial(): Promise<void> {
 	if (isOpen) return;
 	isOpen = true;
 
@@ -560,12 +559,12 @@ export async function openTutorial(clientState: ClientState): Promise<void> {
 	);
 	overlay.setInteractive();
 
-	let slide = slides[currentSlide](clientState);
+	let slide = slides[currentSlide]();
 
 	const updateSlide = () => {
 		container.remove(slide, true);
 
-		slide = slides[currentSlide](clientState);
+		slide = slides[currentSlide]();
 
 		container.add(slide);
 

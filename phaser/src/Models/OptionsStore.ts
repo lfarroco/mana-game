@@ -1,6 +1,7 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
 import { ClientState, type PlayerSettings } from "@Models/ClientState";
+import { env } from "../Env";
 
 let clientStateRef: ClientState | null = null;
 
@@ -16,12 +17,12 @@ const currentOptions: PlayerSettings = {
 	compactTooltips: false,
 };
 
-export const init = (clientState: ClientState) => {
-	clientStateRef = clientState;
+export const init = () => {
+	clientStateRef = env.state;
 	const savedOptions = loadOptionsFromStorage();
 	if (savedOptions) {
 		Object.assign(currentOptions, savedOptions);
-		Object.assign(clientState.settings, savedOptions);
+		Object.assign(env.state.settings, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
 	io.game.sound.volume = currentOptions.masterVolume;

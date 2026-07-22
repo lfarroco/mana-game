@@ -5,9 +5,8 @@ import * as actionButtons from "./Components/actionButtons";
 import * as seedInput from "./Components/seedInput";
 import * as background from "./Components/background";
 import * as title from "./Components/title";
-import { ClientState } from "@Models/ClientState";
 
-export function create(clientState: ClientState) {
+export function create() {
 	[
 		background,
 		paginationDots,
@@ -16,5 +15,5 @@ export function create(clientState: ClientState) {
 		actionButtons,
 		seedInput,
 		title
-	].forEach(c => c.create(clientState));
+	].forEach(c => c.create());
 }

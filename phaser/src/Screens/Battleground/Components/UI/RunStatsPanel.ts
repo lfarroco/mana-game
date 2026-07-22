@@ -1,11 +1,10 @@
 import * as i18n from "@i18n/i18n";
 import * as ResultsConfig from "../Results/ResultsConfig";
 import * as Constants from "@Constants";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../../Env";
 
 export function createRunStatsPanel(
-	clientState: ClientState,
-	runStats = clientState.session.runStats
+	runStats = env.state.session.runStats
 ): Phaser.GameObjects.Container {
 
 	if (!runStats) {

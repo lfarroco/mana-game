@@ -163,8 +163,8 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
         const env = createEnv(
             this,
             clientState,
-            (action) => GameServer.getServer(clientState)
-                .handleAction(clientState, clientState.session.player_id, action),
+            (action) => GameServer.getServer()
+                .handleAction(clientState.session.player_id, action),
         );
 
         // ~~~ Bridge to legacy io global (transitional — removed in Phase 5) ~~~
@@ -172,10 +172,10 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
-        OptionsStore.init(clientState);
+        OptionsStore.init();
 
         StatsStore.init();
 
-        TitleScreen.create(clientState);
+        TitleScreen.create();
     }
 }

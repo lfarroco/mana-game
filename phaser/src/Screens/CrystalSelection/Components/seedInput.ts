@@ -1,12 +1,12 @@
 import * as constants from "@Constants";
 import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./keyboard";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../Env";
 
 let seedText: Phaser.GameObjects.Text;
 
-export function create(clientState: ClientState) {
-	const currentSeed = clientState.session.seed;
+export function create() {
+	const currentSeed = env.state.session.seed;
 
 	const x = constants.SCREEN_WIDTH - 20;
 	const y = constants.SCREEN_HEIGHT - 20;
@@ -47,7 +47,7 @@ export function create(clientState: ClientState) {
 
 	// Events
 	bg.on("pointerdown", () => {
-		keyboard.create(clientState, seedText);
+		keyboard.create(seedText);
 	});
 
 	// Hover effects

@@ -6,7 +6,7 @@ import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../Env";
 
 const initialForceStats: () => ForceStats = () => ({
 	display: null,
@@ -26,13 +26,13 @@ const statsState: ForceStatsState = ({
 let currentCombatState: import("@game/Models").CombatState | undefined;
 let currentSession: import("@game/Models").SessionData | undefined;
 
-export function setCombatClientState(clientState: ClientState) {
-	currentCombatState = clientState.combatState;
-	currentSession = clientState.session;
+export function setCombatClientState() {
+	currentCombatState = env.state.combatState;
+	currentSession = env.state.session;
 }
 
-export const createForceStats = (clientState: ClientState) => {
-	setCombatClientState(clientState);
+export const createForceStats = () => {
+	setCombatClientState();
 	[
 		Constants.FORCE_ID_PLAYER,
 		Constants.FORCE_ID_CPU,

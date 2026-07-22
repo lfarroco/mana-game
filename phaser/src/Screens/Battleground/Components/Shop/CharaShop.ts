@@ -1,6 +1,6 @@
 import * as Card from "@game/Entities/Card";
 import * as Board from "@Components/Board/Board";
-import { ClientState, getUnitAt } from "@Models/ClientState";
+import { getUnitAt } from "@Models/ClientState";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
@@ -13,6 +13,7 @@ import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import * as GameController from "../../../../GameController";
+import { env } from "../../../../Env";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -23,10 +24,9 @@ const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
 export async function renderTavernCharas(
-	clientState: ClientState,
 	cardDefs: Models.CardDefinition[]): Promise<Chara.Chara[]> {
 
-	const ownedCardIds = new Set(clientState.session.team.units.map((u) => u.cardId));
+	const ownedCardIds = new Set(env.state.session.team.units.map((u) => u.cardId));
 
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
 		const unit = Card.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
@@ -81,7 +81,6 @@ export async function renderTavernCharas(
 		ShopPanel.add([bgRect, rowBorder]);
 
 		const chara = await Chara.create(
-			clientState,
 			unit,
 			{ isShopChara: true }
 		);
@@ -89,7 +88,7 @@ export async function renderTavernCharas(
 			sc.ITEM_BASE_X,
 			sc.ITEM_BASE_Y + offsetY - 10
 		);
-		initShopCharaInput(clientState, chara, unit);
+		initShopCharaInput(chara, unit);
 
 		chara.on("pointerover", () => {
 			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
@@ -116,7 +115,7 @@ export async function renderTavernCharas(
 			chara.emit("pointerup", pointer);
 		});
 
-		const existingUnit = clientState.session.team.units.find((u) => u.cardId === spec.id);
+		const existingUnit = env.state.session.team.units.find((u) => u.cardId === spec.id);
 		if (existingUnit) {
 			unit.rank = existingUnit.rank;
 			upgradeUnitEffects(unit);
@@ -174,7 +173,6 @@ export async function renderTavernCharas(
 }
 
 function initShopCharaInput(
-	clientState: ClientState,
 	chara: Chara.Chara,
 	unit: Models.Unit
 ): void {
@@ -218,7 +216,6 @@ function initShopCharaInput(
 		const vec = chara.getData("dragStartVec") as [number, number];
 
 		void handleItemDragPurchaseRequested(
-			clientState,
 			unit,
 			unit.id,
 			tile,
@@ -256,14 +253,13 @@ function initShopCharaInput(
 		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD)
 			return;
 
-		const existingUnit = clientState.session.team.units.find((u) => u.cardId === unit.cardId);
-		if ((!existingUnit || existingUnit.rank > 3) && clientState.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
+		const existingUnit = env.state.session.team.units.find((u) => u.cardId === unit.cardId);
+		if ((!existingUnit || existingUnit.rank > 3) && env.state.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
 			uiEvents.onPurchaseFailed(i18n.getName(unit.cardId), "PARTY_FULL");
 			return;
 		}
 
 		void GameController.purchaseUnit({
-			clientState,
 			unitId: unit.cardId,
 			targetSlot: null,
 			shopCharaId: unit.id
@@ -273,14 +269,13 @@ function initShopCharaInput(
 }
 
 async function handleItemDragPurchaseRequested(
-	clientState: ClientState,
 	shopUnitData: Models.Unit,
 	shopCharaId: string,
 	targetTile: Vec2,
 	dragStartX: number,
 	dragStartY: number
 ): Promise<void> {
-	const { session } = clientState;
+	const { session } = env.state;
 	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
@@ -304,5 +299,5 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	await GameController.purchaseUnit({ clientState, unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
+	await GameController.purchaseUnit({ unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
 }

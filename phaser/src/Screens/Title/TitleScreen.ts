@@ -8,7 +8,6 @@ import * as Components from "./Components"
 import pkg from "../../../package.json";
 import * as Effects from "./Effects"
 import * as Models from "@game/Models"
-import { ClientState } from "@Models/ClientState";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: Models.Event<void>
@@ -21,7 +20,7 @@ export const components = Components;
 export let mainButtonsContainer: Container;
 
 let initialized = false;
-function init(clientState: ClientState) {
+function init() {
 	if (initialized) return;
 	initialized = true;
 
@@ -30,26 +29,26 @@ function init(clientState: ClientState) {
 		resumeGameButtonClicked: io.createEvent<void>("resumeGameButtonClicked"),
 	}
 
-	events.newGameButtonClicked.listen(Effects.startGame(clientState));
+	events.newGameButtonClicked.listen(Effects.startGame);
 	events.resumeGameButtonClicked.listen(
-		Effects.resumeGame(clientState)
+		Effects.resumeGame
 	);
 
 }
 
-export function create(clientState: ClientState) {
+export function create() {
 
-	init(clientState);
+	init();
 
 	Components.cloudsBg.create();
 
 	Components.logo.render();
 
-	renderMainButtons(clientState);
+	renderMainButtons();
 
-	Components.howToPlay.create(clientState);
+	Components.howToPlay.create();
 
-	checkUnlocks(clientState);
+	checkUnlocks();
 
 	displayVersion();
 
@@ -59,16 +58,16 @@ export function create(clientState: ClientState) {
 
 }
 
-function renderMainButtons(clientState: ClientState) {
+function renderMainButtons() {
 	mainButtonsContainer = io.Container([
-		() => Components.singlePlayerButton.create(clientState, 500).container,
+		() => Components.singlePlayerButton.create(500).container,
 		() => Components.arenaButton.create(600).container,
-		() => Components.optionsButton.create(clientState, 700).container,
+		() => Components.optionsButton.create(700).container,
 		() => Components.linksButton.create(800).container,
 		environment.isElectron() ?
 			() => Components.exitButton.create(900).container :
 			null,
-		() => Components.languageButton.create(clientState).container,
+		() => Components.languageButton.create().container,
 	]);
 }
 
@@ -83,11 +82,11 @@ function displayVersion() {
 
 }
 
-async function checkUnlocks(clientState: ClientState) {
+async function checkUnlocks() {
 	const pendingUnlocks = StatsStore.getPendingUnlocks();
 
 	for (const unitId of pendingUnlocks) {
-		await Components.UnlockModal.render(clientState, unitId);
+		await Components.UnlockModal.render(unitId);
 		StatsStore.confirmUnlock(unitId);
 		await new Promise((resolve) => setTimeout(resolve, 300));
 	}

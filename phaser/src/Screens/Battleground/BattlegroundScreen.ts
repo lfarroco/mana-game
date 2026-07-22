@@ -10,7 +10,7 @@ import * as Components from "./Components";
 import * as Phases from "./Phases";
 import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
-import { ClientState, initialState } from "@Models/ClientState";
+import { initialState } from "@Models/ClientState";
 import { env } from "../../Env";
 import { BattlegroundEvent } from "../../Events";
 
@@ -47,14 +47,14 @@ type SessionHudSnapshot = {
 
 let previousSessionHudSnapshot: SessionHudSnapshot | null = null;
 
-const createSessionHudSnapshot = (session: Models.SessionData): SessionHudSnapshot => ({
-	round: session.round,
-	wins: session.wins,
-	lives: getRemainingLives(session),
+const createSessionHudSnapshot = (): SessionHudSnapshot => ({
+	round: env.state.session.round,
+	wins: env.state.session.wins,
+	lives: getRemainingLives(env.state.session),
 });
 
-function updateHudFromSessionChanges(clientState: ClientState, _payload: { previousPhase: Models.PhaseType }): void {
-	const currentSnapshot = createSessionHudSnapshot(clientState.session);
+function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType }): void {
+	const currentSnapshot = createSessionHudSnapshot();
 
 	if (!previousSessionHudSnapshot) {
 		previousSessionHudSnapshot = currentSnapshot;
@@ -76,19 +76,19 @@ function updateHudFromSessionChanges(clientState: ClientState, _payload: { previ
 }
 
 let initialized = false;
-function init(clientState: ClientState) {
+function init() {
 	if (initialized) return;
 	initialized = true;
 
-	BattlegroundEvent.phaseFinished.listen(handleCurrentPhase(clientState));
-	BattlegroundEvent.phaseFinished.listen((payload) => updateHudFromSessionChanges(clientState, payload));
+	BattlegroundEvent.phaseFinished.listen(handleCurrentPhase);
+	BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges);
 	BattlegroundEvent.newRunRequested.listen(() => {
-		Object.assign(clientState, initialState());
-		void transitionFromBattleground(() => io.screens.crystalSelection(clientState));
+		Object.assign(env.state, initialState());
+		void transitionFromBattleground(io.screens.crystalSelection);
 	});
 	BattlegroundEvent.mainMenuRequested.listen(() => {
-		Object.assign(clientState, initialState());
-		void transitionFromBattleground(() => io.screens.title.create(clientState));
+		Object.assign(env.state, initialState());
+		void transitionFromBattleground(io.screens.title.create);
 	});
 
 }
@@ -104,11 +104,11 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 };
 
 // TODO: should be part of the player board logic
-const syncPlayerBoardUnits = async (clientState: ClientState): Promise<void> => {
-	const summonPromises = clientState.session.team.units.map(async (unit, index) => {
+const syncPlayerBoardUnits = async (): Promise<void> => {
+	const summonPromises = env.state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
 			await animation.delay(index * 200);
-			await Chara.summon(clientState, unit, true);
+			await Chara.summon(unit, true);
 			return;
 		}
 
@@ -118,7 +118,7 @@ const syncPlayerBoardUnits = async (clientState: ClientState): Promise<void> => 
 
 		const chara = Chara.mustGetCharaById(unit.id);
 		Chara.destroy(chara);
-		await Chara.summon(clientState, unit, true);
+		await Chara.summon(unit, true);
 	});
 
 	await Promise.all(summonPromises);
@@ -141,12 +141,12 @@ const syncPlayerBoardUnits = async (clientState: ClientState): Promise<void> => 
 // 	SessionManager.updateSession(nextSession.player_id, nextSession);
 // };
 
-export const create = async (clientState: ClientState) => {
+export const create = async () => {
 
-	init(clientState);
+	init();
 
-	Components.create(clientState);
-	previousSessionHudSnapshot = createSessionHudSnapshot(clientState.session);
+	Components.create();
+	previousSessionHudSnapshot = createSessionHudSnapshot();
 
 	AudioManager.playMusic("music_battlemap_vetruv");
 
@@ -157,48 +157,47 @@ export const create = async (clientState: ClientState) => {
 
 	// ~~~~~ // ~~~~~ //
 
-	handleCurrentPhase(clientState)({});
+	handleCurrentPhase({});
 
 };
 
 async function executePhase(
-	clientState: ClientState,
 	phase: Models.PhaseType,
 	previousPhase?: Models.PhaseType,
 ) {
 
 	if (phase !== 'combat' && previousPhase !== 'combat') {
-		await syncPlayerBoardUnits(clientState);
+		await syncPlayerBoardUnits();
 	}
 
 	switch (phase) {
 		case "encounter":
-			return await Encounter.displayOptions(clientState);
+			return await Encounter.displayOptions();
 
 		case "pre_combat":
-			return await Encounter.displayOptions(clientState);
+			return await Encounter.displayOptions();
 
 		case "combat": {
-			return await handleCombatPhase.handleCombatPhase(clientState);
+			return await handleCombatPhase.handleCombatPhase();
 		}
 
 		case "shop":
-			return Phases.handleShopPhase(clientState);
+			return Phases.handleShopPhase();
 
 		case "upgrade_core":
-			return await Phases.handleUpgradeCorePhase(clientState);
+			return await Phases.handleUpgradeCorePhase();
 
 		case "add_reaction_core":
-			return await Phases.handleAddReactionCorePhase(clientState);
+			return await Phases.handleAddReactionCorePhase();
 
 		case "orb_shop":
-			return await Phases.handleOrbShopPhase(clientState);
-
-		case "victory":
-			return await Phases.handleVictoryPhase(clientState);
+			return await Phases.handleOrbShopPhase();
 
 		case "game_over":
-			return await Phases.handleGameOverPhase(clientState);
+			return await Phases.handleGameOverPhase();
+
+		case "victory": // TODO: handle viictory
+			return await Phases.handleGameOverPhase();
 
 		default:
 			((_: never) => { })(phase)
@@ -206,18 +205,16 @@ async function executePhase(
 	}
 }
 
-const handleCurrentPhase = (
-	clientState: ClientState,
-) => async ({ previousPhase }: {
+const handleCurrentPhase = async ({ previousPhase }: {
 	previousPhase?: Models.PhaseType
 }) => {
 
-		//updateSessionState(state.session);
+	//updateSessionState(state.session);
 
-		await executePhase(clientState, clientState.session.phase, previousPhase);
+	await executePhase(env.state.session.phase, previousPhase);
 
-		//events.phaseFinished.emit(previousPhase);
+	//events.phaseFinished.emit(previousPhase);
 
-	}
+}
 
 

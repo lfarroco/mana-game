@@ -13,7 +13,7 @@ import * as Constants from "@game/Constants";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { completeCombatEncounter } from "../../../../GameController";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../../../../Env";
 
 // Store the last combat's tracker state for the results UI to read.
 // This lives here because it's the combat phase handler's responsibility
@@ -47,31 +47,31 @@ const resumeCombat = (): void => {
 };
 
 let initialized = false;
-function init(clientState: ClientState) {
+function init() {
 	if (initialized) return;
 	initialized = true;
 
-	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase(clientState));
-	io.screens.battleground.events.combatContinueRequested.listen(() => handleCombatContinueRequested(clientState));
-	io.screens.battleground.events.combatReplayRequested.listen(handleCombatReplayRequested(clientState));
+	io.screens.battleground.events.phaseFinished.listen(finishCombatPhase);
+	io.screens.battleground.events.combatContinueRequested.listen(handleCombatContinueRequested);
+	io.screens.battleground.events.combatReplayRequested.listen(handleCombatReplayRequested());
 	io.screens.battleground.events.combatPauseRequested.listen(pauseCombat);
 	io.screens.battleground.events.combatResumeRequested.listen(resumeCombat);
 
 }
 
-const finishCombatPhase = (clientState: ClientState) => async ({ previousPhase }: {
+const finishCombatPhase = async ({ previousPhase }: {
 	previousPhase: Models.PhaseType
 }): Promise<void> => {
 	if (previousPhase !== "combat") return;
 
 	cleanupPlayback();
 	activeCombatState = null;
-	clientState.combatState = undefined;
-	await resetBoard(clientState, true);
+	env.state.combatState = undefined;
+	await resetBoard(true);
 	namesDisplay.updateNameDisplay({ enemyName: "" });
 
 	// Clean up enemy ForceStats and reset player's to post-combat state
-	ForceStats.setCombatClientState(clientState);
+	ForceStats.setCombatClientState();
 	ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
 	ForceStats.resetPlayerForceStats();
 
@@ -99,14 +99,11 @@ const getCombatResultType = (outcome: string) =>
 
 const showCombatResults = ({
 	resultType,
-	clientState,
 }: {
 	resultType: "defeat" | "victory";
-	clientState: ClientState;
 }) => {
 	return new Promise<void>((resultHandled) => {
 		void ResultsUI.displayResults(
-			clientState,
 			resultType,
 			() => {
 				resultHandled();
@@ -121,32 +118,26 @@ const showCombatResults = ({
 	});
 };
 
-const startCombatPlayback = async ({
-	clientState,
-}: {
-	clientState: ClientState,
-}) => {
-	await setupCombatBoard(clientState);
+const startCombatPlayback = async () => {
+	await setupCombatBoard();
 
-	ForceStats.createForceStats(clientState);
+	ForceStats.createForceStats();
 
 	await animation.delay(COMBAT_START_DELAY_MS);
 
 	const controller = CombatPlaybackController.createCombatPlaybackController(
-		clientState,
-		clientState.combatState!.logs,
+		env.state.combatState!.logs,
 		async (outcome) => {
 			Board.setIsInputEnabled(true);
 			lastCombatTrackerState = controller.getEnv().combatStates.combatStatsTrackerState;
 			await showCombatResults({
 				resultType: getCombatResultType(outcome),
-				clientState,
 			});
 		}
 	);
 	const updateHandler = (time: number, delta: number) => {
 		if (isPaused) return;
-		controller.updateFrame(clientState.combatState!, time, delta);
+		controller.updateFrame(env.state.combatState!, time, delta);
 		if (!controller.isActive()) {
 			io.scene.events.off("update", updateHandler);
 		}
@@ -160,69 +151,64 @@ const startCombatPlayback = async ({
 	};
 };
 
-async function beginCombatPlayback(clientState: ClientState): Promise<void> {
-	if (!activeCombatState || clientState.session.phase !== "combat") {
+async function beginCombatPlayback(): Promise<void> {
+	if (!activeCombatState || env.state.session.phase !== "combat") {
 		return;
 	}
 
 	cleanupPlayback();
-	stopActivePlayback = await startCombatPlayback({
-		clientState
-	});
+	stopActivePlayback = await startCombatPlayback();
 }
 
-function handleCombatContinueRequested(clientState: ClientState): void {
-	if (clientState.session.phase !== "combat") {
+function handleCombatContinueRequested(): void {
+	if (env.state.session.phase !== "combat") {
 		return;
 	}
 
-	void completeCombatEncounter(clientState);
+	void completeCombatEncounter();
 }
 
-const handleCombatReplayRequested = (clientState: ClientState) => () => {
-	if (clientState.session.phase !== "combat") {
+const handleCombatReplayRequested = () => () => {
+	if (env.state.session.phase !== "combat") {
 		return;
 	}
 
-	void beginCombatPlayback(clientState);
+	void beginCombatPlayback();
 }
 
-const setupCombatBoard = async (
-	clientState: ClientState,
-): Promise<void> => {
+const setupCombatBoard = async (): Promise<void> => {
 	Board.setIsInputEnabled(false);
 	Board.setEnemyBoardVisible(true);
 
 	namesDisplay.updateNameDisplay({
-		enemyName: clientState.combatState!.enemyPlayerName ?? "CPU",
+		enemyName: env.state.combatState!.enemyPlayerName ?? "CPU",
 	});
 
 	Chara.clearAll();
 
-	const initialCombatUnits = getInitialCombatUnits(clientState.combatState!);
+	const initialCombatUnits = getInitialCombatUnits(env.state.combatState!);
 
-	const summonPromises = initialCombatUnits.map((unit) => Chara.summon(clientState, unit, false));
+	const summonPromises = initialCombatUnits.map((unit) => Chara.summon(unit, false));
 	await Promise.all(summonPromises);
 	initialCombatUnits.forEach(resetUnitStats);
 };
 
-export async function handleCombatPhase(clientState: ClientState): Promise<void> {
+export async function handleCombatPhase(): Promise<void> {
 
-	init(clientState);
+	init();
 
-	const combatState = clientState.combatState;
+	const combatState = env.state.combatState;
 
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
 	activeCombatState = combatState;
-	await beginCombatPlayback(clientState);
+	await beginCombatPlayback();
 }
 
 
 export async function resetBoard(
-	clientState: ClientState,
 	shouldResummonUnits: boolean = true,
 ): Promise<void> {
 
@@ -235,9 +221,9 @@ export async function resetBoard(
 	}
 
 	if (shouldResummonUnits) {
-		const summonPromises = clientState.session.team.units.map(async (unit, index) => {
+		const summonPromises = env.state.session.team.units.map(async (unit, index) => {
 			await animation.delay(index * 200);
-			await Chara.summon(clientState, unit, true);
+			await Chara.summon(unit, true);
 		});
 		await Promise.all(summonPromises);
 	}
