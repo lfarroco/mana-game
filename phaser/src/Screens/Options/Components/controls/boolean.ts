@@ -38,7 +38,7 @@ export function boolean(
 		callback: () => {
 			const newValue = !getValue();
 			setValue(newValue);
-			io.SetText(toggleButton.text, newValue ? onText : offText);
+			toggleButton.text.setText(newValue ? onText : offText);
 		},
 		width: OptionsScreen.BUTTONS.BOOLEAN_TOGGLE_WIDTH,
 	});

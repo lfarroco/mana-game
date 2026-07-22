@@ -6,7 +6,7 @@ import * as theme from "../Screens/Battleground/Components/UI/theme";
 import * as animation from "@Utils/animation";
 import * as colorUtils from "@Utils/colorUtils";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
-import { ClientState } from "@Models/ClientState";
+import { env } from "../Env";
 
 const DEFAULT_ACCENT_COLOR = 0x7ae7ff;
 const SHARD_TEXTURE_KEY = "upgrade-crystal-shard";
@@ -25,7 +25,6 @@ type UpgradeCrystalSelectionEffectProps = {
 	cardSize: Size;
 	cardObjects: Phaser.GameObjects.GameObject[];
 	accentColor?: number;
-	clientState: ClientState;
 };
 
 export async function playUpgradeCrystalSelectionEffect({
@@ -33,9 +32,8 @@ export async function playUpgradeCrystalSelectionEffect({
 	cardSize,
 	cardObjects,
 	accentColor = DEFAULT_ACCENT_COLOR,
-	clientState,
 }: UpgradeCrystalSelectionEffectProps): Promise<void> {
-	const target = getCrystalTargetPoint(clientState);
+	const target = getCrystalTargetPoint();
 	const projectileColors = [
 		theme.mixHexColors(accentColor, 0xffffff, 0.55),
 		accentColor,
@@ -49,8 +47,8 @@ export async function playUpgradeCrystalSelectionEffect({
 		targetOrb.update(time);
 	};
 
-	io.scene.events.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
-	io.scene.time.delayedCall(TARGET_ORB_DISSOLVE_DELAY_MS, () => {
+	env.scene.events.on(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+	env.scene.time.delayedCall(TARGET_ORB_DISSOLVE_DELAY_MS, () => {
 		targetOrb.startDissolve();
 	});
 
@@ -96,7 +94,7 @@ export async function playUpgradeCrystalSelectionEffect({
 
 		await animation.delay(120);
 	} finally {
-		io.scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
+		env.scene.events.off(Phaser.Scenes.Events.UPDATE, targetOrbUpdate);
 		shardEmitter.destroy();
 		targetOrb.destroy();
 	}
@@ -107,9 +105,9 @@ function createCardDissolveEmitter(
 	[w, h]: Size,
 	colors: number[]
 ): Phaser.GameObjects.Particles.ParticleEmitter {
-	ensureShardTexture(io.scene);
+	ensureShardTexture(env.scene);
 
-	return io.scene.add
+	return env.scene.add
 		.particles(x, y, SHARD_TEXTURE_KEY, {
 			tint: colors,
 			lifespan: { min: 260, max: 520 },
@@ -155,7 +153,7 @@ function createCrystalAbsorptionOrb(
 
 	const shader = orb.getShader();
 
-	io.scene.tweens.add({
+	env.scene.tweens.add({
 		targets: shader,
 		scaleX: 1.08,
 		scaleY: 1.08,
@@ -167,8 +165,8 @@ function createCrystalAbsorptionOrb(
 	return orb;
 }
 
-function getCrystalTargetPoint(clientState: ClientState): Vec2 {
-	const core = Card.getPlayerPersistentCore(clientState.session);
+function getCrystalTargetPoint(): Vec2 {
+	const core = Card.getPlayerPersistentCore(env.state.session);
 
 	if (Chara.hasCharaById(core.id)) {
 		const coreChara = Chara.mustGetCharaById(core.id);

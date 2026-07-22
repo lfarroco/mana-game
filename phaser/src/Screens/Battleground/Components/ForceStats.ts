@@ -103,7 +103,7 @@ function createShieldbar(
 	shieldBar.clear();
 	shieldBar
 		.setInteractive(
-			io.Rect([0, 0], [barWidth, barHeight]),
+			new Phaser.Geom.Rectangle(0, 0, barWidth, barHeight),
 			Phaser.Geom.Rectangle.Contains
 		)
 		.on("pointerover", () => {
@@ -130,7 +130,7 @@ function createHealthBar(
 	const healthBar = io.Rectangle(healthBarPos, [barWidth, barHeight], 0x29a1b9ff, 1);
 	healthBar
 		.setInteractive(
-			io.Rect([0, 0], [barWidth, barHeight]),
+			new Phaser.Geom.Rectangle(0, 0, barWidth, barHeight),
 			Phaser.Geom.Rectangle.Contains
 		)
 		.on("pointerover", () => {
@@ -159,7 +159,7 @@ function createPoisonDisplay(
 		100
 	);
 	poisonDisplay.bg
-		.setInteractive(io.Rect([0, 0], poisonDisplay.size), Phaser.Geom.Rectangle.Contains)
+		.setInteractive(new Phaser.Geom.Rectangle(0, 0, ...poisonDisplay.size), Phaser.Geom.Rectangle.Contains)
 		.on("pointerover", () => {
 			Tooltip.renderTooltip(
 				x + 450,
@@ -210,7 +210,7 @@ function createShieldDisplay(
 		100
 	);
 	shieldDisplay.bg
-		.setInteractive(io.Rect([0, 0], shieldDisplay.size), Phaser.Geom.Rectangle.Contains)
+		.setInteractive(new Phaser.Geom.Rectangle(0, 0, ...shieldDisplay.size), Phaser.Geom.Rectangle.Contains)
 		.on("pointerover", () => {
 			Tooltip.renderTooltip(
 				x + 150,

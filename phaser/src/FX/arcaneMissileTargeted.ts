@@ -2,6 +2,7 @@ import * as EnergyBeam from "./EnergyBeam";
 import * as animation from "@Utils/animation";
 import { getSettings } from "@Models/OptionsStore";
 import * as Geometry from "@game/Geometry";
+import { env } from "../Env";
 
 export interface TargetedArcaneMissileOptions {
 	colors?: number[];
@@ -27,7 +28,7 @@ export async function arcaneMissileTargeted(
 	target: Vec2,
 	options: TargetedArcaneMissileOptions = {}
 ): Promise<void> {
-	const scene = io.scene;
+	const scene = env.scene;
 	const {
 		colors = [0x00ffff, 0x87ceeb, 0xadd8e6], // Light blue neon colors
 		amplitudeMin = 5,

@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { env } from "../Env";
 
 export type BeamOptions = {
 	start: Vec2;
@@ -26,8 +27,8 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	constructor(
 		config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options
 	) {
-		super(io.scene, config);
-		io.scene.add.existing(this);
+		super(env.scene, config);
+		env.scene.add.existing(this);
 
 		this.setBlendMode(Phaser.BlendModes.ADD);
 

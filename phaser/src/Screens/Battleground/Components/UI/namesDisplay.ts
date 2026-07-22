@@ -1,4 +1,5 @@
 import * as c from "@Constants";
+import { env } from "../../../../Env";
 
 const LEFT_MARGIN = 40;
 const RIGHT_MARGIN = 40;
@@ -29,7 +30,7 @@ const createNameText = (
 	x: number,
 	align: "left" | "right"
 ): Phaser.GameObjects.Text => {
-	const text = io.scene.add.text(x, c.SCREEN_HEIGHT - BOTTOM_MARGIN, "", {
+	const text = env.scene.add.text(x, c.SCREEN_HEIGHT - BOTTOM_MARGIN, "", {
 		...c.titleTextConfig,
 		fontSize: "24px",
 		strokeThickness: 10,

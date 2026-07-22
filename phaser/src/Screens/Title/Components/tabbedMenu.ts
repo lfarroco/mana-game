@@ -79,12 +79,12 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 
 			closeTab();
 			activeContentContainer = io.Container(tab.buildContent(api));
-			io.AddChildren(container, [activeContentContainer]);
+			container.add([activeContentContainer]);
 			io.BringToTop(activeContentContainer);
 			activeTabKey = key;
 		},
 		addMenuButtons: (buttons) => {
-			io.AddChildren(container, buttons);
+			container.add(buttons);
 		},
 		getMenuButtonPosition: (index) => [menuX, menuStartY + menuSpacing * index],
 		getContentButtonPosition: (index) =>
@@ -97,7 +97,7 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 		},
 	};
 
-	io.AddChildren(container, [background, divider]);
+	container.add([background, divider]);
 
 	return api;
 }

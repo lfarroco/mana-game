@@ -36,14 +36,14 @@ let isPaused = false;
 
 const pauseCombat = (): void => {
 	isPaused = true;
-	io.scene.tweens.pauseAll();
-	io.scene.time.paused = true;
+	env.scene.tweens.pauseAll();
+	env.scene.time.paused = true;
 };
 
 const resumeCombat = (): void => {
 	isPaused = false;
-	io.scene.tweens.resumeAll();
-	io.scene.time.paused = false;
+	env.scene.tweens.resumeAll();
+	env.scene.time.paused = false;
 };
 
 let initialized = false;
@@ -79,8 +79,8 @@ const finishCombatPhase = async ({ previousPhase }: {
 
 function cleanupPlayback(): void {
 	isPaused = false;
-	io.scene.tweens.resumeAll();
-	io.scene.time.paused = false;
+	env.scene.tweens.resumeAll();
+	env.scene.time.paused = false;
 	stopActivePlayback();
 	stopActivePlayback = () => { };
 	lastCombatTrackerState = null;
@@ -139,14 +139,14 @@ const startCombatPlayback = async () => {
 		if (isPaused) return;
 		controller.updateFrame(env.state.combatState!, time, delta);
 		if (!controller.isActive()) {
-			io.scene.events.off("update", updateHandler);
+			env.scene.events.off("update", updateHandler);
 		}
 	};
 
-	io.scene.events.on("update", updateHandler);
+	env.scene.events.on("update", updateHandler);
 
 	return () => {
-		io.scene.events.off("update", updateHandler);
+		env.scene.events.off("update", updateHandler);
 		controller.stop();
 	};
 };

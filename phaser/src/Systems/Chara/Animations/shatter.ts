@@ -2,6 +2,7 @@ import { tween } from "@Utils/animation";
 import Phaser from "phaser";
 import { Chara, mustGetState } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
+import { env } from "../../../Env";
 
 // Shatter death animation constants
 const SHAKE_OFFSET_X = 10;
@@ -32,7 +33,7 @@ export async function shatter(chara: Chara) {
 
 	sprite.visible = false;
 
-	const image = io.scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
+	const image = env.scene.add.rexShatterImage(chara.x, chara.y, state.sprite.texture.key);
 
 	image.setScale(sprite.scaleX, sprite.scaleY);
 

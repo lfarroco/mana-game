@@ -1,5 +1,6 @@
 import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
+import { env } from "../Env";
 
 export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,
@@ -29,7 +30,7 @@ export async function impactEffect({ location, pointA, pointB }: ImpactEffctProp
 		}
 	);
 
-	const particles = io.scene.add.particles(location[0], location[1], Assets.images.white_dot.key, {
+	const particles = env.scene.add.particles(location[0], location[1], Assets.images.white_dot.key, {
 		speed: IMPACT_EFFECT_CONFIG.PARTICLE_SPEED,
 		lifespan: IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN,
 		angle: {

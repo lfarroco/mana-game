@@ -1,6 +1,7 @@
 import * as animation from "@Utils/animation";
 import * as Assets from "@assets";
 import { getSettings } from "@Models/OptionsStore";
+import { env } from "../Env";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
@@ -30,7 +31,7 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 	if (particlesOption === "low") multiplier = 0.5;
 	else if (particlesOption === "high") multiplier = 2;
 
-	const summonEffect = io.scene.add.particles(x, y, Assets.images.light_pillar.key, {
+	const summonEffect = env.scene.add.particles(x, y, Assets.images.light_pillar.key, {
 		lifespan: LIFESPAN,
 		scale: { start: SCALE_START, end: SCALE_END },
 		alpha: { start: 1, end: 0 },

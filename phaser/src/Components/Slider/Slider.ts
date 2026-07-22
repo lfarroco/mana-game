@@ -1,4 +1,5 @@
 import * as AudioManager from "@Systems/AudioManager";
+import { env } from "../../Env";
 
 export type SliderConfig = {
 	width: number;
@@ -32,10 +33,10 @@ export function createSlider([x, y]: Vec2, config: SliderConfig): Slider {
 	let currentValue = Math.max(min, Math.min(max, initialValue));
 	let isDragging = false;
 
-	const container = io.scene.add.container();
+	const container = env.scene.add.container();
 
 	// Track glow (outer glow effect)
-	const trackGlow = io.scene.add.graphics();
+	const trackGlow = env.scene.add.graphics();
 	trackGlow.lineStyle(4, TRACK_GLOW_COLOR, 0.3);
 	trackGlow.strokeRoundedRect(
 		x - width / 2 - 2,
@@ -47,7 +48,7 @@ export function createSlider([x, y]: Vec2, config: SliderConfig): Slider {
 	container.add(trackGlow);
 
 	// Track background (unfilled part)
-	const trackBackground = io.scene.add.graphics();
+	const trackBackground = env.scene.add.graphics();
 	trackBackground.fillStyle(TRACK_COLOR, 1);
 	trackBackground.lineStyle(2, TRACK_BORDER_COLOR, 0.5);
 	trackBackground.fillRoundedRect(
@@ -67,15 +68,15 @@ export function createSlider([x, y]: Vec2, config: SliderConfig): Slider {
 	container.add(trackBackground);
 
 	// Track fill (filled part showing progress)
-	const trackFill = io.scene.add.graphics();
+	const trackFill = env.scene.add.graphics();
 	container.add(trackFill);
 
 	// Handle
-	const handle = io.scene.add.graphics();
+	const handle = env.scene.add.graphics();
 	container.add(handle);
 
 	// Interactive area for the entire slider (track + handle area)
-	const hitArea = io.scene.add.rectangle(
+	const hitArea = env.scene.add.rectangle(
 		x,
 		y,
 		width + HANDLE_RADIUS * 2,

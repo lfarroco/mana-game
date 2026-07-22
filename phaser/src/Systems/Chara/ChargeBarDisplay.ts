@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "@game/Models";
+import { env } from "../../Env";
 
 export type CharaBars = {
 	chargeBar: Graphics;
@@ -9,7 +10,7 @@ export type CharaBars = {
 const charaBarsMap = new Map<string, CharaBars>();
 
 export function create(unit: Unit, container: Container) {
-	const chargeBar = io.scene.add.graphics();
+	const chargeBar = env.scene.add.graphics();
 
 	container.add([chargeBar]);
 

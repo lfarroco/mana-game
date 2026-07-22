@@ -1,6 +1,7 @@
 import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
 import * as impactEffect from "./impactEffect";
+import { env } from "../Env";
 
 // TODO: try this for some alternative effects (power up, absorb,orb upgrade)
 
@@ -74,7 +75,7 @@ function fireball(
 		{ x: sx, y: sy },
 		{ x: tx, y: ty },
 	);
-	const particles = io.scene.add.particles(sx, sy, Assets.images.white_dot.key, {
+	const particles = env.scene.add.particles(sx, sy, Assets.images.white_dot.key, {
 		// make particles move in the direction of the angle, using the speed
 		speedX: {
 			min:

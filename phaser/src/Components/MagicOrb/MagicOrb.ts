@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import * as Board from "@Components/Board/Board";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import { magicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
+import { env } from "../../Env";
 ;
 
 
@@ -53,7 +54,7 @@ export class MagicOrb {
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = io.scene.time.now;
+		this.startTime = env.scene.time.now;
 		this.originalPosition = { x, y };
 
 		const animationPhaseOffset = Math.random() * Math.PI * 2;
@@ -80,7 +81,7 @@ export class MagicOrb {
 
 		console.debug("MagicOrb", "BaseShader created successfully");
 
-		this.shader = io.scene.add
+		this.shader = env.scene.add
 			.shader(baseShader, x, y, this.config.size, this.config.size)
 			.setOrigin(0.5, 0.5);
 
@@ -100,12 +101,12 @@ export class MagicOrb {
 		);
 
 		if (this.config.enableDrag) {
-			io.scene.input.setDraggable(this.shader);
+			env.scene.input.setDraggable(this.shader);
 
 			this.shader.on("dragstart", () => {
 				this.isDragging = true;
 				Tooltip.hideTooltip();
-				io.scene.input.setDefaultCursor("grabbing");
+				env.scene.input.setDefaultCursor("grabbing");
 			});
 
 			this.shader.on("drag", (_pointer: Pointer, dragX: number, dragY: number) => {
@@ -114,7 +115,7 @@ export class MagicOrb {
 
 			this.shader.on("dragend", (pointer: Pointer) => {
 				this.isDragging = false;
-				io.scene.input.setDefaultCursor("default");
+				env.scene.input.setDefaultCursor("default");
 
 				const dropTarget = this.checkDropTarget(pointer);
 				if (dropTarget && this.config.onDropTarget) {
@@ -127,19 +128,19 @@ export class MagicOrb {
 
 		this.shader.on("pointerover", () => {
 			if (!this.isDragging) {
-				io.scene.input.setDefaultCursor(this.config.enableDrag ? "grab" : "pointer");
+				env.scene.input.setDefaultCursor(this.config.enableDrag ? "grab" : "pointer");
 			}
 		});
 
 		this.shader.on("pointerout", () => {
 			if (!this.isDragging) {
-				io.scene.input.setDefaultCursor("default");
+				env.scene.input.setDefaultCursor("default");
 			}
 		});
 	}
 
 	returnToOriginalPosition(): void {
-		io.scene.tweens.add({
+		env.scene.tweens.add({
 			targets: this.shader,
 			x: this.originalPosition.x,
 			y: this.originalPosition.y,
@@ -149,7 +150,7 @@ export class MagicOrb {
 	}
 
 	private checkDropTarget(pointer: Pointer): Phaser.GameObjects.GameObject | null {
-		const objectsAtPointer = io.scene.input.hitTestPointer(pointer);
+		const objectsAtPointer = env.scene.input.hitTestPointer(pointer);
 
 		const playerBoard = Board.getBoardState();
 
@@ -263,7 +264,7 @@ export class MagicOrb {
 	startDissolve(): this {
 		if (!this.isDissolving) {
 			this.isDissolving = true;
-			this.dissolveStartTime = io.scene.time.now;
+			this.dissolveStartTime = env.scene.time.now;
 			console.debug("MagicOrb", "Starting dissolve animation at time:", this.dissolveStartTime);
 		}
 		return this;
@@ -306,9 +307,9 @@ export class MagicOrb {
 		this.config.enableDrag = enabled;
 
 		if (!enabled && this.shader.input) {
-			io.scene.input.setDraggable(this.shader, false);
+			env.scene.input.setDraggable(this.shader, false);
 		} else if (enabled && this.shader.input) {
-			io.scene.input.setDraggable(this.shader, true);
+			env.scene.input.setDraggable(this.shader, true);
 		}
 
 		return this;

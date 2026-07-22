@@ -240,7 +240,7 @@ export function create({
 	io.SetPosition(buttonText, [x, y]);
 	io.Centralize(buttonText);
 
-	io.AddChildren(container, [buttonGraphics, buttonText]);
+	container.add([buttonGraphics, buttonText]);
 
 	const syncVisualState = () => {
 		const scene = state.container.scene;

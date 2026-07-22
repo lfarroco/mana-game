@@ -37,7 +37,7 @@ export function create() {
 		interactive: true,
 	});
 
-	resultsContainer = io.scene.add.container(0, 0);
+	resultsContainer = env.scene.add.container(0, 0);
 	isOpen = false;
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
@@ -71,8 +71,8 @@ export async function displayResults(
 	replayCallback?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
-	io.scene.children.bringToTop(overlay.rectangle);
-	io.scene.children.bringToTop(resultsContainer);
+	env.scene.children.bringToTop(overlay.rectangle);
+	env.scene.children.bringToTop(resultsContainer);
 
 	const gameState = env.state;
 	const postCombatSession = gameState.session;
@@ -127,8 +127,8 @@ export async function displayGameCompleteResults(
 	onComplete?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
-	io.scene.children.bringToTop(overlay.rectangle);
-	io.scene.children.bringToTop(resultsContainer);
+	env.scene.children.bringToTop(overlay.rectangle);
+	env.scene.children.bringToTop(resultsContainer);
 
 	const ui = await GameCompleteUI.displayGameComplete(
 		env.state.session.wins,

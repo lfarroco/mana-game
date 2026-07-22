@@ -2,6 +2,7 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 import * as constants from "@Constants";
 import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
+import { env } from "../../Env";
 
 
 const DESCRIPTION_FONT_SIZE = 30;
@@ -47,8 +48,8 @@ function getAdjustedPosition(
 		return { x: lastAdjustedX, y: lastAdjustedY };
 	}
 
-	const canvasWidth = io.scene.scale.width;
-	const canvasHeight = io.scene.scale.height;
+	const canvasWidth = env.scene.scale.width;
+	const canvasHeight = env.scene.scale.height;
 	const adjustedX = Math.max(0, Math.min(desiredX, canvasWidth - tooltipWidth));
 	const adjustedY = Math.max(0, Math.min(desiredY, canvasHeight - tooltipHeight));
 
@@ -87,20 +88,20 @@ export function destroyTooltip(): void {
 
 export function init() {
 	if (container) container.destroy(true);
-	container = io.scene.add.container(0, 0);
+	container = env.scene.add.container(0, 0);
 	container.setDepth(Phaser.Math.MAX_SAFE_INTEGER);
 	tooltipWidth = TooltipLayout.TOOLTIP_MIN_WIDTH;
 	tooltipHeight = TooltipLayout.TOOLTIP_MIN_HEIGHT;
 
-	bg = io.scene.add.graphics();
+	bg = env.scene.add.graphics();
 	drawTooltipBackground(tooltipWidth, tooltipHeight);
 
 	container.add(bg);
 
-	titleText = io.scene.add.text(0, 0, "", constants.titleTextConfig).setAlign("left");
+	titleText = env.scene.add.text(0, 0, "", constants.titleTextConfig).setAlign("left");
 	container.add(titleText);
 
-	descriptionText = io.scene.add
+	descriptionText = env.scene.add
 		.rexBBCodeText(0, 0, "", { color: theme.UI_TEXT_MUTED })
 		.setOrigin(0)
 		.setFontSize(DESCRIPTION_FONT_SIZE)
@@ -204,7 +205,7 @@ export function renderTooltip(
 
 	if (!container.visible) {
 		container.setVisible(true);
-		io.scene.children.bringToTop(container);
+		env.scene.children.bringToTop(container);
 	}
 }
 

@@ -17,7 +17,7 @@ import { BattlegroundEvent } from "../../Events";
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
 const emitBattlegroundExit = () => {
-	io.scene.events.emit(BATTLEGROUND_EXIT_EVENT);
+	env.scene.events.emit(BATTLEGROUND_EXIT_EVENT);
 };
 
 const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {

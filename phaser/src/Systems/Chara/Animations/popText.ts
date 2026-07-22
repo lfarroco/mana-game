@@ -1,5 +1,6 @@
 import { tween } from "@Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "@Constants";
+import { env } from "../../../Env";
 
 // Pop text animation configuration
 const POP_TEXT_MAX_ROTATION_ANGLE = 30;
@@ -50,7 +51,7 @@ export function popText({
 		textColor = POP_TEXT_COLORS.REGEN;
 	}
 
-	const popText = io.scene
+	const popText = env.scene
 		.add.text(x, y, text, {
 			...titleTextConfig,
 			...(critical ? { fontSize: POP_TEXT_CRITICAL_FONT_SIZE } : {}),

@@ -1,5 +1,6 @@
 import { images } from "@assets";
 import { delay } from "@Utils/animation";
+import { env } from "../Env";
 
 export interface SlowEffectOptions {
 	duration?: number;
@@ -17,7 +18,7 @@ export async function slowEffect(
 		color = 0xd2691e, // Orange-brownish color (chocolate/saddle brown)
 	} = options;
 
-	const particles = io.scene.add.particles(x, y, images.white_dot.key, {
+	const particles = env.scene.add.particles(x, y, images.white_dot.key, {
 		speedY: { min: 20 * intensity, max: 60 * intensity },
 		speedX: { min: -10 * intensity, max: 10 * intensity },
 		tint: color,

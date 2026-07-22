@@ -1,6 +1,7 @@
 import * as Constants from "@Constants";
 import * as ArcaneTornado from "@Screens/Battleground/Components/BlackHole/ArcaneTornadoShader";
 import { BlackHoleState } from "../../Phases/Combat/BlackHoleState";
+import { env } from "../../../../Env";
 
 
 export function initBlackHole(): BlackHoleState {
@@ -32,7 +33,7 @@ export function activateBlackHole(state: BlackHoleState): BlackHoleState {
 
 	if (state.timer) state.timer.destroy();
 
-	const timer = io.scene.time.addEvent({
+	const timer = env.scene.time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {
@@ -53,7 +54,7 @@ export function deactivateBlackHole(state: BlackHoleState): BlackHoleState {
 
 	if (state.timer) state.timer.destroy();
 
-	const timer = io.scene.time.addEvent({
+	const timer = env.scene.time.addEvent({
 		delay: 100,
 		repeat: 10,
 		callback: () => {

@@ -12,9 +12,10 @@ import * as heal from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/h
 import * as poison from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as regen from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/regen";
 import * as createDescription from "@Systems/Chara/createDescription";
+import { env } from "../../../Env";
 
 const bbcode = (text: string, y: number) =>
-	io.scene
+	env.scene
 		.add.rexBBCodeText(0, 0, text)
 		.setPosition(Constants.MIDDLE_SCREEN_X, y)
 		.setFontSize(38)
@@ -116,7 +117,7 @@ const slides = [
 					if (!s.sprite.active) return;
 					anim();
 
-					const effect = io.scene
+					const effect = env.scene
 						.time.addEvent({
 							repeat: -1,
 							delay: 3000,
@@ -167,7 +168,7 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = io.scene
+					const effect = env.scene
 						.time.addEvent({
 							repeat: -1,
 							delay: 3000,
@@ -220,7 +221,7 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = io.scene
+					const effect = env.scene
 						.time.addEvent({
 							repeat: -1,
 							delay: 3000,
@@ -260,7 +261,7 @@ const slides = [
 					await animation.delay(1000);
 					if (!c.active) return;
 					regen.regenFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
-						const regen = io.scene
+						const regen = env.scene
 							.time.addEvent({
 								repeat: -1,
 								delay: 1000,
@@ -313,7 +314,7 @@ const slides = [
 					await animation.delay(1000);
 					if (!c.active) return;
 					poison.poisonFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
-						const poisonTick = io.scene
+						const poisonTick = env.scene
 							.time.addEvent({
 								repeat: -1,
 								delay: 1000,
@@ -393,11 +394,11 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = io.scene
+			const titleText = env.scene
 				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = io.scene
+			const descriptionText = env.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -427,11 +428,11 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = io.scene
+			const titleText = env.scene
 				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = io.scene
+			const descriptionText = env.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -466,11 +467,11 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = io.scene
+			const titleText = env.scene
 				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = io.scene
+			const descriptionText = env.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -505,11 +506,11 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = io.scene
+			const titleText = env.scene
 				.add.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = io.scene
+			const descriptionText = env.scene
 				.add.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
@@ -549,7 +550,7 @@ export async function openTutorial(): Promise<void> {
 
 	let currentSlide = 0;
 
-	const overlay = io.scene.add.rectangle(
+	const overlay = env.scene.add.rectangle(
 		Constants.MIDDLE_SCREEN_X,
 		Constants.MIDDLE_SCREEN_Y,
 		Constants.SCREEN_WIDTH,

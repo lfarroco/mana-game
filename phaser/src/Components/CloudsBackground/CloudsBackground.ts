@@ -2,6 +2,7 @@ import * as Phaser from "phaser";
 import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBackgroundShader";
 import * as colorPresets from "./colorPresets";
 import { getSettings } from "@Models/OptionsStore";
+import { env } from "../../Env";
 ;
 
 
@@ -100,7 +101,7 @@ export class CloudsBackground {
 	}
 	private resolveScene(): Phaser.Scene {
 
-		return io.scene;
+		return env.scene;
 
 	}
 

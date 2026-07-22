@@ -9,6 +9,7 @@ import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Effects from "../../FX";
 import { upgradeUnitData } from "@game/Entities/Unit";
+import { env } from "../../Env";
 
 export type Chara = Container;
 
@@ -80,7 +81,7 @@ export function clearAll(): void {
 
 export async function create(unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
 	const position = getScreenPosition(unit);
-	const container = io.scene.add.container(position.x, position.y);
+	const container = env.scene.add.container(position.x, position.y);
 
 	const sprite = await createSprite(container, unit);
 	if (unit.force === CoreConstants.FORCE_ID_CPU) {
@@ -141,7 +142,7 @@ export function enableBoardInteractivity(chara: Chara): void {
 		chara.input.enabled = true;
 	}
 
-	io.scene.input.setDraggable(chara, true);
+	env.scene.input.setDraggable(chara, true);
 }
 
 export function getScreenPosition(unit: Unit) {
@@ -171,7 +172,7 @@ async function createSprite(
 	_borderWidth: number = 3,
 	_borderColor: number = 0xffffff
 ) {
-	const sprite = io.scene.add.sprite(0, -30, unit.pic);
+	const sprite = env.scene.add.sprite(0, -30, unit.pic);
 	container.add(sprite);
 	configureSprite(sprite, unit);
 
@@ -180,12 +181,12 @@ async function createSprite(
 
 function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	const animCacheKey = unit.pic + "-anims";
-	const animData = io.scene.cache.json.get(animCacheKey);
+	const animData = env.scene.cache.json.get(animCacheKey);
 
 	if (animData && animData.anims) {
 		for (const anim of animData.anims) {
 			const animKey = unit.pic + "_" + anim.key;
-			if (!io.scene.anims.exists(animKey)) {
+			if (!env.scene.anims.exists(animKey)) {
 				const animConfig = {
 					...anim,
 					key: animKey,
@@ -194,12 +195,12 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 						frame: f.frame,
 					})),
 				};
-				io.scene.anims.create(animConfig);
+				env.scene.anims.create(animConfig);
 			}
 		}
 	}
 
-	const frameNames = io.scene.textures.get(unit.pic).getFrameNames();
+	const frameNames = env.scene.textures.get(unit.pic).getFrameNames();
 	const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 	idleFrames.sort((a, b) => {
 		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -221,7 +222,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 		);
 	}
 
-	if (io.scene.anims.exists(unit.pic + "_idle")) {
+	if (env.scene.anims.exists(unit.pic + "_idle")) {
 		sprite.play(unit.pic + "_idle");
 	}
 

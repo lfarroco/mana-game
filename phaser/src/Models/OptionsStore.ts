@@ -72,8 +72,8 @@ function setGameSpeed(speed: number) {
 	const newSpeed = Math.max(0, speed);
 
 	//https://phaser.discourse.group/t/how-to-add-time-scale-that-affects-tweens-animations-and-so-on-solved/1357/2
-	io.scene.time.timeScale = newSpeed;
-	io.scene.tweens.timeScale = newSpeed;
+	env.scene.time.timeScale = newSpeed;
+	env.scene.tweens.timeScale = newSpeed;
 }
 
 function loadOptionsFromStorage(): Partial<PlayerSettings> | null {

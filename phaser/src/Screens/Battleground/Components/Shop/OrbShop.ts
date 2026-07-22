@@ -110,13 +110,13 @@ export function renderOrbShop(
 
 		container.add(magicOrb.getShader());
 
-		const titleText = io.scene.add
+		const titleText = env.scene.add
 			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, constants.titleTextConfig)
 			.setOrigin(0)
 			.setFontSize(ORB_TITLE_FONT_SIZE)
 			.setAlign("left");
 
-		const descriptionText = io.scene.add
+		const descriptionText = env.scene.add
 			.rexBBCodeText(
 				sc.ITEM_DESC_BASE_X + ORB_DESCRIPTION_X_OFFSET,
 				orbY - ORB_DESCRIPTION_Y_OFFSET,
@@ -137,9 +137,9 @@ export function renderOrbShop(
 		orbs.forEach((orb) => orb.update(time));
 	};
 
-	io.scene.events.on("update", handler);
+	env.scene.events.on("update", handler);
 
 	container.on(Phaser.GameObjects.Events.DESTROY, () => {
-		io.scene.events.off("update", handler);
+		env.scene.events.off("update", handler);
 	});
 }

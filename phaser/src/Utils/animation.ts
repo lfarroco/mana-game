@@ -1,4 +1,4 @@
-import * as io from "../io"
+import { env } from "../Env";
 
 type CustomTweenProps = Omit<
 	Phaser.Types.Tweens.TweenBuilderConfig,
@@ -29,7 +29,7 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 	}
 
 	return new Promise<void>((resolve, _reject) => {
-		io.scene.tweens.add({
+		env.scene.tweens.add({
 			...phaserTweenConfig,
 			onComplete: () => {
 				if (userOnCompleteCallback) {
@@ -43,7 +43,7 @@ export async function tween(attributes: CustomTweenProps): Promise<void> {
 
 export const delay = (duration: number) =>
 	new Promise<void>((resolve) => {
-		io.scene.time.addEvent({
+		env.scene.time.addEvent({
 			delay: duration,
 			callback: () => {
 				resolve();

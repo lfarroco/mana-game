@@ -1,10 +1,11 @@
+import { env } from "../../../Env";
 import * as loadGame from "../../../Storage/loadGame"
 
 export const resumeGame = async () => {
 
 	io.FadeOut(500, 0x000);
 
-	io.scene.children.removeAll();
+	env.scene.children.removeAll();
 
 	loadGame.loadGame();
 

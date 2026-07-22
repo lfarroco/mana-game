@@ -1,4 +1,5 @@
 import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
+import { env } from "../../Env";
 
 export interface EnergySlotConfig {
 	size?: number;
@@ -26,7 +27,7 @@ export class EnergySlot {
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = io.scene.time.now;
+		this.startTime = env.scene.time.now;
 
 		// Calculate animation phase offset - randomized for variety
 		const animationPhaseOffset = Math.random() * Math.PI * 2;
@@ -47,7 +48,7 @@ export class EnergySlot {
 		);
 
 		// Create the shader game object
-		this.shader = io.scene.add
+		this.shader = env.scene.add
 			.shader(baseShader, x, y, this.config.size, this.config.size)
 			.setOrigin(0.5, 0.5);
 	}

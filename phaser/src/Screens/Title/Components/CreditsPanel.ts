@@ -1,6 +1,7 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
+import { env } from "../../../Env";
 
 // UI positioning
 const OVERLAY_ALPHA = 0.85;
@@ -17,7 +18,7 @@ export function create(): void {
 	isOpen = true;
 
 	// Create dark overlay background
-	const overlay = io.scene.add.rectangle(
+	const overlay = env.scene.add.rectangle(
 		constants.MIDDLE_SCREEN_X,
 		constants.MIDDLE_SCREEN_Y,
 		constants.SCREEN_WIDTH,
@@ -63,7 +64,7 @@ export function create(): void {
 
 	const creditsTexts = creditsContent.map((text, index) => {
 		const isHeader = text && !creditsContent[index - 1]?.trim();
-		const textObj = io.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
+		const textObj = env.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
 			...constants.titleTextConfig,
 			fontSize: isHeader ? "28px" : "22px",
 			color: isHeader ? "#f1c40f" : "#ecf0f1",

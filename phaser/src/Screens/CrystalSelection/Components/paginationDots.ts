@@ -1,5 +1,6 @@
 import * as constants from "@Constants";
 import * as parent from "../CrystalSelectionScreen";
+import { env } from "../../../Env";
 
 const PAGINATION_Y = 700;
 const DOT_SIZE = 16;
@@ -18,7 +19,7 @@ export function create() {
 	const startX = constants.MIDDLE_SCREEN_X - totalWidth / 2;
 
 	for (let i = 0; i < totalDots; i++) {
-		const dot = io.scene.add.circle(
+		const dot = env.scene.add.circle(
 			startX + i * DOT_SPACING,
 			PAGINATION_Y,
 			DOT_SIZE / 2,

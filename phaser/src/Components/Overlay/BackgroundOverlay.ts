@@ -1,4 +1,5 @@
 import * as c from "@Constants";
+import { env } from "../../Env";
 
 // Default overlay styling
 const DEFAULT_OVERLAY_COLOR = 0x000000;
@@ -29,7 +30,7 @@ export type BackgroundOverlay = {
 export function create(config: BackgroundOverlayConfig = {}): BackgroundOverlay {
 	const { color, alpha, interactive } = { ...DEFAULT_CONFIG, ...config };
 
-	const rectangle = io.scene.add.rectangle(
+	const rectangle = env.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -48,7 +49,7 @@ export function create(config: BackgroundOverlayConfig = {}): BackgroundOverlay 
 	const fadeIn = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
 			rectangle.setVisible(true);
-			io.scene.tweens.add({
+			env.scene.tweens.add({
 				targets: rectangle,
 				alpha: alpha,
 				duration,
@@ -59,7 +60,7 @@ export function create(config: BackgroundOverlayConfig = {}): BackgroundOverlay 
 
 	const fadeOut = (duration: number = DEFAULT_FADE_ANIMATION_DURATION_MS): Promise<void> => {
 		return new Promise((resolve) => {
-			io.scene.tweens.add({
+			env.scene.tweens.add({
 				targets: rectangle,
 				alpha: 0,
 				duration,

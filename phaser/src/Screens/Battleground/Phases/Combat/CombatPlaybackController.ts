@@ -53,7 +53,7 @@ export const createCombatPlaybackController = (
 	};
 
 	const blackHoleState = BlackHole.initBlackHole();
-	const countdownTimerState = CountdownTimer.initializeCountdownTimer(io.scene, blackHoleState);
+	const countdownTimerState = CountdownTimer.initializeCountdownTimer(env.scene, blackHoleState);
 	CountdownTimer.start(countdownTimerState);
 
 	const playbackState: PlaybackState = {

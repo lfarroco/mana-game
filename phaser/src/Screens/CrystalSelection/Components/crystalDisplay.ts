@@ -2,6 +2,7 @@ import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import * as parent from "../CrystalSelectionScreen";
+import { env } from "../../../Env";
 
 const SPRITE_Y = 300;
 const CARD_NAME_Y = SPRITE_Y + 150;
@@ -23,10 +24,10 @@ const DESCRIPTION_Y = 500;
 export function create() {
 	const crystal = parent.state.crystals[parent.state.currentIndex];
 
-	parent.state.crystalSprite = io.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
+	parent.state.crystalSprite = env.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
 	parent.state.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
-	io.scene.tweens.add({
+	env.scene.tweens.add({
 		targets: parent.state.crystalSprite,
 		y: SPRITE_Y + CRYSTAL_FLOAT_Y_OFFSET,
 		duration: CRYSTAL_FLOAT_ANIMATION_DURATION,
@@ -46,7 +47,7 @@ export function create() {
 	io.Centralize(parent.state.crystalName);
 
 	parent.state.descriptionText = new BBCodeText(
-		io.scene,
+		env.scene,
 		constants.MIDDLE_SCREEN_X,
 		DESCRIPTION_Y,
 		"",
@@ -61,5 +62,5 @@ export function create() {
 		.setWrapMode(1)
 		.setLineSpacing(DESCRIPTION_LINE_SPACING)
 		.setWrapWidth(DESCRIPTION_WRAP_WIDTH);
-	io.scene.add.existing(parent.state.descriptionText);
+	env.scene.add.existing(parent.state.descriptionText);
 }

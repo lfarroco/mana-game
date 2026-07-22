@@ -13,7 +13,7 @@ export function create() {
 	const width = 200;
 	const height = 40;
 
-	const bg = io.scene.add.rectangle(x, y, width, height, 0x000000, 0.5)
+	const bg = env.scene.add.rectangle(x, y, width, height, 0x000000, 0.5)
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
@@ -54,10 +54,10 @@ export function create() {
 	bg.on("pointerover", () => bg.setStrokeStyle(1, 0xffffff));
 	bg.on("pointerout", () => bg.setStrokeStyle(1, 0x888888));
 
-	io.scene.add.existing(seedText);
+	env.scene.add.existing(seedText);
 
 	// Cleanup on scene shutdown
-	io.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+	env.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
 		const existingKeyboard = document.getElementById("virtual-keyboard");
 		if (existingKeyboard && document.body.contains(existingKeyboard)) {
 			document.body.removeChild(existingKeyboard);

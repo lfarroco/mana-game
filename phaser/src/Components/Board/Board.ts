@@ -3,6 +3,7 @@ import { Unit } from "@game/Models";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@game/BoardLogic";
 import { isSome } from "@game/Functional";
+import { env } from "../../Env";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];
@@ -88,7 +89,7 @@ export function renderBoardSlots(board: BoardState): void {
 			}
 
 			if (boardInfo.isPlayer) {
-				const dropZone = io.scene.add.zone(
+				const dropZone = env.scene.add.zone(
 					zoneX + constants.TILE_WIDTH / 2,
 					zoneY + constants.TILE_HEIGHT / 2,
 					constants.TILE_WIDTH,
@@ -127,9 +128,9 @@ export function setEnemyBoardVisible(visible: boolean): void {
 				slot.setVisible(true);
 				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
 
-				io.scene.tweens.killTweensOf(slot.getShader());
+				env.scene.tweens.killTweensOf(slot.getShader());
 
-				io.scene.tweens.add({
+				env.scene.tweens.add({
 					targets: slot.getShader(),
 					x: targetX,
 					duration: 300,
@@ -140,9 +141,9 @@ export function setEnemyBoardVisible(visible: boolean): void {
 		} else {
 			board.cpuSlotShaders.forEach((slot, index) => {
 
-				io.scene.tweens.killTweensOf(slot.getShader());
+				env.scene.tweens.killTweensOf(slot.getShader());
 
-				io.scene.tweens.add({
+				env.scene.tweens.add({
 					targets: slot.getShader(),
 					x: offScreenX,
 					duration: 300,

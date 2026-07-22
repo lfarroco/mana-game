@@ -38,7 +38,7 @@ export function init(chara: Chara.Chara) {
 	}
 
 	if (isPlayerUnit) {
-		io.scene.input.setDraggable(chara, true);
+		env.scene.input.setDraggable(chara, true);
 
 		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
 		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
@@ -121,7 +121,7 @@ export const onDragStart =
 		}
 		handlerState.isLongPressActive = false;
 
-		io.scene.children.bringToTop(chara);
+		env.scene.children.bringToTop(chara);
 
 		animation.tween({
 			targets: [chara],
@@ -231,8 +231,8 @@ const movementRejected = (
 export const onPointerDown =
 	(handlerState: InputHandler) =>
 		(_pointer: Pointer): void => {
-			if (!io.scene.sys.game.device.input.touch) return;
-			handlerState.longPressTimer = io.scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
+			if (!env.scene.sys.game.device.input.touch) return;
+			handlerState.longPressTimer = env.scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
 				handlerState.isLongPressActive = true;
 				const { chara } = handlerState;
 				CharaTooltip.onCharaPointerOver(chara);

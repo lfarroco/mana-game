@@ -5,6 +5,7 @@ import * as Card from "@game/Entities/Card";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
+import { env } from "../../../Env";
 
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;
@@ -27,11 +28,11 @@ export const render = (unitId: string) =>
 
 		const { title, description } = createDescription.createDescription(chara);
 
-		const titleText = io.scene
+		const titleText = env.scene
 			.add.text(0, chara.y + 180, title, c.titleTextConfig)
 			.setOrigin(0.5);
 
-		const unlockConditionText = io.scene
+		const unlockConditionText = env.scene
 			.add.text(0, titleText.y + 35, i18n.t(`unlock_description.${unitId}`), {
 				fontFamily: "Arimo",
 				fontSize: "20px",
@@ -40,7 +41,7 @@ export const render = (unitId: string) =>
 			})
 			.setOrigin(0.5);
 
-		const descriptionText = io.scene
+		const descriptionText = env.scene
 			.add.rexBBCodeText(0, unlockConditionText.y + 40, description)
 			.setFontSize(30)
 			.setWrapMode(1)

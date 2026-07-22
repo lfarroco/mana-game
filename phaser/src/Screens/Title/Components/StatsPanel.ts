@@ -3,6 +3,7 @@ import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
+import { env } from "../../../Env";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 1100;
@@ -21,7 +22,7 @@ export function openStats(): void {
 		? `${stats.mostPowerfulUnit.name} (${stats.mostPowerfulUnit.power})`
 		: "-";
 
-	const overlay = io.scene.add.rectangle(
+	const overlay = env.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -105,7 +106,7 @@ export function openStats(): void {
 		data.forEach((stat, index) => {
 			const y = startY + index * rowSpacing;
 
-			const labelText = io.scene.add.text(labelX, y, stat.label, {
+			const labelText = env.scene.add.text(labelX, y, stat.label, {
 				fontFamily: "Arial",
 				fontSize: "22px",
 				color: "#ecf0f1",
@@ -114,7 +115,7 @@ export function openStats(): void {
 			labelText.setOrigin(1, 0.5);
 			statTexts.push(labelText);
 
-			const valueText = io.scene.add.text(valueX, y, stat.value, {
+			const valueText = env.scene.add.text(valueX, y, stat.value, {
 				fontFamily: "Arial",
 				fontSize: "24px",
 				color: stat.color || "#ffffff",

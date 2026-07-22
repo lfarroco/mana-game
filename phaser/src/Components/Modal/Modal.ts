@@ -1,6 +1,7 @@
 import * as constants from "@Constants";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
+import { env } from "../../Env";
 
 // Modal animation constants
 const MODAL_SCALE_IN_DURATION_MS = 500;
@@ -53,7 +54,7 @@ export function createModal(config: ModalConfig): Modal {
 	io.BringToTop(container);
 
 	container.setScale(0);
-	io.scene.tweens.add({
+	env.scene.tweens.add({
 		targets: container,
 		scale: 1,
 		duration: MODAL_SCALE_IN_DURATION_MS,

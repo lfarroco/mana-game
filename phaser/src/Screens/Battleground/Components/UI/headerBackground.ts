@@ -1,3 +1,5 @@
+import { env } from "../../../../Env";
+
 const COLOR_DARK_GRAY = 0x1f1f1f;
 const ALPHA = 0.8;
 
@@ -8,7 +10,7 @@ const END_X = 740;
 const SLOPE = 40;
 
 export function create() {
-	const graphics = io.scene.add.graphics();
+	const graphics = env.scene.add.graphics();
 
 	graphics.fillStyle(COLOR_DARK_GRAY, ALPHA);
 

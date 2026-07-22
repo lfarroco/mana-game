@@ -2,6 +2,7 @@ import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
+import { env } from "../../../Env";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 800;
@@ -20,7 +21,7 @@ export function create(): void {
 	if (isOpen) return;
 	isOpen = true;
 
-	const overlay = io.scene.add.rectangle(
+	const overlay = env.scene.add.rectangle(
 		c.MIDDLE_SCREEN_X,
 		c.MIDDLE_SCREEN_Y,
 		c.SCREEN_WIDTH,
@@ -54,7 +55,7 @@ export function create(): void {
 	}
 
 	const linkTexts = links.map((link, index) => {
-		const textObj = io.scene.add.text(
+		const textObj = env.scene.add.text(
 			c.MIDDLE_SCREEN_X,
 			c.MIDDLE_SCREEN_Y - 120 + index * 60,
 			link.text,

@@ -3,6 +3,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
+import { env } from "../../../Env";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;
@@ -69,7 +70,7 @@ export const create = () => {
 
 function selectLanguage(lang: string) {
 	i18n.setLocale(lang);
-	io.scene.children.removeAll();
+	env.scene.children.removeAll();
 	io.screens.title.create();
 	isOpen = false;
 	container = null;

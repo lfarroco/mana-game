@@ -52,7 +52,7 @@ export function create() {
 
 	zone = io.RectangularDropZone(name, position, size);
 
-	io.AddChildren(container, [zone, rect, labelText]);
+	container.add([zone, rect, labelText]);
 
 	io.Hide(container);
 

@@ -27,7 +27,7 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 				const heart = heartElements[heartIndex];
 
 				// Change the heart to black with a tween
-				io.scene.tweens.add({
+				env.scene.tweens.add({
 					targets: heart,
 					tint: 0x000000,
 					duration: 500,

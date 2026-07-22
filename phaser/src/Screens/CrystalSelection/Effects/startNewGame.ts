@@ -8,7 +8,7 @@ export const startNewGame = async () => {
 
 	await io.FadeOut(300, 0x000000);
 
-	io.scene.children.removeAll();
+	env.scene.children.removeAll();
 
 	const server = GameServer.getServer();
 	const session = await server.createSession(

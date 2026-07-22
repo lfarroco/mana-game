@@ -1,5 +1,6 @@
 import { delay } from "@Utils/animation";
 import { images } from "@assets";
+import { env } from "../Env";
 
 const HEALING_HIT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 50,
@@ -18,7 +19,7 @@ export async function healingHitEffect(
 	[x, y]: Vec2,
 	lifespan: number
 ): Promise<void> {
-	const particles = io.scene.add.particles(x, y, images.white_dot.key, {
+	const particles = env.scene.add.particles(x, y, images.white_dot.key, {
 		speed: HEALING_HIT_EFFECT_CONFIG.PARTICLE_SPEED,
 		tint: HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS,
 		lifespan: lifespan,

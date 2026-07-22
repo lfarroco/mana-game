@@ -40,11 +40,11 @@ export async function renderTavernCharas(
 			sc.ITEM_BASE_Y + offsetY
 		];
 
-		const bgRect = io.scene.add.graphics({
+		const bgRect = env.scene.add.graphics({
 			x: position[0] - bgSize[0] / 2,
 			y: position[1] - bgSize[1] / 2,
 		});
-		const rowBorder = io.scene.add.graphics();
+		const rowBorder = env.scene.add.graphics();
 		const backgroundState = { mix: 0 };
 		const drawRowBackground = () => {
 			const fillColor = theme.mixHexColors(theme.UI_SURFACE_COLOR, theme.UI_SURFACE_HOVER_COLOR, backgroundState.mix);
@@ -53,8 +53,8 @@ export async function renderTavernCharas(
 			bgRect.fillRoundedRect(0, 0, bgSize[0], bgSize[1], 12);
 		};
 		const tweenRowBackground = (mix: number) => {
-			io.scene.tweens.killTweensOf(backgroundState);
-			io.scene.tweens.add({
+			env.scene.tweens.killTweensOf(backgroundState);
+			env.scene.tweens.add({
 				targets: backgroundState,
 				mix,
 				duration: SHOP_CARD_HOVER_ANIMATION_DURATION_MS,
@@ -123,14 +123,14 @@ export async function renderTavernCharas(
 
 		if (ownedCardIds.has(spec.id)) {
 			const borderRadius = (Constants.TILE_WIDTH * 0.8) / 2;
-			const animatedBorder = io.scene.add.graphics();
+			const animatedBorder = env.scene.add.graphics();
 			animatedBorder.lineStyle(2, theme.UI_SURFACE_ACCENT_COLOR, 1);
 			animatedBorder.strokeCircle(0, 0, borderRadius);
 			chara.add(animatedBorder);
 			chara.bringToTop(chara.list[chara.list.length - 2]);
 
 			const currentWidth = 2;
-			io.scene.tweens.add({
+			env.scene.tweens.add({
 				targets: { width: currentWidth },
 				width: 6,
 				duration: OWNED_CARD_BORDER_PULSE_DURATION_MS,
@@ -148,14 +148,14 @@ export async function renderTavernCharas(
 
 		const { title, description } = createDescription.createDescription(chara);
 
-		const titleText = io.scene.add
+		const titleText = env.scene.add
 			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title, {
 				...Constants.titleTextConfig,
 				color: theme.UI_TEXT_PRIMARY,
 			})
 			.setAlign("left");
 
-		const descriptionText = io.scene.add
+		const descriptionText = env.scene.add
 			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60, description)
 			.setFontSize(28)
 			.setColor(theme.UI_TEXT_MUTED)
@@ -176,7 +176,7 @@ function initShopCharaInput(
 	chara: Chara.Chara,
 	unit: Models.Unit
 ): void {
-	io.scene.input.setDraggable(chara, true);
+	env.scene.input.setDraggable(chara, true);
 
 	let wasDragSuccessful = false;
 
@@ -235,7 +235,7 @@ function initShopCharaInput(
 
 		if (!wasDragSuccessful) {
 			const [x, y] = chara.getData("dragStartVec") as Vec2;
-			io.scene.tweens.add({
+			env.scene.tweens.add({
 				targets: [chara],
 				x,
 				y,

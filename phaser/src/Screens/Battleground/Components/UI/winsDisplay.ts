@@ -125,7 +125,7 @@ function playWinEffect(index: number) {
 	const x = rect.x + RECT_WIDTH / 2;
 	const y = rect.y + RECT_HEIGHT / 2;
 
-	const particles = io.scene.add.particles(x, y, Assets.images.light_pillar.key, {
+	const particles = env.scene.add.particles(x, y, Assets.images.light_pillar.key, {
 		lifespan: 300,
 		scale: { start: 0.3, end: 1.2 },
 		alpha: { start: 1, end: 0 },
@@ -145,11 +145,11 @@ function playWinEffect(index: number) {
 
 	mainContainer.add(particles);
 
-	io.scene.time.delayedCall(300, () => {
+	env.scene.time.delayedCall(300, () => {
 		particles.stop();
 	});
 
-	io.scene.time.delayedCall(600, () => {
+	env.scene.time.delayedCall(600, () => {
 		particles.destroy();
 	});
 }
