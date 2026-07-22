@@ -1,6 +1,6 @@
 import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
-import { env } from "../Env";
+import { env } from "@Env";
 
 export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,

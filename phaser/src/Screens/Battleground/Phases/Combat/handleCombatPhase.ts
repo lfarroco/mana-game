@@ -13,7 +13,7 @@ import * as Constants from "@game/Constants";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { completeCombatEncounter } from "../../../../GameController";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 // Store the last combat's tracker state for the results UI to read.
@@ -108,7 +108,7 @@ const showCombatResults = ({
 			resultType,
 			() => {
 				resultHandled();
-			BattlegroundEvent.combatContinueRequested.emit(undefined);
+				BattlegroundEvent.combatContinueRequested.emit(undefined);
 			},
 			() => {
 				resultHandled();

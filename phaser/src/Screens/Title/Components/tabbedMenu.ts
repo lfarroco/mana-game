@@ -1,5 +1,5 @@
 import * as constants from "@Constants";
-import { env, makeContainer, borderedRoundRect } from "../../../Env";
+import { env, makeContainer, borderedRoundRect } from "@Env";
 
 const PANEL_WIDTH = 1180;
 const PANEL_HEIGHT = 500;

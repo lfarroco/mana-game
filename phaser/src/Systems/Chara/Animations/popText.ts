@@ -1,6 +1,6 @@
 import { tween } from "@Utils/animation";
 import { defaultTextConfig, titleTextConfig } from "@Constants";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 // Pop text animation configuration
 const POP_TEXT_MAX_ROTATION_ANGLE = 30;

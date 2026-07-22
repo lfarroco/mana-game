@@ -6,7 +6,7 @@ import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 let submenuContainer: Container;
 

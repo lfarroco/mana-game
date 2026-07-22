@@ -1,7 +1,7 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Storage/index";
 import { ClientState, type PlayerSettings } from "@Models/ClientState";
-import { env } from "../Env";
+import { env } from "@Env";
 
 let clientStateRef: ClientState | null = null;
 

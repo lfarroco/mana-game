@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as TutorialOverlay from "../../../Screens/Title/Components/TutorialOverlay";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 export function create() {
 	const text = env.scene.add.text(0, 80, i18n.t("title.howToPlay"), constants.titleTextConfig).setOrigin(0.5);

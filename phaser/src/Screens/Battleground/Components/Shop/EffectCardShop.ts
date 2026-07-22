@@ -5,7 +5,7 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import * as GameController from "../../../../GameController";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;

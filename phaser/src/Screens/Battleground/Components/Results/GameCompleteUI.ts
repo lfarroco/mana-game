@@ -11,7 +11,7 @@ import * as constants from "@Constants";
 import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
 import { requestMainMenu, requestNewRun } from "../../../../GameController";
-import { env, makeContainer, borderedRoundRect } from "../../../../Env";
+import { env, makeContainer, borderedRoundRect } from "@Env";
 
 export async function displayGameComplete(
 	wins: number,

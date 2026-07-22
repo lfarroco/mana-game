@@ -12,8 +12,8 @@ import * as heal from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/h
 import * as poison from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as regen from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/regen";
 import * as createDescription from "@Systems/Chara/createDescription";
-import { env } from "../../../Env";
-import { makeContainer } from "../../../Env";
+import { env } from "@Env";
+import { makeContainer } from "@Env";
 
 const bbcode = (text: string, y: number) =>
 	env.scene

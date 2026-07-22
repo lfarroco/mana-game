@@ -2,7 +2,7 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 import * as constants from "@Constants";
 import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 
 const DESCRIPTION_FONT_SIZE = 30;

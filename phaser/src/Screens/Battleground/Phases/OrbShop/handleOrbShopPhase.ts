@@ -3,7 +3,7 @@ import * as Models from "@game/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 let initialized = false;

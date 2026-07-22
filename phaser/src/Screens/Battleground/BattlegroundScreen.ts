@@ -11,7 +11,7 @@ import * as Phases from "./Phases";
 import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
 import { initialState } from "@Models/ClientState";
-import { env } from "../../Env";
+import { env } from "@Env";
 import { BattlegroundEvent } from "../../Events";
 import * as CrystalSelectionScreen from "../CrystalSelection/CrystalSelectionScreen";
 import * as TitleScreen from "../Title/TitleScreen";

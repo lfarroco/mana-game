@@ -1,5 +1,5 @@
 import * as c from "@Constants";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 // Default overlay styling
 const DEFAULT_OVERLAY_COLOR = 0x000000;

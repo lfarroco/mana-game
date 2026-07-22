@@ -1,4 +1,4 @@
-import { env } from "./Env";
+import { env } from "@Env";
 import * as LocalServer from "./LocalServer";
 import * as RemoteServer from "./RemoteServer";
 import * as Models from "@game/Models";

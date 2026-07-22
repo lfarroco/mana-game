@@ -1,4 +1,4 @@
-import { env } from "../../../Env";
+import { env } from "@Env";
 import * as loadGame from "../../../Storage/loadGame"
 import * as BattlegroundScreen from "../../Battleground/BattlegroundScreen";
 

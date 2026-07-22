@@ -8,7 +8,7 @@ import * as Components from "./Components"
 import pkg from "../../../package.json";
 import * as Effects from "./Effects"
 import * as Models from "@game/Models"
-import { env } from "../../Env";
+import { env } from "@Env";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: Models.Event<void>

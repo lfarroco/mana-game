@@ -5,7 +5,7 @@ import * as Card from "@game/Entities/Card";
 import * as createDescription from "@Systems/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const PANEL_WIDTH = 1100;
 const PANEL_HEIGHT = 700;

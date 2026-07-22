@@ -1,5 +1,5 @@
 import { getSettings } from "@Models/OptionsStore";
-import { env } from "../Env";
+import { env } from "@Env";
 
 let currentMusic: Phaser.Sound.BaseSound | null = null;
 let currentMusicKey: string | null = null;

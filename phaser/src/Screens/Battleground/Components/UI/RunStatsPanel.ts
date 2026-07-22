@@ -1,7 +1,7 @@
 import * as i18n from "@i18n/i18n";
 import * as ResultsConfig from "../Results/ResultsConfig";
 import * as Constants from "@Constants";
-import { env, makeContainer as container, borderedRoundRect } from "../../../../Env";
+import { env, makeContainer as container, borderedRoundRect } from "@Env";
 
 export function createRunStatsPanel(
 	runStats = env.state.session.runStats

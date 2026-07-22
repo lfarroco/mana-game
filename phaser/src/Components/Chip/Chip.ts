@@ -12,7 +12,7 @@ const CHIP_PULSE_SCALE = 1.2;
 const CHIP_PULSE_DURATION_MS = 200;
 
 import * as constants from "@Constants";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 const index = new Map<
 	string,

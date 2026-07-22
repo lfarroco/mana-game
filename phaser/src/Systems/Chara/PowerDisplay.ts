@@ -4,7 +4,7 @@ import * as Chip from "@Components/Chip/Chip";
 import * as Utils from "@utils";
 import * as Abilities from "@Models/Abilities";
 import { Unit } from "@game/Models";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export function create(unit: Unit, container: Chara.Chara) {
 	const displayableEffects = ["heal", "damage", "shield", "poison", "regen"];

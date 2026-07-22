@@ -1,6 +1,6 @@
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 
 export let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;

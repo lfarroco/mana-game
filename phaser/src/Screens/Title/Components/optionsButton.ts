@@ -6,7 +6,7 @@ import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 let submenuContainer: Container;
 

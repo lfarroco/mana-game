@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 import * as Board from "@Components/Board/Board";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import { magicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
-import { env } from "../../Env";
+import { env } from "@Env";
 ;
 
 

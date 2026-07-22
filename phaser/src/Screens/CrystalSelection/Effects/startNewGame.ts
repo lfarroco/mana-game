@@ -1,6 +1,6 @@
 import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
-import { env } from "../../../Env";
+import { env } from "@Env";
 import * as BattlegroundScreen from "../../Battleground/BattlegroundScreen";
 
 export const startNewGame = async () => {

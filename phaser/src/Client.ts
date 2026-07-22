@@ -6,7 +6,7 @@ import * as TitleScreen from "./Screens/Title/TitleScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as GameServer from "./GameServer";
-import { createEnv } from "./Env";
+import { createEnv } from "@Env";
 import { ClientState } from "@Models/ClientState";
 
 export default (clientState: ClientState) => class Client extends Phaser.Scene {

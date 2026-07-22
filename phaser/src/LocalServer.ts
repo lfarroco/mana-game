@@ -1,7 +1,7 @@
 import * as SessionManager from "./SessionManager";
 import * as Models from "@game/Models";
 import * as SessionTransitions from "@game/SessionTransitions";
-import { env } from "./Env";
+import { env } from "@Env";
 
 const COMBAT_STORAGE_PREFIX = "mana_combat_";
 

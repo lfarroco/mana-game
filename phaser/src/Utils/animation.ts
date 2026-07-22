@@ -1,4 +1,4 @@
-import { env } from "../Env";
+import { env } from "@Env";
 
 type CustomTweenProps = Omit<
 	Phaser.Types.Tweens.TweenBuilderConfig,

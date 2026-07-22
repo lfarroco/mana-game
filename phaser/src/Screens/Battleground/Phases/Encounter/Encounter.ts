@@ -5,7 +5,7 @@ import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as GameController from "../../../../GameController";
 import * as Models from "@game/Models";
 import * as animation from "@Utils/animation";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 // TODO: this is a game logic rule, not UI thing

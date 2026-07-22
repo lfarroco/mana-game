@@ -1,7 +1,7 @@
 import * as Assets from "@assets";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import { env, makeContainer as container, centeredRect } from "../../../../Env";
+import { env, makeContainer as container, centeredRect } from "@Env";
 
 const MAX_WINS = 10;
 const RECT_WIDTH = 30;

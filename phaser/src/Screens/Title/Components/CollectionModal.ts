@@ -6,7 +6,7 @@ import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as createDescription from "@Systems/Chara/createDescription";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const PANEL_WIDTH = 1200;
 const PANEL_HEIGHT = 900;

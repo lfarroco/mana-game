@@ -8,7 +8,7 @@ import * as i18n from "@i18n/i18n";
 
 import * as Models from "@game/Models";
 import * as arenaTheme from "@Screens/ArenaLobby/arenaTheme";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 
 // Layout positioning

@@ -4,7 +4,7 @@ import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 let isOpen = false;
 let container: Phaser.GameObjects.Container | null = null;

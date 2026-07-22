@@ -1,6 +1,6 @@
 import * as getSavedData from "@Storage/getSinglePlayerData";
 import * as Models from "@game/Models";
-import { env } from "../Env";
+import { env } from "@Env";
 
 const COMBAT_STORAGE_PREFIX = "mana_combat_";
 

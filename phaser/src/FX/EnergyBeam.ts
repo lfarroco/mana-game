@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { env } from "../Env";
+import { env } from "@Env";
 
 export type BeamOptions = {
 	start: Vec2;

@@ -1,4 +1,4 @@
-import { env } from "../../../Env";
+import { env } from "@Env";
 import * as CrystalSelectionScreen from "../../CrystalSelection/CrystalSelectionScreen";
 
 export const startGame = async () => {

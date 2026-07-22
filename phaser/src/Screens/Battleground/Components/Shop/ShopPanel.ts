@@ -3,7 +3,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 import { skipPhase } from "../../../../GameController";
 
 export const ShopState: { container: Container | null } = {

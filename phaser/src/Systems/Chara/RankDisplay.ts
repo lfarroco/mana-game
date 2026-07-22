@@ -3,7 +3,7 @@ import * as colorUtils from "@Utils/colorUtils";
 import * as Constants from "@Constants";
 import * as MagicOrbShader from "@Components/MagicOrb/MagicOrbShader";
 import { Unit } from "@game/Models";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 const bronze = 0x804a00;
 const silver = 0xc0c0c0;

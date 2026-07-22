@@ -4,7 +4,7 @@ import { Unit } from "@game/Models";
 import * as handleShopPhase from "./Screens/Battleground/Phases/Shop/handleShopPhase";
 import { onOrbApplied } from "./Screens/Battleground/Phases/OrbShop/handleOrbShopPhase";
 import { BattlegroundEvent } from "./Events";
-import { env } from "./Env";
+import { env } from "@Env";
 
 async function dispatchAction(
 	action: Models.Action

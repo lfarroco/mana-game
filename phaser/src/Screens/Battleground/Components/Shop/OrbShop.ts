@@ -7,7 +7,7 @@ import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 // Orb shop UI constants

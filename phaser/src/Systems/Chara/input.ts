@@ -8,7 +8,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
-import { env } from "../../Env";
+import { env } from "@Env";
 import { whenDroppedOnZone } from "../../phaser-helpers";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;

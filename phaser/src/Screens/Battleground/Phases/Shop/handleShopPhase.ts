@@ -9,7 +9,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;

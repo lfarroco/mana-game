@@ -1,7 +1,7 @@
 import * as Constants from "@Constants";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 
 const MAX_LIVES = 4;
 const GREEN_HEART = "💚";

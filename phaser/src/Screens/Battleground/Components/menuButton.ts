@@ -2,7 +2,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
 import { requestMainMenu, requestNewRun } from "../../../GameController";
-import { env, makeContainer, borderedRoundRect, centeredRect } from "../../../Env";
+import { env, makeContainer, borderedRoundRect, centeredRect } from "@Env";
 import { BattlegroundEvent } from "../../../Events";
 
 export function create() {

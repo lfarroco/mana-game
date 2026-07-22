@@ -1,5 +1,5 @@
 import * as c from "@Constants";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 const LEFT_MARGIN = 40;
 const RIGHT_MARGIN = 40;

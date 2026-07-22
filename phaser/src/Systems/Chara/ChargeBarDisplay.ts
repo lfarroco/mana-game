@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import { Unit } from "@game/Models";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export type CharaBars = {
 	chargeBar: Graphics;

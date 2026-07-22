@@ -7,7 +7,7 @@ import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as Utils from "@utils";
 import { getLastCombatTrackerState } from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 const PANEL_CONFIG = {
 	width: 600,

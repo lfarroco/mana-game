@@ -8,7 +8,7 @@ import * as headerBackground from "@Screens/Battleground/Components/UI/headerBac
 import * as menuButton from "@Screens/Battleground/Components/menuButton";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 export * as events from "@Screens/Battleground/Components/UI/events";
-import { env, makeContainer as container } from "../../../../Env";
+import { env, makeContainer as container } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 let uiContainer: Container | null = null;

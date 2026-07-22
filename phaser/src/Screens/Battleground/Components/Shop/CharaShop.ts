@@ -13,7 +13,7 @@ import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import * as GameController from "../../../../GameController";
-import { env, whenDroppedOnZone } from "../../../../Env";
+import { env, whenDroppedOnZone } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;

@@ -3,7 +3,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@game/Constants";
 import { CombatLogEntry } from "@game/Combat/CombatLogger";
 
 import * as supabase from "@lib/supabase";
-import { env } from "./Env";
+import { env } from "@Env";
 
 
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";

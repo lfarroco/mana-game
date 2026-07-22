@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 export const TITLE_Y = 120;
 

@@ -1,5 +1,5 @@
 import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export interface EnergySlotConfig {
 	size?: number;

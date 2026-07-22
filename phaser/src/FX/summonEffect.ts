@@ -1,7 +1,7 @@
 import * as animation from "@Utils/animation";
 import * as Assets from "@assets";
 import { getSettings } from "@Models/OptionsStore";
-import { env } from "../Env";
+import { env } from "@Env";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,

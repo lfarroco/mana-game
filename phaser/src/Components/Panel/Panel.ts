@@ -1,5 +1,5 @@
 
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export type PanelConfig = {
 	width: number;

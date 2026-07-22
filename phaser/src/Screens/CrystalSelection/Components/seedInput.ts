@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./keyboard";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 let seedText: Phaser.GameObjects.Text;
 
@@ -27,18 +27,18 @@ export function create() {
 		.setPosition(x - width - 10, y - height / 2);
 
 	seedText = env.scene.add.text(0, 0, `${currentSeed}`, {
-			...constants.defaultTextConfig,
-			fontSize: "24px",
-			color: "#ffffff",
-		})
+		...constants.defaultTextConfig,
+		fontSize: "24px",
+		color: "#ffffff",
+	})
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
 
 	parent.state.seedWarningText = env.scene.add.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
-			...constants.defaultTextConfig,
-			fontSize: "16px",
-			color: "#ffff00",
-		})
+		...constants.defaultTextConfig,
+		fontSize: "16px",
+		color: "#ffff00",
+	})
 		.setOrigin(1, 0.5)
 		.setPosition(x, y - height - 20)
 		.setVisible(false);

@@ -6,8 +6,8 @@ import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
-import { env } from "../../../Env";
-import { makeContainer, centeredRect } from "../../../Env";
+import { env } from "@Env";
+import { makeContainer, centeredRect } from "@Env";
 
 const initialForceStats: () => ForceStats = () => ({
 	display: null,

@@ -1,4 +1,4 @@
-import { env } from "../../../Env";
+import { env } from "@Env";
 import * as TitleScreen from "../../Title/TitleScreen";
 
 export const returnToTitle = async () => {

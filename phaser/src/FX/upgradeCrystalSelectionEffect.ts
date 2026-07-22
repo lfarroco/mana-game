@@ -6,7 +6,7 @@ import * as theme from "../Screens/Battleground/Components/UI/theme";
 import * as animation from "@Utils/animation";
 import * as colorUtils from "@Utils/colorUtils";
 import { MagicOrb } from "@Components/MagicOrb/MagicOrb";
-import { env } from "../Env";
+import { env } from "@Env";
 
 const DEFAULT_ACCENT_COLOR = 0x7ae7ff;
 const SHARD_TEXTURE_KEY = "upgrade-crystal-shard";

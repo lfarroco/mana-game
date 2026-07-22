@@ -1,4 +1,4 @@
-import { env } from "../../../Env";
+import { env } from "@Env";
 import * as OptionsScreen from "../../Options/OptionsScreen";
 
 export const openOptions = () => async () => {

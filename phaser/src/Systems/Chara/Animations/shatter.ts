@@ -2,7 +2,7 @@ import { tween } from "@Utils/animation";
 import Phaser from "phaser";
 import { Chara, mustGetState } from "@Systems/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 // Shatter death animation constants
 const SHAKE_OFFSET_X = 10;

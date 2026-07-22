@@ -2,7 +2,7 @@ import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
 import * as environment from "@Utils/environment";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 800;

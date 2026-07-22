@@ -9,7 +9,7 @@ import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 export function determineGameOutcome(
 	resultType: "victory" | "defeat",

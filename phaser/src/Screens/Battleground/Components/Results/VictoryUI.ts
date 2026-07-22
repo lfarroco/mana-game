@@ -4,7 +4,7 @@ import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
-import { env, makeContainer as container, borderedRoundRect } from "../../../../Env";
+import { env, makeContainer as container, borderedRoundRect } from "@Env";
 
 export async function displayVictory(
 	units: Unit[],

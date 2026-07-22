@@ -3,7 +3,7 @@ import { Unit } from "@game/Models";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@game/BoardLogic";
 import { isSome } from "@game/Functional";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export interface BoardState {
 	slotShaders: EnergySlot.EnergySlot[];

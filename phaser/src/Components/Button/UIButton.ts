@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ButtonTooltip from "@Components/Button/ButtonTooltip";
-import { env } from "../../Env";
+import { env } from "@Env";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
 
 

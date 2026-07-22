@@ -1,6 +1,6 @@
 import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { env, makeContainer as container, borderedRoundRect, rectangularDropZone } from "../../../../Env";
+import { env, makeContainer as container, borderedRoundRect, rectangularDropZone } from "@Env";
 
 // Discard zone UI constants
 const DISCARD_ZONE_X = 1400;

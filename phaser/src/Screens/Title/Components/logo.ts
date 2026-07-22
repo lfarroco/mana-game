@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as Assets from "@assets";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 export function render() {
 	const logo = env.scene.add.image(0, 0, Assets.images.logo.key);

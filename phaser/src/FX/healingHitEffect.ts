@@ -1,6 +1,6 @@
 import { delay } from "@Utils/animation";
 import { images } from "@assets";
-import { env } from "../Env";
+import { env } from "@Env";
 
 const HEALING_HIT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 50,

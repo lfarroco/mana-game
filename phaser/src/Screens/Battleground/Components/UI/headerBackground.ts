@@ -1,4 +1,4 @@
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 const COLOR_DARK_GRAY = 0x1f1f1f;
 const ALPHA = 0.8;

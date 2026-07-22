@@ -3,7 +3,7 @@ import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const OVERLAY_ALPHA = 0.85;
 const PANEL_WIDTH = 1100;
@@ -46,7 +46,7 @@ export function openStats(): void {
 	const leftTitle = env.scene.add.text(
 		c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
 		i18n.t("stats.battleTotals"),
-		{...c.titleTextConfig, fontSize: "24px"}
+		{ ...c.titleTextConfig, fontSize: "24px" }
 	).setOrigin(0.5);
 
 	type StatItem = { label: string; value: string; color?: string };
@@ -63,7 +63,7 @@ export function openStats(): void {
 	const rightTitle = env.scene.add.text(
 		c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
 		i18n.t("stats.careerStats"),
-		{...c.titleTextConfig, fontSize: "24px"}
+		{ ...c.titleTextConfig, fontSize: "24px" }
 	).setOrigin(0.5);
 
 	const rightStatsData: StatItem[] = [

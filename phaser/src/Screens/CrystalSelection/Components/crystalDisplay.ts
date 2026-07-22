@@ -2,7 +2,7 @@ import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
 import * as parent from "../CrystalSelectionScreen";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const SPRITE_Y = 300;
 const CARD_NAME_Y = SPRITE_Y + 150;

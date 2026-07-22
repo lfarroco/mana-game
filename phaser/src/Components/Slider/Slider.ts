@@ -1,5 +1,5 @@
 import * as AudioManager from "@Systems/AudioManager";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 export type SliderConfig = {
 	width: number;

@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as parent from "../CrystalSelectionScreen";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 const PAGINATION_Y = 700;
 const DOT_SIZE = 16;

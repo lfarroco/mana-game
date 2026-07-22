@@ -5,7 +5,7 @@ import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as i18n from "@i18n/i18n";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 export function onWinsChanged({ wins, delta }: { wins: number; delta: number; }) {
 	winsDisplay.updateWinsDisplay(wins);

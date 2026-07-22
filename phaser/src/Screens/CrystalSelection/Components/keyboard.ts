@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import * as parent from "../CrystalSelectionScreen";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 export function create(targetText: Phaser.GameObjects.Text) {
 	if (document.getElementById("virtual-keyboard")) return;

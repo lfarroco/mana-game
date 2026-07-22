@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 // UI positioning
 const OVERLAY_ALPHA = 0.85;

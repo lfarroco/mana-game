@@ -1,6 +1,6 @@
 import { images } from "@assets";
 import { delay } from "@Utils/animation";
-import { env } from "../Env";
+import { env } from "@Env";
 
 export interface SlowEffectOptions {
 	duration?: number;

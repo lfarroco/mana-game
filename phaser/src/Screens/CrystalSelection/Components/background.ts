@@ -1,5 +1,5 @@
 import * as constants from "@Constants";
-import { env } from "../../../Env";
+import { env } from "@Env";
 
 export const CARD_DISPLAY_Y = 400;
 export const CARD_DISPLAY_BG_WIDTH = 1200;

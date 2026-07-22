@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Panel from "@Components/Panel/Panel";
-import { env } from "../../Env";
+import { env } from "@Env";
 
 // Modal animation constants
 const MODAL_SCALE_IN_DURATION_MS = 500;

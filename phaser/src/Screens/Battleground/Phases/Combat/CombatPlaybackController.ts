@@ -14,7 +14,7 @@ import * as logHandlers from "./logHandlers";
 import { CombatState, WaveOutcome, type CombatSystemStates } from "@game/Models";
 import { BlackHoleState } from "./BlackHoleState";
 import { resetUnitStats } from "@game/Entities/Unit";
-import { env } from "../../../../Env";
+import { env } from "@Env";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
