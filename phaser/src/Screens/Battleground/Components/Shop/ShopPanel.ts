@@ -4,7 +4,7 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
 import { env, makeContainer as container } from "@Env";
-import { skipPhase } from "../../../../GameController";
+import { BattlegroundEvent } from "../../../../Events";
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -31,7 +31,14 @@ export const addSkipButton = (): void => {
 			constants.BATTLEGROUND_BUTTON_X,
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
-		callback: () => skipPhase()
+		callback: () => {
+			void (async () => {
+				const previousPhase = env.state.session.phase;
+				const { session } = await env.dispatch({ type: "skip" });
+				env.updateState({ ...env.state, session });
+				BattlegroundEvent.phaseFinished.emit({ previousPhase });
+			})();
+		}
 	});
 
 	ShopState.container?.add(skipButton.container);

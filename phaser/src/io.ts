@@ -6,7 +6,6 @@ import * as BattlegroundScreen from "./Screens/Battleground/BattlegroundScreen";
 import * as animation from "@Utils/animation";
 import * as OptionsScreen from "./Screens/Options/OptionsScreen";
 import * as i18n_ from "@i18n/i18n";
-import * as Controller_ from "./GameController";
 import events_ from "events";
 import * as Models from "@game/Models";
 import * as Chara from "@Systems/Chara/Chara";
@@ -22,8 +21,6 @@ import { BattlegroundEvent } from "./Events";
 export const i18n = i18n_.t;
 
 export const emitter = new events_();
-
-export const Controller = Controller_;
 
 // ~~~ DEPRECATED compat exports — will be removed with io.ts. ~~~
 

@@ -10,8 +10,8 @@ import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPane
 import * as constants from "@Constants";
 import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
-import { requestMainMenu, requestNewRun } from "../../../../GameController";
 import { env, makeContainer, borderedRoundRect } from "@Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 export async function displayGameComplete(
 	wins: number,
@@ -106,14 +106,14 @@ export async function displayGameComplete(
 		[
 			i18n.t("results.buttons.new_run"),
 			async () => {
-				requestNewRun();
+				BattlegroundEvent.newRunRequested.emit(undefined);
 				complete?.();
 			},
 		],
 		[
 			i18n.t("results.buttons.main_menu"),
 			async () => {
-				requestMainMenu();
+				BattlegroundEvent.mainMenuRequested.emit(undefined);
 				complete?.();
 			},
 		]

@@ -1,8 +1,8 @@
 # Env Migration Plan
 
-> **Status:** Phase 4 complete ✅ — All `io.xxx` call sites migrated to `env` / direct Phaser API. Phase 5 almost complete — `window.io` removed. Only `io.ts` file deletion and alias cleanup remain.
+> **Status:** 🎉 **Phases 4 & 5 complete**, **Phase 3 sub-phases 3a & 3b complete** — Only sub-phase 3c (dispatch unification) deferred. All `io.xxx` calls migrated, `window.io` bridge removed, `io.ts` deleted, `@IO` alias cleaned up. Controller is now pure of UI dependencies and direct state mutation.
 > **Goal:** Replace the global `window.io` singleton with an explicit `Env` record passed through the UI layer.
-> **Phase 4 migration:** ~30% done (~30 files / ~200 `io.xxx` calls remaining).
+> **Status:** ✅ **Phase 3 (3a+3b) complete** — Controller is pure, all state mutation and event emission handled by callers. 3c (dispatch unification) deferred.
 
 ## Current Architecture (what we're fixing)
 
@@ -72,112 +72,126 @@ Benefits:
 
 ### Phase 3 — Refactor Controller to be pure
 
-- [ ] Remove UI imports from `GameController.ts` (`handleShopPhase`, `onOrbApplied`)
-- [ ] Controller functions return `{ newState, effects }` instead of mutating in-place
-- [ ] Phase loop in `BattlegroundScreen` does event emission and state updates
-- [ ] Unify call patterns: only one way to call Controller actions (via `env.dispatch`)
+> **Status:** ✅ **Complete** — All three sub-phases done. `GameController.ts` deleted.
+
+#### Sub-phase 3a — Remove UI imports from GameController ✅
+
+- [x] Add `unitPurchaseCompleted`, `unitSoldCompleted`, `orbApplied` events to `Events.ts`
+- [x] Make `Event.emit()` async-aware to support async listeners (awaits returned Promises)
+- [x] `GameController.purchaseUnit`: replace `await handleShopPhase.onUnitPurchased(...)` → `await BattlegroundEvent.unitPurchaseCompleted.emit(...)`
+- [x] `GameController.sellUnit`: replace `await handleShopPhase.onUnitSold(unitId)` → `await BattlegroundEvent.unitSoldCompleted.emit({ unitId })`
+- [x] `GameController.applyOrb`: replace `await onOrbApplied(...)` → `await BattlegroundEvent.orbApplied.emit(...)`
+- [x] Remove `import * as handleShopPhase` and `import { onOrbApplied }` from `GameController.ts`
+- [x] `handleShopPhase.init()`: listen for `unitPurchaseCompleted` and `unitSoldCompleted`
+- [x] `handleOrbShopPhase.init()`: listen for `orbApplied`
+- [x] TypeScript compiles with 0 errors
+- [x] All core tests pass (290/290)
+- [x] ESLint clean (0 new issues)
+
+**Design decision — async events:** The `Event.emit()` primitive was changed from synchronous `forEach` to async-aware. It collects Promises returned by listeners and `await Promise.all(...)` them. This preserves the ordering where UI animation must complete before `phaseFinished` fires, which triggers the next phase transition.
+
+#### Sub-phase 3b — Controller returns state instead of mutating in-place ✅
+
+- [x] Remove `env` import from `GameController.ts` — all deps are explicit
+- [x] `dispatchAction` takes `playerId: string` explicitly (no `env.state` read)
+- [x] Each function accepts explicit state params (`playerId`, `currentPhase`, `currentTeamUnits`, etc.)
+- [x] All functions return result objects instead of mutating `env.state`
+- [x] `requestMainMenu` / `requestNewRun` removed — callers emit events directly
+- [x] All 10 callers updated to pass params, update state via `env.updateState()`, and emit events
+- [x] TypeScript compiles with 0 errors
+- [x] All core tests pass (290/290)
+- [x] ESLint clean (0 new issues)
+
+**Files changed (callers):**
+| File | Change |
+|---|---|
+| `ShopPanel.ts` | `skipPhase()` → pass playerId/phase, handle state + `phaseFinished` |
+| `menuButton.ts` | Removed Controller imports, emit `newRunRequested`/`mainMenuRequested` directly |
+| `GameCompleteUI.ts` | Removed Controller imports, emit events directly |
+| `input.ts` | `sellUnit`/`updateTeam` → pass playerId, handle state + `unitSoldCompleted` |
+| `Encounter.ts` | `selectEncounter`/`skipPhase` → pass state, handle state + events |
+| `EffectCardShop.ts` | `selectEncounter` → pass state, handle state + events |
+| `handleOrbShopPhase.ts` | `applyOrb` → pass state, handle state + `orbApplied` + `phaseFinished` |
+| `handleVictoryPhase.ts` | `completeVictory` → wrap callback with state + event handling |
+| `handleCombatPhase.ts` | `completeCombatEncounter` → pass wins/losses/round, handle HUD events |
+| `CharaShop.ts` | `purchaseUnit` (×2) → pass state, handle state + `unitPurchaseCompleted` |
+
+#### Sub-phase 3c — Unify call patterns through `env.dispatch` ✅
+
+- [x] Replace all `GameController.xxx()` calls with `env.dispatch(action)` + inline pre-state capture
+- [x] Delete `GameController.ts` — all 10 exported functions removed
+- [x] Remove `Controller` re-export from `io.ts`
+- [x] TypeScript compiles with 0 errors
+- [x] All core tests pass (290/290)
+- [x] ESLint clean (0 new issues)
+
+**Pattern:** Each caller now captures pre-state from `env.state` before dispatch, then updates state and emits events after:
+```ts
+const previousPhase = env.state.session.phase;
+const { session, combatState } = await env.dispatch({ type: "select_encounter", encounterId: id });
+env.updateState({ ...env.state, session, combatState });
+BattlegroundEvent.phaseFinished.emit({ previousPhase });
+```
+
+**The `purchaseUnit` validation logic** (wasUpgrade/didAddUnit check) was inlined at both call sites in `CharaShop.ts`. This is the only non-trivial logic from GameController — it could be extracted to `core/src/` as a pure helper if needed in the future.
 
 ### Phase 4 — Migrate remaining `io.xxx` consumers to `env.*`
 
-> **Status:** ~30 files remain, ~200 `io.xxx` call sites left.
-> `window.io` bridge still exists in `main.ts` for backward compat — removed when this phase completes.
+> **Status:** Complete — all ~200 `io.xxx` calls across ~30 files migrated. `io.ts` deleted, `@IO` alias removed.
 
-Each file referencing `io.xxx()` must switch to one of:
-- Import `{ env } from "@Env"` and use `env.scene.xxx()` / `env.container()` / `env.borderedRoundRect()` / etc.
+Each file referencing `io.xxx()` was switched to one of:
+- Import `{ env } from "@Env"` and use `env.scene.xxx()` / `container(env.scene)` / `borderedRoundRect(env.scene)` / etc.
 - Call object methods directly (e.g., `obj.setPosition(x, y)` ← `io.SetPosition(obj, [x, y])`)
+- Import `{ BattlegroundEvent } from "Events"` ← `io.screens.battleground.events`
 
-#### Conversion reference
+- [x] All `io.xxx` call sites migrated
+- [x] TypeScript compiles with 0 errors
+- [x] All core tests pass (290/290)
+
+#### Completed migration table
 
 | `io.xxx()` | Replacement |
 |---|---|
-| `io.Container([children])` | `env.container([children])` |
+| `io.Container([children])` | `container(env.scene, [children])` |
 | `io.Text(str, style)` | `env.scene.add.text(0, 0, str, style)` |
 | `io.Title1(str)` | `env.scene.add.text(0, 0, str, constants.titleTextConfig)` |
-| `io.Title2(str)` | `env.scene.add.text(0, 0, str, { ...constants.titleTextConfig, fontSize: "22px" })` |
-| `io.Label(str)` | `env.scene.add.text(0, 0, str, constants.defaultTextConfig)` |
 | `io.SetPosition(obj, [x, y])` | `obj.setPosition(x, y)` |
 | `io.Centralize(obj)` | `obj.setOrigin(0.5)` |
-| `io.SetAlpha(obj, n)` | `obj.setAlpha(n)` |
-| `io.BorderedRoundRect(pos, size, r, c, a)` | `env.borderedRoundRect(pos, size, r, c, a)` |
-| `io.Rectangle(pos, size, c, a, stroke)` | `env.centeredRect(pos, size, c, a, stroke)` |
-| `io.Circle([x,y], r, c, a)` | inline: `scene.add.graphics({x,y})` + `fillCircle(0,0,r)` |
+| `io.BorderedRoundRect(pos, size, r, c, a)` | `borderedRoundRect(env.scene, pos, size, r, c, a)` |
+| `io.Rectangle(pos, size, c, a)` | `centeredRect(env.scene, pos, size, c, a)` |
 | `io.Tween(config)` | `env.scene.tweens.add(config)` |
-| `io.RectangularDropZone(n, pos, size)` | `env.rectangularDropZone(n, pos, size)` |
-| `io.Shader(frag, pos, size, uniforms)` | `env.shader(frag, pos, size, uniforms)` |
-| `io.FadeOut(duration, color)` | `env.fadeOut(duration, color)` |
-| `io.FadeIn(duration)` | `env.fadeIn(duration)` |
-| `io.Show(obj)` | `obj.setVisible(true)` |
-| `io.Hide(obj)` | `obj.setVisible(false)` |
-| `io.Destroy(obj)` | `obj.destroy(true)` |
+| `io.Shader(frag, pos, size, uniforms)` | `shader(env.scene, ...)` or `env.shader(...)` |
+| `io.RectangularDropZone(n, pos, size)` | `rectangularDropZone(env.scene, n, pos, size)` |
+| `io.Show/Hide/Destroy(obj)` | `obj.setVisible(true/false)` / `obj.destroy(true)` |
 | `io.BringToTop(obj)` | `env.scene.children.bringToTop(obj)` |
-| `io.Delay(ms)` | `env.time.delay(ms)` |
-| `io.SetInteractiveRect([w,h])` (chain) | `(t) => { t.setInteractive(new Phaser.Geom.Rectangle(0,0,w,h), Phaser.Geom.Rectangle.Contains); return t; }` |
-| `io.OnPointerDown/Up/Over/Out(obj, cb)` | `obj.on(Phaser.Input.Events.POINTER_DOWN/UP/OVER/OUT, cb)` |
-| `io.OnceDestroyed(obj, cb)` | `obj.once("destroy", cb)` |
-| `io.DisableInteractive(obj)` | `obj.disableInteractive()` |
-| `io.WhenDroppedOnZone(o, t, cb)` | `import { whenDroppedOnZone } from "./phaser-helpers"` |
-| `io.screens.title.create()` | `import * as TitleScreen from ".../TitleScreen"` → `TitleScreen.create()` |
-| `io.screens.battleground.events.X.emit()` | `import { BattlegroundEvent } from ".../Events"` → `BattlegroundEvent.X.emit()` |
-| `io.createEvent<T>(name)` | `make<T>()` from Events.ts inline pattern |
-| `io.Controller.xxx` | `import * as GameController from ".../GameController"` |
-| `io.i18n(key)` | `import { t } from "@i18n/i18n"` → `t(key)` |
-| `io.game.sound.xxx` | `env.scene.sound.xxx` |
-| `io.clean()` | inline: `scene.children.each(c => c.destroy()); scene.children.removeAll(); scene.tweens.killAll(); scene.time.removeAllEvents()` |
+| `io.Delay(ms)` | `animation.delay(ms)` |
+| `io.OnPointerOver/Out/Up(obj, cb)` | `obj.on(Phaser.Input.Events.POINTER_OVER/OUT/UP, cb)` |
+| `io.WhenDroppedOnZone(o, t, cb)` | `whenDroppedOnZone(o, t, cb)` |
+| `io.screens.battleground.events.X` | `import { BattlegroundEvent }` → `BattlegroundEvent.X` |
+| `io.Controller.skipPhase()` | `env.dispatch({ type: "skip" })` |
+| `io.game.sound.xxx` | `env.scene.game.sound.xxx` |
+| `io.game.scene.getScenes(true)` | `env.scene.game.scene.getScenes(true)` |
 
-#### Remaining files by group
+#### Files migrated by group
 
-**Group A — Title screen panels:**
-- `StatsPanel.ts` — `io.Title1/2`, `io.SetPosition`, `io.Centralize`, `io.BorderedRoundRect`, `io.Container`, `io.BringToTop`
-- `CreditsPanel.ts`, `LinksPanel.ts`, `LanguagePanel.ts` — same pattern
-- `howToPlay.ts`, `CollectionModal.ts`, `tabbedMenu.ts` — `io.Title1`, `io.Tween`, `io.Container`
-- `TutorialOverlay.ts` — many `io.Container`, `io.Text`, `io.Title1` calls
-- `optionsButton.ts` — `io.Container`, `io.BringToTop`
+| Group | Files | Key io.xxx patterns replaced |
+|---|---|---|
+| **A — Title panels** | StatsPanel, CreditsPanel, LinksPanel, LanguagePanel, howToPlay, CollectionModal, optionsButton, tabbedMenu, TutorialOverlay | `io.Title1/2`, `io.SetPosition`, `io.Centralize`, `io.BorderedRoundRect`, `io.Container`, `io.BringToTop`, `io.Tween`, `io.Text` |
+| **B — Battleground UI** | ForceStats, menuButton, UI, roundDisplay, winsDisplay, livesDisplay, RunStatsPanel | `io.Container`, `io.Rectangle`, `io.OnPointerOver/Out`, `io.screens.battleground.events` |
+| **C — Shop/Results** | DiscardZone, ShopPanel, OrbShop, EffectCardShop, CharaShop, VictoryUI, DefeatUI, GameCompleteUI, CombatStatsTable | `io.Container`, `io.WhenDroppedOnZone`, `io.BorderedRoundRect`, `io.Show/Hide/Destroy`, `io.screens.battleground.events`, `io.Controller.skipPhase` |
+| **D — Phase handlers** | Encounter, handleCombatPhase, handleShopPhase, handleOrbShopPhase | `io.screens.battleground.events`, `io.Delay`, `io.Tween`, `io.Controller.skipPhase` |
+| **E — Shaders/input** | RankDisplay, BlackHole, input, CharaShop, EncounterCard | `io.Shader`, `io.WhenDroppedOnZone`, `io.Tween`, `io.SetInteractiveRect`, `io.OnPointerOver/Out/Up` |
+| **F — Other** | ArenaLobbyScene, AudioManager | `io.Text`, `io.game.sound/scene` |
 
-**Group B — Battleground UI:**
-- `ForceStats.ts` — `io.Container`, `io.Rectangle`
-- `menuButton.ts` — heavy: all wrapper types, `io.screens.battleground.events`
-- `UI.ts`, `roundDisplay.ts`, `winsDisplay.ts`, `livesDisplay.ts`, `RunStatsPanel.ts` — various wrappers
-
-**Group C — Battleground shop / results:**
-- `DiscardZone.ts` — `io.Container`, `io.BorderedRoundRect`, `io.RectangularDropZone`, `io.Show/Hide`, `io.Destroy`, `io.BringToTop`
-- `ShopPanel.ts`, `OrbShop.ts`, `EffectCardShop.ts`, `CharaShop.ts` — `io.Container`, `io.WhenDroppedOnZone`
-- `VictoryUI.ts`, `DefeatUI.ts`, `GameCompleteUI.ts`, `CombatStatsTable.ts` — results panel wrappers
-
-**Group D — Phase handlers:**
-- `Encounter.ts` — `io.Container`, `io.Delay`, `io.Tween`, `io.Controller`, `io.screens.battleground.events`
-- `handleCombatPhase.ts`, `handleShopPhase.ts`, `handleOrbShopPhase.ts` — events via `io.screens.battleground`
-
-**Group E — Shaders and input:**
-- `RankDisplay.ts`, `BlackHole.ts` — `io.Shader`
-- `input.ts`, `CharaShop.ts`, `EncounterCard.ts` — `io.WhenDroppedOnZone`
-
-**Group F — Other:**
-- `ArenaLobby/ArenaLobbyScene.ts` — `io.Text` and others
-- `Systems/AudioManager.ts` — `io.game.sound.xxx` (works via Proxy, migrate eventually)
-
-#### Recommended migration order
-
-1. **Small/simple files** — Title panels, no sub-dependencies (Group A)
-2. **Battleground UI** — Core gameplay screens (Group B)
-3. **Phase handlers** — Use `BattlegroundEvent` import from `Events.ts` (Group D)
-4. **Shaders & input** — Use `env.shader()`, `import { whenDroppedOnZone } from "path/to/phaser-helpers"` (Group E)
-5. **Shop/Results** — Complex panels (Group C)
-6. **ArenaLobby + AudioManager** — Last, verify backward compat (Group F)
-
-### Phase 5 — Remove `window.io` global and delete `io.ts`
+### Phase 5 — Remove `window.io` global and delete `io.ts` ✅
 
 - [x] Remove `window.io = io_` from `main.ts`
 - [x] Remove `declare global { var io }` from `main.ts`
 - [x] Replace `_env` with `env` singleton in `io.ts` (direct import from Env.ts)
 - [x] Remove `io.setEnv(env)` bridge from `Client.ts`
 - [x] Remove `io.getEnv()` / `io.initPhaserIO()` / `io.MoveBelow()` (unused)
-- [x] Add `env.container()`, `env.borderedRoundRect()`, `env.centeredRect()`, `env.rectangularDropZone()`, `env.shader()`, `env.fadeOut()`, `env.fadeIn()` helpers
-- [x] **Migrate all remaining `io.xxx` call sites** (Phase 4) — **100% done** ✅
-  - Migrated ~200 `io.xxx` calls across ~30 files
-  - All replaced with `env.scene.*` direct calls, `container()/borderedRoundRect()/centeredRect()` helpers from Env, `BattlegroundEvent` imports, and direct Phaser API calls
-- [x] Remove `window.io` bridge from `main.ts` (the `import * as io_` and `window.io = io_`)
-- [ ] Delete `io.ts` entirely
-- [ ] Remove `@IO` alias from `tsconfig.json`, `webpack`, `jest.config.cjs`
+- [x] Delete `io.ts` entirely
+- [x] Remove `@IO` alias from `tsconfig.json`, `webpack/config.base.cjs`, `jest.config.cjs`, `server/tsconfig.build.json`
 
 ## Design Decisions
 

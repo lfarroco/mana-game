@@ -1,5 +1,4 @@
 import * as CoreConstants from "@game/Constants";
-import * as GameController from "../../GameController";
 import * as Board from "@Components/Board/Board";
 import * as Geometry from "@game/Geometry";
 import { Unit } from "@game/Models";
@@ -10,6 +9,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
 import { env } from "@Env";
 import { whenDroppedOnZone } from "../../phaser-helpers";
+import { BattlegroundEvent } from "../../Events";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -46,7 +46,13 @@ export function init(chara: Chara.Chara) {
 
 		whenDroppedOnZone(chara, DiscardZone.name, () => {
 			if (!Board.isInputEnabled()) return;
-			if (isPlayerUnit) GameController.sellUnit(state.unitId);
+			if (isPlayerUnit) {
+				void (async () => {
+					const { session } = await env.dispatch({ type: "discard_unit", unitId: state.unitId });
+					env.updateState({ ...env.state, session });
+					BattlegroundEvent.unitSoldCompleted.emit({ unitId: state.unitId });
+				})();
+			}
 
 		});
 
@@ -172,7 +178,10 @@ export const processOwnedUnitMoveRequest = (
 
 const saveUnitPositions = (
 	units: Unit[]) => {
-	GameController.updateTeam({ units });
+	void (async () => {
+		const { session } = await env.dispatch({ type: "update_team", team: { units } });
+		env.updateState({ ...env.state, session });
+	})();
 };
 
 const executeMove = (

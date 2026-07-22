@@ -1,4 +1,3 @@
-import * as GameController from "../../../../GameController";
 import * as Models from "@game/Models";
 import * as OrbShop from "@Screens/Battleground/Components/Shop/OrbShop";
 import * as Chara from "@Systems/Chara/Chara";
@@ -14,6 +13,7 @@ function init() {
 
 	BattlegroundEvent.orbApplyRequested.listen(onOrbApplyRequested);
 	BattlegroundEvent.phaseFinished.listen(closeOrbShop);
+	BattlegroundEvent.orbApplied.listen(onOrbApplied);
 }
 
 export async function handleOrbShopPhase(): Promise<void> {
@@ -29,7 +29,11 @@ async function onOrbApplyRequested({
 	targetUnitId: string;
 }) {
 	if (env.state.session.phase !== "orb_shop") return;
-	await GameController.applyOrb(orbId, targetUnitId);
+	const previousPhase = env.state.session.phase;
+	const { session } = await env.dispatch({ type: "apply_orb", orbId, targetUnitId });
+	env.updateState({ ...env.state, session });
+	await BattlegroundEvent.orbApplied.emit({ orbId, targetUnitId });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }
 
 export async function onOrbApplied({

@@ -1,7 +1,6 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as c from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { requestMainMenu, requestNewRun } from "../../../GameController";
 import { env, makeContainer, borderedRoundRect, centeredRect } from "@Env";
 import { BattlegroundEvent } from "../../../Events";
 
@@ -29,7 +28,7 @@ export function createPanel() {
 	buttonDefs.push([
 		i18n.t("ui.menu.newRun"),
 		() => {
-			requestNewRun();
+			BattlegroundEvent.newRunRequested.emit(undefined);
 		},
 	]);
 
@@ -37,7 +36,7 @@ export function createPanel() {
 		[
 			i18n.t("ui.menu.mainMenu"),
 			() => {
-				requestMainMenu();
+				BattlegroundEvent.mainMenuRequested.emit(undefined);
 			},
 		],
 		[

@@ -2,7 +2,6 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
-import * as GameController from "../../../../GameController";
 import * as Models from "@game/Models";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
@@ -185,7 +184,10 @@ export const displayOptions = () => {
 		disableInteraction = true;
 		container.destroy(true);
 
-		await GameController.selectEncounter(id);
+		const previousPhase = env.state.session.phase;
+		const { session, combatState } = await env.dispatch({ type: "select_encounter", encounterId: id });
+		env.updateState({ ...env.state, session, combatState });
+		BattlegroundEvent.phaseFinished.emit({ previousPhase });
 
 	};
 
@@ -223,7 +225,14 @@ export const displayOptions = () => {
 		const btn = UIButton.create({
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
-			callback: () => GameController.skipPhase()
+			callback: () => {
+				void (async () => {
+					const previousPhase = env.state.session.phase;
+					const { session } = await env.dispatch({ type: "skip" });
+					env.updateState({ ...env.state, session });
+					BattlegroundEvent.phaseFinished.emit({ previousPhase });
+				})();
+			}
 		});
 
 		container.add(btn.container);

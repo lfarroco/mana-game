@@ -12,7 +12,6 @@ import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 import * as Constants from "@game/Constants";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
-import { completeCombatEncounter } from "../../../../GameController";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
@@ -166,7 +165,26 @@ function handleCombatContinueRequested(): void {
 		return;
 	}
 
-	void completeCombatEncounter();
+	void (async () => {
+		const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
+		const previousPhase = env.state.session.phase;
+		const { session } = await env.dispatch({ type: "end_combat" });
+		env.updateState({ ...env.state, session });
+
+		const winDelta = session.wins - previousWins;
+		if (winDelta !== 0)
+			BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
+
+		const lossesDelta = previousLosses - session.losses;
+		if (lossesDelta !== 0)
+			BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
+
+		const roundDelta = previousRound - session.round;
+		if (roundDelta !== 0)
+			BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
+
+		BattlegroundEvent.phaseFinished.emit({ previousPhase });
+	})();
 }
 
 const handleCombatReplayRequested = () => () => {

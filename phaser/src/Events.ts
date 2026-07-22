@@ -16,16 +16,23 @@ import * as Models from "@game/Models";
 // ---------------------------------------------------------------------------
 
 type Event<T> = {
-  listen: (cb: (payload: T) => void) => void;
-  emit: (payload: T) => void;
+  listen: (cb: (payload: T) => void | Promise<void>) => void;
+  emit: (payload: T) => Promise<void>;
 };
 
 /** Creates a self-contained typed event — no EventEmitter, no strings. */
 const make = <T>(): Event<T> => {
-  const listeners = new Set<(payload: T) => void>();
+  const listeners = new Set<(payload: T) => void | Promise<void>>();
   return {
     listen: (cb) => { listeners.add(cb); },
-    emit: (payload) => { listeners.forEach((cb) => cb(payload)); },
+    emit: async (payload) => {
+      const promises: Promise<void>[] = [];
+      listeners.forEach((cb) => {
+        const result = cb(payload);
+        if (result instanceof Promise) promises.push(result);
+      });
+      if (promises.length > 0) await Promise.all(promises);
+    },
   };
 };
 
@@ -82,4 +89,17 @@ export const BattlegroundEvent = {
   /** HUD update: round number changed. */
   roundChanged: make<{ round: number; delta: number }>(),
   onRoundChanged: make<{ round: number; delta: number }>(),
+
+  /** Emitted after a unit purchase completes (post-server dispatch). */
+  unitPurchaseCompleted: make<{
+    unitId: string;
+    previousTeamUnits: Models.Unit[];
+    shopCharaId: string | null;
+  }>(),
+
+  /** Emitted after a unit is sold (post-server dispatch). */
+  unitSoldCompleted: make<{ unitId: string }>(),
+
+  /** Emitted after an orb is applied to a unit (post-server dispatch). */
+  orbApplied: make<{ orbId: string; targetUnitId: string }>(),
 };

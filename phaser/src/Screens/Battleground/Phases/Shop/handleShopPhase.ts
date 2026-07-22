@@ -23,7 +23,9 @@ function init() {
 	initialized = true;
 
 	BattlegroundEvent.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed);
-	BattlegroundEvent.phaseFinished.listen(closeShop)
+	BattlegroundEvent.phaseFinished.listen(closeShop);
+	BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased);
+	BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId));
 }
 
 export async function handleShopPhase() {

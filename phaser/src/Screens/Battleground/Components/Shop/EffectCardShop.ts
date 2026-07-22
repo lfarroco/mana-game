@@ -4,8 +4,8 @@ import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPrese
 import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
-import * as GameController from "../../../../GameController";
 import { env, makeContainer as container } from "@Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -88,7 +88,10 @@ function renderUpgradeCards(
 				isResolvingSelection = true;
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
-				await GameController.selectEncounter(encounterId);
+				const previousPhase = env.state.session.phase;
+				const { session, combatState } = await env.dispatch({ type: "select_encounter", encounterId });
+				env.updateState({ ...env.state, session, combatState });
+				BattlegroundEvent.phaseFinished.emit({ previousPhase });
 
 
 				// TODO: handle upgrade success (as event, before phase completion)

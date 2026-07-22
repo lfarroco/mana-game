@@ -11,8 +11,8 @@ import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
+import { Unit } from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
-import * as GameController from "../../../../GameController";
 import { env, whenDroppedOnZone } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
@@ -260,11 +260,31 @@ function initShopCharaInput(
 			return;
 		}
 
-		void GameController.purchaseUnit({
-			unitId: unit.cardId,
-			targetSlot: null,
-			shopCharaId: unit.id
-		});
+		void (async () => {
+			const previousPhase = env.state.session.phase;
+			const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
+			const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
+
+			const { session } = await env.dispatch({
+				type: "recruit_unit",
+				unitId: unit.cardId,
+				targetSlot: null,
+			});
+
+			const wasUpgrade = previousTeamUnits.some((u) => u.cardId === unit.cardId);
+			const didAddUnit = session.team.units.find(
+				(u) => u.cardId === unit.cardId && !previousTeamUnitIds.has(u.id),
+			);
+			if (!wasUpgrade && !didAddUnit) return;
+
+			env.updateState({ ...env.state, session });
+			await BattlegroundEvent.unitPurchaseCompleted.emit({
+				unitId: unit.cardId,
+				previousTeamUnits,
+				shopCharaId: unit.id,
+			});
+			BattlegroundEvent.phaseFinished.emit({ previousPhase });
+		})();
 	});
 
 }
@@ -276,10 +296,10 @@ async function handleItemDragPurchaseRequested(
 	dragStartX: number,
 	dragStartY: number
 ): Promise<void> {
-	const { session } = env.state;
-	const existingUnit = session.team.units.find((u) => u.cardId === shopUnitData.cardId);
+	const { session: currentSession } = env.state;
+	const existingUnit = currentSession.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
-	if ((!existingUnit || existingUnit.rank > 3) && session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
+	if ((!existingUnit || existingUnit.rank > 3) && currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
 		BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],
@@ -289,7 +309,7 @@ async function handleItemDragPurchaseRequested(
 	}
 
 	if (!existingUnit || existingUnit.rank > 3) {
-		const occupier = getUnitAt(session.team.units)(targetTile);
+		const occupier = getUnitAt(currentSession.team.units)(targetTile);
 		if (occupier) {
 			BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
 				shopCharaId,
@@ -300,5 +320,27 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	await GameController.purchaseUnit({ unitId: shopUnitData.cardId, targetSlot: targetTile, shopCharaId });
+	const previousPhase = env.state.session.phase;
+	const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
+	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
+
+	const { session } = await env.dispatch({
+		type: "recruit_unit",
+		unitId: shopUnitData.cardId,
+		targetSlot: targetTile,
+	});
+
+	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === shopUnitData.cardId);
+	const didAddUnit = session.team.units.find(
+		(u) => u.cardId === shopUnitData.cardId && !previousTeamUnitIds.has(u.id),
+	);
+	if (!wasUpgrade && !didAddUnit) return;
+
+	env.updateState({ ...env.state, session });
+	await BattlegroundEvent.unitPurchaseCompleted.emit({
+		unitId: shopUnitData.cardId,
+		previousTeamUnits,
+		shopCharaId,
+	});
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }
