@@ -7,65 +7,60 @@ import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../package.json";
 import * as Effects from "./Effects"
-import * as Models from "@game/Models"
+import { createEvent } from "@game/Models";
 import { env } from "@Env";
 
 type TitleScreenEvents = {
-	newGameButtonClicked: Models.Event<void>
-	resumeGameButtonClicked: Models.Event<void>
+	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
+	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
 }
-
-// Simple event maker (inline since we're avoiding circular io deps)
-const makeEvent = <T>(): Models.Event<T> => {
-	const listeners = new Set<(payload: T) => void>();
-	return {
-		listen: (cb) => { listeners.add(cb); },
-		emit: (payload) => { listeners.forEach((cb) => cb(payload)); },
-	};
-};
 
 export let events: TitleScreenEvents;
 export const components = Components;
 
 export let mainButtonsContainer: Container;
 
+let disposers: (() => void)[] = [];
 let initialized = false;
+
 function init() {
 	if (initialized) return;
 	initialized = true;
 
 	events = {
-		newGameButtonClicked: makeEvent<void>(),
-		resumeGameButtonClicked: makeEvent<void>(),
+		newGameButtonClicked: createEvent<void>(),
+		resumeGameButtonClicked: createEvent<void>(),
 	}
 
-	events.newGameButtonClicked.listen(Effects.startGame);
-	events.resumeGameButtonClicked.listen(
-		Effects.resumeGame
-	);
-
+	disposers = [
+		events.newGameButtonClicked.listen(Effects.startGame),
+		events.resumeGameButtonClicked.listen(Effects.resumeGame),
+	];
 }
 
 export function create() {
-
 	init();
 
 	Components.cloudsBg.create();
-
 	Components.logo.render();
-
 	renderMainButtons();
-
 	Components.howToPlay.create();
-
 	checkUnlocks();
-
 	displayVersion();
-
 	Tooltip.init();
-
 	AudioManager.playMusic("music_ageofdisjunction");
+}
 
+export function destroy() {
+	disposers.forEach((d) => d());
+	disposers = [];
+
+	if (events) {
+		events.newGameButtonClicked.clear();
+		events.resumeGameButtonClicked.clear();
+	}
+
+	initialized = false;
 }
 
 function renderMainButtons() {

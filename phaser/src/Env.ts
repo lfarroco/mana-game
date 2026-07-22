@@ -37,8 +37,12 @@ export { container as makeContainer, borderedRoundRect, centeredRect, rectangula
 export type EventChannel<T> = Models.Event<T>;
 
 const createChannel = <T>(emitter: EventEmitter, event: string): EventChannel<T> => ({
-  listen: (cb) => { emitter.on(event, cb); },
-  emit: (payload) => { emitter.emit(event, payload); },
+  listen: (cb) => {
+    emitter.on(event, cb);
+    return () => { emitter.off(event, cb); };
+  },
+  emit: async (payload) => { emitter.emit(event, payload); },
+  clear: () => { emitter.removeAllListeners(event); },
 });
 
 // ---------------------------------------------------------------------------

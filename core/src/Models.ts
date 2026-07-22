@@ -368,10 +368,7 @@ export type CombatState = {
 	playerUnits: Unit[];
 	cpuUnits: Unit[];
 };
-export type Event<T> = {
-	listen: (callback: (payload: T) => void) => void;
-	emit: (payload: T) => void;
-};
+export { type Event, createEvent } from "./Event";
 export type PhaseOptions = {
 	phase: PhaseType;
 	round: number;

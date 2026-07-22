@@ -30,8 +30,10 @@ type EncounterItem = {
 let disableInteraction = false;
 let container: Phaser.GameObjects.Container;
 
-export function registerListeners(): void {
-	BattlegroundEvent.phaseFinished.listen(onEncounterSkipped);
+export function registerListeners(): (() => void)[] {
+	return [
+		BattlegroundEvent.phaseFinished.listen(onEncounterSkipped),
+	];
 }
 
 const onEncounterSkipped = ({ previousPhase }: { previousPhase: Models.PhaseType }) => {

@@ -3,37 +3,31 @@
  *
  * Each event is a named export with its own listener set.
  * Import exactly what you need:
- *   import { BattlegroundEvent } from "../Events";
+ *   import { BattlegroundEvent, NavigationEvent } from "../Events";
  *
  * No EventEmitter, no string keys, no shared state between events.
  * Each event is an independent subject.
+ *
+ * Screen-scoped events should live in their own screen modules.
+ * Only cross-cutting concerns (navigation, global state) belong here.
  */
 
 import * as Models from "@game/Models";
+import { createEvent } from "@game/Models";
 
 // ---------------------------------------------------------------------------
-// Event primitive
+// Navigation events (cross-screen)
 // ---------------------------------------------------------------------------
 
-type Event<T> = {
-  listen: (cb: (payload: T) => void | Promise<void>) => void;
-  emit: (payload: T) => Promise<void>;
-};
-
-/** Creates a self-contained typed event — no EventEmitter, no strings. */
-const make = <T>(): Event<T> => {
-  const listeners = new Set<(payload: T) => void | Promise<void>>();
-  return {
-    listen: (cb) => { listeners.add(cb); },
-    emit: async (payload) => {
-      const promises: Promise<void>[] = [];
-      listeners.forEach((cb) => {
-        const result = cb(payload);
-        if (result instanceof Promise) promises.push(result);
-      });
-      if (promises.length > 0) await Promise.all(promises);
-    },
-  };
+export const NavigationEvent = {
+  /** Navigate to the title / main menu screen. */
+  toTitle:        createEvent<void>(),
+  /** Navigate to the battleground screen. */
+  toBattleground: createEvent<void>(),
+  /** Navigate to crystal selection. */
+  toCrystals:     createEvent<void>(),
+  /** Navigate to the options screen. */
+  toOptions:      createEvent<void>(),
 };
 
 // ---------------------------------------------------------------------------
@@ -42,64 +36,64 @@ const make = <T>(): Event<T> => {
 
 export const BattlegroundEvent = {
   /** Emitted when a phase completes and the next phase should begin. */
-  phaseFinished: make<{ previousPhase: Models.PhaseType }>(),
+  phaseFinished: createEvent<{ previousPhase: Models.PhaseType }>(),
 
   /** Emitted when dragging a shop unit to the board fails. */
-  shopUnitDragPurchaseFailed: make<{
+  shopUnitDragPurchaseFailed: createEvent<{
     shopCharaId: string;
     dragStartVec: Vec2;
   }>(),
-  onShopUnitDragPurchaseFailed: make<{
+  onShopUnitDragPurchaseFailed: createEvent<{
     shopCharaId: string;
     dragStartVec: Vec2;
   }>(),
 
   /** Emitted when the player drops an orb onto a unit. */
-  orbApplyRequested: make<{
+  orbApplyRequested: createEvent<{
     orbId: string;
     targetUnitId: string;
   }>(),
 
   /** Emitted when the player clicks "Continue" after combat. */
-  combatContinueRequested: make<void>(),
+  combatContinueRequested: createEvent<void>(),
 
   /** Emitted when replay is requested during combat playback. */
-  combatReplayRequested: make<void>(),
+  combatReplayRequested: createEvent<void>(),
 
   /** Emitted when combat playback should pause. */
-  combatPauseRequested: make<void>(),
+  combatPauseRequested: createEvent<void>(),
 
   /** Emitted when combat playback should resume. */
-  combatResumeRequested: make<void>(),
+  combatResumeRequested: createEvent<void>(),
 
   /** Emitted when the player wants a new run. */
-  newRunRequested: make<void>(),
+  newRunRequested: createEvent<void>(),
 
   /** Emitted when the player requests the main menu. */
-  mainMenuRequested: make<void>(),
+  mainMenuRequested: createEvent<void>(),
 
   /** HUD update: wins count changed. */
-  winsChanged: make<{ wins: number; delta: number }>(),
-  onWinsChanged: make<{ wins: number; delta: number }>(),
+  winsChanged: createEvent<{ wins: number; delta: number }>(),
+  onWinsChanged: createEvent<{ wins: number; delta: number }>(),
 
   /** HUD update: lives count changed. */
-  livesChanged: make<{ lives: number; delta: number }>(),
-  onLivesChanged: make<{ lives: number; delta: number }>(),
+  livesChanged: createEvent<{ lives: number; delta: number }>(),
+  onLivesChanged: createEvent<{ lives: number; delta: number }>(),
 
   /** HUD update: round number changed. */
-  roundChanged: make<{ round: number; delta: number }>(),
-  onRoundChanged: make<{ round: number; delta: number }>(),
+  roundChanged: createEvent<{ round: number; delta: number }>(),
+  onRoundChanged: createEvent<{ round: number; delta: number }>(),
 
   /** Emitted after a unit purchase completes (post-server dispatch). */
-  unitPurchaseCompleted: make<{
+  unitPurchaseCompleted: createEvent<{
     unitId: string;
     previousTeamUnits: Models.Unit[];
     shopCharaId: string | null;
   }>(),
 
   /** Emitted after a unit is sold (post-server dispatch). */
-  unitSoldCompleted: make<{ unitId: string }>(),
+  unitSoldCompleted: createEvent<{ unitId: string }>(),
 
   /** Emitted after an orb is applied to a unit (post-server dispatch). */
-  orbApplied: make<{ orbId: string; targetUnitId: string }>(),
+  orbApplied: createEvent<{ orbId: string; targetUnitId: string }>(),
 };

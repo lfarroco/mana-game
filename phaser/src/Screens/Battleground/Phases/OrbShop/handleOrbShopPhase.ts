@@ -5,10 +5,12 @@ import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
-export function registerListeners(): void {
-	BattlegroundEvent.orbApplyRequested.listen(onOrbApplyRequested);
-	BattlegroundEvent.phaseFinished.listen(closeOrbShop);
-	BattlegroundEvent.orbApplied.listen(onOrbApplied);
+export function registerListeners(): (() => void)[] {
+	return [
+		BattlegroundEvent.orbApplyRequested.listen(onOrbApplyRequested),
+		BattlegroundEvent.phaseFinished.listen(closeOrbShop),
+		BattlegroundEvent.orbApplied.listen(onOrbApplied),
+	];
 }
 
 export async function handleOrbShopPhase(): Promise<void> {

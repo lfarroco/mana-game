@@ -19,14 +19,11 @@ import * as CrystalSelectionScreen from "../CrystalSelection/CrystalSelectionScr
 import * as TitleScreen from "../Title/TitleScreen";
 import * as UI from "./Components/UI/UI";
 
-const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
-
-const emitBattlegroundExit = () => {
-	env.scene.events.emit(BATTLEGROUND_EXIT_EVENT);
-};
+// ---------------------------------------------------------------------------
+// Screen transition (internal helper)
+// ---------------------------------------------------------------------------
 
 const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {
-	emitBattlegroundExit();
 	const cam = env.scene.cameras.main;
 	await new Promise<void>((resolve) => {
 		cam.fade(300, 0, 0, 0);
@@ -43,6 +40,25 @@ const transitionFromBattleground = async (renderScreen: () => void): Promise<voi
 	});
 };
 
+// ---------------------------------------------------------------------------
+// Phase advancement helper
+// ---------------------------------------------------------------------------
+
+/**
+ * Dispatch an action, update state, and emit phaseFinished.
+ * This is the canonical single-step phase transition used by all phase handlers.
+ */
+export const advancePhase = async (action: Models.Action): Promise<void> => {
+	const previousPhase = env.state.session.phase;
+	const response = await env.dispatch(action);
+	env.updateState({ ...env.state, ...response });
+	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+};
+
+
+// ---------------------------------------------------------------------------
+// HUD snapshot (track deltas for HUD animations)
+// ---------------------------------------------------------------------------
 
 type SessionHudSnapshot = {
 	round: number;
@@ -68,43 +84,87 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 
 	const winsDelta = currentSnapshot.wins - previousSessionHudSnapshot.wins;
 	if (winsDelta !== 0) {
+		BattlegroundEvent.winsChanged.emit({ wins: currentSnapshot.wins, delta: winsDelta });
 	}
 
 	const livesDelta = currentSnapshot.lives - previousSessionHudSnapshot.lives;
 	if (livesDelta !== 0) {
+		BattlegroundEvent.livesChanged.emit({ lives: currentSnapshot.lives, delta: livesDelta });
 	}
 
 	if (currentSnapshot.round !== previousSessionHudSnapshot.round) {
+		BattlegroundEvent.roundChanged.emit({
+			round: currentSnapshot.round,
+			delta: currentSnapshot.round - previousSessionHudSnapshot.round,
+		});
 	}
 
 	previousSessionHudSnapshot = currentSnapshot;
 }
 
+// ---------------------------------------------------------------------------
+// Lifecycle
+// ---------------------------------------------------------------------------
+
+let disposers: (() => void)[] = [];
+
 /**
- * Centralized wiring of all BattlegroundEvent listeners.
- * Called once at app startup (from Client.ts), before any screen is created.
- * Each module exports its own registerListeners() for its
- * phase-specific event subscriptions.
+ * Render the battleground screen and kick off the phase loop.
+ * Listeners must already be wired via wireBattlegroundEvents().
+ */
+export const create = async () => {
+	// --- Render ---
+	Components.create();
+	previousSessionHudSnapshot = createSessionHudSnapshot();
+
+	AudioManager.playMusic("music_battlemap_vetruv");
+
+	Tooltip.init();
+
+	// TODO: input enable/disable should be screen-scoped
+	Board.setIsInputEnabled(true);
+
+	// Kick off the phase loop
+	handleCurrentPhase({});
+};
+
+/**
+ * Tear down all event listeners and clean up state.
+ * Called when the battleground screen is destroyed.
+ */
+export function destroy(): void {
+	disposers.forEach((d) => d());
+	disposers = [];
+	previousSessionHudSnapshot = null;
+}
+
+/**
+ * Backward-compatible one-time wiring called from Client.ts at app startup.
+ * Wires listeners but does NOT render — rendering happens in create().
+ * @deprecated Prefer calling create()/destroy() for full lifecycle management.
  */
 export function wireBattlegroundEvents(): void {
-	// Cross-cutting listeners
-	BattlegroundEvent.phaseFinished.listen(handleCurrentPhase);
-	BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges);
-	BattlegroundEvent.newRunRequested.listen(() => {
-		Object.assign(env.state, initialState());
-		void transitionFromBattleground(CrystalSelectionScreen.create);
-	});
-	BattlegroundEvent.mainMenuRequested.listen(() => {
-		Object.assign(env.state, initialState());
-		void transitionFromBattleground(TitleScreen.create);
-	});
+	disposers = [
+		BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
+		BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
 
-	// Phase-specific listeners
-	UI.registerListeners();
-	Encounter.registerListeners();
-	handleCombatPhase.registerListeners();
-	ShopPhase.registerListeners();
-	OrbShopPhase.registerListeners();
+		BattlegroundEvent.newRunRequested.listen(() => {
+			Object.assign(env.state, initialState());
+			void transitionFromBattleground(CrystalSelectionScreen.create);
+		}),
+
+		BattlegroundEvent.mainMenuRequested.listen(() => {
+			Object.assign(env.state, initialState());
+			void transitionFromBattleground(TitleScreen.create);
+		}),
+
+		// --- Phase-specific listeners ---
+		...UI.registerListeners(),
+		...Encounter.registerListeners(),
+		...handleCombatPhase.registerListeners(),
+		...ShopPhase.registerListeners(),
+		...OrbShopPhase.registerListeners(),
+	];
 }
 
 // TODO: should be part of the player board logic
@@ -138,40 +198,10 @@ const syncPlayerBoardUnits = async (): Promise<void> => {
 	await Promise.all(summonPromises);
 };
 
-// const updateSessionState = (nextSession: Types.SessionData) => {
-// 	const previousSession = state.session;
-// 	const winsDelta = nextSession.wins - previousSession.wins;
-// 	const previousLives = SessionManager.getRemainingLives(previousSession);
-// 	const nextLives = SessionManager.getRemainingLives(nextSession);
-// 	const livesDelta = nextLives - previousLives;
 
-// 	state.session = nextSession;
-
-// 	UIManager.events.onWinsChanged(nextSession.wins, winsDelta);
-// 	if (livesDelta !== 0) {
-// 		UIManager.events.onLivesChanged(nextLives, livesDelta);
-// 	}
-// 	UIManager.events.onRoundChanged(nextSession.round);
-// 	SessionManager.updateSession(nextSession.player_id, nextSession);
-// };
-
-export const create = async () => {
-
-	Components.create();
-	previousSessionHudSnapshot = createSessionHudSnapshot();
-
-	AudioManager.playMusic("music_battlemap_vetruv");
-
-	Tooltip.init();
-
-	// TODO: input enable/disable should be screen-scoped
-	Board.setIsInputEnabled(true);
-
-	// ~~~~~ // ~~~~~ //
-
-	handleCurrentPhase({});
-
-};
+// ---------------------------------------------------------------------------
+// Board sync helpers
+// ---------------------------------------------------------------------------
 
 async function executePhase(
 	phase: Models.PhaseType,
@@ -220,13 +250,7 @@ async function executePhase(
 const handleCurrentPhase = async ({ previousPhase }: {
 	previousPhase?: Models.PhaseType
 }) => {
-
-	//updateSessionState(state.session);
-
 	await executePhase(env.state.session.phase, previousPhase);
-
-	//events.phaseFinished.emit(previousPhase);
-
-}
+};
 
 

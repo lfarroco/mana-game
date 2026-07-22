@@ -13,18 +13,18 @@ import { BattlegroundEvent } from "../../../../Events";
 
 let uiContainer: Container | null = null;
 
-export function registerListeners(): void {
-	BattlegroundEvent.onWinsChanged.listen(({ wins, delta }) => {
-		uiEvents.onWinsChanged({ wins, delta });
-	});
-
-	BattlegroundEvent.onLivesChanged.listen(({ lives, delta }) => {
-		uiEvents.onLivesChanged({ lives, delta });
-	});
-
-	BattlegroundEvent.onRoundChanged.listen(({ round }) => {
-		uiEvents.onRoundChanged({ round });
-	});
+export function registerListeners(): (() => void)[] {
+	return [
+		BattlegroundEvent.onWinsChanged.listen(({ wins, delta }) => {
+			uiEvents.onWinsChanged({ wins, delta });
+		}),
+		BattlegroundEvent.onLivesChanged.listen(({ lives, delta }) => {
+			uiEvents.onLivesChanged({ lives, delta });
+		}),
+		BattlegroundEvent.onRoundChanged.listen(({ round }) => {
+			uiEvents.onRoundChanged({ round });
+		}),
+	];
 }
 
 export function create() {

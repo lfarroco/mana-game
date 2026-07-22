@@ -46,12 +46,14 @@ const resumeCombat = (): void => {
 	env.scene.time.paused = false;
 };
 
-export function registerListeners(): void {
-	BattlegroundEvent.phaseFinished.listen(finishCombatPhase);
-	BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested);
-	BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested());
-	BattlegroundEvent.combatPauseRequested.listen(pauseCombat);
-	BattlegroundEvent.combatResumeRequested.listen(resumeCombat);
+export function registerListeners(): (() => void)[] {
+	return [
+		BattlegroundEvent.phaseFinished.listen(finishCombatPhase),
+		BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
+		BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested()),
+		BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
+		BattlegroundEvent.combatResumeRequested.listen(resumeCombat),
+	];
 }
 
 const finishCombatPhase = async ({ previousPhase }: {
