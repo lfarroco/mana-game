@@ -10,6 +10,7 @@ import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
 import * as Config from "@config";
 import { env } from "@Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 export function determineGameOutcome(
 	resultType: "victory" | "defeat",
@@ -54,76 +55,69 @@ function calculateLivesChange(resultType: "victory" | "defeat"): number {
 async function displayAppropriateUI(
 	resultType: "victory" | "defeat",
 	livesChange: number,
-	nextPhaseCallback: () => void,
 	units: Unit[],
-	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	if (resultType === "victory") {
-		return VictoryUI.displayVictory(units, nextPhaseCallback, replayCallback);
+		return VictoryUI.displayVictory(units);
 	} else {
-		return DefeatUI.displayDefeat(livesChange, units, nextPhaseCallback, replayCallback);
+		return DefeatUI.displayDefeat(livesChange, units);
 	}
 }
 
 export async function displayResults(
 	resultType: "victory" | "defeat",
-	nextPhaseCallback: () => void,
-	replayCallback?: () => void
 ): Promise<void> {
-	resultsContainer.removeAll(true);
-	env.scene.children.bringToTop(overlay.rectangle);
-	env.scene.children.bringToTop(resultsContainer);
+	return new Promise<void>((resolve) => {
+		resultsContainer.removeAll(true);
+		env.scene.children.bringToTop(overlay.rectangle);
+		env.scene.children.bringToTop(resultsContainer);
 
-	const gameState = env.state;
-	const postCombatSession = gameState.session;
-	const player = {
-		wins: postCombatSession?.wins ?? gameState.session.wins,
-		lives: 4 - (postCombatSession?.losses ?? gameState.session.losses),
-	};
+		const gameState = env.state;
+		const postCombatSession = gameState.session;
+		const player = {
+			wins: postCombatSession?.wins ?? gameState.session.wins,
+			lives: 4 - (postCombatSession?.losses ?? gameState.session.losses),
+		};
 
-	const livesChange = calculateLivesChange(resultType);
-	const currentLives = player.lives;
-	const currentWins = player.wins;
+		const livesChange = calculateLivesChange(resultType);
+		const currentLives = player.lives;
+		const currentWins = player.wins;
 
-	const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
+		const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
+		const allBattleUnits = env.state.combatState?.units ?? [];
 
-	const allBattleUnits = env.state.combatState?.units ?? [];
+		// Temporary listeners — clean themselves up after first fire
+		const unlistenContinue = BattlegroundEvent.combatContinueRequested.listen(async () => {
+			unlistenContinue();
+			unlistenReplay();
+			if (gameWon || gameOver) {
+				resultsContainer.removeAll(true);
+				const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
+				const ui = await GameCompleteUI.displayGameComplete(
+					currentWins, playerUnits, gameOver,
+				);
+				resultsContainer.add(ui);
+			} else {
+				await slideOut();
+			}
+			resolve();
+		});
 
-	const handleContinue = async () => {
-		if (gameWon || gameOver) {
-			resultsContainer.removeAll(true);
-			const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
-			const ui = await GameCompleteUI.displayGameComplete(
-				currentWins,
-				playerUnits,
-				gameOver,
-				nextPhaseCallback
-			);
-			resultsContainer.add(ui);
-		} else {
+		const unlistenReplay = BattlegroundEvent.combatReplayRequested.listen(async () => {
+			unlistenContinue();
+			unlistenReplay();
 			await slideOut();
-			nextPhaseCallback();
-		}
-	};
+			resolve();
+		});
 
-	const handleReplay = async () => {
-		await slideOut();
-		if (replayCallback) replayCallback();
-	};
-
-	const uiContainer = await displayAppropriateUI(
-		resultType,
-		livesChange,
-		handleContinue,
-		allBattleUnits,
-		replayCallback ? handleReplay : undefined
-	);
-	resultsContainer.add(uiContainer);
+		// Render the UI — its buttons will emit events, triggering the listeners above
+		void displayAppropriateUI(resultType, livesChange, allBattleUnits)
+			.then((uiContainer) => { resultsContainer.add(uiContainer); });
+	});
 }
 
 export async function displayGameCompleteResults(
 	isGameOver: boolean,
-	nextPhaseCallback?: () => void,
 	onComplete?: () => void
 ): Promise<void> {
 	resultsContainer.removeAll(true);
@@ -134,7 +128,6 @@ export async function displayGameCompleteResults(
 		env.state.session.wins,
 		env.state.session.team.units,
 		isGameOver,
-		nextPhaseCallback,
 		onComplete
 	);
 	resultsContainer.add(ui);

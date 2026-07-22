@@ -5,12 +5,11 @@ import * as ResultsConfig from "./ResultsConfig";
 import * as CombatStatsTable from "./CombatStatsTable";
 import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container, borderedRoundRect } from "@Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 export async function displayDefeat(
 	livesChange: number,
 	units: Unit[],
-	nextPhaseCallback: () => void,
-	replayCallback?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	const panelWidth = ResultsConfig.RESULTS_PANEL.width;
 	const panelHeight = ResultsConfig.RESULTS_PANEL.height;
@@ -23,20 +22,14 @@ export async function displayDefeat(
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [];
 
-	if (replayCallback) {
-		buttonDefinitions.push([
-			i18n.t("results.buttons.replay"),
-			async () => {
-				replayCallback();
-			},
-		]);
-	}
+	buttonDefinitions.push([
+		i18n.t("results.buttons.replay"),
+		async () => { BattlegroundEvent.combatReplayRequested.emit(undefined); },
+	]);
 
 	buttonDefinitions.push([
 		i18n.t("results.buttons.continue"),
-		async () => {
-			nextPhaseCallback();
-		},
+		async () => { BattlegroundEvent.combatContinueRequested.emit(undefined); },
 	]);
 
 	const totalButtons = buttonDefinitions.length;

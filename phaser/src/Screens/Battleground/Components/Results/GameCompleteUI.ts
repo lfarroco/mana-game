@@ -17,7 +17,6 @@ export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
-	nextPhaseCallback?: () => void,
 	onComplete?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	const complete = typeof onComplete === "function" ? onComplete : undefined;
@@ -119,10 +118,9 @@ export async function displayGameComplete(
 		]
 	);
 
-	// Infinite mode button - disabled in demo and when not enabled by controller
+	// Infinite mode button - disabled in demo
 	if (
 		wins >= ResultsConfig.INFINITE_MODE_THRESHOLD &&
-		nextPhaseCallback &&
 		!isGameOver &&
 		!Config.IS_DEMO
 	) {
@@ -133,7 +131,7 @@ export async function displayGameComplete(
 				await slideOut();
 
 				AudioManager.playMusic("music_battlemap_vetruv");
-				nextPhaseCallback();
+				BattlegroundEvent.combatContinueRequested.emit(undefined);
 				complete?.();
 			},
 		]);

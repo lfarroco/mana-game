@@ -2,7 +2,7 @@ import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 
 export async function handleGameOverPhase(): Promise<null> {
 	await new Promise<void>((resolve) => {
-		void ResultsUI.displayGameCompleteResults(true, undefined, resolve);
+		void ResultsUI.displayGameCompleteResults(true, resolve);
 		void ResultsUI.slideIn();
 	});
 

@@ -95,25 +95,13 @@ const getInitialCombatUnits = (combatState: Models.CombatState) => {
 const getCombatResultType = (outcome: string) =>
 	outcome === "player_lost" ? "defeat" : "victory";
 
-const showCombatResults = ({
+const showCombatResults = async ({
 	resultType,
 }: {
 	resultType: "defeat" | "victory";
 }) => {
-	return new Promise<void>((resultHandled) => {
-		void ResultsUI.displayResults(
-			resultType,
-			() => {
-				resultHandled();
-				BattlegroundEvent.combatContinueRequested.emit(undefined);
-			},
-			() => {
-				resultHandled();
-				BattlegroundEvent.combatReplayRequested.emit(undefined);
-			}
-		);
-		void ResultsUI.slideIn();
-	});
+	void ResultsUI.slideIn();
+	await ResultsUI.displayResults(resultType);
 };
 
 const startCombatPlayback = async () => {
