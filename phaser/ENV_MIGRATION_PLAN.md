@@ -105,17 +105,37 @@ Consumers import it explicitly: `import { env } from "./Env"`. Unlike `window.io
 global — every file that uses `env` declares its dependency via the import. But unlike a threaded
 parameter, there's no null-guard boilerplate because env is guaranteed to exist when scene code runs.
 
-### `createEventChannel` lives on env
-Instead of importing `createEventChannel` and passing `env.emitter` separately:
+### Events: in-house, no strings, no EventEmitter
 ```typescript
-// ❌ Old
-import { createEventChannel } from "./Env";
-createEventChannel(env.emitter, "eventName");
+// src/Events.ts — central typed catalog
+const make = <T>(): Event<T> => {
+  const listeners = new Set<(payload: T) => void>();
+  return {
+    listen: (cb) => { listeners.add(cb); },
+    emit: (payload) => { listeners.forEach((cb) => cb(payload)); },
+  };
+};
 
-// ✅ New
-env.createEventChannel<T>("eventName");
+export const BattlegroundEvent = {
+  phaseFinished: make<{ previousPhase: PhaseType }>(),      // zero args
+  combatPauseRequested: make<void>(),
+  winsChanged: make<{ wins: number; delta: number }>(),
+  // ...
+};
 ```
-Everything flows from the single `env` import. No separate imports needed.
+Each event owns its listener set. No EventEmitter, no string keys, no `createEventChannel`
+on env. Import what you need: `import { BattlegroundEvent } from "../Events"`.
+The property name IS the event identity.
+
+### Direct Phaser scene, no wrapper layer
+`env.scene` gives full raw Phaser API access. No 40+ wrapper functions to learn.
+A few genuinely useful composables (`container()`, `borderedRoundRect()`, `whenDroppedOnZone()`)
+live in `phaser-helpers.ts` and are imported explicitly where needed.
+
+### `env.time` and `env.audio` as value-add namespaces
+Phaser is callback-based for timing and has scattered audio APIs.
+`env.time.delay(ms)` returns a Promise. `env.audio.sfx(key)` / `env.audio.music(key)`
+absorb the separate AudioManager singleton.
 
 ### Why not just improve `io.ts` incrementally?
 

@@ -4,6 +4,7 @@ import { Unit } from "@game/Models";
 import { ClientState } from "@Models/ClientState";
 import * as handleShopPhase from "./Screens/Battleground/Phases/Shop/handleShopPhase";
 import { onOrbApplied } from "./Screens/Battleground/Phases/OrbShop/handleOrbShopPhase";
+import { BattlegroundEvent } from "./Events";
 
 async function dispatchAction(
 	clientState: ClientState,
@@ -57,7 +58,7 @@ export async function purchaseUnit(
 		shopCharaId,
 	});
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 
 }
 
@@ -85,7 +86,7 @@ export async function skipPhase(clientState: ClientState) {
 
 	clientState.session = session;
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 
 }
 
@@ -107,7 +108,7 @@ export async function selectEncounter(
 		clientState.combatState = combatState;
 	}
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }
 
 export async function applyOrb(
@@ -129,7 +130,7 @@ export async function applyOrb(
 
 	await onOrbApplied({ clientState, orbId, targetUnitId, })
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 
 	return session;
 }
@@ -145,7 +146,7 @@ export async function completeVictory(clientState: ClientState) {
 		});
 	clientState.session = session;
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }
 
 export async function completeCombatEncounter(clientState: ClientState) {
@@ -161,22 +162,20 @@ export async function completeCombatEncounter(clientState: ClientState) {
 
 	clientState.session = session;
 
-	const { events } = io.screens.battleground;
-
 	const winDelta = session.wins - wins;
 	if (winDelta !== 0)
-		events.onWinsChanged.emit({ wins, delta: winDelta })
+		BattlegroundEvent.winsChanged.emit({ wins, delta: winDelta })
 
 
 	const lossesDelta = losses - session.losses;
 	if (lossesDelta !== 0)
-		events.onLivesChanged.emit({ lives: 4 - session.losses, delta: session.losses - losses })
+		BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - losses })
 
 	const roundDelta = round - session.round;
 	if (roundDelta !== 0)
-		events.onRoundChanged.emit({ round: session.round, delta: roundDelta })
+		BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta })
 
-	io.screens.battleground.events.phaseFinished.emit({ previousPhase });
+	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }
 
 export async function updateTeam(
@@ -193,10 +192,10 @@ export async function updateTeam(
 }
 
 export function requestNewRun(): void {
-	io.screens.battleground.events.newRunRequested.emit(undefined);
+	BattlegroundEvent.newRunRequested.emit(undefined);
 }
 
 export function requestMainMenu(): void {
-	io.screens.battleground.events.mainMenuRequested.emit(undefined);
+	BattlegroundEvent.mainMenuRequested.emit(undefined);
 }
 

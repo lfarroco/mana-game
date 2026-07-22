@@ -12,6 +12,7 @@ import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
 import { ClientState, initialState } from "@Models/ClientState";
 import { env } from "../../Env";
+import { BattlegroundEvent } from "../../Events";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -37,22 +38,6 @@ const transitionFromBattleground = async (renderScreen: () => void): Promise<voi
 	});
 };
 
-type BattlegroundScreenEvents = {
-	phaseFinished: Models.Event<{ previousPhase: Models.PhaseType }>;
-	onShopUnitDragPurchaseFailed: Models.Event<{ shopCharaId: string, dragStartVec: Vec2 }>;
-	orbApplyRequested: Models.Event<{ orbId: string, targetUnitId: string }>;
-	combatContinueRequested: Models.Event<void>;
-	combatReplayRequested: Models.Event<void>;
-	combatPauseRequested: Models.Event<void>;
-	combatResumeRequested: Models.Event<void>;
-	newRunRequested: Models.Event<void>;
-	mainMenuRequested: Models.Event<void>;
-	onWinsChanged: Models.Event<{ wins: number, delta: number }>;
-	onLivesChanged: Models.Event<{ lives: number, delta: number }>;
-	onRoundChanged: Models.Event<{ round: number, delta: number }>;
-}
-
-export let events: BattlegroundScreenEvents;
 
 type SessionHudSnapshot = {
 	round: number;
@@ -94,28 +79,14 @@ let initialized = false;
 function init(clientState: ClientState) {
 	if (initialized) return;
 	initialized = true;
-	events = {
-		phaseFinished: env.createEventChannel<{ previousPhase: Models.PhaseType }>("phaseFinished"),
-		onShopUnitDragPurchaseFailed: env.createEventChannel<{ shopCharaId: string, dragStartVec: Vec2 }>("onShopUnitDragPurchaseFailed"),
-		orbApplyRequested: env.createEventChannel<{ orbId: string, targetUnitId: string }>("orbApplyRequested"),
-		combatContinueRequested: env.createEventChannel<void>("combatContinueRequested"),
-		combatReplayRequested: env.createEventChannel<void>("combatReplayRequested"),
-		combatPauseRequested: env.createEventChannel<void>("combatPauseRequested"),
-		combatResumeRequested: env.createEventChannel<void>("combatResumeRequested"),
-		newRunRequested: env.createEventChannel<void>("newRunRequested"),
-		mainMenuRequested: env.createEventChannel<void>("mainMenuRequested"),
-		onWinsChanged: env.createEventChannel<{ wins: number, delta: number }>("onWinsChanged"),
-		onLivesChanged: env.createEventChannel<{ lives: number, delta: number }>("onLivesChanged"),
-		onRoundChanged: env.createEventChannel<{ round: number, delta: number }>("onRoundChanged"),
-	};
 
-	events.phaseFinished.listen(handleCurrentPhase(clientState));
-	events.phaseFinished.listen((payload) => updateHudFromSessionChanges(clientState, payload));
-	events.newRunRequested.listen(() => {
+	BattlegroundEvent.phaseFinished.listen(handleCurrentPhase(clientState));
+	BattlegroundEvent.phaseFinished.listen((payload) => updateHudFromSessionChanges(clientState, payload));
+	BattlegroundEvent.newRunRequested.listen(() => {
 		Object.assign(clientState, initialState());
 		void transitionFromBattleground(() => io.screens.crystalSelection(clientState));
 	});
-	events.mainMenuRequested.listen(() => {
+	BattlegroundEvent.mainMenuRequested.listen(() => {
 		Object.assign(clientState, initialState());
 		void transitionFromBattleground(() => io.screens.title.create(clientState));
 	});

@@ -12,6 +12,7 @@ import * as Models from "@game/Models";
 ;
 import * as Chara from "@Systems/Chara/Chara";
 import type { Env } from "./Env";
+import { BattlegroundEvent } from "./Events";
 
 // ---------------------------------------------------------------------------
 // Env bridge — transitional, removed in Phase 5.
@@ -61,7 +62,7 @@ export const createEvent = <T>(event: string): Models.Event<T> => {
 export const screens = {
 	title: TitleScreen,
 	crystalSelection: CrystalSelectionScene.create,
-	battleground: BattlegroundScreen,
+	battleground: { ...BattlegroundScreen, events: BattlegroundEvent },
 	options: OptionsScreen.create
 }
 
