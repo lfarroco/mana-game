@@ -43,10 +43,6 @@ export const BattlegroundEvent = {
     shopCharaId: string;
     dragStartVec: Vec2;
   }>(),
-  onShopUnitDragPurchaseFailed: createEvent<{
-    shopCharaId: string;
-    dragStartVec: Vec2;
-  }>(),
 
   /** Emitted when the player drops an orb onto a unit. */
   orbApplyRequested: createEvent<{
@@ -74,15 +70,12 @@ export const BattlegroundEvent = {
 
   /** HUD update: wins count changed. */
   winsChanged: createEvent<{ wins: number; delta: number }>(),
-  onWinsChanged: createEvent<{ wins: number; delta: number }>(),
 
   /** HUD update: lives count changed. */
   livesChanged: createEvent<{ lives: number; delta: number }>(),
-  onLivesChanged: createEvent<{ lives: number; delta: number }>(),
 
   /** HUD update: round number changed. */
   roundChanged: createEvent<{ round: number; delta: number }>(),
-  onRoundChanged: createEvent<{ round: number; delta: number }>(),
 
   /** Emitted after a unit purchase completes (post-server dispatch). */
   unitPurchaseCompleted: createEvent<{

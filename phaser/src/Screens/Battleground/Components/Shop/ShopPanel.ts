@@ -4,7 +4,7 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
 import { env, makeContainer as container } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
+import { advancePhase } from "../../BattlegroundScreen";
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -32,12 +32,7 @@ export const addSkipButton = (): void => {
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
 		callback: () => {
-			void (async () => {
-				const previousPhase = env.state.session.phase;
-				const { session } = await env.dispatch({ type: "skip" });
-				env.updateState({ ...env.state, session });
-				BattlegroundEvent.phaseFinished.emit({ previousPhase });
-			})();
+			void advancePhase({ type: "skip" });
 		}
 	});
 

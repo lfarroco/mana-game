@@ -18,7 +18,7 @@ const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
 export function registerListeners(): (() => void)[] {
 	return [
-		BattlegroundEvent.onShopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
+		BattlegroundEvent.shopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
 		BattlegroundEvent.phaseFinished.listen(closeShop),
 		BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased),
 		BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId)),

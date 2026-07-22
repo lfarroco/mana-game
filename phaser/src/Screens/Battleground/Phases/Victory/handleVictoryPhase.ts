@@ -1,6 +1,5 @@
 import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
-import { env } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
+import { advancePhase } from "../../BattlegroundScreen";
 
 export async function handleVictoryPhase() {
 
@@ -8,10 +7,7 @@ export async function handleVictoryPhase() {
 		void ResultsUI.displayGameCompleteResults(
 			false,
 			async () => {
-				const previousPhase = env.state.session.phase;
-				const { session } = await env.dispatch({ type: "victory" });
-				env.updateState({ ...env.state, session });
-				BattlegroundEvent.phaseFinished.emit({ previousPhase });
+				await advancePhase({ type: "victory" });
 			},
 			resolve
 		);

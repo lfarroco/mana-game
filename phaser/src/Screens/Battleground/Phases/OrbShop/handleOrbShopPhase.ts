@@ -4,6 +4,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { advancePhase } from "../../BattlegroundScreen";
 
 export function registerListeners(): (() => void)[] {
 	return [
@@ -25,11 +26,9 @@ async function onOrbApplyRequested({
 	targetUnitId: string;
 }) {
 	if (env.state.session.phase !== "orb_shop") return;
-	const previousPhase = env.state.session.phase;
-	const { session } = await env.dispatch({ type: "apply_orb", orbId, targetUnitId });
-	env.updateState({ ...env.state, session });
-	await BattlegroundEvent.orbApplied.emit({ orbId, targetUnitId });
-	BattlegroundEvent.phaseFinished.emit({ previousPhase });
+	await advancePhase({ type: "apply_orb", orbId, targetUnitId }, async () => {
+		await BattlegroundEvent.orbApplied.emit({ orbId, targetUnitId });
+	});
 }
 
 export async function onOrbApplied({

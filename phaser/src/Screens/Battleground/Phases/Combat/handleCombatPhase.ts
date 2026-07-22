@@ -14,6 +14,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { advancePhase } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
 // This lives here because it's the combat phase handler's responsibility
@@ -164,23 +165,19 @@ function handleCombatContinueRequested(): void {
 
 	void (async () => {
 		const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
-		const previousPhase = env.state.session.phase;
-		const { session } = await env.dispatch({ type: "end_combat" });
-		env.updateState({ ...env.state, session });
+		await advancePhase({ type: "end_combat" }, ({ session }) => {
+			const winDelta = session.wins - previousWins;
+			if (winDelta !== 0)
+				BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
 
-		const winDelta = session.wins - previousWins;
-		if (winDelta !== 0)
-			BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
+			const lossesDelta = previousLosses - session.losses;
+			if (lossesDelta !== 0)
+				BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
 
-		const lossesDelta = previousLosses - session.losses;
-		if (lossesDelta !== 0)
-			BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
-
-		const roundDelta = previousRound - session.round;
-		if (roundDelta !== 0)
-			BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
-
-		BattlegroundEvent.phaseFinished.emit({ previousPhase });
+			const roundDelta = previousRound - session.round;
+			if (roundDelta !== 0)
+				BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
+		});
 	})();
 }
 

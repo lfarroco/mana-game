@@ -45,13 +45,35 @@ const transitionFromBattleground = async (renderScreen: () => void): Promise<voi
 // ---------------------------------------------------------------------------
 
 /**
- * Dispatch an action, update state, and emit phaseFinished.
+ * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
  * This is the canonical single-step phase transition used by all phase handlers.
+ *
+ * @param action - The game action to dispatch through the server adapter.
+ * @param onBeforeFinish - Optional callback that fires after state update but before
+ *   phaseFinished is emitted. Use for intermediate events (HUD deltas, purchase events, etc.).
  */
-export const advancePhase = async (action: Models.Action): Promise<void> => {
+export const advancePhase = async (
+	action: Models.Action,
+	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>,
+): Promise<void> => {
 	const previousPhase = env.state.session.phase;
 	const response = await env.dispatch(action);
 	env.updateState({ ...env.state, ...response });
+	if (onBeforeFinish) await onBeforeFinish(response);
+	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+};
+
+/**
+ * Emit phaseFinished without dispatching an action.
+ * Use when state has already been updated (e.g., dispatch happened earlier in the flow).
+ *
+ * @param onBeforeFinish - Optional callback that fires before phaseFinished is emitted.
+ */
+export const finishPhase = async (
+	onBeforeFinish?: () => void | Promise<void>,
+): Promise<void> => {
+	const previousPhase = env.state.session.phase;
+	if (onBeforeFinish) await onBeforeFinish();
 	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
 };
 

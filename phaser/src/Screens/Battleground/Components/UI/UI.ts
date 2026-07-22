@@ -15,13 +15,13 @@ let uiContainer: Container | null = null;
 
 export function registerListeners(): (() => void)[] {
 	return [
-		BattlegroundEvent.onWinsChanged.listen(({ wins, delta }) => {
+		BattlegroundEvent.winsChanged.listen(({ wins, delta }) => {
 			uiEvents.onWinsChanged({ wins, delta });
 		}),
-		BattlegroundEvent.onLivesChanged.listen(({ lives, delta }) => {
+		BattlegroundEvent.livesChanged.listen(({ lives, delta }) => {
 			uiEvents.onLivesChanged({ lives, delta });
 		}),
-		BattlegroundEvent.onRoundChanged.listen(({ round }) => {
+		BattlegroundEvent.roundChanged.listen(({ round }) => {
 			uiEvents.onRoundChanged({ round });
 		}),
 	];

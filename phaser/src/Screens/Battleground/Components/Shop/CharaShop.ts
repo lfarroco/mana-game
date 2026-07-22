@@ -15,6 +15,7 @@ import { Unit } from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import { env, whenDroppedOnZone } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { finishPhase } from "../../BattlegroundScreen";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -261,7 +262,6 @@ function initShopCharaInput(
 		}
 
 		void (async () => {
-			const previousPhase = env.state.session.phase;
 			const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
 			const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
@@ -278,12 +278,13 @@ function initShopCharaInput(
 			if (!wasUpgrade && !didAddUnit) return;
 
 			env.updateState({ ...env.state, session });
-			await BattlegroundEvent.unitPurchaseCompleted.emit({
-				unitId: unit.cardId,
-				previousTeamUnits,
-				shopCharaId: unit.id,
+			await finishPhase(async () => {
+				await BattlegroundEvent.unitPurchaseCompleted.emit({
+					unitId: unit.cardId,
+					previousTeamUnits,
+					shopCharaId: unit.id,
+				});
 			});
-			BattlegroundEvent.phaseFinished.emit({ previousPhase });
 		})();
 	});
 
@@ -300,7 +301,7 @@ async function handleItemDragPurchaseRequested(
 	const existingUnit = currentSession.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	if ((!existingUnit || existingUnit.rank > 3) && currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
-		BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
+		BattlegroundEvent.shopUnitDragPurchaseFailed.emit({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],
 		});
@@ -311,7 +312,7 @@ async function handleItemDragPurchaseRequested(
 	if (!existingUnit || existingUnit.rank > 3) {
 		const occupier = getUnitAt(currentSession.team.units)(targetTile);
 		if (occupier) {
-			BattlegroundEvent.onShopUnitDragPurchaseFailed.emit({
+			BattlegroundEvent.shopUnitDragPurchaseFailed.emit({
 				shopCharaId,
 				dragStartVec: [dragStartX, dragStartY],
 			});
@@ -320,7 +321,6 @@ async function handleItemDragPurchaseRequested(
 		}
 	}
 
-	const previousPhase = env.state.session.phase;
 	const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
 	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
@@ -337,10 +337,11 @@ async function handleItemDragPurchaseRequested(
 	if (!wasUpgrade && !didAddUnit) return;
 
 	env.updateState({ ...env.state, session });
-	await BattlegroundEvent.unitPurchaseCompleted.emit({
-		unitId: shopUnitData.cardId,
-		previousTeamUnits,
-		shopCharaId,
+	await finishPhase(async () => {
+		await BattlegroundEvent.unitPurchaseCompleted.emit({
+			unitId: shopUnitData.cardId,
+			previousTeamUnits,
+			shopCharaId,
+		});
 	});
-	BattlegroundEvent.phaseFinished.emit({ previousPhase });
 }

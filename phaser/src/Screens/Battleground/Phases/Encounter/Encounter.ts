@@ -6,6 +6,7 @@ import * as Models from "@game/Models";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { advancePhase } from "../../BattlegroundScreen";
 
 // TODO: this is a game logic rule, not UI thing
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
@@ -181,10 +182,7 @@ export const displayOptions = () => {
 		disableInteraction = true;
 		container.destroy(true);
 
-		const previousPhase = env.state.session.phase;
-		const { session, combatState } = await env.dispatch({ type: "select_encounter", encounterId: id });
-		env.updateState({ ...env.state, session, combatState });
-		BattlegroundEvent.phaseFinished.emit({ previousPhase });
+		await advancePhase({ type: "select_encounter", encounterId: id });
 
 	};
 
@@ -223,12 +221,7 @@ export const displayOptions = () => {
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
 			callback: () => {
-				void (async () => {
-					const previousPhase = env.state.session.phase;
-					const { session } = await env.dispatch({ type: "skip" });
-					env.updateState({ ...env.state, session });
-					BattlegroundEvent.phaseFinished.emit({ previousPhase });
-				})();
+				void advancePhase({ type: "skip" });
 			}
 		});
 
