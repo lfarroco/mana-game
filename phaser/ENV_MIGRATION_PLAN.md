@@ -1,8 +1,7 @@
 # Env Migration Plan
 
-> **Status:** 🎉 **Phases 4 & 5 complete**, **Phase 3 sub-phases 3a & 3b complete** — Only sub-phase 3c (dispatch unification) deferred. All `io.xxx` calls migrated, `window.io` bridge removed, `io.ts` deleted, `@IO` alias cleaned up. Controller is now pure of UI dependencies and direct state mutation.
+> **Status:** ✅ **All phases complete.** `io.ts` and `GameController.ts` deleted. The `env` singleton is the single source of truth for state, dispatch, and Phaser access.
 > **Goal:** Replace the global `window.io` singleton with an explicit `Env` record passed through the UI layer.
-> **Status:** ✅ **Phase 3 (3a+3b) complete** — Controller is pure, all state mutation and event emission handled by callers. 3c (dispatch unification) deferred.
 
 ## Current Architecture (what we're fixing)
 
