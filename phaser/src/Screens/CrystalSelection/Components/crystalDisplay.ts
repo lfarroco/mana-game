@@ -36,15 +36,12 @@ export function create() {
 		repeat: -1,
 	});
 
-	parent.state.crystalName = io.Text(i18n.getName(crystal.id), {
+	parent.state.crystalName = env.scene.add.text(0, 0, i18n.getName(crystal.id), {
 		...constants.titleTextConfig,
 		fontSize: CRYSTAL_NAME_FONT_SIZE,
 	});
-	io.SetPosition(
-		parent.state.crystalName,
-		[constants.MIDDLE_SCREEN_X, CARD_NAME_Y]
-	);
-	io.Centralize(parent.state.crystalName);
+	parent.state.crystalName.setPosition(constants.MIDDLE_SCREEN_X, CARD_NAME_Y);
+	parent.state.crystalName.setOrigin(0.5);
 
 	parent.state.descriptionText = new BBCodeText(
 		env.scene,

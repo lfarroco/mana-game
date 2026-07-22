@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ButtonTooltip from "@Components/Button/ButtonTooltip";
-;
+import { env } from "../../Env";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
 
 
@@ -220,10 +220,10 @@ export function create({
 	console.debug("UIButton", `DEBUG: createUIButton called for ${text}`);
 	const size: [number, number] = [width, BUTTON_HEIGHT];
 	const [_, height] = size;
-	const container = io.Container();
+	const container = env.scene.add.container();
 	const displayText = buildButtonDisplayText(text, emoji);
 
-	const buttonGraphics = io.BorderedRoundRect(
+	const buttonGraphics = env.borderedRoundRect(
 		[x, y],
 		size,
 		BUTTON_CORNER_RADIUS,
@@ -231,14 +231,14 @@ export function create({
 		1
 	);
 
-	io.SetInteractiveRect(size)(buttonGraphics);
+	buttonGraphics.setInteractive(new Phaser.Geom.Rectangle(0, 0, size[0], size[1]), Phaser.Geom.Rectangle.Contains);
 	if (buttonGraphics.input) {
 		buttonGraphics.input.cursor = BUTTON_CURSOR;
 	}
 
-	const buttonText = io.Text(displayText, textStyle);
-	io.SetPosition(buttonText, [x, y]);
-	io.Centralize(buttonText);
+	const buttonText = env.scene.add.text(0, 0, displayText, textStyle);
+	buttonText.setPosition(x, y);
+	buttonText.setOrigin(0.5);
 
 	container.add([buttonGraphics, buttonText]);
 
@@ -250,7 +250,7 @@ export function create({
 
 		const visuals = getButtonVisualStyle(state);
 		scene.tweens.killTweensOf(state);
-		io.Tween({
+		scene.tweens.add({
 			targets: state,
 			currentBackgroundAlpha: visuals.backgroundAlpha,
 			duration: BUTTON_HOVER_TRANSITION_DURATION_MS,
@@ -273,14 +273,14 @@ export function create({
 		callback();
 	};
 
-	io.OnPointerDown(buttonGraphics, () => {
+	buttonGraphics.on(Phaser.Input.Events.POINTER_DOWN, () => {
 		console.debug("UIButton", `DEBUG: UIButton PointerDown ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		state.isPressed = true;
 		syncVisualState();
 	});
 
-	io.OnPointerUp(buttonGraphics, () => {
+	buttonGraphics.on(Phaser.Input.Events.POINTER_UP, () => {
 		console.debug("UIButton", `DEBUG: UIButton PointerUp ${text}`);
 		if (!buttonGraphics.input?.enabled) return;
 		const wasPressed = state.isPressed;
@@ -293,20 +293,20 @@ export function create({
 		syncVisualState();
 	});
 
-	io.OnPointerOver(buttonGraphics, () => {
+	buttonGraphics.on(Phaser.Input.Events.POINTER_OVER, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		state.isHovered = true;
 		syncVisualState();
 	});
 
-	io.OnPointerOut(buttonGraphics, () => {
+	buttonGraphics.on(Phaser.Input.Events.POINTER_OUT, () => {
 		if (!buttonGraphics.input?.enabled) return;
 		state.isHovered = false;
 		state.isPressed = false;
 		syncVisualState();
 	});
 
-	io.OnceDestroyed(container, () => {
+	container.once("destroy", () => {
 		const scene = container.scene;
 		scene?.tweens.killTweensOf(state);
 		state.tooltip?.destroy();
@@ -364,9 +364,9 @@ export function create({
 
 export function disableUIButton(state: State) {
 	state.tooltip?.hide();
-	io.SetAlpha(state.graphics, 0.5);
+	state.graphics.setAlpha(0.5);
 
-	io.DisableInteractive(state.graphics);
+	state.graphics.disableInteractive();
 
 	state.isPressed = false;
 	state.isHovered = false;
@@ -375,9 +375,9 @@ export function disableUIButton(state: State) {
 }
 
 export function enableUIButton(state: State) {
-	io.SetAlpha(state.graphics, 1);
+	state.graphics.setAlpha(1);
 
-	io.SetInteractiveRect(state.size)(state.graphics);
+	state.graphics.setInteractive(new Phaser.Geom.Rectangle(0, 0, state.size[0], state.size[1]), Phaser.Geom.Rectangle.Contains);
 	if (state.graphics.input) {
 		state.graphics.input.cursor = BUTTON_CURSOR;
 	}

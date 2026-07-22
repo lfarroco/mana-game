@@ -1,4 +1,3 @@
-
 import * as constants from "./Constants";
 import Client from "./Client";
 import * as State from "@Models/ClientState";
@@ -8,15 +7,21 @@ import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
 
 declare global {
-	var io: typeof io_;
 	const __DEV__: boolean;
+}
+// ~~~ DEPRECATED: window.io will be removed in a future cleanup.
+// New code should import { env } from "./Env" directly.
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare global {
+	// eslint-disable-next-line no-var
+	var io: typeof io_;
 }
 window.io = io_;
 
 const STARTUP_FONT_FAMILY = "Arimo";
 const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";
 
-async function loadStartupFontIO(): Promise<void> {
+async function loadStartupFont(): Promise<void> {
 	const startupFont = new FontFace(
 		STARTUP_FONT_FAMILY,
 		`url("${STARTUP_FONT_URL}")`,
@@ -27,8 +32,8 @@ async function loadStartupFontIO(): Promise<void> {
 	await document.fonts.load(`16px "${STARTUP_FONT_FAMILY}"`);
 }
 
-async function startGameIO(): Promise<void> {
-	await loadStartupFontIO();
+async function startGame(): Promise<void> {
+	await loadStartupFont();
 
 	new Phaser.Game({
 		pixelArt: false,
@@ -56,4 +61,4 @@ async function startGameIO(): Promise<void> {
 	});
 }
 
-void startGameIO();
+void startGame();

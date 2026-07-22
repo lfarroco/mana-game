@@ -92,10 +92,14 @@ Benefits:
 
 ### Phase 5 — Remove `window.io` global
 
-- [ ] Remove `window.io = io_` from `main.ts`
-- [ ] Remove `declare global { var io }` from `main.ts`
-- [ ] Delete `io.ts` (or deprecate it)
-- [ ] All imports of `io.ts` replaced with `env` parameter
+- [x] Remove `window.io = io_` from `main.ts`
+- [x] Remove `declare global { var io }` from `main.ts`
+- [x] Replace `_env` with `env` singleton in `io.ts` (direct import from Env.ts, no bridge needed)
+- [x] Remove `io.setEnv(env)` bridge from `Client.ts` (env is now imported directly)
+- [x] Remove `io.getEnv()` / `io.initPhaserIO()` / `io.MoveBelow()` (unused)
+- [x] Add `env.container()`, `env.borderedRoundRect()`, `env.centeredRect()`, `env.rectangularDropZone()`, `env.shader()`, `env.fadeOut()`, `env.fadeIn()` helpers
+- [ ] Delete `io.ts` — blocked by remaining ~200 `io.xxx` call sites
+- [ ] All imports of `io.ts` replaced with `env` parameter — **in progress (~30% done)**
 
 ## Design Decisions
 

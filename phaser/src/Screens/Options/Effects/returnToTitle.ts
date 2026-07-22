@@ -1,12 +1,13 @@
 import { env } from "../../../Env";
+import * as TitleScreen from "../../Title/TitleScreen";
 
 export const returnToTitle = async () => {
 
-	await io.FadeOut(300, 0x000);
+	await env.fadeOut(300, 0x000);
 
 	env.scene.children.removeAll();
 
-	io.screens.title.create();
+	TitleScreen.create();
 
-	await io.FadeIn(300);
+	await env.fadeIn(300);
 }

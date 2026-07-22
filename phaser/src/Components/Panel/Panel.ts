@@ -1,4 +1,6 @@
 
+import { env } from "../../Env";
+
 export type PanelConfig = {
 	width: number;
 	height: number;
@@ -43,7 +45,7 @@ export function createPanel(position: Vec2, config: PanelConfig): Panel {
 		...config,
 	};
 
-	const background = io.BorderedRoundRect(
+	const background = env.borderedRoundRect(
 		position,
 		[width, height],
 		borderRadius,
@@ -56,7 +58,7 @@ export function createPanel(position: Vec2, config: PanelConfig): Panel {
 	background.fillRoundedRect(0, 0, width, height, borderRadius);
 	background.strokeRoundedRect(0, 0, width, height, borderRadius);
 
-	const container = io.Container([background]);
+	const container = env.container([background]);
 
 	const add = (...children: Phaser.GameObjects.GameObject[]): void => {
 		container.add(children);

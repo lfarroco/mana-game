@@ -1,15 +1,16 @@
 import { env } from "../../../Env";
 import * as loadGame from "../../../Storage/loadGame"
+import * as BattlegroundScreen from "../../Battleground/BattlegroundScreen";
 
 export const resumeGame = async () => {
 
-	io.FadeOut(500, 0x000);
+	await env.fadeOut(500, 0x000);
 
 	env.scene.children.removeAll();
 
 	loadGame.loadGame();
 
-	io.screens.battleground.create();
+	BattlegroundScreen.create();
 
-	io.FadeIn(300);
+	await env.fadeIn(300);
 }

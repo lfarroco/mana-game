@@ -42,16 +42,16 @@ export function createModal(config: ModalConfig): Modal {
 	const children: Phaser.GameObjects.GameObject[] = [panel.container];
 
 	if (title) {
-		const modalTitle = io.Title1(title);
-		io.SetPosition(modalTitle, [0, -height / 2 + 50]);
-		io.Centralize(modalTitle);
+		const modalTitle = env.scene.add.text(0, 0, title, constants.titleTextConfig);
+		modalTitle.setPosition(0, -height / 2 + 50);
+		modalTitle.setOrigin(0.5);
 		children.push(modalTitle);
 	}
 
-	const container = io.Container(children);
+	const container = env.container(children);
 	container.setPosition(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y);
 
-	io.BringToTop(container);
+	env.scene.children.bringToTop(container);
 
 	container.setScale(0);
 	env.scene.tweens.add({

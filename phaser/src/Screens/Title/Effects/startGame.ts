@@ -1,12 +1,13 @@
 import { env } from "../../../Env";
+import * as CrystalSelectionScreen from "../../CrystalSelection/CrystalSelectionScreen";
 
 export const startGame = async () => {
 
-	await io.FadeOut(300, 0x000000);
+	await env.fadeOut(300, 0x000000);
 
 	env.scene.children.removeAll();
 
-	io.screens.crystalSelection();
+	CrystalSelectionScreen.create();
 
-	await io.FadeIn(300);
+	await env.fadeIn(300);
 }

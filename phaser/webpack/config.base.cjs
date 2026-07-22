@@ -11,6 +11,7 @@ const sharedResolve = {
 		"@Screens": path.resolve(__dirname, "../src/Screens"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),
 		"@IO": path.resolve(__dirname, "../src/phaser.io.ts"),
+		"@Env": path.resolve(__dirname, "../src/Env"),
 		"@Constants": path.resolve(__dirname, "../src/Constants"),
 		"@Utils": path.resolve(__dirname, "../src/Utils"),
 		"@Components": path.resolve(__dirname, "../src/Components"),

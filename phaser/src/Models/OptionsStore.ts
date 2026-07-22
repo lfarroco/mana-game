@@ -25,7 +25,7 @@ export const init = () => {
 		Object.assign(env.state.settings, savedOptions);
 	}
 	setGameSpeed(currentOptions.speed);
-	io.game.sound.volume = currentOptions.masterVolume;
+	env.scene.sound.volume = currentOptions.masterVolume;
 	AudioManager.onOptionsChanged();
 };
 
@@ -56,7 +56,7 @@ export function setOption<K extends keyof PlayerSettings>(key: K, value: PlayerS
 		return;
 	}
 	if (key === "masterVolume") {
-		io.game.sound.volume = value as number;
+		env.scene.sound.volume = value as number;
 		return;
 	}
 	if (key === "soundVolume" || key === "musicVolume") {

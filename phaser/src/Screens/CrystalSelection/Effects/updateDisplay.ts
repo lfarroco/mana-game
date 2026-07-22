@@ -15,7 +15,7 @@ export function updateDisplay() {
 	parent.state.crystalSprite.setTexture(crystal.pic);
 
 	parent.state.crystalName.setText(i18n.getName(crystal.id));
-	io.Centralize(parent.state.crystalName);
+	parent.state.crystalName.setOrigin(0.5);
 
 	const description = buildCrystalDescription(crystal);
 	parent.state.descriptionText.setText(description);

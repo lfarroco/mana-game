@@ -1,11 +1,12 @@
 import { env } from "../../../Env";
+import * as OptionsScreen from "../../Options/OptionsScreen";
 
 export const openOptions = () => async () => {
-	await io.FadeOut(300, 0x000000);
+	await env.fadeOut(300, 0x000000);
 
 	env.scene.children.removeAll();
 
-	io.screens.options();
+	OptionsScreen.create();
 
-	io.FadeIn(300);
+	await env.fadeIn(300);
 }

@@ -4,12 +4,15 @@ import * as getSinglePlayerData from "../../../Storage/getSinglePlayerData";
 import * as collectionButton from "../../../Screens/Title/Components/collectionButton";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
+import * as i18n from "@i18n/i18n";
+import * as TitleScreen from "../TitleScreen";
+import { env } from "../../../Env";
 
 let submenuContainer: Container;
 
 export function create(y: number) {
-	const title = io.i18n("title.singlePlayer");
-	const description = io.i18n("title.tooltip.singlePlayer");
+	const title = i18n.t("title.singlePlayer");
+	const description = i18n.t("title.tooltip.singlePlayer");
 
 	return UIButton.create({
 		text: title,
@@ -31,26 +34,26 @@ const showSinglePlayerSubmenu = () => () => {
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;
 
 	const resumeBtn = UIButton.create({
-		text: io.i18n("title.resume"),
+		text: i18n.t("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: io.screens.title.events.resumeGameButtonClicked.emit
+		callback: () => TitleScreen.events.resumeGameButtonClicked.emit(undefined)
 	});
 
 	if (!hasSavedRun) {
-		io.Hide(resumeBtn.container);
+		resumeBtn.container.setVisible(false);
 		resumeBtn.disable();
 	}
 
 	const newRunBtn = UIButton.create({
-		text: io.i18n("title.newRun"),
+		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: io.screens.title.events.newGameButtonClicked.emit
+		callback: () => TitleScreen.events.newGameButtonClicked.emit(undefined)
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);
 
 	const backBtn = UIButton.create({
-		text: io.i18n("title.back"),
+		text: i18n.t("title.back"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
 			hideSinglePlayerSubmenu();
@@ -58,14 +61,14 @@ const showSinglePlayerSubmenu = () => () => {
 		},
 	});
 
-	submenuContainer = io.Container([
+	submenuContainer = env.container([
 		resumeBtn.container,
 		newRunBtn.container,
 		collectionBtn.container,
 		backBtn.container,
 	]);
 
-	io.BringToTop(submenuContainer);
+	env.scene.children.bringToTop(submenuContainer);
 }
 
 function hideSinglePlayerSubmenu() {

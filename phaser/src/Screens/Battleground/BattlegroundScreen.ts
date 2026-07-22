@@ -13,6 +13,8 @@ import { getRemainingLives } from "../../SessionManager";
 import { initialState } from "@Models/ClientState";
 import { env } from "../../Env";
 import { BattlegroundEvent } from "../../Events";
+import * as CrystalSelectionScreen from "../CrystalSelection/CrystalSelectionScreen";
+import * as TitleScreen from "../Title/TitleScreen";
 
 const BATTLEGROUND_EXIT_EVENT = "battleground:exit";
 
@@ -84,11 +86,11 @@ function init() {
 	BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges);
 	BattlegroundEvent.newRunRequested.listen(() => {
 		Object.assign(env.state, initialState());
-		void transitionFromBattleground(io.screens.crystalSelection);
+		void transitionFromBattleground(CrystalSelectionScreen.create);
 	});
 	BattlegroundEvent.mainMenuRequested.listen(() => {
 		Object.assign(env.state, initialState());
-		void transitionFromBattleground(io.screens.title.create);
+		void transitionFromBattleground(TitleScreen.create);
 	});
 
 }

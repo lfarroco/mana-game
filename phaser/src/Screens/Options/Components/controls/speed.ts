@@ -2,6 +2,7 @@ import * as constants from "@Constants";
 import * as Slider from "@Components/Slider/Slider";
 import * as Phaser from "phaser";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import { env } from "@Env";
 
 const SPEED_STEP = 0.1;
 const SPEED_MIN = 0.1;
@@ -17,22 +18,21 @@ export function speed(
 	const formatLabel = (n: number) => n.toFixed(1) + "x";
 
 	//   ~~~//~~~
-	const labelText = io.Text(label, constants.titleTextConfig);
+	const labelText = env.scene.add.text(0, 0, label, constants.titleTextConfig);
 
-	io.SetPosition(labelText, [constants.MIDDLE_SCREEN_X, yPos]);
-	io.Centralize(labelText);
+	labelText.setPosition(constants.MIDDLE_SCREEN_X, yPos);
+	labelText.setOrigin(0.5);
 
 	//   ~~~//~~~
-	const valueText = io.Text(formatLabel(getValue()), {
+	const valueText = env.scene.add.text(0, 0, formatLabel(getValue()), {
 		...constants.titleTextConfig,
 		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
 
-	io.SetPosition(
-		valueText,
-		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y - 20]
+	valueText.setPosition(
+		constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y - 20
 	);
-	io.Centralize(valueText);
+	valueText.setOrigin(0.5);
 
 	//   ~~~//~~~
 	const slider = Slider.createSlider(

@@ -8,11 +8,21 @@ import * as Components from "./Components"
 import pkg from "../../../package.json";
 import * as Effects from "./Effects"
 import * as Models from "@game/Models"
+import { env } from "../../Env";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: Models.Event<void>
 	resumeGameButtonClicked: Models.Event<void>
 }
+
+// Simple event maker (inline since we're avoiding circular io deps)
+const makeEvent = <T>(): Models.Event<T> => {
+	const listeners = new Set<(payload: T) => void>();
+	return {
+		listen: (cb) => { listeners.add(cb); },
+		emit: (payload) => { listeners.forEach((cb) => cb(payload)); },
+	};
+};
 
 export let events: TitleScreenEvents;
 export const components = Components;
@@ -25,8 +35,8 @@ function init() {
 	initialized = true;
 
 	events = {
-		newGameButtonClicked: io.createEvent<void>("newGameButtonClicked"),
-		resumeGameButtonClicked: io.createEvent<void>("resumeGameButtonClicked"),
+		newGameButtonClicked: makeEvent<void>(),
+		resumeGameButtonClicked: makeEvent<void>(),
 	}
 
 	events.newGameButtonClicked.listen(Effects.startGame);
@@ -59,7 +69,7 @@ export function create() {
 }
 
 function renderMainButtons() {
-	mainButtonsContainer = io.Container([
+	mainButtonsContainer = env.container([
 		() => Components.singlePlayerButton.create(500).container,
 		() => Components.arenaButton.create(600).container,
 		() => Components.optionsButton.create(700).container,
@@ -75,9 +85,9 @@ function renderMainButtons() {
  * Displays the game version in the top-right corner of the screen
  */
 function displayVersion() {
-	const versionText = io.Text(`v${pkg.version}`, { fontSize: "16px", color: "white", });
-	io.SetPosition(versionText, [constants.SCREEN_WIDTH - 30, 10]);
-	io.SetAlpha(versionText, 0.5);
+	const versionText = env.scene.add.text(0, 0, `v${pkg.version}`, { fontSize: "16px", color: "white", });
+	versionText.setPosition(constants.SCREEN_WIDTH - 30, 10);
+	versionText.setAlpha(0.5);
 	versionText.setOrigin(1, 0);
 
 }

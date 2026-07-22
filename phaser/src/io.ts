@@ -9,39 +9,40 @@ import * as i18n_ from "@i18n/i18n";
 import * as Controller_ from "./GameController";
 import events_ from "events";
 import * as Models from "@game/Models";
-;
 import * as Chara from "@Systems/Chara/Chara";
-import type { Env } from "./Env";
+import { env } from "./Env";
 import { BattlegroundEvent } from "./Events";
 
 // ---------------------------------------------------------------------------
-// Env bridge — transitional, removed in Phase 5.
-// During migration, `createEnv()` in Client.ts feeds the env here so that
-// both old (`io.xxx`) and new (`env.xxx`) call sites stay functional.
+// DEPRECATED — This module is being sunset. See ENV_MIGRATION_PLAN.md.
+// All new code should import { env } from "./Env" directly instead.
 // ---------------------------------------------------------------------------
 
-let _env: Env | null = null;
-
-/** Called by Client.ts after `createEnv()`. Feeds env to the global bridge. */
-export function setEnv(env: Env): void {
-	_env = env;
-	_env!.scene = env.scene;
-	game = env.scene.game;
-}
-
-/** Access the current env. Returns null before `setEnv` is called. */
-export function getEnv(): Env | null {
-	return _env;
-}
-
-
-export let game: Phaser.Game;
 
 export const i18n = i18n_.t;
 
 export const emitter = new events_();
 
 export const Controller = Controller_;
+
+// ~~~ DEPRECATED compat exports — will be removed with io.ts. ~~~
+
+/** @deprecated Use env.scene.game instead. */
+export const game: Phaser.Game = new Proxy({} as Phaser.Game, {
+	get(_target, prop) {
+		return (env.scene?.game as any)?.[prop];
+	},
+});
+
+/** @deprecated Use env.scene.children.bringToTop() instead. */
+export function BringToTop(obj: Phaser.GameObjects.GameObject): void {
+	env.scene.children.bringToTop(obj);
+}
+
+/** @deprecated Use env.scene.children.moveBelow() instead. */
+export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): void {
+	env.scene.children.moveBelow(a, b);
+}
 
 export const createEvent = <T>(event: string): Models.Event<T> => {
 
@@ -68,23 +69,10 @@ export const screens = {
 export const clean = () => {
 
 	Chara.clearAll();
-	_env!.scene.children.each(c => c.destroy())
-	_env!.scene.children.removeAll();
-	_env!.scene.tweens.killAll();
-	_env!.scene.time.removeAllEvents();
-}
-
-export function initPhaserIO(newScene: Phaser.Scene) {
-	_env!.scene = newScene;
-	game = newScene.game;
-}
-
-export function BringToTop(obj: Phaser.GameObjects.GameObject): void {
-	_env!.scene.children.bringToTop(obj);
-}
-
-export function MoveBelow(a: Phaser.GameObjects.GameObject, b: Phaser.GameObjects.GameObject): void {
-	_env!.scene.children.moveBelow(a, b);
+	env.scene.children.each(c => c.destroy())
+	env.scene.children.removeAll();
+	env.scene.tweens.killAll();
+	env.scene.time.removeAllEvents();
 }
 
 type ContainerChild =
@@ -99,7 +87,7 @@ type ContainerChild =
  * - Arrays of functions that compose together (each function receives the previous result)
  */
 export function Container(children?: (ContainerChild | null)[]): Phaser.GameObjects.Container {
-	const container = _env!.scene.add.container();
+	const container = env.scene.add.container();
 
 	if (children) {
 		const elements: Phaser.GameObjects.GameObject[] = [];
@@ -144,7 +132,7 @@ export const SetInteractiveRect = ([width, height]: Size) => (
 };
 
 export function Tween(config: Phaser.Types.Tweens.TweenBuilderConfig): void {
-	_env!.scene.tweens.add(config);
+	env.scene.tweens.add(config);
 }
 
 export function SetPosition(
@@ -184,7 +172,7 @@ export function BorderedRoundRect(
 ): Phaser.GameObjects.Graphics {
 	// origin
 	const [ox, oy] = Geometry.sumVec2([x, y], [-w / 2, -h / 2]);
-	const g = _env!.scene.add.graphics({ x: ox, y: oy });
+	const g = env.scene.add.graphics({ x: ox, y: oy });
 	g.lineStyle(2, 0xffffff, 0.5);
 	g.fillStyle(color, alpha);
 	g.fillRoundedRect(0, 0, w, h, cornerRadius);
@@ -202,7 +190,7 @@ export function Rectangle(
 ): Phaser.GameObjects.Graphics {
 	// origin
 	const [ox, oy] = Geometry.sumVec2([x, y], [-w / 2, -h / 2]);
-	const g = _env!.scene.add.graphics({ x: ox, y: oy });
+	const g = env.scene.add.graphics({ x: ox, y: oy });
 	g.lineStyle(4, 0xffffff, 0.8);
 	g.fillStyle(color, alpha);
 	g.fillRect(0, 0, w, h);
@@ -218,7 +206,7 @@ export function Circle(
 	color: number = 0xffa500,
 	alpha: number = 0.7
 ): Phaser.GameObjects.Graphics {
-	const g = _env!.scene.add.graphics({ x, y });
+	const g = env.scene.add.graphics({ x, y });
 	g.fillStyle(color, alpha);
 	g.fillCircle(0, 0, radius);
 
@@ -227,7 +215,7 @@ export function Circle(
 
 export function RectangularDropZone(name: string, [x, y]: Vec2, [width, height]: Size): Phaser.GameObjects.Zone {
 
-	const zone = _env!.scene.add.zone(x, y, width, height);
+	const zone = env.scene.add.zone(x, y, width, height);
 
 	zone.setName(name);
 
@@ -244,7 +232,7 @@ export function Centralize(obj: Phaser.GameObjects.GameObject): Phaser.GameObjec
 export function Text(
 	text: string,
 	style = constants.defaultTextConfig): Phaser.GameObjects.Text {
-	return _env!.scene.add.text(0, 0, text, style);
+	return env.scene.add.text(0, 0, text, style);
 }
 
 export function Title1(text: string) {
@@ -306,10 +294,10 @@ export function OnUpdate(
 	obj: Phaser.GameObjects.GameObject,
 	callback: (time: number, delta: number) => void
 ): void {
-	_env!.scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
+	env.scene.events.on(Phaser.Scenes.Events.UPDATE, callback);
 
 	OnceDestroyed(obj, () => {
-		_env!.scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
+		env.scene.events.off(Phaser.Scenes.Events.UPDATE, callback);
 	});
 }
 
@@ -360,7 +348,7 @@ export function Shader(
 	});
 
 	const base = new Phaser.Display.BaseShader("magic-button", frag, undefined, shaderUniforms);
-	const shader = _env!.scene.add.shader(base, x, y, w, h);
+	const shader = env.scene.add.shader(base, x, y, w, h);
 	return shader;
 }
 
@@ -385,8 +373,8 @@ export const FadeOut = async (duration: number, color: number) =>
 		const r = (color >> 16) & 0xff;
 		const g = (color >> 8) & 0xff;
 		const b = color & 0xff;
-		_env!.scene.cameras.main.fade(duration, r, g, b);
-		_env!.scene.cameras.main.once(
+		env.scene.cameras.main.fade(duration, r, g, b);
+		env.scene.cameras.main.once(
 			Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
 			resolve,
 		);
@@ -394,15 +382,15 @@ export const FadeOut = async (duration: number, color: number) =>
 
 export const FadeIn = async (duration: number) =>
 	new Promise<void>((resolve) => {
-		_env!.scene.cameras.main.fadeIn(duration);
-		_env!.scene.cameras.main.once(
+		env.scene.cameras.main.fadeIn(duration);
+		env.scene.cameras.main.once(
 			Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
 			resolve,
 		);
 	});
 
 export function StartScene(key: string, data?: object): void {
-	_env!.scene.scene.start(key, data);
+	env.scene.scene.start(key, data);
 }
 
 export function Delay(duration: number): Promise<void> {

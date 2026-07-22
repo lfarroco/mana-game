@@ -127,6 +127,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ### Medium Priority
 
+- [ ] Migrate remaining ~200 `io.xxx` calls across ~30 files to `env.*` / direct Phaser calls
 - [ ] Wire the new server-side LLM play service into automated leaderboard match runners
 
 ### Low Priority

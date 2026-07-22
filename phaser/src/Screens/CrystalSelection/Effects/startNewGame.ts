@@ -1,12 +1,13 @@
 import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { env } from "../../../Env";
+import * as BattlegroundScreen from "../../Battleground/BattlegroundScreen";
 
 export const startNewGame = async () => {
 	const { currentIndex, crystals } = parent.state;
 	const selectedCrystal = crystals[currentIndex];
 
-	await io.FadeOut(300, 0x000000);
+	await env.fadeOut(300, 0x000000);
 
 	env.scene.children.removeAll();
 
@@ -18,7 +19,7 @@ export const startNewGame = async () => {
 
 	env.state.session = session;
 
-	io.screens.battleground.create();
+	BattlegroundScreen.create();
 
-	await io.FadeIn(300);
+	await env.fadeIn(300);
 }

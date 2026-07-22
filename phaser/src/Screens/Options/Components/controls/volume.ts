@@ -1,6 +1,7 @@
 import * as constants from "@Constants";
 import * as Slider from "@Components/Slider/Slider";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import { env } from "@Env";
 
 const VOLUME_STEP = 0.1;
 const VOLUME_MIN = 0;
@@ -17,18 +18,18 @@ export function volume(
 
 	//   ~~~//~~~
 
-	const title = io.Text(label, constants.titleTextConfig);
-	io.SetPosition(title, [constants.MIDDLE_SCREEN_X, yPos]);
-	io.Centralize(title);
+	const title = env.scene.add.text(0, 0, label, constants.titleTextConfig);
+	title.setPosition(constants.MIDDLE_SCREEN_X, yPos);
+	title.setOrigin(0.5);
 
 	//   ~~~//~~~
 
-	const valueText = io.Text(formatLabel(getValue()), {
+	const valueText = env.scene.add.text(0, 0, formatLabel(getValue()), {
 		...constants.titleTextConfig,
 		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
-	io.SetPosition(valueText, [constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y - 20]);
-	io.Centralize(valueText);
+	valueText.setPosition(constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y - 20);
+	valueText.setOrigin(0.5);
 
 	//   ~~~//~~~
 

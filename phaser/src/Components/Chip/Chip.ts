@@ -11,6 +11,9 @@ const CHIP_CORNER_RADIUS = 4;
 const CHIP_PULSE_SCALE = 1.2;
 const CHIP_PULSE_DURATION_MS = 200;
 
+import * as constants from "@Constants";
+import { env } from "../../Env";
+
 const index = new Map<
 	string,
 	{
@@ -30,8 +33,8 @@ export function createChip(
 	value: string,
 	minWidth?: number
 ) {
-	const text = io.Label(value).setFontSize(CHIP_FONT_SIZE);
-	io.Centralize(text);
+	const text = env.scene.add.text(0, 0, value, constants.defaultTextConfig).setFontSize(CHIP_FONT_SIZE);
+	text.setOrigin(0.5);
 
 	const [width, height] = [
 		Math.max(text.width + CHIP_PADDING, minWidth ?? 0),
@@ -60,7 +63,7 @@ export function createChip(
 
 	index.set(id, { container, bg, text, color, minWidth });
 
-	io.OnceDestroyed(container, () => {
+	container.once("destroy", () => {
 		index.delete(id);
 	});
 

@@ -1,6 +1,7 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
+import { env } from "@Env";
 
 export function multipleChoice(
 	label: string,
@@ -14,10 +15,10 @@ export function multipleChoice(
 	const updateLabel = () => valueText.setText(formatLabel());
 
 	//   ~~~//~~~
-	const labelText = io.Text(label, constants.titleTextConfig);
+	const labelText = env.scene.add.text(0, 0, label, constants.titleTextConfig);
 
-	io.SetPosition(labelText, [constants.MIDDLE_SCREEN_X, yPos]);
-	io.Centralize(labelText);
+	labelText.setPosition(constants.MIDDLE_SCREEN_X, yPos);
+	labelText.setOrigin(0.5);
 
 	//   ~~~//~~~
 	const decreaseButton = UIButton.create({
@@ -33,17 +34,16 @@ export function multipleChoice(
 	});
 
 	//   ~~~//~~~
-	const valueText = io.Text(formatLabel(), {
+	const valueText = env.scene.add.text(0, 0, formatLabel(), {
 		...constants.titleTextConfig,
 		fontSize: "32px",
 		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
 
-	io.SetPosition(
-		valueText,
-		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y]
+	valueText.setPosition(
+		constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
 	);
-	io.Centralize(valueText);
+	valueText.setOrigin(0.5);
 
 	//   ~~~//~~~
 	const increaseButton = UIButton.create({

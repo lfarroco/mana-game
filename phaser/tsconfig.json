@@ -27,6 +27,9 @@
             "@IO": [
                 "./src/io.ts"
             ],
+            "@Env": [
+                "./src/Env"
+            ],
             "@Components/*": [
                 "./src/Components/*"
             ],

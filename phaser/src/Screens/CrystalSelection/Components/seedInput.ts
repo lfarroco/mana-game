@@ -18,7 +18,7 @@ export function create() {
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
 
-	io.Text("Seed: ", {
+	env.scene.add.text(0, 0, "Seed: ", {
 		...constants.defaultTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
@@ -26,8 +26,7 @@ export function create() {
 		.setOrigin(1, 0.5)
 		.setPosition(x - width - 10, y - height / 2);
 
-	seedText = io
-		.Text(`${currentSeed}`, {
+	seedText = env.scene.add.text(0, 0, `${currentSeed}`, {
 			...constants.defaultTextConfig,
 			fontSize: "24px",
 			color: "#ffffff",
@@ -35,8 +34,7 @@ export function create() {
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
 
-	parent.state.seedWarningText = io
-		.Text("Unlocks and stats disabled when using a custom seed", {
+	parent.state.seedWarningText = env.scene.add.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
 			...constants.defaultTextConfig,
 			fontSize: "16px",
 			color: "#ffff00",

@@ -32,6 +32,7 @@ module.exports = {
 		"^@Constants/(.*)\\.js$": "<rootDir>/src/Constants/$1",
 		"^@Constants/(.*)$": "<rootDir>/src/Constants/$1",
 		"^@IO$": "<rootDir>/src/phaser.io.ts",
+		"^@Env$": "<rootDir>/src/Env.ts",
 		"^@Components/(.*)\\.js$": "<rootDir>/src/Components/$1",
 		"^@Components/(.*)$": "<rootDir>/src/Components/$1",
 		"^@Shaders/(.*)\\.js$": "<rootDir>/src/Shaders/$1",

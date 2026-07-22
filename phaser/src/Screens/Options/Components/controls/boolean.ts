@@ -2,6 +2,7 @@ import * as Constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n from "@i18n/i18n";
+import { env } from "@Env";
 
 export function boolean(
 	label: string,
@@ -9,23 +10,23 @@ export function boolean(
 	getValue: () => boolean,
 	setValue: (value: boolean) => void
 ) {
-	const labelText = io.Text(label, Constants.titleTextConfig);
-	io.SetPosition(labelText, [Constants.MIDDLE_SCREEN_X, yPos]);
-	io.Centralize(labelText);
+	const labelText = env.scene.add.text(0, 0, label, Constants.titleTextConfig);
+	labelText.setPosition(Constants.MIDDLE_SCREEN_X, yPos);
+	labelText.setOrigin(0.5);
 
 	//   ~~~//~~~
 	//   ~~~//~~~
 	const onText = i18n.t("options.boolean.on");
 	const offText = i18n.t("options.boolean.off");
 
-	const valueText = io.Text(getValue() ? onText : offText, {
+	const valueText = env.scene.add.text(0, 0, getValue() ? onText : offText, {
 		...Constants.titleTextConfig,
 		fontSize: "12px",
 		color: OptionsScreen.STYLES.VALUE_TEXT_COLOR,
 	});
-	io.SetPosition(valueText, [Constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y]);
-	io.Centralize(valueText);
-	io.Hide(valueText);
+	valueText.setPosition(Constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y);
+	valueText.setOrigin(0.5);
+	valueText.setVisible(false);
 
 	//   ~~~//~~~
 

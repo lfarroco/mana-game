@@ -30,6 +30,7 @@ module.exports = {
 		"^@assets$": "<rootDir>/../phaser/src/assets.ts",
 		"^@utils$": "<rootDir>/../phaser/src/utils.ts",
 		"^@IO$": "<rootDir>/../phaser/src/phaser.io.ts",
+		"^@Env$": "<rootDir>/../phaser/src/Env.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1"
 	},
 	transform: {
