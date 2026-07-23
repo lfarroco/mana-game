@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import * as PhaseConfig from "./PhaseConfig";
-import * as Models from "./Models";
+import * as Models from "../Models";
 
 describe("PhaseConfig", () => {
 	describe("getPhaseForTurn", () => {

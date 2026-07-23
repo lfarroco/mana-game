@@ -72,3 +72,72 @@ export const unwrapOrThrow = <T>(r: Result<T, unknown>): T => {
 /** Extract the value with a default fallback. */
 export const unwrapOr = <T>(r: Result<T, unknown>, defaultValue: T): T =>
 	r._tag === "ok" ? r.value : defaultValue;
+
+// ---------------------------------------------------------------------------
+// match — exhaustive pattern matching
+// ---------------------------------------------------------------------------
+
+/**
+ * Pattern-match an Option with exhaustive handling of both tags.
+ * The `never` in onNone forces the compiler to reject missing cases.
+ *
+ * @example
+ * matchOption(opt, {
+ *   some: (value) => `Got ${value}`,
+ *   none: () => "Nothing",
+ * });
+ */
+export const matchOption = <T, U>(
+	o: Option<T>,
+	handlers: { some: (value: T) => U; none: () => U },
+): U => (o._tag === "some" ? handlers.some(o.value) : handlers.none());
+
+/**
+ * Pattern-match a Result with exhaustive handling of both tags.
+ *
+ * @example
+ * matchResult(res, {
+ *   ok: (value) => `Success: ${value}`,
+ *   err: (error) => `Failed: ${error}`,
+ * });
+ */
+export const matchResult = <T, E, U>(
+	r: Result<T, E>,
+	handlers: { ok: (value: T) => U; err: (error: E) => U },
+): U => (r._tag === "ok" ? handlers.ok(r.value) : handlers.err(r.error));
+
+// ---------------------------------------------------------------------------
+// chain / flatMap — monadic composition
+// ---------------------------------------------------------------------------
+
+/**
+ * Chain an Option-producing function. Returns None if the input is None,
+ * otherwise applies f to the wrapped value.
+ *
+ * @example
+ * const userOpt = findUser(id);           // Option<User>
+ * const emailOpt = chain(userOpt, getUserEmail); // Option<string>
+ */
+export const chainOption = <T, U>(
+	o: Option<T>,
+	f: (value: T) => Option<U>,
+): Option<U> => (o._tag === "some" ? f(o.value) : none);
+
+/** Alias for chainOption. */
+export const flatMapOption = chainOption;
+
+/**
+ * Chain a Result-producing function. Returns Err if the input is Err,
+ * otherwise applies f to the wrapped value.
+ *
+ * @example
+ * const parsed = parse(input);              // Result<Data, string>
+ * const validated = chainResult(parsed, validate); // Result<ValidData, string>
+ */
+export const chainResult = <T, U, E>(
+	r: Result<T, E>,
+	f: (value: T) => Result<U, E>,
+): Result<U, E> => (r._tag === "ok" ? f(r.value) : r);
+
+/** Alias for chainResult. */
+export const flatMapResult = chainResult;

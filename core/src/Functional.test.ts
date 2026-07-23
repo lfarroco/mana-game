@@ -171,4 +171,96 @@ describe("Functional", () => {
 			});
 		});
 	});
+
+	// -----------------------------------------------------------------------
+	// match
+	// -----------------------------------------------------------------------
+
+	describe("matchOption", () => {
+		it("calls the some handler for Some", () => {
+			const result = F.matchOption(F.some(42), {
+				some: (v) => `value: ${v}`,
+				none: () => "nothing",
+			});
+			expect(result).toBe("value: 42");
+		});
+
+		it("calls the none handler for None", () => {
+			const result = F.matchOption(F.none as F.Option<number>, {
+				some: (v) => `value: ${v}`,
+				none: () => "nothing",
+			});
+			expect(result).toBe("nothing");
+		});
+	});
+
+	describe("matchResult", () => {
+		it("calls the ok handler for Ok", () => {
+			const result = F.matchResult(F.ok("data"), {
+				ok: (v) => `got ${v}`,
+				err: (e) => `error: ${e}`,
+			});
+			expect(result).toBe("got data");
+		});
+
+		it("calls the err handler for Err", () => {
+			const result = F.matchResult(F.err("bad input"), {
+				ok: (v) => `got ${v}`,
+				err: (e) => `error: ${e}`,
+			});
+			expect(result).toBe("error: bad input");
+		});
+	});
+
+	// -----------------------------------------------------------------------
+	// chain / flatMap
+	// -----------------------------------------------------------------------
+
+	describe("chainOption (flatMapOption)", () => {
+		const safeDivide = (a: number, b: number): F.Option<number> =>
+			b === 0 ? F.none : F.some(a / b);
+
+		it("returns None when input is None", () => {
+			const result = F.chainOption(F.none as F.Option<number>, (x) => F.some(x * 2));
+			expect(result).toEqual(F.none);
+		});
+
+		it("returns Some when chaining succeeds", () => {
+			const result = F.chainOption(F.some(10), (x) => safeDivide(x, 2));
+			expect(result).toEqual(F.some(5));
+		});
+
+		it("returns None when chained function returns None", () => {
+			const result = F.chainOption(F.some(10), (x) => safeDivide(x, 0));
+			expect(result).toEqual(F.none);
+		});
+
+		it("flatMapOption is same as chainOption", () => {
+			expect(F.flatMapOption(F.some(3), (x) => F.some(x + 1))).toEqual(F.some(4));
+		});
+	});
+
+	describe("chainResult (flatMapResult)", () => {
+		const safeDivide = (a: number, b: number): F.Result<number, string> =>
+			b === 0 ? F.err("division by zero") : F.ok(a / b);
+
+		it("returns Err when input is Err", () => {
+			const result = F.chainResult(F.err("fail"), (x) => F.ok(x * 2));
+			expect(result).toEqual(F.err("fail"));
+		});
+
+		it("returns Ok when chaining succeeds", () => {
+			const result = F.chainResult(F.ok(10), (x) => safeDivide(x, 2));
+			expect(result).toEqual(F.ok(5));
+		});
+
+		it("returns Err when chained function returns Err", () => {
+			const result = F.chainResult(F.ok(10), (x) => safeDivide(x, 0));
+			expect(result).toEqual(F.err("division by zero"));
+		});
+
+		it("flatMapResult is same as chainResult", () => {
+			expect(F.flatMapResult(F.ok(3), (x) => F.ok(x + 1))).toEqual(F.ok(4));
+		});
+	});
 });

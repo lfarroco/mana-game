@@ -63,7 +63,6 @@ export function dealDamage(
 
 			CombatStatsTracker.trackDamage(
 				env.combatStates.combatStatsTrackerState,
-				env,
 				sourceId,
 				actualLifeChanged,
 			);

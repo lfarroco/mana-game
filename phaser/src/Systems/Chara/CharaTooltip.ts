@@ -8,12 +8,42 @@ import { getSettings } from "@Models/OptionsStore";
 
 const MS_PER_SECOND = 1000;
 
+/**
+ * Safe accessor for the `count` property on Targeting variants that have it
+ * (random_ally, random_enemy). Returns undefined for other targeting variants.
+ */
+const getCount = (targets: Targeting | undefined): number | undefined =>
+	targets && (targets.id === "random_ally" || targets.id === "random_enemy")
+		? targets.count
+		: undefined;
+
+/**
+ * Safe accessor for the `targets` property on Effect variants that carry
+ * a targeting specification. Returns undefined for effects without targets.
+ */
+const getEffectTargets = (effect: Effect): Targeting | undefined => {
+	switch (effect.id) {
+		case "haste":
+		case "slow":
+		case "charge":
+		case "increase_power":
+		case "decrease_power":
+		case "multiply_power":
+		case "increase_critical":
+		case "distribute_power":
+		case "absorb_power":
+		case "sacrifice_effect":
+			return effect.targets;
+		default:
+			return undefined;
+	}
+};
+
 const getTargetDescription = (targets: Targeting): string => {
 	if (!targets) return t("tooltip.targets.default");
 
 	let key = `tooltip.sentence.target.${targets.id}`;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const count = (targets as any).count;
+	const count = getCount(targets);
 
 	if (targets.id === "random_ally" && count && count > 1)
 		key = "tooltip.sentence.target.random_allies";
@@ -27,7 +57,7 @@ const getTargetDescription = (targets: Targeting): string => {
 		});
 	}
 
-	return t(key, { count: count?.toString() });
+	return t(key, { count: (count ?? 0).toString() });
 };
 
 const isTargetPlural = (targets?: Targeting): boolean => {
@@ -47,8 +77,7 @@ const isTargetPlural = (targets?: Targeting): boolean => {
 			return false;
 		case "random_ally":
 		case "random_enemy":
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			return ((targets as any).count || 1) > 1;
+			return (getCount(targets) ?? 1) > 1;
 		case "all_allies":
 		case "all_enemies":
 		case "row_allies":
@@ -73,12 +102,11 @@ const getCompactTargetDescription = (targets: Targeting, color?: string): string
 		id = COMPACT_TARGET_MAP[id];
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const count = (targets as any).count;
+	const count = getCount(targets);
 	if (targets.id === "random_ally" && count && count > 1)
-		return t("tooltip.targets.random_allies", { count, color: color || "" });
+		return t("tooltip.targets.random_allies", { count: count.toString(), color: color || "" });
 	if (targets.id === "random_enemy" && count && count > 1)
-		return t("tooltip.targets.random_enemies", { count, color: color || "" });
+		return t("tooltip.targets.random_enemies", { count: count.toString(), color: color || "" });
 
 	if (targets.id === "all_allies" && targets.ofType !== "any") {
 		return t("tooltip.targets.all_allies_type", {
@@ -95,8 +123,7 @@ export const buildCompactEffectBlock = (effect: Effect, unitPower: number): stri
 	const color = ABILITY_COLORS[effect.id] || "#ffffff";
 	const effectName = t(`tooltip.effects.${effect.id}`);
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const targets = (effect as any).targets as Targeting | undefined;
+	const targets = getEffectTargets(effect);
 	const targetDesc = targets ? getCompactTargetDescription(targets, color) : "";
 
 	let effectString = "";
@@ -155,8 +182,7 @@ export const buildEffectBlock = (effect: Effect, unitPower: number): string | nu
 		return buildCompactEffectBlock(effect, unitPower);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const targets = (effect as any).targets as Targeting | undefined;
+	const targets = getEffectTargets(effect);
 	const target = targets ? getTargetDescription(targets) : "";
 	const isPlural = isTargetPlural(targets);
 

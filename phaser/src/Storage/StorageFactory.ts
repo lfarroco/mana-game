@@ -7,9 +7,9 @@ import { createSteamCloudProvider } from "./SteamCloudProvider";
 const isElectron = (): boolean => {
 	return (
 		typeof window !== "undefined" &&
-		typeof window.process === "object" &&
+		typeof (window as unknown as Record<string, unknown>).process === "object" &&
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		(window.process as any)?.type === "renderer"
+		((window as unknown as Record<string, unknown>).process as any)?.type === "renderer"
 	);
 };
 

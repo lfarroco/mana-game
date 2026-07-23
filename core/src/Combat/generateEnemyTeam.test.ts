@@ -2,7 +2,7 @@
 
 import { generateEnemyTeam } from "./generateEnemyTeam";
 import * as Card from "../Entities/Card";
-import { CardDefinition, CardCollection } from "../Models";
+import { CardDefinition } from "../Models";
 import { FORCE_ID_CPU } from "../Constants";
 
 const mockCards: CardDefinition[] = [

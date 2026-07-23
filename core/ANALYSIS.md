@@ -1,6 +1,6 @@
 # `@mana/core` — Purity & Quality Analysis
 
-_Date: July 20, 2026 — Updated after purity hardening_
+_Date: July 23, 2026 — Updated after incremental improvements_
 
 ## What Was Fixed
 
@@ -35,39 +35,66 @@ _Date: July 20, 2026 — Updated after purity hardening_
 6. **`StatusEffectSystem.ts` — `tick` closure indirection** ✅ FIXED
    - Inlined the unnecessary closure wrapper.
 
+7. **`PhaseConfig.test.ts:4` — Wrong import path** ✅ FIXED
+   - Changed `"./Models"` → `"../Models"` (PhaseConfig is in PhaseSystem/ subdir).
+
+8. **`generateEnemyTeam.test.ts:5` — Unused `CardCollection` import** ✅ FIXED
+   - Removed unused import.
+
 ### 🧹 Cleanups
 
-7. **Removed unnecessary `async`** from 8 functions: `CombatRunner.finishCombat`, `addShield`, `restoreLife`, `applyPoison`, `applyRegen`, `applyHaste`, `applySlow`, `multiplyPower`.
+9. **Removed unnecessary `async`** from 8 functions: `CombatRunner.finishCombat`, `addShield`, `restoreLife`, `applyPoison`, `applyRegen`, `applyHaste`, `applySlow`, `multiplyPower`.
    - Updated `CombatRunner` type: `finishCombat` now returns `void` instead of `Promise<void>`.
 
-8. **Smoke test** ✅ FIXED
-   - Added `tsx` as devDependency.
-   - Fixed `pickRandomItemsSeeded` call (was passing string instead of `{ seed: string }`).
-   - Fixed `setSeed`/`nextValue` calls (replaced with `nextRandomValue`).
+10. **Smoke test** ✅ FIXED
+    - Added `tsx` as devDependency.
+    - Fixed `pickRandomItemsSeeded` call (was passing string instead of `{ seed: string }`).
+    - Fixed `setSeed`/`nextValue` calls (replaced with `nextRandomValue`).
+
+11. **`CombatStatsTracker.trackStat` — removed unused `_env` parameter** ✅ FIXED
+    - Removed `_env: CombatEnvironment` from `trackStat` and all 5 public callers (`trackDamage`, `trackHeal`, `trackPoison`, `trackRegen`, `trackShield`).
+    - Updated 5 effect files and test file to match new signatures.
+    - 14 fewer `{} as Models.CombatEnvironment` casts in tests.
+
+12. **`CombatRunner.ts` — typo fix** ✅ FIXED
+    - `// TOOD: include this in the outcome` → `// TODO: include this in the outcome`
+
+13. **`Functional.ts` — added `match`, `chain`/`flatMap` for Option and Result** ✅ ADDED
+    - `matchOption`, `matchResult` for exhaustive pattern matching.
+    - `chainOption`/`flatMapOption`, `chainResult`/`flatMapResult` for monadic composition.
+    - 12 new unit tests added (39 total Functional tests).
+
+14. **`core/tsconfig.json` — added `esModuleInterop: true`** ✅ FIXED
+    - Silences ts-jest warnings about ES module interop.
+
+15. **`core/src/index.ts` — barrel export** ✅ ADDED
+    - Single entry point re-exporting all public modules (Functional, models, combat, trigger system, entities, data, etc.).
+
+16. **Phaser `CharaTooltip.ts` — removed all `as any` casts** ✅ FIXED
+    - Added `getCount(targets)` helper using proper discriminated union narrowing.
+    - Added `getEffectTargets(effect)` helper using switch-based narrowing.
+    - Replaced 4 `eslint-disable-next-line @typescript-eslint/no-explicit-any` + `as any` patterns with type-safe helpers.
 
 ## Remaining Opportunities
 
 ### ⚠️ Structural Improvements (Not Yet Done)
 
-- **Split `Models.ts`** (~427 lines) into `Effect.ts`, `Targeting.ts`, `Unit.ts`, `Combat.ts`, `Session.ts`, `Action.ts`.
+- **Split `Models.ts`** (~463 lines) into `Effect.ts`, `Targeting.ts`, `Unit.ts`, `Combat.ts`, `Session.ts`, `Action.ts`.
 - **Split `BaseCollection.ts`** (~1330 lines) by faction/tier.
-- **`CombatStatsTracker.trackStat`** unused `_env` parameter — remove.
-- **Add `core/src/index.ts`** barrel export for clean consumer imports.
 - **Add ESLint** to the core package.
 - **Add CI** for core package standalone (typecheck + test on PR).
+- **CombatStatsTracker** — the `(stats[config.unitStatKey] as number)` cast on line ~127 can be eliminated by restructuring `StatConfig` to use a mapping type instead of `keyof`.
 
 ### 🧪 Testing Gaps (Not Yet Done)
 
-**Tested:** CombatSimulation (20 tests)
-**Untested:** Random, BoardLogic, Geometry, Card, Unit, Force, PoisonDamageSystem, RegenSystem, StatusEffectSystem, TimeoutDamageSystem, CombatRunner, ScheduledEffects, TriggerSystem + all 14 effects
+**Tested:** CombatSimulation, Random, BoardLogic, Geometry, Constants, Functional, CombatLogger, PoisonDamageSystem, RegenSystem, CombatStatsTracker, PhaseConfig, Random.pick
+**Untested:** Card, Unit, Force, StatusEffectSystem, TimeoutDamageSystem, CombatRunner, TriggerSystem + effects, SessionTransitions, OptionGeneration, EnemyGeneration, generateEnemyTeam, SessionManagement, OrbAndCoreUpgrades, RecruitmentActions, BaseCollection
 
 ## Verification
 
-All three validation gates pass:
 ```bash
-npm run typecheck   # ✅ zero errors
-npm run test        # ✅ 20 tests pass
+npm run typecheck   # ✅ zero errors (both core and phaser)
+npm run test        # ✅ 176 tests pass (11 suites fail due to pre-existing uuid ESM issue)
 npm run smoke       # ✅ purity + determinism verified
 ```
-And the phaser-side typecheck also passes clean.
 

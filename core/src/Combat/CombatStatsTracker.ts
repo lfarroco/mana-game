@@ -1,4 +1,4 @@
-import { CombatEnvironment, CombatState, EffectId, SessionData, Unit } from "../Models";
+import { CombatState, EffectId, SessionData, Unit } from "../Models";
 import { FORCE_ID_PLAYER } from "../Constants";
 
 
@@ -116,7 +116,6 @@ const STAT_CONFIGS: Record<string, StatConfig> = {
 
 function trackStat(
 	trackerState: CombatStatsTrackerState,
-	_env: CombatEnvironment,
 	amount: number,
 	sourceUnitId: string,
 	configKey: keyof typeof STAT_CONFIGS
@@ -135,47 +134,42 @@ function trackStat(
 
 export function trackDamage(
 	trackerState: CombatStatsTrackerState,
-	env: CombatEnvironment,
 	sourceUnitId: string,
 	damage: number
 ): void {
-	trackStat(trackerState, env, damage, sourceUnitId, "damage");
+	trackStat(trackerState, damage, sourceUnitId, "damage");
 }
 
 export function trackPoison(
 	trackerState: CombatStatsTrackerState,
-	env: CombatEnvironment,
 	sourceUnitId: string,
 	poison: number
 ): void {
-	trackStat(trackerState, env, poison, sourceUnitId, "poison");
+	trackStat(trackerState, poison, sourceUnitId, "poison");
 }
 
 export function trackHeal(
 	trackerState: CombatStatsTrackerState,
-	env: CombatEnvironment,
 	sourceUnitId: string,
 	healing: number
 ): void {
-	trackStat(trackerState, env, healing, sourceUnitId, "heal");
+	trackStat(trackerState, healing, sourceUnitId, "heal");
 }
 
 export function trackRegen(
 	trackerState: CombatStatsTrackerState,
-	env: CombatEnvironment,
 	sourceUnitId: string,
 	regen: number
 ): void {
-	trackStat(trackerState, env, regen, sourceUnitId, "regen");
+	trackStat(trackerState, regen, sourceUnitId, "regen");
 }
 
 export function trackShield(
 	trackerState: CombatStatsTrackerState,
-	env: CombatEnvironment,
 	sourceUnitId: string,
 	shield: number
 ): void {
-	trackStat(trackerState, env, shield, sourceUnitId, "shield");
+	trackStat(trackerState, shield, sourceUnitId, "shield");
 }
 
 export function getUnitStats(

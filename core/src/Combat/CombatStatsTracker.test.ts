@@ -88,7 +88,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "u1", 50);
+			CombatStatsTracker.trackDamage(tracker, "u1", 50);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(50);
 		});
 
@@ -96,8 +96,8 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "u1", 0);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "u1", -10);
+			CombatStatsTracker.trackDamage(tracker, "u1", 0);
+			CombatStatsTracker.trackDamage(tracker, "u1", -10);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(0);
 		});
 
@@ -105,7 +105,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackHeal(tracker, {} as Models.CombatEnvironment, "u1", 30);
+			CombatStatsTracker.trackHeal(tracker, "u1", 30);
 			expect(tracker.unitStats.get("u1")!.healingDone).toBe(30);
 		});
 
@@ -113,7 +113,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackPoison(tracker, {} as Models.CombatEnvironment, "u1", 15);
+			CombatStatsTracker.trackPoison(tracker, "u1", 15);
 			expect(tracker.unitStats.get("u1")!.poisonApplied).toBe(15);
 		});
 
@@ -121,7 +121,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackRegen(tracker, {} as Models.CombatEnvironment, "u1", 8);
+			CombatStatsTracker.trackRegen(tracker, "u1", 8);
 			expect(tracker.unitStats.get("u1")!.regenApplied).toBe(8);
 		});
 
@@ -129,7 +129,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackShield(tracker, {} as Models.CombatEnvironment, "u1", 20);
+			CombatStatsTracker.trackShield(tracker, "u1", 20);
 			expect(tracker.unitStats.get("u1")!.shieldGranted).toBe(20);
 		});
 
@@ -137,10 +137,10 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "u1", 10);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "u1", 20);
-			CombatStatsTracker.trackHeal(tracker, {} as Models.CombatEnvironment, "u1", 5);
-			CombatStatsTracker.trackHeal(tracker, {} as Models.CombatEnvironment, "u1", 15);
+			CombatStatsTracker.trackDamage(tracker, "u1", 10);
+			CombatStatsTracker.trackDamage(tracker, "u1", 20);
+			CombatStatsTracker.trackHeal(tracker, "u1", 5);
+			CombatStatsTracker.trackHeal(tracker, "u1", 15);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(30);
 			expect(tracker.unitStats.get("u1")!.healingDone).toBe(20);
 		});
@@ -152,7 +152,7 @@ describe("CombatStatsTracker", () => {
 			const units = [pc];
 			const state = makeCombatState(units);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, {} as Models.CombatEnvironment, "p", 30);
+			CombatStatsTracker.trackDamage(tracker, "p", 30);
 
 			const session: Models.SessionData = {
 				id: "s1",

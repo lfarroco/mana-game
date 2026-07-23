@@ -58,7 +58,6 @@ export const applyPoison = (
 
 			CombatStatsTracker.trackPoison(
 				combatStates.combatStatsTrackerState,
-				env,
 				sourceId,
 				amount
 			);
