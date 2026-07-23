@@ -1,12 +1,12 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
-import * as openOptions from "@Screens/Title/Effects/openOptions";
 import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
 import * as hideMainButtons from "../Effects/hideMainButtons";
 import * as showMainButtons from "../Effects/showMainButtons";
 import { env } from "@Env";
+import { NavigationEvent } from "../../../Events";
 
 let submenuContainer: Container;
 
@@ -35,8 +35,7 @@ const showOptionsSubmenu = () => () => {
 	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: openOptions.openOptions(
-		),
+		callback: () => NavigationEvent.toOptions.emit(undefined),
 	});
 
 	const statsBtn = UIButton.create({

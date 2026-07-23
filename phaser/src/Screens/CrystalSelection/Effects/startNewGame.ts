@@ -1,15 +1,11 @@
 import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { env } from "@Env";
-import * as BattlegroundScreen from "../../Battleground/BattlegroundScreen";
+import { NavigationEvent } from "../../../Events";
 
 export const startNewGame = async () => {
 	const { currentIndex, crystals } = parent.state;
 	const selectedCrystal = crystals[currentIndex];
-
-	await env.fadeOut(300, 0x000000);
-
-	env.scene.children.removeAll();
 
 	const server = GameServer.getServer();
 	const session = await server.createSession(
@@ -19,7 +15,5 @@ export const startNewGame = async () => {
 
 	env.state.session = session;
 
-	BattlegroundScreen.create();
-
-	await env.fadeIn(300);
+	await NavigationEvent.toBattleground.emit(undefined);
 }

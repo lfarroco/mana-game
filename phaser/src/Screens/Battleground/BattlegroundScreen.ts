@@ -14,31 +14,8 @@ import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
 import { initialState } from "@Models/ClientState";
 import { env } from "@Env";
-import { BattlegroundEvent } from "../../Events";
-import * as CrystalSelectionScreen from "../CrystalSelection/CrystalSelectionScreen";
-import * as TitleScreen from "../Title/TitleScreen";
+import { BattlegroundEvent, NavigationEvent } from "../../Events";
 import * as UI from "./Components/UI/UI";
-
-// ---------------------------------------------------------------------------
-// Screen transition (internal helper)
-// ---------------------------------------------------------------------------
-
-const transitionFromBattleground = async (renderScreen: () => void): Promise<void> => {
-	const cam = env.scene.cameras.main;
-	await new Promise<void>((resolve) => {
-		cam.fade(300, 0, 0, 0);
-		cam.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
-	});
-	env.scene.children.each((c) => c.destroy());
-	env.scene.children.removeAll();
-	env.scene.tweens.killAll();
-	env.scene.time.removeAllEvents();
-	renderScreen();
-	await new Promise<void>((resolve) => {
-		cam.fadeIn(300);
-		cam.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
-	});
-};
 
 // ---------------------------------------------------------------------------
 // Phase advancement helper
@@ -172,12 +149,12 @@ export function wireBattlegroundEvents(): void {
 
 		BattlegroundEvent.newRunRequested.listen(() => {
 			Object.assign(env.state, initialState());
-			void transitionFromBattleground(CrystalSelectionScreen.create);
+			void NavigationEvent.toCrystals.emit(undefined);
 		}),
 
 		BattlegroundEvent.mainMenuRequested.listen(() => {
 			Object.assign(env.state, initialState());
-			void transitionFromBattleground(TitleScreen.create);
+			void NavigationEvent.toTitle.emit(undefined);
 		}),
 
 		// --- Phase-specific listeners ---

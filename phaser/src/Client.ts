@@ -4,11 +4,55 @@ import * as BaseCollection from "@game/BaseCollection";
 import * as Config from "@config";
 import * as TitleScreen from "./Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "./Screens/Battleground/BattlegroundScreen";
+import * as CrystalSelectionScreen from "./Screens/CrystalSelection/CrystalSelectionScreen";
+import * as OptionsScreen from "./Screens/Options/OptionsScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as GameServer from "./GameServer";
-import { createEnv } from "@Env";
+import { createEnv, env } from "@Env";
 import { ClientState } from "@Models/ClientState";
+import { NavigationEvent } from "./Events";
+
+// ---------------------------------------------------------------------------
+// Screen navigation
+// ---------------------------------------------------------------------------
+
+type ScreenModule = {
+    create: () => void | Promise<void>;
+    destroy?: () => void;
+    init?: () => void;
+};
+
+let activeScreen: ScreenModule | null = null;
+// Hold references to navigation disposers to prevent GC
+const _navDisposers: (() => void)[] = [];
+
+async function switchScreen(screen: ScreenModule): Promise<void> {
+    if (activeScreen?.destroy) {
+        activeScreen.destroy();
+    }
+
+    await env.fadeOut(300, 0x000000);
+    env.scene.children.removeAll();
+    env.scene.tweens.killAll();
+    env.scene.time.removeAllEvents();
+
+    // Re-initialize screen-local events if the module has an init()
+    screen.init?.();
+    await screen.create();
+
+    activeScreen = screen;
+    await env.fadeIn(300);
+}
+
+function wireNavigation(): (() => void)[] {
+    return [
+        NavigationEvent.toTitle.listen(() => switchScreen(TitleScreen)),
+        NavigationEvent.toBattleground.listen(() => switchScreen(BattlegroundScreen)),
+        NavigationEvent.toCrystals.listen(() => switchScreen(CrystalSelectionScreen)),
+        NavigationEvent.toOptions.listen(() => switchScreen(OptionsScreen)),
+    ];
+}
 
 export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
@@ -168,6 +212,10 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
                 .handleAction(clientState.session.player_id, action),
         );
 
+        // Wire global navigation events
+        _navDisposers.push(...wireNavigation());
+
+        // Wire battleground-specific events (one-time)
         BattlegroundScreen.wireBattlegroundEvents();
 
         Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
@@ -176,6 +224,9 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
         StatsStore.init();
 
+        // Initialize and render the title screen as the first screen
+        TitleScreen.init();
         TitleScreen.create();
+        activeScreen = TitleScreen;
     }
 }

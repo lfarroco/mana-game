@@ -4,6 +4,44 @@ import * as backButton from "@Screens/Options/Components/backButton";
 import * as optionsLabel from "@Screens/Options/Components/optionsLabel";
 import * as tabButtons from "@Screens/Options/Components/tabButtons";
 import * as Model from "@Screens/Options/Components/Model";
+import { createEvent } from "@game/Models";
+import { NavigationEvent } from "../../Events";
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+export type OptionsScreenEvents = {
+	backToTitle: ReturnType<typeof createEvent<void>>;
+};
+
+export let events: OptionsScreenEvents;
+let disposers: (() => void)[] = [];
+let initialized = false;
+
+export function init() {
+	if (initialized) return;
+	initialized = true;
+
+	events = {
+		backToTitle: createEvent<void>(),
+	};
+
+	disposers = [
+		events.backToTitle.listen(() => NavigationEvent.toTitle.emit(undefined)),
+	];
+}
+
+export function destroy() {
+	disposers.forEach((d) => d());
+	disposers = [];
+
+	if (events) {
+		events.backToTitle.clear();
+	}
+
+	initialized = false;
+}
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -41,6 +79,7 @@ export const STYLES = {
 } as const;
 
 export function create() {
+	init();
 
 	new CloudsBackground.CloudsBackground({ preset: "aurora" });
 
@@ -51,5 +90,4 @@ export function create() {
 	showTab.showTab(showTab.currentTab.key as Model.Tabs);
 
 	backButton.create();
-
 }

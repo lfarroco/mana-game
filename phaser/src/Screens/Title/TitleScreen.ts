@@ -6,9 +6,9 @@ import * as environment from "@Utils/environment";
 import * as Components from "./Components"
 // eslint-disable-next-line no-restricted-imports
 import pkg from "../../../package.json";
-import * as Effects from "./Effects"
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
+import { NavigationEvent } from "../../Events";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
@@ -23,7 +23,7 @@ export let mainButtonsContainer: Container;
 let disposers: (() => void)[] = [];
 let initialized = false;
 
-function init() {
+export function init() {
 	if (initialized) return;
 	initialized = true;
 
@@ -33,8 +33,8 @@ function init() {
 	}
 
 	disposers = [
-		events.newGameButtonClicked.listen(Effects.startGame),
-		events.resumeGameButtonClicked.listen(Effects.resumeGame),
+		events.newGameButtonClicked.listen(() => NavigationEvent.toCrystals.emit(undefined)),
+		events.resumeGameButtonClicked.listen(() => NavigationEvent.toBattleground.emit(undefined)),
 	];
 }
 

@@ -1,11 +1,61 @@
 import * as Card from "@game/Entities/Card";
 import * as cloudsBg from "../../Screens/Title/Components/cloudsBg";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-//import * as MultiplayerTypes from "@Multiplayer/MultiplayerTypes";
 
 import * as Components from "./Components";
 import * as Effects from "./Effects";
 import * as Models from "@game/Models";
+import { createEvent } from "@game/Models";
+import { NavigationEvent } from "../../Events";
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+export type CrystalSelectionEvents = {
+	playClicked: ReturnType<typeof createEvent<void>>;
+	backClicked: ReturnType<typeof createEvent<void>>;
+	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
+};
+
+export let events: CrystalSelectionEvents;
+let disposers: (() => void)[] = [];
+let initialized = false;
+
+export function init() {
+	if (initialized) return;
+	initialized = true;
+
+	events = {
+		playClicked: createEvent<void>(),
+		backClicked: createEvent<void>(),
+		crystalChanged: createEvent<{ index: number }>(),
+	};
+
+	disposers = [
+		events.playClicked.listen(Effects.startNewGame),
+		events.backClicked.listen(async () => {
+			await NavigationEvent.toTitle.emit(undefined);
+		}),
+		events.crystalChanged.listen(({ index }) => {
+			state.currentIndex = index;
+			Effects.updateDisplay();
+		}),
+	];
+}
+
+export function destroy() {
+	disposers.forEach((d) => d());
+	disposers = [];
+
+	if (events) {
+		events.playClicked.clear();
+		events.backClicked.clear();
+		events.crystalChanged.clear();
+	}
+
+	initialized = false;
+}
 
 
 //TODO: should also disable seed selection in multiplayer mode
@@ -31,6 +81,7 @@ export const state: {
 };
 
 export function create() {
+	init();
 
 	state.crystals = Card.getCores();
 	state.currentIndex = 0;
