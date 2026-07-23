@@ -154,6 +154,27 @@ const processEffectIO = (
 
 const sameForce = (unit: Models.Unit, triggeringUnit: Models.Unit) => unit.force === triggeringUnit.force;
 
+/**
+ * Fire reactions on all eligible units in response to an effect.
+ *
+ * ## How position + triggerTeam interact
+ *
+ * `position` answers: "Is the reactor positioned correctly relative to the triggerer?"
+ * `triggerTeam` answers: "Which team's activity does the reactor care about?"
+ *
+ * The triggerer is always a unit from the force whose activity triggered the reaction:
+ *   - For direct effects (damage, heal, etc.), it's the unit that performed the action.
+ *   - For threshold reactions (every_100_damage, etc.), it's a representative from the
+ *     force whose accumulated stats crossed the threshold.
+ *
+ * | triggerTeam | effect                      | position needed | meaning                          |
+ * |-------------|-----------------------------|-----------------|----------------------------------|
+ * | "own"       | Player damage crosses 100   | "allies"        | "My team's damage → allies react"|
+ * | "enemy"     | Enemy damage crosses 100    | "enemies"       | "Enemy's damage → my team reacts"|
+ *
+ * Note: `triggerTeam: "enemy"` requires `position: "enemies"` because the triggerer
+ * is from the opposing force — so from the reactor's perspective, the triggerer IS an enemy.
+ */
 export function processReactions(
 	env: Models.CombatEnvironment,
 	triggeringUnit: Models.Unit,

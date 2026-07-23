@@ -20,6 +20,17 @@ export type * from "./types/index";
 export { type Event, createEvent } from "./Event";
 
 // Runtime constants (values, not types) that are still used via Models import
+/**
+ * Effect IDs that can trigger reactions on the unit that performed the effect.
+ *
+ * Normally, a unit cannot react to its own effects (processReactions excludes the
+ * triggering unit from candidates). Global reactions bypass this restriction.
+ *
+ * IMPORTANT: When adding a new global reaction ID to the EffectId union type,
+ * you MUST also add it here and wire its trigger site (e.g. on_crit is triggered
+ * in dealDamage/restoreLife/addShield; threshold reactions are triggered in
+ * CombatRunner via CombatStatsTracker.getCrossedThresholds).
+ */
 export const GLOBAL_REACTIONS = [
 	"on_crit",
 	"every_100_damage",

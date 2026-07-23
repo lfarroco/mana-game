@@ -4,86 +4,18 @@
  */
 /// <reference types="jest" />
 
-import * as Models from "../Models";
-import * as Card from "../Entities/Card";
+import {
+  registerBaseCollection,
+  resetCardRegistry,
+  makeTestUnit,
+  setupCombat,
+  runFrames,
+  filterLogs,
+} from "../__test_utils__/combatHarness";
 import * as Constants from "../Constants";
-import * as CombatSimulation from "./CombatSimulation";
-import * as RunCombatCore from "./CombatRunner";
-import * as BoardLogic from "../BoardLogic";
-import * as F from "../Functional";
-import { BASE_COLLECTION_DATA } from "../BaseCollection";
 
-beforeAll(() => { Card.registerCollection(BASE_COLLECTION_DATA); });
-afterAll(() => { Card.resetRegistry(); });
-
-function makeTestUnit(overrides: {
-  effects: Models.Effect[];
-  reactions?: Models.EffectReaction[];
-  power?: number;
-  cooldown?: number;
-  position?: [number, number];
-  isCore?: boolean;
-  life?: number;
-  critical?: number;
-}): Models.Unit {
-  return {
-    id: "", cardId: "test-custom-unit", pic: "test",
-    force: Constants.FORCE_ID_PLAYER,
-    position: overrides.position ?? [0, 0],
-    rank: 1, power: overrides.power ?? 10, bonusPower: 0,
-    critical: overrides.critical ?? 0,
-    life: overrides.life ?? 100, maxLife: overrides.life ?? 100,
-    shield: 0, cooldown: overrides.cooldown ?? 1000, evade: 0,
-    effects: overrides.effects, reactions: overrides.reactions ?? [],
-    charge: 0, refresh: 0, hasted: 0, slowed: 0,
-    isCore: overrides.isCore ?? false,
-  };
-}
-
-function setupCombat(
-  playerUnits: Models.Unit[],
-  cpuCoreLife: number = 5000,
-  seed: string = "effect-test-seed",
-) {
-  playerUnits.forEach((u) => { u.force = Constants.FORCE_ID_PLAYER; u.charge = 0; u.refresh = 0; });
-  const hasPlayerCore = playerUnits.some((u) => u.isCore);
-  if (!hasPlayerCore) {
-    const freeSlot = BoardLogic.findFreeSlot(playerUnits, Constants.FORCE_ID_PLAYER, [1, 1]);
-    const core = Card.makeUnit(Constants.FORCE_ID_PLAYER, "critical_crystal", F.getOrElse(freeSlot, [1, 1]));
-    core.power = 1; core.cooldown = 99999;
-    playerUnits.push(core);
-  } else {
-    const pc = playerUnits.find((u) => u.isCore)!;
-    pc.cooldown = 99999; pc.charge = 0;
-  }
-  const cpuCore = Card.makeUnit(Constants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
-  cpuCore.life = cpuCoreLife; cpuCore.maxLife = cpuCoreLife;
-  cpuCore.power = 1; cpuCore.cooldown = 99999;
-  cpuCore.charge = 0; cpuCore.refresh = 0;
-  const session: Models.SessionData = {
-    id: "test-effect-session", player_id: "test-player", phase: "combat",
-    session_type: { type: "singleplayer" }, round: 1, step: 0,
-    seed, initial_seed: seed, options: [], team: { units: playerUnits },
-    wins: 0, losses: 0, action_log: [], encounter_history: [],
-  };
-  const combatState = CombatSimulation.createCombatState(session, [cpuCore]);
-  const combatRunner = RunCombatCore.runCombat(session, combatState);
-  return { session, combatState, combatRunner, env: combatRunner.getEnv() };
-}
-
-function runFrames(
-  combatRunner: ReturnType<typeof RunCombatCore.runCombat>,
-  combatState: Models.CombatState,
-  maxFrames: number,
-): Models.CombatLogEntry[] {
-  const SIM_DELTA = 16.67;
-  let frame = 0;
-  while (combatRunner.isActive() && frame < maxFrames) {
-    combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
-    frame++;
-  }
-  return combatRunner.getEnv().logger.getLogs();
-}
+beforeAll(registerBaseCollection);
+afterAll(resetCardRegistry);
 
 describe("Effect integration — damage", () => {
   it("produces damage_cast and damage_hit logs with correct amounts", () => {
@@ -119,7 +51,7 @@ describe("Effect integration — damage", () => {
 
     const logs = runFrames(combatRunner, combatState, 1000);
 
-    const outcomeLogs = logs.filter((l) => l.type === "outcome");
+    const outcomeLogs = filterLogs(logs, "outcome");
     expect(outcomeLogs.length).toBe(1);
     expect(outcomeLogs[0].result).toBe("player_won");
 
@@ -397,7 +329,7 @@ describe("Effect integration — multiply_power", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const incLogs = logs.filter((l) => l.type === "increase_power");
+    const incLogs = filterLogs(logs, "increase_power");
     expect(incLogs.length).toBeGreaterThanOrEqual(2);
     const csUnit = combatState.unitById.get("mult-power-unit")!;
     expect(csUnit.power).toBeGreaterThan(initialPower);

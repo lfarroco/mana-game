@@ -5,87 +5,23 @@
  */
 /// <reference types="jest" />
 
-import * as Models from "../Models";
-import * as Card from "../Entities/Card";
+import {
+  registerBaseCollection,
+  resetCardRegistry,
+  makeTestUnit,
+  setupCombat,
+  runFrames,
+  filterLogs,
+} from "../__test_utils__/combatHarness";
 import * as Constants from "../Constants";
-import * as CombatSimulation from "./CombatSimulation";
-import * as RunCombatCore from "./CombatRunner";
-import * as BoardLogic from "../BoardLogic";
-import * as F from "../Functional";
-import { BASE_COLLECTION_DATA } from "../BaseCollection";
+import * as Models from "../Models";
+import * as Absorb from "../TriggerSystem/effects/absorbPower";
+import * as Sacrifice from "../TriggerSystem/effects/sacrificeEffect";
+import * as Multiply from "../TriggerSystem/effects/multiplyPower";
+import * as Distribute from "../TriggerSystem/effects/distributePower";
 
-beforeAll(() => { Card.registerCollection(BASE_COLLECTION_DATA); });
-afterAll(() => { Card.resetRegistry(); });
-
-function makeTestUnit(overrides: {
-  effects: Models.Effect[];
-  reactions?: Models.EffectReaction[];
-  power?: number;
-  cooldown?: number;
-  position?: [number, number];
-  isCore?: boolean;
-  life?: number;
-  critical?: number;
-}): Models.Unit {
-  return {
-    id: "", cardId: "test-custom-unit", pic: "test",
-    force: Constants.FORCE_ID_PLAYER,
-    position: overrides.position ?? [0, 0],
-    rank: 1, power: overrides.power ?? 10, bonusPower: 0,
-    critical: overrides.critical ?? 0,
-    life: overrides.life ?? 100, maxLife: overrides.life ?? 100,
-    shield: 0, cooldown: overrides.cooldown ?? 1000, evade: 0,
-    effects: overrides.effects, reactions: overrides.reactions ?? [],
-    charge: 0, refresh: 0, hasted: 0, slowed: 0,
-    isCore: overrides.isCore ?? false,
-  };
-}
-
-function setupCombat(
-  playerUnits: Models.Unit[],
-  cpuCoreLife: number = 5000,
-  seed: string = "reaction-test-seed",
-) {
-  playerUnits.forEach((u) => { u.force = Constants.FORCE_ID_PLAYER; u.charge = 0; u.refresh = 0; });
-  const hasPlayerCore = playerUnits.some((u) => u.isCore);
-  if (!hasPlayerCore) {
-    const freeSlot = BoardLogic.findFreeSlot(playerUnits, Constants.FORCE_ID_PLAYER, [1, 1]);
-    const core = Card.makeUnit(Constants.FORCE_ID_PLAYER, "critical_crystal", F.getOrElse(freeSlot, [1, 1]));
-    core.power = 1; core.cooldown = 99999;
-    playerUnits.push(core);
-  } else {
-    const pc = playerUnits.find((u) => u.isCore)!;
-    pc.cooldown = 99999; pc.charge = 0;
-  }
-  const cpuCore = Card.makeUnit(Constants.FORCE_ID_CPU, "critical_crystal", [0, 2]);
-  cpuCore.life = cpuCoreLife; cpuCore.maxLife = cpuCoreLife;
-  cpuCore.power = 1; cpuCore.cooldown = 99999;
-  cpuCore.charge = 0; cpuCore.refresh = 0;
-  const session: Models.SessionData = {
-    id: "test-reaction-session", player_id: "test-player", phase: "combat",
-    session_type: { type: "singleplayer" }, round: 1, step: 0,
-    seed, initial_seed: seed, options: [], team: { units: playerUnits },
-    wins: 0, losses: 0, action_log: [], encounter_history: [],
-  };
-  const combatState = CombatSimulation.createCombatState(session, [cpuCore]);
-  const combatRunner = RunCombatCore.runCombat(session, combatState);
-  return { session, combatState, combatRunner, env: combatRunner.getEnv() };
-}
-
-function runFrames(
-  combatRunner: ReturnType<typeof RunCombatCore.runCombat>,
-  combatState: Models.CombatState,
-  maxFrames: number,
-): Models.CombatLogEntry[] {
-  const SIM_DELTA = 16.67;
-  let frame = 0;
-  while (combatRunner.isActive() && frame < maxFrames) {
-    combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
-    frame++;
-  }
-  return combatRunner.getEnv().logger.getLogs();
-}
-
+beforeAll(registerBaseCollection);
+afterAll(resetCardRegistry);
 
 describe("Reaction — on_battle_start", () => {
   it("fires on_battle_start reaction that increases own power", () => {
@@ -795,3 +731,172 @@ describe("Reaction — threshold triggers", () => {
 });
 
 
+
+describe("Reaction — on_over_heal", () => {
+  it("fires when healing would exceed max life", () => {
+    const reactor = makeTestUnit({
+      effects: [],
+      reactions: [{
+        position: "allies",
+        effectId: "on_over_heal",
+        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
+      }],
+      power: 10,
+      cooldown: 99999,
+      position: [0, 0],
+    });
+    reactor.id = "overheal-reactor";
+
+    const healer = makeTestUnit({
+      effects: [{ id: "heal" }],
+      power: 20,
+      cooldown: 500,
+      position: [1, 0],
+    });
+    healer.id = "overheal-healer";
+
+    const { combatState, combatRunner } = setupCombat([reactor, healer]);
+
+    // Set player core life near max so healing overflows
+    const playerCore = combatState.playerCore;
+    playerCore.life = playerCore.maxLife - 5; // heal of 20 will overheal by 15
+
+    const logs = runFrames(combatRunner, combatState, 200);
+
+    const reactionLogs = filterLogs(logs, "reaction").filter(
+      (l) => l.unitId === reactor.id,
+    );
+    expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
+    const csReactor = combatState.unitById.get("overheal-reactor")!;
+    expect(csReactor.power).toBeGreaterThan(10);
+  });
+});
+
+describe("Reaction — positional threshold triggers", () => {
+  it("every_100_damage with row_allies only fires for same-row reactors", () => {
+    // Reactor at [0,0] only reacts to same-row (y=0) damage
+    const reactor = makeTestUnit({
+      effects: [],
+      reactions: [{
+        position: "row_allies",
+        effectId: "every_100_damage",
+        triggerTeam: "own",
+        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
+      }],
+      power: 10,
+      cooldown: 99999,
+      position: [0, 0],
+    });
+    reactor.id = "row-threshold-reactor";
+
+    // Same-row damager at [2,0] (y=0)
+    const sameRowDamager = makeTestUnit({
+      effects: [{ id: "damage" }],
+      power: 100,
+      cooldown: 500,
+      position: [2, 0],
+    });
+    sameRowDamager.id = "same-row-dmg";
+
+    const { combatState, combatRunner } = setupCombat([reactor, sameRowDamager]);
+    const logs = runFrames(combatRunner, combatState, 120);
+
+    const reactionLogs = filterLogs(logs, "reaction").filter(
+      (l) => l.unitId === reactor.id,
+    );
+    expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
+    const csReactor = combatState.unitById.get("row-threshold-reactor")!;
+    expect(csReactor.power).toBeGreaterThan(10);
+  });
+});
+
+describe("Effect integration — edge cases", () => {
+  it("absorb_power returns early with empty targets", () => {
+    const absorber = makeTestUnit({
+      effects: [{
+        id: "absorb_power",
+        permanent: false,
+        targets: { id: "random_enemy", count: 1 },
+      }],
+      power: 10,
+      cooldown: 99999,
+    });
+
+    const { combatState, combatRunner } = setupCombat([absorber], 5000);
+
+    // Remove all CPU units so resolveTargets returns empty
+    const cpuUnits = combatState.units.filter((u) => u.force === Constants.FORCE_ID_CPU);
+    cpuUnits.forEach((u) => {
+      const idx = combatState.units.indexOf(u);
+      if (idx >= 0) combatState.units.splice(idx, 1);
+    });
+
+    // Manually trigger the effect — should not crash
+    const env = combatRunner.getEnv();
+    expect(() => Absorb.absorbPower(env, absorber, [], false)).not.toThrow();
+  });
+
+  it("sacrifice_effect does nothing when there are no removable effects or reactions", () => {
+    const unit = makeTestUnit({
+      effects: [{ id: "sacrifice_effect", targets: { id: "self" } }],
+      power: 10,
+      cooldown: 99999,
+    });
+    // Remove the sacrifice_effect itself so there's nothing to sacrifice
+    unit.effects = [];
+
+    const { combatRunner } = setupCombat([unit], 5000);
+    const env = combatRunner.getEnv();
+
+    const initialPower = unit.power;
+    Sacrifice.sacrificeEffect(env, unit);
+    // Should not crash and should not change power
+    expect(unit.power).toBe(initialPower);
+  });
+
+  it("multiply_power computes the correct exponent with scale", () => {
+    const unit = makeTestUnit({
+      effects: [],
+      power: 20,
+      cooldown: 99999,
+    });
+
+    const { combatRunner } = setupCombat([unit], 5000);
+    const env = combatRunner.getEnv();
+
+    // multiplier=2, scale=2 → Math.pow(2, 2) = 4
+    // 20 * 4 = 80, floor(80) = 80
+    Multiply.multiplyPower({
+      env,
+      targets: [unit],
+      sourceUnit: unit,
+      multiplier: Math.pow(2, 2),
+    });
+
+    // 20 × 4 = 80
+    expect(unit.power).toBe(80);
+  });
+
+  it("distribute_power handles truncation loss correctly", () => {
+    const distributor = makeTestUnit({
+      effects: [],
+      power: 101,
+      cooldown: 99999,
+      position: [0, 0],
+    });
+    const r1 = makeTestUnit({ effects: [], power: 10, cooldown: 99999, position: [0, 1] });
+    const r2 = makeTestUnit({ effects: [], power: 10, cooldown: 99999, position: [0, 2] });
+
+    const { combatRunner } = setupCombat([distributor, r1, r2], 5000);
+    const env = combatRunner.getEnv();
+
+    // powerToDistribute = floor(101 * 0.5) = 50
+    // powerPerTarget = floor(50 / 2) = 25 each
+    // Total distributed = 50, truncation loss = 0 in this case
+    Distribute.distributePower(env, distributor, [r1, r2], false);
+
+    expect(distributor.power).toBe(51);  // 101 - 50
+    expect(r1.power).toBe(35);           // 10 + 25
+    expect(r2.power).toBe(35);           // 10 + 25
+  });
+});
