@@ -4,6 +4,18 @@
  * This file re-exports the public API surface of the core package.
  * Consumers should import from this file rather than reaching into
  * internal modules: `import { … } from "@mana/core"` or `import { … } from "@game/index"`.
+ *
+ * Directory structure:
+ *   types/       — Domain type definitions (card, combat, effect, unit, session, action, player, server)
+ *   math/        — Pure math utilities (Random, Geometry, Constants)
+ *   board/       — Board logic (slot finding, movement)
+ *   combat/      — Combat simulation (runner, simulation, logger, systems, stats)
+ *   entities/    — Entity definitions & factories (Card, Unit, Force)
+ *   session/     — Session management (creation, transitions, option generation, enemies)
+ *   trigger/     — Trigger system & effects
+ *   actions/     — Action handlers (recruitment, orb upgrades)
+ *   orbs/        — Orb definitions & constants
+ *   data/        — Game data (BaseCollection)
  */
 
 // ---------------------------------------------------------------------------
@@ -12,22 +24,22 @@
 export * as Functional from "./Functional";
 
 // ---------------------------------------------------------------------------
-// Models (types only — zero runtime cost)
+// Types (re-exports everything from Models.ts compat shim)
 // ---------------------------------------------------------------------------
 export type * from "./Models";
+export * from "./Models"; // also exports runtime values (GLOBAL_REACTIONS, BASIC_ABILITIES)
 
 // ---------------------------------------------------------------------------
-// Constants
+// Math
 // ---------------------------------------------------------------------------
-export * as Constants from "./Constants";
+export * as Random from "./math/Random";
+export * as Geometry from "./math/Geometry";
+export * as Constants from "./math/Constants";
 
 // ---------------------------------------------------------------------------
-// Core systems
+// Board
 // ---------------------------------------------------------------------------
-export * as Random from "./Random";
-export * as Geometry from "./Geometry";
-export * as BoardLogic from "./BoardLogic";
-export * as Event from "./Event";
+export * as BoardLogic from "./board/BoardLogic";
 
 // ---------------------------------------------------------------------------
 // Entities
@@ -47,6 +59,7 @@ export * as PoisonDamageSystem from "./Combat/PoisonDamageSystem";
 export * as RegenSystem from "./Combat/RegenSystem";
 export * as TimeoutDamageSystem from "./Combat/TimeoutDamageSystem";
 export * as StatusEffectSystem from "./Combat/StatusEffectSystem";
+export * as GenerateEnemyTeam from "./Combat/generateEnemyTeam";
 
 // ---------------------------------------------------------------------------
 // Trigger system
@@ -55,18 +68,36 @@ export * as TriggerSystem from "./TriggerSystem/TriggerSystem";
 export * as Effects from "./TriggerSystem/effects/index";
 
 // ---------------------------------------------------------------------------
-// Game logic
+// Session
 // ---------------------------------------------------------------------------
-export * as SessionManagement from "./SessionManagement";
-export * as SessionTransitions from "./SessionTransitions";
+export * as SessionManagement from "./session/SessionManagement";
+export * as SessionTransitions from "./session/SessionTransitions";
+export * as OptionGeneration from "./session/OptionGeneration";
+export * as EnemyGeneration from "./session/EnemyGeneration";
+
+// ---------------------------------------------------------------------------
+// Phase system
+// ---------------------------------------------------------------------------
 export * as PhaseConfig from "./PhaseSystem/PhaseConfig";
-export * as OptionGeneration from "./OptionGeneration";
-export * as EnemyGeneration from "./EnemyGeneration";
-export * as GenerateEnemyTeam from "./Combat/generateEnemyTeam";
+
+// ---------------------------------------------------------------------------
+// Actions
+// ---------------------------------------------------------------------------
+export * as RecruitmentActions from "./Actions/RecruitmentActions";
+export * as OrbAndCoreUpgrades from "./Actions/OrbAndCoreUpgrades";
+
+// ---------------------------------------------------------------------------
+// Orbs
+// ---------------------------------------------------------------------------
+export * as OrbConstants from "./Orbs/OrbConstants";
+export * as OrbDefinitions from "./Orbs/OrbDefinitions";
 
 // ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
-export * as BaseCollection from "./BaseCollection";
-export * as OrbConstants from "./Orbs/OrbConstants";
-export * as OrbDefinitions from "./Orbs/OrbDefinitions";
+export * as BaseCollection from "./data/BaseCollection";
+
+// ---------------------------------------------------------------------------
+// Event
+// ---------------------------------------------------------------------------
+export * as Event from "./Event";

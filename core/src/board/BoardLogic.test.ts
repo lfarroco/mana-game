@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 
 import * as BoardLogic from "./BoardLogic";
-import * as Models from "./Models";
-import * as F from "./Functional";
+import * as Models from "../Models";
+import * as F from "../Functional";
 
 function makeUnit(id: string, force: string, pos: [number, number], isCore = false): Models.Unit {
 	return {

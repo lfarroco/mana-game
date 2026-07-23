@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 
 import * as EnemyGeneration from "./EnemyGeneration";
-import * as Card from "./Entities/Card";
-import { FORCE_ID_CPU } from "./Constants";
+import * as Card from "../Entities/Card";
+import { FORCE_ID_CPU } from "../math/Constants";
 
 const mockCards = [
 	{ id: "core_a", pic: "", cooldown: 3000, effects: [], reactions: [], isCore: true, life: 500 },

@@ -1,8 +1,8 @@
 /// <reference types="jest" />
 
 import * as SessionManagement from "./SessionManagement";
-import * as Models from "./Models";
-import * as Card from "./Entities/Card";
+import * as Models from "../Models";
+import * as Card from "../Entities/Card";
 
 const mockCards = [
 	{ id: "core_a", pic: "", cooldown: 3000, effects: [], reactions: [], isCore: true, life: 500 },
