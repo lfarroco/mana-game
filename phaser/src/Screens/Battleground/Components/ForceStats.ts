@@ -354,16 +354,14 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
-// FIXME: replace force:string parameter with targetUnit:Unit so callers don't
-// need to track force IDs separately — locate the force from the unit.
 export function updateRegenDisplay(
-	force: string,
+	targetUnit: Unit,
 	regen: number,
 	delta: number,
 ) {
 	if (delta === 0) return;
 
-	const chipId = `regen-display/${force}`;
+	const chipId = `regen-display/${targetUnit.force}`;
 
 	const chip = Chip.getChip(chipId);
 	if (!chip) {

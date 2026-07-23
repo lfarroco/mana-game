@@ -1,17 +1,13 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
+import * as GameConstants from "@game/Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as Models from "@game/Models";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 import { advancePhase } from "../../BattlegroundScreen";
-
-// FIXME: MIN_ROUND constants are game logic, not presentation concerns.
-// They should live in @game/Constants or PhaseConfig.
-const MIN_ROUND_FOR_SILVER_SHOP = 1;
-const MIN_ROUND_FOR_GOLD_SHOP = 6;
 
 // Encounter card display layout constants
 const ENCOUNTER_CARD_WIDTH = 700;
@@ -141,15 +137,15 @@ export const allEncounters: EncounterItem[] = [
 		name: i18n.t("encounters.silver_shop"),
 		pic: "ui/silver_medal",
 		description: i18n.t("encounters.silver_shop_desc"),
-		minRound: MIN_ROUND_FOR_SILVER_SHOP,
-		maxRound: MIN_ROUND_FOR_GOLD_SHOP - 1,
+		minRound: GameConstants.MIN_ROUND_FOR_SILVER_SHOP,
+		maxRound: GameConstants.MIN_ROUND_FOR_GOLD_SHOP - 1,
 		id: "silver_shop",
 	},
 	{
 		name: i18n.t("encounters.gold_shop"),
 		pic: "ui/gold_medal",
 		description: i18n.t("encounters.gold_shop_desc"),
-		minRound: MIN_ROUND_FOR_GOLD_SHOP,
+		minRound: GameConstants.MIN_ROUND_FOR_GOLD_SHOP,
 		id: "gold_shop",
 	},
 	{

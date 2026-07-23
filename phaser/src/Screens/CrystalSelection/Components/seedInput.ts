@@ -6,6 +6,11 @@ import { env } from "@Env";
 let seedText: Phaser.GameObjects.Text;
 
 export function create() {
+	// Seed selection is server-determined in multiplayer — skip the custom seed UI.
+	if (env.state.session.session_type.type === "multiplayer") {
+		return;
+	}
+
 	const currentSeed = env.state.session.seed;
 
 	const x = constants.SCREEN_WIDTH - 20;

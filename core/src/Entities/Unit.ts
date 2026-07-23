@@ -83,11 +83,7 @@ function upgradeEffect(rankMultiplier: number, eff: Effect) {
 	}
 }
 
-export function upgradeUnitEffects(unit: Unit) {
-	// FIXME: rank-based effect scaling should be derived from unit data directly
-	// rather than re-fetching the card definition each time.
-	const source = Card.getCardDefinition(unit.cardId);
-	const startingRank = source.rank || 1;
+export function upgradeUnitEffects(unit: Unit, startingRank: number = 1) {
 	const rankMultiplier = unit.rank - startingRank + 1;
 
 	unit.effects.forEach((eff) => {
@@ -126,7 +122,7 @@ export function upgradeUnitData(unit: Unit) {
 	}
 
 	resetUnitEffectsToCardDefinition(unit, source);
-	upgradeUnitEffects(unit);
+	upgradeUnitEffects(unit, source.rank || 1);
 }
 
 export function resetUnitStats(unit: Unit) {

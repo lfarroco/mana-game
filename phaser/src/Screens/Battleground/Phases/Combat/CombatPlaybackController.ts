@@ -97,7 +97,7 @@ export const createCombatPlaybackController = (
 		logHandlers.executeLogHandler(log, playbackState);
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
-		// FIXME: black hole visual state could be driven entirely by combat logs
+		// TODO: black hole visual state could be driven entirely by combat logs
 		// (storm_start / storm_end entries) rather than maintaining a separate state object.
 		if (log.type === "storm_start") {
 			if (playbackState.blackHoleState) {

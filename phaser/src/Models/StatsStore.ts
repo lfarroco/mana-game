@@ -1,14 +1,9 @@
 import { RunStats } from "@game/Models";
 import { storage } from "@Storage/index";
 import { GAME_CONFIG } from "@config";
-
-// FIXME: extract pure stats computation to core/ (thresholds, victory tiers),
-// keeping only the storage layer (localStorage read/write) here.
+import { INFINITE_ROUND_UNLOCK_THRESHOLD, TOTAL_OUTPUT_UNLOCK_THRESHOLD, TOTAL_DOT_UNLOCK_THRESHOLD } from "@game/Constants";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
-const INFINITE_ROUND_UNLOCK_THRESHOLD = 20;
-const TOTAL_OUTPUT_UNLOCK_THRESHOLD = 10_000;
-const TOTAL_DOT_UNLOCK_THRESHOLD = 1_000;
 
 export type PlayerStats = {
 	totalRuns: number;

@@ -183,12 +183,11 @@ export const runCombat = (
 
 		runnerState.active = false;
 
-		// FIXME: CombatStatsTracker.stop() is needed to persist combat stats into
-		// the session runStats after combat ends.
-		// CombatStatsTracker.stop(
-		// 	runnerState.env.combatStates.combatStatsTrackerState,
-		// 	session,
-		// );
+		// Persist combat stats into the session runStats after combat ends.
+		CombatStatsTracker.stop(
+			runnerState.env.combatStates.combatStatsTrackerState,
+			session,
+		);
 
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);

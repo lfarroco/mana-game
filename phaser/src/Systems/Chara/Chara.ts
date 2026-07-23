@@ -289,13 +289,15 @@ export async function upgradeUnit(
 	await summon(unit, true);
 }
 
-// FIXME: refreshChara destroys and re-summons the entire unit just to update
-// power/rank visuals. Should only update display values and re-rank if needed.
 export async function refreshChara(
 	unit: Unit,
 ): Promise<void> {
 	if (hasCharaById(unit.id)) {
-		destroy(mustGetCharaById(unit.id));
+		const chara = mustGetCharaById(unit.id);
+		const state = mustGetState(chara);
+		state.unit = unit;
+		PowerDisplay.updatePowerDisplay(unit.id);
+	} else {
+		await summon(unit, true);
 	}
-	await summon(unit, true);
 }

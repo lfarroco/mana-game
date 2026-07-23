@@ -1,7 +1,6 @@
 import * as Models from "../Models";
 
-// FIXME: after round 10 (infinite mode), stop adding upgrade/add-reaction phases
-// to the rotation — only encounter/combat/shop should remain.
+/** Core phase rotation: encounters → combat → upgrade core. Used for rounds 1-15. */
 const DEFAULT: Models.PhaseType[] = [
 	"encounter",
 	"encounter",
@@ -19,6 +18,17 @@ const ADD_REACTION_PHASES: Models.PhaseType[] = [
 	"combat",
 	"add_reaction_core",
 ];
+
+/** Infinite mode (round > 10): no more upgrade or add-reaction phases. */
+const INFINITE_MODE_PHASES: Models.PhaseType[] = [
+	"encounter",
+	"encounter",
+	"encounter",
+	"pre_combat",
+	"combat",
+];
+
+const INFINITE_MODE_THRESHOLD = 10;
 
 export const ROUND_PHASES: Record<number, Models.PhaseType[]> = {
 	1: DEFAULT,
@@ -54,6 +64,6 @@ export function advanceToNextPhase(session: Models.SessionData) {
 }
 
 export function getPhaseForTurn(round: number, step: number): Models.PhaseType {
-	const roundPhases = ROUND_PHASES[round] || DEFAULT;
+	const roundPhases = ROUND_PHASES[round] || (round > INFINITE_MODE_THRESHOLD ? INFINITE_MODE_PHASES : DEFAULT);
 	return roundPhases[step];
 }

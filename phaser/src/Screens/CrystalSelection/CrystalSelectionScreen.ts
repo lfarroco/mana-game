@@ -58,8 +58,6 @@ export function destroy() {
 }
 
 
-//FIXME: disable seed selection / custom seed input when session type is multiplayer
-
 export const state: {
 	crystals: Models.CardDefinition[];
 	currentIndex: number;

@@ -91,7 +91,7 @@ function renderUpgradeCards(
 				await advancePhase({ type: "select_encounter", encounterId });
 
 
-				// FIXME: post-upgrade visuals (crystal selection effect, core refresh, sound) are not yet wired.
+				// TODO: post-upgrade visuals (crystal selection effect, core refresh, sound) are not yet wired.
 			// The upgrade is applied server-side via advancePhase; the client should react to the
 			// resulting session update to refresh visuals and play effects.
 

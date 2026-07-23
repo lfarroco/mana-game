@@ -1,17 +1,16 @@
 import * as i18n from "@i18n/i18n";
 import * as constants from "@Constants";
+import * as GameConstants from "@game/Constants";
 
 export const LEFT_PANEL_X = 450;
 export const RIGHT_PANEL_X = constants.SCREEN_WIDTH - LEFT_PANEL_X;
 
-// FIXME: WINS_TO_WIN_GAME, INFINITE_MODE_THRESHOLD, and victory tier thresholds
-// are game logic constants — move to @game/Constants.
-export const WINS_TO_WIN_GAME = 10;
-export const INFINITE_MODE_THRESHOLD = 10;
+export const WINS_TO_WIN_GAME = GameConstants.WINS_TO_WIN_GAME;
+export const INFINITE_MODE_THRESHOLD = GameConstants.INFINITE_MODE_THRESHOLD;
 
-export const GOLD_VICTORY_THRESHOLD = 10;
-export const SILVER_VICTORY_THRESHOLD = 8;
-export const BRONZE_VICTORY_THRESHOLD = 5;
+export const GOLD_VICTORY_THRESHOLD = GameConstants.GOLD_VICTORY_THRESHOLD;
+export const SILVER_VICTORY_THRESHOLD = GameConstants.SILVER_VICTORY_THRESHOLD;
+export const BRONZE_VICTORY_THRESHOLD = GameConstants.BRONZE_VICTORY_THRESHOLD;
 
 export const RESULTS_COLORS = {
 	victory: "#4CAF50",

@@ -2,7 +2,6 @@ import * as Board from "@Components/Board/Board";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as Chara from "@Systems/Chara/Chara";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 import * as ShopPhase from "./Phases/Shop/handleShopPhase";
@@ -10,12 +9,12 @@ import * as OrbShopPhase from "./Phases/OrbShop/handleOrbShopPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
-import * as animation from "@Utils/animation";
 import { getRemainingLives } from "../../SessionManager";
 import { initialState } from "@Models/ClientState";
 import { env } from "@Env";
 import { BattlegroundEvent, NavigationEvent } from "../../Events";
 import * as UI from "./Components/UI/UI";
+import { syncPlayerBoardUnits } from "./playerBoardSync";
 
 // ---------------------------------------------------------------------------
 // Phase advancement helper
@@ -120,7 +119,7 @@ export const create = async () => {
 
 	Tooltip.init();
 
-	// FIXME: input enable/disable should be managed at the screen level, not
+	// TODO: input enable/disable should be managed at the screen level, not
 	// delegated to individual components (Board, Shop, etc.).
 	Board.setIsInputEnabled(true);
 
@@ -166,38 +165,6 @@ export function wireBattlegroundEvents(): void {
 		...OrbShopPhase.registerListeners(),
 	];
 }
-
-// FIXME: player board sync helpers (shouldRefreshPlayerUnit, syncPlayerBoardUnits)
-// belong in a dedicated player-board module rather than BattlegroundScreen.
-const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
-	if (!Chara.hasCharaById(unitId)) {
-		return false;
-	}
-
-	const renderedUnit = Chara.getUnit(Chara.mustGetCharaById(unitId));
-	return renderedUnit.power !== expectedPower || renderedUnit.rank !== expectedRank;
-};
-
-const syncPlayerBoardUnits = async (): Promise<void> => {
-	const summonPromises = env.state.session.team.units.map(async (unit, index) => {
-		if (!Chara.hasCharaById(unit.id)) {
-			await animation.delay(index * 200);
-			await Chara.summon(unit, true);
-			return;
-		}
-
-		if (!shouldRefreshPlayerUnit(unit.id, unit.power, unit.rank)) {
-			return;
-		}
-
-		const chara = Chara.mustGetCharaById(unit.id);
-		Chara.destroy(chara);
-		await Chara.summon(unit, true);
-	});
-
-	await Promise.all(summonPromises);
-};
-
 
 // ---------------------------------------------------------------------------
 // Board sync helpers

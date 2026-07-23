@@ -111,7 +111,7 @@ export const handleRegenHit = (
 ) => {
 	const target = Chara.mustGetCharaById(log.targetId);
 	const unit = Chara.getUnit(target);
-	ForceStats.updateRegenDisplay(unit.force, log.newRegen, log.amount);
+	ForceStats.updateRegenDisplay(unit, log.newRegen, log.amount);
 };
 
 export const handleHasteHit = (

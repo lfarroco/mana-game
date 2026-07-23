@@ -43,8 +43,6 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		session.losses += 1;
 
 	if (session.wins >= 10) {
-		// FIXME: victory phase should be returned as plain "victory" and let
-		// the client decide how to render (gold/silver/bronze tier, infinite, etc.)
 		return {
 			...session,
 			phase: "victory",
