@@ -8,8 +8,8 @@ import {
 import { corsHeaders } from "../_shared/cors.ts";
 import { getMultiplayerRatingDelta } from "../_shared/multiplayer-rating.ts";
 
-// TODO: each action should have an isolated handler
-// should create new endpoints, one for each goal, instead of checking payload
+// FIXME: split the monolithic action handler into separate endpoints
+// (one per action type) instead of dispatching on payload shape.
 
 const MIN_SESSION_CACHE_TTL_MS = 30_000;
 const MAX_SESSION_CACHE_TTL_MS = 120_000;

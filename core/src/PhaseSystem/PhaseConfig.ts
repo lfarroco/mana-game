@@ -1,6 +1,7 @@
 import * as Models from "../Models";
 
-// TODO: after round 10, stop adding upgrades
+// FIXME: after round 10 (infinite mode), stop adding upgrade/add-reaction phases
+// to the rotation — only encounter/combat/shop should remain.
 const DEFAULT: Models.PhaseType[] = [
 	"encounter",
 	"encounter",

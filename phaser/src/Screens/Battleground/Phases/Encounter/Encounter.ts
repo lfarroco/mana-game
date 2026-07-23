@@ -8,7 +8,8 @@ import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 import { advancePhase } from "../../BattlegroundScreen";
 
-// TODO: this is a game logic rule, not UI thing
+// FIXME: MIN_ROUND constants are game logic, not presentation concerns.
+// They should live in @game/Constants or PhaseConfig.
 const MIN_ROUND_FOR_SILVER_SHOP = 1;
 const MIN_ROUND_FOR_GOLD_SHOP = 6;
 

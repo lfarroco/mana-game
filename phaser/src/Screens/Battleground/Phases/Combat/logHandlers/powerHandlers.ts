@@ -11,7 +11,9 @@ export const handleIncreasePower = (
 	const powerTarget = getCombatState()?.unitById.get(log.targetId);
 	if (powerTarget) {
 		powerTarget.power += log.amount;
-		// TODO: check if the end-combat logs follow this
+		// FIXME: verify that end-of-combat finalUnit powers (which carry permanent bonuses
+		// back to the session) are correctly propagated — bonusPower mutations during playback
+		// must match the server-side results exactly.
 		if (log.permanent) {
 			powerTarget.bonusPower += log.amount;
 		}

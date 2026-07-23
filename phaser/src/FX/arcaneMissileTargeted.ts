@@ -12,7 +12,6 @@ export interface TargetedArcaneMissileOptions {
 	frequencyMin?: number;
 	frequencyMax?: number;
 	particleScale?: number;
-	speedMultiplier?: number; // TODO: remove, we use scene speed instead
 	impact?: {
 		colors?: number[];
 		scale?: number;

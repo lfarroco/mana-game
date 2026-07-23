@@ -35,9 +35,8 @@ type PlaybackState = {
 
 const DEFAULT_ANIMATION_DURATION = 400;
 
-// TODO: this is bad
-// Must match ServerConstants.MIN_COOLDOWN
-const MIN_COOLDOWN = 200;
+// Must match CoreConstants.MIN_COOLDOWN — used to replicate the server-side refresh lockout during playback
+const MIN_COOLDOWN = CoreConstants.MIN_COOLDOWN;
 
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
@@ -98,7 +97,8 @@ export const createCombatPlaybackController = (
 		logHandlers.executeLogHandler(log, playbackState);
 
 		// storm_start is a special case handled inline since it accesses blackHoleState
-		// TODO: the black hole does no need state, or expose it, because it can be driven by logs
+		// FIXME: black hole visual state could be driven entirely by combat logs
+		// (storm_start / storm_end entries) rather than maintaining a separate state object.
 		if (log.type === "storm_start") {
 			if (playbackState.blackHoleState) {
 				playbackState.blackHoleState = BlackHole.activateBlackHole(playbackState.blackHoleState);

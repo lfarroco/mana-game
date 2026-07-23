@@ -43,7 +43,8 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		session.losses += 1;
 
 	if (session.wins >= 10) {
-		// TODO: it should be just "victory", the client decides the rest
+		// FIXME: victory phase should be returned as plain "victory" and let
+		// the client decide how to render (gold/silver/bronze tier, infinite, etc.)
 		return {
 			...session,
 			phase: "victory",
@@ -401,7 +402,8 @@ function executeCombatPhase(
 
 	console.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
 
-	// TODO: support multiplayer
+	// FIXME: enemy generation currently only supports single-player.
+	// Multiplayer sessions need to fetch the opponent's team from the server.
 	const enemyTeam =
 		EnemyGeneration.generateEnemyTeamForRound(
 			session.round,

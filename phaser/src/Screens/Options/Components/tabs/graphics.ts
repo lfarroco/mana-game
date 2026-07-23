@@ -13,8 +13,8 @@ export function graphicsTab(startY: number) {
 		(value) => {
 			setOption("particles", value as ParticlesOption);
 
-			// TODO: update this
-			//scene.cloudsBackground.updateParticleQuality();
+			// FIXME: wire up to the active CloudsBackground instance to update particle quality in real time
+			// scene.cloudsBackground?.updateParticleQuality();
 		},
 		(value) => t("options.graphics.values." + value)
 	);

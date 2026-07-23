@@ -3,7 +3,6 @@ import * as animation from "@Utils/animation";
 import * as impactEffect from "./impactEffect";
 import { env } from "@Env";
 
-// TODO: try this for some alternative effects (power up, absorb,orb upgrade)
 
 
 // --- Effect Configuration Constants ---

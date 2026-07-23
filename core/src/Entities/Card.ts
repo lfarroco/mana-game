@@ -1,7 +1,9 @@
 import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData } from "../Models";
 import * as uuid from "uuid";
 
-// TODO: the card registration step is probably not needed
+// FIXME: the card registry global singleton could be simplified —
+// the registerCollection step is only used at startup and could be
+// replaced with a direct Map population or static import.
 
 const dummy: CardDefinition = {
 	id: "dummy_card",
@@ -127,12 +129,11 @@ export const getBattleCore = (state: CombatState) => (forceId: string) =>
 export const getPlayerPersistentCore = (state: SessionData) =>
 	state.team.units.find((u) => u.isCore)!;
 
-// TODO: this is the same as createUnitFromCardSpec
+// Creates a Unit from a cardId string — thin wrapper around createUnitFromCardSpec.
 export const makeUnit = (
 	force: string,
 	cardId: string, position: [number, number] = [1, 1]): Unit => {
 	const card = getCardDefinition(cardId);
-
 	return createUnitFromCardSpec(force, card, position, uuid.v4()) as Unit;
 };
 

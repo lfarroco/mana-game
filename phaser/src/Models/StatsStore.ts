@@ -2,7 +2,8 @@ import { RunStats } from "@game/Models";
 import { storage } from "@Storage/index";
 import { GAME_CONFIG } from "@config";
 
-// TODO: refactor and migrate to core (keep only storage layer here)
+// FIXME: extract pure stats computation to core/ (thresholds, victory tiers),
+// keeping only the storage layer (localStorage read/write) here.
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
 const INFINITE_ROUND_UNLOCK_THRESHOLD = 20;

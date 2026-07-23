@@ -1,6 +1,7 @@
 import * as Assets from "@assets";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
+import * as AudioManager from "@Systems/AudioManager";
 import { env, makeContainer as container, centeredRect } from "@Env";
 
 const MAX_WINS = 10;
@@ -118,7 +119,7 @@ function playWinEffect(index: number) {
 		return;
 	}
 
-	// TODO: play sound effect (plim)
+	AudioManager.playSoundEffect("sfx_ui_select");
 
 	const rect = winRects[index];
 

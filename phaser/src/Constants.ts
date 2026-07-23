@@ -1,6 +1,7 @@
 
-// TODO: separate client-side, rendering/ui constants
-// from game logic constants.
+// FIXME: split into two modules:
+// - RenderingConstants (screen dimensions, tile sizes, UI layout)
+// - GameLogicConstants (imported from @game/Constants wherever possible)
 
 export const SCREEN_WIDTH = 1920;
 export const SCREEN_HEIGHT = 1080;

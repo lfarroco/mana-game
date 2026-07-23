@@ -10,7 +10,8 @@ const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
 const PLAYER_ID_RANDOM_MAX = 1_000_000;
 
-// TODO: this is bad
+// Generate a stable local player ID. Persisted to localStorage so it survives page reloads.
+// Not a security token — just a client-side identifier for session association.
 const storedId = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
 let playerId =
 	storedId ||

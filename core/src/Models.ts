@@ -266,7 +266,7 @@ export type Unit = {
 	cardId: string;
 	pic: string;
 	force: string;
-	position: [number, number]; // TODO: migrate to Vec2
+	position: [number, number]; // FIXME: migrate to Vec2 (from Geometry) across the codebase
 
 	rank: number;
 
@@ -299,7 +299,8 @@ export type Unit = {
 
 
 export type PhaseOption =
-	// TODO: this is too flexible
+	// FIXME: PhaseOption union is too permissive — the generic branch accepts any
+	// string id. Consider a discriminated union with known encounter/shop types.
 	{ id: string; cost?: number; label?: string; recruitRank?: number; } // Generic option with optional cost, label, and shop recruit metadata
 	|
 	{ id: "start_combat"; };
@@ -447,8 +448,8 @@ export type RankedPlayersPage = {
 
 export type GameServer = {
 
-	// TODO: this might not be necessary if we do
-	// handleAction("create_session", { crystalId })
+	// FIXME: createSession could be replaced by handleAction("create_session", { crystalId })
+	// to have a single unified action dispatch path.
 	createSession(
 		playerId: string,
 		crystalId: string

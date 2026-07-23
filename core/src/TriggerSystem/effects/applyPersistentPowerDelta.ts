@@ -14,7 +14,10 @@ export const applyPersistentPowerDelta = (
 		return appliedDelta;
 	}
 
-	// TODO: handle this case
+	// FIXME: permanent power deltas should be applied to the persistent unit
+	// reference in combatState.units to ensure changes survive combat boundaries.
+	// Currently only player-force units receive permanent deltas; enemy units
+	// never trigger this branch due to the force check above.
 	const persistentUnit = env.combatState.units.find((unit) => unit.id === targetUnit.id);
 	if (persistentUnit && persistentUnit !== targetUnit) {
 		applyPowerDelta(persistentUnit, appliedDelta, permanent);

@@ -3,7 +3,6 @@ import * as animation from "@Utils/animation";
 import * as impactEffect from "./impactEffect";
 import { env } from "@Env";
 
-// TODO: reuse this for impact effect in arcane missile
 export async function explodeEffect([x, y]: Vec2) {
 	const lifespan = 1000;
 

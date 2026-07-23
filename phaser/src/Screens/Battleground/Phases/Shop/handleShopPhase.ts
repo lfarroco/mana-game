@@ -139,7 +139,6 @@ async function playShopUpgradeEffect(source: Vec2, target: Vec2): Promise<void> 
 				amplitudeMin: 4,
 				amplitudeMax: 12,
 				particleScale: 1.2,
-				speedMultiplier: 1.4,
 				impact: {
 					scale: 1.4,
 					speed: 140,

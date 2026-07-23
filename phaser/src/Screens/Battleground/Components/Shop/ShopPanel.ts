@@ -10,8 +10,8 @@ export const ShopState: { container: Container | null } = {
 	container: null,
 };
 
-// TODO: long term goal: have each phase have its elements all enable after
-// calling init, then events pull them into the screen as needed
+// FIXME: each phase should own its UI elements and manage their lifecycle
+// through a common init/show/hide pattern, rather than ad-hoc container management.
 export const create = () => {
 
 	ShopState.container = container(env.scene);

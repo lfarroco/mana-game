@@ -76,8 +76,8 @@ type EncounterFilterType =
 function getEncounterFilterType(encounterId: string | null): EncounterFilterType | "" {
 	if (!encounterId) return "";
 
-	// TODO: should have a single id for type, this map should
-	// not be necessary
+	// FIXME: encounter types should carry their filter type as a first-class field
+	// (e.g., encounter.filterType = "damage") instead of relying on this mapping table.
 	const filterMap: Record<string, EncounterFilterType> = {
 		armory: "damage",
 		healing_tent: "heal",

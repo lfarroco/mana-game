@@ -120,7 +120,8 @@ export const create = async () => {
 
 	Tooltip.init();
 
-	// TODO: input enable/disable should be screen-scoped
+	// FIXME: input enable/disable should be managed at the screen level, not
+	// delegated to individual components (Board, Shop, etc.).
 	Board.setIsInputEnabled(true);
 
 	// Kick off the phase loop
@@ -166,7 +167,8 @@ export function wireBattlegroundEvents(): void {
 	];
 }
 
-// TODO: should be part of the player board logic
+// FIXME: player board sync helpers (shouldRefreshPlayerUnit, syncPlayerBoardUnits)
+// belong in a dedicated player-board module rather than BattlegroundScreen.
 const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
 	if (!Chara.hasCharaById(unitId)) {
 		return false;
@@ -176,7 +178,6 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 	return renderedUnit.power !== expectedPower || renderedUnit.rank !== expectedRank;
 };
 
-// TODO: should be part of the player board logic
 const syncPlayerBoardUnits = async (): Promise<void> => {
 	const summonPromises = env.state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
@@ -237,8 +238,8 @@ async function executePhase(
 		case "game_over":
 			return await Phases.handleGameOverPhase();
 
-		case "victory": // TODO: handle viictory
-			return await Phases.handleGameOverPhase();
+		case "victory":
+			return await Phases.handleVictoryPhase();
 
 		default:
 			((_: never) => { })(phase)

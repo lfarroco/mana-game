@@ -58,7 +58,7 @@ export function destroy() {
 }
 
 
-//TODO: should also disable seed selection in multiplayer mode
+//FIXME: disable seed selection / custom seed input when session type is multiplayer
 
 export const state: {
 	crystals: Models.CardDefinition[];

@@ -71,7 +71,6 @@ export async function playUpgradeCrystalSelectionEffect({
 				amplitudeMin: 4,
 				amplitudeMax: 12,
 				particleScale: 1.2,
-				speedMultiplier: 1.4,
 				impact: {
 					colors: impactColors,
 					scale: 1.4,

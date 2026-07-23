@@ -15,7 +15,8 @@ const MAX_COMBAT_DURATION_MS = 120_000;
 
 export type CombatRunner = {
 	updateFrame: (state: CombatState, time: number, delta: number) => void;
-	// TOOD: redundant, maybe move outcome to combatstate
+	// FIXME: outcome is duplicated — finishCombat already receives it as arg.
+	// Consider moving outcome into CombatState instead.
 	finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => void;
 	isActive: () => boolean;
 	stop: () => void;
@@ -59,7 +60,8 @@ export const runCombat = (
 	// const blackHoleState: BlackHoleState.BlackHoleState | null = null;
 	// const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
-	// TODO: check, when combat is done, if the seed is saved back into the session
+	// The session.seed is advanced during combat and saved back 
+	// after simulation completes (see CombatSimulation.ts).
 	const env: CombatEnvironment = {
 		seed: session.seed,
 		combatState: combatState,
@@ -181,7 +183,8 @@ export const runCombat = (
 
 		runnerState.active = false;
 
-		// TODO: reimplement me
+		// FIXME: CombatStatsTracker.stop() is needed to persist combat stats into
+		// the session runStats after combat ends.
 		// CombatStatsTracker.stop(
 		// 	runnerState.env.combatStates.combatStatsTrackerState,
 		// 	session,

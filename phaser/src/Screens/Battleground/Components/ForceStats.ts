@@ -354,7 +354,8 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
-// TODO: update these functions to have the target unit as arg, and locate the force from there.
+// FIXME: replace force:string parameter with targetUnit:Unit so callers don't
+// need to track force IDs separately — locate the force from the unit.
 export function updateRegenDisplay(
 	force: string,
 	regen: number,

@@ -195,7 +195,6 @@ function initShopCharaInput(
 		chara.setAngle(-8);
 	});
 
-	//TODO: io.onDrag...
 	chara.on(
 		Phaser.Input.Events.DRAG,
 		(_pointer: Pointer, dragX: number, dragY: number) => {

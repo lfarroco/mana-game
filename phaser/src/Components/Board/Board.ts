@@ -292,7 +292,7 @@ export function isInputEnabled() {
 
 export function create() {
 	_playerBoardState = createBoardState();
-	//TODO: rendering inside a model, lol
+	// FIXME: create() mixes model initialization with rendering — renderBoardSlots should be called by the screen, not here
 	renderBoardSlots(_playerBoardState);
 }
 

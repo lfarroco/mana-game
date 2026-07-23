@@ -4,7 +4,8 @@ import * as constants from "@Constants";
 export const LEFT_PANEL_X = 450;
 export const RIGHT_PANEL_X = constants.SCREEN_WIDTH - LEFT_PANEL_X;
 
-// TODO: this is part of the logic, not presentation
+// FIXME: WINS_TO_WIN_GAME, INFINITE_MODE_THRESHOLD, and victory tier thresholds
+// are game logic constants — move to @game/Constants.
 export const WINS_TO_WIN_GAME = 10;
 export const INFINITE_MODE_THRESHOLD = 10;
 
