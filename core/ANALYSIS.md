@@ -43,34 +43,50 @@ _Date: July 23, 2026 — Updated after incremental improvements_
 
 ### 🧹 Cleanups
 
-9. **Removed unnecessary `async`** from 8 functions: `CombatRunner.finishCombat`, `addShield`, `restoreLife`, `applyPoison`, `applyRegen`, `applyHaste`, `applySlow`, `multiplyPower`.
-   - Updated `CombatRunner` type: `finishCombat` now returns `void` instead of `Promise<void>`.
+9. **`CombatRunner.ts` — Duplicate max-duration check** ✅ FIXED
+   - Removed unreachable step 5 duplicate check (step 0 already handles it).
 
-10. **Smoke test** ✅ FIXED
+10. **Removed unnecessary `async`** from 8 functions: `CombatRunner.finishCombat`, `addShield`, `restoreLife`, `applyPoison`, `applyRegen`, `applyHaste`, `applySlow`, `multiplyPower`.
+    - Updated `CombatRunner` type: `finishCombat` now returns `void` instead of `Promise<void>`.
+
+11. **Smoke test** ✅ FIXED
     - Added `tsx` as devDependency.
     - Fixed `pickRandomItemsSeeded` call (was passing string instead of `{ seed: string }`).
     - Fixed `setSeed`/`nextValue` calls (replaced with `nextRandomValue`).
 
-11. **`CombatStatsTracker.trackStat` — removed unused `_env` parameter** ✅ FIXED
+12. **`CombatStatsTracker.trackStat` — removed unused `_env` parameter** ✅ FIXED
     - Removed `_env: CombatEnvironment` from `trackStat` and all 5 public callers (`trackDamage`, `trackHeal`, `trackPoison`, `trackRegen`, `trackShield`).
     - Updated 5 effect files and test file to match new signatures.
     - 14 fewer `{} as Models.CombatEnvironment` casts in tests.
 
-12. **`CombatRunner.ts` — typo fix** ✅ FIXED
+13. **`CombatRunner.ts` — typo fix + dead code removal** ✅ FIXED
     - `// TOOD: include this in the outcome` → `// TODO: include this in the outcome`
+    - `// Log combat stats before outcomeA` → `// Log combat stats before outcome`
+    - Removed commented-out BlackHoleState/CountdownTimer imports and state fields.
+    - Removed redundant `scaledDelta` variable (just uses `delta` directly).
 
-13. **`Functional.ts` — added `match`, `chain`/`flatMap` for Option and Result** ✅ ADDED
+14. **Core Jest config — uuid ESM fix** ✅ FIXED
+    - uuid v14 is pure ESM; ts-jest cannot transform its `.js` files.
+    - Added `moduleNameMapper` to stub `uuid` with a test-compatible implementation.
+    - Created `src/__test_utils__/uuidStub.ts` generating deterministic test IDs.
+    - Result: all 22 test suites pass (302 tests), zero failures.
+
+15. **Phaser lint — unused eslint-disable** ✅ FIXED
+    - Removed `// eslint-disable-next-line no-restricted-imports` from `TitleScreen.ts`.
+    - Lint is now completely clean (zero warnings, zero errors).
+
+16. **`Functional.ts` — added `match`, `chain`/`flatMap` for Option and Result** ✅ ADDED
     - `matchOption`, `matchResult` for exhaustive pattern matching.
     - `chainOption`/`flatMapOption`, `chainResult`/`flatMapResult` for monadic composition.
     - 12 new unit tests added (39 total Functional tests).
 
-14. **`core/tsconfig.json` — added `esModuleInterop: true`** ✅ FIXED
+17. **`core/tsconfig.json` — added `esModuleInterop: true`** ✅ FIXED
     - Silences ts-jest warnings about ES module interop.
 
-15. **`core/src/index.ts` — barrel export** ✅ ADDED
+18. **`core/src/index.ts` — barrel export** ✅ ADDED
     - Single entry point re-exporting all public modules (Functional, models, combat, trigger system, entities, data, etc.).
 
-16. **Phaser `CharaTooltip.ts` — removed all `as any` casts** ✅ FIXED
+19. **Phaser `CharaTooltip.ts` — removed all `as any` casts** ✅ FIXED
     - Added `getCount(targets)` helper using proper discriminated union narrowing.
     - Added `getEffectTargets(effect)` helper using switch-based narrowing.
     - Replaced 4 `eslint-disable-next-line @typescript-eslint/no-explicit-any` + `as any` patterns with type-safe helpers.
@@ -87,14 +103,15 @@ _Date: July 23, 2026 — Updated after incremental improvements_
 
 ### 🧪 Testing Gaps (Not Yet Done)
 
-**Tested:** CombatSimulation, Random, BoardLogic, Geometry, Constants, Functional, CombatLogger, PoisonDamageSystem, RegenSystem, CombatStatsTracker, PhaseConfig, Random.pick
-**Untested:** Card, Unit, Force, StatusEffectSystem, TimeoutDamageSystem, CombatRunner, TriggerSystem + effects, SessionTransitions, OptionGeneration, EnemyGeneration, generateEnemyTeam, SessionManagement, OrbAndCoreUpgrades, RecruitmentActions, BaseCollection
+**Tested:** CombatSimulation, Random, BoardLogic, Geometry, Constants, Functional, CombatLogger, PoisonDamageSystem, RegenSystem, CombatStatsTracker, PhaseConfig, Random.pick, SessionManagement, OptionGeneration, EnemyGeneration, generateEnemyTeam, Card, Unit, Force, TimeoutDamageSystem, OrbAndCoreUpgrades, RecruitmentActions
+**Untested:** StatusEffectSystem, CombatRunner, TriggerSystem + effects, SessionTransitions, BaseCollection
 
 ## Verification
 
 ```bash
 npm run typecheck   # ✅ zero errors (both core and phaser)
-npm run test        # ✅ 176 tests pass (11 suites fail due to pre-existing uuid ESM issue)
+npm run test        # ✅ 302 tests pass (22 suites, all green)
 npm run smoke       # ✅ purity + determinism verified
+npm run lint        # ✅ zero warnings / zero errors (phaser)
 ```
 

@@ -5,14 +5,14 @@ module.exports = {
 	transform: {
 		"^.+\\.ts$": ["ts-jest", { useESM: true, diagnostics: false, tsconfig: { isolatedModules: true } }],
 	},
-	transformIgnorePatterns: [
-		"node_modules/(?!uuid/)",
-	],
 	moduleFileExtensions: ["ts", "js"],
 	testPathIgnorePatterns: [
 		"/node_modules/",
 	],
 	moduleNameMapper: {
 		"^(\\.{1,2}/.*)\\.js$": "$1",
+		// uuid v14 is pure ESM — ts-jest can only transform .ts files, so we
+		// provide a lightweight test-compatible stub.
+		"^uuid$": "<rootDir>/src/__test_utils__/uuidStub.ts",
 	},
 };

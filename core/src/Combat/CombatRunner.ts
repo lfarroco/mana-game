@@ -8,9 +8,6 @@ import * as CombatStatsTracker from "./CombatStatsTracker";
 import * as StatusEffectSystem from "./StatusEffectSystem";
 import * as CombatLogger from "./CombatLogger";
 
-// import * as BlackHoleState from "./BlackHoleState";
-// import * as CountdownTimer from "@Systems/CountdownTimer";
-
 const MAX_COMBAT_DURATION_MS = 120_000;
 
 export type CombatRunner = {
@@ -26,8 +23,6 @@ export type CombatRunner = {
 type CombatRunnerState = {
 	active: boolean;
 	env: CombatEnvironment;
-	// countdownTimerState: CountdownTimer.CountdownTimerState | null;
-	// blackHoleState: BlackHoleState.BlackHoleState | null;
 };
 
 /**
@@ -57,8 +52,6 @@ export const runCombat = (
 	session: SessionData,
 	combatState: CombatState,
 ): CombatRunner => {
-	// const blackHoleState: BlackHoleState.BlackHoleState | null = null;
-	// const countdownTimerState: CountdownTimer.CountdownTimerState | null = null;
 
 	// The session.seed is advanced during combat and saved back 
 	// after simulation completes (see CombatSimulation.ts).
@@ -77,8 +70,6 @@ export const runCombat = (
 	const runnerState: CombatRunnerState = {
 		active: true,
 		env,
-		// countdownTimerState,
-		// blackHoleState,
 	};
 
 	combatState.units.forEach((unit) => {
@@ -102,8 +93,7 @@ export const runCombat = (
 
 		runnerState.env.combatState = nextState;
 
-		const scaledDelta = delta;
-		combatElapsedMs += scaledDelta;
+		combatElapsedMs += delta;
 
 		runnerState.env.logger.setCurrentTimeMs(combatElapsedMs);
 
@@ -141,7 +131,7 @@ export const runCombat = (
 		// 3. Charge units and process effects (these log _cast and schedule _hit)
 		const unitsReadyToAct = chargeUnits(
 			nextState,
-			scaledDelta,
+			delta,
 			runnerState.env.logger,
 		);
 
@@ -153,22 +143,16 @@ export const runCombat = (
 		}
 
 		// 4. Status effects tick (poison/regen)
-		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, scaledDelta);
+		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, delta);
 
-		// 5. Max duration check — before timeout damage so both cores alive = both_won
-		if (combatElapsedMs >= MAX_COMBAT_DURATION_MS) {
-			finishCombat("both_won");
-			return;
-		}
-
-		// 6. Timeout damage (storm)
+		// 5. Timeout damage (storm)
 		timeoutSystemState = Timeout.updateTimeoutDamageSystem(
 			env,
 			timeoutSystemState,
-			scaledDelta
+			delta
 		);
 
-		// 7. Check combat outcome after status effects and timeout damage
+		// 6. Check combat outcome after status effects and timeout damage
 		const tickOutcome = checkCombatOutcome(nextState);
 		if (tickOutcome) {
 			finishCombat(tickOutcome);
@@ -192,7 +176,7 @@ export const runCombat = (
 		timeoutSystemState = Timeout.stopTimeoutDamageSystem(timeoutSystemState);
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
 
-		// Log combat stats before outcomeA
+		// Log combat stats before outcome
 		// TODO: include this in the outcome
 		if (runnerState.env.combatStates?.combatStatsTrackerState) {
 			const { unitStats, currentCombatStats } = runnerState.env.combatStates.combatStatsTrackerState;

@@ -4,7 +4,6 @@ import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
-// eslint-disable-next-line no-restricted-imports
 import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
