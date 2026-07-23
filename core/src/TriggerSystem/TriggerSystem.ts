@@ -174,6 +174,10 @@ export function processReactions(
 					r.effectId === effect.id || (r.effectId === "all" && Models.BASIC_ABILITIES.includes(effect.id))
 			)
 			.filter((r) => {
+				// triggerTeam: "own" (default) → only react to own team's stats
+				// triggerTeam: "enemy" → only react to opposing team's stats
+				if (r.triggerTeam === "own" && u.force !== triggeringUnit.force) return false;
+				if (r.triggerTeam === "enemy" && u.force === triggeringUnit.force) return false;
 				switch (r.position) {
 					case "all":
 						return true;

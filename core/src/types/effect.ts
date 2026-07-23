@@ -78,4 +78,8 @@ export type EffectReaction = {
 	position: EffectSourcePosition;
 	effectId: EffectId | "all";
 	effects: Effect[];
+	/** Whose accumulated stats trigger this reaction?
+	 *  "own" (default) = reactor's own team. "enemy" = opposing team.
+	 *  Only meaningful for threshold reactions (every_100_damage, etc.). */
+	triggerTeam?: "own" | "enemy";
 };

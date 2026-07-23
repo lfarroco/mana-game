@@ -86,6 +86,7 @@ export const runCombat = (
 
 	let statusEffectSystemState = StatusEffectSystem.initialize(combatState);
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
+	let thresholdState = CombatStatsTracker.initializeThresholds();
 	let combatElapsedMs = 0;
 
 	const updateFrame = (nextState: CombatState, _time: number, delta: number): void => {
@@ -144,6 +145,18 @@ export const runCombat = (
 
 		// 4. Status effects tick (poison/regen)
 		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, delta);
+
+		// 4.5. Check threshold reactions (every_100_damage, every_10_poison, etc.)
+		const crossed = CombatStatsTracker.getCrossedThresholds(
+			runnerState.env.combatStates.combatStatsTrackerState,
+			thresholdState,
+		);
+		for (const { forceId, reactionId } of crossed) {
+			const triggerer = nextState.units.find((u) => u.force === forceId);
+			if (triggerer) {
+				TriggerSystem.processReactions(env, triggerer, { id: reactionId }, 1);
+			}
+		}
 
 		// 5. Timeout damage (storm)
 		timeoutSystemState = Timeout.updateTimeoutDamageSystem(

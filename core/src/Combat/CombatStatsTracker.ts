@@ -114,6 +114,48 @@ const STAT_CONFIGS: Record<string, StatConfig> = {
 	},
 };
 
+/** Tracks the last threshold level fired per force:stat combination.
+ *  Key = "forceId:statKey" (e.g. "PLAYER:damage"), value = last threshold value fired. */
+export type ThresholdState = Map<string, number>;
+
+export function initializeThresholds(): ThresholdState {
+  return new Map();
+}
+
+/**
+ * Check all forces' accumulated stats against their thresholds.
+ * Returns every crossed threshold as { forceId, reactionId } pairs.
+ * Updates thresholdState in place so each level fires at most once.
+ */
+export function getCrossedThresholds(
+  trackerState: CombatStatsTrackerState,
+  thresholdState: ThresholdState,
+): Array<{ forceId: string; reactionId: EffectId }> {
+  const results: Array<{ forceId: string; reactionId: EffectId }> = [];
+
+  for (const [statKey, config] of Object.entries(STAT_CONFIGS)) {
+    if (!config.threshold || !config.reactionId) continue;
+
+    for (const [forceId, forceStats] of trackerState.currentCombatStats) {
+      const current = forceStats[config.forceStatKey] as number;
+      if (current <= 0) continue;
+
+      const key = `${forceId}:${statKey}`;
+      const lastFired = thresholdState.get(key) ?? 0;
+      let nextThreshold = lastFired + config.threshold;
+
+      // May cross multiple thresholds at once (e.g. large burst damage)
+      while (current >= nextThreshold) {
+        results.push({ forceId, reactionId: config.reactionId });
+        thresholdState.set(key, nextThreshold);
+        nextThreshold += config.threshold;
+      }
+    }
+  }
+
+  return results;
+}
+
 function trackStat(
 	trackerState: CombatStatsTrackerState,
 	amount: number,
