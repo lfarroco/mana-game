@@ -2,6 +2,8 @@ import { Unit } from "../Models";
 import * as geom from "../math/Geometry";
 import { Option, none, some } from "../Functional";
 
+// TODO: maybe we could have a data structure in the state with the slots
+// indexed, making it easier to pick empty ones
 export function getEmptySlot(
 	units: Unit[],
 	forceId: string,
@@ -51,10 +53,17 @@ export function checkMove(
 	if (geom.eqVec2(unit.position, newPos)) {
 		return { valid: false };
 	}
-	const occupant = units.find((u) => u.id !== unit.id && geom.eqVec2(u.position, newPos));
+	const occupant = units
+      .find((u) => 
+        u.id !== unit.id &&
+        geom.eqVec2(u.position, newPos)
+      );
 	return { valid: true, occupant };
 }
 
+// TODO: we can think about supporting other shapes in the future, and
+// even declare slots not unlocked yet
+// eg. [ [0, 1, 0] ], where 1 is locked
 export function createGrid(): number[][] {
 	return [
 		[0, 0, 0],

@@ -29,6 +29,10 @@ type CombatRunnerState = {
  * Check if combat should end based on core life totals.
  */
 const checkCombatOutcome = (state: CombatState): "player_won" | "player_lost" | "both_won" | null => {
+
+    // TODO: operate on a list of team ids [teamA, teamb], and have a new
+    // outcome type {winner: id} to allow handling pvp combat as well
+
 	const playerCore = state.playerCore;
 	const cpuCore = state.cpuCore;
 
@@ -73,7 +77,9 @@ export const runCombat = (
 	};
 
 	combatState.units.forEach((unit) => {
-		const battleStartReactions = unit.reactions.filter((reaction) => reaction.effectId === "on_battle_start");
+		const battleStartReactions = unit.reactions
+          .filter((reaction) => reaction.effectId === "on_battle_start");
+
 		battleStartReactions.forEach((reaction) => {
 			TriggerSystem.processEffectsIO(
 				env,
@@ -84,6 +90,8 @@ export const runCombat = (
 		});
 	});
 
+
+	//TODO: isn't this repeating combatStatsTrackerState: CombatStatsTracker.initialize(combatState) ?
 	let statusEffectSystemState = StatusEffectSystem.initialize(combatState);
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
 	let thresholdState = CombatStatsTracker.initializeThresholds();
@@ -122,14 +130,18 @@ export const runCombat = (
 			event.execute(runnerState.env);
 		}
 
+        // Disabled this. For the below effects, we process all of them
+        // before checking the outcome, so it should be the same for
+        // deferred events as well
+        // TODO: delete me
 		// 2. Check combat outcome after hits landed
-		const hitOutcome = checkCombatOutcome(nextState);
-		if (hitOutcome) {
-			finishCombat(hitOutcome);
-			return;
-		}
+		// const hitOutcome = checkCombatOutcome(nextState);
+		// if (hitOutcome) {
+		// 	finishCombat(hitOutcome);
+		// 	return;
+		// }
 
-		// 3. Charge units and process effects (these log _cast and schedule _hit)
+		// 2. Charge units and process effects (these log _cast and schedule _hit)
 		const unitsReadyToAct = chargeUnits(
 			nextState,
 			delta,
@@ -143,10 +155,10 @@ export const runCombat = (
 			TriggerSystem.processEffectsIO(env, unit, unit.effects, false);
 		}
 
-		// 4. Status effects tick (poison/regen)
+		// 3. Status effects tick (poison/regen)
 		statusEffectSystemState = StatusEffectSystem.update(env, statusEffectSystemState, delta);
 
-		// 4.5. Check threshold reactions (every_100_damage, every_10_poison, etc.)
+		// 3.5. Check threshold reactions (every_100_damage, every_10_poison, etc.)
 		const crossed = CombatStatsTracker.getCrossedThresholds(
 			runnerState.env.combatStates.combatStatsTrackerState,
 			thresholdState,
@@ -160,14 +172,14 @@ export const runCombat = (
 			}
 		}
 
-		// 5. Timeout damage (storm)
+		// 4. Timeout damage (storm)
 		timeoutSystemState = Timeout.updateTimeoutDamageSystem(
 			env,
 			timeoutSystemState,
 			delta
 		);
 
-		// 6. Check combat outcome after status effects and timeout damage
+		// 5. Check combat outcome after status effects and timeout damage
 		const tickOutcome = checkCombatOutcome(nextState);
 		if (tickOutcome) {
 			finishCombat(tickOutcome);
@@ -230,29 +242,33 @@ export const chargeUnits = (
 	const performingUnits: Unit[] = [];
 
 	for (const unit of state.units) {
-		const cooldownMultiplier =
-			unit.hasted > 0 && unit.slowed > 0 ? 1 : unit.hasted > 0 ? 0.5 : unit.slowed > 0 ? 2 : 1;
-		const chargeRate = 1 / cooldownMultiplier;
-
-		unit.charge += delta * chargeRate;
 
 		const wasHasted = unit.hasted > 0;
 		const wasSlowed = unit.slowed > 0;
 
-		if (unit.hasted > 0) {
+		const cooldownMultiplier =
+			wasHasted > 0 && wasSlowed > 0 ? 1 : 
+            wasHasted > 0 ? 0.5 : 
+            wasSlowed > 0 ? 2 : 1;
+
+		const chargeRate = 1 / cooldownMultiplier;
+
+		unit.charge += delta * chargeRate;
+
+		if (wasHasted > 0) {
 			unit.hasted = Math.max(0, unit.hasted - delta);
+
+            if (unit.hasted === 0) {
+                logger.log({ type: "haste_end", unitId: unit.id });
+            }
 		}
 
-		if (unit.slowed > 0) {
+		if (wasSlowed > 0) {
 			unit.slowed = Math.max(0, unit.slowed - delta);
-		}
 
-		if (logger && wasHasted && unit.hasted <= 0) {
-			logger.log({ type: "haste_end", unitId: unit.id });
-		}
-
-		if (logger && wasSlowed && unit.slowed <= 0) {
-			logger.log({ type: "slow_end", unitId: unit.id });
+            if (unit.slowed === 0) {
+                logger.log({ type: "slow_end", unitId: unit.id });
+            }
 		}
 
 		unit.refresh = Math.max(0, unit.refresh - delta);
