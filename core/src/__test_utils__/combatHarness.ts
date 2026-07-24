@@ -163,6 +163,32 @@ export function runFrames(
   return combatRunner.getEnv().logger.getLogs();
 }
 
+/**
+ * Run frames until a condition on the combat logs is met (or combat ends /
+ * maxFrames is reached). Prefer this over frame-count arithmetic: tests
+ * should express intent ("until 200 damage dealt") rather than depending on
+ * exact cooldown timing.
+ *
+ * @example
+ *   const logs = runUntil(combatRunner, combatState, (logs) =>
+ *     filterLogs(logs, "damage_hit").reduce((s, h) => s + h.amount, 0) >= 200,
+ *   );
+ */
+export function runUntil(
+  combatRunner: ReturnType<typeof RunCombatCore.runCombat>,
+  combatState: Models.CombatState,
+  predicate: (logs: CombatLogger.CombatLogEntry[]) => boolean,
+  maxFrames: number = 10000,
+): CombatLogger.CombatLogEntry[] {
+  const logs = combatRunner.getEnv().logger.getLogs();
+  let frame = 0;
+  while (combatRunner.isActive() && frame < maxFrames && !predicate(logs)) {
+    combatRunner.updateFrame(combatState, frame * SIM_DELTA, SIM_DELTA);
+    frame++;
+  }
+  return logs;
+}
+
 // ---------------------------------------------------------------------------
 // Type-safe log filtering
 // ---------------------------------------------------------------------------

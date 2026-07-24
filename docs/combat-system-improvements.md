@@ -2,16 +2,18 @@
 
 > Scope: effect/reaction engine, threshold reactions, combat stats tracking,
 > and combat test infrastructure in `core/`.
-> Last verified: 2026-07-23 — 346 tests, 24 suites, all passing.
+> Last verified: 2026-07-23 — 381 tests, 27 suites, all passing (typecheck clean).
+> Status: P1, P2, P3.1, P3.3, P4.3, and the P5 test gaps were implemented
+> 2026-07-23. P3.2, P4.1, and P4.2 remain open (see their sections).
 
 ## Recommended order
 
-1. P1 crash guard — small, prevents a real crash class
-2. P5 test gaps — best ROI; pin existing behavior before refactoring anything
-3. P2 test ergonomics — builders module + `runUntil` helper
-4. P3 design clarity — validation + comments, cheap
-5. P4.3 seed-sweep invariants (no new dependency)
-6. P3.2 single-source reaction config — do when next adding a reaction type
+1. ✅ P1 crash guard — small, prevents a real crash class
+2. ✅ P5 test gaps — best ROI; pin existing behavior before refactoring anything
+3. ✅ P2 test ergonomics — builders module + `runUntil` helper
+4. ✅ P3 design clarity — validation + comments, cheap (3.2 deferred, see below)
+5. ✅ P4.3 seed-sweep invariants (no new dependency)
+6. ⏳ P3.2 single-source reaction config — do when next adding a reaction type
 
 Ideas considered and rejected are listed at the end to avoid re-proposing them.
 
@@ -19,7 +21,7 @@ Ideas considered and rejected are listed at the end to avoid re-proposing them.
 
 ## Priority 1 — Bugs / crash risks
 
-### 1.1 `trackAction`/`trackStat` crash for units added after `initialize()`
+### 1.1 `trackAction`/`trackStat` crash for units added after `initialize()` ✅ (done 2026-07-23)
 
 **File:** `core/src/Combat/CombatStatsTracker.ts` (`trackAction`, `trackStat`)
 
@@ -49,11 +51,16 @@ function getUnitStatsOrInit(state: CombatStatsTrackerState, unit: Unit): UnitCom
 
 This fixes the crash *and* makes future summon mechanics correct by default.
 
+**Implemented:** `getUnitStatsOrInit()` lazy-registers unknown units in both
+`trackAction` and `trackStat`; the `track*` functions now take the source
+`Unit` (not just its id) so the force is known at registration time. Covered
+by the "units added after initialize" tests in `CombatStatsTracker.test.ts`.
+
 ---
 
 ## Priority 2 — Test ergonomics
 
-### 2.1 Export effect builder functions for tests
+### 2.1 Export effect builder functions for tests ✅ (done 2026-07-23)
 
 **File:** `core/src/data/BaseCollection.ts`
 
@@ -75,7 +82,11 @@ effects: [haste(2000, self)]
 tests — rather than re-exporting from `BaseCollection`, which drags the whole
 card collection into test scope.
 
-### 2.2 Timing sensitivity in threshold tests
+**Implemented:** `core/src/data/effectBuilders.ts` holds all effect/reaction/
+targeting builders; `BaseCollection.ts` imports them, and new tests use them
+directly (also exported as `EffectBuilders` from `core/src/index.ts`).
+
+### 2.2 Timing sensitivity in threshold tests ✅ (done 2026-07-23)
 
 Several threshold tests depend on exact frame counts (100 frames for 2 hits of
 cooldown-500 damage, etc.). If combat timing constants change, these break.
@@ -87,11 +98,15 @@ condition is met (e.g. "until 200 damage dealt") — ~5 lines on top of the
 existing `runFrames` loop — or use the full `simulateCombat` for outcome-based
 tests. Tests should express intent, not cooldown arithmetic.
 
+**Implemented:** `runUntil` added to the harness; the frame-count-sensitive
+"does not fire twice for the same threshold level" test and the new
+column_allies / shield-absorption tests use it.
+
 ---
 
 ## Priority 3 — Design clarity
 
-### 3.1 `position: "self"` is dead code for non-global reactions
+### 3.1 `position: "self"` is dead code for non-global reactions ✅ (done 2026-07-23)
 
 `processReactions()` filters candidates with `u.id != triggeringUnit.id`
 (unless the effect is in `GLOBAL_REACTIONS`). A unit with
@@ -103,6 +118,11 @@ damage. This is intentional (prevents infinite loops). The test
 reaction uses `position: "self"` with a non-global `effectId` — this catches
 designer mistakes in `BaseCollection` at data-load time. Optionally also
 comment the `EffectSourcePosition` type.
+
+**Implemented:** `Card.validateCardDefinition()` flags self + non-global
+reactions (including `effectId: "all"`); `registerCard` logs a
+`console.warn("cardRegistry", …)` per issue at registration time. The
+`EffectSourcePosition` type is commented. Tests in `Card.test.ts`.
 
 ### 3.2 Three places to update when adding a reaction type
 
@@ -132,7 +152,7 @@ const STAT_CONFIGS     = deriveThresholdConfigs(REACTION_CONFIGS);
 
 Do this the next time a reaction type is added, not before.
 
-### 3.3 `CombatStatsTracker.trackStat` accumulates but doesn't fire
+### 3.3 `CombatStatsTracker.trackStat` accumulates but doesn't fire ✅ (done 2026-07-23)
 
 The `STAT_CONFIGS` record has `threshold` and `reactionId` fields, but
 `trackStat` only reads `unitStatKey` and `forceStatKey`. The threshold logic
@@ -141,11 +161,15 @@ intentional (avoids circular import) but non-obvious.
 
 **Action:** add a comment in `trackStat` pointing to `getCrossedThresholds`.
 
+**Implemented:** `trackStat` now documents that it only accumulates and that
+threshold detection happens in `getCrossedThresholds()` (called per-frame by
+`CombatRunner`).
+
 ---
 
 ## Priority 4 — Larger improvements
 
-### 4.1 Make `scale` application and targeting consistent across effects
+### 4.1 Make `scale` application and targeting consistent across effects ⏳ (still open)
 
 `processEffectIO` applies `scale` inconsistently: haste/slow/charge scale
 `duration`, power effects scale `amount`, `multiply_power` uses
@@ -157,14 +181,14 @@ shield, poison, and regen hit *cores* directly.
 goes through `resolveTargets`, and each effect declares how `scale` applies —
 rather than encoding the inconsistency in the dispatch switch.
 
-### 4.2 Explicit seed threading
+### 4.2 Explicit seed threading ⏳ (still open)
 
 `pickRandom()` mutates `rng.seed` in place (`core/src/math/Random.ts`), and
 effects advance `env.seed` by mutation. Passing and returning the seed
 instead would harden replay determinism (server-simulated combat is replayed
 client-side from logs) without restructuring anything.
 
-### 4.3 Combat invariants as a seed sweep
+### 4.3 Combat invariants as a seed sweep ✅ (done 2026-07-23)
 
 Invariants worth pinning:
 - "Sum of all `damage_hit.lifeDelta` + `poison_tick.lifeDelta` + `timeout_damage_hit.lifeDelta` = initial HP − final HP"
@@ -176,13 +200,30 @@ Invariants worth pinning:
 invariants. Deterministic, no new dependency, and doubles as a
 replay-determinism check.
 
+**Implemented:** `core/src/Combat/CombatInvariants.test.ts` sweeps 50 seeds
+through `simulateCombat` and asserts: per-force life accounting across all
+life-affecting log types, damage cast↔hit conservation (≤1 projectile in
+flight per damage unit at combat end), exact threshold-reaction counts
+(handling the early-exit frame of a direct-damage killing blow), and
+haste_end/slow_end presence/absence rules. Same-seed log comparison covers
+replay determinism (uuid-generated unit ids are pinned in the harness, as
+they are not part of the seeded RNG).
+
 ---
 
-## Priority 5 — Missing test coverage
+## Priority 5 — Missing test coverage ✅ (done 2026-07-23)
 
 Best ROI in this document: pin existing behavior before any refactoring.
 Most important row: `applyPersistentPowerDelta` — permanent power is a
 run-level mechanic, so a regression there silently corrupts the whole run.
+
+**Status:** all rows covered — `applyPersistentPowerDelta.test.ts` (direct
+semantics + cross-combat survival via `bonusPower`/`resetUnitStats`),
+shield-absorption tests in `EffectIntegration.test.ts`, direct
+`getCrossedThresholds` tests (incl. multi-threshold burst) in
+`CombatStatsTracker.test.ts`, `column_allies` positional threshold test in
+`ReactionIntegration.test.ts`, and `resolveTargets` `all_allies` + `ofType`
+tests in `TriggerSystem.test.ts`. The last row was already covered as noted.
 
 | Gap | File | Why |
 |---|---|---|

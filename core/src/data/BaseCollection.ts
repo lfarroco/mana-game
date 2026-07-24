@@ -1,49 +1,19 @@
 import * as Models from "../Models";
+import {
+	regen, damage, heal, shield, poison,
+	haste, slow, charge,
+	increasePower, decreasePower, increaseCritical, multiplyPower,
+	distributePower, absorbPower, reaction,
+	column, row, randomAlly, randomEnemy, trigger, self,
+	left, right, top, bottom,
+	weakestAlly, strongestEnemy, strongestAlly, weakestEnemy,
+	allAllies, allAlliesOfType,
+} from "./effectBuilders";
 
 // Refer to the Readme for instructions on how to balance units
-// When adding/updating units, run "npm run check-balance -- --filter" to check if they are balanced 
+// When adding/updating units, run "npm run check-balance -- --filter" to check if they are balanced
 
-const regen: Models.Effect = { id: "regen" };
-const damage: Models.Effect = { id: "damage" };
-const heal: Models.Effect = { id: "heal" };
-const shield: Models.Effect = { id: "shield" };
-const poison: Models.Effect = { id: "poison" };
-const haste = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "haste", duration, targets });
-const slow = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "slow", duration, targets });
-const charge = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "charge", duration, targets });
-const column: Models.Targeting = { id: "column_allies" };
-const row: Models.Targeting = { id: "row_allies" };
-const randomAlly = (count: number): Models.Targeting => ({ id: "random_ally", count });
-const randomEnemy = (count: number): Models.Targeting => ({ id: "random_enemy", count });
-const trigger: Models.Targeting = { id: "trigger" };
-const self: Models.Targeting = { id: "self" };
-const increasePower = (amount: number, targets: Models.Targeting, permanent: boolean = false): Models.Effect => ({ id: "increase_power", "amount": amount, permanent, "targets": targets });
-const decreasePower = (amount: number, targets: Models.Targeting, permanent: boolean = false): Models.Effect => ({ id: "decrease_power", amount, permanent, "targets": targets });
-const increaseCritical = (amount: number, targets: Models.Targeting): Models.Effect => ({ id: "increase_critical", amount, targets });
-const reaction = (effect: Models.EffectId | "all", position: Models.EffectSourcePosition, reactWith: Models.Effect): Models.EffectReaction => ({
-	position,
-	effectId: effect,
-	effects: [
-		reactWith
-	]
-})
-const multiplyPower = (multiplier: number, targets: Models.Targeting): Models.Effect => ({ id: "multiply_power", multiplier, baseMultiplier: multiplier, targets });
-
-const left: Models.Targeting = { id: "left_ally" };
-const right: Models.Targeting = { id: "right_ally" };
-const top: Models.Targeting = { id: "top_ally" };
-const bottom: Models.Targeting = { id: "bottom_ally" };
-const weakestAlly: Models.Targeting = { id: "weakest_ally" };
-const strongestEnemy: Models.Targeting = { id: "strongest_enemy" };
-const strongestAlly: Models.Targeting = { id: "strongest_ally" };
-const weakestEnemy: Models.Targeting = { id: "weakest_enemy" };
-const allAllies: Models.Targeting = { id: "all_allies", ofType: "any" };
-const allAlliesOfType = (ofType: "damage" | "heal" | "shield" | "poison" | "regen"): Models.Targeting => ({ id: "all_allies", ofType });
-// const allEnemies: Targeting = { id: "enemies" };
-
-const distributePower = (targets: Models.Targeting): Models.Effect => ({ id: "distribute_power", targets });
-const absorbPower = (targets: Models.Targeting): Models.Effect => ({ id: "absorb_power", targets });
-//const decreasePower = (percentage: number, targets: Targeting, permanent: boolean = false): Effect => ({ id: "decrease_power", percentage, targets, permanent });
+// Effect/reaction/targeting builders live in ./effectBuilders (shared with tests).
 
 const cards: Models.CardDefinition[] = [
 	{

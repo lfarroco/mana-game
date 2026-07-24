@@ -48,7 +48,7 @@ export const addShield = (
 			const actualShieldChange = manipulateCoreShield(env.combatState, sourceForce, shieldAmount, isCritical);
 
 			if (actualShieldChange > 0) {
-				CombatStatsTracker.trackShield(env.combatStates.combatStatsTrackerState, sourceId, actualShieldChange);
+				CombatStatsTracker.trackShield(env.combatStates.combatStatsTrackerState, sourceUnit, actualShieldChange);
 			}
 
 			if (isCritical) {

@@ -50,7 +50,7 @@ export const restoreLife = (
 
 			const actualHealing = Force.manipulateCoreLife(state, sourceForce, healAmount, isCritical);
 
-			CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, sourceId, actualHealing);
+			CombatStatsTracker.trackHeal(combatStates.combatStatsTrackerState, sourceUnit, actualHealing);
 
 			const newPoisonState = PoisonSystem.reducePoison(
 				combatStates.poisonSystemState,

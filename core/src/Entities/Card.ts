@@ -1,5 +1,28 @@
-import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData } from "../Models";
+import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData, GLOBAL_REACTIONS } from "../Models";
 import * as uuid from "uuid";
+
+/**
+ * Validate a card definition's reactions at registration time.
+ * Returns a list of design issues (empty = valid).
+ *
+ * A reaction with `position: "self"` can only fire for global reaction IDs
+ * (on_crit, every_100_damage, on_battle_start, ...): processReactions
+ * excludes the triggering unit from candidates for every other effect, so
+ * e.g. `{ position: "self", effectId: "damage" }` would never react to the
+ * unit's own damage. This catches designer mistakes at data-load time.
+ */
+export const validateCardDefinition = (card: CardDefinition): string[] => {
+	const issues: string[] = [];
+	for (const r of card.reactions ?? []) {
+		if (r.position === "self" && !GLOBAL_REACTIONS.includes(r.effectId)) {
+			issues.push(
+				`Card "${card.id}": reaction with position "self" and effectId "${r.effectId}" can never fire ` +
+				`(the triggering unit is excluded from reaction candidates unless the effect is a global reaction).`
+			);
+		}
+	}
+	return issues;
+};
 
 // FIXME: the card registry global singleton could be simplified —
 // the registerCollection step is only used at startup and could be
@@ -36,6 +59,7 @@ export const createCardRegistry = (): CardRegistry => {
 	const collections = new Map<string, CardCollection>();
 
 	const registerCard = (card: CardDefinition): void => {
+		validateCardDefinition(card).forEach((issue) => console.warn("cardRegistry", issue));
 		cards.set(card.id, card);
 	};
 

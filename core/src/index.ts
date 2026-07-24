@@ -96,6 +96,7 @@ export * as OrbDefinitions from "./Orbs/OrbDefinitions";
 // Data
 // ---------------------------------------------------------------------------
 export * as BaseCollection from "./data/BaseCollection";
+export * as EffectBuilders from "./data/effectBuilders";
 
 // ---------------------------------------------------------------------------
 // Event

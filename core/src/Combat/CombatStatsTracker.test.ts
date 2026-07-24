@@ -88,7 +88,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, "u1", 50);
+			CombatStatsTracker.trackDamage(tracker, u, 50);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(50);
 		});
 
@@ -96,8 +96,8 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, "u1", 0);
-			CombatStatsTracker.trackDamage(tracker, "u1", -10);
+			CombatStatsTracker.trackDamage(tracker, u, 0);
+			CombatStatsTracker.trackDamage(tracker, u, -10);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(0);
 		});
 
@@ -105,7 +105,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackHeal(tracker, "u1", 30);
+			CombatStatsTracker.trackHeal(tracker, u, 30);
 			expect(tracker.unitStats.get("u1")!.healingDone).toBe(30);
 		});
 
@@ -113,7 +113,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackPoison(tracker, "u1", 15);
+			CombatStatsTracker.trackPoison(tracker, u, 15);
 			expect(tracker.unitStats.get("u1")!.poisonApplied).toBe(15);
 		});
 
@@ -121,7 +121,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackRegen(tracker, "u1", 8);
+			CombatStatsTracker.trackRegen(tracker, u, 8);
 			expect(tracker.unitStats.get("u1")!.regenApplied).toBe(8);
 		});
 
@@ -129,7 +129,7 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackShield(tracker, "u1", 20);
+			CombatStatsTracker.trackShield(tracker, u, 20);
 			expect(tracker.unitStats.get("u1")!.shieldGranted).toBe(20);
 		});
 
@@ -137,10 +137,10 @@ describe("CombatStatsTracker", () => {
 			const u = makeUnit("u1", "PLAYER");
 			const state = makeCombatState([u]);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, "u1", 10);
-			CombatStatsTracker.trackDamage(tracker, "u1", 20);
-			CombatStatsTracker.trackHeal(tracker, "u1", 5);
-			CombatStatsTracker.trackHeal(tracker, "u1", 15);
+			CombatStatsTracker.trackDamage(tracker, u, 10);
+			CombatStatsTracker.trackDamage(tracker, u, 20);
+			CombatStatsTracker.trackHeal(tracker, u, 5);
+			CombatStatsTracker.trackHeal(tracker, u, 15);
 			expect(tracker.unitStats.get("u1")!.damageDealt).toBe(30);
 			expect(tracker.unitStats.get("u1")!.healingDone).toBe(20);
 		});
@@ -152,7 +152,7 @@ describe("CombatStatsTracker", () => {
 			const units = [pc];
 			const state = makeCombatState(units);
 			const tracker = CombatStatsTracker.initialize(state);
-			CombatStatsTracker.trackDamage(tracker, "p", 30);
+			CombatStatsTracker.trackDamage(tracker, pc, 30);
 
 			const session: Models.SessionData = {
 				id: "s1",
@@ -201,6 +201,131 @@ describe("CombatStatsTracker", () => {
 			expect(session.runStats!.shieldDealt).toBe(0);
 			expect(session.runStats!.regenDealt).toBe(0);
 			expect(session.runStats!.healDealt).toBe(0);
+		});
+	});
+
+	describe("units added after initialize (e.g. future summons)", () => {
+		it("trackAction lazily registers unknown units instead of crashing", () => {
+			const existing = makeUnit("u1", "PLAYER");
+			const state = makeCombatState([existing]);
+			const tracker = CombatStatsTracker.initialize(state);
+
+			const summoned = makeUnit("summoned-1", "PLAYER");
+			expect(() =>
+				CombatStatsTracker.trackAction(tracker, { unit: summoned })
+			).not.toThrow();
+
+			expect(tracker.unitStats.get("summoned-1")!.actionsPerformed).toBe(1);
+			expect(tracker.unitStats.get("summoned-1")!.forceId).toBe("PLAYER");
+		});
+
+		it("trackDamage lazily registers unknown units and credits their force stats", () => {
+			const existing = makeUnit("u1", "PLAYER");
+			const state = makeCombatState([existing]);
+			const tracker = CombatStatsTracker.initialize(state);
+
+			const summoned = makeUnit("summoned-1", "CPU");
+			expect(() =>
+				CombatStatsTracker.trackDamage(tracker, summoned, 250)
+			).not.toThrow();
+
+			// Unit stats recorded…
+			expect(tracker.unitStats.get("summoned-1")!.damageDealt).toBe(250);
+			// …and force stats too, so threshold reactions keep working for them.
+			const thresholds = CombatStatsTracker.initializeThresholds();
+			const crossed = CombatStatsTracker.getCrossedThresholds(tracker, thresholds);
+			expect(crossed).toEqual([
+				{ forceId: "CPU", reactionId: "every_100_damage" },
+				{ forceId: "CPU", reactionId: "every_100_damage" },
+			]);
+		});
+	});
+
+	describe("getCrossedThresholds", () => {
+		it("returns nothing while stats are below threshold", () => {
+			const u = makeUnit("u1", "PLAYER");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+			CombatStatsTracker.trackDamage(tracker, u, 99);
+
+			const thresholds = CombatStatsTracker.initializeThresholds();
+			expect(CombatStatsTracker.getCrossedThresholds(tracker, thresholds)).toEqual([]);
+		});
+
+		it("fires once when a single threshold is crossed", () => {
+			const u = makeUnit("u1", "PLAYER");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+			CombatStatsTracker.trackDamage(tracker, u, 150);
+
+			const thresholds = CombatStatsTracker.initializeThresholds();
+			expect(CombatStatsTracker.getCrossedThresholds(tracker, thresholds)).toEqual([
+				{ forceId: "PLAYER", reactionId: "every_100_damage" },
+			]);
+		});
+
+		it("fires multiple times for a multi-threshold burst (500 damage in one hit)", () => {
+			const u = makeUnit("u1", "PLAYER");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+			CombatStatsTracker.trackDamage(tracker, u, 500);
+
+			const thresholds = CombatStatsTracker.initializeThresholds();
+			const crossed = CombatStatsTracker.getCrossedThresholds(tracker, thresholds);
+			expect(crossed).toHaveLength(5);
+			expect(crossed.every((c) => c.reactionId === "every_100_damage")).toBe(true);
+		});
+
+		it("does not fire twice for the same threshold level across calls", () => {
+			const u = makeUnit("u1", "PLAYER");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+			const thresholds = CombatStatsTracker.initializeThresholds();
+
+			CombatStatsTracker.trackDamage(tracker, u, 500);
+			expect(CombatStatsTracker.getCrossedThresholds(tracker, thresholds)).toHaveLength(5);
+			// Same accumulated stat, no new damage → nothing new crossed.
+			expect(CombatStatsTracker.getCrossedThresholds(tracker, thresholds)).toEqual([]);
+
+			// Next hit crosses the 600 mark exactly once.
+			CombatStatsTracker.trackDamage(tracker, u, 150);
+			expect(CombatStatsTracker.getCrossedThresholds(tracker, thresholds)).toEqual([
+				{ forceId: "PLAYER", reactionId: "every_100_damage" },
+			]);
+		});
+
+		it("tracks thresholds independently per force", () => {
+			const p = makeUnit("p1", "PLAYER");
+			const c = makeUnit("c1", "CPU");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([p, c]));
+			const thresholds = CombatStatsTracker.initializeThresholds();
+
+			CombatStatsTracker.trackDamage(tracker, p, 100);
+			CombatStatsTracker.trackDamage(tracker, c, 250);
+
+			const crossed = CombatStatsTracker.getCrossedThresholds(tracker, thresholds);
+			expect(crossed).toEqual([
+				{ forceId: "PLAYER", reactionId: "every_100_damage" },
+				{ forceId: "CPU", reactionId: "every_100_damage" },
+				{ forceId: "CPU", reactionId: "every_100_damage" },
+			]);
+		});
+
+		it("tracks each stat type with its own threshold and reactionId", () => {
+			const u = makeUnit("u1", "PLAYER");
+			const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+			const thresholds = CombatStatsTracker.initializeThresholds();
+
+			CombatStatsTracker.trackDamage(tracker, u, 100);
+			CombatStatsTracker.trackPoison(tracker, u, 10);
+			CombatStatsTracker.trackHeal(tracker, u, 100);
+			CombatStatsTracker.trackRegen(tracker, u, 10);
+			CombatStatsTracker.trackShield(tracker, u, 100);
+
+			const crossed = CombatStatsTracker.getCrossedThresholds(tracker, thresholds);
+			expect(crossed).toEqual([
+				{ forceId: "PLAYER", reactionId: "every_100_damage" },
+				{ forceId: "PLAYER", reactionId: "every_10_poison" },
+				{ forceId: "PLAYER", reactionId: "every_100_heal" },
+				{ forceId: "PLAYER", reactionId: "every_10_regen" },
+				{ forceId: "PLAYER", reactionId: "every_100_shield" },
+			]);
 		});
 	});
 });

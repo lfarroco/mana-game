@@ -10,6 +10,7 @@ import {
   makeTestUnit,
   setupCombat,
   runFrames,
+  runUntil,
   filterLogs,
 } from "../__test_utils__/combatHarness";
 import * as Constants from "../Constants";
@@ -58,6 +59,54 @@ describe("Effect integration — damage", () => {
     const hitLogs = logs.filter((l) => l.type === "damage_hit");
     const totalDamage = hitLogs.reduce((sum, h) => sum + h.amount, 0);
     expect(totalDamage).toBeGreaterThanOrEqual(200);
+  });
+
+  it("is fully absorbed by shield: shieldDelta < 0 and lifeDelta = 0", () => {
+    const unit = makeTestUnit({
+      effects: [{ id: "damage" }],
+      power: 25,
+      cooldown: 500,
+    });
+    unit.id = "shielded-damage-unit";
+    const { combatState, combatRunner } = setupCombat([unit]);
+    combatState.cpuCore.shield = 100;
+
+    const logs = runUntil(
+      combatRunner,
+      combatState,
+      (logs) => filterLogs(logs, "damage_hit").length >= 1,
+    );
+
+    const hit = filterLogs(logs, "damage_hit")[0];
+    expect(hit.amount).toBe(25);
+    expect(hit.shieldDelta).toBe(-25);
+    expect(hit.lifeDelta).toBe(0);
+    expect(hit.newShield).toBe(75);
+    expect(hit.newLife).toBe(combatState.cpuCore.maxLife);
+  });
+
+  it("overflow damage spills into life after depleting shield", () => {
+    const unit = makeTestUnit({
+      effects: [{ id: "damage" }],
+      power: 25,
+      cooldown: 500,
+    });
+    unit.id = "shield-overflow-unit";
+    const { combatState, combatRunner } = setupCombat([unit]);
+    combatState.cpuCore.shield = 10;
+    const cpuLife = combatState.cpuCore.life;
+
+    const logs = runUntil(
+      combatRunner,
+      combatState,
+      (logs) => filterLogs(logs, "damage_hit").length >= 1,
+    );
+
+    const hit = filterLogs(logs, "damage_hit")[0];
+    expect(hit.shieldDelta).toBe(-10);
+    expect(hit.lifeDelta).toBe(-15);
+    expect(hit.newShield).toBe(0);
+    expect(hit.newLife).toBe(cpuLife - 15);
   });
 });
 

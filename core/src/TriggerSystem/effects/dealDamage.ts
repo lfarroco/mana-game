@@ -47,8 +47,9 @@ export function dealDamage(
 			const { combatState: state, logger } = env;
 
 			const source = state.units.find(u => u.id === sourceId);
+			if (!source) return;
 
-			const enemyCore = Card.getEnemyCore(state)(source!.force);
+			const enemyCore = Card.getEnemyCore(state)(source.force);
 			const oldLife = enemyCore?.life ?? 0;
 			const oldShield = enemyCore?.shield ?? 0;
 
@@ -63,7 +64,7 @@ export function dealDamage(
 
 			CombatStatsTracker.trackDamage(
 				env.combatStates.combatStatsTrackerState,
-				sourceId,
+				source,
 				actualLifeChanged,
 			);
 

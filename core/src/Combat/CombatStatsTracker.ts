@@ -41,29 +41,46 @@ function getForceStats(trackerState: CombatStatsTrackerState, forceId: string): 
 	return trackerState.currentCombatStats.get(forceId)!;
 }
 
+function makeUnitStats(unit: Unit): UnitCombatStats {
+	return {
+		unitId: unit.id,
+		//unitName: getName(unit.cardId),
+		forceId: unit.force,
+		damageDealt: 0,
+		poisonApplied: 0,
+		healingDone: 0,
+		regenApplied: 0,
+		shieldGranted: 0,
+		actionsPerformed: 0,
+	};
+}
+
+/**
+ * Returns the stats record for a unit, lazily registering it on first sight.
+ * Units added mid-combat (e.g. future summon effects) are not present after
+ * initialize() — registering them here keeps tracking crash-free and makes
+ * their contributions count toward force stats (and threshold reactions).
+ */
+function getUnitStatsOrInit(trackerState: CombatStatsTrackerState, unit: Unit): UnitCombatStats {
+	if (!trackerState.unitStats.has(unit.id)) {
+		trackerState.unitStats.set(unit.id, makeUnitStats(unit));
+	}
+	return trackerState.unitStats.get(unit.id)!;
+}
+
 export function initialize(combatState: CombatState): CombatStatsTrackerState {
 	const unitStats = new Map<string, UnitCombatStats>();
 	const currentCombatStats = new Map<string, CurrentCombatStats>();
 
 	for (const unit of combatState.units) {
-		unitStats.set(unit.id, {
-			unitId: unit.id,
-			//unitName: getName(unit.cardId),
-			forceId: unit.force,
-			damageDealt: 0,
-			poisonApplied: 0,
-			healingDone: 0,
-			regenApplied: 0,
-			shieldGranted: 0,
-			actionsPerformed: 0,
-		});
+		unitStats.set(unit.id, makeUnitStats(unit));
 	}
 
 	return { unitStats, currentCombatStats };
 }
 
 export function trackAction(trackerState: CombatStatsTrackerState, payload: { unit: Unit }): void {
-	const stats = trackerState.unitStats.get(payload.unit.id)!;
+	const stats = getUnitStatsOrInit(trackerState, payload.unit);
 
 	stats.actionsPerformed += 1;
 }
@@ -156,16 +173,25 @@ export function getCrossedThresholds(
   return results;
 }
 
+/**
+ * Accumulates a stat for the source unit and its force.
+ *
+ * NOTE: this function only accumulates — it never fires threshold reactions.
+ * Threshold crossings (every_100_damage, every_10_poison, ...) are detected by
+ * getCrossedThresholds(), which CombatRunner calls once per frame after all
+ * stats for the frame have been tracked. The split exists so the tracker has
+ * no dependency on the reaction/trigger pipeline.
+ */
 function trackStat(
 	trackerState: CombatStatsTrackerState,
 	amount: number,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	configKey: keyof typeof STAT_CONFIGS
 ) {
 	if (amount <= 0) return;
 
 	const config = STAT_CONFIGS[configKey];
-	const stats = trackerState.unitStats.get(sourceUnitId)!;
+	const stats = getUnitStatsOrInit(trackerState, sourceUnit);
 
 	(stats[config.unitStatKey] as number) += amount;
 
@@ -176,42 +202,42 @@ function trackStat(
 
 export function trackDamage(
 	trackerState: CombatStatsTrackerState,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	damage: number
 ): void {
-	trackStat(trackerState, damage, sourceUnitId, "damage");
+	trackStat(trackerState, damage, sourceUnit, "damage");
 }
 
 export function trackPoison(
 	trackerState: CombatStatsTrackerState,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	poison: number
 ): void {
-	trackStat(trackerState, poison, sourceUnitId, "poison");
+	trackStat(trackerState, poison, sourceUnit, "poison");
 }
 
 export function trackHeal(
 	trackerState: CombatStatsTrackerState,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	healing: number
 ): void {
-	trackStat(trackerState, healing, sourceUnitId, "heal");
+	trackStat(trackerState, healing, sourceUnit, "heal");
 }
 
 export function trackRegen(
 	trackerState: CombatStatsTrackerState,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	regen: number
 ): void {
-	trackStat(trackerState, regen, sourceUnitId, "regen");
+	trackStat(trackerState, regen, sourceUnit, "regen");
 }
 
 export function trackShield(
 	trackerState: CombatStatsTrackerState,
-	sourceUnitId: string,
+	sourceUnit: Unit,
 	shield: number
 ): void {
-	trackStat(trackerState, shield, sourceUnitId, "shield");
+	trackStat(trackerState, shield, sourceUnit, "shield");
 }
 
 export function getUnitStats(

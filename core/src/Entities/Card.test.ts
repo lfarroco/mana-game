@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { jest } from "@jest/globals";
 import * as Card from "./Card";
 import * as Models from "../Models";
 
@@ -144,6 +145,88 @@ describe("Card", () => {
 			const unit = Card.createUnitFromCardSpec("PLAYER", cardDef, [0, 0], "id");
 			expect(unit.effects).toEqual([{ id: "damage" }]);
 			expect(unit.effects).not.toBe(cardDef.effects);
+		});
+	});
+
+	describe("validateCardDefinition", () => {
+		const makeCard = (reactions: Models.EffectReaction[]): Models.CardDefinition => ({
+			id: "reaction-card",
+			pic: "x",
+			cooldown: 1000,
+			effects: [],
+			reactions,
+		});
+
+		it("flags position 'self' with a non-global effectId (can never fire)", () => {
+			const card = makeCard([
+				{ position: "self", effectId: "damage", effects: [{ id: "heal" }] },
+			]);
+			const issues = Card.validateCardDefinition(card);
+			expect(issues).toHaveLength(1);
+			expect(issues[0]).toContain("reaction-card");
+			expect(issues[0]).toContain("damage");
+		});
+
+		it("flags position 'self' with effectId 'all' (basic abilities are non-global)", () => {
+			const card = makeCard([
+				{ position: "self", effectId: "all", effects: [{ id: "heal" }] },
+			]);
+			expect(Card.validateCardDefinition(card)).toHaveLength(1);
+		});
+
+		it("accepts position 'self' with global reaction ids", () => {
+			const card = makeCard([
+				{ position: "self", effectId: "on_crit", effects: [{ id: "heal" }] },
+				{ position: "self", effectId: "on_battle_start", effects: [{ id: "heal" }] },
+				{ position: "self", effectId: "every_100_damage", effects: [{ id: "heal" }] },
+			]);
+			expect(Card.validateCardDefinition(card)).toEqual([]);
+		});
+
+		it("accepts non-self positions with non-global effectIds", () => {
+			const card = makeCard([
+				{ position: "allies", effectId: "damage", effects: [{ id: "heal" }] },
+				{ position: "enemies", effectId: "shield", effects: [{ id: "heal" }] },
+			]);
+			expect(Card.validateCardDefinition(card)).toEqual([]);
+		});
+
+		it("registerCollection warns for self + non-global reactions but still registers", () => {
+			const warn = jest.spyOn(console, "warn").mockImplementation(() => { });
+			try {
+				const reg = Card.createCardRegistry();
+				reg.registerCollection({
+					id: "warn-set",
+					name: "Warn Set",
+					cards: [makeCard([
+						{ position: "self", effectId: "damage", effects: [{ id: "heal" }] },
+					])],
+				});
+				expect(warn).toHaveBeenCalledWith(
+					"cardRegistry",
+					expect.stringContaining("reaction-card"),
+				);
+				expect(reg.hasCardDefinition("reaction-card")).toBe(true);
+			} finally {
+				warn.mockRestore();
+			}
+		});
+
+		it("registerCollection stays silent for valid reactions", () => {
+			const warn = jest.spyOn(console, "warn").mockImplementation(() => { });
+			try {
+				const reg = Card.createCardRegistry();
+				reg.registerCollection({
+					id: "ok-set",
+					name: "OK Set",
+					cards: [makeCard([
+						{ position: "allies", effectId: "damage", effects: [{ id: "heal" }] },
+					])],
+				});
+				expect(warn).not.toHaveBeenCalled();
+			} finally {
+				warn.mockRestore();
+			}
 		});
 	});
 });

@@ -1,4 +1,4 @@
-import { CombatEnvironment, CombatState, SessionData, Unit, DeferredEvent } from "../Models";
+import { CombatEnvironment, CombatState, SessionData, Unit, DeferredEvent, Effect } from "../Models";
 import * as TriggerSystem from "../TriggerSystem/TriggerSystem";
 import * as Constants from "../Constants";
 import * as Timeout from "./TimeoutDamageSystem";
@@ -154,7 +154,9 @@ export const runCombat = (
 		for (const { forceId, reactionId } of crossed) {
 			const triggerer = nextState.units.find((u) => u.force === forceId);
 			if (triggerer) {
-				TriggerSystem.processReactions(env, triggerer, { id: reactionId }, 1);
+				// reactionId is always one of the threshold/global Effect ids (see
+				// STAT_CONFIGS in CombatStatsTracker) — the cast narrows EffectId to Effect.
+				TriggerSystem.processReactions(env, triggerer, { id: reactionId } as Effect, 1);
 			}
 		}
 

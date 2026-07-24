@@ -55,7 +55,7 @@ export const applyRegen = (
 			);
 			combatStates.regenSystemState = newRegenState;
 
-			CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, sourceId, amount);
+			CombatStatsTracker.trackRegen(combatStates.combatStatsTrackerState, sourceUnit, amount);
 
 			if (isCritical) {
 				processReactions(env, sourceUnit, { id: "on_crit" }, 1);

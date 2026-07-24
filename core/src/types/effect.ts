@@ -8,6 +8,17 @@
 
 import type { Targeting } from "./targeting";
 
+/**
+ * Where the triggering unit must be relative to the reacting unit for a
+ * reaction to fire (see processReactions in TriggerSystem).
+ *
+ * Note on "self": processReactions excludes the triggering unit from
+ * candidates for all non-global effects (prevents infinite loops), so
+ * `position: "self"` can only ever fire for global reaction IDs
+ * (Models.GLOBAL_REACTIONS — on_crit, every_100_damage, on_battle_start, ...).
+ * Card registration warns about self + non-global combinations
+ * (see validateCardDefinition in Entities/Card).
+ */
 export type EffectSourcePosition =
 	| "all"
 	| "allies"
