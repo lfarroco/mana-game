@@ -111,7 +111,6 @@ _Date: July 23, 2026 — Updated after incremental improvements_
 ```bash
 npm run typecheck   # ✅ zero errors (both core and phaser)
 npm run test        # ✅ 302 tests pass (22 suites, all green)
-npm run smoke       # ✅ purity + determinism verified
 npm run lint        # ✅ zero warnings / zero errors (phaser)
 ```
 

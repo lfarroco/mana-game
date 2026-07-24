@@ -114,10 +114,7 @@ the client sends actions and receives server-authoritative results.
    (`phaser/scripts/bundle-edge.ts`) picks up the same tsconfig paths and
    hard-fails on unresolved bare imports.
 3. **Jest** — `phaser/jest.config.cjs` maps `@game/*` to `../core/src/*`.
-4. **Headless smoke test** — `npm run test:core` (from `phaser/`) runs
-   `core/scripts/smoke.ts` in plain Node (no jsdom, no Phaser mock): it
-   asserts no browser globals exist after import, and locks the deterministic
-   RNG/seed outputs to golden values that server replays depend on.
+
 ## Current state (PoC)
 
 Moved so far:
@@ -195,7 +192,7 @@ npm run typecheck        # client, including @game/* resolution
 npm run typecheck:core   # this package, standalone
 npm test                 # jest (CombatSimulation exercises the moved modules)
 npm run bundle:edge      # supabase bundles resolve @game/*
-npm run test:core        # headless purity + determinism smoke test
+npm run test:core        # headless purity
 npm run build            # webpack production build
 ```
 

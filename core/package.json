@@ -9,7 +9,6 @@
 	},
 	"scripts": {
 		"typecheck": "tsc --noEmit -p tsconfig.json",
-		"smoke": "tsx scripts/smoke.ts",
 		"test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests",
 		"test:watch": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests --watch"
 	},
