@@ -8,6 +8,7 @@ import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
 import { NavigationEvent } from "../../Events";
+import { loadGame } from "../../Storage/loadGame";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
@@ -33,7 +34,10 @@ export function init() {
 
 	disposers = [
 		events.newGameButtonClicked.listen(() => NavigationEvent.toCrystals.emit(undefined)),
-		events.resumeGameButtonClicked.listen(() => NavigationEvent.toBattleground.emit(undefined)),
+		events.resumeGameButtonClicked.listen(() => {
+			loadGame();
+			NavigationEvent.toBattleground.emit(undefined);
+		}),
 	];
 }
 

@@ -164,6 +164,7 @@ export const create = async () => {
 export function destroy(): void {
 	disposers.forEach((d) => d());
 	disposers = [];
+	phaseCleanupFns.length = 0;
 	previousSessionHudSnapshot = null;
 }
 
