@@ -27,10 +27,15 @@ type PlaybackState = {
 	active: boolean;
 	currentTime: number;
 	animations: ScheduledAnimation[];
+	nextAnimationIndex: number;
+	executedCount: number;
+	maxEndTime: number;
 	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates;
 	blackHoleState?: BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
+	/** Frame-based throttle: only update charge bars every ~4 frames (~15fps) */
+	chargeBarFrameCounter: number;
 };
 
 const DEFAULT_ANIMATION_DURATION = 400;
@@ -38,10 +43,32 @@ const DEFAULT_ANIMATION_DURATION = 400;
 // Must match CoreConstants.MIN_COOLDOWN — used to replicate the server-side refresh lockout during playback
 const MIN_COOLDOWN = CoreConstants.MIN_COOLDOWN;
 
+// Throttle charge bar updates to every Nth frame (~60/N fps) to reduce visual overhead
+const CHARGE_BAR_UPDATE_EVERY_N_FRAMES = 4;
+
+// Pre-create the arcane missile particle texture once at module level
+// (was being checked/created on every arcaneMissileTargeted call)
+const ARCANE_RECT_KEY = "arcane_missile_rect_big";
+let texturePrecreated = false;
+function ensureArcaneMissileTexture(): void {
+	if (texturePrecreated) return;
+	const scene = env.scene;
+	if (!scene.textures.exists(ARCANE_RECT_KEY)) {
+		const g = scene.make.graphics({ x: 0, y: 0 });
+		g.fillStyle(0xffffff, 1);
+		g.fillRect(0, 0, 12, 12);
+		g.generateTexture(ARCANE_RECT_KEY, 12, 12);
+		g.destroy();
+	}
+	texturePrecreated = true;
+}
+
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 	onReplayEnd?: (outcome: WaveOutcome) => void
 ): CombatRunner.CombatRunner => {
+
+	ensureArcaneMissileTexture();
 
 	logHandlers.setCombatState(env.state.combatState!);
 
@@ -59,17 +86,23 @@ export const createCombatPlaybackController = (
 		active: true,
 		currentTime: 0,
 		animations: [],
+		nextAnimationIndex: 0,
+		executedCount: 0,
+		maxEndTime: 0,
 		outcome: null,
 		combatStates,
 		blackHoleState,
 		countdownTimerState,
+		chargeBarFrameCounter: 0,
 	};
 
 	const scheduleAnimations = () => {
+		let maxEnd = 0;
 		logs.forEach((log) => {
 			const startTime = log.timeMs;
 			const duration = DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;
+			if (endTime > maxEnd) maxEnd = endTime;
 
 			playbackState.animations.push({
 				log,
@@ -84,9 +117,10 @@ export const createCombatPlaybackController = (
 		});
 
 		playbackState.animations.sort((a, b) => a.startTime - b.startTime);
+		playbackState.maxEndTime = maxEnd;
 	};
 
-	const executeAnimation = async (animation: ScheduledAnimation) => {
+	const executeAnimation = (animation: ScheduledAnimation) => {
 		if (!playbackState.active) return;
 
 		const { log } = animation;
@@ -106,6 +140,7 @@ export const createCombatPlaybackController = (
 		}
 
 		animation.executed = true;
+		playbackState.executedCount++;
 	};
 
 	const updateChargeBars = (delta: number) => {
@@ -126,7 +161,15 @@ export const createCombatPlaybackController = (
 			}
 
 			unit.refresh = Math.max(0, unit.refresh - delta);
-			ChargeBarDisplay.updateChargeBar(unit.id);
+		}
+
+		// Only update visual charge bars on throttled frames to reduce overhead
+		playbackState.chargeBarFrameCounter++;
+		if (playbackState.chargeBarFrameCounter >= CHARGE_BAR_UPDATE_EVERY_N_FRAMES) {
+			playbackState.chargeBarFrameCounter = 0;
+			for (const unit of units) {
+				ChargeBarDisplay.updateChargeBar(unit.id);
+			}
 		}
 
 	};
@@ -145,20 +188,27 @@ export const createCombatPlaybackController = (
 
 		updateChargeBars(scaledDelta);
 
-		const animationsToExecute = playbackState.animations.filter(
-			(anim) => !anim.executed && anim.startTime <= playbackState.currentTime
-		);
+		// Use sorted pointer instead of O(n) filter every frame.
+		// Animations are sorted by startTime, so we just advance the index
+		// while the next one's startTime has been reached.
+		const { animations, currentTime } = playbackState;
+		while (
+			playbackState.nextAnimationIndex < animations.length &&
+			animations[playbackState.nextAnimationIndex].startTime <= currentTime
+		) {
+			const anim = animations[playbackState.nextAnimationIndex];
+			if (!anim.executed) {
+				executeAnimation(anim);
+			}
+			playbackState.nextAnimationIndex++;
+		}
 
-		animationsToExecute.forEach((anim) => {
-			executeAnimation(anim);
-		});
-
-		const allAnimationsComplete = playbackState.animations.every((anim) => anim.executed);
-		const lastAnimationEnded =
-			playbackState.animations.length > 0 &&
-			playbackState.currentTime >= Math.max(...playbackState.animations.map((a) => a.endTime));
-
-		if (allAnimationsComplete && lastAnimationEnded && playbackState.outcome) {
+		// O(1) completion check: counter instead of .every(), cached maxEndTime instead of Math.max(...map())
+		if (
+			playbackState.executedCount >= animations.length &&
+			currentTime >= playbackState.maxEndTime &&
+			playbackState.outcome
+		) {
 			finishCombat(playbackState.outcome);
 		}
 

@@ -74,15 +74,6 @@ export async function arcaneMissileTargeted(
 	beam.setVisible(false);
 
 	const rectKey = "arcane_missile_rect_big";
-	const rectWidth = 12;
-	const rectHeight = 12;
-	if (!scene.textures.exists(rectKey)) {
-		const g = scene.make.graphics({ x: 0, y: 0 });
-		g.fillStyle(0xffffff, 1);
-		g.fillRect(0, 0, rectWidth, rectHeight);
-		g.generateTexture(rectKey, rectWidth, rectHeight);
-		g.destroy();
-	}
 
 	const points = beam.points;
 	beam.destroy();
