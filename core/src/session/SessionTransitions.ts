@@ -395,20 +395,22 @@ export function transitionToNextState(
 
 function executeCombatPhase(
 	session: Models.SessionData,
+	enemyTeam?: Models.Unit[],
 ): Models.SessionData {
 
 	console.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
 
-	// FIXME: enemy generation currently only supports single-player.
-	// Multiplayer sessions need to fetch the opponent's team from the server.
-	const enemyTeam =
+	// Single-player: generate enemy team from seed.
+	// Multiplayer: pass the opponent's team via the enemyTeam parameter.
+	const team =
+		enemyTeam ??
 		EnemyGeneration.generateEnemyTeamForRound(
 			session.round,
 			session.wins,
 			session.seed,
 		);
 
-	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, enemyTeam);
+	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, team);
 
 	const finalCombatState = CombatSimulation.simulateCombat(
 		session,

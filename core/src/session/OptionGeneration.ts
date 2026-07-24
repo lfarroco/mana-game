@@ -9,24 +9,47 @@ import * as Models from "../Models";
 import * as Card from "../Entities/Card";
 import { CardDefinition } from "../Models";
 import * as Random from "../math/Random";
+import type { EncounterId } from "../types/action";
 
-const ENCOUNTER_IDS = [
-	"upgrade_unit",
-	"armory",
-	"healing_tent",
-	"frontier_fort",
-	"forest_pools",
-	"toxic_chamber",
-	"trial_circuit",
-	"trappers_guild",
-	"thunder_spire",
-	"commanders_tent",
-	"assassins_hideout",
-	"power_distributor",
-	"power_absorber",
-	"silver_shop",
-	"gold_shop",
+type EncounterFilterType =
+	| "damage"
+	| "heal"
+	| "shield"
+	| "regen"
+	| "poison"
+	| "haste"
+	| "slow"
+	| "charge"
+	| "increase_power"
+	| "increase_critical"
+	| "silver"
+	| "gold";
+
+/** Describes a known encounter with its filter type for shop generation. */
+type EncounterDefinition = {
+	id: EncounterId;
+	filterType: EncounterFilterType | null;
+};
+
+const ENCOUNTERS: EncounterDefinition[] = [
+	{ id: "upgrade_unit", filterType: null },
+	{ id: "armory", filterType: "damage" },
+	{ id: "healing_tent", filterType: "heal" },
+	{ id: "frontier_fort", filterType: "shield" },
+	{ id: "forest_pools", filterType: "regen" },
+	{ id: "toxic_chamber", filterType: "poison" },
+	{ id: "trial_circuit", filterType: "haste" },
+	{ id: "trappers_guild", filterType: "slow" },
+	{ id: "thunder_spire", filterType: "charge" },
+	{ id: "commanders_tent", filterType: "increase_power" },
+	{ id: "assassins_hideout", filterType: "increase_critical" },
+	{ id: "power_distributor", filterType: null },
+	{ id: "power_absorber", filterType: null },
+	{ id: "silver_shop", filterType: "silver" },
+	{ id: "gold_shop", filterType: "gold" },
 ];
+
+const ENCOUNTER_IDS: EncounterId[] = ENCOUNTERS.map((e) => e.id);
 
 export function createEncounterOptions(
 	session: Models.SessionData,
@@ -56,44 +79,14 @@ export function createEncounterOptions(
 	return selectedOptions.map((id) => ({ id }));
 }
 
-type EncounterFilterType =
-	| "damage"
-	| "heal"
-	| "shield"
-	| "regen"
-	| "poison"
-	| "haste"
-	| "slow"
-	| "charge"
-	| "increase_power"
-	| "increase_critical"
-	| "silver"
-	| "gold";
-
 /**
- * Map encounter ID to the effect type it should filter shop options by.
+ * Look up the filter type for a given encounter id.
  */
 function getEncounterFilterType(encounterId: string | null): EncounterFilterType | "" {
 	if (!encounterId) return "";
 
-	// FIXME: encounter types should carry their filter type as a first-class field
-	// (e.g., encounter.filterType = "damage") instead of relying on this mapping table.
-	const filterMap: Record<string, EncounterFilterType> = {
-		armory: "damage",
-		healing_tent: "heal",
-		frontier_fort: "shield",
-		forest_pools: "regen",
-		toxic_chamber: "poison",
-		trial_circuit: "haste",
-		trappers_guild: "slow",
-		thunder_spire: "charge",
-		commanders_tent: "increase_power",
-		assassins_hideout: "increase_critical",
-		silver_shop: "silver",
-		gold_shop: "gold",
-	};
-
-	return filterMap[encounterId] || "";
+	const def = ENCOUNTERS.find((e) => e.id === encounterId);
+	return def?.filterType ?? "";
 }
 
 function getCardRank(card: CardDefinition): number {

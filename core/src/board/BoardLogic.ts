@@ -2,8 +2,10 @@ import { Unit } from "../Models";
 import * as geom from "../math/Geometry";
 import { Option, none, some } from "../Functional";
 
-// TODO: maybe we could have a data structure in the state with the slots
-// indexed, making it easier to pick empty ones
+/**
+ * Find an empty board slot for a given force by scanning row-major.
+ * Uses a Set of occupied positions for O(1) membership lookup.
+ */
 export function getEmptySlot(
 	units: Unit[],
 	forceId: string,
@@ -16,13 +18,15 @@ export function getEmptySlot(
 		return none;
 	}
 
+	const occupied = new Set(
+		units
+			.filter((u) => u.force === forceId)
+			.map((u) => `${u.position[0]},${u.position[1]}`),
+	);
+
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
-			const occupied = units
-				.filter(u => u.force === forceId)
-				.find(u => geom.eqVec2(u.position, [x, y]));
-
-			if (!occupied) {
+			if (!occupied.has(`${x},${y}`)) {
 				return some([x, y]);
 			}
 		}
@@ -61,13 +65,11 @@ export function checkMove(
 	return { valid: true, occupant };
 }
 
-// TODO: we can think about supporting other shapes in the future, and
-// even declare slots not unlocked yet
-// eg. [ [0, 1, 0] ], where 1 is locked
-export function createGrid(): number[][] {
-	return [
-		[0, 0, 0],
-		[0, 0, 0],
-		[0, 0, 0],
-	]; // 3x3 Mock
+/**
+ * Create a board grid of the given dimensions.
+ * Each cell is 0 (available); future iteration may support a mask
+ * of locked/unlocked slots per row, e.g. createGrid(3, 3, [[0,1,0],[0,0,0],[0,0,0]]).
+ */
+export function createGrid(width: number = 3, height: number = 3): number[][] {
+	return Array.from({ length: height }, () => Array(width).fill(0));
 }

@@ -12,8 +12,6 @@ const MAX_COMBAT_DURATION_MS = 120_000;
 
 export type CombatRunner = {
 	updateFrame: (state: CombatState, time: number, delta: number) => void;
-	// FIXME: outcome is duplicated — finishCombat already receives it as arg.
-	// Consider moving outcome into CombatState instead.
 	finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => void;
 	isActive: () => boolean;
 	stop: () => void;
@@ -29,10 +27,8 @@ type CombatRunnerState = {
  * Check if combat should end based on core life totals.
  */
 const checkCombatOutcome = (state: CombatState): "player_won" | "player_lost" | "both_won" | null => {
-
-    // TODO: operate on a list of team ids [teamA, teamb], and have a new
-    // outcome type {winner: id} to allow handling pvp combat as well
-
+	// Note: future PvP support should operate on a list of team ids
+	// and return {winner: teamId} instead of hardcoded player/cpu.
 	const playerCore = state.playerCore;
 	const cpuCore = state.cpuCore;
 
@@ -91,9 +87,10 @@ export const runCombat = (
 	});
 
 
-	//TODO: isn't this repeating combatStatsTrackerState: CombatStatsTracker.initialize(combatState) ?
 	let statusEffectSystemState = StatusEffectSystem.initialize(combatState);
 	let timeoutSystemState = Timeout.initializeTimeoutDamageSystem();
+	// ThresholdState tracks last threshold level fired per force:stat —
+	// separate from CombatStatsTrackerState (unit/force stat accumulators).
 	let thresholdState = CombatStatsTracker.initializeThresholds();
 	let combatElapsedMs = 0;
 
@@ -129,17 +126,6 @@ export const runCombat = (
 		for (const event of dueEvents) {
 			event.execute(runnerState.env);
 		}
-
-        // Disabled this. For the below effects, we process all of them
-        // before checking the outcome, so it should be the same for
-        // deferred events as well
-        // TODO: delete me
-		// 2. Check combat outcome after hits landed
-		// const hitOutcome = checkCombatOutcome(nextState);
-		// if (hitOutcome) {
-		// 	finishCombat(hitOutcome);
-		// 	return;
-		// }
 
 		// 2. Charge units and process effects (these log _cast and schedule _hit)
 		const unitsReadyToAct = chargeUnits(
@@ -204,7 +190,6 @@ export const runCombat = (
 		timeoutSystemState = Timeout.onTimeoutDamageCombatEnd(timeoutSystemState);
 
 		// Log combat stats before outcome
-		// TODO: include this in the outcome
 		if (runnerState.env.combatStates?.combatStatsTrackerState) {
 			const { unitStats, currentCombatStats } = runnerState.env.combatStates.combatStatsTrackerState;
 			runnerState.env.logger.log({
