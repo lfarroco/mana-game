@@ -17,7 +17,34 @@ import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 
 // ---------------------------------------------------------------------------
-// Phase advancement helper
+// Phase cleanup registry
+// ---------------------------------------------------------------------------
+
+/**
+ * Each phase handler that creates UI registers a cleanup function here.
+ * On every phase transition, ALL registered cleanups are run sequentially
+ * BEFORE the next phase starts. This guarantees that previous-phase UI is
+ * fully torn down before new-phase UI renders, eliminating the race
+ * condition that exists when cleanup runs in parallel via event listeners.
+ */
+type PhaseCleanupFn = () => void | Promise<void>;
+const phaseCleanupFns: PhaseCleanupFn[] = [];
+
+/** Register a cleanup function to run before the next phase starts. */
+export function registerPhaseCleanup(cleanup: PhaseCleanupFn): void {
+	phaseCleanupFns.push(cleanup);
+}
+
+async function runPhaseCleanup(): Promise<void> {
+	const fns = [...phaseCleanupFns];
+	phaseCleanupFns.length = 0;
+	for (const fn of fns) {
+		await fn();
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Phase advancement helpers
 // ---------------------------------------------------------------------------
 
 /**
@@ -43,12 +70,15 @@ export const advancePhase = async (
  * Emit phaseFinished without dispatching an action.
  * Use when state has already been updated (e.g., dispatch happened earlier in the flow).
  *
+ * @param previousPhase - The phase BEFORE state was updated. Must be captured by the
+ *   caller before calling updateState, otherwise cleanup listeners will receive the
+ *   wrong phase and fail to tear down their UI.
  * @param onBeforeFinish - Optional callback that fires before phaseFinished is emitted.
  */
 export const finishPhase = async (
+	previousPhase: Models.PhaseType,
 	onBeforeFinish?: () => void | Promise<void>,
 ): Promise<void> => {
-	const previousPhase = env.state.session.phase;
 	if (onBeforeFinish) await onBeforeFinish();
 	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
 };
@@ -217,6 +247,7 @@ async function executePhase(
 const handleCurrentPhase = async ({ previousPhase }: {
 	previousPhase?: Models.PhaseType
 }) => {
+	await runPhaseCleanup();
 	await executePhase(env.state.session.phase, previousPhase);
 };
 

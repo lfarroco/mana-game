@@ -1,4 +1,3 @@
-import * as Models from "@game/Models";
 import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Chara from "@Systems/Chara/Chara";
@@ -11,6 +10,7 @@ import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { registerPhaseCleanup } from "../../BattlegroundScreen";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
@@ -19,7 +19,6 @@ const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 export function registerListeners(): (() => void)[] {
 	return [
 		BattlegroundEvent.shopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
-		BattlegroundEvent.phaseFinished.listen(closeShop),
 		BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased),
 		BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId)),
 	];
@@ -38,10 +37,10 @@ export async function handleShopPhase() {
 
 	await Shop.SlideIn();
 
+	registerPhaseCleanup(cleanupShop);
 }
 
-async function closeShop({ previousPhase }: { previousPhase: Models.PhaseType }) {
-	if (previousPhase !== "shop") return;
+async function cleanupShop() {
 	await Shop.SlideOut();
 }
 

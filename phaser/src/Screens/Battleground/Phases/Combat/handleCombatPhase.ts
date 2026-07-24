@@ -14,7 +14,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { advancePhase } from "../../BattlegroundScreen";
+import { advancePhase, registerPhaseCleanup } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
 // This lives here because it's the combat phase handler's responsibility
@@ -49,7 +49,6 @@ const resumeCombat = (): void => {
 
 export function registerListeners(): (() => void)[] {
 	return [
-		BattlegroundEvent.phaseFinished.listen(finishCombatPhase),
 		BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
 		BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested()),
 		BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
@@ -57,10 +56,7 @@ export function registerListeners(): (() => void)[] {
 	];
 }
 
-const finishCombatPhase = async ({ previousPhase }: {
-	previousPhase: Models.PhaseType
-}): Promise<void> => {
-	if (previousPhase !== "combat") return;
+const cleanupCombatPhase = async (): Promise<void> => {
 
 	cleanupPlayback();
 	activeCombatState = null;
@@ -203,6 +199,7 @@ export async function handleCombatPhase(): Promise<void> {
 	}
 
 	activeCombatState = combatState;
+	registerPhaseCleanup(cleanupCombatPhase);
 	await beginCombatPlayback();
 }
 

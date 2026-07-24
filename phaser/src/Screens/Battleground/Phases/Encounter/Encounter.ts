@@ -3,11 +3,9 @@ import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as GameConstants from "@game/Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
-import * as Models from "@game/Models";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
-import { advancePhase } from "../../BattlegroundScreen";
+import { advancePhase, registerPhaseCleanup } from "../../BattlegroundScreen";
 
 // Encounter card display layout constants
 const ENCOUNTER_CARD_WIDTH = 700;
@@ -29,14 +27,7 @@ let disableInteraction = false;
 let container: Phaser.GameObjects.Container;
 
 export function registerListeners(): (() => void)[] {
-	return [
-		BattlegroundEvent.phaseFinished.listen(onEncounterSkipped),
-	];
-}
-
-const onEncounterSkipped = ({ previousPhase }: { previousPhase: Models.PhaseType }) => {
-	if (previousPhase !== "encounter") return;
-	container.destroy(true);
+	return [];
 }
 
 const improveType = (pic: string, type: string): EncounterItem => ({
@@ -161,6 +152,10 @@ export const displayOptions = () => {
 	container = env.scene.add.container();
 
 	disableInteraction = false;
+
+	registerPhaseCleanup(() => {
+		container.destroy(true);
+	});
 
 	const options = env.state.session.options
 		.reduce((acc, option) => {

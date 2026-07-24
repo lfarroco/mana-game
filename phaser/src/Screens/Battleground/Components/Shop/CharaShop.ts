@@ -276,8 +276,9 @@ function initShopCharaInput(
 			);
 			if (!wasUpgrade && !didAddUnit) return;
 
+			const previousPhase = env.state.session.phase;
 			env.updateState({ ...env.state, session });
-			await finishPhase(async () => {
+			await finishPhase(previousPhase, async () => {
 				await BattlegroundEvent.unitPurchaseCompleted.emit({
 					unitId: unit.cardId,
 					previousTeamUnits,
@@ -335,8 +336,9 @@ async function handleItemDragPurchaseRequested(
 	);
 	if (!wasUpgrade && !didAddUnit) return;
 
+	const previousPhase = env.state.session.phase;
 	env.updateState({ ...env.state, session });
-	await finishPhase(async () => {
+	await finishPhase(previousPhase, async () => {
 		await BattlegroundEvent.unitPurchaseCompleted.emit({
 			unitId: shopUnitData.cardId,
 			previousTeamUnits,
