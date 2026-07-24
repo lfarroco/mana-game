@@ -167,26 +167,16 @@ describe("Combat invariants — seed sweep", () => {
   });
 
   it("threshold reactions fire exactly floor(totalStat / threshold) times", () => {
-    for (const { combatState, logs } of runs) {
+    for (const { logs } of runs) {
       const statsEntry = filterLogs(logs, "combat_stats")[0];
       const forceStats = new Map(statsEntry.currentCombatStats);
       const playerDamage = forceStats.get(Constants.FORCE_ID_PLAYER)!.damageDealt;
 
-      // If combat ended via a direct-damage killing blow, that frame's damage
-      // never reached the threshold check (outcome exits the frame early).
-      // Any other exit (poison/timeout kill, max duration) checks thresholds
-      // after all damage of the frame.
-      const outcome = filterLogs(logs, "outcome")[0];
-      const cpuCore = combatState.cpuCore;
-      const killingBlowWasDirectHit = filterLogs(logs, "damage_hit")
-        .some((l) => l.targetId === cpuCore.id && l.timeMs === outcome.timeMs && l.newLife === 0);
-      const uncheckedDamage = killingBlowWasDirectHit
-        ? filterLogs(logs, "damage_hit")
-          .filter((l) => l.targetId === cpuCore.id && l.timeMs === outcome.timeMs)
-          .reduce((s, l) => s - l.lifeDelta, 0)
-        : 0;
-
-      const expectedReactions = Math.floor((playerDamage - uncheckedDamage) / 100);
+      // Threshold reactions are checked in step 3.5 of the frame loop,
+      // BEFORE the outcome check in step 5. No damage is ever "unchecked"
+      // — all damage dealt by the time combat ends has been seen by the
+      // threshold subsystem.
+      const expectedReactions = Math.floor(playerDamage / 100);
       const actualReactions = filterLogs(logs, "reaction").filter((l) => l.unitId === "threshold-reactor").length;
       expect(actualReactions).toBe(expectedReactions);
     }
