@@ -12,14 +12,12 @@ import * as CombatSimulation from "./CombatSimulation";
 import * as RunCombatCore from "./CombatRunner";
 import * as BoardLogic from "../BoardLogic";
 import * as F from "../Functional";
-import { BASE_COLLECTION_DATA } from "../BaseCollection";
 
-beforeAll(() => {
-	Card.registerCollection(BASE_COLLECTION_DATA);
-});
+// Cards are statically available — no registration needed.
+// Card.resetCardsMap() ensures clean state for test isolation.
 
 afterAll(() => {
-	Card.resetRegistry();
+	Card.resetCardsMap();
 });
 
 /**

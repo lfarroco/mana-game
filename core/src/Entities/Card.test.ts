@@ -5,86 +5,60 @@ import * as Card from "./Card";
 import * as Models from "../Models";
 
 describe("Card", () => {
-	describe("createCardRegistry", () => {
-		it("creates a fresh empty registry", () => {
-			const reg = Card.createCardRegistry();
-			expect(reg.getAllCards()).toEqual([]);
-			expect(reg.getCores()).toEqual([]);
-			expect(reg.getNonCores()).toEqual([]);
+	describe("setCardsMap / resetCardsMap", () => {
+		afterEach(() => {
+			Card.resetCardsMap();
 		});
 
-		it("hasCardDefinition returns false for unknown cards", () => {
-			const reg = Card.createCardRegistry();
-			expect(reg.hasCardDefinition("nonexistent")).toBe(false);
+		it("hasCardDefinition returns false for unknown cards by default", () => {
+			expect(Card.hasCardDefinition("nonexistent")).toBe(false);
 		});
 
-		it("getCardDefinition returns dummy for unknown cards", () => {
-			const reg = Card.createCardRegistry();
-			const def = reg.getCardDefinition("nonexistent");
+		it("getCardDefinition returns dummy for unknown cards by default", () => {
+			const def = Card.getCardDefinition("nonexistent");
 			expect(def.id).toBe("dummy_card");
 		});
 
-		it("throws for unknown collection", () => {
-			const reg = Card.createCardRegistry();
-			expect(() => reg.getCollection("unknown")).toThrow();
-		});
-
-		it("registerCollection makes cards available", () => {
-			const reg = Card.createCardRegistry();
-			const collection: Models.CardCollection = {
-				id: "test-set",
-				name: "Test Set",
-				cards: [{ id: "test-card", pic: "x", cooldown: 1000, effects: [], reactions: [] }],
-			};
-			reg.registerCollection(collection);
-			expect(reg.hasCardDefinition("test-card")).toBe(true);
-			expect(reg.getCardDefinition("test-card").id).toBe("test-card");
+		it("setCardsMap makes custom cards available", () => {
+			const cards = new Map([
+				["test-card", { id: "test-card", pic: "x", cooldown: 1000, effects: [], reactions: [] } as Models.CardDefinition],
+			]);
+			Card.setCardsMap(cards);
+			expect(Card.hasCardDefinition("test-card")).toBe(true);
+			expect(Card.getCardDefinition("test-card").id).toBe("test-card");
 		});
 
 		it("getCores filters by isCore", () => {
-			const reg = Card.createCardRegistry();
-			const collection: Models.CardCollection = {
-				id: "test-set",
-				name: "Test Set",
-				cards: [
-					{ id: "core1", pic: "x", cooldown: 1000, isCore: true, effects: [], reactions: [] },
-					{ id: "unit1", pic: "y", cooldown: 800, isCore: false, effects: [], reactions: [] },
-				],
-			};
-			reg.registerCollection(collection);
-			expect(reg.getCores()).toHaveLength(1);
-			expect(reg.getCores()[0].id).toBe("core1");
-			expect(reg.getNonCores()).toHaveLength(1);
-			expect(reg.getNonCores()[0].id).toBe("unit1");
+			const cards = new Map([
+				["core1", { id: "core1", pic: "x", cooldown: 1000, isCore: true, effects: [], reactions: [] } as Models.CardDefinition],
+				["unit1", { id: "unit1", pic: "y", cooldown: 800, isCore: false, effects: [], reactions: [] } as Models.CardDefinition],
+			]);
+			Card.setCardsMap(cards);
+			expect(Card.getCores()).toHaveLength(1);
+			expect(Card.getCores()[0].id).toBe("core1");
+			expect(Card.getNonCores()).toHaveLength(1);
+			expect(Card.getNonCores()[0].id).toBe("unit1");
 		});
 
 		it("getAvailableCards filters non-core unlocked cards", () => {
-			const reg = Card.createCardRegistry();
-			const collection: Models.CardCollection = {
-				id: "test-set",
-				name: "Test Set",
-				cards: [
-					{ id: "core1", pic: "x", cooldown: 1000, isCore: true, effects: [], reactions: [] },
-					{ id: "locked1", pic: "y", cooldown: 800, locked: true, effects: [], reactions: [] },
-					{ id: "unlocked1", pic: "z", cooldown: 900, effects: [], reactions: [] },
-				],
-			};
-			reg.registerCollection(collection);
-			const available = reg.getAvailableCards(["locked1"]);
+			const cards = new Map([
+				["core1", { id: "core1", pic: "x", cooldown: 1000, isCore: true, effects: [], reactions: [] } as Models.CardDefinition],
+				["locked1", { id: "locked1", pic: "y", cooldown: 800, locked: true, effects: [], reactions: [] } as Models.CardDefinition],
+				["unlocked1", { id: "unlocked1", pic: "z", cooldown: 900, effects: [], reactions: [] } as Models.CardDefinition],
+			]);
+			Card.setCardsMap(cards);
+			const available = Card.getAvailableCards(["locked1"]);
 			expect(available.map((c) => c.id).sort()).toEqual(["locked1", "unlocked1"]);
 		});
 
-		it("reset clears all cards", () => {
-			const reg = Card.createCardRegistry();
-			const collection: Models.CardCollection = {
-				id: "test-set",
-				name: "Test Set",
-				cards: [{ id: "card1", pic: "x", cooldown: 1000, effects: [], reactions: [] }],
-			};
-			reg.registerCollection(collection);
-			expect(reg.getAllCards()).toHaveLength(1);
-			reg.reset();
-			expect(reg.getAllCards()).toHaveLength(0);
+		it("resetCardsMap restores defaults and clears custom cards", () => {
+			const cards = new Map([
+				["card1", { id: "card1", pic: "x", cooldown: 1000, effects: [], reactions: [] } as Models.CardDefinition],
+			]);
+			Card.setCardsMap(cards);
+			expect(Card.hasCardDefinition("card1")).toBe(true);
+			Card.resetCardsMap();
+			expect(Card.hasCardDefinition("card1")).toBe(false);
 		});
 	});
 
@@ -191,38 +165,33 @@ describe("Card", () => {
 			expect(Card.validateCardDefinition(card)).toEqual([]);
 		});
 
-		it("registerCollection warns for self + non-global reactions but still registers", () => {
+		it("setCardsMap accepts invalid cards without runtime warning (validation is at module load)", () => {
 			const warn = jest.spyOn(console, "warn").mockImplementation(() => { });
 			try {
-				const reg = Card.createCardRegistry();
-				reg.registerCollection({
-					id: "warn-set",
-					name: "Warn Set",
-					cards: [makeCard([
+				const cards = new Map([
+					["reaction-card", makeCard([
 						{ position: "self", effectId: "damage", effects: [{ id: "heal" }] },
 					])],
-				});
-				expect(warn).toHaveBeenCalledWith(
-					"cardRegistry",
-					expect.stringContaining("reaction-card"),
-				);
-				expect(reg.hasCardDefinition("reaction-card")).toBe(true);
+				]);
+				Card.setCardsMap(cards);
+				expect(Card.hasCardDefinition("reaction-card")).toBe(true);
+				// No warning expected — validation runs on the static ALL_CARDS at module load
+				// Test-specific cards are assumed valid by the test author
 			} finally {
 				warn.mockRestore();
 			}
 		});
 
-		it("registerCollection stays silent for valid reactions", () => {
+		it("setCardsMap with valid reactions works silently", () => {
 			const warn = jest.spyOn(console, "warn").mockImplementation(() => { });
 			try {
-				const reg = Card.createCardRegistry();
-				reg.registerCollection({
-					id: "ok-set",
-					name: "OK Set",
-					cards: [makeCard([
+				const cards = new Map([
+					["ok-card", makeCard([
 						{ position: "allies", effectId: "damage", effects: [{ id: "heal" }] },
 					])],
-				});
+				]);
+				Card.setCardsMap(cards);
+				expect(Card.hasCardDefinition("ok-card")).toBe(true);
 				expect(warn).not.toHaveBeenCalled();
 			} finally {
 				warn.mockRestore();

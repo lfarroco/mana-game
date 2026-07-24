@@ -13,18 +13,18 @@ import * as RunCombatCore from "../Combat/CombatRunner";
 import * as BoardLogic from "../BoardLogic";
 import * as F from "../Functional";
 import * as CombatLogger from "../Combat/CombatLogger";
-import { BASE_COLLECTION_DATA } from "../BaseCollection";
+import { CARDS_BY_ID } from "../data/BaseCollection";
 
 // ---------------------------------------------------------------------------
 // Card registry setup (call once per test file)
 // ---------------------------------------------------------------------------
 
 export function registerBaseCollection(): void {
-  Card.registerCollection(BASE_COLLECTION_DATA);
+  Card.setCardsMap(CARDS_BY_ID);
 }
 
 export function resetCardRegistry(): void {
-  Card.resetRegistry();
+  Card.resetCardsMap();
 }
 
 // ---------------------------------------------------------------------------

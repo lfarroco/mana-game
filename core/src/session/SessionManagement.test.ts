@@ -9,8 +9,7 @@ const mockCards = [
 ];
 
 function registerTestCards(): void {
-	Card.resetRegistry();
-	Card.registerCollection({ id: "test", name: "Test", cards: mockCards });
+	Card.setCardsMap(new Map(mockCards.map(c => [c.id, c] as const)));
 }
 
 function makeSession(overrides: Partial<Models.SessionData> = {}): Models.SessionData {

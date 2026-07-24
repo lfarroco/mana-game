@@ -247,15 +247,15 @@ export const chargeUnits = (
 		const wasSlowed = unit.slowed > 0;
 
 		const cooldownMultiplier =
-			wasHasted > 0 && wasSlowed > 0 ? 1 : 
-            wasHasted > 0 ? 0.5 : 
-            wasSlowed > 0 ? 2 : 1;
+			wasHasted && wasSlowed ? 1 : 
+            wasHasted ? 0.5 : 
+            wasSlowed ? 2 : 1;
 
 		const chargeRate = 1 / cooldownMultiplier;
 
 		unit.charge += delta * chargeRate;
 
-		if (wasHasted > 0) {
+		if (wasHasted) {
 			unit.hasted = Math.max(0, unit.hasted - delta);
 
             if (unit.hasted === 0) {
@@ -263,7 +263,7 @@ export const chargeUnits = (
             }
 		}
 
-		if (wasSlowed > 0) {
+		if (wasSlowed) {
 			unit.slowed = Math.max(0, unit.slowed - delta);
 
             if (unit.slowed === 0) {

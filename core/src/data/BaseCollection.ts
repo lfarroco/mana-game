@@ -1293,8 +1293,21 @@ const cards: Models.CardDefinition[] = [
 	},
 ]
 
+/**
+ * Static card lookup (immutable).
+ * This replaces the old dynamic-registration pattern — cards are defined here
+ * once and consumed directly, with no startup registration step needed.
+ *
+ * Tests that need custom cards should use Card.setCardsMap() / Card.resetCardsMap().
+ */
+export const ALL_CARDS: readonly Models.CardDefinition[] = cards;
+
+export const CARDS_BY_ID: ReadonlyMap<string, Models.CardDefinition> =
+	new Map(cards.map((c) => [c.id, c]));
+
+/** @deprecated Use CARDS_BY_ID or ALL_CARDS directly. */
 export const BASE_COLLECTION_DATA: Models.CardCollection = {
 	id: "base",
-	"name": "Base Set",
-	"cards": cards
-}
+	name: "Base Set",
+	cards: cards as Models.CardDefinition[],
+};

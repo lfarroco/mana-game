@@ -1,5 +1,4 @@
 import * as Assets from "@assets";
-import * as Card from "@game/Entities/Card";
 import * as BaseCollection from "@game/BaseCollection";
 import * as Config from "@config";
 import * as TitleScreen from "./Screens/Title/TitleScreen";
@@ -148,8 +147,7 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
     loadUnitAssets() {
 
         const uniquePics = new Set(
-            BaseCollection.BASE_COLLECTION_DATA
-                .cards
+            BaseCollection.ALL_CARDS
                 .filter((card) => !card.isCore)
                 .map((card) => card.pic)
         );
@@ -217,8 +215,6 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
         // Wire battleground-specific events (one-time)
         BattlegroundScreen.wireBattlegroundEvents();
-
-        Card.registerCollection(BaseCollection.BASE_COLLECTION_DATA);
 
         OptionsStore.init();
 

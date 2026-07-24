@@ -1,8 +1,13 @@
 import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData, GLOBAL_REACTIONS } from "../Models";
 import * as uuid from "uuid";
+import { CARDS_BY_ID, ALL_CARDS } from "../data/BaseCollection";
+
+// ---------------------------------------------------------------------------
+// Validation
+// ---------------------------------------------------------------------------
 
 /**
- * Validate a card definition's reactions at registration time.
+ * Validate a card definition's reactions.
  * Returns a list of design issues (empty = valid).
  *
  * A reaction with `position: "self"` can only fire for global reaction IDs
@@ -24,11 +29,11 @@ export const validateCardDefinition = (card: CardDefinition): string[] => {
 	return issues;
 };
 
-// FIXME: the card registry global singleton could be simplified —
-// the registerCollection step is only used at startup and could be
-// replaced with a direct Map population or static import.
+// ---------------------------------------------------------------------------
+// Card lookup (simplified static model)
+// ---------------------------------------------------------------------------
 
-const dummy: CardDefinition = {
+const DUMMY_CARD: CardDefinition = {
 	id: "dummy_card",
 	pic: "boss_andromeda",
 	power: 10,
@@ -42,105 +47,69 @@ const dummy: CardDefinition = {
 	],
 };
 
-export type CardRegistry = {
-	getCardDefinition: (id: string) => CardDefinition;
-	hasCardDefinition: (id: string) => boolean;
-	getCollection: (id: string) => CardCollection;
-	getAllCards: () => CardDefinition[];
-	getCores: () => CardDefinition[];
-	getNonCores: () => CardDefinition[];
-	getAvailableCards: (unlockedUnitIds: string[]) => CardDefinition[];
-	registerCollection: (collection: CardCollection) => void;
-	reset: () => void; // For test isolation
+/**
+ * Module-level card lookup — defaults to the static BaseCollection data.
+ * Tests can override with setCardsMap() / resetCardsMap() for isolation.
+ */
+let cardsById: ReadonlyMap<string, CardDefinition> = CARDS_BY_ID;
+
+/** Override the card lookup (for test isolation). */
+export const setCardsMap = (map: ReadonlyMap<string, CardDefinition>): void => {
+	cardsById = map;
 };
 
-export const createCardRegistry = (): CardRegistry => {
-	const cards = new Map<string, CardDefinition>();
-	const collections = new Map<string, CardCollection>();
-
-	const registerCard = (card: CardDefinition): void => {
-		validateCardDefinition(card).forEach((issue) => console.warn("cardRegistry", issue));
-		cards.set(card.id, card);
-	};
-
-	const registerCollection = (collection: CardCollection): void => {
-		collections.set(collection.id, collection);
-		collection.cards.forEach(registerCard);
-	};
-
-	return {
-		getCardDefinition: (id: string): CardDefinition => {
-			const card = cards.get(id);
-			if (!card) {
-				return dummy;
-			}
-			return card;
-		},
-
-		hasCardDefinition: (id: string): boolean => {
-			return cards.has(id);
-		},
-
-		getCollection: (id: string): CardCollection => {
-			const collection = collections.get(id);
-			if (!collection) {
-				throw new Error(`Collection with id ${id} not found`);
-			}
-			return collection;
-		},
-
-		getAllCards: (): CardDefinition[] => Array.from(cards.values()),
-
-		getCores: (): CardDefinition[] =>
-			Array.from(cards.values()).filter((card) => card.isCore),
-
-		getNonCores: (): CardDefinition[] =>
-			Array.from(cards.values()).filter((card) => !card.isCore),
-
-		getAvailableCards: (unlockedUnitIds: string[]): CardDefinition[] =>
-			Array.from(cards.values()).filter(
-				(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
-			),
-
-		registerCollection,
-
-		reset: () => {
-			cards.clear();
-			collections.clear();
-		},
-	};
+/** Reset the card lookup to the static BaseCollection defaults. */
+export const resetCardsMap = (): void => {
+	cardsById = CARDS_BY_ID;
 };
 
-// Default global registry — populated at startup via registerCollection.
-// Tests should use createCardRegistry() for isolation.
-const defaultRegistry = createCardRegistry();
-
-export const registerCollection = (collection: CardCollection): void =>
-	defaultRegistry.registerCollection(collection);
+// ---------------------------------------------------------------------------
+// Public query helpers
+// ---------------------------------------------------------------------------
 
 export const getCardDefinition = (id: string): CardDefinition =>
-	defaultRegistry.getCardDefinition(id);
+	cardsById.get(id) ?? DUMMY_CARD;
 
 export const hasCardDefinition = (id: string): boolean =>
-	defaultRegistry.hasCardDefinition(id);
-
-export const getCollection = (id: string): CardCollection =>
-	defaultRegistry.getCollection(id);
+	cardsById.has(id);
 
 export const getAllCards = (): CardDefinition[] =>
-	defaultRegistry.getAllCards();
+	Array.from(cardsById.values());
 
 export const getCores = (): CardDefinition[] =>
-	defaultRegistry.getCores();
+	Array.from(cardsById.values()).filter((card) => card.isCore);
 
 export const getNonCores = (): CardDefinition[] =>
-	defaultRegistry.getNonCores();
+	Array.from(cardsById.values()).filter((card) => !card.isCore);
 
 export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =>
-	defaultRegistry.getAvailableCards(unlockedUnitIds);
+	Array.from(cardsById.values()).filter(
+		(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
+	);
 
-/** Reset the global registry — for test isolation. */
-export const resetRegistry = (): void => defaultRegistry.reset();
+// ---------------------------------------------------------------------------
+// Backward-compat aliases
+// ---------------------------------------------------------------------------
+
+/**
+ * Register a collection (no-op in the static model).
+ * @deprecated Cards are now statically defined in BaseCollection — registration is unnecessary.
+ */
+export const registerCollection = (_collection: CardCollection): void => {
+	// no-op: cards are available at import time
+};
+
+/**
+ * Reset the global registry.
+ * @deprecated Use resetCardsMap() for test isolation.
+ */
+export const resetRegistry = (): void => {
+	resetCardsMap();
+};
+
+// ---------------------------------------------------------------------------
+// Unit creation
+// ---------------------------------------------------------------------------
 
 export const getAlliedCore = (state: CombatState) => (forceId: string) =>
 	state.units.find((u) => u.force === forceId && u.isCore)!;
@@ -195,3 +164,10 @@ export function createUnitFromCardSpec(
 	};
 }
 
+// Run validation on the static collection at module load
+ALL_CARDS.forEach((card) => {
+	const issues = validateCardDefinition(card);
+	if (issues.length > 0) {
+		console.warn("cardRegistry", ...issues);
+	}
+});

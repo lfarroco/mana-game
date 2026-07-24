@@ -99,7 +99,8 @@ export function generateEnemyTeam(
 	const coreUnit = Card.makeUnit(FORCE_ID_CPU, coreCard.id, corePosition);
 	units.push(coreUnit);
 
-	const filteredPool = Card.getNonCores().filter((unit) => {
+	const filteredPool = pool.filter((unit) => {
+		if (unit.isCore) return false;
 		const rank = unit.rank || 1;
 		if (round < 3 && rank > 1) return false;
 		if (round >= 3 && round < 5 && rank > 2) return false;
