@@ -29,7 +29,7 @@ export function createCombatState(
 		enemyPlayerName: "CPU",
 		wonCombat: false,
 		finalPlayerUnits: clone(session.team.units),
-		initialUnits: clone([...session.team.units, ...enemyTeam]),
+		initialUnits: units,
 		unitById,
 		playerCore,
 		cpuCore,
