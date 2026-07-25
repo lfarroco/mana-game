@@ -102,6 +102,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [logging-system.md](docs/logging-system.md): Structured logging utility, levels, conventions
 - [localization.md](docs/localization.md): i18n, adding languages, fallback logic
 - [achievement-system.md](docs/achievement-system.md): Steam achievements, victory tiers
+- [code-quality-cleanup.md](docs/code-quality-cleanup.md): Verified code-quality findings for `phaser/` and the prioritized cleanup plan (incl. multiplayer-backend reimplementation scope)
+- [core-code-quality.md](docs/core-code-quality.md): Verified code-quality findings for `core/` and the prioritized improvement plan (incl. the confirmed single-player win-recording bug)
 
 ### Key Architectural Patterns
 
@@ -115,7 +117,15 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find or fix bugs.
 
-- (no open issues at this time)
+- **Single-player wins are never recorded (confirmed bug in `core/`)**: `CombatSimulation.createCombatState` initializes `wonCombat: false` and nothing in the core flow ever sets it — `CombatSimulation.determineCombatOutcome` exists but is never called. `SessionTransitions.transitionAfterCombat` reads `pendingCombatState.wonCombat`, so `end_combat` always records a **loss** in single-player (`LocalServer` → `transitionToNextState`). Reproduced via tsx: outcome log says `player_won`, but `end_combat` yields `wins: 0, losses: 1`. Fix: derive `wonCombat` from the outcome log at the end of `simulateCombat` (wire up `determineCombatOutcome`) and add a regression test.
+- **`applyOrb` discards RNG advancement**: `SessionTransitions` passes a throwaway `{ seed: session.seed }` to `OrbAndCoreUpgrades.applyOrb`; the mutated seed is never written back, so consecutive reaction orbs repeat identical "random" picks. Related: `nextRandomValue` (returns seed) vs `pickRandom` (mutates rng) have inconsistent contracts.
+- **`createCombatState.initialUnits` aliases `units`**: same array/object references, so the "used to reset board for replays" snapshot is mutated during simulation. Should be a separate clone.
+- **Supabase edge handler drift**: `phaser/supabase/functions/action/index.ts` calls `GameLogic.transitionToNextState(session, actionId, payload, options)` (4 args) and reads `transitionResult.combatResult`, but current core `transitionToNextState(session, action)` returns `{ session, combatState? }`. Committed `_shared.js` bundles (Jul 18) predate core changes (Jul 24); re-running `bundle:edge` without updating the handler will break the MP action path.
+- **`SessionTransitions.pendingCombatState`** is a module-level mutable singleton (the same anti-pattern previously removed from `CombatSystemStates`); thread the combat state through the handler return type instead.
+- **Three divergent rank-up formulas**: `RecruitmentActions.recruitUnit` (×1.5, no effect scaling), `Entities/Unit.upgradeUnitData` (source.power × rankMultiplier + effect scaling), `OrbAndCoreUpgrades.applyUpgradeOrb` (×1.75). Unify.
+- **`sacrifice_effect_orb`** is defined in `OrbDefinitions` and has UI presentation, but `applyOrb` has no branch for it → silent no-op.
+- **`phaser/` test pipelines broken**: `npm test` finds 0 tests in `phaser/src` (CI `unit-tests.yml` red) and Playwright collects 0 e2e specs (broken imports in `e2e/game.e2e.spec.ts` + `testMatch` mismatch). `jest.config.cjs` has stale `moduleNameMapper` entries pointing to deleted dirs. Full fix plan: [code-quality-cleanup.md](docs/code-quality-cleanup.md).
+- **Multiplayer backend will be reimplemented**: Supabase edge functions (`phaser/supabase/`), `src/RemoteServer.ts`, `src/lib/supabase.ts`, and `src/Screens/ArenaLobby/` (dead code with a guaranteed crash at `ArenaLobbyScene.ts:471-473`) are all slated for removal/rewrite — do not invest in fixing bugs there; quarantine per the cleanup doc.
 
 ## Task Queue
 
