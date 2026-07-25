@@ -76,16 +76,22 @@ combatState.wonCombat: false
 after end_combat -> wins: 0 losses: 1
 ```
 
-- [ ] Set `combatState.wonCombat = determineCombatOutcome(logs)` at the end
+- [x] Set `combatState.wonCombat = determineCombatOutcome(logs)` at the end
       of `CombatSimulation.simulateCombat` (after log sorting).
-- [ ] Make `determineCombatOutcome` total: it currently does
+- [x] Make `determineCombatOutcome` total: it currently does
       `logs.find((l) => l.type === "outcome")!` and crashes when no outcome
       entry exists (possible if `MAX_FRAMES` is ever hit) — return
       `Option<boolean>` or default to `false` with a `console.warn`.
-- [ ] Add a regression test in `core/src/session/` (simulate a won combat
+- [x] Add a regression test in `core/src/session/` (simulate a won combat
       through `transitionToNextState` `start_combat` → `end_combat`, assert
       `wins === 1`). This is also the first `SessionTransitions` test —
       currently zero coverage there.
+      - Also added unit tests for `determineCombatOutcome` and `wonCombat`
+        propagation in `CombatSimulation.test.ts`.
+      - Also fixed `createCombatState.initialUnits` aliasing `units`.
+- [ ] **(MP-rewrite)** `phaser/src/RemoteServer.ts` reads `wonCombat` from
+      the server response; coordinate with the backend reimplementation,
+      not with the quarantined code.
 - [ ] **(MP-rewrite)** `phaser/src/RemoteServer.ts` reads `wonCombat` from
       the server response; coordinate with the backend reimplementation,
       not with the quarantined code.
@@ -117,7 +123,7 @@ references) to both `units` and `initialUnits`. The documented purpose
 mutates them; `handleCombatPhase.getInitialCombatUnits` then reads the
 already-mutated snapshot.
 
-- [ ] `initialUnits: clone(units)` (a second, separate clone).
+- [x] `initialUnits: clone(units)` (a second, separate clone).
 
 ### 4. `on_over_heal` is evaluated at cast time — effort: S
 

@@ -9,16 +9,12 @@ import * as Models from "../Models";
 import * as RunCombatCore from "./CombatRunner";
 import * as CombatLogger from "./CombatLogger";
 
-const clone = <A>(json: A): A => {
-	return JSON.parse(JSON.stringify(json));
-}
-
 export function createCombatState(
 	session: Models.SessionData,
 	enemyTeam: Models.Unit[],
 ): Models.CombatState {
 
-	const units = clone([...session.team.units, ...enemyTeam]);
+	const units: Models.Unit[] = structuredClone([...session.team.units, ...enemyTeam]);
 	const unitById = new Map(units.map(u => [u.id, u]));
 	const playerCore = units.find(u => u.isCore && u.force === session.team.units[0]?.force)!;
 	const cpuCore = units.find(u => u.isCore && u.force !== session.team.units[0]?.force)!;
@@ -28,8 +24,8 @@ export function createCombatState(
 		logs: [],
 		enemyPlayerName: "CPU",
 		wonCombat: false,
-		finalPlayerUnits: clone(session.team.units),
-		initialUnits: units,
+		finalPlayerUnits: structuredClone(session.team.units),
+		initialUnits: structuredClone(units),
 		unitById,
 		playerCore,
 		cpuCore,
@@ -75,6 +71,11 @@ export function simulateCombat(
 		logs.push(outcome);
 	}
 
+	// Derive wonCombat from the outcome log entry.
+	// This must happen after the outcome entry has been reordered to last position
+	// so that determineCombatOutcome can reliably find it.
+	combatState.wonCombat = determineCombatOutcome(logs);
+
 	// Propagate the advanced seed back to the session so subsequent
 	// combats and out-of-combat random operations continue from where
 	// the RNG left off (env.seed was advanced by pickRandom calls during combat).
@@ -89,7 +90,15 @@ export function simulateCombat(
 export function determineCombatOutcome(
 	simLogs: CombatLogger.CombatLogEntry[]
 ): boolean {
-	const outcomeLog = simLogs.find((l) => l.type === "outcome")!;
+	const outcomeLog = simLogs.find((l) => l.type === "outcome");
+
+	if (!outcomeLog) {
+		console.warn(
+			"CombatSimulation",
+			"determineCombatOutcome: no outcome log entry found (MAX_FRAMES reached?). Defaulting to loss.",
+		);
+		return false;
+	}
 
 	return outcomeLog.result === "player_won" || outcomeLog.result === "both_won";
 

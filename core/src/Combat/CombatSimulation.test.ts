@@ -212,6 +212,38 @@ describe("Combat simulation log generation", () => {
 		}
 	});
 
+	it("sets wonCombat to true when player wins", () => {
+		const state = createTestCombat(500, 100);
+
+		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
+
+		expect(result.wonCombat).toBe(true);
+	});
+
+	it("sets wonCombat to false when player loses", () => {
+		const state = createTestCombat(100, 200);
+
+		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
+
+		expect(result.wonCombat).toBe(false);
+	});
+
+	it("sets wonCombat to true when both win (timeout)", () => {
+		const state = createTestCombat(99999, 99999, 1, 1, "test-seed-005");
+
+		const result = CombatSimulation.simulateCombat(state.session, state.combatState);
+
+		expect(result.wonCombat).toBe(true);
+	});
+
+	it("initialUnits is a separate clone, not aliased to units", () => {
+		const state = createTestCombat(500, 100);
+		const { combatState } = state;
+
+		expect(combatState.initialUnits).not.toBe(combatState.units);
+		expect(combatState.initialUnits).toEqual(combatState.units);
+	});
+
 	it("includes combat_stats log entry", () => {
 		const state = createTestCombat(100, 200);
 
@@ -603,5 +635,35 @@ describe("Haste / Slow status effect log generation", () => {
 		const slowEndLogs = allLogs.filter((l) => l.type === "slow_end");
 		expect(hasteEndLogs.length).toBe(0);
 		expect(slowEndLogs.length).toBe(0);
+	});
+});
+
+describe("determineCombatOutcome", () => {
+	it("returns true for player_won outcome", () => {
+		const result = CombatSimulation.determineCombatOutcome([
+			{ type: "outcome", result: "player_won", timeMs: 1000 },
+		]);
+		expect(result).toBe(true);
+	});
+
+	it("returns true for both_won outcome", () => {
+		const result = CombatSimulation.determineCombatOutcome([
+			{ type: "outcome", result: "both_won", timeMs: 1000 },
+		]);
+		expect(result).toBe(true);
+	});
+
+	it("returns false for player_lost outcome", () => {
+		const result = CombatSimulation.determineCombatOutcome([
+			{ type: "outcome", result: "player_lost", timeMs: 1000 },
+		]);
+		expect(result).toBe(false);
+	});
+
+	it("returns false (loss) when no outcome log entry exists (MAX_FRAMES scenario)", () => {
+		const result = CombatSimulation.determineCombatOutcome([
+			{ type: "damage_cast", sourceId: "a", targetId: "b", amount: 10, travelTime: 200, timeMs: 0 },
+		]);
+		expect(result).toBe(false);
 	});
 });
