@@ -10,41 +10,47 @@ import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { registerPhaseCleanup } from "../../BattlegroundScreen";
+import type { PhaseHandler } from "../../BattlegroundScreen";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
 const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
-export function registerListeners(): (() => void)[] {
-	return [
-		BattlegroundEvent.shopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
-		BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased),
-		BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId)),
-	];
-}
+export const ShopPhase: PhaseHandler = {
+	name: "shop",
 
-export async function handleShopPhase() {
+	async start() {
+		const container = env.scene.add.container();
 
-	const { session } = env.state;
-	const shopCardIds = session.options.map((o) => o.id);
-	const cardDefs = shopCardIds
-		.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
+		// --- Event listeners (tied to this instance, auto-disposed on exit) ---
+		const listeners: (() => void)[] = [];
 
-	Shop.addSkipButton();
+		listeners.push(
+			BattlegroundEvent.shopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
+			BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased),
+			BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId)),
+		);
 
-	await CharaShop.renderTavernCharas(cardDefs);
+		// --- Render shop UI ---
+		const { session } = env.state;
+		const shopCardIds = session.options.map((o) => o.id);
+		const cardDefs = shopCardIds
+			.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
 
-	await Shop.SlideIn();
+		Shop.addSkipButton();
+		await CharaShop.renderTavernCharas(cardDefs);
+		await Shop.SlideIn();
 
-	registerPhaseCleanup(cleanupShop);
-}
+		// --- Return teardown ---
+		return async () => {
+			listeners.forEach((d) => d());
+			await Shop.SlideOut();
+			container.destroy(true);
+		};
+	},
+};
 
-async function cleanupShop() {
-	await Shop.SlideOut();
-}
-
-export async function onUnitPurchased({
+async function onUnitPurchased({
 	unitId: cardId,
 	previousTeamUnits,
 	shopCharaId,
@@ -102,7 +108,7 @@ async function handleNewUnitPurchase(newUnit: Unit): Promise<void> {
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }
 
-export async function onUnitSold(unitId: string) {
+async function onUnitSold(unitId: string) {
 	if (Chara.hasCharaById(unitId)) {
 		Chara.destroy(Chara.mustGetCharaById(unitId));
 	}

@@ -50,6 +50,9 @@ export const BattlegroundEvent = {
     targetUnitId: string;
   }>(),
 
+  /** Emitted when combat playback finishes (naturally, not via stop). */
+  combatPlaybackFinished: createEvent<{ outcome: Models.WaveOutcome }>(),
+
   /** Emitted when the player clicks "Continue" after combat. */
   combatContinueRequested: createEvent<void>(),
 

@@ -5,7 +5,7 @@ import * as GameConstants from "@game/Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
-import { advancePhase, registerPhaseCleanup } from "../../BattlegroundScreen";
+import { advancePhase } from "../../BattlegroundScreen";
 
 // Encounter card display layout constants
 const ENCOUNTER_CARD_WIDTH = 700;
@@ -22,13 +22,6 @@ type EncounterItem = {
 	maxRound?: number;
 	id: string;
 };
-
-let disableInteraction = false;
-let container: Phaser.GameObjects.Container;
-
-export function registerListeners(): (() => void)[] {
-	return [];
-}
 
 const improveType = (pic: string, type: string): EncounterItem => ({
 	name: i18n.t("encounters.improve_type.name", { type }),
@@ -147,15 +140,13 @@ export const allEncounters: EncounterItem[] = [
 	},
 ];
 
-export const displayOptions = () => {
-
-	container = env.scene.add.container();
-
-	disableInteraction = false;
-
-	registerPhaseCleanup(() => {
-		container.destroy(true);
-	});
+/**
+ * Phase start function shared by both "encounter" and "pre_combat" phases.
+ * All state is closure-captured — no module-level mutable variables.
+ */
+export async function startPhase(): Promise<() => Promise<void>> {
+	let disableInteraction = false;
+	const container = env.scene.add.container();
 
 	const options = env.state.session.options
 		.reduce((acc, option) => {
@@ -175,7 +166,6 @@ export const displayOptions = () => {
 		container.destroy(true);
 
 		await advancePhase({ type: "select_encounter", encounterId: id });
-
 	};
 
 	options.forEach(async (encounter, index) => {
@@ -219,4 +209,8 @@ export const displayOptions = () => {
 
 		container.add(btn.container);
 	}
+
+	return async () => {
+		container.destroy(true);
+	};
 }

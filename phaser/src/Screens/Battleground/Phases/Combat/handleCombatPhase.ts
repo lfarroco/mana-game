@@ -14,11 +14,11 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { advancePhase, registerPhaseCleanup } from "../../BattlegroundScreen";
+import { advancePhase } from "../../BattlegroundScreen";
+import type { PhaseHandler } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
-// This lives here because it's the combat phase handler's responsibility
-// to bridge between the combat simulation and the UI.
+// Must remain module-level because CombatStatsTable imports it directly.
 let lastCombatTrackerState: CombatStatsTracker.CombatStatsTrackerState | null = null;
 export const getLastCombatTrackerState = (): CombatStatsTracker.CombatStatsTrackerState | null =>
 	lastCombatTrackerState;
@@ -31,196 +31,190 @@ export type CombatPhaseResult =
 	| { type: "completed"; session: Models.SessionData }
 	| { type: "cancelled" };
 
-let stopActivePlayback: PlaybackDisposer = () => { };
-let activeCombatState: Models.CombatState | null = null;
-let isPaused = false;
+export const CombatPhase: PhaseHandler = {
+	name: "combat",
 
-const pauseCombat = (): void => {
-	isPaused = true;
-	env.scene.tweens.pauseAll();
-	env.scene.time.paused = true;
-};
+	async start() {
+		// ── All instance state is closure-captured ──
+		let isPaused = false;
+		let activeCombatState: Models.CombatState | null = null;
+		let stopActivePlayback: PlaybackDisposer = () => { };
 
-const resumeCombat = (): void => {
-	isPaused = false;
-	env.scene.tweens.resumeAll();
-	env.scene.time.paused = false;
-};
+		// ── Event listeners ──
+		const listeners: (() => void)[] = [];
 
-export function registerListeners(): (() => void)[] {
-	return [
-		BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
-		BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested()),
-		BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
-		BattlegroundEvent.combatResumeRequested.listen(resumeCombat),
-	];
-}
+		const pauseCombat = (): void => {
+			isPaused = true;
+			env.scene.tweens.pauseAll();
+			env.scene.time.paused = true;
+		};
 
-const cleanupCombatPhase = async (): Promise<void> => {
+		const resumeCombat = (): void => {
+			isPaused = false;
+			env.scene.tweens.resumeAll();
+			env.scene.time.paused = false;
+		};
 
-	cleanupPlayback();
-	activeCombatState = null;
-	env.state.combatState = undefined;
-	await resetBoard(true);
-	namesDisplay.updateNameDisplay({ enemyName: "" });
+		const handleCombatContinueRequested = async () => {
+			if (env.state.session.phase !== "combat") return;
 
-	// Clean up enemy ForceStats and reset player's to post-combat state
-	ForceStats.setCombatClientState();
-	ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
-	ForceStats.resetPlayerForceStats();
+			const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
+			await advancePhase({ type: "end_combat" }, ({ session }) => {
+				const winDelta = session.wins - previousWins;
+				if (winDelta !== 0)
+					BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
 
-}
+				const lossesDelta = previousLosses - session.losses;
+				if (lossesDelta !== 0)
+					BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
 
-function cleanupPlayback(): void {
-	isPaused = false;
-	env.scene.tweens.resumeAll();
-	env.scene.time.paused = false;
-	stopActivePlayback();
-	stopActivePlayback = () => { };
-	lastCombatTrackerState = null;
-}
-
-const getInitialCombatUnits = (combatState: Models.CombatState) => {
-	if (combatState.initialUnits && combatState.initialUnits.length > 0) {
-		return combatState.initialUnits;
-	}
-
-	return combatState.units;
-};
-
-const getCombatResultType = (outcome: string) =>
-	outcome === "player_lost" ? "defeat" : "victory";
-
-const showCombatResults = async ({
-	resultType,
-}: {
-	resultType: "defeat" | "victory";
-}) => {
-	void ResultsUI.slideIn();
-	await ResultsUI.displayResults(resultType);
-};
-
-const startCombatPlayback = async () => {
-	await setupCombatBoard();
-
-	ForceStats.createForceStats();
-
-	await animation.delay(COMBAT_START_DELAY_MS);
-
-	const controller = CombatPlaybackController.createCombatPlaybackController(
-		env.state.combatState!.logs,
-		async (outcome) => {
-			Board.setIsInputEnabled(true);
-			lastCombatTrackerState = controller.getEnv().combatStates.combatStatsTrackerState;
-			await showCombatResults({
-				resultType: getCombatResultType(outcome),
+				const roundDelta = previousRound - session.round;
+				if (roundDelta !== 0)
+					BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
 			});
+		};
+
+		const handleCombatReplayRequested = () => {
+			if (env.state.session.phase !== "combat") return;
+			void beginCombatPlayback();
+		};
+
+		listeners.push(
+			BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
+			BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested),
+			BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
+			BattlegroundEvent.combatResumeRequested.listen(resumeCombat),
+		);
+
+		// ── Validate state ──
+		const combatState = env.state.combatState;
+		if (!combatState) {
+			listeners.forEach((d) => d());
+			throw new Error("Missing combatState while entering combat phase");
 		}
-	);
-	const updateHandler = (time: number, delta: number) => {
-		if (isPaused) return;
-		controller.updateFrame(env.state.combatState!, time, delta);
-		if (!controller.isActive()) {
-			env.scene.events.off("update", updateHandler);
+
+		activeCombatState = combatState;
+
+		// Mutable ref so the playback-finish listener can reach the controller
+		// created inside startCombatPlayback below.
+		let currentController: ReturnType<typeof CombatPlaybackController.createCombatPlaybackController> | null = null;
+
+		listeners.push(
+			BattlegroundEvent.combatPlaybackFinished.listen(async ({ outcome }) => {
+				if (!currentController) return;
+				Board.setIsInputEnabled(true);
+				lastCombatTrackerState = currentController.getEnv().combatStates.combatStatsTrackerState;
+				await showCombatResults({
+					resultType: getCombatResultType(outcome),
+				});
+			}),
+		);
+
+		// ── Internal helpers ──
+		function cleanupPlayback(): void {
+			isPaused = false;
+			env.scene.tweens.resumeAll();
+			env.scene.time.paused = false;
+			stopActivePlayback();
+			stopActivePlayback = () => { };
+			lastCombatTrackerState = null;
 		}
-	};
 
-	env.scene.events.on("update", updateHandler);
+		async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
+			Board.setEnemyBoardVisible(false);
+			Board.setIsInputEnabled(true);
 
-	return () => {
-		env.scene.events.off("update", updateHandler);
-		controller.stop();
-	};
+			if (shouldResummonUnits) {
+
+				Chara.clearAll();
+
+				const summonPromises = env.state.session.team.units.map(async (unit, index) => {
+					await animation.delay(index * 200);
+					await Chara.summon(unit, true);
+				});
+
+				await Promise.all(summonPromises);
+
+			}
+		}
+
+		const getInitialCombatUnits = (cs: Models.CombatState) =>
+			cs.initialUnits && cs.initialUnits.length > 0 ? cs.initialUnits : cs.units;
+
+		const getCombatResultType = (outcome: string) =>
+			outcome === "player_lost" ? "defeat" : "victory";
+
+		const showCombatResults = async ({ resultType }: { resultType: "defeat" | "victory" }) => {
+			void ResultsUI.slideIn();
+			await ResultsUI.displayResults(resultType);
+		};
+
+		const setupCombatBoard = async (): Promise<void> => {
+			Board.setIsInputEnabled(false);
+			Board.setEnemyBoardVisible(true);
+
+			namesDisplay.updateNameDisplay({
+				enemyName: env.state.combatState!.enemyPlayerName ?? "CPU",
+			});
+
+			Chara.clearAll();
+
+			const initialCombatUnits = getInitialCombatUnits(env.state.combatState!);
+
+			const summonPromises = initialCombatUnits.map((unit) => Chara.summon(unit, false));
+			await Promise.all(summonPromises);
+			initialCombatUnits.forEach(resetUnitStats);
+		};
+
+		const startCombatPlayback = async (): Promise<PlaybackDisposer> => {
+			await setupCombatBoard();
+
+			ForceStats.createForceStats();
+
+			await animation.delay(COMBAT_START_DELAY_MS);
+
+			const controller = CombatPlaybackController.createCombatPlaybackController(
+				env.state.combatState!.logs,
+			);
+			currentController = controller;
+
+			const updateHandler = (time: number, delta: number) => {
+				if (isPaused) return;
+				controller.updateFrame(env.state.combatState!, time, delta);
+				if (!controller.isActive()) {
+					env.scene.events.off("update", updateHandler);
+				}
+			};
+
+			env.scene.events.on("update", updateHandler);
+
+			return () => {
+				env.scene.events.off("update", updateHandler);
+				controller.stop();
+			};
+		};
+
+		async function beginCombatPlayback(): Promise<void> {
+			if (!activeCombatState || env.state.session.phase !== "combat") return;
+			cleanupPlayback();
+			stopActivePlayback = await startCombatPlayback();
+		}
+
+		// ── Start playback ──
+		await beginCombatPlayback();
+
+		// ── Return teardown ──
+		return async () => {
+			listeners.forEach((d) => d());
+
+			cleanupPlayback();
+			activeCombatState = null;
+			env.state.combatState = undefined;
+			await resetBoard(true);
+			namesDisplay.updateNameDisplay({ enemyName: "" });
+			ForceStats.setCombatClientState();
+			ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
+			ForceStats.resetPlayerForceStats();
+		};
+	},
 };
-
-async function beginCombatPlayback(): Promise<void> {
-	if (!activeCombatState || env.state.session.phase !== "combat") {
-		return;
-	}
-
-	cleanupPlayback();
-	stopActivePlayback = await startCombatPlayback();
-}
-
-function handleCombatContinueRequested(): void {
-	if (env.state.session.phase !== "combat") {
-		return;
-	}
-
-	void (async () => {
-		const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
-		await advancePhase({ type: "end_combat" }, ({ session }) => {
-			const winDelta = session.wins - previousWins;
-			if (winDelta !== 0)
-				BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
-
-			const lossesDelta = previousLosses - session.losses;
-			if (lossesDelta !== 0)
-				BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
-
-			const roundDelta = previousRound - session.round;
-			if (roundDelta !== 0)
-				BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
-		});
-	})();
-}
-
-const handleCombatReplayRequested = () => () => {
-	if (env.state.session.phase !== "combat") {
-		return;
-	}
-
-	void beginCombatPlayback();
-}
-
-const setupCombatBoard = async (): Promise<void> => {
-	Board.setIsInputEnabled(false);
-	Board.setEnemyBoardVisible(true);
-
-	namesDisplay.updateNameDisplay({
-		enemyName: env.state.combatState!.enemyPlayerName ?? "CPU",
-	});
-
-	Chara.clearAll();
-
-	const initialCombatUnits = getInitialCombatUnits(env.state.combatState!);
-
-	const summonPromises = initialCombatUnits.map((unit) => Chara.summon(unit, false));
-	await Promise.all(summonPromises);
-	initialCombatUnits.forEach(resetUnitStats);
-};
-
-export async function handleCombatPhase(): Promise<void> {
-
-	const combatState = env.state.combatState;
-
-	if (!combatState) {
-		throw new Error("Missing combatState while entering combat phase");
-	}
-
-	activeCombatState = combatState;
-	registerPhaseCleanup(cleanupCombatPhase);
-	await beginCombatPlayback();
-}
-
-
-export async function resetBoard(
-	shouldResummonUnits: boolean = true,
-): Promise<void> {
-
-	Board.setEnemyBoardVisible(false);
-
-	Board.setIsInputEnabled(true);
-
-	if (shouldResummonUnits) {
-		Chara.clearAll();
-	}
-
-	if (shouldResummonUnits) {
-		const summonPromises = env.state.session.team.units.map(async (unit, index) => {
-			await animation.delay(index * 200);
-			await Chara.summon(unit, true);
-		});
-		await Promise.all(summonPromises);
-	}
-}

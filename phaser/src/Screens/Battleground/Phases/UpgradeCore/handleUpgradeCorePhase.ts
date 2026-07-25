@@ -1,17 +1,23 @@
 import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
 import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import { env } from "@Env";
-import { registerPhaseCleanup } from "../../BattlegroundScreen";
+import type { PhaseHandler } from "../../BattlegroundScreen";
 
-export async function handleUpgradeCorePhase() {
-	const upgradeIds = env.state.session.options.map((option) => option.id);
+export const UpgradeCorePhase: PhaseHandler = {
+	name: "upgrade_core",
 
-	await EffectCardShop.openUpgradeCorePhase(
-		"upgradeCrystal.title",
-		upgradeIds,
-	);
+	async start() {
+		const container = env.scene.add.container();
+		const upgradeIds = env.state.session.options.map((option) => option.id);
 
-	registerPhaseCleanup(async () => {
-		await ShopPanel.SlideOut();
-	});
-}
+		await EffectCardShop.openUpgradeCorePhase(
+			"upgradeCrystal.title",
+			upgradeIds,
+		);
+
+		return async () => {
+			await ShopPanel.SlideOut();
+			container.destroy(true);
+		};
+	},
+};

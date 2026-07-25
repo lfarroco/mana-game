@@ -4,8 +4,6 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
-import * as ShopPhase from "./Phases/Shop/handleShopPhase";
-import * as OrbShopPhase from "./Phases/OrbShop/handleOrbShopPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
@@ -17,31 +15,55 @@ import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 
 // ---------------------------------------------------------------------------
-// Phase cleanup registry
+// Phase lifecycle types
 // ---------------------------------------------------------------------------
 
 /**
- * Each phase handler that creates UI registers a cleanup function here.
- * On every phase transition, ALL registered cleanups are run sequentially
- * BEFORE the next phase starts. This guarantees that previous-phase UI is
- * fully torn down before new-phase UI renders, eliminating the race
- * condition that exists when cleanup runs in parallel via event listeners.
+ * A function that tears down a phase instance: destroys all UI, disposes
+ * event listeners, and resets internal state. Must be idempotent.
  */
-type PhaseCleanupFn = () => void | Promise<void>;
-const phaseCleanupFns: PhaseCleanupFn[] = [];
+export type TeardownFn = () => Promise<void>;
 
-/** Register a cleanup function to run before the next phase starts. */
-export function registerPhaseCleanup(cleanup: PhaseCleanupFn): void {
-	phaseCleanupFns.push(cleanup);
-}
+/**
+ * Each phase module exports a PhaseHandler describing how to start and
+ * tear down the phase. BattlegroundScreen guarantees that teardown
+ * runs on every phase transition AND on screen destruction.
+ *
+ * Phases should create a dedicated Phaser Container for all their UI
+ * so disposal is a single `container.destroy(true)` call.
+ */
+export type PhaseHandler = {
+	name: Models.PhaseType;
+	start: () => Promise<TeardownFn>;
+};
 
-async function runPhaseCleanup(): Promise<void> {
-	const fns = [...phaseCleanupFns];
-	phaseCleanupFns.length = 0;
-	for (const fn of fns) {
-		await fn();
-	}
-}
+// ---------------------------------------------------------------------------
+// Phase registry
+// ---------------------------------------------------------------------------
+
+/**
+ * Both "encounter" and "pre_combat" display encounter options — the
+ * handler itself checks env.state.session.phase to decide whether to
+ * show the skip button.
+ */
+const EncounterHandler: PhaseHandler = {
+	name: "encounter",
+	start: Encounter.startPhase,
+};
+
+const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler>> = {
+	encounter:          EncounterHandler,
+	pre_combat:         EncounterHandler,
+	combat:             handleCombatPhase.CombatPhase,
+	shop:               Phases.ShopPhase,
+	orb_shop:           Phases.OrbShopPhase,
+	upgrade_core:       Phases.UpgradeCorePhase,
+	add_reaction_core:  Phases.AddReactionCorePhase,
+	game_over:          Phases.GameOverPhase,
+	victory:            Phases.VictoryPhase,
+};
+
+let activeTeardown: TeardownFn | null = null;
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -162,9 +184,12 @@ export const create = async () => {
  * Called when the battleground screen is destroyed.
  */
 export function destroy(): void {
+	if (activeTeardown) {
+		activeTeardown();
+		activeTeardown = null;
+	}
 	disposers.forEach((d) => d());
 	disposers = [];
-	phaseCleanupFns.length = 0;
 	previousSessionHudSnapshot = null;
 }
 
@@ -188,12 +213,8 @@ export function wireBattlegroundEvents(): void {
 			void NavigationEvent.toTitle.emit(undefined);
 		}),
 
-		// --- Phase-specific listeners ---
+		// --- HUD listeners (wins/lives/round display updates) ---
 		...UI.registerListeners(),
-		...Encounter.registerListeners(),
-		...handleCombatPhase.registerListeners(),
-		...ShopPhase.registerListeners(),
-		...OrbShopPhase.registerListeners(),
 	];
 }
 
@@ -210,45 +231,21 @@ async function executePhase(
 		await syncPlayerBoardUnits();
 	}
 
-	switch (phase) {
-		case "encounter":
-			return await Encounter.displayOptions();
-
-		case "pre_combat":
-			return await Encounter.displayOptions();
-
-		case "combat": {
-			return await handleCombatPhase.handleCombatPhase();
-		}
-
-		case "shop":
-			return Phases.handleShopPhase();
-
-		case "upgrade_core":
-			return await Phases.handleUpgradeCorePhase();
-
-		case "add_reaction_core":
-			return await Phases.handleAddReactionCorePhase();
-
-		case "orb_shop":
-			return await Phases.handleOrbShopPhase();
-
-		case "game_over":
-			return await Phases.handleGameOverPhase();
-
-		case "victory":
-			return await Phases.handleVictoryPhase();
-
-		default:
-			((_: never) => { })(phase)
-			return null;
+	// Tear down previous phase — guaranteed on every transition
+	if (activeTeardown) {
+		await activeTeardown();
+		activeTeardown = null;
 	}
+
+	const handler = phaseHandlers[phase];
+	if (!handler) return;
+
+	activeTeardown = await handler.start();
 }
 
 const handleCurrentPhase = async ({ previousPhase }: {
 	previousPhase?: Models.PhaseType
 }) => {
-	await runPhaseCleanup();
 	await executePhase(env.state.session.phase, previousPhase);
 };
 

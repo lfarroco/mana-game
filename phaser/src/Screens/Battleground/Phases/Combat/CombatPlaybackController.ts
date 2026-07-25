@@ -15,6 +15,7 @@ import { CombatState, WaveOutcome, type CombatSystemStates } from "@game/Models"
 import { BlackHoleState } from "./BlackHoleState";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
+import { BattlegroundEvent } from "../../../../Events";
 
 type ScheduledAnimation = {
 	log: CombatLogger.CombatLogEntry;
@@ -65,7 +66,6 @@ function ensureArcaneMissileTexture(): void {
 
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
-	onReplayEnd?: (outcome: WaveOutcome) => void
 ): CombatRunner.CombatRunner => {
 
 	ensureArcaneMissileTexture();
@@ -241,9 +241,7 @@ export const createCombatPlaybackController = (
 				ChargeBarDisplay.updateChargeBar(u.id);
 			});
 
-		if (onReplayEnd) {
-			await onReplayEnd(outcome);
-		}
+		await BattlegroundEvent.combatPlaybackFinished.emit({ outcome });
 
 		console.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
 	};
