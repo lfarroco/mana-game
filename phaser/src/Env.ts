@@ -37,12 +37,12 @@ export { container as makeContainer, borderedRoundRect, centeredRect, rectangula
 export type EventChannel<T> = Models.Event<T>;
 
 const createChannel = <T>(emitter: EventEmitter, event: string): EventChannel<T> => ({
-  listen: (cb) => {
-    emitter.on(event, cb);
-    return () => { emitter.off(event, cb); };
-  },
-  emit: async (payload) => { emitter.emit(event, payload); },
-  clear: () => { emitter.removeAllListeners(event); },
+	listen: (cb) => {
+		emitter.on(event, cb);
+		return () => { emitter.off(event, cb); };
+	},
+	emit: async (payload) => { emitter.emit(event, payload); },
+	clear: () => { emitter.removeAllListeners(event); },
 });
 
 // ---------------------------------------------------------------------------
@@ -50,20 +50,20 @@ const createChannel = <T>(emitter: EventEmitter, event: string): EventChannel<T>
 // ---------------------------------------------------------------------------
 
 type Time = {
-  /** Promise-based delay (await env.time.delay(200)) */
-  delay: (ms: number) => Promise<void>;
-  /** Current frame delta in ms */
-  delta: number;
-  /** Time scale for pause/speed control (1 = normal) */
-  scale: number;
+	/** Promise-based delay (await env.time.delay(200)) */
+	delay: (ms: number) => Promise<void>;
+	/** Current frame delta in ms */
+	delta: number;
+	/** Time scale for pause/speed control (1 = normal) */
+	scale: number;
 };
 
 const makeTime = (scene: Phaser.Scene): Time => ({
-  delay: (ms) => new Promise<void>((resolve) => {
-    scene.time.addEvent({ delay: ms, callback: () => resolve() });
-  }),
-  get delta() { return scene.game.loop.delta; },
-  get scale() { return scene.time.timeScale; },
+	delay: (ms) => new Promise<void>((resolve) => {
+		scene.time.addEvent({ delay: ms, callback: () => resolve() });
+	}),
+	get delta() { return scene.game.loop.delta; },
+	get scale() { return scene.time.timeScale; },
 });
 
 // ---------------------------------------------------------------------------
@@ -71,19 +71,19 @@ const makeTime = (scene: Phaser.Scene): Time => ({
 // ---------------------------------------------------------------------------
 
 type Audio = {
-  sfx: (key: string, volume?: number) => void;
-  music: (key: string, loop?: boolean, fadeIn?: number) => void;
-  stopMusic: (fadeOut?: number) => void;
-  stopAllSfx: () => void;
-  refreshVolumes: () => void;
+	sfx: (key: string, volume?: number) => void;
+	music: (key: string, loop?: boolean, fadeIn?: number) => void;
+	stopMusic: (fadeOut?: number) => void;
+	stopAllSfx: () => void;
+	refreshVolumes: () => void;
 };
 
 const makeAudio = (): Audio => ({
-  sfx: (key, volume) => AudioManager.playSoundEffect(key, volume),
-  music: (key, loop, fadeIn) => AudioManager.playMusic(key, loop, fadeIn),
-  stopMusic: (fadeOut) => AudioManager.stopMusic(fadeOut),
-  stopAllSfx: () => AudioManager.stopAllSoundEffects(),
-  refreshVolumes: () => AudioManager.onOptionsChanged(),
+	sfx: (key, volume) => AudioManager.playSoundEffect(key, volume),
+	music: (key, loop, fadeIn) => AudioManager.playMusic(key, loop, fadeIn),
+	stopMusic: (fadeOut) => AudioManager.stopMusic(fadeOut),
+	stopAllSfx: () => AudioManager.stopAllSoundEffects(),
+	refreshVolumes: () => AudioManager.onOptionsChanged(),
 });
 
 // ---------------------------------------------------------------------------
@@ -91,17 +91,17 @@ const makeAudio = (): Audio => ({
 // ---------------------------------------------------------------------------
 
 export type ScreenRegistry = {
-  navigateToTitle: () => Promise<void>;
-  navigateToBattleground: (state: ClientState) => Promise<void>;
-  navigateToOptions: () => Promise<void>;
-  navigateToCrystalSelection: () => Promise<void>;
+	navigateToTitle: () => Promise<void>;
+	navigateToBattleground: (state: ClientState) => Promise<void>;
+	navigateToOptions: () => Promise<void>;
+	navigateToCrystalSelection: () => Promise<void>;
 };
 
 const noopScreens: ScreenRegistry = {
-	navigateToTitle: async () => {},
-	navigateToBattleground: async () => {},
-	navigateToOptions: async () => {},
-	navigateToCrystalSelection: async () => {},
+	navigateToTitle: async () => { },
+	navigateToBattleground: async () => { },
+	navigateToOptions: async () => { },
+	navigateToCrystalSelection: async () => { },
 };
 
 // ---------------------------------------------------------------------------
@@ -114,11 +114,14 @@ export type Env = {
 
 	/** Current client state snapshot. Mutate only via updateState. */
 	state: ClientState;
+	// idea: refactor to use state=>state signature, allowing the updates 
+	// to do {...state, prop: val}
 	updateState: (next: ClientState) => void;
 
 	/** Dispatch a game action through the server adapter. */
 	dispatch: (action: Models.Action) => Promise<Models.ActionResponse>;
 
+	// TODO: what this comment means?
 	/** Promise-based timing (Phaser is callback-based). */
 	time: Time;
 
