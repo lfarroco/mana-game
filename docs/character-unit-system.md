@@ -10,7 +10,7 @@ Units are the core gameplay entities that players collect, upgrade, and deploy i
 
 ### Unit Model (`Unit.ts`)
 
-Located in `phaser/src/Models/Entities/Unit.ts`.
+Located in `core/src/Entities/Unit.ts`.
 
 Defines the `Unit` type with all properties:
 - **Identity**: `id`, `cardId`, `pic`, `force`, `position`, `isCore`
@@ -26,11 +26,11 @@ Key functions:
 
 ### Card Definitions (`Card.ts`)
 
-Located in `phaser/src/Models/Entities/Card.ts`.
+Located in `core/src/Entities/Card.ts`.
 
 Manages unit card data:
-- **Base Collection**: `BASE_COLLECTION_DATA` in `phaser/src/Data/BaseCollection.ts` contains all unit definitions
-- **Registration**: `registerCollection()` loads card data
+- **Base Collection**: `core/src/data/BaseCollection.ts` contains all unit definitions (`ALL_CARDS`, `CARDS_BY_ID`)
+- **Registration**: `setCardsMap()` loads card data
 - **Lookup**: `getCardDefinition()` retrieves card by ID
 
 Card properties:

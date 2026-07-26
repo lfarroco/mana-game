@@ -1,129 +1,69 @@
 # Battle System
 
-The **Battle System** manages the core combat loop, phase transitions, and board logic in Mana Battle. It orchestrates the flow from phase to phase, handles unit positioning and interactions on the 3x3 board, and coordinates combat execution.
+The battle system drives the core game loop on the 3x3 board: phase
+orchestration, unit positioning, and combat execution.
 
-## Overview
+## Phases
 
-The battle system operates on a turn-based structure with distinct phases:
-- **Encounter Phase**: Player makes choices (fight, shop, upgrade)
-- **Shop Phase**: Purchase units and upgrades
-- **Combat Phase**: Execute pre-calculated combat simulation with visual playback
+A run cycles through phases: **Encounter** (fight/shop/upgrade choices),
+**Shop** (recruit units), **Orb Shop** (apply orbs), **core upgrades**
+(`upgrade_core` / `add_reaction_core`), **Combat**, plus terminal
+**Victory** / **Game Over** phases.
 
-## Core Components
+Phase orchestration lives in `phaser/src/Screens/Battleground/`:
 
-### Phase Management (`PhaseManager.ts`)
+- `BattlegroundScreen.ts` — owns the phase loop. Each phase is described by a
+  local `PhaseHandler` and wired through the `phaseHandlers` registry.
+- `Phases/<Phase>/handle<Phase>Phase.ts` — one module per phase (Encounter,
+  Shop, OrbShop, UpgradeCore, AddReactionCore, Combat, Victory, GameOver)
+  that renders the phase UI and dispatches player actions.
 
-Located in `phaser/src/Client/Screens/Battleground/PhaseManager.ts`.
+Phase transitions and option generation are **not** decided in the client:
+handlers call the server adapter — `getServer()` in `phaser/src/GameServer.ts`
+(`LocalServer` in-process for single-player) — which applies the action
+through `core/` (`SessionManagement` + `session/SessionTransitions`) and
+returns the next session state.
 
-The PhaseManager orchestrates the game flow:
-- Delegates to `MultiplayerPhaseManager` for multiplayer mode
-- Uses `getServerAdapter()` from `@Core/ServerFactory` for single-player mode
-- Handles phase transitions and UI updates
-- Manages background color changes per phase
+## Board
 
-Key functions:
-- `startPhase(state, eventEmitter)`: Entry point for phase execution
-- Phase-specific handlers for encounter, shop, combat, etc.
+- Rendering: `phaser/src/Components/Board/Board.ts` — 3x3 slots for the
+  player and enemy boards, drop zones, enemy-board visibility, energy-slot
+  shaders.
+- Rules: `core/src/BoardLogic.ts` (+ `core/src/board/`) — pure functions such
+  as `getEmptySlot`, `findFreeSlot`, `checkMove`, `createGrid`.
 
-### Combat Phase (`CombatPhase.ts`)
+## Units (Chara system)
 
-Located in `phaser/src/Systems/CombatPhase.ts`.
+`phaser/src/Systems/Chara/` manages the visual representation of units:
 
-Handles the transition to and execution of combat:
-- `transitionToCombatPhase()`: Sets up combat state, disables input, summons units
-- `handleCombatStartExecution()`: Starts combat playback using pre-calculated results
-- Integrates with `runCombatIO()` for playback controller
+- `Chara.ts` — container lifecycle, summon, destroy.
+- `input.ts` — drag-and-drop placement, click interactions.
+- `PowerDisplay.ts`, `ChargeBarDisplay.ts`, `RankDisplay.ts`,
+  `CharaTooltip.ts` — live stat displays.
+- `Animations/` — summon effects, damage popups, etc.
 
-Features:
-- Automatic combat start (no manual ready button in current implementation)
-- Support for server-provided enemy teams
-- Ghost saving for potential future PVP features
+## Combat execution
 
-### Board Logic (`Board.ts` & `BoardLogic.ts`)
+1. The session transition into combat triggers `simulateCombat()` in `core/` —
+   the fight is resolved deterministically, producing typed combat logs (see
+   [combat-architecture.md](combat-architecture.md)).
+2. `Phases/Combat/handleCombatPhase.ts` summons both boards and starts
+   playback.
+3. `Phases/Combat/CombatPlaybackController.ts` plays the logs back through
+   `logHandlers/` (visuals in `phaser/src/FX/`, audio via `env.audio`).
+4. When playback finishes, `end_combat` is dispatched and the run continues
+   to the next phase (or to Victory / Game Over).
 
-Located in `phaser/src/Models/Board.ts` and `phaser/src/Models/BoardLogic.ts`.
+## Key concepts
 
-#### Board Rendering (`Board.ts`)
-- Creates 3x3 grid slots for both player and enemy boards
-- Manages drop zones for unit placement
-- Handles enemy board visibility toggling
-- Renders energy slot shaders for visual feedback
+### Board positions
 
-Key functions:
-- `createBoardState()`: Initializes board state
-- `renderBoardSlots()`: Creates Phaser visuals for board positions
-- `setIsInputEnabled()`: Controls player interaction
-- `setEnemyBoardVisible()`: Shows/hides enemy units
+- 3x3 grid (positions 0,0 to 2,2); player board at the bottom, enemy board
+  at the top (visually flipped).
 
-#### Board Logic (`BoardLogic.ts`)
-Contains pure functions for board operations:
-- `getEmptySlot()`: Finds available board positions
-- `findFreeSlot()`: Locates free slots for unit placement
-- `checkMove()`: Validates position moves
-- `createGrid()`: Initializes grid data structure
+### State flow
 
-### Unit Management (`Chara/` System)
-
-Located in `phaser/src/Systems/Chara/`.
-
-The Chara system manages individual unit representations:
-- `Chara.ts`: Core unit container management, summoning, destruction
-- `input.ts`: Handles drag-and-drop and click interactions
-- `PowerDisplay.ts`, `ChargeBarDisplay.ts`, `RankDisplay.ts`: Visual stat displays
-- `CharaTooltip.ts`: Hover information
-- `Animations/`: Summon effects, damage popups, etc.
-
-Key features:
-- Unit summoning with visual effects
-- Interactive drag-and-drop placement
-- Real-time stat display updates
-- Tooltip system for unit information
-
-## Combat Execution Flow
-
-1. **Pre-calculation**: Combat outcomes are calculated server-side (local or remote)
-2. **Setup**: `transitionToCombatPhase()` prepares the board and units
-3. **Playback**: `CombatPlaybackController` executes visual effects based on logs
-4. **Resolution**: Combat ends, phase transitions to next encounter/shop cycle
-
-## Data Flow
-
-```
-PhaseManager
-    ↓
-getServerAdapter() (single-player) OR MultiplayerManager (multiplayer)
-    ↓
-CombatPhase.transitionToCombatPhase()
-    ↓
-Board.setEnemyBoardVisible() + Chara.summon() for all units
-    ↓
-runCombatIO() → CombatPlaybackController
-    ↓
-BrowserCombatEffects (visuals) + ServerCombatEffects (logs)
-```
-
-## Key Concepts
-
-### Board Positions
-- 3x3 grid (positions 0,0 to 2,2)
-- Player board: Bottom-left origin
-- Enemy board: Top-right origin (visually flipped)
-- Units occupy specific grid positions
-
-### Phase Transitions
-- Automatic progression based on player choices
-- Server-driven state management
-- Event-driven UI updates
-
-### Combat Playback
-- Deterministic results from server-side calculation
-- Client-side visual playback for performance
-- Frame-based animation timing
-
-## Integration Points
-
-- **State Management**: Uses global `State` object for game state
-- **Event System**: Emits events for UI updates (`EventEmitter`)
-- **Asset Loading**: Coordinates with `Loader` system for unit assets
-- **Audio**: Triggers sound effects during combat
-- **Storage**: Saves game progress between phases
+- Client state lives in `env.state` (`phaser/src/Env.ts`); the authoritative
+  session snapshot comes from the server adapter after each action.
+- UI updates are event-driven via typed events (`phaser/src/Events.ts` plus
+  per-screen events) — see [framework-formalization.md](framework-formalization.md).

@@ -36,7 +36,6 @@ Located in `phaser/src/Systems/AudioManager.ts`.
 
 ### Playback Functions
 - `playSoundEffect(soundKey, volume?)`: Play one-shot sound
-- `stopSoundEffect(soundKey)`: Stop a specific playing sound effect
 - `stopAllSoundEffects()`: Stop all active sound effects
 
 ### Anti-Spam Protection

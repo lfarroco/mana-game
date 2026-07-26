@@ -9,10 +9,11 @@ Mana Battle's game rules must execute identically in three environments:
 1. **The Phaser client** (`phaser/`) — single-player runs combat simulation
    in-process through a local server adapter. Offline single-player on
    desktop/Android is a core feature, so the logic ships in the client bundle.
-2. **The Node agent server** (`server/`) — an experimental LLM play service
-   that drives games through `GameLogic` (exploratory, not yet running).
-3. **Supabase edge functions** (`phaser/supabase/functions/`) — action
-   handling, replay validation (`replay-commit`), enemy team generation.
+2. **The Node game server** (`server/`, planned — see
+   [docs/game-server.md](../docs/game-server.md)) — the authoritative
+   multiplayer backend. The earlier Supabase edge functions
+   (`phaser/supabase/functions/`) are retired and quarantined pending
+   deletion; they no longer consume current core.
 
 Historically all of this logic lived inside `phaser/src/`, with the boundary
 maintained only by convention. This package moves the **pure, deterministic
@@ -31,16 +32,15 @@ an action, the server processes it and returns the new session state (with
 pre-computed combat logs if the action leads to combat). The server is always
 authoritative; the client never runs game logic to predict or validate. This
 keeps the core package's scope narrow — it powers single-player (in-process
-via `LocalServer`) and the edge functions that validate replays and generate
-enemies.
+via `LocalServer`) and, once it lands, the game server.
 
 ## The three-layer model
 
 | Layer              | Location                                | Contents                                                                                                | Imported by          |
 |--------------------|-----------------------------------------|---------------------------------------------------------------------------------------------------------|----------------------|
 | **Shared core**    | `core/`                                 | Pure game logic: no Phaser, no browser globals, no Node APIs, no I/O                                    | client, server, edge |
-| **Client runtime** | `phaser/src/`                           | Scenes, UI, audio, playback, client adapters (`GameController`, `RemoteServer`, `GameServer` selection) | client only          |
-| **Server runtime** | `server/`, `phaser/supabase/functions/` | Persistence, validation, networking, credentials                                                        | server/edge only     |
+| **Client runtime** | `phaser/src/`                           | Screens, UI, audio, playback, client adapters (`LocalServer`, `RemoteServer`, `getServer()` selection) | client only          |
+| **Server runtime** | `server/` (planned)                     | Persistence, validation, networking, credentials                                                        | server only          |
 
 **Import rules:**
 
@@ -155,6 +155,11 @@ Import sites were rewritten `@Utils/Random` → `@game/Random` (14 files) and
 
 ## Migration plan
 
+> **Status: complete.** Phases 1–2 are done — the pure logic lives in this
+> package. Phase 3 (server runtimes) is superseded by the new game-server
+> plan: [docs/game-server.md](../docs/game-server.md). The items below are
+> kept as a historical record of the migration.
+
 ### Phase 1 — Decouple the would-be-core from the client (prerequisite)
 
 Known leaks found in the July 2026 audit that block moving larger modules:
@@ -188,17 +193,12 @@ In rough order: `Models/` → `Data/` → `TriggerSystem/` → combat
 Keep the existing alias names (`@Models/*`, `@Core/*`, …) but repoint them to
 `core/src/...` so import sites don't churn.
 
-### Phase 3 — Server runtimes & formalization
+### Phase 3 — Server runtimes & formalization (superseded)
 
-- Delete the `server/types/phaser-aliases.d.ts` wildcard shim once
-  `@game/Core/GameLogic` resolves to the real package.
 - Consider npm workspaces at the repo root to formalize dependency direction
   (`@mana/core` has zero workspace dependencies).
-- Extend ESLint boundaries: ban imports of `@Screens`/`@Client`/`@Systems`
-  from anything that moves into `core/`.
-- Tighten multiplayer: the "server logs missing → simulate locally" fallback
-  in `MultiplayerManager` is dead code (MP is always request-response, so
-  the server always provides logs). Remove it or make it fail visibly.
+- Extend ESLint boundaries: ban client imports from anything in `core/`
+  (tracked in [docs/core-code-quality.md](../docs/core-code-quality.md), P3).
 
 ## Validation commands
 
@@ -207,18 +207,7 @@ Run from `phaser/`:
 ```bash
 npm run typecheck        # client, including @game/* resolution
 npm run typecheck:core   # this package, standalone
-npm test                 # jest (CombatSimulation exercises the moved modules)
-npm run bundle:edge      # supabase bundles resolve @game/*
-npm run test:core        # headless purity
 npm run build            # webpack production build
+cd ../core && npm test   # core package test suite
 ```
-
-Known pre-existing issues (not caused by this migration):
-
-- `npm run lint` has 3 errors (`openOptions.ts`, `BlackHoleState.ts`,
-  `applyPersistentPowerDelta.ts`). Notably `Core/Combat/BlackHoleState.ts`
-  imports `phaser` directly — part of the Phase 1 cleanup.
-- `npm run test:unit` overrides `testPathIgnorePatterns` with only `e2e`, so
-  Deno-based tests under `supabase/functions/` get picked up by jest and fail.
-  Use `npm test`.
 

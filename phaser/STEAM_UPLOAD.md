@@ -1,1 +1,0 @@
-../steam/STEAM_UPLOAD.md

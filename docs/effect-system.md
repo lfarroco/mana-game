@@ -1,89 +1,52 @@
 # Effect System
 
-The Effect System is the visual feedback layer for combat events in Mana Battle.
+The effect system is the visual feedback layer for combat events. It converts
+typed combat log entries into Phaser animations while combat resolution stays
+deterministic in `core/`.
 
-It converts combat log events into Phaser-based animations and particle effects while keeping combat resolution deterministic in core logic.
+## Pipeline
 
-## Architecture Overview
+1. `core/` simulation produces `CombatLogEntry[]` (see
+   [combat-architecture.md](combat-architecture.md)).
+2. `Screens/Battleground/Phases/Combat/CombatPlaybackController.ts` schedules
+   the log entries over time.
+3. `Screens/Battleground/Phases/Combat/logHandlers/` maps each log type to
+   concrete visual handlers:
+   - `projectileHandlers.ts` — damage / heal / shield style projectiles
+   - `statusHandlers.ts` — poison, regen, haste, slow, charge
+   - `powerHandlers.ts` — power increases / decreases / multipliers
+   - `arcaneMissileHandlers.ts`, `combatStatsHandlers.ts`, plus `index.ts`
+     (dispatch), `types.ts`, `combatStateStore.ts`
+4. Styling adapters in `logHandlers/visuals/` (`damage.ts`, `heal.ts`,
+   `shield.ts`, ...) wrap the generic primitives in domain terms (colors,
+   amplitude, impact tuning).
+5. Reusable Phaser primitives live in `phaser/src/FX/`:
+   `arcaneMissileTargeted.ts`, `fireballEffect.ts`, `explodeEffect.ts`,
+   `impactEffect.ts`, `hasteEffect.ts`, `slowEffect.ts`,
+   `healingHitEffect.ts`, `summonEffect.ts`, `EnergyBeam.ts`,
+   `GlowingOrb.ts`, re-exported via `FX/index.ts`.
 
-Core pipeline:
+Responsibilities stay split: simulation decides **what** happened, playback
+decides **when** to show it, effect modules decide **how** it looks.
 
-1. Server or local combat simulation produces combat logs.
-2. `CombatPlaybackController` schedules and executes log entries over time.
-3. `BrowserCombatEffects` maps each log type to concrete visual handlers.
-4. Reusable effect functions in `phaser/src/Effects/` and `phaser/src/TriggerSystem/effects/visuals/` render projectiles, bursts, and status visuals.
+## Audio
 
-Primary files:
+SFX are coupled at the handler layer (`env.audio` / `AudioManager`) so
+visuals and sound stay synchronized — see
+[audio-system.md](audio-system.md).
 
-- `phaser/src/Client/Screens/Battleground/CombatPlaybackController.ts`
-- `phaser/src/Client/Screens/Battleground/BrowserCombatEffects.ts`
-- `phaser/src/Effects/`
-- `phaser/src/TriggerSystem/effects/visuals/`
+## Adding a new visual effect
 
-## Playback Integration
+1. Implement or reuse a primitive in `phaser/src/FX/`.
+2. Add a styling adapter in `logHandlers/visuals/` if it maps to a gameplay
+   effect.
+3. Wire the handler for the corresponding log type in `logHandlers/`.
+4. Ensure the simulation emits the log entry — visuals only read event data,
+   never mutate game state.
 
-`CombatPlaybackController` consumes `CombatLogEntry[]` and schedules animations by frame time.
+## Performance notes
 
-For each log type (`damage`, `heal`, `shield`, `poison`, `regen`, `haste`, `slow`, `charge`, etc.) it calls the corresponding callback on the `CombatEffects` interface.
-
-This keeps responsibilities split:
-
-- Simulation determines what happened.
-- Playback determines when to show it.
-- Effect modules determine how it looks.
-
-## Browser Effect Mapping
-
-`createBrowserCombatEffects()` provides runtime handlers used in normal client rendering.
-
-Examples:
-
-- `onDamage` uses `damageFx(...)` and target shake.
-- `onHeal` uses `healFx(...)`.
-- `onShield` uses `shieldFx(...)`.
-- `onPoison` uses `poisonFx(...)`.
-- `onRegen`, `onHaste`, `onSlow`, and `onCharge` use `arcaneMissileTargeted(...)` with specialized color/effect presets.
-- `onReactionVisual` uses `summonEffect(...)`.
-
-Audio feedback is coupled at this layer via `playSoundEffect(...)` so visuals and SFX remain synchronized.
-
-## Effect Modules
-
-`phaser/src/Effects/` contains reusable Phaser effect builders, for example:
-
-- `arcaneMissile.ts`, `arcaneMissileTargeted.ts`
-- `fireballEffect.ts`, `explodeEffect.ts`, `impactEffect.ts`
-- `hasteEffect.ts`, `slowEffect.ts`, `healingHitEffect.ts`
-- `summonEffect.ts`, `EnergyBeam.ts`, `GlowingOrb.ts`
-
-`phaser/src/Effects/index.ts` re-exports the public effect API used by other systems.
-
-`phaser/src/Effects/effectConstants.ts` centralizes shared constants such as impact offsets.
-
-## Trigger Visual Adapters
-
-`phaser/src/TriggerSystem/effects/visuals/` wraps generic effect primitives into semantic helpers:
-
-- `damage.ts`
-- `heal.ts`
-- `shield.ts`
-- `poison.ts`
-- `regen.ts`
-
-These helpers standardize styling presets (colors, amplitude, impact tuning) and make gameplay code read in domain terms.
-
-## Design Guidelines
-
-When adding a new visual effect:
-
-1. Implement or reuse a primitive in `phaser/src/Effects/`.
-2. Add a semantic adapter in `TriggerSystem/effects/visuals/` if it maps to a gameplay effect.
-3. Wire the handler in `BrowserCombatEffects` via the `CombatEffects` callback surface.
-4. Ensure corresponding combat log entries are emitted by simulation.
-5. Keep simulation logic side-effect free; visuals should only read event data.
-
-## Performance Notes
-
-- Effects are instantiated from log playback timing, not per-frame polling of game rules.
-- Shared constants and helper modules reduce duplicated object setup.
-- Heavy combat scenes should prefer short-lived particle emitters with explicit destroy/cleanup patterns.
+- Effects fire from playback timing, not per-frame polling of game rules.
+- Prefer short-lived particle emitters with explicit destroy/cleanup.
+- See [combat-playback-performance.md](combat-playback-performance.md) for
+  known frame-spike optimizations.

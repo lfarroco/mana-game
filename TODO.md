@@ -1,8 +1,4 @@
 
-## next steps
-- have the multiplayer handler be used locally when in single player
-
-
 ## organize project files
 
 - assets (graphics, sound)
@@ -23,7 +19,7 @@
     - scenes
     - fx
   - server
-    - supabase
+    - node game server (see docs/game-server.md)
     - local
   
 

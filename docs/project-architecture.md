@@ -1,66 +1,51 @@
 # Project Architecture
 
-This chart describes the high-level architecture of Mana Battle and how data
-flows between pure game logic, Phaser runtime systems, and
-platform/infrastructure layers.
+High-level view of how data flows between the pure game logic (`core/`), the
+Phaser client (`phaser/src/`), and the platform/infrastructure layers.
 
 ```text
 Player Input
     |
     v
-UI Components
+Screens/*  (single Phaser scene: src/Client.ts, navigation via switchScreen)
     |
     v
-Engine/Scenes/Battleground ----------------------------------------+
-            |                                                      |
-            v                                                      |
-  Core/GameLogic + PhaseSystem <------> Models/State + Board + Entities
-            |                           ^                    ^
-            |                           |                    |
-            v                           |                    |
-      TriggerSystem --------------------+                    |
-            |                                                |
-            +--> RunCombatCore + ServerCombatEffects         |
-            |          |                                     |
-            |          v                                     |
-            |     Combat Logs                                |
-            |          |                                     |
-            |          v                                     |
-            |     CombatPlaybackController + BrowserCombatEffects
-            |          |                      |
-            |          +--------------------->+--> Effects + Audio
-            |
-            +--> Core/GameServer --> LocalServerAdapter
-            |                    |
-            |                    +--> MultiplayerManager --> Supabase Backend
-            |
-            +--> StorageFactory --> LocalStorage / SteamCloud
-            +--> i18n Translations
-            +--> Electron Desktop
-            +--> Capacitor Android
-
-Data/BaseCollection -------------------------------------------------> Models
+Screens/Battleground/BattlegroundScreen  (phase loop + phase handlers)
+    |
+    +--> Phases/*  (Encounter, Shop, OrbShop, UpgradeCore, AddReactionCore,
+    |               Combat, Victory, GameOver)
+    |        |
+    |        v
+    |     ServerAdapter (src/GameServer.ts -> getServer())
+    |        |-- single-player: LocalServer (in-process)
+    |        '-- multiplayer:  RemoteServer (retired Supabase client,
+    |                             quarantined; replacement: docs/game-server.md)
+    |        |
+    |        v
+    |     core/  (@mana/core — pure logic, no Phaser/DOM/Node)
+    |       SessionManagement + session/SessionTransitions
+    |       Combat/CombatRunner + CombatSimulation -> CombatLogger (typed logs)
+    |       TriggerSystem/ (action-reaction engine)
+    |       Entities/ + board/ + data/BaseCollection
+    |        |
+    |        v
+    |     CombatState with CombatLogEntry[]
+    |        |
+    |        v
+    |     Phases/Combat/CombatPlaybackController -> logHandlers/ -> FX/ + audio
+    |
+    +--> Storage (StorageFactory -> LocalStorage / SteamCloud)
+    +--> i18n (en, es, pt, jp, cn, ru)
+    +--> Env (src/Env.ts — state, dispatch, time, audio, Phaser access)
+    +--> Electron desktop / Capacitor Android
 ```
-
-The runtime layer starts with player input flowing through UI components into the
-main battleground scene. That scene coordinates presentation and phase changes,
-while the replay-critical rules live in `Core/GameLogic`, the phase system, the
-trigger system, and the board/entity state models.
-
-Combat follows a simulate-then-playback flow. Pure combat logic runs in
-`RunCombatCore` and related server-side effects code, produces combat logs, and
-the client replays those logs through `CombatPlaybackController` and browser-side
-effects. This keeps authoritative combat resolution separate from Phaser-driven
-animation and audio.
-
-The same core logic also talks to the `GameServer` abstraction so single-player
-and multiplayer share one server-facing interface. Around that, the scene layer
-integrates storage, localization, and platform targets such as Electron and
-Capacitor, while multiplayer-specific backend concerns flow through Supabase.
 
 ## Notes
 
-- Core and Models represent replay-critical pure logic (no Phaser dependency).
-- Engine/Scenes coordinates game phases and presentation.
-- Combat is simulated first, then played back through logged events.
-- Single-player and multiplayer both use the same game server interface (`GameServer`).
+- `core/` is replay-critical pure logic; it imports nothing from `phaser/`
+  (see [purity-boundary.md](purity-boundary.md)).
+- Combat is simulated to completion in `core/`, producing typed combat logs;
+  the client only plays them back (see [combat-architecture.md](combat-architecture.md)).
+- Single-player runs the same server interface in-process (`LocalServer`).
+  Multiplayer will use the new `server/` Node backend — plan in
+  [game-server.md](game-server.md).

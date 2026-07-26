@@ -34,15 +34,6 @@ Opens at `http://localhost:8080`
 | `make electron-build`     | Build desktop app for current platform                      |
 | `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
 
-### Server & Multiplayer
-
-| Command                    | Description                                                     |
-|----------------------------|-----------------------------------------------------------------|
-| `npm run server`           | Run the headless agent game server                              |
-| `npm run server:agents`    | (experimental) Run the headless agent game server for AI agents |
-| `npm run deploy:functions` | Deploy Supabase edge functions                                  |
-| `npm run test:supabase`    | Run Supabase edge function tests                                |
-
 ### Mobile
 
 | Command              | Description                     |
@@ -89,6 +80,6 @@ Build outputs are placed in the `dist-electron` directory.
 
 ## Platform Requirements
 
-- **Node.js**: v18 or higher
+- **Node.js**: v22 or higher
 - **npm**: v7 or higher
 - **OS**: Windows, macOS, or Linux

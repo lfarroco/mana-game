@@ -7,7 +7,7 @@ The Options system stores player preferences, renders the Options menu UI, and a
 Primary implementation areas:
 
 - `phaser/src/Models/OptionsStore.ts` (state, persistence, setters)
-- `phaser/src/Client/Screens/Options/` (UI scene + tab controls)
+- `phaser/src/Screens/Options/` (OptionsScreen + tab controls)
 - `phaser/src/Systems/AudioManager.ts` (reacts to audio preference changes)
 
 At startup (`phaser/src/main.ts`), `OptionsStore.init()` loads persisted settings and applies runtime effects.
@@ -62,7 +62,7 @@ This keeps preferences as the single source of truth while still updating live g
 
 ## Options Scene UI
 
-`OptionsScene` is a Phaser scene with three tabs:
+The Options screen has three tabs:
 
 - `audio`
 - `graphics`
@@ -70,11 +70,11 @@ This keeps preferences as the single source of truth while still updating live g
 
 Tab composition is done in `showTab()`:
 
-- Audio tab (`components/tabs/audio.ts`):
+- Audio tab (`Components/tabs/audio.ts`):
   master volume, sound toggle, sound volume, music toggle, music volume
-- Graphics tab (`components/tabs/graphics.ts`):
+- Graphics tab (`Components/tabs/graphics.ts`):
   particle quality (`low/medium/high`) and immediate background update
-- Game tab (`components/tabs/game.ts`):
+- Game tab (`Components/tabs/game.ts`):
   debug toggle, speed slider, compact tooltips toggle
 
 Controls are functional builders (`boolean`, `volume`, `speed`, `multipleChoice`) that receive `getValue`/`setValue` closures and return Phaser objects.
@@ -86,7 +86,7 @@ All user-facing labels are pulled through `t(...)` keys from the i18n system (`p
 When adding new options:
 
 1. Add the option field to `OptionsStore` with defaults and validation.
-2. Add tab control wiring in `Engine/Scenes/Options/components/tabs/`.
+2. Add tab control wiring in `Screens/Options/Components/tabs/`.
 3. Add localization keys for all supported locales.
 4. Add any required runtime side effect in `setOption()`.
 

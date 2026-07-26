@@ -95,22 +95,20 @@ _Date: July 23, 2026 — Updated after incremental improvements_
 
 ### ⚠️ Structural Improvements (Not Yet Done)
 
-- **Split `Models.ts`** (~463 lines) into `Effect.ts`, `Targeting.ts`, `Unit.ts`, `Combat.ts`, `Session.ts`, `Action.ts`.
-- **Split `BaseCollection.ts`** (~1330 lines) by faction/tier.
+- **Split `BaseCollection.ts`** (~1300 lines) by faction/tier.
 - **Add ESLint** to the core package.
 - **Add CI** for core package standalone (typecheck + test on PR).
 - **CombatStatsTracker** — the `(stats[config.unitStatKey] as number)` cast on line ~127 can be eliminated by restructuring `StatConfig` to use a mapping type instead of `keyof`.
 
 ### 🧪 Testing Gaps (Not Yet Done)
 
-**Tested:** CombatSimulation, Random, BoardLogic, Geometry, Constants, Functional, CombatLogger, PoisonDamageSystem, RegenSystem, CombatStatsTracker, PhaseConfig, Random.pick, SessionManagement, OptionGeneration, EnemyGeneration, generateEnemyTeam, Card, Unit, Force, TimeoutDamageSystem, OrbAndCoreUpgrades, RecruitmentActions
-**Untested:** StatusEffectSystem, CombatRunner, TriggerSystem + effects, SessionTransitions, BaseCollection
+**Untested or partially tested:** `StatusEffectSystem`, `CombatRunner` (partial — covered indirectly via integration tests), `BaseCollection` data integrity. (`SessionTransitions` and `TriggerSystem` gained tests on 2026-07-25.)
 
 ## Verification
 
 ```bash
 npm run typecheck   # ✅ zero errors (both core and phaser)
-npm run test        # ✅ 302 tests pass (22 suites, all green)
+npm run test        # ✅ 401 tests pass (28 suites, all green)
 npm run lint        # ✅ zero warnings / zero errors (phaser)
 ```
 

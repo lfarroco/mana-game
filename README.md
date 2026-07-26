@@ -23,12 +23,12 @@ A trigger-based autobattler in a 3x3 board.
 
 ## Architecture
 
-- Client
-  - Screens (Scenes)
+- Client (`phaser/src/`)
+  - Screens
     - Components
-    - Effects
+    - Phases
   - Events
-- Server
+- Core game logic (`core/` — pure, framework-agnostic package)
 
 ## Documentation
 
@@ -42,23 +42,13 @@ Detailed documentation is organized by topic in the `docs` directory:
 - **[Localization System](docs/localization.md)** - Architecture, usage, and guide for adding new languages
 - **[Achievement System](docs/achievement-system.md)** - Overview of Steam achievement integration, victory tiers, and calculation logic
 - **[Combat Architecture](docs/combat-architecture.md)** - Documentation of the client-server separation for combat simulation.
-- **[Multiplayer Architecture](docs/multiplayer-architecture.md)** - Documentation of the multiplayer mode and server-driven phase management.
-- **[Multiplayer Setup & Usage](docs/MULTIPLAYER_SETUP.md)** - Guide for running the server, database, and integration tests.
+- **[Game Server Plan](docs/game-server.md)** - Phased plan for the new Node multiplayer backend (replaces the retired Supabase functions).
 - **[Battle System](docs/battle-system.md)** - Core combat loop, phase management, and board logic.
 - **[Character/Unit System](docs/character-unit-system.md)** - Unit definitions, classes, and asset management.
 - **[Audio System](docs/audio-system.md)** - Music and SFX management.
-
-## Documentation Roadmap
-
-The following systems still need to be documented. If you find sections in the game that need documentation, please add them here.
-
-- [ ] **UI System** - User interface components and layout management
-- [ ] **Effect System** - Visual effects and particle systems
-- [ ] **Options/Preferences System** - User settings and configuration
-
-## Migration Plans
-
-- **[Server-Side Combat Migration](docs/server-side-combat-migration.md)** - Plan for decoupling the combat runner from Phaser for server-side verification.
+- **[UI System](docs/ui-system.md)** - UI components, event handling, layout management.
+- **[Effect System](docs/effect-system.md)** - Visual effect pipeline and combat integration.
+- **[Options System](docs/options-system.md)** - Options data model, persistence, UI bindings.
 
 ## AI Agent Entry Point
 
@@ -67,6 +57,6 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 ## Publishing
 
 - Steam: run `make electron-build-all`, then `make steam-publish`.
-- Stem Demo: run `make electron-build-demo`, then `make steam-publish-demo`.
+- Steam Demo: run `make electron-build-demo`, then `make steam-publish-demo`.
 - Itch: `npm run build`, zip the contents of `dist`, and upload to Itch.io.
 - Android: run `make android-build`, then, in Android Studio, Build > Generate Signed Bundle / APK.

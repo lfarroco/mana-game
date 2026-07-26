@@ -226,8 +226,6 @@ This package would live between `core/` (pure logic) and `phaser/src/`
 
 ## References
 
-- [Event-Driven Architecture](event-driven-architecture.md) — the event
-  system that underpins the framework
 - [core/README.md](../core/README.md) — three-layer model and migration plan
 - [purity-boundary.md](purity-boundary.md) — import rules enforced by the
   core/client split

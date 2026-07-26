@@ -1,155 +1,63 @@
-# Combat Client-Server Architecture
+# Combat Architecture
 
-This document describes the architectural separation between the core combat logic (Server/Shared) and the visual presentation (Client). This design allows the game to run efficient, verifiable combat simulations in a headless server environment while maintaining a rich visual experience in the browser.
+Combat is fully simulated inside the pure `core/` package and then played
+back visually by the client. Simulation and presentation never mix.
 
-## Overview
+## Components
 
-The combat system is designed around a strict Separation of Concerns:
-1.  **Core Logic**: Handles rules, damage, stats, and outcomes. Pure TypeScript, no Phaser dependencies.
-2.  **Interface Layer**: Defines how the Core interacts with the outside world (visuals, sounds, logs).
-3.  **Implementation**: Platform-specific handlers (Phaser for Client, Mock/Log for Server).
-4.  **Playback System**: Decouples combat simulation from animation timing, allowing server-side computation with client-side playback.
+### Simulation (`core/`)
 
-## Architecture Components
+- `core/src/Combat/CombatRunner.ts` — the frame-by-frame combat loop:
+  cooldowns, effect dispatch through the TriggerSystem, status systems
+  (poison, regen, timeout), win/loss detection.
+- `core/src/Combat/CombatSimulation.ts` — `simulateCombat()` runs a combat
+  to completion and returns the resulting `CombatState` (including the logs
+  and `wonCombat`). Deterministic for a given seed.
+- `core/src/Combat/CombatLogger.ts` — the typed `CombatLogEntry` union
+  (damage, heal, shield, poison, regen, haste, slow, charge, power changes,
+  ticks, outcome, ...). Everything the client needs to render the fight.
+- `core/src/session/SessionTransitions.ts` — calls `simulateCombat` when a
+  session transitions into combat; the produced logs travel with the
+  session/combat state back to the client.
 
-### 1. Core Logic (`RunCombatCore.ts`)
+### Playback (`phaser/src/`)
 
-- **Location**: `phaser/src/Client/Screens/Battleground/RunCombatCore.ts`
-- **Responsibility**: Manages the game loop, processes cooldowns, applies effects (damage/heal), and determines win/loss conditions.
-- **Dependencies**: Imports *only* data models (`State`, `Unit`, `Force`) and pure logic systems (`TimeoutDamageSystem`, `PoisonDamageSystem`). **No Phaser imports allowed.**
+- `Screens/Battleground/Phases/Combat/CombatPlaybackController.ts` —
+  `createCombatPlaybackController(...)` schedules the log entries on the
+  Phaser clock and fires them in order.
+- `Screens/Battleground/Phases/Combat/logHandlers/` — dispatches each log
+  type to visuals (`projectileHandlers.ts`, `statusHandlers.ts`,
+  `powerHandlers.ts`, `arcaneMissileHandlers.ts`, `combatStatsHandlers.ts`),
+  with shared styling adapters in `logHandlers/visuals/`.
+- `phaser/src/FX/` — reusable Phaser effect primitives
+  (`arcaneMissileTargeted`, `fireballEffect`, `summonEffect`, ...). See
+  [effect-system.md](effect-system.md).
 
-The `runCombat` function is the entry point:
-```typescript
-export const runCombat = (state: State, effects: CombatEffects): CombatRunner
-```
+## Data flow
 
-### 2. The Interface (`CombatEffects`)
-
-- **Location**: `phaser/src/@Core/Combat/CombatTypes.ts`
-- **Responsibility**: Defines the contract for all side-effects. The Core Logic calls these methods to "announce" what happened, without knowing *how* it is presented.
-
-Key methods include (all optional — implementations only provide what they need):
-- `onDamage(sourceId, targetId, amount, onHit, delayedExecution?)`
-- `onHeal`, `onShield`, `onPoison`, `onRegen`
-- `onHaste`, `onSlow`, `onCharge`
-- `onIncreasePower`, `onDecreasePower`, `onMultiplyPower`
-- `updateLifeDisplay(force, life, ...)`
-
-```typescript
-export type CombatEffects = {
-    onDamage?: (sourceId: string, targetId: string, amount: number, onHit: () => void, delayedExecution?: number) => void;
-    // ... ~25 optional methods
-};
-```
-
-### 3. Implementations
-
-#### Client-Side (`BrowserCombatEffects.ts`)
-- **Location**: `phaser/src/Client/Screens/Battleground/BrowserCombatEffects.ts`
-- **Context**: Runs in the browser (Electron/Web).
-- **Behavior**: Implements `CombatEffects` using Phaser 3. Triggers animations, particles, camera shakes, and sound effects.
-
-#### Server-Side (`ServerCombatEffects.ts`)
-- **Location**: `phaser/src/Client/Screens/Battleground/ServerCombatEffects.ts`
-- **Context**: Runs in Node.js or browser for simulation.
-- **Behavior**: Implements `CombatEffects` using loggers. Records all combat events with frame numbers and durations for playback.
-
-### 4. Playback System (`CombatPlaybackController.ts`)
-
-- **Location**: `phaser/src/Client/Screens/Battleground/CombatPlaybackController.ts`
-- **Responsibility**: Schedules and executes animations based on pre-computed combat logs from server-side simulation.
-- **Key Features**:
-  - Accepts combat logs with frame numbers and durations
-  - Implements `CombatRunner` interface for compatibility
-  - Schedules animations in chronological order
-  - Executes visual effects at appropriate times
-
-## Data Flow
-
-### Traditional Flow (Deprecated)
 ```mermaid
 sequenceDiagram
-    participant Core as RunCombatCore
-    participant Sys as Systems (Poison/Timeout)
-    participant Effects as CombatEffects (Interface)
-    participant Client as BrowserCombatEffects (Phaser)
-    
-    Core->>Core: Update Frame (Delta)
-    Core->>Sys: Process Ticks
-    
-    alt Damage Event
-        Core->>Effects: onDamage(source, target)
-        Effects->>Client: Play Animation & Sound
-        Client-->>Core: Callback (onHit)
-        Core->>Core: Apply Damage to State
+    participant Session as SessionTransitions (core)
+    participant Sim as simulateCombat (core)
+    participant Log as CombatLogger (core)
+    participant Play as CombatPlaybackController (client)
+    participant FX as logHandlers + FX (client)
+
+    Session->>Sim: combat starts (seeded state)
+    Sim->>Log: record every event as typed CombatLogEntry
+    Sim-->>Session: CombatState { logs, wonCombat, ... }
+    Session-->>Play: client receives logs
+    loop Phaser update
+        Play->>FX: fire due animations/sounds in log order
     end
+    Play->>Session: playback finished -> end_combat
 ```
 
-### Current Playback Flow
-```mermaid
-sequenceDiagram
-    participant IO as RunCombatIO
-    participant Server as runServerSideCombat
-    participant Core as RunCombatCore
-    participant ServerFX as ServerCombatEffects
-    participant Playback as CombatPlaybackController
-    participant ClientFX as BrowserCombatEffects
-    
-    IO->>Server: runServerSideCombat(state)
-    Server->>Core: runCombat(state, ServerCombatEffects)
-    Core->>ServerFX: Log all events
-    ServerFX-->>Server: Combat logs
-    Server-->>IO: { logs, outcome }
-    
-    IO->>Playback: createCombatPlaybackController(state, logs, BrowserCombatEffects)
-    
-    loop Game Loop
-        Playback->>Playback: Check scheduled animations
-        Playback->>ClientFX: Execute animations at correct time
-    end
-    
-    Playback->>ClientFX: onCombatEnd(outcome)
-```
+## Properties
 
-## Usage
-
-### Running Locally (Client)
-The game initializes combat using the playback system in `RunCombatIO.ts`:
-
-```typescript
-export const runCombatIO = (): CombatRunner => {
-    const state = getState();
-    
-    // Run server-side simulation to get logs
-    const combatResult = runServerSideCombat(state);
-    
-    // Create playback controller with logs
-    const effects = createBrowserCombatEffects();
-    const playbackController = createCombatPlaybackController(
-        state, 
-        combatResult.logs, 
-        effects
-    );
-    
-    return playbackController;
-};
-```
-
-### Running on Server
-The server can run combat simulation directly:
-
-```typescript
-import { runServerSideCombat } from './serverCombatDemo';
-
-const result = runServerSideCombat(gameState);
-console.log('Combat outcome:', result.outcome);
-console.log('Combat logs:', result.logs);
-```
-
-## Benefits
-
-1. **Deterministic**: Combat results are computed server-side, ensuring consistency
-2. **Verifiable**: Server can validate combat outcomes independently
-3. **Replayable**: Combat logs can be saved and replayed later
-4. **Network-Ready**: Easy to move simulation to actual server for multiplayer
-5. **Performance**: Combat calculation doesn't block rendering
+1. **Deterministic** — same seed and inputs produce the same combat and logs.
+2. **Verifiable** — a server can re-run `simulateCombat` and compare outcomes
+   (see [game-server.md](game-server.md)).
+3. **Replayable** — logs can be stored and replayed without re-simulation.
+4. **Headless** — simulation runs in Node with zero Phaser/DOM imports (see
+   [purity-boundary.md](purity-boundary.md)).

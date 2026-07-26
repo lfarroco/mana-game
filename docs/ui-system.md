@@ -1,115 +1,71 @@
 # UI System
 
-The UI layer in Mana Battle is built on top of Phaser game objects with composition-focused helper modules.
+The UI layer is built on Phaser game objects with small functional builders
+composed per screen.
 
-The system favors small functional builders that create containers, text, graphics, and interactions, then compose those pieces per scene.
+## Structure
 
-## High-Level Structure
+- **Shared, reusable widgets**: `phaser/src/Components/` — `Button/`,
+  `Slider/`, `Tooltip/`, `Modal/`, `Panel/`, `Overlay/`, `Chip/`,
+  `MagicOrb/`, `EnergySlot/`, `CloudsBackground/`, `Board/`.
+- **Battleground HUD**: `phaser/src/Screens/Battleground/Components/UI/` —
+  `UI.ts` (top HUD container + transient messages), `events.ts` (wins /
+  lives / round / purchase-error updates), `headerBackground.ts`,
+  `roundDisplay.ts`, `livesDisplay.ts`, `winsDisplay.ts`, `namesDisplay.ts`,
+  `RunStatsPanel.ts`, `theme.ts`.
+- Other screens keep their UI in `Screens/<Screen>/Components/` (e.g.
+  `Screens/Options/Components/`).
+- Battleground composition root: `Screens/Battleground/Components.ts`
+  (creates Background, Board, UI, Shop, ResultsUI, DiscardZone);
+  `Components/menuButton.ts` opens the in-game menu panel.
 
-Main UI entry points:
+## Composition pattern
 
-- `phaser/src/UI/UI.ts`
-- `phaser/src/UI/events.ts`
-- `phaser/src/UI/components/`
-- Shared primitives in `phaser/src/Components/`
-
-### Responsibilities
-
-- `UI.ts`: creates and destroys the top HUD container and handles transient user messages.
-- `events.ts`: updates UI state when game state changes (wins, lives, round, purchase errors).
-- `UI/components/*`: concrete HUD elements (header background, round, lives, wins, menu).
-- `Components/*`: reusable widgets (button, slider, tooltip, modal, panel, overlays).
-
-## Composition Pattern
-
-UI builders return Phaser game objects and are composed into containers:
-
-1. A feature module exports a `create()` function.
-2. `UI.init(state)` composes those creators into container hierarchies.
+1. A feature module exports a `create()` function returning Phaser objects.
+2. Screens compose those creators into container hierarchies inside their
+   own `create()`.
 3. Event handlers call update functions on specific modules.
 
-This avoids monolithic scene classes and keeps each widget mostly independent.
+This keeps widgets independent and avoids monolithic scene classes.
 
-## Core HUD Elements
+## Event-driven updates
 
-### Header Container
-
-Created in `UI.init()` as a container containing:
-
-- Header background polygon (`components/headerBackground.ts`)
-- Round label/value (`components/roundDisplay.ts`)
-- Lives hearts (`components/livesDisplay.ts`)
-- Wins progress bar (`components/winsDisplay.ts`)
-
-### Menu Button + Panel
-
-`components/menuButton.ts` renders a button that opens a modal-like panel with scene actions:
-
-- New run (feature-flagged via game controller)
-- Return to main menu
-- Back/close
-
-## Event-Driven Updates
-
-`UI/events.ts` maps domain events to visual updates:
+`Components/UI/events.ts` maps domain events to visual updates:
 
 - `onWinsChanged(newTotalWins, winsDelta)`
 - `onLivesChanged(newTotalLives, livesDelta)`
 - `onRoundChanged(newRound)`
 - `onPurchaseFailed(unitName, reason, cost?)`
 
-Animations are localized to their owning component (for example, lives delta text and win effects).
+## Layout
 
-## Layout Management
+Constant-based, manual positioning (anchor constants + local offsets inside
+containers). There is no responsive layout engine — resolution changes
+require touching component constants.
 
-Layout is currently constant-based and manually positioned with helper methods (`SetPosition`, `Centralize`, container offsets).
+## Input
 
-Patterns used throughout:
-
-- Scene-level anchor constants for major blocks.
-- Component-level local offsets inside containers.
-- Predefined panel sizes for overlays/menu panels.
-
-This is simple and explicit, but changes to global resolution/layout require touching component constants.
-
-## Shared UI Components
-
-Reusable primitives in `phaser/src/Components/` include:
-
-- `UIButton.ts`: stylized interactive button with shader overlay, hover/press behavior, and optional debug trigger registry.
-- `Slider.ts`: neon-style slider with drag/hover interactions and snapped values.
-- `Tooltip.ts`: dynamic shader-backed tooltip with BBCode text, clamped positioning, and top-layer rendering.
-- `Modal.ts`: overlay + panel wrapper with animated open/close behavior.
-- `Panel.ts`, `BackgroundOverlay.ts`, and additional visual helpers.
-
-## Input Handling
-
-Input uses Phaser interactive objects and pointer events:
-
-- `pointerover` / `pointerout` for hover states and tooltips.
-- `pointerdown` / `pointerup` for button and slider interaction.
-- Full-screen interactive rectangle overlays for modal/menu focus capture.
-
-Audio feedback for UI actions is triggered at widget level (for example in `UIButton` and `Slider`).
+Phaser interactive objects: `pointerover` / `pointerout` for hover states and
+tooltips, `pointerdown` / `pointerup` for buttons and sliders, full-screen
+overlays for modal focus capture. Audio feedback is triggered at the widget
+level.
 
 ## Localization
 
-All UI text should use `t(...)` keys from `phaser/src/i18n/`.
+All UI text uses `t(...)` keys from `phaser/src/i18n/` (see
+[localization.md](localization.md)).
 
-Most core UI modules already follow this pattern (menu labels, shop error text, tooltip titles/descriptions, round/lives/wins labels).
+## Extension guidelines
 
-## Extension Guidelines
+1. Feature-specific module under the screen's `Components/`; reusable widget
+   under `phaser/src/Components/`.
+2. Expose `create()` and minimal update functions; keep rendering and update
+   logic together.
+3. Use localization keys for all user-visible text.
+4. Add cleanup paths (destroy containers, dispose listeners) — screens are
+   re-created on each visit.
 
-When adding a new UI element:
+## Known gaps
 
-1. Create a focused module under `UI/components/` when feature-specific, or `Components/` when reusable.
-2. Keep rendering logic and update logic in the same module when practical.
-3. Expose `create()` and minimal update functions instead of mutable internals.
-4. Use localization keys for all user-visible text.
-5. Add cleanup paths for containers/tooltips/listeners to avoid stale objects between scene transitions.
-
-## Known Gaps
-
-- No centralized responsive layout engine; positioning is mostly fixed constants.
-- Some UI primitives still log debug messages directly (`UIButton`), which should eventually align with structured logging.
-- `OptionsStore.debug` setting exists but has limited direct UI/runtime wiring.
+- No centralized responsive layout engine.
+- `OptionsStore.debug` exists but has limited runtime wiring.
