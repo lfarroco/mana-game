@@ -52,7 +52,7 @@ describe("OptionGeneration", () => {
 	describe("createEncounterOptions", () => {
 		it("returns 3 options", () => {
 			const session = makeSession();
-			const options = OptionGeneration.createEncounterOptions(session);
+			const { options } = OptionGeneration.createEncounterOptions(session);
 			expect(options).toHaveLength(3);
 			for (const opt of options) {
 				expect(typeof opt.id).toBe("string");
@@ -62,34 +62,38 @@ describe("OptionGeneration", () => {
 		it("is deterministic for same seed", () => {
 			const a = OptionGeneration.createEncounterOptions(makeSession({ seed: "fixed" }));
 			const b = OptionGeneration.createEncounterOptions(makeSession({ seed: "fixed" }));
-			expect(a.map((o) => o.id)).toEqual(b.map((o) => o.id));
+			expect(a.options.map((o) => o.id)).toEqual(b.options.map((o) => o.id));
 		});
 
 		it("different seeds produce different options (usually)", () => {
 			const a = OptionGeneration.createEncounterOptions(makeSession({ seed: "alpha" }));
 			const b = OptionGeneration.createEncounterOptions(makeSession({ seed: "beta" }));
-			const idsA = a.map((o) => o.id).sort().join(",");
-			const idsB = b.map((o) => o.id).sort().join(",");
+			const idsA = a.options.map((o) => o.id).sort().join(",");
+			const idsB = b.options.map((o) => o.id).sort().join(",");
 			expect(idsA).not.toBe(idsB);
 		});
 
-		it("adds selected options to encounter_history", () => {
+		it("returns encounter history alongside options", () => {
 			const session = makeSession();
 			expect(session.encounter_history).toEqual([]);
-			OptionGeneration.createEncounterOptions(session);
-			expect(session.encounter_history!.length).toBeGreaterThanOrEqual(3);
+			const { encounterHistory } = OptionGeneration.createEncounterOptions(session);
+			expect(encounterHistory.length).toBeGreaterThanOrEqual(3);
+			// Session must not be mutated
+			expect(session.encounter_history).toEqual([]);
 		});
 
 		it("avoids recently shown encounters", () => {
 			const session = makeSession();
 			// First call to get some options that will populate history
 			const firstCall = OptionGeneration.createEncounterOptions(session);
-			// History now has 3 items; slice(-12) catches all 3
-			const secondCall = OptionGeneration.createEncounterOptions(session);
-			// The second call cannot pick from the recently-shown 3, so
-			// it must pick 3 different encounters
-			const firstIds = new Set(firstCall.map((o) => o.id));
-			for (const opt of secondCall) {
+			// History now has 3 items (but session is not mutated since we use the new return value)
+			const secondCall = OptionGeneration.createEncounterOptions({
+				...session,
+				encounter_history: firstCall.encounterHistory,
+			});
+			// The second call cannot pick from the recently-shown 3
+			const firstIds = new Set(firstCall.options.map((o) => o.id));
+			for (const opt of secondCall.options) {
 				expect(firstIds.has(opt.id)).toBe(false);
 			}
 		});

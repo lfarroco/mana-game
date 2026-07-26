@@ -42,7 +42,7 @@ function removeSessionFromStorage(playerId: string): void {
 
 export function createSession(playerId: string, crystalId?: string): Models.SessionData {
 	const seed = generateSessionSeed();
-	const session = SessionManagement.createInitialSession(playerId, crystalId, seed);
+	const session = SessionManagement.createInitialSession(playerId, seed, crystalId);
 	sessions.set(playerId, session);
 	saveSessionToStorage(playerId, session);
 	return session;

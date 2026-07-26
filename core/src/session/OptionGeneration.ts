@@ -53,15 +53,13 @@ const ENCOUNTER_IDS: EncounterId[] = ENCOUNTERS.map((e) => e.id);
 
 export function createEncounterOptions(
 	session: Models.SessionData,
-): Models.PhaseOption[] {
+): { options: Models.PhaseOption[]; encounterHistory: EncounterId[] } {
 
 	// Initialize encounter history if it doesn't exist
-	if (!session.encounter_history) {
-		session.encounter_history = [];
-	}
+	const history = session.encounter_history ? [...session.encounter_history] : [];
 
 	// Get the last 12 encounters (4 phases × 3 options each)
-	const recentlyShownEncounters = new Set(session.encounter_history.slice(-12));
+	const recentlyShownEncounters = new Set(history.slice(-12));
 
 	const seedNum = Random.stringToSeed(session.seed);
 	const shuffled = Random.shuffleWithSeed(ENCOUNTER_IDS, seedNum);
@@ -73,10 +71,11 @@ export function createEncounterOptions(
 	const encountersToShow = availableEncounters.length >= 3 ? availableEncounters : shuffled;
 	const selectedOptions = encountersToShow.slice(0, 3);
 
-	// Add these encounters to the history
-	session.encounter_history.push(...selectedOptions);
-
-	return selectedOptions.map((id) => ({ id }));
+	// Return the updated history alongside the options
+	return {
+		options: selectedOptions.map((id) => ({ id })),
+		encounterHistory: [...history, ...selectedOptions] as EncounterId[],
+	};
 }
 
 /**

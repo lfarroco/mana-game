@@ -12,10 +12,6 @@ import * as Constants from "../math/Constants";
 import * as OptionGeneration from "./OptionGeneration";
 
 
-function generateDefaultSeed(): string {
-	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
 /**
  * Create default run statistics object.
  */
@@ -40,10 +36,10 @@ export function createDefaultRunStats() {
  */
 export function createInitialSession(
 	playerId: string,
+	seed: string,
 	selectedCrystalId?: string,
-	seed?: string,
 ): Models.SessionData {
-	const sessionSeed = seed ?? generateDefaultSeed();
+	const sessionSeed = seed;
 	const initialSeed = sessionSeed;
 
 	const team: { units: Unit[] } = { units: [] };
@@ -75,8 +71,9 @@ export function createInitialSession(
 	};
 
 	// Generate initial options
-	const options = OptionGeneration.createEncounterOptions(session);
+	const { options, encounterHistory } = OptionGeneration.createEncounterOptions(session);
 	session.options = options;
+	session.encounter_history = encounterHistory;
 
 	return session;
 }

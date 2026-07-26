@@ -5,6 +5,10 @@ This file stores historical completed-task entries that were moved out of AGENTS
 
 ## Completed (2026-07-25)
 
+- [x] **P2 Step 11: Purity/determinism hygiene** — Removed `SessionManagement.generateDefaultSeed` (was `Date.now()` + `Math.random()` in a deterministic package); made `seed` a required parameter of `createInitialSession` with callers updated (SessionManager.ts, SessionManagement.test.ts). Changed `createEncounterOptions` to return `{ options, encounterHistory }` instead of mutating `session.encounter_history`; updated all callers and tests. Documented the mutation model in `core/README.md` (rule 6). (Cline, 2026-07-25)
+
+- [x] **P2 Step 12: Dead code removal** — Removed `Random.getDeterministicRandomOptionIndex` (tested but unused) and its test suite. Removed `Unit.isCritical` (unused). Removed ~60 lines of commented-out action handlers in `SessionTransitions.ts` and stale commented blocks in `executeCombatPhase`. Removed deprecated `Card.registerCollection`, `Card.resetRegistry` from Card.ts. Removed unused `BASE_COLLECTION_DATA` export from BaseCollection.ts. Cleaned up unused `CardCollection` import from Card.ts. All 396 core tests pass, phaser typecheck clean. (Cline, 2026-07-25)
+
 - [x] **P0 bug fix: Single-player wins are now recorded** — `CombatSimulation.determineCombatOutcome` is wired into `simulateCombat` to set `wonCombat` after the log-sorting step. Made safe against missing outcome logs (defaults to loss with `console.warn`). Also fixed `createCombatState.initialUnits` aliasing `units` (now a separate deep clone). Added 9 new tests in `CombatSimulation.test.ts` (wonCombat propagation for win/loss/both_won, initialUnits reference check, determineCombatOutcome unit tests) and first-ever `SessionTransitions.test.ts` (full start_combat → end_combat flow, missing-pending-state error, unknown action). Core: 391 tests, 28 suites, all passing. (Cline, 2026-07-25)
 
 - [x] **P1 Step 5: `updateTeamAction` position validation** — Added out-of-bounds (3×3 board) and duplicate-slot rejection to `SessionManagement.updateTeamAction`. Added tests for both rejections. (Cline, 2026-07-25)

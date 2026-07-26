@@ -42,7 +42,7 @@ Key rules:
 
 ### Architecture & Source Layout
 
-Pure, framework-agnostic game logic is being extracted into a top-level `core/` package (aliased as `@game/*`); see [core/README.md](core/README.md) for the migration plan. So far `core/src/Random.ts` and `core/src/Seeding.ts` live there. Everything else still lives under `phaser/src/`:
+Pure, framework-agnostic game logic is being extracted into a top-level `core/` package (aliased as `@game/*`); see [core/README.md](core/README.md) for the migration plan. Most logic has migrated to `core/` — see its [index.ts](core/src/index.ts) for the full directory layout.
 
 - `Core/`
   - Purpose: Pure game logic, no Phaser deps

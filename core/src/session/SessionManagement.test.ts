@@ -77,7 +77,7 @@ describe("SessionManagement", () => {
 
 	describe("createInitialSession", () => {
 		it("creates a session with defaults", () => {
-			const session = SessionManagement.createInitialSession("p1", undefined, "seed123");
+			const session = SessionManagement.createInitialSession("p1", "seed123");
 			expect(session.player_id).toBe("p1");
 			expect(session.phase).toBe("encounter");
 			expect(session.round).toBe(1);
@@ -90,30 +90,30 @@ describe("SessionManagement", () => {
 		});
 
 		it("generates initial options", () => {
-			const session = SessionManagement.createInitialSession("p1", undefined, "opt-seed");
+			const session = SessionManagement.createInitialSession("p1", "opt-seed");
 			expect(session.options.length).toBeGreaterThan(0);
 			expect(session.options[0].id).toBeDefined();
 		});
 
 		it("creates core unit when crystalId is provided", () => {
-			const session = SessionManagement.createInitialSession("p1", "core_a", "seed");
+			const session = SessionManagement.createInitialSession("p1", "seed", "core_a");
 			expect(session.team.units).toHaveLength(1);
 			expect(session.team.units[0].isCore).toBe(true);
 			expect(session.team.units[0].cardId).toBe("core_a");
 		});
 
-		it("generates a random seed when none provided", () => {
-			const s1 = SessionManagement.createInitialSession("p1");
-			const s2 = SessionManagement.createInitialSession("p1");
-			expect(s1.seed).toBeDefined();
-			expect(typeof s1.seed).toBe("string");
-			// Two calls should produce different seeds
+		it("requires an explicit seed", () => {
+			const s1 = SessionManagement.createInitialSession("p1", "seed-a");
+			const s2 = SessionManagement.createInitialSession("p1", "seed-b");
+			expect(s1.seed).toBe("seed-a");
+			expect(s2.seed).toBe("seed-b");
+			// Different seeds produce different option sets
 			expect(s1.seed).not.toBe(s2.seed);
 		});
 
 		it("has deterministic options for same seed", () => {
-			const a = SessionManagement.createInitialSession("p1", undefined, "det-seed");
-			const b = SessionManagement.createInitialSession("p1", undefined, "det-seed");
+			const a = SessionManagement.createInitialSession("p1", "det-seed");
+			const b = SessionManagement.createInitialSession("p1", "det-seed");
 			expect(a.options.map((o) => o.id)).toEqual(b.options.map((o) => o.id));
 		});
 	});

@@ -99,6 +99,23 @@ primitives (`Option<T>`, `Result<T, E>`):
    const pos = getOrElse(slot, [0, 0]); // supply a default
    ```
 
+6. **Mutation model** — While functional programming is preferred, some
+   modules mutate inputs for performance. Calling conventions are documented
+   per-module:
+   - **Pure (return new state)**: `PoisonDamageSystem`, `RegenSystem`,
+     `TimeoutDamageSystem` accept and return new state objects; callers
+     reassign into `env.combatStates`.
+   - **Mutable**: `CombatStatsTracker` mutates internal Maps during combat
+     simulation. Effect handlers (`TriggerSystem/effects/*`) mutate unit
+     properties (life, shield, power) in-place on the combat state's unit
+     objects — these are safe because the combat state is a fresh clone
+     at the start of each combat.
+   - **Session mutation**: `createEncounterOptions` no longer mutates the
+     input session; it returns the options and the updated encounter history
+     separately. All action handlers in `SessionTransitions` operate on a
+     `structuredClone` of the session, so mutations during a handler are
+     isolated from the caller's copy.
+
 The client shipping the game logic in its bundle is **by design** — single-player
 (desktop/Android) must work offline. Multiplayer does not use this bundle path:
 the client sends actions and receives server-authoritative results.

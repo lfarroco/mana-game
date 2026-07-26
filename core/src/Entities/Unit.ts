@@ -48,10 +48,6 @@ export function calculateCritical(rng: { seed: string }, u: Unit): {
 	return { isCritical: false, multiplier: 1, bonusPower: 0, seed: nextSeed };
 }
 
-export function isCritical(u: Unit): boolean {
-	return calculateCritical({ seed: "0" }, u).isCritical;
-}
-
 function upgradeEffect(rankMultiplier: number, eff: Effect) {
 	if (["damage", "heal", "shield", "poison", "regen"].includes(eff.id)) return;
 

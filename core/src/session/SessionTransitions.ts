@@ -88,12 +88,13 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		};
 	}
 
-	const encounterResult = OptionGeneration.createEncounterOptions(session);
+	const { options: encounterOptions, encounterHistory } = OptionGeneration.createEncounterOptions(session);
 
 	return {
 		...session,
 		phase: "encounter",
-		options: encounterResult,
+		options: encounterOptions,
+		encounter_history: encounterHistory,
 		step: 0,
 		round: session.round + 1,
 	};
@@ -230,12 +231,6 @@ const ACTION_HANDLERS: Record<string, (
 
 	},
 	// Meta actions: team mutation with no phase change.
-	// discard_unit: (session) => ({
-	// 	nextPhase: session.phase,
-	// 	nextOptions: session.current_options,
-	// 	stepIncrement: 0,
-	// 	roundIncrement: 0,
-	// }),
 	discard_unit: (session, action) => {
 		if (action.type !== "discard_unit") throw new Error();
 
@@ -258,25 +253,6 @@ const ACTION_HANDLERS: Record<string, (
 		);
 		return transitionToNextStep(session);
 	},
-	// update_team: (session) => ({
-	// 	nextPhase: session.phase,
-	// 	nextOptions: session.current_options,
-	// 	stepIncrement: 0,
-	// 	roundIncrement: 0,
-	// }),
-
-	// Encounter special transitions.
-	// start_combat: (session) => {
-	// 	// Handle combat execution (side effect)
-
-	// 	console.debug("SessionTransitions", "Entering combat phase. Executing combat...", session);
-
-	// 	const nextSession = executeCombatPhase(session);
-
-	// 	console.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
-
-	// 	return nextSession;
-	// },
 	upgrade_unit: (session) => ({
 		...session,
 		phase: "orb_shop",
@@ -308,24 +284,7 @@ const ACTION_HANDLERS: Record<string, (
 
 		return transitionToNextStep(session);
 	},
-	// Orb shop transitions.
-	//apply_orb: (session) => transitionToNextEncounterStep(session),
-
-	// Combat transitions.
 	victory: transitionAfterVictory,
-
-	// Upgrade core transitions.
-	//increase_core_max_life: (session) => transitionToNextRoundEncounter(session),
-	//upgrade_core_power: (session) => transitionToNextRoundEncounter(session),
-	//decrease_core_cooldown: (session) => transitionToNextRoundEncounter(session),
-
-	// Add reaction core transitions.
-	// on_100_damage_effect: (session) => transitionToNextRoundEncounter(session),
-	// on_ally_death_effect: (session) => transitionToNextRoundEncounter(session),
-	// on_crit_effect: (session) => transitionToNextRoundEncounter(session),
-	// on_battle_start_effect: (session) => transitionToNextRoundEncounter(session),
-
-	//shop: (session) => transitionToNextEncounterStep(session),
 };
 
 function transitionToNextStep(
@@ -338,8 +297,9 @@ function transitionToNextStep(
 
 	if (nextPhase === "encounter") {
 
-		const options = OptionGeneration.createEncounterOptions(session);
-		session.options = options;
+		const { options: encounterOptions, encounterHistory } = OptionGeneration.createEncounterOptions(session);
+		session.options = encounterOptions;
+		session.encounter_history = encounterHistory;
 		session.phase = nextPhase;
 		session.step = session.step + 1;
 		return session;
@@ -416,10 +376,6 @@ function executeCombatPhase(
 		session,
 		combatState
 	);
-
-	//const playerUnits = simulation.finalState.battleData.units.filter((u) => u.force === "PLAYER");
-	//session.runStats = simulation.finalState.session.runStats || session.runStats;
-	//session.team.units = JSON.parse(JSON.stringify(simulation.finalState.session.team.units));
 
 	pendingCombatState = finalCombatState;
 

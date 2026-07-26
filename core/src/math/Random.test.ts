@@ -219,35 +219,6 @@ describe("Random", () => {
 		});
 	});
 
-	describe("getDeterministicRandomOptionIndex", () => {
-		it("returns index within range", () => {
-			const idx = Random.getDeterministicRandomOptionIndex("seed", 1, 2, 4);
-			expect(idx).toBeGreaterThanOrEqual(0);
-			expect(idx).toBeLessThan(4);
-			expect(Number.isInteger(idx)).toBe(true);
-		});
-
-		it("is deterministic", () => {
-			const a = Random.getDeterministicRandomOptionIndex("s", 1, 2, 4);
-			const b = Random.getDeterministicRandomOptionIndex("s", 1, 2, 4);
-			expect(a).toBe(b);
-		});
-
-		it("different step produces different result", () => {
-			const a = Random.getDeterministicRandomOptionIndex("s", 1, 2, 4);
-			const b = Random.getDeterministicRandomOptionIndex("s", 1, 3, 4);
-			expect(a).not.toBe(b);
-		});
-
-		it("returns 0 for single option", () => {
-			expect(Random.getDeterministicRandomOptionIndex("x", 0, 0, 1)).toBe(0);
-		});
-
-		it("golden values match expected", () => {
-			expect(Random.getDeterministicRandomOptionIndex("s", 1, 2, 4)).toBe(0);
-		});
-	});
-
 	describe("shuffleWithSeed", () => {
 		it("is deterministic", () => {
 			const a = Random.shuffleWithSeed([1, 2, 3, 4], 42);

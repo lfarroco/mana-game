@@ -1,4 +1,4 @@
-import { Unit, CardDefinition, CardCollection, Effect, CombatState, SessionData, GLOBAL_REACTIONS } from "../Models";
+import { Unit, CardDefinition, Effect, CombatState, SessionData, GLOBAL_REACTIONS } from "../Models";
 import * as uuid from "uuid";
 import { CARDS_BY_ID, ALL_CARDS } from "../data/BaseCollection";
 
@@ -86,26 +86,6 @@ export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =
 	Array.from(cardsById.values()).filter(
 		(card) => !card.isCore && (!card.locked || unlockedUnitIds.includes(card.id))
 	);
-
-// ---------------------------------------------------------------------------
-// Backward-compat aliases
-// ---------------------------------------------------------------------------
-
-/**
- * Register a collection (no-op in the static model).
- * @deprecated Cards are now statically defined in BaseCollection — registration is unnecessary.
- */
-export const registerCollection = (_collection: CardCollection): void => {
-	// no-op: cards are available at import time
-};
-
-/**
- * Reset the global registry.
- * @deprecated Use resetCardsMap() for test isolation.
- */
-export const resetRegistry = (): void => {
-	resetCardsMap();
-};
 
 // ---------------------------------------------------------------------------
 // Unit creation

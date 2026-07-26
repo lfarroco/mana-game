@@ -230,7 +230,7 @@ server use.
 
 ### 11. Purity / determinism hygiene — effort: S
 
-- `SessionManagement.generateDefaultSeed` uses `Date.now()` +
+- [x] `SessionManagement.generateDefaultSeed` uses `Date.now()` +
   `Math.random()` inside a package whose README demands determinism —
   make `seed` a required parameter of `createInitialSession` and move
   default-seed generation to the caller (client/server runtime).
@@ -241,7 +241,7 @@ server use.
   state (callers reassign into `env.combatStates`), `CombatStatsTracker`
   mutates Maps, effects mutate units — all fine, but say so in
   `core/README.md`.
-- `createEncounterOptions` mutates `session.encounter_history` — document
+- [x] `createEncounterOptions` mutates `session.encounter_history` — document
   or make it return `{ options, history }`.
 
 ---
@@ -250,13 +250,13 @@ server use.
 
 ### 12. Dead code removal — effort: S
 
-- [ ] `Random.getDeterministicRandomOptionIndex` (tested but unused).
-- [ ] `Unit.isCritical` (unused; semantics of a fixed `"0"` seed roll are
+- [x] `Random.getDeterministicRandomOptionIndex` (tested but unused).
+- [x] `Unit.isCritical` (unused; semantics of a fixed `"0"` seed roll are
       meaningless anyway).
-- [ ] ~60 lines of commented-out handlers in `SessionTransitions.ts`
+- [x] ~60 lines of commented-out handlers in `SessionTransitions.ts`
       (lines ~233–329) and stale commented blocks in
       `executeCombatPhase`.
-- [ ] Deprecated leftovers: `Card.registerCollection`, `Card.resetRegistry`,
+- [x] Deprecated leftovers: `Card.registerCollection`, `Card.resetRegistry`,
       `BASE_COLLECTION_DATA` (verify no consumers first).
 - [ ] `processReactions`' `units.length === 0` "still in combat" check is
       unreachable (units are never removed mid-combat) — remove or

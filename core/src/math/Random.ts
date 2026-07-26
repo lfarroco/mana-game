@@ -97,20 +97,6 @@ export function generateNextSeed(currentSeed: string, actionId: string): string 
 }
 
 /**
- * Deterministically select a random option index based on session state.
- * Same seed, round, step, and optionCount always produces the same result.
- */
-export function getDeterministicRandomOptionIndex(
-	seed: string,
-	round: number,
-	step: number,
-	optionCount: number
-): number {
-	const seededInput = `${seed}:${round}:${step}:${optionCount}`;
-	return range(stringToSeed(seededInput), 0, optionCount - 1).result;
-}
-
-/**
  * Deterministically pick N random items using a seeded RNG.
  * Mutates the session's seed to advance the RNG state.
  */
