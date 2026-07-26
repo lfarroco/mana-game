@@ -2,8 +2,6 @@ import * as getSavedData from "@Storage/getSinglePlayerData";
 import * as Models from "@game/Models";
 import { env } from "@Env";
 
-const COMBAT_STORAGE_PREFIX = "mana_combat_";
-
 export function loadGame() {
 	const data = getSavedData.getSinglePlayerData();
 	if (!data) return;
@@ -15,24 +13,16 @@ export function loadGame() {
 	// Restore combat state if present and session is in combat phase
 	// (e.g., player quit mid-combat and is resuming)
 	if (savedData.phase === "combat") {
-		const combatData = localStorage.getItem(COMBAT_STORAGE_PREFIX + savedData.player_id);
-		if (combatData) {
-			try {
-				const raw = JSON.parse(combatData);
-				// Reconstruct Map from serialized array
-				if (Array.isArray(raw.unitById)) {
-					raw.unitById = new Map(raw.unitById);
-				}
-				env.state.combatState = raw as Models.CombatState;
-			} catch {
-				localStorage.removeItem(COMBAT_STORAGE_PREFIX + savedData.player_id);
+		if (savedData.combatState) {
+			// Reconstruct Map from serialized array
+			const combatState = savedData.combatState;
+			if (Array.isArray(combatState.unitById)) {
+				combatState.unitById = new Map(combatState.unitById as unknown as [string, Models.Unit][]);
 			}
-		}
-
-		// If still no combatState, the persisted data was corrupted or from an old version.
-		// Re-simulate the combat locally as a fallback so the game doesn't crash.
-		if (!env.state.combatState) {
-			console.warn("loadGame", "Session in combat phase but no valid combatState found; will re-simulate on phase entry");
+			env.state.combatState = combatState;
+		} else {
+			// Session says combat but no combat state — re-simulate as a safety net
+			console.warn("loadGame", "Session in combat phase but no combatState found; will re-simulate on phase entry");
 		}
 	}
 }

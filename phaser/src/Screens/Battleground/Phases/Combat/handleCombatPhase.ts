@@ -138,9 +138,6 @@ export const CombatPhase: PhaseHandler = {
 			}
 		}
 
-		const getInitialCombatUnits = (cs: Models.CombatState) =>
-			cs.initialUnits && cs.initialUnits.length > 0 ? cs.initialUnits : cs.units;
-
 		const getCombatResultType = (outcome: string) =>
 			outcome === "player_lost" ? "defeat" : "victory";
 
@@ -159,11 +156,16 @@ export const CombatPhase: PhaseHandler = {
 
 			Chara.clearAll();
 
-			const initialCombatUnits = getInitialCombatUnits(env.state.combatState!);
+			// Use combatState.units (not initialUnits) so that the unit references
+			// stored in the chara containers match the same objects that
+			// CombatPlaybackController.updateChargeBars mutates when advancing
+			// charge/cooldown during playback. This keeps the charge bar display
+			// in sync with the live combat state.
+			const combatUnits = env.state.combatState!.units;
 
-			const summonPromises = initialCombatUnits.map((unit) => Chara.summon(unit, false));
+			const summonPromises = combatUnits.map((unit) => Chara.summon(unit, false));
 			await Promise.all(summonPromises);
-			initialCombatUnits.forEach(resetUnitStats);
+			combatUnits.forEach(resetUnitStats);
 		};
 
 		const startCombatPlayback = async (): Promise<PlaybackDisposer> => {

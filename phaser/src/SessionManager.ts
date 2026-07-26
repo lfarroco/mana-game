@@ -15,6 +15,29 @@ function generateSessionSeed(): string {
 	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 }
 
+/**
+ * Convert combatState's Map (unitById) to an array of entries so JSON.stringify works.
+ */
+function prepareSessionForStorage(session: Models.SessionData): Models.SessionData {
+	if (!session.combatState) return session;
+	return {
+		...session,
+		combatState: {
+			...session.combatState,
+			unitById: Array.from(session.combatState.unitById.entries()) as unknown as Map<string, Models.Unit>,
+		},
+	};
+}
+
+/**
+ * Reconstruct any Maps that were converted to arrays for JSON storage.
+ */
+function restoreSessionFromStorage(session: Models.SessionData): void {
+	if (session.combatState && Array.isArray(session.combatState.unitById)) {
+		session.combatState.unitById = new Map(session.combatState.unitById as unknown as [string, Models.Unit][]);
+	}
+}
+
 function loadSessionsFromStorage(): void {
 	// Get all session keys from localStorage
 	for (let i = 0; i < localStorage.length; i++) {
@@ -24,6 +47,7 @@ function loadSessionsFromStorage(): void {
 			const sessionData = localStorage.getItem(key);
 			if (sessionData) {
 				const session = JSON.parse(sessionData) as Models.SessionData;
+				restoreSessionFromStorage(session);
 				sessions.set(playerId, session);
 			}
 		}
@@ -33,7 +57,7 @@ function loadSessionsFromStorage(): void {
 function saveSessionToStorage(playerId: string, session: Models.SessionData): void {
 	localStorage.setItem(
 		STORAGE_PREFIX + playerId,
-		JSON.stringify(session),
+		JSON.stringify(prepareSessionForStorage(session)),
 	);
 }
 

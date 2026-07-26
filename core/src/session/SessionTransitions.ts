@@ -34,20 +34,14 @@ const ADD_REACTION_CORE_OPTIONS: Models.PhaseOption[] = [
 	{ id: "on_battle_start_effect" },
 ];
 
-/**
- * Stores the most recent combat result so it can be consumed by
- * the end_combat transition without being embedded in SessionData.
- */
-let pendingCombatState: Models.CombatState | null = null;
-
 function transitionAfterCombat(session: Models.SessionData): Models.SessionData {
 
-	if (!pendingCombatState) {
+	if (!session.combatState) {
 		throw new Error("Missing combat state for end_combat transition");
 	}
 
-	const { wonCombat } = pendingCombatState;
-	pendingCombatState = null;
+	const { wonCombat } = session.combatState;
+	delete session.combatState;
 
 	if (wonCombat)
 		session.wins += 1;
@@ -338,10 +332,8 @@ export function transitionToNextState(
 	const resultSession = actionHandler(nextSession, action);
 
 	// If a combat was just executed (start_combat), carry the combatState in the response
-	const combatState = pendingCombatState;
-	// For start_combat, the handler calls executeCombatPhase which sets pendingCombatState.
-	// For any other action, pendingCombatState will be null (or stale from a previous combat).
-	// Only attach it when the session phase is "combat" (meaning a combat just started).
+	// The combatState is embedded in the session by executeCombatPhase so it survives restarts.
+	const combatState = resultSession.combatState;
 	if (resultSession.phase === "combat" && combatState) {
 		return { session: resultSession, combatState };
 	}
@@ -374,11 +366,10 @@ function executeCombatPhase(
 		combatState
 	);
 
-	pendingCombatState = finalCombatState;
-
 	const nextSession: Models.SessionData = {
 		...session,
 		phase: "combat",
+		combatState: finalCombatState,
 		options: [{
 			id: "end_combat"
 		}],

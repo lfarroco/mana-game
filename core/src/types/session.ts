@@ -56,6 +56,7 @@ export type SessionData = {
 	encounter_history?: string[];
 	runStats?: RunStats;
 	updated_at?: Date;
+	combatState?: CombatState;
 };
 
 // Re-exported below to avoid circular: PhaseOption needs SessionData for combatState
