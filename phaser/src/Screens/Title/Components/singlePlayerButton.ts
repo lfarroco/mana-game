@@ -10,13 +10,15 @@ import { env } from "@Env";
 
 let submenuContainer: Container;
 
-export function create(y: number) {
+const BUTTON_Y = 500;
+
+export function create() {
 	const title = i18n.t("title.singlePlayer");
 	const description = i18n.t("title.tooltip.singlePlayer");
 
 	return UIButton.create({
 		text: title,
-		position: [constants.MIDDLE_SCREEN_X, y],
+		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: showSinglePlayerSubmenu(),
 		tooltip: {
 			title,

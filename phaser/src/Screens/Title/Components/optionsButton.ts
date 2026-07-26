@@ -10,11 +10,13 @@ import { NavigationEvent } from "../../../Events";
 
 let submenuContainer: Container;
 
-export function create(y: number) {
+const BUTTON_Y = 700;
+
+export function create() {
 	const title = i18n.t("title.options");
 	const button = UIButton.create({
 		text: title,
-		position: [constants.MIDDLE_SCREEN_X, y],
+		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: showOptionsSubmenu(),
 		tooltip: {
 			title,

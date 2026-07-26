@@ -61,15 +61,14 @@ export function destroy() {
 
 function renderMainButtons() {
 	mainButtonsContainer = env.container([
-		// TODO: move the y arg into the component itself, as it is static anyways
-		() => Components.singlePlayerButton.create(500).container,
-		() => Components.arenaButton.create(600).container,
-		() => Components.optionsButton.create(700).container,
-		() => Components.linksButton.create(800).container,
+		Components.singlePlayerButton.create().container,
+		Components.arenaButton.create().container,
+		Components.optionsButton.create().container,
+		Components.linksButton.create().container,
 		environment.isElectron() ?
-			() => Components.exitButton.create(900).container :
+			Components.exitButton.create().container :
 			null,
-		() => Components.languageButton.create().container,
+		Components.languageButton.create().container,
 	]);
 }
 

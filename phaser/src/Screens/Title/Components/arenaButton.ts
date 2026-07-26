@@ -2,13 +2,15 @@ import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 
-export function create(y: number) {
+const BUTTON_Y = 600;
+
+export function create() {
 	const label = i18n.t("title.multiplayer");
 	return UIButton.create({
 		text: label,
 		position: [
 			constants.MIDDLE_SCREEN_X,
-			y,
+			BUTTON_Y,
 		],
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
