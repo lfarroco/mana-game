@@ -3,7 +3,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Constants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@game/Entities/Card";
-import { Unit } from "@game/Models";
+import { Unit, CombatState, SessionData } from "@game/Models";
 import * as Animations from "@Systems/Chara/Animations";
 import * as Utils from "@utils";
 import { env } from "@Env";
@@ -24,8 +24,8 @@ const statsState: ForceStatsState = ({
 	cpu: initialForceStats(),
 });
 
-let currentCombatState: import("@game/Models").CombatState | undefined;
-let currentSession: import("@game/Models").SessionData | undefined;
+let currentCombatState: CombatState | undefined;
+let currentSession: SessionData | undefined;
 
 export function setCombatClientState() {
 	currentCombatState = env.state.combatState;

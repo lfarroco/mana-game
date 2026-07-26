@@ -12,6 +12,11 @@ node_modules/
 
 # Build
 dist/
+
+# Log files
+*.log
+debug_log.txt
+
 /npm-debug.log
 
 # Electron build artifacts

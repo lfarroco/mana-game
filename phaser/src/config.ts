@@ -10,8 +10,9 @@ export const IS_DEMO = typeof IS_DEMO_BUILD !== "undefined" ?
 	IS_DEMO_BUILD : false;
 
 // Pull ?disable_assets param (default false)
-export const DISABLE_ASSETS = new URLSearchParams(window.location.search)
-	.get("disable_assets") === "true";
+export const DISABLE_ASSETS = typeof window !== "undefined"
+	? new URLSearchParams(window.location.search).get("disable_assets") === "true"
+	: false;
 
 export const DEMO_CONFIG = {
 	MAX_VICTORIES: 5,

@@ -96,6 +96,6 @@ async function checkUnlocks() {
 	for (const unitId of pendingUnlocks) {
 		await Components.UnlockModal.render(unitId);
 		StatsStore.confirmUnlock(unitId);
-		await new Promise((resolve) => setTimeout(resolve, 300));
+		await env.time.delay(300);
 	}
 }
