@@ -294,9 +294,8 @@ export async function refreshChara(
 ): Promise<void> {
 	if (hasCharaById(unit.id)) {
 		const chara = mustGetCharaById(unit.id);
-		const state = mustGetState(chara);
-		state.unit = unit;
-		PowerDisplay.updatePowerDisplay(unit.id);
+		destroy(chara);
+		await summon(unit, true);
 	} else {
 		await summon(unit, true);
 	}
