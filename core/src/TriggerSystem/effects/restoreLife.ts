@@ -17,7 +17,6 @@ export const restoreLife = (
 	const crit = calculateCritical(env, sourceUnit);
 	env.seed = crit.seed;
 	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
-	const sourceForce = Force.getUnitForce(env.combatState, sourceUnit.id);
 	const alliedCore = Card.getAlliedCore(env.combatState)(sourceUnit.force);
 
 	// Log the cast
@@ -34,7 +33,6 @@ export const restoreLife = (
 	const sourceId = sourceUnit.id;
 	const targetId = alliedCore.id;
 	const isCritical = crit.isCritical;
-	const hasOnOverHealReaction = (Card.getBattleCore(env.combatState)(sourceForce).life + healAmount > Card.getBattleCore(env.combatState)(sourceForce).maxLife);
 
 	env.deferredEvents.push({
 		timeMs: currentTimeMs + PROJECTILE_TRAVEL_MS,
@@ -63,7 +61,10 @@ export const restoreLife = (
 				processReactions(env, sourceUnit, { id: "on_crit" }, 1);
 			}
 
-			if (hasOnOverHealReaction) {
+			// Check overheal at hit time, not cast time — the core's life may
+			// have changed during the 200 ms projectile travel.
+			const willOverheal = actualHealing < healAmount;
+			if (willOverheal) {
 				processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
 			}
 

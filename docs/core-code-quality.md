@@ -137,7 +137,7 @@ may have changed, so `on_over_heal` can fire spuriously or be missed. The
 variable is also misnamed (`hasOnOverHealReaction` — it checks no
 reaction).
 
-- [ ] Move the check inside the deferred `execute` closure, against the
+- [x] Move the check inside the deferred `execute` closure, against the
       core's life at hit time; rename to `willOverheal`.
 
 ### 5. `updateTeamAction` does not validate positions — effort: S
