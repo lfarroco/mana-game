@@ -30,16 +30,22 @@ export async function renderTavernCharas(
 
 	const ownedCardIds = new Set(env.state.session.team.units.map((u) => u.cardId));
 
+	const charaCount = cardDefs.length;
+	const charaSpacing = sc.TAVERN_CHARA_SPACING;
+	const totalSpan = Math.max(0, (charaCount - 1) * charaSpacing);
+	const panelCenterY = sc.TAVERN_BASE_Y + sc.TAVERN_BG_HEIGHT / 2;
+	const firstY = panelCenterY - totalSpan / 2;
+
 	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
 		const unit = Card.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
-		const offsetY = index * sc.TAVERN_CHARA_SPACING;
+		const itemY = firstY + index * charaSpacing;
 
 		const baseBgWidth = 800;
 		const bgSize = [baseBgWidth + SHOP_CARD_EXTRA_LEFT_PADDING, 280];
 		const position = [
 			sc.ITEM_BASE_X + baseBgWidth / 2 - SHOP_CARD_EXTRA_LEFT_PADDING / 2,
-			sc.ITEM_BASE_Y + offsetY
+			itemY
 		];
 
 		const bgRect = env.scene.add.graphics({
@@ -88,7 +94,7 @@ export async function renderTavernCharas(
 		);
 		chara.setPosition(
 			sc.ITEM_BASE_X,
-			sc.ITEM_BASE_Y + offsetY - 10
+			itemY - 10
 		);
 		initShopCharaInput(chara, unit);
 
@@ -151,14 +157,14 @@ export async function renderTavernCharas(
 		const { title, description } = createDescription.createDescription(chara);
 
 		const titleText = env.scene.add
-			.text(sc.ITEM_DESC_BASE_X, sc.ITEM_DESC_BASE_Y + offsetY, title, {
+			.text(sc.ITEM_DESC_BASE_X, itemY - (sc.ITEM_BASE_Y - sc.ITEM_DESC_BASE_Y), title, {
 				...Constants.titleTextConfig,
 				color: theme.UI_TEXT_PRIMARY,
 			})
 			.setAlign("left");
 
 		const descriptionText = env.scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, sc.ITEM_DESC_BASE_Y + 20 + offsetY + 60, description)
+			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, itemY - (sc.ITEM_BASE_Y - sc.ITEM_DESC_BASE_Y) + 80, description)
 			.setFontSize(28)
 			.setColor(theme.UI_TEXT_MUTED)
 			.setWrapWidth(650)
