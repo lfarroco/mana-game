@@ -6,6 +6,7 @@ import * as tabButtons from "@Screens/Options/Components/tabButtons";
 import * as Model from "@Screens/Options/Components/Model";
 import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
+import { createScreenLifecycle } from "../screenLifecycle";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -15,32 +16,26 @@ export type OptionsScreenEvents = {
 	backToTitle: ReturnType<typeof createEvent<void>>;
 };
 
+const lifecycle = createScreenLifecycle();
+
 export let events: OptionsScreenEvents;
-let disposers: (() => void)[] = [];
-let initialized = false;
 
 export function init() {
-	if (initialized) return;
-	initialized = true;
-
-	events = {
-		backToTitle: createEvent<void>(),
-	};
-
-	disposers = [
-		events.backToTitle.listen(() => NavigationEvent.toTitle.emit(undefined)),
-	];
+	events = lifecycle.init(() => {
+		const e: OptionsScreenEvents = {
+			backToTitle: createEvent<void>(),
+		};
+		return {
+			events: e,
+			disposers: [
+				e.backToTitle.listen(() => NavigationEvent.toTitle.emit(undefined)),
+			],
+		};
+	});
 }
 
 export function destroy() {
-	disposers.forEach((d) => d());
-	disposers = [];
-
-	if (events) {
-		events.backToTitle.clear();
-	}
-
-	initialized = false;
+	lifecycle.destroy();
 }
 
 export const LAYOUT = {

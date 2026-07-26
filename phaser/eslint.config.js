@@ -49,7 +49,7 @@ export default [
 		},
 	},
 	{
-		files: ["src/Core/**/*.ts", "src/Core/**/*.tsx"],
+		files: ["../core/src/**/*.ts"],
 		rules: {
 			"no-restricted-imports": [
 				"error",

@@ -26,9 +26,9 @@ export function determineGameOutcome(
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
-export let resultsContainer: Phaser.GameObjects.Container;
-export let overlay: BackgroundOverlay.BackgroundOverlay;
-export let isOpen: boolean;
+let resultsContainer: Phaser.GameObjects.Container;
+let overlay: BackgroundOverlay.BackgroundOverlay;
+let isOpen: boolean;
 
 export function create() {
 

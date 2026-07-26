@@ -7,6 +7,7 @@ import * as Effects from "./Effects";
 import * as Models from "@game/Models";
 import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
+import { createScreenLifecycle } from "../screenLifecycle";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -18,43 +19,35 @@ export type CrystalSelectionEvents = {
 	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
 };
 
+const lifecycle = createScreenLifecycle();
+
 export let events: CrystalSelectionEvents;
-let disposers: (() => void)[] = [];
-let initialized = false;
 
 export function init() {
-	if (initialized) return;
-	initialized = true;
-
-	events = {
-		playClicked: createEvent<void>(),
-		backClicked: createEvent<void>(),
-		crystalChanged: createEvent<{ index: number }>(),
-	};
-
-	disposers = [
-		events.playClicked.listen(Effects.startNewGame),
-		events.backClicked.listen(async () => {
-			await NavigationEvent.toTitle.emit(undefined);
-		}),
-		events.crystalChanged.listen(({ index }) => {
-			state.currentIndex = index;
-			Effects.updateDisplay();
-		}),
-	];
+	events = lifecycle.init(() => {
+		const e: CrystalSelectionEvents = {
+			playClicked: createEvent<void>(),
+			backClicked: createEvent<void>(),
+			crystalChanged: createEvent<{ index: number }>(),
+		};
+		return {
+			events: e,
+			disposers: [
+				e.playClicked.listen(Effects.startNewGame),
+				e.backClicked.listen(async () => {
+					await NavigationEvent.toTitle.emit(undefined);
+				}),
+				e.crystalChanged.listen(({ index }) => {
+					state.currentIndex = index;
+					Effects.updateDisplay();
+				}),
+			],
+		};
+	});
 }
 
 export function destroy() {
-	disposers.forEach((d) => d());
-	disposers = [];
-
-	if (events) {
-		events.playClicked.clear();
-		events.backClicked.clear();
-		events.crystalChanged.clear();
-	}
-
-	initialized = false;
+	lifecycle.destroy();
 }
 
 

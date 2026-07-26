@@ -16,7 +16,7 @@ const DISCARD_ZONE_SHADOW_OFFSET_X = 2;
 const DISCARD_ZONE_SHADOW_OFFSET_Y = 2;
 const DISCARD_ZONE_SHADOW_BLUR = 4;
 
-export let zone: Phaser.GameObjects.Zone | null = null;
+let zone: Phaser.GameObjects.Zone | null = null;
 let zoneContainer: Phaser.GameObjects.Container | null = null;
 let labelText: Phaser.GameObjects.Text | null = null;
 let rect: Phaser.GameObjects.Graphics | null = null;

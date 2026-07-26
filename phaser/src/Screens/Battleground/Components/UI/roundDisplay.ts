@@ -2,7 +2,7 @@ import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container } from "@Env";
 
-export let roundTextElement: TextObj | null = null;
+let roundTextElement: TextObj | null = null;
 const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
 

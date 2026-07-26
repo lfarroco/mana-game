@@ -24,7 +24,7 @@ export async function handleAction(
 		env.state.session,
 		action,
 	);
-	env.state.session = result.session;
+	env.updateState({ ...env.state, session: result.session });
 
 	SessionManager.updateSession(playerId, result.session);
 

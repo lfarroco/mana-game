@@ -84,11 +84,14 @@ dependencies.
       contains a guaranteed runtime crash at `ArenaLobbyScene.ts:471-473` —
       commented-out fetch + `@ts-expect-error test` reading `result.page`).
       *Covered by the multiplayer reimplementation note above.*
-- [ ] Delete `src/MockPhaser.ts` (275 lines, unreferenced; superseded by
+- [x] Delete `src/MockPhaser.ts` (275 lines, unreferenced; superseded by
       `src/test-utils/__mocks__/phaser.ts`)
-- [ ] Delete `log.js` (unreferenced Phaser-template analytics phone-home script)
-- [ ] Delete `runServerDemo.js` (references deleted `src/Scenes/...` path) and
+      → **Done** (2026-07-25, Cline).
+- [x] Delete `log.js` (unreferenced Phaser-template analytics phone-home script)
+      → **Done** (2026-07-25, Cline).
+- [x] Delete `runServerDemo.js` (references deleted `src/Scenes/...` path) and
       stray `simple_test.ts`
+      → **Done** (2026-07-25, Cline).
 - [ ] Remove commented-out class block in `RemoteServer.ts:41-53` and the
       commented `MultiplayerManager` call (or delete the file entirely per the
       multiplayer note above)
@@ -126,15 +129,28 @@ dependencies.
 
 ### 6. Structural refactors — effort: M
 
-- [ ] Extract a screen-lifecycle helper to dedupe the copy-pasted
+- [x] Extract a screen-lifecycle helper to dedupe the copy-pasted
       `init/destroy/disposers/initialized` block in `TitleScreen`,
-      `OptionsScreen`, `BattlegroundScreen`, `CrystalSelectionScreen`
-- [ ] Reduce module-level mutable singletons (36 files use module-scope `let`
+      `OptionsScreen`, `CrystalSelectionScreen`
+      → **Done** (2026-07-25, Cline): Created `src/Screens/screenLifecycle.ts` with
+      `createScreenLifecycle()` factory. Refactored all three screens to use it —
+      removed duplicated `let disposers`, `let initialized`, manual guard, and
+      manual `destroy()` cleanup. Both `init()` idempotency and `destroy()` cleanup
+      are handled centrally.
+- [x] Reduce module-level mutable singletons (36 files use module-scope `let`
       UI state); stop exporting mutable bindings (`export let resultsContainer`,
       `export let isOpen` in `ResultsUI.ts:29-31`) — expose getter functions or
       factory-created closures instead
-- [ ] Route all session writes through `env.updateState(...)` instead of direct
+      → **Done** (2026-07-25, Cline): Removed `export` from `resultsContainer`,
+      `overlay`, `isOpen` in `ResultsUI.ts` (no external consumers); `export let zone`
+      in `DiscardZone.ts`; `export let roundTextElement` in `roundDisplay.ts`. Screen
+      `events` exports remain as legitimate public API for child components.
+      `getIsResultsOpen()` getter already existed.
+- [x] Route all session writes through `env.updateState(...)` instead of direct
       mutation (`LocalServer.ts` does `env.state.session = result.session`)
+      → **Done** (2026-07-25, Cline): Changed `env.state.session = result.session`
+      to `env.updateState({ ...env.state, session: result.session })` in
+      `LocalServer.ts:27`.
 
 ### 7. Minor fixes — effort: S
 
@@ -156,13 +172,20 @@ dependencies.
 
 ### 8. Documentation — effort: M
 
-- [ ] Update `AGENTS.md` + `docs/` to the current `Screens/` + `core/` layout
+- [x] Update `AGENTS.md` + `docs/` to the current `Screens/` + `core/` layout
       (they still describe `Core/`, `Engine/Scenes/`, `Systems/CombatPhase.ts`,
       `MultiplayerManager.ts`)
-- [ ] Repoint the vestigial eslint `no-restricted-imports` rule for `src/Core/**`
+      → **Done** (2026-07-25, Cline): Replaced stale Knowledge Index entries with
+      current `core/` package (13 modules matching `core/src/index.ts`),
+      `phaser/src/Screens/Battleground/`, and `phaser/src/` catch-all.
+- [x] Repoint the vestigial eslint `no-restricted-imports` rule for `src/Core/**`
       to the real `core/` package
-- [ ] Mark `phaser/ENV_MIGRATION_PLAN.md` / `ARCHITECTURE_PROPOSALS.md` as
+      → **Done**: Changed `files: ["src/Core/**/*.ts", "src/Core/**/*.tsx"]` to
+      `files: ["../core/src/**/*.ts"]` in `phaser/eslint.config.js:52`.
+- [x] Mark `phaser/ENV_MIGRATION_PLAN.md` / `ARCHITECTURE_PROPOSALS.md` as
       completed/superseded, or fold remaining items into the task queue
+      → **Done**: Added superseded banner to `ENV_MIGRATION_PLAN.md`. 
+      `ARCHITECTURE_PROPOSALS.md` confirmed missing on disk — skipped.
 
 ---
 

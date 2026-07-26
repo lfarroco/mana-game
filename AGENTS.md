@@ -44,39 +44,14 @@ Key rules:
 
 Pure, framework-agnostic game logic is being extracted into a top-level `core/` package (aliased as `@game/*`); see [core/README.md](core/README.md) for the migration plan. Most logic has migrated to `core/` — see its [index.ts](core/src/index.ts) for the full directory layout.
 
-- `Core/`
-  - Purpose: Pure game logic, no Phaser deps
-  - Key files: `LocalServerAdapter.ts`, `GameLogic.ts`, `GameServer.ts`, `PhaseSystem/`
-- `Engine/Scenes/`
-  - Purpose: Phaser scene orchestration
-  - Key files: `Battleground/PhaseManager.ts`, `Battleground/RunCombatCore.ts`, `Battleground/CombatPlaybackController.ts`
-- `Systems/`
-  - Purpose: Gameplay systems (combat, shop, board, audio)
-  - Key files: `CombatPhase.ts`, `AudioManager.ts`, `AchievementSystem.ts`, `Chara/`, `Shop/`, `Encounter.ts`
-- `Models/`
-  - Purpose: Data models and board logic
-  - Key files: `Entities/Unit.ts`, `Entities/Card.ts`, `Board.ts`, `BoardLogic.ts`, `State.ts`
-- `TriggerSystem/`
-  - Purpose: Action-Reaction effect engine
-  - Key files: `TriggerSystem.ts`
-- `Multiplayer/`
-  - Purpose: Multiplayer manager & logic
-  - Key files: `MultiplayerManager.ts`
-- `Storage/`
-  - Purpose: Save data (Steam Cloud / localStorage)
-  - Key files: `StorageFactory.ts`, `SteamCloudProvider.ts`, `LocalStorageProvider.ts`
-- `i18n/`
-  - Purpose: Localization (en, es, pt, jp, cn, ru)
-  - Key files: `i18n.ts`, `*.json`
-- `Data/`
-  - Purpose: Card/unit definitions
-  - Key files: `BaseCollection.ts`
-- `UI/`
-  - Purpose: UI components
-  - Key files: none listed
-- `Effects/`
-  - Purpose: Visual effects
-  - Key files: none listed
+- `core/` (top-level package, aliased as `@game/*`)
+  - Purpose: Pure, framework-agnostic game logic — see [core/src/index.ts](core/src/index.ts) for the full barrel export
+  - Key modules: `math/` (Random, Geometry, Constants), `board/` (BoardLogic), `Combat/` (simulation, runner, logger, poison, regen, timeout, status systems), `Entities/` (Card, Unit, Force), `session/` (management, transitions, option/enemy generation), `TriggerSystem/` (triggers & effects), `Actions/` (recruitment, orb upgrades), `Orbs/` (definitions, constants), `data/` (BaseCollection, effect builders), `PhaseSystem/` (phase config), `types/` (domain type definitions), `Functional/` (primitives), `Event/`
+- `phaser/src/Screens/Battleground/`
+  - Purpose: Phaser scene orchestration — main battleground screen, phase handlers, combat playback
+  - Key files: `BattlegroundScreen.ts`, `Components/`, `Phases/`, `playerBoardSync.ts`
+- `phaser/src/`
+  - Purpose: Remaining Phaser-specific code (screens, UI components, effects, assets)
 
 - `server/` (planned)
   - Purpose: Authoritative Node game server API for multiplayer sessions — replaces the retired Supabase backend

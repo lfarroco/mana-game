@@ -9,36 +9,37 @@ import { createEvent } from "@game/Models";
 import { env } from "@Env";
 import { NavigationEvent } from "../../Events";
 import { loadGame } from "../../Storage/loadGame";
+import { createScreenLifecycle } from "../screenLifecycle";
 
 type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
 	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
 }
 
+const lifecycle = createScreenLifecycle();
+
 export let events: TitleScreenEvents;
 export const components = Components;
 
 export let mainButtonsContainer: Container;
 
-let disposers: (() => void)[] = [];
-let initialized = false;
-
 export function init() {
-	if (initialized) return;
-	initialized = true;
-
-	events = {
-		newGameButtonClicked: createEvent<void>(),
-		resumeGameButtonClicked: createEvent<void>(),
-	}
-
-	disposers = [
-		events.newGameButtonClicked.listen(() => NavigationEvent.toCrystals.emit(undefined)),
-		events.resumeGameButtonClicked.listen(() => {
-			loadGame();
-			NavigationEvent.toBattleground.emit(undefined);
-		}),
-	];
+	events = lifecycle.init(() => {
+		const e: TitleScreenEvents = {
+			newGameButtonClicked: createEvent<void>(),
+			resumeGameButtonClicked: createEvent<void>(),
+		};
+		return {
+			events: e,
+			disposers: [
+				e.newGameButtonClicked.listen(() => NavigationEvent.toCrystals.emit(undefined)),
+				e.resumeGameButtonClicked.listen(() => {
+					loadGame();
+					NavigationEvent.toBattleground.emit(undefined);
+				}),
+			],
+		};
+	});
 }
 
 export function create() {
@@ -55,19 +56,12 @@ export function create() {
 }
 
 export function destroy() {
-	disposers.forEach((d) => d());
-	disposers = [];
-
-	if (events) {
-		events.newGameButtonClicked.clear();
-		events.resumeGameButtonClicked.clear();
-	}
-
-	initialized = false;
+	lifecycle.destroy();
 }
 
 function renderMainButtons() {
 	mainButtonsContainer = env.container([
+		// TODO: move the y arg into the component itself, as it is static anyways
 		() => Components.singlePlayerButton.create(500).container,
 		() => Components.arenaButton.create(600).container,
 		() => Components.optionsButton.create(700).container,
