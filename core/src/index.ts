@@ -60,7 +60,7 @@ export * as PoisonDamageSystem from "./Combat/PoisonDamageSystem";
 export * as RegenSystem from "./Combat/RegenSystem";
 export * as TimeoutDamageSystem from "./Combat/TimeoutDamageSystem";
 export * as StatusEffectSystem from "./Combat/StatusEffectSystem";
-export * as GenerateEnemyTeam from "./Combat/generateEnemyTeam";
+export * as generateEnemyTeam from "./Combat/generateEnemyTeam";
 
 // ---------------------------------------------------------------------------
 // Trigger system

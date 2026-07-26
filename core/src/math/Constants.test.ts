@@ -20,8 +20,16 @@ describe("Constants", () => {
 		expect(Constants.FORCE_ID_CPU).toBe("CPU");
 	});
 
-	it("MIN_COOLDOWN is a positive number", () => {
-		expect(Constants.MIN_COOLDOWN).toBeGreaterThan(0);
-		expect(Constants.MIN_COOLDOWN).toBe(200);
+	it("MIN_REFRESH_MS is a positive number", () => {
+		expect(Constants.MIN_REFRESH_MS).toBeGreaterThan(0);
+		expect(Constants.MIN_REFRESH_MS).toBe(200);
+	});
+
+	it("LOSSES_TO_GAME_OVER is 4", () => {
+		expect(Constants.LOSSES_TO_GAME_OVER).toBe(4);
+	});
+
+	it("STARTING_LIVES is 4", () => {
+		expect(Constants.STARTING_LIVES).toBe(4);
 	});
 });

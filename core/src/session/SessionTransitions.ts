@@ -13,6 +13,7 @@ import * as PhaseConfig from "../PhaseSystem/PhaseConfig";
 import * as RecruitmentActions from "../Actions/RecruitmentActions";
 import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 import * as OptionGeneration from "./OptionGeneration";
+import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
@@ -41,7 +42,7 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 	else
 		session.losses += 1;
 
-	if (session.wins >= 10) {
+	if (session.wins >= WINS_TO_WIN_GAME) {
 		return {
 			...session,
 			phase: "victory",
@@ -51,7 +52,7 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		};
 	}
 
-	if (session.losses >= 4) {
+	if (session.losses >= LOSSES_TO_GAME_OVER) {
 		return {
 			...session,
 			phase: "game_over",

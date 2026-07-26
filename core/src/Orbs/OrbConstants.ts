@@ -4,7 +4,7 @@
  */
 
 /** Minimum cooldown in milliseconds — orbs cannot reduce below this. */
-export const MIN_COOLDOWN_MS = 1000;
+export const ORB_MIN_COOLDOWN_MS = 1000;
 
 /** Cooldown reduction factor applied by decrease_cooldown orbs. */
 export const COOLDOWN_REDUCTION_FACTOR = 0.1;

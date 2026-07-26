@@ -1,9 +1,10 @@
 import * as Constants from "@Constants";
+import * as GameConstants from "@game/Constants";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container } from "@Env";
 
-const MAX_LIVES = 4;
+const MAX_LIVES = GameConstants.STARTING_LIVES;
 const GREEN_HEART = "💚";
 const GRAY_HEART = "🖤";
 
@@ -47,7 +48,7 @@ export const LIVES_DISPLAY_X = 60;
 export const LIVES_DISPLAY_Y = 50;
 
 export function create() {
-	const initialLives = 4 - env.state.session.losses;
+	const initialLives = MAX_LIVES - env.state.session.losses;
 	currentLives = initialLives;
 
 	const hearts = createHearts();

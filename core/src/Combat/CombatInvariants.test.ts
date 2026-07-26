@@ -152,7 +152,7 @@ describe("Combat invariants — seed sweep", () => {
       expect(hitTotal).toBeLessThanOrEqual(castTotal);
 
       // Projectiles in flight when combat ended: at most one per damage unit
-      // (cooldown + MIN_COOLDOWN refresh exceed the 200ms travel time).
+      // (cooldown + MIN_REFRESH_MS refresh exceed the 200ms travel time).
       expect(casts.length - hits.length).toBeGreaterThanOrEqual(0);
       expect(casts.length - hits.length).toBeLessThanOrEqual(DAMAGE_UNIT_COUNT);
 

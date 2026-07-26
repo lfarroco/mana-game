@@ -41,8 +41,8 @@ type PlaybackState = {
 
 const DEFAULT_ANIMATION_DURATION = 400;
 
-// Must match CoreConstants.MIN_COOLDOWN — used to replicate the server-side refresh lockout during playback
-const MIN_COOLDOWN = CoreConstants.MIN_COOLDOWN;
+// Must match CoreConstants.MIN_REFRESH_MS — used to replicate the server-side refresh lockout during playback
+const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
 
 // Throttle charge bar updates to every Nth frame (~60/N fps) to reduce visual overhead
 const CHARGE_BAR_UPDATE_EVERY_N_FRAMES = 4;
@@ -157,7 +157,7 @@ export const createCombatPlaybackController = (
 
 			if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 				unit.charge = unit.charge - unit.cooldown;
-				unit.refresh = MIN_COOLDOWN;
+				unit.refresh = MIN_REFRESH_MS;
 			}
 
 			unit.refresh = Math.max(0, unit.refresh - delta);

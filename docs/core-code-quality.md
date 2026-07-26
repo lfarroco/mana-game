@@ -268,13 +268,17 @@ server use.
 - [x] `RegenSystem.getTickAmount` ≡ `getRegenRate`; removed `getTickAmount`, kept `getRegenRate` (Cline, 2026-07-26).
 - [x] `Card.getAlliedCore` ≡ `getBattleCore`; removed `getAlliedCore`, kept `getBattleCore` (Cline, 2026-07-26).
 - [x] Constants: `MAX_UNITS`/`BOARD_WIDTH`/`BOARD_HEIGHT` in `generateEnemyTeam` replaced with `Constants.MAX_PARTY_SIZE` and inline `3` (Cline, 2026-07-26).
-- [ ] `INFINITE_MODE_THRESHOLD` in both `PhaseConfig` and
+- [x] `INFINITE_MODE_THRESHOLD` in both `PhaseConfig` and
       `math/Constants`; hardcoded `wins >= 10` / `losses >= 4` /
       `lives: 4` vs `WINS_TO_WIN_GAME` — single source in
-      `math/Constants.ts`.
-- [ ] Rename the confusing pair `MIN_COOLDOWN` (200 ms, post-action
+      `math/Constants.ts`. ✅ Done (Cline, 2026-07-26):
+      Added `LOSSES_TO_GAME_OVER`, `STARTING_LIVES` to `Constants.ts`;
+      removed duplicate in `PhaseConfig.ts`; replaced hardcoded values
+      in `SessionTransitions.ts`, `livesDisplay.ts`, and
+      `SessionManager.ts`.
+- [x] Rename the confusing pair `MIN_COOLDOWN` (200 ms, post-action
       refresh) vs `OrbConstants.MIN_COOLDOWN_MS` (1000 ms, orb floor) —
-      e.g. `MIN_REFRESH_MS` vs `ORB_MIN_COOLDOWN_MS`.
+      e.g. `MIN_REFRESH_MS` vs `ORB_MIN_COOLDOWN_MS` (Cline, 2026-07-26).
 - [ ] Triplicated upgrade-core / add-reaction option lists in
       `SessionTransitions` (`transitionAfterCombat`,
       `transitionAfterVictory`) — extract builder functions.
@@ -285,8 +289,11 @@ server use.
       `decreaseCoresCooldown` → `decreaseCoreCooldown`, `lifeChage` →
       `lifeChange` (`Entities/Force.ts`), `RunCombatCore` alias in
       `CombatSimulation` (module is `CombatRunner`) — all fixed (Cline, 2026-07-26).
-- [ ] `GenerateEnemyTeam` PascalCase namespace in `index.ts` (also
-      duplicates the `EnemyGeneration` export — keep one).
+- [x] `GenerateEnemyTeam` PascalCase namespace in `index.ts` renamed to
+      camelCase `generateEnemyTeam` (Cline, 2026-07-26). The `EnemyGeneration`
+      export is a separate module (`session/EnemyGeneration` vs
+      `Combat/generateEnemyTeam`) — both provide distinct functions used
+      by different callers, so both should be kept.
 - [ ] Internal imports should use canonical paths (`../math/Constants`,
       `../board/BoardLogic`) — 9 core files currently import through the
       root compat shims (`../Constants`, `../Random`, `../Geometry`,

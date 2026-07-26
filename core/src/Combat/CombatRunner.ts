@@ -260,7 +260,7 @@ export const chargeUnits = (
 
 		if (unit.charge >= unit.cooldown && unit.refresh === 0) {
 			unit.charge = unit.charge - unit.cooldown;
-			unit.refresh = Constants.MIN_COOLDOWN;
+			unit.refresh = Constants.MIN_REFRESH_MS;
 			performingUnits.push(unit);
 		}
 	}

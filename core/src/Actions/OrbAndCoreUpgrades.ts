@@ -14,7 +14,7 @@ import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
 const COOLDOWN_REDUCTION_FACTOR = OrbConstants.COOLDOWN_REDUCTION_FACTOR;
 const CORE_STAT_SCALING_FACTOR = 0.1;
 const ORB_POWER_INCREASE_FACTOR = OrbConstants.ORB_POWER_INCREASE_FACTOR;
-const MIN_COOLDOWN_MS = OrbConstants.MIN_COOLDOWN_MS;
+const ORB_MIN_COOLDOWN_MS = OrbConstants.ORB_MIN_COOLDOWN_MS;
 const CORE_ROUND_SCALING = 10;
 
 /**
@@ -162,7 +162,7 @@ function applyDecreaseCooldownOrb(targetUnit: Unit, effectType: string): number 
 	}
 
 	const reduction = targetUnit.cooldown * COOLDOWN_REDUCTION_FACTOR;
-	targetUnit.cooldown = Math.max(MIN_COOLDOWN_MS, targetUnit.cooldown - reduction);
+	targetUnit.cooldown = Math.max(ORB_MIN_COOLDOWN_MS, targetUnit.cooldown - reduction);
 	return Math.floor(reduction);
 }
 
@@ -260,6 +260,6 @@ export function upgradeCorePower(core: Unit, round: number): string {
  */
 export function decreaseCoreCooldown(core: Unit): string {
 	const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
-	core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
+	core.cooldown = Math.max(ORB_MIN_COOLDOWN_MS, core.cooldown - reduction);
 	return `Decreased Core Cooldown by ${Math.floor(reduction)}`;
 }

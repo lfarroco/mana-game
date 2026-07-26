@@ -1,4 +1,5 @@
 import * as Models from "../Models";
+import { INFINITE_MODE_THRESHOLD } from "../math/Constants";
 
 /** Core phase rotation: encounters → combat → upgrade core. Used for rounds 1-15. */
 const DEFAULT: Models.PhaseType[] = [
@@ -27,8 +28,6 @@ const INFINITE_MODE_PHASES: Models.PhaseType[] = [
 	"pre_combat",
 	"combat",
 ];
-
-const INFINITE_MODE_THRESHOLD = 10;
 
 export const ROUND_PHASES: Record<number, Models.PhaseType[]> = {
 	1: DEFAULT,
