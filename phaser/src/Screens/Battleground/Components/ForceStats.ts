@@ -427,9 +427,11 @@ export function resetPlayerForceStats() {
 
 	if (!healthBar || !shieldBar || !display) throw new Error("invalid state");
 
-	const core = Card.getPlayerPersistentCore(currentSession!);
-
-	if (!core) throw new Error("invalid state");
+	// Session may already be cleared (e.g. navigating to main menu during combat) —
+	// in that case there's nothing meaningful to reset.
+	const session = currentSession;
+	const core = session ? Card.getPlayerPersistentCore(session) : undefined;
+	if (!core) return;
 
 	const barWidth = 600;
 	const barHeight = 20;
