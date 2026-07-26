@@ -191,7 +191,7 @@ server use.
 - The registry's `"special"` entries duplicate non-orb action ids
   (`increase_core_max_life`, `upgrade_core_power`, `decrease_core_cooldown`).
 
-- [ ] Either implement `sacrifice_effect_orb` or remove it from
+- [x] Either implement `sacrifice_effect_orb` or remove it from
       definitions + presentation.
 - [ ] Dispatch through `ORB_DEFINITIONS` (`kind: "stat" | "special" |
       "reaction"`) and drop the prefix parsing; prune non-orb entries.

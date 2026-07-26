@@ -29,3 +29,5 @@ export const ENEMY_POWER_DECREASE = 10;
 
 /** Flat critical increase for increaseCriticalEffect. */
 export const CRITICAL_INCREASE = 5;
+/** Flat power increase for the sacrifice orb (matching combat sacrificeEffect bonus). */
+export const SACRIFICE_POWER_INCREASE = 10;

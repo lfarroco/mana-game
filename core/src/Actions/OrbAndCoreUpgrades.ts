@@ -89,6 +89,41 @@ function applyDistributePowerOrb(targetUnit: Unit, allUnits: Unit[]): number {
 }
 
 /**
+ * Apply sacrifice_effect_orb: Remove a random effect or reaction from the
+ * target unit and grant a flat power increase.
+ *
+ * This mirrors the combat-time sacrificeEffect (TriggerSystem/effects/sacrificeEffect.ts),
+ * adapted for the shop phase. Uses the seeded RNG for deterministic picks.
+ */
+function applySacrificeOrb(targetUnit: Unit, rng: { seed: string }): number {
+  const hasEffects = targetUnit.effects && targetUnit.effects.length > 0;
+  const hasReactions = targetUnit.reactions && targetUnit.reactions.length > 0;
+
+  if (hasEffects || hasReactions) {
+    // Randomly choose which type to remove when both exist
+    let removeType: "effect" | "reaction";
+    if (hasEffects && hasReactions) {
+      const picked = Random.pickOneSeeded(rng, ["effect", "reaction"]);
+      removeType = picked as "effect" | "reaction";
+    } else {
+      removeType = hasEffects ? "effect" : "reaction";
+    }
+
+    if (removeType === "effect") {
+      const toRemove = Random.pickOneSeeded(rng, targetUnit.effects);
+      targetUnit.effects = targetUnit.effects.filter((e) => e !== toRemove);
+    } else {
+      const toRemove = Random.pickOneSeeded(rng, targetUnit.reactions);
+      targetUnit.reactions = targetUnit.reactions.filter((r) => r !== toRemove);
+    }
+  }
+
+  const powerGain = OrbConstants.SACRIFICE_POWER_INCREASE;
+  targetUnit.power += powerGain;
+  return powerGain;
+}
+
+/**
  * Apply increase_power_on_X orb: Boost power of units with a specific effect.
  */
 function applyIncreasePowerOrb(targetUnit: Unit, effectType: string): number {
@@ -165,6 +200,9 @@ export function applyOrb(
     if (distributed > 0) {
       console.info("orbAndCoreUpgrades", `Distributed ${distributed} power to row units`);
     }
+  } else if (orbId === "sacrifice_effect_orb") {
+    const powerGain = applySacrificeOrb(targetUnit, rng);
+    console.info("orbAndCoreUpgrades", `Sacrifice effect applied, gained ${powerGain} power`);
   } else if (orbId.startsWith("increase_power_on_")) {
     const effectType = orbId.replace("increase_power_on_", "");
     const boost = applyIncreasePowerOrb(targetUnit, effectType);

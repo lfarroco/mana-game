@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 
 import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
-import { Unit } from "../Models";
+import { Unit, Effect } from "../Models";
 
 function makeUnit(overrides: Partial<Unit> = {}): Unit {
 	return {
@@ -108,6 +108,73 @@ describe("OrbAndCoreUpgrades", () => {
 			// Both reactions are valid EffectReaction objects
 			expect(reaction1.effectId).toBe("every_100_damage");
 			expect(reaction2.effectId).toBe("every_100_damage");
+		});
+
+		it("sacrifice_effect_orb removes a random effect and boosts power", () => {
+			const unit = makeUnit({
+				id: "u1",
+				power: 100,
+				effects: [{ id: "damage" } as Effect, { id: "heal" } as Effect],
+			});
+			const rng = { seed: "sacrifice-test" };
+			const seedBefore = rng.seed;
+
+			OrbAndCoreUpgrades.applyOrb([unit], "u1", "sacrifice_effect_orb", rng);
+
+			// Power increased by SACRIFICE_POWER_INCREASE (10)
+			expect(unit.power).toBe(110);
+			// One effect was removed
+			expect(unit.effects.length).toBe(1);
+			// Seed advanced (RNG used for random pick)
+			expect(rng.seed).not.toBe(seedBefore);
+		});
+
+		it("sacrifice_effect_orb removes a random reaction when no effects exist", () => {
+			const unit = makeUnit({
+				id: "u1",
+				power: 100,
+				effects: [],
+				reactions: [
+					{ effectId: "on_battle_start", position: "self", effects: [] },
+				],
+			});
+
+			OrbAndCoreUpgrades.applyOrb([unit], "u1", "sacrifice_effect_orb", { seed: "reaction-only" });
+
+			expect(unit.power).toBe(110);
+			expect(unit.reactions.length).toBe(0);
+		});
+
+		it("sacrifice_effect_orb boosts power even with no effects or reactions", () => {
+			const unit = makeUnit({ id: "u1", power: 100, effects: [], reactions: [] });
+
+			OrbAndCoreUpgrades.applyOrb([unit], "u1", "sacrifice_effect_orb", { seed: "empty" });
+
+			expect(unit.power).toBe(110);
+		});
+
+		it("sacrifice_effect_orb advances the seed", () => {
+			const unit = makeUnit({
+				id: "u1",
+				power: 100,
+				effects: [{ id: "damage" } as Effect, { id: "shield" } as Effect],
+			});
+			const rng = { seed: "advance-test" };
+
+			const seedAfter = OrbAndCoreUpgrades.applyOrb([unit], "u1", "sacrifice_effect_orb", rng);
+
+			// RNG was consumed for the random effect pick
+			expect(seedAfter).not.toBe("advance-test");
+		});
+
+		it("sacrifice_effect_orb does not advance seed when no effects or reactions exist", () => {
+			const unit = makeUnit({ id: "u1", power: 100, effects: [], reactions: [] });
+			const rng = { seed: "no-advance" };
+
+			const seedAfter = OrbAndCoreUpgrades.applyOrb([unit], "u1", "sacrifice_effect_orb", rng);
+
+			// No RNG consumed — only flat power increase
+			expect(seedAfter).toBe("no-advance");
 		});
 	});
 
