@@ -91,13 +91,11 @@ export const getAvailableCards = (unlockedUnitIds: string[]): CardDefinition[] =
 // Unit creation
 // ---------------------------------------------------------------------------
 
-export const getAlliedCore = (state: CombatState) => (forceId: string) =>
-	state.units.find((u) => u.force === forceId && u.isCore)!;
-export const getEnemyCore = (state: CombatState) => (forceId: string) =>
-	state.units.find((u) => u.force !== forceId && u.isCore)!;
-
 export const getBattleCore = (state: CombatState) => (forceId: string) =>
 	state.units.find((u) => u.force === forceId && u.isCore)!;
+
+export const getEnemyCore = (state: CombatState) => (forceId: string) =>
+	state.units.find((u) => u.force !== forceId && u.isCore)!;
 
 export const getPlayerPersistentCore = (state: SessionData) =>
 	state.team.units.find((u) => u.isCore)!;
@@ -116,8 +114,8 @@ export function createUnitFromCardSpec(
 	position: [number, number] = [0, 0],
 	id: string
 ): Unit {
-	const effects = JSON.parse(JSON.stringify(cardDef.effects ?? []));
-	const reactions = JSON.parse(JSON.stringify(cardDef.reactions ?? []));
+	const effects = structuredClone(cardDef.effects ?? []);
+	const reactions = structuredClone(cardDef.reactions ?? []);
 
 	return {
 		id,

@@ -243,11 +243,6 @@ export function processReactions(
 			});
 
 		reactions.forEach((r) => {
-			// check if still in combat
-			if (env.combatState.units.length === 0) {
-				return;
-			}
-
 			env.logger.log({
 				type: "reaction",
 				unitId: u.id,

@@ -92,14 +92,14 @@ export const applyDamageToForce = (
 	let remainingDamage = damage;
 
 	if (damageType === "poison") {
-		const lifeChage = manipulateCoreLife(
+		const lifeChange = manipulateCoreLife(
 			state,
 			targetForce,
 			-damage,
 			false,
 		);
 
-		return Math.abs(lifeChage);
+		return Math.abs(lifeChange);
 	}
 
 	let effectiveShield = core.shield;

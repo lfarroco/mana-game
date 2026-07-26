@@ -9,7 +9,7 @@ import * as Models from "../Models";
 import * as Card from "../Entities/Card";
 import * as Constants from "../Constants";
 import * as CombatSimulation from "./CombatSimulation";
-import * as RunCombatCore from "./CombatRunner";
+import * as CombatRunner from "./CombatRunner";
 import * as BoardLogic from "../BoardLogic";
 import * as F from "../Functional";
 
@@ -133,7 +133,7 @@ function simulateCombatForFrames(
 ) {
 	const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-	const combatRunner = RunCombatCore.runCombat(session, combatState);
+	const combatRunner = CombatRunner.runCombat(session, combatState);
 
 	const SIM_DELTA = 16.67;
 	let frame = 0;
@@ -481,7 +481,7 @@ describe("Haste / Slow status effect log generation", () => {
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-		const combatRunner = RunCombatCore.runCombat(session, combatState);
+		const combatRunner = CombatRunner.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
 
 		const playerCore = combatState.units.find(
@@ -513,7 +513,7 @@ describe("Haste / Slow status effect log generation", () => {
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-		const combatRunner = RunCombatCore.runCombat(session, combatState);
+		const combatRunner = CombatRunner.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
 
 		const cpuCore = combatState.units.find(
@@ -545,7 +545,7 @@ describe("Haste / Slow status effect log generation", () => {
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-		const combatRunner = RunCombatCore.runCombat(session, combatState);
+		const combatRunner = CombatRunner.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
 
 		const playerCore = combatState.units.find(
@@ -583,7 +583,7 @@ describe("Haste / Slow status effect log generation", () => {
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-		const combatRunner = RunCombatCore.runCombat(session,
+		const combatRunner = CombatRunner.runCombat(session,
 			combatState);
 		const env = combatRunner.getEnv();
 
@@ -620,7 +620,7 @@ describe("Haste / Slow status effect log generation", () => {
 
 		const combatState = CombatSimulation.createCombatState(session, enemyTeam);
 
-		const combatRunner = RunCombatCore.runCombat(session, combatState);
+		const combatRunner = CombatRunner.runCombat(session, combatState);
 		const env = combatRunner.getEnv();
 
 		let frame = 0;

@@ -2,22 +2,19 @@ import { Unit } from "../Models";
 import * as Card from "../Entities/Card";
 import { CardDefinition } from "../Models";
 import { upgradeUnitData } from "../Entities/Unit";
-import { FORCE_ID_CPU } from "../Constants";
+import { FORCE_ID_CPU, MAX_PARTY_SIZE } from "../Constants";
 import * as Random from "../Random";
 import type { Vec2 } from "../Geometry";
 
-const MAX_UNITS = 9;
 const UNITS_PER_ROUND = 3;
-const BOARD_WIDTH = 3;
-const BOARD_HEIGHT = 3;
 
 function calculateUnitsForRound(round: number): number {
 	if (round === 0) return 1;
-	return Math.min(1 + round * UNITS_PER_ROUND, MAX_UNITS);
+	return Math.min(1 + round * UNITS_PER_ROUND, MAX_PARTY_SIZE);
 }
 
 function calculateUpgradesForRound(round: number): number {
-	const roundsToFillBoard = Math.ceil((MAX_UNITS - 1) / UNITS_PER_ROUND);
+	const roundsToFillBoard = Math.ceil((MAX_PARTY_SIZE - 1) / UNITS_PER_ROUND);
 	if (round <= roundsToFillBoard) return 0;
 	return (round - roundsToFillBoard) * UNITS_PER_ROUND;
 }
@@ -56,8 +53,8 @@ function getRandomEmptyPosition(
 ): Vec2 {
 	const availablePositions: Vec2[] = [];
 
-	for (let y = 0; y < BOARD_HEIGHT; y++) {
-		for (let x = 0; x < BOARD_WIDTH; x++) {
+	for (let y = 0; y < 3; y++) {
+		for (let x = 0; x < 3; x++) {
 			const key = `${x},${y}`;
 			if (!occupiedPositions.has(key)) {
 				availablePositions.push([x, y]);

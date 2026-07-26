@@ -39,16 +39,16 @@ describe("PoisonDamageSystem", () => {
 		});
 	});
 
-	describe("getTickAmount", () => {
+	describe("getPoisonRate", () => {
 		it("returns 0 for unknown force", () => {
 			const state = Poison.initializePoisonSystem();
-			expect(Poison.getTickAmount(state, "UNKNOWN")).toBe(0);
+			expect(Poison.getPoisonRate(state, "UNKNOWN")).toBe(0);
 		});
 
 		it("returns correct amount", () => {
 			const state = Poison.initializePoisonSystem();
 			const s1 = Poison.applyPoison(state, "A", 42);
-			expect(Poison.getTickAmount(s1, "A")).toBe(42);
+			expect(Poison.getPoisonRate(s1, "A")).toBe(42);
 		});
 	});
 

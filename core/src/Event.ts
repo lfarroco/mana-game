@@ -5,7 +5,7 @@
  * No EventEmitter, no string keys, no shared state between events.
  *
  * Import and use:
- *   import { createEvent } from "@game/Models";
+ *   import { createEvent } from "@game/index";
  *   const clicked = createEvent<{ id: string }>();
  *   const unlisten = clicked.listen(({ id }) => { ... });
  *   await clicked.emit({ id: "foo" });

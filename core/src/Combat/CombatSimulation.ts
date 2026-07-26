@@ -6,7 +6,7 @@
  */
 
 import * as Models from "../Models";
-import * as RunCombatCore from "./CombatRunner";
+import * as CombatRunner from "./CombatRunner";
 import * as CombatLogger from "./CombatLogger";
 
 export function createCombatState(
@@ -44,7 +44,7 @@ export function simulateCombat(
 	combatState: Models.CombatState,
 ): Models.CombatState {
 
-	const combatRunner = RunCombatCore.runCombat(session, combatState);
+	const combatRunner = CombatRunner.runCombat(session, combatState);
 
 	const SIM_DELTA = 16.67;
 	let frame = 0;

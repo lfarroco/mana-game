@@ -247,7 +247,7 @@ export function upgradeCoreMaxLife(core: Unit, round: number): string {
 /**
  * Upgrade core power by (10% of current + 10 * round).
  */
-export function upgradeCorepower(core: Unit, round: number): string {
+export function upgradeCorePower(core: Unit, round: number): string {
 	const powerGain =
 		Math.floor(core.power * CORE_STAT_SCALING_FACTOR) + round * CORE_ROUND_SCALING;
 	core.power += powerGain;
@@ -258,7 +258,7 @@ export function upgradeCorepower(core: Unit, round: number): string {
 /**
  * Reduce core cooldown by 10%.
  */
-export function decreaseCoresCooldown(core: Unit): string {
+export function decreaseCoreCooldown(core: Unit): string {
 	const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
 	core.cooldown = Math.max(MIN_COOLDOWN_MS, core.cooldown - reduction);
 	return `Decreased Core Cooldown by ${Math.floor(reduction)}`;

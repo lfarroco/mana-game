@@ -188,27 +188,27 @@ describe("OrbAndCoreUpgrades", () => {
 		});
 	});
 
-	describe("upgradeCorepower", () => {
+	describe("upgradeCorePower", () => {
 		it("increases power", () => {
 			const core = makeUnit({ id: "core", power: 100, isCore: true });
-			const msg = OrbAndCoreUpgrades.upgradeCorepower(core, 5);
+			const msg = OrbAndCoreUpgrades.upgradeCorePower(core, 5);
 			expect(core.power).toBeGreaterThan(100);
 			expect(core.bonusPower).toBeGreaterThan(0);
 			expect(typeof msg).toBe("string");
 		});
 	});
 
-	describe("decreaseCoresCooldown", () => {
+	describe("decreaseCoreCooldown", () => {
 		it("reduces cooldown", () => {
 			const core = makeUnit({ id: "core", cooldown: 5000, isCore: true });
-			const msg = OrbAndCoreUpgrades.decreaseCoresCooldown(core);
+			const msg = OrbAndCoreUpgrades.decreaseCoreCooldown(core);
 			expect(core.cooldown).toBeLessThan(5000);
 			expect(typeof msg).toBe("string");
 		});
 
 		it("does not go below minimum cooldown", () => {
 			const core = makeUnit({ id: "core", cooldown: 500, isCore: true });
-			OrbAndCoreUpgrades.decreaseCoresCooldown(core);
+			OrbAndCoreUpgrades.decreaseCoreCooldown(core);
 			expect(core.cooldown).toBeGreaterThanOrEqual(500);
 		});
 	});

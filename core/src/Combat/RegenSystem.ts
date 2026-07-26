@@ -28,10 +28,6 @@ export function applyRegen(
 	};
 }
 
-export function getTickAmount(regenState: RegenSystemState, forceId: string): number {
-	return regenState.regenRates.get(forceId) || 0;
-}
-
 export function clearRegen(
 	regenState: RegenSystemState,
 	forceId: string,

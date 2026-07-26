@@ -39,16 +39,16 @@ describe("RegenSystem", () => {
 		});
 	});
 
-	describe("getTickAmount", () => {
+	describe("getRegenRate", () => {
 		it("returns 0 for unknown force", () => {
 			const state = Regen.initializeRegenSystem();
-			expect(Regen.getTickAmount(state, "UNKNOWN")).toBe(0);
+			expect(Regen.getRegenRate(state, "UNKNOWN")).toBe(0);
 		});
 
 		it("returns correct amount", () => {
 			const state = Regen.initializeRegenSystem();
 			const s1 = Regen.applyRegen(state, "A", 15);
-			expect(Regen.getTickAmount(s1, "A")).toBe(15);
+			expect(Regen.getRegenRate(s1, "A")).toBe(15);
 		});
 	});
 

@@ -1,7 +1,7 @@
 import * as CombatStatsTracker from "../../Combat/CombatStatsTracker";
 import { CombatEnvironment, Unit } from "../../Models";
 import { calculateCritical } from "../../Entities/Unit";
-import { getAlliedCore } from "../../Entities/Card";
+import { getBattleCore } from "../../Entities/Card";
 import { manipulateCoreShield } from "../../Entities/Force";
 import { processReactions } from "../TriggerSystem";
 
@@ -42,7 +42,7 @@ export const addShield = (
 			const sourceUnit = state.units.find(u => u.id === sourceId);
 			if (!sourceUnit) return;
 
-			const alliedCore = getAlliedCore(env.combatState)(sourceUnit.force);
+			const alliedCore = getBattleCore(env.combatState)(sourceUnit.force);
 			const oldShield = alliedCore.shield;
 
 			const actualShieldChange = manipulateCoreShield(env.combatState, sourceForce, shieldAmount, isCritical);

@@ -150,8 +150,7 @@ Consumption points:
   agent server now gets real types for moved modules instead of the wildcard
   `declare module "@game/*"` shim in `server/types/phaser-aliases.d.ts`.
 
-Import sites were rewritten `@Utils/Random` → `@game/Random` (14 files) and
-`@Core/Seeding` → `@game/Seeding` (7 files).
+Import sites were rewritten `@Utils/Random` → `@game/Random` (14 files).
 
 ## Migration plan
 

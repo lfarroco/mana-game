@@ -17,7 +17,7 @@ export const restoreLife = (
 	const crit = calculateCritical(env, sourceUnit);
 	env.seed = crit.seed;
 	const healAmount = ((baseAmount + crit.bonusPower) * crit.multiplier) * scale;
-	const alliedCore = Card.getAlliedCore(env.combatState)(sourceUnit.force);
+	const alliedCore = Card.getBattleCore(env.combatState)(sourceUnit.force);
 
 	// Log the cast
 	env.logger.log({
@@ -43,7 +43,7 @@ export const restoreLife = (
 
 			const sourceForce = Force.getUnitForce(state, sourceId);
 
-			const alliedCore = Card.getAlliedCore(env.combatState)(sourceUnit.force);
+			const alliedCore = Card.getBattleCore(env.combatState)(sourceUnit.force);
 			const oldLife = alliedCore.life;
 
 			const actualHealing = Force.manipulateCoreLife(state, sourceForce, healAmount, isCritical);

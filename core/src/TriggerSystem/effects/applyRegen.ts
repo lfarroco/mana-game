@@ -19,7 +19,7 @@ export const applyRegen = (
 
 	const amount = (baseAmount + crit.bonusPower * 0.1) * crit.multiplier * scale;
 
-	const alliedCore = Card.getAlliedCore(env.combatState)(sourceUnit.force);
+	const alliedCore = Card.getBattleCore(env.combatState)(sourceUnit.force);
 
 	// Log the cast
 	env.logger.log({

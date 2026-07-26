@@ -199,7 +199,7 @@ const ACTION_HANDLERS: Record<string, (
 			return session;
 		}
 
-		OrbAndCoreUpgrades.decreaseCoresCooldown(core);
+		OrbAndCoreUpgrades.decreaseCoreCooldown(core);
 		return session;
 	},
 	upgrade_core_power: (session) => {
@@ -212,7 +212,7 @@ const ACTION_HANDLERS: Record<string, (
 			return session;
 		}
 
-		OrbAndCoreUpgrades.upgradeCorepower(core, session.round);
+		OrbAndCoreUpgrades.upgradeCorePower(core, session.round);
 		return session;
 
 	},

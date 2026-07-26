@@ -9,7 +9,7 @@ import * as Models from "../Models";
 import * as Card from "../Entities/Card";
 import * as Constants from "../Constants";
 import * as CombatSimulation from "../Combat/CombatSimulation";
-import * as RunCombatCore from "../Combat/CombatRunner";
+import * as CombatRunner from "../Combat/CombatRunner";
 import * as BoardLogic from "../BoardLogic";
 import * as F from "../Functional";
 import * as CombatLogger from "../Combat/CombatLogger";
@@ -73,7 +73,7 @@ export function makeTestUnit(overrides: {
 export type CombatHarness = {
   session: Models.SessionData;
   combatState: Models.CombatState;
-  combatRunner: ReturnType<typeof RunCombatCore.runCombat>;
+  combatRunner: ReturnType<typeof CombatRunner.runCombat>;
   env: Models.CombatEnvironment;
 };
 
@@ -139,7 +139,7 @@ export function setupCombat(
   };
 
   const combatState = CombatSimulation.createCombatState(session, [cpuCore]);
-  const combatRunner = RunCombatCore.runCombat(session, combatState);
+  const combatRunner = CombatRunner.runCombat(session, combatState);
 
   return { session, combatState, combatRunner, env: combatRunner.getEnv() };
 }
@@ -151,7 +151,7 @@ export function setupCombat(
 export const SIM_DELTA = 16.67;
 
 export function runFrames(
-  combatRunner: ReturnType<typeof RunCombatCore.runCombat>,
+  combatRunner: ReturnType<typeof CombatRunner.runCombat>,
   combatState: Models.CombatState,
   maxFrames: number,
 ): CombatLogger.CombatLogEntry[] {
@@ -175,7 +175,7 @@ export function runFrames(
  *   );
  */
 export function runUntil(
-  combatRunner: ReturnType<typeof RunCombatCore.runCombat>,
+  combatRunner: ReturnType<typeof CombatRunner.runCombat>,
   combatState: Models.CombatState,
   predicate: (logs: CombatLogger.CombatLogEntry[]) => boolean,
   maxFrames: number = 10000,

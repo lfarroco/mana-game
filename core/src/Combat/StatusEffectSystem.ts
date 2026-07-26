@@ -17,8 +17,8 @@ export function initialize(_state: CombatState): StatusEffectSystemState {
 
 function tickForce(env: CombatEnvironment, forceId: string): void {
 	const { combatStates, logger } = env;
-	const poisonAmount = Poison.getTickAmount(combatStates.poisonSystemState, forceId);
-	const regenAmount = Regen.getTickAmount(combatStates.regenSystemState, forceId);
+	const poisonAmount = Poison.getPoisonRate(combatStates.poisonSystemState, forceId);
+	const regenAmount = Regen.getRegenRate(combatStates.regenSystemState, forceId);
 
 	const core = Card.getBattleCore(env.combatState)(forceId);
 	if (!core || core.life <= 0) return;

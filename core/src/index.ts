@@ -6,16 +6,17 @@
  * internal modules: `import { … } from "@mana/core"` or `import { … } from "@game/index"`.
  *
  * Directory structure:
- *   types/       — Domain type definitions (card, combat, effect, unit, session, action, player, server)
- *   math/        — Pure math utilities (Random, Geometry, Constants)
- *   board/       — Board logic (slot finding, movement)
- *   combat/      — Combat simulation (runner, simulation, logger, systems, stats)
- *   entities/    — Entity definitions & factories (Card, Unit, Force)
- *   session/     — Session management (creation, transitions, option generation, enemies)
- *   trigger/     — Trigger system & effects
- *   actions/     — Action handlers (recruitment, orb upgrades)
- *   orbs/        — Orb definitions & constants
- *   data/        — Game data (BaseCollection)
+ *   math/           — Pure math utilities (Random, Geometry, Constants)
+ *   board/          — Board logic (slot finding, movement)
+ *   Combat/         — Combat simulation (runner, simulation, logger, systems, stats)
+ *   Entities/       — Entity definitions & factories (Card, Unit, Force)
+ *   session/        — Session management (creation, transitions, option generation, enemies)
+ *   TriggerSystem/  — Trigger system & effects
+ *   Actions/        — Action handlers (recruitment, orb upgrades)
+ *   Orbs/           — Orb definitions & constants
+ *   data/           — Game data (BaseCollection)
+ *   PhaseSystem/    — Phase configuration
+ *   types/          — Domain type definitions (card, combat, effect, unit, session, action, player, server)
  */
 
 // ---------------------------------------------------------------------------

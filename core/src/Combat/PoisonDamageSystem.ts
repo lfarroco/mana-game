@@ -28,7 +28,7 @@ export function applyPoison(
 	};
 }
 
-export function getTickAmount(poisonState: PoisonSystemState, forceId: string): number {
+export function getPoisonRate(poisonState: PoisonSystemState, forceId: string): number {
 	return poisonState.poisonRates.get(forceId) || 0;
 }
 
@@ -70,6 +70,3 @@ export function clearPoison(
 	};
 }
 
-export function getPoisonRate(poisonState: PoisonSystemState, forceId: string): number {
-	return poisonState.poisonRates.get(forceId) || 0;
-}

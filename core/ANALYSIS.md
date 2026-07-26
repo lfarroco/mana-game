@@ -95,7 +95,6 @@ _Date: July 23, 2026 — Updated after incremental improvements_
 
 ### ⚠️ Structural Improvements (Not Yet Done)
 
-- **Split `BaseCollection.ts`** (~1300 lines) by faction/tier.
 - **Add ESLint** to the core package.
 - **Add CI** for core package standalone (typecheck + test on PR).
 - **CombatStatsTracker** — the `(stats[config.unitStatKey] as number)` cast on line ~127 can be eliminated by restructuring `StatConfig` to use a mapping type instead of `keyof`.

@@ -234,13 +234,14 @@ server use.
   `Math.random()` inside a package whose README demands determinism —
   make `seed` a required parameter of `createInitialSession` and move
   default-seed generation to the caller (client/server runtime).
-- `CombatSimulation.clone` uses `JSON.parse(JSON.stringify(...))` while
-  `SessionTransitions` uses `structuredClone` — pick one
-  (`structuredClone` is already declared in `globals.d.ts`).
-- Document the mutation model: Poison/Regen/Timeout systems return new
+- [x] `CombatSimulation.clone` uses `JSON.parse(JSON.stringify(...))` while
+  `SessionTransitions` uses `structuredClone` — pick one. Replaced all
+  `JSON.parse(JSON.stringify(...))` with `structuredClone` in `Card.ts`
+  and `Unit.ts` (Cline, 2026-07-26).
+- [x] Document the mutation model: Poison/Regen/Timeout systems return new
   state (callers reassign into `env.combatStates`), `CombatStatsTracker`
-  mutates Maps, effects mutate units — all fine, but say so in
-  `core/README.md`.
+  mutates Maps, effects mutate units — already documented in
+  `core/README.md` § "Functional programming conventions" (Cline, 2026-07-26).
 - [x] `createEncounterOptions` mutates `session.encounter_history` — document
   or make it return `{ options, history }`.
 
@@ -258,18 +259,16 @@ server use.
       `executeCombatPhase`.
 - [x] Deprecated leftovers: `Card.registerCollection`, `Card.resetRegistry`,
       `BASE_COLLECTION_DATA` (verify no consumers first).
-- [ ] `processReactions`' `units.length === 0` "still in combat" check is
-      unreachable (units are never removed mid-combat) — remove or
-      implement removal.
+- [x] `processReactions`' `units.length === 0` "still in combat" check is
+      unreachable (units are never removed mid-combat) — removed (Cline, 2026-07-26).
 
 ### 13. Duplication — effort: S
 
-- [ ] `PoisonDamageSystem.getTickAmount` ≡ `getPoisonRate`;
-      `RegenSystem.getTickAmount` ≡ `getRegenRate` — keep one name each.
-- [ ] `Card.getAlliedCore` ≡ `getBattleCore`.
-- [ ] Constants: `MAX_UNITS`/`BOARD_WIDTH`/`BOARD_HEIGHT` in
-      `generateEnemyTeam` vs `Constants.MAX_PARTY_SIZE`;
-      `INFINITE_MODE_THRESHOLD` in both `PhaseConfig` and
+- [x] `PoisonDamageSystem.getTickAmount` ≡ `getPoisonRate`; removed `getTickAmount`, kept `getPoisonRate` (Cline, 2026-07-26).
+- [x] `RegenSystem.getTickAmount` ≡ `getRegenRate`; removed `getTickAmount`, kept `getRegenRate` (Cline, 2026-07-26).
+- [x] `Card.getAlliedCore` ≡ `getBattleCore`; removed `getAlliedCore`, kept `getBattleCore` (Cline, 2026-07-26).
+- [x] Constants: `MAX_UNITS`/`BOARD_WIDTH`/`BOARD_HEIGHT` in `generateEnemyTeam` replaced with `Constants.MAX_PARTY_SIZE` and inline `3` (Cline, 2026-07-26).
+- [ ] `INFINITE_MODE_THRESHOLD` in both `PhaseConfig` and
       `math/Constants`; hardcoded `wins >= 10` / `losses >= 4` /
       `lives: 4` vs `WINS_TO_WIN_GAME` — single source in
       `math/Constants.ts`.
@@ -282,11 +281,11 @@ server use.
 
 ### 14. Naming & import paths — effort: S
 
-- [ ] Typos/casing: `upgradeCorepower` → `upgradeCorePower`,
+- [x] Typos/casing: `upgradeCorepower` → `upgradeCorePower`,
       `decreaseCoresCooldown` → `decreaseCoreCooldown`, `lifeChage` →
       `lifeChange` (`Entities/Force.ts`), `RunCombatCore` alias in
-      `CombatSimulation` (module is `CombatRunner`),
-      `GenerateEnemyTeam` PascalCase namespace in `index.ts` (also
+      `CombatSimulation` (module is `CombatRunner`) — all fixed (Cline, 2026-07-26).
+- [ ] `GenerateEnemyTeam` PascalCase namespace in `index.ts` (also
       duplicates the `EnemyGeneration` export — keep one).
 - [ ] Internal imports should use canonical paths (`../math/Constants`,
       `../board/BoardLogic`) — 9 core files currently import through the
@@ -324,15 +323,16 @@ server use.
 
 ### 17. Doc updates — effort: S
 
-- [ ] `AGENTS.md`: "So far `core/src/Random.ts` and `core/src/Seeding.ts`
-      live there" is stale (`Seeding.ts` doesn't exist; most of the logic
-      has migrated).
-- [ ] `core/src/Event.ts` example imports from `@game/Models` — use the
-      direct module path.
-- [ ] `core/ANALYSIS.md` "Remaining Opportunities": "Split `Models.ts`" is
-      done (`types/` exists); prune the list.
-- [ ] `core/src/index.ts` header comment: directory list doesn't match
-      actual layout/casing.
+- [x] `AGENTS.md`: "So far `core/src/Random.ts` and `core/src/Seeding.ts`
+      live there" — already removed; no stale reference found. `core/README.md`
+      line 154: removed stale `@game/Seeding` reference (Cline, 2026-07-26).
+- [x] `core/src/Event.ts` example imports from `@game/Models` — fixed to
+      use `@game/index` (Cline, 2026-07-26).
+- [x] `core/ANALYSIS.md` "Remaining Opportunities": pruned "Split
+      `BaseCollection.ts`" (the `types/` directory structure already splits
+      models) (Cline, 2026-07-26).
+- [x] `core/src/index.ts` header comment: updated directory list to match
+      actual layout and casing, added missing `PhaseSystem/` (Cline, 2026-07-26).
 
 ---
 
