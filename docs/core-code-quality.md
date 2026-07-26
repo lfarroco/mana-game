@@ -279,9 +279,9 @@ server use.
 - [x] Rename the confusing pair `MIN_COOLDOWN` (200 ms, post-action
       refresh) vs `OrbConstants.MIN_COOLDOWN_MS` (1000 ms, orb floor) —
       e.g. `MIN_REFRESH_MS` vs `ORB_MIN_COOLDOWN_MS` (Cline, 2026-07-26).
-- [ ] Triplicated upgrade-core / add-reaction option lists in
+- [x] Triplicated upgrade-core / add-reaction option lists in
       `SessionTransitions` (`transitionAfterCombat`,
-      `transitionAfterVictory`) — extract builder functions.
+      `transitionAfterVictory`) — extracted as module-level constants `UPGRADE_CORE_OPTIONS` and `ADD_REACTION_CORE_OPTIONS` (Cline, 2026-07-26).
 
 ### 14. Naming & import paths — effort: S
 
@@ -294,11 +294,10 @@ server use.
       export is a separate module (`session/EnemyGeneration` vs
       `Combat/generateEnemyTeam`) — both provide distinct functions used
       by different callers, so both should be kept.
-- [ ] Internal imports should use canonical paths (`../math/Constants`,
-      `../board/BoardLogic`) — 9 core files currently import through the
+- [x] Internal imports should use canonical paths (`../math/Constants`,
+      `../board/BoardLogic`) — 9 core files previously imported through the
       root compat shims (`../Constants`, `../Random`, `../Geometry`,
-      `../BoardLogic`). Keep the shims only for `phaser/` compatibility or
-      delete them and repoint the alias consumers.
+      `../BoardLogic`); all fixed (Cline, 2026-07-26).
 
 ---
 

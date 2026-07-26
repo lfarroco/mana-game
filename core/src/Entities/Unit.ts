@@ -1,5 +1,5 @@
 import * as Card from "./Card";
-import * as Random from "../Random";
+import * as Random from "../math/Random";
 import { CardDefinition, Effect, Unit } from "../Models";
 
 export const testCardDefinitions = {

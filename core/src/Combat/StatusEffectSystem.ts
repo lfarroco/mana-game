@@ -2,7 +2,7 @@ import * as Force from "../Entities/Force";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";
 import * as Card from "../Entities/Card";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../Constants";
+import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "../math/Constants";
 import { CombatEnvironment, CombatState } from "../Models";
 
 const STATUS_EFFECT_TICK_INTERVAL_MS = 1000;

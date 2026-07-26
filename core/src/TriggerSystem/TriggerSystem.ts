@@ -1,6 +1,6 @@
 import * as Models from "../Models";
 import * as effects from "./effects";
-import { pickRandom } from "../Random";
+import { pickRandom } from "../math/Random";
 
 // Process a list of effects that originate from a given source unit
 export const processEffectsIO = (

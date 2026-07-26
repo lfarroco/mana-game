@@ -2,9 +2,9 @@ import { Unit } from "../Models";
 import * as Card from "../Entities/Card";
 import { CardDefinition } from "../Models";
 import { upgradeUnitData } from "../Entities/Unit";
-import { FORCE_ID_CPU, MAX_PARTY_SIZE } from "../Constants";
-import * as Random from "../Random";
-import type { Vec2 } from "../Geometry";
+import { FORCE_ID_CPU, MAX_PARTY_SIZE } from "../math/Constants";
+import * as Random from "../math/Random";
+import type { Vec2 } from "../math/Geometry";
 
 const UNITS_PER_ROUND = 3;
 

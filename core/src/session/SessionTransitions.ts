@@ -22,6 +22,18 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
 	power_absorber: [{ id: "absorb_power_orb" }],
 };
 
+const UPGRADE_CORE_OPTIONS: Models.PhaseOption[] = [
+	{ id: "increase_core_max_life" },
+	{ id: "upgrade_core_power" },
+	{ id: "decrease_core_cooldown" },
+];
+
+const ADD_REACTION_CORE_OPTIONS: Models.PhaseOption[] = [
+	{ id: "on_100_damage_effect" },
+	{ id: "on_crit_effect" },
+	{ id: "on_battle_start_effect" },
+];
+
 /**
  * Stores the most recent combat result so it can be consumed by
  * the end_combat transition without being embedded in SessionData.
@@ -67,11 +79,7 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		return {
 			...session,
 			phase: "upgrade_core",
-			options: [
-				{ id: "increase_core_max_life" },
-				{ id: "upgrade_core_power" },
-				{ id: "decrease_core_cooldown" },
-			],
+			options: UPGRADE_CORE_OPTIONS,
 			step: nextStep,
 		};
 	}
@@ -80,11 +88,7 @@ function transitionAfterCombat(session: Models.SessionData): Models.SessionData 
 		return {
 			...session,
 			phase: "add_reaction_core",
-			options: [
-				{ id: "on_100_damage_effect" },
-				{ id: "on_crit_effect" },
-				{ id: "on_battle_start_effect" },
-			],
+			options: ADD_REACTION_CORE_OPTIONS,
 			step: nextStep,
 		};
 	}
@@ -110,11 +114,7 @@ function transitionAfterVictory(session: Models.SessionData): Models.SessionData
 		return {
 			...session,
 			phase: "upgrade_core",
-			options: [
-				{ id: "increase_core_max_life" },
-				{ id: "upgrade_core_power" },
-				{ id: "decrease_core_cooldown" },
-			],
+			options: UPGRADE_CORE_OPTIONS,
 			step: session.step + 1,
 		};
 	}
@@ -123,11 +123,7 @@ function transitionAfterVictory(session: Models.SessionData): Models.SessionData
 		return {
 			...session,
 			phase: "add_reaction_core",
-			options: [
-				{ id: "on_100_damage_effect" },
-				{ id: "on_crit_effect" },
-				{ id: "on_battle_start_effect" },
-			],
+			options: ADD_REACTION_CORE_OPTIONS,
 			step: session.step + 1,
 		};
 	}

@@ -7,7 +7,7 @@
 
 import { Unit, EffectReaction } from "../Models";
 import { applyPowerDelta } from "../Entities/Unit";
-import * as Random from "../Random";
+import * as Random from "../math/Random";
 import * as OrbConstants from "../Orbs/OrbConstants";
 import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
 

@@ -1,6 +1,6 @@
 import { CombatEnvironment, CombatState, SessionData, Unit, DeferredEvent, Effect } from "../Models";
 import * as TriggerSystem from "../TriggerSystem/TriggerSystem";
-import * as Constants from "../Constants";
+import * as Constants from "../math/Constants";
 import * as Timeout from "./TimeoutDamageSystem";
 import * as Poison from "./PoisonDamageSystem";
 import * as Regen from "./RegenSystem";

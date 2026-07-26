@@ -1,5 +1,5 @@
 import { CombatState, EffectId, SessionData, Unit } from "../Models";
-import { FORCE_ID_PLAYER } from "../Constants";
+import { FORCE_ID_PLAYER } from "../math/Constants";
 
 
 export type UnitCombatStats = {

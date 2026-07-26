@@ -1,5 +1,5 @@
 import * as Force from "../Entities/Force";
-import * as Constants from "../Constants";
+import * as Constants from "../math/Constants";
 import * as Card from "../Entities/Card";
 import { CombatEnvironment } from "../Models";
 

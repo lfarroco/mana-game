@@ -8,10 +8,10 @@
 import * as Models from "../Models";
 import { Unit } from "../Models";
 import * as Card from "../Entities/Card";
-import * as BoardLogic from "../BoardLogic";
-import * as Constants from "../Constants";
+import * as BoardLogic from "../board/BoardLogic";
+import * as Constants from "../math/Constants";
 import { isSome, some } from "../Functional";
-import type { Vec2 } from "../Geometry";
+import type { Vec2 } from "../math/Geometry";
 
 
 /**
