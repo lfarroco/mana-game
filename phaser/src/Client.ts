@@ -213,9 +213,6 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
         // Wire global navigation events
         _navDisposers.push(...wireNavigation());
 
-        // Wire battleground-specific events (one-time)
-        BattlegroundScreen.wireBattlegroundEvents();
-
         OptionsStore.init();
 
         StatsStore.init();

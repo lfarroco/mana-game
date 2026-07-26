@@ -1,4 +1,5 @@
 import * as Board from "@Components/Board/Board";
+import * as Chara from "@Systems/Chara/Chara";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
@@ -52,15 +53,15 @@ const EncounterHandler: PhaseHandler = {
 };
 
 const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler>> = {
-	encounter:          EncounterHandler,
-	pre_combat:         EncounterHandler,
-	combat:             handleCombatPhase.CombatPhase,
-	shop:               Phases.ShopPhase,
-	orb_shop:           Phases.OrbShopPhase,
-	upgrade_core:       Phases.UpgradeCorePhase,
-	add_reaction_core:  Phases.AddReactionCorePhase,
-	game_over:          Phases.GameOverPhase,
-	victory:            Phases.VictoryPhase,
+	encounter: EncounterHandler,
+	pre_combat: EncounterHandler,
+	combat: handleCombatPhase.CombatPhase,
+	shop: Phases.ShopPhase,
+	orb_shop: Phases.OrbShopPhase,
+	upgrade_core: Phases.UpgradeCorePhase,
+	add_reaction_core: Phases.AddReactionCorePhase,
+	game_over: Phases.GameOverPhase,
+	victory: Phases.VictoryPhase,
 };
 
 let activeTeardown: TeardownFn | null = null;
@@ -160,9 +161,28 @@ let disposers: (() => void)[] = [];
 
 /**
  * Render the battleground screen and kick off the phase loop.
- * Listeners must already be wired via wireBattlegroundEvents().
+ * Wires event listeners on every entry — destroy() disposes them on exit.
  */
 export const create = async () => {
+	// Register battleground event listeners on every entry (destroy() disposes them on exit)
+	disposers = [
+		BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
+		BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
+
+		BattlegroundEvent.newRunRequested.listen(() => {
+			Object.assign(env.state, initialState());
+			void NavigationEvent.toCrystals.emit(undefined);
+		}),
+
+		BattlegroundEvent.mainMenuRequested.listen(() => {
+			Object.assign(env.state, initialState());
+			void NavigationEvent.toTitle.emit(undefined);
+		}),
+
+		// --- HUD listeners (wins/lives/round display updates) ---
+		...UI.registerListeners(),
+	];
+
 	// --- Render ---
 	Components.create();
 	previousSessionHudSnapshot = createSessionHudSnapshot();
@@ -191,31 +211,8 @@ export function destroy(): void {
 	disposers.forEach((d) => d());
 	disposers = [];
 	previousSessionHudSnapshot = null;
-}
 
-/**
- * Backward-compatible one-time wiring called from Client.ts at app startup.
- * Wires listeners but does NOT render — rendering happens in create().
- * @deprecated Prefer calling create()/destroy() for full lifecycle management.
- */
-export function wireBattlegroundEvents(): void {
-	disposers = [
-		BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
-		BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
-
-		BattlegroundEvent.newRunRequested.listen(() => {
-			Object.assign(env.state, initialState());
-			void NavigationEvent.toCrystals.emit(undefined);
-		}),
-
-		BattlegroundEvent.mainMenuRequested.listen(() => {
-			Object.assign(env.state, initialState());
-			void NavigationEvent.toTitle.emit(undefined);
-		}),
-
-		// --- HUD listeners (wins/lives/round display updates) ---
-		...UI.registerListeners(),
-	];
+	Chara.clearAll();
 }
 
 // ---------------------------------------------------------------------------
