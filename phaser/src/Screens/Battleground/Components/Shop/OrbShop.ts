@@ -26,6 +26,8 @@ export async function openOrbShop(): Promise<void> {
 
 	renderOrbShop(shopContainer);
 
+	ShopPanel.addSkipButton();
+
 	Board.setEnemyBoardVisible(false);
 
 	await ShopPanel.SlideIn();
