@@ -102,6 +102,35 @@ export function updateTeamAction(
 
 	const validatedUnits = [];
 
+	// --- Position validation ---
+	// Board is 3×3, positions must be in [0, 0] .. [2, 2].
+	const BOARD_SIZE = 3;
+	const seenPositions = new Set<string>();
+
+	for (const newUnit of newUnits) {
+		const [x, y] = newUnit.position;
+		const posKey = `${x},${y}`;
+
+		if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+			console.warn(
+				"SessionManagement",
+				`Team update rejected: position [${x}, ${y}] is outside the ${BOARD_SIZE}×${BOARD_SIZE} board`,
+			);
+			return session;
+		}
+
+		if (seenPositions.has(posKey)) {
+			console.warn(
+				"SessionManagement",
+				`Team update rejected: duplicate position [${x}, ${y}]`,
+			);
+			return session;
+		}
+		seenPositions.add(posKey);
+	}
+
+	// --- Per-unit validation ---
+
 	for (const newUnit of newUnits) {
 		const originalUnit = currentUnitMap.get(newUnit.id);
 

@@ -157,5 +157,29 @@ describe("SessionManagement", () => {
 			const result = SessionManagement.updateTeamAction(session, [modified]);
 			expect(result.team.units[0].cardId).toBe("card_u1");
 		});
+
+		it("rejects positions outside the 3×3 board", () => {
+			const unit1 = makeUnit("u1", [0, 0]);
+			const unit2 = makeUnit("u2", [1, 1]);
+			const session = makeSession({ team: { units: [unit1, unit2] } });
+
+			const result = SessionManagement.updateTeamAction(session, [
+				{ ...unit1, position: [0, 0] as [number, number] },
+				{ ...unit2, position: [3, 0] as [number, number] }, // x=3 is OOB
+			]);
+			expect(result.team.units[0].position).toEqual([0, 0]); // unchanged
+		});
+
+		it("rejects duplicate positions", () => {
+			const unit1 = makeUnit("u1", [0, 0]);
+			const unit2 = makeUnit("u2", [1, 1]);
+			const session = makeSession({ team: { units: [unit1, unit2] } });
+
+			const result = SessionManagement.updateTeamAction(session, [
+				{ ...unit1, position: [2, 2] as [number, number] },
+				{ ...unit2, position: [2, 2] as [number, number] }, // same slot
+			]);
+			expect(result.team.units[0].position).toEqual([0, 0]); // unchanged
+		});
 	});
 });

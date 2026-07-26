@@ -250,7 +250,7 @@ const ACTION_HANDLERS: Record<string, (
 		if (action.type !== "apply_orb") throw new Error();
 
 		const { orbId, targetUnitId } = action;
-		OrbAndCoreUpgrades.applyOrb(
+		session.seed = OrbAndCoreUpgrades.applyOrb(
 			session.team.units,
 			targetUnitId,
 			orbId,

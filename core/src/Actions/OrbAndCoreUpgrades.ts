@@ -134,22 +134,23 @@ function applyDecreaseCooldownOrb(targetUnit: Unit, effectType: string): number 
 /**
  * Apply an orb to a target unit.
  *
- * @param allUnits   All team units (needed for row-based orbs).
+ * @param allUnits      All team units (needed for row-based orbs).
  * @param targetUnitId  The unit receiving the orb.
- * @param orbId      The orb identifier.
- * @param rng        Seeded RNG for deterministic random picks inside
- *                   reaction orbs. Only used for reaction-type orbs.
+ * @param orbId         The orb identifier.
+ * @param rng           Seeded RNG for deterministic random picks inside
+ *                      reaction orbs. Only used for reaction-type orbs.
+ * @returns The (possibly advanced) rng seed — callers MUST write this back.
  */
 export function applyOrb(
   allUnits: Unit[],
   targetUnitId: string,
   orbId: string,
   rng: { seed: string }
-): void {
+): string {
   const targetUnit = allUnits.find((u: Unit) => u.id === targetUnitId);
   if (!targetUnit) {
     console.warn("orbAndCoreUpgrades", `Orb application failed: target unit with ID ${targetUnitId} not found`);
-    return;
+    return rng.seed;
   }
 
   if (orbId === "upgrade_orb") {
@@ -190,6 +191,8 @@ export function applyOrb(
       console.info("orbAndCoreUpgrades", `Added reaction ${orbId} to unit ${targetUnit.id}`);
     }
   }
+
+  return rng.seed;
 }
 
 /**

@@ -16,7 +16,7 @@ targeted runtime reproduction for the critical bug.
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (core, strict) | ✅ clean |
-| `npm test` (core) | ✅ 379 tests / 27 suites green |
+| `npm test` (core) | ✅ 396 tests / 28 suites green |
 | Runtime dependencies | ✅ `uuid` only (and it forces a jest stub) |
 | Purity boundary | ✅ no Phaser/DOM/Node imports; `types: []`, no DOM lib |
 | Linter / formatter | ❌ none configured for the package |
@@ -108,8 +108,12 @@ mutates the wrapper's seed and the result is lost. Consecutive reaction
 orbs applied without intermediate RNG consumption repeat identical
 "random" picks (still replay-safe, but wrong).
 
-- [ ] Pass a holder that writes back (e.g. the session itself) or have
+- [x] Pass a holder that writes back (e.g. the session itself) or have
       `applyOrb` return the next seed and assign it in the handler.
+      - Changed `applyOrb` return type from `void` to `string` (returns `rng.seed`).
+      - Updated `SessionTransitions` to write the returned seed to `session.seed`.
+      - Added tests: reaction orbs advance seed, stat orbs don't, consecutive
+        reaction orbs advance progressively.
 - [ ] Unify the RNG contract while here: `pickRandom` mutates `rng.seed`,
       `nextRandomValue` returns `{ result, seed }` without mutating. Pick
       one convention (prefer: always return the next seed) and apply it to
@@ -142,7 +146,7 @@ reaction).
 accepts out-of-bounds and duplicate positions — a server-authority hole
 once position updates come from clients.
 
-- [ ] Reject positions outside the 3×3 board and duplicated slots
+- [x] Reject positions outside the 3×3 board and duplicated slots
       (reuse `Geometry.eqVec2` / board constants).
 
 ---

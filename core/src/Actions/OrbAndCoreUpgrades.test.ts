@@ -66,6 +66,49 @@ describe("OrbAndCoreUpgrades", () => {
 			OrbAndCoreUpgrades.applyOrb([unit], "nonexistent", "upgrade_orb", dummyRng);
 			expect(unit.rank).toBe(1); // unchanged
 		});
+
+		it("returns advanced seed after applying a reaction orb", () => {
+			const units = [makeUnit({ id: "u1" })];
+			const rng = { seed: "reaction-test-seed" };
+			const originalSeed = rng.seed;
+
+			const seedAfter = OrbAndCoreUpgrades.applyOrb(units, "u1", "on_100_damage_effect", rng);
+
+			// Reaction orbs consume RNG via pickOneSeeded — the seed advances
+			expect(seedAfter).not.toBe(originalSeed);
+			expect(typeof seedAfter).toBe("string");
+		});
+
+		it("returns the same seed after applying a stat orb (no RNG consumed)", () => {
+			const units = [makeUnit({ id: "u1", effects: [{ id: "damage" }] })];
+			const rng = { seed: "stat-orb-test" };
+			const originalSeed = rng.seed;
+
+			const seedAfter = OrbAndCoreUpgrades.applyOrb(units, "u1", "increase_power_on_damage", rng);
+
+			// Stat orbs don't touch RNG — the seed stays the same
+			expect(seedAfter).toBe(originalSeed);
+		});
+
+		it("consecutive reaction orbs advance the seed progressively", () => {
+			const units = [makeUnit({ id: "u1" })];
+
+			// Apply first reaction orb
+			const seed1 = OrbAndCoreUpgrades.applyOrb(units, "u1", "on_100_damage_effect", { seed: "base" });
+			const reaction1 = units[0].reactions![0];
+
+			// Apply second reaction orb — use the seed returned from the first call
+			const seed2 = OrbAndCoreUpgrades.applyOrb(units, "u1", "on_100_damage_effect", { seed: seed1 });
+			const reaction2 = units[0].reactions![1];
+
+			// Seed advanced on each call
+			expect(seed1).not.toBe("base");
+			expect(seed2).not.toBe(seed1);
+
+			// Both reactions are valid EffectReaction objects
+			expect(reaction1.effectId).toBe("every_100_damage");
+			expect(reaction2.effectId).toBe("every_100_damage");
+		});
 	});
 
 	describe("upgradeCoreMaxLife", () => {
