@@ -24,9 +24,6 @@ const statsState: ForceStatsState = ({
 	cpu: initialForceStats(),
 });
 
-// TODO: move this module's state into a property CombatState
-// this way it will be guaranteed to exist
-
 let currentCombatState: CombatState | undefined;
 let currentSession: SessionData | undefined;
 

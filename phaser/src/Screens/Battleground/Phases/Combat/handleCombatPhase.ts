@@ -211,7 +211,7 @@ export const CombatPhase: PhaseHandler = {
 
 			cleanupPlayback();
 			activeCombatState = null;
-			env.state.combatState = undefined;
+			env.patchState({ combatState: undefined });
 			await resetBoard(true);
 			namesDisplay.updateNameDisplay({ enemyName: "" });
 			ForceStats.setCombatClientState();

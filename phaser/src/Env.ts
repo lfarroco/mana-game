@@ -113,8 +113,8 @@ export type Env = {
 	/** Direct Phaser scene access (single scene, no wrapper needed). */
 	scene: Phaser.Scene;
 
-	/** Current client state snapshot. Mutate only via updateState/resetState/patchState. */
-	state: ClientState;
+	/** Current client state snapshot (read-only — mutate only via resetState/patchState/updateState). */
+	state: Readonly<ClientState>;
 	/** Replace the entire state with a fresh initialState(). */
 	resetState: () => void;
 	/** Shallow-merge a partial state into the current state. */
@@ -210,15 +210,15 @@ export const createEnv = (
 	screenRegistry?: ScreenRegistry,
 ): Env => {
 	const emitter = new EventEmitter();
-	const cell = { current: state };
+	const cell = { current: Object.freeze(state) };
 
 	const instance: Env = {
 		scene,
 
 		get state() { return cell.current; },
-		resetState() { cell.current = initialState(); },
-		patchState(partial) { cell.current = { ...cell.current, ...partial }; },
-		updateState(next) { cell.current = next; },
+		resetState() { cell.current = Object.freeze(initialState()); },
+		patchState(partial) { cell.current = Object.freeze({ ...cell.current, ...partial }); },
+		updateState(next) { cell.current = Object.freeze(next); },
 
 		dispatch,
 

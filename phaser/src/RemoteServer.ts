@@ -165,7 +165,7 @@ export async function handleAction(
 
 	const nextSession = response.data as Models.SessionData;
 	const combatState = getSessionCombatState(response.data);
-	env.state.session = nextSession;
+	env.patchState({ session: nextSession, combatState });
 	return { session: nextSession, combatState };
 }
 
