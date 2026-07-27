@@ -32,10 +32,10 @@ export function init() {
 		return {
 			events: e,
 			disposers: [
-				e.newGameButtonClicked.listen(() => NavigationEvent.toCrystals.emit(undefined)),
+				e.newGameButtonClicked.listen(NavigationEvent.toCrystals.emit),
 				e.resumeGameButtonClicked.listen(() => {
 					loadGame();
-					NavigationEvent.toBattleground.emit(undefined);
+					NavigationEvent.toBattleground.emit();
 				}),
 			],
 		};

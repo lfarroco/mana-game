@@ -15,7 +15,7 @@ export function create() {
 }
 
 export function createPanel() {
-	BattlegroundEvent.combatPauseRequested.emit(undefined);
+	BattlegroundEvent.combatPauseRequested.emit();
 
 	const panelWidth = 650;
 	const panelHeight = 500;
@@ -27,22 +27,18 @@ export function createPanel() {
 
 	buttonDefs.push([
 		i18n.t("ui.menu.newRun"),
-		() => {
-			BattlegroundEvent.newRunRequested.emit(undefined);
-		},
+		BattlegroundEvent.newRunRequested.emit
 	]);
 
 	buttonDefs.push(
 		[
 			i18n.t("ui.menu.mainMenu"),
-			() => {
-				BattlegroundEvent.mainMenuRequested.emit(undefined);
-			},
+			BattlegroundEvent.mainMenuRequested.emit
 		],
 		[
 			i18n.t("ui.menu.back"),
 			() => {
-				BattlegroundEvent.combatResumeRequested.emit(undefined);
+				BattlegroundEvent.combatResumeRequested.emit();
 				container.destroy(true);
 			},
 		]

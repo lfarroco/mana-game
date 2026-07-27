@@ -7,6 +7,6 @@ export function create() {
 	UIButton.create({
 		text: i18n.t("options.back"),
 		position: [constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.BACK_BUTTON_Y],
-		callback: () => OptionsScreen.events.backToTitle.emit(undefined),
+		callback: OptionsScreen.events.backToTitle.emit,
 	});
 }

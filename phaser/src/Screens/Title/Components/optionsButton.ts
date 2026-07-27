@@ -37,7 +37,7 @@ const showOptionsSubmenu = () => () => {
 	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: () => NavigationEvent.toOptions.emit(undefined),
+		callback: NavigationEvent.toOptions.emit,
 	});
 
 	const statsBtn = UIButton.create({

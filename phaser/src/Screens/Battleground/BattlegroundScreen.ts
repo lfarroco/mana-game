@@ -9,7 +9,6 @@ import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 import * as Components from "./Components";
 import * as Phases from "./Phases";
 import { getRemainingLives } from "../../SessionManager";
-import { initialState } from "@Models/ClientState";
 import { env } from "@Env";
 import { BattlegroundEvent, NavigationEvent } from "../../Events";
 import * as UI from "./Components/UI/UI";
@@ -170,13 +169,13 @@ export const create = async () => {
 		BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
 
 		BattlegroundEvent.newRunRequested.listen(() => {
-			Object.assign(env.state, initialState());
-			void NavigationEvent.toCrystals.emit(undefined);
+			env.resetState();
+			void NavigationEvent.toCrystals.emit();
 		}),
 
 		BattlegroundEvent.mainMenuRequested.listen(() => {
-			Object.assign(env.state, initialState());
-			void NavigationEvent.toTitle.emit(undefined);
+			env.resetState();
+			void NavigationEvent.toTitle.emit();
 		}),
 
 		// --- HUD listeners (wins/lives/round display updates) ---

@@ -17,6 +17,7 @@ export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
+	// TODO: audit how this function is called, if arg is necessary
 	onComplete?: () => void
 ): Promise<Phaser.GameObjects.Container> {
 	const complete = typeof onComplete === "function" ? onComplete : undefined;
@@ -105,14 +106,14 @@ export async function displayGameComplete(
 		[
 			i18n.t("results.buttons.new_run"),
 			async () => {
-				BattlegroundEvent.newRunRequested.emit(undefined);
+				BattlegroundEvent.newRunRequested.emit();
 				complete?.();
 			},
 		],
 		[
 			i18n.t("results.buttons.main_menu"),
 			async () => {
-				BattlegroundEvent.mainMenuRequested.emit(undefined);
+				BattlegroundEvent.mainMenuRequested.emit();
 				complete?.();
 			},
 		]
@@ -131,7 +132,7 @@ export async function displayGameComplete(
 				await slideOut();
 
 				AudioManager.playMusic("music_battlemap_vetruv");
-				BattlegroundEvent.combatContinueRequested.emit(undefined);
+				BattlegroundEvent.combatContinueRequested.emit();
 				complete?.();
 			},
 		]);

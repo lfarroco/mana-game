@@ -24,12 +24,12 @@ export async function displayDefeat(
 
 	buttonDefinitions.push([
 		i18n.t("results.buttons.replay"),
-		async () => { BattlegroundEvent.combatReplayRequested.emit(undefined); },
+		BattlegroundEvent.combatReplayRequested.emit,
 	]);
 
 	buttonDefinitions.push([
 		i18n.t("results.buttons.continue"),
-		async () => { BattlegroundEvent.combatContinueRequested.emit(undefined); },
+		BattlegroundEvent.combatContinueRequested.emit,
 	]);
 
 	const totalButtons = buttonDefinitions.length;

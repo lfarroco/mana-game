@@ -38,7 +38,7 @@ const showSinglePlayerSubmenu = () => () => {
 	const resumeBtn = UIButton.create({
 		text: i18n.t("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: () => TitleScreen.events.resumeGameButtonClicked.emit(undefined)
+		callback: TitleScreen.events.resumeGameButtonClicked.emit
 	});
 
 	if (!hasSavedRun) {
@@ -49,7 +49,7 @@ const showSinglePlayerSubmenu = () => () => {
 	const newRunBtn = UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: () => TitleScreen.events.newGameButtonClicked.emit(undefined)
+		callback: TitleScreen.events.newGameButtonClicked.emit
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);

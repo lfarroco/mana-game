@@ -15,6 +15,7 @@
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import { ClientState } from "@Models/ClientState";
+import { initialState } from "@Models/ClientState";
 import {
 	container as makeContainer,
 	borderedRoundRect,
@@ -112,10 +113,12 @@ export type Env = {
 	/** Direct Phaser scene access (single scene, no wrapper needed). */
 	scene: Phaser.Scene;
 
-	/** Current client state snapshot. Mutate only via updateState. */
+	/** Current client state snapshot. Mutate only via updateState/resetState/patchState. */
 	state: ClientState;
-	// idea: refactor to use state=>state signature, allowing the updates 
-	// to do {...state, prop: val}
+	/** Replace the entire state with a fresh initialState(). */
+	resetState: () => void;
+	/** Shallow-merge a partial state into the current state. */
+	patchState: (partial: Partial<ClientState>) => void;
 	updateState: (next: ClientState) => void;
 
 	/** Dispatch a game action through the server adapter. */
@@ -213,6 +216,8 @@ export const createEnv = (
 		scene,
 
 		get state() { return cell.current; },
+		resetState() { cell.current = initialState(); },
+		patchState(partial) { cell.current = { ...cell.current, ...partial }; },
 		updateState(next) { cell.current = next; },
 
 		dispatch,

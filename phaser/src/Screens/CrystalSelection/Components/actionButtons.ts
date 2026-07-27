@@ -13,7 +13,7 @@ export function create() {
 			constants.MIDDLE_SCREEN_X,
 			PLAY_BUTTON_Y,
 		],
-		callback: () => CrystalSelectionScreen.events.playClicked.emit(undefined),
+		callback: CrystalSelectionScreen.events.playClicked.emit
 	});
 	UIButton.create({
 		text: i18n.t("crystalSelection.back"),
@@ -21,6 +21,6 @@ export function create() {
 			constants.MIDDLE_SCREEN_X,
 			BACK_BUTTON_Y,
 		],
-		callback: () => CrystalSelectionScreen.events.backClicked.emit(undefined),
+		callback: CrystalSelectionScreen.events.backClicked.emit
 	});
 }

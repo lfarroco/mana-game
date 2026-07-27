@@ -13,7 +13,7 @@ export const startNewGame = async () => {
 		selectedCrystal.id,
 	);
 
-	env.state.session = session;
+	env.patchState({ session });
 
-	await NavigationEvent.toBattleground.emit(undefined);
+	await NavigationEvent.toBattleground.emit();
 }

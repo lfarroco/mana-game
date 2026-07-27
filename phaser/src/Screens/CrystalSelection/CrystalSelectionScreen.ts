@@ -34,9 +34,7 @@ export function init() {
 			events: e,
 			disposers: [
 				e.playClicked.listen(Effects.startNewGame),
-				e.backClicked.listen(async () => {
-					await NavigationEvent.toTitle.emit(undefined);
-				}),
+				e.backClicked.listen(NavigationEvent.toTitle.emit),
 				e.crystalChanged.listen(({ index }) => {
 					state.currentIndex = index;
 					Effects.updateDisplay();
