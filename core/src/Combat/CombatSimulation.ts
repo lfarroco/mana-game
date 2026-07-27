@@ -12,6 +12,7 @@ import * as CombatLogger from "./CombatLogger";
 export function createCombatState(
 	session: Models.SessionData,
 	enemyTeam: Models.Unit[],
+	enemyPlayerName?: string,
 ): Models.CombatState {
 
 	const units: Models.Unit[] = structuredClone([...session.team.units, ...enemyTeam]);
@@ -22,7 +23,7 @@ export function createCombatState(
 	return {
 		units,
 		logs: [],
-		enemyPlayerName: "CPU",
+		enemyPlayerName: enemyPlayerName ?? "CPU",
 		wonCombat: false,
 		finalPlayerUnits: structuredClone(session.team.units),
 		initialUnits: structuredClone(units),

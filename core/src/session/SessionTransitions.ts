@@ -318,11 +318,23 @@ function transitionToNextStep(
 export function transitionToNextState(
 	session: Models.SessionData,
 	action: Models.Action,
+	options?: { enemyTeam?: Models.Unit[]; enemyPlayerName?: string },
 ): Models.ActionResponse {
 
 	console.debug("SessionTransitions", "Transitioning session with action:", action);
 
 	const nextSession = structuredClone(session);
+
+	// Multiplayer: start_combat with an opponent's team injected from matchmaking.
+	// Bypass the generic ACTION_HANDLERS for this path so we can thread the override.
+	if (action.type === "start_combat" && options?.enemyTeam) {
+		const resultSession = executeCombatPhase(nextSession, options.enemyTeam, options.enemyPlayerName);
+		const combatState = resultSession.combatState;
+		if (resultSession.phase === "combat" && combatState) {
+			return { session: resultSession, combatState };
+		}
+		return { session: resultSession };
+	}
 
 	const actionHandler = ACTION_HANDLERS[action.type];
 
@@ -345,6 +357,7 @@ export function transitionToNextState(
 function executeCombatPhase(
 	session: Models.SessionData,
 	enemyTeam?: Models.Unit[],
+	enemyPlayerName?: string,
 ): Models.SessionData {
 
 	console.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
@@ -359,7 +372,7 @@ function executeCombatPhase(
 			session.seed,
 		);
 
-	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, team);
+	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, team, enemyPlayerName);
 
 	const finalCombatState = CombatSimulation.simulateCombat(
 		session,

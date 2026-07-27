@@ -1,8 +1,11 @@
 MOUNT=--mount type=bind,source=$(shell pwd)/app,target=/app
 PHASER_DIR=phaser
 STEAM_DIR=steam
+SERVER_DIR=server
+IMAGE_NAME=mana-server
+CONTAINER_NAME=mana-server
 
-.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo
+.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -57,3 +60,30 @@ steam-publish:
 
 steam-publish-demo:
 	./$(STEAM_DIR)/scripts/publish_steam_demo.sh
+
+
+
+
+# ---- Game Server ----
+
+server-install:
+	cd $(SERVER_DIR) && npm install
+
+server-dev:
+	cd $(SERVER_DIR) && npm run dev
+
+server-test:
+	cd $(SERVER_DIR) && npm test
+
+server-typecheck:
+	cd $(SERVER_DIR) && npm run typecheck
+
+server-build:
+	docker build -f $(SERVER_DIR)/Dockerfile -t $(IMAGE_NAME) .
+
+server-run:
+	docker run -d --name $(CONTAINER_NAME) -p 8787:8787 $(IMAGE_NAME)
+
+server-stop:
+	docker stop $(CONTAINER_NAME) || true
+	docker rm $(CONTAINER_NAME) || true

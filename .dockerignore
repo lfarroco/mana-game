@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Git
+.git/
+
+# Client app (not needed for server)
+phaser/
+electron/
+android/
+steam/
+art/
+
+# Docs & configs (not needed at runtime)
+docs/
+.github/
+*.md
+!server/README.md
+Makefile
+
+# Test artifacts
+test-results/
+**/.cache/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

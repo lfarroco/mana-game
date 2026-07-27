@@ -3,6 +3,26 @@
 This file stores historical completed-task entries that were moved out of AGENTS.md and PLAN.md to keep the active agent guide concise.
 
 
+## Completed (2026-07-26)
+
+### Server Phase 0 — Core Hardening
+
+- [x] **Added enemy-team override to `transitionToNextState`**: Added `options?: { enemyTeam?: Unit[]; enemyPlayerName?: string }` parameter. When `start_combat` is combined with an `enemyTeam`, it bypasses the normal handler and calls `executeCombatPhase` directly with the override. Threaded `enemyPlayerName` through `executeCombatPhase` → `CombatSimulation.createCombatState` (defaults to "CPU"). All changes backward-compatible. Files: `core/src/session/SessionTransitions.ts`, `core/src/Combat/CombatSimulation.ts`.
+
+- [x] **Added combat-state wire codec**: Created `core/src/Combat/CombatCodec.ts` with `serializeCombatState()` and `deserializeCombatState()` plus `CombatStateDto` type. Strips non-JSON-safe Map (`unitById`) and derived fields (`playerCore`, `cpuCore`, `playerUnits`, `cpuUnits`) for wire transport; rebuilds them on deserialization. Exported via `core/src/index.ts` as `CombatCodec`.
+
+- [x] **Tests**: Added 4 tests in `SessionTransitions.test.ts` (enemy team override, default enemy name, single-player backward compat, empty options). Added 3 tests in new `CombatCodec.test.ts` (round-trip, JSON safety, loss outcome).
+
+### Server Phase 1 — Package Scaffolding (partial)
+
+- [x] **Package skeleton**: Created `server/` with `package.json` (ESM, express 5, uuid, tsx, jest, tsup), `tsconfig.json` (`@game/*` → `../core/src/*`), `jest.config.cjs`, `README.md`.
+
+- [x] **Source files**: `src/config.ts`, `src/app.ts`, `src/index.ts`, `src/persistence/memory.ts` (in-memory Map with single-session tracking), `src/services/sessionService.ts`, `src/http/middleware/errors.ts`, `src/http/routes/sessions.ts` (4 endpoints with combatState codec integration).
+
+- [x] **Integration tests**: 8 HTTP tests in `server/test/api.test.ts` (health, session CRUD, action dispatch, combat trigger).
+
+- [~] **Remaining for Phase 1**: `npm install` + verify; guest auth `POST /players` (deferred); revive `FullSessionFlow` tests.
+
 ## Completed (2026-07-25)
 
 - [x] **P2 Step 11: Purity/determinism hygiene** — Removed `SessionManagement.generateDefaultSeed` (was `Date.now()` + `Math.random()` in a deterministic package); made `seed` a required parameter of `createInitialSession` with callers updated (SessionManager.ts, SessionManagement.test.ts). Changed `createEncounterOptions` to return `{ options, encounterHistory }` instead of mutating `session.encounter_history`; updated all callers and tests. Documented the mutation model in `core/README.md` (rule 6). (Cline, 2026-07-25)

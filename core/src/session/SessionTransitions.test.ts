@@ -75,6 +75,85 @@ describe("SessionTransitions", () => {
 		});
 	});
 
+	describe("transitionToNextState with options", () => {
+		it("uses enemyTeam override when provided", () => {
+			const session = createTestSession("test-enemy-override-001");
+			makeCoreStrong(session);
+
+			// Create a custom enemy team with a known unit
+			const customEnemy = Card.makeUnit(
+				Constants.FORCE_ID_CPU,
+				"critical_crystal",
+				[3, 1],
+			);
+			customEnemy.life = 1; // weak — player will win
+			customEnemy.maxLife = 1;
+			customEnemy.power = 1;
+
+			const result = SessionTransitions.transitionToNextState(
+				session,
+				{ type: "start_combat" },
+				{ enemyTeam: [customEnemy], enemyPlayerName: "TestOpponent" },
+			);
+
+			expect(result.session.phase).toBe("combat");
+			expect(result.combatState).toBeDefined();
+			expect(result.combatState!.enemyPlayerName).toBe("TestOpponent");
+			// The custom enemy should be in the combat state
+			const cpuUnits = result.combatState!.units.filter(
+				(u) => u.force === Constants.FORCE_ID_CPU,
+			);
+			expect(cpuUnits).toHaveLength(1);
+			expect(cpuUnits[0].id).toBe(customEnemy.id);
+		});
+
+		it("defaults enemyPlayerName to CPU when not provided", () => {
+			const session = createTestSession("test-default-name-001");
+			makeCoreStrong(session);
+
+			const customEnemy = Card.makeUnit(
+				Constants.FORCE_ID_CPU,
+				"critical_crystal",
+				[3, 1],
+			);
+
+			const result = SessionTransitions.transitionToNextState(
+				session,
+				{ type: "start_combat" },
+				{ enemyTeam: [customEnemy] },
+			);
+
+			expect(result.combatState!.enemyPlayerName).toBe("CPU");
+		});
+
+		it("single-player start_combat still works (no options)", () => {
+			const session = createTestSession("test-sp-start-001");
+			makeCoreStrong(session);
+
+			const result = SessionTransitions.transitionToNextState(session, {
+				type: "start_combat",
+			});
+
+			expect(result.session.phase).toBe("combat");
+			expect(result.combatState).toBeDefined();
+			expect(result.combatState!.enemyPlayerName).toBe("CPU");
+		});
+
+		it("single-player start_combat ignores empty options", () => {
+			const session = createTestSession("test-sp-no-override-001");
+			makeCoreStrong(session);
+
+			const result = SessionTransitions.transitionToNextState(
+				session,
+				{ type: "start_combat" },
+				{},
+			);
+
+			expect(result.session.phase).toBe("combat");
+			expect(result.combatState).toBeDefined();
+		});
+	});
+
 	describe("transitionToNextState", () => {
 		it("throws for unknown action types", () => {
 			const session = createTestSession("test-unknown-001");
