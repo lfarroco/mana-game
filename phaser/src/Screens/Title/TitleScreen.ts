@@ -4,6 +4,7 @@ import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
+import { hideSinglePlayerSubmenu } from "./Components/singlePlayerButton";
 import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
@@ -57,6 +58,24 @@ export function create() {
 
 export function destroy() {
 	lifecycle.destroy();
+
+	// Clean up submenu (Resume/New Run/Collection/Back buttons) — these persist
+	// when the user navigates away from the submenu without clicking the Back
+	// button.  Destroy them here explicitly before switchScreen's removeAll so
+	// Phaser's InputPlugin gets a clean destroy event chain.
+	hideSinglePlayerSubmenu();
+
+	// Destroy any remaining module-level display objects when navigating away.
+	// This is belt-and-suspenders — switchScreen() in Client.ts also destroys all
+	// scene children with removeAll(true) — but ensures stale module-level refs
+	// can't accidentally hold onto interactive objects with Phaser input listeners.
+	if (mainButtonsContainer) {
+		if (mainButtonsContainer.scene) {
+			mainButtonsContainer.destroy(true);
+		}
+		mainButtonsContainer = undefined as unknown as Container;
+	}
+
 }
 
 function renderMainButtons() {

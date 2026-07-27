@@ -31,16 +31,30 @@ async function switchScreen(screen: ScreenModule): Promise<void> {
         activeScreen.destroy();
     }
 
+    // Disable scene input to flush any stale interactive-object references from
+    // the InputPlugin (cursors, pointer tracking, registered objects). We re-enable
+    // after the new screen is rendered.
+    env.scene.input.enabled = false;
+
     await env.fadeOut(300, 0x000000);
-    env.scene.children.removeAll();
+    env.scene.children.removeAll(true);
     env.scene.tweens.killAll();
     env.scene.time.removeAllEvents();
+
+    // Reset the default cursor — the howToPlay container on the title screen sets
+    // scene.input.setDefaultCursor("pointer") in its pointerover handler, and if
+    // the container is destroyed before pointerout fires the cursor stays "pointer"
+    // permanently across the whole scene.
+    env.scene.input.setDefaultCursor("default");
 
     // Re-initialize screen-local events if the module has an init()
     screen.init?.();
     await screen.create();
 
     activeScreen = screen;
+
+    // Re-enable scene input now that the new screen is fully rendered
+    env.scene.input.enabled = true;
     await env.fadeIn(300);
 }
 

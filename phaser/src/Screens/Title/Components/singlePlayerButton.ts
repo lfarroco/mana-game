@@ -38,7 +38,11 @@ const showSinglePlayerSubmenu = () => () => {
 	const resumeBtn = UIButton.create({
 		text: i18n.t("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: TitleScreen.events.resumeGameButtonClicked.emit
+		callback: () => {
+			hideSinglePlayerSubmenu();
+			showMainButtons.showMainButtons();
+			TitleScreen.events.resumeGameButtonClicked.emit();
+		},
 	});
 
 	if (!hasSavedRun) {
@@ -49,7 +53,11 @@ const showSinglePlayerSubmenu = () => () => {
 	const newRunBtn = UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: TitleScreen.events.newGameButtonClicked.emit
+		callback: () => {
+			hideSinglePlayerSubmenu();
+			showMainButtons.showMainButtons();
+			TitleScreen.events.newGameButtonClicked.emit();
+		},
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);
@@ -73,6 +81,7 @@ const showSinglePlayerSubmenu = () => () => {
 	env.scene.children.bringToTop(submenuContainer);
 }
 
-function hideSinglePlayerSubmenu() {
+export function hideSinglePlayerSubmenu() {
+	if (!submenuContainer) return;
 	submenuContainer.destroy(true);
 }
