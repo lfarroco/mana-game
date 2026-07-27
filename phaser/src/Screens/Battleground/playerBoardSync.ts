@@ -12,6 +12,15 @@ const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expected
 };
 
 export const syncPlayerBoardUnits = async (): Promise<void> => {
+	// Destroy any chara whose unit is no longer in the team (e.g. sold or removed).
+	const currentUnitIds = new Set(env.state.session.team.units.map((u) => u.id));
+	for (const chara of Chara.getAllCharas()) {
+		const unitId = Chara.getId(chara);
+		if (!currentUnitIds.has(unitId)) {
+			Chara.destroy(chara);
+		}
+	}
+
 	const summonPromises = env.state.session.team.units.map(async (unit, index) => {
 		if (!Chara.hasCharaById(unit.id)) {
 			await animation.delay(index * 200);

@@ -50,8 +50,15 @@ export function init(chara: Chara.Chara) {
 				void (async () => {
 					const { session } = await env.dispatch({ type: "discard_unit", unitId: state.unitId });
 					env.updateState({ ...env.state, session });
+					// Destroy the chara immediately so it disappears from the board.
+					// The shop-phase listener also handles this, but the sale can
+					// happen in any phase (e.g. via drag-to-discard outside shop).
+					if (Chara.hasCharaById(state.unitId)) {
+						Chara.destroy(Chara.mustGetCharaById(state.unitId));
+					}
 					BattlegroundEvent.unitSoldCompleted.emit({ unitId: state.unitId });
 				})();
+				state.wasDragSuccessful = true;
 			}
 
 		});
