@@ -11,7 +11,6 @@ import {
 } from "./effectBuilders";
 
 // Refer to the Readme for instructions on how to balance units
-// When adding/updating units, run "npm run check-balance -- --filter" to check if they are balanced
 
 // Effect/reaction/targeting builders live in ./effectBuilders (shared with tests).
 
@@ -26,7 +25,6 @@ const cards: Models.CardDefinition[] = [
 		effects: [
 			regen,
 			increasePower(10, column),
-			absorbPower(column)
 		],
 		reactions: [
 			reaction("all", "row_allies", charge(500, self)),

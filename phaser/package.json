@@ -28,7 +28,6 @@
         "typecheck": "tsc --noEmit",
         "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
-        "check-balance": "tsx src/Utils/run_balance.ts",
         "bundle:edge": "tsx scripts/bundle-edge.ts",
         "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED && supabase functions deploy get-enemy-team --project-ref supabase-project-ref-REDACTED"
     },

@@ -9,15 +9,15 @@ directory (running `tsc --noEmit`, `eslint`, `jest`, `playwright test --list`).
 
 ## Current state (verified)
 
-| Check | Result |
-| --- | --- |
-| `tsc --noEmit` | ✅ clean, all strict flags on |
-| `eslint` | ✅ clean, `no-explicit-any` enforced |
-| File granularity | ✅ 192 files / ~17.9k LOC, largest file 620 LOC |
+| Check                      | Result                                                |
+|----------------------------|-------------------------------------------------------|
+| `tsc --noEmit`             | ✅ clean, all strict flags on                          |
+| `eslint`                   | ✅ clean, `no-explicit-any` enforced                   |
+| File granularity           | ✅ 192 files / ~17.9k LOC, largest file 620 LOC        |
 | Unit tests in `phaser/src` | ❌ **0 files** — `npm test` exits 1 ("No tests found") |
-| Unit tests in `core/` | ✅ 27 test files |
-| Playwright e2e | ❌ **0 tests collected** (broken imports) |
-| CI `unit-tests.yml` | ❌ red — runs `npm run test:ci` in `phaser/` |
+| Unit tests in `core/`      | ✅ 27 test files                                       |
+| Playwright e2e             | ❌ **0 tests collected** (broken imports)              |
+| CI `unit-tests.yml`        | ❌ red — runs `npm run test:ci` in `phaser/`           |
 
 The source code itself is strict, lint-clean, and well decomposed. The
 problems are in the **scaffolding**: dead files, stale configs, broken test
@@ -113,10 +113,6 @@ dependencies.
       `uuid`, `delaunator` (zero imports in `src/`, `scripts/`, `e2e/`)
       → **Done** (2026-07-25, Cline): Removed `express`, `pg`, `@types/express`, `@types/pg`,
       `uuid`, `delaunator` from `dependencies` and `@types/delaunator` from `devDependencies`.
-- [x] `check-balance` uses `npx ts-node -r tsconfig-paths/register` but neither
-      package is in devDependencies — migrate the script to `tsx` (already a
-      dep) or pin the packages
-      → **Done**: Simplified to `tsx src/Utils/run_balance.ts`.
 
 ### 5. Repo hygiene — effort: S
 
