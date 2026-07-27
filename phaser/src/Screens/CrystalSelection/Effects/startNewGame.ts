@@ -2,6 +2,7 @@ import * as parent from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { env } from "@Env";
 import { NavigationEvent } from "../../../Events";
+import { LOCAL_PLAYER_ID } from "../../../SessionManager";
 
 export const startNewGame = async () => {
 	const { currentIndex, crystals } = parent.state;
@@ -9,7 +10,7 @@ export const startNewGame = async () => {
 
 	const server = GameServer.getServer();
 	const session = await server.createSession(
-		"local-player",
+		LOCAL_PLAYER_ID,
 		selectedCrystal.id,
 	);
 

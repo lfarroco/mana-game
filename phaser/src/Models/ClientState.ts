@@ -1,5 +1,6 @@
 import * as Models from "@game/Models";
 import * as Geometry from "@game/Geometry";
+import { LOCAL_PLAYER_ID } from "../SessionManager";
 
 export type PlayerSettings = {
 	sound: boolean;
@@ -38,7 +39,7 @@ export const initialState = (): ClientState => {
 		savedGames: [],
 		session: {
 			id: "default_local_session",
-			player_id: "local_player",
+			player_id: LOCAL_PLAYER_ID,
 			phase: "encounter",
 			session_type: { type: "singleplayer" },
 			round: 1,

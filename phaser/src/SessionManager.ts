@@ -2,7 +2,8 @@ import * as Models from "@game/Models";
 import * as SessionManagement from "@game/SessionManagement";
 import * as GameConstants from "@game/Constants";
 
-const STORAGE_PREFIX = "mana_session_";
+export const STORAGE_PREFIX = "mana_session_";
+export const LOCAL_PLAYER_ID = "local_player";
 
 const sessions: Map<string, Models.SessionData> = new Map();
 

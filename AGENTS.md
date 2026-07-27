@@ -87,19 +87,10 @@ Detailed docs live in `docs/`. Each covers a specific system:
 4. **Trigger System**: Units have `effects` (actions on cooldown) and `reactions` (responses to other units' effects). Defined in `TriggerSystem/TriggerSystem.ts`.
 5. **Battleground phase orchestration**: `Client/Screens/Battleground/BattlegroundScene.ts` owns the phase loop; phase handlers and battleground UI modules should route server actions and reads through `Core/GameController.ts`.
 
-## Current Issues
+## Issues
 
-> Update this section as you find or fix bugs.
+> Update this section as you find bugs.
 
-- **~~Single-player wins are never recorded~~ ✅ FIXED** (2026-07-25, Cline): `CombatSimulation.determineCombatOutcome` is now called at the end of `simulateCombat` to set `wonCombat`. It was made safe against missing outcome logs (defaults to loss with console.warn). `initialUnits` is now a separate deep clone instead of aliasing `units`. Added regression tests in both `CombatSimulation.test.ts` (9 new tests for wonCombat, initialUnits, and determineCombatOutcome) and `SessionTransitions.test.ts` (first tests for this module). All 391 core tests pass.
-- **~~`applyOrb` discards RNG advancement~~ ✅ FIXED** (2026-07-25, Cline): `applyOrb` now returns the (possibly advanced) seed; `SessionTransitions` writes it back to `session.seed`. Consecutive reaction orbs no longer repeat identical picks.
-- **~~`createCombatState.initialUnits` aliases `units`~~ ✅ FIXED** — `initialUnits` now gets its own deep clone.
-- **Supabase edge handler drift**: `phaser/supabase/functions/action/index.ts` calls `GameLogic.transitionToNextState(session, actionId, payload, options)` (4 args) and reads `transitionResult.combatResult`, but current core `transitionToNextState(session, action)` returns `{ session, combatState? }`. Committed `_shared.js` bundles (Jul 18) predate core changes (Jul 24); re-running `bundle:edge` without updating the handler will break the MP action path. **Do not patch or re-bundle** — these functions are retired; the replacement is the new `server/` backend ([docs/game-server.md](docs/game-server.md), whose Phase 0 exposes the enemy-team override this handler needed).
-- **~~`SessionTransitions.pendingCombatState`** is a module-level mutable singleton (the same anti-pattern previously removed from `CombatSystemStates`); thread the combat state through the handler return type instead. **Hard blocker for the game server** — concurrent sessions would race on it; the fix is Phase 0 of [docs/game-server.md](docs/game-server.md). ✅ FIXED (2026-07-26, Cline): See AGENTS_ARCHIVE.md.
-- **Three divergent rank-up formulas**: `RecruitmentActions.recruitUnit` (×1.5, no effect scaling), `Entities/Unit.upgradeUnitData` (source.power × rankMultiplier + effect scaling), `OrbAndCoreUpgrades.applyUpgradeOrb` (×1.75). Unify.
-- **~~`sacrifice_effect_orb` is a silent no-op~~ ✅ FIXED** (2026-07-25, Cline): Added `applySacrificeOrb` in `OrbAndCoreUpgrades.ts` — removes a random effect or reaction from the target unit and grants +10 power. Wired into `applyOrb` dispatch. Added 5 unit tests. All 401 core tests pass.
-- **`phaser/` test pipelines broken**: `npm test` finds 0 tests in `phaser/src` (CI `unit-tests.yml` red) and Playwright collects 0 e2e specs (broken imports in `e2e/game.e2e.spec.ts` + `testMatch` mismatch). `jest.config.cjs` has stale `moduleNameMapper` entries pointing to deleted dirs. Full fix plan: [code-quality-cleanup.md](docs/code-quality-cleanup.md).
-- **Multiplayer backend reimplementation → `server/`**: the design and phased plan live in [docs/game-server.md](docs/game-server.md). Supabase edge functions (`phaser/supabase/`), `src/RemoteServer.ts`, `src/lib/supabase.ts`, and `src/Screens/ArenaLobby/` (dead code with a guaranteed crash at `ArenaLobbyScene.ts:471-473`) remain quarantined — do not invest in fixing bugs there; they get deleted in Phase 3 of the server plan.
 
 ## Task Queue
 
@@ -117,13 +108,8 @@ Game server implementation (phased plan: [docs/game-server.md](docs/game-server.
 
 ### Medium Priority
 
-- [ ] Migrate remaining ~200 `io.xxx` calls across ~30 files to `env.*` / direct Phaser calls
-- [ ] Wire the new server-side LLM play service into automated leaderboard match runners (becomes the agent play service in Phase 5 of [docs/game-server.md](docs/game-server.md); blocked on server Phases 1–2)
 
 ### Low Priority
 
-- [ ] Reorganize project file structure (see TODO.md for proposed layout)
 
-### Completed
-- Historical completed entries live in [AGENTS_ARCHIVE.md](AGENTS_ARCHIVE.md).
-- Add new completed work there when closing tasks so this file stays focused on active items.
+
