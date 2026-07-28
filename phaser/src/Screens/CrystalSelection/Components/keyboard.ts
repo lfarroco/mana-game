@@ -2,8 +2,34 @@ import * as Phaser from "phaser";
 import * as parent from "../CrystalSelectionScreen";
 import { env } from "@Env";
 
+// ---------------------------------------------------------------------------
+// Module-level refs so destroy() can clean up idempotently.
+// ---------------------------------------------------------------------------
+let activeContainer: HTMLElement | null = null;
+let activeOutsideListener: ((e: MouseEvent) => void) | null = null;
+let activeTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
+/** Remove the keyboard from the DOM and detach the outside-click listener. */
+export function destroy(): void {
+	if (activeTimeoutId !== null) {
+		clearTimeout(activeTimeoutId);
+		activeTimeoutId = null;
+	}
+
+	if (activeContainer && document.body.contains(activeContainer)) {
+		document.body.removeChild(activeContainer);
+	}
+	activeContainer = null;
+
+	if (activeOutsideListener) {
+		document.removeEventListener("mousedown", activeOutsideListener);
+		activeOutsideListener = null;
+	}
+}
+
 export function create(targetText: Phaser.GameObjects.Text) {
-	if (document.getElementById("virtual-keyboard")) return;
+	// Clean up any stale keyboard before creating a fresh one.
+	destroy();
 
 	const keyboardContainer = document.createElement("div");
 	keyboardContainer.id = "virtual-keyboard";
@@ -66,9 +92,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 		() => {
 			targetText.setText(env.state.session.seed);
 			parent.state.seedWarningText.setVisible(false);
-			if (document.body.contains(keyboardContainer)) {
-				document.body.removeChild(keyboardContainer);
-			}
+			destroy();
 		},
 		"#d32f2f"
 	);
@@ -129,9 +153,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 				}
 			}
 
-			if (document.body.contains(keyboardContainer)) {
-				document.body.removeChild(keyboardContainer);
-			}
+			destroy();
 		},
 		"#388e3c"
 	);
@@ -158,24 +180,23 @@ export function create(targetText: Phaser.GameObjects.Text) {
 	keyboardContainer.appendChild(actionsContainer);
 
 	document.body.appendChild(keyboardContainer);
+	activeContainer = keyboardContainer;
 
 	// Global click listener to close if clicking outside
 	const outsideClickListener = (e: MouseEvent) => {
 		if (!keyboardContainer.contains(e.target as Node)) {
-			if (document.body.contains(keyboardContainer)) {
-				document.body.removeChild(keyboardContainer);
-			}
 			const currentVal = parseInt(targetText.text, 10);
 			if (isNaN(currentVal) && targetText.text !== env.state.session.seed) {
 				targetText.setText(env.state.session.seed);
 				parent.state.seedWarningText.setVisible(false);
 			}
-
-			document.removeEventListener("mousedown", outsideClickListener);
+			destroy();
 		}
 	};
 
-	setTimeout(() => {
+	activeTimeoutId = setTimeout(() => {
 		document.addEventListener("mousedown", outsideClickListener);
+		activeOutsideListener = outsideClickListener;
+		activeTimeoutId = null;
 	}, 0);
 }

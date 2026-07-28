@@ -78,14 +78,54 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [achievement-system.md](docs/achievement-system.md): Steam achievements, victory tiers
 - [code-quality-cleanup.md](docs/code-quality-cleanup.md): Verified code-quality findings for `phaser/` and the prioritized cleanup plan (incl. multiplayer-backend reimplementation scope)
 - [core-code-quality.md](docs/core-code-quality.md): Verified code-quality findings for `core/` and the prioritized improvement plan (incl. the confirmed single-player win-recording bug)
+- [framework-formalization.md](docs/framework-formalization.md): Long-term vision for extracting Screen, ScreenManager, createScreen, and Router into a framework package (`@mana/framework`). Phases A–D roadmap. Screen state purity rules.
 
 ### Key Architectural Patterns
 
-1. **Combat Playback**: Combat is simulated server-side → produces logs → client plays back animations. Entry: `RunCombatIO.ts` → `serverCombatDemo.ts` → `CombatPlaybackController.ts`.
-2. **Server Adapter**: Single-player and multiplayer both go through `GameServer` interface. `getServerAdapter()` in `Core/ServerFactory.ts` returns the right adapter.
-3. **Phase System**: New handler-based system in `Core/PhaseSystem/` with `PhaseHandler` interface. Legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still runs the main loop.
-4. **Trigger System**: Units have `effects` (actions on cooldown) and `reactions` (responses to other units' effects). Defined in `TriggerSystem/TriggerSystem.ts`.
-5. **Battleground phase orchestration**: `Client/Screens/Battleground/BattlegroundScene.ts` owns the phase loop; phase handlers and battleground UI modules should route server actions and reads through `Core/GameController.ts`.
+1. **Three-tier Event System** — Events are categorized by lifespan and scope:
+
+   | Tier | File | Wired when | Payload rule | Example |
+   |---|---|---|---|---|
+   | **Screen-scoped** | Each screen module (e.g. `TitleScreen` exports `events`) | Per `init()` | May carry Phaser refs | `newGameButtonClicked`, `crystalChanged` |
+   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent` | Per battleground entry (create/destroy) | Plain data only | `phaseFinished`, `combatPlaybackFinished` |
+   | **Global game events** | `phaser/src/Events.ts` — `GameEvent` | Once at boot (never torn down) | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
+
+   - Screen-scoped events: created in `init()`, wrapped by `createScreenLifecycle()` for idempotent init + automatic cleanup via `lifecycle.destroy()`.
+   - `BattlegroundEvent`: wired per screen entry in `BattlegroundScreen.create()`, disposed in `BattlegroundScreen.destroy()`. Carries domain data only.
+   - `GameEvent` (added 2026-07-28): wired once in `Client.ts` `wireGameEvents()`. Listeners must never capture Phaser game objects. Services (Tooltip, AudioManager, StatsStore) subscribe here instead of being imported by screens.
+
+2. **Screen lifecycle** — Every screen is a plain module exporting `{ name, init?, create, destroy? }` matching the `ScreenModule` type in `Client.ts`. Navigation is centralized via `switchScreen()` in `Client.ts`:
+   - `screenHidden` (GameEvent) → `destroy()` → input disable → fadeOut → `children.removeAll(true)` → `tweens.killAll()` → `time.removeAllEvents()` → cursor reset → `init()` → `create()` → `activeScreen = screen` → `screenShown` (GameEvent) → input enable → fadeIn.
+   - All calls are **serialised** by a promise-chain mutex (added 2026-07-28). If multiple navigation events queue while one is in flight, only the latest target runs. Coalesces redundant requests.
+
+3. **Navigation mutex** — `Client.ts` uses a promise-chain pattern (`navChain`, `pendingNavTarget`):
+   - `switchScreen(A); switchScreen(B); switchScreen(C)` → A runs, B is skipped (coalesced), C runs.
+   - Same-screen requests are dropped immediately.
+   - Prevents interleaved fade/create/destroy sequences from rapid clicks or async emits.
+
+4. **Combat Playback**: Combat is simulated server-side → produces logs → client plays back animations. Entry: `RunCombatIO.ts` → `serverCombatDemo.ts` → `CombatPlaybackController.ts`.
+
+5. **Server Adapter**: Single-player and multiplayer both go through `GameServer` interface. `getServerAdapter()` in `Core/ServerFactory.ts` returns the right adapter.
+
+6. **Phase System**: New handler-based system in `Core/PhaseSystem/` with `PhaseHandler` interface. Legacy `PhaseManager.ts` in `Engine/Scenes/Battleground/` still runs the main loop.
+
+7. **Trigger System**: Units have `effects` (actions on cooldown) and `reactions` (responses to other units' effects). Defined in `TriggerSystem/TriggerSystem.ts`.
+
+8. **Battleground phase orchestration**: `phaser/src/Screens/Battleground/BattlegroundScreen.ts` owns the phase loop via `PhaseHandler` objects with `name`/`start()`/teardown. Phases create a dedicated Phaser Container for their UI so teardown is a single `container.destroy(true)` call. `activeTeardown` is guaranteed to run on every phase transition AND screen destruction.
+
+9. **DOM cleanup pattern** — For any DOM elements created by screens (e.g. the virtual keyboard in crystal selection), track them via module-level refs and export a `destroy()` function:
+   ```ts
+   let activeContainer: HTMLElement | null = null;
+   let activeTimeoutId: ReturnType<typeof setTimeout> | null = null;
+   export function destroy(): void {
+       if (activeTimeoutId) { clearTimeout(activeTimeoutId); activeTimeoutId = null; }
+       if (activeContainer && document.body.contains(activeContainer)) {
+           document.body.removeChild(activeContainer);
+       }
+       activeContainer = null;
+   }
+   ```
+   The screen's `destroy()` must call this. `create()` should call `destroy()` first for idempotency. Never rely on `Phaser.Scenes.Events.SHUTDOWN` — it never fires in the single-scene setup (added 2026-07-28).
 
 ## Issues
 

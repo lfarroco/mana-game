@@ -93,3 +93,28 @@ export const BattlegroundEvent = {
   /** Emitted after an orb is applied to a unit (post-server dispatch). */
   orbApplied: createEvent<{ orbId: string; targetUnitId: string }>(),
 };
+
+// ---------------------------------------------------------------------------
+// Global game events — wired once at boot, never torn down.
+// These carry pure domain data (no Phaser refs).  Systems that need to react
+// to game occurrences (audio, stats, achievements, tooltip) subscribe here
+// instead of being imported by screens.
+// ---------------------------------------------------------------------------
+
+export const GameEvent = {
+  /** A screen finished its create() + fade-in and is fully visible. */
+  screenShown:  createEvent<{ name: string }>(),
+  /** A screen is about to be destroyed (before destroy() is called). */
+  screenHidden: createEvent<{ name: string }>(),
+
+  /** A new run was started. */
+  runStarted:   createEvent<void>(),
+  /** A run ended (victory or game over). */
+  runCompleted: createEvent<{ outcome: Models.WaveOutcome }>(),
+
+  /** A unit was added to the player's team. */
+  unitRecruited: createEvent<{ unitId: string }>(),
+  /** A unit was removed from the player's team. */
+  unitRemoved:   createEvent<{ unitId: string }>(),
+};
+

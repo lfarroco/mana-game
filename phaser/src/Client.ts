@@ -7,16 +7,18 @@ import * as CrystalSelectionScreen from "./Screens/CrystalSelection/CrystalSelec
 import * as OptionsScreen from "./Screens/Options/OptionsScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
+import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as GameServer from "./GameServer";
 import { createEnv, env } from "@Env";
 import { ClientState } from "@Models/ClientState";
-import { NavigationEvent } from "./Events";
+import { GameEvent, NavigationEvent } from "./Events";
 
 // ---------------------------------------------------------------------------
 // Screen navigation
 // ---------------------------------------------------------------------------
 
 type ScreenModule = {
+    name: string;
     create: () => void | Promise<void>;
     destroy?: () => void;
     init?: () => void;
@@ -26,9 +28,21 @@ let activeScreen: ScreenModule | null = null;
 // Hold references to navigation disposers to prevent GC
 const _navDisposers: (() => void)[] = [];
 
-async function switchScreen(screen: ScreenModule): Promise<void> {
-    if (activeScreen?.destroy) {
-        activeScreen.destroy();
+// ---------------------------------------------------------------------------
+// Navigation serialisation — prevents interleaved switchScreen calls from
+// concurrent navigation events (rapid clicks, async emits).  If multiple
+// navigations queue while one is in flight, only the latest target runs.
+// TODO: actually, the inverse is preferrable: ignore the new event.
+// ---------------------------------------------------------------------------
+let navChain: Promise<void> = Promise.resolve();
+let pendingNavTarget: ScreenModule | null = null;
+
+async function doSwitchScreen(screen: ScreenModule): Promise<void> {
+    if (activeScreen) {
+        await GameEvent.screenHidden.emit({ name: activeScreen.name });
+        if (activeScreen.destroy) {
+            activeScreen.destroy();
+        }
     }
 
     // Disable scene input to flush any stale interactive-object references from
@@ -52,10 +66,30 @@ async function switchScreen(screen: ScreenModule): Promise<void> {
     await screen.create();
 
     activeScreen = screen;
+    await GameEvent.screenShown.emit({ name: screen.name });
 
     // Re-enable scene input now that the new screen is fully rendered
     env.scene.input.enabled = true;
     await env.fadeIn(300);
+}
+
+async function switchScreen(screen: ScreenModule): Promise<void> {
+    // Already on this screen and no pending navigation — skip immediately.
+    if (screen === activeScreen && pendingNavTarget === null) return;
+
+    // Remember the latest target; earlier queued targets will be skipped.
+    pendingNavTarget = screen;
+
+    // Chain the navigation after any already-in-flight transition.
+    navChain = navChain.then(async () => {
+        const target = pendingNavTarget;
+        // Nothing pending, or we already landed on it — skip.
+        if (!target || target === activeScreen) return;
+        pendingNavTarget = null;
+        await doSwitchScreen(target);
+    });
+
+    await navChain;
 }
 
 function wireNavigation(): (() => void)[] {
@@ -64,6 +98,22 @@ function wireNavigation(): (() => void)[] {
         NavigationEvent.toBattleground.listen(() => switchScreen(BattlegroundScreen)),
         NavigationEvent.toCrystals.listen(() => switchScreen(CrystalSelectionScreen)),
         NavigationEvent.toOptions.listen(() => switchScreen(OptionsScreen)),
+    ];
+}
+
+/**
+ * Wire global game-event listeners.  These react to domain events (screen
+ * shown, run started, etc.) and call the appropriate service — keeping
+ * screens free of direct imports to AudioManager, Tooltip, etc.
+ *
+ * Disposers are stored permanently (never torn down).  Event payloads must
+ * never carry Phaser game-object references.
+ */
+function wireGameEvents(): (() => void)[] {
+    return [
+        GameEvent.screenShown.listen(({ name: _name }) => {
+            Tooltip.init();
+        }),
     ];
 }
 
@@ -226,6 +276,8 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
 
         // Wire global navigation events
         _navDisposers.push(...wireNavigation());
+        // Wire global game-event reactions (Tooltip, audio, stats, …)
+        _navDisposers.push(...wireGameEvents());
 
         OptionsStore.init();
 

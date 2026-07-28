@@ -58,12 +58,4 @@ export function create() {
 	bg.on("pointerout", () => bg.setStrokeStyle(1, 0x888888));
 
 	env.scene.add.existing(seedText);
-
-	// Cleanup on scene shutdown
-	env.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-		const existingKeyboard = document.getElementById("virtual-keyboard");
-		if (existingKeyboard && document.body.contains(existingKeyboard)) {
-			document.body.removeChild(existingKeyboard);
-		}
-	});
 }

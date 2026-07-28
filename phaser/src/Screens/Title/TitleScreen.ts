@@ -1,7 +1,6 @@
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
-import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
 import { hideSinglePlayerSubmenu } from "./Components/singlePlayerButton";
@@ -16,6 +15,9 @@ type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
 	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
 }
+
+
+export const name = "title";
 
 const lifecycle = createScreenLifecycle();
 
@@ -52,7 +54,6 @@ export function create() {
 	Components.howToPlay.create();
 	checkUnlocks();
 	displayVersion();
-	Tooltip.init();
 	AudioManager.playMusic("music_ageofdisjunction");
 }
 

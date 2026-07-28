@@ -2,7 +2,6 @@ import * as Board from "@Components/Board/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
-import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as Encounter from "./Phases/Encounter/Encounter";
 import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 
@@ -64,6 +63,8 @@ const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler>> = {
 };
 
 let activeTeardown: TeardownFn | null = null;
+
+export const name = "battleground";
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -187,8 +188,6 @@ export const create = async () => {
 	previousSessionHudSnapshot = createSessionHudSnapshot();
 
 	AudioManager.playMusic("music_battlemap_vetruv");
-
-	Tooltip.init();
 
 	// TODO: input enable/disable should be managed at the screen level, not
 	// delegated to individual components (Board, Shop, etc.).

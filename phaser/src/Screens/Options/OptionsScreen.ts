@@ -17,7 +17,7 @@ export type OptionsScreenEvents = {
 };
 
 const lifecycle = createScreenLifecycle();
-
+export const name = "options";
 export let events: OptionsScreenEvents;
 
 export function init() {

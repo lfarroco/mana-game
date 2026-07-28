@@ -4,6 +4,7 @@ import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodete
 
 import * as Components from "./Components";
 import * as Effects from "./Effects";
+import * as keyboard from "./Components/keyboard";
 import * as Models from "@game/Models";
 import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
@@ -18,6 +19,8 @@ export type CrystalSelectionEvents = {
 	backClicked: ReturnType<typeof createEvent<void>>;
 	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
 };
+export const name = "crystal_selection";
+
 
 const lifecycle = createScreenLifecycle();
 
@@ -45,6 +48,7 @@ export function init() {
 }
 
 export function destroy() {
+	keyboard.destroy();
 	lifecycle.destroy();
 }
 
