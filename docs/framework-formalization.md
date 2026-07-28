@@ -32,11 +32,12 @@ the building blocks a formal framework would codify.
 | Concept | File(s) | Description |
 |---|---|---|
 | `Env` singleton | `phaser/src/Env.ts` | Application shell wrapping Phaser: `scene`, `state`, `dispatch`, `time`, `audio`, `fadeOut`/`fadeIn`, Phaser helpers. Imported as `env` — never null. |
-| Global events | `phaser/src/Events.ts` | `NavigationEvent` (toTitle, toBattleground, toCrystals, toOptions) and `BattlegroundEvent` (phaseFinished, combat events, HUD deltas). Cross-cutting only. |
-| Screen lifecycle | All `Screens/*` | `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create. |
+| Global events | `phaser/src/Events.ts` | `NavigationEvent` (toTitle, toBattleground, toCrystals, toOptions), `BattlegroundEvent` (phase lifecycle, HUD deltas), and `GameEvent` (screen lifecycle, run lifecycle, domain events). Cross-cutting only. |
+| `createScreenLifecycle()` | `phaser/src/Screens/screenLifecycle.ts` | Factory that returns `{ init, destroy }`. `init()` is idempotent — runs setup once, returns cached events. `destroy()` runs all disposers and clears all events. Used by all non-battleground screens. |
+| Screen lifecycle | All `Screens/*` | `name`, `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create. |
 | Screen-local events | Per-screen modules | Each screen defines its own typed events (e.g. `CrystalSelectionEvents`, `OptionsScreenEvents`) scoped to that screen. |
-| `switchScreen()` | `Client.ts` | Centralized navigation: calls `activeScreen.destroy()` → fades out → clears → `screen.init()` → `screen.create()` → fades in. |
-| Phase handlers | `Battleground/Phases/` | Each phase exports `registerListeners(): (() => void)[]` wired once by `wireBattlegroundEvents()`. |
+| `switchScreen()` + nav mutex | `Client.ts` | Centralized navigation: emits `screenHidden` → `destroy()` → input disable → fade → scene clear → `init()` → `create()` → `activeScreen = screen` → `screenShown` → fade in. Serialised by a promise‑chain mutex that coalesces redundant requests. |
+| Phase handlers | `Battleground/Phases/` | Each phase exports a `PhaseHandler` with `start() → TeardownFn`. BattlegroundScreen guarantees teardown on every transition and on screen destroy. |
 
 ### Three-layer model
 
@@ -67,21 +68,75 @@ emit NavigationEvent ──────────► Client.ts switchScreen() 
 Today the patterns exist by convention. A framework would make them
 **enforceable by tooling.**
 
-### 1. `Screen<TState, TEvents>` type
+### 1. `createScreen()` factory with automatic resource tracking
 
-A formal contract residing in a shared location (likely `framework/` or
-a `Screen.ts` in `core/`), not an ad-hoc type in `Client.ts`:
+The biggest source of bugs today is manual cleanup: every screen must track its
+disposers, DOM elements, Phaser game objects, and `scene.events` listeners, then
+destroy them by hand in `destroy()`. A factory that **tracks resources at
+registration time** and disposes them automatically on screen exit eliminates
+this class of error entirely.
 
 ```typescript
-type ScreenModule<
-  TState extends Record<string, unknown>,
-  TEvents extends Record<string, Event<any>>
-> = {
-  init: () => { state: TState; events: TEvents };
-  create: (state: TState, events: TEvents) => void | Promise<void>;
-  destroy: () => void;
+// Conceptual API — a screen module using the factory
+import { createScreen } from "@mana/framework";
+
+type MyEvents = {
+  buttonClicked: Event<void>;
 };
+
+export const { init, create, destroy } = createScreen<MyEvents>("title", (ctx) => {
+  // ── Declare events and disposers ──
+  const events = {
+    buttonClicked: createEvent<void>(),
+  };
+
+  ctx.on(events.buttonClicked, () => handleClick());          // typed-event listener
+  ctx.on(NavigationEvent.toOptions, handleNavigate);           // global event listener
+  ctx.onUpdate((time, delta) => updateAnimation(time, delta)); // scene.events.on("update")
+
+  // ── Return the render function ──
+  return (renderCtx) => {
+    const titleText = renderCtx.add.text(0, 0, "Hello");      // auto-tracked Phaser object
+
+    const btn = renderCtx.createButton({                       // auto-tracked via ctx helpers
+      text: "Click me",
+      onClick: () => events.buttonClicked.emit(),
+    });
+
+    const domEl = renderCtx.addDom(document.createElement("div")); // auto-removed from DOM
+    document.body.appendChild(domEl);
+
+    renderCtx.onDispose(() => { /* custom teardown */ });      // runs on screen exit
+  };
+});
 ```
+
+**What the factory manages:**
+
+| Resource | Declared via | Disposed by |
+|---|---|---|
+| Typed-event listeners | `ctx.on(event, handler)` | `disposer()` on each listener |
+| `scene.events.on("update")` | `ctx.onUpdate(handler)` | `scene.events.off("update", handler)` |
+| Phaser game objects | `renderCtx.add.text(…)`, `add.container(…)`, etc. | `gameObject.destroy(true)` |
+| DOM elements | `renderCtx.addDom(node)` | `document.body.removeChild(node)` |
+| Custom teardown | `renderCtx.onDispose(fn)` | runs `fn()` |
+
+**On navigation (`ScreenManager.go()`):**
+
+1. Emit `GameEvent.screenHidden` → the factory disposes every registered resource
+   (listeners, game objects, DOM nodes, scene hooks, custom teardowns).
+2. Call screen's `destroy()` (if the screen adds extra work beyond tracked resources).
+3. Run the standard scene-cleanup kill list (input disable, fadeOut,
+   `children.removeAll(true)`, `tweens.killAll()`, `time.removeAllEvents()`,
+   cursor reset).
+4. Emit `GameEvent.screenShown`.
+
+At this point, forgetting to clean up a resource is **impossible** — the screen
+never holds an `on` reference that outlives the factory. The developer declares
+the resource, the framework disposes it. This is the critical improvement over
+both the current ad‑hoc system **and** Phaser scenes, because Phaser has no
+equivalent for DOM nodes, typed‑event listeners, or `scene.events` hooks —
+those still leak across scene transitions.
 
 ### 2. `ScreenManager`
 
@@ -89,58 +144,47 @@ Extracted from `Client.ts` into a standalone module. Handles:
 
 - Screen registry (map of screen IDs → ScreenModules)
 - Active screen tracking
-- Enter/exit transitions (fade, cleanup, init)
-- Typed navigation (params per route)
+- Enter/exit transitions (fade, cleanup, init) — driven by `GameEvent.screenShown` / `screenHidden`
+- Typed navigation (params per route, see §4)
 
 ```typescript
 const manager = createScreenManager({
-  title: TitleScreen,
-  battleground: BattlegroundScreen,
-  crystals: CrystalSelectionScreen,
-  options: OptionsScreen,
+  screens: { title: TitleScreen, battleground: BattlegroundScreen, ... },
+  transitions: { fadeMs: 300, color: 0x000000 },
+  eventBridge: { shown: GameEvent.screenShown, hidden: GameEvent.screenHidden },
 });
-
-// Typed navigation
-manager.go("crystals");
-manager.go("battleground", { crystalId: "mana_crystal" });
+manager.go("battleground", { crystalId: "crystal_01" });
 ```
 
 The existing `ScreenRegistry` type and `noopScreens` fallback in `Env.ts`
 suggest this was anticipated but never completed.
 
-### 3. `createScreen()` factory
+### 3. Screen state purity
 
-Eliminates the ~15-line boilerplate every screen duplicates today:
+The factory pattern also solves the state-contamination problem. Today
+`CrystalSelectionScreen.state` holds Phaser refs (`crystalSprite: Phaser.GameObjects.Image`).
+If the factory manages Phaser objects through `renderCtx.add.text(...)`, the
+screen's pure state never needs to reference them:
 
 ```typescript
-// Today (every screen)
-let disposers: (() => void)[] = [];
-let initialized = false;
-export function init() { if (initialized) return; initialized = true; ... }
-export function destroy() { disposers.forEach(d => d()); ... }
+export const { init, create, destroy } = createScreen<...>("crystal_selection", (ctx) => {
+  const state = { currentIndex: 0, crystals: Card.getCores() };
 
-// With factory
-export const { init, create, destroy } = createScreen(({ on, dispose }) => {
-  on(events.playClicked, handlePlay);
-  on(NavigationEvent.toTitle, handleBack);
-  // ...
+  ctx.on(events.crystalChanged, ({ index }) => {
+    state.currentIndex = index;
+    ctx.rerender();       // ← triggers factory to destroy old objects and re-run render
+  });
+
+  return (renderCtx) => {
+    const crystal = state.crystals[state.currentIndex];
+    renderCtx.add.image(/* ... */);     // no ref stored in state
+    renderCtx.add.text(/* description */);
+  };
 });
 ```
 
-### 4. State / effects / components separation
-
-Screens should enforce a clean split:
-
-| Layer | Concern | Depends on |
-|---|---|---|
-| **State** | Pure data (currentIndex, crystals) | Nothing |
-| **Events** | Typed event definitions | `core/Event` |
-| **Effects** | Listeners that react to events, mutate state, call dispatch | State, Events, Env |
-| **Components** | Phaser rendering, button creation | Env, Events (emit only) |
-
-Today `CrystalSelectionScreen.state` mixes pure data with Phaser refs
-(`crystalSprite: Phaser.GameObjects.Image`). A framework would enforce
-that state objects contain no rendering refs.
+This eliminates the class of bugs where a screen re‑enters and a stale Phaser
+ref in `state` causes double‑render or access‑after‑destroy errors.
 
 ### 5. Router with typed params
 
@@ -180,32 +224,44 @@ This package would live between `core/` (pure logic) and `phaser/src/`
 
 ## Roadmap
 
-### Phase A — Stabilize patterns (current state ✅)
+### Phase A — Stabilize patterns ✅
 
 - [x] `Event<T>` primitive in `core/`
-- [x] `NavigationEvent` + `BattlegroundEvent` in `Events.ts`
-- [x] `init()` / `create()` / `destroy()` on all screens
-- [x] `switchScreen()` central navigation
+- [x] `NavigationEvent` + `BattlegroundEvent` + `GameEvent` in `Events.ts`
+- [x] `init()` / `create()` / `destroy()` on all screens — plus `name` export
+- [x] `switchScreen()` central navigation with promise-chain mutex
 - [x] Screens decoupled via events (no direct cross-screen imports)
+- [x] `createScreenLifecycle()` helper for idempotent init / disposer cleanup
+- [x] `screenShown` / `screenHidden` global events for service reactions
 
-### Phase B — Extract types (next)
+### Phase B — `createScreen()` factory with auto‑disposal (next)
 
-- [ ] Define `ScreenModule` type in a shared location
-- [ ] Create `ScreenManager` class (pulled from `Client.ts`)
-- [ ] Add `createScreen()` factory to eliminate init/destroy boilerplate
-- [ ] Clean screen state objects (no Phaser refs in state)
+This is the highest‑value extraction: a factory that eliminates manual cleanup.
 
-### Phase C — Router + params
+- [ ] Design the `createScreen<Screens, Events>(name, setupFn)` API surface
+- [ ] Build resource‑tracking primitives: typed‑event disposer stack, `scene.events.on("update")` manager, Phaser game object registry, DOM element registry
+- [ ] Integrate with `GameEvent.screenHidden` for automatic teardown on navigation
+- [ ] Refactor one screen (e.g. `OptionsScreen` — smallest surface area) to prove the pattern
+- [ ] Refactor remaining non‑battleground screens: `TitleScreen`, `CrystalSelectionScreen`
+- [ ] Refactor `BattlegroundScreen` — will need to compose with the phase-handler lifecycle
+- [ ] Clean state objects: remove Phaser refs from screen state (they're in the factory now)
+- [ ] Delete old `createScreenLifecycle()` once all screens migrated
 
-- [ ] Typed route definitions with params
-- [ ] `ScreenManager.go()` replaces raw `NavigationEvent.emit()`
-- [ ] Deep-link support (e.g., navigate to a specific options tab)
+### Phase C — ScreenManager + Router
+
+- [ ] Define typed route map (`type Routes = { title: void; battleground: { crystalId: string }; ... }`)
+- [ ] Extract `Client.ts` navigation into `createScreenManager()`:
+  - Screen registry
+  - Active screen tracking + nav mutex (already works, move it)
+  - Fade transitions (configurable)
+  - Emits `screenShown` / `screenHidden` automatically
+- [ ] `ScreenManager.go(route, params)` replaces raw `NavigationEvent.emit()`
+- [ ] Deep-link support (e.g. navigate to a specific options tab)
 
 ### Phase D — Framework package
 
-- [ ] Extract `Screen`, `ScreenManager`, `createScreen`, `Router` into
-  `framework/` package (or `@mana/framework`)
-- [ ] Keep Phaser adapters in `phaser/src/`
+- [ ] Extract `createScreen`, `ScreenManager`, `Router` into `framework/` package (or `@mana/framework`)
+- [ ] Keep Phaser adapters in `phaser/src/` (the factory's `renderCtx.add.*` helpers are Phaser-specific)
 - [ ] Document as the canonical way to add a screen
 - [ ] Screen generator / template for `npm run new:screen <name>`
 
@@ -227,7 +283,6 @@ This package would live between `core/` (pure logic) and `phaser/src/`
 ## References
 
 - [core/README.md](../core/README.md) — three-layer model and migration plan
-- [purity-boundary.md](purity-boundary.md) — import rules enforced by the
-  core/client split
-- The `Env.ts` `ScreenRegistry` type — the unfinished interface that
-  hints at this direction
+- [AGENTS.md](../AGENTS.md) — practical guide to the three-tier event system, nav mutex, and DOM cleanup patterns
+- [purity-boundary.md](purity-boundary.md) — import rules enforced by the core/client split
+- The `Env.ts` `ScreenRegistry` type — the unfinished interface that hints at this direction
