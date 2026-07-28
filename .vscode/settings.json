@@ -1,4 +1,0 @@
-{
-    "jest.rootPath": "phaser",
-    "jest.jestCommandLine": "npx jest"
-}
