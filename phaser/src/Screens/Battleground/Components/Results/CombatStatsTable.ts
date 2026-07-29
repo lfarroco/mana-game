@@ -94,7 +94,7 @@ async function createStatsPanel(
 			unit.pic
 		);
 
-		const frameNames = env.scene.textures.get(unit.pic).getFrameNames();
+		const frameNames = env.scene.textures.exists(unit.pic) ? env.scene.textures.get(unit.pic).getFrameNames() : [];
 		const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 		idleFrames.sort((a, b) => {
 			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);

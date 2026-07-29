@@ -9,6 +9,7 @@ import * as input from "@Systems/Chara/input";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as Effects from "../../FX";
 import { upgradeUnitData } from "@game/Entities/Unit";
+import * as config from "@config";
 import { env } from "@Env";
 
 export type Chara = Container;
@@ -200,7 +201,7 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 		}
 	}
 
-	const frameNames = env.scene.textures.get(unit.pic).getFrameNames();
+	const frameNames = env.scene.textures.exists(unit.pic) ? env.scene.textures.get(unit.pic).getFrameNames() : [];
 	const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 	idleFrames.sort((a, b) => {
 		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -298,5 +299,31 @@ export async function refreshChara(
 		await summon(unit, true);
 	} else {
 		await summon(unit, true);
+	}
+}
+
+/**
+ * Safely play an animation on a chara's sprite.
+ * No-ops when assets are disabled or the animation key doesn't exist.
+ */
+export function playAnimation(chara: Chara, animSuffix: string, ignoreIfPlaying: boolean = true): void {
+	if (config.DISABLE_ASSETS) return;
+	const s = mustGetState(chara);
+	const animKey = `${s.unit.pic}_${animSuffix}`;
+	if (env.scene.anims.exists(animKey)) {
+		s.sprite.anims.play(animKey, ignoreIfPlaying);
+	}
+}
+
+/**
+ * Safely queue an animation to play after the current one completes.
+ * No-ops when assets are disabled or the animation key doesn't exist.
+ */
+export function playAnimationAfterRepeat(chara: Chara, animSuffix: string): void {
+	if (config.DISABLE_ASSETS) return;
+	const s = mustGetState(chara);
+	const animKey = `${s.unit.pic}_${animSuffix}`;
+	if (env.scene.anims.exists(animKey)) {
+		s.sprite.playAfterRepeat(animKey);
 	}
 }

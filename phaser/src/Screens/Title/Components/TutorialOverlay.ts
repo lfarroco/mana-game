@@ -97,8 +97,8 @@ const slides = [
 					c.add(chara2);
 					if (!c.active) return;
 					const anim = async () => {
-						s.sprite.anims.play(`${unit.pic}_attack`, true);
-						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
+						Chara.playAnimation(chara, "attack");
+						Chara.playAnimationAfterRepeat(chara, "idle");
 						await animation.delay(1000);
 						if (s.sprite.active)
 							damage.damageFx(
@@ -152,8 +152,8 @@ const slides = [
 					c.add(chara2);
 					if (!c.active) return;
 					const anim = async () => {
-						s.sprite.anims.play(`${unit.pic}_attack`, true);
-						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
+						Chara.playAnimation(chara, "attack");
+						Chara.playAnimationAfterRepeat(chara, "idle");
 						await animation.delay(1000);
 
 						if (s.sprite.active)
@@ -206,8 +206,8 @@ const slides = [
 					c.add(chara2);
 					if (!c.active) return;
 					const anim = async () => {
-						s.sprite.anims.play(`${unit.pic}_attack`, true);
-						s.sprite.playAfterRepeat(`${unit.pic}_idle`);
+						Chara.playAnimation(chara, "attack");
+						Chara.playAnimationAfterRepeat(chara, "idle");
 						await animation.delay(1000);
 						if (s.sprite.active)
 							heal.healFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
@@ -251,12 +251,11 @@ const slides = [
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
 
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
-					const s = Chara.mustGetState(chara);
 
 					c.add(chara);
 					c.add(chara2);
-					s.sprite.anims.play(`${unit.pic}_attack`, true);
-					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
+					Chara.playAnimation(chara, "attack");
+					Chara.playAnimationAfterRepeat(chara, "idle");
 					await animation.delay(1000);
 					if (!c.active) return;
 					regen.regenFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
@@ -304,12 +303,10 @@ const slides = [
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [0, 0.5]);
 					const [chara, chara2] = await Promise.all([Chara.summon(unit), Chara.summon(ally)]);
 
-					const s = Chara.mustGetState(chara);
-
 					c.add(chara);
 					c.add(chara2);
-					s.sprite.anims.play(`${unit.pic}_attack`, true);
-					s.sprite.playAfterRepeat(`${unit.pic}_idle`);
+					Chara.playAnimation(chara, "attack");
+					Chara.playAnimationAfterRepeat(chara, "idle");
 					await animation.delay(1000);
 					if (!c.active) return;
 					poison.poisonFx([chara.x, chara.y], [chara2.x, chara2.y], () => {

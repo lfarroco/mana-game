@@ -18,6 +18,10 @@ export const playMusic = (musicKey: string, loop: boolean = true, fadeIn: number
 		return;
 	}
 
+	if (!env.scene.game.cache.audio.has(musicKey)) {
+		console.debug("AudioManager", "Music key not found in cache - skipping", { musicKey });
+		return;
+	}
 
 	if (currentMusic && currentMusic.isPlaying) {
 		currentMusic.stop();
