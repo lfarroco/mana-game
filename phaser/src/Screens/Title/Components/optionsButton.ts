@@ -3,12 +3,10 @@ import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
 import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
-import * as hideMainButtons from "../Effects/hideMainButtons";
-import * as showMainButtons from "../Effects/showMainButtons";
+import * as TitleScreen from "../TitleScreen";
 import { env } from "@Env";
 import { NavigationEvent } from "../../../Events";
-
-let submenuContainer: Container;
+import { ScreenCtx } from "../../screenTracking";
 
 const BUTTON_Y = 700;
 
@@ -17,7 +15,9 @@ export function create() {
 	const button = UIButton.create({
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
-		callback: showOptionsSubmenu(),
+		callback: () => {
+			void TitleScreen.go("options_submenu");
+		},
 		tooltip: {
 			title,
 			description: i18n.t("title.tooltip.options"),
@@ -27,10 +27,13 @@ export function create() {
 	return button;
 }
 
-const showOptionsSubmenu = () => () => {
-	hideMainButtons.hideMainButtons();
-
-	// Create submenu buttons
+/**
+ * Render the options submenu (Settings / Stats / Credits / Back).
+ * Called by TitleScreen's "options_submenu" phase handler — the container is
+ * tracked by the phase tracker and destroyed automatically on the next
+ * transition.
+ */
+export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const baseY = 500;
 	const spacing = 100;
 
@@ -60,21 +63,17 @@ const showOptionsSubmenu = () => () => {
 		text: i18n.t("title.back"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
-			hideOptionsSubmenu();
-			showMainButtons.showMainButtons();
+			void TitleScreen.go("main");
 		},
 	});
 
-	submenuContainer = env.container([
+	const submenu = env.container([
 		settingsBtn.container,
 		statsBtn.container,
 		creditsBtn.container,
 		backBtn.container,
 	]);
+	ctx.add(submenu, { id: TitleScreen.TITLE_IDS.optionsSubmenu });
 
-	env.scene.children.bringToTop(submenuContainer);
-}
-
-function hideOptionsSubmenu() {
-	submenuContainer.destroy(true);
+	env.scene.children.bringToTop(submenu);
 }

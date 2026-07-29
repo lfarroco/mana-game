@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as LanguagePanel from "../../../Screens/Title/Components/LanguagePanel";
+import * as TitleScreen from "../TitleScreen";
 import * as i18n from "@i18n/i18n";
 
 const BUTTON_X = 120;
@@ -13,7 +13,9 @@ export function create() {
 	const button = UIButton.create({
 		text: `あ/A ${currentLangName}`,
 		position: [BUTTON_X, BUTTON_Y],
-		callback: LanguagePanel.create,
+		callback: () => {
+			void TitleScreen.go("language");
+		},
 		width: 200,
 		tooltip: {
 			title: i18n.t("language.title"),

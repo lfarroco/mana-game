@@ -33,7 +33,8 @@ the building blocks a formal framework would codify.
 |---|---|---|
 | `Env` singleton | `phaser/src/Env.ts` | Application shell wrapping Phaser: `scene`, `state`, `dispatch`, `time`, `audio`, `fadeOut`/`fadeIn`, Phaser helpers. Imported as `env` — never null. |
 | Global events | `phaser/src/Events.ts` | `NavigationEvent` (toTitle, toBattleground, toCrystals, toOptions), `BattlegroundEvent` (phase lifecycle, HUD deltas), and `GameEvent` (screen lifecycle, run lifecycle, domain events). Cross-cutting only. |
-| `createScreenLifecycle()` | `phaser/src/Screens/screenLifecycle.ts` | Factory that returns `{ init, destroy }`. `init()` is idempotent — runs setup once, returns cached events. `destroy()` runs all disposers and clears all events. Used by all non-battleground screens. |
+| `createScreen()` | `phaser/src/Screens/screenTracking.ts` | Screen factory: auto event lifecycle, `ctx.add(obj, { id })` tracking of destroyables (Phaser objects + wrappers like BackgroundOverlay), persistent layer + mutually exclusive phases with auto-disposal, `ctx.findById` / `findTrackedById` ID recovery. Used by TitleScreen; will replace `createScreenLifecycle()` everywhere. |
+| `createScreenLifecycle()` | `phaser/src/Screens/screenLifecycle.ts` | **Legacy** — factory that returns `{ init, destroy }`. Used by OptionsScreen and CrystalSelectionScreen; superseded by `createScreen()`. |
 | Screen lifecycle | All `Screens/*` | `name`, `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create. |
 | Screen-local events | Per-screen modules | Each screen defines its own typed events (e.g. `CrystalSelectionEvents`, `OptionsScreenEvents`) scoped to that screen. |
 | `switchScreen()` + nav mutex | `Client.ts` | Centralized navigation: emits `screenHidden` → `destroy()` → input disable → fade → scene clear → `init()` → `create()` → `activeScreen = screen` → `screenShown` → fade in. Serialised by a promise‑chain mutex that coalesces redundant requests. |
@@ -234,15 +235,33 @@ This package would live between `core/` (pure logic) and `phaser/src/`
 - [x] `createScreenLifecycle()` helper for idempotent init / disposer cleanup
 - [x] `screenShown` / `screenHidden` global events for service reactions
 
-### Phase B — `createScreen()` factory with auto‑disposal (next)
+### Phase B — `createScreen()` factory with auto‑disposal (in progress)
 
 This is the highest‑value extraction: a factory that eliminates manual cleanup.
 
-- [ ] Design the `createScreen<Screens, Events>(name, setupFn)` API surface
-- [ ] Build resource‑tracking primitives: typed‑event disposer stack, `scene.events.on("update")` manager, Phaser game object registry, DOM element registry
+- [x] Design the `createScreen<Screens, Events>(name, setupFn)` API surface
+      → **Done** (2026-07-29, Cline): `createScreen<TPhase, Events>(spec)` in
+      `phaser/src/Screens/screenTracking.ts`. Spec: `{ name, events(), create(ctx),
+      phases }`. The returned object satisfies the `ScreenModule` shape used by
+      `Client.ts` and additionally exposes `go(phase)` / `currentPhase()`.
+- [x] Build resource‑tracking primitives: typed‑event disposer stack, `scene.events.on("update")` manager, Phaser game object registry, DOM element registry
+      → **Done** (2026-07-29, Cline): `PhaseTracker` in `screenTracking.ts` —
+      persistent layer + phase-scoped layer, `ctx.add(obj, { id })`, ID registry
+      (`ctx.findById` / module-level `findTrackedById`), `ctx.onDestroy` disposer
+      stack. Update-manager and DOM registry deferred until a screen needs them.
 - [ ] Integrate with `GameEvent.screenHidden` for automatic teardown on navigation
-- [ ] Refactor one screen (e.g. `OptionsScreen` — smallest surface area) to prove the pattern
-- [ ] Refactor remaining non‑battleground screens: `TitleScreen`, `CrystalSelectionScreen`
+      → Satisfied differently: `Client.ts`'s navigation mutex calls `destroy()`
+      directly before fade-out, which tears down the tracker. No event wiring needed.
+- [x] Refactor one screen (e.g. `TitleScreen` — no form inputs, two submenus) to prove the pattern
+      → **Done** (2026-07-29, Cline): `TitleScreen` migrated with four phases
+      (`main`, `submenu`, `options_submenu`, `language`). Deleted `mainButtonsContainer`
+      module ref, `hideMainButtons`/`showMainButtons` effects, both hand-rolled
+      submenu containers, and LanguagePanel's module-level state + full-screen
+      re-render hack (locale changes now apply via phase re-render: text-bearing
+      chrome is rendered per-phase). `howToPlay` self-cleans its pulse tween via
+      a DESTROY hook (fixes a pre-existing zombie-tween leak). 7 unit tests in
+      `screenTracking.test.ts`.
+- [ ] Refactor remaining non‑battleground screens: `OptionsScreen`, `CrystalSelectionScreen`
 - [ ] Refactor `BattlegroundScreen` — will need to compose with the phase-handler lifecycle
 - [ ] Clean state objects: remove Phaser refs from screen state (they're in the factory now)
 - [ ] Delete old `createScreenLifecycle()` once all screens migrated

@@ -3,31 +3,40 @@ import * as AudioManager from "@Systems/AudioManager";
 import * as StatsStore from "@Models/StatsStore";
 import * as environment from "@Utils/environment";
 import * as Components from "./Components"
-import { hideSinglePlayerSubmenu } from "./Components/singlePlayerButton";
+import * as LanguagePanel from "./Components/LanguagePanel";
 import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
 import { NavigationEvent } from "../../Events";
 import { loadGame } from "../../Storage/loadGame";
-import { createScreenLifecycle } from "../screenLifecycle";
+import { createScreen, ScreenCtx } from "../screenTracking";
 
-type TitleScreenEvents = {
+export type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
 	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
 }
 
+/** Element IDs for tracked objects — usable with ctx.findById / findTrackedById. */
+export const TITLE_IDS = {
+	mainButtons: "title.main-buttons",
+	submenu: "title.submenu",
+	optionsSubmenu: "title.options-submenu",
+	howToPlay: "title.how-to-play",
+	languagePanel: "title.language-panel",
+	languageOverlay: "title.language-overlay",
+} as const;
 
-export const name = "title";
+/**
+ * Internal phases.  Each phase re-renders the shared chrome (howToPlay) so
+ * that any locale change applied in the language panel is reflected as soon
+ * as the next phase starts.
+ */
+export type TitlePhase = "main" | "submenu" | "options_submenu" | "language";
 
-const lifecycle = createScreenLifecycle();
+const screen = createScreen<TitlePhase, TitleScreenEvents>({
+	name: "title",
 
-export let events: TitleScreenEvents;
-export const components = Components;
-
-export let mainButtonsContainer: Container;
-
-export function init() {
-	events = lifecycle.init(() => {
+	events: () => {
 		const e: TitleScreenEvents = {
 			newGameButtonClicked: createEvent<void>(),
 			resumeGameButtonClicked: createEvent<void>(),
@@ -42,65 +51,99 @@ export function init() {
 				}),
 			],
 		};
-	});
+	},
+
+	create: async (ctx) => {
+		Components.cloudsBg.create();
+		Components.logo.render();
+		displayVersion(ctx);
+		AudioManager.playMusic("music_ageofdisjunction");
+		await ctx.go("main");
+		checkUnlocks();
+	},
+
+	phases: {
+		main: (ctx) => {
+			renderChrome(ctx);
+			const mainButtons = env.container([
+				Components.singlePlayerButton.create().container,
+				Components.arenaButton.create().container,
+				Components.optionsButton.create().container,
+				Components.linksButton.create().container,
+				environment.isElectron() ?
+					Components.exitButton.create().container :
+					null,
+				Components.languageButton.create().container,
+			]);
+			ctx.add(mainButtons, { id: TITLE_IDS.mainButtons });
+		},
+
+		submenu: (ctx) => {
+			renderChrome(ctx);
+			Components.singlePlayerButton.createSubmenu(ctx);
+		},
+
+		options_submenu: (ctx) => {
+			renderChrome(ctx);
+			Components.optionsButton.createSubmenu(ctx);
+		},
+
+		language: (ctx) => {
+			renderChrome(ctx);
+			LanguagePanel.create(ctx);
+		},
+	},
+});
+
+// ---------------------------------------------------------------------------
+// ScreenModule exports — the shape Client.ts expects
+// ---------------------------------------------------------------------------
+
+export const name = screen.name;
+
+export let events: TitleScreenEvents;
+
+export const components = Components;
+
+export function init() {
+	screen.init();
+	events = screen.events;
 }
 
-export function create() {
+export async function create() {
 	init();
-
-	Components.cloudsBg.create();
-	Components.logo.render();
-	renderMainButtons();
-	Components.howToPlay.create();
-	checkUnlocks();
-	displayVersion();
-	AudioManager.playMusic("music_ageofdisjunction");
+	await screen.create();
 }
 
 export function destroy() {
-	lifecycle.destroy();
-
-	// Clean up submenu (Resume/New Run/Collection/Back buttons) — these persist
-	// when the user navigates away from the submenu without clicking the Back
-	// button.  Destroy them here explicitly before switchScreen's removeAll so
-	// Phaser's InputPlugin gets a clean destroy event chain.
-	hideSinglePlayerSubmenu();
-
-	// Destroy any remaining module-level display objects when navigating away.
-	// This is belt-and-suspenders — switchScreen() in Client.ts also destroys all
-	// scene children with removeAll(true) — but ensures stale module-level refs
-	// can't accidentally hold onto interactive objects with Phaser input listeners.
-	if (mainButtonsContainer) {
-		if (mainButtonsContainer.scene) {
-			mainButtonsContainer.destroy(true);
-		}
-		mainButtonsContainer = undefined as unknown as Container;
-	}
-
+	screen.destroy();
 }
 
-function renderMainButtons() {
-	mainButtonsContainer = env.container([
-		Components.singlePlayerButton.create().container,
-		Components.arenaButton.create().container,
-		Components.optionsButton.create().container,
-		Components.linksButton.create().container,
-		environment.isElectron() ?
-			Components.exitButton.create().container :
-			null,
-		Components.languageButton.create().container,
-	]);
+/** Switch the screen's internal phase (main buttons ↔ submenus ↔ language panel). */
+export const go = (phase: TitlePhase) => screen.go(phase);
+
+// ---------------------------------------------------------------------------
+// Internal helpers
+// ---------------------------------------------------------------------------
+
+/*
+ * Renders the shared per-phase chrome — elements that stay visually present
+ * across phases (unlike the persistent layer, they are re-created on every
+ * phase transition so translated text always reflects the current locale).
+ */
+function renderChrome(ctx: ScreenCtx<TitlePhase>) {
+	ctx.add(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
 }
 
 /*
  * Displays the game version in the top-right corner of the screen
  */
-function displayVersion() {
+function displayVersion(ctx: ScreenCtx<TitlePhase>) {
 	const versionText = env.scene.add.text(0, 0, `v${pkg.version}`, { fontSize: "16px", color: "white", });
 	versionText.setPosition(constants.SCREEN_WIDTH - 30, 10);
 	versionText.setAlpha(0.5);
 	versionText.setOrigin(1, 0);
-
+	ctx.add(versionText);
 }
 
 async function checkUnlocks() {
@@ -112,3 +155,4 @@ async function checkUnlocks() {
 		await env.time.delay(300);
 	}
 }
+

@@ -97,6 +97,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 2. **Screen lifecycle** — Every screen is a plain module exporting `{ name, init?, create, destroy? }` matching the `ScreenModule` type in `Client.ts`. Navigation is centralized via `switchScreen()` in `Client.ts`:
    - `screenHidden` (GameEvent) → `destroy()` → input disable → fadeOut → `children.removeAll(true)` → `tweens.killAll()` → `time.removeAllEvents()` → cursor reset → `init()` → `create()` → `activeScreen = screen` → `screenShown` (GameEvent) → input enable → fadeIn.
    - All calls are **serialised** by a promise-chain mutex (added 2026-07-28). If multiple navigation events queue while one is in flight, only the latest target runs. Coalesces redundant requests.
+   - **New screens should use `createScreen()`** from `phaser/src/Screens/screenTracking.ts` (added 2026-07-29): the spec's `events()` factory replaces manual `createScreenLifecycle()` wiring, `ctx.add(obj, { id })` auto-tracks destroyables — Phaser objects and wrappers like BackgroundOverlay — in a persistent layer or phase scope, `phases` declare mutually exclusive sub-states (e.g. TitleScreen's main/submenu/options_submenu/language) whose tracked elements are auto-destroyed on transition, and `ctx.findById` / `findTrackedById` recover elements by ID instead of module-level refs. Elements with translated text (e.g. howToPlay) are rendered per-phase via a shared chrome helper so locale changes apply on the next phase transition — no full-screen re-render. Components with infinite tweens must self-clean via `Phaser.GameObjects.Events.DESTROY` (Phaser does not auto-kill tweens of destroyed targets).
 
 3. **Navigation mutex** — `Client.ts` uses a promise-chain pattern (`navChain`, `pendingNavTarget`):
    - `switchScreen(A); switchScreen(B); switchScreen(C)` → A runs, B is skipped (coalesced), C runs.
@@ -130,6 +131,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ## Issues
 
 > Update this section as you find bugs.
+
+- **E2E suite is broken on `single_scene` branch** (found 2026-07-29): `phaser/e2e/*.e2e.ts` import `../src/test-utils/debugController`, but that module does not exist in git — all e2e runs fail with "Cannot find module". The `debugController` API used by the specs (`getPlayerBoardUnits`, `addUnitToPlayerBoard`, `moveUnitOnBoard`, `logGameState`) needs to be reimplemented against the current screen architecture. Also note `game.e2e.spec.ts` doesn't match `testMatch: /.*\.e2e\.ts/` so it never runs even when resolvable.
 
 
 ## Task Queue

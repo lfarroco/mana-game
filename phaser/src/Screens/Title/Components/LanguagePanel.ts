@@ -5,24 +5,28 @@ import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";
 import { env } from "@Env";
+import { ScreenCtx } from "../../screenTracking";
 
-let isOpen = false;
-let container: Phaser.GameObjects.Container | null = null;
-let overlay: ReturnType<typeof BackgroundOverlay.create> | null = null;
-
-export const create = () => {
-	if (isOpen) return;
-	isOpen = true;
-
+/**
+ * Render the language selection panel as TitleScreen's "language" phase.
+ * The overlay and panel are tracked by the phase tracker and destroyed
+ * automatically on the next transition.
+ *
+ * Selecting a language switches back to the "main" phase, which re-renders
+ * all text-bearing elements with the new locale — no full-screen re-render
+ * needed.
+ */
+export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const panelWidth = 400;
 	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);
 
-	overlay = BackgroundOverlay.create({
+	const overlay = BackgroundOverlay.create({
 		alpha: 0.85,
 		interactive: true,
 	});
 	overlay.show();
+	ctx.add(overlay, { id: TitleScreen.TITLE_IDS.languageOverlay });
 
 	const panel = Panel.createPanel([constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y], {
 		width: panelWidth,
@@ -49,38 +53,25 @@ export const create = () => {
 		text: i18n.t("language.close"),
 		position: [constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50],
 		callback: () => {
-			closeLanguagePanel();
+			void TitleScreen.go("main");
 		},
 		width: 150,
 	});
 
-	container = env.container([
+	const container = env.container([
 		panel.container,
 		title,
 		...langButtons.map((b) => b.container),
 		closeButton.container,
 	]);
+	ctx.add(container, { id: TitleScreen.TITLE_IDS.languagePanel });
 
 	env.scene.children.bringToTop(container);
 }
 
 function selectLanguage(lang: string) {
 	i18n.setLocale(lang);
-	env.scene.children.removeAll();
-	TitleScreen.create();
-	isOpen = false;
-	container = null;
-	overlay = null;
-}
-
-function closeLanguagePanel() {
-	if (container) {
-		container.destroy(true);
-		container = null;
-	}
-	if (overlay) {
-		overlay.destroy();
-		overlay = null;
-	}
-	isOpen = false;
+	// Back to "main": the phase transition destroys this panel and re-renders
+	// the main buttons + howToPlay chrome with the new locale.
+	void TitleScreen.go("main");
 }
