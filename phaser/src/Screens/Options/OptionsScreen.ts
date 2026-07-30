@@ -1,12 +1,13 @@
 import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
-import * as showTab from "@Screens/Options/Components/effects/showTab";
-import * as backButton from "@Screens/Options/Components/backButton";
 import * as optionsLabel from "@Screens/Options/Components/optionsLabel";
 import * as tabButtons from "@Screens/Options/Components/tabButtons";
-import * as Model from "@Screens/Options/Components/Model";
+import * as backButton from "@Screens/Options/Components/backButton";
+import { audioTab } from "@Screens/Options/Components/tabs/audio";
+import { gameTab } from "@Screens/Options/Components/tabs/game";
+import { graphicsTab } from "@Screens/Options/Components/tabs/graphics";
 import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
-import { createScreenLifecycle } from "../screenLifecycle";
+import { createScreen } from "../screenTracking";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -16,27 +17,27 @@ export type OptionsScreenEvents = {
 	backToTitle: ReturnType<typeof createEvent<void>>;
 };
 
-const lifecycle = createScreenLifecycle();
-export const name = "options";
-export let events: OptionsScreenEvents;
+// ---------------------------------------------------------------------------
+// Phases — each tab is a phase handled by the createScreen() factory.
+// Phase-scoped content is auto-destroyed on tab switch; persistent chrome
+// (title, tab buttons, back button) survives transitions.
+// ---------------------------------------------------------------------------
 
-export function init() {
-	events = lifecycle.init(() => {
-		const e: OptionsScreenEvents = {
-			backToTitle: createEvent<void>(),
-		};
-		return {
-			events: e,
-			listeners: [
-				e.backToTitle.listen(NavigationEvent.toTitle.emit),
-			],
-		};
-	});
-}
+export type OptionsPhase = "audio" | "graphics" | "game";
 
-export function destroy() {
-	lifecycle.destroy();
-}
+// ---------------------------------------------------------------------------
+// Element IDs for tracked objects — usable with ctx.findById / findTrackedById
+// ---------------------------------------------------------------------------
+
+export const OPTIONS_IDS = {
+	tabButtons: "options.tab-buttons",
+	backButton: "options.back-button",
+	titleLabel: "options.title-label",
+} as const;
+
+// ---------------------------------------------------------------------------
+// Layout constants (pure, framework-agnostic)
+// ---------------------------------------------------------------------------
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -73,16 +74,83 @@ export const STYLES = {
 	VALUE_TEXT_COLOR: "#FFD700",
 } as const;
 
-export function create() {
-	init();
+// ---------------------------------------------------------------------------
+// Screen factory
+// ---------------------------------------------------------------------------
 
-	new CloudsBackground.CloudsBackground({ preset: "aurora" });
+const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
+	name: "options",
 
-	optionsLabel.create();
+	events: () => {
+		const e: OptionsScreenEvents = {
+			backToTitle: createEvent<void>(),
+		};
+		return {
+			events: e,
+			listeners: [
+				e.backToTitle.listen(NavigationEvent.toTitle.emit),
+			],
+		};
+	},
 
-	tabButtons.create();
+	create: async (ctx) => {
+		new CloudsBackground.CloudsBackground({ preset: "aurora" });
+		ctx.add(optionsLabel.create(), { id: OPTIONS_IDS.titleLabel });
+		tabButtons.create(ctx);
+		ctx.add(backButton.create(), { id: OPTIONS_IDS.backButton });
+		await ctx.go("audio");
+	},
 
-	showTab.showTab(showTab.currentTab.key as Model.Tabs);
+	phases: {
+		audio: (ctx) => {
+			const startY = LAYOUT.OPTIONS_START_Y;
+			const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
+			const elements = audioTab(startY, lineHeight);
+			elements.forEach((el) => ctx.add(el));
+			tabButtons.setActiveTab("audio");
+		},
 
-	backButton.create();
+		graphics: (ctx) => {
+			const startY = LAYOUT.OPTIONS_START_Y;
+			const elements = graphicsTab(startY);
+			elements.forEach((el) => ctx.add(el));
+			tabButtons.setActiveTab("graphics");
+		},
+
+		game: (ctx) => {
+			const startY = LAYOUT.OPTIONS_START_Y;
+			const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
+			const elements = gameTab(startY, lineHeight);
+			elements.forEach((el) => ctx.add(el));
+			tabButtons.setActiveTab("game");
+		},
+	},
+});
+
+// ---------------------------------------------------------------------------
+// ScreenModule exports — the shape Client.ts expects
+// ---------------------------------------------------------------------------
+
+export const name = screen.name;
+
+export let events: OptionsScreenEvents;
+
+export function init() {
+	screen.init();
+	events = screen.events;
 }
+
+export async function create() {
+	init();
+	await screen.create();
+}
+
+export function destroy() {
+	screen.destroy();
+}
+
+/** Switch the screen's internal tab (audio / graphics / game). */
+export const go = (phase: OptionsPhase) => screen.go(phase);
+
+/** Current active tab, or null before the first transition. */
+export const currentPhase = () => screen.currentPhase();
