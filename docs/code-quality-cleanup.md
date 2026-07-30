@@ -133,6 +133,11 @@ dependencies.
       removed duplicated `let disposers`, `let initialized`, manual guard, and
       manual `destroy()` cleanup. Both `init()` idempotency and `destroy()` cleanup
       are handled centrally.
+      → **Superseded** (2026-07-30, Cline): All three screens migrated to
+      `createScreen()` from `screenTracking.ts`; `screenLifecycle.ts` deleted.
+      The `createScreen()` factory provides automatic object tracking, phase
+      management, `ctx.refresh()`, array tracking, and the `screenModule()`
+      export helper.
 - [x] Reduce module-level mutable singletons (36 files use module-scope `let`
       UI state); stop exporting mutable bindings (`export let resultsContainer`,
       `export let isOpen` in `ResultsUI.ts:29-31`) — expose getter functions or
