@@ -36,7 +36,7 @@ export function create() {
  * emitting: the emitted event triggers navigation, which destroys the whole
  * screen anyway (destroy() runs before the fade-out starts).
  */
-export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
+export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const baseY = 500;
 	const spacing = 100;
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;
@@ -44,9 +44,7 @@ export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const resumeBtn = UIButton.create({
 		text: i18n.t("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: () => {
-			TitleScreen.events.resumeGameButtonClicked.emit();
-		},
+		callback: TitleScreen.events.resumeGameButtonClicked.emit
 	});
 
 	if (!hasSavedRun) {
@@ -57,9 +55,7 @@ export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const newRunBtn = UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: () => {
-			TitleScreen.events.newGameButtonClicked.emit();
-		},
+		callback: TitleScreen.events.newGameButtonClicked.emit
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);

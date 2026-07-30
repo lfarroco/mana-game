@@ -26,11 +26,7 @@ export const TITLE_IDS = {
 	languageOverlay: "title.language-overlay",
 } as const;
 
-/**
- * Internal phases.  Each phase re-renders the shared chrome (howToPlay) so
- * that any locale change applied in the language panel is reflected as soon
- * as the next phase starts.
- */
+/** Internal phases.  Shared chrome (howToPlay) lives in the persistent layer. */
 export type TitlePhase = "main" | "submenu" | "options_submenu" | "language";
 
 const screen = createScreen<TitlePhase, TitleScreenEvents>({
@@ -57,6 +53,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		Components.cloudsBg.create();
 		Components.logo.render();
 		displayVersion(ctx);
+		ctx.add(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
 		AudioManager.playMusic("music_ageofdisjunction");
 		await ctx.go("main");
 		checkUnlocks();
@@ -64,7 +61,6 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 
 	phases: {
 		main: (ctx) => {
-			renderChrome(ctx);
 			const mainButtons = env.container([
 				Components.singlePlayerButton.create().container,
 				Components.arenaButton.create().container,
@@ -79,17 +75,14 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		},
 
 		submenu: (ctx) => {
-			renderChrome(ctx);
-			Components.singlePlayerButton.createSubmenu(ctx);
+			Components.singlePlayerButton.createSinglePlayerSubmenu(ctx);
 		},
 
 		options_submenu: (ctx) => {
-			renderChrome(ctx);
 			Components.optionsButton.createSubmenu(ctx);
 		},
 
 		language: (ctx) => {
-			renderChrome(ctx);
 			LanguagePanel.create(ctx);
 		},
 	},
@@ -125,15 +118,6 @@ export const go = (phase: TitlePhase) => screen.go(phase);
 // ---------------------------------------------------------------------------
 // Internal helpers
 // ---------------------------------------------------------------------------
-
-/*
- * Renders the shared per-phase chrome — elements that stay visually present
- * across phases (unlike the persistent layer, they are re-created on every
- * phase transition so translated text always reflects the current locale).
- */
-function renderChrome(ctx: ScreenCtx<TitlePhase>) {
-	ctx.add(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
-}
 
 /*
  * Displays the game version in the top-right corner of the screen
