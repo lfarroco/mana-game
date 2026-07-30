@@ -1,5 +1,4 @@
 import * as Phaser from "phaser";
-import * as parent from "../CrystalSelectionScreen";
 import { env } from "@Env";
 
 // ---------------------------------------------------------------------------
@@ -27,7 +26,7 @@ export function destroy(): void {
 	}
 }
 
-export function create(targetText: Phaser.GameObjects.Text) {
+export function create(targetText: Phaser.GameObjects.Text, seedWarningText: Phaser.GameObjects.Text) {
 	// Clean up any stale keyboard before creating a fresh one.
 	destroy();
 
@@ -91,7 +90,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 		"Back",
 		() => {
 			targetText.setText(env.state.session.seed);
-			parent.state.seedWarningText.setVisible(false);
+			seedWarningText.setVisible(false);
 			destroy();
 		},
 		"#d32f2f"
@@ -137,19 +136,19 @@ export function create(targetText: Phaser.GameObjects.Text) {
 				const newSeed = String(Date.now());
 				env.state.session.seed = newSeed;
 				targetText.setText(newSeed);
-				parent.state.seedWarningText.setVisible(false);
+				seedWarningText.setVisible(false);
 			} else {
 				const val = parseInt(targetText.text, 10);
 				if (!isNaN(val)) {
 					env.state.session.seed = String(val);
 					targetText.setText(`${val}`);
-					parent.state.seedWarningText.setVisible(true);
+					seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
 					const newSeed = String(Date.now());
 					env.state.session.seed = newSeed;
 					targetText.setText(newSeed);
-					parent.state.seedWarningText.setVisible(false);
+					seedWarningText.setVisible(false);
 				}
 			}
 
@@ -188,7 +187,7 @@ export function create(targetText: Phaser.GameObjects.Text) {
 			const currentVal = parseInt(targetText.text, 10);
 			if (isNaN(currentVal) && targetText.text !== env.state.session.seed) {
 				targetText.setText(env.state.session.seed);
-				parent.state.seedWarningText.setVisible(false);
+				seedWarningText.setVisible(false);
 			}
 			destroy();
 		}

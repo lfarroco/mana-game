@@ -1,32 +1,44 @@
 import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
 import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
-import * as parent from "../CrystalSelectionScreen";
 import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/paginationDots"
 import { CardDefinition } from "@game/Models";
+import { findTrackedById } from "../../screenTracking";
+import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
-export function updateDisplay() {
-	const crystal = parent.state.crystals[parent.state.currentIndex];
+export function updateDisplay(crystals: CardDefinition[], currentIndex: number) {
+	const crystal = crystals[currentIndex];
 
-	parent.state.crystalSprite.setTexture(crystal.pic);
+	const sprite = findTrackedById<Phaser.GameObjects.Image>(CRYSTAL_IDS.sprite);
+	if (sprite) sprite.setTexture(crystal.pic);
 
-	parent.state.crystalName.setText(i18n.getName(crystal.id));
-	parent.state.crystalName.setOrigin(0.5);
+	const nameText = findTrackedById<Phaser.GameObjects.Text>(CRYSTAL_IDS.name);
+	if (nameText) {
+		nameText.setText(i18n.getName(crystal.id));
+		nameText.setOrigin(0.5);
+	}
 
-	const description = buildCrystalDescription(crystal);
-	parent.state.descriptionText.setText(description);
+	const descText = findTrackedById<import("phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText").default>(
+		CRYSTAL_IDS.description
+	);
+	if (descText) {
+		descText.setText(buildCrystalDescription(crystal));
+	}
 
-	parent.state.paginationDots.forEach((dot, i) => {
-		dot.setFillStyle(
-			paginationDots.PAGINATION_DOT_COLOR
-			,
-			i === parent.state.currentIndex ? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA : paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
-		);
-	});
+	// Pagination dots
+	for (let i = 0; i < crystals.length; i++) {
+		const dot = findTrackedById<Phaser.GameObjects.Arc>(paginationDotId(i));
+		if (dot) {
+			dot.setFillStyle(
+				paginationDots.PAGINATION_DOT_COLOR,
+				i === currentIndex ? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA : paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
+			);
+		}
+	}
 
 	const bg = cloudsBg.getCloudsBg();
 	if (bg) {
@@ -75,4 +87,5 @@ function buildCrystalDescription(crystal: CardDefinition): string {
 
 	return `${statsBlock}${lifeBlock}\n\n${allEffects || i18n.t("crystalSelection.noAbilities")}`;
 }
+
 

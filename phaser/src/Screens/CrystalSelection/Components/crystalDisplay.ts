@@ -1,7 +1,8 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-import * as parent from "../CrystalSelectionScreen";
+import * as Phaser from "phaser";
+import { CardDefinition } from "@game/Models";
 import { env } from "@Env";
 
 const SPRITE_Y = 300;
@@ -21,14 +22,17 @@ const DESCRIPTION_ORIGIN_X = 0.5;
 const DESCRIPTION_ORIGIN_Y = 0;
 const DESCRIPTION_Y = 500;
 
-export function create() {
-	const crystal = parent.state.crystals[parent.state.currentIndex];
+/**
+ * Create the crystal display elements: sprite (with float animation),
+ * name text, and BBCodeText description.
+ * Returns the created objects so the caller can track them for disposal.
+ */
+export function create(crystal: CardDefinition) {
+	const sprite = env.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
+	sprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
 
-	parent.state.crystalSprite = env.scene.add.image(constants.MIDDLE_SCREEN_X, SPRITE_Y, crystal.pic);
-	parent.state.crystalSprite.setDisplaySize(CRYSTAL_SPRITE_SIZE, CRYSTAL_SPRITE_SIZE);
-
-	env.scene.tweens.add({
-		targets: parent.state.crystalSprite,
+	const tween = env.scene.tweens.add({
+		targets: sprite,
 		y: SPRITE_Y + CRYSTAL_FLOAT_Y_OFFSET,
 		duration: CRYSTAL_FLOAT_ANIMATION_DURATION,
 		ease: CRYSTAL_FLOAT_EASE,
@@ -36,14 +40,19 @@ export function create() {
 		repeat: -1,
 	});
 
-	parent.state.crystalName = env.scene.add.text(0, 0, i18n.getName(crystal.id), {
+	// Self-clean the infinite tween when the sprite is destroyed
+	sprite.once(Phaser.GameObjects.Events.DESTROY, () => {
+		tween.stop();
+	});
+
+	const nameText = env.scene.add.text(0, 0, i18n.getName(crystal.id), {
 		...constants.titleTextConfig,
 		fontSize: CRYSTAL_NAME_FONT_SIZE,
 	});
-	parent.state.crystalName.setPosition(constants.MIDDLE_SCREEN_X, CARD_NAME_Y);
-	parent.state.crystalName.setOrigin(0.5);
+	nameText.setPosition(constants.MIDDLE_SCREEN_X, CARD_NAME_Y);
+	nameText.setOrigin(0.5);
 
-	parent.state.descriptionText = new BBCodeText(
+	const descText = new BBCodeText(
 		env.scene,
 		constants.MIDDLE_SCREEN_X,
 		DESCRIPTION_Y,
@@ -59,5 +68,8 @@ export function create() {
 		.setWrapMode(1)
 		.setLineSpacing(DESCRIPTION_LINE_SPACING)
 		.setWrapWidth(DESCRIPTION_WRAP_WIDTH);
-	env.scene.add.existing(parent.state.descriptionText);
+	env.scene.add.existing(descText);
+
+	return { sprite, nameText, descText };
 }
+

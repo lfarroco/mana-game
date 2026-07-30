@@ -1,11 +1,10 @@
 import * as constants from "@Constants";
-import * as parent from "../CrystalSelectionScreen";
 import * as keyboard from "./keyboard";
 import { env } from "@Env";
+import { ScreenCtx } from "../../screenTracking";
+import { CRYSTAL_IDS } from "../ids";
 
-let seedText: Phaser.GameObjects.Text;
-
-export function create() {
+export function create(ctx: ScreenCtx<any>) {
 	// Seed selection is server-determined in multiplayer — skip the custom seed UI.
 	if (env.state.session.session_type.type === "multiplayer") {
 		return;
@@ -22,24 +21,30 @@ export function create() {
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
+	ctx.add(bg);
 
-	env.scene.add.text(0, 0, "Seed: ", {
+	// "Seed: " label
+	const label = env.scene.add.text(0, 0, "Seed: ", {
 		...constants.defaultTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	})
 		.setOrigin(1, 0.5)
 		.setPosition(x - width - 10, y - height / 2);
+	ctx.add(label);
 
-	seedText = env.scene.add.text(0, 0, `${currentSeed}`, {
+	// Seed value text — passed to the keyboard for editing
+	const seedText = env.scene.add.text(0, 0, `${currentSeed}`, {
 		...constants.defaultTextConfig,
 		fontSize: "24px",
 		color: "#ffffff",
 	})
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
+	ctx.add(seedText);
 
-	parent.state.seedWarningText = env.scene.add.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
+	// Warning text — toggled by the keyboard
+	const seedWarningText = env.scene.add.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
 		...constants.defaultTextConfig,
 		fontSize: "16px",
 		color: "#ffff00",
@@ -47,10 +52,11 @@ export function create() {
 		.setOrigin(1, 0.5)
 		.setPosition(x, y - height - 20)
 		.setVisible(false);
+	ctx.add(seedWarningText, { id: CRYSTAL_IDS.seedWarning });
 
 	// Events
 	bg.on("pointerdown", () => {
-		keyboard.create(seedText);
+		keyboard.create(seedText, seedWarningText);
 	});
 
 	// Hover effects
@@ -59,3 +65,4 @@ export function create() {
 
 	env.scene.add.existing(seedText);
 }
+

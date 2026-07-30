@@ -1,14 +1,18 @@
 import * as Card from "@game/Entities/Card";
 import * as cloudsBg from "../../Screens/Title/Components/cloudsBg";
-import BBCodeText from "phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText";
-
-import * as Components from "./Components";
 import * as Effects from "./Effects";
 import * as keyboard from "./Components/keyboard";
-import * as Models from "@game/Models";
-import { createEvent } from "@game/Models";
+import * as background from "./Components/background";
+import * as crystalDisplay from "./Components/crystalDisplay";
+import * as paginationDots from "./Components/paginationDots";
+import * as navigationButtons from "./Components/navigationButtons";
+import * as actionButtons from "./Components/actionButtons";
+import * as seedInput from "./Components/seedInput";
+import * as title from "./Components/title";
+import { CardDefinition, createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
-import { createScreenLifecycle } from "../screenLifecycle";
+import { createScreen } from "../screenTracking";
+import { CRYSTAL_IDS, paginationDotId } from "./ids";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -19,15 +23,34 @@ export type CrystalSelectionEvents = {
 	backClicked: ReturnType<typeof createEvent<void>>;
 	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
 };
-export const name = "crystal_selection";
 
+// ---------------------------------------------------------------------------
+// Phases — single "main" phase; all content lives in the persistent layer.
+// Crystal navigation (prev/next) is event-driven, not phase-driven.
+// ---------------------------------------------------------------------------
 
-const lifecycle = createScreenLifecycle();
+type CrystalPhase = "main";
 
-export let events: CrystalSelectionEvents;
+// ---------------------------------------------------------------------------
+// Selection state — data only, no Phaser refs.
+// Populated in create(), read by navigation buttons and effects.
+// ---------------------------------------------------------------------------
 
-export function init() {
-	events = lifecycle.init(() => {
+let crystals: CardDefinition[] = [];
+let currentIndex = 0;
+
+export function getSelection() {
+	return { crystals, currentIndex };
+}
+
+// ---------------------------------------------------------------------------
+// Screen factory
+// ---------------------------------------------------------------------------
+
+const screen = createScreen<CrystalPhase, CrystalSelectionEvents>({
+	name: "crystal_selection",
+
+	events: () => {
 		const e: CrystalSelectionEvents = {
 			playClicked: createEvent<void>(),
 			backClicked: createEvent<void>(),
@@ -39,50 +62,82 @@ export function init() {
 				e.playClicked.listen(Effects.startNewGame),
 				e.backClicked.listen(NavigationEvent.toTitle.emit),
 				e.crystalChanged.listen(({ index }) => {
-					state.currentIndex = index;
-					Effects.updateDisplay();
+					currentIndex = index;
+					Effects.updateDisplay(crystals, currentIndex);
 				}),
 			],
 		};
-	});
+	},
+
+	create: async (ctx) => {
+		crystals = Card.getCores();
+		currentIndex = 0;
+
+		cloudsBg.create();
+
+		// Card display background
+		ctx.add(background.create(), { id: CRYSTAL_IDS.background });
+
+		// Crystal display (sprite + float tween, name, description)
+		const display = crystalDisplay.create(crystals[currentIndex]);
+		ctx.add(display.sprite, { id: CRYSTAL_IDS.sprite });
+		ctx.add(display.nameText, { id: CRYSTAL_IDS.name });
+		ctx.add(display.descText, { id: CRYSTAL_IDS.description });
+
+		// Title
+		ctx.add(title.create(), { id: CRYSTAL_IDS.title });
+
+		// Pagination dots
+		const dots = paginationDots.create(crystals.length);
+		dots.forEach((dot, i) => ctx.add(dot, { id: paginationDotId(i) }));
+
+		// Navigation buttons (prev / next)
+		navigationButtons.create().forEach((c) => ctx.add(c));
+
+		// Action buttons (play / back)
+		actionButtons.create().forEach((c) => ctx.add(c));
+
+		// Seed input (DOM keyboard + text field)
+		seedInput.create(ctx);
+
+		// Keyboard uses DOM — clean up on screen destroy
+		ctx.onDestroy(() => keyboard.destroy());
+
+		// Initial display update
+		Effects.updateDisplay(crystals, currentIndex);
+
+		await ctx.go("main");
+	},
+
+	phases: {
+		main: () => {
+			// Single-phase screen — all content lives in the persistent create() layer.
+		},
+	},
+});
+
+// ---------------------------------------------------------------------------
+// ScreenModule exports — the shape Client.ts expects
+// ---------------------------------------------------------------------------
+
+export const name = screen.name;
+
+export let events: CrystalSelectionEvents;
+
+export function init() {
+	screen.init();
+	events = screen.events;
+}
+
+export async function create() {
+	init();
+	await screen.create();
 }
 
 export function destroy() {
-	keyboard.destroy();
-	lifecycle.destroy();
+	screen.destroy();
+	crystals = [];
+	currentIndex = 0;
 }
 
-
-export const state: {
-	crystals: Models.CardDefinition[];
-	currentIndex: number;
-	crystalSprite: Phaser.GameObjects.Image;
-	crystalName: Phaser.GameObjects.Text;
-	descriptionText: BBCodeText;
-	seedWarningText: Phaser.GameObjects.Text;
-	multiplayerQueueType: Models.MultiplayerQueueType;
-	paginationDots: Phaser.GameObjects.Arc[];
-} = {
-	crystals: [] as Models.CardDefinition[],
-	currentIndex: 0,
-	crystalSprite: {} as Phaser.GameObjects.Image,
-	crystalName: {} as Phaser.GameObjects.Text,
-	descriptionText: {} as BBCodeText,
-	paginationDots: [] as Phaser.GameObjects.Arc[],
-	seedWarningText: {} as Phaser.GameObjects.Text,
-	multiplayerQueueType: "casual",
-};
-
-export function create() {
-	init();
-
-	state.crystals = Card.getCores();
-	state.currentIndex = 0;
-
-	cloudsBg.create();
-
-	Components.create();
-
-	Effects.updateDisplay();
-}
 

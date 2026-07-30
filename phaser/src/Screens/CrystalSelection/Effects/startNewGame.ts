@@ -1,11 +1,11 @@
-import * as parent from "../CrystalSelectionScreen";
+import { getSelection } from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { env } from "@Env";
 import { NavigationEvent } from "../../../Events";
 import { LOCAL_PLAYER_ID } from "../../../SessionManager";
 
 export const startNewGame = async () => {
-	const { currentIndex, crystals } = parent.state;
+	const { crystals, currentIndex } = getSelection();
 	const selectedCrystal = crystals[currentIndex];
 
 	const server = GameServer.getServer();
@@ -18,3 +18,4 @@ export const startNewGame = async () => {
 
 	await NavigationEvent.toBattleground.emit();
 }
+

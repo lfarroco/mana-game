@@ -7,32 +7,41 @@ import * as bg from "./background"
 const NAV_BUTTON_OFFSET_X = 350;
 const NAV_BUTTON_WIDTH = 200;
 
-export function create() {
-	const { state, events } = CrystalSelectionScreen;
+/**
+ * Create the prev/next navigation buttons.
+ * Returns the button containers so the caller can track them for disposal.
+ */
+export function create(): Phaser.GameObjects.Container[] {
+	const { events, getSelection } = CrystalSelectionScreen;
 
-	UIButton.create({
+	const prevBtn = UIButton.create({
 		text: i18n.t("crystalSelection.previous"),
 		position: [
 			Constants.MIDDLE_SCREEN_X - NAV_BUTTON_OFFSET_X,
 			bg.CARD_DISPLAY_Y
 		],
 		callback: () => {
-			const newIndex = (state.currentIndex - 1 + state.crystals.length) % state.crystals.length;
+			const { crystals, currentIndex } = getSelection();
+			const newIndex = (currentIndex - 1 + crystals.length) % crystals.length;
 			events.crystalChanged.emit({ index: newIndex });
 		},
 		width: NAV_BUTTON_WIDTH,
 	});
 
-	UIButton.create({
+	const nextBtn = UIButton.create({
 		text: i18n.t("crystalSelection.next"),
 		position: [
 			Constants.MIDDLE_SCREEN_X + NAV_BUTTON_OFFSET_X,
 			bg.CARD_DISPLAY_Y,
 		],
 		callback: () => {
-			const newIndex = (state.currentIndex + 1) % state.crystals.length;
+			const { crystals, currentIndex } = getSelection();
+			const newIndex = (currentIndex + 1) % crystals.length;
 			events.crystalChanged.emit({ index: newIndex });
 		},
 		width: NAV_BUTTON_WIDTH,
 	});
+
+	return [prevBtn.container, nextBtn.container];
 }
+
