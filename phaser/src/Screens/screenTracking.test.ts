@@ -1,4 +1,4 @@
-import { createScreen, findTrackedById, ScreenCtx } from "./screenTracking";
+import { createScreen, findTrackedById, screenModule, ScreenCtx } from "./screenTracking";
 
 // ---------------------------------------------------------------------------
 // Fakes — screenTracking has no runtime Phaser imports, so plain objects
@@ -16,6 +16,7 @@ const makeSpec = (overrides?: {
 	onCreate?: (ctx: ScreenCtx<"a" | "b">) => void;
 	phaseA?: (ctx: ScreenCtx<"a" | "b">) => void;
 	phaseB?: (ctx: ScreenCtx<"a" | "b">) => void;
+	noPhases?: boolean;
 }) => {
 	const someEvent = { clear: jest.fn() };
 	const disposer = jest.fn();
@@ -29,7 +30,7 @@ const makeSpec = (overrides?: {
 			overrides?.onCreate?.(ctx);
 			await ctx.go("a");
 		}),
-		phases: {
+		phases: overrides?.noPhases ? undefined : {
 			a: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
 				overrides?.phaseA?.(ctx);
 			}),
@@ -56,7 +57,7 @@ describe("createScreen", () => {
 		await screen.create();
 		expect(spec.events).toHaveBeenCalledTimes(1);
 		expect(screen.currentPhase()).toBe("a");
-		expect(spec.phases.a).toHaveBeenCalledTimes(1);
+		expect(spec.phases!.a).toHaveBeenCalledTimes(1);
 	});
 
 	it("phase switch destroys the outgoing phase's tracked objects", async () => {
@@ -141,5 +142,119 @@ describe("createScreen", () => {
 		await screen.create();
 		expect(findTrackedById("shared-id")).toBe(persistent);
 		expect(phaseObj).toBeDefined();
+	});
+
+	// -----------------------------------------------------------------------
+	// ctx.add() with arrays
+	// -----------------------------------------------------------------------
+
+	it("ctx.add() accepts an array and tracks all elements", async () => {
+		const objs = [fakeObj(), fakeObj(), fakeObj()];
+		const { spec } = makeSpec({
+			phaseA: (ctx) => {
+				ctx.add(objs);
+			},
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		objs.forEach((o) => expect(o.destroy).not.toHaveBeenCalled());
+
+		await screen.go("b");
+		objs.forEach((o) => expect(o.destroy).toHaveBeenCalledTimes(1));
+	});
+
+	it("ctx.add() with idPrefix assigns predictable IDs", async () => {
+		const objs = [fakeObj(), fakeObj()];
+		const { spec } = makeSpec({
+			onCreate: (ctx) => {
+				ctx.add(objs, { idPrefix: "dot-" });
+			},
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(findTrackedById("dot-0")).toBe(objs[0]);
+		expect(findTrackedById("dot-1")).toBe(objs[1]);
+	});
+
+	// -----------------------------------------------------------------------
+	// ctx.refresh()
+	// -----------------------------------------------------------------------
+
+	it("ctx.refresh() destroys phase objects and re-runs the handler", async () => {
+		let callCount = 0;
+		const { spec } = makeSpec({
+			phaseA: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
+				callCount++;
+				ctx.add(fakeObj(), { id: `refresh-obj-${callCount}` });
+			}),
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+		expect(callCount).toBe(1);
+		expect(findTrackedById("refresh-obj-1")).toBeDefined();
+
+		const ctx = (spec.phases!.a as jest.Mock).mock.calls[0][0] as ScreenCtx<"a" | "b">;
+		await ctx.refresh();
+		expect(callCount).toBe(2);
+		expect(findTrackedById("refresh-obj-1")).toBeUndefined();
+		expect(findTrackedById("refresh-obj-2")).toBeDefined();
+	});
+
+	// -----------------------------------------------------------------------
+	// Optional phases (single-view screen)
+	// -----------------------------------------------------------------------
+
+	it("works without phases — single-view screen", async () => {
+		const spec = {
+			name: "single-view",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn(async (ctx: ScreenCtx<never>) => {
+				ctx.add(fakeObj(), { id: "only" });
+			}),
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(findTrackedById("only")).toBeDefined();
+		expect(screen.currentPhase()).toBeNull();
+
+		screen.destroy();
+		expect(findTrackedById("only")).toBeUndefined();
+	});
+
+	// -----------------------------------------------------------------------
+	// screenModule() helper
+	// -----------------------------------------------------------------------
+
+	it("screenModule() produces ScreenModule-compatible exports", async () => {
+		const { spec } = makeSpec();
+		const screen = createScreen(spec);
+		const mod = screenModule(screen);
+
+		expect(mod.name).toBe("test");
+		expect(mod.currentPhase()).toBeNull();
+
+		await mod.create();
+		expect(mod.currentPhase()).toBe("a");
+		expect(mod.events).toBeDefined();
+
+		mod.destroy();
+		expect(mod.currentPhase()).toBeNull();
+	});
+
+	it("screenModule() onDestroy runs after screen destroy", async () => {
+		const { spec } = makeSpec();
+		const screen = createScreen(spec);
+		const onDestroy = jest.fn();
+		const mod = screenModule(screen, { onDestroy });
+
+		await mod.create();
+		mod.destroy();
+		expect(onDestroy).toHaveBeenCalledTimes(1);
 	});
 });
