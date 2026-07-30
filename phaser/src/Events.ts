@@ -116,5 +116,8 @@ export const GameEvent = {
   unitRecruited: createEvent<{ unitId: string }>(),
   /** A unit was removed from the player's team. */
   unitRemoved:   createEvent<{ unitId: string }>(),
+
+  /** Locale changed (language switch).  Payload is the new locale code. */
+  localeChanged: createEvent<{ locale: string }>(),
 };
 

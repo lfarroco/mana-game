@@ -4,6 +4,7 @@ import pt from "./pt.json";
 import jp from "./jp.json";
 import cn from "./cn.json";
 import ru from "./ru.json";
+import { GameEvent } from "../Events";
 type Translations = Record<string, string>;
 
 const locales: Record<string, Translations> = {
@@ -44,13 +45,11 @@ export function setLocale(locale: string) {
 	if (locales[locale]) {
 		currentLocale = locale;
 		translations = locales[locale];
-		try {
-			localStorage.setItem(STORAGE_KEY, locale);
-		} catch {
-			// console.warn('Failed to save locale to localStorage:', e);
-		}
+		localStorage.setItem(STORAGE_KEY, locale);
+
+		GameEvent.localeChanged.emit({ locale });
 	} else {
-		// console.warn(`Locale ${locale} not found, falling back to ${currentLocale}`);
+		console.warn(`Locale ${locale} not found, falling back to ${currentLocale}`);
 	}
 }
 

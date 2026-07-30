@@ -12,9 +12,8 @@ import { ScreenCtx } from "../../screenTracking";
  * The overlay and panel are tracked by the phase tracker and destroyed
  * automatically on the next transition.
  *
- * Selecting a language switches back to the "main" phase, which re-renders
- * all text-bearing elements with the new locale — no full-screen re-render
- * needed.
+ * Selecting a language emits localeChanged (GameEvent), which triggers
+ * in-place text refresh for persistent elements like howToPlay.
  */
 export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	const panelWidth = 400;
@@ -71,7 +70,6 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 
 function selectLanguage(lang: string) {
 	i18n.setLocale(lang);
-	// Back to "main": the phase transition destroys this panel and re-renders
-	// the main buttons + howToPlay chrome with the new locale.
+	// i18n.setLocale emits localeChanged → persistent elements (e.g. howToPlay) refresh in-place.
 	void TitleScreen.go("main");
 }

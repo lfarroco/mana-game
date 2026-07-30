@@ -7,7 +7,7 @@ import * as LanguagePanel from "./Components/LanguagePanel";
 import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
-import { NavigationEvent } from "../../Events";
+import { GameEvent, NavigationEvent } from "../../Events";
 import { loadGame } from "../../Storage/loadGame";
 import { createScreen, ScreenCtx } from "../screenTracking";
 
@@ -44,6 +44,9 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 				e.resumeGameButtonClicked.listen(() => {
 					loadGame();
 					NavigationEvent.toBattleground.emit();
+				}),
+				GameEvent.localeChanged.listen(() => {
+					Components.howToPlay.refresh();
 				}),
 			],
 		};

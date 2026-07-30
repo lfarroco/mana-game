@@ -3,8 +3,11 @@ import * as TutorialOverlay from "../../../Screens/Title/Components/TutorialOver
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
 
+let textObj: Phaser.GameObjects.Text | null = null;
+
 export function create(): Phaser.GameObjects.Container {
 	const text = env.scene.add.text(0, 80, i18n.t("title.howToPlay"), constants.titleTextConfig).setOrigin(0.5);
+	textObj = text;
 	const pulse = env.scene.tweens.add({
 		targets: text,
 		duration: 1000,
@@ -21,10 +24,10 @@ export function create(): Phaser.GameObjects.Container {
 
 	// Self-clean: Phaser does not auto-kill tweens when their target is
 	// destroyed, so an orphaned infinite tween would leak whenever this
-	// container is destroyed outside a scene-wide killAll (e.g. a phase
-	// transition on the title screen).
+	// container is destroyed outside a scene-wide killAll.
 	container.once(Phaser.GameObjects.Events.DESTROY, () => {
 		pulse.destroy();
+		textObj = null;
 	});
 
 	container.setInteractive(
@@ -45,4 +48,11 @@ export function create(): Phaser.GameObjects.Container {
 	});
 
 	return container;
+}
+
+/** Update the displayed text to reflect the current locale (called on locale change). */
+export function refresh(): void {
+	if (textObj) {
+		textObj.setText(i18n.t("title.howToPlay"));
+	}
 }
