@@ -166,7 +166,7 @@ class PhaseTracker<TPhase extends string> {
 export function createScreen<TPhase extends string, E extends EventRecord>(spec: {
 	name: string;
 	/** Create the screen-local events and wire their listeners.  Runs once per init(). */
-	events: () => { events: E; disposers: (() => void)[] };
+	events: () => { events: E; listeners: (() => void)[] };
 	/**
 	 * Persistent layer — runs once per create(); elements tracked here survive
 	 * phase transitions.  Typically ends with `await ctx.go("<initial phase>")`.
@@ -177,7 +177,7 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 }): ScreenResult<TPhase, E> {
 	let tracker: PhaseTracker<TPhase> | null = null;
 	let initialized = false;
-	let eventState: { events: E; disposers: (() => void)[] } | null = null;
+	let eventState: { events: E; listeners: (() => void)[] } | null = null;
 	let ctxDisposers: (() => void)[] = [];
 
 	const go = async (phase: TPhase): Promise<void> => {
@@ -236,7 +236,7 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 			ctxDisposers.forEach((d) => d());
 			ctxDisposers = [];
 			if (eventState) {
-				eventState.disposers.forEach((d) => d());
+				eventState.listeners.forEach((d) => d());
 				for (const key of Object.keys(eventState.events)) {
 					(eventState.events as EventRecord)[key]?.clear();
 				}

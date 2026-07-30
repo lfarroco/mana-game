@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// ScreenLifecycle — deduplicates the init/destroy/disposers/initialized
+// ScreenLifecycle — deduplicates the init/destroy/listeners/initialized
 // boilerplate shared by TitleScreen, OptionsScreen, and CrystalSelectionScreen.
 // ---------------------------------------------------------------------------
 
@@ -17,7 +17,7 @@ export type ScreenLifecycle = {
 	 * effects.
 	 */
 	init: <T extends EventRecord>(
-		setup: () => { events: T; disposers: (() => void)[] },
+		setup: () => { events: T; listeners: (() => void)[] },
 	) => T;
 
 	/** Dispose all listeners and clear every event.  Safe to call repeatedly. */
@@ -25,25 +25,25 @@ export type ScreenLifecycle = {
 }
 
 export function createScreenLifecycle(): ScreenLifecycle {
-	let disposers: (() => void)[] = [];
+	let listeners: (() => void)[] = [];
 	let initialized = false;
 	let events: EventRecord | null = null;
 
 	return {
 		init<T extends EventRecord>(
-			setup: () => { events: T; disposers: (() => void)[] },
+			setup: () => { events: T; listeners: (() => void)[] },
 		): T {
 			if (initialized) return events as T;
 			initialized = true;
 			const result = setup();
 			events = result.events;
-			disposers = result.disposers;
+			listeners = result.listeners;
 			return result.events;
 		},
 
 		destroy() {
-			disposers.forEach((d) => d());
-			disposers = [];
+			listeners.forEach((d) => d());
+			listeners = [];
 			if (events) {
 				for (const key of Object.keys(events)) {
 					events[key]?.clear();

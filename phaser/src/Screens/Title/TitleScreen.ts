@@ -43,7 +43,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		};
 		return {
 			events: e,
-			disposers: [
+			listeners: [
 				e.newGameButtonClicked.listen(NavigationEvent.toCrystals.emit),
 				e.resumeGameButtonClicked.listen(() => {
 					loadGame();
@@ -139,7 +139,10 @@ function renderChrome(ctx: ScreenCtx<TitlePhase>) {
  * Displays the game version in the top-right corner of the screen
  */
 function displayVersion(ctx: ScreenCtx<TitlePhase>) {
-	const versionText = env.scene.add.text(0, 0, `v${pkg.version}`, { fontSize: "16px", color: "white", });
+	const versionText = env.scene.add.text(
+		0, 0,
+		`v${pkg.version}`,
+		{ fontSize: "16px", color: "white", });
 	versionText.setPosition(constants.SCREEN_WIDTH - 30, 10);
 	versionText.setAlpha(0.5);
 	versionText.setOrigin(1, 0);

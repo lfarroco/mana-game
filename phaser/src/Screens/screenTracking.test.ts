@@ -23,7 +23,7 @@ const makeSpec = (overrides?: {
 		name: "test",
 		events: jest.fn(() => ({
 			events: { someEvent } as TestEvents,
-			disposers: [disposer],
+			listeners: [disposer],
 		})),
 		create: jest.fn(async (ctx: ScreenCtx<"a" | "b">) => {
 			overrides?.onCreate?.(ctx);
@@ -98,7 +98,7 @@ describe("createScreen", () => {
 		expect(findTrackedById("persist")).toBeUndefined();
 	});
 
-	it("destroy() runs event disposers, clears events, and allows re-init", async () => {
+	it("destroy() runs event listeners, clears events, and allows re-init", async () => {
 		const { spec, someEvent, disposer } = makeSpec();
 		const screen = createScreen(spec);
 		await screen.create();

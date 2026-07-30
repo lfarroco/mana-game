@@ -27,7 +27,7 @@ export function init() {
 		};
 		return {
 			events: e,
-			disposers: [
+			listeners: [
 				e.backToTitle.listen(NavigationEvent.toTitle.emit),
 			],
 		};

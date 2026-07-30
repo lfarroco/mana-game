@@ -68,9 +68,10 @@ async function doSwitchScreen(screen: ScreenModule): Promise<void> {
     activeScreen = screen;
     await GameEvent.screenShown.emit({ name: screen.name });
 
+    await env.fadeIn(300);
+
     // Re-enable scene input now that the new screen is fully rendered
     env.scene.input.enabled = true;
-    await env.fadeIn(300);
 }
 
 async function switchScreen(screen: ScreenModule): Promise<void> {

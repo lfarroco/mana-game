@@ -35,7 +35,7 @@ export function init() {
 		};
 		return {
 			events: e,
-			disposers: [
+			listeners: [
 				e.playClicked.listen(Effects.startNewGame),
 				e.backClicked.listen(NavigationEvent.toTitle.emit),
 				e.crystalChanged.listen(({ index }) => {
