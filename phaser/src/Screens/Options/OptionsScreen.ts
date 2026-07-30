@@ -7,7 +7,7 @@ import { gameTab } from "@Screens/Options/Components/tabs/game";
 import { graphicsTab } from "@Screens/Options/Components/tabs/graphics";
 import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
-import { createScreen } from "../screenTracking";
+import { createScreen, screenModule } from "../screenTracking";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -103,25 +103,17 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 
 	phases: {
 		audio: (ctx) => {
-			const startY = LAYOUT.OPTIONS_START_Y;
-			const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
-			const elements = audioTab(startY, lineHeight);
-			elements.forEach((el) => ctx.add(el));
+			ctx.add(audioTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
 			tabButtons.setActiveTab("audio");
 		},
 
 		graphics: (ctx) => {
-			const startY = LAYOUT.OPTIONS_START_Y;
-			const elements = graphicsTab(startY);
-			elements.forEach((el) => ctx.add(el));
+			ctx.add(graphicsTab(LAYOUT.OPTIONS_START_Y));
 			tabButtons.setActiveTab("graphics");
 		},
 
 		game: (ctx) => {
-			const startY = LAYOUT.OPTIONS_START_Y;
-			const lineHeight = LAYOUT.OPTIONS_LINE_HEIGHT;
-			const elements = gameTab(startY, lineHeight);
-			elements.forEach((el) => ctx.add(el));
+			ctx.add(gameTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
 			tabButtons.setActiveTab("game");
 		},
 	},
@@ -131,26 +123,4 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const name = screen.name;
-
-export let events: OptionsScreenEvents;
-
-export function init() {
-	screen.init();
-	events = screen.events;
-}
-
-export async function create() {
-	init();
-	await screen.create();
-}
-
-export function destroy() {
-	screen.destroy();
-}
-
-/** Switch the screen's internal tab (audio / graphics / game). */
-export const go = (phase: OptionsPhase) => screen.go(phase);
-
-/** Current active tab, or null before the first transition. */
-export const currentPhase = () => screen.currentPhase();
+export const { name, events, init, create, destroy, go, currentPhase } = screenModule(screen);

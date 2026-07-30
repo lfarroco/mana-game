@@ -9,7 +9,7 @@ import { createEvent } from "@game/Models";
 import { env } from "@Env";
 import { GameEvent, NavigationEvent } from "../../Events";
 import { loadGame } from "../../Storage/loadGame";
-import { createScreen, ScreenCtx } from "../screenTracking";
+import { createScreen, screenModule, ScreenCtx } from "../screenTracking";
 
 export type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
@@ -95,28 +95,10 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const name = screen.name;
+export const { name, events, init, create, destroy, go } = screenModule(screen);
 
-export let events: TitleScreenEvents;
-
+// Extra screen-specific exports
 export const components = Components;
-
-export function init() {
-	screen.init();
-	events = screen.events;
-}
-
-export async function create() {
-	init();
-	await screen.create();
-}
-
-export function destroy() {
-	screen.destroy();
-}
-
-/** Switch the screen's internal phase (main buttons ↔ submenus ↔ language panel). */
-export const go = (phase: TitlePhase) => screen.go(phase);
 
 // ---------------------------------------------------------------------------
 // Internal helpers

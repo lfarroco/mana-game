@@ -1,10 +1,15 @@
 import * as constants from "@Constants";
 import * as keyboard from "./keyboard";
 import { env } from "@Env";
-import { ScreenCtx } from "../../screenTracking";
+import { Destroyable } from "../../screenTracking";
 import { CRYSTAL_IDS } from "../ids";
 
-export function create(ctx: ScreenCtx<any>) {
+/** Minimal context — seedInput only needs add() for object tracking. */
+interface SeedInputCtx {
+	add(obj: Destroyable, opts?: { id?: string }): Destroyable;
+}
+
+export function create(ctx: SeedInputCtx) {
 	// Seed selection is server-determined in multiplayer — skip the custom seed UI.
 	if (env.state.session.session_type.type === "multiplayer") {
 		return;

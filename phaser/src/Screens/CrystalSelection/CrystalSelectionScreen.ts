@@ -11,8 +11,8 @@ import * as seedInput from "./Components/seedInput";
 import * as title from "./Components/title";
 import { CardDefinition, createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
-import { createScreen } from "../screenTracking";
-import { CRYSTAL_IDS, paginationDotId } from "./ids";
+import { createScreen, screenModule } from "../screenTracking";
+import { CRYSTAL_IDS } from "./ids";
 
 // ---------------------------------------------------------------------------
 // Events
@@ -23,13 +23,6 @@ export type CrystalSelectionEvents = {
 	backClicked: ReturnType<typeof createEvent<void>>;
 	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
 };
-
-// ---------------------------------------------------------------------------
-// Phases — single "main" phase; all content lives in the persistent layer.
-// Crystal navigation (prev/next) is event-driven, not phase-driven.
-// ---------------------------------------------------------------------------
-
-type CrystalPhase = "main";
 
 // ---------------------------------------------------------------------------
 // Selection state — data only, no Phaser refs.
@@ -44,10 +37,10 @@ export function getSelection() {
 }
 
 // ---------------------------------------------------------------------------
-// Screen factory
+// Screen factory — single-view, no phases needed
 // ---------------------------------------------------------------------------
 
-const screen = createScreen<CrystalPhase, CrystalSelectionEvents>({
+const screen = createScreen<never, CrystalSelectionEvents>({
 	name: "crystal_selection",
 
 	events: () => {
@@ -88,14 +81,13 @@ const screen = createScreen<CrystalPhase, CrystalSelectionEvents>({
 		ctx.add(title.create(), { id: CRYSTAL_IDS.title });
 
 		// Pagination dots
-		const dots = paginationDots.create(crystals.length);
-		dots.forEach((dot, i) => ctx.add(dot, { id: paginationDotId(i) }));
+		ctx.add(paginationDots.create(crystals.length), { idPrefix: "crystal.pagination-dot-" });
 
 		// Navigation buttons (prev / next)
-		navigationButtons.create().forEach((c) => ctx.add(c));
+		ctx.add(navigationButtons.create());
 
 		// Action buttons (play / back)
-		actionButtons.create().forEach((c) => ctx.add(c));
+		ctx.add(actionButtons.create());
 
 		// Seed input (DOM keyboard + text field)
 		seedInput.create(ctx);
@@ -105,14 +97,6 @@ const screen = createScreen<CrystalPhase, CrystalSelectionEvents>({
 
 		// Initial display update
 		Effects.updateDisplay(crystals, currentIndex);
-
-		await ctx.go("main");
-	},
-
-	phases: {
-		main: () => {
-			// Single-phase screen — all content lives in the persistent create() layer.
-		},
 	},
 });
 
@@ -120,24 +104,8 @@ const screen = createScreen<CrystalPhase, CrystalSelectionEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const name = screen.name;
-
-export let events: CrystalSelectionEvents;
-
-export function init() {
-	screen.init();
-	events = screen.events;
-}
-
-export async function create() {
-	init();
-	await screen.create();
-}
-
-export function destroy() {
-	screen.destroy();
-	crystals = [];
-	currentIndex = 0;
-}
+export const { name, events, init, create, destroy } = screenModule(screen, {
+	onDestroy: () => { crystals = []; currentIndex = 0; },
+});
 
 
