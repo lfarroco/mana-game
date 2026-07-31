@@ -15,7 +15,7 @@ export function create(ctx: TitleScreen.Context) {
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
-			void ctx.go("submenu");
+			void ctx.go("singleplayer_submenu");
 		},
 		tooltip: {
 			title,

@@ -11,6 +11,8 @@ import { GameEvent, NavigationEvent } from "../../Events";
 import { loadGame } from "../../Storage/loadGame";
 import { createScreen, screenModule, ScreenCtx } from "../screenTracking";
 
+export type TitlePhase = "main" | "singleplayer_submenu" | "options_submenu" | "language";
+
 export type TitleScreenEvents = {
 	newGameButtonClicked: ReturnType<typeof createEvent<void>>;
 	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
@@ -18,25 +20,32 @@ export type TitleScreenEvents = {
 
 export type Context = ScreenCtx<TitlePhase, TitleScreenEvents>
 
-export type TitlePhase = "main" | "submenu" | "options_submenu" | "language";
-
 const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	name: "title",
 
 	events: () => {
-		const events: TitleScreenEvents = {
-			newGameButtonClicked: createEvent<void>(),
-			resumeGameButtonClicked: createEvent<void>(),
-		};
+
+		const newGameButtonClicked = createEvent<void>();
+		const resumeGameButtonClicked = createEvent<void>();
+
 		return {
-			events,
+			events: {
+				newGameButtonClicked,
+				resumeGameButtonClicked
+			},
 			listeners: [
-				events.newGameButtonClicked.listen(NavigationEvent.toCrystals.emit),
-				events.resumeGameButtonClicked.listen(() => {
-					loadGame();
-					NavigationEvent.toBattleground.emit();
-				}),
-				GameEvent.localeChanged.listen(Components.howToPlay.refresh),
+				newGameButtonClicked.listen(
+					NavigationEvent.toCrystals.emit
+				),
+				resumeGameButtonClicked.listen(
+					loadGame
+				),
+				resumeGameButtonClicked.listen(
+					NavigationEvent.toBattleground.emit
+				),
+				GameEvent.localeChanged.listen(
+					Components.howToPlay.refresh
+				),
 			],
 		};
 	},
@@ -52,27 +61,28 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	},
 
 	phases: {
-		main: (ctx) => [
-			Components.singlePlayerButton.create(ctx),
-			Components.arenaButton.create(),
-			Components.optionsButton.create(ctx),
-			Components.linksButton.create(),
-			environment.isElectron() ?
-				Components.exitButton.create() :
-				env.container(),
-			Components.languageButton.create(ctx),
-		],
+		main: mainPhase,
 
-		submenu: (ctx) =>
-			Components.singlePlayerButton.createSinglePlayerSubmenu(ctx),
+		singleplayer_submenu: Components.singlePlayerButton.createSinglePlayerSubmenu,
 
-		options_submenu: (ctx) =>
-			Components.optionsButton.createSubmenu(ctx),
+		options_submenu: Components.optionsButton.createSubmenu,
 
-		language: (ctx) =>
-			LanguagePanel.create(ctx)
+		language: LanguagePanel.create
 	},
 });
+
+function mainPhase(ctx: Context) {
+	return [
+		Components.singlePlayerButton.create(ctx),
+		Components.arenaButton.create(),
+		Components.optionsButton.create(ctx),
+		Components.linksButton.create(),
+		environment.isElectron() ?
+			Components.exitButton.create() :
+			env.container(),
+		Components.languageButton.create(ctx),
+	]
+}
 
 export const { init, create, destroy, go, name } = screenModule(screen);
 
