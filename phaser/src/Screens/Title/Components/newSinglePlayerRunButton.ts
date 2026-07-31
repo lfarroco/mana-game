@@ -7,6 +7,6 @@ export const create = (y: number) =>
 	UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, y],
-		callback: TitleScreen.events.newGameButtonClicked.emit
+		callback: () => TitleScreen.getEvents().newGameButtonClicked.emit(),
 	});
 

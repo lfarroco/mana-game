@@ -47,7 +47,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>
 		position: [constants.MIDDLE_SCREEN_X, baseY],
 		callback: () => {
 
-			TitleScreen.events.resumeGameButtonClicked.emit()
+			TitleScreen.getEvents().resumeGameButtonClicked.emit()
 		}
 	});
 
@@ -60,7 +60,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
 		callback: () => {
-			TitleScreen.events.newGameButtonClicked.emit()
+			TitleScreen.getEvents().newGameButtonClicked.emit()
 		}
 	});
 

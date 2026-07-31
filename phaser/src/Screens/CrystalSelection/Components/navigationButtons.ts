@@ -12,7 +12,8 @@ const NAV_BUTTON_WIDTH = 200;
  * Returns the button containers so the caller can track them for disposal.
  */
 export function create(): Phaser.GameObjects.Container[] {
-	const { events, getSelection } = CrystalSelectionScreen;
+	const { getEvents, getSelection } = CrystalSelectionScreen;
+	const events = getEvents();
 
 	const prevBtn = UIButton.create({
 		text: i18n.t("crystalSelection.previous"),

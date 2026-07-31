@@ -110,13 +110,8 @@ const _cscreen = screenModule(screen, {
 export const { init, create, destroy } = _cscreen;
 export const name = _cscreen.name;
 
-// events must remain live (re-created per init cycle via the getter),
-// so export a proxy that delegates every property access to the live events
-export const events: CrystalSelectionEvents = new Proxy({} as CrystalSelectionEvents, {
-    get(_target, prop, receiver) {
-        const e = _cscreen.events;
-        return e ? Reflect.get(e, prop, receiver) : undefined;
-    }
-}) as CrystalSelectionEvents;
+// events must remain live (re-created per init cycle),
+// so export a function that lazily evaluates to the current events
+export const getEvents = (): CrystalSelectionEvents => _cscreen.getEvents();
 
 

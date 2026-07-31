@@ -322,12 +322,12 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 	const mod = {
 		name: screen.name,
 
-		/** Screen-local events. Updated on init(); safe to access from components. */
-		events: undefined as unknown as E,
-
 		init() {
 			screen.init();
-			mod.events = screen.events;
+		},
+
+		getEvents(): E {
+			return screen.events;
 		},
 
 		async create() {
@@ -338,7 +338,6 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 		destroy() {
 			screen.destroy();
 			opts?.onDestroy?.();
-			mod.events = undefined as unknown as E;
 		},
 
 		go: screen.go,

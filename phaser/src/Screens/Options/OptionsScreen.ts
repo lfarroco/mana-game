@@ -128,11 +128,6 @@ export const { init, create, destroy, go } = _oscreen;
 export const name = _oscreen.name;
 export const currentPhase = _oscreen.currentPhase;
 
-// events must remain live (re-created per init cycle via the getter),
-// so export a proxy that delegates every property access to the live events
-export const events: OptionsScreenEvents = new Proxy({} as OptionsScreenEvents, {
-    get(_target, prop, receiver) {
-        const e = _oscreen.events;
-        return e ? Reflect.get(e, prop, receiver) : undefined;
-    }
-}) as OptionsScreenEvents;
+// events must remain live (re-created per init cycle),
+// so export a function that lazily evaluates to the current events
+export const getEvents = (): OptionsScreenEvents => _oscreen.getEvents();

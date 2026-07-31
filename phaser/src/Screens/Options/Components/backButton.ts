@@ -12,7 +12,7 @@ export function create(): Phaser.GameObjects.Container {
 	const btn = UIButton.create({
 		text: i18n.t("options.back"),
 		position: [constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.BACK_BUTTON_Y],
-		callback: OptionsScreen.events.backToTitle.emit,
+		callback: () => OptionsScreen.getEvents().backToTitle.emit(),
 	});
 	return btn.container;
 }

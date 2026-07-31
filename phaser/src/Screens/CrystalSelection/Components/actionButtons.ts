@@ -17,7 +17,7 @@ export function create(): Phaser.GameObjects.Container[] {
 			constants.MIDDLE_SCREEN_X,
 			PLAY_BUTTON_Y,
 		],
-		callback: CrystalSelectionScreen.events.playClicked.emit
+		callback: () => CrystalSelectionScreen.getEvents().playClicked.emit(),
 	});
 
 	const backBtn = UIButton.create({
@@ -26,7 +26,7 @@ export function create(): Phaser.GameObjects.Container[] {
 			constants.MIDDLE_SCREEN_X,
 			BACK_BUTTON_Y,
 		],
-		callback: CrystalSelectionScreen.events.backClicked.emit
+		callback: () => CrystalSelectionScreen.getEvents().backClicked.emit(),
 	});
 
 	return [playBtn.container, backBtn.container];

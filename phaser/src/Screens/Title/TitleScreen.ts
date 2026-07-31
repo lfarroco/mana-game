@@ -99,14 +99,9 @@ const _screen = screenModule(screen);
 export const { init, create, destroy, go } = _screen;
 export const name = _screen.name;
 
-// events must remain live (re-created per init cycle via the getter),
-// so export a proxy that delegates every property access to the live events
-export const events: TitleScreenEvents = new Proxy({} as TitleScreenEvents, {
-    get(_target, prop, receiver) {
-        const e = _screen.events;
-        return e ? Reflect.get(e, prop, receiver) : undefined;
-    }
-}) as TitleScreenEvents;
+// events must remain live (re-created per init cycle),
+// so export a function that lazily evaluates to the current events
+export const getEvents = (): TitleScreenEvents => _screen.getEvents();
 
 // Extra screen-specific exports
 export const components = Components;

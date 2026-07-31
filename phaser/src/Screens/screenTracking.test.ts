@@ -241,7 +241,8 @@ describe("createScreen", () => {
 
 		await mod.create();
 		expect(mod.currentPhase()).toBe("a");
-		expect(mod.events).toBeDefined();
+		expect(mod.getEvents()).toBeDefined();
+		expect(mod.getEvents().someEvent).toBeDefined();
 
 		mod.destroy();
 		expect(mod.currentPhase()).toBeNull();
