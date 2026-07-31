@@ -9,7 +9,7 @@ import { ScreenCtx } from "../../screenTracking";
 
 const BUTTON_Y = 500;
 
-export function create() {
+export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
 	const title = i18n.t("title.singlePlayer");
 	const description = i18n.t("title.tooltip.singlePlayer");
 
@@ -17,7 +17,7 @@ export function create() {
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
-			void TitleScreen.go("submenu");
+			void ctx.go("submenu");
 		},
 		tooltip: {
 			title,
@@ -36,7 +36,7 @@ export function create() {
  * emitting: the emitted event triggers navigation, which destroys the whole
  * screen anyway (destroy() runs before the fade-out starts).
  */
-export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
+export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
 	const baseY = 500;
 	const spacing = 100;
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;
@@ -47,7 +47,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>
 		position: [constants.MIDDLE_SCREEN_X, baseY],
 		callback: () => {
 
-			TitleScreen.getEvents().resumeGameButtonClicked.emit()
+			ctx.events.resumeGameButtonClicked.emit()
 		}
 	});
 
@@ -60,7 +60,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
 		callback: () => {
-			TitleScreen.getEvents().newGameButtonClicked.emit()
+			ctx.events.newGameButtonClicked.emit()
 		}
 	});
 
@@ -70,7 +70,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>
 		text: i18n.t("title.back"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
-			void TitleScreen.go("main");
+			void ctx.go("main");
 		},
 	});
 

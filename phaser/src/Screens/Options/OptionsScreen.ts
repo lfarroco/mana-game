@@ -97,7 +97,7 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 		new CloudsBackground.CloudsBackground({ preset: "aurora" });
 		ctx.add(optionsLabel.create(), { id: OPTIONS_IDS.titleLabel });
 		tabButtons.create(ctx);
-		ctx.add(backButton.create(), { id: OPTIONS_IDS.backButton });
+		ctx.add(backButton.create(ctx), { id: OPTIONS_IDS.backButton });
 		await ctx.go("audio");
 	},
 
@@ -127,7 +127,3 @@ const _oscreen = screenModule(screen);
 export const { init, create, destroy, go } = _oscreen;
 export const name = _oscreen.name;
 export const currentPhase = _oscreen.currentPhase;
-
-// events must remain live (re-created per init cycle),
-// so export a function that lazily evaluates to the current events
-export const getEvents = (): OptionsScreenEvents => _oscreen.getEvents();

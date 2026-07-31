@@ -84,10 +84,10 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		ctx.add(paginationDots.create(crystals.length), { idPrefix: "crystal.pagination-dot-" });
 
 		// Navigation buttons (prev / next)
-		ctx.add(navigationButtons.create());
+		ctx.add(navigationButtons.create(ctx));
 
 		// Action buttons (play / back)
-		ctx.add(actionButtons.create());
+		ctx.add(actionButtons.create(ctx));
 
 		// Seed input (DOM keyboard + text field)
 		seedInput.create(ctx);
@@ -109,9 +109,5 @@ const _cscreen = screenModule(screen, {
 });
 export const { init, create, destroy } = _cscreen;
 export const name = _cscreen.name;
-
-// events must remain live (re-created per init cycle),
-// so export a function that lazily evaluates to the current events
-export const getEvents = (): CrystalSelectionEvents => _cscreen.getEvents();
 
 

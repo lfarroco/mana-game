@@ -65,14 +65,14 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	phases: {
 		main: (ctx) => {
 			const mainButtons = env.container([
-				Components.singlePlayerButton.create().container,
+				Components.singlePlayerButton.create(ctx).container,
 				Components.arenaButton.create().container,
-				Components.optionsButton.create().container,
+				Components.optionsButton.create(ctx).container,
 				Components.linksButton.create().container,
 				environment.isElectron() ?
 					Components.exitButton.create().container :
 					null,
-				Components.languageButton.create().container,
+				Components.languageButton.create(ctx).container,
 			]);
 			ctx.add(mainButtons, { id: TITLE_IDS.mainButtons });
 		},
@@ -98,10 +98,6 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 const _screen = screenModule(screen);
 export const { init, create, destroy, go } = _screen;
 export const name = _screen.name;
-
-// events must remain live (re-created per init cycle),
-// so export a function that lazily evaluates to the current events
-export const getEvents = (): TitleScreenEvents => _screen.getEvents();
 
 // Extra screen-specific exports
 export const components = Components;

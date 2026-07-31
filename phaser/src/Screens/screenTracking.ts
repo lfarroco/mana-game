@@ -35,9 +35,9 @@ type EventRecord = Record<string, Clearable>;
  */
 export type Destroyable = { destroy: () => void };
 
-type PhaseMap<TPhase extends string> = Record<
+type PhaseMap<TPhase extends string, E extends EventRecord = EventRecord> = Record<
 	TPhase,
-	(ctx: ScreenCtx<TPhase>) => void | Promise<void>
+	(ctx: ScreenCtx<TPhase, E>) => void | Promise<void>
 >;
 
 /** Options for single-object add(). */
@@ -47,7 +47,7 @@ type SingleAddOpts = { id?: string };
 type ArrayAddOpts = { idPrefix?: string };
 
 /** Context handed to a screen's `create` and phase handlers. */
-export interface ScreenCtx<TPhase extends string = string> {
+export interface ScreenCtx<TPhase extends string = string, E extends EventRecord = EventRecord> {
 	/**
 	 * Track a single destroyable object.  Objects added in the persistent
 	 * `create` layer survive phase transitions; objects added inside a phase
@@ -80,6 +80,9 @@ export interface ScreenCtx<TPhase extends string = string> {
 
 	/** Register a disposer that runs when the screen is destroyed. */
 	onDestroy: (disposer: () => void) => void;
+
+	/** Screen-local events. Re-created per init cycle; access after create(). */
+	readonly events: E;
 }
 
 /** Object returned by createScreen() — satisfies the ScreenModule shape used by Client.ts. */
@@ -200,19 +203,19 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 	 * phase transitions.  For multi-phase screens, typically ends with
 	 * `await ctx.go("<initial phase>")`.
 	 */
-	create: (ctx: ScreenCtx<TPhase>) => void | Promise<void>;
+	create: (ctx: ScreenCtx<TPhase, E>) => void | Promise<void>;
 	/**
 	 * Phase handlers — elements tracked inside a handler are destroyed on the
 	 * next transition or on ctx.refresh().  Omit for single-view screens.
 	 */
-	phases?: PhaseMap<TPhase>;
+	phases?: PhaseMap<TPhase, E>;
 }): ScreenResult<TPhase, E> {
 	let tracker: PhaseTracker<TPhase> | null = null;
 	let initialized = false;
 	let eventState: { events: E; listeners: (() => void)[] } | null = null;
 	let ctxDisposers: (() => void)[] = [];
 
-	const phases = spec.phases ?? {} as PhaseMap<TPhase>;
+	const phases = spec.phases ?? {} as PhaseMap<TPhase, E>;
 
 	const go = async (phase: TPhase): Promise<void> => {
 		if (!tracker) return;
@@ -243,11 +246,11 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		}
 	};
 
-	const ctx: ScreenCtx<TPhase> = {
+	const ctx: ScreenCtx<TPhase, E> = {
 		add: ((obj: Destroyable | Destroyable[], opts?: SingleAddOpts | ArrayAddOpts) => {
 			tracker?.add(obj, opts);
 			return obj;
-		}) as ScreenCtx<TPhase>["add"],
+		}) as ScreenCtx<TPhase, E>["add"],
 		findById: (id) => tracker?.findById(id),
 		go,
 		refresh,
@@ -256,6 +259,10 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		},
 		onDestroy: (disposer) => {
 			ctxDisposers.push(disposer);
+		},
+
+		get events() {
+			return eventState?.events as E;
 		},
 	};
 
@@ -324,10 +331,6 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 
 		init() {
 			screen.init();
-		},
-
-		getEvents(): E {
-			return screen.events;
 		},
 
 		async create() {

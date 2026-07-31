@@ -15,7 +15,7 @@ import { ScreenCtx } from "../../screenTracking";
  * Selecting a language emits localeChanged (GameEvent), which triggers
  * in-place text refresh for persistent elements like howToPlay.
  */
-export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
+export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
 	const panelWidth = 400;
 	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);
@@ -52,7 +52,7 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 		text: i18n.t("language.close"),
 		position: [constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y + panelHeight / 2 - 50],
 		callback: () => {
-			void TitleScreen.go("main");
+			void ctx.go("main");
 		},
 		width: 150,
 	});
@@ -66,10 +66,10 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 	ctx.add(container, { id: TitleScreen.TITLE_IDS.languagePanel });
 
 	env.scene.children.bringToTop(container);
-}
 
-function selectLanguage(lang: string) {
-	i18n.setLocale(lang);
-	// i18n.setLocale emits localeChanged → persistent elements (e.g. howToPlay) refresh in-place.
-	void TitleScreen.go("main");
+	function selectLanguage(lang: string) {
+		i18n.setLocale(lang);
+		// i18n.setLocale emits localeChanged → persistent elements (e.g. howToPlay) refresh in-place.
+		void ctx.go("main");
+	}
 }

@@ -10,13 +10,13 @@ import { ScreenCtx } from "../../screenTracking";
 
 const BUTTON_Y = 700;
 
-export function create() {
+export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
 	const title = i18n.t("title.options");
 	const button = UIButton.create({
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
-			void TitleScreen.go("options_submenu");
+			void ctx.go("options_submenu");
 		},
 		tooltip: {
 			title,
@@ -33,7 +33,7 @@ export function create() {
  * tracked by the phase tracker and destroyed automatically on the next
  * transition.
  */
-export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
+export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
 	const baseY = 500;
 	const spacing = 100;
 
@@ -63,7 +63,7 @@ export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase>) {
 		text: i18n.t("title.back"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 3],
 		callback: () => {
-			void TitleScreen.go("main");
+			void ctx.go("main");
 		},
 	});
 
