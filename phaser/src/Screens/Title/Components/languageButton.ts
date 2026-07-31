@@ -24,5 +24,5 @@ export function create(ctx: TitleScreen.Context) {
 		},
 	});
 
-	return button;
+	return button.container;
 }

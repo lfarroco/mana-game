@@ -16,5 +16,5 @@ export function create() {
 			description: i18n.t("title.tooltip.links"),
 			position: "right",
 		},
-	});
+	}).container;
 }

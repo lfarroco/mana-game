@@ -10,4 +10,4 @@ export const create = () =>
 		text: i18n.t("title.exit"),
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: Effects.exitGame,
-	});
+	}).container;

@@ -6,7 +6,7 @@ const BUTTON_Y = 600;
 
 export function create() {
 	const label = i18n.t("title.multiplayer");
-	return UIButton.create({
+	const btn = UIButton.create({
 		text: label,
 		position: [
 			constants.MIDDLE_SCREEN_X,
@@ -26,4 +26,6 @@ export function create() {
 			position: "right",
 		},
 	});
+
+	return btn.container;
 }

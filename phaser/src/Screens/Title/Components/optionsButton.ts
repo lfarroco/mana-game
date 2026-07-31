@@ -1,17 +1,16 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as UIButton from "@Components/Button/UIButton";
-import * as CreditsPanel from "../../../Screens/Title/Components/CreditsPanel";
-import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
+import * as CreditsPanel from "@Screens/Title/Components/CreditsPanel";
+import * as StatsPanel from "@Screens/Title/Components/StatsPanel";
 import * as TitleScreen from "../TitleScreen";
-import { env } from "@Env";
 import { NavigationEvent } from "../../../Events";
 
 const BUTTON_Y = 700;
 
 export function create(ctx: TitleScreen.Context) {
 	const title = i18n.t("title.options");
-	const button = UIButton.create({
+	return UIButton.create({
 		text: title,
 		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
@@ -22,16 +21,9 @@ export function create(ctx: TitleScreen.Context) {
 			description: i18n.t("title.tooltip.options"),
 			position: "right",
 		},
-	});
-	return button;
+	}).container;
 }
 
-/**
- * Render the options submenu (Settings / Stats / Credits / Back).
- * Called by TitleScreen's "options_submenu" phase handler — the container is
- * tracked by the phase tracker and destroyed automatically on the next
- * transition.
- */
 export function createSubmenu(ctx: TitleScreen.Context) {
 	const baseY = 500;
 	const spacing = 100;
@@ -62,12 +54,11 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 		},
 	});
 
-	const submenu = env.container([
+	return [
 		settingsBtn.container,
 		statsBtn.container,
 		creditsBtn.container,
 		backBtn.container,
-	]);
-	ctx.track(submenu);
+	]
 
 }
