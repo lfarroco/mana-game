@@ -36,7 +36,7 @@ export type Destroyable = { destroy: () => void };
 
 type PhaseMap<TPhase extends string, E extends EventRecord = EventRecord> = Record<
 	TPhase,
-	(ctx: ScreenCtx<TPhase, E>) => void | Promise<void>
+	(ctx: ScreenCtx<TPhase, E>) => void | Destroyable | Destroyable[] | Promise<void | Destroyable | Destroyable[]>
 >;
 
 /** Options for single-object add(). */
@@ -117,6 +117,28 @@ export function findTrackedById<T extends Destroyable>(
 	id: string,
 ): T | undefined {
 	return activeTracker?.findById<T>(id);
+}
+
+// ---------------------------------------------------------------------------
+// TrackedGroup — a conceptual container for elements returned by phase
+// handlers.  When the group is destroyed, all its children are destroyed.
+// This avoids coupling to Phaser.GameObjects.Container while still providing
+// group-cleanup semantics.
+// ---------------------------------------------------------------------------
+
+class TrackedGroup implements Destroyable {
+	private children: Destroyable[] = [];
+
+	add(child: Destroyable): void {
+		this.children.push(child);
+	}
+
+	destroy(): void {
+		for (const child of this.children) {
+			child.destroy();
+		}
+		this.children = [];
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -217,6 +239,16 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 
 	const phases = spec.phases ?? {} as PhaseMap<TPhase, E>;
 
+	/** Track a single Destroyable or an array of Destroyables returned by a phase handler. */
+	function trackReturned(result: Destroyable | Destroyable[]): void {
+		const elements = Array.isArray(result) ? result : [result];
+		const group = new TrackedGroup();
+		for (const el of elements) {
+			group.add(el);
+		}
+		tracker?.track(group);
+	}
+
 	const go = async (phase: TPhase): Promise<void> => {
 		if (!tracker) return;
 		tracker.clearPhase();
@@ -225,7 +257,10 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		if (!handler) return;
 		tracker.beginPhase();
 		try {
-			await handler(ctx);
+			const result = await handler(ctx);
+			if (result) {
+				trackReturned(result);
+			}
 		} finally {
 			tracker.endPhase();
 		}
@@ -240,7 +275,10 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		if (!handler) return;
 		tracker.beginPhase();
 		try {
-			await handler(ctx);
+			const result = await handler(ctx);
+			if (result) {
+				trackReturned(result);
+			}
 		} finally {
 			tracker.endPhase();
 		}

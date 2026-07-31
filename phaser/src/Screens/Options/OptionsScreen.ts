@@ -92,19 +92,19 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 	},
 
 	phases: {
-		audio: (ctx) => {
-			ctx.track(audioTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
+		audio: (_ctx) => {
 			tabButtons.setActiveTab("audio");
+			return audioTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT);
 		},
 
-		graphics: (ctx) => {
-			ctx.track(graphicsTab(LAYOUT.OPTIONS_START_Y));
+		graphics: (_ctx) => {
 			tabButtons.setActiveTab("graphics");
+			return graphicsTab(LAYOUT.OPTIONS_START_Y);
 		},
 
-		game: (ctx) => {
-			ctx.track(gameTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
+		game: (_ctx) => {
 			tabButtons.setActiveTab("game");
+			return gameTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT);
 		},
 	},
 });

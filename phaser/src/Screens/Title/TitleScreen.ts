@@ -52,20 +52,16 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	},
 
 	phases: {
-		main: (ctx) => {
-			const mainButtons =
-				env.container([
-					Components.singlePlayerButton.create(ctx).container,
-					Components.arenaButton.create().container,
-					Components.optionsButton.create(ctx).container,
-					Components.linksButton.create().container,
-					environment.isElectron() ?
-						Components.exitButton.create().container :
-						null,
-					Components.languageButton.create(ctx).container,
-				]);
-			ctx.track(mainButtons);
-		},
+		main: (ctx) => [
+			Components.singlePlayerButton.create(ctx).container,
+			Components.arenaButton.create().container,
+			Components.optionsButton.create(ctx).container,
+			Components.linksButton.create().container,
+			environment.isElectron() ?
+				Components.exitButton.create().container :
+				env.container(),
+			Components.languageButton.create(ctx).container,
+		],
 
 		submenu: (ctx) => {
 			Components.singlePlayerButton.createSinglePlayerSubmenu(ctx);

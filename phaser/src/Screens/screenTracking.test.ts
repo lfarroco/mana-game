@@ -12,10 +12,12 @@ const fakeObj = (): FakeObj =>
 
 type TestEvents = { someEvent: { clear: jest.Mock } };
 
+type PhaseReturn = void | FakeObj | FakeObj[];
+
 const makeSpec = (overrides?: {
 	onCreate?: (ctx: ScreenCtx<"a" | "b">) => void;
-	phaseA?: (ctx: ScreenCtx<"a" | "b">) => void;
-	phaseB?: (ctx: ScreenCtx<"a" | "b">) => void;
+	phaseA?: (ctx: ScreenCtx<"a" | "b">) => PhaseReturn;
+	phaseB?: (ctx: ScreenCtx<"a" | "b">) => PhaseReturn;
 	noPhases?: boolean;
 }) => {
 	const someEvent = { clear: jest.fn() };
@@ -32,10 +34,10 @@ const makeSpec = (overrides?: {
 		}),
 		phases: overrides?.noPhases ? undefined : {
 			a: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
-				overrides?.phaseA?.(ctx);
+				return overrides?.phaseA?.(ctx);
 			}),
 			b: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
-				overrides?.phaseB?.(ctx);
+				return overrides?.phaseB?.(ctx);
 			}),
 		},
 	};
@@ -176,6 +178,76 @@ describe("createScreen", () => {
 
 		expect(findTrackedById("dot-0")).toBe(objs[0]);
 		expect(findTrackedById("dot-1")).toBe(objs[1]);
+	});
+
+	// -----------------------------------------------------------------------
+	// Phase handler return values — handlers can return Destroyable(s) instead
+	// of calling ctx.track().  The framework wraps them in a TrackedGroup and
+	// auto-tracks them.
+	// -----------------------------------------------------------------------
+
+	it("phase handler returning a single Destroyable is tracked and destroyed on switch", async () => {
+		const returned: FakeObj = fakeObj();
+		const { spec } = makeSpec({
+			phaseA: () => returned,
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(returned.destroy).not.toHaveBeenCalled();
+
+		await screen.go("b");
+		expect(returned.destroy).toHaveBeenCalledTimes(1);
+	});
+
+	it("phase handler returning Destroyable[] tracks all elements and destroys on switch", async () => {
+		const objs = [fakeObj(), fakeObj(), fakeObj()];
+		const { spec } = makeSpec({
+			phaseA: () => objs,
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		objs.forEach((o) => expect(o.destroy).not.toHaveBeenCalled());
+
+		await screen.go("b");
+		objs.forEach((o) => expect(o.destroy).toHaveBeenCalledTimes(1));
+	});
+
+	it("returned elements and ctx.track() elements are both destroyed on phase switch", async () => {
+		const returned: FakeObj = fakeObj();
+		const tracked: FakeObj = fakeObj();
+		const { spec } = makeSpec({
+			phaseA: (ctx) => {
+				ctx.track(tracked, { id: "tracked" });
+				return returned;
+			},
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(returned.destroy).not.toHaveBeenCalled();
+		expect(tracked.destroy).not.toHaveBeenCalled();
+
+		await screen.go("b");
+		expect(returned.destroy).toHaveBeenCalledTimes(1);
+		expect(tracked.destroy).toHaveBeenCalledTimes(1);
+	});
+
+	it("returned elements are destroyed on ctx.refresh()", async () => {
+		let callCount = 0;
+		const { spec } = makeSpec({
+			phaseA: jest.fn(() => {
+				callCount++;
+				return [fakeObj(), fakeObj()];
+			}),
+		});
+		const screen = createScreen(spec);
+		await screen.create();
+
+		const ctx = (spec.phases!.a as jest.Mock).mock.calls[0][0] as ScreenCtx<"a" | "b">;
+		await ctx.refresh();
+		expect(callCount).toBe(2);
 	});
 
 	// -----------------------------------------------------------------------
