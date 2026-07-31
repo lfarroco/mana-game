@@ -69,25 +69,25 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		cloudsBg.create();
 
 		// Card display background
-		ctx.add(background.create(), { id: CRYSTAL_IDS.background });
+		ctx.track(background.create(), { id: CRYSTAL_IDS.background });
 
 		// Crystal display (sprite + float tween, name, description)
 		const display = crystalDisplay.create(crystals[currentIndex]);
-		ctx.add(display.sprite, { id: CRYSTAL_IDS.sprite });
-		ctx.add(display.nameText, { id: CRYSTAL_IDS.name });
-		ctx.add(display.descText, { id: CRYSTAL_IDS.description });
+		ctx.track(display.sprite, { id: CRYSTAL_IDS.sprite });
+		ctx.track(display.nameText, { id: CRYSTAL_IDS.name });
+		ctx.track(display.descText, { id: CRYSTAL_IDS.description });
 
 		// Title
-		ctx.add(title.create(), { id: CRYSTAL_IDS.title });
+		ctx.track(title.create(), { id: CRYSTAL_IDS.title });
 
 		// Pagination dots
-		ctx.add(paginationDots.create(crystals.length), { idPrefix: "crystal.pagination-dot-" });
+		ctx.track(paginationDots.create(crystals.length), { idPrefix: "crystal.pagination-dot-" });
 
 		// Navigation buttons (prev / next)
-		ctx.add(navigationButtons.create(ctx));
+		ctx.track(navigationButtons.create(ctx));
 
 		// Action buttons (play / back)
-		ctx.add(actionButtons.create(ctx));
+		ctx.track(actionButtons.create(ctx));
 
 		// Seed input (DOM keyboard + text field)
 		seedInput.create(ctx);
@@ -105,7 +105,7 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 // ---------------------------------------------------------------------------
 
 const _cscreen = screenModule(screen, {
-    onDestroy: () => { crystals = []; currentIndex = 0; },
+	onDestroy: () => { crystals = []; currentIndex = 0; },
 });
 export const { init, create, destroy } = _cscreen;
 export const name = _cscreen.name;

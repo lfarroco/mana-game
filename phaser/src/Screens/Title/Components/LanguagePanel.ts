@@ -5,7 +5,6 @@ import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";
 import { env } from "@Env";
-import { ScreenCtx } from "../../screenTracking";
 
 /**
  * Render the language selection panel as TitleScreen's "language" phase.
@@ -15,7 +14,7 @@ import { ScreenCtx } from "../../screenTracking";
  * Selecting a language emits localeChanged (GameEvent), which triggers
  * in-place text refresh for persistent elements like howToPlay.
  */
-export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
+export function create(ctx: TitleScreen.Context) {
 	const panelWidth = 400;
 	const languages = i18n.getAvailableLocales();
 	const panelHeight = Math.max(300, languages.length * 80 + 150);
@@ -25,7 +24,7 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleS
 		interactive: true,
 	});
 	overlay.show();
-	ctx.add(overlay, { id: TitleScreen.TITLE_IDS.languageOverlay });
+	ctx.track(overlay, { id: TitleScreen.TITLE_IDS.languageOverlay });
 
 	const panel = Panel.createPanel([constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y], {
 		width: panelWidth,
@@ -63,7 +62,7 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleS
 		...langButtons.map((b) => b.container),
 		closeButton.container,
 	]);
-	ctx.add(container, { id: TitleScreen.TITLE_IDS.languagePanel });
+	ctx.track(container, { id: TitleScreen.TITLE_IDS.languagePanel });
 
 	env.scene.children.bringToTop(container);
 

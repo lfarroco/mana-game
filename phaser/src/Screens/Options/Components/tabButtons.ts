@@ -55,7 +55,7 @@ export function create(ctx: ScreenCtx<OptionsScreen.OptionsPhase>) {
 	const tabContainer = env.container(
 		Object.values(buttonIndex).map((b) => b.container),
 	);
-	ctx.add(tabContainer, { id: OptionsScreen.OPTIONS_IDS.tabButtons });
+	ctx.track(tabContainer, { id: OptionsScreen.OPTIONS_IDS.tabButtons });
 
 	setActiveTab("audio");
 }

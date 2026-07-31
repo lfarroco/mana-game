@@ -16,6 +16,8 @@ export type TitleScreenEvents = {
 	resumeGameButtonClicked: ReturnType<typeof createEvent<void>>;
 }
 
+export type Context = ScreenCtx<TitlePhase, TitleScreenEvents>
+
 /** Element IDs for tracked objects — usable with ctx.findById / findTrackedById. */
 export const TITLE_IDS = {
 	mainButtons: "title.main-buttons",
@@ -33,15 +35,15 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	name: "title",
 
 	events: () => {
-		const e: TitleScreenEvents = {
+		const events: TitleScreenEvents = {
 			newGameButtonClicked: createEvent<void>(),
 			resumeGameButtonClicked: createEvent<void>(),
 		};
 		return {
-			events: e,
+			events,
 			listeners: [
-				e.newGameButtonClicked.listen(NavigationEvent.toCrystals.emit),
-				e.resumeGameButtonClicked.listen(() => {
+				events.newGameButtonClicked.listen(NavigationEvent.toCrystals.emit),
+				events.resumeGameButtonClicked.listen(() => {
 					loadGame();
 					NavigationEvent.toBattleground.emit();
 				}),
@@ -56,7 +58,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		Components.cloudsBg.create();
 		Components.logo.render();
 		displayVersion(ctx);
-		ctx.add(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
+		ctx.track(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
 		AudioManager.playMusic("music_ageofdisjunction");
 		await ctx.go("main");
 		checkUnlocks();
@@ -74,7 +76,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 					null,
 				Components.languageButton.create(ctx).container,
 			]);
-			ctx.add(mainButtons, { id: TITLE_IDS.mainButtons });
+			ctx.track(mainButtons, { id: TITLE_IDS.mainButtons });
 		},
 
 		submenu: (ctx) => {
@@ -117,7 +119,7 @@ function displayVersion(ctx: ScreenCtx<TitlePhase>) {
 	versionText.setPosition(constants.SCREEN_WIDTH - 30, 10);
 	versionText.setAlpha(0.5);
 	versionText.setOrigin(1, 0);
-	ctx.add(versionText);
+	ctx.track(versionText);
 }
 
 async function checkUnlocks() {

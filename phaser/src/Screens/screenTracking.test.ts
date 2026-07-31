@@ -64,7 +64,7 @@ describe("createScreen", () => {
 		let phaseAObj: FakeObj | undefined;
 		const { spec } = makeSpec({
 			phaseA: (ctx) => {
-				phaseAObj = ctx.add(fakeObj(), { id: "a-obj" });
+				phaseAObj = ctx.track(fakeObj(), { id: "a-obj" });
 			},
 		});
 		const screen = createScreen(spec);
@@ -81,10 +81,10 @@ describe("createScreen", () => {
 		let persistent: FakeObj | undefined;
 		const { spec } = makeSpec({
 			onCreate: (ctx) => {
-				persistent = ctx.add(fakeObj(), { id: "persist" });
+				persistent = ctx.track(fakeObj(), { id: "persist" });
 			},
 			phaseA: (ctx) => {
-				ctx.add(fakeObj(), { id: "a-obj" });
+				ctx.track(fakeObj(), { id: "a-obj" });
 			},
 		});
 		const screen = createScreen(spec);
@@ -132,10 +132,10 @@ describe("createScreen", () => {
 		let phaseObj: FakeObj | undefined;
 		const { spec } = makeSpec({
 			onCreate: (ctx) => {
-				persistent = ctx.add(fakeObj(), { id: "shared-id" });
+				persistent = ctx.track(fakeObj(), { id: "shared-id" });
 			},
 			phaseA: (ctx) => {
-				phaseObj = ctx.add(fakeObj(), { id: "shared-id" });
+				phaseObj = ctx.track(fakeObj(), { id: "shared-id" });
 			},
 		});
 		const screen = createScreen(spec);
@@ -145,14 +145,14 @@ describe("createScreen", () => {
 	});
 
 	// -----------------------------------------------------------------------
-	// ctx.add() with arrays
+	// ctx.track() with arrays
 	// -----------------------------------------------------------------------
 
-	it("ctx.add() accepts an array and tracks all elements", async () => {
+	it("ctx.track() accepts an array and tracks all elements", async () => {
 		const objs = [fakeObj(), fakeObj(), fakeObj()];
 		const { spec } = makeSpec({
 			phaseA: (ctx) => {
-				ctx.add(objs);
+				ctx.track(objs);
 			},
 		});
 		const screen = createScreen(spec);
@@ -164,11 +164,11 @@ describe("createScreen", () => {
 		objs.forEach((o) => expect(o.destroy).toHaveBeenCalledTimes(1));
 	});
 
-	it("ctx.add() with idPrefix assigns predictable IDs", async () => {
+	it("ctx.track() with idPrefix assigns predictable IDs", async () => {
 		const objs = [fakeObj(), fakeObj()];
 		const { spec } = makeSpec({
 			onCreate: (ctx) => {
-				ctx.add(objs, { idPrefix: "dot-" });
+				ctx.track(objs, { idPrefix: "dot-" });
 			},
 		});
 		const screen = createScreen(spec);
@@ -187,7 +187,7 @@ describe("createScreen", () => {
 		const { spec } = makeSpec({
 			phaseA: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
 				callCount++;
-				ctx.add(fakeObj(), { id: `refresh-obj-${callCount}` });
+				ctx.track(fakeObj(), { id: `refresh-obj-${callCount}` });
 			}),
 		});
 		const screen = createScreen(spec);
@@ -214,7 +214,7 @@ describe("createScreen", () => {
 				listeners: [],
 			})),
 			create: jest.fn(async (ctx: ScreenCtx<never>) => {
-				ctx.add(fakeObj(), { id: "only" });
+				ctx.track(fakeObj(), { id: "only" });
 			}),
 		};
 		const screen = createScreen(spec);

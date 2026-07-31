@@ -84,11 +84,11 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 1. **Three-tier Event System** — Events are categorized by lifespan and scope:
 
-   | Tier | File | Wired when | Payload rule | Example |
-   |---|---|---|---|---|
-   | **Screen-scoped** | Each screen module (e.g. `TitleScreen` exports `events`) | Per `init()` | May carry Phaser refs | `newGameButtonClicked`, `crystalChanged` |
-   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent` | Per battleground entry (create/destroy) | Plain data only | `phaseFinished`, `combatPlaybackFinished` |
-   | **Global game events** | `phaser/src/Events.ts` — `GameEvent` | Once at boot (never torn down) | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
+   | Tier                          | File                                                     | Wired when                              | Payload rule                              | Example                                     |
+   |-------------------------------|----------------------------------------------------------|-----------------------------------------|-------------------------------------------|---------------------------------------------|
+   | **Screen-scoped**             | Each screen module (e.g. `TitleScreen` exports `events`) | Per `init()`                            | May carry Phaser refs                     | `newGameButtonClicked`, `crystalChanged`    |
+   | **Screen-lifecycle-crossing** | `phaser/src/Events.ts` — `BattlegroundEvent`             | Per battleground entry (create/destroy) | Plain data only                           | `phaseFinished`, `combatPlaybackFinished`   |
+   | **Global game events**        | `phaser/src/Events.ts` — `GameEvent`                     | Once at boot (never torn down)          | **Plain data only — no Phaser refs ever** | `screenShown`, `screenHidden`, `runStarted` |
 
    - Screen-scoped events: created in `init()`, wrapped by `createScreen()` (via the `screenModule()` helper) for idempotent init + automatic cleanup.
    - `BattlegroundEvent`: wired per screen entry in `BattlegroundScreen.create()`, disposed in `BattlegroundScreen.destroy()`. Carries domain data only.
@@ -97,7 +97,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 2. **Screen lifecycle** — Every screen is a plain module exporting `{ name, init?, create, destroy? }` matching the `ScreenModule` type in `Client.ts`. Navigation is centralized via `switchScreen()` in `Client.ts`:
    - `screenHidden` (GameEvent) → `destroy()` → input disable → fadeOut → `children.removeAll(true)` → `tweens.killAll()` → `time.removeAllEvents()` → cursor reset → `init()` → `create()` → `activeScreen = screen` → `screenShown` (GameEvent) → input enable → fadeIn.
    - All calls are **serialised** by a promise-chain mutex (added 2026-07-28). If multiple navigation events queue while one is in flight, only the latest target runs. Coalesces redundant requests.
-   - **New screens should use `createScreen()`** from `phaser/src/Screens/screenTracking.ts` (added 2026-07-29): the spec's `events()` factory replaces manual event wiring, `ctx.add(obj, { id })` auto-tracks destroyables in a persistent layer or phase scope (also accepts arrays via `ctx.add(objs)` with optional `idPrefix`), `phases` declare mutually exclusive sub-states whose tracked elements are auto-destroyed on transition — or omit `phases` entirely for single-view screens. `ctx.refresh()` destroys and re-runs the current phase handler (useful for locale changes). `ctx.findById` / `findTrackedById` recover elements by ID. The `screenModule()` helper reduces per-screen export boilerplate to a single destructure line. Components with infinite tweens must self-clean via `Phaser.GameObjects.Events.DESTROY`.
+   - **New screens should use `createScreen()`** from `phaser/src/Screens/screenTracking.ts` (added 2026-07-29): the spec's `events()` factory replaces manual event wiring, `ctx.track(obj, { id })` auto-tracks destroyables in a persistent layer or phase scope (also accepts arrays via `ctx.track(objs)` with optional `idPrefix`), `phases` declare mutually exclusive sub-states whose tracked elements are auto-destroyed on transition — or omit `phases` entirely for single-view screens. `ctx.refresh()` destroys and re-runs the current phase handler (useful for locale changes). `ctx.findById` / `findTrackedById` recover elements by ID. The `screenModule()` helper reduces per-screen export boilerplate to a single destructure line. Components with infinite tweens must self-clean via `Phaser.GameObjects.Events.DESTROY`.
 
 3. **Navigation mutex** — `Client.ts` uses a promise-chain pattern (`navChain`, `pendingNavTarget`):
    - `switchScreen(A); switchScreen(B); switchScreen(C)` → A runs, B is skipped (coalesced), C runs.

@@ -6,11 +6,10 @@ import * as StatsPanel from "../../../Screens/Title/Components/StatsPanel";
 import * as TitleScreen from "../TitleScreen";
 import { env } from "@Env";
 import { NavigationEvent } from "../../../Events";
-import { ScreenCtx } from "../../screenTracking";
 
 const BUTTON_Y = 700;
 
-export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
+export function create(ctx: TitleScreen.Context) {
 	const title = i18n.t("title.options");
 	const button = UIButton.create({
 		text: title,
@@ -33,7 +32,7 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleS
  * tracked by the phase tracker and destroyed automatically on the next
  * transition.
  */
-export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
+export function createSubmenu(ctx: TitleScreen.Context) {
 	const baseY = 500;
 	const spacing = 100;
 
@@ -46,17 +45,13 @@ export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen
 	const statsBtn = UIButton.create({
 		text: i18n.t("title.stats"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: () => {
-			StatsPanel.openStats();
-		},
+		callback: StatsPanel.openStats
 	});
 
 	const creditsBtn = UIButton.create({
 		text: i18n.t("title.credits"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 2],
-		callback: () => {
-			CreditsPanel.create();
-		},
+		callback: CreditsPanel.create
 	});
 
 	const backBtn = UIButton.create({
@@ -73,7 +68,6 @@ export function createSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen
 		creditsBtn.container,
 		backBtn.container,
 	]);
-	ctx.add(submenu, { id: TitleScreen.TITLE_IDS.optionsSubmenu });
+	ctx.track(submenu, { id: TitleScreen.TITLE_IDS.optionsSubmenu });
 
-	env.scene.children.bringToTop(submenu);
 }

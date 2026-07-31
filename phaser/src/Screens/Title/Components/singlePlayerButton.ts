@@ -5,11 +5,10 @@ import * as collectionButton from "../../../Screens/Title/Components/collectionB
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";
 import { env } from "@Env";
-import { ScreenCtx } from "../../screenTracking";
 
 const BUTTON_Y = 500;
 
-export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
+export function create(ctx: TitleScreen.Context) {
 	const title = i18n.t("title.singlePlayer");
 	const description = i18n.t("title.tooltip.singlePlayer");
 
@@ -36,11 +35,10 @@ export function create(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleS
  * emitting: the emitted event triggers navigation, which destroys the whole
  * screen anyway (destroy() runs before the fade-out starts).
  */
-export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase, TitleScreen.TitleScreenEvents>) {
+export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
 	const baseY = 500;
 	const spacing = 100;
 	const hasSavedRun = getSinglePlayerData.getSinglePlayerData() != null;
-
 
 	const resumeBtn = UIButton.create({
 		text: i18n.t("title.resume"),
@@ -80,7 +78,7 @@ export function createSinglePlayerSubmenu(ctx: ScreenCtx<TitleScreen.TitlePhase,
 		collectionBtn.container,
 		backBtn.container,
 	]);
-	ctx.add(submenu, { id: TitleScreen.TITLE_IDS.submenu });
+	ctx.track(submenu, { id: TitleScreen.TITLE_IDS.submenu });
 
 	env.scene.children.bringToTop(submenu);
 }

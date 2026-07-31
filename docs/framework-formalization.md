@@ -21,24 +21,24 @@ the building blocks a formal framework would codify.
 
 ### Primitives (pure, in `core/`)
 
-| Primitive | File | Description |
-|---|---|---|
-| `Event<T>` | `core/src/Event.ts` | Typed, self-contained pub/sub. `listen(…) → disposer`, `emit(payload)`, `clear()`. No EventEmitter, no string keys. |
-| `Option<T>` | `core/src/Functional.ts` | No-null return types for pure functions. |
-| `Result<T, E>` | `core/src/Functional.ts` | No-throw error handling for pure functions. |
+| Primitive      | File                     | Description                                                                                                         |
+|----------------|--------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `Event<T>`     | `core/src/Event.ts`      | Typed, self-contained pub/sub. `listen(…) → disposer`, `emit(payload)`, `clear()`. No EventEmitter, no string keys. |
+| `Option<T>`    | `core/src/Functional.ts` | No-null return types for pure functions.                                                                            |
+| `Result<T, E>` | `core/src/Functional.ts` | No-throw error handling for pure functions.                                                                         |
 
 ### Client runtime (`phaser/src/`)
 
-| Concept | File(s) | Description |
-|---|---|---|
-| `Env` singleton | `phaser/src/Env.ts` | Application shell wrapping Phaser: `scene`, `state`, `dispatch`, `time`, `audio`, `fadeOut`/`fadeIn`, Phaser helpers. Imported as `env` — never null. |
-| Global events | `phaser/src/Events.ts` | `NavigationEvent` (toTitle, toBattleground, toCrystals, toOptions), `BattlegroundEvent` (phase lifecycle, HUD deltas), and `GameEvent` (screen lifecycle, run lifecycle, domain events). Cross-cutting only. |
-| `createScreen()` | `phaser/src/Screens/screenTracking.ts` | Screen factory: auto event lifecycle, `ctx.add(obj, { id })` / `ctx.add(objs, { idPrefix })` tracking of destroyables (Phaser objects + wrappers like BackgroundOverlay), persistent layer + mutually exclusive phases with auto-disposal (optional — omit for single-view screens), `ctx.refresh()` to re-run the current phase, `ctx.findById` / `findTrackedById` ID recovery. `screenModule()` helper reduces per-screen export boilerplate to one line. Used by all three non-battleground screens. |
-| `createScreenLifecycle()` | *(removed)* | **Deleted** (2026-07-30, Cline). All screens migrated to `createScreen()`; `screenLifecycle.ts` removed. |
-| Screen lifecycle | All `Screens/*` | `name`, `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create. |
-| Screen-local events | Per-screen modules | Each screen defines its own typed events (e.g. `CrystalSelectionEvents`, `OptionsScreenEvents`) scoped to that screen. |
-| `switchScreen()` + nav mutex | `Client.ts` | Centralized navigation: emits `screenHidden` → `destroy()` → input disable → fade → scene clear → `init()` → `create()` → `activeScreen = screen` → `screenShown` → fade in. Serialised by a promise‑chain mutex that coalesces redundant requests. |
-| Phase handlers | `Battleground/Phases/` | Each phase exports a `PhaseHandler` with `start() → TeardownFn`. BattlegroundScreen guarantees teardown on every transition and on screen destroy. |
+| Concept                      | File(s)                                | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+|------------------------------|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `Env` singleton              | `phaser/src/Env.ts`                    | Application shell wrapping Phaser: `scene`, `state`, `dispatch`, `time`, `audio`, `fadeOut`/`fadeIn`, Phaser helpers. Imported as `env` — never null.                                                                                                                                                                                                                                                                                                                                                        |
+| Global events                | `phaser/src/Events.ts`                 | `NavigationEvent` (toTitle, toBattleground, toCrystals, toOptions), `BattlegroundEvent` (phase lifecycle, HUD deltas), and `GameEvent` (screen lifecycle, run lifecycle, domain events). Cross-cutting only.                                                                                                                                                                                                                                                                                                 |
+| `createScreen()`             | `phaser/src/Screens/screenTracking.ts` | Screen factory: auto event lifecycle, `ctx.track(obj, { id })` / `ctx.track(objs, { idPrefix })` tracking of destroyables (Phaser objects + wrappers like BackgroundOverlay), persistent layer + mutually exclusive phases with auto-disposal (optional — omit for single-view screens), `ctx.refresh()` to re-run the current phase, `ctx.findById` / `findTrackedById` ID recovery. `screenModule()` helper reduces per-screen export boilerplate to one line. Used by all three non-battleground screens. |
+| `createScreenLifecycle()`    | *(removed)*                            | **Deleted** (2026-07-30, Cline). All screens migrated to `createScreen()`; `screenLifecycle.ts` removed.                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Screen lifecycle             | All `Screens/*`                        | `name`, `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create.                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Screen-local events          | Per-screen modules                     | Each screen defines its own typed events (e.g. `CrystalSelectionEvents`, `OptionsScreenEvents`) scoped to that screen.                                                                                                                                                                                                                                                                                                                                                                                       |
+| `switchScreen()` + nav mutex | `Client.ts`                            | Centralized navigation: emits `screenHidden` → `destroy()` → input disable → fade → scene clear → `init()` → `create()` → `activeScreen = screen` → `screenShown` → fade in. Serialised by a promise‑chain mutex that coalesces redundant requests.                                                                                                                                                                                                                                                          |
+| Phase handlers               | `Battleground/Phases/`                 | Each phase exports a `PhaseHandler` with `start() → TeardownFn`. BattlegroundScreen guarantees teardown on every transition and on screen destroy.                                                                                                                                                                                                                                                                                                                                                           |
 
 ### Three-layer model
 
@@ -97,7 +97,7 @@ export const { init, create, destroy } = createScreen<MyEvents>("title", (ctx) =
 
   // ── Return the render function ──
   return (renderCtx) => {
-    const titleText = renderCtx.add.text(0, 0, "Hello");      // auto-tracked Phaser object
+    const titleText = renderCtx.track.text(0, 0, "Hello");      // auto-tracked Phaser object
 
     const btn = renderCtx.createButton({                       // auto-tracked via ctx helpers
       text: "Click me",
@@ -114,13 +114,13 @@ export const { init, create, destroy } = createScreen<MyEvents>("title", (ctx) =
 
 **What the factory manages:**
 
-| Resource | Declared via | Disposed by |
-|---|---|---|
-| Typed-event listeners | `ctx.on(event, handler)` | `disposer()` on each listener |
-| `scene.events.on("update")` | `ctx.onUpdate(handler)` | `scene.events.off("update", handler)` |
-| Phaser game objects | `renderCtx.add.text(…)`, `add.container(…)`, etc. | `gameObject.destroy(true)` |
-| DOM elements | `renderCtx.addDom(node)` | `document.body.removeChild(node)` |
-| Custom teardown | `renderCtx.onDispose(fn)` | runs `fn()` |
+| Resource                    | Declared via                                      | Disposed by                           |
+|-----------------------------|---------------------------------------------------|---------------------------------------|
+| Typed-event listeners       | `ctx.on(event, handler)`                          | `disposer()` on each listener         |
+| `scene.events.on("update")` | `ctx.onUpdate(handler)`                           | `scene.events.off("update", handler)` |
+| Phaser game objects         | `renderCtx.add.text(…)`, `add.container(…)`, etc. | `gameObject.destroy(true)`            |
+| DOM elements                | `renderCtx.addDom(node)`                          | `document.body.removeChild(node)`     |
+| Custom teardown             | `renderCtx.onDispose(fn)`                         | runs `fn()`                           |
 
 **On navigation (`ScreenManager.go()`):**
 
@@ -244,11 +244,11 @@ This is the highest‑value extraction: a factory that eliminates manual cleanup
       `phaser/src/Screens/screenTracking.ts`. Spec: `{ name, events(), create(ctx),
       phases? }`. The returned object satisfies the `ScreenModule` shape used by
       `Client.ts` and additionally exposes `go(phase)` / `currentPhase()`.
-- [x] Build resource‑tracking primitives: PhaseTracker, `ctx.add(obj)`, ID registry,
+- [x] Build resource‑tracking primitives: PhaseTracker, `ctx.track(obj)`, ID registry,
       `ctx.onDestroy` disposer stack.
       → **Done** (2026-07-29, Cline).
 - [x] `ctx.add()` overloads — accepts single objects or arrays with `idPrefix` for
-      predicted IDs. Replaces `forEach(el => ctx.add(el))` boilerplate.
+      predicted IDs. Replaces `forEach(el => ctx.track(el))` boilerplate.
       → **Done** (2026-07-30, Cline). 6 `forEach` patterns eliminated across 3 screens.
 - [x] Optional `phases` — single-view screens (e.g. CrystalSelection) can omit
       `phases` entirely instead of defining a dummy `"main"` type + no-op handler.

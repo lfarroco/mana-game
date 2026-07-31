@@ -5,8 +5,7 @@
 //
 // A screen built with createScreen() gets:
 //   - idempotent init() + automatic cleanup in destroy()
-//     (replaces createScreenLifecycle)
-//   - automatic Phaser object tracking via ctx.add(obj, { id })
+//   - automatic Phaser object tracking via ctx.track(obj, { id })
 //     accepts single objects or arrays via overloads
 //   - a persistent layer (spec.create) whose elements survive phase switches
 //   - mutually exclusive phases (spec.phases) — or omit for single-view screens
@@ -41,10 +40,10 @@ type PhaseMap<TPhase extends string, E extends EventRecord = EventRecord> = Reco
 >;
 
 /** Options for single-object add(). */
-type SingleAddOpts = { id?: string };
+type SingleTrackOpts = { id?: string };
 
 /** Options for array add().  idPrefix produces keys like "prefix-0", "prefix-1", ... */
-type ArrayAddOpts = { idPrefix?: string };
+type ArrayTrackOpts = { idPrefix?: string };
 
 /** Context handed to a screen's `create` and phase handlers. */
 export interface ScreenCtx<TPhase extends string = string, E extends EventRecord = EventRecord> {
@@ -52,15 +51,16 @@ export interface ScreenCtx<TPhase extends string = string, E extends EventRecord
 	 * Track a single destroyable object.  Objects added in the persistent
 	 * `create` layer survive phase transitions; objects added inside a phase
 	 * handler are destroyed automatically when the next phase starts.
+	 * Previously called "add"
 	 */
-	add<T extends Destroyable>(obj: T, opts?: SingleAddOpts): T;
+	track<T extends Destroyable>(obj: T, opts?: SingleTrackOpts): T;
 
 	/**
 	 * Track an array of destroyable objects.  Each element is registered
 	 * individually.  Use `idPrefix` to give them predictable IDs for
 	 * findById() lookup; otherwise auto-generated IDs are used.
 	 */
-	add<T extends Destroyable>(objs: T[], opts?: ArrayAddOpts): T[];
+	track<T extends Destroyable>(objs: T[], opts?: ArrayTrackOpts): T[];
 
 	/** Recover a tracked element by ID (persistent layer first, then current phase). */
 	findById: <T extends Destroyable>(id: string) => T | undefined;
@@ -135,17 +135,17 @@ class PhaseTracker<TPhase extends string> {
 	}
 
 	/** Track a single object or an array of objects in the current scope. */
-	add(obj: Destroyable | Destroyable[], opts?: SingleAddOpts | ArrayAddOpts): void {
+	track(obj: Destroyable | Destroyable[], opts?: SingleTrackOpts | ArrayTrackOpts): void {
 		const target = this.mode === "phase" ? this.phaseObjects : this.persistent;
 
 		if (Array.isArray(obj)) {
-			const prefix = (opts as ArrayAddOpts)?.idPrefix ?? `__tracked_${this.counter}_`;
+			const prefix = (opts as ArrayTrackOpts)?.idPrefix ?? `__tracked_${this.counter}_`;
 			obj.forEach((item, i) => {
 				target.set(`${prefix}${i}`, item);
 			});
 			this.counter += obj.length;
 		} else {
-			const key = (opts as SingleAddOpts)?.id ?? `__tracked_${++this.counter}`;
+			const key = (opts as SingleTrackOpts)?.id ?? `__tracked_${++this.counter}`;
 			target.set(key, obj);
 		}
 	}
@@ -247,10 +247,10 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 	};
 
 	const ctx: ScreenCtx<TPhase, E> = {
-		add: ((obj: Destroyable | Destroyable[], opts?: SingleAddOpts | ArrayAddOpts) => {
-			tracker?.add(obj, opts);
+		track: ((obj: Destroyable | Destroyable[], opts?: SingleTrackOpts | ArrayTrackOpts) => {
+			tracker?.track(obj, opts);
 			return obj;
-		}) as ScreenCtx<TPhase, E>["add"],
+		}) as ScreenCtx<TPhase, E>["track"],
 		findById: (id) => tracker?.findById(id),
 		go,
 		refresh,

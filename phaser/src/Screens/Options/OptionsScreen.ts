@@ -95,25 +95,25 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 
 	create: async (ctx) => {
 		new CloudsBackground.CloudsBackground({ preset: "aurora" });
-		ctx.add(optionsLabel.create(), { id: OPTIONS_IDS.titleLabel });
+		ctx.track(optionsLabel.create(), { id: OPTIONS_IDS.titleLabel });
 		tabButtons.create(ctx);
-		ctx.add(backButton.create(ctx), { id: OPTIONS_IDS.backButton });
+		ctx.track(backButton.create(ctx), { id: OPTIONS_IDS.backButton });
 		await ctx.go("audio");
 	},
 
 	phases: {
 		audio: (ctx) => {
-			ctx.add(audioTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
+			ctx.track(audioTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
 			tabButtons.setActiveTab("audio");
 		},
 
 		graphics: (ctx) => {
-			ctx.add(graphicsTab(LAYOUT.OPTIONS_START_Y));
+			ctx.track(graphicsTab(LAYOUT.OPTIONS_START_Y));
 			tabButtons.setActiveTab("graphics");
 		},
 
 		game: (ctx) => {
-			ctx.add(gameTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
+			ctx.track(gameTab(LAYOUT.OPTIONS_START_Y, LAYOUT.OPTIONS_LINE_HEIGHT));
 			tabButtons.setActiveTab("game");
 		},
 	},
