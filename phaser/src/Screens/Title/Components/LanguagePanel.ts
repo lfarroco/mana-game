@@ -24,7 +24,7 @@ export function create(ctx: TitleScreen.Context) {
 		interactive: true,
 	});
 	overlay.show();
-	ctx.track(overlay, { id: TitleScreen.TITLE_IDS.languageOverlay });
+	ctx.track(overlay);
 
 	const panel = Panel.createPanel([constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y], {
 		width: panelWidth,
@@ -62,7 +62,7 @@ export function create(ctx: TitleScreen.Context) {
 		...langButtons.map((b) => b.container),
 		closeButton.container,
 	]);
-	ctx.track(container, { id: TitleScreen.TITLE_IDS.languagePanel });
+	ctx.track(container);
 
 	env.scene.children.bringToTop(container);
 

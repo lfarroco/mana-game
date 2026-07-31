@@ -11,7 +11,7 @@ import { ScreenCtx } from "../../screenTracking";
 // Client.ts's scene cleanup on navigation).
 // ---------------------------------------------------------------------------
 
-let buttonIndex: Record<string, UIButton.Button> = {};
+const buttonIndex: Record<string, UIButton.Button> = {};
 
 const SELECTED_TAB_COLOR = "#FFD700";
 const SELECTED_TAB_STROKE_WIDTH = 4;
@@ -55,7 +55,7 @@ export function create(ctx: ScreenCtx<OptionsScreen.OptionsPhase>) {
 	const tabContainer = env.container(
 		Object.values(buttonIndex).map((b) => b.container),
 	);
-	ctx.track(tabContainer, { id: OptionsScreen.OPTIONS_IDS.tabButtons });
+	ctx.track(tabContainer);
 
 	setActiveTab("audio");
 }

@@ -78,7 +78,7 @@ export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
 		collectionBtn.container,
 		backBtn.container,
 	]);
-	ctx.track(submenu, { id: TitleScreen.TITLE_IDS.submenu });
+	ctx.track(submenu);
 
 	env.scene.children.bringToTop(submenu);
 }

@@ -10,6 +10,10 @@ import { CRYSTAL_IDS, paginationDotId } from "../ids";
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
 
+
+// TODO: recreate the phase, instead of updating elements
+// will allow not relying on element ids
+
 export function updateDisplay(crystals: CardDefinition[], currentIndex: number) {
 	const crystal = crystals[currentIndex];
 

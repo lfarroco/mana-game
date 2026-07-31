@@ -18,17 +18,6 @@ export type TitleScreenEvents = {
 
 export type Context = ScreenCtx<TitlePhase, TitleScreenEvents>
 
-/** Element IDs for tracked objects — usable with ctx.findById / findTrackedById. */
-export const TITLE_IDS = {
-	mainButtons: "title.main-buttons",
-	submenu: "title.submenu",
-	optionsSubmenu: "title.options-submenu",
-	howToPlay: "title.how-to-play",
-	languagePanel: "title.language-panel",
-	languageOverlay: "title.language-overlay",
-} as const;
-
-/** Internal phases.  Shared chrome (howToPlay) lives in the persistent layer. */
 export type TitlePhase = "main" | "submenu" | "options_submenu" | "language";
 
 const screen = createScreen<TitlePhase, TitleScreenEvents>({
@@ -47,9 +36,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 					loadGame();
 					NavigationEvent.toBattleground.emit();
 				}),
-				GameEvent.localeChanged.listen(() => {
-					Components.howToPlay.refresh();
-				}),
+				GameEvent.localeChanged.listen(Components.howToPlay.refresh),
 			],
 		};
 	},
@@ -58,7 +45,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		Components.cloudsBg.create();
 		Components.logo.render();
 		displayVersion(ctx);
-		ctx.track(Components.howToPlay.create(), { id: TITLE_IDS.howToPlay });
+		ctx.track(Components.howToPlay.create());
 		AudioManager.playMusic("music_ageofdisjunction");
 		await ctx.go("main");
 		checkUnlocks();
@@ -66,17 +53,18 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 
 	phases: {
 		main: (ctx) => {
-			const mainButtons = env.container([
-				Components.singlePlayerButton.create(ctx).container,
-				Components.arenaButton.create().container,
-				Components.optionsButton.create(ctx).container,
-				Components.linksButton.create().container,
-				environment.isElectron() ?
-					Components.exitButton.create().container :
-					null,
-				Components.languageButton.create(ctx).container,
-			]);
-			ctx.track(mainButtons, { id: TITLE_IDS.mainButtons });
+			const mainButtons =
+				env.container([
+					Components.singlePlayerButton.create(ctx).container,
+					Components.arenaButton.create().container,
+					Components.optionsButton.create(ctx).container,
+					Components.linksButton.create().container,
+					environment.isElectron() ?
+						Components.exitButton.create().container :
+						null,
+					Components.languageButton.create(ctx).container,
+				]);
+			ctx.track(mainButtons);
 		},
 
 		submenu: (ctx) => {
@@ -93,24 +81,8 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	},
 });
 
-// ---------------------------------------------------------------------------
-// ScreenModule exports — the shape Client.ts expects
-// ---------------------------------------------------------------------------
+export const { init, create, destroy, go, name } = screenModule(screen);
 
-const _screen = screenModule(screen);
-export const { init, create, destroy, go } = _screen;
-export const name = _screen.name;
-
-// Extra screen-specific exports
-export const components = Components;
-
-// ---------------------------------------------------------------------------
-// Internal helpers
-// ---------------------------------------------------------------------------
-
-/*
- * Displays the game version in the top-right corner of the screen
- */
 function displayVersion(ctx: ScreenCtx<TitlePhase>) {
 	const versionText = env.scene.add.text(
 		0, 0,

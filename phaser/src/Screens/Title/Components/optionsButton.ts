@@ -68,6 +68,6 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 		creditsBtn.container,
 		backBtn.container,
 	]);
-	ctx.track(submenu, { id: TitleScreen.TITLE_IDS.optionsSubmenu });
+	ctx.track(submenu);
 
 }

@@ -26,16 +26,6 @@ export type OptionsScreenEvents = {
 export type OptionsPhase = "audio" | "graphics" | "game";
 
 // ---------------------------------------------------------------------------
-// Element IDs for tracked objects — usable with ctx.findById / findTrackedById
-// ---------------------------------------------------------------------------
-
-export const OPTIONS_IDS = {
-	tabButtons: "options.tab-buttons",
-	backButton: "options.back-button",
-	titleLabel: "options.title-label",
-} as const;
-
-// ---------------------------------------------------------------------------
 // Layout constants (pure, framework-agnostic)
 // ---------------------------------------------------------------------------
 
@@ -95,9 +85,9 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 
 	create: async (ctx) => {
 		new CloudsBackground.CloudsBackground({ preset: "aurora" });
-		ctx.track(optionsLabel.create(), { id: OPTIONS_IDS.titleLabel });
+		ctx.track(optionsLabel.create());
 		tabButtons.create(ctx);
-		ctx.track(backButton.create(ctx), { id: OPTIONS_IDS.backButton });
+		ctx.track(backButton.create(ctx))
 		await ctx.go("audio");
 	},
 
