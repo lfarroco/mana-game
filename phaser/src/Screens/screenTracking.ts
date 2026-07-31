@@ -7,8 +7,10 @@
 //   - idempotent init() + automatic cleanup in destroy()
 //   - automatic Phaser object tracking via ctx.track(obj, { id })
 //     accepts single objects or arrays via overloads
-//   - a persistent layer (spec.create) whose elements survive phase switches
-//   - mutually exclusive phases (spec.phases) — or omit for single-view screens
+//   - a persistent layer (spec.create) whose elements survive phase switches;
+//     may return Destroyable(s) to auto-track instead of calling ctx.track()
+//   - mutually exclusive phases (spec.phases) — or omit for single-view screens;
+//     phase handlers may return Destroyable(s) to auto-track them
 //   - ctx.refresh() to re-run the current phase handler (locale changes, etc.)
 //   - screenModule() helper to reduce per-screen export boilerplate
 //   - ID-based element recovery via ctx.findById(id) and the module-level
@@ -79,6 +81,8 @@ export interface ScreenCtx<TPhase extends string = string, E extends EventRecord
 	readonly currentPhase: TPhase | null;
 
 	/** Register a disposer that runs when the screen is destroyed. */
+	// TODO: this might not be necessary anymore, as we just need to return the element
+	// on creation/phase declaration to get it cleaned up
 	onDestroy: (disposer: () => void) => void;
 
 	/** Screen-local events. Re-created per init cycle; access after create(). */
@@ -222,10 +226,13 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 	events: () => { events: E; listeners: (() => void)[] };
 	/**
 	 * Persistent layer — runs once per create(); elements tracked here survive
-	 * phase transitions.  For multi-phase screens, typically ends with
-	 * `await ctx.go("<initial phase>")`.
+	 * phase transitions.  May return Destroyable(s) (or a promise of them) which
+	 * are auto-tracked in the persistent layer, mirroring phase handlers.  For
+	 * multi-phase screens, typically ends with `await ctx.go("<initial phase>")`.
 	 */
-	create: (ctx: ScreenCtx<TPhase, E>) => void | Promise<void>;
+	create: (
+		ctx: ScreenCtx<TPhase, E>,
+	) => void | Destroyable | Destroyable[] | Promise<void | Destroyable | Destroyable[]>;
 	/**
 	 * Phase handlers — elements tracked inside a handler are destroyed on the
 	 * next transition or on ctx.refresh().  Omit for single-view screens.
@@ -239,7 +246,11 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 
 	const phases = spec.phases ?? {} as PhaseMap<TPhase, E>;
 
-	/** Track a single Destroyable or an array of Destroyables returned by a phase handler. */
+	/**
+	 * Auto-track a single Destroyable or an array of Destroyables returned by
+	 * a phase handler or by create().  Elements are wrapped in a TrackedGroup
+	 * so one map entry cleans up the whole set.
+	 */
 	function trackReturned(result: Destroyable | Destroyable[]): void {
 		const elements = Array.isArray(result) ? result : [result];
 		const group = new TrackedGroup();
@@ -325,7 +336,10 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 
 		create: async () => {
 			result.init();
-			await spec.create(ctx);
+			const returned = await spec.create(ctx);
+			if (returned) {
+				trackReturned(returned);
+			}
 		},
 
 		destroy: () => {

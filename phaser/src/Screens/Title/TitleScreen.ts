@@ -53,11 +53,14 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	create: async (ctx) => {
 		Components.cloudsBg.create();
 		Components.logo.render();
-		displayVersion(ctx);
-		ctx.track(Components.howToPlay.create());
 		AudioManager.playMusic("music_ageofdisjunction");
+		const versionText = displayVersion();
+		const howToPlay = Components.howToPlay.create();
+
+		// TODO: have event "onCreate" for screens, and fire those 
 		await ctx.go("main");
 		checkUnlocks();
+		return [versionText, howToPlay];
 	},
 
 	phases: {
@@ -86,15 +89,14 @@ function mainPhase(ctx: Context) {
 
 export const { init, create, destroy, go, name } = screenModule(screen);
 
-function displayVersion(ctx: ScreenCtx<TitlePhase>) {
-	const versionText = env.scene.add.text(
+function displayVersion(): Phaser.GameObjects.Text {
+	return env.scene.add.text(
 		0, 0,
 		`v${pkg.version}`,
-		{ fontSize: "16px", color: "white", });
-	versionText.setPosition(constants.SCREEN_WIDTH - 30, 10);
-	versionText.setAlpha(0.5);
-	versionText.setOrigin(1, 0);
-	ctx.track(versionText);
+		{ fontSize: "16px", color: "white", })
+		.setPosition(constants.SCREEN_WIDTH - 30, 10)
+		.setAlpha(0.5)
+		.setOrigin(1, 0);
 }
 
 async function checkUnlocks() {

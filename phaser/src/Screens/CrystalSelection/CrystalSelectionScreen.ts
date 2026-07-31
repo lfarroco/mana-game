@@ -14,20 +14,11 @@ import { NavigationEvent } from "../../Events";
 import { createScreen, screenModule } from "../screenTracking";
 import { CRYSTAL_IDS } from "./ids";
 
-// ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
-
 export type CrystalSelectionEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
 	backClicked: ReturnType<typeof createEvent<void>>;
 	crystalChanged: ReturnType<typeof createEvent<{ index: number }>>;
 };
-
-// ---------------------------------------------------------------------------
-// Selection state — data only, no Phaser refs.
-// Populated in create(), read by navigation buttons and effects.
-// ---------------------------------------------------------------------------
 
 let crystals: CardDefinition[] = [];
 let currentIndex = 0;
@@ -35,10 +26,6 @@ let currentIndex = 0;
 export function getSelection() {
 	return { crystals, currentIndex };
 }
-
-// ---------------------------------------------------------------------------
-// Screen factory — single-view, no phases needed
-// ---------------------------------------------------------------------------
 
 const screen = createScreen<never, CrystalSelectionEvents>({
 	name: "crystal_selection",
@@ -80,23 +67,22 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		// Title
 		ctx.track(title.create(), { id: CRYSTAL_IDS.title });
 
-		// Pagination dots
+		// Pagination dots — tracked by ID so updateDisplay() can refresh them
 		ctx.track(paginationDots.create(crystals.length), { idPrefix: "crystal.pagination-dot-" });
 
-		// Navigation buttons (prev / next)
-		ctx.track(navigationButtons.create(ctx));
-
-		// Action buttons (play / back)
-		ctx.track(actionButtons.create(ctx));
-
-		// Seed input (DOM keyboard + text field)
+		// Seed input (DOM keyboard + text field) — tracks its own elements
 		seedInput.create(ctx);
 
-		// Keyboard uses DOM — clean up on screen destroy
-		ctx.onDestroy(() => keyboard.destroy());
 
-		// Initial display update
+		const elements = [
+			keyboard,
+			...navigationButtons.create(ctx),
+			...actionButtons.create(ctx),
+		];
+
 		Effects.updateDisplay(crystals, currentIndex);
+
+		return elements;
 	},
 });
 

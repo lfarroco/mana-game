@@ -9,25 +9,13 @@ import { createEvent } from "@game/Models";
 import { NavigationEvent } from "../../Events";
 import { createScreen, screenModule } from "../screenTracking";
 
-// ---------------------------------------------------------------------------
-// Events
-// ---------------------------------------------------------------------------
 
 export type OptionsScreenEvents = {
 	backToTitle: ReturnType<typeof createEvent<void>>;
 };
 
-// ---------------------------------------------------------------------------
-// Phases — each tab is a phase handled by the createScreen() factory.
-// Phase-scoped content is auto-destroyed on tab switch; persistent chrome
-// (title, tab buttons, back button) survives transitions.
-// ---------------------------------------------------------------------------
-
 export type OptionsPhase = "audio" | "graphics" | "game";
 
-// ---------------------------------------------------------------------------
-// Layout constants (pure, framework-agnostic)
-// ---------------------------------------------------------------------------
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -72,23 +60,24 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 	name: "options",
 
 	events: () => {
-		const e: OptionsScreenEvents = {
-			backToTitle: createEvent<void>(),
-		};
+
+		const backToTitle = createEvent<void>();
+
 		return {
-			events: e,
+			events: { backToTitle },
 			listeners: [
-				e.backToTitle.listen(NavigationEvent.toTitle.emit),
+				backToTitle.listen(NavigationEvent.toTitle.emit),
 			],
 		};
 	},
 
 	create: async (ctx) => {
 		new CloudsBackground.CloudsBackground({ preset: "aurora" });
-		ctx.track(optionsLabel.create());
+		const label = optionsLabel.create();
 		tabButtons.create(ctx);
-		ctx.track(backButton.create(ctx))
+		const back = backButton.create(ctx);
 		await ctx.go("audio");
+		return [label, back];
 	},
 
 	phases: {
@@ -108,10 +97,6 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 		},
 	},
 });
-
-// ---------------------------------------------------------------------------
-// ScreenModule exports — the shape Client.ts expects
-// ---------------------------------------------------------------------------
 
 const _oscreen = screenModule(screen);
 export const { init, create, destroy, go } = _oscreen;

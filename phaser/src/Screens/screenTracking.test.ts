@@ -251,6 +251,113 @@ describe("createScreen", () => {
 	});
 
 	// -----------------------------------------------------------------------
+	// create() return values — like phase handlers, create() may return
+	// Destroyable(s) which are auto-tracked in the persistent layer.
+	// -----------------------------------------------------------------------
+
+	it("create() returning a single Destroyable tracks it persistently and destroys on destroy()", async () => {
+		const returned: FakeObj = fakeObj();
+		const spec = {
+			name: "create-return",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn(async (_ctx: ScreenCtx<"a">) => {
+				await new Promise<void>((resolve) => resolve());
+				return returned;
+			}),
+			phases: {
+				a: jest.fn(() => { }),
+			},
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(returned.destroy).not.toHaveBeenCalled();
+
+		// Persistent elements survive phase switches…
+		await screen.go("a");
+		expect(returned.destroy).not.toHaveBeenCalled();
+
+		screen.destroy();
+		expect(returned.destroy).toHaveBeenCalledTimes(1);
+	});
+
+	it("create() returning Destroyable[] tracks all elements and destroys them on destroy()", async () => {
+		const objs = [fakeObj(), fakeObj(), fakeObj()];
+		const spec = {
+			name: "create-return-array",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn((_ctx: ScreenCtx<"a">) => objs),
+			phases: {
+				a: jest.fn(() => { }),
+			},
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		objs.forEach((o) => expect(o.destroy).not.toHaveBeenCalled());
+
+		screen.destroy();
+		objs.forEach((o) => expect(o.destroy).toHaveBeenCalledTimes(1));
+	});
+
+	it("returned and ctx.track() elements from create() are both destroyed on destroy()", async () => {
+		const returned: FakeObj = fakeObj();
+		const tracked: FakeObj = fakeObj();
+		const spec = {
+			name: "create-mixed",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn((ctx: ScreenCtx<"a">) => {
+				ctx.track(tracked, { id: "tracked" });
+				return returned;
+			}),
+			phases: {
+				a: jest.fn(() => { }),
+			},
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(returned.destroy).not.toHaveBeenCalled();
+		expect(tracked.destroy).not.toHaveBeenCalled();
+
+		screen.destroy();
+		expect(returned.destroy).toHaveBeenCalledTimes(1);
+		expect(tracked.destroy).toHaveBeenCalledTimes(1);
+	});
+
+	it("create() returning elements still resolves its initial phase", async () => {
+		const spec = {
+			name: "create-return-with-phase",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn(async (ctx: ScreenCtx<"a" | "b">) => {
+				const result = fakeObj();
+				await ctx.go("a");
+				return result;
+			}),
+			phases: {
+				a: jest.fn(() => { }),
+				b: jest.fn(() => { }),
+			},
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		expect(screen.currentPhase()).toBe("a");
+	});
+
+	// -----------------------------------------------------------------------
 	// ctx.refresh()
 	// -----------------------------------------------------------------------
 
