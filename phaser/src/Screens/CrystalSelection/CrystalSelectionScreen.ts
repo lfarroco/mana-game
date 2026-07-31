@@ -104,8 +104,19 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const { name, events, init, create, destroy } = screenModule(screen, {
-	onDestroy: () => { crystals = []; currentIndex = 0; },
+const _cscreen = screenModule(screen, {
+    onDestroy: () => { crystals = []; currentIndex = 0; },
 });
+export const { init, create, destroy } = _cscreen;
+export const name = _cscreen.name;
+
+// events must remain live (re-created per init cycle via the getter),
+// so export a proxy that delegates every property access to the live events
+export const events: CrystalSelectionEvents = new Proxy({} as CrystalSelectionEvents, {
+    get(_target, prop, receiver) {
+        const e = _cscreen.events;
+        return e ? Reflect.get(e, prop, receiver) : undefined;
+    }
+}) as CrystalSelectionEvents;
 
 

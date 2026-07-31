@@ -123,4 +123,16 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const { name, events, init, create, destroy, go, currentPhase } = screenModule(screen);
+const _oscreen = screenModule(screen);
+export const { init, create, destroy, go } = _oscreen;
+export const name = _oscreen.name;
+export const currentPhase = _oscreen.currentPhase;
+
+// events must remain live (re-created per init cycle via the getter),
+// so export a proxy that delegates every property access to the live events
+export const events: OptionsScreenEvents = new Proxy({} as OptionsScreenEvents, {
+    get(_target, prop, receiver) {
+        const e = _oscreen.events;
+        return e ? Reflect.get(e, prop, receiver) : undefined;
+    }
+}) as OptionsScreenEvents;

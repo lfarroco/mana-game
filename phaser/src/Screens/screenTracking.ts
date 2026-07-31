@@ -263,6 +263,7 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		name: spec.name,
 
 		get events() {
+
 			return eventState?.events as E;
 		},
 
@@ -283,6 +284,7 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		},
 
 		destroy: () => {
+
 			ctxDisposers.forEach((d) => d());
 			ctxDisposers = [];
 			if (eventState) {
@@ -317,17 +319,15 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 	screen: ScreenResult<TPhase, E>,
 	opts?: { onDestroy?: () => void },
 ) {
-	let events: E;
+	const mod = {
+		name: screen.name,
 
-	return {
-		get name() { return screen.name; },
-
-		/** Screen-local events.  Re-bound on every init(); safe to access from components. */
-		get events(): E { return events; },
+		/** Screen-local events. Updated on init(); safe to access from components. */
+		events: undefined as unknown as E,
 
 		init() {
 			screen.init();
-			events = screen.events;
+			mod.events = screen.events;
 		},
 
 		async create() {
@@ -338,12 +338,15 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 		destroy() {
 			screen.destroy();
 			opts?.onDestroy?.();
+			mod.events = undefined as unknown as E;
 		},
 
 		go: screen.go,
 
 		currentPhase: screen.currentPhase,
 	};
+
+	return mod;
 }
 
 export type { EventRecord };

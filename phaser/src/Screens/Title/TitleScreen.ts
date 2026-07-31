@@ -95,7 +95,18 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 // ScreenModule exports — the shape Client.ts expects
 // ---------------------------------------------------------------------------
 
-export const { name, events, init, create, destroy, go } = screenModule(screen);
+const _screen = screenModule(screen);
+export const { init, create, destroy, go } = _screen;
+export const name = _screen.name;
+
+// events must remain live (re-created per init cycle via the getter),
+// so export a proxy that delegates every property access to the live events
+export const events: TitleScreenEvents = new Proxy({} as TitleScreenEvents, {
+    get(_target, prop, receiver) {
+        const e = _screen.events;
+        return e ? Reflect.get(e, prop, receiver) : undefined;
+    }
+}) as TitleScreenEvents;
 
 // Extra screen-specific exports
 export const components = Components;
