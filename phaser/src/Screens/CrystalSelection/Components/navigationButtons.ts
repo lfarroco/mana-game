@@ -3,7 +3,7 @@ import * as Constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as CrystalSelectionScreen from "../CrystalSelectionScreen";
 import * as bg from "./background"
-import { ScreenCtx } from "../../screenTracking";
+import { ScreenCtx } from "@mana/framework";
 
 const NAV_BUTTON_OFFSET_X = 350;
 const NAV_BUTTON_WIDTH = 200;

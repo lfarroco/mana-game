@@ -1,11 +1,13 @@
-import { createScreen, findTrackedById, screenModule, ScreenCtx } from "./screenTracking";
+import { jest } from "@jest/globals";
+
+import { createScreen, findTrackedById, screenModule, ScreenCtx } from "./createScreen";
 
 // ---------------------------------------------------------------------------
-// Fakes — screenTracking has no runtime Phaser imports, so plain objects
-// with a destroy() spy stand in for Phaser game objects.
+// Fakes — createScreen has no runtime engine imports, so plain objects
+// with a destroy() spy stand in for engine game objects.
 // ---------------------------------------------------------------------------
 
-type FakeObj = Phaser.GameObjects.GameObject & { destroy: jest.Mock };
+type FakeObj = { destroy: jest.Mock };
 
 const fakeObj = (): FakeObj =>
 	({ destroy: jest.fn() }) as unknown as FakeObj;

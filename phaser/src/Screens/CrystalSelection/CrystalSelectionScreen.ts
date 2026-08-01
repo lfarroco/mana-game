@@ -11,7 +11,7 @@ import * as seedInput from "./Components/seedInput";
 import * as title from "./Components/title";
 import { CardDefinition, createEvent } from "@game/Models";
 import { getScreenManager } from "../ScreenManager";
-import { createScreen, screenModule } from "../screenTracking";
+import { createScreen, screenModule } from "@mana/framework";
 import { CRYSTAL_IDS } from "./ids";
 
 export type CrystalSelectionEvents = {

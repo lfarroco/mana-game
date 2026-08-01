@@ -3,7 +3,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
-import { ScreenCtx } from "../../screenTracking";
+import { ScreenCtx } from "@mana/framework";
 
 // ---------------------------------------------------------------------------
 // Module-level button registry — populated by create(), read by setActiveTab().

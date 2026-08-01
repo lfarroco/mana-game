@@ -8,7 +8,8 @@ version bumps, screen additions, and engine swaps.
 
 ## Status
 
-**Phase**: Planning / early foundation  
+**Phase**: Complete — Phases A–D done (2026-08-01). `@mana/framework` is the
+canonical way to build screens; Phaser adapters live in `phaser/src/`.  
 **Depends on**: core migration (see `core/README.md` Phase 1–3)  
 **Target**: Post-core-migration, before any new screen type is added  
 
@@ -33,7 +34,7 @@ the building blocks a formal framework would codify.
 |-----------------------------|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `Env` singleton             | `phaser/src/Env.ts`                    | Application shell wrapping Phaser: `scene`, `state`, `dispatch`, `time`, `audio`, `fadeOut`/`fadeIn`, Phaser helpers. Imported as `env` — never null.                                                                                                                                                                                                                                                                                                                                                        |
 | Global events               | `phaser/src/Events.ts`                 | `BattlegroundEvent` (phase lifecycle, HUD deltas) and `GameEvent` (screen lifecycle, run lifecycle, domain events). Cross-cutting only. `NavigationEvent` was **removed** (2026-07-31, Cline) — navigation now goes through the ScreenManager.                                                                                                                                                                                                                                                               |
-| `createScreen()`            | `phaser/src/Screens/screenTracking.ts` | Screen factory: auto event lifecycle, `ctx.track(obj, { id })` / `ctx.track(objs, { idPrefix })` tracking of destroyables (Phaser objects + wrappers like BackgroundOverlay), persistent layer + mutually exclusive phases with auto-disposal (optional — omit for single-view screens), `ctx.refresh()` to re-run the current phase, `ctx.findById` / `findTrackedById` ID recovery. `screenModule()` helper reduces per-screen export boilerplate to one line. Used by all three non-battleground screens. |
+| `createScreen()`            | `framework/src/createScreen.ts` (`@mana/framework`; formerly `phaser/src/Screens/screenTracking.ts`) | Screen factory: auto event lifecycle, `ctx.track(obj, { id })` / `ctx.track(objs, { idPrefix })` tracking of destroyables (Phaser objects + wrappers like BackgroundOverlay), persistent layer + mutually exclusive phases with auto-disposal (optional — omit for single-view screens), `ctx.refresh()` to re-run the current phase, `ctx.findById` / `findTrackedById` ID recovery. `screenModule()` helper reduces per-screen export boilerplate to one line. Used by all screens. |
 | `createScreenLifecycle()`   | *(removed)*                            | **Deleted** (2026-07-30, Cline). All screens migrated to `createScreen()`; `screenLifecycle.ts` removed.                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Screen lifecycle            | All `Screens/*`                        | `name`, `init()` → `create()` → `destroy()`. Idempotent init, re-entrant create.                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Screen-local events         | Per-screen modules                     | Each screen defines its own typed events (e.g. `CrystalSelectionEvents`, `OptionsScreenEvents`) scoped to that screen.                                                                                                                                                                                                                                                                                                                                                                                       |
@@ -245,6 +246,7 @@ This is the highest‑value extraction: a factory that eliminates manual cleanup
       `phaser/src/Screens/screenTracking.ts`. Spec: `{ name, events(), create(ctx),
       phases? }`. The returned object satisfies the `ScreenModule` shape used by
       `Client.ts` and additionally exposes `go(phase)` / `currentPhase()`.
+      (Moved to `@mana/framework` in Phase D, 2026-08-01.)
 - [x] Build resource‑tracking primitives: PhaseTracker, `ctx.track(obj)`, ID registry,
       `ctx.onDestroy` disposer stack.
       → **Done** (2026-07-29, Cline).
@@ -298,12 +300,34 @@ This is the highest‑value extraction: a factory that eliminates manual cleanup
       → **Done** (2026-07-31, Cline): `go("options", { tab: "graphics" })` switches the
       options screen to the requested tab after create; skips if already on that phase.
 
-### Phase D — Framework package
+### Phase D — Framework package (complete)
 
-- [ ] Extract `createScreen`, `ScreenManager`, `Router` into `framework/` package (or `@mana/framework`)
-- [ ] Keep Phaser adapters in `phaser/src/` (the factory's `renderCtx.add.*` helpers are Phaser-specific)
-- [ ] Document as the canonical way to add a screen
-- [ ] Screen generator / template for `npm run new:screen <name>`
+- [x] Extract `createScreen`, `ScreenManager`, `Router` into `framework/` package (or `@mana/framework`)
+      → **Done** (2026-08-01, Cline): `@mana/framework` package at `framework/` —
+      `Screen.ts` (`ScreenModule` contract), `createScreen.ts` (factory +
+      `screenModule()`), `ScreenManager.ts` (engine-agnostic nav core: registry,
+      nav mutex, typed routes, deep-links — engine work injected via
+      `beforeTransition`/`afterTransition` hooks), `Router.ts` (typed `go()` helper),
+      `Event.ts` (re-export of the `@mana/core` event primitive). 28 unit tests,
+      own jest + tsconfig, zero engine imports.
+- [x] Keep Phaser adapters in `phaser/src/`
+      → **Done** (2026-08-01, Cline): `phaser/src/Screens/ScreenManager.ts` is now a
+      thin adapter: it owns the game's `Routes` map and the manager singleton, and
+      delegates to the framework's `createScreenManager()` with hooks carrying the
+      Phaser work (`GameEvent.screenHidden/Shown`, `destroy()`, input disable/enable,
+      `env.fadeOut/fadeIn`, scene `removeAll`/`killAll`/`removeAllEvents`, cursor
+      reset). `screenTracking.ts` was deleted; all screens import `createScreen` /
+      `screenModule` / `ScreenCtx` / `Destroyable` / `findTrackedById` from
+      `@mana/framework` (wired via tsconfig paths, webpack aliases, jest
+      moduleNameMapper). `BattlegroundScreen`'s own `createScreen` migration is
+      in progress (repo owner) — it will keep its handler-based phase
+      orchestration alongside the framework lifecycle.
+- [x] Document as the canonical way to add a screen
+      → **Done** (2026-08-01, Cline): this document + AGENTS.md pattern #2.
+- [x] Screen generator / template for `npm run new:screen <name>`
+      → **Done** (2026-08-01, Cline): `phaser/scripts/new-screen.ts` scaffolds
+      `src/Screens/<Name>/<Name>Screen.ts` from the canonical template and prints
+      the route/registration checklist. Generated output passes typecheck + lint.
 
 ---
 

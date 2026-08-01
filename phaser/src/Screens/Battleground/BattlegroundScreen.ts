@@ -13,6 +13,67 @@ import { BattlegroundEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
+import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
+
+
+export type BGPhase = "combat" | "pre_combat" | "encounter";
+
+type BGEvents = typeof BattlegroundEvent
+
+export type Context = ScreenCtx<BGPhase, BGEvents>
+
+const screen = createScreen<BGPhase, BGEvents>({
+	name: "battleground",
+
+	events: () => {
+
+		return {
+			events: BattlegroundEvent,
+			listeners: [
+				BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
+				BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
+
+				BattlegroundEvent.newRunRequested.listen(() => {
+					env.resetState();
+					void getScreenManager().go("crystals");
+				}),
+
+				BattlegroundEvent.mainMenuRequested.listen(() => {
+					env.resetState();
+					void getScreenManager().go("title");
+				}),
+
+				// --- HUD listeners (wins/lives/round display updates) ---
+				...UI.registerListeners(),
+
+			],
+		};
+	},
+
+	create: async (_ctx) => {
+
+		Components.create();
+		previousSessionHudSnapshot = createSessionHudSnapshot();
+
+		AudioManager.playMusic("music_battlemap_vetruv");
+
+		// TODO: input enable/disable should be managed at the screen level, not
+		// delegated to individual components (Board, Shop, etc.).
+		Board.setIsInputEnabled(true);
+
+	},
+
+	phases: {
+		combat: () => { },
+		pre_combat: () => { },
+		encounter: () => { },
+
+	},
+});
+
+export const { init, create, destroy, go, name } = screenModule(screen);
+
+
 
 // ---------------------------------------------------------------------------
 // Phase lifecycle types
@@ -32,7 +93,7 @@ export type TeardownFn = () => Promise<void>;
  * Phases should create a dedicated Phaser Container for all their UI
  * so disposal is a single `container.destroy(true)` call.
  */
-export type PhaseHandler = {
+export type PhaseHandler_ = {
 	name: Models.PhaseType;
 	start: () => Promise<TeardownFn>;
 };
@@ -46,12 +107,12 @@ export type PhaseHandler = {
  * handler itself checks env.state.session.phase to decide whether to
  * show the skip button.
  */
-const EncounterHandler: PhaseHandler = {
+const EncounterHandler: PhaseHandler_ = {
 	name: "encounter",
 	start: Encounter.startPhase,
 };
 
-const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler>> = {
+const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler_>> = {
 	encounter: EncounterHandler,
 	pre_combat: EncounterHandler,
 	combat: handleCombatPhase.CombatPhase,
@@ -65,7 +126,8 @@ const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler>> = {
 
 let activeTeardown: TeardownFn | null = null;
 
-export const name = "battleground";
+//export const name = "battleground";
+
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -154,6 +216,7 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 	previousSessionHudSnapshot = currentSnapshot;
 }
 
+
 // ---------------------------------------------------------------------------
 // Lifecycle
 // ---------------------------------------------------------------------------
@@ -164,7 +227,7 @@ let disposers: (() => void)[] = [];
  * Render the battleground screen and kick off the phase loop.
  * Wires event listeners on every entry — destroy() disposes them on exit.
  */
-export const create = async () => {
+export const create_ = async () => {
 	// Register battleground event listeners on every entry (destroy() disposes them on exit)
 	disposers = [
 		BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
@@ -202,7 +265,7 @@ export const create = async () => {
  * Tear down all event listeners and clean up state.
  * Called when the battleground screen is destroyed.
  */
-export function destroy(): void {
+export function destroy_(): void {
 	if (activeTeardown) {
 		activeTeardown();
 		activeTeardown = null;
@@ -244,5 +307,3 @@ const handleCurrentPhase = async ({ previousPhase }: {
 }) => {
 	await executePhase(env.state.session.phase, previousPhase);
 };
-
-

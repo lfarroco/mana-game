@@ -1,0 +1,16 @@
+module.exports = {
+	testEnvironment: "node",
+	extensionsToTreatAsEsm: [".ts"],
+	cacheDirectory: "<rootDir>/.cache/jest",
+	transform: {
+		"^.+\\.ts$": ["ts-jest", { useESM: true, diagnostics: false, tsconfig: { isolatedModules: true } }],
+	},
+	moduleFileExtensions: ["ts", "js"],
+	testPathIgnorePatterns: [
+		"/node_modules/",
+	],
+	moduleNameMapper: {
+		"^(\\.{1,2}/.*)\\.js$": "$1",
+		"^@mana/core/(.*)$": "<rootDir>/../core/src/$1",
+	},
+};

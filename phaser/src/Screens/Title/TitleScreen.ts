@@ -10,7 +10,7 @@ import { env } from "@Env";
 import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import { loadGame } from "../../Storage/loadGame";
-import { createScreen, screenModule, ScreenCtx } from "../screenTracking";
+import { createScreen, screenModule, ScreenCtx } from "@mana/framework";
 
 export type TitlePhase = "main" | "singleplayer_submenu" | "options_submenu" | "language";
 

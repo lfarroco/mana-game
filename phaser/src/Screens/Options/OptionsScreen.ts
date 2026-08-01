@@ -7,7 +7,7 @@ import { gameTab } from "@Screens/Options/Components/tabs/game";
 import { graphicsTab } from "@Screens/Options/Components/tabs/graphics";
 import { createEvent } from "@game/Models";
 import { getScreenManager } from "../ScreenManager";
-import { createScreen, screenModule } from "../screenTracking";
+import { createScreen, screenModule } from "@mana/framework";
 
 
 export type OptionsScreenEvents = {

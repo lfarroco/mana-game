@@ -1,7 +1,7 @@
 import * as constants from "@Constants";
 import * as keyboard from "./keyboard";
 import { env } from "@Env";
-import { Destroyable } from "../../screenTracking";
+import { Destroyable } from "@mana/framework";
 import { CRYSTAL_IDS } from "../ids";
 
 /** Minimal context — seedInput only needs track() for object tracking. */

@@ -2,7 +2,7 @@ import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as OptionsScreen from "@Screens/Options/OptionsScreen";
 import * as i18n from "@i18n/i18n";
-import { ScreenCtx } from "../../screenTracking";
+import { ScreenCtx } from "@mana/framework";
 
 /**
  * Create the "Back" button that navigates back to the title screen.

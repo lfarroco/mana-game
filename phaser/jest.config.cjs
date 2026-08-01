@@ -21,6 +21,11 @@ module.exports = {
 	moduleNameMapper: {
 		"^@game/(.*)\\.js$": "<rootDir>/../core/src/$1",
 		"^@game/(.*)$": "<rootDir>/../core/src/$1",
+		"^@mana/framework$": "<rootDir>/../framework/src/index.ts",
+		"^@mana/framework/(.*)\\.js$": "<rootDir>/../framework/src/$1",
+		"^@mana/framework/(.*)$": "<rootDir>/../framework/src/$1",
+		"^@mana/core/(.*)\\.js$": "<rootDir>/../core/src/$1",
+		"^@mana/core/(.*)$": "<rootDir>/../core/src/$1",
 		"^@Models/(.*)\\.js$": "<rootDir>/src/Models/$1",
 		"^@Models/(.*)$": "<rootDir>/src/Models/$1",
 		"^@Screens/(.*)\\.js$": "<rootDir>/src/Screens/$1",

@@ -4,7 +4,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/paginationDots"
 import { CardDefinition } from "@game/Models";
-import { findTrackedById } from "../../screenTracking";
+import { findTrackedById } from "@mana/framework";
 import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;

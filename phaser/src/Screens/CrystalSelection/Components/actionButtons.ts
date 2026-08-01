@@ -1,7 +1,7 @@
 import * as UIButton from "@Components/Button/UIButton";
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
-import { ScreenCtx } from "../../screenTracking";
+import { ScreenCtx } from "@mana/framework";
 import { CrystalSelectionEvents } from "../CrystalSelectionScreen";
 
 const PLAY_BUTTON_Y = 830;

@@ -7,6 +7,8 @@ const sharedResolve = {
 	plugins: [new TsconfigPathsPlugin({ configFile: path.resolve(__dirname, "../tsconfig.json") })],
 	alias: {
 		"@game": path.resolve(__dirname, "../../core/src"),
+		"@mana/core": path.resolve(__dirname, "../../core/src"),
+		"@mana/framework": path.resolve(__dirname, "../../framework/src"),
 		"@Models": path.resolve(__dirname, "../src/Models"),
 		"@Screens": path.resolve(__dirname, "../src/Screens"),
 		"@Systems": path.resolve(__dirname, "../src/Systems"),

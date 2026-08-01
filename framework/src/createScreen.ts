@@ -1,24 +1,24 @@
-// ---------------------------------------------------------------------------
-// screenTracking — resource-tracking primitives and the createScreen()
-// factory.  Phase B of the framework formalization plan
-// (docs/framework-formalization.md).
-//
-// A screen built with createScreen() gets:
-//   - idempotent init() + automatic cleanup in destroy()
-//   - automatic Phaser object tracking via ctx.track(obj, { id })
-//     accepts single objects or arrays via overloads
-//   - a persistent layer (spec.create) whose elements survive phase switches;
-//     may return Destroyable(s) to auto-track instead of calling ctx.track()
-//   - mutually exclusive phases (spec.phases) — or omit for single-view screens;
-//     phase handlers may return Destroyable(s) to auto-track them
-//   - ctx.refresh() to re-run the current phase handler (locale changes, etc.)
-//   - screenModule() helper to reduce per-screen export boilerplate
-//   - ID-based element recovery via ctx.findById(id) and the module-level
-//     findTrackedById(id) for helpers without ctx access
-//
-// This module has no runtime imports (Phaser types only) so it stays
-// unit-testable without the Phaser mock.
-// ---------------------------------------------------------------------------
+/**
+ * createScreen — resource-tracking screen factory.
+ *
+ * A screen built with createScreen() gets:
+ *   - idempotent init() + automatic cleanup in destroy()
+ *   - automatic object tracking via ctx.track(obj, { id })
+ *     accepts single objects or arrays via overloads
+ *   - a persistent layer (spec.create) whose elements survive phase switches;
+ *     may return Destroyable(s) to auto-track instead of calling ctx.track()
+ *   - mutually exclusive phases (spec.phases) — or omit for single-view screens;
+ *     phase handlers may return Destroyable(s) to auto-track them
+ *   - ctx.refresh() to re-run the current phase handler (locale changes, etc.)
+ *   - screenModule() helper to reduce per-screen export boilerplate
+ *   - ID-based element recovery via ctx.findById(id) and the module-level
+ *     findTrackedById(id) for helpers without ctx access
+ *
+ * This module has no runtime imports (types only) so it stays unit-testable
+ * without any engine mock.
+ */
+
+import type { ScreenModule } from "./Screen";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -32,7 +32,7 @@ type EventRecord = Record<string, Clearable>;
  * Minimal shape the tracker needs — anything with a destroy() method.
  * Satisfied by Phaser.GameObjects.GameObject (`destroy(fromScene?)` is
  * assignable to `() => void`) and by plain wrapper objects (e.g.
- * BackgroundOverlay) that manage underlying Phaser resources.
+ * BackgroundOverlay) that manage underlying resources.
  */
 export type Destroyable = { destroy: () => void };
 
@@ -81,15 +81,13 @@ export interface ScreenCtx<TPhase extends string = string, E extends EventRecord
 	readonly currentPhase: TPhase | null;
 
 	/** Register a disposer that runs when the screen is destroyed. */
-	// TODO: this might not be necessary anymore, as we just need to return the element
-	// on creation/phase declaration to get it cleaned up
 	onDestroy: (disposer: () => void) => void;
 
 	/** Screen-local events. Re-created per init cycle; access after create(). */
 	readonly events: E;
 }
 
-/** Object returned by createScreen() — satisfies the ScreenModule shape used by Client.ts. */
+/** Object returned by createScreen() — satisfies the ScreenModule shape used by the ScreenManager. */
 export type ScreenResult<TPhase extends string, E extends EventRecord> = {
 	readonly name: string;
 
@@ -110,7 +108,7 @@ export type ScreenResult<TPhase extends string, E extends EventRecord> = {
 
 // ---------------------------------------------------------------------------
 // Active-tracker registry — only one screen is active at a time (navigation
-// is serialised by the nav mutex in Client.ts), so a single module-level
+// is serialised by the nav mutex in the ScreenManager), so a single module-level
 // reference is enough for helpers that lack ctx access.
 // ---------------------------------------------------------------------------
 
@@ -126,7 +124,7 @@ export function findTrackedById<T extends Destroyable>(
 // ---------------------------------------------------------------------------
 // TrackedGroup — a conceptual container for elements returned by phase
 // handlers.  When the group is destroyed, all its children are destroyed.
-// This avoids coupling to Phaser.GameObjects.Container while still providing
+// This avoids coupling to a specific engine's container while still providing
 // group-cleanup semantics.
 // ---------------------------------------------------------------------------
 
@@ -214,7 +212,6 @@ class PhaseTracker<TPhase extends string> {
 		}
 	}
 }
-
 
 // ---------------------------------------------------------------------------
 // createScreen
@@ -319,7 +316,6 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		name: spec.name,
 
 		get events() {
-
 			return eventState?.events as E;
 		},
 
@@ -343,7 +339,6 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		},
 
 		destroy: () => {
-
 			ctxDisposers.forEach((d) => d());
 			ctxDisposers = [];
 			if (eventState) {
@@ -367,8 +362,8 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 // ---------------------------------------------------------------------------
 
 /**
- * Wraps a ScreenResult in the shape that Client.ts expects as a ScreenModule,
- * plus screen-level go / currentPhase / events.
+ * Wraps a ScreenResult in the shape that the ScreenManager expects as a
+ * ScreenModule, plus screen-level go / currentPhase / events.
  *
  * Usage in a screen module:
  *   export const { name, events, init, create, destroy, go, currentPhase } =
@@ -377,7 +372,16 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 export function screenModule<TPhase extends string, E extends EventRecord>(
 	screen: ScreenResult<TPhase, E>,
 	opts?: { onDestroy?: () => void },
-) {
+): ScreenModule & {
+	/** Always present on the wrapper (ScreenModule marks it optional). */
+	init: () => void;
+	/** Always present on the wrapper. */
+	create: () => Promise<void>;
+	/** Always present on the wrapper (ScreenModule marks it optional). */
+	destroy: () => void;
+	go: (phase: string) => Promise<void>;
+	currentPhase: () => TPhase | null;
+} {
 	const mod = {
 		name: screen.name,
 
@@ -404,4 +408,3 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 }
 
 export type { EventRecord };
-

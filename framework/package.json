@@ -1,0 +1,23 @@
+{
+	"name": "@mana/framework",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Engine-agnostic client framework: screen lifecycle, resource tracking, and typed navigation.",
+	"type": "module",
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/*.ts"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests",
+		"test:watch": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests --watch"
+	},
+	"devDependencies": {
+		"@types/jest": "^30.0.0",
+		"jest": "^29.7.0",
+		"ts-jest": "^29.4.11",
+		"tsx": "^4.23.1",
+		"typescript": "^5.7.0"
+	}
+}
