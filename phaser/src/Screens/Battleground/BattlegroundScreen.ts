@@ -9,7 +9,8 @@ import * as Components from "./Components";
 import * as Phases from "./Phases";
 import { getRemainingLives } from "../../SessionManager";
 import { env } from "@Env";
-import { BattlegroundEvent, NavigationEvent } from "../../Events";
+import { BattlegroundEvent } from "../../Events";
+import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 
@@ -171,12 +172,12 @@ export const create = async () => {
 
 		BattlegroundEvent.newRunRequested.listen(() => {
 			env.resetState();
-			void NavigationEvent.toCrystals.emit();
+			void getScreenManager().go("crystals");
 		}),
 
 		BattlegroundEvent.mainMenuRequested.listen(() => {
 			env.resetState();
-			void NavigationEvent.toTitle.emit();
+			void getScreenManager().go("title");
 		}),
 
 		// --- HUD listeners (wins/lives/round display updates) ---

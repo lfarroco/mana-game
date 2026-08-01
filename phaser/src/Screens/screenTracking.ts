@@ -395,7 +395,7 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 			opts?.onDestroy?.();
 		},
 
-		go: screen.go,
+		go: screen.go as (phase: string) => Promise<void>,
 
 		currentPhase: screen.currentPhase,
 	};

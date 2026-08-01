@@ -10,7 +10,7 @@ import * as actionButtons from "./Components/actionButtons";
 import * as seedInput from "./Components/seedInput";
 import * as title from "./Components/title";
 import { CardDefinition, createEvent } from "@game/Models";
-import { NavigationEvent } from "../../Events";
+import { getScreenManager } from "../ScreenManager";
 import { createScreen, screenModule } from "../screenTracking";
 import { CRYSTAL_IDS } from "./ids";
 
@@ -40,7 +40,9 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 			events: e,
 			listeners: [
 				e.playClicked.listen(Effects.startNewGame),
-				e.backClicked.listen(NavigationEvent.toTitle.emit),
+				e.backClicked.listen(() => {
+					void getScreenManager().go("title");
+				}),
 				e.crystalChanged.listen(({ index }) => {
 					currentIndex = index;
 					Effects.updateDisplay(crystals, currentIndex);

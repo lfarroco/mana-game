@@ -3,32 +3,21 @@
  *
  * Each event is a named export with its own listener set.
  * Import exactly what you need:
- *   import { BattlegroundEvent, NavigationEvent } from "../Events";
+ *   import { BattlegroundEvent, GameEvent } from "../Events";
  *
  * No EventEmitter, no string keys, no shared state between events.
  * Each event is an independent subject.
  *
  * Screen-scoped events should live in their own screen modules.
  * Only cross-cutting concerns (navigation, global state) belong here.
+ *
+ * Navigation is handled by the ScreenManager (see Screens/ScreenManager.ts) —
+ * screens call getScreenManager().go(route) instead of emitting navigation
+ * events.
  */
 
 import * as Models from "@game/Models";
 import { createEvent } from "@game/Models";
-
-// ---------------------------------------------------------------------------
-// Navigation events (cross-screen)
-// ---------------------------------------------------------------------------
-
-export const NavigationEvent = {
-  /** Navigate to the title / main menu screen. */
-  toTitle:        createEvent<void>(),
-  /** Navigate to the battleground screen. */
-  toBattleground: createEvent<void>(),
-  /** Navigate to crystal selection. */
-  toCrystals:     createEvent<void>(),
-  /** Navigate to the options screen. */
-  toOptions:      createEvent<void>(),
-};
 
 // ---------------------------------------------------------------------------
 // Battleground events
@@ -103,19 +92,19 @@ export const BattlegroundEvent = {
 
 export const GameEvent = {
   /** A screen finished its create() + fade-in and is fully visible. */
-  screenShown:  createEvent<{ name: string }>(),
+  screenShown: createEvent<{ name: string }>(),
   /** A screen is about to be destroyed (before destroy() is called). */
   screenHidden: createEvent<{ name: string }>(),
 
   /** A new run was started. */
-  runStarted:   createEvent<void>(),
+  runStarted: createEvent<void>(),
   /** A run ended (victory or game over). */
   runCompleted: createEvent<{ outcome: Models.WaveOutcome }>(),
 
   /** A unit was added to the player's team. */
   unitRecruited: createEvent<{ unitId: string }>(),
   /** A unit was removed from the player's team. */
-  unitRemoved:   createEvent<{ unitId: string }>(),
+  unitRemoved: createEvent<{ unitId: string }>(),
 
   /** Locale changed (language switch).  Payload is the new locale code. */
   localeChanged: createEvent<{ locale: string }>(),

@@ -9,98 +9,14 @@ import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as GameServer from "./GameServer";
-import { createEnv, env } from "@Env";
+import { createEnv } from "@Env";
 import { ClientState } from "@Models/ClientState";
-import { GameEvent, NavigationEvent } from "./Events";
+import { GameEvent } from "./Events";
+import { createScreenManager, setScreenManager } from "./Screens/ScreenManager";
 
-// ---------------------------------------------------------------------------
-// Screen navigation
-// ---------------------------------------------------------------------------
 
-type ScreenModule = {
-    name: string;
-    create: () => void | Promise<void>;
-    destroy?: () => void;
-    init?: () => void;
-};
-
-let activeScreen: ScreenModule | null = null;
 // Hold references to navigation disposers to prevent GC
 const _navDisposers: (() => void)[] = [];
-
-// ---------------------------------------------------------------------------
-// Navigation serialisation — prevents interleaved switchScreen calls from
-// concurrent navigation events (rapid clicks, async emits).  If multiple
-// navigations queue while one is in flight, only the latest target runs.
-// TODO: actually, the inverse is preferrable: ignore the new event.
-// ---------------------------------------------------------------------------
-let navChain: Promise<void> = Promise.resolve();
-let pendingNavTarget: ScreenModule | null = null;
-
-async function doSwitchScreen(screen: ScreenModule): Promise<void> {
-    if (activeScreen) {
-        await GameEvent.screenHidden.emit({ name: activeScreen.name });
-        if (activeScreen.destroy) {
-            activeScreen.destroy();
-        }
-    }
-
-    // Disable scene input to flush any stale interactive-object references from
-    // the InputPlugin (cursors, pointer tracking, registered objects). We re-enable
-    // after the new screen is rendered.
-    env.scene.input.enabled = false;
-
-    await env.fadeOut(300, 0x000000);
-    env.scene.children.removeAll(true);
-    env.scene.tweens.killAll();
-    env.scene.time.removeAllEvents();
-
-    // Reset the default cursor — the howToPlay container on the title screen sets
-    // scene.input.setDefaultCursor("pointer") in its pointerover handler, and if
-    // the container is destroyed before pointerout fires the cursor stays "pointer"
-    // permanently across the whole scene.
-    env.scene.input.setDefaultCursor("default");
-
-    // Re-initialize screen-local events if the module has an init()
-    screen.init?.();
-    await screen.create();
-
-    activeScreen = screen;
-    await GameEvent.screenShown.emit({ name: screen.name });
-
-    await env.fadeIn(300);
-
-    // Re-enable scene input now that the new screen is fully rendered
-    env.scene.input.enabled = true;
-}
-
-async function switchScreen(screen: ScreenModule): Promise<void> {
-    // Already on this screen and no pending navigation — skip immediately.
-    if (screen === activeScreen && pendingNavTarget === null) return;
-
-    // Remember the latest target; earlier queued targets will be skipped.
-    pendingNavTarget = screen;
-
-    // Chain the navigation after any already-in-flight transition.
-    navChain = navChain.then(async () => {
-        const target = pendingNavTarget;
-        // Nothing pending, or we already landed on it — skip.
-        if (!target || target === activeScreen) return;
-        pendingNavTarget = null;
-        await doSwitchScreen(target);
-    });
-
-    await navChain;
-}
-
-function wireNavigation(): (() => void)[] {
-    return [
-        NavigationEvent.toTitle.listen(() => switchScreen(TitleScreen)),
-        NavigationEvent.toBattleground.listen(() => switchScreen(BattlegroundScreen)),
-        NavigationEvent.toCrystals.listen(() => switchScreen(CrystalSelectionScreen)),
-        NavigationEvent.toOptions.listen(() => switchScreen(OptionsScreen)),
-    ];
-}
 
 /**
  * Wire global game-event listeners.  These react to domain events (screen
@@ -275,8 +191,17 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
                 .handleAction(clientState.session.player_id, action),
         );
 
-        // Wire global navigation events
-        _navDisposers.push(...wireNavigation());
+        // TODO: these will always be used alongside each other, so they should be merged
+        // into a single function
+        setScreenManager(createScreenManager({
+            screens: {
+                title: TitleScreen,
+                battleground: BattlegroundScreen,
+                crystals: CrystalSelectionScreen,
+                options: OptionsScreen,
+            },
+        }));
+
         // Wire global game-event reactions (Tooltip, audio, stats, …)
         _navDisposers.push(...wireGameEvents());
 
@@ -287,6 +212,5 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
         // Initialize and render the title screen as the first screen
         TitleScreen.init();
         TitleScreen.create();
-        activeScreen = TitleScreen;
     }
 }

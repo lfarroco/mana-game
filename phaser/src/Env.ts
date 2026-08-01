@@ -88,24 +88,6 @@ const makeAudio = (): Audio => ({
 });
 
 // ---------------------------------------------------------------------------
-// Screen registry
-// ---------------------------------------------------------------------------
-
-export type ScreenRegistry = {
-	navigateToTitle: () => Promise<void>;
-	navigateToBattleground: (state: ClientState) => Promise<void>;
-	navigateToOptions: () => Promise<void>;
-	navigateToCrystalSelection: () => Promise<void>;
-};
-
-const noopScreens: ScreenRegistry = {
-	navigateToTitle: async () => { },
-	navigateToBattleground: async () => { },
-	navigateToOptions: async () => { },
-	navigateToCrystalSelection: async () => { },
-};
-
-// ---------------------------------------------------------------------------
 // Env
 // ---------------------------------------------------------------------------
 
@@ -133,9 +115,6 @@ export type Env = {
 
 	/** Create a typed event channel. */
 	createEventChannel: <T>(event: string) => EventChannel<T>;
-
-	/** Screen transitions. */
-	screens: ScreenRegistry;
 
 	// -----------------------------------------------------------------------
 	// Phaser helpers (composables, not wrappers)
@@ -207,7 +186,6 @@ export const createEnv = (
 	scene: Phaser.Scene,
 	state: ClientState,
 	dispatch: (action: Models.Action) => Promise<Models.ActionResponse>,
-	screenRegistry?: ScreenRegistry,
 ): Env => {
 	const emitter = new EventEmitter();
 	const cell = { current: Object.freeze(state) };
@@ -228,8 +206,6 @@ export const createEnv = (
 		createEventChannel<T>(event: string): EventChannel<T> {
 			return createChannel<T>(emitter, event);
 		},
-
-		screens: screenRegistry ?? noopScreens,
 
 		// Phaser helpers bound to this scene
 		container: (children) => makeContainer(scene, children),

@@ -1,7 +1,7 @@
 import { getSelection } from "../CrystalSelectionScreen";
 import * as GameServer from "../../../GameServer";
 import { env } from "@Env";
-import { NavigationEvent } from "../../../Events";
+import { getScreenManager } from "../../ScreenManager";
 import { LOCAL_PLAYER_ID } from "../../../SessionManager";
 
 export const startNewGame = async () => {
@@ -16,6 +16,6 @@ export const startNewGame = async () => {
 
 	env.patchState({ session });
 
-	await NavigationEvent.toBattleground.emit();
+	await getScreenManager().go("battleground", { crystalId: selectedCrystal.id });
 }
 

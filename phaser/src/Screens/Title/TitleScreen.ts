@@ -7,7 +7,8 @@ import * as LanguagePanel from "./Components/LanguagePanel";
 import pkg from "../../../package.json";
 import { createEvent } from "@game/Models";
 import { env } from "@Env";
-import { GameEvent, NavigationEvent } from "../../Events";
+import { GameEvent } from "../../Events";
+import { getScreenManager } from "../ScreenManager";
 import { loadGame } from "../../Storage/loadGame";
 import { createScreen, screenModule, ScreenCtx } from "../screenTracking";
 
@@ -34,15 +35,15 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 				resumeGameButtonClicked
 			},
 			listeners: [
-				newGameButtonClicked.listen(
-					NavigationEvent.toCrystals.emit
-				),
+				newGameButtonClicked.listen(() => {
+					void getScreenManager().go("crystals");
+				}),
 				resumeGameButtonClicked.listen(
 					loadGame
 				),
-				resumeGameButtonClicked.listen(
-					NavigationEvent.toBattleground.emit
-				),
+				resumeGameButtonClicked.listen(() => {
+					void getScreenManager().go("battleground");
+				}),
 				GameEvent.localeChanged.listen(
 					Components.howToPlay.refresh
 				),

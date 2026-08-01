@@ -4,7 +4,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as CreditsPanel from "@Screens/Title/Components/CreditsPanel";
 import * as StatsPanel from "@Screens/Title/Components/StatsPanel";
 import * as TitleScreen from "../TitleScreen";
-import { NavigationEvent } from "../../../Events";
+import { getScreenManager } from "../../ScreenManager";
 
 const BUTTON_Y = 700;
 
@@ -31,7 +31,9 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 	const settingsBtn = UIButton.create({
 		text: i18n.t("title.settings"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: NavigationEvent.toOptions.emit,
+		callback: () => {
+			void getScreenManager().go("options");
+		},
 	});
 
 	const statsBtn = UIButton.create({
