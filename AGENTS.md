@@ -82,6 +82,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [code-quality-cleanup.md](docs/code-quality-cleanup.md): Verified code-quality findings for `phaser/` and the prioritized cleanup plan (incl. multiplayer-backend reimplementation scope)
 - [core-code-quality.md](docs/core-code-quality.md): Verified code-quality findings for `core/` and the prioritized improvement plan (incl. the confirmed single-player win-recording bug)
 - [framework-formalization.md](docs/framework-formalization.md): Long-term vision for extracting Screen, ScreenManager, createScreen, and Router into a framework package (`@mana/framework`). Phases A–D roadmap. Screen state purity rules.
+- [framework-hardening.md](docs/framework-hardening.md): Verified evaluation findings for `@mana/framework` and the prioritized hardening plan (nav-mutex failure semantics, async teardown support, lifecycle serialization).
+- [battleground-screen-migration.md](docs/battleground-screen-migration.md): Completed plan for migrating BattlegroundScreen to `createScreen()` via the `runPhaseHandler` adapter.
 
 ### Key Architectural Patterns
 
@@ -155,6 +157,12 @@ Game server implementation (phased plan: [docs/game-server.md](docs/game-server.
 - [ ] **Server Phase 4 — durable persistence**: SQLite (`better-sqlite3`) implementations of the repository interfaces; restart-survival test
 
 ### Medium Priority
+
+Framework hardening (verified findings + plan: [docs/framework-hardening.md](docs/framework-hardening.md)):
+
+- [ ] **P0: nav-mutex failure semantics** — self-healing promise chain (`then(run, run)`), reset `activeScreen` on transition failure, `onError` hook, regression tests (reproduced 2026-08-01: after a rejected `create()`, navigation is dead until reload and `current()` reports a destroyed screen)
+- [ ] **P1: async lifecycle** — async `Destroyable` support (`destroy(): void | Promise<void>`, awaited on phase transitions) + per-screen `go()` serialization; removes the BattlegroundScreen `runPhaseHandler` adapter
+- [ ] **P2: hardening sweep** — unknown-phase warning, per-screen deep-link mapper (replaces the hardcoded `"tab"` convention), event-`clear()` ownership rule, active-tracker duplicate guard
 
 
 ### Low Priority
