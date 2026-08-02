@@ -264,7 +264,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 		combat: runPhaseHandler(Phases.CombatPhase),
 		game_over: Phases.GameOverPhase,
-		victory: runPhaseHandler(Phases.VictoryPhase),
+		victory: Phases.VictoryPhase,
 	},
 });
 
