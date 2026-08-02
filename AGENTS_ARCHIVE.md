@@ -56,3 +56,35 @@ completing the roadmap in [docs/framework-formalization.md](docs/framework-forma
 
 **Verification:** framework typecheck + 28 tests, phaser typecheck, phaser
 jest (9 ScreenManager tests), phaser lint — all green.
+
+---
+
+## BattlegroundScreen `createScreen()` migration (2026-08-01, Cline)
+
+Finished the repo owner's WIP migration of `BattlegroundScreen` to
+`@mana/framework`'s `createScreen()`, resolving the open note above. Plan and
+design details: [docs/battleground-screen-migration.md](docs/battleground-screen-migration.md).
+
+**What was done:**
+
+- Restored the `PhaseHandler` type name (the WIP `PhaseHandler_` rename broke
+  7 phase modules — typecheck is green again).
+- `BGPhase` widened to all 9 `Models.PhaseType` values; the spec's `phases`
+  map now delegates every phase to its existing `PhaseHandler`
+  (encounter/pre_combat share `EncounterHandler`).
+- Added the adapter bridging the handler-based loop into the framework
+  lifecycle: `runPhaseHandler` wraps each handler's async `TeardownFn` in a
+  tracked `Destroyable` (fires on screen destruction via the tracker), while
+  `transitionToCurrentPhase` — wired to `BattlegroundEvent.phaseFinished` and
+  kicked off in `create()` — syncs the player board, awaits the previous
+  teardown, then calls `go(phase)`. A `consumed` flag prevents
+  double-teardown. No framework-package changes; no phase-module changes.
+- Deleted dead code: `create_`/`destroy_`, `disposers`, `activeTeardown`,
+  `executePhase`, old `handleCurrentPhase`, `phaseHandlers` registry, unused
+  `handleCombatPhase` import. `advancePhase`/`finishPhase` unchanged.
+- Docs: AGENTS.md pattern #8 rewritten; framework-formalization.md Phase D
+  note updated.
+
+**Verification:** phaser typecheck + lint + jest (9), framework typecheck +
+jest (28), `npm run build` — all green. Interactive smoke (full phase loop,
+destroy paths) left for the repo owner.

@@ -3,7 +3,6 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Encounter from "./Phases/Encounter/Encounter";
-import * as handleCombatPhase from "./Phases/Combat/handleCombatPhase";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
@@ -16,64 +15,11 @@ import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
 
 
-export type BGPhase = "combat" | "pre_combat" | "encounter";
+export type BGPhase = Models.PhaseType;
 
 type BGEvents = typeof BattlegroundEvent
 
 export type Context = ScreenCtx<BGPhase, BGEvents>
-
-const screen = createScreen<BGPhase, BGEvents>({
-	name: "battleground",
-
-	events: () => {
-
-		return {
-			events: BattlegroundEvent,
-			listeners: [
-				BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
-				BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
-
-				BattlegroundEvent.newRunRequested.listen(() => {
-					env.resetState();
-					void getScreenManager().go("crystals");
-				}),
-
-				BattlegroundEvent.mainMenuRequested.listen(() => {
-					env.resetState();
-					void getScreenManager().go("title");
-				}),
-
-				// --- HUD listeners (wins/lives/round display updates) ---
-				...UI.registerListeners(),
-
-			],
-		};
-	},
-
-	create: async (_ctx) => {
-
-		Components.create();
-		previousSessionHudSnapshot = createSessionHudSnapshot();
-
-		AudioManager.playMusic("music_battlemap_vetruv");
-
-		// TODO: input enable/disable should be managed at the screen level, not
-		// delegated to individual components (Board, Shop, etc.).
-		Board.setIsInputEnabled(true);
-
-	},
-
-	phases: {
-		combat: () => { },
-		pre_combat: () => { },
-		encounter: () => { },
-
-	},
-});
-
-export const { init, create, destroy, go, name } = screenModule(screen);
-
-
 
 // ---------------------------------------------------------------------------
 // Phase lifecycle types
@@ -93,13 +39,13 @@ export type TeardownFn = () => Promise<void>;
  * Phases should create a dedicated Phaser Container for all their UI
  * so disposal is a single `container.destroy(true)` call.
  */
-export type PhaseHandler_ = {
+export type PhaseHandler = {
 	name: Models.PhaseType;
 	start: () => Promise<TeardownFn>;
 };
 
 // ---------------------------------------------------------------------------
-// Phase registry
+// Shared phase handlers
 // ---------------------------------------------------------------------------
 
 /**
@@ -107,27 +53,10 @@ export type PhaseHandler_ = {
  * handler itself checks env.state.session.phase to decide whether to
  * show the skip button.
  */
-const EncounterHandler: PhaseHandler_ = {
+const EncounterHandler: PhaseHandler = {
 	name: "encounter",
 	start: Encounter.startPhase,
 };
-
-const phaseHandlers: Partial<Record<Models.PhaseType, PhaseHandler_>> = {
-	encounter: EncounterHandler,
-	pre_combat: EncounterHandler,
-	combat: handleCombatPhase.CombatPhase,
-	shop: Phases.ShopPhase,
-	orb_shop: Phases.OrbShopPhase,
-	upgrade_core: Phases.UpgradeCorePhase,
-	add_reaction_core: Phases.AddReactionCorePhase,
-	game_over: Phases.GameOverPhase,
-	victory: Phases.VictoryPhase,
-};
-
-let activeTeardown: TeardownFn | null = null;
-
-//export const name = "battleground";
-
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -218,92 +147,129 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 
 
 // ---------------------------------------------------------------------------
-// Lifecycle
+// Framework adapter — bridges the handler-based phase loop into the
+// createScreen() lifecycle.
 // ---------------------------------------------------------------------------
 
-let disposers: (() => void)[] = [];
+/**
+ * The previous phase's teardown, awaited by transitionToCurrentPhase before
+ * the next phase starts.  The `consumed` flag coordinates with the tracker:
+ * when the framework destroys the wrapper returned by runPhaseHandler (on
+ * the next transition or on screen destruction), the teardown fires only if
+ * the loop has not already run it.
+ */
+let activePhaseCleanup: { teardown: TeardownFn; consumed: boolean } | null = null;
 
 /**
- * Render the battleground screen and kick off the phase loop.
- * Wires event listeners on every entry — destroy() disposes them on exit.
+ * Adapts a PhaseHandler to a framework phase handler.  The returned
+ * Destroyable registers the teardown with the tracker so it also runs on
+ * screen destruction; ordering across transitions is handled by
+ * transitionToCurrentPhase, which awaits the teardown before go().
  */
-export const create_ = async () => {
-	// Register battleground event listeners on every entry (destroy() disposes them on exit)
-	disposers = [
-		BattlegroundEvent.phaseFinished.listen(handleCurrentPhase),
-		BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
-
-		BattlegroundEvent.newRunRequested.listen(() => {
-			env.resetState();
-			void getScreenManager().go("crystals");
-		}),
-
-		BattlegroundEvent.mainMenuRequested.listen(() => {
-			env.resetState();
-			void getScreenManager().go("title");
-		}),
-
-		// --- HUD listeners (wins/lives/round display updates) ---
-		...UI.registerListeners(),
-	];
-
-	// --- Render ---
-	Components.create();
-	previousSessionHudSnapshot = createSessionHudSnapshot();
-
-	AudioManager.playMusic("music_battlemap_vetruv");
-
-	// TODO: input enable/disable should be managed at the screen level, not
-	// delegated to individual components (Board, Shop, etc.).
-	Board.setIsInputEnabled(true);
-
-	// Kick off the phase loop
-	handleCurrentPhase({});
+const runPhaseHandler = (handler: PhaseHandler) => async (_ctx: Context) => {
+	const teardown = await handler.start();
+	const cleanup = { teardown, consumed: false };
+	activePhaseCleanup = cleanup;
+	return {
+		destroy: () => {
+			if (cleanup.consumed) return;
+			cleanup.consumed = true;
+			if (activePhaseCleanup === cleanup) activePhaseCleanup = null;
+			void teardown();
+		},
+	};
 };
 
 /**
- * Tear down all event listeners and clean up state.
- * Called when the battleground screen is destroyed.
+ * The phase loop.  Reads the current phase from session state, syncs the
+ * player board (except around combat), awaits the previous phase's
+ * teardown, then switches the framework tracker to the new phase.
+ * Wired to BattlegroundEvent.phaseFinished and called once from create().
  */
-export function destroy_(): void {
-	if (activeTeardown) {
-		activeTeardown();
-		activeTeardown = null;
-	}
-	disposers.forEach((d) => d());
-	disposers = [];
-	previousSessionHudSnapshot = null;
+const transitionToCurrentPhase = async ({ previousPhase }: {
+	previousPhase?: Models.PhaseType
+}) => {
+	const phase = env.state.session.phase;
 
-	Chara.clearAll();
-}
-
-// ---------------------------------------------------------------------------
-// Board sync helpers
-// ---------------------------------------------------------------------------
-
-async function executePhase(
-	phase: Models.PhaseType,
-	previousPhase?: Models.PhaseType,
-) {
-
-	if (phase !== 'combat' && previousPhase !== 'combat') {
+	if (phase !== "combat" && previousPhase !== "combat") {
 		await syncPlayerBoardUnits();
 	}
 
 	// Tear down previous phase — guaranteed on every transition
-	if (activeTeardown) {
-		await activeTeardown();
-		activeTeardown = null;
+	if (activePhaseCleanup) {
+		const cleanup = activePhaseCleanup;
+		activePhaseCleanup = null;
+		cleanup.consumed = true;
+		await cleanup.teardown();
 	}
 
-	const handler = phaseHandlers[phase];
-	if (!handler) return;
-
-	activeTeardown = await handler.start();
-}
-
-const handleCurrentPhase = async ({ previousPhase }: {
-	previousPhase?: Models.PhaseType
-}) => {
-	await executePhase(env.state.session.phase, previousPhase);
+	await go(phase);
 };
+
+// ---------------------------------------------------------------------------
+// Screen factory
+// ---------------------------------------------------------------------------
+
+const screen = createScreen<BGPhase, BGEvents>({
+	name: "battleground",
+
+	events: () => {
+
+		return {
+			events: BattlegroundEvent,
+			listeners: [
+				BattlegroundEvent.phaseFinished.listen(transitionToCurrentPhase),
+				BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
+
+				BattlegroundEvent.newRunRequested.listen(() => {
+					env.resetState();
+					void getScreenManager().go("crystals");
+				}),
+
+				BattlegroundEvent.mainMenuRequested.listen(() => {
+					env.resetState();
+					void getScreenManager().go("title");
+				}),
+
+				// --- HUD listeners (wins/lives/round display updates) ---
+				...UI.registerListeners(),
+
+			],
+		};
+	},
+
+	create: async (_ctx) => {
+
+		Components.create();
+		previousSessionHudSnapshot = createSessionHudSnapshot();
+
+		AudioManager.playMusic("music_battlemap_vetruv");
+
+		// TODO: input enable/disable should be managed at the screen level, not
+		// delegated to individual components (Board, Shop, etc.).
+		Board.setIsInputEnabled(true);
+
+		// Kick off the phase loop
+		await transitionToCurrentPhase({});
+	},
+
+	phases: {
+		encounter: runPhaseHandler(EncounterHandler),
+		pre_combat: runPhaseHandler(EncounterHandler),
+		combat: runPhaseHandler(Phases.CombatPhase),
+		shop: runPhaseHandler(Phases.ShopPhase),
+		orb_shop: runPhaseHandler(Phases.OrbShopPhase),
+		upgrade_core: runPhaseHandler(Phases.UpgradeCorePhase),
+		add_reaction_core: runPhaseHandler(Phases.AddReactionCorePhase),
+		game_over: runPhaseHandler(Phases.GameOverPhase),
+		victory: runPhaseHandler(Phases.VictoryPhase),
+	},
+});
+
+const _bgscreen = screenModule(screen, {
+	onDestroy: () => {
+		previousSessionHudSnapshot = null;
+		Chara.clearAll();
+	},
+});
+export const { init, create, destroy, go, name } = _bgscreen;
