@@ -22,42 +22,6 @@ type BGEvents = typeof BattlegroundEvent
 
 export type BGContext = ScreenCtx<BGPhase, BGEvents>
 
-// ---------------------------------------------------------------------------
-// Phase lifecycle types
-// ---------------------------------------------------------------------------
-
-/**
- * A function that tears down a phase instance: destroys all UI, disposes
- * event listeners, and resets internal state. Must be idempotent.
- */
-export type TeardownFn = () => Promise<void>;
-
-/**
- * Each phase module exports a PhaseHandler describing how to start and
- * tear down the phase. BattlegroundScreen guarantees that teardown
- * runs on every phase transition AND on screen destruction.
- *
- * Phases should create a dedicated Phaser Container for all their UI
- * so disposal is a single `container.destroy(true)` call.
- */
-export type PhaseHandler = {
-	name: Models.PhaseType;
-	start: () => Promise<TeardownFn>;
-};
-
-// ---------------------------------------------------------------------------
-// Shared phase handlers
-// ---------------------------------------------------------------------------
-
-/**
- * Both "encounter" and "pre_combat" display encounter options — the
- * handler itself checks env.state.session.phase to decide whether to
- * show the skip button.
- */
-// const EncounterHandler: PhaseHandler = {
-// 	name: "encounter",
-// 	start: Encounter.startPhase,
-// };
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -147,40 +111,6 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 }
 
 
-// ---------------------------------------------------------------------------
-// Framework adapter — bridges the handler-based phase loop into the
-// createScreen() lifecycle.
-// ---------------------------------------------------------------------------
-
-/**
- * The previous phase's teardown, awaited by transitionToCurrentPhase before
- * the next phase starts.  The `consumed` flag coordinates with the tracker:
- * when the framework destroys the wrapper returned by runPhaseHandler (on
- * the next transition or on screen destruction), the teardown fires only if
- * the loop has not already run it.
- */
-let activePhaseCleanup: { teardown: TeardownFn; consumed: boolean } | null = null;
-
-/**
- * Adapts a PhaseHandler to a framework phase handler.  The returned
- * Destroyable registers the teardown with the tracker so it also runs on
- * screen destruction; ordering across transitions is handled by
- * transitionToCurrentPhase, which awaits the teardown before go().
- */
-const runPhaseHandler = (handler: PhaseHandler) => async (_ctx: BGContext) => {
-	const teardown = await handler.start();
-	const cleanup = { teardown, consumed: false };
-	activePhaseCleanup = cleanup;
-	return {
-		destroy: () => {
-			if (cleanup.consumed) return;
-			cleanup.consumed = true;
-			if (activePhaseCleanup === cleanup) activePhaseCleanup = null;
-			void teardown();
-		},
-	};
-};
-
 /**
  * The phase loop.  Reads the current phase from session state, syncs the
  * player board (except around combat), awaits the previous phase's
@@ -194,14 +124,6 @@ const transitionToCurrentPhase = async ({ previousPhase }: {
 
 	if (phase !== "combat" && previousPhase !== "combat") {
 		await syncPlayerBoardUnits();
-	}
-
-	// Tear down previous phase — guaranteed on every transition
-	if (activePhaseCleanup) {
-		const cleanup = activePhaseCleanup;
-		activePhaseCleanup = null;
-		cleanup.consumed = true;
-		await cleanup.teardown();
 	}
 
 	await go(phase);
@@ -262,7 +184,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 		upgrade_core: Phases.UpgradeCorePhase,
 		add_reaction_core: Phases.AddReactionCorePhase,
 
-		combat: runPhaseHandler(Phases.CombatPhase),
+		combat: Phases.CombatPhase,
 		game_over: Phases.GameOverPhase,
 		victory: Phases.VictoryPhase,
 	},
