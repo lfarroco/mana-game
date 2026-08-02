@@ -19,7 +19,7 @@ export type BGPhase = Models.PhaseType;
 
 type BGEvents = typeof BattlegroundEvent
 
-export type Context = ScreenCtx<BGPhase, BGEvents>
+export type BGContext = ScreenCtx<BGPhase, BGEvents>
 
 // ---------------------------------------------------------------------------
 // Phase lifecycle types
@@ -53,10 +53,10 @@ export type PhaseHandler = {
  * handler itself checks env.state.session.phase to decide whether to
  * show the skip button.
  */
-const EncounterHandler: PhaseHandler = {
-	name: "encounter",
-	start: Encounter.startPhase,
-};
+// const EncounterHandler: PhaseHandler = {
+// 	name: "encounter",
+// 	start: Encounter.startPhase,
+// };
 
 // ---------------------------------------------------------------------------
 // Phase advancement helpers
@@ -70,7 +70,7 @@ const EncounterHandler: PhaseHandler = {
  * @param onBeforeFinish - Optional callback that fires after state update but before
  *   phaseFinished is emitted. Use for intermediate events (HUD deltas, purchase events, etc.).
  */
-export const advancePhase = async (
+export const dispatchAction = async (
 	action: Models.Action,
 	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>,
 ): Promise<void> => {
@@ -166,7 +166,7 @@ let activePhaseCleanup: { teardown: TeardownFn; consumed: boolean } | null = nul
  * screen destruction; ordering across transitions is handled by
  * transitionToCurrentPhase, which awaits the teardown before go().
  */
-const runPhaseHandler = (handler: PhaseHandler) => async (_ctx: Context) => {
+const runPhaseHandler = (handler: PhaseHandler) => async (_ctx: BGContext) => {
 	const teardown = await handler.start();
 	const cleanup = { teardown, consumed: false };
 	activePhaseCleanup = cleanup;
@@ -254,8 +254,8 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 
 	phases: {
-		encounter: runPhaseHandler(EncounterHandler),
-		pre_combat: runPhaseHandler(EncounterHandler),
+		encounter: Encounter.startPhase,
+		pre_combat: Encounter.startPhase,
 		combat: runPhaseHandler(Phases.CombatPhase),
 		shop: runPhaseHandler(Phases.ShopPhase),
 		orb_shop: runPhaseHandler(Phases.OrbShopPhase),

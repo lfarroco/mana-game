@@ -3,9 +3,8 @@ import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as GameConstants from "@game/Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
-import * as animation from "@Utils/animation";
 import { env } from "@Env";
-import { advancePhase } from "../../BattlegroundScreen";
+import { dispatchAction, BGContext } from "../../BattlegroundScreen";
 
 // Encounter card display layout constants
 const ENCOUNTER_CARD_WIDTH = 700;
@@ -144,7 +143,7 @@ export const allEncounters: EncounterItem[] = [
  * Phase start function shared by both "encounter" and "pre_combat" phases.
  * All state is closure-captured — no module-level mutable variables.
  */
-export async function startPhase(): Promise<() => Promise<void>> {
+export async function startPhase(_ctx: BGContext) {
 	let disableInteraction = false;
 	const container = env.scene.add.container();
 
@@ -165,10 +164,10 @@ export async function startPhase(): Promise<() => Promise<void>> {
 		disableInteraction = true;
 		container.destroy(true);
 
-		await advancePhase({ type: "select_encounter", encounterId: id });
+		await dispatchAction({ type: "select_encounter", encounterId: id });
 	};
 
-	options.forEach(async (encounter, index) => {
+	const cards = options.map((encounter, index) => {
 		const width = ENCOUNTER_CARD_WIDTH;
 		const height = ENCOUNTER_CARD_HEIGHT;
 		const spacing = ENCOUNTER_CARD_SPACING;
@@ -189,13 +188,15 @@ export async function startPhase(): Promise<() => Promise<void>> {
 			onClick: () => onSelectEncounter(encounter.id),
 		});
 
-		await animation.delay(100 * index)
 		env.scene.tweens.add({
 			targets: card.container,
 			x,
+			delay: 100 * index,
 			duration: 300,
 			ease: "Power2",
 		});
+
+		return card
 	});
 
 	if (env.state.session.phase !== "pre_combat") {
@@ -203,14 +204,16 @@ export async function startPhase(): Promise<() => Promise<void>> {
 			text: i18n.t("encounters.skip"),
 			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
 			callback: () => {
-				void advancePhase({ type: "skip" });
+				void dispatchAction({ type: "skip" });
 			}
 		});
 
 		container.add(btn.container);
 	}
 
-	return async () => {
-		container.destroy(true);
-	};
+	return cards.map(c => c.container)
+
+	// return async () => {
+	// 	container.destroy(true);
+	// };
 }

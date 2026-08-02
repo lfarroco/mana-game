@@ -4,7 +4,7 @@ import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
 import { env, makeContainer as container } from "@Env";
-import { advancePhase } from "../../BattlegroundScreen";
+import { dispatchAction } from "../../BattlegroundScreen";
 
 export const ShopState: { container: Container | null } = {
 	container: null,
@@ -32,7 +32,7 @@ export const addSkipButton = (): void => {
 			c.SCREEN_HEIGHT - constants.BATTLEGROUND_BUTTON_MARGIN_BOTTOM
 		],
 		callback: () => {
-			void advancePhase({ type: "skip" });
+			void dispatchAction({ type: "skip" });
 		}
 	});
 

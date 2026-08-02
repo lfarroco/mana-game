@@ -3,7 +3,7 @@ import * as Chara from "@Systems/Chara/Chara";
 import * as PowerDisplay from "@Systems/Chara/PowerDisplay";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { advancePhase } from "../../BattlegroundScreen";
+import { dispatchAction } from "../../BattlegroundScreen";
 import type { PhaseHandler } from "../../BattlegroundScreen";
 
 export const OrbShopPhase: PhaseHandler = {
@@ -18,7 +18,7 @@ export const OrbShopPhase: PhaseHandler = {
 		listeners.push(
 			BattlegroundEvent.orbApplyRequested.listen(async ({ orbId, targetUnitId }) => {
 				if (env.state.session.phase !== "orb_shop") return;
-				await advancePhase({ type: "apply_orb", orbId, targetUnitId }, async () => {
+				await dispatchAction({ type: "apply_orb", orbId, targetUnitId }, async () => {
 					await BattlegroundEvent.orbApplied.emit({ orbId, targetUnitId });
 				});
 			}),

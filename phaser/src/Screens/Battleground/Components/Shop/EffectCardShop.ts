@@ -5,7 +5,7 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Systems/Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container } from "@Env";
-import { advancePhase } from "../../BattlegroundScreen";
+import { dispatchAction } from "../../BattlegroundScreen";
 
 // Effect card shop constants (same as Encounter display)
 //const EFFECT_CARD_COMPLETION_DELAY_MS = 300;
@@ -88,12 +88,12 @@ function renderUpgradeCards(
 				isResolvingSelection = true;
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
-				await advancePhase({ type: "select_encounter", encounterId });
+				await dispatchAction({ type: "select_encounter", encounterId });
 
 
 				// TODO: post-upgrade visuals (crystal selection effect, core refresh, sound) are not yet wired.
-			// The upgrade is applied server-side via advancePhase; the client should react to the
-			// resulting session update to refresh visuals and play effects.
+				// The upgrade is applied server-side via advancePhase; the client should react to the
+				// resulting session update to refresh visuals and play effects.
 
 				// await onUpgradeApplied?.(success);
 

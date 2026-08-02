@@ -14,7 +14,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { advancePhase } from "../../BattlegroundScreen";
+import { dispatchAction } from "../../BattlegroundScreen";
 import type { PhaseHandler } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
@@ -59,7 +59,7 @@ export const CombatPhase: PhaseHandler = {
 			if (env.state.session.phase !== "combat") return;
 
 			const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
-			await advancePhase({ type: "end_combat" }, ({ session }) => {
+			await dispatchAction({ type: "end_combat" }, ({ session }) => {
 				const winDelta = session.wins - previousWins;
 				if (winDelta !== 0)
 					BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
