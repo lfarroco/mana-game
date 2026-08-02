@@ -28,7 +28,6 @@ type EncounterCardProps = {
 };
 
 export function createEncounterCard(
-	parent: Phaser.GameObjects.Container,
 	props: EncounterCardProps
 ) {
 	const container = makeContainer(env.scene);
@@ -137,7 +136,6 @@ export function createEncounterCard(
 	});
 
 	container.add([bg, border, icon, title, label]);
-	parent.add(container);
 
 	return {
 		bg,
@@ -147,6 +145,7 @@ export function createEncounterCard(
 		title,
 		label,
 		allObjects: [bg, border, icon, title, label],
+		destroy: () => container.destroy(true),
 		activate: async () => {
 			AudioManager.playSoundEffect("sfx_unit_run_magical_4");
 			await onClick();

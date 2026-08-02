@@ -57,16 +57,17 @@ export function hasCharaById(id: string): boolean {
 }
 
 export async function summon(
-	unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
+	unit: Unit, useSummonEffect: boolean = true,
+): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
 		Effects.summonEffect(vec);
 	}
-	const chara = await create(unit);
+	const chara = create(unit);
 	enableTooltip(chara);
 	chara.setScale(0);
 	chara.setAngle(-10);
-	await animation.tween({
+	animation.tween({
 		targets: [chara],
 		scale: 1,
 		angle: 0,
@@ -80,11 +81,14 @@ export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }
 
-export async function create(unit: Unit, options: CreateCharaOptions = {}): Promise<Chara> {
+export function create(unit: Unit, options: CreateCharaOptions = {}): Chara {
 	const position = getScreenPosition(unit);
 	const container = env.scene.add.container(position.x, position.y);
 
-	const sprite = await createSprite(container, unit);
+	const sprite = env.scene.add.sprite(0, -30, unit.pic);
+	container.add(sprite);
+	configureSprite(sprite, unit);
+
 	if (unit.force === CoreConstants.FORCE_ID_CPU) {
 		sprite.setFlipX(true);
 	}
@@ -165,19 +169,6 @@ export function getScreenPosition(unit: Unit) {
 			constants.HALF_TILE_HEIGHT +
 			offsetY,
 	};
-}
-
-async function createSprite(
-	container: Chara,
-	unit: Unit,
-	_borderWidth: number = 3,
-	_borderColor: number = 0xffffff
-) {
-	const sprite = env.scene.add.sprite(0, -30, unit.pic);
-	container.add(sprite);
-	configureSprite(sprite, unit);
-
-	return sprite;
 }
 
 function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {

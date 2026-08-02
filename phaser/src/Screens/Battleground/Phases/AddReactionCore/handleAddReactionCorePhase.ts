@@ -1,23 +1,13 @@
 import * as EffectCardShop from "@Screens/Battleground/Components/Shop/EffectCardShop";
-import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import { env } from "@Env";
-import type { PhaseHandler } from "../../BattlegroundScreen";
+import { BGContext } from "@Screens/Battleground/BattlegroundScreen";
 
-export const AddReactionCorePhase: PhaseHandler = {
-	name: "add_reaction_core",
+export const AddReactionCorePhase = (ctx: BGContext) => {
 
-	async start() {
-		const container = env.scene.add.container();
-		const reactionIds = env.state.session.options.map((option) => option.id);
+	const reactionIds = env.state.session.options.map((option) => option.id);
 
-		await EffectCardShop.openUpgradeCorePhase(
-			"effectCardShop.title",
-			reactionIds,
-		);
-
-		return async () => {
-			await ShopPanel.SlideOut();
-			container.destroy(true);
-		};
-	},
+	return EffectCardShop.openUpgradeCorePhase(ctx)(
+		"effectCardShop.title",
+		reactionIds,
+	);
 };

@@ -27,12 +27,6 @@ export const BattlegroundEvent = {
   /** Emitted when a phase completes and the next phase should begin. */
   phaseFinished: createEvent<{ previousPhase: Models.PhaseType }>(),
 
-  /** Emitted when dragging a shop unit to the board fails. */
-  shopUnitDragPurchaseFailed: createEvent<{
-    shopCharaId: string;
-    dragStartVec: Vec2;
-  }>(),
-
   /** Emitted when the player drops an orb onto a unit. */
   orbApplyRequested: createEvent<{
     orbId: string;
@@ -68,16 +62,6 @@ export const BattlegroundEvent = {
 
   /** HUD update: round number changed. */
   roundChanged: createEvent<{ round: number; delta: number }>(),
-
-  /** Emitted after a unit purchase completes (post-server dispatch). */
-  unitPurchaseCompleted: createEvent<{
-    unitId: string;
-    previousTeamUnits: Models.Unit[];
-    shopCharaId: string | null;
-  }>(),
-
-  /** Emitted after a unit is sold (post-server dispatch). */
-  unitSoldCompleted: createEvent<{ unitId: string }>(),
 
   /** Emitted after an orb is applied to a unit (post-server dispatch). */
   orbApplied: createEvent<{ orbId: string; targetUnitId: string }>(),

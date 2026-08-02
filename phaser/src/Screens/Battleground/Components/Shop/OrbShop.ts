@@ -1,4 +1,3 @@
-import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as Board from "@Components/Board/Board";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
@@ -9,6 +8,7 @@ import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { env, makeContainer as container } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import { skipButton } from "../skipButton";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -26,16 +26,14 @@ export async function openOrbShop(): Promise<void> {
 
 	renderOrbShop(shopContainer);
 
-	ShopPanel.addSkipButton();
+	skipButton();
 
 	Board.setEnemyBoardVisible(false);
 
-	await ShopPanel.SlideIn();
 }
 
 export async function closeOrbShop(): Promise<void> {
 
-	await ShopPanel.SlideOut();
 	shopContainer?.destroy();
 	shopContainer = null;
 }

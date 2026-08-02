@@ -254,13 +254,14 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 
 	phases: {
-		encounter: Encounter.startPhase,
-		pre_combat: Encounter.startPhase,
-		combat: runPhaseHandler(Phases.CombatPhase),
-		shop: runPhaseHandler(Phases.ShopPhase),
+		encounter: Encounter.encounterPhase(true),
+		pre_combat: Encounter.encounterPhase(false),
+		shop: ctx => Phases.ShopPhase(ctx),
 		orb_shop: runPhaseHandler(Phases.OrbShopPhase),
-		upgrade_core: runPhaseHandler(Phases.UpgradeCorePhase),
-		add_reaction_core: runPhaseHandler(Phases.AddReactionCorePhase),
+		upgrade_core: Phases.UpgradeCorePhase,
+		add_reaction_core: Phases.AddReactionCorePhase,
+
+		combat: runPhaseHandler(Phases.CombatPhase),
 		game_over: runPhaseHandler(Phases.GameOverPhase),
 		victory: runPhaseHandler(Phases.VictoryPhase),
 	},

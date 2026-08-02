@@ -9,7 +9,7 @@ import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
 import { env } from "@Env";
 import { whenDroppedOnZone } from "../../phaser-helpers";
-import { BattlegroundEvent } from "../../Events";
+import { onUnitSold } from "@Screens/Battleground/Phases/Shop/handleShopPhase";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
@@ -56,7 +56,7 @@ export function init(chara: Chara.Chara) {
 					if (Chara.hasCharaById(state.unitId)) {
 						Chara.destroy(Chara.mustGetCharaById(state.unitId));
 					}
-					BattlegroundEvent.unitSoldCompleted.emit({ unitId: state.unitId });
+					onUnitSold(state.unitId);
 				})();
 				state.wasDragSuccessful = true;
 			}

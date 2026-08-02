@@ -143,9 +143,8 @@ export const allEncounters: EncounterItem[] = [
  * Phase start function shared by both "encounter" and "pre_combat" phases.
  * All state is closure-captured — no module-level mutable variables.
  */
-export async function startPhase(_ctx: BGContext) {
+export const encounterPhase = (renderSkipBtn = true) => (_ctx: BGContext) => {
 	let disableInteraction = false;
-	const container = env.scene.add.container();
 
 	const options = env.state.session.options
 		.reduce((acc, option) => {
@@ -162,9 +161,11 @@ export async function startPhase(_ctx: BGContext) {
 		}
 
 		disableInteraction = true;
-		container.destroy(true);
 
-		await dispatchAction({ type: "select_encounter", encounterId: id });
+		dispatchAction({
+			type: "select_encounter",
+			encounterId: id,
+		});
 	};
 
 	const cards = options.map((encounter, index) => {
@@ -179,7 +180,7 @@ export async function startPhase(_ctx: BGContext) {
 			y = Constants.SCREEN_HEIGHT / 2;
 		}
 
-		const card = EncounterCard.createEncounterCard(container, {
+		const card = EncounterCard.createEncounterCard({
 			position: [x + width + 200, y],
 			size: [width, height],
 			name: encounter.name,
@@ -199,21 +200,18 @@ export async function startPhase(_ctx: BGContext) {
 		return card
 	});
 
-	if (env.state.session.phase !== "pre_combat") {
-		const btn = UIButton.create({
-			text: i18n.t("encounters.skip"),
-			position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
-			callback: () => {
-				void dispatchAction({ type: "skip" });
-			}
-		});
+	const skipBtn = UIButton.create({
+		text: i18n.t("encounters.skip"),
+		position: [Constants.SCREEN_WIDTH - 260, Constants.SCREEN_HEIGHT - 50],
+		callback: () => {
+			void dispatchAction({ type: "skip" });
+		}
+	});
 
-		container.add(btn.container);
+	if (!renderSkipBtn) {
+		skipBtn.container.alpha = 0;
+		skipBtn.disable()
 	}
 
-	return cards.map(c => c.container)
-
-	// return async () => {
-	// 	container.destroy(true);
-	// };
+	return [...cards, skipBtn];
 }

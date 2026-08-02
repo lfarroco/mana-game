@@ -6,7 +6,6 @@ import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Systems/Chara/createDescription";
-import * as ShopPanel from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as i18n from "@i18n/i18n";
@@ -14,8 +13,9 @@ import * as Models from "@game/Models";
 import { Unit } from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import { env, whenDroppedOnZone } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
 import { finishPhase } from "../../BattlegroundScreen";
+import { onShopUnitDragPurchaseFailed, onUnitPurchased } from "@Screens/Battleground/Phases/Shop/handleShopPhase";
+import { Destroyable } from "@mana/framework";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
 const SHOP_CARD_BORDER_WIDTH = 2;
@@ -25,8 +25,9 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export async function renderTavernCharas(
-	cardDefs: Models.CardDefinition[]): Promise<Chara.Chara[]> {
+export function renderShopCharaCards(
+	cardDefs: Models.CardDefinition[]
+): Destroyable[] {
 
 	const ownedCardIds = new Set(env.state.session.team.units.map((u) => u.cardId));
 
@@ -36,7 +37,8 @@ export async function renderTavernCharas(
 	const panelCenterY = sc.TAVERN_BASE_Y + sc.TAVERN_BG_HEIGHT / 2;
 	const firstY = panelCenterY - totalSpan / 2;
 
-	const createdCharas = await Promise.all(cardDefs.map(async (spec, index) => {
+	const cards = cardDefs.map((spec, index) => {
+
 		const unit = Card.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
 		const itemY = firstY + index * charaSpacing;
@@ -84,11 +86,7 @@ export async function renderTavernCharas(
 		drawRowBackground();
 		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 
-		// Add background elements to the container synchronously (before any await)
-		// so they are guaranteed to be in the container when slideOut() is called.
-		ShopPanel.add([bgRect, rowBorder]);
-
-		const chara = await Chara.create(
+		const chara = Chara.create(
 			unit,
 			{ isShopChara: true }
 		);
@@ -172,12 +170,11 @@ export async function renderTavernCharas(
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		ShopPanel.add([chara, titleText, descriptionText]);
 
-		return chara;
-	}));
+		return [bgRect, rowBorder, chara, titleText, descriptionText];
+	});
 
-	return createdCharas;
+	return cards.flat();
 }
 
 function initShopCharaInput(
@@ -197,7 +194,6 @@ function initShopCharaInput(
 		chara.setData("dragStartVec", dragStartVec);
 		wasDragSuccessful = false;
 
-		ShopPanel.bringToTop(chara);
 		chara.setAngle(-8);
 	});
 
@@ -284,8 +280,8 @@ function initShopCharaInput(
 
 			const previousPhase = env.state.session.phase;
 			env.updateState({ ...env.state, session });
-			await finishPhase(previousPhase, async () => {
-				await BattlegroundEvent.unitPurchaseCompleted.emit({
+			await finishPhase(previousPhase, () => {
+				onUnitPurchased({
 					unitId: unit.cardId,
 					previousTeamUnits,
 					shopCharaId: unit.id,
@@ -307,7 +303,7 @@ async function handleItemDragPurchaseRequested(
 	const existingUnit = currentSession.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
 	if ((!existingUnit || existingUnit.rank > 3) && currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
-		BattlegroundEvent.shopUnitDragPurchaseFailed.emit({
+		onShopUnitDragPurchaseFailed({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],
 		});
@@ -318,7 +314,7 @@ async function handleItemDragPurchaseRequested(
 	if (!existingUnit || existingUnit.rank > 3) {
 		const occupier = getUnitAt(currentSession.team.units)(targetTile);
 		if (occupier) {
-			BattlegroundEvent.shopUnitDragPurchaseFailed.emit({
+			onShopUnitDragPurchaseFailed({
 				shopCharaId,
 				dragStartVec: [dragStartX, dragStartY],
 			});
@@ -345,7 +341,7 @@ async function handleItemDragPurchaseRequested(
 	const previousPhase = env.state.session.phase;
 	env.updateState({ ...env.state, session });
 	await finishPhase(previousPhase, async () => {
-		await BattlegroundEvent.unitPurchaseCompleted.emit({
+		onUnitPurchased({
 			unitId: shopUnitData.cardId,
 			previousTeamUnits,
 			shopCharaId,

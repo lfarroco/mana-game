@@ -2,55 +2,37 @@ import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
 import * as Chara from "@Systems/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
-import * as Shop from "@Screens/Battleground/Components/Shop/ShopPanel";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { env } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
-import type { PhaseHandler } from "../../BattlegroundScreen";
+import type { BGContext } from "../../BattlegroundScreen";
+import { skipButton } from "@Screens/Battleground/Components/skipButton";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
 const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
-export const ShopPhase: PhaseHandler = {
-	name: "shop",
+export const ShopPhase = (_ctx: BGContext) => {
 
-	async start() {
-		const container = env.scene.add.container();
+	const { session } = env.state;
+	const shopCardIds = session.options.map((o) => o.id);
+	const cardDefs = shopCardIds
+		.map(Card.getCardDefinition);
 
-		// --- Event listeners (tied to this instance, auto-disposed on exit) ---
-		const listeners: (() => void)[] = [];
+	const skipButton_ = skipButton();
+	const charaCards = CharaShop.renderShopCharaCards(cardDefs);
 
-		listeners.push(
-			BattlegroundEvent.shopUnitDragPurchaseFailed.listen(onShopUnitDragPurchaseFailed),
-			BattlegroundEvent.unitPurchaseCompleted.listen(onUnitPurchased),
-			BattlegroundEvent.unitSoldCompleted.listen(({ unitId }) => onUnitSold(unitId)),
-		);
+	return [
+		...charaCards,
+		skipButton_
+	]
 
-		// --- Render shop UI ---
-		const { session } = env.state;
-		const shopCardIds = session.options.map((o) => o.id);
-		const cardDefs = shopCardIds
-			.map((id: string) => Card.getCardDefinition(id)).filter(Boolean);
-
-		Shop.addSkipButton();
-		await CharaShop.renderTavernCharas(cardDefs);
-		await Shop.SlideIn();
-
-		// --- Return teardown ---
-		return async () => {
-			listeners.forEach((d) => d());
-			await Shop.SlideOut();
-			container.destroy(true);
-		};
-	},
 };
 
-async function onUnitPurchased({
+export async function onUnitPurchased({
 	unitId: cardId,
 	previousTeamUnits,
 	shopCharaId,
@@ -108,7 +90,7 @@ async function handleNewUnitPurchase(newUnit: Unit): Promise<void> {
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
 }
 
-async function onUnitSold(unitId: string) {
+export async function onUnitSold(unitId: string) {
 	if (Chara.hasCharaById(unitId)) {
 		Chara.destroy(Chara.mustGetCharaById(unitId));
 	}
@@ -116,7 +98,7 @@ async function onUnitSold(unitId: string) {
 	DiscardZone.hide();
 }
 
-function onShopUnitDragPurchaseFailed({
+export function onShopUnitDragPurchaseFailed({
 	shopCharaId,
 	dragStartVec,
 }: {

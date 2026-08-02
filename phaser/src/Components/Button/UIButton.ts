@@ -52,6 +52,7 @@ export type Button = {
 	enable: () => void;
 	press: () => void;
 	container: Container;
+	destroy: () => void;
 	text: Phaser.GameObjects.Text;
 };
 
@@ -356,6 +357,7 @@ export function create({
 	return {
 		disable: () => disableUIButton(state),
 		enable: () => enableUIButton(state),
+		destroy: () => container.destroy(true),
 		press: activate,
 		text: buttonText,
 		container,
