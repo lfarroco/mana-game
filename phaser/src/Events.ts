@@ -27,12 +27,6 @@ export const BattlegroundEvent = {
   /** Emitted when a phase completes and the next phase should begin. */
   phaseFinished: createEvent<{ previousPhase: Models.PhaseType }>(),
 
-  /** Emitted when the player drops an orb onto a unit. */
-  orbApplyRequested: createEvent<{
-    orbId: string;
-    targetUnitId: string;
-  }>(),
-
   /** Emitted when combat playback finishes (naturally, not via stop). */
   combatPlaybackFinished: createEvent<{ outcome: Models.WaveOutcome }>(),
 

@@ -13,6 +13,7 @@ import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
+import { openOrbShop } from "./Components/Shop/OrbShop";
 
 
 export type BGPhase = Models.PhaseType;
@@ -257,7 +258,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 		encounter: Encounter.encounterPhase(true),
 		pre_combat: Encounter.encounterPhase(false),
 		shop: ctx => Phases.ShopPhase(ctx),
-		orb_shop: runPhaseHandler(Phases.OrbShopPhase),
+		orb_shop: openOrbShop,
 		upgrade_core: Phases.UpgradeCorePhase,
 		add_reaction_core: Phases.AddReactionCorePhase,
 

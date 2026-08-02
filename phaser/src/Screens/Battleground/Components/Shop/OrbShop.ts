@@ -6,9 +6,11 @@ import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { env, makeContainer as container } from "@Env";
-import { BattlegroundEvent } from "../../../../Events";
+import { env, } from "@Env";
 import { skipButton } from "../skipButton";
+import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
+import { hasCharaById, refreshChara } from "@Systems/Chara/Chara";
+import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -17,81 +19,23 @@ const ORB_TITLE_Y_OFFSET = 80;
 const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
-let shopContainer: Container | null = null;
+export async function openOrbShop() {
 
-export async function openOrbShop(): Promise<void> {
+	const items = renderOrbShop();
 
-	shopContainer?.destroy();
-	shopContainer = container(env.scene);
+	const skipButton_ = skipButton();
 
-	renderOrbShop(shopContainer);
-
-	skipButton();
-
-	Board.setEnemyBoardVisible(false);
+	return [...items.flat(), skipButton_];
 
 }
 
-export async function closeOrbShop(): Promise<void> {
-
-	shopContainer?.destroy();
-	shopContainer = null;
-}
-
-export function renderOrbShop(
-	container: Phaser.GameObjects.Container,
-) {
+export function renderOrbShop() {
 
 	const orbIds = env.state.session.options.map((o) => o.id);
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
 	const totalOrbSpan = Math.max(0, (orbIds.length - 1) * orbSpacing);
 	const firstOrbY = constants.SCREEN_HEIGHT / 2 - totalOrbSpan / 2;
-
-	function handleOrbDrop(params: {
-		orb: MagicOrb.MagicOrb;
-		target: Phaser.GameObjects.GameObject;
-		orbSpec: OrbPresentation.OrbPresentation;
-		magicOrb: MagicOrb.MagicOrb;
-	}) {
-		const { orb, target, orbSpec, magicOrb } = params;
-		const playerBoard = Board.getBoardState();
-
-		if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
-			console.debug("OrbShop", `${orbSpec.name} dropped on non-board target:`, target);
-			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
-		}
-
-		const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
-		const tileX = slotIndex % 3;
-		const tileY = Math.floor(slotIndex / 3);
-
-		console.debug("OrbShop",
-			`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
-		);
-
-		const existingUnit = env.state.session.team.units.find((unit) =>
-			Geometry.eqVec2(unit.position, [tileX, tileY])
-		);
-
-		if (!existingUnit) {
-			console.debug("OrbShop", `No unit at position [${tileX}, ${tileY}] - orb returns to position`);
-			MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
-			return;
-		}
-
-		console.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
-
-		AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
-
-		magicOrb.startDissolve();
-
-		BattlegroundEvent.orbApplyRequested.emit({
-			orbId: orbSpec.id,
-			targetUnitId: existingUnit.id,
-		});
-	}
 
 	const orbs = orbIds.map((orbId: string, index: number) => {
 		const orbSpec = OrbPresentation.getOrbPresentation(orbId);
@@ -109,7 +53,7 @@ export function renderOrbShop(
 			dropTargetNames: [],
 		});
 
-		container.add(magicOrb.getShader());
+		const shader = magicOrb.getShader();
 
 		const titleText = env.scene.add
 			.text(sc.ITEM_DESC_BASE_X, orbY - ORB_TITLE_Y_OFFSET, orbSpec.name, constants.titleTextConfig)
@@ -129,18 +73,94 @@ export function renderOrbShop(
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-		container.add([titleText, descriptionText]);
+		//return magicOrb;
+		const handler = (time: number) => {
+			magicOrb.update(time);
+		};
+		env.scene.events.on("update", handler);
 
-		return magicOrb;
+		shader.on(Phaser.GameObjects.Events.DESTROY, () => {
+			env.scene.events.off("update", handler);
+		});
+
+		return [shader, titleText, descriptionText];
+
 	});
 
-	const handler = (time: number) => {
-		orbs.forEach((orb) => orb.update(time));
-	};
+	return orbs;
 
-	env.scene.events.on("update", handler);
+}
 
-	container.on(Phaser.GameObjects.Events.DESTROY, () => {
-		env.scene.events.off("update", handler);
-	});
+function handleOrbDrop(params: {
+	orb: MagicOrb.MagicOrb;
+	target: Phaser.GameObjects.GameObject;
+	orbSpec: OrbPresentation.OrbPresentation;
+	magicOrb: MagicOrb.MagicOrb;
+}) {
+	const { orb, target, orbSpec, magicOrb } = params;
+	const playerBoard = Board.getBoardState();
+
+	if (!playerBoard || !playerBoard.dropZones.includes(target as Phaser.GameObjects.Zone)) {
+		console.debug("OrbShop", `${orbSpec.name} dropped on non-board target:`, target);
+		MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
+		return;
+	}
+
+	const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
+	const tileX = slotIndex % 3;
+	const tileY = Math.floor(slotIndex / 3);
+
+	console.debug("OrbShop",
+		`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
+	);
+
+	const existingUnit = env.state.session.team.units.find((unit) =>
+		Geometry.eqVec2(unit.position, [tileX, tileY])
+	);
+
+	if (!existingUnit) {
+		console.debug("OrbShop", `No unit at position [${tileX}, ${tileY}] - orb returns to position`);
+		MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
+		return;
+	}
+
+	console.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
+
+	AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
+
+	magicOrb.startDissolve();
+
+	if (env.state.session.phase !== "orb_shop") return;
+	dispatchAction(
+		{ type: "apply_orb", orbId: orbSpec.id, targetUnitId: existingUnit.id },
+		async () => {
+			onOrbApplied(orbSpec.id, existingUnit.id);
+		}
+	);
+
+}
+
+async function onOrbApplied(orbId: string, targetUnitId: string) {
+	const isRowOrb = orbId === "absorb_power_orb" || orbId === "distribute_power_orb";
+	const targetUnit = env.state.session.team.units.find((unit) => unit.id === targetUnitId);
+	if (!targetUnit) return;
+
+	const [, targetRow] = targetUnit.position;
+
+	for (const serverUnit of env.state.session.team.units) {
+		const [, row] = serverUnit.position;
+		const isTarget = serverUnit.id === targetUnitId;
+		const isInSameRow = isRowOrb && row === targetRow && !isTarget;
+
+		if (!isTarget && !isInSameRow) continue;
+
+		if (isRowOrb) {
+			if (hasCharaById(serverUnit.id)) {
+				updatePowerDisplay(serverUnit.id);
+			}
+			continue;
+		}
+
+		refreshChara(serverUnit);
+	}
 }
