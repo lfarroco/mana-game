@@ -119,7 +119,7 @@ export async function displayResults(
 export async function displayGameCompleteResults(
 	isGameOver: boolean,
 	onComplete?: () => void
-): Promise<void> {
+) {
 	resultsContainer.removeAll(true);
 	env.scene.children.bringToTop(overlay.rectangle);
 	env.scene.children.bringToTop(resultsContainer);
@@ -131,6 +131,8 @@ export async function displayGameCompleteResults(
 		onComplete
 	);
 	resultsContainer.add(ui);
+
+	return [resultsContainer];
 }
 
 export async function slideIn(): Promise<void> {
