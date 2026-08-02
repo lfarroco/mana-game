@@ -13,7 +13,6 @@ import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
-import { openOrbShop } from "./Components/Shop/OrbShop";
 
 
 export type BGPhase = Models.PhaseType;
@@ -163,7 +162,13 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 	create: async (_ctx) => {
 
-		Components.create();
+		Components.Background.create();
+		Components.NamesDisplay.create();
+		Components.Board.create();
+		Components.ResultsUI.create(); // remove this
+		Components.DiscardZone.create();
+		Components.UI.create();
+
 		previousSessionHudSnapshot = createSessionHudSnapshot();
 
 		AudioManager.playMusic("music_battlemap_vetruv");
@@ -180,7 +185,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 		encounter: Encounter.encounterPhase(true),
 		pre_combat: Encounter.encounterPhase(false),
 		shop: ctx => Phases.ShopPhase(ctx),
-		orb_shop: openOrbShop,
+		orb_shop: Phases.openOrbShop,
 		upgrade_core: Phases.UpgradeCorePhase,
 		add_reaction_core: Phases.AddReactionCorePhase,
 
