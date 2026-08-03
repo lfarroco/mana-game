@@ -12,7 +12,7 @@ import * as GameServer from "./GameServer";
 import { createEnv } from "@Env";
 import { ClientState } from "@Models/ClientState";
 import { GameEvent } from "./Events";
-import { createScreenManager, setScreenManager } from "./Screens/ScreenManager";
+import { createScreenManager, getScreenManager, setScreenManager } from "./Screens/ScreenManager";
 
 
 // Hold references to navigation disposers to prevent GC
@@ -210,7 +210,6 @@ export default (clientState: ClientState) => class Client extends Phaser.Scene {
         StatsStore.init();
 
         // Initialize and render the title screen as the first screen
-        TitleScreen.init();
-        TitleScreen.create();
+        getScreenManager().go("title");
     }
 }

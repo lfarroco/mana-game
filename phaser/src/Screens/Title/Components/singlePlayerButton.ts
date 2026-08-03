@@ -35,10 +35,7 @@ export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
 	const resumeBtn = UIButton.create({
 		text: i18n.t("title.resume"),
 		position: [constants.MIDDLE_SCREEN_X, baseY],
-		callback: () => {
-
-			ctx.events.resumeGameButtonClicked.emit()
-		}
+		callback: ctx.events.resumeGameButtonClicked.emit
 	});
 
 	if (!hasSavedRun) {
@@ -49,9 +46,7 @@ export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
 	const newRunBtn = UIButton.create({
 		text: i18n.t("title.newRun"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: () => {
-			ctx.events.newGameButtonClicked.emit()
-		}
+		callback: ctx.events.newGameButtonClicked.emit
 	});
 
 	const collectionBtn = collectionButton.collectionButton(baseY + spacing * 2);
@@ -65,10 +60,10 @@ export function createSinglePlayerSubmenu(ctx: TitleScreen.Context) {
 	});
 
 	return [
-		resumeBtn.container,
-		newRunBtn.container,
-		collectionBtn.container,
-		backBtn.container,
+		resumeBtn,
+		newRunBtn,
+		collectionBtn,
+		backBtn,
 	]
 
 }
