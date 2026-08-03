@@ -1,28 +1,14 @@
 import * as animation from "@Utils/animation";
 import * as AudioManager from "@Systems/AudioManager";
 import * as c from "@Constants";
-import * as Constants from "@game/Constants";
 import * as VictoryUI from "./VictoryUI";
 import * as DefeatUI from "./DefeatUI";
 import * as GameCompleteUI from "./GameCompleteUI";
 import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as BackgroundOverlay from "@Components/Overlay/BackgroundOverlay";
-import * as Config from "@config";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-
-export function determineGameOutcome(
-	resultType: "victory" | "defeat",
-	currentWins: number,
-	currentLives: number
-): { gameWon: boolean; gameOver: boolean } {
-	// In demo mode, treat reaching MAX_VICTORIES as "game won" to trigger demo complete screen
-	const demoComplete = resultType === "victory" && currentWins >= Config.GAME_CONFIG.MAX_VICTORIES;
-	const gameWon = resultType === "victory" && (currentWins === ResultsConfig.WINS_TO_WIN_GAME || demoComplete);
-	const gameOver = resultType === "defeat" && currentLives <= 0;
-	return { gameWon, gameOver };
-}
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
@@ -74,34 +60,14 @@ export async function displayResults(
 		env.scene.children.bringToTop(overlay.rectangle);
 		env.scene.children.bringToTop(resultsContainer);
 
-		const gameState = env.state;
-		const postCombatSession = gameState.session;
-		const player = {
-			wins: postCombatSession?.wins ?? gameState.session.wins,
-			lives: 4 - (postCombatSession?.losses ?? gameState.session.losses),
-		};
-
 		const livesChange = calculateLivesChange(resultType);
-		const currentLives = player.lives;
-		const currentWins = player.wins;
-
-		const { gameWon, gameOver } = determineGameOutcome(resultType, currentWins, currentLives);
 		const allBattleUnits = env.state.combatState?.units ?? [];
 
 		// Temporary listeners — clean themselves up after first fire
 		const unlistenContinue = BattlegroundEvent.combatContinueRequested.listen(async () => {
 			unlistenContinue();
 			unlistenReplay();
-			if (gameWon || gameOver) {
-				resultsContainer.removeAll(true);
-				const playerUnits = allBattleUnits.filter((u) => u.force === Constants.FORCE_ID_PLAYER);
-				const ui = await GameCompleteUI.displayGameComplete(
-					currentWins, playerUnits, gameOver,
-				);
-				resultsContainer.add(ui);
-			} else {
-				await slideOut();
-			}
+			await slideOut();
 			resolve();
 		});
 
