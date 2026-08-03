@@ -113,7 +113,8 @@ export async function displayResults(
 		});
 
 		// Render the UI — its buttons will emit events, triggering the listeners above
-		void displayAppropriateUI(resultType, livesChange, allBattleUnits)
+		void displayAppropriateUI(
+			resultType, livesChange, allBattleUnits)
 			.then((uiContainer) => { resultsContainer.add(uiContainer); });
 	});
 }

@@ -241,7 +241,9 @@ export const createCombatPlaybackController = (
 				ChargeBarDisplay.updateChargeBar(u.id);
 			});
 
-		await BattlegroundEvent.combatPlaybackFinished.emit({ outcome });
+		await BattlegroundEvent.combatPlaybackFinished.emit({
+			outcome
+		});
 
 		console.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
 	};

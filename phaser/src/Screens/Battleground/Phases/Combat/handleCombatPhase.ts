@@ -14,15 +14,25 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { BGContext, dispatchAction } from "../../BattlegroundScreen";
+import { dispatchAction } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
 // Must remain module-level because CombatStatsTable imports it directly.
+// TODO: this should come from the server
 let lastCombatTrackerState: CombatStatsTracker.CombatStatsTrackerState | null = null;
 export const getLastCombatTrackerState = (): CombatStatsTracker.CombatStatsTrackerState | null =>
 	lastCombatTrackerState;
 
 const COMBAT_START_DELAY_MS = 300;
+
+const initialState = () => ({
+	isPaused: false,
+	activeCombatState: null,
+	stopActivePlayback: () => { },
+	currentController: null,
+});
+
+let state: PlaybackState = initialState();
 
 type PlaybackDisposer = () => void;
 
@@ -31,9 +41,16 @@ export type CombatPhaseResult =
 	| { type: "cancelled" };
 
 const handleCombatContinueRequested = async () => {
-	if (env.state.session.phase !== "combat") return;
 
-	const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
+	if (__DEV__)
+		if (env.state.session.phase !== "combat") throw new Error();
+
+	const {
+		wins: previousWins,
+		losses: previousLosses,
+		round: previousRound,
+	} = env.state.session;
+
 	await dispatchAction({ type: "end_combat" }, ({ session }) => {
 		const winDelta = session.wins - previousWins;
 		if (winDelta !== 0)
@@ -49,18 +66,26 @@ const handleCombatContinueRequested = async () => {
 	});
 };
 
-const handleCombatReplayRequested = (state: PlaybackState) => () => {
-	if (env.state.session.phase !== "combat") return;
-	void beginCombatPlayback(state);
+const handleCombatReplayRequested = () => {
+	if (__DEV__)
+		if (env.state.session.phase !== "combat") throw new Error();
+
+	void beginCombatPlayback();
 };
 
-async function beginCombatPlayback(state: PlaybackState): Promise<void> {
-	if (!state.activeCombatState || env.state.session.phase !== "combat") return;
+async function beginCombatPlayback(): Promise<void> {
+	if (__DEV__)
+		if (
+			!state.activeCombatState
+			|| env.state.session.phase !== "combat"
+		)
+			throw new Error("should not happen");
+
 	cleanupPlayback(state);
-	state.stopActivePlayback = await startCombatPlayback(state);
+	state.stopActivePlayback = await startCombatPlayback();
 }
 
-const startCombatPlayback = async (state: PlaybackState): Promise<PlaybackDisposer> => {
+const startCombatPlayback = async (): Promise<PlaybackDisposer> => {
 
 	setupCombatBoard();
 
@@ -126,15 +151,14 @@ type PlaybackState = {
 	activeCombatState: Models.CombatState | null,
 	stopActivePlayback: PlaybackDisposer,
 	currentController: ReturnType<typeof CombatPlaybackController.createCombatPlaybackController> | null,
-	listeners: (() => void)[],
 }
-const pauseCombat = (state: PlaybackState) => (): void => {
+const pauseCombat = (): void => {
 	state.isPaused = true;
 	env.scene.tweens.pauseAll();
 	env.scene.time.paused = true;
 };
 
-const resumeCombat = (state: PlaybackState) => (): void => {
+const resumeCombat = (): void => {
 	state.isPaused = false;
 	env.scene.tweens.resumeAll();
 	env.scene.time.paused = false;
@@ -157,8 +181,7 @@ async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
 
 }
 
-const cleanup = async (state: PlaybackState) => {
-	state.listeners.forEach((d) => d());
+const cleanup = async () => {
 
 	cleanupPlayback(state);
 	state.activeCombatState = null;
@@ -168,30 +191,13 @@ const cleanup = async (state: PlaybackState) => {
 	ForceStats.setCombatClientState();
 	ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
 	ForceStats.resetPlayerForceStats();
+	state = initialState();
 }
 
-export const CombatPhase = (ctx: BGContext) => {
-
-	console.log("...", ctx)
-
-	const state: PlaybackState = {
-		isPaused: false,
-		activeCombatState: null,
-		stopActivePlayback: () => { },
-		currentController: null,
-		listeners: [],
-	}
-
-	state.listeners.push(
-		BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
-		BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested(state)),
-		BattlegroundEvent.combatPauseRequested.listen(pauseCombat(state)),
-		BattlegroundEvent.combatResumeRequested.listen(resumeCombat(state)),
-	);
+export const CombatPhase = () => {
 
 	const combatState = env.state.combatState;
 	if (!combatState) {
-		state.listeners.forEach((d) => d());
 		throw new Error("Missing combatState while entering combat phase");
 	}
 
@@ -200,22 +206,7 @@ export const CombatPhase = (ctx: BGContext) => {
 	// Mutable ref so the playback-finish listener can reach the controller
 	// created inside startCombatPlayback below.
 
-	state.listeners.push(
-		BattlegroundEvent.combatPlaybackFinished.listen(async ({ outcome }) => {
-			if (!state.currentController) return;
-			Board.setIsInputEnabled(true);
-			lastCombatTrackerState = state.currentController.getEnv().combatStates.combatStatsTrackerState;
-			await showCombatResults({
-				resultType: getCombatResultType(outcome),
-			});
-		}),
-	);
-
-	const getCombatResultType = (outcome: string) =>
-		outcome === "player_lost" ? "defeat" : "victory";
-
-
-	beginCombatPlayback(state);
+	beginCombatPlayback();
 
 	const container = env.container();
 
@@ -223,3 +214,27 @@ export const CombatPhase = (ctx: BGContext) => {
 
 	return [container]
 };
+
+const handleCombatFinished = async (
+	{ outcome }: { outcome: string }
+) => {
+
+	const getCombatResultType = (outcome: string) =>
+		outcome === "player_lost" ? "defeat" : "victory";
+
+	if (!state.currentController) return;
+	Board.setIsInputEnabled(true);
+	lastCombatTrackerState = state.currentController.getEnv().combatStates.combatStatsTrackerState;
+	await showCombatResults({
+		resultType: getCombatResultType(outcome),
+	});
+}
+
+export const combatListeners = [
+	BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
+	BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested),
+	BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
+	BattlegroundEvent.combatResumeRequested.listen(resumeCombat),
+	BattlegroundEvent.combatPlaybackFinished.listen(handleCombatFinished),
+]
+

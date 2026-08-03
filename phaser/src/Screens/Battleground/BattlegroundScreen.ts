@@ -10,6 +10,7 @@ import { BattlegroundEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
+import { combatListeners } from "./Phases/Combat/handleCombatPhase";
 
 export type BGPhase = Models.PhaseType;
 
@@ -82,7 +83,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 				}),
 
 				...UI.registerListeners(),
-
+				...combatListeners,
 			],
 		};
 	},
