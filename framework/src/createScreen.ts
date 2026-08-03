@@ -32,8 +32,8 @@ type EventRecord = Record<string, Clearable>;
 /**
  * Minimal shape the tracker needs — anything with a destroy() method.
  * Satisfied by Phaser.GameObjects.GameObject (`destroy(fromScene?)` is
- * assignable to `() => void`) and by plain wrapper objects (e.g.
- * BackgroundOverlay) that manage underlying resources.
+ * assignable to `() => void`), event unsubscribers, and by plain wrapper
+ * objects (e.g. BackgroundOverlay) that manage underlying resources.
  */
 export type Destroyable = { destroy: () => void };
 
