@@ -88,3 +88,49 @@ design details: [docs/battleground-screen-migration.md](docs/battleground-screen
 **Verification:** phaser typecheck + lint + jest (9), framework typecheck +
 jest (28), `npm run build` — all green. Interactive smoke (full phase loop,
 destroy paths) left for the repo owner.
+
+---
+
+## Phase-scoped events — `ctx.listen()` (2026-08-03, Cline)
+
+Added phase-scoped event subscriptions to `@mana/framework` and migrated the
+Battleground combat/victory phases off the module-level `combatListeners`.
+
+**Why:** phase handlers previously had no scoped listener mechanism — every
+listener was registered at the screen level in `events()` for the whole screen
+lifetime, or leaked via manual closure disposers. This caused two concrete bugs
+in BattlegroundScreen:
+- `combatListeners` (an array of disposers created at module **import time**)
+  was never re-subscribed on a second battleground entry, after `destroy()`
+  ran the stale disposers and `.clear()`ed every `BattlegroundEvent` — combat
+  Continue/Replay/Pause silently broke.
+- `combatListeners` stayed active during `victory`/`game_over`, so a single
+  Continue click on the victory screen fired **both** the combat `end_combat`
+  handler and the victory `victory` handler (the `__DEV__` phase-guard throws
+  were symptoms).
+
+**What was done:**
+
+- `framework/src/createScreen.ts`: added `ctx.listen(event, cb)` to `ScreenCtx`.
+  Subscribes for the **current scope's lifetime** — phase handler → disposed on
+  phase switch / `ctx.refresh()`; persistent `create` layer → survives
+  transitions, disposed on screen destroy. Implementation wraps the disposer
+  returned by `Event.listen()` in a tracked `Destroyable`, reusing the existing
+  `PhaseTracker` scope machinery (~3 lines, no breaking API change; existing
+  screens untouched).
+- `framework/src/createScreen.test.ts`: 3 new tests (31 total) — phase listener
+  disposed on phase switch; persistent listener survives switches + dies on
+  destroy; `refresh()` re-registers phase listeners.
+- `phaser/.../Phases/Combat/handleCombatPhase.ts`: `CombatPhase(ctx)` now
+  registers its 5 listeners (continue/replay/pause/resume/playbackFinished)
+  via `ctx.listen`; **deleted** the module-level `combatListeners` array.
+- `phaser/.../Phases/Victory/handleVictoryPhase.ts`: `VictoryPhase(ctx)`
+  registers the continue→victory handler via `ctx.listen`; dropped the manual
+  `unlisten` closure dance.
+- `phaser/.../BattlegroundScreen.ts`: removed the `combatListeners`
+  import/spread; `combat`/`victory` phase entries pass `ctx` to their handlers.
+
+**Verification:** framework jest 31 green + typecheck clean; phaser typecheck
+clean; eslint clean on the 3 changed phaser files; phaser `src/` jest 9 green
+(pre-existing unrelated failures remain in `supabase/functions` Deno tests).
+Docs: AGENTS.md patterns #2/#8 updated.

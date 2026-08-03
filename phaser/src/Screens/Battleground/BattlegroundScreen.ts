@@ -10,7 +10,6 @@ import { BattlegroundEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
-import { combatListeners } from "./Phases/Combat/handleCombatPhase";
 
 export type BGPhase = Models.PhaseType;
 
@@ -83,7 +82,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 				}),
 
 				...UI.registerListeners(),
-				...combatListeners,
 			],
 		};
 	},
@@ -119,9 +117,9 @@ const screen = createScreen<BGPhase, BGEvents>({
 		upgrade_core: Phases.UpgradeCorePhase,
 		add_reaction_core: Phases.AddReactionCorePhase,
 
-		combat: Phases.CombatPhase,
+		combat: (ctx) => Phases.CombatPhase(ctx),
 		game_over: Phases.GameOverPhase,
-		victory: Phases.VictoryPhase,
+		victory: (ctx) => Phases.VictoryPhase(ctx),
 	},
 });
 

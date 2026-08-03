@@ -18,6 +18,7 @@
  * without any engine mock.
  */
 
+import type { Event } from "./Event";
 import type { ScreenModule } from "./Screen";
 
 // ---------------------------------------------------------------------------
@@ -82,6 +83,17 @@ export interface ScreenCtx<TPhase extends string = string, E extends EventRecord
 
 	/** Register a disposer that runs when the screen is destroyed. */
 	onDestroy: (disposer: () => void) => void;
+
+	/**
+	 * Subscribe to an event for the current scope's lifetime.
+	 *
+	 * When called inside a phase handler, the subscription is destroyed on the
+	 * next phase switch or ctx.refresh(); when called from the persistent
+	 * `create` layer, it survives phase transitions and is disposed on screen
+	 * destroy.  This gives phase handlers their own scoped listeners without
+	 * requiring a per-phase event catalog.
+	 */
+	listen<T>(event: Event<T>, cb: (payload: T) => void | Promise<void>): void;
 
 	/** Screen-local events. Re-created per init cycle; access after create(). */
 	readonly events: E;
@@ -306,6 +318,11 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 		},
 		onDestroy: (disposer) => {
 			ctxDisposers.push(disposer);
+		},
+
+		listen: (event, cb) => {
+			const dispose = event.listen(cb);
+			tracker?.track({ destroy: dispose });
 		},
 
 		get events() {

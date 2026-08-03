@@ -14,7 +14,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import { dispatchAction } from "../../BattlegroundScreen";
+import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
 
 // Store the last combat's tracker state for the results UI to read.
 // Must remain module-level because CombatStatsTable imports it directly.
@@ -194,7 +194,7 @@ const cleanup = async () => {
 	state = initialState();
 }
 
-export const CombatPhase = () => {
+export const CombatPhase = (ctx: BGContext) => {
 
 	const combatState = env.state.combatState;
 	if (!combatState) {
@@ -203,8 +203,11 @@ export const CombatPhase = () => {
 
 	state.activeCombatState = combatState;
 
-	// Mutable ref so the playback-finish listener can reach the controller
-	// created inside startCombatPlayback below.
+	ctx.listen(ctx.events.combatContinueRequested, handleCombatContinueRequested);
+	ctx.listen(ctx.events.combatReplayRequested, handleCombatReplayRequested);
+	ctx.listen(ctx.events.combatPauseRequested, pauseCombat);
+	ctx.listen(ctx.events.combatResumeRequested, resumeCombat);
+	ctx.listen(ctx.events.combatPlaybackFinished, handleCombatFinished);
 
 	beginCombatPlayback();
 
@@ -230,11 +233,4 @@ const handleCombatFinished = async (
 	});
 }
 
-export const combatListeners = [
-	BattlegroundEvent.combatContinueRequested.listen(handleCombatContinueRequested),
-	BattlegroundEvent.combatReplayRequested.listen(handleCombatReplayRequested),
-	BattlegroundEvent.combatPauseRequested.listen(pauseCombat),
-	BattlegroundEvent.combatResumeRequested.listen(resumeCombat),
-	BattlegroundEvent.combatPlaybackFinished.listen(handleCombatFinished),
-]
 
