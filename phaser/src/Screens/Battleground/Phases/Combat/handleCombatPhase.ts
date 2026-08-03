@@ -42,9 +42,6 @@ export type CombatPhaseResult =
 
 const handleCombatContinueRequested = async () => {
 
-	if (__DEV__)
-		if (env.state.session.phase !== "combat") throw new Error();
-
 	const {
 		wins: previousWins,
 		losses: previousLosses,
@@ -66,20 +63,8 @@ const handleCombatContinueRequested = async () => {
 	});
 };
 
-const handleCombatReplayRequested = () => {
-	if (__DEV__)
-		if (env.state.session.phase !== "combat") throw new Error();
-
-	void beginCombatPlayback();
-};
 
 async function beginCombatPlayback(): Promise<void> {
-	if (__DEV__)
-		if (
-			!state.activeCombatState
-			|| env.state.session.phase !== "combat"
-		)
-			throw new Error("should not happen");
 
 	cleanupPlayback(state);
 	state.stopActivePlayback = await startCombatPlayback();
@@ -204,7 +189,7 @@ export const CombatPhase = (ctx: BGContext) => {
 	state.activeCombatState = combatState;
 
 	ctx.listen(ctx.events.combatContinueRequested, handleCombatContinueRequested);
-	ctx.listen(ctx.events.combatReplayRequested, handleCombatReplayRequested);
+	ctx.listen(ctx.events.combatReplayRequested, beginCombatPlayback);
 	ctx.listen(ctx.events.combatPauseRequested, pauseCombat);
 	ctx.listen(ctx.events.combatResumeRequested, resumeCombat);
 	ctx.listen(ctx.events.combatPlaybackFinished, handleCombatFinished);

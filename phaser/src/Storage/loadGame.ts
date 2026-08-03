@@ -11,18 +11,11 @@ export function loadGame() {
 	// Restore combat state if present and session is in combat phase
 	// (e.g., player quit mid-combat and is resuming)
 	if (savedData.phase === "combat") {
-		if (savedData.combatState) {
-			// Reconstruct Map from serialized array
-			const combatState = savedData.combatState;
-			if (Array.isArray(combatState.unitById)) {
-				combatState.unitById = new Map(combatState.unitById as unknown as [string, Models.Unit][]);
-			}
-			env.patchState({ session: savedData, combatState });
-		} else {
-			// Session says combat but no combat state — re-simulate as a safety net
-			console.warn("loadGame", "Session in combat phase but no combatState found; will re-simulate on phase entry");
-			env.patchState({ session: savedData });
-		}
+		// Reconstruct Map from serialized array
+		const combatState = savedData.combatState!;
+		combatState.unitById = new Map(combatState.unitById as unknown as [string, Models.Unit][]);
+		env.patchState({ session: savedData, combatState });
+
 	} else {
 		env.patchState({ session: savedData });
 	}
