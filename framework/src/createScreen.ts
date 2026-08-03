@@ -152,6 +152,7 @@ class PhaseTracker<TPhase extends string> {
 	private phaseObjects = new Map<string, Destroyable>();
 	private mode: "persistent" | "phase" = "persistent";
 	private counter = 0;
+
 	currentPhase: TPhase | null = null;
 
 	constructor() {

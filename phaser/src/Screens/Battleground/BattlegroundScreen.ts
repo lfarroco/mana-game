@@ -5,7 +5,6 @@ import * as Encounter from "./Phases/Encounter/Encounter";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
-import { getRemainingLives } from "../../SessionManager";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
@@ -17,7 +16,6 @@ export type BGPhase = Models.PhaseType;
 type BGEvents = typeof BattlegroundEvent
 
 export type BGContext = ScreenCtx<BGPhase, BGEvents>
-
 
 /**
  * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
@@ -56,48 +54,6 @@ export const finishPhase = async (
 };
 
 
-type SessionHudSnapshot = {
-	round: number;
-	wins: number;
-	lives: number;
-};
-
-let previousSessionHudSnapshot: SessionHudSnapshot | null = null;
-
-const createSessionHudSnapshot = (): SessionHudSnapshot => ({
-	round: env.state.session.round,
-	wins: env.state.session.wins,
-	lives: getRemainingLives(env.state.session),
-});
-
-function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType }): void {
-	const currentSnapshot = createSessionHudSnapshot();
-
-	if (!previousSessionHudSnapshot) {
-		previousSessionHudSnapshot = currentSnapshot;
-		return;
-	}
-
-	const winsDelta = currentSnapshot.wins - previousSessionHudSnapshot.wins;
-	if (winsDelta !== 0) {
-		BattlegroundEvent.winsChanged.emit({ wins: currentSnapshot.wins, delta: winsDelta });
-	}
-
-	const livesDelta = currentSnapshot.lives - previousSessionHudSnapshot.lives;
-	if (livesDelta !== 0) {
-		BattlegroundEvent.livesChanged.emit({ lives: currentSnapshot.lives, delta: livesDelta });
-	}
-
-	if (currentSnapshot.round !== previousSessionHudSnapshot.round) {
-		BattlegroundEvent.roundChanged.emit({
-			round: currentSnapshot.round,
-			delta: currentSnapshot.round - previousSessionHudSnapshot.round,
-		});
-	}
-
-	previousSessionHudSnapshot = currentSnapshot;
-}
-
 const transitionToCurrentPhase = async () => {
 	const phase = env.state.session.phase;
 	await go(phase);
@@ -108,18 +64,19 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 	events: () => {
 
-		return {
-			events: BattlegroundEvent,
-			listeners: [
-				BattlegroundEvent.phaseFinished.listen(transitionToCurrentPhase),
-				BattlegroundEvent.phaseFinished.listen(updateHudFromSessionChanges),
+		const evs = BattlegroundEvent;
 
-				BattlegroundEvent.newRunRequested.listen(() => {
+		return {
+			events: evs,
+			listeners: [
+				evs.phaseFinished.listen(transitionToCurrentPhase),
+
+				evs.newRunRequested.listen(() => {
 					env.resetState();
 					void getScreenManager().go("crystals");
 				}),
 
-				BattlegroundEvent.mainMenuRequested.listen(() => {
+				evs.mainMenuRequested.listen(() => {
 					env.resetState();
 					void getScreenManager().go("title");
 				}),
@@ -138,8 +95,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 		const resultsUI = Components.ResultsUI.create(); // remove this, should be created by phase itself
 		const discardZone = Components.DiscardZone.create();
 		const UI = Components.UI.create();
-
-		previousSessionHudSnapshot = createSessionHudSnapshot();
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
@@ -171,7 +126,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 const _bgscreen = screenModule(screen, {
 	onDestroy: () => {
-		previousSessionHudSnapshot = null;
 		Chara.clearAll();
 	},
 });
