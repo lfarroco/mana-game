@@ -38,6 +38,8 @@ export function create() {
 	headerContainer.setPosition(580, 0);
 
 	uiContainer = container(env.scene, [headerContainer, menuButton.create()]);
+
+	return uiContainer;
 }
 
 export async function handleUserMessageRequested(payload: {

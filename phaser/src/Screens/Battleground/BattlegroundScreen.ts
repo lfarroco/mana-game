@@ -1,4 +1,3 @@
-import * as Board from "@Components/Board/Board";
 import * as Chara from "@Systems/Chara/Chara";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
@@ -11,9 +10,7 @@ import { env } from "@Env";
 import { BattlegroundEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
-import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
-
 
 export type BGPhase = Models.PhaseType;
 
@@ -21,10 +18,6 @@ type BGEvents = typeof BattlegroundEvent
 
 export type BGContext = ScreenCtx<BGPhase, BGEvents>
 
-
-// ---------------------------------------------------------------------------
-// Phase advancement helpers
-// ---------------------------------------------------------------------------
 
 /**
  * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
@@ -62,10 +55,6 @@ export const finishPhase = async (
 	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
 };
 
-
-// ---------------------------------------------------------------------------
-// HUD snapshot (track deltas for HUD animations)
-// ---------------------------------------------------------------------------
 
 type SessionHudSnapshot = {
 	round: number;
@@ -109,28 +98,10 @@ function updateHudFromSessionChanges(_payload: { previousPhase: Models.PhaseType
 	previousSessionHudSnapshot = currentSnapshot;
 }
 
-
-/**
- * The phase loop.  Reads the current phase from session state, syncs the
- * player board (except around combat), awaits the previous phase's
- * teardown, then switches the framework tracker to the new phase.
- * Wired to BattlegroundEvent.phaseFinished and called once from create().
- */
-const transitionToCurrentPhase = async ({ previousPhase }: {
-	previousPhase?: Models.PhaseType
-}) => {
+const transitionToCurrentPhase = async () => {
 	const phase = env.state.session.phase;
-
-	if (phase !== "combat" && previousPhase !== "combat") {
-		await syncPlayerBoardUnits();
-	}
-
 	await go(phase);
 };
-
-// ---------------------------------------------------------------------------
-// Screen factory
-// ---------------------------------------------------------------------------
 
 const screen = createScreen<BGPhase, BGEvents>({
 	name: "battleground",
@@ -153,7 +124,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 					void getScreenManager().go("title");
 				}),
 
-				// --- HUD listeners (wins/lives/round display updates) ---
 				...UI.registerListeners(),
 
 			],
@@ -162,23 +132,27 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 	create: async (_ctx) => {
 
-		Components.Background.create();
-		Components.NamesDisplay.create();
-		Components.Board.create();
-		Components.ResultsUI.create(); // remove this
-		Components.DiscardZone.create();
-		Components.UI.create();
+		const cloudsBg = Components.Background.create();
+		const namesDisplay = Components.NamesDisplay.create();
+		const board = Components.Board.create();
+		const resultsUI = Components.ResultsUI.create(); // remove this, should be created by phase itself
+		const discardZone = Components.DiscardZone.create();
+		const UI = Components.UI.create();
 
 		previousSessionHudSnapshot = createSessionHudSnapshot();
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		// TODO: input enable/disable should be managed at the screen level, not
-		// delegated to individual components (Board, Shop, etc.).
-		Board.setIsInputEnabled(true);
+		transitionToCurrentPhase();
 
-		// Kick off the phase loop
-		await transitionToCurrentPhase({});
+		return [
+			cloudsBg,
+			...namesDisplay,
+			...board,
+			...resultsUI,
+			discardZone,
+			UI
+		]
 	},
 
 	phases: {

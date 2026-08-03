@@ -16,6 +16,9 @@ export interface BoardState {
 	readonly height: number;
 }
 
+let _playerBoardState: BoardState | null = null;
+let _inputEnabled = true;
+
 export function createBoardState(): BoardState {
 	return {
 		slotShaders: [],
@@ -29,7 +32,7 @@ export function createBoardState(): BoardState {
 	};
 }
 
-export function renderBoardSlots(board: BoardState): void {
+export function renderBoardSlots(board: BoardState) {
 
 	destroyVisuals(board);
 
@@ -47,62 +50,79 @@ export function renderBoardSlots(board: BoardState): void {
 		{ x: constants.CPU_BOARD_X, y: constants.CPU_BOARD_Y, isPlayer: false },
 	];
 
-	boards.forEach((boardInfo) => {
-		cells.forEach(([cx, cy]) => {
-			let visualX = cx;
-			if (!boardInfo.isPlayer) {
-				visualX = 2 - cx;
-			}
+	const elements = boards.map((boardInfo) =>
+		cells.map(([cx, cy]) =>
+			renderCell([cx, cy], boardInfo, slotSpacing, board)
+		)
+	);
 
-			const zoneX = boardInfo.x + visualX * (constants.TILE_WIDTH + slotSpacing);
-			const zoneY = boardInfo.y + cy * (constants.TILE_HEIGHT + slotSpacing);
+	return elements.flat().flat();
+}
 
-			const slotX = zoneX + constants.TILE_WIDTH / 2;
-			const slotY = zoneY + constants.TILE_HEIGHT / 2;
+function renderCell(
+	[cx, cy]: Vec2,
+	boardInfo: { x: number; y: number; isPlayer: boolean; },
+	slotSpacing: number,
+	board: BoardState,
+) {
+	let visualX = cx;
+	if (!boardInfo.isPlayer) {
+		visualX = 2 - cx;
+	}
 
-			let energySlot: EnergySlot.EnergySlot;
-			if (boardInfo.isPlayer) {
-				energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(
-					slotX,
-					slotY,
-					constants.TILE_WIDTH
-				);
-			} else {
-				energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(
-					slotX,
-					slotY,
-					constants.TILE_WIDTH
-				);
-			}
+	const zoneX = boardInfo.x + visualX * (constants.TILE_WIDTH + slotSpacing);
+	const zoneY = boardInfo.y + cy * (constants.TILE_HEIGHT + slotSpacing);
 
-			if (!boardInfo.isPlayer) {
-				if (board.enemyBoardVisible) {
-					energySlot.setPosition(slotX, slotY);
-				} else {
-					const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
-					energySlot.setPosition(offScreenX, slotY);
-				}
-				energySlot.setVisible(board.enemyBoardVisible);
-				board.cpuSlotShaders.push(energySlot);
-			} else {
-				board.slotShaders.push(energySlot);
-			}
+	const slotX = zoneX + constants.TILE_WIDTH / 2;
+	const slotY = zoneY + constants.TILE_HEIGHT / 2;
 
-			if (boardInfo.isPlayer) {
-				const dropZone = env.scene.add.zone(
-					zoneX + constants.TILE_WIDTH / 2,
-					zoneY + constants.TILE_HEIGHT / 2,
-					constants.TILE_WIDTH,
-					constants.TILE_HEIGHT
-				);
-				dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
-				dropZone.setName("board-cell");
-				dropZone.setData("cell-x", cx);
-				dropZone.setData("cell-y", cy);
-				board.dropZones.push(dropZone);
-			}
-		});
-	});
+	let energySlot: EnergySlot.EnergySlot;
+	if (boardInfo.isPlayer) {
+		energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(
+			slotX,
+			slotY,
+			constants.TILE_WIDTH
+		);
+	} else {
+		energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(
+			slotX,
+			slotY,
+			constants.TILE_WIDTH
+		);
+	}
+
+	if (!boardInfo.isPlayer) {
+		if (board.enemyBoardVisible) {
+			energySlot.setPosition(slotX, slotY);
+		} else {
+			const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
+			energySlot.setPosition(offScreenX, slotY);
+		}
+		energySlot.setVisible(board.enemyBoardVisible);
+		board.cpuSlotShaders.push(energySlot);
+	} else {
+		board.slotShaders.push(energySlot);
+	}
+
+	const createDropZone = () => {
+		const dropZone = env.scene.add.zone(
+			zoneX + constants.TILE_WIDTH / 2,
+			zoneY + constants.TILE_HEIGHT / 2,
+			constants.TILE_WIDTH,
+			constants.TILE_HEIGHT
+		);
+		dropZone.setRectangleDropZone(constants.TILE_WIDTH, constants.TILE_HEIGHT);
+		dropZone.setName("board-cell");
+		dropZone.setData("cell-x", cx);
+		dropZone.setData("cell-y", cy);
+		board.dropZones.push(dropZone);
+
+		return dropZone;
+	}
+
+	const dropzone = boardInfo.isPlayer ? createDropZone() : env.container();
+
+	return [energySlot, dropzone]
 }
 
 export function setEnemyBoardVisible(visible: boolean): void {
@@ -279,9 +299,6 @@ export function updateUnitPosition(
 	}
 }
 
-let _playerBoardState: BoardState | null = null;
-let _inputEnabled = true;
-
 export function setIsInputEnabled(enabled: boolean) {
 	_inputEnabled = enabled;
 }
@@ -290,13 +307,11 @@ export function isInputEnabled() {
 	return _inputEnabled;
 }
 
-export function init() {
-	_playerBoardState = createBoardState();
-}
-
 export function create() {
-	init();
-	renderBoardSlots(_playerBoardState!);
+
+	_playerBoardState = createBoardState();
+
+	return renderBoardSlots(_playerBoardState!);
 }
 
 export function getBoardState(): BoardState {

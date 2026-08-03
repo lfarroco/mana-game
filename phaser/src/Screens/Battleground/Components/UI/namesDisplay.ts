@@ -9,7 +9,7 @@ const DISPLAY_DEPTH = 1000;
 let playerNameText: Phaser.GameObjects.Text | null = null;
 let enemyNameText: Phaser.GameObjects.Text | null = null;
 
-export const create = async () => {
+export const create = () => {
 
 	if (!playerNameText || !playerNameText.scene) {
 		playerNameText = createNameText(LEFT_MARGIN, "left");
@@ -23,6 +23,8 @@ export const create = async () => {
 		playerName: "Player",
 		enemyName: "",
 	});
+
+	return [playerNameText, enemyNameText]
 
 }
 

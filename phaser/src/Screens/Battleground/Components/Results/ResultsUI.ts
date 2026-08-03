@@ -42,6 +42,8 @@ export function create() {
 	isOpen = false;
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
+
+	return [overlay, resultsContainer]
 }
 
 function calculateLivesChange(resultType: "victory" | "defeat"): number {
