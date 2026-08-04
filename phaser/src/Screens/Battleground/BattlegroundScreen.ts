@@ -6,7 +6,7 @@ import * as Encounter from "./Phases/Encounter/Encounter";
 import * as Components from "./Components";
 import * as Phases from "./Phases";
 import { env } from "@Env";
-import { BattlegroundEvent } from "../../Events";
+import { BattlegroundEvent, GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
@@ -55,7 +55,7 @@ export const finishPhase = async (
 
 
 const transitionToCurrentPhase = async () => {
-	const phase = env.state.session.phase;
+	const { phase } = env.state.session;
 	await go(phase);
 };
 
@@ -69,6 +69,9 @@ const screen = createScreen<BGPhase, BGEvents>({
 		return {
 			events: evs,
 			listeners: [
+
+				GameEvent.screenHidden.listen(Chara.clearAll),
+
 				evs.phaseFinished.listen(transitionToCurrentPhase),
 
 				evs.newRunRequested.listen(() => {
@@ -121,9 +124,5 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 });
 
-const _bgscreen = screenModule(screen, {
-	onDestroy: () => {
-		Chara.clearAll();
-	},
-});
+const _bgscreen = screenModule(screen);
 export const { init, create, destroy, go, name } = _bgscreen;

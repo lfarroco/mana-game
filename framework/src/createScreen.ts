@@ -389,7 +389,6 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
  */
 export function screenModule<TPhase extends string, E extends EventRecord>(
 	screen: ScreenResult<TPhase, E>,
-	opts?: { onDestroy?: () => void },
 ): ScreenModule & {
 	/** Always present on the wrapper (ScreenModule marks it optional). */
 	init: () => void;
@@ -414,7 +413,6 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 
 		destroy() {
 			screen.destroy();
-			opts?.onDestroy?.();
 		},
 
 		go: screen.go as (phase: string) => Promise<void>,

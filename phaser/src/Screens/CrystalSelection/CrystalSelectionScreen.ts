@@ -13,6 +13,7 @@ import { CardDefinition, createEvent } from "@game/Models";
 import { getScreenManager } from "../ScreenManager";
 import { createScreen, screenModule } from "@mana/framework";
 import { CRYSTAL_IDS } from "./ids";
+import { GameEvent } from "../../Events";
 
 export type CrystalSelectionEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
@@ -39,6 +40,7 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		return {
 			events: e,
 			listeners: [
+				GameEvent.screenHidden.listen(cleanup),
 				e.playClicked.listen(Effects.startNewGame),
 				e.backClicked.listen(() => {
 					void getScreenManager().go("title");
@@ -88,14 +90,11 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 	},
 });
 
-// ---------------------------------------------------------------------------
-// ScreenModule exports — the shape Client.ts expects
-// ---------------------------------------------------------------------------
+const cleanup = () => {
+	crystals = [];
+	currentIndex = 0;
+};
 
-const _cscreen = screenModule(screen, {
-	onDestroy: () => { crystals = []; currentIndex = 0; },
-});
-export const { init, create, destroy } = _cscreen;
-export const name = _cscreen.name;
+export const { init, create, destroy, name } = screenModule(screen);
 
 
