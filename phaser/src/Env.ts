@@ -241,5 +241,11 @@ export const createEnv = (
 	};
 
 	env = instance;
+
+	if (__DEV__) {
+		//@ts-expect-error expose env
+		window.__env__ = instance;
+	}
+
 	return instance;
 };

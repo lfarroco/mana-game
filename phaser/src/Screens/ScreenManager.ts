@@ -23,9 +23,6 @@ import {
 
 export type { ScreenModule } from "@mana/framework";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 /** Typed route map — one route per screen, declaring the params it accepts. */
 export type Routes = {
@@ -39,16 +36,9 @@ export type Routes = {
 type RouteParams<R extends keyof Routes> = Routes[R] extends void ? void : Routes[R];
 
 export type ScreenManager = {
-	/** Navigate to a route, optionally passing typed params. */
 	go: <R extends keyof Routes>(route: R, params?: RouteParams<R>) => Promise<void>;
-	/** The currently active screen module, or null before the first navigation. */
 	current: () => ScreenModule | null;
 };
-
-// ---------------------------------------------------------------------------
-// Singleton — screens import getScreenManager() to avoid a circular dependency
-// on Client.ts (which registers the manager at boot).
-// ---------------------------------------------------------------------------
 
 let manager: ScreenManager | null = null;
 
@@ -63,14 +53,9 @@ export function getScreenManager(): ScreenManager {
 	return manager;
 }
 
-/** Test-only reset. */
 export function resetScreenManager(): void {
 	manager = null;
 }
-
-// ---------------------------------------------------------------------------
-// Factory
-// ---------------------------------------------------------------------------
 
 export function createScreenManager(config: {
 	screens: Record<keyof Routes, ScreenModule>;
@@ -79,8 +64,6 @@ export function createScreenManager(config: {
 	const fadeMs = config.transitions?.fadeMs ?? 300;
 	const fadeColor = config.transitions?.color ?? 0x000000;
 
-	// Fades only apply between screens — the first navigation has nothing to
-	// fade from, and the boot screen should appear instantly.
 	let fadeInPending = false;
 
 	return createFrameworkScreenManager<Routes>({
@@ -92,12 +75,9 @@ export function createScreenManager(config: {
 					from.destroy?.();
 				}
 
-				// Disable scene input to flush any stale interactive-object references
-				// from the InputPlugin (cursors, pointer tracking, registered objects).
-				// We re-enable after the new screen is rendered.
+
 				env.scene.input.enabled = false;
 
-				// Skip the fade-out on first load (nothing to fade from).
 				if (from) {
 					await env.fadeOut(fadeMs, fadeColor);
 					fadeInPending = true;
@@ -106,11 +86,7 @@ export function createScreenManager(config: {
 				env.scene.tweens.killAll();
 				env.scene.time.removeAllEvents();
 
-				// Reset the default cursor — the howToPlay container on the title screen
-				// sets scene.input.setDefaultCursor("pointer") in its pointerover handler,
-				// and if the container is destroyed before pointerout fires the cursor
-				// stays "pointer" permanently across the whole scene.
-				env.scene.input.setDefaultCursor("default");
+
 			},
 
 			afterTransition: async (to) => {
@@ -121,7 +97,6 @@ export function createScreenManager(config: {
 					await env.fadeIn(fadeMs);
 				}
 
-				// Re-enable scene input now that the new screen is fully rendered
 				env.scene.input.enabled = true;
 			},
 		},

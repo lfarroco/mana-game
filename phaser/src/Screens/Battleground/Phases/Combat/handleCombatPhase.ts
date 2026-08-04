@@ -118,7 +118,6 @@ const setupCombatBoard = () => {
 };
 
 const showCombatResults = async ({ resultType }: { resultType: "defeat" | "victory" }) => {
-	void ResultsUI.slideIn();
 	await ResultsUI.displayResults(resultType);
 };
 

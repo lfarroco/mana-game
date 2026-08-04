@@ -91,7 +91,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 		const cloudsBg = Components.Background.create();
 		const namesDisplay = Components.NamesDisplay.create();
 		const board = Components.Board.create();
-		const resultsUI = Components.ResultsUI.create(); // remove this, should be created by phase itself
 		const discardZone = Components.DiscardZone.create();
 		const UI = Components.UI.create();
 
@@ -103,7 +102,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 			cloudsBg,
 			...namesDisplay,
 			...board,
-			...resultsUI,
 			discardZone,
 			UI
 		]

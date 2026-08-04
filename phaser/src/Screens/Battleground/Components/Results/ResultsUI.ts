@@ -12,24 +12,24 @@ import { BattlegroundEvent } from "../../../../Events";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
-let resultsContainer: Phaser.GameObjects.Container;
-let overlay: BackgroundOverlay.BackgroundOverlay;
-let isOpen: boolean;
+type ResultsContainer = {
+	overlay: BackgroundOverlay.BackgroundOverlay;
+	container: Container;
+}
 
-export function create() {
+export function create(): ResultsContainer {
 
-	overlay = BackgroundOverlay.create({
+	const overlay = BackgroundOverlay.create({
 		color: ResultsConfig.RESULTS_PANEL.overlayColor,
 		alpha: ResultsConfig.RESULTS_PANEL.overlayAlpha,
 		interactive: true,
 	});
 
-	resultsContainer = env.scene.add.container(0, 0);
-	isOpen = false;
+	const resultsContainer = env.scene.add.container(0, 0);
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
 
-	return [overlay, resultsContainer]
+	return { overlay, container: resultsContainer }
 }
 
 function calculateLivesChange(resultType: "victory" | "defeat"): number {
@@ -56,9 +56,8 @@ export async function displayResults(
 	resultType: "victory" | "defeat",
 ): Promise<void> {
 	return new Promise<void>((resolve) => {
-		resultsContainer.removeAll(true);
-		env.scene.children.bringToTop(overlay.rectangle);
-		env.scene.children.bringToTop(resultsContainer);
+
+		const resultsUI = create();
 
 		const livesChange = calculateLivesChange(resultType);
 		const allBattleUnits = env.state.combatState?.units ?? [];
@@ -67,65 +66,62 @@ export async function displayResults(
 		const unlistenContinue = BattlegroundEvent.combatContinueRequested.listen(async () => {
 			unlistenContinue();
 			unlistenReplay();
-			await slideOut();
+			await slideOut(resultsUI);
 			resolve();
 		});
 
 		const unlistenReplay = BattlegroundEvent.combatReplayRequested.listen(async () => {
 			unlistenContinue();
 			unlistenReplay();
-			await slideOut();
+			await slideOut(resultsUI);
 			resolve();
 		});
 
 		// Render the UI — its buttons will emit events, triggering the listeners above
 		void displayAppropriateUI(
 			resultType, livesChange, allBattleUnits)
-			.then((uiContainer) => { resultsContainer.add(uiContainer); });
+			.then((uiContainer) => {
+				resultsUI.container.add(uiContainer);
+			});
 	});
 }
 
 export async function displayGameCompleteResults(
 	isGameOver: boolean,
-	onComplete?: () => void
 ) {
-	resultsContainer.removeAll(true);
-	env.scene.children.bringToTop(overlay.rectangle);
-	env.scene.children.bringToTop(resultsContainer);
+	const resultsUI = create();
 
 	const ui = await GameCompleteUI.displayGameComplete(
 		env.state.session.wins,
 		env.state.session.team.units,
 		isGameOver,
-		onComplete
 	);
-	resultsContainer.add(ui);
+	resultsUI.container.add(ui);
 
-	return [resultsContainer];
+	slideIn(resultsUI);
+
+	return [resultsUI.container];
 }
 
-export async function slideIn(): Promise<void> {
+export async function slideIn(resultsUI: ResultsContainer): Promise<void> {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_enter");
 
-	overlay.fadeIn(300);
+	resultsUI.overlay.fadeIn(300);
 
-	await animation.tween({ targets: [resultsContainer], y: 0 });
+	await animation.tween({ targets: [resultsUI.container], y: 0 });
 
-	isOpen = true;
 }
 
-export async function slideOut(): Promise<void> {
+export async function slideOut(resultsUI: ResultsContainer): Promise<void> {
 	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
 
-	overlay.fadeOut(300);
+	resultsUI.overlay.fadeOut(300);
 
-	await animation.tween({ targets: [resultsContainer], y: RESULTS_CONTAINER_HIDDEN_Y });
+	await animation.tween({ targets: [resultsUI.container], y: RESULTS_CONTAINER_HIDDEN_Y });
 
-	resultsContainer.removeAll(true);
+	resultsUI.container.removeAll(true);
+	resultsUI.container.destroy()
 
-	isOpen = false;
 }
 
-export function getIsResultsOpen(): boolean {
-	return isOpen;
-}
+

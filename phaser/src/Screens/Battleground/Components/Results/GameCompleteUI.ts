@@ -12,16 +12,17 @@ import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
 import { env, makeContainer, borderedRoundRect } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
+import * as ResultsUI from "./ResultsUI";
 
 export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
-	// TODO: audit how this function is called, if arg is necessary
-	onComplete?: () => void
 ): Promise<Phaser.GameObjects.Container> {
-	const complete = typeof onComplete === "function" ? onComplete : undefined;
 
+	const resultsContainer = ResultsUI.create();
+
+	// TODO: apparently, it's not working
 	deleteSavedData();
 
 	AudioManager.playMusic("music_playmode", true, 1000);
@@ -38,34 +39,32 @@ export async function displayGameComplete(
 		AchievementSystem.checkVictoryAchievements(wins, playerCore.cardId);
 	}
 
-	if (true) {
-		StatsStore.incrementRunsPlayed();
-		if (wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
-			StatsStore.recordVictory("gold", playerCore?.cardId);
-		} else if (wins >= ResultsConfig.SILVER_VICTORY_THRESHOLD) {
-			StatsStore.recordVictory("silver", playerCore?.cardId);
-		} else if (wins >= ResultsConfig.BRONZE_VICTORY_THRESHOLD) {
-			StatsStore.recordVictory("bronze", playerCore?.cardId);
-		}
-
-		if (wins > ResultsConfig.INFINITE_MODE_THRESHOLD) {
-			StatsStore.updateFurthestInfiniteRound(wins);
-		}
-
-		const defaultRunStats = {
-			damageDealt: 0,
-			poisonDealt: 0,
-			shieldDealt: 0,
-			regenDealt: 0,
-			healDealt: 0,
-			mostPowerfulUnit: null,
-			totalUnitsRecruited: 0,
-			unitUsage: {},
-		};
-		StatsStore.recordRunStats(env.state.session.runStats || defaultRunStats);
-
-		StatsStore.save();
+	StatsStore.incrementRunsPlayed();
+	if (wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("gold", playerCore?.cardId);
+	} else if (wins >= ResultsConfig.SILVER_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("silver", playerCore?.cardId);
+	} else if (wins >= ResultsConfig.BRONZE_VICTORY_THRESHOLD) {
+		StatsStore.recordVictory("bronze", playerCore?.cardId);
 	}
+
+	if (wins > ResultsConfig.INFINITE_MODE_THRESHOLD) {
+		StatsStore.updateFurthestInfiniteRound(wins);
+	}
+
+	const defaultRunStats = {
+		damageDealt: 0,
+		poisonDealt: 0,
+		shieldDealt: 0,
+		regenDealt: 0,
+		healDealt: 0,
+		mostPowerfulUnit: null,
+		totalUnitsRecruited: 0,
+		unitUsage: {},
+	};
+	StatsStore.recordRunStats(env.state.session.runStats || defaultRunStats);
+
+	StatsStore.save();
 
 	// Check if demo limit reached
 	const isDemoComplete = Config.IS_DEMO && wins >= Config.GAME_CONFIG.MAX_VICTORIES;
@@ -105,17 +104,11 @@ export async function displayGameComplete(
 	buttonDefinitions.push(
 		[
 			i18n.t("results.buttons.new_run"),
-			async () => {
-				BattlegroundEvent.newRunRequested.emit();
-				complete?.();
-			},
+			BattlegroundEvent.newRunRequested.emit
 		],
 		[
 			i18n.t("results.buttons.main_menu"),
-			async () => {
-				BattlegroundEvent.mainMenuRequested.emit();
-				complete?.();
-			},
+			BattlegroundEvent.mainMenuRequested.emit
 		]
 	);
 
@@ -128,12 +121,11 @@ export async function displayGameComplete(
 		buttonDefinitions.push([
 			i18n.t("results.buttons.infinite_mode"),
 			async () => {
-				const { slideOut } = await import("./ResultsUI");
-				await slideOut();
+
+				await ResultsUI.slideOut(resultsContainer);
 
 				AudioManager.playMusic("music_battlemap_vetruv");
 				BattlegroundEvent.combatContinueRequested.emit();
-				complete?.();
 			},
 		]);
 	}
@@ -183,6 +175,8 @@ export async function displayGameComplete(
 		subtitle,
 		...buttons,
 	]);
+
+	resultsContainer.container.add(container)
 
 	if (!environment.isElectron() && !isGameOver && wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
 		const wishlistPanelHeight = 150;

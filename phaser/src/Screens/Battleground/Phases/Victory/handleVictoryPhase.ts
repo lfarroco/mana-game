@@ -7,8 +7,6 @@ export const VictoryPhase = (ctx: BGContext) => {
 		await dispatchAction({ type: "victory" });
 	});
 
-	return ResultsUI.displayGameCompleteResults(false, () => {
-		void ResultsUI.slideIn();
-	});
+	return ResultsUI.displayGameCompleteResults(false);
 
 };
