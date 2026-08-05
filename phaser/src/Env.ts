@@ -245,6 +245,8 @@ export const createEnv = (
 	if (__DEV__) {
 		//@ts-expect-error expose env
 		window.__env__ = instance;
+
+		env.scene.cameras.main.zoom = 0.2
 	}
 
 	return instance;

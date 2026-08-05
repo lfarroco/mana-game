@@ -4,7 +4,6 @@ import * as animation from "@Utils/animation";
 import * as Chara from "@Systems/Chara/Chara";
 
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
-import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";
 
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
@@ -15,6 +14,8 @@ import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
+import * as VictoryUI from "@Screens/Battleground/Components/Results/VictoryUI";
+import * as DefeatUI from "@Screens/Battleground/Components/Results/DefeatUI";
 
 // Store the last combat's tracker state for the results UI to read.
 // Must remain module-level because CombatStatsTable imports it directly.
@@ -117,9 +118,41 @@ const setupCombatBoard = () => {
 	return charas;
 };
 
-const showCombatResults = async ({ resultType }: { resultType: "defeat" | "victory" }) => {
-	await ResultsUI.displayResults(resultType);
-};
+export async function showCombatResults(
+	{ resultType }: { resultType: "defeat" | "victory" }
+) {
+
+	const livesChange = calculateLivesChange(resultType);
+	const allBattleUnits = env.state.combatState?.units ?? [];
+
+	// Temporary listeners — clean themselves up after first fire
+	const unlistenContinue = BattlegroundEvent.combatContinueRequested.listen(async () => {
+		unlistenContinue();
+		unlistenReplay();
+	});
+
+	const unlistenReplay = BattlegroundEvent.combatReplayRequested.listen(async () => {
+		unlistenContinue();
+		unlistenReplay();
+	});
+
+	// Render the UI — its buttons will emit events, triggering the listeners above
+	if (resultType === "victory") {
+		VictoryUI.displayVictory(allBattleUnits);
+	} else {
+		DefeatUI.displayDefeat(livesChange, allBattleUnits);
+	}
+
+}
+
+function calculateLivesChange(resultType: "victory" | "defeat"): number {
+	if (resultType === "victory") {
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
 
 function cleanupPlayback(state: PlaybackState): void {
 	state.isPaused = false;
@@ -212,7 +245,7 @@ const handleCombatFinished = async (
 	if (!state.currentController) return;
 	Board.setIsInputEnabled(true);
 	lastCombatTrackerState = state.currentController.getEnv().combatStates.combatStatsTrackerState;
-	await showCombatResults({
+	showCombatResults({
 		resultType: getCombatResultType(outcome),
 	});
 }

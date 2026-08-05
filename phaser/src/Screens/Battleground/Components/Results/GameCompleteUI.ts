@@ -12,15 +12,12 @@ import * as Config from "@config";
 import { deleteSavedData } from "@Storage/deleteSavedData";
 import { env, makeContainer, borderedRoundRect } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
-import * as ResultsUI from "./ResultsUI";
 
 export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
 	isGameOver: boolean,
 ): Promise<Phaser.GameObjects.Container> {
-
-	const resultsContainer = ResultsUI.create();
 
 	// TODO: apparently, it's not working
 	deleteSavedData();
@@ -122,8 +119,6 @@ export async function displayGameComplete(
 			i18n.t("results.buttons.infinite_mode"),
 			async () => {
 
-				await ResultsUI.slideOut(resultsContainer);
-
 				AudioManager.playMusic("music_battlemap_vetruv");
 				BattlegroundEvent.combatContinueRequested.emit();
 			},
@@ -175,8 +170,6 @@ export async function displayGameComplete(
 		subtitle,
 		...buttons,
 	]);
-
-	resultsContainer.container.add(container)
 
 	if (!environment.isElectron() && !isGameOver && wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
 		const wishlistPanelHeight = 150;

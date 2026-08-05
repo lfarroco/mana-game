@@ -1,5 +1,6 @@
-import * as ResultsUI from "@Screens/Battleground/Components/Results/ResultsUI";
 import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
+import { displayGameComplete } from "@Screens/Battleground/Components/Results/GameCompleteUI";
+import { env } from "@Env";
 
 export const VictoryPhase = (ctx: BGContext) => {
 
@@ -7,6 +8,10 @@ export const VictoryPhase = (ctx: BGContext) => {
 		await dispatchAction({ type: "victory" });
 	});
 
-	return ResultsUI.displayGameCompleteResults(false);
+	return displayGameComplete(
+		env.state.session.wins,
+		env.state.session.team.units,
+		false,
+	);
 
 };

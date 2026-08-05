@@ -5,7 +5,6 @@ import * as Encounter from "./Phases/Encounter/Encounter";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
-import * as transition from "./transition";
 import { env } from "@Env";
 import { BattlegroundEvent, GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
@@ -112,27 +111,15 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 
 	phases: {
-		encounter: {
-			handler: Encounter.encounterPhase(true),
-			transition: { enter: transition.encounterCardsEnter },
-		},
-		pre_combat: {
-			handler: Encounter.encounterPhase(false),
-			transition: { enter: transition.encounterCardsEnter },
-		},
+		encounter: Encounter.encounterPhase(true),
+		pre_combat: Encounter.encounterPhase(false),
 		shop: (ctx) => Phases.ShopPhase(ctx),
 		orb_shop: Phases.openOrbShop,
 		upgrade_core: Phases.UpgradeCorePhase,
 		add_reaction_core: Phases.AddReactionCorePhase,
 		combat: (ctx) => Phases.CombatPhase(ctx),
-		game_over: {
-			handler: Phases.GameOverPhase,
-			transition: { enter: transition.resultsEnter, exit: transition.resultsExit },
-		},
-		victory: {
-			handler: (ctx) => Phases.VictoryPhase(ctx),
-			transition: { enter: transition.resultsEnter, exit: transition.resultsExit },
-		},
+		game_over: Phases.GameOverPhase,
+		victory: (ctx) => Phases.VictoryPhase(ctx),
 	},
 });
 
