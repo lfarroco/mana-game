@@ -12,9 +12,10 @@ import { BattlegroundEvent } from "../../../../Events";
 
 const RESULTS_CONTAINER_HIDDEN_Y = c.SCREEN_HEIGHT * -1;
 
-type ResultsContainer = {
+export type ResultsContainer = {
 	overlay: BackgroundOverlay.BackgroundOverlay;
 	container: Container;
+	destroy: () => void;
 }
 
 export function create(): ResultsContainer {
@@ -29,7 +30,14 @@ export function create(): ResultsContainer {
 
 	resultsContainer.setY(RESULTS_CONTAINER_HIDDEN_Y);
 
-	return { overlay, container: resultsContainer }
+	return {
+		overlay,
+		container: resultsContainer,
+		destroy: () => {
+			overlay.destroy();
+			resultsContainer.destroy();
+		},
+	}
 }
 
 function calculateLivesChange(resultType: "victory" | "defeat"): number {
@@ -98,9 +106,7 @@ export async function displayGameCompleteResults(
 	);
 	resultsUI.container.add(ui);
 
-	slideIn(resultsUI);
-
-	return [resultsUI.container];
+	return resultsUI;
 }
 
 export async function slideIn(resultsUI: ResultsContainer): Promise<void> {
@@ -122,6 +128,19 @@ export async function slideOut(resultsUI: ResultsContainer): Promise<void> {
 	resultsUI.container.removeAll(true);
 	resultsUI.container.destroy()
 
+}
+
+/**
+ * Slide the results container out WITHOUT destroying it.  The framework's
+ * phase tracking will destroy the container + overlay after the exit transition
+ * completes.  Used as the `exit` transition for victory/game_over phases.
+ */
+export async function slideOutOnly(resultsUI: ResultsContainer): Promise<void> {
+	AudioManager.playSoundEffect("sfx_ui_modalwindow_swoosh_exit");
+
+	resultsUI.overlay.fadeOut(300);
+
+	await animation.tween({ targets: [resultsUI.container], y: RESULTS_CONTAINER_HIDDEN_Y });
 }
 
 

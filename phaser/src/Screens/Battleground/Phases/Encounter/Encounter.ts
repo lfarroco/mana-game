@@ -181,20 +181,12 @@ export const encounterPhase = (renderSkipBtn = true) => (_ctx: BGContext) => {
 		}
 
 		const card = EncounterCard.createEncounterCard({
-			position: [x + width + 200, y],
+			position: [x, y],
 			size: [width, height],
 			name: encounter.name,
 			pic: encounter.pic,
 			description: encounter.description,
 			onClick: () => onSelectEncounter(encounter.id),
-		});
-
-		env.scene.tweens.add({
-			targets: card.container,
-			x,
-			delay: 100 * index,
-			duration: 300,
-			ease: "Power2",
 		});
 
 		return card

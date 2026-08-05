@@ -13,6 +13,9 @@
  *   - screenModule() helper to reduce per-screen export boilerplate
  *   - ID-based element recovery via ctx.findById(id) and the module-level
  *     findTrackedById(id) for helpers without ctx access
+ *   - declarative phase transitions: each phase may declare an `enter` and/or
+ *     `exit` animation that runs on the elements the handler returns (enter)
+ *     or on the outgoing phase's elements before they are destroyed (exit)
  *
  * This module has no runtime imports (types only) so it stays unit-testable
  * without any engine mock.
@@ -37,9 +40,34 @@ type EventRecord = Record<string, Clearable>;
  */
 export type Destroyable = { destroy: () => void };
 
+/**
+ * Declarative phase transition.  `enter` animates the incoming phase's
+ * returned elements in; `exit` animates the outgoing phase's returned
+ * elements out before they are destroyed.  Both are optional — a phase
+ * without a transition just appears/disappears instantly.
+ */
+export type PhaseTransition = {
+	/** Animate the incoming phase's returned elements in. Runs after the handler. */
+	enter?: (elements: Destroyable[]) => void | Promise<void>;
+	/** Animate the outgoing phase's returned elements out. Runs before they're destroyed. */
+	exit?: (elements: Destroyable[]) => void | Promise<void>;
+};
+
+type PhaseHandler<TPhase extends string, E extends EventRecord = EventRecord> = (
+	ctx: ScreenCtx<TPhase, E>,
+) => void | Destroyable | Destroyable[] | Promise<void | Destroyable | Destroyable[]>;
+
+/**
+ * A phase entry is either a bare handler (no transition) or an object with a
+ * handler plus an optional transition.
+ */
+export type PhaseEntry<TPhase extends string, E extends EventRecord = EventRecord> =
+	| PhaseHandler<TPhase, E>
+	| { handler: PhaseHandler<TPhase, E>; transition?: PhaseTransition };
+
 type PhaseMap<TPhase extends string, E extends EventRecord = EventRecord> = Record<
 	TPhase,
-	(ctx: ScreenCtx<TPhase, E>) => void | Destroyable | Destroyable[] | Promise<void | Destroyable | Destroyable[]>
+	PhaseEntry<TPhase, E>
 >;
 
 /** Options for single-object add(). */
@@ -143,6 +171,11 @@ export function findTrackedById<T extends Destroyable>(
 class TrackedGroup implements Destroyable {
 	private children: Destroyable[] = [];
 
+	/** The raw returned elements, for transitions to animate. */
+	get elements(): Destroyable[] {
+		return this.children;
+	}
+
 	add(child: Destroyable): void {
 		this.children.push(child);
 	}
@@ -192,6 +225,11 @@ class PhaseTracker<TPhase extends string> {
 			(this.persistent.get(id) as T | undefined) ??
 			(this.phaseObjects.get(id) as T | undefined)
 		);
+	}
+
+	/** All elements tracked by the current phase (for exit transitions). */
+	getPhaseElements(): Destroyable[] {
+		return Array.from(this.phaseObjects.values());
 	}
 
 	/** Enter phase scope: subsequent add() calls register to the phase. */
@@ -246,6 +284,9 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 	/**
 	 * Phase handlers — elements tracked inside a handler are destroyed on the
 	 * next transition or on ctx.refresh().  Omit for single-view screens.
+	 * Each entry may be a bare handler or `{ handler, transition }` where
+	 * `transition.enter` animates the returned elements in and
+	 * `transition.exit` animates the outgoing elements out before destroy.
 	 */
 	phases?: PhaseMap<TPhase, E>;
 }): ScreenResult<TPhase, E> {
@@ -256,53 +297,98 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 
 	const phases = spec.phases ?? {} as PhaseMap<TPhase, E>;
 
+	/** Normalize a phase entry to `{ handler, transition }`. */
+	function normalizeEntry(entry: PhaseEntry<TPhase, E>): {
+		handler: PhaseHandler<TPhase, E>;
+		transition?: PhaseTransition;
+	} {
+		if (typeof entry === "function") {
+			return { handler: entry };
+		}
+		return entry;
+	}
+
 	/**
 	 * Auto-track a single Destroyable or an array of Destroyables returned by
 	 * a phase handler or by create().  Elements are wrapped in a TrackedGroup
-	 * so one map entry cleans up the whole set.
+	 * so one map entry cleans up the whole set.  Returns the wrapped group so
+	 * transitions can animate the returned elements.
 	 */
-	function trackReturned(result: Destroyable | Destroyable[]): void {
+	function trackReturned(result: Destroyable | Destroyable[]): TrackedGroup {
 		const elements = Array.isArray(result) ? result : [result];
 		const group = new TrackedGroup();
 		for (const el of elements) {
 			group.add(el);
 		}
 		tracker?.track(group);
+		return group;
 	}
 
-	const go = async (phase: TPhase): Promise<void> => {
+	/**
+	 * Run the enter transition for a phase on its returned elements.
+	 * The elements are the TrackedGroup's children (the raw returned objects).
+	 */
+	async function runEnter(entry: { transition?: PhaseTransition }, group: TrackedGroup): Promise<void> {
+		if (!entry.transition?.enter) return;
+		await entry.transition.enter(group.elements);
+	}
+
+	/**
+	 * Run the exit transition for the outgoing phase on its returned elements,
+	 * then destroy them.  The outgoing elements are the phase's tracked
+	 * TrackedGroup(s) — we unwrap their children so the transition animates the
+	 * raw returned objects.
+	 */
+	async function runExit(entry: { transition?: PhaseTransition } | undefined): Promise<void> {
+		if (!entry?.transition?.exit) return;
+		const groups = tracker?.getPhaseElements() ?? [];
+		const elements = groups.flatMap((g) => (g instanceof TrackedGroup ? g.elements : [g]));
+		await entry.transition.exit(elements);
+	}
+
+	/** Shared body for go() and refresh(): exit → clear → run handler → enter. */
+	async function runPhase(phase: TPhase): Promise<void> {
 		if (!tracker) return;
+
+		const outgoingEntry = tracker.currentPhase
+			? normalizeEntry(phases[tracker.currentPhase])
+			: undefined;
+
+		// 1. Exit transition on the outgoing phase's elements (if declared).
+		await runExit(outgoingEntry);
+
+		// 2. Destroy the outgoing phase's tracked objects.
 		tracker.clearPhase();
 		tracker.currentPhase = phase;
-		const handler = phases[phase];
-		if (!handler) return;
+
+		const entry = normalizeEntry(phases[phase]);
+		if (!entry.handler) return;
+
+		// 3. Run the new phase handler.
 		tracker.beginPhase();
+		let group: TrackedGroup | null = null;
 		try {
-			const result = await handler(ctx);
+			const result = await entry.handler(ctx);
 			if (result) {
-				trackReturned(result);
+				group = trackReturned(result);
 			}
 		} finally {
 			tracker.endPhase();
 		}
+
+		// 4. Enter transition on the incoming phase's returned elements (if declared).
+		if (group) {
+			await runEnter(entry, group);
+		}
+	}
+
+	const go = async (phase: TPhase): Promise<void> => {
+		await runPhase(phase);
 	};
 
 	const refresh = async (): Promise<void> => {
 		if (!tracker || !tracker.currentPhase) return;
-		const current = tracker.currentPhase;
-		tracker.clearPhase();
-		tracker.currentPhase = current;
-		const handler = phases[current];
-		if (!handler) return;
-		tracker.beginPhase();
-		try {
-			const result = await handler(ctx);
-			if (result) {
-				trackReturned(result);
-			}
-		} finally {
-			tracker.endPhase();
-		}
+		await runPhase(tracker.currentPhase);
 	};
 
 	const ctx: ScreenCtx<TPhase, E> = {
@@ -389,6 +475,7 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
  */
 export function screenModule<TPhase extends string, E extends EventRecord>(
 	screen: ScreenResult<TPhase, E>,
+	options?: { onDestroy?: () => void },
 ): ScreenModule & {
 	/** Always present on the wrapper (ScreenModule marks it optional). */
 	init: () => void;
@@ -413,6 +500,7 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
 
 		destroy() {
 			screen.destroy();
+			options?.onDestroy?.();
 		},
 
 		go: screen.go as (phase: string) => Promise<void>,

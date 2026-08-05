@@ -25,6 +25,8 @@ export type {
 	ScreenResult,
 	Destroyable,
 	EventRecord,
+	PhaseEntry,
+	PhaseTransition,
 } from "./createScreen";
 
 export { createScreenManager } from "./ScreenManager";

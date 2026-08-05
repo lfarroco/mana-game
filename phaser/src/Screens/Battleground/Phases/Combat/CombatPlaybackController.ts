@@ -35,17 +35,12 @@ type PlaybackState = {
 	combatStates: CombatSystemStates;
 	blackHoleState?: BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
-	/** Frame-based throttle: only update charge bars every ~4 frames (~15fps) */
-	chargeBarFrameCounter: number;
 };
 
 const DEFAULT_ANIMATION_DURATION = 400;
 
 // Must match CoreConstants.MIN_REFRESH_MS — used to replicate the server-side refresh lockout during playback
 const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
-
-// Throttle charge bar updates to every Nth frame (~60/N fps) to reduce visual overhead
-const CHARGE_BAR_UPDATE_EVERY_N_FRAMES = 4;
 
 // Pre-create the arcane missile particle texture once at module level
 // (was being checked/created on every arcaneMissileTargeted call)
@@ -93,7 +88,6 @@ export const createCombatPlaybackController = (
 		combatStates,
 		blackHoleState,
 		countdownTimerState,
-		chargeBarFrameCounter: 0,
 	};
 
 	const scheduleAnimations = () => {
@@ -163,15 +157,10 @@ export const createCombatPlaybackController = (
 			unit.refresh = Math.max(0, unit.refresh - delta);
 		}
 
-		// Only update visual charge bars on throttled frames to reduce overhead
-		playbackState.chargeBarFrameCounter++;
-		if (playbackState.chargeBarFrameCounter >= CHARGE_BAR_UPDATE_EVERY_N_FRAMES) {
-			playbackState.chargeBarFrameCounter = 0;
-			for (const unit of units) {
-				ChargeBarDisplay.updateChargeBar(unit.id);
-			}
+		// Update visual charge bars every frame so the cooldown bar animates smoothly
+		for (const unit of units) {
+			ChargeBarDisplay.updateChargeBar(unit.id);
 		}
-
 	};
 
 	const updateFrame = (_combatState: CombatState, _time: number, delta: number): void => {
