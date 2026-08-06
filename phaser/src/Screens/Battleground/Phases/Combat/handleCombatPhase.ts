@@ -125,23 +125,24 @@ export async function showCombatResults(
 	const livesChange = calculateLivesChange(resultType);
 	const allBattleUnits = env.state.combatState?.units ?? [];
 
+
+	const container = resultType === "victory" ?
+
+		await VictoryUI.displayVictory(allBattleUnits) :
+		await DefeatUI.displayDefeat(livesChange, allBattleUnits);
+
 	// Temporary listeners — clean themselves up after first fire
 	const unlistenContinue = BattlegroundEvent.combatContinueRequested.listen(async () => {
 		unlistenContinue();
 		unlistenReplay();
+		container.destroy()
 	});
 
 	const unlistenReplay = BattlegroundEvent.combatReplayRequested.listen(async () => {
 		unlistenContinue();
 		unlistenReplay();
+		container.destroy()
 	});
-
-	// Render the UI — its buttons will emit events, triggering the listeners above
-	if (resultType === "victory") {
-		VictoryUI.displayVictory(allBattleUnits);
-	} else {
-		DefeatUI.displayDefeat(livesChange, allBattleUnits);
-	}
 
 }
 
