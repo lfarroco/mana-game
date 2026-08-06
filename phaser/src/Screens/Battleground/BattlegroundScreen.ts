@@ -99,7 +99,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		transitionToCurrentPhase();
+		await transitionToCurrentPhase();
 
 		return [
 			cloudsBg,

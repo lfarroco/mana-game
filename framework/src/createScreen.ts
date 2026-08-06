@@ -207,7 +207,24 @@ class PhaseTracker<TPhase extends string> {
 	/** Track a single object or an array of objects in the current scope. */
 	track(obj: Destroyable | Destroyable[], opts?: SingleTrackOpts | ArrayTrackOpts): void {
 		const target = this.mode === "phase" ? this.phaseObjects : this.persistent;
+		this.trackInto(target, obj, opts);
+	}
 
+	/**
+	 * Track directly into the persistent layer, regardless of the current mode.
+	 * Used for create()'s returned elements: they must survive phase transitions
+	 * even if the screen fired an initial ctx.go() without awaiting it (which
+	 * would otherwise leave the tracker in "phase" mode when they are returned).
+	 */
+	trackPersistent(obj: Destroyable | Destroyable[], opts?: SingleTrackOpts | ArrayTrackOpts): void {
+		this.trackInto(this.persistent, obj, opts);
+	}
+
+	private trackInto(
+		target: Map<string, Destroyable>,
+		obj: Destroyable | Destroyable[],
+		opts?: SingleTrackOpts | ArrayTrackOpts,
+	): void {
 		if (Array.isArray(obj)) {
 			const prefix = (opts as ArrayTrackOpts)?.idPrefix ?? `__tracked_${this.counter}_`;
 			obj.forEach((item, i) => {
@@ -314,13 +331,17 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 	 * so one map entry cleans up the whole set.  Returns the wrapped group so
 	 * transitions can animate the returned elements.
 	 */
-	function trackReturned(result: Destroyable | Destroyable[]): TrackedGroup {
+	function trackReturned(result: Destroyable | Destroyable[], persistent = false): TrackedGroup {
 		const elements = Array.isArray(result) ? result : [result];
 		const group = new TrackedGroup();
 		for (const el of elements) {
 			group.add(el);
 		}
-		tracker?.track(group);
+		if (persistent) {
+			tracker?.trackPersistent(group);
+		} else {
+			tracker?.track(group);
+		}
 		return group;
 	}
 
@@ -438,7 +459,11 @@ export function createScreen<TPhase extends string, E extends EventRecord>(spec:
 			result.init();
 			const returned = await spec.create(ctx);
 			if (returned) {
-				trackReturned(returned);
+				// create()'s returned elements are ALWAYS the persistent layer —
+				// they must survive phase transitions — even if an initial
+				// ctx.go() was started without being awaited (which leaves the
+				// tracker in "phase" mode when the elements are returned).
+				trackReturned(returned, true);
 			}
 		},
 

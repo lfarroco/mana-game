@@ -139,6 +139,8 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find bugs.
 
+- **Battleground persistent layer destroyed on phase transitions** (fixed 2026-08-05, Cline): `BattlegroundScreen.create()` fired its initial phase transition via `transitionToCurrentPhase()` **without `await`**. `runPhase()` synchronously calls `tracker.beginPhase()` (switching the tracker to `"phase"` mode), then yields on the phase handler's `await`. Control returns to `create()`, which returns the persistent elements (board, UI, bg, etc.); `trackReturned()` tracked them into the **phase** map instead of **persistent**, so the next phase switch's `clearPhase()` destroyed them. Fix: `await transitionToCurrentPhase()` in `create()` so `endPhase()` resets the tracker before the persistent elements are returned. Also hardened the framework (`@mana/framework` 2026-08-05): `create()`'s returned elements are now always tracked via `trackPersistent()` (mode-independent), so even a screen that fires an initial `ctx.go()` without awaiting it cannot leak its persistent layer into `phaseObjects`. Added regression test `create() returned elements survive phase switches even when the initial ctx.go() is not awaited`.
+
 - **E2E suite is broken on `single_scene` branch** (found 2026-07-29): `phaser/e2e/*.e2e.ts` import `../src/test-utils/debugController`, but that module does not exist in git — all e2e runs fail with "Cannot find module". The `debugController` API used by the specs (`getPlayerBoardUnits`, `addUnitToPlayerBoard`, `moveUnitOnBoard`, `logGameState`) needs to be reimplemented against the current screen architecture. Also note `game.e2e.spec.ts` doesn't match `testMatch: /.*\.e2e\.ts/` so it never runs even when resolvable.
 
 

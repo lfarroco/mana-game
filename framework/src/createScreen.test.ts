@@ -360,6 +360,43 @@ describe("createScreen", () => {
 		expect(screen.currentPhase()).toBe("a");
 	});
 
+	it("create() returned elements survive phase switches even when the initial ctx.go() is not awaited", async () => {
+		// Regression: if a screen's create() fires ctx.go() without awaiting it,
+		// the tracker is still in "phase" mode when create() returns.  The
+		// returned elements must still be tracked in the persistent layer and
+		// survive the next phase switch — they must only die on destroy().
+		const returned = [fakeObj(), fakeObj()];
+		const spec = {
+			name: "create-unawaited-go",
+			events: jest.fn(() => ({
+				events: {} as TestEvents,
+				listeners: [],
+			})),
+			create: jest.fn((ctx: ScreenCtx<"a" | "b">) => {
+				// Intentionally NOT awaited — reproduces the battleground screen bug.
+				void ctx.go("a");
+				return returned;
+			}),
+			phases: {
+				a: jest.fn(() => { }),
+				b: jest.fn(() => { }),
+			},
+		};
+		const screen = createScreen(spec);
+		await screen.create();
+
+		// The phase handler run by the un-awaited go() must complete.
+		expect(screen.currentPhase()).toBe("a");
+
+		// Phase switch: returned elements must NOT be destroyed.
+		await screen.go("b");
+		returned.forEach((o) => expect(o.destroy).not.toHaveBeenCalled());
+
+		// Only screen destroy cleans them up.
+		screen.destroy();
+		returned.forEach((o) => expect(o.destroy).toHaveBeenCalledTimes(1));
+	});
+
 	// -----------------------------------------------------------------------
 	// ctx.refresh()
 	// -----------------------------------------------------------------------
