@@ -26,14 +26,14 @@ const bbcode = (text: string, y: number) =>
 		.setOrigin(0.5);
 
 const text = (str: string, y: number) =>
-	env.scene.add.text(0, 0, str, Constants.defaultTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
+	env.scene.add.text(0, 0, i18n.t(str), Constants.defaultTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
 
 const slides = [
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide1.row1"), 100),
-			text(i18n.t("tutorial.slide1.row2"), 150),
-			text(i18n.t("tutorial.slide1.row3"), 200),
+			text("tutorial.slide1.row1", 100),
+			text("tutorial.slide1.row2", 150),
+			text("tutorial.slide1.row3", 200),
 			() => {
 				const cont = makeContainer();
 				const unit = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
@@ -57,9 +57,9 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide2.row1"), 100),
-			text(i18n.t("tutorial.slide2.row2"), 150),
-			text(i18n.t("tutorial.slide2.row3"), 200),
+			text("tutorial.slide2.row1", 100),
+			text("tutorial.slide2.row2", 150),
+			text("tutorial.slide2.row3", 200),
 			() => {
 				const cont = makeContainer();
 				const fn = async (x: number, y: number, sprite: string) => {
@@ -79,7 +79,7 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide3.row1"), 100),
+			text("tutorial.slide3.row1", 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.damage}]${i18n.t("tooltip.effects.damage")}[/color]: ${i18n.t("tutorial.slide3.row2")}`,
 				150
@@ -135,7 +135,7 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide4.row1"), 100),
+			text("tutorial.slide4.row1", 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.shield}]${i18n.t("tooltip.effects.shield")}[/color]: ${i18n.t("tutorial.slide4.row2")}`,
 				150
@@ -186,7 +186,7 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide5.row1"), 100),
+			text("tutorial.slide5.row1", 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.heal}]${i18n.t("tooltip.effects.heal")}[/color]: ${i18n.t("tutorial.slide5.row2")}`,
 				150
@@ -239,7 +239,7 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide6.row1"), 100),
+			text("tutorial.slide6.row1", 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.regen}]${i18n.t("tooltip.effects.regen")}[/color]: ${i18n.t("tutorial.slide6.row2")}`,
 				150
@@ -289,7 +289,7 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide7.row1"), 100),
+			text("tutorial.slide7.row1", 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.poison}]${i18n.t("tooltip.effects.poison")}[/color]: ${i18n.t("tutorial.slide7.row2")}`,
 				150
@@ -341,7 +341,7 @@ const slides = [
 	() =>
 		makeContainer([
 			env.scene.add.text(0, 0, i18n.t("tutorial.slide8.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-			text(i18n.t("tutorial.slide8.row2"), 150),
+			text("tutorial.slide8.row2", 150),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.haste}]${i18n.t("tooltip.effects.haste")}[/color]: ${i18n.t("tutorial.slide8.row3")}`,
 				200
@@ -370,9 +370,9 @@ const slides = [
 	() =>
 		makeContainer([
 			env.scene.add.text(0, 0, i18n.t("tutorial.slide9.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
-			text(i18n.t("tutorial.slide9.row3"), 200),
-			text(i18n.t("tutorial.slide9.row4"), 250),
-			text(i18n.t("tutorial.slide9.row5"), 300),
+			text("tutorial.slide9.row3", 200),
+			text("tutorial.slide9.row4", 250),
+			text("tutorial.slide9.row5", 300),
 		]),
 	() => {
 		const cont = makeContainer();
@@ -400,7 +400,7 @@ const slides = [
 				.setWrapMode(1)
 				.setFontFamily("Arimo");
 
-			cont.add([titleText, descriptionText, text(i18n.t("tutorial.slide10.row2"), 600)]);
+			cont.add([titleText, descriptionText, text("tutorial.slide10.row2", 600)]);
 		};
 
 		anim();
@@ -436,8 +436,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(i18n.t("tutorial.slide11.row2"), 600),
-				text(i18n.t("tutorial.slide11.row3"), 650),
+				text("tutorial.slide11.row2", 600),
+				text("tutorial.slide11.row3", 650),
 			]);
 		};
 
@@ -474,8 +474,8 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(i18n.t("tutorial.slide12.row2"), 600),
-				text(i18n.t("tutorial.slide12.row3"), 650),
+				text("tutorial.slide12.row2", 600),
+				text("tutorial.slide12.row3", 650),
 			]);
 		};
 
@@ -512,9 +512,9 @@ const slides = [
 			cont.add([
 				titleText,
 				descriptionText,
-				text(i18n.t("tutorial.slide13.row2"), 600),
-				text(i18n.t("tutorial.slide13.row3"), 650),
-				text(i18n.t("tutorial.slide13.row4"), 700),
+				text("tutorial.slide13.row2", 600),
+				text("tutorial.slide13.row3", 650),
+				text("tutorial.slide13.row4", 700),
 			]);
 		};
 
@@ -524,10 +524,10 @@ const slides = [
 	},
 	() =>
 		makeContainer([
-			text(i18n.t("tutorial.slide14.row1"), 200),
-			text(i18n.t("tutorial.slide14.row2"), 250),
-			text(i18n.t("tutorial.slide14.row3"), 300),
-			text(i18n.t("tutorial.slide14.row4"), 350),
+			text("tutorial.slide14.row1", 200),
+			text("tutorial.slide14.row2", 250),
+			text("tutorial.slide14.row3", 300),
+			text("tutorial.slide14.row4", 350),
 		]),
 ];
 
