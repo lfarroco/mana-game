@@ -50,7 +50,7 @@ export async function displayDefeat(
 
 	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY);
 
-	const resultContainer = container(env.scene, [
+	const resultContainer = container([
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],

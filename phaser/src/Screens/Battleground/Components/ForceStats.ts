@@ -85,7 +85,7 @@ const createStatsForForce = (force: string) => {
 		shieldBar,
 	];
 
-	stats.display = makeContainer(env.scene, elements);
+	stats.display = makeContainer(elements);
 }
 
 function createShieldbar(

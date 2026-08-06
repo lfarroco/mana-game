@@ -208,7 +208,7 @@ export const createEnv = (
 		},
 
 		// Phaser helpers bound to this scene
-		container: (children) => makeContainer(scene, children),
+		container: (children) => makeContainer(children),
 		borderedRoundRect: (pos, size, cornerRadius, color, alpha) =>
 			borderedRoundRect(scene, pos, size, cornerRadius, color, alpha),
 		centeredRect: (pos, size, color, alpha, stroke) =>

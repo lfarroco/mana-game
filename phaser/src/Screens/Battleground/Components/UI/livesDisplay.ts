@@ -53,7 +53,7 @@ export function create() {
 
 	const hearts = createHearts();
 
-	const containerEl = container(env.scene, [...hearts]);
+	const containerEl = container([...hearts]);
 	containerEl.setPosition(LIVES_DISPLAY_X, LIVES_DISPLAY_Y);
 
 	containerElement = containerEl;

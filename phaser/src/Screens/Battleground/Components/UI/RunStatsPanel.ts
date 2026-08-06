@@ -31,7 +31,7 @@ export function createRunStatsPanel(
 		];
 	};
 
-	const panelContainer = container(env.scene, [
+	const panelContainer = container([
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],

@@ -65,7 +65,7 @@ export function createPanel() {
 	titleText.setPosition(panelX, panelY - panelHeight / 2 + 50);
 	titleText.setOrigin(0.5);
 
-	const container = makeContainer(env.scene, [
+	const container = makeContainer([
 		overlayBg,
 		panelBg,
 		titleText,

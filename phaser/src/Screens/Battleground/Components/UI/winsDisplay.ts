@@ -30,7 +30,7 @@ export function create() {
 	const indicators = createBonusIndicators();
 	updateRectColors(currentWins);
 
-	mainContainer = container(env.scene, [...rects, ...indicators]);
+	mainContainer = container([...rects, ...indicators]);
 	mainContainer.setPosition(WINS_DISPLAY_X, WINS_DISPLAY_Y);
 
 	const containerWidth = MAX_WINS * RECT_WIDTH + (MAX_WINS - 1) * GAP;

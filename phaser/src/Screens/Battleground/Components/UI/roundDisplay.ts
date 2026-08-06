@@ -13,7 +13,7 @@ export function create() {
 
 	const text_ = text(initialRound);
 
-	const uiContainer = container(env.scene, [label, text_]);
+	const uiContainer = container([label, text_]);
 	uiContainer.setPosition(ROUND_DISPLAY_X, ROUND_DISPLAY_Y);
 
 	return uiContainer;

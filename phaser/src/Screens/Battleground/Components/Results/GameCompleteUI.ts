@@ -155,7 +155,7 @@ export async function displayGameComplete(
 	const subtitle = env.scene.add.text(0, 0, subtitleText, constants.defaultTextConfig).setOrigin(0.5);
 	subtitle.setPosition(panelX, panelY - 50);
 
-	const container = makeContainer(env.scene, [
+	const container = makeContainer([
 		statsPanel,
 		borderedRoundRect(
 			env.scene,

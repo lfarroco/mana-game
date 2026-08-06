@@ -45,7 +45,7 @@ const textStyle = {
 };
 
 export function create() {
-	zoneContainer = container(env.scene);
+	zoneContainer = container();
 
 	rect = createRect();
 

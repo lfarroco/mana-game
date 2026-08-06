@@ -11,6 +11,7 @@
  * Import what you need: `import { container } from "./phaser-helpers"`.
  */
 
+import { env } from "@Env";
 import * as Geometry from "@game/Geometry";
 
 // ---------------------------------------------------------------------------
@@ -29,10 +30,9 @@ type ContainerChild =
  * Children can be GameObjects, lazy thunks, or composable function chains.
  */
 export const container = (
-  scene: Phaser.Scene,
   children?: (ContainerChild | null)[],
 ): Phaser.GameObjects.Container => {
-  const c = scene.add.container();
+  const c = env.scene.add.container();
   if (!children) return c;
 
   const elements: Phaser.GameObjects.GameObject[] = [];

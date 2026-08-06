@@ -35,7 +35,7 @@ type TabbedMenuDefinition = {
 };
 
 export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
-	const container = makeContainer(env.scene);
+	const container = makeContainer();
 	const scene = container.scene;
 	const background = borderedRoundRect(
 		env.scene,
@@ -80,7 +80,7 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 			}
 
 			closeTab();
-			activeContentContainer = makeContainer(env.scene, tab.buildContent(api));
+			activeContentContainer = makeContainer(tab.buildContent(api));
 			container.add([activeContentContainer]);
 			env.scene.children.bringToTop(activeContentContainer);
 			activeTabKey = key;

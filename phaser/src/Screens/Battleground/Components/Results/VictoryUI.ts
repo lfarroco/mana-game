@@ -14,18 +14,12 @@ export async function displayVictory(
 	const panelHeight = ResultsConfig.RESULTS_PANEL.height;
 	const panelX = c.MIDDLE_SCREEN_X;
 	const panelY = c.MIDDLE_SCREEN_Y;
+	const { combatReplayRequested, combatContinueRequested } = BattlegroundEvent
 
-	const buttonDefinitions: Array<[string, () => Promise<void>]> = [];
-
-	buttonDefinitions.push([
-		i18n.t("results.buttons.replay"),
-		BattlegroundEvent.combatReplayRequested.emit,
-	]);
-
-	buttonDefinitions.push([
-		i18n.t("results.buttons.continue"),
-		BattlegroundEvent.combatContinueRequested.emit,
-	]);
+	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
+		[i18n.t("results.buttons.replay"), combatReplayRequested.emit],
+		[i18n.t("results.buttons.continue"), combatContinueRequested.emit]
+	];
 
 	const totalButtons = buttonDefinitions.length;
 	const verticalSpacing = 75;
@@ -45,7 +39,7 @@ export async function displayVictory(
 
 	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY);
 
-	const resultContainer = container(env.scene, [
+	const resultContainer = container([
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],

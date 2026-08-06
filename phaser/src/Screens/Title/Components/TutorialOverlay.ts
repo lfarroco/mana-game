@@ -30,12 +30,12 @@ const text = (str: string, y: number) =>
 
 const slides = [
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide1.row1"), 100),
 			text(i18n.t("tutorial.slide1.row2"), 150),
 			text(i18n.t("tutorial.slide1.row3"), 200),
 			() => {
-				const cont = makeContainer(env.scene);
+				const cont = makeContainer();
 				const unit = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-2, 0.5]);
 				const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
 
@@ -56,12 +56,12 @@ const slides = [
 				.setPosition(Constants.MIDDLE_SCREEN_X + 200, 620),
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide2.row1"), 100),
 			text(i18n.t("tutorial.slide2.row2"), 150),
 			text(i18n.t("tutorial.slide2.row3"), 200),
 			() => {
-				const cont = makeContainer(env.scene);
+				const cont = makeContainer();
 				const fn = async (x: number, y: number, sprite: string) => {
 					const chara = await Chara.summon(Card.makeUnit("PLAYER_FORCE", sprite, [x, y]));
 
@@ -78,14 +78,14 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide3.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.damage}]${i18n.t("tooltip.effects.damage")}[/color]: ${i18n.t("tutorial.slide3.row2")}`,
 				150
 			),
 			() => {
-				const c = makeContainer(env.scene);
+				const c = makeContainer();
 				const summonUnits = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "avatar_of_anger", [-2, 0.5]);
 					const enemy = Card.makeUnit("PLAYER_FORCE", "protective_crystal", [0, 0.5]);
@@ -134,14 +134,14 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide4.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.shield}]${i18n.t("tooltip.effects.shield")}[/color]: ${i18n.t("tutorial.slide4.row2")}`,
 				150
 			),
 			() => {
-				const c = makeContainer(env.scene);
+				const c = makeContainer();
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "living_armor", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -185,7 +185,7 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide5.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.heal}]${i18n.t("tooltip.effects.heal")}[/color]: ${i18n.t("tutorial.slide5.row2")}`,
@@ -193,7 +193,7 @@ const slides = [
 			),
 
 			() => {
-				const c = makeContainer(env.scene);
+				const c = makeContainer();
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "battle_medic", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -238,14 +238,14 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide6.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.regen}]${i18n.t("tooltip.effects.regen")}[/color]: ${i18n.t("tutorial.slide6.row2")}`,
 				150
 			),
 			() => {
-				const c = makeContainer(env.scene);
+				const c = makeContainer();
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "enchanted_treant", [0, 0.5]);
 					const ally = Card.makeUnit("PLAYER_FORCE", "mana_crystal", [-1, 0.5]);
@@ -288,7 +288,7 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide7.row1"), 100),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.poison}]${i18n.t("tooltip.effects.poison")}[/color]: ${i18n.t("tutorial.slide7.row2")}`,
@@ -296,7 +296,7 @@ const slides = [
 			),
 
 			() => {
-				const c = makeContainer(env.scene);
+				const c = makeContainer();
 				const summonUnit = async () => {
 					const unit = Card.makeUnit("PLAYER_FORCE", "venomous_viper", [-2, 0.5]);
 
@@ -339,7 +339,7 @@ const slides = [
 			},
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			env.scene.add.text(0, 0, i18n.t("tutorial.slide8.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide8.row2"), 150),
 			bbcode(
@@ -368,14 +368,14 @@ const slides = [
 			),
 		]),
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			env.scene.add.text(0, 0, i18n.t("tutorial.slide9.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
 			text(i18n.t("tutorial.slide9.row3"), 200),
 			text(i18n.t("tutorial.slide9.row4"), 250),
 			text(i18n.t("tutorial.slide9.row5"), 300),
 		]),
 	() => {
-		const cont = makeContainer(env.scene);
+		const cont = makeContainer();
 		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide10.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
@@ -408,7 +408,7 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = makeContainer(env.scene);
+		const cont = makeContainer();
 		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide11.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
@@ -446,7 +446,7 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = makeContainer(env.scene);
+		const cont = makeContainer();
 		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide12.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
@@ -484,7 +484,7 @@ const slides = [
 		return cont;
 	},
 	() => {
-		const cont = makeContainer(env.scene);
+		const cont = makeContainer();
 		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide13.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
@@ -523,7 +523,7 @@ const slides = [
 		return cont;
 	},
 	() =>
-		makeContainer(env.scene, [
+		makeContainer([
 			text(i18n.t("tutorial.slide14.row1"), 200),
 			text(i18n.t("tutorial.slide14.row2"), 250),
 			text(i18n.t("tutorial.slide14.row3"), 300),
@@ -605,7 +605,7 @@ export async function openTutorial(): Promise<void> {
 		},
 	});
 
-	const container = makeContainer(env.scene, [
+	const container = makeContainer([
 		overlay,
 		slide,
 		prevButton.container,

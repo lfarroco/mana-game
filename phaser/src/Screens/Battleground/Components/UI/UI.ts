@@ -29,7 +29,7 @@ export function registerListeners(): (() => void)[] {
 
 export function create() {
 
-	const headerContainer = container(env.scene, [
+	const headerContainer = container([
 		headerBackground.create,
 		roundDisplay.create,
 		livesDisplay.create,
@@ -37,7 +37,7 @@ export function create() {
 	]);
 	headerContainer.setPosition(580, 0);
 
-	uiContainer = container(env.scene, [headerContainer, menuButton.create()]);
+	uiContainer = container([headerContainer, menuButton.create()]);
 
 	return uiContainer;
 }

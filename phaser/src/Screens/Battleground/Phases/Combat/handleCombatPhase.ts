@@ -125,9 +125,7 @@ export async function showCombatResults(
 	const livesChange = calculateLivesChange(resultType);
 	const allBattleUnits = env.state.combatState?.units ?? [];
 
-
 	const container = resultType === "victory" ?
-
 		await VictoryUI.displayVictory(allBattleUnits) :
 		await DefeatUI.displayDefeat(livesChange, allBattleUnits);
 

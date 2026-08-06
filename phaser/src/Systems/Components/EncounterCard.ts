@@ -30,7 +30,7 @@ type EncounterCardProps = {
 export function createEncounterCard(
 	props: EncounterCardProps
 ) {
-	const container = makeContainer(env.scene);
+	const container = makeContainer();
 	const [x, y] = props.position;
 	const [width, height] = props.size;
 	const { name, pic, description, onClick } = props;
