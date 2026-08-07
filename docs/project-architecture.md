@@ -1,51 +1,24 @@
 # Project Architecture
 
-High-level view of how data flows between the pure game logic (`core/`), the
-Phaser client (`phaser/src/`), and the platform/infrastructure layers.
+The game is divided into the following parts:
 
-```text
-Player Input
-    |
-    v
-Screens/*  (single Phaser scene: src/Client.ts, navigation via switchScreen)
-    |
-    v
-Screens/Battleground/BattlegroundScreen  (phase loop + phase handlers)
-    |
-    +--> Phases/*  (Encounter, Shop, OrbShop, UpgradeCore, AddReactionCore,
-    |               Combat, Victory, GameOver)
-    |        |
-    |        v
-    |     ServerAdapter (src/GameServer.ts -> getServer())
-    |        |-- single-player: LocalServer (in-process)
-    |        '-- multiplayer:  RemoteServer (retired Supabase client,
-    |                             quarantined; replacement: docs/game-server.md)
-    |        |
-    |        v
-    |     core/  (@mana/core — pure logic, no Phaser/DOM/Node)
-    |       SessionManagement + session/SessionTransitions
-    |       Combat/CombatRunner + CombatSimulation -> CombatLogger (typed logs)
-    |       TriggerSystem/ (action-reaction engine)
-    |       Entities/ + board/ + data/BaseCollection
-    |        |
-    |        v
-    |     CombatState with CombatLogEntry[]
-    |        |
-    |        v
-    |     Phases/Combat/CombatPlaybackController -> logHandlers/ -> FX/ + audio
-    |
-    +--> Storage (StorageFactory -> LocalStorage / SteamCloud)
-    +--> i18n (en, es, pt, jp, cn, ru)
-    +--> Env (src/Env.ts — state, dispatch, time, audio, Phaser access)
-    +--> Electron desktop / Capacitor Android
-```
+## core/
 
-## Notes
+The game logic and models. Defined in pure functional code without side effects.
+Allows simulating combat between two teams and returning a list of combat logs describing when every event happened.
+Framework agnostic, can run in the server and the browser.
 
-- `core/` is replay-critical pure logic; it imports nothing from `phaser/`
-  (see [purity-boundary.md](purity-boundary.md)).
-- Combat is simulated to completion in `core/`, producing typed combat logs;
-  the client only plays them back (see [combat-architecture.md](combat-architecture.md)).
-- Single-player runs the same server interface in-process (`LocalServer`).
-  Multiplayer will use the new `server/` Node backend — plan in
-  [game-server.md](game-server.md).
+## framework/
+
+Internal framework to manage "screen" and "phase" switching.
+"Screen" represents a main section in the game: title screen, options screen, the main game loop screen, etc.
+A Screen is composed of its event listeners, it's "create" method which creates the elements that will remain regardless of phase (ui, board, background, etc) and the screen's phases.
+"Phase" represents a section within a screen. There can only be a phase active per time. When a phase ends, all the elements and listeners created by it are cleanup up.
+The intention is removing manual cleanup when moving between screens and phases. PhaserJS allows defining Scenes, but their listeners remain active and the lifecycle logic of that system is not under our control.
+
+## phaser/
+
+The game client. Imports both core/ and framework/ and uses them to run the game (see [purity-boundary.md](purity-boundary.md)).
+When playing a single player session the game runs the server logic locally, obtaining the same results as a remote server would (see [game-server.md](game-server.md)).
+The game client consumes the combat logs to replay the combat sessions.
+The internal framework allows declaring how each stage during gameplay should be handled (see [combat-architecture.md](combat-architecture.md)).

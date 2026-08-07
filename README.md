@@ -26,10 +26,12 @@ A trigger-based autobattler in a 3x3 board.
 
 - Client (`phaser/src/`)
   - Screens
-    - Components
-    - Phases
+    - (Some Screen)
+      - Components
+      - Phases
   - Events
-- Core game logic (`core/` — pure, framework-agnostic package)
+- Client Framework (`framework/`): system for managing screens and listeners
+- Core game logic (`core/`):  pure, framework-agnostic package
 
 ## Documentation
 
