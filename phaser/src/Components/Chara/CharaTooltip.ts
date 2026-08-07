@@ -1,7 +1,7 @@
-import { Chara } from "@Systems/Chara/Chara";
+import { Chara } from "@Components/Chara/Chara";
 import { Targeting, Effect, EffectReaction } from "@game/Models";
 import { hideTooltip, renderTooltip } from "@Components/Tooltip/Tooltip";
-import { createDescription } from "@Systems/Chara/createDescription";
+import { createDescription } from "@Components/Chara/createDescription";
 import { t } from "@i18n/i18n";
 import { ABILITY_COLORS } from "@Models/Abilities";
 import { getSettings } from "@Models/OptionsStore";

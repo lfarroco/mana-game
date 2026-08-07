@@ -1,5 +1,5 @@
-import * as BlackHole from "../Screens/Battleground/Components/BlackHole/BlackHole";
-import type * as BlackHoleState from "../Screens/Battleground/Phases/Combat/BlackHoleState";
+import * as BlackHole from "../../Components/BlackHole/BlackHole";
+import type * as BlackHoleState from "./BlackHoleState";
 import * as constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
 

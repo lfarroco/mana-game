@@ -1,11 +1,11 @@
 import * as Card from "@game/Entities/Card";
 import * as Board from "@Components/Board/Board";
 import { getUnitAt } from "@Models/ClientState";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
-import * as createDescription from "@Systems/Chara/createDescription";
+import * as createDescription from "@Components/Chara/createDescription";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as i18n from "@i18n/i18n";

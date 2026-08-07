@@ -1,6 +1,6 @@
 import * as Card from "@game/Entities/Card";
 import { Unit } from "@game/Models";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
 import * as AudioManager from "@Systems/AudioManager";

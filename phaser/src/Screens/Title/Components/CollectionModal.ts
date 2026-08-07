@@ -1,11 +1,11 @@
 import * as Card from "@game/Entities/Card";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Modal from "@Components/Modal/Modal";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as createDescription from "@Systems/Chara/createDescription";
+import * as createDescription from "@Components/Chara/createDescription";
 import { env } from "@Env";
 
 const PANEL_WIDTH = 1200;

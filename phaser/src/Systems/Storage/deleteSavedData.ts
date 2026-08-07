@@ -1,5 +1,5 @@
 import { env } from "@Env";
-import * as GameServer from "../GameServer";
+import * as GameServer from "../../GameServer";
 
 export const deleteSavedData = () => {
 	const server = GameServer.getServer();

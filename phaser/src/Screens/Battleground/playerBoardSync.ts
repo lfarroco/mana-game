@@ -1,4 +1,4 @@
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
 

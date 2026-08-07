@@ -1,13 +1,13 @@
 import * as CombatRunner from "@game/Combat/CombatRunner";
 import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
-import * as CountdownTimer from "@Systems/CountdownTimer";
+import * as CountdownTimer from "@Screens/Battleground/Phases/Combat/CountdownTimer";
 import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
 import * as RegenSystem from "@game/Combat/RegenSystem";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
-import * as Animations from "@Systems/Chara/Animations";
-import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Animations from "@Components/Chara/Animations";
+import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
+import * as Chara from "@Components/Chara/Chara";
 import * as CoreConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
 import * as logHandlers from "./logHandlers";

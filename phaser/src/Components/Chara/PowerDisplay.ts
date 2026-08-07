@@ -1,5 +1,5 @@
 import * as constants from "@Constants";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Chip from "@Components/Chip/Chip";
 import * as Utils from "@utils";
 import * as Abilities from "@Models/Abilities";

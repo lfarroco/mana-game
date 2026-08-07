@@ -1,8 +1,8 @@
 import * as c from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Card from "@game/Entities/Card";
-import * as createDescription from "@Systems/Chara/createDescription";
+import * as createDescription from "@Components/Chara/createDescription";
 import * as Modal from "@Components/Modal/Modal";
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";

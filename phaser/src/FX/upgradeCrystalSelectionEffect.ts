@@ -1,7 +1,7 @@
 import * as arcaneMissileTargeted from "./arcaneMissileTargeted";
 import * as healingHitEffect from "./healingHitEffect";
 import * as Card from "@game/Entities/Card";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as theme from "../Screens/Battleground/Components/UI/theme";
 import * as animation from "@Utils/animation";
 import * as colorUtils from "@Utils/colorUtils";

@@ -1,7 +1,7 @@
 import * as Board from "@Components/Board/Board";
 import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPresentation";
 import * as constants from "@Constants";
-import * as EncounterCard from "@Systems/Components/EncounterCard";
+import * as EncounterCard from "@Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
 import { BGContext, dispatchAction } from "../../BattlegroundScreen";

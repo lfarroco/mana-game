@@ -1,7 +1,7 @@
 import type { PlaybackState } from "./types";
 import * as CombatLogger from "@game/Combat/CombatLogger";
-import * as Chara from "@Systems/Chara/Chara";
-import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
+import * as Chara from "@Components/Chara/Chara";
+import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Effects from "../../../../../FX";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";

@@ -1,4 +1,4 @@
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as colorUtils from "@Utils/colorUtils";
 import * as Constants from "@Constants";
 import * as MagicOrbShader from "@Components/MagicOrb/MagicOrbShader";

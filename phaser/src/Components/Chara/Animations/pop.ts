@@ -1,5 +1,5 @@
 import { tween } from "@Utils/animation";
-import { mustGetCharaById, mustGetState } from "@Systems/Chara/Chara";
+import { mustGetCharaById, mustGetState } from "@Components/Chara/Chara";
 import { env } from "@Env";
 
 const POP_ANIMATION_DURATION_MS = 300;

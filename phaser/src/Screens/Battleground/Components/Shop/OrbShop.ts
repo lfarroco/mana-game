@@ -9,8 +9,8 @@ import * as AudioManager from "@Systems/AudioManager";
 import { env, } from "@Env";
 import { skipButton } from "../skipButton";
 import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
-import { hasCharaById, refreshChara } from "@Systems/Chara/Chara";
-import { updatePowerDisplay } from "@Systems/Chara/PowerDisplay";
+import { hasCharaById, refreshChara } from "@Components/Chara/Chara";
+import { updatePowerDisplay } from "@Components/Chara/PowerDisplay";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;

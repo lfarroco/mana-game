@@ -1,17 +1,17 @@
 import * as Constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Card from "@game/Entities/Card";
 import * as Abilities from "@Models/Abilities";
 import * as animation from "@Utils/animation";
 import * as damage from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/damage";
 import * as shield from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/shield";
-import * as Animations from "@Systems/Chara/Animations";
+import * as Animations from "@Components/Chara/Animations";
 import * as heal from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/heal";
 import * as poison from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/poison";
 import * as regen from "@Screens/Battleground/Phases/Combat/logHandlers/visuals/regen";
-import * as createDescription from "@Systems/Chara/createDescription";
+import * as createDescription from "@Components/Chara/createDescription";
 import { env } from "@Env";
 import { makeContainer } from "@Env";
 

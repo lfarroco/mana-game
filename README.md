@@ -8,9 +8,10 @@ A trigger-based autobattler in a 3x3 board.
 
 ## Overview
 
-**Mana Battle** is a strategic auto-battler where players build teams and engage in tactical combat. Key features:
+**Mana Battle** is a strategic auto-battler where players build teams and try to outlive the enemy team's core. Key features:
 
-- Real-time tactical combat with unit synergies
+- Each unit has a "cooldown" in seconds, not turns
+- Combat simulated in pure environment, generating data 
 - Steam achievements and cloud saves
 - Cross-platform: Windows, macOS, Linux
 

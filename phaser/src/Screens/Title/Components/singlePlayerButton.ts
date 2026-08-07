@@ -1,6 +1,6 @@
 import * as constants from "@Constants";
 import * as UIButton from "@Components/Button/UIButton";
-import * as getSinglePlayerData from "../../../Storage/getSinglePlayerData";
+import * as getSinglePlayerData from "@Systems/Storage/getSinglePlayerData";
 import * as collectionButton from "../../../Screens/Title/Components/collectionButton";
 import * as i18n from "@i18n/i18n";
 import * as TitleScreen from "../TitleScreen";

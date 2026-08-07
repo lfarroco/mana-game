@@ -9,7 +9,7 @@ import * as i18n from "@i18n/i18n";
 import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
 import * as constants from "@Constants";
 import * as Config from "@config";
-import { deleteSavedData } from "@Storage/deleteSavedData";
+import { deleteSavedData } from "@Systems/Storage/deleteSavedData";
 import { env, makeContainer, borderedRoundRect } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 

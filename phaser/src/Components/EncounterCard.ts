@@ -1,6 +1,6 @@
 import * as AudioManager from "@Systems/AudioManager";
 import * as constants from "@Constants";
-import * as theme from "../../Screens/Battleground/Components/UI/theme";
+import * as theme from "../Screens/Battleground/Components/UI/theme";
 import { env, makeContainer } from "@Env";
 
 // Encounter card animation and layout constants

@@ -1,6 +1,6 @@
-import { Chara, getUnit } from "@Systems/Chara/Chara";
+import { Chara, getUnit } from "@Components/Chara/Chara";
 import { getName, t } from "@i18n/i18n";
-import { buildEffectBlock, getReactionDescription } from "@Systems/Chara/CharaTooltip";
+import { buildEffectBlock, getReactionDescription } from "@Components/Chara/CharaTooltip";
 
 const MS_PER_SECOND = 1000;
 

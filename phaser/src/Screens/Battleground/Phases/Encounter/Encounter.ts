@@ -2,7 +2,7 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import * as Constants from "@Constants";
 import * as GameConstants from "@game/Constants";
-import * as EncounterCard from "@Systems/Components/EncounterCard";
+import * as EncounterCard from "@Components/EncounterCard";
 import { env } from "@Env";
 import { dispatchAction, BGContext } from "../../BattlegroundScreen";
 

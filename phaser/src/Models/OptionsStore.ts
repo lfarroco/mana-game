@@ -1,5 +1,5 @@
 import * as AudioManager from "@Systems/AudioManager";
-import { storage } from "@Storage/index";
+import { storage } from "@Systems/Storage";
 import { ClientState, type PlayerSettings } from "@Models/ClientState";
 import { env } from "@Env";
 

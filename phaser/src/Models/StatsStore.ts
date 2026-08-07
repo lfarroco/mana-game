@@ -1,5 +1,5 @@
 import { RunStats } from "@game/Models";
-import { storage } from "@Storage/index";
+import { storage } from "@Systems/Storage";
 import { GAME_CONFIG } from "@config";
 import { INFINITE_ROUND_UNLOCK_THRESHOLD, TOTAL_OUTPUT_UNLOCK_THRESHOLD, TOTAL_DOT_UNLOCK_THRESHOLD } from "@game/Constants";
 

@@ -1,6 +1,6 @@
 import { tween } from "@Utils/animation";
 import Phaser from "phaser";
-import { Chara, mustGetState } from "@Systems/Chara/Chara";
+import { Chara, mustGetState } from "@Components/Chara/Chara";
 import { playSoundEffect } from "@Systems/AudioManager";
 import { env } from "@Env";
 

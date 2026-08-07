@@ -1,6 +1,6 @@
 import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
-import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
+import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/paginationDots"
 import { CardDefinition } from "@game/Models";

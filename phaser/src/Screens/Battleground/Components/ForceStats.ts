@@ -4,7 +4,7 @@ import * as Constants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@game/Entities/Card";
 import { Unit, CombatState, SessionData } from "@game/Models";
-import * as Animations from "@Systems/Chara/Animations";
+import * as Animations from "@Components/Chara/Animations";
 import * as Utils from "@utils";
 import { env } from "@Env";
 import { makeContainer, centeredRect } from "@Env";

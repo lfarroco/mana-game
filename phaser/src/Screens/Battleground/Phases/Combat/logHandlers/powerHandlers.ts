@@ -1,6 +1,6 @@
 import type { PlaybackState } from "./types";
 import * as CombatLogger from "@game/Combat/CombatLogger";
-import * as ChargeBarDisplay from "@Systems/Chara/ChargeBarDisplay";
+import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
 import { getCombatState } from "./combatStateStore";
 
 

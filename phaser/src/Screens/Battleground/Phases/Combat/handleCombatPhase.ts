@@ -1,7 +1,7 @@
 import * as Models from "@game/Models";
 import * as Board from "@Components/Board/Board";
 import * as animation from "@Utils/animation";
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 
 import * as CombatPlaybackController from "@Screens/Battleground/Phases/Combat/CombatPlaybackController";
 import * as namesDisplay from "@Screens/Battleground/Components/UI/namesDisplay";

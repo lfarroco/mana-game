@@ -66,9 +66,6 @@
             "@main": [
                 "./src/main.ts"
             ],
-            "@Storage/*": [
-                "./src/Storage/*"
-            ],
             "@FX": [
                 "./src/FX/index.ts"
             ],

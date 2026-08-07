@@ -1,4 +1,4 @@
-import * as getSavedData from "@Storage/getSinglePlayerData";
+import * as getSavedData from "@Systems/Storage/getSinglePlayerData";
 import * as Models from "@game/Models";
 import { env } from "@Env";
 

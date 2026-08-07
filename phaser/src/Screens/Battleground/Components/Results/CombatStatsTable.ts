@@ -2,7 +2,7 @@ import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import { Unit } from "@game/Models";
 import * as Constants from "@game/Constants";
 import * as ResultsConfig from "./ResultsConfig";
-import * as CharaTooltip from "@Systems/Chara/CharaTooltip";
+import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as Utils from "@utils";

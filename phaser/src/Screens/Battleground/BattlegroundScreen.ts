@@ -1,4 +1,4 @@
-import * as Chara from "@Systems/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import * as Models from "@game/Models";
 import * as AudioManager from "@Systems/AudioManager";
 import * as Encounter from "./Phases/Encounter/Encounter";
