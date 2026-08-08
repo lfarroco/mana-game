@@ -56,22 +56,17 @@ export const finishPhase = async (
 };
 
 
-const transitionToCurrentPhase = async ({ previousPhase }: {
-	previousPhase?: Models.PhaseType
-}) => {
+const transitionToCurrentPhase = async () => {
 	const { phase } = env.state.session;
 
-	// Sync the player board to the session team, except around combat where the
-	// combat board (setupCombatBoard) and its teardown (resetBoard) own the units.
-	if (phase !== "combat" && previousPhase !== "combat") {
-		await syncPlayerBoardUnits();
-	}
+	// Always reconcile the board to the session team before moving to the next phase.
+	await syncPlayerBoardUnits();
 
 	await go(phase);
 };
 
-
 const screen = createScreen<BGPhase, BGEvents>({
+
 	name: "battleground",
 
 	events: () => {
@@ -111,10 +106,10 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		await transitionToCurrentPhase({});
-
+		await transitionToCurrentPhase();
 
 		return [
+
 			cloudsBg,
 			...namesDisplay,
 			...board,

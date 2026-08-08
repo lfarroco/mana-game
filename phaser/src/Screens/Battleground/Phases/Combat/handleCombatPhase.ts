@@ -50,12 +50,12 @@ const handleCombatContinueRequested = async () => {
 	} = env.state.session;
 
 	// Tear down the combat board / ForceStats / combatState BEFORE dispatching
-	// end_combat so the player's real team is back on the board ready for the
-	// next phase.  dispatchAction's phaseFinished.emit awaits the full next-phase
+	// end_combat.  dispatchAction's phaseFinished.emit awaits the full next-phase
 	// transition, so any teardown after it would race the new phase's create.
 	await teardownCombat();
 
 	await dispatchAction({ type: "end_combat" }, ({ session }) => {
+
 		const winDelta = session.wins - previousWins;
 		if (winDelta !== 0)
 			BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
@@ -136,16 +136,19 @@ const teardownPlayback = (s: PlaybackState): void => {
 };
 
 /**
- * Full combat teardown: reverts the board to the player's real team and clears
- * ForceStats / the combatState snapshot.  Runs only on Continue (end_combat),
- * NOT on Replay — so the combatState needed to re-run playback stays intact.
+ * Full combat teardown: clears the board and ForceStats / the combatState
+ * snapshot.  The player's real team is re-summoned by syncPlayerBoardUnits on
+ * the next phase transition.  Runs only on Continue (end_combat), NOT on Replay
+ * — so the combatState needed to re-run playback stays intact.
  */
 const teardownCombat = async (): Promise<void> => {
+
 	cleanupPlayback(state);
 	state.currentController = null;
 	env.patchState({ combatState: undefined });
-	await resetBoard(true);
+	await resetBoard();
 	namesDisplay.updateNameDisplay({ enemyName: "" });
+
 	ForceStats.setCombatClientState();
 	ForceStats.destroyForceStats(Constants.FORCE_ID_CPU);
 	ForceStats.resetPlayerForceStats();
@@ -173,25 +176,17 @@ const resumeCombat = (): void => {
 	env.scene.time.paused = false;
 };
 
-async function resetBoard(shouldResummonUnits: boolean = true): Promise<void> {
+async function resetBoard(): Promise<void> {
 	Board.setEnemyBoardVisible(false);
 	Board.setIsInputEnabled(true);
 
-	if (!shouldResummonUnits) return;
-
+	// Clear the board; syncPlayerBoardUnits re-summons the player's team.
 	Chara.clearAll();
-
-	const summonPromises = env.state.session.team.units.map(async (unit, index) => {
-		await animation.delay(index * 200);
-		await Chara.summon(unit, true);
-	});
-
-	await Promise.all(summonPromises);
-
 }
 
 /**
  * `combat` phase — battle playback only.  Listens for pause/resume and, once the
+
  * playback finishes, captures the stats snapshot and moves to the result phase
  * whose outcome is derived from combatState.wonCombat.  No board teardown here:
  * the frozen battle board must remain visible behind the results overlay.
