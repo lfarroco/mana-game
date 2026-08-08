@@ -491,7 +491,6 @@ describe("Reaction — threshold triggers", () => {
     combatState.units.push(reactor);
     combatState.cpuUnits.push(reactor);
     combatState.unitById.set(reactor.id, reactor);
-    combatState.initialUnits.push(reactor);
 
     const logs = runFrames(combatRunner, combatState, 300);
 

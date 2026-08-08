@@ -10,6 +10,8 @@
  */
 
 import * as Models from "../Models";
+import type { CombatLogEntry } from "./CombatLogger";
+import { rebuildCombatStateIndexes } from "./CombatStateIndexes";
 
 /**
  * JSON-safe transport representation of a CombatState.
@@ -20,8 +22,8 @@ import * as Models from "../Models";
  */
 export type CombatStateDto = {
 	/** Snapshot of all units at combat start — playback begins from these. */
-	units: Models.Unit[];
-	logs: Models.CombatLogEntry[];
+	units: readonly Models.Unit[];
+	logs: CombatLogEntry[];
 	wonCombat: boolean;
 	finalPlayerUnits: Models.Unit[];
 	enemyPlayerName: string;
@@ -48,23 +50,19 @@ export function serializeCombatState(state: Models.CombatState): CombatStateDto 
  * playerUnits, cpuUnits).
  */
 export function deserializeCombatState(dto: CombatStateDto): Models.CombatState {
-	const units = structuredClone(dto.units);
-	const unitById = new Map(units.map((u) => [u.id, u]));
+	const units: Models.Unit[] = structuredClone([...dto.units]);
 
-	const playerCore = units.find((u) => u.isCore && u.force === dto.finalPlayerUnits[0]?.force)!;
-	const cpuCore = units.find((u) => u.isCore && u.force !== dto.finalPlayerUnits[0]?.force)!;
-
-	return {
+	return rebuildCombatStateIndexes({
 		units,
 		logs: dto.logs,
 		enemyPlayerName: dto.enemyPlayerName,
 		wonCombat: dto.wonCombat,
 		finalPlayerUnits: dto.finalPlayerUnits,
 		initialUnits: dto.units,
-		unitById,
-		playerCore,
-		cpuCore,
-		playerUnits: units.filter((u) => u.force === playerCore.force),
-		cpuUnits: units.filter((u) => u.force === cpuCore.force),
-	};
+		unitById: new Map(),
+		playerCore: units[0],
+		cpuCore: units[0],
+		playerUnits: [],
+		cpuUnits: [],
+	}, dto.finalPlayerUnits[0]?.force);
 }

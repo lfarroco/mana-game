@@ -47,9 +47,12 @@ export type CombatState = {
 	wonCombat: boolean;
 	// Permanent buffs should be applied here
 	finalPlayerUnits: Unit[];
-	// Used to reset board for replays
-	initialUnits: Unit[];
-	// Derived indexes (built once in createCombatState, valid for entire combat)
+	// Pristine snapshot used to reset the board for replays. Read-only: never
+	// mutate it. In-combat mutation happens on `units`; if `units` is replaced,
+	// rebuild the derived indexes below via rebuildCombatStateIndexes().
+	initialUnits: readonly Unit[];
+	// Derived indexes over `units`. Rebuild via rebuildCombatStateIndexes()
+	// whenever `units` is replaced so they never drift out of sync.
 	unitById: Map<string, Unit>;
 	playerCore: Unit;
 	cpuCore: Unit;

@@ -9,6 +9,10 @@ import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
 
 import * as Constants from "@game/Constants";
 import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
+import {
+	assertCombatStateIndexes,
+	rebuildCombatStateIndexes,
+} from "@game/Combat/CombatStateIndexes";
 import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
@@ -118,17 +122,16 @@ const setupCombatBoard = () => {
 	Chara.clearAll();
 
 	const combatState = env.state.combatState!;
-	combatState.units = structuredClone(combatState.initialUnits);
+	// Swap in a fresh clone of the pristine initialUnits for playback, then
+	// rebuild the derived indexes so log handlers operate on these units rather
+	// than the simulation-mutated ones.
+	combatState.units = structuredClone([...combatState.initialUnits]);
 	const combatUnits = combatState.units;
-
-	// Rebuild the derived indexes so playback log handlers (which read/write via
-	// unitById) operate on the fresh units instead of the simulation-mutated ones.
-	const playerForce = combatState.playerCore.force;
-	combatState.unitById = new Map(combatUnits.map((u) => [u.id, u]));
-	combatState.playerCore = combatUnits.find((u) => u.isCore && u.force === playerForce)!;
-	combatState.cpuCore = combatUnits.find((u) => u.isCore && u.force !== playerForce)!;
-	combatState.playerUnits = combatUnits.filter((u) => u.force === playerForce);
-	combatState.cpuUnits = combatUnits.filter((u) => u.force !== playerForce);
+	Object.assign(
+		combatState,
+		rebuildCombatStateIndexes(combatState, combatState.playerCore.force),
+	);
+	assertCombatStateIndexes(combatState);
 
 	const charas = combatUnits.map((unit) => Chara.summon(unit, false));
 	combatUnits.forEach(resetUnitStats);

@@ -8,6 +8,7 @@
 import * as Models from "../Models";
 import * as CombatRunner from "./CombatRunner";
 import * as CombatLogger from "./CombatLogger";
+import { rebuildCombatStateIndexes } from "./CombatStateIndexes";
 
 export function createCombatState(
 	session: Models.SessionData,
@@ -16,23 +17,21 @@ export function createCombatState(
 ): Models.CombatState {
 
 	const units: Models.Unit[] = structuredClone([...session.team.units, ...enemyTeam]);
-	const unitById = new Map(units.map(u => [u.id, u]));
-	const playerCore = units.find(u => u.isCore && u.force === session.team.units[0]?.force)!;
-	const cpuCore = units.find(u => u.isCore && u.force !== session.team.units[0]?.force)!;
+	const playerForce = session.team.units[0]?.force;
 
-	return {
+	return rebuildCombatStateIndexes({
 		units,
 		logs: [],
 		enemyPlayerName: enemyPlayerName ?? "CPU",
 		wonCombat: false,
 		finalPlayerUnits: structuredClone(session.team.units),
 		initialUnits: structuredClone(units),
-		unitById,
-		playerCore,
-		cpuCore,
-		playerUnits: units.filter(u => u.force === playerCore.force),
-		cpuUnits: units.filter(u => u.force === cpuCore.force),
-	};
+		unitById: new Map(),
+		playerCore: units[0],
+		cpuCore: units[0],
+		playerUnits: [],
+		cpuUnits: [],
+	}, playerForce);
 
 }
 

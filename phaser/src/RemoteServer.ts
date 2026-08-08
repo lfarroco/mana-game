@@ -1,6 +1,7 @@
 import * as Models from "@game/Models";
-import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@game/Constants";
+import { FORCE_ID_PLAYER } from "@game/Constants";
 import { CombatLogEntry } from "@game/Combat/CombatLogger";
+import { rebuildCombatStateIndexes } from "@game/Combat/CombatStateIndexes";
 
 import * as supabase from "@lib/supabase";
 import { env } from "@Env";
@@ -105,28 +106,23 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	let combatState: Models.CombatState | undefined = undefined;
 	if (session.phase === "combat") {
 		console.debug("RemoteServer", "Using server-provided combat logs");
-		const units = sessionCombatState.initialUnits;
-		const finalPlayerUnits = sessionCombatState.finalPlayerUnits;
-		const wonCombat = sessionCombatState.wonCombat;
-		const unitById = new Map(units.map(u => [u.id, u]));
-		const playerCore = units.find(u => u.isCore && u.force === FORCE_ID_PLAYER)!;
-		const cpuCore = units.find(u => u.isCore && u.force === FORCE_ID_CPU)!;
-		combatState = {
+		const units: Models.Unit[] = structuredClone([...sessionCombatState.initialUnits]);
+		combatState = rebuildCombatStateIndexes({
 			units,
 			logs: sessionCombatState.logs as CombatLogEntry[],
 			enemyPlayerName:
 				typeof sessionCombatState.enemyPlayerName === "string"
 					? sessionCombatState.enemyPlayerName
 					: "",
-			wonCombat,
-			finalPlayerUnits,
-			initialUnits: units,
-			unitById,
-			playerCore,
-			cpuCore,
-			playerUnits: units.filter(u => u.force === FORCE_ID_PLAYER),
-			cpuUnits: units.filter(u => u.force === FORCE_ID_CPU),
-		};
+			wonCombat: sessionCombatState.wonCombat,
+			finalPlayerUnits: sessionCombatState.finalPlayerUnits,
+			initialUnits: sessionCombatState.initialUnits,
+			unitById: new Map(),
+			playerCore: units[0],
+			cpuCore: units[0],
+			playerUnits: [],
+			cpuUnits: [],
+		}, FORCE_ID_PLAYER);
 	}
 
 	const optionsList = session.current_options || [];
