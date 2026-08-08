@@ -134,3 +134,43 @@ in BattlegroundScreen:
 clean; eslint clean on the 3 changed phaser files; phaser `src/` jest 9 green
 (pre-existing unrelated failures remain in `supabase/functions` Deno tests).
 Docs: AGENTS.md patterns #2/#8 updated.
+
+---
+
+## Split the `combat` phase into playback + client-only results phases (2026-08-07, Cline)
+
+**Context:** The single `combat` phase handled both battle playback *and* the
+per-round victory/defeat results overlay, plus weaved teardown through a module
+`container.once("destroy", cleanup)` and a module-global
+`lastCombatTrackerState` consumed directly by `CombatStatsTable`. The server
+already knows the outcome (`combatState.wonCombat`) at `start_combat`, so the
+results are a pure client-presentation concern.
+
+**What was done (client-only, no `core/` or server changes):**
+
+- `phaser/.../Phases/Combat/handleCombatPhase.ts`: `combat` is now playback only
+  (pause/resume/playbackFinished). On `playbackFinished` it captures the stats
+  snapshot and `ctx.go(combatState.wonCombat ? "combat_victory" : "combat_defeat")`.
+  Added `CombatVictoryPhase` / `CombatDefeatPhase`, each rendering the existing
+  `VictoryUI`/`DefeatUI` and registering `continue`/`replay` via `ctx.listen`.
+  Deleted `showCombatResults` / the one-shot listeners / the
+  `getLastCombatTrackerState` global / the board-resetting `cleanup` on the
+  container.
+- Teardown split: `teardownPlayback` (unpause + stop loop, runs on
+  `combat -> results` — **does not** touch the board, so the frozen battle board
+  stays behind the overlay) vs `teardownCombat` (resummon player team, clear
+  ForceStats + combatState, run on **Continue only**, NOT Replay — so the
+  `combatState` needed to replay stays intact). Runs before `dispatchAction({type:"end_combat"})`
+  because `phaseFinished.emit` awaits the full next-phase transition; teardown
+  after it would race the new phase's `create`.
+- `CombatStatsTable` / `VictoryUI` / `DefeatUI`: the tracker state is now passed
+  as a parameter instead of reading the module global.
+- `BattlegroundScreen.ts`: widened the client phase type to
+  `Models.PhaseType | "combat_victory" | "combat_defeat"` (client-only view
+  states, not present in `session.phase`) and registered the two phases.
+  Saved-game resume still lands at `combat` playback regardless of prior view state.
+
+**Verification:** phaser `tsc --noEmit` clean; eslint clean on all 6 changed files;
+phaser `src/` jest 9 green (pre-existing unrelated failures remain in
+`supabase/functions` Deno tests). Docs: AGENTS.md pattern #8 updated.
+

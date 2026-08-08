@@ -11,7 +11,7 @@ import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
 
-export type BGPhase = Models.PhaseType;
+export type BGPhase = Models.PhaseType | "combat_victory" | "combat_defeat";
 
 type BGEvents = typeof BattlegroundEvent
 
@@ -120,6 +120,10 @@ const screen = createScreen<BGPhase, BGEvents>({
 		combat: (ctx) => Phases.CombatPhase(ctx),
 		game_over: Phases.GameOverPhase,
 		victory: (ctx) => Phases.VictoryPhase(ctx),
+
+		// Client-only phases (not present in session)
+		combat_victory: (ctx) => Phases.CombatVictoryPhase(ctx),
+		combat_defeat: (ctx) => Phases.CombatDefeatPhase(ctx),
 	},
 });
 

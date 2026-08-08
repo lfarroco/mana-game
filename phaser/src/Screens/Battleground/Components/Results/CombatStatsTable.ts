@@ -6,7 +6,6 @@ import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as Panel from "@Components/Panel/Panel";
 import * as i18n from "@i18n/i18n";
 import * as Utils from "@utils";
-import { getLastCombatTrackerState } from "@Screens/Battleground/Phases/Combat/handleCombatPhase";
 import { env } from "@Env";
 
 const PANEL_CONFIG = {
@@ -28,7 +27,8 @@ async function createStatsPanel(
 	position: Vec2,
 	title: string,
 	titleColor: string,
-	forceFilter: (unit: Unit) => boolean
+	forceFilter: (unit: Unit) => boolean,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
 ): Promise<Phaser.GameObjects.Container> {
 	const { padding } = PANEL_CONFIG;
 
@@ -77,7 +77,6 @@ async function createStatsPanel(
 
 	let currentY = startY + PANEL_CONFIG.rowHeight;
 	for (const unit of filteredUnits) {
-		const trackerState = getLastCombatTrackerState();
 		if (!trackerState) continue;
 		const stats = CombatStatsTracker.getUnitStats(trackerState, unit.id);
 		if (!stats) continue;
@@ -186,7 +185,8 @@ async function createStatsPanel(
 export async function createCombatStatsPanels(
 	units: Unit[],
 	centerPanelX: number,
-	panelY: number
+	panelY: number,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {
 	const panelSpacing = 600;
 
@@ -198,7 +198,8 @@ export async function createCombatStatsPanels(
 		[centerPanelX - panelSpacing, panelY],
 		i18n.t("combatStats.playerTeam"),
 		PANEL_CONFIG.playerColor,
-		(unit) => unit.force === playerForceId
+		(unit) => unit.force === playerForceId,
+		trackerState,
 	);
 
 	const cpuPanel = await createStatsPanel(
@@ -206,7 +207,8 @@ export async function createCombatStatsPanels(
 		[centerPanelX + panelSpacing, panelY],
 		i18n.t("combatStats.enemyTeam"),
 		PANEL_CONFIG.cpuColor,
-		(unit) => unit.force === cpuForceId
+		(unit) => unit.force === cpuForceId,
+		trackerState,
 	);
 
 	return { playerPanel, cpuPanel };

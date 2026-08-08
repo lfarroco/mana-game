@@ -3,12 +3,14 @@ import * as c from "@Constants";
 import { Unit } from "@game/Models";
 import * as ResultsConfig from "./ResultsConfig";
 import * as CombatStatsTable from "./CombatStatsTable";
+import * as CombatStatsTracker from "@game/Combat/CombatStatsTracker";
 import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container, borderedRoundRect } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
 export async function displayVictory(
 	units: Unit[],
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
 ): Promise<Phaser.GameObjects.Container> {
 	const panelWidth = ResultsConfig.RESULTS_PANEL.width;
 	const panelHeight = ResultsConfig.RESULTS_PANEL.height;
@@ -37,7 +39,7 @@ export async function displayVictory(
 			}).container
 	);
 
-	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY);
+	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY, trackerState);
 
 	const resultContainer = container([
 		borderedRoundRect(
