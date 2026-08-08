@@ -85,6 +85,7 @@ const startCombatPlayback = async (): Promise<() => void> => {
 
 	await animation.delay(COMBAT_START_DELAY_MS);
 
+
 	const controller = CombatPlaybackController.createCombatPlaybackController(
 		env.state.combatState!.logs,
 	);
@@ -116,8 +117,22 @@ const setupCombatBoard = () => {
 
 	Chara.clearAll();
 
-	env.state.combatState!.units = structuredClone(env.state.combatState!.initialUnits);
-	const combatUnits = env.state.combatState!.units;
+	const combatState = env.state.combatState!;
+	combatState.units = structuredClone(combatState.initialUnits);
+	const combatUnits = combatState.units;
+
+	// Rebuild the derived indexes after swapping in the fresh playback units.
+	// unitById / playerCore / cpuCore / playerUnits / cpuUnits were built once
+	// in createCombatState and still reference the simulation-mutated unit
+	// objects. Playback log handlers read/write via unitById, so leaving them
+	// stale would apply each log delta on top of the simulation's final values
+	// (double-counting power/life — e.g. moss_golem's power jumping to 132).
+	const playerForce = combatState.playerCore.force;
+	combatState.unitById = new Map(combatUnits.map((u) => [u.id, u]));
+	combatState.playerCore = combatUnits.find((u) => u.isCore && u.force === playerForce)!;
+	combatState.cpuCore = combatUnits.find((u) => u.isCore && u.force !== playerForce)!;
+	combatState.playerUnits = combatUnits.filter((u) => u.force === playerForce);
+	combatState.cpuUnits = combatUnits.filter((u) => u.force !== playerForce);
 
 	const charas = combatUnits.map((unit) => Chara.summon(unit, false));
 	combatUnits.forEach(resetUnitStats);
