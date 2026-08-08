@@ -121,12 +121,8 @@ const setupCombatBoard = () => {
 	combatState.units = structuredClone(combatState.initialUnits);
 	const combatUnits = combatState.units;
 
-	// Rebuild the derived indexes after swapping in the fresh playback units.
-	// unitById / playerCore / cpuCore / playerUnits / cpuUnits were built once
-	// in createCombatState and still reference the simulation-mutated unit
-	// objects. Playback log handlers read/write via unitById, so leaving them
-	// stale would apply each log delta on top of the simulation's final values
-	// (double-counting power/life — e.g. moss_golem's power jumping to 132).
+	// Rebuild the derived indexes so playback log handlers (which read/write via
+	// unitById) operate on the fresh units instead of the simulation-mutated ones.
 	const playerForce = combatState.playerCore.force;
 	combatState.unitById = new Map(combatUnits.map((u) => [u.id, u]));
 	combatState.playerCore = combatUnits.find((u) => u.isCore && u.force === playerForce)!;
