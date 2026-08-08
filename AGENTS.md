@@ -1,21 +1,18 @@
 # AI Agent Guide — Mana Battle
 
-This file is the entry point for AI agents working on the Mana Battle codebase. Read this first to orient yourself, then pick a task and get to work. **Update this file when you complete a task or discover new issues.**
-
-The file plan.md contains the overall project plan and roadmap, including tasks that are currently in progress, completed, or planned for future development.
+This file is the entry point for AI agents working on the Mana Battle codebase. 
 
 ## Agent Workflow
 
-1. **Read this file** to orient yourself.
-2. **Pick a task** from the Task Queue.
-3. **Read the relevant docs** from the Knowledge Index.
-4. **Check the coding standards** before writing code.
-5. **Implement the change**, including tests where appropriate.
-6. **Update this file**: remove the task that was completed, and append it to the file AGENTS_ARCHIVE.md . If you discover new issues or tasks during your work, add them to this file.
+-. **Read this file** to orient yourself.
+-. **Read the relevant docs** from the Knowledge Index.
+-. **Check the coding standards** before writing code.
+-. **Implement the change**, including tests where appropriate.
+
 
 ## Project Overview
 
-Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview. Multiplayer sessions will be served by a new Node game server in `server/` (replacing the retired Supabase backend) — see [docs/game-server.md](docs/game-server.md).
+Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview. Multiplayer sessions will be served by a new Node game server in `server/` - see [docs/game-server.md](docs/game-server.md).
 
 ## Quick Start
 
@@ -24,7 +21,7 @@ cd phaser
 npm install
 npm run dev        # http://localhost:8080
 npm run test       # jest unit tests
-npm run test:e2e   # playwright e2e tests
+npm run test:e2e   # playwright e2e tests, currently broken
 npm run lint       # eslint
 ```
 
@@ -139,8 +136,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find bugs.
 
-- **Battleground persistent layer destroyed on phase transitions** (fixed 2026-08-05, Cline): `BattlegroundScreen.create()` fired its initial phase transition via `transitionToCurrentPhase()` **without `await`**. `runPhase()` synchronously calls `tracker.beginPhase()` (switching the tracker to `"phase"` mode), then yields on the phase handler's `await`. Control returns to `create()`, which returns the persistent elements (board, UI, bg, etc.); `trackReturned()` tracked them into the **phase** map instead of **persistent**, so the next phase switch's `clearPhase()` destroyed them. Fix: `await transitionToCurrentPhase()` in `create()` so `endPhase()` resets the tracker before the persistent elements are returned. Also hardened the framework (`@mana/framework` 2026-08-05): `create()`'s returned elements are now always tracked via `trackPersistent()` (mode-independent), so even a screen that fires an initial `ctx.go()` without awaiting it cannot leak its persistent layer into `phaseObjects`. Added regression test `create() returned elements survive phase switches even when the initial ctx.go() is not awaited`.
-
 - **E2E suite is broken on `single_scene` branch** (found 2026-07-29): `phaser/e2e/*.e2e.ts` import `../src/test-utils/debugController`, but that module does not exist in git — all e2e runs fail with "Cannot find module". The `debugController` API used by the specs (`getPlayerBoardUnits`, `addUnitToPlayerBoard`, `moveUnitOnBoard`, `logGameState`) needs to be reimplemented against the current screen architecture. Also note `game.e2e.spec.ts` doesn't match `testMatch: /.*\.e2e\.ts/` so it never runs even when resolvable.
 
 
@@ -150,9 +145,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ### High Priority
 
-Game server implementation (phased plan: [docs/game-server.md](docs/game-server.md)):
 
-- [x] **Server Phase 0 — core hardening**: ✅ DONE (2026-07-26, Cline). Added `options?: { enemyTeam?, enemyPlayerName? }` to `transitionToNextState`; threaded `enemyPlayerName` through `executeCombatPhase` → `createCombatState`; added pure combat-state wire codec (`serializeCombatState`/`deserializeCombatState` + `CombatStateDto` type) in `core/src/Combat/CombatCodec.ts`; added 4 new transition tests + 3 codec round-trip tests. All changes backward-compatible. See AGENTS_ARCHIVE.md.
 - [~] **Server Phase 1 — session API skeleton**: IN PROGRESS (2026-07-26, Cline). `server/` package scaffolded (Node 22, ESM, express 5, `@game/*` alias, tsx/jest/tsup). In-memory session repo created. Endpoints: `POST /api/v1/sessions`, `GET /api/v1/sessions/current`, `POST /api/v1/sessions/current/actions`, `DELETE /api/v1/sessions/current`. HTTP integration tests written (8 tests). CombatState serialization via codec. Remaining: `npm install` + verify `npm run dev` + `npm test`; guest auth `POST /players` (deferred — no auth for local dev); revive `FullSessionFlow` tests.
 - [ ] **Server Phase 2 — matchmaking & rating**: ghost snapshots per round, opponent selection (same round, rating band, exclude self), PvE fallback via `EnemyGeneration`, rating delta on run completion
 - [ ] **Server Phase 3 — client integration**: rewrite `phaser/src/RemoteServer.ts` as an HTTP adapter for the new API (`MANA_SERVER_URL`); then delete `src/lib/supabase.ts`, `phaser/supabase/`, `scripts/bundle-edge.ts`, `Screens/ArenaLobby/`, and the supabase scripts/deps per code-quality-cleanup.md §3
