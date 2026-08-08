@@ -9,7 +9,9 @@ import { env } from "@Env";
 import { BattlegroundEvent, GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as UI from "./Components/UI/UI";
+import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
+
 
 export type BGPhase = Models.PhaseType | "combat_victory" | "combat_defeat";
 
@@ -54,10 +56,20 @@ export const finishPhase = async (
 };
 
 
-const transitionToCurrentPhase = async () => {
+const transitionToCurrentPhase = async ({ previousPhase }: {
+	previousPhase?: Models.PhaseType
+}) => {
 	const { phase } = env.state.session;
+
+	// Sync the player board to the session team, except around combat where the
+	// combat board (setupCombatBoard) and its teardown (resetBoard) own the units.
+	if (phase !== "combat" && previousPhase !== "combat") {
+		await syncPlayerBoardUnits();
+	}
+
 	await go(phase);
 };
+
 
 const screen = createScreen<BGPhase, BGEvents>({
 	name: "battleground",
@@ -99,7 +111,8 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 		AudioManager.playMusic("music_battlemap_vetruv");
 
-		await transitionToCurrentPhase();
+		await transitionToCurrentPhase({});
+
 
 		return [
 			cloudsBg,
