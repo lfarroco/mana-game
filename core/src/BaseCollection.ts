@@ -1,1 +1,1 @@
-export * from './data/BaseCollection';
+export * from "./data/BaseCollection";

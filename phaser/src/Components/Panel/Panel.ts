@@ -1,4 +1,3 @@
-
 import { env } from "@Env";
 
 export type PanelConfig = {
@@ -12,7 +11,7 @@ export type PanelConfig = {
 	borderAlpha?: number;
 };
 
-const DEFAULT_CONFIG: Required<Omit<PanelConfig, 'width' | 'height'>> = {
+const DEFAULT_CONFIG: Required<Omit<PanelConfig, "width" | "height">> = {
 	borderRadius: 20,
 	backgroundColor: 0x2c3e50,
 	backgroundAlpha: 0.95,
@@ -28,7 +27,7 @@ export type Panel = {
 	height: number;
 	add: (...children: Phaser.GameObjects.GameObject[]) => void;
 	destroy: () => void;
-}
+};
 
 export function createPanel(position: Vec2, config: PanelConfig): Panel {
 	const {

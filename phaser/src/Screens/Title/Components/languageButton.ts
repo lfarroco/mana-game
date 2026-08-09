@@ -7,7 +7,6 @@ const BUTTON_X = 120;
 const BUTTON_Y = constants.SCREEN_HEIGHT - 60;
 
 export function create(ctx: TitleScreen.Context) {
-
 	const currentLangName = i18n.getNativeName(i18n.getCurrentLocale());
 
 	const button = UIButton.create({

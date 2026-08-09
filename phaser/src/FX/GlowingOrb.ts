@@ -11,8 +11,7 @@ export const create = (
 	const container = scene.add.container(x, y);
 
 	// use particle emitter to create a glowing orb
-	const orb = scene.add.particles(0, 0,
-		Assets.images.white_dot.key, {
+	const orb = scene.add.particles(0, 0, Assets.images.white_dot.key, {
 		speed: { min: 100, max: 100 },
 		scale: { start: 5, end: 1 },
 		alpha: { start: 0.8, end: 0 },

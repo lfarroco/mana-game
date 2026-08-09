@@ -23,7 +23,6 @@ import {
 
 export type { ScreenModule } from "@mana/framework";
 
-
 /** Typed route map — one route per screen, declaring the params it accepts. */
 export type Routes = {
 	title: void;
@@ -75,7 +74,6 @@ export function createScreenManager(config: {
 					from.destroy?.();
 				}
 
-
 				env.scene.input.enabled = false;
 
 				if (from) {
@@ -85,8 +83,6 @@ export function createScreenManager(config: {
 				env.scene.children.removeAll(true);
 				env.scene.tweens.killAll();
 				env.scene.time.removeAllEvents();
-
-
 			},
 
 			afterTransition: async (to) => {

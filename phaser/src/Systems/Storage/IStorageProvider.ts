@@ -1,4 +1,3 @@
-
 export type StorageProvider = {
 	getItem(key: string): string | null;
 

@@ -32,10 +32,7 @@ export function boolean(
 
 	const toggleButton = UIButton.create({
 		text: getValue() ? onText : offText,
-		position: [
-			Constants.MIDDLE_SCREEN_X,
-			yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y
-		],
+		position: [Constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y],
 		callback: () => {
 			const newValue = !getValue();
 			setValue(newValue);

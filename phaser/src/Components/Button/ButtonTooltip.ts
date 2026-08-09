@@ -53,16 +53,10 @@ export const attachButtonTooltip = (
 			return;
 		}
 		const position = getTooltipPosition?.() ?? { x: 0, y: BUTTON_TOOLTIP_VERTICAL_OFFSET };
-		Tooltip.renderTooltip(
-			position.x,
-			position.y,
-			tooltip.title,
-			tooltip.description,
-			{
-				anchorX: tooltip.position === "right" ? "left" : "center",
-				maxWidth: BUTTON_TOOLTIP_MAX_WIDTH,
-			}
-		);
+		Tooltip.renderTooltip(position.x, position.y, tooltip.title, tooltip.description, {
+			anchorX: tooltip.position === "right" ? "left" : "center",
+			maxWidth: BUTTON_TOOLTIP_MAX_WIDTH,
+		});
 		isVisible = true;
 	};
 

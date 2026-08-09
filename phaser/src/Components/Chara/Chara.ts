@@ -56,15 +56,15 @@ export function hasCharaById(id: string): boolean {
 	return charaById.has(id);
 }
 
-export async function summon(
-	unit: Unit, useSummonEffect: boolean = true,
-): Promise<Chara> {
+export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
-		Effects.summonEffect(vec);
+		await Effects.summonEffect(vec);
 	}
 	const chara = create(unit);
+
 	enableTooltip(chara);
+
 	chara.setScale(0);
 	chara.setAngle(-10);
 	animation.tween({
@@ -192,7 +192,9 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 		}
 	}
 
-	const frameNames = env.scene.textures.exists(unit.pic) ? env.scene.textures.get(unit.pic).getFrameNames() : [];
+	const frameNames = env.scene.textures.exists(unit.pic)
+		? env.scene.textures.get(unit.pic).getFrameNames()
+		: [];
 	const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 	idleFrames.sort((a, b) => {
 		const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -202,16 +204,10 @@ function configureSprite(sprite: Phaser.GameObjects.Sprite, unit: Unit) {
 	const firstIdle = idleFrames[0] || frameNames[0];
 
 	sprite.setTexture(unit.pic, firstIdle);
-	sprite.setDisplaySize(
-		constants.TILE_WIDTH * 1.2,
-		constants.TILE_HEIGHT * 1.2,
-	);
+	sprite.setDisplaySize(constants.TILE_WIDTH * 1.2, constants.TILE_HEIGHT * 1.2);
 	// if the sprite has no texture, reduce its size
 	if (sprite.texture.key === "__MISSING") {
-		sprite.setDisplaySize(
-			constants.TILE_WIDTH * 0.5,
-			constants.TILE_HEIGHT * 0.5
-		);
+		sprite.setDisplaySize(constants.TILE_WIDTH * 0.5, constants.TILE_HEIGHT * 0.5);
 	}
 
 	if (env.scene.anims.exists(unit.pic + "_idle")) {
@@ -270,9 +266,7 @@ export function shake(chara: Chara) {
 	});
 }
 
-export async function upgradeUnit(
-	unit: Unit,
-) {
+export async function upgradeUnit(unit: Unit) {
 	const chara = mustGetCharaById(unit.id);
 
 	upgradeUnitData(unit);
@@ -281,9 +275,7 @@ export async function upgradeUnit(
 	await summon(unit, true);
 }
 
-export async function refreshChara(
-	unit: Unit,
-): Promise<void> {
+export async function refreshChara(unit: Unit): Promise<void> {
 	if (hasCharaById(unit.id)) {
 		const chara = mustGetCharaById(unit.id);
 		destroy(chara);
@@ -297,7 +289,11 @@ export async function refreshChara(
  * Safely play an animation on a chara's sprite.
  * No-ops when assets are disabled or the animation key doesn't exist.
  */
-export function playAnimation(chara: Chara, animSuffix: string, ignoreIfPlaying: boolean = true): void {
+export function playAnimation(
+	chara: Chara,
+	animSuffix: string,
+	ignoreIfPlaying: boolean = true
+): void {
 	if (config.DISABLE_ASSETS) return;
 	const s = mustGetState(chara);
 	const animKey = `${s.unit.pic}_${animSuffix}`;

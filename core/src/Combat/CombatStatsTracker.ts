@@ -1,58 +1,60 @@
 import { CombatState, EffectId, SessionData, Unit } from "../Models";
 import { FORCE_ID_PLAYER } from "../math/Constants";
 
-
 export type UnitCombatStats = {
-	unitId: string;
-	unitName?: string;
-	forceId: string;
+  unitId: string;
+  unitName?: string;
+  forceId: string;
 
-	actionsPerformed: number;
-	damageDealt: number;
-	poisonApplied: number;
-	healingDone: number;
-	regenApplied: number;
-	shieldGranted: number;
+  actionsPerformed: number;
+  damageDealt: number;
+  poisonApplied: number;
+  healingDone: number;
+  regenApplied: number;
+  shieldGranted: number;
 };
 
 export type CurrentCombatStats = {
-	damageDealt: number;
-	poisonDealt: number;
-	healDealt: number;
-	regenDealt: number;
-	shieldDealt: number;
+  damageDealt: number;
+  poisonDealt: number;
+  healDealt: number;
+  regenDealt: number;
+  shieldDealt: number;
 };
 
 export type CombatStatsTrackerState = {
-	unitStats: Map<string, UnitCombatStats>;
-	currentCombatStats: Map<string, CurrentCombatStats>;
+  unitStats: Map<string, UnitCombatStats>;
+  currentCombatStats: Map<string, CurrentCombatStats>;
 };
 
-function getForceStats(trackerState: CombatStatsTrackerState, forceId: string): CurrentCombatStats {
-	if (!trackerState.currentCombatStats.has(forceId)) {
-		trackerState.currentCombatStats.set(forceId, {
-			damageDealt: 0,
-			poisonDealt: 0,
-			healDealt: 0,
-			regenDealt: 0,
-			shieldDealt: 0,
-		});
-	}
-	return trackerState.currentCombatStats.get(forceId)!;
+function getForceStats(
+  trackerState: CombatStatsTrackerState,
+  forceId: string,
+): CurrentCombatStats {
+  if (!trackerState.currentCombatStats.has(forceId)) {
+    trackerState.currentCombatStats.set(forceId, {
+      damageDealt: 0,
+      poisonDealt: 0,
+      healDealt: 0,
+      regenDealt: 0,
+      shieldDealt: 0,
+    });
+  }
+  return trackerState.currentCombatStats.get(forceId)!;
 }
 
 function makeUnitStats(unit: Unit): UnitCombatStats {
-	return {
-		unitId: unit.id,
-		//unitName: getName(unit.cardId),
-		forceId: unit.force,
-		damageDealt: 0,
-		poisonApplied: 0,
-		healingDone: 0,
-		regenApplied: 0,
-		shieldGranted: 0,
-		actionsPerformed: 0,
-	};
+  return {
+    unitId: unit.id,
+    //unitName: getName(unit.cardId),
+    forceId: unit.force,
+    damageDealt: 0,
+    poisonApplied: 0,
+    healingDone: 0,
+    regenApplied: 0,
+    shieldGranted: 0,
+    actionsPerformed: 0,
+  };
 }
 
 /**
@@ -61,28 +63,34 @@ function makeUnitStats(unit: Unit): UnitCombatStats {
  * initialize() — registering them here keeps tracking crash-free and makes
  * their contributions count toward force stats (and threshold reactions).
  */
-function getUnitStatsOrInit(trackerState: CombatStatsTrackerState, unit: Unit): UnitCombatStats {
-	if (!trackerState.unitStats.has(unit.id)) {
-		trackerState.unitStats.set(unit.id, makeUnitStats(unit));
-	}
-	return trackerState.unitStats.get(unit.id)!;
+function getUnitStatsOrInit(
+  trackerState: CombatStatsTrackerState,
+  unit: Unit,
+): UnitCombatStats {
+  if (!trackerState.unitStats.has(unit.id)) {
+    trackerState.unitStats.set(unit.id, makeUnitStats(unit));
+  }
+  return trackerState.unitStats.get(unit.id)!;
 }
 
 export function initialize(combatState: CombatState): CombatStatsTrackerState {
-	const unitStats = new Map<string, UnitCombatStats>();
-	const currentCombatStats = new Map<string, CurrentCombatStats>();
+  const unitStats = new Map<string, UnitCombatStats>();
+  const currentCombatStats = new Map<string, CurrentCombatStats>();
 
-	for (const unit of combatState.units) {
-		unitStats.set(unit.id, makeUnitStats(unit));
-	}
+  for (const unit of combatState.units) {
+    unitStats.set(unit.id, makeUnitStats(unit));
+  }
 
-	return { unitStats, currentCombatStats };
+  return { unitStats, currentCombatStats };
 }
 
-export function trackAction(trackerState: CombatStatsTrackerState, payload: { unit: Unit }): void {
-	const stats = getUnitStatsOrInit(trackerState, payload.unit);
+export function trackAction(
+  trackerState: CombatStatsTrackerState,
+  payload: { unit: Unit },
+): void {
+  const stats = getUnitStatsOrInit(trackerState, payload.unit);
 
-	stats.actionsPerformed += 1;
+  stats.actionsPerformed += 1;
 }
 
 const DAMAGE_THRESHOLD = 100;
@@ -92,43 +100,43 @@ const REGEN_THRESHOLD = 10;
 const SHIELD_THRESHOLD = 100;
 
 type StatConfig = {
-	unitStatKey: keyof UnitCombatStats;
-	forceStatKey: keyof CurrentCombatStats;
-	threshold?: number;
-	reactionId?: EffectId;
+  unitStatKey: keyof UnitCombatStats;
+  forceStatKey: keyof CurrentCombatStats;
+  threshold?: number;
+  reactionId?: EffectId;
 };
 
 const STAT_CONFIGS: Record<string, StatConfig> = {
-	damage: {
-		unitStatKey: "damageDealt",
-		forceStatKey: "damageDealt",
-		threshold: DAMAGE_THRESHOLD,
-		reactionId: "every_100_damage",
-	},
-	poison: {
-		unitStatKey: "poisonApplied",
-		forceStatKey: "poisonDealt",
-		threshold: POISON_THRESHOLD,
-		reactionId: "every_10_poison",
-	},
-	heal: {
-		unitStatKey: "healingDone",
-		forceStatKey: "healDealt",
-		threshold: HEAL_THRESHOLD,
-		reactionId: "every_100_heal",
-	},
-	regen: {
-		unitStatKey: "regenApplied",
-		forceStatKey: "regenDealt",
-		threshold: REGEN_THRESHOLD,
-		reactionId: "every_10_regen",
-	},
-	shield: {
-		unitStatKey: "shieldGranted",
-		forceStatKey: "shieldDealt",
-		threshold: SHIELD_THRESHOLD,
-		reactionId: "every_100_shield",
-	},
+  damage: {
+    unitStatKey: "damageDealt",
+    forceStatKey: "damageDealt",
+    threshold: DAMAGE_THRESHOLD,
+    reactionId: "every_100_damage",
+  },
+  poison: {
+    unitStatKey: "poisonApplied",
+    forceStatKey: "poisonDealt",
+    threshold: POISON_THRESHOLD,
+    reactionId: "every_10_poison",
+  },
+  heal: {
+    unitStatKey: "healingDone",
+    forceStatKey: "healDealt",
+    threshold: HEAL_THRESHOLD,
+    reactionId: "every_100_heal",
+  },
+  regen: {
+    unitStatKey: "regenApplied",
+    forceStatKey: "regenDealt",
+    threshold: REGEN_THRESHOLD,
+    reactionId: "every_10_regen",
+  },
+  shield: {
+    unitStatKey: "shieldGranted",
+    forceStatKey: "shieldDealt",
+    threshold: SHIELD_THRESHOLD,
+    reactionId: "every_100_shield",
+  },
 };
 
 /** Tracks the last threshold level fired per force:stat combination.
@@ -183,99 +191,103 @@ export function getCrossedThresholds(
  * no dependency on the reaction/trigger pipeline.
  */
 function trackStat(
-	trackerState: CombatStatsTrackerState,
-	amount: number,
-	sourceUnit: Unit,
-	configKey: keyof typeof STAT_CONFIGS
+  trackerState: CombatStatsTrackerState,
+  amount: number,
+  sourceUnit: Unit,
+  configKey: keyof typeof STAT_CONFIGS,
 ) {
-	if (amount <= 0) return;
+  if (amount <= 0) return;
 
-	const config = STAT_CONFIGS[configKey];
-	const stats = getUnitStatsOrInit(trackerState, sourceUnit);
+  const config = STAT_CONFIGS[configKey];
+  const stats = getUnitStatsOrInit(trackerState, sourceUnit);
 
-	(stats[config.unitStatKey] as number) += amount;
+  (stats[config.unitStatKey] as number) += amount;
 
-	const forceStats = getForceStats(trackerState, stats.forceId);
-	forceStats[config.forceStatKey] += amount;
-
+  const forceStats = getForceStats(trackerState, stats.forceId);
+  forceStats[config.forceStatKey] += amount;
 }
 
 export function trackDamage(
-	trackerState: CombatStatsTrackerState,
-	sourceUnit: Unit,
-	damage: number
+  trackerState: CombatStatsTrackerState,
+  sourceUnit: Unit,
+  damage: number,
 ): void {
-	trackStat(trackerState, damage, sourceUnit, "damage");
+  trackStat(trackerState, damage, sourceUnit, "damage");
 }
 
 export function trackPoison(
-	trackerState: CombatStatsTrackerState,
-	sourceUnit: Unit,
-	poison: number
+  trackerState: CombatStatsTrackerState,
+  sourceUnit: Unit,
+  poison: number,
 ): void {
-	trackStat(trackerState, poison, sourceUnit, "poison");
+  trackStat(trackerState, poison, sourceUnit, "poison");
 }
 
 export function trackHeal(
-	trackerState: CombatStatsTrackerState,
-	sourceUnit: Unit,
-	healing: number
+  trackerState: CombatStatsTrackerState,
+  sourceUnit: Unit,
+  healing: number,
 ): void {
-	trackStat(trackerState, healing, sourceUnit, "heal");
+  trackStat(trackerState, healing, sourceUnit, "heal");
 }
 
 export function trackRegen(
-	trackerState: CombatStatsTrackerState,
-	sourceUnit: Unit,
-	regen: number
+  trackerState: CombatStatsTrackerState,
+  sourceUnit: Unit,
+  regen: number,
 ): void {
-	trackStat(trackerState, regen, sourceUnit, "regen");
+  trackStat(trackerState, regen, sourceUnit, "regen");
 }
 
 export function trackShield(
-	trackerState: CombatStatsTrackerState,
-	sourceUnit: Unit,
-	shield: number
+  trackerState: CombatStatsTrackerState,
+  sourceUnit: Unit,
+  shield: number,
 ): void {
-	trackStat(trackerState, shield, sourceUnit, "shield");
+  trackStat(trackerState, shield, sourceUnit, "shield");
 }
 
 export function getUnitStats(
-	trackerState: CombatStatsTrackerState,
-	unitId: string
+  trackerState: CombatStatsTrackerState,
+  unitId: string,
 ): UnitCombatStats | undefined {
-	return trackerState.unitStats.get(unitId);
+  return trackerState.unitStats.get(unitId);
 }
 
-export function stop(trackerState: CombatStatsTrackerState, session: SessionData): void {
-	if (!session.runStats) {
-		session.runStats = {
-			damageDealt: 0,
-			poisonDealt: 0,
-			shieldDealt: 0,
-			regenDealt: 0,
-			healDealt: 0,
-			mostPowerfulUnit: null,
-			totalUnitsRecruited: 0,
-			unitUsage: {},
-		};
-	}
-	const { runStats } = session;
+export function stop(
+  trackerState: CombatStatsTrackerState,
+  session: SessionData,
+): void {
+  if (!session.runStats) {
+    session.runStats = {
+      damageDealt: 0,
+      poisonDealt: 0,
+      shieldDealt: 0,
+      regenDealt: 0,
+      healDealt: 0,
+      mostPowerfulUnit: null,
+      totalUnitsRecruited: 0,
+      unitUsage: {},
+    };
+  }
+  const { runStats } = session;
 
-	const playerForceId = session.team.units[0]?.force || FORCE_ID_PLAYER;
-	const playerStats = getForceStats(trackerState, playerForceId);
+  const playerForceId = session.team.units[0]?.force || FORCE_ID_PLAYER;
+  const playerStats = getForceStats(trackerState, playerForceId);
 
-	runStats.damageDealt += playerStats.damageDealt;
-	runStats.poisonDealt += playerStats.poisonDealt;
-	runStats.healDealt += playerStats.healDealt;
-	runStats.regenDealt += playerStats.regenDealt;
-	runStats.shieldDealt += playerStats.shieldDealt;
+  runStats.damageDealt += playerStats.damageDealt;
+  runStats.poisonDealt += playerStats.poisonDealt;
+  runStats.healDealt += playerStats.healDealt;
+  runStats.regenDealt += playerStats.regenDealt;
+  runStats.shieldDealt += playerStats.shieldDealt;
 
-	const player = { units: session.team.units };
-	for (const unit of player.units) {
-		if (!runStats.mostPowerfulUnit || unit.power > runStats.mostPowerfulUnit.power) {
-			runStats.mostPowerfulUnit = { cardId: unit.cardId, power: unit.power };
-		}
-	}
-
+  const player = { units: session.team.units };
+  for (const unit of player.units) {
+    if (
+      !runStats.mostPowerfulUnit ||
+      unit.power > runStats.mostPowerfulUnit.power
+    ) {
+      runStats.mostPowerfulUnit = { cardId: unit.cardId, power: unit.power };
+    }
+  }
 }

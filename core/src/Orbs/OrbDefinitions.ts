@@ -13,7 +13,7 @@ import * as OrbConstants from "./OrbConstants";
 // ---------------------------------------------------------------------------
 
 export function increasePowerOnTypeEffect(
-  type: "damage" | "heal" | "shield" | "poison" | "regen"
+  type: "damage" | "heal" | "shield" | "poison" | "regen",
 ): Effect {
   return {
     id: "increase_power",
@@ -101,8 +101,21 @@ export const ORB_DEFINITIONS: Record<string, OrbDefinition> = {};
 // Register all orb definitions
 // ---------------------------------------------------------------------------
 
-const statTypes = ["damage", "heal", "shield", "poison", "regen", "haste", "slow", "charge"] as const;
-const statCategories = ["increase_power", "decrease_cooldown", "increase_critical"] as const;
+const statTypes = [
+  "damage",
+  "heal",
+  "shield",
+  "poison",
+  "regen",
+  "haste",
+  "slow",
+  "charge",
+] as const;
+const statCategories = [
+  "increase_power",
+  "decrease_cooldown",
+  "increase_critical",
+] as const;
 
 for (const cat of statCategories) {
   for (const t of statTypes) {
@@ -113,9 +126,17 @@ for (const cat of statCategories) {
 
 const specials: OrbDefinition[] = [
   { id: "upgrade_orb", kind: "special", special: "upgrade" },
-  { id: "increase_core_max_life", kind: "special", special: "increase_core_max_life" },
+  {
+    id: "increase_core_max_life",
+    kind: "special",
+    special: "increase_core_max_life",
+  },
   { id: "upgrade_core_power", kind: "special", special: "upgrade_core_power" },
-  { id: "decrease_core_cooldown", kind: "special", special: "decrease_core_cooldown" },
+  {
+    id: "decrease_core_cooldown",
+    kind: "special",
+    special: "decrease_core_cooldown",
+  },
   { id: "distribute_power_orb", kind: "special", special: "distribute_power" },
   { id: "absorb_power_orb", kind: "special", special: "absorb_power" },
   { id: "sacrifice_effect_orb", kind: "special", special: "sacrifice" },
@@ -124,69 +145,119 @@ for (const def of specials) ORB_DEFINITIONS[def.id] = def;
 
 const reactions: OrbDefinition[] = [
   {
-    id: "on_100_damage_effect", kind: "reaction", effectId: "every_100_damage", position: "allies",
+    id: "on_100_damage_effect",
+    kind: "reaction",
+    effectId: "every_100_damage",
+    position: "allies",
     possibleEffects: [
-      increasePowerOnTypeEffect("heal"), increasePowerOnTypeEffect("shield"),
-      increasePowerOnTypeEffect("poison"), increasePowerOnTypeEffect("regen"),
-    ],
-  },
-  {
-    id: "on_100_shield_effect", kind: "reaction", effectId: "every_100_shield", position: "allies",
-    possibleEffects: [
-      increasePowerOnTypeEffect("heal"), increasePowerOnTypeEffect("damage"),
-      increasePowerOnTypeEffect("poison"), increasePowerOnTypeEffect("regen"),
-    ],
-  },
-  {
-    id: "on_100_heal_effect", kind: "reaction", effectId: "every_100_heal", position: "allies",
-    possibleEffects: [
-      increasePowerOnWeakest, increasePowerOnTypeEffect("shield"),
-      increasePowerOnTypeEffect("damage"), increasePowerOnTypeEffect("poison"),
+      increasePowerOnTypeEffect("heal"),
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("poison"),
       increasePowerOnTypeEffect("regen"),
     ],
   },
   {
-    id: "on_10_regen_effect", kind: "reaction", effectId: "every_10_regen", position: "allies",
+    id: "on_100_shield_effect",
+    kind: "reaction",
+    effectId: "every_100_shield",
+    position: "allies",
     possibleEffects: [
-      increasePowerOnTypeEffect("shield"), increasePowerOnTypeEffect("damage"),
-      increasePowerOnTypeEffect("poison"), increasePowerOnTypeEffect("heal"),
+      increasePowerOnTypeEffect("heal"),
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("poison"),
+      increasePowerOnTypeEffect("regen"),
     ],
   },
   {
-    id: "on_10_poison_effect", kind: "reaction", effectId: "every_10_poison", position: "allies",
+    id: "on_100_heal_effect",
+    kind: "reaction",
+    effectId: "every_100_heal",
+    position: "allies",
     possibleEffects: [
-      increasePowerOnTypeEffect("shield"), increasePowerOnTypeEffect("damage"),
-      increasePowerOnTypeEffect("regen"), increasePowerOnTypeEffect("heal"),
+      increasePowerOnWeakest,
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("poison"),
+      increasePowerOnTypeEffect("regen"),
     ],
   },
   {
-    id: "on_re_slow_effect", kind: "reaction", effectId: "re_slow", position: "allies",
+    id: "on_10_regen_effect",
+    kind: "reaction",
+    effectId: "every_10_regen",
+    position: "allies",
     possibleEffects: [
-      decreaseRandomEnemyPowerEffect, decreaseStrongestEnemyPowerEffect,
-      increasePowerOnTypeEffect("poison"), increasePowerOnTypeEffect("shield"),
-    ],
-  },
-  {
-    id: "on_re_haste_effect", kind: "reaction", effectId: "re_hasted", position: "allies",
-    possibleEffects: [
-      increaseCriticalEffect, increasePowerOnTypeEffect("damage"),
-      increasePowerOnTypeEffect("shield"), increasePowerOnTypeEffect("heal"),
-    ],
-  },
-  {
-    id: "on_over_heal_effect", kind: "reaction", effectId: "on_over_heal", position: "allies",
-    possibleEffects: [increaseCriticalEffect, hasteEffect, increasePowerOnWeakest],
-  },
-  {
-    id: "on_crit_effect", kind: "reaction", effectId: "on_crit", position: "allies",
-    possibleEffects: [
-      decreaseRandomEnemyPowerEffect, decreaseStrongestEnemyPowerEffect,
-      increasePowerOnTypeEffect("damage"), increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("poison"),
       increasePowerOnTypeEffect("heal"),
     ],
   },
   {
-    id: "on_battle_start_effect", kind: "reaction", effectId: "on_battle_start", position: "allies",
+    id: "on_10_poison_effect",
+    kind: "reaction",
+    effectId: "every_10_poison",
+    position: "allies",
+    possibleEffects: [
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("regen"),
+      increasePowerOnTypeEffect("heal"),
+    ],
+  },
+  {
+    id: "on_re_slow_effect",
+    kind: "reaction",
+    effectId: "re_slow",
+    position: "allies",
+    possibleEffects: [
+      decreaseRandomEnemyPowerEffect,
+      decreaseStrongestEnemyPowerEffect,
+      increasePowerOnTypeEffect("poison"),
+      increasePowerOnTypeEffect("shield"),
+    ],
+  },
+  {
+    id: "on_re_haste_effect",
+    kind: "reaction",
+    effectId: "re_hasted",
+    position: "allies",
+    possibleEffects: [
+      increaseCriticalEffect,
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("heal"),
+    ],
+  },
+  {
+    id: "on_over_heal_effect",
+    kind: "reaction",
+    effectId: "on_over_heal",
+    position: "allies",
+    possibleEffects: [
+      increaseCriticalEffect,
+      hasteEffect,
+      increasePowerOnWeakest,
+    ],
+  },
+  {
+    id: "on_crit_effect",
+    kind: "reaction",
+    effectId: "on_crit",
+    position: "allies",
+    possibleEffects: [
+      decreaseRandomEnemyPowerEffect,
+      decreaseStrongestEnemyPowerEffect,
+      increasePowerOnTypeEffect("damage"),
+      increasePowerOnTypeEffect("shield"),
+      increasePowerOnTypeEffect("heal"),
+    ],
+  },
+  {
+    id: "on_battle_start_effect",
+    kind: "reaction",
+    effectId: "on_battle_start",
+    position: "allies",
     possibleEffects: [hasteEffect, slowEffect, chargeEffect],
   },
 ];

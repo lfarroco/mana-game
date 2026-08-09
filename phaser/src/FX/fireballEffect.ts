@@ -17,26 +17,19 @@ const FIREBALL_TRAIL_ALPHA = 0.9;
 const ZERO_COORDINATE_VALUE = 0;
 const WARN_ZERO_COORDINATE_PREFIX = "[fireballEffect] Aborting: Source or target is at (0,0).";
 
-export async function fireballEffect(
-	[sx, sy]: Vec2,
-	[tx, ty]: Vec2
-) {
-
+export async function fireballEffect([sx, sy]: Vec2, [tx, ty]: Vec2) {
 	if (
 		(sx === ZERO_COORDINATE_VALUE && sy === ZERO_COORDINATE_VALUE) ||
 		(tx === ZERO_COORDINATE_VALUE && ty === ZERO_COORDINATE_VALUE)
 	) {
-		console.warn("fireballEffect",
+		console.warn(
+			"fireballEffect",
 			`${WARN_ZERO_COORDINATE_PREFIX} Source: (${sx},${sy}), Target: (${tx},${ty})`
 		);
 		return;
 	}
 
-	const rects = fireball(
-		[sx, sy],
-		[tx, ty],
-		FIREBALL_TRAVEL_DURATION
-	);
+	const rects = fireball([sx, sy], [tx, ty], FIREBALL_TRAVEL_DURATION);
 
 	await animation.delay(FIREBALL_TRAVEL_DURATION / 2);
 
@@ -55,11 +48,7 @@ export async function fireballEffect(
 	});
 }
 
-function fireball(
-	[sx, sy]: Vec2,
-	[tx, ty]: Vec2,
-	travelDuration: number
-) {
+function fireball([sx, sy]: Vec2, [tx, ty]: Vec2, travelDuration: number) {
 	const scene = env.scene;
 	const rects: Phaser.GameObjects.Rectangle[] = [];
 
@@ -67,7 +56,8 @@ function fireball(
 		const t = i / (FIREBALL_TRAIL_COUNT - 1);
 		const x = sx + (tx - sx) * t;
 		const y = sy + (ty - sy) * t;
-		const color = SHARED_FIRE_TINT_COLORS[Math.floor(Math.random() * SHARED_FIRE_TINT_COLORS.length)];
+		const color =
+			SHARED_FIRE_TINT_COLORS[Math.floor(Math.random() * SHARED_FIRE_TINT_COLORS.length)];
 		const size = Phaser.Math.FloatBetween(FIREBALL_TRAIL_SIZE_MIN, FIREBALL_TRAIL_SIZE_MAX);
 
 		const rect = scene.add.rectangle(x, y, size, size, color, FIREBALL_TRAIL_ALPHA);

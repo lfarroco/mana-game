@@ -1,7 +1,11 @@
 import { RunStats } from "@game/Models";
 import { storage } from "@Systems/Storage";
 import { GAME_CONFIG } from "@config";
-import { INFINITE_ROUND_UNLOCK_THRESHOLD, TOTAL_OUTPUT_UNLOCK_THRESHOLD, TOTAL_DOT_UNLOCK_THRESHOLD } from "@game/Constants";
+import {
+	INFINITE_ROUND_UNLOCK_THRESHOLD,
+	TOTAL_OUTPUT_UNLOCK_THRESHOLD,
+	TOTAL_DOT_UNLOCK_THRESHOLD,
+} from "@game/Constants";
 
 const STORAGE_KEY = "mana-game-player-stats-v1";
 
@@ -297,5 +301,3 @@ export function lockUnit(unitId: string): void {
 	saveStats();
 	console.info("StatsStore", "Locked unit", { unitId });
 }
-
-

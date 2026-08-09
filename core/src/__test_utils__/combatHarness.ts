@@ -206,6 +206,7 @@ export function filterLogs<T extends CombatLogger.CombatLogEntry["type"]>(
   type: T,
 ): Array<Extract<CombatLogger.CombatLogEntry, { type: T }>> {
   return logs.filter(
-    (l): l is Extract<CombatLogger.CombatLogEntry, { type: T }> => l.type === type,
+    (l): l is Extract<CombatLogger.CombatLogEntry, { type: T }> =>
+      l.type === type,
   );
 }

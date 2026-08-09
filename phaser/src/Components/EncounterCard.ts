@@ -27,9 +27,7 @@ type EncounterCardProps = {
 	onClick: () => void | Promise<void>;
 };
 
-export function createEncounterCard(
-	props: EncounterCardProps
-) {
+export function createEncounterCard(props: EncounterCardProps) {
 	const container = makeContainer();
 	const [x, y] = props.position;
 	const [width, height] = props.size;
@@ -38,11 +36,15 @@ export function createEncounterCard(
 	container.setPosition(x, y);
 	const padding = 20;
 
-	const bg = env.scene.add.graphics({ x: - width / 2, y: - height / 2 });
+	const bg = env.scene.add.graphics({ x: -width / 2, y: -height / 2 });
 	const border = env.scene.add.graphics();
 	const backgroundState = { mix: 0 };
 	const drawBackground = () => {
-		const fillColor = theme.mixHexColors(theme.UI_SURFACE_COLOR, theme.UI_SURFACE_HOVER_COLOR, backgroundState.mix);
+		const fillColor = theme.mixHexColors(
+			theme.UI_SURFACE_COLOR,
+			theme.UI_SURFACE_HOVER_COLOR,
+			backgroundState.mix
+		);
 		bg.clear();
 		bg.fillStyle(fillColor, theme.UI_SURFACE_ALPHA);
 		bg.fillRoundedRect(0, 0, width, height, CARD_CORNER_RADIUS);
@@ -61,23 +63,18 @@ export function createEncounterCard(
 	const drawBorder = (color: number, alpha: number, lineWidth: number) => {
 		border.clear();
 		border.lineStyle(lineWidth, color, alpha);
-		border.strokeRoundedRect(
-			- width / 2,
-			- height / 2,
-			width,
-			height,
-			CARD_CORNER_RADIUS
-		);
+		border.strokeRoundedRect(-width / 2, -height / 2, width, height, CARD_CORNER_RADIUS);
 	};
 
 	drawBackground();
 	drawBorder(CARD_BORDER_COLOR, CARD_BORDER_ALPHA, CARD_BORDER_WIDTH);
 
 	const iconSize = ICON_SIZE;
-	const iconX = - width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
+	const iconX = -width / 2 + padding + iconSize / 2 + ICON_X_OFFSET;
 	const iconY = 0;
 
-	const icon = env.scene.add.image(0, 0, pic)
+	const icon = env.scene.add
+		.image(0, 0, pic)
 		.setDisplaySize(iconSize, iconSize)
 		.setPosition(iconX, iconY + ICON_BOUNCE_Y_OFFSET);
 
@@ -93,11 +90,11 @@ export function createEncounterCard(
 		},
 	});
 
-	const textX = - width / 2 + padding + iconSize + 20;
+	const textX = -width / 2 + padding + iconSize + 20;
 	const textWidth = width - (padding + iconSize + 40 + padding);
 
 	const title = env.scene.add
-		.text(textX - 8, - height / 2 + 20, name, {
+		.text(textX - 8, -height / 2 + 20, name, {
 			...constants.titleTextConfig,
 			fontSize: TITLE_FONT_SIZE,
 			color: theme.UI_TEXT_PRIMARY,
@@ -107,7 +104,7 @@ export function createEncounterCard(
 		.setOrigin(0, 0);
 
 	const label = env.scene.add
-		.rexBBCodeText(textX, - height / 2 + 75, description, {
+		.rexBBCodeText(textX, -height / 2 + 75, description, {
 			fontSize: LABEL_FONT_SIZE,
 			fontFamily: "Arimo",
 			color: theme.UI_TEXT_MUTED,

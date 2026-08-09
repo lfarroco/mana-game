@@ -33,7 +33,6 @@ export function createBoardState(): BoardState {
 }
 
 export function renderBoardSlots(board: BoardState) {
-
 	destroyVisuals(board);
 
 	const slotSpacing = 8;
@@ -51,9 +50,7 @@ export function renderBoardSlots(board: BoardState) {
 	];
 
 	const elements = boards.map((boardInfo) =>
-		cells.map(([cx, cy]) =>
-			renderCell([cx, cy], boardInfo, slotSpacing, board)
-		)
+		cells.map(([cx, cy]) => renderCell([cx, cy], boardInfo, slotSpacing, board))
 	);
 
 	return elements.flat().flat();
@@ -61,9 +58,9 @@ export function renderBoardSlots(board: BoardState) {
 
 function renderCell(
 	[cx, cy]: Vec2,
-	boardInfo: { x: number; y: number; isPlayer: boolean; },
+	boardInfo: { x: number; y: number; isPlayer: boolean },
 	slotSpacing: number,
-	board: BoardState,
+	board: BoardState
 ) {
 	let visualX = cx;
 	if (!boardInfo.isPlayer) {
@@ -78,17 +75,9 @@ function renderCell(
 
 	let energySlot: EnergySlot.EnergySlot;
 	if (boardInfo.isPlayer) {
-		energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(
-			slotX,
-			slotY,
-			constants.TILE_WIDTH
-		);
+		energySlot = EnergySlot.EnergySlotFactory.createPlayerSlot(slotX, slotY, constants.TILE_WIDTH);
 	} else {
-		energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(
-			slotX,
-			slotY,
-			constants.TILE_WIDTH
-		);
+		energySlot = EnergySlot.EnergySlotFactory.createEnemySlot(slotX, slotY, constants.TILE_WIDTH);
 	}
 
 	if (!boardInfo.isPlayer) {
@@ -118,11 +107,11 @@ function renderCell(
 		board.dropZones.push(dropZone);
 
 		return dropZone;
-	}
+	};
 
 	const dropzone = boardInfo.isPlayer ? createDropZone() : env.container();
 
-	return [energySlot, dropzone]
+	return [energySlot, dropzone];
 }
 
 export function setEnemyBoardVisible(visible: boolean): void {
@@ -180,8 +169,6 @@ export function setEnemyBoardVisible(visible: boolean): void {
 	}
 }
 
-
-
 export function display(board: BoardState): void {
 	board.slotShaders.forEach((slot) => slot.setVisible(true));
 	if (board.enemyBoardVisible) {
@@ -201,7 +188,6 @@ export function destroyVisuals(board: BoardState): void {
 export function destroy(board: BoardState): void {
 	destroyVisuals(board);
 }
-
 
 export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const board = getBoardState();
@@ -306,7 +292,6 @@ export function isInputEnabled() {
 }
 
 export function create() {
-
 	_playerBoardState = createBoardState();
 
 	return renderBoardSlots(_playerBoardState!);

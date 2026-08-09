@@ -4,7 +4,6 @@ import * as ButtonTooltip from "@Components/Button/ButtonTooltip";
 import { env } from "@Env";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
 
-
 // UI button styling constants
 const BUTTON_HEIGHT = 60;
 const BUTTON_BG_COLOR = theme.UI_SURFACE_COLOR;
@@ -232,7 +231,10 @@ export function create({
 		1
 	);
 
-	buttonGraphics.setInteractive(new Phaser.Geom.Rectangle(0, 0, size[0], size[1]), Phaser.Geom.Rectangle.Contains);
+	buttonGraphics.setInteractive(
+		new Phaser.Geom.Rectangle(0, 0, size[0], size[1]),
+		Phaser.Geom.Rectangle.Contains
+	);
 	if (buttonGraphics.input) {
 		buttonGraphics.input.cursor = BUTTON_CURSOR;
 	}
@@ -266,7 +268,10 @@ export function create({
 		if (!buttonGraphics.input?.enabled) return;
 		const now = Date.now();
 		if (now - state.lastActivatedAtMs < BUTTON_DOUBLE_CLICK_GUARD_MS) {
-			console.debug("UIButton", `DEBUG: UIButton activation ignored during double-click guard for ${text}`);
+			console.debug(
+				"UIButton",
+				`DEBUG: UIButton activation ignored during double-click guard for ${text}`
+			);
 			return;
 		}
 		state.lastActivatedAtMs = now;
@@ -332,20 +337,14 @@ export function create({
 		tooltip:
 			tooltip && tooltip.description.trim().length > 0
 				? ButtonTooltip.attachButtonTooltip(
-					buttonGraphics,
-					tooltip,
-					() => !!buttonGraphics.input?.enabled,
-					() => ({
-						x:
-							tooltip.position === "right"
-								? x + width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET
-								: x,
-						y:
-							tooltip.position === "right"
-								? y
-								: y + height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
-					})
-				)
+						buttonGraphics,
+						tooltip,
+						() => !!buttonGraphics.input?.enabled,
+						() => ({
+							x: tooltip.position === "right" ? x + width / 2 + BUTTON_TOOLTIP_RIGHT_OFFSET : x,
+							y: tooltip.position === "right" ? y : y + height / 2 + BUTTON_TOOLTIP_BOTTOM_OFFSET,
+						})
+					)
 				: undefined,
 	};
 
@@ -379,7 +378,10 @@ export function disableUIButton(state: State) {
 export function enableUIButton(state: State) {
 	state.graphics.setAlpha(1);
 
-	state.graphics.setInteractive(new Phaser.Geom.Rectangle(0, 0, state.size[0], state.size[1]), Phaser.Geom.Rectangle.Contains);
+	state.graphics.setInteractive(
+		new Phaser.Geom.Rectangle(0, 0, state.size[0], state.size[1]),
+		Phaser.Geom.Rectangle.Contains
+	);
 	if (state.graphics.input) {
 		state.graphics.input.cursor = BUTTON_CURSOR;
 	}

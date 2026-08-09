@@ -74,7 +74,8 @@ export function destroy() {
 	zoneContainer = null;
 }
 
-const createRect = () => borderedRoundRect(env.scene, position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
+const createRect = () =>
+	borderedRoundRect(env.scene, position, size, DISCARD_ZONE_CORNER_RADIUS, color, alpha);
 
 const createLabel = () => {
 	const text = env.scene.add.text(0, 0, i18n.t("shop.discard"), textStyle);

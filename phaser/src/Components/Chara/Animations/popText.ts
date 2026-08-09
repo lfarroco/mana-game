@@ -51,8 +51,8 @@ export function popText({
 		textColor = POP_TEXT_COLORS.REGEN;
 	}
 
-	const popText = env.scene
-		.add.text(x, y, text, {
+	const popText = env.scene.add
+		.text(x, y, text, {
 			...titleTextConfig,
 			...(critical ? { fontSize: POP_TEXT_CRITICAL_FONT_SIZE } : {}),
 		})

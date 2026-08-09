@@ -10,17 +10,17 @@ import { BattlegroundEvent } from "../../../../Events";
 
 export async function displayVictory(
 	units: Unit[],
-	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null
 ): Promise<Phaser.GameObjects.Container> {
 	const panelWidth = ResultsConfig.RESULTS_PANEL.width;
 	const panelHeight = ResultsConfig.RESULTS_PANEL.height;
 	const panelX = c.MIDDLE_SCREEN_X;
 	const panelY = c.MIDDLE_SCREEN_Y;
-	const { combatReplayRequested, combatContinueRequested } = BattlegroundEvent
+	const { combatReplayRequested, combatContinueRequested } = BattlegroundEvent;
 
 	const buttonDefinitions: Array<[string, () => Promise<void>]> = [
 		[i18n.t("results.buttons.replay"), combatReplayRequested.emit],
-		[i18n.t("results.buttons.continue"), combatContinueRequested.emit]
+		[i18n.t("results.buttons.continue"), combatContinueRequested.emit],
 	];
 
 	const totalButtons = buttonDefinitions.length;
@@ -31,15 +31,17 @@ export async function displayVictory(
 		([label, callback], index) =>
 			UIButton.create({
 				text: label,
-				position: [
-					panelX,
-					baseY - (totalButtons - 1 - index) * verticalSpacing
-				],
+				position: [panelX, baseY - (totalButtons - 1 - index) * verticalSpacing],
 				callback: callback,
 			}).container
 	);
 
-	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY, trackerState);
+	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(
+		units,
+		panelX,
+		panelY,
+		trackerState
+	);
 
 	const resultContainer = container([
 		borderedRoundRect(
@@ -58,7 +60,10 @@ export async function displayVictory(
 					color: ResultsConfig.RESULTS_COLORS.victory,
 				}),
 			(title) =>
-				(title as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY),
+				(title as Phaser.GameObjects.Text).setPosition(
+					panelX,
+					panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY
+				),
 			(title) => (title as Phaser.GameObjects.Text).setOrigin(0.5),
 		],
 		playerPanel,

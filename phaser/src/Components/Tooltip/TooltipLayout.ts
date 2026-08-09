@@ -25,8 +25,7 @@ export const getTooltipDimensions = ({
 }: TooltipDimensionsInput): { width: number; height: number } => {
 	const contentWidth = Math.max(titleWidth, hasDescription ? descriptionWidth : 0);
 	const contentHeight =
-		titleHeight +
-		(hasDescription ? TOOLTIP_INTER_ELEMENT_PADDING + descriptionHeight : 0);
+		titleHeight + (hasDescription ? TOOLTIP_INTER_ELEMENT_PADDING + descriptionHeight : 0);
 
 	return {
 		width: Math.max(

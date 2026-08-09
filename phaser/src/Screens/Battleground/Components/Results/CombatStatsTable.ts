@@ -28,7 +28,7 @@ async function createStatsPanel(
 	title: string,
 	titleColor: string,
 	forceFilter: (unit: Unit) => boolean,
-	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null
 ): Promise<Phaser.GameObjects.Container> {
 	const { padding } = PANEL_CONFIG;
 
@@ -93,7 +93,9 @@ async function createStatsPanel(
 			unit.pic
 		);
 
-		const frameNames = env.scene.textures.exists(unit.pic) ? env.scene.textures.get(unit.pic).getFrameNames() : [];
+		const frameNames = env.scene.textures.exists(unit.pic)
+			? env.scene.textures.get(unit.pic).getFrameNames()
+			: [];
 		const idleFrames = frameNames.filter((name) => name.startsWith(unit.pic + "_idle_"));
 		idleFrames.sort((a, b) => {
 			const numA = parseInt(a.match(/_(\d+)\.png$/)?.[1] || "0", 10);
@@ -133,13 +135,14 @@ async function createStatsPanel(
 				const critBlock =
 					(unit.critical || 0) > 0
 						? [
-							`[color=#c0c0c0]${i18n.t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
-						]
+								`[color=#c0c0c0]${i18n.t("combatStats.tooltip.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
+							]
 						: [];
 
 				const statsBlock = [...cdBlock, ...critBlock].join(" | ");
 				const descriptionString =
-					[...effectBlocks, ...reactionBlocks].join("\n") || i18n.t("combatStats.tooltip.noAbilities");
+					[...effectBlocks, ...reactionBlocks].join("\n") ||
+					i18n.t("combatStats.tooltip.noAbilities");
 				const description = [statsBlock, descriptionString].join("\n");
 
 				const screenWidth = env.scene.sys.game.config.width as number;
@@ -186,7 +189,7 @@ export async function createCombatStatsPanels(
 	units: Unit[],
 	centerPanelX: number,
 	panelY: number,
-	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null
 ): Promise<{ playerPanel: Phaser.GameObjects.Container; cpuPanel: Phaser.GameObjects.Container }> {
 	const panelSpacing = 600;
 
@@ -199,7 +202,7 @@ export async function createCombatStatsPanels(
 		i18n.t("combatStats.playerTeam"),
 		PANEL_CONFIG.playerColor,
 		(unit) => unit.force === playerForceId,
-		trackerState,
+		trackerState
 	);
 
 	const cpuPanel = await createStatsPanel(
@@ -208,7 +211,7 @@ export async function createCombatStatsPanels(
 		i18n.t("combatStats.enemyTeam"),
 		PANEL_CONFIG.cpuColor,
 		(unit) => unit.force === cpuForceId,
-		trackerState,
+		trackerState
 	);
 
 	return { playerPanel, cpuPanel };

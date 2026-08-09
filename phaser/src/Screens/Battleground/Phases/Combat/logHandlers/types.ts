@@ -6,7 +6,12 @@ import { BlackHoleState } from "../BlackHoleState";
 export type PlaybackState = {
 	active: boolean;
 	currentTime: number;
-	animations: { log: CombatLogger.CombatLogEntry; startTime: number; endTime: number; executed: boolean }[];
+	animations: {
+		log: CombatLogger.CombatLogEntry;
+		startTime: number;
+		endTime: number;
+		executed: boolean;
+	}[];
 	outcome: WaveOutcome | null;
 	combatStates: CombatSystemStates;
 	blackHoleState?: BlackHoleState;

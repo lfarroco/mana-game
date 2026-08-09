@@ -23,7 +23,10 @@ export function multipleChoice(
 	//   ~~~//~~~
 	const decreaseButton = UIButton.create({
 		text: "<",
-		position: [constants.MIDDLE_SCREEN_X - OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y],
+		position: [
+			constants.MIDDLE_SCREEN_X - OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
+			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
+		],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());
 			const newIndex = currentIndex > 0 ? currentIndex - 1 : choices.length - 1;
@@ -41,7 +44,8 @@ export function multipleChoice(
 	});
 
 	valueText.setPosition(
-		constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
+		constants.MIDDLE_SCREEN_X,
+		yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
 	);
 	valueText.setOrigin(0.5);
 
@@ -50,7 +54,7 @@ export function multipleChoice(
 		text: ">",
 		position: [
 			constants.MIDDLE_SCREEN_X + OptionsScreen.BUTTONS.MULTICHOICE_BUTTON_OFFSET_X,
-			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y
+			yPos + OptionsScreen.LAYOUT.MULTICHOICE_VALUE_OFFSET_Y,
 		],
 		callback: () => {
 			const currentIndex = choices.indexOf(getValue());

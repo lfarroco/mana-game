@@ -24,9 +24,7 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 	phase: number;
 	points: Phaser.Math.Vector2[];
 
-	constructor(
-		config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options
-	) {
+	constructor(config: BeamOptions & Phaser.Types.GameObjects.Graphics.Options) {
 		super(env.scene, config);
 		env.scene.add.existing(this);
 
@@ -58,7 +56,9 @@ export class EnergyBeam extends Phaser.GameObjects.Graphics {
 			const t = i / this.segments;
 			const wave = Math.sin(t * Math.PI * this.frequency + this.phase);
 
-			const basePos = new Phaser.Math.Vector2(this.start[0], this.start[1]).add(vec.clone().scale(t));
+			const basePos = new Phaser.Math.Vector2(this.start[0], this.start[1]).add(
+				vec.clone().scale(t)
+			);
 
 			const offset = normal.clone().scale(wave * this.amplitude);
 			const pos = basePos.add(offset);

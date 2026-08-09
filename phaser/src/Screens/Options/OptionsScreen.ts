@@ -9,13 +9,11 @@ import { createEvent } from "@game/Models";
 import { getScreenManager } from "../ScreenManager";
 import { createScreen, screenModule } from "@mana/framework";
 
-
 export type OptionsScreenEvents = {
 	backToTitle: ReturnType<typeof createEvent<void>>;
 };
 
 export type OptionsPhase = "audio" | "graphics" | "game";
-
 
 export const LAYOUT = {
 	TITLE_Y: 40,
@@ -60,7 +58,6 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 	name: "options",
 
 	events: () => {
-
 		const backToTitle = createEvent<void>();
 
 		return {

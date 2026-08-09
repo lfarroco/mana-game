@@ -40,14 +40,24 @@ export function openStats(): void {
 		0.95
 	);
 
-	const title = env.scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50, i18n.t("stats.title"), c.titleTextConfig).setOrigin(0.5);
+	const title = env.scene.add
+		.text(
+			c.MIDDLE_SCREEN_X,
+			c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 50,
+			i18n.t("stats.title"),
+			c.titleTextConfig
+		)
+		.setOrigin(0.5);
 
 	// --- Left Column: Battle Totals ---
-	const leftTitle = env.scene.add.text(
-		c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
-		i18n.t("stats.battleTotals"),
-		{ ...c.titleTextConfig, fontSize: "24px" }
-	).setOrigin(0.5);
+	const leftTitle = env.scene.add
+		.text(
+			c.MIDDLE_SCREEN_X - PANEL_WIDTH / 4,
+			c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
+			i18n.t("stats.battleTotals"),
+			{ ...c.titleTextConfig, fontSize: "24px" }
+		)
+		.setOrigin(0.5);
 
 	type StatItem = { label: string; value: string; color?: string };
 
@@ -60,15 +70,22 @@ export function openStats(): void {
 	];
 
 	// --- Right Column: Career Stats ---
-	const rightTitle = env.scene.add.text(
-		c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
-		i18n.t("stats.careerStats"),
-		{ ...c.titleTextConfig, fontSize: "24px" }
-	).setOrigin(0.5);
+	const rightTitle = env.scene.add
+		.text(
+			c.MIDDLE_SCREEN_X + PANEL_WIDTH / 4,
+			c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 100,
+			i18n.t("stats.careerStats"),
+			{ ...c.titleTextConfig, fontSize: "24px" }
+		)
+		.setOrigin(0.5);
 
 	const rightStatsData: StatItem[] = [
 		{ label: i18n.t("stats.totalRuns"), value: stats.totalRuns.toString() },
-		{ label: i18n.t("stats.goldVictories"), value: stats.goldVictories.toString(), color: "#FFD700" },
+		{
+			label: i18n.t("stats.goldVictories"),
+			value: stats.goldVictories.toString(),
+			color: "#FFD700",
+		},
 		{
 			label: i18n.t("stats.silverVictories"),
 			value: stats.silverVictories.toString(),

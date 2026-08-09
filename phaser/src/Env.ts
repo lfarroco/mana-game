@@ -29,7 +29,14 @@ import EventEmitter from "events";
 // Re-export phaser-helpers for convenience
 // ---------------------------------------------------------------------------
 
-export { container as makeContainer, borderedRoundRect, centeredRect, rectangularDropZone, shader as makeShader, whenDroppedOnZone } from "./phaser-helpers";
+export {
+	container as makeContainer,
+	borderedRoundRect,
+	centeredRect,
+	rectangularDropZone,
+	shader as makeShader,
+	whenDroppedOnZone,
+} from "./phaser-helpers";
 
 // ---------------------------------------------------------------------------
 // Event channel
@@ -40,10 +47,16 @@ export type EventChannel<T> = Models.Event<T>;
 const createChannel = <T>(emitter: EventEmitter, event: string): EventChannel<T> => ({
 	listen: (cb) => {
 		emitter.on(event, cb);
-		return () => { emitter.off(event, cb); };
+		return () => {
+			emitter.off(event, cb);
+		};
 	},
-	emit: async (payload) => { emitter.emit(event, payload); },
-	clear: () => { emitter.removeAllListeners(event); },
+	emit: async (payload) => {
+		emitter.emit(event, payload);
+	},
+	clear: () => {
+		emitter.removeAllListeners(event);
+	},
 });
 
 // ---------------------------------------------------------------------------
@@ -60,11 +73,16 @@ type Time = {
 };
 
 const makeTime = (scene: Phaser.Scene): Time => ({
-	delay: (ms) => new Promise<void>((resolve) => {
-		scene.time.addEvent({ delay: ms, callback: () => resolve() });
-	}),
-	get delta() { return scene.game.loop.delta; },
-	get scale() { return scene.time.timeScale; },
+	delay: (ms) =>
+		new Promise<void>((resolve) => {
+			scene.time.addEvent({ delay: ms, callback: () => resolve() });
+		}),
+	get delta() {
+		return scene.game.loop.delta;
+	},
+	get scale() {
+		return scene.time.timeScale;
+	},
 });
 
 // ---------------------------------------------------------------------------
@@ -121,12 +139,14 @@ export type Env = {
 	// -----------------------------------------------------------------------
 
 	/** Create a container with optional children (lazy thunks, composable chains). */
-	container: (children?: (
-		| Phaser.GameObjects.GameObject
-		| (() => Phaser.GameObjects.GameObject)
-		| ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[]
-		| null
-	)[]) => Phaser.GameObjects.Container;
+	container: (
+		children?: (
+			| Phaser.GameObjects.GameObject
+			| (() => Phaser.GameObjects.GameObject)
+			| ((prev: Phaser.GameObjects.GameObject) => Phaser.GameObjects.GameObject)[]
+			| null
+		)[]
+	) => Phaser.GameObjects.Container;
 
 	/** Draw a centered rounded rectangle with fill and border. */
 	borderedRoundRect: (
@@ -134,7 +154,7 @@ export type Env = {
 		size: [number, number],
 		cornerRadius?: number,
 		color?: number,
-		alpha?: number,
+		alpha?: number
 	) => Phaser.GameObjects.Graphics;
 
 	/** Draw a centered rectangle with optional stroke. */
@@ -143,15 +163,11 @@ export type Env = {
 		size: [number, number],
 		color?: number,
 		alpha?: number,
-		stroke?: boolean,
+		stroke?: boolean
 	) => Phaser.GameObjects.Graphics;
 
 	/** Creates a named drop zone. */
-	rectangularDropZone: (
-		name: string,
-		pos: Vec2,
-		size: Size,
-	) => Phaser.GameObjects.Zone;
+	rectangularDropZone: (name: string, pos: Vec2, size: Size) => Phaser.GameObjects.Zone;
 
 	/** Creates a shader with tuple-style uniforms. */
 	shader: (
@@ -162,7 +178,7 @@ export type Env = {
 			| { key: string; type: "1f"; value: number }
 			| { key: string; type: "2f"; value: [number, number] }
 			| { key: string; type: "3f"; value: [number, number, number] }
-		)[],
+		)[]
 	) => Phaser.GameObjects.Shader;
 
 	/** Fade the main camera out. Returns a promise that resolves on completion. */
@@ -185,7 +201,7 @@ export let env: Env;
 export const createEnv = (
 	scene: Phaser.Scene,
 	state: ClientState,
-	dispatch: (action: Models.Action) => Promise<Models.ActionResponse>,
+	dispatch: (action: Models.Action) => Promise<Models.ActionResponse>
 ): Env => {
 	const emitter = new EventEmitter();
 	const cell = { current: Object.freeze(state) };
@@ -193,10 +209,18 @@ export const createEnv = (
 	const instance: Env = {
 		scene,
 
-		get state() { return cell.current; },
-		resetState() { cell.current = Object.freeze(initialState()); },
-		patchState(partial) { cell.current = Object.freeze({ ...cell.current, ...partial }); },
-		updateState(next) { cell.current = Object.freeze(next); },
+		get state() {
+			return cell.current;
+		},
+		resetState() {
+			cell.current = Object.freeze(initialState());
+		},
+		patchState(partial) {
+			cell.current = Object.freeze({ ...cell.current, ...partial });
+		},
+		updateState(next) {
+			cell.current = Object.freeze(next);
+		},
 
 		dispatch,
 
@@ -213,10 +237,8 @@ export const createEnv = (
 			borderedRoundRect(scene, pos, size, cornerRadius, color, alpha),
 		centeredRect: (pos, size, color, alpha, stroke) =>
 			centeredRect(scene, pos, size, color, alpha, stroke),
-		rectangularDropZone: (name, pos, size) =>
-			rectangularDropZone(scene, name, pos, size),
-		shader: (frag, pos, size, uniforms) =>
-			makeShader(scene, frag, pos, size, uniforms),
+		rectangularDropZone: (name, pos, size) => rectangularDropZone(scene, name, pos, size),
+		shader: (frag, pos, size, uniforms) => makeShader(scene, frag, pos, size, uniforms),
 
 		fadeOut: async (duration, color) =>
 			new Promise<void>((resolve) => {
@@ -224,19 +246,13 @@ export const createEnv = (
 				const g = (color >> 8) & 0xff;
 				const b = color & 0xff;
 				scene.cameras.main.fade(duration, r, g, b);
-				scene.cameras.main.once(
-					Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE,
-					resolve,
-				);
+				scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, resolve);
 			}),
 
 		fadeIn: async (duration) =>
 			new Promise<void>((resolve) => {
 				scene.cameras.main.fadeIn(duration);
-				scene.cameras.main.once(
-					Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE,
-					resolve,
-				);
+				scene.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, resolve);
 			}),
 	};
 

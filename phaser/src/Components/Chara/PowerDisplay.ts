@@ -34,8 +34,8 @@ export function updatePowerDisplay(id: string) {
 	const sessionUnit = env.state.session.team.units.find((unit) => unit.id === id);
 	const latestUnit =
 		env.state.session.phase === "combat"
-			? boardUnit ?? sessionUnit ?? charaUnit
-			: sessionUnit ?? boardUnit ?? charaUnit;
+			? (boardUnit ?? sessionUnit ?? charaUnit)
+			: (sessionUnit ?? boardUnit ?? charaUnit);
 
 	const power = Utils.compactNumber(Math.floor(latestUnit.power));
 

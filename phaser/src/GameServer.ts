@@ -9,8 +9,6 @@ export type ServerAdapter = {
 };
 
 export const getServer = (): ServerAdapter => {
-	if (env.state.session.session_type.type === "singleplayer")
-		return LocalServer;
-	else
-		return RemoteServer;
+	if (env.state.session.session_type.type === "singleplayer") return LocalServer;
+	else return RemoteServer;
 };

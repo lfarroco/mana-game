@@ -12,12 +12,11 @@ import * as UI from "./Components/UI/UI";
 import { syncPlayerBoardUnits } from "./playerBoardSync";
 import { createScreen, ScreenCtx, screenModule } from "@mana/framework";
 
-
 export type BGPhase = Models.PhaseType | "combat_victory" | "combat_defeat";
 
-type BGEvents = typeof BattlegroundEvent
+type BGEvents = typeof BattlegroundEvent;
 
-export type BGContext = ScreenCtx<BGPhase, BGEvents>
+export type BGContext = ScreenCtx<BGPhase, BGEvents>;
 
 /**
  * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
@@ -29,7 +28,7 @@ export type BGContext = ScreenCtx<BGPhase, BGEvents>
  */
 export const dispatchAction = async (
 	action: Models.Action,
-	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>,
+	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>
 ): Promise<void> => {
 	const previousPhase = env.state.session.phase;
 	const response = await env.dispatch(action);
@@ -49,12 +48,11 @@ export const dispatchAction = async (
  */
 export const finishPhase = async (
 	previousPhase: Models.PhaseType,
-	onBeforeFinish?: () => void | Promise<void>,
+	onBeforeFinish?: () => void | Promise<void>
 ): Promise<void> => {
 	if (onBeforeFinish) await onBeforeFinish();
 	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
 };
-
 
 const transitionToCurrentPhase = async () => {
 	const { phase } = env.state.session;
@@ -66,17 +64,14 @@ const transitionToCurrentPhase = async () => {
 };
 
 const screen = createScreen<BGPhase, BGEvents>({
-
 	name: "battleground",
 
 	events: () => {
-
 		const evs = BattlegroundEvent;
 
 		return {
 			events: evs,
 			listeners: [
-
 				GameEvent.screenHidden.listen(Chara.clearAll),
 
 				evs.phaseFinished.listen(transitionToCurrentPhase),
@@ -97,7 +92,6 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 
 	create: async (_ctx) => {
-
 		const cloudsBg = Components.Background.create();
 		const namesDisplay = Components.NamesDisplay.create();
 		const board = Components.Board.create();
@@ -108,14 +102,7 @@ const screen = createScreen<BGPhase, BGEvents>({
 
 		await transitionToCurrentPhase();
 
-		return [
-
-			cloudsBg,
-			...namesDisplay,
-			...board,
-			discardZone,
-			UI
-		]
+		return [cloudsBg, ...namesDisplay, ...board, discardZone, UI];
 	},
 
 	phases: {

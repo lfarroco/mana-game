@@ -52,18 +52,12 @@ export function create(crystal: CardDefinition) {
 	nameText.setPosition(constants.MIDDLE_SCREEN_X, CARD_NAME_Y);
 	nameText.setOrigin(0.5);
 
-	const descText = new BBCodeText(
-		env.scene,
-		constants.MIDDLE_SCREEN_X,
-		DESCRIPTION_Y,
-		"",
-		{
-			fontSize: DESCRIPTION_FONT_SIZE,
-			fontFamily: "Arimo",
-			align: "center",
-			color: "#ffffff",
-		}
-	)
+	const descText = new BBCodeText(env.scene, constants.MIDDLE_SCREEN_X, DESCRIPTION_Y, "", {
+		fontSize: DESCRIPTION_FONT_SIZE,
+		fontFamily: "Arimo",
+		align: "center",
+		color: "#ffffff",
+	})
 		.setOrigin(DESCRIPTION_ORIGIN_X, DESCRIPTION_ORIGIN_Y)
 		.setWrapMode(1)
 		.setLineSpacing(DESCRIPTION_LINE_SPACING)
@@ -72,4 +66,3 @@ export function create(crystal: CardDefinition) {
 
 	return { sprite, nameText, descText };
 }
-

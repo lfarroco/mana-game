@@ -25,26 +25,62 @@ export const poison: Models.Effect = { id: "poison" };
 // Parameterized effects
 // ---------------------------------------------------------------------------
 
-export const haste = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "haste", duration, targets });
-export const slow = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "slow", duration, targets });
-export const charge = (duration: number, targets: Models.Targeting): Models.Effect => ({ id: "charge", duration, targets });
-export const increasePower = (amount: number, targets: Models.Targeting, permanent: boolean = false): Models.Effect => ({ id: "increase_power", amount, permanent, targets });
-export const decreasePower = (amount: number, targets: Models.Targeting, permanent: boolean = false): Models.Effect => ({ id: "decrease_power", amount, permanent, targets });
-export const increaseCritical = (amount: number, targets: Models.Targeting): Models.Effect => ({ id: "increase_critical", amount, targets });
-export const multiplyPower = (multiplier: number, targets: Models.Targeting): Models.Effect => ({ id: "multiply_power", multiplier, baseMultiplier: multiplier, targets });
-export const distributePower = (targets: Models.Targeting): Models.Effect => ({ id: "distribute_power", targets });
-export const absorbPower = (targets: Models.Targeting): Models.Effect => ({ id: "absorb_power", targets });
+export const haste = (
+  duration: number,
+  targets: Models.Targeting,
+): Models.Effect => ({ id: "haste", duration, targets });
+export const slow = (
+  duration: number,
+  targets: Models.Targeting,
+): Models.Effect => ({ id: "slow", duration, targets });
+export const charge = (
+  duration: number,
+  targets: Models.Targeting,
+): Models.Effect => ({ id: "charge", duration, targets });
+export const increasePower = (
+  amount: number,
+  targets: Models.Targeting,
+  permanent: boolean = false,
+): Models.Effect => ({ id: "increase_power", amount, permanent, targets });
+export const decreasePower = (
+  amount: number,
+  targets: Models.Targeting,
+  permanent: boolean = false,
+): Models.Effect => ({ id: "decrease_power", amount, permanent, targets });
+export const increaseCritical = (
+  amount: number,
+  targets: Models.Targeting,
+): Models.Effect => ({ id: "increase_critical", amount, targets });
+export const multiplyPower = (
+  multiplier: number,
+  targets: Models.Targeting,
+): Models.Effect => ({
+  id: "multiply_power",
+  multiplier,
+  baseMultiplier: multiplier,
+  targets,
+});
+export const distributePower = (targets: Models.Targeting): Models.Effect => ({
+  id: "distribute_power",
+  targets,
+});
+export const absorbPower = (targets: Models.Targeting): Models.Effect => ({
+  id: "absorb_power",
+  targets,
+});
 
 // ---------------------------------------------------------------------------
 // Reactions
 // ---------------------------------------------------------------------------
 
-export const reaction = (effect: Models.EffectId | "all", position: Models.EffectSourcePosition, reactWith: Models.Effect): Models.EffectReaction => ({
-	position,
-	effectId: effect,
-	effects: [
-		reactWith
-	]
+export const reaction = (
+  effect: Models.EffectId | "all",
+  position: Models.EffectSourcePosition,
+  reactWith: Models.Effect,
+): Models.EffectReaction => ({
+  position,
+  effectId: effect,
+  effects: [reactWith],
 });
 
 // ---------------------------------------------------------------------------
@@ -53,8 +89,14 @@ export const reaction = (effect: Models.EffectId | "all", position: Models.Effec
 
 export const column: Models.Targeting = { id: "column_allies" };
 export const row: Models.Targeting = { id: "row_allies" };
-export const randomAlly = (count: number): Models.Targeting => ({ id: "random_ally", count });
-export const randomEnemy = (count: number): Models.Targeting => ({ id: "random_enemy", count });
+export const randomAlly = (count: number): Models.Targeting => ({
+  id: "random_ally",
+  count,
+});
+export const randomEnemy = (count: number): Models.Targeting => ({
+  id: "random_enemy",
+  count,
+});
 export const trigger: Models.Targeting = { id: "trigger" };
 export const self: Models.Targeting = { id: "self" };
 export const left: Models.Targeting = { id: "left_ally" };
@@ -66,4 +108,6 @@ export const strongestEnemy: Models.Targeting = { id: "strongest_enemy" };
 export const strongestAlly: Models.Targeting = { id: "strongest_ally" };
 export const weakestEnemy: Models.Targeting = { id: "weakest_enemy" };
 export const allAllies: Models.Targeting = { id: "all_allies", ofType: "any" };
-export const allAlliesOfType = (ofType: "damage" | "heal" | "shield" | "poison" | "regen"): Models.Targeting => ({ id: "all_allies", ofType });
+export const allAlliesOfType = (
+  ofType: "damage" | "heal" | "shield" | "poison" | "regen",
+): Models.Targeting => ({ id: "all_allies", ofType });

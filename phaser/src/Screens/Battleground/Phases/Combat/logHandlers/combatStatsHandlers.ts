@@ -3,7 +3,7 @@ import * as CombatLogger from "@game/Combat/CombatLogger";
 
 export const handleCombatStats = (
 	log: CombatLogger.CombatStatsEntry,
-	playbackState: types.PlaybackState,
+	playbackState: types.PlaybackState
 ) => {
 	if (playbackState.combatStates.combatStatsTrackerState) {
 		playbackState.combatStates.combatStatsTrackerState.unitStats = new Map(log.unitStats);

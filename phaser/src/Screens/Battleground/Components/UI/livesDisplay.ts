@@ -32,10 +32,10 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 					targets: heart,
 					tint: 0x000000,
 					duration: 500,
-					ease: 'Power2',
+					ease: "Power2",
 					onStart: () => {
 						heart.setText(GRAY_HEART);
-					}
+					},
 				});
 			}
 		}
@@ -59,7 +59,11 @@ export function create() {
 	containerElement = containerEl;
 
 	const bounds = containerElement.getBounds();
-	containerElement.setInteractive(new Phaser.Geom.Rectangle(0, -bounds.height / 2, bounds.width, bounds.height), Phaser.Geom.Rectangle.Contains)
+	containerElement
+		.setInteractive(
+			new Phaser.Geom.Rectangle(0, -bounds.height / 2, bounds.width, bounds.height),
+			Phaser.Geom.Rectangle.Contains
+		)
 		.on("pointerover", () => {
 			Tooltip.renderTooltip(
 				LIVES_DISPLAY_X + 100,
@@ -101,4 +105,3 @@ function createHearts(): Phaser.GameObjects.Text[] {
 
 	return heartElements;
 }
-

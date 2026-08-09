@@ -3,19 +3,19 @@ import { increasePower } from "./increasePower";
 import { applyPersistentPowerDelta } from "./applyPersistentPowerDelta";
 
 export const distributePower = (
-	env: CombatEnvironment,
-	sourceUnit: Unit,
-	targets: Unit[],
-	permanent: boolean,
+  env: CombatEnvironment,
+  sourceUnit: Unit,
+  targets: Unit[],
+  permanent: boolean,
 ) => {
-	if (targets.length === 0) return;
+  if (targets.length === 0) return;
 
-	const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
-	if (powerToDistribute <= 0) return;
+  const powerToDistribute = Math.floor(sourceUnit.power * 0.5);
+  if (powerToDistribute <= 0) return;
 
-	applyPersistentPowerDelta(env, sourceUnit, -powerToDistribute, permanent);
+  applyPersistentPowerDelta(env, sourceUnit, -powerToDistribute, permanent);
 
-	const powerPerTarget = Math.floor(powerToDistribute / targets.length);
+  const powerPerTarget = Math.floor(powerToDistribute / targets.length);
 
-	increasePower(env, targets, powerPerTarget, permanent, sourceUnit);
+  increasePower(env, targets, powerPerTarget, permanent, sourceUnit);
 };

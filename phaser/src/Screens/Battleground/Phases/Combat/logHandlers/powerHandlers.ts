@@ -4,10 +4,9 @@ import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
 import * as PowerDisplay from "@Components/Chara/PowerDisplay";
 import { getCombatState } from "./combatStateStore";
 
-
 export const handleIncreasePower = (
 	log: CombatLogger.IncreasePowerEntry,
-	_playbackState: PlaybackState,
+	_playbackState: PlaybackState
 ) => {
 	const powerTarget = getCombatState()?.unitById.get(log.targetId);
 	if (powerTarget) {
@@ -25,7 +24,7 @@ export const handleIncreasePower = (
 
 export const handleDecreasePower = (
 	log: CombatLogger.DecreasePowerEntry,
-	_playbackState: PlaybackState,
+	_playbackState: PlaybackState
 ) => {
 	const affectedUnit = getCombatState()?.unitById.get(log.affectedUnitId);
 	if (affectedUnit) {

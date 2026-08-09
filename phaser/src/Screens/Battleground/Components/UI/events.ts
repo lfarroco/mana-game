@@ -7,19 +7,19 @@ import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay"
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
 
-export function onWinsChanged({ wins, delta }: { wins: number; delta: number; }) {
+export function onWinsChanged({ wins, delta }: { wins: number; delta: number }) {
 	winsDisplay.updateWinsDisplay(wins);
 	if (delta !== 0) {
 		winsDisplay.winsChangeAnimation(delta);
 	}
 }
 
-export function onLivesChanged({ lives, delta }: { lives: number; delta: number; }) {
+export function onLivesChanged({ lives, delta }: { lives: number; delta: number }) {
 	livesDisplay.updateLivesDisplay(lives);
 	livesChangeAnimation(delta);
 }
 
-export function onRoundChanged({ round }: { round: number; }) {
+export function onRoundChanged({ round }: { round: number }) {
 	roundDisplay.updateRoundDisplay(round);
 }
 
@@ -33,8 +33,8 @@ async function livesChangeAnimation(lives: number) {
 	const startX = bounds.centerX;
 	const startY = bounds.centerY;
 
-	const livesAmountText = env.scene
-		.add.text(startX, startY, animationText, constants.titleTextConfig)
+	const livesAmountText = env.scene.add
+		.text(startX, startY, animationText, constants.titleTextConfig)
 		.setOrigin(0.5, 0.5)
 		.setAlpha(0)
 		.setScale(1)

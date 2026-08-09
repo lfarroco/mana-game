@@ -6,7 +6,6 @@ import { env, makeContainer as container, borderedRoundRect } from "@Env";
 export function createRunStatsPanel(
 	runStats = env.state.session.runStats
 ): Phaser.GameObjects.Container {
-
 	if (!runStats) {
 		throw new Error("RunStatsPanel: runStats is undefined");
 	}
@@ -57,7 +56,11 @@ export function createRunStatsPanel(
 				: "-",
 			panelY + 50
 		),
-		...statLabel(i18n.t("run_stats.total_units_recruited"), runStats.totalUnitsRecruited, panelY + 150),
+		...statLabel(
+			i18n.t("run_stats.total_units_recruited"),
+			runStats.totalUnitsRecruited,
+			panelY + 150
+		),
 	]);
 
 	return panelContainer;

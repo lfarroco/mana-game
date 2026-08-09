@@ -9,13 +9,9 @@ export const startNewGame = async () => {
 	const selectedCrystal = crystals[currentIndex];
 
 	const server = GameServer.getServer();
-	const session = await server.createSession(
-		LOCAL_PLAYER_ID,
-		selectedCrystal.id,
-	);
+	const session = await server.createSession(LOCAL_PLAYER_ID, selectedCrystal.id);
 
 	env.patchState({ session });
 
 	await getScreenManager().go("battleground", { crystalId: selectedCrystal.id });
-}
-
+};

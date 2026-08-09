@@ -10,7 +10,10 @@ export const deleteSavedData = () => {
 			server as unknown as { sessionManager: { deleteSession(id: string): void } }
 		).sessionManager.deleteSession(env.state.session.player_id);
 
-		console.debug("deleteSavedData", `[deleteSavedData] Session deleted for player: ${env.state.session.player_id}`);
+		console.debug(
+			"deleteSavedData",
+			`[deleteSavedData] Session deleted for player: ${env.state.session.player_id}`
+		);
 	} else {
 		console.warn("deleteSavedData", "[deleteSavedData] No session found to delete");
 	}

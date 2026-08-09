@@ -9,7 +9,9 @@ import { ScreenCtx } from "@mana/framework";
  * Returns the button's Phaser Container so the caller can track it for
  * automatic disposal.
  */
-export function create(ctx: ScreenCtx<OptionsScreen.OptionsPhase, OptionsScreen.OptionsScreenEvents>): Phaser.GameObjects.Container {
+export function create(
+	ctx: ScreenCtx<OptionsScreen.OptionsPhase, OptionsScreen.OptionsScreenEvents>
+): Phaser.GameObjects.Container {
 	const btn = UIButton.create({
 		text: i18n.t("options.back"),
 		position: [constants.MIDDLE_SCREEN_X, OptionsScreen.LAYOUT.BACK_BUTTON_Y],

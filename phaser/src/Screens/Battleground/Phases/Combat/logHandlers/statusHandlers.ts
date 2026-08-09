@@ -3,11 +3,7 @@ import * as CombatLogger from "@game/Combat/CombatLogger";
 import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
 import { getCombatState } from "./combatStateStore";
 
-
-export const handleHasteEnd = (
-	log: CombatLogger.HasteEndEntry,
-	_playbackState: PlaybackState,
-) => {
+export const handleHasteEnd = (log: CombatLogger.HasteEndEntry, _playbackState: PlaybackState) => {
 	const combatState = getCombatState();
 	if (!combatState) return;
 	const target = combatState.unitById.get(log.unitId)!;
@@ -15,10 +11,7 @@ export const handleHasteEnd = (
 	ChargeBarDisplay.updateChargeBar(log.unitId);
 };
 
-export const handleSlowEnd = (
-	log: CombatLogger.SlowEndEntry,
-	_playbackState: PlaybackState,
-) => {
+export const handleSlowEnd = (log: CombatLogger.SlowEndEntry, _playbackState: PlaybackState) => {
 	const combatState = getCombatState();
 	if (!combatState) return;
 	const target = combatState.unitById.get(log.unitId)!;

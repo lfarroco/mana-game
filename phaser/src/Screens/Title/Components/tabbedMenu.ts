@@ -89,8 +89,10 @@ export function createTabbedMenu(tabs: TabbedMenuDefinition[]): TabbedMenuApi {
 			container.add(buttons);
 		},
 		getMenuButtonPosition: (index) => [menuX, menuStartY + menuSpacing * index],
-		getContentButtonPosition: (index) =>
-			[contentCenterX, contentButtonStartY + contentButtonSpacing * index],
+		getContentButtonPosition: (index) => [
+			contentCenterX,
+			contentButtonStartY + contentButtonSpacing * index,
+		],
 		createTabTitle: (text) => {
 			const title = env.scene.add.text(0, 0, text, constants.titleTextConfig).setOrigin(0.5);
 			title.setPosition(contentCenterX, contentTitleY);

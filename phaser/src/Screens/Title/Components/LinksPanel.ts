@@ -39,7 +39,14 @@ export function create(): void {
 		0.95
 	);
 
-	const title = env.scene.add.text(c.MIDDLE_SCREEN_X, c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80, i18n.t("title.links"), c.titleTextConfig).setOrigin(0.5);
+	const title = env.scene.add
+		.text(
+			c.MIDDLE_SCREEN_X,
+			c.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 80,
+			i18n.t("title.links"),
+			c.titleTextConfig
+		)
+		.setOrigin(0.5);
 
 	const links = [...baseLinks];
 	if (!environment.isElectron()) {

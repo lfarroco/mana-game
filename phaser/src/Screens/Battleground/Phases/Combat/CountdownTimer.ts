@@ -71,7 +71,7 @@ export function start(timerState: CountdownTimerState): CountdownTimerState {
  */
 export function updateFromDelta(
 	timerState: CountdownTimerState,
-	delta: number,
+	delta: number
 ): CountdownTimerState {
 	if (timerState.timerValue <= 0) return timerState;
 

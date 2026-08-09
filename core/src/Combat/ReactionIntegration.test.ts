@@ -29,11 +29,20 @@ describe("Reaction — on_battle_start", () => {
   it("fires on_battle_start reaction that increases own power", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "self",
-        effectId: "on_battle_start",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "self",
+          effectId: "on_battle_start",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
     });
@@ -51,16 +60,24 @@ describe("Reaction — on_battle_start", () => {
   });
 });
 
-
 describe("Reaction — by effect type", () => {
   it("fires when a specific effect type is triggered by another unit", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 3, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 3,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [1, 0],
@@ -79,7 +96,9 @@ describe("Reaction — by effect type", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === reactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === reactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(2);
 
     const incLogs = logs.filter(
@@ -93,11 +112,20 @@ describe("Reaction — by effect type", () => {
   it("does NOT fire for unmatched effect types", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "shield",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "shield",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
     });
@@ -120,16 +148,24 @@ describe("Reaction — by effect type", () => {
   });
 });
 
-
 describe("Reaction — by position", () => {
   it("row_allies: fires for same-row ally triggering damage", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "row_allies",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 3, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "row_allies",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 3,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 1],
@@ -152,11 +188,17 @@ describe("Reaction — by position", () => {
     });
     diffRowDamager.id = "diff-row-damager";
 
-    const { combatState, combatRunner } = setupCombat([reactor, sameRowDamager, diffRowDamager]);
+    const { combatState, combatRunner } = setupCombat([
+      reactor,
+      sameRowDamager,
+      diffRowDamager,
+    ]);
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === reactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === reactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
     const csReactor = combatState.unitById.get("row-reactor")!;
     expect(csReactor.power).toBeGreaterThan(10);
@@ -165,11 +207,20 @@ describe("Reaction — by position", () => {
   it("column_allies: fires for same-column ally triggering damage", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "column_allies",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 3, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "column_allies",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 3,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -188,18 +239,29 @@ describe("Reaction — by position", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === reactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === reactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
   });
 
   it("allies: fires for any ally triggering damage", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 3, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 3,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -218,18 +280,29 @@ describe("Reaction — by position", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === reactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === reactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
   });
 
   it("self: does not react to own effects (excluded for non-global)", () => {
     const unit = makeTestUnit({
       effects: [{ id: "damage" }],
-      reactions: [{
-        position: "self",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "self",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 500,
     });
@@ -239,11 +312,12 @@ describe("Reaction — by position", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === unit.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === unit.id,
+    );
     expect(reactionLogs.length).toBe(0);
   });
 });
-
 
 describe("Reaction — enemies position", () => {
   it("fires when an enemy triggers the matched effect", () => {
@@ -274,11 +348,20 @@ describe("Reaction — enemies position", () => {
       cooldown: 99999,
       evade: 0,
       effects: [],
-      reactions: [{
-        position: "enemies",
-        effectId: "damage",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "enemies",
+          effectId: "damage",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       charge: 0,
       refresh: 0,
       hasted: 0,
@@ -292,22 +375,32 @@ describe("Reaction — enemies position", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === cpuReactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === cpuReactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
     expect(cpuReactor.power).toBeGreaterThan(10);
   });
 });
 
-
 describe("Reaction — global triggers", () => {
   it("on_crit: fires when a critical hit occurs", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "all",
-        effectId: "on_crit",
-        effects: [{ id: "increase_power", amount: 8, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "all",
+          effectId: "on_crit",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 8,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [1, 0],
@@ -327,7 +420,9 @@ describe("Reaction — global triggers", () => {
 
     const logs = runFrames(combatRunner, combatState, 200);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === reactor.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === reactor.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
     const csReactor = combatState.unitById.get("oncrit-reactor")!;
     expect(csReactor.power).toBeGreaterThan(10);
@@ -336,11 +431,20 @@ describe("Reaction — global triggers", () => {
   it("re_hasted: fires when an already-hasted unit receives haste again", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "all",
-        effectId: "re_hasted",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "all",
+          effectId: "re_hasted",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [1, 0],
@@ -348,7 +452,13 @@ describe("Reaction — global triggers", () => {
     reactor.id = "rehasted-reactor";
 
     const haster = makeTestUnit({
-      effects: [{ id: "haste", duration: 2000, targets: { id: "random_ally", count: 1 } }],
+      effects: [
+        {
+          id: "haste",
+          duration: 2000,
+          targets: { id: "random_ally", count: 1 },
+        },
+      ],
       power: 10,
       cooldown: 500,
       position: [0, 0],
@@ -368,7 +478,13 @@ describe("Reaction — global triggers", () => {
 
   it("re_slow: fires when an already-slowed unit receives slow again", () => {
     const slower = makeTestUnit({
-      effects: [{ id: "slow", duration: 2000, targets: { id: "random_enemy", count: 1 } }],
+      effects: [
+        {
+          id: "slow",
+          duration: 2000,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       power: 10,
       cooldown: 500,
       position: [0, 0],
@@ -379,32 +495,51 @@ describe("Reaction — global triggers", () => {
 
     const cpuCore = combatState.cpuCore;
     cpuCore.slowed = 2000;
-    cpuCore.reactions = [{
-      position: "all",
-      effectId: "re_slow",
-      effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-    }];
+    cpuCore.reactions = [
+      {
+        position: "all",
+        effectId: "re_slow",
+        effects: [
+          {
+            id: "increase_power",
+            amount: 5,
+            permanent: false,
+            targets: { id: "self" },
+          },
+        ],
+      },
+    ];
 
     const logs = runFrames(combatRunner, combatState, 200);
 
     const slowHitLogs = logs.filter((l) => l.type === "slow_hit");
     expect(slowHitLogs.length).toBeGreaterThanOrEqual(1);
 
-    const reactionLogs = logs.filter((l) => l.type === "reaction" && l.unitId === cpuCore.id);
+    const reactionLogs = logs.filter(
+      (l) => l.type === "reaction" && l.unitId === cpuCore.id,
+    );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
   });
 });
-
 
 describe("Reaction — edge cases", () => {
   it("does not fire reaction when effect type does not match", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "heal",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "heal",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
     });
@@ -430,12 +565,21 @@ describe("Reaction — threshold triggers", () => {
   it("every_100_damage fires when own team's accumulated damage crosses 100", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_100_damage",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_100_damage",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -465,12 +609,21 @@ describe("Reaction — threshold triggers", () => {
     // Reactor on CPU side watching for PLAYER (enemy) damage
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "enemies",  // triggerer is PLAYER, reactor is CPU → enemies
-        effectId: "every_100_damage",
-        triggerTeam: "enemy",
-        effects: [{ id: "increase_power", amount: 8, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "enemies", // triggerer is PLAYER, reactor is CPU → enemies
+          effectId: "every_100_damage",
+          triggerTeam: "enemy",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 8,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 2],
@@ -508,12 +661,21 @@ describe("Reaction — threshold triggers", () => {
     // We add a CPU damager alongside, but reactor should only count PLAYER damage.
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_100_damage",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 10, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_100_damage",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 10,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -535,7 +697,7 @@ describe("Reaction — threshold triggers", () => {
     const cpuDamager = makeTestUnit({
       effects: [{ id: "damage" }],
       power: 50,
-      cooldown: 99999,  // won't act — just here to make sure its stats don't trigger reaction
+      cooldown: 99999, // won't act — just here to make sure its stats don't trigger reaction
       position: [0, 2],
     });
     cpuDamager.force = Constants.FORCE_ID_CPU;
@@ -556,12 +718,21 @@ describe("Reaction — threshold triggers", () => {
   it("every_100_shield fires when shield applied crosses 100", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_100_shield",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_100_shield",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -590,12 +761,21 @@ describe("Reaction — threshold triggers", () => {
   it("every_100_heal fires when healing crosses 100", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_100_heal",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_100_heal",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -627,12 +807,21 @@ describe("Reaction — threshold triggers", () => {
   it("every_10_poison fires when poison applied crosses 10", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_10_poison",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_10_poison",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -661,12 +850,21 @@ describe("Reaction — threshold triggers", () => {
   it("every_10_regen fires when regen applied crosses 10", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_10_regen",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_10_regen",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -695,12 +893,21 @@ describe("Reaction — threshold triggers", () => {
   it("does not fire twice for the same threshold level", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "every_100_damage",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 3, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "every_100_damage",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 3,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -719,8 +926,12 @@ describe("Reaction — threshold triggers", () => {
     const { combatState, combatRunner } = setupCombat([reactor, damager]);
     // Run until 200 damage has landed — expresses intent instead of depending
     // on exact frame counts (hit cadence shifts if timing constants change).
-    const logs = runUntil(combatRunner, combatState, (logs) =>
-      filterLogs(logs, "damage_hit").reduce((sum, h) => sum + h.amount, 0) >= 200,
+    const logs = runUntil(
+      combatRunner,
+      combatState,
+      (logs) =>
+        filterLogs(logs, "damage_hit").reduce((sum, h) => sum + h.amount, 0) >=
+        200,
     );
 
     const reactionLogs = logs.filter(
@@ -734,17 +945,24 @@ describe("Reaction — threshold triggers", () => {
   });
 });
 
-
-
 describe("Reaction — on_over_heal", () => {
   it("fires when healing would exceed max life", () => {
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "allies",
-        effectId: "on_over_heal",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "allies",
+          effectId: "on_over_heal",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -781,12 +999,21 @@ describe("Reaction — positional threshold triggers", () => {
     // Reactor at [0,0] only reacts to same-row (y=0) damage
     const reactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        position: "row_allies",
-        effectId: "every_100_damage",
-        triggerTeam: "own",
-        effects: [{ id: "increase_power", amount: 5, permanent: false, targets: { id: "self" } }],
-      }],
+      reactions: [
+        {
+          position: "row_allies",
+          effectId: "every_100_damage",
+          triggerTeam: "own",
+          effects: [
+            {
+              id: "increase_power",
+              amount: 5,
+              permanent: false,
+              targets: { id: "self" },
+            },
+          ],
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 0],
@@ -802,7 +1029,10 @@ describe("Reaction — positional threshold triggers", () => {
     });
     sameRowDamager.id = "same-row-dmg";
 
-    const { combatState, combatRunner } = setupCombat([reactor, sameRowDamager]);
+    const { combatState, combatRunner } = setupCombat([
+      reactor,
+      sameRowDamager,
+    ]);
     const logs = runFrames(combatRunner, combatState, 120);
 
     const reactionLogs = filterLogs(logs, "reaction").filter(
@@ -817,16 +1047,26 @@ describe("Reaction — positional threshold triggers", () => {
     // For threshold reactions the triggerer is a representative of the force
     // (the first force unit in combatState.units) — positional checks are
     // evaluated against that unit. Anchor at [0,0] is listed first.
-    const anchor = makeTestUnit({ effects: [], cooldown: 99999, position: [0, 0] });
+    const anchor = makeTestUnit({
+      effects: [],
+      cooldown: 99999,
+      position: [0, 0],
+    });
     anchor.id = "column-anchor";
 
     // Same column as the anchor (x = 0) → should react.
     const sameColumnReactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        ...reaction("every_100_damage", "column_allies", increasePower(5, self)),
-        triggerTeam: "own" as const,
-      }],
+      reactions: [
+        {
+          ...reaction(
+            "every_100_damage",
+            "column_allies",
+            increasePower(5, self),
+          ),
+          triggerTeam: "own" as const,
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [0, 2],
@@ -836,10 +1076,16 @@ describe("Reaction — positional threshold triggers", () => {
     // Different column (x = 2) → should NOT react.
     const otherColumnReactor = makeTestUnit({
       effects: [],
-      reactions: [{
-        ...reaction("every_100_damage", "column_allies", increasePower(5, self)),
-        triggerTeam: "own" as const,
-      }],
+      reactions: [
+        {
+          ...reaction(
+            "every_100_damage",
+            "column_allies",
+            increasePower(5, self),
+          ),
+          triggerTeam: "own" as const,
+        },
+      ],
       power: 10,
       cooldown: 99999,
       position: [2, 0],
@@ -854,11 +1100,18 @@ describe("Reaction — positional threshold triggers", () => {
     });
     damager.id = "column-threshold-damager";
 
-    const { combatState, combatRunner } = setupCombat(
-      [anchor, sameColumnReactor, otherColumnReactor, damager],
-    );
-    const logs = runUntil(combatRunner, combatState, (logs) =>
-      filterLogs(logs, "damage_hit").reduce((sum, h) => sum + h.amount, 0) >= 100,
+    const { combatState, combatRunner } = setupCombat([
+      anchor,
+      sameColumnReactor,
+      otherColumnReactor,
+      damager,
+    ]);
+    const logs = runUntil(
+      combatRunner,
+      combatState,
+      (logs) =>
+        filterLogs(logs, "damage_hit").reduce((sum, h) => sum + h.amount, 0) >=
+        100,
     );
 
     const reactionLogs = filterLogs(logs, "reaction");
@@ -877,11 +1130,13 @@ describe("Reaction — positional threshold triggers", () => {
 describe("Effect integration — edge cases", () => {
   it("absorb_power returns early with empty targets", () => {
     const absorber = makeTestUnit({
-      effects: [{
-        id: "absorb_power",
-        permanent: false,
-        targets: { id: "random_enemy", count: 1 },
-      }],
+      effects: [
+        {
+          id: "absorb_power",
+          permanent: false,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       power: 10,
       cooldown: 99999,
     });
@@ -889,7 +1144,9 @@ describe("Effect integration — edge cases", () => {
     const { combatState, combatRunner } = setupCombat([absorber], 5000);
 
     // Remove all CPU units so resolveTargets returns empty
-    const cpuUnits = combatState.units.filter((u) => u.force === Constants.FORCE_ID_CPU);
+    const cpuUnits = combatState.units.filter(
+      (u) => u.force === Constants.FORCE_ID_CPU,
+    );
     cpuUnits.forEach((u) => {
       const idx = combatState.units.indexOf(u);
       if (idx >= 0) combatState.units.splice(idx, 1);
@@ -948,8 +1205,18 @@ describe("Effect integration — edge cases", () => {
       cooldown: 99999,
       position: [0, 0],
     });
-    const r1 = makeTestUnit({ effects: [], power: 10, cooldown: 99999, position: [0, 1] });
-    const r2 = makeTestUnit({ effects: [], power: 10, cooldown: 99999, position: [0, 2] });
+    const r1 = makeTestUnit({
+      effects: [],
+      power: 10,
+      cooldown: 99999,
+      position: [0, 1],
+    });
+    const r2 = makeTestUnit({
+      effects: [],
+      power: 10,
+      cooldown: 99999,
+      position: [0, 2],
+    });
 
     const { combatRunner } = setupCombat([distributor, r1, r2], 5000);
     const env = combatRunner.getEnv();
@@ -959,8 +1226,8 @@ describe("Effect integration — edge cases", () => {
     // Total distributed = 50, truncation loss = 0 in this case
     Distribute.distributePower(env, distributor, [r1, r2], false);
 
-    expect(distributor.power).toBe(51);  // 101 - 50
-    expect(r1.power).toBe(35);           // 10 + 25
-    expect(r2.power).toBe(35);           // 10 + 25
+    expect(distributor.power).toBe(51); // 101 - 50
+    expect(r1.power).toBe(35); // 10 + 25
+    expect(r2.power).toBe(35); // 10 + 25
   });
 });

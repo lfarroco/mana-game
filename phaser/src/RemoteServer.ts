@@ -6,7 +6,6 @@ import { rebuildCombatStateIndexes } from "@game/Combat/CombatStateIndexes";
 import * as supabase from "@lib/supabase";
 import { env } from "@Env";
 
-
 const PLAYER_ID_STORAGE_KEY = "mana_player_id";
 const PLAYER_ID_PREFIX = "player_";
 const PLAYER_ID_RANDOM_MAX = 1_000_000;
@@ -14,9 +13,7 @@ const PLAYER_ID_RANDOM_MAX = 1_000_000;
 // Generate a stable local player ID. Persisted to localStorage so it survives page reloads.
 // Not a security token — just a client-side identifier for session association.
 const storedId = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
-let playerId =
-	storedId ||
-	`${PLAYER_ID_PREFIX}${Math.floor(Math.random() * PLAYER_ID_RANDOM_MAX)}`;
+let playerId = storedId || `${PLAYER_ID_PREFIX}${Math.floor(Math.random() * PLAYER_ID_RANDOM_MAX)}`;
 
 if (!storedId) {
 	localStorage.setItem(PLAYER_ID_STORAGE_KEY, playerId);
@@ -53,10 +50,10 @@ const getSessionCombatState = (session: unknown): Models.CombatState | undefined
 // 		}
 // 	}
 
-
-
-
-export async function createSession(_playerId: string, crystalId: string): Promise<Models.SessionData> {
+export async function createSession(
+	_playerId: string,
+	crystalId: string
+): Promise<Models.SessionData> {
 	const sessionType = env.state.session.session_type;
 	const seed = generateSessionSeed();
 	const { data, error } = await supabase.supabase.functions.invoke("action", {
@@ -107,22 +104,25 @@ export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOpt
 	if (session.phase === "combat") {
 		console.debug("RemoteServer", "Using server-provided combat logs");
 		const units: Models.Unit[] = structuredClone([...sessionCombatState.initialUnits]);
-		combatState = rebuildCombatStateIndexes({
-			units,
-			logs: sessionCombatState.logs as CombatLogEntry[],
-			enemyPlayerName:
-				typeof sessionCombatState.enemyPlayerName === "string"
-					? sessionCombatState.enemyPlayerName
-					: "",
-			wonCombat: sessionCombatState.wonCombat,
-			finalPlayerUnits: sessionCombatState.finalPlayerUnits,
-			initialUnits: sessionCombatState.initialUnits,
-			unitById: new Map(),
-			playerCore: units[0],
-			cpuCore: units[0],
-			playerUnits: [],
-			cpuUnits: [],
-		}, FORCE_ID_PLAYER);
+		combatState = rebuildCombatStateIndexes(
+			{
+				units,
+				logs: sessionCombatState.logs as CombatLogEntry[],
+				enemyPlayerName:
+					typeof sessionCombatState.enemyPlayerName === "string"
+						? sessionCombatState.enemyPlayerName
+						: "",
+				wonCombat: sessionCombatState.wonCombat,
+				finalPlayerUnits: sessionCombatState.finalPlayerUnits,
+				initialUnits: sessionCombatState.initialUnits,
+				unitById: new Map(),
+				playerCore: units[0],
+				cpuCore: units[0],
+				playerUnits: [],
+				cpuUnits: [],
+			},
+			FORCE_ID_PLAYER
+		);
 	}
 
 	const optionsList = session.current_options || [];
@@ -145,9 +145,9 @@ export async function handleAction(
 	const bodyPayload =
 		action.type === "start_combat"
 			? {
-				...(action || {}),
-				sessionType: env.state.session.session_type,
-			}
+					...(action || {}),
+					sessionType: env.state.session.session_type,
+				}
 			: action;
 
 	const response = await supabase.supabase.functions.invoke("action", {

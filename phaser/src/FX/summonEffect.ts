@@ -1,9 +1,12 @@
 import * as animation from "@Utils/animation";
 import { getSettings } from "@Models/OptionsStore";
 import { env } from "@Env";
+import * as config from "@config";
+import { beamSummonEffect } from "./beamSummonEffect";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
+
 	SCALE_START: 5,
 	SCALE_END: 17.2,
 	SPEED_MIN: 100,
@@ -13,8 +16,12 @@ const SUMMON_EFFECT_CONFIG = {
 	COLORS: [0xffffff, 0xffffaa, 0xccddff],
 } as const;
 
-
 export async function summonEffect({ x, y }: { x: number; y: number }) {
+	if (config.SUMMON_EFFECT === "beam") {
+		await beamSummonEffect({ x, y });
+		return;
+	}
+
 	const {
 		LIFESPAN,
 		SCALE_START,
@@ -25,7 +32,6 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 		EMIT_ZONE_QUANTITY,
 		COLORS,
 	} = SUMMON_EFFECT_CONFIG;
-
 
 	const particlesOption = getSettings().particles;
 	let multiplier = 1;

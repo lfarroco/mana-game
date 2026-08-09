@@ -4,9 +4,6 @@
  */
 
 import { GAME_CONFIG } from "@config";
-;
-
-
 // Declare window.steamworks type for TypeScript
 declare const window: Window & {
 	steamworks?: {
@@ -109,7 +106,10 @@ function unlockAchievement(achievementId: string): boolean {
  * @param coreCardId - The card ID of the player's core crystal
  */
 export function checkVictoryAchievements(wins: number, coreCardId: string): void {
-	console.debug("AchievementSystem", `[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`);
+	console.debug(
+		"AchievementSystem",
+		`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`
+	);
 
 	// Demo mode: achievements disabled
 	if (!GAME_CONFIG.ENABLE_ACHIEVEMENTS) {
@@ -135,7 +135,10 @@ export function checkVictoryAchievements(wins: number, coreCardId: string): void
 	];
 
 	if (!validCrystals.includes(coreCardId as CrystalType)) {
-		console.debug("AchievementSystem", `[Achievement] Core ${coreCardId} is not eligible for achievements`);
+		console.debug(
+			"AchievementSystem",
+			`[Achievement] Core ${coreCardId} is not eligible for achievements`
+		);
 		return;
 	}
 

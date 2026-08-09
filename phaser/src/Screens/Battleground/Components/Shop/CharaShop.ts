@@ -14,7 +14,10 @@ import { Unit } from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
 import { env, whenDroppedOnZone } from "@Env";
 import { finishPhase } from "../../BattlegroundScreen";
-import { onShopUnitDragPurchaseFailed, onUnitPurchased } from "@Screens/Battleground/Phases/Shop/handleShopPhase";
+import {
+	onShopUnitDragPurchaseFailed,
+	onUnitPurchased,
+} from "@Screens/Battleground/Phases/Shop/handleShopPhase";
 import { Destroyable } from "@mana/framework";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
@@ -25,10 +28,7 @@ const SHOP_CARD_EXTRA_LEFT_PADDING = 110;
 const SHOP_CARD_HOVER_COLOR_MIX = 1;
 const SHOP_CARD_HOVER_ANIMATION_DURATION_MS = 220;
 
-export function renderShopCharaCards(
-	cardDefs: Models.CardDefinition[]
-): Destroyable[] {
-
+export function renderShopCharaCards(cardDefs: Models.CardDefinition[]): Destroyable[] {
 	const ownedCardIds = new Set(env.state.session.team.units.map((u) => u.cardId));
 
 	const charaCount = cardDefs.length;
@@ -38,17 +38,13 @@ export function renderShopCharaCards(
 	const firstY = panelCenterY - totalSpan / 2;
 
 	const cards = cardDefs.map((spec, index) => {
-
 		const unit = Card.makeUnit(CoreConstants.FORCE_ID_PLAYER, spec.id, [0, 0]);
 
 		const itemY = firstY + index * charaSpacing;
 
 		const baseBgWidth = 800;
 		const bgSize = [baseBgWidth + SHOP_CARD_EXTRA_LEFT_PADDING, 280];
-		const position = [
-			sc.ITEM_BASE_X + baseBgWidth / 2 - SHOP_CARD_EXTRA_LEFT_PADDING / 2,
-			itemY
-		];
+		const position = [sc.ITEM_BASE_X + baseBgWidth / 2 - SHOP_CARD_EXTRA_LEFT_PADDING / 2, itemY];
 
 		const bgRect = env.scene.add.graphics({
 			x: position[0] - bgSize[0] / 2,
@@ -57,7 +53,11 @@ export function renderShopCharaCards(
 		const rowBorder = env.scene.add.graphics();
 		const backgroundState = { mix: 0 };
 		const drawRowBackground = () => {
-			const fillColor = theme.mixHexColors(theme.UI_SURFACE_COLOR, theme.UI_SURFACE_HOVER_COLOR, backgroundState.mix);
+			const fillColor = theme.mixHexColors(
+				theme.UI_SURFACE_COLOR,
+				theme.UI_SURFACE_HOVER_COLOR,
+				backgroundState.mix
+			);
 			bgRect.clear();
 			bgRect.fillStyle(fillColor, theme.UI_SURFACE_ALPHA);
 			bgRect.fillRoundedRect(0, 0, bgSize[0], bgSize[1], 12);
@@ -86,14 +86,8 @@ export function renderShopCharaCards(
 		drawRowBackground();
 		drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 
-		const chara = Chara.create(
-			unit,
-			{ isShopChara: true }
-		);
-		chara.setPosition(
-			sc.ITEM_BASE_X,
-			itemY - 10
-		);
+		const chara = Chara.create(unit, { isShopChara: true });
+		chara.setPosition(sc.ITEM_BASE_X, itemY - 10);
 		initShopCharaInput(chara, unit);
 
 		chara.on("pointerover", () => {
@@ -109,11 +103,9 @@ export function renderShopCharaCards(
 			Phaser.Geom.Rectangle.Contains
 		);
 		bgRect.on("pointerover", () => {
-
 			tweenRowBackground(SHOP_CARD_HOVER_COLOR_MIX);
 		});
 		bgRect.on("pointerout", () => {
-
 			tweenRowBackground(0);
 			drawRowBorder(SHOP_CARD_BORDER_COLOR, SHOP_CARD_BORDER_ALPHA, SHOP_CARD_BORDER_WIDTH);
 		});
@@ -162,7 +154,11 @@ export function renderShopCharaCards(
 			.setAlign("left");
 
 		const descriptionText = env.scene.add
-			.rexBBCodeText(sc.ITEM_DESC_BASE_X + 10, itemY - (sc.ITEM_BASE_Y - sc.ITEM_DESC_BASE_Y) + 80, description)
+			.rexBBCodeText(
+				sc.ITEM_DESC_BASE_X + 10,
+				itemY - (sc.ITEM_BASE_Y - sc.ITEM_DESC_BASE_Y) + 80,
+				description
+			)
 			.setFontSize(28)
 			.setColor(theme.UI_TEXT_MUTED)
 			.setWrapWidth(650)
@@ -170,17 +166,13 @@ export function renderShopCharaCards(
 			.setWrapMode(1)
 			.setFontFamily("Arimo");
 
-
 		return [bgRect, rowBorder, chara, titleText, descriptionText];
 	});
 
 	return cards.flat();
 }
 
-function initShopCharaInput(
-	chara: Chara.Chara,
-	unit: Models.Unit
-): void {
+function initShopCharaInput(chara: Chara.Chara, unit: Models.Unit): void {
 	env.scene.input.setDraggable(chara, true);
 
 	let wasDragSuccessful = false;
@@ -197,16 +189,14 @@ function initShopCharaInput(
 		chara.setAngle(-8);
 	});
 
-	chara.on(
-		Phaser.Input.Events.DRAG,
-		(_pointer: Pointer, dragX: number, dragY: number) => {
-			if (!Board.isInputEnabled()) {
-				return;
-			}
+	chara.on(Phaser.Input.Events.DRAG, (_pointer: Pointer, dragX: number, dragY: number) => {
+		if (!Board.isInputEnabled()) {
+			return;
+		}
 
-			chara.x = dragX;
-			chara.y = dragY;
-		});
+		chara.x = dragX;
+		chara.y = dragY;
+	});
 
 	whenDroppedOnZone(chara, "board-cell", (zone: Phaser.GameObjects.Zone) => {
 		if (!Board.isInputEnabled()) {
@@ -218,13 +208,7 @@ function initShopCharaInput(
 		const tile: Vec2 = [x, y];
 		const vec = chara.getData("dragStartVec") as [number, number];
 
-		void handleItemDragPurchaseRequested(
-			unit,
-			unit.id,
-			tile,
-			vec[0],
-			vec[1]
-		);
+		void handleItemDragPurchaseRequested(unit, unit.id, tile, vec[0], vec[1]);
 
 		wasDragSuccessful = true;
 	});
@@ -250,14 +234,15 @@ function initShopCharaInput(
 	});
 
 	chara.on(Phaser.Input.Events.POINTER_UP, (pointer: Pointer) => {
-		if (!Board.isInputEnabled() || !chara.input?.enabled)
-			return;
+		if (!Board.isInputEnabled() || !chara.input?.enabled) return;
 
-		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD)
-			return;
+		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD) return;
 
 		const existingUnit = env.state.session.team.units.find((u) => u.cardId === unit.cardId);
-		if ((!existingUnit || existingUnit.rank > 3) && env.state.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
+		if (
+			(!existingUnit || existingUnit.rank > 3) &&
+			env.state.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE
+		) {
 			uiEvents.onPurchaseFailed(i18n.getName(unit.cardId), "PARTY_FULL");
 			return;
 		}
@@ -274,7 +259,7 @@ function initShopCharaInput(
 
 			const wasUpgrade = previousTeamUnits.some((u) => u.cardId === unit.cardId);
 			const didAddUnit = session.team.units.find(
-				(u) => u.cardId === unit.cardId && !previousTeamUnitIds.has(u.id),
+				(u) => u.cardId === unit.cardId && !previousTeamUnitIds.has(u.id)
 			);
 			if (!wasUpgrade && !didAddUnit) return;
 
@@ -289,7 +274,6 @@ function initShopCharaInput(
 			});
 		})();
 	});
-
 }
 
 async function handleItemDragPurchaseRequested(
@@ -302,7 +286,10 @@ async function handleItemDragPurchaseRequested(
 	const { session: currentSession } = env.state;
 	const existingUnit = currentSession.team.units.find((u) => u.cardId === shopUnitData.cardId);
 
-	if ((!existingUnit || existingUnit.rank > 3) && currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE) {
+	if (
+		(!existingUnit || existingUnit.rank > 3) &&
+		currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE
+	) {
 		onShopUnitDragPurchaseFailed({
 			shopCharaId,
 			dragStartVec: [dragStartX, dragStartY],
@@ -334,7 +321,7 @@ async function handleItemDragPurchaseRequested(
 
 	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === shopUnitData.cardId);
 	const didAddUnit = session.team.units.find(
-		(u) => u.cardId === shopUnitData.cardId && !previousTeamUnitIds.has(u.id),
+		(u) => u.cardId === shopUnitData.cardId && !previousTeamUnitIds.has(u.id)
 	);
 	if (!wasUpgrade && !didAddUnit) return;
 

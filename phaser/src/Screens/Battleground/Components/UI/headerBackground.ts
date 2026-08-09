@@ -18,7 +18,7 @@ export function create() {
 		{ x: START_X, y: TOP_Y },
 		{ x: END_X, y: TOP_Y },
 		{ x: END_X - SLOPE, y: TOP_Y + HEIGHT },
-		{ x: START_X + SLOPE, y: TOP_Y + HEIGHT }
+		{ x: START_X + SLOPE, y: TOP_Y + HEIGHT },
 	];
 
 	graphics.fillPoints(points, true);

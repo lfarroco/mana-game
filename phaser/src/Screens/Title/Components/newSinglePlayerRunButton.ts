@@ -9,4 +9,3 @@ export const create = (y: number, ctx: TitleScreen.Context) =>
 		position: [constants.MIDDLE_SCREEN_X, y],
 		callback: () => ctx.events.newGameButtonClicked.emit(),
 	});
-

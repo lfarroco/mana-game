@@ -11,7 +11,11 @@ import {
   setupCombat,
 } from "../__test_utils__/combatHarness";
 import * as TriggerSystem from "./TriggerSystem";
-import { increasePower, allAlliesOfType, allAllies } from "../data/effectBuilders";
+import {
+  increasePower,
+  allAlliesOfType,
+  allAllies,
+} from "../data/effectBuilders";
 import * as Models from "../Models";
 
 beforeAll(registerBaseCollection);
@@ -32,11 +36,20 @@ function setupTargeting(units: Models.Unit[]) {
 
 describe("resolveTargets — all_allies with ofType", () => {
   it("ofType 'shield' returns only allies that have a shield effect", () => {
-    const source = makeTestUnit({ effects: [{ id: "damage" }], position: [0, 0] });
+    const source = makeTestUnit({
+      effects: [{ id: "damage" }],
+      position: [0, 0],
+    });
     source.id = "source";
-    const shieldAlly = makeTestUnit({ effects: [{ id: "shield" }], position: [0, 1] });
+    const shieldAlly = makeTestUnit({
+      effects: [{ id: "shield" }],
+      position: [0, 1],
+    });
     shieldAlly.id = "shield-ally";
-    const damageAlly = makeTestUnit({ effects: [{ id: "damage" }], position: [1, 0] });
+    const damageAlly = makeTestUnit({
+      effects: [{ id: "damage" }],
+      position: [1, 0],
+    });
     damageAlly.id = "damage-ally";
 
     const { env, byId } = setupTargeting([source, shieldAlly, damageAlly]);
@@ -51,9 +64,15 @@ describe("resolveTargets — all_allies with ofType", () => {
   });
 
   it("ofType 'any' returns all allies except the source unit", () => {
-    const source = makeTestUnit({ effects: [{ id: "damage" }], position: [0, 0] });
+    const source = makeTestUnit({
+      effects: [{ id: "damage" }],
+      position: [0, 0],
+    });
     source.id = "source";
-    const shieldAlly = makeTestUnit({ effects: [{ id: "shield" }], position: [0, 1] });
+    const shieldAlly = makeTestUnit({
+      effects: [{ id: "shield" }],
+      position: [0, 1],
+    });
     shieldAlly.id = "shield-ally";
 
     const { env, byId } = setupTargeting([source, shieldAlly]);
@@ -70,11 +89,20 @@ describe("resolveTargets — all_allies with ofType", () => {
 
   it("ofType matching the source's own effect type includes the source", () => {
     // Unlike ofType "any", the typed branch does not exclude the source unit.
-    const source = makeTestUnit({ effects: [{ id: "damage" }], position: [0, 0] });
+    const source = makeTestUnit({
+      effects: [{ id: "damage" }],
+      position: [0, 0],
+    });
     source.id = "source";
-    const damageAlly = makeTestUnit({ effects: [{ id: "damage" }], position: [1, 0] });
+    const damageAlly = makeTestUnit({
+      effects: [{ id: "damage" }],
+      position: [1, 0],
+    });
     damageAlly.id = "damage-ally";
-    const shieldAlly = makeTestUnit({ effects: [{ id: "shield" }], position: [0, 1] });
+    const shieldAlly = makeTestUnit({
+      effects: [{ id: "shield" }],
+      position: [0, 1],
+    });
     shieldAlly.id = "shield-ally";
 
     const { env, byId } = setupTargeting([source, damageAlly, shieldAlly]);
@@ -89,7 +117,10 @@ describe("resolveTargets — all_allies with ofType", () => {
   });
 
   it("never returns enemy units, even if they match ofType", () => {
-    const source = makeTestUnit({ effects: [{ id: "shield" }], position: [0, 0] });
+    const source = makeTestUnit({
+      effects: [{ id: "shield" }],
+      position: [0, 0],
+    });
     source.id = "source";
 
     const { env, byId } = setupTargeting([source]);

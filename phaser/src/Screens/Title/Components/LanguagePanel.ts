@@ -22,10 +22,14 @@ export function create(ctx: TitleScreen.Context) {
 		height: panelHeight,
 	});
 
-	const title = env.scene.add.text(
-		constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40, i18n.t("language.title"),
-		constants.titleTextConfig,
-	).setOrigin(0.5);
+	const title = env.scene.add
+		.text(
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 40,
+			i18n.t("language.title"),
+			constants.titleTextConfig
+		)
+		.setOrigin(0.5);
 
 	const buttonYStart = constants.MIDDLE_SCREEN_Y - panelHeight / 2 + 100;
 	const buttonSpacing = 70;
@@ -58,5 +62,4 @@ export function create(ctx: TitleScreen.Context) {
 		...langButtons.map((b) => b.container),
 		closeButton.container,
 	];
-
 }

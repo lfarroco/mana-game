@@ -33,17 +33,20 @@ export function volume(
 
 	//   ~~~//~~~
 
-	const slider = Slider.createSlider([constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y + 20], {
-		width: SLIDER_WIDTH,
-		min: VOLUME_MIN,
-		max: VOLUME_MAX,
-		step: VOLUME_STEP,
-		initialValue: getValue(),
-		onChange: (value) => {
-			setValue(value);
-			valueText.setText(formatLabel(value));
-		},
-	});
+	const slider = Slider.createSlider(
+		[constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.VALUE_OFFSET_Y + 20],
+		{
+			width: SLIDER_WIDTH,
+			min: VOLUME_MIN,
+			max: VOLUME_MAX,
+			step: VOLUME_STEP,
+			initialValue: getValue(),
+			onChange: (value) => {
+				setValue(value);
+				valueText.setText(formatLabel(value));
+			},
+		}
+	);
 
 	//   ~~~//~~~
 

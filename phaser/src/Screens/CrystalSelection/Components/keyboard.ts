@@ -26,7 +26,10 @@ export function destroy(): void {
 	}
 }
 
-export function create(targetText: Phaser.GameObjects.Text, seedWarningText: Phaser.GameObjects.Text) {
+export function create(
+	targetText: Phaser.GameObjects.Text,
+	seedWarningText: Phaser.GameObjects.Text
+) {
 	// Clean up any stale keyboard before creating a fresh one.
 	destroy();
 
@@ -49,8 +52,10 @@ export function create(targetText: Phaser.GameObjects.Text, seedWarningText: Pha
 	const rows = [["7", "8", "9"], ["4", "5", "6"], ["1", "2", "3"], ["0"]];
 
 	// Styles
-	const btnStyle = "width: 40px; height: 40px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: 18px;";
-	const actionBtnStyle = "height: 30px; padding: 0 10px; background: #555; color: white; border: 1px solid #777; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: sans-serif;";
+	const btnStyle =
+		"width: 40px; height: 40px; background: #444; color: white; border: 1px solid #666; border-radius: 4px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-family: monospace; font-size: 18px;";
+	const actionBtnStyle =
+		"height: 30px; padding: 0 10px; background: #555; color: white; border: 1px solid #777; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: sans-serif;";
 
 	// Key rows
 	rows.forEach((row) => {

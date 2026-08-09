@@ -38,7 +38,14 @@ export function create(): void {
 	);
 
 	// Create title
-	const title = env.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70, i18n.t("credits.title"), constants.titleTextConfig).setOrigin(0.5);
+	const title = env.scene.add
+		.text(
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y - PANEL_HEIGHT / 2 + 70,
+			i18n.t("credits.title"),
+			constants.titleTextConfig
+		)
+		.setOrigin(0.5);
 
 	// Create credits text container - you can add your credits here
 	const creditsContent = [
@@ -59,11 +66,16 @@ export function create(): void {
 
 	const creditsTexts = creditsContent.map((text, index) => {
 		const isHeader = text && !creditsContent[index - 1]?.trim();
-		const textObj = env.scene.add.text(constants.MIDDLE_SCREEN_X, constants.MIDDLE_SCREEN_Y - 200 + index * 35, text, {
-			...constants.titleTextConfig,
-			fontSize: isHeader ? "28px" : "22px",
-			color: isHeader ? "#f1c40f" : "#ecf0f1",
-		});
+		const textObj = env.scene.add.text(
+			constants.MIDDLE_SCREEN_X,
+			constants.MIDDLE_SCREEN_Y - 200 + index * 35,
+			text,
+			{
+				...constants.titleTextConfig,
+				fontSize: isHeader ? "28px" : "22px",
+				color: isHeader ? "#f1c40f" : "#ecf0f1",
+			}
+		);
 		textObj.setOrigin(0.5, 0.5);
 		return textObj;
 	});
@@ -79,7 +91,13 @@ export function create(): void {
 	});
 
 	// Create container for all elements
-	const container = env.container([overlay, panelBg, title, ...creditsTexts, closeButton.container]);
+	const container = env.container([
+		overlay,
+		panelBg,
+		title,
+		...creditsTexts,
+		closeButton.container,
+	]);
 
 	env.scene.children.bringToTop(container);
 }

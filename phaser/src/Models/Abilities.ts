@@ -1,4 +1,3 @@
-
 export const ABILITY_COLORS: Record<string, string> = {
 	damage: "#f21414ff",
 	heal: "#07f62fff",

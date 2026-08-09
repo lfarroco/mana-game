@@ -16,8 +16,8 @@ import { env } from "@Env";
 import { makeContainer } from "@Env";
 
 const bbcode = (text: string, y: number) =>
-	env.scene
-		.add.rexBBCodeText(0, 0, text)
+	env.scene.add
+		.rexBBCodeText(0, 0, text)
 		.setPosition(Constants.MIDDLE_SCREEN_X, y)
 		.setFontSize(38)
 		.setOrigin(0)
@@ -26,7 +26,11 @@ const bbcode = (text: string, y: number) =>
 		.setOrigin(0.5);
 
 const text = (str: string, y: number) =>
-	env.scene.add.text(0, 0, i18n.t(str), Constants.defaultTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, y).setOrigin(0.5).setFontSize(38);
+	env.scene.add
+		.text(0, 0, i18n.t(str), Constants.defaultTextConfig)
+		.setPosition(Constants.MIDDLE_SCREEN_X, y)
+		.setOrigin(0.5)
+		.setFontSize(38);
 
 const slides = [
 	() =>
@@ -48,10 +52,12 @@ const slides = [
 
 				return cont;
 			},
-			env.scene.add.text(0, 0, i18n.t("tutorial.slide1.row4"), Constants.titleTextConfig)
+			env.scene.add
+				.text(0, 0, i18n.t("tutorial.slide1.row4"), Constants.titleTextConfig)
 				.setOrigin(0.5)
 				.setPosition(Constants.MIDDLE_SCREEN_X - 330, 620),
-			env.scene.add.text(0, 0, i18n.t("tutorial.slide1.row5"), Constants.titleTextConfig)
+			env.scene.add
+				.text(0, 0, i18n.t("tutorial.slide1.row5"), Constants.titleTextConfig)
 				.setOrigin(0.5)
 				.setPosition(Constants.MIDDLE_SCREEN_X + 200, 620),
 		]),
@@ -101,27 +107,24 @@ const slides = [
 						Chara.playAnimationAfterRepeat(chara, "idle");
 						await animation.delay(1000);
 						if (s.sprite.active)
-							damage.damageFx(
-								[chara.x, chara.y],
-								[chara2.x, chara2.y], () => {
-									Animations.popText({
-										x: chara2.x,
-										y: chara2.y,
-										text: "-" + unit.power,
-										type: "damage",
-									});
+							damage.damageFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
+								Animations.popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "-" + unit.power,
+									type: "damage",
 								});
+							});
 					};
 
 					if (!s.sprite.active) return;
 					anim();
 
-					const effect = env.scene
-						.time.addEvent({
-							repeat: -1,
-							delay: 3000,
-							callback: anim,
-						});
+					const effect = env.scene.time.addEvent({
+						repeat: -1,
+						delay: 3000,
+						callback: anim,
+					});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -167,12 +170,11 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = env.scene
-						.time.addEvent({
-							repeat: -1,
-							delay: 3000,
-							callback: anim,
-						});
+					const effect = env.scene.time.addEvent({
+						repeat: -1,
+						delay: 3000,
+						callback: anim,
+					});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -220,12 +222,11 @@ const slides = [
 							});
 					};
 					anim();
-					const effect = env.scene
-						.time.addEvent({
-							repeat: -1,
-							delay: 3000,
-							callback: anim,
-						});
+					const effect = env.scene.time.addEvent({
+						repeat: -1,
+						delay: 3000,
+						callback: anim,
+					});
 
 					chara.on("destroy", () => {
 						effect.destroy();
@@ -259,23 +260,22 @@ const slides = [
 					await animation.delay(1000);
 					if (!c.active) return;
 					regen.regenFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
-						const regen = env.scene
-							.time.addEvent({
-								repeat: -1,
-								delay: 1000,
-								callback: () => {
-									if (!c.active) {
-										regen.destroy();
-										return;
-									}
-									Animations.popText({
-										x: chara2.x,
-										y: chara2.y,
-										text: "+" + Math.floor(unit.power / 10),
-										type: "heal",
-									});
-								},
-							});
+						const regen = env.scene.time.addEvent({
+							repeat: -1,
+							delay: 1000,
+							callback: () => {
+								if (!c.active) {
+									regen.destroy();
+									return;
+								}
+								Animations.popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "+" + Math.floor(unit.power / 10),
+									type: "heal",
+								});
+							},
+						});
 						chara.on("destroy", () => {
 							regen.destroy();
 						});
@@ -310,23 +310,22 @@ const slides = [
 					await animation.delay(1000);
 					if (!c.active) return;
 					poison.poisonFx([chara.x, chara.y], [chara2.x, chara2.y], () => {
-						const poisonTick = env.scene
-							.time.addEvent({
-								repeat: -1,
-								delay: 1000,
-								callback: () => {
-									if (!c.active) {
-										poisonTick.destroy();
-										return;
-									}
-									Animations.popText({
-										x: chara2.x,
-										y: chara2.y,
-										text: "-" + Math.floor(unit.power / 10),
-										type: "poison",
-									});
-								},
-							});
+						const poisonTick = env.scene.time.addEvent({
+							repeat: -1,
+							delay: 1000,
+							callback: () => {
+								if (!c.active) {
+									poisonTick.destroy();
+									return;
+								}
+								Animations.popText({
+									x: chara2.x,
+									y: chara2.y,
+									text: "-" + Math.floor(unit.power / 10),
+									type: "poison",
+								});
+							},
+						});
 						chara.on("destroy", () => {
 							poisonTick.destroy();
 						});
@@ -340,7 +339,10 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			env.scene.add.text(0, 0, i18n.t("tutorial.slide8.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			env.scene.add
+				.text(0, 0, i18n.t("tutorial.slide8.row1"), Constants.titleTextConfig)
+				.setPosition(Constants.MIDDLE_SCREEN_X, 100)
+				.setOrigin(0.5),
 			text("tutorial.slide8.row2", 150),
 			bbcode(
 				`[color=${Abilities.ABILITY_COLORS.haste}]${i18n.t("tooltip.effects.haste")}[/color]: ${i18n.t("tutorial.slide8.row3")}`,
@@ -369,14 +371,18 @@ const slides = [
 		]),
 	() =>
 		makeContainer([
-			env.scene.add.text(0, 0, i18n.t("tutorial.slide9.row1"), Constants.titleTextConfig).setPosition(Constants.MIDDLE_SCREEN_X, 100).setOrigin(0.5),
+			env.scene.add
+				.text(0, 0, i18n.t("tutorial.slide9.row1"), Constants.titleTextConfig)
+				.setPosition(Constants.MIDDLE_SCREEN_X, 100)
+				.setOrigin(0.5),
 			text("tutorial.slide9.row3", 200),
 			text("tutorial.slide9.row4", 250),
 			text("tutorial.slide9.row5", 300),
 		]),
 	() => {
 		const cont = makeContainer();
-		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide10.row1"), Constants.titleTextConfig)
+		const title = env.scene.add
+			.text(0, 0, i18n.t("tutorial.slide10.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -389,12 +395,12 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = env.scene
-				.add.text(800, 300, title, Constants.titleTextConfig)
+			const titleText = env.scene.add
+				.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = env.scene
-				.add.rexBBCodeText(800, 300 + 60, description)
+			const descriptionText = env.scene.add
+				.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
 				.setWrapMode(1)
@@ -409,7 +415,8 @@ const slides = [
 	},
 	() => {
 		const cont = makeContainer();
-		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide11.row1"), Constants.titleTextConfig)
+		const title = env.scene.add
+			.text(0, 0, i18n.t("tutorial.slide11.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -422,12 +429,12 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = env.scene
-				.add.text(800, 300, title, Constants.titleTextConfig)
+			const titleText = env.scene.add
+				.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = env.scene
-				.add.rexBBCodeText(800, 300 + 60, description)
+			const descriptionText = env.scene.add
+				.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
 				.setWrapMode(1)
@@ -447,7 +454,8 @@ const slides = [
 	},
 	() => {
 		const cont = makeContainer();
-		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide12.row1"), Constants.titleTextConfig)
+		const title = env.scene.add
+			.text(0, 0, i18n.t("tutorial.slide12.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -460,12 +468,12 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = env.scene
-				.add.text(800, 300, title, Constants.titleTextConfig)
+			const titleText = env.scene.add
+				.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = env.scene
-				.add.rexBBCodeText(800, 300 + 60, description)
+			const descriptionText = env.scene.add
+				.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
 				.setWrapMode(1)
@@ -485,7 +493,8 @@ const slides = [
 	},
 	() => {
 		const cont = makeContainer();
-		const title = env.scene.add.text(0, 0, i18n.t("tutorial.slide13.row1"), Constants.titleTextConfig)
+		const title = env.scene.add
+			.text(0, 0, i18n.t("tutorial.slide13.row1"), Constants.titleTextConfig)
 			.setPosition(Constants.MIDDLE_SCREEN_X, 100)
 			.setOrigin(0.5);
 		cont.add(title);
@@ -498,12 +507,12 @@ const slides = [
 
 			const { title, description } = createDescription.createDescription(chara);
 
-			const titleText = env.scene
-				.add.text(800, 300, title, Constants.titleTextConfig)
+			const titleText = env.scene.add
+				.text(800, 300, title, Constants.titleTextConfig)
 				.setAlign("left");
 
-			const descriptionText = env.scene
-				.add.rexBBCodeText(800, 300 + 60, description)
+			const descriptionText = env.scene.add
+				.rexBBCodeText(800, 300 + 60, description)
 				.setFontSize(30)
 				.setAlign("left")
 				.setWrapMode(1)

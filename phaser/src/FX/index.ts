@@ -6,6 +6,8 @@ export * from "./hasteEffect";
 export * from "./slowEffect";
 export * from "./impactEffect";
 export * from "./summonEffect";
+export * from "./beamSummonEffect";
+
 export * from "./arcaneMissileTargeted";
 export * from "./explodeEffect";
 export * from "./upgradeCrystalSelectionEffect";

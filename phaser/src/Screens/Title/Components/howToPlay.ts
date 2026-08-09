@@ -6,7 +6,9 @@ import { env } from "@Env";
 let textObj: Phaser.GameObjects.Text | null = null;
 
 export function create(): Phaser.GameObjects.Container {
-	const text = env.scene.add.text(0, 80, i18n.t("title.howToPlay"), constants.titleTextConfig).setOrigin(0.5);
+	const text = env.scene.add
+		.text(0, 80, i18n.t("title.howToPlay"), constants.titleTextConfig)
+		.setOrigin(0.5);
 	textObj = text;
 	const pulse = env.scene.tweens.add({
 		targets: text,

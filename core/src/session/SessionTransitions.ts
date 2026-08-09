@@ -15,381 +15,396 @@ import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 import * as OptionGeneration from "./OptionGeneration";
 import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 
-
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
-	upgrade_unit: [{ id: "upgrade_orb" }],
-	power_distributor: [{ id: "distribute_power_orb" }],
-	power_absorber: [{ id: "absorb_power_orb" }],
+  upgrade_unit: [{ id: "upgrade_orb" }],
+  power_distributor: [{ id: "distribute_power_orb" }],
+  power_absorber: [{ id: "absorb_power_orb" }],
 };
 
 const UPGRADE_CORE_OPTIONS: Models.PhaseOption[] = [
-	{ id: "increase_core_max_life" },
-	{ id: "upgrade_core_power" },
-	{ id: "decrease_core_cooldown" },
+  { id: "increase_core_max_life" },
+  { id: "upgrade_core_power" },
+  { id: "decrease_core_cooldown" },
 ];
 
 const ADD_REACTION_CORE_OPTIONS: Models.PhaseOption[] = [
-	{ id: "on_100_damage_effect" },
-	{ id: "on_crit_effect" },
-	{ id: "on_battle_start_effect" },
+  { id: "on_100_damage_effect" },
+  { id: "on_crit_effect" },
+  { id: "on_battle_start_effect" },
 ];
 
-function transitionAfterCombat(session: Models.SessionData): Models.SessionData {
+function transitionAfterCombat(
+  session: Models.SessionData,
+): Models.SessionData {
+  if (!session.combatState) {
+    throw new Error("Missing combat state for end_combat transition");
+  }
 
-	if (!session.combatState) {
-		throw new Error("Missing combat state for end_combat transition");
-	}
+  const { wonCombat } = session.combatState;
+  delete session.combatState;
 
-	const { wonCombat } = session.combatState;
-	delete session.combatState;
+  if (wonCombat) session.wins += 1;
+  else session.losses += 1;
 
-	if (wonCombat)
-		session.wins += 1;
-	else
-		session.losses += 1;
+  if (session.wins >= WINS_TO_WIN_GAME) {
+    return {
+      ...session,
+      phase: "victory",
+      options: [{ id: "victory" }],
+    };
+  }
 
-	if (session.wins >= WINS_TO_WIN_GAME) {
-		return {
-			...session,
-			phase: "victory",
-			options: [
-				{ id: "victory" },
-			],
-		};
-	}
+  if (session.losses >= LOSSES_TO_GAME_OVER) {
+    return {
+      ...session,
+      phase: "game_over",
+      options: [],
+    };
+  }
 
-	if (session.losses >= LOSSES_TO_GAME_OVER) {
-		return {
-			...session,
-			phase: "game_over",
-			options: [],
-		};
-	}
+  const nextStep = session.step + 1;
+  const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
 
-	const nextStep = session.step + 1;
-	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
+  if (expectedPhase === "upgrade_core") {
+    return {
+      ...session,
+      phase: "upgrade_core",
+      options: UPGRADE_CORE_OPTIONS,
+      step: nextStep,
+    };
+  }
 
-	if (expectedPhase === "upgrade_core") {
-		return {
-			...session,
-			phase: "upgrade_core",
-			options: UPGRADE_CORE_OPTIONS,
-			step: nextStep,
-		};
-	}
+  if (expectedPhase === "add_reaction_core") {
+    return {
+      ...session,
+      phase: "add_reaction_core",
+      options: ADD_REACTION_CORE_OPTIONS,
+      step: nextStep,
+    };
+  }
 
-	if (expectedPhase === "add_reaction_core") {
-		return {
-			...session,
-			phase: "add_reaction_core",
-			options: ADD_REACTION_CORE_OPTIONS,
-			step: nextStep,
-		};
-	}
+  const { options: encounterOptions, encounterHistory } =
+    OptionGeneration.createEncounterOptions(session);
 
-	const { options: encounterOptions, encounterHistory } = OptionGeneration.createEncounterOptions(session);
-
-	return {
-		...session,
-		phase: "encounter",
-		options: encounterOptions,
-		encounter_history: encounterHistory,
-		step: 0,
-		round: session.round + 1,
-	};
+  return {
+    ...session,
+    phase: "encounter",
+    options: encounterOptions,
+    encounter_history: encounterHistory,
+    step: 0,
+    round: session.round + 1,
+  };
 }
 
-function transitionAfterVictory(session: Models.SessionData): Models.SessionData {
+function transitionAfterVictory(
+  session: Models.SessionData,
+): Models.SessionData {
+  const nextStep = session.step + 1;
+  const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
 
-	const nextStep = session.step + 1;
-	const expectedPhase = PhaseConfig.getPhaseForTurn(session.round, nextStep);
+  if (expectedPhase === "upgrade_core") {
+    return {
+      ...session,
+      phase: "upgrade_core",
+      options: UPGRADE_CORE_OPTIONS,
+      step: session.step + 1,
+    };
+  }
 
-	if (expectedPhase === "upgrade_core") {
-		return {
-			...session,
-			phase: "upgrade_core",
-			options: UPGRADE_CORE_OPTIONS,
-			step: session.step + 1,
-		};
-	}
+  if (expectedPhase === "add_reaction_core") {
+    return {
+      ...session,
+      phase: "add_reaction_core",
+      options: ADD_REACTION_CORE_OPTIONS,
+      step: session.step + 1,
+    };
+  }
 
-	if (expectedPhase === "add_reaction_core") {
-		return {
-			...session,
-			phase: "add_reaction_core",
-			options: ADD_REACTION_CORE_OPTIONS,
-			step: session.step + 1,
-		};
-	}
-
-	return session;
+  return session;
 }
 
-const ACTION_HANDLERS: Record<string, (
-	session: Models.SessionData,
-	action: Models.Action,
-) => Models.SessionData> = {
-	select_encounter: (session, action) => {
+const ACTION_HANDLERS: Record<
+  string,
+  (session: Models.SessionData, action: Models.Action) => Models.SessionData
+> = {
+  select_encounter: (session, action) => {
+    if (action.type !== "select_encounter") throw new Error();
 
-		if (action.type !== "select_encounter") throw new Error();
+    if (action.encounterId === "start_combat")
+      return executeCombatPhase(session);
 
-		if (action.encounterId === "start_combat")
-			return executeCombatPhase(session);
+    const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
+    if (orbOptions) {
+      return {
+        ...session,
+        phase: "orb_shop",
+        options: orbOptions,
+      };
+    }
 
-		const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
-		if (orbOptions) {
-			return {
-				...session,
-				phase: "orb_shop",
-				options: orbOptions,
-			};
-		}
+    return {
+      ...session,
+      phase: "shop",
+      options: OptionGeneration.generateShopOptions(session, action),
+    };
+  },
+  end_combat: transitionAfterCombat,
+  // Recruit or upgrade a unit by card ID
+  // Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
+  recruit_unit: (session, action) => {
+    if (action.type !== "recruit_unit") throw new Error();
+    const updatedSession = RecruitmentActions.recruitUnit(
+      session,
+      action.unitId,
+      action.targetSlot,
+    );
 
-		return {
-			...session,
-			phase: "shop",
-			options: OptionGeneration.generateShopOptions(
-				session,
-				action,
-			),
-		}
-	},
-	end_combat: transitionAfterCombat,
-	// Recruit or upgrade a unit by card ID
-	// Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
-	recruit_unit: (session, action) => {
-		if (action.type !== "recruit_unit") throw new Error();
-		const updatedSession = RecruitmentActions.recruitUnit(
-			session,
-			action.unitId,
-			action.targetSlot,
-		);
+    return transitionToNextStep(updatedSession);
+  },
+  update_team: (session, action) => {
+    if (action.type !== "update_team") throw new Error();
 
-		return transitionToNextStep(updatedSession);
-	},
-	update_team: (session, action) => {
-		if (action.type !== "update_team") throw new Error();
+    return SessionManagement.updateTeamAction(session, action.team.units);
+  },
+  start_combat: (session, action) => {
+    if (action.type !== "start_combat") throw new Error();
 
-		return SessionManagement.updateTeamAction(
-			session,
-			action.team.units,
-		);
-	},
-	start_combat: (session, action) => {
-		if (action.type !== "start_combat") throw new Error();
+    return executeCombatPhase(session);
+  },
+  decrease_core_cooldown: (session) => {
+    const {
+      team: { units },
+    } = session;
+    const core = units.find((u) => u.isCore);
 
-		return executeCombatPhase(session);
-	},
-	decrease_core_cooldown: (session) => {
+    if (!core) {
+      console.warn(
+        "SessionTransitions",
+        "No core found in team when applying cooldown decrease",
+      );
+      return session;
+    }
 
-		const { team: { units } } = session;
-		const core = units.find((u) => u.isCore);
+    OrbAndCoreUpgrades.decreaseCoreCooldown(core);
+    return session;
+  },
+  upgrade_core_power: (session) => {
+    const {
+      team: { units },
+    } = session;
+    const core = units.find((u) => u.isCore);
 
-		if (!core) {
-			console.warn("SessionTransitions", "No core found in team when applying cooldown decrease");
-			return session;
-		}
+    if (!core) {
+      console.warn(
+        "SessionTransitions",
+        "No core found in team when applying power increase",
+      );
+      return session;
+    }
 
-		OrbAndCoreUpgrades.decreaseCoreCooldown(core);
-		return session;
-	},
-	upgrade_core_power: (session) => {
+    OrbAndCoreUpgrades.upgradeCorePower(core, session.round);
+    return session;
+  },
+  increase_core_max_life: (session) => {
+    const {
+      team: { units },
+    } = session;
+    const core = units.find((u) => u.isCore);
 
-		const { team: { units } } = session;
-		const core = units.find((u) => u.isCore);
+    if (!core) {
+      console.warn(
+        "SessionTransitions",
+        "No core found in team when applying life increase",
+      );
+      return session;
+    }
 
-		if (!core) {
-			console.warn("SessionTransitions", "No core found in team when applying power increase");
-			return session;
-		}
+    OrbAndCoreUpgrades.upgradeCoreMaxLife(core, session.round);
+    return session;
+  },
+  // Meta actions: team mutation with no phase change.
+  discard_unit: (session, action) => {
+    if (action.type !== "discard_unit") throw new Error();
 
-		OrbAndCoreUpgrades.upgradeCorePower(core, session.round);
-		return session;
+    RecruitmentActions.discardUnit(session.team.units, action.unitId as string);
+    return session;
+  },
 
-	},
-	increase_core_max_life: (session) => {
+  apply_orb: (session, action) => {
+    if (action.type !== "apply_orb") throw new Error();
 
-		const { team: { units } } = session;
-		const core = units.find((u) => u.isCore);
+    const { orbId, targetUnitId } = action;
+    session.seed = OrbAndCoreUpgrades.applyOrb(
+      session.team.units,
+      targetUnitId,
+      orbId,
+      { seed: session.seed },
+    );
+    return transitionToNextStep(session);
+  },
+  upgrade_unit: (session) => ({
+    ...session,
+    phase: "orb_shop",
+    options: [{ id: "upgrade_orb" }],
+  }),
+  power_distributor: (session) => ({
+    ...session,
+    phase: "orb_shop",
+    options: [{ id: "distribute_power_orb" }],
+  }),
+  power_absorber: (session) => ({
+    ...session,
+    phase: "orb_shop",
+    options: [{ id: "absorb_power_orb" }],
+  }),
+  skip: (session) => {
+    const allowedSkipPhases: Models.PhaseType[] = [
+      "encounter",
+      "shop",
+      "orb_shop",
+      "upgrade_core",
+      "add_reaction_core",
+    ];
 
-		if (!core) {
-			console.warn("SessionTransitions", "No core found in team when applying life increase");
-			return session;
-		}
+    if (!allowedSkipPhases.includes(session.phase)) {
+      console.warn(
+        "SessionTransitions",
+        `Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`,
+      );
+      return session;
+    }
 
-		OrbAndCoreUpgrades.upgradeCoreMaxLife(core, session.round);
-		return session;
-
-	},
-	// Meta actions: team mutation with no phase change.
-	discard_unit: (session, action) => {
-		if (action.type !== "discard_unit") throw new Error();
-
-		RecruitmentActions.discardUnit(
-			session.team.units,
-			action.unitId as string
-		);
-		return session;
-	},
-
-	apply_orb: (session, action) => {
-		if (action.type !== "apply_orb") throw new Error();
-
-		const { orbId, targetUnitId } = action;
-		session.seed = OrbAndCoreUpgrades.applyOrb(
-			session.team.units,
-			targetUnitId,
-			orbId,
-			{ seed: session.seed },
-		);
-		return transitionToNextStep(session);
-	},
-	upgrade_unit: (session) => ({
-		...session,
-		phase: "orb_shop",
-		options: [{ id: "upgrade_orb" }],
-	}),
-	power_distributor: (session) => ({
-		...session,
-		phase: "orb_shop",
-		options: [{ id: "distribute_power_orb" }],
-	}),
-	power_absorber: (session) => ({
-		...session,
-		phase: "orb_shop",
-		options: [{ id: "absorb_power_orb" }],
-	}),
-	skip: (session) => {
-		const allowedSkipPhases: Models.PhaseType[] = [
-			"encounter",
-			"shop",
-			"orb_shop",
-			"upgrade_core",
-			"add_reaction_core"
-		];
-
-		if (!allowedSkipPhases.includes(session.phase)) {
-			console.warn("SessionTransitions", `Received skip action in phase '${session.phase}', which is not allowed. Ignoring action.`);
-			return session;
-		}
-
-		return transitionToNextStep(session);
-	},
-	victory: transitionAfterVictory,
+    return transitionToNextStep(session);
+  },
+  victory: transitionAfterVictory,
 };
 
-function transitionToNextStep(
-	session: Models.SessionData,
-): Models.SessionData {
-	const nextPhase = PhaseConfig.getPhaseForTurn(
-		session.round,
-		session.step + 1,
-	);
+function transitionToNextStep(session: Models.SessionData): Models.SessionData {
+  const nextPhase = PhaseConfig.getPhaseForTurn(
+    session.round,
+    session.step + 1,
+  );
 
-	if (nextPhase === "encounter") {
+  if (nextPhase === "encounter") {
+    const { options: encounterOptions, encounterHistory } =
+      OptionGeneration.createEncounterOptions(session);
+    session.options = encounterOptions;
+    session.encounter_history = encounterHistory;
+    session.phase = nextPhase;
+    session.step = session.step + 1;
+    return session;
+  }
 
-		const { options: encounterOptions, encounterHistory } = OptionGeneration.createEncounterOptions(session);
-		session.options = encounterOptions;
-		session.encounter_history = encounterHistory;
-		session.phase = nextPhase;
-		session.step = session.step + 1;
-		return session;
+  if (nextPhase === "pre_combat") {
+    session.options = [{ id: "start_combat" }];
+    session.phase = nextPhase;
+    session.step = session.step + 1;
+    return session;
+  }
 
-	}
-
-	if (nextPhase === "pre_combat") {
-		session.options = [
-			{ id: "start_combat" }
-		];
-		session.phase = nextPhase;
-		session.step = session.step + 1;
-		return session;
-	}
-
-	return {
-		...session,
-		step: session.step + 1,
-		phase: nextPhase,
-		options: [],
-	}
+  return {
+    ...session,
+    step: session.step + 1,
+    phase: nextPhase,
+    options: [],
+  };
 }
 
-
 export function transitionToNextState(
-	session: Models.SessionData,
-	action: Models.Action,
-	options?: { enemyTeam?: Models.Unit[]; enemyPlayerName?: string },
+  session: Models.SessionData,
+  action: Models.Action,
+  options?: { enemyTeam?: Models.Unit[]; enemyPlayerName?: string },
 ): Models.ActionResponse {
+  console.debug(
+    "SessionTransitions",
+    "Transitioning session with action:",
+    action,
+  );
 
-	console.debug("SessionTransitions", "Transitioning session with action:", action);
+  const nextSession = structuredClone(session);
 
-	const nextSession = structuredClone(session);
+  // Multiplayer: start_combat with an opponent's team injected from matchmaking.
+  // Bypass the generic ACTION_HANDLERS for this path so we can thread the override.
+  if (action.type === "start_combat" && options?.enemyTeam) {
+    const resultSession = executeCombatPhase(
+      nextSession,
+      options.enemyTeam,
+      options.enemyPlayerName,
+    );
+    const combatState = resultSession.combatState;
+    if (resultSession.phase === "combat" && combatState) {
+      return { session: resultSession, combatState };
+    }
+    return { session: resultSession };
+  }
 
-	// Multiplayer: start_combat with an opponent's team injected from matchmaking.
-	// Bypass the generic ACTION_HANDLERS for this path so we can thread the override.
-	if (action.type === "start_combat" && options?.enemyTeam) {
-		const resultSession = executeCombatPhase(nextSession, options.enemyTeam, options.enemyPlayerName);
-		const combatState = resultSession.combatState;
-		if (resultSession.phase === "combat" && combatState) {
-			return { session: resultSession, combatState };
-		}
-		return { session: resultSession };
-	}
+  const actionHandler = ACTION_HANDLERS[action.type];
 
-	const actionHandler = ACTION_HANDLERS[action.type];
+  if (!actionHandler)
+    throw new Error(
+      `No transition handler for phase '${nextSession.phase}' and action '${action.type}'`,
+    );
 
-	if (!actionHandler)
-		throw new Error(`No transition handler for phase '${nextSession.phase}' and action '${action.type}'`);
+  const resultSession = actionHandler(nextSession, action);
 
-	const resultSession = actionHandler(nextSession, action);
+  // If a combat was just executed (start_combat), carry the combatState in the response
+  // The combatState is embedded in the session by executeCombatPhase so it survives restarts.
+  const combatState = resultSession.combatState;
+  if (resultSession.phase === "combat" && combatState) {
+    return { session: resultSession, combatState };
+  }
 
-	// If a combat was just executed (start_combat), carry the combatState in the response
-	// The combatState is embedded in the session by executeCombatPhase so it survives restarts.
-	const combatState = resultSession.combatState;
-	if (resultSession.phase === "combat" && combatState) {
-		return { session: resultSession, combatState };
-	}
-
-	return { session: resultSession };
-
+  return { session: resultSession };
 }
 
 function executeCombatPhase(
-	session: Models.SessionData,
-	enemyTeam?: Models.Unit[],
-	enemyPlayerName?: string,
+  session: Models.SessionData,
+  enemyTeam?: Models.Unit[],
+  enemyPlayerName?: string,
 ): Models.SessionData {
+  console.debug(
+    "SessionTransitions",
+    "Entering combat encounter phase. Executing combat...",
+    session,
+  );
 
-	console.debug("SessionTransitions", "Entering combat encounter phase. Executing combat...", session);
+  // Single-player: generate enemy team from seed.
+  // Multiplayer: pass the opponent's team via the enemyTeam parameter.
+  const team =
+    enemyTeam ??
+    EnemyGeneration.generateEnemyTeamForRound(
+      session.round,
+      session.wins,
+      session.seed,
+    );
 
-	// Single-player: generate enemy team from seed.
-	// Multiplayer: pass the opponent's team via the enemyTeam parameter.
-	const team =
-		enemyTeam ??
-		EnemyGeneration.generateEnemyTeamForRound(
-			session.round,
-			session.wins,
-			session.seed,
-		);
+  const combatState: Models.CombatState = CombatSimulation.createCombatState(
+    session,
+    team,
+    enemyPlayerName,
+  );
 
-	const combatState: Models.CombatState = CombatSimulation.createCombatState(session, team, enemyPlayerName);
+  const finalCombatState = CombatSimulation.simulateCombat(
+    session,
+    combatState,
+  );
 
-	const finalCombatState = CombatSimulation.simulateCombat(
-		session,
-		combatState
-	);
+  const nextSession: Models.SessionData = {
+    ...session,
+    phase: "combat",
+    combatState: finalCombatState,
+    options: [
+      {
+        id: "end_combat",
+      },
+    ],
+  };
 
-	const nextSession: Models.SessionData = {
-		...session,
-		phase: "combat",
-		combatState: finalCombatState,
-		options: [{
-			id: "end_combat"
-		}],
-	};
+  console.debug(
+    "SessionTransitions",
+    "Combat phase completed. Session after combat:",
+    nextSession,
+  );
 
-	console.debug("SessionTransitions", "Combat phase completed. Session after combat:", nextSession);
-
-	return nextSession;
-
+  return nextSession;
 }

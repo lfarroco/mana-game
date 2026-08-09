@@ -22,22 +22,22 @@ import { CombatState } from "../Models";
  * Returns a new CombatState with the same source data but fresh indexes.
  */
 export function rebuildCombatStateIndexes(
-	state: CombatState,
-	playerForce: string,
+  state: CombatState,
+  playerForce: string,
 ): CombatState {
-	const units = state.units;
-	const unitById = new Map(units.map((u) => [u.id, u]));
-	const playerCore = units.find((u) => u.isCore && u.force === playerForce)!;
-	const cpuCore = units.find((u) => u.isCore && u.force !== playerForce)!;
+  const units = state.units;
+  const unitById = new Map(units.map((u) => [u.id, u]));
+  const playerCore = units.find((u) => u.isCore && u.force === playerForce)!;
+  const cpuCore = units.find((u) => u.isCore && u.force !== playerForce)!;
 
-	return {
-		...state,
-		unitById,
-		playerCore,
-		cpuCore,
-		playerUnits: units.filter((u) => u.force === playerForce),
-		cpuUnits: units.filter((u) => u.force !== playerForce),
-	};
+  return {
+    ...state,
+    unitById,
+    playerCore,
+    cpuCore,
+    playerUnits: units.filter((u) => u.force === playerForce),
+    cpuUnits: units.filter((u) => u.force !== playerForce),
+  };
 }
 
 /**
@@ -48,19 +48,19 @@ export function rebuildCombatStateIndexes(
  * bug. Cheap for a ~6-unit board, so it can run unconditionally.
  */
 export function assertCombatStateIndexes(state: CombatState): void {
-	const { units, unitById } = state;
+  const { units, unitById } = state;
 
-	if (unitById.size !== units.length) {
-		throw new Error(
-			`CombatState index mismatch: unitById has ${unitById.size} entries but units has ${units.length}`,
-		);
-	}
+  if (unitById.size !== units.length) {
+    throw new Error(
+      `CombatState index mismatch: unitById has ${unitById.size} entries but units has ${units.length}`,
+    );
+  }
 
-	for (const u of units) {
-		if (unitById.get(u.id) !== u) {
-			throw new Error(
-				`CombatState index stale for unit ${u.id}: unitById does not reference the same object as units`,
-			);
-		}
-	}
+  for (const u of units) {
+    if (unitById.get(u.id) !== u) {
+      throw new Error(
+        `CombatState index stale for unit ${u.id}: unitById does not reference the same object as units`,
+      );
+    }
+  }
 }

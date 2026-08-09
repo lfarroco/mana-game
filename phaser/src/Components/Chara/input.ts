@@ -60,7 +60,6 @@ export function init(chara: Chara.Chara) {
 				})();
 				state.wasDragSuccessful = true;
 			}
-
 		});
 
 		whenDroppedOnZone(chara, "board-cell", (zone) => {
@@ -70,8 +69,7 @@ export function init(chara: Chara.Chara) {
 			const y = zone.getData("cell-y") as number;
 			const tile: Vec2 = [x, y];
 			const [sx, sy] = chara.getData("dragStartVec") as Vec2;
-			processOwnedUnitMoveRequest(
-				state.unitId, tile, sx, sy);
+			processOwnedUnitMoveRequest(state.unitId, tile, sx, sy);
 			state.wasDragSuccessful = true;
 		});
 
@@ -86,11 +84,11 @@ export function init(chara: Chara.Chara) {
 
 export const onDrag =
 	(chara: Chara.Chara) =>
-		(_pointer: Pointer, dragX: number, dragY: number): void => {
-			if (!Board.isInputEnabled()) return;
-			chara.x = dragX;
-			chara.y = dragY;
-		};
+	(_pointer: Pointer, dragX: number, dragY: number): void => {
+		if (!Board.isInputEnabled()) return;
+		chara.x = dragX;
+		chara.y = dragY;
+	};
 
 export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
 	if (!Board.isInputEnabled()) return;
@@ -172,9 +170,7 @@ export const processOwnedUnitMoveRequest = (
 		return;
 	}
 
-	const occupier = units.find(
-		(u) => u.id !== unitId && Geometry.eqVec2(u.position, targetTile)
-	);
+	const occupier = units.find((u) => u.id !== unitId && Geometry.eqVec2(u.position, targetTile));
 	if (occupier) {
 		executeSwap(unit, occupier, targetTile, units);
 		return;
@@ -183,16 +179,14 @@ export const processOwnedUnitMoveRequest = (
 	executeMove(unit, targetTile, units);
 };
 
-const saveUnitPositions = (
-	units: Unit[]) => {
+const saveUnitPositions = (units: Unit[]) => {
 	void (async () => {
 		const { session } = await env.dispatch({ type: "update_team", team: { units } });
 		env.updateState({ ...env.state, session });
 	})();
 };
 
-const executeMove = (
-	unit: Unit, target: Vec2, units: Unit[]) => {
+const executeMove = (unit: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -201,8 +195,7 @@ const executeMove = (
 	saveUnitPositions(units);
 };
 
-const executeSwap = (
-	unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
+const executeSwap = (unit: Unit, _occupier: Unit, target: Vec2, units: Unit[]) => {
 	const result = Board.updateUnitPosition(unit, target, units);
 	if (!result) return;
 
@@ -242,31 +235,30 @@ const movementRejected = (
 		x: dragStartX,
 		y: dragStartY,
 	});
-
 };
 
 export const onPointerDown =
 	(handlerState: InputHandler) =>
-		(_pointer: Pointer): void => {
-			if (!env.scene.sys.game.device.input.touch) return;
-			handlerState.longPressTimer = env.scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
-				handlerState.isLongPressActive = true;
-				const { chara } = handlerState;
-				CharaTooltip.onCharaPointerOver(chara);
-			});
-		};
+	(_pointer: Pointer): void => {
+		if (!env.scene.sys.game.device.input.touch) return;
+		handlerState.longPressTimer = env.scene.time.delayedCall(TOUCH_TOOLTIP_INPUT_DOWN_DELAY, () => {
+			handlerState.isLongPressActive = true;
+			const { chara } = handlerState;
+			CharaTooltip.onCharaPointerOver(chara);
+		});
+	};
 
 export const onPointerUp =
 	(handlerState: InputHandler) =>
-		(_pointer: Pointer): void => {
-			if (handlerState.longPressTimer) {
-				handlerState.longPressTimer.destroy();
-				handlerState.longPressTimer = undefined;
-			}
+	(_pointer: Pointer): void => {
+		if (handlerState.longPressTimer) {
+			handlerState.longPressTimer.destroy();
+			handlerState.longPressTimer = undefined;
+		}
 
-			if (handlerState.isLongPressActive) {
-				handlerState.isLongPressActive = false;
+		if (handlerState.isLongPressActive) {
+			handlerState.isLongPressActive = false;
 
-				CharaTooltip.onCharaPointerOut();
-			}
-		};
+			CharaTooltip.onCharaPointerOut();
+		}
+	};

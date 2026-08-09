@@ -63,29 +63,28 @@ export async function playUpgradeCrystalSelectionEffect({
 		await animation.delay(index * PROJECTILE_STAGGER_MS);
 		const source = randomPointWithin(cardCenter, cardSize);
 
-		await arcaneMissileTargeted.arcaneMissileTargeted(
-			source,
-			target,
-			{
-				colors: projectileColors,
-				amplitudeMin: 4,
-				amplitudeMax: 12,
-				particleScale: 1.2,
-				impact: {
-					colors: impactColors,
-					scale: 1.4,
-					speed: 140,
-					lifespan: 180,
-					alpha: 0.7,
-				},
-			});
+		await arcaneMissileTargeted.arcaneMissileTargeted(source, target, {
+			colors: projectileColors,
+			amplitudeMin: 4,
+			amplitudeMax: 12,
+			particleScale: 1.2,
+			impact: {
+				colors: impactColors,
+				scale: 1.4,
+				speed: 140,
+				lifespan: 180,
+				alpha: 0.7,
+			},
+		});
 	});
 
 	try {
 		await Promise.all([
 			fadeCardPromise,
 			Promise.all(projectilePromises),
-			animation.delay(PROJECTILE_ORB_DELAY_MS).then(() => healingHitEffect.healingHitEffect(target, 280)),
+			animation
+				.delay(PROJECTILE_ORB_DELAY_MS)
+				.then(() => healingHitEffect.healingHitEffect(target, 280)),
 			animation.delay(SHARD_EMISSION_DURATION_MS).then(() => {
 				shardEmitter.stop();
 			}),
@@ -119,22 +118,14 @@ function createCardDissolveEmitter(
 			quantity: 3,
 			blendMode: "ADD",
 			emitZone: {
-				source: new Phaser.Geom.Rectangle(
-					-w / 2,
-					-h / 2,
-					w,
-					h
-				),
+				source: new Phaser.Geom.Rectangle(-w / 2, -h / 2, w, h),
 				type: "random",
 			} as Phaser.Types.GameObjects.Particles.EmitZoneData,
 		})
 		.setDepth(1200);
 }
 
-function createCrystalAbsorptionOrb(
-	[x, y]: Vec2,
-	accentColor: number,
-): MagicOrb {
+function createCrystalAbsorptionOrb([x, y]: Vec2, accentColor: number): MagicOrb {
 	const orb = new MagicOrb(x, y, {
 		size: TARGET_ORB_SIZE,
 		color: colorUtils.hexToVector3(theme.mixHexColors(accentColor, 0xffffff, 0.25)),
@@ -176,14 +167,8 @@ function getCrystalTargetPoint(): Vec2 {
 	return [position.x, position.y - 30];
 }
 
-function randomPointWithin(
-	[x, y]: Vec2,
-	[w, h]: Size
-): Vec2 {
-	return [
-		x + (Math.random() - 0.5) * w,
-		y + (Math.random() - 0.5) * h,
-	];
+function randomPointWithin([x, y]: Vec2, [w, h]: Size): Vec2 {
+	return [x + (Math.random() - 0.5) * w, y + (Math.random() - 0.5) * h];
 }
 
 function ensureShardTexture(scene: Phaser.Scene): void {

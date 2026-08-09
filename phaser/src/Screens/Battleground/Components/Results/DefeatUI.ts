@@ -11,7 +11,7 @@ import { BattlegroundEvent } from "../../../../Events";
 export async function displayDefeat(
 	livesChange: number,
 	units: Unit[],
-	trackerState: CombatStatsTracker.CombatStatsTrackerState | null,
+	trackerState: CombatStatsTracker.CombatStatsTrackerState | null
 ): Promise<Phaser.GameObjects.Container> {
 	const panelWidth = ResultsConfig.RESULTS_PANEL.width;
 	const panelHeight = ResultsConfig.RESULTS_PANEL.height;
@@ -42,15 +42,17 @@ export async function displayDefeat(
 		([label, callback], index) =>
 			UIButton.create({
 				text: label,
-				position: [
-					panelX,
-					baseY - (totalButtons - 1 - index) * verticalSpacing
-				],
+				position: [panelX, baseY - (totalButtons - 1 - index) * verticalSpacing],
 				callback,
 			}).container
 	);
 
-	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(units, panelX, panelY, trackerState);
+	const { playerPanel, cpuPanel } = await CombatStatsTable.createCombatStatsPanels(
+		units,
+		panelX,
+		panelY,
+		trackerState
+	);
 
 	const resultContainer = container([
 		borderedRoundRect(
@@ -69,7 +71,10 @@ export async function displayDefeat(
 					color: ResultsConfig.RESULTS_COLORS.defeat,
 				}),
 			(title) =>
-				(title as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY),
+				(title as Phaser.GameObjects.Text).setPosition(
+					panelX,
+					panelY - panelHeight / 2 + ResultsConfig.RESULTS_SPACING.titleY
+				),
 			(title) => (title as Phaser.GameObjects.Text).setOrigin(0.5),
 		],
 		[
@@ -80,7 +85,8 @@ export async function displayDefeat(
 					color: livesColor,
 					fontStyle: "bold",
 				}),
-			(label) => (label as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + 160),
+			(label) =>
+				(label as Phaser.GameObjects.Text).setPosition(panelX, panelY - panelHeight / 2 + 160),
 			(label) => (label as Phaser.GameObjects.Text).setOrigin(0.5),
 		],
 		playerPanel,

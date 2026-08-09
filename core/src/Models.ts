@@ -32,14 +32,14 @@ export { type Event, createEvent } from "./Event";
  * CombatRunner via CombatStatsTracker.getCrossedThresholds).
  */
 export const GLOBAL_REACTIONS = [
-	"on_crit",
-	"every_100_damage",
-	"every_100_shield",
-	"every_100_heal",
-	"every_10_poison",
-	"every_10_regen",
-	"on_over_heal",
-	"on_battle_start",
+  "on_crit",
+  "every_100_damage",
+  "every_100_shield",
+  "every_100_heal",
+  "every_10_poison",
+  "every_10_regen",
+  "on_over_heal",
+  "on_battle_start",
 ];
 
 export const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"];

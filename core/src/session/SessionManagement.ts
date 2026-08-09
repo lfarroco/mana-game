@@ -11,21 +11,20 @@ import * as Card from "../Entities/Card";
 import * as Constants from "../math/Constants";
 import * as OptionGeneration from "./OptionGeneration";
 
-
 /**
  * Create default run statistics object.
  */
 export function createDefaultRunStats() {
-	return {
-		damageDealt: 0,
-		poisonDealt: 0,
-		shieldDealt: 0,
-		regenDealt: 0,
-		healDealt: 0,
-		mostPowerfulUnit: null,
-		totalUnitsRecruited: 0,
-		unitUsage: {},
-	};
+  return {
+    damageDealt: 0,
+    poisonDealt: 0,
+    shieldDealt: 0,
+    regenDealt: 0,
+    healDealt: 0,
+    mostPowerfulUnit: null,
+    totalUnitsRecruited: 0,
+    unitUsage: {},
+  };
 }
 
 /**
@@ -35,47 +34,48 @@ export function createDefaultRunStats() {
  * Generates initial encounter options.
  */
 export function createInitialSession(
-	playerId: string,
-	seed: string,
-	selectedCrystalId?: string,
+  playerId: string,
+  seed: string,
+  selectedCrystalId?: string,
 ): Models.SessionData {
-	const sessionSeed = seed;
-	const initialSeed = sessionSeed;
+  const sessionSeed = seed;
+  const initialSeed = sessionSeed;
 
-	const team: { units: Unit[] } = { units: [] };
-	if (selectedCrystalId) {
-		const coreUnit = Card.makeUnit(
-			Constants.FORCE_ID_PLAYER,
-			selectedCrystalId,
-			[1, 1],
-		);
-		coreUnit.isCore = true;
-		team.units.push(coreUnit);
-	}
+  const team: { units: Unit[] } = { units: [] };
+  if (selectedCrystalId) {
+    const coreUnit = Card.makeUnit(
+      Constants.FORCE_ID_PLAYER,
+      selectedCrystalId,
+      [1, 1],
+    );
+    coreUnit.isCore = true;
+    team.units.push(coreUnit);
+  }
 
-	const session: Models.SessionData = {
-		id: "",
-		player_id: playerId,
-		session_type: { type: "singleplayer" },
-		phase: "encounter",
-		round: 1,
-		step: 1,
-		seed: sessionSeed,
-		initial_seed: initialSeed,
-		action_log: [],
-		wins: 0,
-		losses: 0,
-		team,
-		options: [],
-		runStats: createDefaultRunStats(),
-	};
+  const session: Models.SessionData = {
+    id: "",
+    player_id: playerId,
+    session_type: { type: "singleplayer" },
+    phase: "encounter",
+    round: 1,
+    step: 1,
+    seed: sessionSeed,
+    initial_seed: initialSeed,
+    action_log: [],
+    wins: 0,
+    losses: 0,
+    team,
+    options: [],
+    runStats: createDefaultRunStats(),
+  };
 
-	// Generate initial options
-	const { options, encounterHistory } = OptionGeneration.createEncounterOptions(session);
-	session.options = options;
-	session.encounter_history = encounterHistory;
+  // Generate initial options
+  const { options, encounterHistory } =
+    OptionGeneration.createEncounterOptions(session);
+  session.options = options;
+  session.encounter_history = encounterHistory;
 
-	return session;
+  return session;
 }
 
 /**
@@ -83,75 +83,87 @@ export function createInitialSession(
  * Ensures units are not added/removed/modified, only repositioned.
  */
 export function updateTeamAction(
-	session: Models.SessionData,
-	newUnits: Unit[]
+  session: Models.SessionData,
+  newUnits: Unit[],
 ): Models.SessionData {
-	const currentUnits = session.team?.units || [];
+  const currentUnits = session.team?.units || [];
 
-	// Must have same number of units
-	if (currentUnits.length !== newUnits.length) {
-		console.warn("SessionManagement", `Team update rejected: expected ${currentUnits.length} units, got ${newUnits.length}`);
-		return session;
-	}
+  // Must have same number of units
+  if (currentUnits.length !== newUnits.length) {
+    console.warn(
+      "SessionManagement",
+      `Team update rejected: expected ${currentUnits.length} units, got ${newUnits.length}`,
+    );
+    return session;
+  }
 
-	const currentUnitMap = new Map<string, Unit>();
-	currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
+  const currentUnitMap = new Map<string, Unit>();
+  currentUnits.forEach((u) => currentUnitMap.set(u.id, u));
 
-	const validatedUnits = [];
+  const validatedUnits = [];
 
-	// --- Position validation ---
-	// Board is 3×3, positions must be in [0, 0] .. [2, 2].
-	const BOARD_SIZE = 3;
-	const seenPositions = new Set<string>();
+  // --- Position validation ---
+  // Board is 3×3, positions must be in [0, 0] .. [2, 2].
+  const BOARD_SIZE = 3;
+  const seenPositions = new Set<string>();
 
-	for (const newUnit of newUnits) {
-		const [x, y] = newUnit.position;
-		const posKey = `${x},${y}`;
+  for (const newUnit of newUnits) {
+    const [x, y] = newUnit.position;
+    const posKey = `${x},${y}`;
 
-		if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
-			console.warn(
-				"SessionManagement",
-				`Team update rejected: position [${x}, ${y}] is outside the ${BOARD_SIZE}×${BOARD_SIZE} board`,
-			);
-			return session;
-		}
+    if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+      console.warn(
+        "SessionManagement",
+        `Team update rejected: position [${x}, ${y}] is outside the ${BOARD_SIZE}×${BOARD_SIZE} board`,
+      );
+      return session;
+    }
 
-		if (seenPositions.has(posKey)) {
-			console.warn(
-				"SessionManagement",
-				`Team update rejected: duplicate position [${x}, ${y}]`,
-			);
-			return session;
-		}
-		seenPositions.add(posKey);
-	}
+    if (seenPositions.has(posKey)) {
+      console.warn(
+        "SessionManagement",
+        `Team update rejected: duplicate position [${x}, ${y}]`,
+      );
+      return session;
+    }
+    seenPositions.add(posKey);
+  }
 
-	// --- Per-unit validation ---
+  // --- Per-unit validation ---
 
-	for (const newUnit of newUnits) {
-		const originalUnit = currentUnitMap.get(newUnit.id);
+  for (const newUnit of newUnits) {
+    const originalUnit = currentUnitMap.get(newUnit.id);
 
-		// Must be an existing unit
-		if (!originalUnit) {
-			console.warn("SessionManagement", `Team update rejected: unit with ID ${newUnit.id} does not exist in current team`);
-			return session;
-		}
+    // Must be an existing unit
+    if (!originalUnit) {
+      console.warn(
+        "SessionManagement",
+        `Team update rejected: unit with ID ${newUnit.id} does not exist in current team`,
+      );
+      return session;
+    }
 
-		// Card and rank must not change
-		if (originalUnit.cardId !== newUnit.cardId || originalUnit.rank !== newUnit.rank) {
-			console.warn("SessionManagement", `Team update rejected: unit with ID ${newUnit.id} has mismatched cardId or rank`);
-			return session;
-		}
+    // Card and rank must not change
+    if (
+      originalUnit.cardId !== newUnit.cardId ||
+      originalUnit.rank !== newUnit.rank
+    ) {
+      console.warn(
+        "SessionManagement",
+        `Team update rejected: unit with ID ${newUnit.id} has mismatched cardId or rank`,
+      );
+      return session;
+    }
 
-		// Position can change, everything else stays the same
-		const validatedUnit = {
-			...originalUnit,
-			position: newUnit.position,
-		};
-		validatedUnits.push(validatedUnit);
-	}
+    // Position can change, everything else stays the same
+    const validatedUnit = {
+      ...originalUnit,
+      position: newUnit.position,
+    };
+    validatedUnits.push(validatedUnit);
+  }
 
-	session.team.units = validatedUnits;
+  session.team.units = validatedUnits;
 
-	return session;
+  return session;
 }

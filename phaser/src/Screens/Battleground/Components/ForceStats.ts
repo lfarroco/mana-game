@@ -16,13 +16,13 @@ const initialForceStats: () => ForceStats = () => ({
 	life: 0,
 	shield: 0,
 	poison: 0,
-	regen: 0
-})
+	regen: 0,
+});
 
-const statsState: ForceStatsState = ({
+const statsState: ForceStatsState = {
 	player: initialForceStats(),
 	cpu: initialForceStats(),
-});
+};
 
 let currentCombatState: CombatState | undefined;
 let currentSession: SessionData | undefined;
@@ -34,21 +34,14 @@ export function setCombatClientState() {
 
 export const createForceStats = () => {
 	setCombatClientState();
-	[
-		Constants.FORCE_ID_PLAYER,
-		Constants.FORCE_ID_CPU,
-	]
-		.forEach(createStatsForForce)
-}
-
+	[Constants.FORCE_ID_PLAYER, Constants.FORCE_ID_CPU].forEach(createStatsForForce);
+};
 
 const createStatsForForce = (force: string) => {
 	const x = force === Constants.FORCE_ID_PLAYER ? 300 : 1200;
 	const y = 1000;
 
-	const stats = force === Constants.FORCE_ID_PLAYER ?
-		statsState.player :
-		statsState.cpu;
+	const stats = force === Constants.FORCE_ID_PLAYER ? statsState.player : statsState.cpu;
 
 	stats.display?.destroy();
 
@@ -86,21 +79,10 @@ const createStatsForForce = (force: string) => {
 	];
 
 	stats.display = makeContainer(elements);
-}
+};
 
-function createShieldbar(
-	shieldBarPos: Vec2,
-	barWidth: number,
-	barHeight: number,
-	[x, y]: Vec2,
-) {
-	const bgShieldBar = centeredRect(
-		env.scene,
-		shieldBarPos,
-		[barWidth, barHeight],
-		0x000000,
-		0.5
-	);
+function createShieldbar(shieldBarPos: Vec2, barWidth: number, barHeight: number, [x, y]: Vec2) {
+	const bgShieldBar = centeredRect(env.scene, shieldBarPos, [barWidth, barHeight], 0x000000, 0.5);
 	const shieldBar = centeredRect(env.scene, shieldBarPos, [barWidth, barHeight], 0xffff00, 1);
 	shieldBar.clear();
 	shieldBar
@@ -122,12 +104,7 @@ function createShieldbar(
 	return { shieldBar, bgShieldBar };
 }
 
-function createHealthBar(
-	healthBarPos: Vec2,
-	barWidth: number,
-	barHeight: number,
-	[x, y]: Vec2,
-) {
+function createHealthBar(healthBarPos: Vec2, barWidth: number, barHeight: number, [x, y]: Vec2) {
 	const bgBar = centeredRect(env.scene, healthBarPos, [barWidth, barHeight], 0x000000, 0.5);
 	const healthBar = centeredRect(env.scene, healthBarPos, [barWidth, barHeight], 0x29a1b9ff, 1);
 	healthBar
@@ -149,10 +126,7 @@ function createHealthBar(
 	return { healthBar, bgBar };
 }
 
-function createPoisonDisplay(
-	force: string,
-	[x, y]: Vec2,
-) {
+function createPoisonDisplay(force: string, [x, y]: Vec2) {
 	const poisonDisplay = Chip.createChip(
 		`poison-display/${force}`,
 		[x + 450, y],
@@ -161,7 +135,10 @@ function createPoisonDisplay(
 		100
 	);
 	poisonDisplay.bg
-		.setInteractive(new Phaser.Geom.Rectangle(0, 0, ...poisonDisplay.size), Phaser.Geom.Rectangle.Contains)
+		.setInteractive(
+			new Phaser.Geom.Rectangle(0, 0, ...poisonDisplay.size),
+			Phaser.Geom.Rectangle.Contains
+		)
 		.on("pointerover", () => {
 			Tooltip.renderTooltip(
 				x + 450,
@@ -176,41 +153,28 @@ function createPoisonDisplay(
 	return poisonDisplay;
 }
 
-function createRegenDisplay(
-	force: string,
-	[x, y]: Vec2,
-) {
+function createRegenDisplay(force: string, [x, y]: Vec2) {
 	const regenDisplay = Chip.createChip(`regen-display/${force}`, [x + 300, y], 0x337a31, "0", 100);
-	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OVER,
-		() => {
-			Tooltip.renderTooltip(
-				x + 300,
-				y - 250,
-				i18n.t("forceStats.regen.title"),
-				i18n.t("forceStats.regen.description")
-			);
-		});
-	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OUT,
-		Tooltip.hideTooltip
-	);
+	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OVER, () => {
+		Tooltip.renderTooltip(
+			x + 300,
+			y - 250,
+			i18n.t("forceStats.regen.title"),
+			i18n.t("forceStats.regen.description")
+		);
+	});
+	regenDisplay.bg.on(Phaser.Input.Events.POINTER_OUT, Tooltip.hideTooltip);
 	return regenDisplay;
 }
 
-function createShieldDisplay(
-	force: string,
-	[x, y]: Vec2,
-	core: Unit,
-) {
+function createShieldDisplay(force: string, [x, y]: Vec2, core: Unit) {
 	const shieldDisplayId = `shield-display/${force}`;
-	const shieldDisplay = Chip.createChip(
-		shieldDisplayId,
-		[x + 150, y],
-		0xffff00,
-		"0",
-		100
-	);
+	const shieldDisplay = Chip.createChip(shieldDisplayId, [x + 150, y], 0xffff00, "0", 100);
 	shieldDisplay.bg
-		.setInteractive(new Phaser.Geom.Rectangle(0, 0, ...shieldDisplay.size), Phaser.Geom.Rectangle.Contains)
+		.setInteractive(
+			new Phaser.Geom.Rectangle(0, 0, ...shieldDisplay.size),
+			Phaser.Geom.Rectangle.Contains
+		)
 		.on("pointerover", () => {
 			Tooltip.renderTooltip(
 				x + 150,
@@ -226,10 +190,7 @@ function createShieldDisplay(
 	return shieldDisplay;
 }
 
-function createLifeDisplay(
-	[x, y]: Vec2,
-	core: Unit,
-) {
+function createLifeDisplay([x, y]: Vec2, core: Unit) {
 	const lifeDisplayId = `life-display/${core.force}`;
 
 	const lifeDisplay = Chip.createChip(lifeDisplayId, [x, y], 0x29a1b9ff, "0", 100);
@@ -252,12 +213,7 @@ function getForceStats(force: string) {
 	return force === Constants.FORCE_ID_PLAYER ? statsState.player : statsState.cpu;
 }
 
-export function updateLifeDisplay(
-	force: string,
-	life: number,
-	delta: number,
-) {
-
+export function updateLifeDisplay(force: string, life: number, delta: number) {
 	if (delta === 0) return;
 
 	const stats = getForceStats(force);
@@ -285,7 +241,6 @@ export function updateLifeDisplay(
 		bar.fillRect(0, 0, barWidth * percent, barHeight);
 	}
 
-
 	const chip = Chip.getChip(chipId);
 
 	if (!chip) {
@@ -304,11 +259,7 @@ export function updateLifeDisplay(
 	chip.container.add(textElement);
 }
 
-export function updateShieldDisplay(
-	force: string,
-	shield: number,
-	delta: number,
-) {
+export function updateShieldDisplay(force: string, shield: number, delta: number) {
 	if (delta === 0) return;
 
 	const chipId = `shield-display/${force}`;
@@ -354,11 +305,7 @@ export function updateShieldDisplay(
 	chip.container.add(textElement);
 }
 
-export function updateRegenDisplay(
-	targetUnit: Unit,
-	regen: number,
-	delta: number,
-) {
+export function updateRegenDisplay(targetUnit: Unit, regen: number, delta: number) {
 	if (delta === 0) return;
 
 	const chipId = `regen-display/${targetUnit.force}`;
@@ -380,18 +327,13 @@ export function updateRegenDisplay(
 	chip.container.add(textElement);
 }
 
-export function updatePoisonDisplay(
-	force: string,
-	poison: number,
-	delta: number,
-) {
+export function updatePoisonDisplay(force: string, poison: number, delta: number) {
 	if (delta === 0) return;
 
 	const chipId = `poison-display/${force}`;
 
 	const chip = Chip.getChip(chipId);
-	if (!chip)
-		throw new Error("invalid client state")
+	if (!chip) throw new Error("invalid client state");
 
 	Chip.updateChipText(chipId, Utils.compactNumber(poison));
 
@@ -454,15 +396,15 @@ export function resetPlayerForceStats() {
 
 type ForceStats = {
 	display: Phaser.GameObjects.Container | null;
-	healthBar: Phaser.GameObjects.Graphics | null,
-	shieldBar: Phaser.GameObjects.Graphics | null,
-	life: number,
-	shield: number,
-	poison: number,
-	regen: number,
-}
+	healthBar: Phaser.GameObjects.Graphics | null;
+	shieldBar: Phaser.GameObjects.Graphics | null;
+	life: number;
+	shield: number;
+	poison: number;
+	regen: number;
+};
 
 export type ForceStatsState = {
-	player: ForceStats,
-	cpu: ForceStats
+	player: ForceStats;
+	cpu: ForceStats;
 };

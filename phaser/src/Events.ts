@@ -24,41 +24,41 @@ import { createEvent } from "@game/Models";
 // ---------------------------------------------------------------------------
 
 export const BattlegroundEvent = {
-  /** Emitted when a phase completes and the next phase should begin. */
-  phaseFinished: createEvent<{ previousPhase: Models.PhaseType }>(),
+	/** Emitted when a phase completes and the next phase should begin. */
+	phaseFinished: createEvent<{ previousPhase: Models.PhaseType }>(),
 
-  /** Emitted when combat playback finishes (naturally, not via stop). */
-  combatPlaybackFinished: createEvent<{ outcome: Models.WaveOutcome }>(),
+	/** Emitted when combat playback finishes (naturally, not via stop). */
+	combatPlaybackFinished: createEvent<{ outcome: Models.WaveOutcome }>(),
 
-  /** Emitted when the player clicks "Continue" after combat. */
-  combatContinueRequested: createEvent<void>(),
+	/** Emitted when the player clicks "Continue" after combat. */
+	combatContinueRequested: createEvent<void>(),
 
-  /** Emitted when replay is requested during combat playback. */
-  combatReplayRequested: createEvent<void>(),
+	/** Emitted when replay is requested during combat playback. */
+	combatReplayRequested: createEvent<void>(),
 
-  /** Emitted when combat playback should pause. */
-  combatPauseRequested: createEvent<void>(),
+	/** Emitted when combat playback should pause. */
+	combatPauseRequested: createEvent<void>(),
 
-  /** Emitted when combat playback should resume. */
-  combatResumeRequested: createEvent<void>(),
+	/** Emitted when combat playback should resume. */
+	combatResumeRequested: createEvent<void>(),
 
-  /** Emitted when the player wants a new run. */
-  newRunRequested: createEvent<void>(),
+	/** Emitted when the player wants a new run. */
+	newRunRequested: createEvent<void>(),
 
-  /** Emitted when the player requests the main menu. */
-  mainMenuRequested: createEvent<void>(),
+	/** Emitted when the player requests the main menu. */
+	mainMenuRequested: createEvent<void>(),
 
-  /** HUD update: wins count changed. */
-  winsChanged: createEvent<{ wins: number; delta: number }>(),
+	/** HUD update: wins count changed. */
+	winsChanged: createEvent<{ wins: number; delta: number }>(),
 
-  /** HUD update: lives count changed. */
-  livesChanged: createEvent<{ lives: number; delta: number }>(),
+	/** HUD update: lives count changed. */
+	livesChanged: createEvent<{ lives: number; delta: number }>(),
 
-  /** HUD update: round number changed. */
-  roundChanged: createEvent<{ round: number; delta: number }>(),
+	/** HUD update: round number changed. */
+	roundChanged: createEvent<{ round: number; delta: number }>(),
 
-  /** Emitted after an orb is applied to a unit (post-server dispatch). */
-  orbApplied: createEvent<{ orbId: string; targetUnitId: string }>(),
+	/** Emitted after an orb is applied to a unit (post-server dispatch). */
+	orbApplied: createEvent<{ orbId: string; targetUnitId: string }>(),
 };
 
 // ---------------------------------------------------------------------------
@@ -69,22 +69,21 @@ export const BattlegroundEvent = {
 // ---------------------------------------------------------------------------
 
 export const GameEvent = {
-  /** A screen finished its create() + fade-in and is fully visible. */
-  screenShown: createEvent<{ name: string }>(),
-  /** A screen is about to be destroyed (before destroy() is called). */
-  screenHidden: createEvent<{ name: string }>(),
+	/** A screen finished its create() + fade-in and is fully visible. */
+	screenShown: createEvent<{ name: string }>(),
+	/** A screen is about to be destroyed (before destroy() is called). */
+	screenHidden: createEvent<{ name: string }>(),
 
-  /** A new run was started. */
-  runStarted: createEvent<void>(),
-  /** A run ended (victory or game over). */
-  runCompleted: createEvent<{ outcome: Models.WaveOutcome }>(),
+	/** A new run was started. */
+	runStarted: createEvent<void>(),
+	/** A run ended (victory or game over). */
+	runCompleted: createEvent<{ outcome: Models.WaveOutcome }>(),
 
-  /** A unit was added to the player's team. */
-  unitRecruited: createEvent<{ unitId: string }>(),
-  /** A unit was removed from the player's team. */
-  unitRemoved: createEvent<{ unitId: string }>(),
+	/** A unit was added to the player's team. */
+	unitRecruited: createEvent<{ unitId: string }>(),
+	/** A unit was removed from the player's team. */
+	unitRemoved: createEvent<{ unitId: string }>(),
 
-  /** Locale changed (language switch).  Payload is the new locale code. */
-  localeChanged: createEvent<{ locale: string }>(),
+	/** Locale changed (language switch).  Payload is the new locale code. */
+	localeChanged: createEvent<{ locale: string }>(),
 };
-

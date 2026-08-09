@@ -1,9 +1,6 @@
 import { StorageProvider } from "./IStorageProvider";
 import { createLocalStorageProvider } from "./LocalStorageProvider";
 import { createSteamCloudProvider } from "./SteamCloudProvider";
-;
-
-
 const isElectron = (): boolean => {
 	return (
 		typeof window !== "undefined" &&

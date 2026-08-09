@@ -77,12 +77,7 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		// Seed input (DOM keyboard + text field) — tracks its own elements
 		seedInput.create(ctx);
 
-
-		const elements = [
-			keyboard,
-			...navigationButtons.create(ctx),
-			...actionButtons.create(ctx),
-		];
+		const elements = [keyboard, ...navigationButtons.create(ctx), ...actionButtons.create(ctx)];
 
 		Effects.updateDisplay(crystals, currentIndex);
 
@@ -96,5 +91,3 @@ const cleanup = () => {
 };
 
 export const { init, create, destroy, name } = screenModule(screen);
-
-

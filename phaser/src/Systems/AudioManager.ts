@@ -121,7 +121,10 @@ export const playSoundEffect = (soundKey: string, volume?: number) => {
 	const now = Date.now();
 	const lastPlayed = soundEffectCooldowns.get(soundKey);
 	if (lastPlayed && now - lastPlayed < SOUND_EFFECT_COOLDOWN_MS) {
-		console.debug("AudioManager", "Sound effect on cooldown", { soundKey, cooldownMs: SOUND_EFFECT_COOLDOWN_MS });
+		console.debug("AudioManager", "Sound effect on cooldown", {
+			soundKey,
+			cooldownMs: SOUND_EFFECT_COOLDOWN_MS,
+		});
 		return;
 	}
 

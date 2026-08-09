@@ -11,12 +11,12 @@
 
 /** Minimal shape a screen must export to be navigable. */
 export type ScreenModule = {
-	name: string;
-	create: () => void | Promise<void>;
-	destroy?: () => void;
-	init?: () => void;
-	/** Optional phase-switch (e.g. options tabs). Used by deep-links. */
-	go?: (phase: string) => Promise<void>;
-	/** Current sub-state, if the screen supports phases. Used to avoid redundant deep-links. */
-	currentPhase?: () => string | null;
+  name: string;
+  create: () => void | Promise<void>;
+  destroy?: () => void;
+  init?: () => void;
+  /** Optional phase-switch (e.g. options tabs). Used by deep-links. */
+  go?: (phase: string) => Promise<void>;
+  /** Current sub-state, if the screen supports phases. Used to avoid redundant deep-links. */
+  currentPhase?: () => string | null;
 };

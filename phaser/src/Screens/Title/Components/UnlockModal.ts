@@ -28,12 +28,10 @@ export const render = (unitId: string) =>
 
 		const { title, description } = createDescription.createDescription(chara);
 
-		const titleText = env.scene
-			.add.text(0, chara.y + 180, title, c.titleTextConfig)
-			.setOrigin(0.5);
+		const titleText = env.scene.add.text(0, chara.y + 180, title, c.titleTextConfig).setOrigin(0.5);
 
-		const unlockConditionText = env.scene
-			.add.text(0, titleText.y + 35, i18n.t(`unlock_description.${unitId}`), {
+		const unlockConditionText = env.scene.add
+			.text(0, titleText.y + 35, i18n.t(`unlock_description.${unitId}`), {
 				fontFamily: "Arimo",
 				fontSize: "20px",
 				color: "#ffff00",
@@ -41,8 +39,8 @@ export const render = (unitId: string) =>
 			})
 			.setOrigin(0.5);
 
-		const descriptionText = env.scene
-			.add.rexBBCodeText(0, unlockConditionText.y + 40, description)
+		const descriptionText = env.scene.add
+			.rexBBCodeText(0, unlockConditionText.y + 40, description)
 			.setFontSize(30)
 			.setWrapMode(1)
 			.setFontFamily("Arimo")

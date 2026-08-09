@@ -16,9 +16,8 @@ import { BattlegroundEvent } from "../../../../Events";
 export async function displayGameComplete(
 	wins: number,
 	units: Unit[],
-	isGameOver: boolean,
+	isGameOver: boolean
 ): Promise<Phaser.GameObjects.Container> {
-
 	// TODO: apparently, it's not working
 	deleteSavedData();
 
@@ -99,26 +98,15 @@ export async function displayGameComplete(
 
 	// Standard buttons
 	buttonDefinitions.push(
-		[
-			i18n.t("results.buttons.new_run"),
-			BattlegroundEvent.newRunRequested.emit
-		],
-		[
-			i18n.t("results.buttons.main_menu"),
-			BattlegroundEvent.mainMenuRequested.emit
-		]
+		[i18n.t("results.buttons.new_run"), BattlegroundEvent.newRunRequested.emit],
+		[i18n.t("results.buttons.main_menu"), BattlegroundEvent.mainMenuRequested.emit]
 	);
 
 	// Infinite mode button - disabled in demo
-	if (
-		wins >= ResultsConfig.INFINITE_MODE_THRESHOLD &&
-		!isGameOver &&
-		!Config.IS_DEMO
-	) {
+	if (wins >= ResultsConfig.INFINITE_MODE_THRESHOLD && !isGameOver && !Config.IS_DEMO) {
 		buttonDefinitions.push([
 			i18n.t("results.buttons.infinite_mode"),
 			async () => {
-
 				AudioManager.playMusic("music_battlemap_vetruv");
 				BattlegroundEvent.combatContinueRequested.emit();
 			},
@@ -137,22 +125,28 @@ export async function displayGameComplete(
 	const statsPanel = RunStatsPanel.createRunStatsPanel();
 
 	// Victory title text
-	const victoryTitle = env.scene.add.text(0, 0, i18n.t("results.wins_title", { count: wins.toString() }), {
-		...constants.titleTextConfig,
-		fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
-		color: "#FFFFFF",
-	}).setOrigin(0.5);
+	const victoryTitle = env.scene.add
+		.text(0, 0, i18n.t("results.wins_title", { count: wins.toString() }), {
+			...constants.titleTextConfig,
+			fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleExtraLarge,
+			color: "#FFFFFF",
+		})
+		.setOrigin(0.5);
 	victoryTitle.setPosition(panelX, panelY - 250);
 
 	// Message text
-	const messageText = env.scene.add.text(0, 0, isDemoComplete ? i18n.t("demo.complete.title") : message, {
-		...constants.titleTextConfig,
-		color: color,
-	}).setOrigin(0.5);
+	const messageText = env.scene.add
+		.text(0, 0, isDemoComplete ? i18n.t("demo.complete.title") : message, {
+			...constants.titleTextConfig,
+			color: color,
+		})
+		.setOrigin(0.5);
 	messageText.setPosition(panelX, panelY - 150);
 
 	// Subtitle text
-	const subtitle = env.scene.add.text(0, 0, subtitleText, constants.defaultTextConfig).setOrigin(0.5);
+	const subtitle = env.scene.add
+		.text(0, 0, subtitleText, constants.defaultTextConfig)
+		.setOrigin(0.5);
 	subtitle.setPosition(panelX, panelY - 50);
 
 	const container = makeContainer([
@@ -184,7 +178,8 @@ export async function displayGameComplete(
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		);
 
-		const wishlistText = env.scene.add.text(0, 0, i18n.t("results.messages.wishlist"), constants.defaultTextConfig)
+		const wishlistText = env.scene.add
+			.text(0, 0, i18n.t("results.messages.wishlist"), constants.defaultTextConfig)
 			.setPosition(panelX, wishlistPanelY - 30)
 			.setOrigin(0.5);
 

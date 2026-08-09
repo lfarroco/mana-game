@@ -163,7 +163,6 @@ function playWinEffect(index: number) {
 	});
 }
 
-
 export async function winsChangeAnimation(_winsDelta: number) {
 	return Promise.resolve();
 }

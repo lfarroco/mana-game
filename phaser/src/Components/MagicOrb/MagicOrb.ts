@@ -3,9 +3,6 @@ import * as Board from "@Components/Board/Board";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import { magicOrbFragmentShader } from "@Components/MagicOrb/MagicOrbShader";
 import { env } from "@Env";
-;
-
-
 export interface MagicOrbConfig {
 	size?: number;
 	color?: Phaser.Types.Math.Vector3Like;
@@ -34,7 +31,6 @@ export class MagicOrb {
 	isDestroyed: boolean = false;
 
 	constructor(x: number, y: number, config: MagicOrbConfig = {}) {
-
 		const defaultConfig = {
 			size: 100,
 			color: { x: 0.5, y: 0.3, z: 1.0 },
@@ -49,7 +45,7 @@ export class MagicOrb {
 			enableTooltip: false,
 			enableDrag: false,
 			returnDuration: 300,
-			onDropTarget: () => { },
+			onDropTarget: () => {},
 			dropTargetNames: [] as string[],
 		};
 
@@ -157,7 +153,8 @@ export class MagicOrb {
 		if (playerBoard && playerBoard.dropZones) {
 			for (const zone of playerBoard.dropZones) {
 				if (objectsAtPointer.includes(zone)) {
-					console.debug("MagicOrb",
+					console.debug(
+						"MagicOrb",
 						"Magic orb dropped on board zone at index:",
 						playerBoard.dropZones.indexOf(zone)
 					);
@@ -356,7 +353,11 @@ export class MagicOrb {
 
 export class MagicOrbCallbacks {
 	static returnToPosition(orb: MagicOrb, target: Phaser.GameObjects.GameObject): void {
-		console.debug("MagicOrb", "Orb effect: Returning to position after touching", target.name || "target");
+		console.debug(
+			"MagicOrb",
+			"Orb effect: Returning to position after touching",
+			target.name || "target"
+		);
 		orb.returnToOriginalPosition();
 	}
 
@@ -403,4 +404,3 @@ export class MagicOrbCallbacks {
 		};
 	}
 }
-

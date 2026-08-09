@@ -28,7 +28,6 @@ export function registerListeners(): (() => void)[] {
 }
 
 export function create() {
-
 	const headerContainer = container([
 		headerBackground.create,
 		roundDisplay.create,

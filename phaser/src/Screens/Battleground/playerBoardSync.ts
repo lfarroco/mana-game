@@ -2,7 +2,11 @@ import * as Chara from "@Components/Chara/Chara";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
 
-const shouldRefreshPlayerUnit = (unitId: string, expectedPower: number, expectedRank: number): boolean => {
+const shouldRefreshPlayerUnit = (
+	unitId: string,
+	expectedPower: number,
+	expectedRank: number
+): boolean => {
 	if (!Chara.hasCharaById(unitId)) {
 		return false;
 	}

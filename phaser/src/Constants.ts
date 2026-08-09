@@ -1,4 +1,3 @@
-
 // FIXME: split into two modules:
 // - RenderingConstants (screen dimensions, tile sizes, UI layout)
 // - GameLogicConstants (imported from @game/Constants wherever possible)
@@ -45,5 +44,3 @@ export const titleTextConfig: Phaser.Types.GameObjects.Text.TextStyle = {
 	strokeThickness: 14,
 	fontStyle: "bold",
 };
-
-

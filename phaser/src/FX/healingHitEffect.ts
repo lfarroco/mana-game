@@ -13,10 +13,7 @@ const HEALING_HIT_EFFECT_CONFIG = {
 	] as number[],
 };
 
-export async function healingHitEffect(
-	[x, y]: Vec2,
-	lifespan: number
-): Promise<void> {
+export async function healingHitEffect([x, y]: Vec2, lifespan: number): Promise<void> {
 	const scene = env.scene;
 	const rects: Phaser.GameObjects.Rectangle[] = [];
 
@@ -27,7 +24,7 @@ export async function healingHitEffect(
 		const travelDistance = (speed * lifespan) / 1000;
 		const color =
 			HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS[
-			Math.floor(Math.random() * HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS.length)
+				Math.floor(Math.random() * HEALING_HIT_EFFECT_CONFIG.HEALING_COLORS.length)
 			];
 		const size = Phaser.Math.FloatBetween(12, 24);
 

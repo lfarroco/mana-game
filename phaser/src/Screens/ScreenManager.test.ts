@@ -1,4 +1,10 @@
-import { createScreenManager, getScreenManager, resetScreenManager, setScreenManager, ScreenModule } from "./ScreenManager";
+import {
+	createScreenManager,
+	getScreenManager,
+	resetScreenManager,
+	setScreenManager,
+	ScreenModule,
+} from "./ScreenManager";
 import { GameEvent } from "../Events";
 
 // ---------------------------------------------------------------------------
@@ -16,8 +22,8 @@ jest.mock("@Env", () => ({
 			tweens: { killAll: jest.fn() },
 			time: { removeAllEvents: jest.fn() },
 		},
-		fadeOut: jest.fn(async () => { }),
-		fadeIn: jest.fn(async () => { }),
+		fadeOut: jest.fn(async () => {}),
+		fadeIn: jest.fn(async () => {}),
 	},
 }));
 
@@ -35,7 +41,7 @@ beforeEach(() => {
 const makeScreen = (name: string, overrides?: Partial<ScreenModule>): ScreenModule => ({
 	name,
 	init: jest.fn(),
-	create: jest.fn(async () => { }),
+	create: jest.fn(async () => {}),
 	destroy: jest.fn(),
 	...overrides,
 });
@@ -43,14 +49,15 @@ const makeScreen = (name: string, overrides?: Partial<ScreenModule>): ScreenModu
 const makeManager = (overrides?: {
 	title?: Partial<ScreenModule>;
 	options?: Partial<ScreenModule>;
-}) => createScreenManager({
-	screens: {
-		title: makeScreen("title", overrides?.title),
-		battleground: makeScreen("battleground"),
-		crystals: makeScreen("crystals"),
-		options: makeScreen("options", overrides?.options),
-	},
-});
+}) =>
+	createScreenManager({
+		screens: {
+			title: makeScreen("title", overrides?.title),
+			battleground: makeScreen("battleground"),
+			crystals: makeScreen("crystals"),
+			options: makeScreen("options", overrides?.options),
+		},
+	});
 
 describe("createScreenManager", () => {
 	it("navigates to a screen and emits screenShown", async () => {
@@ -127,7 +134,7 @@ describe("createScreenManager", () => {
 	});
 
 	it("deep-links to a phase when the route carries params", async () => {
-		const go = jest.fn(async () => { });
+		const go = jest.fn(async () => {});
 		const currentPhase = jest.fn(() => "audio");
 		const manager = makeManager({
 			options: { go, currentPhase },
@@ -139,7 +146,7 @@ describe("createScreenManager", () => {
 	});
 
 	it("skips the deep-link when the screen is already on the target phase", async () => {
-		const go = jest.fn(async () => { });
+		const go = jest.fn(async () => {});
 		const currentPhase = jest.fn(() => "graphics");
 		const manager = makeManager({
 			options: { go, currentPhase },

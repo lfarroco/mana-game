@@ -67,5 +67,4 @@ export async function explodeEffect([x, y]: Vec2) {
 		pointB: [x, y],
 		colors: [...COLORS],
 	});
-
 }

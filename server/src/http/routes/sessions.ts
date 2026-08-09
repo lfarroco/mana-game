@@ -38,7 +38,9 @@ sessionsRouter.get("/current", (_req: Request, res: Response) => {
   }
 
   // Strip raw combatState (contains non-JSON-safe Map)
-  const { combatState: _, ...safeSession } = session as SessionData & { combatState?: unknown };
+  const { combatState: _, ...safeSession } = session as SessionData & {
+    combatState?: unknown;
+  };
 
   res.json(safeSession);
 });
@@ -65,17 +67,21 @@ sessionsRouter.post("/current/actions", (req: Request, res: Response) => {
 
     // Strip raw combatState from session (contains non-JSON-safe Map).
     // The serialized version is sent separately below.
-    const { combatState: _rawCombat, ...safeSession } = result.session as SessionData & { combatState?: unknown };
+    const { combatState: _rawCombat, ...safeSession } =
+      result.session as SessionData & { combatState?: unknown };
 
     // Encode combat state for wire transport (removes non-JSON-safe Maps)
     const response: Record<string, unknown> = { session: safeSession };
     if (result.combatState) {
-      response.combatState = CombatCodec.serializeCombatState(result.combatState);
+      response.combatState = CombatCodec.serializeCombatState(
+        result.combatState,
+      );
     }
 
     res.json(response);
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Action dispatch failed";
+    const message =
+      err instanceof Error ? err.message : "Action dispatch failed";
     res.status(422).json({ error: message });
   }
 });

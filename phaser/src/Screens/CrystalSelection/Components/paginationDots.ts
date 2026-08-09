@@ -37,4 +37,3 @@ export function create(count: number): Phaser.GameObjects.Arc[] {
 	}
 	return dots;
 }
-

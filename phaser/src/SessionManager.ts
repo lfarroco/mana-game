@@ -25,7 +25,10 @@ function prepareSessionForStorage(session: Models.SessionData): Models.SessionDa
 		...session,
 		combatState: {
 			...session.combatState,
-			unitById: Array.from(session.combatState.unitById.entries()) as unknown as Map<string, Models.Unit>,
+			unitById: Array.from(session.combatState.unitById.entries()) as unknown as Map<
+				string,
+				Models.Unit
+			>,
 		},
 	};
 }
@@ -35,7 +38,9 @@ function prepareSessionForStorage(session: Models.SessionData): Models.SessionDa
  */
 function restoreSessionFromStorage(session: Models.SessionData): void {
 	if (session.combatState && Array.isArray(session.combatState.unitById)) {
-		session.combatState.unitById = new Map(session.combatState.unitById as unknown as [string, Models.Unit][]);
+		session.combatState.unitById = new Map(
+			session.combatState.unitById as unknown as [string, Models.Unit][]
+		);
 	}
 }
 
@@ -58,7 +63,7 @@ function loadSessionsFromStorage(): void {
 function saveSessionToStorage(playerId: string, session: Models.SessionData): void {
 	localStorage.setItem(
 		STORAGE_PREFIX + playerId,
-		JSON.stringify(prepareSessionForStorage(session)),
+		JSON.stringify(prepareSessionForStorage(session))
 	);
 }
 
@@ -87,4 +92,5 @@ export function deleteSession(playerId: string): void {
 	sessions.delete(playerId);
 	removeSessionFromStorage(playerId);
 }
-export const getRemainingLives = (session: Models.SessionData) => GameConstants.STARTING_LIVES - session.losses;
+export const getRemainingLives = (session: Models.SessionData) =>
+	GameConstants.STARTING_LIVES - session.losses;

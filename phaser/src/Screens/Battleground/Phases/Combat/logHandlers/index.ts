@@ -24,19 +24,16 @@ import {
 	handleSlowHit,
 	handleChargeHit,
 } from "./arcaneMissileHandlers";
-import {
-	handleIncreasePower,
-	handleDecreasePower,
-} from "./powerHandlers";
-import {
-	handleHasteEnd,
-	handleSlowEnd,
-} from "./statusHandlers";
+import { handleIncreasePower, handleDecreasePower } from "./powerHandlers";
+import { handleHasteEnd, handleSlowEnd } from "./statusHandlers";
 import { handleCombatStats } from "./combatStatsHandlers";
 
 export { setCombatState } from "./combatStateStore";
 
-export const executeLogHandler = (log: CombatLogger.CombatLogEntry, playbackState: PlaybackState): void => {
+export const executeLogHandler = (
+	log: CombatLogger.CombatLogEntry,
+	playbackState: PlaybackState
+): void => {
 	switch (log.type) {
 		case "damage_cast":
 			handleDamageCast(log, playbackState);

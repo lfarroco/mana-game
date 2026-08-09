@@ -10,7 +10,6 @@ let playerNameText: Phaser.GameObjects.Text | null = null;
 let enemyNameText: Phaser.GameObjects.Text | null = null;
 
 export const create = () => {
-
 	if (!playerNameText || !playerNameText.scene) {
 		playerNameText = createNameText(LEFT_MARGIN, "left");
 	}
@@ -24,14 +23,10 @@ export const create = () => {
 		enemyName: "",
 	});
 
-	return [playerNameText, enemyNameText]
+	return [playerNameText, enemyNameText];
+};
 
-}
-
-const createNameText = (
-	x: number,
-	align: "left" | "right"
-): Phaser.GameObjects.Text => {
+const createNameText = (x: number, align: "left" | "right"): Phaser.GameObjects.Text => {
 	const text = env.scene.add.text(x, c.SCREEN_HEIGHT - BOTTOM_MARGIN, "", {
 		...c.titleTextConfig,
 		fontSize: "24px",

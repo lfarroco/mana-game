@@ -16,20 +16,14 @@ const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
 const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
 export const ShopPhase = (_ctx: BGContext) => {
-
 	const { session } = env.state;
 	const shopCardIds = session.options.map((o) => o.id);
-	const cardDefs = shopCardIds
-		.map(Card.getCardDefinition);
+	const cardDefs = shopCardIds.map(Card.getCardDefinition);
 
 	const skipButton_ = skipButton();
 	const charaCards = CharaShop.renderShopCharaCards(cardDefs);
 
-	return [
-		...charaCards,
-		skipButton_
-	]
-
+	return [...charaCards, skipButton_];
 };
 
 export async function onUnitPurchased({
@@ -37,19 +31,17 @@ export async function onUnitPurchased({
 	previousTeamUnits,
 	shopCharaId,
 }: {
-	unitId: string,
-	previousTeamUnits: Unit[],
-	shopCharaId: string | null,
+	unitId: string;
+	previousTeamUnits: Unit[];
+	shopCharaId: string | null;
 }) {
 	const unit = env.state.session.team.units.find((u) => u.cardId === cardId);
 	if (!unit) {
 		throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
-	};
+	}
 
 	const sourceChara =
-		shopCharaId && Chara.hasCharaById(shopCharaId)
-			? Chara.mustGetCharaById(shopCharaId)
-			: null;
+		shopCharaId && Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
 
 	Tooltip.hideTooltip();
 	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
@@ -69,7 +61,7 @@ export async function onUnitPurchased({
 
 async function handleUpgradedUnitPurchase(
 	upgradedUnit: Unit,
-	sourceChara: Chara.Chara | null,
+	sourceChara: Chara.Chara | null
 ): Promise<void> {
 	const targetChara = Chara.hasCharaById(upgradedUnit.id)
 		? Chara.mustGetCharaById(upgradedUnit.id)
@@ -105,8 +97,7 @@ export function onShopUnitDragPurchaseFailed({
 	shopCharaId: string;
 	dragStartVec: Vec2;
 }) {
-
-	const chara = Chara.mustGetCharaById(shopCharaId)
+	const chara = Chara.mustGetCharaById(shopCharaId);
 
 	Tooltip.hideTooltip();
 	const [x, y] = dragStartVec;

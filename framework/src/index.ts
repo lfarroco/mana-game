@@ -15,25 +15,21 @@
 
 export type { ScreenModule } from "./Screen";
 
-export {
-	createScreen,
-	screenModule,
-	findTrackedById,
-} from "./createScreen";
+export { createScreen, screenModule, findTrackedById } from "./createScreen";
 export type {
-	ScreenCtx,
-	ScreenResult,
-	Destroyable,
-	EventRecord,
-	PhaseEntry,
-	PhaseTransition,
+  ScreenCtx,
+  ScreenResult,
+  Destroyable,
+  EventRecord,
+  PhaseEntry,
+  PhaseTransition,
 } from "./createScreen";
 
 export { createScreenManager } from "./ScreenManager";
 export type {
-	ScreenManager,
-	ScreenManagerHooks,
-	Routes,
+  ScreenManager,
+  ScreenManagerHooks,
+  Routes,
 } from "./ScreenManager";
 
 export { go, setRouter, currentScreen } from "./Router";

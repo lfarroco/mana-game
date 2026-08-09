@@ -1,4 +1,3 @@
-
 import { STORAGE_PREFIX, LOCAL_PLAYER_ID } from "../../SessionManager";
 
 export const getSinglePlayerData = () => {

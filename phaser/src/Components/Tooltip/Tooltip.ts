@@ -4,7 +4,6 @@ import * as TooltipLayout from "@Components/Tooltip/TooltipLayout";
 import * as theme from "../../Screens/Battleground/Components/UI/theme";
 import { env } from "@Env";
 
-
 const DESCRIPTION_FONT_SIZE = 30;
 const DESCRIPTION_LINE_SPACING = 12;
 const TOOLTIP_CORNER_RADIUS = 18;
@@ -188,11 +187,17 @@ export function renderTooltip(
 		if (!bg) return;
 		drawTooltipBackground(tooltipWidth, tooltipHeight);
 
-		titleText.setPosition(TooltipLayout.TOOLTIP_HORIZONTAL_PADDING, TooltipLayout.TOOLTIP_TOP_PADDING);
+		titleText.setPosition(
+			TooltipLayout.TOOLTIP_HORIZONTAL_PADDING,
+			TooltipLayout.TOOLTIP_TOP_PADDING
+		);
 		descriptionText.setVisible(hasDescription);
 		descriptionText.setPosition(
 			TooltipLayout.TOOLTIP_HORIZONTAL_PADDING + 7,
-			10 + TooltipLayout.TOOLTIP_TOP_PADDING + titleText.height + TooltipLayout.TOOLTIP_INTER_ELEMENT_PADDING
+			10 +
+				TooltipLayout.TOOLTIP_TOP_PADDING +
+				titleText.height +
+				TooltipLayout.TOOLTIP_INTER_ELEMENT_PADDING
 		);
 		lastAdjustedX = undefined;
 		lastAdjustedY = undefined;

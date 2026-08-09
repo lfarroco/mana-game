@@ -2,7 +2,6 @@ import * as getSavedData from "@Systems/Storage/getSinglePlayerData";
 import * as Models from "@game/Models";
 import { env } from "@Env";
 
-
 export function loadGame() {
 	const data = getSavedData.getSinglePlayerData();
 	if (!data) return;
@@ -16,7 +15,6 @@ export function loadGame() {
 		const combatState = savedData.combatState!;
 		combatState.unitById = new Map(combatState.unitById as unknown as [string, Models.Unit][]);
 		env.patchState({ session: savedData, combatState });
-
 	} else {
 		env.patchState({ session: savedData });
 	}

@@ -21,12 +21,12 @@ import { rebuildCombatStateIndexes } from "./CombatStateIndexes";
  * rebuilt on the receiving end.
  */
 export type CombatStateDto = {
-	/** Snapshot of all units at combat start — playback begins from these. */
-	units: readonly Models.Unit[];
-	logs: CombatLogEntry[];
-	wonCombat: boolean;
-	finalPlayerUnits: Models.Unit[];
-	enemyPlayerName: string;
+  /** Snapshot of all units at combat start — playback begins from these. */
+  units: readonly Models.Unit[];
+  logs: CombatLogEntry[];
+  wonCombat: boolean;
+  finalPlayerUnits: Models.Unit[];
+  enemyPlayerName: string;
 };
 
 /**
@@ -34,14 +34,16 @@ export type CombatStateDto = {
  *
  * Strips the derived Map and computed fields; only carries source data.
  */
-export function serializeCombatState(state: Models.CombatState): CombatStateDto {
-	return {
-		units: state.initialUnits,
-		logs: state.logs,
-		wonCombat: state.wonCombat,
-		finalPlayerUnits: state.finalPlayerUnits,
-		enemyPlayerName: state.enemyPlayerName,
-	};
+export function serializeCombatState(
+  state: Models.CombatState,
+): CombatStateDto {
+  return {
+    units: state.initialUnits,
+    logs: state.logs,
+    wonCombat: state.wonCombat,
+    finalPlayerUnits: state.finalPlayerUnits,
+    enemyPlayerName: state.enemyPlayerName,
+  };
 }
 
 /**
@@ -49,20 +51,25 @@ export function serializeCombatState(state: Models.CombatState): CombatStateDto 
  * the unitById Map and derived fields (playerCore, cpuCore,
  * playerUnits, cpuUnits).
  */
-export function deserializeCombatState(dto: CombatStateDto): Models.CombatState {
-	const units: Models.Unit[] = structuredClone([...dto.units]);
+export function deserializeCombatState(
+  dto: CombatStateDto,
+): Models.CombatState {
+  const units: Models.Unit[] = structuredClone([...dto.units]);
 
-	return rebuildCombatStateIndexes({
-		units,
-		logs: dto.logs,
-		enemyPlayerName: dto.enemyPlayerName,
-		wonCombat: dto.wonCombat,
-		finalPlayerUnits: dto.finalPlayerUnits,
-		initialUnits: dto.units,
-		unitById: new Map(),
-		playerCore: units[0],
-		cpuCore: units[0],
-		playerUnits: [],
-		cpuUnits: [],
-	}, dto.finalPlayerUnits[0]?.force);
+  return rebuildCombatStateIndexes(
+    {
+      units,
+      logs: dto.logs,
+      enemyPlayerName: dto.enemyPlayerName,
+      wonCombat: dto.wonCombat,
+      finalPlayerUnits: dto.finalPlayerUnits,
+      initialUnits: dto.units,
+      unitById: new Map(),
+      playerCore: units[0],
+      cpuCore: units[0],
+      playerUnits: [],
+      cpuUnits: [],
+    },
+    dto.finalPlayerUnits[0]?.force,
+  );
 }

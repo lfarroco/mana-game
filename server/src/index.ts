@@ -10,7 +10,9 @@ const config = loadConfig();
 const app = createApp();
 
 const server = app.listen(config.port, config.host, () => {
-  console.log(`[mana-server] listening on http://${config.host}:${config.port}`);
+  console.log(
+    `[mana-server] listening on http://${config.host}:${config.port}`,
+  );
 });
 
 // Graceful shutdown

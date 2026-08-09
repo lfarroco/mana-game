@@ -15,27 +15,22 @@ const EFFECT_CARD_SPACING = 240;
 const EFFECT_CARD_X_OFFSET = 450;
 const EFFECT_CARD_BASE_Y = 300;
 
-export const openUpgradeCorePhase = (_ctx: BGContext) => (
-	titleText: string,
-	encounters: string[],
-) => {
+export const openUpgradeCorePhase =
+	(_ctx: BGContext) => (titleText: string, encounters: string[]) => {
+		const title = env.scene.add
+			.text(constants.SCREEN_WIDTH / 2 + 180, 130, i18n.t(titleText), constants.titleTextConfig)
+			.setOrigin(0.5);
 
-	const title = env.scene.add.text(constants.SCREEN_WIDTH / 2 + 180, 130, i18n.t(titleText), constants.titleTextConfig).setOrigin(0.5);
+		const skipButton_ = skipButton();
 
-	const skipButton_ = skipButton();
+		const cards = renderUpgradeCards(encounters);
 
-	const cards = renderUpgradeCards(encounters);
+		Board.setEnemyBoardVisible(false);
 
-	Board.setEnemyBoardVisible(false);
+		return [title, ...cards, skipButton_];
+	};
 
-
-	return [title, ...cards, skipButton_]
-
-}
-
-function renderUpgradeCards(
-	encounterIds: string[],
-) {
+function renderUpgradeCards(encounterIds: string[]) {
 	let isResolvingSelection = false;
 
 	return encounterIds.map((encounterId, index) => {
@@ -64,7 +59,6 @@ function renderUpgradeCards(
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
 				await dispatchAction({ type: "select_encounter", encounterId });
-
 
 				// TODO: post-upgrade visuals (crystal selection effect, core refresh, sound) are not yet wired.
 				// The upgrade is applied server-side via advancePhase; the client should react to the
@@ -96,11 +90,7 @@ function renderUpgradeCards(
 				// ForceStats.syncPlayerPersistentForceStats();
 
 				// await onUpgradeSelected();
-
 			},
 		});
-
-
 	});
-
 }

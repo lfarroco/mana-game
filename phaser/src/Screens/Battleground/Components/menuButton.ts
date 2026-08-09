@@ -8,7 +8,7 @@ export function create() {
 	const btn = UIButton.create({
 		text: i18n.t("ui.menu.button"),
 		position: [c.BATTLEGROUND_BUTTON_X, c.BATTLEGROUND_BUTTON_MARGIN_TOP],
-		callback: createPanel
+		callback: createPanel,
 	});
 
 	return btn.container;
@@ -25,16 +25,10 @@ export function createPanel() {
 
 	const buttonDefs: [string, () => void][] = [];
 
-	buttonDefs.push([
-		i18n.t("ui.menu.newRun"),
-		BattlegroundEvent.newRunRequested.emit
-	]);
+	buttonDefs.push([i18n.t("ui.menu.newRun"), BattlegroundEvent.newRunRequested.emit]);
 
 	buttonDefs.push(
-		[
-			i18n.t("ui.menu.mainMenu"),
-			BattlegroundEvent.mainMenuRequested.emit
-		],
+		[i18n.t("ui.menu.mainMenu"), BattlegroundEvent.mainMenuRequested.emit],
 		[
 			i18n.t("ui.menu.back"),
 			() => {
@@ -55,22 +49,27 @@ export function createPanel() {
 
 	// Overlay background
 	const overlayBg = centeredRect(env.scene, c.MIDDLE_SCREEN, c.WHOLE_SCREEN, 0x000000, 0.1);
-	overlayBg.setInteractive(new Phaser.Geom.Rectangle(0, 0, c.SCREEN_WIDTH, c.SCREEN_HEIGHT), Phaser.Geom.Rectangle.Contains);
+	overlayBg.setInteractive(
+		new Phaser.Geom.Rectangle(0, 0, c.SCREEN_WIDTH, c.SCREEN_HEIGHT),
+		Phaser.Geom.Rectangle.Contains
+	);
 
 	// Panel background
-	const panelBg = borderedRoundRect(env.scene, [panelX, panelY], [panelWidth, panelHeight], 10, 0x2c3e50, 1);
+	const panelBg = borderedRoundRect(
+		env.scene,
+		[panelX, panelY],
+		[panelWidth, panelHeight],
+		10,
+		0x2c3e50,
+		1
+	);
 
 	// Title text
 	const titleText = env.scene.add.text(0, 0, i18n.t("ui.menu.title"), c.titleTextConfig);
 	titleText.setPosition(panelX, panelY - panelHeight / 2 + 50);
 	titleText.setOrigin(0.5);
 
-	const container = makeContainer([
-		overlayBg,
-		panelBg,
-		titleText,
-		...buttons,
-	]);
+	const container = makeContainer([overlayBg, panelBg, titleText, ...buttons]);
 
 	env.scene.children.bringToTop(container);
 

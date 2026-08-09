@@ -10,7 +10,6 @@ import * as Models from "@game/Models";
 import * as arenaTheme from "@Screens/ArenaLobby/arenaTheme";
 import { env } from "@Env";
 
-
 // Layout positioning
 const TITLE_Y = 100;
 const LOBBY_CARD_Y = 530;
@@ -209,7 +208,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			text: "LEADERBOARD",
 			position: [
 				Constants.MIDDLE_SCREEN_X - HALF_WIDTH_BUTTON / 2 - HALF_WIDTH_BUTTON_GAP / 2,
-				buttonY + BUTTON_Y_OFFSET * 2
+				buttonY + BUTTON_Y_OFFSET * 2,
 			],
 			callback: async () => {
 				await this.openRankingModal();
@@ -223,7 +222,7 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			text: "ACCOUNT",
 			position: [
 				Constants.MIDDLE_SCREEN_X + HALF_WIDTH_BUTTON / 2 + HALF_WIDTH_BUTTON_GAP / 2,
-				buttonY + BUTTON_Y_OFFSET * 2
+				buttonY + BUTTON_Y_OFFSET * 2,
 			],
 			callback: () => {
 				// this.scene.start(SCENE_KEYS.ARENA_LOGIN, {
@@ -264,7 +263,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		this.buttons.push(backBtn);
 
 		const loadingBg = this.add
-			.rectangle(0, 0, Constants.SCREEN_WIDTH, Constants.SCREEN_HEIGHT, arenaTheme.ARENA_OVERLAY_COLOR, arenaTheme.ARENA_OVERLAY_ALPHA)
+			.rectangle(
+				0,
+				0,
+				Constants.SCREEN_WIDTH,
+				Constants.SCREEN_HEIGHT,
+				arenaTheme.ARENA_OVERLAY_COLOR,
+				arenaTheme.ARENA_OVERLAY_ALPHA
+			)
 			.setOrigin(0);
 		const loadingLabel = createArenaText("Loading...", {
 			fontSize: "32px",
@@ -338,7 +344,14 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			.setOrigin(0.5)
 			.setStrokeStyle(2, arenaTheme.ARENA_TABLE_BORDER_COLOR, 0.9);
 		const headerBackground = this.add
-			.rectangle(0, RANKING_HEADER_Y, RANKING_TABLE_WIDTH, 44, arenaTheme.ARENA_TABLE_HEADER_COLOR, 0.95)
+			.rectangle(
+				0,
+				RANKING_HEADER_Y,
+				RANKING_TABLE_WIDTH,
+				44,
+				arenaTheme.ARENA_TABLE_HEADER_COLOR,
+				0.95
+			)
 			.setOrigin(0.5)
 			.setStrokeStyle(1, arenaTheme.ARENA_TABLE_BORDER_COLOR, 0.9);
 
@@ -370,7 +383,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 					rowY,
 					RANKING_ROW_WIDTH,
 					RANKING_ROW_HEIGHT,
-					index % 2 === 0 ? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR : arenaTheme.ARENA_TABLE_ROW_ODD_COLOR,
+					index % 2 === 0
+						? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR
+						: arenaTheme.ARENA_TABLE_ROW_ODD_COLOR,
 					0.92
 				)
 				.setOrigin(0.5)
@@ -501,7 +516,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 				const username = player.username || `Guest#${player.id.slice(0, 4)}`;
 				row.background.setFillStyle(this.getRankingRowColor(rank, index), 0.92);
 				row.rankText.setText(`#${rank}`).setColor(this.getRankingAccentColor(rank));
-				row.usernameText.setText(this.formatRankingUsername(username)).setColor(arenaTheme.ARENA_TEXT_PRIMARY);
+				row.usernameText
+					.setText(this.formatRankingUsername(username))
+					.setColor(arenaTheme.ARENA_TEXT_PRIMARY);
 				row.ratingText.setText(`${player.rating}`).setColor("#fde68a");
 				row.matchesText.setText(`${player.matches_played}`).setColor(arenaTheme.ARENA_TEXT_INFO);
 				this.setRankingRowVisible(row, true);
@@ -553,7 +570,9 @@ export class ArenaLobbyScene extends Phaser.Scene {
 		if (rank === 1) return 0x3b2f0f;
 		if (rank === 2) return 0x243244;
 		if (rank === 3) return 0x3c2415;
-		return index % 2 === 0 ? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR : arenaTheme.ARENA_TABLE_ROW_ODD_COLOR;
+		return index % 2 === 0
+			? arenaTheme.ARENA_TABLE_ROW_EVEN_COLOR
+			: arenaTheme.ARENA_TABLE_ROW_ODD_COLOR;
 	}
 
 	private formatRankingUsername(username: string): string {
@@ -577,7 +596,6 @@ export class ArenaLobbyScene extends Phaser.Scene {
 			// });
 			//return;
 			//}
-
 			//this.scene.start(SCENE_KEYS.CRYSTAL_SELECTION, {
 			// 	isMultiplayer: true,
 			// 	multiplayerQueueType: queueType,

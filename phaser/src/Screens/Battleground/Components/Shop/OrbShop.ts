@@ -6,7 +6,7 @@ import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
-import { env, } from "@Env";
+import { env } from "@Env";
 import { skipButton } from "../skipButton";
 import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
 import { hasCharaById, refreshChara } from "@Components/Chara/Chara";
@@ -20,17 +20,14 @@ const ORB_DESCRIPTION_X_OFFSET = 10;
 const ORB_DESCRIPTION_Y_OFFSET = 20;
 
 export async function openOrbShop() {
-
 	const items = renderOrbShop();
 
 	const skipButton_ = skipButton();
 
 	return [...items.flat(), skipButton_];
-
 }
 
 export function renderOrbShop() {
-
 	const orbIds = env.state.session.options.map((o) => o.id);
 
 	const orbSpacing = sc.TAVERN_CHARA_SPACING;
@@ -84,11 +81,9 @@ export function renderOrbShop() {
 		});
 
 		return [shader, titleText, descriptionText];
-
 	});
 
 	return orbs;
-
 }
 
 function handleOrbDrop(params: {
@@ -110,7 +105,8 @@ function handleOrbDrop(params: {
 	const tileX = slotIndex % 3;
 	const tileY = Math.floor(slotIndex / 3);
 
-	console.debug("OrbShop",
+	console.debug(
+		"OrbShop",
 		`${orbSpec.name} dropped on board slot [${tileX}, ${tileY}] (index: ${slotIndex})`
 	);
 
@@ -124,7 +120,10 @@ function handleOrbDrop(params: {
 		return;
 	}
 
-	console.debug("OrbShop", `Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`);
+	console.debug(
+		"OrbShop",
+		`Unit ${existingUnit.id} is at this position - applying ${orbSpec.name} effect!`
+	);
 
 	AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 
@@ -137,7 +136,6 @@ function handleOrbDrop(params: {
 			onOrbApplied(orbSpec.id, existingUnit.id);
 		}
 	);
-
 }
 
 async function onOrbApplied(orbId: string, targetUnitId: string) {

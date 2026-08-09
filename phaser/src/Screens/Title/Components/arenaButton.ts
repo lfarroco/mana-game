@@ -8,10 +8,7 @@ export function create() {
 	const label = i18n.t("title.multiplayer");
 	const btn = UIButton.create({
 		text: label,
-		position: [
-			constants.MIDDLE_SCREEN_X,
-			BUTTON_Y,
-		],
+		position: [constants.MIDDLE_SCREEN_X, BUTTON_Y],
 		callback: () => {
 			const playerId = localStorage.getItem("mana_player_id");
 			if (playerId) {

@@ -1,13 +1,14 @@
 import { StorageProvider } from "./IStorageProvider";
-;
-
-
 export const createLocalStorageProvider = (): StorageProvider => ({
 	getItem: (key: string): string | null => {
 		try {
 			return localStorage.getItem(key);
 		} catch (error) {
-			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to get item "${key}":`, error);
+			console.warn(
+				"LocalStorageProvider",
+				`[LocalStorageProvider] Failed to get item "${key}":`,
+				error
+			);
 			return null;
 		}
 	},
@@ -16,7 +17,11 @@ export const createLocalStorageProvider = (): StorageProvider => ({
 		try {
 			localStorage.setItem(key, value);
 		} catch (error) {
-			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to set item "${key}":`, error);
+			console.warn(
+				"LocalStorageProvider",
+				`[LocalStorageProvider] Failed to set item "${key}":`,
+				error
+			);
 		}
 	},
 
@@ -24,7 +29,11 @@ export const createLocalStorageProvider = (): StorageProvider => ({
 		try {
 			localStorage.removeItem(key);
 		} catch (error) {
-			console.warn("LocalStorageProvider", `[LocalStorageProvider] Failed to remove item "${key}":`, error);
+			console.warn(
+				"LocalStorageProvider",
+				`[LocalStorageProvider] Failed to remove item "${key}":`,
+				error
+			);
 		}
 	},
 });

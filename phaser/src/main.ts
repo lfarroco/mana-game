@@ -13,10 +13,7 @@ const STARTUP_FONT_FAMILY = "Arimo";
 const STARTUP_FONT_URL = "assets/fonts/Arimo-Variable.ttf";
 
 async function loadStartupFont(): Promise<void> {
-	const startupFont = new FontFace(
-		STARTUP_FONT_FAMILY,
-		`url("${STARTUP_FONT_URL}")`,
-	);
+	const startupFont = new FontFace(STARTUP_FONT_FAMILY, `url("${STARTUP_FONT_URL}")`);
 
 	await startupFont.load();
 	document.fonts.add(startupFont);

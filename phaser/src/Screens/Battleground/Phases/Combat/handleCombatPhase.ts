@@ -28,12 +28,14 @@ const COMBAT_START_DELAY_MS = 300;
 type PlaybackState = {
 	isPaused: boolean;
 	stopActivePlayback: () => void;
-	currentController: ReturnType<typeof CombatPlaybackController.createCombatPlaybackController> | null;
+	currentController: ReturnType<
+		typeof CombatPlaybackController.createCombatPlaybackController
+	> | null;
 };
 
 const initialState = (): PlaybackState => ({
 	isPaused: false,
-	stopActivePlayback: () => { },
+	stopActivePlayback: () => {},
 	currentController: null,
 });
 
@@ -46,12 +48,7 @@ let state: PlaybackState = initialState();
 let combatStatsSnapshot: CombatStatsTracker.CombatStatsTrackerState | null = null;
 
 const handleCombatContinueRequested = async () => {
-
-	const {
-		wins: previousWins,
-		losses: previousLosses,
-		round: previousRound,
-	} = env.state.session;
+	const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
 
 	// Tear down the combat board / ForceStats / combatState BEFORE dispatching
 	// end_combat.  dispatchAction's phaseFinished.emit awaits the full next-phase
@@ -59,14 +56,15 @@ const handleCombatContinueRequested = async () => {
 	await teardownCombat();
 
 	await dispatchAction({ type: "end_combat" }, ({ session }) => {
-
 		const winDelta = session.wins - previousWins;
-		if (winDelta !== 0)
-			BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
+		if (winDelta !== 0) BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
 
 		const lossesDelta = previousLosses - session.losses;
 		if (lossesDelta !== 0)
-			BattlegroundEvent.livesChanged.emit({ lives: 4 - session.losses, delta: session.losses - previousLosses });
+			BattlegroundEvent.livesChanged.emit({
+				lives: 4 - session.losses,
+				delta: session.losses - previousLosses,
+			});
 
 		const roundDelta = previousRound - session.round;
 		if (roundDelta !== 0)
@@ -74,24 +72,20 @@ const handleCombatContinueRequested = async () => {
 	});
 };
 
-
 async function beginCombatPlayback(): Promise<void> {
-
 	cleanupPlayback(state);
 	state.stopActivePlayback = await startCombatPlayback();
 }
 
 const startCombatPlayback = async (): Promise<() => void> => {
-
 	setupCombatBoard();
 
 	ForceStats.createForceStats();
 
 	await animation.delay(COMBAT_START_DELAY_MS);
 
-
 	const controller = CombatPlaybackController.createCombatPlaybackController(
-		env.state.combatState!.logs,
+		env.state.combatState!.logs
 	);
 	state.currentController = controller;
 
@@ -127,10 +121,7 @@ const setupCombatBoard = () => {
 	// than the simulation-mutated ones.
 	combatState.units = structuredClone([...combatState.initialUnits]);
 	const combatUnits = combatState.units;
-	Object.assign(
-		combatState,
-		rebuildCombatStateIndexes(combatState, combatState.playerCore.force),
-	);
+	Object.assign(combatState, rebuildCombatStateIndexes(combatState, combatState.playerCore.force));
 	assertCombatStateIndexes(combatState);
 
 	const charas = combatUnits.map((unit) => Chara.summon(unit, false));
@@ -156,7 +147,6 @@ const teardownPlayback = (s: PlaybackState): void => {
  * — so the combatState needed to re-run playback stays intact.
  */
 const teardownCombat = async (): Promise<void> => {
-
 	cleanupPlayback(state);
 	state.currentController = null;
 	env.patchState({ combatState: undefined });
@@ -175,7 +165,7 @@ function cleanupPlayback(state: PlaybackState): void {
 	env.scene.tweens.resumeAll();
 	env.scene.time.paused = false;
 	state.stopActivePlayback();
-	state.stopActivePlayback = () => { };
+	state.stopActivePlayback = () => {};
 }
 
 const pauseCombat = (): void => {
@@ -206,7 +196,6 @@ async function resetBoard(): Promise<void> {
  * the frozen battle board must remain visible behind the results overlay.
  */
 export const CombatPhase = (ctx: BGContext) => {
-
 	const combatState = env.state.combatState;
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat phase");
@@ -235,7 +224,7 @@ export const CombatPhase = (ctx: BGContext) => {
  */
 const renderCombatResults = (
 	ctx: BGContext,
-	container: Promise<Phaser.GameObjects.Container>,
+	container: Promise<Phaser.GameObjects.Container>
 ): Promise<Phaser.GameObjects.Container> => {
 	ctx.listen(ctx.events.combatContinueRequested, handleCombatContinueRequested);
 	ctx.listen(ctx.events.combatReplayRequested, () => ctx.go("combat"));
@@ -255,7 +244,8 @@ export const CombatDefeatPhase = (ctx: BGContext) => {
 	if (!combatState) {
 		throw new Error("Missing combatState while entering combat defeat result phase");
 	}
-	return renderCombatResults(ctx, DefeatUI.displayDefeat(-1, combatState.units, combatStatsSnapshot));
+	return renderCombatResults(
+		ctx,
+		DefeatUI.displayDefeat(-1, combatState.units, combatStatsSnapshot)
+	);
 };
-
-

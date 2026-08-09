@@ -3,9 +3,6 @@ import * as CloudsBackgroundShader from "@Components/CloudsBackground/CloudsBack
 import * as colorPresets from "./colorPresets";
 import { getSettings } from "@Models/OptionsStore";
 import { env } from "@Env";
-;
-
-
 export type CloudsBackgroundConfig = {
 	/** Initial color preset to use */
 	preset?: keyof typeof colorPresets.colorPresets;
@@ -26,7 +23,7 @@ export type CloudsBackgroundConfig = {
 	alpha?: number;
 	/** Animation speed multiplier (default: 1.0, lower values = slower animation) */
 	timeScale?: number;
-}
+};
 
 export class CloudsBackground {
 	private scene: Phaser.Scene;
@@ -100,9 +97,7 @@ export class CloudsBackground {
 		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
 	}
 	private resolveScene(): Phaser.Scene {
-
 		return env.scene;
-
 	}
 
 	private getCurrentColors(): colorPresets.IColorPreset {

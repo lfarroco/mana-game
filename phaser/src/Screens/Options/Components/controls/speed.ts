@@ -30,7 +30,8 @@ export function speed(
 	});
 
 	valueText.setPosition(
-		constants.MIDDLE_SCREEN_X, yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y - 20
+		constants.MIDDLE_SCREEN_X,
+		yPos + OptionsScreen.LAYOUT.SPEED_VALUE_OFFSET_Y - 20
 	);
 	valueText.setOrigin(0.5);
 

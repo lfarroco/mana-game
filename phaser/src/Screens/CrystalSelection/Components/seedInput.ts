@@ -22,38 +22,42 @@ export function create(ctx: SeedInputCtx) {
 	const width = 200;
 	const height = 40;
 
-	const bg = env.scene.add.rectangle(x, y, width, height, 0x000000, 0.5)
+	const bg = env.scene.add
+		.rectangle(x, y, width, height, 0x000000, 0.5)
 		.setOrigin(1, 1)
 		.setStrokeStyle(1, 0x888888)
 		.setInteractive({ useHandCursor: true });
 	ctx.track(bg);
 
 	// "Seed: " label
-	const label = env.scene.add.text(0, 0, "Seed: ", {
-		...constants.defaultTextConfig,
-		fontSize: "24px",
-		color: "#ffffff",
-	})
+	const label = env.scene.add
+		.text(0, 0, "Seed: ", {
+			...constants.defaultTextConfig,
+			fontSize: "24px",
+			color: "#ffffff",
+		})
 		.setOrigin(1, 0.5)
 		.setPosition(x - width - 10, y - height / 2);
 	ctx.track(label);
 
 	// Seed value text — passed to the keyboard for editing
-	const seedText = env.scene.add.text(0, 0, `${currentSeed}`, {
-		...constants.defaultTextConfig,
-		fontSize: "24px",
-		color: "#ffffff",
-	})
+	const seedText = env.scene.add
+		.text(0, 0, `${currentSeed}`, {
+			...constants.defaultTextConfig,
+			fontSize: "24px",
+			color: "#ffffff",
+		})
 		.setOrigin(1, 0.5)
 		.setPosition(x - 20, y - height / 2);
 	ctx.track(seedText);
 
 	// Warning text — toggled by the keyboard
-	const seedWarningText = env.scene.add.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
-		...constants.defaultTextConfig,
-		fontSize: "16px",
-		color: "#ffff00",
-	})
+	const seedWarningText = env.scene.add
+		.text(0, 0, "Unlocks and stats disabled when using a custom seed", {
+			...constants.defaultTextConfig,
+			fontSize: "16px",
+			color: "#ffff00",
+		})
 		.setOrigin(1, 0.5)
 		.setPosition(x, y - height - 20)
 		.setVisible(false);
@@ -70,4 +74,3 @@ export function create(ctx: SeedInputCtx) {
 
 	env.scene.add.existing(seedText);
 }
-

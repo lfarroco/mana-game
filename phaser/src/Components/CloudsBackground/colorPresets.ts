@@ -4,7 +4,7 @@ export type IColorPreset = {
 	color3: Phaser.Types.Math.Vector3Like;
 	color4: Phaser.Types.Math.Vector3Like;
 	color5: Phaser.Types.Math.Vector3Like;
-}
+};
 
 export const colorPresets: { [key: string]: IColorPreset } = {
 	nebula: {

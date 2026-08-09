@@ -43,11 +43,9 @@ const DEFAULT_ANIMATION_DURATION = 400;
 const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
 
 export const createCombatPlaybackController = (
-	logs: CombatLogger.CombatLogEntry[],
+	logs: CombatLogger.CombatLogEntry[]
 ): CombatRunner.CombatRunner => {
-
 	logHandlers.setCombatState(env.state.combatState!);
-
 
 	const combatStates: CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),
@@ -101,8 +99,7 @@ export const createCombatPlaybackController = (
 
 		const { log } = animation;
 
-		if ("sourceId" in log && log.sourceId)
-			Animations.pop(log.sourceId);
+		if ("sourceId" in log && log.sourceId) Animations.pop(log.sourceId);
 
 		logHandlers.executeLogHandler(log, playbackState);
 
@@ -182,12 +179,9 @@ export const createCombatPlaybackController = (
 		) {
 			finishCombat(playbackState.outcome);
 		}
-
 	};
 
-	const finishCombat = async (
-		outcome: WaveOutcome
-	): Promise<void> => {
+	const finishCombat = async (outcome: WaveOutcome): Promise<void> => {
 		if (!playbackState.active) return;
 
 		playbackState.active = false;
@@ -205,18 +199,22 @@ export const createCombatPlaybackController = (
 		await animation.delay(300);
 
 		// Reset visual state on the combatState player units
-		env.state.combatState!.units
-			.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
+		env.state
+			.combatState!.units.filter((u) => u.force === CoreConstants.FORCE_ID_PLAYER)
 			.forEach((u) => {
 				resetUnitStats(u);
 				ChargeBarDisplay.updateChargeBar(u.id);
 			});
 
 		await BattlegroundEvent.combatPlaybackFinished.emit({
-			outcome
+			outcome,
 		});
 
-		console.debug("CombatPlaybackController", "[CombatPlaybackController] Combat ended. Outcome:", outcome);
+		console.debug(
+			"CombatPlaybackController",
+			"[CombatPlaybackController] Combat ended. Outcome:",
+			outcome
+		);
 	};
 
 	const isActive = (): boolean => {
@@ -224,7 +222,10 @@ export const createCombatPlaybackController = (
 	};
 
 	const stop = (): void => {
-		console.debug("CombatPlaybackController", "[CombatPlaybackController] Stopping combat playback");
+		console.debug(
+			"CombatPlaybackController",
+			"[CombatPlaybackController] Stopping combat playback"
+		);
 		playbackState.active = false;
 	};
 

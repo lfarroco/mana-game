@@ -251,7 +251,13 @@ describe("Effect integration — haste", () => {
 describe("Effect integration — slow", () => {
   it("produces slow_cast log with duration 2000", () => {
     const unit = makeTestUnit({
-      effects: [{ id: "slow", duration: 2000, targets: { id: "random_enemy", count: 1 } }],
+      effects: [
+        {
+          id: "slow",
+          duration: 2000,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       cooldown: 500,
     });
     unit.id = "slow-unit";
@@ -266,7 +272,13 @@ describe("Effect integration — slow", () => {
 
   it("halves charge rate while slowed", () => {
     const unit = makeTestUnit({
-      effects: [{ id: "slow", duration: 2000, targets: { id: "random_enemy", count: 1 } }],
+      effects: [
+        {
+          id: "slow",
+          duration: 2000,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       cooldown: 500,
     });
     unit.id = "slow-charge-unit";
@@ -287,7 +299,13 @@ describe("Effect integration — slow", () => {
 describe("Effect integration — charge", () => {
   it("produces charge_cast and charge_hit logs with amount 300", () => {
     const unit = makeTestUnit({
-      effects: [{ id: "charge", duration: 300, targets: { id: "random_ally", count: 1 } }],
+      effects: [
+        {
+          id: "charge",
+          duration: 300,
+          targets: { id: "random_ally", count: 1 },
+        },
+      ],
       cooldown: 500,
     });
     unit.id = "charge-unit";
@@ -308,7 +326,14 @@ describe("Effect integration — increase_power", () => {
   it("logs increase_power and raises the unit's power", () => {
     const initialPower = 20;
     const unit = makeTestUnit({
-      effects: [{ id: "increase_power", amount: 10, permanent: false, targets: { id: "self" } }],
+      effects: [
+        {
+          id: "increase_power",
+          amount: 10,
+          permanent: false,
+          targets: { id: "self" },
+        },
+      ],
       power: initialPower,
       cooldown: 500,
     });
@@ -328,7 +353,14 @@ describe("Effect integration — increase_power", () => {
 describe("Effect integration — decrease_power", () => {
   it("logs decrease_power and lowers the target's power", () => {
     const unit = makeTestUnit({
-      effects: [{ id: "decrease_power", amount: 8, permanent: false, targets: { id: "random_enemy", count: 1 } }],
+      effects: [
+        {
+          id: "decrease_power",
+          amount: 8,
+          permanent: false,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       cooldown: 500,
     });
     unit.id = "dec-power-unit";
@@ -350,7 +382,14 @@ describe("Effect integration — decrease_power", () => {
 describe("Effect integration — increase_critical", () => {
   it("logs increase_critical multiple times and raises unit critical", () => {
     const unit = makeTestUnit({
-      effects: [{ id: "increase_critical", amount: 10, permanent: false, targets: { id: "self" } }],
+      effects: [
+        {
+          id: "increase_critical",
+          amount: 10,
+          permanent: false,
+          targets: { id: "self" },
+        },
+      ],
       cooldown: 500,
     });
     unit.id = "inc-crit-unit";
@@ -369,7 +408,14 @@ describe("Effect integration — multiply_power", () => {
   it("logs increase_power multiple times and raises unit power", () => {
     const initialPower = 20;
     const unit = makeTestUnit({
-      effects: [{ id: "multiply_power", multiplier: 2, baseMultiplier: 2, targets: { id: "self" } }],
+      effects: [
+        {
+          id: "multiply_power",
+          multiplier: 2,
+          baseMultiplier: 2,
+          targets: { id: "self" },
+        },
+      ],
       power: initialPower,
       cooldown: 500,
     });
@@ -388,7 +434,13 @@ describe("Effect integration — multiply_power", () => {
 describe("Effect integration — distribute_power", () => {
   it("distributes power from distributor to ally and logs accordingly", () => {
     const distributor = makeTestUnit({
-      effects: [{ id: "distribute_power", permanent: false, targets: { id: "random_ally", count: 1 } }],
+      effects: [
+        {
+          id: "distribute_power",
+          permanent: false,
+          targets: { id: "random_ally", count: 1 },
+        },
+      ],
       power: 100,
       cooldown: 500,
       position: [0, 0],
@@ -411,17 +463,33 @@ describe("Effect integration — distribute_power", () => {
     const csDistributor = combatState.unitById.get("distributor")!;
     expect(csDistributor.power).toBeLessThan(initialDistPower);
 
-    const incLogs = logs.filter((l) => l.type === "increase_power" && l.targetId === receiver.id);
+    const incLogs = logs.filter(
+      (l) => l.type === "increase_power" && l.targetId === receiver.id,
+    );
     // distributor gives 50% to ally, but random_ally may target core instead
     // In any case, distributor should have lost power
-    expect(incLogs.length + logs.filter((l) => l.type === "increase_power" && l.targetId !== csDistributor.id && l.targetId !== receiver.id).length).toBeGreaterThanOrEqual(1);
+    expect(
+      incLogs.length +
+        logs.filter(
+          (l) =>
+            l.type === "increase_power" &&
+            l.targetId !== csDistributor.id &&
+            l.targetId !== receiver.id,
+        ).length,
+    ).toBeGreaterThanOrEqual(1);
   });
 });
 
 describe("Effect integration — absorb_power", () => {
   it("absorbs power from enemy and logs decrease_power + increase_power", () => {
     const absorber = makeTestUnit({
-      effects: [{ id: "absorb_power", permanent: false, targets: { id: "random_enemy", count: 1 } }],
+      effects: [
+        {
+          id: "absorb_power",
+          permanent: false,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
       cooldown: 500,
     });
     absorber.id = "absorber";

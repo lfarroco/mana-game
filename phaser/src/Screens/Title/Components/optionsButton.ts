@@ -39,13 +39,13 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 	const statsBtn = UIButton.create({
 		text: i18n.t("title.stats"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing],
-		callback: StatsPanel.openStats
+		callback: StatsPanel.openStats,
 	});
 
 	const creditsBtn = UIButton.create({
 		text: i18n.t("title.credits"),
 		position: [constants.MIDDLE_SCREEN_X, baseY + spacing * 2],
-		callback: CreditsPanel.create
+		callback: CreditsPanel.create,
 	});
 
 	const backBtn = UIButton.create({
@@ -56,11 +56,5 @@ export function createSubmenu(ctx: TitleScreen.Context) {
 		},
 	});
 
-	return [
-		settingsBtn.container,
-		statsBtn.container,
-		creditsBtn.container,
-		backBtn.container,
-	]
-
+	return [settingsBtn.container, statsBtn.container, creditsBtn.container, backBtn.container];
 }

@@ -1,7 +1,4 @@
 import { StorageProvider } from "./IStorageProvider";
-;
-
-
 // Declare steamworks types for TypeScript
 declare const window: Window & {
 	steamworks?: {
@@ -27,19 +24,28 @@ export const createSteamCloudProvider = (): StorageProvider => {
 	return {
 		getItem: (key: string): string | null => {
 			if (!steam) {
-				console.warn("SteamCloudProvider", `[SteamCloudProvider] Steam not initialized. Cannot get "${key}".`);
+				console.warn(
+					"SteamCloudProvider",
+					`[SteamCloudProvider] Steam not initialized. Cannot get "${key}".`
+				);
 				return null;
 			}
 
 			try {
 				// Check if file exists first
 				if (!steam.cloud.fileExists(key)) {
-					console.debug("SteamCloudProvider", `[SteamCloudProvider] File "${key}" not found in Steam Cloud`);
+					console.debug(
+						"SteamCloudProvider",
+						`[SteamCloudProvider] File "${key}" not found in Steam Cloud`
+					);
 					return null;
 				}
 
 				const data = steam.cloud.readFile(key);
-				console.debug("SteamCloudProvider", `[SteamCloudProvider] Successfully read "${key}" from Steam Cloud`);
+				console.debug(
+					"SteamCloudProvider",
+					`[SteamCloudProvider] Successfully read "${key}" from Steam Cloud`
+				);
 				return data;
 			} catch (error) {
 				console.error("SteamCloudProvider", `[SteamCloudProvider] Error reading "${key}":`, error);
@@ -49,16 +55,25 @@ export const createSteamCloudProvider = (): StorageProvider => {
 
 		setItem: (key: string, value: string): void => {
 			if (!steam) {
-				console.warn("SteamCloudProvider", `[SteamCloudProvider] Steam not initialized. Cannot set "${key}".`);
+				console.warn(
+					"SteamCloudProvider",
+					`[SteamCloudProvider] Steam not initialized. Cannot set "${key}".`
+				);
 				return;
 			}
 
 			try {
 				const success = steam.cloud.writeFile(key, value);
 				if (success) {
-					console.debug("SteamCloudProvider", `[SteamCloudProvider] Successfully wrote "${key}" to Steam Cloud`);
+					console.debug(
+						"SteamCloudProvider",
+						`[SteamCloudProvider] Successfully wrote "${key}" to Steam Cloud`
+					);
 				} else {
-					console.error("SteamCloudProvider", `[SteamCloudProvider] Failed to write "${key}" to Steam Cloud`);
+					console.error(
+						"SteamCloudProvider",
+						`[SteamCloudProvider] Failed to write "${key}" to Steam Cloud`
+					);
 				}
 			} catch (error) {
 				console.error("SteamCloudProvider", `[SteamCloudProvider] Error writing "${key}":`, error);
@@ -67,16 +82,25 @@ export const createSteamCloudProvider = (): StorageProvider => {
 
 		removeItem: (key: string): void => {
 			if (!steam) {
-				console.warn("SteamCloudProvider", `[SteamCloudProvider] Steam not initialized. Cannot remove "${key}".`);
+				console.warn(
+					"SteamCloudProvider",
+					`[SteamCloudProvider] Steam not initialized. Cannot remove "${key}".`
+				);
 				return;
 			}
 
 			try {
 				const success = steam.cloud.deleteFile(key);
 				if (success) {
-					console.debug("SteamCloudProvider", `[SteamCloudProvider] Successfully deleted "${key}" from Steam Cloud`);
+					console.debug(
+						"SteamCloudProvider",
+						`[SteamCloudProvider] Successfully deleted "${key}" from Steam Cloud`
+					);
 				} else {
-					console.warn("SteamCloudProvider", `[SteamCloudProvider] File "${key}" not found or failed to delete`);
+					console.warn(
+						"SteamCloudProvider",
+						`[SteamCloudProvider] File "${key}" not found or failed to delete`
+					);
 				}
 			} catch (error) {
 				console.error("SteamCloudProvider", `[SteamCloudProvider] Error deleting "${key}":`, error);

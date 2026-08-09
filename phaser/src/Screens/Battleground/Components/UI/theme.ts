@@ -39,7 +39,7 @@ export const UI_HTML_INPUT_STYLE =
 export const UI_TOOLTIP_BG_COLOR = 0x123247;
 export const UI_TOOLTIP_BORDER_COLOR = UI_SURFACE_HOVER_BORDER_COLOR;
 export const UI_TOOLTIP_ACCENT_COLOR = UI_SURFACE_BORDER_COLOR;
-export const UI_TOOLTIP_FILL_ALPHA = 0.80;
+export const UI_TOOLTIP_FILL_ALPHA = 0.8;
 export const UI_TOOLTIP_BORDER_THICKNESS = 5;
 
 export const mixHexColors = (from: number, to: number, amount: number): number => {

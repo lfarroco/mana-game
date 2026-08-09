@@ -11,6 +11,6 @@ import type { Action, ActionResponse } from "./action";
 import type { SessionData } from "./session";
 
 export type GameServer = {
-	createSession(playerId: string, crystalId: string): Promise<SessionData>;
-	handleAction(playerId: string, action: Action): Promise<ActionResponse>;
+  createSession(playerId: string, crystalId: string): Promise<SessionData>;
+  handleAction(playerId: string, action: Action): Promise<ActionResponse>;
 };

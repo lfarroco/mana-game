@@ -33,31 +33,21 @@ export function createChip(
 	value: string,
 	minWidth?: number
 ) {
-	const text = env.scene.add.text(0, 0, value, constants.defaultTextConfig).setFontSize(CHIP_FONT_SIZE);
+	const text = env.scene.add
+		.text(0, 0, value, constants.defaultTextConfig)
+		.setFontSize(CHIP_FONT_SIZE);
 	text.setOrigin(0.5);
 
 	const [width, height] = [
 		Math.max(text.width + CHIP_PADDING, minWidth ?? 0),
-		text.height + CHIP_PADDING
+		text.height + CHIP_PADDING,
 	];
 	const bg = text.scene.add.graphics();
 
 	bg.lineStyle(CHIP_STROKE_WIDTH, CHIP_STROKE_COLOR, CHIP_STROKE_ALPHA);
 	bg.fillStyle(color, CHIP_FILL_ALPHA);
-	bg.fillRoundedRect(
-		-width / 2,
-		-height / 2,
-		width,
-		height,
-		CHIP_CORNER_RADIUS
-	);
-	bg.strokeRoundedRect(
-		-width / 2,
-		-height / 2,
-		width,
-		height,
-		CHIP_CORNER_RADIUS
-	);
+	bg.fillRoundedRect(-width / 2, -height / 2, width, height, CHIP_CORNER_RADIUS);
+	bg.strokeRoundedRect(-width / 2, -height / 2, width, height, CHIP_CORNER_RADIUS);
 
 	const container = text.scene.add.container(x, y, [bg, text]);
 
@@ -68,8 +58,10 @@ export function createChip(
 	});
 
 	return {
-		container, bg, text,
-		size: [width, height] as Vec2
+		container,
+		bg,
+		text,
+		size: [width, height] as Vec2,
 	};
 }
 

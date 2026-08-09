@@ -1,1 +1,1 @@
-export * from './board/BoardLogic';
+export * from "./board/BoardLogic";

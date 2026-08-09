@@ -1,6 +1,6 @@
 import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
 
-import * as config from "@config"
+import * as config from "@config";
 import { env } from "@Env";
 
 export function create() {
@@ -11,6 +11,4 @@ export function create() {
 		depth: -2000,
 		timeScale: 0.3,
 	});
-
 }
-

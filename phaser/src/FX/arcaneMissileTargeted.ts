@@ -43,7 +43,7 @@ export async function arcaneMissileTargeted(
 			alpha: 0.4,
 		},
 		blendMode = Phaser.BlendModes.ADD,
-		onHit = () => { },
+		onHit = () => {},
 	} = options;
 
 	const duration = 200;
@@ -128,7 +128,6 @@ export async function arcaneMissileTargeted(
 		});
 	}
 
-
 	await animation.delay(duration);
 
 	const impactLifespan = impact.lifespan || 300;
@@ -170,7 +169,6 @@ export async function arcaneMissileTargeted(
 			},
 		});
 	}
-
 
 	onHit();
 

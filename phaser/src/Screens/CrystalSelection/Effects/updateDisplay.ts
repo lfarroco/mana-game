@@ -2,14 +2,13 @@ import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
 import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as colorPresets from "@Components/CloudsBackground/colorPresets";
-import * as paginationDots from "../Components/paginationDots"
+import * as paginationDots from "../Components/paginationDots";
 import { CardDefinition } from "@game/Models";
 import { findTrackedById } from "@mana/framework";
 import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
 const CLOUD_BG_ANIMATION_EASE = "Sine.InOut";
-
 
 // TODO: recreate the phase, instead of updating elements
 // will allow not relying on element ids
@@ -26,9 +25,9 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 		nameText.setOrigin(0.5);
 	}
 
-	const descText = findTrackedById<import("phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText").default>(
-		CRYSTAL_IDS.description
-	);
+	const descText = findTrackedById<
+		import("phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText").default
+	>(CRYSTAL_IDS.description);
 	if (descText) {
 		descText.setText(buildCrystalDescription(crystal));
 	}
@@ -39,7 +38,9 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 		if (dot) {
 			dot.setFillStyle(
 				paginationDots.PAGINATION_DOT_COLOR,
-				i === currentIndex ? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA : paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
+				i === currentIndex
+					? paginationDots.PAGINATION_DOT_ACTIVE_ALPHA
+					: paginationDots.PAGINATION_DOT_INACTIVE_ALPHA
 			);
 		}
 	}
@@ -47,13 +48,13 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 	const bg = cloudsBg.getCloudsBg();
 	if (bg) {
 		const preset = getColorPresetForCrystal(crystal.id);
-		bg.tweenToPreset(
-			preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE,
-		);
+		bg.tweenToPreset(preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE);
 	}
 }
 
-export function getColorPresetForCrystal(crystalId: string): keyof typeof colorPresets.colorPresets {
+export function getColorPresetForCrystal(
+	crystalId: string
+): keyof typeof colorPresets.colorPresets {
 	const colorMap: Record<string, keyof typeof colorPresets.colorPresets> = {
 		mana_crystal: "nebula",
 		critical_crystal: "sunset",
@@ -65,8 +66,6 @@ export function getColorPresetForCrystal(crystalId: string): keyof typeof colorP
 
 	return colorMap[crystalId] || "nebula";
 }
-
-
 
 function buildCrystalDescription(crystal: CardDefinition): string {
 	const power = crystal.power || 0;
@@ -91,5 +90,3 @@ function buildCrystalDescription(crystal: CardDefinition): string {
 
 	return `${statsBlock}${lifeBlock}\n\n${allEffects || i18n.t("crystalSelection.noAbilities")}`;
 }
-
-
