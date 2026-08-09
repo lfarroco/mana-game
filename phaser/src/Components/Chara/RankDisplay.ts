@@ -12,10 +12,16 @@ const platinum = 0xb9f2ff;
 
 const colors = [bronze, silver, gold, platinum];
 
-export function create(unit: Unit, chara: Chara.Chara) {
+export function create(unit: Unit, chara: Chara.Chara): Phaser.GameObjects.Shader {
+	const orb = makeRankOrb(unit);
+	chara.add(orb);
+	return orb;
+}
+
+function makeRankOrb(unit: Unit): Phaser.GameObjects.Shader {
 	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
 
-	const orb = env.shader(
+	return env.shader(
 		MagicOrbShader.simpleMagicOrbFragmentShader,
 		[0, 0],
 		[Constants.TILE_WIDTH * 0.7, Constants.TILE_WIDTH * 0.7],
@@ -37,6 +43,19 @@ export function create(unit: Unit, chara: Chara.Chara) {
 			},
 		]
 	);
+}
 
-	chara.add(orb);
+/**
+ * Update the rank orb's color in place to reflect a unit's new rank, without
+ * destroying and recreating the shader (which would disturb the chara's z-order).
+ */
+export function update(chara: Chara.Chara, unit: Unit): void {
+	const orb = chara.list.find(
+		(child) => child instanceof Phaser.GameObjects.Shader
+	) as Phaser.GameObjects.Shader | undefined;
+
+	if (!orb) return;
+
+	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
+	orb.setUniform("color1.value", { x: x ?? 0, y: y ?? 0, z: z ?? 0 });
 }

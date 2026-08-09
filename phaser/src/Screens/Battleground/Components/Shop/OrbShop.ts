@@ -9,7 +9,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import { env } from "@Env";
 import { skipButton } from "../skipButton";
 import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
-import { hasCharaById, refreshChara } from "@Components/Chara/Chara";
+import { hasCharaById, refreshCharaInPlace } from "@Components/Chara/Chara";
 import { updatePowerDisplay } from "@Components/Chara/PowerDisplay";
 
 // Orb shop UI constants
@@ -159,6 +159,6 @@ async function onOrbApplied(orbId: string, targetUnitId: string) {
 			continue;
 		}
 
-		refreshChara(serverUnit);
+		refreshCharaInPlace(serverUnit);
 	}
 }

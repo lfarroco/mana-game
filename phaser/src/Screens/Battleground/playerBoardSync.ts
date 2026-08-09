@@ -36,9 +36,9 @@ export const syncPlayerBoardUnits = async (): Promise<void> => {
 			return;
 		}
 
-		const chara = Chara.mustGetCharaById(unit.id);
-		Chara.destroy(chara);
-		await Chara.summon(unit, true);
+		// Stat-only changes (e.g. orb upgrades) refresh the chara in place rather
+		// than destroying and re-summoning it, avoiding a duplicate summon effect.
+		Chara.refreshCharaInPlace(unit);
 	});
 
 	await Promise.all(summonPromises);

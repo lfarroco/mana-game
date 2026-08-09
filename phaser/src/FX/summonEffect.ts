@@ -5,14 +5,14 @@ import * as config from "@config";
 import { beamSummonEffect } from "./beamSummonEffect";
 
 const SUMMON_EFFECT_CONFIG = {
-	LIFESPAN: 200,
+	LIFESPAN: 100,
 
 	SCALE_START: 5,
 	SCALE_END: 17.2,
 	SPEED_MIN: 100,
 	SPEED_MAX: 200,
 	EMIT_ZONE_RADIUS: 40,
-	EMIT_ZONE_QUANTITY: 8,
+	EMIT_ZONE_QUANTITY: 20,
 	COLORS: [0xffffff, 0xffffaa, 0xccddff],
 } as const;
 

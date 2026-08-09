@@ -73,7 +73,9 @@ async function handleUpgradedUnitPurchase(
 		await playShopUpgradeEffect(source, target);
 	}
 
-	await Chara.refreshChara(upgradedUnit);
+	// The upgrade effect above already plays the visual; refresh the chara's
+	// stats in place rather than re-summoning it (avoids a duplicate summon).
+	Chara.refreshCharaInPlace(upgradedUnit);
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
 }
 

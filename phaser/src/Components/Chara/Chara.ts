@@ -286,6 +286,28 @@ export async function refreshChara(unit: Unit): Promise<void> {
 }
 
 /**
+ * Refresh an existing chara's visuals in place (power/rank displays) without
+ * destroying and re-summoning it. Used for stat-only changes like orb upgrades,
+ * where a summon animation would be jarring and cause a double-summon with the
+ * board reconciliation pass.
+ */
+export function refreshCharaInPlace(unit: Unit): void {
+	if (!hasCharaById(unit.id)) {
+		return;
+	}
+
+	const chara = mustGetCharaById(unit.id);
+	const state = mustGetState(chara);
+
+	// Keep the chara's stored unit in sync with the session so the board
+	// reconciliation pass sees no diff and won't re-summon it.
+	state.unit = unit;
+
+	PowerDisplay.updatePowerDisplay(unit.id);
+	RankDisplay.update(chara, unit);
+}
+
+/**
  * Safely play an animation on a chara's sprite.
  * No-ops when assets are disabled or the animation key doesn't exist.
  */
