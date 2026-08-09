@@ -12,7 +12,7 @@ const currentOptions: PlayerSettings = {
 	musicVolume: 0.4,
 	masterVolume: 1,
 	debug: false,
-	speed: 6,
+	speed: 1,
 	particles: "medium",
 	compactTooltips: false,
 };

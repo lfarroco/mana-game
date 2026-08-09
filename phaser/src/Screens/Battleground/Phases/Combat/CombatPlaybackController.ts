@@ -42,30 +42,12 @@ const DEFAULT_ANIMATION_DURATION = 400;
 // Must match CoreConstants.MIN_REFRESH_MS — used to replicate the server-side refresh lockout during playback
 const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
 
-// Pre-create the arcane missile particle texture once at module level
-// (was being checked/created on every arcaneMissileTargeted call)
-const ARCANE_RECT_KEY = "arcane_missile_rect_big";
-let texturePrecreated = false;
-function ensureArcaneMissileTexture(): void {
-	if (texturePrecreated) return;
-	const scene = env.scene;
-	if (!scene.textures.exists(ARCANE_RECT_KEY)) {
-		const g = scene.make.graphics({ x: 0, y: 0 });
-		g.fillStyle(0xffffff, 1);
-		g.fillRect(0, 0, 12, 12);
-		g.generateTexture(ARCANE_RECT_KEY, 12, 12);
-		g.destroy();
-	}
-	texturePrecreated = true;
-}
-
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[],
 ): CombatRunner.CombatRunner => {
 
-	ensureArcaneMissileTexture();
-
 	logHandlers.setCombatState(env.state.combatState!);
+
 
 	const combatStates: CombatSystemStates = {
 		poisonSystemState: PoisonDamageSystem.initializePoisonSystem(),

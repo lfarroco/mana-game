@@ -1,4 +1,3 @@
-import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
 import { env } from "@Env";
 
@@ -6,19 +5,24 @@ export const IMPACT_EFFECT_CONFIG = {
 	PARTICLE_SPEED: 200,
 	PARTICLE_LIFESPAN: 600,
 	ANGLE_SPREAD: 40,
-	MAX_ALIVE_PARTICLES: 5,
-	SCALE_MIN: 1,
-	SCALE_MAX: 6,
-	STOP_AFTER: 5,
+	PARTICLE_COUNT: 8,
+	PARTICLE_SIZE_MIN: 20,
+	PARTICLE_SIZE_MAX: 40,
+	ALPHA: 0.8,
+	COLORS: [0xffffff, 0xffffaa, 0xffddaa],
 } as const;
 
 type ImpactEffctProps = {
 	location: Vec2;
 	pointA: Vec2;
 	pointB: Vec2;
+	colors?: number[];
 };
 
-export async function impactEffect({ location, pointA, pointB }: ImpactEffctProps) {
+export async function impactEffect({ location, pointA, pointB, colors }: ImpactEffctProps) {
+	const scene = env.scene;
+	const [x, y] = location;
+
 	const angle = Phaser.Math.Angle.BetweenPoints(
 		{
 			x: pointA[0],
@@ -30,21 +34,53 @@ export async function impactEffect({ location, pointA, pointB }: ImpactEffctProp
 		}
 	);
 
-	const particles = env.scene.add.particles(location[0], location[1], Assets.images.white_dot.key, {
-		speed: IMPACT_EFFECT_CONFIG.PARTICLE_SPEED,
-		lifespan: IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN,
-		angle: {
-			min: Phaser.Math.RadToDeg(angle) - IMPACT_EFFECT_CONFIG.ANGLE_SPREAD,
-			max: Phaser.Math.RadToDeg(angle) + IMPACT_EFFECT_CONFIG.ANGLE_SPREAD,
-		},
-		gravityY: 0,
-		alpha: { start: 1, end: 0, ease: "sine.out" },
-		maxAliveParticles: IMPACT_EFFECT_CONFIG.MAX_ALIVE_PARTICLES,
-		scale: { min: IMPACT_EFFECT_CONFIG.SCALE_MIN, max: IMPACT_EFFECT_CONFIG.SCALE_MAX },
-		stopAfter: IMPACT_EFFECT_CONFIG.STOP_AFTER,
+	const {
+		PARTICLE_SPEED,
+		PARTICLE_LIFESPAN,
+		ANGLE_SPREAD,
+		PARTICLE_COUNT,
+		PARTICLE_SIZE_MIN,
+		PARTICLE_SIZE_MAX,
+		ALPHA,
+		COLORS,
+	} = IMPACT_EFFECT_CONFIG;
+
+	const impactColors = colors ?? COLORS;
+	const rects: Phaser.GameObjects.Rectangle[] = [];
+
+	for (let i = 0; i < PARTICLE_COUNT; i++) {
+		const particleAngle = Phaser.Math.DegToRad(
+			Phaser.Math.RadToDeg(angle) + Phaser.Math.FloatBetween(-ANGLE_SPREAD, ANGLE_SPREAD)
+		);
+		const speed = PARTICLE_SPEED * Phaser.Math.FloatBetween(0.6, 1.2);
+		const travelDistance = (speed * PARTICLE_LIFESPAN) / 1000;
+		const color = impactColors[Math.floor(Math.random() * impactColors.length)];
+		const size = Phaser.Math.FloatBetween(PARTICLE_SIZE_MIN, PARTICLE_SIZE_MAX);
+
+		const rect = scene.add.rectangle(x, y, size, size, color, ALPHA);
+		rect.setBlendMode(Phaser.BlendModes.ADD);
+		rects.push(rect);
+
+		scene.tweens.add({
+			targets: rect,
+			x: x + Math.cos(particleAngle) * travelDistance,
+			y: y + Math.sin(particleAngle) * travelDistance,
+			alpha: 0,
+			scaleX: 0,
+			scaleY: 0,
+			duration: PARTICLE_LIFESPAN,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				rect.destroy();
+			},
+		});
+	}
+
+	await animation.delay(PARTICLE_LIFESPAN);
+
+	rects.forEach((rect) => {
+		if (rect.active) {
+			rect.destroy();
+		}
 	});
-
-	await animation.delay(IMPACT_EFFECT_CONFIG.PARTICLE_LIFESPAN);
-
-	particles.destroy();
 }

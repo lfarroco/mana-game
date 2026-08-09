@@ -1,4 +1,3 @@
-import { images } from "@assets";
 import { delay } from "@Utils/animation";
 import { env } from "@Env";
 
@@ -18,34 +17,42 @@ export async function slowEffect(
 		color = 0xd2691e, // Orange-brownish color (chocolate/saddle brown)
 	} = options;
 
-	const particles = env.scene.add.particles(x, y, images.white_dot.key, {
-		speedY: { min: 20 * intensity, max: 60 * intensity },
-		speedX: { min: -10 * intensity, max: 10 * intensity },
-		tint: color,
-		alpha: { start: 0.9, end: 0 },
-		lifespan: duration,
-		frequency: 200 / intensity,
-		quantity: Math.max(1, Math.floor(2 * intensity)),
+	const scene = env.scene;
+	const rects: Phaser.GameObjects.Rectangle[] = [];
 
-		scaleX: { start: 1.2 * intensity, end: 0.2 },
-		scaleY: { start: 1.2 * intensity, end: 0.2 },
-		blendMode: "NORMAL",
+	const count = Math.max(4, Math.floor(6 * intensity));
+	for (let i = 0; i < count; i++) {
+		const startX = x + Phaser.Math.FloatBetween(-40, 40);
+		const startY = y + Phaser.Math.FloatBetween(-20, 20);
+		const size = Phaser.Math.FloatBetween(8, 16) * intensity;
+		const fall = Phaser.Math.FloatBetween(20, 60) * intensity;
+		const drift = Phaser.Math.FloatBetween(-10, 10) * intensity;
 
-		emitZone: {
-			source: new Phaser.Geom.Circle(0, 0, 40),
-			type: "random",
-		} as Phaser.Types.GameObjects.Particles.EmitZoneData,
+		const rect = scene.add.rectangle(startX, startY, size, size, color, 0.9);
+		rects.push(rect);
 
-		gravityY: 50 * intensity,
+		scene.tweens.add({
+			targets: rect,
+			x: startX + drift,
+			y: startY + fall,
+			alpha: 0,
+			scaleX: 0,
+			scaleY: 0,
+			duration,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				rect.destroy();
+			},
+		});
+	}
+
+	await delay(duration);
+
+	rects.forEach((rect) => {
+		if (rect.active) {
+			rect.destroy();
+		}
 	});
-
-	await delay(duration);
-
-	particles.stop();
-
-	await delay(duration);
-
-	particles.destroy();
 }
 
 export function createContinuousSlowEffect(
@@ -58,7 +65,7 @@ export function createContinuousSlowEffect(
 		color = 0xd2691e, // Orange-brownish color (chocolate/saddle brown)
 	} = options;
 
-	const particles = scene.add.particles(x, y, images.white_dot.key, {
+	const particles = scene.add.particles(x, y, "__WHITE", {
 		speedY: { min: 40 * intensity, max: 80 * intensity },
 		speedX: { min: -8 * intensity, max: 8 * intensity },
 		tint: color,

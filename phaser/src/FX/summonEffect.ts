@@ -1,5 +1,4 @@
 import * as animation from "@Utils/animation";
-import * as Assets from "@assets";
 import { getSettings } from "@Models/OptionsStore";
 import { env } from "@Env";
 
@@ -9,10 +8,10 @@ const SUMMON_EFFECT_CONFIG = {
 	SCALE_END: 4.3,
 	SPEED_MIN: 100,
 	SPEED_MAX: 200,
-	PARTICLE_QUANTITY: 4,
 	EMIT_ZONE_RADIUS: 10,
 	EMIT_ZONE_QUANTITY: 8,
-};
+	COLORS: [0xffffff, 0xffffaa, 0xccddff],
+} as const;
 
 export async function summonEffect({ x, y }: { x: number; y: number }) {
 	const {
@@ -21,38 +20,56 @@ export async function summonEffect({ x, y }: { x: number; y: number }) {
 		SCALE_END,
 		SPEED_MIN,
 		SPEED_MAX,
-		PARTICLE_QUANTITY,
 		EMIT_ZONE_RADIUS,
 		EMIT_ZONE_QUANTITY,
+		COLORS,
 	} = SUMMON_EFFECT_CONFIG;
+
 
 	const particlesOption = getSettings().particles;
 	let multiplier = 1;
 	if (particlesOption === "low") multiplier = 0.5;
 	else if (particlesOption === "high") multiplier = 2;
 
-	const summonEffect = env.scene.add.particles(x, y, Assets.images.light_pillar.key, {
-		lifespan: LIFESPAN,
-		scale: { start: SCALE_START, end: SCALE_END },
-		alpha: { start: 1, end: 0 },
-		speed: { min: SPEED_MIN, max: SPEED_MAX },
-		quantity: Math.floor(PARTICLE_QUANTITY * multiplier),
-		frequency: LIFESPAN / 10, // Emit all at once
-		rotate: { min: 0, max: 360 }, // Random rotation for variety
-		blendMode: "ADD",
-		emitZone: {
-			type: "edge",
-			source: new Phaser.Geom.Circle(0, 0, EMIT_ZONE_RADIUS),
-			quantity: Math.floor(EMIT_ZONE_QUANTITY * multiplier),
-			yoyo: false,
-		},
+	const scene = env.scene;
+	const rects: Phaser.GameObjects.Rectangle[] = [];
+
+	const count = Math.floor(EMIT_ZONE_QUANTITY * multiplier);
+	for (let i = 0; i < count; i++) {
+		const angle = Math.random() * Math.PI * 2;
+		const radius = Math.random() * EMIT_ZONE_RADIUS;
+		const startX = x + Math.cos(angle) * radius;
+		const startY = y + Math.sin(angle) * radius;
+		const speed = Phaser.Math.FloatBetween(SPEED_MIN, SPEED_MAX);
+		const travelDistance = (speed * LIFESPAN) / 1000;
+		const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+		const size = Phaser.Math.FloatBetween(8, 16);
+
+		const rect = scene.add.rectangle(startX, startY, size, size, color, 1);
+		rect.setBlendMode(Phaser.BlendModes.ADD);
+		rect.setScale(SCALE_START);
+		rects.push(rect);
+
+		scene.tweens.add({
+			targets: rect,
+			x: startX + Math.cos(angle) * travelDistance,
+			y: startY + Math.sin(angle) * travelDistance,
+			scaleX: SCALE_END,
+			scaleY: SCALE_END,
+			alpha: 0,
+			duration: LIFESPAN,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				rect.destroy();
+			},
+		});
+	}
+
+	await animation.delay(LIFESPAN);
+
+	rects.forEach((rect) => {
+		if (rect.active) {
+			rect.destroy();
+		}
 	});
-
-	await animation.delay(LIFESPAN);
-
-	summonEffect.stop();
-
-	await animation.delay(LIFESPAN);
-
-	summonEffect.destroy();
 }

@@ -1,63 +1,71 @@
-import * as Assets from "@assets";
 import * as animation from "@Utils/animation";
 import * as impactEffect from "./impactEffect";
 import { env } from "@Env";
 
+const EXPLODE_EFFECT_CONFIG = {
+	LIFESPAN: 1000,
+	SPARK_COUNT: 15,
+	SPARK_SIZE_MIN: 8,
+	SPARK_SIZE_MAX: 20,
+	SPARK_SPEED_MIN: 150,
+	SPARK_SPEED_MAX: 350,
+	COLORS: [0xff0000, 0xffff00, 0xffa500],
+} as const;
+
 export async function explodeEffect([x, y]: Vec2) {
-	const lifespan = 1000;
+	const {
+		LIFESPAN,
+		SPARK_COUNT,
+		SPARK_SIZE_MIN,
+		SPARK_SIZE_MAX,
+		SPARK_SPEED_MIN,
+		SPARK_SPEED_MAX,
+		COLORS,
+	} = EXPLODE_EFFECT_CONFIG;
 
-	const sparks = env.scene.add.particles(x, y, Assets.images.light_pillar.key, {
-		speed: 0,
-		tint: [0xff0000, 0xffff00, 0xffa500],
-		lifespan: lifespan,
-		alpha: { start: 0.5, end: 0 },
-		scaleX: { start: 0.1, end: 0 },
-		scaleY: { start: 0.8, end: 0 },
-		blendMode: "ADD",
-		frequency: 5,
-		stopAfter: 15,
-		rotate: { min: 0, max: 360 },
+	const scene = env.scene;
+	const rects: Phaser.GameObjects.Rectangle[] = [];
+
+	// Sparks bursting outward from the center
+	for (let i = 0; i < SPARK_COUNT; i++) {
+		const angle = Math.random() * Math.PI * 2;
+		const speed = Phaser.Math.FloatBetween(SPARK_SPEED_MIN, SPARK_SPEED_MAX);
+		const travelDistance = (speed * LIFESPAN) / 1000;
+		const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+		const size = Phaser.Math.FloatBetween(SPARK_SIZE_MIN, SPARK_SIZE_MAX);
+
+		const rect = scene.add.rectangle(x, y, size, size, color, 0.5);
+		rect.setBlendMode(Phaser.BlendModes.ADD);
+		rects.push(rect);
+
+		scene.tweens.add({
+			targets: rect,
+			x: x + Math.cos(angle) * travelDistance,
+			y: y + Math.sin(angle) * travelDistance,
+			alpha: 0,
+			scaleX: 0,
+			scaleY: 0,
+			duration: LIFESPAN,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				rect.destroy();
+			},
+		});
+	}
+
+	await animation.delay(LIFESPAN);
+
+	rects.forEach((rect) => {
+		if (rect.active) {
+			rect.destroy();
+		}
 	});
-
-	// round particles moving towards the center
-	const energy = env.scene.add.particles(x, y, Assets.images.white_dot.key, {
-		lifespan: lifespan,
-		alpha: { start: 0.5, end: 0 },
-		scale: { start: 2, end: 0 },
-		blendMode: "ADD",
-		frequency: 70,
-		emitZone: {
-			type: "edge",
-			source: new Phaser.Geom.Circle(0, 0, 100),
-			stepRate: 0,
-			quantity: 7, // Increase quantity for smoother coverage
-		},
-		// Remove radial: true and control direction manually:
-		speed: 200,
-		maxAliveParticles: 20,
-		// Override velocity direction for ALL particles:
-		emitCallback: (particle: Phaser.GameObjects.Particles.Particle) => {
-			// Calculate direction from particle's position to center (0,0 relative to emitter)
-			const angleToCenter = Phaser.Math.Angle.Between(
-				particle.x,
-				particle.y, // Particle's spawn position (on circle edge)
-				0,
-				0 // Center of the emitter
-			);
-
-			particle.velocityX = Math.cos(angleToCenter) * 400;
-			particle.velocityY = Math.sin(angleToCenter) * 400;
-		},
-	});
-
-	await animation.delay(lifespan);
-
-	sparks.destroy();
-	energy.destroy();
 
 	await impactEffect.impactEffect({
 		location: [x, y],
 		pointA: [x, y],
 		pointB: [x, y],
+		colors: [...COLORS],
 	});
+
 }

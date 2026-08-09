@@ -1,5 +1,5 @@
-import * as Assets from "@assets";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
+
 import * as i18n from "@i18n/i18n";
 import * as AudioManager from "@Systems/AudioManager";
 import { env, makeContainer as container, centeredRect } from "@Env";
@@ -126,34 +126,43 @@ function playWinEffect(index: number) {
 	const x = rect.x + RECT_WIDTH / 2;
 	const y = rect.y + RECT_HEIGHT / 2;
 
-	const particles = env.scene.add.particles(x, y, Assets.images.light_pillar.key, {
-		lifespan: 300,
-		scale: { start: 0.3, end: 1.2 },
-		alpha: { start: 1, end: 0 },
-		speed: { min: 50, max: 100 },
-		quantity: 3,
-		frequency: 30,
-		rotate: { min: 0, max: 360 },
-		blendMode: "ADD",
-		tint: COLOR_YELLOW,
-		emitZone: {
-			type: "edge",
-			source: new Phaser.Geom.Circle(0, 0, 5),
-			quantity: 4,
-			yoyo: false,
-		},
-	});
+	const rects: Phaser.GameObjects.Rectangle[] = [];
+	for (let i = 0; i < 8; i++) {
+		const angle = Math.random() * Math.PI * 2;
+		const speed = Phaser.Math.FloatBetween(50, 100);
+		const travelDistance = (speed * 300) / 1000;
+		const size = Phaser.Math.FloatBetween(6, 12);
 
-	mainContainer.add(particles);
+		const burstRect = env.scene.add.rectangle(x, y, size, size, COLOR_YELLOW, 1);
+		burstRect.setBlendMode(Phaser.BlendModes.ADD);
+		rects.push(burstRect);
 
-	env.scene.time.delayedCall(300, () => {
-		particles.stop();
-	});
+		env.scene.tweens.add({
+			targets: burstRect,
+			x: x + Math.cos(angle) * travelDistance,
+			y: y + Math.sin(angle) * travelDistance,
+			alpha: 0,
+			scaleX: 0,
+			scaleY: 0,
+			duration: 300,
+			ease: "Cubic.easeOut",
+			onComplete: () => {
+				burstRect.destroy();
+			},
+		});
+	}
+
+	mainContainer.add(rects);
 
 	env.scene.time.delayedCall(600, () => {
-		particles.destroy();
+		rects.forEach((r) => {
+			if (r.active) {
+				r.destroy();
+			}
+		});
 	});
 }
+
 
 export async function winsChangeAnimation(_winsDelta: number) {
 	return Promise.resolve();

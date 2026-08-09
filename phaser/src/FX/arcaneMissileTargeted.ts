@@ -73,8 +73,6 @@ export async function arcaneMissileTargeted(
 	beam.updateBeam();
 	beam.setVisible(false);
 
-	const rectKey = "arcane_missile_rect_big";
-
 	const points = beam.points;
 	beam.destroy();
 	const totalSegments = points.length - 1;
@@ -88,6 +86,8 @@ export async function arcaneMissileTargeted(
 	const vec = new Phaser.Math.Vector2(tx - sx, ty - sy);
 	const normal = new Phaser.Math.Vector2(-vec.y, vec.x).normalize();
 
+	const segmentSize = 12 * particleScale;
+
 	for (let i = 0; i < totalSegments; i++) {
 		const p0 = points[i];
 		const p1 = points[i + 1];
@@ -100,28 +100,34 @@ export async function arcaneMissileTargeted(
 		const offsetY = normal.y * wave * amplitudeForSegments;
 
 		scene.time.delayedCall(i * segmentDelay, () => {
-			const sprite = scene.add.image(midX + offsetX, midY + offsetY, rectKey);
-			sprite.setRotation(angle);
-			sprite.setScale(particleScale * 2, particleScale * 2);
-			sprite.setTint(colors[i % colors.length]);
-			sprite.setAlpha(1);
-			sprite.setBlendMode(blendMode);
+			const rect = scene.add.rectangle(
+				midX + offsetX,
+				midY + offsetY,
+				segmentSize,
+				segmentSize,
+				colors[i % colors.length],
+				1
+			);
+			rect.setRotation(angle);
+			rect.setScale(particleScale * 2, particleScale * 2);
+			rect.setBlendMode(blendMode);
 			scene.tweens.add({
-				targets: sprite,
+				targets: rect,
 				alpha: 0,
 				scaleX: 0,
 				scaleY: 0,
 				duration: duration * 2,
 				delay: 0,
-				x: sprite.x + (Math.random() - 0.5) * 40,
-				y: sprite.y + (Math.random() - 0.5) * 40,
+				x: rect.x + (Math.random() - 0.5) * 40,
+				y: rect.y + (Math.random() - 0.5) * 40,
 				ease: "Cubic.easeIn",
 				onComplete: () => {
-					sprite.destroy();
+					rect.destroy();
 				},
 			});
 		});
 	}
+
 
 	await animation.delay(duration);
 
@@ -129,8 +135,8 @@ export async function arcaneMissileTargeted(
 	const impactSpeed = impact.speed || 200;
 	const impactColors = impact.colors || [0x00ffff, 0x87ceeb];
 	const impactAlpha = impact.alpha || 0.4;
-	const impactScale = (impact.scale || 2) * 4;
-	const impactRectCount = Math.max(8, Math.round(impactScale * 2));
+	const impactScale = impact.scale || 2;
+	const impactRectCount = Math.max(6, Math.round(impactScale * 3));
 	const impactRects: Phaser.GameObjects.Rectangle[] = [];
 
 	for (let i = 0; i < impactRectCount; i++) {
@@ -138,16 +144,22 @@ export async function arcaneMissileTargeted(
 		const speed = impactSpeed * (0.6 + Math.random() * 0.8);
 		const travelDistance = (speed * impactLifespan) / 1000;
 		const color = impactColors[Math.floor(Math.random() * impactColors.length)];
-		const size = Phaser.Math.FloatBetween(40, 60);
+		const size = Phaser.Math.FloatBetween(14, 26);
 
-		const rect = scene.add.rectangle(tx, ty, size, size, color, impactAlpha);
+		// Spawn each rect at a small random offset from the impact point so they
+		// don't all stack on top of each other (which would over-brighten the center).
+		const spawnRadius = Phaser.Math.FloatBetween(4, 12);
+		const spawnX = tx + Math.cos(angle) * spawnRadius;
+		const spawnY = ty + Math.sin(angle) * spawnRadius;
+
+		const rect = scene.add.rectangle(spawnX, spawnY, size, size, color, impactAlpha);
 		rect.setBlendMode(blendMode);
 		impactRects.push(rect);
 
 		scene.tweens.add({
 			targets: rect,
-			x: tx + Math.cos(angle) * travelDistance,
-			y: ty + Math.sin(angle) * travelDistance,
+			x: spawnX + Math.cos(angle) * travelDistance,
+			y: spawnY + Math.sin(angle) * travelDistance,
 			alpha: 0,
 			scaleX: 0,
 			scaleY: 0,
@@ -158,6 +170,7 @@ export async function arcaneMissileTargeted(
 			},
 		});
 	}
+
 
 	onHit();
 
