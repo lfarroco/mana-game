@@ -265,13 +265,14 @@ function initShopCharaInput(chara: Chara.Chara, unit: Models.Unit): void {
 
 			const previousPhase = env.state.session.phase;
 			env.updateState({ ...env.state, session });
-			await finishPhase(previousPhase, () => {
+			await finishPhase(
+				previousPhase,
 				onUnitPurchased({
 					unitId: unit.cardId,
 					previousTeamUnits,
 					shopCharaId: unit.id,
-				});
-			});
+				})
+			);
 		})();
 	});
 }
@@ -327,11 +328,12 @@ async function handleItemDragPurchaseRequested(
 
 	const previousPhase = env.state.session.phase;
 	env.updateState({ ...env.state, session });
-	await finishPhase(previousPhase, async () => {
+	await finishPhase(
+		previousPhase,
 		onUnitPurchased({
 			unitId: shopUnitData.cardId,
 			previousTeamUnits,
 			shopCharaId,
-		});
-	});
+		})
+	);
 }

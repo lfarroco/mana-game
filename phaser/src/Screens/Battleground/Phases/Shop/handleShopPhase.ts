@@ -26,7 +26,7 @@ export const ShopPhase = (_ctx: BGContext) => {
 	return [...charaCards, skipButton_];
 };
 
-export async function onUnitPurchased({
+export const onUnitPurchased = ({
 	unitId: cardId,
 	previousTeamUnits,
 	shopCharaId,
@@ -34,7 +34,7 @@ export async function onUnitPurchased({
 	unitId: string;
 	previousTeamUnits: Unit[];
 	shopCharaId: string | null;
-}) {
+}) => async () => {
 	const unit = env.state.session.team.units.find((u) => u.cardId === cardId);
 	if (!unit) {
 		throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
