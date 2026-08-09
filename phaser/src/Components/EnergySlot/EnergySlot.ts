@@ -1,119 +1,90 @@
-import * as EnergySlotShader from "@Components/EnergySlot/EnergySlotShader";
 import { env } from "@Env";
 
 export interface EnergySlotConfig {
 	size?: number;
-	color?: Phaser.Types.Math.Vector3Like;
-	intensity?: number;
-	speed?: number;
+	color?: number;
+	alpha?: number;
 	x?: number;
 	y?: number;
 }
 
 export class EnergySlot {
-	private shader: Phaser.GameObjects.Shader;
-	private startTime: number;
+	private graphics: Phaser.GameObjects.Graphics;
 	private config: Required<Omit<EnergySlotConfig, "x" | "y">>;
 	private isDestroyed: boolean = false;
 
 	constructor(x: number, y: number, config: EnergySlotConfig = {}) {
-
 		// Set default config
 		const defaultConfig = {
 			size: 100,
-			color: { x: 0.8, y: 0.9, z: 1.0 }, // Slight blue tint
-			intensity: 1.0,
-			speed: 1.0,
+			color: 0xb3e6ff, // Slight blue tint
+			alpha: 1.0,
 		};
 
 		this.config = { ...defaultConfig, ...config };
-		this.startTime = env.scene.time.now;
 
-		// Calculate animation phase offset - randomized for variety
-		const animationPhaseOffset = Math.random() * Math.PI * 2;
+		// Create the graphics object
+		this.graphics = env.scene.add.graphics();
+		this.graphics.setPosition(x, y);
+		this.drawRing();
 
-		// Create the base shader
-		const baseShader = new Phaser.Display.BaseShader(
-			"EnergySlot",
-			EnergySlotShader.energySlotFragmentShader,
-			undefined,
-			{
-				time: { type: "1f", value: 0.0 },
-				resolution: { type: "2f", value: [this.config.size, this.config.size] },
-				color1: { type: "3f", value: this.config.color },
-				intensity: { type: "1f", value: this.config.intensity },
-				speed: { type: "1f", value: this.config.speed },
-				animationPhaseOffset: { type: "1f", value: animationPhaseOffset },
-			}
-		);
-
-		// Create the shader game object
-		this.shader = env.scene.add
-			.shader(baseShader, x, y, this.config.size, this.config.size)
-			.setOrigin(0.5, 0.5);
+		// Oscillating glow/fade effect. The tween is bound to the graphics
+		// object, so when the object is destroyed the tween goes away with it —
+		// no cleanup or scene update listeners are necessary.
+		env.scene.tweens.add({
+			targets: this.graphics,
+			alpha: { from: this.config.alpha * 0.4, to: this.config.alpha },
+			duration: 1600,
+			yoyo: true,
+			repeat: -1,
+			ease: "Sine.easeInOut",
+		});
 	}
 
-	update(time: number): void {
-		// Skip update if slot is destroyed
-		if (this.isDestroyed) {
-			return;
-		}
-
-		// Update time uniform for animation
-		const elapsedTime = (time - this.startTime) / 1000; // Convert to seconds
-		this.shader.setUniform("time.value", elapsedTime);
+	private drawRing(): void {
+		const g = this.graphics;
+		g.clear();
+		const radius = this.config.size * 0.45;
+		const ringWidth = this.config.size * 0.04;
+		g.lineStyle(ringWidth, this.config.color, 1);
+		g.strokeCircle(0, 0, radius);
 	}
 
 	// Method to change slot color dynamically
-	setSlotColor(r: number, g: number, b: number): this {
-		this.config.color = { x: r, y: g, z: b };
-		this.shader.setUniform("color1.value", this.config.color);
+	setSlotColor(color: number): this {
+		this.config.color = color;
+		this.drawRing();
 		return this;
 	}
 
-	// Method to change intensity
-	setIntensity(intensity: number): this {
-		this.config.intensity = intensity;
-		this.shader.setUniform("intensity.value", intensity);
-		return this;
-	}
-
-	// Method to change animation speed
-	setSpeed(speed: number): this {
-		this.config.speed = speed;
-		this.shader.setUniform("speed.value", speed);
+	// Method to change the base alpha (the oscillating tween scales around it)
+	setAlpha(alpha: number): this {
+		this.config.alpha = alpha;
 		return this;
 	}
 
 	// Method to resize the slot
 	setSize(size: number): this {
 		this.config.size = size;
-		this.shader.setSize(size, size);
-		this.shader.setUniform("resolution.value", [size, size]);
+		this.drawRing();
 		return this;
 	}
 
 	// Method to set position
 	setPosition(x: number, y: number): this {
-		this.shader.setPosition(x, y);
+		this.graphics.setPosition(x, y);
 		return this;
 	}
 
 	// Method to set depth
 	setDepth(depth: number): this {
-		this.shader.setDepth(depth);
-		return this;
-	}
-
-	// Method to set alpha
-	setAlpha(alpha: number): this {
-		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = alpha;
+		this.graphics.setDepth(depth);
 		return this;
 	}
 
 	// Method to set visibility
 	setVisible(visible: boolean): this {
-		this.shader.setVisible(visible);
+		this.graphics.setVisible(visible);
 		return this;
 	}
 
@@ -129,60 +100,31 @@ export class EnergySlot {
 		}
 
 		this.isDestroyed = true;
-		if (this.shader) {
-			this.shader.destroy();
+		if (this.graphics) {
+			this.graphics.destroy();
 		}
 	}
 
-	// Get the underlying shader object for advanced manipulation
-	getShader(): Phaser.GameObjects.Shader {
-		return this.shader;
+	// Get the underlying graphics object for advanced manipulation
+	getGraphics(): Phaser.GameObjects.Graphics {
+		return this.graphics;
 	}
 
 	// Add the slot to a container
 	addToContainer(container: Container): this {
-		container.add(this.shader);
+		container.add(this.graphics);
 		return this;
 	}
 
 	// Remove the slot from a container
 	removeFromContainer(container: Container): this {
-		container.remove(this.shader);
+		container.remove(this.graphics);
 		return this;
 	}
 
 	// Get current position
 	getCurrentPosition(): { x: number; y: number } {
-		return { x: this.shader.x, y: this.shader.y };
-	}
-
-	// Method to set interactive (for drop zones)
-	setInteractive(
-		shape?: Phaser.Types.Input.InputConfiguration,
-		callback?: Phaser.Types.Input.HitAreaCallback
-	): this {
-		if (shape && callback) {
-			this.shader.setInteractive(shape, callback);
-		} else {
-			// Default circular hit area
-			this.shader.setInteractive(
-				new Phaser.Geom.Circle(this.config.size / 2, this.config.size / 2, this.config.size / 2),
-				Phaser.Geom.Circle.Contains
-			);
-		}
-		return this;
-	}
-
-	// Method to set as drop zone
-	setAsDropZone(): this {
-		const hitArea = new Phaser.Geom.Circle(
-			this.config.size / 2,
-			this.config.size / 2,
-			this.config.size / 2
-		);
-		this.shader.setInteractive(hitArea, Phaser.Geom.Circle.Contains);
-		this.shader.input!.dropZone = true;
-		return this;
+		return { x: this.graphics.x, y: this.graphics.y };
 	}
 }
 
@@ -191,27 +133,24 @@ export class EnergySlotFactory {
 	static createPlayerSlot(x: number, y: number, size: number = 80): EnergySlot {
 		return new EnergySlot(x, y, {
 			size,
-			color: { x: 0.7, y: 0.9, z: 1.0 }, // Blue-white for player
-			intensity: 1.0,
-			speed: 1.0,
+			color: 0xb3e6ff, // Blue-white for player
+			alpha: 1.0,
 		});
 	}
 
 	static createEnemySlot(x: number, y: number, size: number = 80): EnergySlot {
 		return new EnergySlot(x, y, {
 			size,
-			color: { x: 1.0, y: 0.7, z: 0.7 }, // Red-white for enemy
-			intensity: 0.8,
-			speed: 0.8,
+			color: 0xffb3b3, // Red-white for enemy
+			alpha: 0.8,
 		});
 	}
 
 	static createNeutralSlot(x: number, y: number, size: number = 80): EnergySlot {
 		return new EnergySlot(x, y, {
 			size,
-			color: { x: 0.9, y: 0.9, z: 0.9 }, // Pure white for neutral
-			intensity: 1.2,
-			speed: 1.2,
+			color: 0xe6e6e6, // Pure white for neutral
+			alpha: 1.2,
 		});
 	}
 }

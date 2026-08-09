@@ -4,14 +4,15 @@ import { env } from "@Env";
 
 const SUMMON_EFFECT_CONFIG = {
 	LIFESPAN: 200,
-	SCALE_START: 1.25,
-	SCALE_END: 4.3,
+	SCALE_START: 5,
+	SCALE_END: 17.2,
 	SPEED_MIN: 100,
 	SPEED_MAX: 200,
-	EMIT_ZONE_RADIUS: 10,
+	EMIT_ZONE_RADIUS: 40,
 	EMIT_ZONE_QUANTITY: 8,
 	COLORS: [0xffffff, 0xffffaa, 0xccddff],
 } as const;
+
 
 export async function summonEffect({ x, y }: { x: number; y: number }) {
 	const {

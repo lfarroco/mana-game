@@ -148,13 +148,13 @@ export function setEnemyBoardVisible(visible: boolean): void {
 				slot.setPosition(targetX, targetY);
 				slot.setVisible(true);
 
-				const shader = slot.getShader();
-				shader.setScale(0);
+				const graphics = slot.getGraphics();
+				graphics.setScale(0);
 
-				env.scene.tweens.killTweensOf(shader);
+				env.scene.tweens.killTweensOf(graphics);
 
 				env.scene.tweens.add({
-					targets: shader,
+					targets: graphics,
 					scale: 1,
 					duration: 500,
 					ease: "Back.easeOut",
@@ -162,12 +162,12 @@ export function setEnemyBoardVisible(visible: boolean): void {
 			});
 		} else {
 			board.cpuSlotShaders.forEach((slot) => {
-				const shader = slot.getShader();
+				const graphics = slot.getGraphics();
 
-				env.scene.tweens.killTweensOf(shader);
+				env.scene.tweens.killTweensOf(graphics);
 
 				env.scene.tweens.add({
-					targets: shader,
+					targets: graphics,
 					scale: 0,
 					duration: 300,
 					ease: "Power2.easeIn",
@@ -179,6 +179,7 @@ export function setEnemyBoardVisible(visible: boolean): void {
 		}
 	}
 }
+
 
 
 export function display(board: BoardState): void {
@@ -197,16 +198,10 @@ export function destroyVisuals(board: BoardState): void {
 	board.dropZones = [];
 }
 
-export function update(time: number): void {
-	if (!_playerBoardState) return;
-	const board = getBoardState();
-	board.slotShaders.forEach((slot) => slot.update(time));
-	board.cpuSlotShaders.forEach((slot) => slot.update(time));
-}
-
 export function destroy(board: BoardState): void {
 	destroyVisuals(board);
 }
+
 
 export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 	const board = getBoardState();
