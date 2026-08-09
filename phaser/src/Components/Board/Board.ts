@@ -131,7 +131,6 @@ export function setEnemyBoardVisible(visible: boolean): void {
 
 	if (board.cpuSlotShaders.length > 0) {
 		const slotSpacing = 8;
-		const offScreenX = constants.SCREEN_WIDTH + constants.TILE_WIDTH;
 
 		if (visible) {
 			board.cpuSlotShaders.forEach((slot, index) => {
@@ -144,31 +143,34 @@ export function setEnemyBoardVisible(visible: boolean): void {
 					constants.CPU_BOARD_X +
 					visualX * (constants.TILE_WIDTH + slotSpacing) +
 					constants.TILE_WIDTH / 2;
+				const targetY = slot.getCurrentPosition().y;
 
+				slot.setPosition(targetX, targetY);
 				slot.setVisible(true);
-				slot.setPosition(offScreenX, slot.getCurrentPosition().y);
 
-				env.scene.tweens.killTweensOf(slot.getShader());
+				const shader = slot.getShader();
+				shader.setScale(0);
+
+				env.scene.tweens.killTweensOf(shader);
 
 				env.scene.tweens.add({
-					targets: slot.getShader(),
-					x: targetX,
-					duration: 300,
-					ease: "Power2.easeOut",
-					delay: index * 50,
+					targets: shader,
+					scale: 1,
+					duration: 500,
+					ease: "Back.easeOut",
 				});
 			});
 		} else {
-			board.cpuSlotShaders.forEach((slot, index) => {
+			board.cpuSlotShaders.forEach((slot) => {
+				const shader = slot.getShader();
 
-				env.scene.tweens.killTweensOf(slot.getShader());
+				env.scene.tweens.killTweensOf(shader);
 
 				env.scene.tweens.add({
-					targets: slot.getShader(),
-					x: offScreenX,
+					targets: shader,
+					scale: 0,
 					duration: 300,
 					ease: "Power2.easeIn",
-					delay: index * 30,
 					onComplete: () => {
 						slot.setVisible(false);
 					},
@@ -177,6 +179,7 @@ export function setEnemyBoardVisible(visible: boolean): void {
 		}
 	}
 }
+
 
 export function display(board: BoardState): void {
 	board.slotShaders.forEach((slot) => slot.setVisible(true));
