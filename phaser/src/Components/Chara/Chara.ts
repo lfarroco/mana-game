@@ -65,17 +65,20 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 
 	enableTooltip(chara);
 
-	chara.setScale(0);
-	chara.setAngle(-10);
-	animation.tween({
-		targets: [chara],
-		scale: 1,
-		angle: 0,
-		ease: "Back.easeOut",
+	// Fade the unit in from a white silhouette instead of popping it in.
+	const sprite = mustGetState(chara).sprite;
+	sprite.setTintFill(0xffffff);
+	sprite.setAlpha(0);
+	await animation.tween({
+		targets: [sprite],
+		alpha: 1,
+		ease: "Cubic.easeOut",
 		duration: SUMMON_ANIMATION_DURATION_MS,
 	});
+	sprite.clearTint();
 	return chara;
 }
+
 
 export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
