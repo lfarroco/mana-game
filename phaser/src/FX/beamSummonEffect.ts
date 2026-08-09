@@ -24,7 +24,11 @@ const BEAM_SUMMON_EFFECT_CONFIG = {
  * A column of light descends from the top of the screen to the target slot,
  * flashes on impact, then fades out.
  */
-export async function beamSummonEffect({ x, y }: { x: number; y: number }) {
+export async function beamSummonEffect(
+	{ x, y }: { x: number; y: number },
+	onImpact?: () => void
+) {
+
 	const {
 		DESCEND_DURATION,
 		HOLD_DURATION,
@@ -97,7 +101,12 @@ export async function beamSummonEffect({ x, y }: { x: number; y: number }) {
 		ease: "Cubic.easeIn",
 	});
 
+	// The beam has reached the slot — fire the impact callback so the unit
+	// fade-from-white starts together with the particles and impact flash.
+	onImpact?.();
+
 	// Flash on impact.
+
 	scene.tweens.add({
 		targets: flash,
 		alpha: 0.9,

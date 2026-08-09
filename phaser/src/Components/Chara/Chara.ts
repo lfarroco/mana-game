@@ -59,25 +59,41 @@ export function hasCharaById(id: string): boolean {
 export async function summon(unit: Unit, useSummonEffect: boolean = true): Promise<Chara> {
 	const vec = getScreenPosition(unit);
 	if (useSummonEffect) {
-		await Effects.summonEffect(vec);
+		// Create the chara and start its fade-from-white when the beam hits the
+		// slot, so the particles and unit fade overlap with the beam's impact
+		// instead of running sequentially after it.
+		let chara: Chara | null = null;
+		await Effects.summonEffect(vec, () => {
+			chara = create(unit);
+			enableTooltip(chara);
+			fadeInFromWhite(chara);
+		});
+		if (chara) return chara;
 	}
 	const chara = create(unit);
-
 	enableTooltip(chara);
+	fadeInFromWhite(chara);
+	return chara;
+}
 
-	// Fade the unit in from a white silhouette instead of popping it in.
+/**
+ * Fade a chara in from a white silhouette instead of popping it in.
+ */
+function fadeInFromWhite(chara: Chara): void {
 	const sprite = mustGetState(chara).sprite;
 	sprite.setTintFill(0xffffff);
 	sprite.setAlpha(0);
-	await animation.tween({
+	animation.tween({
 		targets: [sprite],
 		alpha: 1,
 		ease: "Cubic.easeOut",
 		duration: SUMMON_ANIMATION_DURATION_MS,
+		onComplete: () => {
+			sprite.clearTint();
+		},
 	});
-	sprite.clearTint();
-	return chara;
 }
+
 
 
 export function clearAll(): void {
