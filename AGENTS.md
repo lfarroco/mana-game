@@ -17,6 +17,8 @@ Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser
 ## Quick Start
 
 ```bash
+npm run format # at root, to run prettier over the whole project (core/, phaser/, and server/)
+
 cd phaser
 npm install
 npm run dev        # http://localhost:8080
