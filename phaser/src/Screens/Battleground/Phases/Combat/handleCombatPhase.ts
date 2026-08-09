@@ -19,8 +19,14 @@ import { BattlegroundEvent } from "../../../../Events";
 import { dispatchAction, type BGContext } from "../../BattlegroundScreen";
 import * as VictoryUI from "@Screens/Battleground/Components/Results/VictoryUI";
 import * as DefeatUI from "@Screens/Battleground/Components/Results/DefeatUI";
+import { findTrackedById } from "@mana/framework";
 
 const COMBAT_START_DELAY_MS = 300;
+
+// ID under which the results panel container is tracked so the Continue handler
+// can destroy it BEFORE the player's board is re-summoned on the next phase.
+const COMBAT_RESULTS_PANEL_ID = "combat-results-panel";
+
 
 // The combat phase is split into a playback phase (`combat`) followed by a
 // client-only results phase (`combat_victory` / `combat_defeat`).  The playback
@@ -35,7 +41,7 @@ type PlaybackState = {
 
 const initialState = (): PlaybackState => ({
 	isPaused: false,
-	stopActivePlayback: () => {},
+	stopActivePlayback: () => { },
 	currentController: null,
 });
 
@@ -50,10 +56,18 @@ let combatStatsSnapshot: CombatStatsTracker.CombatStatsTrackerState | null = nul
 const handleCombatContinueRequested = async () => {
 	const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
 
+	// Destroy the results panel FIRST so it disappears before the player's board
+	// is cleared and re-summoned on the next phase transition.  The container is
+	// still tracked by the results phase, so the framework's clearPhase() will
+	// call destroy() again — Phaser's GameObject.destroy() is idempotent, so the
+	// second call is a no-op.
+	findTrackedById<Phaser.GameObjects.Container>(COMBAT_RESULTS_PANEL_ID)?.destroy();
+
 	// Tear down the combat board / ForceStats / combatState BEFORE dispatching
 	// end_combat.  dispatchAction's phaseFinished.emit awaits the full next-phase
 	// transition, so any teardown after it would race the new phase's create.
 	await teardownCombat();
+
 
 	await dispatchAction({ type: "end_combat" }, ({ session }) => {
 		const winDelta = session.wins - previousWins;
@@ -165,7 +179,7 @@ function cleanupPlayback(state: PlaybackState): void {
 	env.scene.tweens.resumeAll();
 	env.scene.time.paused = false;
 	state.stopActivePlayback();
-	state.stopActivePlayback = () => {};
+	state.stopActivePlayback = () => { };
 }
 
 const pauseCombat = (): void => {
@@ -222,14 +236,20 @@ export const CombatPhase = (ctx: BGContext) => {
  * Replay re-enters the `combat` phase (which re-runs playback); Continue tears
  * down combat and dispatches end_combat.
  */
-const renderCombatResults = (
+const renderCombatResults = async (
 	ctx: BGContext,
-	container: Promise<Phaser.GameObjects.Container>
-): Promise<Phaser.GameObjects.Container> => {
+	containerPromise: Promise<Phaser.GameObjects.Container>
+): Promise<void> => {
 	ctx.listen(ctx.events.combatContinueRequested, handleCombatContinueRequested);
 	ctx.listen(ctx.events.combatReplayRequested, () => ctx.go("combat"));
-	return container;
+
+	// Track the results panel under a known ID so the Continue handler can find
+	// and destroy it before the player's board is re-summoned.  Returning nothing
+	// (instead of the container) avoids double-tracking it in the phase scope.
+	const container = await containerPromise;
+	ctx.track(container, { id: COMBAT_RESULTS_PANEL_ID });
 };
+
 
 export const CombatVictoryPhase = (ctx: BGContext) => {
 	const combatState = env.state.combatState;
