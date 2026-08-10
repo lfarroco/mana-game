@@ -26,49 +26,64 @@ export const ShopPhase = (_ctx: BGContext) => {
 	return [...charaCards, skipButton_];
 };
 
-export const onUnitPurchased = ({
-	unitId: cardId,
-	previousTeamUnits,
-	shopCharaId,
-}: {
-	unitId: string;
-	previousTeamUnits: Unit[];
-	shopCharaId: string | null;
-}) => async () => {
-	const unit = env.state.session.team.units.find((u) => u.cardId === cardId);
-	if (!unit) {
-		throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
-	}
+export const onUnitPurchased =
+	({
+		unitId: cardId,
+		previousTeamUnits,
+		shopCharaId,
+		dragSourceVec,
+	}: {
+		unitId: string;
+		previousTeamUnits: Unit[];
+		shopCharaId: string | null;
+		dragSourceVec?: Vec2 | null;
+	}) =>
+	async () => {
+		const unit = env.state.session.team.units.find((u) => u.cardId === cardId);
+		if (!unit) {
+			throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
+		}
 
-	const sourceChara =
-		shopCharaId && Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
+		// On the drag path the shop chara is destroyed at drop time (see
+		// handleItemDragPurchaseRequested), so sourceChara is null here and the
+		// upgrade effect uses dragSourceVec instead. On the click path the shop
+		// chara still exists and is destroyed at the end of this handler.
+		const sourceChara =
+			shopCharaId && Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
 
-	Tooltip.hideTooltip();
-	AudioManager.playSoundEffect("sfx_artifact_equipweapon");
+		Tooltip.hideTooltip();
+		AudioManager.playSoundEffect("sfx_artifact_equipweapon");
 
-	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
+		const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
 
-	if (wasUpgrade) {
-		await handleUpgradedUnitPurchase(unit, sourceChara);
-	} else {
-		await handleNewUnitPurchase(unit);
-	}
+		if (wasUpgrade) {
+			await handleUpgradedUnitPurchase(unit, sourceChara, dragSourceVec);
+		} else {
+			await handleNewUnitPurchase(unit);
+		}
 
-	if (sourceChara) {
-		Chara.destroy(sourceChara);
-	}
-}
+		if (sourceChara) {
+			Chara.destroy(sourceChara);
+		}
+	};
 
 async function handleUpgradedUnitPurchase(
 	upgradedUnit: Unit,
-	sourceChara: Chara.Chara | null
+	sourceChara: Chara.Chara | null,
+	dragSourceVec?: Vec2 | null
 ): Promise<void> {
 	const targetChara = Chara.hasCharaById(upgradedUnit.id)
 		? Chara.mustGetCharaById(upgradedUnit.id)
 		: null;
 
-	if (sourceChara && targetChara) {
-		const source: Vec2 = [sourceChara.x, sourceChara.y];
+	// The effect source is the shop chara when it still exists (click path);
+	// on the drag path it was destroyed at drop time, so fall back to the
+	// captured drop position.
+	const source: Vec2 | null = sourceChara
+		? [sourceChara.x, sourceChara.y]
+		: (dragSourceVec ?? null);
+
+	if (source && targetChara) {
 		const target: Vec2 = [targetChara.x, targetChara.y - 30];
 		await playShopUpgradeEffect(source, target);
 	}

@@ -326,6 +326,16 @@ async function handleItemDragPurchaseRequested(
 	);
 	if (!wasUpgrade && !didAddUnit) return;
 
+	// The acquisition is valid — destroy the dragged shop chara as soon as it
+	// is dropped instead of leaving it visible through the rest of the purchase
+	// flow. Capture its position first so the upgrade effect can still animate
+	// from the drop location.
+	const draggedChara = Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
+	const dragSourceVec: Vec2 | null = draggedChara ? [draggedChara.x, draggedChara.y] : null;
+	if (draggedChara) {
+		Chara.destroy(draggedChara);
+	}
+
 	const previousPhase = env.state.session.phase;
 	env.updateState({ ...env.state, session });
 	await finishPhase(
@@ -334,6 +344,7 @@ async function handleItemDragPurchaseRequested(
 			unitId: shopUnitData.cardId,
 			previousTeamUnits,
 			shopCharaId,
+			dragSourceVec,
 		})
 	);
 }
