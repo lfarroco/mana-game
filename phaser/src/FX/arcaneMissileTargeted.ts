@@ -12,6 +12,8 @@ export interface TargetedArcaneMissileOptions {
 	frequencyMin?: number;
 	frequencyMax?: number;
 	particleScale?: number;
+	/** Travel time of the missile in ms (defaults to 200). */
+	duration?: number;
 	impact?: {
 		colors?: number[];
 		scale?: number;
@@ -35,6 +37,7 @@ export async function arcaneMissileTargeted(
 		frequencyMin = 1,
 		frequencyMax = 2,
 		particleScale = 1.5,
+		duration = 200,
 		impact = {
 			colors: [0x00ffff, 0x87ceeb],
 			scale: 2,
@@ -45,8 +48,6 @@ export async function arcaneMissileTargeted(
 		blendMode = Phaser.BlendModes.ADD,
 		onHit = () => {},
 	} = options;
-
-	const duration = 200;
 
 	const distance = Geometry.distanceBetween(source, target);
 

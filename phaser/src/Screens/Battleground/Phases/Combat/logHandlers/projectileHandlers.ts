@@ -123,6 +123,9 @@ export const handleTimeoutDamageCast = (
 			: getCombatState()!.cpuCore;
 	const coreChara = Chara.mustGetCharaById(core.id);
 	void Effects.arcaneMissileTargeted(Constants.MIDDLE_SCREEN, [coreChara.x, coreChara.y], {
+		// Match the cast→hit timing in the logs (400ms) so the missile lands
+		// exactly when the timeout_damage_hit entry updates the life display.
+		duration: log.travelTime,
 		colors: [0x4b0082, 0x8b00ff, 0x9400d3], // dark violet / purple
 		amplitudeMin: 8,
 		amplitudeMax: 25,

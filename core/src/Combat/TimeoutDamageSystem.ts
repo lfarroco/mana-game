@@ -44,25 +44,24 @@ export function updateTimeoutDamageSystem(
   const timeSinceTimeoutStarted =
     newCombatElapsedTime - Constants.TIMEOUT_DAMAGE_START_TIME;
 
+  // Emit storm_start on the first frame the storm is active, BEFORE any
+  // timeout damage cast, so playback activates the black hole first.
+  let stormStarted = timeoutState.stormStarted;
+  if (!stormStarted) {
+    stormStarted = true;
+    env.logger.log({
+      type: "storm_start",
+    });
+  }
+
   if (newTimeSinceLastTick >= TIMEOUT_DAMAGE_INTERVAL_MS) {
     applyTimeoutDamage(env, timeSinceTimeoutStarted);
     return {
       ...timeoutState,
       combatElapsedTime: newCombatElapsedTime,
       timeSinceLastTick: 0,
+      stormStarted,
     };
-  }
-
-  // Check for storm start
-  let stormStarted = timeoutState.stormStarted;
-  if (
-    !stormStarted &&
-    newCombatElapsedTime >= Constants.TIMEOUT_DAMAGE_START_TIME
-  ) {
-    stormStarted = true;
-    env.logger.log({
-      type: "storm_start",
-    });
   }
 
   return {
