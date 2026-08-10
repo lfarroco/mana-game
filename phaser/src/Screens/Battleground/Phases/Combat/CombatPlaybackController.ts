@@ -1,5 +1,6 @@
 import * as CombatRunner from "@game/Combat/CombatRunner";
 import * as CombatLogger from "@game/Combat/CombatLogger";
+import { collapseStatusTickPairs } from "./collapseStatusTickPairs";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Screens/Battleground/Phases/Combat/CountdownTimer";
 import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
@@ -72,7 +73,7 @@ export const createCombatPlaybackController = (
 
 	const scheduleAnimations = () => {
 		let maxEnd = 0;
-		logs.forEach((log) => {
+		collapseStatusTickPairs(logs).forEach((log) => {
 			const startTime = log.timeMs;
 			const duration = DEFAULT_ANIMATION_DURATION;
 			const endTime = startTime + duration;

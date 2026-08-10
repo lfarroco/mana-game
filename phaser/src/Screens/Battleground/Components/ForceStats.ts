@@ -253,7 +253,7 @@ export function updateLifeDisplay(force: string, life: number, delta: number) {
 		x: 0,
 		y: 0,
 		type: delta > 0 ? "heal" : "damage",
-		text: delta.toFixed(0),
+		text: delta > 0 ? "+" + delta.toFixed(0) : delta.toFixed(0),
 	});
 
 	chip.container.add(textElement);
