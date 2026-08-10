@@ -8,13 +8,12 @@ import * as Chara from "@Components/Chara/Chara";
 import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as DiscardZone from "../../Screens/Battleground/Components/Shop/DiscardZone";
 import { env } from "@Env";
-import { whenDroppedOnZone } from "../../phaser-helpers";
 import { onUnitSold } from "@Screens/Battleground/Phases/Shop/handleShopPhase";
+import { initDragGesture } from "./drag";
 
 const TOUCH_TOOLTIP_INPUT_DOWN_DELAY = 200;
 
 export type InputHandler = {
-	wasDragSuccessful: boolean;
 	chara: Chara.Chara;
 	unitId: string;
 	longPressTimer?: Phaser.Time.TimerEvent;
@@ -25,7 +24,6 @@ export function init(chara: Chara.Chara) {
 	const unit = Chara.getUnit(chara);
 
 	const state: InputHandler = {
-		wasDragSuccessful: false,
 		chara,
 		unitId: unit.id,
 		isLongPressActive: false,
@@ -39,41 +37,46 @@ export function init(chara: Chara.Chara) {
 	}
 
 	if (isPlayerUnit) {
-		env.scene.input.setDraggable(chara, true);
+		initDragGesture(chara, {
+			onDropZone: {
+				[DiscardZone.name]: () => {
+					void (async () => {
+						const { session } = await env.dispatch({ type: "discard_unit", unitId: state.unitId });
+						env.updateState({ ...env.state, session });
+						// Destroy the chara immediately so it disappears from the board.
+						// The shop-phase listener also handles this, but the sale can
+						// happen in any phase (e.g. via drag-to-discard outside shop).
+						if (Chara.hasCharaById(state.unitId)) {
+							Chara.destroy(Chara.mustGetCharaById(state.unitId));
+						}
+						onUnitSold(state.unitId);
+					})();
+				},
+				"board-cell": (zone) => {
+					const x = zone.getData("cell-x") as number;
+					const y = zone.getData("cell-y") as number;
+					const tile: Vec2 = [x, y];
+					const [sx, sy] = chara.getData("dragStartVec") as Vec2;
+					processOwnedUnitMoveRequest(state.unitId, tile, sx, sy);
+				},
+			},
+			onDragStart: () => {
+				if (state.longPressTimer) {
+					state.longPressTimer.destroy();
+					state.longPressTimer = undefined;
+				}
+				state.isLongPressActive = false;
 
-		chara.on(Phaser.Input.Events.DRAG_START, onDragStart(state));
-		chara.on(Phaser.Input.Events.DRAG, onDrag(chara));
-
-		whenDroppedOnZone(chara, DiscardZone.name, () => {
-			if (!Board.isInputEnabled()) return;
-			if (isPlayerUnit) {
-				void (async () => {
-					const { session } = await env.dispatch({ type: "discard_unit", unitId: state.unitId });
-					env.updateState({ ...env.state, session });
-					// Destroy the chara immediately so it disappears from the board.
-					// The shop-phase listener also handles this, but the sale can
-					// happen in any phase (e.g. via drag-to-discard outside shop).
-					if (Chara.hasCharaById(state.unitId)) {
-						Chara.destroy(Chara.mustGetCharaById(state.unitId));
-					}
-					onUnitSold(state.unitId);
-				})();
-				state.wasDragSuccessful = true;
-			}
+				const unit = Chara.getUnit(chara);
+				if (!unit.isCore) {
+					DiscardZone.show();
+				}
+				Tooltip.hideTooltip();
+			},
+			onDragEnd: () => {
+				DiscardZone.hide();
+			},
 		});
-
-		whenDroppedOnZone(chara, "board-cell", (zone) => {
-			if (!Board.isInputEnabled()) return;
-
-			const x = zone.getData("cell-x") as number;
-			const y = zone.getData("cell-y") as number;
-			const tile: Vec2 = [x, y];
-			const [sx, sy] = chara.getData("dragStartVec") as Vec2;
-			processOwnedUnitMoveRequest(state.unitId, tile, sx, sy);
-			state.wasDragSuccessful = true;
-		});
-
-		chara.on(Phaser.Input.Events.DRAG_END, onDragEnd(state));
 
 		chara.on(Phaser.Input.Events.POINTER_DOWN, onPointerDown(state));
 		chara.on(Phaser.Input.Events.POINTER_UP, onPointerUp(state));
@@ -81,75 +84,6 @@ export function init(chara: Chara.Chara) {
 
 	return state;
 }
-
-export const onDrag =
-	(chara: Chara.Chara) =>
-	(_pointer: Pointer, dragX: number, dragY: number): void => {
-		if (!Board.isInputEnabled()) return;
-		chara.x = dragX;
-		chara.y = dragY;
-	};
-
-export const onDragEnd = (handlerState: InputHandler) => (_pointer: Pointer) => {
-	if (!Board.isInputEnabled()) return;
-
-	const { chara } = handlerState;
-
-	animation.tween({
-		targets: [chara],
-		angle: 0,
-		duration: 100,
-		ease: "Cubic.Out",
-	});
-
-	DiscardZone.hide();
-
-	if (!handlerState.wasDragSuccessful) {
-		const [x, y] = chara.getData("dragStartVec") as Vec2;
-		animation.tween({
-			targets: [chara],
-			x,
-			y,
-			duration: 150,
-		});
-	}
-
-	handlerState.wasDragSuccessful = false;
-};
-
-export const onDragStart =
-	(handlerState: InputHandler) => (_pointer: Pointer, _dragX: number, _dragY: number) => {
-		if (!Board.isInputEnabled()) return;
-
-		const { chara } = handlerState;
-
-		chara.setData("dragStartVec", [chara.x, chara.y]);
-
-		handlerState.wasDragSuccessful = false;
-
-		if (handlerState.longPressTimer) {
-			handlerState.longPressTimer.destroy();
-			handlerState.longPressTimer = undefined;
-		}
-		handlerState.isLongPressActive = false;
-
-		env.scene.children.bringToTop(chara);
-
-		animation.tween({
-			targets: [chara],
-			angle: -10,
-			duration: 100,
-			ease: "Cubic.Out",
-		});
-
-		const unit = Chara.getUnit(chara);
-
-		if (!unit.isCore) {
-			DiscardZone.show();
-		}
-
-		Tooltip.hideTooltip();
-	};
 
 export const processOwnedUnitMoveRequest = (
 	unitId: string,

@@ -1,23 +1,19 @@
 import * as Card from "@game/Entities/Card";
 import * as Board from "@Components/Board/Board";
-import { getUnitAt } from "@Models/ClientState";
 import * as Chara from "@Components/Chara/Chara";
 import * as Constants from "@Constants";
 import * as CoreConstants from "@game/Constants";
 import * as sc from "@Screens/Battleground/Components/Shop/constants";
 import * as createDescription from "@Components/Chara/createDescription";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
-import * as uiEvents from "@Screens/Battleground/Components/UI/events";
-import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
-import { Unit } from "@game/Models";
 import { upgradeUnitEffects } from "@game/Entities/Unit";
-import { env, whenDroppedOnZone } from "@Env";
-import { finishPhase } from "../../BattlegroundScreen";
+import { initDragGesture } from "@Components/Chara/drag";
+import { env } from "@Env";
 import {
 	onShopUnitDragPurchaseFailed,
-	onUnitPurchased,
-} from "@Screens/Battleground/Phases/Shop/handleShopPhase";
+	purchaseShopUnit,
+} from "@Screens/Battleground/Phases/Shop/purchaseShopUnit";
 import { Destroyable } from "@mana/framework";
 
 const OWNED_CARD_BORDER_PULSE_DURATION_MS = 1000;
@@ -173,64 +169,30 @@ export function renderShopCharaCards(cardDefs: Models.CardDefinition[]): Destroy
 }
 
 function initShopCharaInput(chara: Chara.Chara, unit: Models.Unit): void {
-	env.scene.input.setDraggable(chara, true);
+	initDragGesture(chara, {
+		onDropZone: {
+			"board-cell": (zone) => {
+				const x = zone.getData("cell-x") as number;
+				const y = zone.getData("cell-y") as number;
+				const tile: Vec2 = [x, y];
+				const dragStartVec = chara.getData("dragStartVec") as Vec2;
 
-	let wasDragSuccessful = false;
+				void (async () => {
+					const result = await purchaseShopUnit({
+						cardId: unit.cardId,
+						shopCharaId: unit.id,
+						targetSlot: tile,
+					});
 
-	chara.on(Phaser.Input.Events.DRAG_START, () => {
-		if (!Board.isInputEnabled()) {
-			return;
-		}
-
-		const dragStartVec = [chara.x, chara.y];
-		chara.setData("dragStartVec", dragStartVec);
-		wasDragSuccessful = false;
-
-		chara.setAngle(-8);
-	});
-
-	chara.on(Phaser.Input.Events.DRAG, (_pointer: Pointer, dragX: number, dragY: number) => {
-		if (!Board.isInputEnabled()) {
-			return;
-		}
-
-		chara.x = dragX;
-		chara.y = dragY;
-	});
-
-	whenDroppedOnZone(chara, "board-cell", (zone: Phaser.GameObjects.Zone) => {
-		if (!Board.isInputEnabled()) {
-			return;
-		}
-
-		const x = zone.getData("cell-x") as number;
-		const y = zone.getData("cell-y") as number;
-		const tile: Vec2 = [x, y];
-		const vec = chara.getData("dragStartVec") as [number, number];
-
-		void handleItemDragPurchaseRequested(unit, unit.id, tile, vec[0], vec[1]);
-
-		wasDragSuccessful = true;
-	});
-
-	chara.on(Phaser.Input.Events.DRAG_END, () => {
-		if (!Board.isInputEnabled()) {
-			return;
-		}
-
-		chara.setAngle(0);
-
-		if (!wasDragSuccessful) {
-			const [x, y] = chara.getData("dragStartVec") as Vec2;
-			env.scene.tweens.add({
-				targets: [chara],
-				x,
-				y,
-				duration: 150,
-			});
-		}
-
-		wasDragSuccessful = false;
+					if (!result.ok) {
+						onShopUnitDragPurchaseFailed({
+							shopCharaId: unit.id,
+							dragStartVec,
+						});
+					}
+				})();
+			},
+		},
 	});
 
 	chara.on(Phaser.Input.Events.POINTER_UP, (pointer: Pointer) => {
@@ -238,113 +200,10 @@ function initShopCharaInput(chara: Chara.Chara, unit: Models.Unit): void {
 
 		if (pointer.getDistance() > Constants.DRAG_CLICK_THRESHOLD) return;
 
-		const existingUnit = env.state.session.team.units.find((u) => u.cardId === unit.cardId);
-		if (
-			(!existingUnit || existingUnit.rank > 3) &&
-			env.state.session.team.units.length >= CoreConstants.MAX_PARTY_SIZE
-		) {
-			uiEvents.onPurchaseFailed(i18n.getName(unit.cardId), "PARTY_FULL");
-			return;
-		}
-
-		void (async () => {
-			const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
-			const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
-
-			const { session } = await env.dispatch({
-				type: "recruit_unit",
-				unitId: unit.cardId,
-				targetSlot: null,
-			});
-
-			const wasUpgrade = previousTeamUnits.some((u) => u.cardId === unit.cardId);
-			const didAddUnit = session.team.units.find(
-				(u) => u.cardId === unit.cardId && !previousTeamUnitIds.has(u.id)
-			);
-			if (!wasUpgrade && !didAddUnit) return;
-
-			const previousPhase = env.state.session.phase;
-			env.updateState({ ...env.state, session });
-			await finishPhase(
-				previousPhase,
-				onUnitPurchased({
-					unitId: unit.cardId,
-					previousTeamUnits,
-					shopCharaId: unit.id,
-				})
-			);
-		})();
-	});
-}
-
-async function handleItemDragPurchaseRequested(
-	shopUnitData: Models.Unit,
-	shopCharaId: string,
-	targetTile: Vec2,
-	dragStartX: number,
-	dragStartY: number
-): Promise<void> {
-	const { session: currentSession } = env.state;
-	const existingUnit = currentSession.team.units.find((u) => u.cardId === shopUnitData.cardId);
-
-	if (
-		(!existingUnit || existingUnit.rank > 3) &&
-		currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE
-	) {
-		onShopUnitDragPurchaseFailed({
-			shopCharaId,
-			dragStartVec: [dragStartX, dragStartY],
+		void purchaseShopUnit({
+			cardId: unit.cardId,
+			shopCharaId: unit.id,
+			targetSlot: null,
 		});
-		uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "PARTY_FULL");
-		return;
-	}
-
-	if (!existingUnit || existingUnit.rank > 3) {
-		const occupier = getUnitAt(currentSession.team.units)(targetTile);
-		if (occupier) {
-			onShopUnitDragPurchaseFailed({
-				shopCharaId,
-				dragStartVec: [dragStartX, dragStartY],
-			});
-			uiEvents.onPurchaseFailed(i18n.getName(shopUnitData.cardId), "SLOT_OCCUPIED");
-			return;
-		}
-	}
-
-	const previousTeamUnits = JSON.parse(JSON.stringify(env.state.session.team.units)) as Unit[];
-	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
-
-	const { session } = await env.dispatch({
-		type: "recruit_unit",
-		unitId: shopUnitData.cardId,
-		targetSlot: targetTile,
 	});
-
-	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === shopUnitData.cardId);
-	const didAddUnit = session.team.units.find(
-		(u) => u.cardId === shopUnitData.cardId && !previousTeamUnitIds.has(u.id)
-	);
-	if (!wasUpgrade && !didAddUnit) return;
-
-	// The acquisition is valid — destroy the dragged shop chara as soon as it
-	// is dropped instead of leaving it visible through the rest of the purchase
-	// flow. Capture its position first so the upgrade effect can still animate
-	// from the drop location.
-	const draggedChara = Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
-	const dragSourceVec: Vec2 | null = draggedChara ? [draggedChara.x, draggedChara.y] : null;
-	if (draggedChara) {
-		Chara.destroy(draggedChara);
-	}
-
-	const previousPhase = env.state.session.phase;
-	env.updateState({ ...env.state, session });
-	await finishPhase(
-		previousPhase,
-		onUnitPurchased({
-			unitId: shopUnitData.cardId,
-			previousTeamUnits,
-			shopCharaId,
-			dragSourceVec,
-		})
-	);
 }

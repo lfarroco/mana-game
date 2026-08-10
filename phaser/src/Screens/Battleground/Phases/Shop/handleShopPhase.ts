@@ -1,19 +1,10 @@
 import * as Card from "@game/Entities/Card";
-import { Unit } from "@game/Models";
 import * as Chara from "@Components/Chara/Chara";
 import * as CharaShop from "@Screens/Battleground/Components/Shop/CharaShop";
 import * as DiscardZone from "@Screens/Battleground/Components/Shop/DiscardZone";
-import * as AudioManager from "@Systems/AudioManager";
-import * as Tooltip from "@Components/Tooltip/Tooltip";
-import * as animation from "@Utils/animation";
-import * as Effects from "../../../../FX";
 import { env } from "@Env";
 import type { BGContext } from "../../BattlegroundScreen";
 import { skipButton } from "@Screens/Battleground/Components/skipButton";
-
-const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
-const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
-const SHOP_UPGRADE_PROJECTILE_STAGGER_MS = 45;
 
 export const ShopPhase = (_ctx: BGContext) => {
 	const { session } = env.state;
@@ -26,121 +17,10 @@ export const ShopPhase = (_ctx: BGContext) => {
 	return [...charaCards, skipButton_];
 };
 
-export const onUnitPurchased =
-	({
-		unitId: cardId,
-		previousTeamUnits,
-		shopCharaId,
-		dragSourceVec,
-	}: {
-		unitId: string;
-		previousTeamUnits: Unit[];
-		shopCharaId: string | null;
-		dragSourceVec?: Vec2 | null;
-	}) =>
-	async () => {
-		const unit = env.state.session.team.units.find((u) => u.cardId === cardId);
-		if (!unit) {
-			throw new Error(`Purchased unit with cardId ${cardId} not found in session team units`);
-		}
-
-		// On the drag path the shop chara is destroyed at drop time (see
-		// handleItemDragPurchaseRequested), so sourceChara is null here and the
-		// upgrade effect uses dragSourceVec instead. On the click path the shop
-		// chara still exists and is destroyed at the end of this handler.
-		const sourceChara =
-			shopCharaId && Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
-
-		Tooltip.hideTooltip();
-		AudioManager.playSoundEffect("sfx_artifact_equipweapon");
-
-		const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
-
-		if (wasUpgrade) {
-			await handleUpgradedUnitPurchase(unit, sourceChara, dragSourceVec);
-		} else {
-			await handleNewUnitPurchase(unit);
-		}
-
-		if (sourceChara) {
-			Chara.destroy(sourceChara);
-		}
-	};
-
-async function handleUpgradedUnitPurchase(
-	upgradedUnit: Unit,
-	sourceChara: Chara.Chara | null,
-	dragSourceVec?: Vec2 | null
-): Promise<void> {
-	const targetChara = Chara.hasCharaById(upgradedUnit.id)
-		? Chara.mustGetCharaById(upgradedUnit.id)
-		: null;
-
-	// The effect source is the shop chara when it still exists (click path);
-	// on the drag path it was destroyed at drop time, so fall back to the
-	// captured drop position.
-	const source: Vec2 | null = sourceChara
-		? [sourceChara.x, sourceChara.y]
-		: (dragSourceVec ?? null);
-
-	if (source && targetChara) {
-		const target: Vec2 = [targetChara.x, targetChara.y - 30];
-		await playShopUpgradeEffect(source, target);
-	}
-
-	// The upgrade effect above already plays the visual; refresh the chara's
-	// stats in place rather than re-summoning it (avoids a duplicate summon).
-	Chara.refreshCharaInPlace(upgradedUnit);
-	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
-}
-
-async function handleNewUnitPurchase(newUnit: Unit): Promise<void> {
-	await Chara.refreshChara(newUnit);
-	Chara.enableBoardInteractivity(Chara.mustGetCharaById(newUnit.id));
-}
-
 export async function onUnitSold(unitId: string) {
 	if (Chara.hasCharaById(unitId)) {
 		Chara.destroy(Chara.mustGetCharaById(unitId));
 	}
 
 	DiscardZone.hide();
-}
-
-export function onShopUnitDragPurchaseFailed({
-	shopCharaId,
-	dragStartVec,
-}: {
-	shopCharaId: string;
-	dragStartVec: Vec2;
-}) {
-	const chara = Chara.mustGetCharaById(shopCharaId);
-
-	Tooltip.hideTooltip();
-	const [x, y] = dragStartVec;
-	void animation.tween({
-		targets: [chara],
-		x,
-		y,
-		duration: PURCHASE_FAILED_SNAP_DURATION_MS,
-	});
-}
-
-async function playShopUpgradeEffect(source: Vec2, target: Vec2): Promise<void> {
-	await Promise.all(
-		Array.from({ length: SHOP_UPGRADE_PROJECTILE_COUNT }, async (_, index) => {
-			await animation.delay(index * SHOP_UPGRADE_PROJECTILE_STAGGER_MS);
-			await Effects.arcaneMissileTargeted(source, target, {
-				amplitudeMin: 4,
-				amplitudeMax: 12,
-				particleScale: 1.2,
-				impact: {
-					scale: 1.4,
-					speed: 140,
-					lifespan: 180,
-					alpha: 0.7,
-				},
-			});
-		})
-	);
 }
