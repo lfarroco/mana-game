@@ -1,20 +1,15 @@
 import { env } from "@Env";
 import * as GameServer from "../../GameServer";
 
-export const deleteSavedData = () => {
-	const server = GameServer.getServer();
-
-	if (env.state.session?.player_id && "sessionManager" in server) {
-		// Delete the session from SessionManager (which also removes from localStorage)
-		(
-			server as unknown as { sessionManager: { deleteSession(id: string): void } }
-		).sessionManager.deleteSession(env.state.session.player_id);
-
-		console.debug(
-			"deleteSavedData",
-			`[deleteSavedData] Session deleted for player: ${env.state.session.player_id}`
-		);
-	} else {
+export const deleteSavedData = async () => {
+	const playerId = env.state.session?.player_id;
+	if (!playerId) {
 		console.warn("deleteSavedData", "[deleteSavedData] No session found to delete");
+		return;
 	}
+
+	const server = GameServer.getServer();
+	await server.deleteSession(playerId);
+
+	console.debug("deleteSavedData", `[deleteSavedData] Session deleted for player: ${playerId}`);
 };

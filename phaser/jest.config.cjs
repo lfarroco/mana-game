@@ -55,6 +55,9 @@ module.exports = {
 		"^utils$": "<rootDir>/src/utils.ts",
 		"^phaser$": "<rootDir>/src/test-utils/__mocks__/phaser.ts",
 		"^(\\.{1,2}/.*)\\.js$": "$1",
+		// uuid v14 is pure ESM — ts-jest can only transform .ts files, so we
+		// provide a lightweight test-compatible stub (mirrors core/jest.config.cjs).
+		"^uuid$": "<rootDir>/../core/src/__test_utils__/uuidStub.ts",
 	},
 	collectCoverageFrom: [
 		"src/**/*.{ts,tsx}",

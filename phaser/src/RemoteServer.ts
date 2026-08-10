@@ -166,6 +166,19 @@ export async function handleAction(
 }
 
 /**
+ * Remote sessions are managed server-side. The new API (server/) rejects
+ * actions on a session once it reaches `victory`/`game_over` and stops serving
+ * it to the client, so the client has no authority (and no need) to request a
+ * deletion. The Supabase backend is deprecated — no-op by design.
+ */
+export function deleteSession(playerId: string): void {
+	console.debug(
+		"RemoteServer",
+		`[deleteSession] Remote session cleanup is handled server-side (player: ${playerId}) — no-op`
+	);
+}
+
+/**
  * Update the player ID (e.g., after authentication)
  */
 export function setPlayerId(newPlayerId: string): void {

@@ -18,8 +18,7 @@ export async function displayGameComplete(
 	units: Unit[],
 	isGameOver: boolean
 ): Promise<Phaser.GameObjects.Container> {
-	// TODO: apparently, it's not working
-	deleteSavedData();
+	await deleteSavedData();
 
 	AudioManager.playMusic("music_playmode", true, 1000);
 
