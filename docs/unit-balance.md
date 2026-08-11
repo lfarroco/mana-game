@@ -1,5 +1,9 @@
 # Unit Power & Cost Calculation System
 
+> **Design context:** the tier system this math backs (bronze/silver/gold roles,
+> the upgrade curve, card authoring rules) is described in
+> [card-design-philosophy.md](card-design-philosophy.md).
+
 ## 1. Game Structure
 
 - Each player has a 3×3 board (9 slots).
@@ -223,6 +227,30 @@ Permanent power increases (they last even for future combats) are expected to co
 - Changing effect magnitude
 - Changing trigger frequency
 - Changing targeting scope
+
+## 17. Charge & Power Multiplication (Design Restrictions)
+
+Two effects compound with themselves and each other, so they carry hard caps:
+
+### Charge
+
+- **Per-cast cap: 300 ms.** Charge grants instant cooldown progress. Anything
+  larger (the old 1 s steps) lets units act almost continuously, and charge
+  stacks linearly across multiple chargers.
+- **Reactions that grant charge must key off a specific effect from a specific
+  directional ally** (e.g. `damage` from `left_ally`). Broad triggers
+  (`"all"`, or row/column/allies positions) fire too often and are not allowed.
+- This restriction is "expressed by AP prices": the reaction model (§7) prices
+  narrow directional triggers (1 source) far below broad ones (3–8 sources), so
+  a broad charge reaction would blow its budget.
+
+### Power Multiplication
+
+- **Gold-only** and **cooldown ≥ 8000 ms** (≤ 3 uses per 30 s combat).
+  Multiplication is exponential; combined with charge/haste it produces runaway
+  values, so it must be a rare, slow build-around effect.
+- Priced at **8 × (Multiplier − 1) × Power** per use — double the flat
+  multiplier cost — to reflect its compounding nature.
 
 ## Summary
 

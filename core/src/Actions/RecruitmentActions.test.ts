@@ -5,12 +5,20 @@ import * as Models from "../Models";
 import * as Card from "../Entities/Card";
 import { FORCE_ID_PLAYER } from "../Constants";
 
-const mockCards = [
+const mockCards: Models.CardDefinition[] = [
   {
     id: "unit_a",
     pic: "",
     cooldown: 1000,
-    effects: [],
+    power: 10,
+    effects: [
+      {
+        id: "increase_power",
+        amount: 2,
+        permanent: false,
+        targets: { id: "self" },
+      },
+    ],
     reactions: [],
     rank: 1,
   },
@@ -112,7 +120,14 @@ describe("RecruitmentActions", () => {
       const result = RecruitmentActions.recruitUnit(session, "unit_a", null);
       expect(result.team.units).toHaveLength(1);
       expect(result.team.units[0].rank).toBe(2);
-      expect(result.team.units[0].power).toBeGreaterThan(10);
+      // Unified linear model: power = base 10 × (2 − 1 + 1) = 20,
+      // maxLife grows 1.5× per rank, and effect amounts scale by rank.
+      expect(result.team.units[0].power).toBe(20);
+      expect(result.team.units[0].maxLife).toBe(150);
+      expect(result.team.units[0].life).toBe(150);
+      expect((result.team.units[0].effects[0] as { amount: number }).amount).toBe(
+        4,
+      );
     });
 
     it("places unit at target slot when provided", () => {

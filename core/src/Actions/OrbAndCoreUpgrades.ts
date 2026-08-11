@@ -6,7 +6,7 @@
  */
 
 import { Unit, EffectReaction } from "../Models";
-import { applyPowerDelta } from "../Entities/Unit";
+import { applyPowerDelta, upgradeUnitData } from "../Entities/Unit";
 import * as Random from "../math/Random";
 import * as OrbConstants from "../Orbs/OrbConstants";
 import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
@@ -34,15 +34,15 @@ function buildReaction(
 }
 
 /**
- * Apply upgrade_orb: Rank up a unit (increase stats by 1.75x).
- * This aligns with the new bronze->silver->gold upgrade progression.
+ * Apply upgrade_orb: Rank up a unit using the unified linear upgrade model
+ * (power and effect magnitudes scale by rank via upgradeUnitData; maxLife
+ * grows 1.5× per rank). This is identical to buying a duplicate card in the
+ * shop and matches the bronze->silver->gold->platinum progression.
  */
 function applyUpgradeOrb(unit: Unit): void {
-  unit.rank = (unit.rank || 1) + 1;
-  const rankMultiplier = 1.75;
-  unit.maxLife = Math.floor(unit.maxLife * rankMultiplier);
+  upgradeUnitData(unit);
+  unit.maxLife = Math.floor(unit.maxLife * 1.5);
   unit.life = unit.maxLife;
-  unit.power = Math.floor(unit.power * rankMultiplier);
 }
 
 /**

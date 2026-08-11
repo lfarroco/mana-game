@@ -8,6 +8,7 @@
 import * as Models from "../Models";
 import { Unit } from "../Models";
 import * as Card from "../Entities/Card";
+import { upgradeUnitData } from "../Entities/Unit";
 import * as BoardLogic from "../board/BoardLogic";
 import * as Constants from "../math/Constants";
 import { isSome, some } from "../Functional";
@@ -70,10 +71,13 @@ export function recruitUnit(
         `Upgrading unit ${existingUnit.id} from Rank ${existingUnit.rank} to Rank ${existingUnit.rank + 1}`,
       );
 
-      existingUnit.rank++;
+      // Unified upgrade model (matches enemy generation + the upgrade orb):
+      // rank++, power = base × (newRank − startingRank + 1), and effect
+      // magnitudes scaled by the same multiplier. Only maxLife keeps its own
+      // growth curve (1.5× per rank) — it has no combat effect for non-cores.
+      upgradeUnitData(existingUnit);
       existingUnit.maxLife = Math.floor(existingUnit.maxLife * 1.5);
       existingUnit.life = existingUnit.maxLife;
-      existingUnit.power = Math.floor(existingUnit.power * 1.5);
       const updatedUnits = session.team.units.map((u, idx) =>
         idx === existingUnitIndex ? existingUnit : u,
       );

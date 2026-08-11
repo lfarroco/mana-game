@@ -99,6 +99,18 @@ function getCardRank(card: CardDefinition): number {
   return card.rank ?? 1;
 }
 
+/**
+ * Tier-based shop pricing: bronze 10, silver 15, gold 25.
+ * Higher-tier cards are stronger but cost proportionally more, so
+ * picking a gold card out of a wildcard encounter is a real investment.
+ */
+function getCardCost(card: CardDefinition): number {
+  const rank = getCardRank(card);
+  if (rank >= 3) return 25;
+  if (rank === 2) return 15;
+  return 10;
+}
+
 function cardMatchesEffectType(
   card: CardDefinition,
   filterType: Exclude<EncounterFilterType, "silver" | "gold">,
@@ -183,7 +195,7 @@ export function generateShopOptions(
     numOptions,
   ).map((card) => ({
     id: card.id,
-    cost: 10,
+    cost: getCardCost(card),
     recruitRank: getCardRank(card),
   }));
 

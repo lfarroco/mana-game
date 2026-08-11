@@ -77,10 +77,12 @@ export const reaction = (
   effect: Models.EffectId | "all",
   position: Models.EffectSourcePosition,
   reactWith: Models.Effect,
+  triggerTeam?: "own" | "enemy",
 ): Models.EffectReaction => ({
   position,
   effectId: effect,
   effects: [reactWith],
+  ...(triggerTeam ? { triggerTeam } : {}),
 });
 
 // ---------------------------------------------------------------------------

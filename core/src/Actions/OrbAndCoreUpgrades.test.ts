@@ -2,6 +2,7 @@
 
 import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
 import { Unit, Effect } from "../Models";
+import * as Card from "../Entities/Card";
 
 function makeUnit(overrides: Partial<Unit> = {}): Unit {
   return {
@@ -33,13 +34,41 @@ const dummyRng = { seed: "test-seed" };
 
 describe("OrbAndCoreUpgrades", () => {
   describe("applyOrb", () => {
-    it("upgrade_orb ranks up and multiplies stats", () => {
+    afterEach(() => Card.resetCardsMap());
+
+    it("upgrade_orb ranks up via the unified linear model (power + effects scaled)", () => {
+      Card.setCardsMap(
+        new Map([
+          [
+            "test_card",
+            {
+              id: "test_card",
+              pic: "",
+              cooldown: 5000,
+              power: 50,
+              rank: 1,
+              effects: [
+                {
+                  id: "increase_power",
+                  amount: 5,
+                  permanent: false,
+                  targets: { id: "self" },
+                },
+              ],
+              reactions: [],
+            },
+          ],
+        ]),
+      );
       const unit = makeUnit({ rank: 1, power: 100, maxLife: 200, life: 150 });
       OrbAndCoreUpgrades.applyOrb([unit], "u1", "upgrade_orb", dummyRng);
       expect(unit.rank).toBe(2);
-      expect(unit.power).toBe(Math.floor(100 * 1.75));
-      expect(unit.maxLife).toBe(Math.floor(200 * 1.75));
-      expect(unit.life).toBe(unit.maxLife);
+      // power = base 50 × (2 − 1 + 1) = 100; maxLife × 1.5 = 300; life = maxLife
+      expect(unit.power).toBe(100);
+      expect(unit.maxLife).toBe(300);
+      expect(unit.life).toBe(300);
+      // effect magnitude scales with rank: 5 × 2 = 10
+      expect((unit.effects[0] as { amount: number }).amount).toBe(10);
     });
 
     it("absorb_power_orb absorbs from same-row units", () => {

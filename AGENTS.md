@@ -70,6 +70,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [trigger-system.md](docs/trigger-system.md): Action-Reaction model, effects, targeting
 - [character-unit-system.md](docs/character-unit-system.md): Unit/Card types, Chara rendering system
 - [unit-balance.md](docs/unit-balance.md): Power budget, cost formulas, trigger frequencies
+- [card-design-philosophy.md](docs/card-design-philosophy.md): Tier design (bronze/silver/gold roles), the upgrade curve, card authoring checklist
 - [purity-boundary.md](docs/purity-boundary.md): Pure logic boundary, replay-critical import rules
 - [storage-system.md](docs/storage-system.md): Provider pattern, Steam Cloud, localStorage
 - [audio-system.md](docs/audio-system.md): Music, SFX, cooldowns, user preferences

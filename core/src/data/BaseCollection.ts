@@ -33,7 +33,8 @@ import {
   allAlliesOfType,
 } from "./effectBuilders";
 
-// Refer to the Readme for instructions on how to balance units
+// Tier design + balance conventions: docs/card-design-philosophy.md
+// AP math (effect costs, trigger frequencies): docs/unit-balance.md
 
 // Effect/reaction/targeting builders live in ./effectBuilders (shared with tests).
 
@@ -46,7 +47,7 @@ const cards: Models.CardDefinition[] = [
     cooldown: 5200,
     isCore: true,
     effects: [regen, increasePower(10, column)],
-    reactions: [reaction("all", "row_allies", charge(500, self))],
+    reactions: [reaction("damage", "left_ally", charge(200, self))],
   },
   {
     id: "critical_crystal",
@@ -96,12 +97,12 @@ const cards: Models.CardDefinition[] = [
     cooldown: 5200,
     isCore: true,
     effects: [regen, haste(1000, row)],
-    reactions: [reaction("all", "row_allies", charge(500, column))],
+    reactions: [reaction("haste", "right_ally", charge(200, column))],
   },
   {
     id: "void_witch",
     pic: "boss_andromeda",
-    power: 50,
+    power: 45,
     cooldown: 5400,
     effects: [poison, slow(1000, randomEnemy(1))],
     reactions: [],
@@ -184,7 +185,7 @@ const cards: Models.CardDefinition[] = [
     power: 30,
     cooldown: 4300,
     effects: [poison],
-    reactions: [reaction("shield", "enemies", increasePower(2, self))],
+    reactions: [reaction("shield", "enemies", increasePower(2, self), "enemy")],
   },
   {
     id: "infected_horror",
@@ -221,9 +222,9 @@ const cards: Models.CardDefinition[] = [
   {
     id: "moss_golem",
     pic: "neutral_golemnature",
-    power: 55,
+    power: 50,
     cooldown: 5200,
-    effects: [shield, increasePower(1, randomAlly(1), true)],
+    effects: [shield, increasePower(2, randomAlly(1), true)],
     reactions: [],
   },
   {
@@ -267,13 +268,13 @@ const cards: Models.CardDefinition[] = [
     power: 50,
     cooldown: 5500,
     effects: [damage],
-    reactions: [reaction("slow", "row_allies", charge(500, self))],
+    reactions: [reaction("slow", "left_ally", charge(200, self))],
   },
   {
     id: "thunder_conduit",
     pic: "boss_borealjuggernaut",
-    power: 55,
-    cooldown: 6200,
+    power: 50,
+    cooldown: 5800,
     effects: [damage],
     reactions: [reaction("haste", "allies", increasePower(2, self))],
   },
@@ -283,7 +284,7 @@ const cards: Models.CardDefinition[] = [
     power: 35,
     cooldown: 5200,
     effects: [shield],
-    reactions: [reaction("damage", "enemies", increasePower(2, self))],
+    reactions: [reaction("damage", "enemies", increasePower(2, self), "enemy")],
   },
   {
     id: "bastion",
@@ -331,7 +332,7 @@ const cards: Models.CardDefinition[] = [
     power: 20,
     cooldown: 5800,
     effects: [shield],
-    reactions: [reaction("damage", "enemies", increasePower(2, column))],
+    reactions: [reaction("damage", "enemies", increasePower(2, column), "enemy")],
   },
   {
     id: "cleric",
@@ -459,7 +460,7 @@ const cards: Models.CardDefinition[] = [
     power: 50,
     cooldown: 5800,
     effects: [regen],
-    reactions: [reaction("slow", "column_allies", charge(500, self))],
+    reactions: [reaction("slow", "right_ally", charge(200, self))],
   },
   {
     id: "crystalline_geode",
@@ -504,11 +505,11 @@ const cards: Models.CardDefinition[] = [
   {
     id: "mana_source",
     pic: "f4_furosa",
-    power: 100,
+    power: 65,
     cooldown: 6400,
     rank: 2,
     effects: [regen, haste(1000, row)],
-    reactions: [reaction("all", "column_allies", charge(500, self))],
+    reactions: [reaction("regen", "left_ally", charge(200, self))],
   },
   {
     id: "void_spawn",
@@ -516,14 +517,14 @@ const cards: Models.CardDefinition[] = [
     power: 40,
     cooldown: 4800,
     effects: [poison],
-    reactions: [reaction("poison", "column_allies", charge(500, self))],
+    reactions: [reaction("poison", "right_ally", charge(200, self))],
   },
   {
     id: "arcane_anomaly",
     pic: "f6_myriad",
-    power: 35,
-    cooldown: 7500,
-    effects: [damage, charge(500, column)],
+    power: 45,
+    cooldown: 5500,
+    effects: [damage, charge(200, column)],
     reactions: [],
   },
   {
@@ -538,7 +539,7 @@ const cards: Models.CardDefinition[] = [
     id: "spellbreaker",
     pic: "neutral_spelljammer",
     power: 30,
-    cooldown: 4500,
+    cooldown: 4100,
     effects: [damage, haste(1000, randomAlly(2))],
     reactions: [],
   },
@@ -548,7 +549,7 @@ const cards: Models.CardDefinition[] = [
     power: 10,
     cooldown: 5200,
     effects: [damage],
-    reactions: [reaction("damage", "enemies", increasePower(4, self))],
+    reactions: [reaction("damage", "enemies", increasePower(4, self), "enemy")],
   },
   {
     id: "gambler",
@@ -557,7 +558,7 @@ const cards: Models.CardDefinition[] = [
     cooldown: 4200,
     effects: [shield, increaseCritical(10, column)],
     reactions: [
-      reaction("all", "row_allies", increaseCritical(5, randomEnemy(1))),
+      reaction("all", "row_allies", increaseCritical(5, column)),
     ],
   },
   {
@@ -582,7 +583,7 @@ const cards: Models.CardDefinition[] = [
     power: 30,
     cooldown: 6000,
     effects: [damage],
-    reactions: [reaction("damage", "enemies", haste(500, self))],
+    reactions: [reaction("damage", "enemies", haste(500, self), "enemy")],
   },
   {
     id: "gunslinger",
@@ -590,7 +591,7 @@ const cards: Models.CardDefinition[] = [
     power: 40,
     cooldown: 5000,
     effects: [damage],
-    reactions: [reaction("shield", "column_allies", charge(500, self))],
+    reactions: [reaction("shield", "left_ally", charge(200, self))],
   },
   {
     id: "inquisitor",
@@ -598,7 +599,7 @@ const cards: Models.CardDefinition[] = [
     power: 20,
     cooldown: 4800,
     effects: [damage],
-    reactions: [reaction("poison", "enemies", increasePower(2, self, true))],
+    reactions: [reaction("poison", "enemies", increasePower(2, self, true), "enemy")],
   },
   {
     id: "grove_guardian",
@@ -606,8 +607,8 @@ const cards: Models.CardDefinition[] = [
     power: 45,
     cooldown: 4800,
     rank: 2,
-    effects: [regen, charge(500, row)],
-    reactions: [reaction("damage", "enemies", increasePower(4, right))],
+    effects: [regen, charge(200, row)],
+    reactions: [reaction("damage", "enemies", increasePower(4, right), "enemy")],
   },
   {
     id: "thunder_core",
@@ -615,7 +616,7 @@ const cards: Models.CardDefinition[] = [
     power: 75,
     rank: 2,
     cooldown: 5800,
-    effects: [damage, charge(1000, left)],
+    effects: [damage, charge(300, left)],
     reactions: [
       reaction("haste", "column_allies", increasePower(6, self, true)),
     ],
@@ -637,7 +638,7 @@ const cards: Models.CardDefinition[] = [
     power: 45,
     rank: 2,
     cooldown: 5800,
-    effects: [heal, charge(1000, column)],
+    effects: [heal, charge(300, column)],
     reactions: [
       reaction("regen", "row_allies", increasePower(6, trigger, true)),
     ],
@@ -649,7 +650,7 @@ const cards: Models.CardDefinition[] = [
     rank: 2,
     cooldown: 7000,
     effects: [poison, slow(2000, randomEnemy(2))],
-    reactions: [reaction("damage", "enemies", increasePower(5, self))],
+    reactions: [reaction("damage", "enemies", increasePower(5, self), "enemy")],
   },
   {
     id: "coral_builder",
@@ -663,7 +664,7 @@ const cards: Models.CardDefinition[] = [
   {
     id: "toxicologist",
     pic: "neutral_gnasher",
-    power: 145,
+    power: 80,
     rank: 3,
     cooldown: 7800,
     effects: [poison, slow(2000, randomEnemy(2))],
@@ -672,7 +673,7 @@ const cards: Models.CardDefinition[] = [
   {
     id: "expedition_leader",
     pic: "neutral_goldenhammer",
-    power: 110,
+    power: 70,
     rank: 3,
     cooldown: 8400,
     effects: [shield, increasePower(20, column)],
@@ -690,7 +691,7 @@ const cards: Models.CardDefinition[] = [
   {
     id: "veteran_paladin",
     pic: "neutral_goldenjusticar",
-    power: 110,
+    power: 70,
     rank: 3,
     cooldown: 6240,
     effects: [regen, haste(2000, row)],
@@ -735,7 +736,7 @@ const cards: Models.CardDefinition[] = [
   {
     id: "windlash_serpent",
     pic: "boss_serpenti",
-    power: 95,
+    power: 65,
     rank: 3,
     locked: true,
     cooldown: 4300,
@@ -746,7 +747,7 @@ const cards: Models.CardDefinition[] = [
   {
     id: "corruption_bringer",
     pic: "boss_legion",
-    power: 80,
+    power: 60,
     rank: 3,
     locked: true,
     cooldown: 5000,
@@ -771,7 +772,7 @@ const cards: Models.CardDefinition[] = [
     id: "life_balancekeeper",
     pic: "f3_anubis",
     life: 1500,
-    power: 105,
+    power: 60,
     rank: 3,
     locked: true,
     cooldown: 4500,
@@ -944,6 +945,7 @@ const cards: Models.CardDefinition[] = [
         "damage",
         "enemies",
         increasePower(5, allAlliesOfType("shield")),
+        "enemy",
       ),
     ],
   },
