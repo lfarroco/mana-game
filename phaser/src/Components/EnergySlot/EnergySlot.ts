@@ -26,7 +26,7 @@ export class EnergySlot {
 		const defaultConfig = {
 			size: 100,
 			color: { x: 0.8, y: 0.9, z: 1.0 }, // Slight blue tint
-			intensity: 1.0,
+			intensity: 0.75,
 			speed: 1.0,
 		};
 
@@ -200,7 +200,7 @@ export class EnergySlotFactory {
 		return new EnergySlot(x, y, {
 			size,
 			color: { x: 0.7, y: 0.9, z: 1.0 }, // Blue-white for player
-			intensity: 1.0,
+			intensity: 0.75,
 			speed: 1.0,
 		});
 	}
@@ -209,7 +209,7 @@ export class EnergySlotFactory {
 		return new EnergySlot(x, y, {
 			size,
 			color: { x: 1.0, y: 0.7, z: 0.7 }, // Red-white for enemy
-			intensity: 0.8,
+			intensity: 0.6,
 			speed: 0.8,
 		});
 	}
@@ -218,7 +218,7 @@ export class EnergySlotFactory {
 		return new EnergySlot(x, y, {
 			size,
 			color: { x: 0.9, y: 0.9, z: 0.9 }, // Pure white for neutral
-			intensity: 1.2,
+			intensity: 0.9,
 			speed: 1.2,
 		});
 	}
