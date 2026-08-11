@@ -22,8 +22,8 @@ export async function displayGameComplete(
 
 	AudioManager.playMusic("music_playmode", true, 1000);
 
-	const panelWidth = 800;
-	const panelHeight = 700;
+	const panelWidth = ResultsConfig.RUN_COMPLETE_PANEL.width;
+	const panelHeight = ResultsConfig.RUN_COMPLETE_PANEL.height;
 	const panelX = ResultsConfig.RIGHT_PANEL_X;
 	const panelY = constants.MIDDLE_SCREEN_Y;
 
@@ -112,12 +112,17 @@ export async function displayGameComplete(
 		]);
 	}
 
+	const buttonSpacing = 100;
+	const buttonGroupCenterY = panelY + 165;
+	const firstButtonY = buttonGroupCenterY - ((buttonDefinitions.length - 1) * buttonSpacing) / 2;
+
 	const buttons = buttonDefinitions.map(
 		([label, callback], i) =>
 			UIButton.create({
 				text: label,
-				position: [panelX, panelY + 50 + i * 100],
+				position: [panelX, firstButtonY + i * buttonSpacing],
 				callback: callback,
+				width: 360,
 			}).container
 	);
 
@@ -131,24 +136,47 @@ export async function displayGameComplete(
 			color: "#FFFFFF",
 		})
 		.setOrigin(0.5);
-	victoryTitle.setPosition(panelX, panelY - 250);
+	victoryTitle.setPosition(panelX, panelY - 255);
 
-	// Message text
-	const messageText = env.scene.add
-		.text(0, 0, isDemoComplete ? i18n.t("demo.complete.title") : message, {
-			...constants.titleTextConfig,
-			color: color,
-		})
-		.setOrigin(0.5);
-	messageText.setPosition(panelX, panelY - 150);
+	// Message text (tier label / demo complete title) — only rendered when non-empty
+	const messageLabel = isDemoComplete ? i18n.t("demo.complete.title") : message;
+	const hasMessage = messageLabel.length > 0;
+	const messageText = hasMessage
+		? env.scene.add
+				.text(0, 0, messageLabel, {
+					...constants.titleTextConfig,
+					fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleMedium,
+					color: color,
+				})
+				.setOrigin(0.5)
+				.setPosition(panelX, panelY - 145)
+		: null;
 
 	// Subtitle text
+	const subtitleY = hasMessage ? panelY - 65 : panelY - 130;
 	const subtitle = env.scene.add
 		.text(0, 0, subtitleText, constants.defaultTextConfig)
 		.setOrigin(0.5);
-	subtitle.setPosition(panelX, panelY - 50);
+	subtitle.setPosition(panelX, subtitleY);
+
+	// Divider between the title/message block and the action buttons
+	const divider = env.scene.add.rectangle(
+		panelX,
+		subtitleY + 55,
+		panelWidth - 200,
+		2,
+		0xffffff,
+		0.15
+	);
 
 	const container = makeContainer([
+		// Full-screen dim overlay so content behind the result panels is less visible
+		env.centeredRect(
+			constants.MIDDLE_SCREEN,
+			constants.WHOLE_SCREEN,
+			ResultsConfig.RESULTS_PANEL.overlayColor,
+			ResultsConfig.RESULTS_PANEL.overlayAlpha
+		),
 		statsPanel,
 		borderedRoundRect(
 			env.scene,
@@ -161,6 +189,7 @@ export async function displayGameComplete(
 		victoryTitle,
 		messageText,
 		subtitle,
+		divider,
 		...buttons,
 	]);
 

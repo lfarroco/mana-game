@@ -9,6 +9,7 @@ import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as GameServer from "./GameServer";
+import * as DebugCommands from "./debug/debugCommands";
 import { createEnv } from "@Env";
 import { ClientState } from "@Models/ClientState";
 import { GameEvent } from "./Events";
@@ -179,6 +180,9 @@ export default (clientState: ClientState) =>
 					},
 				})
 			);
+
+			// Dev-only console helpers (window.__debug) — no-op in production builds.
+			DebugCommands.installDebugCommands();
 
 			// Wire global game-event reactions (Tooltip, audio, stats, …)
 			_navDisposers.push(...wireGameEvents());

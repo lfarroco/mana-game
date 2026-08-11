@@ -54,6 +54,15 @@ export const RESULTS_PANEL = {
 	overlayAlpha: 0.7,
 } as const;
 
+/**
+ * Dimensions for the two symmetric run-complete panels (run stats + results).
+ * Shared style props (borderRadius, colors) come from RESULTS_PANEL.
+ */
+export const RUN_COMPLETE_PANEL = {
+	width: 780,
+	height: 700,
+} as const;
+
 export const END_GAME_MESSAGES = {
 	infinite: (wins: number) => i18n.t("results.messages.infinite", { wins: wins.toString() }),
 	gold: i18n.t("results.messages.gold"),

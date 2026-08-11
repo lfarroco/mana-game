@@ -3,6 +3,10 @@ import * as ResultsConfig from "../Results/ResultsConfig";
 import * as Constants from "@Constants";
 import { env, makeContainer as container, borderedRoundRect } from "@Env";
 
+const ROW_SPACING = 55;
+const LABEL_X_OFFSET = -290;
+const VALUE_X_OFFSET = 290;
+
 export function createRunStatsPanel(
 	runStats = env.state.session.runStats
 ): Phaser.GameObjects.Container {
@@ -10,27 +14,47 @@ export function createRunStatsPanel(
 		throw new Error("RunStatsPanel: runStats is undefined");
 	}
 
-	const panelWidth = 700;
-	const panelHeight = 700;
+	const panelWidth = ResultsConfig.RUN_COMPLETE_PANEL.width;
+	const panelHeight = ResultsConfig.RUN_COMPLETE_PANEL.height;
 	const panelX = ResultsConfig.LEFT_PANEL_X;
 	const panelY = Constants.MIDDLE_SCREEN_Y;
 
-	const statLabel = (label: string, value: string | number, y: number) => {
-		return [
-			() => {
-				const labelObj = env.scene.add.text(0, 0, label, Constants.defaultTextConfig);
-				labelObj.setPosition(panelX - 150, y);
-				return labelObj;
-			},
-			() => {
-				const valueObj = env.scene.add.text(0, 0, value.toString(), Constants.defaultTextConfig);
-				valueObj.setPosition(panelX + 100, y);
-				return valueObj;
-			},
-		];
+	const titleY = panelY - 265;
+	const dividerY = titleY + 43;
+	const firstRowY = dividerY + 62;
+	const seedDividerY = panelY + 228;
+	const seedY = panelY + 260;
+
+	// One stat row: label left-aligned to a fixed column, value right-aligned to a fixed column.
+	const row = (label: string, value: string | number, y: number): Phaser.GameObjects.Text[] => {
+		const labelText = env.scene.add
+			.text(panelX + LABEL_X_OFFSET, y, label, Constants.defaultTextConfig)
+			.setOrigin(0, 0.5);
+		const valueText = env.scene.add
+			.text(panelX + VALUE_X_OFFSET, y, value.toString(), Constants.defaultTextConfig)
+			.setOrigin(1, 0.5);
+		return [labelText, valueText];
 	};
 
-	const panelContainer = container([
+	const divider = (y: number): Phaser.GameObjects.Rectangle =>
+		env.scene.add.rectangle(panelX, y, panelWidth - 200, 2, 0xffffff, 0.15);
+
+	// Initial game seed, shown below the stats
+	const seedText = env.scene.add
+		.text(
+			0,
+			0,
+			`${i18n.t("run_stats.seed")}: ${env.state.session.initial_seed || env.state.session.seed}`,
+			{
+				...Constants.defaultTextConfig,
+				fontSize: "16px",
+				color: "#cccccc",
+			}
+		)
+		.setOrigin(0.5)
+		.setPosition(panelX, seedY);
+
+	return container([
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],
@@ -39,29 +63,45 @@ export function createRunStatsPanel(
 			ResultsConfig.RESULTS_PANEL.backgroundColor,
 			ResultsConfig.RESULTS_PANEL.backgroundAlpha
 		),
-		[
-			() => env.scene.add.text(0, 0, i18n.t("run_stats.title"), Constants.titleTextConfig),
-			(title) => (title as Phaser.GameObjects.Text).setPosition(panelX, panelY - 300),
-			(title) => (title as Phaser.GameObjects.Text).setOrigin(0.5),
-		],
-		...statLabel(i18n.t("run_stats.damage_dealt"), runStats.damageDealt.toFixed(0), panelY - 200),
-		...statLabel(i18n.t("run_stats.poison_dealt"), runStats.poisonDealt.toFixed(0), panelY - 150),
-		...statLabel(i18n.t("run_stats.shield_dealt"), runStats.shieldDealt.toFixed(0), panelY - 100),
-		...statLabel(i18n.t("run_stats.regen_dealt"), runStats.regenDealt.toFixed(0), panelY - 50),
-		...statLabel(i18n.t("run_stats.heal_dealt"), runStats.healDealt.toFixed(0), panelY),
-		...statLabel(
+		env.scene.add
+			.text(0, 0, i18n.t("run_stats.title"), Constants.titleTextConfig)
+			.setOrigin(0.5)
+			.setPosition(panelX, titleY),
+		divider(dividerY),
+		...row(i18n.t("run_stats.damage_dealt"), runStats.damageDealt.toFixed(0), firstRowY),
+		...row(
+			i18n.t("run_stats.poison_dealt"),
+			runStats.poisonDealt.toFixed(0),
+			firstRowY + ROW_SPACING
+		),
+		...row(
+			i18n.t("run_stats.shield_dealt"),
+			runStats.shieldDealt.toFixed(0),
+			firstRowY + ROW_SPACING * 2
+		),
+		...row(
+			i18n.t("run_stats.regen_dealt"),
+			runStats.regenDealt.toFixed(0),
+			firstRowY + ROW_SPACING * 3
+		),
+		...row(
+			i18n.t("run_stats.heal_dealt"),
+			runStats.healDealt.toFixed(0),
+			firstRowY + ROW_SPACING * 4
+		),
+		...row(
 			i18n.t("run_stats.most_powerful_unit"),
 			runStats.mostPowerfulUnit
 				? `${i18n.getName(runStats.mostPowerfulUnit.cardId)} (${runStats.mostPowerfulUnit.power})`
 				: "-",
-			panelY + 50
+			firstRowY + ROW_SPACING * 5
 		),
-		...statLabel(
+		...row(
 			i18n.t("run_stats.total_units_recruited"),
 			runStats.totalUnitsRecruited,
-			panelY + 150
+			firstRowY + ROW_SPACING * 6
 		),
+		divider(seedDividerY),
+		seedText,
 	]);
-
-	return panelContainer;
 }

@@ -366,6 +366,7 @@
 	"run_stats.most_powerful_unit": "最も強力なユニット",
 	"run_stats.most_used_unit": "最も使用したユニット",
 	"run_stats.total_units_recruited": "雇用したユニット数",
+	"run_stats.seed": "シード",
 	"title.unlock_modal.confirm": "確認",
 	"title.collection": "コレクション",
 	"title.collection_modal.title": "コレクション",
