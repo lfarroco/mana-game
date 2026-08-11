@@ -45,6 +45,12 @@ Persistence path:
 3. In Electron + Steam Cloud environments, Steam Cloud provider is used.
 4. Otherwise, browser `localStorage` provider is used.
 
+On boot (`OptionsStore.init()`), `OptionsStore` first checks whether the
+`mana-game-options` namespace exists in storage. If it does not (first launch),
+the namespace is created with the defaults from `ClientState.defaultSettings()`
+so the persisted settings always exist and are read
+back consistently.
+
 On read, `loadOptionsFromStorage()` validates types/ranges before merging values into current options, so malformed saved data is ignored safely.
 
 ## Runtime Side Effects

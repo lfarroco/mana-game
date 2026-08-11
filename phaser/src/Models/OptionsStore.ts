@@ -1,24 +1,18 @@
 import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Systems/Storage";
-import { ClientState, type PlayerSettings } from "@Models/ClientState";
+import { ClientState, defaultSettings, type PlayerSettings } from "@Models/ClientState";
 import { env } from "@Env";
 
 let clientStateRef: ClientState | null = null;
 
-const currentOptions: PlayerSettings = {
-	sound: true,
-	soundVolume: 0.6,
-	music: true,
-	musicVolume: 0.4,
-	masterVolume: 1,
-	debug: false,
-	speed: 1,
-	particles: "medium",
-	compactTooltips: false,
-};
+// Single source of truth for defaults — mirrors ClientState.defaultSettings()
+// These values are persisted under
+// `mana-game-options` on first boot.
+const currentOptions: PlayerSettings = defaultSettings();
 
 export const init = () => {
 	clientStateRef = env.state;
+	ensureOptionsInStorage();
 	const savedOptions = loadOptionsFromStorage();
 	if (savedOptions) {
 		Object.assign(currentOptions, savedOptions);
@@ -74,6 +68,19 @@ function setGameSpeed(speed: number) {
 	//https://phaser.discourse.group/t/how-to-add-time-scale-that-affects-tweens-animations-and-so-on-solved/1357/2
 	env.scene.time.timeScale = newSpeed;
 	env.scene.tweens.timeScale = newSpeed;
+}
+
+/**
+ * Ensures the options namespace exists in storage on boot. The first run has no
+ * persisted settings, so the namespace is created with the default values —
+ * otherwise `loadOptionsFromStorage()` would find nothing and the in-memory
+ * defaults would never be persisted (causing e.g. game speed to drift from the
+ * default defined in `ClientState.defaultSettings()`).
+ */
+function ensureOptionsInStorage(): void {
+	if (storage.getItem(STORAGE_KEY) === null) {
+		saveOptionsToStorage();
+	}
 }
 
 function loadOptionsFromStorage(): Partial<PlayerSettings> | null {

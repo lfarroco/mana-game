@@ -98,7 +98,6 @@ const startCombatPlayback = async (): Promise<() => void> => {
 
 	await animation.delay(COMBAT_START_DELAY_MS);
 
-	console.log(">>> ", env.state)
 	const controller = CombatPlaybackController.createCombatPlaybackController(
 		env.state.combatState!.logs
 	);
