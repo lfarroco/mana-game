@@ -4,6 +4,8 @@
 export type ServerConfig = {
   port: number;
   host: string;
+  corsOrigin: string;
+  nodeEnv: string;
 };
 
 export function loadConfig(
@@ -12,5 +14,7 @@ export function loadConfig(
   return {
     port: parseInt(env["MANA_SERVER_PORT"] ?? "8787", 10),
     host: env["MANA_SERVER_HOST"] ?? "127.0.0.1",
+    corsOrigin: env["MANA_CORS_ORIGIN"] ?? "*",
+    nodeEnv: env["MANA_NODE_ENV"] ?? "development",
   };
 }

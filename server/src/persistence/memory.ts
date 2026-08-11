@@ -1,37 +1,24 @@
 /**
- * In-memory session persistence.
+ * In-memory session repository.
  *
- * Stores sessions in a Map keyed by session ID. A separate
- * reference tracks the "current" (only active) session.
+ * Stores sessions in a Map keyed by player id. Create a fresh repo per app
+ * instance via createMemorySessionRepo() — tests get fully isolated state
+ * and `createApp()` gets a clean default.
  */
 
 import type { SessionData } from "@game/types/session";
+import type { SessionRepo } from "./repositories";
 
-/** In-memory store of all sessions. */
-const sessions = new Map<string, SessionData>();
+export function createMemorySessionRepo(): SessionRepo {
+  const sessions = new Map<string, SessionData>();
 
-/** The single currently active session ID. */
-let currentSessionId: string | null = null;
-
-export function getCurrentSession(): SessionData | null {
-  if (!currentSessionId) return null;
-  return sessions.get(currentSessionId) ?? null;
-}
-
-export function setCurrentSession(session: SessionData): void {
-  sessions.set(session.id, session);
-  currentSessionId = session.id;
-}
-
-export function clearCurrentSession(): void {
-  if (currentSessionId) {
-    sessions.delete(currentSessionId);
-    currentSessionId = null;
-  }
-}
-
-/** Test-only: reset all state. */
-export function _reset(): void {
-  sessions.clear();
-  currentSessionId = null;
+  return {
+    get: (playerId) => sessions.get(playerId) ?? null,
+    upsert: (playerId, session) => {
+      sessions.set(playerId, session);
+    },
+    delete: (playerId) => {
+      sessions.delete(playerId);
+    },
+  };
 }

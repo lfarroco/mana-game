@@ -7,7 +7,7 @@ import { loadConfig } from "./config";
 
 const config = loadConfig();
 
-const app = createApp();
+const app = createApp({ corsOrigin: config.corsOrigin });
 
 const server = app.listen(config.port, config.host, () => {
   console.log(

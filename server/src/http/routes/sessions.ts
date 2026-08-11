@@ -1,77 +1,65 @@
 /**
  * Session routes — session lifecycle and action dispatch.
  *
- * Local-only (no auth): uses a single implicit player with one
- * active session at a time.  Identify via /sessions/current.
+ * Player identity: `X-Player-Id` header (v1 — token auth comes later).
+ * One active session per player; creating a second returns 409.
+ *
+ * The raw in-memory CombatState contains non-JSON-safe Maps, so responses
+ * always strip it from the session payload. While in the `combat` phase it
+ * is included separately, serialized via the core CombatCodec, so a
+ * reconnecting client can resume playback.
  */
 
 import { Router, type Request, type Response } from "express";
-import { v4 as uuid } from "uuid";
-import type { SessionData } from "@game/types/session";
 import * as CombatCodec from "@game/Combat/CombatCodec";
-import * as sessionService from "../../services/sessionService";
-import * as memory from "../../persistence/memory";
+import type { SessionData } from "@game/types/session";
+import type { CombatState } from "@game/types/combat";
+import type { SessionRepo } from "../../persistence/repositories";
+import { createSessionService } from "../../services/sessionService";
+import {
+  parseActionDispatchBody,
+  parseCreateSessionBody,
+  parsePlayerId,
+} from "../../dto";
 
-const LOCAL_PLAYER_ID = "local-player";
+export function sessionsRouter(repo: SessionRepo): Router {
+  const service = createSessionService(repo);
+  const router = Router();
 
-export const sessionsRouter = Router();
+  // POST /sessions — create a new multiplayer session (409 if one exists)
+  router.post("/", (req: Request, res: Response) => {
+    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const request = parseCreateSessionBody(req.body);
+    const session = service.createSession(playerId, request);
 
-// POST /sessions — create a new session (replaces any existing)
-sessionsRouter.post("/", (req: Request, res: Response) => {
-  const { crystalId } = req.body as { crystalId?: string };
+    res.status(201).json(toWireSession(session));
+  });
 
-  const session = sessionService.createSession(LOCAL_PLAYER_ID, crystalId);
-  session.id = uuid();
+  // GET /sessions/current — resume/reconnect; combat state serialized while in combat
+  router.get("/current", (req: Request, res: Response) => {
+    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const session = service.getSession(playerId);
 
-  memory.setCurrentSession(session);
+    if (!session) {
+      res.status(404).json({
+        error: "no_active_session",
+        message: "No active session",
+      });
+      return;
+    }
 
-  res.status(201).json(session);
-});
+    res.json(toWireSession(session));
+  });
 
-// GET /sessions/current — get the active session
-sessionsRouter.get("/current", (_req: Request, res: Response) => {
-  const session = memory.getCurrentSession();
+  // POST /sessions/current/actions — dispatch a single action
+  router.post("/current/actions", (req: Request, res: Response) => {
+    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const { action } = parseActionDispatchBody(req.body);
+    const result = service.handleAction(playerId, action);
 
-  if (!session) {
-    res.status(404).json({ error: "No active session" });
-    return;
-  }
-
-  // Strip raw combatState (contains non-JSON-safe Map)
-  const { combatState: _, ...safeSession } = session as SessionData & {
-    combatState?: unknown;
-  };
-
-  res.json(safeSession);
-});
-
-// POST /sessions/current/actions — dispatch an action
-sessionsRouter.post("/current/actions", (req: Request, res: Response) => {
-  const session = memory.getCurrentSession();
-
-  if (!session) {
-    res.status(404).json({ error: "No active session" });
-    return;
-  }
-
-  const { action } = req.body as { action?: Record<string, unknown> };
-
-  if (!action || typeof action !== "object") {
-    res.status(400).json({ error: "Missing or invalid action" });
-    return;
-  }
-
-  try {
-    const result = sessionService.handleAction(session, action as never);
-    memory.setCurrentSession(result.session);
-
-    // Strip raw combatState from session (contains non-JSON-safe Map).
-    // The serialized version is sent separately below.
-    const { combatState: _rawCombat, ...safeSession } =
-      result.session as SessionData & { combatState?: unknown };
-
-    // Encode combat state for wire transport (removes non-JSON-safe Maps)
-    const response: Record<string, unknown> = { session: safeSession };
+    const response: Record<string, unknown> = {
+      session: toWireSession(result.session),
+    };
     if (result.combatState) {
       response.combatState = CombatCodec.serializeCombatState(
         result.combatState,
@@ -79,22 +67,42 @@ sessionsRouter.post("/current/actions", (req: Request, res: Response) => {
     }
 
     res.json(response);
-  } catch (err: unknown) {
-    const message =
-      err instanceof Error ? err.message : "Action dispatch failed";
-    res.status(422).json({ error: message });
+  });
+
+  // DELETE /sessions/current — abandon the run
+  router.delete("/current", (req: Request, res: Response) => {
+    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const deleted = service.deleteSession(playerId);
+
+    if (!deleted) {
+      res.status(404).json({
+        error: "no_active_session",
+        message: "No active session",
+      });
+      return;
+    }
+
+    res.status(204).send();
+  });
+
+  return router;
+}
+
+/**
+ * Strip the raw (Map-carrying) CombatState from a session before responding.
+ * While in the combat phase the combat state is included, serialized, so a
+ * reconnecting client can resume playback.
+ */
+function toWireSession(session: SessionData): Record<string, unknown> {
+  const { combatState, ...safe } = session as SessionData & {
+    combatState?: CombatState;
+  };
+
+  if (session.phase === "combat" && combatState) {
+    return {
+      ...safe,
+      combatState: CombatCodec.serializeCombatState(combatState),
+    };
   }
-});
-
-// DELETE /sessions/current — abandon the current run
-sessionsRouter.delete("/current", (_req: Request, res: Response) => {
-  const session = memory.getCurrentSession();
-
-  if (!session) {
-    res.status(404).json({ error: "No active session" });
-    return;
-  }
-
-  memory.clearCurrentSession();
-  res.status(204).send();
-});
+  return safe;
+}
