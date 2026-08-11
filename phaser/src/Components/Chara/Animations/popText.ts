@@ -19,6 +19,8 @@ const POP_TEXT_COLORS = {
 	SHIELD: "yellow",
 	POISON: "#9932cc",
 	TIMEOUT: "#ff8c00",
+	// Matches ABILITY_COLORS.increase_power
+	POWER: "#ff8cc8",
 } as const;
 
 export function popText({
@@ -32,7 +34,7 @@ export function popText({
 	x: number;
 	y: number;
 	text: string;
-	type?: "heal" | "damage" | "shield" | "poison" | "timeout" | "regen";
+	type?: "heal" | "damage" | "shield" | "poison" | "timeout" | "regen" | "power";
 	direction?: "up" | "down" | "left" | "right";
 	critical?: boolean;
 }) {
@@ -49,6 +51,8 @@ export function popText({
 		textColor = POP_TEXT_COLORS.TIMEOUT;
 	} else if (type === "regen") {
 		textColor = POP_TEXT_COLORS.REGEN;
+	} else if (type === "power") {
+		textColor = POP_TEXT_COLORS.POWER;
 	}
 
 	const popText = env.scene.add
