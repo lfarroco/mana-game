@@ -4,7 +4,11 @@ Completed tasks moved out of [AGENTS.md](AGENTS.md). Newest entries last.
 
 ---
 
-## Framework formalization — Phase D: `@mana/framework` package (2026-08-01, Cline)
+Date: 2026-08-11
+
+- [x] Reduced the energy slot glow and flashing on the battleground board: softened the shader pulse in `phaser/src/Shaders/EnergySlotShader.ts` (ring modulation narrowed from `0.7 + 0.3 * pulse` to `0.8 + 0.12 * pulse`, lowering peak brightness and halving the flash swing) and dimmed the base `intensity` in `phaser/src/Components/EnergySlot/EnergySlot.ts` (default 1.0→0.75, player 1.0→0.75, enemy 0.8→0.6, neutral 1.2→0.9). Validated with eslint (clean on changed files), unit tests (identical pass/fail baseline vs stashed state), and tsc (no errors in changed files). (Copilot, 2026-08-11)
+
+Date: 2026-05-12
 
 Extracted the client-runtime patterns into a standalone framework package,
 completing the roadmap in [docs/framework-formalization.md](docs/framework-formalization.md).
