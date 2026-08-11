@@ -89,6 +89,17 @@ The trigger frequency `T` is calculated as:
 
 **Diminishing Returns**: The square root scaling prevents reaction spam from being overpowered. With 8 allies, you get √8 ≈ 2.83× triggers, not 8×.
 
+**Composition-dependent variance**: The model assumes an "average" board composition
+for `base_freq`, but real boards concentrate on specific effect types. A board with
+5+ poison units will fire `poison` reactions far more than the model's generic 1.0/source
+base frequency estimates. Conversely, a reaction keyed to `haste` (base freq 0.5) on a
+board with a single haste source fires well below estimate. The √n scaling dampens
+this variance but does not eliminate it. When designing a card with a narrow reaction
+condition (e.g. `reaction("poison", "allies", ...)`), consider both the **average**
+board scenario (the model) and the **dedicated** scenario (a player who fills the board
+with poison units). If the dedicated scenario produces AP more than 2× the band ceiling,
+the card is degenerate in that composition and needs a narrower position or a cap.
+
 **Base Frequencies** (per source per 5 seconds):
 
 | Effect Type | Base Frequency | Reasoning |
@@ -222,6 +233,16 @@ Combat is expected to last for 30 seconds.
 Effects that scale (like increasing power) are expected to yield "profit" over raw damage/heal at the 15/20 second mark.
 Permanent power increases (they last even for future combats) are expected to cost 5x more than temporary power increases.
 
+**Permanent power viability concern**: The 5× multiplier (10×amount vs 4×amount for
+temporary) means a permanent-power unit is severely under-statted in its first combat.
+If a run averages 6 combats, the unit must survive ~3–4 combats just to break even on
+its AP investment versus a temporary-power equivalent. In short runs, or when recruited
+late, permanent-power units are trap picks — they look like an investment but never pay off.
+Consider whether the multiplier should be softer (e.g. 3× → 6×amount) with a compensating
+"ramp-up tax" (the unit starts at base power and scales over combats, so early battles
+are harder). The current pricing favors permanent power only on already-strong units
+that don't need the ramp, defeating the design intent.
+
 **Adjust balance by:**
 - Changing cooldown
 - Changing effect magnitude
@@ -251,6 +272,33 @@ Two effects compound with themselves and each other, so they carry hard caps:
   values, so it must be a rare, slow build-around effect.
 - Priced at **8 × (Multiplier − 1) × Power** per use — double the flat
   multiplier cost — to reflect its compounding nature.
+
+## 18. Open Issues
+
+The following are known limitations of the AP model that should be revisited
+as the card pool grows. See [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md)
+for the full improvement plan.
+
+1. **AP band overlap**: Bronze [80, 160], Silver [120, 260], Gold [150, 320].
+   These bands overlap substantially. A silver at 120 AP with an inactive reaction
+   is strictly weaker than a bronze at 140 AP — the player paid 15g for a worse card.
+   The bands were widened to accommodate the upgrade curve, but the overlap creates
+   "feels-bad" shop moments. Consider tightening the bands after the silver pool
+   is filled out and there is more playtest data on actual versus modeled performance.
+2. **Permanent power cost**: The 5× multiplier may be too punitive (see §16).
+   Collect data on how often permanent-power units are picked, at what round, and
+   whether they survive to profitability.
+3. **Haste/slow pricing assumption**: ΔAP depends on the target's action value and
+   cooldown, which the model estimates generically. A haste caster that consistently
+   targets the board's highest-power unit produces ΔAP far above the model's estimate.
+   Consider whether haste/slow should be priced more conservatively or whether targeting
+   should be restricted for haste effects (e.g. haste always hits `randomAlly`, never
+   a specific position).
+4. **On-hit scaling**: `every_100_damage`, `every_100_shield`, etc. use a flat base
+   frequency of 1.0, but the actual trigger rate depends on the total damage/shield
+   output of the entire board — a value that changes dramatically as units scale up
+   their power. These triggers are inherently self-accelerating and may need caps
+   on per-combat activations.
 
 ## Summary
 

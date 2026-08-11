@@ -24,6 +24,11 @@ There are 92 non-core cards today: 61 bronze, 8 silver, 23 gold. The six cores
 (`*_crystal`, `quickstone`) are rank-less `isCore` units and are not part of the
 tier system.
 
+> **Silver pool is undersized.** With only 8 silver cards the silver shop
+> (2 options) repeats the same picks every run, and the situational-synergy tier
+> cannot support meaningful archetype variety. **Target: ≥ 20 silvers.**
+> See [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md) §1.
+
 ### Bronze (rank 1) — the foundation
 
 - **Self-contained, reliable kits.** A bronze unit performs well with no support:
@@ -59,6 +64,11 @@ tier system.
   units. The five unlocked golds (`toxicologist`, `expedition_leader`,
   `vanguard`, `veteran_paladin`, `webert_the_old`) are the "chase" picks in
   gold shops.
+- **Gold balance cannot be fully automated.** The wide AP bands mean the balance
+  test trusts designer judgment on engine feasibility. A gold with a reaction
+  that requires a specific effect type may be mathematically in-band but
+  practically useless if the card pool lacks enough enablers. Every gold card
+  must pass the **gold feasibility checklist** (§3.1) before it is accepted.
 
 ### Platinum (rank 4) — terminal investment
 
@@ -119,6 +129,81 @@ Key pricing rules (from `unit-balance.md`):
 - **Team-harming effects are negative value** (§9.1): buffing enemies or
   debuffing allies. These units are allowed to deviate from the band.
 
+### 3.1. Gold feasibility checklist
+
+Because gold cards sit outside tight AP bands by design, every gold must pass
+a manual feasibility review that the automated balance test cannot perform:
+
+1. **Enabler count**: how many non-core, unlocked cards in the pool produce the
+   effect this gold's engine requires? If the answer is < 3, the gold is a
+   dead draw in most runs. (Example: a gold keying off `every_100_regen` on a
+   pool with only 2 regen cards is unacceptable.)
+2. **Enabler tier distribution**: are the enablers all gold, or are there
+   bronze/silver enablers? If the enablers are all gold themselves, the engine
+   requires two gold draws to function — too rare.
+3. **Worst-case AP**: compute the gold's AP assuming zero engine triggers. This
+   is the "brick" value when the player cannot activate the synergy. If it is
+   < 60 AP (below a weak bronze), the gold is a trap pick that costs 25g and
+   a shop slot. Consider raising its base power or giving it a fallback effect.
+4. **Best-case AP sanity check**: compute AP assuming the engine fires at the
+   maximum mathematically possible frequency (all 8 allies producing the
+   trigger effect). If this exceeds ~500 AP, the engine likely spirals and
+   should be dampened (longer cooldown, cap on stacks, or narrower trigger).
+5. **Shop visibility**: does the gold rely on a specific effect type that the
+   player can target via encounter choices (e.g. armory for damage, healing_tent
+   for heal)? If no typed encounter provides its enablers, the player has no
+   agency to build toward it — the gold is pure RNG.
+
+If a gold fails any of these checks, either adjust its numbers, widen its
+trigger condition, add enabler cards to the pool, or add a matching shop
+encounter. Do not ship a gold that only works in theory.
+
+### 3.2. Disruption & counterplay (future design space)
+
+The current trigger system has no purge, dispel, silence, or counter-synergy
+mechanics. A shield-stacking composition has no predator except a raw DPS check;
+a poison-synergy board has no counter except out-racing it. This is acceptable
+for PvE, but as multiplayer is added ([game-server.md](game-server.md)) the lack
+of disruption mechanics means the meta will converge to a few dominant synergy
+packages with no checks.
+
+Candidate disruption effects for future design exploration:
+
+| Effect | Mechanic | Design notes |
+| :--- | :--- | :--- |
+| `purge` | Removes all shield/poison/regen stacks from target crystal | Counters shield-stacking and DoT-heavy boards |
+| `silence` | Prevents target unit from triggering reactions for N seconds | Direct counter to silver/gold synergy engines |
+| `taunt` | Forces enemy effects to target this unit's crystal | Protective tool for fragile compositions |
+| `reflect` | Returns X% of received damage as a one-time hit | Punishes glass-cannon damage boards |
+| `mana_burn` | Reduces target crystal's max life by N for this combat | Anti-tank tool against high-life compositions |
+
+These should be **silver-tier effects** (situational answers, not general-use
+tools) so they reward reading the opponent's board rather than becoming default
+picks. A `purge` silver in a shop against a shield-stacking enemy board is a
+meaningful strategic decision; a `purge` bronze that everyone auto-includes is
+not.
+
+See the roadmap in [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md) §3.
+
+### 3.3. Positional design depth (underexploited)
+
+The 3×3 grid is the game's spatial constraint, but card designs currently use
+position primarily as a cost multiplier for reactions (row/column/directional).
+The grid can carry more design weight:
+
+- **Front-row / back-row roles**: units in row 0 (front) could have distinct
+  identities from row 2 (back) — e.g. front-row units have higher base life,
+  back-row units have longer cooldowns but stronger effects.
+- **Adjacency bonuses**: effects that scale with the number of adjacent allies
+  (max 4 for center slot, 2 for edge, 1 for corner) reward thoughtful placement.
+- **Positional threats**: enemy effects that target "strongest in row" or
+  "weakest in column" force the player to arrange their board defensively.
+- **Column/row archetypes**: a column of all-shield units, a row of all-damage
+  units — the grid becomes a composition mini-game, not just a container.
+
+These are lower-priority than filling the silver pool and adding disruption,
+but worth considering as the card pool grows beyond 100+ cards.
+
 ## 4. Authoring a card — checklist
 
 When adding or editing a card in `core/src/data/BaseCollection.ts`:
@@ -145,15 +230,28 @@ When adding or editing a card in `core/src/data/BaseCollection.ts`:
 
 ## 5. Shop & economy
 
-- **Costs are tier-based**: bronze 10, silver 15, gold 25 (`getCardCost` in
-  `OptionGeneration.ts`). A gold card in a wildcard shop is a real investment.
+Mana Battle has **no gold or in-run currency**. The `getCardCost` values (10/15/25)
+in `OptionGeneration.ts` are display-only tier indicators — no gold is tracked,
+deducted, or accumulated during a session. The encounter slot is the economy.
+
+**Design rationale**: Gold adds a second balancing dimension (income, prices,
+hoarding, interest) without adding meaningful decisions to a game where the core
+choice is already "which of these 1–3 cards do I place on my 3×3 grid?" Each round
+has exactly 3 encounter slots — every card costs exactly "1 encounter pick,"
+regardless of tier. The tier difference manifests as **fewer options** (1 gold vs
+3 bronze) and **rarer appearance** (gold shop unlocks at round 6), not as a price
+the player must budget for. A gold that costs gold you don't have is pure
+frustration; a gold that costs "your one pick this encounter" is a strategic
+trade-off. See [encounter-system.md](encounter-system.md) §8 for the full design
+discussion.
+
 - **Shop availability** (`generateShopOptions`):
   - `silver_shop` → 2 silver options
   - `gold_shop` → 1 gold option
   - effect-typed encounters (armory, healing_tent, …) → bronze cards matching
     that effect only
   - wildcard encounters (`upgrade_unit`, `power_distributor`, `power_absorber`)
-    → any tier, including rare gold draws at tier price
+    → any tier
 
 ## 6. Flavor & risk exceptions
 
@@ -162,6 +260,29 @@ The game intentionally has a few cards that do not fit the budget model
 probabilistic payoff is hard to price). These are the exception, not the rule:
 every such card must be allowlisted in the test with a written justification, so
 the deviation is a conscious decision rather than an unnoticed regression.
+
+**A single allowlist entry is too few.** The AP model is a linear approximation
+of a non-linear system — risk/reward, probabilistic payoffs, and timing-sensitive
+effects are inherently difficult to price. Having only `gambler` in the allowlist
+suggests the design space may be overly constrained by the model. Actively
+encourage risk/flavor designs, especially at silver and gold tiers:
+
+- **Silver risk cards**: a silver that gains power *only* when its reaction fires
+  but carries a stat penalty otherwise. The AP model prices it as under-budget,
+  but it creates a high-agency "do I enable this?" decision.
+- **Gold risk cards**: a gold with a powerful effect that also harms the owner
+  (negative-value effects from `unit-balance.md` §9.1). The model handles
+  team-harming effects naturally (they produce low/negative AP), so these are
+  test-safe by construction.
+- **Probabilistic effects**: crit-based engines, "X% chance to double cast"
+  effects — the model's `on_crit` base frequency (0.4) is a coarse average.
+  Cards built around crit variance may need allowlisting with a note on their
+  expected payoff distribution.
+
+The `AP_ALLOWLIST` is not a shame-list; it is a documentation of intentional
+design choices. A healthy card pool should have **5–10** allowlist entries across
+92+ cards, each with a concise justification. If the pool grows to 150 cards and
+the allowlist still has 1 entry, the model is suffocating the design space.
 
 ## 7. Enforcement
 
@@ -180,4 +301,19 @@ rules above. It checks:
 
 If you change a card's numbers, the test tells you immediately whether it is in
 band. Keep it green.
+
+
+**What the test cannot enforce** (these require manual review per §3.1 and
+[card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md)):
+
+- Whether a gold card's engine condition is actually achievable with the
+  available card pool (enabler count, tier distribution)
+- Whether a silver card's reaction trigger is too rare or too common in practice
+  (composition-dependent variance)
+- Whether a permanent-power unit is viable in its first combat or a trap pick
+- Whether the golden path (the most common sequence of shops/upgrades a player
+  sees) provides enough opportunity to activate each silver/gold
+
+These should be reviewed during card authoring and revisited whenever the card
+pool changes.
 

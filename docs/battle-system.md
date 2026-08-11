@@ -61,6 +61,12 @@ returns the next session state.
 - 3x3 grid (positions 0,0 to 2,2); player board at the bottom, enemy board
   at the top (visually flipped).
 
+> **Design note — positional depth is underexploited.** Card designs currently
+> use position primarily as a reaction cost multiplier, but the grid can carry
+> more design weight: adjacency bonuses, front/back-row roles, positional
+> threats. See [card-design-philosophy.md](card-design-philosophy.md) §3.3 and
+> [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md) §4.
+
 ### State flow
 
 - Client state lives in `env.state` (`phaser/src/Env.ts`); the authoritative
