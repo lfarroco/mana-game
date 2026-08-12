@@ -25,6 +25,7 @@ import {
 	handleChargeHit,
 } from "./arcaneMissileHandlers";
 import { handleIncreasePower, handleDecreasePower } from "./powerHandlers";
+import { handleReaction } from "./reactionHandlers";
 import { handleHasteEnd, handleSlowEnd } from "./statusHandlers";
 import { handleCombatStats } from "./combatStatsHandlers";
 
@@ -99,7 +100,7 @@ export const executeLogHandler = (
 			handleTimeoutDamageHit(log, playbackState);
 			break;
 		case "reaction":
-			// no-op
+			handleReaction(log, playbackState);
 			break;
 		case "haste_end":
 			handleHasteEnd(log, playbackState);

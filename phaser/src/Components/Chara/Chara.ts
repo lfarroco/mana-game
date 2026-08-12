@@ -78,8 +78,10 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 
 /**
  * Fade a chara in from a white silhouette instead of popping it in.
+ * The sprite is tinted solid white and made invisible, then its alpha is
+ * faded back to 1 so the real texture is revealed once the tint is cleared.
  */
-function fadeInFromWhite(chara: Chara): void {
+export function fadeInFromWhite(chara: Chara): void {
 	const sprite = mustGetState(chara).sprite;
 	sprite.setTintFill(0xffffff);
 	sprite.setAlpha(0);

@@ -4,6 +4,22 @@ Completed tasks moved out of [AGENTS.md](AGENTS.md). Newest entries last.
 
 ---
 
+Date: 2026-08-12
+
+- [x] Client: when a unit reacts to some effect, its sprite now fades in from a
+  white silhouette. Exported the existing beam-summon fade (`fadeInFromWhite` in
+  `phaser/src/Components/Chara/Chara.ts` — `setTintFill(0xffffff)` + alpha 0→1
+  tween → `clearTint()`) and wired it into the combat `reaction` log via a new
+  `handleReaction` handler in
+  `phaser/src/Screens/Battleground/Phases/Combat/logHandlers/reactionHandlers.ts`
+  (the `reaction` case was previously a no-op; dispatch wired in
+  `logHandlers/index.ts`). Added a unit test for the handler (2 tests, green)
+  and updated `docs/effect-system.md`. Validated with jest (7 phaser suites /
+  32 tests + 32 core suites / 424 tests pass) and eslint (clean on changed
+  files). Note: `npm run typecheck` reports errors only from stale untracked
+  old-structure dirs (`phaser/src/Client/`, `phaser/src/Systems/`), not from
+  tracked code. (Cline, 2026-08-12)
+
 Date: 2026-08-11
 
 - [x] Reduced the energy slot glow and flashing on the battleground board: softened the shader pulse in `phaser/src/Shaders/EnergySlotShader.ts` (ring modulation narrowed from `0.7 + 0.3 * pulse` to `0.8 + 0.12 * pulse`, lowering peak brightness and halving the flash swing) and dimmed the base `intensity` in `phaser/src/Components/EnergySlot/EnergySlot.ts` (default 1.0→0.75, player 1.0→0.75, enemy 0.8→0.6, neutral 1.2→0.9). Validated with eslint (clean on changed files), unit tests (identical pass/fail baseline vs stashed state), and tsc (no errors in changed files). (Copilot, 2026-08-11)

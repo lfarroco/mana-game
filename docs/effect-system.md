@@ -15,6 +15,8 @@ deterministic in `core/`.
    - `projectileHandlers.ts` — damage / heal / shield style projectiles
    - `statusHandlers.ts` — poison, regen, haste, slow, charge
    - `powerHandlers.ts` — power increases / decreases / multipliers
+   - `reactionHandlers.ts` — unit reactions (fade the reacting unit's sprite
+     in from a white silhouette, the same fade used by the beam-summon display)
    - `arcaneMissileHandlers.ts`, `combatStatsHandlers.ts`, plus `index.ts`
      (dispatch), `types.ts`, `combatStateStore.ts`
 4. Styling adapters in `logHandlers/visuals/` (`damage.ts`, `heal.ts`,
