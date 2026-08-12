@@ -119,7 +119,7 @@ Later (Phase 5): `GET /leaderboard`, `GET /players/me`, and agent endpoints revi
    - Everything else → `transitionToNextState(session, action)`.
    - `end_combat` resulting in `victory` / `game_over` → apply the rating delta.
 3. **Core changes required first (Phase 0 blockers)**:
-   - **~~Remove the `SessionTransitions.pendingCombatState` module-level singleton~~ ✅ DONE (2026-07-26)** — `executeCombatPhase` now embeds combat state in `session.combatState`; `transitionAfterCombat` reads from the session. See AGENTS_ARCHIVE.md.
+   - **~~Remove the `SessionTransitions.pendingCombatState` module-level singleton~~ ✅ DONE (2026-07-26)** — `executeCombatPhase` now embeds combat state in `session.combatState`; `transitionAfterCombat` reads from the session.
    - **Expose the enemy-team override**: `executeCombatPhase(session, enemyTeam?)` already accepts an override internally, but `transitionToNextState` doesn't surface it. Add `transitionToNextState(session, action, options?: { enemyTeam?: Unit[]; enemyPlayerName?: string })`. (Same shape the retired Supabase handler expected — this heals the drift with a typed API.)
 
 ## Matchmaking (async "ghost" PvP) & rating
