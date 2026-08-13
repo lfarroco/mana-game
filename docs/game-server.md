@@ -1,6 +1,6 @@
 # Game Server — Multiplayer Backend Plan
 
-**Status**: 📋 Plan (implementation not started)
+**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; 🔐 Steam-only auth designed 2026-08-13 — see [auth.md](auth.md); implementation pending
 **Created**: 2026-07-25
 **Supersedes** (once implemented): [supabase-backend.md](supabase-backend.md), [commit-replay-multiplayer.md](commit-replay-multiplayer.md), [MULTIPLAYER_SETUP.md](MULTIPLAYER_SETUP.md), and the Supabase-specific parts of [multiplayer-architecture.md](multiplayer-architecture.md)
 
@@ -10,8 +10,8 @@ Create `server/` — a standalone Node.js package hosting the **authoritative ga
 
 Scope:
 
-- **v1**: guest auth, session lifecycle, action dispatch, server-side combat, async "ghost" PvP matchmaking, rating, in-memory persistence.
-- **Later**: durable persistence (SQLite), leaderboards, LLM agent play service, replay validation, Steam auth.
+- **v1**: Steam-only auth, session lifecycle, action dispatch, server-side combat, async "ghost" PvP matchmaking, rating, in-memory persistence.
+- **Later**: durable persistence (SQLite), leaderboards, LLM agent play service, replay validation, guest/non-Steam auth.
 
 Non-goals (v1): WebSockets / real-time play, synchronous PvP, tournaments.
 
@@ -58,7 +58,7 @@ server/
     http/
       middleware/auth.ts  # Bearer token → playerId
       middleware/errors.ts
-      routes/players.ts   # POST /players (guest signup)
+      routes/players.ts   # POST /players (guest signup — future phase)
       routes/sessions.ts  # session CRUD + action dispatch
     services/
       sessionService.ts   # wraps core SessionManagement + SessionTransitions
@@ -79,12 +79,13 @@ server/
 
 ## API (v1)
 
-Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health` and `POST /players`.
+Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health` and `POST /auth/steam`.
 
 | Method | Path | Body → Response | Notes |
 |---|---|---|---|
 | GET | `/health` | → `{ ok: true }` | liveness |
-| POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once |
+| POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron); the Steam-only auth entry point — see [auth.md](auth.md) |
+| POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one active session per player (409 if one exists) |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none |
 | POST | `/sessions/current/actions` | `{ action: Action, clientActionId? }` → `{ session, combatState? }` | single action-dispatch endpoint; `clientActionId` gives idempotent retries |
@@ -111,7 +112,7 @@ Later (Phase 5): `GET /leaderboard`, `GET /players/me`, and agent endpoints revi
 
 ## Session & combat flow (server-side)
 
-1. `POST /sessions` → `SessionManagement.createInitialSession(playerId, serverSeed, crystalId)` with `session_type = { type: "multiplayer", queueType }`. **The server generates the seed** (replay authority; aligns with the deferred-submission item in plan.md).
+1. `POST /sessions` → `SessionManagement.createInitialSession(playerId, serverSeed, crystalId)` with `session_type = { type: "multiplayer", queueType }`. **The server generates the seed** (replay authority).
 2. `POST .../actions`:
    - Load session (404 if none); reject if already `victory` / `game_over`.
    - A per-player mutex serializes actions; `clientActionId` dedupes retries.
@@ -139,8 +140,12 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
 
 ## Auth
 
-- **v1**: guest flow — `POST /players` returns a `playerId` + opaque bearer token (stored hashed server-side). The client persists it in localStorage, replacing the current client-side random `player_###` id in `RemoteServer.ts`.
-- **Phase 5**: Steam auth (port the `auth-steam` edge function logic), token refresh/expiry.
+Steam-only — see **[auth.md](auth.md)** for the full design (data model, token scheme, flows, security).
+
+- **Steam = identity proof, server = sessions**: `POST /auth/steam` validates the Electron client's `GetAuthTicketForWebApi` ticket against Steam's `AuthenticateUserTicket` Web API, upserts the player, and issues an opaque bearer token (SHA-256 hashed server-side).
+- **All session endpoints** are authorized by `Authorization: Bearer <token>` (middleware in `http/middleware/auth.ts`), replacing the dev-only `X-Player-Id` header.
+- **Guest accounts** are a future-phase concern (see auth.md) — the Steam-only launch has no guest endpoints. No Firebase/Supabase Auth for v1.
+- **Display name** for Steam players = Steam persona (`localplayer.getName()` / `GetPlayerSummaries`).
 
 
 ## Client integration (Phase 3)
@@ -153,13 +158,14 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
 | Phase | Deliverable | Exit criteria |
 |---|---|---|
 | **0. Core hardening** | `pendingCombatState` singleton removed; enemy-team override param on `transitionToNextState`; combat-state codec | core tests green; new tests for the override + codec round-trip |
-| **1. Server skeleton** | package scaffolding, config, express app, guest auth, in-memory repos, session + action endpoints | `npm run dev` serves; jest + HTTP integration tests green; full-run flow test passes |
+| **1. Server skeleton** | package scaffolding, config, express app, in-memory repos, session + action endpoints (identity via `X-Player-Id` header, dev-only) | `npm run dev` serves; jest + HTTP integration tests green; full-run flow test passes |
+| **1.5. Steam-only auth** | Player/token repos (in-memory), `POST /auth/steam` (ticket → Steam Web API → player upsert → bearer token), Bearer middleware replacing `X-Player-Id`; no guest endpoints (future phase) — see [auth.md](auth.md) | tests with a mocked Steam Web API; manual Steam auto-login against a local server; 401s on bad/expired tokens |
 | **2. Matchmaking & rating** | ghosts, opponent selection, rating on run completion | unit tests: match found in band, self excluded, PvE fallback, rating applied exactly once |
 | **3. Client integration** | HTTP `RemoteServer`; supabase removal | client typecheck/lint green; manual MP run against a local server end-to-end |
 | **4. Durable persistence** | SQLite repos + schema; restart survival | kill/restart the server mid-run → `GET /sessions/current` resumes |
-| **5. Extras** | leaderboard endpoint; agent play service (revives `agentGameServer`; unblocks the queued leaderboard-match-runner task); replay validation; Steam auth | per-feature |
+| **5. Extras** | leaderboard endpoint; agent play service (revives `agentGameServer`; unblocks the queued leaderboard-match-runner task); replay validation; token refresh/expiry; guest/non-Steam auth | per-feature |
 
-Phase 0 is small and independently mergeable. Phases 1–2 can land while the server is dev-only; Phase 3 wires the client.
+Phase 0 is small and independently mergeable. Phases 1, 1.5, and 2 can land while the server is dev-only; Phase 3 wires the client.
 
 ## Testing strategy
 
@@ -170,7 +176,7 @@ Phase 0 is small and independently mergeable. Phases 1–2 can land while the se
 
 ## Config & deployment
 
-- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default `8787`), `MANA_SQLITE_PATH` (Phase 4), `MANA_TOKEN_TTL_DAYS`.
+- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default `8787`), `MANA_SQLITE_PATH` (Phase 4), `MANA_TOKEN_TTL_DAYS`, `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS` (auth — see [auth.md](auth.md)).
 - Single Node process: `npm run build && npm start`. Dockerfile + a host (fly.io / Render / VPS) decided at Phase 4; no edge-runtime requirements.
 
 ## Risks & open questions
