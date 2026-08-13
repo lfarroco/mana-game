@@ -1,0 +1,87 @@
+// Core crystals — every run starts with one of these anchor units.
+// Split from data/BaseCollection.ts (tier grouping) — balance conventions in
+// docs/unit-balance.md, tier design in docs/card-design-philosophy.md.
+
+import * as Models from "../../Models";
+import {
+  regen,
+  damage,
+  heal,
+  shield,
+  poison,
+  haste,
+  slow,
+  charge,
+  increasePower,
+  increaseCritical,
+  reaction,
+  column,
+  row,
+  randomAlly,
+  randomEnemy,
+  trigger,
+  self,
+} from "../effectBuilders";
+
+export const CORE_CARDS: Models.CardDefinition[] = [
+  {
+    id: "mana_crystal",
+    pic: "blue-stone",
+    life: 500,
+    power: 35,
+    cooldown: 5200,
+    isCore: true,
+    effects: [regen, increasePower(10, column)],
+    reactions: [reaction("damage", "left_ally", charge(200, self))],
+  },
+  {
+    id: "critical_crystal",
+    pic: "red-stone",
+    life: 500,
+    power: 35,
+    cooldown: 5200,
+    isCore: true,
+    effects: [damage, increaseCritical(5, column)],
+    reactions: [reaction("all", "row_allies", increasePower(5, column))],
+  },
+  {
+    id: "protective_crystal",
+    pic: "yellow-stone",
+    life: 600,
+    power: 35,
+    cooldown: 4500,
+    isCore: true,
+    effects: [shield, increasePower(5, randomAlly(1), true)],
+    reactions: [reaction("all", "row_allies", increasePower(5, trigger))],
+  },
+  {
+    id: "growth_crystal",
+    pic: "green-stone",
+    life: 500,
+    power: 35,
+    cooldown: 4500,
+    isCore: true,
+    effects: [heal, increasePower(2, column, true)],
+    reactions: [reaction("all", "row_allies", increasePower(5, trigger))],
+  },
+  {
+    id: "purple_crystal",
+    pic: "purple-stone",
+    life: 500,
+    power: 40,
+    cooldown: 4700,
+    isCore: true,
+    effects: [poison, slow(1000, randomEnemy(1))],
+    reactions: [reaction("slow", "allies", increasePower(4, trigger, true))],
+  },
+  {
+    id: "quickstone",
+    pic: "haste-stone",
+    life: 500,
+    power: 48,
+    cooldown: 5200,
+    isCore: true,
+    effects: [regen, haste(1000, row)],
+    reactions: [reaction("haste", "right_ally", charge(200, column))],
+  },
+];

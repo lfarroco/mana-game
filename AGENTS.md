@@ -167,5 +167,7 @@ Framework hardening (verified findings + plan: [docs/framework-hardening.md](doc
 
 ### Low Priority
 
+- [ ] **Large-file decomposition (P1 batch)** — per [docs/file-granularity.md](docs/file-granularity.md): split the 4 big test suites (`ReactionIntegration`, `CombatSimulation`, `EffectIntegration`, `createScreen.test`), `TutorialOverlay.ts` slides, and `createScreen.ts` (types/PhaseTracker/screenModule). All pure refactors; core splits must keep the 424-test suite green and RNG call order intact.
+
 
 
