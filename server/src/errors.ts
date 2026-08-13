@@ -17,6 +17,10 @@ export type ApiErrorCode =
   | "no_active_session"
   | "session_finished"
   | "action_rejected"
+  | "missing_token"
+  | "invalid_token"
+  | "invalid_steam_ticket"
+  | "invalid_identity"
   | "internal_error";
 
 export class ApiError extends Error {

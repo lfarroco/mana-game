@@ -24,7 +24,7 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
 
 ### Server — foundations
 
-- [ ] **1. Player & token repositories**
+- [x] **1. Player & token repositories** — DONE (2026-08-13)
   - **Context**: v1 persistence is in-memory Maps behind repository interfaces; only `SessionRepo` exists today.
   - **Files**: `server/src/persistence/repositories.ts`, `server/src/persistence/memory.ts`
   - **Steps**:
@@ -35,7 +35,7 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     5. In-memory impls (fresh Maps per `createApp()`), same pattern as `createMemorySessionRepo`.
     6. Enforce the `UNIQUE(provider, provider_id)` upsert invariant in the memory impl (repeat login returns the same player).
 
-- [ ] **2. Token service**
+- [x] **2. Token service** — DONE (2026-08-13)
   - **File**: `server/src/services/tokenService.ts`
   - **Steps**:
     1. `generateToken()` → `crypto.randomBytes(32).toString("base64url")`.
@@ -43,14 +43,14 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     3. `issueToken(playerId, ttlDays)` → persist hash, return plaintext exactly once.
     4. TTL from config (`MANA_TOKEN_TTL_DAYS`, default 30).
 
-- [ ] **3. Auth service (provider abstraction)**
+- [x] **3. Auth service (provider abstraction)** — DONE (2026-08-13)
   - **File**: `server/src/services/authService.ts`
   - **Steps**:
     1. `findOrCreatePlayer({ provider, providerId, displayName? })` → upsert by `(provider, providerId)`; repeat logins reuse the existing player.
     2. Provider-agnostic `authenticate(credential)` contract so a future `POST /auth/<provider>` (Firebase/Supabase/guest) can slot in without touching sessions or matchmaking.
     3. `steam` is the only enabled provider this phase.
 
-- [ ] **4. Steam Web API client**
+- [x] **4. Steam Web API client** — DONE (2026-08-13)
   - **File**: `server/src/services/steamAuth.ts`
   - **Steps**:
     1. `validateTicket({ ticket, identity, appId })` → `GET https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` with `key` (server secret), `appid`, `ticket` (hex string), `identity`.
@@ -66,13 +66,13 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     3. `validateTicket` → `findOrCreatePlayer` (displayName = Steam persona from the client) → `issueToken`.
     4. Respond `{ player, token }`; never log or echo the token.
 
-- [ ] **6. Config env vars**
+- [x] **6. Config env vars** — DONE (2026-08-13)
   - **File**: `server/src/config.ts`
   - **Steps**:
     1. `steamWebApiKey` (`MANA_STEAM_WEB_API_KEY`), `steamAppIds` (comma-separated `MANA_STEAM_APP_IDS`, default alpha `3757600`), `tokenTtlDays` (`MANA_TOKEN_TTL_DAYS`, default 30).
     2. Config parsing tests for the new vars.
 
-- [ ] **7. Error codes**
+- [x] **7. Error codes** — DONE (2026-08-13)
   - **File**: `server/src/errors.ts`
   - **Steps**: Add `missing_token`, `invalid_token`, `invalid_steam_ticket`, `invalid_identity` to `ApiErrorCode`.
 
