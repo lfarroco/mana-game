@@ -105,6 +105,12 @@ export * as BaseCollection from "./data/BaseCollection";
 export * as EffectBuilders from "./data/effectBuilders";
 
 // ---------------------------------------------------------------------------
+// Content (encounter & orb presentation catalogs — i18n keys only)
+// ---------------------------------------------------------------------------
+export * as Encounters from "./content/encounters";
+export * as OrbPresentations from "./content/orbPresentations";
+
+// ---------------------------------------------------------------------------
 // Event
 // ---------------------------------------------------------------------------
 export * as Event from "./Event";
