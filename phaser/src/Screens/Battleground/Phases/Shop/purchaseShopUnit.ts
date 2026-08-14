@@ -161,9 +161,20 @@ async function handleUpgradedUnitPurchase(
 		await playShopUpgradeEffect(source, target);
 	}
 
-	// The upgrade effect above already plays the visual; refresh the chara's
-	// stats in place rather than re-summoning it (avoids a duplicate summon).
-	Chara.refreshCharaInPlace(upgradedUnit);
+	if (targetChara) {
+		// Promotion (bronze -> silver -> gold -> platinum): the duplicate-card
+		// transfer above ends with the power-up — a golden beam rising from the
+		// unit. The rank-orb color change is synced with the beam's flash via
+		// the start callback.
+		await Effects.powerUpEffect({ x: targetChara.x, y: targetChara.y - 30 }, () =>
+			Chara.refreshCharaInPlace(upgradedUnit)
+		);
+	} else {
+		// Refresh the chara's stats in place rather than re-summoning it
+		// (avoids a duplicate summon with the board reconciliation pass).
+		Chara.refreshCharaInPlace(upgradedUnit);
+	}
+
 	Chara.enableBoardInteractivity(Chara.mustGetCharaById(upgradedUnit.id));
 }
 

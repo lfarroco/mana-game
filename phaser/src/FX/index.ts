@@ -7,6 +7,7 @@ export * from "./slowEffect";
 export * from "./impactEffect";
 export * from "./summonEffect";
 export * from "./beamSummonEffect";
+export * from "./powerUpEffect";
 
 export * from "./arcaneMissileTargeted";
 export * from "./explodeEffect";

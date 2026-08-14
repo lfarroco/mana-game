@@ -10,8 +10,9 @@ import * as AudioManager from "@Systems/AudioManager";
 import { env } from "@Env";
 import { skipButton } from "../skipButton";
 import { dispatchAction } from "@Screens/Battleground/BattlegroundScreen";
-import { hasCharaById, refreshCharaInPlace } from "@Components/Chara/Chara";
+import * as Chara from "@Components/Chara/Chara";
 import { updatePowerDisplay } from "@Components/Chara/PowerDisplay";
+import * as Effects from "../../../../FX";
 
 // Orb shop UI constants
 const ORB_RETURN_ANIMATION_DURATION_MS = 500;
@@ -145,6 +146,7 @@ function handleOrbDrop(params: {
 
 async function onOrbApplied(orbId: string, targetUnitId: string) {
 	const isRowOrb = orbId === "absorb_power_orb" || orbId === "distribute_power_orb";
+	const isUpgradeOrb = orbId === "upgrade_orb";
 	const targetUnit = env.state.session.team.units.find((unit) => unit.id === targetUnitId);
 	if (!targetUnit) return;
 
@@ -158,12 +160,22 @@ async function onOrbApplied(orbId: string, targetUnitId: string) {
 		if (!isTarget && !isInSameRow) continue;
 
 		if (isRowOrb) {
-			if (hasCharaById(serverUnit.id)) {
+			if (Chara.hasCharaById(serverUnit.id)) {
 				updatePowerDisplay(serverUnit.id);
 			}
 			continue;
 		}
 
-		refreshCharaInPlace(serverUnit);
+		if (isUpgradeOrb && isTarget) {
+			// Promotion (bronze -> silver -> gold -> platinum): play the
+			// power-up effect at the unit. The rank-orb color change is synced
+			// with the beam's flash via the start callback.
+			await Effects.powerUpEffect(Chara.getScreenPosition(serverUnit), () =>
+				Chara.refreshCharaInPlace(serverUnit)
+			);
+			continue;
+		}
+
+		Chara.refreshCharaInPlace(serverUnit);
 	}
 }
