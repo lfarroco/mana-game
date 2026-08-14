@@ -43,4 +43,28 @@ describe("loadConfig", () => {
     expect(loadConfig({ MANA_TOKEN_TTL_DAYS: "0" }).tokenTtlDays).toBe(30);
     expect(loadConfig({ MANA_TOKEN_TTL_DAYS: "-3" }).tokenTtlDays).toBe(30);
   });
+
+  it("applies auth rate-limit defaults when no env vars are set", () => {
+    const config = loadConfig({});
+    expect(config.authRateLimitMax).toBe(20);
+    expect(config.authRateLimitWindowMs).toBe(15 * 60 * 1000);
+  });
+
+  it("parses the auth rate-limit env vars", () => {
+    const config = loadConfig({
+      MANA_AUTH_RATE_LIMIT_MAX: "50",
+      MANA_AUTH_RATE_LIMIT_WINDOW_MS: "60000",
+    });
+    expect(config.authRateLimitMax).toBe(50);
+    expect(config.authRateLimitWindowMs).toBe(60_000);
+  });
+
+  it("falls back on invalid auth rate-limit input", () => {
+    const config = loadConfig({
+      MANA_AUTH_RATE_LIMIT_MAX: "abc",
+      MANA_AUTH_RATE_LIMIT_WINDOW_MS: "0",
+    });
+    expect(config.authRateLimitMax).toBe(20);
+    expect(config.authRateLimitWindowMs).toBe(15 * 60 * 1000);
+  });
 });

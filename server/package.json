@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "express": "^5.1.0",
+    "express-rate-limit": "^8.6.2",
     "uuid": "^14.0.1"
   },
   "devDependencies": {

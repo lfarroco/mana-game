@@ -12,6 +12,11 @@ import { requireAuth } from "./http/middleware/auth";
 import { errorHandler } from "./http/middleware/errors";
 import { corsMiddleware } from "./http/middleware/cors";
 import { requestLogger } from "./http/middleware/logging";
+import { createRateLimiter } from "./http/middleware/rateLimit";
+import {
+  DEFAULT_AUTH_RATE_LIMIT_MAX,
+  DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
+} from "./config";
 import {
   createMemoryPlayerRepo,
   createMemorySessionRepo,
@@ -32,6 +37,12 @@ export type AppDeps = {
   corsOrigin?: string;
   /** Bearer-token lifetime in days (MANA_TOKEN_TTL_DAYS, default 30). */
   tokenTtlDays?: number;
+  /**
+   * Per-IP rate limit for POST /auth/steam (MANA_AUTH_RATE_LIMIT_MAX /
+   * MANA_AUTH_RATE_LIMIT_WINDOW_MS). Ticket grinding protection — docs/auth.md.
+   */
+  authRateLimitMax?: number;
+  authRateLimitWindowMs?: number;
   /**
    * Steam auth config. When omitted or the key is empty, POST /auth/steam is
    * not registered (the server boots without auth).
@@ -57,10 +68,16 @@ export function createApp(deps: AppDeps = {}): express.Express {
     res.json({ ok: true });
   });
 
-  // Auth routes — only when a Steam publisher key is configured
+  // Auth routes — only when a Steam publisher key is configured. Rate-limited
+  // per-IP (ticket grinding protection, docs/auth.md).
   if (deps.steam?.webApiKey) {
     app.use(
       "/api/v1/auth",
+      createRateLimiter({
+        max: deps.authRateLimitMax ?? DEFAULT_AUTH_RATE_LIMIT_MAX,
+        windowMs:
+          deps.authRateLimitWindowMs ?? DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
+      }),
       authRouter({
         playerRepo,
         tokenRepo,

@@ -12,6 +12,10 @@ export type ServerConfig = {
   steamAppIds: number[];
   /** MANA_TOKEN_TTL_DAYS — bearer token lifetime (Steam re-issues every launch). */
   tokenTtlDays: number;
+  /** MANA_AUTH_RATE_LIMIT_MAX — per-IP request cap for POST /auth/steam. */
+  authRateLimitMax: number;
+  /** MANA_AUTH_RATE_LIMIT_WINDOW_MS — rate-limit window for auth endpoints. */
+  authRateLimitWindowMs: number;
 };
 
 export function loadConfig(
@@ -25,8 +29,21 @@ export function loadConfig(
     steamWebApiKey: env["MANA_STEAM_WEB_API_KEY"] ?? "",
     steamAppIds: parseNumberList(env["MANA_STEAM_APP_IDS"], [3757600]),
     tokenTtlDays: parsePositiveInt(env["MANA_TOKEN_TTL_DAYS"], 30),
+    authRateLimitMax: parsePositiveInt(
+      env["MANA_AUTH_RATE_LIMIT_MAX"],
+      DEFAULT_AUTH_RATE_LIMIT_MAX,
+    ),
+    authRateLimitWindowMs: parsePositiveInt(
+      env["MANA_AUTH_RATE_LIMIT_WINDOW_MS"],
+      DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
+    ),
   };
 }
+
+/** Default per-IP auth request cap (per window). */
+export const DEFAULT_AUTH_RATE_LIMIT_MAX = 20;
+/** Default auth rate-limit window: 15 minutes. */
+export const DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 
 /** "3757600,4233280" → [3757600, 4233280]; falls back when empty/garbage. */
 function parseNumberList(

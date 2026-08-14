@@ -92,6 +92,7 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | 409    | `session_already_exists`                    | A session is already active                         |
 | 409    | `session_finished`                          | Run already ended (`victory`/`game_over`)           |
 | 422    | `action_rejected`                           | Action invalid for the current phase                |
+| 429    | `rate_limited`                              | Per-IP auth rate limit exceeded (POST /auth/steam)  |
 | 500    | `internal_error`                            | Unexpected server error                             |
 
 ## Environment
@@ -105,6 +106,8 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_STEAM_WEB_API_KEY` | —             | Publisher Web API key (server secret; enables `POST /auth/steam`) |
 | `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
+| `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for `POST /auth/steam`              |
+| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for `POST /auth/steam`              |
 
 ## Deployment (DigitalOcean VM)
 
@@ -130,7 +133,8 @@ Notes:
 - v1 persistence is **in-memory** — restarts lose active sessions. Durable
   SQLite persistence is planned (Phase 4).
 - Auth: Steam-only (`POST /api/v1/auth/steam`); bearer tokens are stored
-  SHA-256-hashed with an expiry. Guest accounts are a future phase — don't
-  expose the server publicly until rate limiting and Steam key management land.
+  SHA-256-hashed with an expiry. The auth endpoint is rate-limited per-IP
+  (`express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / window) to prevent ticket
+  grinding. Guest accounts are a future phase.
 - `clientActionId` is accepted for forward-compatibility but idempotent
   retries are not yet implemented.
