@@ -134,6 +134,35 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for `POST /auth/steam`              |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for `POST /auth/steam`              |
+| `MANA_SQLITE_PATH`     | —             | Opt into durable SQLite persistence (a database file path or `:memory:`); unset = in-memory repos |
+
+## Persistence (Phase 4)
+
+Persistence is behind repository interfaces (`src/persistence/repositories.ts`)
+with two implementations: in-memory (`memory.ts`, the **default**) and durable
+SQLite via `better-sqlite3` (`sqlite.ts`).
+
+**Selection logic**: set `MANA_SQLITE_PATH` to a database file path (parent
+directory is auto-created, WAL journaling enabled) or `:memory:` to boot all
+five repos on SQLite. When unset, the server uses the in-memory repos
+(existing behavior — restarting loses active sessions). `createApp` accepts a
+`sqlitePath` dep (individual `*Repo` deps override the SQLite default per
+repo), and `src/index.ts` wires `config.sqlitePath`.
+
+```
+MANA_SQLITE_PATH=./data/mana.db npm start   # durable file-backed persistence
+MANA_SQLITE_PATH=:memory: npm start          # throwaway in-memory SQLite
+npm start                                    # in-memory repos (default)
+```
+
+Schema (idempotent `CREATE TABLE IF NOT EXISTS`, created on boot):
+`players`, `tokens`, `sessions` (`SessionData` as JSON), `combat_states`
+(`CombatStateDto` via the core `CombatCodec` — the live `SessionData.combatState`
+carries a `Map` that plain JSON cannot hold, so it is stored separately and
+re-attached on load), `ghosts` + `recently_fought` (capped FIFO), `ratings`.
+Session + combat rows are written in a single transaction; a kill/restart
+mid-run resumes via `GET /sessions/current` with the combat state intact
+(restart-survival test in `test/sqlite.test.ts`).
 
 ## Deployment (DigitalOcean VM)
 
@@ -156,11 +185,15 @@ curl http://127.0.0.1:8787/health
 
 Notes:
 
-- v1 persistence is **in-memory** — restarts lose active sessions. Durable
-  SQLite persistence is planned (Phase 4).
+- Persistence is **in-memory by default** (restarts lose active sessions);
+  set `MANA_SQLITE_PATH` for durable SQLite persistence (see above). The
+  SQLite file should live on a persistent volume in production.
 - Auth: Steam-only (`POST /api/v1/auth/steam`); bearer tokens are stored
   SHA-256-hashed with an expiry. The auth endpoint is rate-limited per-IP
   (`express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / window) to prevent ticket
   grinding. Guest accounts are a future phase.
+- `better-sqlite3` is a native module: prebuilt binaries cover common
+  platforms (Node 22 linux/darwin x64+arm64); Docker/alpine builds may need
+  build tools (`python3 make g++`) if no musl prebuild is available.
 - `clientActionId` is accepted for forward-compatibility but idempotent
   retries are not yet implemented.

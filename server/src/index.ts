@@ -9,6 +9,7 @@ const config = loadConfig();
 
 const app = createApp({
   corsOrigin: config.corsOrigin,
+  sqlitePath: config.sqlitePath ?? undefined,
   steam: { webApiKey: config.steamWebApiKey, appIds: config.steamAppIds },
   authRateLimitMax: config.authRateLimitMax,
   authRateLimitWindowMs: config.authRateLimitWindowMs,

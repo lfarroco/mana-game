@@ -67,4 +67,24 @@ describe("loadConfig", () => {
     expect(config.authRateLimitMax).toBe(20);
     expect(config.authRateLimitWindowMs).toBe(15 * 60 * 1000);
   });
+
+  it("defaults sqlitePath to null (in-memory repos)", () => {
+    const config = loadConfig({});
+    expect(config.sqlitePath).toBeNull();
+  });
+
+  it("reads MANA_SQLITE_PATH", () => {
+    const config = loadConfig({ MANA_SQLITE_PATH: "./data/mana.db" });
+    expect(config.sqlitePath).toBe("./data/mana.db");
+  });
+
+  it("supports :memory: sqlite databases", () => {
+    const config = loadConfig({ MANA_SQLITE_PATH: ":memory:" });
+    expect(config.sqlitePath).toBe(":memory:");
+  });
+
+  it("falls back to in-memory repos for empty MANA_SQLITE_PATH", () => {
+    expect(loadConfig({ MANA_SQLITE_PATH: "" }).sqlitePath).toBeNull();
+    expect(loadConfig({ MANA_SQLITE_PATH: "   " }).sqlitePath).toBeNull();
+  });
 });

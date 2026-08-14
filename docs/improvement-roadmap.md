@@ -15,7 +15,7 @@ for sequencing purposes (that doc keeps the full design).
 | Framework hardening | P0+P1+P2 landed, regression tests | ✅ P0+P1+P2 landed (2026-08-13, 56 framework tests green, phaser typecheck/lint clean) | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ✅ committed (2026-08-13); 146 server tests green (109 baseline + 37 new); typecheck/build clean | — |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ✅ done (2026-08-13); RemoteServer is an HTTP adapter (`createRemoteServer` factory, fetch-injectable); supabase quarantine deleted; 52 phaser tests green (41 + 11 new), typecheck/lint clean; server untouched (148 tests) | — |
-| Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
+| Server Phase 4 (durable persistence) | SQLite repos, restart survival | ✅ done (2026-08-14); `better-sqlite3` repos behind the existing interfaces, `MANA_SQLITE_PATH` (unset = in-memory default, `:memory:` supported), restart-survival test green; 167 server tests green, typecheck/build clean | — |
 | Core code-quality P1/P2 leftovers | rank-up unification, orb registry dispatch, throw policy, Option adoption | ⏳ partial | design decisions |
 
 ## Execution order (subagents run in this sequence)
@@ -116,11 +116,28 @@ for sequencing purposes (that doc keeps the full design).
   tests ran via the package's own `jest --runInBand --passWithNoTests`
   (matches CI's `npm run test:ci`, which has no NODE_OPTIONS).
 
-### 7. Server Phase 4 — durable persistence
-- `better-sqlite3` implementations of `SessionRepo`, `PlayerRepo`, `TokenRepo`
-  (+ ghost/rating repos from Phase 2); `MANA_SQLITE_PATH`; restart-survival test
-  (kill/restart mid-run → `GET /sessions/current` resumes).
-- **Exit**: server tests green (incl. restart-survival), Phase 4 checked off.
+### 7. Server Phase 4 — durable persistence — ✅ DONE (2026-08-14)
+- `better-sqlite3` implementations of `SessionRepo`, `PlayerRepo`, `TokenRepo`,
+  `GhostRepo`, `RatingRepo` behind the same interfaces (`server/src/persistence/sqlite.ts`);
+  `MANA_SQLITE_PATH` config (unset = in-memory repos — default; file path or
+  `:memory:` opts into SQLite, wired through `createApp`/`index.ts`);
+  restart-survival test (kill/restart mid-run → `GET /sessions/current`
+  resumes): writes to a temp FILE, closes the Database, reopens fresh repos on
+  the same file, and asserts the player/token/session/ghost/rating state —
+  including a mid-combat session with a byte-identical resume payload — survives,
+  and the run can continue (`end_combat` after restart).
+- Schema deviation (documented in sqlite.ts + game-server.md): the old
+  Supabase `combat_states(session_id, json)` table is kept, but it stores the
+  CombatCodec-serialized DTO of the embedded `SessionData.combatState` — the
+  live state carries a `Map` that plain JSON cannot hold, so serializing it
+  inside the session row would corrupt resume-mid-combat. Players/ratings/tokens
+  are split across `players`/`ratings`/`tokens` tables (old schema kept rating +
+  token_hash on the players row).
+- **Exit**: ✅ 167 server tests green (148 baseline + 19 new: sqlite repo
+  round-trips for all five repos, config var tests, `createApp` sqlite boot,
+  restart-survival flow), typecheck/build clean, Phase 4 checked off in
+  AGENTS.md, production bundle boots with SQLite (smoke-tested: WAL files
+  created, `/health` 200, graceful shutdown).
 
 ## Out of scope for this run (captured for later)
 

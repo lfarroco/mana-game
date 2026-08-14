@@ -16,11 +16,13 @@
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests --watch"
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.6.2",
     "uuid": "^14.0.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",

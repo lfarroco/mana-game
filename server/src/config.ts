@@ -16,6 +16,12 @@ export type ServerConfig = {
   authRateLimitMax: number;
   /** MANA_AUTH_RATE_LIMIT_WINDOW_MS — rate-limit window for auth endpoints. */
   authRateLimitWindowMs: number;
+  /**
+   * MANA_SQLITE_PATH — durable persistence opt-in. A database file path (the
+   * parent directory is created on boot) or `:memory:` for a throwaway
+   * in-memory SQLite database. `null` (unset) keeps the in-memory repos.
+   */
+  sqlitePath: string | null;
 };
 
 export function loadConfig(
@@ -37,6 +43,10 @@ export function loadConfig(
       env["MANA_AUTH_RATE_LIMIT_WINDOW_MS"],
       DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
     ),
+    sqlitePath:
+      env["MANA_SQLITE_PATH"] && env["MANA_SQLITE_PATH"].trim() !== ""
+        ? env["MANA_SQLITE_PATH"]
+        : null,
   };
 }
 

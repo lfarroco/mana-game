@@ -1,6 +1,6 @@
 # Game Server — Multiplayer Backend Plan
 
-**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; ✅ Phase 1.5 (Steam-only auth) implemented 2026-08-13 — see [auth.md](auth.md); ✅ Phase 2 (matchmaking & rating) implemented 2026-08-13; ✅ Phase 3 (client integration) implemented 2026-08-13 — `phaser/src/RemoteServer.ts` is a live HTTP adapter, Supabase quarantine deleted
+**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; ✅ Phase 1.5 (Steam-only auth) implemented 2026-08-13 — see [auth.md](auth.md); ✅ Phase 2 (matchmaking & rating) implemented 2026-08-13; ✅ Phase 3 (client integration) implemented 2026-08-13 — `phaser/src/RemoteServer.ts` is a live HTTP adapter, Supabase quarantine deleted; ✅ Phase 4 (durable persistence) implemented 2026-08-14 — `better-sqlite3` repos behind the same interfaces, `MANA_SQLITE_PATH` opt-in, restart-survival test green
 **Created**: 2026-07-25
 **Supersedes**: [supabase-backend.md](supabase-backend.md), [commit-replay-multiplayer.md](commit-replay-multiplayer.md), [MULTIPLAYER_SETUP.md](MULTIPLAYER_SETUP.md), and the Supabase-specific parts of [multiplayer-architecture.md](multiplayer-architecture.md) — none of these exist on disk (verified 2026-08-13); this doc is authoritative
 
@@ -135,7 +135,14 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
 ## Persistence
 
 - **v1**: in-memory `Map`s behind repository interfaces (`persistence/memory.ts`) — zero external deps, fully testable, fine for a single-node alpha.
-- **Phase 4**: SQLite (`better-sqlite3`) implementing the same interfaces. Schema ≈ the old Supabase tables: `players(id, display_name, token_hash, rating, created_at)`, `sessions(player_id PK, …SessionData as json)`, `combat_states(session_id PK, json)`, `ghosts(player_id, session_id, round, team_json, rating, created_at)`.
+- **Phase 4 — ✅ DONE (2026-08-14)**: SQLite (`better-sqlite3`) implementing the same interfaces (`persistence/sqlite.ts`), selected via `MANA_SQLITE_PATH` (unset = in-memory default; file path or `:memory:` opts in). Schema ≈ the old Supabase tables, adapted to the current repo interfaces:
+  - `players(player_id PK, provider, provider_id, display_name, created_at, UNIQUE(provider, provider_id))`
+  - `tokens(token_hash PK, player_id, expires_at, created_at)` — the old schema kept token hashes on the players row; the current `TokenRepo` splits them out.
+  - `sessions(player_id PK, session_json)` — `SessionData` as JSON.
+  - `combat_states(session_id PK, combat_json)` — see deviation below.
+  - `ghosts(ghost_id PK, player_id, session_id, round, team_json, rating, created_at)` + `recently_fought(player_id, opponent_player_id, seq)` — the per-player capped-FIFO matchmaking log.
+  - `ratings(player_id PK, rating, updated_at)` — the old schema kept rating on the players row; the current `RatingRepo` is separate.
+- **Combat-state deviation**: `SessionData.combatState` embeds the *live* `CombatState` (a `Map`-carrying object) while in the `combat` phase. Plain JSON cannot hold a `Map`, so a naive JSON round-trip of the session row would corrupt resume-mid-combat. The `combat_states` table therefore stores the JSON-safe `CombatStateDto` (via the core `CombatCodec`), keyed by session id; on load it is deserialized (Map + derived indexes rebuilt) and re-attached. The wire response after a restart is byte-identical to the pre-restart one. Session + combat rows are written atomically (single SQLite transaction).
 - Postgres only if we ever need multiple instances — the repository pattern keeps it swappable.
 
 ## Auth
@@ -162,7 +169,7 @@ Steam-only — see **[auth.md](auth.md)** for the full design (data model, token
 | **1.5. Steam-only auth** | Player/token repos (in-memory), `POST /auth/steam` (ticket → Steam Web API → player upsert → bearer token), Bearer middleware replacing `X-Player-Id`; no guest endpoints (future phase) — see [auth.md](auth.md) | tests with a mocked Steam Web API; manual Steam auto-login against a local server; 401s on bad/expired tokens |
 | **2. Matchmaking & rating** | ghosts, opponent selection, rating on run completion | unit tests: match found in band, self excluded, PvE fallback, rating applied exactly once |
 | **3. Client integration** | HTTP `RemoteServer`; supabase removal | ✅ client typecheck/lint green, 52 phaser tests green (2026-08-13); manual MP run against a local server end-to-end still pending (needs the Steam Electron build) |
-| **4. Durable persistence** | SQLite repos + schema; restart survival | kill/restart the server mid-run → `GET /sessions/current` resumes |
+| **4. Durable persistence** | SQLite repos + schema; restart survival | ✅ done (2026-08-14): `better-sqlite3` repos (`persistence/sqlite.ts`), `MANA_SQLITE_PATH` opt-in (unset = in-memory default), restart-survival test proves close + reopen resumes a mid-combat session (`GET /sessions/current`); 167 server tests green, typecheck/build clean |
 | **5. Extras** | leaderboard endpoint; agent play service (revives `agentGameServer`; unblocks the queued leaderboard-match-runner task); replay validation; token refresh/expiry; guest/non-Steam auth | per-feature |
 
 Phase 0 is small and independently mergeable. Phases 1, 1.5, and 2 can land while the server is dev-only; Phase 3 wires the client.
@@ -176,8 +183,8 @@ Phase 0 is small and independently mergeable. Phases 1, 1.5, and 2 can land whil
 
 ## Config & deployment
 
-- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default `8787`), `MANA_SQLITE_PATH` (Phase 4), `MANA_TOKEN_TTL_DAYS`, `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS` (auth — see [auth.md](auth.md)).
-- Single Node process: `npm run build && npm start`. Dockerfile + a host (fly.io / Render / VPS) decided at Phase 4; no edge-runtime requirements.
+- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default `8787`), `MANA_SQLITE_PATH` (Phase 4: unset = in-memory repos; a file path or `:memory:` opts into SQLite — the parent directory of a file path is created on boot, WAL journaling is enabled), `MANA_TOKEN_TTL_DAYS`, `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS` (auth — see [auth.md](auth.md)).
+- Single Node process: `npm run build && npm start`. Dockerfile + a host (fly.io / Render / VPS) — the Dockerfile bundles `better-sqlite3` as a production dependency; the runtime stage compiles it natively (prebuilt binaries for common platforms, build tools only needed for exotic/musl targets).
 
 ## Risks & open questions
 

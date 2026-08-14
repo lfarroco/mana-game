@@ -24,6 +24,7 @@ import {
   createMemorySessionRepo,
   createMemoryTokenRepo,
 } from "./persistence/memory";
+import { createSqliteRepos, openSqliteDatabase } from "./persistence/sqlite";
 import type {
   GhostRepo,
   PlayerRepo,
@@ -43,6 +44,13 @@ export type AppDeps = {
   ghostRepo?: GhostRepo;
   /** Rating repository (defaults to a fresh in-memory repo). */
   ratingRepo?: RatingRepo;
+  /**
+   * Opt into durable SQLite persistence: when set, the default repositories
+   * are backed by a better-sqlite3 Database at this path (`:memory:` for a
+   * throwaway in-memory database). Individual `*Repo` deps override the
+   * SQLite default for that repo. Unset (default) keeps the in-memory repos.
+   */
+  sqlitePath?: string;
   /** Allowed CORS origin(s): "*" or a comma-separated list. */
   corsOrigin?: string;
   /** Bearer-token lifetime in days (MANA_TOKEN_TTL_DAYS, default 30). */
@@ -63,11 +71,22 @@ export type AppDeps = {
 };
 
 export function createApp(deps: AppDeps = {}): express.Express {
-  const repo = deps.repo ?? createMemorySessionRepo();
-  const playerRepo = deps.playerRepo ?? createMemoryPlayerRepo();
-  const tokenRepo = deps.tokenRepo ?? createMemoryTokenRepo();
-  const ghostRepo = deps.ghostRepo ?? createMemoryGhostRepo();
-  const ratingRepo = deps.ratingRepo ?? createMemoryRatingRepo();
+  // Selection logic (docs/game-server.md §Config & deployment): memory repos
+  // are the DEFAULT; setting `sqlitePath` (MANA_SQLITE_PATH in index.ts) swaps
+  // all five defaults for SQLite-backed repos on one Database. Explicit repo
+  // deps always win, so tests can mix implementations freely.
+  const sqlite = deps.sqlitePath
+    ? createSqliteRepos(openSqliteDatabase(deps.sqlitePath))
+    : null;
+
+  const repo = deps.repo ?? sqlite?.sessionRepo ?? createMemorySessionRepo();
+  const playerRepo =
+    deps.playerRepo ?? sqlite?.playerRepo ?? createMemoryPlayerRepo();
+  const tokenRepo = deps.tokenRepo ?? sqlite?.tokenRepo ?? createMemoryTokenRepo();
+  const ghostRepo =
+    deps.ghostRepo ?? sqlite?.ghostRepo ?? createMemoryGhostRepo();
+  const ratingRepo =
+    deps.ratingRepo ?? sqlite?.ratingRepo ?? createMemoryRatingRepo();
 
   const app = express();
 
