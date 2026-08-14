@@ -7,7 +7,10 @@ import { loadConfig } from "./config";
 
 const config = loadConfig();
 
-const app = createApp({ corsOrigin: config.corsOrigin });
+const app = createApp({
+  corsOrigin: config.corsOrigin,
+  steam: { webApiKey: config.steamWebApiKey, appIds: config.steamAppIds },
+});
 
 const server = app.listen(config.port, config.host, () => {
   console.log(

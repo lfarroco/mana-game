@@ -1,5 +1,9 @@
 /**
  * HTTP integration tests for session API endpoints.
+ *
+ * Every session request is authenticated with a bearer token obtained via
+ * POST /api/v1/auth/steam (the Steam Web API is mocked through the app's
+ * injectable steamFetch), so these tests exercise the real auth path.
  */
 /// <reference types="jest" />
 
@@ -8,18 +12,61 @@ import type { Express } from "express";
 import { createApp } from "../src/app";
 import { createMemorySessionRepo } from "../src/persistence/memory";
 import type { SessionRepo } from "../src/persistence/repositories";
+import { STEAM_IDENTITY } from "../src/services/steamAuth";
 
-const P1 = "player-1";
-const P2 = "player-2";
+const KEY = "test-publisher-key";
+const APP_IDS = [3757600, 4233280];
 const CRYSTAL = "critical_crystal";
+
+/** Hex tickets; each maps to a distinct steam account (per-player isolation). */
+const TICKET_P1 = "aaaa";
+const TICKET_P2 = "bbbb";
+const STEAM_IDS: Record<string, string> = {
+  [TICKET_P1]: "76561198000000001",
+  [TICKET_P2]: "76561198000000002",
+};
+
+/** Mock Steam Web API: a valid ticket resolves to that ticket's steam account. */
+const steamFetch = (async (url: string) => {
+  const ticket = new URL(url).searchParams.get("ticket") ?? "";
+  const steamId = STEAM_IDS[ticket] ?? "76561198000000000";
+  return {
+    ok: true,
+    status: 200,
+    json: async () => ({
+      response: { params: { result: "OK", steamid: steamId } },
+    }),
+  } as unknown as Response;
+}) as typeof fetch;
 
 let repo: SessionRepo;
 let app: Express;
 
 beforeEach(() => {
   repo = createMemorySessionRepo();
-  app = createApp({ repo });
+  app = createApp({
+    repo,
+    steam: { webApiKey: KEY, appIds: APP_IDS },
+    steamFetch,
+  });
 });
+
+/**
+ * Login through the real auth endpoint (mocked Steam API) and return the
+ * bearer token plus the server-generated player id used for sessions.
+ */
+async function login(
+  ticket: string,
+): Promise<{ token: string; playerId: string }> {
+  const res = await request(app)
+    .post("/api/v1/auth/steam")
+    .send({ ticket, identity: STEAM_IDENTITY, appId: 3757600 });
+  expect(res.status).toBe(200);
+  return {
+    token: res.body.token as string,
+    playerId: res.body.player.playerId as string,
+  };
+}
 
 describe("GET /health", () => {
   it("returns ok", async () => {
@@ -31,9 +78,11 @@ describe("GET /health", () => {
 
 describe("POST /api/v1/sessions", () => {
   it("creates a multiplayer session and returns 201", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: "critical_crystal" });
 
     expect(res.status).toBe(201);
@@ -48,9 +97,11 @@ describe("POST /api/v1/sessions", () => {
   });
 
   it("defaults queueType to casual when omitted", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     expect(res.status).toBe(201);
@@ -58,69 +109,92 @@ describe("POST /api/v1/sessions", () => {
   });
 
   it("accepts an explicit ranked queueType", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL, queueType: "ranked" });
 
     expect(res.status).toBe(201);
     expect(res.body.session_type.queueType).toBe("ranked");
   });
 
-  it("returns 400 when X-Player-Id is missing", async () => {
+  it("returns 401 without a bearer token", async () => {
     const res = await request(app)
       .post("/api/v1/sessions")
       .send({ crystalId: CRYSTAL });
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("missing_token");
+  });
+
+  it("returns 401 for an invalid bearer token", async () => {
+    const res = await request(app)
+      .post("/api/v1/sessions")
+      .set("Authorization", "Bearer not-a-real-token")
+      .send({ crystalId: CRYSTAL });
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("invalid_token");
   });
 
   it("returns 400 when crystalId is missing", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({});
     expect(res.status).toBe(400);
   });
 
   it("returns 400 for an unknown crystalId", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: "not_a_crystal" });
     expect(res.status).toBe(400);
   });
 
   it("returns 400 for an invalid queueType", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL, queueType: "uber" });
     expect(res.status).toBe(400);
   });
 
   it("returns 409 when the player already has an active session", async () => {
+    const { token } = await login(TICKET_P1);
+
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     expect(res.status).toBe(409);
   });
 
   it("keeps sessions isolated per player", async () => {
+    const p1 = await login(TICKET_P1);
+    const p2 = await login(TICKET_P2);
+
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${p1.token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P2)
+      .set("Authorization", `Bearer ${p2.token}`)
       .send({ crystalId: CRYSTAL });
 
     expect(res.status).toBe(201);
@@ -128,54 +202,60 @@ describe("POST /api/v1/sessions", () => {
 });
 
 describe("GET /api/v1/sessions/current", () => {
-  it("returns 400 without a player id", async () => {
+  it("returns 401 without a bearer token", async () => {
     const res = await request(app).get("/api/v1/sessions/current");
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(401);
   });
 
   it("returns 404 when no session exists", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .get("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(404);
   });
 
   it("returns the active session after creation", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .get("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("phase", "encounter");
   });
 
   it("does not expose another player's session", async () => {
+    const p1 = await login(TICKET_P1);
+    const p2 = await login(TICKET_P2);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${p1.token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .get("/api/v1/sessions/current")
-      .set("X-Player-Id", P2);
+      .set("Authorization", `Bearer ${p2.token}`);
     expect(res.status).toBe(404);
   });
 
   it("returns serialized combatState while in combat phase", async () => {
-    await createAndSkipToPreCombat(P1);
+    const { token } = await login(TICKET_P1);
+    await createAndSkipToPreCombat(token);
 
     await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "start_combat" } });
 
     const res = await request(app)
       .get("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body.phase).toBe("combat");
@@ -187,73 +267,80 @@ describe("GET /api/v1/sessions/current", () => {
 
 describe("POST /api/v1/sessions/current/actions", () => {
   it("returns 404 when no session exists", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "skip" } });
     expect(res.status).toBe(404);
   });
 
   it("returns 400 for missing action", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({});
     expect(res.status).toBe(400);
   });
 
   it("returns 400 for an unknown action type", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "teleport" } });
     expect(res.status).toBe(400);
   });
 
   it("processes skip actions and advances to pre_combat", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
-    const res = await skipToPreCombat(P1);
+    const res = await skipToPreCombat(token);
 
     expect(res.status).toBe(200);
     expect(res.body.session.phase).toBe("pre_combat");
   });
 
   it("returns 409 for actions on a finished session", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: "critical_crystal" });
 
-    const phase = await driveToTerminal(P1);
+    const phase = await driveToTerminal(token);
     expect(["victory", "game_over"]).toContain(phase);
 
     const after = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "skip" } });
     expect(after.status).toBe(409);
   });
 
   it("triggers combat on start_combat and returns serialized combatState", async () => {
-    await createAndSkipToPreCombat(P1);
+    const { token } = await login(TICKET_P1);
+    await createAndSkipToPreCombat(token);
 
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "start_combat" } });
 
     expect(res.status).toBe(200);
@@ -269,16 +356,17 @@ describe("POST /api/v1/sessions/current/actions", () => {
   });
 
   it("end_combat advances the run and persists the session", async () => {
-    await createAndSkipToPreCombat(P1);
+    const { token } = await login(TICKET_P1);
+    await createAndSkipToPreCombat(token);
 
     await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "start_combat" } });
 
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ action: { type: "end_combat" } });
 
     expect(res.status).toBe(200);
@@ -290,63 +378,66 @@ describe("POST /api/v1/sessions/current/actions", () => {
 
 describe("DELETE /api/v1/sessions/current", () => {
   it("returns 404 when no session exists", async () => {
+    const { token } = await login(TICKET_P1);
+
     const res = await request(app)
       .delete("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(404);
   });
 
   it("deletes the active session and returns 204", async () => {
+    const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
-      .set("X-Player-Id", P1)
+      .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
     const res = await request(app)
       .delete("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
     expect(res.status).toBe(204);
 
     // Subsequent get returns 404
     const getRes = await request(app)
       .get("/api/v1/sessions/current")
-      .set("X-Player-Id", P1);
+      .set("Authorization", `Bearer ${token}`);
     expect(getRes.status).toBe(404);
   });
 });
 
 // --- helpers ---
 
-async function createAndSkipToPreCombat(playerId: string) {
+async function createAndSkipToPreCombat(token: string) {
   await request(app)
     .post("/api/v1/sessions")
-    .set("X-Player-Id", playerId)
+    .set("Authorization", `Bearer ${token}`)
     .send({ crystalId: CRYSTAL });
-  await skipToPreCombat(playerId);
+  await skipToPreCombat(token);
 }
 
 /** The run starts at encounter/step 1; two skips land on pre_combat/step 3. */
-async function skipToPreCombat(playerId: string) {
+async function skipToPreCombat(token: string) {
   let res = await request(app)
     .post("/api/v1/sessions/current/actions")
-    .set("X-Player-Id", playerId)
+    .set("Authorization", `Bearer ${token}`)
     .send({ action: { type: "skip" } });
   expect(res.status).toBe(200);
   res = await request(app)
     .post("/api/v1/sessions/current/actions")
-    .set("X-Player-Id", playerId)
+    .set("Authorization", `Bearer ${token}`)
     .send({ action: { type: "skip" } });
   expect(res.status).toBe(200);
   return res;
 }
 
 /** Play a run to a terminal phase (victory or game_over), returning that phase. */
-async function driveToTerminal(playerId: string): Promise<string> {
+async function driveToTerminal(token: string): Promise<string> {
   let phase = "encounter";
   for (let i = 0; i < 100; i++) {
     const res = await request(app)
       .post("/api/v1/sessions/current/actions")
-      .set("X-Player-Id", playerId)
+      .set("Authorization", `Bearer ${token}`)
       .send({
         action:
           phase === "combat"

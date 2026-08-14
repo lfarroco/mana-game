@@ -12,7 +12,7 @@ export function requestLogger(
   const startedAt = Date.now();
   res.on("finish", () => {
     const ms = Date.now() - startedAt;
-    const playerId = req.header("X-Player-Id") ?? "-";
+    const playerId = req.playerId ?? "-";
     console.log(
       `[req] ${req.method} ${req.originalUrl} player=${playerId} -> ${res.statusCode} (${ms}ms)`,
     );

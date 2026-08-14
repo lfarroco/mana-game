@@ -15,23 +15,34 @@ npm run build      # tsup production bundle → dist/
 
 ## API (v1)
 
-Base path `/api/v1`, JSON in/out. Every request must carry the player's id in
-the `X-Player-Id` header (v1 identity; token auth replaces this later).
+Base path `/api/v1`, JSON in/out. Every session request must carry a bearer
+token in the `Authorization` header — obtain one via `POST /api/v1/auth/steam`
+(Steam auto-login, Electron) which returns `{ player, token }`:
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/health` | Liveness check → `{ ok: true }` (no auth) |
-| POST | `/api/v1/sessions` | Create session → `SessionData` (409 if one exists) |
-| GET | `/api/v1/sessions/current` | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`) |
-| POST | `/api/v1/sessions/current/actions` | Dispatch action → `{ session, combatState? }` |
-| DELETE | `/api/v1/sessions/current` | Abandon run → 204 |
+```
+Authorization: Bearer <token>
+```
+
+Unauthenticated: `GET /health`, `POST /api/v1/auth/steam`. Everything else
+requires a valid (non-expired) token; missing/malformed tokens → 401
+`missing_token`, unknown/expired tokens → 401 `invalid_token`. The `X-Player-Id`
+header is retired.
+
+| Method | Path                               | Description                                                                     |
+| ------ | ---------------------------------- | ------------------------------------------------------------------------------- |
+| GET    | `/health`                          | Liveness check → `{ ok: true }` (no auth)                                       |
+| POST   | `/api/v1/auth/steam`               | Steam ticket → `{ player, token }` (no auth)                                    |
+| POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if one exists)                              |
+| GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`) |
+| POST   | `/api/v1/sessions/current/actions` | Dispatch action → `{ session, combatState? }`                                   |
+| DELETE | `/api/v1/sessions/current`         | Abandon run → 204                                                               |
 
 ### Create session body
 
 ```json
 {
   "crystalId": "critical_crystal",
-  "queueType": "ranked"          // optional: "casual" (default) | "ranked"
+  "queueType": "ranked" // optional: "casual" (default) | "ranked"
 }
 ```
 
@@ -68,26 +79,32 @@ a JSON-safe `CombatStateDto` (`units`, `logs`, `wonCombat`,
 
 All errors are `{ "error": "<code>", "message": "..." }`:
 
-| Status | Code | Meaning |
-|--------|------|---------|
-| 400 | `invalid_player_id` | Missing/blank `X-Player-Id` |
-| 400 | `invalid_crystal_id` | Missing/unknown `crystalId` |
-| 400 | `invalid_queue_type` | `queueType` not `casual`/`ranked` |
-| 400 | `invalid_action` / `invalid_action_type` | Malformed or unknown action |
-| 404 | `no_active_session` | No session for this player |
-| 409 | `session_already_exists` | A session is already active |
-| 409 | `session_finished` | Run already ended (`victory`/`game_over`) |
-| 422 | `action_rejected` | Action invalid for the current phase |
-| 500 | `internal_error` | Unexpected server error |
+| Status | Code                                        | Meaning                                             |
+| ------ | ------------------------------------------- | --------------------------------------------------- |
+| 400    | `invalid_crystal_id`                        | Missing/unknown `crystalId`                         |
+| 400    | `invalid_queue_type`                        | `queueType` not `casual`/`ranked`                   |
+| 400    | `invalid_action` / `invalid_action_type`    | Malformed or unknown action                         |
+| 400    | `invalid_steam_ticket` / `invalid_identity` | Malformed steam auth body                           |
+| 401    | `missing_token`                             | Missing/malformed `Authorization` header            |
+| 401    | `invalid_token`                             | Unknown or expired bearer token                     |
+| 401    | `invalid_steam_ticket` / `invalid_identity` | Steam rejected the ticket / wrong identity or appId |
+| 404    | `no_active_session`                         | No session for this player                          |
+| 409    | `session_already_exists`                    | A session is already active                         |
+| 409    | `session_finished`                          | Run already ended (`victory`/`game_over`)           |
+| 422    | `action_rejected`                           | Action invalid for the current phase                |
+| 500    | `internal_error`                            | Unexpected server error                             |
 
 ## Environment
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `MANA_SERVER_HOST` | `127.0.0.1` | Bind address (use `0.0.0.0` in Docker/VPS) |
-| `MANA_SERVER_PORT` | `8787` | Bind port |
-| `MANA_CORS_ORIGIN` | `*` | Allowed CORS origin(s): `*` or a comma-separated list |
-| `MANA_NODE_ENV` | `development` | Runtime environment |
+| Variable                 | Default       | Description                                                       |
+| ------------------------ | ------------- | ----------------------------------------------------------------- |
+| `MANA_SERVER_HOST`       | `127.0.0.1`   | Bind address (use `0.0.0.0` in Docker/VPS)                        |
+| `MANA_SERVER_PORT`       | `8787`        | Bind port                                                         |
+| `MANA_CORS_ORIGIN`       | `*`           | Allowed CORS origin(s): `*` or a comma-separated list             |
+| `MANA_NODE_ENV`          | `development` | Runtime environment                                               |
+| `MANA_STEAM_WEB_API_KEY` | —             | Publisher Web API key (server secret; enables `POST /auth/steam`) |
+| `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
+| `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
 
 ## Deployment (DigitalOcean VM)
 
@@ -112,7 +129,8 @@ Notes:
 
 - v1 persistence is **in-memory** — restarts lose active sessions. Durable
   SQLite persistence is planned (Phase 4).
-- Guest auth (`POST /players`) is deferred; `X-Player-Id` is not a security
-  token. Don't expose the server publicly until real auth lands.
+- Auth: Steam-only (`POST /api/v1/auth/steam`); bearer tokens are stored
+  SHA-256-hashed with an expiry. Guest accounts are a future phase — don't
+  expose the server publicly until rate limiting and Steam key management land.
 - `clientActionId` is accepted for forward-compatibility but idempotent
   retries are not yet implemented.

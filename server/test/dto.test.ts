@@ -4,23 +4,11 @@
 /// <reference types="jest" />
 
 import {
-  parsePlayerId,
   parseCreateSessionBody,
   parseActionDispatchBody,
+  parseAuthSteamBody,
 } from "../src/dto";
 import { ApiError } from "../src/errors";
-
-describe("parsePlayerId", () => {
-  it("returns a trimmed non-empty string", () => {
-    expect(parsePlayerId(" player-1 ")).toBe("player-1");
-  });
-
-  it("rejects missing or invalid values", () => {
-    for (const bad of [undefined, null, "", "  ", 42, {}]) {
-      expect(() => parsePlayerId(bad)).toThrow(ApiError);
-    }
-  });
-});
 
 describe("parseCreateSessionBody", () => {
   it("rejects a missing or empty body", () => {
@@ -118,5 +106,64 @@ describe("parseActionDispatchBody", () => {
         action: { type: "update_team", team: { units: [] } },
       }).action,
     ).toEqual({ type: "update_team", team: { units: [] } });
+  });
+});
+
+describe("parseAuthSteamBody", () => {
+  const valid = {
+    ticket: "deadbeef",
+    identity: "mana-game-v1",
+    appId: 3757600,
+  };
+
+  it("parses a well-formed steam auth body", () => {
+    expect(parseAuthSteamBody(valid)).toEqual(valid);
+  });
+
+  it("passes through an optional displayName", () => {
+    expect(parseAuthSteamBody({ ...valid, displayName: "Momo" })).toEqual({
+      ...valid,
+      displayName: "Momo",
+    });
+  });
+
+  it("rejects a missing or malformed ticket", () => {
+    for (const bad of [
+      {},
+      { ...valid, ticket: undefined },
+      { ...valid, ticket: 42 },
+      { ...valid, ticket: "" },
+      { ...valid, ticket: "not-hex!" },
+    ]) {
+      expect(() => parseAuthSteamBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_steam_ticket" }),
+      );
+    }
+  });
+
+  it("rejects a missing or empty identity", () => {
+    for (const bad of [
+      { ...valid, identity: undefined },
+      { ...valid, identity: "" },
+      { ...valid, identity: "   " },
+    ]) {
+      expect(() => parseAuthSteamBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_identity" }),
+      );
+    }
+  });
+
+  it("rejects a missing or non-numeric appId", () => {
+    for (const bad of [
+      { ...valid, appId: undefined },
+      { ...valid, appId: "3757600" },
+      { ...valid, appId: 0 },
+      { ...valid, appId: -1 },
+      { ...valid, appId: 1.5 },
+    ]) {
+      expect(() => parseAuthSteamBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_steam_ticket" }),
+      );
+    }
   });
 });

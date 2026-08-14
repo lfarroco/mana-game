@@ -8,7 +8,6 @@
 
 export type ApiErrorCode =
   | "invalid_request"
-  | "invalid_player_id"
   | "invalid_crystal_id"
   | "invalid_queue_type"
   | "invalid_action"

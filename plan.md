@@ -58,7 +58,7 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     3. Injectable `fetch` so tests can mock the Steam Web API.
     4. `identity` must match the client-side string; `appId` must be in `MANA_STEAM_APP_IDS`.
 
-- [ ] **5. `POST /api/v1/auth/steam` route**
+- [x] **5. `POST /api/v1/auth/steam` route** — DONE (2026-08-13)
   - **Files**: `server/src/http/routes/auth.ts` (new), `server/src/dto.ts`
   - **Steps**:
     1. `parseAuthSteamBody` DTO: `{ ticket: string (hex), identity: string, appId: number }`.
@@ -78,14 +78,14 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
 
 ### Server — middleware & migration
 
-- [ ] **8. Bearer auth middleware**
+- [x] **8. Bearer auth middleware** — DONE (2026-08-13)
   - **File**: `server/src/http/middleware/auth.ts` (new)
   - **Steps**:
     1. Parse `Authorization: Bearer <token>`; missing/malformed → 401 `missing_token`.
     2. `hashToken` → `TokenRepo.findByHash` → expiry check → attach `req.playerId`.
     3. Not found or expired → 401 `invalid_token`.
 
-- [ ] **9. Migrate session routes off `X-Player-Id`**
+- [x] **9. Migrate session routes off `X-Player-Id`** — DONE (2026-08-13)
   - **Files**: `server/src/http/routes/sessions.ts`, `server/src/dto.ts`, `server/src/app.ts`
   - **Steps**:
     1. Remove `parsePlayerId` / `X-Player-Id` header usage; read `req.playerId` from the middleware instead.

@@ -1,8 +1,9 @@
 /**
  * Session routes — session lifecycle and action dispatch.
  *
- * Player identity: `X-Player-Id` header (v1 — token auth comes later).
- * One active session per player; creating a second returns 409.
+ * Player identity: `req.playerId`, attached by the bearer auth middleware
+ * (`requireAuth`). One active session per player; creating a second returns
+ * 409.
  *
  * The raw in-memory CombatState contains non-JSON-safe Maps, so responses
  * always strip it from the session payload. While in the `combat` phase it
@@ -16,11 +17,8 @@ import type { SessionData } from "@game/types/session";
 import type { CombatState } from "@game/types/combat";
 import type { SessionRepo } from "../../persistence/repositories";
 import { createSessionService } from "../../services/sessionService";
-import {
-  parseActionDispatchBody,
-  parseCreateSessionBody,
-  parsePlayerId,
-} from "../../dto";
+import { parseActionDispatchBody, parseCreateSessionBody } from "../../dto";
+import { ApiError } from "../../errors";
 
 export function sessionsRouter(repo: SessionRepo): Router {
   const service = createSessionService(repo);
@@ -28,7 +26,7 @@ export function sessionsRouter(repo: SessionRepo): Router {
 
   // POST /sessions — create a new multiplayer session (409 if one exists)
   router.post("/", (req: Request, res: Response) => {
-    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const playerId = getPlayerId(req);
     const request = parseCreateSessionBody(req.body);
     const session = service.createSession(playerId, request);
 
@@ -37,7 +35,7 @@ export function sessionsRouter(repo: SessionRepo): Router {
 
   // GET /sessions/current — resume/reconnect; combat state serialized while in combat
   router.get("/current", (req: Request, res: Response) => {
-    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const playerId = getPlayerId(req);
     const session = service.getSession(playerId);
 
     if (!session) {
@@ -53,7 +51,7 @@ export function sessionsRouter(repo: SessionRepo): Router {
 
   // POST /sessions/current/actions — dispatch a single action
   router.post("/current/actions", (req: Request, res: Response) => {
-    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const playerId = getPlayerId(req);
     const { action } = parseActionDispatchBody(req.body);
     const result = service.handleAction(playerId, action);
 
@@ -71,7 +69,7 @@ export function sessionsRouter(repo: SessionRepo): Router {
 
   // DELETE /sessions/current — abandon the run
   router.delete("/current", (req: Request, res: Response) => {
-    const playerId = parsePlayerId(req.header("X-Player-Id"));
+    const playerId = getPlayerId(req);
     const deleted = service.deleteSession(playerId);
 
     if (!deleted) {
@@ -86,6 +84,17 @@ export function sessionsRouter(repo: SessionRepo): Router {
   });
 
   return router;
+}
+
+/**
+ * The requireAuth middleware guarantees `req.playerId` on mounted routes.
+ * This is a defensive guard (and keeps TS happy) — it should never fire.
+ */
+function getPlayerId(req: Request): string {
+  if (!req.playerId) {
+    throw new ApiError(401, "missing_token", "Missing player identity");
+  }
+  return req.playerId;
 }
 
 /**

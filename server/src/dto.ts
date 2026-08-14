@@ -20,6 +20,20 @@ export type ActionDispatchRequest = {
   clientActionId?: string;
 };
 
+export type AuthSteamRequest = {
+  /** Hex string of the binary ticket from GetAuthTicketForWebApi. */
+  ticket: string;
+  /** Identity string passed to getAuthTicketForWebApi (must match STEAM_IDENTITY). */
+  identity: string;
+  /** Steam app id (must be in MANA_STEAM_APP_IDS). */
+  appId: number;
+  /** Steam persona from the client (unverified — docs/auth.md). */
+  displayName?: string;
+};
+
+/** Steam web-api tickets are hex-encoded binary; reject anything else. */
+const HEX_TICKET_PATTERN = /^[0-9a-fA-F]+$/;
+
 const KNOWN_ACTION_TYPES = new Set([
   "skip",
   "apply_orb",
@@ -35,15 +49,46 @@ const KNOWN_ACTION_TYPES = new Set([
   "victory",
 ]);
 
-export function parsePlayerId(value: unknown): string {
-  if (typeof value !== "string" || value.trim() === "") {
+/**
+ * Parse and shape-validate the POST /auth/steam body.
+ *
+ * Wire-boundary only: semantic checks (identity allowlist, app-id allowlist,
+ * Steam ticket validity) happen in the steamAuth service.
+ */
+export function parseAuthSteamBody(body: unknown): AuthSteamRequest {
+  const raw = asRecord(body);
+
+  const ticket = raw.ticket;
+  if (typeof ticket !== "string" || !HEX_TICKET_PATTERN.test(ticket)) {
     throw new ApiError(
       400,
-      "invalid_player_id",
-      "Missing or invalid X-Player-Id header",
+      "invalid_steam_ticket",
+      "ticket is required and must be a hex string",
     );
   }
-  return value.trim();
+
+  const identity = raw.identity;
+  if (typeof identity !== "string" || identity.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_identity",
+      "identity is required and must be a non-empty string",
+    );
+  }
+
+  const appId = raw.appId;
+  if (typeof appId !== "number" || !Number.isInteger(appId) || appId <= 0) {
+    throw new ApiError(
+      400,
+      "invalid_steam_ticket",
+      "appId is required and must be a positive integer",
+    );
+  }
+
+  const displayName =
+    typeof raw.displayName === "string" ? raw.displayName : undefined;
+
+  return { ticket, identity, appId, displayName };
 }
 
 export function parseCreateSessionBody(body: unknown): CreateSessionRequest {
