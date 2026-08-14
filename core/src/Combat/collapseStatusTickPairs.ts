@@ -1,4 +1,4 @@
-import type * as CombatLogger from "@game/Combat/CombatLogger";
+import type * as CombatLogger from "./CombatLogger";
 
 /**
  * Collapse the per-force status tick pair into a single playback entry.
@@ -17,32 +17,32 @@ import type * as CombatLogger from "@game/Combat/CombatLogger";
  * ticks pass through untouched.
  */
 export const collapseStatusTickPairs = (
-	logs: CombatLogger.CombatLogEntry[]
+  logs: CombatLogger.CombatLogEntry[],
 ): CombatLogger.CombatLogEntry[] => {
-	const collapsed: CombatLogger.CombatLogEntry[] = [];
+  const collapsed: CombatLogger.CombatLogEntry[] = [];
 
-	for (let i = 0; i < logs.length; i++) {
-		const log = logs[i];
-		const next = logs[i + 1];
+  for (let i = 0; i < logs.length; i++) {
+    const log = logs[i];
+    const next = logs[i + 1];
 
-		if (
-			log.type === "poison_tick" &&
-			next &&
-			next.type === "regen_tick" &&
-			next.force === log.force &&
-			next.timeMs === log.timeMs
-		) {
-			collapsed.push({
-				...next,
-				amount: next.amount - log.amount,
-				lifeDelta: log.lifeDelta + next.lifeDelta,
-			});
-			i++; // skip the regen_tick we just merged
-			continue;
-		}
+    if (
+      log.type === "poison_tick" &&
+      next &&
+      next.type === "regen_tick" &&
+      next.force === log.force &&
+      next.timeMs === log.timeMs
+    ) {
+      collapsed.push({
+        ...next,
+        amount: next.amount - log.amount,
+        lifeDelta: log.lifeDelta + next.lifeDelta,
+      });
+      i++; // skip the regen_tick we just merged
+      continue;
+    }
 
-		collapsed.push(log);
-	}
+    collapsed.push(log);
+  }
 
-	return collapsed;
+  return collapsed;
 };

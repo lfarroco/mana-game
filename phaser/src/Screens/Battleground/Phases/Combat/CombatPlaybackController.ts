@@ -1,6 +1,6 @@
 import * as CombatRunner from "@game/Combat/CombatRunner";
 import * as CombatLogger from "@game/Combat/CombatLogger";
-import { collapseStatusTickPairs } from "./collapseStatusTickPairs";
+import { schedulePlayback, type ScheduledAnimation } from "@game/Combat/playbackScheduler";
 import * as BlackHole from "@Screens/Battleground/Components/BlackHole/BlackHole";
 import * as CountdownTimer from "@Screens/Battleground/Phases/Combat/CountdownTimer";
 import * as PoisonDamageSystem from "@game/Combat/PoisonDamageSystem";
@@ -18,13 +18,6 @@ import { resetUnitStats } from "@game/Entities/Unit";
 import { env } from "@Env";
 import { BattlegroundEvent } from "../../../../Events";
 
-type ScheduledAnimation = {
-	log: CombatLogger.CombatLogEntry;
-	startTime: number;
-	endTime: number;
-	executed: boolean;
-};
-
 type PlaybackState = {
 	active: boolean;
 	currentTime: number;
@@ -37,8 +30,6 @@ type PlaybackState = {
 	blackHoleState?: BlackHoleState;
 	countdownTimerState?: CountdownTimer.CountdownTimerState;
 };
-
-const DEFAULT_ANIMATION_DURATION = 400;
 
 // Must match CoreConstants.MIN_REFRESH_MS — used to replicate the server-side refresh lockout during playback
 const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
@@ -72,27 +63,10 @@ export const createCombatPlaybackController = (
 	};
 
 	const scheduleAnimations = () => {
-		let maxEnd = 0;
-		collapseStatusTickPairs(logs).forEach((log) => {
-			const startTime = log.timeMs;
-			const duration = DEFAULT_ANIMATION_DURATION;
-			const endTime = startTime + duration;
-			if (endTime > maxEnd) maxEnd = endTime;
-
-			playbackState.animations.push({
-				log,
-				startTime,
-				endTime,
-				executed: false,
-			});
-
-			if (log.type === "outcome") {
-				playbackState.outcome = log.result;
-			}
-		});
-
-		playbackState.animations.sort((a, b) => a.startTime - b.startTime);
-		playbackState.maxEndTime = maxEnd;
+		const { animations, maxEndTime, outcome } = schedulePlayback(logs);
+		playbackState.animations = animations;
+		playbackState.maxEndTime = maxEndTime;
+		playbackState.outcome = outcome;
 	};
 
 	const executeAnimation = (animation: ScheduledAnimation) => {

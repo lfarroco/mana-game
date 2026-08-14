@@ -63,6 +63,9 @@ export * as RegenSystem from "./Combat/RegenSystem";
 export * as TimeoutDamageSystem from "./Combat/TimeoutDamageSystem";
 export * as StatusEffectSystem from "./Combat/StatusEffectSystem";
 export * as generateEnemyTeam from "./Combat/generateEnemyTeam";
+export * as CollapseStatusTickPairs from "./Combat/collapseStatusTickPairs";
+export * as ApplyLogEntryToCombatState from "./Combat/applyLogEntryToCombatState";
+export * as PlaybackScheduler from "./Combat/playbackScheduler";
 
 // ---------------------------------------------------------------------------
 // Trigger system

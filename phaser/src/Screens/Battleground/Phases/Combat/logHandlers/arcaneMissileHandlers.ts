@@ -1,5 +1,6 @@
 import type { PlaybackState } from "./types";
 import * as CombatLogger from "@game/Combat/CombatLogger";
+import { applyLogEntryToCombatState } from "@game/Combat/applyLogEntryToCombatState";
 import * as Chara from "@Components/Chara/Chara";
 import * as ChargeBarDisplay from "@Components/Chara/ChargeBarDisplay";
 import * as AudioManager from "@Systems/AudioManager";
@@ -105,9 +106,11 @@ export const handleRegenHit = (log: CombatLogger.RegenHitEntry, _playbackState: 
 };
 
 export const handleHasteHit = (log: CombatLogger.HasteHitEntry, _playbackState: PlaybackState) => {
-	const hasteTarget = getCombatState()?.unitById.get(log.targetId);
+	const combatState = getCombatState();
+	if (!combatState) return;
+	const hasteTarget = combatState.unitById.get(log.targetId);
 	if (hasteTarget) {
-		hasteTarget.hasted += log.effectDuration;
+		applyLogEntryToCombatState(combatState, log);
 		ChargeBarDisplay.updateChargeBar(log.targetId);
 		Effects.hasteEffect(Chara.mustGetCharaById(log.targetId), {
 			duration: 1000,
@@ -118,9 +121,11 @@ export const handleHasteHit = (log: CombatLogger.HasteHitEntry, _playbackState: 
 };
 
 export const handleSlowHit = (log: CombatLogger.SlowHitEntry, _playbackState: PlaybackState) => {
-	const slowTarget = getCombatState()?.unitById.get(log.targetId);
+	const combatState = getCombatState();
+	if (!combatState) return;
+	const slowTarget = combatState.unitById.get(log.targetId);
 	if (slowTarget) {
-		slowTarget.slowed += log.effectDuration;
+		applyLogEntryToCombatState(combatState, log);
 		ChargeBarDisplay.updateChargeBar(log.targetId);
 		Effects.slowEffect(Chara.mustGetCharaById(log.targetId), {
 			duration: 1000,
@@ -134,9 +139,11 @@ export const handleChargeHit = (
 	log: CombatLogger.ChargeHitEntry,
 	_playbackState: PlaybackState
 ) => {
-	const chargeTarget = getCombatState()?.unitById.get(log.targetId);
+	const combatState = getCombatState();
+	if (!combatState) return;
+	const chargeTarget = combatState.unitById.get(log.targetId);
 	if (chargeTarget) {
-		chargeTarget.charge += log.amount;
+		applyLogEntryToCombatState(combatState, log);
 		ChargeBarDisplay.updateChargeBar(log.targetId);
 		Effects.hasteEffect(Chara.mustGetCharaById(log.targetId), {
 			duration: 1000,
