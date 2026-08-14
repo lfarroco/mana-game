@@ -1,6 +1,6 @@
 # Auth — Mana Game Server
 
-**Status**: 🔐 Design documented (2026-08-13). Implementation planned — see [Implementation phases](#implementation-phases).
+**Status**: ✅ Implemented (2026-08-13) — Phase A (repos/middleware) and Phase B (Steam login) are landed; **manual Steam smoke test still pending** (needs a real publisher Web API key + Steam Electron build — see [plan.md task 14](plan.md)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
 **Scope**: `server/` (Node multiplayer backend) + the Electron/Steam client side in `phaser/`.
 **Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code).
@@ -189,12 +189,17 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 | `MANA_STEAM_WEB_API_KEY` | — | Publisher Web API key (server secret; never shipped to clients) |
 | `MANA_STEAM_APP_IDS` | `3757600` | Comma-separated allowlist of app ids the server will accept (alpha + demo) |
 | `MANA_TOKEN_TTL_DAYS` | `30` | Bearer-token lifetime |
+| `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for `POST /auth/steam` |
+| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for `POST /auth/steam` |
 | `MANA_SERVER_HOST` / `MANA_SERVER_PORT` | `127.0.0.1` / `8787` | (existing) |
+
+Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
+`http://127.0.0.1:8787`) as the game-server base URL (`phaser/src/lib/steamAuth.ts`).
 
 ## Security & abuse
 
 - **Publisher key is server-side only**; it must never appear in `phaser/` or the Electron bundle.
-- **Rate-limit `POST /auth/steam`** (per-IP, e.g. `express-rate-limit`): prevents ticket grinding. (Applies to `POST /players` too, once guest accounts land.)
+- **Rate-limit `POST /auth/steam`** (per-IP via `express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS`): prevents ticket grinding. Exceeding the cap returns 429 `{ error: "rate_limited" }`. (Applies to `POST /players` too, once guest accounts land.)
 - **Ticket abuse**: validate immediately (single-use), require a valid `appId` + matching `identity`, reject non-17-digit `steamid`s.
 - **Token hygiene**: store only SHA-256 hashes; enforce `expires_at` in the middleware.
 - **No client-chosen player ids**: the client never tells the server who it is; the server derives identity from the token.
@@ -209,13 +214,27 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 
 ## Implementation phases
 
-| Phase | Deliverable | Exit criteria |
-|---|---|---|
-| **A. Player/token repos + bearer middleware** | `PlayerRepo`/`TokenRepo` (in-memory), `authService`/`tokenService`, Bearer middleware replacing `X-Player-Id` | unit + HTTP tests green; session routes run off tokens |
-| **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets |
-| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build |
+| Phase | Deliverable | Exit criteria | Status |
+|---|---|---|---|
+| **A. Player/token repos + bearer middleware** | `PlayerRepo`/`TokenRepo` (in-memory), `authService`/`tokenService`, Bearer middleware replacing `X-Player-Id` | unit + HTTP tests green; session routes run off tokens | ✅ done (2026-08-13) |
+| **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets | ✅ code done (2026-08-13); manual smoke test pending (plan.md task 14) |
+| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ⏳ Phase 3 (docs/game-server.md) — `phaser/src/lib/steamAuth.ts` + `getBearerToken()` are ready for it |
 
 The original plan was guest-first; the Steam-only launch flips it — Phases A and B are independent, and B is the priority.
+
+## Implementation notes & deviations
+
+Recorded 2026-08-13 while implementing plan.md tasks 1–13. Items marked *(deviation)* differ from the original design text; everything else confirms it.
+
+- **Identity constant is duplicated, not shared.** `STEAM_IDENTITY = "mana-game-v1"` lives in `server/src/services/steamAuth.ts` **and** `phaser/src/lib/steamAuth.ts`. Putting it in `core/` was considered, but core is pure game logic (purity boundary) and the value is auth-specific. **Keep the two in sync** — the server rejects tickets whose `identity` doesn't match.
+- **Rate limiting** landed as `server/src/http/middleware/rateLimit.ts` + `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS` config (default 20 req / 15 min). 429 responses use the API JSON shape `{ error: "rate_limited", message }` so clients can branch on the machine-readable code.
+- **Preload hook returns a hex string.** `window.auth.getSteamAuthTicket(identity, timeoutMs?)` (electron/preload.cjs) wraps `steamworks.auth.getAuthTicketForWebApi` and returns `ticket.getBytes().toString("hex")` — the exact form `AuthenticateUserTicket` expects. It returns `null` (and logs) when `steamworks` is unavailable, so the renderer can fall back to single-player. `timeoutMs` is converted to steamworks' `timeoutSeconds`.
+- **Client login module** is `phaser/src/lib/steamAuth.ts` (exported `steamAuth` singleton + injectable `createSteamAuthClient` factory for tests). It persists `{ token, player }` via the existing `@Systems/Storage` provider under the key `mana_auth_session`, and exposes `getBearerToken()` for the Phase 3 `RemoteServer` rewrite. The token is never logged or echoed. The module is **not yet wired into the multiplayer UI** — Phase 3 does that (task 12 step 3 only lands the login flow, per plan.md).
+- **Client app id is derived from the build.** `STEAM_APP_ID` = `IS_DEMO ? 4233280 (demo) : 3757600 (alpha)` — both are in the server's default `MANA_STEAM_APP_IDS` allowlist.
+- **`MANA_SERVER_URL`** was added to `phaser/webpack/config.base.cjs` DefinePlugin (empty by default → runtime fallback `http://127.0.0.1:8787`) so a build can point at a remote server.
+- **Token TTL is not refreshed per request** — a token expires `MANA_TOKEN_TTL_DAYS` (30) after issue; Steam re-issues on every launch, which is the expected flow for an autobattler (docs/auth.md decisions). Token refresh is parked in Phase 5 extras.
+- **`X-Player-Id` code paths are deleted**; only comments/READMEs describing what replaced it remain.
+- **Manual smoke test** (plan.md task 14) is the only unfinished item — it needs a real publisher Web API key + the Steam Electron build, so it cannot be automated in CI.
 
 
 

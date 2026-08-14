@@ -1,7 +1,7 @@
 # Mana Battle — Steam-Only Auth Implementation Plan (Phase 1.5)
 
 **Last Updated**: 2026-08-13
-**Status**: 📋 Plan — ready to implement
+**Status**: ✅ Implemented — all code tasks done (1–13); **task 14 (manual Steam smoke test) still pending** — requires a real `MANA_STEAM_WEB_API_KEY` + a Steam Electron build (see task 14 note).
 **Phase**: `docs/game-server.md` → **1.5. Steam-only auth**
 **Design**: [docs/auth.md](docs/auth.md) — data model, token scheme, flows, security
 **Prerequisites**: Server Phase 1 (session API) done — in-memory `SessionRepo`, session routes on the dev-only `X-Player-Id` header.
@@ -93,40 +93,43 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     3. Update HTTP integration fixtures (`server/test/api.test.ts`) to obtain a token via `POST /auth/steam` (mocked Steam API) or a test-only token factory, then send `Authorization: Bearer <token>`.
     4. Keep `GET /health` and `POST /auth/steam` unauthenticated.
 
-- [ ] **10. Rate-limit auth endpoints**
-  - **Files**: `server/package.json`, `server/src/app.ts`
+- [x] **10. Rate-limit auth endpoints** — DONE (2026-08-13)
+  - **Files**: `server/package.json`, `server/src/app.ts`, `server/src/config.ts`, `server/src/http/middleware/rateLimit.ts`
   - **Steps**:
-    1. Add `express-rate-limit` dependency.
+    1. Add `express-rate-limit` dependency (v8).
     2. Apply a per-IP limit to `POST /auth/steam` (ticket grinding); revisit `POST /players` when guest accounts land.
+    3. Config: `MANA_AUTH_RATE_LIMIT_MAX` (default 20), `MANA_AUTH_RATE_LIMIT_WINDOW_MS` (default 15 min). 429s use the API's JSON `{ error: "rate_limited" }` shape.
 
 ### Client — Electron
 
-- [ ] **11. Electron preload ticket hook**
+- [x] **11. Electron preload ticket hook** — DONE (2026-08-13)
   - **File**: `electron/preload.cjs` (only `electron/main.cjs` if needed)
   - **Steps**:
-    1. Expose `window.auth.getSteamAuthTicket(identity, timeoutMs?)` wrapping `steamworks.auth.getAuthTicketForWebApi` → returns the ticket as a hex string.
-    2. Graceful failure when `steamworks` is unavailable (browser build) — the renderer falls back to single-player.
+    1. Expose `window.auth.getSteamAuthTicket(identity, timeoutMs?)` wrapping `steamworks.auth.getAuthTicketForWebApi` → returns the ticket as a hex string (`ticket.getBytes().toString("hex")`).
+    2. Graceful failure when `steamworks` is unavailable (browser build) — returns `null` and logs; the renderer falls back to single-player.
 
-- [ ] **12. Client login flow**
-  - **File**: `phaser/src/` (new auth module; feeds the Phase 3 `RemoteServer` rewrite)
+- [x] **12. Client login flow** — DONE (2026-08-13)
+  - **File**: `phaser/src/lib/steamAuth.ts` (new auth module; feeds the Phase 3 `RemoteServer` rewrite) + `phaser/src/lib/steamAuth.test.ts`
   - **Steps**:
-    1. On multiplayer entry: require `window.steamworks`; request a ticket (shared `identity` constant with the server); `POST /api/v1/auth/steam`.
-    2. Persist `{ token, player }` via the existing storage provider (`phaser/src/Systems/Storage/`).
-    3. Send `Authorization: Bearer <token>` on all subsequent session requests.
+    1. On multiplayer entry: require `window.steamworks`; request a ticket (shared `identity` constant with the server — `STEAM_IDENTITY = "mana-game-v1"`, duplicated in `server/src/services/steamAuth.ts` and `phaser/src/lib/steamAuth.ts`, keep in sync); `POST /api/v1/auth/steam`.
+    2. Persist `{ token, player }` via the existing storage provider (`phaser/src/Systems/Storage/`) under `mana_auth_session`.
+    3. `getBearerToken()` exposes the stored token for `Authorization: Bearer <token>` on all subsequent session requests.
     4. The full `RemoteServer.ts` HTTP rewrite stays in Phase 3 (`docs/game-server.md`) — this phase only lands the login flow.
+    5. Server URL from `MANA_SERVER_URL` (webpack DefinePlugin, default `http://127.0.0.1:8787`); appId from `IS_DEMO` (alpha `3757600` / demo `4233280`).
 
 ### Testing & verification
 
-- [ ] **13. Unit + integration tests**
-  - **Files**: `server/test/` (new `auth.test.ts`; extend `api.test.ts`, `dto.test.ts`, `sessionFlow.test.ts`)
+- [x] **13. Unit + integration tests** — DONE (2026-08-13)
+  - **Files**: `server/test/` (`auth.test.ts`, `authMiddleware.test.ts`, `authService.test.ts`, `steamAuth.test.ts`, `tokenService.test.ts`, `rateLimit.test.ts`, `config.test.ts`, `api.test.ts`, …) + `phaser/src/lib/steamAuth.test.ts`
   - **Steps**:
     1. `tokenService`: hash round-trip, TTL expiry.
     2. `steamAuth`: mocked `fetch` — valid ticket → steamid; non-200 / wrong identity / wrong appid → invalid.
     3. `authService`: upsert uniqueness (repeat login returns the same `playerId`).
-    4. HTTP: `POST /auth/steam` happy path; 401s for missing/malformed/expired tokens on every session route; per-player isolation (two tokens → two players → independent sessions).
-    5. Keep the 43 existing tests green.
+    4. HTTP: `POST /auth/steam` happy path; 401s for missing/malformed/expired tokens on session routes; per-player isolation (two tokens → two players → independent sessions); 429 rate-limit tests.
+    5. Client login module: 9 jest tests (request shape, persistence, failure paths).
+    6. Keep the existing tests green — 109 server tests + client suite.
 
-- [ ] **14. Manual Steam smoke test**
+- [ ] **14. Manual Steam smoke test** — ⏳ PENDING (manual — requires a real Steam publisher key + Steam Electron build; cannot be automated in CI)
   - **Steps**:
     1. Run the server with `MANA_STEAM_WEB_API_KEY` and `MANA_STEAM_APP_IDS` set.
     2. Launch the Steam Electron build → auto-login succeeds → `GET /sessions/current` returns the player's run.
@@ -134,11 +137,11 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
 
 ## Definition of done
 
-- [ ] Bearer tokens replace `X-Player-Id` on all session endpoints; the `X-Player-Id` code paths are deleted.
-- [ ] `POST /api/v1/auth/steam` authenticates a real Steam ticket end-to-end (Electron → server → Steam Web API).
-- [ ] Tokens are stored SHA-256-hashed with expiry; 401s on missing/invalid/expired tokens.
-- [ ] Unit + HTTP integration suites green (mocked Steam Web API); existing 43 tests still pass.
-- [ ] Manual Steam auto-login smoke test passes.
-- [ ] `AGENTS.md` task **"Server auth — Steam-only (Phase 1.5)"** checked off; `docs/auth.md` updated with any deviations discovered during implementation.
+- [x] Bearer tokens replace `X-Player-Id` on all session endpoints; the `X-Player-Id` code paths are deleted.
+- [ ] `POST /api/v1/auth/steam` authenticates a real Steam ticket end-to-end (Electron → server → Steam Web API) — blocked on task 14 (manual smoke test, needs real Steam key).
+- [x] Tokens are stored SHA-256-hashed with expiry; 401s on missing/invalid/expired tokens.
+- [x] Unit + HTTP integration suites green (mocked Steam Web API); existing tests still pass (109 server tests).
+- [ ] Manual Steam auto-login smoke test passes (task 14).
+- [x] `AGENTS.md` task **"Server auth — Steam-only (Phase 1.5)"** checked off; `docs/auth.md` updated with any deviations discovered during implementation.
 
 
