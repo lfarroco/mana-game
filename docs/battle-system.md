@@ -34,7 +34,7 @@ returns the next session state.
 
 ## Units (Chara system)
 
-`phaser/src/Systems/Chara/` manages the visual representation of units:
+`phaser/src/Components/Chara/` manages the visual representation of units:
 
 - `Chara.ts` — container lifecycle, summon, destroy.
 - `input.ts` — drag-and-drop placement, click interactions.

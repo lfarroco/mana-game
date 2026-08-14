@@ -10,7 +10,9 @@ Units are the core gameplay entities that players collect, upgrade, and deploy i
 
 ### Unit Model (`Unit.ts`)
 
-Located in `core/src/Entities/Unit.ts`.
+The `Unit` **type** is defined in `core/src/types/unit.ts`. Factory and
+stat-upgrade functions live in `core/src/Entities/Unit.ts` and
+`core/src/Entities/Card.ts`.
 
 Defines the `Unit` type with all properties:
 - **Identity**: `id`, `cardId`, `pic`, `force`, `position`, `isCore`
@@ -20,9 +22,9 @@ Defines the `Unit` type with all properties:
 - **Special**: `critical?`, `bonusCritical?`, `evade`
 
 Key functions:
-- `makeUnit()`: Creates unit from card definition
-- `createUnitFromCardSpec()`: Low-level unit creation
-- `upgradeUnitData()`: Handles unit upgrades
+- `makeUnit()` (in `core/src/Entities/Card.ts`): Creates unit from card definition
+- `createUnitFromCardSpec()` (in `core/src/Entities/Card.ts`): Low-level unit creation
+- `upgradeUnitData()` (in `core/src/Entities/Unit.ts`): Handles unit upgrades
 
 ### Card Definitions (`Card.ts`)
 
@@ -41,7 +43,7 @@ Card properties:
 
 ### Chara System (`Chara/`)
 
-Located in `phaser/src/Systems/Chara/`.
+Located in `phaser/src/Components/Chara/`.
 
 Manages visual unit representations in Phaser:
 
@@ -103,12 +105,13 @@ Visual components added (sprite, displays, bars)
 ## Effects and Reactions
 
 ### Effects (Actions)
-- Defined in `TriggerSystem.Effect[]`
+- Defined in `Effect[]` (`core/src/types/effect.ts`)
+- Built with the functional builders in `core/src/data/effectBuilders.ts`
 - Executed when unit's cooldown completes
 - Types: damage, heal, shield, poison, haste, etc.
 
 ### Reactions
-- Defined in `TriggerSystem.EffectReaction[]`
+- Defined in `EffectReaction[]` (`core/src/types/effect.ts`)
 - Triggered by other units' effects
 - Conditions: effect type, source position, targeting
 

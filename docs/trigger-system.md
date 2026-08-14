@@ -2,6 +2,25 @@
 
 The **Trigger System** is the core mechanic of Mana Battle's combat. It functions on an **Action-Reaction** model where units perform effects (Actions) which can then trigger other units to perform their own effects (Reactions).
 
+## Where the code lives
+
+All replay-critical trigger logic is in `core/` (pure, deterministic):
+
+- `core/src/TriggerSystem/TriggerSystem.ts` — the system core: cooldown
+  ticking, effect dispatch, reaction matching.
+- `core/src/TriggerSystem/effects/` — one module per effect implementation
+  (`dealDamage.ts`, `restoreLife.ts`, `addShield.ts`, `applyPoison.ts`, …)
+  plus an `index.ts` barrel (`Effects`).
+- `core/src/types/effect.ts` — `Effect`, `EffectReaction`,
+  `EffectSourcePosition`, `EffectId`; `core/src/types/targeting.ts` — `Targeting`.
+- `core/src/data/effectBuilders.ts` — functional builders for constructing
+  effects (`damage`, `heal`, `shield`, `reaction`, targeting constants).
+- `core/src/data/cards/` — the actual unit definitions (`bronzeCards.ts`,
+  `silverCards.ts`, `goldCards.ts`, `coreCards.ts`) registered through
+  `core/src/data/BaseCollection.ts` / `Card.setCardsMap()`.
+
+Tests: `core/src/TriggerSystem/` and `core/src/Combat/Reaction*` suites.
+
 ## Core Concepts
 
 ### Actions (Effects)

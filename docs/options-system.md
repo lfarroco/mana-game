@@ -6,7 +6,10 @@ The Options system stores player preferences, renders the Options menu UI, and a
 
 Primary implementation areas:
 
-- `phaser/src/Models/OptionsStore.ts` (state, persistence, setters)
+- `core/src/settings/playerSettings.ts` — the `PlayerSettings` type + `defaultSettings()`
+- `core/src/settings/options.ts` — `parseStoredOptions()` (validation of persisted JSON)
+- `phaser/src/Models/ClientState.ts` — re-exports `defaultSettings` / `PlayerSettings` from core into `env.state.settings`
+- `phaser/src/Models/OptionsStore.ts` — thin Phaser-side wrapper: module-scoped state, runtime side effects, persistence
 - `phaser/src/Screens/Options/` (OptionsScreen + tab controls)
 - `phaser/src/Systems/AudioManager.ts` (reacts to audio preference changes)
 
@@ -14,7 +17,8 @@ At startup (`phaser/src/main.ts`), `OptionsStore.init()` loads persisted setting
 
 ## Data Model
 
-`OptionsStore` keeps a single module-scoped object with these fields:
+`OptionsStore` keeps a single module-scoped `PlayerSettings` object (type
+defined in `core/src/settings/playerSettings.ts`) with these fields:
 
 - `sound: boolean`
 - `soundVolume: number` (0-1)
@@ -40,18 +44,20 @@ Options are stored under the key `mana-game-options`.
 
 Persistence path:
 
-1. `OptionsStore` uses `storage` from `phaser/src/Storage/index.ts`.
+1. `OptionsStore` uses `storage` from `phaser/src/Systems/Storage/index.ts`.
 2. `storage` is produced by `StorageFactory`.
 3. In Electron + Steam Cloud environments, Steam Cloud provider is used.
 4. Otherwise, browser `localStorage` provider is used.
 
 On boot (`OptionsStore.init()`), `OptionsStore` first checks whether the
 `mana-game-options` namespace exists in storage. If it does not (first launch),
-the namespace is created with the defaults from `ClientState.defaultSettings()`
-so the persisted settings always exist and are read
-back consistently.
+the namespace is created with the defaults from `defaultSettings()`
+(`core/src/settings/playerSettings.ts`, re-exported by `ClientState`) so the
+persisted settings always exist and are read back consistently.
 
-On read, `loadOptionsFromStorage()` validates types/ranges before merging values into current options, so malformed saved data is ignored safely.
+On read, `parseStoredOptions()` (`core/src/settings/options.ts`) validates
+types/ranges before merging values into current options, so malformed saved
+data is ignored safely.
 
 ## Runtime Side Effects
 
@@ -87,12 +93,15 @@ Controls are functional builders (`boolean`, `volume`, `speed`, `multipleChoice`
 
 ## Localization
 
-All user-facing labels are pulled through `t(...)` keys from the i18n system (`phaser/src/i18n/`).
+All user-facing labels are pulled through `t(...)` keys from the i18n system —
+engine in `core/src/i18n/translator.ts`, catalogs in `phaser/src/i18n/*.json`.
 
 When adding new options:
 
-1. Add the option field to `OptionsStore` with defaults and validation.
-2. Add tab control wiring in `Screens/Options/Components/tabs/`.
+1. Add the field to `PlayerSettings` + `defaultSettings()` in
+   `core/src/settings/playerSettings.ts` and its validation in
+   `parseStoredOptions()` (`core/src/settings/options.ts`).
+2. Wire the UI in `Screens/Options/Components/tabs/`.
 3. Add localization keys for all supported locales.
 4. Add any required runtime side effect in `setOption()`.
 

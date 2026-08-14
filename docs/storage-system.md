@@ -8,7 +8,7 @@ The system uses a **Provider Pattern** to abstract the underlying storage mechan
 
 ### Interface: `IStorageProvider`
 
-Located in `phaser/src/Storage/IStorageProvider.ts`.
+Located in `phaser/src/Systems/Storage/IStorageProvider.ts`.
 
 ```typescript
 export type StorageProvider = {
@@ -20,7 +20,7 @@ export type StorageProvider = {
 
 ## Storage Factory
 
-The `StorageFactory` (`phaser/src/Storage/StorageFactory.ts`) is responsible for instantiating the correct provider at runtime.
+The `StorageFactory` (`phaser/src/Systems/Storage/StorageFactory.ts`) is responsible for instantiating the correct provider at runtime.
 
 It performs the following checks:
 1.  **Is Electron?** Checks if the app is running in an Electron renderer process.
@@ -32,22 +32,27 @@ It performs the following checks:
 ## Providers
 
 ### Steam Cloud Provider
-*   **File:** `phaser/src/Storage/SteamCloudProvider.ts`
+*   **File:** `phaser/src/Systems/Storage/SteamCloudProvider.ts`
 *   **Usage:** Used when running the game on Steam via Electron.
 *   **Mechanism:** Calls the exposed `window.steamworks.cloud` API to read/write files directly to Steam Cloud.
 *   **Notes:** Error handling is included to catch cases where Steam might be uninitialized.
 
 ### Local Storage Provider
-*   **File:** `phaser/src/Storage/LocalStorageProvider.ts`
+*   **File:** `phaser/src/Systems/Storage/LocalStorageProvider.ts`
 *   **Usage:** Used for web builds or when Steam is unavailable.
 *   **Mechanism:** Wraps the standard browser `window.localStorage` API.
+
+## Barrel & helpers
+
+- `phaser/src/Systems/Storage/index.ts` — exports `storage` (the app-wide
+  provider instance created by `StorageFactory`).
+- `phaser/src/Systems/Storage/loadGame.ts`, `getSinglePlayerData.ts`,
+  `deleteSavedData.ts` — save-file load/delete helpers used by the screens.
 
 ## Usage Example
 
 ```typescript
-import { createStorageProvider } from "./Storage/StorageFactory";
-
-const storage = createStorageProvider();
+import { storage } from "@Systems/Storage";
 
 // Save data
 storage.setItem("player_save", JSON.stringify(saveData));

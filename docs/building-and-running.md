@@ -10,47 +10,95 @@ npm run dev
 
 Opens at `http://localhost:8080`
 
+## Repository Layout
+
+Monorepo with four npm packages plus a root `Makefile`:
+
+| Package     | Purpose                                              | Commands |
+|-------------|------------------------------------------------------|----------|
+| `core/`     | Pure, framework-agnostic game logic (`@game/*`)      | `test`, `typecheck` |
+| `framework/`| Engine-agnostic client framework (`@mana/framework`) | `test`, `typecheck` |
+| `server/`   | Node multiplayer game server (express 5)             | `dev`, `test`, `typecheck`, `build` |
+| `phaser/`   | The Phaser 3 game client                             | see below |
+| root        | Prettier over the whole project + `make` targets     | `npm run format`, `make ...` |
+
+Each package has its own `package.json`; run commands from inside the package
+directory (e.g. `cd core && npm test`).
+
 ## Available Commands
 
-### Core
+### core
+
+| Command                 | Description                                        |
+|-------------------------|----------------------------------------------------|
+| `npm test`              | Jest unit tests (66 suites / 602 tests)            |
+| `npm run typecheck`     | `tsc --noEmit`                                     |
+
+### framework
+
+| Command                 | Description                                        |
+|-------------------------|----------------------------------------------------|
+| `npm test`              | Jest unit tests (7 suites / 56 tests)              |
+| `npm run typecheck`     | `tsc --noEmit`                                     |
+
+### server
+
+| Command                 | Description                                        |
+|-------------------------|----------------------------------------------------|
+| `npm run dev`           | Start the API server (default `http://127.0.0.1:8787`) |
+| `npm test`              | Jest unit + HTTP integration tests (167 tests)     |
+| `npm run typecheck`     | `tsc --noEmit`                                     |
+| `npm run build`         | tsup production bundle → `dist/`                   |
+
+### phaser
 
 | Command                 | Description                                        |
 |-------------------------|----------------------------------------------------|
 | `npm run dev`           | Start development server with hot reload           |
 | `npm run dev:demo`      | Start development server in demo mode              |
 | `npm run build`         | Create production web build                        |
-| `npm run test`          | Run all tests                                      |
-| `npm run test:unit`     | Run unit tests only                                |
-| `npm run test:e2e`      | Run Playwright end-to-end tests                    |
-| `npm run test:mutation` | Run mutation testing (Stryker, Core-focused scope) |
+| `npm test`              | Jest unit tests (use `test:ci` for CI parity)      |
+| `npm test:ci`           | Jest with `--ci --maxWorkers=50%`                  |
+| `npm run test:unit`     | Unit tests only (ignores `e2e`)                    |
+| `npm run test:e2e`      | Playwright end-to-end tests (**currently broken**, see AGENTS.md) |
 | `npm run lint`          | Run ESLint                                         |
-| `npm run format`        | Run Prettier formatting                            |
+| `npm run typecheck`     | `tsc --noEmit`                                     |
+| `npm run format`        | Prettier on `phaser/src`                           |
+| `npm run new:screen`    | Scaffold a new screen module                       |
 
-### Desktop (Electron)
+### Running a single test file
+
+```bash
+# core / framework / server
+npx jest src/path/ToFile.test.ts --runInBand
+
+# phaser (has jest-jsdom + Phaser mocks configured)
+npx jest src/path/ToFile.test.ts --runInBand
+```
+
+### Root / Makefile
 
 | Command                   | Description                                                 |
 |---------------------------|-------------------------------------------------------------|
+| `npm run format`          | Prettier over `core/`, `framework/`, `server/`, `phaser/`   |
+| `npm run format:check`    | Prettier check (no writes)                                  |
+| `make dev`                | `cd phaser && npm run dev`                                  |
 | `make electron-dev`       | Run desktop app in development mode                         |
 | `make electron-build`     | Build desktop app for current platform                      |
 | `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
-
-### Mobile
-
-| Command              | Description                     |
-|----------------------|---------------------------------|
-| `make android-build` | Build for Android via Capacitor |
-| `make android-open`  | Open project in Android Studio  |
-
-### Publishing
-
-| Command                   | Description                |
-|---------------------------|----------------------------|
-| `make steam-publish`      | Upload build to Steam      |
-| `make steam-publish-demo` | Upload demo build to Steam |
+| `make android-build`      | Build for Android via Capacitor                             |
+| `make android-open`       | Open project in Android Studio                              |
+| `make steam-publish`      | Upload build to Steam                                       |
+| `make steam-publish-demo` | Upload demo build to Steam                                  |
+| `make server-dev`         | `cd server && npm run dev`                                  |
+| `make server-test`        | `cd server && npm test`                                     |
+| `make server-typecheck`   | `cd server && npm run typecheck`                            |
+| `make server-build`       | Build the server Docker image                                |
+| `make server-run` / `server-stop` | Run / stop the Dockerized server                     |
 
 ## Development Server
 
-The development server runs on port 8080 by default and includes:
+The phaser development server runs on port 8080 by default and includes:
 - Hot module reloading
 - Source maps for debugging
 - TypeScript compilation
@@ -60,6 +108,7 @@ The development server runs on port 8080 by default and includes:
 ### Web Build
 
 ```bash
+cd phaser
 npm run build
 ```
 
@@ -78,8 +127,16 @@ Builds standalone executables for:
 
 Build outputs are placed in the `dist-electron` directory.
 
+### Server
+
+```bash
+cd server
+npm run build          # tsup bundle → dist/
+make server-build      # or the Docker image
+```
+
 ## Platform Requirements
 
-- **Node.js**: v22 or higher
+- **Node.js**: v22 or higher (`.nvmrc`)
 - **npm**: v7 or higher
 - **OS**: Windows, macOS, or Linux

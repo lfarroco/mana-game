@@ -132,25 +132,48 @@ the client sends actions and receives server-authoritative results.
    hard-fails on unresolved bare imports.
 3. **Jest** — `phaser/jest.config.cjs` maps `@game/*` to `../core/src/*`.
 
-## Current state (PoC)
+## Current state
 
-Moved so far:
+The migration is **complete** — all replay-critical game logic lives in this
+package. Test baseline (2026-08-14): **66 suites / 602 tests**, all green via
+`cd core && npm test`; deterministic, no Phaser/DOM mocks. See
+[purify.md](../purify.md) for how ~2,000 LOC moved out of `phaser/`.
 
-- `core/src/Random.ts` — Mulberry32 seeded RNG, string-to-seed hashing, seed derivation, deterministic shuffles/picks. Zero dependencies.
+### Package layout
 
-Consumption points:
+`src/index.ts` is the public barrel (`@game/index` / `@mana/core`). Map:
+
+- `math/`, `board/` — pure utilities (Random, Geometry, Constants, layout)
+- `Combat/` — simulation, runner, logger, codec, status systems, playback
+- `Entities/` — Card / Unit / Force factories
+- `session/` — management, transitions, option/enemy generation, run-complete
+- `TriggerSystem/` — triggers & effects
+- `Actions/` — recruitment, orb upgrades
+- `Orbs/`, `data/`, `content/`, `descriptions/`, `i18n/`, `settings/`,
+  `Stats/`, `Achievements/` — game data, catalogs, and presentation logic
+- `PhaseSystem/` — phase config
+- `types/` — domain types (`Models.ts` is a backward-compatible shim)
+
+### Compat shims
+
+A few top-level files — `Random.ts`, `Geometry.ts`, `Constants.ts`,
+`BoardLogic.ts`, `BaseCollection.ts`, `OptionGeneration.ts`,
+`EnemyGeneration.ts`, `SessionManagement.ts`, `SessionTransitions.ts` — are
+one-line `export *` re-export shims kept for backward compatibility with
+older `@game/*` import sites. Prefer the barrel (`src/index.ts`) or the real
+module paths above for new code.
+
+### Consumption points
 
 - `phaser/tsconfig.json`: `paths["@game/*"] = ["../core/src/*"]`, and
   `rootDir: "../"` (required so files outside `phaser/` are accepted into the
   program; bare `tsc` emit is unused — the client is built by webpack).
 - `phaser/webpack/config.base.cjs`: `"@game"` alias → `../../core/src`.
 - `phaser/jest.config.cjs`: `moduleNameMapper` for `@game/*`.
-- `phaser/package.json`: `test:core`, `typecheck:core` scripts.
-- `server/tsconfig.json`: `paths["@game/*"] = ["../core/src/*"]` — the LLM
-  agent server now gets real types for moved modules instead of the wildcard
-  `declare module "@game/*"` shim in `server/types/phaser-aliases.d.ts`.
-
-Import sites were rewritten `@Utils/Random` → `@game/Random` (14 files).
+- `server/tsconfig.json`: `paths["@game/*"] = ["../core/src/*"]` — the server
+  resolves real types for moved modules (the old wildcard
+  `declare module "@game/*"` shim in `server/types/phaser-aliases.d.ts` is
+  gone).
 
 ## Migration plan
 
@@ -201,12 +224,14 @@ Keep the existing alias names (`@Models/*`, `@Core/*`, …) but repoint them to
 
 ## Validation commands
 
-Run from `phaser/`:
+Run from `core/`:
 
 ```bash
-npm run typecheck        # client, including @game/* resolution
-npm run typecheck:core   # this package, standalone
-npm run build            # webpack production build
-cd ../core && npm test   # core package test suite
+npm test            # jest suite (66 suites / 602 tests)
+npm run typecheck   # tsc --noEmit
 ```
+
+`phaser/` and `server/` also typecheck against these sources through their
+own tsconfigs (`npm run typecheck` in each), and the client build resolves
+`@game/*` via webpack (`npm run build` from `phaser/`).
 

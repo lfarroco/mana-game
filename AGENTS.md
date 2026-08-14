@@ -4,15 +4,15 @@ This file is the entry point for AI agents working on the Mana Battle codebase.
 
 ## Agent Workflow
 
--. **Read this file** to orient yourself.
--. **Read the relevant docs** from the Knowledge Index.
--. **Check the coding standards** before writing code.
--. **Implement the change**, including tests where appropriate.
+- **Read this file** to orient yourself.
+- **Read the relevant docs** from the Knowledge Index.
+- **Check the coding standards** before writing code.
+- **Implement the change**, including tests where appropriate.
 
 
 ## Project Overview
 
-Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview. Multiplayer sessions are served by the Node game server in `server/` (Phase 1 session API implemented 2026-08-11) - see [docs/game-server.md](docs/game-server.md).
+Mana Battle is a PVE trigger-based autobattler on a 3x3 board, built with Phaser 3 + TypeScript, packaged with Electron for desktop and Capacitor for Android. See the [README](README.md) for the public-facing overview. Multiplayer sessions are served by the Node game server in `server/` (Steam auth, session API, matchmaking & rating, and SQLite persistence implemented 2026-08-14) — see [docs/game-server.md](docs/game-server.md).
 
 ## Quick Start
 
@@ -26,6 +26,31 @@ npm run test       # jest unit tests
 npm run test:e2e   # playwright e2e tests, currently broken
 npm run lint       # eslint
 ```
+
+## Package Guides
+
+Each package ships its own `AGENTS.md` with layout maps, conventions, and
+gotchas — read the one for the package you're working in **before** editing:
+
+- [core/AGENTS.md](core/AGENTS.md) — pure game logic (`@game/*`)
+- [framework/AGENTS.md](framework/AGENTS.md) — screen/nav framework (`@mana/framework`)
+- [server/AGENTS.md](server/AGENTS.md) — Node multiplayer API
+- [phaser/AGENTS.md](phaser/AGENTS.md) — the Phaser client
+
+## Verification Commands
+
+After any change, run the checks for the package you touched (each package has
+its own `package.json` — run from inside that directory):
+
+| Package    | Tests                        | Typecheck            | Lint            |
+|------------|------------------------------|----------------------|-----------------|
+| `core/`    | `npm test` (66 suites/602)   | `npm run typecheck`  | —               |
+| `framework/` | `npm test` (7 suites/56)   | `npm run typecheck`  | —               |
+| `server/`  | `npm test` (167 tests)       | `npm run typecheck`  | —               |
+| `phaser/`  | `npm run test:ci` (7 suites/38) | `npm run typecheck`| `npm run lint`  |
+
+Single test file: `npx jest src/path/ToFile.test.ts --runInBand` from the
+package directory. Full command reference: [docs/building-and-running.md](docs/building-and-running.md).
 
 ## Coding Standards
 
@@ -64,7 +89,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [building-and-running.md](docs/building-and-running.md): Setup, all npm scripts, platform requirements
 - [battle-system.md](docs/battle-system.md): Phase management, combat flow, board logic
 - [combat-architecture.md](docs/combat-architecture.md): Client-server combat separation, playback system
-- [game-server.md](docs/game-server.md): Phased plan for the Node multiplayer backend — Phase 1 (session API) implemented; Steam-only auth designed, matchmaking, client integration, and durable persistence still pending
+- [game-server.md](docs/game-server.md): Phased plan for the Node multiplayer backend — all phases implemented (session API, Steam-only auth, matchmaking & rating, client integration, SQLite persistence)
 - [auth.md](docs/auth.md): Server auth design — Steam-only login (Steam tickets → `AuthenticateUserTicket` → your own bearer tokens), guest accounts in a future phase, provider abstraction
 - [trigger-system.md](docs/trigger-system.md): Action-Reaction model, effects, targeting
 - [character-unit-system.md](docs/character-unit-system.md): Unit/Card types, Chara rendering system
