@@ -81,7 +81,7 @@ function mainPhase(ctx: Context) {
 	];
 }
 
-export const { init, create, destroy, go, name } = screenModule(screen);
+export const { init, create, destroy, go, name, currentPhase } = screenModule(screen);
 
 function displayVersion(): Phaser.GameObjects.Text {
 	return env.scene.add

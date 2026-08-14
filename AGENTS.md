@@ -42,12 +42,12 @@ gotchas — read the one for the package you're working in **before** editing:
 After any change, run the checks for the package you touched (each package has
 its own `package.json` — run from inside that directory):
 
-| Package    | Tests                        | Typecheck            | Lint            |
-|------------|------------------------------|----------------------|-----------------|
-| `core/`    | `npm test` (66 suites/602)   | `npm run typecheck`  | —               |
-| `framework/` | `npm test` (7 suites/56)   | `npm run typecheck`  | —               |
-| `server/`  | `npm test` (167 tests)       | `npm run typecheck`  | —               |
-| `phaser/`  | `npm run test:ci` (7 suites/38) | `npm run typecheck`| `npm run lint`  |
+| Package      | Tests                           | Typecheck           | Lint           |
+|--------------|---------------------------------|---------------------|----------------|
+| `core/`      | `npm test` (66 suites/602)      | `npm run typecheck` | —              |
+| `framework/` | `npm test` (7 suites/56)        | `npm run typecheck` | —              |
+| `server/`    | `npm test` (167 tests)          | `npm run typecheck` | —              |
+| `phaser/`    | `npm run test:ci` (7 suites/38) | `npm run typecheck` | `npm run lint` |
 
 Single test file: `npx jest src/path/ToFile.test.ts --runInBand` from the
 package directory. Full command reference: [docs/building-and-running.md](docs/building-and-running.md).
@@ -167,7 +167,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Update this section as you find bugs.
 
-- **E2E suite is broken** (found 2026-07-29): `phaser/e2e/*.e2e.ts` import `../src/test-utils/debugController`, but that module does not exist in git — all e2e runs fail with "Cannot find module". The `debugController` API used by the specs (`getPlayerBoardUnits`, `addUnitToPlayerBoard`, `moveUnitOnBoard`, `logGameState`) needs to be reimplemented against the current screen architecture. Also note `game.e2e.spec.ts` doesn't match `testMatch: /.*\.e2e\.ts/` so it never runs even when resolvable.
 
 
 ## Task Queue

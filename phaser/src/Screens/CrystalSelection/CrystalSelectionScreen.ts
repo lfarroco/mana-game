@@ -90,4 +90,4 @@ const cleanup = () => {
 	currentIndex = 0;
 };
 
-export const { init, create, destroy, name } = screenModule(screen);
+export const { init, create, destroy, name, currentPhase } = screenModule(screen);

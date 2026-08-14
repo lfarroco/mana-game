@@ -16,7 +16,7 @@
         "test:coverage": "jest --coverage",
         "test:mutation": "stryker run",
         "test:e2e": "playwright test",
-        "test:e2e:game-flow": "playwright test e2e/game.e2e.spec.ts",
+        "test:e2e:game-flow": "playwright test e2e/smoke.e2e.ts",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:debug": "playwright test --debug",
         "test:bundle-size": "size-limit",

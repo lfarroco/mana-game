@@ -123,4 +123,4 @@ const screen = createScreen<BGPhase, BGEvents>({
 });
 
 const _bgscreen = screenModule(screen);
-export const { init, create, destroy, go, name } = _bgscreen;
+export const { init, create, destroy, go, name, currentPhase } = _bgscreen;

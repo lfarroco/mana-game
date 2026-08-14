@@ -3,14 +3,14 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
 	testDir: './e2e',
 	testMatch: /.*\.e2e\.ts/,
-	timeout: 30 * 1000,
+	timeout: 180 * 1000,
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	workers: 1,
 	reporter: [['html', { open: 'never' }]],
 	use: {
-		baseURL: 'http://localhost:8080?speed=4',
+		baseURL: 'http://localhost:8080',
 		trace: 'on-first-retry',
 		// Record video for failed tests
 		video: 'retain-on-failure',

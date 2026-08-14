@@ -14,7 +14,7 @@ npm run typecheck       # tsc --noEmit (client, incl. @game/* resolution)
 npm run typecheck:core  # core package typecheck
 npm run build           # production webpack build
 npm test                # ⚠️ jest — currently finds no tests (docs/code-quality-cleanup.md §1)
-npm run test:e2e        # ⚠️ playwright — currently collects 0 specs (same doc)
+npm run test:e2e        # playwright smoke test (e2e/smoke.e2e.ts) via window.__debug controller
 
 # core/
 npm test                # jest — full deterministic suite
