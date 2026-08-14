@@ -119,3 +119,11 @@ export * as Seed from "./session/seed";
 export * as SessionStore from "./session/sessionStore";
 export * as Options from "./settings/options";
 export * as I18n from "./i18n/translator";
+
+// ---------------------------------------------------------------------------
+// Stats & achievements
+// ---------------------------------------------------------------------------
+export * as VictoryTier from "./Achievements/victoryTier";
+export * as Stats from "./Stats/stats";
+export * as Unlocks from "./Stats/unlocks";
+export * as StatsStore from "./Stats/statsStore";
