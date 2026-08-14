@@ -1,7 +1,6 @@
 import { Unit } from "@game/Models";
+import { checkRecruitEligibility } from "@game/Actions/recruitValidation";
 import * as Chara from "@Components/Chara/Chara";
-import { getUnitAt } from "@game/board/layout";
-import * as CoreConstants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
 import * as AudioManager from "@Systems/AudioManager";
@@ -38,22 +37,11 @@ export async function purchaseShopUnit({
 	targetSlot: Vec2 | null;
 }): Promise<PurchaseResult> {
 	const { session: currentSession } = env.state;
-	const existingUnit = currentSession.team.units.find((u) => u.cardId === cardId);
 
-	if (
-		(!existingUnit || existingUnit.rank > 3) &&
-		currentSession.team.units.length >= CoreConstants.MAX_PARTY_SIZE
-	) {
-		uiEvents.onPurchaseFailed(i18n.getName(cardId), "PARTY_FULL");
-		return { ok: false, reason: "PARTY_FULL" };
-	}
-
-	if (targetSlot && (!existingUnit || existingUnit.rank > 3)) {
-		const occupier = getUnitAt(currentSession.team.units)(targetSlot);
-		if (occupier) {
-			uiEvents.onPurchaseFailed(i18n.getName(cardId), "SLOT_OCCUPIED");
-			return { ok: false, reason: "SLOT_OCCUPIED" };
-		}
+	const check = checkRecruitEligibility(currentSession, cardId, targetSlot);
+	if (!check.ok) {
+		uiEvents.onPurchaseFailed(i18n.getName(cardId), check.reason);
+		return { ok: false, reason: check.reason };
 	}
 
 	const previousTeamUnits = JSON.parse(JSON.stringify(currentSession.team.units)) as Unit[];

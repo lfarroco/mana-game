@@ -91,7 +91,7 @@ export function recruitUnit(
     }
   }
 
-  if (units.length < 9) {
+  if (units.length < Constants.MAX_PARTY_SIZE) {
     console.debug(
       "recruitmentActions",
       `Recruiting new unit with card ID ${cardId}`,

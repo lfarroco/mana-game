@@ -1,11 +1,9 @@
 import { env } from "@Env";
 import * as LocalServer from "./LocalServer";
 import { remoteServer } from "./RemoteServer";
-import * as Models from "@game/Models";
+import type { GameServer as CoreGameServer } from "@game/types/server";
 
-export type ServerAdapter = {
-	createSession(playerId: string, crystalId: string): Promise<Models.SessionData>;
-	handleAction(playerId: string, action: Models.Action): Promise<Models.ActionResponse>;
+export type ServerAdapter = CoreGameServer & {
 	/**
 	 * Delete the persisted session for a player (e.g. when a run is finished —
 	 * victory or game over). Removes the save so the player can't resume a

@@ -41,6 +41,7 @@ export * as Constants from "./math/Constants";
 // Board
 // ---------------------------------------------------------------------------
 export * as BoardLogic from "./board/BoardLogic";
+export * as BoardSync from "./board/boardSync";
 
 // ---------------------------------------------------------------------------
 // Entities
@@ -90,6 +91,7 @@ export * as PhaseConfig from "./PhaseSystem/PhaseConfig";
 // Actions
 // ---------------------------------------------------------------------------
 export * as RecruitmentActions from "./Actions/RecruitmentActions";
+export * as RecruitValidation from "./Actions/recruitValidation";
 export * as OrbAndCoreUpgrades from "./Actions/OrbAndCoreUpgrades";
 
 // ---------------------------------------------------------------------------
