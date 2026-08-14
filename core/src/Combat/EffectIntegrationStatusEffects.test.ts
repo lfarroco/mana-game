@@ -128,4 +128,3 @@ describe("Effect integration — charge", () => {
     expect(hitLogs[0].amount).toBe(300);
   });
 });
-

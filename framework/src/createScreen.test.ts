@@ -93,7 +93,6 @@ describe("createScreen", () => {
     expect(ctxDisposer).toHaveBeenCalledTimes(1);
   });
 
-
   it("works without phases — single-view screen", async () => {
     const spec = {
       name: "single-view",
@@ -182,5 +181,4 @@ describe("createScreen", () => {
 
     warnSpy.mockRestore();
   });
-
 });

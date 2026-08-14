@@ -199,4 +199,3 @@ describe("Reaction — positional threshold triggers", () => {
     expect(csReactor.power).toBeGreaterThan(10);
   });
 });
-

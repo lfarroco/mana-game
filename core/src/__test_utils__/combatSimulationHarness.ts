@@ -13,7 +13,6 @@ import * as CombatRunner from "../Combat/CombatRunner";
 import * as BoardLogic from "../BoardLogic";
 import * as F from "../Functional";
 
-
 /**
  * Create a minimal session and enemy team for combat testing.
  * Uses "critical_crystal" which has a "damage" effect and isCore: true.

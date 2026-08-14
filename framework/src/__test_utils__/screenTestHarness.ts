@@ -17,9 +17,9 @@ export const fakeObj = (): FakeObj =>
   ({ destroy: jest.fn() }) as unknown as FakeObj;
 
 /** Fake whose destroy() delegates to a custom (possibly async) implementation. */
-export const asyncDestroyObj = (
-  impl: () => void | Promise<void>,
-): FakeObj => ({ destroy: jest.fn(impl) });
+export const asyncDestroyObj = (impl: () => void | Promise<void>): FakeObj => ({
+  destroy: jest.fn(impl),
+});
 
 export type TestEvents = { someEvent: { clear: jest.Mock } };
 

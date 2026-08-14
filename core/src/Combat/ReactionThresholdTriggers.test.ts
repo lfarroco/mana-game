@@ -401,4 +401,3 @@ describe("Reaction — threshold triggers", () => {
     expect(csReactor.power).toBe(16); // 10 + 3 + 3
   });
 });
-

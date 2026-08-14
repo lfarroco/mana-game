@@ -149,7 +149,6 @@ export class PhaseTracker<TPhase extends string> {
     target.set(key, obj);
   }
 
-
   findById<T extends Destroyable>(id: string): T | undefined {
     return (
       (this.persistent.get(id) as T | undefined) ??
@@ -210,4 +209,3 @@ export function findTrackedById<T extends Destroyable>(
 ): T | undefined {
   return activeTracker?.findById<T>(id);
 }
-

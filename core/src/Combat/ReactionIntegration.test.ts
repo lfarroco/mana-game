@@ -375,4 +375,3 @@ describe("Reaction — enemies position", () => {
     expect(cpuReactor.power).toBeGreaterThan(10);
   });
 });
-

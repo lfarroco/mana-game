@@ -94,4 +94,3 @@ describe("Shield accumulation and damage routing", () => {
     }
   });
 });
-
