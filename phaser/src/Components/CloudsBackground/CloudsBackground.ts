@@ -23,11 +23,46 @@ export type CloudsBackgroundConfig = {
 	alpha?: number;
 	/** Animation speed multiplier (default: 1.0, lower values = slower animation) */
 	timeScale?: number;
+
+	/**
+	 * Internal render-resolution scale (0..1).  The shader renders into a
+	 * low-res texture that is then scaled up, so lower values are far cheaper
+	 * on the GPU.  Defaults from the particle-quality option:
+	 * low = 0.25, medium = 0.5, high = 0.75.
+	 */
+	renderScale?: number;
 };
+
+/**
+ * The most recently created CloudsBackground instance.  The options screen
+ * uses this to push particle-quality changes to the live background.
+ */
+let activeInstance: CloudsBackground | null = null;
+
+/** Returns the active background instance, or null when none exists. */
+export function getActiveInstance(): CloudsBackground | null {
+	return activeInstance;
+}
+
+/** Module-level setter (avoids the `no-this-alias` lint rule on `this`). */
+function setActiveInstance(instance: CloudsBackground | null): void {
+	activeInstance = instance;
+}
+
+/** Render-resolution scales per particle-quality level. */
+const RENDER_TEXTURE_SCALE_BY_QUALITY: Record<number, number> = {
+	0: 0.25, // low
+	1: 0.5, // medium
+	2: 0.75, // high
+};
+
+/** Unique Texture Manager key per instance (removed again on destroy). */
+let renderTextureCounter = 0;
 
 export class CloudsBackground {
 	private scene: Phaser.Scene;
 	private shader: Phaser.GameObjects.Shader;
+	private displayImage: Phaser.GameObjects.Image;
 	private preset: keyof typeof colorPresets.colorPresets;
 	private customColors?: colorPresets.IColorPreset;
 	private x: number;
@@ -40,7 +75,11 @@ export class CloudsBackground {
 	private presetKeys: string[];
 	private currentPresetIndex: number = 0;
 	private renderColors: colorPresets.IColorPreset;
+	private renderScale: number;
+	private isDestroyed = false;
 	private currentTween: Phaser.Tweens.Tween | null = null;
+	private timeScaleTween: Phaser.Tweens.Tween | null = null;
+	private alphaTween: Phaser.Tweens.Tween | null = null;
 	constructor(config: CloudsBackgroundConfig = {}) {
 		const scene = this.resolveScene();
 		this.scene = scene;
@@ -60,6 +99,7 @@ export class CloudsBackground {
 		this.depth = config.depth !== undefined ? config.depth : -1000;
 		this.alpha = config.alpha !== undefined ? config.alpha : 1;
 		this.timeScale = config.timeScale !== undefined ? config.timeScale : 1.0;
+		this.renderScale = this.resolveRenderScale(config.renderScale);
 
 		this.presetKeys = Object.keys(colorPresets.colorPresets);
 
@@ -72,6 +112,12 @@ export class CloudsBackground {
 		// Initialize renderColors with a deep copy of current settings
 		this.renderColors = JSON.parse(JSON.stringify(this.getCurrentColors()));
 		const colors = this.renderColors;
+
+		// Render the shader into a low-resolution texture, then display it scaled
+		// up to full screen.  The shader's fragment work is per-pixel of the
+		// render target, so this cuts the GPU cost by ~1 / renderScale^2.
+		const renderWidth = Math.max(1, Math.round(this.width * this.renderScale));
+		const renderHeight = Math.max(1, Math.round(this.height * this.renderScale));
 
 		// Create the shader
 		const backgroundShader = new Phaser.Display.BaseShader(
@@ -90,11 +136,26 @@ export class CloudsBackground {
 		);
 
 		this.shader = this.scene.add
-			.shader(backgroundShader, this.x, this.y, this.width, this.height)
+			.shader(backgroundShader, renderWidth / 2, renderHeight / 2, renderWidth, renderHeight)
 			.setOrigin(0.5, 0.5)
 			.setDepth(this.depth);
 
-		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
+		// Render to a low-res frame buffer; the result is exposed as a texture.
+		const renderTextureKey = `cloudsBackground_${++renderTextureCounter}`;
+		this.shader.setRenderToTexture(renderTextureKey, true);
+
+		// The frame-buffer texture is stored upside down (GL convention), so the
+		// display image flips it back.  Linear filtering gives a soft upscale.
+		this.displayImage = this.scene.add
+			.image(this.x, this.y, renderTextureKey)
+			.setOrigin(0.5, 0.5)
+			.setDisplaySize(this.width, this.height)
+			.setDepth(this.depth)
+			.setAlpha(this.alpha);
+		this.displayImage.setFlipY(true);
+		this.displayImage.texture.setFilter(Phaser.Textures.FilterMode.LINEAR);
+
+		setActiveInstance(this);
 	}
 	private resolveScene(): Phaser.Scene {
 		return env.scene;
@@ -183,6 +244,7 @@ export class CloudsBackground {
 		this.x = x;
 		this.y = y;
 		this.shader.setPosition(x, y);
+		this.displayImage.setPosition(x, y);
 	}
 
 	/**
@@ -191,7 +253,8 @@ export class CloudsBackground {
 	public setSize(width: number, height: number): void {
 		this.width = width;
 		this.height = height;
-		this.shader.setSize(width, height);
+		// The shader keeps its low-res render size; only the display image scales.
+		this.displayImage.setDisplaySize(width, height);
 	}
 
 	/**
@@ -200,6 +263,7 @@ export class CloudsBackground {
 	public setDepth(depth: number): void {
 		this.depth = depth;
 		this.shader.setDepth(depth);
+		this.displayImage.setDepth(depth);
 	}
 
 	/**
@@ -207,7 +271,7 @@ export class CloudsBackground {
 	 */
 	public setAlpha(alpha: number): void {
 		this.alpha = alpha;
-		(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = alpha;
+		this.displayImage.setAlpha(alpha);
 	}
 
 	/**
@@ -234,6 +298,19 @@ export class CloudsBackground {
 			default:
 				return 1.0; // Default to medium
 		}
+	}
+
+	/**
+	 * Internal render-resolution scale.  An explicit config value wins;
+	 * otherwise the particle-quality option picks the scale so that the
+	 * "low" setting is genuinely much cheaper on the GPU.
+	 */
+	private resolveRenderScale(explicit?: number): number {
+		if (explicit !== undefined) {
+			return Math.min(1, Math.max(0.05, explicit));
+		}
+		const quality = this.getParticleQualityValue();
+		return RENDER_TEXTURE_SCALE_BY_QUALITY[quality] ?? RENDER_TEXTURE_SCALE_BY_QUALITY[1];
 	}
 
 	/**
@@ -328,7 +405,8 @@ export class CloudsBackground {
 		duration: number = 2000,
 		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
-		this.scene.tweens.addCounter({
+		this.timeScaleTween?.stop();
+		this.timeScaleTween = this.scene.tweens.addCounter({
 			from: this.timeScale,
 			to: targetTimeScale,
 			duration: duration,
@@ -351,14 +429,15 @@ export class CloudsBackground {
 		duration: number = 2000,
 		ease: string | ((...args: unknown[]) => unknown) = "Linear"
 	): void {
-		this.scene.tweens.addCounter({
+		this.alphaTween?.stop();
+		this.alphaTween = this.scene.tweens.addCounter({
 			from: this.alpha,
 			to: targetAlpha,
 			duration: duration,
 			ease: ease,
 			onUpdate: (tween) => {
 				this.alpha = tween.getValue() ?? this.alpha;
-				(this.shader as Phaser.GameObjects.Shader & { alpha: number }).alpha = this.alpha;
+				this.displayImage.setAlpha(this.alpha);
 			},
 		});
 	}
@@ -371,9 +450,25 @@ export class CloudsBackground {
 	}
 
 	/**
-	 * Destroy the background and clean up resources
+	 * Destroy the background and clean up resources.
+	 * Idempotent — safe to call from the framework teardown and manually.
 	 */
 	public destroy(): void {
+		if (this.isDestroyed) return;
+		this.isDestroyed = true;
+
+		this.currentTween?.stop();
+		this.timeScaleTween?.stop();
+		this.alphaTween?.stop();
+		this.currentTween = null;
+		this.timeScaleTween = null;
+		this.alphaTween = null;
+
+		// Destroy the display image before the shader — the image references the
+		// render texture that the shader removes from the Texture Manager.
+		this.displayImage.destroy();
 		this.shader.destroy();
+
+		if (activeInstance === this) setActiveInstance(null);
 	}
 }

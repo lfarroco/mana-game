@@ -1,4 +1,5 @@
 import { getSettings, setOption } from "@Models/OptionsStore";
+import * as CloudsBackground from "@Components/CloudsBackground/CloudsBackground";
 import { multipleChoice } from "@Screens/Options/Components/controls/multipleChoice";
 import { t } from "@i18n/i18n";
 
@@ -13,8 +14,9 @@ export function graphicsTab(startY: number) {
 		(value) => {
 			setOption("particles", value as ParticlesOption);
 
-			// TODO: wire up to the active CloudsBackground instance to update particle quality in real time
-			// scene.cloudsBackground?.updateParticleQuality();
+			// Push the new quality to the live background (e.g. the aurora
+			// background behind this screen) so the change applies immediately.
+			CloudsBackground.getActiveInstance()?.updateParticleQuality();
 		},
 		(value) => t("options.graphics.values." + value)
 	);

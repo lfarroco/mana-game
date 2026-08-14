@@ -57,7 +57,9 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 		crystals = Card.getCores();
 		currentIndex = 0;
 
-		cloudsBg.create();
+		// Tracked so the framework destroys it (and stops its tweens) on teardown.
+		const cloudsBackground = cloudsBg.create();
+		if (cloudsBackground) ctx.track(cloudsBackground, { id: CRYSTAL_IDS.backgroundClouds });
 
 		// Card display background
 		ctx.track(background.create(), { id: CRYSTAL_IDS.background });

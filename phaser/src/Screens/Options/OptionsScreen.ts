@@ -80,7 +80,10 @@ const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 	},
 
 	create: async (ctx) => {
-		new CloudsBackground.CloudsBackground({ preset: "aurora" });
+		// Tracked so the framework destroys it (and stops its tweens) on teardown.
+		ctx.track(new CloudsBackground.CloudsBackground({ preset: "aurora" }), {
+			id: "clouds-background",
+		});
 		const label = optionsLabel.create();
 		tabButtons.create(ctx);
 		const back = backButton.create(ctx);

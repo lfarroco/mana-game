@@ -1,5 +1,12 @@
 export const cloudsBackgroundShader = `
+// highp when available: WebGL1 fragment precision is device-dependent, and
+// mediump is fp16 on many mobile GPUs — too coarse for the unbounded time
+// uniform, which makes the star/dust animations break down after long sessions.
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
 precision mediump float;
+#endif
 
 uniform float time;
 uniform vec2 resolution;
@@ -11,8 +18,6 @@ uniform vec3 color5;
 uniform float timeScale;
 uniform float particleQuality; // 0.0 = low, 1.0 = medium, 2.0 = high
 uniform float pixelSize; // Controls pixelation level (e.g., 4.0 for 4x4 pixel blocks)
-uniform float cloudContrast; // 0..1
-uniform float cloudSoftness; // 0..1
 uniform vec2 cameraOffset; // for parallax
 uniform float starTwinkle; // 0..1
 uniform float exposure; // final exposure multiplier
@@ -43,19 +48,6 @@ vec2 pixelate(vec2 uv, float pixelSize) {
     }
     vec2 pixelCoord = floor(uv * resolution.xy / pixelSize) * pixelSize / resolution.xy;
     return pixelCoord;
-}
-
-// Smooth noise function
-float smoothNoise(vec2 p) {
-    // bilinear interpolation of hashed grid values
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    float a = hash12(i);
-    float b = hash12(i + vec2(1.0, 0.0));
-    float c = hash12(i + vec2(0.0, 1.0));
-    float d = hash12(i + vec2(1.0, 1.0));
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
 }
 
 // Star field returning RGB with per-star hue & temporal twinkle
@@ -104,7 +96,7 @@ vec3 starField(vec2 uv, float density, float brightness) {
         star = step(dist, starSize); // Hard edge for pixelated look
     } else {
         star = 1.0 - smoothstep(0.0, starSize, dist); // Smooth falloff
-        star = pow(star, 2.0);
+        star = star * star;
     }
     
     // Simplified glow calculation using derived values
@@ -125,7 +117,8 @@ vec3 starField(vec2 uv, float density, float brightness) {
 
     // Per-star twinkle modulation (independent of global twinkle uniform)
     float twinklePhase = derivedNoise4 * 10.0 + time * timeScale * (0.5 + derivedNoise2);
-    float twinkleMod = mix(1.0, 1.0 + starTwinkle * 0.6, pow(sin(twinklePhase) * 0.5 + 0.5, 2.0));
+    float twinkleVal = sin(twinklePhase) * 0.5 + 0.5;
+    float twinkleMod = mix(1.0, 1.0 + starTwinkle * 0.6, twinkleVal * twinkleVal);
 
     return starTint * star * twinkleMod;
 }
@@ -290,11 +283,17 @@ void main() {
     // Large cloud blocks - slow moving
     float largeClouds = animatedSquareClouds(uv, 8.0, 0.6, scaledTime, vec2(0.02, 0.015));
     
-    // Medium cloud blocks - medium speed
-    float mediumClouds = animatedSquareClouds(uv, 16.0, 0.65, scaledTime, vec2(-0.025, 0.02));
-    
-    // Small cloud details - faster moving
-    float smallClouds = animatedSquareClouds(uv, 32.0, 0.7, scaledTime, vec2(0.03, -0.018));
+    // Medium and small cloud layers only on medium+ quality — low quality keeps
+    // a single cloud layer so it is genuinely cheaper on the GPU.
+    float mediumClouds = 0.0;
+    float smallClouds = 0.0;
+    if (particleQuality >= 0.5) {
+        // Medium cloud blocks - medium speed
+        mediumClouds = animatedSquareClouds(uv, 16.0, 0.65, scaledTime, vec2(-0.025, 0.02));
+        
+        // Small cloud details - faster moving
+        smallClouds = animatedSquareClouds(uv, 32.0, 0.7, scaledTime, vec2(0.03, -0.018));
+    }
     
     // Combine cloud layers with different weights
     float cloudPattern = largeClouds * 0.6 + mediumClouds * 0.3 + smallClouds * 0.2;
@@ -310,10 +309,6 @@ void main() {
     vec2 colorUV = mix(uv, pixelatedUV, px);
     float colorVar = sin(colorUV.x * 2.0) * cos(colorUV.y * 1.5) * 0.1;
     colorVar = mix(colorVar, floor(colorVar * 2.0) / 2.0, px);
-
-    // vertical bias for horizon tint (0 bottom -> 1 top)
-    float vertical = clamp(uv.y, 0.0, 1.0);
-    float verticalPow = pow(vertical, 1.1 + cloudSoftness * 2.0);
 
     // Optimized star field - reduced layers and early exit optimizations
     float starDensityMultiplier = 0.7 + (particleQuality * 0.2); // Reduced from 1.0 + 0.3
@@ -349,7 +344,7 @@ void main() {
     nebulaColor = mix(nebulaColor, color5, smoothstep(0.7, 0.95, cloudPattern) * 0.4); // Reduced intensity
 
     // Add much subtler glow
-    nebulaColor += vec3(0.08, 0.04, 0.09) * pow(glow, 3.0); // Reduced and made more subtle
+    nebulaColor += vec3(0.08, 0.04, 0.09) * glow * glow * glow; // Reduced and made more subtle
 
     // Optimized additive blending - much reduced intensity for cleaner look
     vec3 dustCol = dustColor;
@@ -359,7 +354,11 @@ void main() {
     nebulaColor += dustCol * dust * 0.3;
 
     // Stars already include per-star twinkle & hue; apply mild global variation
-    float globalTwinkle = mix(1.0, 1.0 + starTwinkle * 0.2, hash12(floor(uv * 64.0)));
+    // (the per-fragment hash only runs when the twinkle feature is enabled)
+    float globalTwinkle = 1.0;
+    if (starTwinkle > 0.0) {
+        globalTwinkle = mix(1.0, 1.0 + starTwinkle * 0.2, hash12(floor(uv * 64.0)));
+    }
     nebulaColor += stars * 0.6 * globalTwinkle;
 
     // exposure and timeOfDay tinting

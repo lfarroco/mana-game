@@ -47,7 +47,7 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 	},
 
 	create: async (ctx) => {
-		Components.cloudsBg.create();
+		const background = Components.cloudsBg.create();
 		Components.logo.render();
 		AudioManager.playMusic("music_ageofdisjunction");
 		const versionText = displayVersion();
@@ -56,7 +56,9 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 		// TODO: have event "onCreate" for screens, and fire those
 		await ctx.go("main");
 		checkUnlocks();
-		return [versionText, howToPlay];
+		// Return the background (when assets are enabled) so the framework
+		// destroys it — and stops its tweens — on screen teardown.
+		return background ? [background, versionText, howToPlay] : [versionText, howToPlay];
 	},
 
 	phases: {

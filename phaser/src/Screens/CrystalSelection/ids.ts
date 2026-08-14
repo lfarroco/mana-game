@@ -6,6 +6,7 @@
 
 export const CRYSTAL_IDS = {
 	background: "crystal.background",
+	backgroundClouds: "crystal.background-clouds",
 	sprite: "crystal.sprite",
 	name: "crystal.name",
 	description: "crystal.description",
