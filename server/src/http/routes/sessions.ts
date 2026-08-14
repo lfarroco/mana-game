@@ -15,13 +15,29 @@ import { Router, type Request, type Response } from "express";
 import * as CombatCodec from "@game/Combat/CombatCodec";
 import type { SessionData } from "@game/types/session";
 import type { CombatState } from "@game/types/combat";
-import type { SessionRepo } from "../../persistence/repositories";
+import type {
+  GhostRepo,
+  PlayerRepo,
+  RatingRepo,
+  SessionRepo,
+} from "../../persistence/repositories";
 import { createSessionService } from "../../services/sessionService";
 import { parseActionDispatchBody, parseCreateSessionBody } from "../../dto";
 import { ApiError } from "../../errors";
 
-export function sessionsRouter(repo: SessionRepo): Router {
-  const service = createSessionService(repo);
+export type SessionRouterDeps = {
+  repo: SessionRepo;
+  ghostRepo: GhostRepo;
+  ratingRepo: RatingRepo;
+  playerRepo: PlayerRepo;
+};
+
+export function sessionsRouter(deps: SessionRouterDeps): Router {
+  const service = createSessionService(deps.repo, {
+    ghostRepo: deps.ghostRepo,
+    ratingRepo: deps.ratingRepo,
+    playerRepo: deps.playerRepo,
+  });
   const router = Router();
 
   // POST /sessions — create a new multiplayer session (409 if one exists)

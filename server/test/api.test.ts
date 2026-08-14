@@ -10,9 +10,19 @@
 import request from "supertest";
 import type { Express } from "express";
 import { createApp } from "../src/app";
-import { createMemorySessionRepo } from "../src/persistence/memory";
-import type { SessionRepo } from "../src/persistence/repositories";
+import {
+  createMemoryGhostRepo,
+  createMemoryRatingRepo,
+  createMemorySessionRepo,
+} from "../src/persistence/memory";
+import type {
+  GhostRepo,
+  RatingRepo,
+  SessionRepo,
+} from "../src/persistence/repositories";
 import { STEAM_IDENTITY } from "../src/services/steamAuth";
+import { PVE_ENEMY_NAME } from "../src/services/matchmaking";
+import { getMultiplayerRatingDelta } from "../src/services/rating";
 
 const KEY = "test-publisher-key";
 const APP_IDS = [3757600, 4233280];
@@ -40,12 +50,18 @@ const steamFetch = (async (url: string) => {
 }) as typeof fetch;
 
 let repo: SessionRepo;
+let ghostRepo: GhostRepo;
+let ratingRepo: RatingRepo;
 let app: Express;
 
 beforeEach(() => {
   repo = createMemorySessionRepo();
+  ghostRepo = createMemoryGhostRepo();
+  ratingRepo = createMemoryRatingRepo();
   app = createApp({
     repo,
+    ghostRepo,
+    ratingRepo,
     steam: { webApiKey: KEY, appIds: APP_IDS },
     steamFetch,
   });
@@ -198,6 +214,22 @@ describe("POST /api/v1/sessions", () => {
       .send({ crystalId: CRYSTAL });
 
     expect(res.status).toBe(201);
+  });
+
+  it("initializes the player's default rating (1000) on session creation", async () => {
+    const { token, playerId } = await login(TICKET_P1);
+
+    const res = await request(app)
+      .post("/api/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ crystalId: CRYSTAL });
+    expect(res.status).toBe(201);
+
+    expect(ratingRepo.get(playerId)).toEqual({
+      playerId,
+      rating: 1000,
+      updatedAt: expect.any(Number),
+    });
   });
 });
 
@@ -373,6 +405,49 @@ describe("POST /api/v1/sessions/current/actions", () => {
     expect(res.body.session.phase).toBe("encounter");
     expect(res.body.session.round).toBe(2);
     expect(res.body.session.wins + res.body.session.losses).toBe(1);
+  });
+
+  it("start_combat stores a ghost snapshot and resolves the enemy via matchmaking", async () => {
+    const { token, playerId } = await login(TICKET_P1);
+    await createAndSkipToPreCombat(token);
+
+    const res = await request(app)
+      .post("/api/v1/sessions/current/actions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ action: { type: "start_combat" } });
+
+    expect(res.status).toBe(200);
+    // No ghosts exist yet → the matchmaking path guarantees the PvE fallback.
+    expect(res.body.combatState.enemyPlayerName).toBe(PVE_ENEMY_NAME);
+    expect(res.body.combatState.units.length).toBeGreaterThan(0);
+
+    // The player's team was snapshotted as a ghost for the current round.
+    const ghosts = ghostRepo.findByRound(1);
+    expect(ghosts).toHaveLength(1);
+    expect(ghosts[0].playerId).toBe(playerId);
+    expect(ghosts[0].team.length).toBeGreaterThan(0);
+    expect(ghosts[0].team.every((unit) => unit.force === "CPU")).toBe(true);
+  });
+
+  it("applies the rating delta after a completed run", async () => {
+    const { token, playerId } = await login(TICKET_P1);
+    await request(app)
+      .post("/api/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ crystalId: CRYSTAL });
+
+    const phase = await driveToTerminal(token);
+    expect(["victory", "game_over"]).toContain(phase);
+
+    const sessionRes = await request(app)
+      .get("/api/v1/sessions/current")
+      .set("Authorization", `Bearer ${token}`);
+    expect(sessionRes.status).toBe(200);
+
+    const wins = sessionRes.body.wins as number;
+    const rating = ratingRepo.get(playerId);
+    expect(rating).not.toBeNull();
+    expect(rating!.rating).toBe(1000 + getMultiplayerRatingDelta(wins));
   });
 });
 

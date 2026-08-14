@@ -18,13 +18,19 @@ import {
   DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
 } from "./config";
 import {
+  createMemoryGhostRepo,
   createMemoryPlayerRepo,
+  createMemoryRatingRepo,
   createMemorySessionRepo,
   createMemoryTokenRepo,
 } from "./persistence/memory";
-import type { PlayerRepo } from "./persistence/repositories";
-import type { SessionRepo } from "./persistence/repositories";
-import type { TokenRepo } from "./persistence/repositories";
+import type {
+  GhostRepo,
+  PlayerRepo,
+  RatingRepo,
+  SessionRepo,
+  TokenRepo,
+} from "./persistence/repositories";
 
 export type AppDeps = {
   /** Session repository (defaults to a fresh in-memory repo). */
@@ -33,6 +39,10 @@ export type AppDeps = {
   playerRepo?: PlayerRepo;
   /** Token repository (defaults to a fresh in-memory repo). */
   tokenRepo?: TokenRepo;
+  /** Ghost repository for matchmaking (defaults to a fresh in-memory repo). */
+  ghostRepo?: GhostRepo;
+  /** Rating repository (defaults to a fresh in-memory repo). */
+  ratingRepo?: RatingRepo;
   /** Allowed CORS origin(s): "*" or a comma-separated list. */
   corsOrigin?: string;
   /** Bearer-token lifetime in days (MANA_TOKEN_TTL_DAYS, default 30). */
@@ -56,6 +66,8 @@ export function createApp(deps: AppDeps = {}): express.Express {
   const repo = deps.repo ?? createMemorySessionRepo();
   const playerRepo = deps.playerRepo ?? createMemoryPlayerRepo();
   const tokenRepo = deps.tokenRepo ?? createMemoryTokenRepo();
+  const ghostRepo = deps.ghostRepo ?? createMemoryGhostRepo();
+  const ratingRepo = deps.ratingRepo ?? createMemoryRatingRepo();
 
   const app = express();
 
@@ -89,7 +101,11 @@ export function createApp(deps: AppDeps = {}): express.Express {
   }
 
   // Session routes — all authenticated via bearer tokens (X-Player-Id retired)
-  app.use("/api/v1/sessions", requireAuth({ tokenRepo }), sessionsRouter(repo));
+  app.use(
+    "/api/v1/sessions",
+    requireAuth({ tokenRepo }),
+    sessionsRouter({ repo, ghostRepo, ratingRepo, playerRepo }),
+  );
 
   // Global error handler (must be last)
   app.use(errorHandler);

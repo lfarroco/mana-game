@@ -13,7 +13,7 @@ for sequencing purposes (that doc keeps the full design).
 | Server Phase 1 (session API) | Done & merged | ✅ committed, 103 tests green | — |
 | Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
 | Framework hardening | P0+P1+P2 landed, regression tests | ✅ P0+P1+P2 landed (2026-08-13, 56 framework tests green, phaser typecheck/lint clean) | — |
-| Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ❌ not started | Phase 1.5 merge |
+| Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ✅ committed (2026-08-13); 146 server tests green (109 baseline + 37 new); typecheck/build clean | — |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ❌ RemoteServer still Supabase-based | Phase 2 |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
 | Core code-quality P1/P2 leftovers | rank-up unification, orb registry dispatch, throw policy, Option adoption | ⏳ partial | design decisions |
@@ -72,13 +72,26 @@ for sequencing purposes (that doc keeps the full design).
   phaser typecheck/lint clean, P2 checked off in
   [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
-### 5. Server Phase 2 — matchmaking & rating
-- `GhostRepo`/`RatingRepo` interfaces + in-memory impls; ghost snapshot per
-  `start_combat`; opponent selection (same round, rating band ±150 widening,
-  exclude self + recently fought); PvE fallback via `generateEnemyTeamForRound`;
-  wins-based rating delta on run completion (port `getMultiplayerRatingDelta`).
-- **Exit**: unit tests — match found in band, self excluded, PvE fallback, rating
-  applied exactly once; HTTP flow test updated; Phase 2 checked off in AGENTS.md.
+### 5. Server Phase 2 — matchmaking & rating — ✅ DONE (2026-08-13)
+- `GhostRepo`/`RatingRepo` interfaces + in-memory impls (ghosts keyed by round,
+  per-player capped recently-fought log); ghost snapshot per `start_combat`
+  (sanitized: clamped positions, CPU force, full life); opponent selection
+  (same round, rating band ±150, widen +150 per miss up to 3 steps, exclude
+  self + recently fought, deterministic closest-rated pick); PvE fallback via
+  `generateEnemyTeamForRound` (name "PvE") — a match is always guaranteed;
+  wins-based rating delta on run completion (ported `getMultiplayerRatingDelta`
+  gold 6 / silver 4 / bronze 2 / default 1), applied exactly once (terminal
+  session guard + per-session applied set); default rating 1000 initialized on
+  first session creation; opponent ghost id / PvE marker recorded in the
+  session action_log payload.
+- **Exit**: ✅ 146 server tests green (109 baseline + 37 new: matchmaking unit
+  suite incl. match-in-band, self excluded, recently-fought excluded, band
+  widening, PvE fallback; rating delta suite; flow tests for ghost-per-round +
+  exactly-once rating; HTTP tests for ghost storage, PvE fallback response and
+  rating after a completed run), typecheck/build clean, Phase 2 checked off in
+  AGENTS.md. Deviations: recently-fought list lives on the GhostRepo (capped at
+  20, FIFO) and the opponent marker is written to the action log rather than a
+  new session field (avoids a core SessionData change).
 
 ### 6. Server Phase 3 — client integration
 - Rewrite `phaser/src/RemoteServer.ts` as an HTTP adapter implementing the

@@ -75,6 +75,32 @@ a JSON-safe `CombatStateDto` (`units`, `logs`, `wonCombat`,
 (contains a `Map`) is never sent. The client decodes it with the core
 `CombatCodec`.
 
+## Matchmaking & rating
+
+Async "ghost" PvP (docs/game-server.md) — no real-time coordination, opponents
+always available:
+
+- **Ghost snapshot** — every `start_combat` snapshots the player's board team
+  as a ghost for the current round (`{ playerId, sessionId, round, team,
+  rating, createdAt }`). Teams are sanitized at snapshot time (positions
+  clamped to the 3×3 board, CPU force, full life) so they are always
+  combat-ready when picked.
+- **Opponent pick** — the closest-rated ghost of the same round within a
+  rating band (start ±150), widening by +150 per miss (up to 3 steps).
+  Self and recently-fought players are excluded; the recently-fought log is a
+  capped per-player FIFO (20) on the ghost repo. Picks are deterministic
+  (closest rating, then lowest rating, then player id).
+- **PvE fallback** — when no ghost qualifies, the enemy is generated via
+  `EnemyGeneration.generateEnemyTeamForRound(round, wins, seed)` and the
+  `enemyPlayerName` is `"PvE"` — a match is always guaranteed.
+- **Matchup record** — each `start_combat` action-log entry carries a
+  `payload: { enemyPlayerName, ghostId, opponentPlayerId }` (nulls = PvE), so
+  the session log doubles as the run's matchup history.
+- **Rating** — players start at 1000 (initialized on first session creation).
+  On run completion (`victory` / `game_over`) a wins-based delta is applied
+  exactly once: gold 6 (10+ wins), silver 4 (8–9), bronze 2 (5–7), otherwise 1
+  (ported from the retired Supabase `multiplayer-rating.ts`).
+
 ### Error responses
 
 All errors are `{ "error": "<code>", "message": "..." }`:

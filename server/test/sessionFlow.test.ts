@@ -9,21 +9,39 @@
 /// <reference types="jest" />
 
 import type { Action } from "@game/types/action";
-import { createMemorySessionRepo } from "../src/persistence/memory";
-import type { SessionRepo } from "../src/persistence/repositories";
+import type { SessionData } from "@game/types/session";
+import {
+  createMemoryGhostRepo,
+  createMemoryPlayerRepo,
+  createMemoryRatingRepo,
+  createMemorySessionRepo,
+} from "../src/persistence/memory";
+import type {
+  GhostRepo,
+  PlayerRepo,
+  RatingRepo,
+  SessionRepo,
+} from "../src/persistence/repositories";
 import {
   createSessionService,
   type SessionService,
 } from "../src/services/sessionService";
+import { getMultiplayerRatingDelta } from "../src/services/rating";
 
 describe("session flow", () => {
   let repo: SessionRepo;
+  let ghostRepo: GhostRepo;
+  let ratingRepo: RatingRepo;
+  let playerRepo: PlayerRepo;
   let service: SessionService;
   const playerId = "flow-player";
 
   beforeEach(() => {
     repo = createMemorySessionRepo();
-    service = createSessionService(repo);
+    ghostRepo = createMemoryGhostRepo();
+    ratingRepo = createMemoryRatingRepo();
+    playerRepo = createMemoryPlayerRepo();
+    service = createSessionService(repo, { ghostRepo, ratingRepo, playerRepo });
   });
 
   it("runs from creation to a terminal phase", () => {
@@ -111,4 +129,76 @@ describe("session flow", () => {
       service.handleAction(playerId, { type: "end_combat" }),
     ).toThrow(expect.objectContaining({ status: 422 }));
   });
+
+  it("initializes a default rating (1000) on session creation", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+
+    expect(ratingRepo.get(playerId)).toEqual({
+      playerId,
+      rating: 1000,
+      updatedAt: expect.any(Number),
+    });
+  });
+
+  it("snapshots a ghost per round on start_combat", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+    const finalSession = driveToTerminal(service, playerId);
+
+    // Every fought round (1..final round) has exactly one ghost from this run,
+    // sanitized (CPU force) and rated at the player's default rating.
+    for (let round = 1; round <= finalSession.round; round++) {
+      const ghosts = ghostRepo.findByRound(round);
+      expect(ghosts).toHaveLength(1);
+      expect(ghosts[0].playerId).toBe(playerId);
+      expect(ghosts[0].rating).toBe(1000);
+      expect(ghosts[0].team.length).toBeGreaterThan(0);
+      expect(ghosts[0].team.every((unit) => unit.force === "CPU")).toBe(true);
+    }
+  });
+
+  it("applies the rating delta exactly once on run completion", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+    const finalSession = driveToTerminal(service, playerId);
+
+    const expected = 1000 + getMultiplayerRatingDelta(finalSession.wins);
+    expect(ratingRepo.get(playerId)?.rating).toBe(expected);
+
+    // A duplicate end_combat on the finished run is rejected (409) and the
+    // rating is NOT applied a second time.
+    expect(() =>
+      service.handleAction(playerId, { type: "end_combat" }),
+    ).toThrow(expect.objectContaining({ status: 409 }));
+    expect(ratingRepo.get(playerId)?.rating).toBe(expected);
+  });
 });
+
+/** Drive a run to a terminal phase via skip/start_combat/end_combat. */
+function driveToTerminal(
+  service: SessionService,
+  playerId: string,
+): SessionData {
+  let phase = service.getSession(playerId)!.phase;
+  let actions = 0;
+  const maxActions = 100;
+
+  while (
+    phase !== "victory" &&
+    phase !== "game_over" &&
+    actions < maxActions
+  ) {
+    const action: Action =
+      phase === "combat"
+        ? { type: "end_combat" }
+        : phase === "pre_combat"
+          ? { type: "start_combat" }
+          : { type: "skip" };
+
+    const result = service.handleAction(playerId, action);
+    phase = result.session.phase;
+    actions++;
+  }
+
+  const finalSession = service.getSession(playerId)!;
+  expect(["victory", "game_over"]).toContain(finalSession.phase);
+  return finalSession;
+}
