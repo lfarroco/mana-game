@@ -4,6 +4,7 @@ import * as MagicOrb from "@Components/MagicOrb/MagicOrb";
 import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPresentation";
 import * as Geometry from "@game/Geometry";
 import * as colorUtils from "@Utils/colorUtils";
+import * as Layout from "@game/board/layout";
 import * as constants from "@Constants";
 import * as AudioManager from "@Systems/AudioManager";
 import { env } from "@Env";
@@ -102,8 +103,12 @@ function handleOrbDrop(params: {
 	}
 
 	const slotIndex = playerBoard.dropZones.indexOf(target as Phaser.GameObjects.Zone);
-	const tileX = slotIndex % 3;
-	const tileY = Math.floor(slotIndex / 3);
+	const cell = Layout.slotIndexToCell(slotIndex);
+	if (!cell) {
+		MagicOrb.MagicOrbCallbacks.returnToPosition(orb, target);
+		return;
+	}
+	const [tileX, tileY] = cell;
 
 	console.debug(
 		"OrbShop",

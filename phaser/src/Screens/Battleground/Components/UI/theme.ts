@@ -42,18 +42,4 @@ export const UI_TOOLTIP_ACCENT_COLOR = UI_SURFACE_BORDER_COLOR;
 export const UI_TOOLTIP_FILL_ALPHA = 0.8;
 export const UI_TOOLTIP_BORDER_THICKNESS = 5;
 
-export const mixHexColors = (from: number, to: number, amount: number): number => {
-	const progress = Math.max(0, Math.min(1, amount));
-	const fromR = (from >> 16) & 0xff;
-	const fromG = (from >> 8) & 0xff;
-	const fromB = from & 0xff;
-	const toR = (to >> 16) & 0xff;
-	const toG = (to >> 8) & 0xff;
-	const toB = to & 0xff;
-
-	const r = Math.round(fromR + (toR - fromR) * progress);
-	const g = Math.round(fromG + (toG - fromG) * progress);
-	const b = Math.round(fromB + (toB - fromB) * progress);
-
-	return (r << 16) | (g << 8) | b;
-};
+export { mixHexColors } from "@game/math/color";

@@ -1,5 +1,6 @@
 import * as Phaser from "phaser";
 import { env } from "@Env";
+import { parseNumericSeed, sanitizeNumericSeedInput } from "@game/session/seed";
 
 // ---------------------------------------------------------------------------
 // Module-level refs so destroy() can clean up idempotently.
@@ -121,7 +122,7 @@ export function create(
 		"Paste",
 		async () => {
 			const text = await navigator.clipboard.readText();
-			const numeric = text.replace(/\D/g, "").slice(0, 12);
+			const numeric = sanitizeNumericSeedInput(text);
 			targetText.setText(numeric);
 		},
 		"#1976d2"
@@ -143,8 +144,8 @@ export function create(
 				targetText.setText(newSeed);
 				seedWarningText.setVisible(false);
 			} else {
-				const val = parseInt(targetText.text, 10);
-				if (!isNaN(val)) {
+				const val = parseNumericSeed(targetText.text);
+				if (val !== null) {
 					env.state.session.seed = String(val);
 					targetText.setText(`${val}`);
 					seedWarningText.setVisible(true);

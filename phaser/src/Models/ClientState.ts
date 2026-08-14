@@ -1,18 +1,9 @@
 import * as Models from "@game/Models";
-import * as Geometry from "@game/Geometry";
 import { LOCAL_PLAYER_ID } from "../SessionManager";
+import { defaultSettings, type PlayerSettings } from "@game/settings/playerSettings";
 
-export type PlayerSettings = {
-	sound: boolean;
-	soundVolume: number;
-	music: boolean;
-	musicVolume: number;
-	masterVolume: number;
-	debug: boolean;
-	speed: number;
-	particles: "low" | "medium" | "high";
-	compactTooltips: boolean;
-};
+export { defaultSettings, type PlayerSettings } from "@game/settings/playerSettings";
+export { getUnitAt } from "@game/board/layout";
 
 export type ClientState = {
 	savedGames: string[];
@@ -20,18 +11,6 @@ export type ClientState = {
 	combatState?: Models.CombatState;
 	settings: PlayerSettings;
 };
-
-export const defaultSettings = (): PlayerSettings => ({
-	sound: true,
-	soundVolume: 0.6,
-	music: true,
-	musicVolume: 0.4,
-	masterVolume: 1,
-	debug: false,
-	speed: 4,
-	particles: "medium",
-	compactTooltips: false,
-});
 
 export const initialState = (): ClientState => {
 	const initialSeed = Date.now().toString();
@@ -66,6 +45,3 @@ export const initialState = (): ClientState => {
 		settings: defaultSettings(),
 	};
 };
-
-export const getUnitAt = (units: Models.Unit[]) => (position: Vec2) =>
-	units.find((u) => Geometry.eqVec2(u.position, position));

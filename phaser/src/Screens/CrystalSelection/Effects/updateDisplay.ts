@@ -1,10 +1,10 @@
 import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
 import * as CharaTooltip from "@Components/Chara/CharaTooltip";
-import * as colorPresets from "@Components/CloudsBackground/colorPresets";
 import * as paginationDots from "../Components/paginationDots";
 import { CardDefinition } from "@game/Models";
 import { findTrackedById } from "@mana/framework";
+import { getColorPresetForCrystal } from "@game/data/crystalPresentation";
 import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
@@ -50,21 +50,6 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 		const preset = getColorPresetForCrystal(crystal.id);
 		bg.tweenToPreset(preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE);
 	}
-}
-
-export function getColorPresetForCrystal(
-	crystalId: string
-): keyof typeof colorPresets.colorPresets {
-	const colorMap: Record<string, keyof typeof colorPresets.colorPresets> = {
-		mana_crystal: "nebula",
-		critical_crystal: "sunset",
-		protective_crystal: "sunset",
-		growth_crystal: "forest",
-		purple_crystal: "aurora",
-		quickstone: "sea",
-	};
-
-	return colorMap[crystalId] || "nebula";
 }
 
 function buildCrystalDescription(crystal: CardDefinition): string {

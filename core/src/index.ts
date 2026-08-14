@@ -105,3 +105,14 @@ export * as EffectBuilders from "./data/effectBuilders";
 // Event
 // ---------------------------------------------------------------------------
 export * as Event from "./Event";
+
+// ---------------------------------------------------------------------------
+// Presentation & client-facing utilities (pure)
+// ---------------------------------------------------------------------------
+export * as Format from "./math/format";
+export * as Color from "./math/color";
+export * as BoardLayout from "./board/layout";
+export * as Settings from "./settings/playerSettings";
+export * as AbilityColors from "./data/abilityColors";
+export * as CrystalPresentation from "./data/crystalPresentation";
+export * as Seed from "./session/seed";

@@ -3,6 +3,7 @@ import { Unit } from "@game/Models";
 import * as EnergySlot from "@Components/EnergySlot/EnergySlot";
 import * as BoardLogic from "@game/BoardLogic";
 import { isSome } from "@game/Functional";
+import * as Layout from "@game/board/layout";
 import { env } from "@Env";
 
 export interface BoardState {
@@ -206,52 +207,34 @@ export function getEmptySlot(units: Unit[], forceId: string): Vec2 | null {
 }
 
 export function getTileAt(board: BoardState, pointer: { x: number; y: number }): Vec2 | null {
-	const slotSpacing = 8;
-	const tileWithSpacing = constants.TILE_WIDTH + slotSpacing;
-	const heightWithSpacing = constants.TILE_HEIGHT + slotSpacing;
+	const layout: Layout.BoardLayout = {
+		x: board.x,
+		y: board.y,
+		tileWidth: constants.TILE_WIDTH,
+		tileHeight: constants.TILE_HEIGHT,
+		slotSpacing: 8,
+		cols: 3,
+		rows: 3,
+	};
 
-	if (
-		pointer.x >= board.x &&
-		pointer.x < board.x + board.width &&
-		pointer.y >= board.y &&
-		pointer.y < board.y + board.height
-	) {
-		const tileX = Math.floor((pointer.x - board.x) / tileWithSpacing);
-		const tileY = Math.floor((pointer.y - board.y) / heightWithSpacing);
-
-		if (tileX >= 0 && tileX < 3 && tileY >= 0 && tileY < 3) {
-			return [tileX, tileY];
-		}
-	}
-	return null;
+	return Layout.pointerToCell(layout, pointer);
 }
 
 export function getSlotPosition(slotIndex: number, isPlayerBoard: boolean = true): Vec2 {
-	const slotSpacing = 8;
-	const cells = [];
-	for (let tileY = 0; tileY < 3; tileY++)
-		for (let tileX = 0; tileX < 3; tileX++) cells.push([tileX, tileY]);
+	const layout: Layout.BoardLayout = {
+		x: isPlayerBoard ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X,
+		y: constants.PLAYER_BOARD_Y,
+		tileWidth: constants.TILE_WIDTH,
+		tileHeight: constants.TILE_HEIGHT,
+		slotSpacing: 8,
+		cols: 3,
+		rows: 3,
+	};
 
-	const cell = cells[slotIndex];
+	const cell = Layout.slotIndexToCell(slotIndex);
 	if (!cell) return [0, 0];
 
-	const [cx, cy] = cell;
-
-	let visualX = cx;
-	if (!isPlayerBoard) {
-		visualX = 2 - cx;
-	}
-
-	const boardX = isPlayerBoard ? constants.PLAYER_BOARD_X : constants.CPU_BOARD_X;
-	const boardY = isPlayerBoard ? constants.PLAYER_BOARD_Y : constants.CPU_BOARD_Y;
-
-	const zoneX = boardX + visualX * (constants.TILE_WIDTH + slotSpacing);
-	const zoneY = boardY + cy * (constants.TILE_HEIGHT + slotSpacing);
-
-	const slotX = zoneX + constants.TILE_WIDTH / 2;
-	const slotY = zoneY + constants.TILE_HEIGHT / 2;
-
-	return [slotX, slotY];
+	return Layout.cellToSlotPosition(layout, cell, !isPlayerBoard);
 }
 
 export function updateUnitPosition(

@@ -1,6 +1,6 @@
 import { Unit } from "@game/Models";
 import * as Chara from "@Components/Chara/Chara";
-import { getUnitAt } from "@Models/ClientState";
+import { getUnitAt } from "@game/board/layout";
 import * as CoreConstants from "@game/Constants";
 import * as i18n from "@i18n/i18n";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
