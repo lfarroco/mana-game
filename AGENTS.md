@@ -171,5 +171,9 @@ Framework hardening (verified findings + plan: [docs/framework-hardening.md](doc
 
 - [x] **Large-file decomposition (P1 batch)** — DONE (2026-08-14): split the 4 big test suites (`ReactionIntegration` → 4 files, `CombatSimulation` → 3 files + shared harness, `EffectIntegration` → 4 files, `createScreen.test` → 5 files + shared harness), extracted `TutorialOverlay.ts` slides → `tutorialSlides.ts`, and extracted `PhaseTracker`/`TrackedGroup`/`findTrackedById` from `createScreen.ts` → `phaseTracker.ts`. All pure refactors — test bodies moved byte-identically; 424 core tests green (32→41 suites), 56 framework (2→7 suites), RNG call order intact.
 
+### Purify: moving testable logic out of `phaser/`
+
+Plan + audit: [purify.md](purify.md). Goal: shrink the Phaser-bound surface so game rules run in the deterministic `core/` suite. **DONE (2026-08-14, Cline):** phases A–G moved ~2,000 LOC of logic into `core/` — pure utilities (`math/format`, `math/color`), board geometry (`board/layout`), settings (`settings/options`, `settings/playerSettings`), local-session store (`session/sessionStore`), i18n engine (`i18n/translator`), player stats + all 19 unit-unlock rules (`Stats/*`), achievements + victory tiers (`Achievements/*`), BBCode description/tooltip text (`descriptions/*`), combat-log collapsing/state-replay/playback-scheduling (`Combat/*`), content registries (`content/encounters`, `content/orbPresentations`), recruit validation + board-sync plan (`Actions/recruitValidation`, `board/boardSync`), and the `ServerAdapter` contract consolidated onto `core/types/server`. 602 core tests (66 suites, was 424/41) and 38 phaser tests (7 suites) all green; phaser keeps thin adapters/wrappers. Deferred: `tutorialSlides.ts` (Phaser-rendering factories — needs a render-layer rewrite; see purify.md Phase F), and B4 (trivial log dispatch switch).
+
 
 

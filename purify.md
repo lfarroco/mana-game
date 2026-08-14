@@ -28,6 +28,15 @@ without running Phaser._
 | `framework/src` | 7 | 56 | Engine-agnostic |
 | `server/` | — | 167 | Imports core via `@game/*` |
 
+## Result (2026-08-14)
+
+| Package | Test suites | Tests | Notes |
+|---|---|---|---|
+| `phaser/src` | 7 | 38 | Only rendering adapters remain; every test still passes |
+| `core/src` | 66 | 602 | +178 game-rule tests across the moved logic |
+| `framework/src` | 7 | 56 | Untouched |
+| `server/` | — | 167 | Untouched |
+
 Verification commands:
 
 ```bash
@@ -102,20 +111,40 @@ Each phase = move code → add core unit tests → update phaser imports to thin
 adapters → run verification for both packages. Agents run **in sequence** to
 avoid merge conflicts on shared files.
 
-- **Phase A — Pure utilities & data (S, low risk):** A9, A10, B6, C4a
-  (`getColorPresetForCrystal`), plus `ClientState` defaults/`getUnitAt`.
-- **Phase B — Settings, session store, i18n (S–M):** A2, A3, A4. Also
-  consolidates the 3 redundant session-loading paths (`SessionManager`,
-  `loadGame.ts`, `getSinglePlayerData.ts`) behind one store.
-- **Phase C — Stats, achievements, victory tiers (M, highest game-rule value):**
-  A1, A7 + victory-tier consolidation + A8 (`buildRunCompleteSession`).
-  `StatsStore` becomes pure reducers with injected `StorageProvider` +
-  feature flags.
-- **Phase D — Description/tooltip text (L):** item D + `buildCrystalDescription`.
-- **Phase E — Combat replay logic (M):** A5, A6, B3, B4.
-- **Phase F — Content registries (S):** C1, C2, C3.
-- **Phase G — Domain validation & contracts (M):** B1, B2, B7; fixes the
-  `rank>3`/`rank<4` and hardcoded `9` vs `MAX_PARTY_SIZE` drift.
+- **[x] Phase A — Pure utilities & data (S):** A9, A10, B6, C4a
+  (`getColorPresetForCrystal`), `ClientState` defaults/`getUnitAt`. Done
+  (2026-08-14): `math/format`, `math/color`, `data/abilityColors`,
+  `board/layout`, `settings/playerSettings`, `data/crystalPresentation`,
+  `session/seed`.
+- **[x] Phase B — Settings, session store, i18n (S–M):** A2, A3, A4. Done
+  (2026-08-14): `settings/options` (parseStoredOptions), `session/sessionStore`
+  (consolidates SessionManager + getSinglePlayerData + loadGame),
+  `i18n/translator`.
+- **[x] Phase C — Stats, achievements, victory tiers (M, highest game-rule
+  value):** A1, A7 + victory-tier consolidation + A8. Done (2026-08-14):
+  `Achievements/victoryTier`, `Stats/*` (stats + all 19 unlock rules +
+  statsStore), `Achievements/achievements`, `session/runComplete`; the 4th copy
+  of the 5/8/10 thresholds removed from winsDisplay.
+- **[x] Phase D — Description/tooltip text (L):** item D +
+  `buildCrystalDescription`. Done (2026-08-14): `descriptions/*`
+  (BBCode builders with injected `t` + `compactTooltips`); phaser keeps thin
+  2-arg wrappers.
+- **[x] Phase E — Combat replay logic (M):** A5, A6, B3. Done (2026-08-14):
+  `Combat/collapseStatusTickPairs` (moved + tests),
+  `Combat/applyLogEntryToCombatState`, `Combat/playbackScheduler`. B4 (the
+  log-type dispatch switch) left as-is — it is a trivial lookup, not game
+  logic.
+- **[x] Phase F — Content registries (S):** C2, C3. Done (2026-08-14):
+  `content/encounters`, `content/orbPresentations` as i18n-keyed data. C1
+  (`tutorialSlides.ts`) **explicitly deferred** — it is a Phaser-rendering
+  module (factories returning game objects), not extractable without a full
+  render-layer rewrite.
+- **[x] Phase G — Domain validation & contracts (M):** B1, B2, B7. Done
+  (2026-08-14): `Actions/recruitValidation` (checkRecruitEligibility shared by
+  shop UI + server rules), `board/boardSync` (planBoardSync), GameServer
+  `ServerAdapter` = core `GameServer & { deleteSession }`, hardcoded `9` →
+  `MAX_PARTY_SIZE`. (The `rank>3` vs `rank<4` checks were already equivalent —
+  no drift there.)
 
 ## Conventions (must hold for every move)
 
