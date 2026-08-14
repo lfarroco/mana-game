@@ -10,6 +10,11 @@
  *   - mutually exclusive phases (spec.phases) — or omit for single-view screens;
  *     phase handlers may return Destroyable(s) to auto-track them
  *   - ctx.refresh() to re-run the current phase handler (locale changes, etc.)
+ *   - async teardown support (P1a): Destroyable.destroy() may return a promise;
+ *     go()/refresh() await the outgoing phase's teardown before running the
+ *     next handler
+ *   - serialised transitions (P1b): rapid go()/refresh() calls queue on a
+ *     per-screen promise chain (self-healing, like the ScreenManager nav mutex)
  *   - screenModule() helper to reduce per-screen export boilerplate
  *   - ID-based element recovery via ctx.findById(id) and the module-level
  *     findTrackedById(id) for helpers without ctx access
@@ -34,11 +39,13 @@ type EventRecord = Record<string, Clearable>;
 
 /**
  * Minimal shape the tracker needs — anything with a destroy() method.
- * Satisfied by Phaser.GameObjects.GameObject (`destroy(fromScene?)` is
- * assignable to `() => void`), event unsubscribers, and by plain wrapper
- * objects (e.g. BackgroundOverlay) that manage underlying resources.
+ * destroy() may return a promise; go()/refresh() await phase teardowns
+ * before running the next handler (P1a).  Satisfied by
+ * Phaser.GameObjects.GameObject (`destroy(fromScene?)` is assignable to
+ * `() => void`), event unsubscribers, and by plain wrapper objects
+ * (e.g. BackgroundOverlay) that manage underlying resources.
  */
-export type Destroyable = { destroy: () => void };
+export type Destroyable = { destroy: () => void | Promise<void> };
 
 /**
  * Declarative phase transition.  `enter` animates the incoming phase's
@@ -193,11 +200,27 @@ class TrackedGroup implements Destroyable {
     this.children.push(child);
   }
 
-  destroy(): void {
-    for (const child of this.children) {
-      child.destroy();
-    }
+  /** Destroy all children.  May be async (P1a) — children's destroy() can return promises. */
+  async destroy(): Promise<void> {
+    const children = this.children;
     this.children = [];
+    await Promise.all(children.map((child) => child.destroy()));
+  }
+}
+
+/**
+ * Fire-and-forget destroy used by screen-level teardown (P1a): the caller
+ * does not await the result, so sync throws and async rejections are
+ * swallowed rather than surfacing as unhandled rejections.
+ */
+function runDestroy(d: Destroyable): void {
+  try {
+    const result = d.destroy();
+    if (result instanceof Promise) {
+      void result.catch(() => {});
+    }
+  } catch {
+    // Ignore — teardown is best-effort.
   }
 }
 
@@ -280,19 +303,21 @@ class PhaseTracker<TPhase extends string> {
     this.mode = "persistent";
   }
 
-  /** Destroy every object tracked by the current phase. */
-  clearPhase(): void {
-    for (const obj of this.phaseObjects.values()) {
-      obj.destroy();
-    }
+  /** Destroy every object tracked by the current phase.  May be async (P1a). */
+  async clearPhase(): Promise<void> {
+    const objs = Array.from(this.phaseObjects.values());
     this.phaseObjects.clear();
+    await Promise.all(objs.map((o) => o.destroy()));
   }
 
   /** Destroy everything tracked (phase + persistent) and detach the active-tracker ref. */
   destroyAll(): void {
-    this.clearPhase();
+    // Screen-level teardown is fire-and-forget (P1a): phase destroys may be
+    // async but the caller (screen destroy()) does not await them — the
+    // scene is being wiped anyway.  Rejections are swallowed.
+    void this.clearPhase().catch(() => {});
     for (const obj of this.persistent.values()) {
-      obj.destroy();
+      runDestroy(obj);
     }
     this.persistent.clear();
     this.currentPhase = null;
@@ -407,32 +432,42 @@ export function createScreen<
 
   /** Shared body for go() and refresh(): exit → clear → run handler → enter. */
   async function runPhase(phase: TPhase): Promise<void> {
-    if (!tracker) return;
+    const tr = tracker;
+    if (!tr) return;
 
-    const outgoingEntry = tracker.currentPhase
-      ? normalizeEntry(phases[tracker.currentPhase])
+    const outgoingEntry = tr.currentPhase
+      ? normalizeEntry(phases[tr.currentPhase])
       : undefined;
 
     // 1. Exit transition on the outgoing phase's elements (if declared).
     await runExit(outgoingEntry);
+    // Bail out if the screen was destroyed while the transition ran.
+    if (tracker !== tr) return;
 
-    // 2. Destroy the outgoing phase's tracked objects.
-    tracker.clearPhase();
-    tracker.currentPhase = phase;
+    // 2. Destroy the outgoing phase's tracked objects.  Awaited (P1a) so an
+    //    async teardown fully completes before the next handler starts.
+    //    Skipped on the initial transition (no outgoing phase yet).
+    if (tr.currentPhase) {
+      await tr.clearPhase();
+    }
+    tr.currentPhase = phase;
+    if (tracker !== tr) return;
 
     const entry = normalizeEntry(phases[phase]);
     if (!entry.handler) return;
 
     // 3. Run the new phase handler.
-    tracker.beginPhase();
+    tr.beginPhase();
     let group: TrackedGroup | null = null;
     try {
       const result = await entry.handler(ctx);
+      // Bail out if the screen was destroyed while the handler ran.
+      if (tracker !== tr) return;
       if (result) {
         group = trackReturned(result);
       }
     } finally {
-      tracker.endPhase();
+      tr.endPhase();
     }
 
     // 4. Enter transition on the incoming phase's returned elements (if declared).
@@ -441,14 +476,26 @@ export function createScreen<
     }
   }
 
-  const go = async (phase: TPhase): Promise<void> => {
-    await runPhase(phase);
-  };
+  // Per-screen transition chain (P1b).  Serialises go()/refresh() so rapid
+  // phase transitions cannot interleave async teardowns.  Same self-healing
+  // pattern as the ScreenManager nav mutex: `then(op, op)` keeps the chain
+  // alive after a failed transition so later go()/refresh() calls still run.
+  let phaseChain: Promise<void> = Promise.resolve();
 
-  const refresh = async (): Promise<void> => {
-    if (!tracker || !tracker.currentPhase) return;
-    await runPhase(tracker.currentPhase);
-  };
+  /** Enqueue a phase operation on the per-screen chain. */
+  function enqueuePhase(op: () => Promise<void>): Promise<void> {
+    phaseChain = phaseChain.then(op, op);
+    return phaseChain;
+  }
+
+  const go = (phase: TPhase): Promise<void> =>
+    enqueuePhase(() => runPhase(phase));
+
+  const refresh = (): Promise<void> =>
+    enqueuePhase(() => {
+      if (!tracker || !tracker.currentPhase) return Promise.resolve();
+      return runPhase(tracker.currentPhase);
+    });
 
   const ctx: ScreenCtx<TPhase, E> = {
     track: ((
@@ -521,6 +568,10 @@ export function createScreen<
       tracker?.destroyAll();
       tracker = null;
       initialized = false;
+      // Detach the transition chain from this (dead) screen instance; swallow
+      // any in-flight outcome so it can't surface as an unhandled rejection.
+      void phaseChain.catch(() => {});
+      phaseChain = Promise.resolve();
     },
   };
 

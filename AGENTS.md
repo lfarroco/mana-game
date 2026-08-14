@@ -163,7 +163,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 Framework hardening (verified findings + plan: [docs/framework-hardening.md](docs/framework-hardening.md)):
 
 - [x] **P0: nav-mutex failure semantics** — DONE (2026-08-13): self-healing promise chain (`then(run, run)`), `activeScreen` reset to null on transition failure, optional `onError` hook, 8 regression tests in `framework/src/ScreenManager.test.ts` (46 framework tests green, typecheck clean). (Reproduced 2026-08-01: after a rejected `create()`, navigation was dead until reload and `current()` reported a destroyed screen.)
-- [ ] **P1: async lifecycle** — async `Destroyable` support (`destroy(): void | Promise<void>`, awaited on phase transitions) + per-screen `go()` serialization. (The old BattlegroundScreen `runPhaseHandler` adapter is already gone — phases now return `Destroyable`s directly.)
+- [x] **P1: async lifecycle** — DONE (2026-08-13): async `Destroyable` support (`destroy(): void | Promise<void>`, awaited on phase transitions via `await clearPhase()`) + per-screen self-healing `go()`/`refresh()` serialization (`phaseChain.then(op, op)`), destroy-bail checks in `runPhase()`. 5 regression tests in `framework/src/createScreen.test.ts` (51 framework tests green, typecheck clean). (The old BattlegroundScreen `runPhaseHandler` adapter was already gone — phases now return `Destroyable`s directly.)
 - [ ] **P2: hardening sweep** — unknown-phase warning, per-screen deep-link mapper (replaces the hardcoded `"tab"` convention), event-`clear()` ownership rule, active-tracker duplicate guard
 
 

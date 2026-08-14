@@ -12,7 +12,7 @@ for sequencing purposes (that doc keeps the full design).
 |---|---|---|---|
 | Server Phase 1 (session API) | Done & merged | ✅ committed, 103 tests green | — |
 | Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
-| Framework hardening | P0+P1+P2 landed, regression tests | ⏳ P0 landed (2026-08-13, 46 framework tests green); P1+P2 pending | — |
+| Framework hardening | P0+P1+P2 landed, regression tests | ⏳ P0+P1 landed (2026-08-13, 51 framework tests green); P2 pending | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ❌ not started | Phase 1.5 merge |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ❌ RemoteServer still Supabase-based | Phase 2 |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
@@ -40,12 +40,27 @@ for sequencing purposes (that doc keeps the full design).
 - **Exit**: ✅ 46 framework tests green (38 baseline + 8 new), typecheck clean,
   P0 checked off in [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
-### 3. Framework hardening P1 — async lifecycle
+### 3. Framework hardening P1 — async lifecycle — ✅ DONE (2026-08-13)
 - P1a: `Destroyable.destroy(): void | Promise<void>`; `go()`/`refresh()` await
-  phase teardowns; screen-level destroy stays fire-and-forget.
-- P1b: per-screen promise chain in `ctx.go()` (built on the P0-fixed chain).
-- Migrate BattlegroundScreen off the `runPhaseHandler` adapter if still present.
-- **Exit**: framework tests green, typecheck clean, P1 checked off.
+  phase teardowns (`await tr.clearPhase()`, skipped on the first transition);
+  screen-level destroy stays fire-and-forget (`runDestroy()` swallows sync
+  throws + async rejections).
+- P1b: per-screen promise chain in `go()`/`refresh()` (self-healing
+  `then(op, op)` — same pattern as the P0 nav mutex); `destroy()` detaches the
+  chain and swallows in-flight outcomes; `runPhase()` bails out if the screen
+  was destroyed mid-transition (after exit transition / after clearPhase /
+  after the phase handler).
+- The `runPhaseHandler` adapter was already gone (phases return
+  `Destroyable`s directly) — no BattlegroundScreen migration needed.
+- Regression tests (5, in `framework/src/createScreen.test.ts`): `go()` awaits
+  the outgoing phase's async destroy before creating the next phase;
+  `refresh()` awaits it too; two rapid `go()` calls serialize; a rejected
+  async destroy rejects `go()` but the screen stays usable (later go/refresh
+  work); a rejected phase create rejects `go()` without poisoning later
+  transitions.
+- **Exit**: ✅ 51 framework tests green (46 baseline + 5 new), typecheck
+  clean, P1a + P1b checked off in
+  [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
 ### 4. Framework hardening P2 — hardening sweep
 - Unknown-phase warning, per-screen deep-link mapper (replaces hardcoded `"tab"`),

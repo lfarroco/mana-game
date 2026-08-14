@@ -17,10 +17,10 @@ reproduction for the critical nav-mutex bug.
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (framework) | ✅ clean |
-| `npm test` (framework) | ✅ 46 tests / 2 suites green (38 baseline + 8 P0 regression tests, 2026-08-13) |
+| `npm test` (framework) | ✅ 51 tests / 2 suites green (46 baseline incl. P0 + 5 P1 regression tests, 2026-08-13) |
 | Engine imports | ✅ zero — tests run on plain fakes |
 | Consumers migrated | ✅ Title, Options, CrystalSelection, Battleground |
-| Failure-path coverage | ✅ P0 regression tests added (2026-08-13): nav recovers after a failed transition, `current()` is null after a failure, the original `go()` still rejects, coalescing + same-screen dedupe preserved |
+| Failure-path coverage | ✅ P0 regression tests added (2026-08-13): nav recovers after a failed transition, `current()` is null after a failure, the original `go()` still rejects, coalescing + same-screen dedupe preserved. P1 (2026-08-13): async teardowns are awaited, rapid `go()` calls serialize, rejected teardown/create propagate to the caller without poisoning later transitions |
 
 ## Verdict
 
@@ -67,35 +67,44 @@ navChain = navChain.then(run, run);  // self-healing: run even if the previous n
 
 ---
 
-## 🟠 P1 — Async lifecycle (do these two together)
+## ✅ P1 — Async lifecycle (do these two together)
+
+**Status**: ✅ FIXED (2026-08-13) — async `Destroyable` teardowns awaited on
+phase transitions + per-screen self-healing transition chain; 5 regression
+tests in `framework/src/createScreen.test.ts`. Both parts landed together
+(P1a + P1b); the old `BattlegroundScreen` `runPhaseHandler` adapter was
+already gone (phases return `Destroyable`s directly), so no consumer
+migration was needed.
 
 ### P1a. `Destroyable` is sync-only; real teardowns are async
 
-**Status**: confirmed via the BattlegroundScreen migration.
+**Status**: ✅ FIXED.
 
-The framework's `destroy(): void` contract can't express real teardowns (shop
-`SlideOut`, combat board re-summon). BattlegroundScreen had to hand-roll the
-`runPhaseHandler` + `activePhaseCleanup` + `consumed`-flag adapter (see
-[battleground-screen-migration.md](battleground-screen-migration.md)); every
-future screen with an async teardown would re-invent it.
-
-**Proposal**: widen to `destroy(): void | Promise<void>`; `go()`/`refresh()`
-*await* phase teardowns before starting the next handler; screen-level
-`destroy()` may stay fire-and-forget (the scene is wiped anyway — the current
-battleground semantics). The battleground adapter then collapses to
-`return { destroy: teardown }`.
+Widened to `destroy(): void | Promise<void>`. `PhaseTracker.clearPhase()` and
+`TrackedGroup.destroy()` are now async; `go()`/`refresh()` **await** the
+outgoing phase's teardown (`await tr.clearPhase()`) before running the next
+handler. Screen-level `destroy()` stays fire-and-forget (the scene is wiped
+anyway — the current battleground semantics): the new `runDestroy()` helper
+swallows sync throws and async rejections, and `destroyAll()` no longer
+unawaits `clearPhase()`.
 
 ### P1b. `ctx.go()` is not serialized
 
-**Status**: confirmed by inspection; pre-existing exposure carried over from
-`BattlegroundScreen.executePhase`.
+**Status**: ✅ FIXED.
 
-Async phase handlers can interleave on rapid transitions (two quick
-`phaseFinished` emissions). **Proposal**: per-screen promise chain in `go()` —
-same pattern as the nav mutex, but built on the P0-fixed, self-healing chain.
+`go()`/`refresh()` enqueue on a per-screen promise chain
+(`phaseChain.then(op, op)`) — the same self-healing pattern as the P0 nav
+mutex: a rejected transition rejects its own caller but the next queued
+transition still runs. `destroy()` detaches the chain (resets it to a fresh
+resolved promise and swallows any in-flight outcome so it can't surface as an
+unhandled rejection). `runPhase()` additionally bails out
+(`if (tracker !== tr) return`) after the exit transition, after
+`clearPhase()`, and after the phase handler, so a screen destroyed
+mid-transition never runs the next handler or mutates a dead tracker.
 
-**Effort**: 1–2 days for both, including tests and migrating BattlegroundScreen
-off its adapter.
+**Effort**: 1–2 days for both, including tests. Done — see
+`framework/src/createScreen.ts` and the P1 regression section in
+`framework/src/createScreen.test.ts`.
 
 ---
 
