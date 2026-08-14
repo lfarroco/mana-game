@@ -28,7 +28,7 @@ export * as Functional from "./Functional";
 // Types (re-exports everything from Models.ts compat shim)
 // ---------------------------------------------------------------------------
 export type * from "./Models";
-export * from "./Models"; // also exports runtime values (GLOBAL_REACTIONS, BASIC_ABILITIES)
+export * from "./Models"; // also exports runtime values (GLOBAL_REACTIONS, BASIC_ABILITIES, CARD_TAGS)
 
 // ---------------------------------------------------------------------------
 // Math

@@ -4,6 +4,43 @@
 
 import type { Effect, EffectReaction } from "./effect";
 
+/**
+ * Designer-facing archetype tags.
+ *
+ * These are a pure authoring aid — optional, never read at runtime and never
+ * enforced by tests. Their purpose is to make the pool's archetype coverage
+ * visible at a glance (e.g. "we have 10 disablers but only 2 chargers") and to
+ * steer new card designs toward known archetypes rather than generic good
+ * stuff. When tagging a card, prefer tags that reflect the card's *identity*
+ * (how it wins / what it enables), not its basic action type.
+ *
+ * Vocabulary maps to mechanics used across the pool:
+ * - grow_over_time: permanent increase_power / increase_critical stacking
+ * - disabler: enemy debuffs (slow, decrease_power on enemies)
+ * - charger: grants charge (self or ally)
+ * - haster: grants haste
+ * - crit_battery: crit-focused (increase_critical, on_crit reactions)
+ * - type_engine: build-around — allAlliesOfType / every_100_X / on_battle_start engines
+ * - cross_force: reactions with triggerTeam: "enemy"
+ * - power_redistribution: distribute_power / absorb_power
+ * - risk_reward: probabilistic or self-harming payoff
+ * - team_buff: buffs row/column/allies (increase_power / haste to allies)
+ */
+export const CARD_TAGS = [
+  "grow_over_time",
+  "disabler",
+  "charger",
+  "haster",
+  "crit_battery",
+  "type_engine",
+  "cross_force",
+  "power_redistribution",
+  "risk_reward",
+  "team_buff",
+] as const;
+
+export type CardTag = (typeof CARD_TAGS)[number];
+
 export type CardDefinition = {
   id: string;
   pic: string;
@@ -16,6 +53,10 @@ export type CardDefinition = {
   rank?: number;
   life?: number;
   critical?: number;
+  /** Designer aid: one-line intent — card goal, archetype, when it shines. */
+  description?: string;
+  /** Designer aid: archetype labels from the CARD_TAGS vocabulary. */
+  tags?: CardTag[];
 };
 
 export type CardCollection = {

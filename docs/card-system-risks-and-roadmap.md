@@ -11,14 +11,25 @@ initiative with a clear deliverable.
 
 ---
 
-## 1. Silver pool expansion (P0 — highest priority)
+## 1. Silver pool expansion (P0 — DONE via gold demotion, 2026-08-14)
 
-**Problem**: 8 silver cards across a 92-card pool. The silver shop offers 2
-options, so the same cards repeat every run. Silver is supposed to be the
-"situational synergy" tier that enables archetype pivots, but with this pool size
-there is no variety and no real choice.
+**Problem (resolved)**: The silver pool had 8 cards across a 92-card pool. The
+silver shop offers 2 options, so the same cards repeated every run. Silver is
+supposed to be the "situational synergy" tier that enables archetype pivots, but
+with that pool size there was no variety and no real choice.
 
-**Target**: ≥ 20 silver cards.
+**Resolution**: 13 locked golds were demoted to silver (`rank: 3 → 2`, no stat
+changes — all already had reactions, power ≤ 75, and ≤ 3 slots). The pool is now
+**61 bronze / 21 silver / 10 gold**, and the balance test enforces
+`silvers > golds` with `golds ≤ 10`. The gold shop (1 option) now draws from a
+10-card pool of true build-arounds; the silver shop (2 options) draws from 21
+synergy cards.
+
+**Remaining work**: the demoted cards were built as gold engines; they now need a
+silver-identity pass — verify each enables exactly one archetype, tighten any
+that are generic good, and re-tune numbers if playtest shows them over/under the
+silver AP band [120, 260]. The design brief below still applies to any *new*
+silver cards.
 
 **Design brief for new silvers**:
 
@@ -236,7 +247,7 @@ Catches degenerate compositions before they ship.
 
 | Priority | Initiative | Estimated effort | Blocks |
 | :--- | :--- | :--- | :--- |
-| **P0** | Silver pool expansion (12 new cards) | 2–3 weeks design + art | — |
+| **P0** | Silver pool expansion — DONE via gold demotion (21 silvers) | done 2026-08-14 | — |
 | **P1** | Gold feasibility audit of existing golds | 1–2 days | — |
 | **P1** | Encounter system fixes — round-gating, remove dead code, effect-filtered silvers | 1–2 weeks | Silver pool > 12 cards for effect-filtered silvers |
 | **P1** | Risk/reward encounters — `dark_ritual`, `soul_trade` | 2–3 days | — |
@@ -260,6 +271,6 @@ Mana Battle has **no gold economy** — see [encounter-system.md](encounter-syst
 1. Add the enabler-count and best-case-ceiling tests (§6.1, §6.3).
 2. Run the gold feasibility audit on all existing golds (§2).
 3. Fix silver/gold shop round-gating in `createEncounterOptions()` ([encounter-system.md](encounter-system.md) §5.1).
-4. Design 6 new silver cards to bring the pool to 14.
+4. Silver-identity pass on the 13 demoted cards (each should enable exactly one archetype; re-tune numbers if playtest warrants).
 5. Implement `dark_ritual` and `soul_trade` encounter handlers ([encounter-system.md](encounter-system.md) §10.4).
 

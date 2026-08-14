@@ -234,8 +234,17 @@ describe("BaseCollection balance", () => {
   it("has exactly one core card per effect type and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
     expect(cores).toHaveLength(6);
-    // 61 bronze + 8 silver + 23 gold non-core cards
+    // 61 bronze + 21 silver + 10 gold non-core cards
     expect(nonCoreCards).toHaveLength(92);
+  });
+
+  it("keeps more silvers than golds, with at most 10 golds", () => {
+    // The silver tier is the situational-synergy tier; the gold tier is the rare
+    // build-around tier. Golds must never outnumber silvers (docs §1).
+    const silvers = nonCoreCards.filter((c) => rankOf(c) === TIER.SILVER);
+    const golds = nonCoreCards.filter((c) => rankOf(c) === TIER.GOLD);
+    expect(silvers.length).toBeGreaterThan(golds.length);
+    expect(golds.length).toBeLessThanOrEqual(10);
   });
 
   it("caps effect slots at 3 (actions + reactions) per unit-balance.md §14", () => {

@@ -13,10 +13,7 @@ import {
   slow,
   increasePower,
   decreasePower,
-  increaseCritical,
   multiplyPower,
-  distributePower,
-  absorbPower,
   reaction,
   column,
   row,
@@ -24,16 +21,16 @@ import {
   self,
   right,
   weakestAlly,
-  strongestEnemy,
   strongestAlly,
   weakestEnemy,
-  allAllies,
   allAlliesOfType,
 } from "../effectBuilders";
 
 export const GOLD_CARDS: Models.CardDefinition[] = [
   {
     id: "toxicologist",
+    description: "Poison build-around — every allied poison tick feeds permanent self power; also slows.",
+    tags: ["type_engine", "grow_over_time", "disabler"],
     pic: "neutral_gnasher",
     power: 80,
     rank: 3,
@@ -43,6 +40,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "expedition_leader",
+    description: "Shield + column power engine that feeds off allied healing — durability/value hybrid.",
+    tags: ["team_buff", "type_engine"],
     pic: "neutral_goldenhammer",
     power: 70,
     rank: 3,
@@ -52,6 +51,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "vanguard",
+    description: "Haste engine — hastes its column and permanently self-ramps off every allied haste.",
+    tags: ["haster", "grow_over_time"],
     pic: "neutral_gauntletmaster",
     power: 80,
     rank: 3,
@@ -61,6 +62,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "veteran_paladin",
+    description: "Row-haste paladin that permanently self-ramps off column shields — tempo + durability.",
+    tags: ["haster", "grow_over_time"],
     pic: "neutral_goldenjusticar",
     power: 70,
     rank: 3,
@@ -72,6 +75,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "webert_the_old",
+    description: "Heal engine that permanently ramps its row off column regen — slow, powerful scaling.",
+    tags: ["team_buff", "grow_over_time"],
     pic: "neutral_goldenmantella",
     power: 48,
     rank: 3,
@@ -82,79 +87,10 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
     ],
   },
   {
-    // power distributor
-    id: "walking_reactor",
-    pic: "boss_protector",
-    power: 62,
-    rank: 3,
-    locked: true,
-    cooldown: 5000,
-    effects: [shield, distributePower(row)],
-    reactions: [reaction("all", "column_allies", increasePower(20, self))],
-  },
-  // power absorber
-  {
-    id: "spectral_knight",
-    pic: "boss_gol",
-    power: 18,
-    rank: 3,
-    locked: true,
-    cooldown: 5600,
-    effects: [damage, absorbPower(column)],
-    reactions: [reaction("all", "row_allies", increasePower(20, column))],
-  },
-  // re-haste
-  {
-    id: "windlash_serpent",
-    pic: "boss_serpenti",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [shield, haste(2000, row)],
-    reactions: [reaction("re_hasted", "allies", increasePower(5, self))],
-  },
-  // re-slow
-  {
-    id: "corruption_bringer",
-    pic: "boss_legion",
-    power: 60,
-    rank: 3,
-    locked: true,
-    cooldown: 5000,
-    effects: [poison, slow(2000, randomEnemy(2))],
-    reactions: [
-      reaction("re_slow", "allies", decreasePower(10, strongestEnemy)),
-    ],
-  },
-  //on_crit
-  {
-    id: "frontline_dasher",
-    pic: "boss_kane",
-    power: 58,
-    rank: 3,
-    locked: true,
-    cooldown: 5700,
-    effects: [damage, increaseCritical(10, column)],
-    reactions: [reaction("on_crit", "allies", increasePower(20, column))],
-  },
-  //over_heal
-  {
-    id: "life_balancekeeper",
-    pic: "f3_anubis",
-    life: 1500,
-    power: 60,
-    rank: 3,
-    locked: true,
-    cooldown: 4500,
-    effects: [heal],
-    reactions: [
-      reaction("on_over_heal", "allies", increasePower(1, allAllies, true)),
-    ],
-  },
-  //Balancer
-  {
+    // Balancer
     id: "destiny_balancer",
+    description: "Board-balancing gamble — drains the strongest ally to multiply the weakest ally.",
+    tags: ["risk_reward", "power_redistribution"],
     pic: "f3_allomancer",
     life: 1500,
     power: 10,
@@ -168,111 +104,11 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
     ],
     reactions: [],
   },
-  //damage -> poison
-  {
-    id: "essence_harvester",
-    pic: "boss_malyk",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [poison],
-    reactions: [
-      reaction(
-        "every_100_damage",
-        "allies",
-        increasePower(5, allAlliesOfType("poison")),
-      ),
-    ],
-  },
-  //poison -> damage
-  {
-    id: "plague_incubator",
-    pic: "boss_manaman",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [poison],
-    reactions: [
-      reaction(
-        "every_10_poison",
-        "allies",
-        increasePower(5, allAlliesOfType("damage")),
-      ),
-    ],
-  },
-  //shield -> damage
-  {
-    id: "tempest_ravager",
-    pic: "boss_invader",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [regen],
-    reactions: [
-      reaction(
-        "every_100_shield",
-        "allies",
-        increasePower(5, allAlliesOfType("damage")),
-      ),
-    ],
-  },
-  //shield -> heal
-  {
-    id: "paragon",
-    pic: "boss_paragon",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [regen],
-    reactions: [
-      reaction(
-        "every_100_shield",
-        "allies",
-        increasePower(5, allAlliesOfType("heal")),
-      ),
-    ],
-  },
-  //heal -> regen
-  {
-    id: "vitality_channeler",
-    pic: "f2_sepukku",
-    power: 65,
-    rank: 3,
-    locked: true,
-    cooldown: 4300,
-    effects: [heal],
-    reactions: [
-      reaction(
-        "every_100_heal",
-        "allies",
-        increasePower(5, allAlliesOfType("regen")),
-      ),
-    ],
-  },
-  //heal -> heal
-  {
-    id: "mend_sage",
-    pic: "boss_orias",
-    power: 40,
-    rank: 3,
-    locked: true,
-    cooldown: 5200,
-    effects: [heal, increasePower(5, allAlliesOfType("heal"))],
-    reactions: [
-      reaction(
-        "on_battle_start",
-        "allies",
-        haste(2000, allAlliesOfType("heal")),
-      ),
-    ],
-  },
   //damage -> damage
   {
     id: "warbringer",
+    description: "Damage archetype engine — opens with haste and permanently empowers every damage ally.",
+    tags: ["type_engine", "haster", "team_buff"],
     pic: "boss_solfist",
     power: 60,
     rank: 3,
@@ -290,6 +126,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   //shield -> shield
   {
     id: "aegis_archon",
+    description: "Shield archetype engine — feeds every shield ally power off enemy damage (cross-force).",
+    tags: ["type_engine", "team_buff", "cross_force"],
     pic: "f3_tier2general",
     power: 35,
     rank: 3,
@@ -308,6 +146,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   //poison -> poison
   {
     id: "plague_sovereign",
+    description: "Poison archetype engine — mass-slow opener that permanently empowers every poison ally.",
+    tags: ["type_engine", "disabler", "team_buff"],
     pic: "f4_abomination",
     power: 40,
     rank: 3,
@@ -323,22 +163,11 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
       ),
     ],
   },
-  //regen -> regen
-  {
-    id: "life_weaver",
-    pic: "f3_insightcaster",
-    power: 60,
-    rank: 3,
-    locked: true,
-    cooldown: 4200,
-    effects: [regen],
-    reactions: [
-      reaction("every_10_regen", "allies", increasePower(20, weakestAlly)),
-    ],
-  },
   //gambler2
   {
     id: "fate_shifter",
+    description: "Double-edged gamble — multiplies right ally and weakest enemy power each cast.",
+    tags: ["risk_reward", "type_engine"],
     pic: "boss_sandpanther",
     power: 10,
     rank: 3,

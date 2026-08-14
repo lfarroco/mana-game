@@ -20,14 +20,16 @@ Every card has a `rank` which defines its tier:
 | 3 | **Gold** | Powerful build-around units | **1** upgrade |
 | 4 | **Platinum** | Max rank — the terminal investment | — |
 
-There are 92 non-core cards today: 61 bronze, 8 silver, 23 gold. The six cores
+There are 92 non-core cards today: 61 bronze, 21 silver, 10 gold. The six cores
 (`*_crystal`, `quickstone`) are rank-less `isCore` units and are not part of the
 tier system.
 
-> **Silver pool is undersized.** With only 8 silver cards the silver shop
-> (2 options) repeats the same picks every run, and the situational-synergy tier
-> cannot support meaningful archetype variety. **Target: ≥ 20 silvers.**
-> See [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md) §1.
+> **Silver pool** (21 cards) outnumbers the gold pool (10) by design — silver is
+> the situational-synergy tier that enables archetype pivots, so it needs
+> breadth; gold is the rare build-around tier, so it must stay scarce.
+> The balance test enforces `silvers > golds` and `golds ≤ 10`
+> (see `BaseCollection.balance.test.ts`). See
+> [card-system-risks-and-roadmap.md](card-system-risks-and-roadmap.md) §1.
 
 ### Bronze (rank 1) — the foundation
 
@@ -212,21 +214,44 @@ When adding or editing a card in `core/src/data/BaseCollection.ts`:
 2. **Give it exactly one basic action** (damage/heal/shield/poison/regen).
 3. **Stay within the slot cap**: ≤ 3 total (actions + reactions).
 4. **Match the tier's AP band and raw power cap** for its rank.
-5. **Reactions positioned on `"enemies"` MUST set `triggerTeam: "enemy"`**
+5. **Write its designer metadata** — a one-line `description` (goal, archetype,
+   when it shines) and `tags` from the `CARD_TAGS` vocabulary (§4.1). This is an
+   authoring aid, not enforced, but it keeps the pool's archetype coverage
+   reviewable and forces intent before numbers.
+6. **Reactions positioned on `"enemies"` MUST set `triggerTeam: "enemy"`**
    (otherwise they can never fire — this is a silent-bug trap the test guards).
-6. **Never use position `"self"` with a non-global reaction** (the triggering
+7. **Never use position `"self"` with a non-global reaction** (the triggering
    unit is excluded from reaction candidates — it can never fire).
-7. **Charge is a minor nudge, not an engine**: per-cast charge ≤ 300 ms, and a
+8. **Charge is a minor nudge, not an engine**: per-cast charge ≤ 300 ms, and a
    reaction that grants charge must key off a specific effect from a specific
    directional ally (never `"all"` or a whole row/column). See `unit-balance.md`
    §17.
-8. **`multiply_power` is gold-only** with a cooldown ≥ 8000 ms (≤ 3 uses per
+9. **`multiply_power` is gold-only** with a cooldown ≥ 8000 ms (≤ 3 uses per
    30 s combat). See `unit-balance.md` §17.
-9. **Reuse the builders** in `effectBuilders.ts` (`reaction`, `increasePower`,
-   `allAlliesOfType`, …) so effects stay structurally valid and testable.
-10. **Run the balance test**: `cd core && npm test`.
-11. If the card intentionally violates the band (risk/flavor unit), add it to
+10. **Reuse the builders** in `effectBuilders.ts` (`reaction`, `increasePower`,
+    `allAlliesOfType`, …) so effects stay structurally valid and testable.
+11. **Run the balance test**: `cd core && npm test`.
+12. If the card intentionally violates the band (risk/flavor unit), add it to
     `AP_ALLOWLIST` in `BaseCollection.balance.test.ts` with a comment explaining why.
+
+### 4.1. Designer metadata — `description` + `tags`
+
+Every non-core card carries two optional, **authoring-only** fields on its
+`CardDefinition` (`core/src/types/card.ts`). They exist to guide the designer,
+are never read at runtime, and are never enforced by tests:
+
+- **`description`** — one line stating the card's intent: its goal, its
+  archetype, and when it shines. Writing it forces the author to articulate
+  *why* the card exists rather than just *what* it does.
+- **`tags`** — archetype labels from the closed `CARD_TAGS` vocabulary:
+  `grow_over_time`, `disabler`, `charger`, `haster`, `crit_battery`,
+  `type_engine`, `cross_force`, `power_redistribution`, `risk_reward`,
+  `team_buff`. A card may carry multiple tags.
+
+Use tags to keep the pool reviewable at a glance — e.g. "we have 12
+`grow_over_time` cards but only 2 `disabler`s" is a signal to rebalance, and a
+new card whose tags don't match an existing archetype (or don't fit the tier's
+role) should be reconsidered before it ships.
 
 ## 5. Shop & economy
 
@@ -298,6 +323,7 @@ rules above. It checks:
 - charge amounts ≤ 300 ms
 - charge reactions key off a specific effect + directional ally
 - `multiply_power` is gold-only with a cooldown ≥ 8000 ms
+- more silvers than golds, with at most 10 golds (tier-distribution guard)
 
 If you change a card's numbers, the test tells you immediately whether it is in
 band. Keep it green.

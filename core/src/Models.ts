@@ -17,6 +17,7 @@
  */
 
 export type * from "./types/index";
+export { CARD_TAGS } from "./types/index";
 export { type Event, createEvent } from "./Event";
 
 // Runtime constants (values, not types) that are still used via Models import
