@@ -169,7 +169,7 @@ Framework hardening (verified findings + plan: [docs/framework-hardening.md](doc
 
 ### Low Priority
 
-- [ ] **Large-file decomposition (P1 batch)** — split the 4 big test suites (`ReactionIntegration`, `CombatSimulation`, `EffectIntegration`, `createScreen.test`), `TutorialOverlay.ts` slides, and `createScreen.ts` (types/PhaseTracker/screenModule). All pure refactors; core splits must keep the 424-test suite green and RNG call order intact.
+- [x] **Large-file decomposition (P1 batch)** — DONE (2026-08-14): split the 4 big test suites (`ReactionIntegration` → 4 files, `CombatSimulation` → 3 files + shared harness, `EffectIntegration` → 4 files, `createScreen.test` → 5 files + shared harness), extracted `TutorialOverlay.ts` slides → `tutorialSlides.ts`, and extracted `PhaseTracker`/`TrackedGroup`/`findTrackedById` from `createScreen.ts` → `phaseTracker.ts`. All pure refactors — test bodies moved byte-identically; 424 core tests green (32→41 suites), 56 framework (2→7 suites), RNG call order intact.
 
 
 

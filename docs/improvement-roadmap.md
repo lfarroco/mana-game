@@ -16,6 +16,7 @@ for sequencing purposes (that doc keeps the full design).
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ✅ committed (2026-08-13); 146 server tests green (109 baseline + 37 new); typecheck/build clean | — |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ✅ done (2026-08-13); RemoteServer is an HTTP adapter (`createRemoteServer` factory, fetch-injectable); supabase quarantine deleted; 52 phaser tests green (41 + 11 new), typecheck/lint clean; server untouched (148 tests) | — |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ✅ done (2026-08-14); `better-sqlite3` repos behind the existing interfaces, `MANA_SQLITE_PATH` (unset = in-memory default, `:memory:` supported), restart-survival test green; 167 server tests green, typecheck/build clean | — |
+| Large-file decomposition | big suites/slides/createScreen.ts split, tests green | ✅ done (2026-08-14); 424 core tests green (32→41 suites), 56 framework (2→7 suites), 52 phaser tests green | — |
 | Core code-quality P1/P2 leftovers | rank-up unification, orb registry dispatch, throw policy, Option adoption | ⏳ partial | design decisions |
 
 ## Execution order (subagents run in this sequence)
@@ -141,13 +142,26 @@ for sequencing purposes (that doc keeps the full design).
 
 ## Out of scope for this run (captured for later)
 
-- **Low priority**: large-file decomposition (4 big test suites, `TutorialOverlay`
-  slides, `createScreen.ts` split) — pure refactors, keep 424 core tests green.
+- ~~**Low priority**: large-file decomposition~~ — ✅ DONE (2026-08-14): see task 8 below.
 - **E2E suite** (broken `debugController` import) — separate from the server plan.
 - **Core P1/P2** items needing design decisions (canonical rank-up formula, throw
   policy, `noUncheckedIndexedAccess`) — game-design / convention calls.
 - **Server Phase 5 extras**: leaderboard, agent play service, replay validation,
   token refresh, guest auth.
+
+### 8. Low priority — large-file decomposition — ✅ DONE (2026-08-14)
+- Split the 4 big test suites: `ReactionIntegration.test.ts` → 4 files,
+  `CombatSimulation.test.ts` → 3 files (+ shared
+  `__test_utils__/combatSimulationHarness.ts`), `EffectIntegration.test.ts` → 4
+  files, `framework/src/createScreen.test.ts` → 5 files (+ shared
+  `framework/src/__test_utils__/screenTestHarness.ts`).
+- Extracted `phaser/.../Title/Components/TutorialOverlay.ts` slides →
+  `tutorialSlides.ts`; extracted `PhaseTracker`/`TrackedGroup`/`findTrackedById`
+  from `framework/src/createScreen.ts` → `framework/src/phaseTracker.ts`
+  (public API unchanged — re-exports kept).
+- All pure refactors: test bodies moved byte-identically, RNG call order intact.
+- **Exit**: ✅ 424 core tests green (32 → 41 suites), 56 framework (2 → 7
+  suites), 52 phaser tests green, phaser typecheck/lint clean.
 
 ## Verification commands
 
