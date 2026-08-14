@@ -17,10 +17,10 @@ reproduction for the critical nav-mutex bug.
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (framework) | ✅ clean |
-| `npm test` (framework) | ✅ 51 tests / 2 suites green (46 baseline incl. P0 + 5 P1 regression tests, 2026-08-13) |
+| `npm test` (framework) | ✅ 56 tests / 2 suites green (46 baseline + 5 P1 + 5 P2 regression tests, 2026-08-13) |
 | Engine imports | ✅ zero — tests run on plain fakes |
 | Consumers migrated | ✅ Title, Options, CrystalSelection, Battleground |
-| Failure-path coverage | ✅ P0 regression tests added (2026-08-13): nav recovers after a failed transition, `current()` is null after a failure, the original `go()` still rejects, coalescing + same-screen dedupe preserved. P1 (2026-08-13): async teardowns are awaited, rapid `go()` calls serialize, rejected teardown/create propagate to the caller without poisoning later transitions |
+| Failure-path coverage | ✅ P0 regression tests added (2026-08-13): nav recovers after a failed transition, `current()` is null after a failure, the original `go()` still rejects, coalescing + same-screen dedupe preserved. P1 (2026-08-13): async teardowns are awaited, rapid `go()` calls serialize, rejected teardown/create propagate to the caller without poisoning later transitions. P2 (2026-08-13): unknown-phase no-op + warning, `mapDeepLink` replaces the hardcoded `"tab"` convention, double-`clear()`/double-`destroy()` safety, duplicate-track guard keeps the first registration |
 
 ## Verdict
 
@@ -109,3 +109,71 @@ mid-transition never runs the next handler or mutates a dead tracker.
 ---
 
 <!-- PART2 -->
+
+## 🟡 P2 — Hardening sweep
+
+**Status**: ✅ DONE (2026-08-13).
+
+Four small hardening items across `createScreen.ts` / `ScreenManager.ts`,
+implemented together:
+
+### P2a. Unknown-phase warning
+
+`ctx.go("<undeclared>")` (or the screen-level `go()`) now warns loudly and
+no-ops instead of crashing obscurely:
+
+```ts
+if (!(phase in phases)) {
+  console.warn(`[createScreen:"<name>"] go("<phase>") ignored — no such phase ...`);
+  return;
+}
+```
+
+The type system prevents this in TS; the guard covers JS callers / dynamic
+values. Test: "go() to an undeclared phase warns and no-ops instead of crashing".
+
+### P2b. Per-screen deep-link mapper (replaces the hardcoded `"tab"` convention)
+
+`ScreenManager.doSwitchScreen` previously special-cased a `"tab"` property in
+route params — a convention baked into the framework core that only one screen
+used. It now calls an optional per-screen mapper:
+
+```ts
+// ScreenModule
+mapDeepLink?: (params: unknown) => string | null | undefined;
+```
+
+The manager invokes `screen.mapDeepLink(params)` after `create()` (before
+`afterTransition`) and navigates to the returned phase via `screen.go(phase)`,
+skipping when the screen is already on that phase. Screens own the shape of
+their params; null/undefined skips deep-linking.
+
+The only consumer — `phaser/src/Screens/Options/OptionsScreen.ts` — declares
+its mapper (params → `audio`/`graphics`/`game`), and the `createScreen()` spec /
+`screenModule()` wrapper forward it. Framework + Phaser adapter tests updated.
+
+### P2c. Event-`clear()` ownership rule
+
+The framework owns all event cleanup: listeners registered via `ctx.listen` are
+tracked as destroyables (disposed on phase switch/refresh via the tracked
+disposer), and screen-scoped events are `clear()`ed in `destroy()`. `destroy()`
+is idempotent — calling it twice is safe and never double-clears or throws
+(`eventState` is nulled after the first call). Documented in
+`framework/README.md`; regression test: "destroy() clears screen-scoped events
+exactly once and is idempotent".
+
+### P2d. Active-tracker duplicate guard
+
+`ctx.track(obj, { id })` with an id that is already registered in the same scope
+used to silently overwrite the map entry — orphaning the first object (never
+destroyed → leak). `PhaseTracker.trackInto` now routes through `setTracked`,
+which warns and keeps the **first** registration. Auto-generated ids
+(`__tracked_N`) are counter-based and never collide, so only explicit ids /
+idPrefixes are affected. Regression test: "ctx.track() with a duplicate explicit
+id keeps the first registration and warns".
+
+**Tests**: 5 P2 regression tests added across `ScreenManager.test.ts` (deep-link
+mapper incl. null-return skip) and `createScreen.test.ts` (unknown phase,
+double-destroy/clear idempotency, duplicate track, `mapDeepLink` forwarding).
+
+---

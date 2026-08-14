@@ -103,15 +103,20 @@ describe("createScreenManager", () => {
     expect(options.create).not.toHaveBeenCalled();
   });
 
-  it("deep-links to a phase when the route carries params", async () => {
+  it("deep-links to a phase when the screen maps route params via mapDeepLink", async () => {
     const go = jest.fn(async () => {});
     const currentPhase = jest.fn(() => "audio");
+    const mapDeepLink = jest.fn((params: unknown) => {
+      const tab = (params as { tab?: string }).tab;
+      return tab ?? null;
+    });
     const manager = makeManager({
-      options: { go, currentPhase },
+      options: { go, currentPhase, mapDeepLink },
     });
 
     await manager.go("options", { tab: "graphics" });
 
+    expect(mapDeepLink).toHaveBeenCalledWith({ tab: "graphics" });
     expect(go).toHaveBeenCalledWith("graphics");
   });
 
@@ -119,7 +124,12 @@ describe("createScreenManager", () => {
     const go = jest.fn(async () => {});
     const currentPhase = jest.fn(() => "graphics");
     const manager = makeManager({
-      options: { go, currentPhase },
+      options: {
+        go,
+        currentPhase,
+        mapDeepLink: (params: unknown) =>
+          (params as { tab?: string }).tab ?? null,
+      },
     });
 
     await manager.go("options", { tab: "graphics" });
@@ -128,8 +138,21 @@ describe("createScreenManager", () => {
   });
 
   it("does not deep-link when the screen has no phase support", async () => {
-    const manager = makeManager(); // options has no go/currentPhase
+    const manager = makeManager(); // options has no go/currentPhase/mapDeepLink
     await manager.go("options", { tab: "graphics" });
+    expect(manager.current()?.name).toBe("options");
+  });
+
+  it("does not deep-link when mapDeepLink returns null", async () => {
+    const go = jest.fn(async () => {});
+    const manager = makeManager({
+      options: { go, mapDeepLink: () => null },
+    });
+
+    // Params that don't map to a phase (mapper returns null) are ignored.
+    await manager.go("options", { tab: undefined });
+
+    expect(go).not.toHaveBeenCalled();
     expect(manager.current()?.name).toBe("options");
   });
 
@@ -280,10 +303,19 @@ describe("createScreenManager", () => {
       .mockResolvedValueOnce(undefined);
     const go = jest.fn(async () => {});
     const currentPhase = jest.fn(() => "audio");
+    const mapDeepLink = jest.fn((params: unknown) => {
+      const tab = (params as { tab?: string }).tab;
+      return tab ?? null;
+    });
     const manager = createScreenManager<TestRoutes>({
       screens: {
         title: makeScreen("title"),
-        options: makeScreen("options", { create: optionsCreate, go, currentPhase }),
+        options: makeScreen("options", {
+          create: optionsCreate,
+          go,
+          currentPhase,
+          mapDeepLink,
+        }),
       },
     });
 

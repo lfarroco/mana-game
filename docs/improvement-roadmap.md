@@ -12,7 +12,7 @@ for sequencing purposes (that doc keeps the full design).
 |---|---|---|---|
 | Server Phase 1 (session API) | Done & merged | ✅ committed, 103 tests green | — |
 | Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
-| Framework hardening | P0+P1+P2 landed, regression tests | ⏳ P0+P1 landed (2026-08-13, 51 framework tests green); P2 pending | — |
+| Framework hardening | P0+P1+P2 landed, regression tests | ✅ P0+P1+P2 landed (2026-08-13, 56 framework tests green, phaser typecheck/lint clean) | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ❌ not started | Phase 1.5 merge |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ❌ RemoteServer still Supabase-based | Phase 2 |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
@@ -62,10 +62,15 @@ for sequencing purposes (that doc keeps the full design).
   clean, P1a + P1b checked off in
   [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
-### 4. Framework hardening P2 — hardening sweep
-- Unknown-phase warning, per-screen deep-link mapper (replaces hardcoded `"tab"`),
-  event-`clear()` ownership rule, active-tracker duplicate guard.
-- **Exit**: framework tests green, typecheck clean, P2 checked off.
+### 4. Framework hardening P2 — hardening sweep — ✅ DONE (2026-08-13)
+- Unknown-phase warning (`go("<undeclared>")` warns + no-ops), per-screen
+  `mapDeepLink` mapper replacing the hardcoded `"tab"` convention (OptionsScreen
+  migrated), event-`clear()`/`destroy()` idempotency ownership rule (documented
+  in framework/README.md + tested), active-tracker duplicate-id guard (warn +
+  keep first).
+- **Exit**: ✅ 56 framework tests green (51 baseline + 5 new), typecheck clean,
+  phaser typecheck/lint clean, P2 checked off in
+  [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
 ### 5. Server Phase 2 — matchmaking & rating
 - `GhostRepo`/`RatingRepo` interfaces + in-memory impls; ghost snapshot per

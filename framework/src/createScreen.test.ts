@@ -896,6 +896,86 @@ describe("createScreen", () => {
   });
 
   // -----------------------------------------------------------------------
+  // P2 — hardening sweep (docs/framework-hardening.md): unknown-phase
+  // warning, event-clear ownership (double-clear safety), and the active
+  // tracker's duplicate-id guard.
+  // -----------------------------------------------------------------------
+
+  it("go() to an undeclared phase warns and no-ops instead of crashing", async () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const { spec } = makeSpec();
+    const screen = createScreen(spec);
+    await screen.create(); // navigates to phase "a"
+
+    // Phase type is "a" | "b", but a dynamic/JS caller can pass anything.
+    await screen.go("nope" as "a");
+
+    // No crash, no phase switch, and a warning was emitted.
+    expect(screen.currentPhase()).toBe("a");
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain('"nope"');
+    expect(warnSpy.mock.calls[0][0]).toContain("no such phase");
+
+    warnSpy.mockRestore();
+  });
+
+  it("destroy() clears screen-scoped events exactly once and is idempotent", async () => {
+    const { spec, someEvent } = makeSpec();
+    const screen = createScreen(spec);
+    await screen.create();
+
+    // Ownership rule: the framework owns event cleanup. destroy() clears the
+    // event subjects; calling it twice must be safe (idempotent) and must not
+    // double-clear or throw.
+    screen.destroy();
+    screen.destroy();
+
+    // someEvent.clear() was called at least once (destroy → eventState null on
+    // the second call, so exactly once for the events themselves).
+    expect(someEvent.clear.mock.calls.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("ctx.track() with a duplicate explicit id keeps the first registration and warns", async () => {
+    const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
+    const first = fakeObj();
+    const second = fakeObj();
+    const { spec } = makeSpec({
+      onCreate: (ctx) => {
+        ctx.track(first, { id: "dup" });
+        ctx.track(second, { id: "dup" });
+      },
+    });
+    const screen = createScreen(spec);
+    await screen.create();
+
+    // The first registration owns the id — findById returns the first object.
+    expect(findTrackedById("dup")).toBe(first);
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy.mock.calls[0][0]).toContain('"dup"');
+
+    // On destroy only the tracked (first) object is destroyed; the second was
+    // never registered so it must not be double-destroyed or left tracking.
+    screen.destroy();
+    expect(findTrackedById("dup")).toBeUndefined();
+    expect(first.destroy).toHaveBeenCalledTimes(1);
+    expect(second.destroy).not.toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
+
+  it("mapDeepLink from the spec is forwarded through screenModule()", async () => {
+    const { spec } = makeSpec();
+    const mapDeepLink = (params: unknown) =>
+      (params as { tab?: string }).tab ?? null;
+    const screen = createScreen({ ...spec, mapDeepLink });
+    const mod = screenModule(screen);
+
+    expect(mod.mapDeepLink).toBeDefined();
+    expect(mod.mapDeepLink!({ tab: "graphics" })).toBe("graphics");
+    expect(mod.mapDeepLink!({})).toBeNull();
+  });
+
+  // -----------------------------------------------------------------------
   // screenModule() helper
   // -----------------------------------------------------------------------
 

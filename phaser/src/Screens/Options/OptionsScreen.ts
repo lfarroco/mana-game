@@ -57,6 +57,15 @@ export const STYLES = {
 const screen = createScreen<OptionsPhase, OptionsScreenEvents>({
 	name: "options",
 
+	// Deep-link mapper (P2): translates route params into the options tab to
+	// open.  Replaces the former hardcoded `"tab"` convention in the framework
+	// nav core — each screen owns the shape of its own params.
+	mapDeepLink: (params): OptionsPhase | null => {
+		if (!params || typeof params !== "object") return null;
+		const tab = (params as { tab?: OptionsPhase }).tab;
+		return tab === "audio" || tab === "graphics" || tab === "game" ? tab : null;
+	},
+
 	events: () => {
 		const backToTitle = createEvent<void>();
 

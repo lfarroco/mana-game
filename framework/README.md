@@ -77,6 +77,38 @@ The host injects engine work via `ScreenManagerHooks`:
   has already been reset to null and the original error is rethrown to the
   `go()` caller (use for logging/reporting).
 
+### Deep-links
+
+When a route carries params, the manager calls the target screen's optional
+`mapDeepLink(params)` after `create()` and navigates to the returned phase (via
+`screen.go`) — skipping if the screen is already on that phase. Each screen owns
+the shape of its params; return `null`/`undefined` to skip deep-linking.
+Declare it in the `createScreen()` spec (forwarded through `screenModule()`):
+
+```ts
+mapDeepLink: (params) => {
+  const tab = (params as { tab?: OptionsPhase }).tab;
+  return tab === "audio" || tab === "graphics" || tab === "game" ? tab : null;
+},
+```
+
+### Event-clear ownership
+
+The framework owns all event cleanup. Listeners registered via `ctx.listen()`
+are tracked as destroyables (disposed on phase switch/`refresh()` via the
+tracked disposer); screen-scoped events are `clear()`ed in `destroy()`.
+`destroy()` is idempotent — calling it twice is safe. Screens must not manually
+`clear()` framework-owned events.
+
+### Tracking rules
+
+- `ctx.track(obj, { id })` / `ctx.track(objs, { idPrefix })`: explicit ids must
+  be unique within a scope — a duplicate id warns and keeps the **first**
+  registration (the first caller owns the id; overwriting would orphan the
+  original object and leak it).
+- `ctx.go("<undeclared>")` warns and no-ops instead of crashing — the type
+  system prevents this in TS; the guard covers dynamic/JS callers.
+
 See `phaser/src/Screens/ScreenManager.ts`.
 
 ## Scripts

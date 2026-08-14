@@ -159,6 +159,12 @@ export type ScreenResult<TPhase extends string, E extends EventRecord> = {
 
   currentPhase: () => TPhase | null;
 
+  /**
+   * Per-screen deep-link mapper (see ScreenModule.mapDeepLink).  Declared in
+   * the createScreen() spec; forwarded to the ScreenManager by screenModule().
+   */
+  mapDeepLink?: (params: unknown) => string | null | undefined;
+
   // ScreenModule lifecycle -------------------------------------------------
 
   init: () => void;
@@ -271,14 +277,36 @@ class PhaseTracker<TPhase extends string> {
       const prefix =
         (opts as ArrayTrackOpts)?.idPrefix ?? `__tracked_${this.counter}_`;
       obj.forEach((item, i) => {
-        target.set(`${prefix}${i}`, item);
+        this.setTracked(target, `${prefix}${i}`, item);
       });
       this.counter += obj.length;
     } else {
       const key =
         (opts as SingleTrackOpts)?.id ?? `__tracked_${++this.counter}`;
-      target.set(key, obj);
+      this.setTracked(target, key, obj);
     }
+  }
+
+  /**
+   * Register `obj` under `key`, guarding against silent duplicate ids (P2).
+   * Auto-generated keys (`__tracked_...`) are counter-based and never collide,
+   * so this only fires for explicit ids/idPrefixes.  On a duplicate we warn and
+   * keep the first registration — the first caller owns the id, and overwriting
+   * would silently orphan the original object (never destroyed → leak).
+   */
+  private setTracked(
+    target: Map<string, Destroyable>,
+    key: string,
+    obj: Destroyable,
+  ): void {
+    if (target.has(key)) {
+      console.warn(
+        `[createScreen] track("${key}") ignored — an object with that id is ` +
+          `already tracked in the same scope. Keeping the first registration.`,
+      );
+      return;
+    }
+    target.set(key, obj);
   }
 
   findById<T extends Destroyable>(id: string): T | undefined {
@@ -351,6 +379,13 @@ export function createScreen<
     | Destroyable
     | Destroyable[]
     | Promise<void | Destroyable | Destroyable[]>;
+  /**
+   * Per-screen deep-link mapper.  Translates arbitrary route params into a
+   * phase name after create() (replaces the old hardcoded `"tab"` convention).
+   * Return null/undefined to skip deep-linking.
+   */
+  mapDeepLink?: (params: unknown) => string | null | undefined;
+
   /**
    * Phase handlers — elements tracked inside a handler are destroyed on the
    * next transition or on ctx.refresh().  Omit for single-view screens.
@@ -434,6 +469,18 @@ export function createScreen<
   async function runPhase(phase: TPhase): Promise<void> {
     const tr = tracker;
     if (!tr) return;
+
+    // Unknown-phase guard (P2): a phase that isn't declared in the spec is a
+    // caller bug — warn loudly and no-op instead of crashing obscurely.  The
+    // type system prevents this in TS; the guard covers JS callers / dynamic
+    // values.
+    if (!(phase in phases)) {
+      console.warn(
+        `[createScreen:"${spec.name}"] go("${phase}") ignored — no such phase ` +
+          `(declared: ${Object.keys(phases).join(", ") || "<none>"}).`,
+      );
+      return;
+    }
 
     const outgoingEntry = tr.currentPhase
       ? normalizeEntry(phases[tr.currentPhase])
@@ -527,6 +574,8 @@ export function createScreen<
 
   const result: ScreenResult<TPhase, E> = {
     name: spec.name,
+
+    mapDeepLink: spec.mapDeepLink,
 
     get events() {
       return eventState?.events as E;
@@ -623,6 +672,8 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
     go: screen.go as (phase: string) => Promise<void>,
 
     currentPhase: screen.currentPhase,
+
+    mapDeepLink: screen.mapDeepLink,
   };
 
   return mod;

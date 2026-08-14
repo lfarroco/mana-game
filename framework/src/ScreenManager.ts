@@ -85,13 +85,14 @@ export function createScreenManager<RouteMap extends Routes>(config: {
     screen.init?.();
     await screen.create();
 
-    // Deep-link: if the route carries a sub-state and the screen supports phase
-    // switching, navigate to it (e.g. a specific options tab). Skip if the screen
-    // is already on that phase to avoid a redundant re-render.
-    if (params && typeof params === "object" && "tab" in params && screen.go) {
-      const tab = (params as { tab: string }).tab;
-      if (screen.currentPhase?.() !== tab) {
-        await screen.go(tab);
+    // Deep-link: let the screen translate route params into a phase (e.g. a
+    // specific options tab). Replaces the former hardcoded `"tab"` convention.
+    // Each screen owns the shape of its params via `mapDeepLink`. Skip if the
+    // screen is already on that phase to avoid a redundant re-render.
+    if (params && screen.mapDeepLink) {
+      const phase = screen.mapDeepLink(params);
+      if (phase && screen.go && screen.currentPhase?.() !== phase) {
+        await screen.go(phase);
       }
     }
 
