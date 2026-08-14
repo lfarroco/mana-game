@@ -15,51 +15,15 @@
  */
 
 import { env } from "@Env";
-import * as Models from "@game/Models";
+import { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/runComplete";
 import { BattlegroundEvent } from "../Events";
 import { getScreenManager } from "../Screens/ScreenManager";
 
-export type RunCompleteOptions = {
-	/** Wins to display on the results screen. Defaults to the session's wins, or a demo value. */
-	wins?: number;
-	/** Losses to display. Defaults to the session's losses, or a demo value. */
-	losses?: number;
-};
+export { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/runComplete";
 
 export type DebugApi = {
 	goGameOver: (opts?: RunCompleteOptions) => Promise<void>;
 	goVictory: (opts?: RunCompleteOptions) => Promise<void>;
-};
-
-export const buildRunCompleteSession = (
-	current: Models.SessionData,
-	phase: "game_over" | "victory",
-	opts: RunCompleteOptions
-): Models.SessionData => {
-	const wins = opts.wins ?? (current.wins > 0 ? current.wins : phase === "victory" ? 12 : 6);
-	const losses =
-		opts.losses ?? (phase === "game_over" ? Math.max(current.losses, 4) : current.losses);
-
-	return {
-		...current,
-		id: current.id || "debug_session",
-		phase,
-		wins,
-		losses,
-		seed: current.seed || "debug-seed-0000-0000",
-		initial_seed: current.initial_seed || "debug-seed-0000-0000",
-		runStats: current.runStats || {
-			damageDealt: 123456,
-			poisonDealt: 2345,
-			shieldDealt: 6789,
-			regenDealt: 4567,
-			healDealt: 9876,
-			mostPowerfulUnit: { cardId: "mana_crystal", power: 999 },
-			totalUnitsRecruited: 14,
-			unitUsage: {},
-		},
-		combatState: undefined,
-	};
 };
 
 const goToRunCompletePhase = async (

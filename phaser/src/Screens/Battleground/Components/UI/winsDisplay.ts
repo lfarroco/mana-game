@@ -1,4 +1,5 @@
 import * as Tooltip from "@Components/Tooltip/Tooltip";
+import * as GameConstants from "@game/Constants";
 
 import * as i18n from "@i18n/i18n";
 import * as AudioManager from "@Systems/AudioManager";
@@ -70,9 +71,9 @@ function createRects(): Phaser.GameObjects.Graphics[] {
 function createBonusIndicators(): Phaser.GameObjects.Graphics[] {
 	const indicators: Phaser.GameObjects.Graphics[] = [];
 	const bonuses = [
-		{ index: 4, color: COLOR_BRONZE },
-		{ index: 7, color: COLOR_SILVER },
-		{ index: 9, color: COLOR_GOLD },
+		{ index: GameConstants.BRONZE_VICTORY_THRESHOLD - 1, color: COLOR_BRONZE },
+		{ index: GameConstants.SILVER_VICTORY_THRESHOLD - 1, color: COLOR_SILVER },
+		{ index: GameConstants.GOLD_VICTORY_THRESHOLD - 1, color: COLOR_GOLD },
 	];
 
 	for (const bonus of bonuses) {

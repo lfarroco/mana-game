@@ -3,6 +3,7 @@
  * Handles unlocking achievements based on game completion with different cores
  */
 
+import { getAchievementUnlocks } from "@game/Achievements/achievements";
 import { GAME_CONFIG } from "@config";
 // Declare window.steamworks type for TypeScript
 declare const window: Window & {
@@ -13,44 +14,6 @@ declare const window: Window & {
 		};
 	};
 };
-
-/**
- * Crystal types that can earn achievements
- */
-export type CrystalType =
-	| "mana_crystal"
-	| "critical_crystal"
-	| "protective_crystal"
-	| "growth_crystal"
-	| "purple_crystal"
-	| "quickstone";
-
-/**
- * Victory tier based on number of wins
- */
-type VictoryTier = "bronze" | "silver" | "gold";
-
-/**
- * Determine victory tier based on total wins
- * @param wins - Total number of wins achieved
- * @returns Victory tier or null if not enough wins
- */
-function getVictoryTier(wins: number): VictoryTier | null {
-	if (wins >= 10) return "gold";
-	if (wins >= 8) return "silver";
-	if (wins >= 5) return "bronze";
-	return null;
-}
-
-/**
- * Get Steam achievement ID for a given crystal and victory tier
- * @param crystal - Crystal type
- * @param tier - Victory tier
- * @returns Achievement ID string
- */
-function getAchievementId(crystal: CrystalType, tier: VictoryTier): string {
-	return `${tier.toUpperCase()}_${crystal.toUpperCase()}`;
-}
 
 /**
  * Check if Steam achievements API is available
@@ -106,57 +69,10 @@ function unlockAchievement(achievementId: string): boolean {
  * @param coreCardId - The card ID of the player's core crystal
  */
 export function checkVictoryAchievements(wins: number, coreCardId: string): void {
-	console.debug(
-		"AchievementSystem",
-		`[Achievement] Checking victory achievements: ${wins} wins with ${coreCardId}`
-	);
-
-	// Demo mode: achievements disabled
-	if (!GAME_CONFIG.ENABLE_ACHIEVEMENTS) {
-		console.debug("AchievementSystem", "[Achievement] Achievements disabled in demo mode");
-		return;
-	}
-
-	// Determine victory tier
-	const tier = getVictoryTier(wins);
-	if (!tier) {
-		console.debug("AchievementSystem", "[Achievement] Not enough wins for achievements (need 5+)");
-		return;
-	}
-
-	// Check if the core is one of the achievement-eligible crystals
-	const validCrystals: CrystalType[] = [
-		"mana_crystal",
-		"critical_crystal",
-		"protective_crystal",
-		"growth_crystal",
-		"purple_crystal",
-		"quickstone",
-	];
-
-	if (!validCrystals.includes(coreCardId as CrystalType)) {
-		console.debug(
-			"AchievementSystem",
-			`[Achievement] Core ${coreCardId} is not eligible for achievements`
-		);
-		return;
-	}
-
-	const crystal = coreCardId as CrystalType;
-
-	// Unlock achievements for this tier and all lower tiers
-	// Example: Gold victory also unlocks Silver and Bronze
-	const tiersToUnlock: VictoryTier[] = ["bronze"];
-	if (tier === "silver" || tier === "gold") {
-		tiersToUnlock.push("silver");
-	}
-	if (tier === "gold") {
-		tiersToUnlock.push("gold");
-	}
-
-	// Unlock all relevant achievements
-	for (const achievementTier of tiersToUnlock) {
-		const achievementId = getAchievementId(crystal, achievementTier);
+	const achievementIds = getAchievementUnlocks(wins, coreCardId, {
+		enableAchievements: GAME_CONFIG.ENABLE_ACHIEVEMENTS,
+	});
+	for (const achievementId of achievementIds) {
 		unlockAchievement(achievementId);
 	}
 }
