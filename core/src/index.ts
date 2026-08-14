@@ -116,3 +116,6 @@ export * as Settings from "./settings/playerSettings";
 export * as AbilityColors from "./data/abilityColors";
 export * as CrystalPresentation from "./data/crystalPresentation";
 export * as Seed from "./session/seed";
+export * as SessionStore from "./session/sessionStore";
+export * as Options from "./settings/options";
+export * as I18n from "./i18n/translator";

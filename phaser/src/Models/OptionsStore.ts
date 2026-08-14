@@ -2,6 +2,7 @@ import * as AudioManager from "@Systems/AudioManager";
 import { storage } from "@Systems/Storage";
 import { ClientState, defaultSettings, type PlayerSettings } from "@Models/ClientState";
 import { env } from "@Env";
+import { parseStoredOptions } from "@game/settings/options";
 
 let clientStateRef: ClientState | null = null;
 
@@ -84,52 +85,13 @@ function ensureOptionsInStorage(): void {
 }
 
 function loadOptionsFromStorage(): Partial<PlayerSettings> | null {
-	const savedOptions = storage.getItem(STORAGE_KEY);
-	if (!savedOptions) {
-		return null;
+	const raw = storage.getItem(STORAGE_KEY);
+	if (!raw) return null;
+	const parsed = parseStoredOptions(raw);
+	if (parsed === null) {
+		console.warn("OptionsStore", "Invalid options format in storage:", raw);
 	}
-
-	const parsed = JSON.parse(savedOptions);
-
-	if (typeof parsed !== "object" || parsed === null) {
-		console.warn("OptionsStore", "Invalid options format in storage:", parsed);
-		return null;
-	}
-
-	const validOptions: Partial<PlayerSettings> = {};
-
-	if (typeof parsed.sound === "boolean") validOptions.sound = parsed.sound;
-	if (
-		typeof parsed.soundVolume === "number" &&
-		parsed.soundVolume >= 0 &&
-		parsed.soundVolume <= 1
-	) {
-		validOptions.soundVolume = parsed.soundVolume;
-	}
-	if (typeof parsed.music === "boolean") validOptions.music = parsed.music;
-	if (
-		typeof parsed.musicVolume === "number" &&
-		parsed.musicVolume >= 0 &&
-		parsed.musicVolume <= 1
-	) {
-		validOptions.musicVolume = parsed.musicVolume;
-	}
-	if (
-		typeof parsed.masterVolume === "number" &&
-		parsed.masterVolume >= 0 &&
-		parsed.masterVolume <= 1
-	) {
-		validOptions.masterVolume = parsed.masterVolume;
-	}
-	if (typeof parsed.debug === "boolean") validOptions.debug = parsed.debug;
-	if (typeof parsed.speed === "number" && parsed.speed > 0) validOptions.speed = parsed.speed;
-	if (["low", "medium", "high"].includes(parsed.particles)) {
-		validOptions.particles = parsed.particles;
-	}
-	if (typeof parsed.compactTooltips === "boolean")
-		validOptions.compactTooltips = parsed.compactTooltips;
-
-	return validOptions;
+	return parsed;
 }
 
 function saveOptionsToStorage(): void {

@@ -5,7 +5,7 @@ import jp from "./jp.json";
 import cn from "./cn.json";
 import ru from "./ru.json";
 import { GameEvent } from "../Events";
-type Translations = Record<string, string>;
+import { createTranslator, type Translations } from "@game/i18n/translator";
 
 const locales: Record<string, Translations> = {
 	en,
@@ -19,7 +19,8 @@ const locales: Record<string, Translations> = {
 const STORAGE_KEY = "selected_locale";
 
 let currentLocale = "en";
-let translations: Translations = locales[currentLocale];
+
+const translator = createTranslator(locales, () => currentLocale);
 
 export function initialize() {
 	try {
@@ -33,7 +34,6 @@ export function initialize() {
 				currentLocale = systemLocale;
 			}
 		}
-		translations = locales[currentLocale];
 	} catch {
 		// console.warn('Failed to load locale:', e);
 	}
@@ -44,7 +44,6 @@ initialize();
 export function setLocale(locale: string) {
 	if (locales[locale]) {
 		currentLocale = locale;
-		translations = locales[locale];
 		localStorage.setItem(STORAGE_KEY, locale);
 
 		GameEvent.localeChanged.emit({ locale });
@@ -53,46 +52,12 @@ export function setLocale(locale: string) {
 	}
 }
 
-export function t(key: string, params?: Record<string, string>): string {
-	let text = translations ? translations[key] : key;
-
-	if (!text && currentLocale !== "en") {
-		text = locales["en"][key];
-	}
-
-	if (!text) {
-		text = key;
-	}
-
-	if (params) {
-		Object.entries(params).forEach(([k, v]) => {
-			text = text.replace(new RegExp(`{${k}}`, "g"), v);
-		});
-	}
-	return text;
-}
-
-export function getName(cardId: string): string {
-	return t(`card.${cardId}.name`);
-}
+export const t = translator.t;
+export const getName = translator.getName;
+export const getAvailableLocales = translator.getAvailableLocales;
 
 export function getCurrentLocale(): string {
 	return currentLocale;
 }
 
-export function getAvailableLocales(): string[] {
-	return Object.keys(locales);
-}
-
-const localeNames: Record<string, string> = {
-	en: "English",
-	es: "Español",
-	pt: "Português",
-	jp: "日本語",
-	cn: "中文",
-	ru: "Русский",
-};
-
-export function getNativeName(locale: string): string {
-	return localeNames[locale] || locale;
-}
+export { getNativeName } from "@game/i18n/translator";
