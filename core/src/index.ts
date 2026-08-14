@@ -121,6 +121,13 @@ export * as Options from "./settings/options";
 export * as I18n from "./i18n/translator";
 
 // ---------------------------------------------------------------------------
+// Descriptions (pure BBCode tooltip text builders)
+// ---------------------------------------------------------------------------
+export * as Descriptions from "./descriptions/descriptions";
+export * as UnitDescription from "./descriptions/unitDescription";
+export * as CrystalDescription from "./descriptions/crystalDescription";
+
+// ---------------------------------------------------------------------------
 // Stats & achievements
 // ---------------------------------------------------------------------------
 export * as VictoryTier from "./Achievements/victoryTier";

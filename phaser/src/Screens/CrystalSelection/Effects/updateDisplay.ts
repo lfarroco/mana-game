@@ -1,10 +1,11 @@
 import * as i18n from "@i18n/i18n";
 import * as cloudsBg from "../../../Screens/Title/Components/cloudsBg";
-import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as paginationDots from "../Components/paginationDots";
 import { CardDefinition } from "@game/Models";
 import { findTrackedById } from "@mana/framework";
 import { getColorPresetForCrystal } from "@game/data/crystalPresentation";
+import { buildCrystalDescription } from "@game/descriptions/crystalDescription";
+import { getSettings } from "@Models/OptionsStore";
 import { CRYSTAL_IDS, paginationDotId } from "../ids";
 
 const CLOUD_BG_ANIMATION_DURATION = 1500;
@@ -29,7 +30,7 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 		import("phaser3-rex-plugins/plugins/gameobjects/tagtext/bbcodetext/BBCodeText").default
 	>(CRYSTAL_IDS.description);
 	if (descText) {
-		descText.setText(buildCrystalDescription(crystal));
+		descText.setText(buildCrystalDescription(crystal, i18n.t, getSettings().compactTooltips));
 	}
 
 	// Pagination dots
@@ -50,28 +51,4 @@ export function updateDisplay(crystals: CardDefinition[], currentIndex: number) 
 		const preset = getColorPresetForCrystal(crystal.id);
 		bg.tweenToPreset(preset, CLOUD_BG_ANIMATION_DURATION, CLOUD_BG_ANIMATION_EASE);
 	}
-}
-
-function buildCrystalDescription(crystal: CardDefinition): string {
-	const power = crystal.power || 0;
-
-	const effectBlocks = crystal.effects
-		.map((e) => CharaTooltip.buildEffectBlock(e, power))
-		.filter((e): e is string => e !== null)
-		.map((str) => "- " + str[0].toUpperCase() + str.slice(1));
-
-	const reactionBlocks = crystal.reactions
-		.map((r) => CharaTooltip.getReactionDescription(r, power))
-		.map((str) => "- " + str);
-
-	const cdAsSeconds = ((crystal.cooldown || 0) / 1000).toFixed(1);
-	const statsBlock = `[color=#c0c0c0]${i18n.t("crystalSelection.cooldown")}[/color] [color=#ffa94d]${cdAsSeconds}s[/color]`;
-
-	const lifeBlock = crystal.life
-		? ` | [color=#c0c0c0]${i18n.t("crystalSelection.life")}[/color] [color=#51cf66]${crystal.life}[/color]`
-		: "";
-
-	const allEffects = [...effectBlocks, ...reactionBlocks].join("\n");
-
-	return `${statsBlock}${lifeBlock}\n\n${allEffects || i18n.t("crystalSelection.noAbilities")}`;
 }
