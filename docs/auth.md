@@ -64,7 +64,7 @@ Known app ids (from `steam/steam_config/app_build*.vdf`): alpha `3757600`, demo 
 
 ### What NOT to port from the retired `auth-steam` edge function
 
-`phaser/supabase/functions/auth-steam/index.ts` (quarantined) demonstrates the ticket-exchange shape but has flaws that must not carry over:
+`phaser/supabase/functions/auth-steam/index.ts` (deleted 2026-08-13) demonstrated the ticket-exchange shape but has flaws that must not carry over:
 
 - **Supabase-specific hack**: deterministic password `S#<sha256("Steam:" + steamid + ":" + salt)>!` + fake email `steam_<steamid>@manabattle.com` to abuse Supabase Auth's email/password flow. Irrelevant with your own `players` table — you simply store the `steamid64` as a provider id.
 - **No hex encoding**: it passed the ticket as-is; the modern flow requires hex-encoding the binary ticket.
@@ -218,7 +218,7 @@ Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
 |---|---|---|---|
 | **A. Player/token repos + bearer middleware** | `PlayerRepo`/`TokenRepo` (in-memory), `authService`/`tokenService`, Bearer middleware replacing `X-Player-Id` | unit + HTTP tests green; session routes run off tokens | ✅ done (2026-08-13) |
 | **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets | ✅ code done (2026-08-13); manual smoke test pending (plan.md task 14) |
-| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ⏳ Phase 3 (docs/game-server.md) — `phaser/src/lib/steamAuth.ts` + `getBearerToken()` are ready for it |
+| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ✅ code done (2026-08-13) — `phaser/src/RemoteServer.ts` is the HTTP adapter (bearer auth via `getBearerToken()`); manual MP run from the Steam build still pending (plan.md task 14) |
 
 The original plan was guest-first; the Steam-only launch flips it — Phases A and B are independent, and B is the priority.
 

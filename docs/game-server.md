@@ -1,12 +1,12 @@
 # Game Server — Multiplayer Backend Plan
 
-**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; 🔐 Steam-only auth designed 2026-08-13 — see [auth.md](auth.md); implementation pending
+**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; ✅ Phase 1.5 (Steam-only auth) implemented 2026-08-13 — see [auth.md](auth.md); ✅ Phase 2 (matchmaking & rating) implemented 2026-08-13; ✅ Phase 3 (client integration) implemented 2026-08-13 — `phaser/src/RemoteServer.ts` is a live HTTP adapter, Supabase quarantine deleted
 **Created**: 2026-07-25
-**Supersedes** (once implemented): [supabase-backend.md](supabase-backend.md), [commit-replay-multiplayer.md](commit-replay-multiplayer.md), [MULTIPLAYER_SETUP.md](MULTIPLAYER_SETUP.md), and the Supabase-specific parts of [multiplayer-architecture.md](multiplayer-architecture.md)
+**Supersedes**: [supabase-backend.md](supabase-backend.md), [commit-replay-multiplayer.md](commit-replay-multiplayer.md), [MULTIPLAYER_SETUP.md](MULTIPLAYER_SETUP.md), and the Supabase-specific parts of [multiplayer-architecture.md](multiplayer-architecture.md) — none of these exist on disk (verified 2026-08-13); this doc is authoritative
 
 ## Purpose
 
-Create `server/` — a standalone Node.js package hosting the **authoritative game server API for multiplayer sessions**. It replaces the retired Supabase edge functions (`phaser/supabase/`), which are quarantined pending deletion (see [code-quality-cleanup.md](code-quality-cleanup.md)).
+Create `server/` — a standalone Node.js package hosting the **authoritative game server API for multiplayer sessions**. It replaces the retired Supabase edge functions (`phaser/supabase/`), which were deleted 2026-08-13 as part of Phase 3 (see [code-quality-cleanup.md](code-quality-cleanup.md)).
 
 Scope:
 
@@ -148,10 +148,10 @@ Steam-only — see **[auth.md](auth.md)** for the full design (data model, token
 - **Display name** for Steam players = Steam persona (`localplayer.getName()` / `GetPlayerSummaries`).
 
 
-## Client integration (Phase 3)
+## Client integration (Phase 3) — ✅ DONE (2026-08-13)
 
-1. Rewrite `phaser/src/RemoteServer.ts` as a thin HTTP adapter implementing the client's `GameServer` interface (`createSession`, `handleAction`) with `getSession` / `getPhaseOptions` parity, decoding `CombatStateDto` via the core codec. Server URL from config (`MANA_SERVER_URL`, default `http://127.0.0.1:8787` for dev).
-2. Then delete the quarantined code (per [code-quality-cleanup.md](code-quality-cleanup.md) §3): `phaser/src/lib/supabase.ts`, `phaser/supabase/`, `scripts/bundle-edge.ts`, the `@supabase/supabase-js` dependency, the `bundle:edge` / `test:supabase` / `deploy:functions` scripts, `phaser/src/Screens/ArenaLobby/`, and the stale docs this plan supersedes.
+1. `phaser/src/RemoteServer.ts` rewritten as a thin HTTP adapter implementing the client's `ServerAdapter`/`GameServer` interface (`createSession`, `handleAction`, `deleteSession`) with `getSession` / `getPhaseOptions` parity, decoding `CombatStateDto` via the core codec. Injectable `createRemoteServer({ fetch, serverUrl, getBearerToken })` factory; bearer-token auth via `steamAuth.getBearerToken()`; server URL from `MANA_SERVER_URL` (default `http://127.0.0.1:8787` for dev); the client never sends a seed. `GameServer.getServer()` returns the `remoteServer` singleton for multiplayer; single-player still uses `LocalServer`.
+2. Quarantined code deleted (per [code-quality-cleanup.md](code-quality-cleanup.md) §3): `phaser/src/lib/supabase.ts`, `phaser/supabase/`, `scripts/bundle-edge.ts`, the `@supabase/supabase-js` dependency (+ lockfile), the `bundle:edge` / `test:supabase` / `deploy:functions` scripts, `phaser/src/Screens/ArenaLobby/`, and stale jest ignore entries.
 
 ## Implementation phases
 
@@ -161,7 +161,7 @@ Steam-only — see **[auth.md](auth.md)** for the full design (data model, token
 | **1. Server skeleton** | package scaffolding, config, express app, in-memory repos, session + action endpoints (identity via `X-Player-Id` header, dev-only) | `npm run dev` serves; jest + HTTP integration tests green; full-run flow test passes |
 | **1.5. Steam-only auth** | Player/token repos (in-memory), `POST /auth/steam` (ticket → Steam Web API → player upsert → bearer token), Bearer middleware replacing `X-Player-Id`; no guest endpoints (future phase) — see [auth.md](auth.md) | tests with a mocked Steam Web API; manual Steam auto-login against a local server; 401s on bad/expired tokens |
 | **2. Matchmaking & rating** | ghosts, opponent selection, rating on run completion | unit tests: match found in band, self excluded, PvE fallback, rating applied exactly once |
-| **3. Client integration** | HTTP `RemoteServer`; supabase removal | client typecheck/lint green; manual MP run against a local server end-to-end |
+| **3. Client integration** | HTTP `RemoteServer`; supabase removal | ✅ client typecheck/lint green, 52 phaser tests green (2026-08-13); manual MP run against a local server end-to-end still pending (needs the Steam Electron build) |
 | **4. Durable persistence** | SQLite repos + schema; restart survival | kill/restart the server mid-run → `GET /sessions/current` resumes |
 | **5. Extras** | leaderboard endpoint; agent play service (revives `agentGameServer`; unblocks the queued leaderboard-match-runner task); replay validation; token refresh/expiry; guest/non-Steam auth | per-feature |
 

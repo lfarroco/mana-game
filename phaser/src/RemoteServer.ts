@@ -1,194 +1,262 @@
+/**
+ * RemoteServer — HTTP adapter for the Node game server (`server/`).
+ *
+ * Implements the client's `ServerAdapter` interface (see GameServer.ts) for
+ * multiplayer sessions by talking to the REST API at `MANA_SERVER_URL`
+ * (default `http://127.0.0.1:8787`, docs/game-server.md). Replaces the
+ * retired Supabase edge-function client.
+ *
+ * Auth: every request carries `Authorization: Bearer <token>`, where the
+ * token comes from the Phase 1.5 Steam login flow (`src/lib/steamAuth.ts` —
+ * `getBearerToken()` reads the persisted `{ token, player }` session). No
+ * token → the adapter rejects: multiplayer requires a Steam login.
+ *
+ * Wire format: combat states cross the wire as a JSON-safe `CombatStateDto`
+ * (core `CombatCodec`); this adapter decodes them back into a full
+ * `CombatState` (rebuilding the `unitById` Map and derived fields) so the
+ * battleground can play them back unchanged.
+ *
+ * The factory (`createRemoteServer`) accepts an injectable fetch, base URL,
+ * and token provider so tests can mock the HTTP layer exactly like the server
+ * tests inject `steamFetch`.
+ */
+
+import { deserializeCombatState, type CombatStateDto } from "@game/Combat/CombatCodec";
 import * as Models from "@game/Models";
-import { FORCE_ID_PLAYER } from "@game/Constants";
-import { CombatLogEntry } from "@game/Combat/CombatLogger";
-import { rebuildCombatStateIndexes } from "@game/Combat/CombatStateIndexes";
+import { DEFAULT_SERVER_URL, steamAuth } from "./lib/steamAuth";
 
-import * as supabase from "@lib/supabase";
-import { env } from "@Env";
+// Re-export the default server URL so callers/tests share one source of truth.
+export { DEFAULT_SERVER_URL };
 
-const PLAYER_ID_STORAGE_KEY = "mana_player_id";
-const PLAYER_ID_PREFIX = "player_";
-const PLAYER_ID_RANDOM_MAX = 1_000_000;
-
-// Generate a stable local player ID. Persisted to localStorage so it survives page reloads.
-// Not a security token — just a client-side identifier for session association.
-const storedId = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
-let playerId = storedId || `${PLAYER_ID_PREFIX}${Math.floor(Math.random() * PLAYER_ID_RANDOM_MAX)}`;
-
-if (!storedId) {
-	localStorage.setItem(PLAYER_ID_STORAGE_KEY, playerId);
-}
-
-const generateSessionSeed = (): string => {
-	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-		return crypto.randomUUID();
-	}
-
-	return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-};
-
-const getSessionCombatState = (session: unknown): Models.CombatState | undefined => {
-	const combatState = (session as { combatState?: unknown })?.combatState;
-	if (!combatState || typeof combatState !== "object") {
-		return undefined;
-	}
-
-	return combatState as Models.CombatState;
-};
-
-// export class RemoteServer implements GameServer {
-// 	private playerId: string;
-
-// 	constructor(playerId?: string) {
-// 		const storedId = localStorage.getItem(PLAYER_ID_STORAGE_KEY);
-// 		this.playerId =
-// 			playerId ||
-// 			storedId ||
-// 			`${PLAYER_ID_PREFIX}${Math.floor(Math.random() * PLAYER_ID_RANDOM_MAX)}`;
-// 		if (!storedId) {
-// 			localStorage.setItem(PLAYER_ID_STORAGE_KEY, this.playerId);
-// 		}
-// 	}
-
-export async function createSession(
-	_playerId: string,
-	crystalId: string
-): Promise<Models.SessionData> {
-	const sessionType = env.state.session.session_type;
-	const seed = generateSessionSeed();
-	const { data, error } = await supabase.supabase.functions.invoke("action", {
-		body: {
-			actionId: "start_session",
-			payload: { selectedCrystalId: crystalId, sessionType, seed },
-		},
-	});
-
-	if (error) {
-		throw new Error(`Failed to create session: ${error.message}`);
-	}
-
-	const session = { ...(data as Models.SessionData), session_type: sessionType };
-	//MultiplayerManager.primeDeferredSession(session, crystalId);
-
-	return session;
-}
-
-export async function getSession(playerId: string): Promise<Models.SessionData | null> {
-	const { data, error } = await supabase.supabase
-		.from("player_sessions")
-		.select("*")
-		.eq("player_id", playerId)
-		.maybeSingle();
-
-	if (error) {
-		console.error("RemoteServer", "Failed to fetch session:", error);
-		return null;
-	}
-
-	return data as Models.SessionData | null;
-}
-
-export async function getPhaseOptions(playerId: string): Promise<Models.PhaseOptions> {
-	const { data: session, error } = await supabase.supabase
-		.from("player_sessions")
-		.select("*")
-		.eq("player_id", playerId)
-		.single();
-
-	if (error || !session) {
-		throw new Error(`Failed to fetch phase options: ${error?.message || "No session found"}`);
-	}
-	const sessionCombatState = getSessionCombatState(session)!;
-
-	let combatState: Models.CombatState | undefined = undefined;
-	if (session.phase === "combat") {
-		console.debug("RemoteServer", "Using server-provided combat logs");
-		const units: Models.Unit[] = structuredClone([...sessionCombatState.initialUnits]);
-		combatState = rebuildCombatStateIndexes(
-			{
-				units,
-				logs: sessionCombatState.logs as CombatLogEntry[],
-				enemyPlayerName:
-					typeof sessionCombatState.enemyPlayerName === "string"
-						? sessionCombatState.enemyPlayerName
-						: "",
-				wonCombat: sessionCombatState.wonCombat,
-				finalPlayerUnits: sessionCombatState.finalPlayerUnits,
-				initialUnits: sessionCombatState.initialUnits,
-				unitById: new Map(),
-				playerCore: units[0],
-				cpuCore: units[0],
-				playerUnits: [],
-				cpuUnits: [],
-			},
-			FORCE_ID_PLAYER
-		);
-	}
-
-	const optionsList = session.current_options || [];
-
-	return {
-		phase: session.phase as Models.PhaseType,
-		round: session.round,
-		options: optionsList,
-		team: session.team,
-		wins: session.wins,
-		losses: session.losses,
-		combatState: combatState,
-	};
-}
-
-export async function handleAction(
-	_playerId: string,
-	action: Models.Action
-): Promise<Models.ActionResponse> {
-	const bodyPayload =
-		action.type === "start_combat"
-			? {
-					...(action || {}),
-					sessionType: env.state.session.session_type,
-				}
-			: action;
-
-	const response = await supabase.supabase.functions.invoke("action", {
-		body: { action: bodyPayload },
-	});
-
-	if (response.error) {
-		console.error("RemoteServer", `Failed to handle action ${action.type}:`, response.error);
-		throw new Error(`Failed to handle action ${action.type}: ${response.error.message}`);
-	}
-
-	const nextSession = response.data as Models.SessionData;
-	const combatState = getSessionCombatState(response.data);
-	env.patchState({ session: nextSession, combatState });
-	return { session: nextSession, combatState };
-}
+/** Request queue type sent on session creation (no ranked UI yet — server defaults to casual). */
+const DEFAULT_QUEUE_TYPE = "casual" as const;
 
 /**
- * Remote sessions are managed server-side. The new API (server/) rejects
- * actions on a session once it reaches `victory`/`game_over` and stops serving
- * it to the client, so the client has no authority (and no need) to request a
- * deletion. The Supabase backend is deprecated — no-op by design.
+ * Error thrown for non-2xx API responses. Carries the HTTP status and the
+ * server's machine-readable `error` code so callers can branch (e.g. 401 →
+ * re-authenticate).
  */
-export function deleteSession(playerId: string): void {
-	console.debug(
-		"RemoteServer",
-		`[deleteSession] Remote session cleanup is handled server-side (player: ${playerId}) — no-op`
+export class RemoteServerError extends Error {
+	readonly status: number;
+	readonly code: string;
+
+	constructor(status: number, code: string, message: string) {
+		super(message);
+		this.name = "RemoteServerError";
+		this.status = status;
+		this.code = code;
+	}
+}
+
+export type RemoteServerDeps = {
+	/** Injectable fetch (defaults to `globalThis.fetch`) — mirrors server test injection. */
+	fetch?: typeof globalThis.fetch;
+	/** Game-server base URL (defaults to `MANA_SERVER_URL` or `http://127.0.0.1:8787`). */
+	serverUrl?: string;
+	/** Bearer token provider (defaults to the persisted steamAuth session). */
+	getBearerToken?: () => string | null;
+};
+
+export type RemoteServer = {
+	createSession(playerId: string, crystalId: string): Promise<Models.SessionData>;
+	handleAction(playerId: string, action: Models.Action): Promise<Models.ActionResponse>;
+	deleteSession(playerId: string): Promise<void>;
+	/** Resume/reconnect: the current session, or null when none is active. */
+	getSession(playerId: string): Promise<Models.SessionData | null>;
+	getPhaseOptions(playerId: string): Promise<Models.PhaseOptions>;
+};
+
+function readServerUrl(): string {
+	const fromEnv =
+		typeof process !== "undefined" && process.env
+			? process.env.MANA_SERVER_URL
+			: undefined;
+	return fromEnv && fromEnv.trim() !== "" ? fromEnv : DEFAULT_SERVER_URL;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === "object" && value !== null;
+}
+
+/** Shape-guard for the wire `CombatStateDto` (see core CombatCodec). */
+function isCombatStateDto(value: unknown): value is CombatStateDto {
+	if (!isRecord(value)) return false;
+	return (
+		Array.isArray(value.units) &&
+		Array.isArray(value.logs) &&
+		Array.isArray(value.finalPlayerUnits) &&
+		typeof value.wonCombat === "boolean" &&
+		typeof value.enemyPlayerName === "string"
 	);
 }
 
-/**
- * Update the player ID (e.g., after authentication)
- */
-export function setPlayerId(newPlayerId: string): void {
-	playerId = newPlayerId;
-	localStorage.setItem(PLAYER_ID_STORAGE_KEY, playerId);
+/** Decode a wire `CombatStateDto` into a full in-memory `CombatState`. */
+function decodeCombatState(value: unknown): Models.CombatState | undefined {
+	return isCombatStateDto(value) ? deserializeCombatState(value) : undefined;
 }
 
 /**
- * Get the current player ID
+ * Decode a wire session payload into a `SessionData`. The server always
+ * strips the raw (Map-carrying) combat state; while in the `combat` phase it
+ * ships a serialized `CombatStateDto` under `combatState` instead — decode
+ * that back into the in-memory shape the client expects.
  */
-export function getPlayerId(): string {
-	return playerId;
+function decodeSession(raw: unknown): Models.SessionData {
+	if (!isRecord(raw)) {
+		throw new Error("Game server returned an unexpected session payload");
+	}
+
+	const { combatState, ...rest } = raw;
+	const decoded = decodeCombatState(combatState);
+	const session = rest as unknown as Models.SessionData;
+	return decoded ? { ...session, combatState: decoded } : session;
 }
+
+/**
+ * Map a non-2xx response to a useful error, parsing the server's
+ * `{ error, message }` JSON shape (server/src/errors.ts). 401s get a
+ * re-authentication hint since they mean the persisted bearer token is
+ * missing, unknown, or expired.
+ */
+async function parseErrorResponse(res: Response): Promise<RemoteServerError> {
+	let code = `HTTP ${res.status}`;
+	let message = `Request failed with status ${res.status}`;
+
+	try {
+		const body = (await res.json()) as unknown;
+		if (isRecord(body)) {
+			if (typeof body.error === "string" && body.error !== "") code = body.error;
+			if (typeof body.message === "string" && body.message !== "") message = body.message;
+		}
+	} catch {
+		// Non-JSON error body — keep the defaults.
+	}
+
+	if (res.status === 401) {
+		return new RemoteServerError(
+			res.status,
+			code,
+			`Multiplayer login expired — please re-authenticate (${code})`,
+		);
+	}
+	return new RemoteServerError(res.status, code, `${code}: ${message}`);
+}
+
+/**
+ * Build the RemoteServer HTTP adapter. All deps are optional and default to
+ * the production wiring (global fetch, env-configured URL, steamAuth token).
+ */
+export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
+	const fetchImpl = deps.fetch ?? globalThis.fetch;
+	const serverUrl = deps.serverUrl ?? readServerUrl();
+	const getToken = deps.getBearerToken ?? (() => steamAuth.getBearerToken());
+
+	const requireToken = (): string => {
+		const token = getToken();
+		if (!token || token === "") {
+			throw new Error(
+				"Multiplayer requires Steam login — no bearer token available. Log in first (steamAuth.loginWithSteam).",
+			);
+		}
+		return token;
+	};
+
+	const request = async (
+		path: string,
+		init: { method: "GET" | "POST" | "DELETE"; body?: unknown },
+	): Promise<unknown> => {
+		const headers: Record<string, string> = {
+			Authorization: `Bearer ${requireToken()}`,
+		};
+		if (init.body !== undefined) headers["Content-Type"] = "application/json";
+
+		let res: Response;
+		try {
+			res = await fetchImpl(`${serverUrl}${path}`, {
+				method: init.method,
+				headers,
+				body: init.body !== undefined ? JSON.stringify(init.body) : undefined,
+			});
+		} catch (err) {
+			const detail = err instanceof Error ? err.message : String(err);
+			throw new Error(`Game server request failed: ${detail}`);
+		}
+
+		if (!res.ok) throw await parseErrorResponse(res);
+		if (res.status === 204) return undefined;
+		return (await res.json()) as unknown;
+	};
+
+
+	const getSession = async (_playerId: string): Promise<Models.SessionData | null> => {
+		try {
+			const payload = await request("/api/v1/sessions/current", { method: "GET" });
+			return decodeSession(payload);
+		} catch (err) {
+			// No active session → null (resume finds nothing to resume).
+			if (err instanceof RemoteServerError && err.status === 404) return null;
+			throw err;
+		}
+	};
+
+	const getPhaseOptions = async (_playerId: string): Promise<Models.PhaseOptions> => {
+		const session = await getSession(_playerId);
+		if (!session) {
+			throw new Error("No active multiplayer session");
+		}
+		return {
+			phase: session.phase,
+			round: session.round,
+			options: session.options,
+			team: session.team,
+			wins: session.wins,
+			losses: session.losses,
+			runStats: session.runStats,
+			combatState: session.combatState,
+		};
+	};
+
+	return {
+		async createSession(_playerId: string, crystalId: string): Promise<Models.SessionData> {
+			// The server generates the seed (it is the replay authority) — the
+			// client never sends one. queueType: no ranked UI yet → casual.
+			const payload = await request("/api/v1/sessions", {
+				method: "POST",
+				body: { crystalId, queueType: DEFAULT_QUEUE_TYPE },
+			});
+			return decodeSession(payload);
+		},
+
+		async handleAction(
+			_playerId: string,
+			action: Models.Action,
+		): Promise<Models.ActionResponse> {
+			const payload = await request("/api/v1/sessions/current/actions", {
+				method: "POST",
+				body: { action },
+			});
+			const record = isRecord(payload) ? payload : {};
+			return {
+				session: decodeSession(record.session),
+				combatState: decodeCombatState(record.combatState),
+			};
+		},
+
+		async deleteSession(_playerId: string): Promise<void> {
+			try {
+				await request("/api/v1/sessions/current", { method: "DELETE" });
+			} catch (err) {
+				// Idempotent: nothing to abandon is not an error.
+				if (err instanceof RemoteServerError && err.status === 404) return;
+				throw err;
+			}
+		},
+
+		getSession,
+		getPhaseOptions,
+	};
+}
+
+/** Default adapter wired to the real fetch, env URL, and steamAuth token. */
+export const remoteServer: RemoteServer = createRemoteServer();
+

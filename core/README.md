@@ -9,11 +9,11 @@ Mana Battle's game rules must execute identically in three environments:
 1. **The Phaser client** (`phaser/`) — single-player runs combat simulation
    in-process through a local server adapter. Offline single-player on
    desktop/Android is a core feature, so the logic ships in the client bundle.
-2. **The Node game server** (`server/`, planned — see
+2. **The Node game server** (`server/` — see
    [docs/game-server.md](../docs/game-server.md)) — the authoritative
    multiplayer backend. The earlier Supabase edge functions
-   (`phaser/supabase/functions/`) are retired and quarantined pending
-   deletion; they no longer consume current core.
+   (`phaser/supabase/functions/`) were retired and **deleted 2026-08-13**
+   (Phase 3 client integration); they no longer consume current core.
 
 Historically all of this logic lived inside `phaser/src/`, with the boundary
 maintained only by convention. This package moves the **pure, deterministic

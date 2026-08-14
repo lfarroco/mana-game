@@ -8,13 +8,12 @@ module.exports = {
 		"^.+\\.(js|jsx)$": "babel-jest",
 	},
 	transformIgnorePatterns: [
-		"node_modules/(?!(@supabase|@jest|phaser3-rex-plugins)/)",
+		"node_modules/(?!(@jest|phaser3-rex-plugins)/)",
 	],
 	moduleFileExtensions: ["ts", "tsx", "js"],
 	testPathIgnorePatterns: [
 		"/node_modules/",
 		"/dist/",
-		"/supabase/",
 		"/e2e/",
 		"\\.e2e\\.",
 	],

@@ -15,7 +15,6 @@
         "test:unit": "jest --testPathIgnorePatterns=e2e",
         "test:coverage": "jest --coverage",
         "test:mutation": "stryker run",
-        "test:supabase": "deno test --no-check --allow-env supabase/functions/**/*.test.js supabase/functions/*.test.js",
         "test:e2e": "playwright test",
         "test:e2e:game-flow": "playwright test e2e/game.e2e.spec.ts",
         "test:e2e:ui": "playwright test --ui",
@@ -28,9 +27,7 @@
         "typecheck": "tsc --noEmit",
         "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
-        "bundle:edge": "tsx scripts/bundle-edge.ts",
-        "new:screen": "tsx scripts/new-screen.ts",
-        "deploy:functions": "npm run bundle:edge && supabase functions deploy action --project-ref supabase-project-ref-REDACTED && supabase functions deploy auth-steam --project-ref supabase-project-ref-REDACTED && supabase functions deploy replay-commit --project-ref supabase-project-ref-REDACTED && supabase functions deploy get-enemy-team --project-ref supabase-project-ref-REDACTED"
+        "new:screen": "tsx scripts/new-screen.ts"
     },
     "repository": {
         "type": "git",
@@ -97,7 +94,6 @@
         "webpack-merge": "^5.10.0"
     },
     "dependencies": {
-        "@supabase/supabase-js": "^2.89.0",
         "dotenv": "^17.2.3",
         "easystarjs": "^0.4.4",
         "phaser": "^3.88.2",

@@ -49,7 +49,8 @@ All multiplayer/backend logic is slated for a rewrite (see the inventory in
   (`phaser/supabase/functions/action/index.ts` calls a 4-arg
   `GameLogic.transitionToNextState` and reads `transitionResult.combatResult`,
   neither of which exists in current core; committed `_shared.js` bundles
-  predate current core). That code is quarantined and will be replaced.
+  predate current core). That code was quarantined and was deleted with the
+  Node-backend replacement (2026-08-13).
   Where a step below touches an API the edge functions also use
   (`transitionToNextState`, `CombatState.wonCombat`), it is marked with
   **(MP-rewrite)** so the change is coordinated with the reimplementation
@@ -89,12 +90,10 @@ after end_combat -> wins: 0 losses: 1
       - Also added unit tests for `determineCombatOutcome` and `wonCombat`
         propagation in `CombatSimulation.test.ts`.
       - Also fixed `createCombatState.initialUnits` aliasing `units`.
-- [ ] **(MP-rewrite)** `phaser/src/RemoteServer.ts` reads `wonCombat` from
-      the server response; coordinate with the backend reimplementation,
-      not with the quarantined code.
-- [ ] **(MP-rewrite)** `phaser/src/RemoteServer.ts` reads `wonCombat` from
-      the server response; coordinate with the backend reimplementation,
-      not with the quarantined code.
+- [x] **(MP-rewrite)** `phaser/src/RemoteServer.ts` reads `wonCombat` from
+      the server response — DONE (2026-08-13, Phase 3): the HTTP adapter
+      decodes the `CombatStateDto` (incl. `wonCombat`) via the core codec;
+      the Supabase code it was supposed to avoid was deleted.
 
 ---
 
@@ -165,9 +164,9 @@ server use.
       `{ session, combatState? }` (or a small result union) and thread the
       combat state through `transitionToNextState` and
       `transitionAfterCombat` explicitly.
-- [ ] **(MP-rewrite)** This changes the `transitionToNextState` result
-      shape the (quarantined) edge handler consumes — note it for the new
-      backend.
+- [x] **(MP-rewrite)** This changes the `transitionToNextState` result
+      shape the (deleted 2026-08-13) edge handler consumed — note it for the
+      new backend (already landed: server/ Phase 1-3).
 
 ### 7. Three divergent rank-up formulas — effort: M (needs design decision)
 
@@ -353,8 +352,8 @@ server use.
   outcomes for a given seed — treat as a replay-format version bump and
   coordinate with persisted-session migration.
 - The Supabase edge functions and everything under the multiplayer
-  backend — quarantined pending reimplementation (see scope note above);
-  do not repair the drift, replace it.
+  backend — quarantined, then **deleted 2026-08-13** and replaced by the Node
+  server (`server/`); do not repair the drift, replace it.
 
 ## Suggested execution order
 

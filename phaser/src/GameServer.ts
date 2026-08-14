@@ -1,6 +1,6 @@
 import { env } from "@Env";
 import * as LocalServer from "./LocalServer";
-import * as RemoteServer from "./RemoteServer";
+import { remoteServer } from "./RemoteServer";
 import * as Models from "@game/Models";
 
 export type ServerAdapter = {
@@ -16,5 +16,5 @@ export type ServerAdapter = {
 
 export const getServer = (): ServerAdapter => {
 	if (env.state.session.session_type.type === "singleplayer") return LocalServer;
-	else return RemoteServer;
+	else return remoteServer;
 };

@@ -14,7 +14,7 @@ for sequencing purposes (that doc keeps the full design).
 | Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
 | Framework hardening | P0+P1+P2 landed, regression tests | ✅ P0+P1+P2 landed (2026-08-13, 56 framework tests green, phaser typecheck/lint clean) | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ✅ committed (2026-08-13); 146 server tests green (109 baseline + 37 new); typecheck/build clean | — |
-| Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ❌ RemoteServer still Supabase-based | Phase 2 |
+| Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ✅ done (2026-08-13); RemoteServer is an HTTP adapter (`createRemoteServer` factory, fetch-injectable); supabase quarantine deleted; 52 phaser tests green (41 + 11 new), typecheck/lint clean; server untouched (148 tests) | — |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
 | Core code-quality P1/P2 leftovers | rank-up unification, orb registry dispatch, throw policy, Option adoption | ⏳ partial | design decisions |
 
@@ -93,13 +93,28 @@ for sequencing purposes (that doc keeps the full design).
   20, FIFO) and the opponent marker is written to the action log rather than a
   new session field (avoids a core SessionData change).
 
-### 6. Server Phase 3 — client integration
-- Rewrite `phaser/src/RemoteServer.ts` as an HTTP adapter implementing the
-  `GameServer` interface using `CombatCodec`, server URL from
-  `MANA_SERVER_URL` (default `http://127.0.0.1:8787`), bearer-token auth.
-- Delete quarantined Supabase code: `src/lib/supabase.ts`, `phaser/supabase/`,
-  `scripts/bundle-edge.ts`, `@supabase/supabase-js`, stale scripts, `ArenaLobby/`.
-- **Exit**: client typecheck/lint green, Phase 3 checked off.
+### 6. Server Phase 3 — client integration — ✅ DONE (2026-08-13)
+- Rewrote `phaser/src/RemoteServer.ts` as a thin HTTP adapter implementing the
+  `GameServer`/`ServerAdapter` interface (`createSession`, `handleAction`,
+  `deleteSession` + `getSession`/`getPhaseOptions` parity), decoding
+  `CombatStateDto` via the core `CombatCodec`, server URL from
+  `MANA_SERVER_URL` (default `http://127.0.0.1:8787`), bearer-token auth via
+  `getBearerToken()` (steamAuth). Injectable `createRemoteServer({ fetch,
+  serverUrl, getBearerToken })` factory for tests; 401s → clear
+  re-authentication error; no-token requests reject before fetch; the client
+  never sends a seed (server generates it). `GameServer.ts` now returns the
+  `remoteServer` singleton for multiplayer; single-player still uses
+  `LocalServer`.
+- Deleted quarantined Supabase code: `src/lib/supabase.ts`, `phaser/supabase/`,
+  `scripts/bundle-edge.ts`, `@supabase/supabase-js` (+ lockfile), the
+  `test:supabase` / `bundle:edge` / `deploy:functions` scripts, stale jest
+  ignore entries, and `Screens/ArenaLobby/`.
+- **Exit**: ✅ 52 phaser tests green (41 baseline + 11 new RemoteServer tests),
+  phaser typecheck/lint clean, server untouched (148 tests green).
+  Deviation: `NODE_OPTIONS='--experimental-vm-modules'` breaks jest global
+  injection on this machine (Node ESM + jsdom → `jest is not defined`), so
+  tests ran via the package's own `jest --runInBand --passWithNoTests`
+  (matches CI's `npm run test:ci`, which has no NODE_OPTIONS).
 
 ### 7. Server Phase 4 — durable persistence
 - `better-sqlite3` implementations of `SessionRepo`, `PlayerRepo`, `TokenRepo`

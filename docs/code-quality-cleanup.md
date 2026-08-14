@@ -27,23 +27,27 @@ pipelines, and artifacts left behind by the `single_scene` + `core/` migration.
 
 ## ⚠️ Scope note: multiplayer backend will be reimplemented
 
-All multiplayer/backend logic in this directory is slated for a rewrite. The
-existing inventory (to be removed or replaced):
+**Status: ✅ DONE (2026-08-13)** — the Node game server (`server/`, docs/game-server.md) replaced
+the Supabase backend, and the quarantined code below was **deleted** as part of
+Server Phase 3 (client integration). The list is kept for the audit trail.
 
-- `phaser/supabase/` — 29 files: edge functions (`action`, `auth-steam`,
+The existing inventory (removed/replaced):
+- [x] `phaser/supabase/` — 29 files: edge functions (`action`, `auth-steam`,
   `replay-commit`, `get-enemy-team`, `_shared/`), migrations, tests, `.temp/`
-- `phaser/src/RemoteServer.ts` — only consumer of `@lib/supabase`
-- `phaser/src/lib/supabase.ts` — Supabase client wrapper
-- `phaser/src/Screens/ArenaLobby/` — `ArenaLobbyScene.ts` + `arenaTheme.ts`
-  (already dead code: never imported; `main.ts` only registers the `Client` scene)
-- `phaser/src/GameServer.ts` — `getServer()` routes non-singleplayer sessions
-  to `RemoteServer`
-- `phaser/scripts/bundle-edge.ts` — edge-function bundler
-- `package.json` scripts: `test:supabase`, `bundle:edge`, `deploy:functions`
-- Dependency: `@supabase/supabase-js`
-- Docs to rewrite when the new backend lands: `docs/supabase-backend.md`,
+- [x] `phaser/src/RemoteServer.ts` — only consumer of `@lib/supabase`;
+  rewritten (2026-08-13) as an HTTP adapter for the new API
+- [x] `phaser/src/lib/supabase.ts` — Supabase client wrapper (deleted)
+- [x] `phaser/src/Screens/ArenaLobby/` — `ArenaLobbyScene.ts` + `arenaTheme.ts`
+  (was already dead code: never imported; `main.ts` only registers the `Client` scene)
+- [x] `phaser/src/GameServer.ts` — `getServer()` routes non-singleplayer sessions
+  to `RemoteServer` (now the HTTP adapter — keep)
+- [x] `phaser/scripts/bundle-edge.ts` — edge-function bundler (deleted)
+- [x] `package.json` scripts: `test:supabase`, `bundle:edge`, `deploy:functions` (removed)
+- [x] Dependency: `@supabase/supabase-js` (removed + lockfile)
+- [x] Docs to rewrite when the new backend lands: `docs/supabase-backend.md`,
   `docs/multiplayer-architecture.md`, `docs/guest-auth.md`,
-  `docs/single-multiplayer-unification.md`
+  `docs/single-multiplayer-unification.md` — **none of these exist on disk**
+  (verified 2026-08-13); `docs/game-server.md` is the authoritative design doc
 
 **Rule: do NOT invest effort fixing bugs in this code** (e.g. the
 `ArenaLobbyScene` leaderboard `@ts-expect-error`, the `RemoteServer` player-id

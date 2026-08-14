@@ -47,7 +47,7 @@ Combat is simulated to completion in `core/` (`Combat/CombatSimulation.ts` → t
 
 ### Server adapter
 
-Single-player and (future) multiplayer go through the `ServerAdapter` interface: `getServer()` in `phaser/src/GameServer.ts` → `LocalServer.ts` (in-process single-player). The retired Supabase path (`RemoteServer.ts`, `phaser/supabase/`) is quarantined and will be replaced by the new Node backend — see `docs/game-server.md`.
+Single-player and multiplayer go through the `ServerAdapter` interface: `getServer()` in `phaser/src/GameServer.ts` → `LocalServer.ts` (in-process single-player) or `RemoteServer.ts` (HTTP adapter for the Node backend in `server/`, bearer-token auth, `CombatStateDto` decoding via the core codec — see `docs/game-server.md`). The Supabase path (`phaser/supabase/`) was deleted 2026-08-13.
 
 ### Key conventions
 
