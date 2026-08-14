@@ -51,6 +51,13 @@ export type ScreenManagerHooks = {
    * emit `screenShown`, run fade-in, and re-enable input.
    */
   afterTransition?: (to: ScreenModule) => void | Promise<void>;
+  /**
+   * Called when a navigation fails mid-flight (before/after transition or the
+   * incoming screen's create).  `activeScreen` has already been reset to null
+   * and the original failure is rethrown to the `go()` caller; the host uses
+   * this to log or report the error.
+   */
+  onError?: (err: unknown) => void;
 };
 
 // ---------------------------------------------------------------------------
@@ -92,6 +99,30 @@ export function createScreenManager<RouteMap extends Routes>(config: {
     await hooks.afterTransition?.(screen);
   }
 
+  /**
+   * Run the next queued navigation, if any.  This is the nav-chain link:
+   * `navChain.then(run, run)` makes the chain self-healing — a failed link
+   * rejects the chain, but the rejection handler still runs the next queued
+   * target instead of poisoning navigation until reload.
+   */
+  async function run(): Promise<void> {
+    const target = pendingNavTarget;
+    // Nothing pending, or we already landed on it — skip.
+    if (!target || target.screen === activeScreen) return;
+    pendingNavTarget = null;
+    try {
+      await doSwitchScreen(target.screen, target.params);
+    } catch (err) {
+      // The outgoing screen may already be destroyed (beforeTransition ran)
+      // and the incoming screen half-created — never report either as active.
+      // Reset to null, surface the failure to the host, and rethrow so the
+      // original go() call still rejects to its caller.
+      activeScreen = null;
+      hooks.onError?.(err);
+      throw err;
+    }
+  }
+
   async function go<R extends keyof RouteMap>(
     route: R,
     params?: RouteParams<RouteMap, R>,
@@ -105,14 +136,10 @@ export function createScreenManager<RouteMap extends Routes>(config: {
     // Remember the latest target; earlier queued targets will be skipped.
     pendingNavTarget = { screen, params: params as unknown };
 
-    // Chain the navigation after any already-in-flight transition.
-    navChain = navChain.then(async () => {
-      const target = pendingNavTarget;
-      // Nothing pending, or we already landed on it — skip.
-      if (!target || target.screen === activeScreen) return;
-      pendingNavTarget = null;
-      await doSwitchScreen(target.screen, target.params);
-    });
+    // Chain the navigation after any already-in-flight transition.  `then(run, run)`
+    // self-heals: if the previous navigation rejected, the rejection handler still
+    // runs the next queued target.
+    navChain = navChain.then(run, run);
 
     await navChain;
   }

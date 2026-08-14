@@ -12,7 +12,7 @@ for sequencing purposes (that doc keeps the full design).
 |---|---|---|---|
 | Server Phase 1 (session API) | Done & merged | ✅ committed, 103 tests green | — |
 | Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
-| Framework hardening | P0+P1+P2 landed, regression tests | ❌ not started (38 tests green) | — |
+| Framework hardening | P0+P1+P2 landed, regression tests | ⏳ P0 landed (2026-08-13, 46 framework tests green); P1+P2 pending | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ❌ not started | Phase 1.5 merge |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ❌ RemoteServer still Supabase-based | Phase 2 |
 | Server Phase 4 (durable persistence) | SQLite repos, restart survival | ❌ not started | Phase 3 |
@@ -31,13 +31,14 @@ for sequencing purposes (that doc keeps the full design).
 - **Exit**: ✅ all 100+ server tests green (109), typecheck/build clean,
   `X-Player-Id` fully removed from the codebase, task queue checked off.
 
-### 2. Framework hardening P0 — nav-mutex failure semantics
+### 2. Framework hardening P0 — nav-mutex failure semantics — ✅ DONE (2026-08-13)
 - `framework/src/ScreenManager.ts`: self-healing chain (`then(run, run)`), reset
   `activeScreen` on transition failure, optional `onError` hook, rethrow to caller.
 - Regression tests: nav recovers after a failed transition; `current()` is null
-  after failure; the original `go()` call still rejects.
-- **Exit**: framework tests green (new regression tests), typecheck clean, P0
-  checked off in [framework-hardening.md](framework-hardening.md).
+  after failure; the original `go()` call still rejects; coalescing + same-screen
+  dedupe preserved; deep-link `"tab"` behavior intact.
+- **Exit**: ✅ 46 framework tests green (38 baseline + 8 new), typecheck clean,
+  P0 checked off in [framework-hardening.md](framework-hardening.md) and AGENTS.md.
 
 ### 3. Framework hardening P1 — async lifecycle
 - P1a: `Destroyable.destroy(): void | Promise<void>`; `go()`/`refresh()` await

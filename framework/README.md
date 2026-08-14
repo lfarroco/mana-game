@@ -73,6 +73,9 @@ The host injects engine work via `ScreenManagerHooks`:
 - `beforeTransition(from, to)` — emit `screenHidden`, destroy the outgoing
   screen, disable input, fade out, clear the scene, reset the cursor.
 - `afterTransition(to)` — emit `screenShown`, fade in, re-enable input.
+- `onError(err)` — called when a navigation fails mid-flight; `activeScreen`
+  has already been reset to null and the original error is rethrown to the
+  `go()` caller (use for logging/reporting).
 
 See `phaser/src/Screens/ScreenManager.ts`.
 

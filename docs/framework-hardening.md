@@ -17,10 +17,10 @@ reproduction for the critical nav-mutex bug.
 | Check | Result |
 | --- | --- |
 | `npm run typecheck` (framework) | ✅ clean |
-| `npm test` (framework) | ✅ 28 tests / 2 suites green |
+| `npm test` (framework) | ✅ 46 tests / 2 suites green (38 baseline + 8 P0 regression tests, 2026-08-13) |
 | Engine imports | ✅ zero — tests run on plain fakes |
 | Consumers migrated | ✅ Title, Options, CrystalSelection, Battleground |
-| Failure-path coverage | ❌ no rejection/error-path tests (see P0) |
+| Failure-path coverage | ✅ P0 regression tests added (2026-08-13): nav recovers after a failed transition, `current()` is null after a failure, the original `go()` still rejects, coalescing + same-screen dedupe preserved |
 
 ## Verdict
 
@@ -33,9 +33,12 @@ don't cover: **what happens when things fail mid-flight.**
 
 ---
 
-## 🔴 P0 — Nav mutex poisons permanently after a failed transition
+## ✅ P0 — Nav mutex poisons permanently after a failed transition
 
-**Status**: confirmed by runtime reproduction (scratch jest test, since removed).
+**Status**: ✅ FIXED (2026-08-13) — self-healing `then(run, run)` nav chain,
+`activeScreen` reset to null on transition failure, optional `onError` hook,
+8 regression tests in `framework/src/ScreenManager.test.ts`. Originally
+confirmed by runtime reproduction (scratch jest test, since removed).
 
 `framework/src/ScreenManager.ts:95` — `navChain = navChain.then(cb)` has no
 rejection handler. When a screen's `create()` rejects:
