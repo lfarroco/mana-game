@@ -66,6 +66,12 @@ export type AppDeps = {
    * not registered (the server boots without auth).
    */
   steam?: { webApiKey: string; appIds: number[] };
+  /**
+   * AuthenticateUserTicket endpoint override (MANA_STEAM_API_URL): defaults
+   * to the partner endpoint (publisher key); api.steampowered.com works with
+   * a standard Web API key (rate-limited).
+   */
+  steamApiUrl?: string;
   /** Injectable fetch for the Steam Web API (mocked in tests). */
   steamFetch?: typeof globalThis.fetch;
 };
@@ -114,6 +120,7 @@ export function createApp(deps: AppDeps = {}): express.Express {
         tokenRepo,
         steam: deps.steam,
         steamFetch: deps.steamFetch,
+        steamApiUrl: deps.steamApiUrl,
         tokenTtlDays: deps.tokenTtlDays,
       }),
     );

@@ -103,7 +103,7 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
 ### Client — Electron
 
 - [x] **11. Electron preload ticket hook** — DONE (2026-08-13)
-  - **File**: `electron/preload.cjs` (only `electron/main.cjs` if needed)
+  - **File**: `phaser/electron/preload.cjs` (only `phaser/electron/main.cjs` if needed)
   - **Steps**:
     1. Expose `window.auth.getSteamAuthTicket(identity, timeoutMs?)` wrapping `steamworks.auth.getAuthTicketForWebApi` → returns the ticket as a hex string (`ticket.getBytes().toString("hex")`).
     2. Graceful failure when `steamworks` is unavailable (browser build) — returns `null` and logs; the renderer falls back to single-player.

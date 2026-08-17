@@ -1,7 +1,7 @@
 {
     "name": "mana_battle",
     "version": "2.0.0",
-    "main": "../electron/main.cjs",
+    "main": "electron/main.cjs",
     "type": "module",
     "scripts": {
         "dev": "webpack-dev-server --config webpack/config.dev.cjs",
@@ -113,14 +113,15 @@
         "productName": "Mana Battle",
         "directories": {
             "output": "dist-electron",
-            "buildResources": "../electron/build"
+            "buildResources": "electron/build"
         },
         "files": [
             "dist/**/*",
-            "../electron/main.cjs",
-            "../electron/preload.cjs",
+            "electron/main.cjs",
+            "electron/preload.cjs",
+            "electron/steamworks.cjs",
+            "electron/icon.png",
             "package.json",
-            "../electron/assets",
             "!node_modules/**/*",
             "node_modules/steamworks.js/**/*"
         ],

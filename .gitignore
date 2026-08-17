@@ -144,3 +144,6 @@ phaser/android/key.jks
 /Users/<redacted>/dev/mana-game/phaser/android/app/releasek
 
 phaser/.webpack-cache
+
+# electron-builder output (make electron-build-*)
+phaser/dist-electron/

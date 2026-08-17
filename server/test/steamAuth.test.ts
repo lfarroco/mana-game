@@ -24,6 +24,8 @@ type FetchHandlerOptions = {
   body?: unknown;
   nonJson?: boolean;
   networkError?: boolean;
+  /** Plain-text body returned by `text()` (non-200 error diagnostics). */
+  bodyText?: string;
 };
 
 type FetchImpl = typeof globalThis.fetch;
@@ -41,6 +43,7 @@ function makeFetch(options: FetchHandlerOptions = {}): {
       return {
         ok: options.ok ?? true,
         status: options.status ?? 200,
+        text: async () => options.bodyText ?? "",
         json: () => {
           throw new Error("Unexpected token < in JSON");
         },
@@ -49,6 +52,7 @@ function makeFetch(options: FetchHandlerOptions = {}): {
     return {
       ok: options.ok ?? true,
       status: options.status ?? 200,
+      text: async () => options.bodyText ?? "",
       json: async () =>
         options.body ?? {
           response: { params: { result: "OK", steamid: STEAM_ID } },
@@ -136,6 +140,46 @@ describe("createSteamAuthClient", () => {
       ).rejects.toThrow(
         expect.objectContaining({ status: 401, code: "invalid_steam_ticket" }),
       );
+    });
+
+    it("surfaces Steam's error body on a non-200 (key/permission diagnostics)", async () => {
+      const client = makeClient(
+        makeFetch({
+          ok: false,
+          status: 403,
+          bodyText: "Access is denied. Your publisher account does not have access to this app.",
+        }).fetch,
+      );
+
+      await expect(
+        client.validateTicket({
+          ticket: TICKET,
+          identity: STEAM_IDENTITY,
+          appId: 3757600,
+        }),
+      ).rejects.toThrow(/HTTP 403: Access is denied/);
+    });
+
+    it("hits a custom endpoint when a url is provided (standard-key fallback)", async () => {
+      const customUrl =
+        "https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/";
+      const { fetch, calls } = makeFetch();
+      const client = createSteamAuthClient({
+        webApiKey: KEY,
+        appIds: APP_IDS,
+        url: customUrl,
+        fetch,
+      });
+
+      await client.validateTicket({
+        ticket: TICKET,
+        identity: STEAM_IDENTITY,
+        appId: 3757600,
+      });
+
+      const url = new URL(calls[0]);
+      expect(url.origin + url.pathname).toBe(customUrl);
+      expect(url.searchParams.get("ticket")).toBe(TICKET);
     });
 
     it("rejects a non-17-digit steamid", async () => {

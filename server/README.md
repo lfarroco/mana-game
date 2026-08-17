@@ -163,6 +163,7 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_NODE_ENV`          | `development` | Runtime environment                                               |
 | `MANA_STEAM_WEB_API_KEY` | —             | Publisher Web API key (server secret; enables `POST /auth/steam`) |
 | `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
+| `MANA_STEAM_API_URL`     | partner endpoint | `AuthenticateUserTicket` endpoint. Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (needs a **publisher** key). Point at `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` when using a standard Web API key (rate-limited). |
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for `POST /auth/steam`              |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for `POST /auth/steam`              |

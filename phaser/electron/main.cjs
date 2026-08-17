@@ -1,15 +1,16 @@
 const { app, BrowserWindow, globalShortcut } = require('electron');
 const path = require('path');
+const { requireSteamworks } = require('./steamworks.cjs');
 
 // Try to initialize Steam - only works if steamworks.js is installed
 // IMPORTANT: Must be initialized BEFORE app.whenReady() for overlay to work
 let steamworks = null;
 try {
 	// Only require steamworks.js in Electron builds (not browser)
-	steamworks = require('steamworks.js');
+	steamworks = requireSteamworks();
 	console.log('[Electron] Steam API initialized successfully');
 } catch (error) {
-	console.log('[Electron] Steam API not available (this is normal for non-Steam builds)', error);
+	console.log('[Electron] Steam API not available (is the Steam client running? this is normal for non-Steam builds)', error);
 }
 
 // Initialize Steam client and enable overlay BEFORE app.whenReady()
@@ -40,7 +41,10 @@ function createWindow() {
 		mainWindow.loadURL('http://localhost:8080');
 		mainWindow.webContents.openDevTools();
 	} else {
-		mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+		// dist/index.html lives one level up in both layouts:
+		//   dev run:      <repo>/phaser/dist     (this file is <repo>/phaser/electron/main.cjs)
+		//   packaged app: <app.asar>/dist        (this file is <app.asar>/electron/main.cjs)
+		mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
 	}
 }
 

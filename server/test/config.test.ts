@@ -4,6 +4,7 @@
 /// <reference types="jest" />
 
 import { loadConfig } from "../src/config";
+import { STEAM_AUTHENTICATE_URL } from "../src/services/steamAuth";
 
 describe("loadConfig", () => {
   it("applies defaults when no env vars are set", () => {
@@ -15,12 +16,32 @@ describe("loadConfig", () => {
     expect(config.nodeEnv).toBe("development");
     expect(config.steamWebApiKey).toBe("");
     expect(config.steamAppIds).toEqual([3757600]); // alpha app id
+    expect(config.steamApiUrl).toBe(STEAM_AUTHENTICATE_URL); // partner endpoint
     expect(config.tokenTtlDays).toBe(30);
   });
 
   it("reads the steam web api key", () => {
     const config = loadConfig({ MANA_STEAM_WEB_API_KEY: "supersecret" });
     expect(config.steamWebApiKey).toBe("supersecret");
+  });
+
+  it("overrides the steam auth endpoint (standard-key fallback)", () => {
+    const config = loadConfig({
+      MANA_STEAM_API_URL:
+        "https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/",
+    });
+    expect(config.steamApiUrl).toBe(
+      "https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/",
+    );
+  });
+
+  it("falls back to the partner endpoint for empty MANA_STEAM_API_URL", () => {
+    expect(loadConfig({ MANA_STEAM_API_URL: "" }).steamApiUrl).toBe(
+      STEAM_AUTHENTICATE_URL,
+    );
+    expect(loadConfig({ MANA_STEAM_API_URL: "   " }).steamApiUrl).toBe(
+      STEAM_AUTHENTICATE_URL,
+    );
   });
 
   it("parses a comma-separated app id allowlist", () => {

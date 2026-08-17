@@ -21,11 +21,14 @@ export function authRouter(deps: {
   tokenRepo: TokenRepo;
   steam: { webApiKey: string; appIds: number[] };
   steamFetch?: typeof globalThis.fetch;
+  /** AuthenticateUserTicket endpoint override (MANA_STEAM_API_URL). */
+  steamApiUrl?: string;
   tokenTtlDays?: number;
 }): Router {
   const steamClient = createSteamAuthClient({
     webApiKey: deps.steam.webApiKey,
     appIds: deps.steam.appIds,
+    url: deps.steamApiUrl,
     fetch: deps.steamFetch,
   });
   const service = createAuthService({

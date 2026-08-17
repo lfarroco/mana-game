@@ -13,19 +13,19 @@ CONTAINER_NAME=mana-server
 -include .env
 export
 
-.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down
+.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
 
 electron:
-	cd $(PHASER_DIR) && npx electron ../electron/main.cjs
+	cd $(PHASER_DIR) && npx electron electron/main.cjs
 
 electron-dev:
-	cd $(PHASER_DIR) && NODE_ENV=development npm run build && NODE_ENV=development npx electron ../electron/main.cjs
+	cd $(PHASER_DIR) && NODE_ENV=development npm run build && NODE_ENV=development npx electron electron/main.cjs
 
 electron-dev-demo:
-	cd $(PHASER_DIR) && IS_DEMO=true NODE_ENV=development npm run build && IS_DEMO=true NODE_ENV=development npx electron ../electron/main.cjs
+	cd $(PHASER_DIR) && IS_DEMO=true NODE_ENV=development npm run build && IS_DEMO=true NODE_ENV=development npx electron electron/main.cjs
 
 electron-pack:
 	cd $(PHASER_DIR) && npm run build && npx electron-builder
@@ -126,3 +126,39 @@ server-compose-up:
 
 server-compose-down:
 	docker compose down
+
+# ---- Local SQLite inspection ----
+
+# Interactive sqlite3 shell on the local multiplayer database (default
+# server/data/mana.db; honors MANA_SQLITE_PATH from .env).
+server-db:
+	@DB="$${MANA_SQLITE_PATH:-server/data/mana.db}"; \
+	if [ "$$DB" = ":memory:" ]; then \
+		echo "The server is using :memory: SQLite — nothing to inspect."; \
+		echo "Set MANA_SQLITE_PATH to a file (e.g. server/data/mana.db) to persist + inspect."; \
+		exit 1; \
+	fi; \
+	if [ ! -f "$$DB" ]; then \
+		echo "No database found at $$DB — start the server first (make server-mp)."; \
+		exit 1; \
+	fi; \
+	echo "=== Mana Battle database: $$DB ==="; \
+	sqlite3 "$$DB" ".tables"; \
+	echo "--- try: SELECT * FROM players; .schema sessions; .quit ---"; \
+	sqlite3 "$$DB"
+
+# Quick row counts per table (players, sessions, ghosts, ratings, ...) —
+# handy while testing matchmaking ("did my ghost get stored?").
+server-db-summary:
+	@DB="$${MANA_SQLITE_PATH:-server/data/mana.db}"; \
+	if [ "$$DB" = ":memory:" ]; then \
+		echo "The server is using :memory: SQLite — nothing to inspect."; \
+		echo "Set MANA_SQLITE_PATH to a file (e.g. server/data/mana.db) to persist + inspect."; \
+		exit 1; \
+	fi; \
+	if [ ! -f "$$DB" ]; then \
+		echo "No database found at $$DB — start the server first (make server-mp)."; \
+		exit 1; \
+	fi; \
+	echo "=== Mana Battle database: $$DB ==="; \
+	sqlite3 "$$DB" "SELECT 'players', COUNT(*) FROM players UNION ALL SELECT 'tokens', COUNT(*) FROM tokens UNION ALL SELECT 'sessions', COUNT(*) FROM sessions UNION ALL SELECT 'combat_states', COUNT(*) FROM combat_states UNION ALL SELECT 'ghosts', COUNT(*) FROM ghosts UNION ALL SELECT 'recently_fought', COUNT(*) FROM recently_fought UNION ALL SELECT 'ratings', COUNT(*) FROM ratings;"

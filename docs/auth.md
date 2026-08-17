@@ -41,8 +41,8 @@ Steam does **not** keep your HTTP server logged in. After the ticket is consumed
 ### Client side — steamworks.js (already in the project)
 
 - `steamworks.js@^0.4.0` is a dependency of `phaser/` and is already initialized in the Electron shell:
-  - `electron/main.cjs` — `require('steamworks.js')`, `steamworks.electronEnableSteamOverlay()` before `app.whenReady()`.
-  - `electron/preload.cjs` — `window.steamworks = steamworks.init()`.
+  - `phaser/electron/main.cjs` — `require('steamworks.js')` (via `phaser/electron/steamworks.cjs`), `steamworks.electronEnableSteamOverlay()` before `app.whenReady()`.
+  - `phaser/electron/preload.cjs` — `window.steamworks = steamworks.init()`.
 - Available auth API (from `phaser/node_modules/steamworks.js/client.d.ts`):
   - `client.auth.getAuthTicketForWebApi(identity: string, timeoutSeconds?): Promise<Ticket>` — the modern API for server-side validation.
   - `client.auth.getSessionTicketWithSteamId(steamId64, timeoutSeconds?)` / `getSessionTicketWithIp(ip, ...)` — legacy P2P-oriented ticket APIs; **not** what we want for web-api validation.
@@ -188,6 +188,7 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 |---|---|---|
 | `MANA_STEAM_WEB_API_KEY` | — | Publisher Web API key (server secret; never shipped to clients) |
 | `MANA_STEAM_APP_IDS` | `3757600` | Comma-separated allowlist of app ids the server will accept (alpha + demo) |
+| `MANA_STEAM_API_URL` | partner endpoint | `AuthenticateUserTicket` endpoint (deviation 2026-08-17: made configurable). Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` requires a **publisher** Web API key — a standard key there returns HTTP 403 "Access is denied". If only a standard Web API key is available, set `MANA_STEAM_API_URL=https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (rate-limited; the old edge function used this domain). |
 | `MANA_TOKEN_TTL_DAYS` | `30` | Bearer-token lifetime |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for `POST /auth/steam` |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for `POST /auth/steam` |
@@ -228,7 +229,8 @@ Recorded 2026-08-13 while implementing plan.md tasks 1–13. Items marked *(devi
 
 - **Identity constant is duplicated, not shared.** `STEAM_IDENTITY = "mana-game-v1"` lives in `server/src/services/steamAuth.ts` **and** `phaser/src/lib/steamAuth.ts`. Putting it in `core/` was considered, but core is pure game logic (purity boundary) and the value is auth-specific. **Keep the two in sync** — the server rejects tickets whose `identity` doesn't match.
 - **Rate limiting** landed as `server/src/http/middleware/rateLimit.ts` + `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS` config (default 20 req / 15 min). 429 responses use the API JSON shape `{ error: "rate_limited", message }` so clients can branch on the machine-readable code.
-- **Preload hook returns a hex string.** `window.auth.getSteamAuthTicket(identity, timeoutMs?)` (electron/preload.cjs) wraps `steamworks.auth.getAuthTicketForWebApi` and returns `ticket.getBytes().toString("hex")` — the exact form `AuthenticateUserTicket` expects. It returns `null` (and logs) when `steamworks` is unavailable, so the renderer can fall back to single-player. `timeoutMs` is converted to steamworks' `timeoutSeconds`.
+- **Preload hook returns a hex string.** `window.auth.getSteamAuthTicket(identity, timeoutMs?)` (phaser/electron/preload.cjs) wraps `steamworks.auth.getAuthTicketForWebApi` and returns `ticket.getBytes().toString("hex")` — the exact form `AuthenticateUserTicket` expects. It returns `null` (and logs) when `steamworks` is unavailable, so the renderer can fall back to single-player. `timeoutMs` is converted to steamworks' `timeoutSeconds`.
+- **steamworks.js resolution in dev runs.** `steamworks.js` is a dependency of `phaser/`; the Electron main/preload live in `phaser/electron/` (inside the app dir so electron-builder can package them — `"main": "electron/main.cjs"`). `phaser/electron/steamworks.cjs` (`requireSteamworks()`) tries the normal require first (packaged build — electron-builder bundles the module at the app root) and falls back to `phaser/node_modules/steamworks.js` (dev run). Launching the Steam client is still required for `steamworks.init()` to succeed.
 - **Client login module** is `phaser/src/lib/steamAuth.ts` (exported `steamAuth` singleton + injectable `createSteamAuthClient` factory for tests). It persists `{ token, player }` via the existing `@Systems/Storage` provider under the key `mana_auth_session`, and exposes `getBearerToken()` for the Phase 3 `RemoteServer` rewrite. The token is never logged or echoed. The module is **not yet wired into the multiplayer UI** — Phase 3 does that (task 12 step 3 only lands the login flow, per plan.md).
 - **Client app id is derived from the build.** `STEAM_APP_ID` = `IS_DEMO ? 4233280 (demo) : 3757600 (alpha)` — both are in the server's default `MANA_STEAM_APP_IDS` allowlist.
 - **`MANA_SERVER_URL`** was added to `phaser/webpack/config.base.cjs` DefinePlugin (empty by default → runtime fallback `http://127.0.0.1:8787`) so a build can point at a remote server.

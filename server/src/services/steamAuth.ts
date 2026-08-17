@@ -57,10 +57,18 @@ export function createSteamAuthClient(deps: {
   webApiKey: string;
   /** App-id allowlist (MANA_STEAM_APP_IDS). */
   appIds: number[];
+  /**
+   * AuthenticateUserTicket endpoint (MANA_STEAM_API_URL). Defaults to the
+   * partner endpoint, which requires a **publisher** Web API key. Set to
+   * `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/`
+   * when only a standard Web API key is available (rate-limited).
+   */
+  url?: string;
   /** Injectable fetch — defaults to global fetch; mocked in tests. */
   fetch?: typeof globalThis.fetch;
 }): SteamAuthClient {
   const { webApiKey, appIds } = deps;
+  const endpointUrl = deps.url ?? STEAM_AUTHENTICATE_URL;
   const doFetch = deps.fetch ?? globalThis.fetch.bind(globalThis);
 
   if (!webApiKey) {
@@ -97,7 +105,7 @@ export function createSteamAuthClient(deps: {
 
     let res: Response;
     try {
-      res = await doFetch(`${STEAM_AUTHENTICATE_URL}?${params.toString()}`);
+      res = await doFetch(`${endpointUrl}?${params.toString()}`);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       throw new ApiError(
@@ -107,12 +115,25 @@ export function createSteamAuthClient(deps: {
       );
     }
 
-    // Steam returns non-200 (e.g. 401) for invalid/expired tickets.
+    // Steam returns non-200 (e.g. 401/403) for invalid/expired tickets and for
+    // key/permission problems ("Access is denied"). Log the full upstream
+    // detail server-side (never the key) so operators can tell a bad ticket
+    // from a bad key; the wire message includes Steam's body snippet too.
     if (!res.ok) {
+      const detail = await steamErrorSnippet(res);
+      console.error(
+        "[steamAuth] AuthenticateUserTicket failed:",
+        JSON.stringify({
+          endpoint: endpointUrl,
+          status: res.status,
+          contentType: res.headers?.get?.("content-type") ?? "unknown",
+          detail: detail || "(empty body)",
+        }),
+      );
       throw new ApiError(
         401,
         "invalid_steam_ticket",
-        `Steam rejected the ticket (HTTP ${res.status})`,
+        `Steam rejected the ticket (HTTP ${res.status}${detail})`,
       );
     }
 
@@ -177,4 +198,14 @@ export function createSteamAuthClient(deps: {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/** First 200 chars of Steam's error body, for diagnostics (or ""). */
+async function steamErrorSnippet(res: Response): Promise<string> {
+  try {
+    const body = (await res.text()).trim();
+    return body ? `: ${body.slice(0, 200)}` : "";
+  } catch {
+    return "";
+  }
 }

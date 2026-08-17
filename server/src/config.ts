@@ -1,6 +1,8 @@
 /**
  * Server configuration from environment variables.
  */
+import { STEAM_AUTHENTICATE_URL } from "./services/steamAuth";
+
 export type ServerConfig = {
   port: number;
   host: string;
@@ -10,6 +12,12 @@ export type ServerConfig = {
   steamWebApiKey: string;
   /** MANA_STEAM_APP_IDS — comma-separated allowlist of app ids (alpha + demo). */
   steamAppIds: number[];
+  /**
+   * MANA_STEAM_API_URL — AuthenticateUserTicket endpoint. Defaults to the
+   * partner endpoint (requires a publisher Web API key); point at
+   * api.steampowered.com when using a standard Web API key (rate-limited).
+   */
+  steamApiUrl: string;
   /** MANA_TOKEN_TTL_DAYS — bearer token lifetime (Steam re-issues every launch). */
   tokenTtlDays: number;
   /** MANA_AUTH_RATE_LIMIT_MAX — per-IP request cap for POST /auth/steam. */
@@ -34,6 +42,9 @@ export function loadConfig(
     nodeEnv: env["MANA_NODE_ENV"] ?? "development",
     steamWebApiKey: env["MANA_STEAM_WEB_API_KEY"] ?? "",
     steamAppIds: parseNumberList(env["MANA_STEAM_APP_IDS"], [3757600]),
+    steamApiUrl: env["MANA_STEAM_API_URL"]?.trim()
+      ? env["MANA_STEAM_API_URL"]
+      : STEAM_AUTHENTICATE_URL,
     tokenTtlDays: parsePositiveInt(env["MANA_TOKEN_TTL_DAYS"], 30),
     authRateLimitMax: parsePositiveInt(
       env["MANA_AUTH_RATE_LIMIT_MAX"],
