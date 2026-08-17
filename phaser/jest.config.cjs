@@ -49,6 +49,7 @@ module.exports = {
 		"^@main$": "<rootDir>/src/main.ts",
 		"^@assets$": "<rootDir>/src/assets.ts",
 		"^@utils$": "<rootDir>/src/utils.ts",
+		"^@Constants$": "<rootDir>/src/Constants.ts",
 		"^@test-utils/(.*)\\.js$": "<rootDir>/src/test-utils/$1",
 		"^@test-utils/(.*)$": "<rootDir>/src/test-utils/$1",
 		"^utils$": "<rootDir>/src/utils.ts",

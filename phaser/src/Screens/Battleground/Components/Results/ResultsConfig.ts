@@ -12,6 +12,35 @@ export const GOLD_VICTORY_THRESHOLD = GameConstants.GOLD_VICTORY_THRESHOLD;
 export const SILVER_VICTORY_THRESHOLD = GameConstants.SILVER_VICTORY_THRESHOLD;
 export const BRONZE_VICTORY_THRESHOLD = GameConstants.BRONZE_VICTORY_THRESHOLD;
 
+export type InfiniteModeEligibility = {
+	wins: number;
+	isGameOver: boolean;
+	/** Demo/web build — no infinite mode in the demo. */
+	isDemo: boolean;
+	/** Multiplayer — a run ends at WINS_TO_WIN_GAME and is never continued. */
+	isMultiplayer: boolean;
+};
+
+/**
+ * Whether the run-complete screen should offer the "Infinite Mode" continue
+ * button.
+ *
+ * Multiplayer never offers it: the rules for when a multiplayer run ends are
+ * different — it ends at `WINS_TO_WIN_GAME` (10), the server marks the run
+ * finished (terminal phase) and rejects the "victory" action that infinite
+ * mode dispatches, and the player can only start a new session. Single-player
+ * offers it on a victory at `INFINITE_MODE_THRESHOLD` wins, outside the demo
+ * and outside a game-over screen.
+ */
+export function shouldOfferInfiniteMode({
+	wins,
+	isGameOver,
+	isDemo,
+	isMultiplayer,
+}: InfiniteModeEligibility): boolean {
+	return wins >= INFINITE_MODE_THRESHOLD && !isGameOver && !isDemo && !isMultiplayer;
+}
+
 export const RESULTS_COLORS = {
 	victory: "#4CAF50",
 	defeat: "#F44336",
