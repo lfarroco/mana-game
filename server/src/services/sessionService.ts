@@ -3,7 +3,15 @@
  *
  * Wraps core SessionManagement / SessionTransitions for the Express API,
  * owns persistence via the SessionRepo, and enforces server-side rules:
- *   - one active session per player (409 on a second create),
+ *   - the server owns the session lifecycle: the client can never declare a
+ *     run finished or abandon it (no client-delete path exists),
+ *   - a run finishes when core transitions it to a terminal phase
+ *     (`victory` / `game_over`, derived from wins / lives lost); the terminal
+ *     session is returned once in the action response so the client can show
+ *     the results screen, and from then on the session is **not served**
+ *     (`getSession` → null) and **does not block** a new run (create
+ *     supersedes it),
+ *   - one active (non-terminal) session per player (409 on a second create),
  *   - actions rejected with 409 once a run reaches a terminal phase,
  *   - the server generates the session seed (it is the replay authority),
  *   - `start_combat` snapshots the player's team as a ghost for the round,
@@ -50,9 +58,13 @@ export type SessionServiceDeps = {
 
 export type SessionService = {
   createSession(playerId: string, request: CreateSessionRequest): SessionData;
+  /**
+   * The player's active session, or null when none is active. A session whose
+   * run has finished (terminal phase) is intentionally **not** served — the
+   * server owns the lifecycle and the player can only create a new session.
+   */
   getSession(playerId: string): SessionData | null;
   handleAction(playerId: string, action: Action): ActionResponse;
-  deleteSession(playerId: string): boolean;
 };
 
 export function createSessionService(
@@ -72,12 +84,19 @@ export function createSessionService(
   return {
     createSession(playerId, request) {
       const existing = repo.get(playerId);
-      if (existing) {
+      if (existing && !isTerminalPhase(existing.phase)) {
         throw new ApiError(
           409,
           "session_already_exists",
-          `Player '${playerId}' already has an active session (phase '${existing.phase}'). Abandon it first.`,
+          `Player '${playerId}' already has an active session (phase '${existing.phase}'). Finish the run first.`,
         );
+      }
+
+      // A finished run does not block a new one: the server owns the session
+      // lifecycle, so creating a session supersedes the previous (finished)
+      // session instead of requiring a client-side delete.
+      if (existing) {
+        repo.delete(playerId);
       }
 
       // The server generates the seed — it is the replay authority.
@@ -109,7 +128,12 @@ export function createSessionService(
     },
 
     getSession(playerId) {
-      return repo.get(playerId);
+      const session = repo.get(playerId);
+      // A finished (terminal-phase) run is no longer served: the player can
+      // only create a new session. The client learns the run ended from the
+      // terminal session in the action response, not from a later GET.
+      if (session && isTerminalPhase(session.phase)) return null;
+      return session;
     },
 
     handleAction(playerId, action) {
@@ -190,12 +214,6 @@ export function createSessionService(
 
       repo.upsert(playerId, result.session);
       return result;
-    },
-
-    deleteSession(playerId) {
-      if (!repo.get(playerId)) return false;
-      repo.delete(playerId);
-      return true;
     },
   };
 

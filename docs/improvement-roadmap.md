@@ -97,7 +97,7 @@ for sequencing purposes (that doc keeps the full design).
 ### 6. Server Phase 3 — client integration — ✅ DONE (2026-08-13)
 - Rewrote `phaser/src/RemoteServer.ts` as a thin HTTP adapter implementing the
   `GameServer`/`ServerAdapter` interface (`createSession`, `handleAction`,
-  `deleteSession` + `getSession`/`getPhaseOptions` parity), decoding
+  `getSession`/`getPhaseOptions` parity), decoding
   `CombatStateDto` via the core `CombatCodec`, server URL from
   `MANA_SERVER_URL` (default `http://127.0.0.1:8787`), bearer-token auth via
   `getBearerToken()` (steamAuth). Injectable `createRemoteServer({ fetch,
@@ -105,7 +105,9 @@ for sequencing purposes (that doc keeps the full design).
   re-authentication error; no-token requests reject before fetch; the client
   never sends a seed (server generates it). `GameServer.ts` now returns the
   `remoteServer` singleton for multiplayer; single-player still uses
-  `LocalServer`.
+  `LocalServer`. (2026-08-15: `deleteSession` removed from the adapter — the
+  session lifecycle is server-owned; a finished run is not served and does not
+  block a new session.)
 - Deleted quarantined Supabase code: `src/lib/supabase.ts`, `phaser/supabase/`,
   `scripts/bundle-edge.ts`, `@supabase/supabase-js` (+ lockfile), the
   `test:supabase` / `bundle:edge` / `deploy:functions` scripts, stale jest

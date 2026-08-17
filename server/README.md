@@ -64,10 +64,25 @@ header is retired.
 | ------ | ---------------------------------- | ------------------------------------------------------------------------------- |
 | GET    | `/health`                          | Liveness check → `{ ok: true }` (no auth)                                       |
 | POST   | `/api/v1/auth/steam`               | Steam ticket → `{ player, token }` (no auth)                                    |
-| POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if one exists)                              |
-| GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`) |
+| POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if an **active** run exists)                |
+| GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`); 404 if none or the run has finished |
 | POST   | `/api/v1/sessions/current/actions` | Dispatch action → `{ session, combatState? }`                                   |
-| DELETE | `/api/v1/sessions/current`         | Abandon run → 204                                                               |
+
+### Session lifecycle (server-owned)
+
+The **server** decides when a session finishes — the client never does, and
+there is **no `DELETE /sessions/current`** endpoint.
+
+- A run finishes when core transitions it to a terminal phase: `end_combat`
+  with `losses >= LOSSES_TO_GAME_OVER` → `game_over` (0 lives left), or
+  `wins >= WINS_TO_WIN_GAME` → `victory`.
+- The terminal session is returned **once**, in the action response of the
+  `end_combat` that ended the run — the client renders the game-over/victory
+  screen from that payload.
+- From then on the run is finished: `GET /sessions/current` → 404
+  `no_active_session`, further actions → 409 `session_finished`, and
+  `POST /sessions` succeeds again (the finished run is superseded — the player
+  can only create a new session).
 
 ### Create session body
 
@@ -83,8 +98,10 @@ header is retired.
   `protective_crystal`, `growth_crystal`, `purple_crystal`, …).
 - The server generates the session seed (it is the replay authority) and marks
   the session as `session_type: { type: "multiplayer", queueType }`.
-- One active session per player: creating a second returns **409** (abandon the
-  current run with `DELETE /sessions/current` first).
+- One active session per player: creating a second returns **409** while a
+  run is still active. A finished run (`victory` / `game_over`) does **not**
+  block a new session — the server owns the lifecycle and supersedes it (see
+  [Session lifecycle (server-owned)](#session-lifecycle-server-owned)).
 - Actions on a finished session (`victory` / `game_over`) return **409**.
 
 ### Dispatch action body

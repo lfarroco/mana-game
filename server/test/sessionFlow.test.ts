@@ -86,6 +86,30 @@ describe("session flow", () => {
     expect(finalSession.action_log.length).toBeGreaterThan(0);
   });
 
+  it("no longer serves a finished session (getSession → null)", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+    const finalSession = driveToTerminal(service, playerId);
+    expect(["victory", "game_over"]).toContain(finalSession.phase);
+
+    // The terminal session is returned once in the action response; from then
+    // on the server does not serve the finished run (the player can only
+    // create a new session).
+    expect(service.getSession(playerId)).toBeNull();
+  });
+
+  it("allows creating a new session after a run finished", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+    const finished = driveToTerminal(service, playerId);
+    expect(["victory", "game_over"]).toContain(finished.phase);
+
+    // No client-side delete: the server owns the lifecycle, so a finished run
+    // does not block (or linger as) a new active session.
+    const next = service.createSession(playerId, { crystalId: "mana_crystal" });
+    expect(next.phase).toBe("encounter");
+    expect(next.id).not.toBe(finished.id);
+    expect(service.getSession(playerId)?.id).toBe(next.id);
+  });
+
   it("refuses a second active session per player", () => {
     service.createSession(playerId, { crystalId: "critical_crystal" });
 
@@ -172,12 +196,22 @@ describe("session flow", () => {
   });
 });
 
-/** Drive a run to a terminal phase via skip/start_combat/end_combat. */
+/**
+ * Drive a run to a terminal phase via skip/start_combat/end_combat. Returns
+ * the terminal session as seen in the action response (the server does not
+ * serve finished sessions via getSession).
+ */
 function driveToTerminal(
   service: SessionService,
   playerId: string,
 ): SessionData {
-  let phase = service.getSession(playerId)!.phase;
+  const initial = service.getSession(playerId);
+  if (!initial) {
+    throw new Error("No active session to drive to a terminal phase");
+  }
+
+  let phase = initial.phase;
+  let finalSession: SessionData = initial;
   let actions = 0;
   const maxActions = 100;
 
@@ -194,11 +228,11 @@ function driveToTerminal(
           : { type: "skip" };
 
     const result = service.handleAction(playerId, action);
+    finalSession = result.session;
     phase = result.session.phase;
     actions++;
   }
 
-  const finalSession = service.getSession(playerId)!;
   expect(["victory", "game_over"]).toContain(finalSession.phase);
   return finalSession;
 }

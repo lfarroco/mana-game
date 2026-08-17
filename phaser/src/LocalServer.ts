@@ -24,7 +24,3 @@ export async function handleAction(
 
 	return result;
 }
-
-export function deleteSession(playerId: string): void {
-	SessionManager.deleteSession(playerId);
-}

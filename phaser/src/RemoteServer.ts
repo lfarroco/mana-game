@@ -60,7 +60,6 @@ export type RemoteServerDeps = {
 export type RemoteServer = {
 	createSession(playerId: string, crystalId: string): Promise<Models.SessionData>;
 	handleAction(playerId: string, action: Models.Action): Promise<Models.ActionResponse>;
-	deleteSession(playerId: string): Promise<void>;
 	/** Resume/reconnect: the current session, or null when none is active. */
 	getSession(playerId: string): Promise<Models.SessionData | null>;
 	getPhaseOptions(playerId: string): Promise<Models.PhaseOptions>;
@@ -163,7 +162,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 	const request = async (
 		path: string,
-		init: { method: "GET" | "POST" | "DELETE"; body?: unknown },
+		init: { method: "GET" | "POST"; body?: unknown },
 	): Promise<unknown> => {
 		const headers: Record<string, string> = {
 			Authorization: `Bearer ${requireToken()}`,
@@ -240,16 +239,6 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 				session: decodeSession(record.session),
 				combatState: decodeCombatState(record.combatState),
 			};
-		},
-
-		async deleteSession(_playerId: string): Promise<void> {
-			try {
-				await request("/api/v1/sessions/current", { method: "DELETE" });
-			} catch (err) {
-				// Idempotent: nothing to abandon is not an error.
-				if (err instanceof RemoteServerError && err.status === 404) return;
-				throw err;
-			}
 		},
 
 		getSession,

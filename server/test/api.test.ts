@@ -356,8 +356,8 @@ describe("POST /api/v1/sessions/current/actions", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: "critical_crystal" });
 
-    const phase = await driveToTerminal(token);
-    expect(["victory", "game_over"]).toContain(phase);
+    const terminal = await driveToTerminal(token);
+    expect(["victory", "game_over"]).toContain(terminal.phase);
 
     const after = await request(app)
       .post("/api/v1/sessions/current/actions")
@@ -436,48 +436,60 @@ describe("POST /api/v1/sessions/current/actions", () => {
       .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
-    const phase = await driveToTerminal(token);
-    expect(["victory", "game_over"]).toContain(phase);
+    // The terminal session is returned in the action response — that's the
+    // only place the client sees the finished run (it is not served again).
+    const terminal = await driveToTerminal(token);
+    expect(["victory", "game_over"]).toContain(terminal.phase);
 
-    const sessionRes = await request(app)
-      .get("/api/v1/sessions/current")
-      .set("Authorization", `Bearer ${token}`);
-    expect(sessionRes.status).toBe(200);
-
-    const wins = sessionRes.body.wins as number;
+    const wins = terminal.wins;
     const rating = ratingRepo.get(playerId);
     expect(rating).not.toBeNull();
     expect(rating!.rating).toBe(1000 + getMultiplayerRatingDelta(wins));
   });
-});
 
-describe("DELETE /api/v1/sessions/current", () => {
-  it("returns 404 when no session exists", async () => {
-    const { token } = await login(TICKET_P1);
-
-    const res = await request(app)
-      .delete("/api/v1/sessions/current")
-      .set("Authorization", `Bearer ${token}`);
-    expect(res.status).toBe(404);
-  });
-
-  it("deletes the active session and returns 204", async () => {
+  it("no longer serves a finished session (GET /sessions/current → 404)", async () => {
     const { token } = await login(TICKET_P1);
     await request(app)
       .post("/api/v1/sessions")
       .set("Authorization", `Bearer ${token}`)
       .send({ crystalId: CRYSTAL });
 
-    const res = await request(app)
-      .delete("/api/v1/sessions/current")
-      .set("Authorization", `Bearer ${token}`);
-    expect(res.status).toBe(204);
+    const terminal = await driveToTerminal(token);
+    expect(["victory", "game_over"]).toContain(terminal.phase);
 
-    // Subsequent get returns 404
-    const getRes = await request(app)
+    const res = await request(app)
       .get("/api/v1/sessions/current")
       .set("Authorization", `Bearer ${token}`);
-    expect(getRes.status).toBe(404);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe("no_active_session");
+  });
+
+  it("allows creating a new session after a run finished (no client delete needed)", async () => {
+    const { token } = await login(TICKET_P1);
+    await request(app)
+      .post("/api/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ crystalId: CRYSTAL });
+
+    const terminal = await driveToTerminal(token);
+    expect(["victory", "game_over"]).toContain(terminal.phase);
+
+    // The player can only create a new session — the server owns the
+    // lifecycle, so the finished run does not block a fresh one.
+    const res = await request(app)
+      .post("/api/v1/sessions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ crystalId: "critical_crystal" });
+    expect(res.status).toBe(201);
+    expect(res.body.phase).toBe("encounter");
+    expect(res.body.id).not.toBe(terminal.sessionId);
+
+    // The new run is active and playable.
+    const current = await request(app)
+      .get("/api/v1/sessions/current")
+      .set("Authorization", `Bearer ${token}`);
+    expect(current.status).toBe(200);
+    expect(current.body.phase).toBe("encounter");
   });
 });
 
@@ -506,8 +518,16 @@ async function skipToPreCombat(token: string) {
   return res;
 }
 
-/** Play a run to a terminal phase (victory or game_over), returning that phase. */
-async function driveToTerminal(token: string): Promise<string> {
+/**
+ * Play a run to a terminal phase (victory or game_over), returning the phase
+ * and the terminal session fields carried in the action response — the only
+ * place the client ever sees a finished run.
+ */
+async function driveToTerminal(token: string): Promise<{
+  phase: string;
+  wins: number;
+  sessionId: string;
+}> {
   let phase = "encounter";
   for (let i = 0; i < 100; i++) {
     const res = await request(app)
@@ -528,7 +548,13 @@ async function driveToTerminal(token: string): Promise<string> {
       );
     }
     phase = res.body.session.phase;
-    if (phase === "victory" || phase === "game_over") return phase;
+    if (phase === "victory" || phase === "game_over") {
+      return {
+        phase,
+        wins: res.body.session.wins as number,
+        sessionId: res.body.session.id as string,
+      };
+    }
   }
   throw new Error(`Run did not reach a terminal phase (stuck at '${phase}')`);
 }

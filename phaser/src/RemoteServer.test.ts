@@ -187,32 +187,24 @@ describe("RemoteServer HTTP adapter", () => {
 		await expect(server.getSession("player-1")).resolves.toBeNull();
 	});
 
-	it("deletes the current session via DELETE /sessions/current", async () => {
-		const fetchMock = createFetchMock(204, undefined);
+	it("never issues a session-delete request — the server owns the lifecycle", async () => {
+		// A finished run: the terminal session arrives in the action response,
+		// and the adapter must not send any DELETE afterwards (there is no
+		// deleteSession surface at all — the client can only create, act, or
+		// resume).
+		const terminalSession = createSessionData({ phase: "game_over", losses: 4 });
+		const fetchMock = createFetchMock(200, { session: terminalSession });
 		const server = createRemoteServer({
 			fetch: fetchMock as unknown as typeof fetch,
 			getBearerToken: () => "tok-123",
 		});
 
-		await expect(server.deleteSession("player-1")).resolves.toBeUndefined();
+		await server.handleAction("player-1", { type: "end_combat" });
 
-		const [url, init] = callsOf(fetchMock)[0];
-		expect(url).toBe(`${DEFAULT_SERVER_URL}/api/v1/sessions/current`);
-		expect(init.method).toBe("DELETE");
-		expect(init.headers?.Authorization).toBe("Bearer tok-123");
-	});
-
-	it("treats a 404 on delete as success (nothing to abandon)", async () => {
-		const fetchMock = createFetchMock(404, {
-			error: "no_active_session",
-			message: "No active session",
-		});
-		const server = createRemoteServer({
-			fetch: fetchMock as unknown as typeof fetch,
-			getBearerToken: () => "tok-123",
-		});
-
-		await expect(server.deleteSession("player-1")).resolves.toBeUndefined();
+		const calls = callsOf(fetchMock);
+		expect(calls).toHaveLength(1);
+		expect(calls[0][1].method).toBe("POST");
+		expect(calls[0][0]).not.toMatch(/\/delete$/);
 	});
 
 	it("surfaces a clear re-authentication error on a 401", async () => {

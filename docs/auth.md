@@ -167,9 +167,8 @@ Updated from [game-server.md](game-server.md). Base path `/api/v1`.
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron). Steam-only: the only auth endpoint in the Steam-only launch |
 | POST | `/players` | `{ displayName? }` → `{ player, token }` | guest accounts — **future phase** (not part of the Steam-only launch, see [Guest accounts](#guest-accounts-future-phase)) |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | (unchanged) authenticated |
-| GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | (unchanged) authenticated |
+| GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | (unchanged) authenticated; 404 once the run has finished (session lifecycle is server-owned — there is no delete endpoint) |
 | POST | `/sessions/current/actions` | `{ action, clientActionId? }` → `{ session, combatState? }` | (unchanged) authenticated |
-| DELETE | `/sessions/current` | → 204 | (unchanged) authenticated |
 
 Unauthenticated: `GET /health`, `POST /auth/steam`. Everything else requires `Authorization: Bearer <token>`.
 

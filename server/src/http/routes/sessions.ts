@@ -3,7 +3,14 @@
  *
  * Player identity: `req.playerId`, attached by the bearer auth middleware
  * (`requireAuth`). One active session per player; creating a second returns
- * 409.
+ * 409 while the current run is still active.
+ *
+ * Session lifecycle is entirely server-owned — there is no client-delete
+ * endpoint. A run finishes when core transitions it to a terminal phase
+ * (`victory` / `game_over`); the terminal session is returned once in the
+ * action response, and from then on `GET /sessions/current` returns 404
+ * (finished sessions are not served) while `POST /sessions` succeeds again
+ * (a finished run does not block a new one).
  *
  * The raw in-memory CombatState contains non-JSON-safe Maps, so responses
  * always strip it from the session payload. While in the `combat` phase it
@@ -49,7 +56,10 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
     res.status(201).json(toWireSession(session));
   });
 
-  // GET /sessions/current — resume/reconnect; combat state serialized while in combat
+  // GET /sessions/current — resume/reconnect; combat state serialized while in
+  // combat. Finished (terminal-phase) runs are intentionally not served: the
+  // service returns null for them, so this 404s with `no_active_session` and
+  // the player can only create a new session.
   router.get("/current", (req: Request, res: Response) => {
     const playerId = getPlayerId(req);
     const session = service.getSession(playerId);
@@ -81,22 +91,6 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
     }
 
     res.json(response);
-  });
-
-  // DELETE /sessions/current — abandon the run
-  router.delete("/current", (req: Request, res: Response) => {
-    const playerId = getPlayerId(req);
-    const deleted = service.deleteSession(playerId);
-
-    if (!deleted) {
-      res.status(404).json({
-        error: "no_active_session",
-        message: "No active session",
-      });
-      return;
-    }
-
-    res.status(204).send();
   });
 
   return router;

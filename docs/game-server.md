@@ -86,10 +86,26 @@ Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for e
 | GET | `/health` | → `{ ok: true }` | liveness |
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron); the Steam-only auth entry point — see [auth.md](auth.md) |
 | POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
-| POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one active session per player (409 if one exists) |
-| GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none |
-| POST | `/sessions/current/actions` | `{ action: Action, clientActionId? }` → `{ session, combatState? }` | single action-dispatch endpoint; `clientActionId` gives idempotent retries |
-| DELETE | `/sessions/current` | → 204 | abandon run |
+| POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one **active** session per player (409 if one exists) — a finished run does **not** block a new one |
+| GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none **or the run has finished** (finished sessions are never served) |
+| POST | `/sessions/current/actions` | `{ action: Action, clientActionId? }` → `{ session, combatState? }` | single action-dispatch endpoint; `clientActionId` gives idempotent retries; when a run ends, the terminal session arrives in this response |
+
+### Session lifecycle (server-owned)
+
+The **server** decides when a session finishes — the client never does. There
+is **no client-delete endpoint** (no `DELETE /sessions/current`).
+
+- A run finishes when core transitions it to a terminal phase: `end_combat`
+  with `losses >= LOSSES_TO_GAME_OVER` → `game_over` (0 lives left), or
+  `wins >= WINS_TO_WIN_GAME` → `victory`.
+- The terminal session is returned **once**, in the action response of the
+  `end_combat` that ended the run — the client renders the game-over/victory
+  screen from that payload.
+- From then on the server marks the run finished:
+  - `GET /sessions/current` → 404 `no_active_session` (not served again),
+  - `POST /sessions/current/actions` → 409 `session_finished`,
+  - `POST /sessions` succeeds again — the finished session is superseded by
+    the new one (the player can only create a new session).
 
 Later (Phase 5): `GET /leaderboard`, `GET /players/me`, and agent endpoints reviving the removed `agentGameServer` surface (`POST /games`, `GET /games/:id/state`, `POST /games/:id/choices`, …).
 
@@ -112,13 +128,13 @@ Later (Phase 5): `GET /leaderboard`, `GET /players/me`, and agent endpoints revi
 
 ## Session & combat flow (server-side)
 
-1. `POST /sessions` → `SessionManagement.createInitialSession(playerId, serverSeed, crystalId)` with `session_type = { type: "multiplayer", queueType }`. **The server generates the seed** (replay authority).
+1. `POST /sessions` → `SessionManagement.createInitialSession(playerId, serverSeed, crystalId)` with `session_type = { type: "multiplayer", queueType }`. **The server generates the seed** (replay authority). A previously finished run does not block creation — it is superseded.
 2. `POST .../actions`:
-   - Load session (404 if none); reject if already `victory` / `game_over`.
+   - Load session (404 if none); reject if already `victory` / `game_over` (409 `session_finished`).
    - A per-player mutex serializes actions; `clientActionId` dedupes retries.
    - `start_combat` → `combatService`: snapshot the team as a ghost, pick an opponent (below), then `transitionToNextState(session, action, { enemyTeam, enemyPlayerName })`. Persist the resulting combat state so a reconnect mid-combat can resume playback (mirrors `LocalServer`'s localStorage persistence).
    - Everything else → `transitionToNextState(session, action)`.
-   - `end_combat` resulting in `victory` / `game_over` → apply the rating delta.
+   - `end_combat` resulting in `victory` / `game_over` → apply the rating delta **and finish the run**: the terminal session is returned once in this response (the client shows the game-over/victory screen from it), after which the run is no longer served (`GET /sessions/current` → 404) and no longer blocks a new session. See [Session lifecycle (server-owned)](#session-lifecycle-server-owned) — there is no client-delete path.
 3. **Core changes required first (Phase 0 blockers)**:
    - **~~Remove the `SessionTransitions.pendingCombatState` module-level singleton~~ ✅ DONE (2026-07-26)** — `executeCombatPhase` now embeds combat state in `session.combatState`; `transitionAfterCombat` reads from the session.
    - **Expose the enemy-team override**: `executeCombatPhase(session, enemyTeam?)` already accepts an override internally, but `transitionToNextState` doesn't surface it. Add `transitionToNextState(session, action, options?: { enemyTeam?: Unit[]; enemyPlayerName?: string })`. (Same shape the retired Supabase handler expected — this heals the drift with a typed API.)
@@ -157,7 +173,7 @@ Steam-only — see **[auth.md](auth.md)** for the full design (data model, token
 
 ## Client integration (Phase 3) — ✅ DONE (2026-08-13)
 
-1. `phaser/src/RemoteServer.ts` rewritten as a thin HTTP adapter implementing the client's `ServerAdapter`/`GameServer` interface (`createSession`, `handleAction`, `deleteSession`) with `getSession` / `getPhaseOptions` parity, decoding `CombatStateDto` via the core codec. Injectable `createRemoteServer({ fetch, serverUrl, getBearerToken })` factory; bearer-token auth via `steamAuth.getBearerToken()`; server URL from `MANA_SERVER_URL` (default `http://127.0.0.1:8787` for dev); the client never sends a seed. `GameServer.getServer()` returns the `remoteServer` singleton for multiplayer; single-player still uses `LocalServer`.
+1. `phaser/src/RemoteServer.ts` rewritten as a thin HTTP adapter implementing the client's `ServerAdapter`/`GameServer` interface (`createSession`, `handleAction`, `getSession`, `getPhaseOptions`) with parity, decoding `CombatStateDto` via the core codec. Injectable `createRemoteServer({ fetch, serverUrl, getBearerToken })` factory; bearer-token auth via `steamAuth.getBearerToken()`; server URL from `MANA_SERVER_URL` (default `http://127.0.0.1:8787` for dev); the client never sends a seed. `GameServer.getServer()` returns the `remoteServer` singleton for multiplayer; single-player still uses `LocalServer`. The client never deletes a session — the server owns the lifecycle (a finished run is not served and does not block a new one).
 2. Quarantined code deleted (per [code-quality-cleanup.md](code-quality-cleanup.md) §3): `phaser/src/lib/supabase.ts`, `phaser/supabase/`, `scripts/bundle-edge.ts`, the `@supabase/supabase-js` dependency (+ lockfile), the `bundle:edge` / `test:supabase` / `deploy:functions` scripts, `phaser/src/Screens/ArenaLobby/`, and stale jest ignore entries.
 
 ## Implementation phases

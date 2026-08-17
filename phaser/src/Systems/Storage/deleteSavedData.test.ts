@@ -3,11 +3,14 @@ import * as SessionManager from "../../SessionManager";
 
 /**
  * deleteSavedData depends on the `env` singleton (which needs a Phaser scene in
- * the real app). We mock just the state it reads so the real `GameServer` →
- * `LocalServer` → `SessionManager` delete path is exercised end-to-end.
+ * the real app). We mock just the state it reads so the real
+ * `SessionManager` delete path is exercised end-to-end.
  */
 let mockEnvState: {
-	session: { player_id: string; session_type: { type: "singleplayer" } } | null;
+	session: {
+		player_id: string;
+		session_type: { type: "singleplayer" | "multiplayer" };
+	} | null;
 };
 
 jest.mock("@Env", () => ({
@@ -52,5 +55,24 @@ describe("deleteSavedData", () => {
 		);
 		expect(SessionManager.getSession("p1")).toBeNull();
 		warn.mockRestore();
+	});
+
+	it("does not delete anything for multiplayer — the server owns the session lifecycle", async () => {
+		// Simulate a finished multiplayer run still held in client state so the
+		// game-over screen can render. The finished session must NOT be removed
+		// client-side and no server delete is issued (the server already marked
+		// the run finished and no longer serves it).
+		mockEnvState = {
+			session: {
+				player_id: "p1",
+				session_type: { type: "multiplayer" },
+			},
+		};
+		SessionManager.createSession("p1", "critical_crystal");
+
+		await deleteSavedData();
+
+		expect(SessionManager.getSession("p1")).not.toBeNull();
+		expect(localStorage.getItem(SessionManager.STORAGE_PREFIX + "p1")).not.toBeNull();
 	});
 });

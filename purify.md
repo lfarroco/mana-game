@@ -142,7 +142,9 @@ avoid merge conflicts on shared files.
 - **[x] Phase G — Domain validation & contracts (M):** B1, B2, B7. Done
   (2026-08-14): `Actions/recruitValidation` (checkRecruitEligibility shared by
   shop UI + server rules), `board/boardSync` (planBoardSync), GameServer
-  `ServerAdapter` = core `GameServer & { deleteSession }`, hardcoded `9` →
+  `ServerAdapter` = core `GameServer` (the client-side `& { deleteSession }`
+  was removed 2026-08-15 — the server owns the session lifecycle and there is
+  no client-delete endpoint), hardcoded `9` →
   `MAX_PARTY_SIZE`. (The `rank>3` vs `rank<4` checks were already equivalent —
   no drift there.)
 
