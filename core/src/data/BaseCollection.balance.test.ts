@@ -274,7 +274,10 @@ describe("BaseCollection balance", () => {
     const failures: string[] = [];
     for (const card of ALL_CARDS) {
       for (const reaction of card.reactions) {
-        if (reaction.position === "enemies" && reaction.triggerTeam !== "enemy") {
+        if (
+          reaction.position === "enemies" &&
+          reaction.triggerTeam !== "enemy"
+        ) {
           failures.push(
             `${card.id}: "enemies" reaction must set triggerTeam: "enemy"`,
           );
@@ -381,10 +384,14 @@ describe("BaseCollection balance", () => {
     expect(failures).toEqual([]);
   });
 
-  it("keeps unlocked cards within their tier AP bands", () => {
+  it("keeps cards within their tier AP bands", () => {
     const failures: string[] = [];
     for (const card of nonCoreCards) {
-      if (card.locked) continue; // boss/unlock units are intentionally extreme
+      // Locked golds (and any future locked bronze) are intentionally extreme
+      // build-arounds. Locked SILVERS, however, are ordinary pool cards once
+      // unlocked — the silver identity rule (AP band [120, 260], card-system
+      // roadmap §1) applies to them regardless of lock status.
+      if (card.locked && rankOf(card) !== TIER.SILVER) continue;
       if (AP_ALLOWLIST.has(card.id)) continue;
 
       const rank = rankOf(card);

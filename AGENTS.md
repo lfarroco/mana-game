@@ -176,6 +176,5 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Deferred follow-ups
 
 - [ ] **Manual Steam smoke test** (plan.md task 14): requires a real Steam publisher Web API key (`MANA_STEAM_WEB_API_KEY`) + a Steam Electron build.
-- [ ] **Silver-identity pass on the 13 demoted cards**: each demoted silver should enable exactly one archetype; re-tune numbers if playtest warrants. Tracked in [docs/card-system-risks-and-roadmap.md](docs/card-system-risks-and-roadmap.md) §1.
 - [ ] **Purify deferred**: port `tutorialSlides.ts` out of `phaser/` (Phaser-rendering factories — needs a render-layer rewrite; see [purify.md](purify.md) Phase F) and the B4 log-dispatch switch.
 

@@ -31,6 +31,16 @@ that are generic good, and re-tune numbers if playtest shows them over/under the
 silver AP band [120, 260]. The design brief below still applies to any *new*
 silver cards.
 
+> **Silver-identity pass — DONE (2026-08-16)**: all 13 demoted silvers audited
+> and re-tuned into the [120, 260] band (10 were over — some by 2×). The
+> generic-good `all`-trigger reactions on `walking_reactor` and
+> `spectral_knight` were narrowed to specific effects (`shield` / `damage` from
+> the column/row), and cadence/amounts were adjusted (e.g. the five
+> `every_100_X` engines went 4300 → 6000 ms cooldown; `life_weaver`'s
+> reaction 20 → 10; `frontline_dasher`'s on-crit ramp 20 → 12). The balance
+> test now enforces the silver band for **locked** silvers too, so a regression
+> here fails CI.
+
 **Design brief for new silvers**:
 
 | Archetype | Trigger | Response | Example concept |
