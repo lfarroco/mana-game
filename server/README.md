@@ -13,6 +13,38 @@ npm run typecheck  # tsc --noEmit
 npm run build      # tsup production bundle → dist/
 ```
 
+## Local multiplayer testing (Steam flow)
+
+One-command local setup for the multiplayer + Steam auth flow — no deploy
+needed. The only external call is your server → Steam's `AuthenticateUserTicket`
+Web API, which works fine from localhost with your publisher key.
+
+```bash
+# 1. From the repo root, create a .env (gitignored) with your publisher key:
+echo 'MANA_STEAM_WEB_API_KEY=<your-key>' > .env
+
+# 2. Run the server (dev loop, SQLite-backed, Steam auth enabled):
+make server-mp        # Ctrl-C to stop
+```
+
+- **URL**: `http://127.0.0.1:8787` — the Steam Electron client's default
+  `MANA_SERVER_URL`, so no client config is needed on the same machine.
+- **Persistence**: SQLite at `server/data/mana.db` (default), so sessions,
+  ghosts, and ratings survive server restarts and accumulate across test
+  players — restart-survival and cross-account ghost matchmaking are
+  testable locally.
+- **Overrides**: same `.env` also supports `MANA_SERVER_PORT`,
+  `MANA_STEAM_APP_IDS` (default `3757600,4233280`), `MANA_SQLITE_PATH`.
+- **Docker alternative**: `make server-compose-up` (or
+  `docker compose up -d --build`) — builds `server/Dockerfile`, maps
+  8787, and stores SQLite in the named `mana-data` volume. Compose fails
+  fast if `MANA_STEAM_WEB_API_KEY` is missing from `.env`.
+
+Then launch the **Steam Electron build** and click **MULTIPLAYER** on the
+title screen. For ghost-PvP, play a few rounds as a second Steam account on
+the same server (your own ghosts are excluded from matchmaking, so one
+account always fights PvE).
+
 ## API (v1)
 
 Base path `/api/v1`, JSON in/out. Every session request must carry a bearer

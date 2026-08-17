@@ -1,0 +1,42 @@
+# Local multiplayer server (Docker alternative to `make server-mp`).
+#
+# Usage:
+#   1. Create a root .env (gitignored) with your publisher key:
+#        echo 'MANA_STEAM_WEB_API_KEY=<your-key>' > .env
+#   2. docker compose up -d --build     (or: make server-compose-up)
+#   3. Launch the Steam Electron build and click MULTIPLAYER — it talks to
+#      http://127.0.0.1:8787 by default.
+#
+# Optional .env overrides: MANA_SERVER_PORT, MANA_STEAM_APP_IDS,
+# MANA_CORS_ORIGIN. SQLite data lives in the named `mana-data` volume
+# (sessions, ghosts, and ratings survive container restarts).
+
+name: mana-game
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    image: mana-server:local
+    ports:
+      - "${MANA_SERVER_PORT:-8787}:8787"
+    environment:
+      MANA_SERVER_HOST: 0.0.0.0
+      MANA_SERVER_PORT: 8787
+      MANA_SQLITE_PATH: /data/mana.db
+      MANA_STEAM_WEB_API_KEY: "${MANA_STEAM_WEB_API_KEY:?MANA_STEAM_WEB_API_KEY is required — add it to the root .env file (gitignored)}"
+      MANA_STEAM_APP_IDS: "${MANA_STEAM_APP_IDS:-3757600,4233280}"
+      MANA_CORS_ORIGIN: "${MANA_CORS_ORIGIN:-*}"
+    volumes:
+      - mana-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8787/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+volumes:
+  mana-data:

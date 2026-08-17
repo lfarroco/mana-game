@@ -35,7 +35,9 @@ ENV MANA_SERVER_HOST=0.0.0.0
 ENV MANA_SERVER_PORT=8787
 EXPOSE 8787
 
-# Non-root user
+# Non-root user + writable SQLite data dir (MANA_SQLITE_PATH=/data/mana.db
+# in compose.yaml; the named volume is chowned to node here).
+RUN mkdir -p /data && chown node:node /data
 USER node
 
 CMD ["node", "dist/index.js"]

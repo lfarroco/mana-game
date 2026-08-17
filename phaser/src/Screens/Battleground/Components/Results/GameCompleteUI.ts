@@ -101,8 +101,16 @@ export async function displayGameComplete(
 		[i18n.t("results.buttons.main_menu"), BattlegroundEvent.mainMenuRequested.emit]
 	);
 
-	// Infinite mode button - disabled in demo
-	if (wins >= ResultsConfig.INFINITE_MODE_THRESHOLD && !isGameOver && !Config.IS_DEMO) {
+	// Infinite mode button - disabled in demo and multiplayer (a multiplayer
+	// run ends at WINS_TO_WIN_GAME, and the server rejects the "victory" action
+	// that infinite mode dispatches on a terminal session).
+	const isMultiplayerRun = env.state.session.session_type.type === "multiplayer";
+	if (
+		wins >= ResultsConfig.INFINITE_MODE_THRESHOLD &&
+		!isGameOver &&
+		!Config.IS_DEMO &&
+		!isMultiplayerRun
+	) {
 		buttonDefinitions.push([
 			i18n.t("results.buttons.infinite_mode"),
 			async () => {

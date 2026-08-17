@@ -11,6 +11,7 @@ import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import { loadGame } from "@Systems/Storage/loadGame";
 import { createScreen, screenModule, ScreenCtx } from "@mana/framework";
+import { setMultiplayerMode } from "@lib/multiplayerMode";
 
 export type TitlePhase = "main" | "singleplayer_submenu" | "options_submenu" | "language";
 
@@ -35,6 +36,8 @@ const screen = createScreen<TitlePhase, TitleScreenEvents>({
 			},
 			listeners: [
 				newGameButtonClicked.listen(() => {
+					// Explicit single-player entry — reset any pending multiplayer mode.
+					setMultiplayerMode(false);
 					void getScreenManager().go("crystals");
 				}),
 				resumeGameButtonClicked.listen(loadGame),

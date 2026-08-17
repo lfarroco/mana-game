@@ -3,6 +3,7 @@ import * as keyboard from "./keyboard";
 import { env } from "@Env";
 import { Destroyable } from "@mana/framework";
 import { CRYSTAL_IDS } from "../ids";
+import { isMultiplayerMode } from "@lib/multiplayerMode";
 
 /** Minimal context — seedInput only needs track() for object tracking. */
 interface SeedInputCtx {
@@ -11,7 +12,9 @@ interface SeedInputCtx {
 
 export function create(ctx: SeedInputCtx) {
 	// Seed selection is server-determined in multiplayer — skip the custom seed UI.
-	if (env.state.session.session_type.type === "multiplayer") {
+	// The explicit mode flag covers the pre-session flow (no session exists yet
+	// while picking a crystal); the session_type check covers a resumed run.
+	if (isMultiplayerMode() || env.state.session.session_type.type === "multiplayer") {
 		return;
 	}
 
