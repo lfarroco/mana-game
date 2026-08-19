@@ -190,7 +190,7 @@ That exclusion is currently binary. Make it explicit:
 - [ ] **CUB-B3** — extend `OrbAndCoreUpgrades` to apply `CoreUpgradeDefinition` (append effect/reaction, or call the stat helpers).
 
 ### Phase C — balance (`core/`)
-- [ ] **CUB-C1** — core AP band + `coreUpgrades.balance.test.ts` (or describe block) with `CORE_UPGRADE_ALLOWLIST` support.
+- [x] **CUB-C1** — core AP band + `coreUpgrades.balance.test.ts` (or describe block) with `CORE_UPGRADE_ALLOWLIST` support.
 
 ### Phase D — enemy scaling (`core/`)
 - [ ] **CUB-D1** — retune `generateEnemyTeam.ts` round-scaled power/life to compensate for simplified cores.
