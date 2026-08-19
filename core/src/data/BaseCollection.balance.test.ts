@@ -220,6 +220,13 @@ function actualPower(card: CardDefinition): number {
 
 const BASIC_ACTIONS = new Set(["damage", "heal", "shield", "poison", "regen"]);
 
+/**
+ * Pure tempo/support units that deliberately carry no basic action.
+ * pixie_trickster (docs/wacky-content-plan.md A1) is the first: every cast is
+ * haste + slow, so it has no damage/heal/shield/poison/regen by design.
+ */
+const NO_BASIC_ACTION_ALLOWLIST = new Set(["pixie_trickster"]);
+
 const nonCoreCards = ALL_CARDS.filter((c) => !c.isCore);
 
 function rankOf(card: CardDefinition): number {
@@ -234,8 +241,8 @@ describe("BaseCollection balance", () => {
   it("has exactly one core card per effect type and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
     expect(cores).toHaveLength(6);
-    // 61 bronze + 21 silver + 10 gold non-core cards
-    expect(nonCoreCards).toHaveLength(92);
+    // 62 bronze + 21 silver + 10 gold non-core cards
+    expect(nonCoreCards).toHaveLength(93);
   });
 
   it("keeps more silvers than golds, with golds capped at ~12% of the pool", () => {
@@ -259,6 +266,7 @@ describe("BaseCollection balance", () => {
   it("gives every non-core card at least one basic action", () => {
     const failures = nonCoreCards
       .filter((card) => !card.effects.some((e) => BASIC_ACTIONS.has(e.id)))
+      .filter((card) => !NO_BASIC_ACTION_ALLOWLIST.has(card.id))
       .map((card) => `${card.id} has no basic action`);
     expect(failures).toEqual([]);
   });

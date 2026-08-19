@@ -645,4 +645,15 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
       reaction("poison", "enemies", increasePower(2, self, true), "enemy"),
     ],
   },
+  {
+    id: "pixie_trickster",
+    description:
+      "Chaos tempo — every cast hastes a random ally and slows a random enemy.",
+    tags: ["haster", "disabler"],
+    pic: "boss_andromeda",
+    power: 35,
+    cooldown: 5000,
+    effects: [haste(3000, randomAlly(1)), slow(3000, randomEnemy(1))],
+    reactions: [],
+  },
 ];
