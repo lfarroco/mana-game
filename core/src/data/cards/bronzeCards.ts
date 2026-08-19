@@ -656,4 +656,15 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
     effects: [haste(3000, randomAlly(1)), slow(3000, randomEnemy(1))],
     reactions: [],
   },
+  {
+    id: "echo_of_the_mask",
+    description:
+      "Copy-paste with lag — when the left ally casts any basic ability, buff a random ally.",
+    tags: ["team_buff"],
+    pic: "neutral_timekeeper",
+    power: 35,
+    cooldown: 4000,
+    effects: [shield],
+    reactions: [reaction("all", "left_ally", increasePower(3, randomAlly(1)))],
+  },
 ];
