@@ -238,13 +238,15 @@ describe("BaseCollection balance", () => {
     expect(nonCoreCards).toHaveLength(92);
   });
 
-  it("keeps more silvers than golds, with at most 10 golds", () => {
+  it("keeps more silvers than golds, with golds capped at ~12% of the pool", () => {
     // The silver tier is the situational-synergy tier; the gold tier is the rare
-    // build-around tier. Golds must never outnumber silvers (docs §1).
+    // build-around tier. Golds must never outnumber silvers (docs §1). The gold
+    // share of the pool should stay around 12% (Balatro's rare share is ~13%),
+    // so the cap scales with the pool instead of being an absolute number.
     const silvers = nonCoreCards.filter((c) => rankOf(c) === TIER.SILVER);
     const golds = nonCoreCards.filter((c) => rankOf(c) === TIER.GOLD);
     expect(silvers.length).toBeGreaterThan(golds.length);
-    expect(golds.length).toBeLessThanOrEqual(10);
+    expect(golds.length / nonCoreCards.length).toBeLessThanOrEqual(0.12);
   });
 
   it("caps effect slots at 3 (actions + reactions) per unit-balance.md §14", () => {
