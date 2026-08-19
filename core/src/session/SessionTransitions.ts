@@ -14,6 +14,16 @@ import * as RecruitmentActions from "../Actions/RecruitmentActions";
 import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 import * as OptionGeneration from "./OptionGeneration";
 import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
+import * as Random from "../math/Random";
+import { CARDS_BY_ID } from "../data/BaseCollection";
+import {
+  CORE_STAT_ORBS,
+  getThemeUpgradePool,
+} from "../content/coreUpgradeOrbs";
+import type {
+  CoreUpgradeDefinition,
+  CoreUpgradeOrbId,
+} from "../content/coreUpgradeOrbs";
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   upgrade_unit: [{ id: "upgrade_orb" }],
@@ -420,4 +430,79 @@ function executeCombatPhase(
   );
 
   return nextSession;
+}
+
+function isCore(unit: Models.Unit): boolean {
+  return unit.isCore;
+}
+
+/**
+ * True when the identity orb's effect/reaction is already present on the core
+ * — deep-equality (JSON.stringify) against the core's effects/reactions arrays.
+ * Used to dedupe already-applied identity orbs out of upgrade options.
+ */
+function hasIdentityOrbApplied(
+  core: Models.Unit,
+  orb: CoreUpgradeDefinition,
+): boolean {
+  if (orb.kind === "effect" && orb.effect) {
+    return core.effects.some(
+      (effect) => JSON.stringify(effect) === JSON.stringify(orb.effect),
+    );
+  }
+  if (orb.kind === "reaction" && orb.reaction) {
+    return core.reactions.some(
+      (reaction) => JSON.stringify(reaction) === JSON.stringify(orb.reaction),
+    );
+  }
+  return false;
+}
+
+/**
+ * Round gate for a core-upgrade orb — eligible when it has no `minRound` or the
+ * run has reached that round (mirrors encounter minRound).
+ */
+export function isOrbEligibleForRound(
+  orb: CoreUpgradeDefinition,
+  round: number,
+): boolean {
+  return orb.minRound === undefined || round >= orb.minRound;
+}
+
+/**
+ * Generate the three core-upgrade options offered to the player (CUB-B1).
+ *
+ * Theme-scoped: options come from the player core card's theme pool (its four
+ * identity orbs plus the three generic stat orbs). Seeded deterministic: the
+ * same session seed + round always yields the same three options. Dedupes
+ * identity orbs already applied to the core (deep-equality), while stat orbs
+ * stay repeatable. Honors each orb's `minRound` gate. Falls back to exactly the
+ * three generic stat orbs when the session has no core or the core card has no
+ * theme.
+ */
+export function generateCoreUpgradeOptions(
+  session: Models.SessionData,
+): Models.PhaseOption[] {
+  const core = session.team.units.find(isCore);
+  const theme = core ? CARDS_BY_ID.get(core.cardId)?.coreTheme : undefined;
+
+  if (!theme || !core) {
+    return CORE_STAT_ORBS.map((id) => ({ id }));
+  }
+
+  const pool = getThemeUpgradePool(theme);
+  const eligible = pool.filter((orb) =>
+    isOrbEligibleForRound(orb, session.round),
+  );
+  const available = eligible.filter(
+    (orb) => orb.kind === "stat" || !hasIdentityOrbApplied(core, orb),
+  );
+
+  const seedNum = Random.stringToSeed(
+    `${session.seed}:core-upgrade:${session.round}`,
+  );
+  const shuffled = Random.shuffleWithSeed(available, seedNum);
+  return shuffled.slice(0, 3).map((orb) => ({
+    id: orb.id as CoreUpgradeOrbId,
+  }));
 }

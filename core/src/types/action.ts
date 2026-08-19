@@ -5,6 +5,7 @@
 import type { CombatState } from "./combat";
 import type { SessionData } from "./session";
 import type { Unit } from "./unit";
+import type { CoreUpgradeOrbId } from "../content/coreUpgradeOrbs";
 
 /**
  * Known encounter identifiers used as PhaseOption ids.
@@ -59,12 +60,14 @@ export type StaticOptionId =
  * A player choice presented during a phase.
  *
  * Encounter options carry an encounter id; shop options carry a card id
- * (dynamic, so `string`); static options carry a fixed `StaticOptionId`.
+ * (dynamic, so `string`); static options carry a fixed `StaticOptionId`;
+ * core-upgrade options (CUB-B1) carry a `CoreUpgradeOrbId`.
  */
 export type PhaseOption =
   | { id: EncounterId; cost?: number; label?: string; recruitRank?: number }
   | { id: string; cost: number; recruitRank: number }
-  | { id: StaticOptionId };
+  | { id: StaticOptionId }
+  | { id: CoreUpgradeOrbId };
 
 export type Action =
   | { type: "skip" }

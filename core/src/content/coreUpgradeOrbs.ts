@@ -227,6 +227,13 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
   },
 };
 
+/**
+ * All core-upgrade-orb ids — the identity orbs keyed in
+ * CORE_UPGRADE_DEFINITIONS. Used as PhaseOption ids when offering themed core
+ * upgrades (CUB-B1/B2).
+ */
+export type CoreUpgradeOrbId = keyof typeof CORE_UPGRADE_DEFINITIONS;
+
 // ---------------------------------------------------------------------------
 // Generic stat orbs & per-theme pool accessor
 // ---------------------------------------------------------------------------
