@@ -298,7 +298,7 @@ per effect, not "small".
 
 ### Tier C — engines package (combo explosions — the real payoff)
 
-#### C1 — `repeat`/retrigger
+#### C1 — `repeat`/retrigger ✅ (2026-08-19)
 
 - **Goal**: double-cast — the flagship "cast engine" archetype.
 - **Files**: `types/effect.ts` (optional `repeat?: number` on effects),

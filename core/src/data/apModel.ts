@@ -18,6 +18,7 @@ export type EffectLike = {
   permanent?: boolean;
   duration?: number;
   multiplier?: number;
+  repeat?: number;
   targets?: { id: string; ofType?: string };
 };
 
@@ -98,38 +99,44 @@ export function sourceCount(position: string): number {
 
 /** Budget cost of one effect use (§9 baseline × targeting multiplier). */
 export function effectValue(effect: EffectLike, power: number): number {
+  const repeat = effect.repeat ?? 1;
   const mult = targetMultiplier(effect.targets?.id ?? "self");
   const cond = conditionalDiscount(effect);
-  switch (effect.id) {
-    case "damage":
-    case "heal":
-      return 2 * power * mult;
-    case "shield":
-      return 1.6 * power * mult;
-    case "poison":
-    case "regen":
-      return 2 * power * mult;
-    case "haste":
-    case "slow":
-      return 15 * ((effect.duration ?? 0) / 1000) * mult * cond;
-    case "charge":
-      return 22 * ((effect.duration ?? 0) / 1000) * mult;
-    case "increase_power":
-    case "decrease_power":
-      return (effect.permanent ? 10 : 4) * (effect.amount ?? 0) * mult;
-    case "increase_critical":
-      return 4 * (effect.amount ?? 0) * mult;
-    case "multiply_power":
-      // Multiplies exponentially (feeds off charge/haste) — price it high so
-      // only rare, slow gold units can afford it.
-      return 8 * ((effect.multiplier ?? 1) - 1) * power * mult * cond;
-    case "distribute_power":
-      return 80 * mult;
-    case "absorb_power":
-      return 120 * mult;
-    default:
-      return 0;
-  }
+  const single: number = (() => {
+    switch (effect.id) {
+      case "damage":
+      case "heal":
+        return 2 * power * mult;
+      case "shield":
+        return 1.6 * power * mult;
+      case "poison":
+      case "regen":
+        return 2 * power * mult;
+      case "haste":
+      case "slow":
+        return 15 * ((effect.duration ?? 0) / 1000) * mult * cond;
+      case "charge":
+        return 22 * ((effect.duration ?? 0) / 1000) * mult;
+      case "increase_power":
+      case "decrease_power":
+        return (effect.permanent ? 10 : 4) * (effect.amount ?? 0) * mult;
+      case "increase_critical":
+        return 4 * (effect.amount ?? 0) * mult;
+      case "multiply_power":
+        // Multiplies exponentially (feeds off charge/haste) — price it high so
+        // only rare, slow gold units can afford it.
+        return 8 * ((effect.multiplier ?? 1) - 1) * power * mult * cond;
+      case "distribute_power":
+        return 80 * mult;
+      case "absorb_power":
+        return 120 * mult;
+      default:
+        return 0;
+    }
+  })();
+  // C1 (docs/wacky-content-plan.md): `repeat` re-fires the effect N times per
+  // cast — its budget scales linearly with the repeat count.
+  return single * repeat;
 }
 
 /** Reaction power per 5s §7 — R × T × D (D = 0.9 for the 200 ms delay). */

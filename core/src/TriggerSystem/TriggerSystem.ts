@@ -24,156 +24,162 @@ const processEffectIO = (
   triggeringUnit?: Models.Unit,
   scale: number = 1,
 ) => {
-  switch (effect.id) {
-    case "damage":
-      effects.dealDamage(env, sourceUnit, scale);
-      break;
-    case "heal":
-      effects.restoreLife(env, sourceUnit, scale);
-      break;
-    case "shield":
-      effects.addShield(env, sourceUnit, scale);
-      break;
-    case "poison":
-      effects.applyPoison(env, sourceUnit, scale);
-      break;
-    case "regen":
-      effects.applyRegen(env, sourceUnit, scale);
-      break;
-    case "haste":
-      const hasteTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.applyHaste(
-        env,
-        hasteTargets,
-        sourceUnit,
-        effect.duration * scale,
-        (_target: Models.Unit) =>
-          processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
-      );
-      break;
-    case "slow":
-      const slowTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.applySlow(
-        env,
-        sourceUnit,
-        slowTargets,
-        effect.duration * scale,
-        (_target: Models.Unit) =>
-          processReactions(env, sourceUnit, { id: "re_slow" }, scale),
-      );
-      break;
-    case "charge":
-      const chargeTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.applyCharge(
-        env,
-        sourceUnit,
-        chargeTargets,
-        effect.duration * scale,
-      );
-      break;
-    case "increase_power":
-      const increasePowerTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.increasePower(
-        env,
-        increasePowerTargets,
-        effect.amount * scale,
-        effect.permanent || false,
-        sourceUnit,
-      );
-      break;
-    case "decrease_power":
-      const decreasePowerTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.decreasePower(
-        env,
-        decreasePowerTargets,
-        effect.amount * scale,
-        effect.permanent || false,
-        sourceUnit,
-      );
-      break;
-    case "increase_critical":
-      const increaseCriticalTargets = resolveTargets(
-        env,
-        sourceUnit,
-        effect,
-        triggeringUnit,
-      );
-      effects.increaseCritical(
-        env,
-        increaseCriticalTargets,
-        effect.amount * scale,
-        sourceUnit,
-        effect.permanent || false,
-      );
-      break;
-    case "multiply_power":
-      effects.multiplyPower({
-        env,
-        targets: resolveTargets(env, sourceUnit, effect, triggeringUnit),
-        sourceUnit,
-        multiplier: Math.pow(effect.multiplier, scale),
-      });
-      break;
-    case "distribute_power":
-      effects.distributePower(
-        env,
-        sourceUnit,
-        resolveTargets(env, sourceUnit, effect, triggeringUnit),
-        effect.permanent || false,
-      );
-      break;
-    case "absorb_power":
-      effects.absorbPower(
-        env,
-        sourceUnit,
-        resolveTargets(env, sourceUnit, effect, triggeringUnit),
-        effect.permanent || false,
-      );
-      break;
-    case "sacrifice_effect":
-      effects.sacrificeEffect(env, sourceUnit);
-      break;
-    case "re_hasted":
-      break;
-    case "re_slow":
-      break;
-    case "on_crit":
-    case "every_100_damage":
-    case "every_100_shield":
-    case "every_100_heal":
-    case "every_10_poison":
-    case "every_10_regen":
-    case "on_over_heal":
-    case "on_battle_start":
-      break;
-    default:
-      const _exhaustiveCheck: never = effect;
-      return _exhaustiveCheck;
+  // C1 (docs/wacky-content-plan.md): `repeat` re-fires the effect N times per
+  // cast. Capped at 3 by the balance gate; each fire logs its own cast/hit
+  // entries, keeping combat playback deterministic.
+  const repeatCount = Math.max(1, effect.repeat ?? 1);
+  for (let i = 0; i < repeatCount; i++) {
+    switch (effect.id) {
+      case "damage":
+        effects.dealDamage(env, sourceUnit, scale);
+        break;
+      case "heal":
+        effects.restoreLife(env, sourceUnit, scale);
+        break;
+      case "shield":
+        effects.addShield(env, sourceUnit, scale);
+        break;
+      case "poison":
+        effects.applyPoison(env, sourceUnit, scale);
+        break;
+      case "regen":
+        effects.applyRegen(env, sourceUnit, scale);
+        break;
+      case "haste":
+        const hasteTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.applyHaste(
+          env,
+          hasteTargets,
+          sourceUnit,
+          effect.duration * scale,
+          (_target: Models.Unit) =>
+            processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+        );
+        break;
+      case "slow":
+        const slowTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.applySlow(
+          env,
+          sourceUnit,
+          slowTargets,
+          effect.duration * scale,
+          (_target: Models.Unit) =>
+            processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+        );
+        break;
+      case "charge":
+        const chargeTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.applyCharge(
+          env,
+          sourceUnit,
+          chargeTargets,
+          effect.duration * scale,
+        );
+        break;
+      case "increase_power":
+        const increasePowerTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.increasePower(
+          env,
+          increasePowerTargets,
+          effect.amount * scale,
+          effect.permanent || false,
+          sourceUnit,
+        );
+        break;
+      case "decrease_power":
+        const decreasePowerTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.decreasePower(
+          env,
+          decreasePowerTargets,
+          effect.amount * scale,
+          effect.permanent || false,
+          sourceUnit,
+        );
+        break;
+      case "increase_critical":
+        const increaseCriticalTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.increaseCritical(
+          env,
+          increaseCriticalTargets,
+          effect.amount * scale,
+          sourceUnit,
+          effect.permanent || false,
+        );
+        break;
+      case "multiply_power":
+        effects.multiplyPower({
+          env,
+          targets: resolveTargets(env, sourceUnit, effect, triggeringUnit),
+          sourceUnit,
+          multiplier: Math.pow(effect.multiplier, scale),
+        });
+        break;
+      case "distribute_power":
+        effects.distributePower(
+          env,
+          sourceUnit,
+          resolveTargets(env, sourceUnit, effect, triggeringUnit),
+          effect.permanent || false,
+        );
+        break;
+      case "absorb_power":
+        effects.absorbPower(
+          env,
+          sourceUnit,
+          resolveTargets(env, sourceUnit, effect, triggeringUnit),
+          effect.permanent || false,
+        );
+        break;
+      case "sacrifice_effect":
+        effects.sacrificeEffect(env, sourceUnit);
+        break;
+      case "re_hasted":
+        break;
+      case "re_slow":
+        break;
+      case "on_crit":
+      case "every_100_damage":
+      case "every_100_shield":
+      case "every_100_heal":
+      case "every_10_poison":
+      case "every_10_regen":
+      case "on_over_heal":
+      case "on_battle_start":
+        break;
+      default:
+        const _exhaustiveCheck: never = effect;
+        return _exhaustiveCheck;
+    }
   }
 
   if (!isReaction) processReactions(env, sourceUnit, effect, scale);

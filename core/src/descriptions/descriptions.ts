@@ -12,6 +12,18 @@ export type Translate = (
   params?: Record<string, string>,
 ) => string;
 
+/**
+ * C1 (docs/wacky-content-plan.md): append the repeat suffix to a built effect
+ * description. Single-cast effects are untouched.
+ */
+const applyRepeat = (text: string, effect: Effect, t: Translate): string =>
+  (effect.repeat ?? 1) > 1
+    ? t("tooltip.sentence.repeat", {
+        count: String(effect.repeat),
+        effect: text,
+      })
+    : text;
+
 const MS_PER_SECOND = 1000;
 
 /**
@@ -194,9 +206,9 @@ export const buildCompactEffectBlock = (
   }
 
   if (targetDesc) {
-    return `${effectString} -> ${targetDesc}`;
+    return applyRepeat(`${effectString} -> ${targetDesc}`, effect, t);
   }
-  return effectString;
+  return applyRepeat(effectString, effect, t);
 };
 
 export const buildEffectBlock = (
@@ -208,7 +220,16 @@ export const buildEffectBlock = (
   if (compactTooltips) {
     return buildCompactEffectBlock(effect, unitPower, t);
   }
+  const built = buildEffectSentence(effect, unitPower, t);
+  return built === null ? null : applyRepeat(built, effect, t);
+};
 
+/** Non-compact single-cast sentence for one effect (no repeat suffix). */
+const buildEffectSentence = (
+  effect: Effect,
+  unitPower: number,
+  t: Translate,
+): string | null => {
   const targets = getEffectTargets(effect);
   const target = targets ? getTargetDescription(targets, t) : "";
   const isPlural = isTargetPlural(targets);

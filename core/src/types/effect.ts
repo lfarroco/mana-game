@@ -58,7 +58,7 @@ export type EffectId =
   | "every_10_regen"
   | "every_100_shield";
 
-export type Effect =
+export type Effect = { repeat?: number } & (
   | { id: "damage" }
   | { id: "heal" }
   | { id: "shield" }
@@ -103,7 +103,8 @@ export type Effect =
   | { id: "every_10_poison" }
   | { id: "every_100_heal" }
   | { id: "every_10_regen" }
-  | { id: "every_100_shield" };
+  | { id: "every_100_shield" }
+);
 
 export type EffectReaction = {
   position: EffectSourcePosition;

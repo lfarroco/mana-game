@@ -97,8 +97,8 @@ describe("BaseCollection balance", () => {
   it("has exactly one core card per effect type and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
     expect(cores).toHaveLength(6);
-    // 64 bronze + 23 silver + 10 gold non-core cards
-    expect(nonCoreCards).toHaveLength(97);
+    // 64 bronze + 23 silver + 11 gold non-core cards
+    expect(nonCoreCards).toHaveLength(98);
   });
 
   it("keeps more silvers than golds, with golds capped at ~12% of the pool", () => {
@@ -245,6 +245,40 @@ describe("BaseCollection balance", () => {
         failures.push(
           `${card.id}: multiply_power needs cooldown ≥ ${MULTIPLY_MIN_COOLDOWN_MS}ms (got ${card.cooldown})`,
         );
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("caps effect repeats at 3 and reserves them for gold or very slow cards", () => {
+    // C1 (docs/wacky-content-plan.md): `repeat` re-fires an effect N times per
+    // cast. Mirrors the multiply_power discipline — repeat compounds output, so
+    // it is restricted to gold build-arounds or units so slow they can barely
+    // cast at all. (The AP model prices repeat linearly, so the band test
+    // catches over-tuned repeats too.)
+    const failures: string[] = [];
+    const REPEAT_MAX = 3;
+    const REPEAT_MIN_COOLDOWN_MS = 8000;
+    for (const card of ALL_CARDS) {
+      const repeated = [
+        ...card.effects,
+        ...card.reactions.flatMap((r) => r.effects),
+      ].filter((e) => (e.repeat ?? 1) > 1);
+      for (const effect of repeated) {
+        const count = effect.repeat ?? 1;
+        if (count > REPEAT_MAX) {
+          failures.push(
+            `${card.id}: repeat ${count} exceeds cap ${REPEAT_MAX}`,
+          );
+        }
+        const allowed =
+          rankOf(card) === TIER.GOLD ||
+          (card.cooldown || 0) >= REPEAT_MIN_COOLDOWN_MS;
+        if (!allowed) {
+          failures.push(
+            `${card.id}: repeat ${count} requires gold rank or cooldown ≥ ${REPEAT_MIN_COOLDOWN_MS}ms (got ${card.cooldown})`,
+          );
+        }
       }
     }
     expect(failures).toEqual([]);

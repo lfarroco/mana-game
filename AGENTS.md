@@ -186,7 +186,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
 - [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
-- [ ] **C1** — effect: `repeat`/retrigger
 - [ ] **C2** — effect: `on_crystal_hit` (thorns)
 - [ ] **D1** — effect: `silence`
 - [ ] **D2** — effect: `dispel`
