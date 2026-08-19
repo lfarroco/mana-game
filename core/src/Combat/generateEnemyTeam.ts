@@ -8,6 +8,16 @@ import type { Vec2 } from "../math/Geometry";
 
 const UNITS_PER_ROUND = 3;
 
+// CUB-D1 (docs/core-unit-onboarding.md §6): enemy cores were simplified to
+// action-only baselines (CUB-A2), which gutted their output (~2–3× AP loss per
+// core). Difficulty is restored through enemy *stats*, not abilities: double the
+// legacy round-scaled power budget (was `round * 10`) and raise the per-round
+// core life bump (was `100 * (round - 1)`) so early rounds keep their intended
+// pressure. Keep enemy cores simple — the player should learn each mechanic
+// before facing it at full strength.
+const ENEMY_POWER_POINTS_PER_ROUND = 20;
+const ENEMY_CORE_LIFE_PER_ROUND = 150;
+
 function calculateUnitsForRound(round: number): number {
   if (round === 0) return 1;
   return Math.min(1 + round * UNITS_PER_ROUND, MAX_PARTY_SIZE);
@@ -122,12 +132,14 @@ export function generateEnemyTeam(
     units.push(Card.makeUnit(FORCE_ID_CPU, card.id, position));
   }
 
-  coreUnit.life = (coreCard.life || 500) + 100 * (round - 1);
-  coreUnit.maxLife = (coreCard.life || 500) + 100 * (round - 1);
+  coreUnit.life =
+    (coreCard.life || 500) + ENEMY_CORE_LIFE_PER_ROUND * (round - 1);
+  coreUnit.maxLife =
+    (coreCard.life || 500) + ENEMY_CORE_LIFE_PER_ROUND * (round - 1);
 
   distributeUpgrades(units, upgradeCount);
 
-  const powerPoints = round * 10;
+  const powerPoints = round * ENEMY_POWER_POINTS_PER_ROUND;
   if (wins >= 10) {
     const multiplier = Math.pow(1.2, round - 10);
     coreUnit.life = Math.floor(coreUnit.life * multiplier);

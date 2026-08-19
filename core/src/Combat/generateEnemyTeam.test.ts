@@ -172,6 +172,43 @@ describe("generateEnemyTeam", () => {
     expect(core5.life).toBeGreaterThan(core1.life);
   });
 
+  it("scales the core life by 150 per round past round 1 (CUB-D1)", () => {
+    // CUB-D1 raised the per-round core life bump from 100 to 150 per round
+    // (compensating the simplified action-only cores). Life is the win/loss
+    // condition, so the enemy core must stay threatening as the player's core
+    // grows through max-life upgrades.
+    const r1 = generateEnemyTeam("l1", 0, 1, mockCards);
+    const r5 = generateEnemyTeam("l5", 0, 5, mockCards);
+    const r10 = generateEnemyTeam("l10", 0, 10, mockCards);
+    const core1 = r1.find((u) => u.isCore)!;
+    const core5 = r5.find((u) => u.isCore)!;
+    const core10 = r10.find((u) => u.isCore)!;
+    expect(core1.life).toBe(500);
+    expect(core1.maxLife).toBe(500);
+    expect(core5.life).toBe(1100); // 500 + 150 × 4
+    expect(core5.maxLife).toBe(1100);
+    expect(core10.life).toBe(1850); // 500 + 150 × 9
+    expect(core10.maxLife).toBe(1850);
+  });
+
+  it("distributes the round-scaled power budget (round × 20) to every unit (CUB-D1)", () => {
+    // CUB-D1 doubled the power budget (round * 10 → round * 20). Mock cards
+    // carry power 0, so each unit's power is exactly
+    // floor(round × 20 / unitCount) — no rank-up or base-power noise.
+    const round1 = generateEnemyTeam("p1", 0, 1, mockCards); // 4 units
+    for (const u of round1) {
+      expect(u.power).toBe(5); // floor(20 / 4)
+    }
+    const round3 = generateEnemyTeam("p3", 0, 3, mockCards); // 9 units
+    for (const u of round3) {
+      expect(u.power).toBe(6); // floor(60 / 9)
+    }
+    const round5 = generateEnemyTeam("p5", 0, 5, mockCards); // 9 units
+    for (const u of round5) {
+      expect(u.power).toBe(11); // floor(100 / 9)
+    }
+  });
+
   it("caps at MAX_UNITS (9)", () => {
     const units = generateEnemyTeam("big", 0, 10, mockCards);
     expect(units.length).toBeLessThanOrEqual(9);
