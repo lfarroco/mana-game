@@ -1,6 +1,11 @@
 // Core crystals — every run starts with one of these anchor units.
 // Split from data/BaseCollection.ts (tier grouping) — balance conventions in
 // docs/unit-balance.md, tier design in docs/card-design-philosophy.md.
+//
+// Cores are ACTION-ONLY BASELINES: each ships one basic action (its
+// `coreTheme` family) and no reactions. Their depth (the former secondary buffs
+// and reactions) lives in the themed upgrade-orb catalog — see
+// docs/core-unit-onboarding.md §3–§4 (CUB-A3).
 
 import * as Models from "../../Models";
 import {
@@ -10,17 +15,7 @@ import {
   shield,
   poison,
   haste,
-  slow,
-  charge,
-  increasePower,
-  increaseCritical,
-  reaction,
-  column,
   row,
-  randomAlly,
-  randomEnemy,
-  trigger,
-  self,
 } from "../effectBuilders";
 
 export const CORE_CARDS: Models.CardDefinition[] = [
@@ -31,8 +26,9 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 35,
     cooldown: 5200,
     isCore: true,
-    effects: [regen, increasePower(10, column)],
-    reactions: [reaction("damage", "left_ally", charge(200, self))],
+    coreTheme: "regen",
+    effects: [regen],
+    reactions: [],
   },
   {
     id: "critical_crystal",
@@ -41,8 +37,9 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 35,
     cooldown: 5200,
     isCore: true,
-    effects: [damage, increaseCritical(5, column)],
-    reactions: [reaction("all", "row_allies", increasePower(5, column))],
+    coreTheme: "damage",
+    effects: [damage],
+    reactions: [],
   },
   {
     id: "protective_crystal",
@@ -51,8 +48,9 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 35,
     cooldown: 4500,
     isCore: true,
-    effects: [shield, increasePower(5, randomAlly(1), true)],
-    reactions: [reaction("all", "row_allies", increasePower(5, trigger))],
+    coreTheme: "shield",
+    effects: [shield],
+    reactions: [],
   },
   {
     id: "growth_crystal",
@@ -61,8 +59,9 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 35,
     cooldown: 4500,
     isCore: true,
-    effects: [heal, increasePower(2, column, true)],
-    reactions: [reaction("all", "row_allies", increasePower(5, trigger))],
+    coreTheme: "heal",
+    effects: [heal],
+    reactions: [],
   },
   {
     id: "purple_crystal",
@@ -71,8 +70,9 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 40,
     cooldown: 4700,
     isCore: true,
-    effects: [poison, slow(1000, randomEnemy(1))],
-    reactions: [reaction("slow", "allies", increasePower(4, trigger, true))],
+    coreTheme: "poison",
+    effects: [poison],
+    reactions: [],
   },
   {
     id: "quickstone",
@@ -81,7 +81,8 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     power: 48,
     cooldown: 5200,
     isCore: true,
-    effects: [regen, haste(1000, row)],
-    reactions: [reaction("haste", "right_ally", charge(200, column))],
+    coreTheme: "haste",
+    effects: [haste(1000, row)],
+    reactions: [],
   },
 ];
