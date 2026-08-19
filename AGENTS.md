@@ -185,15 +185,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Pick one, mark `[x]` with your agent name and date when done, then remove the
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
-- [ ] **A0** — gold cap → percentage guard in `BaseCollection.balance.test.ts`
-- [ ] **A1** — new bronze: Pixie Trickster (chaos tempo)
-- [ ] **A2** — new silver: Vulture (grows off enemy slows)
-- [ ] **A3** — new silver: The Leech (enemy heal → your shield)
-- [ ] **A4** — new bronze: Echo of the Mask (left-ally cast → buff random ally)
-- [ ] **A5** — new bronze: Lifestealer (damage + heal)
-- [ ] **A6** — edit `gambler` → true coin-flip
-- [ ] **A7** — edit `mirror_entity` → real mirror (haste echo)
-- [ ] **A8** — edit `fate_shifter` → Twisted Mirror
 - [ ] **A9** — encounter: Oracle's Riddle (random bronze)
 - [ ] **A10** — encounter: Chaos Altar (random orb)
 - [ ] **A11** — encounter: Roulette Wheel (life gamble)
