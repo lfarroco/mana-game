@@ -313,7 +313,7 @@ per effect, not "small".
   self-`repeat` for simplicity).
 - **Acceptance**: unit tests; new balance rule enforced; deterministic playback.
 
-#### C2 — `on_crystal_hit` global reaction (thorns)
+#### C2 — `on_crystal_hit` global reaction (thorns) ✅ (2026-08-19)
 
 - **Goal**: revenge — react when *your crystal actually takes damage* (not when the
   enemy merely casts).

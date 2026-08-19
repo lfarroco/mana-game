@@ -31,7 +31,7 @@ const processEffectIO = (
   for (let i = 0; i < repeatCount; i++) {
     switch (effect.id) {
       case "damage":
-        effects.dealDamage(env, sourceUnit, scale);
+        effects.dealDamage(env, sourceUnit, scale, isReaction);
         break;
       case "heal":
         effects.restoreLife(env, sourceUnit, scale);
@@ -175,6 +175,7 @@ const processEffectIO = (
       case "every_10_regen":
       case "on_over_heal":
       case "on_battle_start":
+      case "on_crystal_hit":
         break;
       default:
         const _exhaustiveCheck: never = effect;

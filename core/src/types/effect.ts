@@ -52,6 +52,7 @@ export type EffectId =
   | "on_crit"
   | "on_battle_start"
   | "on_over_heal"
+  | "on_crystal_hit"
   | "every_100_damage"
   | "every_10_poison"
   | "every_100_heal"
@@ -99,6 +100,7 @@ export type Effect = { repeat?: number } & (
   | { id: "on_crit" }
   | { id: "on_battle_start" }
   | { id: "on_over_heal" }
+  | { id: "on_crystal_hit" }
   | { id: "every_100_damage" }
   | { id: "every_10_poison" }
   | { id: "every_100_heal" }

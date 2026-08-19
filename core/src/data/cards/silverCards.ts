@@ -390,4 +390,19 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
     effects: [shield],
     reactions: [reaction("heal", "enemies", shield, "enemy")],
   },
+  // C2 (docs/wacky-content-plan.md): thorns — when your crystal takes damage,
+  // deal your power back to the enemy crystal (cast-damage only; the loop guard
+  // in dealDamage prevents thorns-vs-thorns ping-pong).
+  {
+    id: "thornback",
+    description:
+      "Thorns — when your crystal takes a hit, deal your power back to the enemy crystal.",
+    tags: ["type_engine", "cross_force"],
+    pic: "neutral_giantcrab",
+    power: 45,
+    rank: 2,
+    cooldown: 5000,
+    effects: [shield],
+    reactions: [reaction("on_crystal_hit", "enemies", damage, "enemy")],
+  },
 ];

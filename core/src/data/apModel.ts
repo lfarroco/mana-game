@@ -66,6 +66,7 @@ export function baseFrequency(effectId: string): number {
     case "re_slow":
     case "re_hasted":
     case "on_over_heal":
+    case "on_crystal_hit":
       return 0.5;
     case "on_crit":
       return 0.4;

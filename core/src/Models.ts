@@ -41,6 +41,9 @@ export const GLOBAL_REACTIONS = [
   "every_10_regen",
   "on_over_heal",
   "on_battle_start",
+  // C2 (docs/wacky-content-plan.md): revenge — react when your crystal takes
+  // damage. Triggered in dealDamage's deferred hit execution.
+  "on_crystal_hit",
 ];
 
 export const BASIC_ABILITIES = ["damage", "shield", "poison", "regen", "heal"];

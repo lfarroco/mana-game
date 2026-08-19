@@ -19,6 +19,7 @@ export const ABILITY_COLORS: Record<string, string> = {
   increase_critical: "#ff8cc8",
   on_crit: "#ff0000",
   on_over_heal: "#51cf66",
+  on_crystal_hit: "#ff6b35",
   on_battle_start: "#ffffff",
   multiply_power: "#ff8cc8",
   any: "#bababa",

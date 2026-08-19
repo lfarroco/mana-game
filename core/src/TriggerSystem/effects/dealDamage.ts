@@ -10,11 +10,16 @@ const PROJECTILE_TRAVEL_MS = 200;
 /**
  * Cast damage: calculate the amount, log the cast, and schedule the hit
  * as a deferred event that will execute when the projectile lands.
+ *
+ * `isReaction` marks damage dealt from a reaction chain. C2 (on_crystal_hit)
+ * only emits for cast damage — reaction-sourced damage is excluded so thorns
+ * cannot ping-pong (thorns-vs-thorns terminates).
  */
 export function dealDamage(
   env: CombatEnvironment,
   sourceUnit: Unit,
   scale: number = 1,
+  isReaction: boolean = false,
 ) {
   const { combatState, logger } = env;
 
@@ -85,6 +90,14 @@ export function dealDamage(
         lifeDelta: (enemyCore?.life ?? 0) - oldLife,
         shieldDelta: (enemyCore?.shield ?? 0) - oldShield,
       });
+
+      // C2 (docs/wacky-content-plan.md): revenge — the defending force reacts
+      // when its crystal actually takes damage. Loop guard: only cast damage
+      // emits, so thorns-vs-thorns cannot ping-pong (reaction-sourced damage
+      // from the retaliating thorns is excluded here).
+      if (!isReaction) {
+        processReactions(env, source, { id: "on_crystal_hit" }, 1);
+      }
     },
   });
 }

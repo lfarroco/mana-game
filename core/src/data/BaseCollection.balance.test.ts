@@ -97,8 +97,8 @@ describe("BaseCollection balance", () => {
   it("has exactly one core card per effect type and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
     expect(cores).toHaveLength(6);
-    // 64 bronze + 23 silver + 11 gold non-core cards
-    expect(nonCoreCards).toHaveLength(98);
+    // 64 bronze + 24 silver + 11 gold non-core cards
+    expect(nonCoreCards).toHaveLength(99);
   });
 
   it("keeps more silvers than golds, with golds capped at ~12% of the pool", () => {

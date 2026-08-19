@@ -200,6 +200,7 @@ export const buildCompactEffectBlock = (
     case "on_crit":
     case "on_battle_start":
     case "on_over_heal":
+    case "on_crystal_hit":
       return null;
     default:
       return null;
@@ -317,6 +318,7 @@ const buildEffectSentence = (
     case "every_10_regen":
     case "on_over_heal":
     case "on_battle_start":
+    case "on_crystal_hit":
       return null;
     default: {
       const _exhaustiveCheck: never = effect;
@@ -379,6 +381,8 @@ export const getReactionDescription = (
       triggerText = `⚡ ${t("tooltip.effects.on_battle_start")}`;
     } else if (reaction.effectId === "on_over_heal") {
       triggerText = `⚡ ${t("tooltip.effects.on_over_heal")} (${sourceDesc})`;
+    } else if (reaction.effectId === "on_crystal_hit") {
+      triggerText = `⚡ ${t("tooltip.effects.on_crystal_hit")} (${sourceDesc})`;
     }
 
     const effectSegments = reaction.effects
@@ -406,6 +410,10 @@ export const getReactionDescription = (
     triggerText = t("tooltip.sentence.trigger.on_battle_start");
   } else if (reaction.effectId === "on_over_heal") {
     triggerText = t("tooltip.sentence.trigger.on_over_heal", {
+      source: sourceDesc,
+    });
+  } else if (reaction.effectId === "on_crystal_hit") {
+    triggerText = t("tooltip.sentence.trigger.on_crystal_hit", {
       source: sourceDesc,
     });
   } else {
