@@ -189,8 +189,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [ ] **A10** — encounter: Chaos Altar (random orb)
 - [ ] **A11** — encounter: Roulette Wheel (life gamble)
 - [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
-- [ ] **A13** — edit: `upgrade_core` Mystery Box option
-- [ ] **A14** — edit: `add_reaction_core` random option
 - [ ] **A15** — edit: effect shops allow silvers (round ≥ 4)
 - [ ] **B1** — effect: `when` predicates on reactions
 - [ ] **C1** — effect: `repeat`/retrigger
@@ -203,9 +201,11 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Simplify cores at start + theme-scoped upgrade-orb events. Full spec, baseline
 > table, orb catalog, and acceptance criteria are in the doc.
 
-- [ ] **CUB-B1** — `generateCoreUpgradeOptions(session)` (seeded, theme-scoped, dedupe)
-- [ ] **CUB-B2** — wire themed options into `upgrade_core` / `add_reaction_core`
-- [ ] **CUB-B3** — apply `CoreUpgradeDefinition` in `OrbAndCoreUpgrades`
+> Note: CUB-B1/B2/B3 landed (2026-08-19) and superseded the old A13/A14 entries
+> (upgrade_core Mystery Box / add_reaction_core random option), which were
+> removed. The upgrade phases were also unreachable before CUB-B — the combat
+> step-accounting fix (SessionTransitions.ts) made them reachable.
+
 - [ ] **CUB-C1** — core AP band + `coreUpgrades.balance.test.ts`
 - [ ] **CUB-D1** — retune `generateEnemyTeam.ts` round scaling
 - [ ] **CUB-E1** — crystal-selection + upgrade-phase UI render themed orbs
