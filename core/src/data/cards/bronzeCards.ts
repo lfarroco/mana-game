@@ -555,13 +555,13 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "mirror_entity",
-    description: "Empowers its top ally off its bottom ally's actions — positional mirror support.",
+    description: "Real mirror — when the bottom ally casts, hastes the top ally (tempo echo).",
     tags: ["team_buff"],
     pic: "f3_nimbus",
     power: 30,
     cooldown: 4000,
     effects: [shield],
-    reactions: [reaction("all", "bottom_ally", increasePower(10, top))],
+    reactions: [reaction("all", "bottom_ally", haste(1000, top))],
   },
   {
     id: "spellbreaker",
