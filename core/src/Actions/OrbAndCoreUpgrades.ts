@@ -130,6 +130,37 @@ function applySacrificeOrb(targetUnit: Unit, rng: { seed: string }): number {
 }
 
 /**
+ * Apply a unit-sacrifice orb: Sacrifice a non-core unit so the crystal gains
+ * `ratio` × the unit's power as permanent power, then remove the unit from the
+ * team.
+ *
+ * - `sacrifice_unit_orb` (dark_ritual): ratio 0.5 (half power).
+ * - `scrap_salvage_orb` (scrap_salvage): ratio 1.0 (full power).
+ */
+function applySacrificeUnitOrb(
+  targetUnitId: string,
+  allUnits: Unit[],
+  ratio: number,
+): number {
+  const core = allUnits.find((u) => u.isCore);
+  const targetIndex = allUnits.findIndex((u) => u.id === targetUnitId);
+
+  if (!core || targetIndex < 0 || allUnits[targetIndex].isCore) {
+    return 0;
+  }
+
+  const sacrificed = allUnits[targetIndex];
+  const gained = Math.floor(sacrificed.power * ratio);
+
+  if (gained > 0) {
+    applyPowerDelta(core, gained, true);
+  }
+
+  allUnits.splice(targetIndex, 1);
+  return gained;
+}
+
+/**
  * Apply increase_power_on_X orb: Boost power of units with a specific effect.
  */
 function applyIncreasePowerOrb(targetUnit: Unit, effectType: string): number {
@@ -230,6 +261,22 @@ export function applyOrb(
       "orbAndCoreUpgrades",
       `Sacrifice effect applied, gained ${powerGain} power`,
     );
+  } else if (orbId === "sacrifice_unit_orb") {
+    const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 0.5);
+    if (powerGain > 0) {
+      console.info(
+        "orbAndCoreUpgrades",
+        `Sacrificed unit ${targetUnitId}, core gained ${powerGain} power`,
+      );
+    }
+  } else if (orbId === "scrap_salvage_orb") {
+    const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 1);
+    if (powerGain > 0) {
+      console.info(
+        "orbAndCoreUpgrades",
+        `Scrapped unit ${targetUnitId}, core gained ${powerGain} power`,
+      );
+    }
   } else if (orbId.startsWith("increase_power_on_")) {
     const effectType = orbId.replace("increase_power_on_", "");
     const boost = applyIncreasePowerOrb(targetUnit, effectType);

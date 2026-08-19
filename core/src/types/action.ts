@@ -26,7 +26,16 @@ export type EncounterId =
   | "power_distributor"
   | "power_absorber"
   | "silver_shop"
-  | "gold_shop";
+  | "gold_shop"
+  // ── New encounter types (2026-08-18, P1 slice) ──────────────────────
+  | "gamblers_shrine"
+  | "dark_ritual"
+  | "scrap_salvage"
+  | "rest_inn"
+  | "soul_trade"
+  | "runesmith_damage"
+  | "runesmith_shield"
+  | "runesmith_heal";
 
 /** Static phase-option ids not derived from encounters or cards. */
 export type StaticOptionId =
@@ -41,7 +50,10 @@ export type StaticOptionId =
   | "on_battle_start_effect"
   | "upgrade_orb"
   | "distribute_power_orb"
-  | "absorb_power_orb";
+  | "absorb_power_orb"
+  | "sacrifice_effect_orb"
+  | "sacrifice_unit_orb"
+  | "scrap_salvage_orb";
 
 /**
  * A player choice presented during a phase.

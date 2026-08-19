@@ -43,6 +43,17 @@ All code references were verified against `core/src/` at the time of writing.
 | 13 | `power_absorber`    | — (orb)                    | 3       | —            | `orb_shop` → `absorb_power_orb`     |
 | 14 | `silver_shop`       | silver (rank 2)            | 2       | 15           | `shop`                              |
 | 15 | `gold_shop`         | gold (rank 3)              | 1       | 25           | `shop`                              |
+| 16 | `gamblers_shrine` (A3, new) | — (orb)            | —       | —            | `orb_shop` → `sacrifice_effect_orb` |
+| 17 | `dark_ritual` (A1, new)     | — (orb)            | —       | —            | `orb_shop` → `sacrifice_unit_orb`   |
+| 18 | `scrap_salvage` (B2, new)   | — (orb)            | —       | —            | `orb_shop` → `scrap_salvage_orb`    |
+| 19 | `rest_inn` (C1, new)        | — (no shop)        | —       | —            | advance (restores 1 loss)           |
+| 20 | `soul_trade` (A2, new)      | gold (rank 3)      | 1       | —            | `shop` (lose 1 loss)                |
+| 21 | `runesmith_damage` (F1, new) | silver reaction-damage | 2    | 15           | `shop`                              |
+| 22 | `runesmith_shield` (F1, new) | silver reaction-shield | 2    | 15           | `shop`                              |
+| 23 | `runesmith_heal` (F1, new)   | silver reaction-heal  | 2    | 15           | `shop`                              |
+
+Implemented 2026-08-19 as the P1 slice of [§6](#6-sequencing) (A1/A2/A3/C1/B2/F1 —
+round-firewall enforcement included, see §1.2).
 
 Plus 5 dead entries (`improve_damage/heal/shield/poison/regen`) in
 `core/src/content/encounters.ts` with no `OptionGeneration` counterpart.
@@ -52,10 +63,13 @@ Plus 5 dead entries (`improve_damage/heal/shield/poison/regen`) in
 - `filterCardsByEffect` hard-filters effect-typed encounters to `rank === 1`
   (bronze). Silvers/golds never appear through typed shops.
 - `silver_shop`/`gold_shop` round gating (`minRound`/`maxRound` in
-  `content/encounters.ts`) is **not enforced** by `createEncounterOptions`.
-  The two tier shops are equal-weight pool members, so a gold shop can appear
-  at round 1 as often as a bronze shop — and, because of the 12-slot recency
-  exclusion, can also miss an entire run. §4.3 redesigns this.
+  `content/encounters.ts`) was **not enforced** by `createEncounterOptions` —
+  the two tier shops were equal-weight pool members, so a gold shop could
+  appear at round 1 as often as a bronze shop (and, because of the 12-slot
+  recency exclusion, could also miss an entire run). §4.3 redesigns this into
+  wave-split pools; as an interim step (2026-08-19) `createEncounterOptions`
+  now **enforces** `minRound`/`maxRound` as a round firewall over the whole
+  pool, which also gates the P1 encounters added below.
 - Wildcard encounters give an orb **and no card shop** (the slot is consumed).
 - `skip` in any non-combat phase advances a step and gives nothing.
 - `LOSSES_TO_GAME_OVER = 4` is the only "life" counter; nothing restores it.

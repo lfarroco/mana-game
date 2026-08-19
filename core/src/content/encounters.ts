@@ -1,4 +1,7 @@
-import { MIN_ROUND_FOR_GOLD_SHOP, MIN_ROUND_FOR_SILVER_SHOP } from "../math/Constants";
+import {
+  MIN_ROUND_FOR_GOLD_SHOP,
+  MIN_ROUND_FOR_SILVER_SHOP,
+} from "../math/Constants";
 
 /** Encounter catalog data — i18n keys, resolved by the client at render time. */
 export type EncounterData = {
@@ -121,6 +124,64 @@ export const ENCOUNTERS: EncounterData[] = [
     descriptionKey: "encounters.gold_shop_desc",
     minRound: MIN_ROUND_FOR_GOLD_SHOP,
   },
+  // ── New encounter types (2026-08-18, P1 slice) ──────────────────────────
+  {
+    id: "gamblers_shrine",
+    pic: "ui/dark_ritual",
+    nameKey: "encounters.gamblers_shrine.name",
+    descriptionKey: "encounters.gamblers_shrine.desc",
+    minRound: 2,
+  },
+  {
+    id: "dark_ritual",
+    pic: "ui/sacrifice",
+    nameKey: "encounters.dark_ritual.name",
+    descriptionKey: "encounters.dark_ritual.desc",
+    minRound: 3,
+  },
+  {
+    id: "scrap_salvage",
+    pic: "ui/sacrifice",
+    nameKey: "encounters.scrap_salvage.name",
+    descriptionKey: "encounters.scrap_salvage.desc",
+    minRound: 2,
+  },
+  {
+    id: "rest_inn",
+    pic: "ui/improve_heal",
+    nameKey: "encounters.rest_inn.name",
+    descriptionKey: "encounters.rest_inn.desc",
+    minRound: 2,
+    maxRound: 6,
+  },
+  {
+    id: "soul_trade",
+    pic: "ui/gold_medal",
+    nameKey: "encounters.soul_trade.name",
+    descriptionKey: "encounters.soul_trade.desc",
+    minRound: 4,
+  },
+  {
+    id: "runesmith_damage",
+    pic: "ui/improve_damage",
+    nameKey: "encounters.runesmith_damage.name",
+    descriptionKey: "encounters.runesmith_damage.desc",
+    minRound: 3,
+  },
+  {
+    id: "runesmith_shield",
+    pic: "ui/improve_shield",
+    nameKey: "encounters.runesmith_shield.name",
+    descriptionKey: "encounters.runesmith_shield.desc",
+    minRound: 3,
+  },
+  {
+    id: "runesmith_heal",
+    pic: "ui/improve_heal",
+    nameKey: "encounters.runesmith_heal.name",
+    descriptionKey: "encounters.runesmith_heal.desc",
+    minRound: 3,
+  },
   {
     id: "start_combat",
     pic: "ui/armory",
@@ -129,6 +190,5 @@ export const ENCOUNTERS: EncounterData[] = [
   },
 ];
 
-export const ENCOUNTER_BY_ID: Record<string, EncounterData> = Object.fromEntries(
-  ENCOUNTERS.map((e) => [e.id, e]),
-);
+export const ENCOUNTER_BY_ID: Record<string, EncounterData> =
+  Object.fromEntries(ENCOUNTERS.map((e) => [e.id, e]));

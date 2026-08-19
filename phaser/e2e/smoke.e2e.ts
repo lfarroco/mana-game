@@ -25,6 +25,9 @@ const DRAG_ENCOUNTER_IDS = new Set([
 	"upgrade_unit",
 	"power_distributor",
 	"power_absorber",
+	"dark_ritual",
+	"scrap_salvage",
+	"gamblers_shrine",
 ]);
 
 // Client-only sub-phases shown after combat playback finishes (not present in
@@ -139,8 +142,7 @@ test("single-player run walkthrough survives without crashing", async ({ page })
 				// Wait for the first playback to finish (results are client-only).
 				await waitFor(
 					page,
-					async () =>
-						RESULTS_PHASES.includes((await readGameState(page)).screenPhase ?? ""),
+					async () => RESULTS_PHASES.includes((await readGameState(page)).screenPhase ?? ""),
 					"first combat playback to finish",
 					60_000
 				);
@@ -155,8 +157,7 @@ test("single-player run walkthrough survives without crashing", async ({ page })
 				);
 				await waitFor(
 					page,
-					async () =>
-						RESULTS_PHASES.includes((await readGameState(page)).screenPhase ?? ""),
+					async () => RESULTS_PHASES.includes((await readGameState(page)).screenPhase ?? ""),
 					"replayed combat to finish",
 					60_000
 				);
@@ -199,10 +200,7 @@ test("single-player run walkthrough survives without crashing", async ({ page })
 	}
 
 	expect(reachedCombat, "the run should have reached combat").toBe(true);
-	expect(
-		completedRun,
-		"the run should have completed combat, replay, and continue"
-	).toBe(true);
+	expect(completedRun, "the run should have completed combat, replay, and continue").toBe(true);
 	expect(
 		pageErrors,
 		`uncaught page errors: ${pageErrors.map((e) => e.message).join("; ")}`

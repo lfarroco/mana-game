@@ -85,7 +85,9 @@ export type OrbDefinition =
         | "decrease_core_cooldown"
         | "distribute_power"
         | "absorb_power"
-        | "sacrifice";
+        | "sacrifice"
+        | "sacrifice_unit"
+        | "scrap_salvage";
     }
   | {
       id: string;
@@ -140,6 +142,8 @@ const specials: OrbDefinition[] = [
   { id: "distribute_power_orb", kind: "special", special: "distribute_power" },
   { id: "absorb_power_orb", kind: "special", special: "absorb_power" },
   { id: "sacrifice_effect_orb", kind: "special", special: "sacrifice" },
+  { id: "sacrifice_unit_orb", kind: "special", special: "sacrifice_unit" },
+  { id: "scrap_salvage_orb", kind: "special", special: "scrap_salvage" },
 ];
 for (const def of specials) ORB_DEFINITIONS[def.id] = def;
 

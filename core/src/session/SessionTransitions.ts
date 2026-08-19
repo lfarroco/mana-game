@@ -19,6 +19,9 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   upgrade_unit: [{ id: "upgrade_orb" }],
   power_distributor: [{ id: "distribute_power_orb" }],
   power_absorber: [{ id: "absorb_power_orb" }],
+  dark_ritual: [{ id: "sacrifice_unit_orb" }],
+  scrap_salvage: [{ id: "scrap_salvage_orb" }],
+  gamblers_shrine: [{ id: "sacrifice_effect_orb" }],
 };
 
 const UPGRADE_CORE_OPTIONS: Models.PhaseOption[] = [
@@ -132,6 +135,16 @@ const ACTION_HANDLERS: Record<
 
     if (action.encounterId === "start_combat")
       return executeCombatPhase(session);
+
+    if (action.encounterId === "rest_inn") {
+      if (session.losses > 0) session.losses -= 1;
+      return transitionToNextStep(session);
+    }
+
+    if (action.encounterId === "soul_trade") {
+      if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
+      session.losses += 1;
+    }
 
     const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
     if (orbOptions) {

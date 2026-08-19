@@ -57,9 +57,24 @@ const reactionCard = (id: string, nameKey: string): OrbPresentationData => ({
 });
 
 const buildOrbPresentationData = (): OrbPresentationData[] => [
-  ...statOrbs("increase_power", "increasePower", 0xff3333, ORB_ICONS.increase_power),
-  ...statOrbs("decrease_cooldown", "decreaseCooldown", 0xff3333, ORB_ICONS.decrease_cooldown),
-  ...statOrbs("increase_critical", "increaseCritical", 0xff3333, ORB_ICONS.increase_critical),
+  ...statOrbs(
+    "increase_power",
+    "increasePower",
+    0xff3333,
+    ORB_ICONS.increase_power,
+  ),
+  ...statOrbs(
+    "decrease_cooldown",
+    "decreaseCooldown",
+    0xff3333,
+    ORB_ICONS.decrease_cooldown,
+  ),
+  ...statOrbs(
+    "increase_critical",
+    "increaseCritical",
+    0xff3333,
+    ORB_ICONS.increase_critical,
+  ),
   {
     id: "upgrade_orb",
     color: 0x3399ff,
@@ -111,6 +126,20 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     nameKey: "shop.orbs.darkRitual.name",
     tooltipKey: "shop.orbs.darkRitual.tooltip",
   },
+  {
+    id: "sacrifice_unit_orb",
+    color: 0x550000,
+    icon: ORB_ICONS.dark_ritual,
+    nameKey: "shop.orbs.sacrificeUnit.name",
+    tooltipKey: "shop.orbs.sacrificeUnit.tooltip",
+  },
+  {
+    id: "scrap_salvage_orb",
+    color: 0x7a2e00,
+    icon: ORB_ICONS.dark_ritual,
+    nameKey: "shop.orbs.scrapSalvage.name",
+    tooltipKey: "shop.orbs.scrapSalvage.tooltip",
+  },
   reactionCard("on_100_damage_effect", "every_100_damage"),
   reactionCard("on_100_shield_effect", "every_100_shield"),
   reactionCard("on_100_heal_effect", "every_100_heal"),
@@ -123,9 +152,9 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
   reactionCard("on_battle_start_effect", "on_battle_start"),
 ];
 
-export const ORB_PRESENTATION_DATA: Record<string, OrbPresentationData> = Object.fromEntries(
-  buildOrbPresentationData().map((o) => [o.id, o]),
-);
+export const ORB_PRESENTATION_DATA: Record<string, OrbPresentationData> =
+  Object.fromEntries(buildOrbPresentationData().map((o) => [o.id, o]));
 
-export const getOrbPresentationData = (orbId: string): OrbPresentationData | null =>
-  ORB_PRESENTATION_DATA[orbId] ?? null;
+export const getOrbPresentationData = (
+  orbId: string,
+): OrbPresentationData | null => ORB_PRESENTATION_DATA[orbId] ?? null;
