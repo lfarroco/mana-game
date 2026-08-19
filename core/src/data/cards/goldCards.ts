@@ -19,10 +19,9 @@ import {
   row,
   randomEnemy,
   self,
-  right,
   weakestAlly,
   strongestAlly,
-  weakestEnemy,
+  strongestEnemy,
   allAlliesOfType,
 } from "../effectBuilders";
 
@@ -166,7 +165,7 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   //gambler2
   {
     id: "fate_shifter",
-    description: "Double-edged gamble — multiplies right ally and weakest enemy power each cast.",
+    description: "Twisted Mirror — multiplies the strongest ally and the strongest enemy each cast (can backfire).",
     tags: ["risk_reward", "type_engine"],
     pic: "boss_sandpanther",
     power: 10,
@@ -175,8 +174,8 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
     cooldown: 9200,
     effects: [
       damage,
-      multiplyPower(1.5, right),
-      multiplyPower(1.5, weakestEnemy),
+      multiplyPower(1.5, strongestAlly),
+      multiplyPower(1.5, strongestEnemy),
     ],
     reactions: [],
   },

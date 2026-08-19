@@ -81,6 +81,10 @@ const AP_ALLOWLIST = new Set([
   // budget, but crit is a probabilistic payoff and the unit has no defensive
   // value beyond the shield.
   "gambler",
+  // Twisted Mirror gamble: multiplies the strongest ally AND the strongest
+  // enemy — the double-edged self-harm (it helps the enemy too) makes it
+  // unpricable by the AP model; the risk is the whole point.
+  "fate_shifter",
 ]);
 
 // ---------------------------------------------------------------------------
