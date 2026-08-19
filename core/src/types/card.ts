@@ -41,6 +41,22 @@ export const CARD_TAGS = [
 
 export type CardTag = (typeof CARD_TAGS)[number];
 
+/**
+ * The six core ("crystal") themes — each maps 1:1 to a basic-action family.
+ * Used as the single filter key for themed core-upgrade-orb generation and for
+ * the crystal-selection UI (e.g. "this is a heal crystal").
+ */
+export const CORE_THEMES = [
+  "regen",
+  "damage",
+  "shield",
+  "heal",
+  "poison",
+  "haste",
+] as const;
+
+export type CoreTheme = (typeof CORE_THEMES)[number];
+
 export type CardDefinition = {
   id: string;
   pic: string;
@@ -57,6 +73,12 @@ export type CardDefinition = {
   description?: string;
   /** Designer aid: archetype labels from the CARD_TAGS vocabulary. */
   tags?: CardTag[];
+  /**
+   * Core-only: the basic-action family this crystal is themed around.
+   * Used as the single filter key for themed core-upgrade-orb generation and
+   * for the crystal-selection UI (see docs/core-unit-onboarding.md §2).
+   */
+  coreTheme?: CoreTheme;
 };
 
 export type CardCollection = {
