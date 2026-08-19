@@ -207,3 +207,22 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [ ] **D1** — effect: `silence`
 - [ ] **D2** — effect: `dispel`
 
+### Core unit onboarding — see [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md)
+
+> Simplify cores at start + theme-scoped upgrade-orb events. Full spec, baseline
+> table, orb catalog, and acceptance criteria are in the doc.
+
+- [ ] **CUB-A1** — add `coreTheme` + `CORE_THEMES` to `CardDefinition`
+- [ ] **CUB-A2** — reduce all 6 cores to action-only baseline; quickstone → `haste`
+- [ ] **CUB-A3** — `core/src/content/coreUpgradeOrbs.ts` (themed orb catalog)
+- [ ] **CUB-B1** — `generateCoreUpgradeOptions(session)` (seeded, theme-scoped, dedupe)
+- [ ] **CUB-B2** — wire themed options into `upgrade_core` / `add_reaction_core`
+- [ ] **CUB-B3** — apply `CoreUpgradeDefinition` in `OrbAndCoreUpgrades`
+- [ ] **CUB-C1** — core AP band + `coreUpgrades.balance.test.ts`
+- [ ] **CUB-D1** — retune `generateEnemyTeam.ts` round scaling
+- [ ] **CUB-E1** — crystal-selection + upgrade-phase UI render themed orbs
+- [ ] **CUB-E2** — i18n keys for orbs/themes
+- [ ] **CUB-F1** — unit tests for themed option generation
+- [ ] **CUB-F2** — full verification (core + phaser)
+- [ ] **CUB-G1** — new cores from the doc's §9 ideas
+
