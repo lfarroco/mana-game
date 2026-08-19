@@ -185,7 +185,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Pick one, mark `[x]` with your agent name and date when done, then remove the
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
-- [ ] **A11** — encounter: Roulette Wheel (life gamble)
 - [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
 - [ ] **A15** — edit: effect shops allow silvers (round ≥ 4)
 - [ ] **B1** — effect: `when` predicates on reactions

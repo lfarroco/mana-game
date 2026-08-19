@@ -226,7 +226,7 @@ per effect, not "small".
 - **Acceptance**: unit test that the applied orb is one of the registered orbs and is
   seed-deterministic.
 
-#### A11 — Roulette Wheel (new encounter)
+#### A11 — Roulette Wheel (new encounter) ✅ (2026-08-19)
 
 - **Goal**: pay 1 life to spin a seeded wheel — gold card / free orb / favor / nothing /
   lose another life.
@@ -235,6 +235,10 @@ per effect, not "small".
   (reject near death, mirroring `soul_trade`); `losses += 1`; seeded weighted roll;
   apply the winning outcome (recruit gold / apply orb / nothing / `losses += 1`).
 - **Acceptance**: unit tests for each wheel outcome + the near-death guard.
+- **Implemented weights**: gold card 20% / free orb 20% / core stat upgrade 20% /
+  nothing 25% / lose another life 15%. The "favor" outcome is a random core stat
+  upgrade until favor tokens exist (A12); the lose-a-life outcome re-checks the
+  near-death guard so a single spin can never itself reach game over.
 
 #### A12 — Lucky Pig (new encounter)
 

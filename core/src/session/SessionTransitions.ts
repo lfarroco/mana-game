@@ -163,6 +163,71 @@ const ACTION_HANDLERS: Record<
       );
     }
 
+    // A11 (docs/wacky-content-plan.md): Roulette Wheel — pay 1 life to spin a
+    // seeded wheel. The "favor" outcome is currently a random core stat upgrade
+    // (favor tokens do not exist in core/ yet — A12 is blocked on them).
+    if (action.encounterId === "roulette_wheel") {
+      // Near-death guard, mirroring soul_trade: never allow a spin that would
+      // reach LOSSES_TO_GAME_OVER.
+      if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
+      session.losses += 1;
+
+      const rng = { seed: session.seed };
+      const { result, seed } = Random.nextRandomValue(rng);
+      rng.seed = seed;
+      session.seed = rng.seed;
+
+      if (result < 0.2) {
+        // Gold card — recruit a random gold.
+        const goldPool = Card.getNonCores().filter((c) => (c.rank || 1) === 3);
+        const gold = Random.pickOneSeeded(rng, goldPool);
+        session.seed = rng.seed;
+        return transitionToNextStep(
+          RecruitmentActions.recruitUnit(session, gold.id, null),
+        );
+      }
+      if (result < 0.4) {
+        // Free orb — a random orb hits a random non-core unit (no target the
+        // player controls, so the altar-style surprise is safe).
+        const nonCores = session.team.units.filter((u) => !u.isCore);
+        if (nonCores.length > 0) {
+          const target = Random.pickOneSeeded(rng, nonCores);
+          const orbId = Random.pickOneSeeded(rng, RANDOM_ORB_POOL);
+          session.seed = rng.seed;
+          session.seed = OrbAndCoreUpgrades.applyOrb(
+            session.team.units,
+            target.id,
+            orbId,
+            { seed: session.seed },
+          );
+        }
+        return transitionToNextStep(session);
+      }
+      if (result < 0.6) {
+        // Favor substitute — a random core stat upgrade.
+        const core = session.team.units.find((u) => u.isCore);
+        if (core) {
+          const statOrb = Random.pickOneSeeded(rng, [...CORE_STAT_ORBS]);
+          OrbAndCoreUpgrades.applyCoreUpgrade(core, statOrb, session.round);
+        }
+        session.seed = rng.seed;
+        return transitionToNextStep(session);
+      }
+      if (result < 0.85) {
+        // Nothing.
+        session.seed = rng.seed;
+        return transitionToNextStep(session);
+      }
+
+      // Lose another life — re-check the guard so a single spin can never
+      // itself reach game over.
+      if (session.losses + 1 < LOSSES_TO_GAME_OVER) {
+        session.losses += 1;
+      }
+      session.seed = rng.seed;
+      return transitionToNextStep(session);
+    }
+
     // Core-upgrade options (CUB-B3): the upgrade_core / add_reaction_core
     // phases offer stat ids and themed identity-orb ids, and the client
     // dispatches them via select_encounter. Apply the orb to the core and

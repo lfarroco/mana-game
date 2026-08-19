@@ -471,6 +471,105 @@ describe("SessionTransitions", () => {
       }
     });
   });
+
+  describe("roulette_wheel (A11)", () => {
+    const spin = (seed: string, losses = 1) => {
+      const session = createTestSession(seed);
+      session.losses = losses;
+      return SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_wheel",
+      });
+    };
+
+    it("rejects the spin when paying 1 life would reach game over", () => {
+      const result = spin("a11-guard", Constants.LOSSES_TO_GAME_OVER - 1);
+      expect(result.session.losses).toBe(Constants.LOSSES_TO_GAME_OVER - 1);
+      expect(result.session.phase).toBe("pre_combat"); // untouched
+    });
+
+    it("charges 1 life and advances the step", () => {
+      const result = spin("a11-pay");
+      expect(result.session.losses).toBeGreaterThanOrEqual(2);
+      expect(result.session.phase).not.toBe("pre_combat");
+      expect(result.session.seed).not.toBe("a11-pay");
+    });
+
+    it("is deterministic under the session seed", () => {
+      const a = spin("a11-det");
+      const b = spin("a11-det");
+      expect(a.session.seed).toBe(b.session.seed);
+      expect(a.session.losses).toBe(b.session.losses);
+      expect(a.session.team.units.map((u) => u.cardId)).toEqual(
+        b.session.team.units.map((u) => u.cardId),
+      );
+    });
+
+    it("never ends a spin at LOSSES_TO_GAME_OVER even on the lose-a-life outcome", () => {
+      // A spin starting at 2 losses may hit the "lose another life" outcome —
+      // the inner guard must cap the total at 3, never 4.
+      for (let i = 0; i < 60; i++) {
+        const result = spin(`a11-cap-${i}`, 2);
+        expect(result.session.losses).toBeLessThan(
+          Constants.LOSSES_TO_GAME_OVER,
+        );
+      }
+    });
+
+    it("can land every outcome across seeds", () => {
+      const seen = {
+        gold: false,
+        coreUpgrade: false,
+        loseLife: false,
+        nothing: false,
+      };
+      for (let i = 0; i < 100; i++) {
+        const seed = `a11-cover-${i}`;
+        const session = createTestSession(seed);
+        session.losses = 1;
+        const inputCore = session.team.units[0];
+        const result = SessionTransitions.transitionToNextState(session, {
+          type: "select_encounter",
+          encounterId: "roulette_wheel",
+        });
+
+        const team = result.session.team.units;
+        const recruitedGold = team.find((u) => {
+          if (u.isCore) return false;
+          const card = Card.getNonCores().find((c) => c.id === u.cardId);
+          return (card?.rank ?? 1) === 3;
+        });
+        if (recruitedGold) {
+          seen.gold = true;
+          continue;
+        }
+
+        const core = team.find((u) => u.isCore)!;
+        const coreChanged =
+          core.maxLife !== inputCore.maxLife ||
+          core.power !== inputCore.power ||
+          core.cooldown !== inputCore.cooldown;
+        if (coreChanged) {
+          seen.coreUpgrade = true;
+          continue;
+        }
+
+        if (result.session.losses === 3) {
+          seen.loseLife = true;
+          continue;
+        }
+        if (result.session.losses === 2) {
+          // "nothing" or a free-orb that no-op'd on the core-only team
+          seen.nothing = true;
+        }
+      }
+
+      expect(seen.gold).toBe(true);
+      expect(seen.coreUpgrade).toBe(true);
+      expect(seen.loseLife).toBe(true);
+      expect(seen.nothing).toBe(true);
+    });
+  });
 });
 
 /**
