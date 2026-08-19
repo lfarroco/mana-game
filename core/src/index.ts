@@ -107,10 +107,11 @@ export * as BaseCollection from "./data/BaseCollection";
 export * as EffectBuilders from "./data/effectBuilders";
 
 // ---------------------------------------------------------------------------
-// Content (encounter & orb presentation catalogs — i18n keys only)
+// Content (encounter & orb catalogs — i18n key data + core upgrade orb effects)
 // ---------------------------------------------------------------------------
 export * as Encounters from "./content/encounters";
 export * as OrbPresentations from "./content/orbPresentations";
+export * as CoreUpgradeOrbs from "./content/coreUpgradeOrbs";
 
 // ---------------------------------------------------------------------------
 // Event

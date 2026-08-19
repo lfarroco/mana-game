@@ -1,0 +1,261 @@
+/**
+ * Themed core-upgrade-orb catalog — pure data registry (no factories, no RNG).
+ *
+ * Each core ("crystal") carries an implicit theme, its basic-action family (see
+ * docs/core-unit-onboarding.md §2). When the player upgrades their core, the
+ * offered options come from that theme's pool: the theme's four identity orbs
+ * (abilities removed from the simplified baseline plus on-theme twists) and the
+ * three generic stat orbs shared by every theme's pool.
+ *
+ * This file only *defines* the catalog. Applying an orb to a core (appending
+ * the effect/reaction, or calling the stat helpers) happens in a later phase
+ * (CUB-B3 — OrbAndCoreUpgrades); seeded, theme-scoped option generation lands
+ * in CUB-B1/B2.
+ */
+
+import type { CoreTheme, Effect, EffectReaction } from "../Models";
+import {
+  charge,
+  column,
+  decreasePower,
+  increaseCritical,
+  increasePower,
+  randomAlly,
+  randomEnemy,
+  reaction,
+  regen,
+  self,
+  shield,
+  slow,
+  trigger,
+} from "../data/effectBuilders";
+
+/**
+ * A single core upgrade orb.
+ *
+ * Identity orbs carry an `effect` (kind "effect") or a `reaction`
+ * (kind "reaction") that gets appended to the core's effects/reactions when
+ * applied. Stat orbs (kind "stat") are the generic "bigger numbers" fallback
+ * present in every theme's pool — they reference the existing stat helpers via
+ * `stat`. `minRound` gates when an orb may appear in upgrade options (mirrors
+ * encounter minRound); left unset on all current entries.
+ */
+export type CoreUpgradeDefinition = {
+  id: string;
+  /** The core theme this orb belongs to — the single filter key for pools. */
+  theme: CoreTheme;
+  kind: "effect" | "reaction" | "stat";
+  /** Appended to the core's `effects` when applied (kind "effect"). */
+  effect?: Effect;
+  /** Appended to the core's `reactions` when applied (kind "reaction"). */
+  reaction?: EffectReaction;
+  /** Stat helper to call when applied (kind "stat"). */
+  stat?: "increase_core_max_life" | "upgrade_core_power" | "decrease_core_cooldown";
+  /** Round gate — orb may only appear in upgrade options from this round on. */
+  minRound?: number;
+};
+
+// ---------------------------------------------------------------------------
+// Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch)
+// ---------------------------------------------------------------------------
+
+/**
+ * All 24 identity orbs, keyed by id.
+ *
+ * Reactions with effectId "all" fire only on basic abilities (intended — these
+ * are the removed baseline reactions). `shield`/`regen` bare builders fire as
+ * their basic action; when `shield` fires from `on_over_heal` it shields the
+ * source force's CORE (see addShield.ts) — correct for the overflow identity
+ * orbs. Charge reactions positioned "allies" are fine here: the static-card
+ * charge rule only checks ALL_CARDS, which excludes this catalog.
+ */
+export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
+  // --- regen theme (mana_crystal): Column Growth, Reactive Charge, Overflow Shield, Regen Charge ---
+  mana_column_growth: {
+    id: "mana_column_growth",
+    theme: "regen",
+    kind: "effect",
+    effect: increasePower(10, column),
+  },
+  mana_reactive_charge: {
+    id: "mana_reactive_charge",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("damage", "left_ally", charge(200, self)),
+  },
+  mana_overflow_shield: {
+    id: "mana_overflow_shield",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", shield),
+  },
+  mana_regen_charge: {
+    id: "mana_regen_charge",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("every_10_regen", "allies", charge(300, randomAlly(1))),
+  },
+
+  // --- damage theme (critical_crystal): Crit Column, Row Power, Crit Power, Crit Slow ---
+  crit_crit_column: {
+    id: "crit_crit_column",
+    theme: "damage",
+    kind: "effect",
+    effect: increaseCritical(5, column),
+  },
+  crit_row_power: {
+    id: "crit_row_power",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("all", "row_allies", increasePower(5, column)),
+  },
+  crit_crit_power: {
+    id: "crit_crit_power",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", increasePower(5, self)),
+  },
+  crit_crit_slow: {
+    id: "crit_crit_slow",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", slow(1000, randomEnemy(1))),
+  },
+
+  // --- shield theme (protective_crystal): Shield Ally Power, Shield Trigger Power, Shield Power, Overflow Shield ---
+  shield_ally_power: {
+    id: "shield_ally_power",
+    theme: "shield",
+    kind: "effect",
+    effect: increasePower(5, randomAlly(1), true),
+  },
+  shield_trigger_power: {
+    id: "shield_trigger_power",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("all", "row_allies", increasePower(5, trigger)),
+  },
+  shield_power: {
+    id: "shield_power",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("every_100_shield", "allies", increasePower(5, self)),
+  },
+  shield_overflow: {
+    id: "shield_overflow",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", shield),
+  },
+
+  // --- heal theme (growth_crystal): Growth Column, Growth Trigger, Overflow Power, Heal Power ---
+  heal_growth_column: {
+    id: "heal_growth_column",
+    theme: "heal",
+    kind: "effect",
+    effect: increasePower(2, column, true),
+  },
+  heal_growth_trigger: {
+    id: "heal_growth_trigger",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("all", "row_allies", increasePower(5, trigger)),
+  },
+  heal_overflow_power: {
+    id: "heal_overflow_power",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", increasePower(5, self)),
+  },
+  heal_power: {
+    id: "heal_power",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", increasePower(5, self)),
+  },
+
+  // --- poison theme (purple_crystal): Slow Enemy, Slow Power, Poison Power, Re-Slow Drain ---
+  poison_slow_enemy: {
+    id: "poison_slow_enemy",
+    theme: "poison",
+    kind: "effect",
+    effect: slow(1000, randomEnemy(1)),
+  },
+  poison_slow_power: {
+    id: "poison_slow_power",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("slow", "allies", increasePower(4, trigger, true)),
+  },
+  poison_power: {
+    id: "poison_power",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("every_10_poison", "allies", increasePower(5, self)),
+  },
+  poison_re_slow_drain: {
+    id: "poison_re_slow_drain",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("re_slow", "allies", decreasePower(5, randomEnemy(1))),
+  },
+
+  // --- haste theme (quickstone): Regen, Haste Charge, Re-Haste Crit, Re-Haste Power ---
+  haste_regen: {
+    id: "haste_regen",
+    theme: "haste",
+    kind: "effect",
+    effect: regen,
+  },
+  haste_charge: {
+    id: "haste_charge",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("haste", "right_ally", charge(200, column)),
+  },
+  haste_rehaste_crit: {
+    id: "haste_rehaste_crit",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("re_hasted", "allies", increaseCritical(5, self)),
+  },
+  haste_rehaste_power: {
+    id: "haste_rehaste_power",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("re_hasted", "allies", increasePower(5, self)),
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Generic stat orbs & per-theme pool accessor
+// ---------------------------------------------------------------------------
+
+/**
+ * Generic stat orbs shared by every theme's pool — the "bigger numbers"
+ * fallback (they already exist as orb/stat definitions elsewhere).
+ */
+export const CORE_STAT_ORBS = [
+  "increase_core_max_life",
+  "upgrade_core_power",
+  "decrease_core_cooldown",
+] as const;
+
+/**
+ * The full upgrade-orb pool for a theme: its four identity orbs (in definition
+ * order) followed by the three generic stat orbs. Deterministic — used by
+ * CUB-B1's seeded option generation.
+ */
+export function getThemeUpgradePool(theme: CoreTheme): CoreUpgradeDefinition[] {
+  const identityOrbs = Object.values(CORE_UPGRADE_DEFINITIONS).filter(
+    (def) => def.theme === theme && def.kind !== "stat",
+  );
+  const statOrbs: CoreUpgradeDefinition[] = CORE_STAT_ORBS.map((stat) => ({
+    id: stat,
+    theme,
+    kind: "stat",
+    stat,
+  }));
+  return [...identityOrbs, ...statOrbs];
+}
+
