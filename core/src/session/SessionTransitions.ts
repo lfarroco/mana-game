@@ -18,6 +18,7 @@ import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
 import {
   CORE_STAT_ORBS,
+  CORE_UPGRADE_DEFINITIONS,
   getThemeUpgradePool,
 } from "../content/coreUpgradeOrbs";
 import type {
@@ -154,6 +155,22 @@ const ACTION_HANDLERS: Record<
     if (action.encounterId === "soul_trade") {
       if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
       session.losses += 1;
+    }
+
+    // Core-upgrade options (CUB-B3): the upgrade_core / add_reaction_core
+    // phases offer stat ids and themed identity-orb ids, and the client
+    // dispatches them via select_encounter. Apply the orb to the core and
+    // advance the run.
+    if (isCoreUpgradeOptionId(action.encounterId)) {
+      const core = session.team.units.find((u) => u.isCore);
+      if (core) {
+        OrbAndCoreUpgrades.applyCoreUpgrade(
+          core,
+          action.encounterId,
+          session.round,
+        );
+      }
+      return transitionToNextStep(session);
     }
 
     const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
@@ -446,6 +463,14 @@ function executeCombatPhase(
 
 function isCore(unit: Models.Unit): boolean {
   return unit.isCore;
+}
+
+/** True for core-upgrade option ids: the generic stat ids or a themed identity orb. */
+function isCoreUpgradeOptionId(id: string): boolean {
+  return (
+    (CORE_STAT_ORBS as readonly string[]).includes(id) ||
+    id in CORE_UPGRADE_DEFINITIONS
+  );
 }
 
 /**

@@ -3,6 +3,7 @@
 import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
 import { Unit, Effect } from "../Models";
 import * as Card from "../Entities/Card";
+import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
 
 function makeUnit(overrides: Partial<Unit> = {}): Unit {
   return {
@@ -303,6 +304,48 @@ describe("OrbAndCoreUpgrades", () => {
       const core = makeUnit({ id: "core", cooldown: 500, isCore: true });
       OrbAndCoreUpgrades.decreaseCoreCooldown(core);
       expect(core.cooldown).toBeGreaterThanOrEqual(500);
+    });
+  });
+
+  describe("applyCoreUpgrade", () => {
+    it("appends an effect orb's effect to the core (identity orb)", () => {
+      const core = makeUnit({ id: "core", isCore: true });
+      const def = CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS.crit_crit_column;
+      expect(def.kind).toBe("effect");
+
+      OrbAndCoreUpgrades.applyCoreUpgrade(core, def.id, 1);
+
+      expect(core.effects).toHaveLength(1);
+      expect(JSON.stringify(core.effects[0])).toBe(JSON.stringify(def.effect));
+    });
+
+    it("appends a reaction orb's reaction to the core (identity orb)", () => {
+      const core = makeUnit({ id: "core", isCore: true });
+      const def = CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS.crit_row_power;
+      expect(def.kind).toBe("reaction");
+
+      OrbAndCoreUpgrades.applyCoreUpgrade(core, def.id, 1);
+
+      expect(core.reactions).toHaveLength(1);
+      expect(JSON.stringify(core.reactions[0])).toBe(
+        JSON.stringify(def.reaction),
+      );
+    });
+
+    it("applies the generic stat ids via the stat helpers", () => {
+      const core = makeUnit({ id: "core", power: 100, isCore: true });
+      OrbAndCoreUpgrades.applyCoreUpgrade(core, "upgrade_core_power", 5);
+      expect(core.power).toBeGreaterThan(100);
+      expect(core.bonusPower).toBeGreaterThan(0);
+    });
+
+    it("is a no-op for unknown orb ids", () => {
+      const core = makeUnit({ id: "core", isCore: true });
+      expect(() =>
+        OrbAndCoreUpgrades.applyCoreUpgrade(core, "not_a_real_orb", 1),
+      ).not.toThrow();
+      expect(core.effects).toHaveLength(0);
+      expect(core.reactions).toHaveLength(0);
     });
   });
 });

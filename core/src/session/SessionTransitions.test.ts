@@ -172,6 +172,41 @@ describe("SessionTransitions", () => {
       expect(r2AfterEnd.session.phase).toBe("add_reaction_core");
       expect(r2AfterEnd.session.step).toBe(5);
     });
+
+    it("applies a picked themed orb via select_encounter and advances the run (CUB-B3)", () => {
+      const session = createTestSession("test-core-upgrade-apply-001");
+      makeCoreStrong(session);
+
+      const afterCombat = SessionTransitions.transitionToNextState(session, {
+        type: "start_combat",
+      });
+      const afterUpgrade = SessionTransitions.transitionToNextState(
+        afterCombat.session,
+        { type: "end_combat" },
+      );
+      expect(afterUpgrade.session.phase).toBe("upgrade_core");
+
+      // critical_crystal is a damage-theme core; crit_crit_column is a
+      // damage-theme identity orb. Picking it must append the effect to the
+      // core and advance the run into round 2.
+      const critColumn =
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS.crit_crit_column;
+      const afterPick = SessionTransitions.transitionToNextState(
+        afterUpgrade.session,
+        { type: "select_encounter", encounterId: critColumn.id },
+      );
+
+      expect(afterPick.session.phase).toBe("encounter");
+      expect(afterPick.session.round).toBe(2);
+      expect(afterPick.session.step).toBe(0);
+
+      const core = afterPick.session.team.units.find((u) => u.isCore)!;
+      expect(
+        core.effects.some(
+          (effect) => JSON.stringify(effect) === JSON.stringify(critColumn.effect),
+        ),
+      ).toBe(true);
+    });
   });
 
   describe("transitionToNextState with options", () => {

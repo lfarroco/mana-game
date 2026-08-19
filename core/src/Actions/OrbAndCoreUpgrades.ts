@@ -10,6 +10,10 @@ import { applyPowerDelta, upgradeUnitData } from "../Entities/Unit";
 import * as Random from "../math/Random";
 import * as OrbConstants from "../Orbs/OrbConstants";
 import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
+import {
+  CORE_STAT_ORBS,
+  CORE_UPGRADE_DEFINITIONS,
+} from "../content/coreUpgradeOrbs";
 
 const COOLDOWN_REDUCTION_FACTOR = OrbConstants.COOLDOWN_REDUCTION_FACTOR;
 const CORE_STAT_SCALING_FACTOR = 0.1;
@@ -350,4 +354,70 @@ export function decreaseCoreCooldown(core: Unit): string {
   const reduction = core.cooldown * COOLDOWN_REDUCTION_FACTOR;
   core.cooldown = Math.max(ORB_MIN_COOLDOWN_MS, core.cooldown - reduction);
   return `Decreased Core Cooldown by ${Math.floor(reduction)}`;
+}
+
+/**
+ * Apply a core-upgrade option to the player's core (CUB-B3).
+ *
+ * Handles both flavors of core-upgrade option ids: the generic stat ids
+ * (`increase_core_max_life` / `upgrade_core_power` / `decrease_core_cooldown`
+ * — the repeatable "bigger numbers" fallback) and the themed identity orbs
+ * from the coreUpgradeOrbs catalog (kind "effect" appends the effect, kind
+ * "reaction" appends the reaction, kind "stat" calls the stat helper).
+ *
+ * MUTATES `core` in place — callers must operate on a structuredClone'd
+ * session (session action contract).
+ */
+export function applyCoreUpgrade(
+  core: Unit,
+  orbId: string,
+  round: number,
+): void {
+  if ((CORE_STAT_ORBS as readonly string[]).includes(orbId)) {
+    applyCoreStat(core, orbId, round);
+    return;
+  }
+
+  const def = CORE_UPGRADE_DEFINITIONS[orbId];
+  if (!def) {
+    console.warn(
+      "orbAndCoreUpgrades",
+      `Unknown core upgrade orb: ${orbId}`,
+    );
+    return;
+  }
+
+  if (def.kind === "effect" && def.effect) {
+    core.effects = [...core.effects, structuredClone(def.effect)];
+    return;
+  }
+  if (def.kind === "reaction" && def.reaction) {
+    core.reactions = [...core.reactions, structuredClone(def.reaction)];
+    return;
+  }
+  if (def.kind === "stat" && def.stat) {
+    applyCoreStat(core, def.stat, round);
+    return;
+  }
+  console.warn(
+    "orbAndCoreUpgrades",
+    `Core upgrade orb ${orbId} has no applicable payload`,
+  );
+}
+
+/** Route a core stat orb id to its existing stat helper. */
+function applyCoreStat(core: Unit, statId: string, round: number): void {
+  switch (statId) {
+    case "increase_core_max_life":
+      upgradeCoreMaxLife(core, round);
+      break;
+    case "upgrade_core_power":
+      upgradeCorePower(core, round);
+      break;
+    case "decrease_core_cooldown":
+      decreaseCoreCooldown(core);
+      break;
+    default:
+      console.warn("orbAndCoreUpgrades", `Unknown core stat orb: ${statId}`);
+  }
 }
