@@ -203,9 +203,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Simplify cores at start + theme-scoped upgrade-orb events. Full spec, baseline
 > table, orb catalog, and acceptance criteria are in the doc.
 
-- [ ] **CUB-A1** — add `coreTheme` + `CORE_THEMES` to `CardDefinition`
-- [ ] **CUB-A2** — reduce all 6 cores to action-only baseline; quickstone → `haste`
-- [ ] **CUB-A3** — `core/src/content/coreUpgradeOrbs.ts` (themed orb catalog)
 - [ ] **CUB-B1** — `generateCoreUpgradeOptions(session)` (seeded, theme-scoped, dedupe)
 - [ ] **CUB-B2** — wire themed options into `upgrade_core` / `add_reaction_core`
 - [ ] **CUB-B3** — apply `CoreUpgradeDefinition` in `OrbAndCoreUpgrades`
