@@ -378,4 +378,16 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
     effects: [poison],
     reactions: [reaction("slow", "enemies", increasePower(6, self), "enemy")],
   },
+  {
+    id: "the_leech",
+    description:
+      "Parasitic reversal — when the enemy heals, your crystal gains shield.",
+    tags: ["cross_force", "type_engine"],
+    pic: "neutral_voidhunter",
+    power: 40,
+    rank: 2,
+    cooldown: 5800,
+    effects: [shield],
+    reactions: [reaction("heal", "enemies", shield, "enemy")],
+  },
 ];

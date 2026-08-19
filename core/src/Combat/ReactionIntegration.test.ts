@@ -11,9 +11,11 @@ import {
   makeTestUnit,
   setupCombat,
   runFrames,
+  filterLogs,
 } from "../__test_utils__/combatHarness";
 import * as Constants from "../Constants";
 import * as Models from "../Models";
+import * as Card from "../Entities/Card";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -373,5 +375,49 @@ describe("Reaction — enemies position", () => {
     );
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
     expect(cpuReactor.power).toBeGreaterThan(10);
+  });
+});
+
+describe("Reaction — enemy heal triggers shield (cross-force)", () => {
+  it("the_leech: enemy heal grants YOUR crystal shield", () => {
+    // Build the player-side reactor from the REAL card data. Cooldown is set to
+    // 99999 so it never casts its own shield — any shield that lands must come
+    // from the heal reaction.
+    const leech = Card.makeUnit(Constants.FORCE_ID_PLAYER, "the_leech", [0, 0]);
+    leech.cooldown = 99999;
+    leech.id = "leech-react";
+
+    const { combatState, combatRunner } = setupCombat([leech]);
+
+    // Add a CPU-side healer (the auto CPU core sits at [0, 2], so [1, 2] is free).
+    const enemyHealer = makeTestUnit({
+      effects: [{ id: "heal" }],
+      power: 30,
+      cooldown: 500,
+      position: [1, 2],
+    });
+    enemyHealer.force = Constants.FORCE_ID_CPU;
+    enemyHealer.id = "enemy-healer";
+    combatState.units.push(enemyHealer);
+    combatState.cpuUnits.push(enemyHealer);
+    combatState.unitById.set(enemyHealer.id, enemyHealer);
+
+    const logs = runFrames(combatRunner, combatState, 300);
+
+    // The Leech's reaction fired when the enemy healed.
+    const reactionLogs = filterLogs(logs, "reaction");
+    expect(
+      reactionLogs.some((l) => l.unitId === "leech-react"),
+    ).toBe(true);
+
+    // The shield landed on the PLAYER core — the enemy heal granted OUR crystal shield.
+    const playerCore = combatState.units.find(
+      (u) => u.force === Constants.FORCE_ID_PLAYER && u.isCore,
+    )!;
+    const shieldHits = filterLogs(logs, "shield_hit");
+    expect(shieldHits.some((h) => h.targetId === playerCore.id)).toBe(true);
+
+    // Sanity: the player core is actually shielded by the end of the run.
+    expect(playerCore.shield).toBeGreaterThan(0);
   });
 });
