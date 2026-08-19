@@ -96,6 +96,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [unit-balance.md](docs/unit-balance.md): Power budget, cost formulas, trigger frequencies
 - [card-design-philosophy.md](docs/card-design-philosophy.md): Tier design (bronze/silver/gold roles), the upgrade curve, card authoring checklist
 - [card-system-risks-and-roadmap.md](docs/card-system-risks-and-roadmap.md): Risk analysis and sequenced improvement plan for the card system — silver pool expansion, gold feasibility audits, disruption mechanics, AP model refinements
+- [wacky-content-plan.md](docs/wacky-content-plan.md): Reviewed, implementation-ready plan for "fun and wacky" content — new units, effect types, encounters, and edits (tiered tasks A0–D2)
 - [purity-boundary.md](docs/purity-boundary.md): Pure logic boundary, replay-critical import rules
 - [storage-system.md](docs/storage-system.md): Provider pattern, Steam Cloud, localStorage
 - [audio-system.md](docs/audio-system.md): Music, SFX, cooldowns, user preferences
@@ -177,4 +178,32 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 - [ ] **Manual Steam smoke test** (plan.md task 14): requires a real Steam publisher Web API key (`MANA_STEAM_WEB_API_KEY`) + a Steam Electron build.
 - [ ] **Purify deferred**: port `tutorialSlides.ts` out of `phaser/` (Phaser-rendering factories — needs a render-layer rewrite; see [purify.md](purify.md) Phase F) and the B4 log-dispatch switch.
+
+### Fun & wacky content — see [docs/wacky-content-plan.md](docs/wacky-content-plan.md)
+
+> Discrete, claimable tasks for new units / effect types / encounters / edits.
+> Pick one, mark `[x]` with your agent name and date when done, then remove the
+> entry. Full specs, files, and acceptance criteria are in the doc.
+
+- [ ] **A0** — gold cap → percentage guard in `BaseCollection.balance.test.ts`
+- [ ] **A1** — new bronze: Pixie Trickster (chaos tempo)
+- [ ] **A2** — new silver: Vulture (grows off enemy slows)
+- [ ] **A3** — new silver: The Leech (enemy heal → your shield)
+- [ ] **A4** — new bronze: Echo of the Mask (left-ally cast → buff random ally)
+- [ ] **A5** — new bronze: Lifestealer (damage + heal)
+- [ ] **A6** — edit `gambler` → true coin-flip
+- [ ] **A7** — edit `mirror_entity` → real mirror (haste echo)
+- [ ] **A8** — edit `fate_shifter` → Twisted Mirror
+- [ ] **A9** — encounter: Oracle's Riddle (random bronze)
+- [ ] **A10** — encounter: Chaos Altar (random orb)
+- [ ] **A11** — encounter: Roulette Wheel (life gamble)
+- [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
+- [ ] **A13** — edit: `upgrade_core` Mystery Box option
+- [ ] **A14** — edit: `add_reaction_core` random option
+- [ ] **A15** — edit: effect shops allow silvers (round ≥ 4)
+- [ ] **B1** — effect: `when` predicates on reactions
+- [ ] **C1** — effect: `repeat`/retrigger
+- [ ] **C2** — effect: `on_crystal_hit` (thorns)
+- [ ] **D1** — effect: `silence`
+- [ ] **D2** — effect: `dispel`
 
