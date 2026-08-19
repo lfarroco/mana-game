@@ -367,4 +367,15 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
       reaction("every_10_regen", "allies", increasePower(10, weakestAlly)),
     ],
   },
+  {
+    id: "vulture",
+    description: "Feeds on weakness — grows power when enemies are slowed.",
+    tags: ["cross_force", "grow_over_time"],
+    pic: "neutral_bonereaper",
+    power: 75,
+    rank: 2,
+    cooldown: 6000,
+    effects: [poison],
+    reactions: [reaction("slow", "enemies", increasePower(6, self), "enemy")],
+  },
 ];
