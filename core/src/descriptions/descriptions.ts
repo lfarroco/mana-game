@@ -1,8 +1,16 @@
 import { ABILITY_COLORS } from "../data/abilityColors";
-import type { Effect, EffectReaction, Targeting } from "../Models";
+import type {
+  Effect,
+  EffectReaction,
+  ReactionPredicate,
+  Targeting,
+} from "../Models";
 
 /** Injected translate function (same signature as the phaser i18n `t`). */
-export type Translate = (key: string, params?: Record<string, string>) => string;
+export type Translate = (
+  key: string,
+  params?: Record<string, string>,
+) => string;
 
 const MS_PER_SECOND = 1000;
 
@@ -106,9 +114,15 @@ const getCompactTargetDescription = (
 
   const count = getCount(targets);
   if (targets.id === "random_ally" && count && count > 1)
-    return t("tooltip.targets.random_allies", { count: count.toString(), color: color || "" });
+    return t("tooltip.targets.random_allies", {
+      count: count.toString(),
+      color: color || "",
+    });
   if (targets.id === "random_enemy" && count && count > 1)
-    return t("tooltip.targets.random_enemies", { count: count.toString(), color: color || "" });
+    return t("tooltip.targets.random_enemies", {
+      count: count.toString(),
+      color: color || "",
+    });
 
   if (targets.id === "all_allies" && targets.ofType !== "any") {
     return t("tooltip.targets.all_allies_type", {
@@ -130,7 +144,9 @@ export const buildCompactEffectBlock = (
   const effectName = t(`tooltip.effects.${effect.id}`);
 
   const targets = getEffectTargets(effect);
-  const targetDesc = targets ? getCompactTargetDescription(targets, color, t) : "";
+  const targetDesc = targets
+    ? getCompactTargetDescription(targets, color, t)
+    : "";
 
   let effectString = "";
 
@@ -319,12 +335,18 @@ export const getReactionDescription = (
   t: Translate,
   compactTooltips: boolean,
 ): string => {
+  const whenText = reaction.when ? getWhenDescription(reaction.when, t) : null;
+
   if (compactTooltips) {
     const style = ABILITY_COLORS[reaction.effectId];
     const color = style || "#51cf66";
     const effectKey = reaction.effectId === "all" ? "any" : reaction.effectId;
     const sourceDesc = reaction.position
-      ? getCompactTargetDescription({ id: reaction.position } as Targeting, color, t)
+      ? getCompactTargetDescription(
+          { id: reaction.position } as Targeting,
+          color,
+          t,
+        )
       : t("tooltip.targets.source", { color });
     const effectName = t(`tooltip.effects.${effectKey}`);
 
@@ -343,7 +365,8 @@ export const getReactionDescription = (
       .filter((e): e is string => e !== null);
 
     const effectText = effectSegments.join(" -> ");
-    return `${triggerText} -> ${effectText}`;
+    const base = `${triggerText} -> ${effectText}`;
+    return whenText ? `${base} (${whenText})` : base;
   }
 
   const style = ABILITY_COLORS[reaction.effectId];
@@ -361,7 +384,9 @@ export const getReactionDescription = (
   } else if (reaction.effectId === "on_battle_start") {
     triggerText = t("tooltip.sentence.trigger.on_battle_start");
   } else if (reaction.effectId === "on_over_heal") {
-    triggerText = t("tooltip.sentence.trigger.on_over_heal", { source: sourceDesc });
+    triggerText = t("tooltip.sentence.trigger.on_over_heal", {
+      source: sourceDesc,
+    });
   } else {
     triggerText = t("tooltip.sentence.trigger.default", {
       source: sourceDesc,
@@ -376,7 +401,46 @@ export const getReactionDescription = (
     .map((e) => buildEffectBlock(e, unitPower, t, compactTooltips))
     .filter((e): e is string => e !== null);
 
-  const effectText = effectSegments.join(effectSegments.length > 1 ? "\n" : ", ");
+  const effectText = effectSegments.join(
+    effectSegments.length > 1 ? "\n" : ", ",
+  );
 
-  return t("tooltip.sentence.reaction", { trigger: coloredTrigger, effect: effectText });
+  const base = t("tooltip.sentence.reaction", {
+    trigger: coloredTrigger,
+    effect: effectText,
+  });
+  return whenText
+    ? t("tooltip.sentence.reaction_with_when", {
+        reaction: base,
+        when: whenText,
+      })
+    : base;
+};
+
+/**
+ * B1 (docs/wacky-content-plan.md): render a reaction's `when` predicate as a
+ * short human-readable clause, e.g. "3+ allies + poison ally".
+ */
+const getWhenDescription = (when: ReactionPredicate, t: Translate): string => {
+  const parts: string[] = [];
+  if (when.minAllies !== undefined) {
+    parts.push(
+      t("tooltip.sentence.when.min_allies", { count: String(when.minAllies) }),
+    );
+  }
+  if (when.maxAllies !== undefined) {
+    parts.push(
+      t("tooltip.sentence.when.max_allies", { count: String(when.maxAllies) }),
+    );
+  }
+  if (when.ofTypes) {
+    for (const type of when.ofTypes) {
+      parts.push(
+        t("tooltip.sentence.when.of_type", {
+          effect: t(`tooltip.effects.${type}`),
+        }),
+      );
+    }
+  }
+  return parts.join(" + ");
 };

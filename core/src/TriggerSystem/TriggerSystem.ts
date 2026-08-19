@@ -203,6 +203,39 @@ const sameForce = (unit: Models.Unit, triggeringUnit: Models.Unit) =>
  * Note: `triggerTeam: "enemy"` requires `position: "enemies"` because the triggerer
  * is from the opposing force — so from the reactor's perspective, the triggerer IS an enemy.
  */
+/**
+ * B1 (docs/wacky-content-plan.md): evaluate a reaction's `when` predicate
+ * against the reactor's board state at trigger time.
+ *
+ * Pure + deterministic (board state only — no RNG, no logs). A reaction
+ * without `when` always passes. Allies = every unit on the reactor's force
+ * (including the reactor and its core); `ofTypes` requires at least one ally
+ * whose effects include each listed EffectId.
+ */
+export function reactionPredicateAllows(
+  env: Models.CombatEnvironment,
+  reactor: Models.Unit,
+  when: Models.ReactionPredicate | undefined,
+): boolean {
+  if (!when) return true;
+
+  const allies = env.combatState.units.filter((u) => u.force === reactor.force);
+
+  if (when.minAllies !== undefined && allies.length < when.minAllies) {
+    return false;
+  }
+  if (when.maxAllies !== undefined && allies.length > when.maxAllies) {
+    return false;
+  }
+  if (when.ofTypes) {
+    for (const type of when.ofTypes) {
+      const hasType = allies.some((u) => u.effects.some((e) => e.id === type));
+      if (!hasType) return false;
+    }
+  }
+  return true;
+}
+
 export function processReactions(
   env: Models.CombatEnvironment,
   triggeringUnit: Models.Unit,
@@ -282,7 +315,10 @@ export function processReactions(
             const _exhaustiveCheck: never = r.position;
             return _exhaustiveCheck;
         }
-      });
+      })
+      // B1 (docs/wacky-content-plan.md): reactions with a `when` predicate only
+      // fire when their board-state gate holds for the reactor at trigger time.
+      .filter((r) => reactionPredicateAllows(env, u, r.when));
 
     reactions.forEach((r) => {
       env.logger.log({

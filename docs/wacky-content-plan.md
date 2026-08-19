@@ -281,7 +281,7 @@ per effect, not "small".
 
 ### Tier B — engine extension (cheapest wacky condition)
 
-#### B1 — `when` predicates on reactions
+#### B1 — `when` predicates on reactions ✅ (2026-08-19)
 
 - **Goal**: the literal "Joker condition" mechanic — reactions that fire only when a
   board-state predicate holds. Unlocks Half Joker ("≤ N allies"), Flower Pot ("all 5

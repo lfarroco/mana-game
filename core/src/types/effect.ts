@@ -113,4 +113,28 @@ export type EffectReaction = {
    *  "own" (default) = reactor's own team. "enemy" = opposing team.
    *  Only meaningful for threshold reactions (every_100_damage, etc.). */
   triggerTeam?: "own" | "enemy";
+  /**
+   * B1 (docs/wacky-content-plan.md): board-state gate. The reaction fires only
+   * when this predicate holds over the reactor's team at trigger time.
+   * Pure + deterministic (no RNG). A reaction without `when` always fires.
+   */
+  when?: ReactionPredicate;
+};
+
+/**
+ * B1 (docs/wacky-content-plan.md): `when` predicates gate reactions on the
+ * reactor's board state.
+ *
+ * - `minAllies` / `maxAllies` — bounds on the reactor's team size (all
+ *   same-force units on the board, including the reactor and its core).
+ * - `ofTypes` — the reactor's team must contain at least one unit whose
+ *   effects include each listed EffectId.
+ *
+ * All fields are optional; an empty predicate always passes. See
+ * `reactionPredicateAllows` in TriggerSystem for evaluation.
+ */
+export type ReactionPredicate = {
+  minAllies?: number;
+  maxAllies?: number;
+  ofTypes?: EffectId[];
 };
