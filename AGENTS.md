@@ -185,7 +185,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Pick one, mark `[x]` with your agent name and date when done, then remove the
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
-- [ ] **A9** — encounter: Oracle's Riddle (random bronze)
 - [ ] **A10** — encounter: Chaos Altar (random orb)
 - [ ] **A11** — encounter: Roulette Wheel (life gamble)
 - [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)

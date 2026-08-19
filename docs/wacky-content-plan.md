@@ -203,7 +203,7 @@ per effect, not "small".
 - **Acceptance**: `multiply_power` stays gold-only + cooldown ≥ 8000 (it already is);
   add to `AP_ALLOWLIST` with a "double-edged, helps the enemy" justification.
 
-#### A9 — Oracle's Riddle (new encounter)
+#### A9 — Oracle's Riddle (new encounter) ✅ (2026-08-19)
 
 - **Goal**: you get what you get — instantly recruit a **random bronze** (no choice).
 - **Files**: `types/action.ts` (EncounterId), `OptionGeneration.ts` (ENCOUNTERS row,

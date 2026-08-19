@@ -314,6 +314,9 @@ describe("New P1 encounters", () => {
       "runesmith_damage",
       "runesmith_shield",
       "runesmith_heal",
+      "oracles_riddle",
+      "chaos_altar",
+      "roulette_wheel",
     ]);
 
     it("never offers minRound-gated encounters in round 1", () => {

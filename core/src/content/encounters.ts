@@ -182,6 +182,28 @@ export const ENCOUNTERS: EncounterData[] = [
     descriptionKey: "encounters.runesmith_heal.desc",
     minRound: 3,
   },
+  // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
+  {
+    id: "oracles_riddle",
+    pic: "ui/trial_circuit",
+    nameKey: "encounters.oracles_riddle.name",
+    descriptionKey: "encounters.oracles_riddle.desc",
+    minRound: 2,
+  },
+  {
+    id: "chaos_altar",
+    pic: "ui/dark_ritual",
+    nameKey: "encounters.chaos_altar.name",
+    descriptionKey: "encounters.chaos_altar.desc",
+    minRound: 2,
+  },
+  {
+    id: "roulette_wheel",
+    pic: "ui/gold_medal",
+    nameKey: "encounters.roulette_wheel.name",
+    descriptionKey: "encounters.roulette_wheel.desc",
+    minRound: 2,
+  },
   {
     id: "start_combat",
     pic: "ui/armory",

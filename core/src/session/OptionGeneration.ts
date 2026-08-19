@@ -60,6 +60,10 @@ const ENCOUNTERS: EncounterDefinition[] = [
   { id: "runesmith_damage", filterType: "reaction_damage" },
   { id: "runesmith_shield", filterType: "reaction_shield" },
   { id: "runesmith_heal", filterType: "reaction_heal" },
+  // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
+  { id: "oracles_riddle", filterType: null },
+  { id: "chaos_altar", filterType: null },
+  { id: "roulette_wheel", filterType: null },
 ];
 
 const ENCOUNTER_IDS: EncounterId[] = ENCOUNTERS.map((e) => e.id);

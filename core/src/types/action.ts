@@ -36,7 +36,11 @@ export type EncounterId =
   | "soul_trade"
   | "runesmith_damage"
   | "runesmith_shield"
-  | "runesmith_heal";
+  | "runesmith_heal"
+  // ── Wacky content slice (2026-08-19, Tier A encounters) ─────────────
+  | "oracles_riddle"
+  | "chaos_altar"
+  | "roulette_wheel";
 
 /** Static phase-option ids not derived from encounters or cards. */
 export type StaticOptionId =
@@ -54,7 +58,8 @@ export type StaticOptionId =
   | "absorb_power_orb"
   | "sacrifice_effect_orb"
   | "sacrifice_unit_orb"
-  | "scrap_salvage_orb";
+  | "scrap_salvage_orb"
+  | "chaos_altar_random_orb";
 
 /**
  * A player choice presented during a phase.

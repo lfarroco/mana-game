@@ -7,6 +7,7 @@
 
 import * as Models from "../Models";
 import * as SessionManagement from "./SessionManagement";
+import * as Card from "../Entities/Card";
 import * as CombatSimulation from "../Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
 import * as PhaseConfig from "../PhaseSystem/PhaseConfig";
@@ -143,6 +144,19 @@ const ACTION_HANDLERS: Record<
     if (action.encounterId === "soul_trade") {
       if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
       session.losses += 1;
+    }
+
+    // A9 (docs/wacky-content-plan.md): Oracle's Riddle — instantly recruit a
+    // random bronze (no choice). Seeded and deterministic; the recruit can
+    // upgrade a duplicate the player already owns (shop semantics).
+    if (action.encounterId === "oracles_riddle") {
+      const rng = { seed: session.seed };
+      const bronzePool = Card.getNonCores().filter((c) => (c.rank || 1) === 1);
+      const bronze = Random.pickOneSeeded(rng, bronzePool);
+      session.seed = rng.seed;
+      return transitionToNextStep(
+        RecruitmentActions.recruitUnit(session, bronze.id, null),
+      );
     }
 
     // Core-upgrade options (CUB-B3): the upgrade_core / add_reaction_core
@@ -308,10 +322,7 @@ const ACTION_HANDLERS: Record<
 };
 
 function transitionToNextStep(session: Models.SessionData): Models.SessionData {
-  let nextPhase = PhaseConfig.getPhaseForTurn(
-    session.round,
-    session.step + 1,
-  );
+  let nextPhase = PhaseConfig.getPhaseForTurn(session.round, session.step + 1);
 
   // End of the round's phase rotation: roll over to round + 1 at step 0
   // (every rotation starts with "encounter").

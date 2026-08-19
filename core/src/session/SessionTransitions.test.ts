@@ -210,7 +210,8 @@ describe("SessionTransitions", () => {
       const core = afterPick.session.team.units.find((u) => u.isCore)!;
       expect(
         core.effects.some(
-          (effect) => JSON.stringify(effect) === JSON.stringify(critColumn.effect),
+          (effect) =>
+            JSON.stringify(effect) === JSON.stringify(critColumn.effect),
         ),
       ).toBe(true);
     });
@@ -376,6 +377,41 @@ describe("SessionTransitions", () => {
       const options = SessionTransitions.generateCoreUpgradeOptions(session);
 
       expect(options.map((o) => o.id)).toEqual(STAT_IDS);
+    });
+  });
+
+  describe("oracles_riddle (A9)", () => {
+    it("instantly recruits a random bronze into a free slot and advances", () => {
+      const session = createTestSession("a9-recruit");
+      const before = session.team.units.length; // 1 (the core)
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "oracles_riddle",
+      });
+
+      const team = result.session.team.units;
+      expect(team.length).toBe(before + 1);
+      const recruited = team.find((u) => !u.isCore)!;
+      const card = Card.getNonCores().find((c) => c.id === recruited.cardId)!;
+      expect(card.rank ?? 1).toBe(1);
+      // The recruit lands on a free board slot (no overlap with the core).
+      const positions = team.map((u) => `${u.position[0]},${u.position[1]}`);
+      expect(new Set(positions).size).toBe(team.length);
+    });
+
+    it("is deterministic under the session seed", () => {
+      const a = SessionTransitions.transitionToNextState(
+        createTestSession("a9-determinism"),
+        { type: "select_encounter", encounterId: "oracles_riddle" },
+      );
+      const b = SessionTransitions.transitionToNextState(
+        createTestSession("a9-determinism"),
+        { type: "select_encounter", encounterId: "oracles_riddle" },
+      );
+      expect(a.session.team.units.map((u) => u.cardId)).toEqual(
+        b.session.team.units.map((u) => u.cardId),
+      );
     });
   });
 });
