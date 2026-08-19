@@ -189,10 +189,16 @@ function filterByReactionTrigger(
 
 /**
  * Filter cards by effect type, supporting both direct effects and reactions.
+ *
+ * A15 (docs/wacky-content-plan.md): effect-type shops admit silvers from
+ * round 4 on (rank ≤ 2) so silver synergy cards surface in the most common
+ * shop; before that they are bronze-only. The tier shops (`silver` / `gold`)
+ * and the reaction shops are rank-locked by their own branches.
  */
 function filterCardsByEffect(
   cards: CardDefinition[],
   filterType: EncounterFilterType,
+  round: number,
 ): CardDefinition[] {
   if (filterType === "silver") {
     return cards.filter((card) => getCardRank(card) === 2);
@@ -214,9 +220,10 @@ function filterCardsByEffect(
     return filterByReactionTrigger(cards, "heal");
   }
 
+  const maxRank = round >= 4 ? 2 : 1;
   return cards.filter(
     (card) =>
-      getCardRank(card) === 1 && cardMatchesEffectType(card, filterType),
+      getCardRank(card) <= maxRank && cardMatchesEffectType(card, filterType),
   );
 }
 
@@ -256,7 +263,11 @@ export function generateShopOptions(
   let filteredCards = Card.getNonCores();
 
   if (filterType) {
-    filteredCards = filterCardsByEffect(filteredCards, filterType);
+    filteredCards = filterCardsByEffect(
+      filteredCards,
+      filterType,
+      session.round,
+    );
   }
 
   // Filter out cards where player already has a platinum (rank 4) unit

@@ -269,7 +269,7 @@ per effect, not "small".
   `on_100_damage_effect` / `on_crit_effect` / `on_battle_start_effect` via seeded RNG.
 - **Acceptance**: unit test; option appears in the `add_reaction_core` phase.
 
-#### A15 — Effect-filtered shops allow silvers at round ≥ 4
+#### A15 — Effect-filtered shops allow silvers at round ≥ 4 ✅ (2026-08-19)
 
 - **Goal**: more variety in the most common shop; surfaces silver synergy cards.
 - **Files**: `core/src/session/OptionGeneration.ts` (`filterCardsByEffect`, ~line 189;

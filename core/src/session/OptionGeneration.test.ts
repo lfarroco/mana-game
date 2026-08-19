@@ -103,6 +103,22 @@ const mockCards = [
     rank: 2,
   },
   {
+    id: "silver_damage",
+    pic: "",
+    cooldown: 1000,
+    effects: [{ id: "damage" } as Models.Effect],
+    reactions: [],
+    rank: 2,
+  },
+  {
+    id: "silver_heal",
+    pic: "",
+    cooldown: 1000,
+    effects: [{ id: "heal" } as Models.Effect],
+    reactions: [],
+    rank: 2,
+  },
+  {
     id: "gold_1",
     pic: "",
     cooldown: 1000,
@@ -299,6 +315,78 @@ describe("OptionGeneration", () => {
         action,
       );
       expect(a.map((o) => o.id)).toEqual(b.map((o) => o.id));
+    });
+
+    it("keeps effect shops bronze-only before round 4 (A15)", () => {
+      for (const round of [1, 2, 3]) {
+        const session = makeSession({ phase: "encounter", round });
+        const action: Models.Action = {
+          type: "select_encounter",
+          encounterId: "armory",
+        };
+        const options = OptionGeneration.generateShopOptions(session, action);
+        expect(options).toHaveLength(3);
+        for (const opt of options) {
+          const card = mockCards.find((c) => c.id === opt.id) as
+            Models.CardDefinition | undefined;
+          expect(card!.rank ?? 1).toBe(1);
+        }
+      }
+    });
+
+    it("admits silvers into effect shops from round 4 on (A15)", () => {
+      const seenSilver = new Set<string>();
+      for (let i = 0; i < 30; i++) {
+        const session = makeSession({
+          phase: "encounter",
+          round: 4,
+          seed: `a15-${i}`,
+        });
+        const action: Models.Action = {
+          type: "select_encounter",
+          encounterId: "armory",
+        };
+        const options = OptionGeneration.generateShopOptions(session, action);
+        expect(options).toHaveLength(3);
+        for (const opt of options) {
+          const card = mockCards.find((c) => c.id === opt.id) as
+            Models.CardDefinition | undefined;
+          expect(card!.rank ?? 1).toBeLessThanOrEqual(2);
+          // Every offered card actually performs the shop's effect.
+          expect(
+            card!.effects?.some((e) => e.id === "damage") ||
+              card!.reactions?.some((r) =>
+                r.effects?.some((e) => e.id === "damage"),
+              ),
+          ).toBe(true);
+          if ((card!.rank ?? 1) === 2) seenSilver.add(card!.id);
+        }
+      }
+      // Silvers are in the damage pool and must surface across seeds.
+      expect(seenSilver.has("silver_damage")).toBe(true);
+    });
+
+    it("keeps tier shops rank-locked regardless of round (A15)", () => {
+      // silver_shop / gold_shop are unaffected by the round-4 silver opener.
+      const silverOptions = OptionGeneration.generateShopOptions(
+        makeSession({ phase: "encounter", round: 4 }),
+        { type: "select_encounter", encounterId: "silver_shop" },
+      );
+      for (const opt of silverOptions) {
+        const card = mockCards.find((c) => c.id === opt.id) as
+          Models.CardDefinition | undefined;
+        expect(card!.rank ?? 1).toBe(2);
+      }
+
+      const goldOptions = OptionGeneration.generateShopOptions(
+        makeSession({ phase: "encounter", round: 6 }),
+        { type: "select_encounter", encounterId: "gold_shop" },
+      );
+      for (const opt of goldOptions) {
+        const card = mockCards.find((c) => c.id === opt.id) as
+          Models.CardDefinition | undefined;
+        expect(card!.rank ?? 1).toBe(3);
+      }
     });
   });
 });

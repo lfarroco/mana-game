@@ -186,7 +186,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
 - [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
-- [ ] **A15** — edit: effect shops allow silvers (round ≥ 4)
 - [ ] **B1** — effect: `when` predicates on reactions
 - [ ] **C1** — effect: `repeat`/retrigger
 - [ ] **C2** — effect: `on_crystal_hit` (thorns)
