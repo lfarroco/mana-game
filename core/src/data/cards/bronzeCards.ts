@@ -585,12 +585,12 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "gambler",
-    description: "Crit battery whose payoff is probabilistic — the flagship risk/reward card.",
+    description: "Crit battery with a coin-flip — each cast grants crit to a random ally; row casts feed the column.",
     tags: ["risk_reward", "crit_battery"],
     pic: "neutral_gambler",
     power: 30,
     cooldown: 4200,
-    effects: [shield, increaseCritical(10, column)],
+    effects: [shield, increaseCritical(10, randomAlly(1))],
     reactions: [reaction("all", "row_allies", increaseCritical(5, column))],
   },
   {

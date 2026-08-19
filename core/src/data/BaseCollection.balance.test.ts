@@ -76,9 +76,10 @@ const MULTIPLY_MIN_COOLDOWN_MS = 8000;
  * explicitly allows flavor/risk units to sit outside the band (§9.1).
  */
 const AP_ALLOWLIST = new Set([
-  // Crit-battery: shield + crit column + crit column reaction. The doc's
-  // 4×/crit pricing values it well above the bronze budget, but crit is a
-  // probabilistic payoff and the unit has no defensive value beyond the shield.
+  // Crit-battery: shield + random-ally crit on cast (the coin-flip) + crit
+  // column reaction. The doc's 4×/crit pricing values it well above the bronze
+  // budget, but crit is a probabilistic payoff and the unit has no defensive
+  // value beyond the shield.
   "gambler",
 ]);
 
