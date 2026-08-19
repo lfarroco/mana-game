@@ -116,6 +116,10 @@ export function effectValue(effect: EffectLike, power: number): number {
       case "haste":
       case "slow":
         return 15 * ((effect.duration ?? 0) / 1000) * mult * cond;
+      case "silence":
+        // D1 (docs/wacky-content-plan.md): silence removes an entire cast — a
+        // stronger denial than slow, priced at double slow's per-second rate.
+        return 30 * ((effect.duration ?? 0) / 1000) * mult * cond;
       case "charge":
         return 22 * ((effect.duration ?? 0) / 1000) * mult;
       case "increase_power":

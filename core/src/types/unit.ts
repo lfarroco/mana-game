@@ -34,6 +34,9 @@ export type Unit = {
 
   hasted: number;
   slowed: number;
+  /** D1 (docs/wacky-content-plan.md): ms of silence remaining — a silenced
+   *  unit wastes its turn instead of casting (see CombatRunner.chargeUnits). */
+  silenced: number;
 
   isCore: boolean;
 };

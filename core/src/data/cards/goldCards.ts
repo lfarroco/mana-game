@@ -11,6 +11,7 @@ import {
   poison,
   haste,
   slow,
+  silence,
   increasePower,
   decreasePower,
   multiplyPower,
@@ -200,6 +201,20 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
     rank: 3,
     cooldown: 8000,
     effects: [{ id: "damage", repeat: 2 }],
+    reactions: [],
+  },
+  // D1 (docs/wacky-content-plan.md): counterplay blade — damage + silence the
+  // strongest enemy. Gold-only per the silence balance rule.
+  {
+    id: "hexblade",
+    description:
+      "Counterplay blade — damages and silences the strongest enemy.",
+    tags: ["disabler", "type_engine"],
+    pic: "neutral_inquisitorkron",
+    power: 70,
+    rank: 3,
+    cooldown: 6000,
+    effects: [damage, silence(1500, strongestEnemy)],
     reactions: [],
   },
 ];

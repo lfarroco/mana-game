@@ -69,6 +69,14 @@ export type SlowCastEntry = {
   travelTime: number;
 };
 
+export type SilenceCastEntry = {
+  type: "silence_cast";
+  sourceId: string;
+  targetId: string;
+  effectDuration: number;
+  travelTime: number;
+};
+
 export type ChargeCastEntry = {
   type: "charge_cast";
   sourceId: string;
@@ -141,6 +149,13 @@ export type SlowHitEntry = {
   effectDuration: number;
 };
 
+export type SilenceHitEntry = {
+  type: "silence_hit";
+  sourceId: string;
+  targetId: string;
+  effectDuration: number;
+};
+
 export type ChargeHitEntry = {
   type: "charge_hit";
   sourceId: string;
@@ -157,6 +172,17 @@ export type HasteEndEntry = {
 
 export type SlowEndEntry = {
   type: "slow_end";
+  unitId: string;
+};
+
+export type SilenceEndEntry = {
+  type: "silence_end";
+  unitId: string;
+};
+
+/** D1: a silenced unit reached its turn and wasted it (no cast). */
+export type SilenceSkipEntry = {
+  type: "silence_skip";
   unitId: string;
 };
 
@@ -252,6 +278,7 @@ export type CombatLogInput =
   | RegenCastEntry
   | HasteCastEntry
   | SlowCastEntry
+  | SilenceCastEntry
   | ChargeCastEntry
   | DamageHitEntry
   | HealHitEntry
@@ -260,9 +287,12 @@ export type CombatLogInput =
   | RegenHitEntry
   | HasteHitEntry
   | SlowHitEntry
+  | SilenceHitEntry
   | ChargeHitEntry
   | HasteEndEntry
   | SlowEndEntry
+  | SilenceEndEntry
+  | SilenceSkipEntry
   | IncreasePowerEntry
   | DecreasePowerEntry
   | IncreaseCriticalEntry

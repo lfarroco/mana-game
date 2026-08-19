@@ -77,6 +77,20 @@ const processEffectIO = (
             processReactions(env, sourceUnit, { id: "re_slow" }, scale),
         );
         break;
+      case "silence":
+        const silenceTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.applySilence(
+          env,
+          sourceUnit,
+          silenceTargets,
+          effect.duration * scale,
+        );
+        break;
       case "charge":
         const chargeTargets = resolveTargets(
           env,

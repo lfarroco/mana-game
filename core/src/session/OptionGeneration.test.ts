@@ -288,6 +288,7 @@ describe("OptionGeneration", () => {
               refresh: 0,
               hasted: 0,
               slowed: 0,
+              silenced: 0,
               isCore: false,
             },
           ],

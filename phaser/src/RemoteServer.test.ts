@@ -2,11 +2,7 @@ import { FORCE_ID_CPU, FORCE_ID_PLAYER } from "@game/Constants";
 import type { CombatStateDto } from "@game/Combat/CombatCodec";
 import * as Models from "@game/Models";
 import type { Unit } from "@game/Models";
-import {
-	createRemoteServer,
-	DEFAULT_SERVER_URL,
-	RemoteServerError,
-} from "./RemoteServer";
+import { createRemoteServer, DEFAULT_SERVER_URL, RemoteServerError } from "./RemoteServer";
 
 /**
  * Unit tests for the Phase 3 RemoteServer HTTP adapter.
@@ -32,9 +28,7 @@ function mockResponse(status: number, body: unknown) {
 }
 
 function createFetchMock(status = 200, body: unknown = {}) {
-	return jest.fn(async (_url: unknown, _init: unknown) =>
-		mockResponse(status, body),
-	);
+	return jest.fn(async (_url: unknown, _init: unknown) => mockResponse(status, body));
 }
 
 function makeUnit(id: string, force: string, isCore: boolean): Unit {
@@ -58,6 +52,7 @@ function makeUnit(id: string, force: string, isCore: boolean): Unit {
 		refresh: 0,
 		hasted: 0,
 		slowed: 0,
+		silenced: 0,
 		isCore,
 	};
 }
@@ -286,4 +281,3 @@ describe("RemoteServer HTTP adapter", () => {
 		expect(options.team).toEqual({ units: [] });
 	});
 });
-

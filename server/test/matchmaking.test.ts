@@ -40,6 +40,7 @@ function makeUnit(overrides: Partial<Unit> = {}): Unit {
     refresh: 0,
     hasted: 0,
     slowed: 0,
+    silenced: 0,
     isCore: true,
     ...overrides,
   };
@@ -232,7 +233,6 @@ describe("pickOpponent", () => {
   });
 });
 
-
 describe("resolveOpponent", () => {
   const base = {
     playerId: "me",
@@ -270,7 +270,11 @@ describe("resolveOpponent", () => {
 
   it("widens the rating band on repeated misses until a match is found", () => {
     // Distance 500: bands 150 (miss), 300 (miss), 450 (miss), 600 (hit).
-    const farGhost = makeGhost({ ghostId: "g-far", playerId: "far", rating: 500 });
+    const farGhost = makeGhost({
+      ghostId: "g-far",
+      playerId: "far",
+      rating: 500,
+    });
     const resolution = resolveOpponent({ ghosts: [farGhost], ...base });
 
     expect(resolution.ghostId).toBe("g-far");
@@ -325,7 +329,6 @@ describe("resolveOpponent", () => {
   });
 });
 
-
 describe("createMemoryGhostRepo", () => {
   it("caps the recently-fought list per player (FIFO)", () => {
     const ghostRepo = createMemoryGhostRepo();
@@ -351,4 +354,3 @@ describe("createMemoryGhostRepo", () => {
     expect(ghostRepo.getRecentOpponents("me")).toEqual(["b", "a"]);
   });
 });
-

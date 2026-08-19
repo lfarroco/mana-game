@@ -43,6 +43,7 @@ const getEffectTargets = (effect: Effect): Targeting | undefined => {
   switch (effect.id) {
     case "haste":
     case "slow":
+    case "silence":
     case "charge":
     case "increase_power":
     case "decrease_power":
@@ -177,6 +178,11 @@ export const buildCompactEffectBlock = (
       effectString = `[color=${color}]${effectName}[/color] ${dur}s`;
       break;
     }
+    case "silence": {
+      const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
+      effectString = `[color=${color}]${effectName}[/color] ${dur}s`;
+      break;
+    }
     case "increase_power": {
       const suffix = effect.permanent ? "*" : "";
       effectString = `[color=${color}]+${effect.amount}${suffix} ${effectName}[/color]`;
@@ -256,6 +262,10 @@ const buildEffectSentence = (
     case "slow": {
       const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
       return t("tooltip.sentence.slow", { duration: dur, target, color });
+    }
+    case "silence": {
+      const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
+      return t("tooltip.sentence.silence", { duration: dur, target, color });
     }
     case "charge": {
       const dur = (effect.duration / MS_PER_SECOND).toFixed(1);

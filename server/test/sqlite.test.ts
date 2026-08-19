@@ -93,6 +93,7 @@ function makeUnit(overrides: Partial<Unit> = {}): Unit {
     refresh: 0,
     hasted: 0,
     slowed: 0,
+    silenced: 0,
     isCore: true,
     ...overrides,
   };
@@ -219,7 +220,10 @@ describe("createSqlitePlayerRepo", () => {
     const repo = createSqlitePlayerRepo(db);
 
     const momo = makePlayer({ playerId: "p-1", providerId: STEAM_ID_A });
-    const other = makePlayer({ playerId: "p-2", providerId: "76561198000000001" });
+    const other = makePlayer({
+      playerId: "p-2",
+      providerId: "76561198000000001",
+    });
     const guest = makePlayer({
       playerId: "p-3",
       provider: "guest",
@@ -277,8 +281,6 @@ describe("createSqliteTokenRepo", () => {
     db.close();
   });
 });
-
-
 
 describe("createSqliteGhostRepo", () => {
   it("round-trips ghosts (team as JSON) and finds them by round", () => {
@@ -386,7 +388,6 @@ describe("createApp with SQLite persistence", () => {
     expect(create.body.phase).toBe("encounter");
   });
 });
-
 
 describe("restart survival", () => {
   /**
@@ -511,4 +512,3 @@ async function driveToCombat(app: Express, token: string) {
     .set("Authorization", `Bearer ${token}`)
     .send({ action: { type: "start_combat" } });
 }
-

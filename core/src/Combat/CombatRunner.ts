@@ -249,6 +249,7 @@ export const chargeUnits = (
   for (const unit of state.units) {
     const wasHasted = unit.hasted > 0;
     const wasSlowed = unit.slowed > 0;
+    const wasSilenced = unit.silenced > 0;
 
     const cooldownMultiplier =
       wasHasted && wasSlowed ? 1 : wasHasted ? 0.5 : wasSlowed ? 2 : 1;
@@ -273,12 +274,28 @@ export const chargeUnits = (
       }
     }
 
+    if (wasSilenced) {
+      unit.silenced = Math.max(0, unit.silenced - delta);
+
+      if (unit.silenced === 0) {
+        logger.log({ type: "silence_end", unitId: unit.id });
+      }
+    }
+
     unit.refresh = Math.max(0, unit.refresh - delta);
 
     if (unit.charge >= unit.cooldown && unit.refresh === 0) {
-      unit.charge = unit.charge - unit.cooldown;
-      unit.refresh = Constants.MIN_REFRESH_MS;
-      performingUnits.push(unit);
+      if (unit.silenced > 0) {
+        // D1 (docs/wacky-content-plan.md): a silenced unit wastes its turn
+        // instead of casting — charge resets so it re-charges from zero.
+        unit.charge = 0;
+        unit.refresh = Constants.MIN_REFRESH_MS;
+        logger.log({ type: "silence_skip", unitId: unit.id });
+      } else {
+        unit.charge = unit.charge - unit.cooldown;
+        unit.refresh = Constants.MIN_REFRESH_MS;
+        performingUnits.push(unit);
+      }
     }
   }
 

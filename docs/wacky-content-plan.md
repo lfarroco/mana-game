@@ -331,7 +331,7 @@ per effect, not "small".
 
 ### Tier D — counterplay package (re-ranked down: "hate tech", not "chaos")
 
-#### D1 — `silence`
+#### D1 — `silence` ✅ (2026-08-19)
 
 - **Goal**: disable an enemy unit's effects/reactions for a duration. Fills the
   documented P1 gap (card-system-risks §3). PvE-viable (enemy teams carry reactions).

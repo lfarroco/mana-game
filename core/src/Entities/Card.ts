@@ -144,6 +144,7 @@ export function createUnitFromCardSpec(
     refresh: 0,
     hasted: 0,
     slowed: 0,
+    silenced: 0,
     isCore: cardDef.isCore || false,
     life: cardDef.life || 0,
     maxLife: cardDef.life || 0,

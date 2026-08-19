@@ -33,6 +33,10 @@ export const slow = (
   duration: number,
   targets: Models.Targeting,
 ): Models.Effect => ({ id: "slow", duration, targets });
+export const silence = (
+  duration: number,
+  targets: Models.Targeting,
+): Models.Effect => ({ id: "silence", duration, targets });
 export const charge = (
   duration: number,
   targets: Models.Targeting,

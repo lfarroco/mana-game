@@ -20,6 +20,7 @@ function makeCore(force: string, life: number, shield = 0): Models.Unit {
     refresh: 0,
     hasted: 0,
     slowed: 0,
+    silenced: 0,
     isCore: true,
     life,
     maxLife: life,

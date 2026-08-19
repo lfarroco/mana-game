@@ -97,8 +97,8 @@ describe("BaseCollection balance", () => {
   it("has exactly one core card per effect type and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
     expect(cores).toHaveLength(6);
-    // 64 bronze + 24 silver + 11 gold non-core cards
-    expect(nonCoreCards).toHaveLength(99);
+    // 64 bronze + 24 silver + 12 gold non-core cards
+    expect(nonCoreCards).toHaveLength(100);
   });
 
   it("keeps more silvers than golds, with golds capped at ~12% of the pool", () => {
@@ -277,6 +277,43 @@ describe("BaseCollection balance", () => {
         if (!allowed) {
           failures.push(
             `${card.id}: repeat ${count} requires gold rank or cooldown ≥ ${REPEAT_MIN_COOLDOWN_MS}ms (got ${card.cooldown})`,
+          );
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+
+  it("reserves silence for gold cards or narrow single-target effects", () => {
+    // D1 (docs/wacky-content-plan.md): silence removes an entire enemy cast —
+    // counterplay, not spam. A non-gold card may only silence a single unit
+    // (self/trigger/single-target enemy/ally picks), never whole boards.
+    const NARROW_TARGETS = new Set([
+      "self",
+      "trigger",
+      "strongest_enemy",
+      "weakest_enemy",
+      "strongest_ally",
+      "weakest_ally",
+      "random_enemy",
+      "random_ally",
+      "top_ally",
+      "bottom_ally",
+      "left_ally",
+      "right_ally",
+    ]);
+    const failures: string[] = [];
+    for (const card of ALL_CARDS) {
+      const silences = [
+        ...card.effects,
+        ...card.reactions.flatMap((r) => r.effects),
+      ].filter((e) => e.id === "silence");
+      for (const effect of silences) {
+        if (rankOf(card) === TIER.GOLD) continue;
+        const targets = effect.targets?.id;
+        if (!targets || !NARROW_TARGETS.has(targets)) {
+          failures.push(
+            `${card.id}: silence on a non-gold card must target a single unit (got ${targets ?? "none"})`,
           );
         }
       }
