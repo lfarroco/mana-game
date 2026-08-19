@@ -17,6 +17,7 @@ import * as OptionGeneration from "./OptionGeneration";
 import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
+import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
 import {
   CORE_STAT_ORBS,
   CORE_UPGRADE_DEFINITIONS,
@@ -34,6 +35,9 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   dark_ritual: [{ id: "sacrifice_unit_orb" }],
   scrap_salvage: [{ id: "scrap_salvage_orb" }],
   gamblers_shrine: [{ id: "sacrifice_effect_orb" }],
+  // A10 (docs/wacky-content-plan.md): the "orb" is a surprise — the player
+  // picks the victim, the orb is drawn from RANDOM_ORB_POOL at apply time.
+  chaos_altar: [{ id: "chaos_altar_random_orb" }],
 };
 
 function transitionAfterCombat(
@@ -276,6 +280,23 @@ const ACTION_HANDLERS: Record<
     if (action.type !== "apply_orb") throw new Error();
 
     const { orbId, targetUnitId } = action;
+
+    // A10 (docs/wacky-content-plan.md): Chaos Altar marker orb — the player
+    // picked the victim, so the actual orb is drawn here, seeded and
+    // deterministic.
+    if (orbId === "chaos_altar_random_orb") {
+      const rng = { seed: session.seed };
+      const pickedOrb = Random.pickOneSeeded(rng, RANDOM_ORB_POOL);
+      session.seed = rng.seed;
+      session.seed = OrbAndCoreUpgrades.applyOrb(
+        session.team.units,
+        targetUnitId,
+        pickedOrb,
+        { seed: session.seed },
+      );
+      return transitionToNextStep(session);
+    }
+
     session.seed = OrbAndCoreUpgrades.applyOrb(
       session.team.units,
       targetUnitId,

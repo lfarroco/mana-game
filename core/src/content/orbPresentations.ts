@@ -140,6 +140,13 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     nameKey: "shop.orbs.scrapSalvage.name",
     tooltipKey: "shop.orbs.scrapSalvage.tooltip",
   },
+  {
+    id: "chaos_altar_random_orb",
+    color: 0x9932cc,
+    icon: ORB_ICONS.dark_ritual,
+    nameKey: "shop.orbs.chaosAltar.name",
+    tooltipKey: "shop.orbs.chaosAltar.tooltip",
+  },
   reactionCard("on_100_damage_effect", "every_100_damage"),
   reactionCard("on_100_shield_effect", "every_100_shield"),
   reactionCard("on_100_heal_effect", "every_100_heal"),

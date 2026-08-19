@@ -300,6 +300,19 @@ describe("New P1 encounters", () => {
     });
   });
 
+  describe("wacky encounter routing (Tier A)", () => {
+    it("chaos_altar routes to orb_shop with the random-orb marker", () => {
+      const result = SessionTransitions.transitionToNextState(makeSession(), {
+        type: "select_encounter",
+        encounterId: "chaos_altar",
+      });
+      expect(result.session.phase).toBe("orb_shop");
+      expect(result.session.options.map((o) => o.id)).toEqual([
+        "chaos_altar_random_orb",
+      ]);
+    });
+  });
+
   describe("round firewall (minRound/maxRound enforcement)", () => {
     // Encounters whose minRound > 1 must never be offered in round 1.
     const ROUND_1_FORBIDDEN = new Set([

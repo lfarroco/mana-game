@@ -10,6 +10,7 @@ import * as Card from "../Entities/Card";
 import * as Constants from "../math/Constants";
 import * as SessionTransitions from "./SessionTransitions";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
+import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
 
 // Cards are statically available — no registration needed.
 
@@ -412,6 +413,62 @@ describe("SessionTransitions", () => {
       expect(a.session.team.units.map((u) => u.cardId)).toEqual(
         b.session.team.units.map((u) => u.cardId),
       );
+    });
+  });
+
+  describe("chaos_altar (A10)", () => {
+    const coreIdOf = (seed: string): string =>
+      createTestSession(seed).team.units[0].id;
+
+    it("applies a seeded random orb from the registered pool when the marker is dropped", () => {
+      const session = createTestSession("a10-apply");
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "apply_orb",
+        orbId: "chaos_altar_random_orb",
+        targetUnitId: coreIdOf("a10-apply"),
+      });
+
+      // The altar consumed the seeded RNG (the session seed advanced past the
+      // pool draw) and the orb_shop phase was left behind.
+      expect(result.session.seed).not.toBe("a10-apply");
+      expect(result.session.phase).not.toBe("orb_shop");
+    });
+
+    it("is deterministic under the session seed", () => {
+      const run = (seed: string) =>
+        SessionTransitions.transitionToNextState(createTestSession(seed), {
+          type: "apply_orb",
+          orbId: "chaos_altar_random_orb",
+          targetUnitId: coreIdOf(seed),
+        });
+      const a = run("a10-determinism");
+      const b = run("a10-determinism");
+      expect(a.session.seed).toBe(b.session.seed);
+      // Unit ids are UUIDs (never equal across runs) — compare the stable
+      // game-state fields instead.
+      const stable = (units: typeof a.session.team.units) =>
+        units.map((u) => ({
+          cardId: u.cardId,
+          rank: u.rank,
+          power: u.power,
+          effects: u.effects,
+          reactions: u.reactions,
+        }));
+      expect(stable(a.session.team.units)).toEqual(
+        stable(b.session.team.units),
+      );
+    });
+
+    it("every pool orb applies cleanly through apply_orb (no throw, phase advances)", () => {
+      for (const orbId of RANDOM_ORB_POOL) {
+        const session = createTestSession(`a10-pool-${orbId}`);
+        const result = SessionTransitions.transitionToNextState(session, {
+          type: "apply_orb",
+          orbId,
+          targetUnitId: coreIdOf(`a10-pool-${orbId}`),
+        });
+        expect(result.session.phase).not.toBe("orb_shop");
+      }
     });
   });
 });

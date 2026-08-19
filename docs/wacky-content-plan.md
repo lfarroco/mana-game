@@ -216,7 +216,7 @@ per effect, not "small".
 - **Acceptance**: unit test in `core/src/session/` verifying a bronze is recruited and
   the slot is filled; deterministic under the session seed.
 
-#### A10 — Chaos Altar (new encounter)
+#### A10 — Chaos Altar (new encounter) ✅ (2026-08-19)
 
 - **Goal**: you pick the victim, the orb is a surprise — a random orb hits a chosen unit.
 - **Files**: same 4 touch-points as A9.

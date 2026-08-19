@@ -266,3 +266,27 @@ const reactions: OrbDefinition[] = [
   },
 ];
 for (const def of reactions) ORB_DEFINITIONS[def.id] = def;
+
+// ---------------------------------------------------------------------------
+// Surprise-orb pool for chaos encounters (A10 Chaos Altar, A11 Roulette Wheel)
+// ---------------------------------------------------------------------------
+
+/**
+ * The "random orb" pool for chaos-style encounters.
+ *
+ * Every id here is handled by `OrbAndCoreUpgrades.applyOrb`: stat orbs no-op
+ * silently on a mismatched unit (the chaos), special orbs redistribute/rank
+ * up/sacrifice an effect, and reaction orbs append a reaction. The core-stat
+ * specials (`increase_core_max_life` / `upgrade_core_power` /
+ * `decrease_core_cooldown`) are excluded because `applyOrb` does not dispatch
+ * them — they silently no-op.
+ *
+ * Order is the deterministic registration order (stat orbs, specials,
+ * reactions) — seeding is all we need for reproducible picks.
+ */
+export const RANDOM_ORB_POOL: string[] = Object.keys(ORB_DEFINITIONS).filter(
+  (id) =>
+    id !== "increase_core_max_life" &&
+    id !== "upgrade_core_power" &&
+    id !== "decrease_core_cooldown",
+);
