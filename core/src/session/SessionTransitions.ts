@@ -35,18 +35,6 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   gamblers_shrine: [{ id: "sacrifice_effect_orb" }],
 };
 
-const UPGRADE_CORE_OPTIONS: Models.PhaseOption[] = [
-  { id: "increase_core_max_life" },
-  { id: "upgrade_core_power" },
-  { id: "decrease_core_cooldown" },
-];
-
-const ADD_REACTION_CORE_OPTIONS: Models.PhaseOption[] = [
-  { id: "on_100_damage_effect" },
-  { id: "on_crit_effect" },
-  { id: "on_battle_start_effect" },
-];
-
 function transitionAfterCombat(
   session: Models.SessionData,
 ): Models.SessionData {
@@ -83,7 +71,7 @@ function transitionAfterCombat(
     return {
       ...session,
       phase: "upgrade_core",
-      options: UPGRADE_CORE_OPTIONS,
+      options: generateCoreUpgradeOptions(session),
       step: nextStep,
     };
   }
@@ -92,7 +80,7 @@ function transitionAfterCombat(
     return {
       ...session,
       phase: "add_reaction_core",
-      options: ADD_REACTION_CORE_OPTIONS,
+      options: generateCoreUpgradeOptions(session),
       step: nextStep,
     };
   }
@@ -120,7 +108,7 @@ function transitionAfterVictory(
     return {
       ...session,
       phase: "upgrade_core",
-      options: UPGRADE_CORE_OPTIONS,
+      options: generateCoreUpgradeOptions(session),
       step: session.step + 1,
     };
   }
@@ -129,7 +117,7 @@ function transitionAfterVictory(
     return {
       ...session,
       phase: "add_reaction_core",
-      options: ADD_REACTION_CORE_OPTIONS,
+      options: generateCoreUpgradeOptions(session),
       step: session.step + 1,
     };
   }

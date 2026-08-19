@@ -96,6 +96,13 @@ describe("SessionTransitions", () => {
       );
       expect(afterEnd.session.phase).toBe("upgrade_core");
       expect(afterEnd.session.step).toBe(5);
+      // The options are the themed core upgrades (CUB-B2), not the old static
+      // stat-only list.
+      expect(afterEnd.session.options.map((o) => o.id)).toEqual(
+        SessionTransitions.generateCoreUpgradeOptions(afterEnd.session).map(
+          (o) => o.id,
+        ),
+      );
       expect(afterEnd.session.options).toHaveLength(3);
     });
 
