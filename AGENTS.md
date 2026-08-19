@@ -192,15 +192,11 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Simplify cores at start + theme-scoped upgrade-orb events. Full spec, baseline
 > table, orb catalog, and acceptance criteria are in the doc.
 
-> Note: CUB-B1/B2/B3, CUB-C1, and CUB-D1 landed (2026-08-19) and superseded the
-> old A13/A14 entries (upgrade_core Mystery Box / add_reaction_core random
-> option), which were removed. The upgrade phases were also unreachable before
-> CUB-B — the combat step-accounting fix (SessionTransitions.ts) made them
-> reachable.
+> Note: CUB-B1/B2/B3, CUB-C1, CUB-D1, CUB-E1/E2, and CUB-F1/F2 landed (2026-08-19)
+> and superseded the old A13/A14 entries (upgrade_core Mystery Box /
+> add_reaction_core random option), which were removed. The upgrade phases were
+> also unreachable before CUB-B — the combat step-accounting fix
+> (SessionTransitions.ts) made them reachable.
 
-- [ ] **CUB-E1** — crystal-selection + upgrade-phase UI render themed orbs
-- [ ] **CUB-E2** — i18n keys for orbs/themes
-- [ ] **CUB-F1** — unit tests for themed option generation
-- [ ] **CUB-F2** — full verification (core + phaser)
 - [ ] **CUB-G1** — new cores from the doc's §9 ideas
 

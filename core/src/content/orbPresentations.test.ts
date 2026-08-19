@@ -1,8 +1,16 @@
 /// <reference types="jest" />
 
-import { ORB_PRESENTATION_DATA, getOrbPresentationData } from "./orbPresentations";
+import {
+  ORB_PRESENTATION_DATA,
+  getOrbPresentationData,
+} from "./orbPresentations";
+import { CORE_UPGRADE_DEFINITIONS } from "./coreUpgradeOrbs";
 
-const STAT_PREFIXES = ["increase_power", "decrease_cooldown", "increase_critical"] as const;
+const STAT_PREFIXES = [
+  "increase_power",
+  "decrease_cooldown",
+  "increase_critical",
+] as const;
 const STAT_TYPES = [
   "damage",
   "heal",
@@ -73,5 +81,17 @@ describe("orb presentations content", () => {
 
   it("returns null for unknown orb ids", () => {
     expect(getOrbPresentationData("missing")).toBeNull();
+  });
+
+  it("defines a themed presentation for every core-upgrade identity orb (CUB-E1)", () => {
+    const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
+    expect(ids).toHaveLength(24);
+    for (const id of ids) {
+      const orb = ORB_PRESENTATION_DATA[id];
+      expect(orb).toBeDefined();
+      expect(orb!.nameKey).toBe(`shop.orbs.coreUpgrade.${id}.name`);
+      expect(orb!.tooltipKey).toBe(`shop.orbs.coreUpgrade.${id}.tooltip`);
+      expect(orb!.icon.length).toBeGreaterThan(0);
+    }
   });
 });

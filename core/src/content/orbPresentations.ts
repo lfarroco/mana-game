@@ -1,4 +1,6 @@
 /** Orb presentation data — i18n keys, resolved by the client at render time. */
+import { CORE_UPGRADE_DEFINITIONS } from "./coreUpgradeOrbs";
+
 export type OrbPresentationData = {
   id: string;
   color: number;
@@ -147,6 +149,9 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     nameKey: "shop.orbs.chaosAltar.name",
     tooltipKey: "shop.orbs.chaosAltar.tooltip",
   },
+  // ── Core-upgrade identity orbs (CUB-E1/E2): the themed upgrade_core /
+  // add_reaction_core options render through these presentations. ─────
+  ...buildCoreUpgradeOrbPresentations(),
   reactionCard("on_100_damage_effect", "every_100_damage"),
   reactionCard("on_100_shield_effect", "every_100_shield"),
   reactionCard("on_100_heal_effect", "every_100_heal"),
@@ -158,6 +163,44 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
   reactionCard("on_crit_effect", "on_crit"),
   reactionCard("on_battle_start_effect", "on_battle_start"),
 ];
+
+/**
+ * CUB-E1/E2 (docs/core-unit-onboarding.md §5): presentations for the 24 themed
+ * core-upgrade identity orbs so the upgrade_core / add_reaction_core phases
+ * render readable names + descriptions instead of raw option ids.
+ *
+ * Each entry's icon/color follows its theme's family; the name/tooltip i18n
+ * keys live under shop.orbs.coreUpgrade.<id>.{name,tooltip}.
+ */
+const CORE_UPGRADE_THEME_ICONS: Record<string, string> = {
+  regen: "ui/improve_regen",
+  damage: "ui/improve_damage",
+  shield: "ui/improve_shield",
+  heal: "ui/improve_heal",
+  poison: "ui/toxic",
+  haste: "ui/improve_haste",
+};
+
+const CORE_UPGRADE_THEME_COLORS: Record<string, number> = {
+  regen: 0x257331,
+  damage: 0xf21414,
+  shield: 0xfff308,
+  heal: 0x07f62f,
+  poison: 0xc41bf3,
+  haste: 0x91a7ff,
+};
+
+const buildCoreUpgradeOrbPresentations = (): OrbPresentationData[] =>
+  Object.keys(CORE_UPGRADE_DEFINITIONS).map((id) => {
+    const theme = CORE_UPGRADE_DEFINITIONS[id].theme;
+    return {
+      id,
+      color: CORE_UPGRADE_THEME_COLORS[theme] ?? 0x888888,
+      icon: CORE_UPGRADE_THEME_ICONS[theme] ?? "ui/upgrade_unit",
+      nameKey: `shop.orbs.coreUpgrade.${id}.name`,
+      tooltipKey: `shop.orbs.coreUpgrade.${id}.tooltip`,
+    };
+  });
 
 export const ORB_PRESENTATION_DATA: Record<string, OrbPresentationData> =
   Object.fromEntries(buildOrbPresentationData().map((o) => [o.id, o]));

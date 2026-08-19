@@ -212,13 +212,13 @@ That exclusion is currently binary. Make it explicit:
 
 ### Phase E — UI & onboarding (`phaser/`)
 
-- [ ] **CUB-E1** — crystal-selection description renders the baseline only; `upgrade_core`/`add_reaction_core` UI renders themed orb names/descriptions.
-- [ ] **CUB-E2** — i18n keys for new orbs + theme labels (all locales).
+- [x] **CUB-E1** — crystal-selection description renders the baseline only; `upgrade_core`/`add_reaction_core` UI renders themed orb names/descriptions.
+- [x] **CUB-E2** — i18n keys for new orbs + theme labels (all locales).
 
 ### Phase F — tests & verification
 
-- [ ] **CUB-F1** — unit tests: themed option generation (determinism, theme-scoping, dedupe, minRound).
-- [ ] **CUB-F2** — full verification: `cd core && npm test`, `cd core && npm run typecheck`, `cd phaser && npm run test:ci`, `cd phaser && npm run lint`.
+- [x] **CUB-F1** — unit tests: themed option generation (determinism, theme-scoping, dedupe, minRound).
+- [x] **CUB-F2** — full verification: `cd core && npm test`, `cd core && npm run typecheck`, `cd phaser && npm run test:ci`, `cd phaser && npm run lint`.
 
 ### Phase G — new cores (later; see §9)
 
