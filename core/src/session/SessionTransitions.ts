@@ -303,10 +303,20 @@ const ACTION_HANDLERS: Record<
 };
 
 function transitionToNextStep(session: Models.SessionData): Models.SessionData {
-  const nextPhase = PhaseConfig.getPhaseForTurn(
+  let nextPhase = PhaseConfig.getPhaseForTurn(
     session.round,
     session.step + 1,
   );
+
+  // End of the round's phase rotation: roll over to round + 1 at step 0
+  // (every rotation starts with "encounter").
+  if (!nextPhase) {
+    session.round += 1;
+    session.step = 0;
+    nextPhase = PhaseConfig.getPhaseForTurn(session.round, session.step);
+  } else {
+    session.step = session.step + 1;
+  }
 
   if (nextPhase === "encounter") {
     const { options: encounterOptions, encounterHistory } =
@@ -314,20 +324,18 @@ function transitionToNextStep(session: Models.SessionData): Models.SessionData {
     session.options = encounterOptions;
     session.encounter_history = encounterHistory;
     session.phase = nextPhase;
-    session.step = session.step + 1;
     return session;
   }
 
   if (nextPhase === "pre_combat") {
     session.options = [{ id: "start_combat" }];
     session.phase = nextPhase;
-    session.step = session.step + 1;
     return session;
   }
 
   return {
     ...session,
-    step: session.step + 1,
+    step: session.step,
     phase: nextPhase,
     options: [],
   };
@@ -414,6 +422,10 @@ function executeCombatPhase(
 
   const nextSession: Models.SessionData = {
     ...session,
+    // Combat is the rotation's index-4 phase (see PhaseConfig); advance the
+    // step so the post-combat transition resolves upgrade_core /
+    // add_reaction_core (index 5) instead of re-reading "combat".
+    step: session.step + 1,
     phase: "combat",
     combatState: finalCombatState,
     options: [

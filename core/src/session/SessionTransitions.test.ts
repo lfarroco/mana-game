@@ -76,6 +76,102 @@ describe("SessionTransitions", () => {
         }),
       ).toThrow("Missing combat state");
     });
+
+    it("advances to the upgrade_core phase after round-1 combat (step accounting fix)", () => {
+      const session = createTestSession("test-upgrade-flow-001");
+      makeCoreStrong(session);
+
+      // Round 1 rotation: encounter(0) encounter(1) encounter(2) pre_combat(3)
+      // combat(4) upgrade_core(5). Combat must advance the step so end_combat
+      // resolves to upgrade_core instead of re-reading "combat".
+      const afterCombat = SessionTransitions.transitionToNextState(session, {
+        type: "start_combat",
+      });
+      expect(afterCombat.session.phase).toBe("combat");
+      expect(afterCombat.session.step).toBe(4);
+
+      const afterEnd = SessionTransitions.transitionToNextState(
+        afterCombat.session,
+        { type: "end_combat" },
+      );
+      expect(afterEnd.session.phase).toBe("upgrade_core");
+      expect(afterEnd.session.step).toBe(5);
+      expect(afterEnd.session.options).toHaveLength(3);
+    });
+
+    it("rolls over to round-2 encounters after the upgrade_core phase", () => {
+      const session = createTestSession("test-round-rollover-001");
+      makeCoreStrong(session);
+
+      const afterCombat = SessionTransitions.transitionToNextState(session, {
+        type: "start_combat",
+      });
+      const afterUpgrade = SessionTransitions.transitionToNextState(
+        afterCombat.session,
+        { type: "end_combat" },
+      );
+      expect(afterUpgrade.session.phase).toBe("upgrade_core");
+
+      // The rotation has no step-6 phase: skip must roll to round 2, step 0.
+      const afterSkip = SessionTransitions.transitionToNextState(
+        afterUpgrade.session,
+        { type: "skip" },
+      );
+      expect(afterSkip.session.phase).toBe("encounter");
+      expect(afterSkip.session.round).toBe(2);
+      expect(afterSkip.session.step).toBe(0);
+    });
+
+    it("advances to the add_reaction_core phase after round-2 combat", () => {
+      const session = createTestSession("test-add-reaction-flow-001");
+      makeCoreStrong(session);
+
+      // Drive round 1 fully (encounters → combat → upgrade_core → skip rolls
+      // to round 2).
+      const r1Combat = SessionTransitions.transitionToNextState(session, {
+        type: "start_combat",
+      });
+      const r1Upgrade = SessionTransitions.transitionToNextState(
+        r1Combat.session,
+        { type: "end_combat" },
+      );
+      const r2Start = SessionTransitions.transitionToNextState(
+        r1Upgrade.session,
+        { type: "skip" },
+      );
+      expect(r2Start.session.phase).toBe("encounter");
+      expect(r2Start.session.round).toBe(2);
+
+      // Round 2 rotation: encounter(0-2) pre_combat(3) combat(4) add_reaction_core(5).
+      const r2AfterEncounters = SessionTransitions.transitionToNextState(
+        r2Start.session,
+        { type: "skip" },
+      );
+      const r2PreCombat = SessionTransitions.transitionToNextState(
+        r2AfterEncounters.session,
+        { type: "skip" },
+      );
+      const r2PreCombatFinal = SessionTransitions.transitionToNextState(
+        r2PreCombat.session,
+        { type: "skip" },
+      );
+      expect(r2PreCombatFinal.session.phase).toBe("pre_combat");
+      expect(r2PreCombatFinal.session.step).toBe(3);
+
+      const r2Combat = SessionTransitions.transitionToNextState(
+        r2PreCombatFinal.session,
+        { type: "start_combat" },
+      );
+      expect(r2Combat.session.phase).toBe("combat");
+      expect(r2Combat.session.step).toBe(4);
+
+      const r2AfterEnd = SessionTransitions.transitionToNextState(
+        r2Combat.session,
+        { type: "end_combat" },
+      );
+      expect(r2AfterEnd.session.phase).toBe("add_reaction_core");
+      expect(r2AfterEnd.session.step).toBe(5);
+    });
   });
 
   describe("transitionToNextState with options", () => {

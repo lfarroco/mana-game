@@ -137,10 +137,11 @@ describe("createSqliteSessionRepo", () => {
     expect(resumed.combatState!.wonCombat).toBe(result.combatState!.wonCombat);
     expect(resumed.id).toBe(result.session.id);
 
-    // end_combat transitions out of combat; the stale combat row is not read.
+    // end_combat transitions out of combat into the upgrade_core phase; the
+    // stale combat row is not read.
     service.handleAction("p1", { type: "end_combat" });
     const next = repo.get("p1")!;
-    expect(next.phase).toBe("encounter");
+    expect(next.phase).toBe("upgrade_core");
     expect(next.combatState).toBeUndefined();
 
     db.close();
@@ -445,14 +446,24 @@ describe("restart survival", () => {
       // Resume payload is byte-identical to the pre-restart combat state.
       expect(resumed.body.combatState).toEqual(started.body.combatState);
 
-      // The run can CONTINUE after the restart: end_combat works.
+      // The run can CONTINUE after the restart: end_combat works and lands on
+      // the upgrade_core phase (round 1's final phase).
       const after = await request(second.app)
         .post("/api/v1/sessions/current/actions")
         .set("Authorization", `Bearer ${token}`)
         .send({ action: { type: "end_combat" } });
       expect(after.status).toBe(200);
-      expect(after.body.session.phase).toBe("encounter");
-      expect(after.body.session.round).toBe(2);
+      expect(after.body.session.phase).toBe("upgrade_core");
+      expect(after.body.session.round).toBe(1);
+
+      // Skipping the upgrade phase rolls into round 2's encounters.
+      const afterSkip = await request(second.app)
+        .post("/api/v1/sessions/current/actions")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ action: { type: "skip" } });
+      expect(afterSkip.status).toBe(200);
+      expect(afterSkip.body.session.phase).toBe("encounter");
+      expect(afterSkip.body.session.round).toBe(2);
 
       second.db.close();
     } finally {

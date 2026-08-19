@@ -402,9 +402,18 @@ describe("POST /api/v1/sessions/current/actions", () => {
       .send({ action: { type: "end_combat" } });
 
     expect(res.status).toBe(200);
-    expect(res.body.session.phase).toBe("encounter");
-    expect(res.body.session.round).toBe(2);
+    expect(res.body.session.phase).toBe("upgrade_core");
+    expect(res.body.session.round).toBe(1);
     expect(res.body.session.wins + res.body.session.losses).toBe(1);
+
+    // Skipping the upgrade phase rolls the run into round 2's encounters.
+    const skipRes = await request(app)
+      .post("/api/v1/sessions/current/actions")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ action: { type: "skip" } });
+    expect(skipRes.status).toBe(200);
+    expect(skipRes.body.session.phase).toBe("encounter");
+    expect(skipRes.body.session.round).toBe(2);
   });
 
   it("start_combat stores a ghost snapshot and resolves the enemy via matchmaking", async () => {
