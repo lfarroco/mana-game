@@ -77,6 +77,13 @@ export type SilenceCastEntry = {
   travelTime: number;
 };
 
+export type DispelCastEntry = {
+  type: "dispel_cast";
+  sourceId: string;
+  targetId: string;
+  travelTime: number;
+};
+
 export type ChargeCastEntry = {
   type: "charge_cast";
   sourceId: string;
@@ -154,6 +161,12 @@ export type SilenceHitEntry = {
   sourceId: string;
   targetId: string;
   effectDuration: number;
+};
+
+export type DispelHitEntry = {
+  type: "dispel_hit";
+  sourceId: string;
+  targetId: string;
 };
 
 export type ChargeHitEntry = {
@@ -279,6 +292,7 @@ export type CombatLogInput =
   | HasteCastEntry
   | SlowCastEntry
   | SilenceCastEntry
+  | DispelCastEntry
   | ChargeCastEntry
   | DamageHitEntry
   | HealHitEntry
@@ -288,6 +302,7 @@ export type CombatLogInput =
   | HasteHitEntry
   | SlowHitEntry
   | SilenceHitEntry
+  | DispelHitEntry
   | ChargeHitEntry
   | HasteEndEntry
   | SlowEndEntry

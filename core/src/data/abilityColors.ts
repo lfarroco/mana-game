@@ -8,6 +8,7 @@ export const ABILITY_COLORS: Record<string, string> = {
   re_hasted: "#00eaff",
   re_slow: "#d2691e",
   silence: "#9775fa",
+  dispel: "#e64980",
   every_100_damage: "#ff4500",
   every_100_shield: "#74c0fc",
   every_100_heal: "#51cf66",

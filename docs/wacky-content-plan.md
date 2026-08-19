@@ -343,7 +343,7 @@ per effect, not "small".
 - **Follow-up card**: Hexblade (gold, damage + silence the strongest enemy).
 - **Acceptance**: unit test that a silenced unit casts nothing for the duration.
 
-#### D2 — `dispel`
+#### D2 — `dispel` ✅ (2026-08-19)
 
 - **Goal**: strip status effects (poison/regen/haste/slow/charge/shield) from a target.
 - **Files**: `types/effect.ts`, a `TriggerSystem/effects/dispel.ts` module calling into

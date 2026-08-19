@@ -91,6 +91,15 @@ const processEffectIO = (
           effect.duration * scale,
         );
         break;
+      case "dispel":
+        const dispelTargets = resolveTargets(
+          env,
+          sourceUnit,
+          effect,
+          triggeringUnit,
+        );
+        effects.applyDispel(env, sourceUnit, dispelTargets);
+        break;
       case "charge":
         const chargeTargets = resolveTargets(
           env,

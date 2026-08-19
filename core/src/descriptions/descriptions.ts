@@ -44,6 +44,7 @@ const getEffectTargets = (effect: Effect): Targeting | undefined => {
     case "haste":
     case "slow":
     case "silence":
+    case "dispel":
     case "charge":
     case "increase_power":
     case "decrease_power":
@@ -183,6 +184,9 @@ export const buildCompactEffectBlock = (
       effectString = `[color=${color}]${effectName}[/color] ${dur}s`;
       break;
     }
+    case "dispel":
+      effectString = `[color=${color}]${effectName}[/color]`;
+      break;
     case "increase_power": {
       const suffix = effect.permanent ? "*" : "";
       effectString = `[color=${color}]+${effect.amount}${suffix} ${effectName}[/color]`;
@@ -267,6 +271,8 @@ const buildEffectSentence = (
       const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
       return t("tooltip.sentence.silence", { duration: dur, target, color });
     }
+    case "dispel":
+      return t("tooltip.sentence.dispel", { target, color });
     case "charge": {
       const dur = (effect.duration / MS_PER_SECOND).toFixed(1);
       return t("tooltip.sentence.charge", { duration: dur, target, color });

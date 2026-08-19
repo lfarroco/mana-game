@@ -17,5 +17,6 @@ export * from "./applyCharge";
 export * from "./applyPoison";
 export * from "./applyRegen";
 export * from "./silence";
+export * from "./dispel";
 export * from "./increaseCritical";
 export * from "./decreasePower";

@@ -37,6 +37,10 @@ export const silence = (
   duration: number,
   targets: Models.Targeting,
 ): Models.Effect => ({ id: "silence", duration, targets });
+export const dispel = (targets: Models.Targeting): Models.Effect => ({
+  id: "dispel",
+  targets,
+});
 export const charge = (
   duration: number,
   targets: Models.Targeting,

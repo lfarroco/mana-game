@@ -40,6 +40,7 @@ export type EffectId =
   | "haste"
   | "slow"
   | "silence"
+  | "dispel"
   | "charge"
   | "increase_power"
   | "decrease_power"
@@ -69,6 +70,7 @@ export type Effect = { repeat?: number } & (
   | { id: "haste"; duration: number; targets: Targeting }
   | { id: "slow"; duration: number; targets: Targeting }
   | { id: "silence"; duration: number; targets: Targeting }
+  | { id: "dispel"; targets: Targeting }
   | { id: "charge"; duration: number; targets: Targeting }
   | {
       id: "increase_power";
