@@ -3,7 +3,7 @@
 **Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, and the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
 **Scope**: `server/` (Node multiplayer backend) + the Electron/Steam client side in `phaser/`.
-**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code).
+**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth plan — planned 2026-08-20).
 
 ## Purpose
 

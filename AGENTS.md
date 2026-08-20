@@ -91,6 +91,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [combat-architecture.md](docs/combat-architecture.md): Client-server combat separation, playback system
 - [game-server.md](docs/game-server.md): Phased plan for the Node multiplayer backend — all phases implemented (session API, Steam-only auth, matchmaking & rating, client integration, SQLite persistence)
 - [auth.md](docs/auth.md): Server auth design — Steam-only login (Steam tickets → `AuthenticateUserTicket` → your own bearer tokens), guest accounts in a future phase, provider abstraction
+- [itchio-auth.md](docs/itchio-auth.md): itch.io auth for the web build — OAuth implicit flow, implementation plan + resume guide (planned 2026-08-20)
 - [trigger-system.md](docs/trigger-system.md): Action-Reaction model, effects, targeting
 - [character-unit-system.md](docs/character-unit-system.md): Unit/Card types, Chara rendering system
 - [unit-balance.md](docs/unit-balance.md): Power budget, cost formulas, trigger frequencies
@@ -173,6 +174,12 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ## Task Queue
 
 > Pick a task, mark it `[x]` with your agent name and date when done, then **remove the entry from this list once completed** — the queue holds only open work. Add new tasks as discovered.
+
+> **itch.io auth for the web build** (planned 2026-08-20) — implement per
+> [docs/itchio-auth.md](docs/itchio-auth.md): server `POST /api/v1/auth/itch` (new `itch`
+> provider) + client OAuth-popup login for the browser build. One-time itch.io setup is
+> done (OAuth app `Mana Battle Multiplayer`, client id + redirect URI in the doc); the
+> developer API key is in the gitignored root `.env` (`MANA_ITCH_API_KEY`).
 
 > **All previously queued work is landed.** The last deferred item — the
 > **Manual Steam smoke test** (plan.md task 14) — passed 2026-08-20: a real
