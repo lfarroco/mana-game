@@ -201,5 +201,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > also unreachable before CUB-B — the combat step-accounting fix
 > (SessionTransitions.ts) made them reachable. **CUB-G1 landed (2026-08-19)**:
 > the Radiant Crystal `overflow`-theme core + its identity orbs — see §9 note in
-> [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md).
+> [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md). **CUB-G2 landed
+> (2026-08-19)**: the Verdant Crystal `thorns`-theme core + its 4 identity orbs
+> (all `on_crystal_hit` reactions, built on the C2 thorns engine) — see §9 note.
 

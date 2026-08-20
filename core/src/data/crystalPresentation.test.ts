@@ -12,6 +12,7 @@ describe("getColorPresetForCrystal", () => {
       "purple_crystal",
       "quickstone",
       "radiant_crystal",
+      "verdant_crystal",
     ];
 
     for (const crystalId of crystals) {

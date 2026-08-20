@@ -14,13 +14,15 @@ import {
   resetCardRegistry,
   makeTestUnit,
   filterLogs,
+  runFrames,
   runUntil,
 } from "../__test_utils__/combatHarness";
 import * as CombatSimulation from "../Combat/CombatSimulation";
 import * as CombatRunner from "../Combat/CombatRunner";
 import * as Constants from "../math/Constants";
 import * as Models from "../Models";
-import { damage } from "../data/effectBuilders";
+import { damage, shield } from "../data/effectBuilders";
+import { CORE_UPGRADE_DEFINITIONS } from "../content/coreUpgradeOrbs";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -183,5 +185,124 @@ describe("on_crystal_hit (C2)", () => {
       "player-thorns",
       "player-thorns",
     ]);
+  });
+});
+
+describe("Verdant thorns identity orbs (CUB-G2)", () => {
+  /**
+   * The player team is a verdant_crystal core carrying one thorns-family
+   * identity reaction from the catalog (reaction-only — never casts), plus an
+   * optional ally for the charge orb. The enemy team is a passive enemy core
+   * plus an attacker that actually lands hits on the crystal, so the
+   * on_crystal_hit reaction fires (docs/core-unit-onboarding.md §9).
+   */
+  function makeVerdantTeam(orbId: string, withAlly: boolean): Models.Unit[] {
+    const def = CORE_UPGRADE_DEFINITIONS[orbId];
+    expect(def.reaction).toBeDefined();
+
+    const core = makeTestUnit({
+      effects: [shield],
+      isCore: true,
+      reactions: [structuredClone(def.reaction!)],
+      power: 20,
+      cooldown: 99999,
+      life: 1000,
+      position: [1, 1],
+    });
+    core.id = "verdant-core";
+
+    if (!withAlly) return [core];
+
+    const ally = makeTestUnit({
+      effects: [],
+      cooldown: 99999,
+      position: [0, 1],
+    });
+    ally.id = "verdant-ally";
+    return [core, ally];
+  }
+
+  function makeEnemyTeam(): Models.Unit[] {
+    return [
+      makeCore(Constants.FORCE_ID_CPU, "enemy-core", 5000),
+      makeAttacker(Constants.FORCE_ID_CPU, "enemy-attacker", 10),
+    ];
+  }
+
+  it("thorns reflects the crystal's power back when it is hit", () => {
+    const { combatRunner, combatState } = setupCombat(
+      makeVerdantTeam("verdant_thorns", false),
+      makeEnemyTeam(),
+    );
+
+    const enemyCore = combatState.cpuCore;
+    const initialLife = enemyCore.life;
+
+    const logs = runUntil(combatRunner, combatState, (logs) =>
+      filterLogs(logs, "damage_hit").some((h) => h.sourceId === "verdant-core"),
+    );
+
+    // The attacker's cast hit the verdant crystal, and the crystal dealt its
+    // power back to the enemy core.
+    const reflects = filterLogs(logs, "damage_hit").filter(
+      (h) => h.sourceId === "verdant-core" && h.targetId === "enemy-core",
+    );
+    expect(reflects.length).toBeGreaterThanOrEqual(1);
+    expect(reflects[0].amount).toBe(20); // the crystal's power 20
+    expect(enemyCore.life).toBeLessThan(initialLife);
+
+    // The reaction fired exactly once, from the verdant core.
+    const reactions = filterLogs(logs, "reaction");
+    expect(reactions.some((r) => r.unitId === "verdant-core")).toBe(true);
+  });
+
+  it("thorn_shield shields the crystal when it is hit", () => {
+    const { combatRunner, combatState } = setupCombat(
+      makeVerdantTeam("verdant_thorn_shield", false),
+      makeEnemyTeam(),
+    );
+
+    const playerCore = combatState.playerCore;
+    const initialShield = playerCore.shield;
+
+    runFrames(combatRunner, combatState, 500);
+
+    // The reaction shields the source force's CORE (the verdant crystal).
+    expect(playerCore.shield).toBeGreaterThan(initialShield);
+  });
+
+  it("retaliation grants +5 power to the crystal for every hit", () => {
+    const { combatRunner, combatState } = setupCombat(
+      makeVerdantTeam("verdant_retaliation", false),
+      makeEnemyTeam(),
+    );
+
+    const playerCore = combatState.playerCore;
+    const initialPower = playerCore.power;
+
+    runFrames(combatRunner, combatState, 500);
+
+    expect(playerCore.power).toBeGreaterThan(initialPower);
+  });
+
+  it("vengeful_charge charges a random ally when the crystal is hit", () => {
+    const { combatRunner, combatState } = setupCombat(
+      makeVerdantTeam("verdant_vengeful_charge", true),
+      makeEnemyTeam(),
+    );
+
+    const ally = combatState.unitById.get("verdant-ally")!;
+    const initialCharge = ally.charge;
+
+    const logs = runUntil(combatRunner, combatState, (logs) =>
+      filterLogs(logs, "charge_hit").some((h) => h.targetId === "verdant-ally"),
+    );
+
+    expect(
+      filterLogs(logs, "charge_hit").some((h) => h.targetId === "verdant-ally"),
+    ).toBe(true);
+    expect(combatState.unitById.get("verdant-ally")!.charge).toBeGreaterThan(
+      initialCharge,
+    );
   });
 });

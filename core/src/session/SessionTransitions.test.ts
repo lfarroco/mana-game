@@ -360,6 +360,26 @@ describe("SessionTransitions", () => {
       }
     });
 
+    it("is theme-scoped for the thorns theme — verdant_crystal returns only thorns identity or the 3 stat ids (CUB-G2)", () => {
+      const session = createTestSession(
+        "cub-b1-thorns-scoping",
+        "verdant_crystal",
+      );
+      const thornsIdentityIds = Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      )
+        .filter((def) => def.theme === "thorns")
+        .map((def) => def.id);
+      const thornsPoolIds = new Set([...thornsIdentityIds, ...STAT_IDS]);
+
+      const options = SessionTransitions.generateCoreUpgradeOptions(session);
+
+      expect(options).toHaveLength(3);
+      for (const option of options) {
+        expect(thornsPoolIds.has(option.id)).toBe(true);
+      }
+    });
+
     it("dedupes applied identity orbs — crit_row_power never appears once its reaction is on the core", () => {
       const session = createTestSession("cub-b1-dedupe");
       const core = session.team.units.find((u) => u.isCore)!;

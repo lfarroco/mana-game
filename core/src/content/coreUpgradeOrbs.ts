@@ -59,11 +59,12 @@ export type CoreUpgradeDefinition = {
 
 // ---------------------------------------------------------------------------
 // Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch;
-// the overflow theme is the CUB-G1 Radiant Crystal pool, §9)
+// the overflow theme is the CUB-G1 Radiant Crystal pool, §9; the thorns theme
+// is the CUB-G2 Verdant Crystal pool, §9)
 // ---------------------------------------------------------------------------
 
 /**
- * All 28 identity orbs, keyed by id.
+ * All 32 identity orbs, keyed by id.
  *
  * Reactions with effectId "all" fire only on basic abilities (intended — these
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
@@ -254,6 +255,48 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "overflow",
     kind: "reaction",
     reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+  },
+
+  // --- thorns theme (verdant_crystal): Thorns, Thorn Shield, Retaliation,
+  // --- Vengeful Charge (CUB-G2, docs/core-unit-onboarding.md §9) ---
+  // All four react on_crystal_hit — the C2 trigger emitted when the crystal
+  // actually takes damage (docs/wacky-content-plan.md). position "enemies" +
+  // triggerTeam "enemy" fires the reaction on the defending force (the crystal
+  // itself is an enemy of whoever dealt the hit); the dealDamage loop guard
+  // keeps reaction-sourced thorns damage from ping-ponging.
+  verdant_thorns: {
+    id: "verdant_thorns",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction("on_crystal_hit", "enemies", damage, "enemy"),
+  },
+  verdant_thorn_shield: {
+    id: "verdant_thorn_shield",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction("on_crystal_hit", "enemies", shield, "enemy"),
+  },
+  verdant_retaliation: {
+    id: "verdant_retaliation",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      increasePower(5, self),
+      "enemy",
+    ),
+  },
+  verdant_vengeful_charge: {
+    id: "verdant_vengeful_charge",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      charge(300, randomAlly(1)),
+      "enemy",
+    ),
   },
 };
 

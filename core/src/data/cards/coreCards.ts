@@ -100,4 +100,19 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     effects: [heal],
     reactions: [],
   },
+  {
+    id: "verdant_crystal",
+    // Thorns theme (CUB-G2, docs/core-unit-onboarding.md §9): a shield-family
+    // crystal that retaliates when it takes a hit. The tankiest crystal — the
+    // only one with 550 life — because its identity is "punish whoever dares
+    // to hit you": every thorns-family identity orb reacts on_crystal_hit.
+    pic: "green-stone",
+    life: 550,
+    power: 40,
+    cooldown: 5000,
+    isCore: true,
+    coreTheme: "thorns",
+    effects: [shield],
+    reactions: [],
+  },
 ];

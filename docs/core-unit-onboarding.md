@@ -256,8 +256,18 @@ with which new effect types they'd need (see
 > first non-basic-action identity theme — the overflow family is still
 > heal-based, but its orb pool is scoped separately from `growth_crystal`'s
 > `heal` pool.
+>
+> ✅ **Verdant Crystal landed 2026-08-19 (CUB-G2)** as the `thorns` theme
+> (added to `CORE_THEMES`) with `verdant_crystal` (baseline `shield`, power 40 /
+> cooldown 5000, the tankiest crystal at 550 life) and four identity orbs —
+> Thorns (`on_crystal_hit → damage` reflect), Thorn Shield (`on_crystal_hit →
+> shield`), Retaliation (`on_crystal_hit → +5 power`), Vengeful Charge
+> (`on_crystal_hit → charge random ally`). It reuses the C2 `on_crystal_hit`
+> reaction landed in the wacky-content queue (Thornback) — the crystal itself
+> carries the thorns reaction and punishes whoever lands a hit on it.
 
 `Radiant Crystal` was the cheapest to build (no new effect types) and is now in
-the game. The other four pair naturally with the already-planned effect
+the game. `Verdant Crystal` followed once the C2 `on_crystal_hit` effect landed
+(CUB-G2). The remaining three pair naturally with the already-planned effect
 additions in the wacky-content queue, so they're best scheduled after those
 effects land.

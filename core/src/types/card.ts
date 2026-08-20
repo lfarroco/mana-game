@@ -48,7 +48,9 @@ export type CardTag = (typeof CARD_TAGS)[number];
  * The six original themes each map 1:1 to a basic-action family (docs
  * core-unit-onboarding.md §2). New cores may extend the list with a
  * non-basic-action identity theme: `overflow` (Radiant Crystal, CUB-G1) keys
- * off the over-heal/overflow identity while its baseline action is `heal`.
+ * off the over-heal/overflow identity while its baseline action is `heal`;
+ * `thorns` (Verdant Crystal, CUB-G2) keys off the retaliate-when-hit identity
+ * while its baseline action is `shield`.
  */
 export const CORE_THEMES = [
   "regen",
@@ -58,6 +60,7 @@ export const CORE_THEMES = [
   "poison",
   "haste",
   "overflow",
+  "thorns",
 ] as const;
 
 export type CoreTheme = (typeof CORE_THEMES)[number];

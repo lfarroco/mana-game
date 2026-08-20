@@ -180,6 +180,7 @@ const CORE_UPGRADE_THEME_ICONS: Record<string, string> = {
   poison: "ui/toxic",
   haste: "ui/improve_haste",
   overflow: "ui/improve_heal",
+  thorns: "ui/improve_shield",
 };
 
 const CORE_UPGRADE_THEME_COLORS: Record<string, number> = {
@@ -190,6 +191,7 @@ const CORE_UPGRADE_THEME_COLORS: Record<string, number> = {
   poison: 0xc41bf3,
   haste: 0x91a7ff,
   overflow: 0xfff3b0,
+  thorns: 0x33691a,
 };
 
 const buildCoreUpgradeOrbPresentations = (): OrbPresentationData[] =>
