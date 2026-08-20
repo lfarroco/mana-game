@@ -150,9 +150,10 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 
 - [x] **C1. Multiplayer button dispatch** — `phaser/src/Screens/Title/Components/arenaButton.ts`:
   `isElectron()` (`@Utils/environment`) → existing Steam flow; browser → `itchAuth` flow.
-  Keep the re-entry guard, resume-session, and error-modal plumbing. Call
-  `loginWithItch()` as the first statement of the handler so the popup opens synchronously
-  (popup-blocker requirement).
+  Keep the re-entry guard and error-modal plumbing; after login navigate to the
+  multiplayer lobby, which owns the RESUME / NEW GAME decision
+  (docs/multiplayer-lobby.md). Call `loginWithItch()` as the first statement of
+  the handler so the popup opens synchronously (popup-blocker requirement).
 - [x] **C2. i18n** — add `title.multiplayer.requiresItch` ("Authorize Mana Battle with
   itch.io…") to all six catalogs (`en`, `es`, `jp`, `pt`, `cn`, `ru`); `requiresSteam`
   becomes Electron-only; reuse `loginFailed`.
@@ -166,7 +167,8 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
   launch" wording), `docs/game-server.md` endpoint table, this doc's status line, and
   remove the AGENTS.md Task Queue entry once landed.
 - [ ] **D3. Manual smoke test** — on the live itch.io embed: click Multiplayer → OAuth
-  popup → authorize → login → crystal selection → MP run against the deployed server.
+  popup → authorize → login → multiplayer lobby (profile + stats) → NEW GAME →
+  crystal selection → MP run against the deployed server.
   Verify: garbage token → 401 modal; second click reuses the stored session (no popup);
   token never appears in the URL after login; Electron build still uses Steam.
 

@@ -11,14 +11,18 @@
  * Pure functions: no persistence, no side effects.
  */
 
+import type { MultiplayerVictoryTier } from "../persistence/repositories";
+
+// Re-exported so callers (sessionService, tests) keep importing the tier from
+// rating.ts while the type lives in the persistence contract (repositories.ts).
+export type { MultiplayerVictoryTier };
+
 /** Default rating for a new player (initialized on first session creation). */
 export const DEFAULT_PLAYER_RATING = 1000;
 
 const BRONZE_VICTORY_WINS = 5;
 const SILVER_VICTORY_WINS = 8;
 const GOLD_VICTORY_WINS = 10;
-
-export type MultiplayerVictoryTier = "bronze" | "silver" | "gold";
 
 /**
  * The victory tier for a run's final win count, or null below the bronze

@@ -80,7 +80,7 @@ Pure, framework-agnostic game logic is being extracted into a top-level `core/` 
 
 - `server/` (top-level package, Node 22 + express 5, imports core via `@game/*`)
   - Purpose: Authoritative Node game server API for multiplayer sessions — replaces the retired Supabase backend (Phase 1 session API implemented 2026-08-11)
-  - Key files: `src/app.ts`, `src/http/routes/sessions.ts`, `src/services/sessionService.ts`, `src/persistence/` (`repositories.ts` + in-memory `memory.ts`), `src/dto.ts`; phased plan: [docs/game-server.md](docs/game-server.md)
+  - Key files: `src/app.ts`, `src/http/routes/` (`sessions.ts`, `players.ts`), `src/services/` (`sessionService.ts`, `playerService.ts`), `src/persistence/` (`repositories.ts` + in-memory `memory.ts`), `src/dto.ts`; phased plan: [docs/game-server.md](docs/game-server.md)
 
 ### Documentation Index
 
@@ -90,6 +90,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [battle-system.md](docs/battle-system.md): Phase management, combat flow, board logic
 - [combat-architecture.md](docs/combat-architecture.md): Client-server combat separation, playback system
 - [game-server.md](docs/game-server.md): Phased plan for the Node multiplayer backend — all phases implemented (session API, Steam-only auth, matchmaking & rating, client integration, SQLite persistence)
+- [multiplayer-lobby.md](docs/multiplayer-lobby.md): Multiplayer lobby — `GET /players/me` profile endpoint, `run_completions` career/season victory stats, and the lobby hub screen
 - [auth.md](docs/auth.md): Server auth design — Steam-only login (Steam tickets → `AuthenticateUserTicket` → your own bearer tokens), guest accounts in a future phase, provider abstraction
 - [itchio-auth.md](docs/itchio-auth.md): itch.io auth for the web build — OAuth implicit flow, implementation plan + resume guide (planned 2026-08-20)
 - [trigger-system.md](docs/trigger-system.md): Action-Reaction model, effects, targeting
@@ -174,6 +175,11 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ## Task Queue
 
 > Pick a task, mark it `[x]` with your agent name and date when done, then **remove the entry from this list once completed** — the queue holds only open work. Add new tasks as discovered.
+
+> **Multiplayer lobby landed (2026-08-20)** — `GET /api/v1/players/me` profile
+> endpoint + `run_completions` persistence (memory + sqlite), the
+> `MultiplayerLobbyScreen` hub, and the title-screen entry rewired through it.
+> Full spec + file map: [docs/multiplayer-lobby.md](docs/multiplayer-lobby.md).
 
 > **All previously queued work is landed.** The last deferred item — the
 > **Manual Steam smoke test** (plan.md task 14) — passed 2026-08-20: a real

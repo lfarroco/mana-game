@@ -16,6 +16,8 @@
  *   recently_fought(player_id, opponent_player_id, seq AUTOINCREMENT PK,
  *                   UNIQUE(player_id, opponent_player_id)) — capped FIFO log
  *   ratings(player_id PK, rating, updated_at)
+ *   run_completions(session_id PK, player_id, tier, wins, completed_at)
+ *          + index on (player_id, completed_at) — season-window victory counts
  *
  * Schema decision (documented deviation from the old Supabase tables): the
  * old schema kept player rating + token_hash on the players row, but the
@@ -51,16 +53,19 @@ import type {
   Player,
   PlayerProvider,
   PlayerRepo,
+  PlayerStatsRepo,
   RatingRepo,
+  RunCompletion,
   SessionRepo,
   TokenRecord,
   TokenRepo,
+  VictoryCounts,
 } from "./repositories";
 
 /** Cap on remembered opponents per player (oldest entries fall off first). */
 const MAX_RECENT_OPPONENTS = 20;
 
-/** All five repos sharing one Database connection. */
+/** All six repos sharing one Database connection. */
 export type SqliteRepos = {
   db: Database.Database;
   sessionRepo: SessionRepo;
@@ -68,6 +73,7 @@ export type SqliteRepos = {
   tokenRepo: TokenRepo;
   ghostRepo: GhostRepo;
   ratingRepo: RatingRepo;
+  playerStatsRepo: PlayerStatsRepo;
 };
 
 /**
@@ -139,6 +145,16 @@ export function createSchema(db: Database.Database): void {
       rating     INTEGER NOT NULL,
       updated_at INTEGER NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS run_completions (
+      session_id   TEXT PRIMARY KEY,
+      player_id    TEXT NOT NULL,
+      tier         TEXT,
+      wins         INTEGER NOT NULL,
+      completed_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_run_completions_player_time
+      ON run_completions(player_id, completed_at);
   `);
 }
 
@@ -412,7 +428,52 @@ export function createSqliteRatingRepo(db: Database.Database): RatingRepo {
   };
 }
 
-/** Convenience factory: all five repos over one Database. */
+/**
+ * Run-completions repository. The `session_id` PK makes recording idempotent
+ * (re-dispatching a terminal action can never double-count a run — the same
+ * guard the in-memory repo uses); the `(player_id, completed_at)` index makes
+ * season-window counts a range scan.
+ */
+export function createSqlitePlayerStatsRepo(db: Database.Database): PlayerStatsRepo {
+  const insertStmt = db.prepare(
+    `INSERT INTO run_completions (session_id, player_id, tier, wins, completed_at)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(session_id) DO NOTHING`,
+  );
+  const countStmt = db.prepare(
+    `SELECT tier, COUNT(*) AS count
+     FROM run_completions
+     WHERE player_id = ? AND completed_at >= ?
+     GROUP BY tier`,
+  );
+
+  return {
+    recordRunCompletion: (completion: RunCompletion) => {
+      insertStmt.run(
+        completion.sessionId,
+        completion.playerId,
+        completion.tier,
+        completion.wins,
+        completion.completedAt,
+      );
+    },
+    getVictoryCounts: (playerId, sinceEpochMs) => {
+      const rows = countStmt.all(playerId, sinceEpochMs) as {
+        tier: string | null;
+        count: number;
+      }[];
+      const counts: VictoryCounts = { bronze: 0, silver: 0, gold: 0 };
+      for (const row of rows) {
+        if (row.tier === "bronze" || row.tier === "silver" || row.tier === "gold") {
+          counts[row.tier] = row.count;
+        }
+      }
+      return counts;
+    },
+  };
+}
+
+/** Convenience factory: all six repos over one Database. */
 export function createSqliteRepos(db: Database.Database): SqliteRepos {
   createSchema(db); // idempotent — safe when the caller passed a raw Database
   return {
@@ -422,6 +483,7 @@ export function createSqliteRepos(db: Database.Database): SqliteRepos {
     tokenRepo: createSqliteTokenRepo(db),
     ghostRepo: createSqliteGhostRepo(db),
     ratingRepo: createSqliteRatingRepo(db),
+    playerStatsRepo: createSqlitePlayerStatsRepo(db),
   };
 }
 

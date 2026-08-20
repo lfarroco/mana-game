@@ -13,12 +13,14 @@ import type { SessionData } from "@game/types/session";
 import {
   createMemoryGhostRepo,
   createMemoryPlayerRepo,
+  createMemoryPlayerStatsRepo,
   createMemoryRatingRepo,
   createMemorySessionRepo,
 } from "../src/persistence/memory";
 import type {
   GhostRepo,
   PlayerRepo,
+  PlayerStatsRepo,
   RatingRepo,
   SessionRepo,
 } from "../src/persistence/repositories";
@@ -26,13 +28,14 @@ import {
   createSessionService,
   type SessionService,
 } from "../src/services/sessionService";
-import { getMultiplayerRatingDelta } from "../src/services/rating";
+import { getMultiplayerRatingDelta, getMultiplayerVictoryTier } from "../src/services/rating";
 
 describe("session flow", () => {
   let repo: SessionRepo;
   let ghostRepo: GhostRepo;
   let ratingRepo: RatingRepo;
   let playerRepo: PlayerRepo;
+  let playerStatsRepo: PlayerStatsRepo;
   let service: SessionService;
   const playerId = "flow-player";
 
@@ -41,7 +44,13 @@ describe("session flow", () => {
     ghostRepo = createMemoryGhostRepo();
     ratingRepo = createMemoryRatingRepo();
     playerRepo = createMemoryPlayerRepo();
-    service = createSessionService(repo, { ghostRepo, ratingRepo, playerRepo });
+    playerStatsRepo = createMemoryPlayerStatsRepo();
+    service = createSessionService(repo, {
+      ghostRepo,
+      ratingRepo,
+      playerRepo,
+      playerStatsRepo,
+    });
   });
 
   it("runs from creation to a terminal phase", () => {
@@ -193,6 +202,28 @@ describe("session flow", () => {
       service.handleAction(playerId, { type: "end_combat" }),
     ).toThrow(expect.objectContaining({ status: 409 }));
     expect(ratingRepo.get(playerId)?.rating).toBe(expected);
+  });
+
+  it("records a run completion exactly once for the lobby stats", () => {
+    service.createSession(playerId, { crystalId: "critical_crystal" });
+    const finalSession = driveToTerminal(service, playerId);
+
+    // Exactly one completion row for this run, tier derived from its wins.
+    const career = playerStatsRepo.getVictoryCounts(playerId, 0);
+    const tier = getMultiplayerVictoryTier(finalSession.wins);
+    if (tier === null) {
+      expect(career).toEqual({ bronze: 0, silver: 0, gold: 0 });
+    } else {
+      expect(career[tier]).toBe(1);
+    }
+
+    // Re-dispatching on the finished run is rejected; the repo is additionally
+    // idempotent per session id, so the count can never double.
+    expect(() =>
+      service.handleAction(playerId, { type: "end_combat" }),
+    ).toThrow(expect.objectContaining({ status: 409 }));
+    const after = playerStatsRepo.getVictoryCounts(playerId, 0);
+    expect(after).toEqual(career);
   });
 });
 

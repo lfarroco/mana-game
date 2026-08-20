@@ -7,6 +7,7 @@
 
 import express from "express";
 import { authRouter } from "./http/routes/auth";
+import { playersRouter } from "./http/routes/players";
 import { sessionsRouter } from "./http/routes/sessions";
 import { requireAuth } from "./http/middleware/auth";
 import { errorHandler } from "./http/middleware/errors";
@@ -20,6 +21,7 @@ import {
 import {
   createMemoryGhostRepo,
   createMemoryPlayerRepo,
+  createMemoryPlayerStatsRepo,
   createMemoryRatingRepo,
   createMemorySessionRepo,
   createMemoryTokenRepo,
@@ -28,6 +30,7 @@ import { createSqliteRepos, openSqliteDatabase } from "./persistence/sqlite";
 import type {
   GhostRepo,
   PlayerRepo,
+  PlayerStatsRepo,
   RatingRepo,
   SessionRepo,
   TokenRepo,
@@ -44,6 +47,8 @@ export type AppDeps = {
   ghostRepo?: GhostRepo;
   /** Rating repository (defaults to a fresh in-memory repo). */
   ratingRepo?: RatingRepo;
+  /** Run-completions repository for lobby stats (defaults to a fresh in-memory repo). */
+  playerStatsRepo?: PlayerStatsRepo;
   /**
    * Opt into durable SQLite persistence: when set, the default repositories
    * are backed by a better-sqlite3 Database at this path (`:memory:` for a
@@ -86,7 +91,7 @@ export type AppDeps = {
 export function createApp(deps: AppDeps = {}): express.Express {
   // Selection logic (docs/game-server.md §Config & deployment): memory repos
   // are the DEFAULT; setting `sqlitePath` (MANA_SQLITE_PATH in index.ts) swaps
-  // all five defaults for SQLite-backed repos on one Database. Explicit repo
+  // all six defaults for SQLite-backed repos on one Database. Explicit repo
   // deps always win, so tests can mix implementations freely.
   const sqlite = deps.sqlitePath
     ? createSqliteRepos(openSqliteDatabase(deps.sqlitePath))
@@ -100,6 +105,10 @@ export function createApp(deps: AppDeps = {}): express.Express {
     deps.ghostRepo ?? sqlite?.ghostRepo ?? createMemoryGhostRepo();
   const ratingRepo =
     deps.ratingRepo ?? sqlite?.ratingRepo ?? createMemoryRatingRepo();
+  const playerStatsRepo =
+    deps.playerStatsRepo ??
+    sqlite?.playerStatsRepo ??
+    createMemoryPlayerStatsRepo();
 
   const app = express();
 
@@ -139,7 +148,20 @@ export function createApp(deps: AppDeps = {}): express.Express {
   app.use(
     "/api/v1/sessions",
     requireAuth({ tokenRepo }),
-    sessionsRouter({ repo, ghostRepo, ratingRepo, playerRepo }),
+    sessionsRouter({
+      repo,
+      ghostRepo,
+      ratingRepo,
+      playerRepo,
+      playerStatsRepo,
+    }),
+  );
+
+  // Player routes — the lobby profile endpoint, bearer-authenticated.
+  app.use(
+    "/api/v1/players",
+    requireAuth({ tokenRepo }),
+    playersRouter({ playerRepo, ratingRepo, playerStatsRepo, sessionRepo: repo }),
   );
 
   // Global error handler (must be last)

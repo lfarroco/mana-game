@@ -64,6 +64,36 @@ export type RemoteServer = {
 	/** Resume/reconnect: the current session, or null when none is active. */
 	getSession(playerId: string): Promise<Models.SessionData | null>;
 	getPhaseOptions(playerId: string): Promise<Models.PhaseOptions>;
+	/**
+	 * Multiplayer-lobby profile: identity, rating, career + season victory
+	 * counts, and whether a resumable session exists (`GET /api/v1/players/me`).
+	 */
+	getProfile(playerId: string): Promise<MultiplayerProfile>;
+};
+
+/** Tiered victory counts from the lobby profile endpoint. */
+export type MultiplayerVictoryCounts = {
+	bronze: number;
+	silver: number;
+	gold: number;
+};
+
+/**
+ * Payload of `GET /api/v1/players/me` (server `playerService.ts`). `season`
+ * counts victories completed since the 1st of the current month (UTC).
+ */
+export type MultiplayerProfile = {
+	player: {
+		playerId: string;
+		displayName?: string;
+		/** Provider-scoped identity (steam64 / itch username) — the name fallback. */
+		providerId: string;
+		provider: string;
+	};
+	rating: number;
+	career: MultiplayerVictoryCounts;
+	season: MultiplayerVictoryCounts;
+	hasActiveSession: boolean;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -79,6 +109,29 @@ function isCombatStateDto(value: unknown): value is CombatStateDto {
 		Array.isArray(value.finalPlayerUnits) &&
 		typeof value.wonCombat === "boolean" &&
 		typeof value.enemyPlayerName === "string"
+	);
+}
+
+/** Shape-guard for the lobby profile payload (`GET /api/v1/players/me`). */
+function isMultiplayerProfile(value: unknown): value is MultiplayerProfile {
+	if (!isRecord(value)) return false;
+	const player = isRecord(value.player) ? value.player : {};
+	return (
+		typeof player.playerId === "string" &&
+		typeof player.providerId === "string" &&
+		typeof value.rating === "number" &&
+		isVictoryCounts(value.career) &&
+		isVictoryCounts(value.season) &&
+		typeof value.hasActiveSession === "boolean"
+	);
+}
+
+function isVictoryCounts(value: unknown): value is MultiplayerVictoryCounts {
+	if (!isRecord(value)) return false;
+	return (
+		typeof value.bronze === "number" &&
+		typeof value.silver === "number" &&
+		typeof value.gold === "number"
 	);
 }
 
@@ -236,6 +289,14 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 		getSession,
 		getPhaseOptions,
+
+		async getProfile(_playerId: string): Promise<MultiplayerProfile> {
+			const payload = await request("/api/v1/players/me", { method: "GET" });
+			if (!isMultiplayerProfile(payload)) {
+				throw new Error("Game server returned an unexpected profile payload");
+			}
+			return payload;
+		},
 	};
 }
 

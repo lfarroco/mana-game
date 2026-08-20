@@ -15,11 +15,14 @@ import type {
   Player,
   PlayerProvider,
   PlayerRepo,
+  PlayerStatsRepo,
   Rating,
   RatingRepo,
+  RunCompletion,
   SessionRepo,
   TokenRecord,
   TokenRepo,
+  VictoryCounts,
 } from "./repositories";
 
 export function createMemorySessionRepo(): SessionRepo {
@@ -129,6 +132,36 @@ export function createMemoryRatingRepo(): RatingRepo {
     get: (playerId) => ratings.get(playerId) ?? null,
     upsert: (rating) => {
       ratings.set(rating.playerId, rating);
+    },
+  };
+}
+
+/**
+ * In-memory run-completions repository. Completions are keyed by session id
+ * (exactly one per run — re-recording is idempotent, mirroring the SQLite
+ * `session_id` PK). Victory counts scan the per-player records.
+ */
+export function createMemoryPlayerStatsRepo(): PlayerStatsRepo {
+  const completions = new Map<string, RunCompletion>();
+
+  return {
+    recordRunCompletion: (completion) => {
+      if (!completions.has(completion.sessionId)) {
+        completions.set(completion.sessionId, completion);
+      }
+    },
+    getVictoryCounts: (playerId, sinceEpochMs) => {
+      const counts: VictoryCounts = { bronze: 0, silver: 0, gold: 0 };
+      for (const completion of completions.values()) {
+        if (
+          completion.playerId === playerId &&
+          completion.completedAt >= sinceEpochMs &&
+          completion.tier !== null
+        ) {
+          counts[completion.tier] += 1;
+        }
+      }
+      return counts;
     },
   };
 }

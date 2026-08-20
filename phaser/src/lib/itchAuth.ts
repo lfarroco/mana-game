@@ -198,7 +198,6 @@ function defaultWaitForPopupMessage(
 	timeoutMs: number,
 ): Promise<string> {
 	return new Promise((resolve, reject) => {
-		let timer: ReturnType<typeof setTimeout> | undefined;
 		const cleanup = () => {
 			window.removeEventListener("message", onMessage);
 			if (timer !== undefined) clearTimeout(timer);
@@ -219,7 +218,7 @@ function defaultWaitForPopupMessage(
 			cleanup();
 			resolve(typeof data.token === "string" ? data.token : "");
 		};
-		timer = setTimeout(() => {
+		const timer = setTimeout(() => {
 			cleanup();
 			reject(new Error("itch.io authorization timed out"));
 		}, timeoutMs);

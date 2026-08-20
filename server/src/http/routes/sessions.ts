@@ -25,6 +25,7 @@ import type { CombatState } from "@game/types/combat";
 import type {
   GhostRepo,
   PlayerRepo,
+  PlayerStatsRepo,
   RatingRepo,
   SessionRepo,
 } from "../../persistence/repositories";
@@ -37,6 +38,7 @@ export type SessionRouterDeps = {
   ghostRepo: GhostRepo;
   ratingRepo: RatingRepo;
   playerRepo: PlayerRepo;
+  playerStatsRepo: PlayerStatsRepo;
 };
 
 export function sessionsRouter(deps: SessionRouterDeps): Router {
@@ -44,6 +46,7 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
     ghostRepo: deps.ghostRepo,
     ratingRepo: deps.ratingRepo,
     playerRepo: deps.playerRepo,
+    playerStatsRepo: deps.playerStatsRepo,
   });
   const router = Router();
 

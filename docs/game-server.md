@@ -86,6 +86,7 @@ Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for e
 | GET | `/health` | → `{ ok: true }` | liveness |
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [auth.md](auth.md) |
 | POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — validates via `api.itch.io/profile`; see [itchio-auth.md](itchio-auth.md) |
+| GET | `/players/me` | → `PlayerProfile` | authenticated lobby profile — identity, rating, career + season victory counts, active-session flag; see [multiplayer-lobby.md](multiplayer-lobby.md) |
 | POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one **active** session per player (409 if one exists) — a finished run does **not** block a new one |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none **or the run has finished** (finished sessions are never served) |
@@ -108,7 +109,7 @@ is **no client-delete endpoint** (no `DELETE /sessions/current`).
   - `POST /sessions` succeeds again — the finished session is superseded by
     the new one (the player can only create a new session).
 
-Later (Phase 5): `GET /leaderboard`, `GET /players/me`, and agent endpoints reviving the removed `agentGameServer` surface (`POST /games`, `GET /games/:id/state`, `POST /games/:id/choices`, …).
+Later (Phase 5): `GET /leaderboard`, and agent endpoints reviving the removed `agentGameServer` surface (`POST /games`, `GET /games/:id/state`, `POST /games/:id/choices`, …). `GET /players/me` (the multiplayer-lobby profile) was pulled forward and is **done** — see [multiplayer-lobby.md](multiplayer-lobby.md).
 
 ### Wire format
 
@@ -159,6 +160,7 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
   - `combat_states(session_id PK, combat_json)` — see deviation below.
   - `ghosts(ghost_id PK, player_id, session_id, round, team_json, rating, created_at)` + `recently_fought(player_id, opponent_player_id, seq)` — the per-player capped-FIFO matchmaking log.
   - `ratings(player_id PK, rating, updated_at)` — the old schema kept rating on the players row; the current `RatingRepo` is separate.
+  - `run_completions(session_id PK, player_id, tier, wins, completed_at)` + index on `(player_id, completed_at)` — one row per finished multiplayer run, recorded once when the run reaches a terminal phase; powers the lobby's career/season victory counts (see [multiplayer-lobby.md](multiplayer-lobby.md)).
 - **Combat-state deviation**: `SessionData.combatState` embeds the *live* `CombatState` (a `Map`-carrying object) while in the `combat` phase. Plain JSON cannot hold a `Map`, so a naive JSON round-trip of the session row would corrupt resume-mid-combat. The `combat_states` table therefore stores the JSON-safe `CombatStateDto` (via the core `CombatCodec`), keyed by session id; on load it is deserialized (Map + derived indexes rebuilt) and re-attached. The wire response after a restart is byte-identical to the pre-restart one. Session + combat rows are written atomically (single SQLite transaction).
 - Postgres only if we ever need multiple instances — the repository pattern keeps it swappable.
 

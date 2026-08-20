@@ -11,7 +11,7 @@ The Phaser 3 game client. A thin engine layer over `core/` (game rules) and
 - `src/Env.ts` — the `env` singleton (state, scene, dispatch, updateState)
 - `src/GameServer.ts` — `getServer()` → `LocalServer` (single-player) or `remoteServer` (multiplayer); `src/LocalServer.ts`, `src/RemoteServer.ts`
 - `src/Events.ts` — `GameEvent` (global, plain data only) + `BattlegroundEvent` (screen-scoped)
-- `src/Screens/` — screen modules (Title, CrystalSelection, Options, Battleground) + `ScreenManager.ts` (typed `Routes`)
+- `src/Screens/` — screen modules (Title, CrystalSelection, Options, Battleground, MultiplayerLobby) + `ScreenManager.ts` (typed `Routes`)
 - `src/Screens/Battleground/` — the main loop: `BattlegroundScreen.ts` declares phases via `createScreen({ phases })`; `Phases/` has one dir per phase; `Components/` renders HUD/board/shop
 - `src/Components/` — shared Phaser widgets (Button, Slider, Tooltip, Modal, Panel, Chara, Board, CloudsBackground, …)
 - `src/Systems/` — AudioManager, AchievementSystem (Steam adapter), Storage (provider pattern)

@@ -15,6 +15,7 @@ export type ApiErrorCode =
   | "session_already_exists"
   | "no_active_session"
   | "session_finished"
+  | "player_not_found"
   | "action_rejected"
   | "missing_token"
   | "invalid_token"

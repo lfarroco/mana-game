@@ -130,3 +130,50 @@ export type RatingRepo = {
   get(playerId: string): Rating | null;
   upsert(rating: Rating): void;
 };
+
+/**
+ * Victory tier of a completed multiplayer run. Shared by the rating service
+ * (`rating.ts` — `getMultiplayerVictoryTier`) and the run-completions record;
+ * defined here so the persistence contract is the single source of truth.
+ * Runs below the bronze threshold (5 wins) record `null`.
+ */
+export type MultiplayerVictoryTier = "bronze" | "silver" | "gold";
+
+/**
+ * A completed multiplayer run — recorded exactly once, when the run reaches a
+ * terminal phase (`victory` / `game_over`). The basis for the career / season
+ * victory stats shown in the multiplayer lobby (`GET /api/v1/players/me`).
+ */
+export type RunCompletion = {
+  /**
+   * Session id — the uniqueness key. Exactly one completion per run; the
+   * SQLite `session_id` PK (and the in-memory Map key) make re-recording
+   * idempotent.
+   */
+  sessionId: string;
+  playerId: string;
+  /** Gold/silver/bronze, or null for runs below the bronze threshold. */
+  tier: MultiplayerVictoryTier | null;
+  wins: number;
+  /** Epoch milliseconds — the season boundary (1st of the month) compares against this. */
+  completedAt: number;
+};
+
+/** Tiered victory counts for a player (career or a season window). */
+export type VictoryCounts = {
+  bronze: number;
+  silver: number;
+  gold: number;
+};
+
+/**
+ * Run-completions repository — powers the multiplayer lobby's career + season
+ * stats. `getVictoryCounts(playerId, 0)` is career; a `sinceEpochMs` of the
+ * 1st of the current month is the season count.
+ */
+export type PlayerStatsRepo = {
+  /** Record a completed run. Must be idempotent per sessionId. */
+  recordRunCompletion(completion: RunCompletion): void;
+  /** Count tiered victories completed at or after `sinceEpochMs`. */
+  getVictoryCounts(playerId: string, sinceEpochMs: number): VictoryCounts;
+};

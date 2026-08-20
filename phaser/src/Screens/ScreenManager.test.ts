@@ -55,6 +55,7 @@ const makeManager = (overrides?: {
 			title: makeScreen("title", overrides?.title),
 			battleground: makeScreen("battleground"),
 			crystals: makeScreen("crystals"),
+			multiplayer_lobby: makeScreen("multiplayer_lobby"),
 			options: makeScreen("options", overrides?.options),
 		},
 	});
@@ -79,6 +80,7 @@ describe("createScreenManager", () => {
 				title,
 				battleground: makeScreen("battleground"),
 				crystals,
+				multiplayer_lobby: makeScreen("multiplayer_lobby"),
 				options: makeScreen("options"),
 			},
 		});
@@ -100,6 +102,7 @@ describe("createScreenManager", () => {
 				title,
 				battleground: makeScreen("battleground"),
 				crystals: makeScreen("crystals"),
+				multiplayer_lobby: makeScreen("multiplayer_lobby"),
 				options: makeScreen("options"),
 			},
 		});
@@ -118,6 +121,7 @@ describe("createScreenManager", () => {
 				title,
 				battleground: makeScreen("battleground"),
 				crystals,
+				multiplayer_lobby: makeScreen("multiplayer_lobby"),
 				options: makeScreen("options"),
 			},
 		});

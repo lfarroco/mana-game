@@ -30,12 +30,14 @@ import { ApiError } from "../errors";
 import type {
   GhostRepo,
   PlayerRepo,
+  PlayerStatsRepo,
   RatingRepo,
   SessionRepo,
 } from "../persistence/repositories";
 import {
   createMemoryGhostRepo,
   createMemoryPlayerRepo,
+  createMemoryPlayerStatsRepo,
   createMemoryRatingRepo,
 } from "../persistence/memory";
 import type { CreateSessionRequest } from "../dto";
@@ -44,7 +46,7 @@ import {
   resolveOpponent,
   snapshotGhost,
 } from "./matchmaking";
-import { DEFAULT_PLAYER_RATING, applyRatingDelta } from "./rating";
+import { DEFAULT_PLAYER_RATING, applyRatingDelta, getMultiplayerVictoryTier } from "./rating";
 
 /** Maximum entries kept in session.action_log. */
 const MAX_ACTION_LOG_SIZE = 100;
@@ -54,6 +56,8 @@ export type SessionServiceDeps = {
   ghostRepo?: GhostRepo;
   ratingRepo?: RatingRepo;
   playerRepo?: PlayerRepo;
+  /** Run-completions repo — career/season victory stats (defaults to memory). */
+  playerStatsRepo?: PlayerStatsRepo;
 };
 
 export type SessionService = {
@@ -74,6 +78,8 @@ export function createSessionService(
   const ghostRepo = deps.ghostRepo ?? createMemoryGhostRepo();
   const ratingRepo = deps.ratingRepo ?? createMemoryRatingRepo();
   const playerRepo = deps.playerRepo ?? createMemoryPlayerRepo();
+  const playerStatsRepo =
+    deps.playerStatsRepo ?? createMemoryPlayerStatsRepo();
 
   // Defense in depth: the terminal-phase guard in handleAction already blocks
   // a second end_combat on a finished run, so the rating delta can never be
@@ -185,6 +191,7 @@ export function createSessionService(
         !appliedRatingSessionIds.has(session.id)
       ) {
         appliedRatingSessionIds.add(session.id);
+        const completedAt = Date.now();
         const currentRating =
           ratingRepo.get(playerId)?.rating ?? DEFAULT_PLAYER_RATING;
         ratingRepo.upsert({
@@ -193,7 +200,18 @@ export function createSessionService(
             currentRating,
             wins: result.session.wins,
           }),
-          updatedAt: Date.now(),
+          updatedAt: completedAt,
+        });
+
+        // Record the finished run once for the lobby's career + season victory
+        // stats. The repos are idempotent per session id (SQLite PK / memory
+        // Map key), so even a future re-entrancy path can't double-count.
+        playerStatsRepo.recordRunCompletion({
+          sessionId: session.id,
+          playerId,
+          tier: getMultiplayerVictoryTier(result.session.wins),
+          wins: result.session.wins,
+          completedAt,
         });
       }
 

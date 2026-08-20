@@ -12,10 +12,10 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 - `src/config.ts` — env parsing (`PORT`, `HOST`, `MANA_SQLITE_PATH`, `MANA_CORS_ORIGIN`, token TTL, Steam keys)
 - `src/dto.ts` — wire DTOs + request validation (uses core `CombatCodec`)
 - `src/errors.ts` — typed `ApiError`
-- `src/http/routes/` — `sessions.ts`, `auth.ts`
+- `src/http/routes/` — `sessions.ts`, `auth.ts`, `players.ts` (`GET /api/v1/players/me` — lobby profile)
 - `src/http/middleware/` — auth (Bearer), cors, errors, logging, rateLimit
-- `src/services/` — sessionService, authService, tokenService, steamAuth, itchAuth, matchmaking, rating
-- `src/persistence/` — `repositories.ts` (repo interfaces), `memory.ts` (in-memory), `sqlite.ts` (better-sqlite3, durable)
+- `src/services/` — sessionService, authService, tokenService, steamAuth, itchAuth, matchmaking, rating, playerService (profile assembly)
+- `src/persistence/` — `repositories.ts` (repo interfaces), `memory.ts` (in-memory), `sqlite.ts` (better-sqlite3, durable); incl. `PlayerStatsRepo` (run completions → lobby victory stats)
 
 ## Conventions & gotchas
 
@@ -33,7 +33,7 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 
 ```bash
 cd server
-npm test            # 188 tests (unit + HTTP integration)
+npm test            # 220 tests (unit + HTTP integration)
 npm run typecheck
 npm run build       # tsup → dist/
 ```

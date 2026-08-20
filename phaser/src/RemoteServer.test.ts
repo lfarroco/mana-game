@@ -182,6 +182,68 @@ describe("RemoteServer HTTP adapter", () => {
 		await expect(server.getSession("player-1")).resolves.toBeNull();
 	});
 
+	it("fetches the lobby profile via GET /players/me with bearer auth", async () => {
+		const profileBody = {
+			player: {
+				playerId: "player-1",
+				displayName: "Momo",
+				providerId: "76561198000000001",
+				provider: "steam",
+			},
+			rating: 1012,
+			career: { bronze: 3, silver: 2, gold: 1 },
+			season: { bronze: 1, silver: 1, gold: 0 },
+			hasActiveSession: true,
+		};
+		const fetchMock = createFetchMock(200, profileBody);
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const profile = await server.getProfile("player-1");
+
+		const [url, init] = callsOf(fetchMock)[0];
+		expect(url).toBe(`${DEFAULT_SERVER_URL}/api/v1/players/me`);
+		expect(init.method).toBe("GET");
+		expect(init.headers?.Authorization).toBe("Bearer tok-123");
+		expect(profile).toEqual(profileBody);
+	});
+
+	it("rejects a malformed profile payload from the server", async () => {
+		const fetchMock = createFetchMock(200, {
+			player: { playerId: "player-1" },
+			rating: "not-a-number",
+			career: { bronze: 1, silver: 1, gold: 1 },
+			season: { bronze: 1, silver: 1, gold: 1 },
+			hasActiveSession: false,
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		await expect(server.getProfile("player-1")).rejects.toThrow(
+			/unexpected profile payload/,
+		);
+	});
+
+	it("surfaces the server error code when the profile request fails", async () => {
+		const fetchMock = createFetchMock(401, {
+			error: "invalid_token",
+			message: "Invalid or expired token",
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "stale-token",
+		});
+
+		await expect(server.getProfile("player-1")).rejects.toMatchObject({
+			status: 401,
+			code: "invalid_token",
+		} as Partial<RemoteServerError>);
+	});
+
 	it("never issues a session-delete request — the server owns the lifecycle", async () => {
 		// A finished run: the terminal session arrives in the action response,
 		// and the adapter must not send any DELETE afterwards (there is no
