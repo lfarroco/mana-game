@@ -17,6 +17,7 @@ import type { CoreTheme, Effect, EffectReaction } from "../Models";
 import {
   charge,
   column,
+  damage,
   decreasePower,
   increaseCritical,
   increasePower,
@@ -50,17 +51,19 @@ export type CoreUpgradeDefinition = {
   /** Appended to the core's `reactions` when applied (kind "reaction"). */
   reaction?: EffectReaction;
   /** Stat helper to call when applied (kind "stat"). */
-  stat?: "increase_core_max_life" | "upgrade_core_power" | "decrease_core_cooldown";
+  stat?:
+    "increase_core_max_life" | "upgrade_core_power" | "decrease_core_cooldown";
   /** Round gate — orb may only appear in upgrade options from this round on. */
   minRound?: number;
 };
 
 // ---------------------------------------------------------------------------
-// Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch)
+// Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch;
+// the overflow theme is the CUB-G1 Radiant Crystal pool, §9)
 // ---------------------------------------------------------------------------
 
 /**
- * All 24 identity orbs, keyed by id.
+ * All 28 identity orbs, keyed by id.
  *
  * Reactions with effectId "all" fire only on basic abilities (intended — these
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
@@ -225,6 +228,33 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("re_hasted", "allies", increasePower(5, self)),
   },
+
+  // --- overflow theme (radiant_crystal): Overflow Shield, Overflow Burst,
+  // --- Saturation, Overflow Charge (CUB-G1, docs/core-unit-onboarding.md §9) ---
+  radiant_overflow_shield: {
+    id: "radiant_overflow_shield",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", shield),
+  },
+  radiant_overflow_burst: {
+    id: "radiant_overflow_burst",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", damage),
+  },
+  radiant_saturation: {
+    id: "radiant_saturation",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", increasePower(5, self)),
+  },
+  radiant_overflow_charge: {
+    id: "radiant_overflow_charge",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+  },
 };
 
 /**
@@ -265,4 +295,3 @@ export function getThemeUpgradePool(theme: CoreTheme): CoreUpgradeDefinition[] {
   }));
   return [...identityOrbs, ...statOrbs];
 }
-

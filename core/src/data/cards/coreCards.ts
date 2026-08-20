@@ -85,4 +85,19 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     effects: [haste(1000, row)],
     reactions: [],
   },
+  {
+    id: "radiant_crystal",
+    // Overflow theme (CUB-G1, docs/core-unit-onboarding.md §9): a heal-family
+    // crystal that converts overhealing into offense. Stat line trades growth's
+    // fast 4500ms cadence for a heavier heal (power 40) on a slower 5000ms one —
+    // its identity is "big heals that spill over", not "constant trickle".
+    pic: "yellow-stone",
+    life: 500,
+    power: 40,
+    cooldown: 5000,
+    isCore: true,
+    coreTheme: "overflow",
+    effects: [heal],
+    reactions: [],
+  },
 ];

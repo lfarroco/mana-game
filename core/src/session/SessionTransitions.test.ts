@@ -339,6 +339,26 @@ describe("SessionTransitions", () => {
       }
     });
 
+    it("is theme-scoped for the overflow theme — radiant_crystal returns only overflow identity or the 3 stat ids (CUB-G1)", () => {
+      const session = createTestSession(
+        "cub-b1-overflow-scoping",
+        "radiant_crystal",
+      );
+      const overflowIdentityIds = Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      )
+        .filter((def) => def.theme === "overflow")
+        .map((def) => def.id);
+      const overflowPoolIds = new Set([...overflowIdentityIds, ...STAT_IDS]);
+
+      const options = SessionTransitions.generateCoreUpgradeOptions(session);
+
+      expect(options).toHaveLength(3);
+      for (const option of options) {
+        expect(overflowPoolIds.has(option.id)).toBe(true);
+      }
+    });
+
     it("dedupes applied identity orbs — crit_row_power never appears once its reaction is on the core", () => {
       const session = createTestSession("cub-b1-dedupe");
       const core = session.team.units.find((u) => u.isCore)!;
@@ -574,11 +594,15 @@ describe("SessionTransitions", () => {
 
 /**
  * Create a minimal test session in pre_combat phase with a basic core.
+ * @param coreCardId the player's core card (defaults to critical_crystal).
  */
-function createTestSession(seed: string) {
+function createTestSession(
+  seed: string,
+  coreCardId: string = "critical_crystal",
+) {
   const playerCore = Card.makeUnit(
     Constants.FORCE_ID_PLAYER,
-    "critical_crystal",
+    coreCardId,
     [1, 1],
   );
 

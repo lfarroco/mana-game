@@ -11,6 +11,7 @@ export function getColorPresetForCrystal(
     growth_crystal: "forest",
     purple_crystal: "aurora",
     quickstone: "sea",
+    radiant_crystal: "aurora",
   };
 
   return colorMap[crystalId] || "nebula";

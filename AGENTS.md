@@ -196,7 +196,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > and superseded the old A13/A14 entries (upgrade_core Mystery Box /
 > add_reaction_core random option), which were removed. The upgrade phases were
 > also unreachable before CUB-B — the combat step-accounting fix
-> (SessionTransitions.ts) made them reachable.
-
-- [ ] **CUB-G1** — new cores from the doc's §9 ideas
+> (SessionTransitions.ts) made them reachable. **CUB-G1 landed (2026-08-19)**:
+> the Radiant Crystal `overflow`-theme core + its identity orbs — see §9 note in
+> [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md).
 

@@ -42,9 +42,13 @@ export const CARD_TAGS = [
 export type CardTag = (typeof CARD_TAGS)[number];
 
 /**
- * The six core ("crystal") themes — each maps 1:1 to a basic-action family.
- * Used as the single filter key for themed core-upgrade-orb generation and for
- * the crystal-selection UI (e.g. "this is a heal crystal").
+ * The core ("crystal") themes — the filter key for themed core-upgrade-orb
+ * generation and for the crystal-selection UI (e.g. "this is a heal crystal").
+ *
+ * The six original themes each map 1:1 to a basic-action family (docs
+ * core-unit-onboarding.md §2). New cores may extend the list with a
+ * non-basic-action identity theme: `overflow` (Radiant Crystal, CUB-G1) keys
+ * off the over-heal/overflow identity while its baseline action is `heal`.
  */
 export const CORE_THEMES = [
   "regen",
@@ -53,6 +57,7 @@ export const CORE_THEMES = [
   "heal",
   "poison",
   "haste",
+  "overflow",
 ] as const;
 
 export type CoreTheme = (typeof CORE_THEMES)[number];

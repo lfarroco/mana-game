@@ -8,10 +8,10 @@ import {
 } from "./coreUpgradeOrbs";
 
 describe("core upgrade orbs content", () => {
-  it("has unique ids and exactly 24 identity orbs", () => {
+  it("has unique ids and exactly 28 identity orbs", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBe(24);
+    expect(ids.length).toBe(28);
   });
 
   it("keeps every entry themed by CORE_THEMES", () => {

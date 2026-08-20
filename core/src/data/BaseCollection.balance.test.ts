@@ -94,9 +94,9 @@ function rankOf(card: CardDefinition): number {
 // ---------------------------------------------------------------------------
 
 describe("BaseCollection balance", () => {
-  it("has exactly one core card per effect type and the expected card count", () => {
+  it("has exactly 7 cores (one per theme) and the expected card count", () => {
     const cores = ALL_CARDS.filter((c) => c.isCore);
-    expect(cores).toHaveLength(6);
+    expect(cores).toHaveLength(7);
     // 64 bronze + 24 silver + 12 gold non-core cards
     expect(nonCoreCards).toHaveLength(100);
   });

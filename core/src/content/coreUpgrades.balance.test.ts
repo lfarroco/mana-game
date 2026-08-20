@@ -84,7 +84,7 @@ function marginalAp(core: CardDefinition, orb: CoreUpgradeDefinition): number {
 
 describe("core upgrade balance (CUB-C1)", () => {
   it("maps every core theme to exactly one core card with 4 identity orbs", () => {
-    expect(CORES_BY_THEME.size).toBe(6);
+    expect(CORES_BY_THEME.size).toBe(7);
     for (const [theme, core] of CORES_BY_THEME) {
       expect(core.isCore).toBe(true);
       expect(identityOrbs(theme)).toHaveLength(4);
@@ -189,6 +189,11 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  haste_charge: +3.4",
         "  haste_rehaste_crit: +25.5",
         "  haste_rehaste_power: +25.5",
+        "overflow (radiant_crystal) baseline 80",
+        "  radiant_overflow_shield: +81.5",
+        "  radiant_overflow_burst: +101.8",
+        "  radiant_saturation: +50.9",
+        "  radiant_overflow_charge: +16.8",
       ].join("\n"),
     );
   });

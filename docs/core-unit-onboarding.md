@@ -222,7 +222,10 @@ That exclusion is currently binary. Make it explicit:
 
 ### Phase G — new cores (later; see §9)
 
-- [ ] **CUB-G1** — implement 1–2 new cores from §9 (each is a full A2/B/C/D pass for its own theme).
+- [x] **CUB-G1** — **Radiant Crystal landed (2026-08-19)**: new `overflow` theme core
+  (heal baseline, P40/CD5000) + 4 identity orbs (Overflow Shield/Burst, Saturation,
+  Overflow Charge) with theme-scoped generation, balance gate, combat tests, and
+  i18n (all locales). See §9 for the remaining candidate cores.
 
 ### Relationship to existing wacky-content tasks
 
@@ -246,6 +249,15 @@ with which new effect types they'd need (see
 | **Echo Crystal**     | retrigger / echo         | damage                           | Echo (ally cast → repeat at reduced power); Resonance (row-ally cast → +power)                                                                | `repeat`/retrigger (C1)                       |
 | **Verdant Crystal**  | thorns / revenge         | shield                           | Thorns (`on_crystal_hit → reflect`); Retaliation (enemy damage → +power)                                                                      | `on_crystal_hit` (C2)                         |
 
-`Radiant Crystal` is the cheapest to build (no new effect types). The other four
-pair naturally with the already-planned effect additions in the wacky-content
-queue, so they're best scheduled after those effects land.
+> ✅ **Radiant Crystal landed 2026-08-19 (CUB-G1)** as the `overflow` theme
+> (added to `CORE_THEMES`) with `radiant_crystal` (baseline `heal`, power 40 /
+> cooldown 5000) and four identity orbs: Overflow Shield, Overflow Burst
+> (`on_over_heal → damage`), Saturation, and Overflow Charge. Its theme is the
+> first non-basic-action identity theme — the overflow family is still
+> heal-based, but its orb pool is scoped separately from `growth_crystal`'s
+> `heal` pool.
+
+`Radiant Crystal` was the cheapest to build (no new effect types) and is now in
+the game. The other four pair naturally with the already-planned effect
+additions in the wacky-content queue, so they're best scheduled after those
+effects land.

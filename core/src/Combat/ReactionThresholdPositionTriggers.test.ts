@@ -13,7 +13,10 @@ import {
   runUntil,
   filterLogs,
 } from "../__test_utils__/combatHarness";
+import * as Card from "../Entities/Card";
+import * as Constants from "../Constants";
 import { damage, increasePower, reaction, self } from "../data/effectBuilders";
+import { CORE_UPGRADE_DEFINITIONS } from "../content/coreUpgradeOrbs";
 
 beforeAll(registerBaseCollection);
 afterAll(resetCardRegistry);
@@ -64,6 +67,87 @@ describe("Reaction — on_over_heal", () => {
     expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
     const csReactor = combatState.unitById.get("overheal-reactor")!;
     expect(csReactor.power).toBeGreaterThan(10);
+  });
+});
+
+describe("Radiant overflow identity orbs (CUB-G1)", () => {
+  /**
+   * The player team is the radiant_crystal core (holding one overflow identity
+   * reaction from the catalog) plus a cheap healer ally. Every heal overheals
+   * the near-full crystal, so the on_over_heal identity fires on each cast.
+   */
+  function makeRadiantTeam(orbId: string): {
+    core: ReturnType<typeof Card.makeUnit>;
+    healer: ReturnType<typeof makeTestUnit>;
+  } {
+    const def = CORE_UPGRADE_DEFINITIONS[orbId];
+    expect(def.reaction).toBeDefined();
+
+    const core = Card.makeUnit(
+      Constants.FORCE_ID_PLAYER,
+      "radiant_crystal",
+      [0, 0],
+    );
+    core.id = "radiant-core";
+    core.power = 20;
+    core.reactions = [structuredClone(def.reaction!)];
+    core.life = core.maxLife - 5;
+
+    const healer = makeTestUnit({
+      effects: [{ id: "heal" }],
+      power: 20,
+      cooldown: 500,
+      position: [1, 0],
+    });
+    healer.id = "overflow-healer";
+
+    return { core, healer };
+  }
+
+  it("overflow_burst deals the crystal's power to the enemy core when an ally overheals", () => {
+    const { core, healer } = makeRadiantTeam("radiant_overflow_burst");
+    const { combatState, combatRunner } = setupCombat([core, healer]);
+
+    const enemyCore = combatState.cpuCore;
+    const initialLife = enemyCore.life;
+
+    const logs = runFrames(combatRunner, combatState, 200);
+
+    // The enemy core never attacks (cooldown 99999 in the harness) — any life
+    // loss must come from the overflow burst reaction.
+    expect(enemyCore.life).toBeLessThan(initialLife);
+    expect(filterLogs(logs, "damage_hit").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("overflow_shield shields the crystal when an ally overheals", () => {
+    const { core, healer } = makeRadiantTeam("radiant_overflow_shield");
+    const { combatState, combatRunner } = setupCombat([core, healer]);
+
+    const playerCore = combatState.playerCore;
+    const initialShield = playerCore.shield;
+
+    runFrames(combatRunner, combatState, 200);
+
+    expect(playerCore.shield).toBeGreaterThan(initialShield);
+  });
+
+  it("saturation grants power every 100 ally heal", () => {
+    const { core, healer } = makeRadiantTeam("radiant_saturation");
+    const { combatState, combatRunner } = setupCombat([core, healer]);
+
+    // Drain the crystal so heals land fully — every_100_heal counts *actual*
+    // healing, so the crystal must have room (mirrors the existing threshold
+    // test, which sets playerCore.life = 1).
+    const playerCore = combatState.playerCore;
+    playerCore.life = 1;
+
+    const initialPower = playerCore.power;
+
+    runFrames(combatRunner, combatState, 500);
+
+    // The healer casts 20-power heals: after 100 total heal the threshold
+    // fires and Saturation returns +5 power on the crystal (the reactor).
+    expect(playerCore.power).toBeGreaterThan(initialPower);
   });
 });
 
