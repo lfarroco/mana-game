@@ -73,7 +73,10 @@ describe("applyLogEntryToCombatState", () => {
     unit.hasted = 400;
     const combatState = makeCombatState(unit);
 
-    applyLogEntryToCombatState(combatState, { type: "haste_end", unitId: "u1" });
+    applyLogEntryToCombatState(combatState, {
+      type: "haste_end",
+      unitId: "u1",
+    });
 
     expect(unit.hasted).toBe(0);
   });
@@ -172,19 +175,91 @@ describe("applyLogEntryToCombatState", () => {
     expect(unit.charge).toBe(0);
   });
 
-  it("a log targeting a missing unit id does not throw", () => {
+  it("silence_hit keeps the longest remaining silence duration", () => {
+    const unit = makeUnit();
+    unit.silenced = 400;
+    const combatState = makeCombatState(unit);
+
+    applyLogEntryToCombatState(combatState, {
+      type: "silence_hit",
+      sourceId: "s1",
+      targetId: "u1",
+      effectDuration: 300,
+    });
+
+    expect(unit.silenced).toBe(400);
+
+    applyLogEntryToCombatState(combatState, {
+      type: "silence_hit",
+      sourceId: "s1",
+      targetId: "u1",
+      effectDuration: 600,
+    });
+
+    expect(unit.silenced).toBe(600);
+  });
+
+  it("silence_end zeroes silenced", () => {
+    const unit = makeUnit();
+    unit.silenced = 250;
+    const combatState = makeCombatState(unit);
+
+    applyLogEntryToCombatState(combatState, {
+      type: "silence_end",
+      unitId: "u1",
+    });
+
+    expect(unit.silenced).toBe(0);
+  });
+
+  it("dispel_hit strips haste, slow, charge, shield and silence", () => {
+    const unit = makeUnit();
+    unit.hasted = 100;
+    unit.slowed = 200;
+    unit.charge = 75;
+    unit.shield = 30;
+    unit.silenced = 500;
+    const combatState = makeCombatState(unit);
+
+    applyLogEntryToCombatState(combatState, {
+      type: "dispel_hit",
+      sourceId: "s1",
+      targetId: "u1",
+    });
+
+    expect(unit.hasted).toBe(0);
+    expect(unit.slowed).toBe(0);
+    expect(unit.charge).toBe(0);
+    expect(unit.shield).toBe(0);
+    expect(unit.silenced).toBe(0);
+  });
+
+  it("silence/dispel entries targeting a missing unit id do not throw", () => {
     const unit = makeUnit();
     const combatState = makeCombatState(unit);
 
     expect(() =>
       applyLogEntryToCombatState(combatState, {
-        type: "haste_hit",
+        type: "silence_hit",
         sourceId: "s1",
         targetId: "missing",
         effectDuration: 500,
       }),
     ).not.toThrow();
 
-    expect(unit.hasted).toBe(0);
+    expect(() =>
+      applyLogEntryToCombatState(combatState, {
+        type: "dispel_hit",
+        sourceId: "s1",
+        targetId: "missing",
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      applyLogEntryToCombatState(combatState, {
+        type: "silence_end",
+        unitId: "missing",
+      }),
+    ).not.toThrow();
   });
 });

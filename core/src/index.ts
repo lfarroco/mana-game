@@ -67,6 +67,7 @@ export * as generateEnemyTeam from "./Combat/generateEnemyTeam";
 export * as CollapseStatusTickPairs from "./Combat/collapseStatusTickPairs";
 export * as ApplyLogEntryToCombatState from "./Combat/applyLogEntryToCombatState";
 export * as PlaybackScheduler from "./Combat/playbackScheduler";
+export * as LogDispatch from "./Combat/logDispatch";
 
 // ---------------------------------------------------------------------------
 // Trigger system
@@ -112,6 +113,7 @@ export * as EffectBuilders from "./data/effectBuilders";
 export * as Encounters from "./content/encounters";
 export * as OrbPresentations from "./content/orbPresentations";
 export * as CoreUpgradeOrbs from "./content/coreUpgradeOrbs";
+export * as TutorialSlides from "./content/tutorialSlides";
 
 // ---------------------------------------------------------------------------
 // Event

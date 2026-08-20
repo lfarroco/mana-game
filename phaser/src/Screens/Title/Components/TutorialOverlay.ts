@@ -3,7 +3,8 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
 import { makeContainer } from "@Env";
-import { slides } from "./tutorialSlides";
+import { TUTORIAL_SLIDES } from "@game/content/tutorialSlides";
+import { renderTutorialSlide } from "./renderTutorialSlide";
 
 const OVERLAY_ALPHA = 0.85;
 const BUTTON_Y = Constants.SCREEN_HEIGHT - 80;
@@ -26,12 +27,12 @@ export async function openTutorial(): Promise<void> {
 	);
 	overlay.setInteractive();
 
-	let slide = slides[currentSlide]();
+	let slide = renderTutorialSlide(TUTORIAL_SLIDES[currentSlide]);
 
 	const updateSlide = () => {
 		container.remove(slide, true);
 
-		slide = slides[currentSlide]();
+		slide = renderTutorialSlide(TUTORIAL_SLIDES[currentSlide]);
 
 		container.add(slide);
 
@@ -41,7 +42,7 @@ export async function openTutorial(): Promise<void> {
 			prevButton.enable();
 		}
 
-		if (currentSlide === slides.length - 1) {
+		if (currentSlide === TUTORIAL_SLIDES.length - 1) {
 			nextButton.disable();
 		} else {
 			nextButton.enable();
@@ -63,7 +64,7 @@ export async function openTutorial(): Promise<void> {
 		text: i18n.t("tutorial.next"),
 		position: [Constants.SCREEN_WIDTH - 200, Constants.MIDDLE_SCREEN_Y],
 		callback: () => {
-			if (currentSlide < slides.length - 1) {
+			if (currentSlide < TUTORIAL_SLIDES.length - 1) {
 				currentSlide++;
 				updateSlide();
 			}

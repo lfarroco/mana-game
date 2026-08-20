@@ -131,14 +131,22 @@ avoid merge conflicts on shared files.
   2-arg wrappers.
 - **[x] Phase E — Combat replay logic (M):** A5, A6, B3. Done (2026-08-14):
   `Combat/collapseStatusTickPairs` (moved + tests),
-  `Combat/applyLogEntryToCombatState`, `Combat/playbackScheduler`. B4 (the
-  log-type dispatch switch) left as-is — it is a trivial lookup, not game
-  logic.
-- **[x] Phase F — Content registries (S):** C2, C3. Done (2026-08-14):
-  `content/encounters`, `content/orbPresentations` as i18n-keyed data. C1
-  (`tutorialSlides.ts`) **explicitly deferred** — it is a Phaser-rendering
-  module (factories returning game objects), not extractable without a full
-  render-layer rewrite.
+  `Combat/applyLogEntryToCombatState`, `Combat/playbackScheduler`. **B4 (the
+  log-type dispatch switch) done (2026-08-19):** the dispatch decision moved
+  to `Combat/logDispatch` — an exhaustive `log.type → handler group` mapping
+  plus the `none` no-FX group; the Phaser `logHandlers/index.ts` switch became
+  a compile-time-exhaustive FX handler table keyed off that classification
+  (new non-`none` log types now fail to compile instead of falling through
+  `default`). This also closed the D1/D2 playback gap: silence/dispel entries
+  (cast missiles, hit state replay, silence_end, silence_skip charge reset)
+  are now handled, and `applyLogEntryToCombatState` replays
+  silence_hit/silence_end/dispel_hit.
+- **[x] Phase F — Content registries (S):** C2, C3, C1. Done (2026-08-14):
+  `content/encounters`, `content/orbPresentations` as i18n-keyed data. **C1
+  (`tutorialSlides.ts`) done (2026-08-19)** via the deferred render-layer
+  rewrite: slide content (i18n keys, geometry, demo/FX specs) moved to
+  `content/tutorialSlides` as pure data; `phaser/` keeps a thin renderer
+  (`Screens/Title/Components/renderTutorialSlide.ts`).
 - **[x] Phase G — Domain validation & contracts (M):** B1, B2, B7. Done
   (2026-08-14): `Actions/recruitValidation` (checkRecruitEligibility shared by
   shop UI + server rules), `board/boardSync` (planBoardSync), GameServer

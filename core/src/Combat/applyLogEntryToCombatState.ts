@@ -27,6 +27,28 @@ export function applyLogEntryToCombatState(
       if (target) target.charge += log.amount;
       break;
     }
+    case "silence_hit": {
+      // Additive-friendly, same as TriggerSystem/effects/silence: re-silencing
+      // keeps the longest remaining duration.
+      const target = combatState.unitById.get(log.targetId);
+      if (target)
+        target.silenced = Math.max(target.silenced, log.effectDuration);
+      break;
+    }
+    case "dispel_hit": {
+      // D2: dispel strips the target's haste/slow/charge/shield/silence
+      // counters. (Force-keyed poison/regen stacks live in the combat system
+      // states, which this function does not see.)
+      const target = combatState.unitById.get(log.targetId);
+      if (target) {
+        target.hasted = 0;
+        target.slowed = 0;
+        target.charge = 0;
+        target.shield = 0;
+        target.silenced = 0;
+      }
+      break;
+    }
     case "haste_end": {
       const target = combatState.unitById.get(log.unitId);
       if (target) target.hasted = 0;
@@ -35,6 +57,11 @@ export function applyLogEntryToCombatState(
     case "slow_end": {
       const target = combatState.unitById.get(log.unitId);
       if (target) target.slowed = 0;
+      break;
+    }
+    case "silence_end": {
+      const target = combatState.unitById.get(log.unitId);
+      if (target) target.silenced = 0;
       break;
     }
     case "increase_power": {

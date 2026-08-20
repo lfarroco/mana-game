@@ -177,7 +177,10 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ### Deferred follow-ups
 
 - [ ] **Manual Steam smoke test** (plan.md task 14): requires a real Steam publisher Web API key (`MANA_STEAM_WEB_API_KEY`) + a Steam Electron build.
-- [ ] **Purify deferred**: port `tutorialSlides.ts` out of `phaser/` (Phaser-rendering factories — needs a render-layer rewrite; see [purify.md](purify.md) Phase F) and the B4 log-dispatch switch.
+
+> The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
+> B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
+> [purify.md](purify.md).
 
 ### Fun & wacky content — see [docs/wacky-content-plan.md](docs/wacky-content-plan.md)
 

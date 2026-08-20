@@ -152,3 +152,75 @@ export const handleChargeHit = (
 		});
 	}
 };
+
+// ---- D1/D2 (wacky content): silence & dispel status effects ----
+
+export const handleSilenceCast = (
+	log: CombatLogger.SilenceCastEntry,
+	_playbackState: PlaybackState
+) => {
+	const source = Chara.mustGetCharaById(log.sourceId);
+	const target = Chara.mustGetCharaById(log.targetId);
+	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
+		colors: [0x9775fa, 0x845ef7, 0x7950f2],
+		amplitudeMin: 5,
+		amplitudeMax: 15,
+		particleScale: 1.5,
+		impact: {
+			colors: [0x9775fa, 0x845ef7],
+			scale: 2,
+			speed: 200,
+			lifespan: 300,
+			alpha: 0.4,
+		},
+		onHit: () => {},
+	});
+};
+
+export const handleSilenceHit = (
+	log: CombatLogger.SilenceHitEntry,
+	_playbackState: PlaybackState
+) => {
+	const combatState = getCombatState();
+	if (!combatState) return;
+	const silenceTarget = combatState.unitById.get(log.targetId);
+	if (silenceTarget) {
+		applyLogEntryToCombatState(combatState, log);
+		ChargeBarDisplay.updateChargeBar(log.targetId);
+	}
+};
+
+export const handleDispelCast = (
+	log: CombatLogger.DispelCastEntry,
+	_playbackState: PlaybackState
+) => {
+	const source = Chara.mustGetCharaById(log.sourceId);
+	const target = Chara.mustGetCharaById(log.targetId);
+	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
+		colors: [0xe64980, 0xd6336c, 0xc2255c],
+		amplitudeMin: 5,
+		amplitudeMax: 15,
+		particleScale: 1.5,
+		impact: {
+			colors: [0xe64980, 0xd6336c],
+			scale: 2,
+			speed: 200,
+			lifespan: 300,
+			alpha: 0.4,
+		},
+		onHit: () => {},
+	});
+};
+
+export const handleDispelHit = (
+	log: CombatLogger.DispelHitEntry,
+	_playbackState: PlaybackState
+) => {
+	const combatState = getCombatState();
+	if (!combatState) return;
+	const dispelTarget = combatState.unitById.get(log.targetId);
+	if (dispelTarget) {
+		applyLogEntryToCombatState(combatState, log);
+		ChargeBarDisplay.updateChargeBar(log.targetId);
+	}
+};
