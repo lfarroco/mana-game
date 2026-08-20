@@ -1,6 +1,7 @@
 import * as constants from "./Constants";
 import Client from "./Client";
 import * as State from "@Models/ClientState";
+import { handleOAuthCallbackIfPresent } from "./lib/itchAuth";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
@@ -49,4 +50,10 @@ async function startGame(): Promise<void> {
 	});
 }
 
-void startGame();
+// itch.io OAuth return handling (docs/itchio-auth.md): run BEFORE the game
+// boots. A popup return posts the token to the opener and closes — the game
+// must not boot inside the popup. A top-level redirect return stashes the
+// token (and clears the hash) and boots normally; loginWithItch consumes it.
+if (!handleOAuthCallbackIfPresent()) {
+	void startGame();
+}

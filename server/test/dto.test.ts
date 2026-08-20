@@ -4,6 +4,8 @@
 /// <reference types="jest" />
 
 import {
+  MAX_ITCH_TOKEN_LENGTH,
+  parseAuthItchBody,
   parseCreateSessionBody,
   parseActionDispatchBody,
   parseAuthSteamBody,
@@ -165,5 +167,27 @@ describe("parseAuthSteamBody", () => {
         expect.objectContaining({ status: 400, code: "invalid_steam_ticket" }),
       );
     }
+  });
+});
+
+describe("parseAuthItchBody", () => {
+  it("parses a well-formed itch auth body", () => {
+    expect(parseAuthItchBody({ token: "abc123" })).toEqual({ token: "abc123" });
+  });
+
+  it("rejects a missing, empty, or non-string token", () => {
+    for (const bad of [{}, { token: undefined }, { token: 42 }, { token: "" }, { token: "   " }]) {
+      expect(() => parseAuthItchBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_itch_token" }),
+      );
+    }
+  });
+
+  it("rejects an over-long token", () => {
+    expect(() =>
+      parseAuthItchBody({ token: "x".repeat(MAX_ITCH_TOKEN_LENGTH + 1) }),
+    ).toThrow(
+      expect.objectContaining({ status: 400, code: "invalid_itch_token" }),
+    );
   });
 });

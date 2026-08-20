@@ -1,16 +1,17 @@
 # Auth — Mana Game Server
 
-**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, and the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
+**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 Steam smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)), and the **itch.io web-build provider landed 2026-08-20** (see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
-**Scope**: `server/` (Node multiplayer backend) + the Electron/Steam client side in `phaser/`.
-**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth plan — planned 2026-08-20).
+**Scope**: `server/` (Node multiplayer backend) + the Electron/Steam and browser/itch.io client sides in `phaser/`.
+**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth — ✅ implemented 2026-08-20).
 
 ## Purpose
 
 Design the authentication for the multiplayer server. Requirements from the 2026-08-13 discussion:
 
 - **Steam players auto-login** — zero friction in the Electron build.
-- **Non-Steam players should be able to play too** (itch.io/browser build), but the launch is **Steam-only** — browser/guest support is a future phase.
+- **Browser/itch.io players log in via itch.io OAuth** (web build) — shipped 2026-08-20 (see [itchio-auth.md](itchio-auth.md)).
+- Guest/browser-without-itch support is a future phase.
 - Keep the option open for Firebase/Supabase-style auth for non-Steam players later.
 
 ## Decisions
@@ -19,7 +20,7 @@ Design the authentication for the multiplayer server. Requirements from the 2026
 |---|---|---|
 | 1 | **Steam = identity proof only; the server issues its own session tokens.** | Steam's `AuthenticateUserTicket` verifies "this is Steam user X" once, per login. It provides no "logged-in user" state for your HTTP API over the lifetime of a run — the server needs its own bearer tokens for every request. |
 | 2 | **The game server DB is the system of record for all players** (Steam and non-Steam). | Ratings, ghosts, and active sessions are inherently per-player data that only make sense in your DB. Steam/Firebase merely prove identity; your `players` table is the source of truth. |
-| 3 | **Steam-only launch.** `POST /api/v1/auth/steam` is the only auth endpoint; there are **no guest accounts** in the Steam-only launch — non-Steam support is a future phase. | Product decision (2026-08-13): Steam players are a priority, and guests aren't needed until non-Steam players ship. |
+| 3 | **Two enabled providers: Steam (Electron) + itch.io (web).** `POST /api/v1/auth/steam` and `POST /api/v1/auth/itch` are the auth endpoints; there are **no guest accounts** yet — non-Steam, non-itch browser players are a future phase. | Product decision (2026-08-13 + 2026-08-20): Steam players are a priority, and the itch.io web build needs its own login to play online. |
 | 4 | **Use the Steam persona name as the display name.** | No separate naming step for Steam players; `localplayer.getName()` is available client-side (and `ISteamUser/GetPlayerSummaries` server-side if unverified names ever matter). |
 | 5 | **When non-Steam players eventually ship, use server-issued guest tokens rather than Firebase/Supabase Auth.** | Guests in localStorage fully cover continuity for an autobattler; zero deps, zero JWT verification, zero signup-abuse surface. Add a provider later behind the same abstraction if email/social/cross-device identity is ever needed. |
 
@@ -81,7 +82,7 @@ New repositories (`server/src/persistence/repositories.ts`) — in-memory v1 (`m
 ```
 players(
   player_id      uuid          PK   -- server-generated (replaces client-side "player_###")
-  provider       'steam'|'guest'    -- future: 'firebase', 'google', ...
+  provider       'steam'|'itch'|'guest'   -- future: 'firebase', 'google', ...
   provider_id    text          -- steamid64 for steam; null for guests
   display_name   text
   created_at     timestamp
@@ -118,7 +119,7 @@ tokenService.issue(playerId)
   → { token, tokenHash }
 ```
 
-Adding Firebase/Supabase later = one new `POST /auth/<provider>` handler that verifies their JWT and returns `{ provider: 'firebase', providerId: <uid> }`. Sessions, matchmaking, and ratings never know which provider a player came from. The `provider` column also lets matchmaking filter pools (e.g. Steam-only matchmaking during the Steam-only launch). During the Steam-only launch, `steam` is the only enabled provider.
+Adding Firebase/Supabase later = one new `POST /auth/<provider>` handler that verifies their JWT and returns `{ provider: 'firebase', providerId: <uid> }`. Sessions, matchmaking, and ratings never know which provider a player came from. The `provider` column also lets matchmaking filter pools if ever needed. `steam` (Electron) and `itch` (web) are the currently enabled providers.
 
 ## Auth flows
 
@@ -145,9 +146,32 @@ Notes:
 - The client-supplied persona is unverified; if display-name integrity ever matters, fetch it server-side via `ISteamUser/GetPlayerSummaries/v2` (needs the steamid + publisher key).
 - Tickets are single-use and short-lived — validate immediately, never cache them.
 
+### itch.io OAuth login (web build) — ✅ IMPLEMENTED (2026-08-20)
+
+Full spec: [itchio-auth.md](itchio-auth.md). The web build uses itch.io's OAuth **implicit flow** — no client secret:
+
+**Client** (`phaser/src/lib/itchAuth.ts`, browser only):
+
+1. Clicking MULTIPLAYER calls `itchAuth.loginWithItch()`; it first reuses a stored server session (itch OAuth keys are long-lived — no popup on repeat visits).
+2. Otherwise it opens a popup to `https://itch.io/user/oauth?client_id=…&scope=profile%3Ame&response_type=token&redirect_uri=<game page>&state=<nonce>` (synchronously within the click gesture — popup-blocker requirement).
+3. itch redirects back to the game page with the token in the URL hash (`#access_token=…&state=…`). The page's boot capture (`main.ts` → `handleOAuthCallbackIfPresent`) posts the token to the opener over same-origin `postMessage` (verifying the `state` nonce) and closes; a blocked popup falls back to a top-level redirect whose return is stashed at boot.
+4. `POST /api/v1/auth/itch` with `{ token }`, then persist the issued `{ token, player }` via the shared `authSession` store (`mana_auth_session`).
+
+**Server** (`server/src/services/itchAuth.ts`):
+
+1. Validate body: `token` (non-empty, length-capped).
+2. `GET https://api.itch.io/profile` with `Authorization: Bearer <token>` — the endpoint accepts both the OAuth API key and the itch-app-injected JWT.
+3. Success = HTTP 200 with a numeric `user.id` (and `user.username`). Anything else (non-200, non-JSON, missing/non-numeric id) → 401 `invalid_itch_token`.
+4. `findOrCreatePlayer({ provider: 'itch', providerId: String(user.id), displayName: user.username })` — display name is **server-verified** (stronger than Steam's client-supplied persona).
+5. Issue a token, return `{ player, token }`.
+
+Notes:
+- `MANA_ITCH_ENABLED=true` registers the route (mirrors the Steam gate — itch has no server secret, so it needs an explicit opt-in).
+- The **developer** API key (`MANA_ITCH_API_KEY`) is **not** consumed here; the server validates the *player's* token against `profile`.
+
 ### Guest accounts (future phase)
 
-Not needed for the Steam-only launch — there are no guest endpoints in v1. When non-Steam players ship, revisit this design:
+Not needed yet — there are no guest endpoints in v1. When non-Steam, non-itch players ship, revisit this design:
 
 - `POST /api/v1/players` `{ displayName? }` → creates `players(provider='guest')`, issues a token, returns `{ playerId, displayName, token }`.
 - No "login" endpoint: the token IS the credential. The client persists it in localStorage (or the itch.io equivalent) and sends it as the Bearer token thereafter.
@@ -155,7 +179,7 @@ Not needed for the Steam-only launch — there are no guest endpoints in v1. Whe
 
 ### Non-Steam browser players (future)
 
-If browser players ever need named, cross-device accounts: add a provider (Firebase Auth / Supabase Auth / Google) behind the abstraction — see above. Steam has no browser OAuth for web games, so browser players will always be guest-or-third-party-provider, never Steam.
+The itch.io web build now has a login (`POST /auth/itch`). Browser players who land on the game **outside** itch.io still need an account: add a provider (Firebase Auth / Supabase Auth / Google) behind the abstraction — see above. Steam has no browser OAuth for web games, so non-itch browser players will always be guest-or-third-party-provider, never Steam.
 
 ## HTTP API
 
@@ -164,13 +188,14 @@ Updated from [game-server.md](game-server.md). Base path `/api/v1`.
 | Method | Path | Body → Response | Notes |
 |---|---|---|---|
 | GET | `/health` | → `{ ok: true }` | liveness — unauthenticated |
-| POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron). Steam-only: the only auth endpoint in the Steam-only launch |
-| POST | `/players` | `{ displayName? }` → `{ player, token }` | guest accounts — **future phase** (not part of the Steam-only launch, see [Guest accounts](#guest-accounts-future-phase)) |
+| POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [Steam auto-login](#steam-auto-login-electron) |
+| POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — see [itch.io OAuth login](#itchio-oauth-login-web-build--implemented-2026-08-20) |
+| POST | `/players` | `{ displayName? }` → `{ player, token }` | guest accounts — **future phase** (see [Guest accounts](#guest-accounts-future-phase)) |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | (unchanged) authenticated |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | (unchanged) authenticated; 404 once the run has finished (session lifecycle is server-owned — there is no delete endpoint) |
 | POST | `/sessions/current/actions` | `{ action, clientActionId? }` → `{ session, combatState? }` | (unchanged) authenticated |
 
-Unauthenticated: `GET /health`, `POST /auth/steam`. Everything else requires `Authorization: Bearer <token>`.
+Unauthenticated: `GET /health`, `POST /auth/steam`, `POST /auth/itch`. Everything else requires `Authorization: Bearer <token>`.
 
 ### Middleware (`server/src/http/middleware/auth.ts`)
 
@@ -189,17 +214,20 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 | `MANA_STEAM_APP_IDS` | `3757600` | Comma-separated allowlist of app ids the server will accept (alpha + demo) |
 | `MANA_STEAM_API_URL` | partner endpoint | `AuthenticateUserTicket` endpoint (deviation 2026-08-17: made configurable). Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` requires a **publisher** Web API key — a standard key there returns HTTP 403 "Access is denied". If only a standard Web API key is available, set `MANA_STEAM_API_URL=https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (rate-limited; the old edge function used this domain). |
 | `MANA_TOKEN_TTL_DAYS` | `30` | Bearer-token lifetime |
-| `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for `POST /auth/steam` |
-| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for `POST /auth/steam` |
+| `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for the auth endpoints (`/auth/steam`, `/auth/itch`) |
+| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for the auth endpoints |
+| `MANA_ITCH_ENABLED` | `false` | `true` registers `POST /auth/itch` (the web build's itch.io login) — mirrors the Steam gate |
 | `MANA_SERVER_HOST` / `MANA_SERVER_PORT` | `127.0.0.1` / `8787` | (existing) |
 
 Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
-`http://127.0.0.1:8787`) as the game-server base URL (`phaser/src/lib/steamAuth.ts`).
+`http://127.0.0.1:8787`) as the game-server base URL (`phaser/src/lib/steamAuth.ts`,
+`phaser/src/lib/itchAuth.ts`), and `MANA_ITCH_CLIENT_ID` (webpack DefinePlugin) as the
+public itch.io OAuth client id for the web build (`phaser/src/lib/itchAuth.ts`).
 
 ## Security & abuse
 
 - **Publisher key is server-side only**; it must never appear in `phaser/` or the Electron bundle.
-- **Rate-limit `POST /auth/steam`** (per-IP via `express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS`): prevents ticket grinding. Exceeding the cap returns 429 `{ error: "rate_limited" }`. (Applies to `POST /players` too, once guest accounts land.)
+- **Rate-limit the auth endpoints** (`POST /auth/steam`, `POST /auth/itch`; per-IP via `express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS`): prevents ticket/token grinding. Exceeding the cap returns 429 `{ error: "rate_limited" }`. (Applies to `POST /players` too, once guest accounts land.)
 - **Ticket abuse**: validate immediately (single-use), require a valid `appId` + matching `identity`, reject non-17-digit `steamid`s.
 - **Token hygiene**: store only SHA-256 hashes; enforce `expires_at` in the middleware.
 - **No client-chosen player ids**: the client never tells the server who it is; the server derives identity from the token.
@@ -219,8 +247,9 @@ Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
 | **A. Player/token repos + bearer middleware** | `PlayerRepo`/`TokenRepo` (in-memory), `authService`/`tokenService`, Bearer middleware replacing `X-Player-Id` | unit + HTTP tests green; session routes run off tokens | ✅ done (2026-08-13) |
 | **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets | ✅ done (2026-08-13); smoke test passed 2026-08-20 (plan.md task 14) |
 | **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ✅ done (2026-08-13) — `phaser/src/RemoteServer.ts` is the HTTP adapter (bearer auth via `getBearerToken()`); manual MP run from the Steam build passed 2026-08-20 (plan.md task 14) |
+| **D. itch.io provider** | `POST /auth/itch` + `itchAuth` service (mocked profile API in tests), shared client auth-session store, OAuth-popup login flow | `npm test`/typecheck green; browser MP entry reaches the server | ✅ done (2026-08-20) — see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending |
 
-The original plan was guest-first; the Steam-only launch flips it — Phases A and B are independent, and B is the priority.
+The original plan was guest-first; the Steam + itch launch flips it — Phases A and B are independent, and B is the priority.
 
 ## Implementation notes & deviations
 
@@ -236,6 +265,7 @@ Recorded 2026-08-13 while implementing plan.md tasks 1–13. Items marked *(devi
 - **Token TTL is not refreshed per request** — a token expires `MANA_TOKEN_TTL_DAYS` (30) after issue; Steam re-issues on every launch, which is the expected flow for an autobattler (docs/auth.md decisions). Token refresh is parked in Phase 5 extras.
 - **`X-Player-Id` code paths are deleted**; only comments/READMEs describing what replaced it remain.
 - **Manual smoke test** (plan.md task 14) **passed 2026-08-20**: real Steam ticket authenticated end-to-end (Electron → server → Steam Web API); the local SQLite DB (`server/data/mana.db`) was populated with the Steam player + bearer token.
+- **itch.io provider** landed 2026-08-20 (`server/src/services/itchAuth.ts` + `POST /auth/itch`; client `phaser/src/lib/itchAuth.ts` OAuth-popup flow + shared `phaser/src/lib/authSession.ts` store; boot-time OAuth capture in `main.ts`). itch display names are **server-verified** (`api.itch.io/profile`), unlike Steam's client-supplied persona. The provider is gated by `MANA_ITCH_ENABLED` (server) and `MANA_ITCH_CLIENT_ID` (web build). See [itchio-auth.md](itchio-auth.md).
 
 
 

@@ -3,7 +3,8 @@
  *
  * Covers the provider abstraction: findOrCreatePlayer upsert semantics
  * (repeat logins reuse the same player) and provider-agnostic login through a
- * registered Authenticator. Steam is the only enabled provider this phase.
+ * registered Authenticator. Steam and itch are the enabled providers; the
+ * route layer registers their Authenticators (docs/auth.md, docs/itchio-auth.md).
  */
 /// <reference types="jest" />
 

@@ -46,7 +46,7 @@ directory (e.g. `cd core && npm test`).
 | Command                 | Description                                        |
 |-------------------------|----------------------------------------------------|
 | `npm run dev`           | Start the API server (default `http://127.0.0.1:8787`) |
-| `npm test`              | Jest unit + HTTP integration tests (167 tests)     |
+| `npm test`              | Jest unit + HTTP integration tests (188 tests)     |
 | `npm run typecheck`     | `tsc --noEmit`                                     |
 | `npm run build`         | tsup production bundle → `dist/`                   |
 
@@ -134,6 +134,22 @@ cd server
 npm run build          # tsup bundle → dist/
 make server-build      # or the Docker image
 ```
+
+### Multiplayer auth configuration (web build)
+
+itch.io browser players log in via the itch.io OAuth popup (see
+[itchio-auth.md](itchio-auth.md)). The relevant env vars:
+
+| Var | Where | Meaning |
+|---|---|---|
+| `MANA_ITCH_CLIENT_ID` | `phaser/` web build (webpack DefinePlugin) | Public itch.io OAuth client id; empty → browser multiplayer shows "itch auth not configured" |
+| `MANA_ITCH_ENABLED` | `server/` | `true` registers `POST /api/v1/auth/itch` (default `false`) |
+| `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io game-page origin in production (e.g. `https://lfarroco.itch.io`) |
+| `MANA_SERVER_URL` | `phaser/` web build (webpack DefinePlugin) | Game-server base URL for the web build (default `http://127.0.0.1:8787`) |
+
+Steam (Electron) auth needs `MANA_STEAM_WEB_API_KEY` (server secret) plus the
+client defaults — see [auth.md](auth.md) and [game-server.md](game-server.md)
+for the full env tables.
 
 ## Platform Requirements
 

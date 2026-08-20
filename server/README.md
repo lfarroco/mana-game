@@ -49,21 +49,23 @@ account always fights PvE).
 
 Base path `/api/v1`, JSON in/out. Every session request must carry a bearer
 token in the `Authorization` header — obtain one via `POST /api/v1/auth/steam`
-(Steam auto-login, Electron) which returns `{ player, token }`:
+(Steam auto-login, Electron) or `POST /api/v1/auth/itch` (itch.io OAuth, web
+build), both of which return `{ player, token }`:
 
 ```
 Authorization: Bearer <token>
 ```
 
-Unauthenticated: `GET /health`, `POST /api/v1/auth/steam`. Everything else
-requires a valid (non-expired) token; missing/malformed tokens → 401
-`missing_token`, unknown/expired tokens → 401 `invalid_token`. The `X-Player-Id`
-header is retired.
+Unauthenticated: `GET /health`, `POST /api/v1/auth/steam`,
+`POST /api/v1/auth/itch`. Everything else requires a valid (non-expired) token;
+missing/malformed tokens → 401 `missing_token`, unknown/expired tokens → 401
+`invalid_token`. The `X-Player-Id` header is retired.
 
 | Method | Path                               | Description                                                                     |
 | ------ | ---------------------------------- | ------------------------------------------------------------------------------- |
 | GET    | `/health`                          | Liveness check → `{ ok: true }` (no auth)                                       |
 | POST   | `/api/v1/auth/steam`               | Steam ticket → `{ player, token }` (no auth)                                    |
+| POST   | `/api/v1/auth/itch`                | itch.io OAuth token → `{ player, token }` (no auth; gated by `MANA_ITCH_ENABLED`) |
 | POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if an **active** run exists)                |
 | GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`); 404 if none or the run has finished |
 | POST   | `/api/v1/sessions/current/actions` | Dispatch action → `{ session, combatState? }`                                   |
@@ -159,15 +161,15 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | 400    | `invalid_crystal_id`                        | Missing/unknown `crystalId`                         |
 | 400    | `invalid_queue_type`                        | `queueType` not `casual`/`ranked`                   |
 | 400    | `invalid_action` / `invalid_action_type`    | Malformed or unknown action                         |
-| 400    | `invalid_steam_ticket` / `invalid_identity` | Malformed steam auth body                           |
+| 400    | `invalid_steam_ticket` / `invalid_itch_token` / `invalid_identity` | Malformed auth body |
 | 401    | `missing_token`                             | Missing/malformed `Authorization` header            |
 | 401    | `invalid_token`                             | Unknown or expired bearer token                     |
-| 401    | `invalid_steam_ticket` / `invalid_identity` | Steam rejected the ticket / wrong identity or appId |
+| 401    | `invalid_steam_ticket` / `invalid_itch_token` / `invalid_identity` | Provider rejected the credential (Steam ticket / itch token / identity or appId) |
 | 404    | `no_active_session`                         | No session for this player                          |
 | 409    | `session_already_exists`                    | A session is already active                         |
 | 409    | `session_finished`                          | Run already ended (`victory`/`game_over`)           |
 | 422    | `action_rejected`                           | Action invalid for the current phase                |
-| 429    | `rate_limited`                              | Per-IP auth rate limit exceeded (POST /auth/steam)  |
+| 429    | `rate_limited`                              | Per-IP auth rate limit exceeded (`POST /auth/steam`, `POST /auth/itch`)  |
 | 500    | `internal_error`                            | Unexpected server error                             |
 
 ## Environment
@@ -181,9 +183,10 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_STEAM_WEB_API_KEY` | —             | Publisher Web API key (server secret; enables `POST /auth/steam`) |
 | `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
 | `MANA_STEAM_API_URL`     | partner endpoint | `AuthenticateUserTicket` endpoint. Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (needs a **publisher** key). Point at `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` when using a standard Web API key (rate-limited). |
+| `MANA_ITCH_ENABLED`      | `false`        | `true` registers `POST /api/v1/auth/itch` (web build's itch.io OAuth login) |
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
-| `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for `POST /auth/steam`              |
-| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for `POST /auth/steam`              |
+| `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for the auth endpoints (`POST /auth/steam`, `POST /auth/itch`) |
+| `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for the auth endpoints              |
 | `MANA_SQLITE_PATH`     | —             | Opt into durable SQLite persistence (a database file path or `:memory:`); unset = in-memory repos |
 
 ## Persistence (Phase 4)
@@ -238,8 +241,9 @@ Notes:
 - Persistence is **in-memory by default** (restarts lose active sessions);
   set `MANA_SQLITE_PATH` for durable SQLite persistence (see above). The
   SQLite file should live on a persistent volume in production.
-- Auth: Steam-only (`POST /api/v1/auth/steam`); bearer tokens are stored
-  SHA-256-hashed with an expiry. The auth endpoint is rate-limited per-IP
+- Auth: Steam (`POST /api/v1/auth/steam`) + itch.io (`POST /api/v1/auth/itch`,
+  gated by `MANA_ITCH_ENABLED`); bearer tokens are stored
+  SHA-256-hashed with an expiry. The auth endpoints are rate-limited per-IP
   (`express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / window) to prevent ticket
   grinding. Guest accounts are a future phase.
 - `better-sqlite3` is a native module: prebuilt binaries cover common

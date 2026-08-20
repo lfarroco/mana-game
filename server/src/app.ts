@@ -63,9 +63,14 @@ export type AppDeps = {
   authRateLimitWindowMs?: number;
   /**
    * Steam auth config. When omitted or the key is empty, POST /auth/steam is
-   * not registered (the server boots without auth).
+   * not registered.
    */
   steam?: { webApiKey: string; appIds: number[] };
+  /**
+   * Enable itch.io auth (POST /auth/itch) for the web build. The auth mount
+   * is registered when Steam **or** itch is configured.
+   */
+  itch?: boolean;
   /**
    * AuthenticateUserTicket endpoint override (MANA_STEAM_API_URL): defaults
    * to the partner endpoint (publisher key); api.steampowered.com works with
@@ -74,6 +79,8 @@ export type AppDeps = {
   steamApiUrl?: string;
   /** Injectable fetch for the Steam Web API (mocked in tests). */
   steamFetch?: typeof globalThis.fetch;
+  /** Injectable fetch for the itch.io profile API (mocked in tests). */
+  itchFetch?: typeof globalThis.fetch;
 };
 
 export function createApp(deps: AppDeps = {}): express.Express {
@@ -105,9 +112,9 @@ export function createApp(deps: AppDeps = {}): express.Express {
     res.json({ ok: true });
   });
 
-  // Auth routes — only when a Steam publisher key is configured. Rate-limited
-  // per-IP (ticket grinding protection, docs/auth.md).
-  if (deps.steam?.webApiKey) {
+  // Auth routes — registered when Steam or itch.io is configured. Rate-limited
+  // per-IP (ticket/token grinding protection, docs/auth.md).
+  if (deps.steam?.webApiKey || deps.itch) {
     app.use(
       "/api/v1/auth",
       createRateLimiter({
@@ -119,7 +126,9 @@ export function createApp(deps: AppDeps = {}): express.Express {
         playerRepo,
         tokenRepo,
         steam: deps.steam,
+        itch: deps.itch,
         steamFetch: deps.steamFetch,
+        itchFetch: deps.itchFetch,
         steamApiUrl: deps.steamApiUrl,
         tokenTtlDays: deps.tokenTtlDays,
       }),

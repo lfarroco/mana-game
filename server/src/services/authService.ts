@@ -1,14 +1,15 @@
 /**
  * Auth service — the application layer for identity.
  *
- * Core model (docs/auth.md): *Steam proves identity once; the server owns
+ * Core model (docs/auth.md): *a provider proves identity once; the server owns
  * players and sessions.* Credential validation is provider-specific (one
  * `Authenticator` per provider); everything after it is provider-agnostic —
  * `findOrCreatePlayer` upserts the player, then `issueToken` mints a bearer
  * token. A future provider (Firebase/Supabase/guest) is a single new
  * `Authenticator` + route; sessions and matchmaking never know the provider.
  *
- * `steam` is the only enabled provider this phase.
+ * `steam` (Electron) and `itch` (web build) are the enabled providers; the
+ * route layer feeds both `Authenticator`s into one service.
  */
 
 import { v4 as uuid } from "uuid";
@@ -24,14 +25,17 @@ import { createTokenService } from "./tokenService";
 /** Verified provider identity extracted from a credential. */
 export type ProviderIdentity = {
   providerId: string;
-  /** Steam persona; unverified client-supplied (docs/auth.md). */
+  /**
+   * Display name. Steam: unverified client-supplied persona (docs/auth.md);
+   * itch: server-verified username (docs/itchio-auth.md).
+   */
   displayName?: string;
 };
 
 /**
- * Provider-specific credential validation. `steam` is the only registered
- * authenticator this phase; its `authenticate` calls the Steam Web API
- * (steamAuth service, task 4) and returns the verified steamid64.
+ * Provider-specific credential validation. `steam` and `itch` are registered
+ * at the route layer; each `authenticate` calls the provider's API (Steam Web
+ * API / api.itch.io/profile) and returns the verified provider id.
  */
 export type Authenticator = {
   provider: PlayerProvider;
@@ -99,7 +103,7 @@ export function createAuthService(deps: {
         throw new ApiError(
           400,
           "invalid_request",
-          `No authenticator registered for provider '${provider}' (steam-only this phase)`,
+          `No authenticator registered for provider '${provider}' (configured providers only)`,
         );
       }
 

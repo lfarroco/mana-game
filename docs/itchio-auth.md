@@ -1,8 +1,8 @@
 # itch.io Auth — Web Build Multiplayer Login
 
-**Status**: 🚧 **Planned — not yet implemented** (plan written 2026-08-20). This doc is
-both the implementation plan and the resume guide: if work is interrupted, pick up from
-the [Resume guide](#resume-guide) and the unchecked task lists below.
+**Status**: ✅ **Implemented** (2026-08-20). Server `itch` provider + client OAuth-popup
+login are landed and unit-tested; the **manual smoke test on the live itch.io embed (D3)
+is still pending**. This doc is the implementation record + resume guide for that final step.
 **Created**: 2026-08-20
 **Scope**: `server/` (new `itch` auth provider) + `phaser/` (browser itch.io login flow).
 **Related**: [auth.md](auth.md) (auth design + provider abstraction),
@@ -78,10 +78,10 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 
 ## Phase A — Server: `itch` provider
 
-- [ ] **A1. Provider type** — `server/src/persistence/repositories.ts`: `PlayerProvider`
+- [x] **A1. Provider type** — `server/src/persistence/repositories.ts`: `PlayerProvider`
   → `"steam" | "itch" | "guest"`. Update the doc comment (no longer "Steam is the only
   enabled provider").
-- [ ] **A2. itch auth client** — new `server/src/services/itchAuth.ts` (mirror
+- [x] **A2. itch auth client** — new `server/src/services/itchAuth.ts` (mirror
   `steamAuth.ts`):
   - `ITCH_PROFILE_URL = "https://api.itch.io/profile"`.
   - `createItchAuthClient({ url?, fetch? })` → `{ validateToken(token), authenticator }`
@@ -93,16 +93,16 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
   - `authenticate(credential)` validates `{ token: string }` (non-empty), then returns
     `ProviderIdentity { providerId: String(user.id), displayName: user.username }` —
     display name is **server-verified** (stronger than Steam's client-supplied persona).
-- [ ] **A3. DTO** — `server/src/dto.ts`: `parseAuthItchBody(body)` → `{ token: string }`
+- [x] **A3. DTO** — `server/src/dto.ts`: `parseAuthItchBody(body)` → `{ token: string }`
   (non-empty, length-capped). Mirror `parseAuthSteamBody`'s wire-boundary-only style.
-- [ ] **A4. Route** — `server/src/http/routes/auth.ts`: register `POST /auth/itch` when
+- [x] **A4. Route** — `server/src/http/routes/auth.ts`: register `POST /auth/itch` when
   itch is enabled; keep `POST /auth/steam` gated on the Steam key; feed **both**
   `Authenticator`s into one `createAuthService`. Generalize authService's
   "steam-only this phase" error message (`server/src/services/authService.ts`).
-- [ ] **A5. Wiring** — `server/src/config.ts` (`MANA_ITCH_ENABLED`, default `false`),
+- [x] **A5. Wiring** — `server/src/config.ts` (`MANA_ITCH_ENABLED`, default `false`),
   `server/src/app.ts` (mount `/api/v1/auth` when Steam **or** itch is configured; new
   `itch?: boolean` dep), `server/src/index.ts` (pass through).
-- [ ] **A6. Server tests** — `server/test/itchAuth.test.ts` (profile success incl.
+- [x] **A6. Server tests** — `server/test/itchAuth.test.ts` (profile success incl.
   username, non-2xx → 401, network failure → 502, non-JSON, bad shape, empty token);
   extend `server/test/auth.test.ts` (`/auth/itch` happy path returns `{ player, token }`
   with `provider: "itch"`, bad token 401, route absent when disabled, rate limit);
@@ -110,7 +110,7 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 
 ## Phase B — Client: itch login module + OAuth capture
 
-- [ ] **B1. Shared auth session store** — new `phaser/src/lib/authSession.ts` extracted
+- [x] **B1. Shared auth session store** — new `phaser/src/lib/authSession.ts` extracted
   from `steamAuth.ts`: `AUTH_STORAGE_KEY` (`mana_auth_session`), provider-aware
   `AuthSession` / `AuthPlayer` (`provider: "steam" | "itch"`), `parseSessionPayload`
   (currently hard-codes `"steam"` — must preserve the provider from the server response),
@@ -118,7 +118,7 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
   `readServerUrl()`. Refactor `phaser/src/lib/steamAuth.ts` to delegate; its tests keep
   passing. `phaser/src/RemoteServer.ts` default token provider switches to the shared
   `getBearerToken`; generalize its "requires Steam login" message.
-- [ ] **B2. itch auth client** — new `phaser/src/lib/itchAuth.ts` (mirror `steamAuth.ts`,
+- [x] **B2. itch auth client** — new `phaser/src/lib/itchAuth.ts` (mirror `steamAuth.ts`,
   injectable factory for tests):
   - `ITCH_CLIENT_ID` from the build-time define (`process.env.MANA_ITCH_CLIENT_ID`),
     `ITCH_SCOPE = "profile:me"`, auth URL `https://itch.io/user/oauth`.
@@ -131,16 +131,16 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
   - `loginWithItch()`: reuse the stored server session if present (itch OAuth keys are
     long-lived — no popup on repeat visits); else acquire a token → `POST /api/v1/auth/itch`
     → persist → return. Never log the token.
-- [ ] **B3. Boot-time OAuth capture** — `phaser/src/main.ts`: call
+- [x] **B3. Boot-time OAuth capture** — `phaser/src/main.ts`: call
   `handleOAuthCallbackIfPresent()` before the game boots. If `location.hash` has
   `access_token`: with `window.opener` → `postMessage({ type, token, state }, origin)` to
   the opener and `window.close()` **without booting the game** (return early); without
   opener (top-level return) → stash `{ token, state }` for the next `loginWithItch()` and
   clear the hash via `history.replaceState`.
-- [ ] **B4. Build config** — `phaser/webpack/config.base.cjs`: add
+- [x] **B4. Build config** — `phaser/webpack/config.base.cjs`: add
   `"process.env.MANA_ITCH_CLIENT_ID"` to `createSharedDefineValues` (same pattern as
   `MANA_SERVER_URL`).
-- [ ] **B5. Client tests** — new `phaser/src/lib/itchAuth.test.ts` (query-param token,
+- [x] **B5. Client tests** — new `phaser/src/lib/itchAuth.test.ts` (query-param token,
   hash capture stash, popup `postMessage` flow with state verification, popup-blocked
   fallback, login POST + persistence, corrupt session → logged out, `getBearerToken`);
   update `phaser/src/lib/steamAuth.test.ts` + `phaser/src/RemoteServer.test.ts` for the
@@ -148,21 +148,21 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 
 ## Phase C — UI wiring + i18n
 
-- [ ] **C1. Multiplayer button dispatch** — `phaser/src/Screens/Title/Components/arenaButton.ts`:
+- [x] **C1. Multiplayer button dispatch** — `phaser/src/Screens/Title/Components/arenaButton.ts`:
   `isElectron()` (`@Utils/environment`) → existing Steam flow; browser → `itchAuth` flow.
   Keep the re-entry guard, resume-session, and error-modal plumbing. Call
   `loginWithItch()` as the first statement of the handler so the popup opens synchronously
   (popup-blocker requirement).
-- [ ] **C2. i18n** — add `title.multiplayer.requiresItch` ("Authorize Mana Battle with
+- [x] **C2. i18n** — add `title.multiplayer.requiresItch` ("Authorize Mana Battle with
   itch.io…") to all six catalogs (`en`, `es`, `jp`, `pt`, `cn`, `ru`); `requiresSteam`
   becomes Electron-only; reuse `loginFailed`.
 
 ## Phase D — Deployment, docs, manual verification
 
-- [ ] **D1. Deploy config** — web build env `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`;
+- [x] **D1. Deploy config** — web build env `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`;
   server env `MANA_ITCH_ENABLED=true`, `MANA_CORS_ORIGIN=https://lfarroco.itch.io`.
   Update `docs/building-and-running.md` + `server/README.md` env tables.
-- [ ] **D2. Docs** — update `docs/auth.md` (new provider section, retire "Steam-only
+- [x] **D2. Docs** — update `docs/auth.md` (new provider section, retire "Steam-only
   launch" wording), `docs/game-server.md` endpoint table, this doc's status line, and
   remove the AGENTS.md Task Queue entry once landed.
 - [ ] **D3. Manual smoke test** — on the live itch.io embed: click Multiplayer → OAuth

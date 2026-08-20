@@ -19,6 +19,7 @@ export type ApiErrorCode =
   | "missing_token"
   | "invalid_token"
   | "invalid_steam_ticket"
+  | "invalid_itch_token"
   | "invalid_identity"
   | "internal_error";
 

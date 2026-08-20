@@ -12,6 +12,7 @@ const app = createApp({
   sqlitePath: config.sqlitePath ?? undefined,
   steam: { webApiKey: config.steamWebApiKey, appIds: config.steamAppIds },
   steamApiUrl: config.steamApiUrl,
+  itch: config.itchEnabled,
   authRateLimitMax: config.authRateLimitMax,
   authRateLimitWindowMs: config.authRateLimitWindowMs,
 });
@@ -27,6 +28,15 @@ const server = app.listen(config.port, config.host, () => {
   } else {
     console.log(
       "[mana-server] Steam auth DISABLED — set MANA_STEAM_WEB_API_KEY to register POST /api/v1/auth/steam",
+    );
+  }
+  if (config.itchEnabled) {
+    console.log(
+      "[mana-server] itch.io auth enabled — POST /api/v1/auth/itch registered",
+    );
+  } else {
+    console.log(
+      "[mana-server] itch.io auth DISABLED — set MANA_ITCH_ENABLED=true to register POST /api/v1/auth/itch",
     );
   }
 });

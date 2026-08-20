@@ -217,3 +217,167 @@ describe("POST /api/v1/auth/steam", () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe("POST /api/v1/auth/itch", () => {
+  const ITCH_ID_A = 1994;
+  const ITCH_USERNAME_A = "Momo";
+  const ITCH_TOKEN = "valid-itch-token";
+
+  type ItchMockOptions = {
+    ok?: boolean;
+    status?: number;
+    userId?: number;
+    username?: string;
+  };
+
+  /** Fake fetch standing in for the itch.io profile API. */
+  function createItchFetchMock(options: ItchMockOptions = {}) {
+    const calls: string[] = [];
+    const fetch: FetchImpl = (async (url: string) => {
+      calls.push(url);
+      return {
+        ok: options.ok ?? true,
+        status: options.status ?? 200,
+        json: async () => ({
+          user: {
+            id: options.userId ?? ITCH_ID_A,
+            username: options.username ?? ITCH_USERNAME_A,
+          },
+        }),
+      } as unknown as Response;
+    }) as FetchImpl;
+    return { fetch, calls };
+  }
+
+  function createItchTestApp(
+    itchFetch: typeof fetch,
+    overrides: Partial<AppDeps> = {},
+  ): Express {
+    return createApp({
+      playerRepo,
+      tokenRepo,
+      itch: true,
+      itchFetch,
+      ...overrides,
+    });
+  }
+
+  it("validates an itch token and returns { player, token } with provider itch", async () => {
+    const { fetch, calls } = createItchFetchMock();
+    const app = createItchTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+
+    expect(res.status).toBe(200);
+    expect(calls).toHaveLength(1);
+
+    const { player, token } = res.body as {
+      player: {
+        playerId: string;
+        provider: string;
+        providerId: string;
+        displayName?: string;
+      };
+      token: string;
+    };
+    expect(player.provider).toBe("itch");
+    expect(player.providerId).toBe(String(ITCH_ID_A));
+    expect(player.displayName).toBe(ITCH_USERNAME_A);
+    expect(player.playerId).not.toBe("");
+    expect(typeof token).toBe("string");
+    expect(token).toHaveLength(43);
+
+    // The plaintext is NOT stored — only its SHA-256 hash.
+    const tokenService = createTokenService(tokenRepo);
+    const record = tokenRepo.findByHash(tokenService.hashToken(token));
+    expect(record).not.toBeNull();
+    expect(record!.playerId).toBe(player.playerId);
+    expect(tokenRepo.findByHash(token)).toBeNull();
+  });
+
+  it("uses the server-verified username as displayName", async () => {
+    const { fetch } = createItchFetchMock({ username: "itchy_player" });
+    const app = createItchTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+
+    expect(res.status).toBe(200);
+    expect(res.body.player.displayName).toBe("itchy_player");
+  });
+
+  it("repeat logins return the same player with a fresh token", async () => {
+    const { fetch } = createItchFetchMock();
+    const app = createItchTestApp(fetch);
+
+    const first = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+    const second = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+
+    expect(second.status).toBe(200);
+    expect(second.body.player.playerId).toBe(first.body.player.playerId);
+    expect(second.body.token).not.toBe(first.body.token);
+    expect(playerRepo.findByProvider("itch", String(ITCH_ID_A))).not.toBeNull();
+  });
+
+  it("rejects a token itch.io invalidates (non-200)", async () => {
+    const { fetch } = createItchFetchMock({ ok: false, status: 401 });
+    const app = createItchTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: "garbage-token" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("invalid_itch_token");
+  });
+
+  it("rejects malformed bodies with 400 without calling the profile API", async () => {
+    const { fetch, calls } = createItchFetchMock();
+    const app = createItchTestApp(fetch);
+
+    for (const body of [{}, { token: 42 }, { token: "" }, { token: "   " }]) {
+      const res = await request(app).post("/api/v1/auth/itch").send(body);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe("invalid_itch_token");
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("is not registered when itch is disabled", async () => {
+    const app = createApp({ playerRepo, tokenRepo });
+
+    const res = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("is rate-limited per-IP like the Steam endpoint", async () => {
+    const { fetch } = createItchFetchMock();
+    const app = createItchTestApp(fetch, {
+      authRateLimitMax: 3,
+      authRateLimitWindowMs: 60_000,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const ok = await request(app)
+        .post("/api/v1/auth/itch")
+        .send({ token: ITCH_TOKEN });
+      expect(ok.status).toBe(200);
+    }
+
+    const limited = await request(app)
+      .post("/api/v1/auth/itch")
+      .send({ token: ITCH_TOKEN });
+    expect(limited.status).toBe(429);
+    expect(limited.body.error).toBe("rate_limited");
+  });
+});

@@ -14,7 +14,7 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 - `src/errors.ts` — typed `ApiError`
 - `src/http/routes/` — `sessions.ts`, `auth.ts`
 - `src/http/middleware/` — auth (Bearer), cors, errors, logging, rateLimit
-- `src/services/` — sessionService, authService, tokenService, steamAuth, matchmaking, rating
+- `src/services/` — sessionService, authService, tokenService, steamAuth, itchAuth, matchmaking, rating
 - `src/persistence/` — `repositories.ts` (repo interfaces), `memory.ts` (in-memory), `sqlite.ts` (better-sqlite3, durable)
 
 ## Conventions & gotchas
@@ -33,7 +33,7 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 
 ```bash
 cd server
-npm test            # 167 tests (unit + HTTP integration)
+npm test            # 188 tests (unit + HTTP integration)
 npm run typecheck
 npm run build       # tsup → dist/
 ```

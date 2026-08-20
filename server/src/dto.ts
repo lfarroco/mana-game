@@ -31,6 +31,18 @@ export type AuthSteamRequest = {
   displayName?: string;
 };
 
+export type AuthItchRequest = {
+  /** itch.io OAuth access token (implicit flow) — validated server-side. */
+  token: string;
+};
+
+/**
+ * Longest accepted itch.io token. OAuth access keys are short API keys; the
+ * itch-app-injected JWT variant is longer — 8KB bounds both while still
+ * rejecting pathological payloads at the wire boundary.
+ */
+export const MAX_ITCH_TOKEN_LENGTH = 8192;
+
 /** Steam web-api tickets are hex-encoded binary; reject anything else. */
 const HEX_TICKET_PATTERN = /^[0-9a-fA-F]+$/;
 
@@ -89,6 +101,34 @@ export function parseAuthSteamBody(body: unknown): AuthSteamRequest {
     typeof raw.displayName === "string" ? raw.displayName : undefined;
 
   return { ticket, identity, appId, displayName };
+}
+
+/**
+ * Parse and shape-validate the POST /auth/itch body.
+ *
+ * Wire-boundary only: the token's validity is checked by the itchAuth service
+ * against api.itch.io/profile.
+ */
+export function parseAuthItchBody(body: unknown): AuthItchRequest {
+  const raw = asRecord(body);
+
+  const token = raw.token;
+  if (typeof token !== "string" || token.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_itch_token",
+      "token is required and must be a non-empty string",
+    );
+  }
+  if (token.length > MAX_ITCH_TOKEN_LENGTH) {
+    throw new ApiError(
+      400,
+      "invalid_itch_token",
+      `token exceeds the maximum length of ${MAX_ITCH_TOKEN_LENGTH} characters`,
+    );
+  }
+
+  return { token };
 }
 
 export function parseCreateSessionBody(body: unknown): CreateSessionRequest {

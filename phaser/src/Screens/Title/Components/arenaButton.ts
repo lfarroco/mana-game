@@ -5,7 +5,10 @@ import * as i18n from "@i18n/i18n";
 import * as Models from "@game/Models";
 import { env } from "@Env";
 import { getScreenManager } from "../../ScreenManager";
+import { isElectron } from "@Utils/environment";
 import { steamAuth } from "@lib/steamAuth";
+import { itchAuth } from "@lib/itchAuth";
+import type { AuthPlayer } from "@lib/authSession";
 import { setMultiplayerMode } from "@lib/multiplayerMode";
 import { remoteServer } from "../../../RemoteServer";
 
@@ -33,15 +36,16 @@ export function create() {
 }
 
 /**
- * Multiplayer entry: Steam login → resume an active server-side run if one
- * exists, otherwise start a new multiplayer run (crystal selection). Errors
- * (Steam unavailable / server rejected the ticket / unreachable server)
- * surface in a modal so the player can fall back to single-player.
+ * Multiplayer entry (docs/itchio-auth.md Phase C): Electron uses the Steam
+ * auto-login; the browser build uses the itch.io OAuth popup. After login we
+ * resume an active server-side run if one exists, otherwise start a new
+ * multiplayer run (crystal selection). Errors surface in a modal so the player
+ * can fall back to single-player.
  */
 async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	if (enteringMultiplayer) return;
 
-	if (!steamAuth.isSteamAvailable()) {
+	if (isElectron() && !steamAuth.isSteamAvailable()) {
 		showMultiplayerMessage(i18n.t("title.multiplayer.requiresSteam"));
 		return;
 	}
@@ -49,7 +53,16 @@ async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	enteringMultiplayer = true;
 	btn.disable();
 	try {
-		const { player } = await steamAuth.loginWithSteam();
+		let player: AuthPlayer;
+		if (isElectron()) {
+			({ player } = await steamAuth.loginWithSteam());
+		} else {
+			// Browser build — itch.io OAuth. loginWithItch opens the popup
+			// synchronously within this click gesture (popup-blocker
+			// requirement, docs/itchio-auth.md C1).
+			const session = await itchAuth.loginWithItch();
+			player = session.player;
+		}
 
 		// Resume an active run (reconnect mid-run) when the server has one.
 		const existing = await remoteServer.getSession(player.playerId);

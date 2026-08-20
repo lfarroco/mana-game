@@ -5,17 +5,27 @@
  * The Electron preload exposes `window.auth.getSteamAuthTicket` (ticket as a
  * hex string). This module POSTs it to the game server's
  * `POST /api/v1/auth/steam`, then persists the issued `{ token, player }`
- * through the existing storage provider so Phase 3's `RemoteServer` rewrite
- * can authenticate every request with `Authorization: Bearer <token>`.
+ * through the shared auth-session store (authSession.ts) so the RemoteServer
+ * adapter can authenticate every request with `Authorization: Bearer <token>`.
  *
- * Steam-only this phase: `loginWithSteam` throws when Steam is unavailable so
- * multiplayer entry can fall back to single-player. The bearer token is a
- * credential — it is persisted but never logged or echoed.
+ * `loginWithSteam` throws when Steam is unavailable so multiplayer entry can
+ * fall back to single-player (or the itch.io web login). The bearer token is
+ * a credential — it is persisted but never logged or echoed.
  */
 
 import { storage } from "@Systems/Storage";
 import type { StorageProvider } from "@Systems/Storage";
 import { IS_DEMO } from "@config";
+import {
+	AUTH_STORAGE_KEY,
+	DEFAULT_SERVER_URL,
+	createAuthSessionStore,
+	parseSessionPayload,
+	readServerUrl,
+	type AuthSession,
+} from "./authSession";
+
+export { AUTH_STORAGE_KEY, DEFAULT_SERVER_URL, readServerUrl };
 
 /**
  * Shared identity string that ties a Steam ticket to this server
@@ -24,26 +34,16 @@ import { IS_DEMO } from "@config";
  */
 export const STEAM_IDENTITY = "mana-game-v1";
 
-/** Default game-server base URL; `MANA_SERVER_URL` (build-time env) overrides. */
-export const DEFAULT_SERVER_URL = "http://127.0.0.1:8787";
-
-/** Storage key for the persisted `{ token, player }` auth session. */
-export const AUTH_STORAGE_KEY = "mana_auth_session";
-
 /** Steam app id advertised to the server's MANA_STEAM_APP_IDS allowlist. */
 export const STEAM_APP_ID = IS_DEMO ? 4233280 : 3757600;
 
-export type SteamPlayer = {
-	playerId: string;
-	provider: "steam";
-	providerId: string;
-	displayName?: string;
-};
-
-export type SteamAuthSession = {
-	token: string;
-	player: SteamPlayer;
-};
+/**
+ * Steam logins share the provider-aware auth session from authSession.ts —
+ * a stored session may have been issued to either provider (one session per
+ * device, overwritten on platform switch).
+ */
+export type SteamAuthSession = AuthSession;
+export type SteamPlayer = AuthSession["player"];
 
 export type SteamAuthClient = {
 	/** True when the Electron preload exposed a usable Steam client. */
@@ -89,14 +89,6 @@ declare const window: Window & {
 	};
 };
 
-function readServerUrl(): string {
-	const fromEnv =
-		typeof process !== "undefined" && process.env
-			? process.env.MANA_SERVER_URL
-			: undefined;
-	return fromEnv && fromEnv.trim() !== "" ? fromEnv : DEFAULT_SERVER_URL;
-}
-
 function defaultGetTicket(
 	identity: string,
 	timeoutMs?: number
@@ -127,35 +119,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** Shape-validate the server's `{ player, token }` login payload. */
-function parseSessionPayload(payload: unknown): SteamAuthSession {
-	const body = isRecord(payload) ? payload : {};
-	const player = isRecord(body.player) ? body.player : {};
-
-	if (
-		typeof body.token !== "string" ||
-		body.token === "" ||
-		typeof player.playerId !== "string" ||
-		player.playerId === "" ||
-		typeof player.providerId !== "string"
-	) {
-		throw new Error("Steam login returned an unexpected response shape");
-	}
-
-	return {
-		token: body.token,
-		player: {
-			playerId: player.playerId,
-			provider: "steam",
-			providerId: player.providerId,
-			displayName:
-				typeof player.displayName === "string"
-					? player.displayName
-					: undefined,
-		},
-	};
-}
-
 export function createSteamAuthClient(
 	deps: Partial<SteamAuthDeps> = {}
 ): SteamAuthClient {
@@ -171,16 +134,7 @@ export function createSteamAuthClient(
 			Boolean(window.steamworks?.auth));
 	const serverUrl = deps.serverUrl ?? readServerUrl();
 	const appId = deps.appId ?? STEAM_APP_ID;
-
-	const readStored = (): SteamAuthSession | null => {
-		const raw = provider.getItem(AUTH_STORAGE_KEY);
-		if (!raw) return null;
-		try {
-			return parseSessionPayload(JSON.parse(raw));
-		} catch {
-			return null; // corrupt entry — treat as logged out
-		}
-	};
+	const sessionStore = createAuthSessionStore(provider);
 
 	return {
 		isSteamAvailable: () => steamAvailable(),
@@ -234,13 +188,13 @@ export function createSteamAuthClient(
 
 			const session = parseSessionPayload(payload);
 			// Never log the token — it is a bearer credential (docs/auth.md).
-			provider.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+			sessionStore.saveSession(session);
 			return session;
 		},
 
-		getStoredSession: readStored,
-		getBearerToken: () => readStored()?.token ?? null,
-		clearSession: () => provider.removeItem(AUTH_STORAGE_KEY),
+		getStoredSession: sessionStore.readStoredSession,
+		getBearerToken: sessionStore.getBearerToken,
+		clearSession: sessionStore.clearSession,
 	};
 }
 

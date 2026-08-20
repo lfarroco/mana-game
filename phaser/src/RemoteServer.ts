@@ -7,9 +7,10 @@
  * retired Supabase edge-function client.
  *
  * Auth: every request carries `Authorization: Bearer <token>`, where the
- * token comes from the Phase 1.5 Steam login flow (`src/lib/steamAuth.ts` —
- * `getBearerToken()` reads the persisted `{ token, player }` session). No
- * token → the adapter rejects: multiplayer requires a Steam login.
+ * token comes from the shared auth session store (`src/lib/authSession.ts` —
+ * `getBearerToken()` reads the persisted `{ token, player }` session written
+ * by either the Steam (Electron) or itch.io (web) login flow). No token → the
+ * adapter rejects: multiplayer requires a login.
  *
  * Wire format: combat states cross the wire as a JSON-safe `CombatStateDto`
  * (core `CombatCodec`); this adapter decodes them back into a full
@@ -18,12 +19,12 @@
  *
  * The factory (`createRemoteServer`) accepts an injectable fetch, base URL,
  * and token provider so tests can mock the HTTP layer exactly like the server
- * tests inject `steamFetch`.
+ * tests inject `steamFetch` / `itchFetch`.
  */
 
 import { deserializeCombatState, type CombatStateDto } from "@game/Combat/CombatCodec";
 import * as Models from "@game/Models";
-import { DEFAULT_SERVER_URL, steamAuth } from "./lib/steamAuth";
+import { DEFAULT_SERVER_URL, authSession, readServerUrl } from "./lib/authSession";
 
 // Re-export the default server URL so callers/tests share one source of truth.
 export { DEFAULT_SERVER_URL };
@@ -53,7 +54,7 @@ export type RemoteServerDeps = {
 	fetch?: typeof globalThis.fetch;
 	/** Game-server base URL (defaults to `MANA_SERVER_URL` or `http://127.0.0.1:8787`). */
 	serverUrl?: string;
-	/** Bearer token provider (defaults to the persisted steamAuth session). */
+	/** Bearer token provider (defaults to the persisted auth-session store). */
 	getBearerToken?: () => string | null;
 };
 
@@ -64,14 +65,6 @@ export type RemoteServer = {
 	getSession(playerId: string): Promise<Models.SessionData | null>;
 	getPhaseOptions(playerId: string): Promise<Models.PhaseOptions>;
 };
-
-function readServerUrl(): string {
-	const fromEnv =
-		typeof process !== "undefined" && process.env
-			? process.env.MANA_SERVER_URL
-			: undefined;
-	return fromEnv && fromEnv.trim() !== "" ? fromEnv : DEFAULT_SERVER_URL;
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
@@ -148,13 +141,13 @@ async function parseErrorResponse(res: Response): Promise<RemoteServerError> {
 export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 	const fetchImpl = deps.fetch ?? globalThis.fetch;
 	const serverUrl = deps.serverUrl ?? readServerUrl();
-	const getToken = deps.getBearerToken ?? (() => steamAuth.getBearerToken());
+	const getToken = deps.getBearerToken ?? (() => authSession.getBearerToken());
 
 	const requireToken = (): string => {
 		const token = getToken();
 		if (!token || token === "") {
 			throw new Error(
-				"Multiplayer requires Steam login — no bearer token available. Log in first (steamAuth.loginWithSteam).",
+				"Multiplayer requires a login — no bearer token available. Log in first (steamAuth.loginWithSteam on Electron, or itchAuth.loginWithItch on web).",
 			);
 		}
 		return token;

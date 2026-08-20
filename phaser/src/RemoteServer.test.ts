@@ -244,10 +244,10 @@ describe("RemoteServer HTTP adapter", () => {
 		});
 
 		await expect(server.createSession("player-1", "critical_crystal")).rejects.toThrow(
-			/Multiplayer requires Steam login/
+			/Multiplayer requires a login/
 		);
 		await expect(server.handleAction("player-1", { type: "skip" })).rejects.toThrow(
-			/Multiplayer requires Steam login/
+			/Multiplayer requires a login/
 		);
 		expect(fetchMock).not.toHaveBeenCalled();
 	});

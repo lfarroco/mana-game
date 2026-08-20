@@ -1,6 +1,6 @@
 # Game Server — Multiplayer Backend Plan
 
-**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; ✅ Phase 1.5 (Steam-only auth) implemented 2026-08-13 — see [auth.md](auth.md); ✅ Phase 2 (matchmaking & rating) implemented 2026-08-13; ✅ Phase 3 (client integration) implemented 2026-08-13 — `phaser/src/RemoteServer.ts` is a live HTTP adapter, Supabase quarantine deleted; ✅ Phase 4 (durable persistence) implemented 2026-08-14 — `better-sqlite3` repos behind the same interfaces, `MANA_SQLITE_PATH` opt-in, restart-survival test green
+**Status**: ✅ Phase 1 (session API) implemented 2026-08-11; ✅ Phase 1.5 (Steam auth) implemented 2026-08-13; ✅ itch.io auth implemented 2026-08-20 (web build, see [auth.md](auth.md) + [itchio-auth.md](itchio-auth.md)); ✅ Phase 2 (matchmaking & rating) implemented 2026-08-13; ✅ Phase 3 (client integration) implemented 2026-08-13 — `phaser/src/RemoteServer.ts` is a live HTTP adapter, Supabase quarantine deleted; ✅ Phase 4 (durable persistence) implemented 2026-08-14 — `better-sqlite3` repos behind the same interfaces, `MANA_SQLITE_PATH` opt-in, restart-survival test green
 **Created**: 2026-07-25
 **Supersedes**: [supabase-backend.md](supabase-backend.md), [commit-replay-multiplayer.md](commit-replay-multiplayer.md), [MULTIPLAYER_SETUP.md](MULTIPLAYER_SETUP.md), and the Supabase-specific parts of [multiplayer-architecture.md](multiplayer-architecture.md) — none of these exist on disk (verified 2026-08-13); this doc is authoritative
 
@@ -10,8 +10,8 @@ Create `server/` — a standalone Node.js package hosting the **authoritative ga
 
 Scope:
 
-- **v1**: Steam-only auth, session lifecycle, action dispatch, server-side combat, async "ghost" PvP matchmaking, rating, in-memory persistence.
-- **Later**: durable persistence (SQLite), leaderboards, LLM agent play service, replay validation, guest/non-Steam auth.
+- **v1**: Steam (Electron) + itch.io (web build) auth, session lifecycle, action dispatch, server-side combat, async "ghost" PvP matchmaking, rating, in-memory persistence.
+- **Later**: durable persistence (SQLite — ✅ shipped 2026-08-14), leaderboards, LLM agent play service, replay validation, guest auth.
 
 Non-goals (v1): WebSockets / real-time play, synchronous PvP, tournaments.
 
@@ -79,12 +79,13 @@ server/
 
 ## API (v1)
 
-Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health` and `POST /auth/steam`.
+Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for everything except `GET /health` and the auth endpoints (`POST /auth/steam`, `POST /auth/itch`).
 
 | Method | Path | Body → Response | Notes |
 |---|---|---|---|
 | GET | `/health` | → `{ ok: true }` | liveness |
-| POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron); the Steam-only auth entry point — see [auth.md](auth.md) |
+| POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [auth.md](auth.md) |
+| POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — validates via `api.itch.io/profile`; see [itchio-auth.md](itchio-auth.md) |
 | POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one **active** session per player (409 if one exists) — a finished run does **not** block a new one |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none **or the run has finished** (finished sessions are never served) |
@@ -163,12 +164,13 @@ Retained from the retired backend — it fits an autobattler: no real-time coord
 
 ## Auth
 
-Steam-only — see **[auth.md](auth.md)** for the full design (data model, token scheme, flows, security).
+Steam (Electron) + itch.io (web build) — see **[auth.md](auth.md)** for the full design (data model, token scheme, flows, security) and **[itchio-auth.md](itchio-auth.md)** for the web-build flow.
 
 - **Steam = identity proof, server = sessions**: `POST /auth/steam` validates the Electron client's `GetAuthTicketForWebApi` ticket against Steam's `AuthenticateUserTicket` Web API, upserts the player, and issues an opaque bearer token (SHA-256 hashed server-side).
+- **itch.io = identity proof, server = sessions**: `POST /auth/itch` validates the web client's OAuth access token against `api.itch.io/profile`, upserts the player (display name server-verified), and issues the same opaque bearer token. Gated by `MANA_ITCH_ENABLED`.
 - **All session endpoints** are authorized by `Authorization: Bearer <token>` (middleware in `http/middleware/auth.ts`), replacing the dev-only `X-Player-Id` header.
-- **Guest accounts** are a future-phase concern (see auth.md) — the Steam-only launch has no guest endpoints. No Firebase/Supabase Auth for v1.
-- **Display name** for Steam players = Steam persona (`localplayer.getName()` / `GetPlayerSummaries`).
+- **Guest accounts** are a future-phase concern (see auth.md) — no guest endpoints. No Firebase/Supabase Auth for v1.
+- **Display name**: Steam = client-supplied persona; itch = server-verified `user.username`.
 
 
 ## Client integration (Phase 3) — ✅ DONE (2026-08-13)

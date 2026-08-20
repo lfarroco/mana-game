@@ -108,4 +108,18 @@ describe("loadConfig", () => {
     expect(loadConfig({ MANA_SQLITE_PATH: "" }).sqlitePath).toBeNull();
     expect(loadConfig({ MANA_SQLITE_PATH: "   " }).sqlitePath).toBeNull();
   });
+
+  it("defaults itch auth to disabled", () => {
+    expect(loadConfig({}).itchEnabled).toBe(false);
+  });
+
+  it("reads MANA_ITCH_ENABLED", () => {
+    expect(loadConfig({ MANA_ITCH_ENABLED: "true" }).itchEnabled).toBe(true);
+    expect(loadConfig({ MANA_ITCH_ENABLED: "TRUE" }).itchEnabled).toBe(true);
+    expect(loadConfig({ MANA_ITCH_ENABLED: "1" }).itchEnabled).toBe(true);
+    expect(loadConfig({ MANA_ITCH_ENABLED: "false" }).itchEnabled).toBe(false);
+    expect(loadConfig({ MANA_ITCH_ENABLED: "garbage" }).itchEnabled).toBe(
+      false,
+    );
+  });
 });

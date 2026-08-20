@@ -3,6 +3,7 @@
 	"title.startContinue": "START / CONTINUE",
 	"title.return": "RETURN",
 	"title.multiplayer": "MULTIPLAYER",
+	"title.multiplayer.requiresItch": "Authorize Mana Battle with itch.io to play online.",
 	"title.multiplayer.requiresSteam": "Multiplayer requires the Steam build.\nLaunch the game through Steam to play online.",
 	"title.multiplayer.loginFailed": "Multiplayer login failed:",
 	"title.newRun": "NEW RUN",

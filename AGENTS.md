@@ -46,8 +46,8 @@ its own `package.json` — run from inside that directory):
 |--------------|---------------------------------|---------------------|----------------|
 | `core/`      | `npm test` (66 suites/602)      | `npm run typecheck` | —              |
 | `framework/` | `npm test` (7 suites/56)        | `npm run typecheck` | —              |
-| `server/`    | `npm test` (167 tests)          | `npm run typecheck` | —              |
-| `phaser/`    | `npm run test:ci` (7 suites/38) | `npm run typecheck` | `npm run lint` |
+| `server/`    | `npm test` (188 tests)          | `npm run typecheck` | —              |
+| `phaser/`    | `npm run test:ci` (8 suites/54) | `npm run typecheck` | `npm run lint` |
 
 Single test file: `npx jest src/path/ToFile.test.ts --runInBand` from the
 package directory. Full command reference: [docs/building-and-running.md](docs/building-and-running.md).
@@ -174,12 +174,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 ## Task Queue
 
 > Pick a task, mark it `[x]` with your agent name and date when done, then **remove the entry from this list once completed** — the queue holds only open work. Add new tasks as discovered.
-
-> **itch.io auth for the web build** (planned 2026-08-20) — implement per
-> [docs/itchio-auth.md](docs/itchio-auth.md): server `POST /api/v1/auth/itch` (new `itch`
-> provider) + client OAuth-popup login for the browser build. One-time itch.io setup is
-> done (OAuth app `Mana Battle Multiplayer`, client id + redirect URI in the doc); the
-> developer API key is in the gitignored root `.env` (`MANA_ITCH_API_KEY`).
 
 > **All previously queued work is landed.** The last deferred item — the
 > **Manual Steam smoke test** (plan.md task 14) — passed 2026-08-20: a real

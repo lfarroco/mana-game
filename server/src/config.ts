@@ -25,6 +25,12 @@ export type ServerConfig = {
   /** MANA_AUTH_RATE_LIMIT_WINDOW_MS — rate-limit window for auth endpoints. */
   authRateLimitWindowMs: number;
   /**
+   * MANA_ITCH_ENABLED — set to `true` to register POST /auth/itch (the web
+   * build's itch.io OAuth login). Defaults to `false` (mirrors the Steam gate;
+   * itch has no server secret, so it needs an explicit opt-in).
+   */
+  itchEnabled: boolean;
+  /**
    * MANA_SQLITE_PATH — durable persistence opt-in. A database file path (the
    * parent directory is created on boot) or `:memory:` for a throwaway
    * in-memory SQLite database. `null` (unset) keeps the in-memory repos.
@@ -54,6 +60,7 @@ export function loadConfig(
       env["MANA_AUTH_RATE_LIMIT_WINDOW_MS"],
       DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
     ),
+    itchEnabled: parseEnabled(env["MANA_ITCH_ENABLED"]),
     sqlitePath:
       env["MANA_SQLITE_PATH"] && env["MANA_SQLITE_PATH"].trim() !== ""
         ? env["MANA_SQLITE_PATH"]
@@ -80,6 +87,13 @@ function parseNumberList(
     return fallback;
   }
   return parsed;
+}
+
+/** "true"/"1" (case-insensitive) → true; everything else → false. */
+function parseEnabled(value: string | undefined): boolean {
+  if (value === undefined) return false;
+  const normalized = value.trim().toLowerCase();
+  return normalized === "true" || normalized === "1";
 }
 
 /** Positive integer with a fallback for missing/invalid input. */
