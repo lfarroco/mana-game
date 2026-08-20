@@ -321,7 +321,7 @@ Categories:
 
 ### E. Skip payoff (Tags lineage)
 
-#### E1. `favor` — skips accumulate into a guaranteed silver
+#### E1. `favor` — skips accumulate into a guaranteed silver ✅ (2026-08-19)
 - **What**: every `skip` increments `favor_tokens` on the session. At 3 tokens,
   the next `createEncounterOptions` call guarantees a `silver_shop` option.
 - **Engine hooks**:
@@ -332,6 +332,14 @@ Categories:
     it — or keep them until spent, design choice; simplest is consume on pick).
 - **UI**: a favor counter in the HUD.
 - **Effort**: small (L). Scoped as P2 (Balatro Tags).
+- **Landed with A12** (docs/wacky-content-plan.md): `SessionData.favorTokens`
+  increments on every skip (+1, or +3 after a Lucky Pig visit);
+  `createEncounterOptions` force-injects `silver_shop` into the last option slot
+  at `FAVOR_TOKENS_FOR_SILVER_SHOP` (3) tokens, deterministic and persistent
+  until the player picks it; picking `silver_shop` while at 3+ tokens consumes
+  exactly 3. HUD counter (`ui.favor`) added to the battleground header, refreshed
+  on every phase transition. The roulette wheel's "favor" outcome now grants +1
+  token (previously a core stat upgrade substitute).
 
 #### E2. `sealed_vault` — bank a card for next round
 - **What**: during this encounter, choose **one card from the full non-core

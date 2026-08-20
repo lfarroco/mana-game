@@ -14,7 +14,12 @@ import * as PhaseConfig from "../PhaseSystem/PhaseConfig";
 import * as RecruitmentActions from "../Actions/RecruitmentActions";
 import * as OrbAndCoreUpgrades from "../Actions/OrbAndCoreUpgrades";
 import * as OptionGeneration from "./OptionGeneration";
-import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
+import {
+  WINS_TO_WIN_GAME,
+  LOSSES_TO_GAME_OVER,
+  FAVOR_TOKENS_FOR_SILVER_SHOP,
+  LUCKY_PIG_FAVOR_GAIN,
+} from "../math/Constants";
 import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
 import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
@@ -164,8 +169,8 @@ const ACTION_HANDLERS: Record<
     }
 
     // A11 (docs/wacky-content-plan.md): Roulette Wheel — pay 1 life to spin a
-    // seeded wheel. The "favor" outcome is currently a random core stat upgrade
-    // (favor tokens do not exist in core/ yet — A12 is blocked on them).
+    // seeded wheel. The "favor" outcome banks a favor token (E1 landed with
+    // A12 — before that it was a random core stat upgrade).
     if (action.encounterId === "roulette_wheel") {
       // Near-death guard, mirroring soul_trade: never allow a spin that would
       // reach LOSSES_TO_GAME_OVER.
@@ -204,13 +209,9 @@ const ACTION_HANDLERS: Record<
         return transitionToNextStep(session);
       }
       if (result < 0.6) {
-        // Favor substitute — a random core stat upgrade.
-        const core = session.team.units.find((u) => u.isCore);
-        if (core) {
-          const statOrb = Random.pickOneSeeded(rng, [...CORE_STAT_ORBS]);
-          OrbAndCoreUpgrades.applyCoreUpgrade(core, statOrb, session.round);
-        }
-        session.seed = rng.seed;
+        // Favor — a favor token (E1, docs/new-encounter-types.md): skips
+        // accumulate into a guaranteed silver shop.
+        session.favorTokens = (session.favorTokens ?? 0) + 1;
         return transitionToNextStep(session);
       }
       if (result < 0.85) {
@@ -228,6 +229,13 @@ const ACTION_HANDLERS: Record<
       return transitionToNextStep(session);
     }
 
+    // A12 (docs/wacky-content-plan.md): Lucky Pig — bank the pig's luck. The
+    // next skip pays triple favor tokens (see the skip handler below).
+    if (action.encounterId === "lucky_pig") {
+      session.luckyPigRound = true;
+      return transitionToNextStep(session);
+    }
+
     // Core-upgrade options (CUB-B3): the upgrade_core / add_reaction_core
     // phases offer stat ids and themed identity-orb ids, and the client
     // dispatches them via select_encounter. Apply the orb to the core and
@@ -242,6 +250,17 @@ const ACTION_HANDLERS: Record<
         );
       }
       return transitionToNextStep(session);
+    }
+
+    // E1 (docs/new-encounter-types.md): spending favor — taking the guaranteed
+    // silver shop consumes the accumulated tokens. Applies to any silver_shop
+    // pick while the player holds FAVOR_TOKENS_FOR_SILVER_SHOP or more.
+    if (
+      action.encounterId === "silver_shop" &&
+      (session.favorTokens ?? 0) >= FAVOR_TOKENS_FOR_SILVER_SHOP
+    ) {
+      session.favorTokens =
+        (session.favorTokens ?? 0) - FAVOR_TOKENS_FOR_SILVER_SHOP;
     }
 
     const orbOptions = ORB_SHOP_ENCOUNTER_OPTIONS[action.encounterId];
@@ -401,6 +420,13 @@ const ACTION_HANDLERS: Record<
       );
       return session;
     }
+
+    // E1 + A12 (docs/new-encounter-types.md E1, docs/wacky-content-plan.md
+    // A12): skipping accumulates favor tokens. A Lucky Pig visit triples the
+    // gain and is spent on the first skip after the visit.
+    const gain = session.luckyPigRound ? LUCKY_PIG_FAVOR_GAIN : 1;
+    session.favorTokens = (session.favorTokens ?? 0) + gain;
+    session.luckyPigRound = false;
 
     return transitionToNextStep(session);
   },

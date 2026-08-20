@@ -4,6 +4,7 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
 import * as livesDisplay from "@Screens/Battleground/Components/UI/livesDisplay";
 import * as winsDisplay from "@Screens/Battleground/Components/UI/winsDisplay";
+import * as favorDisplay from "@Screens/Battleground/Components/UI/favorDisplay";
 import * as headerBackground from "@Screens/Battleground/Components/UI/headerBackground";
 import * as menuButton from "@Screens/Battleground/Components/menuButton";
 import * as uiEvents from "@Screens/Battleground/Components/UI/events";
@@ -33,12 +34,22 @@ export function create() {
 		roundDisplay.create,
 		livesDisplay.create,
 		winsDisplay.create,
+		favorDisplay.create,
 	]);
 	headerContainer.setPosition(580, 0);
 
 	uiContainer = container([headerContainer, menuButton.create()]);
 
 	return uiContainer;
+}
+
+/**
+ * Keep the favor-token counter in sync with the session. Called from
+ * BattlegroundScreen.transitionToCurrentPhase (after every dispatch), so it
+ * refreshes when a skip banks tokens or a silver shop spends them.
+ */
+export function updateFavorDisplay(favor: number): void {
+	favorDisplay.updateFavorDisplay(favor);
 }
 
 export async function handleUserMessageRequested(payload: {

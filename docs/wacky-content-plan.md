@@ -235,20 +235,26 @@ per effect, not "small".
   (reject near death, mirroring `soul_trade`); `losses += 1`; seeded weighted roll;
   apply the winning outcome (recruit gold / apply orb / nothing / `losses += 1`).
 - **Acceptance**: unit tests for each wheel outcome + the near-death guard.
-- **Implemented weights**: gold card 20% / free orb 20% / core stat upgrade 20% /
-  nothing 25% / lose another life 15%. The "favor" outcome is a random core stat
-  upgrade until favor tokens exist (A12); the lose-a-life outcome re-checks the
+- **Implemented weights**: gold card 20% / free orb 20% / favor token 20% /
+  nothing 25% / lose another life 15%. The "favor" outcome banked a random core
+  stat upgrade until favor tokens existed, and now grants **+1 favor token**
+  (updated with A12, 2026-08-19); the lose-a-life outcome re-checks the
   near-death guard so a single spin can never itself reach game over.
 
-#### A12 — Lucky Pig (new encounter)
+#### A12 — Lucky Pig (new encounter) ✅ (2026-08-19)
 
 - **Goal**: skips this round pay triple (favor ×3).
-- **Files**: same 4 touch-points as A9.
+- **Files**: same 4 touch-points as A9, plus the `skip` handler and the E1
+  favor-token infrastructure.
 - **Spec**: set a session flag (`luckyPigRound`); in the `skip` handler
   (`SessionTransitions.skip`), if the flag is set, `favorTokens += 3` instead of `+1`.
-  **Depends on the favor-token infrastructure** (E1 in new-encounter-types.md). If favor
-  tokens are not yet implemented, build them first or drop this task.
-- **Acceptance**: unit test for the ×3 skip.
+- **Dependency landed**: the favor-token infrastructure (E1 in
+  new-encounter-types.md) was built together with this task — `SessionData.favorTokens`
+  increments on every skip, `createEncounterOptions` guarantees a `silver_shop` option
+  at 3+ tokens, and picking that silver shop consumes the tokens. The Lucky Pig flag
+  is spent on the **first** skip after the visit (triples it), then clears.
+- **Acceptance**: unit tests for the ×3 skip + the full favor flow (accumulate,
+  guarantee, spend) in `SessionTransitions.test.ts` / `OptionGeneration.test.ts`.
 
 #### A13 — `upgrade_core` Mystery Box
 

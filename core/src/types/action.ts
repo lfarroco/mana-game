@@ -40,7 +40,8 @@ export type EncounterId =
   // ── Wacky content slice (2026-08-19, Tier A encounters) ─────────────
   | "oracles_riddle"
   | "chaos_altar"
-  | "roulette_wheel";
+  | "roulette_wheel"
+  | "lucky_pig";
 
 /** Static phase-option ids not derived from encounters or cards. */
 export type StaticOptionId =

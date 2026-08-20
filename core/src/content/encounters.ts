@@ -205,6 +205,13 @@ export const ENCOUNTERS: EncounterData[] = [
     minRound: 2,
   },
   {
+    id: "lucky_pig",
+    pic: "ui/gold_medal",
+    nameKey: "encounters.lucky_pig.name",
+    descriptionKey: "encounters.lucky_pig.desc",
+    minRound: 2,
+  },
+  {
     id: "start_combat",
     pic: "ui/armory",
     nameKey: "encounters.combat.name",

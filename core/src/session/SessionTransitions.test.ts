@@ -8,6 +8,7 @@
 
 import * as Card from "../Entities/Card";
 import * as Constants from "../math/Constants";
+import * as Models from "../Models";
 import * as SessionTransitions from "./SessionTransitions";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
 import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
@@ -539,7 +540,7 @@ describe("SessionTransitions", () => {
     it("can land every outcome across seeds", () => {
       const seen = {
         gold: false,
-        coreUpgrade: false,
+        favor: false,
         loseLife: false,
         nothing: false,
       };
@@ -547,7 +548,6 @@ describe("SessionTransitions", () => {
         const seed = `a11-cover-${i}`;
         const session = createTestSession(seed);
         session.losses = 1;
-        const inputCore = session.team.units[0];
         const result = SessionTransitions.transitionToNextState(session, {
           type: "select_encounter",
           encounterId: "roulette_wheel",
@@ -564,13 +564,9 @@ describe("SessionTransitions", () => {
           continue;
         }
 
-        const core = team.find((u) => u.isCore)!;
-        const coreChanged =
-          core.maxLife !== inputCore.maxLife ||
-          core.power !== inputCore.power ||
-          core.cooldown !== inputCore.cooldown;
-        if (coreChanged) {
-          seen.coreUpgrade = true;
+        // The "favor" outcome banks a favor token (E1 landed with A12).
+        if ((result.session.favorTokens ?? 0) > (session.favorTokens ?? 0)) {
+          seen.favor = true;
           continue;
         }
 
@@ -585,9 +581,106 @@ describe("SessionTransitions", () => {
       }
 
       expect(seen.gold).toBe(true);
-      expect(seen.coreUpgrade).toBe(true);
+      expect(seen.favor).toBe(true);
       expect(seen.loseLife).toBe(true);
       expect(seen.nothing).toBe(true);
+    });
+  });
+
+  describe("favor tokens (E1) / lucky_pig (A12)", () => {
+    /** A session parked in a skippable phase (encounter, round 1, step 0). */
+    function encounterSession(seed: string) {
+      const session = createTestSession(seed);
+      session.phase = "encounter";
+      session.step = 0;
+      return session;
+    }
+
+    const skip = (session: ReturnType<typeof createTestSession>) =>
+      SessionTransitions.transitionToNextState(session, { type: "skip" });
+
+    it("a normal skip grants +1 favor", () => {
+      const session = encounterSession("favor-skip-1");
+      const result = skip(session);
+      expect(result.session.favorTokens).toBe(1);
+      expect(result.session.luckyPigRound).toBeFalsy();
+    });
+
+    it("selecting lucky_pig sets the luckyPigRound flag and advances the run", () => {
+      const session = createTestSession("a12-flag");
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "lucky_pig",
+      });
+      expect(result.session.luckyPigRound).toBe(true);
+      // pre_combat step 3 → step 4 (combat): the encounter was consumed.
+      expect(result.session.step).toBe(4);
+      expect(result.session.favorTokens).toBeUndefined();
+    });
+
+    it("the next skip after lucky_pig pays triple favor and clears the flag", () => {
+      const session = encounterSession("a12-triple");
+      session.luckyPigRound = true;
+      const result = skip(session);
+      expect(result.session.favorTokens).toBe(Constants.LUCKY_PIG_FAVOR_GAIN);
+      expect(result.session.luckyPigRound).toBe(false);
+    });
+
+    it("lucky_pig triples only the first skip — later skips return to +1", () => {
+      const session = encounterSession("a12-once");
+      session.luckyPigRound = true;
+      const first = skip(session);
+      expect(first.session.favorTokens).toBe(3);
+
+      const second = skip(first.session);
+      expect(second.session.favorTokens).toBe(4);
+      expect(second.session.luckyPigRound).toBe(false);
+    });
+
+    it("three skips accumulate to the silver-shop threshold", () => {
+      const session = encounterSession("favor-threshold");
+      const r1 = skip(session);
+      const r2 = skip(r1.session);
+      const r3 = skip(r2.session);
+      expect(r3.session.favorTokens).toBe(
+        Constants.FAVOR_TOKENS_FOR_SILVER_SHOP,
+      );
+    });
+
+    it("picking silver_shop with 3+ favor tokens consumes them", () => {
+      const session = createTestSession("a12-spend");
+      session.favorTokens = 3;
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "silver_shop",
+      });
+      expect(result.session.favorTokens).toBe(0);
+      expect(result.session.phase).toBe("shop");
+      // Silver shops offer two options.
+      expect(result.session.options).toHaveLength(2);
+    });
+
+    it("picking silver_shop below the threshold does not consume tokens", () => {
+      const session = createTestSession("a12-keep");
+      session.favorTokens = 2;
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "silver_shop",
+      });
+      expect(result.session.favorTokens).toBe(2);
+    });
+
+    it("is deterministic under the session seed", () => {
+      const a = SessionTransitions.transitionToNextState(
+        createTestSession("a12-det"),
+        { type: "select_encounter", encounterId: "lucky_pig" },
+      );
+      const b = SessionTransitions.transitionToNextState(
+        createTestSession("a12-det"),
+        { type: "select_encounter", encounterId: "lucky_pig" },
+      );
+      expect(a.session.luckyPigRound).toBe(b.session.luckyPigRound);
+      expect(a.session.seed).toBe(b.session.seed);
     });
   });
 });
@@ -599,7 +692,7 @@ describe("SessionTransitions", () => {
 function createTestSession(
   seed: string,
   coreCardId: string = "critical_crystal",
-) {
+): Models.SessionData {
   const playerCore = Card.makeUnit(
     Constants.FORCE_ID_PLAYER,
     coreCardId,

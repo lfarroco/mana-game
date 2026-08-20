@@ -185,7 +185,10 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > Pick one, mark `[x]` with your agent name and date when done, then remove the
 > entry. Full specs, files, and acceptance criteria are in the doc.
 
-- [ ] **A12** — encounter: Lucky Pig (favor ×3; needs favor tokens)
+> Tier A encounters are fully landed (2026-08-19): A9 Oracle's Riddle, A10 Chaos
+> Altar, A11 Roulette Wheel, and **A12 Lucky Pig** — the latter shipped with the
+> E1 favor-token infrastructure it was gated on (`SessionData.favorTokens` +
+> guaranteed-silver-shop generation + HUD counter).
 
 ### Core unit onboarding — see [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md)
 
