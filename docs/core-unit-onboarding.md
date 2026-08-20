@@ -265,9 +265,18 @@ with which new effect types they'd need (see
 > (`on_crystal_hit → charge random ally`). It reuses the C2 `on_crystal_hit`
 > reaction landed in the wacky-content queue (Thornback) — the crystal itself
 > carries the thorns reaction and punishes whoever lands a hit on it.
+>
+> ✅ **Void Crystal landed 2026-08-19 (CUB-G3)** as the `void` theme (added to
+> `CORE_THEMES`) with `void_crystal` (baseline `decrease_power` on the
+> strongest enemy, power 40 / cooldown 5000) and four identity orbs — Leech
+> (enemy heal → shield the crystal), Power Drain (`absorb_power`), Dispel (the
+> D2 status-stripper), and Weakness (ally basic cast → −5 power on the
+> strongest enemy). The disruption/power-theft crystal gives the D2 `dispel`
+> effect its core home.
 
 `Radiant Crystal` was the cheapest to build (no new effect types) and is now in
 the game. `Verdant Crystal` followed once the C2 `on_crystal_hit` effect landed
-(CUB-G2). The remaining three pair naturally with the already-planned effect
-additions in the wacky-content queue, so they're best scheduled after those
-effects land.
+(CUB-G2), then `Void Crystal` once D2 `dispel` landed (CUB-G3). The remaining
+two pair with the already-planned effect additions in the wacky-content queue
+(Obsidian still needs the `on_ally_death` trigger; Echo can now reuse C1's
+`repeat`), so they're best scheduled after those effects land.

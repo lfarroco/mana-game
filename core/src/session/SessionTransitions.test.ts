@@ -380,6 +380,23 @@ describe("SessionTransitions", () => {
       }
     });
 
+    it("is theme-scoped for the void theme — void_crystal returns only void identity or the 3 stat ids (CUB-G3)", () => {
+      const session = createTestSession("cub-b1-void-scoping", "void_crystal");
+      const voidIdentityIds = Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      )
+        .filter((def) => def.theme === "void")
+        .map((def) => def.id);
+      const voidPoolIds = new Set([...voidIdentityIds, ...STAT_IDS]);
+
+      const options = SessionTransitions.generateCoreUpgradeOptions(session);
+
+      expect(options).toHaveLength(3);
+      for (const option of options) {
+        expect(voidPoolIds.has(option.id)).toBe(true);
+      }
+    });
+
     it("dedupes applied identity orbs — crit_row_power never appears once its reaction is on the core", () => {
       const session = createTestSession("cub-b1-dedupe");
       const core = session.team.units.find((u) => u.isCore)!;

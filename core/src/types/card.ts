@@ -50,7 +50,9 @@ export type CardTag = (typeof CARD_TAGS)[number];
  * non-basic-action identity theme: `overflow` (Radiant Crystal, CUB-G1) keys
  * off the over-heal/overflow identity while its baseline action is `heal`;
  * `thorns` (Verdant Crystal, CUB-G2) keys off the retaliate-when-hit identity
- * while its baseline action is `shield`.
+ * while its baseline action is `shield`; `void` (Void Crystal, CUB-G3) keys
+ * off the disrupt-the-enemy identity while its baseline action is
+ * `decrease_power`.
  */
 export const CORE_THEMES = [
   "regen",
@@ -61,6 +63,7 @@ export const CORE_THEMES = [
   "haste",
   "overflow",
   "thorns",
+  "void",
 ] as const;
 
 export type CoreTheme = (typeof CORE_THEMES)[number];

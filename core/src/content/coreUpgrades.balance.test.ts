@@ -84,7 +84,7 @@ function marginalAp(core: CardDefinition, orb: CoreUpgradeDefinition): number {
 
 describe("core upgrade balance (CUB-C1)", () => {
   it("maps every core theme to exactly one core card with 4 identity orbs", () => {
-    expect(CORES_BY_THEME.size).toBe(8);
+    expect(CORES_BY_THEME.size).toBe(9);
     for (const [theme, core] of CORES_BY_THEME) {
       expect(core.isCore).toBe(true);
       expect(identityOrbs(theme)).toHaveLength(4);
@@ -199,6 +199,11 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  verdant_thorn_shield: +86.4",
         "  verdant_retaliation: +27.0",
         "  verdant_vengeful_charge: +8.9",
+        "void (void_crystal) baseline 60",
+        "  void_leech: +172.8",
+        "  void_power_drain: +120.0",
+        "  void_dispel: +40.0",
+        "  void_weakness: +76.4",
       ].join("\n"),
     );
   });

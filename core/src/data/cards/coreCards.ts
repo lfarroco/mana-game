@@ -16,6 +16,8 @@ import {
   poison,
   haste,
   row,
+  decreasePower,
+  strongestEnemy,
 } from "../effectBuilders";
 
 export const CORE_CARDS: Models.CardDefinition[] = [
@@ -113,6 +115,21 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     isCore: true,
     coreTheme: "thorns",
     effects: [shield],
+    reactions: [],
+  },
+  {
+    id: "void_crystal",
+    // Void theme (CUB-G3, docs/core-unit-onboarding.md §9): a disruption
+    // crystal that saps the strongest enemy's power on every cast and steals
+    // their statuses via its identity orbs. Its baseline is a non-basic
+    // debuff (decrease_power), mirroring quickstone's haste baseline.
+    pic: "purple-stone",
+    life: 500,
+    power: 40,
+    cooldown: 5000,
+    isCore: true,
+    coreTheme: "void",
+    effects: [decreasePower(15, strongestEnemy)],
     reactions: [],
   },
 ];

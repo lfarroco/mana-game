@@ -204,4 +204,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md). **CUB-G2 landed
 > (2026-08-19)**: the Verdant Crystal `thorns`-theme core + its 4 identity orbs
 > (all `on_crystal_hit` reactions, built on the C2 thorns engine) — see §9 note.
+> **CUB-G3 landed (2026-08-19)**: the Void Crystal `void`-theme core + its 4
+> identity orbs (Leech / Power Drain / Dispel / Weakness, built on the D2
+> dispel + absorb_power engines) — see §9 note.
 

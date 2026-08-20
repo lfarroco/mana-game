@@ -15,10 +15,12 @@
 
 import type { CoreTheme, Effect, EffectReaction } from "../Models";
 import {
+  absorbPower,
   charge,
   column,
   damage,
   decreasePower,
+  dispel,
   increaseCritical,
   increasePower,
   randomAlly,
@@ -28,6 +30,7 @@ import {
   self,
   shield,
   slow,
+  strongestEnemy,
   trigger,
 } from "../data/effectBuilders";
 
@@ -60,11 +63,12 @@ export type CoreUpgradeDefinition = {
 // ---------------------------------------------------------------------------
 // Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch;
 // the overflow theme is the CUB-G1 Radiant Crystal pool, §9; the thorns theme
-// is the CUB-G2 Verdant Crystal pool, §9)
+// is the CUB-G2 Verdant Crystal pool, §9; the void theme is the CUB-G3 Void
+// Crystal pool, §9)
 // ---------------------------------------------------------------------------
 
 /**
- * All 32 identity orbs, keyed by id.
+ * All 36 identity orbs, keyed by id.
  *
  * Reactions with effectId "all" fire only on basic abilities (intended — these
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
@@ -297,6 +301,38 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
       charge(300, randomAlly(1)),
       "enemy",
     ),
+  },
+
+  // --- void theme (void_crystal): Leech, Power Drain, Dispel, Weakness ---
+  // (CUB-G3, docs/core-unit-onboarding.md §9) — the disruption / power-theft
+  // identity. Leech reuses the A3 cross-force pattern (enemy heal → your
+  // shield); Power Drain and Dispel are effect orbs appended to the baseline
+  // decrease_power cast (absorb_power steals 25% of the strongest enemy's
+  // power; dispel is the D2 status-stripper); Weakness saps the strongest
+  // enemy whenever any ally casts a basic ability.
+  void_leech: {
+    id: "void_leech",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("heal", "enemies", shield, "enemy"),
+  },
+  void_power_drain: {
+    id: "void_power_drain",
+    theme: "void",
+    kind: "effect",
+    effect: absorbPower(strongestEnemy),
+  },
+  void_dispel: {
+    id: "void_dispel",
+    theme: "void",
+    kind: "effect",
+    effect: dispel(strongestEnemy),
+  },
+  void_weakness: {
+    id: "void_weakness",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("all", "allies", decreasePower(5, strongestEnemy)),
   },
 };
 

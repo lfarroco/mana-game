@@ -13,6 +13,7 @@ export function getColorPresetForCrystal(
     quickstone: "sea",
     radiant_crystal: "aurora",
     verdant_crystal: "forest",
+    void_crystal: "nebula",
   };
 
   return colorMap[crystalId] || "nebula";
