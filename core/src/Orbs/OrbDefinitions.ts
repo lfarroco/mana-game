@@ -80,9 +80,6 @@ export type OrbDefinition =
       kind: "special";
       special:
         | "upgrade"
-        | "increase_core_max_life"
-        | "upgrade_core_power"
-        | "decrease_core_cooldown"
         | "distribute_power"
         | "absorb_power"
         | "sacrifice"
@@ -128,17 +125,6 @@ for (const cat of statCategories) {
 
 const specials: OrbDefinition[] = [
   { id: "upgrade_orb", kind: "special", special: "upgrade" },
-  {
-    id: "increase_core_max_life",
-    kind: "special",
-    special: "increase_core_max_life",
-  },
-  { id: "upgrade_core_power", kind: "special", special: "upgrade_core_power" },
-  {
-    id: "decrease_core_cooldown",
-    kind: "special",
-    special: "decrease_core_cooldown",
-  },
   { id: "distribute_power_orb", kind: "special", special: "distribute_power" },
   { id: "absorb_power_orb", kind: "special", special: "absorb_power" },
   { id: "sacrifice_effect_orb", kind: "special", special: "sacrifice" },
@@ -274,19 +260,15 @@ for (const def of reactions) ORB_DEFINITIONS[def.id] = def;
 /**
  * The "random orb" pool for chaos-style encounters.
  *
- * Every id here is handled by `OrbAndCoreUpgrades.applyOrb`: stat orbs no-op
- * silently on a mismatched unit (the chaos), special orbs redistribute/rank
- * up/sacrifice an effect, and reaction orbs append a reaction. The core-stat
- * specials (`increase_core_max_life` / `upgrade_core_power` /
- * `decrease_core_cooldown`) are excluded because `applyOrb` does not dispatch
- * them — they silently no-op.
+ * Every id here is dispatched by `OrbAndCoreUpgrades.applyOrb`: stat orbs
+ * no-op silently on a mismatched unit (the chaos), special orbs
+ * redistribute/rank up/sacrifice an effect, and reaction orbs append a
+ * reaction. The core-upgrade stat ids (`increase_core_max_life` /
+ * `upgrade_core_power` / `decrease_core_cooldown`) are not orbs — they are
+ * `StaticOptionId`s applied via the core-upgrade flow (CUB-B3,
+ * `applyCoreUpgrade`), so they never enter this pool.
  *
  * Order is the deterministic registration order (stat orbs, specials,
  * reactions) — seeding is all we need for reproducible picks.
  */
-export const RANDOM_ORB_POOL: string[] = Object.keys(ORB_DEFINITIONS).filter(
-  (id) =>
-    id !== "increase_core_max_life" &&
-    id !== "upgrade_core_power" &&
-    id !== "decrease_core_cooldown",
-);
+export const RANDOM_ORB_POOL: string[] = Object.keys(ORB_DEFINITIONS);

@@ -303,11 +303,13 @@ export function generateShopOptions(
   // We mix the current seed with "shop" and the encounter id to ensure
   // encounter options and shop options never collide in their seed space.
   //const shopSeedInput = session.seed + "shop" + (encounterId ?? "");
-  const options = Random.pickRandomItemsSeeded(
+  const { picked, seed } = Random.pickRandomItemsSeeded(
     session,
     filteredCards,
     numOptions,
-  ).map((card) => ({
+  );
+  session.seed = seed;
+  const options = picked.map((card) => ({
     id: card.id,
     cost: getCardCost(card),
     recruitRank: getCardRank(card),

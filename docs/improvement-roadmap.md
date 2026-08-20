@@ -11,7 +11,7 @@ for sequencing purposes (that doc keeps the full design).
 | Area | Goal state | Now | Blocked by |
 |---|---|---|---|
 | Server Phase 1 (session API) | Done & merged | ✅ committed, 103 tests green | — |
-| Server Phase 1.5 (Steam auth) | Done, merged, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; only plan.md task 14 (manual Steam smoke test, needs real Steam key) pending | — |
+| Server Phase 1.5 (Steam auth) | Done, merged, smoke-tested, docs updated | ✅ done & merged (2026-08-13); 109 server tests green; manual Steam smoke test (plan.md task 14) passed 2026-08-20 — real ticket end-to-end, SQLite holds the Steam player + token | — |
 | Framework hardening | P0+P1+P2 landed, regression tests | ✅ P0+P1+P2 landed (2026-08-13, 56 framework tests green, phaser typecheck/lint clean) | — |
 | Server Phase 2 (matchmaking & rating) | Ghosts, opponent pick, PvE fallback, rating | ✅ committed (2026-08-13); 146 server tests green (109 baseline + 37 new); typecheck/build clean | — |
 | Server Phase 3 (client integration) | HTTP `RemoteServer`, Supabase removed | ✅ done (2026-08-13); RemoteServer is an HTTP adapter (`createRemoteServer` factory, fetch-injectable); supabase quarantine deleted; 52 phaser tests green (41 + 11 new), typecheck/lint clean; server untouched (148 tests) | — |
@@ -27,7 +27,7 @@ for sequencing purposes (that doc keeps the full design).
   complete; task 13 (auth + middleware + integration tests) verified/complete.
 - `docs/auth.md` status updated (implementation notes & deviations section
   added), `plan.md` checkboxes updated (task 14 — manual Steam smoke test —
-  still pending: requires a real publisher Web API key + Steam Electron build),
+  passed 2026-08-20: real publisher Web API key + Steam Electron build),
   AGENTS.md task queue entry checked off.
 - **Exit**: ✅ all 100+ server tests green (109), typecheck/build clean,
   `X-Player-Id` fully removed from the codebase, task queue checked off.

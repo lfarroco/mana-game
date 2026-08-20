@@ -87,27 +87,27 @@ per effect, not "small".
 
 | ID | Task | Type | Tier | Effort |
 |---|---|---|---|---|
-| A0 | Gold cap → percentage guard | test edit | A | XS |
-| A1 | Pixie Trickster (bronze) | unit | A | XS |
-| A2 | Vulture (silver) | unit | A | XS |
-| A3 | The Leech (silver) | unit | A | XS |
-| A4 | Echo of the Mask (bronze) | unit | A | XS |
-| A5 | Lifestealer (bronze) | unit | A | XS |
-| A6 | `gambler` edit → true coin-flip | edit | A | XS |
-| A7 | `mirror_entity` edit → real mirror | edit | A | XS |
-| A8 | `fate_shifter` edit → Twisted Mirror | edit | A | XS |
-| A9 | Oracle's Riddle (random bronze) | encounter | A | S |
-| A10 | Chaos Altar (random orb) | encounter | A | S |
-| A11 | Roulette Wheel (life gamble) | encounter | A | S |
-| A12 | Lucky Pig (favor ×3) | encounter | A | S |
-| A13 | `upgrade_core` Mystery Box | edit | A | XS |
-| A14 | `add_reaction_core` random option | edit | A | XS |
-| A15 | Effect shops allow silvers (round ≥ 4) | edit | A | S |
-| B1 | `when` predicates on reactions | effect | B | M |
-| C1 | `repeat`/retrigger | effect | C | M |
-| C2 | `on_crystal_hit` global reaction (thorns) | effect | C | M |
-| D1 | `silence` | effect | D | M |
-| D2 | `dispel` | effect | D | M |
+| A0 | ✅ Gold cap → percentage guard | test edit | A | XS |
+| A1 | ✅ Pixie Trickster (bronze) | unit | A | XS |
+| A2 | ✅ Vulture (silver) | unit | A | XS |
+| A3 | ✅ The Leech (silver) | unit | A | XS |
+| A4 | ✅ Echo of the Mask (bronze) | unit | A | XS |
+| A5 | ✅ Lifestealer (bronze) | unit | A | XS |
+| A6 | ✅ `gambler` edit → true coin-flip | edit | A | XS |
+| A7 | ✅ `mirror_entity` edit → real mirror | edit | A | XS |
+| A8 | ✅ `fate_shifter` edit → Twisted Mirror | edit | A | XS |
+| A9 | ✅ Oracle's Riddle (random bronze) | encounter | A | S |
+| A10 | ✅ Chaos Altar (random orb) | encounter | A | S |
+| A11 | ✅ Roulette Wheel (life gamble) | encounter | A | S |
+| A12 | ✅ Lucky Pig (favor ×3) | encounter | A | S |
+| A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B) | edit | A | XS |
+| A14 | ~~`add_reaction_core` random option~~ (superseded by CUB-B) | edit | A | XS |
+| A15 | ✅ Effect shops allow silvers (round ≥ 4) | edit | A | S |
+| B1 | ✅ `when` predicates on reactions | effect | B | M |
+| C1 | ✅ `repeat`/retrigger | effect | C | M |
+| C2 | ✅ `on_crystal_hit` global reaction (thorns) | effect | C | M |
+| D1 | ✅ `silence` | effect | D | M |
+| D2 | ✅ `dispel` | effect | D | M |
 
 ## 4. Tasks
 
@@ -116,7 +116,7 @@ per effect, not "small".
 > **A0 first if you intend to add any gold.** Tier A unit/encounter tasks do not
 > add net-new golds, so they can proceed independently of A0.
 
-#### A0 — Gold cap → percentage guard
+#### A0 — Gold cap → percentage guard ✅ (2026-08-19, `57444f39`)
 
 - **Goal**: make the gold-pool limit proportional to total pool size (Decision D1).
 - **Files**: `core/src/data/BaseCollection.balance.test.ts` (the
@@ -127,7 +127,7 @@ per effect, not "small".
 - **Acceptance**: `cd core && npx jest src/data/BaseCollection.balance.test.ts --runInBand`
   green; doc note explaining the chosen ratio.
 
-#### A1 — Pixie Trickster (new bronze)
+#### A1 — Pixie Trickster (new bronze) ✅ (2026-08-19, `dac9eea2`)
 
 - **Goal**: chaos tempo — every cast hastes a random ally AND slows a random enemy.
 - **Files**: `core/src/data/cards/bronzeCards.ts`.
@@ -136,7 +136,7 @@ per effect, not "small".
   `tags: ["haster","disabler"]`, `pic` reuse an existing `neutral_*` asset, i18n + description.
 - **Acceptance**: AP within `[80,160]`; balance test green.
 
-#### A2 — Vulture (new silver)
+#### A2 — Vulture (new silver) ✅ (2026-08-19, `f33c6c40`)
 
 - **Goal**: feeds on weakness — grows power when enemies are slowed.
 - **Files**: `core/src/data/cards/silverCards.ts`.
@@ -146,7 +146,7 @@ per effect, not "small".
   `tags: ["cross_force","grow_over_time"]`.
 - **Acceptance**: AP within `[120,260]`; exactly one reaction (silver identity rule).
 
-#### A3 — The Leech (new silver)
+#### A3 — The Leech (new silver) ✅ (2026-08-19, `e97857f0`)
 
 - **Goal**: parasitic reversal — when the **enemy** heals, *your* crystal gains shield.
 - **Files**: `core/src/data/cards/silverCards.ts`.
@@ -157,7 +157,7 @@ per effect, not "small".
 - **Acceptance**: AP within `[120,260]`; add a small combat test that enemy heal
   triggers your shield (mirror existing cross-force tests).
 
-#### A4 — Echo of the Mask (new bronze)
+#### A4 — Echo of the Mask (new bronze) ✅ (2026-08-19, `67af038f`)
 
 - **Goal**: copy-paste with lag — when the left ally casts any basic ability, buff a random ally.
 - **Files**: `core/src/data/cards/bronzeCards.ts`.
@@ -167,7 +167,7 @@ per effect, not "small".
   `tags: ["team_buff"]`.
 - **Acceptance**: AP within `[80,160]`; note `"all"` only fires on basic abilities.
 
-#### A5 — Lifestealer (new bronze)
+#### A5 — Lifestealer (new bronze) ✅ (2026-08-19, `cd33f04a`)
 
 - **Goal**: the first damage+heal hybrid — sustains your crystal while attacking.
 - **Files**: `core/src/data/cards/bronzeCards.ts`.
@@ -175,7 +175,7 @@ per effect, not "small".
   `effects: [damage, heal]`, `reactions: []`, `tags: ["team_buff"]`.
 - **Acceptance**: AP within `[80,160]`; confirmed no existing card combines `damage`+`heal`.
 
-#### A6 — `gambler` edit → true coin-flip
+#### A6 — `gambler` edit → true coin-flip ✅ (2026-08-19, `43ad63d1`)
 
 - **Goal**: the flagship risk card should *feel* like a gamble — crit goes to a random target.
 - **Files**: `core/src/data/cards/bronzeCards.ts` (`gambler`, ~line 587).
@@ -184,7 +184,7 @@ per effect, not "small".
   target too if desired.
 - **Acceptance**: AP still within band, or add to `AP_ALLOWLIST` with justification.
 
-#### A7 — `mirror_entity` edit → real mirror
+#### A7 — `mirror_entity` edit → real mirror ✅ (2026-08-19, `d9cd5bbc`)
 
 - **Goal**: proper mirror fantasy — when bottom ally casts, **haste** the top ally (tempo echo).
 - **Files**: `core/src/data/cards/bronzeCards.ts` (`mirror_entity`, ~line 557).
@@ -192,7 +192,7 @@ per effect, not "small".
   `reaction("all","bottom_ally", haste(1000, top))` (tune numbers).
 - **Acceptance**: AP in band; enables haste chains with existing haste engines.
 
-#### A8 — `fate_shifter` edit → Twisted Mirror
+#### A8 — `fate_shifter` edit → Twisted Mirror ✅ (2026-08-19, `a110c4e3`)
 
 - **Goal**: the wild double-edged gamble — multiply the strongest ally **and** the
   strongest enemy (can backfire). (Note: this *is* the "Twisted Mirror" concept; it
@@ -256,7 +256,7 @@ per effect, not "small".
 - **Acceptance**: unit tests for the ×3 skip + the full favor flow (accumulate,
   guarantee, spend) in `SessionTransitions.test.ts` / `OptionGeneration.test.ts`.
 
-#### A13 — `upgrade_core` Mystery Box
+#### A13 — `upgrade_core` Mystery Box ~~(superseded by CUB-B)~~
 
 - **Goal**: a wacky 4th option — random core upgrade.
 - **Files**: `core/src/session/SessionTransitions.ts` (`UPGRADE_CORE_OPTIONS`, ~line 27)
@@ -266,7 +266,7 @@ per effect, not "small".
   seeded RNG and applies it.
 - **Acceptance**: unit test; option appears in the `upgrade_core` phase.
 
-#### A14 — `add_reaction_core` random option
+#### A14 — `add_reaction_core` random option ~~(superseded by CUB-B)~~
 
 - **Goal**: a wacky 4th option — random core reaction.
 - **Files**: `SessionTransitions.ts` (`ADD_REACTION_CORE_OPTIONS`, ~line 33) + a new

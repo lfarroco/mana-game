@@ -113,10 +113,14 @@ orbs applied without intermediate RNG consumption repeat identical
       - Updated `SessionTransitions` to write the returned seed to `session.seed`.
       - Added tests: reaction orbs advance seed, stat orbs don't, consecutive
         reaction orbs advance progressively.
-- [ ] Unify the RNG contract while here: `pickRandom` mutates `rng.seed`,
-      `nextRandomValue` returns `{ result, seed }` without mutating. Pick
-      one convention (prefer: always return the next seed) and apply it to
-      `calculateCritical`, `sacrificeEffect`, `buildReaction`.
+- [x] Unify the RNG contract (2026-08-20): the module is now consistently
+      pure — `pickRandom`, `pickOneSeeded`, `pickOneUniqueSeeded`,
+      `pickRandomItemsSeeded` return `{ picked, seed }` and never mutate the
+      input `rng`; callers write the seed back (the `nextRandomValue`
+      convention). Applied across `calculateCritical` (already pure),
+      `sacrificeEffect`, `buildReaction`, `applySacrificeOrb`,
+      `resolveTargets`, `generateEnemyTeam`, `OptionGeneration`, and
+      `SessionTransitions`. Determinism preserved — full core suite green.
 
 ### 3. `createCombatState.initialUnits` aliases `units` — effort: S
 
@@ -192,8 +196,14 @@ server use.
 
 - [x] Either implement `sacrifice_effect_orb` or remove it from
       definitions + presentation.
-- [ ] Dispatch through `ORB_DEFINITIONS` (`kind: "stat" | "special" |
+- [x] Dispatch through `ORB_DEFINITIONS` (`kind: "stat" | "special" |
       "reaction"`) and drop the prefix parsing; prune non-orb entries.
+      (2026-08-20): `applyOrb` now switches on `def.kind`; the three
+      core-stat ids (`increase_core_max_life` / `upgrade_core_power` /
+      `decrease_core_cooldown`) were pruned from the registry — they remain
+      `StaticOptionId`s handled by the core-upgrade flow (CUB-B3); the
+      `RANDOM_ORB_POOL` exclusion became dead and was removed. New tests
+      assert every registered orb id dispatches without silent no-ops.
 
 ---
 

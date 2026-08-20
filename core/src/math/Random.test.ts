@@ -133,23 +133,24 @@ describe("Random", () => {
   describe("pickRandom", () => {
     it("picks exactly n items", () => {
       const rng = { seed: "test" };
-      const result = Random.pickRandom(rng, [1, 2, 3, 4, 5], 3);
-      expect(result).toHaveLength(3);
+      const { picked } = Random.pickRandom(rng, [1, 2, 3, 4, 5], 3);
+      expect(picked).toHaveLength(3);
     });
 
     it("picks from the available items", () => {
       const pool = ["a", "b", "c"];
       const rng = { seed: "xyz" };
-      const result = Random.pickRandom(rng, pool, 2);
-      expect(pool).toContain(result[0]);
-      expect(pool).toContain(result[1]);
+      const { picked } = Random.pickRandom(rng, pool, 2);
+      expect(pool).toContain(picked[0]);
+      expect(pool).toContain(picked[1]);
     });
 
-    it("advances the seed", () => {
+    it("returns the advanced seed and does not mutate the input rng", () => {
       const rng = { seed: "test" };
-      const initialSeed = rng.seed;
-      Random.pickRandom(rng, [1, 2, 3], 2);
-      expect(rng.seed).not.toBe(initialSeed);
+      const { picked, seed } = Random.pickRandom(rng, [1, 2, 3], 2);
+      expect(picked).toHaveLength(2);
+      expect(seed).not.toBe("test");
+      expect(rng.seed).toBe("test");
     });
   });
 
@@ -243,15 +244,20 @@ describe("Random", () => {
     it("returns exactly count items", () => {
       const rng = { seed: "test" };
       const items = [1, 2, 3, 4, 5];
-      const result = Random.pickRandomItemsSeeded(rng, items, 3);
-      expect(result).toHaveLength(3);
+      const { picked } = Random.pickRandomItemsSeeded(rng, items, 3);
+      expect(picked).toHaveLength(3);
     });
 
-    it("advances the seed", () => {
+    it("returns the advanced seed and does not mutate the input rng", () => {
       const rng = { seed: "advance" };
-      const initial = rng.seed;
-      Random.pickRandomItemsSeeded(rng, ["a", "b", "c"], 2);
-      expect(rng.seed).not.toBe(initial);
+      const { picked, seed } = Random.pickRandomItemsSeeded(
+        rng,
+        ["a", "b", "c"],
+        2,
+      );
+      expect(picked).toHaveLength(2);
+      expect(seed).not.toBe("advance");
+      expect(rng.seed).toBe("advance");
     });
   });
 });

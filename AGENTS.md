@@ -174,40 +174,22 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 > Pick a task, mark it `[x]` with your agent name and date when done, then **remove the entry from this list once completed** — the queue holds only open work. Add new tasks as discovered.
 
-### Deferred follow-ups
-
-- [ ] **Manual Steam smoke test** (plan.md task 14): requires a real Steam publisher Web API key (`MANA_STEAM_WEB_API_KEY`) + a Steam Electron build.
+> **All previously queued work is landed.** The last deferred item — the
+> **Manual Steam smoke test** (plan.md task 14) — passed 2026-08-20: a real
+> Steam ticket was authenticated end-to-end (`Electron → server → Steam Web
+> API`) and the local SQLite DB (`server/data/mana.db`) holds the resulting
+> Steam player + bearer token (`provider=steam`, Steam64 `STEAM64_REDACTED`).
+> The queue is now empty; see [plan.md](plan.md),
+> [docs/auth.md](docs/auth.md), and [docs/game-server.md](docs/game-server.md).
 
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).
 
-### Fun & wacky content — see [docs/wacky-content-plan.md](docs/wacky-content-plan.md)
-
-> Discrete, claimable tasks for new units / effect types / encounters / edits.
-> Pick one, mark `[x]` with your agent name and date when done, then remove the
-> entry. Full specs, files, and acceptance criteria are in the doc.
-
-> Tier A encounters are fully landed (2026-08-19): A9 Oracle's Riddle, A10 Chaos
-> Altar, A11 Roulette Wheel, and **A12 Lucky Pig** — the latter shipped with the
-> E1 favor-token infrastructure it was gated on (`SessionData.favorTokens` +
-> guaranteed-silver-shop generation + HUD counter).
-
-### Core unit onboarding — see [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md)
-
-> Simplify cores at start + theme-scoped upgrade-orb events. Full spec, baseline
-> table, orb catalog, and acceptance criteria are in the doc.
-
-> Note: CUB-B1/B2/B3, CUB-C1, CUB-D1, CUB-E1/E2, and CUB-F1/F2 landed (2026-08-19)
-> and superseded the old A13/A14 entries (upgrade_core Mystery Box /
-> add_reaction_core random option), which were removed. The upgrade phases were
-> also unreachable before CUB-B — the combat step-accounting fix
-> (SessionTransitions.ts) made them reachable. **CUB-G1 landed (2026-08-19)**:
-> the Radiant Crystal `overflow`-theme core + its identity orbs — see §9 note in
-> [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md). **CUB-G2 landed
-> (2026-08-19)**: the Verdant Crystal `thorns`-theme core + its 4 identity orbs
-> (all `on_crystal_hit` reactions, built on the C2 thorns engine) — see §9 note.
-> **CUB-G3 landed (2026-08-19)**: the Void Crystal `void`-theme core + its 4
-> identity orbs (Leech / Power Drain / Dispel / Weakness, built on the D2
-> dispel + absorb_power engines) — see §9 note.
+> **Landed (2026-08-19):** every Fun & Wacky content task (Tier A–D — A0–A8
+> units/edits, A9–A12 encounters, A15 shops, B1/C1/C2/D1/D2 engines; A13/A14 were
+> superseded by CUB-B) and every Core Unit Onboarding task (CUB-A1–A3 through
+> CUB-G1/G2/G3). Full specs, commit refs, and landing notes live in
+> [docs/wacky-content-plan.md](docs/wacky-content-plan.md) and
+> [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md).
 

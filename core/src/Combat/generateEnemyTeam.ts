@@ -76,7 +76,9 @@ function getRandomEmptyPosition(
     }
   }
 
-  return Random.pickOneSeeded(rng, availablePositions);
+  const { picked, seed } = Random.pickOneSeeded(rng, availablePositions);
+  rng.seed = seed;
+  return picked;
 }
 
 /**
@@ -104,7 +106,11 @@ export function generateEnemyTeam(
   const pickedCards: CardDefinition[] = [];
   const occupiedPositions = new Set<string>();
 
-  const coreCard = Random.pickOneSeeded(rng, Card.getCores());
+  const { picked: coreCard, seed: coreSeed } = Random.pickOneSeeded(
+    rng,
+    Card.getCores(),
+  );
+  rng.seed = coreSeed;
   const corePosition = getRandomEmptyPosition(rng, occupiedPositions);
   occupiedPositions.add(`${corePosition[0]},${corePosition[1]}`);
   const coreUnit = Card.makeUnit(FORCE_ID_CPU, coreCard.id, corePosition);
@@ -121,7 +127,12 @@ export function generateEnemyTeam(
   });
 
   for (let i = 1; i < unitCount; i++) {
-    const card = Random.pickOneUniqueSeeded(rng, filteredPool, pickedCards);
+    const { picked: card, seed: cardSeed } = Random.pickOneUniqueSeeded(
+      rng,
+      filteredPool,
+      pickedCards,
+    );
+    rng.seed = cardSeed;
     pickedCards.push(card);
     const position = getRandomEmptyPosition(rng, occupiedPositions);
     if (!position) {

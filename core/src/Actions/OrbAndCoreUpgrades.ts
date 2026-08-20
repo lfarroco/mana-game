@@ -30,10 +30,12 @@ function buildReaction(
   rng: { seed: string },
 ): EffectReaction {
   if (def.kind !== "reaction") throw new Error(`Not a reaction orb: ${def.id}`);
+  const { picked, seed } = Random.pickOneSeeded(rng, def.possibleEffects);
+  rng.seed = seed;
   return {
     position: def.position,
     effectId: def.effectId,
-    effects: [Random.pickOneSeeded(rng, def.possibleEffects)],
+    effects: [picked],
   };
 }
 
@@ -113,17 +115,25 @@ function applySacrificeOrb(targetUnit: Unit, rng: { seed: string }): number {
     // Randomly choose which type to remove when both exist
     let removeType: "effect" | "reaction";
     if (hasEffects && hasReactions) {
-      const picked = Random.pickOneSeeded(rng, ["effect", "reaction"]);
+      const { picked, seed } = Random.pickOneSeeded(rng, [
+        "effect",
+        "reaction",
+      ]);
+      rng.seed = seed;
       removeType = picked as "effect" | "reaction";
     } else {
       removeType = hasEffects ? "effect" : "reaction";
     }
 
     if (removeType === "effect") {
-      const toRemove = Random.pickOneSeeded(rng, targetUnit.effects);
+      const { picked, seed } = Random.pickOneSeeded(rng, targetUnit.effects);
+      rng.seed = seed;
+      const toRemove = picked;
       targetUnit.effects = targetUnit.effects.filter((e) => e !== toRemove);
     } else {
-      const toRemove = Random.pickOneSeeded(rng, targetUnit.reactions);
+      const { picked, seed } = Random.pickOneSeeded(rng, targetUnit.reactions);
+      rng.seed = seed;
+      const toRemove = picked;
       targetUnit.reactions = targetUnit.reactions.filter((r) => r !== toRemove);
     }
   }
@@ -219,11 +229,15 @@ function applyDecreaseCooldownOrb(
 /**
  * Apply an orb to a target unit.
  *
+ * Dispatches through the `ORB_DEFINITIONS` registry by `kind` — stat orbs
+ * read `def.stat` + `def.effectType`, specials switch on `def.special`, and
+ * reaction orbs go through `buildReaction`. No string-prefix matching.
+ *
  * @param allUnits      All team units (needed for row-based orbs).
  * @param targetUnitId  The unit receiving the orb.
  * @param orbId         The orb identifier.
  * @param rng           Seeded RNG for deterministic random picks inside
- *                      reaction orbs. Only used for reaction-type orbs.
+ *                      reaction and sacrifice orbs.
  * @returns The (possibly advanced) rng seed — callers MUST write this back.
  */
 export function applyOrb(
@@ -241,75 +255,20 @@ export function applyOrb(
     return rng.seed;
   }
 
-  if (orbId === "upgrade_orb") {
-    applyUpgradeOrb(targetUnit);
-  } else if (orbId === "absorb_power_orb") {
-    const absorbed = applyAbsorbPowerOrb(targetUnit, allUnits);
-    if (absorbed > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Absorbed ${absorbed} power from row units`,
-      );
-    }
-  } else if (orbId === "distribute_power_orb") {
-    const distributed = applyDistributePowerOrb(targetUnit, allUnits);
-    if (distributed > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Distributed ${distributed} power to row units`,
-      );
-    }
-  } else if (orbId === "sacrifice_effect_orb") {
-    const powerGain = applySacrificeOrb(targetUnit, rng);
-    console.info(
-      "orbAndCoreUpgrades",
-      `Sacrifice effect applied, gained ${powerGain} power`,
-    );
-  } else if (orbId === "sacrifice_unit_orb") {
-    const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 0.5);
-    if (powerGain > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Sacrificed unit ${targetUnitId}, core gained ${powerGain} power`,
-      );
-    }
-  } else if (orbId === "scrap_salvage_orb") {
-    const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 1);
-    if (powerGain > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Scrapped unit ${targetUnitId}, core gained ${powerGain} power`,
-      );
-    }
-  } else if (orbId.startsWith("increase_power_on_")) {
-    const effectType = orbId.replace("increase_power_on_", "");
-    const boost = applyIncreasePowerOrb(targetUnit, effectType);
-    if (boost > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Increased power by ${boost} (on ${effectType})`,
-      );
-    }
-  } else if (orbId.startsWith("increase_critical_on_")) {
-    const effectType = orbId.replace("increase_critical_on_", "");
-    if (applyIncreaseCriticalOrb(targetUnit, effectType)) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Increased critical (on ${effectType})`,
-      );
-    }
-  } else if (orbId.startsWith("decrease_cooldown_on_")) {
-    const effectType = orbId.replace("decrease_cooldown_on_", "");
-    const reduction = applyDecreaseCooldownOrb(targetUnit, effectType);
-    if (reduction > 0) {
-      console.info(
-        "orbAndCoreUpgrades",
-        `Decreased cooldown by ${reduction}ms (on ${effectType})`,
-      );
-    }
-  } else {
-    const def = ORB_DEFINITIONS[orbId];
-    if (def && def.kind === "reaction") {
+  const def = ORB_DEFINITIONS[orbId];
+  if (!def) {
+    console.warn("orbAndCoreUpgrades", `Unknown orb id: ${orbId}`);
+    return rng.seed;
+  }
+
+  switch (def.kind) {
+    case "stat":
+      applyStatOrb(def, targetUnit);
+      break;
+    case "special":
+      applySpecialOrb(def, allUnits, targetUnitId, targetUnit, rng);
+      break;
+    case "reaction": {
       const reaction = buildReaction(def, rng);
       targetUnit.reactions = targetUnit.reactions || [];
       targetUnit.reactions.push(reaction);
@@ -317,10 +276,113 @@ export function applyOrb(
         "orbAndCoreUpgrades",
         `Added reaction ${orbId} to unit ${targetUnit.id}`,
       );
+      break;
     }
   }
 
   return rng.seed;
+}
+
+/**
+ * Apply a `stat` orb: `increase_power_on_X`, `increase_critical_on_X`, or
+ * `decrease_cooldown_on_X`, driven by the registry entry's `stat` + `effectType`.
+ */
+function applyStatOrb(def: OrbDefinition, targetUnit: Unit): void {
+  if (def.kind !== "stat") return;
+  const { stat, effectType } = def;
+
+  if (stat === "increase_power") {
+    const boost = applyIncreasePowerOrb(targetUnit, effectType);
+    if (boost > 0) {
+      console.info(
+        "orbAndCoreUpgrades",
+        `Increased power by ${boost} (on ${effectType})`,
+      );
+    }
+  } else if (stat === "increase_critical") {
+    if (applyIncreaseCriticalOrb(targetUnit, effectType)) {
+      console.info(
+        "orbAndCoreUpgrades",
+        `Increased critical (on ${effectType})`,
+      );
+    }
+  } else if (stat === "decrease_cooldown") {
+    const reduction = applyDecreaseCooldownOrb(targetUnit, effectType);
+    if (reduction > 0) {
+      console.info(
+        "orbAndCoreUpgrades",
+        `Decreased cooldown by ${reduction}ms (on ${effectType})`,
+      );
+    }
+  }
+}
+
+/**
+ * Apply a `special` orb: upgrade / absorb / distribute / sacrifice / scrap,
+ * driven by the registry entry's `special` tag.
+ */
+function applySpecialOrb(
+  def: OrbDefinition,
+  allUnits: Unit[],
+  targetUnitId: string,
+  targetUnit: Unit,
+  rng: { seed: string },
+): void {
+  if (def.kind !== "special") return;
+
+  switch (def.special) {
+    case "upgrade":
+      applyUpgradeOrb(targetUnit);
+      break;
+    case "absorb_power": {
+      const absorbed = applyAbsorbPowerOrb(targetUnit, allUnits);
+      if (absorbed > 0) {
+        console.info(
+          "orbAndCoreUpgrades",
+          `Absorbed ${absorbed} power from row units`,
+        );
+      }
+      break;
+    }
+    case "distribute_power": {
+      const distributed = applyDistributePowerOrb(targetUnit, allUnits);
+      if (distributed > 0) {
+        console.info(
+          "orbAndCoreUpgrades",
+          `Distributed ${distributed} power to row units`,
+        );
+      }
+      break;
+    }
+    case "sacrifice": {
+      const powerGain = applySacrificeOrb(targetUnit, rng);
+      console.info(
+        "orbAndCoreUpgrades",
+        `Sacrifice effect applied, gained ${powerGain} power`,
+      );
+      break;
+    }
+    case "sacrifice_unit": {
+      const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 0.5);
+      if (powerGain > 0) {
+        console.info(
+          "orbAndCoreUpgrades",
+          `Sacrificed unit ${targetUnitId}, core gained ${powerGain} power`,
+        );
+      }
+      break;
+    }
+    case "scrap_salvage": {
+      const powerGain = applySacrificeUnitOrb(targetUnitId, allUnits, 1);
+      if (powerGain > 0) {
+        console.info(
+          "orbAndCoreUpgrades",
+          `Scrapped unit ${targetUnitId}, core gained ${powerGain} power`,
+        );
+      }
+      break;
+    }
+  }
 }
 
 /**
@@ -380,10 +442,7 @@ export function applyCoreUpgrade(
 
   const def = CORE_UPGRADE_DEFINITIONS[orbId];
   if (!def) {
-    console.warn(
-      "orbAndCoreUpgrades",
-      `Unknown core upgrade orb: ${orbId}`,
-    );
+    console.warn("orbAndCoreUpgrades", `Unknown core upgrade orb: ${orbId}`);
     return;
   }
 

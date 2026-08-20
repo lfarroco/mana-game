@@ -1,6 +1,6 @@
 # Auth — Mana Game Server
 
-**Status**: ✅ Implemented (2026-08-13) — Phase A (repos/middleware) and Phase B (Steam login) are landed; **manual Steam smoke test still pending** (needs a real publisher Web API key + Steam Electron build — see [plan.md task 14](plan.md)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
+**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, and the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
 **Scope**: `server/` (Node multiplayer backend) + the Electron/Steam client side in `phaser/`.
 **Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code).
@@ -217,8 +217,8 @@ Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
 | Phase | Deliverable | Exit criteria | Status |
 |---|---|---|---|
 | **A. Player/token repos + bearer middleware** | `PlayerRepo`/`TokenRepo` (in-memory), `authService`/`tokenService`, Bearer middleware replacing `X-Player-Id` | unit + HTTP tests green; session routes run off tokens | ✅ done (2026-08-13) |
-| **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets | ✅ code done (2026-08-13); manual smoke test pending (plan.md task 14) |
-| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ✅ code done (2026-08-13) — `phaser/src/RemoteServer.ts` is the HTTP adapter (bearer auth via `getBearerToken()`); manual MP run from the Steam build still pending (plan.md task 14) |
+| **B. Steam login** | `POST /auth/steam` + `steamAuth` service (mocked Web API in tests), electron preload ticket hook, client login flow | manual Steam auto-login against a local server; 401s on bad tickets | ✅ done (2026-08-13); smoke test passed 2026-08-20 (plan.md task 14) |
+| **C. Client wiring** | folds into Phase 3 client integration (HTTP `RemoteServer` + token persistence) | MP run end-to-end from the Steam build | ✅ done (2026-08-13) — `phaser/src/RemoteServer.ts` is the HTTP adapter (bearer auth via `getBearerToken()`); manual MP run from the Steam build passed 2026-08-20 (plan.md task 14) |
 
 The original plan was guest-first; the Steam-only launch flips it — Phases A and B are independent, and B is the priority.
 
@@ -235,7 +235,7 @@ Recorded 2026-08-13 while implementing plan.md tasks 1–13. Items marked *(devi
 - **`MANA_SERVER_URL`** was added to `phaser/webpack/config.base.cjs` DefinePlugin (empty by default → runtime fallback `http://127.0.0.1:8787`) so a build can point at a remote server.
 - **Token TTL is not refreshed per request** — a token expires `MANA_TOKEN_TTL_DAYS` (30) after issue; Steam re-issues on every launch, which is the expected flow for an autobattler (docs/auth.md decisions). Token refresh is parked in Phase 5 extras.
 - **`X-Player-Id` code paths are deleted**; only comments/READMEs describing what replaced it remain.
-- **Manual smoke test** (plan.md task 14) is the only unfinished item — it needs a real publisher Web API key + the Steam Electron build, so it cannot be automated in CI.
+- **Manual smoke test** (plan.md task 14) **passed 2026-08-20**: real Steam ticket authenticated end-to-end (Electron → server → Steam Web API); the local SQLite DB (`server/data/mana.db`) was populated with the Steam player + bearer token.
 
 
 

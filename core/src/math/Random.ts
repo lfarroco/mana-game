@@ -70,11 +70,21 @@ export function shuffle<T>(
   };
 }
 
-export function pickRandom<T>(rng: { seed: string }, arr: T[], n: number): T[] {
+/**
+ * Deterministically pick N random items using a seeded RNG.
+ *
+ * Pure: returns the picked items alongside the advanced seed; the input `rng`
+ * is never mutated. Callers write the returned seed back (the module-wide
+ * "always return the next seed" convention — see `nextRandomValue`).
+ */
+export function pickRandom<T>(
+  rng: { seed: string },
+  arr: T[],
+  n: number,
+): { picked: T[]; seed: string } {
   const seedNum = stringToSeed(rng.seed);
   const { copy, seed: nextNum } = shuffle(seedNum, arr);
-  rng.seed = nextNum.toString(36);
-  return copy.slice(0, n);
+  return { picked: copy.slice(0, n), seed: nextNum.toString(36) };
 }
 
 /**
@@ -110,40 +120,48 @@ export function generateNextSeed(
 }
 
 /**
- * Deterministically pick N random items using a seeded RNG.
- * Mutates the session's seed to advance the RNG state.
+ * Deterministically pick a single random item using a seeded RNG.
+ *
+ * Pure: returns the picked item and the advanced seed (see `pickRandom`).
+ * Throws if the array is empty.
  */
-export function pickRandomItemsSeeded<T>(
+export function pickOneSeeded<T>(
   rng: { seed: string },
   items: T[],
-  count: number,
-): T[] {
-  return pickRandom(rng, items, count);
-}
-
-/**
- * Deterministically pick a single random item using a seeded RNG.
- * Advances the RNG seed. Throws if the array is empty.
- */
-export function pickOneSeeded<T>(rng: { seed: string }, items: T[]): T {
-  const [item] = pickRandom(rng, items, 1);
-  return item;
+): { picked: T; seed: string } {
+  const { picked, seed } = pickRandom(rng, items, 1);
+  return { picked: picked[0], seed };
 }
 
 /**
  * Deterministically pick a single random item excluding certain values.
- * Advances the RNG seed. Throws if no unique items are available.
+ *
+ * Pure: returns the picked item and the advanced seed (see `pickRandom`).
+ * Throws if no unique items are available.
  */
 export function pickOneUniqueSeeded<T>(
   rng: { seed: string },
   items: T[],
   exclude: T[],
-): T {
+): { picked: T; seed: string } {
   const filtered = items.filter((item) => !exclude.includes(item));
   if (filtered.length === 0) {
     throw new Error("No unique items available to pick");
   }
   return pickOneSeeded(rng, filtered);
+}
+
+/**
+ * Deterministically pick N random items using a seeded RNG.
+ *
+ * Pure: returns the picked items and the advanced seed (see `pickRandom`).
+ */
+export function pickRandomItemsSeeded<T>(
+  rng: { seed: string },
+  items: T[],
+  count: number,
+): { picked: T[]; seed: string } {
+  return pickRandom(rng, items, count);
 }
 
 /**

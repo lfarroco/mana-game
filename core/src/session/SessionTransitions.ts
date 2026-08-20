@@ -159,10 +159,12 @@ const ACTION_HANDLERS: Record<
     // random bronze (no choice). Seeded and deterministic; the recruit can
     // upgrade a duplicate the player already owns (shop semantics).
     if (action.encounterId === "oracles_riddle") {
-      const rng = { seed: session.seed };
       const bronzePool = Card.getNonCores().filter((c) => (c.rank || 1) === 1);
-      const bronze = Random.pickOneSeeded(rng, bronzePool);
-      session.seed = rng.seed;
+      const { picked: bronze, seed } = Random.pickOneSeeded(
+        session,
+        bronzePool,
+      );
+      session.seed = seed;
       return transitionToNextStep(
         RecruitmentActions.recruitUnit(session, bronze.id, null),
       );
@@ -177,16 +179,17 @@ const ACTION_HANDLERS: Record<
       if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
       session.losses += 1;
 
-      const rng = { seed: session.seed };
-      const { result, seed } = Random.nextRandomValue(rng);
-      rng.seed = seed;
-      session.seed = rng.seed;
+      const { result, seed } = Random.nextRandomValue(session);
+      session.seed = seed;
 
       if (result < 0.2) {
         // Gold card — recruit a random gold.
         const goldPool = Card.getNonCores().filter((c) => (c.rank || 1) === 3);
-        const gold = Random.pickOneSeeded(rng, goldPool);
-        session.seed = rng.seed;
+        const { picked: gold, seed: goldSeed } = Random.pickOneSeeded(
+          session,
+          goldPool,
+        );
+        session.seed = goldSeed;
         return transitionToNextStep(
           RecruitmentActions.recruitUnit(session, gold.id, null),
         );
@@ -196,9 +199,16 @@ const ACTION_HANDLERS: Record<
         // player controls, so the altar-style surprise is safe).
         const nonCores = session.team.units.filter((u) => !u.isCore);
         if (nonCores.length > 0) {
-          const target = Random.pickOneSeeded(rng, nonCores);
-          const orbId = Random.pickOneSeeded(rng, RANDOM_ORB_POOL);
-          session.seed = rng.seed;
+          const { picked: target, seed: targetSeed } = Random.pickOneSeeded(
+            session,
+            nonCores,
+          );
+          session.seed = targetSeed;
+          const { picked: orbId, seed: orbSeed } = Random.pickOneSeeded(
+            session,
+            RANDOM_ORB_POOL,
+          );
+          session.seed = orbSeed;
           session.seed = OrbAndCoreUpgrades.applyOrb(
             session.team.units,
             target.id,
@@ -216,7 +226,6 @@ const ACTION_HANDLERS: Record<
       }
       if (result < 0.85) {
         // Nothing.
-        session.seed = rng.seed;
         return transitionToNextStep(session);
       }
 
@@ -225,7 +234,6 @@ const ACTION_HANDLERS: Record<
       if (session.losses + 1 < LOSSES_TO_GAME_OVER) {
         session.losses += 1;
       }
-      session.seed = rng.seed;
       return transitionToNextStep(session);
     }
 
@@ -369,9 +377,11 @@ const ACTION_HANDLERS: Record<
     // picked the victim, so the actual orb is drawn here, seeded and
     // deterministic.
     if (orbId === "chaos_altar_random_orb") {
-      const rng = { seed: session.seed };
-      const pickedOrb = Random.pickOneSeeded(rng, RANDOM_ORB_POOL);
-      session.seed = rng.seed;
+      const { picked: pickedOrb, seed } = Random.pickOneSeeded(
+        session,
+        RANDOM_ORB_POOL,
+      );
+      session.seed = seed;
       session.seed = OrbAndCoreUpgrades.applyOrb(
         session.team.units,
         targetUnitId,

@@ -378,12 +378,22 @@ export function resolveTargets(
     case "self":
       return [sourceUnit];
 
-    case "random_ally":
+    case "random_ally": {
       const otherAllies = allies.filter((u) => u.id !== sourceUnit.id);
-      return pickRandom(env, otherAllies, effect.targets.count);
+      const { picked, seed } = pickRandom(
+        env,
+        otherAllies,
+        effect.targets.count,
+      );
+      env.seed = seed;
+      return picked;
+    }
 
-    case "random_enemy":
-      return pickRandom(env, enemies, effect.targets.count);
+    case "random_enemy": {
+      const { picked, seed } = pickRandom(env, enemies, effect.targets.count);
+      env.seed = seed;
+      return picked;
+    }
 
     case "row_allies":
       return allies

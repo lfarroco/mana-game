@@ -1,6 +1,7 @@
 /// <reference types="jest" />
 
 import * as OrbAndCoreUpgrades from "./OrbAndCoreUpgrades";
+import * as OrbDefinitions from "../Orbs/OrbDefinitions";
 import { Unit, Effect } from "../Models";
 import * as Card from "../Entities/Card";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
@@ -144,6 +145,65 @@ describe("OrbAndCoreUpgrades", () => {
 
       // Stat orbs don't touch RNG — the seed stays the same
       expect(seedAfter).toBe(originalSeed);
+    });
+
+    it("applies a stat orb through the registry (no prefix parsing)", () => {
+      const unit = makeUnit({
+        id: "u1",
+        power: 100,
+        effects: [{ id: "damage" } as Effect],
+      });
+
+      OrbAndCoreUpgrades.applyOrb([unit], "u1", "increase_power_on_damage", {
+        seed: "stat-dispatch",
+      });
+
+      // The stat dispatch must actually call the increase-power helper.
+      expect(unit.power).toBeGreaterThan(100);
+    });
+
+    it("dispatches every registered orb id without throwing", () => {
+      const ids = Object.keys(OrbDefinitions.ORB_DEFINITIONS);
+      expect(ids.length).toBeGreaterThan(0);
+
+      for (const id of ids) {
+        // Fresh unit per id: stat orbs need every basic effect type to land,
+        // and sacrifice_unit/scrap_salvage can splice the target out.
+        const unit = makeUnit({
+          id: "u1",
+          effects: [
+            { id: "damage" },
+            { id: "heal" },
+            { id: "shield" },
+            { id: "poison" },
+            { id: "regen" },
+            { id: "haste" },
+            { id: "slow" },
+            { id: "charge" },
+          ] as Effect[],
+        });
+
+        const seedAfter = OrbAndCoreUpgrades.applyOrb([unit], "u1", id, {
+          seed: "dispatch-test",
+        });
+        expect(typeof seedAfter).toBe("string");
+      }
+    });
+
+    it("warns and no-ops on an unknown orb id (seed unchanged)", () => {
+      const unit = makeUnit({ id: "u1" });
+      const rng = { seed: "unknown" };
+
+      const seedAfter = OrbAndCoreUpgrades.applyOrb(
+        [unit],
+        "u1",
+        "not_an_orb",
+        rng,
+      );
+
+      expect(seedAfter).toBe("unknown");
+      expect(unit.effects).toHaveLength(0);
+      expect(unit.reactions).toHaveLength(0);
     });
 
     it("consecutive reaction orbs advance the seed progressively", () => {

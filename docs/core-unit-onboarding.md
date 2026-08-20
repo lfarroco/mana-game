@@ -192,15 +192,15 @@ That exclusion is currently binary. Make it explicit:
 
 ### Phase A — data model & baseline (`core/`)
 
-- [ ] **CUB-A1** — add `CoreTheme` + `CORE_THEMES` + `coreTheme` to `CardDefinition` (`core/src/types/card.ts`).
-- [ ] **CUB-A2** — set `coreTheme` on all 6 cores; reduce each to its action-only baseline per §3 (`core/src/data/cards/coreCards.ts`); quickstone baseline → `haste(1000, row)`.
-- [ ] **CUB-A3** — create `core/src/content/coreUpgradeOrbs.ts` with `CoreUpgradeDefinition` + the per-theme catalog (§4), reusing existing reaction orbs where possible.
+- [x] **CUB-A1** (2026-08-19, `94cd10a9`) — add `CoreTheme` + `CORE_THEMES` + `coreTheme` to `CardDefinition` (`core/src/types/card.ts`).
+- [x] **CUB-A2** (2026-08-19, `91c40f9e`) — set `coreTheme` on all 6 cores; reduce each to its action-only baseline per §3 (`core/src/data/cards/coreCards.ts`); quickstone baseline → `haste(1000, row)`.
+- [x] **CUB-A3** (2026-08-19, `ac6b7ab5`) — create `core/src/content/coreUpgradeOrbs.ts` with `CoreUpgradeDefinition` + the per-theme catalog (§4), reusing existing reaction orbs where possible.
 
 ### Phase B — generation & application (`core/`)
 
-- [ ] **CUB-B1** — `generateCoreUpgradeOptions(session)` in `SessionTransitions.ts`: theme-scoped, seeded/deterministic, dedupes applied orbs, honors `minRound`.
-- [ ] **CUB-B2** — wire themed options into the `upgrade_core` and `add_reaction_core` transitions (replace static `UPGRADE_CORE_OPTIONS` / `ADD_REACTION_CORE_OPTIONS`).
-- [ ] **CUB-B3** — extend `OrbAndCoreUpgrades` to apply `CoreUpgradeDefinition` (append effect/reaction, or call the stat helpers).
+- [x] **CUB-B1** (2026-08-19, `8260536e`) — `generateCoreUpgradeOptions(session)` in `SessionTransitions.ts`: theme-scoped, seeded/deterministic, dedupes applied orbs, honors `minRound`.
+- [x] **CUB-B2** (2026-08-19, `8260536e`) — wire themed options into the `upgrade_core` and `add_reaction_core` transitions (replace static `UPGRADE_CORE_OPTIONS` / `ADD_REACTION_CORE_OPTIONS`).
+- [x] **CUB-B3** (2026-08-19, `54b466df`) — extend `OrbAndCoreUpgrades` to apply `CoreUpgradeDefinition` (append effect/reaction, or call the stat helpers).
 
 ### Phase C — balance (`core/`)
 

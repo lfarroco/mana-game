@@ -1,7 +1,7 @@
 # Mana Battle — Steam-Only Auth Implementation Plan (Phase 1.5)
 
-**Last Updated**: 2026-08-13
-**Status**: ✅ Implemented — all code tasks done (1–13); **task 14 (manual Steam smoke test) still pending** — requires a real `MANA_STEAM_WEB_API_KEY` + a Steam Electron build (see task 14 note).
+**Last Updated**: 2026-08-20
+**Status**: ✅ Fully implemented — all code tasks (1–13) **and task 14 (manual Steam smoke test) are done**. The smoke test passed 2026-08-20: a real Steam ticket authenticated end-to-end and the local SQLite DB holds the resulting Steam player + token (see task 14 note).
 **Phase**: `docs/game-server.md` → **1.5. Steam-only auth**
 **Design**: [docs/auth.md](docs/auth.md) — data model, token scheme, flows, security
 **Prerequisites**: Server Phase 1 (session API) done — in-memory `SessionRepo`, session routes on the dev-only `X-Player-Id` header.
@@ -129,7 +129,7 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
     5. Client login module: 9 jest tests (request shape, persistence, failure paths).
     6. Keep the existing tests green — 109 server tests + client suite.
 
-- [ ] **14. Manual Steam smoke test** — ⏳ PENDING (manual — requires a real Steam publisher key + Steam Electron build; cannot be automated in CI)
+- [x] **14. Manual Steam smoke test** — ✅ PASSED (2026-08-20) — manual; requires a real Steam publisher key + Steam Electron build (cannot be automated in CI). Ran the server with `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS`, launched the Steam Electron build, auto-login succeeded, and the local SQLite DB (`server/data/mana.db`) was populated with the Steam player + bearer token (`provider=steam`, Steam64 `STEAM64_REDACTED`).
   - **Steps**:
     1. Run the server with `MANA_STEAM_WEB_API_KEY` and `MANA_STEAM_APP_IDS` set.
     2. Launch the Steam Electron build → auto-login succeeds → `GET /sessions/current` returns the player's run.
@@ -138,10 +138,10 @@ Exit criteria (from auth.md / game-server.md): tests with a mocked Steam Web API
 ## Definition of done
 
 - [x] Bearer tokens replace `X-Player-Id` on all session endpoints; the `X-Player-Id` code paths are deleted.
-- [ ] `POST /api/v1/auth/steam` authenticates a real Steam ticket end-to-end (Electron → server → Steam Web API) — blocked on task 14 (manual smoke test, needs real Steam key).
+- [x] `POST /api/v1/auth/steam` authenticates a real Steam ticket end-to-end (Electron → server → Steam Web API) — PASSED (2026-08-20, task 14).
 - [x] Tokens are stored SHA-256-hashed with expiry; 401s on missing/invalid/expired tokens.
 - [x] Unit + HTTP integration suites green (mocked Steam Web API); existing tests still pass (109 server tests).
-- [ ] Manual Steam auto-login smoke test passes (task 14).
+- [x] Manual Steam auto-login smoke test passes (task 14) — PASSED 2026-08-20.
 - [x] `AGENTS.md` task **"Server auth — Steam-only (Phase 1.5)"** checked off; `docs/auth.md` updated with any deviations discovered during implementation.
 
 

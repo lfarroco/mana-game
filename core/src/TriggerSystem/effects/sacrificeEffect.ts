@@ -22,10 +22,14 @@ export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
   }
 
   if (removeType === "effect") {
-    const effectToRemove = pickRandom(env, removableEffects, 1)[0];
+    const { picked, seed } = pickRandom(env, removableEffects, 1);
+    env.seed = seed;
+    const effectToRemove = picked[0];
     sourceUnit.effects = sourceUnit.effects.filter((e) => e !== effectToRemove);
   } else {
-    const reactionToRemove = pickRandom(env, removableReactions, 1)[0];
+    const { picked, seed } = pickRandom(env, removableReactions, 1);
+    env.seed = seed;
+    const reactionToRemove = picked[0];
     sourceUnit.reactions = sourceUnit.reactions.filter(
       (r) => r !== reactionToRemove,
     );
