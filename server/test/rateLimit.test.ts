@@ -116,4 +116,61 @@ describe("POST /api/v1/auth/steam rate limit", () => {
     const b2 = await post("203.0.113.20");
     expect(b2.status).toBe(200);
   });
+
+  it("walks past Cloudflare edge IPs to the real client (CF + Caddy chain)", async () => {
+    const app: Express = createApp({
+      steam: { webApiKey: KEY, appIds: APP_IDS },
+      steamFetch,
+      authRateLimitMax: 2,
+      authRateLimitWindowMs: 60_000,
+    });
+
+    // X-Forwarded-For exactly as the server sees it behind Caddy+Cloudflare:
+    // [real client, cf edge]. 173.245.48.42 sits inside Cloudflare's
+    // 173.245.48.0/20, so it must be skipped and the real client used as the
+    // rate-limit key (per-player buckets instead of per-Cloudflare-PoP).
+    const post = (realClient: string) =>
+      request(app)
+        .post("/api/v1/auth/steam")
+        .set("X-Forwarded-For", `${realClient}, 173.245.48.42`)
+        .send(AUTH_BODY);
+
+    const a1 = await post("203.0.113.10");
+    const a2 = await post("203.0.113.10");
+    expect(a1.status).toBe(200);
+    expect(a2.status).toBe(200);
+
+    const aLimited = await post("203.0.113.10");
+    expect(aLimited.status).toBe(429);
+    expect(aLimited.body.error).toBe("rate_limited");
+
+    // A different real client behind the SAME Cloudflare edge IP gets its own
+    // bucket — proving the CF IP was walked past, not used as the key.
+    const b1 = await post("203.0.113.20");
+    expect(b1.status).toBe(200);
+  });
+
+  it("does not trust non-Cloudflare middle hops (spoofing resistance)", async () => {
+    const app: Express = createApp({
+      steam: { webApiKey: KEY, appIds: APP_IDS },
+      steamFetch,
+      authRateLimitMax: 2,
+      authRateLimitWindowMs: 60_000,
+    });
+
+    // 198.51.100.7 (documentation TEST-NET) is neither loopback nor a
+    // Cloudflare range → the rightmost untrusted hop wins, so a client cannot
+    // bypass the limiter by prepending fake X-Forwarded-For entries.
+    const post = (x: string) =>
+      request(app)
+        .post("/api/v1/auth/steam")
+        .set("X-Forwarded-For", x)
+        .send(AUTH_BODY);
+
+    await post("203.0.113.10, 198.51.100.7");
+    await post("203.0.113.20, 198.51.100.7");
+    const limited = await post("203.0.113.30, 198.51.100.7");
+    expect(limited.status).toBe(429);
+    expect(limited.body.error).toBe("rate_limited");
+  });
 });

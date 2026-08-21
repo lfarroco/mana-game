@@ -346,11 +346,16 @@ Steam Electron build works over plain HTTP too, but pointing it at the same
   ```bash
   MANA_SERVER_URL=https://api.manabattle.com npm run build
   ```
-- **The server trusts a local reverse proxy** (`app.set("trust proxy",
-  "loopback")`), so Caddy's `X-Forwarded-For` gives the auth rate limiter the
-  real client IP — without it, every player behind the proxy would share one
-  rate-limit bucket. Direct public hits to :8787 are *not* trusted (loopback
-  only), so the header can't be spoofed; optionally firewall :8787 to localhost.
+- **The server resolves the real client IP through both proxies**
+  (`src/trustProxy.ts` → `app.set("trust proxy", ["loopback", …Cloudflare
+  ranges])`). With the Cloudflare → Caddy → :8787 chain, each hop appends to
+  `X-Forwarded-For`; trusting loopback (Caddy) **and** Cloudflare's published
+  edge ranges lets `req.ip` walk past the CF edge IP to the actual player, so
+  the auth rate limiter keys per player instead of per Cloudflare PoP. The
+  rightmost untrusted hop always wins, so fabricated `X-Forwarded-For` can't
+  bypass the limiter — and :8787 is firewalled to localhost anyway (ufw).
+  Refresh the range list from `https://www.cloudflare.com/ips` when Cloudflare
+  announces changes (see the comment in `src/trustProxy.ts`).
 - **CORS stays `*`** — it reflects the *page* origin (the itch.io game page),
   not the API host, so the domain change doesn't affect it.
 

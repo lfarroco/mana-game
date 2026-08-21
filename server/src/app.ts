@@ -27,6 +27,7 @@ import {
   createMemoryTokenRepo,
 } from "./persistence/memory";
 import { createSqliteRepos, openSqliteDatabase } from "./persistence/sqlite";
+import { TRUSTED_PROXY_RANGES } from "./trustProxy";
 import type {
   GhostRepo,
   PlayerRepo,
@@ -112,11 +113,11 @@ export function createApp(deps: AppDeps = {}): express.Express {
 
   const app = express();
 
-  // Behind a local reverse proxy (Caddy, bare deployment) the immediate peer
-  // is 127.0.0.1 — trust its X-Forwarded-For so req.ip (rate limiting) sees
-  // the real client IP. "loopback" only trusts the loopback subnet, so direct
-  // public hits to :8787 can't spoof the header.
-  app.set("trust proxy", "loopback");
+  // Real-client-IP resolution behind the reverse proxies (Cloudflare → Caddy →
+  // this process). Trust loopback (Caddy) plus Cloudflare's edge ranges so the
+  // auth rate limiter keys per player instead of per Cloudflare PoP — see
+  // src/trustProxy.ts for the full rationale and the spoofing analysis.
+  app.set("trust proxy", TRUSTED_PROXY_RANGES);
 
   app.use(express.json({ limit: "1mb" }));
   app.use(requestLogger);

@@ -13,8 +13,9 @@
 #     (setup-bare.sh opens them via ufw).
 #   - the game server listening on 127.0.0.1:8787 (systemd unit
 #     mana-server.service). Caddy forwards X-Forwarded-For and the server
-#     sets `trust proxy: loopback`, so auth rate limiting still sees the real
-#     client IP.
+#     resolves the real client IP through it (loopback + Cloudflare ranges,
+#     see server/src/trustProxy.ts), so auth rate limiting still keys per
+#     player.
 
 {{MANA_API_DOMAIN}} {
 	reverse_proxy 127.0.0.1:8787
