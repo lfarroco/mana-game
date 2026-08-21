@@ -8,8 +8,9 @@
 #      http://127.0.0.1:8787 by default.
 #
 # Optional .env overrides: MANA_SERVER_PORT, MANA_STEAM_APP_IDS,
-# MANA_CORS_ORIGIN. SQLite data lives in the named `mana-data` volume
-# (sessions, ghosts, and ratings survive container restarts).
+# MANA_CORS_ORIGIN, MANA_ITCH_ENABLED. SQLite data lives in the named
+# `mana-data` volume (sessions, ghosts, and ratings survive container
+# restarts and redeploys — see server/README.md §Deployment).
 
 name: mana-game
 
@@ -28,6 +29,7 @@ services:
       MANA_STEAM_WEB_API_KEY: "${MANA_STEAM_WEB_API_KEY:?MANA_STEAM_WEB_API_KEY is required — add it to the root .env file (gitignored)}"
       MANA_STEAM_APP_IDS: "${MANA_STEAM_APP_IDS:-3757600,4233280}"
       MANA_CORS_ORIGIN: "${MANA_CORS_ORIGIN:-*}"
+      MANA_ITCH_ENABLED: "${MANA_ITCH_ENABLED:-false}"
     volumes:
       - mana-data:/data
     healthcheck:

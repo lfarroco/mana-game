@@ -222,13 +222,78 @@ mid-run resumes via `GET /sessions/current` with the combat state intact
 The `Dockerfile` bundles the server **and** the `core/` game logic into a single
 image (core is inlined at build time via the `@game/*` esbuild alias).
 
+### Recommended flow: `docker compose` on the droplet
+
+The root `compose.yaml` is the supported production entry point. It sets
+`MANA_SQLITE_PATH=/data/mana.db` on the named `mana-data` volume, enables the
+health check, and restarts on crash/reboot.
+
+1. **Create an Ubuntu 24.04 droplet** (1 GB is plenty for Node + SQLite) and
+   install Docker Engine + the compose plugin. Add your deploy user to the
+   `docker` group (`sudo usermod -aG docker $USER`) and enable Docker on boot
+   (`sudo systemctl enable --now docker`).
+2. **Clone the repo** — it is private, so add an SSH deploy key or use HTTPS
+   with a fine-grained PAT:
+   ```bash
+   git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
+   ```
+3. **Create `/opt/mana-game/.env`** (gitignored) with your secrets:
+
+   | Var | Value |
+   |---|---|
+   | `MANA_STEAM_WEB_API_KEY` | required — publisher Web API key (registers `POST /auth/steam`) |
+   | `MANA_STEAM_APP_IDS` | default `3757600,4233280` |
+   | `MANA_ITCH_ENABLED` | `true` if the itch.io web build should log in (`POST /auth/itch`) |
+   | `MANA_CORS_ORIGIN` | e.g. `https://lfarroco.itch.io` for the web build |
+   | `MANA_SERVER_PORT` | host port, default `8787` |
+
+4. **Build + start** (the script does `git pull --ff-only`, fails fast on the
+   missing Steam key, `docker compose up -d --build`, then waits for `/health`):
+   ```bash
+   cd /opt/mana-game
+   ./server/scripts/deploy.sh
+   curl http://127.0.0.1:8787/health   # → {"ok":true}
+   ```
+5. **Back up on a schedule** (cron):
+   ```bash
+   0 3 * * * /opt/mana-game/server/scripts/backup.sh --keep 14
+   ```
+   Each run writes a crash-consistent snapshot (better-sqlite3 online backup
+   API — safe under WAL) to `server/data/backups/mana-<ts>.db` on the host.
+   Set `BACKUP_DEST` (e.g. an `rclone` remote pointing at DO Spaces) for an
+   off-box copy. Restore = stop the server, copy the snapshot over
+   `/data/mana.db`, start again.
+
+**Redeploy** is just `./server/scripts/deploy.sh` again — the `mana-data`
+volume keeps sessions, ghosts, ratings, and players across rebuilds.
+
+> ⚠️ **Data survival rules**
+> - `docker compose up -d --build` and `docker compose down` keep `mana-data`.
+> - `docker compose down -v` or `docker volume rm` **destroys it permanently**.
+> - Bare `docker run` without `MANA_SQLITE_PATH` = **in-memory repos** —
+>   every restart loses everything. `compose.yaml` always sets it; do not
+>   bypass compose without it.
+> - SQLite means **one container**: never run two server replicas against the
+>   same `.db` file.
+
+### HTTPS for the web build
+
+The itch.io game page is served over HTTPS; browsers block mixed content, so
+the web build's `MANA_SERVER_URL` must be `https://...`. Front the container
+with Caddy (automatic TLS, `reverse_proxy 127.0.0.1:8787`) or nginx on 443 →
+8787. The Steam Electron build works over plain HTTP and needs no proxy.
+
+### Bare `docker run` (manual alternative)
+
 ```bash
 # from the repo root
 docker build -f server/Dockerfile -t mana-server .
 
-# run (port 8787 exposed)
+# run (port 8787 exposed; SQLite MUST be on a persistent volume)
 docker run -d --name mana-server -p 8787:8787 \
   -e MANA_SERVER_HOST=0.0.0.0 \
+  -e MANA_SQLITE_PATH=/data/mana.db \
+  -v mana-data:/data \
   -e MANA_CORS_ORIGIN="https://your-app.example" \
   mana-server
 
@@ -236,7 +301,7 @@ docker run -d --name mana-server -p 8787:8787 \
 curl http://127.0.0.1:8787/health
 ```
 
-Notes:
+### Notes
 
 - Persistence is **in-memory by default** (restarts lose active sessions);
   set `MANA_SQLITE_PATH` for durable SQLite persistence (see above). The
@@ -246,8 +311,8 @@ Notes:
   SHA-256-hashed with an expiry. The auth endpoints are rate-limited per-IP
   (`express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / window) to prevent ticket
   grinding. Guest accounts are a future phase.
-- `better-sqlite3` is a native module: prebuilt binaries cover common
-  platforms (Node 22 linux/darwin x64+arm64); Docker/alpine builds may need
-  build tools (`python3 make g++`) if no musl prebuild is available.
+- `better-sqlite3` v13 ships prebuilt NAPI binaries in the npm tarball
+  (glibc **and** musl, x64 + arm64) — the alpine runtime image needs no build
+  tools (verified 2026-08-20).
 - `clientActionId` is accepted for forward-compatibility but idempotent
   retries are not yet implemented.

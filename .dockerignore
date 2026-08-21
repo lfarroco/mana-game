@@ -22,6 +22,10 @@ Makefile
 test-results/
 **/.cache/
 
+# Server build outputs & local data (not needed in the image)
+server/data/
+server/dist/
+
 # IDE
 .vscode/
 .idea/
