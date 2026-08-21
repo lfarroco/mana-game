@@ -10,10 +10,12 @@ CONTAINER_NAME=mana-server
 #   MANA_SERVER_PORT=8787
 #   MANA_SQLITE_PATH=server/data/mana.db
 #   MANA_STEAM_APP_IDS=3757600,4233280
+#   MANA_DROPLET=root@<droplet-ip>      (make droplet-deploy)
+#   MANA_API_DOMAIN=api.manabattle.com  (make droplet-setup)
 -include .env
 export
 
-.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary
+.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary droplet-deploy droplet-setup droplet-logs droplet-db-download droplet-db droplet-db-summary
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -162,3 +164,77 @@ server-db-summary:
 	fi; \
 	echo "=== Mana Battle database: $$DB ==="; \
 	sqlite3 "$$DB" "SELECT 'players', COUNT(*) FROM players UNION ALL SELECT 'tokens', COUNT(*) FROM tokens UNION ALL SELECT 'sessions', COUNT(*) FROM sessions UNION ALL SELECT 'combat_states', COUNT(*) FROM combat_states UNION ALL SELECT 'ghosts', COUNT(*) FROM ghosts UNION ALL SELECT 'recently_fought', COUNT(*) FROM recently_fought UNION ALL SELECT 'ratings', COUNT(*) FROM ratings;"
+
+# ---- Droplet deployment (bare systemd server on DigitalOcean) ----
+
+# SSH target for the droplet (override in .env or via MANA_DROPLET=user@host).
+MANA_DROPLET ?= root@143.198.180.95
+# TLS domain used by Caddy on the droplet (setup-bare.sh --domain).
+MANA_API_DOMAIN ?= api.manabattle.com
+
+# Deploy the latest PUSHED code to the droplet. Warns — but proceeds — when
+# there are uncommitted or unpushed local changes, because the droplet deploys
+# whatever is already on origin. SSHes in and runs
+# server/scripts/deploy-bare.sh --build, which does:
+#   git pull --ff-only → npm ci → tsup build (dist/) → render systemd unit →
+#   systemctl restart mana-server → wait for /health
+# The SQLite DB (server/data/mana.db) survives the redeploy, so players and
+# sessions carry over. Run from the repo root.
+droplet-deploy:
+	@if [ -n "$$(git status --porcelain)" ]; then \
+		echo "WARNING: working tree is dirty — uncommitted changes will NOT be deployed (the droplet pulls origin)."; \
+	fi
+	@if [ -n "$$(git log @{u}.. --oneline 2>/dev/null)" ]; then \
+		echo "WARNING: unpushed local commits — deploy the pushed state; run 'git push' first if you meant the latest."; \
+	fi
+	@echo "=== Deploying to $(MANA_DROPLET) ==="
+	ssh "$(MANA_DROPLET)" 'cd /opt/mana-game && ./server/scripts/deploy-bare.sh --build'
+
+# One-shot droplet bootstrap (fresh droplet only): check + install missing
+# pieces (Node, Caddy, ufw firewall, managame user, .env from .env.example,
+# Caddyfile, systemd unit) then run the first deploy. Requires the repo to be
+# cloned at /opt/mana-game and a DNS record pointing at the droplet.
+droplet-setup:
+	@echo "=== One-shot setup on $(MANA_DROPLET) (domain: $(MANA_API_DOMAIN)) ==="
+	ssh "$(MANA_DROPLET)" 'cd /opt/mana-game && ./server/scripts/setup-bare.sh --domain $(MANA_API_DOMAIN)'
+
+# ---- Droplet ops: logs + database ----
+
+# Repo path on the droplet (override in .env or via MANA_DROPLET_APP=/path).
+MANA_DROPLET_APP ?= /opt/mana-game
+
+# Tail the mana-server logs (journald) on the droplet. Follows live by default;
+# pass MANA_LOG_LINES=200 to print the last 200 lines and exit instead.
+droplet-logs:
+	@if [ -n "$${MANA_LOG_LINES:-}" ]; then \
+		echo "=== mana-server: last $${MANA_LOG_LINES} lines ==="; \
+		ssh "$(MANA_DROPLET)" "journalctl -u mana-server -n $${MANA_LOG_LINES} --no-pager" < /dev/null; \
+	else \
+		echo "=== following mana-server logs on $(MANA_DROPLET) (Ctrl-C to stop) ==="; \
+		ssh "$(MANA_DROPLET)" "journalctl -u mana-server -f" < /dev/null; \
+	fi
+
+# Pull a crash-consistent snapshot of the live droplet DB. Runs the repo's
+# better-sqlite3 online backup (server/scripts/backup-bare.sh — safe under WAL,
+# no downtime) on the droplet, then scp's the newest snapshot down into
+# server/data/backups/. Don't copy mana.db directly: with WAL journaling the
+# live data mostly sits in mana.db-wal.
+droplet-db-download:
+	@mkdir -p server/data/backups
+	@ssh "$(MANA_DROPLET)" "cd $(MANA_DROPLET_APP) && ./server/scripts/backup-bare.sh" < /dev/null
+	@SNAP="$$(ssh "$(MANA_DROPLET)" "ls -t $(MANA_DROPLET_APP)/server/data/backups/mana-*.db | head -1" < /dev/null)"; \
+	scp "$(MANA_DROPLET):$${SNAP}" server/data/backups/ >/dev/null && \
+	echo "downloaded $$(basename "$$SNAP") -> server/data/backups/"
+
+# Download a fresh snapshot, then open an interactive sqlite3 shell on the copy
+# (same UX as `make server-db`, but against the live droplet DB).
+droplet-db: droplet-db-download
+	@SNAP="$$(ls -t server/data/backups/mana-*.db | head -1)"; \
+	echo "=== Mana Battle droplet DB: $$SNAP ==="; \
+	echo "--- try: .tables / SELECT * FROM players; .schema sessions; .quit ---"; \
+	sqlite3 "$$SNAP"
+
+# Quick row counts per table, from a fresh droplet snapshot.
+droplet-db-summary: droplet-db-download
+	@SNAP="$$(ls -t server/data/backups/mana-*.db | head -1)"; \
+	sqlite3 "$$SNAP" "SELECT 'players', COUNT(*) FROM players UNION ALL SELECT 'tokens', COUNT(*) FROM tokens UNION ALL SELECT 'sessions', COUNT(*) FROM sessions UNION ALL SELECT 'combat_states', COUNT(*) FROM combat_states UNION ALL SELECT 'ghosts', COUNT(*) FROM ghosts UNION ALL SELECT 'recently_fought', COUNT(*) FROM recently_fought UNION ALL SELECT 'ratings', COUNT(*) FROM ratings;"
