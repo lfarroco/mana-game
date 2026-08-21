@@ -83,4 +83,37 @@ describe("POST /api/v1/auth/steam rate limit", () => {
     const health = await request(app).get("/health");
     expect(health.status).toBe(200);
   });
+
+  it("keys per real client IP behind a local reverse proxy (trust proxy)", async () => {
+    // supertest connects from 127.0.0.1 (loopback), so with `trust proxy:
+    // loopback` in createApp the X-Forwarded-For client IP is honored — each
+    // client gets its own quota instead of sharing one bucket behind Caddy.
+    const app: Express = createApp({
+      steam: { webApiKey: KEY, appIds: APP_IDS },
+      steamFetch,
+      authRateLimitMax: 2,
+      authRateLimitWindowMs: 60_000,
+    });
+
+    const post = (client: string) =>
+      request(app)
+        .post("/api/v1/auth/steam")
+        .set("X-Forwarded-For", client)
+        .send(AUTH_BODY);
+
+    const a1 = await post("203.0.113.10");
+    const b1 = await post("203.0.113.20");
+    expect(a1.status).toBe(200);
+    expect(b1.status).toBe(200);
+
+    // Client A exhausts its own quota; B is untouched (independent buckets).
+    const a2 = await post("203.0.113.10");
+    expect(a2.status).toBe(200);
+    const aLimited = await post("203.0.113.10");
+    expect(aLimited.status).toBe(429);
+    expect(aLimited.body.error).toBe("rate_limited");
+
+    const b2 = await post("203.0.113.20");
+    expect(b2.status).toBe(200);
+  });
 });

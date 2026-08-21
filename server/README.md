@@ -288,62 +288,71 @@ Docker overhead isn't worth it. The server already ships as one bundled file
 supervision. There is no dotenv — config reads `process.env`, so the unit
 loads an `EnvironmentFile`.
 
-1. **Install Node ≥ 22** (Ubuntu 24.04's apt `nodejs` is 18 — use NodeSource):
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && apt-get install -y nodejs
-   node --version   # ≥ v22
-   ```
-2. **Create the service user and clone the repo** (private → SSH deploy key
-   or HTTPS PAT):
-   ```bash
-   useradd -r -m -d /opt/mana-game -s /usr/sbin/nologin managame
-   git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
-   ```
-3. **Create `/opt/mana-game/.env` in systemd format** — bare `KEY=value`
-   lines, **no quotes, no `export`** (systemd's `EnvironmentFile` parser):
-   ```
-   MANA_STEAM_WEB_API_KEY=<publisher Web API key>
-   MANA_ITCH_ENABLED=true
-   MANA_CORS_ORIGIN=https://lfarroco.itch.io
-   MANA_STEAM_APP_IDS=3757600,4233280
-   ```
-   (`MANA_SERVER_HOST=0.0.0.0` and `MANA_SQLITE_PATH` are forced by the unit
-   template and don't need to be in the file.)
-4. **First deploy** (builds dist/ on the droplet — add a 1 GB swap file first
-   on a 512 MB box, or skip `--build` and rsync dist/ from your machine):
-   ```bash
-   cd /opt/mana-game
-   ./server/scripts/deploy-bare.sh --build
-   curl http://127.0.0.1:8787/health   # → {"ok":true}
-   ```
-   The script renders `server/systemd/mana-server.service` →
-   `/etc/systemd/system/` (substituting the repo path + service user), enables
-   it, restarts, and waits for `/health`. SQLite lives at
-   `server/data/mana.db` on the host filesystem and survives every redeploy.
-5. **Subsequent deploys** — build dist/ on your dev machine, rsync it over,
-   then:
-   ```bash
-   cd /opt/mana-game
-   ./server/scripts/deploy-bare.sh    # git pull + npm ci --omit=dev + restart
-   ```
-6. **Back up on a schedule** (cron):
-   ```bash
-   0 3 * * * /opt/mana-game/server/scripts/backup-bare.sh --keep 14
-   ```
-   Writes a crash-consistent snapshot (better-sqlite3 online backup API) to
-   `server/data/backups/mana-<ts>.db`. Restore = stop the service, copy the
-   snapshot over `server/data/mana.db`, `systemctl start mana-server`.
+**One-shot setup** (recommended): clone the repo, point a DNS record at the
+droplet, then run as root:
+
+```bash
+git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
+cd /opt/mana-game
+./server/scripts/setup-bare.sh            # --domain api.manabattle.com [--no-firewall]
+```
+
+`setup-bare.sh` is idempotent — it checks the droplet and installs whatever is
+missing: `curl`/`git`/`ca-certificates`, **Node ≥ 22** (NodeSource), **Caddy**
+(TLS on 80/443 → `127.0.0.1:8787`), the `managame` service user, the ufw
+firewall (22/80/443), and the `server/Caddyfile` template rendered to
+`/etc/caddy/Caddyfile`. If `.env` doesn't exist it is created from
+`.env.example` (bare `KEY=value`, **no quotes, no `export`** — systemd's
+`EnvironmentFile` parser) and the script exits so you can fill in
+`MANA_STEAM_WEB_API_KEY` and re-run. Finally it runs `deploy-bare.sh --build`
+(first build + systemd unit + `/health` wait). Add a 1 GB swap file first on a
+512 MB box, or skip `--build` and rsync `dist/` from your machine instead.
+
+After the one-shot setup, the DB lives at `server/data/mana.db` on the host
+filesystem and survives every redeploy. **Subsequent deploys** — build dist/
+on your dev machine, rsync it over, then:
+
+```bash
+cd /opt/mana-game
+./server/scripts/deploy-bare.sh    # git pull + npm ci --omit=dev + restart
+```
+
+**Back up on a schedule** (cron):
+
+```bash
+0 3 * * * /opt/mana-game/server/scripts/backup-bare.sh --keep 14
+```
+
+Writes a crash-consistent snapshot (better-sqlite3 online backup API) to
+`server/data/backups/mana-<ts>.db`. Restore = stop the service, copy the
+snapshot over `server/data/mana.db`, `systemctl start mana-server`.
 
 Useful commands: `systemctl status mana-server`, `journalctl -u mana-server -f`,
 `systemctl restart mana-server`.
 
-### HTTPS for the web build
+### HTTPS, TLS, and pointing clients at the droplet
 
 The itch.io game page is served over HTTPS; browsers block mixed content, so
-the web build's `MANA_SERVER_URL` must be `https://...`. Front the server
-(container or bare) with Caddy (automatic TLS, `reverse_proxy 127.0.0.1:8787`)
-or nginx on 443 → 8787. The Steam Electron build works over plain HTTP and
-needs no proxy.
+the web build's API URL must be `https://…`. The bare setup uses **Caddy**
+(auto Let's Encrypt certs) via `server/Caddyfile` → `/etc/caddy/Caddyfile`
+(`reverse_proxy 127.0.0.1:8787`). The DNS record can be DNS-only (grey cloud);
+if the record is proxied by Cloudflare, keep SSL mode at "Full (strict)". The
+Steam Electron build works over plain HTTP too, but pointing it at the same
+`https://` URL keeps one config for both.
+
+- **Clients are built with `MANA_SERVER_URL`** (webpack DefinePlugin; empty
+  string falls back to `http://127.0.0.1:8787`). Point both builds at the
+  droplet, e.g.:
+  ```bash
+  MANA_SERVER_URL=https://api.manabattle.com npm run build
+  ```
+- **The server trusts a local reverse proxy** (`app.set("trust proxy",
+  "loopback")`), so Caddy's `X-Forwarded-For` gives the auth rate limiter the
+  real client IP — without it, every player behind the proxy would share one
+  rate-limit bucket. Direct public hits to :8787 are *not* trusted (loopback
+  only), so the header can't be spoofed; optionally firewall :8787 to localhost.
+- **CORS stays `*`** — it reflects the *page* origin (the itch.io game page),
+  not the API host, so the domain change doesn't affect it.
 
 ### Bare `docker run` (manual alternative)
 

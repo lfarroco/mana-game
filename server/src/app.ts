@@ -112,6 +112,12 @@ export function createApp(deps: AppDeps = {}): express.Express {
 
   const app = express();
 
+  // Behind a local reverse proxy (Caddy, bare deployment) the immediate peer
+  // is 127.0.0.1 — trust its X-Forwarded-For so req.ip (rate limiting) sees
+  // the real client IP. "loopback" only trusts the loopback subnet, so direct
+  // public hits to :8787 can't spoof the header.
+  app.set("trust proxy", "loopback");
+
   app.use(express.json({ limit: "1mb" }));
   app.use(requestLogger);
   app.use(corsMiddleware(deps.corsOrigin ?? "*"));
