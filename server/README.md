@@ -220,16 +220,20 @@ mid-run resumes via `GET /sessions/current` with the combat state intact
 ## Deployment (DigitalOcean VM)
 
 The `Dockerfile` bundles the server **and** the `core/` game logic into a single
-image (core is inlined at build time via the `@game/*` esbuild alias).
+image (core is inlined at build time via the `@game/*` esbuild alias). There are
+two supported droplet paths: **`docker compose`** (below) and a **bare systemd
+install** (no Docker) for tiny droplets.
 
-### Recommended flow: `docker compose` on the droplet
+### Docker flow: `docker compose` on the droplet
 
 The root `compose.yaml` is the supported production entry point. It sets
 `MANA_SQLITE_PATH=/data/mana.db` on the named `mana-data` volume, enables the
 health check, and restarts on crash/reboot.
 
-1. **Create an Ubuntu 24.04 droplet** (1 GB is plenty for Node + SQLite) and
-   install Docker Engine + the compose plugin. Add your deploy user to the
+1. **Create an Ubuntu 24.04 droplet** (1 GB is plenty for Node + SQLite — the
+   $4 512 MB size can OOM during `npm install`/`tsup` in the Docker build; add
+   a 1 GB swap file or use the 1 GB size) and install Docker Engine + the
+   compose plugin. Add your deploy user to the
    `docker` group (`sudo usermod -aG docker $USER`) and enable Docker on boot
    (`sudo systemctl enable --now docker`).
 2. **Clone the repo** — it is private, so add an SSH deploy key or use HTTPS
@@ -276,12 +280,70 @@ volume keeps sessions, ghosts, ratings, and players across rebuilds.
 > - SQLite means **one container**: never run two server replicas against the
 >   same `.db` file.
 
+### Bare systemd flow (no Docker)
+
+For a small droplet (e.g. the $4 512 MB size) running a single Node process,
+Docker overhead isn't worth it. The server already ships as one bundled file
+(`npm run build` → `dist/index.js` with `core/` inlined), and systemd does the
+supervision. There is no dotenv — config reads `process.env`, so the unit
+loads an `EnvironmentFile`.
+
+1. **Install Node ≥ 22** (Ubuntu 24.04's apt `nodejs` is 18 — use NodeSource):
+   ```bash
+   curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && apt-get install -y nodejs
+   node --version   # ≥ v22
+   ```
+2. **Create the service user and clone the repo** (private → SSH deploy key
+   or HTTPS PAT):
+   ```bash
+   useradd -r -m -d /opt/mana-game -s /usr/sbin/nologin managame
+   git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
+   ```
+3. **Create `/opt/mana-game/.env` in systemd format** — bare `KEY=value`
+   lines, **no quotes, no `export`** (systemd's `EnvironmentFile` parser):
+   ```
+   MANA_STEAM_WEB_API_KEY=<publisher Web API key>
+   MANA_ITCH_ENABLED=true
+   MANA_CORS_ORIGIN=https://lfarroco.itch.io
+   MANA_STEAM_APP_IDS=3757600,4233280
+   ```
+   (`MANA_SERVER_HOST=0.0.0.0` and `MANA_SQLITE_PATH` are forced by the unit
+   template and don't need to be in the file.)
+4. **First deploy** (builds dist/ on the droplet — add a 1 GB swap file first
+   on a 512 MB box, or skip `--build` and rsync dist/ from your machine):
+   ```bash
+   cd /opt/mana-game
+   ./server/scripts/deploy-bare.sh --build
+   curl http://127.0.0.1:8787/health   # → {"ok":true}
+   ```
+   The script renders `server/systemd/mana-server.service` →
+   `/etc/systemd/system/` (substituting the repo path + service user), enables
+   it, restarts, and waits for `/health`. SQLite lives at
+   `server/data/mana.db` on the host filesystem and survives every redeploy.
+5. **Subsequent deploys** — build dist/ on your dev machine, rsync it over,
+   then:
+   ```bash
+   cd /opt/mana-game
+   ./server/scripts/deploy-bare.sh    # git pull + npm ci --omit=dev + restart
+   ```
+6. **Back up on a schedule** (cron):
+   ```bash
+   0 3 * * * /opt/mana-game/server/scripts/backup-bare.sh --keep 14
+   ```
+   Writes a crash-consistent snapshot (better-sqlite3 online backup API) to
+   `server/data/backups/mana-<ts>.db`. Restore = stop the service, copy the
+   snapshot over `server/data/mana.db`, `systemctl start mana-server`.
+
+Useful commands: `systemctl status mana-server`, `journalctl -u mana-server -f`,
+`systemctl restart mana-server`.
+
 ### HTTPS for the web build
 
 The itch.io game page is served over HTTPS; browsers block mixed content, so
-the web build's `MANA_SERVER_URL` must be `https://...`. Front the container
-with Caddy (automatic TLS, `reverse_proxy 127.0.0.1:8787`) or nginx on 443 →
-8787. The Steam Electron build works over plain HTTP and needs no proxy.
+the web build's `MANA_SERVER_URL` must be `https://...`. Front the server
+(container or bare) with Caddy (automatic TLS, `reverse_proxy 127.0.0.1:8787`)
+or nginx on 443 → 8787. The Steam Electron build works over plain HTTP and
+needs no proxy.
 
 ### Bare `docker run` (manual alternative)
 

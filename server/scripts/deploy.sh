@@ -32,6 +32,22 @@ if ! docker info >/dev/null 2>&1; then
   exit 1
 fi
 
+# 0b. The Compose v2 plugin is a separate install. Without it `docker compose`
+#     fails with a cryptic "unknown shorthand flag: 'd' in -d" — fail early
+#     with the fix instead.
+if ! docker compose version >/dev/null 2>&1; then
+  echo "ERROR: the Docker Compose v2 plugin is not installed." >&2
+  echo "  As root, either:" >&2
+  echo "    apt-get install docker-compose-plugin   # only if Docker came from docker.com's apt repo" >&2
+  echo "  or install the standalone plugin binary:" >&2
+  echo "    mkdir -p /usr/local/lib/docker/cli-plugins" >&2
+  echo "    curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \\" >&2
+  echo "      -o /usr/local/lib/docker/cli-plugins/docker-compose" >&2
+  echo "    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose" >&2
+  echo "    docker compose version   # verify" >&2
+  exit 1
+fi
+
 # 1. Pull latest from origin (ff-only so a divergent checkout fails loudly
 #    instead of silently merging).
 git pull --ff-only

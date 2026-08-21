@@ -1,0 +1,40 @@
+# Mana Battle multiplayer game server — systemd unit (bare, no Docker).
+#
+# This is a TEMPLATE: `server/scripts/deploy-bare.sh` substitutes {{REPO_ROOT}}
+# and {{SERVICE_USER}} and writes the result to /etc/systemd/system/mana-server.service.
+#
+# Requirements:
+#   - {{REPO_ROOT}}/.env in systemd EnvironmentFile format: bare KEY=value lines
+#     (no quotes, no `export`). MANA_SERVER_HOST and MANA_SQLITE_PATH are forced
+#     below so the unit is self-contained; every other var comes from the file.
+#   - server/ is built (dist/index.js) and production deps installed
+#     (npm ci --omit=dev).
+#   - {{SERVICE_USER}} owns {{REPO_ROOT}}/server/data (SQLite writes).
+
+[Unit]
+Description=Mana Battle multiplayer game server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory={{REPO_ROOT}}/server
+EnvironmentFile={{REPO_ROOT}}/.env
+Environment=MANA_SERVER_HOST=0.0.0.0
+Environment=MANA_SQLITE_PATH={{REPO_ROOT}}/server/data/mana.db
+ExecStart=/usr/bin/node dist/index.js
+Restart=always
+RestartSec=3
+
+User={{SERVICE_USER}}
+Group={{SERVICE_USER}}
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{REPO_ROOT}}/server/data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
