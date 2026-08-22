@@ -1,4 +1,10 @@
-import { createSession, deleteSession, getSession, LOCAL_PLAYER_ID, STORAGE_PREFIX } from "./SessionManager";
+import {
+	createSession,
+	deleteSession,
+	getSession,
+	LOCAL_PLAYER_ID,
+	STORAGE_PREFIX,
+} from "./SessionManager";
 
 describe("SessionManager", () => {
 	beforeEach(() => {

@@ -407,9 +407,7 @@ describe("Reaction — enemy heal triggers shield (cross-force)", () => {
 
     // The Leech's reaction fired when the enemy healed.
     const reactionLogs = filterLogs(logs, "reaction");
-    expect(
-      reactionLogs.some((l) => l.unitId === "leech-react"),
-    ).toBe(true);
+    expect(reactionLogs.some((l) => l.unitId === "leech-react")).toBe(true);
 
     // The shield landed on the PLAYER core — the enemy heal granted OUR crystal shield.
     const playerCore = combatState.units.find(

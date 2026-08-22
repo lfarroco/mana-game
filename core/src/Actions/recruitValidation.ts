@@ -4,7 +4,8 @@ import type { Vec2 } from "../math/Geometry";
 import * as geom from "../math/Geometry";
 
 export type RecruitCheckResult =
-  { ok: true; wasUpgrade: boolean } | { ok: false; reason: "PARTY_FULL" | "SLOT_OCCUPIED" };
+  | { ok: true; wasUpgrade: boolean }
+  | { ok: false; reason: "PARTY_FULL" | "SLOT_OCCUPIED" };
 
 /**
  * Client-side pre-validation mirroring the server's recruit rules, so the shop

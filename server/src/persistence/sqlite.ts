@@ -208,8 +208,7 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
       const session = parseSessionJson(row.session_json);
       if (session.phase === "combat") {
         const combatRow = getCombatStmt.get(session.id) as
-          | { combat_json: string }
-          | undefined;
+          { combat_json: string } | undefined;
         if (combatRow) {
           session.combatState = CombatCodec.deserializeCombatState(
             JSON.parse(combatRow.combat_json) as CombatCodec.CombatStateDto,
@@ -257,8 +256,7 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
   return {
     findByProvider: (provider, providerId) => {
       const row = findByProviderStmt.get(provider, providerId) as
-        | PlayerRow
-        | undefined;
+        PlayerRow | undefined;
       return row ? rowToPlayer(row) : null;
     },
     findById: (playerId) => {
@@ -319,7 +317,6 @@ export function createSqliteTokenRepo(db: Database.Database): TokenRepo {
     },
   };
 }
-
 
 /**
  * Ghost repository — round-addressable snapshots plus the per-player
@@ -434,7 +431,9 @@ export function createSqliteRatingRepo(db: Database.Database): RatingRepo {
  * guard the in-memory repo uses); the `(player_id, completed_at)` index makes
  * season-window counts a range scan.
  */
-export function createSqlitePlayerStatsRepo(db: Database.Database): PlayerStatsRepo {
+export function createSqlitePlayerStatsRepo(
+  db: Database.Database,
+): PlayerStatsRepo {
   const insertStmt = db.prepare(
     `INSERT INTO run_completions (session_id, player_id, tier, wins, completed_at)
      VALUES (?, ?, ?, ?, ?)
@@ -464,7 +463,11 @@ export function createSqlitePlayerStatsRepo(db: Database.Database): PlayerStatsR
       }[];
       const counts: VictoryCounts = { bronze: 0, silver: 0, gold: 0 };
       for (const row of rows) {
-        if (row.tier === "bronze" || row.tier === "silver" || row.tier === "gold") {
+        if (
+          row.tier === "bronze" ||
+          row.tier === "silver" ||
+          row.tier === "gold"
+        ) {
           counts[row.tier] = row.count;
         }
       }
@@ -526,4 +529,3 @@ type RatingRow = {
   rating: number;
   updated_at: number;
 };
-

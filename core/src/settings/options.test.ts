@@ -54,14 +54,18 @@ describe("parseStoredOptions", () => {
   });
 
   it("returns only the valid fields of a partial object", () => {
-    expect(parseStoredOptions(JSON.stringify({ speed: 2, sound: true }))).toEqual({
+    expect(
+      parseStoredOptions(JSON.stringify({ speed: 2, sound: true })),
+    ).toEqual({
       speed: 2,
       sound: true,
     });
     expect(parseStoredOptions(JSON.stringify({ music: false }))).toEqual({
       music: false,
     });
-    expect(parseStoredOptions(JSON.stringify({ unknownField: "x" }))).toEqual({});
+    expect(parseStoredOptions(JSON.stringify({ unknownField: "x" }))).toEqual(
+      {},
+    );
   });
 
   it("keeps boundary values that are valid (0 and 1 volumes, speed above 0)", () => {

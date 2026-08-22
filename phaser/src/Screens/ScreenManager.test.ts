@@ -161,8 +161,7 @@ describe("createScreenManager", () => {
 			options: {
 				go,
 				currentPhase,
-				mapDeepLink: (params: unknown) =>
-					(params as { tab?: string }).tab ?? null,
+				mapDeepLink: (params: unknown) => (params as { tab?: string }).tab ?? null,
 			},
 		});
 

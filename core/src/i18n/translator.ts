@@ -18,7 +18,8 @@ export const LOCALE_NATIVE_NAMES: Record<string, string> = {
   ru: "Русский",
 };
 
-export const getNativeName = (locale: string): string => LOCALE_NATIVE_NAMES[locale] || locale;
+export const getNativeName = (locale: string): string =>
+  LOCALE_NATIVE_NAMES[locale] || locale;
 
 /**
  * Pure translation engine. The current locale is read through an injected

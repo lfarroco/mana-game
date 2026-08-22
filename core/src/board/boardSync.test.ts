@@ -10,7 +10,10 @@ function makeTeamUnit(
   position: [number, number],
   overrides: Partial<Unit> = {},
 ): Unit {
-  return { ...Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, position), ...overrides };
+  return {
+    ...Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, position),
+    ...overrides,
+  };
 }
 
 function rendered(id: string, power: number, rank: number): RenderedUnitState {
@@ -37,7 +40,10 @@ describe("planBoardSync", () => {
   it("summons team units that have no rendered chara yet", () => {
     const unitA = makeTeamUnit("void_witch", [0, 0], { id: "a" });
     const unitB = makeTeamUnit("living_armor", [1, 0], { id: "b" });
-    const plan = planBoardSync([unitA, unitB], [rendered("a", unitA.power, unitA.rank)]);
+    const plan = planBoardSync(
+      [unitA, unitB],
+      [rendered("a", unitA.power, unitA.rank)],
+    );
     expect(plan.toSummon).toEqual([unitB]);
     expect(plan.toDestroy).toEqual([]);
     expect(plan.toRefresh).toEqual([]);
@@ -45,7 +51,10 @@ describe("planBoardSync", () => {
 
   it("refreshes a rendered chara when power drifted", () => {
     const unit = makeTeamUnit("void_witch", [0, 0], { id: "a" });
-    const plan = planBoardSync([unit], [rendered("a", unit.power + 10, unit.rank)]);
+    const plan = planBoardSync(
+      [unit],
+      [rendered("a", unit.power + 10, unit.rank)],
+    );
     expect(plan.toRefresh).toEqual([unit]);
     expect(plan.toDestroy).toEqual([]);
     expect(plan.toSummon).toEqual([]);
@@ -53,7 +62,10 @@ describe("planBoardSync", () => {
 
   it("refreshes a rendered chara when rank drifted", () => {
     const unit = makeTeamUnit("void_witch", [0, 0], { id: "a" });
-    const plan = planBoardSync([unit], [rendered("a", unit.power, unit.rank + 1)]);
+    const plan = planBoardSync(
+      [unit],
+      [rendered("a", unit.power, unit.rank + 1)],
+    );
     expect(plan.toRefresh).toEqual([unit]);
     expect(plan.toDestroy).toEqual([]);
     expect(plan.toSummon).toEqual([]);
@@ -68,7 +80,11 @@ describe("planBoardSync", () => {
   });
 
   it("returns an empty plan for empty inputs", () => {
-    expect(planBoardSync([], [])).toEqual({ toDestroy: [], toSummon: [], toRefresh: [] });
+    expect(planBoardSync([], [])).toEqual({
+      toDestroy: [],
+      toSummon: [],
+      toRefresh: [],
+    });
   });
 
   it("keeps identical units out of every list even when the diff has work to do", () => {

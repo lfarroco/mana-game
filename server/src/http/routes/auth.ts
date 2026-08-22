@@ -86,4 +86,3 @@ export function authRouter(deps: {
 
   return router;
 }
-

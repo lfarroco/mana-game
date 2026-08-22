@@ -27,11 +27,13 @@ function createMemoryStorage(): StorageProvider {
 	};
 }
 
-function createFetchMock(overrides: {
-	ok?: boolean;
-	status?: number;
-	body?: unknown;
-} = {}) {
+function createFetchMock(
+	overrides: {
+		ok?: boolean;
+		status?: number;
+		body?: unknown;
+	} = {}
+) {
 	return jest.fn(async (_url: unknown, _init: unknown) => {
 		return {
 			ok: overrides.ok ?? true,
@@ -146,9 +148,7 @@ describe("steamAuth client", () => {
 			isSteamAvailable: steamAvailable,
 		});
 
-		await expect(client.loginWithSteam()).rejects.toThrow(
-			/Failed to obtain a Steam auth ticket/
-		);
+		await expect(client.loginWithSteam()).rejects.toThrow(/Failed to obtain a Steam auth ticket/);
 		expect(storage.getItem(AUTH_STORAGE_KEY)).toBeNull();
 	});
 
@@ -166,9 +166,7 @@ describe("steamAuth client", () => {
 			isSteamAvailable: steamAvailable,
 		});
 
-		await expect(client.loginWithSteam()).rejects.toThrow(
-			/invalid_steam_ticket/
-		);
+		await expect(client.loginWithSteam()).rejects.toThrow(/invalid_steam_ticket/);
 		expect(storage.getItem(AUTH_STORAGE_KEY)).toBeNull();
 	});
 

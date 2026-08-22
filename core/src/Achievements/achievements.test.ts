@@ -28,7 +28,9 @@ describe("getVictoryTier", () => {
 describe("getAchievementId", () => {
   it("builds the achievement id from crystal and tier", () => {
     expect(getAchievementId("mana_crystal", "gold")).toBe("GOLD_MANA_CRYSTAL");
-    expect(getAchievementId("critical_crystal", "silver")).toBe("SILVER_CRITICAL_CRYSTAL");
+    expect(getAchievementId("critical_crystal", "silver")).toBe(
+      "SILVER_CRITICAL_CRYSTAL",
+    );
   });
 });
 
@@ -45,7 +47,9 @@ describe("getAchievementUnlocks", () => {
   });
 
   it("unlocks bronze at 5 wins", () => {
-    expect(getAchievementUnlocks(5, "mana_crystal", enabled)).toEqual(["BRONZE_MANA_CRYSTAL"]);
+    expect(getAchievementUnlocks(5, "mana_crystal", enabled)).toEqual([
+      "BRONZE_MANA_CRYSTAL",
+    ]);
   });
 
   it("unlocks bronze + silver at 8 wins", () => {

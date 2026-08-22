@@ -49,11 +49,7 @@ type BeamGroup = {
  * outer rects of each group slide outward (the center stays), widening the
  * beam. Width and outward speed vary per group for a more organic look.
  */
-export async function beamSummonEffect(
-	{ x, y }: { x: number; y: number },
-	onImpact?: () => void
-) {
-
+export async function beamSummonEffect({ x, y }: { x: number; y: number }, onImpact?: () => void) {
 	const {
 		DESCEND_DURATION,
 		HOLD_DURATION,
@@ -85,19 +81,41 @@ export async function beamSummonEffect(
 	const beamGroups: BeamGroup[] = [];
 	for (let g = 0; g < BEAM_GROUP_COUNT; g++) {
 		const width = BEAM_WIDTH + Phaser.Math.FloatBetween(-BEAM_WIDTH_JITTER, BEAM_WIDTH_JITTER);
-		const spread = width * Phaser.Math.FloatBetween(
-			OUTWARD_SPREAD - OUTWARD_SPREAD_JITTER,
-			OUTWARD_SPREAD + OUTWARD_SPREAD_JITTER
-		);
-		const outwardDuration = OUTWARD_DURATION + Phaser.Math.FloatBetween(
-			-OUTWARD_DURATION_JITTER,
-			OUTWARD_DURATION_JITTER
-		);
+		const spread =
+			width *
+			Phaser.Math.FloatBetween(
+				OUTWARD_SPREAD - OUTWARD_SPREAD_JITTER,
+				OUTWARD_SPREAD + OUTWARD_SPREAD_JITTER
+			);
+		const outwardDuration =
+			OUTWARD_DURATION +
+			Phaser.Math.FloatBetween(-OUTWARD_DURATION_JITTER, OUTWARD_DURATION_JITTER);
 		const heightJitter = () => Math.random() * 50;
 
-		const left = scene.add.rectangle(x, topY, width, beamHeight + heightJitter(), 0xffffff, BEAM_ALPHA);
-		const center = scene.add.rectangle(x, topY, width, beamHeight + heightJitter(), 0xffffff, BEAM_ALPHA);
-		const right = scene.add.rectangle(x, topY, width, beamHeight + heightJitter(), 0xffffff, BEAM_ALPHA);
+		const left = scene.add.rectangle(
+			x,
+			topY,
+			width,
+			beamHeight + heightJitter(),
+			0xffffff,
+			BEAM_ALPHA
+		);
+		const center = scene.add.rectangle(
+			x,
+			topY,
+			width,
+			beamHeight + heightJitter(),
+			0xffffff,
+			BEAM_ALPHA
+		);
+		const right = scene.add.rectangle(
+			x,
+			topY,
+			width,
+			beamHeight + heightJitter(),
+			0xffffff,
+			BEAM_ALPHA
+		);
 		[left, center, right].forEach((rect) => {
 			rect.setBlendMode(Phaser.BlendModes.ADD);
 			rect.setOrigin(0.5, 0);
@@ -134,7 +152,9 @@ export async function beamSummonEffect(
 			alpha: 0,
 			duration: 900 + FADE_DURATION + HOLD_DURATION,
 			ease: "Cubic.easeOut",
-			onComplete: () => { rect.destroy(); },
+			onComplete: () => {
+				rect.destroy();
+			},
 		});
 	}
 

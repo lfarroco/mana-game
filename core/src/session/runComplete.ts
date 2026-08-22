@@ -10,9 +10,12 @@ export function buildRunCompleteSession(
   phase: "game_over" | "victory",
   opts: RunCompleteOptions,
 ): SessionData {
-  const wins = opts.wins ?? (current.wins > 0 ? current.wins : phase === "victory" ? 12 : 6);
+  const wins =
+    opts.wins ??
+    (current.wins > 0 ? current.wins : phase === "victory" ? 12 : 6);
   const losses =
-    opts.losses ?? (phase === "game_over" ? Math.max(current.losses, 4) : current.losses);
+    opts.losses ??
+    (phase === "game_over" ? Math.max(current.losses, 4) : current.losses);
 
   return {
     ...current,

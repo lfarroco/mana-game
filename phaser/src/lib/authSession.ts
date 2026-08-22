@@ -37,9 +37,7 @@ export const DEFAULT_SERVER_URL = "http://127.0.0.1:8787";
 /** Game-server base URL from the build-time define (fallback: localhost). */
 export function readServerUrl(): string {
 	const fromEnv =
-		typeof process !== "undefined" && process.env
-			? process.env.MANA_SERVER_URL
-			: undefined;
+		typeof process !== "undefined" && process.env ? process.env.MANA_SERVER_URL : undefined;
 	return fromEnv && fromEnv.trim() !== "" ? fromEnv : DEFAULT_SERVER_URL;
 }
 
@@ -76,10 +74,7 @@ export function parseSessionPayload(payload: unknown): AuthSession {
 			playerId: player.playerId,
 			provider: player.provider,
 			providerId: player.providerId,
-			displayName:
-				typeof player.displayName === "string"
-					? player.displayName
-					: undefined,
+			displayName: typeof player.displayName === "string" ? player.displayName : undefined,
 		},
 	};
 }
@@ -93,9 +88,7 @@ export type AuthSessionStore = {
 	getBearerToken(): string | null;
 };
 
-export function createAuthSessionStore(
-	provider: StorageProvider,
-): AuthSessionStore {
+export function createAuthSessionStore(provider: StorageProvider): AuthSessionStore {
 	const readStoredSession = (): AuthSession | null => {
 		const raw = provider.getItem(AUTH_STORAGE_KEY);
 		if (!raw) return null;

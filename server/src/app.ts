@@ -101,7 +101,8 @@ export function createApp(deps: AppDeps = {}): express.Express {
   const repo = deps.repo ?? sqlite?.sessionRepo ?? createMemorySessionRepo();
   const playerRepo =
     deps.playerRepo ?? sqlite?.playerRepo ?? createMemoryPlayerRepo();
-  const tokenRepo = deps.tokenRepo ?? sqlite?.tokenRepo ?? createMemoryTokenRepo();
+  const tokenRepo =
+    deps.tokenRepo ?? sqlite?.tokenRepo ?? createMemoryTokenRepo();
   const ghostRepo =
     deps.ghostRepo ?? sqlite?.ghostRepo ?? createMemoryGhostRepo();
   const ratingRepo =
@@ -168,7 +169,12 @@ export function createApp(deps: AppDeps = {}): express.Express {
   app.use(
     "/api/v1/players",
     requireAuth({ tokenRepo }),
-    playersRouter({ playerRepo, ratingRepo, playerStatsRepo, sessionRepo: repo }),
+    playersRouter({
+      playerRepo,
+      ratingRepo,
+      playerStatsRepo,
+      sessionRepo: repo,
+    }),
   );
 
   // Global error handler (must be last)

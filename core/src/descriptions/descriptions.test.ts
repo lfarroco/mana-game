@@ -56,7 +56,11 @@ describe("descriptions", () => {
     });
 
     it("formats haste duration in seconds (non-compact)", () => {
-      const effect = { id: "haste", duration: 1500, targets: { id: "self" } } as unknown as Effect;
+      const effect = {
+        id: "haste",
+        duration: 1500,
+        targets: { id: "self" },
+      } as unknown as Effect;
       const result = buildEffectBlock(effect, 5, fakeT, false);
       expect(result).toContain("Haste 1.5s");
     });
@@ -73,7 +77,11 @@ describe("descriptions", () => {
 
   describe("buildCompactEffectBlock", () => {
     it("marks permanent increase_power with an asterisk", () => {
-      const effect = { id: "increase_power", amount: 5, permanent: true } as unknown as Effect;
+      const effect = {
+        id: "increase_power",
+        amount: 5,
+        permanent: true,
+      } as unknown as Effect;
       const result = buildCompactEffectBlock(effect, 5, fakeT);
       expect(result).toContain("+5*");
     });

@@ -13,7 +13,7 @@ const PANEL_HEIGHT = 420;
  */
 export function create(
 	profile: MultiplayerProfile,
-	position: [number, number],
+	position: [number, number]
 ): Phaser.GameObjects.Container {
 	const [x, y] = position;
 
@@ -22,7 +22,7 @@ export function create(
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
 		theme.UI_SURFACE_COLOR,
-		theme.UI_SURFACE_ALPHA,
+		theme.UI_SURFACE_ALPHA
 	);
 
 	const header = env.scene.add
@@ -55,14 +55,7 @@ export function create(
 		})
 		.setOrigin(0.5);
 
-	const divider = env.scene.add.rectangle(
-		x,
-		y + 40,
-		PANEL_WIDTH - 160,
-		2,
-		0xffffff,
-		0.15,
-	);
+	const divider = env.scene.add.rectangle(x, y + 40, PANEL_WIDTH - 160, 2, 0xffffff, 0.15);
 
 	const ratingLabel = env.scene.add
 		.text(x, y + 80, i18n.t("lobby.rating"), {

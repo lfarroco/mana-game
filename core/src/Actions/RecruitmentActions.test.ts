@@ -126,9 +126,9 @@ describe("RecruitmentActions", () => {
       expect(result.team.units[0].power).toBe(20);
       expect(result.team.units[0].maxLife).toBe(150);
       expect(result.team.units[0].life).toBe(150);
-      expect((result.team.units[0].effects[0] as { amount: number }).amount).toBe(
-        4,
-      );
+      expect(
+        (result.team.units[0].effects[0] as { amount: number }).amount,
+      ).toBe(4);
     });
 
     it("places unit at target slot when provided", () => {

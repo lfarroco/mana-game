@@ -177,7 +177,7 @@ export default (clientState: ClientState) =>
 						title: TitleScreen,
 						battleground: BattlegroundScreen,
 						crystals: CrystalSelectionScreen,
-					multiplayer_lobby: MultiplayerLobbyScreen,
+						multiplayer_lobby: MultiplayerLobbyScreen,
 
 						options: OptionsScreen,
 					},

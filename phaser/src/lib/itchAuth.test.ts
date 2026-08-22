@@ -34,11 +34,13 @@ function createMemoryStorage(): StorageProvider {
 	};
 }
 
-function createFetchMock(overrides: {
-	ok?: boolean;
-	status?: number;
-	body?: unknown;
-} = {}) {
+function createFetchMock(
+	overrides: {
+		ok?: boolean;
+		status?: number;
+		body?: unknown;
+	} = {}
+) {
 	return jest.fn(async (_url: unknown, _init: unknown) => {
 		return {
 			ok: overrides.ok ?? true,
@@ -64,20 +66,18 @@ function callsOf(fetchMock: jest.Mock): FetchCall[] {
 }
 
 /** Base deps for login tests: configured client id, no query token. */
-function baseDeps(
-	overrides: Partial<Parameters<typeof createItchAuthClient>[0]> = {},
-) {
+function baseDeps(overrides: Partial<Parameters<typeof createItchAuthClient>[0]> = {}) {
 	return {
 		storage: createMemoryStorage(),
 		fetch: createFetchMock() as unknown as typeof fetch,
 		serverUrl: DEFAULT_SERVER_URL,
 		clientId: "client-1",
 		redirectUri: "https://game.example/mana-battle",
-		openWindow: (() => ({} as Window)) as (url: string) => Window | null,
+		openWindow: (() => ({}) as Window) as (url: string) => Window | null,
 		readQueryToken: () => null,
 		waitForPopupMessage: (async (state: string) => state) as (
 			state: string,
-			timeoutMs?: number,
+			timeoutMs?: number
 		) => Promise<string>,
 		generateState: () => "nonce-123",
 		redirect: (() => {}) as (url: string) => void,
@@ -98,9 +98,7 @@ describe("buildItchAuthUrl", () => {
 		expect(parsed.searchParams.get("client_id")).toBe("client-1");
 		expect(parsed.searchParams.get("scope")).toBe("profile:me");
 		expect(parsed.searchParams.get("response_type")).toBe("token");
-		expect(parsed.searchParams.get("redirect_uri")).toBe(
-			"https://lfarroco.itch.io/mana-battle",
-		);
+		expect(parsed.searchParams.get("redirect_uri")).toBe("https://lfarroco.itch.io/mana-battle");
 		expect(parsed.searchParams.get("state")).toBe("abc");
 	});
 });
@@ -147,7 +145,7 @@ describe("handleOAuthCallback", () => {
 		expect(replace).toHaveBeenCalledWith("https://game.example/mana-battle");
 		expect(postMessage).toHaveBeenCalledWith(
 			{ type: ITCH_AUTH_MESSAGE_TYPE, token: "tok", state: "abc" },
-			"https://game.example",
+			"https://game.example"
 		);
 		expect(close).toHaveBeenCalled();
 		expect(stash).not.toHaveBeenCalled();
@@ -171,7 +169,7 @@ describe("handleOAuthCallback", () => {
 		expect(handled).toBe(true);
 		expect(postMessage).toHaveBeenCalledWith(
 			{ type: ITCH_AUTH_MESSAGE_TYPE, cancelled: true },
-			"https://game.example",
+			"https://game.example"
 		);
 		expect(close).toHaveBeenCalled();
 	});
@@ -219,7 +217,6 @@ describe("handleOAuthCallback", () => {
 	});
 });
 
-
 describe("itchAuth client", () => {
 	beforeEach(() => {
 		// Reset the boot-capture stash between tests.
@@ -234,7 +231,7 @@ describe("itchAuth client", () => {
 				storage,
 				fetch: fetchMock as unknown as typeof fetch,
 				readQueryToken: () => "jwt-token",
-			}),
+			})
 		);
 
 		const session = await client.loginWithItch();
@@ -256,7 +253,7 @@ describe("itchAuth client", () => {
 	it("opens the OAuth popup synchronously and posts the returned token", async () => {
 		const storage = createMemoryStorage();
 		const fetchMock = createFetchMock();
-		const openWindow = jest.fn((_url: string) => ({} as Window));
+		const openWindow = jest.fn((_url: string) => ({}) as Window);
 		const waitForPopupMessage = jest.fn(async (state: string) => {
 			expect(state).toBe("nonce-123"); // state-nonce verified by the caller
 			return "popup-token";
@@ -268,9 +265,9 @@ describe("itchAuth client", () => {
 				openWindow: openWindow as unknown as (url: string) => Window | null,
 				waitForPopupMessage: waitForPopupMessage as unknown as (
 					state: string,
-					timeoutMs?: number,
+					timeoutMs?: number
 				) => Promise<string>,
-			}),
+			})
 		);
 
 		const session = await client.loginWithItch();
@@ -279,10 +276,7 @@ describe("itchAuth client", () => {
 		const [popupUrl] = openWindow.mock.calls[0];
 		expect(popupUrl).toContain("client_id=client-1");
 		expect(popupUrl).toContain("state=nonce-123");
-		expect(waitForPopupMessage).toHaveBeenCalledWith(
-			"nonce-123",
-			DEFAULT_POPUP_TIMEOUT_MS,
-		);
+		expect(waitForPopupMessage).toHaveBeenCalledWith("nonce-123", DEFAULT_POPUP_TIMEOUT_MS);
 
 		const [, init] = callsOf(fetchMock)[0];
 		expect(JSON.parse(init.body as string)).toEqual({ token: "popup-token" });
@@ -295,7 +289,7 @@ describe("itchAuth client", () => {
 			baseDeps({
 				openWindow: () => null,
 				redirect: redirect as unknown as (url: string) => void,
-			}),
+			})
 		);
 
 		await expect(client.loginWithItch()).rejects.toThrow(/popup was blocked/);
@@ -319,7 +313,7 @@ describe("itchAuth client", () => {
 				storage,
 				fetch: fetchMock as unknown as typeof fetch,
 				openWindow: openWindow as unknown as (url: string) => Window | null,
-			}),
+			})
 		);
 
 		const session = await client.loginWithItch();
@@ -331,7 +325,6 @@ describe("itchAuth client", () => {
 		expect(session.player.provider).toBe("itch");
 	});
 
-
 	it("reuses a stored server session without opening a popup", async () => {
 		const storage = createMemoryStorage();
 		const fetchMock = createFetchMock();
@@ -340,7 +333,7 @@ describe("itchAuth client", () => {
 				storage,
 				fetch: fetchMock as unknown as typeof fetch,
 				readQueryToken: () => "tok",
-			}),
+			})
 		);
 		await first.loginWithItch();
 
@@ -350,7 +343,7 @@ describe("itchAuth client", () => {
 				storage,
 				fetch: fetchMock as unknown as typeof fetch,
 				openWindow: openWindow as unknown as (url: string) => Window | null,
-			}),
+			})
 		);
 
 		const session = await second.loginWithItch();
@@ -371,7 +364,7 @@ describe("itchAuth client", () => {
 				storage,
 				fetch: fetchMock as unknown as typeof fetch,
 				readQueryToken: () => "garbage",
-			}),
+			})
 		);
 
 		await expect(client.loginWithItch()).rejects.toThrow(/invalid_itch_token/);
@@ -395,9 +388,7 @@ describe("itchAuth client", () => {
 
 	it("clearSession removes the persisted session", async () => {
 		const storage = createMemoryStorage();
-		const client = createItchAuthClient(
-			baseDeps({ storage, readQueryToken: () => "tok" }),
-		);
+		const client = createItchAuthClient(baseDeps({ storage, readQueryToken: () => "tok" }));
 		await client.loginWithItch();
 		expect(client.getBearerToken()).not.toBeNull();
 
@@ -406,4 +397,3 @@ describe("itchAuth client", () => {
 		expect(storage.getItem(AUTH_STORAGE_KEY)).toBeNull();
 	});
 });
-

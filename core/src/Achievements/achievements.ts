@@ -19,7 +19,10 @@ export const VICTORY_ELIGIBLE_CRYSTALS: CrystalType[] = [
 ];
 
 /** Steam achievement id for a crystal + tier (e.g. GOLD_MANA_CRYSTAL). */
-export function getAchievementId(crystal: CrystalType, tier: VictoryTier): string {
+export function getAchievementId(
+  crystal: CrystalType,
+  tier: VictoryTier,
+): string {
   return `${tier.toUpperCase()}_${crystal.toUpperCase()}`;
 }
 

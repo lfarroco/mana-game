@@ -56,9 +56,7 @@ export function buildItchAuthUrl(input: {
 }
 
 /** Extract `access_token` (+ optional `state`) from an OAuth return hash. */
-export function parseHashForOAuth(
-	hash: string,
-): { token: string; state?: string } | null {
+export function parseHashForOAuth(hash: string): { token: string; state?: string } | null {
 	if (!hash || hash === "#") return null;
 	const raw = hash.startsWith("#") ? hash.slice(1) : hash;
 	const params = new URLSearchParams(raw);
@@ -99,7 +97,7 @@ export function handleOAuthCallback(input: {
 						state: input.parsed.state,
 					}
 				: { type: ITCH_AUTH_MESSAGE_TYPE, cancelled: true },
-			input.origin,
+			input.origin
 		);
 		input.close();
 		return true;
@@ -119,8 +117,7 @@ export function handleOAuthCallbackIfPresent(): boolean {
 		hasOpener: Boolean(window.opener),
 		origin: window.location.origin,
 		currentPath: window.location.origin + window.location.pathname,
-		postMessage: (data, targetOrigin) =>
-			window.opener?.postMessage(data, targetOrigin),
+		postMessage: (data, targetOrigin) => window.opener?.postMessage(data, targetOrigin),
 		close: () => window.close(),
 		replaceHashWithPath: (path) => window.history.replaceState(null, "", path),
 		stashToken: (token) => {
@@ -137,7 +134,6 @@ export function consumeStashedToken(): string | null {
 	stashedToken = null;
 	return token;
 }
-
 
 export type ItchAuthClient = {
 	loginWithItch(): Promise<AuthSession>;
@@ -183,20 +179,13 @@ function defaultReadQueryToken(): string | null {
 }
 
 function defaultGenerateState(): string {
-	if (
-		typeof crypto !== "undefined" &&
-		typeof crypto.randomUUID === "function"
-	) {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
 		return crypto.randomUUID();
 	}
 	return Math.random().toString(36).slice(2);
 }
 
-
-function defaultWaitForPopupMessage(
-	state: string,
-	timeoutMs: number,
-): Promise<string> {
+function defaultWaitForPopupMessage(state: string, timeoutMs: number): Promise<string> {
 	return new Promise((resolve, reject) => {
 		const cleanup = () => {
 			window.removeEventListener("message", onMessage);
@@ -241,21 +230,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-
-export function createItchAuthClient(
-	deps: Partial<ItchAuthDeps> = {},
-): ItchAuthClient {
+export function createItchAuthClient(deps: Partial<ItchAuthDeps> = {}): ItchAuthClient {
 	const provider = deps.storage ?? storage;
 	const sessionStore = createAuthSessionStore(provider);
-	const getFetch = (): typeof globalThis.fetch =>
-		deps.fetch ?? defaultFetch();
+	const getFetch = (): typeof globalThis.fetch => deps.fetch ?? defaultFetch();
 	const serverUrl = deps.serverUrl ?? readServerUrl();
 	const clientId = deps.clientId ?? readClientId();
 	const redirectUri = deps.redirectUri ?? readRedirectUri();
 	const openWindow = deps.openWindow ?? defaultOpenWindow;
 	const readQueryToken = deps.readQueryToken ?? defaultReadQueryToken;
-	const waitForPopupMessage =
-		deps.waitForPopupMessage ?? defaultWaitForPopupMessage;
+	const waitForPopupMessage = deps.waitForPopupMessage ?? defaultWaitForPopupMessage;
 	const generateState = deps.generateState ?? defaultGenerateState;
 	const redirect = deps.redirect ?? defaultRedirect;
 	const popupTimeoutMs = deps.popupTimeoutMs ?? DEFAULT_POPUP_TIMEOUT_MS;
@@ -276,7 +260,7 @@ export function createItchAuthClient(
 			// boot capture stashes the token for the next loginWithItch().
 			redirect(url);
 			throw new Error(
-				"itch.io authorization popup was blocked — the page will redirect to complete login",
+				"itch.io authorization popup was blocked — the page will redirect to complete login"
 			);
 		}
 		return waitForPopupMessage(state, popupTimeoutMs);
@@ -290,7 +274,7 @@ export function createItchAuthClient(
 
 		if (!clientId || clientId === "") {
 			throw new Error(
-				"itch auth not configured — set MANA_ITCH_CLIENT_ID to enable browser multiplayer",
+				"itch auth not configured — set MANA_ITCH_CLIENT_ID to enable browser multiplayer"
 			);
 		}
 
@@ -345,4 +329,3 @@ export function createItchAuthClient(
 
 /** Default client wired to the real storage, window, and fetch. */
 export const itchAuth = createItchAuthClient();
-

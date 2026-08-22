@@ -1,5 +1,9 @@
 import type { CardDefinition } from "../Models";
-import { buildEffectBlock, getReactionDescription, type Translate } from "./descriptions";
+import {
+  buildEffectBlock,
+  getReactionDescription,
+  type Translate,
+} from "./descriptions";
 
 export function buildCrystalDescription(
   crystal: CardDefinition,

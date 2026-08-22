@@ -42,7 +42,9 @@ describe("createTranslator", () => {
   });
 
   it("interpolates a param globally across multiple occurrences", () => {
-    expect(translator.t("greeting", { name: "Bob" })).toBe("Welcome Bob, Bob is here");
+    expect(translator.t("greeting", { name: "Bob" })).toBe(
+      "Welcome Bob, Bob is here",
+    );
   });
 
   it("interpolates multiple distinct params", () => {

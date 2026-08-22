@@ -181,7 +181,7 @@ async function parseErrorResponse(res: Response): Promise<RemoteServerError> {
 		return new RemoteServerError(
 			res.status,
 			code,
-			`Multiplayer login expired — please re-authenticate (${code})`,
+			`Multiplayer login expired — please re-authenticate (${code})`
 		);
 	}
 	return new RemoteServerError(res.status, code, `${code}: ${message}`);
@@ -200,7 +200,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 		const token = getToken();
 		if (!token || token === "") {
 			throw new Error(
-				"Multiplayer requires a login — no bearer token available. Log in first (steamAuth.loginWithSteam on Electron, or itchAuth.loginWithItch on web).",
+				"Multiplayer requires a login — no bearer token available. Log in first (steamAuth.loginWithSteam on Electron, or itchAuth.loginWithItch on web)."
 			);
 		}
 		return token;
@@ -208,7 +208,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 	const request = async (
 		path: string,
-		init: { method: "GET" | "POST"; body?: unknown },
+		init: { method: "GET" | "POST"; body?: unknown }
 	): Promise<unknown> => {
 		const headers: Record<string, string> = {
 			Authorization: `Bearer ${requireToken()}`,
@@ -231,7 +231,6 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 		if (res.status === 204) return undefined;
 		return (await res.json()) as unknown;
 	};
-
 
 	const getSession = async (_playerId: string): Promise<Models.SessionData | null> => {
 		try {
@@ -272,10 +271,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 			return decodeSession(payload);
 		},
 
-		async handleAction(
-			_playerId: string,
-			action: Models.Action,
-		): Promise<Models.ActionResponse> {
+		async handleAction(_playerId: string, action: Models.Action): Promise<Models.ActionResponse> {
 			const payload = await request("/api/v1/sessions/current/actions", {
 				method: "POST",
 				body: { action },
@@ -302,4 +298,3 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 /** Default adapter wired to the real fetch, env URL, and steamAuth token. */
 export const remoteServer: RemoteServer = createRemoteServer();
-

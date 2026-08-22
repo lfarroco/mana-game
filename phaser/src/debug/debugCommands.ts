@@ -168,8 +168,7 @@ const continueCombat = async (): Promise<void> => {
 
 const getScreen = (): string | null => getScreenManager().current()?.name ?? null;
 
-const getScreenPhase = (): string | null =>
-	getScreenManager().current()?.currentPhase?.() ?? null;
+const getScreenPhase = (): string | null => getScreenManager().current()?.currentPhase?.() ?? null;
 
 const getPhase = (): string => env.state.session.phase;
 

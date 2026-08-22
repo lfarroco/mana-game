@@ -16,10 +16,7 @@ const SUMMON_EFFECT_CONFIG = {
 	COLORS: [0xffffff, 0xffffaa, 0xccddff],
 } as const;
 
-export async function summonEffect(
-	{ x, y }: { x: number; y: number },
-	onImpact?: () => void
-) {
+export async function summonEffect({ x, y }: { x: number; y: number }, onImpact?: () => void) {
 	if (config.SUMMON_EFFECT === "beam") {
 		await beamSummonEffect({ x, y }, onImpact);
 		return;
@@ -28,7 +25,6 @@ export async function summonEffect(
 	// Smoke path has no beam impact moment, so fire immediately so the unit
 	// fades in while the smoke disperses.
 	onImpact?.();
-
 
 	const {
 		LIFESPAN,

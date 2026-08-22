@@ -46,7 +46,11 @@ import {
   resolveOpponent,
   snapshotGhost,
 } from "./matchmaking";
-import { DEFAULT_PLAYER_RATING, applyRatingDelta, getMultiplayerVictoryTier } from "./rating";
+import {
+  DEFAULT_PLAYER_RATING,
+  applyRatingDelta,
+  getMultiplayerVictoryTier,
+} from "./rating";
 
 /** Maximum entries kept in session.action_log. */
 const MAX_ACTION_LOG_SIZE = 100;
@@ -78,8 +82,7 @@ export function createSessionService(
   const ghostRepo = deps.ghostRepo ?? createMemoryGhostRepo();
   const ratingRepo = deps.ratingRepo ?? createMemoryRatingRepo();
   const playerRepo = deps.playerRepo ?? createMemoryPlayerRepo();
-  const playerStatsRepo =
-    deps.playerStatsRepo ?? createMemoryPlayerStatsRepo();
+  const playerStatsRepo = deps.playerStatsRepo ?? createMemoryPlayerStatsRepo();
 
   // Defense in depth: the terminal-phase guard in handleAction already blocks
   // a second end_combat on a finished run, so the rating delta can never be
@@ -293,4 +296,3 @@ export function createSessionService(
 function isTerminalPhase(phase: SessionData["phase"]): boolean {
   return phase === "victory" || phase === "game_over";
 }
-

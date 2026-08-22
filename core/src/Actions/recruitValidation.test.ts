@@ -25,7 +25,10 @@ function makeTeamUnit(
   position: [number, number],
   overrides: Partial<Unit> = {},
 ): Unit {
-  return { ...Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, position), ...overrides };
+  return {
+    ...Card.makeUnit(Constants.FORCE_ID_PLAYER, cardId, position),
+    ...overrides,
+  };
 }
 
 function makeSession(units: Unit[]) {

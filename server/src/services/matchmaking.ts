@@ -126,7 +126,9 @@ function clampBoardIndex(value: number): number {
 export function sanitizeEnemyTeam(team: readonly Unit[]): Unit[] {
   return team.slice(0, MAX_PARTY_SIZE).map((unit, index) => {
     const source = unit && typeof unit === "object" ? unit : ({} as Unit);
-    const rawX = Array.isArray(source.position) ? source.position[0] : index % 3;
+    const rawX = Array.isArray(source.position)
+      ? source.position[0]
+      : index % 3;
     const rawY = Array.isArray(source.position)
       ? source.position[1]
       : Math.floor(index / 3);
@@ -249,4 +251,3 @@ export function resolveOpponent(
     opponentPlayerId: null,
   };
 }
-

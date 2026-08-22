@@ -5,7 +5,9 @@ import type { PlayerSettings } from "./playerSettings";
  * missing fields are dropped; null/undefined input, unparseable JSON, and
  * non-object payloads yield null.
  */
-export function parseStoredOptions(raw: string | null): Partial<PlayerSettings> | null {
+export function parseStoredOptions(
+  raw: string | null,
+): Partial<PlayerSettings> | null {
   if (!raw) return null;
   let parsed: unknown;
   try {
@@ -13,7 +15,8 @@ export function parseStoredOptions(raw: string | null): Partial<PlayerSettings> 
   } catch {
     return null;
   }
-  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return null;
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed))
+    return null;
   const record = parsed as Record<string, unknown>;
   const valid: Partial<PlayerSettings> = {};
   if (typeof record.sound === "boolean") valid.sound = record.sound;
@@ -40,10 +43,12 @@ export function parseStoredOptions(raw: string | null): Partial<PlayerSettings> 
     valid.masterVolume = record.masterVolume;
   }
   if (typeof record.debug === "boolean") valid.debug = record.debug;
-  if (typeof record.speed === "number" && record.speed > 0) valid.speed = record.speed;
+  if (typeof record.speed === "number" && record.speed > 0)
+    valid.speed = record.speed;
   if (["low", "medium", "high"].includes(record.particles as string))
     valid.particles = record.particles as PlayerSettings["particles"];
-  if (typeof record.compactTooltips === "boolean") valid.compactTooltips = record.compactTooltips;
+  if (typeof record.compactTooltips === "boolean")
+    valid.compactTooltips = record.compactTooltips;
   return valid;
 }
 

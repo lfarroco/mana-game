@@ -1,7 +1,10 @@
 /// <reference types="jest" />
 
 import type { CombatLogEntry } from "./CombatLogger";
-import { DEFAULT_ANIMATION_DURATION, schedulePlayback } from "./playbackScheduler";
+import {
+  DEFAULT_ANIMATION_DURATION,
+  schedulePlayback,
+} from "./playbackScheduler";
 
 const tickLog = (
   timeMs: number,
@@ -24,16 +27,24 @@ describe("schedulePlayback", () => {
 
     expect(schedule.animations).toHaveLength(1);
     expect(schedule.animations[0].startTime).toBe(1000);
-    expect(schedule.animations[0].endTime).toBe(1000 + DEFAULT_ANIMATION_DURATION);
+    expect(schedule.animations[0].endTime).toBe(
+      1000 + DEFAULT_ANIMATION_DURATION,
+    );
   });
 
   it("collapses a poison+regen pair at the same time/force into ONE scheduled animation", () => {
-    const logs = [tickLog(1000, "poison_tick", 10), tickLog(1000, "regen_tick", 12)];
+    const logs = [
+      tickLog(1000, "poison_tick", 10),
+      tickLog(1000, "regen_tick", 12),
+    ];
 
     const schedule = schedulePlayback(logs);
 
     expect(schedule.animations).toHaveLength(1);
-    expect(schedule.animations[0].log).toMatchObject({ type: "regen_tick", amount: 2 });
+    expect(schedule.animations[0].log).toMatchObject({
+      type: "regen_tick",
+      amount: 2,
+    });
   });
 
   it("sorts animations by startTime", () => {
@@ -45,11 +56,16 @@ describe("schedulePlayback", () => {
 
     const schedule = schedulePlayback(logs);
 
-    expect(schedule.animations.map((a) => a.startTime)).toEqual([1000, 2000, 3000]);
+    expect(schedule.animations.map((a) => a.startTime)).toEqual([
+      1000, 2000, 3000,
+    ]);
   });
 
   it("maxEndTime is the largest endTime", () => {
-    const logs = [tickLog(1000, "poison_tick", 10), tickLog(3000, "poison_tick", 10)];
+    const logs = [
+      tickLog(1000, "poison_tick", 10),
+      tickLog(3000, "poison_tick", 10),
+    ];
 
     const schedule = schedulePlayback(logs);
 
@@ -57,7 +73,9 @@ describe("schedulePlayback", () => {
   });
 
   it("an outcome log sets the schedule outcome", () => {
-    const logs: CombatLogEntry[] = [{ type: "outcome", result: "player_won", timeMs: 5000 }];
+    const logs: CombatLogEntry[] = [
+      { type: "outcome", result: "player_won", timeMs: 5000 },
+    ];
 
     const schedule = schedulePlayback(logs);
 
@@ -65,7 +83,10 @@ describe("schedulePlayback", () => {
   });
 
   it("all animations start with executed: false", () => {
-    const logs = [tickLog(1000, "poison_tick", 10), tickLog(2000, "regen_tick", 12)];
+    const logs = [
+      tickLog(1000, "poison_tick", 10),
+      tickLog(2000, "regen_tick", 12),
+    ];
 
     const schedule = schedulePlayback(logs);
 

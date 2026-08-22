@@ -174,7 +174,9 @@ describe("createScreenManager", () => {
       },
     });
 
-    await expect(manager.go("options")).rejects.toThrow("options create failed");
+    await expect(manager.go("options")).rejects.toThrow(
+      "options create failed",
+    );
 
     // Navigation must not be dead: the next go() runs the target's create.
     await expect(manager.go("title")).resolves.toBeUndefined();
@@ -248,7 +250,9 @@ describe("createScreenManager", () => {
     });
 
     // First navigation fails (options.create rejects).
-    await expect(manager.go("options")).rejects.toThrow("options create failed");
+    await expect(manager.go("options")).rejects.toThrow(
+      "options create failed",
+    );
 
     // Fire three navigations back-to-back; the middle one should be skipped.
     const p1 = manager.go("title");

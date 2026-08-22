@@ -31,7 +31,8 @@ import {
 export const BRONZE_CARDS: Models.CardDefinition[] = [
   {
     id: "void_witch",
-    description: "Poison + slow soft control — cheap early pressure that also enables slow synergies.",
+    description:
+      "Poison + slow soft control — cheap early pressure that also enables slow synergies.",
     tags: ["disabler"],
     pic: "boss_andromeda",
     power: 45,
@@ -41,7 +42,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "living_armor",
-    description: "Shield tank that empowers its column allies' damage — reliable front-line support.",
+    description:
+      "Shield tank that empowers its column allies' damage — reliable front-line support.",
     tags: ["team_buff"],
     pic: "f1_tank",
     power: 30,
@@ -51,7 +53,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "thunder_mech",
-    description: "Damage dealer that gains crit when row allies haste — haste-synergy payoff.",
+    description:
+      "Damage dealer that gains crit when row allies haste — haste-synergy payoff.",
     tags: ["crit_battery", "haster"],
     pic: "f3_mech",
     power: 40,
@@ -61,7 +64,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "timebender",
-    description: "Shield support that permanently ramps a random ally — slow long-term value.",
+    description:
+      "Shield support that permanently ramps a random ally — slow long-term value.",
     tags: ["team_buff", "grow_over_time"],
     pic: "boss_spelleater",
     power: 45,
@@ -71,7 +75,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "tek_monk",
-    description: "Self-ramping damage dealer — every cast permanently grows its power.",
+    description:
+      "Self-ramping damage dealer — every cast permanently grows its power.",
     tags: ["grow_over_time"],
     pic: "f3_windgiver",
     power: 40,
@@ -81,7 +86,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "void_specter",
-    description: "Poison unit that scales off column regen — rewards regen-heavy columns.",
+    description:
+      "Poison unit that scales off column regen — rewards regen-heavy columns.",
     tags: ["grow_over_time"],
     pic: "neutral_amu",
     power: 35,
@@ -91,7 +97,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "plaguebearer",
-    description: "Fast poison caster that grows power from row allies' damage — cheap poison engine.",
+    description:
+      "Fast poison caster that grows power from row allies' damage — cheap poison engine.",
     tags: ["grow_over_time"],
     pic: "f3_plague_totem",
     power: 15,
@@ -101,7 +108,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "toxic_alchemist",
-    description: "Poisons targets and grants column crit — poison/crit hybrid enabler.",
+    description:
+      "Poisons targets and grants column crit — poison/crit hybrid enabler.",
     tags: ["crit_battery"],
     pic: "f5_drogon",
     power: 30,
@@ -111,7 +119,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "venomous_viper",
-    description: "Poison unit that grows when row allies haste — punishes fast rows.",
+    description:
+      "Poison unit that grows when row allies haste — punishes fast rows.",
     tags: ["grow_over_time"],
     pic: "neutral_serpenti",
     power: 40,
@@ -121,7 +130,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "noxious_blight",
-    description: "Poison + slow pressure — straightforward disabler that feeds slow synergies.",
+    description:
+      "Poison + slow pressure — straightforward disabler that feeds slow synergies.",
     tags: ["disabler"],
     pic: "neutral_dreamgazer",
     power: 40,
@@ -131,7 +141,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "corrosive_slime",
-    description: "Cross-force scaling — grows power whenever enemies shield; punishes defensive boards.",
+    description:
+      "Cross-force scaling — grows power whenever enemies shield; punishes defensive boards.",
     tags: ["cross_force", "grow_over_time"],
     pic: "f4_gloomchaser",
     power: 30,
@@ -141,7 +152,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "infected_horror",
-    description: "Scales off every allied poison tick — early poison-engine enabler.",
+    description:
+      "Scales off every allied poison tick — early poison-engine enabler.",
     tags: ["grow_over_time"],
     pic: "f4_horror",
     power: 45,
@@ -161,7 +173,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "scourge_bringer",
-    description: "Amplifies the poison triggerer — every allied poison feeds the source power.",
+    description:
+      "Amplifies the poison triggerer — every allied poison feeds the source power.",
     tags: ["grow_over_time"],
     pic: "f4_nocturn",
     power: 45,
@@ -171,7 +184,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "diana",
-    description: "Self-hastes when allies shield — tempo archer that rewards shield-heavy boards.",
+    description:
+      "Self-hastes when allies shield — tempo archer that rewards shield-heavy boards.",
     tags: ["haster"],
     pic: "neutral_arrowwhistler",
     power: 30,
@@ -181,7 +195,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "moss_golem",
-    description: "Shield tank that permanently ramps a random ally — slow, sticky value.",
+    description:
+      "Shield tank that permanently ramps a random ally — slow, sticky value.",
     tags: ["team_buff", "grow_over_time"],
     pic: "neutral_golemnature",
     power: 50,
@@ -191,7 +206,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "stone_guardian",
-    description: "Shield tank that permanently self-ramps off allied damage — scaling wall.",
+    description:
+      "Shield tank that permanently self-ramps off allied damage — scaling wall.",
     tags: ["grow_over_time"],
     pic: "neutral_golemstone",
     power: 20,
@@ -201,7 +217,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "shadow_assassin",
-    description: "High-base-crit assassin that stacks more crit on itself — early crit battery.",
+    description:
+      "High-base-crit assassin that stacks more crit on itself — early crit battery.",
     tags: ["crit_battery"],
     pic: "boss_shadowlord",
     power: 30,
@@ -212,7 +229,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "commander",
-    description: "Shield + row power buff — simple front-line leader for damage rows.",
+    description:
+      "Shield + row power buff — simple front-line leader for damage rows.",
     tags: ["team_buff"],
     pic: "f1_shieldforger",
     power: 50,
@@ -222,7 +240,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "avatar_of_anger",
-    description: "Self-ramping crit bruiser — permanent power plus a crit kicker.",
+    description:
+      "Self-ramping crit bruiser — permanent power plus a crit kicker.",
     tags: ["grow_over_time", "crit_battery"],
     pic: "f2_chakriavatar",
     power: 50,
@@ -233,7 +252,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "chaos_knight",
-    description: "Charges itself when its left ally slows — slow-synergy charge engine.",
+    description:
+      "Charges itself when its left ally slows — slow-synergy charge engine.",
     tags: ["charger"],
     pic: "boss_chaosknight",
     power: 50,
@@ -243,7 +263,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "thunder_conduit",
-    description: "Damage dealer that scales off any ally haste — haste-engine payoff.",
+    description:
+      "Damage dealer that scales off any ally haste — haste-engine payoff.",
     tags: ["grow_over_time"],
     pic: "boss_borealjuggernaut",
     power: 50,
@@ -253,7 +274,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "arbiter",
-    description: "Shield tank that grows when enemies damage — cross-force scaling wall.",
+    description:
+      "Shield tank that grows when enemies damage — cross-force scaling wall.",
     tags: ["cross_force", "grow_over_time"],
     pic: "f1_peacekeeper",
     power: 35,
@@ -263,7 +285,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "bastion",
-    description: "Empowers its column when its left ally heals — heal-synergy support tank.",
+    description:
+      "Empowers its column when its left ally heals — heal-synergy support tank.",
     tags: ["team_buff"],
     pic: "f1_mech",
     power: 30,
@@ -283,7 +306,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "bulwark",
-    description: "Empowers its column when row allies damage — damage-row support tank.",
+    description:
+      "Empowers its column when row allies damage — damage-row support tank.",
     tags: ["team_buff"],
     pic: "f1_solarius",
     power: 12,
@@ -293,7 +317,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "void_shield",
-    description: "Empowers its row when column allies shield — shield-stacking payoff.",
+    description:
+      "Empowers its row when column allies shield — shield-stacking payoff.",
     tags: ["team_buff"],
     pic: "neutral_voidhunter",
     power: 30,
@@ -303,7 +328,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "fortress",
-    description: "Empowers its left ally whenever anyone shields — shield-engine feeder.",
+    description:
+      "Empowers its left ally whenever anyone shields — shield-engine feeder.",
     tags: ["team_buff"],
     pic: "boss_city",
     power: 20,
@@ -313,7 +339,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "parry_master",
-    description: "Empowers its column when enemies damage — cross-force counter-support.",
+    description:
+      "Empowers its column when enemies damage — cross-force counter-support.",
     tags: ["cross_force", "team_buff"],
     pic: "neutral_swordofakrane",
     power: 20,
@@ -325,7 +352,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "cleric",
-    description: "Healer that empowers the row damage triggerer — reliable heal/damage support.",
+    description:
+      "Healer that empowers the row damage triggerer — reliable heal/damage support.",
     tags: ["team_buff"],
     pic: "neutral_healingmystictwitch",
     power: 20,
@@ -335,7 +363,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "battle_medic",
-    description: "Fast healer that grants its right ally crit — heal/crit hybrid.",
+    description:
+      "Fast healer that grants its right ally crit — heal/crit hybrid.",
     tags: ["crit_battery"],
     pic: "neutral_healingmysticbandainamco",
     power: 30,
@@ -345,7 +374,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "light_priestess",
-    description: "Healer that permanently ramps its top ally off row shields — heal/shield engine.",
+    description:
+      "Healer that permanently ramps its top ally off row shields — heal/shield engine.",
     tags: ["team_buff", "grow_over_time"],
     pic: "f3_duskweaver",
     power: 40,
@@ -355,7 +385,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "soul_weaver",
-    description: "Healer that permanently ramps its bottom ally — steady long-term scaling.",
+    description:
+      "Healer that permanently ramps its bottom ally — steady long-term scaling.",
     tags: ["team_buff", "grow_over_time"],
     pic: "boss_soulstealer",
     power: 40,
@@ -365,7 +396,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "mender_of_worlds",
-    description: "Healer that permanently ramps its left ally — slow, sticky scaling.",
+    description:
+      "Healer that permanently ramps its left ally — slow, sticky scaling.",
     tags: ["team_buff", "grow_over_time"],
     pic: "f6_auroraguardian",
     power: 35,
@@ -375,7 +407,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "divine_spark",
-    description: "Healer that hastes its row whenever column allies act — tempo support.",
+    description:
+      "Healer that hastes its row whenever column allies act — tempo support.",
     tags: ["haster"],
     pic: "f3_obelyskduskwind",
     power: 20,
@@ -385,7 +418,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "radiance_envoy",
-    description: "Healer that hastes its column whenever row allies act — mirror of divine_spark.",
+    description:
+      "Healer that hastes its column whenever row allies act — mirror of divine_spark.",
     tags: ["haster"],
     pic: "boss_cindera",
     power: 30,
@@ -395,7 +429,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "harmony_monk",
-    description: "Healer that empowers its column off row actions — steady board-wide support.",
+    description:
+      "Healer that empowers its column off row actions — steady board-wide support.",
     tags: ["team_buff"],
     pic: "boss_harmony",
     power: 25,
@@ -405,7 +440,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "oracle",
-    description: "Fast healer that feeds crit to its right ally off its left ally's actions.",
+    description:
+      "Fast healer that feeds crit to its right ally off its left ally's actions.",
     tags: ["crit_battery"],
     pic: "neutral_timekeeper",
     power: 25,
@@ -415,7 +451,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "chronomancer",
-    description: "Regen unit that self-ramps off any ally haste — haste-engine payoff.",
+    description:
+      "Regen unit that self-ramps off any ally haste — haste-engine payoff.",
     tags: ["grow_over_time"],
     pic: "f4_klaxon",
     power: 25,
@@ -435,7 +472,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "enchanted_tree",
-    description: "Regen tank that permanently self-ramps off row actions — slow scaling wall.",
+    description:
+      "Regen tank that permanently self-ramps off row actions — slow scaling wall.",
     tags: ["grow_over_time"],
     pic: "f6_treant",
     power: 25,
@@ -445,7 +483,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "castle_vampire",
-    description: "Very fast regen unit stacking self crit — early tempo/crit hybrid.",
+    description:
+      "Very fast regen unit stacking self crit — early tempo/crit hybrid.",
     tags: ["crit_battery"],
     pic: "boss_vampire",
     power: 20,
@@ -455,7 +494,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "plague_dr",
-    description: "Regen unit that self-ramps off column poison — poison/regen hybrid.",
+    description:
+      "Regen unit that self-ramps off column poison — poison/regen hybrid.",
     tags: ["grow_over_time"],
     pic: "f4_plaguedr",
     power: 20,
@@ -465,7 +505,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "eternal_phoenix",
-    description: "Regen support that empowers the weakest ally off allied haste — resilience engine.",
+    description:
+      "Regen support that empowers the weakest ally off allied haste — resilience engine.",
     tags: ["team_buff"],
     pic: "neutral_zurael",
     power: 30,
@@ -475,7 +516,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "sand_shifter",
-    description: "Charges itself when its right ally slows — slow-synergy charge engine.",
+    description:
+      "Charges itself when its right ally slows — slow-synergy charge engine.",
     tags: ["charger"],
     pic: "f3_sandhowler",
     power: 50,
@@ -495,7 +537,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "blood_catalyst",
-    description: "Regen unit that permanently self-ramps off allied healing — heal/regen engine.",
+    description:
+      "Regen unit that permanently self-ramps off allied healing — heal/regen engine.",
     tags: ["grow_over_time"],
     pic: "neutral_bloodletter",
     power: 30,
@@ -515,7 +558,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "time_shifter",
-    description: "Empowers its column off any ally haste — haste-engine board support.",
+    description:
+      "Empowers its column off any ally haste — haste-engine board support.",
     tags: ["team_buff"],
     pic: "f1_sister",
     power: 50,
@@ -535,7 +579,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "void_spawn",
-    description: "Charges itself when its right ally poisons — poison-synergy charge engine.",
+    description:
+      "Charges itself when its right ally poisons — poison-synergy charge engine.",
     tags: ["charger"],
     pic: "f5_ankylos",
     power: 40,
@@ -545,7 +590,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "arcane_anomaly",
-    description: "Damage dealer that charges its whole column — tempo accelerator.",
+    description:
+      "Damage dealer that charges its whole column — tempo accelerator.",
     tags: ["charger"],
     pic: "f6_myriad",
     power: 45,
@@ -555,7 +601,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "mirror_entity",
-    description: "Real mirror — when the bottom ally casts, hastes the top ally (tempo echo).",
+    description:
+      "Real mirror — when the bottom ally casts, hastes the top ally (tempo echo).",
     tags: ["team_buff"],
     pic: "f3_nimbus",
     power: 30,
@@ -575,7 +622,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "duelist",
-    description: "Cross-force duelist — self-ramps off every enemy damage; risky low base.",
+    description:
+      "Cross-force duelist — self-ramps off every enemy damage; risky low base.",
     tags: ["cross_force", "grow_over_time"],
     pic: "neutral_shuffler",
     power: 10,
@@ -585,7 +633,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "gambler",
-    description: "Crit battery with a coin-flip — each cast grants crit to a random ally; row casts feed the column.",
+    description:
+      "Crit battery with a coin-flip — each cast grants crit to a random ally; row casts feed the column.",
     tags: ["risk_reward", "crit_battery"],
     pic: "neutral_gambler",
     power: 30,
@@ -595,7 +644,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "glass_cannon",
-    description: "Self-ramping damage dealer that scales off ally shields — fragile snowball.",
+    description:
+      "Self-ramping damage dealer that scales off ally shields — fragile snowball.",
     tags: ["grow_over_time"],
     pic: "f1_sinergyunit",
     power: 22,
@@ -605,7 +655,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "spellblade",
-    description: "Self-stacking crit off row actions — row-synergy crit payoff.",
+    description:
+      "Self-stacking crit off row actions — row-synergy crit payoff.",
     tags: ["crit_battery"],
     pic: "f1_rightfulheir",
     power: 30,
@@ -615,7 +666,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "berserker",
-    description: "Cross-force tempo — self-hastes whenever enemies damage; enrage payoff.",
+    description:
+      "Cross-force tempo — self-hastes whenever enemies damage; enrage payoff.",
     tags: ["cross_force", "haster"],
     pic: "neutral_beastmaster",
     power: 30,
@@ -625,7 +677,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "gunslinger",
-    description: "Charges itself when its left ally shields — shield-synergy charge engine.",
+    description:
+      "Charges itself when its left ally shields — shield-synergy charge engine.",
     tags: ["charger"],
     pic: "neutral_hsuku",
     power: 40,
@@ -635,7 +688,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "inquisitor",
-    description: "Cross-force permanent ramp — grows power off every enemy poison tick.",
+    description:
+      "Cross-force permanent ramp — grows power off every enemy poison tick.",
     tags: ["cross_force", "grow_over_time"],
     pic: "neutral_inquisitorkron",
     power: 20,

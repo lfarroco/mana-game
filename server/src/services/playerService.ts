@@ -69,7 +69,11 @@ export function getPlayerProfile(
 ): PlayerProfile {
   const player = deps.playerRepo.findById(playerId);
   if (!player) {
-    throw new ApiError(404, "player_not_found", `No player with id '${playerId}'`);
+    throw new ApiError(
+      404,
+      "player_not_found",
+      `No player with id '${playerId}'`,
+    );
   }
 
   const now = Date.now();

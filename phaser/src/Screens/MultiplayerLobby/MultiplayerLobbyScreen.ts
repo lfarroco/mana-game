@@ -66,7 +66,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 				constants.MIDDLE_SCREEN_X,
 				constants.MIDDLE_SCREEN_Y,
 				i18n.t("lobby.loading"),
-				constants.defaultTextConfig,
+				constants.defaultTextConfig
 			)
 			.setOrigin(0.5);
 		elements.push(loading);
@@ -94,7 +94,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 					counts: profile.season,
 					position: [constants.MIDDLE_SCREEN_X + 640, 420],
 				}),
-				...actionButtons.create(ctx, hasActiveRun),
+				...actionButtons.create(ctx, hasActiveRun)
 			);
 		} catch (err) {
 			loading.destroy();

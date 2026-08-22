@@ -9,7 +9,14 @@ const poisonTick = (
   amount: number,
   newLife: number,
   lifeDelta: number,
-): CombatLogEntry => ({ type: "poison_tick", force, amount, newLife, lifeDelta, timeMs });
+): CombatLogEntry => ({
+  type: "poison_tick",
+  force,
+  amount,
+  newLife,
+  lifeDelta,
+  timeMs,
+});
 
 const regenTick = (
   timeMs: number,
@@ -17,20 +24,38 @@ const regenTick = (
   amount: number,
   newLife: number,
   lifeDelta: number,
-): CombatLogEntry => ({ type: "regen_tick", force, amount, newLife, lifeDelta, timeMs });
+): CombatLogEntry => ({
+  type: "regen_tick",
+  force,
+  amount,
+  newLife,
+  lifeDelta,
+  timeMs,
+});
 
 describe("collapseStatusTickPairs", () => {
   it("collapses a poison+regen pair for the same force/time into one net entry", () => {
-    const logs = [poisonTick(1000, "player", 10, 490, -10), regenTick(1000, "player", 12, 502, 12)];
+    const logs = [
+      poisonTick(1000, "player", 10, 490, -10),
+      regenTick(1000, "player", 12, 502, 12),
+    ];
 
     const [merged] = collapseStatusTickPairs(logs);
 
     expect(collapseStatusTickPairs(logs)).toHaveLength(1);
-    expect(merged).toMatchObject({ type: "regen_tick", newLife: 502, lifeDelta: 2, amount: 2 });
+    expect(merged).toMatchObject({
+      type: "regen_tick",
+      newLife: 502,
+      lifeDelta: 2,
+      amount: 2,
+    });
   });
 
   it("produces a negative net delta when poison outweighs regen", () => {
-    const logs = [poisonTick(1000, "player", 10, 490, -10), regenTick(1000, "player", 5, 495, 5)];
+    const logs = [
+      poisonTick(1000, "player", 10, 490, -10),
+      regenTick(1000, "player", 5, 495, 5),
+    ];
 
     const [merged] = collapseStatusTickPairs(logs);
 
@@ -48,8 +73,16 @@ describe("collapseStatusTickPairs", () => {
     const collapsed = collapseStatusTickPairs(logs);
 
     expect(collapsed).toHaveLength(2);
-    expect(collapsed[0]).toMatchObject({ force: "player", newLife: 502, lifeDelta: 2 });
-    expect(collapsed[1]).toMatchObject({ force: "cpu", newLife: 196, lifeDelta: -4 });
+    expect(collapsed[0]).toMatchObject({
+      force: "player",
+      newLife: 502,
+      lifeDelta: 2,
+    });
+    expect(collapsed[1]).toMatchObject({
+      force: "cpu",
+      newLife: 196,
+      lifeDelta: -4,
+    });
   });
 
   it("leaves poison-only ticks unchanged", () => {
@@ -65,13 +98,19 @@ describe("collapseStatusTickPairs", () => {
   });
 
   it("does not merge a pair for the same force at different times", () => {
-    const logs = [poisonTick(1000, "player", 10, 490, -10), regenTick(2000, "player", 12, 502, 12)];
+    const logs = [
+      poisonTick(1000, "player", 10, 490, -10),
+      regenTick(2000, "player", 12, 502, 12),
+    ];
 
     expect(collapseStatusTickPairs(logs)).toEqual(logs);
   });
 
   it("does not merge entries for different forces at the same time", () => {
-    const logs = [poisonTick(1000, "player", 10, 490, -10), regenTick(1000, "cpu", 12, 512, 12)];
+    const logs = [
+      poisonTick(1000, "player", 10, 490, -10),
+      regenTick(1000, "cpu", 12, 512, 12),
+    ];
 
     expect(collapseStatusTickPairs(logs)).toEqual(logs);
   });

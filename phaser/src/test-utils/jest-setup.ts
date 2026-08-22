@@ -8,4 +8,3 @@ if (typeof globalThis.structuredClone !== "function") {
 	(globalThis as { structuredClone?: <T>(value: T) => T }).structuredClone = <T>(value: T): T =>
 		JSON.parse(JSON.stringify(value));
 }
-

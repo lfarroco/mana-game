@@ -16,7 +16,10 @@ export type BoardSyncPlan = {
 };
 
 /** Compute the destroy/summon/refresh diff between the team and rendered charas. */
-export function planBoardSync(teamUnits: Unit[], rendered: RenderedUnitState[]): BoardSyncPlan {
+export function planBoardSync(
+  teamUnits: Unit[],
+  rendered: RenderedUnitState[],
+): BoardSyncPlan {
   const teamIds = new Set(teamUnits.map((u) => u.id));
   const renderedById = new Map(rendered.map((u) => [u.id, u]));
 

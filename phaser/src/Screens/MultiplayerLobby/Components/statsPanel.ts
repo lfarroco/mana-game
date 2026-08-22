@@ -30,7 +30,7 @@ export function create(config: {
 		[PANEL_WIDTH, PANEL_HEIGHT],
 		20,
 		theme.UI_SURFACE_COLOR,
-		theme.UI_SURFACE_ALPHA,
+		theme.UI_SURFACE_ALPHA
 	);
 
 	const header = env.scene.add
@@ -43,8 +43,16 @@ export function create(config: {
 
 	const rows: Array<{ label: string; value: number; color: string }> = [
 		{ label: i18n.t("lobby.goldVictories"), value: config.counts.gold, color: TIER_COLORS.gold },
-		{ label: i18n.t("lobby.silverVictories"), value: config.counts.silver, color: TIER_COLORS.silver },
-		{ label: i18n.t("lobby.bronzeVictories"), value: config.counts.bronze, color: TIER_COLORS.bronze },
+		{
+			label: i18n.t("lobby.silverVictories"),
+			value: config.counts.silver,
+			color: TIER_COLORS.silver,
+		},
+		{
+			label: i18n.t("lobby.bronzeVictories"),
+			value: config.counts.bronze,
+			color: TIER_COLORS.bronze,
+		},
 	];
 
 	const startY = y - 75;

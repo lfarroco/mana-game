@@ -19,13 +19,17 @@ export function serializeSessionForStorage(session: SessionData): SessionData {
     ...session,
     combatState: {
       ...session.combatState,
-      unitById: Array.from(session.combatState.unitById.entries()) as unknown as Map<string, Unit>,
+      unitById: Array.from(
+        session.combatState.unitById.entries(),
+      ) as unknown as Map<string, Unit>,
     },
   };
 }
 
 /** Reconstruct any Maps that were converted to arrays for JSON storage. */
-export function deserializeSessionFromStorage(session: SessionData): SessionData {
+export function deserializeSessionFromStorage(
+  session: SessionData,
+): SessionData {
   if (session.combatState && Array.isArray(session.combatState.unitById)) {
     session.combatState.unitById = new Map(
       session.combatState.unitById as unknown as [string, Unit][],
@@ -49,7 +53,9 @@ export function createSessionStore(storage: KeyValueStorage): SessionStore {
       const playerId = key.substring(STORAGE_PREFIX.length);
       const raw = storage.getItem(key);
       if (!raw) continue;
-      const session = deserializeSessionFromStorage(JSON.parse(raw) as SessionData);
+      const session = deserializeSessionFromStorage(
+        JSON.parse(raw) as SessionData,
+      );
       sessions.set(playerId, session);
     }
     return sessions;
@@ -60,7 +66,10 @@ export function createSessionStore(storage: KeyValueStorage): SessionStore {
     return deserializeSessionFromStorage(JSON.parse(raw) as SessionData);
   };
   const save = (playerId: string, session: SessionData): void => {
-    storage.setItem(STORAGE_PREFIX + playerId, JSON.stringify(serializeSessionForStorage(session)));
+    storage.setItem(
+      STORAGE_PREFIX + playerId,
+      JSON.stringify(serializeSessionForStorage(session)),
+    );
   };
   const remove = (playerId: string): void => {
     storage.removeItem(STORAGE_PREFIX + playerId);

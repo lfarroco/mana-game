@@ -18,7 +18,10 @@ afterAll(() => {
   Card.resetCardsMap();
 });
 
-function createSessionWithCombatState(playerId: string, seed: string): SessionData {
+function createSessionWithCombatState(
+  playerId: string,
+  seed: string,
+): SessionData {
   const session = SessionManagement.createInitialSession(playerId, seed);
   const units = [
     Card.makeUnit(Constants.FORCE_ID_PLAYER, "mana_crystal", [1, 1]),
@@ -89,7 +92,9 @@ describe("createSessionStore", () => {
     const loaded = store.load("p1")!;
     expect(loaded).not.toBe(session);
     expect(loaded.combatState!.unitById).toBeInstanceOf(Map);
-    expect(loaded.combatState!.unitById.size).toBe(session.combatState!.unitById.size);
+    expect(loaded.combatState!.unitById.size).toBe(
+      session.combatState!.unitById.size,
+    );
     for (const [id, unit] of session.combatState!.unitById) {
       expect(loaded.combatState!.unitById.get(id)).toEqual(unit);
     }
@@ -147,7 +152,9 @@ describe("createSessionStore", () => {
   it("restores unitById Maps for multiple stored sessions", () => {
     const storage = memoryStorage();
     const store = createSessionStore(storage);
-    const units: Unit[] = [Card.makeUnit(Constants.FORCE_ID_PLAYER, "mana_crystal", [2, 2])];
+    const units: Unit[] = [
+      Card.makeUnit(Constants.FORCE_ID_PLAYER, "mana_crystal", [2, 2]),
+    ];
     const unitById = new Map(units.map((unit) => [unit.id, unit]));
     const sessionA = SessionManagement.createInitialSession("a", "seed-a");
     const sessionB = SessionManagement.createInitialSession("b", "seed-b");

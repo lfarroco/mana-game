@@ -78,10 +78,7 @@ export type SteamAuthDeps = {
 // the thin `window.auth.getSteamAuthTicket` ticket hook.
 declare const window: Window & {
 	auth?: {
-		getSteamAuthTicket?: (
-			identity: string,
-			timeoutMs?: number
-		) => Promise<string | null>;
+		getSteamAuthTicket?: (identity: string, timeoutMs?: number) => Promise<string | null>;
 	};
 	steamworks?: {
 		auth?: unknown;
@@ -89,16 +86,10 @@ declare const window: Window & {
 	};
 };
 
-function defaultGetTicket(
-	identity: string,
-	timeoutMs?: number
-): Promise<string | null> {
+function defaultGetTicket(identity: string, timeoutMs?: number): Promise<string | null> {
 	const getTicket = window.auth?.getSteamAuthTicket;
 	if (typeof getTicket !== "function") {
-		console.warn(
-			"steamAuth",
-			"[steamAuth] Steam auth hook not exposed (non-Electron build?)"
-		);
+		console.warn("steamAuth", "[steamAuth] Steam auth hook not exposed (non-Electron build?)");
 		return Promise.resolve(null);
 	}
 	return getTicket(identity, timeoutMs);
@@ -119,19 +110,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export function createSteamAuthClient(
-	deps: Partial<SteamAuthDeps> = {}
-): SteamAuthClient {
+export function createSteamAuthClient(deps: Partial<SteamAuthDeps> = {}): SteamAuthClient {
 	const provider = deps.storage ?? storage;
-	const getFetch = (): typeof globalThis.fetch =>
-		deps.fetch ?? defaultFetch();
+	const getFetch = (): typeof globalThis.fetch => deps.fetch ?? defaultFetch();
 	const getTicket = deps.getTicket ?? defaultGetTicket;
 	const getDisplayName = deps.getDisplayName ?? defaultGetDisplayName;
 	const steamAvailable =
 		deps.isSteamAvailable ??
 		(() =>
-			typeof window.auth?.getSteamAuthTicket === "function" &&
-			Boolean(window.steamworks?.auth));
+			typeof window.auth?.getSteamAuthTicket === "function" && Boolean(window.steamworks?.auth));
 	const serverUrl = deps.serverUrl ?? readServerUrl();
 	const appId = deps.appId ?? STEAM_APP_ID;
 	const sessionStore = createAuthSessionStore(provider);
@@ -200,4 +187,3 @@ export function createSteamAuthClient(
 
 /** Default client wired to the real storage provider and preload hook. */
 export const steamAuth = createSteamAuthClient();
-

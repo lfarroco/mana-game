@@ -96,8 +96,6 @@ export function fadeInFromWhite(chara: Chara): void {
 	});
 }
 
-
-
 export function clearAll(): void {
 	getAllCharas().forEach((c) => destroy(c));
 }

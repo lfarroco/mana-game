@@ -9,7 +9,7 @@ import * as Chara from "@Components/Chara/Chara";
  */
 export const handleReaction = (
 	log: CombatLogger.ReactionEntry,
-	_playbackState: PlaybackState,
+	_playbackState: PlaybackState
 ): void => {
 	const chara = Chara.mustGetCharaById(log.unitId);
 	Chara.fadeInFromWhite(chara);

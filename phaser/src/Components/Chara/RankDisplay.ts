@@ -50,9 +50,8 @@ function makeRankOrb(unit: Unit): Phaser.GameObjects.Shader {
  * destroying and recreating the shader (which would disturb the chara's z-order).
  */
 export function update(chara: Chara.Chara, unit: Unit): void {
-	const orb = chara.list.find(
-		(child) => child instanceof Phaser.GameObjects.Shader
-	) as Phaser.GameObjects.Shader | undefined;
+	const orb = chara.list.find((child) => child instanceof Phaser.GameObjects.Shader) as
+		Phaser.GameObjects.Shader | undefined;
 
 	if (!orb) return;
 

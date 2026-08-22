@@ -13,7 +13,7 @@ const BACK_Y = 935;
  */
 export function create(
 	ctx: MultiplayerLobbyScreen.Context,
-	hasActiveSession: boolean,
+	hasActiveSession: boolean
 ): Phaser.GameObjects.Container[] {
 	const playBtn = UIButton.create({
 		text: i18n.t(hasActiveSession ? "lobby.resume" : "lobby.newGame"),

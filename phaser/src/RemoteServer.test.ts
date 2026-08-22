@@ -223,9 +223,7 @@ describe("RemoteServer HTTP adapter", () => {
 			getBearerToken: () => "tok-123",
 		});
 
-		await expect(server.getProfile("player-1")).rejects.toThrow(
-			/unexpected profile payload/,
-		);
+		await expect(server.getProfile("player-1")).rejects.toThrow(/unexpected profile payload/);
 	});
 
 	it("surfaces the server error code when the profile request fails", async () => {

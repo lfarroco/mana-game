@@ -29,7 +29,10 @@ describe("buildRunCompleteSession", () => {
 
   it("honors explicit options over session defaults", () => {
     const base = SessionManagement.createInitialSession("p1", "seed-1");
-    const session = buildRunCompleteSession(base, "game_over", { wins: 12, losses: 3 });
+    const session = buildRunCompleteSession(base, "game_over", {
+      wins: 12,
+      losses: 3,
+    });
 
     expect(session.wins).toBe(12);
     expect(session.losses).toBe(3);

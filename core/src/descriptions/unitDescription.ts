@@ -1,5 +1,9 @@
 import type { Unit } from "../Models";
-import { buildEffectBlock, getReactionDescription, type Translate } from "./descriptions";
+import {
+  buildEffectBlock,
+  getReactionDescription,
+  type Translate,
+} from "./descriptions";
 
 const MS_PER_SECOND = 1000;
 
@@ -8,7 +12,12 @@ export function buildUnitDescription(
   t: Translate,
   compactTooltips: boolean,
 ): { title: string; description: string } {
-  const rankNames = [t("rank.bronze"), t("rank.silver"), t("rank.gold"), t("rank.platinum")];
+  const rankNames = [
+    t("rank.bronze"),
+    t("rank.silver"),
+    t("rank.gold"),
+    t("rank.platinum"),
+  ];
   const rankName = rankNames[unit.rank - 1] || unit.rank.toString();
   const title = `${t(`card.${unit.cardId}.name`)} (${rankName})`;
 
@@ -27,13 +36,16 @@ export function buildUnitDescription(
 
   const critBlock =
     (unit.critical || 0) > 0
-      ? [`[color=#c0c0c0]${t("description.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`]
+      ? [
+          `[color=#c0c0c0]${t("description.crit")}[/color] [color=#ffa94d]${unit.critical}%[/color]`,
+        ]
       : [];
 
   const statsBlock = [...cdBlock, ...critBlock].join(" | ");
 
   const descriptionString =
-    [...effectBlocks, ...reactionBlocks].join("\n") || t("description.noAbilities");
+    [...effectBlocks, ...reactionBlocks].join("\n") ||
+    t("description.noAbilities");
   const description = [statsBlock, descriptionString].join("\n");
 
   return { title, description };
