@@ -16,9 +16,11 @@ export const getContainerBounds = (): Phaser.Geom.Rectangle | null => {
 	return containerElement ? containerElement.getBounds() : null;
 };
 
+export const getCurrentLives = (): number => currentLives;
+
 export const updateLivesDisplay = (newTotalLives: number): void => {
-	// Only animate when lives decrease
 	if (newTotalLives < currentLives) {
+		// Only animate when lives decrease
 		const livesLost = currentLives - newTotalLives;
 
 		// Animate hearts from right to left
@@ -38,6 +40,21 @@ export const updateLivesDisplay = (newTotalLives: number): void => {
 					},
 				});
 			}
+		}
+	} else if (newTotalLives > currentLives) {
+		// Lives gained (e.g. Rest Inn): the hearts between currentLives and
+		// newTotalLives are the ones currently grayed out — restore them to
+		// green with a small pop so the gain is visible.
+		for (let i = currentLives; i < newTotalLives && i < heartElements.length; i++) {
+			const heart = heartElements[i];
+			heart.clearTint();
+			heart.setText(GREEN_HEART);
+			env.scene.tweens.add({
+				targets: heart,
+				scale: { from: 0.7, to: 1 },
+				duration: 250,
+				ease: "Back.easeOut",
+			});
 		}
 	}
 

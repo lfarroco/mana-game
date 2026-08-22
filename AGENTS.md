@@ -168,7 +168,9 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 ## Issues
 
-> Update this section as you find bugs.
+> Update this section with bugs that you find that are not related with your current task.
+
+
 
 
 

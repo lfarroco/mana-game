@@ -27,7 +27,6 @@ const COMBAT_START_DELAY_MS = 300;
 // can destroy it BEFORE the player's board is re-summoned on the next phase.
 const COMBAT_RESULTS_PANEL_ID = "combat-results-panel";
 
-
 // The combat phase is split into a playback phase (`combat`) followed by a
 // client-only results phase (`combat_victory` / `combat_defeat`).  The playback
 // state below is shared across those phases within this module.
@@ -41,7 +40,7 @@ type PlaybackState = {
 
 const initialState = (): PlaybackState => ({
 	isPaused: false,
-	stopActivePlayback: () => { },
+	stopActivePlayback: () => {},
 	currentController: null,
 });
 
@@ -54,7 +53,7 @@ let state: PlaybackState = initialState();
 let combatStatsSnapshot: CombatStatsTracker.CombatStatsTrackerState | null = null;
 
 const handleCombatContinueRequested = async () => {
-	const { wins: previousWins, losses: previousLosses, round: previousRound } = env.state.session;
+	const { wins: previousWins, round: previousRound } = env.state.session;
 
 	// Destroy the results panel FIRST so it disappears before the player's board
 	// is cleared and re-summoned on the next phase transition.  The container is
@@ -68,18 +67,13 @@ const handleCombatContinueRequested = async () => {
 	// transition, so any teardown after it would race the new phase's create.
 	await teardownCombat();
 
-
 	await dispatchAction({ type: "end_combat" }, ({ session }) => {
 		const winDelta = session.wins - previousWins;
 		if (winDelta !== 0) BattlegroundEvent.winsChanged.emit({ wins: session.wins, delta: winDelta });
 
-		const lossesDelta = previousLosses - session.losses;
-		if (lossesDelta !== 0)
-			BattlegroundEvent.livesChanged.emit({
-				lives: 4 - session.losses,
-				delta: session.losses - previousLosses,
-			});
-
+		// Lives are synced generically in transitionToCurrentPhase — encounters
+		// like soul_trade / rest_inn mutate losses without this combat flow, so
+		// the HUD is reconciled from session state on every phase transition.
 		const roundDelta = previousRound - session.round;
 		if (roundDelta !== 0)
 			BattlegroundEvent.roundChanged.emit({ round: session.round, delta: roundDelta });
@@ -179,7 +173,7 @@ function cleanupPlayback(state: PlaybackState): void {
 	env.scene.tweens.resumeAll();
 	env.scene.time.paused = false;
 	state.stopActivePlayback();
-	state.stopActivePlayback = () => { };
+	state.stopActivePlayback = () => {};
 }
 
 const pauseCombat = (): void => {
@@ -249,7 +243,6 @@ const renderCombatResults = async (
 	const container = await containerPromise;
 	ctx.track(container, { id: COMBAT_RESULTS_PANEL_ID });
 };
-
 
 export const CombatVictoryPhase = (ctx: BGContext) => {
 	const combatState = env.state.combatState;

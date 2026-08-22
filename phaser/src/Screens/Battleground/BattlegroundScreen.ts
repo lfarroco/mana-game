@@ -64,6 +64,10 @@ const transitionToCurrentPhase = async () => {
 	// shops spend them, and both always advance the phase.
 	UI.updateFavorDisplay(env.state.session.favorTokens ?? 0);
 
+	// Keep the HUD hearts in sync — encounters that spend or restore life
+	// (soul_trade, rest_inn, roulette_wheel) mutate losses directly.
+	UI.syncLivesDisplay();
+
 	await go(phase);
 };
 

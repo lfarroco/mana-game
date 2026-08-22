@@ -1,4 +1,5 @@
 import * as Constants from "@Constants";
+import * as GameConstants from "@game/Constants";
 import * as animation from "@Utils/animation";
 import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as roundDisplay from "@Screens/Battleground/Components/UI/roundDisplay";
@@ -50,6 +51,22 @@ export function create() {
  */
 export function updateFavorDisplay(favor: number): void {
 	favorDisplay.updateFavorDisplay(favor);
+}
+
+/**
+ * Keep the HUD hearts in sync with the session. Called from
+ * BattlegroundScreen.transitionToCurrentPhase (after every dispatch), so the
+ * hearts refresh when an encounter spends or restores a life (soul_trade,
+ * rest_inn, roulette_wheel). Emits livesChanged (with the correct sign) only
+ * when the displayed value actually differs, so the heart update + floating
+ * +N/-N animation run exactly once per change.
+ */
+export function syncLivesDisplay(): void {
+	const target = GameConstants.STARTING_LIVES - env.state.session.losses;
+	const current = livesDisplay.getCurrentLives();
+	if (current !== target) {
+		BattlegroundEvent.livesChanged.emit({ lives: target, delta: target - current });
+	}
 }
 
 export async function handleUserMessageRequested(payload: {
