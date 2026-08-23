@@ -11,11 +11,11 @@ CONTAINER_NAME=mana-server
 #   MANA_SQLITE_PATH=server/data/mana.db
 #   MANA_STEAM_APP_IDS=3757600,4233280
 #   MANA_DROPLET=root@<droplet-ip>      (make droplet-deploy)
-#   MANA_API_DOMAIN=api.manabattle.com  (make droplet-setup)
+#   MANA_API_DOMAIN=api.manabattle.com  (make droplet-setup / electron-dev-droplet)
 -include .env
 export
 
-.PHONY: dev electron electron-dev electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary droplet-deploy droplet-setup droplet-logs droplet-db-download droplet-db droplet-db-summary
+.PHONY: dev electron electron-dev electron-dev-droplet electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary droplet-deploy droplet-setup droplet-logs droplet-db-download droplet-db droplet-db-summary
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -28,6 +28,15 @@ electron-dev:
 
 electron-dev-demo:
 	cd $(PHASER_DIR) && IS_DEMO=true NODE_ENV=development npm run build && IS_DEMO=true NODE_ENV=development npx electron electron/main.cjs
+
+# Electron dev client pointed at the REMOTE droplet API instead of the local
+# server. The droplet's TLS domain (default api.manabattle.com, override via
+# MANA_API_DOMAIN in .env) becomes the baked-in MANA_SERVER_URL for the
+# webpack build, and Electron loads the freshly built dist/ bundle
+# (MANA_LOAD_DIST=1) so no local webpack-dev-server is required — DevTools
+# still open. The server must be deployed first: `make droplet-deploy`.
+electron-dev-droplet:
+	cd $(PHASER_DIR) && MANA_SERVER_URL=https://$(MANA_API_DOMAIN) NODE_ENV=development npm run build && MANA_LOAD_DIST=1 NODE_ENV=development npx electron electron/main.cjs
 
 electron-pack:
 	cd $(PHASER_DIR) && npm run build && npx electron-builder

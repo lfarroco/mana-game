@@ -38,7 +38,15 @@ function createWindow() {
 	});
 
 	if (process.env.NODE_ENV === 'development') {
-		mainWindow.loadURL('http://localhost:8080');
+		if (process.env.MANA_LOAD_DIST === '1') {
+			// Load the built dist bundle instead of the webpack dev server —
+			// used by `make electron-dev-droplet`, which bakes the droplet
+			// MANA_SERVER_URL into the dist build and needs no local
+			// webpack-dev-server. DevTools still open for the dev loop.
+			mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
+		} else {
+			mainWindow.loadURL('http://localhost:8080');
+		}
 		mainWindow.webContents.openDevTools();
 	} else {
 		// dist/index.html lives one level up in both layouts:
