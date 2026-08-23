@@ -371,4 +371,53 @@ describe("New P1 encounters", () => {
       }
     });
   });
+
+  describe("session firewall (life-dependent encounters)", () => {
+    it("never offers soul_trade or roulette_wheel at 1 life left", () => {
+      // At losses 3 only one life remains — both encounters' transition
+      // guards reject spending the last life, so they must not be offered.
+      for (let i = 0; i < 50; i++) {
+        const { options } = OptionGeneration.createEncounterOptions(
+          makeSession({ round: 4, losses: 3, seed: `near-death-${i}` }),
+        );
+        for (const opt of options) {
+          expect(opt.id).not.toBe("soul_trade");
+          expect(opt.id).not.toBe("roulette_wheel");
+        }
+      }
+    });
+
+    it("offers soul_trade while the player can afford the life", () => {
+      const seen = new Set<string>();
+      for (let i = 0; i < 50; i++) {
+        const { options } = OptionGeneration.createEncounterOptions(
+          makeSession({ round: 4, losses: 1, seed: `soul-ok-${i}` }),
+        );
+        for (const opt of options) seen.add(opt.id);
+      }
+      expect(seen.has("soul_trade")).toBe(true);
+    });
+
+    it("never offers rest_inn at full lives", () => {
+      for (let i = 0; i < 50; i++) {
+        const { options } = OptionGeneration.createEncounterOptions(
+          makeSession({ round: 3, losses: 0, seed: `full-lives-${i}` }),
+        );
+        for (const opt of options) {
+          expect(opt.id).not.toBe("rest_inn");
+        }
+      }
+    });
+
+    it("offers rest_inn once a life has been lost", () => {
+      const seen = new Set<string>();
+      for (let i = 0; i < 50; i++) {
+        const { options } = OptionGeneration.createEncounterOptions(
+          makeSession({ round: 3, losses: 1, seed: `rest-ok-${i}` }),
+        );
+        for (const opt of options) seen.add(opt.id);
+      }
+      expect(seen.has("rest_inn")).toBe(true);
+    });
+  });
 });

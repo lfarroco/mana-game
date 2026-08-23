@@ -173,7 +173,6 @@ Detailed docs live in `docs/`. Each covers a specific system:
 
 
 
-
 ## Task Queue
 
 > Pick a task, mark it `[x]` with your agent name and date when done, then **remove the entry from this list once completed** — the queue holds only open work. Add new tasks as discovered.

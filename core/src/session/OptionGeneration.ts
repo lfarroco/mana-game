@@ -11,7 +11,10 @@ import { CardDefinition } from "../Models";
 import * as Random from "../math/Random";
 import type { EncounterId } from "../types/action";
 import { ENCOUNTER_BY_ID } from "../content/encounters";
-import { FAVOR_TOKENS_FOR_SILVER_SHOP } from "../math/Constants";
+import {
+  FAVOR_TOKENS_FOR_SILVER_SHOP,
+  LOSSES_TO_GAME_OVER,
+} from "../math/Constants";
 
 type EncounterFilterType =
   | "damage"
@@ -86,6 +89,30 @@ function isEncounterEligibleForRound(id: EncounterId, round: number): boolean {
   return true;
 }
 
+/**
+ * Session-dependent eligibility — an encounter only appears when it can
+ * actually do something in the player's current run state:
+ * - `soul_trade` / `roulette_wheel`: blocked at 1 life left — their
+ *   SessionTransitions guards reject a trade/spin that would reach
+ *   LOSSES_TO_GAME_OVER, so offering them there would be a dead option.
+ * - `rest_inn`: blocked at full lives — there is no loss to restore.
+ */
+function isEncounterEligibleForSession(
+  id: EncounterId,
+  session: Models.SessionData,
+): boolean {
+  if (
+    (id === "soul_trade" || id === "roulette_wheel") &&
+    session.losses + 1 >= LOSSES_TO_GAME_OVER
+  ) {
+    return false;
+  }
+  if (id === "rest_inn" && session.losses <= 0) {
+    return false;
+  }
+  return true;
+}
+
 export function createEncounterOptions(session: Models.SessionData): {
   options: Models.PhaseOption[];
   encounterHistory: EncounterId[];
@@ -108,15 +135,22 @@ export function createEncounterOptions(session: Models.SessionData): {
     isEncounterEligibleForRound(id, session.round),
   );
 
+  // Session firewall: drop encounters that can't be used in the current run
+  // state (soul_trade / roulette_wheel at 1 life left, rest_inn at full
+  // lives) so the options never include dead picks.
+  const sessionEligible = roundEligible.filter((id) =>
+    isEncounterEligibleForSession(id, session),
+  );
+
   // Filter out recently shown encounters
-  const availableEncounters = roundEligible.filter(
+  const availableEncounters = sessionEligible.filter(
     (id) => !recentlyShownEncounters.has(id),
   );
 
-  // If we don't have enough encounters (very rare), use all round-eligible
-  // encounters (still respecting the round firewall).
+  // If we don't have enough encounters (very rare), use all session-eligible
+  // encounters (still respecting the round + session firewalls).
   const encountersToShow =
-    availableEncounters.length >= 3 ? availableEncounters : roundEligible;
+    availableEncounters.length >= 3 ? availableEncounters : sessionEligible;
   let selectedOptions = encountersToShow.slice(0, 3);
 
   // E1 (docs/new-encounter-types.md): favor tokens. At
