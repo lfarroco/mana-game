@@ -14,7 +14,7 @@
 #   3. Prunes old snapshots; optionally copies the directory off-box when
 #      BACKUP_DEST is set (uses rclone if installed).
 #
-# Requirements: run on the droplet from a repo clone; the server container
+# Requirements: run on the cloud VM from a repo clone; the server container
 # must be running.
 set -euo pipefail
 

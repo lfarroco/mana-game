@@ -40,7 +40,7 @@ function createWindow() {
 	if (process.env.NODE_ENV === 'development') {
 		if (process.env.MANA_LOAD_DIST === '1') {
 			// Load the built dist bundle instead of the webpack dev server —
-			// used by `make electron-dev-droplet`, which bakes the droplet
+			// used by `make electron-dev-cloud`, which bakes the cloud API's
 			// MANA_SERVER_URL into the dist build and needs no local
 			// webpack-dev-server. DevTools still open for the dev loop.
 			mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));

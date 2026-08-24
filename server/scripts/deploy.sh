@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy the Mana Battle multiplayer server on a DigitalOcean droplet.
+# Deploy the Mana Battle multiplayer server on a cloud VM.
 #
 # Usage: ./server/scripts/deploy.sh [--no-prune]
 #

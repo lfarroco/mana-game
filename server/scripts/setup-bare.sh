@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot bootstrap for the bare (no-Docker) droplet deployment.
+# One-shot bootstrap for the bare (no-Docker) cloud deployment.
 #
 # Usage: ./server/scripts/setup-bare.sh [--domain api.manabattle.com] [--no-firewall]
 #
@@ -7,7 +7,7 @@
 #                   from MANA_API_DOMAIN in .env if set there)
 #   --no-firewall   skip ufw configuration (e.g. when using a DO Cloud Firewall)
 #
-# Checks the droplet and installs whatever is missing, idempotently:
+# Checks the cloud and installs whatever is missing, idempotently:
 #   - system packages: curl, git, ca-certificates
 #   - Node >= 22 (NodeSource .deb repo when missing/too old)
 #   - Caddy (official apt repo) for TLS termination 80/443 -> 127.0.0.1:8787
@@ -18,7 +18,7 @@
 #   - the systemd unit + first deploy (via deploy-bare.sh --build)
 #
 # Run as root, from a clone of the repo. The DNS record must already point at
-# the droplet (DNS-only is fine — Caddy auto-issues Let's Encrypt certs).
+# the cloud (DNS-only is fine — Caddy auto-issues Let's Encrypt certs).
 set -euo pipefail
 
 if [ "$(id -u)" != "0" ]; then
@@ -50,7 +50,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 SERVICE_USER="${MANA_SERVICE_USER:-managame}"
 
-echo "[setup] droplet bootstrap for ${DOMAIN} (repo: ${REPO_ROOT})"
+echo "[setup] cloud VM bootstrap for ${DOMAIN} (repo: ${REPO_ROOT})"
 
 # 1. System packages (idempotent — apt no-ops when already installed).
 ensure_apt_pkgs() {

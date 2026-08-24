@@ -84,7 +84,7 @@ npx jest src/path/ToFile.test.ts --runInBand
 | `npm run format:check`    | Prettier check (no writes)                                  |
 | `make dev`                | `cd phaser && npm run dev`                                  |
 | `make electron-dev`       | Run desktop app in development mode                         |
-| `make electron-dev-droplet` | Run desktop dev app against the remote droplet API (builds with `MANA_SERVER_URL=https://<MANA_API_DOMAIN>` and loads the built `dist` bundle — no local dev server needed) |
+| `make electron-dev-cloud` | Run desktop dev app against the remote cloud API (builds with `MANA_SERVER_URL=https://<MANA_API_DOMAIN>` and loads the built `dist` bundle — no local dev server needed) |
 | `make electron-build`     | Build desktop app for current platform                      |
 | `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
 | `make android-build`      | Build for Android via Capacitor                             |

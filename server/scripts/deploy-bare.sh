@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Deploy the Mana Battle multiplayer server WITHOUT Docker, on a bare
-# Ubuntu/DigitalOcean droplet supervised by systemd.
+# Ubuntu cloud VM supervised by systemd.
 #
 # Usage: ./server/scripts/deploy-bare.sh [--build]
 #
-#   --build     build dist/ on the droplet (npm ci + tsup). Skip this when you
+#   --build     build dist/ on the cloud VM (npm ci + tsup). Skip this when you
 #               build dist/ on your dev machine and rsync it over — the
-#               droplet then only installs production deps (tiny, no OOM on a
+#               cloud then only installs production deps (tiny, no OOM on a
 #               512 MB box). dist/ is gitignored, so git pull alone never
 #               ships it.
 #
@@ -61,10 +61,10 @@ fi
 git pull --ff-only
 
 # 3. Install deps + (optionally) build. Default: expect dist/ shipped from the
-#    dev machine; --build compiles on the droplet (needs swap on 512 MB).
+#    dev machine; --build compiles on the cloud VM (needs swap on 512 MB).
 cd "${REPO_ROOT}/server"
 if [ "${BUILD}" = "1" ]; then
-  echo "[deploy-bare] building dist/ on the droplet ..."
+  echo "[deploy-bare] building dist/ on the cloud VM ..."
   npm ci
   npm run build
 else

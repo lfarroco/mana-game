@@ -32,7 +32,7 @@
  * only way an address in this list becomes req.ip is to actually connect from
  * one — i.e. genuine Cloudflare traffic. (Direct access to :8787 must stay
  * firewalled so attackers cannot reach the server outside Caddy/Cloudflare —
- * the droplet's ufw only exposes 22/80/443.)
+ * the cloud VM's ufw only exposes 22/80/443.)
  *
  * WHEN CLOUDFLARE CHANGES RANGES
  * ------------------------------

@@ -217,20 +217,33 @@ Session + combat rows are written in a single transaction; a kill/restart
 mid-run resumes via `GET /sessions/current` with the combat state intact
 (restart-survival test in `test/sqlite.test.ts`).
 
-## Deployment (DigitalOcean VM)
+## Deployment (Ubuntu VM)
 
 The `Dockerfile` bundles the server **and** the `core/` game logic into a single
 image (core is inlined at build time via the `@game/*` esbuild alias). There are
-two supported droplet paths: **`docker compose`** (below) and a **bare systemd
-install** (no Docker) for tiny droplets.
+two supported VM paths: **`docker compose`** (below) and a **bare systemd
+install** (no Docker) for tiny VMs.
 
-### Docker flow: `docker compose` on the droplet
+### Docker flow: `docker compose` on the VM
 
 The root `compose.yaml` is the supported production entry point. It sets
 `MANA_SQLITE_PATH=/data/mana.db` on the named `mana-data` volume, enables the
 health check, and restarts on crash/reboot.
 
-1. **Create an Ubuntu 24.04 droplet** (1 GB is plenty for Node + SQLite — the
+**Fresh VM?** Run the one-shot bootstrap — it installs Docker Engine + the
+compose plugin, creates `.env` from `.env.example` (fill in the key and
+re-run), opens 22/80/443 via ufw, and runs the first deploy:
+
+```bash
+git clone git@github.com:lfarroco/mana-game.git /opt/mana-game   # private repo → SSH deploy key or PAT
+cd /opt/mana-game
+./server/scripts/setup-docker.sh            # --domain api.manabattle.com [--no-firewall]
+```
+
+The manual steps below are what the script automates (keep them in mind for the
+one-time `.env` contents and cloud-firewall configuration):
+
+1. **Create an Ubuntu 24.04 VM** (1 GB is plenty for Node + SQLite — the
    $4 512 MB size can OOM during `npm install`/`tsup` in the Docker build; add
    a 1 GB swap file or use the 1 GB size) and install Docker Engine + the
    compose plugin. Add your deploy user to the
@@ -291,6 +304,10 @@ health check, and restarts on crash/reboot.
 
 **Redeploy** is just `./server/scripts/deploy.sh` again — the `mana-data`
 volume keeps sessions, ghosts, ratings, and players across rebuilds.
+Maintenance from your machine (see the Makefile): `make cloud-deploy`,
+`make cloud-logs`, `make cloud-db-download`, `make cloud-db` (browse a
+snapshot), `make cloud-db-summary`. All the `cloud-*` targets are
+provider-agnostic — set `MANA_CLOUD` (e.g. `root@<vm-ip>`) in `.env`.
 
 > ⚠️ **Data survival rules**
 > - `docker compose up -d --build` and `docker compose down` keep `mana-data`.
@@ -301,16 +318,55 @@ volume keeps sessions, ghosts, ratings, and players across rebuilds.
 > - SQLite means **one container**: never run two server replicas against the
 >   same `.db` file.
 
+### Switching providers / migrating to a fresh VM
+
+The deployment is provider-agnostic — moving to a new cloud is a few steps and
+the only data that matters is the SQLite DB:
+
+1. **Back up the old VM** — on the current box (or `make cloud-db-download`
+   from your machine):
+   ```bash
+   cd /opt/mana-game && ./server/scripts/backup.sh --keep 1
+   ```
+   then copy `server/data/backups/mana-*.db` somewhere safe.
+2. **Create the new VM** on any provider. Add the DNS record last.
+3. **Bootstrap it** (Docker + compose plugin, `.env`, ufw, first deploy):
+   ```bash
+   git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
+   cd /opt/mana-game
+   ./server/scripts/setup-docker.sh --no-firewall   # 22/80/443 via the cloud security list
+   ```
+4. **Restore the database** — stop the stack, drop the snapshot into the
+   `mana-game_mana-data` volume, start again:
+   ```bash
+   docker compose down
+   docker run --rm -v mana-game_mana-data:/data -v "$PWD/mana-<ts>.db":/restore.db:ro \
+     alpine sh -c 'cp /restore.db /data/mana.db && chown 1000:1000 /data/mana.db'
+   docker compose up -d --build
+   ```
+5. **Flip DNS/Cloudflare** to the new VM's IP (SSL mode stays **Full
+   (strict)** — Caddy re-issues the Let's Encrypt cert automatically on the new
+   host), then verify:
+   ```bash
+   curl https://api.manabattle.com/health   # → {"ok":true}
+   ```
+
+> The `mana-data` volume itself is also portable (`docker run --rm -v
+> mana-game_mana-data:/data -v $PWD:/backup alpine tar czf /backup/mana-data.tgz -C /data .`
+> → unpack on the new box), but snapshot-restore (step 4) is the simpler and
+> safer path — use the volume tarball only when you want the exact volume
+> contents (e.g. the in-volume `backups/` copies).
+
 ### Bare systemd flow (no Docker)
 
-For a small droplet (e.g. the $4 512 MB size) running a single Node process,
+For a small VM (e.g. the $4 512 MB size) running a single Node process,
 Docker overhead isn't worth it. The server already ships as one bundled file
 (`npm run build` → `dist/index.js` with `core/` inlined), and systemd does the
 supervision. There is no dotenv — config reads `process.env`, so the unit
 loads an `EnvironmentFile`.
 
 **One-shot setup** (recommended): clone the repo, point a DNS record at the
-droplet, then run as root:
+VM, then run as root:
 
 ```bash
 git clone git@github.com:lfarroco/mana-game.git /opt/mana-game
@@ -318,7 +374,7 @@ cd /opt/mana-game
 ./server/scripts/setup-bare.sh            # --domain api.manabattle.com [--no-firewall]
 ```
 
-`setup-bare.sh` is idempotent — it checks the droplet and installs whatever is
+`setup-bare.sh` is idempotent — it checks the VM and installs whatever is
 missing: `curl`/`git`/`ca-certificates`, **Node ≥ 22** (NodeSource), **Caddy**
 (TLS on 80/443 → `127.0.0.1:8787`), the `managame` service user, the ufw
 firewall (22/80/443), and the `server/Caddyfile` template rendered to
@@ -351,7 +407,7 @@ snapshot over `server/data/mana.db`, `systemctl start mana-server`.
 Useful commands: `systemctl status mana-server`, `journalctl -u mana-server -f`,
 `systemctl restart mana-server`.
 
-### HTTPS, TLS, and pointing clients at the droplet
+### HTTPS, TLS, and pointing clients at the VM
 
 The itch.io game page is served over HTTPS; browsers block mixed content, so
 the web build's API URL must be `https://…`. The bare setup uses **Caddy**
@@ -363,7 +419,7 @@ Steam Electron build works over plain HTTP too, but pointing it at the same
 
 - **Clients are built with `MANA_SERVER_URL`** (webpack DefinePlugin; empty
   string falls back to `http://127.0.0.1:8787`). Point both builds at the
-  droplet, e.g.:
+  VM, e.g.:
   ```bash
   MANA_SERVER_URL=https://api.manabattle.com npm run build
   ```
