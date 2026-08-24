@@ -1,10 +1,14 @@
-// Usage: node plist-to-phaser-json.js boss_andromeda.plist boss_andromeda.json
-const fs = require('fs');
-const plist = require('plist');
+// Usage: node plist-to-phaser-json.js
+// Converts every TexturePacker .plist in assets/heroes/ into:
+//   - a Phaser JSON atlas:          <basename>.json
+//   - a Phaser animations manifest: <basename>-anims.json
+// Run from phaser/ via: npm run convert:heroes
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import plist from 'plist';
 
-
-
-const path = require('path');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const heroesDir = path.join(__dirname, 'assets', 'heroes');
 const files = fs.readdirSync(heroesDir).filter(f => f.endsWith('.plist'));

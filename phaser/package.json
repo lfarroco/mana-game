@@ -27,7 +27,8 @@
         "typecheck": "tsc --noEmit",
         "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css}\"",
-        "new:screen": "tsx scripts/new-screen.ts"
+        "new:screen": "tsx scripts/new-screen.ts",
+        "convert:heroes": "node public/plist-to-phaser-json.js"
     },
     "repository": {
         "type": "git",

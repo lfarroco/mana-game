@@ -715,7 +715,7 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
     description:
       "Copy-paste with lag — when the left ally casts any basic ability, buff a random ally.",
     tags: ["team_buff"],
-    pic: "neutral_timekeeper",
+    pic: "neutral_shadow1",
     power: 35,
     cooldown: 4000,
     effects: [shield],
