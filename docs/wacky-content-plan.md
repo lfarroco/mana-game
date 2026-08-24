@@ -89,7 +89,7 @@ per effect, not "small".
 | ID  | Task                                                        | Type      | Tier | Effort |
 | --- | ----------------------------------------------------------- | --------- | ---- | ------ |
 | A0  | ✅ Gold cap → percentage guard                              | test edit | A    | XS     |
-| A1  | ✅ Pixie Trickster (bronze)                                 | unit      | A    | XS     |
+| A1  | ✅ Trickster (bronze)                                      | unit      | A    | XS     |
 | A2  | ✅ Vulture (silver)                                         | unit      | A    | XS     |
 | A3  | ✅ The Leech (silver)                                       | unit      | A    | XS     |
 | A4  | ✅ Echo of the Mask (bronze)                                | unit      | A    | XS     |
@@ -128,13 +128,13 @@ per effect, not "small".
 - **Acceptance**: `cd core && npx jest src/data/BaseCollection.balance.test.ts --runInBand`
   green; doc note explaining the chosen ratio.
 
-#### A1 — Pixie Trickster (new bronze) ✅ (2026-08-19, `dac9eea2`)
+#### A1 — Trickster (new bronze, renamed from Pixie Trickster) ✅ (2026-08-19, `dac9eea2`)
 
 - **Goal**: chaos tempo — every cast hastes a random ally AND slows a random enemy.
 - **Files**: `core/src/data/cards/bronzeCards.ts`.
 - **Spec**: `rank: 1`, `power ≈ 35`, `cooldown ≈ 5000`,
   `effects: [haste(1000, randomAlly(1)), slow(1000, randomEnemy(1))]`, `reactions: []`,
-  `tags: ["haster","disabler"]`, `pic` reuse an existing `neutral_*` asset, i18n + description.
+  `tags: ["haster","disabler"]`, `pic: "f2_spellthief"`, i18n + description.
 - **Acceptance**: AP within `[80,160]`; balance test green.
 
 #### A2 — Vulture (new silver) ✅ (2026-08-19, `f33c6c40`)

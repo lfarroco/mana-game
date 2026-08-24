@@ -78,10 +78,10 @@ const BASIC_ACTIONS = new Set(["damage", "heal", "shield", "poison", "regen"]);
 
 /**
  * Pure tempo/support units that deliberately carry no basic action.
- * pixie_trickster (docs/wacky-content-plan.md A1) is the first: every cast is
+ * trickster (docs/wacky-content-plan.md A1) is the first: every cast is
  * haste + slow, so it has no damage/heal/shield/poison/regen by design.
  */
-const NO_BASIC_ACTION_ALLOWLIST = new Set(["pixie_trickster"]);
+const NO_BASIC_ACTION_ALLOWLIST = new Set(["trickster"]);
 
 const nonCoreCards = ALL_CARDS.filter((c) => !c.isCore);
 
