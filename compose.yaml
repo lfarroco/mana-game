@@ -61,6 +61,11 @@ services:
       MANA_SQLITE_PATH: /data/mana.db
       MANA_STEAM_WEB_API_KEY: "${MANA_STEAM_WEB_API_KEY:?MANA_STEAM_WEB_API_KEY is required — add it to the root .env file (gitignored)}"
       MANA_STEAM_APP_IDS: "${MANA_STEAM_APP_IDS:-3757600,4233280}"
+      # AuthenticateUserTicket endpoint. Defaults to the public endpoint, which
+      # works with a standard Web API key (steamcommunity.com/dev/apikey). Set
+      # MANA_STEAM_API_URL in .env to the partner endpoint when you have a
+      # publisher Web API key instead.
+      MANA_STEAM_API_URL: "${MANA_STEAM_API_URL:-https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/}"
       MANA_CORS_ORIGIN: "${MANA_CORS_ORIGIN:-*}"
       MANA_ITCH_ENABLED: "${MANA_ITCH_ENABLED:-false}"
     volumes:
