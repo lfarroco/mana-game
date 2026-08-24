@@ -7,6 +7,16 @@ import type { MultiplayerVictoryCounts } from "../../../RemoteServer";
 const PANEL_WIDTH = 560;
 const PANEL_HEIGHT = 420;
 
+/**
+ * Row label/value columns (offsets from the panel center). The label is
+ * anchored at the panel's left content edge and the right-aligned value sits
+ * just right of center — the previous ±70 columns overlapped because the
+ * longest labels ("Gold Victories" ≈ 150px, Russian "Серебряных побед" ≈
+ * 214px at 24px) extend past the value column's left edge.
+ */
+const LABEL_X_OFFSET = -250;
+const VALUE_X_OFFSET = 50;
+
 /** Tier display colors (match ResultsConfig.RESULTS_COLORS). */
 const TIER_COLORS = {
 	gold: "#FFD700",
@@ -62,14 +72,14 @@ export function create(config: {
 	rows.forEach((row, index) => {
 		const rowY = startY + index * rowSpacing;
 		const labelText = env.scene.add
-			.text(x - 70, rowY, row.label, {
+			.text(x + LABEL_X_OFFSET, rowY, row.label, {
 				...constants.defaultTextConfig,
 				fontSize: "24px",
 				color: "#ecf0f1",
 			})
 			.setOrigin(0, 0.5);
 		const valueText = env.scene.add
-			.text(x + 70, rowY, row.value.toString(), {
+			.text(x + VALUE_X_OFFSET, rowY, row.value.toString(), {
 				...constants.defaultTextConfig,
 				fontSize: "30px",
 				color: row.color,
