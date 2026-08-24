@@ -6,7 +6,7 @@
  *
  * The void identity is disruption / power theft:
  * - void_leech: when an ENEMY heals, shield your crystal (cross-force, mirrors
- *   the A3 "The Leech" pattern).
+ *   the A3 "Living Bloodstone" pattern).
  * - void_power_drain: each cast absorbs 25% of the strongest enemy's power.
  * - void_dispel: each cast strips the strongest enemy's statuses (D2).
  * - void_weakness: whenever an ally casts a basic ability, the strongest enemy

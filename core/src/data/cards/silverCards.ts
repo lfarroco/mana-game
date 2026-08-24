@@ -371,7 +371,7 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
     id: "vulture",
     description: "Feeds on weakness — grows power when enemies are slowed.",
     tags: ["cross_force", "grow_over_time"],
-    pic: "neutral_bonereaper",
+    pic: "f4_daemondeep",
     power: 75,
     rank: 2,
     cooldown: 6000,
@@ -379,11 +379,11 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
     reactions: [reaction("slow", "enemies", increasePower(6, self), "enemy")],
   },
   {
-    id: "the_leech",
+    id: "living_bloodstone",
     description:
       "Parasitic reversal — when the enemy heals, your crystal gains shield.",
     tags: ["cross_force", "type_engine"],
-    pic: "neutral_voidhunter",
+    pic: "f2_ogremonk02",
     power: 40,
     rank: 2,
     cooldown: 5800,
@@ -398,7 +398,7 @@ export const SILVER_CARDS: Models.CardDefinition[] = [
     description:
       "Thorns — when your crystal takes a hit, deal your power back to the enemy crystal.",
     tags: ["type_engine", "cross_force"],
-    pic: "neutral_giantcrab",
+    pic: "f4_bloodmoon",
     power: 45,
     rank: 2,
     cooldown: 5000,

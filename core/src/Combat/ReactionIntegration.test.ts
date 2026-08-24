@@ -380,15 +380,19 @@ describe("Reaction — enemies position", () => {
 });
 
 describe("Reaction — enemy heal triggers shield (cross-force)", () => {
-  it("the_leech: enemy heal grants YOUR crystal shield", () => {
+  it("living_bloodstone: enemy heal grants YOUR crystal shield", () => {
     // Build the player-side reactor from the REAL card data. Cooldown is set to
     // 99999 so it never casts its own shield — any shield that lands must come
     // from the heal reaction.
-    const leech = Card.makeUnit(Constants.FORCE_ID_PLAYER, "the_leech", [0, 0]);
-    leech.cooldown = 99999;
-    leech.id = "leech-react";
+    const bloodstone = Card.makeUnit(
+      Constants.FORCE_ID_PLAYER,
+      "living_bloodstone",
+      [0, 0],
+    );
+    bloodstone.cooldown = 99999;
+    bloodstone.id = "bloodstone-react";
 
-    const { combatState, combatRunner } = setupCombat([leech]);
+    const { combatState, combatRunner } = setupCombat([bloodstone]);
 
     // Add a CPU-side healer (the auto CPU core sits at [0, 2], so [1, 2] is free).
     const enemyHealer = makeTestUnit({
@@ -405,9 +409,9 @@ describe("Reaction — enemy heal triggers shield (cross-force)", () => {
 
     const logs = runFrames(combatRunner, combatState, 300);
 
-    // The Leech's reaction fired when the enemy healed.
+    // The Living Bloodstone's reaction fired when the enemy healed.
     const reactionLogs = filterLogs(logs, "reaction");
-    expect(reactionLogs.some((l) => l.unitId === "leech-react")).toBe(true);
+    expect(reactionLogs.some((l) => l.unitId === "bloodstone-react")).toBe(true);
 
     // The shield landed on the PLAYER core — the enemy heal granted OUR crystal shield.
     const playerCore = combatState.units.find(

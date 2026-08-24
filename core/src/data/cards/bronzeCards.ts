@@ -726,8 +726,8 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
     description:
       "Damage + heal hybrid — sustains your crystal while attacking.",
     tags: ["team_buff"],
-    pic: "neutral_bloodletter",
-    power: 40,
+    pic: "f2_ogremonk02",
+    power: 10,
     cooldown: 5400,
     effects: [damage, heal],
     reactions: [],
