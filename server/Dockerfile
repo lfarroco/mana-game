@@ -3,9 +3,14 @@ FROM node:22-alpine AS builder
 
 WORKDIR /build
 
-# Install server dependencies (includes devDeps for tsup)
-COPY server/package.json ./
-RUN npm install
+# The lockfile is copied so installs are reproducible — `npm ci`, not
+# `npm install`. `--ignore-scripts` sidesteps a gotcha: npm runs a default
+# `node-gyp rebuild` for better-sqlite3 because its `gypfile: false` manifest
+# field isn't recorded in the lockfile (and alpine has no python/make/g++).
+# That skips esbuild's postinstall too, so re-run it explicitly — tsup needs
+# esbuild's platform binary at build time.
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --ignore-scripts && node node_modules/esbuild/install.js
 
 # Copy server source + build config
 COPY server/src ./src
@@ -23,9 +28,13 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# Install production dependencies only
-COPY server/package.json ./
-RUN npm install --omit=dev
+# Install production dependencies only (lockfile pinned, reproducible).
+# better-sqlite3 v13 ships prebuilt NAPI binaries (glibc + musl, x64 + arm64)
+# that are loaded at require-time, but npm would still try `node-gyp rebuild`
+# for it (the lockfile lacks `gypfile: false`) — so skip lifecycle scripts;
+# nothing in the production tree needs them.
+COPY server/package.json server/package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts
 
 # Copy the bundled output
 COPY --from=builder /build/dist ./dist

@@ -4,6 +4,10 @@ node_modules/
 # Git
 .git/
 
+# Secrets — the root .env holds MANA_STEAM_WEB_API_KEY; it must never ride
+# along in the build context (the Dockerfile reads config from the runtime env).
+.env
+
 # Client app (not needed for server)
 phaser/
 electron/
