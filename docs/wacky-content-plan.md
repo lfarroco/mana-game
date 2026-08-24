@@ -20,7 +20,7 @@ Mana Battle's comedy comes from three emergent sources:
 
 1. **Board-state humor** — positional (row/column/adjacent) synergies gone sideways.
 2. **Reaction chains** — your own combo exploding or backfiring.
-3. **Gambles** — seeded variance you *chose* to take.
+3. **Gambles** — seeded variance you _chose_ to take.
 
 The tasks below deliberately target these three, not raw stat inflation. Everything
 stays **pure and deterministic** (seeded RNG only) and **replay-safe** (combat is
@@ -30,25 +30,26 @@ server-simulated for multiplayer; see [game-server.md](game-server.md)).
 
 ## 1. Verified engine facts (reference sheet — do not re-derive)
 
-| Fact | Where |
-|---|---|
-| Effect ids (actions): `damage` `heal` `shield` `poison` `regen` `haste` `slow` `charge` `increase_power` `decrease_power` `multiply_power` `increase_critical` `distribute_power` `absorb_power` `sacrifice_effect` `re_hasted` `re_slow` | `core/src/types/effect.ts` |
-| Global reaction ids: `on_crit` `on_battle_start` `on_over_heal` `every_100_damage` `every_10_poison` `every_100_heal` `every_10_regen` `every_100_shield` | `core/src/types/effect.ts` + `core/src/Models.ts` `GLOBAL_REACTIONS` |
-| `BASIC_ABILITIES = [damage, shield, poison, regen, heal]`; a reaction with `effectId: "all"` fires **only** on basic abilities | `core/src/Models.ts` + `TriggerSystem.processReactions` |
-| `processReactions` skips `charge`/`increase_power`/`decrease_power`/`multiply_power` as *trigger sources* | `core/src/TriggerSystem/TriggerSystem.ts` (~212) |
-| `position: "self"` is legal **only** for global reactions (others can never fire) | `validateCardDefinition` in `core/src/Entities/Card.ts` |
-| Targeting: `self`, `random_ally(count)`, `random_enemy(count)`, `row_allies`, `column_allies`, `all_allies(ofType)`, `all_enemies`, `strongest_/weakest_ ally/enemy`, `top_/bottom_/left_/right_ally`, `trigger`. `all_allies` excludes self; `ofType` is one of `any\|damage\|heal\|shield\|poison\|regen` | `core/src/types/targeting.ts` + `resolveTargets` |
-| `multiply_power` is **gold-only + cooldown ≥ 8000ms** (test-enforced) | `BaseCollection.balance.test.ts` |
-| `charge` capped at **300ms/cast**; charge *reactions* must key off a specific effect + directional ally (test-enforced) | `BaseCollection.balance.test.ts` |
-| Slot cap **≤ 3** (`effects.length + reactions.length`); ≥ 1 basic action per non-core card (test-enforced) | `BaseCollection.balance.test.ts` |
-| AP bands: bronze `[80,160]`, silver `[120,260]`, gold `[150,320]`; raw-power caps `50/75/90`; `AP_ALLOWLIST` for intentional risk cards | `BaseCollection.balance.test.ts` |
-| Pool: **61 bronze / 21 silver / 10 gold**. Test enforces `silvers > golds` and `golds ≤ 10` (see task A0) | `card-design-philosophy.md` + `BaseCollection.balance.test.ts` |
-| `on_battle_start` fires **per-unit**, bypassing position filtering — `position: "self"` works there | `CombatRunner.runCombat` (~83) |
-| Enemy teams are **real pool cards** via `Card.makeUnit`, so they carry reactions | `core/src/Combat/generateEnemyTeam.ts` |
-| Session-time repositioning already exists: `update_team` action → `SessionManagement.updateTeamAction` (validates 3×3, no dupes, same count) | `core/src/session/SessionManagement.ts` + `phaser/src/Components/Chara/input.ts` |
-| Card fields: `id, pic, power?, cooldown, effects, reactions, isCore?, locked?, rank?, life?, critical?, description?, tags?` | `core/src/types/card.ts` |
+| Fact                                                                                                                                                                                                                                                                                                        | Where                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Effect ids (actions): `damage` `heal` `shield` `poison` `regen` `haste` `slow` `charge` `increase_power` `decrease_power` `multiply_power` `increase_critical` `distribute_power` `absorb_power` `sacrifice_effect` `re_hasted` `re_slow`                                                                   | `core/src/types/effect.ts`                                                       |
+| Global reaction ids: `on_crit` `on_battle_start` `on_over_heal` `every_100_damage` `every_10_poison` `every_100_heal` `every_10_regen` `every_100_shield`                                                                                                                                                   | `core/src/types/effect.ts` + `core/src/Models.ts` `GLOBAL_REACTIONS`             |
+| `BASIC_ABILITIES = [damage, shield, poison, regen, heal]`; a reaction with `effectId: "all"` fires **only** on basic abilities                                                                                                                                                                              | `core/src/Models.ts` + `TriggerSystem.processReactions`                          |
+| `processReactions` skips `charge`/`increase_power`/`decrease_power`/`multiply_power` as _trigger sources_                                                                                                                                                                                                   | `core/src/TriggerSystem/TriggerSystem.ts` (~212)                                 |
+| `position: "self"` is legal **only** for global reactions (others can never fire)                                                                                                                                                                                                                           | `validateCardDefinition` in `core/src/Entities/Card.ts`                          |
+| Targeting: `self`, `random_ally(count)`, `random_enemy(count)`, `row_allies`, `column_allies`, `all_allies(ofType)`, `all_enemies`, `strongest_/weakest_ ally/enemy`, `top_/bottom_/left_/right_ally`, `trigger`. `all_allies` excludes self; `ofType` is one of `any\|damage\|heal\|shield\|poison\|regen` | `core/src/types/targeting.ts` + `resolveTargets`                                 |
+| `multiply_power` is **gold-only + cooldown ≥ 8000ms** (test-enforced)                                                                                                                                                                                                                                       | `BaseCollection.balance.test.ts`                                                 |
+| `charge` capped at **300ms/cast**; charge _reactions_ must key off a specific effect + directional ally (test-enforced)                                                                                                                                                                                     | `BaseCollection.balance.test.ts`                                                 |
+| Slot cap **≤ 3** (`effects.length + reactions.length`); ≥ 1 basic action per non-core card (test-enforced)                                                                                                                                                                                                  | `BaseCollection.balance.test.ts`                                                 |
+| AP bands: bronze `[80,160]`, silver `[120,260]`, gold `[150,320]`; raw-power caps `50/75/90`; `AP_ALLOWLIST` for intentional risk cards                                                                                                                                                                     | `BaseCollection.balance.test.ts`                                                 |
+| Pool: **61 bronze / 21 silver / 10 gold**. Test enforces `silvers > golds` and `golds ≤ 10` (see task A0)                                                                                                                                                                                                   | `card-design-philosophy.md` + `BaseCollection.balance.test.ts`                   |
+| `on_battle_start` fires **per-unit**, bypassing position filtering — `position: "self"` works there                                                                                                                                                                                                         | `CombatRunner.runCombat` (~83)                                                   |
+| Enemy teams are **real pool cards** via `Card.makeUnit`, so they carry reactions                                                                                                                                                                                                                            | `core/src/Combat/generateEnemyTeam.ts`                                           |
+| Session-time repositioning already exists: `update_team` action → `SessionManagement.updateTeamAction` (validates 3×3, no dupes, same count)                                                                                                                                                                | `core/src/session/SessionManagement.ts` + `phaser/src/Components/Chara/input.ts` |
+| Card fields: `id, pic, power?, cooldown, effects, reactions, isCore?, locked?, rank?, life?, critical?, description?, tags?`                                                                                                                                                                                | `core/src/types/card.ts`                                                         |
 
 **Encounter wiring (4 touch-points per new encounter):**
+
 1. `EncounterId` union — `core/src/types/action.ts` (~line 14).
 2. `ENCOUNTERS` row (`{ id, filterType }`) — `core/src/session/OptionGeneration.ts` (~line 38).
 3. Catalog entry (`EncounterData`: `id, pic, nameKey, descriptionKey, minRound?, maxRound?`) — `core/src/content/encounters.ts`.
@@ -68,8 +69,8 @@ per effect, not "small".
 
 ## 2. Binding design decisions
 
-- **D1 — the gold cap is a *ratio*, not an absolute.** The current `golds ≤ 10` test
-  is an artifact of a 92-card pool. What matters is the gold *share* of the total pool.
+- **D1 — the gold cap is a _ratio_, not an absolute.** The current `golds ≤ 10` test
+  is an artifact of a 92-card pool. What matters is the gold _share_ of the total pool.
   Task **A0** replaces the absolute cap with a proportional guard (target ≈ 12%,
   keeping `silvers > golds`). New golds are fine **if** the overall pool grows or an
   existing gold is demoted — never add golds in isolation.
@@ -85,29 +86,29 @@ per effect, not "small".
 
 ## 3. Task index
 
-| ID | Task | Type | Tier | Effort |
-|---|---|---|---|---|
-| A0 | ✅ Gold cap → percentage guard | test edit | A | XS |
-| A1 | ✅ Pixie Trickster (bronze) | unit | A | XS |
-| A2 | ✅ Vulture (silver) | unit | A | XS |
-| A3 | ✅ The Leech (silver) | unit | A | XS |
-| A4 | ✅ Echo of the Mask (bronze) | unit | A | XS |
-| A5 | ✅ Lifestealer (bronze) | unit | A | XS |
-| A6 | ✅ `gambler` edit → true coin-flip | edit | A | XS |
-| A7 | ✅ `mirror_entity` edit → real mirror | edit | A | XS |
-| A8 | ✅ `fate_shifter` edit → Twisted Mirror | edit | A | XS |
-| A9 | ✅ Oracle's Riddle (random bronze) | encounter | A | S |
-| A10 | ✅ Chaos Altar (random orb) | encounter | A | S |
-| A11 | ✅ Roulette Wheel (life gamble) | encounter | A | S |
-| A12 | ✅ Lucky Pig (favor ×3) | encounter | A | S |
-| A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B) | edit | A | XS |
-| A14 | ~~`add_reaction_core` random option~~ (superseded by CUB-B) | edit | A | XS |
-| A15 | ✅ Effect shops allow silvers (round ≥ 4) | edit | A | S |
-| B1 | ✅ `when` predicates on reactions | effect | B | M |
-| C1 | ✅ `repeat`/retrigger | effect | C | M |
-| C2 | ✅ `on_crystal_hit` global reaction (thorns) | effect | C | M |
-| D1 | ✅ `silence` | effect | D | M |
-| D2 | ✅ `dispel` | effect | D | M |
+| ID  | Task                                                        | Type      | Tier | Effort |
+| --- | ----------------------------------------------------------- | --------- | ---- | ------ |
+| A0  | ✅ Gold cap → percentage guard                              | test edit | A    | XS     |
+| A1  | ✅ Pixie Trickster (bronze)                                 | unit      | A    | XS     |
+| A2  | ✅ Vulture (silver)                                         | unit      | A    | XS     |
+| A3  | ✅ The Leech (silver)                                       | unit      | A    | XS     |
+| A4  | ✅ Echo of the Mask (bronze)                                | unit      | A    | XS     |
+| A5  | ✅ Lifestealer (bronze)                                     | unit      | A    | XS     |
+| A6  | ✅ `gambler` edit → true coin-flip                          | edit      | A    | XS     |
+| A7  | ✅ `mirror_entity` edit → real mirror                       | edit      | A    | XS     |
+| A8  | ✅ `fate_shifter` edit → Twisted Mirror                     | edit      | A    | XS     |
+| A9  | ✅ Oracle's Riddle (random bronze)                          | encounter | A    | S      |
+| A10 | ✅ Chaos Altar (random orb)                                 | encounter | A    | S      |
+| A11 | ✅ Roulette Wheel (life gamble)                             | encounter | A    | S      |
+| A12 | ✅ Lucky Pig (favor ×3)                                     | encounter | A    | S      |
+| A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B)        | edit      | A    | XS     |
+| A14 | ~~`add_reaction_core` random option~~ (superseded by CUB-B) | edit      | A    | XS     |
+| A15 | ✅ Effect shops allow silvers (round ≥ 4)                   | edit      | A    | S      |
+| B1  | ✅ `when` predicates on reactions                           | effect    | B    | M      |
+| C1  | ✅ `repeat`/retrigger                                       | effect    | C    | M      |
+| C2  | ✅ `on_crystal_hit` global reaction (thorns)                | effect    | C    | M      |
+| D1  | ✅ `silence`                                                | effect    | D    | M      |
+| D2  | ✅ `dispel`                                                 | effect    | D    | M      |
 
 ## 4. Tasks
 
@@ -148,7 +149,7 @@ per effect, not "small".
 
 #### A3 — The Leech (new silver) ✅ (2026-08-19, `e97857f0`)
 
-- **Goal**: parasitic reversal — when the **enemy** heals, *your* crystal gains shield.
+- **Goal**: parasitic reversal — when the **enemy** heals, _your_ crystal gains shield.
 - **Files**: `core/src/data/cards/silverCards.ts`.
 - **Spec**: `rank: 2`, `power ≤ 75`, `cooldown ≈ 5800`,
   `effects: [shield]`,
@@ -177,7 +178,7 @@ per effect, not "small".
 
 #### A6 — `gambler` edit → true coin-flip ✅ (2026-08-19, `43ad63d1`)
 
-- **Goal**: the flagship risk card should *feel* like a gamble — crit goes to a random target.
+- **Goal**: the flagship risk card should _feel_ like a gamble — crit goes to a random target.
 - **Files**: `core/src/data/cards/bronzeCards.ts` (`gambler`, ~line 587).
 - **Spec**: change `increaseCritical(10, column)` → `increaseCritical(10, randomAlly(1))`
   (optionally a seeded coin-flip ally/enemy for max chaos). Randomize the row reaction
@@ -195,7 +196,7 @@ per effect, not "small".
 #### A8 — `fate_shifter` edit → Twisted Mirror ✅ (2026-08-19, `a110c4e3`)
 
 - **Goal**: the wild double-edged gamble — multiply the strongest ally **and** the
-  strongest enemy (can backfire). (Note: this *is* the "Twisted Mirror" concept; it
+  strongest enemy (can backfire). (Note: this _is_ the "Twisted Mirror" concept; it
   already exists as `fate_shifter` — do **not** add a new card.)
 - **Files**: `core/src/data/cards/goldCards.ts` (`fate_shifter`, ~line 168).
 - **Spec**: change `multiplyPower(1.5, right)` + `multiplyPower(1.5, weakestEnemy)` →
@@ -240,6 +241,29 @@ per effect, not "small".
   stat upgrade until favor tokens existed, and now grants **+1 favor token**
   (updated with A12, 2026-08-19); the lose-a-life outcome re-checks the
   near-death guard so a single spin can never itself reach game over.
+- **Redesign (2026-08-21)** — the wheel now **always lands on a reward**. The
+  spin still costs 1 life (near-death guard unchanged), but the wheel spins out
+  **3 of the 4 rewards as cards in a follow-up encounter** the player **picks
+  one from**, instead of resolving instantly with no feedback (or landing on a
+  single random result):
+  - `roulette_gold_shop` — a full gold shop (3 unit choices, vs the normal
+    1-option gold shop).
+  - `roulette_core_power` — **+50 permanent core power** (instant).
+  - `roulette_core_reaction` — a random identity-orb reaction appended to the
+    core (deduped against reactions it already carries; instant). Excluded
+    from the reveal pool when the core already carries every identity
+    reaction, so every revealed card is genuinely winnable.
+  - `roulette_upgrade_orb` — a free upgrade orb (rank up any unit, via the
+    existing orb_shop flow).
+    The old outcomes (instant gold recruit / random orb / favor token / nothing /
+    lose another life) are gone — no dead slots. The reveal is seeded and
+    deterministic, and shows **3 distinct rewards** (`pickRandomItemsSeeded`
+    over `ROULETTE_WHEEL_RESULTS`, count 3). The revealed ids are
+    **reveal-only**: they live in `content/encounters.ts` (flagged `revealOnly`)
+    for rendering but are never added to the `OptionGeneration.ENCOUNTERS` pool,
+    so they can never be offered as normal encounters. The client renders a
+    "choose your prize!" header on the reveal so it reads as a choice, not a
+    standard encounter row (the skip button stays, mirroring other encounters).
 
 #### A12 — Lucky Pig (new encounter) ✅ (2026-08-19)
 
@@ -260,7 +284,7 @@ per effect, not "small".
 
 - **Goal**: a wacky 4th option — random core upgrade.
 - **Files**: `core/src/session/SessionTransitions.ts` (`UPGRADE_CORE_OPTIONS`, ~line 27)
-  + a new `StaticOptionId` in `types/action.ts` + a handler.
+  - a new `StaticOptionId` in `types/action.ts` + a handler.
 - **Spec**: add `{ id: "random_core_upgrade" }` to `UPGRADE_CORE_OPTIONS`; handler picks
   one of `increase_core_max_life` / `upgrade_core_power` / `decrease_core_cooldown` via
   seeded RNG and applies it.
@@ -321,7 +345,7 @@ per effect, not "small".
 
 #### C2 — `on_crystal_hit` global reaction (thorns) ✅ (2026-08-19)
 
-- **Goal**: revenge — react when *your crystal actually takes damage* (not when the
+- **Goal**: revenge — react when _your crystal actually takes damage_ (not when the
   enemy merely casts).
 - **Files**: `types/effect.ts` (EffectId), `Models.ts` (`GLOBAL_REACTIONS`),
   `TriggerSystem/effects/dealDamage.ts` (hook in the deferred hit execution),
@@ -409,7 +433,7 @@ two most immediately actionable are marked **★**.
 
 ### 8.1 The downside axis ("stickers")
 
-Balatro's Eternal/Perishable/Rental stickers are a *second* orthogonal axis to
+Balatro's Eternal/Perishable/Rental stickers are a _second_ orthogonal axis to
 rarity — you pay a downside for more power. Mana Battle has only the upside axis
 (rank + orbs). The cheapest fun version:
 
@@ -428,20 +452,20 @@ new-encounter-types D1.
 
 ### 8.3 Count-based power (Bull, Bootstraps, Joker Stencil, Abstract)
 
-"Power scales with the *shape* of the board": +power per empty slot, per ally, per
+"Power scales with the _shape_ of the board": +power per empty slot, per ally, per
 tier. Needs B1's count predicates plus a "count" source; medium. A direct wacky
 build-around: a gold that grows per **empty** board slot (rewarding a thin board —
 the Stencil analog).
 
 ### 8.4 Negation / constraint conditions
 
-`Ride the Bus` / `Green Joker` / `Obelisk` / `Campfire` reward *avoiding* something,
+`Ride the Bus` / `Green Joker` / `Obelisk` / `Campfire` reward _avoiding_ something,
 not just triggering. Extend B1's `when` predicate with a `not` variant (e.g. "no
 ally has cast `heal` this combat") to unlock constraint-based play.
 
 ### 8.5 Run-history scaling (Supernova, Fortune Teller, Throwback, Constellation)
 
-Jokers that scale with *what you did this run* (hands played, tarots used, blinds
+Jokers that scale with _what you did this run_ (hands played, tarots used, blinds
 skipped). Mana Battle equivalent: units that gain permanent power per combat won /
 orb used / encounter skipped this run. Needs session stats threaded into combat
 setup (the same `applyRunBoons` seam). Cheapest: a Supernova analog ("+1 permanent
@@ -456,7 +480,7 @@ flag.
 
 ### 8.7 Acquisition as content (Legendary via The Soul; 45 conditional unlocks)
 
-*How* you get a card is itself content. Two takeaways:
+_How_ you get a card is itself content. Two takeaways:
 
 - Give new locked golds **thematic unlock conditions** (achievement wiring) that
   teach a strategy (Balatro's "win a run in 18 rounds" pattern).
@@ -468,8 +492,3 @@ flag.
 Balatro's precise played-vs-held-vs-deck distinctions suggest a
 "has-cast-this-combat" state as a future trigger condition. Low priority; only
 worth it if cast counters (Tier E) land first.
-
-
-
-
-

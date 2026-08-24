@@ -12,6 +12,10 @@ export type EncounterData = {
   params?: Record<string, string>;
   minRound?: number;
   maxRound?: number;
+  /** Not generated in the normal pool — surfaced only as a follow-up reveal
+   *  (e.g. the roulette wheel results). Used by the client to style the
+   *  reveal as a prize choice. */
+  revealOnly?: boolean;
 };
 
 const improveType = (pic: string, type: string): EncounterData => ({
@@ -210,6 +214,37 @@ export const ENCOUNTERS: EncounterData[] = [
     nameKey: "encounters.lucky_pig.name",
     descriptionKey: "encounters.lucky_pig.desc",
     minRound: 2,
+  },
+  // ── Roulette wheel results (A11 redesign, 2026-08-21) ──────────────
+  // Reveal-only encounters — never generated in the normal pool; they appear
+  // only as the multi-option result of a `roulette_wheel` pick.
+  {
+    id: "roulette_gold_shop",
+    pic: "ui/gold_medal",
+    nameKey: "encounters.roulette_gold_shop.name",
+    descriptionKey: "encounters.roulette_gold_shop.desc",
+    revealOnly: true,
+  },
+  {
+    id: "roulette_core_power",
+    pic: "ui/power_distributor",
+    nameKey: "encounters.roulette_core_power.name",
+    descriptionKey: "encounters.roulette_core_power.desc",
+    revealOnly: true,
+  },
+  {
+    id: "roulette_core_reaction",
+    pic: "ui/commander",
+    nameKey: "encounters.roulette_core_reaction.name",
+    descriptionKey: "encounters.roulette_core_reaction.desc",
+    revealOnly: true,
+  },
+  {
+    id: "roulette_upgrade_orb",
+    pic: "ui/upgrade_unit",
+    nameKey: "encounters.roulette_upgrade_orb.name",
+    descriptionKey: "encounters.roulette_upgrade_orb.desc",
+    revealOnly: true,
   },
   {
     id: "start_combat",

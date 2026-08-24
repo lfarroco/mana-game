@@ -41,7 +41,12 @@ export type EncounterId =
   | "oracles_riddle"
   | "chaos_altar"
   | "roulette_wheel"
-  | "lucky_pig";
+  | "lucky_pig"
+  // ── Roulette wheel results (A11 redesign, 2026-08-21) ───────────────
+  | "roulette_gold_shop"
+  | "roulette_core_power"
+  | "roulette_core_reaction"
+  | "roulette_upgrade_orb";
 
 /** Static phase-option ids not derived from encounters or cards. */
 export type StaticOptionId =

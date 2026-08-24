@@ -187,6 +187,11 @@ function getEncounterFilterType(
 ): EncounterFilterType | "" {
   if (!encounterId) return "";
 
+  // A11 redesign (docs/wacky-content-plan.md): roulette result encounters are
+  // reveal-only (never part of the generated pool), so their filters are
+  // hardcoded here instead of added to the ENCOUNTERS generation table.
+  if (encounterId === "roulette_gold_shop") return "gold";
+
   const def = ENCOUNTERS.find((e) => e.id === encounterId);
   return def?.filterType ?? "";
 }
@@ -305,6 +310,8 @@ export function generateShopOptions(
   let numOptions = 3; // Default for most encounters
   if (encounterId === "gold_shop" || encounterId === "soul_trade") {
     numOptions = 1; // Gold shop: single premium unit
+  } else if (encounterId === "roulette_gold_shop") {
+    numOptions = 3; // A11 wheel result: a full gold shop (three choices)
   } else if (
     encounterId === "silver_shop" ||
     encounterId === "runesmith_damage" ||

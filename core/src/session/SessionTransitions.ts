@@ -43,7 +43,31 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   // A10 (docs/wacky-content-plan.md): the "orb" is a surprise — the player
   // picks the victim, the orb is drawn from RANDOM_ORB_POOL at apply time.
   chaos_altar: [{ id: "chaos_altar_random_orb" }],
+  // A11 wheel result: a free upgrade orb on any unit (reuses upgrade_unit's
+  // existing orb_shop flow).
+  roulette_upgrade_orb: [{ id: "upgrade_orb" }],
 };
+
+/**
+ * A11 (docs/wacky-content-plan.md) redesign (2026-08-21): the wheel always
+ * lands on a positive reward — it spins out 3 of these reward encounters,
+ * revealed as cards the player picks one from. No "nothing" / bad-luck slots —
+ * the 1-life entry cost is the risk. These ids are reveal-only: they live in
+ * the content catalog for rendering but are never generated in the normal
+ * encounter pool.
+ */
+const ROULETTE_WHEEL_RESULTS: Models.EncounterId[] = [
+  "roulette_gold_shop",
+  "roulette_core_power",
+  "roulette_core_reaction",
+  "roulette_upgrade_orb",
+];
+
+/** A11: how many of the reward encounters the wheel spins out at once. */
+const ROULETTE_REVEAL_COUNT = 3;
+
+/** A11: flat permanent +50 core power granted by the Power Surge result. */
+const ROULETTE_CORE_POWER_GAIN = 50;
 
 function transitionAfterCombat(
   session: Models.SessionData,
@@ -171,68 +195,72 @@ const ACTION_HANDLERS: Record<
     }
 
     // A11 (docs/wacky-content-plan.md): Roulette Wheel — pay 1 life to spin a
-    // seeded wheel. The "favor" outcome banks a favor token (E1 landed with
-    // A12 — before that it was a random core stat upgrade).
+    // seeded wheel. The wheel always lands on a reward: it spins out
+    // ROULETTE_REVEAL_COUNT reward encounters (a gold shop, a core power
+    // surge, a random core reaction, or a free upgrade orb) revealed as cards
+    // the player picks one from.
     if (action.encounterId === "roulette_wheel") {
       // Near-death guard, mirroring soul_trade: never allow a spin that would
       // reach LOSSES_TO_GAME_OVER.
       if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
       session.losses += 1;
 
-      const { result, seed } = Random.nextRandomValue(session);
+      // Roll the reveal pool. A `roulette_core_reaction` that cannot be
+      // claimed (core already carries every identity reaction) is excluded so
+      // every revealed card is genuinely winnable.
+      const pool = canCoreGainRouletteReaction(session)
+        ? ROULETTE_WHEEL_RESULTS
+        : ROULETTE_WHEEL_RESULTS.filter(
+            (id) => id !== "roulette_core_reaction",
+          );
+      const { picked, seed } = Random.pickRandomItemsSeeded(
+        session,
+        pool,
+        ROULETTE_REVEAL_COUNT,
+      );
       session.seed = seed;
 
-      if (result < 0.2) {
-        // Gold card — recruit a random gold.
-        const goldPool = Card.getNonCores().filter((c) => (c.rank || 1) === 3);
-        const { picked: gold, seed: goldSeed } = Random.pickOneSeeded(
-          session,
-          goldPool,
-        );
-        session.seed = goldSeed;
-        return transitionToNextStep(
-          RecruitmentActions.recruitUnit(session, gold.id, null),
-        );
-      }
-      if (result < 0.4) {
-        // Free orb — a random orb hits a random non-core unit (no target the
-        // player controls, so the altar-style surprise is safe).
-        const nonCores = session.team.units.filter((u) => !u.isCore);
-        if (nonCores.length > 0) {
-          const { picked: target, seed: targetSeed } = Random.pickOneSeeded(
-            session,
-            nonCores,
-          );
-          session.seed = targetSeed;
-          const { picked: orbId, seed: orbSeed } = Random.pickOneSeeded(
-            session,
-            RANDOM_ORB_POOL,
-          );
-          session.seed = orbSeed;
-          session.seed = OrbAndCoreUpgrades.applyOrb(
-            session.team.units,
-            target.id,
-            orbId,
-            { seed: session.seed },
-          );
-        }
-        return transitionToNextStep(session);
-      }
-      if (result < 0.6) {
-        // Favor — a favor token (E1, docs/new-encounter-types.md): skips
-        // accumulate into a guaranteed silver shop.
-        session.favorTokens = (session.favorTokens ?? 0) + 1;
-        return transitionToNextStep(session);
-      }
-      if (result < 0.85) {
-        // Nothing.
-        return transitionToNextStep(session);
-      }
+      // Reveal the results as a multi-card encounter. The step is only
+      // consumed when the picked result resolves below.
+      return {
+        ...session,
+        phase: "encounter",
+        options: picked.map((id) => ({ id })),
+      };
+    }
 
-      // Lose another life — re-check the guard so a single spin can never
-      // itself reach game over.
-      if (session.losses + 1 < LOSSES_TO_GAME_OVER) {
-        session.losses += 1;
+    // A11 redesign: revealed wheel results. Each is claimed by picking its
+    // encounter card. `roulette_gold_shop` and `roulette_upgrade_orb` fall
+    // through to the normal shop / orb_shop routing below.
+    if (action.encounterId === "roulette_core_power") {
+      const core = session.team.units.find((u) => u.isCore);
+      if (core) {
+        core.power += ROULETTE_CORE_POWER_GAIN;
+        core.bonusPower = (core.bonusPower || 0) + ROULETTE_CORE_POWER_GAIN;
+      }
+      return transitionToNextStep(session);
+    }
+
+    if (action.encounterId === "roulette_core_reaction") {
+      const core = session.team.units.find((u) => u.isCore);
+      if (core) {
+        // Random identity-orb reaction from the catalog, skipping reactions
+        // the core already carries (deep equality, mirroring
+        // hasIdentityOrbApplied).
+        const reactionPool = Object.values(CORE_UPGRADE_DEFINITIONS).filter(
+          (def) =>
+            def.kind === "reaction" &&
+            def.reaction !== undefined &&
+            !hasIdentityOrbApplied(core, def),
+        );
+        if (reactionPool.length > 0) {
+          const { picked: def, seed } = Random.pickOneSeeded(
+            session,
+            reactionPool,
+          );
+          session.seed = seed;
+          core.reactions = [...core.reactions, structuredClone(def.reaction!)];
+        }
       }
       return transitionToNextStep(session);
     }
@@ -591,6 +619,24 @@ function isCoreUpgradeOptionId(id: string): boolean {
   return (
     (CORE_STAT_ORBS as readonly string[]).includes(id) ||
     id in CORE_UPGRADE_DEFINITIONS
+  );
+}
+
+/**
+ * A11: whether a `roulette_core_reaction` spin result could grant a new
+ * reaction. False when there is no core or the core already carries every
+ * identity-orb reaction in the catalog (deep equality via
+ * hasIdentityOrbApplied) — in that case the result would be a dead slot, so
+ * it is excluded from the wheel's reveal pool.
+ */
+function canCoreGainRouletteReaction(session: Models.SessionData): boolean {
+  const core = session.team.units.find((u) => u.isCore);
+  if (!core) return false;
+  return Object.values(CORE_UPGRADE_DEFINITIONS).some(
+    (def) =>
+      def.kind === "reaction" &&
+      def.reaction !== undefined &&
+      !hasIdentityOrbApplied(core, def),
   );
 }
 

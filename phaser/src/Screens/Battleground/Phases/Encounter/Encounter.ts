@@ -12,6 +12,7 @@ const ENCOUNTER_CARD_HEIGHT = 220;
 const ENCOUNTER_CARD_SPACING = 240;
 const ENCOUNTER_CARD_X_OFFSET = 450;
 const ENCOUNTER_CARD_BASE_Y = 300;
+const ENCOUNTER_HEADER_Y = 130;
 
 type EncounterItem = {
 	name: string;
@@ -20,6 +21,9 @@ type EncounterItem = {
 	minRound?: number;
 	maxRound?: number;
 	id: string;
+	/** True for follow-up reveal encounters (roulette wheel results) — not
+	 *  generated in the normal pool. Used to style the reveal as a prize choice. */
+	revealOnly?: boolean;
 };
 
 export const allEncounters: EncounterItem[] = ENCOUNTERS.map((e) => ({
@@ -29,6 +33,7 @@ export const allEncounters: EncounterItem[] = ENCOUNTERS.map((e) => ({
 	description: i18n.t(e.descriptionKey, e.params),
 	...(e.minRound !== undefined ? { minRound: e.minRound } : {}),
 	...(e.maxRound !== undefined ? { maxRound: e.maxRound } : {}),
+	...(e.revealOnly !== undefined ? { revealOnly: e.revealOnly } : {}),
 }));
 
 /**
@@ -47,6 +52,21 @@ export const encounterPhase =
 			}
 			return acc;
 		}, [] as EncounterItem[]);
+
+		// A11 (docs/wacky-content-plan.md): the roulette wheel spins out reward
+		// cards the player picks one from — add a header so the reveal reads as
+		// a prize choice rather than a standard encounter row.
+		const isRouletteReveal = options.length > 0 && options.every((e) => e.revealOnly);
+		const revealHeader = isRouletteReveal
+			? env.scene.add
+					.text(
+						Constants.SCREEN_WIDTH / 2,
+						ENCOUNTER_HEADER_Y,
+						i18n.t("encounters.roulette_reveal_header"),
+						Constants.titleTextConfig
+					)
+					.setOrigin(0.5)
+			: null;
 
 		const onSelectEncounter = async (id: string) => {
 			if (disableInteraction) {
@@ -98,5 +118,5 @@ export const encounterPhase =
 			skipBtn.disable();
 		}
 
-		return [...cards, skipBtn];
+		return [...(revealHeader ? [revealHeader] : []), ...cards, skipBtn];
 	};

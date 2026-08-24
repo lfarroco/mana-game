@@ -531,6 +531,13 @@ describe("SessionTransitions", () => {
   });
 
   describe("roulette_wheel (A11)", () => {
+    const WHEEL_RESULTS = new Set([
+      "roulette_gold_shop",
+      "roulette_core_power",
+      "roulette_core_reaction",
+      "roulette_upgrade_orb",
+    ]);
+
     const spin = (seed: string, losses = 1) => {
       const session = createTestSession(seed);
       session.losses = losses;
@@ -546,10 +553,18 @@ describe("SessionTransitions", () => {
       expect(result.session.phase).toBe("pre_combat"); // untouched
     });
 
-    it("charges 1 life and advances the step", () => {
+    it("charges 1 life and reveals 3 distinct reward encounters", () => {
       const result = spin("a11-pay");
       expect(result.session.losses).toBeGreaterThanOrEqual(2);
-      expect(result.session.phase).not.toBe("pre_combat");
+      // The wheel never lands on a dead outcome anymore — 3 rewards are always
+      // revealed as cards for the player to pick one from.
+      expect(result.session.phase).toBe("encounter");
+      const ids = result.session.options.map((o) => o.id);
+      expect(ids).toHaveLength(3);
+      expect(new Set(ids).size).toBe(3); // distinct
+      for (const id of ids) {
+        expect(WHEEL_RESULTS.has(id)).toBe(true);
+      }
       expect(result.session.seed).not.toBe("a11-pay");
     });
 
@@ -558,69 +573,118 @@ describe("SessionTransitions", () => {
       const b = spin("a11-det");
       expect(a.session.seed).toBe(b.session.seed);
       expect(a.session.losses).toBe(b.session.losses);
-      expect(a.session.team.units.map((u) => u.cardId)).toEqual(
-        b.session.team.units.map((u) => u.cardId),
+      expect(a.session.options.map((o) => o.id)).toEqual(
+        b.session.options.map((o) => o.id),
       );
     });
 
-    it("never ends a spin at LOSSES_TO_GAME_OVER even on the lose-a-life outcome", () => {
-      // A spin starting at 2 losses may hit the "lose another life" outcome —
-      // the inner guard must cap the total at 3, never 4.
+    it("never offers the wheel at game-over risk (guard caps the life loss)", () => {
+      // Spinning always charges exactly 1 life and never reaches
+      // LOSSES_TO_GAME_OVER from the near-death guard.
       for (let i = 0; i < 60; i++) {
         const result = spin(`a11-cap-${i}`, 2);
+        expect(result.session.losses).toBe(3);
         expect(result.session.losses).toBeLessThan(
           Constants.LOSSES_TO_GAME_OVER,
         );
       }
     });
 
-    it("can land every outcome across seeds", () => {
-      const seen = {
-        gold: false,
-        favor: false,
-        loseLife: false,
-        nothing: false,
-      };
+    it("can reveal every wheel result across seeds", () => {
+      const seen = new Set<string>();
       for (let i = 0; i < 100; i++) {
-        const seed = `a11-cover-${i}`;
-        const session = createTestSession(seed);
-        session.losses = 1;
-        const result = SessionTransitions.transitionToNextState(session, {
-          type: "select_encounter",
-          encounterId: "roulette_wheel",
-        });
-
-        const team = result.session.team.units;
-        const recruitedGold = team.find((u) => {
-          if (u.isCore) return false;
-          const card = Card.getNonCores().find((c) => c.id === u.cardId);
-          return (card?.rank ?? 1) === 3;
-        });
-        if (recruitedGold) {
-          seen.gold = true;
-          continue;
-        }
-
-        // The "favor" outcome banks a favor token (E1 landed with A12).
-        if ((result.session.favorTokens ?? 0) > (session.favorTokens ?? 0)) {
-          seen.favor = true;
-          continue;
-        }
-
-        if (result.session.losses === 3) {
-          seen.loseLife = true;
-          continue;
-        }
-        if (result.session.losses === 2) {
-          // "nothing" or a free-orb that no-op'd on the core-only team
-          seen.nothing = true;
-        }
+        const result = spin(`a11-cover-${i}`);
+        const ids = result.session.options.map((o) => o.id);
+        expect(ids).toHaveLength(3);
+        expect(new Set(ids).size).toBe(3); // distinct
+        for (const id of ids) seen.add(id);
       }
+      expect(seen).toEqual(WHEEL_RESULTS);
+    });
 
-      expect(seen.gold).toBe(true);
-      expect(seen.favor).toBe(true);
-      expect(seen.loseLife).toBe(true);
-      expect(seen.nothing).toBe(true);
+    it("excludes roulette_core_reaction when the core already carries every identity reaction", () => {
+      const session = createTestSession("a11-all-reactions");
+      const core = session.team.units[0];
+      core.reactions = Object.values(CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS)
+        .filter((def) => def.kind === "reaction" && def.reaction)
+        .map((def) => structuredClone(def.reaction!));
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_wheel",
+      });
+
+      // The reaction forge would be a dead slot — every other reward is shown.
+      expect(result.session.options.map((o) => o.id)).not.toContain(
+        "roulette_core_reaction",
+      );
+      expect(new Set(result.session.options.map((o) => o.id))).toEqual(
+        new Set([
+          "roulette_gold_shop",
+          "roulette_core_power",
+          "roulette_upgrade_orb",
+        ]),
+      );
+    });
+  });
+
+  describe("roulette wheel results (A11 redesign)", () => {
+    const resolve = (resultId: string, seed = "a11-resolve") =>
+      SessionTransitions.transitionToNextState(createTestSession(seed), {
+        type: "select_encounter",
+        encounterId: resultId,
+      });
+
+    it("roulette_gold_shop routes to a 3-option gold shop", () => {
+      const result = resolve("roulette_gold_shop");
+      expect(result.session.phase).toBe("shop");
+      expect(result.session.options).toHaveLength(3);
+      for (const opt of result.session.options) {
+        const card = Card.getNonCores().find((c) => c.id === opt.id);
+        expect(card!.rank).toBe(3);
+      }
+    });
+
+    it("roulette_core_power grants +50 permanent power to the core", () => {
+      const session = createTestSession("a11-power");
+      const beforePower = session.team.units[0].power;
+      const beforeBonus = session.team.units[0].bonusPower;
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_core_power",
+      });
+      const afterCore = result.session.team.units[0];
+      expect(afterCore.power).toBe(beforePower + 50);
+      expect(afterCore.bonusPower).toBe(beforeBonus + 50);
+      expect(result.session.phase).not.toBe("encounter");
+    });
+
+    it("roulette_core_reaction appends a random identity reaction to the core", () => {
+      const session = createTestSession("a11-reaction");
+      const reactionsBefore = session.team.units[0].reactions.length;
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "select_encounter",
+        encounterId: "roulette_core_reaction",
+      });
+      const afterCore = result.session.team.units[0];
+      expect(afterCore.reactions.length).toBe(reactionsBefore + 1);
+      const poolReactions = Object.values(
+        CoreUpgradeOrbs.CORE_UPGRADE_DEFINITIONS,
+      )
+        .filter((def) => def.kind === "reaction" && def.reaction)
+        .map((def) => JSON.stringify(def.reaction));
+      expect(
+        poolReactions.includes(
+          JSON.stringify(afterCore.reactions[afterCore.reactions.length - 1]),
+        ),
+      ).toBe(true);
+      expect(result.session.phase).not.toBe("encounter");
+    });
+
+    it("roulette_upgrade_orb routes to orb_shop with the upgrade orb", () => {
+      const result = resolve("roulette_upgrade_orb");
+      expect(result.session.phase).toBe("orb_shop");
+      expect(result.session.options.map((o) => o.id)).toEqual(["upgrade_orb"]);
     });
   });
 
