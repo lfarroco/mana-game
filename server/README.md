@@ -180,9 +180,9 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_SERVER_PORT`       | `8787`        | Bind port                                                         |
 | `MANA_CORS_ORIGIN`       | `*`           | Allowed CORS origin(s): `*` or a comma-separated list             |
 | `MANA_NODE_ENV`          | `development` | Runtime environment                                               |
-| `MANA_STEAM_WEB_API_KEY` | —             | Publisher Web API key (server secret; enables `POST /auth/steam`) |
+| `MANA_STEAM_WEB_API_KEY` | —             | Steam Web API key (standard or publisher; server secret; enables `POST /auth/steam`) |
 | `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
-| `MANA_STEAM_API_URL`     | partner endpoint | `AuthenticateUserTicket` endpoint. Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (needs a **publisher** key). Point at `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` when using a standard Web API key (rate-limited). |
+| `MANA_STEAM_API_URL`     | public endpoint | `AuthenticateUserTicket` endpoint. The server code defaults to `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (needs a **publisher** key), but `compose.yaml` and `.env.example` set `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` so a standard Web API key (`steamcommunity.com/dev/apikey`) works (rate-limited). Override in `.env` to switch. |
 | `MANA_ITCH_ENABLED`      | `false`        | `true` registers `POST /api/v1/auth/itch` (web build's itch.io OAuth login) |
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for the auth endpoints (`POST /auth/steam`, `POST /auth/itch`) |
@@ -258,11 +258,17 @@ one-time `.env` contents and cloud-firewall configuration):
 
    | Var | Value |
    |---|---|
-   | `MANA_STEAM_WEB_API_KEY` | required — publisher Web API key (registers `POST /auth/steam`) |
+   | `MANA_STEAM_WEB_API_KEY` | required — Steam Web API key (standard from `steamcommunity.com/dev/apikey`, or a publisher key) — registers `POST /auth/steam` |
    | `MANA_STEAM_APP_IDS` | default `3757600,4233280` |
+   | `MANA_STEAM_API_URL` | default `https://api.steampowered.com/...` (standard key); set to the partner endpoint only when using a publisher key |
    | `MANA_ITCH_ENABLED` | `true` if the itch.io web build should log in (`POST /auth/itch`) |
    | `MANA_CORS_ORIGIN` | e.g. `https://lfarroco.itch.io` for the web build |
    | `MANA_SERVER_PORT` | host port, default `8787` |
+
+   > **Gotcha:** the server container only receives the vars whitelisted in
+   > `compose.yaml`'s `environment:` block. A new `MANA_*` var in `.env` is
+   > silently ignored unless you add it there too (this bit us with
+   > `MANA_STEAM_API_URL` on 2026-08-24).
 
 4. **Build + start** (the script does `git pull --ff-only`, fails fast on the
    missing Steam key, `docker compose up -d --build`, then waits for `/health`):

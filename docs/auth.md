@@ -210,9 +210,9 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 
 | Var | Default | Used for |
 |---|---|---|
-| `MANA_STEAM_WEB_API_KEY` | — | Publisher Web API key (server secret; never shipped to clients) |
+| `MANA_STEAM_WEB_API_KEY` | — | Steam Web API key (standard or publisher; server secret; never shipped to clients) |
 | `MANA_STEAM_APP_IDS` | `3757600` | Comma-separated allowlist of app ids the server will accept (alpha + demo) |
-| `MANA_STEAM_API_URL` | partner endpoint | `AuthenticateUserTicket` endpoint (deviation 2026-08-17: made configurable). Default `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` requires a **publisher** Web API key — a standard key there returns HTTP 403 "Access is denied". If only a standard Web API key is available, set `MANA_STEAM_API_URL=https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (rate-limited; the old edge function used this domain). |
+| `MANA_STEAM_API_URL` | public endpoint | `AuthenticateUserTicket` endpoint (deviation 2026-08-17: made configurable). The server code defaults to `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/`, which requires a **publisher** Web API key — a standard key there returns HTTP 403 "Access is denied" (hit again 2026-08-24: the Docker deployment wasn't forwarding `MANA_STEAM_API_URL` into the container). `compose.yaml` and `.env.example` now default it to `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` so a standard Web API key works (rate-limited; the old edge function used this domain). |
 | `MANA_TOKEN_TTL_DAYS` | `30` | Bearer-token lifetime |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for the auth endpoints (`/auth/steam`, `/auth/itch`) |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for the auth endpoints |

@@ -5,7 +5,7 @@
 #   server — the bundled Mana Battle Node server (server/Dockerfile)
 #
 # Usage (local dev):
-#   1. Create a root .env (gitignored) with your publisher key:
+#   1. Create a root .env (gitignored) with your Steam Web API key:
 #        echo 'MANA_STEAM_WEB_API_KEY=<your-key>' > .env
 #   2. docker compose up -d --build     (or: make server-compose-up)
 #   3. Launch the Steam Electron build and click MULTIPLAYER — it talks to
@@ -15,10 +15,12 @@
 # api.manabattle.com at the VM (Cloudflare proxied, SSL/TLS mode "Full
 # (strict)"), open 80/443 in the security list, then ./server/scripts/deploy.sh.
 #
-# Optional .env overrides: MANA_SERVER_PORT, MANA_STEAM_APP_IDS,
-# MANA_CORS_ORIGIN, MANA_ITCH_ENABLED, MANA_API_DOMAIN. SQLite data lives in
-# the named `mana-data` volume and Caddy's TLS certs in `caddy-data` — both
-# survive container restarts and redeploys.
+# Optional .env overrides (must also be whitelisted in each service's
+# `environment:` block below): MANA_SERVER_PORT, MANA_STEAM_APP_IDS,
+# MANA_STEAM_API_URL, MANA_CORS_ORIGIN, MANA_ITCH_ENABLED, MANA_NODE_ENV,
+# MANA_TOKEN_TTL_DAYS, MANA_AUTH_RATE_LIMIT_MAX, MANA_AUTH_RATE_LIMIT_WINDOW_MS,
+# MANA_API_DOMAIN. SQLite data lives in the named `mana-data` volume and
+# Caddy's TLS certs in `caddy-data` — both survive container restarts and redeploys.
 
 name: mana-game
 
@@ -68,6 +70,10 @@ services:
       MANA_STEAM_API_URL: "${MANA_STEAM_API_URL:-https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/}"
       MANA_CORS_ORIGIN: "${MANA_CORS_ORIGIN:-*}"
       MANA_ITCH_ENABLED: "${MANA_ITCH_ENABLED:-false}"
+      MANA_NODE_ENV: "${MANA_NODE_ENV:-development}"
+      MANA_TOKEN_TTL_DAYS: "${MANA_TOKEN_TTL_DAYS:-30}"
+      MANA_AUTH_RATE_LIMIT_MAX: "${MANA_AUTH_RATE_LIMIT_MAX:-20}"
+      MANA_AUTH_RATE_LIMIT_WINDOW_MS: "${MANA_AUTH_RATE_LIMIT_WINDOW_MS:-900000}"
     volumes:
       - mana-data:/data
     healthcheck:
