@@ -209,8 +209,6 @@
 	"shop.orbs.coreUpgrade.poison_power.tooltip": "Every 10 ally poison, gain +5 power",
 	"shop.orbs.coreUpgrade.poison_re_slow_drain.name": "Re-Slow Drain",
 	"shop.orbs.coreUpgrade.poison_re_slow_drain.tooltip": "When an ally re-slows, a random enemy loses 5 power",
-	"shop.orbs.coreUpgrade.haste_regen.name": "Regen",
-	"shop.orbs.coreUpgrade.haste_regen.tooltip": "Each cast: also grant regen",
 	"shop.orbs.coreUpgrade.haste_charge.name": "Haste Charge",
 	"shop.orbs.coreUpgrade.haste_charge.tooltip": "When a right ally hastes, charge its column 200ms",
 	"shop.orbs.coreUpgrade.haste_rehaste_crit.name": "Re-Haste Crit",

@@ -76,13 +76,6 @@ const AP_ALLOWLIST = new Set([
 
 const BASIC_ACTIONS = new Set(["damage", "heal", "shield", "poison", "regen"]);
 
-/**
- * Pure tempo/support units that deliberately carry no basic action.
- * trickster (docs/wacky-content-plan.md A1) is the first: every cast is
- * haste + slow, so it has no damage/heal/shield/poison/regen by design.
- */
-const NO_BASIC_ACTION_ALLOWLIST = new Set(["trickster"]);
-
 const nonCoreCards = ALL_CARDS.filter((c) => !c.isCore);
 
 function rankOf(card: CardDefinition): number {
@@ -119,11 +112,15 @@ describe("BaseCollection balance", () => {
     }
   });
 
-  it("gives every non-core card at least one basic action", () => {
-    const failures = nonCoreCards
-      .filter((card) => !card.effects.some((e) => BASIC_ACTIONS.has(e.id)))
-      .filter((card) => !NO_BASIC_ACTION_ALLOWLIST.has(card.id))
-      .map((card) => `${card.id} has no basic action`);
+  it("gives every unit (cards and cores) at least one basic effect", () => {
+    // Absolute rule (docs/unit-balance.md §14): every unit must carry at least
+    // one damage/heal/shield/poison/regen effect — the basic types — with no
+    // exceptions. No pure haste/slow/support kits (the old `trickster`
+    // allowlist is gone; `trickster`, `quickstone`, and `void_crystal` now
+    // pair their theme action with a basic effect).
+    const failures = ALL_CARDS.filter(
+      (card) => !card.effects.some((e) => BASIC_ACTIONS.has(e.id)),
+    ).map((card) => `${card.id} has no basic effect`);
     expect(failures).toEqual([]);
   });
 

@@ -702,12 +702,12 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
   {
     id: "trickster",
     description:
-      "Chaos tempo — every cast hastes a random ally and slows a random enemy.",
+      "Chaos tempo — every cast strikes the enemy crystal, hastes a random ally, and slows a random enemy.",
     tags: ["haster", "disabler"],
     pic: "f2_spellthief",
     power: 35,
     cooldown: 5000,
-    effects: [haste(3000, randomAlly(1)), slow(3000, randomEnemy(1))],
+    effects: [damage, haste(1500, randomAlly(1)), slow(1500, randomEnemy(1))],
     reactions: [],
   },
   {
@@ -727,7 +727,9 @@ export const BRONZE_CARDS: Models.CardDefinition[] = [
       "Damage + heal hybrid — sustains your crystal while attacking.",
     tags: ["team_buff"],
     pic: "f2_ogremonk02",
-    power: 10,
+    // 2026-08-24: power raised 10 → 30 — AP 37 was below the bronze [80, 160]
+    // band (pre-existing balance failure blocking BaseCollection.balance.test.ts).
+    power: 30,
     cooldown: 5400,
     effects: [damage, heal],
     reactions: [],

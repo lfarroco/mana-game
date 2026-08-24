@@ -8,10 +8,10 @@ import {
 } from "./coreUpgradeOrbs";
 
 describe("core upgrade orbs content", () => {
-  it("has unique ids and exactly 36 identity orbs", () => {
+  it("has unique ids and exactly 35 identity orbs", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBe(36);
+    expect(ids.length).toBe(35);
   });
 
   it("keeps every entry themed by CORE_THEMES", () => {
@@ -43,15 +43,19 @@ describe("core upgrade orbs content", () => {
     );
   });
 
-  it("builds each theme pool from 4 identity orbs + 3 stat orbs", () => {
+  it("builds each theme pool from its identity orbs + 3 stat orbs", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
-      expect(pool).toHaveLength(7);
+      // All themes ship 4 identity orbs except haste — its 4th (Regen) moved
+      // into quickstone's baseline (absolute basic-effect rule, see
+      // docs/core-unit-onboarding.md §2 decision 4).
+      const expectedIdentity = theme === "haste" ? 3 : 4;
+      expect(pool).toHaveLength(expectedIdentity + 3);
 
       const identityOrbs = pool.filter((orb) => orb.kind !== "stat");
       const statOrbs = pool.filter((orb) => orb.kind === "stat");
 
-      expect(identityOrbs).toHaveLength(4);
+      expect(identityOrbs).toHaveLength(expectedIdentity);
       for (const orb of identityOrbs) {
         expect(orb.theme).toBe(theme);
       }
@@ -68,10 +72,15 @@ describe("core upgrade orbs content", () => {
   it("places the three stat orbs after the identity orbs, in order", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
+      const identityCount = theme === "haste" ? 3 : 4;
       const kinds = pool.map((orb) => orb.kind);
-      expect(kinds.slice(0, 4).every((kind) => kind !== "stat")).toBe(true);
-      expect(kinds.slice(4)).toEqual(["stat", "stat", "stat"]);
-      expect(pool.slice(4).map((orb) => orb.id)).toEqual([...CORE_STAT_ORBS]);
+      expect(
+        kinds.slice(0, identityCount).every((kind) => kind !== "stat"),
+      ).toBe(true);
+      expect(kinds.slice(identityCount)).toEqual(["stat", "stat", "stat"]);
+      expect(pool.slice(identityCount).map((orb) => orb.id)).toEqual([
+        ...CORE_STAT_ORBS,
+      ]);
     }
   });
 });

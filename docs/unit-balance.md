@@ -220,7 +220,10 @@ This ensures support units pay the full cost of enabling engines.
 ## 14. Effect Slots
 
 - Each unit has **3 total effect slots** (actions + reactions).
-- Every unit must have at least one basic action.
+- Every unit — regular cards and core crystals alike — must have at least one
+  **basic effect**: an effect of type `damage`, `heal`, `shield`, `poison`, or
+  `regen` (the **basic types**). This is the baseline every kit is built around;
+  the balance test enforces it across the entire card pool with no exceptions.
 - Slot limits are a hard cap to prevent over-stacking efficiency.
 
 ## 15. Final Validation Rule

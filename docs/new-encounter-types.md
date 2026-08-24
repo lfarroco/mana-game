@@ -234,6 +234,10 @@ Categories:
 - **What**: choose a unit → change its **basic action** (e.g. `damage` → `heal`,
   `shield` → `poison`), keeping power/cooldown/reactions. A "Form"-style
   transform (Bazaar).
+- **Constraint**: swaps must target another **basic type**
+  (`damage`/`heal`/`shield`/`poison`/`regen`) — the absolute basic-effect rule
+  (docs/unit-balance.md §14) forbids a reforge that leaves a unit with no basic
+  effect.
 - **Engine hooks**: new helper `swapBasicAction(unit, newEffect)` in `core`
   — mutate `unit.effects[0]` (the basic action is conventionally effect index 0
   per the card-authoring checklist); new action `reforge_unit`.

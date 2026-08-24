@@ -34,8 +34,8 @@ tier system.
 ### Bronze (rank 1) — the foundation
 
 - **Self-contained, reliable kits.** A bronze unit performs well with no support:
-  one basic action (damage/heal/shield/poison/regen) plus, at most, a simple
-  reaction.
+  at least one basic effect (damage/heal/shield/poison/regen — the **basic
+  types**) plus, at most, a simple reaction.
 - **Budget ~90–110 AP.** Bronze is the only tier tuned to the 100-point budget
   in `unit-balance.md`. The whole game economy assumes bronze units are the
   baseline against which everything else is measured.
@@ -211,7 +211,9 @@ but worth considering as the card pool grows beyond 100+ cards.
 When adding or editing a card in `core/src/data/BaseCollection.ts`:
 
 1. **Pick a tier by setting `rank`** (1/2/3). Set `locked: true` for unlock/boss golds.
-2. **Give it exactly one basic action** (damage/heal/shield/poison/regen).
+2. **Give it at least one basic effect** (damage/heal/shield/poison/regen — the
+   **basic types**). Every unit needs a basic-type effect at the core of its kit;
+   units may carry more than one (e.g. `lifestealer` deals damage *and* heals).
 3. **Stay within the slot cap**: ≤ 3 total (actions + reactions).
 4. **Match the tier's AP band and raw power cap** for its rank.
 5. **Write its designer metadata** — a one-line `description` (goal, archetype,
@@ -314,7 +316,7 @@ the allowlist still has 1 entry, the model is suffocating the design space.
 `core/src/data/BaseCollection.balance.test.ts` is the source of truth for the
 rules above. It checks:
 
-- slot cap ≤ 3 and ≥ 1 basic action per card
+- slot cap ≤ 3 and ≥ 1 basic effect per card (every unit, cores included)
 - structural validity (no dead `"self"` reactions)
 - `"enemies"` reactions set `triggerTeam: "enemy"`
 - raw power caps per tier

@@ -40,7 +40,7 @@ server-simulated for multiplayer; see [game-server.md](game-server.md)).
 | Targeting: `self`, `random_ally(count)`, `random_enemy(count)`, `row_allies`, `column_allies`, `all_allies(ofType)`, `all_enemies`, `strongest_/weakest_ ally/enemy`, `top_/bottom_/left_/right_ally`, `trigger`. `all_allies` excludes self; `ofType` is one of `any\|damage\|heal\|shield\|poison\|regen` | `core/src/types/targeting.ts` + `resolveTargets`                                 |
 | `multiply_power` is **gold-only + cooldown ≥ 8000ms** (test-enforced)                                                                                                                                                                                                                                       | `BaseCollection.balance.test.ts`                                                 |
 | `charge` capped at **300ms/cast**; charge _reactions_ must key off a specific effect + directional ally (test-enforced)                                                                                                                                                                                     | `BaseCollection.balance.test.ts`                                                 |
-| Slot cap **≤ 3** (`effects.length + reactions.length`); ≥ 1 basic action per non-core card (test-enforced)                                                                                                                                                                                                  | `BaseCollection.balance.test.ts`                                                 |
+| Slot cap **≤ 3** (`effects.length + reactions.length`); ≥ 1 basic effect (`damage`/`heal`/`shield`/`poison`/`regen`) per unit — every card and core, test-enforced, no exceptions                                                                                                                                                                                                  | `BaseCollection.balance.test.ts`                                                 |
 | AP bands: bronze `[80,160]`, silver `[120,260]`, gold `[150,320]`; raw-power caps `50/75/90`; `AP_ALLOWLIST` for intentional risk cards                                                                                                                                                                     | `BaseCollection.balance.test.ts`                                                 |
 | Pool: **61 bronze / 21 silver / 10 gold**. Test enforces `silvers > golds` and `golds ≤ 10` (see task A0)                                                                                                                                                                                                   | `card-design-philosophy.md` + `BaseCollection.balance.test.ts`                   |
 | `on_battle_start` fires **per-unit**, bypassing position filtering — `position: "self"` works there                                                                                                                                                                                                         | `CombatRunner.runCombat` (~83)                                                   |
@@ -130,12 +130,19 @@ per effect, not "small".
 
 #### A1 — Trickster (new bronze, renamed from Pixie Trickster) ✅ (2026-08-19, `dac9eea2`)
 
-- **Goal**: chaos tempo — every cast hastes a random ally AND slows a random enemy.
+- **Goal**: chaos tempo — every cast strikes the enemy crystal, hastes a random
+  ally AND slows a random enemy.
 - **Files**: `core/src/data/cards/bronzeCards.ts`.
 - **Spec**: `rank: 1`, `power ≈ 35`, `cooldown ≈ 5000`,
-  `effects: [haste(1000, randomAlly(1)), slow(1000, randomEnemy(1))]`, `reactions: []`,
+  `effects: [damage, haste(1500, randomAlly(1)), slow(1500, randomEnemy(1))]`, `reactions: []`,
   `tags: ["haster","disabler"]`, `pic: "f2_spellthief"`, i18n + description.
 - **Acceptance**: AP within `[80,160]`; balance test green.
+- **Basic-effect rule (2026-08-24)**: the original design was haste+slow only —
+  a pure tempo kit. The absolute basic-effect rule (every unit needs ≥ 1
+  `damage`/`heal`/`shield`/`poison`/`regen` effect, docs/unit-balance.md §14)
+  added `damage` and trimmed the tempo durations to 1500 ms, keeping AP ≈ 115
+  mid-bronze-band. The former `NO_BASIC_ACTION_ALLOWLIST` entry in
+  `BaseCollection.balance.test.ts` is gone.
 
 #### A2 — Vulture (new silver) ✅ (2026-08-19, `f33c6c40`)
 
@@ -405,8 +412,9 @@ modify `generateEnemyTeam` / `EnemyGeneration` for now.
   keys, a `CombatLogger` log entry (playback), and unit tests. Any RNG must use seeded
   `math/Random` and thread `env.seed` (see `dealDamage` crit pattern).
 - **New card**: `rank`/`power`/`cooldown` per tier caps; AP within band or
-  `AP_ALLOWLIST` with a written justification; slot cap ≤ 3; ≥ 1 basic action; i18n +
-  `pic` + `description` + `tags` (from `CARD_TAGS`).
+  `AP_ALLOWLIST` with a written justification; slot cap ≤ 3; ≥ 1 basic effect
+  (damage/heal/shield/poison/regen); i18n + `pic` + `description` + `tags`
+  (from `CARD_TAGS`).
 - **New encounter**: 4 touch-points from §1 + i18n + art; pure + deterministic
   (mutate a `structuredClone`d session in `SessionTransitions`, seeded RNG).
 - **Verify**: `cd core && npm test` and `npm run typecheck` after every change.

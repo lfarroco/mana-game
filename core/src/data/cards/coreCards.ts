@@ -2,9 +2,10 @@
 // Split from data/BaseCollection.ts (tier grouping) — balance conventions in
 // docs/unit-balance.md, tier design in docs/card-design-philosophy.md.
 //
-// Cores are ACTION-ONLY BASELINES: each ships one basic action (its
-// `coreTheme` family) and no reactions. Their depth (the former secondary buffs
-// and reactions) lives in the themed upgrade-orb catalog — see
+// Cores are ACTION-ONLY BASELINES: each ships a minimal kit — at least one
+// basic effect (damage/heal/shield/poison/regen, the absolute basic-effect rule)
+// plus its theme action — and no reactions. Their depth (the former secondary
+// buffs and reactions) lives in the themed upgrade-orb catalog — see
 // docs/core-unit-onboarding.md §3–§4 (CUB-A3).
 
 import * as Models from "../../Models";
@@ -78,13 +79,17 @@ export const CORE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "quickstone",
+    // Haste theme paired with regen — the absolute basic-effect rule requires
+    // every unit (cores included) to carry ≥ 1 damage/heal/shield/poison/regen
+    // effect, and regen is quickstone's historical "refresh" partner (see
+    // docs/core-unit-onboarding.md §2, decision 4).
     pic: "haste-stone",
     life: 500,
     power: 48,
     cooldown: 5200,
     isCore: true,
     coreTheme: "haste",
-    effects: [haste(1000, row)],
+    effects: [regen, haste(1000, row)],
     reactions: [],
   },
   {
@@ -121,15 +126,16 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     id: "void_crystal",
     // Void theme (CUB-G3, docs/core-unit-onboarding.md §9): a disruption
     // crystal that saps the strongest enemy's power on every cast and steals
-    // their statuses via its identity orbs. Its baseline is a non-basic
-    // debuff (decrease_power), mirroring quickstone's haste baseline.
+    // their statuses via its identity orbs. Its baseline pairs a basic hit
+    // (damage — every unit needs ≥ 1 basic effect) with the power sap; the sap
+    // was trimmed 15 → 10 so the kit stays inside the core AP band.
     pic: "purple-stone",
     life: 500,
     power: 40,
     cooldown: 5000,
     isCore: true,
     coreTheme: "void",
-    effects: [decreasePower(15, strongestEnemy)],
+    effects: [damage, decreasePower(10, strongestEnemy)],
     reactions: [],
   },
 ];

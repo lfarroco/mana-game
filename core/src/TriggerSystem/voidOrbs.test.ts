@@ -52,9 +52,10 @@ function makeCore(force: string, id: string, life: number): Models.Unit {
 }
 
 /**
- * A void_crystal core. By default it carries the baseline decrease_power cast
- * and is reaction-only (never casts) — pass `extraEffects` for the effect orbs
- * (power_drain / dispel) and a working `cooldown` so it actually casts.
+ * A void_crystal core. By default it carries the baseline damage +
+ * decrease_power cast and is reaction-only (never casts) — pass
+ * `extraEffects` for the effect orbs (power_drain / dispel) and a working
+ * `cooldown` so it actually casts.
  */
 function makeVoidCore(opts: {
   orbId?: keyof typeof CORE_UPGRADE_DEFINITIONS;
@@ -68,7 +69,11 @@ function makeVoidCore(opts: {
   }
 
   const core = makeTestUnit({
-    effects: [decreasePower(15, strongestEnemy), ...(opts.extraEffects ?? [])],
+    effects: [
+      damage,
+      decreasePower(10, strongestEnemy),
+      ...(opts.extraEffects ?? []),
+    ],
     isCore: true,
     reactions: orb !== undefined ? [structuredClone(orb.reaction!)] : [],
     power: 40,

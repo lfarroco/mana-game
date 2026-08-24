@@ -26,7 +26,6 @@ import {
   randomAlly,
   randomEnemy,
   reaction,
-  regen,
   self,
   shield,
   slow,
@@ -208,13 +207,10 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     reaction: reaction("re_slow", "allies", decreasePower(5, randomEnemy(1))),
   },
 
-  // --- haste theme (quickstone): Regen, Haste Charge, Re-Haste Crit, Re-Haste Power ---
-  haste_regen: {
-    id: "haste_regen",
-    theme: "haste",
-    kind: "effect",
-    effect: regen,
-  },
+  // --- haste theme (quickstone): Haste Charge, Re-Haste Crit, Re-Haste Power ---
+  // (quickstone's baseline itself carries the regen pair — the absolute
+  // basic-effect rule — so the haste pool has no Regen identity orb; see
+  // docs/core-unit-onboarding.md §2 decision 4.)
   haste_charge: {
     id: "haste_charge",
     theme: "haste",

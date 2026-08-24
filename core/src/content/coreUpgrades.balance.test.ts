@@ -83,11 +83,27 @@ function marginalAp(core: CardDefinition, orb: CoreUpgradeDefinition): number {
 // ---------------------------------------------------------------------------
 
 describe("core upgrade balance (CUB-C1)", () => {
-  it("maps every core theme to exactly one core card with 4 identity orbs", () => {
+  it("maps every core theme to exactly one core card with a full identity-orb pool", () => {
     expect(CORES_BY_THEME.size).toBe(9);
+    // Every theme ships ≥ 3 identity orbs. All themes have 4 except haste,
+    // whose 4th orb (Regen) now lives in quickstone's baseline — the absolute
+    // basic-effect rule requires every core to carry ≥ 1
+    // damage/heal/shield/poison/regen effect, and regen is quickstone's pair
+    // (docs/core-unit-onboarding.md §2 decision 4).
+    const EXPECTED_ORB_COUNTS: Record<CoreTheme, number> = {
+      regen: 4,
+      damage: 4,
+      shield: 4,
+      heal: 4,
+      poison: 4,
+      haste: 3,
+      overflow: 4,
+      thorns: 4,
+      void: 4,
+    };
     for (const [theme, core] of CORES_BY_THEME) {
       expect(core.isCore).toBe(true);
-      expect(identityOrbs(theme)).toHaveLength(4);
+      expect(identityOrbs(theme)).toHaveLength(EXPECTED_ORB_COUNTS[theme]);
     }
   });
 
@@ -184,8 +200,7 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  poison_slow_power: +50.9",
         "  poison_power: +50.9",
         "  poison_re_slow_drain: +25.5",
-        "haste (quickstone) baseline 25",
-        "  haste_regen: +92.3",
+        "haste (quickstone) baseline 117",
         "  haste_charge: +3.4",
         "  haste_rehaste_crit: +25.5",
         "  haste_rehaste_power: +25.5",
@@ -199,7 +214,7 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  verdant_thorn_shield: +86.4",
         "  verdant_retaliation: +27.0",
         "  verdant_vengeful_charge: +8.9",
-        "void (void_crystal) baseline 60",
+        "void (void_crystal) baseline 120",
         "  void_leech: +172.8",
         "  void_power_drain: +120.0",
         "  void_dispel: +40.0",
