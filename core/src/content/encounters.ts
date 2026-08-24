@@ -208,13 +208,6 @@ export const ENCOUNTERS: EncounterData[] = [
     descriptionKey: "encounters.roulette_wheel.desc",
     minRound: 2,
   },
-  {
-    id: "lucky_pig",
-    pic: "ui/gold_medal",
-    nameKey: "encounters.lucky_pig.name",
-    descriptionKey: "encounters.lucky_pig.desc",
-    minRound: 2,
-  },
   // ── Roulette wheel results (A11 redesign, 2026-08-21) ──────────────
   // Reveal-only encounters — never generated in the normal pool; they appear
   // only as the multi-option result of a `roulette_wheel` pick.

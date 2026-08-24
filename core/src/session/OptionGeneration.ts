@@ -11,10 +11,7 @@ import { CardDefinition } from "../Models";
 import * as Random from "../math/Random";
 import type { EncounterId } from "../types/action";
 import { ENCOUNTER_BY_ID } from "../content/encounters";
-import {
-  FAVOR_TOKENS_FOR_SILVER_SHOP,
-  LOSSES_TO_GAME_OVER,
-} from "../math/Constants";
+import { LOSSES_TO_GAME_OVER } from "../math/Constants";
 
 type EncounterFilterType =
   | "damage"
@@ -68,7 +65,6 @@ const ENCOUNTERS: EncounterDefinition[] = [
   { id: "oracles_riddle", filterType: null },
   { id: "chaos_altar", filterType: null },
   { id: "roulette_wheel", filterType: null },
-  { id: "lucky_pig", filterType: null },
 ];
 
 const ENCOUNTER_IDS: EncounterId[] = ENCOUNTERS.map((e) => e.id);
@@ -151,26 +147,7 @@ export function createEncounterOptions(session: Models.SessionData): {
   // encounters (still respecting the round + session firewalls).
   const encountersToShow =
     availableEncounters.length >= 3 ? availableEncounters : sessionEligible;
-  let selectedOptions = encountersToShow.slice(0, 3);
-
-  // E1 (docs/new-encounter-types.md): favor tokens. At
-  // FAVOR_TOKENS_FOR_SILVER_SHOP tokens the options are guaranteed a
-  // silver_shop — the earned reward for skipping encounters. The tokens
-  // persist until the player actually picks the silver shop (consumed in
-  // SessionTransitions.select_encounter), so the guarantee stays active across
-  // rounds if the player declines it. Deterministic: it only ever replaces the
-  // last slot (or appends when the pool ran short), never re-rolls the pool.
-  const favorTokens = session.favorTokens ?? 0;
-  const hasFavorGuarantee =
-    favorTokens >= FAVOR_TOKENS_FOR_SILVER_SHOP &&
-    !selectedOptions.some((id) => id === "silver_shop");
-  if (hasFavorGuarantee) {
-    if (selectedOptions.length >= 3) {
-      selectedOptions = [...selectedOptions.slice(0, 2), "silver_shop"];
-    } else {
-      selectedOptions = [...selectedOptions, "silver_shop"];
-    }
-  }
+  const selectedOptions = encountersToShow.slice(0, 3);
 
   // Return the updated history alongside the options
   return {

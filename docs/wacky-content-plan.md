@@ -100,7 +100,7 @@ per effect, not "small".
 | A9  | ✅ Oracle's Riddle (random bronze)                          | encounter | A    | S      |
 | A10 | ✅ Chaos Altar (random orb)                                 | encounter | A    | S      |
 | A11 | ✅ Roulette Wheel (life gamble)                             | encounter | A    | S      |
-| A12 | ✅ Lucky Pig (favor ×3)                                     | encounter | A    | S      |
+| A12 | ~~✅ Lucky Pig (favor ×3)~~ ❌ removed (2026-08-23)               | encounter | A    | S      |
 | A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B)        | edit      | A    | XS     |
 | A14 | ~~`add_reaction_core` random option~~ (superseded by CUB-B) | edit      | A    | XS     |
 | A15 | ✅ Effect shops allow silvers (round ≥ 4)                   | edit      | A    | S      |
@@ -237,9 +237,7 @@ per effect, not "small".
   apply the winning outcome (recruit gold / apply orb / nothing / `losses += 1`).
 - **Acceptance**: unit tests for each wheel outcome + the near-death guard.
 - **Implemented weights**: gold card 20% / free orb 20% / favor token 20% /
-  nothing 25% / lose another life 15%. The "favor" outcome banked a random core
-  stat upgrade until favor tokens existed, and now grants **+1 favor token**
-  (updated with A12, 2026-08-19); the lose-a-life outcome re-checks the
+  nothing 25% / lose another life 15%. The lose-a-life outcome re-checks the
   near-death guard so a single spin can never itself reach game over.
 - **Redesign (2026-08-21)** — the wheel now **always lands on a reward**. The
   spin still costs 1 life (near-death guard unchanged), but the wheel spins out
@@ -265,7 +263,13 @@ per effect, not "small".
     "choose your prize!" header on the reveal so it reads as a choice, not a
     standard encounter row (the skip button stays, mirroring other encounters).
 
-#### A12 — Lucky Pig (new encounter) ✅ (2026-08-19)
+#### A12 — Lucky Pig (new encounter) ~~✅ (2026-08-19)~~ ❌ removed (2026-08-23)
+
+> **Removed 2026-08-23** — rolled back together with the E1 favor-token mechanic
+> (docs/new-encounter-types.md). Lucky Pig's only effect was tripling the next
+> skip's favor gain, so without favor tokens it was a dead encounter: the
+> `lucky_pig` entry was removed from `EncounterId`, the encounter catalog, and
+> the generation pool.
 
 - **Goal**: skips this round pay triple (favor ×3).
 - **Files**: same 4 touch-points as A9, plus the `skip` handler and the E1

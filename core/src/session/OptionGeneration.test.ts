@@ -222,64 +222,6 @@ describe("OptionGeneration", () => {
         expect(firstIds.has(opt.id)).toBe(false);
       }
     });
-
-    describe("favor-token silver_shop guarantee (E1)", () => {
-      it("does not inject silver_shop below the favor threshold", () => {
-        for (let i = 0; i < 20; i++) {
-          const base = makeSession({ seed: `favor-off-${i}` });
-          const natural = OptionGeneration.createEncounterOptions(base);
-          const below = OptionGeneration.createEncounterOptions({
-            ...base,
-            favorTokens: 2,
-          });
-          expect(below.options.map((o) => o.id)).toEqual(
-            natural.options.map((o) => o.id),
-          );
-        }
-      });
-
-      it("guarantees exactly one silver_shop option at the threshold, across seeds", () => {
-        for (let i = 0; i < 20; i++) {
-          const session = makeSession({ seed: `favor-on-${i}` });
-          const { options } = OptionGeneration.createEncounterOptions({
-            ...session,
-            favorTokens: 3,
-          });
-          const silverCount = options.filter(
-            (o) => o.id === "silver_shop",
-          ).length;
-          expect(silverCount).toBe(1);
-        }
-      });
-
-      it("is deterministic under the favor guarantee", () => {
-        const a = OptionGeneration.createEncounterOptions(
-          makeSession({ seed: "fixed-favor", favorTokens: 5 }),
-        );
-        const b = OptionGeneration.createEncounterOptions(
-          makeSession({ seed: "fixed-favor", favorTokens: 5 }),
-        );
-        expect(a.options.map((o) => o.id)).toEqual(b.options.map((o) => o.id));
-      });
-
-      it("keeps the guarantee active when the player declines it (no consumption on generation)", () => {
-        const session = makeSession({ seed: "favor-persist" });
-        const first = OptionGeneration.createEncounterOptions({
-          ...session,
-          favorTokens: 3,
-        });
-        expect(first.options.some((o) => o.id === "silver_shop")).toBe(true);
-
-        // The player skips/picks something else — tokens stay, so the next
-        // round's options still guarantee the silver shop.
-        const second = OptionGeneration.createEncounterOptions({
-          ...session,
-          encounter_history: first.encounterHistory,
-          favorTokens: 3,
-        });
-        expect(second.options.some((o) => o.id === "silver_shop")).toBe(true);
-      });
-    });
   });
 
   describe("generateShopOptions", () => {

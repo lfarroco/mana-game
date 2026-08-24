@@ -321,7 +321,12 @@ Categories:
 
 ### E. Skip payoff (Tags lineage)
 
-#### E1. `favor` — skips accumulate into a guaranteed silver ✅ (2026-08-19)
+#### E1. `favor` — skips accumulate into a guaranteed silver ❌ (removed 2026-08-23)
+> **Removed 2026-08-23** — the favor-token mechanic was rejected and rolled back
+> together with the Lucky Pig encounter (A12). `skip` no longer banks tokens,
+> `createEncounterOptions` no longer force-injects `silver_shop`,
+> `SessionData.favorTokens` / `luckyPigRound` are gone, and the HUD favor counter
+> (`ui.favor`) was removed. Original spec kept below for reference.
 - **What**: every `skip` increments `favor_tokens` on the session. At 3 tokens,
   the next `createEncounterOptions` call guarantees a `silver_shop` option.
 - **Engine hooks**:
@@ -332,14 +337,6 @@ Categories:
     it — or keep them until spent, design choice; simplest is consume on pick).
 - **UI**: a favor counter in the HUD.
 - **Effort**: small (L). Scoped as P2 (Balatro Tags).
-- **Landed with A12** (docs/wacky-content-plan.md): `SessionData.favorTokens`
-  increments on every skip (+1, or +3 after a Lucky Pig visit);
-  `createEncounterOptions` force-injects `silver_shop` into the last option slot
-  at `FAVOR_TOKENS_FOR_SILVER_SHOP` (3) tokens, deterministic and persistent
-  until the player picks it; picking `silver_shop` while at 3+ tokens consumes
-  exactly 3. HUD counter (`ui.favor`) added to the battleground header, refreshed
-  on every phase transition. The roulette wheel's "favor" outcome now grants +1
-  token (previously a core stat upgrade substitute).
 
 #### E2. `sealed_vault` — bank a card for next round
 - **What**: during this encounter, choose **one card from the full non-core
@@ -477,7 +474,7 @@ as any bronze shop and can also miss an entire run.
    |:---------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------|
    | 2 different bronze→silver rank-ups (via `upgrade_unit`, `training_grounds`, or duplicate recruits) | one-time `gold_shop` offer next encounter — "the merchant notices your progress" (`merchant_interest` counter; the "upgrading a bronze unit" idea) |
    | 5 total recruits                                                                                   | one-time `silver_shop` offer (recruit counter; the "x units" idea)                                                                                 |
-   | 3 skips (`favor`, E1)                                                                              | `silver_shop` guaranteed in the next options                                                                                                       |
+   | ~~3 skips (`favor`, E1) — removed 2026-08-23~~                                                    | ~~`silver_shop` guaranteed in the next options~~                                                                                                   |
    | `soul_trade` accepted (A2)                                                                         | immediate gold shop (the slot itself)                                                                                                              |
    | `double_or_nothing` won (A4)                                                                       | next encounter = `gold_shop`                                                                                                                       |
    | `sealed_vault` banked card (E2)                                                                    | free card in the next round's first slot                                                                                                           |
@@ -520,8 +517,9 @@ enforced gate, round values are pure fallbacks).
 | `reaction_lab` (F2)                               | 5              | **wins ≥ 7**              | 1                   | waves 3+                               |
 | `gold_shop`                                       | 7              | **wins ≥ 7** or round ≥ 9 | 2                   | waves 3                                |
 
-Note — `favor` (E1) is not a pool entry: it is a *system* modifier (skip
-tracker) feeding the event queue ("guaranteed silver after 3 skips").
+Note — `favor` (E1, removed 2026-08-23) was not a pool entry: it was a *system*
+modifier (skip tracker) feeding the event queue ("guaranteed silver after 3
+skips").
 
 ---
 
@@ -530,7 +528,7 @@ tracker) feeding the event queue ("guaranteed silver after 3 skips").
 | Primitive                                                                       | Kind                        | Used by             | Effort |
 |:--------------------------------------------------------------------------------|:----------------------------|:--------------------|:-------|
 | `restore_life` / `lose_life` actions                                            | action handler              | C1, C3, A2, C4      | XS     |
-| `favorTokens` session field + skip hook                                         | session field               | E1                  | L      |
+| ~~`favorTokens` session field + skip hook~~ (removed 2026-08-23)                 | session field               | E1                  | L      |
 | `runBoons` session field + `applyRunBoons()` combat hook                        | session field + combat hook | D1, D2              | M      |
 | `nextCombatModifier` ephemeral field (core shield / enemy round offset / prize) | session field + combat hook | C2, C3, A4          | L      |
 | `bankedCard` session field + free-option injection                              | session field + generation  | E2                  | M      |
@@ -574,7 +572,7 @@ entry in `core/src/content/encounters.ts`, i18n keys, and art (or reuse existing
    `upgrade_unit`).
 7. **B3 `enchanters_tower`** — reaction-add via reaction orbs.
 8. **C2 `battle_rations`**, **C3 `field_hospital`** — `nextCombatModifier`.
-9. **E1 `favor`** — skip economy.
+9. ~~**E1 `favor`** — skip economy.~~ (built 2026-08-19, removed 2026-08-23)
 10. **D1 `tome_of_*`** — `runBoons` + combat hook.
 11. **B5 `duplicator`**, **G1 `crossroads`**.
 

@@ -8,14 +8,6 @@ export const MIN_REFRESH_MS = 200;
 export const MIN_ROUND_FOR_SILVER_SHOP = 1;
 export const MIN_ROUND_FOR_GOLD_SHOP = 6;
 
-// Favor tokens (docs/new-encounter-types.md E1): skipping encounters
-// accumulates favor; at this threshold the next encounter options are
-// guaranteed a silver_shop option.
-export const FAVOR_TOKENS_FOR_SILVER_SHOP = 3;
-// A12 (docs/wacky-content-plan.md): the Lucky Pig triples the next skip's
-// favor gain.
-export const LUCKY_PIG_FAVOR_GAIN = 3;
-
 // Victory / game-over thresholds
 export const WINS_TO_WIN_GAME = 10;
 export const INFINITE_MODE_THRESHOLD = 10;

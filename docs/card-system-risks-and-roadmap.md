@@ -264,7 +264,7 @@ Catches degenerate compositions before they ship.
 | **P1** | Upgrade/manipulation — `training_grounds` (free rank-up) | 2–3 days | — |
 | **P1** | Disruption effects — `purge` & `silence` | 3–4 weeks (engine + cards + art) | Silver pool > 12 cards |
 | **P2** | Health/resource encounters — `rest_inn`, `battle_rations` | 3–4 days | — |
-| **P2** | Skip rewards — favor tokens for guaranteed silver shop | 2–3 days | — |
+| **P2** | Skip rewards — ~~favor tokens for guaranteed silver shop~~ (built 2026-08-19, removed 2026-08-23) | 2–3 days | — |
 | **P2** | Upgrade/manipulation — `enchanters_tower`, `scrap_salvage` | 1 week | — |
 | **P2** | Strategy-leveling encounters — `tome_of_*` | 1–2 weeks | Silver pool > 12 cards |
 | **P2** | Positional depth mechanics | 2–4 weeks | Large card pool |

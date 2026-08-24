@@ -201,3 +201,9 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > [docs/wacky-content-plan.md](docs/wacky-content-plan.md) and
 > [docs/core-unit-onboarding.md](docs/core-unit-onboarding.md).
 
+> **Removed (2026-08-23):** the favor-token mechanic — E1 skip-to-silver
+> guarantee (`favorTokens`) and the Lucky Pig encounter (A12, favor ×3) — was
+> rolled back. `skip` no longer banks tokens, the HUD favor counter is gone, and
+> `lucky_pig` was removed from the encounter pool. See
+> [docs/new-encounter-types.md](docs/new-encounter-types.md) E1.
+

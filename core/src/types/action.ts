@@ -41,7 +41,6 @@ export type EncounterId =
   | "oracles_riddle"
   | "chaos_altar"
   | "roulette_wheel"
-  | "lucky_pig"
   // ── Roulette wheel results (A11 redesign, 2026-08-21) ───────────────
   | "roulette_gold_shop"
   | "roulette_core_power"

@@ -60,10 +60,6 @@ const transitionToCurrentPhase = async () => {
 	// Always reconcile the board to the session team before moving to the next phase.
 	await syncPlayerBoardUnits();
 
-	// E1: keep the HUD favor counter in sync — skips bank tokens and silver
-	// shops spend them, and both always advance the phase.
-	UI.updateFavorDisplay(env.state.session.favorTokens ?? 0);
-
 	// Keep the HUD hearts in sync — encounters that spend or restore life
 	// (soul_trade, rest_inn, roulette_wheel) mutate losses directly.
 	UI.syncLivesDisplay();

@@ -309,7 +309,7 @@ Mapping Balatro's reward categories to potential Mana Battle equivalents:
 | **Standard** (add foundation) | 10 effect-filtered encounters — solid | Works; needs bronze-only constraint lifted at higher rounds |
 | **Spectral** (risk/reward) | **None** | "Ritual" — sacrifice unit for crystal power, lose life for gold card |
 | **Buffoon** (scoring engine) | Silver/gold shops + wildcards | Works; improves with silver pool expansion |
-| **Tags** (skip for later) | Skip wastes a slot | Skip grants favor tokens — 3 tokens = free silver recruit |
+| **Tags** (skip for later) | Skip wastes a slot | ~~Skip grants favor tokens — 3 tokens = free silver recruit~~ (removed 2026-08-23) |
 | **Shop** (hub) | **None** | Once-per-round hub: 2 units + 1 orb + reroll |
 
 ### 9.3. What NOT to copy
@@ -331,7 +331,7 @@ Mapping Balatro's reward categories to potential Mana Battle equivalents:
   Adds a missing design dimension (trade-offs) and makes board management
   more meaningful.
 
-**P2 — Skip rewards** (small engine change):
+**P2 — Skip rewards** (small engine change) — ~~built 2026-08-19, removed 2026-08-23~~:
 - Every skip increments `favor_tokens` on the session.
 - 3 tokens = guaranteed silver shop next encounter.
 - Makes "passing on bad options" accumulate toward a payoff.
@@ -436,7 +436,7 @@ Incorporating The Bazaar's lessons alongside Balatro's:
 | **P1** | Risk/reward | `dark_ritual`, `soul_trade` | 2–3 days | Balatro, The Bazaar |
 | **P1** | Upgrade/manipulation | `training_grounds` (free rank 2 upgrade) | 2–3 days | The Bazaar |
 | **P2** | Health/resource | `rest_inn`, `battle_rations` | 3–4 days | The Bazaar |
-| **P2** | Skip rewards | Favor tokens | 2–3 days | Balatro (Tags) |
+| **P2** | Skip rewards | ~~Favor tokens~~ (removed 2026-08-23) | 2–3 days | Balatro (Tags) |
 | **P2** | Upgrade/manipulation | `enchanters_tower`, `scrap_salvage` | 1 week | The Bazaar |
 | **P3** | Strategy leveling | `tome_of_*` | 1–2 weeks | Balatro (Planets) |
 | **P3** | Upgrade/manipulation | `reforge` (swap action type) | 1 week | The Bazaar (Form) |
