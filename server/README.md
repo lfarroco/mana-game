@@ -268,6 +268,27 @@ health check, and restarts on crash/reboot.
    off-box copy. Restore = stop the server, copy the snapshot over
    `/data/mana.db`, start again.
 
+6. **HTTPS via Caddy (bundled in the compose stack)**: `compose.yaml` runs a
+   `caddy` service on 80/443 that terminates TLS (automatic Let's Encrypt)
+   and reverse-proxies to `server:8787` — no Caddy install on the host. This
+   is the topology the server's trust-proxy config was written for
+   (`player ──https──▶ Cloudflare ──https──▶ Caddy ──▶ server:8787`).
+   - Point `api.manabattle.com` at the VM's public IP, **proxied** by
+     Cloudflare (orange cloud).
+   - Cloudflare **SSL/TLS → Overview**: mode **Full (strict)** (CF re-encrypts
+     to Caddy, which serves a valid Let's Encrypt cert). Do **not** use
+     Flexible.
+   - **Delete any Cloudflare origin rule** that overrides the destination
+     port to 8787 — CF must reach Caddy on 443.
+   - Open **80** (ACME HTTP-01) and **443** in the VCN security list; the
+     server's own 8787 is bound to `127.0.0.1` (host-only).
+   - `./server/scripts/deploy.sh` builds and starts both services and waits
+     for the internal health check. Verify end-to-end:
+     `curl https://api.manabattle.com/health` → `{"ok":true}`.
+   - If the first Let's Encrypt issuance stalls behind Cloudflare, grey-cloud
+     the DNS record for a minute so HTTP-01 can reach Caddy directly, then
+     re-proxy.
+
 **Redeploy** is just `./server/scripts/deploy.sh` again — the `mana-data`
 volume keeps sessions, ghosts, ratings, and players across rebuilds.
 

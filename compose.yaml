@@ -1,27 +1,60 @@
-# Local multiplayer server (Docker alternative to `make server-mp`).
+# Local multiplayer server (Docker alternative to `make server-mp`) AND the
+# production entry point on a VM. Compose runs two services:
 #
-# Usage:
+#   caddy  — TLS reverse proxy (80/443, Let's Encrypt) → server:8787
+#   server — the bundled Mana Battle Node server (server/Dockerfile)
+#
+# Usage (local dev):
 #   1. Create a root .env (gitignored) with your publisher key:
 #        echo 'MANA_STEAM_WEB_API_KEY=<your-key>' > .env
 #   2. docker compose up -d --build     (or: make server-compose-up)
 #   3. Launch the Steam Electron build and click MULTIPLAYER — it talks to
 #      http://127.0.0.1:8787 by default.
 #
+# Production (Oracle/DO VM): see server/README.md §Docker flow — point
+# api.manabattle.com at the VM (Cloudflare proxied, SSL/TLS mode "Full
+# (strict)"), open 80/443 in the security list, then ./server/scripts/deploy.sh.
+#
 # Optional .env overrides: MANA_SERVER_PORT, MANA_STEAM_APP_IDS,
-# MANA_CORS_ORIGIN, MANA_ITCH_ENABLED. SQLite data lives in the named
-# `mana-data` volume (sessions, ghosts, and ratings survive container
-# restarts and redeploys — see server/README.md §Deployment).
+# MANA_CORS_ORIGIN, MANA_ITCH_ENABLED, MANA_API_DOMAIN. SQLite data lives in
+# the named `mana-data` volume and Caddy's TLS certs in `caddy-data` — both
+# survive container restarts and redeploys.
 
 name: mana-game
 
 services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      MANA_API_DOMAIN: "${MANA_API_DOMAIN:-api.manabattle.com}"
+    volumes:
+      - ./server/Caddyfile.docker:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - server
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2019/config/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
   server:
     build:
       context: .
       dockerfile: server/Dockerfile
     image: mana-server:local
+    # Host-only: the public path is Caddy on 443. deploy.sh and local tooling
+    # still reach the API on 127.0.0.1:8787.
     ports:
-      - "${MANA_SERVER_PORT:-8787}:8787"
+      - "127.0.0.1:${MANA_SERVER_PORT:-8787}:8787"
+    expose:
+      - "8787"
     environment:
       MANA_SERVER_HOST: 0.0.0.0
       MANA_SERVER_PORT: 8787
@@ -42,3 +75,6 @@ services:
 
 volumes:
   mana-data:
+  caddy-data:
+  caddy-config:
+

@@ -1,0 +1,24 @@
+# Mana Battle game server — TLS reverse proxy for the Docker/Compose deployment.
+#
+# Terminates TLS (Let's Encrypt via Caddy automatic HTTPS) on 80/443 and
+# reverse-proxies to the `server` compose service on :8787 (plain HTTP).
+#
+#   player ──https──▶ Cloudflare ──https──▶ Caddy (:80/:443) ──▶ server:8787
+#
+# Requirements:
+#   - DNS: api.manabattle.com proxied by Cloudflare (orange cloud) → the VM.
+#   - Cloudflare SSL/TLS mode: "Full (strict)" — CF re-encrypts to Caddy,
+#     which serves a valid Let's Encrypt cert for the domain.
+#   - Delete any Cloudflare origin rule that overrides the destination port —
+#     CF must reach Caddy on 443, not the server's raw 8787.
+#   - VCN security list: open 80 (ACME HTTP-01) and 443; the server's :8787
+#     stays host-local (127.0.0.1 mapping in compose.yaml).
+#
+# The site address comes from MANA_API_DOMAIN (set in compose.yaml from the
+# root .env; default api.manabattle.com). If the first Let's Encrypt issuance
+# stalls behind Cloudflare, grey-cloud the DNS record for a minute so HTTP-01
+# can reach :80 directly, then re-proxy.
+
+{$MANA_API_DOMAIN:api.manabattle.com} {
+	reverse_proxy server:8787
+}
