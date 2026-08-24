@@ -374,7 +374,7 @@ per effect, not "small".
   `TriggerSystem/effects/silence.ts` module, `descriptions.ts`, `CombatLogger`, tests.
 - **Spec**: tick `silenced` down like `hasted`; a silenced unit skips its action cast.
   Gold-only (counterplay to whole boards) or narrow targets.
-- **Follow-up card**: Hexblade (gold, damage + silence the strongest enemy).
+- **Follow-up card**: Ice Guardian (gold, damage + silence the strongest enemy).
 - **Acceptance**: unit test that a silenced unit casts nothing for the duration.
 
 #### D2 — `dispel` ✅ (2026-08-19)

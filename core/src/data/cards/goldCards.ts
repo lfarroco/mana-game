@@ -206,11 +206,11 @@ export const GOLD_CARDS: Models.CardDefinition[] = [
   // D1 (docs/wacky-content-plan.md): counterplay blade — damage + silence the
   // strongest enemy. Gold-only per the silence balance rule.
   {
-    id: "hexblade",
+    id: "ice_guardian",
     description:
       "Counterplay blade — damages and silences the strongest enemy.",
     tags: ["disabler", "type_engine"],
-    pic: "neutral_inquisitorkron",
+    pic: "f6_ynuyttracker",
     power: 70,
     rank: 3,
     cooldown: 6000,
