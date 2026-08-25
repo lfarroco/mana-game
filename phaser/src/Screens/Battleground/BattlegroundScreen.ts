@@ -5,6 +5,7 @@ import * as Encounter from "./Phases/Encounter/Encounter";
 
 import * as Components from "./Components";
 import * as Phases from "./Phases";
+import * as PhaseTransitions from "./phaseTransitions";
 import { env } from "@Env";
 import { BattlegroundEvent, GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
@@ -22,6 +23,11 @@ export type BGContext = ScreenCtx<BGPhase, BGEvents>;
  * Dispatch an action, update state, optionally run a callback, then emit phaseFinished.
  * This is the canonical single-step phase transition used by all phase handlers.
  *
+ * The outgoing phase's exit animation starts immediately, in parallel with the
+ * server dispatch — so the 150-200ms request round-trip (multiplayer) is hidden
+ * behind the slide-out instead of showing as a dead pause. The next go() skips
+ * the exit since it already ran here.
+ *
  * @param action - The game action to dispatch through the server adapter.
  * @param onBeforeFinish - Optional callback that fires after state update but before
  *   phaseFinished is emitted. Use for intermediate events (HUD deltas, purchase events, etc.).
@@ -30,11 +36,52 @@ export const dispatchAction = async (
 	action: Models.Action,
 	onBeforeFinish?: (response: Models.ActionResponse) => void | Promise<void>
 ): Promise<void> => {
+	if (transitionInFlight) return;
+
 	const previousPhase = env.state.session.phase;
-	const response = await env.dispatch(action);
-	env.updateState({ ...env.state, ...response });
-	if (onBeforeFinish) await onBeforeFinish(response);
-	await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+	const exitDone = beginPhaseTransition();
+
+	try {
+		let response: Models.ActionResponse;
+		try {
+			response = await env.dispatch(action);
+		} catch (err) {
+			// The action failed — bring the outgoing phase back into view
+			// instead of leaving the board empty.
+			await restorePhaseExit().catch(() => {});
+			throw err;
+		}
+
+		await exitDone;
+
+		env.updateState({ ...env.state, ...response });
+		if (onBeforeFinish) await onBeforeFinish(response);
+		await BattlegroundEvent.phaseFinished.emit({ previousPhase });
+	} finally {
+		endPhaseTransition();
+	}
+};
+
+/**
+ * True while a phase transition (including the pre-exit animation) is in
+ * flight. Guards against re-entrant dispatches from double-clicks during the
+ * longer interaction window the exit animation creates.
+ */
+let transitionInFlight = false;
+
+/**
+ * Lock input and start the current phase's exit animation. The returned
+ * promise resolves when the exit finishes. Run this in parallel with a server
+ * dispatch so the outgoing UI slides away while the request is in flight.
+ */
+export const beginPhaseTransition = (): Promise<void> => {
+	transitionInFlight = true;
+	return startPhaseExit();
+};
+
+/** Release the transition lock after the phase switch completes. */
+export const endPhaseTransition = (): void => {
+	transitionInFlight = false;
 };
 
 /**
@@ -110,21 +157,55 @@ const screen = createScreen<BGPhase, BGEvents>({
 	},
 
 	phases: {
-		encounter: Encounter.encounterPhase(true),
-		pre_combat: Encounter.encounterPhase(false),
-		shop: (ctx) => Phases.ShopPhase(ctx),
-		orb_shop: Phases.openOrbShop,
-		upgrade_core: Phases.UpgradeCorePhase,
-		add_reaction_core: Phases.AddReactionCorePhase,
-		combat: (ctx) => Phases.CombatPhase(ctx),
-		game_over: Phases.GameOverPhase,
-		victory: (ctx) => Phases.VictoryPhase(ctx),
+		encounter: {
+			handler: Encounter.encounterPhase(true),
+			transition: PhaseTransitions.slideTransition,
+		},
+		pre_combat: {
+			handler: Encounter.encounterPhase(false),
+			transition: PhaseTransitions.slideTransition,
+		},
+		shop: {
+			handler: (ctx) => Phases.ShopPhase(ctx),
+			transition: PhaseTransitions.slideTransition,
+		},
+		orb_shop: {
+			handler: Phases.openOrbShop,
+			transition: PhaseTransitions.slideTransition,
+		},
+		upgrade_core: {
+			handler: Phases.UpgradeCorePhase,
+			transition: PhaseTransitions.slideTransition,
+		},
+		add_reaction_core: {
+			handler: Phases.AddReactionCorePhase,
+			transition: PhaseTransitions.slideTransition,
+		},
+		combat: {
+			handler: (ctx) => Phases.CombatPhase(ctx),
+			transition: PhaseTransitions.slideTransition,
+		},
+		game_over: {
+			handler: Phases.GameOverPhase,
+			transition: PhaseTransitions.slideTransition,
+		},
+		victory: {
+			handler: (ctx) => Phases.VictoryPhase(ctx),
+			transition: PhaseTransitions.slideTransition,
+		},
 
 		// Client-only phases (not present in session)
-		combat_victory: (ctx) => Phases.CombatVictoryPhase(ctx),
-		combat_defeat: (ctx) => Phases.CombatDefeatPhase(ctx),
+		combat_victory: {
+			handler: (ctx) => Phases.CombatVictoryPhase(ctx),
+			transition: PhaseTransitions.slideTransition,
+		},
+		combat_defeat: {
+			handler: (ctx) => Phases.CombatDefeatPhase(ctx),
+			transition: PhaseTransitions.slideTransition,
+		},
 	},
 });
 
 const _bgscreen = screenModule(screen);
-export const { init, create, destroy, go, name, currentPhase } = _bgscreen;
+export const { init, create, destroy, go, name, currentPhase, startPhaseExit, restorePhaseExit } =
+	_bgscreen;

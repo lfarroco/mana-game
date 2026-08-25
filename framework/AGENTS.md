@@ -20,6 +20,10 @@ host via hooks. See [README.md](README.md) and
   auto-destroyed on phase switch. `ctx.track(obj, { id })` tracks destroyables;
   `ctx.listen(event, cb)` subscribes for the current scope's lifetime;
   `ctx.refresh()` re-runs the current phase.
+- **Transitions**: each phase may declare `{ enter, exit }` animations on its
+  tracked elements (`screen.startPhaseExit()` runs the exit early — e.g. in
+  parallel with a server dispatch — and the next `go()` skips it;
+  `screen.restorePhaseExit()` brings the UI back if that work fails).
 - **Nav mutex**: all `go()` calls are serialised by a promise chain
   (`then(run, run)` — self-healing), coalesce redundant requests, and drop
   same-screen requests.
@@ -32,7 +36,7 @@ host via hooks. See [README.md](README.md) and
 
 ```bash
 cd framework
-npm test            # jest suite (7 suites / 56 tests)
+npm test            # jest suite (7 suites / 60 tests)
 npm run typecheck
 ```
 

@@ -126,13 +126,16 @@ export const handleTimeoutDamageCast = (
 		// Match the cast→hit timing in the logs (400ms) so the missile lands
 		// exactly when the timeout_damage_hit entry updates the life display.
 		duration: log.travelTime,
-		colors: [0x4b0082, 0x8b00ff, 0x9400d3], // dark violet / purple
+		// Black shards torn from the black hole — NORMAL blend so black is
+		// actually visible (ADD would render 0x000000 as nothing).
+		colors: [0x000000, 0x111111, 0x222222],
 		amplitudeMin: 8,
 		amplitudeMax: 25,
-		particleScale: 2,
+		particleScale: 1.5, // smaller rects than the previous purple missile (was 2)
+		blendMode: Phaser.BlendModes.NORMAL,
 		impact: {
-			colors: [0x4b0082, 0x800080],
-			scale: 5,
+			colors: [0x000000, 0x111111],
+			scale: 2,
 			speed: 250,
 			lifespan: 500,
 			alpha: 0.5,

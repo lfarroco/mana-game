@@ -1,4 +1,4 @@
-import { Unit } from "@game/Models";
+import { Unit, type SessionData } from "@game/Models";
 import { checkRecruitEligibility } from "@game/Actions/recruitValidation";
 import * as Chara from "@Components/Chara/Chara";
 import * as i18n from "@i18n/i18n";
@@ -8,7 +8,12 @@ import * as Tooltip from "@Components/Tooltip/Tooltip";
 import * as animation from "@Utils/animation";
 import * as Effects from "../../../../FX";
 import { env } from "@Env";
-import { finishPhase } from "../../BattlegroundScreen";
+import {
+	beginPhaseTransition,
+	endPhaseTransition,
+	finishPhase,
+	restorePhaseExit,
+} from "../../BattlegroundScreen";
 
 const PURCHASE_FAILED_SNAP_DURATION_MS = 150;
 const SHOP_UPGRADE_PROJECTILE_COUNT = 8;
@@ -47,40 +52,64 @@ export async function purchaseShopUnit({
 	const previousTeamUnits = JSON.parse(JSON.stringify(currentSession.team.units)) as Unit[];
 	const previousTeamUnitIds = new Set(previousTeamUnits.map((u) => u.id));
 
-	const { session } = await env.dispatch({
-		type: "recruit_unit",
-		unitId: cardId,
-		targetSlot,
-	});
-
-	const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
-	const didAddUnit = session.team.units.find(
-		(u) => u.cardId === cardId && !previousTeamUnitIds.has(u.id)
-	);
-	if (!wasUpgrade && !didAddUnit) return { ok: false, reason: "NOT_ACQUIRED" };
-
-	// The acquisition is valid — destroy the dragged shop chara as soon as it
-	// is dropped instead of leaving it visible through the rest of the purchase
-	// flow. Capture its position first so the upgrade effect can still animate
-	// from the drop location.
-	const draggedChara = Chara.hasCharaById(shopCharaId) ? Chara.mustGetCharaById(shopCharaId) : null;
-	const dragSourceVec: Vec2 | null = draggedChara ? [draggedChara.x, draggedChara.y] : null;
-	if (draggedChara) {
-		Chara.destroy(draggedChara);
-	}
-
+	// Slide the shop out while the recruit request is in flight (masks the
+	// server round-trip), mirroring dispatchAction's pre-exit. The next phase
+	// switch skips the exit since it already ran here.
 	const previousPhase = env.state.session.phase;
-	env.updateState({ ...env.state, session });
-	await finishPhase(previousPhase, () =>
-		playPurchaseFeedback({
-			cardId,
-			shopCharaId,
-			dragSourceVec,
-			wasUpgrade,
-		})
-	);
+	const exitDone = beginPhaseTransition();
 
-	return { ok: true, wasUpgrade };
+	try {
+		let session: SessionData;
+		try {
+			({ session } = await env.dispatch({
+				type: "recruit_unit",
+				unitId: cardId,
+				targetSlot,
+			}));
+		} catch (err) {
+			// The request failed — bring the shop back into view.
+			await restorePhaseExit().catch(() => {});
+			throw err;
+		}
+
+		await exitDone;
+
+		const wasUpgrade = previousTeamUnits.some((u) => u.cardId === cardId);
+		const didAddUnit = session.team.units.find(
+			(u) => u.cardId === cardId && !previousTeamUnitIds.has(u.id)
+		);
+		if (!wasUpgrade && !didAddUnit) {
+			// The server rejected the recruit — restore the shop UI.
+			await restorePhaseExit().catch(() => {});
+			return { ok: false, reason: "NOT_ACQUIRED" };
+		}
+
+		// The acquisition is valid — destroy the dragged shop chara as soon as it
+		// is dropped instead of leaving it visible through the rest of the purchase
+		// flow. Capture its position first so the upgrade effect can still animate
+		// from the drop location.
+		const draggedChara = Chara.hasCharaById(shopCharaId)
+			? Chara.mustGetCharaById(shopCharaId)
+			: null;
+		const dragSourceVec: Vec2 | null = draggedChara ? [draggedChara.x, draggedChara.y] : null;
+		if (draggedChara) {
+			Chara.destroy(draggedChara);
+		}
+
+		env.updateState({ ...env.state, session });
+		await finishPhase(previousPhase, () =>
+			playPurchaseFeedback({
+				cardId,
+				shopCharaId,
+				dragSourceVec,
+				wasUpgrade,
+			})
+		);
+
+		return { ok: true, wasUpgrade };
+	} finally {
+		endPhaseTransition();
+	}
 }
 
 /** Snap a failed drag purchase back to its starting position. */

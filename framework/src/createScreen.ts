@@ -21,6 +21,9 @@
  *   - declarative phase transitions: each phase may declare an `enter` and/or
  *     `exit` animation that runs on the elements the handler returns (enter)
  *     or on the outgoing phase's elements before they are destroyed (exit)
+ *   - startPhaseExit()/restorePhaseExit() to run the outgoing phase's exit
+ *     early (overlapping async work like a server dispatch, so the request
+ *     latency is hidden) and to bring the UI back into view if that work fails
  *
  * This module has no runtime imports (types only) so it stays unit-testable
  * without any engine mock.
@@ -150,6 +153,24 @@ export type ScreenResult<TPhase extends string, E extends EventRecord> = {
   currentPhase: () => TPhase | null;
 
   /**
+   * Run the current phase's exit transition early — e.g. in parallel with an
+   * async server dispatch so the outgoing UI slides away while the request is
+   * in flight. The next go()/refresh() skips the exit for that phase (it
+   * already ran) and proceeds straight to teardown + handler + enter.
+   * Idempotent and best-effort: it never rejects.
+   */
+  startPhaseExit: () => Promise<void>;
+
+  /**
+   * Reverse a pending startPhaseExit(): re-run the current phase's enter
+   * transition on its elements to bring them back into view. Used when the
+   * async work startPhaseExit() was started alongside fails (e.g. a rejected
+   * server dispatch) and no phase switch will happen. No-op unless an exit is
+   * pending. Best-effort: it never rejects.
+   */
+  restorePhaseExit: () => Promise<void>;
+
+  /**
    * Per-screen deep-link mapper (see ScreenModule.mapDeepLink).  Declared in
    * the createScreen() spec; forwarded to the ScreenManager by screenModule().
    */
@@ -244,32 +265,38 @@ export function createScreen<
   }
 
   /**
-   * Run the enter transition for a phase on its returned elements.
-   * The elements are the TrackedGroup's children (the raw returned objects).
+   * Collect every element tracked by the active phase, unwrapping TrackedGroups
+   * (returned arrays) so transitions animate the raw returned objects plus any
+   * elements registered directly via ctx.track().
    */
-  async function runEnter(
-    entry: { transition?: PhaseTransition },
-    group: TrackedGroup,
-  ): Promise<void> {
-    if (!entry.transition?.enter) return;
-    await entry.transition.enter(group.elements);
+  function collectPhaseElements(): Destroyable[] {
+    const groups = tracker?.getPhaseElements() ?? [];
+    return groups.flatMap((g) =>
+      g instanceof TrackedGroup ? g.elements : [g],
+    );
   }
 
   /**
-   * Run the exit transition for the outgoing phase on its returned elements,
-   * then destroy them.  The outgoing elements are the phase's tracked
-   * TrackedGroup(s) — we unwrap their children so the transition animates the
-   * raw returned objects.
+   * Run the exit transition for the outgoing phase on its tracked elements.
+   * The elements stay alive (off-screen once the transition finishes) until
+   * clearPhase() destroys them right after this.
    */
   async function runExit(
     entry: { transition?: PhaseTransition } | undefined,
   ): Promise<void> {
     if (!entry?.transition?.exit) return;
-    const groups = tracker?.getPhaseElements() ?? [];
-    const elements = groups.flatMap((g) =>
-      g instanceof TrackedGroup ? g.elements : [g],
-    );
-    await entry.transition.exit(elements);
+    await entry.transition.exit(collectPhaseElements());
+  }
+
+  /**
+   * Run the enter transition for a phase on its tracked elements.
+   */
+  async function runEnterElements(
+    entry: { transition?: PhaseTransition },
+    elements: Destroyable[],
+  ): Promise<void> {
+    if (!entry.transition?.enter) return;
+    await entry.transition.enter(elements);
   }
 
   /** Shared body for go() and refresh(): exit → clear → run handler → enter. */
@@ -294,7 +321,11 @@ export function createScreen<
       : undefined;
 
     // 1. Exit transition on the outgoing phase's elements (if declared).
-    await runExit(outgoingEntry);
+    //    Skipped when startPhaseExit() already ran it for this phase (e.g. in
+    //    parallel with the server dispatch that triggered this transition).
+    if (!exitAlreadyRan) await runExit(outgoingEntry);
+    // Consume the pre-exit marker either way.
+    exitAlreadyRan = false;
     // Bail out if the screen was destroyed while the transition ran.
     if (tracker !== tr) return;
 
@@ -312,21 +343,24 @@ export function createScreen<
 
     // 3. Run the new phase handler.
     tr.beginPhase();
-    let group: TrackedGroup | null = null;
     try {
       const result = await entry.handler(ctx);
       // Bail out if the screen was destroyed while the handler ran.
       if (tracker !== tr) return;
       if (result) {
-        group = trackReturned(result);
+        trackReturned(result);
       }
     } finally {
       tr.endPhase();
     }
 
-    // 4. Enter transition on the incoming phase's returned elements (if declared).
-    if (group) {
-      await runEnter(entry, group);
+    // 4. Enter transition on the incoming phase's elements (if declared).
+    //    Animated on every phase-scoped element (returned or ctx.track'd) so
+    //    phases that register their UI via ctx.track() (e.g. combat results)
+    //    slide in just like phases that return their elements.
+    const incomingElements = collectPhaseElements();
+    if (incomingElements.length > 0) {
+      await runEnterElements(entry, incomingElements);
     }
   }
 
@@ -335,6 +369,14 @@ export function createScreen<
   // pattern as the ScreenManager nav mutex: `then(op, op)` keeps the chain
   // alive after a failed transition so later go()/refresh() calls still run.
   let phaseChain: Promise<void> = Promise.resolve();
+
+  /**
+   * Set when startPhaseExit() has already animated the current phase out.
+   * The next runPhase() skips the exit step for that phase, then clears it.
+   * Lets callers overlap the exit animation with async work (e.g. a server
+   * dispatch) that resolves to the next phase.
+   */
+  let exitAlreadyRan = false;
 
   /** Enqueue a phase operation on the per-screen chain. */
   function enqueuePhase(op: () => Promise<void>): Promise<void> {
@@ -350,6 +392,50 @@ export function createScreen<
       if (!tracker || !tracker.currentPhase) return Promise.resolve();
       return runPhase(tracker.currentPhase);
     });
+
+  /**
+   * Run the current phase's exit transition immediately, without switching
+   * phases. The outgoing elements stay tracked (but off-screen) until the next
+   * go()/refresh() clears them. Idempotent: a second call while an exit is
+   * pending is a no-op. Best-effort: a failing transition never rejects, so
+   * callers can run it in parallel with dispatch work.
+   */
+  async function startPhaseExit(): Promise<void> {
+    if (exitAlreadyRan) return;
+    const tr = tracker;
+    if (!tr || !tr.currentPhase) return;
+    const entry = normalizeEntry(phases[tr.currentPhase]);
+    try {
+      await runExit(entry);
+    } catch (err) {
+      console.warn(`[createScreen:"${spec.name}"] exit transition failed`, err);
+    }
+    // Mark the exit as consumed for the upcoming go() — but only if the screen
+    // is still alive (it may have been destroyed mid-animation).
+    if (tracker === tr) exitAlreadyRan = true;
+  }
+
+  /**
+   * Reverse a pending startPhaseExit(): re-run the current phase's enter
+   * transition so its elements slide back into view. Used when the async work
+   * the exit was overlapping with failed and no phase switch will happen.
+   * Best-effort like startPhaseExit().
+   */
+  async function restorePhaseExit(): Promise<void> {
+    if (!exitAlreadyRan) return;
+    const tr = tracker;
+    if (!tr || !tr.currentPhase) return;
+    const entry = normalizeEntry(phases[tr.currentPhase]);
+    try {
+      await runEnterElements(entry, collectPhaseElements());
+    } catch (err) {
+      console.warn(
+        `[createScreen:"${spec.name}"] enter transition (restore) failed`,
+        err,
+      );
+    }
+    exitAlreadyRan = false;
+  }
 
   const ctx: ScreenCtx<TPhase, E> = {
     track: ((
@@ -392,6 +478,10 @@ export function createScreen<
 
     currentPhase: () => tracker?.currentPhase ?? null,
 
+    startPhaseExit,
+
+    restorePhaseExit,
+
     init: () => {
       if (initialized) return;
       initialized = true;
@@ -428,6 +518,8 @@ export function createScreen<
       // any in-flight outcome so it can't surface as an unhandled rejection.
       void phaseChain.catch(() => {});
       phaseChain = Promise.resolve();
+      // A pre-exit from a dead screen must never bleed into the next init().
+      exitAlreadyRan = false;
     },
   };
 
@@ -458,6 +550,8 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
   destroy: () => void;
   go: (phase: string) => Promise<void>;
   currentPhase: () => TPhase | null;
+  startPhaseExit: () => Promise<void>;
+  restorePhaseExit: () => Promise<void>;
 } {
   const mod = {
     name: screen.name,
@@ -479,6 +573,10 @@ export function screenModule<TPhase extends string, E extends EventRecord>(
     go: screen.go as (phase: string) => Promise<void>,
 
     currentPhase: screen.currentPhase,
+
+    startPhaseExit: screen.startPhaseExit,
+
+    restorePhaseExit: screen.restorePhaseExit,
 
     mapDeepLink: screen.mapDeepLink,
   };
