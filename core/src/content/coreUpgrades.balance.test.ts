@@ -50,7 +50,7 @@ for (const card of ALL_CARDS) {
   }
 }
 
-/** The four identity orbs in a theme's pool (excludes the generic stat orbs). */
+/** The identity orbs in a theme's pool (excludes the generic stat orbs). */
 function identityOrbs(theme: CoreTheme): CoreUpgradeDefinition[] {
   return getThemeUpgradePool(theme).filter((orb) => orb.kind !== "stat");
 }
@@ -85,21 +85,21 @@ function marginalAp(core: CardDefinition, orb: CoreUpgradeDefinition): number {
 describe("core upgrade balance (CUB-C1)", () => {
   it("maps every core theme to exactly one core card with a full identity-orb pool", () => {
     expect(CORES_BY_THEME.size).toBe(9);
-    // Every theme ships ≥ 3 identity orbs. All themes have 4 except haste,
+    // Every theme ships ≥ 3 identity orbs. All themes have 7 except haste,
     // whose 4th orb (Regen) now lives in quickstone's baseline — the absolute
     // basic-effect rule requires every core to carry ≥ 1
     // damage/heal/shield/poison/regen effect, and regen is quickstone's pair
     // (docs/core-unit-onboarding.md §2 decision 4).
     const EXPECTED_ORB_COUNTS: Record<CoreTheme, number> = {
-      regen: 4,
-      damage: 4,
-      shield: 4,
-      heal: 4,
-      poison: 4,
-      haste: 3,
-      overflow: 4,
-      thorns: 4,
-      void: 4,
+      regen: 7,
+      damage: 7,
+      shield: 7,
+      heal: 7,
+      poison: 7,
+      haste: 6,
+      overflow: 7,
+      thorns: 7,
+      void: 7,
     };
     for (const [theme, core] of CORES_BY_THEME) {
       expect(core.isCore).toBe(true);
@@ -180,45 +180,72 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  mana_reactive_charge: +7.9",
         "  mana_overflow_shield: +71.3",
         "  mana_regen_charge: +16.8",
+        "  mana_regen_power: +50.9",
+        "  mana_regen_haste: +19.1",
+        "  mana_weave: +33.3",
         "damage (critical_crystal) baseline 67",
         "  crit_crit_column: +33.3",
         "  crit_row_power: +81.0",
         "  crit_crit_power: +20.4",
         "  crit_crit_slow: +15.3",
+        "  crit_damage_power: +50.9",
+        "  crit_crit_haste: +7.6",
+        "  crit_crit_weaken: +16.3",
         "shield (protective_crystal) baseline 62",
         "  shield_ally_power: +55.6",
         "  shield_trigger_power: +46.8",
         "  shield_power: +50.9",
         "  shield_overflow: +71.3",
+        "  shield_haste: +19.1",
+        "  shield_charge: +11.2",
+        "  shield_bastion: +55.6",
         "heal (growth_crystal) baseline 78",
         "  heal_growth_column: +38.5",
         "  heal_growth_trigger: +46.8",
         "  heal_overflow_power: +25.5",
         "  heal_power: +50.9",
+        "  heal_heal_charge: +16.8",
+        "  heal_heal_haste: +19.1",
+        "  heal_vitality: +55.6",
         "poison (purple_crystal) baseline 85",
         "  poison_slow_enemy: +16.0",
         "  poison_slow_power: +50.9",
         "  poison_power: +50.9",
         "  poison_re_slow_drain: +25.5",
+        "  poison_haste: +19.1",
+        "  poison_charge: +16.8",
+        "  poison_venom: +20.4",
         "haste (quickstone) baseline 117",
         "  haste_charge: +3.4",
         "  haste_rehaste_crit: +25.5",
         "  haste_rehaste_power: +25.5",
+        "  haste_haste_power: +50.9",
+        "  haste_haste_charge: +5.6",
+        "  haste_speed_column: +25.0",
         "overflow (radiant_crystal) baseline 80",
         "  radiant_overflow_shield: +81.5",
         "  radiant_overflow_burst: +101.8",
         "  radiant_saturation: +50.9",
         "  radiant_overflow_charge: +16.8",
+        "  radiant_radiance: +63.6",
+        "  radiant_overflow_haste: +9.5",
+        "  radiant_overflow_slow: +19.1",
         "thorns (verdant_crystal) baseline 64",
         "  verdant_thorns: +108.0",
         "  verdant_thorn_shield: +86.4",
         "  verdant_retaliation: +27.0",
         "  verdant_vengeful_charge: +8.9",
+        "  verdant_thorn_power: +54.0",
+        "  verdant_thorn_slow: +20.3",
+        "  verdant_thorn_haste: +10.1",
         "void (void_crystal) baseline 120",
         "  void_leech: +172.8",
         "  void_power_drain: +120.0",
         "  void_dispel: +40.0",
         "  void_weakness: +76.4",
+        "  void_power_sap: +32.0",
+        "  void_shadow_slow: +57.3",
+        "  void_shadow_haste: +28.6",
       ].join("\n"),
     );
   });

@@ -165,7 +165,7 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
 ];
 
 /**
- * CUB-E1/E2 (docs/core-unit-onboarding.md §5): presentations for the 24 themed
+ * CUB-E1/E2 (docs/core-unit-onboarding.md §5): presentations for the 62 themed
  * core-upgrade identity orbs so the upgrade_core / add_reaction_core phases
  * render readable names + descriptions instead of raw option ids.
  *

@@ -3,9 +3,10 @@
  *
  * Each core ("crystal") carries an implicit theme, its basic-action family (see
  * docs/core-unit-onboarding.md §2). When the player upgrades their core, the
- * offered options come from that theme's pool: the theme's four identity orbs
- * (abilities removed from the simplified baseline plus on-theme twists) and the
- * three generic stat orbs shared by every theme's pool.
+ * offered options come from that theme's pool: the theme's identity orbs (seven
+ * per theme, six for haste — abilities removed from the simplified baseline
+ * plus on-theme twists) and the three generic stat orbs shared by every theme's
+ * pool.
  *
  * This file only *defines* the catalog. Applying an orb to a core (appending
  * the effect/reaction, or calling the stat helpers) happens in a later phase
@@ -21,6 +22,7 @@ import {
   damage,
   decreasePower,
   dispel,
+  haste,
   increaseCritical,
   increasePower,
   randomAlly,
@@ -31,6 +33,7 @@ import {
   slow,
   strongestEnemy,
   trigger,
+  weakestAlly,
 } from "../data/effectBuilders";
 
 /**
@@ -60,14 +63,14 @@ export type CoreUpgradeDefinition = {
 };
 
 // ---------------------------------------------------------------------------
-// Identity orbs — 4 per theme (see docs/core-unit-onboarding.md §4 pool sketch;
-// the overflow theme is the CUB-G1 Radiant Crystal pool, §9; the thorns theme
-// is the CUB-G2 Verdant Crystal pool, §9; the void theme is the CUB-G3 Void
-// Crystal pool, §9)
+// Identity orbs — 7 per theme, 6 for haste (see docs/core-unit-onboarding.md
+// §4 pool sketch; the overflow theme is the CUB-G1 Radiant Crystal pool, §9;
+// the thorns theme is the CUB-G2 Verdant Crystal pool, §9; the void theme is
+// the CUB-G3 Void Crystal pool, §9)
 // ---------------------------------------------------------------------------
 
 /**
- * All 36 identity orbs, keyed by id.
+ * All 62 identity orbs, keyed by id.
  *
  * Reactions with effectId "all" fire only on basic abilities (intended — these
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
@@ -102,6 +105,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("every_10_regen", "allies", charge(300, randomAlly(1))),
   },
+  // --- regen additions (2026-08-25 variety pass): sustain → growth / tempo ---
+  mana_regen_power: {
+    id: "mana_regen_power",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("every_10_regen", "allies", increasePower(5, self)),
+  },
+  mana_regen_haste: {
+    id: "mana_regen_haste",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("every_10_regen", "allies", haste(500, randomAlly(1))),
+  },
+  mana_weave: {
+    id: "mana_weave",
+    theme: "regen",
+    kind: "effect",
+    effect: increasePower(2, column, true),
+  },
 
   // --- damage theme (critical_crystal): Crit Column, Row Power, Crit Power, Crit Slow ---
   crit_crit_column: {
@@ -127,6 +149,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "damage",
     kind: "reaction",
     reaction: reaction("on_crit", "allies", slow(1000, randomEnemy(1))),
+  },
+  // --- damage additions (2026-08-25 variety pass): crits → speed / drain ---
+  crit_damage_power: {
+    id: "crit_damage_power",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("every_100_damage", "allies", increasePower(5, self)),
+  },
+  crit_crit_haste: {
+    id: "crit_crit_haste",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", haste(500, randomAlly(1))),
+  },
+  crit_crit_weaken: {
+    id: "crit_crit_weaken",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", decreasePower(4, randomEnemy(1))),
   },
 
   // --- shield theme (protective_crystal): Shield Ally Power, Shield Trigger Power, Shield Power, Overflow Shield ---
@@ -154,6 +195,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("on_over_heal", "allies", shield),
   },
+  // --- shield additions (2026-08-25 variety pass): shielding → team tempo ---
+  shield_haste: {
+    id: "shield_haste",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("every_100_shield", "allies", haste(500, randomAlly(1))),
+  },
+  shield_charge: {
+    id: "shield_charge",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("every_100_shield", "allies", charge(200, randomAlly(1))),
+  },
+  shield_bastion: {
+    id: "shield_bastion",
+    theme: "shield",
+    kind: "effect",
+    effect: increasePower(5, weakestAlly, true),
+  },
 
   // --- heal theme (growth_crystal): Growth Column, Growth Trigger, Overflow Power, Heal Power ---
   heal_growth_column: {
@@ -179,6 +239,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "heal",
     kind: "reaction",
     reaction: reaction("every_100_heal", "allies", increasePower(5, self)),
+  },
+  // --- heal additions (2026-08-25 variety pass): healing → tempo / growth ---
+  heal_heal_charge: {
+    id: "heal_heal_charge",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+  },
+  heal_heal_haste: {
+    id: "heal_heal_haste",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", haste(500, randomAlly(1))),
+  },
+  heal_vitality: {
+    id: "heal_vitality",
+    theme: "heal",
+    kind: "effect",
+    effect: increasePower(5, self, true),
   },
 
   // --- poison theme (purple_crystal): Slow Enemy, Slow Power, Poison Power, Re-Slow Drain ---
@@ -206,6 +285,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("re_slow", "allies", decreasePower(5, randomEnemy(1))),
   },
+  // --- poison additions (2026-08-25 variety pass): venom → tempo / drain ---
+  poison_haste: {
+    id: "poison_haste",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("every_10_poison", "allies", haste(500, randomAlly(1))),
+  },
+  poison_charge: {
+    id: "poison_charge",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("every_10_poison", "allies", charge(300, randomAlly(1))),
+  },
+  poison_venom: {
+    id: "poison_venom",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("slow", "allies", decreasePower(4, randomEnemy(1))),
+  },
 
   // --- haste theme (quickstone): Haste Charge, Re-Haste Crit, Re-Haste Power ---
   // (quickstone's baseline itself carries the regen pair — the absolute
@@ -228,6 +326,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "haste",
     kind: "reaction",
     reaction: reaction("re_hasted", "allies", increasePower(5, self)),
+  },
+  // --- haste additions (2026-08-25 variety pass): hasting → power / tempo ---
+  haste_haste_power: {
+    id: "haste_haste_power",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("haste", "allies", increasePower(4, trigger, true)),
+  },
+  haste_haste_charge: {
+    id: "haste_haste_charge",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("haste", "allies", charge(200, randomAlly(1))),
+  },
+  haste_speed_column: {
+    id: "haste_speed_column",
+    theme: "haste",
+    kind: "effect",
+    effect: haste(1000, column),
   },
 
   // --- overflow theme (radiant_crystal): Overflow Shield, Overflow Burst,
@@ -255,6 +372,29 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "overflow",
     kind: "reaction",
     reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+  },
+  // --- overflow additions (2026-08-25 variety pass): overflow → team growth / tempo ---
+  radiant_radiance: {
+    id: "radiant_radiance",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction(
+      "on_over_heal",
+      "allies",
+      increasePower(5, weakestAlly, true),
+    ),
+  },
+  radiant_overflow_haste: {
+    id: "radiant_overflow_haste",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", haste(500, randomAlly(1))),
+  },
+  radiant_overflow_slow: {
+    id: "radiant_overflow_slow",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", slow(1000, randomEnemy(1))),
   },
 
   // --- thorns theme (verdant_crystal): Thorns, Thorn Shield, Retaliation,
@@ -298,6 +438,40 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
       "enemy",
     ),
   },
+  // --- thorns additions (2026-08-25 variety pass): being hit → more punishment ---
+  verdant_thorn_power: {
+    id: "verdant_thorn_power",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      increasePower(4, self, true),
+      "enemy",
+    ),
+  },
+  verdant_thorn_slow: {
+    id: "verdant_thorn_slow",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      slow(1000, randomEnemy(1)),
+      "enemy",
+    ),
+  },
+  verdant_thorn_haste: {
+    id: "verdant_thorn_haste",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      haste(500, randomAlly(1)),
+      "enemy",
+    ),
+  },
 
   // --- void theme (void_crystal): Leech, Power Drain, Dispel, Weakness ---
   // (CUB-G3, docs/core-unit-onboarding.md §9) — the disruption / power-theft
@@ -330,6 +504,25 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("all", "allies", decreasePower(5, strongestEnemy)),
   },
+  // --- void additions (2026-08-25 variety pass): ally casts → more disruption ---
+  void_power_sap: {
+    id: "void_power_sap",
+    theme: "void",
+    kind: "effect",
+    effect: decreasePower(8, strongestEnemy),
+  },
+  void_shadow_slow: {
+    id: "void_shadow_slow",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("all", "allies", slow(1000, strongestEnemy)),
+  },
+  void_shadow_haste: {
+    id: "void_shadow_haste",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("all", "allies", haste(500, self)),
+  },
 };
 
 /**
@@ -354,7 +547,7 @@ export const CORE_STAT_ORBS = [
 ] as const;
 
 /**
- * The full upgrade-orb pool for a theme: its four identity orbs (in definition
+ * The full upgrade-orb pool for a theme: its identity orbs (in definition
  * order) followed by the three generic stat orbs. Deterministic — used by
  * CUB-B1's seeded option generation.
  */

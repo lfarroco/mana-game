@@ -8,10 +8,10 @@ import {
 } from "./coreUpgradeOrbs";
 
 describe("core upgrade orbs content", () => {
-  it("has unique ids and exactly 35 identity orbs", () => {
+  it("has unique ids and exactly 62 identity orbs", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids.length).toBe(35);
+    expect(ids.length).toBe(62);
   });
 
   it("keeps every entry themed by CORE_THEMES", () => {
@@ -46,10 +46,10 @@ describe("core upgrade orbs content", () => {
   it("builds each theme pool from its identity orbs + 3 stat orbs", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
-      // All themes ship 4 identity orbs except haste — its 4th (Regen) moved
+      // All themes ship 7 identity orbs except haste — its 4th (Regen) moved
       // into quickstone's baseline (absolute basic-effect rule, see
       // docs/core-unit-onboarding.md §2 decision 4).
-      const expectedIdentity = theme === "haste" ? 3 : 4;
+      const expectedIdentity = theme === "haste" ? 6 : 7;
       expect(pool).toHaveLength(expectedIdentity + 3);
 
       const identityOrbs = pool.filter((orb) => orb.kind !== "stat");
@@ -72,7 +72,7 @@ describe("core upgrade orbs content", () => {
   it("places the three stat orbs after the identity orbs, in order", () => {
     for (const theme of CORE_THEMES) {
       const pool = getThemeUpgradePool(theme);
-      const identityCount = theme === "haste" ? 3 : 4;
+      const identityCount = theme === "haste" ? 6 : 7;
       const kinds = pool.map((orb) => orb.kind);
       expect(
         kinds.slice(0, identityCount).every((kind) => kind !== "stat"),

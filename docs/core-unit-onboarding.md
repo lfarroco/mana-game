@@ -115,12 +115,19 @@ export type CoreUpgradeDefinition = {
 
 | Theme                 | Identity orbs                                                                                                                                                                                                             |
 | :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `regen` (mana)        | Column Growth (`increasePower(10, column)`); Reactive Charge (`damage ← left_ally → charge self`); Overflow Shield (`on_over_heal → shield`); Regen Charge (`every_10_regen → charge random ally`)                        |
-| `damage` (critical)   | Crit Column (`increaseCritical(5, column)`); Row Power (`all ← row_allies → +5 power column`); Crit Power (`on_crit → increasePower`); Crit Slow (`on_crit → slow enemy`)                                                 |
-| `shield` (protective) | Shield Ally Power (`increasePower(5, randomAlly, permanent)`); Shield Trigger Power (`all ← row_allies → +5 power trigger`); Shield Power (`every_100_shield → increasePower`); Overflow Shield (`on_over_heal → shield`) |
-| `heal` (growth)       | Growth Column (`increasePower(2, column, permanent)`); Growth Trigger (`all ← row_allies → +5 power trigger`); Overflow Power (`on_over_heal → increasePower`); Heal Power (`every_100_heal → increasePower`)             |
-| `poison` (purple)     | Slow Enemy (`slow(1000, randomEnemy)`); Slow Power (`slow ← allies → +4 power trigger, permanent`); Poison Power (`every_10_poison → increasePower`); Re-Slow Drain (`re_slow → decrease enemy power`)                    |
-| `haste` (quickstone)  | Haste Charge (`haste ← right_ally → charge column`) — Regen moved into the baseline (basic-effect rule); Re-Haste Crit (`re_hasted → increaseCritical`); Haste Power (ally hasted → increasePower)                                                           |
+| `regen` (mana)        | Column Growth (`increasePower(10, column)`); Reactive Charge (`damage ← left_ally → charge self`); Overflow Shield (`on_over_heal → shield`); Regen Charge (`every_10_regen → charge random ally`); Regen Growth (`every_10_regen → +5 power self`); Regen Haste (`every_10_regen → haste random ally`); Mana Weave (`increasePower(2, column, permanent)`) |
+| `damage` (critical)   | Crit Column (`increaseCritical(5, column)`); Row Power (`all ← row_allies → +5 power column`); Crit Power (`on_crit → increasePower`); Crit Slow (`on_crit → slow enemy`); Damage Power (`every_100_damage → +5 power self`); Crit Haste (`on_crit → haste random ally`); Crit Weaken (`on_crit → −4 power random enemy`) |
+| `shield` (protective) | Shield Ally Power (`increasePower(5, randomAlly, permanent)`); Shield Trigger Power (`all ← row_allies → +5 power trigger`); Shield Power (`every_100_shield → increasePower`); Overflow Shield (`on_over_heal → shield`); Shield Haste (`every_100_shield → haste random ally`); Shield Charge (`every_100_shield → charge random ally`); Bastion (`increasePower(5, weakestAlly, permanent)`) |
+| `heal` (growth)       | Growth Column (`increasePower(2, column, permanent)`); Growth Trigger (`all ← row_allies → +5 power trigger`); Overflow Power (`on_over_heal → increasePower`); Heal Power (`every_100_heal → increasePower`); Heal Charge (`every_100_heal → charge random ally`); Heal Haste (`every_100_heal → haste random ally`); Vitality (`increasePower(5, self, permanent)`) |
+| `poison` (purple)     | Slow Enemy (`slow(1000, randomEnemy)`); Slow Power (`slow ← allies → +4 power trigger, permanent`); Poison Power (`every_10_poison → increasePower`); Re-Slow Drain (`re_slow → decrease enemy power`); Poison Haste (`every_10_poison → haste random ally`); Poison Charge (`every_10_poison → charge random ally`); Venom Drain (`slow → −4 power random enemy`) |
+| `haste` (quickstone)  | Haste Charge (`haste ← right_ally → charge column`) — Regen moved into the baseline (basic-effect rule); Re-Haste Crit (`re_hasted → increaseCritical`); Re-Haste Power (`re_hasted → +5 power self`); Haste Power (`haste → +4 power trigger, permanent`); Haste Charge (`haste → charge random ally`); Speed Column (`haste(1000, column)`) |
+
+> **Variety pass (2026-08-25):** every theme's pool gained 3 identity orbs
+> (listed above; `overflow` / `thorns` / `void` additions are described in §9
+> alongside their cores). Pools are now 7 identity orbs per theme (6 for
+> `haste`) + the 3 generic stat orbs, so each `upgrade_core` /
+> `add_reaction_core` event draws its 3 choices from a much larger, more varied
+> set.
 
 ---
 
@@ -261,7 +268,8 @@ with which new effect types they'd need (see
 > (`on_over_heal → damage`), Saturation, and Overflow Charge. Its theme is the
 > first non-basic-action identity theme — the overflow family is still
 > heal-based, but its orb pool is scoped separately from `growth_crystal`'s
-> `heal` pool.
+> `heal` pool. The 2026-08-25 variety pass added Radiance (`on_over_heal → +5
+> power weakest ally, permanent`), Overflow Haste, and Overflow Slow.
 >
 > ✅ **Verdant Crystal landed 2026-08-19 (CUB-G2)** as the `thorns` theme
 > (added to `CORE_THEMES`) with `verdant_crystal` (baseline `shield`, power 40 /
@@ -270,7 +278,9 @@ with which new effect types they'd need (see
 > shield`), Retaliation (`on_crystal_hit → +5 power`), Vengeful Charge
 > (`on_crystal_hit → charge random ally`). It reuses the C2 `on_crystal_hit`
 > reaction landed in the wacky-content queue (Thornback) — the crystal itself
-> carries the thorns reaction and punishes whoever lands a hit on it.
+> carries the thorns reaction and punishes whoever lands a hit on it. The
+> 2026-08-25 variety pass added Thorn Growth (`on_crystal_hit → +4 power self,
+> permanent`), Thorn Slow, and Thorn Haste.
 >
 > ✅ **Void Crystal landed 2026-08-19 (CUB-G3)** as the `void` theme (added to
 > `CORE_THEMES`) with `void_crystal` (baseline `damage` + `decrease_power` on
@@ -279,7 +289,9 @@ with which new effect types they'd need (see
 > (enemy heal → shield the crystal), Power Drain (`absorb_power`), Dispel (the
 > D2 status-stripper), and Weakness (ally basic cast → −5 power on the
 > strongest enemy). The disruption/power-theft crystal gives the D2 `dispel`
-> effect its core home.
+> effect its core home. The 2026-08-25 variety pass added Power Sap
+> (`decrease_power(8, strongest enemy)` per cast), Shadow Slow (ally basic cast
+> → slow the strongest enemy), and Shadow Haste (ally basic cast → haste self).
 
 `Radiant Crystal` was the cheapest to build (no new effect types) and is now in
 the game. `Verdant Crystal` followed once the C2 `on_crystal_hit` effect landed
