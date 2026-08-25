@@ -359,18 +359,27 @@ export function destroyForceStats(force: string) {
 	stats.poison = 0;
 }
 
-export function resetPlayerForceStats() {
+/**
+ * Sync the player's persistent ForceStats display (life chip + health bar) from
+ * the session's persistent core. Used after between-combat core changes — e.g.
+ * the upgrade_core phase's "increase max life" orb — so the HUD reflects the new
+ * maxLife / life immediately instead of waiting for the next combat teardown.
+ *
+ * Reads the live `env.state.session` (not the combat-time snapshot) so callers
+ * can run it right after an action response lands. Falls back to the snapshot
+ * only if the live session is unavailable.
+ */
+export function syncPlayerPersistentForceStats(): void {
 	const playerStats = statsState.player;
+	const { healthBar } = playerStats;
+	if (!healthBar) return;
 
-	const { healthBar, shieldBar, display } = playerStats;
-
-	if (!healthBar || !shieldBar || !display) throw new Error("invalid state");
-
-	// Session may already be cleared (e.g. navigating to main menu during combat) —
-	// in that case there's nothing meaningful to reset.
-	const session = currentSession;
+	const session = env.state.session ?? currentSession;
 	const core = session ? Card.getPlayerPersistentCore(session) : undefined;
 	if (!core) return;
+
+	const previousLife = playerStats.life;
+	const lifeGain = core.life - previousLife;
 
 	const barWidth = 600;
 	const barHeight = 20;
@@ -380,15 +389,43 @@ export function resetPlayerForceStats() {
 	healthBar.fillStyle(0x29a1b9ff, 1);
 	healthBar.fillRect(barWidth * (1 - percent), 0, barWidth * percent, barHeight);
 
+	Chip.updateChipText(`life-display/${Constants.FORCE_ID_PLAYER}`, Utils.compactNumber(core.life));
+
+	playerStats.life = core.life;
+
+	if (lifeGain <= 0) return;
+
+	const chip = Chip.getChip(`life-display/${Constants.FORCE_ID_PLAYER}`);
+	if (!chip) return;
+
+	// The core healed as part of the change (e.g. "increase max life" heals to
+	// full) — float a "+N" over the HUD life chip so the gain is visible.
+	const textElement = Animations.popText({
+		x: 0,
+		y: 0,
+		type: "heal",
+		text: "+" + lifeGain.toFixed(0),
+	});
+
+	chip.container.add(textElement);
+}
+
+export function resetPlayerForceStats() {
+	const playerStats = statsState.player;
+
+	const { healthBar, shieldBar, display } = playerStats;
+
+	if (!healthBar || !shieldBar || !display) throw new Error("invalid state");
+
+	syncPlayerPersistentForceStats();
+
 	shieldBar.clear();
 
 	// Reset chip texts to reflect post-combat state
-	Chip.updateChipText(`life-display/${Constants.FORCE_ID_PLAYER}`, Utils.compactNumber(core.life));
 	Chip.updateChipText(`shield-display/${Constants.FORCE_ID_PLAYER}`, Utils.compactNumber(0));
 	Chip.updateChipText(`regen-display/${Constants.FORCE_ID_PLAYER}`, Utils.compactNumber(0));
 	Chip.updateChipText(`poison-display/${Constants.FORCE_ID_PLAYER}`, Utils.compactNumber(0));
 
-	playerStats.life = core.life;
 	playerStats.shield = 0;
 	playerStats.poison = 0;
 	playerStats.regen = 0;

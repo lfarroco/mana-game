@@ -3,6 +3,11 @@ import * as OrbPresentation from "@Screens/Battleground/Components/Shop/OrbPrese
 import * as constants from "@Constants";
 import * as EncounterCard from "@Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
+import * as Card from "@game/Entities/Card";
+import * as Chara from "@Components/Chara/Chara";
+import * as AudioManager from "@Systems/AudioManager";
+import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
+import * as Effects from "../../../../FX";
 import { env } from "@Env";
 import { BGContext, dispatchAction } from "../../BattlegroundScreen";
 import { skipButton } from "../skipButton";
@@ -58,38 +63,35 @@ function renderUpgradeCards(encounterIds: string[]) {
 				isResolvingSelection = true;
 				console.debug("EffectCardShop", `Selected upgrade: ${encounterSpec.name}`);
 
-				await dispatchAction({ type: "select_encounter", encounterId });
+				await dispatchAction(
+					{ type: "select_encounter", encounterId },
+					async () => {
+						// Post-upgrade feedback. upgrade_core and add_reaction_core
+						// only modify the core unit, so refresh just the crystal —
+						// no re-summon, keeping the board reconciliation diff-free.
+						const core = Card.getPlayerPersistentCore(env.state.session);
+						Chara.refreshCharaInPlace(core);
 
-				// TODO: post-upgrade visuals (crystal selection effect, core refresh, sound) are not yet wired.
-				// The upgrade is applied server-side via advancePhase; the client should react to the
-				// resulting session update to refresh visuals and play effects.
+						if (Chara.hasCharaById(core.id)) {
+							// Fire-and-forget: the power-up beam cleans up its own
+							// objects while the phase transition slides the board out.
+							// The crystal's rank/power visuals sync with the beam flash.
+							void Effects.powerUpEffect(Chara.getScreenPosition(core), () =>
+								Chara.refreshCharaInPlace(core)
+							);
+						}
 
-				// await onUpgradeApplied?.(success);
+						AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
 
-				// await Effects.playUpgradeCrystalSelectionEffect({
-				// 	cardCenter: [x, y],
-				// 	cardSize: [width, height],
-				// 	cardObjects: card.allObjects,
-				// 	accentColor: encounterSpec.color,
-				// });
-
-				// AudioManager.playSoundEffect("sfx_spell_deathstrikeseal");
-
-				// // Sync updated unit data from server and refresh visuals.
-				// // upgrade_core and add_reaction_core only modify the core unit,
-				// // so only refresh the core to avoid re-summoning all board units.
-				// for (const serverUnit of state.session.team.units) {
-				// 	const localUnit = state.session.team.units.find(
-				// 		(u) => u.id === serverUnit.id
-				// 	);
-				// 	if (localUnit) Object.assign(localUnit, serverUnit);
-				// 	if (serverUnit.isCore) {
-				// 		await Chara.refreshChara(localUnit ?? serverUnit);
-				// 	}
-				// }
-				// ForceStats.syncPlayerPersistentForceStats();
-
-				// await onUpgradeSelected();
+						// Orbs that touch the core's HP (e.g. "increase max life"
+						// raises maxLife and heals to full) must refresh the persistent
+						// HUD — the life chip and health bar stay on screen between
+						// combats.
+						if (encounterId === "increase_core_max_life") {
+							ForceStats.syncPlayerPersistentForceStats();
+						}
+					}
+				);
 			},
 		});
 	});
