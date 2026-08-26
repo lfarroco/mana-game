@@ -192,6 +192,10 @@ MANA_REPO_URL ?= git@github.com:lfarroco/mana-game.git
 # Repo path on the VM (override in .env or via MANA_CLOUD_APP=/path).
 MANA_CLOUD_APP ?= /opt/mana-game
 
+cloud-shell:
+	ssh $(MANA_CLOUD) 
+
+
 # Deploy the latest PUSHED code to the VM. Warns — but proceeds — when there
 # are uncommitted or unpushed local changes, because the VM deploys whatever is
 # already on origin. SSHes in and runs server/scripts/deploy.sh, which does:

@@ -176,26 +176,46 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 
 ## D3 verification checklist
 
-Run this before the D3 smoke test (the deployed-server env was not re-checked after the
-2026-08-24 Steam-endpoint fix, so confirm each line on the VM):
+**Status 2026-08-25: server-side ✅ verified — only the in-browser smoke test remains.**
 
-1. **Server env (`/etc/mana/.env` or whatever `setup-docker.sh` created on the VM):**
-   - `MANA_ITCH_ENABLED=true` — otherwise `POST /api/v1/auth/itch` is never registered
-     (`server/src/index.ts` boot log prints "itch.io auth enabled"/"DISABLED").
-   - `MANA_CORS_ORIGIN=https://lfarroco.itch.io` (or `*` — bearer-token auth, no cookies,
-     so `*` is acceptable; the docs default to the itch origin).
-   - `MANA_STEAM_APP_IDS` still includes `3757600,4233280` and `MANA_STEAM_API_URL` still
-     points at the public endpoint (the 2026-08-24 deployment fix).
-2. **Live API checks:**
+### ✅ Verified (2026-08-25, against the live VM `.env` + live API)
+
+1. **Server env** (the VM `.env` at `/opt/mana-game/.env`):
+   - `MANA_ITCH_ENABLED= true` → parses **true** (`parseEnabled` trims in
+     `server/src/config.ts`); `POST /api/v1/auth/itch` **is registered**.
+   - `MANA_CORS_ORIGIN=*` → acceptable (bearer-token auth, no cookies).
+   - `MANA_STEAM_API_URL` points at the public
+     `https://api.steampowered.com/...` endpoint (correct for a standard Web API key).
+   - `MANA_STEAM_APP_IDS` is **not set** in the VM `.env`, but the docker-compose
+     deployment defaults it to `3757600,4233280` (`compose.yaml`), so both the
+     alpha and the demo app are allowed.
+2. **Live API checks (run 2026-08-25):**
    ```sh
-   curl https://api.manabattle.com/health                       # {"ok":true}
-   curl -s -o /dev/null -w "%{http_code}" -X POST https://api.manabattle.com/api/v1/auth/itch
-   # 400 (missing body) means the route is registered; 404 means MANA_ITCH_ENABLED is false
+   curl https://api.manabattle.com/health
+   # {"ok":true}  (200)
+   curl -X POST https://api.manabattle.com/api/v1/auth/itch -H 'Content-Type: application/json' -d '{}'
+   # 400 {"error":"invalid_itch_token",...} — route IS registered (404 would mean disabled)
    ```
+
+### ⚠️ Recommended VM `.env` hygiene (small)
+
+- `MANA_ITCH_ENABLED= true` has a **leading space** — it works today (compose + the
+  server both trim), but if anything ever stops trimming, itch silently disables.
+  Fix: `MANA_ITCH_ENABLED=true`.
+- Set `MANA_STEAM_APP_IDS=3757600,4233280` explicitly — the docker-compose default
+  currently covers it, but the bare-systemd flow (`config.ts` default is only
+  `[3757600]`) would reject demo players without it.
+
+### ⏳ Remaining (human, in-browser)
+
 3. **Client build:** the itch web build must be made with
    `MANA_SERVER_URL=https://api.manabattle.com` and `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`
    baked in (webpack `DefinePlugin`; the production build warns if either is missing).
-4. **Then run the D3 smoke test steps above.**
+4. **D3 smoke test** on the live itch.io embed: click Multiplayer → OAuth popup →
+   authorize → login → multiplayer lobby (profile + stats) → NEW GAME → crystal
+   selection → MP run against the deployed server. Verify: garbage token → 401
+   modal; second click reuses the stored session (no popup); token never appears
+   in the URL after login; Electron build still uses Steam.
 
 
 ## Testing & verification (per package)

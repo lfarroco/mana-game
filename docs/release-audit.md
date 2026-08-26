@@ -57,17 +57,20 @@ overhaul's rewrite lost it.
 - Tests added in `core/src/session/sessionStore.test.ts` (corrupt JSON, bad
   shape, legacy purge).
 
-### 3. 🟠 itch.io multiplayer — NEEDS HUMAN VERIFICATION (cannot be fixed from the repo)
+### 3. 🟠 itch.io multiplayer — SERVER-SIDE VERIFIED; browser smoke test remains (human)
 
-Implemented + unit-tested, never smoke-tested on the live embed, and the
-deployed-server env was not re-checked after the 2026-08-24 Steam-endpoint fix.
-Follow **`docs/itchio-auth.md` → "D3 verification checklist"**:
+Implemented + unit-tested, never smoke-tested on the live embed.
 
-- Confirm the VM `.env` has `MANA_ITCH_ENABLED=true` (`compose.yaml` defaults
-  `false`, so a default deploy has the itch login route disabled) and
-  `MANA_CORS_ORIGIN` = the itch origin (or `*`).
-- `curl -X POST https://api.manabattle.com/api/v1/auth/itch` must NOT 404.
-- Run the D3 manual smoke test on the live itch embed.
+- **Server-side verified 2026-08-25** (against the live VM `.env` + live API):
+  `POST /api/v1/auth/itch` returns 400 `invalid_itch_token` (route registered,
+  not 404), `/health` 200, `MANA_ITCH_ENABLED` parses true despite a leading
+  space in the VM `.env`, CORS `*`, Steam endpoint config correct.
+  See `docs/itchio-auth.md` → "D3 verification checklist" for details + two
+  recommended VM `.env` tweaks (`MANA_ITCH_ENABLED=true` without the space;
+  set `MANA_STEAM_APP_IDS=3757600,4233280` explicitly).
+- **Remaining (human)**: run the D3 in-browser smoke test on the live itch.io
+  embed (OAuth popup → lobby → NEW GAME → MP run), and confirm the itch web
+  build was made with `MANA_SERVER_URL` + `MANA_ITCH_CLIENT_ID` baked in.
 
 ### 4. 🟠 E2E suite — BROKEN (unresolved)
 
