@@ -38,8 +38,9 @@ export type EncounterId =
   | "runesmith_shield"
   | "runesmith_heal"
   // ── Wacky content slice (2026-08-19, Tier A encounters) ─────────────
-  // NOTE: `oracles_riddle` / `chaos_altar` were removed from the pool
-  // (2026-08-25) pending rework.
+  // NOTE: `oracles_riddle` was pulled from the pool (2026-08-25) pending
+  // rework; `chaos_altar` (random orb) was removed (2026-08-26) — it gave
+  // the player no feedback, needs a roulette-style reveal to return.
   | "roulette_wheel"
   // ── Roulette wheel results (A11 redesign, 2026-08-21) ───────────────
   | "roulette_gold_shop"

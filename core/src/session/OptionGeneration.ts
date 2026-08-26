@@ -62,8 +62,10 @@ const ENCOUNTERS: EncounterDefinition[] = [
   { id: "runesmith_shield", filterType: "reaction_shield" },
   { id: "runesmith_heal", filterType: "reaction_heal" },
   // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
-  // NOTE: `oracles_riddle` and `chaos_altar` were pulled from the pool
-  // (2026-08-25) pending rework — they need improvement before returning.
+  // NOTE: `oracles_riddle` was pulled from the pool (2026-08-25) pending
+  // rework — it needs improvement before returning. `chaos_altar` (random
+  // orb) was removed (2026-08-26): it gave the player no feedback, needs
+  // a roulette-style reveal to return.
   { id: "roulette_wheel", filterType: null },
 ];
 

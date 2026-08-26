@@ -187,8 +187,10 @@ export const ENCOUNTERS: EncounterData[] = [
     minRound: 3,
   },
   // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
-  // NOTE: `oracles_riddle` and `chaos_altar` were pulled from the pool
-  // (2026-08-25) pending rework — see the note in OptionGeneration.ENCOUNTERS.
+  // NOTE: `oracles_riddle` was pulled from the pool (2026-08-25) pending
+  // rework; `chaos_altar` (random orb) was removed (2026-08-26) — it gave
+  // the player no feedback, needs a roulette-style reveal to return. See
+  // the note in OptionGeneration.ENCOUNTERS.
   {
     id: "roulette_wheel",
     pic: "ui/gold_medal",

@@ -98,7 +98,7 @@ per effect, not "small".
 | A7  | ✅ `mirror_entity` edit → real mirror                       | edit      | A    | XS     |
 | A8  | ✅ `fate_shifter` edit → Twisted Mirror                     | edit      | A    | XS     |
 | A9  | ~~✅ Oracle's Riddle (random bronze)~~ ❌ pulled from pool (2026-08-25) | encounter | A    | S      |
-| A10 | ~~✅ Chaos Altar (random orb)~~ ❌ pulled from pool (2026-08-25)        | encounter | A    | S      |
+| A10 | ~~✅ Chaos Altar (random orb)~~ ❌ removed (2026-08-26, no feedback)   | encounter | A    | S      |
 | A11 | ✅ Roulette Wheel (life gamble)                             | encounter | A    | S      |
 | A12 | ~~✅ Lucky Pig (favor ×3)~~ ❌ removed (2026-08-23)               | encounter | A    | S      |
 | A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B)        | edit      | A    | XS     |
@@ -224,7 +224,7 @@ per effect, not "small".
 - **Acceptance**: unit test in `core/src/session/` verifying a bronze is recruited and
   the slot is filled; deterministic under the session seed.
 
-#### A10 — Chaos Altar (new encounter) ✅ (2026-08-19)
+#### A10 — Chaos Altar (new encounter) ✅ (2026-08-19), ❌ removed (2026-08-26)
 
 - **Goal**: you pick the victim, the orb is a surprise — a random orb hits a chosen unit.
 - **Files**: same 4 touch-points as A9.
@@ -233,6 +233,11 @@ per effect, not "small".
   `OrbAndCoreUpgrades.applyOrb`. Round gate `minRound: 2`.
 - **Acceptance**: unit test that the applied orb is one of the registered orbs and is
   seed-deterministic.
+- **Removed (2026-08-26)**: the random orb gave the player **no feedback** on what
+  actually hit their unit (and many orbs no-op silently on a mismatched unit).
+  Needs a roulette-style reveal — show the spinning orb options and land on the
+  result with visual feedback — before it can return. The encounter catalog entry,
+  orb-shop option, i18n strings, and `RANDOM_ORB_POOL` were removed.
 
 #### A11 — Roulette Wheel (new encounter) ✅ (2026-08-19)
 
