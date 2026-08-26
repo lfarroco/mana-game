@@ -59,7 +59,14 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 
 ## Publishing
 
-- Steam: run `make electron-build-all`, then `make steam-publish`.
-- Steam Demo: run `make electron-build-demo`, then `make steam-publish-demo`.
-- Itch: `npm run build`, zip the contents of `dist`, and upload to Itch.io.
+> Release builds must be made with `MANA_SERVER_URL=https://api.manabattle.com`
+> (and `MANA_ITCH_CLIENT_ID` for the web build) so multiplayer points at the
+> deployed server instead of the player's own `http://127.0.0.1:8787`. The
+> production webpack build warns if either is missing. See
+> [docs/building-and-running.md](docs/building-and-running.md) and
+> [docs/release-audit.md](docs/release-audit.md).
+
+- Steam: `MANA_SERVER_URL=https://api.manabattle.com make electron-build-all`, then `make steam-publish`.
+- Steam Demo: `MANA_SERVER_URL=https://api.manabattle.com make electron-build-demo`, then `make steam-publish-demo`.
+- Itch: `MANA_SERVER_URL=https://api.manabattle.com MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57 npm run build`, zip the contents of `dist`, and upload to Itch.io.
 - Android: run `make android-build`, then, in Android Studio, Build > Generate Signed Bundle / APK.

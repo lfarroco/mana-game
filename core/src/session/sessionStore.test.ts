@@ -121,7 +121,7 @@ describe("createSessionStore", () => {
     expect(storage.getItem(STORAGE_PREFIX + "p1")).toBeNull();
   });
 
-  it("loadAll returns only mana_session_-prefixed keys", () => {
+  it("loadAll returns only STORAGE_PREFIX-prefixed keys", () => {
     const storage = memoryStorage();
     const store = createSessionStore(storage);
     store.save("p1", createSessionWithCombatState("p1", "seed-1"));
@@ -147,6 +147,50 @@ describe("createSessionStore", () => {
     const all = store.loadAll();
     expect(all.size).toBe(0);
     expect(store.load("empty")).toBeNull();
+  });
+
+  it("skips empty values during loadAll", () => {
+    const storage = memoryStorage();
+    storage.setItem(STORAGE_PREFIX + "empty", "");
+    const store = createSessionStore(storage);
+
+    const all = store.loadAll();
+    expect(all.size).toBe(0);
+    expect(store.load("empty")).toBeNull();
+  });
+
+  it("ignores corrupt JSON saves instead of throwing (boot safety)", () => {
+    const storage = memoryStorage();
+    storage.setItem(STORAGE_PREFIX + "p1", "{not valid json");
+    const store = createSessionStore(storage);
+
+    expect(store.load("p1")).toBeNull();
+    expect(store.loadAll().size).toBe(0);
+  });
+
+  it("skips saves that don't match the current session shape", () => {
+    const storage = memoryStorage();
+    storage.setItem(STORAGE_PREFIX + "p1", JSON.stringify({ id: "x" }));
+    const store = createSessionStore(storage);
+
+    expect(store.load("p1")).toBeNull();
+    expect(store.loadAll().size).toBe(0);
+  });
+
+  it("loadAll purges pre-v2 legacy saves so they are never resumed", () => {
+    const storage = memoryStorage();
+    // A save written by the pre-overhaul engine (old namespace + shape).
+    storage.setItem(
+      "mana_session_local_player",
+      JSON.stringify({ current_options: [] }),
+    );
+    const store = createSessionStore(storage);
+    store.save("p2", SessionManagement.createInitialSession("p2", "seed-2"));
+
+    const all = store.loadAll();
+    expect(all.has("local_player")).toBe(false);
+    expect(all.has("p2")).toBe(true);
+    expect(storage.getItem("mana_session_local_player")).toBeNull();
   });
 
   it("restores unitById Maps for multiple stored sessions", () => {

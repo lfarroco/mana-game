@@ -2,7 +2,9 @@
 
 **Status**: ✅ **Implemented** (2026-08-20). Server `itch` provider + client OAuth-popup
 login are landed and unit-tested; the **manual smoke test on the live itch.io embed (D3)
-is still pending**. This doc is the implementation record + resume guide for that final step.
+is still pending** (and the deployed-server env has not been re-verified since the
+2026-08-24 Steam-endpoint fix — see the [D3 verification checklist](#d3-verification-checklist)
+below). This doc is the implementation record + resume guide for that final step.
 **Created**: 2026-08-20
 **Scope**: `server/` (new `itch` auth provider) + `phaser/` (browser itch.io login flow).
 **Related**: [auth.md](auth.md) (auth design + provider abstraction),
@@ -171,6 +173,30 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
   crystal selection → MP run against the deployed server.
   Verify: garbage token → 401 modal; second click reuses the stored session (no popup);
   token never appears in the URL after login; Electron build still uses Steam.
+
+## D3 verification checklist
+
+Run this before the D3 smoke test (the deployed-server env was not re-checked after the
+2026-08-24 Steam-endpoint fix, so confirm each line on the VM):
+
+1. **Server env (`/etc/mana/.env` or whatever `setup-docker.sh` created on the VM):**
+   - `MANA_ITCH_ENABLED=true` — otherwise `POST /api/v1/auth/itch` is never registered
+     (`server/src/index.ts` boot log prints "itch.io auth enabled"/"DISABLED").
+   - `MANA_CORS_ORIGIN=https://lfarroco.itch.io` (or `*` — bearer-token auth, no cookies,
+     so `*` is acceptable; the docs default to the itch origin).
+   - `MANA_STEAM_APP_IDS` still includes `3757600,4233280` and `MANA_STEAM_API_URL` still
+     points at the public endpoint (the 2026-08-24 deployment fix).
+2. **Live API checks:**
+   ```sh
+   curl https://api.manabattle.com/health                       # {"ok":true}
+   curl -s -o /dev/null -w "%{http_code}" -X POST https://api.manabattle.com/api/v1/auth/itch
+   # 400 (missing body) means the route is registered; 404 means MANA_ITCH_ENABLED is false
+   ```
+3. **Client build:** the itch web build must be made with
+   `MANA_SERVER_URL=https://api.manabattle.com` and `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`
+   baked in (webpack `DefinePlugin`; the production build warns if either is missing).
+4. **Then run the D3 smoke test steps above.**
+
 
 ## Testing & verification (per package)
 

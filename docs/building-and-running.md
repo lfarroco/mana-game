@@ -106,19 +106,28 @@ The phaser development server runs on port 8080 by default and includes:
 
 ## Building for Production
 
+> **Release builds must bake the production server URL.** `MANA_SERVER_URL`
+> (and `MANA_ITCH_CLIENT_ID` for the web build) are compile-time `DefinePlugin`
+> values — if unset, the client falls back to `http://127.0.0.1:8787` (the
+> player's own machine) / disables browser login. The webpack production build
+> warns loudly when either is missing. The Makefile sources the root `.env`
+> (via `-include .env`), so you can set them there; see
+> [.env.example](../.env.example) and [release-audit.md](release-audit.md).
+
 ### Web Build
 
 ```bash
 cd phaser
-npm run build
+MANA_SERVER_URL=https://api.manabattle.com MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57 npm run build
 ```
 
-Creates an optimized production build in the `dist` directory.
+Creates an optimized production build in the `dist` directory (this is the
+artifact uploaded to itch.io).
 
 ### Desktop Build
 
 ```bash
-make electron-build-all
+MANA_SERVER_URL=https://api.manabattle.com make electron-build-all
 ```
 
 Builds standalone executables for:
@@ -126,7 +135,8 @@ Builds standalone executables for:
 - macOS (`.dmg`)
 - Linux (`.AppImage`)
 
-Build outputs are placed in the `dist-electron` directory.
+Build outputs are placed in the `dist-electron` directory (uploaded to Steam —
+see `steam/STEAM_UPLOAD.md`).
 
 ### Server
 
@@ -146,7 +156,7 @@ itch.io browser players log in via the itch.io OAuth popup (see
 | `MANA_ITCH_CLIENT_ID` | `phaser/` web build (webpack DefinePlugin) | Public itch.io OAuth client id; empty → browser multiplayer shows "itch auth not configured" |
 | `MANA_ITCH_ENABLED` | `server/` | `true` registers `POST /api/v1/auth/itch` (default `false`) |
 | `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io game-page origin in production (e.g. `https://lfarroco.itch.io`) |
-| `MANA_SERVER_URL` | `phaser/` web build (webpack DefinePlugin) | Game-server base URL for the web build (default `http://127.0.0.1:8787`) |
+| `MANA_SERVER_URL` | `phaser/` web + Electron builds (webpack DefinePlugin) | Game-server base URL (default `http://127.0.0.1:8787`) |
 
 Steam (Electron) auth needs `MANA_STEAM_WEB_API_KEY` (server secret) plus the
 client defaults — see [auth.md](auth.md) and [game-server.md](game-server.md)
