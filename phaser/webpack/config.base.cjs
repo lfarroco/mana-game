@@ -63,27 +63,50 @@ const createSharedModuleRules = ({ transpileOnly = false } = {}) => [
 	}
 ];
 
-const createSharedDefineValues = ({ webglDebug, experimental, logLevel } = {}) => ({
-	"typeof CANVAS_RENDERER": JSON.stringify(true),
-	"typeof WEBGL_RENDERER": JSON.stringify(true),
-	"typeof WEBGL_DEBUG": JSON.stringify(webglDebug),
-	"typeof EXPERIMENTAL": JSON.stringify(experimental),
-	"typeof PLUGIN_3D": JSON.stringify(false),
-	"typeof PLUGIN_CAMERA3D": JSON.stringify(false),
-	"typeof PLUGIN_FBINSTANT": JSON.stringify(false),
-	"typeof FEATURE_SOUND": JSON.stringify(true),
-	"IS_DEMO_BUILD": JSON.stringify(process.env.IS_DEMO === "true"),
-	...(logLevel ? { "process.env.LOG_LEVEL": JSON.stringify(logLevel) } : {}),
-	"process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version || "dev"),
-	// Game-server base URL for the client auth modules and the RemoteServer
-	// HTTP adapter. Empty string falls back at runtime.
-	"process.env.MANA_SERVER_URL": JSON.stringify(process.env.MANA_SERVER_URL || ""),
-	// itch.io OAuth client id for the web build (src/lib/itchAuth.ts,
-	// docs/itchio-auth.md). Empty string disables browser multiplayer with a
-	// clear "itch auth not configured" error.
-	"process.env.MANA_ITCH_CLIENT_ID": JSON.stringify(process.env.MANA_ITCH_CLIENT_ID || ""),
-	"__DEV__": JSON.stringify(process.env.NODE_ENV !== "production")
-});
+const createSharedDefineValues = ({ webglDebug, experimental, logLevel, isProd = false } = {}) => {
+	const values = {
+		"typeof CANVAS_RENDERER": JSON.stringify(true),
+		"typeof WEBGL_RENDERER": JSON.stringify(true),
+		"typeof WEBGL_DEBUG": JSON.stringify(webglDebug),
+		"typeof EXPERIMENTAL": JSON.stringify(experimental),
+		"typeof PLUGIN_3D": JSON.stringify(false),
+		"typeof PLUGIN_CAMERA3D": JSON.stringify(false),
+		"typeof PLUGIN_FBINSTANT": JSON.stringify(false),
+		"typeof FEATURE_SOUND": JSON.stringify(true),
+		"IS_DEMO_BUILD": JSON.stringify(process.env.IS_DEMO === "true"),
+		...(logLevel ? { "process.env.LOG_LEVEL": JSON.stringify(logLevel) } : {}),
+		"process.env.APP_VERSION": JSON.stringify(process.env.npm_package_version || "dev"),
+		// Game-server base URL for the client auth modules and the RemoteServer
+		// HTTP adapter. Empty string falls back at runtime.
+		"process.env.MANA_SERVER_URL": JSON.stringify(process.env.MANA_SERVER_URL || ""),
+		// itch.io OAuth client id for the web build (src/lib/itchAuth.ts,
+		// docs/itchio-auth.md). Empty string disables browser multiplayer with a
+		// clear "itch auth not configured" error.
+		"process.env.MANA_ITCH_CLIENT_ID": JSON.stringify(process.env.MANA_ITCH_CLIENT_ID || ""),
+		"__DEV__": JSON.stringify(process.env.NODE_ENV !== "production")
+	};
+
+	// Release-build guardrails: MANA_SERVER_URL / MANA_ITCH_CLIENT_ID are baked
+	// in at build time (docs/building-and-running.md §Multiplayer auth
+	// configuration). Unset, a released client silently falls back to
+	// http://127.0.0.1:8787 (the player's own machine) or disables browser
+	// login — warn loudly so a production build can't be shipped with broken
+	// multiplayer by accident.
+	if (isProd) {
+		if (!process.env.MANA_SERVER_URL) {
+			console.warn(
+				"[webpack] WARNING: MANA_SERVER_URL is unset — this build's multiplayer will target http://127.0.0.1:8787 (the player's own machine). Set MANA_SERVER_URL=https://api.manabattle.com for release builds."
+			);
+		}
+		if (!process.env.MANA_ITCH_CLIENT_ID) {
+			console.warn(
+				"[webpack] WARNING: MANA_ITCH_CLIENT_ID is unset — browser (itch.io) multiplayer login is disabled in this build. Set MANA_ITCH_CLIENT_ID for the web release."
+			);
+		}
+	}
+
+	return values;
+};
 
 module.exports = {
 	sharedResolve,

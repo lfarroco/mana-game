@@ -46,7 +46,8 @@ module.exports = {
         new webpack.DefinePlugin(
             createSharedDefineValues({
                 webglDebug: false,
-                experimental: false
+                experimental: false,
+                isProd: true
             })
         ),
         new HtmlWebpackPlugin({
