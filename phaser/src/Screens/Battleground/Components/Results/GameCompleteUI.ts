@@ -63,6 +63,9 @@ export async function displayGameComplete(
 
 	// Check if demo limit reached
 	const isDemoComplete = Config.IS_DEMO && wins >= Config.GAME_CONFIG.MAX_VICTORIES;
+	// Multiplayer runs end at WINS_TO_WIN_GAME (10) and never continue into
+	// Infinite Mode, so a multiplayer gold victory needs its own congratulations.
+	const isMultiplayerRun = env.state.session.session_type.type === "multiplayer";
 
 	let subtitleText = ResultsConfig.END_GAME_MESSAGES.default;
 	if (isDemoComplete) {
@@ -70,6 +73,8 @@ export async function displayGameComplete(
 		subtitleText = i18n.t("demo.complete.message");
 	} else if (isGameOver && wins > ResultsConfig.INFINITE_MODE_THRESHOLD) {
 		subtitleText = ResultsConfig.END_GAME_MESSAGES.infinite(wins);
+	} else if (isMultiplayerRun && wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
+		subtitleText = i18n.t("results.messages.multiplayer_gold");
 	} else if (wins >= ResultsConfig.GOLD_VICTORY_THRESHOLD) {
 		subtitleText = ResultsConfig.END_GAME_MESSAGES.gold;
 	} else if (wins >= ResultsConfig.SILVER_VICTORY_THRESHOLD) {
@@ -105,7 +110,6 @@ export async function displayGameComplete(
 	// WINS_TO_WIN_GAME and the server rejects the "victory" action that
 	// infinite mode dispatches on a terminal session — the player can only
 	// start a new run).
-	const isMultiplayerRun = env.state.session.session_type.type === "multiplayer";
 	if (
 		ResultsConfig.shouldOfferInfiniteMode({
 			wins,
@@ -228,7 +232,7 @@ export async function displayGameComplete(
 			callback: async () => {
 				window.open("https://store.steampowered.com/app/3757600/Mana_Battle", "_blank");
 			},
-			width: 400,
+			width: 600,
 		});
 		container.add([wishlistBg, wishlistText, btn.container]);
 	}

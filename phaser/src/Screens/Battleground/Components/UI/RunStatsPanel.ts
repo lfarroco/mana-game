@@ -1,6 +1,7 @@
 import * as i18n from "@i18n/i18n";
 import * as ResultsConfig from "../Results/ResultsConfig";
 import * as Constants from "@Constants";
+import * as UIButton from "@Components/Button/UIButton";
 import { env, makeContainer as container, borderedRoundRect } from "@Env";
 
 const ROW_SPACING = 55;
@@ -54,6 +55,27 @@ export function createRunStatsPanel(
 		.setOrigin(0.5)
 		.setPosition(panelX, seedY);
 
+	// Small "copy seed" button under the seed value so players can share a run.
+	const copySeedButton = UIButton.create({
+		text: i18n.t("run_stats.copy_seed"),
+		position: [panelX, seedY + 48],
+		callback: async () => {
+			const seed = env.state.session.initial_seed || env.state.session.seed;
+			try {
+				await navigator.clipboard.writeText(seed);
+			} catch {
+				// Fallback for environments without the async clipboard API.
+				const textarea = document.createElement("textarea");
+				textarea.value = seed;
+				document.body.appendChild(textarea);
+				textarea.select();
+				document.execCommand("copy");
+				document.body.removeChild(textarea);
+			}
+		},
+		width: 200,
+	});
+
 	return container([
 		borderedRoundRect(
 			env.scene,
@@ -103,5 +125,6 @@ export function createRunStatsPanel(
 		),
 		divider(seedDividerY),
 		seedText,
+		copySeedButton.container,
 	]);
 }

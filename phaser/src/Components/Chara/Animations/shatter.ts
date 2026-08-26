@@ -7,7 +7,9 @@ import { env } from "@Env";
 // Shatter death animation constants
 const SHAKE_OFFSET_X = 10;
 const SHAKE_RANGE_X = 20;
-const SHAKE_REPEAT_COUNT = 10;
+// Shake phase halved from 10 repeats (playtest: the crystal-destroyed shake
+// was too long for the payoff moment).
+const SHAKE_REPEAT_COUNT = 5;
 const SHAKE_DURATION_MS = 100;
 const SHATTER_ANIMATION_DURATION_MS = 1500;
 const SHATTER_SAMPLES_PER_RING = 4;

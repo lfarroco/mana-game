@@ -301,15 +301,13 @@ describe("New P1 encounters", () => {
   });
 
   describe("wacky encounter routing (Tier A)", () => {
-    it("chaos_altar routes to orb_shop with the random-orb marker", () => {
+    it("roulette_wheel is generated as a regular pool encounter", () => {
       const result = SessionTransitions.transitionToNextState(makeSession(), {
         type: "select_encounter",
-        encounterId: "chaos_altar",
+        encounterId: "roulette_wheel",
       });
-      expect(result.session.phase).toBe("orb_shop");
-      expect(result.session.options.map((o) => o.id)).toEqual([
-        "chaos_altar_random_orb",
-      ]);
+      expect(result.session.phase).toBe("encounter");
+      expect(result.session.options).toHaveLength(3);
     });
   });
 
@@ -327,8 +325,6 @@ describe("New P1 encounters", () => {
       "runesmith_damage",
       "runesmith_shield",
       "runesmith_heal",
-      "oracles_riddle",
-      "chaos_altar",
       "roulette_wheel",
     ]);
 

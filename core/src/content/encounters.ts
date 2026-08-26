@@ -187,20 +187,8 @@ export const ENCOUNTERS: EncounterData[] = [
     minRound: 3,
   },
   // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
-  {
-    id: "oracles_riddle",
-    pic: "ui/trial_circuit",
-    nameKey: "encounters.oracles_riddle.name",
-    descriptionKey: "encounters.oracles_riddle.desc",
-    minRound: 2,
-  },
-  {
-    id: "chaos_altar",
-    pic: "ui/dark_ritual",
-    nameKey: "encounters.chaos_altar.name",
-    descriptionKey: "encounters.chaos_altar.desc",
-    minRound: 2,
-  },
+  // NOTE: `oracles_riddle` and `chaos_altar` were pulled from the pool
+  // (2026-08-25) pending rework — see the note in OptionGeneration.ENCOUNTERS.
   {
     id: "roulette_wheel",
     pic: "ui/gold_medal",

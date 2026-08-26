@@ -1,6 +1,7 @@
 import * as animation from "@Utils/animation";
 import { getSettings } from "@Models/OptionsStore";
 import { env } from "@Env";
+import * as AudioManager from "@Systems/AudioManager";
 import { HALF_TILE_HEIGHT } from "@Constants";
 
 const POWER_UP_EFFECT_CONFIG = {
@@ -181,6 +182,9 @@ export async function powerUpEffect({ x, y }: { x: number; y: number }, onStart?
 	// The power-up begins — fire the start callback so the caller can sync the
 	// unit's rank display change with the flash and the rising beam.
 	onStart?.();
+
+	// Play the power-up "rising golden beam" sound when the effect starts.
+	AudioManager.playSoundEffect("sfx_spell_innerfocus");
 
 	// Flash on start.
 	scene.tweens.add({

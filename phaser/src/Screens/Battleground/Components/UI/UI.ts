@@ -58,6 +58,22 @@ export function syncLivesDisplay(): void {
 	}
 }
 
+/**
+ * Keep the HUD round counter in sync with the session. Called from
+ * BattlegroundScreen.transitionToCurrentPhase (after every dispatch), so the
+ * round refreshes whenever a transition advances the run — including the
+ * upgrade_core / add_reaction_core → next-round handoff that happens outside
+ * the combat results flow. Emits roundChanged only when the displayed value
+ * actually differs.
+ */
+export function syncRoundDisplay(): void {
+	const target = env.state.session.round;
+	const current = roundDisplay.getCurrentRound();
+	if (current !== target) {
+		BattlegroundEvent.roundChanged.emit({ round: target, delta: target - current });
+	}
+}
+
 export async function handleUserMessageRequested(payload: {
 	text: string;
 	type: "error" | "info" | "warning" | "success";

@@ -62,8 +62,8 @@ const ENCOUNTERS: EncounterDefinition[] = [
   { id: "runesmith_shield", filterType: "reaction_shield" },
   { id: "runesmith_heal", filterType: "reaction_heal" },
   // ── Wacky content slice (2026-08-19, Tier A encounters) ──────────────
-  { id: "oracles_riddle", filterType: null },
-  { id: "chaos_altar", filterType: null },
+  // NOTE: `oracles_riddle` and `chaos_altar` were pulled from the pool
+  // (2026-08-25) pending rework — they need improvement before returning.
   { id: "roulette_wheel", filterType: null },
 ];
 
@@ -207,10 +207,12 @@ function cardMatchesEffectType(
 /**
  * Filter cards by reaction trigger — the "silver identity" filter.
  *
- * A card qualifies if it has a reaction that triggers on the given effect
- * (`reactions[].effectId === trigger`) OR if it performs the effect itself
- * (an `all`-trigger reaction card still fires on the trigger). Only silver
- * (rank 2) cards are returned: this is the targeted way to find synergy picks.
+ * A card qualifies only if it has a reaction that actually triggers on the
+ * given effect (`reactions[].effectId === trigger`). A direct effect (a card
+ * that merely does damage/shield/heal) does NOT make a card a "reacts to X"
+ * pick. Reactions with `effectId: "all"` fire on every basic ability, so they
+ * qualify for any trigger. Only silver (rank 2) cards are returned: this is
+ * the targeted way to find synergy picks.
  */
 function filterByReactionTrigger(
   cards: CardDefinition[],
@@ -219,8 +221,10 @@ function filterByReactionTrigger(
   return cards.filter(
     (card) =>
       getCardRank(card) === 2 &&
-      (card.reactions?.some((reaction) => reaction.effectId === trigger) ||
-        card.effects?.some((effect) => effect.id === trigger)),
+      card.reactions?.some(
+        (reaction) =>
+          reaction.effectId === trigger || reaction.effectId === "all",
+      ),
   );
 }
 

@@ -3,11 +3,13 @@ import * as i18n from "@i18n/i18n";
 import { env, makeContainer as container } from "@Env";
 
 let roundTextElement: TextObj | null = null;
+let currentRound = 1;
 const ROUND_DISPLAY_X = -70;
 const ROUND_DISPLAY_Y = 50;
 
 export function create() {
 	const initialRound = env.state.session.round;
+	currentRound = initialRound;
 
 	const label = label_();
 
@@ -19,11 +21,14 @@ export function create() {
 	return uiContainer;
 }
 
+export const getCurrentRound = (): number => currentRound;
+
 export const updateRoundDisplay = (newTotalRound: number): void => {
 	if (!roundTextElement) {
 		return;
 	}
 
+	currentRound = newTotalRound;
 	roundTextElement.setText(newTotalRound.toString());
 };
 

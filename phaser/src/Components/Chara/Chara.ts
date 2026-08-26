@@ -10,6 +10,7 @@ import * as CharaTooltip from "@Components/Chara/CharaTooltip";
 import * as Effects from "../../FX";
 import { upgradeUnitData } from "@game/Entities/Unit";
 import * as config from "@config";
+import * as AudioManager from "@Systems/AudioManager";
 import { env } from "@Env";
 
 export type Chara = Container;
@@ -64,6 +65,8 @@ export async function summon(unit: Unit, useSummonEffect: boolean = true): Promi
 		// instead of running sequentially after it.
 		let chara: Chara | null = null;
 		await Effects.summonEffect(vec, () => {
+			// Play the summon "beam lands" sound together with the unit fade-in.
+			AudioManager.playSoundEffect("sfx_unit_run_magical_4");
 			chara = create(unit);
 			enableTooltip(chara);
 			fadeInFromWhite(chara);

@@ -9,7 +9,8 @@ import { getCombatState } from "./combatStateStore";
 
 // Where the "+x" pop text spawns, relative to the unit's tile center.  The unit
 // sprite is rendered slightly above the tile center, so this sits above the unit.
-const POWER_POP_TEXT_Y_OFFSET = 110;
+// Halved from 110 (playtest: the power pop text floated too far above the unit).
+const POWER_POP_TEXT_Y_OFFSET = 55;
 
 export const handleIncreasePower = (
 	log: CombatLogger.IncreasePowerEntry,

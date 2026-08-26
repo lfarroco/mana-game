@@ -148,13 +148,6 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     nameKey: "shop.orbs.scrapSalvage.name",
     tooltipKey: "shop.orbs.scrapSalvage.tooltip",
   },
-  {
-    id: "chaos_altar_random_orb",
-    color: 0x9932cc,
-    icon: ORB_ICONS.dark_ritual,
-    nameKey: "shop.orbs.chaosAltar.name",
-    tooltipKey: "shop.orbs.chaosAltar.tooltip",
-  },
   // ── Core-upgrade identity orbs (CUB-E1/E2): the themed upgrade_core /
   // add_reaction_core options render through these presentations. ─────
   ...buildCoreUpgradeOrbPresentations(),

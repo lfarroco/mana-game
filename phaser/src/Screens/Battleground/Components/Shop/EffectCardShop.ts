@@ -24,7 +24,7 @@ const EFFECT_CARD_BASE_Y = 300;
 export const openUpgradeCorePhase =
 	(_ctx: BGContext) => (titleText: string, encounters: string[]) => {
 		const title = env.scene.add
-			.text(constants.SCREEN_WIDTH / 2 + 280, 130, i18n.t(titleText), constants.titleTextConfig)
+			.text(constants.SCREEN_WIDTH / 2 + 480, 130, i18n.t(titleText), constants.titleTextConfig)
 			.setOrigin(0.5);
 
 		const skipButton_ = skipButton();

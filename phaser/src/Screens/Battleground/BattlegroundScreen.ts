@@ -111,6 +111,11 @@ const transitionToCurrentPhase = async () => {
 	// (soul_trade, rest_inn, roulette_wheel) mutate losses directly.
 	UI.syncLivesDisplay();
 
+	// Keep the HUD round counter in sync — the round advances on phase
+	// transitions (e.g. after the upgrade_core → next-round handoff), which
+	// is outside the combat-results continue flow.
+	UI.syncRoundDisplay();
+
 	await go(phase);
 };
 

@@ -38,8 +38,8 @@ export type EncounterId =
   | "runesmith_shield"
   | "runesmith_heal"
   // ── Wacky content slice (2026-08-19, Tier A encounters) ─────────────
-  | "oracles_riddle"
-  | "chaos_altar"
+  // NOTE: `oracles_riddle` / `chaos_altar` were removed from the pool
+  // (2026-08-25) pending rework.
   | "roulette_wheel"
   // ── Roulette wheel results (A11 redesign, 2026-08-21) ───────────────
   | "roulette_gold_shop"
@@ -63,8 +63,7 @@ export type StaticOptionId =
   | "absorb_power_orb"
   | "sacrifice_effect_orb"
   | "sacrifice_unit_orb"
-  | "scrap_salvage_orb"
-  | "chaos_altar_random_orb";
+  | "scrap_salvage_orb";
 
 /**
  * A player choice presented during a phase.

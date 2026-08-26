@@ -97,8 +97,8 @@ per effect, not "small".
 | A6  | ✅ `gambler` edit → true coin-flip                          | edit      | A    | XS     |
 | A7  | ✅ `mirror_entity` edit → real mirror                       | edit      | A    | XS     |
 | A8  | ✅ `fate_shifter` edit → Twisted Mirror                     | edit      | A    | XS     |
-| A9  | ✅ Oracle's Riddle (random bronze)                          | encounter | A    | S      |
-| A10 | ✅ Chaos Altar (random orb)                                 | encounter | A    | S      |
+| A9  | ~~✅ Oracle's Riddle (random bronze)~~ ❌ pulled from pool (2026-08-25) | encounter | A    | S      |
+| A10 | ~~✅ Chaos Altar (random orb)~~ ❌ pulled from pool (2026-08-25)        | encounter | A    | S      |
 | A11 | ✅ Roulette Wheel (life gamble)                             | encounter | A    | S      |
 | A12 | ~~✅ Lucky Pig (favor ×3)~~ ❌ removed (2026-08-23)               | encounter | A    | S      |
 | A13 | ~~`upgrade_core` Mystery Box~~ (superseded by CUB-B)        | edit      | A    | XS     |

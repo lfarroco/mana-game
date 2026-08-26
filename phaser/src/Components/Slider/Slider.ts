@@ -92,8 +92,8 @@ export function createSlider([x, y]: Vec2, config: SliderConfig): Slider {
 		return x - width / 2 + ratio * width;
 	};
 
-	const xToValue = (x: number): number => {
-		const ratio = (x - (x - width / 2)) / width;
+	const xToValue = (pointerX: number): number => {
+		const ratio = (pointerX - (x - width / 2)) / width;
 		const rawValue = min + ratio * (max - min);
 		// Snap to step
 		const steppedValue = Math.round(rawValue / step) * step;

@@ -7,7 +7,6 @@
 
 import * as Models from "../Models";
 import * as SessionManagement from "./SessionManagement";
-import * as Card from "../Entities/Card";
 import * as CombatSimulation from "../Combat/CombatSimulation";
 import * as EnemyGeneration from "./EnemyGeneration";
 import * as PhaseConfig from "../PhaseSystem/PhaseConfig";
@@ -17,7 +16,6 @@ import * as OptionGeneration from "./OptionGeneration";
 import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
-import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
 import {
   CORE_STAT_ORBS,
   CORE_UPGRADE_DEFINITIONS,
@@ -35,9 +33,6 @@ const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   dark_ritual: [{ id: "sacrifice_unit_orb" }],
   scrap_salvage: [{ id: "scrap_salvage_orb" }],
   gamblers_shrine: [{ id: "sacrifice_effect_orb" }],
-  // A10 (docs/wacky-content-plan.md): the "orb" is a surprise — the player
-  // picks the victim, the orb is drawn from RANDOM_ORB_POOL at apply time.
-  chaos_altar: [{ id: "chaos_altar_random_orb" }],
   // A11 wheel result: a free upgrade orb on any unit (reuses upgrade_unit's
   // existing orb_shop flow).
   roulette_upgrade_orb: [{ id: "upgrade_orb" }],
@@ -172,21 +167,6 @@ const ACTION_HANDLERS: Record<
     if (action.encounterId === "soul_trade") {
       if (session.losses + 1 >= LOSSES_TO_GAME_OVER) return session;
       session.losses += 1;
-    }
-
-    // A9 (docs/wacky-content-plan.md): Oracle's Riddle — instantly recruit a
-    // random bronze (no choice). Seeded and deterministic; the recruit can
-    // upgrade a duplicate the player already owns (shop semantics).
-    if (action.encounterId === "oracles_riddle") {
-      const bronzePool = Card.getNonCores().filter((c) => (c.rank || 1) === 1);
-      const { picked: bronze, seed } = Random.pickOneSeeded(
-        session,
-        bronzePool,
-      );
-      session.seed = seed;
-      return transitionToNextStep(
-        RecruitmentActions.recruitUnit(session, bronze.id, null),
-      );
     }
 
     // A11 (docs/wacky-content-plan.md): Roulette Wheel — pay 1 life to spin a
@@ -377,24 +357,6 @@ const ACTION_HANDLERS: Record<
     if (action.type !== "apply_orb") throw new Error();
 
     const { orbId, targetUnitId } = action;
-
-    // A10 (docs/wacky-content-plan.md): Chaos Altar marker orb — the player
-    // picked the victim, so the actual orb is drawn here, seeded and
-    // deterministic.
-    if (orbId === "chaos_altar_random_orb") {
-      const { picked: pickedOrb, seed } = Random.pickOneSeeded(
-        session,
-        RANDOM_ORB_POOL,
-      );
-      session.seed = seed;
-      session.seed = OrbAndCoreUpgrades.applyOrb(
-        session.team.units,
-        targetUnitId,
-        pickedOrb,
-        { seed: session.seed },
-      );
-      return transitionToNextStep(session);
-    }
 
     session.seed = OrbAndCoreUpgrades.applyOrb(
       session.team.units,
