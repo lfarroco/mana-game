@@ -386,24 +386,44 @@ function applySpecialOrb(
 }
 
 /**
- * Upgrade core max life by (10% of current + 10 * round).
+ * The max-life gain an `increase_core_max_life` upgrade grants at a given
+ * round: 10% of the core's current maxLife (floored) + round × 10. Pure —
+ * shared by the apply path and the client preview tooltip.
+ */
+export function coreMaxLifeGain(core: Unit, round: number): number {
+  return (
+    Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) +
+    round * CORE_ROUND_SCALING
+  );
+}
+
+/**
+ * The power gain an `upgrade_core_power` upgrade grants at a given round:
+ * 10% of the core's current power (floored) + round × 10. Pure — shared by
+ * the apply path and the client preview tooltip.
+ */
+export function corePowerGain(core: Unit, round: number): number {
+  return (
+    Math.floor(core.power * CORE_STAT_SCALING_FACTOR) +
+    round * CORE_ROUND_SCALING
+  );
+}
+
+/**
+ * Upgrade core max life by coreMaxLifeGain (10% of current + 10 * round).
  */
 export function upgradeCoreMaxLife(core: Unit, round: number): string {
-  const lifeGain =
-    Math.floor(core.maxLife * CORE_STAT_SCALING_FACTOR) +
-    round * CORE_ROUND_SCALING;
+  const lifeGain = coreMaxLifeGain(core, round);
   core.maxLife += lifeGain;
   core.life = core.maxLife; // Heal to full on upgrade
   return `Increased Core Max Life by ${lifeGain}`;
 }
 
 /**
- * Upgrade core power by (10% of current + 10 * round).
+ * Upgrade core power by corePowerGain (10% of current + 10 * round).
  */
 export function upgradeCorePower(core: Unit, round: number): string {
-  const powerGain =
-    Math.floor(core.power * CORE_STAT_SCALING_FACTOR) +
-    round * CORE_ROUND_SCALING;
+  const powerGain = corePowerGain(core, round);
   core.power += powerGain;
   core.bonusPower = (core.bonusPower || 0) + powerGain;
   return `Increased Core Power by ${powerGain}`;

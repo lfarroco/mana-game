@@ -90,6 +90,10 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     icon: ORB_ICONS.increase_core_max_life,
     nameKey: "shop.orbs.increaseMaxLife.name",
     tooltipKey: "shop.orbs.increaseMaxLife.tooltip",
+    // The gain is round- and core-dependent (⌊maxLife×0.1⌋ + round×10), so the
+    // static amount here is only a fallback placeholder. The client resolves
+    // the real value at render time and passes it via getOrbPresentation's
+    // params override (OrbAndCoreUpgrades.coreMaxLifeGain).
     params: { amount: "?" },
   },
   {
@@ -98,6 +102,8 @@ const buildOrbPresentationData = (): OrbPresentationData[] => [
     icon: ORB_ICONS.upgrade_core_power,
     nameKey: "shop.orbs.upgradePower.name",
     tooltipKey: "shop.orbs.upgradePower.tooltip",
+    // Same as increase_core_max_life — resolved at render time via
+    // OrbAndCoreUpgrades.corePowerGain.
     params: { amount: "?" },
   },
   {

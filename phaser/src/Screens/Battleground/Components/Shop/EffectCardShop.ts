@@ -4,6 +4,7 @@ import * as constants from "@Constants";
 import * as EncounterCard from "@Components/EncounterCard";
 import * as i18n from "@i18n/i18n";
 import * as Card from "@game/Entities/Card";
+import * as OrbAndCoreUpgrades from "@game/Actions/OrbAndCoreUpgrades";
 import * as Chara from "@Components/Chara/Chara";
 import * as AudioManager from "@Systems/AudioManager";
 import * as ForceStats from "@Screens/Battleground/Components/ForceStats";
@@ -23,7 +24,7 @@ const EFFECT_CARD_BASE_Y = 300;
 export const openUpgradeCorePhase =
 	(_ctx: BGContext) => (titleText: string, encounters: string[]) => {
 		const title = env.scene.add
-			.text(constants.SCREEN_WIDTH / 2 + 180, 130, i18n.t(titleText), constants.titleTextConfig)
+			.text(constants.SCREEN_WIDTH / 2 + 280, 130, i18n.t(titleText), constants.titleTextConfig)
 			.setOrigin(0.5);
 
 		const skipButton_ = skipButton();
@@ -35,12 +36,35 @@ export const openUpgradeCorePhase =
 		return [title, ...cards, skipButton_];
 	};
 
+/**
+ * Core-upgrade stat orbs whose tooltip `{amount}` is round- and core-dependent.
+ * Resolved from the live session so the card previews the exact gain the
+ * upgrade applies (mirrors OrbAndCoreUpgrades.applyCoreUpgrade).
+ */
+function getCoreUpgradePreviewParams(
+	encounterId: string,
+): Record<string, string> | undefined {
+	if (encounterId !== "increase_core_max_life" && encounterId !== "upgrade_core_power") {
+		return undefined;
+	}
+	const core = Card.getPlayerPersistentCore(env.state.session);
+	const round = env.state.session.round;
+	const amount =
+		encounterId === "increase_core_max_life"
+			? OrbAndCoreUpgrades.coreMaxLifeGain(core, round)
+			: OrbAndCoreUpgrades.corePowerGain(core, round);
+	return { amount: String(amount) };
+}
+
 function renderUpgradeCards(encounterIds: string[]) {
 	let isResolvingSelection = false;
 
 	return encounterIds.map((encounterId, index) => {
 		console.debug("EffectCardShop", "Rendering upgrade card for encounter:", encounterId);
-		const encounterSpec = OrbPresentation.getOrbPresentation(encounterId);
+		const encounterSpec = OrbPresentation.getOrbPresentation(
+			encounterId,
+			getCoreUpgradePreviewParams(encounterId),
+		);
 
 		const width = EFFECT_CARD_WIDTH;
 		const height = EFFECT_CARD_HEIGHT;

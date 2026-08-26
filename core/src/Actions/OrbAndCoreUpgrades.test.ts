@@ -368,6 +368,42 @@ describe("OrbAndCoreUpgrades", () => {
     });
   });
 
+  describe("coreMaxLifeGain / corePowerGain preview helpers", () => {
+    it("computes max-life gain as 10% of maxLife (floored) + round × 10", () => {
+      const core = makeUnit({ id: "core", maxLife: 500, isCore: true });
+      expect(OrbAndCoreUpgrades.coreMaxLifeGain(core, 5)).toBe(100);
+    });
+
+    it("floors the percentage part of the max-life gain", () => {
+      const core = makeUnit({ id: "core", maxLife: 415, isCore: true });
+      // floor(415 × 0.1) = 41, round 3 → +30 → 71
+      expect(OrbAndCoreUpgrades.coreMaxLifeGain(core, 3)).toBe(71);
+    });
+
+    it("matches the exact gain applied by upgradeCoreMaxLife", () => {
+      const core = makeUnit({ id: "core", maxLife: 500, life: 300, isCore: true });
+      const maxLifeBefore = core.maxLife;
+      const expectedGain = OrbAndCoreUpgrades.coreMaxLifeGain(core, 5);
+      OrbAndCoreUpgrades.upgradeCoreMaxLife(core, 5);
+      expect(core.maxLife - maxLifeBefore).toBe(expectedGain);
+      expect(core.life).toBe(core.maxLife);
+    });
+
+    it("computes power gain as 10% of power (floored) + round × 10", () => {
+      const core = makeUnit({ id: "core", power: 100, isCore: true });
+      expect(OrbAndCoreUpgrades.corePowerGain(core, 5)).toBe(60);
+    });
+
+    it("matches the exact gain applied by upgradeCorePower", () => {
+      const core = makeUnit({ id: "core", power: 100, isCore: true });
+      const powerBefore = core.power;
+      const expectedGain = OrbAndCoreUpgrades.corePowerGain(core, 5);
+      OrbAndCoreUpgrades.upgradeCorePower(core, 5);
+      expect(core.power - powerBefore).toBe(expectedGain);
+      expect(core.bonusPower).toBe(expectedGain);
+    });
+  });
+
   describe("applyCoreUpgrade", () => {
     it("appends an effect orb's effect to the core (identity orb)", () => {
       const core = makeUnit({ id: "core", isCore: true });

@@ -30,8 +30,32 @@ for (const data of Object.values(ORB_PRESENTATION_DATA)) {
 	};
 }
 
-export function getOrbPresentation(orbId: string): OrbPresentation {
-	const spec = ORB_PRESENTATIONS[orbId];
-	if (spec) return spec;
-	return { id: orbId, name: orbId, color: 0x888888, tooltip: orbId, icon: "ui/upgrade_unit" };
+/**
+ * Resolve an orb's presentation.
+ *
+ * `params` optionally overrides the presentation data's static i18n params —
+ * used by the core-upgrade flow (EffectCardShop) to fill dynamic values like
+ * the `{amount}` of `increase_core_max_life` / `upgrade_core_power`, which
+ * depend on the live core state and round.
+ */
+export function getOrbPresentation(
+	orbId: string,
+	params?: Record<string, string>,
+): OrbPresentation {
+	const data = ORB_PRESENTATION_DATA[orbId];
+	if (!data) {
+		return { id: orbId, name: orbId, color: 0x888888, tooltip: orbId, icon: "ui/upgrade_unit" };
+	}
+	if (!params) {
+		const spec = ORB_PRESENTATIONS[orbId];
+		if (spec) return spec;
+	}
+	const resolved = { ...data.params, ...params };
+	return {
+		id: data.id,
+		name: i18n.t(data.nameKey, resolved),
+		color: data.color,
+		tooltip: i18n.t(data.tooltipKey, resolved),
+		icon: data.icon,
+	};
 }
