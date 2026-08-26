@@ -210,9 +210,13 @@ function cardMatchesEffectType(
  * A card qualifies only if it has a reaction that actually triggers on the
  * given effect (`reactions[].effectId === trigger`). A direct effect (a card
  * that merely does damage/shield/heal) does NOT make a card a "reacts to X"
- * pick. Reactions with `effectId: "all"` fire on every basic ability, so they
- * qualify for any trigger. Only silver (rank 2) cards are returned: this is
- * the targeted way to find synergy picks.
+ * pick. Generic `effectId: "all"` reactions are excluded too: they fire on
+ * every basic ability, so admitting them would surface generic-good tempo
+ * cards (e.g. `cadence_warden`) in every themed runesmith shop regardless of
+ * the trigger — which reads wrong next to a "reacts to damage" header and
+ * violates the silver "one archetype, no generic good" rule
+ * (docs/card-system-risks-and-roadmap.md). Only silver (rank 2) cards are
+ * returned: this is the targeted way to find synergy picks.
  */
 function filterByReactionTrigger(
   cards: CardDefinition[],
@@ -221,10 +225,7 @@ function filterByReactionTrigger(
   return cards.filter(
     (card) =>
       getCardRank(card) === 2 &&
-      card.reactions?.some(
-        (reaction) =>
-          reaction.effectId === trigger || reaction.effectId === "all",
-      ),
+      card.reactions?.some((reaction) => reaction.effectId === trigger),
   );
 }
 

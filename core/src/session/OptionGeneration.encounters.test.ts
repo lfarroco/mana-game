@@ -117,6 +117,18 @@ function registerTestCards(): void {
           ],
         }),
         cardDef({
+          id: "silver_react_all",
+          rank: 2,
+          cooldown: 1000,
+          reactions: [
+            {
+              effectId: "all",
+              effects: [{ id: "haste" }],
+              position: "left_ally",
+            },
+          ],
+        }),
+        cardDef({
           id: "gold_damage",
           rank: 3,
           cooldown: 1000,
@@ -203,6 +215,27 @@ describe("New P1 encounters", () => {
           const card = Card.getNonCores().find((c) => c.id === opt.id);
           expect(card!.rank).toBe(2);
           expect(card!.id).not.toBe("silver_react_haste");
+        }
+      }
+    });
+
+    it("excludes generic 'all'-trigger silvers from every runesmith shop", () => {
+      // `silver_react_all` reacts to every basic ability (like `cadence_warden`
+      // in the real pool). It is NOT a damage/shield/heal synergy pick, so it
+      // must never surface under a "reacts to X" header — only silvers with a
+      // reaction that specifically triggers on the named effect qualify.
+      for (const encounterId of [
+        "runesmith_damage",
+        "runesmith_shield",
+        "runesmith_heal",
+      ]) {
+        const options = OptionGeneration.generateShopOptions(makeSession(), {
+          type: "select_encounter",
+          encounterId,
+        });
+        expect(options.length).toBeGreaterThan(0);
+        for (const opt of options) {
+          expect(opt.id).not.toBe("silver_react_all");
         }
       }
     });
