@@ -512,9 +512,14 @@ async function createAndSkipToPreCombat(token: string) {
   await skipToPreCombat(token);
 }
 
-/** The run starts at encounter/step 1; two skips land on pre_combat/step 3. */
+/** The run starts at encounter/step 0; three skips land on pre_combat/step 3. */
 async function skipToPreCombat(token: string) {
   let res = await request(app)
+    .post("/api/v1/sessions/current/actions")
+    .set("Authorization", `Bearer ${token}`)
+    .send({ action: { type: "skip" } });
+  expect(res.status).toBe(200);
+  res = await request(app)
     .post("/api/v1/sessions/current/actions")
     .set("Authorization", `Bearer ${token}`)
     .send({ action: { type: "skip" } });

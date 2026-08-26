@@ -11,6 +11,13 @@ import type { Action, ActionResponse } from "./action";
 import type { SessionData } from "./session";
 
 export type GameServer = {
-  createSession(playerId: string, crystalId: string): Promise<SessionData>;
+  /**
+   * Create a new session.
+   *
+   * `seed` is optional and only honored by local single-player servers —
+   * the multiplayer server generates the seed itself (it is the replay
+   * authority) and ignores any client-supplied value.
+   */
+  createSession(playerId: string, crystalId: string, seed?: string): Promise<SessionData>;
   handleAction(playerId: string, action: Action): Promise<ActionResponse>;
 };

@@ -5,9 +5,10 @@ import { env } from "@Env";
 
 export async function createSession(
 	playerId: string,
-	crystalId: string
+	crystalId: string,
+	seed?: string
 ): Promise<Models.SessionData> {
-	const session = SessionManager.createSession(playerId, crystalId);
+	const session = SessionManager.createSession(playerId, crystalId, seed);
 	session.id = `local-${playerId}-${Date.now()}`;
 	SessionManager.updateSession(playerId, session);
 	return session;

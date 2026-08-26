@@ -11,9 +11,12 @@ export const startNewGame = async () => {
 	const selectedCrystal = crystals[currentIndex];
 
 	// Multiplayer mode (arena entry): the server generates the seed and owns
-	// the session; single-player keeps the in-process LocalServer.
+	// the session; single-player keeps the in-process LocalServer. Pass the
+	// seed shown in the numpad input so the run starts with exactly what the
+	// player saw (LocalServer honors it; RemoteServer ignores it).
 	const server = isMultiplayerMode() ? remoteServer : GameServer.getServer();
-	const session = await server.createSession(LOCAL_PLAYER_ID, selectedCrystal.id);
+	const customSeed = env.state.session.seed;
+	const session = await server.createSession(LOCAL_PLAYER_ID, selectedCrystal.id, customSeed);
 
 	env.patchState({ session });
 

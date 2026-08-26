@@ -1,10 +1,12 @@
 import {
 	createSession,
 	deleteSession,
+	generateSessionSeed,
 	getSession,
 	LOCAL_PLAYER_ID,
 	STORAGE_PREFIX,
 } from "./SessionManager";
+import { MAX_SEED_LENGTH } from "@game/session/seed";
 
 describe("SessionManager", () => {
 	beforeEach(() => {
@@ -28,5 +30,42 @@ describe("SessionManager", () => {
 
 		expect(getSession(LOCAL_PLAYER_ID)).toBeNull();
 		expect(localStorage.getItem(STORAGE_PREFIX + LOCAL_PLAYER_ID)).toBeNull();
+	});
+
+	it("generates a numeric session seed within the numpad's digit cap", () => {
+		const session = createSession(LOCAL_PLAYER_ID, "critical_crystal");
+
+		expect(session.seed).toMatch(/^\d+$/);
+		expect(session.seed.length).toBeLessThanOrEqual(MAX_SEED_LENGTH);
+		expect(session.initial_seed).toBe(session.seed);
+	});
+
+	it("uses a player-entered numeric seed when provided", () => {
+		const session = createSession(LOCAL_PLAYER_ID, "critical_crystal", "4242");
+
+		expect(session.seed).toBe("4242");
+		expect(session.initial_seed).toBe("4242");
+	});
+
+	it("sanitizes an oversized/non-numeric custom seed before use", () => {
+		// Non-numeric input collapses to empty → falls back to a generated seed.
+		const fromLetters = createSession(LOCAL_PLAYER_ID, "critical_crystal", "abc");
+		expect(fromLetters.seed).toMatch(/^\d+$/);
+
+		// Oversized numeric input is capped at MAX_SEED_LENGTH digits.
+		const fromLongNumber = createSession(
+			LOCAL_PLAYER_ID,
+			"critical_crystal",
+			"12345678901234567890"
+		);
+		expect(fromLongNumber.seed).toBe("123456789012");
+	});
+
+	it("generateSessionSeed always returns a numeric string", () => {
+		for (let i = 0; i < 25; i++) {
+			const seed = generateSessionSeed();
+			expect(seed).toMatch(/^\d+$/);
+			expect(seed.length).toBeLessThanOrEqual(MAX_SEED_LENGTH);
+		}
 	});
 });

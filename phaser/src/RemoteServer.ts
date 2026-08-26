@@ -261,9 +261,13 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 	};
 
 	return {
-		async createSession(_playerId: string, crystalId: string): Promise<Models.SessionData> {
+		async createSession(
+			_playerId: string,
+			crystalId: string,
+			_seed?: string
+		): Promise<Models.SessionData> {
 			// The server generates the seed (it is the replay authority) — the
-			// client never sends one. queueType: no ranked UI yet → casual.
+			// client never sends one; the custom-seed UI is hidden in multiplayer.
 			const payload = await request("/api/v1/sessions", {
 				method: "POST",
 				body: { crystalId, queueType: DEFAULT_QUEUE_TYPE },

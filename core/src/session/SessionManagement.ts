@@ -58,7 +58,9 @@ export function createInitialSession(
     session_type: { type: "singleplayer" },
     phase: "encounter",
     round: 1,
-    step: 1,
+    // Start at step 0 so the first round plays all 3 encounters (0, 1, 2)
+    // before pre_combat/combat — see core/src/PhaseSystem/PhaseConfig.ts.
+    step: 0,
     seed: sessionSeed,
     initial_seed: initialSeed,
     action_log: [],

@@ -118,6 +118,7 @@ describe("createSqliteSessionRepo", () => {
     service.createSession("p1", { crystalId: "critical_crystal" });
     service.handleAction("p1", { type: "skip" });
     service.handleAction("p1", { type: "skip" });
+    service.handleAction("p1", { type: "skip" });
     const result = service.handleAction("p1", { type: "start_combat" });
 
     expect(result.session.phase).toBe("combat");

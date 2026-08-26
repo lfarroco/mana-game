@@ -21,9 +21,11 @@
  *     delta exactly once (per session id).
  */
 
+import { randomInt } from "node:crypto";
 import { v4 as uuid } from "uuid";
 import * as SessionManagement from "@game/session/SessionManagement";
 import * as SessionTransitions from "@game/session/SessionTransitions";
+import { formatNumericSeed, MAX_SEED_BOUND } from "@game/session/seed";
 import type { SessionData } from "@game/types/session";
 import type { Action, ActionResponse } from "@game/types/action";
 import { ApiError } from "../errors";
@@ -108,8 +110,9 @@ export function createSessionService(
         repo.delete(playerId);
       }
 
-      // The server generates the seed — it is the replay authority.
-      const seed = uuid();
+      // The server generates the seed — it is the replay authority. Numeric
+      // to match the single-player numpad input / run-complete display.
+      const seed = formatNumericSeed(randomInt(0, MAX_SEED_BOUND));
       const session = SessionManagement.createInitialSession(
         playerId,
         seed,

@@ -1,6 +1,7 @@
 import * as Models from "@game/Models";
 import { LOCAL_PLAYER_ID } from "../SessionManager";
 import { defaultSettings, type PlayerSettings } from "@game/settings/playerSettings";
+import { formatNumericSeed } from "@game/session/seed";
 
 export { defaultSettings, type PlayerSettings } from "@game/settings/playerSettings";
 export { getUnitAt } from "@game/board/layout";
@@ -13,7 +14,7 @@ export type ClientState = {
 };
 
 export const initialState = (): ClientState => {
-	const initialSeed = Date.now().toString();
+	const initialSeed = formatNumericSeed(Date.now());
 	return {
 		savedGames: [],
 		session: {

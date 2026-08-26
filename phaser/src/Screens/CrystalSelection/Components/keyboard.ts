@@ -1,6 +1,6 @@
 import * as Phaser from "phaser";
 import { env } from "@Env";
-import { parseNumericSeed, sanitizeNumericSeedInput } from "@game/session/seed";
+import { formatNumericSeed, parseNumericSeed, sanitizeNumericSeedInput } from "@game/session/seed";
 
 // ---------------------------------------------------------------------------
 // Module-level refs so destroy() can clean up idempotently.
@@ -139,7 +139,7 @@ export function create(
 		"Enter",
 		() => {
 			if (targetText.text === "") {
-				const newSeed = String(Date.now());
+				const newSeed = formatNumericSeed(Date.now());
 				env.state.session.seed = newSeed;
 				targetText.setText(newSeed);
 				seedWarningText.setVisible(false);
@@ -151,7 +151,7 @@ export function create(
 					seedWarningText.setVisible(true);
 				} else {
 					// Fallback if parsing fails for some reason (shouldn't with numberpad)
-					const newSeed = String(Date.now());
+					const newSeed = formatNumericSeed(Date.now());
 					env.state.session.seed = newSeed;
 					targetText.setText(newSeed);
 					seedWarningText.setVisible(false);

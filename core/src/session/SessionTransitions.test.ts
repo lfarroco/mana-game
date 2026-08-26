@@ -10,6 +10,7 @@ import * as Card from "../Entities/Card";
 import * as Constants from "../math/Constants";
 import * as Models from "../Models";
 import * as SessionTransitions from "./SessionTransitions";
+import * as SessionManagement from "./SessionManagement";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
 import { RANDOM_ORB_POOL } from "../Orbs/OrbDefinitions";
 
@@ -685,6 +686,41 @@ describe("SessionTransitions", () => {
       const result = resolve("roulette_upgrade_orb");
       expect(result.session.phase).toBe("orb_shop");
       expect(result.session.options.map((o) => o.id)).toEqual(["upgrade_orb"]);
+    });
+  });
+
+  describe("new-run encounter sequence", () => {
+    it("plays all 3 encounters before the first pre_combat", () => {
+      const session = SessionManagement.createInitialSession(
+        "p1",
+        "seed-encounter-sequence",
+      );
+
+      // A fresh run starts at the first encounter of round 1 (step 0).
+      expect(session.phase).toBe("encounter");
+      expect(session.round).toBe(1);
+      expect(session.step).toBe(0);
+
+      // Round-1 rotation: encounter(0) encounter(1) encounter(2)
+      // pre_combat(3) combat(4) upgrade_core(5) — so the first battle must be
+      // preceded by exactly 3 encounters.
+      const e1 = SessionTransitions.transitionToNextState(session, {
+        type: "skip",
+      });
+      expect(e1.session.step).toBe(1);
+      expect(e1.session.phase).toBe("encounter");
+
+      const e2 = SessionTransitions.transitionToNextState(e1.session, {
+        type: "skip",
+      });
+      expect(e2.session.step).toBe(2);
+      expect(e2.session.phase).toBe("encounter");
+
+      const e3 = SessionTransitions.transitionToNextState(e2.session, {
+        type: "skip",
+      });
+      expect(e3.session.step).toBe(3);
+      expect(e3.session.phase).toBe("pre_combat");
     });
   });
 });

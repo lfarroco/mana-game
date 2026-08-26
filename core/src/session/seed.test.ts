@@ -1,6 +1,12 @@
 /// <reference types="jest" />
 
-import { parseNumericSeed, sanitizeNumericSeedInput } from "./seed";
+import {
+  MAX_SEED_BOUND,
+  MAX_SEED_LENGTH,
+  formatNumericSeed,
+  parseNumericSeed,
+  sanitizeNumericSeedInput,
+} from "./seed";
 
 describe("Seed", () => {
   describe("sanitizeNumericSeedInput", () => {
@@ -34,6 +40,31 @@ describe("Seed", () => {
 
     it("parses text with leading whitespace", () => {
       expect(parseNumericSeed("  7")).toBe(7);
+    });
+  });
+
+  describe("formatNumericSeed", () => {
+    it("keeps a value within the bound as-is", () => {
+      expect(formatNumericSeed(42)).toBe("42");
+    });
+
+    it("clamps to [0, MAX_SEED_BOUND)", () => {
+      expect(formatNumericSeed(MAX_SEED_BOUND)).toBe("0");
+      expect(formatNumericSeed(MAX_SEED_BOUND + 123)).toBe("123");
+    });
+
+    it("never exceeds MAX_SEED_LENGTH digits", () => {
+      expect(formatNumericSeed(999999999999)).toBe("999999999999");
+      expect(formatNumericSeed(999999999999).length).toBe(MAX_SEED_LENGTH);
+      expect(formatNumericSeed(1e15).length).toBeLessThanOrEqual(MAX_SEED_LENGTH);
+    });
+
+    it("normalizes negative sources by absolute value", () => {
+      expect(formatNumericSeed(-42)).toBe("42");
+    });
+
+    it("returns only digits (no exponent/separators)", () => {
+      expect(formatNumericSeed(1.5e12)).toMatch(/^\d+$/);
     });
   });
 });

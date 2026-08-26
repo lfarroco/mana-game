@@ -9,11 +9,13 @@ import * as navigationButtons from "./Components/navigationButtons";
 import * as actionButtons from "./Components/actionButtons";
 import * as seedInput from "./Components/seedInput";
 import * as title from "./Components/title";
+import * as SessionManager from "../../SessionManager";
 import { CardDefinition, createEvent } from "@game/Models";
 import { getScreenManager } from "../ScreenManager";
 import { createScreen, screenModule } from "@mana/framework";
 import { CRYSTAL_IDS } from "./ids";
 import { GameEvent } from "../../Events";
+import { env } from "@Env";
 
 export type CrystalSelectionEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
@@ -56,6 +58,11 @@ const screen = createScreen<never, CrystalSelectionEvents>({
 	create: async (ctx) => {
 		crystals = Card.getCores();
 		currentIndex = 0;
+
+		// Fresh numeric seed for the new run: what the numpad shows is what
+		// the run starts with (startNewGame threads it through createSession).
+		const freshSeed = SessionManager.generateSessionSeed();
+		env.patchState({ session: { ...env.state.session, seed: freshSeed, initial_seed: freshSeed } });
 
 		// Tracked so the framework destroys it (and stops its tweens) on teardown.
 		const cloudsBackground = cloudsBg.create();

@@ -96,7 +96,7 @@ describe("SessionManagement", () => {
       expect(session.player_id).toBe("p1");
       expect(session.phase).toBe("encounter");
       expect(session.round).toBe(1);
-      expect(session.step).toBe(1);
+      expect(session.step).toBe(0);
       expect(session.seed).toBe("seed123");
       expect(session.initial_seed).toBe("seed123");
       expect(session.wins).toBe(0);

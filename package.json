@@ -2,7 +2,7 @@
 	"name": "mana-game",
 	"version": "1.0.0",
 	"private": true,
-	"description": "Mana Battle — monorepo root for the Phaser client, core game logic, framework, and game server.",
+	"description": "Mana Battle: monorepo root for the Phaser client, core game logic, framework, and game server.",
 	"scripts": {
 		"format": "prettier --write \"phaser/src/**/*.{ts,tsx,json,css}\" \"core/src/**/*.{ts,tsx,json}\" \"server/src/**/*.{ts,tsx,json}\" \"framework/src/**/*.{ts,tsx,json}\"",
 		"format:check": "prettier --check \"phaser/src/**/*.{ts,tsx,json,css}\" \"core/src/**/*.{ts,tsx,json}\" \"server/src/**/*.{ts,tsx,json}\" \"framework/src/**/*.{ts,tsx,json}\""
