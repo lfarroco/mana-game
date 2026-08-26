@@ -262,6 +262,11 @@ export class MagicOrb {
 		if (!this.isDissolving) {
 			this.isDissolving = true;
 			this.dissolveStartTime = env.scene.time.now;
+			// A dissolving orb is being consumed (e.g. dropped on a unit to
+			// apply its effect). Mark it so the phase transition leaves it in
+			// place at the drop target while it dissolves, instead of sliding
+			// it out with the rest of the phase UI.
+			this.shader.setData("skipPhaseTransition", true);
 			console.debug("MagicOrb", "Starting dissolve animation at time:", this.dissolveStartTime);
 		}
 		return this;

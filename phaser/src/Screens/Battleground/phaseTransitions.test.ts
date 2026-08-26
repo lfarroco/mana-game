@@ -158,6 +158,44 @@ describe("phaseTransitions", () => {
 		expect(shader.x).toBe(100 + SLIDE_DISTANCE);
 	});
 
+	it("leaves elements flagged skipPhaseTransition in place during slideOut", async () => {
+		// A consumed element (e.g. an orb dissolving in place at its drop
+		// target) must not be slid out with the rest of the phase UI.
+		const skipped = {
+			x: 100,
+			y: 200,
+			alpha: 1,
+			getData: jest.fn((key: string) => (key === "skipPhaseTransition" ? true : undefined)),
+			destroy: jest.fn(),
+		};
+		const normal = fake(100, 400);
+
+		await slideOut([skipped as unknown as Destroyable, normal as unknown as Destroyable]);
+
+		// Only the unflagged element is animated.
+		expect(tweenCalls()).toHaveLength(1);
+		expect(skipped.x).toBe(100);
+		expect(skipped.y).toBe(200);
+		expect(skipped.alpha).toBe(1);
+		expect(normal.x).toBe(100 + SLIDE_DISTANCE);
+	});
+
+	it("leaves elements flagged skipPhaseTransition in place during slideIn restore", async () => {
+		const skipped = {
+			x: 100,
+			y: 200,
+			alpha: 1,
+			getData: jest.fn((key: string) => (key === "skipPhaseTransition" ? true : undefined)),
+			destroy: jest.fn(),
+		};
+
+		await slideIn([skipped as unknown as Destroyable]);
+
+		expect(tweenCalls()).toHaveLength(0);
+		expect(skipped.x).toBe(100);
+		expect(skipped.alpha).toBe(1);
+	});
+
 	it("compresses the stagger so long element lists finish within a bounded window", async () => {
 		const many = Array.from({ length: 12 }, (_, i) => fake(100, 200 + i));
 		await slideOut(many);

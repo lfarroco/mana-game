@@ -12,6 +12,11 @@
  * restore-aware — an element that already exited tweens back to its snapshot
  * instead of being re-staged off-screen. This lets a failed transition (e.g. a
  * rejected server dispatch) bring the UI back into view.
+ *
+ * Elements can opt out of both directions by setting the `skipPhaseTransition`
+ * data key on their GameObject — e.g. an orb that was dropped on a unit and is
+ * dissolving in place at the drop target stays exactly where it is while the
+ * rest of the phase slides out (see `MagicOrb.startDissolve`).
  */
 
 import * as animation from "@Utils/animation";
@@ -49,6 +54,7 @@ type Animatable = {
 	alpha?: number;
 	active?: boolean;
 	scene?: unknown;
+	getData?: (key: string) => unknown;
 };
 
 // Resting positions captured by slideOut(), keyed by the animatable target, so
@@ -62,6 +68,15 @@ function isDestroyed(obj: Animatable): boolean {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Elements opted out of transitions via the "skipPhaseTransition" data key
+ * (e.g. an orb that was dropped on a unit and is dissolving in place at the
+ * drop target) stay exactly where they are while the rest of the phase slides.
+ */
+function isTransitionSkipped(obj: Animatable): boolean {
+	return typeof obj.getData === "function" && obj.getData("skipPhaseTransition") === true;
 }
 
 /**
@@ -105,7 +120,7 @@ export async function slideIn(
 	const sign = opts.direction === "left" ? -1 : 1;
 	const targets = elements
 		.map(toAnimatable)
-		.filter((t): t is Animatable => t !== null && !isDestroyed(t));
+		.filter((t): t is Animatable => t !== null && !isDestroyed(t) && !isTransitionSkipped(t));
 
 	if (targets.length === 0) return;
 
@@ -159,7 +174,7 @@ export async function slideOut(
 	const sign = opts.direction === "left" ? -1 : 1;
 	const targets = elements
 		.map(toAnimatable)
-		.filter((t): t is Animatable => t !== null && !isDestroyed(t));
+		.filter((t): t is Animatable => t !== null && !isDestroyed(t) && !isTransitionSkipped(t));
 
 	if (targets.length === 0) return;
 

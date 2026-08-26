@@ -139,7 +139,10 @@ function handleOrbDrop(params: {
 	dispatchAction(
 		{ type: "apply_orb", orbId: orbSpec.id, targetUnitId: existingUnit.id },
 		async () => {
-			onOrbApplied(orbSpec.id, existingUnit.id);
+			// Await the apply feedback (e.g. the upgrade beam for upgrade_orb)
+			// so the phase only clears once the orb has fully dissolved in
+			// place at the unit — mirroring the shop purchase flow.
+			await onOrbApplied(orbSpec.id, existingUnit.id);
 		}
 	);
 }
