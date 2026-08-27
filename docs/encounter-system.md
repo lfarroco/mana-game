@@ -31,6 +31,10 @@ Each round consists of 6 phases (defined in `core/src/PhaseSystem/PhaseConfig.ts
   decrease cooldown).
 - `add_reaction_core` offers 3 static options (on-100-damage effect, on-crit
   effect, on-battle-start effect).
+- **`awaken`** (see [awaken.md](awaken.md)): a special interstitial phase, not
+  part of the rotation. When a bronze-origin unit is promoted to gold, the
+  run routes through it and the player picks one of three random reactions to
+  permanently add to the unit.
 - Victory condition: 10 wins. Game over: 4 losses. After 10 wins the player
   enters infinite mode with no more upgrade phases.
 

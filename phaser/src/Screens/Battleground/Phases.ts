@@ -1,4 +1,5 @@
 export { AddReactionCorePhase } from "./Phases/AddReactionCore/handleAddReactionCorePhase";
+export { AwakenPhase } from "./Phases/Awaken/handleAwakenPhase";
 export { GameOverPhase } from "./Phases/GameOver/handleGameOverPhase";
 export { UpgradeCorePhase } from "./Phases/UpgradeCore/handleUpgradeCorePhase";
 export { VictoryPhase } from "./Phases/Victory/handleVictoryPhase";

@@ -11,6 +11,7 @@ export type PhaseType =
   | "orb_shop"
   | "upgrade_core"
   | "add_reaction_core"
+  | "awaken"
   | "pre_combat"
   | "combat"
   | "victory"
@@ -57,6 +58,10 @@ export type SessionData = {
   runStats?: RunStats;
   updated_at?: Date;
   combatState?: CombatState;
+  /** The unit currently being awakened (phase "awaken") — cleared once the
+   *  player picks a power. Set by SessionTransitions when a bronze-origin
+   *  unit is promoted to gold. */
+  awakenUnitId?: string;
 };
 
 // Re-exported below to avoid circular: PhaseOption needs SessionData for combatState

@@ -12,6 +12,7 @@ import * as Models from "../Models";
 import * as SessionTransitions from "./SessionTransitions";
 import * as SessionManagement from "./SessionManagement";
 import * as CoreUpgradeOrbs from "../content/coreUpgradeOrbs";
+import { AWAKEN_POWERS } from "../content/awakenPowers";
 
 // Cards are statically available — no registration needed.
 
@@ -631,6 +632,201 @@ describe("SessionTransitions", () => {
       expect(e3.session.phase).toBe("pre_combat");
     });
   });
+
+  describe("awaken phase (bronze→gold promotion)", () => {
+    it("routes to the awaken phase when a duplicate buy promotes a bronze unit to gold", () => {
+      const session = createAwakenTestSession("awaken-buy-001");
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "gunslinger",
+        targetSlot: null,
+      });
+
+      expect(result.session.phase).toBe("awaken");
+      expect(result.session.awakenUnitId).toBeDefined();
+      expect(result.session.options).toHaveLength(3);
+
+      const unit = result.session.team.units.find(
+        (u) => u.id === result.session.awakenUnitId,
+      )!;
+      expect(unit.rank).toBe(3);
+
+      // Every offered option is a valid awaken-power id.
+      for (const option of result.session.options) {
+        expect(
+          AWAKEN_POWERS[option.id as keyof typeof AWAKEN_POWERS],
+        ).toBeDefined();
+      }
+    });
+
+    it("appends the picked power's reaction to the unit and advances the run", () => {
+      const session = createAwakenTestSession("awaken-pick-001");
+      const awaken = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "gunslinger",
+        targetSlot: null,
+      }).session;
+      expect(awaken.phase).toBe("awaken");
+
+      const powerId = awaken.options[0].id as string;
+      const unitId = awaken.awakenUnitId!;
+      const reactionsBefore = awaken.team.units.find((u) => u.id === unitId)!
+        .reactions.length;
+
+      const result = SessionTransitions.transitionToNextState(awaken, {
+        type: "select_encounter",
+        encounterId: powerId,
+      });
+
+      // The shop step (0) is consumed when the awaken resolves.
+      expect(result.session.phase).toBe("encounter");
+      expect(result.session.step).toBe(1);
+      expect(result.session.awakenUnitId).toBeUndefined();
+
+      const unit = result.session.team.units.find((u) => u.id === unitId)!;
+      expect(unit.reactions.length).toBe(reactionsBefore + 1);
+      expect(JSON.stringify(unit.reactions[unit.reactions.length - 1])).toBe(
+        JSON.stringify(
+          AWAKEN_POWERS[powerId as keyof typeof AWAKEN_POWERS].reaction,
+        ),
+      );
+    });
+
+    it("routes to the awaken phase when the upgrade orb promotes a bronze unit to gold", () => {
+      const session = createAwakenTestSession("awaken-orb-001");
+      const bronzeUnitId = session.team.units[1].id;
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "apply_orb",
+        orbId: "upgrade_orb",
+        targetUnitId: bronzeUnitId,
+      });
+
+      expect(result.session.phase).toBe("awaken");
+      expect(result.session.awakenUnitId).toBe(bronzeUnitId);
+      expect(result.session.options).toHaveLength(3);
+    });
+
+    it("does not awaken a silver-origin unit promoted to gold", () => {
+      const session = createAwakenTestSession(
+        "awaken-silver-001",
+        "mana_source",
+      );
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "mana_source",
+        targetSlot: null,
+      });
+
+      expect(result.session.phase).not.toBe("awaken");
+      expect(result.session.awakenUnitId).toBeUndefined();
+    });
+
+    it("does not awaken a gold-shop recruit (arrives at rank 3, not promoted)", () => {
+      const session = createAwakenTestSession("awaken-gold-recruit-001");
+      session.options = [{ id: "toxicologist", cost: 25, recruitRank: 3 }];
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "toxicologist",
+        targetSlot: null,
+      });
+
+      // The recruited gold never passes through rank 2, so no awaken.
+      expect(result.session.phase).not.toBe("awaken");
+      const recruited = result.session.team.units.find(
+        (u) => u.cardId === "toxicologist",
+      )!;
+      expect(recruited.rank).toBe(3);
+    });
+
+    it("is deterministic under the session seed", () => {
+      const a = SessionTransitions.transitionToNextState(
+        createAwakenTestSession("awaken-det"),
+        { type: "recruit_unit", unitId: "gunslinger", targetSlot: null },
+      );
+      const b = SessionTransitions.transitionToNextState(
+        createAwakenTestSession("awaken-det"),
+        { type: "recruit_unit", unitId: "gunslinger", targetSlot: null },
+      );
+
+      expect(a.session.seed).toBe(b.session.seed);
+      expect(a.session.options.map((o) => o.id)).toEqual(
+        b.session.options.map((o) => o.id),
+      );
+    });
+
+    it("dedupes powers the unit already carries", () => {
+      const session = createAwakenTestSession("awaken-dedupe");
+      const unit = session.team.units[1];
+      unit.reactions.push(
+        structuredClone(AWAKEN_POWERS.battle_trance.reaction),
+      );
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "gunslinger",
+        targetSlot: null,
+      });
+
+      expect(result.session.options.map((o) => o.id)).not.toContain(
+        "battle_trance",
+      );
+      expect(result.session.options).toHaveLength(3);
+    });
+
+    it("does not awaken the core when the upgrade orb promotes it", () => {
+      const session = createAwakenTestSession("awaken-core-001");
+      const coreId = session.team.units[0].id;
+
+      const result = SessionTransitions.transitionToNextState(session, {
+        type: "apply_orb",
+        orbId: "upgrade_orb",
+        targetUnitId: coreId,
+      });
+
+      expect(result.session.phase).not.toBe("awaken");
+      expect(result.session.awakenUnitId).toBeUndefined();
+    });
+
+    it("rejects an awaken pick that is not among the offered powers", () => {
+      const session = createAwakenTestSession("awaken-reject-001");
+      const awaken = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "gunslinger",
+        targetSlot: null,
+      }).session;
+
+      const offered = new Set(awaken.options.map((o) => o.id));
+      const unoffered = Object.keys(AWAKEN_POWERS).find(
+        (id) => !offered.has(id),
+      )!;
+
+      const result = SessionTransitions.transitionToNextState(awaken, {
+        type: "select_encounter",
+        encounterId: unoffered,
+      });
+
+      // The phase is unchanged — the invalid pick is ignored.
+      expect(result.session.phase).toBe("awaken");
+      expect(result.session.awakenUnitId).toBe(awaken.awakenUnitId);
+    });
+
+    it("does not allow skip in the awaken phase", () => {
+      const session = createAwakenTestSession("awaken-noskip-001");
+      const awaken = SessionTransitions.transitionToNextState(session, {
+        type: "recruit_unit",
+        unitId: "gunslinger",
+        targetSlot: null,
+      }).session;
+
+      const result = SessionTransitions.transitionToNextState(awaken, {
+        type: "skip",
+      });
+
+      expect(result.session.phase).toBe("awaken");
+      expect(result.session.awakenUnitId).toBe(awaken.awakenUnitId);
+    });
+  });
 });
 
 /**
@@ -662,6 +858,26 @@ function createTestSession(
     losses: 0,
     action_log: [],
   };
+}
+
+/**
+ * Create a test session in a mid-round shop state (step 0) with a non-core
+ * unit at rank 2 ready to be promoted. The unit's cardId is `unitCardId`
+ * (defaults to `gunslinger`, a bronze-origin card).
+ */
+function createAwakenTestSession(
+  seed: string,
+  unitCardId: string = "gunslinger",
+): Models.SessionData {
+  const session = createTestSession(seed);
+  session.phase = "shop" as const;
+  session.step = 0;
+
+  const unit = Card.makeUnit(Constants.FORCE_ID_PLAYER, unitCardId, [0, 0]);
+  unit.rank = 2;
+  session.team.units.push(unit);
+
+  return session;
 }
 
 /**

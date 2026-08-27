@@ -16,6 +16,7 @@ import * as OptionGeneration from "./OptionGeneration";
 import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
+import * as Card from "../Entities/Card";
 import {
   CORE_STAT_ORBS,
   CORE_UPGRADE_DEFINITIONS,
@@ -25,6 +26,7 @@ import type {
   CoreUpgradeDefinition,
   CoreUpgradeOrbId,
 } from "../content/coreUpgradeOrbs";
+import { AWAKEN_POWERS, AwakenPowerId } from "../content/awakenPowers";
 
 const ORB_SHOP_ENCOUNTER_OPTIONS: Record<string, Models.PhaseOption[]> = {
   upgrade_unit: [{ id: "upgrade_orb" }],
@@ -156,6 +158,37 @@ const ACTION_HANDLERS: Record<
   select_encounter: (session, action) => {
     if (action.type !== "select_encounter") throw new Error();
 
+    // Awaken phase: the options are awaken-power ids. Validate the pick is
+    // one of the offered powers, then append its reaction to the awakening
+    // unit permanently and advance the run (the shop/upgrade step is
+    // consumed here — it was preserved when the awaken phase started).
+    if (session.phase === "awaken") {
+      const offered = session.options.some((o) => o.id === action.encounterId);
+      if (!offered) {
+        console.warn(
+          "SessionTransitions",
+          `Rejected awaken pick '${action.encounterId}' — not among the offered powers`,
+        );
+        return session;
+      }
+
+      const unit = session.team.units.find(
+        (u) => u.id === session.awakenUnitId,
+      );
+      const power = AWAKEN_POWERS[action.encounterId as AwakenPowerId];
+      if (!unit || !power) {
+        console.warn(
+          "SessionTransitions",
+          "Awaken pick failed: no awaken unit or unknown power id",
+        );
+        return session;
+      }
+
+      unit.reactions = [...unit.reactions, structuredClone(power.reaction)];
+      delete session.awakenUnitId;
+      return transitionToNextStep(session);
+    }
+
     if (action.encounterId === "start_combat")
       return executeCombatPhase(session);
 
@@ -276,11 +309,17 @@ const ACTION_HANDLERS: Record<
   // Pass a session variant that uses the deep-copied team so recruitUnit mutates our copy.
   recruit_unit: (session, action) => {
     if (action.type !== "recruit_unit") throw new Error();
+    const beforeRanks = new Map(session.team.units.map((u) => [u.id, u.rank]));
     const updatedSession = RecruitmentActions.recruitUnit(
       session,
       action.unitId,
       action.targetSlot,
     );
+
+    // Bronze-origin unit promoted to gold → route into the awaken phase
+    // (the shop step is preserved here and consumed when the power is picked).
+    const promoted = findPromotedToGoldUnit(beforeRanks, updatedSession);
+    if (promoted) return startAwakenPhase(updatedSession, promoted.id);
 
     return transitionToNextStep(updatedSession);
   },
@@ -358,12 +397,18 @@ const ACTION_HANDLERS: Record<
 
     const { orbId, targetUnitId } = action;
 
+    const beforeRanks = new Map(session.team.units.map((u) => [u.id, u.rank]));
     session.seed = OrbAndCoreUpgrades.applyOrb(
       session.team.units,
       targetUnitId,
       orbId,
       { seed: session.seed },
     );
+
+    // upgrade_orb promoting a bronze-origin unit to gold → awaken phase.
+    const promoted = findPromotedToGoldUnit(beforeRanks, session);
+    if (promoted) return startAwakenPhase(session, promoted.id);
+
     return transitionToNextStep(session);
   },
   upgrade_unit: (session) => ({
@@ -540,6 +585,51 @@ function executeCombatPhase(
   );
 
   return nextSession;
+}
+
+/**
+ * Detect a fresh bronze→gold promotion. Returns the promoted unit when a
+ * bronze-origin unit (card base rank 1) moved from rank 2 to rank 3 during
+ * the action — the trigger for the awaken phase. Bronze cards are only ever
+ * recruited at rank 1, so reaching rank 3 means the player promoted them
+ * 1→2→3; rank never decreases, so this fires exactly once per unit.
+ * Silver/gold-origin units are excluded by the base-rank check.
+ */
+function findPromotedToGoldUnit(
+  beforeRanks: ReadonlyMap<string, number>,
+  after: Models.SessionData,
+): Models.Unit | undefined {
+  return after.team.units.find((u) => {
+    if (u.isCore) return false;
+    if (u.rank !== 3) return false;
+    if (beforeRanks.get(u.id) !== 2) return false;
+    const source = Card.getCardDefinition(u.cardId);
+    return (source.rank ?? 1) === 1;
+  });
+}
+
+/**
+ * Route the run into the awaken phase after a bronze→gold promotion. The
+ * shop/orb step is preserved (so it is consumed when the picked power
+ * resolves). If the power pool is exhausted (practically impossible), fall
+ * through to the normal next-step transition.
+ */
+function startAwakenPhase(
+  session: Models.SessionData,
+  unitId: string,
+): Models.SessionData {
+  const unit = session.team.units.find((u) => u.id === unitId);
+  if (!unit) return transitionToNextStep(session);
+
+  const options = OptionGeneration.generateAwakenOptions(session, unit);
+  if (options.length === 0) return transitionToNextStep(session);
+
+  return {
+    ...session,
+    phase: "awaken",
+    awakenUnitId: unitId,
+    options,
+  };
 }
 
 function isCore(unit: Models.Unit): boolean {

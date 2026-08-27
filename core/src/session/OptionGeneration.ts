@@ -12,6 +12,8 @@ import * as Random from "../math/Random";
 import type { EncounterId } from "../types/action";
 import { ENCOUNTER_BY_ID } from "../content/encounters";
 import { LOSSES_TO_GAME_OVER } from "../math/Constants";
+import { AWAKEN_POWER_LIST } from "../content/awakenPowers";
+import type { AwakenPower } from "../content/awakenPowers";
 
 type EncounterFilterType =
   | "damage"
@@ -341,4 +343,34 @@ export function generateShopOptions(
   }));
 
   return options;
+}
+
+/** Deep-equality for reactions (JSON.stringify — mirrors hasIdentityOrbApplied). */
+function reactionEquals(
+  a: Models.EffectReaction,
+  b: Models.EffectReaction,
+): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+/**
+ * Generate the three "awaken power" options offered when a bronze-origin unit
+ * is promoted to gold. Seeded deterministic (advances `session.seed`), deduped
+ * against reactions the unit already carries so every offered power is new.
+ * Falls back to any available powers (rare) when fewer than 3 remain.
+ */
+export function generateAwakenOptions(
+  session: Models.SessionData,
+  unit: Models.Unit,
+): Models.PhaseOption[] {
+  const available = AWAKEN_POWER_LIST.filter(
+    (power) => !unit.reactions.some((r) => reactionEquals(r, power.reaction)),
+  );
+
+  if (available.length === 0) return [];
+
+  const { picked, seed } = Random.pickRandomItemsSeeded(session, available, 3);
+  session.seed = seed;
+
+  return picked.map((power: AwakenPower) => ({ id: power.id }));
 }

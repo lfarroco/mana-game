@@ -177,6 +177,17 @@ export function display(board: BoardState): void {
 	}
 }
 
+/**
+ * Show or hide the player board slot rings. Used by the awaken cinematic to
+ * clear the board stage while the awakened unit takes the center slot.
+ * Visibility (not alpha) is used on purpose — the slots run their own
+ * oscillating alpha tween, so alpha tweens here would fight it.
+ */
+export function setPlayerSlotsVisible(visible: boolean): void {
+	const board = getBoardState();
+	board.slotShaders.forEach((slot) => slot.setVisible(visible));
+}
+
 export function destroyVisuals(board: BoardState): void {
 	board.slotShaders.forEach((slot) => slot.destroy());
 	board.slotShaders = [];

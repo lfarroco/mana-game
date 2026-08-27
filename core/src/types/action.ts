@@ -6,6 +6,7 @@ import type { CombatState } from "./combat";
 import type { SessionData } from "./session";
 import type { Unit } from "./unit";
 import type { CoreUpgradeOrbId } from "../content/coreUpgradeOrbs";
+import type { AwakenPowerId } from "../content/awakenPowers";
 
 /**
  * Known encounter identifiers used as PhaseOption ids.
@@ -77,7 +78,8 @@ export type PhaseOption =
   | { id: EncounterId; cost?: number; label?: string; recruitRank?: number }
   | { id: string; cost: number; recruitRank: number }
   | { id: StaticOptionId }
-  | { id: CoreUpgradeOrbId };
+  | { id: CoreUpgradeOrbId }
+  | { id: AwakenPowerId };
 
 export type Action =
   | { type: "skip" }

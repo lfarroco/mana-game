@@ -42,6 +42,13 @@ tier system.
 - Bronze that specialize (e.g. `living_armor`, `cleric`) are mildly conditional,
   but never require a specific board to function.
 
+> **The awaken payoff (2026-08-26).** Bronze units that reach gold (rank 3)
+> trigger the [awaken phase](awaken.md): the player picks one of three random
+> reactions to permanently add to the unit. This is the bronze tier's answer to
+> the "silvers and golds are defined by their reactions" identity — a fully
+> invested bronze unit earns the same kind of ability-granting power, so the
+> bronze→silver→gold journey is a transformation, not just a stat bump.
+
 ### Silver (rank 2) — situational synergies
 
 - **Every silver unit has a reaction** (currently 8/8). Their power is locked

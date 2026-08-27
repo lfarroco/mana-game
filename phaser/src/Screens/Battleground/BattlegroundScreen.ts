@@ -186,6 +186,10 @@ const screen = createScreen<BGPhase, BGEvents>({
 			handler: Phases.AddReactionCorePhase,
 			transition: PhaseTransitions.slideTransition,
 		},
+		awaken: {
+			handler: Phases.AwakenPhase,
+			transition: PhaseTransitions.slideTransition,
+		},
 		combat: {
 			handler: (ctx) => Phases.CombatPhase(ctx),
 			transition: PhaseTransitions.slideTransition,
