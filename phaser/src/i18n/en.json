@@ -585,6 +585,7 @@
 	"run_stats.total_units_recruited": "Units Recruited",
 	"run_stats.seed": "Game Seed",
 	"run_stats.copy_seed": "Copy Seed",
+	"run_stats.copied": "Copied!",
 	"title.unlock_modal.confirm": "CONFIRM",
 	"title.collection": "COLLECTION",
 	"title.collection_modal.title": "COLLECTION",

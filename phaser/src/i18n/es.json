@@ -386,6 +386,7 @@
 	"run_stats.total_units_recruited": "Unidades Reclutadas",
 	"run_stats.seed": "Semilla de Partida",
 	"run_stats.copy_seed": "Copiar Semilla",
+	"run_stats.copied": "¡Copiado!",
 	"title.unlock_modal.confirm": "CONFIRMAR",
 	"title.collection": "COLECCIÓN",
 	"title.collection_modal.title": "COLECCIÓN",

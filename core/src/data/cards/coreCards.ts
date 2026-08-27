@@ -83,9 +83,13 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     // every unit (cores included) to carry ≥ 1 damage/heal/shield/poison/regen
     // effect, and regen is quickstone's historical "refresh" partner (see
     // docs/core-unit-onboarding.md §2, decision 4).
+    //
+    // Carries 2 effects (the only cores that do), so its raw power is trimmed
+    // 48 → 20 to keep its AP in the other cores' baseline band (~62–85): at 20
+    // the kit prices to ~63 AP, matching protective_crystal.
     pic: "haste-stone",
     life: 500,
-    power: 48,
+    power: 20,
     cooldown: 5200,
     isCore: true,
     coreTheme: "haste",
@@ -128,10 +132,12 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     // crystal that saps the strongest enemy's power on every cast and steals
     // their statuses via its identity orbs. Its baseline pairs a basic hit
     // (damage — every unit needs ≥ 1 basic effect) with the power sap; the sap
-    // was trimmed 15 → 10 so the kit stays inside the core AP band.
+    // was trimmed 15 → 10 and the raw power 40 → 20 so the 2-effect kit stays
+    // inside the other cores' baseline AP band (~62–85): at 20 it prices to
+    // ~80 AP, matching growth_crystal.
     pic: "purple-stone",
     life: 500,
-    power: 40,
+    power: 20,
     cooldown: 5000,
     isCore: true,
     coreTheme: "void",

@@ -386,6 +386,7 @@
 	"run_stats.total_units_recruited": "Нанято юнитов",
 	"run_stats.seed": "Сид игры",
 	"run_stats.copy_seed": "Скопировать сид",
+	"run_stats.copied": "Скопировано",
 	"title.unlock_modal.confirm": "ПОДТВЕРДИТЬ",
 	"title.collection": "КОЛЛЕКЦИЯ",
 	"title.collection_modal.title": "КОЛЛЕКЦИЯ",

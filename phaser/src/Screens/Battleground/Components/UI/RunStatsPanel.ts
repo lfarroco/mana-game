@@ -72,6 +72,8 @@ export function createRunStatsPanel(
 				document.execCommand("copy");
 				document.body.removeChild(textarea);
 			}
+			// Flip the label so the player knows the seed landed on the clipboard.
+			copySeedButton.text.setText(i18n.t("run_stats.copied"));
 		},
 		width: 200,
 	});

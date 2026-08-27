@@ -284,8 +284,9 @@ with which new effect types they'd need (see
 >
 > ✅ **Void Crystal landed 2026-08-19 (CUB-G3)** as the `void` theme (added to
 > `CORE_THEMES`) with `void_crystal` (baseline `damage` + `decrease_power` on
-> the strongest enemy, power 40 / cooldown 5000; the sap was trimmed 15 → 10 to
-> stay inside the core AP band — basic-effect rule) and four identity orbs — Leech
+> the strongest enemy; the sap was trimmed 15 → 10 and the raw power 40 → 20 so
+> the 2-effect kit stays inside the other cores' baseline AP band — basic-effect
+> rule) and four identity orbs — Leech
 > (enemy heal → shield the crystal), Power Drain (`absorb_power`), Dispel (the
 > D2 status-stripper), and Weakness (ally basic cast → −5 power on the
 > strongest enemy). The disruption/power-theft crystal gives the D2 `dispel`

@@ -385,6 +385,7 @@
 	"run_stats.total_units_recruited": "雇用したユニット数",
 	"run_stats.seed": "シード",
 	"run_stats.copy_seed": "シードをコピー",
+	"run_stats.copied": "コピーしました",
 	"title.unlock_modal.confirm": "確認",
 	"title.collection": "コレクション",
 	"title.collection_modal.title": "コレクション",
