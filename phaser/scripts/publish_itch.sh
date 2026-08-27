@@ -145,21 +145,18 @@ fi
 echo ">>> Building production web build ..."
 (cd "$PHASER_DIR" && npm run build)
 
-# --- Version + notes ---
+# --- Version ---
 if [ -z "${ITCH_VERSION:-}" ]; then
     ITCH_VERSION=$(node -e \
         "console.log(JSON.parse(require('fs').readFileSync('$PHASER_DIR/package.json','utf8')).version)")
 fi
-GIT_SHA=$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || echo "unknown")
-NOTES="Mana Battle v${ITCH_VERSION} ($GIT_SHA)"
 
 echo ""
 echo ">>> Pushing phaser/dist -> $USER_GAME:$CHANNEL"
 echo "    version: $ITCH_VERSION"
-echo "    notes:   $NOTES"
 echo ""
 
-BUTLER_ARGS=(--userversion "$ITCH_VERSION" --notes "$NOTES")
+BUTLER_ARGS=(--userversion "$ITCH_VERSION")
 if [ "${ITCH_IF_CHANGED:-0}" = "1" ]; then
     BUTLER_ARGS+=(--if-changed)
 fi
