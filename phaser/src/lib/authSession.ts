@@ -34,10 +34,20 @@ export const AUTH_STORAGE_KEY = "mana_auth_session";
 /** Default game-server base URL; `MANA_SERVER_URL` (build-time env) overrides. */
 export const DEFAULT_SERVER_URL = "http://127.0.0.1:8787";
 
-/** Game-server base URL from the build-time define (fallback: localhost). */
+/**
+ * Game-server base URL from the build-time define (fallback: localhost).
+ *
+ * NOTE: this reads `process.env.MANA_SERVER_URL` directly — there must be NO
+ * `typeof process` / `process.env` guard here. webpack's DefinePlugin replaces
+ * this exact expression at build time with the baked string literal (see
+ * phaser/webpack/config.base.cjs), so no runtime `process` access ever happens
+ * in the browser bundle. A `typeof process` guard silently breaks browser
+ * builds: webpack 5 ships no `process`, so the ternary always fell through to
+ * the fallback and released clients pointed at 127.0.0.1:8787. Jest/Node
+ * contexts read the real environment — identical behavior to the old guard.
+ */
 export function readServerUrl(): string {
-	const fromEnv =
-		typeof process !== "undefined" && process.env ? process.env.MANA_SERVER_URL : undefined;
+	const fromEnv = process.env.MANA_SERVER_URL;
 	return fromEnv && fromEnv.trim() !== "" ? fromEnv : DEFAULT_SERVER_URL;
 }
 

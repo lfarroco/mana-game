@@ -262,7 +262,7 @@ one-time `.env` contents and cloud-firewall configuration):
    | `MANA_STEAM_APP_IDS` | default `3757600,4233280` |
    | `MANA_STEAM_API_URL` | default `https://api.steampowered.com/...` (standard key); set to the partner endpoint only when using a publisher key |
    | `MANA_ITCH_ENABLED` | `true` if the itch.io web build should log in (`POST /auth/itch`) |
-   | `MANA_CORS_ORIGIN` | e.g. `https://lfarroco.itch.io` for the web build |
+   | `MANA_CORS_ORIGIN` | `https://html-classic.itch.zone,https://lfarroco.itch.io` for the web build (the embedded game fetches from the iframe origin `https://html-classic.itch.zone`) |
    | `MANA_SERVER_PORT` | host port, default `8787` |
 
    > **Gotcha:** the server container only receives the vars whitelisted in

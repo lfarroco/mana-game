@@ -153,8 +153,8 @@ Full spec: [itchio-auth.md](itchio-auth.md). The web build uses itch.io's OAuth 
 **Client** (`phaser/src/lib/itchAuth.ts`, browser only):
 
 1. Clicking MULTIPLAYER calls `itchAuth.loginWithItch()`; it first reuses a stored server session (itch OAuth keys are long-lived — no popup on repeat visits).
-2. Otherwise it opens a popup to `https://itch.io/user/oauth?client_id=…&scope=profile%3Ame&response_type=token&redirect_uri=<game page>&state=<nonce>` (synchronously within the click gesture — popup-blocker requirement).
-3. itch redirects back to the game page with the token in the URL hash (`#access_token=…&state=…`). The page's boot capture (`main.ts` → `handleOAuthCallbackIfPresent`) posts the token to the opener over same-origin `postMessage` (verifying the `state` nonce) and closes; a blocked popup falls back to a top-level redirect whose return is stashed at boot.
+2. Otherwise it opens a popup to `https://itch.io/user/oauth?client_id=…&scope=profile%3Ame&response_type=token&redirect_uri=<page that runs the game>&state=<nonce>` (synchronously within the click gesture — popup-blocker requirement). `<page that runs the game>` = `window.location.origin + window.location.pathname`; on the live itch.io embed that is the **iframe's direct URL** (`https://html-classic.itch.zone/html/…`), which must be registered as a redirect URI in the OAuth app — a missing registration surfaces as itch.io's "invalid redirect URI" (see itchio-auth.md).
+3. itch redirects back to that page with the token in the URL hash (`#access_token=…&state=…`). The page's boot capture (`main.ts` → `handleOAuthCallbackIfPresent`) posts the token to the opener over same-origin `postMessage` (verifying the `state` nonce) and closes; a blocked popup falls back to a top-level redirect whose return is stashed at boot.
 4. `POST /api/v1/auth/itch` with `{ token }`, then persist the issued `{ token, player }` via the shared `authSession` store (`mana_auth_session`).
 
 **Server** (`server/src/services/itchAuth.ts`):

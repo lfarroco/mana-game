@@ -188,7 +188,7 @@ itch.io browser players log in via the itch.io OAuth popup (see
 |---|---|---|
 | `MANA_ITCH_CLIENT_ID` | `phaser/` web build (webpack DefinePlugin) | Public itch.io OAuth client id; empty → browser multiplayer shows "itch auth not configured" |
 | `MANA_ITCH_ENABLED` | `server/` | `true` registers `POST /api/v1/auth/itch` (default `false`) |
-| `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io game-page origin in production (e.g. `https://lfarroco.itch.io`) |
+| `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io origins in production: `https://html-classic.itch.zone` (the game iframe origin — what the embedded game sends) and `https://lfarroco.itch.io`, comma-separated |
 | `MANA_SERVER_URL` | `phaser/` web + Electron builds (webpack DefinePlugin) | Game-server base URL (default `http://127.0.0.1:8787`) |
 
 Steam (Electron) auth needs `MANA_STEAM_WEB_API_KEY` (server secret) plus the

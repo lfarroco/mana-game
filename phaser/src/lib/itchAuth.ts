@@ -157,12 +157,35 @@ export type ItchAuthDeps = {
 	popupTimeoutMs: number;
 };
 
+/**
+ * Itch.io OAuth client id baked in at build time by webpack's DefinePlugin
+ * (phaser/webpack/config.base.cjs; empty when unset).
+ *
+ * NOTE: this reads `process.env.MANA_ITCH_CLIENT_ID` directly — there must be
+ * NO `typeof process` / `process.env` guard here, for the same reason as
+ * `readServerUrl()` in authSession.ts: DefinePlugin replaces this exact
+ * expression with the baked string literal, so no runtime `process` access
+ * happens in the browser. A `typeof process` guard breaks browser builds
+ * (webpack 5 ships no `process`), making the ternary fall through to "" — the
+ * "itch auth not configured" bug that broke browser multiplayer on the live
+ * page despite the client id being present in the bundle.
+ */
 function readClientId(): string {
-	return typeof process !== "undefined" && process.env
-		? (process.env.MANA_ITCH_CLIENT_ID ?? "")
-		: "";
+	return process.env.MANA_ITCH_CLIENT_ID ?? "";
 }
 
+/**
+ * Redirect URI the OAuth popup returns to — the page where the game code runs,
+ * i.e. `window.location.origin + window.location.pathname` (never the query or
+ * hash: `?secret=` / `#access_token=` must not leak into it). itch.io requires
+ * this value to be registered verbatim as a redirect URI of the OAuth app
+ * (docs/itchio-auth.md). NOTE: on the live itch.io embed the game runs inside
+ * an iframe at the direct game URL
+ * (`https://html-classic.itch.zone/html/<game>/<upload>/index.html`), so that
+ * URL — NOT the itch.io game-page URL — is what this produces and what must be
+ * registered. Missing it surfaces as itch.io's "invalid redirect URI" on the
+ * popup (hit live 2026-08-27; fixed by registering the embed URL).
+ */
 function readRedirectUri(): string {
 	if (typeof window === "undefined") return "";
 	return window.location.origin + window.location.pathname;

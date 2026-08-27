@@ -124,6 +124,51 @@ The test drives a full single-player run through `window.__debug`
   is committed with a now-meaningless publishable anon key). Delete when
   convenient.
 
+### 7. 🔴 Browser multiplayer env-guard bug — FIXED (DefinePlugin gotcha)
+
+The first itch.io web release (`make itch-publish`, 2026-08-27) worked as a
+single-player game, but multiplayer failed with **"itch auth not configured —
+set MANA_ITCH_CLIENT_ID"** even though the client id WAS present in the
+bundle.
+
+Root cause: `readClientId()` (`phaser/src/lib/itchAuth.ts`) and
+`readServerUrl()` (`phaser/src/lib/authSession.ts`) read the build-time
+defines behind a `typeof process !== "undefined" && process.env` guard.
+webpack's `DefinePlugin` replaces `process.env.X` with the baked string
+literal, but it does **not** replace `typeof process` — and webpack 5 ships no
+`process` in the browser, so the guard always evaluated to `false` and both
+readers returned their fallbacks (`""` / `http://127.0.0.1:8787`). Electron
+(Steam) was unaffected because `process` exists there.
+
+Fixed by reading `process.env.MANA_SERVER_URL` / `process.env.MANA_ITCH_CLIENT_ID`
+**directly** — DefinePlugin substitutes the literal at build time, so no
+runtime `process` access occurs in the browser; Jest/Node read the real env.
+Added `phaser/src/lib/authSession.test.ts` (readServerUrl behavior) and
+verified the rebuilt bundle contains the baked values unconditionally.
+**Action for the author: re-run `make itch-publish` to ship the fixed build,
+then finish the D3 in-browser smoke test (docs/itchio-auth.md).**
+
+### 8. 🔴 Browser multiplayer "invalid redirect URI" — FIXED (OAuth app registration)
+
+The rebuilt web build got past the env-guard bug, but the OAuth popup now showed
+itch.io's **"invalid redirect URI"**. The popup URL carried
+`redirect_uri=https://html-classic.itch.zone/html/18978979-1920401/index.html`, but the
+itch.io OAuth app ("Mana Battle Multiplayer", client
+`f20213f3887151a962afac88d0145c57`) only had the game-page URL
+`https://lfarroco.itch.io/mana-battle` registered.
+
+Root cause: the game runs **inside an iframe** on the embed, so `window.location` (and
+the client's `readRedirectUri()`, which builds `origin + pathname`) is the **direct game
+URL** on `html-classic.itch.zone` — not the itch.io page URL. itch.io rejects redirect
+URIs that aren't registered verbatim.
+
+Fix (in the itch.io OAuth app settings, `https://itch.io/settings/oauth`): register
+`https://html-classic.itch.zone/html/18978979-1920401/index.html` as a redirect URI.
+No client change needed. Also note the embedded game's API calls carry
+`Origin: https://html-classic.itch.zone` — keep `MANA_CORS_ORIGIN` allowing it (the VM
+runs `*`, which is fine; don't lock it down to the game-page origin).
+**Action for the author: register the embed URL, then re-run the D3 smoke test.**
+
 ## Other notes
 
 - `compose.yaml` defaults `MANA_NODE_ENV=development` — set `production` on the
