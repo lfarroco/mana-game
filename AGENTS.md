@@ -102,6 +102,7 @@ Detailed docs live in `docs/`. Each covers a specific system:
 - [purity-boundary.md](docs/purity-boundary.md): Pure logic boundary, replay-critical import rules
 - [storage-system.md](docs/storage-system.md): Provider pattern, Steam Cloud, localStorage
 - [audio-system.md](docs/audio-system.md): Music, SFX, cooldowns, user preferences
+- [awaken.md](docs/awaken.md): The Awaken mechanic — bronze→gold promotions route into a special phase where the player picks one of three reactions to permanently add to the unit
 - [ui-system.md](docs/ui-system.md): UI components, event handling, layout management
 - [encounter-system.md](docs/encounter-system.md): Encounter generation, shop flow, phase structure — how the 15 encounter types filter, price, and sequence card/orb acquisition between combats
 - [effect-system.md](docs/effect-system.md): Visual effect pipeline, particles, and combat integration

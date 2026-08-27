@@ -79,15 +79,6 @@ export const AwakenPhase = (_ctx: BGContext) => {
 	})();
 
 	// ── Choice UI ─────────────────────────────────────────────────────
-	const dim = env.scene.add.rectangle(
-		Constants.SCREEN_WIDTH / 2,
-		Constants.SCREEN_HEIGHT / 2,
-		Constants.SCREEN_WIDTH,
-		Constants.SCREEN_HEIGHT,
-		0x000000,
-		0.45
-	);
-
 	const title = env.scene.add
 		.text(Constants.SCREEN_WIDTH / 2, 120, i18n.t("awaken.title"), Constants.titleTextConfig)
 		.setOrigin(0.5);
@@ -163,5 +154,5 @@ export const AwakenPhase = (_ctx: BGContext) => {
 		})
 		.filter((card): card is NonNullable<typeof card> => card !== null);
 
-	return [dim, title, prompt, ...cards];
+	return [title, prompt, ...cards];
 };
