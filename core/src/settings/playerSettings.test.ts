@@ -11,7 +11,7 @@ describe("PlayerSettings", () => {
       musicVolume: 0.4,
       masterVolume: 1,
       debug: false,
-      speed: 4,
+      speed: 1.5,
       particles: "medium",
       compactTooltips: false,
     });

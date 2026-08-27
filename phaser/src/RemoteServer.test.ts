@@ -90,6 +90,15 @@ function createCombatStateDto(): CombatStateDto {
 }
 
 describe("RemoteServer HTTP adapter", () => {
+	// These tests assert the documented `DEFAULT_SERVER_URL` (localhost) fallback
+	// used when no serverUrl is injected. The itch publish script exports
+	// MANA_SERVER_URL for the webpack build step, which would otherwise leak in
+	// and redirect the expected URL to the production server — clear it so the
+	// tests are hermetic regardless of how they're invoked.
+	beforeAll(() => {
+		delete process.env.MANA_SERVER_URL;
+	});
+
 	it("creates a session via POST /sessions with crystalId + bearer auth and no client seed", async () => {
 		const sessionBody = createSessionData();
 		const fetchMock = createFetchMock(201, sessionBody);

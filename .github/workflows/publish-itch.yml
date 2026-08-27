@@ -24,6 +24,12 @@ jobs:
 
       - name: Build Web Version
         working-directory: ./phaser
+        env:
+          # Release builds must bake these — without them the shipped build
+          # points multiplayer at 127.0.0.1:8787. See release-audit.md #1.
+          # Override via repo secrets; defaults match the live production values.
+          MANA_SERVER_URL: ${{ secrets.MANA_SERVER_URL || 'https://api.manabattle.com' }}
+          MANA_ITCH_CLIENT_ID: ${{ secrets.MANA_ITCH_CLIENT_ID }}
         run: npm run build
 
       - name: Deploy to itch.io

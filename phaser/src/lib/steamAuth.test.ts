@@ -62,6 +62,15 @@ describe("steamAuth client", () => {
 	// Login tests stub the preload hook availability; jsdom has no window.auth.
 	const steamAvailable = () => true;
 
+	// These tests assert the documented `DEFAULT_SERVER_URL` (localhost) fallback
+	// used when no serverUrl is injected. The itch publish script exports
+	// MANA_SERVER_URL for the webpack build step, which would otherwise leak in
+	// and redirect the expected URL to the production server — clear it so the
+	// tests are hermetic regardless of how they're invoked.
+	beforeAll(() => {
+		delete process.env.MANA_SERVER_URL;
+	});
+
 	it("logs in via POST /api/v1/auth/steam and persists the session", async () => {
 		const storage = createMemoryStorage();
 		const fetchMock = createFetchMock();

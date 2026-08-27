@@ -91,6 +91,7 @@ npx jest src/path/ToFile.test.ts --runInBand
 | `make android-open`       | Open project in Android Studio                              |
 | `make steam-publish`      | Upload build to Steam                                       |
 | `make steam-publish-demo` | Upload demo build to Steam                                  |
+| `make itch-publish`       | Build web build + upload to itch.io via butler (no dashboard) |
 | `make server-dev`         | `cd server && npm run dev`                                  |
 | `make server-test`        | `cd server && npm test`                                     |
 | `make server-typecheck`   | `cd server && npm run typecheck`                            |
@@ -123,6 +124,38 @@ MANA_SERVER_URL=https://api.manabattle.com MANA_ITCH_CLIENT_ID=f20213f3887151a96
 
 Creates an optimized production build in the `dist` directory (this is the
 artifact uploaded to itch.io).
+
+### itch.io upload (automated)
+
+```bash
+make itch-publish
+```
+
+Builds the production web build and pushes it to itch.io with **butler** — no
+upload dashboard needed. Under the hood: `phaser/scripts/publish_itch.sh` (the
+target above is a thin wrapper).
+
+- **Runner**: a host `butler` if installed — otherwise a small `mana-butler`
+  Docker image built from `phaser/scripts/butler.Dockerfile` (auto-built on
+  first use; **nothing is installed on the host**). Force Docker even when
+  butler is installed with `ITCH_BUTLER=docker`. Build the image explicitly
+  with `make itch-butler-image`.
+- **Credentials**: `butler login` once (host mode), or set
+  `MANA_BUTLER_API_KEY` in the root `.env` (an API key with source `wharf`
+  from <https://itch.io/user/settings/api-keys>). **Docker mode requires the
+  key** — the container has no cached login.
+- The script reads the root `.env` (safe parse — it only extracts
+  `MANA_SERVER_URL`, `MANA_ITCH_CLIENT_ID`, `MANA_BUTLER_API_KEY`, so the
+  Make-flavored lines in that file are ignored) and defaults the first two to
+  the production values, so the pushed build always has working multiplayer.
+- Pushes `dist/` to the **`html5`** channel of `lfarroco/mana-battle`
+  (the "play in browser" page). Same-channel pushes **update** the existing
+  upload, and butler only uploads the changed blocks. The **first push
+  creates the `html5` channel** — if the page already has uploads made via
+  the dashboard, delete the stale one(s) from the Edit Game page afterwards.
+- Overrides: `ITCH_USER_GAME`, `ITCH_VERSION`, `ITCH_IF_CHANGED=1`
+  (skip no-op pushes), `MANA_SKIP_CHECKS=1` (skip pre-push
+  `test:unit` + `typecheck`).
 
 ### Desktop Build
 

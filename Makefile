@@ -15,7 +15,7 @@ CONTAINER_NAME=mana-server
 -include .env
 export
 
-.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary cloud-deploy cloud-setup cloud-logs cloud-db-download cloud-db cloud-db-summary
+.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary cloud-deploy cloud-setup cloud-logs cloud-db-download cloud-db cloud-db-summary
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -79,6 +79,20 @@ steam-publish:
 
 steam-publish-demo:
 	./$(STEAM_DIR)/scripts/publish_steam_demo.sh
+
+# Build the production web build and push it to itch.io via butler
+# (phaser/scripts/publish_itch.sh) — no upload dashboard needed. Exports the
+# root .env (already done above). Uses a host `butler` if installed, otherwise
+# runs butler in the `mana-butler` Docker image (auto-built from
+# phaser/scripts/butler.Dockerfile — nothing installed on the host). Docker
+# mode needs MANA_BUTLER_API_KEY in .env. See docs/building-and-running.md §itch.io.
+itch-publish:
+	./phaser/scripts/publish_itch.sh
+
+# Build (or refresh) the butler Docker image used by `make itch-publish` when
+# butler is not installed on the host.
+itch-butler-image:
+	docker build -t mana-butler -f phaser/scripts/butler.Dockerfile phaser/scripts
 
 
 

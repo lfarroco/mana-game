@@ -57,12 +57,12 @@ describe("OptionsStore boot", () => {
 
 		const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)!) as PlayerSettings;
 		expect(stored).toEqual(defaultSettings());
-		// The game-speed default (from ClientState.defaultSettings) is 4.
-		expect(stored.speed).toBe(4);
+		// The game-speed default (from ClientState.defaultSettings) is 1.5.
+		expect(stored.speed).toBe(1.5);
 		expect(getSettings()).toEqual(defaultSettings());
 		expect(mockEnv.state.settings).toEqual(defaultSettings());
-		expect(mockEnv.scene.time.timeScale).toBe(4);
-		expect(mockEnv.scene.tweens.timeScale).toBe(4);
+		expect(mockEnv.scene.time.timeScale).toBe(1.5);
+		expect(mockEnv.scene.tweens.timeScale).toBe(1.5);
 	});
 
 	it("keeps existing saved options instead of overwriting them on boot", async () => {
