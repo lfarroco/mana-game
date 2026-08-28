@@ -136,6 +136,9 @@ export default (clientState: ClientState) =>
 			this.load.image("yellow-stone", "assets/yellow-stone.png");
 			this.load.image("green-stone", "assets/green-stone.png");
 			this.load.image("purple-stone", "assets/purple-stone.png");
+			this.load.image("healing-stone", "assets/healing-stone.png");
+			this.load.image("rocky-stone", "assets/rocky-stone.png");
+			this.load.image("void-stone", "assets/void-stone.png");
 		}
 
 		loadAudioAssets() {

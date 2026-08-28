@@ -46,7 +46,7 @@ export const CORE_CARDS: Models.CardDefinition[] = [
   },
   {
     id: "protective_crystal",
-    pic: "yellow-stone",
+    pic: "rocky-stone",
     life: 600,
     power: 35,
     cooldown: 4500,
@@ -117,7 +117,7 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     // crystal that retaliates when it takes a hit. The tankiest crystal — the
     // only one with 550 life — because its identity is "punish whoever dares
     // to hit you": every thorns-family identity orb reacts on_crystal_hit.
-    pic: "green-stone",
+    pic: "healing-stone",
     life: 550,
     power: 40,
     cooldown: 5000,
@@ -135,7 +135,7 @@ export const CORE_CARDS: Models.CardDefinition[] = [
     // was trimmed 15 → 10 and the raw power 40 → 20 so the 2-effect kit stays
     // inside the other cores' baseline AP band (~62–85): at 20 it prices to
     // ~80 AP, matching growth_crystal.
-    pic: "purple-stone",
+    pic: "void-stone",
     life: 500,
     power: 20,
     cooldown: 5000,
