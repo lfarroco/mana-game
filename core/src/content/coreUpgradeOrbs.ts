@@ -260,12 +260,17 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     effect: increasePower(5, self, true),
   },
 
-  // --- poison theme (purple_crystal): Slow Enemy, Slow Power, Poison Power, Re-Slow Drain ---
-  poison_slow_enemy: {
-    id: "poison_slow_enemy",
+  // --- poison theme (purple_crystal): Slow Power, Poison Power, Re-Slow Drain ---
+  // (The former `poison_slow_enemy` effect orb moved into purple_crystal's
+  // baseline in the 2026-08-28 basic-crystal balance pass — slow(1000,
+  // randomEnemy) is now the crystal's simple action. Its replacement is
+  // `poison_re_slow_haste`: allies who re-slow hand out haste, a fresh tempo
+  // angle for the poison pool.)
+  poison_re_slow_haste: {
+    id: "poison_re_slow_haste",
     theme: "poison",
-    kind: "effect",
-    effect: slow(1000, randomEnemy(1)),
+    kind: "reaction",
+    reaction: reaction("re_slow", "allies", haste(500, randomAlly(1))),
   },
   poison_slow_power: {
     id: "poison_slow_power",

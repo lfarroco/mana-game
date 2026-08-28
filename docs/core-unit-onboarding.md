@@ -8,10 +8,13 @@
 Core units ("crystals") are the first unit the player picks and the anchor of
 their playstyle. Each carries an implicit **theme** (its signature action family —
 a basic-effect type for most cores; `quickstone` leads with `haste`). Today each
-core ships with **two effects + one reaction** — a lot of conditional
-language (`left_ally`, `row_allies`, `column`) for the first card a new player
-reads. This document describes the plan to make cores simpler at the start and
-move their depth into **theme-scoped upgrade orb events** the player chooses over
+core ships with **two effects + zero reactions** — one basic action (the absolute
+basic-effect rule, docs/unit-balance.md §14) plus one simple, direct action
+(haste / slow / power deltas / a second basic) that fits its theme — so the first
+card a new player reads stays short and every starting kit is unique (the
+2026-08-28 basic-crystal balance pass normalized all 9 cores to ~100 AP, removing
+the old single-effect duplicates such as heal-only × 2 and shield-only × 2).
+Their depth lives in **theme-scoped upgrade orb events** the player chooses over
 the run.
 
 ---
@@ -20,10 +23,11 @@ the run.
 
 | #   | Decision                                                                                                                                            |
 | :-- | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Simpler at start is better.** Baseline core = at least one basic effect + stats. The secondary buff and the reaction move into the themed upgrade pool.    |
+| 1   | **Simpler at start is better.** Baseline core = one basic effect + one simple action (haste / slow / power deltas / a second basic) + stats, and **no reactions** — crystals must stay simple. The secondary buffs and reactions move into the themed upgrade pool.    |
 | 2   | **Enemies use the same simplified cores.** Difficulty is restored by scaling enemy power/life by round in `generateEnemyTeam.ts`.                   |
 | 3   | **Cores get a higher AP ceiling.** A separate core AP band (not the bronze `[80, 160]` band) — cores are allowed to be stronger than regular units. |
 | 4   | **`quickstone` keeps `haste` as its theme** and pairs it with `regen` in the baseline — the absolute basic-effect rule (every unit, cores included, needs ≥ 1 `damage`/`heal`/`shield`/`poison`/`regen` effect, docs/unit-balance.md §14) requires a basic effect even on cores, so `regen` (quickstone's historical "refresh" partner) stays in the kit and is dropped from the identity-orb pool. |
+| 5   | **Basic + simple kits (2026-08-28).** Every core ships exactly two effects — one basic action plus one theme-fitting simple action — and all 9 cores are stat-normalized to ~100 AP per 5s (`content/coreUpgrades.balance.test.ts`), so no starting kit is a strict duplicate of another. |
 
 ---
 
@@ -44,42 +48,43 @@ coreTheme?: CoreTheme;
 ```
 
 Each core's `coreTheme` names its **signature action family** (a basic-effect
-type for five cores; `haste` for `quickstone`). After the baseline change
-(decision 4), the six original themes map 1:1 to six distinct action types:
+type for five cores; `haste` for `quickstone`). Since the 2026-08-28 balance pass
+every core's baseline is exactly **one basic action + one simple action**:
 
-| Core                 | `coreTheme` | Baseline action |
-| :------------------- | :---------- | :-------------- |
-| `mana_crystal`       | `regen`     | regen           |
-| `critical_crystal`   | `damage`    | damage          |
-| `protective_crystal` | `shield`    | shield          |
-| `growth_crystal`     | `heal`      | heal            |
-| `purple_crystal`     | `poison`    | poison          |
-| `quickstone`         | `haste`     | regen + haste (row)     |
+| Core                 | `coreTheme` | Basic action | Simple action            |
+| :------------------- | :---------- | :----------- | :----------------------- |
+| `mana_crystal`       | `regen`     | regen        | +5 power to column       |
+| `critical_crystal`   | `damage`    | damage       | slow strongest enemy 1s  |
+| `protective_crystal` | `shield`    | shield       | +5 power to row          |
+| `growth_crystal`     | `heal`      | heal         | +4 power to self         |
+| `purple_crystal`     | `poison`    | poison       | slow random enemy 1s     |
+| `quickstone`         | `haste`     | regen        | haste row 1s             |
 
 > Note: the absolute basic-effect rule (docs/unit-balance.md §14) requires every
 > unit — cores included — to carry at least one `damage`/`heal`/`shield`/`poison`/
-> `regen` effect, so some cores pair their theme with a basic-type support effect
-> (e.g. `quickstone` pairs `haste` with `regen`). Core _themes_ stay 1:1 with
-> action families; the rule only guarantees a basic effect on every unit, not
+> `regen` effect, so a support-themed core pairs its theme action with a basic
+> effect (e.g. `quickstone` pairs `haste` with `regen`). Core _themes_ stay 1:1
+> with action families; the rule only guarantees a basic effect on every unit, not
 > that each basic type appears on exactly one core.
 
 ---
 
 ## 3. Baseline cores (simplified)
 
-Each core is reduced to a minimal kit — at least one basic effect plus its theme
-action. Everything else moves into the themed upgrade pool (§4). Stats
-(life/power/cooldown) stay as-is in the first pass;
-enemy scaling (§6) absorbs the early-power gap.
+Each core ships a minimal two-effect kit — one basic effect plus its theme's
+simple action (2026-08-28 balance pass). Stat lines are normalized so every core
+prices to ~100 AP per 5s (`content/coreUpgrades.balance.test.ts`), removing the
+old single-effect duplicates. Everything else moves into the themed upgrade pool
+(§4); enemy scaling (§6) absorbs the early-power gap.
 
-| Core                 | Baseline effects     | Removed → becomes an identity orb                                                           |
-| :------------------- | :------------------- | :------------------------------------------------------------------------------------------ |
-| `mana_crystal`       | `[regen]`            | `increasePower(10, column)`; reaction `damage ← left_ally → charge(self)`                   |
-| `critical_crystal`   | `[damage]`           | `increaseCritical(5, column)`; reaction `all ← row_allies → +5 power (column)`              |
-| `protective_crystal` | `[shield]`           | `increasePower(5, randomAlly, permanent)`; reaction `all ← row_allies → +5 power (trigger)` |
-| `growth_crystal`     | `[heal]`             | `increasePower(2, column, permanent)`; reaction `all ← row_allies → +5 power (trigger)`     |
-| `purple_crystal`     | `[poison]`           | `slow(1000, randomEnemy)`; reaction `slow ← allies → +4 power (trigger, permanent)`         |
-| `quickstone`         | `[regen, haste(1000, row)]` | reaction `haste ← right_ally → charge(200, column)`                                |
+| Core                 | Baseline effects (basic + simple)             | Removed → becomes an identity orb                                                                                 |
+| :------------------- | :-------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| `mana_crystal`       | `[regen, increasePower(5, column)]`           | `increasePower(10, column)` (baseline upgrade); reaction `damage ← left_ally → charge(self)`                      |
+| `critical_crystal`   | `[damage, slow(1000, strongestEnemy)]`        | `increaseCritical(5, column)`; reaction `all ← row_allies → +5 power (column)`                                    |
+| `protective_crystal` | `[shield, increasePower(5, row)]`             | `increasePower(5, randomAlly, permanent)`; reaction `all ← row_allies → +5 power (trigger)`                       |
+| `growth_crystal`     | `[heal, increasePower(4, self)]`              | `increasePower(2, column, permanent)`; reaction `all ← row_allies → +5 power (trigger)`                           |
+| `purple_crystal`     | `[poison, slow(1000, randomEnemy)]`           | `slow(1000, randomEnemy)` moved to baseline (2026-08-28), replaced by `poison_re_slow_haste`; reaction `slow ← allies → +4 power (trigger, permanent)` |
+| `quickstone`         | `[regen, haste(1000, row)]`                   | reaction `haste ← right_ally → charge(200, column)`                                                              |
 
 ---
 
@@ -263,8 +268,10 @@ with which new effect types they'd need (see
 | **Verdant Crystal**  | thorns / revenge         | shield                           | Thorns (`on_crystal_hit → reflect`); Retaliation (enemy damage → +power)                                                                      | `on_crystal_hit` (C2)                         |
 
 > ✅ **Radiant Crystal landed 2026-08-19 (CUB-G1)** as the `overflow` theme
-> (added to `CORE_THEMES`) with `radiant_crystal` (baseline `heal`, power 40 /
-> cooldown 5000) and four identity orbs: Overflow Shield, Overflow Burst
+> (added to `CORE_THEMES`) with `radiant_crystal` (baseline `heal` + self-haste —
+> the 2026-08-28 balance pass added `haste(1000, self)` so the crystal pulses
+> faster, feeding its overflow identity — power 43 / cooldown 5000) and four
+> identity orbs: Overflow Shield, Overflow Burst
 > (`on_over_heal → damage`), Saturation, and Overflow Charge. Its theme is the
 > first non-basic-action identity theme — the overflow family is still
 > heal-based, but its orb pool is scoped separately from `growth_crystal`'s
@@ -272,8 +279,10 @@ with which new effect types they'd need (see
 > power weakest ally, permanent`), Overflow Haste, and Overflow Slow.
 >
 > ✅ **Verdant Crystal landed 2026-08-19 (CUB-G2)** as the `thorns` theme
-> (added to `CORE_THEMES`) with `verdant_crystal` (baseline `shield`, power 40 /
-> cooldown 5000, the tankiest crystal at 550 life) and four identity orbs —
+> (added to `CORE_THEMES`) with `verdant_crystal` (baseline `shield` + `damage` —
+> the 2026-08-28 balance pass gave it a second basic action as the closest a
+> no-reaction kit gets to its retaliate identity — power 28 / cooldown 5000, the
+> tankiest crystal at 550 life) and four identity orbs —
 > Thorns (`on_crystal_hit → damage` reflect), Thorn Shield (`on_crystal_hit →
 > shield`), Retaliation (`on_crystal_hit → +5 power`), Vengeful Charge
 > (`on_crystal_hit → charge random ally`). It reuses the C2 `on_crystal_hit`
@@ -283,10 +292,10 @@ with which new effect types they'd need (see
 > permanent`), Thorn Slow, and Thorn Haste.
 >
 > ✅ **Void Crystal landed 2026-08-19 (CUB-G3)** as the `void` theme (added to
-> `CORE_THEMES`) with `void_crystal` (baseline `damage` + `decrease_power` on
-> the strongest enemy; the sap was trimmed 15 → 10 and the raw power 40 → 20 so
-> the 2-effect kit stays inside the other cores' baseline AP band — basic-effect
-> rule) and four identity orbs — Leech
+> `CORE_THEMES`) with `void_crystal` (baseline `damage` + `decrease_power(10)` on
+> the strongest enemy; the 2026-08-28 balance pass normalized its power 20 → 30
+> so the 2-effect kit prices to ~100 AP like the other cores) and four identity
+> orbs — Leech
 > (enemy heal → shield the crystal), Power Drain (`absorb_power`), Dispel (the
 > D2 status-stripper), and Weakness (ally basic cast → −5 power on the
 > strongest enemy). The disruption/power-theft crystal gives the D2 `dispel`
