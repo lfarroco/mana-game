@@ -56,6 +56,7 @@ export const handleHasteCast = (
 };
 
 export const handleSlowCast = (log: CombatLogger.SlowCastEntry, _playbackState: PlaybackState) => {
+	AudioManager.playSoundEffect("sfx_spell_icepillar");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
@@ -159,6 +160,7 @@ export const handleSilenceCast = (
 	log: CombatLogger.SilenceCastEntry,
 	_playbackState: PlaybackState
 ) => {
+	AudioManager.playSoundEffect("sfx_spell_voidwalk");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {
@@ -194,6 +196,7 @@ export const handleDispelCast = (
 	log: CombatLogger.DispelCastEntry,
 	_playbackState: PlaybackState
 ) => {
+	AudioManager.playSoundEffect("sfx_spell_bladebreaker");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	Effects.arcaneMissileTargeted([source.x, source.y], [target.x, target.y], {

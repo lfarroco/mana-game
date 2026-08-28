@@ -33,6 +33,7 @@ import { buildRunCompleteSession, type RunCompleteOptions } from "@game/session/
 import { BattlegroundEvent } from "../Events";
 import { getScreenManager } from "../Screens/ScreenManager";
 import { dispatchAction } from "../Screens/Battleground/BattlegroundScreen";
+import { encounterActionFor } from "../Screens/Battleground/Phases/Encounter/encounterActions";
 import { purchaseShopUnit } from "../Screens/Battleground/Phases/Shop/purchaseShopUnit";
 import { startNewGame } from "../Screens/CrystalSelection/Effects";
 
@@ -150,8 +151,10 @@ const selectOption = async (index: number): Promise<void> => {
 		return;
 	}
 
-	// encounter / pre_combat / upgrade_core / add_reaction_core
-	await dispatchAction({ type: "select_encounter", encounterId: option.id });
+	// encounter / pre_combat / upgrade_core / add_reaction_core.
+	// The pre_combat combat-start card maps to the `start_combat` action so the
+	// multiplayer server runs matchmaking (see encounterActions.ts).
+	await dispatchAction(encounterActionFor(option.id));
 };
 
 const skip = async (): Promise<void> => {

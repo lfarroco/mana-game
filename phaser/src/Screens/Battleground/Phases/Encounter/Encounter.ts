@@ -5,6 +5,7 @@ import * as EncounterCard from "@Components/EncounterCard";
 import { ENCOUNTERS } from "@game/content/encounters";
 import { env } from "@Env";
 import { dispatchAction, BGContext } from "../../BattlegroundScreen";
+import { encounterActionFor } from "./encounterActions";
 
 // Encounter card display layout constants
 const ENCOUNTER_CARD_WIDTH = 700;
@@ -75,10 +76,7 @@ export const encounterPhase =
 
 			disableInteraction = true;
 
-			dispatchAction({
-				type: "select_encounter",
-				encounterId: id,
-			});
+			dispatchAction(encounterActionFor(id));
 		};
 
 		const cards = options.map((encounter, index) => {

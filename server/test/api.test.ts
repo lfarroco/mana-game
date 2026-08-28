@@ -49,6 +49,27 @@ const steamFetch = (async (url: string) => {
   } as unknown as Response;
 }) as typeof fetch;
 
+/** A valid itch.io OAuth token for the cross-provider matchmaking test. */
+const ITCH_TOKEN_P2 = "itch-token-player";
+
+/** Mock itch.io profile API: the valid token resolves to a distinct itch account. */
+const itchFetch = (async (_url: string, init?: RequestInit) => {
+  const headers = init?.headers as Record<string, string> | undefined;
+  const token = (headers?.["Authorization"] ?? "").replace(/^Bearer\s+/i, "");
+  if (token === ITCH_TOKEN_P2) {
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ user: { id: 9001, username: "ItchPlayer" } }),
+    } as unknown as Response;
+  }
+  return {
+    ok: false,
+    status: 401,
+    json: async () => ({}),
+  } as unknown as Response;
+}) as typeof fetch;
+
 let repo: SessionRepo;
 let ghostRepo: GhostRepo;
 let ratingRepo: RatingRepo;
@@ -64,6 +85,8 @@ beforeEach(() => {
     ratingRepo,
     steam: { webApiKey: KEY, appIds: APP_IDS },
     steamFetch,
+    itch: true,
+    itchFetch,
   });
 });
 
@@ -77,6 +100,18 @@ async function login(
   const res = await request(app)
     .post("/api/v1/auth/steam")
     .send({ ticket, identity: STEAM_IDENTITY, appId: 3757600 });
+  expect(res.status).toBe(200);
+  return {
+    token: res.body.token as string,
+    playerId: res.body.player.playerId as string,
+  };
+}
+
+/** Login through the real itch.io auth endpoint (mocked profile API). */
+async function loginItch(
+  token: string = ITCH_TOKEN_P2,
+): Promise<{ token: string; playerId: string }> {
+  const res = await request(app).post("/api/v1/auth/itch").send({ token });
   expect(res.status).toBe(200);
   return {
     token: res.body.token as string,
@@ -436,6 +471,56 @@ describe("POST /api/v1/sessions/current/actions", () => {
     expect(ghosts[0].playerId).toBe(playerId);
     expect(ghosts[0].team.length).toBeGreaterThan(0);
     expect(ghosts[0].team.every((unit) => unit.force === "CPU")).toBe(true);
+  });
+
+  it("matches players against each other via the ghost pool — cross-provider (steam vs itch)", async () => {
+    // Steam player fights first: no ghosts yet → PvE fallback, and the run's
+    // round-1 team is snapshotted as a ghost for other players to fight.
+    const steam = await login(TICKET_P1);
+    await createAndSkipToPreCombat(steam.token);
+    const steamCombat = await request(app)
+      .post("/api/v1/sessions/current/actions")
+      .set("Authorization", `Bearer ${steam.token}`)
+      .send({ action: { type: "start_combat" } });
+    expect(steamCombat.status).toBe(200);
+    expect(steamCombat.body.combatState.enemyPlayerName).toBe(PVE_ENEMY_NAME);
+
+    // itch player runs next at the same round → the Steam player's ghost is
+    // the only non-self candidate (both default-rating 1000, same round).
+    // Matchmaking has no provider filter, so itch vs Steam PvP resolves.
+    const itch = await loginItch();
+    await createAndSkipToPreCombat(itch.token);
+    const itchCombat = await request(app)
+      .post("/api/v1/sessions/current/actions")
+      .set("Authorization", `Bearer ${itch.token}`)
+      .send({ action: { type: "start_combat" } });
+    expect(itchCombat.status).toBe(200);
+
+    // The action log doubles as the matchup record (sessionService): the
+    // opponent is the Steam player, not the PvE fallback.
+    const log = itchCombat.body.session.action_log as Array<{
+      action: string;
+      payload?: {
+        enemyPlayerName?: string;
+        ghostId?: string | null;
+        opponentPlayerId?: string | null;
+      };
+    }>;
+    const start = log[log.length - 1];
+    expect(start.action).toBe("start_combat");
+    expect(start.payload?.enemyPlayerName).not.toBe(PVE_ENEMY_NAME);
+    expect(start.payload?.opponentPlayerId).toBe(steam.playerId);
+    expect(start.payload?.ghostId).not.toBeNull();
+
+    // And the resolved enemy team is the Steam ghost's sanitized team: the
+    // combat's initial units include the ghost's CPU-forced units (the itch
+    // player's own units keep the PLAYER force).
+    expect(itchCombat.body.combatState.units.length).toBeGreaterThan(0);
+    expect(
+      itchCombat.body.combatState.units.some(
+        (unit: { force: string }) => unit.force === "CPU",
+      ),
+    ).toBe(true);
   });
 
   it("applies the rating delta after a completed run", async () => {

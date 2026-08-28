@@ -25,6 +25,7 @@ export const handleDamageCast = (
 };
 
 export const handleHealCast = (log: CombatLogger.HealCastEntry, _playbackState: PlaybackState) => {
+	AudioManager.playSoundEffect("sfx_spell_heal");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	healFx.healFx([source.x, source.y], [target.x, target.y], () => {});
@@ -44,6 +45,7 @@ export const handlePoisonCast = (
 	log: CombatLogger.PoisonCastEntry,
 	_playbackState: PlaybackState
 ) => {
+	AudioManager.playSoundEffect("sfx_spell_graspofagony");
 	const source = Chara.mustGetCharaById(log.sourceId);
 	const target = Chara.mustGetCharaById(log.targetId);
 	poisonFx.poisonFx([source.x, source.y], [target.x, target.y], () => {});
