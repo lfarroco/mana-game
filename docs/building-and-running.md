@@ -89,8 +89,10 @@ npx jest src/path/ToFile.test.ts --runInBand
 | `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
 | `make android-build`      | Build for Android via Capacitor                             |
 | `make android-open`       | Open project in Android Studio                              |
-| `make steam-publish`      | Upload build to Steam                                       |
-| `make steam-publish-demo` | Upload demo build to Steam                                  |
+| `make steam-publish`      | Build desktop app (win/mac/linux) + upload to Steam (Docker steamcmd) |
+| `make steam-publish-demo` | Build demo (win/mac/linux) + upload to Steam               |
+| `make steam-config-vdf`   | Encode the locally-cached Steam session into `.env` (unattended uploads) |
+| `make steam-cmd-image`    | Pull the official steamcmd Docker image                    |
 | `make itch-publish`       | Build web build + upload to itch.io via butler (no dashboard) |
 | `make server-dev`         | `cd server && npm run dev`                                  |
 | `make server-test`        | `cd server && npm test`                                     |
@@ -156,6 +158,47 @@ target above is a thin wrapper).
 - Overrides: `ITCH_USER_GAME`, `ITCH_VERSION`, `ITCH_IF_CHANGED=1`
   (skip no-op pushes), `MANA_SKIP_CHECKS=1` (skip pre-push
   `test:unit` + `typecheck`).
+
+### Steam upload (automated)
+
+```bash
+make steam-publish         # full game (App 3757600)
+make steam-publish-demo    # demo (App 4233280)
+```
+
+Builds the production Electron app for all platforms (Windows/macOS/Linux) and
+pushes it to Steam with **steamcmd** (SteamPipe) — no upload dashboard needed.
+Under the hood: `steam/scripts/publish_steam.sh` (the targets are thin
+wrappers; `publish_steam_demo.sh` just sets `STEAM_DEMO=1`).
+
+- **Runner**: the official `steamcmd/steamcmd:debian-12` **Docker** image
+  (pulled on first use — **nothing is installed on the host**). Force the host
+  `steamcmd` with `STEAM_CMD=host`. Refresh the image with `make steam-cmd-image`.
+- **Credentials**: `STEAM_USERNAME` is required. Two auth modes:
+  - **Credentials** — `STEAM_PASSWORD` (+ `STEAM_GUARD_CODE` for 2FA). Docker
+    mode is non-interactive, so it needs them in the environment/`.env`; host
+    mode can prompt interactively instead.
+  - **Cached session (fully unattended, no MFA)** — set `STEAM_CONFIG_VDF`
+    (file path) or `STEAM_CONFIG_VDF_B64` (base64 content, e.g. a CI secret) to
+    a `config.vdf` from a machine where you logged in once. Used by the
+    GitHub Actions workflow.
+- The script reads the root `.env` (safe parse — only `MANA_SERVER_URL`,
+  `STEAM_USERNAME`, `STEAM_PASSWORD`, `STEAM_GUARD_CODE`, `STEAM_CONFIG_VDF`,
+  `STEAM_CONFIG_VDF_B64`) and defaults
+  `MANA_SERVER_URL` to the production value, so the pushed build always has
+  working multiplayer. It also runs `test:unit` + `typecheck` before building.
+- Each push gets a descriptive build name (`v<version> — <date>`, override
+  `STEAM_BUILD_DESC`) visible in Steamworks → Builds. Builds are **not** set
+  live automatically — promote them in Steamworks.
+- **CI/CD**: `.github/workflows/publish-steam.yml` runs the same flow
+  (build on macOS → upload on Ubuntu via Docker, cached-session auth, no MFA).
+  Set `STEAM_USERNAME` + `STEAM_CONFIG_VDF` repo secrets and run it from the
+  Actions tab.
+- Overrides: `MANA_SKIP_CHECKS=1` (skip pre-push checks),
+  `MANA_SKIP_BUILD=1` (upload the existing `dist-electron/` without rebuilding),
+  `STEAM_CMD=host`, `STEAMCMD_IMAGE`, `STEAM_BUILD_DESC`, `STEAM_DRY_RUN=1`
+  (print the exact steamcmd command without uploading). Full guide + env table:
+  [steam/STEAM_UPLOAD.md](../steam/STEAM_UPLOAD.md).
 
 ### Desktop Build
 

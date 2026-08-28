@@ -132,6 +132,7 @@
         "compression": "maximum",
         "mac": {
             "category": "public.app-category.games",
+            "x64ArchFiles": "**/node_modules/steamworks.js/**/*",
             "target": [
                 {
                     "target": "dmg",

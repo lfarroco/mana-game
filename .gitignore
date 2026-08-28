@@ -137,6 +137,8 @@ dist
 .DS_Store
 phaser/dist.zip
 phaser/dist-steam
+phaser/dist-steam-demo
+steam/steam_config/*.gen.vdf
 phaser/supabase/functions/action/_shared.js
 phaser/supabase/functions/replay-commit/_shared.js
 phaser/supabase/functions/get-enemy-team/_shared.js

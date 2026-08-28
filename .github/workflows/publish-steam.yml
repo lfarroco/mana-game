@@ -3,53 +3,106 @@ name: Publish to Steam
 on:
   workflow_dispatch:
     inputs:
+      app:
+        description: 'Target app to publish'
+        required: true
+        default: demo
+        type: choice
+        options:
+          - demo
+          - full
       version:
-        description: 'Version to release (e.g. 1.0.0)'
+        description: 'Optional build-description version (defaults to phaser/package.json)'
         required: false
         default: ''
 
-jobs:
-  build-and-publish:
-    runs-on: ubuntu-latest
+# Secrets this workflow needs (repo → Settings → Secrets and variables → Actions):
+#   STEAM_USERNAME    build-account Steam username
+#   STEAM_CONFIG_VDF  base64 of the config.vdf with a cached Steam login (no MFA
+#                     prompts). Generate it once locally: `steamcmd +login <user> <pass>`,
+#                     complete the MFA email/code, then base64 the config.vdf file
+#                     (macOS: ~/Library/Application Support/Steam/config/config.vdf;
+#                     Linux: ~/.local/share/Steam/config/config.vdf). See
+#                     steam/STEAM_UPLOAD.md §Automated / CI. Rotate it if compromised.
+#   MANA_SERVER_URL   optional; defaults to https://api.manabattle.com
+#
+# How it works:
+#   Job 1 builds the Electron app for all three platforms on macOS (the only OS
+#   electron-builder can produce the macOS depot from) and uploads it as an
+#   artifact. Job 2 downloads it and runs the repo's publish script on Ubuntu,
+#   where Docker (the default steamcmd runner) mounts the cached-session
+#   config.vdf into the container — no password or MFA prompts anywhere.
 
+jobs:
+  build:
+    name: Build Electron (win + mac + linux)
+    runs-on: macos-15
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
+          cache: npm
           cache-dependency-path: phaser/package-lock.json
 
-      - name: Install Dependencies
-        working-directory: ./phaser
+      - name: Install dependencies
+        working-directory: phaser
         run: npm ci
 
-      - name: Build Electron App
-        working-directory: ./phaser
-        run: npm run electron:build:all
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run checks
+        working-directory: phaser
+        run: npm run test:ci && npm run typecheck
 
-      - name: Deploy to Steam
-        uses: game-ci/steam-deploy@v3
+      - name: Build all platforms
+        working-directory: phaser
+        env:
+          # Release builds must bake the production server URL.
+          MANA_SERVER_URL: ${{ secrets.MANA_SERVER_URL || 'https://api.manabattle.com' }}
+        run: |
+          if [ "${{ inputs.app }}" = "demo" ]; then
+            IS_DEMO=true npm run build
+            IS_DEMO=true npx electron-builder --win --linux --dir --x64
+            IS_DEMO=true npx electron-builder --mac --dir --universal
+          else
+            npm run build
+            npx electron-builder --win --linux --dir --x64
+            npx electron-builder --mac --dir --universal
+          fi
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
         with:
-          username: ${{ secrets.STEAM_USERNAME }}
-          configVdf: ${{ secrets.STEAM_CONFIG_VDF }}
-          appId: ${{ secrets.STEAM_APP_ID }}
-          buildDescription: "Build ${{ github.run_number }}"
-          rootPath: phaser/dist-electron
-          # Map your depots here. You might need to adjust these IDs based on your Steamworks config.
-          # Example:
-          # depot1Path: phaser/dist-electron/win-unpacked
-          # depot2Path: phaser/dist-electron/mac
-          # depot3Path: phaser/dist-electron/linux-unpacked
-          # For now, we'll assume a simple setup or that the user will configure this part.
-          # A common pattern for electron-builder is to upload the installers or the unpacked folders.
-          # Let's try to upload the installers if possible, or just the whole dist folder if the user hasn't specified depots.
-          # However, steam-deploy requires mapping specific paths to depot IDs.
-          # Since I don't know the user's depot IDs, I will leave a comment and a placeholder.
-          # The user will need to fill this in.
-          depot1Path: phaser/dist-electron
+          name: dist-electron
+          path: phaser/dist-electron/
+          retention-days: 7
+
+  publish:
+    name: Publish to Steam (${{ inputs.app }})
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-electron
+          path: phaser/dist-electron
+
+      - name: Publish to Steam
+        env:
+          STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+          STEAM_CONFIG_VDF_B64: ${{ secrets.STEAM_CONFIG_VDF }}
+          STEAM_BUILD_DESC: ${{ inputs.version != '' && format('v{0}', inputs.version) || '' }}
+          MANA_SKIP_BUILD: '1'
+          MANA_SKIP_CHECKS: '1'
+        run: |
+          if [ "${{ inputs.app }}" = "demo" ]; then
+            bash steam/scripts/publish_steam_demo.sh
+          else
+            bash steam/scripts/publish_steam.sh
+          fi

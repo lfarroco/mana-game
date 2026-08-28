@@ -66,7 +66,9 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 > [docs/building-and-running.md](docs/building-and-running.md) and
 > [docs/release-audit.md](docs/release-audit.md).
 
-- Steam: `MANA_SERVER_URL=https://api.manabattle.com make electron-build-all`, then `make steam-publish`.
-- Steam Demo: `MANA_SERVER_URL=https://api.manabattle.com make electron-build-demo`, then `make steam-publish-demo`.
-- Itch: `MANA_SERVER_URL=https://api.manabattle.com MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57 npm run build`, zip the contents of `dist`, and upload to Itch.io.
+- Steam: `make steam-publish` — builds the desktop app for Windows/macOS/Linux and
+  uploads it to Steam via steamcmd (Docker runner by default; credentials in the
+  root `.env` — see `steam/STEAM_UPLOAD.md`).
+- Steam Demo: `make steam-publish-demo`.
+- Itch: `make itch-publish` — builds the web build and pushes it to itch.io via butler.
 - Android: run `make android-build`, then, in Android Studio, Build > Generate Signed Bundle / APK.

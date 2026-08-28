@@ -1,7 +1,7 @@
 "DepotBuildConfig"
 {
 	"DepotID" "4233283"
-	"ContentRoot"	"../../phaser/dist-electron/mac"
+	"ContentRoot"	"../../phaser/dist-electron/mac-universal"
 
 	"FileMapping"
 	{

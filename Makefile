@@ -15,7 +15,7 @@ CONTAINER_NAME=mana-server
 -include .env
 export
 
-.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux android-build android-open steam-publish steam-publish-demo itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary cloud-deploy cloud-setup cloud-logs cloud-db-download cloud-db cloud-db-summary
+.PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux electron-build-demo-all android-build android-open steam-publish steam-publish-demo steam-config-vdf steam-cmd-image itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary cloud-deploy cloud-setup cloud-logs cloud-db-download cloud-db cloud-db-summary
 
 dev:
 	cd $(PHASER_DIR) && npm run dev
@@ -45,28 +45,38 @@ electron-build:
 	cd $(PHASER_DIR) && npm run build && npx electron-builder --publish=never
 
 electron-build-win:
-	cd $(PHASER_DIR) && npm run build && npx electron-builder --win --dir
+	cd $(PHASER_DIR) && npm run build && npx electron-builder --win --dir --x64
 
 electron-build-mac:
-	cd $(PHASER_DIR) && npm run build && npx electron-builder --mac --dir
+	cd $(PHASER_DIR) && npm run build && npx electron-builder --mac --dir --universal
 
 electron-build-linux:
-	cd $(PHASER_DIR) && npm run build && npx electron-builder --linux --dir
+	cd $(PHASER_DIR) && npm run build && npx electron-builder --linux --dir --x64
 
+# All-platform build (win/mac/linux) — win+linux are x64, mac is universal.
+# The mac build MUST be a separate invocation with --universal: electron-builder's
+# `--dir` otherwise uses the host arch (Intel → mac/, Apple Silicon → mac-arm64),
+# while the Steam depots expect mac-universal. --universal also needs the
+# x64ArchFiles config in phaser/package.json for steamworks.js native binaries.
 electron-build-all:
-	cd $(PHASER_DIR) && npm run build && npx electron-builder --win --mac --linux --dir
+	cd $(PHASER_DIR) && npm run build && npx electron-builder --win --linux --dir --x64 && npx electron-builder --mac --dir --universal
 
 electron-build-demo:
 	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --publish=never --dir
 
+# All-platform demo build (win + mac + linux) — the build step behind
+# `make steam-publish-demo`. Mirrors electron-build-all with IS_DEMO=true.
+electron-build-demo-all:
+	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --win --linux --dir --x64 && IS_DEMO=true npx electron-builder --mac --dir --universal
+
 electron-build-demo-win:
-	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --win --dir
+	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --win --dir --x64
 
 electron-build-demo-mac:
-	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --mac --dir
+	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --mac --dir --universal
 
 electron-build-demo-linux:
-	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --linux --dir
+	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --linux --dir --x64
 
 android-build:
 	cd $(PHASER_DIR) && npm run build && npx cap sync android
@@ -74,11 +84,32 @@ android-build:
 android-open:
 	cd $(PHASER_DIR) && npx cap open android
 
+# Build the production Electron app for all platforms and upload it to Steam
+# (steam/scripts/publish_steam.sh) — SteamPipe, no upload dashboard. Reads the
+# root .env (safe parse), defaults MANA_SERVER_URL to prod, runs pre-push
+# tests + typecheck, builds win/mac/linux, then uploads via steamcmd in the
+# `steamcmd/steamcmd:debian-12` Docker image (default — nothing installed on
+# the host; force host steamcmd with STEAM_CMD=host). Credentials:
+# STEAM_USERNAME (+ STEAM_PASSWORD / STEAM_GUARD_CODE for non-interactive
+# Docker/CI). See steam/STEAM_UPLOAD.md.
 steam-publish:
 	./$(STEAM_DIR)/scripts/publish_steam.sh
 
 steam-publish-demo:
 	./$(STEAM_DIR)/scripts/publish_steam_demo.sh
+
+# Pull (or refresh) the official steamcmd image used by `make steam-publish`
+# when the host has no steamcmd installed (the default runner is Docker).
+steam-cmd-image:
+	docker pull steamcmd/steamcmd:debian-12
+
+# Encode the locally-cached Steam session (config.vdf) into the root .env as
+# STEAM_CONFIG_VDF_B64 so `make steam-publish` / `make steam-publish-demo` run
+# fully unattended — no password or MFA prompts. See
+# steam/scripts/encode_config_vdf.sh. Run it again if the session is
+# invalidated (e.g. logging out of the Steam client).
+steam-config-vdf:
+	./$(STEAM_DIR)/scripts/encode_config_vdf.sh --update-env
 
 # Build the production web build and push it to itch.io via butler
 # (phaser/scripts/publish_itch.sh) — no upload dashboard needed. Exports the
