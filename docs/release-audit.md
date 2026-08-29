@@ -113,16 +113,15 @@ The test drives a full single-player run through `window.__debug`
 - `android/key.jks` was committed to git. Untracked (`git rm --cached`; the
   file stays on disk, now gitignored). Android has not been launched, so the
   keystore was never used for a published build — no signing-key rotation
-  required. It remains in git history (`1eee985b`); purge with
-  `git filter-repo` only if the repo is shared widely.
+  required. It was purged from all history with `git filter-repo` on
+  2026-08-28 (repo going open-source); the pre-purge mirror backup was kept
+  locally until the public release was confirmed, then deleted.
 - Committed gradle outputs (`android/app/release/**`) untracked + gitignored.
 - `.gitignore`: replaced the wrong `phaser/android/key.jks` entry and a broken
   absolute path (`/Users/<redacted>/.../releasek`) with `android/key.jks`,
   `android/app/build/`, `android/app/release/`.
-- Note: `phaser/.env` + `phaser/.env.example` still carry dead Supabase creds
-  from the retired backend (`phaser/.env` is gitignored/local; `.env.example`
-  is committed with a now-meaningless publishable anon key). Delete when
-  convenient.
+- Note: `phaser/.env.example` carried dead Supabase creds from the retired
+  backend — replaced with a retired-backend note on 2026-08-28.
 
 ### 7. 🔴 Browser multiplayer env-guard bug — FIXED (DefinePlugin gotcha)
 
