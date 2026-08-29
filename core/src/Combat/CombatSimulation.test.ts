@@ -135,6 +135,27 @@ describe("Combat simulation log generation", () => {
     expect(combatState.initialUnits).toEqual(combatState.units);
   });
 
+  it("finalPlayerUnits aliases the simulated player units so post-combat changes are carried back", () => {
+    // Regression: finalPlayerUnits was a pre-combat clone of the session team,
+    // so permanent power deltas applied to combatState.units never reached it —
+    // the session write-back on end_combat had nothing to write. It must
+    // reference the exact player-unit instances the simulation mutates.
+    const state = createTestCombat(500, 100);
+
+    const result = CombatSimulation.simulateCombat(
+      state.session,
+      state.combatState,
+    );
+
+    expect(result.finalPlayerUnits.length).toBeGreaterThan(0);
+    expect(result.finalPlayerUnits).toHaveLength(result.playerUnits.length);
+    for (const unit of result.finalPlayerUnits) {
+      // Same instance as the simulated unit (not a clone, not initial state).
+      expect(result.unitById.get(unit.id)).toBe(unit);
+      expect(result.units).toContain(unit);
+    }
+  });
+
   it("includes combat_stats log entry", () => {
     const state = createTestCombat(100, 200);
 

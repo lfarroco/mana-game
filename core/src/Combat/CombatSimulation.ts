@@ -27,7 +27,12 @@ export function createCombatState(
       logs: [],
       enemyPlayerName: enemyPlayerName ?? "CPU",
       wonCombat: false,
-      finalPlayerUnits: structuredClone(session.team.units),
+      // finalPlayerUnits aliases the player units inside `units` (the exact
+      // instances the simulation mutates) so post-combat changes — permanent
+      // power deltas in particular — are carried back to the session by
+      // transitionAfterCombat (end_combat). A pre-combat clone here would
+      // silently drop every permanent gain at the combat boundary.
+      finalPlayerUnits: units.filter((u) => u.force === playerForce),
       initialUnits: structuredClone(units),
       unitById: new Map(),
       playerCore: units[0],

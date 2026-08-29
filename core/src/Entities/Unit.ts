@@ -143,6 +143,8 @@ export function resetUnitStats(unit: Unit) {
   unit.charge = 0;
   unit.hasted = 0;
   unit.slowed = 0;
+  unit.silenced = 0;
+  unit.refresh = 0;
   unit.life = unit.maxLife;
 }
 

@@ -52,7 +52,7 @@ export const dispatchAction = async (
 			throw err;
 		}
 
-		await exitDone;
+		await awaitExitAnimation(exitDone);
 
 		env.updateState({ ...env.state, ...response });
 		if (onBeforeFinish) await onBeforeFinish(response);
@@ -70,6 +70,16 @@ export const dispatchAction = async (
 let transitionInFlight = false;
 
 /**
+ * Upper bound on how long dispatchAction waits for the outgoing phase's exit
+ * animation before proceeding anyway. The exit tween itself is hang-proof
+ * (animation.tween resolves even when Phaser kills the tween), but this race
+ * guarantees the transitionInFlight lock and the phase switch can never be
+ * blocked by a stuck animation — a frozen run (session advances, screen does
+ * not) is exactly the player-reported symptom this guards against.
+ */
+const EXIT_ANIMATION_TIMEOUT_MS = 2000;
+
+/**
  * Lock input and start the current phase's exit animation. The returned
  * promise resolves when the exit finishes. Run this in parallel with a server
  * dispatch so the outgoing UI slides away while the request is in flight.
@@ -78,6 +88,13 @@ export const beginPhaseTransition = (): Promise<void> => {
 	transitionInFlight = true;
 	return startPhaseExit();
 };
+
+/** Wait for the exit animation, never hanging past EXIT_ANIMATION_TIMEOUT_MS. */
+const awaitExitAnimation = (exitDone: Promise<void>): Promise<void> =>
+	Promise.race([
+		exitDone,
+		new Promise<void>((resolve) => setTimeout(resolve, EXIT_ANIMATION_TIMEOUT_MS)),
+	]);
 
 /** Release the transition lock after the phase switch completes. */
 export const endPhaseTransition = (): void => {

@@ -191,6 +191,19 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > The queue is now empty; see [plan.md](plan.md),
 > [docs/auth.md](docs/auth.md), and [docs/game-server.md](docs/game-server.md).
 
+> **Player-bugfix round (2026-08-31):** three reported bugs fixed with
+> regression tests — (1) phase transitions could stall forever (a tween/timer
+> killed by the ScreenManager teardown never fired its callback, freezing the
+> phase chain while the session kept advancing) — `animation.tween`/`delay`
+> are now hang-proof and `dispatchAction` bounds the exit-animation wait;
+> (2) permanent power ("when the crystal is hit, gain permanent power")
+> reverted after every fight because combat results were never written back —
+> `finalPlayerUnits` now aliases the simulated player units and
+> `transitionAfterCombat` writes the rested post-combat team into the session;
+> (3) the `on_crystal_hit` reaction shield landed 200ms after the triggering
+> hit — reactions now fire before the damage resolves and reaction shields
+> apply instantly, so the shield absorbs the hit that procs it.
+
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).

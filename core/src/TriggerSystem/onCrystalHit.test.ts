@@ -271,6 +271,40 @@ describe("Verdant thorns identity orbs (CUB-G2)", () => {
     expect(playerCore.shield).toBeGreaterThan(initialShield);
   });
 
+  it("thorn_shield absorbs the hit that triggers it (shield lands before the damage)", () => {
+    // Regression: the on_crystal_hit reactions used to fire AFTER the incoming
+    // damage resolved, and the reaction shield still travelled a 200ms
+    // projectile — so the triggering hit always landed first, and a fast or
+    // hard-hitting enemy (e.g. Spellblade) could one-shot through a shield that
+    // was only ever "on the way". The shield must come up before the damage.
+    const { combatRunner, combatState } = setupCombat(
+      makeVerdantTeam("verdant_thorn_shield", false),
+      makeEnemyTeam(),
+    );
+
+    const playerCore = combatState.playerCore;
+    const lifeBefore = playerCore.life;
+
+    const logs = runUntil(combatRunner, combatState, (logs) =>
+      filterLogs(logs, "damage_hit").some((h) => h.targetId === "verdant-core"),
+    );
+
+    const shieldHits = filterLogs(logs, "shield_hit").filter(
+      (h) => h.targetId === "verdant-core",
+    );
+    const damageHits = filterLogs(logs, "damage_hit").filter(
+      (h) => h.targetId === "verdant-core",
+    );
+
+    // The shield (20 from the crystal's power) came up before the attacker's
+    // 10-damage hit resolved, so the crystal took no life damage.
+    expect(shieldHits.length).toBeGreaterThan(0);
+    expect(damageHits.length).toBeGreaterThan(0);
+    expect(shieldHits[0].timeMs).toBeLessThanOrEqual(damageHits[0].timeMs);
+    expect(playerCore.life).toBe(lifeBefore);
+    expect(playerCore.shield).toBeGreaterThan(0);
+  });
+
   it("retaliation grants +5 power to the crystal for every hit", () => {
     const { combatRunner, combatState } = setupCombat(
       makeVerdantTeam("verdant_retaliation", false),

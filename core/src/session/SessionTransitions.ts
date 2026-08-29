@@ -17,6 +17,7 @@ import { WINS_TO_WIN_GAME, LOSSES_TO_GAME_OVER } from "../math/Constants";
 import * as Random from "../math/Random";
 import { CARDS_BY_ID } from "../data/BaseCollection";
 import * as Card from "../Entities/Card";
+import * as Unit from "../Entities/Unit";
 import {
   CORE_STAT_ORBS,
   CORE_UPGRADE_DEFINITIONS,
@@ -68,8 +69,23 @@ function transitionAfterCombat(
     throw new Error("Missing combat state for end_combat transition");
   }
 
-  const { wonCombat } = session.combatState;
+  const { wonCombat, finalPlayerUnits } = session.combatState;
   delete session.combatState;
+
+  // Carry post-combat player state back into the session team. Combat runs on
+  // clones of session.team.units (createCombatState), so without this write-back
+  // every in-combat change is lost at the fight boundary — permanent power gains
+  // ("when the crystal is hit, gain permanent power") reverted to pre-fight power
+  // after every fight. finalPlayerUnits aliases the simulated player units
+  // (CombatSimulation.createCombatState) and also survives the multiplayer wire
+  // codec, so the write-back is correct on both the local and server paths.
+  // Units are rested (full life, no shield/charge/statuses) before persisting —
+  // fights always start from a rested board — while permanent deltas
+  // (power/bonusPower/bonusCritical) are preserved via resetUnitStats.
+  if (finalPlayerUnits.length > 0) {
+    finalPlayerUnits.forEach(Unit.resetUnitStats);
+    session.team.units = finalPlayerUnits;
+  }
 
   if (wonCombat) session.wins += 1;
   else session.losses += 1;

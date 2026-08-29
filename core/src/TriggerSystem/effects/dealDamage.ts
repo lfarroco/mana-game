@@ -58,6 +58,18 @@ export function dealDamage(
       const oldLife = enemyCore?.life ?? 0;
       const oldShield = enemyCore?.shield ?? 0;
 
+      // C2 (docs/wacky-content-plan.md): revenge — the defending force reacts
+      // when its crystal is actually hit. The reactions fire BEFORE the
+      // incoming damage resolves (not after), so a reactive shield
+      // (verdant_thorn_shield) comes up in time to absorb the very hit that
+      // triggered it — "when the crystal is hit, gain shield" must protect
+      // against that hit. Loop guard: only cast damage emits, so
+      // thorns-vs-thorns cannot ping-pong (reaction-sourced damage from the
+      // retaliating thorns is excluded here).
+      if (!isReaction) {
+        processReactions(env, source, { id: "on_crystal_hit" }, 1);
+      }
+
       const actualLifeChanged = Force.applyDamageToForce(
         state,
         enemyCore!.force,
@@ -90,14 +102,6 @@ export function dealDamage(
         lifeDelta: (enemyCore?.life ?? 0) - oldLife,
         shieldDelta: (enemyCore?.shield ?? 0) - oldShield,
       });
-
-      // C2 (docs/wacky-content-plan.md): revenge — the defending force reacts
-      // when its crystal actually takes damage. Loop guard: only cast damage
-      // emits, so thorns-vs-thorns cannot ping-pong (reaction-sourced damage
-      // from the retaliating thorns is excluded here).
-      if (!isReaction) {
-        processReactions(env, source, { id: "on_crystal_hit" }, 1);
-      }
     },
   });
 }

@@ -70,6 +70,57 @@ describe("SessionTransitions", () => {
       expect(afterEnd.session.losses).toBe(1);
     });
 
+    it("writes permanent power gains from combat back into the session team on end_combat", () => {
+      // Regression: combat runs on clones of session.team.units, so permanent
+      // in-combat gains ("when the crystal is hit, gain permanent power") were
+      // dropped at the fight boundary — the unit reverted to pre-fight power
+      // after every fight. end_combat must write the rested post-combat units
+      // back into the session team.
+      const session = createTestSession("test-perm-power-001");
+      makeCoreStrong(session);
+      const core = session.team.units[0];
+      // resetUnitStats recomputes power from the card formula
+      // (base × rank + bonusPower) on write-back, so the test core's power must
+      // follow it rather than makeCoreStrong's flat override.
+      const basePower = Card.getCardDefinition(core.cardId).power ?? 0;
+      core.power = basePower;
+      core.bonusPower = 0;
+      // Self-ramping permanent power: every cast adds +5 permanent power.
+      core.effects.push({
+        id: "increase_power",
+        amount: 5,
+        permanent: true,
+        targets: { id: "self" },
+      });
+      const powerBefore = core.power;
+
+      const afterCombat = SessionTransitions.transitionToNextState(session, {
+        type: "start_combat",
+      });
+
+      // The fight itself must have ramped the core (it casts repeatedly).
+      const combatCore = afterCombat.combatState!.playerCore;
+      expect(combatCore.power).toBeGreaterThan(powerBefore);
+      expect(combatCore.bonusPower).toBeGreaterThan(0);
+
+      const afterEnd = SessionTransitions.transitionToNextState(
+        afterCombat.session,
+        { type: "end_combat" },
+      );
+
+      const teamCore = afterEnd.session.team.units[0];
+      // Permanent power survives the fight boundary…
+      expect(teamCore.bonusPower).toBeGreaterThan(0);
+      expect(teamCore.power).toBeGreaterThan(powerBefore);
+      // …and the unit is rested for the next fight (full life, no combat
+      // ephemera) while the permanent deltas are preserved.
+      expect(teamCore.life).toBe(teamCore.maxLife);
+      expect(teamCore.shield).toBe(0);
+      expect(teamCore.charge).toBe(0);
+      expect(teamCore.hasted).toBe(0);
+      expect(teamCore.slowed).toBe(0);
+    });
+
     it("throws end_combat if start_combat was not called first", () => {
       const session = createTestSession("test-no-start-001");
       // No pendingCombatState — calling end_combat directly should fail

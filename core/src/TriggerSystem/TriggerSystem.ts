@@ -37,7 +37,7 @@ const processEffectIO = (
         effects.restoreLife(env, sourceUnit, scale);
         break;
       case "shield":
-        effects.addShield(env, sourceUnit, scale);
+        effects.addShield(env, sourceUnit, scale, isReaction);
         break;
       case "poison":
         effects.applyPoison(env, sourceUnit, scale);
