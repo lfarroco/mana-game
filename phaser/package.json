@@ -34,7 +34,7 @@
         "type": "git",
         "url": "git+https://github.com/lfarroco/mana-game.git"
     },
-    "author": "Mana Battle Team <redacted@example.com>",
+    "author": "Mana Battle Team",
     "license": "MIT",
     "bugs": {
         "url": "https://github.com/lfarroco/mana-game/issues"
