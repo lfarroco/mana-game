@@ -11,6 +11,7 @@ CONTAINER_NAME=mana-server
 #   MANA_SQLITE_PATH=server/data/mana.db
 #   MANA_STEAM_APP_IDS=3757600,4233280
 #   MANA_CLOUD=root@<vm-ip>           (make cloud-deploy / cloud-setup)
+#   MANA_CLOUD_KEY=~/.ssh/<key>       (all cloud-* targets; empty = agent/default keys)
 #   MANA_API_DOMAIN=api.manabattle.com  (make cloud-setup / electron-dev-cloud)
 -include .env
 export
@@ -238,6 +239,14 @@ server-db-summary:
 
 # SSH target for the VM (override in .env or via MANA_CLOUD=user@host).
 MANA_CLOUD ?= root@<vm-ip>
+# SSH private key for the VM (e.g. MANA_CLOUD_KEY=~/.ssh/oracle.key). Empty by
+# default — ssh then falls back to the agent / default keys. Keep the key OUT
+# of MANA_CLOUD: the cloud-* targets pass $(SSH_OPTS) explicitly, so every
+# ssh/scp invocation shares it.
+MANA_CLOUD_KEY ?=
+# SSH options shared by every cloud-* target. Use unquoted in recipes so the
+# shell can tilde-expand the key path.
+SSH_OPTS := $(if $(MANA_CLOUD_KEY),-i $(MANA_CLOUD_KEY))
 # TLS domain used by Caddy on the VM (setup-docker.sh --domain / compose).
 MANA_API_DOMAIN ?= api.manabattle.com
 # Repo URL used by cloud-setup when the VM has no clone yet.
@@ -246,7 +255,7 @@ MANA_REPO_URL ?= git@github.com:lfarroco/mana-game.git
 MANA_CLOUD_APP ?= /opt/mana-game
 
 cloud-shell:
-	ssh $(MANA_CLOUD) 
+	ssh $(SSH_OPTS) "$(MANA_CLOUD)"
 
 
 # Deploy the latest PUSHED code to the VM. Warns — but proceeds — when there
@@ -263,7 +272,7 @@ cloud-deploy:
 		echo "WARNING: unpushed local commits — deploy the pushed state; run 'git push' first if you meant the latest."; \
 	fi
 	@echo "=== Deploying to $(MANA_CLOUD) ==="
-	ssh "$(MANA_CLOUD)" 'cd $(MANA_CLOUD_APP) && ./server/scripts/deploy.sh'
+	ssh $(SSH_OPTS) "$(MANA_CLOUD)" 'cd $(MANA_CLOUD_APP) && ./server/scripts/deploy.sh'
 
 # One-shot VM bootstrap (fresh VM only): clone the repo if needed, then run
 # server/scripts/setup-docker.sh — installs Docker + the compose plugin, creates
@@ -272,7 +281,7 @@ cloud-deploy:
 # the first deploy. Requires a DNS record pointing at the VM.
 cloud-setup:
 	@echo "=== One-shot setup on $(MANA_CLOUD) (domain: $(MANA_API_DOMAIN)) ==="
-	ssh "$(MANA_CLOUD)" "git clone $(MANA_REPO_URL) $(MANA_CLOUD_APP) 2>/dev/null || true; cd $(MANA_CLOUD_APP) && ./server/scripts/setup-docker.sh --domain $(MANA_API_DOMAIN)"
+	ssh $(SSH_OPTS) "$(MANA_CLOUD)" "git clone $(MANA_REPO_URL) $(MANA_CLOUD_APP) 2>/dev/null || true; cd $(MANA_CLOUD_APP) && ./server/scripts/setup-docker.sh --domain $(MANA_API_DOMAIN)"
 
 # ---- VM ops: logs + database ----
 
@@ -281,10 +290,10 @@ cloud-setup:
 cloud-logs:
 	@if [ -n "$${MANA_LOG_LINES:-}" ]; then \
 		echo "=== mana-server: last $${MANA_LOG_LINES} lines ==="; \
-		ssh "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && docker compose logs --tail=$${MANA_LOG_LINES} --no-color server" < /dev/null; \
+		ssh $(SSH_OPTS) "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && docker compose logs --tail=$${MANA_LOG_LINES} --no-color server" < /dev/null; \
 	else \
 		echo "=== following mana-server logs on $(MANA_CLOUD) (Ctrl-C to stop) ==="; \
-		ssh "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && docker compose logs -f --no-color server" < /dev/null; \
+		ssh $(SSH_OPTS) "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && docker compose logs -f --no-color server" < /dev/null; \
 	fi
 
 # Pull a crash-consistent snapshot of the live VM DB. Runs the repo's
@@ -294,9 +303,9 @@ cloud-logs:
 # WAL journaling the live data mostly sits in mana.db-wal.
 cloud-db-download:
 	@mkdir -p server/data/backups
-	@ssh "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && ./server/scripts/backup.sh" < /dev/null
-	@SNAP="$$(ssh "$(MANA_CLOUD)" "ls -t $(MANA_CLOUD_APP)/server/data/backups/mana-*.db | head -1" < /dev/null)"; \
-	scp "$(MANA_CLOUD):$${SNAP}" server/data/backups/ >/dev/null && \
+	@ssh $(SSH_OPTS) "$(MANA_CLOUD)" "cd $(MANA_CLOUD_APP) && ./server/scripts/backup.sh" < /dev/null
+	@SNAP="$$(ssh $(SSH_OPTS) "$(MANA_CLOUD)" "ls -t $(MANA_CLOUD_APP)/server/data/backups/mana-*.db | head -1" < /dev/null)"; \
+	scp $(SSH_OPTS) "$(MANA_CLOUD):$${SNAP}" server/data/backups/ >/dev/null && \
 	echo "downloaded $$(basename "$$SNAP") -> server/data/backups/"
 
 # Download a fresh snapshot, then open an interactive sqlite3 shell on the copy
