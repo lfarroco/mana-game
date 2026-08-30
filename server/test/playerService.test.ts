@@ -17,8 +17,14 @@ import {
 import {
   getPlayerProfile,
   getSeasonStartEpochMs,
+  MAX_DISPLAY_NAME_LENGTH,
+  MIN_DISPLAY_NAME_LENGTH,
+  NAME_CHANGE_COOLDOWN_MS,
+  updateDisplayName,
+  validateDisplayName,
 } from "../src/services/playerService";
 import { DEFAULT_PLAYER_RATING } from "../src/services/rating";
+import { ApiError } from "../src/errors";
 
 const PLAYER_ID = "player-1";
 const STEAM_ID = "76561198000000000";
@@ -97,6 +103,36 @@ describe("getPlayerProfile", () => {
     expect(profile.hasActiveSession).toBe(false);
   });
 
+  it("reports rename availability: allowed for a never-changed player", () => {
+    const deps = makeDeps();
+    expect(getPlayerProfile(PLAYER_ID, deps).displayNameChange).toEqual({
+      allowed: true,
+    });
+  });
+
+  it("reports rename availability: blocked with nextAllowedAt within the cooldown", () => {
+    const deps = makeDeps();
+    const changedAt = Date.now() - 1000;
+    deps.playerRepo.updateDisplayName(PLAYER_ID, "Fresh", changedAt);
+
+    const change = getPlayerProfile(PLAYER_ID, deps).displayNameChange;
+    expect(change.allowed).toBe(false);
+    expect(change.nextAllowedAt).toBe(changedAt + NAME_CHANGE_COOLDOWN_MS);
+  });
+
+  it("reports rename availability: allowed again once the cooldown has passed", () => {
+    const deps = makeDeps();
+    deps.playerRepo.updateDisplayName(
+      PLAYER_ID,
+      "Old",
+      Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
+    );
+
+    expect(getPlayerProfile(PLAYER_ID, deps).displayNameChange).toEqual({
+      allowed: true,
+    });
+  });
+
   it("reports an active session for a mid-run phase and false for a finished run", () => {
     const deps = makeDeps();
     deps.sessionRepo.upsert(PLAYER_ID, makeSession({ phase: "combat" }));
@@ -153,5 +189,143 @@ describe("getPlayerProfile", () => {
     expect(() => getPlayerProfile("nobody", deps)).toThrow(
       expect.objectContaining({ status: 404, code: "player_not_found" }),
     );
+  });
+});
+
+describe("validateDisplayName", () => {
+  it("returns the trimmed name", () => {
+    expect(validateDisplayName("  Wizard  ")).toBe("Wizard");
+  });
+
+  it("rejects a name shorter than the minimum", () => {
+    expect(() => validateDisplayName("a")).toThrow(
+      expect.objectContaining({
+        status: 400,
+        code: "invalid_display_name",
+        message: expect.stringContaining(`at least ${MIN_DISPLAY_NAME_LENGTH}`),
+      }),
+    );
+    // Whitespace-only names trim to nothing → too short.
+    expect(() => validateDisplayName("   ")).toThrow(
+      expect.objectContaining({ code: "invalid_display_name" }),
+    );
+  });
+
+  it("rejects a name longer than the maximum", () => {
+    expect(() => validateDisplayName("x".repeat(MAX_DISPLAY_NAME_LENGTH + 1))).toThrow(
+      expect.objectContaining({
+        status: 400,
+        code: "invalid_display_name",
+        message: expect.stringContaining(`at most ${MAX_DISPLAY_NAME_LENGTH}`),
+      }),
+    );
+  });
+
+  it("rejects control characters", () => {
+    expect(() => validateDisplayName("Bad\u0000Name")).toThrow(
+      expect.objectContaining({ code: "invalid_display_name" }),
+    );
+    expect(() => validateDisplayName("Bad\u0007Name")).toThrow(
+      expect.objectContaining({ code: "invalid_display_name" }),
+    );
+  });
+
+  it("accepts names at the exact boundaries", () => {
+    expect(validateDisplayName("ab".padStart(MIN_DISPLAY_NAME_LENGTH, "a"))).toBe(
+      "ab".padStart(MIN_DISPLAY_NAME_LENGTH, "a"),
+    );
+    expect(validateDisplayName("x".repeat(MAX_DISPLAY_NAME_LENGTH))).toBe(
+      "x".repeat(MAX_DISPLAY_NAME_LENGTH),
+    );
+  });
+});
+
+describe("updateDisplayName", () => {
+  function makeDeps() {
+    const playerRepo = createMemoryPlayerRepo();
+    playerRepo.create({
+      playerId: PLAYER_ID,
+      provider: "steam",
+      providerId: STEAM_ID,
+      displayName: "Momo",
+      createdAt: Date.now(),
+    });
+    return {
+      playerRepo,
+      ratingRepo: createMemoryRatingRepo(),
+      playerStatsRepo: createMemoryPlayerStatsRepo(),
+      sessionRepo: createMemorySessionRepo(),
+    };
+  }
+
+  it("renames a player and returns the refreshed profile", () => {
+    const deps = makeDeps();
+    const profile = updateDisplayName(PLAYER_ID, "  NovaMage  ", deps);
+
+    expect(profile.player.displayName).toBe("NovaMage");
+    // The cooldown now applies.
+    expect(profile.displayNameChange.allowed).toBe(false);
+    expect(profile.displayNameChange.nextAllowedAt).toBeGreaterThan(Date.now());
+    // Persisted to the repo.
+    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("NovaMage");
+    expect(deps.playerRepo.findById(PLAYER_ID)?.displayNameUpdatedAt).toBeDefined();
+  });
+
+  it("rejects a second change within the 30-day cooldown", () => {
+    const deps = makeDeps();
+    updateDisplayName(PLAYER_ID, "First", deps);
+
+    expect(() => updateDisplayName(PLAYER_ID, "Second", deps)).toThrow(
+      expect.objectContaining({
+        status: 429,
+        code: "name_change_cooldown",
+        message: expect.stringContaining("change it again"),
+      }),
+    );
+    // The original name is untouched.
+    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("First");
+  });
+
+  it("allows a change once the cooldown has expired", () => {
+    const deps = makeDeps();
+    deps.playerRepo.updateDisplayName(
+      PLAYER_ID,
+      "Old",
+      Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
+    );
+
+    const profile = updateDisplayName(PLAYER_ID, "Fresh", deps);
+    expect(profile.player.displayName).toBe("Fresh");
+    expect(profile.displayNameChange.allowed).toBe(false);
+  });
+
+  it("validates the name before touching the player", () => {
+    const deps = makeDeps();
+    expect(() => updateDisplayName(PLAYER_ID, "", deps)).toThrow(
+      expect.objectContaining({ code: "invalid_display_name" }),
+    );
+    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("Momo");
+    expect(
+      deps.playerRepo.findById(PLAYER_ID)?.displayNameUpdatedAt,
+    ).toBeUndefined();
+  });
+
+  it("throws player_not_found for an unknown player", () => {
+    const deps = makeDeps();
+    expect(() => updateDisplayName("nobody", "Nova", deps)).toThrow(
+      expect.objectContaining({ status: 404, code: "player_not_found" }),
+    );
+  });
+
+  it("surfaces ApiError instances (not generic Errors)", () => {
+    const deps = makeDeps();
+    let caught: unknown = null;
+    try {
+      updateDisplayName(PLAYER_ID, "Bad\u0001Name", deps);
+    } catch (err) {
+      caught = err;
+    }
+    expect(caught).toBeInstanceOf(ApiError);
+    expect((caught as ApiError).code).toBe("invalid_display_name");
   });
 });

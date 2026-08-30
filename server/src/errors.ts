@@ -23,6 +23,8 @@ export type ApiErrorCode =
   | "invalid_itch_token"
   | "invalid_google_token"
   | "invalid_identity"
+  | "invalid_display_name"
+  | "name_change_cooldown"
   | "internal_error";
 
 export class ApiError extends Error {

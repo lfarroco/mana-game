@@ -203,6 +203,7 @@ describe("RemoteServer HTTP adapter", () => {
 			career: { bronze: 3, silver: 2, gold: 1 },
 			season: { bronze: 1, silver: 1, gold: 0 },
 			hasActiveSession: true,
+			displayNameChange: { allowed: true },
 		};
 		const fetchMock = createFetchMock(200, profileBody);
 		const server = createRemoteServer({
@@ -219,6 +220,54 @@ describe("RemoteServer HTTP adapter", () => {
 		expect(profile).toEqual(profileBody);
 	});
 
+	it("renames the display name via PATCH /players/me and returns the refreshed profile", async () => {
+		const profileBody = {
+			player: {
+				playerId: "player-1",
+				displayName: "NovaMage",
+				providerId: "76561198000000001",
+				provider: "google",
+			},
+			rating: 1012,
+			career: { bronze: 3, silver: 2, gold: 1 },
+			season: { bronze: 1, silver: 1, gold: 0 },
+			hasActiveSession: true,
+			displayNameChange: { allowed: false, nextAllowedAt: Date.now() + 1000 },
+		};
+		const fetchMock = createFetchMock(200, profileBody);
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const profile = await server.updateDisplayName("NovaMage");
+
+		const [url, init] = callsOf(fetchMock)[0];
+		expect(url).toBe(`${DEFAULT_SERVER_URL}/api/v1/players/me`);
+		expect(init.method).toBe("PATCH");
+		expect(init.headers?.Authorization).toBe("Bearer tok-123");
+		expect(JSON.parse(init.body as string)).toEqual({ displayName: "NovaMage" });
+		expect(profile.player.displayName).toBe("NovaMage");
+		expect(profile.displayNameChange.allowed).toBe(false);
+	});
+
+	it("surfaces a server-side name-change error (429 cooldown) with its code", async () => {
+		const fetchMock = createFetchMock(429, {
+			error: "name_change_cooldown",
+			message:
+				"Display name was changed recently — you can change it again on 2026-10-01T00:00:00.000Z",
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		await expect(server.updateDisplayName("NovaMage")).rejects.toMatchObject({
+			status: 429,
+			code: "name_change_cooldown",
+		} as Partial<RemoteServerError>);
+	});
+
 	it("rejects a malformed profile payload from the server", async () => {
 		const fetchMock = createFetchMock(200, {
 			player: { playerId: "player-1" },
@@ -226,6 +275,23 @@ describe("RemoteServer HTTP adapter", () => {
 			career: { bronze: 1, silver: 1, gold: 1 },
 			season: { bronze: 1, silver: 1, gold: 1 },
 			hasActiveSession: false,
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		await expect(server.getProfile("player-1")).rejects.toThrow(/unexpected profile payload/);
+	});
+
+	it("rejects a profile payload with a malformed displayNameChange field", async () => {
+		const fetchMock = createFetchMock(200, {
+			player: { playerId: "player-1", providerId: "76561198000000001", provider: "steam" },
+			rating: 1000,
+			career: { bronze: 0, silver: 0, gold: 0 },
+			season: { bronze: 0, silver: 0, gold: 0 },
+			hasActiveSession: false,
+			displayNameChange: { allowed: "yes" },
 		});
 		const server = createRemoteServer({
 			fetch: fetchMock as unknown as typeof fetch,

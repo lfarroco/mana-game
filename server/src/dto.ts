@@ -41,6 +41,11 @@ export type AuthGoogleRequest = {
   idToken: string;
 };
 
+export type UpdateDisplayNameRequest = {
+  /** The player's chosen display name (validated server-side). */
+  displayName: string;
+};
+
 /**
  * Longest accepted itch.io token. OAuth access keys are short API keys; the
  * itch-app-injected JWT variant is longer — 8KB bounds both while still
@@ -169,6 +174,45 @@ export function parseAuthGoogleBody(body: unknown): AuthGoogleRequest {
   }
 
   return { idToken };
+}
+
+/**
+ * Longest accepted display name on the wire. The semantic limit is
+ * `MAX_DISPLAY_NAME_LENGTH` in playerService (24 chars after trim); this
+ * bounds the wire payload well above that so a pathological body is rejected
+ * before it reaches the service.
+ */
+export const MAX_DISPLAY_NAME_WIRE_LENGTH = 100;
+
+/**
+ * Parse and shape-validate the PATCH /api/v1/players/me body.
+ *
+ * Wire-boundary only: the name must be a non-empty string that isn't
+ * pathologically long. The semantic rules (trimmed length, control
+ * characters, the 30-day cooldown) live in `playerService.updateDisplayName`.
+ */
+export function parseUpdateDisplayNameBody(
+  body: unknown,
+): UpdateDisplayNameRequest {
+  const raw = asRecord(body);
+
+  const displayName = raw.displayName;
+  if (typeof displayName !== "string" || displayName.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_display_name",
+      "displayName is required and must be a non-empty string",
+    );
+  }
+  if (displayName.length > MAX_DISPLAY_NAME_WIRE_LENGTH) {
+    throw new ApiError(
+      400,
+      "invalid_display_name",
+      `displayName exceeds the maximum length of ${MAX_DISPLAY_NAME_WIRE_LENGTH} characters`,
+    );
+  }
+
+  return { displayName };
 }
 
 export function parseCreateSessionBody(body: unknown): CreateSessionRequest {

@@ -12,10 +12,17 @@
 import request from "supertest";
 import type { Express } from "express";
 import { createApp } from "../src/app";
-import { createMemoryPlayerStatsRepo } from "../src/persistence/memory";
-import type { PlayerStatsRepo } from "../src/persistence/repositories";
+import {
+  createMemoryPlayerRepo,
+  createMemoryPlayerStatsRepo,
+} from "../src/persistence/memory";
+import type {
+  PlayerRepo,
+  PlayerStatsRepo,
+} from "../src/persistence/repositories";
 import { STEAM_IDENTITY } from "../src/services/steamAuth";
 import { DEFAULT_PLAYER_RATING } from "../src/services/rating";
+import { NAME_CHANGE_COOLDOWN_MS } from "../src/services/playerService";
 
 const KEY = "test-publisher-key";
 const APP_IDS = [3757600, 4233280];
@@ -33,12 +40,15 @@ const steamFetch = (async () => ({
 })) as unknown as typeof fetch;
 
 let playerStatsRepo: PlayerStatsRepo;
+let playerRepo: PlayerRepo;
 let app: Express;
 
 beforeEach(() => {
   playerStatsRepo = createMemoryPlayerStatsRepo();
+  playerRepo = createMemoryPlayerRepo();
   app = createApp({
     playerStatsRepo,
+    playerRepo,
     steam: { webApiKey: KEY, appIds: APP_IDS },
     steamFetch,
   });
@@ -74,6 +84,7 @@ describe("GET /api/v1/players/me", () => {
       career: { bronze: 0, silver: 0, gold: 0 },
       season: { bronze: 0, silver: 0, gold: 0 },
       hasActiveSession: false,
+      displayNameChange: { allowed: true },
     });
   });
 
@@ -154,6 +165,102 @@ describe("GET /api/v1/players/me", () => {
     expect(res.status).toBe(200);
     expect(res.body.career).toEqual({ bronze: 0, silver: 1, gold: 1 });
     expect(res.body.season).toEqual({ bronze: 0, silver: 1, gold: 1 });
+  });
+});
+
+describe("PATCH /api/v1/players/me", () => {
+  it("renames the player and returns the refreshed profile with the cooldown applied", async () => {
+    const { token, playerId } = await login();
+    const before = Date.now();
+
+    const res = await request(app)
+      .patch("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ displayName: "  NovaMage  " });
+
+    expect(res.status).toBe(200);
+    expect(res.body.player.displayName).toBe("NovaMage");
+    expect(res.body.displayNameChange.allowed).toBe(false);
+    expect(res.body.displayNameChange.nextAllowedAt).toBeGreaterThanOrEqual(
+      before + NAME_CHANGE_COOLDOWN_MS,
+    );
+
+    // Persisted: a fresh GET sees the new name.
+    const get = await request(app)
+      .get("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`);
+    expect(get.body.player.displayName).toBe("NovaMage");
+    expect(playerRepo.findById(playerId)?.displayNameUpdatedAt).toBeDefined();
+  });
+
+  it("rejects a second change within the 30-day cooldown", async () => {
+    const { token } = await login();
+
+    const first = await request(app)
+      .patch("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ displayName: "First" });
+    expect(first.status).toBe(200);
+
+    const second = await request(app)
+      .patch("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ displayName: "Second" });
+    expect(second.status).toBe(429);
+    expect(second.body.error).toBe("name_change_cooldown");
+    expect(second.body.message).toMatch(/change it again/);
+
+    // The first name is untouched.
+    const get = await request(app)
+      .get("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`);
+    expect(get.body.player.displayName).toBe("First");
+  });
+
+  it("allows a change once the cooldown has expired", async () => {
+    const { token, playerId } = await login();
+    playerRepo.updateDisplayName(
+      playerId,
+      "Old",
+      Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
+    );
+
+    const res = await request(app)
+      .patch("/api/v1/players/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ displayName: "Fresh" });
+
+    expect(res.status).toBe(200);
+    expect(res.body.player.displayName).toBe("Fresh");
+  });
+
+  it("rejects invalid display names with 400", async () => {
+    const { token } = await login();
+    const badBodies = [
+      { displayName: "" },
+      { displayName: "   " },
+      { displayName: "a" },
+      { displayName: "x".repeat(25) },
+      { displayName: "Bad\u0000Name" },
+      {},
+      { displayName: 42 },
+    ];
+
+    for (const body of badBodies) {
+      const res = await request(app)
+        .patch("/api/v1/players/me")
+        .set("Authorization", `Bearer ${token}`)
+        .send(body);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe("invalid_display_name");
+    }
+  });
+
+  it("rejects an unauthenticated request", async () => {
+    const res = await request(app)
+      .patch("/api/v1/players/me")
+      .send({ displayName: "Nova" });
+    expect(res.status).toBe(401);
   });
 });
 

@@ -4,6 +4,7 @@
 /// <reference types="jest" />
 
 import {
+  MAX_DISPLAY_NAME_WIRE_LENGTH,
   MAX_GOOGLE_ID_TOKEN_LENGTH,
   MAX_ITCH_TOKEN_LENGTH,
   parseAuthGoogleBody,
@@ -11,6 +12,7 @@ import {
   parseCreateSessionBody,
   parseActionDispatchBody,
   parseAuthSteamBody,
+  parseUpdateDisplayNameBody,
 } from "../src/dto";
 import { ApiError } from "../src/errors";
 
@@ -220,6 +222,38 @@ describe("parseAuthGoogleBody", () => {
       parseAuthGoogleBody({ idToken: "x".repeat(MAX_GOOGLE_ID_TOKEN_LENGTH + 1) }),
     ).toThrow(
       expect.objectContaining({ status: 400, code: "invalid_google_token" }),
+    );
+  });
+});
+
+describe("parseUpdateDisplayNameBody", () => {
+  it("parses a well-formed display-name body", () => {
+    expect(parseUpdateDisplayNameBody({ displayName: "NovaMage" })).toEqual({
+      displayName: "NovaMage",
+    });
+  });
+
+  it("rejects a missing, empty, or non-string displayName", () => {
+    for (const bad of [
+      {},
+      { displayName: undefined },
+      { displayName: 42 },
+      { displayName: "" },
+      { displayName: "   " },
+    ]) {
+      expect(() => parseUpdateDisplayNameBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_display_name" }),
+      );
+    }
+  });
+
+  it("rejects a pathologically long displayName at the wire boundary", () => {
+    expect(() =>
+      parseUpdateDisplayNameBody({
+        displayName: "x".repeat(MAX_DISPLAY_NAME_WIRE_LENGTH + 1),
+      }),
+    ).toThrow(
+      expect.objectContaining({ status: 400, code: "invalid_display_name" }),
     );
   });
 });

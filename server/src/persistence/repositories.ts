@@ -33,8 +33,19 @@ export type Player = {
   provider: PlayerProvider;
   /** steamid64 for steam. Guests (future phase) will need this nullable. */
   providerId: string;
-  /** Steam persona name; unverified client-supplied (docs/auth.md). */
+  /**
+   * Display name. Steam persona (unverified client-supplied, docs/auth.md),
+   * itch username (server-verified), or the Google profile name (server-
+   * verified) at creation. Players may change it once per 30 days
+   * (`displayNameUpdatedAt` tracks the cooldown) — see
+   * `playerService.updateDisplayName`.
+   */
   displayName?: string;
+  /**
+   * Epoch milliseconds of the last display-name change. Unset = the player has
+   * never renamed, so the first change is always allowed.
+   */
+  displayNameUpdatedAt?: number;
   /** Epoch milliseconds. */
   createdAt: number;
 };
@@ -49,6 +60,17 @@ export type PlayerRepo = {
   findByProvider(provider: PlayerProvider, providerId: string): Player | null;
   findById(playerId: string): Player | null;
   create(player: Player): Player;
+  /**
+   * Set the display name and stamp `displayNameUpdatedAt` (the 30-day rename
+   * cooldown). Returns the updated player, or null when the player does not
+   * exist. The caller owns validation + cooldown enforcement
+   * (`playerService.updateDisplayName`).
+   */
+  updateDisplayName(
+    playerId: string,
+    displayName: string,
+    updatedAt: number,
+  ): Player | null;
 };
 
 /**

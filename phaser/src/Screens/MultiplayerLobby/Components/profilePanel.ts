@@ -10,11 +10,21 @@ const PANEL_HEIGHT = 420;
 /**
  * Profile panel — display name, provider badge, and current rating. Positioned
  * at the given center so the lobby can lay it out alongside the stat panels.
+ *
+ * `update(profile)` refreshes the name + rating in place after a rename
+ * (the lobby keeps the panel alive and re-syncs it with the server's
+ * response instead of rebuilding the element tree).
  */
+export type ProfilePanelElement = {
+	container: Phaser.GameObjects.Container;
+	/** Re-sync the displayed name + rating from a (fresh) profile. */
+	update: (profile: MultiplayerProfile) => void;
+};
+
 export function create(
 	profile: MultiplayerProfile,
 	position: [number, number]
-): Phaser.GameObjects.Container {
+): ProfilePanelElement {
 	const [x, y] = position;
 
 	const bg = env.borderedRoundRect(
@@ -33,13 +43,8 @@ export function create(
 		})
 		.setOrigin(0.5);
 
-	const displayName =
-		profile.player.displayName && profile.player.displayName.trim() !== ""
-			? profile.player.displayName
-			: profile.player.providerId;
-
 	const name = env.scene.add
-		.text(x, y - 80, displayName, {
+		.text(x, y - 80, "", {
 			...constants.titleTextConfig,
 			fontSize: "44px",
 			color: theme.UI_TEXT_ACCENT,
@@ -66,12 +71,25 @@ export function create(
 		.setOrigin(0.5);
 
 	const rating = env.scene.add
-		.text(x, y + 135, profile.rating.toString(), {
+		.text(x, y + 135, "", {
 			...constants.titleTextConfig,
 			fontSize: "40px",
 			color: "#FFD700",
 		})
 		.setOrigin(0.5);
 
-	return env.container([bg, header, name, providerLabel, divider, ratingLabel, rating]);
+	const container = env.container([bg, header, name, providerLabel, divider, ratingLabel, rating]);
+
+	const update = (next: MultiplayerProfile): void => {
+		const displayName =
+			next.player.displayName && next.player.displayName.trim() !== ""
+				? next.player.displayName
+				: next.player.providerId;
+		name.setText(displayName);
+		rating.setText(next.rating.toString());
+	};
+
+	update(profile);
+
+	return { container, update };
 }

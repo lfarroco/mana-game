@@ -70,6 +70,21 @@ export function createMemoryPlayerRepo(): PlayerRepo {
       playersById.set(player.playerId, player);
       return player;
     },
+    updateDisplayName: (playerId, displayName, updatedAt) => {
+      const player = playersById.get(playerId);
+      if (!player) return null;
+      const updated: Player = {
+        ...player,
+        displayName,
+        displayNameUpdatedAt: updatedAt,
+      };
+      playersById.set(playerId, updated);
+      playersByProvider.set(
+        providerKey(updated.provider, updated.providerId),
+        updated,
+      );
+      return updated;
+    },
   };
 }
 

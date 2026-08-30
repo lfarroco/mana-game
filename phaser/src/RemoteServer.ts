@@ -69,6 +69,12 @@ export type RemoteServer = {
 	 * counts, and whether a resumable session exists (`GET /api/v1/players/me`).
 	 */
 	getProfile(playerId: string): Promise<MultiplayerProfile>;
+	/**
+	 * Change the display name (`PATCH /api/v1/players/me`). The server enforces
+	 * the 30-day cooldown and returns the refreshed full profile so the lobby
+	 * can re-render in one round trip.
+	 */
+	updateDisplayName(displayName: string): Promise<MultiplayerProfile>;
 };
 
 /** Tiered victory counts from the lobby profile endpoint. */
@@ -80,7 +86,9 @@ export type MultiplayerVictoryCounts = {
 
 /**
  * Payload of `GET /api/v1/players/me` (server `playerService.ts`). `season`
- * counts victories completed since the 1st of the current month (UTC).
+ * counts victories completed since the 1st of the current month (UTC);
+ * `displayNameChange` reports rename availability for the 30-day cooldown
+ * (`nextAllowedAt` — epoch ms — is present exactly when `allowed` is false).
  */
 export type MultiplayerProfile = {
 	player: {
@@ -94,6 +102,10 @@ export type MultiplayerProfile = {
 	career: MultiplayerVictoryCounts;
 	season: MultiplayerVictoryCounts;
 	hasActiveSession: boolean;
+	displayNameChange: {
+		allowed: boolean;
+		nextAllowedAt?: number;
+	};
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -116,13 +128,17 @@ function isCombatStateDto(value: unknown): value is CombatStateDto {
 function isMultiplayerProfile(value: unknown): value is MultiplayerProfile {
 	if (!isRecord(value)) return false;
 	const player = isRecord(value.player) ? value.player : {};
+	const displayNameChange = isRecord(value.displayNameChange) ? value.displayNameChange : {};
 	return (
 		typeof player.playerId === "string" &&
 		typeof player.providerId === "string" &&
 		typeof value.rating === "number" &&
 		isVictoryCounts(value.career) &&
 		isVictoryCounts(value.season) &&
-		typeof value.hasActiveSession === "boolean"
+		typeof value.hasActiveSession === "boolean" &&
+		typeof displayNameChange.allowed === "boolean" &&
+		(displayNameChange.nextAllowedAt === undefined ||
+			typeof displayNameChange.nextAllowedAt === "number")
 	);
 }
 
@@ -208,7 +224,7 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 	const request = async (
 		path: string,
-		init: { method: "GET" | "POST"; body?: unknown }
+		init: { method: "GET" | "POST" | "PATCH"; body?: unknown }
 	): Promise<unknown> => {
 		const headers: Record<string, string> = {
 			Authorization: `Bearer ${requireToken()}`,
@@ -292,6 +308,17 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 
 		async getProfile(_playerId: string): Promise<MultiplayerProfile> {
 			const payload = await request("/api/v1/players/me", { method: "GET" });
+			if (!isMultiplayerProfile(payload)) {
+				throw new Error("Game server returned an unexpected profile payload");
+			}
+			return payload;
+		},
+
+		async updateDisplayName(displayName: string): Promise<MultiplayerProfile> {
+			const payload = await request("/api/v1/players/me", {
+				method: "PATCH",
+				body: { displayName },
+			});
 			if (!isMultiplayerProfile(payload)) {
 				throw new Error("Game server returned an unexpected profile payload");
 			}

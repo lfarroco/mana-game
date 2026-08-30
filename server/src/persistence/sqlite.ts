@@ -156,6 +156,23 @@ export function createSchema(db: Database.Database): void {
     CREATE INDEX IF NOT EXISTS idx_run_completions_player_time
       ON run_completions(player_id, completed_at);
   `);
+
+  // Column migration for databases created before the rename feature
+  // (`CREATE TABLE IF NOT EXISTS` never alters an existing players table).
+  migrateDisplayNameColumn(db);
+}
+
+/**
+ * Add the `display_name_updated_at` rename-cooldown column to `players` when
+ * missing. Guarded by a `PRAGMA table_info` check — no-op on fresh databases
+ * and on already-migrated ones, so it is safe to run on every boot.
+ */
+function migrateDisplayNameColumn(db: Database.Database): void {
+  const columns = db.prepare("PRAGMA table_info(players)").all() as {
+    name: string;
+  }[];
+  if (columns.some((c) => c.name === "display_name_updated_at")) return;
+  db.exec("ALTER TABLE players ADD COLUMN display_name_updated_at INTEGER");
 }
 
 /** Session repository — session JSON in `sessions`, combat DTO in `combat_states`. */
@@ -233,16 +250,23 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
  */
 export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
   const findByProviderStmt = db.prepare(
-    `SELECT player_id, provider, provider_id, display_name, created_at
+    `SELECT player_id, provider, provider_id, display_name,
+            display_name_updated_at, created_at
      FROM players WHERE provider = ? AND provider_id = ?`,
   );
   const findByIdStmt = db.prepare(
-    `SELECT player_id, provider, provider_id, display_name, created_at
+    `SELECT player_id, provider, provider_id, display_name,
+            display_name_updated_at, created_at
      FROM players WHERE player_id = ?`,
   );
   const insertStmt = db.prepare(
     `INSERT INTO players (player_id, provider, provider_id, display_name, created_at)
      VALUES (?, ?, ?, ?, ?)`,
+  );
+  const updateDisplayNameStmt = db.prepare(
+    `UPDATE players
+     SET display_name = ?, display_name_updated_at = ?
+     WHERE player_id = ?`,
   );
 
   const rowToPlayer = (row: PlayerRow): Player => ({
@@ -250,6 +274,7 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
     provider: row.provider,
     providerId: row.provider_id,
     displayName: row.display_name ?? undefined,
+    displayNameUpdatedAt: row.display_name_updated_at ?? undefined,
     createdAt: row.created_at,
   });
 
@@ -277,6 +302,15 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
         player.createdAt,
       );
       return player;
+    },
+    updateDisplayName: (playerId, displayName, updatedAt) => {
+      const result = updateDisplayNameStmt.run(
+        displayName,
+        updatedAt,
+        playerId,
+      );
+      if (result.changes === 0) return null; // unknown player id
+      return rowToPlayer(findByIdStmt.get(playerId) as PlayerRow);
     },
   };
 }
@@ -504,6 +538,7 @@ type PlayerRow = {
   provider: PlayerProvider;
   provider_id: string;
   display_name: string | null;
+  display_name_updated_at: number | null;
   created_at: number;
 };
 

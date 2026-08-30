@@ -6,11 +6,13 @@ import * as UIButton from "@Components/Button/UIButton";
 import * as profilePanel from "./Components/profilePanel";
 import * as statsPanel from "./Components/statsPanel";
 import * as actionButtons from "./Components/actionButtons";
+import * as changeName from "./Components/changeName";
+import * as renameModal from "./Components/renameModal";
 import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
 import { authSession } from "../../lib/authSession";
 import { setMultiplayerMode } from "../../lib/multiplayerMode";
-import { remoteServer, RemoteServerError } from "../../RemoteServer";
+import { remoteServer, RemoteServerError, type MultiplayerProfile } from "../../RemoteServer";
 import { env } from "@Env";
 import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
@@ -50,6 +52,9 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 
 	create: async (ctx) => {
 		hasActiveRun = false;
+		currentProfile = null;
+		identityPanel = null;
+		changeNameElement = null;
 		const elements: Destroyable[] = [];
 
 		const background = cloudsBg.create();
@@ -79,11 +84,22 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 
 			const profile = await remoteServer.getProfile(stored.player.playerId);
 			hasActiveRun = profile.hasActiveSession;
+			currentProfile = profile;
 
 			loading.destroy();
 
+			const identity = profilePanel.create(profile, [constants.MIDDLE_SCREEN_X - 640, 420]);
+			identityPanel = identity;
+			const changeNameSection = changeName.create(
+				profile,
+				[constants.MIDDLE_SCREEN_X - 640, 690],
+				() => openRenameModal(ctx)
+			);
+			changeNameElement = changeNameSection;
+
 			elements.push(
-				profilePanel.create(profile, [constants.MIDDLE_SCREEN_X - 640, 420]),
+				identity.container,
+				changeNameSection.container,
 				statsPanel.create({
 					title: i18n.t("lobby.career"),
 					counts: profile.career,
@@ -110,11 +126,53 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 /** True when the loaded profile reports a resumable run (drives the play button). */
 let hasActiveRun = false;
 
+/** The latest server profile — re-synced after a rename so panels can update. */
+let currentProfile: MultiplayerProfile | null = null;
+
+/** Live refs to the identity UI, updated in place after a rename. */
+let identityPanel: profilePanel.ProfilePanelElement | null = null;
+let changeNameElement: changeName.ChangeNameElement | null = null;
+
 const cleanup = () => {
 	hasActiveRun = false;
+	currentProfile = null;
+	identityPanel = null;
+	changeNameElement = null;
+	renameModal.destroy();
 };
 
-export const { init, create, destroy, name, currentPhase } = screenModule(screen);
+/**
+ * Open the rename modal. The submitted name goes to
+ * `remoteServer.updateDisplayName`; on success the refreshed profile (returned
+ * by the server) is written back into the identity UI, the persisted auth
+ * session (so the login screen shows the new name), and `currentProfile`.
+ */
+function openRenameModal(_ctx: Context): void {
+	const currentName =
+		currentProfile?.player.displayName?.trim() || currentProfile?.player.providerId || "";
+	renameModal.open({
+		currentName,
+		onSubmit: async (name: string) => {
+			const profile = await remoteServer.updateDisplayName(name);
+			currentProfile = profile;
+			// Keep the persisted auth session's display name in sync — the
+			// login screen renders it from the stored session.
+			const stored = authSession.readStoredSession();
+			if (stored) {
+				authSession.saveSession({
+					...stored,
+					player: { ...stored.player, displayName: profile.player.displayName },
+				});
+			}
+			identityPanel?.update(profile);
+			changeNameElement?.update(profile);
+		},
+	});
+}
+
+export const { init, create, destroy, name, currentPhase } = screenModule(screen, {
+	onDestroy: () => renameModal.destroy(),
+});
 
 /** Adaptive play action: resume the active run, or start a new multiplayer game. */
 async function handlePlay(): Promise<void> {

@@ -253,6 +253,72 @@ describe("createSqlitePlayerRepo", () => {
 
     db.close();
   });
+
+  it("updates the display name and stamps the rename cooldown timestamp", () => {
+    const db = openSqliteDatabase(":memory:");
+    const repo = createSqlitePlayerRepo(db);
+    const player = makePlayer({ displayName: "Momo" });
+    repo.create(player);
+
+    const updated = repo.updateDisplayName(
+      player.playerId,
+      "Renamed",
+      1_752_500_000_000,
+    );
+
+    expect(updated).toEqual({
+      ...player,
+      displayName: "Renamed",
+      displayNameUpdatedAt: 1_752_500_000_000,
+    });
+    // Persisted: a fresh read sees the new name + timestamp.
+    expect(repo.findById(player.playerId)).toEqual(updated);
+
+    db.close();
+  });
+
+  it("returns null from updateDisplayName for an unknown player", () => {
+    const db = openSqliteDatabase(":memory:");
+    const repo = createSqlitePlayerRepo(db);
+
+    expect(repo.updateDisplayName("nobody", "Xyz", Date.now())).toBeNull();
+
+    db.close();
+  });
+
+  it("migrates an existing players table without the cooldown column", () => {
+    const db = openSqliteDatabase(":memory:");
+    // Simulate a database created before the rename feature: drop the column
+    // migration would have added (a fresh open already has it).
+    db.exec("ALTER TABLE players DROP COLUMN display_name_updated_at");
+    expect(
+      (db.prepare("PRAGMA table_info(players)").all() as { name: string }[]).some(
+        (c) => c.name === "display_name_updated_at",
+      ),
+    ).toBe(false);
+
+    // Re-running schema creation must add the column back (idempotent).
+    const repos = createSqliteRepos(db);
+    const columns = db.prepare("PRAGMA table_info(players)").all() as {
+      name: string;
+    }[];
+    expect(columns.some((c) => c.name === "display_name_updated_at")).toBe(true);
+
+    // And the migrated repo persists renames.
+    const player = makePlayer({ playerId: "p-migrated" });
+    repos.playerRepo.create(player);
+    const updated = repos.playerRepo.updateDisplayName(
+      "p-migrated",
+      "NewName",
+      1_752_500_000_000,
+    );
+    expect(updated?.displayName).toBe("NewName");
+    expect(repos.playerRepo.findById("p-migrated")?.displayNameUpdatedAt).toBe(
+      1_752_500_000_000,
+    );
+
+    db.close();
+  });
 });
 
 describe("createSqliteTokenRepo", () => {
