@@ -19,6 +19,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- OAuth deep link (docs/android-multiplayer.md): the itch.io /
+                 Google login flows redirect to the game server's relay page,
+                 which hands the token back here via the com.manabattle.app://
+                 custom scheme. @capacitor/app's appUrlOpen surfaces the URI. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.manabattle.app" android:host="oauth" />
+            </intent-filter>
         </activity>
 
         <provider

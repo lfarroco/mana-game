@@ -2,6 +2,7 @@ import * as constants from "./Constants";
 import Client from "./Client";
 import * as State from "@Models/ClientState";
 import { handleOAuthCallbackIfPresent } from "./lib/itchAuth";
+import { captureLaunchReturnIfPresent } from "./lib/oauthAndroid";
 
 import ShatterImagePlugin from "phaser3-rex-plugins/plugins/shatterimage-plugin.js";
 import BBCodeTextPlugin from "phaser3-rex-plugins/plugins/bbcodetext-plugin.js";
@@ -57,3 +58,8 @@ async function startGame(): Promise<void> {
 if (!handleOAuthCallbackIfPresent()) {
 	void startGame();
 }
+
+// Android (Capacitor) OAuth deep-link capture (docs/android-multiplayer.md):
+// if the app was cold-started by an OAuth return URI, @capacitor/app's launch
+// URL holds the credential — stash it for the next login. No-op elsewhere.
+captureLaunchReturnIfPresent();

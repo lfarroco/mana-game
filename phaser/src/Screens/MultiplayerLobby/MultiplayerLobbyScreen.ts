@@ -10,7 +10,7 @@ import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
 import { authSession } from "../../lib/authSession";
 import { setMultiplayerMode } from "../../lib/multiplayerMode";
-import { remoteServer } from "../../RemoteServer";
+import { remoteServer, RemoteServerError } from "../../RemoteServer";
 import { env } from "@Env";
 import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
@@ -98,6 +98,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 			);
 		} catch (err) {
 			loading.destroy();
+			if (handleAuthExpired(err)) return;
 			const detail = err instanceof Error ? err.message : String(err);
 			showLobbyError(`${i18n.t("lobby.loadFailed")}\n\n${detail}`);
 		}
@@ -149,9 +150,25 @@ async function resumeActiveRun(): Promise<void> {
 		}
 		await getScreenManager().go("battleground");
 	} catch (err) {
+		if (handleAuthExpired(err)) return;
 		const detail = err instanceof Error ? err.message : String(err);
 		showLobbyError(detail);
 	}
+}
+
+/**
+ * Re-auth path for expired/invalid bearer tokens (docs/android-multiplayer.md):
+ * the persisted session is stale (30-day TTL, no refresh) — clear it and send
+ * the player to the multiplayer login screen instead of a dead-end error
+ * modal. Returns true when handled.
+ */
+function handleAuthExpired(err: unknown): boolean {
+	if (err instanceof RemoteServerError && err.status === 401) {
+		authSession.clearSession();
+		void getScreenManager().go("multiplayer_login");
+		return true;
+	}
+	return false;
 }
 
 /** Small dismissible modal for lobby load/action errors. */

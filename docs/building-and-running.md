@@ -110,10 +110,11 @@ The phaser development server runs on port 8080 by default and includes:
 ## Building for Production
 
 > **Release builds must bake the production server URL.** `MANA_SERVER_URL`
-> (and `MANA_ITCH_CLIENT_ID` for the web build) are compile-time `DefinePlugin`
-> values — if unset, the client falls back to `http://127.0.0.1:8787` (the
-> player's own machine) / disables browser login. The webpack production build
-> warns loudly when either is missing. The Makefile sources the root `.env`
+> (and `MANA_ITCH_CLIENT_ID` / `MANA_GOOGLE_CLIENT_ID` for the web/Android
+> builds) are compile-time `DefinePlugin` values — if unset, the client falls
+> back to `http://127.0.0.1:8787` (the player's own machine) / disables the
+> corresponding login. The webpack production build warns loudly when any is
+> missing. The Makefile sources the root `.env`
 > (via `-include .env`), so you can set them there; see
 > [.env.example](../.env.example) and [release-audit.md](release-audit.md).
 
@@ -214,6 +215,24 @@ Builds standalone executables for:
 Build outputs are placed in the `dist-electron` directory (uploaded to Steam —
 see `steam/STEAM_UPLOAD.md`).
 
+### Android Build (Capacitor)
+
+```bash
+make android-build      # cd phaser && npm run build && npx cap sync android
+make android-open       # open the project in Android Studio
+```
+
+- `make android-build` defaults `MANA_SERVER_URL` to `https://api.manabattle.com`
+  and bakes `MANA_GOOGLE_CLIENT_ID` / `MANA_ITCH_CLIENT_ID` from the root
+  `.env` (webpack `DefinePlugin` — a missing Google client id is warned about).
+- Multiplayer on Android uses **Google sign-in** (or itch.io) through the
+  system browser + the game server's OAuth relay page + a `com.manabattle.app://`
+  deep link — full spec: [android-multiplayer.md](android-multiplayer.md).
+- One-time human setup before the first live login: create the Google Cloud
+  OAuth client id, register `https://api.manabattle.com/oauth/callback` as a
+  redirect URI in Google Cloud **and** the itch.io OAuth app, and set
+  `MANA_GOOGLE_ENABLED=true` + `MANA_GOOGLE_CLIENT_ID` server-side.
+
 ### Server
 
 ```bash
@@ -222,17 +241,21 @@ npm run build          # tsup bundle → dist/
 make server-build      # or the Docker image
 ```
 
-### Multiplayer auth configuration (web build)
+### Multiplayer auth configuration (web + Android builds)
 
 itch.io browser players log in via the itch.io OAuth popup (see
-[itchio-auth.md](itchio-auth.md)). The relevant env vars:
+[itchio-auth.md](itchio-auth.md)); Android players use Google or itch.io via
+the system browser + relay deep link (see
+[android-multiplayer.md](android-multiplayer.md)). The relevant env vars:
 
 | Var | Where | Meaning |
 |---|---|---|
 | `MANA_ITCH_CLIENT_ID` | `phaser/` web build (webpack DefinePlugin) | Public itch.io OAuth client id; empty → browser multiplayer shows "itch auth not configured" |
+| `MANA_GOOGLE_CLIENT_ID` | `phaser/` web + Android builds (webpack DefinePlugin) + `server/` | Public Google OAuth client id; empty → Google sign-in hidden/disabled |
 | `MANA_ITCH_ENABLED` | `server/` | `true` registers `POST /api/v1/auth/itch` (default `false`) |
-| `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io origins in production: `https://html-classic.itch.zone` (the game iframe origin — what the embedded game sends) and `https://lfarroco.itch.io`, comma-separated |
-| `MANA_SERVER_URL` | `phaser/` web + Electron builds (webpack DefinePlugin) | Game-server base URL (default `http://127.0.0.1:8787`) |
+| `MANA_GOOGLE_ENABLED` | `server/` | `true` (with `MANA_GOOGLE_CLIENT_ID`) registers `POST /api/v1/auth/google` (default `false`) |
+| `MANA_CORS_ORIGIN` | `server/` | Allow the itch.io origins in production: `https://html-classic.itch.zone` (the game iframe origin — what the embedded game sends) and `https://lfarroco.itch.io`, comma-separated. `*` today also covers the Android WebView origin (`https://localhost`) — add it explicitly if the list is ever narrowed |
+| `MANA_SERVER_URL` | `phaser/` web + Electron + Android builds (webpack DefinePlugin) | Game-server base URL (default `http://127.0.0.1:8787`); also derives the OAuth relay page URL (`<server>/oauth/callback`) |
 
 Steam (Electron) auth needs `MANA_STEAM_WEB_API_KEY` (server secret) plus the
 client defaults — see [auth.md](auth.md) and [game-server.md](game-server.md)

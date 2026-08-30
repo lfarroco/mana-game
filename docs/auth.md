@@ -1,9 +1,9 @@
 # Auth — Mana Game Server
 
-**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 Steam smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)), and the **itch.io web-build provider landed 2026-08-20** (see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
+**Status**: ✅ Implemented & smoke-tested (2026-08-13 code, 2026-08-20 Steam smoke test) — Phase A (repos/middleware), Phase B (Steam login), and Phase C (client wiring) are landed, the **manual Steam smoke test passed 2026-08-20** (real ticket end-to-end; local SQLite DB holds the Steam player + token — see [plan.md task 14](plan.md)), the **itch.io web-build provider landed 2026-08-20** (see [itchio-auth.md](itchio-auth.md); live-embed smoke test pending), and the **Google provider (Android + web) landed 2026-09-02** (see [android-multiplayer.md](android-multiplayer.md); live smoke pending). Deviations found during implementation: [Implementation notes & deviations](#implementation-notes--deviations).
 **Created**: 2026-08-13
-**Scope**: `server/` (Node multiplayer backend) + the Electron/Steam and browser/itch.io client sides in `phaser/`.
-**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth — ✅ implemented 2026-08-20).
+**Scope**: `server/` (Node multiplayer backend) + the Electron/Steam, browser/itch.io, and Android/Google client sides in `phaser/`.
+**Related**: [game-server.md](game-server.md) (backend plan), [code-quality-cleanup.md](code-quality-cleanup.md) (quarantined Supabase code), [itchio-auth.md](itchio-auth.md) (itch.io web-build auth — ✅ implemented 2026-08-20), [android-multiplayer.md](android-multiplayer.md) (Google/Android auth + login hub — ✅ implemented 2026-09-02).
 
 ## Purpose
 
@@ -11,6 +11,7 @@ Design the authentication for the multiplayer server. Requirements from the 2026
 
 - **Steam players auto-login** — zero friction in the Electron build.
 - **Browser/itch.io players log in via itch.io OAuth** (web build) — shipped 2026-08-20 (see [itchio-auth.md](itchio-auth.md)).
+- **Android players log in via Google OAuth** — shipped 2026-09-02 (see [android-multiplayer.md](android-multiplayer.md)).
 - Guest/browser-without-itch support is a future phase.
 - Keep the option open for Firebase/Supabase-style auth for non-Steam players later.
 
@@ -20,7 +21,7 @@ Design the authentication for the multiplayer server. Requirements from the 2026
 |---|---|---|
 | 1 | **Steam = identity proof only; the server issues its own session tokens.** | Steam's `AuthenticateUserTicket` verifies "this is Steam user X" once, per login. It provides no "logged-in user" state for your HTTP API over the lifetime of a run — the server needs its own bearer tokens for every request. |
 | 2 | **The game server DB is the system of record for all players** (Steam and non-Steam). | Ratings, ghosts, and active sessions are inherently per-player data that only make sense in your DB. Steam/Firebase merely prove identity; your `players` table is the source of truth. |
-| 3 | **Two enabled providers: Steam (Electron) + itch.io (web).** `POST /api/v1/auth/steam` and `POST /api/v1/auth/itch` are the auth endpoints; there are **no guest accounts** yet — non-Steam, non-itch browser players are a future phase. | Product decision (2026-08-13 + 2026-08-20): Steam players are a priority, and the itch.io web build needs its own login to play online. |
+| 3 | **Three enabled providers: Steam (Electron), itch.io (web), Google (Android + web).** `POST /api/v1/auth/steam`, `POST /api/v1/auth/itch`, and `POST /api/v1/auth/google` are the auth endpoints; there are **no guest accounts** yet — non-Steam, non-itch, non-Google players are a future phase. | Product decision (2026-08-13 + 2026-08-20 + 2026-09-02): Steam players are a priority, the itch.io web build needs its own login, and the Android/web builds use Google sign-in (the identity players already have). |
 | 4 | **Use the Steam persona name as the display name.** | No separate naming step for Steam players; `localplayer.getName()` is available client-side (and `ISteamUser/GetPlayerSummaries` server-side if unverified names ever matter). |
 | 5 | **When non-Steam players eventually ship, use server-issued guest tokens rather than Firebase/Supabase Auth.** | Guests in localStorage fully cover continuity for an autobattler; zero deps, zero JWT verification, zero signup-abuse surface. Add a provider later behind the same abstraction if email/social/cross-device identity is ever needed. |
 
@@ -82,11 +83,11 @@ New repositories (`server/src/persistence/repositories.ts`) — in-memory v1 (`m
 ```
 players(
   player_id      uuid          PK   -- server-generated (replaces client-side "player_###")
-  provider       'steam'|'itch'|'guest'   -- future: 'firebase', 'google', ...
-  provider_id    text          -- steamid64 for steam; null for guests
+  provider       'steam'|'itch'|'google'|'guest'   -- future: 'firebase', ...
+  provider_id    text          -- steamid64 for steam; google `sub` for google; null for guests
   display_name   text
   created_at     timestamp
-  UNIQUE(provider, provider_id)     -- a Steam account maps to exactly one player
+  UNIQUE(provider, provider_id)     -- a Steam/itch/Google account maps to exactly one player
 )
 
 player_tokens(
@@ -119,7 +120,7 @@ tokenService.issue(playerId)
   → { token, tokenHash }
 ```
 
-Adding Firebase/Supabase later = one new `POST /auth/<provider>` handler that verifies their JWT and returns `{ provider: 'firebase', providerId: <uid> }`. Sessions, matchmaking, and ratings never know which provider a player came from. The `provider` column also lets matchmaking filter pools if ever needed. `steam` (Electron) and `itch` (web) are the currently enabled providers.
+Adding Firebase/Supabase later = one new `POST /auth/<provider>` handler that verifies their JWT and returns `{ provider: 'firebase', providerId: <uid> }`. Sessions, matchmaking, and ratings never know which provider a player came from. The `provider` column also lets matchmaking filter pools if ever needed. `steam` (Electron), `itch` (web), and `google` (Android + web) are the currently enabled providers.
 
 ## Auth flows
 
@@ -153,8 +154,8 @@ Full spec: [itchio-auth.md](itchio-auth.md). The web build uses itch.io's OAuth 
 **Client** (`phaser/src/lib/itchAuth.ts`, browser only):
 
 1. Clicking MULTIPLAYER calls `itchAuth.loginWithItch()`; it first reuses a stored server session (itch OAuth keys are long-lived — no popup on repeat visits).
-2. Otherwise it opens a popup to `https://itch.io/user/oauth?client_id=…&scope=profile%3Ame&response_type=token&redirect_uri=<page that runs the game>&state=<nonce>` (synchronously within the click gesture — popup-blocker requirement). `<page that runs the game>` = `window.location.origin + window.location.pathname`; on the live itch.io embed that is the **iframe's direct URL** (`https://html-classic.itch.zone/html/…`), which must be registered as a redirect URI in the OAuth app — a missing registration surfaces as itch.io's "invalid redirect URI" (see itchio-auth.md).
-3. itch redirects back to that page with the token in the URL hash (`#access_token=…&state=…`). The page's boot capture (`main.ts` → `handleOAuthCallbackIfPresent`) posts the token to the opener over same-origin `postMessage` (verifying the `state` nonce) and closes; a blocked popup falls back to a top-level redirect whose return is stashed at boot.
+2. Otherwise it opens a popup to `https://itch.io/user/oauth?client_id=…&scope=profile%3Ame&response_type=token&redirect_uri=<server>/oauth/callback&state=<nonce>` (synchronously within the click gesture — popup-blocker requirement). The callback is the game server's **stable OAuth relay page** (`MANA_SERVER_URL` + `/oauth/callback`, e.g. `https://api.manabattle.com/oauth/callback`) — not the page the game happens to run at, which on the itch.io embed is the iframe's direct URL (`https://html-classic.itch.zone/html/…`) and changes on every deploy (see itchio-auth.md).
+3. itch redirects the popup to the relay with the token in the URL hash (`#access_token=…&state=…`). The relay posts the hash to the opener over cross-origin `postMessage` (the client verifies the relay origin + `state` nonce) and closes; a blocked popup falls back to a top-level redirect whose `state` carries the game URL, so the relay bounces the browser back to the game with the hash and the boot capture (`main.ts` → `handleOAuthCallbackIfPresent`) stashes it.
 4. `POST /api/v1/auth/itch` with `{ token }`, then persist the issued `{ token, player }` via the shared `authSession` store (`mana_auth_session`).
 
 **Server** (`server/src/services/itchAuth.ts`):
@@ -168,6 +169,48 @@ Full spec: [itchio-auth.md](itchio-auth.md). The web build uses itch.io's OAuth 
 Notes:
 - `MANA_ITCH_ENABLED=true` registers the route (mirrors the Steam gate — itch has no server secret, so it needs an explicit opt-in).
 - The **developer** API key (`MANA_ITCH_API_KEY`) is **not** consumed here; the server validates the *player's* token against `profile`.
+
+### Google OAuth login (Android + web) — ✅ IMPLEMENTED (2026-09-02)
+
+Full spec: [android-multiplayer.md](android-multiplayer.md). Google blocks
+OAuth inside embedded **WebViews** (`disallowed_useragent`), so Android uses
+the **redirect flow through the system browser** (Chrome Custom Tab); on
+**web** the authorize URL opens in a plain **popup**. Both return through the
+game server's OAuth relay page:
+
+**Client** (`phaser/src/lib/googleAuth.ts` + `oauthAndroid.ts`):
+
+1. `loginWithGoogle()` reuses a stored server session if present (no browser
+   round-trip on repeat visits).
+2. Otherwise it opens `https://accounts.google.com/o/oauth2/v2/auth?client_id=…&response_type=id_token&scope=openid%20profile%20email&redirect_uri=<server>/oauth/callback&nonce=…&state=…` — in the **system browser** (`@capacitor/browser`) on Android, or in a **popup** on web.
+3. Google redirects to the relay page with `#id_token=…&state=…`. Android:
+   the relay's script does `location.replace("com.manabattle.app://oauth#…")`
+   and `@capacitor/app`'s `appUrlOpen` delivers the URI (hash intact) back to
+   the app. Web: the relay posts the hash to the popup's opener over
+   cross-origin `postMessage` (origin + state verified) and closes.
+4. `POST /api/v1/auth/google` with `{ idToken }`, then persist the issued
+   `{ token, player }` via the shared `authSession` store (`mana_auth_session`).
+
+**Server** (`server/src/services/googleAuth.ts`):
+
+1. Validate body: `idToken` (non-empty, length-capped).
+2. `GET https://oauth2.googleapis.com/tokeninfo?id_token=…` — must be HTTP 200
+   JSON with `aud` === `MANA_GOOGLE_CLIENT_ID`, `iss` in
+   `{accounts.google.com, https://accounts.google.com}`, a non-empty `sub`,
+   and an unexpired `exp`. Anything else → 401 `invalid_google_token`.
+3. `findOrCreatePlayer({ provider: 'google', providerId: sub, displayName: name })` — display name is **server-verified** (the token's `name` claim).
+4. Issue a token, return `{ player, token }`.
+
+Notes:
+- `MANA_GOOGLE_ENABLED=true` **and** a non-empty `MANA_GOOGLE_CLIENT_ID`
+  register the route (explicit opt-in, like itch).
+- Google sign-in ships on **Android and web** (the itch.io embed uses the
+  popup flow — plain browser popups are fine; Google only blocks the JS
+  library's in-iframe flows and embedded WebViews, neither of which this flow
+  uses). A live popup smoke test on the embed is pending.
+- The relay page (`GET /oauth/callback`, `server/src/http/oauthRelayPage.ts`)
+  is shared by Google and itch.io on both platforms — see
+  android-multiplayer.md / itchio-auth.md.
 
 ### Guest accounts (future phase)
 
@@ -190,12 +233,13 @@ Updated from [game-server.md](game-server.md). Base path `/api/v1`.
 | GET | `/health` | → `{ ok: true }` | liveness — unauthenticated |
 | POST | `/auth/steam` | `{ ticket, identity, appId }` → `{ player, token }` | Steam auto-login (Electron) — see [Steam auto-login](#steam-auto-login-electron) |
 | POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — see [itch.io OAuth login](#itchio-oauth-login-web-build--implemented-2026-08-20) |
+| POST | `/auth/google` | `{ idToken }` → `{ player, token }` | Google OIDC ID-token login (Android + web) — see [Google OAuth login (Android + web)](#google-oauth-login-android--web--implemented-2026-09-02) |
 | POST | `/players` | `{ displayName? }` → `{ player, token }` | guest accounts — **future phase** (see [Guest accounts](#guest-accounts-future-phase)) |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | (unchanged) authenticated |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | (unchanged) authenticated; 404 once the run has finished (session lifecycle is server-owned — there is no delete endpoint) |
 | POST | `/sessions/current/actions` | `{ action, clientActionId? }` → `{ session, combatState? }` | (unchanged) authenticated |
 
-Unauthenticated: `GET /health`, `POST /auth/steam`, `POST /auth/itch`. Everything else requires `Authorization: Bearer <token>`.
+Unauthenticated: `GET /health`, `POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`, `GET /oauth/callback` (the OAuth relay page). Everything else requires `Authorization: Bearer <token>`.
 
 ### Middleware (`server/src/http/middleware/auth.ts`)
 
@@ -217,17 +261,20 @@ Replaces the current `X-Player-Id` header parsing in `routes/sessions.ts`:
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20` | Per-IP request cap per window for the auth endpoints (`/auth/steam`, `/auth/itch`) |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` (15 min) | Rate-limit window for the auth endpoints |
 | `MANA_ITCH_ENABLED` | `false` | `true` registers `POST /auth/itch` (the web build's itch.io login) — mirrors the Steam gate |
+| `MANA_GOOGLE_ENABLED` | `false` | `true` registers `POST /auth/google` (the Android build's Google sign-in) — explicit opt-in, like itch |
+| `MANA_GOOGLE_CLIENT_ID` | — | Public Google OAuth client id; the server rejects ID tokens whose `aud` does not match. Same value is baked into the Android build (see [android-multiplayer.md](android-multiplayer.md)) |
 | `MANA_SERVER_HOST` / `MANA_SERVER_PORT` | `127.0.0.1` / `8787` | (existing) |
 
 Client side: the renderer reads `MANA_SERVER_URL` (webpack DefinePlugin, default
 `http://127.0.0.1:8787`) as the game-server base URL (`phaser/src/lib/steamAuth.ts`,
-`phaser/src/lib/itchAuth.ts`), and `MANA_ITCH_CLIENT_ID` (webpack DefinePlugin) as the
-public itch.io OAuth client id for the web build (`phaser/src/lib/itchAuth.ts`).
+`phaser/src/lib/itchAuth.ts`, `phaser/src/lib/googleAuth.ts`), and
+`MANA_ITCH_CLIENT_ID` / `MANA_GOOGLE_CLIENT_ID` (webpack DefinePlugin) as the
+public OAuth client ids for the web and Android builds.
 
 ## Security & abuse
 
 - **Publisher key is server-side only**; it must never appear in `phaser/` or the Electron bundle.
-- **Rate-limit the auth endpoints** (`POST /auth/steam`, `POST /auth/itch`; per-IP via `express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS`): prevents ticket/token grinding. Exceeding the cap returns 429 `{ error: "rate_limited" }`. (Applies to `POST /players` too, once guest accounts land.)
+- **Rate-limit the auth endpoints** (`POST /auth/steam`, `POST /auth/itch`, `POST /auth/google`; per-IP via `express-rate-limit`, `MANA_AUTH_RATE_LIMIT_MAX` / `MANA_AUTH_RATE_LIMIT_WINDOW_MS`): prevents ticket/token grinding. Exceeding the cap returns 429 `{ error: "rate_limited" }`. (Applies to `POST /players` too, once guest accounts land.)
 - **Ticket abuse**: validate immediately (single-use), require a valid `appId` + matching `identity`, reject non-17-digit `steamid`s.
 - **Token hygiene**: store only SHA-256 hashes; enforce `expires_at` in the middleware.
 - **No client-chosen player ids**: the client never tells the server who it is; the server derives identity from the token.
@@ -266,6 +313,7 @@ Recorded 2026-08-13 while implementing plan.md tasks 1–13. Items marked *(devi
 - **`X-Player-Id` code paths are deleted**; only comments/READMEs describing what replaced it remain.
 - **Manual smoke test** (plan.md task 14) **passed 2026-08-20**: real Steam ticket authenticated end-to-end (Electron → server → Steam Web API); the local SQLite DB (`server/data/mana.db`) was populated with the Steam player + bearer token.
 - **itch.io provider** landed 2026-08-20 (`server/src/services/itchAuth.ts` + `POST /auth/itch`; client `phaser/src/lib/itchAuth.ts` OAuth-popup flow + shared `phaser/src/lib/authSession.ts` store; boot-time OAuth capture in `main.ts`). itch display names are **server-verified** (`api.itch.io/profile`), unlike Steam's client-supplied persona. The provider is gated by `MANA_ITCH_ENABLED` (server) and `MANA_ITCH_CLIENT_ID` (web build). See [itchio-auth.md](itchio-auth.md).
+- **Google provider** landed 2026-09-02 (`server/src/services/googleAuth.ts` + `POST /auth/google` verifying ID tokens via tokeninfo with an `aud` check; client `phaser/src/lib/googleAuth.ts` + `phaser/src/lib/oauthAndroid.ts` system-browser/deep-link flow; `GET /oauth/callback` relay page; the `multiplayer_login` screen hub with Google/itch/logout/back, and a lobby 401 → login-screen re-auth path). Gated by `MANA_GOOGLE_ENABLED` + `MANA_GOOGLE_CLIENT_ID` (server) and `MANA_GOOGLE_CLIENT_ID` (Android build). See [android-multiplayer.md](android-multiplayer.md).
 
 
 

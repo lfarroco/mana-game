@@ -78,8 +78,16 @@ electron-build-demo-mac:
 electron-build-demo-linux:
 	cd $(PHASER_DIR) && IS_DEMO=true npm run build && IS_DEMO=true npx electron-builder --linux --dir --x64
 
+# Build for Android via Capacitor (docs/android-multiplayer.md). The root
+# .env (sourced above) provides MANA_SERVER_URL / MANA_GOOGLE_CLIENT_ID /
+# MANA_ITCH_CLIENT_ID — all three are baked in by webpack's DefinePlugin.
+# MANA_SERVER_URL defaults to the production API so a release build never
+# silently points at 127.0.0.1:8787.
 android-build:
-	cd $(PHASER_DIR) && npm run build && npx cap sync android
+	@if [ -z "$$MANA_GOOGLE_CLIENT_ID" ]; then \
+		echo "WARNING: MANA_GOOGLE_CLIENT_ID is unset — Google sign-in will be disabled in this build."; \
+	fi
+	cd $(PHASER_DIR) && MANA_SERVER_URL=$${MANA_SERVER_URL:-https://api.manabattle.com} npm run build && npx cap sync android
 
 android-open:
 	cd $(PHASER_DIR) && npx cap open android

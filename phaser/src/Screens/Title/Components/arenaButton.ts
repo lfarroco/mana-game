@@ -6,7 +6,6 @@ import { env } from "@Env";
 import { getScreenManager } from "../../ScreenManager";
 import { isElectron } from "@Utils/environment";
 import { steamAuth } from "@lib/steamAuth";
-import { itchAuth } from "@lib/itchAuth";
 
 const BUTTON_Y = 600;
 
@@ -32,11 +31,12 @@ export function create() {
 }
 
 /**
- * Multiplayer entry (docs/itchio-auth.md Phase C): Electron uses the Steam
- * auto-login; the browser build uses the itch.io OAuth popup. After login the
- * player lands in the multiplayer lobby, which fetches the profile and drives
- * RESUME / NEW GAME (docs/multiplayer-lobby.md). Errors surface in a modal so
- * the player can fall back to single-player.
+ * Multiplayer entry (docs/itchio-auth.md Phase C + docs/android-multiplayer.md):
+ * Electron uses the Steam auto-login and goes straight to the lobby; every
+ * other platform (web + Android) routes through the multiplayer login screen,
+ * which owns the provider choice (Google / itch.io), logout, and the lobby
+ * transition. Errors surface in a modal so the player can fall back to
+ * single-player.
  */
 async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	if (enteringMultiplayer) return;
@@ -51,16 +51,12 @@ async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	try {
 		if (isElectron()) {
 			await steamAuth.loginWithSteam();
+			void getScreenManager().go("multiplayer_lobby");
 		} else {
-			// Browser build — itch.io OAuth. loginWithItch opens the popup
-			// synchronously within this click gesture (popup-blocker
-			// requirement, docs/itchio-auth.md C1).
-			await itchAuth.loginWithItch();
+			// Browser/Android — the login screen re-reads the persisted
+			// `{ token, player }` session and drives the provider logins.
+			void getScreenManager().go("multiplayer_login");
 		}
-
-		// The lobby re-reads the persisted `{ token, player }` session written
-		// by the login flow, so the login result itself is not needed here.
-		void getScreenManager().go("multiplayer_lobby");
 	} catch (err) {
 		const detail = err instanceof Error ? err.message : String(err);
 		showMultiplayerMessage(`${i18n.t("title.multiplayer.loginFailed")}\n\n${detail}`);

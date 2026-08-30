@@ -83,6 +83,11 @@ const createSharedDefineValues = ({ webglDebug, experimental, logLevel, isProd =
 		// docs/itchio-auth.md). Empty string disables browser multiplayer with a
 		// clear "itch auth not configured" error.
 		"process.env.MANA_ITCH_CLIENT_ID": JSON.stringify(process.env.MANA_ITCH_CLIENT_ID || ""),
+		// Google OAuth client id for the web + Android builds
+		// (src/lib/googleAuth.ts, docs/android-multiplayer.md). Empty string
+		// hides/disables Google sign-in; the server rejects tokens whose
+		// audience does not match its own MANA_GOOGLE_CLIENT_ID anyway.
+		"process.env.MANA_GOOGLE_CLIENT_ID": JSON.stringify(process.env.MANA_GOOGLE_CLIENT_ID || ""),
 		"__DEV__": JSON.stringify(process.env.NODE_ENV !== "production")
 	};
 
@@ -101,6 +106,11 @@ const createSharedDefineValues = ({ webglDebug, experimental, logLevel, isProd =
 		if (!process.env.MANA_ITCH_CLIENT_ID) {
 			console.warn(
 				"[webpack] WARNING: MANA_ITCH_CLIENT_ID is unset — browser (itch.io) multiplayer login is disabled in this build. Set MANA_ITCH_CLIENT_ID for the web release."
+			);
+		}
+		if (!process.env.MANA_GOOGLE_CLIENT_ID) {
+			console.warn(
+				"[webpack] WARNING: MANA_GOOGLE_CLIENT_ID is unset — Google sign-in (web + Android) is disabled in this build. Set MANA_GOOGLE_CLIENT_ID for release builds."
 			);
 		}
 	}

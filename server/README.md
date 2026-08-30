@@ -66,6 +66,8 @@ missing/malformed tokens → 401 `missing_token`, unknown/expired tokens → 401
 | GET    | `/health`                          | Liveness check → `{ ok: true }` (no auth)                                       |
 | POST   | `/api/v1/auth/steam`               | Steam ticket → `{ player, token }` (no auth)                                    |
 | POST   | `/api/v1/auth/itch`                | itch.io OAuth token → `{ player, token }` (no auth; gated by `MANA_ITCH_ENABLED`) |
+| POST   | `/api/v1/auth/google`              | Google OIDC ID token → `{ player, token }` (no auth; gated by `MANA_GOOGLE_ENABLED` + `MANA_GOOGLE_CLIENT_ID`) |
+| GET    | `/oauth/callback`                  | OAuth relay page for the Android login flows (no auth) — see [docs/android-multiplayer.md](../docs/android-multiplayer.md) |
 | POST   | `/api/v1/sessions`                 | Create session → `SessionData` (409 if an **active** run exists)                |
 | GET    | `/api/v1/sessions/current`         | Resume/reconnect → `SessionData` (+ serialized `combatState` while in `combat`); 404 if none or the run has finished |
 | POST   | `/api/v1/sessions/current/actions` | Dispatch action → `{ session, combatState? }`                                   |
@@ -184,6 +186,8 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_STEAM_APP_IDS`     | `3757600`     | Comma-separated Steam app-id allowlist                            |
 | `MANA_STEAM_API_URL`     | public endpoint | `AuthenticateUserTicket` endpoint. The server code defaults to `https://partner.steam-api.com/ISteamUserAuth/AuthenticateUserTicket/v1/` (needs a **publisher** key), but `compose.yaml` and `.env.example` set `https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/` so a standard Web API key (`steamcommunity.com/dev/apikey`) works (rate-limited). Override in `.env` to switch. |
 | `MANA_ITCH_ENABLED`      | `false`        | `true` registers `POST /api/v1/auth/itch` (web build's itch.io OAuth login) |
+| `MANA_GOOGLE_ENABLED`    | `false`        | `true` registers `POST /api/v1/auth/google` (Android build's Google sign-in) |
+| `MANA_GOOGLE_CLIENT_ID`  | —             | Public Google OAuth client id; the server rejects ID tokens whose `aud` does not match — see [docs/android-multiplayer.md](../docs/android-multiplayer.md) |
 | `MANA_TOKEN_TTL_DAYS`    | `30`          | Bearer token lifetime (days)                                      |
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for the auth endpoints (`POST /auth/steam`, `POST /auth/itch`) |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for the auth endpoints              |
@@ -262,7 +266,8 @@ one-time `.env` contents and cloud-firewall configuration):
    | `MANA_STEAM_APP_IDS` | default `3757600,4233280` |
    | `MANA_STEAM_API_URL` | default `https://api.steampowered.com/...` (standard key); set to the partner endpoint only when using a publisher key |
    | `MANA_ITCH_ENABLED` | `true` if the itch.io web build should log in (`POST /auth/itch`) |
-   | `MANA_CORS_ORIGIN` | `https://html-classic.itch.zone,https://lfarroco.itch.io` for the web build (the embedded game fetches from the iframe origin `https://html-classic.itch.zone`) |
+   | `MANA_GOOGLE_ENABLED` / `MANA_GOOGLE_CLIENT_ID` | `true` + the Google OAuth client id if the Android build should log in (`POST /auth/google`) — see [docs/android-multiplayer.md](../docs/android-multiplayer.md) |
+   | `MANA_CORS_ORIGIN` | `https://html-classic.itch.zone,https://lfarroco.itch.io` for the web build (the embedded game fetches from the iframe origin `https://html-classic.itch.zone`); `*` (or adding `https://localhost`) also covers the Android WebView origin |
    | `MANA_SERVER_PORT` | host port, default `8787` |
 
    > **Gotcha:** the server container only receives the vars whitelisted in

@@ -4,7 +4,9 @@
 /// <reference types="jest" />
 
 import {
+  MAX_GOOGLE_ID_TOKEN_LENGTH,
   MAX_ITCH_TOKEN_LENGTH,
+  parseAuthGoogleBody,
   parseAuthItchBody,
   parseCreateSessionBody,
   parseActionDispatchBody,
@@ -188,6 +190,36 @@ describe("parseAuthItchBody", () => {
       parseAuthItchBody({ token: "x".repeat(MAX_ITCH_TOKEN_LENGTH + 1) }),
     ).toThrow(
       expect.objectContaining({ status: 400, code: "invalid_itch_token" }),
+    );
+  });
+});
+
+describe("parseAuthGoogleBody", () => {
+  it("parses a well-formed google auth body", () => {
+    expect(parseAuthGoogleBody({ idToken: "jwt.abc.123" })).toEqual({
+      idToken: "jwt.abc.123",
+    });
+  });
+
+  it("rejects a missing, empty, or non-string idToken", () => {
+    for (const bad of [
+      {},
+      { idToken: undefined },
+      { idToken: 42 },
+      { idToken: "" },
+      { idToken: "   " },
+    ]) {
+      expect(() => parseAuthGoogleBody(bad)).toThrow(
+        expect.objectContaining({ status: 400, code: "invalid_google_token" }),
+      );
+    }
+  });
+
+  it("rejects an over-long idToken", () => {
+    expect(() =>
+      parseAuthGoogleBody({ idToken: "x".repeat(MAX_GOOGLE_ID_TOKEN_LENGTH + 1) }),
+    ).toThrow(
+      expect.objectContaining({ status: 400, code: "invalid_google_token" }),
     );
   });
 });

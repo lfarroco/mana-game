@@ -95,6 +95,8 @@
         "webpack-merge": "^5.10.0"
     },
     "dependencies": {
+        "@capacitor/app": "^8.1.1",
+        "@capacitor/browser": "^8.0.4",
         "dotenv": "^17.2.3",
         "easystarjs": "^0.4.4",
         "phaser": "^3.88.2",

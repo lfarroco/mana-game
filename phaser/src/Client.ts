@@ -5,6 +5,7 @@ import * as TitleScreen from "./Screens/Title/TitleScreen";
 import * as BattlegroundScreen from "./Screens/Battleground/BattlegroundScreen";
 import * as CrystalSelectionScreen from "./Screens/CrystalSelection/CrystalSelectionScreen";
 import * as MultiplayerLobbyScreen from "./Screens/MultiplayerLobby/MultiplayerLobbyScreen";
+import * as MultiplayerLoginScreen from "./Screens/MultiplayerLogin/MultiplayerLoginScreen";
 import * as OptionsScreen from "./Screens/Options/OptionsScreen";
 import * as OptionsStore from "@Models/OptionsStore";
 import * as StatsStore from "@Models/StatsStore";
@@ -185,6 +186,7 @@ export default (clientState: ClientState) =>
 						title: TitleScreen,
 						battleground: BattlegroundScreen,
 						crystals: CrystalSelectionScreen,
+						multiplayer_login: MultiplayerLoginScreen,
 						multiplayer_lobby: MultiplayerLobbyScreen,
 
 						options: OptionsScreen,

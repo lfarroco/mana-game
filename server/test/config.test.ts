@@ -18,6 +18,29 @@ describe("loadConfig", () => {
     expect(config.steamAppIds).toEqual([3757600]); // alpha app id
     expect(config.steamApiUrl).toBe(STEAM_AUTHENTICATE_URL); // partner endpoint
     expect(config.tokenTtlDays).toBe(30);
+    expect(config.googleClientId).toBe("");
+    expect(config.googleEnabled).toBe(false);
+  });
+
+  it("reads the google client id and enabled flag", () => {
+    const config = loadConfig({
+      MANA_GOOGLE_CLIENT_ID: "mana-battle.apps.googleusercontent.com",
+      MANA_GOOGLE_ENABLED: "true",
+    });
+    expect(config.googleClientId).toBe(
+      "mana-battle.apps.googleusercontent.com",
+    );
+    expect(config.googleEnabled).toBe(true);
+  });
+
+  it("defaults google auth to disabled", () => {
+    expect(loadConfig({}).googleEnabled).toBe(false);
+    expect(
+      loadConfig({ MANA_GOOGLE_ENABLED: "false" }).googleEnabled,
+    ).toBe(false);
+    expect(loadConfig({ MANA_GOOGLE_ENABLED: "garbage" }).googleEnabled).toBe(
+      false,
+    );
   });
 
   it("reads the steam web api key", () => {

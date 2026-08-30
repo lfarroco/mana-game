@@ -36,6 +36,11 @@ export type AuthItchRequest = {
   token: string;
 };
 
+export type AuthGoogleRequest = {
+  /** Google OIDC ID token (implicit flow) — validated server-side. */
+  idToken: string;
+};
+
 /**
  * Longest accepted itch.io token. OAuth access keys are short API keys; the
  * itch-app-injected JWT variant is longer — 8KB bounds both while still
@@ -129,6 +134,41 @@ export function parseAuthItchBody(body: unknown): AuthItchRequest {
   }
 
   return { token };
+}
+
+/**
+ * Longest accepted Google ID token. Google ID tokens are JWTs of a few KB;
+ * 16KB bounds them with headroom while rejecting pathological payloads at
+ * the wire boundary.
+ */
+export const MAX_GOOGLE_ID_TOKEN_LENGTH = 16384;
+
+/**
+ * Parse and shape-validate the POST /auth/google body.
+ *
+ * Wire-boundary only: the token's validity (audience, issuer, signature) is
+ * checked by the googleAuth service against Google's tokeninfo endpoint.
+ */
+export function parseAuthGoogleBody(body: unknown): AuthGoogleRequest {
+  const raw = asRecord(body);
+
+  const idToken = raw.idToken;
+  if (typeof idToken !== "string" || idToken.trim() === "") {
+    throw new ApiError(
+      400,
+      "invalid_google_token",
+      "idToken is required and must be a non-empty string",
+    );
+  }
+  if (idToken.length > MAX_GOOGLE_ID_TOKEN_LENGTH) {
+    throw new ApiError(
+      400,
+      "invalid_google_token",
+      `idToken exceeds the maximum length of ${MAX_GOOGLE_ID_TOKEN_LENGTH} characters`,
+    );
+  }
+
+  return { idToken };
 }
 
 export function parseCreateSessionBody(body: unknown): CreateSessionRequest {

@@ -31,6 +31,18 @@ export type ServerConfig = {
    */
   itchEnabled: boolean;
   /**
+   * MANA_GOOGLE_CLIENT_ID — the public Google OAuth client id. Required (with
+   * MANA_GOOGLE_ENABLED=true) to register POST /auth/google; the token's
+   * `aud` claim must match it exactly. Empty → Google auth disabled.
+   */
+  googleClientId: string;
+  /**
+   * MANA_GOOGLE_ENABLED — set to `true` to register POST /auth/google (the
+   * Android / web Google sign-in). Defaults to `false` (explicit opt-in, like
+   * itch — Google has no server secret).
+   */
+  googleEnabled: boolean;
+  /**
    * MANA_SQLITE_PATH — durable persistence opt-in. A database file path (the
    * parent directory is created on boot) or `:memory:` for a throwaway
    * in-memory SQLite database. `null` (unset) keeps the in-memory repos.
@@ -61,6 +73,8 @@ export function loadConfig(
       DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
     ),
     itchEnabled: parseEnabled(env["MANA_ITCH_ENABLED"]),
+    googleClientId: env["MANA_GOOGLE_CLIENT_ID"] ?? "",
+    googleEnabled: parseEnabled(env["MANA_GOOGLE_ENABLED"]),
     sqlitePath:
       env["MANA_SQLITE_PATH"] && env["MANA_SQLITE_PATH"].trim() !== ""
         ? env["MANA_SQLITE_PATH"]

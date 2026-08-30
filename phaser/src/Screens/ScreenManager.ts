@@ -29,6 +29,8 @@ export type Routes = {
 	/** crystalId is optional — resume-game navigates without creating a new session. */
 	battleground: { crystalId?: string };
 	crystals: void;
+	/** Multiplayer login hub — Google/itch.io/Log out/Back (no params). */
+	multiplayer_login: void;
 	/** Multiplayer lobby — profile, stats, and play/resume entry (no params). */
 	multiplayer_lobby: void;
 	options: { tab?: "audio" | "graphics" | "game" };

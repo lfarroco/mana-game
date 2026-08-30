@@ -14,6 +14,7 @@ import { errorHandler } from "./http/middleware/errors";
 import { corsMiddleware } from "./http/middleware/cors";
 import { requestLogger } from "./http/middleware/logging";
 import { createRateLimiter } from "./http/middleware/rateLimit";
+import { OAUTH_RELAY_PAGE } from "./http/oauthRelayPage";
 import {
   DEFAULT_AUTH_RATE_LIMIT_MAX,
   DEFAULT_AUTH_RATE_LIMIT_WINDOW_MS,
@@ -74,9 +75,14 @@ export type AppDeps = {
   steam?: { webApiKey: string; appIds: number[] };
   /**
    * Enable itch.io auth (POST /auth/itch) for the web build. The auth mount
-   * is registered when Steam **or** itch is configured.
+   * is registered when Steam, itch, **or** Google is configured.
    */
   itch?: boolean;
+  /**
+   * Google auth config. When omitted or the client id is empty, POST
+   * /auth/google is not registered.
+   */
+  google?: { clientId: string };
   /**
    * AuthenticateUserTicket endpoint override (MANA_STEAM_API_URL): defaults
    * to the partner endpoint (publisher key); api.steampowered.com works with
@@ -87,6 +93,8 @@ export type AppDeps = {
   steamFetch?: typeof globalThis.fetch;
   /** Injectable fetch for the itch.io profile API (mocked in tests). */
   itchFetch?: typeof globalThis.fetch;
+  /** Injectable fetch for Google's tokeninfo endpoint (mocked in tests). */
+  googleFetch?: typeof globalThis.fetch;
 };
 
 export function createApp(deps: AppDeps = {}): express.Express {
@@ -129,9 +137,17 @@ export function createApp(deps: AppDeps = {}): express.Express {
     res.json({ ok: true });
   });
 
-  // Auth routes — registered when Steam or itch.io is configured. Rate-limited
-  // per-IP (ticket/token grinding protection, docs/auth.md).
-  if (deps.steam?.webApiKey || deps.itch) {
+  // OAuth relay page (docs/android-multiplayer.md) — the itch.io and Google
+  // authorize URLs redirect here with the credential in the URL hash; this
+  // static page forwards it back to the app (custom-scheme deep link on
+  // Android) or the opener (web). No state, no logging.
+  app.get("/oauth/callback", (_req, res) => {
+    res.type("html").send(OAUTH_RELAY_PAGE);
+  });
+
+  // Auth routes — registered when Steam, itch.io, or Google is configured.
+  // Rate-limited per-IP (ticket/token grinding protection, docs/auth.md).
+  if (deps.steam?.webApiKey || deps.itch || deps.google?.clientId) {
     app.use(
       "/api/v1/auth",
       createRateLimiter({
@@ -144,8 +160,10 @@ export function createApp(deps: AppDeps = {}): express.Express {
         tokenRepo,
         steam: deps.steam,
         itch: deps.itch,
+        google: deps.google,
         steamFetch: deps.steamFetch,
         itchFetch: deps.itchFetch,
+        googleFetch: deps.googleFetch,
         steamApiUrl: deps.steamApiUrl,
         tokenTtlDays: deps.tokenTtlDays,
       }),

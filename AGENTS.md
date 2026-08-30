@@ -183,6 +183,21 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > `MultiplayerLobbyScreen` hub, and the title-screen entry rewired through it.
 > Full spec + file map: [docs/multiplayer-lobby.md](docs/multiplayer-lobby.md).
 
+> **Android multiplayer + Google sign-in landed (2026-09-02)** — server
+> `google` provider (`POST /api/v1/auth/google`, ID-token verification via
+> tokeninfo with an `aud` check), the `multiplayer_login` login-screen hub
+> (Google / itch.io / Log out / Back; Steam auto-login bypasses it), the
+> Android OAuth transport (system browser + game-server relay page
+> `GET /oauth/callback` + `com.manabattle.app://` deep link via
+> `@capacitor/app`/`@capacitor/browser`), Google sign-in on **web too** (OAuth
+> popup through the same relay, since 2026-09-02), logout + lobby-401 re-auth,
+> and the build/deploy env plumbing (`MANA_GOOGLE_ENABLED`/
+> `MANA_GOOGLE_CLIENT_ID`, webpack define + guardrail, `make android-build`
+> prod defaults). **Live smoke tests (Android D2 + web Google popup) are
+> pending** — they need the human-side one-time setup (Google Cloud OAuth
+> client + redirect-URI registrations) listed in
+> [docs/android-multiplayer.md](docs/android-multiplayer.md).
+
 > **All previously queued work is landed.** The last deferred item — the
 > **Manual Steam smoke test** (plan.md task 14) — passed 2026-08-20: a real
 > Steam ticket was authenticated end-to-end (`Electron → server → Steam Web

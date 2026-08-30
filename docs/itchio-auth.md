@@ -1,17 +1,18 @@
 # itch.io Auth — Web Build Multiplayer Login
 
 **Status**: ✅ **Implemented** (2026-08-20). Server `itch` provider + client OAuth-popup
-login are landed and unit-tested. The **first live smoke test (D3) hit a configuration
-gap that is now documented here — itch.io rejected the OAuth redirect with "invalid
-redirect URI"** because the live embed runs the game inside an iframe at the direct game
-URL (`https://html-classic.itch.zone/...`), so the runtime redirect URI is the embed URL,
-not the registered game-page URL. **Action: add the embed URL to the OAuth app's
-redirect URIs (`https://itch.io/settings/oauth`), then re-run the D3 smoke test.**
-See the [D3 verification checklist](#d3-verification-checklist) below.
+login are landed and unit-tested. **2026-09-02: the web flow moved to the game server's
+stable OAuth relay page (`https://api.manabattle.com/oauth/callback`) as the itch OAuth
+callback** — this retires the per-deploy chore of re-registering the changing embed URL
+(`https://html-classic.itch.zone/html/<game>/<upload>/index.html`) that the first live
+smoke test surfaced ("invalid redirect URI", 2026-08-27). The relay is shared with the
+Android flow (see [android-multiplayer.md](android-multiplayer.md)).
 **Created**: 2026-08-20
-**Scope**: `server/` (new `itch` auth provider) + `phaser/` (browser itch.io login flow).
+**Scope**: `server/` (new `itch` auth provider + the OAuth relay page) + `phaser/`
+(browser itch.io login flow).
 **Related**: [auth.md](auth.md) (auth design + provider abstraction),
-[game-server.md](game-server.md) (backend plan).
+[game-server.md](game-server.md) (backend plan),
+[android-multiplayer.md](android-multiplayer.md) (the shared relay + Google/Android).
 
 ## Purpose
 
@@ -39,8 +40,8 @@ single new `Authenticator` + route").
 |---|---|
 | OAuth app name | `Mana Battle Multiplayer` |
 | Client ID (public — ships in the web bundle) | `f20213f3887151a962afac88d0145c57` |
-| Login URL (live embed) | `https://itch.io/user/oauth?client_id=f20213f3887151a962afac88d0145c57&scope=profile%3Ame&response_type=token&redirect_uri=https%3A%2F%2Fhtml-classic.itch.zone%2Fhtml%2F18978979-1920401%2Findex.html` |
-| Registered redirect URIs | **Both must be registered** in the OAuth app (itch.io user settings → OAuth apps → `Mana Battle Multiplayer`, `https://itch.io/settings/oauth`): <br> 1. **`https://html-classic.itch.zone/html/18978979-1920401/index.html` — the live one.** On the itch.io embed the game runs inside an iframe at the direct game URL, so `window.location.origin + window.location.pathname` (what `readRedirectUri()` in `phaser/src/lib/itchAuth.ts` builds) is exactly this URL. **Missing this caused "invalid redirect URI" in the first live smoke test.** <br> 2. `https://lfarroco.itch.io/mana-battle` — only produced if the game ever ran top-level at the game-page URL (not the case today); harmless to keep. |
+| Login URL (web + Android) | `https://itch.io/user/oauth?client_id=f20213f3887151a962afac88d0145c57&scope=profile%3Ame&response_type=token&redirect_uri=https%3A%2F%2Fapi.manabattle.com%2Foauth%2Fcallback` |
+| Registered redirect URIs | **One stable registration** — `https://api.manabattle.com/oauth/callback`, the game server's OAuth relay page (`GET /oauth/callback`; `server/src/http/oauthRelayPage.ts`). Both the web and Android flows redirect here — **it never changes on deploy**, so there is no per-upload re-registration (unlike the old `https://html-classic.itch.zone/html/<game>/<upload>/index.html` callback, which changed with every push). Keeping `https://lfarroco.itch.io/mana-battle` registered is harmless but unused. Register in the OAuth app settings: `https://itch.io/settings/oauth`. |
 | Scope requested | `profile:me` |
 | Developer API key | **Deliberately not stored in this doc — it is a credential.** Saved to the gitignored root `.env` as `MANA_ITCH_API_KEY`. Treat like a password. |
 
@@ -68,9 +69,16 @@ to the server → persist the issued `{ token, player }` via the storage provide
 
 ```
 Steam/Electron:  getAuthTicketForWebApi → POST /auth/steam      → server bearer token
-itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server bearer token
-                                                 ↑ validates via api.itch.io/profile
+itchio (web):    OAuth popup → relay page → postMessage → POST /auth/itch
+                 ↑ the relay (api.manabattle.com/oauth/callback) forwards the
+                   #access_token hash to the game; validates via api.itch.io/profile
+itchio (Android): system browser → relay page → com.manabattle.app:// deep link
+                 → POST /auth/itch   (see android-multiplayer.md)
 ```
+
+The same relay serves the **Google web popup flow** (`POST /auth/google` — the
+relay's postMessage is provider-agnostic: `access_token` for itch, `id_token`
+for Google) — see [android-multiplayer.md](android-multiplayer.md).
 
 ## Config summary
 
@@ -129,10 +137,13 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
     `ITCH_SCOPE = "profile:me"`, auth URL `https://itch.io/user/oauth`.
   - Token acquisition priority: (1) URL query param (itch-app webview injection, JWT);
     (2) stashed hash token from a top-level redirect return; (3) **OAuth popup** —
-    `window.open(authUrl)` synchronously with a `crypto.randomUUID()` `state` nonce, then
-    await a same-origin `postMessage` from the popup, verify `event.origin` + `state`;
-    if `window.open` returns `null` (popup blocked) fall back to a top-level redirect
-    (the boot capture handles the return).
+    `window.open(authUrl)` synchronously with a `crypto.randomUUID()` `state` nonce; the
+    popup redirects to the game server's **relay page** (`<server>/oauth/callback`), which
+    posts the hash back over cross-origin `postMessage` (the listener verifies
+    `event.origin` = the server's origin + the `state` nonce); if `window.open` returns
+    `null` (popup blocked) fall back to a top-level redirect whose state carries the game
+    URL so the relay can send the browser back to the game with the hash (the boot
+    capture handles the return).
   - `loginWithItch()`: reuse the stored server session if present (itch OAuth keys are
     long-lived — no popup on repeat visits); else acquire a token → `POST /api/v1/auth/itch`
     → persist → return. Never log the token.
@@ -215,26 +226,29 @@ itchio (web):    OAuth popup → #access_token → POST /auth/itch  → server b
 3. **Client build:** the itch web build must be made with
    `MANA_SERVER_URL=https://api.manabattle.com` and `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`
    baked in (webpack `DefinePlugin`; the production build warns if either is missing).
+   `MANA_SERVER_URL` also derives the OAuth callback (`https://api.manabattle.com/oauth/callback`),
+   which must be registered in the OAuth app (`https://itch.io/settings/oauth`).
 4. **D3 smoke test** on the live itch.io embed: click Multiplayer → OAuth popup →
-   authorize → login → multiplayer lobby (profile + stats) → NEW GAME → crystal
+   authorize → the popup lands on the **relay page** (`api.manabattle.com/oauth/callback`)
+   → login → multiplayer lobby (profile + stats) → NEW GAME → crystal
    selection → MP run against the deployed server. Verify: garbage token → 401
    modal; second click reuses the stored session (no popup); token never appears
-   in the URL after login; Electron build still uses Steam.
+   in the URL after login; **a fresh deploy does not break login** (the callback no
+   longer depends on the upload id); Electron build still uses Steam.
 
-### 🔴 D3 live-test finding (2026-08-27) — "invalid redirect URI" (fix is a registration)
+### ✅ D3 live-test finding (2026-08-27) — resolved 2026-09-02 by the stable relay
 
 The first live smoke test (after the env-guard fix, release-audit item 7) opened the
-OAuth popup but itch.io rejected it with **"invalid redirect URI"**. The popup URL
-carried `redirect_uri=https://html-classic.itch.zone/html/18978979-1920401/index.html` —
-the game runs inside an iframe on the embed, so `window.location` (and therefore
-`readRedirectUri()`) is the **direct game URL**, not the itch.io game-page URL that was
-registered in the OAuth app.
+OAuth popup but itch.io rejected it with **"invalid redirect URI"**: the popup URL
+carried `redirect_uri=https://html-classic.itch.zone/html/<game>/<upload>/index.html` —
+the game runs inside an iframe on the embed, so `window.location` was the **direct game
+URL**, whose upload id changes with every deploy.
 
-**Fix (no code change):** in the OAuth app settings (`https://itch.io/settings/oauth` →
-`Mana Battle Multiplayer`) add
-`https://html-classic.itch.zone/html/18978979-1920401/index.html` to the registered
-redirect URIs. The client already builds exactly this value. Keep the game-page URL
-registered too. Then re-run the D3 smoke test.
+**Fixed 2026-09-02 (code + one-time registration):** the client no longer builds the
+redirect URI from `window.location`; the callback is now the game server's stable relay
+page (`https://api.manabattle.com/oauth/callback`, derived from `MANA_SERVER_URL`).
+Register that single URL in the OAuth app settings and **no re-registration is ever
+needed on deploy**.
 
 
 ## Testing & verification (per package)
@@ -249,14 +263,15 @@ phaser:  npm run test:unit && npm run typecheck && npm run lint
 ## Risks & open questions
 
 - **Redirect-URI strictness** — `redirect_uri` must match a registered value exactly; the
-  client builds it from `window.location.origin + window.location.pathname` (page
-  variants — trailing slash, `?secret=` links — must not change it). **Iframe gotcha
-  (hit live 2026-08-27):** on the itch.io embed the game runs inside an iframe at the
-  direct game URL (`https://html-classic.itch.zone/html/<game>/<upload>/index.html`), so
-  that URL — not the game-page URL — is what must be registered. If the upload is ever
-  deleted + recreated the upload id changes and the registration must be updated.
+  client now always uses the game server's **stable relay page**
+  (`MANA_SERVER_URL` + `/oauth/callback`, e.g. `https://api.manabattle.com/oauth/callback`)
+  — it never changes on deploy, so no per-upload re-registration. Register it once in the
+  OAuth app settings; page variants (trailing slash, `?secret=` links) must not change it.
+  (The old callback — the direct iframe URL `https://html-classic.itch.zone/html/<game>/<upload>/index.html`
+  — changed with every push and required a manual update each deploy; that pain is gone.)
 - **Iframe sandbox** — if the itch.io embed blocks popups, the top-level-redirect fallback
-  covers it (boot capture stashes the returned token).
+  covers it: the fallback's OAuth state carries the game URL, the relay bounces the
+  browser back there with the hash, and the boot capture stashes the returned token.
 - **Identity ≠ ownership** — `profile:me` verifies *who* the player is, not game purchase.
   Ownership gating (if ever wanted) needs `game:view:purchases` later.
 - **itch-app HTML5 injection** — the query-param detection is opportunistic; confirm the

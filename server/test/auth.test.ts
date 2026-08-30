@@ -381,3 +381,193 @@ describe("POST /api/v1/auth/itch", () => {
     expect(limited.body.error).toBe("rate_limited");
   });
 });
+
+describe("POST /api/v1/auth/google", () => {
+  const GOOGLE_CLIENT_ID = "mana-battle-google-client.apps.googleusercontent.com";
+  const GOOGLE_ID_A = "112233445566778899000";
+  const GOOGLE_NAME_A = "Momo Player";
+  const ID_TOKEN = "valid-google-id-token";
+
+  type GoogleMockOptions = {
+    ok?: boolean;
+    status?: number;
+    aud?: string;
+    sub?: string;
+    name?: string;
+    iss?: string;
+  };
+
+  /** Fake fetch standing in for Google's tokeninfo endpoint. */
+  function createGoogleFetchMock(options: GoogleMockOptions = {}) {
+    const calls: string[] = [];
+    const fetch: FetchImpl = (async (url: string) => {
+      calls.push(url);
+      return {
+        ok: options.ok ?? true,
+        status: options.status ?? 200,
+        json: async () => ({
+          iss: options.iss ?? "https://accounts.google.com",
+          aud: options.aud ?? GOOGLE_CLIENT_ID,
+          sub: options.sub ?? GOOGLE_ID_A,
+          name: options.name ?? GOOGLE_NAME_A,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        }),
+      } as unknown as Response;
+    }) as FetchImpl;
+    return { fetch, calls };
+  }
+
+  function createGoogleTestApp(
+    googleFetch: typeof fetch,
+    overrides: Partial<AppDeps> = {},
+  ): Express {
+    return createApp({
+      playerRepo,
+      tokenRepo,
+      google: { clientId: GOOGLE_CLIENT_ID },
+      googleFetch,
+      ...overrides,
+    });
+  }
+
+  it("validates an ID token and returns { player, token } with provider google", async () => {
+    const { fetch, calls } = createGoogleFetchMock();
+    const app = createGoogleTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+
+    expect(res.status).toBe(200);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain("id_token=");
+
+    const { player, token } = res.body as {
+      player: {
+        playerId: string;
+        provider: string;
+        providerId: string;
+        displayName?: string;
+      };
+      token: string;
+    };
+    expect(player.provider).toBe("google");
+    expect(player.providerId).toBe(GOOGLE_ID_A);
+    expect(player.displayName).toBe(GOOGLE_NAME_A);
+    expect(player.playerId).not.toBe("");
+    expect(typeof token).toBe("string");
+    expect(token).toHaveLength(43);
+
+    // The plaintext is NOT stored — only its SHA-256 hash.
+    const tokenService = createTokenService(tokenRepo);
+    const record = tokenRepo.findByHash(tokenService.hashToken(token));
+    expect(record).not.toBeNull();
+    expect(record!.playerId).toBe(player.playerId);
+    expect(tokenRepo.findByHash(token)).toBeNull();
+  });
+
+  it("uses the server-verified name as displayName", async () => {
+    const { fetch } = createGoogleFetchMock({ name: "Veronica_Dev" });
+    const app = createGoogleTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+
+    expect(res.status).toBe(200);
+    expect(res.body.player.displayName).toBe("Veronica_Dev");
+  });
+
+  it("repeat logins return the same player with a fresh token", async () => {
+    const { fetch } = createGoogleFetchMock();
+    const app = createGoogleTestApp(fetch);
+
+    const first = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+    const second = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+
+    expect(second.status).toBe(200);
+    expect(second.body.player.playerId).toBe(first.body.player.playerId);
+    expect(second.body.token).not.toBe(first.body.token);
+    expect(
+      playerRepo.findByProvider("google", GOOGLE_ID_A),
+    ).not.toBeNull();
+  });
+
+  it("rejects an ID token Google invalidates (non-200)", async () => {
+    const { fetch } = createGoogleFetchMock({ ok: false, status: 400 });
+    const app = createGoogleTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: "garbage-token" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("invalid_google_token");
+  });
+
+  it("rejects a token whose audience does not match the configured client id", async () => {
+    const { fetch } = createGoogleFetchMock({
+      aud: "someone-elses-client.apps.googleusercontent.com",
+    });
+    const app = createGoogleTestApp(fetch);
+
+    const res = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("invalid_google_token");
+  });
+
+  it("rejects malformed bodies with 400 without calling tokeninfo", async () => {
+    const { fetch, calls } = createGoogleFetchMock();
+    const app = createGoogleTestApp(fetch);
+
+    for (const body of [
+      {},
+      { idToken: 42 },
+      { idToken: "" },
+      { idToken: "   " },
+    ]) {
+      const res = await request(app).post("/api/v1/auth/google").send(body);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe("invalid_google_token");
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it("is not registered when google is not configured", async () => {
+    const app = createApp({ playerRepo, tokenRepo });
+
+    const res = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+
+    expect(res.status).toBe(404);
+  });
+
+  it("is rate-limited per-IP like the other auth endpoints", async () => {
+    const { fetch } = createGoogleFetchMock();
+    const app = createGoogleTestApp(fetch, {
+      authRateLimitMax: 3,
+      authRateLimitWindowMs: 60_000,
+    });
+
+    for (let i = 0; i < 3; i++) {
+      const ok = await request(app)
+        .post("/api/v1/auth/google")
+        .send({ idToken: ID_TOKEN });
+      expect(ok.status).toBe(200);
+    }
+
+    const limited = await request(app)
+      .post("/api/v1/auth/google")
+      .send({ idToken: ID_TOKEN });
+    expect(limited.status).toBe(429);
+    expect(limited.body.error).toBe("rate_limited");
+  });
+});

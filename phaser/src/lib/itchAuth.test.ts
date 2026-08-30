@@ -8,6 +8,7 @@ import {
 	ITCH_AUTH_MESSAGE_TYPE,
 	ITCH_AUTH_URL,
 	parseHashForOAuth,
+	type ItchAuthDeps,
 } from "./itchAuth";
 import { AUTH_STORAGE_KEY, DEFAULT_SERVER_URL } from "./authSession";
 import type { StorageProvider } from "@Systems/Storage";
@@ -72,7 +73,6 @@ function baseDeps(overrides: Partial<Parameters<typeof createItchAuthClient>[0]>
 		fetch: createFetchMock() as unknown as typeof fetch,
 		serverUrl: DEFAULT_SERVER_URL,
 		clientId: "client-1",
-		redirectUri: "https://game.example/mana-battle",
 		openWindow: (() => ({}) as Window) as (url: string) => Window | null,
 		readQueryToken: () => null,
 		waitForPopupMessage: (async (state: string) => state) as (
@@ -283,7 +283,41 @@ describe("itchAuth client", () => {
 		expect(session.player.provider).toBe("itch");
 	});
 
-	it("falls back to a top-level redirect when the popup is blocked", async () => {
+	it("on Android routes through the system browser + relay deep link", async () => {
+		const storage = createMemoryStorage();
+		const fetchMock = createFetchMock();
+		const runOAuthAndroid = jest.fn(async (_url: string, _opts: unknown) => {
+			return "android-token";
+		});
+		const client = createItchAuthClient(
+			baseDeps({
+				storage,
+				fetch: fetchMock as unknown as typeof fetch,
+				isAndroid: () => true,
+				android: {
+					runOAuthAndroid,
+				} as unknown as ItchAuthDeps["android"],
+			})
+		);
+
+		const session = await client.loginWithItch();
+
+		expect(runOAuthAndroid).toHaveBeenCalledTimes(1);
+		const [authUrl, opts] = runOAuthAndroid.mock.calls[0];
+		// The authorize URL points at the game server's OAuth relay page, not
+		// the WebView's own origin (popups cannot work inside Capacitor).
+		expect(authUrl).toContain(
+			`redirect_uri=${encodeURIComponent(`${DEFAULT_SERVER_URL}/oauth/callback`)}`
+		);
+		expect(authUrl).toContain("state=nonce-123");
+		expect((opts as { state: string }).state).toBe("nonce-123");
+
+		const [, init] = callsOf(fetchMock)[0];
+		expect(JSON.parse(init.body as string)).toEqual({ token: "android-token" });
+		expect(session.player.provider).toBe("itch");
+	});
+
+	it("falls back to a top-level redirect via the stable relay callback", async () => {
 		const redirect = jest.fn((_url: string) => {});
 		const client = createItchAuthClient(
 			baseDeps({
@@ -296,7 +330,122 @@ describe("itchAuth client", () => {
 		expect(redirect).toHaveBeenCalledTimes(1);
 		const [redirectUrl] = redirect.mock.calls[0];
 		expect(redirectUrl).toContain("client_id=client-1");
-		expect(redirectUrl).toContain("state=nonce-123");
+		// The callback is the stable relay page — never the (deploy-changing)
+		// page the game happens to run at.
+		expect(redirectUrl).toContain(
+			`redirect_uri=${encodeURIComponent(`${DEFAULT_SERVER_URL}/oauth/callback`)}`
+		);
+		// …and the state carries the nonce + the game URL so the relay can
+		// send the browser back here with the token hash.
+		const gameUrl = window.location.origin + window.location.pathname;
+		expect(redirectUrl).toContain(`state=nonce-123%7C${encodeURIComponent(gameUrl)}`);
+	});
+
+	it("accepts the relay page's cross-origin return (web popup)", async () => {
+		const storage = createMemoryStorage();
+		const fetchMock = createFetchMock();
+		const client = createItchAuthClient(
+			baseDeps({
+				storage,
+				fetch: fetchMock as unknown as typeof fetch,
+				// Opt out of the injected mock so the default listener runs
+				// (it validates the relay origin + state nonce on window).
+				waitForPopupMessage: undefined,
+			})
+		);
+
+		const login = client.loginWithItch();
+
+		// The relay page (same origin as the game server) posts the raw hash
+		// payload to the opener.
+		window.dispatchEvent(
+			new MessageEvent("message", {
+				origin: "http://127.0.0.1:8787",
+				data: {
+					type: "mana-oauth-return",
+					payload: "access_token=relay-token&state=nonce-123",
+				},
+			})
+		);
+
+		const session = await login;
+		const [, init] = callsOf(fetchMock)[0];
+		expect(JSON.parse(init.body as string)).toEqual({ token: "relay-token" });
+		expect(session.player.provider).toBe("itch");
+	});
+
+	it("ignores relay messages from the wrong origin or with a mismatched state", async () => {
+		const storage = createMemoryStorage();
+		const fetchMock = createFetchMock();
+		const client = createItchAuthClient(
+			baseDeps({
+				storage,
+				fetch: fetchMock as unknown as typeof fetch,
+				waitForPopupMessage: undefined,
+			})
+		);
+
+		const login = client.loginWithItch();
+
+		// Wrong origin, right payload — must be ignored.
+		window.dispatchEvent(
+			new MessageEvent("message", {
+				origin: "https://evil.example.com",
+				data: {
+					type: "mana-oauth-return",
+					payload: "access_token=evil-token&state=nonce-123",
+				},
+			})
+		);
+		// Right origin, wrong state — must be ignored.
+		window.dispatchEvent(
+			new MessageEvent("message", {
+				origin: "http://127.0.0.1:8787",
+				data: {
+					type: "mana-oauth-return",
+					payload: "access_token=other-token&state=other-nonce",
+				},
+			})
+		);
+		// Right origin + state — resolves the login.
+		window.dispatchEvent(
+			new MessageEvent("message", {
+				origin: "http://127.0.0.1:8787",
+				data: {
+					type: "mana-oauth-return",
+					payload: "access_token=relay-token&state=nonce-123",
+				},
+			})
+		);
+
+		const session = await login;
+		const [, init] = callsOf(fetchMock)[0];
+		expect(JSON.parse(init.body as string)).toEqual({ token: "relay-token" });
+		expect(session.player.provider).toBe("itch");
+	});
+
+	it("treats a relay return without a token as a cancellation", async () => {
+		const storage = createMemoryStorage();
+		const client = createItchAuthClient(
+			baseDeps({
+				storage,
+				waitForPopupMessage: undefined,
+			})
+		);
+
+		const login = client.loginWithItch();
+
+		window.dispatchEvent(
+			new MessageEvent("message", {
+				origin: "http://127.0.0.1:8787",
+				data: {
+					type: "mana-oauth-return",
+					payload: "error=access_denied&state=nonce-123",
+				},
+			})
+		);
+
+		await expect(login).rejects.toThrow(/cancelled/);
 	});
 
 	it("consumes a token stashed by a top-level redirect return", async () => {

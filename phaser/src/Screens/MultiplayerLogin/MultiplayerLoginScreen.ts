@@ -1,0 +1,237 @@
+import * as constants from "@Constants";
+import * as i18n from "@i18n/i18n";
+import * as Modal from "@Components/Modal/Modal";
+import * as UIButton from "@Components/Button/UIButton";
+import { env } from "@Env";
+import { createEvent } from "@game/Models";
+import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
+import { authSession } from "../../lib/authSession";
+import { googleAuth } from "../../lib/googleAuth";
+import { itchAuth } from "../../lib/itchAuth";
+import { GameEvent } from "../../Events";
+import { getScreenManager } from "../ScreenManager";
+import * as cloudsBg from "../Title/Components/cloudsBg";
+
+const GOOGLE_Y = 500;
+const ITCH_Y = 610;
+const LOGOUT_Y = 730;
+const BACK_Y = 850;
+const STATUS_Y = 330;
+
+export type MultiplayerLoginEvents = {
+	googleClicked: ReturnType<typeof createEvent<void>>;
+	itchClicked: ReturnType<typeof createEvent<void>>;
+	logoutClicked: ReturnType<typeof createEvent<void>>;
+	backClicked: ReturnType<typeof createEvent<void>>;
+};
+
+export type Context = ScreenCtx<never, MultiplayerLoginEvents>;
+
+/**
+ * Multiplayer login hub (docs/android-multiplayer.md) — the entry screen for
+ * non-Steam platforms:
+ *
+ *   [multiplayer button] → [login screen: Google / itch.io / Log out / Back]
+ *                        → [multiplayer lobby]
+ *
+ * Steam (Electron) auto-logs-in and skips this screen entirely. The screen
+ * shows the current auth state (signed in as whom), lets the player pick a
+ * provider (Google — popup on web, system browser on Android — or itch.io),
+ * log out, or return to the title. Any successful login lands in the lobby,
+ * which re-reads the persisted `{ token, player }` session.
+ */
+
+/** Guards re-entry while a login is in flight. */
+let loggingIn = false;
+
+/** Module refs for the auth-state UI, updated in place on logout. */
+let statusText: Phaser.GameObjects.Text | null = null;
+let logoutButton: UIButton.Button | null = null;
+
+const screen = createScreen<never, MultiplayerLoginEvents>({
+	name: "multiplayer_login",
+
+	events: () => {
+		const googleClicked = createEvent<void>();
+		const itchClicked = createEvent<void>();
+		const logoutClicked = createEvent<void>();
+		const backClicked = createEvent<void>();
+
+		return {
+			events: { googleClicked, itchClicked, logoutClicked, backClicked },
+			listeners: [
+				GameEvent.screenHidden.listen(cleanup),
+				googleClicked.listen(() => {
+					void enterWith(googleAuth.loginWithGoogle);
+				}),
+				itchClicked.listen(() => {
+					void enterWith(itchAuth.loginWithItch);
+				}),
+				logoutClicked.listen(() => {
+					authSession.clearSession();
+					renderAuthState();
+				}),
+				backClicked.listen(() => {
+					void getScreenManager().go("title");
+				}),
+			],
+		};
+	},
+
+	create: async (ctx) => {
+		const elements: Destroyable[] = [];
+		const { googleClicked, itchClicked, logoutClicked, backClicked } = ctx.events;
+
+		const background = cloudsBg.create();
+		if (background) elements.push(background);
+
+		const title = env.scene.add
+			.text(constants.MIDDLE_SCREEN_X, 90, i18n.t("login.title"), constants.titleTextConfig)
+			.setOrigin(0.5);
+		elements.push(title);
+
+		// Signed-in state line — updated in place by logout.
+		statusText = env.scene.add
+			.text(constants.MIDDLE_SCREEN_X, STATUS_Y, "", constants.defaultTextConfig)
+			.setOrigin(0.5)
+			.setWordWrapWidth(900, true);
+		elements.push(statusText);
+
+		// Google sign-in — shown whenever a client id is baked into the build
+		// (web + Android; hidden when unset so the button can't error).
+		if (googleAuth.isConfigured()) {
+			const googleBtn = UIButton.create({
+				text: i18n.t("login.signInGoogle"),
+				position: [constants.MIDDLE_SCREEN_X, GOOGLE_Y],
+				width: 380,
+				callback: () => {
+					googleClicked.emit();
+				},
+				tooltip: {
+					title: i18n.t("login.signInGoogle"),
+					description: i18n.t("login.googleTooltip"),
+					position: "right",
+				},
+			});
+			elements.push(googleBtn.container);
+		}
+
+		const itchBtn = UIButton.create({
+			text: i18n.t("login.signInItch"),
+			position: [constants.MIDDLE_SCREEN_X, ITCH_Y],
+			width: 380,
+			callback: () => {
+				itchClicked.emit();
+			},
+		});
+		elements.push(itchBtn.container);
+
+		const backBtn = UIButton.create({
+			text: i18n.t("login.back"),
+			position: [constants.MIDDLE_SCREEN_X, BACK_Y],
+			width: 380,
+			callback: () => {
+				backClicked.emit();
+			},
+		});
+		elements.push(backBtn.container);
+
+		// Logout button — only when a session exists. Destroyed in place when
+		// the player logs out (the framework tears everything down on exit).
+		if (authSession.readStoredSession()) {
+			logoutButton = UIButton.create({
+				text: i18n.t("login.logOut"),
+				position: [constants.MIDDLE_SCREEN_X, LOGOUT_Y],
+				width: 380,
+				callback: () => {
+					logoutClicked.emit();
+				},
+			});
+			elements.push(logoutButton.container);
+		}
+
+		renderAuthState();
+
+		return elements;
+	},
+});
+
+/** Refresh the signed-in status line; hide the logout button when logged out. */
+function renderAuthState(): void {
+	const session = authSession.readStoredSession();
+
+	if (!statusText) return;
+
+	if (session) {
+		const providerLabel = i18n.t(`lobby.provider.${session.player.provider}`);
+		statusText.setText(
+			i18n.t("login.signedInAs", {
+				name: session.player.displayName || session.player.providerId,
+				provider: providerLabel,
+			})
+		);
+	} else {
+		statusText.setText(i18n.t("login.notSignedIn"));
+		if (logoutButton) {
+			logoutButton.container.destroy();
+			logoutButton = null;
+		}
+	}
+}
+
+/**
+ * Run a provider login then land in the lobby. Errors surface in a modal so
+ * the player can pick another provider or return.
+ */
+async function enterWith(login: () => Promise<unknown>): Promise<void> {
+	if (loggingIn) return;
+	loggingIn = true;
+	try {
+		await login();
+		void getScreenManager().go("multiplayer_lobby");
+	} catch (err) {
+		const detail = err instanceof Error ? err.message : String(err);
+		showLoginError(`${i18n.t("title.multiplayer.loginFailed")}\n\n${detail}`);
+	} finally {
+		loggingIn = false;
+	}
+}
+
+/** Small dismissible modal for login errors. */
+function showLoginError(message: string): void {
+	const modal = Modal.createModal({
+		width: 560,
+		height: 320,
+		title: i18n.t("login.title"),
+	});
+
+	const text = env.scene.add
+		.text(0, -40, message, {
+			...constants.defaultTextConfig,
+			fontSize: "22px",
+			color: "#ffffff",
+			align: "center",
+			wordWrap: { width: 480 },
+		})
+		.setOrigin(0.5);
+
+	const okButton = UIButton.create({
+		text: i18n.t("title.back"),
+		position: [0, 110],
+		width: 200,
+		callback: () => {
+			void modal.close();
+		},
+	});
+
+	modal.container.add([text, okButton.container]);
+}
+
+/** Drop module refs on screen teardown (framework destroys the objects). */
+function cleanup(): void {
+	statusText = null;
+	logoutButton = null;
+	loggingIn = false;
+}
+
+export const { init, create, destroy, name, currentPhase } = screenModule(screen);

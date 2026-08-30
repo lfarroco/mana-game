@@ -13,6 +13,10 @@ const app = createApp({
   steam: { webApiKey: config.steamWebApiKey, appIds: config.steamAppIds },
   steamApiUrl: config.steamApiUrl,
   itch: config.itchEnabled,
+  google:
+    config.googleEnabled && config.googleClientId
+      ? { clientId: config.googleClientId }
+      : undefined,
   authRateLimitMax: config.authRateLimitMax,
   authRateLimitWindowMs: config.authRateLimitWindowMs,
 });
@@ -37,6 +41,15 @@ const server = app.listen(config.port, config.host, () => {
   } else {
     console.log(
       "[mana-server] itch.io auth DISABLED — set MANA_ITCH_ENABLED=true to register POST /api/v1/auth/itch",
+    );
+  }
+  if (config.googleEnabled && config.googleClientId) {
+    console.log(
+      "[mana-server] Google auth enabled — POST /api/v1/auth/google registered",
+    );
+  } else {
+    console.log(
+      "[mana-server] Google auth DISABLED — set MANA_GOOGLE_ENABLED=true + MANA_GOOGLE_CLIENT_ID to register POST /api/v1/auth/google",
     );
   }
 });

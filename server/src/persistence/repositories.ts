@@ -16,11 +16,12 @@ export type SessionRepo = {
 };
 
 /**
- * Identity provider for a player account. `steam` (Electron) and `itch`
- * (web build) are the enabled providers (docs/auth.md, docs/itchio-auth.md);
- * `guest` is a future phase.
+ * Identity provider for a player account. `steam` (Electron), `itch`
+ * (web build), and `google` (Android / web sign-in) are the enabled providers
+ * (docs/auth.md, docs/itchio-auth.md, docs/android-multiplayer.md); `guest`
+ * is a future phase.
  */
-export type PlayerProvider = "steam" | "itch" | "guest";
+export type PlayerProvider = "steam" | "itch" | "google" | "guest";
 
 /**
  * A game server account — the system of record for players. Steam (or a future

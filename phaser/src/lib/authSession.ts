@@ -14,7 +14,7 @@
 import { storage } from "@Systems/Storage";
 import type { StorageProvider } from "@Systems/Storage";
 
-export type AuthProvider = "steam" | "itch";
+export type AuthProvider = "steam" | "itch" | "google";
 
 export type AuthPlayer = {
 	playerId: string;
@@ -56,7 +56,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isAuthProvider(value: unknown): value is AuthProvider {
-	return value === "steam" || value === "itch";
+	return value === "steam" || value === "itch" || value === "google";
 }
 
 /**
