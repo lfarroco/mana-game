@@ -85,7 +85,7 @@ describe("orb presentations content", () => {
 
   it("defines a themed presentation for every core-upgrade identity orb (CUB-E1)", () => {
     const ids = Object.keys(CORE_UPGRADE_DEFINITIONS);
-    expect(ids).toHaveLength(62);
+    expect(ids).toHaveLength(80);
     for (const id of ids) {
       const orb = ORB_PRESENTATION_DATA[id];
       expect(orb).toBeDefined();

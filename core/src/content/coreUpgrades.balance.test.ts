@@ -85,21 +85,21 @@ function marginalAp(core: CardDefinition, orb: CoreUpgradeDefinition): number {
 describe("core upgrade balance (CUB-C1)", () => {
   it("maps every core theme to exactly one core card with a full identity-orb pool", () => {
     expect(CORES_BY_THEME.size).toBe(9);
-    // Every theme ships ≥ 3 identity orbs. All themes have 7 except haste,
+    // Every theme ships ≥ 3 identity orbs. All themes have 9 except haste,
     // whose 4th orb (Regen) now lives in quickstone's baseline — the absolute
     // basic-effect rule requires every core to carry ≥ 1
     // damage/heal/shield/poison/regen effect, and regen is quickstone's pair
     // (docs/core-unit-onboarding.md §2 decision 4).
     const EXPECTED_ORB_COUNTS: Record<CoreTheme, number> = {
-      regen: 7,
-      damage: 7,
-      shield: 7,
-      heal: 7,
-      poison: 7,
-      haste: 6,
-      overflow: 7,
-      thorns: 7,
-      void: 7,
+      regen: 9,
+      damage: 9,
+      shield: 9,
+      heal: 9,
+      poison: 9,
+      haste: 8,
+      overflow: 9,
+      thorns: 9,
+      void: 9,
     };
     for (const [theme, core] of CORES_BY_THEME) {
       expect(core.isCore).toBe(true);
@@ -183,6 +183,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  mana_regen_power: +50.9",
         "  mana_regen_haste: +19.1",
         "  mana_weave: +33.3",
+        "  mana_regen_venom: +178.2",
+        "  mana_reactive_ward: +100.8",
         "damage (critical_crystal) baseline 99",
         "  crit_crit_column: +34.6",
         "  crit_row_power: +81.0",
@@ -191,6 +193,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  crit_damage_power: +50.9",
         "  crit_crit_haste: +7.6",
         "  crit_crit_weaken: +16.3",
+        "  crit_thorns: +113.4",
+        "  crit_crit_siphon: +122.2",
         "shield (protective_crystal) baseline 101",
         "  shield_ally_power: +55.6",
         "  shield_trigger_power: +46.8",
@@ -199,6 +203,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  shield_haste: +19.1",
         "  shield_charge: +11.2",
         "  shield_bastion: +55.6",
+        "  shield_repair: +142.6",
+        "  shield_retribution: +40.5",
         "heal (growth_crystal) baseline 98",
         "  heal_growth_column: +38.5",
         "  heal_growth_trigger: +46.8",
@@ -207,6 +213,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  heal_heal_charge: +16.8",
         "  heal_heal_haste: +19.1",
         "  heal_vitality: +55.6",
+        "  heal_second_wind: +97.2",
+        "  heal_purifying: +101.8",
         "poison (purple_crystal) baseline 101",
         "  poison_re_slow_haste: +9.5",
         "  poison_slow_power: +50.9",
@@ -215,6 +223,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  poison_haste: +19.1",
         "  poison_charge: +16.8",
         "  poison_venom: +20.4",
+        "  poison_plague: +81.5",
+        "  poison_revenge: +32.4",
         "haste (quickstone) baseline 100",
         "  haste_charge: +3.4",
         "  haste_rehaste_crit: +25.5",
@@ -222,6 +232,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  haste_haste_power: +50.9",
         "  haste_haste_charge: +5.6",
         "  haste_speed_column: +26.0",
+        "  haste_haste_slow: +9.5",
+        "  haste_clockwork: +4.2",
         "overflow (radiant_crystal) baseline 101",
         "  radiant_overflow_shield: +87.6",
         "  radiant_overflow_burst: +109.5",
@@ -230,6 +242,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  radiant_radiance: +63.6",
         "  radiant_overflow_haste: +9.5",
         "  radiant_overflow_slow: +19.1",
+        "  radiant_overflow_regen: +109.5",
+        "  radiant_overflow_drain: +15.3",
         "thorns (verdant_crystal) baseline 101",
         "  verdant_thorns: +75.6",
         "  verdant_thorn_shield: +60.5",
@@ -238,6 +252,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  verdant_thorn_power: +54.0",
         "  verdant_thorn_slow: +20.3",
         "  verdant_thorn_haste: +10.1",
+        "  verdant_thorn_poison: +75.6",
+        "  verdant_thorn_drain: +162.0",
         "void (void_crystal) baseline 100",
         "  void_leech: +129.6",
         "  void_power_drain: +120.0",
@@ -246,6 +262,8 @@ describe("core upgrade balance (CUB-C1)", () => {
         "  void_power_sap: +32.0",
         "  void_shadow_slow: +57.3",
         "  void_shadow_haste: +28.6",
+        "  void_nullify: +114.6",
+        "  void_shadow_step: +9.5",
       ].join("\n"),
     );
   });

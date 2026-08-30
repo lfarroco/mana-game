@@ -83,6 +83,25 @@ Tie to `getSettings().particles` at controller creation time.
 | Predictable per-frame visual budget | Slightly spreads visuals over more frames |
 | Simple queue, minimal state | Needs drain-all safety valve at extreme speeds |
 
+#### Implemented (2026-08-30)
+
+`MAX_ANIMATIONS_PER_FRAME` in `CombatPlaybackController.ts` caps the log
+animations executed per tick, tiered by the particle-quality setting:
+
+| Quality | Max animations / frame |
+|---|---|
+| `"low"` | 5 |
+| `"medium"` (default) | 10 |
+| `"high"` | 15 |
+
+The while-loop stops once the cap is reached; the remainder stay "due"
+(`startTime` already passed) and execute on subsequent frames, so the timeline
+is never dropped — only stretched. Values are higher than the original
+2/3/5 sketch because combat logs are now hard-bounded by CombatRunner's runaway
+guard (docs/combat-system-improvements.md §1.2): `MAX_COMBAT_LOGS` (20k) caps
+total entries, so worst-case playback drains in ~2k frames (~33s at 60 fps,
+medium) instead of melting the CPU in a single tick.
+
 ---
 
 ## Optimization 2: Particle Emitter Pooling

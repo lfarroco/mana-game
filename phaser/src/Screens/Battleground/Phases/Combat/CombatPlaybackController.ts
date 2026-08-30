@@ -34,6 +34,28 @@ type PlaybackState = {
 // Must match CoreConstants.MIN_REFRESH_MS — used to replicate the server-side refresh lockout during playback
 const MIN_REFRESH_MS = CoreConstants.MIN_REFRESH_MS;
 
+/**
+ * FX rate cap — the maximum number of combat-log animations (and therefore FX
+ * calls) executed in a single frame, tiered by the player's particle-quality
+ * setting (docs/combat-playback-performance.md Optimization 1).
+ *
+ * Combat logs are bounded server-side (CombatRunner's runaway guard caps total
+ * work/logs), but a legitimately extreme log can still cluster tens of
+ * thousands of entries at a few timestamps (e.g. a charge-engine board). With
+ * no cap, one game tick would execute them all at once — spawning thousands of
+ * projectile/status FX in a single frame and spiking the CPU. The cap defers
+ * overflow to subsequent frames (their startTime has already passed, so they
+ * simply execute late), keeping FX calls per second bounded and smoothing
+ * normal clustered bursts, while the playback timeline stays complete. At
+ * 60 fps the default (medium) tier allows up to 60×10 = 600 FX calls/s; normal
+ * combats produce a few hundred FX total.
+ */
+const MAX_ANIMATIONS_PER_FRAME: Record<"low" | "medium" | "high", number> = {
+	low: 5,
+	medium: 10,
+	high: 15,
+};
+
 export const createCombatPlaybackController = (
 	logs: CombatLogger.CombatLogEntry[]
 ): CombatRunner.CombatRunner => {
@@ -133,15 +155,22 @@ export const createCombatPlaybackController = (
 
 		// Use sorted pointer instead of O(n) filter every frame.
 		// Animations are sorted by startTime, so we just advance the index
-		// while the next one's startTime has been reached.
+		// while the next one's startTime has been reached. The per-frame cap
+		// (see MAX_ANIMATIONS_PER_FRAME) bounds FX calls per tick — overflow
+		// stays "due" and executes on the next frames.
 		const { animations, currentTime } = playbackState;
+		const fxCap =
+			MAX_ANIMATIONS_PER_FRAME[env.state.settings.particles] ?? MAX_ANIMATIONS_PER_FRAME.medium;
+		let executedThisFrame = 0;
 		while (
 			playbackState.nextAnimationIndex < animations.length &&
-			animations[playbackState.nextAnimationIndex].startTime <= currentTime
+			animations[playbackState.nextAnimationIndex].startTime <= currentTime &&
+			executedThisFrame < fxCap
 		) {
 			const anim = animations[playbackState.nextAnimationIndex];
 			if (!anim.executed) {
 				executeAnimation(anim);
+				executedThisFrame++;
 			}
 			playbackState.nextAnimationIndex++;
 		}

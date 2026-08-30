@@ -23,13 +23,17 @@ import {
   decreasePower,
   dispel,
   haste,
+  heal,
   increaseCritical,
   increasePower,
+  poison,
   randomAlly,
   randomEnemy,
   reaction,
+  regen,
   self,
   shield,
+  silence,
   slow,
   strongestEnemy,
   trigger,
@@ -63,14 +67,16 @@ export type CoreUpgradeDefinition = {
 };
 
 // ---------------------------------------------------------------------------
-// Identity orbs — 7 per theme, 6 for haste (see docs/core-unit-onboarding.md
+// Identity orbs — 9 per theme, 8 for haste (see docs/core-unit-onboarding.md
 // §4 pool sketch; the overflow theme is the CUB-G1 Radiant Crystal pool, §9;
 // the thorns theme is the CUB-G2 Verdant Crystal pool, §9; the void theme is
-// the CUB-G3 Void Crystal pool, §9)
+// the CUB-G3 Void Crystal pool, §9). The 2026-08-30 variety pass added two
+// cross-mechanic orbs per theme so the "every_X → charge/haste/power" tempo
+// template is diluted and each pool offers genuinely different responses.
 // ---------------------------------------------------------------------------
 
 /**
- * All 62 identity orbs, keyed by id.
+ * All 80 identity orbs, keyed by id.
  *
  * Reactions with effectId "all" fire only on basic abilities (intended — these
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
@@ -124,6 +130,23 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "effect",
     effect: increasePower(2, column, true),
   },
+  // --- regen additions (2026-08-30 variety pass): sustain → offense / defense.
+  // Two more every_10_regen responses (poison, shield) so the regen pool's
+  // five same-trigger orbs offer five DIFFERENT responses — assembling the
+  // charge+power+haste tempo engine is diluted, and regen gains cross-mechanic
+  // play. mana_reactive_ward is the defensive twin of mana_reactive_charge. ---
+  mana_regen_venom: {
+    id: "mana_regen_venom",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("every_10_regen", "allies", poison),
+  },
+  mana_reactive_ward: {
+    id: "mana_reactive_ward",
+    theme: "regen",
+    kind: "reaction",
+    reaction: reaction("damage", "left_ally", shield),
+  },
 
   // --- damage theme (critical_crystal): Crit Column, Row Power, Crit Power, Crit Slow ---
   crit_crit_column: {
@@ -169,6 +192,22 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("on_crit", "allies", decreasePower(4, randomEnemy(1))),
   },
+  // --- damage additions (2026-08-30 variety pass): retaliation & power theft.
+  // crit_thorns gives the damage crystal a thorns-lite trigger (on_crystal_hit
+  // is new to this theme); crit_crit_siphon turns crits into cross-force power
+  // theft instead of another self buff. ---
+  crit_thorns: {
+    id: "crit_thorns",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crystal_hit", "enemies", damage, "enemy"),
+  },
+  crit_crit_siphon: {
+    id: "crit_crit_siphon",
+    theme: "damage",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", absorbPower(strongestEnemy)),
+  },
 
   // --- shield theme (protective_crystal): Shield Ally Power, Shield Trigger Power, Shield Power, Overflow Shield ---
   shield_ally_power: {
@@ -206,13 +245,37 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "shield_charge",
     theme: "shield",
     kind: "reaction",
-    reaction: reaction("every_100_shield", "allies", charge(200, randomAlly(1))),
+    reaction: reaction(
+      "every_100_shield",
+      "allies",
+      charge(200, randomAlly(1)),
+    ),
   },
   shield_bastion: {
     id: "shield_bastion",
     theme: "shield",
     kind: "effect",
     effect: increasePower(5, weakestAlly, true),
+  },
+  // --- shield additions (2026-08-30 variety pass): protection from ally heals
+  // and permanent growth from being hit — distinct triggers (heal,
+  // on_crystal_hit) instead of another every_100_shield tempo orb. ---
+  shield_repair: {
+    id: "shield_repair",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction("heal", "allies", shield),
+  },
+  shield_retribution: {
+    id: "shield_retribution",
+    theme: "shield",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      increasePower(3, self, true),
+      "enemy",
+    ),
   },
 
   // --- heal theme (growth_crystal): Growth Column, Growth Trigger, Overflow Power, Heal Power ---
@@ -258,6 +321,22 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "heal",
     kind: "effect",
     effect: increasePower(5, self, true),
+  },
+  // --- heal additions (2026-08-30 variety pass): self-repair and cleanse.
+  // heal_second_wind (on_crystal_hit → heal) makes the growth crystal a
+  // self-repairing tank; heal_purifying converts the every_100_heal trigger
+  // into disruption (dispel) instead of another power/tempo orb. ---
+  heal_second_wind: {
+    id: "heal_second_wind",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("on_crystal_hit", "enemies", heal, "enemy"),
+  },
+  heal_purifying: {
+    id: "heal_purifying",
+    theme: "heal",
+    kind: "reaction",
+    reaction: reaction("every_100_heal", "allies", dispel(strongestEnemy)),
   },
 
   // --- poison theme (purple_crystal): Slow Power, Poison Power, Re-Slow Drain ---
@@ -309,6 +388,28 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     kind: "reaction",
     reaction: reaction("slow", "allies", decreasePower(4, randomEnemy(1))),
   },
+  // --- poison additions (2026-08-30 variety pass): spread & revenge.
+  // poison_plague re-poisons off allied crits (cast-triggered, so the
+  // no-reaction-to-reactions rule keeps it a spread, not a loop);
+  // poison_revenge punishes the ENEMY's poison accumulation by sapping its
+  // strongest unit. ---
+  poison_plague: {
+    id: "poison_plague",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction("on_crit", "allies", poison),
+  },
+  poison_revenge: {
+    id: "poison_revenge",
+    theme: "poison",
+    kind: "reaction",
+    reaction: reaction(
+      "every_10_poison",
+      "enemies",
+      decreasePower(3, strongestEnemy),
+      "enemy",
+    ),
+  },
 
   // --- haste theme (quickstone): Haste Charge, Re-Haste Crit, Re-Haste Power ---
   // (quickstone's baseline itself carries the regen pair — the absolute
@@ -350,6 +451,22 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "haste",
     kind: "effect",
     effect: haste(1000, column),
+  },
+  // --- haste additions (2026-08-30 variety pass): tempo gap & anti-slow.
+  // haste_haste_slow widens the tempo gap (hasting allies slows the enemy);
+  // haste_clockwork undoes enemy slows on allies (charge the slowed ally)
+  // rather than stacking another raw-haste orb. ---
+  haste_haste_slow: {
+    id: "haste_haste_slow",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("haste", "allies", slow(500, randomEnemy(1))),
+  },
+  haste_clockwork: {
+    id: "haste_clockwork",
+    theme: "haste",
+    kind: "reaction",
+    reaction: reaction("slow", "allies", charge(150, trigger)),
   },
 
   // --- overflow theme (radiant_crystal): Overflow Shield, Overflow Burst,
@@ -400,6 +517,26 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "overflow",
     kind: "reaction",
     reaction: reaction("on_over_heal", "allies", slow(1000, randomEnemy(1))),
+  },
+  // --- overflow additions (2026-08-30 variety pass): overflow → sustain /
+  // disruption. radiant_overflow_regen converts overheal into regen (heal the
+  // crystal over time); radiant_overflow_drain saps the strongest enemy on
+  // overheal instead of yet another power/haste tempo orb. ---
+  radiant_overflow_regen: {
+    id: "radiant_overflow_regen",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction("on_over_heal", "allies", regen),
+  },
+  radiant_overflow_drain: {
+    id: "radiant_overflow_drain",
+    theme: "overflow",
+    kind: "reaction",
+    reaction: reaction(
+      "on_over_heal",
+      "allies",
+      decreasePower(3, strongestEnemy),
+    ),
   },
 
   // --- thorns theme (verdant_crystal): Thorns, Thorn Shield, Retaliation,
@@ -477,6 +614,27 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
       "enemy",
     ),
   },
+  // --- thorns additions (2026-08-30 variety pass): being hit → poison / theft.
+  // Same on_crystal_hit trigger, new responses: verdant_thorn_poison makes the
+  // attacker's crystal rot, verdant_thorn_drain steals its strongest unit's
+  // power — retaliations that don't stack into the damage-reflection engine. ---
+  verdant_thorn_poison: {
+    id: "verdant_thorn_poison",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction("on_crystal_hit", "enemies", poison, "enemy"),
+  },
+  verdant_thorn_drain: {
+    id: "verdant_thorn_drain",
+    theme: "thorns",
+    kind: "reaction",
+    reaction: reaction(
+      "on_crystal_hit",
+      "enemies",
+      absorbPower(strongestEnemy),
+      "enemy",
+    ),
+  },
 
   // --- void theme (void_crystal): Leech, Power Drain, Dispel, Weakness ---
   // (CUB-G3, docs/core-unit-onboarding.md §9) — the disruption / power-theft
@@ -527,6 +685,22 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     theme: "void",
     kind: "reaction",
     reaction: reaction("all", "allies", haste(500, self)),
+  },
+  // --- void additions (2026-08-30 variety pass): ally casts → silence /
+  // counter-tempo. void_nullify silences the strongest enemy whenever an ally
+  // casts a basic ability (disruption, not power theft); void_shadow_step
+  // hastes the crystal when allies slow the enemy. ---
+  void_nullify: {
+    id: "void_nullify",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("all", "allies", silence(1000, strongestEnemy)),
+  },
+  void_shadow_step: {
+    id: "void_shadow_step",
+    theme: "void",
+    kind: "reaction",
+    reaction: reaction("slow", "allies", haste(500, self)),
   },
 };
 

@@ -118,14 +118,14 @@ export type CoreUpgradeDefinition = {
 
 ### Per-theme pool sketch
 
-| Theme                 | Identity orbs                                                                                                                                                                                                             |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `regen` (mana)        | Column Growth (`increasePower(10, column)`); Reactive Charge (`damage ← left_ally → charge self`); Overflow Shield (`on_over_heal → shield`); Regen Charge (`every_10_regen → charge random ally`); Regen Growth (`every_10_regen → +5 power self`); Regen Haste (`every_10_regen → haste random ally`); Mana Weave (`increasePower(2, column, permanent)`) |
-| `damage` (critical)   | Crit Column (`increaseCritical(5, column)`); Row Power (`all ← row_allies → +5 power column`); Crit Power (`on_crit → increasePower`); Crit Slow (`on_crit → slow enemy`); Damage Power (`every_100_damage → +5 power self`); Crit Haste (`on_crit → haste random ally`); Crit Weaken (`on_crit → −4 power random enemy`) |
-| `shield` (protective) | Shield Ally Power (`increasePower(5, randomAlly, permanent)`); Shield Trigger Power (`all ← row_allies → +5 power trigger`); Shield Power (`every_100_shield → increasePower`); Overflow Shield (`on_over_heal → shield`); Shield Haste (`every_100_shield → haste random ally`); Shield Charge (`every_100_shield → charge random ally`); Bastion (`increasePower(5, weakestAlly, permanent)`) |
-| `heal` (growth)       | Growth Column (`increasePower(2, column, permanent)`); Growth Trigger (`all ← row_allies → +5 power trigger`); Overflow Power (`on_over_heal → increasePower`); Heal Power (`every_100_heal → increasePower`); Heal Charge (`every_100_heal → charge random ally`); Heal Haste (`every_100_heal → haste random ally`); Vitality (`increasePower(5, self, permanent)`) |
-| `poison` (purple)     | Slow Enemy (`slow(1000, randomEnemy)`); Slow Power (`slow ← allies → +4 power trigger, permanent`); Poison Power (`every_10_poison → increasePower`); Re-Slow Drain (`re_slow → decrease enemy power`); Poison Haste (`every_10_poison → haste random ally`); Poison Charge (`every_10_poison → charge random ally`); Venom Drain (`slow → −4 power random enemy`) |
-| `haste` (quickstone)  | Haste Charge (`haste ← right_ally → charge column`) — Regen moved into the baseline (basic-effect rule); Re-Haste Crit (`re_hasted → increaseCritical`); Re-Haste Power (`re_hasted → +5 power self`); Haste Power (`haste → +4 power trigger, permanent`); Haste Charge (`haste → charge random ally`); Speed Column (`haste(1000, column)`) |
+| Theme                 | Identity orbs                                                                                                                                                                                                                                                                                                                                                                                                 |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `regen` (mana)        | Column Growth (`increasePower(10, column)`); Reactive Charge (`damage ← left_ally → charge self`); Overflow Shield (`on_over_heal → shield`); Regen Charge (`every_10_regen → charge random ally`); Regen Growth (`every_10_regen → +5 power self`); Regen Haste (`every_10_regen → haste random ally`); Mana Weave (`increasePower(2, column, permanent)`); Regen Venom (`every_10_regen → poison enemy`); Reactive Ward (`damage ← left_ally → shield`) |
+| `damage` (critical)   | Crit Column (`increaseCritical(5, column)`); Row Power (`all ← row_allies → +5 power column`); Crit Power (`on_crit → increasePower`); Crit Slow (`on_crit → slow enemy`); Damage Power (`every_100_damage → +5 power self`); Crit Haste (`on_crit → haste random ally`); Crit Weaken (`on_crit → −4 power random enemy`); Crit Thorns (`on_crystal_hit → damage back`); Crit Siphon (`on_crit → steal strongest enemy power`) |
+| `shield` (protective) | Shield Ally Power (`increasePower(5, randomAlly, permanent)`); Shield Trigger Power (`all ← row_allies → +5 power trigger`); Shield Power (`every_100_shield → increasePower`); Overflow Shield (`on_over_heal → shield`); Shield Haste (`every_100_shield → haste random ally`); Shield Charge (`every_100_shield → charge random ally`); Bastion (`increasePower(5, weakestAlly, permanent)`); Repair (`heal → shield`); Retribution (`on_crystal_hit → +3 permanent power self`) |
+| `heal` (growth)       | Growth Column (`increasePower(2, column, permanent)`); Growth Trigger (`all ← row_allies → +5 power trigger`); Overflow Power (`on_over_heal → increasePower`); Heal Power (`every_100_heal → increasePower`); Heal Charge (`every_100_heal → charge random ally`); Heal Haste (`every_100_heal → haste random ally`); Vitality (`increasePower(5, self, permanent)`); Second Wind (`on_crystal_hit → heal`); Purifying (`every_100_heal → dispel strongest enemy`) |
+| `poison` (purple)     | Slow Enemy (`slow(1000, randomEnemy)`); Slow Power (`slow ← allies → +4 power trigger, permanent`); Poison Power (`every_10_poison → increasePower`); Re-Slow Drain (`re_slow → decrease enemy power`); Poison Haste (`every_10_poison → haste random ally`); Poison Charge (`every_10_poison → charge random ally`); Venom Drain (`slow → −4 power random enemy`); Plague (`on_crit → poison enemy`); Revenge (`enemy every_10_poison → strongest enemy −3 power`) |
+| `haste` (quickstone)  | Haste Charge (`haste ← right_ally → charge column`) — Regen moved into the baseline (basic-effect rule); Re-Haste Crit (`re_hasted → increaseCritical`); Re-Haste Power (`re_hasted → +5 power self`); Haste Power (`haste → +4 power trigger, permanent`); Haste Charge (`haste → charge random ally`); Speed Column (`haste(1000, column)`); Haste Slow (`haste → slow random enemy`); Clockwork (`slow ← allies → charge the slowed ally 150ms`) |
 
 > **Variety pass (2026-08-25):** every theme's pool gained 3 identity orbs
 > (listed above; `overflow` / `thorns` / `void` additions are described in §9
@@ -133,6 +133,16 @@ export type CoreUpgradeDefinition = {
 > `haste`) + the 3 generic stat orbs, so each `upgrade_core` /
 > `add_reaction_core` event draws its 3 choices from a much larger, more varied
 > set.
+>
+> **Variety pass 2 (2026-08-30):** every theme's pool gained 2 more identity
+> orbs — cross-mechanic responses (poison/shield/regen/dispel/silence/absorb)
+> and new triggers (`on_crystal_hit`, `heal`, `on_crit`, `slow`) instead of
+> more `every_X → charge/haste/power` template orbs. Pools are now 9 identity
+> orbs per theme (8 for `haste`) + the 3 stat orbs (80 identity orbs total).
+> The dilution plus response variety makes degenerate stacks (e.g. the regen
+> tempo trio of Regen Charge/Growth/Haste) much harder to assemble, and the
+> combat runaway guard (docs/combat-system-improvements.md §1.2) keeps any
+> leftover combo bounded.
 
 ---
 

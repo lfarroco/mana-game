@@ -30,10 +30,12 @@ const MAX_THRESHOLD_CROSSINGS_PER_FRAME = 500;
 // suite); the budget guarantees a runaway board ends within bounded CPU time.
 const MAX_COMBAT_WORK = 50_000;
 
-// Total combat log budget. Log entries are the simulation's memory: legit
-// combats log a few hundred entries at most, so this caps a runaway board's
-// log (and therefore playback) size instead of letting it balloon into an OOM.
-const MAX_COMBAT_LOGS = 50_000;
+// Total combat log budget. Log entries are the simulation's memory AND the
+// client's playback workload: legit combats log a few hundred entries at most,
+// so this caps a runaway board's log (and therefore playback) size instead of
+// letting it balloon into an OOM or a multi-minute playback stretch (the
+// client's FX-per-frame cap drains the timeline at a bounded rate).
+const MAX_COMBAT_LOGS = 20_000;
 
 export type CombatRunner = {
   updateFrame: (state: CombatState, time: number, delta: number) => void;

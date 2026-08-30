@@ -80,8 +80,10 @@ threshold crossings; the simulation then did unbounded work per frame
 2. **Total-work budget** — `MAX_COMBAT_WORK` (50k) work units (deferred
    event executions + threshold crossings + unit casts); legit combats use a
    few thousand at most.
-3. **Total-log budget** — `MAX_COMBAT_LOGS` (50k) entries bounds the log
-   (and therefore playback) memory.
+3. **Total-log budget** — `MAX_COMBAT_LOGS` (20k) entries bounds the log (and
+   therefore playback) memory and playback length — the client drains the
+   timeline through a bounded FX-per-frame cap
+   (docs/combat-playback-performance.md Optimization 1).
 
 When either budget is exhausted the combat ends gracefully as `both_won`
 (mirroring the `MAX_COMBAT_DURATION_MS` timeout) with a `runaway_combat` log
