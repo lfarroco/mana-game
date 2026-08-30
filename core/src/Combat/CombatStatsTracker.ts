@@ -151,10 +151,18 @@ export function initializeThresholds(): ThresholdState {
  * Check all forces' accumulated stats against their thresholds.
  * Returns every crossed threshold as { forceId, reactionId } pairs.
  * Updates thresholdState in place so each level fires at most once.
+ *
+ * `maxResults` caps how many crossings are consumed in one call: when the
+ * cap is hit, thresholdState stops advancing, so the unconsumed crossings
+ * fire on a later call instead of being dropped. The combat runner passes a
+ * per-frame cap so a single gigantic stat burst (e.g. an exponential
+ * regen→charge→power feedback loop) cannot perform unbounded work in one
+ * frame — see CombatRunner's runaway guard.
  */
 export function getCrossedThresholds(
   trackerState: CombatStatsTrackerState,
   thresholdState: ThresholdState,
+  maxResults: number = Number.POSITIVE_INFINITY,
 ): Array<{ forceId: string; reactionId: EffectId }> {
   const results: Array<{ forceId: string; reactionId: EffectId }> = [];
 
@@ -170,7 +178,7 @@ export function getCrossedThresholds(
       let nextThreshold = lastFired + config.threshold;
 
       // May cross multiple thresholds at once (e.g. large burst damage)
-      while (current >= nextThreshold) {
+      while (current >= nextThreshold && results.length < maxResults) {
         results.push({ forceId, reactionId: config.reactionId });
         thresholdState.set(key, nextThreshold);
         nextThreshold += config.threshold;

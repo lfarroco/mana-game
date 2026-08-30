@@ -47,6 +47,7 @@ const ALL_LOG_TYPES = [
   "storm_start",
   "combat_stats",
   "outcome",
+  "runaway_combat",
   "reaction",
 ] as const;
 
@@ -103,10 +104,12 @@ describe("log dispatch (B4)", () => {
     expect(LOG_HANDLER_GROUPS.increase_critical).toBe("none");
     expect(LOG_HANDLER_GROUPS.storm_start).toBe("none");
     expect(LOG_HANDLER_GROUPS.outcome).toBe("none");
+    expect(LOG_HANDLER_GROUPS.runaway_combat).toBe("none");
 
     expect([...NO_FX_LOG_TYPES].sort()).toEqual([
       "increase_critical",
       "outcome",
+      "runaway_combat",
       "storm_start",
     ]);
   });

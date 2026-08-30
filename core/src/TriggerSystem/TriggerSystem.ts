@@ -34,16 +34,16 @@ const processEffectIO = (
         effects.dealDamage(env, sourceUnit, scale, isReaction);
         break;
       case "heal":
-        effects.restoreLife(env, sourceUnit, scale);
+        effects.restoreLife(env, sourceUnit, scale, isReaction);
         break;
       case "shield":
         effects.addShield(env, sourceUnit, scale, isReaction);
         break;
       case "poison":
-        effects.applyPoison(env, sourceUnit, scale);
+        effects.applyPoison(env, sourceUnit, scale, isReaction);
         break;
       case "regen":
-        effects.applyRegen(env, sourceUnit, scale);
+        effects.applyRegen(env, sourceUnit, scale, isReaction);
         break;
       case "haste":
         const hasteTargets = resolveTargets(
@@ -59,6 +59,7 @@ const processEffectIO = (
           effect.duration * scale,
           (_target: Models.Unit) =>
             processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+          isReaction,
         );
         break;
       case "slow":
@@ -75,6 +76,7 @@ const processEffectIO = (
           effect.duration * scale,
           (_target: Models.Unit) =>
             processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+          isReaction,
         );
         break;
       case "silence":

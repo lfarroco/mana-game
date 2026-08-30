@@ -12,6 +12,7 @@ export const applyPoison = (
   env: CombatEnvironment,
   sourceUnit: Unit,
   scale: number = 1,
+  isReaction: boolean = false,
 ) => {
   const baseAmount = sourceUnit.power * 0.1;
 
@@ -59,13 +60,19 @@ export const applyPoison = (
       );
       combatStates.poisonSystemState = newPoisonState;
 
-      CombatStatsTracker.trackPoison(
-        combatStates.combatStatsTrackerState,
-        sourceUnit,
-        amount,
-      );
+      // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+      // itself a reaction emits no reaction triggers and contributes no
+      // force/unit stats — reaction-sourced poison neither fires on_crit nor
+      // feeds the every_10_poison threshold.
+      if (!isReaction) {
+        CombatStatsTracker.trackPoison(
+          combatStates.combatStatsTrackerState,
+          sourceUnit,
+          amount,
+        );
+      }
 
-      if (isCritical) {
+      if (isCritical && !isReaction) {
         processReactions(env, sourceUnit, { id: "on_crit" }, 1);
       }
 

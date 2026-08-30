@@ -8,9 +8,13 @@ export function applySlow(
   targets: Unit[],
   duration: number,
   onReSlow?: (target: Unit) => void,
+  isReaction: boolean = false,
 ) {
   for (const target of targets) {
-    if (target.slowed > 0 && onReSlow) {
+    // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+    // itself a reaction emits no reaction triggers — a reaction-sourced slow
+    // never fires re_slow, even on an already-slowed target.
+    if (target.slowed > 0 && onReSlow && !isReaction) {
       onReSlow(target);
     }
 

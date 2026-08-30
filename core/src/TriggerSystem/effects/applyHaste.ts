@@ -8,9 +8,13 @@ export const applyHaste = (
   sourceUnit: Unit,
   duration: number,
   onReHaste: (target: Unit) => void,
+  isReaction: boolean = false,
 ) => {
   for (const target of targets) {
-    if (target.hasted > 0) {
+    // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+    // itself a reaction emits no reaction triggers — a reaction-sourced haste
+    // never fires re_hasted, even on an already-hasted target.
+    if (target.hasted > 0 && !isReaction) {
       onReHaste(target);
     }
 

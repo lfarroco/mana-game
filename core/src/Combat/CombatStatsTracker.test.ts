@@ -351,5 +351,37 @@ describe("CombatStatsTracker", () => {
         { forceId: "PLAYER", reactionId: "every_100_shield" },
       ]);
     });
+
+    it("maxResults caps one call and defers the rest without dropping them", () => {
+      // A single giant burst (the runaway-loop signature): 5000 damage worth
+      // of crossings with a per-call cap of 3 — the first call consumes 3,
+      // later calls consume the remainder in order.
+      const u = makeUnit("u1", "PLAYER");
+      const tracker = CombatStatsTracker.initialize(makeCombatState([u]));
+      CombatStatsTracker.trackDamage(tracker, u, 5000);
+      const thresholds = CombatStatsTracker.initializeThresholds();
+
+      const first = CombatStatsTracker.getCrossedThresholds(
+        tracker,
+        thresholds,
+        3,
+      );
+      expect(first).toHaveLength(3);
+      // The 3 consumed levels (100, 200, 300) must not re-fire…
+      expect(
+        CombatStatsTracker.getCrossedThresholds(tracker, thresholds, 3),
+      ).toEqual([
+        { forceId: "PLAYER", reactionId: "every_100_damage" },
+        { forceId: "PLAYER", reactionId: "every_100_damage" },
+        { forceId: "PLAYER", reactionId: "every_100_damage" },
+      ]);
+      // …and the remaining 44 crossings (50 total − 6 consumed) still fire
+      // (nothing was dropped).
+      const rest = CombatStatsTracker.getCrossedThresholds(tracker, thresholds);
+      expect(rest).toHaveLength(44);
+      expect(
+        CombatStatsTracker.getCrossedThresholds(tracker, thresholds),
+      ).toEqual([]);
+    });
   });
 });

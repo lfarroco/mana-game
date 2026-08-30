@@ -17,6 +17,24 @@ import * as CombatLogger from "./CombatLogger";
 
 const MAX_COMBAT_DURATION_MS = 120_000;
 
+// Runaway guard (see workBudget in runCombat): a single frame processes at
+// most this many due deferred events and fires at most this many threshold
+// crossings — overflow carries over to the next frame. These cap per-frame
+// work (the client runs updateFrame once per game tick, so one frame must
+// never hang) while the total-work budget bounds the whole combat.
+const MAX_DEFERRED_EVENTS_PER_FRAME = 1000;
+const MAX_THRESHOLD_CROSSINGS_PER_FRAME = 500;
+
+// Total combat work budget: deferred event executions + threshold crossings +
+// unit casts. Legit combats use a few thousand at most (see the combat test
+// suite); the budget guarantees a runaway board ends within bounded CPU time.
+const MAX_COMBAT_WORK = 50_000;
+
+// Total combat log budget. Log entries are the simulation's memory: legit
+// combats log a few hundred entries at most, so this caps a runaway board's
+// log (and therefore playback) size instead of letting it balloon into an OOM.
+const MAX_COMBAT_LOGS = 50_000;
+
 export type CombatRunner = {
   updateFrame: (state: CombatState, time: number, delta: number) => void;
   finishCombat: (outcome: "player_won" | "player_lost" | "both_won") => void;
@@ -97,6 +115,31 @@ export const runCombat = (
   let thresholdState = CombatStatsTracker.initializeThresholds();
   let combatElapsedMs = 0;
 
+  // Runaway guard — a hard budget on total combat work. Self-reinforcing
+  // effect loops (e.g. every_10_regen → charge/haste/power → more regen) can
+  // grow the simulation's per-frame work without bound; without this guard
+  // such a board freezes the game (CPU melt / OOM) instead of resolving. Once
+  // the budget is spent the combat ends gracefully (both_won, mirroring the
+  // MAX_COMBAT_DURATION_MS timeout) with a runaway_combat log entry.
+  let workBudget = MAX_COMBAT_WORK;
+
+  /** Spend `units` of work budget. Returns true when the budget is exhausted. */
+  const spendWork = (units: number): boolean => {
+    workBudget -= units;
+    return (
+      workBudget <= 0 ||
+      runnerState.env.logger.getLogs().length >= MAX_COMBAT_LOGS
+    );
+  };
+
+  const finishCombatRunaway = () => {
+    if (!runnerState.active) return;
+    runnerState.env.logger.log({
+      type: "runaway_combat",
+    });
+    finishCombat("both_won");
+  };
+
   const updateFrame = (
     nextState: CombatState,
     _time: number,
@@ -117,7 +160,9 @@ export const runCombat = (
       return;
     }
 
-    // 1. Process deferred events that are due (projectiles landing this frame)
+    // 1. Process deferred events that are due (projectiles landing this frame).
+    //    The per-frame cap keeps a runaway effect loop from doing unbounded
+    //    work in one frame — overflow stays queued for the next frame.
     const dueEvents: DeferredEvent[] = [];
     const remainingEvents: DeferredEvent[] = [];
     for (const event of runnerState.env.deferredEvents) {
@@ -129,9 +174,20 @@ export const runCombat = (
     }
     // Sort due events by time for deterministic processing
     dueEvents.sort((a, b) => a.timeMs - b.timeMs);
+    const eventsToProcess = Math.min(
+      dueEvents.length,
+      MAX_DEFERRED_EVENTS_PER_FRAME,
+    );
+    for (let i = eventsToProcess; i < dueEvents.length; i++) {
+      remainingEvents.push(dueEvents[i]);
+    }
     runnerState.env.deferredEvents = remainingEvents;
-    for (const event of dueEvents) {
+    for (const event of dueEvents.slice(0, eventsToProcess)) {
       event.execute(runnerState.env);
+      if (spendWork(1)) {
+        finishCombatRunaway();
+        return;
+      }
     }
 
     // 2. Charge units and process effects (these log _cast and schedule _hit)
@@ -149,6 +205,10 @@ export const runCombat = (
         },
       );
       TriggerSystem.processEffectsIO(env, unit, unit.effects, false);
+      if (spendWork(1)) {
+        finishCombatRunaway();
+        return;
+      }
     }
 
     // 3. Status effects tick (poison/regen)
@@ -159,9 +219,13 @@ export const runCombat = (
     );
 
     // 3.5. Check threshold reactions (every_100_damage, every_10_poison, etc.)
+    //      The per-frame cap spreads a gigantic stat burst (e.g. one regen
+    //      application worth thousands of crossings) across frames instead of
+    //      firing them all in this one — see getCrossedThresholds' maxResults.
     const crossed = CombatStatsTracker.getCrossedThresholds(
       runnerState.env.combatStates.combatStatsTrackerState,
       thresholdState,
+      MAX_THRESHOLD_CROSSINGS_PER_FRAME,
     );
     for (const { forceId, reactionId } of crossed) {
       const triggerer = nextState.units.find((u) => u.force === forceId);
@@ -174,6 +238,10 @@ export const runCombat = (
           { id: reactionId } as Effect,
           1,
         );
+      }
+      if (spendWork(1)) {
+        finishCombatRunaway();
+        return;
       }
     }
 

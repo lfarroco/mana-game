@@ -20,7 +20,7 @@ import type { CombatLogEntry } from "./CombatLogger";
  *   power — powerHandlers
  *   reaction — reactionHandlers
  *   stats — combatStatsHandlers
- *   none — no FX handler (increase_critical, storm_start, outcome)
+ *   none — no FX handler (increase_critical, storm_start, outcome, runaway_combat)
  */
 export type LogHandlerGroup =
   | "projectile_cast"
@@ -77,6 +77,7 @@ export const LOG_HANDLER_GROUPS = {
   increase_critical: "none",
   storm_start: "none",
   outcome: "none",
+  runaway_combat: "none",
 } satisfies Record<CombatLogEntry["type"], LogHandlerGroup>;
 
 /** The playback-handler family a log entry routes to. */

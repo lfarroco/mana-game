@@ -79,13 +79,19 @@ export function dealDamage(
         isCritical,
       );
 
-      CombatStatsTracker.trackDamage(
-        env.combatStates.combatStatsTrackerState,
-        source,
-        actualLifeChanged,
-      );
+      // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+      // itself a reaction emits no reaction triggers and contributes no
+      // force/unit stats — reaction-sourced damage neither fires on_crit nor
+      // feeds the every_100_damage threshold.
+      if (!isReaction) {
+        CombatStatsTracker.trackDamage(
+          env.combatStates.combatStatsTrackerState,
+          source,
+          actualLifeChanged,
+        );
+      }
 
-      if (isCritical) {
+      if (isCritical && !isReaction) {
         const sourceUnit = state.units.find((u) => u.id === sourceId);
         if (sourceUnit) {
           processReactions(env, sourceUnit, { id: "on_crit" }, 1);

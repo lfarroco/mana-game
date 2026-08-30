@@ -278,6 +278,13 @@ export type OutcomeEntry = {
   result: WaveOutcome;
 };
 
+/** The combat runner's runaway guard tripped (see CombatRunner.MAX_COMBAT_WORK):
+ *  a self-reinforcing effect loop made the simulation do more work than the
+ *  bounded budget, so combat was ended gracefully instead of melting the CPU. */
+export type RunawayCombatEntry = {
+  type: "runaway_combat";
+};
+
 export type ReactionEntry = {
   type: "reaction";
   unitId: string;
@@ -318,6 +325,7 @@ export type CombatLogInput =
   | StormStartEntry
   | CombatStatsEntry
   | OutcomeEntry
+  | RunawayCombatEntry
   | ReactionEntry;
 
 // Output entry

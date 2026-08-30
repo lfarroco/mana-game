@@ -11,6 +11,7 @@ export const applyRegen = (
   env: CombatEnvironment,
   sourceUnit: Unit,
   scale: number = 1,
+  isReaction: boolean = false,
 ) => {
   const baseAmount = sourceUnit.power * 0.1;
 
@@ -58,13 +59,19 @@ export const applyRegen = (
       );
       combatStates.regenSystemState = newRegenState;
 
-      CombatStatsTracker.trackRegen(
-        combatStates.combatStatsTrackerState,
-        sourceUnit,
-        amount,
-      );
+      // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+      // itself a reaction emits no reaction triggers and contributes no
+      // force/unit stats — reaction-sourced regen neither fires on_crit nor
+      // feeds the every_10_regen threshold.
+      if (!isReaction) {
+        CombatStatsTracker.trackRegen(
+          combatStates.combatStatsTrackerState,
+          sourceUnit,
+          amount,
+        );
+      }
 
-      if (isCritical) {
+      if (isCritical && !isReaction) {
         processReactions(env, sourceUnit, { id: "on_crit" }, 1);
       }
 

@@ -34,6 +34,29 @@ This creates chains of potential combos:
 2. Unit B (a teammate) has a reaction: "When an ally **Heals**, cast **Shield** on self".
 3. Unit B immediately casts **Shield**.
 
+## The "can't react to reactions" rule
+
+A reaction can only be started by a **cast** (a unit performing its own action
+on cooldown) — never by another reaction. An effect that was itself triggered
+as a reaction emits **no** reaction triggers and contributes **no** stats:
+
+- it never fires `on_crit` (even on a critical hit),
+- it never fires `on_over_heal`, `on_crystal_hit`, or `re_hasted`/`re_slow`,
+- the reaction response itself is not dispatched again (reactions do not
+  recursively react to reaction effects),
+- it never accumulates force/unit stats, so reaction-sourced basics
+  (damage/heal/shield/poison/regen) never feed the threshold reactions
+  (`every_100_damage`, `every_100_heal`, `every_100_shield`, `every_10_poison`,
+  `every_10_regen`).
+
+So a thorns-style chain terminates: crystal hit → thorns retaliates → that
+reaction damage can't fire `on_crit`, re-trigger `on_crystal_hit`, or feed
+`every_100_damage`, even if it crits. Implementation:
+`TriggerSystem.processEffectIO` threads its `isReaction` flag into every
+effect handler, and the effect handlers guard their internal emits and
+`CombatStatsTracker.track*` calls with it (see `TriggerSystem/effects/*`).
+Regression coverage: `core/src/Combat/ReactionNoChains.test.ts`.
+
 ## Anatomy of a Reaction
 
 A reaction is defined by three main components:

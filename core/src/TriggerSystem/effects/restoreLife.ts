@@ -12,6 +12,7 @@ export const restoreLife = (
   env: CombatEnvironment,
   sourceUnit: Unit,
   scale: number = 1,
+  isReaction: boolean = false,
 ) => {
   const baseAmount = sourceUnit.power;
   const crit = calculateCritical(env, sourceUnit);
@@ -53,11 +54,17 @@ export const restoreLife = (
         isCritical,
       );
 
-      CombatStatsTracker.trackHeal(
-        combatStates.combatStatsTrackerState,
-        sourceUnit,
-        actualHealing,
-      );
+      // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+      // itself a reaction emits no reaction triggers and contributes no
+      // force/unit stats — reaction-sourced heals never fire on_crit or
+      // on_over_heal and never feed the every_100_heal threshold.
+      if (!isReaction) {
+        CombatStatsTracker.trackHeal(
+          combatStates.combatStatsTrackerState,
+          sourceUnit,
+          actualHealing,
+        );
+      }
 
       const newPoisonState = PoisonSystem.reducePoison(
         combatStates.poisonSystemState,
@@ -66,14 +73,14 @@ export const restoreLife = (
       );
       combatStates.poisonSystemState = newPoisonState;
 
-      if (isCritical) {
+      if (isCritical && !isReaction) {
         processReactions(env, sourceUnit, { id: "on_crit" }, 1);
       }
 
       // Check overheal at hit time, not cast time — the core's life may
       // have changed during the 200 ms projectile travel.
       const willOverheal = actualHealing < healAmount;
-      if (willOverheal) {
+      if (willOverheal && !isReaction) {
         processReactions(env, sourceUnit, { id: "on_over_heal" }, 1);
       }
 

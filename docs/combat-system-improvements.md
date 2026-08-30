@@ -56,6 +56,65 @@ This fixes the crash *and* makes future summon mechanics correct by default.
 `Unit` (not just its id) so the force is known at registration time. Covered
 by the "units added after initialize" tests in `CombatStatsTracker.test.ts`.
 
+### 1.2 Runaway combat guard — self-reinforcing effect loops ✅ (done 2026-08-30)
+
+**Files:** `core/src/Combat/CombatRunner.ts` (`runCombat`), `core/src/Combat/CombatStatsTracker.ts` (`getCrossedThresholds`), `core/src/Combat/CombatLogger.ts` + `logDispatch.ts` (`runaway_combat` entry)
+
+Reported crash: stacking regen-theme core orbs — "every 10 regen, charge a
+random ally", "every 10 regen, give the core power", "every 10 regen, haste a
+random ally" — plus the "when the unit to my left deals damage, charge me"
+orb backed a self-reinforcing loop (regen applied → `every_10_regen`
+threshold → charge/haste/power → faster casts → more regen). Power grew
+super-exponentially until a single regen application was worth thousands of
+threshold crossings; the simulation then did unbounded work per frame
+(freezing the client / OOM on the log) instead of resolving.
+
+**Fix — three layers in `CombatRunner.runCombat`:**
+
+1. **Per-frame caps** — at most `MAX_DEFERRED_EVENTS_PER_FRAME` (1000) due
+   deferred events execute and at most `MAX_THRESHOLD_CROSSINGS_PER_FRAME`
+   (500) threshold crossings fire per frame; overflow carries over to the
+   next frame (`getCrossedThresholds` gained a `maxResults` param that stops
+   consuming levels so nothing is dropped). One frame can never hang the
+   client's game tick.
+2. **Total-work budget** — `MAX_COMBAT_WORK` (50k) work units (deferred
+   event executions + threshold crossings + unit casts); legit combats use a
+   few thousand at most.
+3. **Total-log budget** — `MAX_COMBAT_LOGS` (50k) entries bounds the log
+   (and therefore playback) memory.
+
+When either budget is exhausted the combat ends gracefully as `both_won`
+(mirroring the `MAX_COMBAT_DURATION_MS` timeout) with a `runaway_combat` log
+entry (classified `none` — no FX handler). Regression tests:
+`CombatRunawayGuard.test.ts` (runaway board resolves bounded + `both_won`;
+per-frame work stays bounded; a legit high-power board never trips the guard)
+and the `maxResults` carry-over test in `CombatStatsTracker.test.ts`.
+
+### 1.3 "Can't react to reactions" — no reaction chains from reaction effects ✅ (done 2026-08-30)
+
+**Files:** `core/src/TriggerSystem/TriggerSystem.ts` (dispatch threads
+`isReaction`), `core/src/TriggerSystem/effects/` (`dealDamage`, `restoreLife`,
+`addShield`, `applyPoison`, `applyRegen`, `applyHaste`, `applySlow`)
+
+The game rule "you can't react to reactions" was only half-enforced: the
+cast-level dispatch already skipped `processReactions` for reaction-sourced
+effects, and `on_crystal_hit` was cast-only (C2), but the effect handlers'
+internal emits still fired for reaction-sourced basics — a thorns retaliation
+that crit could fire `on_crit`, a reaction heal could fire `on_over_heal`, a
+reaction haste/slow could fire `re_hasted`/`re_slow` — keeping chain
+ping-pong possible.
+
+**Fix:** every effect handler now receives the dispatch's `isReaction` flag
+and suppresses its internal reaction emits **and its stat accumulation**
+(`CombatStatsTracker.track*`) when the effect was itself a reaction.
+Reaction-sourced basics (damage/heal/shield/poison/regen) never fire
+`on_crit` or `on_over_heal`, never feed the threshold reactions
+(`every_100_damage` / `every_100_heal` / `every_100_shield` /
+`every_10_poison` / `every_10_regen`), and reaction-sourced haste/slow never
+fire `re_hasted`/`re_slow`. Regression tests: `ReactionNoChains.test.ts`
+(thorns crit, heal overheal, shield crit, re-haste, re-slow, and one
+threshold-exclusion case per basic).
+
 ---
 
 ## Priority 2 — Test ergonomics

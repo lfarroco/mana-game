@@ -51,6 +51,7 @@ export const addShield = (
       targetId,
       shieldAmount,
       isCritical,
+      isReaction,
     });
     return;
   }
@@ -64,6 +65,7 @@ export const addShield = (
         targetId,
         shieldAmount,
         isCritical,
+        isReaction,
       });
     },
   });
@@ -82,9 +84,17 @@ function applyShieldHit(
     targetId: string;
     shieldAmount: number;
     isCritical: boolean;
+    isReaction: boolean;
   },
 ): void {
-  const { sourceId, sourceForce, targetId, shieldAmount, isCritical } = params;
+  const {
+    sourceId,
+    sourceForce,
+    targetId,
+    shieldAmount,
+    isCritical,
+    isReaction,
+  } = params;
   const { combatState: state } = env;
 
   const sourceUnit = state.units.find((u) => u.id === sourceId);
@@ -100,7 +110,11 @@ function applyShieldHit(
     isCritical,
   );
 
-  if (actualShieldChange > 0) {
+  // "Can't react to reactions" (see TriggerSystem.ts): an effect that was
+  // itself a reaction emits no reaction triggers and contributes no
+  // force/unit stats — reaction-sourced shield neither fires on_crit nor
+  // feeds the every_100_shield threshold.
+  if (actualShieldChange > 0 && !isReaction) {
     CombatStatsTracker.trackShield(
       env.combatStates.combatStatsTrackerState,
       sourceUnit,
@@ -108,7 +122,7 @@ function applyShieldHit(
     );
   }
 
-  if (isCritical) {
+  if (isCritical && !isReaction) {
     processReactions(env, sourceUnit, { id: "on_crit" }, 1);
   }
 
