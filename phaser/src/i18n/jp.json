@@ -212,6 +212,7 @@
 	"lobby.renameError": "名前を変更できませんでした。",
 	"lobby.renameHint": "他のプレイヤーに表示される名前です。",
 	"lobby.renameInvalid": "名前に使用できない文字が含まれています。",
+	"lobby.renameNetwork": "ゲームサーバーに接続できませんでした。接続を確認してもう一度お試しください。",
 	"lobby.renameNextAllowed": "次回変更可能日: {date}",
 	"lobby.renameSave": "保存",
 	"lobby.renameTitle": "ユーザー名の変更",

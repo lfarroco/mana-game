@@ -209,15 +209,21 @@ export function open(config: RenameModalConfig): void {
 				destroy();
 				return;
 			}
-			const detail = err instanceof Error ? err.message : String(err);
-			if (err instanceof RemoteServerError && err.code === "name_change_cooldown") {
-				// Server-side race (e.g. another device renamed recently): the
-				// lobby's countdown hint is the precise source of truth, so a
-				// generic localized message suffices here.
-				showError(i18n.t("lobby.renameCooldown"));
-			} else {
-				showError(`${i18n.t("lobby.renameError")} ${detail}`);
+			if (err instanceof RemoteServerError) {
+				if (err.code === "name_change_cooldown") {
+					// Server-side race (e.g. another device renamed recently): the
+					// lobby's countdown hint is the precise source of truth, so a
+					// generic localized message suffices here.
+					showError(i18n.t("lobby.renameCooldown"));
+				} else {
+					showError(`${i18n.t("lobby.renameError")} ${err.message}`);
+				}
+				return;
 			}
+			// Network-level failure (server unreachable, CORS-blocked request…):
+			// the raw fetch detail is English-only and meaningless to players —
+			// show a localized connectivity hint instead.
+			showError(i18n.t("lobby.renameNetwork"));
 		}
 	}
 }

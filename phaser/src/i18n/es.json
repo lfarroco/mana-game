@@ -212,6 +212,7 @@
 	"lobby.renameError": "No se pudo cambiar tu nombre.",
 	"lobby.renameHint": "Este es el nombre que verán los demás jugadores.",
 	"lobby.renameInvalid": "El nombre contiene caracteres no válidos.",
+	"lobby.renameNetwork": "No se pudo conectar con el servidor del juego. Revisa tu conexión e inténtalo de nuevo.",
 	"lobby.renameNextAllowed": "Próximo cambio disponible: {date}",
 	"lobby.renameSave": "GUARDAR",
 	"lobby.renameTitle": "CAMBIAR NOMBRE DE USUARIO",

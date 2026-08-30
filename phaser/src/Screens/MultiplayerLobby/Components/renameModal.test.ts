@@ -64,7 +64,7 @@ describe("renameModal", () => {
 
 	it("shows the server error message when the rename fails", async () => {
 		const onSubmit = jest.fn(async () => {
-			throw new Error("boom");
+			throw new RemoteServerError(400, "invalid_display_name", "Name too long");
 		});
 		const { input, save, modal } = openModal(onSubmit);
 
@@ -73,7 +73,23 @@ describe("renameModal", () => {
 		await new Promise((r) => setTimeout(r, 0));
 
 		expect(modal.textContent).toContain("Could not change your name.");
-		expect(modal.textContent).toContain("boom");
+		expect(modal.textContent).toContain("Name too long");
+		expect(document.getElementById("rename-modal")).not.toBeNull();
+	});
+
+	it("shows a localized connectivity hint on a network-level failure", async () => {
+		const onSubmit = jest.fn(async () => {
+			throw new Error("Game server request failed: Failed to fetch");
+		});
+		const { input, save, modal } = openModal(onSubmit);
+
+		input.value = "NovaMage";
+		save.click();
+		await new Promise((r) => setTimeout(r, 0));
+
+		// The raw English fetch detail is not echoed to the player.
+		expect(modal.textContent).toContain("Could not reach the game server.");
+		expect(modal.textContent).not.toContain("Failed to fetch");
 		expect(document.getElementById("rename-modal")).not.toBeNull();
 	});
 

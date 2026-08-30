@@ -212,6 +212,7 @@
 	"lobby.renameError": "无法更改你的名称。",
 	"lobby.renameHint": "这是其他玩家看到的名称。",
 	"lobby.renameInvalid": "名称包含无效字符。",
+	"lobby.renameNetwork": "无法连接游戏服务器。请检查网络连接后重试。",
 	"lobby.renameNextAllowed": "下次可更改时间：{date}",
 	"lobby.renameSave": "保存",
 	"lobby.renameTitle": "更改用户名",

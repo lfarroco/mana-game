@@ -212,6 +212,7 @@
 	"lobby.renameError": "Не удалось изменить имя.",
 	"lobby.renameHint": "Это имя видят другие игроки.",
 	"lobby.renameInvalid": "Имя содержит недопустимые символы.",
+	"lobby.renameNetwork": "Не удалось подключиться к игровому серверу. Проверьте соединение и попробуйте ещё раз.",
 	"lobby.renameNextAllowed": "Следующая смена доступна: {date}",
 	"lobby.renameSave": "СОХРАНИТЬ",
 	"lobby.renameTitle": "СМЕНИТЬ ИМЯ ПОЛЬЗОВАТЕЛЯ",
