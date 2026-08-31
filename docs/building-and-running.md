@@ -218,13 +218,29 @@ see `steam/STEAM_UPLOAD.md`).
 ### Android Build (Capacitor)
 
 ```bash
-make android-build      # cd phaser && npm run build && npx cap sync android
+make android-build      # bump version → cd phaser && npm run build && npx cap sync android → ./gradlew bundleRelease
 make android-open       # open the project in Android Studio
 ```
 
 - `make android-build` defaults `MANA_SERVER_URL` to `https://api.manabattle.com`
   and bakes `MANA_GOOGLE_CLIENT_ID` / `MANA_ITCH_CLIENT_ID` from the root
   `.env` (webpack `DefinePlugin` — a missing Google client id is warned about).
+- `make android-build` **bumps the Android version first** (see
+  `scripts/bump-android-version.sh`): `versionCode` in
+  `android/app/build.gradle` is auto-incremented (Play Console requires a
+  never-reused version code per upload), and `versionName` is prompted
+  interactively — Enter accepts the suggested patch bump, or pass
+  `VERSION=1.3 make android-build` to skip the prompt (no TTY, e.g. CI, also
+  auto-bumps without prompting).
+- `make android-build` ends by running `./gradlew bundleRelease` (uses
+  Android Studio's bundled JBR when no system JDK exists — override with
+  `JAVA_HOME`), producing the AAB at
+  `android/app/build/outputs/bundle/release/app-release.aab`. For an
+  **upload-signed** AAB, set `MANA_KEYSTORE_PATH=key.jks` plus
+  `MANA_KEYSTORE_STORE_PASSWORD` / `MANA_KEYSTORE_KEY_ALIAS` /
+  `MANA_KEYSTORE_KEY_PASSWORD` in the root `.env` (the keystore lives at
+  `android/key.jks`); without them the AAB is unsigned — sign via Android
+  Studio's Generate Signed Bundle as before.
 - Multiplayer on Android uses **Google sign-in** (or itch.io) through the
   system browser + the game server's OAuth relay page + a `com.manabattle.app://`
   deep link — full spec: [android-multiplayer.md](android-multiplayer.md).

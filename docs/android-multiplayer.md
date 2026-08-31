@@ -168,8 +168,15 @@ dependencies (`@capacitor/app@^8.1.1`, `@capacitor/browser@^8.0.4`).
 5. **Android release build** — `make android-build` bakes
    `MANA_SERVER_URL` (defaults to `https://api.manabattle.com`) and reads
    `MANA_GOOGLE_CLIENT_ID` / `MANA_ITCH_CLIENT_ID` from the root `.env`
-   (webpack DefinePlugin). Sign the APK/AAB with `android/key.jks`
-   (gitignored — see docs/release-audit.md).
+   (webpack DefinePlugin). It also **bumps `android/app/build.gradle`**
+   (`versionCode` +1, `versionName` prompted interactively or via
+   `VERSION=…`) so every upload carries a fresh, never-reused version code,
+   then runs `./gradlew bundleRelease` to produce the AAB. The AAB is signed
+   when the root `.env` sets `MANA_KEYSTORE_PATH=key.jks` (plus
+   `MANA_KEYSTORE_STORE_PASSWORD` / `MANA_KEYSTORE_KEY_ALIAS` /
+   `MANA_KEYSTORE_KEY_PASSWORD`; keystore at `android/key.jks`,
+   gitignored — see docs/release-audit.md); otherwise it is unsigned and
+   must be signed via Android Studio before upload.
 
 ## Config summary
 

@@ -1,5 +1,6 @@
 MOUNT=--mount type=bind,source=$(shell pwd)/app,target=/app
 PHASER_DIR=phaser
+ANDROID_DIR=android
 STEAM_DIR=steam
 SERVER_DIR=server
 IMAGE_NAME=mana-server
@@ -15,6 +16,10 @@ CONTAINER_NAME=mana-server
 #   MANA_API_DOMAIN=api.manabattle.com  (make cloud-setup / electron-dev-cloud)
 -include .env
 export
+
+# The dev machine has no system JDK — the Android build uses Android Studio's
+# bundled JBR. Override by exporting JAVA_HOME or setting it in root .env.
+JAVA_HOME ?= /Applications/Android Studio.app/Contents/jbr/Contents/Home
 
 .PHONY: dev electron electron-dev electron-dev-cloud electron-dev-demo electron-pack electron-build electron-build-win electron-build-mac electron-build-linux electron-build-all electron-build-demo electron-build-demo-win electron-build-demo-mac electron-build-demo-linux electron-build-demo-all android-build android-open steam-publish steam-publish-demo steam-config-vdf steam-cmd-image itch-publish itch-butler-image server-install server-dev server-test server-typecheck server-build server-run server-stop server-mp server-compose-up server-compose-down server-db server-db-summary cloud-deploy cloud-setup cloud-logs cloud-db-download cloud-db cloud-db-summary
 
@@ -84,11 +89,24 @@ electron-build-demo-linux:
 # MANA_ITCH_CLIENT_ID — all three are baked in by webpack's DefinePlugin.
 # MANA_SERVER_URL defaults to the production API so a release build never
 # silently points at 127.0.0.1:8787.
+#
+# Versioning: scripts/bump-android-version.sh bumps android/app/build.gradle
+# before building — versionCode always +1 (Play requires a never-reused code),
+# versionName prompted interactively (Enter = auto patch bump) or taken from
+# $VERSION when given (e.g. `VERSION=1.3 make android-build`).
+# The last step runs `gradlew bundleRelease`, producing the AAB at
+# android/app/build/outputs/bundle/release/app-release.aab. Signing is
+# conditional: set MANA_KEYSTORE_PATH (+ _STORE_PASSWORD / _KEY_ALIAS /
+# _KEY_PASSWORD) in the root .env for an upload-signed AAB; unset → unsigned
+# AAB (sign via Android Studio's Generate Signed Bundle as before).
 android-build:
 	@if [ -z "$$MANA_GOOGLE_CLIENT_ID" ]; then \
 		echo "WARNING: MANA_GOOGLE_CLIENT_ID is unset — Google sign-in will be disabled in this build."; \
 	fi
+	@VERSION="$(VERSION)" bash scripts/bump-android-version.sh
 	cd $(PHASER_DIR) && MANA_SERVER_URL=$${MANA_SERVER_URL:-https://api.manabattle.com} npm run build && npx cap sync android
+	cd $(ANDROID_DIR) && JAVA_HOME="$(JAVA_HOME)" ./gradlew bundleRelease
+	@echo "AAB: $(ANDROID_DIR)/app/build/outputs/bundle/release/app-release.aab"
 
 android-open:
 	cd $(PHASER_DIR) && npx cap open android
