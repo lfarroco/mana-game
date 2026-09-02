@@ -117,6 +117,40 @@ fire `re_hasted`/`re_slow`. Regression tests: `ReactionNoChains.test.ts`
 (thorns crit, heal overheal, shield crit, re-haste, re-slow, and one
 threshold-exclusion case per basic).
 
+### 1.4 Threshold burst collapse — same-frame crossings fire once ✅ (done 2026-09-05)
+
+**Files:** `core/src/Combat/CombatRunner.ts` (step 3.5 grouping),
+`core/src/TriggerSystem/TriggerSystem.ts` (`burst` param +
+`resolveBurstTargets`)
+
+Reported issue: a unit arriving at 25k shield with an `every_100_shield`
+reaction generated **250 identical reaction events in a single frame** —
+overloading the effects, the combat log (the transmitted event data), and
+playback FX. Each crossing fired `processReactions` independently, so a
+gigantic stat gain produced one reaction/cast/hit log triple per crossing.
+
+**Fix — collapse, don't repeat:** `CombatRunner` step 3.5 groups consecutive
+same-frame crossings of one (force, reaction) into a single **burst** and
+fires the reaction once with the crossing count (`TriggerSystem`'s `burst`
+param threads into `processEffectIO`):
+
+1. **Linear magnitudes scale × burst** — `increase_power`/`decrease_power`/
+   `increase_critical` and the basics (damage/heal/shield/poison/regen)
+   multiply by the burst ("every 100 shield → +10 power" fired 3 times
+   becomes a single "+30"; total magnitude is conserved).
+2. **Duration effects never scale** — `haste`/`slow`/`charge`/`silence`
+   apply once per distinct target at their base duration (250 × 500ms haste
+   → one 500ms haste per ally, never a 125s stack).
+3. **Random targeting samples distinct targets** without replacement
+   (`min(burst × count, pool)`), so a burst hits at most the team's 9 units.
+
+Reactors and `when` predicates evaluate once per burst against the pre-burst
+board state. Work-budget accounting still charges one unit per crossing, so
+the 1.2 runaway guard is unchanged. Regression tests:
+`ReactionThresholdBurst.test.ts` (power ×burst, single-crossing unchanged,
+haste/charge distinct-target caps, basic ×burst, full-team cap) and the
+updated conservation invariant in `CombatInvariants.test.ts`.
+
 ---
 
 ## Priority 2 — Test ergonomics

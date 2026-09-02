@@ -10,7 +10,9 @@
  *  2. Damage-only conservation: every damage_hit corresponds to a damage_cast
  *     of equal amount; at most one projectile per damage unit is in flight
  *     when combat ends.
- *  3. Threshold reactions fire exactly floor(totalStat / threshold) times.
+ *  3. Threshold reactions consume exactly floor(totalStat / threshold)
+ *     crossings, and their magnitude is conserved under same-frame burst
+ *     collapse (2026-09-05).
  *  4. haste_end / slow_end appear iff the status was applied and had time to
  *     decay to zero before combat ended.
  *
@@ -252,7 +254,7 @@ describe("Combat invariants — seed sweep", () => {
     }
   });
 
-  it("threshold reactions fire exactly floor(totalStat / threshold) times", () => {
+  it("threshold crossings conserve magnitude exactly under burst collapse", () => {
     for (const { logs } of runs) {
       const statsEntry = filterLogs(logs, "combat_stats")[0];
       const forceStats = new Map(statsEntry.currentCombatStats);
@@ -263,12 +265,29 @@ describe("Combat invariants — seed sweep", () => {
       // Threshold reactions are checked in step 3.5 of the frame loop,
       // BEFORE the outcome check in step 5. No damage is ever "unchecked"
       // — all damage dealt by the time combat ends has been seen by the
-      // threshold subsystem.
-      const expectedReactions = Math.floor(playerDamage / 100);
-      const actualReactions = filterLogs(logs, "reaction").filter(
+      // threshold subsystem, which consumes exactly floor(totalStat / 100)
+      // crossings.
+      const expectedCrossings = Math.floor(playerDamage / 100);
+
+      // Same-frame crossings of one (force, reaction) collapse into a single
+      // reaction burst (+3 power per crossing on the reactor): the TOTAL power
+      // delivered is conserved (3 × crossings), but the log no longer carries
+      // one reaction entry per crossing.
+      const powerLogs = filterLogs(logs, "increase_power").filter(
+        (l) => l.targetId === "threshold-reactor",
+      );
+      const totalPower = powerLogs.reduce((s, l) => s + l.amount, 0);
+      expect(totalPower).toBe(expectedCrossings * 3);
+
+      // Collapse only ever reduces the per-crossing reaction log spam…
+      const reactionLogs = filterLogs(logs, "reaction").filter(
         (l) => l.unitId === "threshold-reactor",
-      ).length;
-      expect(actualReactions).toBe(expectedReactions);
+      );
+      expect(reactionLogs.length).toBeLessThanOrEqual(expectedCrossings);
+      // …and a burst fires at most once per frame, so crossings still show up.
+      if (expectedCrossings > 0) {
+        expect(reactionLogs.length).toBeGreaterThanOrEqual(1);
+      }
     }
   });
 

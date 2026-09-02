@@ -22,6 +22,10 @@ const MAX_COMBAT_DURATION_MS = 120_000;
 // crossings — overflow carries over to the next frame. These cap per-frame
 // work (the client runs updateFrame once per game tick, so one frame must
 // never hang) while the total-work budget bounds the whole combat.
+// Same-frame crossings of one (force, reaction) are additionally collapsed
+// into a single burst firing (step 3.5) so a gigantic stat gain (e.g. 25k
+// shield in one frame) can never flood the log with hundreds of identical
+// reaction events.
 const MAX_DEFERRED_EVENTS_PER_FRAME = 1000;
 const MAX_THRESHOLD_CROSSINGS_PER_FRAME = 500;
 
@@ -224,12 +228,38 @@ export const runCombat = (
     //      The per-frame cap spreads a gigantic stat burst (e.g. one regen
     //      application worth thousands of crossings) across frames instead of
     //      firing them all in this one — see getCrossedThresholds' maxResults.
+    //
+    //      Same-frame crossings of the same (force, reaction) are then
+    //      COLLAPSED into one burst firing (see TriggerSystem's burst param):
+    //      a unit arriving at 25k shield with an every_100_shield reaction
+    //      would otherwise fire 250 identical reactions in this one step,
+    //      flooding the effects and the transmitted log data. The burst fires
+    //      once with the crossing count: linear magnitudes scale ×N, duration
+    //      effects apply once per distinct target (≤9). Work-budget accounting
+    //      still charges one unit per crossing, so the runaway guard is
+    //      unchanged.
     const crossed = CombatStatsTracker.getCrossedThresholds(
       runnerState.env.combatStates.combatStatsTrackerState,
       thresholdState,
       MAX_THRESHOLD_CROSSINGS_PER_FRAME,
     );
-    for (const { forceId, reactionId } of crossed) {
+    // Crossings are emitted per (force, stat) — each stat maps to exactly one
+    // reactionId, so consecutive identical (forceId, reactionId) runs are the
+    // natural burst groups. Grouping preserves the original order between
+    // different forces/stats.
+    let crossingIndex = 0;
+    while (crossingIndex < crossed.length) {
+      const { forceId, reactionId } = crossed[crossingIndex];
+      let runEnd = crossingIndex + 1;
+      while (
+        runEnd < crossed.length &&
+        crossed[runEnd].forceId === forceId &&
+        crossed[runEnd].reactionId === reactionId
+      ) {
+        runEnd++;
+      }
+      const burst = runEnd - crossingIndex;
+
       const triggerer = nextState.units.find((u) => u.force === forceId);
       if (triggerer) {
         // reactionId is always one of the threshold/global Effect ids (see
@@ -239,12 +269,16 @@ export const runCombat = (
           triggerer,
           { id: reactionId } as Effect,
           1,
+          burst,
         );
       }
-      if (spendWork(1)) {
-        finishCombatRunaway();
-        return;
+      for (let w = 0; w < burst; w++) {
+        if (spendWork(1)) {
+          finishCombatRunaway();
+          return;
+        }
       }
+      crossingIndex = runEnd;
     }
 
     // 4. Timeout damage (storm)

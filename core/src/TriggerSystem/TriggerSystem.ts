@@ -10,9 +10,18 @@ export const processEffectsIO = (
   isReaction: boolean,
   triggeringUnit?: Models.Unit,
   scale: number = 1,
+  burst: number = 1,
 ) => {
   effectsList.forEach((effect) => {
-    processEffectIO(env, sourceUnit, effect, isReaction, triggeringUnit, scale);
+    processEffectIO(
+      env,
+      sourceUnit,
+      effect,
+      isReaction,
+      triggeringUnit,
+      scale,
+      burst,
+    );
   });
 };
 
@@ -23,153 +32,158 @@ const processEffectIO = (
   isReaction: boolean,
   triggeringUnit?: Models.Unit,
   scale: number = 1,
+  burst: number = 1,
 ) => {
   // C1 (docs/wacky-content-plan.md): `repeat` re-fires the effect N times per
   // cast. Capped at 3 by the balance gate; each fire logs its own cast/hit
   // entries, keeping combat playback deterministic.
   const repeatCount = Math.max(1, effect.repeat ?? 1);
+  // `burst` = a threshold burst (see CombatRunner step 3.5 + resolveBurstTargets):
+  // N same-frame crossings of one threshold reaction collapse into a SINGLE
+  // scaled application instead of N identical reactions. Linear magnitudes
+  // multiply by the burst (a "every 100 shield, +10 power" reaction that fires
+  // 3 times becomes a single "+30"); duration effects (haste/slow/charge/
+  // silence) never multiply their duration — they apply once per distinct
+  // target, and random targeting samples distinct targets without replacement
+  // (a burst can hit at most the team's 9 units, never stack 250 × 500ms).
+  const totalScale = scale * burst;
   for (let i = 0; i < repeatCount; i++) {
     switch (effect.id) {
       case "damage":
-        effects.dealDamage(env, sourceUnit, scale, isReaction);
+        effects.dealDamage(env, sourceUnit, totalScale, isReaction);
         break;
       case "heal":
-        effects.restoreLife(env, sourceUnit, scale, isReaction);
+        effects.restoreLife(env, sourceUnit, totalScale, isReaction);
         break;
       case "shield":
-        effects.addShield(env, sourceUnit, scale, isReaction);
+        effects.addShield(env, sourceUnit, totalScale, isReaction);
         break;
       case "poison":
-        effects.applyPoison(env, sourceUnit, scale, isReaction);
+        effects.applyPoison(env, sourceUnit, totalScale, isReaction);
         break;
       case "regen":
-        effects.applyRegen(env, sourceUnit, scale, isReaction);
+        effects.applyRegen(env, sourceUnit, totalScale, isReaction);
         break;
       case "haste":
-        const hasteTargets = resolveTargets(
-          env,
-          sourceUnit,
-          effect,
-          triggeringUnit,
-        );
         effects.applyHaste(
           env,
-          hasteTargets,
+          resolveBurstTargets(env, sourceUnit, effect, triggeringUnit, burst)
+            .targets,
           sourceUnit,
           effect.duration * scale,
           (_target: Models.Unit) =>
-            processReactions(env, sourceUnit, { id: "re_hasted" }, scale),
+            processReactions(
+              env,
+              sourceUnit,
+              { id: "re_hasted" },
+              scale,
+              burst,
+            ),
           isReaction,
         );
         break;
       case "slow":
-        const slowTargets = resolveTargets(
-          env,
-          sourceUnit,
-          effect,
-          triggeringUnit,
-        );
         effects.applySlow(
           env,
           sourceUnit,
-          slowTargets,
+          resolveBurstTargets(env, sourceUnit, effect, triggeringUnit, burst)
+            .targets,
           effect.duration * scale,
           (_target: Models.Unit) =>
-            processReactions(env, sourceUnit, { id: "re_slow" }, scale),
+            processReactions(env, sourceUnit, { id: "re_slow" }, scale, burst),
           isReaction,
         );
         break;
       case "silence":
-        const silenceTargets = resolveTargets(
-          env,
-          sourceUnit,
-          effect,
-          triggeringUnit,
-        );
         effects.applySilence(
           env,
           sourceUnit,
-          silenceTargets,
+          resolveBurstTargets(env, sourceUnit, effect, triggeringUnit, burst)
+            .targets,
           effect.duration * scale,
         );
         break;
       case "dispel":
-        const dispelTargets = resolveTargets(
+        effects.applyDispel(
           env,
           sourceUnit,
-          effect,
-          triggeringUnit,
+          resolveBurstTargets(env, sourceUnit, effect, triggeringUnit, burst)
+            .targets,
         );
-        effects.applyDispel(env, sourceUnit, dispelTargets);
         break;
       case "charge":
-        const chargeTargets = resolveTargets(
-          env,
-          sourceUnit,
-          effect,
-          triggeringUnit,
-        );
         effects.applyCharge(
           env,
           sourceUnit,
-          chargeTargets,
+          resolveBurstTargets(env, sourceUnit, effect, triggeringUnit, burst)
+            .targets,
           effect.duration * scale,
         );
         break;
-      case "increase_power":
-        const increasePowerTargets = resolveTargets(
+      case "increase_power": {
+        const burstTargets = resolveBurstTargets(
           env,
           sourceUnit,
           effect,
           triggeringUnit,
+          burst,
         );
         effects.increasePower(
           env,
-          increasePowerTargets,
-          effect.amount * scale,
+          burstTargets.targets,
+          effect.amount * scale * burstTargets.multiplier,
           effect.permanent || false,
           sourceUnit,
         );
         break;
-      case "decrease_power":
-        const decreasePowerTargets = resolveTargets(
+      }
+      case "decrease_power": {
+        const burstTargets = resolveBurstTargets(
           env,
           sourceUnit,
           effect,
           triggeringUnit,
+          burst,
         );
         effects.decreasePower(
           env,
-          decreasePowerTargets,
-          effect.amount * scale,
+          burstTargets.targets,
+          effect.amount * scale * burstTargets.multiplier,
           effect.permanent || false,
           sourceUnit,
         );
         break;
-      case "increase_critical":
-        const increaseCriticalTargets = resolveTargets(
+      }
+      case "increase_critical": {
+        const burstTargets = resolveBurstTargets(
           env,
           sourceUnit,
           effect,
           triggeringUnit,
+          burst,
         );
         effects.increaseCritical(
           env,
-          increaseCriticalTargets,
-          effect.amount * scale,
+          burstTargets.targets,
+          effect.amount * scale * burstTargets.multiplier,
           sourceUnit,
           effect.permanent || false,
         );
         break;
+      }
       case "multiply_power":
+        // N fires compound power by multiplier^N — one fire at scale × burst
+        // (Math.pow(multiplier, scale*burst)) is exactly equivalent.
         effects.multiplyPower({
           env,
           targets: resolveTargets(env, sourceUnit, effect, triggeringUnit),
           sourceUnit,
-          multiplier: Math.pow(effect.multiplier, scale),
+          multiplier: Math.pow(effect.multiplier, totalScale),
         });
         break;
       case "distribute_power":
+        // Applies once per burst: no threshold-reaction content repeats
+        // distribute/absorb, and N redistributions in one frame is degenerate.
         effects.distributePower(
           env,
           sourceUnit,
@@ -178,6 +192,7 @@ const processEffectIO = (
         );
         break;
       case "absorb_power":
+        // Applies once per burst (see distribute_power).
         effects.absorbPower(
           env,
           sourceUnit,
@@ -208,7 +223,7 @@ const processEffectIO = (
     }
   }
 
-  if (!isReaction) processReactions(env, sourceUnit, effect, scale);
+  if (!isReaction) processReactions(env, sourceUnit, effect, scale, burst);
 };
 
 const sameForce = (unit: Models.Unit, triggeringUnit: Models.Unit) =>
@@ -273,6 +288,7 @@ export function processReactions(
   triggeringUnit: Models.Unit,
   effect: Models.Effect,
   scale: number = 1,
+  burst: number = 1,
 ) {
   if (
     ["charge", "increase_power", "decrease_power", "multiply_power"].includes(
@@ -357,7 +373,7 @@ export function processReactions(
         type: "reaction",
         unitId: u.id,
       });
-      processEffectsIO(env, u, r.effects, true, triggeringUnit, scale);
+      processEffectsIO(env, u, r.effects, true, triggeringUnit, scale, burst);
     });
   });
 }
@@ -473,3 +489,70 @@ export function resolveTargets(
       throw new Error(`Unknown target type. Effect: ${formattedEvent}`);
   }
 }
+
+type BurstTargets = { targets: Models.Unit[]; multiplier: number };
+
+/**
+ * Resolve the targets of one firing of `effect` when that firing stands for
+ * `burst` repeated fires of the SAME reaction effect in a single frame — the
+ * collapsed threshold burst (see CombatRunner step 3.5).
+ *
+ * Why targets instead of magnitudes? A unit that arrives at 25k shield with an
+ * `every_100_shield` reaction would otherwise fire 250 identical reactions in
+ * one frame, flooding the combat log (the transmitted event data) with 250
+ * reaction/cast/hit entries. Collapsing scales each effect ONCE:
+ *
+ * - **Deterministic target sets** (`self`, `weakest_ally`, `all_allies`, ...)
+ *   are identical on every fire, so they resolve once; amount effects receive
+ *   `multiplier = burst` ("every 100 shield → +10 power", fired 3 times,
+ *   becomes a single "+30"), while duration effects (haste/slow/charge) apply
+ *   once at their base duration — never stacking to burst × duration.
+ * - **Random target sets** (`random_ally` / `random_enemy`) collapse to a
+ *   single without-replacement sample of min(burst × count, pool) DISTINCT
+ *   units — a team has at most 9 units, so a burst can reach at most 9
+ *   targets ("250 events → 9 targets, 500ms each"), each receiving one base
+ *   application. Amount effects over random targets are not multiplied
+ *   (`multiplier = 1`) — no threshold-reaction content uses random-target
+ *   power, so there is nothing to conserve there.
+ *
+ * For burst = 1 (every non-threshold path) the deterministic set is resolved
+ * as today and random targets draw the usual single pick, so behavior is
+ * unchanged everywhere except same-frame threshold bursts.
+ */
+const resolveBurstTargets = (
+  env: Models.CombatEnvironment,
+  sourceUnit: Models.Unit,
+  effect: Models.Effect,
+  triggeringUnit: Models.Unit | undefined,
+  burst: number,
+): BurstTargets => {
+  if (!("targets" in effect) || burst <= 1) {
+    return {
+      targets: resolveTargets(env, sourceUnit, effect, triggeringUnit),
+      multiplier: burst,
+    };
+  }
+
+  const targeting = effect.targets;
+  if (targeting.id !== "random_ally" && targeting.id !== "random_enemy") {
+    return {
+      targets: resolveTargets(env, sourceUnit, effect, triggeringUnit),
+      multiplier: burst,
+    };
+  }
+
+  const pool =
+    targeting.id === "random_ally"
+      ? env.combatState.units.filter(
+          (u) => u.force === sourceUnit.force && u.id !== sourceUnit.id,
+        )
+      : env.combatState.units.filter((u) => u.force !== sourceUnit.force);
+
+  const picksPerFire = targeting.count ?? 1;
+  const distinctCount = Math.min(burst * picksPerFire, pool.length);
+  if (distinctCount <= 0) return { targets: [], multiplier: 1 };
+
+  const { picked, seed } = pickRandom(env, pool, distinctCount);
+  env.seed = seed;
+  return { targets: picked, multiplier: 1 };
+};

@@ -157,7 +157,10 @@ export function initializeThresholds(): ThresholdState {
  * fire on a later call instead of being dropped. The combat runner passes a
  * per-frame cap so a single gigantic stat burst (e.g. an exponential
  * regen→charge→power feedback loop) cannot perform unbounded work in one
- * frame — see CombatRunner's runaway guard.
+ * frame — see CombatRunner's runaway guard. Same-frame crossings of one
+ * (force, reaction) are then collapsed by the runner into a single burst
+ * firing (CombatRunner step 3.5) — this function still reports one entry per
+ * crossing so the crossing count (and budget) is never lost.
  */
 export function getCrossedThresholds(
   trackerState: CombatStatsTrackerState,

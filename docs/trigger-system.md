@@ -139,3 +139,32 @@ These are special "event" triggers that don't come from a specific unit's active
 - `every_10_poison`, `every_10_regen`: Triggers every 10 poison/regen applied.
 
 > **Note**: The `effectId` field in reactions can also be `"all"` to trigger on any effect type.
+
+### Threshold bursts (2026-09-05)
+
+Threshold reactions accumulate **per force** (`CombatStatsTracker`), and
+`CombatRunner` (step 3.5) fires the matched reactions once per **crossing** —
+so a unit arriving at 25k shield with an `every_100_shield` reaction used to
+generate 250 identical reaction events in a single frame, flooding the effects,
+the combat log (the transmitted event data), and playback FX.
+
+Same-frame crossings of one (force, reaction) are now **collapsed into a single
+burst firing** (`TriggerSystem.processReactions`' `burst` parameter). The burst
+scales the reaction's effects instead of repeating them:
+
+- **Linear magnitudes scale × crossings.** "Every 100 shield → +10 power",
+  fired 3 times in a frame, becomes a single "+30" (`increase_power` /
+  `decrease_power` / `increase_critical` and the basic effects
+  damage/heal/shield/poison/regen multiply by the burst).
+- **Duration effects never scale their duration.** `haste` / `slow` / `charge`
+  apply once per distinct target at their base duration — 250 hastes of 500ms
+  collapse to one 500ms haste per ally (at most the team's 9 units), never a
+  single 125s haste.
+- **Random targeting samples distinct targets** without replacement
+  (`min(burst × count, pool)`), so a burst can never hit the same unit twice
+  in one frame.
+
+Magnitude is conserved: each crossing's contribution is still fully applied,
+only batched into fewer, larger events (see the conservation invariant in
+`CombatInvariants.test.ts`). Reactors and `when` predicates are evaluated once
+per burst against the pre-burst board state.
