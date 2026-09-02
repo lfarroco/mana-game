@@ -271,6 +271,132 @@ describe("SessionTransitions", () => {
     });
   });
 
+  describe("victory threshold and Infinite (Endless) mode", () => {
+    const makeFragileEnemy = () => {
+      const enemy = Card.makeUnit(
+        Constants.FORCE_ID_CPU,
+        "critical_crystal",
+        [3, 1],
+      );
+      enemy.life = 1;
+      enemy.maxLife = 1;
+      enemy.power = 1;
+      enemy.cooldown = 999999;
+      return enemy;
+    };
+
+    /** Run start_combat + end_combat against a fragile enemy and return the session. */
+    const winCombat = (session: Models.SessionData): Models.SessionData => {
+      const afterCombat = SessionTransitions.transitionToNextState(
+        session,
+        { type: "start_combat" },
+        { enemyTeam: [makeFragileEnemy()] },
+      );
+      expect(afterCombat.combatState?.wonCombat).toBe(true);
+      return SessionTransitions.transitionToNextState(afterCombat.session, {
+        type: "end_combat",
+      }).session;
+    };
+
+    it("enters the victory phase when a won combat first crosses WINS_TO_WIN_GAME", () => {
+      const session = createTestSession("threshold-cross-001");
+      makeCoreStrong(session);
+      session.round = 10;
+      session.wins = Constants.WINS_TO_WIN_GAME - 1;
+
+      const afterEnd = winCombat(session);
+
+      expect(afterEnd.wins).toBe(Constants.WINS_TO_WIN_GAME);
+      expect(afterEnd.phase).toBe("victory");
+      expect(afterEnd.options).toEqual([{ id: "victory" }]);
+    });
+
+    it("continues into Endless from the victory screen via the victory action", () => {
+      // The run-complete victory landed at round 10, step 4 (the post-combat
+      // step). Choosing Infinite Mode dispatches "victory", which consumes the
+      // round-10 add_reaction_core tail step and rolls into round 11.
+      const session = createTestSession("endless-entry-001");
+      session.phase = "victory";
+      session.round = 10;
+      session.step = 4;
+      session.wins = Constants.WINS_TO_WIN_GAME;
+      session.options = [{ id: "victory" }];
+
+      const continued = SessionTransitions.transitionToNextState(session, {
+        type: "victory",
+      }).session;
+      expect(continued.phase).toBe("add_reaction_core");
+      expect(continued.step).toBe(5);
+      expect(continued.round).toBe(10);
+
+      const nextRound = SessionTransitions.transitionToNextState(continued, {
+        type: "skip",
+      }).session;
+      expect(nextRound.phase).toBe("encounter");
+      expect(nextRound.round).toBe(11);
+      expect(nextRound.step).toBe(0);
+    });
+
+    it("Endless regression: a won wave at 10+ wins never re-enters the victory phase", () => {
+      // Reported bug: entering Endless (wins already >= WINS_TO_WIN_GAME)
+      // showed the run-complete victory screen after every single won wave,
+      // because end_combat compared the absolute win count to the threshold.
+      const session = createTestSession("endless-wave-win-001");
+      makeCoreStrong(session);
+      session.round = 11;
+      session.step = 3; // pre_combat of the round-11 rotation
+      session.wins = Constants.WINS_TO_WIN_GAME;
+
+      const afterEnd = winCombat(session);
+
+      expect(afterEnd.wins).toBe(Constants.WINS_TO_WIN_GAME + 1);
+      expect(afterEnd.phase).not.toBe("victory");
+      // Rounds 11-15 keep their upgrade_core tail step in the rotation table.
+      expect(afterEnd.phase).toBe("upgrade_core");
+      expect(afterEnd.step).toBe(5);
+      expect(afterEnd.round).toBe(11);
+    });
+
+    it("Endless: a won wave from round 16+ rolls straight into the next round's encounters", () => {
+      // From round 16 on the rotation is INFINITE_MODE_PHASES — no post-combat
+      // core step — so a won wave must land on the next round's first encounter.
+      const session = createTestSession("endless-round16-001");
+      makeCoreStrong(session);
+      session.round = 16;
+      session.step = 3;
+      session.wins = Constants.WINS_TO_WIN_GAME;
+
+      const afterEnd = winCombat(session);
+
+      expect(afterEnd.wins).toBe(Constants.WINS_TO_WIN_GAME + 1);
+      expect(afterEnd.phase).not.toBe("victory");
+      expect(afterEnd.phase).toBe("encounter");
+      expect(afterEnd.round).toBe(17);
+      expect(afterEnd.step).toBe(0);
+    });
+
+    it("Endless: losses past the threshold only end the run at LOSSES_TO_GAME_OVER", () => {
+      // A lost Endless wave must not trigger victory or an early game over —
+      // the run continues to the next round until losses reach the cap.
+      const afterLoss = SessionTransitions.transitionToNextState(
+        lostEndlessSession(2),
+        { type: "end_combat" },
+      ).session;
+      expect(afterLoss.phase).not.toBe("victory");
+      expect(afterLoss.phase).not.toBe("game_over");
+      expect(afterLoss.losses).toBe(3);
+      expect(afterLoss.phase).toBe("encounter");
+      expect(afterLoss.round).toBe(17);
+
+      const gameOver = SessionTransitions.transitionToNextState(
+        lostEndlessSession(3),
+        { type: "end_combat" },
+      ).session;
+      expect(gameOver.phase).toBe("game_over");
+      expect(gameOver.losses).toBe(Constants.LOSSES_TO_GAME_OVER);
+    });
+  });
+
   describe("transitionToNextState with options", () => {
     it("uses enemyTeam override when provided", () => {
       const session = createTestSession("test-enemy-override-001");
@@ -955,4 +1081,23 @@ function makeCoreWeak(session: ReturnType<typeof createTestSession>): void {
   core.cooldown = 99999;
   core.charge = 0;
   core.refresh = 99999;
+}
+
+/**
+ * A round-16 Endless session mid-combat (phase "combat") with `losses` prior
+ * losses and a combatState recording a loss — lets end_combat run without
+ * simulating a fight, which is enough for the threshold/Endless loss tests.
+ */
+function lostEndlessSession(losses: number): Models.SessionData {
+  const session = createTestSession(`endless-loss-${losses}`);
+  session.phase = "combat";
+  session.round = 16;
+  session.step = 4;
+  session.wins = Constants.WINS_TO_WIN_GAME;
+  session.losses = losses;
+  session.combatState = {
+    wonCombat: false,
+    finalPlayerUnits: [],
+  } as unknown as Models.CombatState;
+  return session;
 }

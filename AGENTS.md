@@ -219,6 +219,17 @@ Detailed docs live in `docs/`. Each covers a specific system:
 > hit — reactions now fire before the damage resolves and reaction shields
 > apply instantly, so the shield absorbs the hit that procs it.
 
+> **Player-bugfix (2026-09-02):** Infinite (Endless) mode showed the run-complete
+> victory screen after every won wave. `transitionAfterCombat` compared the
+> absolute win count to `WINS_TO_WIN_GAME`, but Endless continues the same
+> session with wins parked above the threshold — so every `end_combat` re-entered
+> the `victory` phase. The run-complete victory now fires exactly once per run:
+> on the won combat that first crosses `WINS_TO_WIN_GAME` (wins only ever grow,
+> so crossing happens once). Regression tests in `SessionTransitions.test.ts`
+> cover the 9→10 crossing, the Endless entry via the `victory` action, won waves
+> in rounds 11-15 (upgrade_core tail) and 16+ (roll into the next round's
+> encounters), and losses past the threshold ending only at `LOSSES_TO_GAME_OVER`.
+
 > The **Purify deferred** item (C1 `tutorialSlides.ts` render-layer rewrite +
 > B4 log-dispatch switch) landed 2026-08-19 — see the Phase E/F notes in
 > [purify.md](purify.md).

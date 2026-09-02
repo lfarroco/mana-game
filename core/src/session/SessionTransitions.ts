@@ -87,10 +87,19 @@ function transitionAfterCombat(
     session.team.units = finalPlayerUnits;
   }
 
+  const winsBeforeCombat = session.wins;
   if (wonCombat) session.wins += 1;
   else session.losses += 1;
 
-  if (session.wins >= WINS_TO_WIN_GAME) {
+  // The run-complete victory fires exactly once per run — on the won combat
+  // that first crosses WINS_TO_WIN_GAME. When the player continues into
+  // Infinite (Endless) Mode the same session keeps running with the wins
+  // counter above the threshold, so a raw `wins >= WINS_TO_WIN_GAME` check
+  // would re-enter the victory phase after every won Endless wave.
+  if (
+    winsBeforeCombat < WINS_TO_WIN_GAME &&
+    session.wins >= WINS_TO_WIN_GAME
+  ) {
     return {
       ...session,
       phase: "victory",
