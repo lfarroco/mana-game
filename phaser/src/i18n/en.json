@@ -794,5 +794,7 @@
 	"lobby.rankingPrev": "PREV",
 	"lobby.rankingNext": "NEXT",
 	"lobby.rankingPage": "Page {page} of {total}",
-	"lobby.rankingFailed": "Could not load the ranking."
+	"lobby.rankingFailed": "Could not load the ranking.",
+	"lobby.ratingHelpTitle": "RATING & SEASONS",
+	"lobby.ratingHelpBody": "Your rating goes up at the end of every multiplayer run, based on your wins:\n\n10+ wins (Gold): +6\n8+ wins (Silver): +4\n5+ wins (Bronze): +2\nFewer than 5 wins: +1\n\nYour rating never goes down.\n\nSeasons: the Season victory counts reset on the 1st of each month (UTC). Career counts are all-time."
 }

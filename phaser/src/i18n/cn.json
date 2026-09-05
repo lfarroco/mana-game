@@ -560,5 +560,7 @@
 	"lobby.rankingPrev": "上一页",
 	"lobby.rankingNext": "下一页",
 	"lobby.rankingPage": "第{page}页, 共{total}页",
-	"lobby.rankingFailed": "无法加载排行榜。"
+	"lobby.rankingFailed": "无法加载排行榜。",
+	"lobby.ratingHelpTitle": "积分与赛季",
+	"lobby.ratingHelpBody": "每局多人游戏结束后,你的积分会根据胜场增加:\n\n10胜以上 (金): +6\n8胜以上 (银): +4\n5胜以上 (铜): +2\n不足5胜: +1\n\n积分永远不会下降。\n\n赛季:赛季胜场数在每月1日 (UTC) 重置。生涯胜场数为历史累计。"
 }

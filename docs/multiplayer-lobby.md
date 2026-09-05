@@ -22,7 +22,8 @@ stay visible on both tabs. The LOBBY tab shows:
 
 - **identity** — display name (falling back to the provider id), provider badge,
 - **rating** — the current ladder rating (starts at `DEFAULT_PLAYER_RATING`
-  = 1000),
+  = 1000), with a "?" button beside it that opens an explainer modal (rating
+  deltas per win tier + what seasons are),
 - **career + season victory counts** — gold/silver/bronze runs completed, all
   time vs. since the 1st of the current month (UTC),
 - **rename** — a CHANGE NAME button (with a countdown hint while the 30-day

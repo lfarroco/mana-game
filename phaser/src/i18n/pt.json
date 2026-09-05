@@ -560,5 +560,7 @@
 	"lobby.rankingPrev": "ANT.",
 	"lobby.rankingNext": "PRÓX.",
 	"lobby.rankingPage": "Página {page} de {total}",
-	"lobby.rankingFailed": "Não foi possível carregar a classificação."
+	"lobby.rankingFailed": "Não foi possível carregar a classificação.",
+	"lobby.ratingHelpTitle": "PONTUAÇÃO E TEMPORADAS",
+	"lobby.ratingHelpBody": "Sua pontuação aumenta ao fim de cada partida multijogador, conforme suas vitórias:\n\n10+ vitórias (Ouro): +6\n8+ vitórias (Prata): +4\n5+ vitórias (Bronze): +2\nMenos de 5 vitórias: +1\n\nSua pontuação nunca diminui.\n\nTemporadas: as vitórias da Temporada zeram no dia 1 de cada mês (UTC). As de Carreira são históricas."
 }

@@ -559,5 +559,7 @@
 	"lobby.rankingPrev": "前へ",
 	"lobby.rankingNext": "次へ",
 	"lobby.rankingPage": "{page} / {total} ページ",
-	"lobby.rankingFailed": "ランキングを読み込めませんでした。"
+	"lobby.rankingFailed": "ランキングを読み込めませんでした。",
+	"lobby.ratingHelpTitle": "レーティングとシーズン",
+	"lobby.ratingHelpBody": "マルチプレイのラン終了時に、勝利数に応じてレーティングが上がります:\n\n10勝以上 (ゴールド): +6\n8勝以上 (シルバー): +4\n5勝以上 (ブロンズ): +2\n5勝未満: +1\n\nレーティングが下がることはありません。\n\nシーズンについて: シーズンの勝利数は毎月1日(UTC)にリセットされます。通算の勝利数はリセットされません。"
 }

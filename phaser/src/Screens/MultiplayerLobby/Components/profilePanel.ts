@@ -1,6 +1,7 @@
 import * as constants from "@Constants";
 import * as i18n from "@i18n/i18n";
 import * as theme from "@Screens/Battleground/Components/UI/theme";
+import * as UIButton from "@Components/Button/UIButton";
 import { env } from "@Env";
 import type { MultiplayerProfile } from "../../../RemoteServer";
 
@@ -23,7 +24,8 @@ export type ProfilePanelElement = {
 
 export function create(
 	profile: MultiplayerProfile,
-	position: [number, number]
+	position: [number, number],
+	onRatingHelp: () => void
 ): ProfilePanelElement {
 	const [x, y] = position;
 
@@ -78,7 +80,24 @@ export function create(
 		})
 		.setOrigin(0.5);
 
-	const container = env.container([bg, header, name, providerLabel, divider, ratingLabel, rating]);
+	// "?" explainer for the rating, tucked right of the number.
+	const helpButton = UIButton.create({
+		text: "?",
+		position: [x + 150, y + 135],
+		width: 64,
+		callback: onRatingHelp,
+	});
+
+	const container = env.container([
+		bg,
+		header,
+		name,
+		providerLabel,
+		divider,
+		ratingLabel,
+		rating,
+		helpButton.container,
+	]);
 
 	const update = (next: MultiplayerProfile): void => {
 		const displayName =

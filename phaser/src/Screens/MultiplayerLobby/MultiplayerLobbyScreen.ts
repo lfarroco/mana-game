@@ -8,6 +8,7 @@ import * as statsPanel from "./Components/statsPanel";
 import * as actionButtons from "./Components/actionButtons";
 import * as changeName from "./Components/changeName";
 import * as rankingPanel from "./Components/rankingPanel";
+import * as ratingHelp from "./Components/ratingHelp";
 import * as renameModal from "./Components/renameModal";
 import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
@@ -94,7 +95,9 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 
 			loading.destroy();
 
-			const identity = profilePanel.create(profile, [constants.MIDDLE_SCREEN_X - 640, 420]);
+			const identity = profilePanel.create(profile, [constants.MIDDLE_SCREEN_X - 640, 420], () =>
+				ratingHelp.open()
+			);
 			identityPanel = identity;
 			const changeNameSection = changeName.create(
 				profile,
