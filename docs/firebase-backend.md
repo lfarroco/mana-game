@@ -12,8 +12,9 @@ until first deploy + client switch land.
 (`onRequest`, smallest diff, same client contract); Firestore replaces
 better-sqlite3 (ephemeral disk + scale-out rule out SQLite on Functions);
 keep the Steam/itch.io/Google + Bearer [REDACTED] auth model (Steam has no Firebase
-provider; no client auth changes). No data migration — fresh Firestore
-datasets; the VM's SQLite DB stays archived, not imported.
+provider; no client auth changes). No data migration at the time — fresh
+Firestore datasets (later reversed: Oracle data migrated 2026-09-05, see
+§Data migration).
 
 ## Architecture
 
@@ -184,3 +185,14 @@ Verify: Multiplayer login → full run → resume via `GET /sessions/current`.
    `server/scripts/{deploy,setup-docker,setup-bare,deploy-bare}.sh` +
    `server/{Dockerfile,Caddyfile*}` + `cloud-*` Makefile targets, and update
    `server/README.md` + `docs/game-server.md` §Config & deployment.
+
+## Data migration ✅ done 2026-09-05
+
+Oracle SQLite snapshot (server/data/backups/mana-20260905-171412.db, pulled
+via make cloud-db-download) → Firestore mana-battle-f3b15, wiping the
+earlier test data first. Migrated: 8 players, 24 tokens, 7 sessions (incl. 2
+mid-combat, re-attached via the codec), 70 ghosts (ids preserved), 19 matchup
+entries (FIFO replayed in order), 7 ratings, 10 run completions. Idempotency
+keys skipped (the VM build never wrote any). Verified by counts per
+collection + read-back of every session through the production repo code.
+Scratch script kept out of the repo (/tmp/mana-migrate.ts).
