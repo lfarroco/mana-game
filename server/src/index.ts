@@ -4,12 +4,16 @@
 
 import { createApp } from "./app";
 import { loadConfig } from "./config";
+import { getFirestoreDb } from "./persistence/firestore";
 
 const config = loadConfig();
 
 const app = createApp({
   corsOrigin: config.corsOrigin,
   sqlitePath: config.sqlitePath ?? undefined,
+  firestoreDb: config.firestoreProjectId
+    ? getFirestoreDb(config.firestoreProjectId)
+    : undefined,
   steam: { webApiKey: config.steamWebApiKey, appIds: config.steamAppIds },
   steamApiUrl: config.steamApiUrl,
   itch: config.itchEnabled,

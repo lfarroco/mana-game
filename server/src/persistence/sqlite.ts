@@ -46,9 +46,12 @@ import { dirname } from "node:path";
 import { v4 as uuid } from "uuid";
 import * as CombatCodec from "@game/Combat/CombatCodec";
 import type { SessionData } from "@game/types/session";
+import type { ActionResponse } from "@game/types/action";
 import type {
   Ghost,
   GhostRepo,
+  IdempotencyRecord,
+  IdempotencyRepo,
   NewGhost,
   Player,
   PlayerProvider,
@@ -57,6 +60,7 @@ import type {
   RatingRepo,
   RunCompletion,
   SessionRepo,
+  SessionUpdater,
   TokenRecord,
   TokenRepo,
   VictoryCounts,
@@ -74,6 +78,7 @@ export type SqliteRepos = {
   ghostRepo: GhostRepo;
   ratingRepo: RatingRepo;
   playerStatsRepo: PlayerStatsRepo;
+  idempotencyRepo: IdempotencyRepo;
 };
 
 /**
@@ -155,6 +160,15 @@ export function createSchema(db: Database.Database): void {
     );
     CREATE INDEX IF NOT EXISTS idx_run_completions_player_time
       ON run_completions(player_id, completed_at);
+
+    CREATE TABLE IF NOT EXISTS idempotency (
+      player_id    TEXT NOT NULL,
+      action_key   TEXT NOT NULL,
+      session_json TEXT NOT NULL,
+      combat_json  TEXT,
+      created_at   INTEGER NOT NULL,
+      PRIMARY KEY (player_id, action_key)
+    );
   `);
 
   // Column migration for databases created before the rename feature
@@ -196,9 +210,28 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
     "DELETE FROM combat_states WHERE session_id = ?",
   );
 
+  // Read one player's session, re-attaching the live combat state while in
+  // the combat phase (mirrors the old sync `get`).
+  const readSession = (playerId: string): SessionData | null => {
+    const row = getStmt.get(playerId) as { session_json: string } | undefined;
+    if (!row) return null;
+
+    const session = parseSessionJson(row.session_json);
+    if (session.phase === "combat") {
+      const combatRow = getCombatStmt.get(session.id) as
+        { combat_json: string } | undefined;
+      if (combatRow) {
+        session.combatState = CombatCodec.deserializeCombatState(
+          JSON.parse(combatRow.combat_json) as CombatCodec.CombatStateDto,
+        );
+      }
+    }
+    return session;
+  };
+
   // Session + combat state are written atomically: a crash mid-write can never
   // leave a session row without its combat state (or vice versa).
-  const upsertTx = db.transaction((playerId: string, session: SessionData) => {
+  const writeSession = (playerId: string, session: SessionData): void => {
     const { combatState, ...rest } = session;
     upsertStmt.run(playerId, JSON.stringify(rest));
     if (combatState) {
@@ -207,6 +240,10 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
         JSON.stringify(CombatCodec.serializeCombatState(combatState)),
       );
     }
+  };
+
+  const upsertTx = db.transaction((playerId: string, session: SessionData) => {
+    writeSession(playerId, session);
   });
 
   const deleteTx = db.transaction((playerId: string) => {
@@ -217,29 +254,27 @@ export function createSqliteSessionRepo(db: Database.Database): SessionRepo {
     }
   });
 
-  return {
-    get: (playerId) => {
-      const row = getStmt.get(playerId) as { session_json: string } | undefined;
-      if (!row) return null;
-
-      const session = parseSessionJson(row.session_json);
-      if (session.phase === "combat") {
-        const combatRow = getCombatStmt.get(session.id) as
-          { combat_json: string } | undefined;
-        if (combatRow) {
-          session.combatState = CombatCodec.deserializeCombatState(
-            JSON.parse(combatRow.combat_json) as CombatCodec.CombatStateDto,
-          );
-        }
-      }
-      return session;
+  // Atomic read-modify-write: the updater runs inside a write transaction,
+  // so concurrent dispatches serialize instead of interleaving get/upsert.
+  // The updater itself is pure (no side effects), matching the interface
+  // contract shared with the Firestore backend.
+  const updateTx = db.transaction(
+    (playerId: string, updater: SessionUpdater): ActionResponse => {
+      const result = updater(readSession(playerId));
+      writeSession(playerId, result.session);
+      return result;
     },
-    upsert: (playerId, session) => {
+  );
+
+  return {
+    get: async (playerId) => readSession(playerId),
+    upsert: async (playerId, session) => {
       upsertTx(playerId, session);
     },
-    delete: (playerId) => {
+    delete: async (playerId) => {
       deleteTx(playerId);
     },
+    update: async (playerId, updater) => updateTx(playerId, updater),
   };
 }
 
@@ -279,16 +314,16 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
   });
 
   return {
-    findByProvider: (provider, providerId) => {
+    findByProvider: async (provider, providerId) => {
       const row = findByProviderStmt.get(provider, providerId) as
         PlayerRow | undefined;
       return row ? rowToPlayer(row) : null;
     },
-    findById: (playerId) => {
+    findById: async (playerId) => {
       const row = findByIdStmt.get(playerId) as PlayerRow | undefined;
       return row ? rowToPlayer(row) : null;
     },
-    create: (player) => {
+    create: async (player) => {
       const existing = findByProviderStmt.get(
         player.provider,
         player.providerId,
@@ -303,7 +338,7 @@ export function createSqlitePlayerRepo(db: Database.Database): PlayerRepo {
       );
       return player;
     },
-    updateDisplayName: (playerId, displayName, updatedAt) => {
+    updateDisplayName: async (playerId, displayName, updatedAt) => {
       const result = updateDisplayNameStmt.run(
         displayName,
         updatedAt,
@@ -337,7 +372,7 @@ export function createSqliteTokenRepo(db: Database.Database): TokenRepo {
   });
 
   return {
-    create: (token) => {
+    create: async (token) => {
       createStmt.run(
         token.tokenHash,
         token.playerId,
@@ -345,7 +380,7 @@ export function createSqliteTokenRepo(db: Database.Database): TokenRepo {
         token.createdAt,
       );
     },
-    findByHash: (tokenHash) => {
+    findByHash: async (tokenHash) => {
       const row = findByHashStmt.get(tokenHash) as TokenRow | undefined;
       return row ? rowToToken(row) : null;
     },
@@ -406,7 +441,7 @@ export function createSqliteGhostRepo(db: Database.Database): GhostRepo {
   });
 
   return {
-    create: (ghost: NewGhost): Ghost => {
+    create: async (ghost: NewGhost): Promise<Ghost> => {
       const stored: Ghost = { ...ghost, ghostId: uuid() };
       insertStmt.run(
         stored.ghostId,
@@ -419,12 +454,12 @@ export function createSqliteGhostRepo(db: Database.Database): GhostRepo {
       );
       return stored;
     },
-    findByRound: (round) =>
+    findByRound: async (round) =>
       (findByRoundStmt.all(round) as GhostRow[]).map(rowToGhost),
-    recordMatchup: (playerId, opponentPlayerId) => {
+    recordMatchup: async (playerId, opponentPlayerId) => {
       recordMatchupTx(playerId, opponentPlayerId);
     },
-    getRecentOpponents: (playerId) =>
+    getRecentOpponents: async (playerId) =>
       (getRecentStmt.all(playerId) as { opponent_player_id: string }[]).map(
         (row) => row.opponent_player_id,
       ),
@@ -444,7 +479,7 @@ export function createSqliteRatingRepo(db: Database.Database): RatingRepo {
   );
 
   return {
-    get: (playerId) => {
+    get: async (playerId) => {
       const row = getStmt.get(playerId) as RatingRow | undefined;
       if (!row) return null;
       return {
@@ -453,7 +488,7 @@ export function createSqliteRatingRepo(db: Database.Database): RatingRepo {
         updatedAt: row.updated_at,
       };
     },
-    upsert: (rating) => {
+    upsert: async (rating) => {
       upsertStmt.run(rating.playerId, rating.rating, rating.updatedAt);
     },
   };
@@ -481,7 +516,7 @@ export function createSqlitePlayerStatsRepo(
   );
 
   return {
-    recordRunCompletion: (completion: RunCompletion) => {
+    recordRunCompletion: async (completion: RunCompletion) => {
       insertStmt.run(
         completion.sessionId,
         completion.playerId,
@@ -490,7 +525,7 @@ export function createSqlitePlayerStatsRepo(
         completion.completedAt,
       );
     },
-    getVictoryCounts: (playerId, sinceEpochMs) => {
+    getVictoryCounts: async (playerId, sinceEpochMs) => {
       const rows = countStmt.all(playerId, sinceEpochMs) as {
         tier: string | null;
         count: number;
@@ -521,6 +556,58 @@ export function createSqliteRepos(db: Database.Database): SqliteRepos {
     ghostRepo: createSqliteGhostRepo(db),
     ratingRepo: createSqliteRatingRepo(db),
     playerStatsRepo: createSqlitePlayerStatsRepo(db),
+    idempotencyRepo: createSqliteIdempotencyRepo(db),
+  };
+}
+
+/**
+ * Action-idempotency store. `save` is write-once per (player_id, action_key)
+ * (`ON CONFLICT DO NOTHING`) — the first completed attempt wins, so a
+ * retried action replays the stored response instead of running twice.
+ */
+export function createSqliteIdempotencyRepo(
+  db: Database.Database,
+): IdempotencyRepo {
+  const findStmt = db.prepare(
+    `SELECT player_id, action_key, session_json, combat_json, created_at
+     FROM idempotency WHERE player_id = ? AND action_key = ?`,
+  );
+  const insertStmt = db.prepare(
+    `INSERT INTO idempotency (player_id, action_key, session_json, combat_json, created_at)
+     VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(player_id, action_key) DO NOTHING`,
+  );
+
+  type IdempotencyRow = {
+    player_id: string;
+    action_key: string;
+    session_json: string;
+    combat_json: string | null;
+    created_at: number;
+  };
+
+  return {
+    find: async (playerId, key) => {
+      const row = findStmt.get(playerId, key) as IdempotencyRow | undefined;
+      if (!row) return null;
+      const record: IdempotencyRecord = {
+        playerId: row.player_id,
+        key: row.action_key,
+        sessionJson: row.session_json,
+        combatJson: row.combat_json,
+        createdAt: row.created_at,
+      };
+      return record;
+    },
+    save: async (record) => {
+      insertStmt.run(
+        record.playerId,
+        record.key,
+        record.sessionJson,
+        record.combatJson,
+        record.createdAt,
+      );
+    },
   };
 }
 

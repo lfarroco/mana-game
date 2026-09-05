@@ -98,10 +98,10 @@ describe("POST /api/v1/auth/steam", () => {
 
     // The plaintext is NOT stored — only its SHA-256 hash.
     const tokenService = createTokenService(tokenRepo);
-    const record = tokenRepo.findByHash(tokenService.hashToken(token));
+    const record = (await tokenRepo.findByHash(tokenService.hashToken(token)));
     expect(record).not.toBeNull();
     expect(record!.playerId).toBe(player.playerId);
-    expect(tokenRepo.findByHash(token)).toBeNull();
+    expect((await tokenRepo.findByHash(token))).toBeNull();
   });
 
   it("uses the client-supplied steam persona as displayName", async () => {
@@ -128,7 +128,7 @@ describe("POST /api/v1/auth/steam", () => {
     expect(second.status).toBe(200);
     expect(second.body.player.playerId).toBe(first.body.player.playerId);
     expect(second.body.token).not.toBe(first.body.token);
-    expect(playerRepo.findByProvider("steam", STEAM_ID_A)).not.toBeNull();
+    expect((await playerRepo.findByProvider("steam", STEAM_ID_A))).not.toBeNull();
   });
 
   it("keeps distinct steam accounts as distinct players (isolation)", async () => {
@@ -291,10 +291,10 @@ describe("POST /api/v1/auth/itch", () => {
 
     // The plaintext is NOT stored — only its SHA-256 hash.
     const tokenService = createTokenService(tokenRepo);
-    const record = tokenRepo.findByHash(tokenService.hashToken(token));
+    const record = (await tokenRepo.findByHash(tokenService.hashToken(token)));
     expect(record).not.toBeNull();
     expect(record!.playerId).toBe(player.playerId);
-    expect(tokenRepo.findByHash(token)).toBeNull();
+    expect((await tokenRepo.findByHash(token))).toBeNull();
   });
 
   it("uses the server-verified username as displayName", async () => {
@@ -323,7 +323,7 @@ describe("POST /api/v1/auth/itch", () => {
     expect(second.status).toBe(200);
     expect(second.body.player.playerId).toBe(first.body.player.playerId);
     expect(second.body.token).not.toBe(first.body.token);
-    expect(playerRepo.findByProvider("itch", String(ITCH_ID_A))).not.toBeNull();
+    expect((await playerRepo.findByProvider("itch", String(ITCH_ID_A)))).not.toBeNull();
   });
 
   it("rejects a token itch.io invalidates (non-200)", async () => {
@@ -460,10 +460,10 @@ describe("POST /api/v1/auth/google", () => {
 
     // The plaintext is NOT stored — only its SHA-256 hash.
     const tokenService = createTokenService(tokenRepo);
-    const record = tokenRepo.findByHash(tokenService.hashToken(token));
+    const record = (await tokenRepo.findByHash(tokenService.hashToken(token)));
     expect(record).not.toBeNull();
     expect(record!.playerId).toBe(player.playerId);
-    expect(tokenRepo.findByHash(token)).toBeNull();
+    expect((await tokenRepo.findByHash(token))).toBeNull();
   });
 
   it("uses the server-verified name as displayName", async () => {
@@ -493,7 +493,7 @@ describe("POST /api/v1/auth/google", () => {
     expect(second.body.player.playerId).toBe(first.body.player.playerId);
     expect(second.body.token).not.toBe(first.body.token);
     expect(
-      playerRepo.findByProvider("google", GOOGLE_ID_A),
+      (await playerRepo.findByProvider("google", GOOGLE_ID_A)),
     ).not.toBeNull();
   });
 

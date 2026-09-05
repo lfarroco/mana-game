@@ -33,12 +33,12 @@ function completion(overrides: Partial<RunCompletion> = {}): RunCompletion {
   };
 }
 
-function expectCounts(
+async function expectCounts(
   repo: PlayerStatsRepo,
   playerId: string,
   sinceEpochMs: number,
-): { bronze: number; silver: number; gold: number } {
-  return repo.getVictoryCounts(playerId, sinceEpochMs);
+): Promise<{ bronze: number; silver: number; gold: number }> {
+  return (await repo.getVictoryCounts(playerId, sinceEpochMs));
 }
 
 describe.each([
@@ -51,87 +51,87 @@ describe.each([
     repo = makeRepo();
   });
 
-  it("starts with zeroed counts", () => {
-    expect(expectCounts(repo, PLAYER_A, 0)).toEqual({
+  it("starts with zeroed counts", async () => {
+    expect(await expectCounts(repo, PLAYER_A, 0)).toEqual({
       bronze: 0,
       silver: 0,
       gold: 0,
     });
   });
 
-  it("counts tiered victories per player across the career window", () => {
-    repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" }));
-    repo.recordRunCompletion(completion({ sessionId: "s2", tier: "silver" }));
-    repo.recordRunCompletion(completion({ sessionId: "s3", tier: "bronze" }));
+  it("counts tiered victories per player across the career window", async () => {
+    (await repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" })));
+    (await repo.recordRunCompletion(completion({ sessionId: "s2", tier: "silver" })));
+    (await repo.recordRunCompletion(completion({ sessionId: "s3", tier: "bronze" })));
     // Another player's runs must not leak into A's counts.
-    repo.recordRunCompletion(
+    (await repo.recordRunCompletion(
       completion({ sessionId: "s4", playerId: PLAYER_B, tier: "gold" }),
-    );
+    ));
 
-    expect(expectCounts(repo, PLAYER_A, 0)).toEqual({
+    expect(await expectCounts(repo, PLAYER_A, 0)).toEqual({
       bronze: 1,
       silver: 1,
       gold: 1,
     });
-    expect(expectCounts(repo, PLAYER_B, 0)).toEqual({
+    expect(await expectCounts(repo, PLAYER_B, 0)).toEqual({
       bronze: 0,
       silver: 0,
       gold: 1,
     });
   });
 
-  it("ignores below-bronze runs (tier null) in the counts", () => {
-    repo.recordRunCompletion(completion({ sessionId: "s1", tier: null, wins: 4 }));
-    repo.recordRunCompletion(completion({ sessionId: "s2", tier: "bronze" }));
+  it("ignores below-bronze runs (tier null) in the counts", async () => {
+    (await repo.recordRunCompletion(completion({ sessionId: "s1", tier: null, wins: 4 })));
+    (await repo.recordRunCompletion(completion({ sessionId: "s2", tier: "bronze" })));
 
-    expect(expectCounts(repo, PLAYER_A, 0)).toEqual({
+    expect(await expectCounts(repo, PLAYER_A, 0)).toEqual({
       bronze: 1,
       silver: 0,
       gold: 0,
     });
   });
 
-  it("filters by the season window (completions at or after `sinceEpochMs`)", () => {
-    repo.recordRunCompletion(
+  it("filters by the season window (completions at or after `sinceEpochMs`)", async () => {
+    (await repo.recordRunCompletion(
       completion({ sessionId: "old", tier: "gold", completedAt: NOW - 10 }),
-    );
-    repo.recordRunCompletion(
+    ));
+    (await repo.recordRunCompletion(
       completion({ sessionId: "edge", tier: "silver", completedAt: NOW }),
-    );
-    repo.recordRunCompletion(
+    ));
+    (await repo.recordRunCompletion(
       completion({ sessionId: "new", tier: "bronze", completedAt: NOW + 10 }),
-    );
+    ));
 
-    expect(expectCounts(repo, PLAYER_A, NOW)).toEqual({
+    expect(await expectCounts(repo, PLAYER_A, NOW)).toEqual({
       bronze: 1,
       silver: 1,
       gold: 0,
     });
   });
 
-  it("records each session exactly once even when re-recorded", () => {
-    repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" }));
-    repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" }));
-    repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" }));
+  it("records each session exactly once even when re-recorded", async () => {
+    (await repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" })));
+    (await repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" })));
+    (await repo.recordRunCompletion(completion({ sessionId: "s1", tier: "gold" })));
 
-    expect(expectCounts(repo, PLAYER_A, 0)).toEqual({
+    expect(await expectCounts(repo, PLAYER_A, 0)).toEqual({
       bronze: 0,
       silver: 0,
       gold: 1,
     });
   });
 
-  it("stores the win count alongside the tier for future stats", () => {
-    repo.recordRunCompletion(
+  it("stores the win count alongside the tier for future stats", async () => {
+    (await repo.recordRunCompletion(
       completion({ sessionId: "s1", tier: "silver", wins: 8 }),
-    );
-    repo.recordRunCompletion(
+    ));
+    (await repo.recordRunCompletion(
       completion({ sessionId: "s2", tier: null, wins: 2 }),
-    );
+    ));
 
     // The interface exposes counts only; the raw records are still persisted
     // (assert via the counts path that both rows are distinguishable).
-    expect(expectCounts(repo, PLAYER_A, 0).silver).toBe(1);
-    expect(expectCounts(repo, PLAYER_A, 0).gold).toBe(0);
+    expect((await expectCounts(repo, PLAYER_A, 0)).silver).toBe(1);
+    expect((await expectCounts(repo, PLAYER_A, 0)).gold).toBe(0);
   });
 });

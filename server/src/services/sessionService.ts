@@ -19,18 +19,33 @@
  *     threads `{ enemyTeam, enemyPlayerName }` into core's transition options,
  *   - `end_combat` resolving to a terminal phase applies the wins-based rating
  *     delta exactly once (per session id).
+ *
+ * Concurrency: action dispatch runs inside `SessionRepo.update` — an atomic
+ * read-modify-write (a Firestore transaction on the Functions backend), so
+ * concurrent actions from one player serialize instead of interleaving. The
+ * updater passed to it (`dispatchAction`) is pure: ghost snapshots, matchup
+ * records, rating updates, and run completions all happen outside, and the
+ * repos guard the exactly-once cases per session id.
+ *
+ * Retries: `handleAction` accepts the client's `clientActionId`. The first
+ * completed attempt stores its wire response in the idempotency repo; a retry
+ * with the same key replays those bytes instead of running the transition
+ * again (matters on serverless, where client-visible timeouts are common).
  */
 
 import { randomInt } from "node:crypto";
 import { v4 as uuid } from "uuid";
 import * as SessionManagement from "@game/session/SessionManagement";
 import * as SessionTransitions from "@game/session/SessionTransitions";
+import * as CombatCodec from "@game/Combat/CombatCodec";
 import { formatNumericSeed, MAX_SEED_BOUND } from "@game/session/seed";
 import type { SessionData } from "@game/types/session";
 import type { Action, ActionResponse } from "@game/types/action";
 import { ApiError } from "../errors";
 import type {
   GhostRepo,
+  IdempotencyRecord,
+  IdempotencyRepo,
   PlayerRepo,
   PlayerStatsRepo,
   RatingRepo,
@@ -38,6 +53,7 @@ import type {
 } from "../persistence/repositories";
 import {
   createMemoryGhostRepo,
+  createMemoryIdempotencyRepo,
   createMemoryPlayerRepo,
   createMemoryPlayerStatsRepo,
   createMemoryRatingRepo,
@@ -64,17 +80,30 @@ export type SessionServiceDeps = {
   playerRepo?: PlayerRepo;
   /** Run-completions repo — career/season victory stats (defaults to memory). */
   playerStatsRepo?: PlayerStatsRepo;
+  /** Action-idempotency store (defaults to a fresh memory repo). */
+  idempotencyRepo?: IdempotencyRepo;
 };
 
 export type SessionService = {
-  createSession(playerId: string, request: CreateSessionRequest): SessionData;
+  createSession(
+    playerId: string,
+    request: CreateSessionRequest,
+  ): Promise<SessionData>;
   /**
    * The player's active session, or null when none is active. A session whose
    * run has finished (terminal phase) is intentionally **not** served — the
    * server owns the lifecycle and the player can only create a new session.
    */
-  getSession(playerId: string): SessionData | null;
-  handleAction(playerId: string, action: Action): ActionResponse;
+  getSession(playerId: string): Promise<SessionData | null>;
+  /**
+   * Dispatch one action. `clientActionId` makes retries safe: a repeated key
+   * replays the stored response instead of re-running the transition.
+   */
+  handleAction(
+    playerId: string,
+    action: Action,
+    clientActionId?: string,
+  ): Promise<ActionResponse>;
 };
 
 export function createSessionService(
@@ -85,16 +114,17 @@ export function createSessionService(
   const ratingRepo = deps.ratingRepo ?? createMemoryRatingRepo();
   const playerRepo = deps.playerRepo ?? createMemoryPlayerRepo();
   const playerStatsRepo = deps.playerStatsRepo ?? createMemoryPlayerStatsRepo();
+  const idempotencyRepo = deps.idempotencyRepo ?? createMemoryIdempotencyRepo();
 
-  // Defense in depth: the terminal-phase guard in handleAction already blocks
+  // Defense in depth: the terminal-phase guard in dispatchAction already blocks
   // a second end_combat on a finished run, so the rating delta can never be
   // applied twice through the API. This set additionally guards against any
   // future re-entrancy path re-dispatching the same terminal transition.
   const appliedRatingSessionIds = new Set<string>();
 
   return {
-    createSession(playerId, request) {
-      const existing = repo.get(playerId);
+    async createSession(playerId, request) {
+      const existing = await repo.get(playerId);
       if (existing && !isTerminalPhase(existing.phase)) {
         throw new ApiError(
           409,
@@ -107,7 +137,7 @@ export function createSessionService(
       // lifecycle, so creating a session supersedes the previous (finished)
       // session instead of requiring a client-side delete.
       if (existing) {
-        repo.delete(playerId);
+        await repo.delete(playerId);
       }
 
       // The server generates the seed — it is the replay authority. Numeric
@@ -127,20 +157,20 @@ export function createSessionService(
 
       // First session for this player: initialize the default rating (1000).
       // Later runs read and update this record on completion.
-      if (!ratingRepo.get(playerId)) {
-        ratingRepo.upsert({
+      if (!(await ratingRepo.get(playerId))) {
+        await ratingRepo.upsert({
           playerId,
           rating: DEFAULT_PLAYER_RATING,
           updatedAt: Date.now(),
         });
       }
 
-      repo.upsert(playerId, session);
+      await repo.upsert(playerId, session);
       return session;
     },
 
-    getSession(playerId) {
-      const session = repo.get(playerId);
+    async getSession(playerId) {
+      const session = await repo.get(playerId);
       // A finished (terminal-phase) run is no longer served: the player can
       // only create a new session. The client learns the run ended from the
       // terminal session in the action response, not from a later GET.
@@ -148,59 +178,39 @@ export function createSessionService(
       return session;
     },
 
-    handleAction(playerId, action) {
-      const session = repo.get(playerId);
-      if (!session) {
-        throw new ApiError(
-          404,
-          "no_active_session",
-          `No active session for player '${playerId}'`,
-        );
+    async handleAction(playerId, action, clientActionId) {
+      // Safe retry: a repeated idempotency key replays the stored response.
+      if (clientActionId) {
+        const replay = await idempotencyRepo.find(playerId, clientActionId);
+        if (replay) return replayActionResponse(replay);
       }
 
-      if (session.phase === "victory" || session.phase === "game_over") {
-        throw new ApiError(
-          409,
-          "session_finished",
-          `Session is already in terminal phase '${session.phase}'`,
-        );
+      // start_combat is special: ghost snapshot + opponent resolution first
+      // (side effects, outside the transaction), then the transaction
+      // receives the resolved enemy as an override.
+      let prep: StartCombatPrep | undefined;
+      if (action.type === "start_combat") {
+        prep = await prepareStartCombat(playerId);
       }
 
-      let result: ActionResponse;
-      // start_combat is special: ghost snapshot + opponent resolution first,
-      // then the transition receives the resolved enemy as an override.
-      let startCombatLog: Record<string, unknown> | undefined;
-      try {
-        if (action.type === "start_combat") {
-          const combat = runStartCombat(session);
-          result = combat.result;
-          startCombatLog = {
-            enemyPlayerName: combat.resolution.enemyPlayerName,
-            ghostId: combat.resolution.ghostId,
-            opponentPlayerId: combat.resolution.opponentPlayerId,
-          };
-        } else {
-          result = SessionTransitions.transitionToNextState(session, action);
-        }
-      } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Action rejected by game logic";
-        throw new ApiError(422, "action_rejected", message);
-      }
+      const result = await repo.update(playerId, (current) =>
+        dispatchAction(current, playerId, action, prep),
+      );
 
-      // Run completion: apply the wins-based rating delta exactly once.
-      // The session_finished 409 above makes a duplicate end_combat impossible
-      // through the API; the session-id set is the second line of defense.
+      // Run completion: apply the wins-based rating delta exactly once. The
+      // terminal-phase guard inside the transaction makes a duplicate
+      // end_combat impossible through the API; the session-id set below and
+      // the idempotent repos are the second and third lines of defense.
       if (
         action.type === "end_combat" &&
         isTerminalPhase(result.session.phase) &&
-        !appliedRatingSessionIds.has(session.id)
+        !appliedRatingSessionIds.has(result.session.id)
       ) {
-        appliedRatingSessionIds.add(session.id);
+        appliedRatingSessionIds.add(result.session.id);
         const completedAt = Date.now();
         const currentRating =
-          ratingRepo.get(playerId)?.rating ?? DEFAULT_PLAYER_RATING;
-        ratingRepo.upsert({
+          (await ratingRepo.get(playerId))?.rating ?? DEFAULT_PLAYER_RATING;
+        await ratingRepo.upsert({
           playerId,
           rating: applyRatingDelta({
             currentRating,
@@ -210,10 +220,10 @@ export function createSessionService(
         });
 
         // Record the finished run once for the lobby's career + season victory
-        // stats. The repos are idempotent per session id (SQLite PK / memory
-        // Map key), so even a future re-entrancy path can't double-count.
-        playerStatsRepo.recordRunCompletion({
-          sessionId: session.id,
+        // stats. The repos are idempotent per session id (PK / Map key), so
+        // even a future re-entrancy path can't double-count.
+        await playerStatsRepo.recordRunCompletion({
+          sessionId: result.session.id,
           playerId,
           tier: getMultiplayerVictoryTier(result.session.wins),
           wins: result.session.wins,
@@ -221,22 +231,11 @@ export function createSessionService(
         });
       }
 
-      // Record the action for audit/replay debugging (trimmed). start_combat
-      // carries the resolved opponent (ghost id / PvE marker) so the action
-      // log doubles as the matchup record for the run.
-      const log = result.session.action_log ?? [];
-      log.push(
-        startCombatLog
-          ? {
-              action: action.type,
-              payload: startCombatLog,
-              timestamp: Date.now(),
-            }
-          : { action: action.type, timestamp: Date.now() },
-      );
-      result.session.action_log = log.slice(-MAX_ACTION_LOG_SIZE);
-
-      repo.upsert(playerId, result.session);
+      if (clientActionId) {
+        await idempotencyRepo.save(
+          toIdempotencyRecord(playerId, clientActionId, result),
+        );
+      }
       return result;
     },
   };
@@ -245,15 +244,34 @@ export function createSessionService(
    * Matchmaking orchestration for a start_combat:
    *   1. snapshot the player's board team as a ghost for the current round,
    *   2. resolve the opponent (ghost pick → PvE fallback — always a match),
-   *   3. record the PvP matchup so this run doesn't rematch the same player,
-   *   4. run combat via core with the resolved enemy team/name.
+   *   3. record the PvP matchup so this run doesn't rematch the same player.
+   *
+   * Runs before the session transaction (it performs repo writes). Opponent
+   * display names are pre-fetched into a sync lookup so the pure matchmaking
+   * module never touches the repos.
    */
-  function runStartCombat(session: SessionData): {
-    result: ActionResponse;
-    resolution: OpponentResolution;
-  } {
+  async function prepareStartCombat(
+    playerId: string,
+  ): Promise<StartCombatPrep> {
+    const session = await repo.get(playerId);
+    if (!session) {
+      throw new ApiError(
+        404,
+        "no_active_session",
+        `No active session for player '${playerId}'`,
+      );
+    }
+    if (session.phase === "victory" || session.phase === "game_over") {
+      throw new ApiError(
+        409,
+        "session_finished",
+        `Session is already in terminal phase '${session.phase}'`,
+      );
+    }
+
     const rating =
-      ratingRepo.get(session.player_id)?.rating ?? DEFAULT_PLAYER_RATING;
+      (await ratingRepo.get(session.player_id))?.rating ??
+      DEFAULT_PLAYER_RATING;
 
     const ghost = snapshotGhost({
       playerId: session.player_id,
@@ -264,36 +282,167 @@ export function createSessionService(
       createdAt: Date.now(),
     });
     if (ghost) {
-      ghostRepo.create(ghost);
+      await ghostRepo.create(ghost);
     }
 
+    const ghosts = await ghostRepo.findByRound(session.round);
+    const displayNames = new Map<string, string>();
+    await Promise.all(
+      ghosts.map(async (candidate) => {
+        const owner = await playerRepo.findById(candidate.playerId);
+        if (owner?.displayName)
+          displayNames.set(candidate.playerId, owner.displayName);
+      }),
+    );
+
     const resolution = resolveOpponent({
-      ghosts: ghostRepo.findByRound(session.round),
+      ghosts,
       playerId: session.player_id,
       rating,
       round: session.round,
       wins: session.wins,
       seed: session.seed,
-      recentlyFought: ghostRepo.getRecentOpponents(session.player_id),
-      displayNameFor: (opponentPlayerId) =>
-        playerRepo.findById(opponentPlayerId)?.displayName,
+      recentlyFought: await ghostRepo.getRecentOpponents(session.player_id),
+      displayNameFor: (opponentPlayerId) => displayNames.get(opponentPlayerId),
     });
 
     if (resolution.opponentPlayerId) {
-      ghostRepo.recordMatchup(session.player_id, resolution.opponentPlayerId);
+      await ghostRepo.recordMatchup(
+        session.player_id,
+        resolution.opponentPlayerId,
+      );
     }
 
-    const result = SessionTransitions.transitionToNextState(
-      session,
-      { type: "start_combat" },
-      {
-        enemyTeam: resolution.enemyTeam,
-        enemyPlayerName: resolution.enemyPlayerName,
-      },
-    );
-
-    return { result, resolution };
+    return { resolution };
   }
+}
+
+/** Resolved opponent threaded into the start_combat transition. */
+type StartCombatPrep = {
+  resolution: OpponentResolution;
+};
+
+/**
+ * Pure action dispatch — the unit that runs inside `SessionRepo.update`
+ * (and may be retried under contention), so: no repo access, no side
+ * effects. Throws ApiError for missing/finished sessions (404/409) and
+ * rejected actions (422).
+ */
+function dispatchAction(
+  current: SessionData | null,
+  playerId: string,
+  action: Action,
+  prep?: StartCombatPrep,
+): ActionResponse {
+  if (!current) {
+    throw new ApiError(
+      404,
+      "no_active_session",
+      `No active session for player '${playerId}'`,
+    );
+  }
+
+  if (current.phase === "victory" || current.phase === "game_over") {
+    throw new ApiError(
+      409,
+      "session_finished",
+      `Session is already in terminal phase '${current.phase}'`,
+    );
+  }
+
+  let result: ActionResponse;
+  try {
+    if (action.type === "start_combat") {
+      if (!prep) {
+        throw new Error("start_combat dispatched without opponent prep");
+      }
+      result = SessionTransitions.transitionToNextState(
+        current,
+        { type: "start_combat" },
+        {
+          enemyTeam: prep.resolution.enemyTeam,
+          enemyPlayerName: prep.resolution.enemyPlayerName,
+        },
+      );
+      // Record the action for audit/replay debugging. start_combat carries
+      // the resolved opponent (ghost id / PvE marker) so the action log
+      // doubles as the matchup record for the run.
+      appendActionLog(result.session, action.type, {
+        enemyPlayerName: prep.resolution.enemyPlayerName,
+        ghostId: prep.resolution.ghostId,
+        opponentPlayerId: prep.resolution.opponentPlayerId,
+      });
+    } else {
+      result = SessionTransitions.transitionToNextState(current, action);
+      appendActionLog(result.session, action.type);
+    }
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    const message =
+      err instanceof Error ? err.message : "Action rejected by game logic";
+    throw new ApiError(422, "action_rejected", message);
+  }
+
+  return result;
+}
+
+/** Append one audit entry to the session action log (trimmed). */
+function appendActionLog(
+  session: SessionData,
+  actionType: string,
+  payload?: Record<string, unknown>,
+): void {
+  const log = session.action_log ?? [];
+  log.push(
+    payload
+      ? { action: actionType, payload, timestamp: Date.now() }
+      : { action: actionType, timestamp: Date.now() },
+  );
+  session.action_log = log.slice(-MAX_ACTION_LOG_SIZE);
+}
+
+/**
+ * Rebuild an ActionResponse from a stored idempotency record. The bytes match
+ * the first attempt: same stripped session, same combat DTO (deserialized so
+ * the route serializes it back identically).
+ */
+function replayActionResponse(record: IdempotencyRecord): ActionResponse {
+  const session = parseStoredSession(record.sessionJson);
+  if (record.combatJson) {
+    const combatState = CombatCodec.deserializeCombatState(
+      JSON.parse(record.combatJson) as CombatCodec.CombatStateDto,
+    );
+    session.combatState = combatState;
+    return { session, combatState };
+  }
+  return { session };
+}
+
+/** Pack a completed dispatch into a write-once idempotency record. */
+function toIdempotencyRecord(
+  playerId: string,
+  key: string,
+  result: ActionResponse,
+): IdempotencyRecord {
+  const { combatState, ...rest } = result.session;
+  return {
+    playerId,
+    key,
+    sessionJson: JSON.stringify(rest),
+    combatJson: combatState
+      ? JSON.stringify(CombatCodec.serializeCombatState(combatState))
+      : null,
+    createdAt: Date.now(),
+  };
+}
+
+/** JSON.parse with Date normalization (`updated_at` stringifies to ISO). */
+function parseStoredSession(json: string): SessionData {
+  const session = JSON.parse(json) as SessionData;
+  if (typeof session.updated_at === "string") {
+    session.updated_at = new Date(session.updated_at);
+  }
+  return session;
 }
 
 function isTerminalPhase(phase: SessionData["phase"]): boolean {

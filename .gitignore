@@ -154,3 +154,9 @@ phaser/.webpack-cache
 
 # electron-builder output (make electron-build-*)
 phaser/dist-electron/
+
+# Firebase project alias file (per-machine; holds the project id)
+.firebaserc
+# Functions per-project env + local secret overrides (may carry secrets)
+server/.env.*
+server/.secret.*

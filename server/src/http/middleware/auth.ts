@@ -25,7 +25,7 @@ declare global {
 export function requireAuth(deps: { tokenRepo: TokenRepo }): RequestHandler {
   const { hashToken } = createTokenService(deps.tokenRepo);
 
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return async (req: Request, _res: Response, next: NextFunction) => {
     const header = req.header("authorization");
 
     if (!header) {
@@ -51,7 +51,7 @@ export function requireAuth(deps: { tokenRepo: TokenRepo }): RequestHandler {
       return;
     }
 
-    const record = deps.tokenRepo.findByHash(hashToken(token));
+    const record = await deps.tokenRepo.findByHash(hashToken(token));
     if (!record || record.expiresAt <= Date.now()) {
       next(new ApiError(401, "invalid_token", "Invalid or expired token"));
       return;

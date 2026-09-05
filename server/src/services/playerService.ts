@@ -121,11 +121,11 @@ export type PlayerProfileDeps = {
   sessionRepo: SessionRepo;
 };
 
-export function getPlayerProfile(
+export async function getPlayerProfile(
   playerId: string,
   deps: PlayerProfileDeps,
-): PlayerProfile {
-  const player = deps.playerRepo.findById(playerId);
+): Promise<PlayerProfile> {
+  const player = await deps.playerRepo.findById(playerId);
   if (!player) {
     throw new ApiError(
       404,
@@ -135,6 +135,12 @@ export function getPlayerProfile(
   }
 
   const now = Date.now();
+  const [rating, career, season, session] = await Promise.all([
+    deps.ratingRepo.get(playerId),
+    deps.playerStatsRepo.getVictoryCounts(playerId, 0),
+    deps.playerStatsRepo.getVictoryCounts(playerId, getSeasonStartEpochMs(now)),
+    deps.sessionRepo.get(playerId),
+  ]);
 
   return {
     player: {
@@ -143,13 +149,10 @@ export function getPlayerProfile(
       providerId: player.providerId,
       provider: player.provider,
     },
-    rating: deps.ratingRepo.get(playerId)?.rating ?? DEFAULT_PLAYER_RATING,
-    career: deps.playerStatsRepo.getVictoryCounts(playerId, 0),
-    season: deps.playerStatsRepo.getVictoryCounts(
-      playerId,
-      getSeasonStartEpochMs(now),
-    ),
-    hasActiveSession: hasActiveSession(deps.sessionRepo.get(playerId)),
+    rating: rating?.rating ?? DEFAULT_PLAYER_RATING,
+    career,
+    season,
+    hasActiveSession: hasActiveSession(session),
     displayNameChange: getDisplayNameChange(player, now),
   };
 }
@@ -159,12 +162,12 @@ export function getPlayerProfile(
  * (`NAME_CHANGE_COOLDOWN_MS`). Returns the refreshed full profile (the same
  * shape as `getPlayerProfile`) so the client can re-render in one round trip.
  */
-export function updateDisplayName(
+export async function updateDisplayName(
   playerId: string,
   displayName: string,
   deps: PlayerProfileDeps,
-): PlayerProfile {
-  const player = deps.playerRepo.findById(playerId);
+): Promise<PlayerProfile> {
+  const player = await deps.playerRepo.findById(playerId);
   if (!player) {
     throw new ApiError(
       404,
@@ -185,7 +188,11 @@ export function updateDisplayName(
   }
 
   const validated = validateDisplayName(displayName);
-  const updated = deps.playerRepo.updateDisplayName(playerId, validated, now);
+  const updated = await deps.playerRepo.updateDisplayName(
+    playerId,
+    validated,
+    now,
+  );
   if (!updated) {
     // The player vanished between findById and update (should not happen with
     // the single-process repos) — surface the same 404 as a missing player.

@@ -53,7 +53,7 @@ export type AuthService = {
     provider: PlayerProvider;
     providerId: string;
     displayName?: string;
-  }): Player;
+  }): Promise<Player>;
   /**
    * Provider-agnostic login: validate via the provider's Authenticator, upsert
    * the player, and mint a bearer token. `credential` is provider-specific
@@ -73,12 +73,12 @@ export function createAuthService(deps: {
     (deps.authenticators ?? []).map((auth) => [auth.provider, auth]),
   );
 
-  const findOrCreatePlayer = (input: {
+  const findOrCreatePlayer = async (input: {
     provider: PlayerProvider;
     providerId: string;
     displayName?: string;
-  }): Player => {
-    const existing = deps.playerRepo.findByProvider(
+  }): Promise<Player> => {
+    const existing = await deps.playerRepo.findByProvider(
       input.provider,
       input.providerId,
     );
@@ -108,12 +108,12 @@ export function createAuthService(deps: {
       }
 
       const identity = await authenticator.authenticate(credential);
-      const player = findOrCreatePlayer({
+      const player = await findOrCreatePlayer({
         provider,
         providerId: identity.providerId,
         displayName: identity.displayName,
       });
-      const token = tokenService.issueToken(player.playerId);
+      const token = await tokenService.issueToken(player.playerId);
 
       return { player, token };
     },

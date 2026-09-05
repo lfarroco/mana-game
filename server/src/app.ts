@@ -21,6 +21,7 @@ import {
 } from "./config";
 import {
   createMemoryGhostRepo,
+  createMemoryIdempotencyRepo,
   createMemoryPlayerRepo,
   createMemoryPlayerStatsRepo,
   createMemoryRatingRepo,
@@ -28,9 +29,12 @@ import {
   createMemoryTokenRepo,
 } from "./persistence/memory";
 import { createSqliteRepos, openSqliteDatabase } from "./persistence/sqlite";
+import { createFirestoreRepos } from "./persistence/firestore";
 import { TRUSTED_PROXY_RANGES } from "./trustProxy";
+import type { Firestore } from "firebase-admin/firestore";
 import type {
   GhostRepo,
+  IdempotencyRepo,
   PlayerRepo,
   PlayerStatsRepo,
   RatingRepo,
@@ -51,6 +55,16 @@ export type AppDeps = {
   ratingRepo?: RatingRepo;
   /** Run-completions repository for lobby stats (defaults to a fresh in-memory repo). */
   playerStatsRepo?: PlayerStatsRepo;
+  /** Action-idempotency store (defaults to a fresh in-memory repo). */
+  idempotencyRepo?: IdempotencyRepo;
+  /**
+   * Firestore database (the Firebase backend). When set, the default
+   * repositories are Firestore-backed; explicit `*Repo` deps still override
+   * per repo, and `sqlitePath` is ignored (Functions have no durable disk).
+   * The Admin SDK authenticates via Application Default Credentials, or the
+   * emulator via FIRESTORE_EMULATOR_HOST.
+   */
+  firestoreDb?: Firestore;
   /**
    * Opt into durable SQLite persistence: when set, the default repositories
    * are backed by a better-sqlite3 Database at this path (`:memory:` for a
@@ -98,27 +112,54 @@ export type AppDeps = {
 };
 
 export function createApp(deps: AppDeps = {}): express.Express {
-  // Selection logic (docs/game-server.md §Config & deployment): memory repos
-  // are the DEFAULT; setting `sqlitePath` (MANA_SQLITE_PATH in index.ts) swaps
-  // all six defaults for SQLite-backed repos on one Database. Explicit repo
-  // deps always win, so tests can mix implementations freely.
+  // Selection logic: memory repos are the DEFAULT; `firestoreDb`
+  // (MANA_FIRESTORE_PROJECT_ID) swaps all seven defaults for Firestore-backed
+  // repos, and `sqlitePath` (MANA_SQLITE_PATH) swaps them for SQLite-backed
+  // repos on one Database. Firestore wins over SQLite when both are set
+  // (Functions have no durable disk). Explicit repo deps always win, so tests
+  // can mix implementations freely.
   const sqlite = deps.sqlitePath
     ? createSqliteRepos(openSqliteDatabase(deps.sqlitePath))
     : null;
+  const firestore = deps.firestoreDb
+    ? createFirestoreRepos(deps.firestoreDb)
+    : null;
 
-  const repo = deps.repo ?? sqlite?.sessionRepo ?? createMemorySessionRepo();
+  const repo =
+    deps.repo ??
+    firestore?.sessionRepo ??
+    sqlite?.sessionRepo ??
+    createMemorySessionRepo();
   const playerRepo =
-    deps.playerRepo ?? sqlite?.playerRepo ?? createMemoryPlayerRepo();
+    deps.playerRepo ??
+    firestore?.playerRepo ??
+    sqlite?.playerRepo ??
+    createMemoryPlayerRepo();
   const tokenRepo =
-    deps.tokenRepo ?? sqlite?.tokenRepo ?? createMemoryTokenRepo();
+    deps.tokenRepo ??
+    firestore?.tokenRepo ??
+    sqlite?.tokenRepo ??
+    createMemoryTokenRepo();
   const ghostRepo =
-    deps.ghostRepo ?? sqlite?.ghostRepo ?? createMemoryGhostRepo();
+    deps.ghostRepo ??
+    firestore?.ghostRepo ??
+    sqlite?.ghostRepo ??
+    createMemoryGhostRepo();
   const ratingRepo =
-    deps.ratingRepo ?? sqlite?.ratingRepo ?? createMemoryRatingRepo();
+    deps.ratingRepo ??
+    firestore?.ratingRepo ??
+    sqlite?.ratingRepo ??
+    createMemoryRatingRepo();
   const playerStatsRepo =
     deps.playerStatsRepo ??
+    firestore?.playerStatsRepo ??
     sqlite?.playerStatsRepo ??
     createMemoryPlayerStatsRepo();
+  const idempotencyRepo =
+    deps.idempotencyRepo ??
+    firestore?.idempotencyRepo ??
+    sqlite?.idempotencyRepo ??
+    createMemoryIdempotencyRepo();
 
   const app = express();
 
@@ -180,6 +221,7 @@ export function createApp(deps: AppDeps = {}): express.Express {
       ratingRepo,
       playerRepo,
       playerStatsRepo,
+      idempotencyRepo,
     }),
   );
 

@@ -7,7 +7,8 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 
 ## Layout
 
-- `src/index.ts` — entry: config → app → listen, graceful shutdown
+- `src/index.ts` — entry: config → app → listen, graceful shutdown (VM/bare-metal path)
+- `src/functions.ts` — Firebase Functions entry (`api` 2nd-gen HTTPS trigger wrapping `createApp`); plan: [docs/firebase-backend.md](../docs/firebase-backend.md)
 - `src/app.ts` — express app assembly (routes + middleware)
 - `src/config.ts` — env parsing (`PORT`, `HOST`, `MANA_SQLITE_PATH`, `MANA_CORS_ORIGIN`, token TTL, Steam keys)
 - `src/dto.ts` — wire DTOs + request validation (uses core `CombatCodec`)
@@ -15,7 +16,7 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 - `src/http/routes/` — `sessions.ts`, `auth.ts`, `players.ts` (`GET /api/v1/players/me` — lobby profile)
 - `src/http/middleware/` — auth (Bearer), cors, errors, logging, rateLimit
 - `src/services/` — sessionService, authService, tokenService, steamAuth, itchAuth, matchmaking, rating, playerService (profile assembly)
-- `src/persistence/` — `repositories.ts` (repo interfaces), `memory.ts` (in-memory), `sqlite.ts` (better-sqlite3, durable); incl. `PlayerStatsRepo` (run completions → lobby victory stats)
+- `src/persistence/` — `repositories.ts` (async repo interfaces), `memory.ts` (in-memory), `sqlite.ts` (better-sqlite3, durable), `firestore.ts` (Functions backend: Admin SDK, lazy-loaded); incl. `PlayerStatsRepo` (run completions → lobby victory stats) and `IdempotencyRepo` (`clientActionId` retry store)
 
 ## Conventions & gotchas
 

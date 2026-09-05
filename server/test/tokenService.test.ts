@@ -54,48 +54,48 @@ describe("tokenService", () => {
   });
 
   describe("issueToken", () => {
-    it("persists only the hash — the plaintext is returned exactly once", () => {
+    it("persists only the hash — the plaintext is returned exactly once", async () => {
       const service = createTokenService(repo);
 
-      const token = service.issueToken("player-1");
+      const token = (await service.issueToken("player-1"));
 
       expect(typeof token).toBe("string");
-      expect(repo.findByHash(service.hashToken(token))).not.toBeNull();
+      expect((await repo.findByHash(service.hashToken(token)))).not.toBeNull();
       // The plaintext token never touches the repo.
-      expect(repo.findByHash(token)).toBeNull();
+      expect((await repo.findByHash(token))).toBeNull();
     });
 
-    it("defaults to the service-configured TTL", () => {
+    it("defaults to the service-configured TTL", async () => {
       const service = createTokenService(repo, 7);
 
       const now = Date.now();
-      const token = service.issueToken("player-1");
+      const token = (await service.issueToken("player-1"));
 
-      const record = repo.findByHash(service.hashToken(token))!;
+      const record = (await repo.findByHash(service.hashToken(token)))!;
       expect(record.expiresAt).toBeGreaterThanOrEqual(now + 7 * DAY_MS);
       expect(record.expiresAt).toBeLessThan(now + 8 * DAY_MS);
     });
 
-    it("honors an explicit ttlDays override", () => {
+    it("honors an explicit ttlDays override", async () => {
       const service = createTokenService(repo, 30);
 
       const now = Date.now();
-      const token = service.issueToken("player-1", 1);
+      const token = (await service.issueToken("player-1", 1));
 
-      const record = repo.findByHash(service.hashToken(token))!;
+      const record = (await repo.findByHash(service.hashToken(token)))!;
       expect(record.expiresAt).toBeGreaterThanOrEqual(now + DAY_MS);
       expect(record.expiresAt).toBeLessThan(now + 2 * DAY_MS);
     });
 
-    it("allows multiple tokens for the same player", () => {
+    it("allows multiple tokens for the same player", async () => {
       const service = createTokenService(repo);
 
-      const a = service.issueToken("player-1");
-      const b = service.issueToken("player-1");
+      const a = (await service.issueToken("player-1"));
+      const b = (await service.issueToken("player-1"));
 
       expect(a).not.toBe(b);
-      expect(repo.findByHash(service.hashToken(a))!.playerId).toBe("player-1");
-      expect(repo.findByHash(service.hashToken(b))!.playerId).toBe("player-1");
+      expect((await repo.findByHash(service.hashToken(a)))!.playerId).toBe("player-1");
+      expect((await repo.findByHash(service.hashToken(b)))!.playerId).toBe("player-1");
     });
   });
 });

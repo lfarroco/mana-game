@@ -21,7 +21,7 @@ export type TokenService = {
    * Persist the hash of a fresh token and return the plaintext exactly once.
    * `ttlDays` defaults to the service-configured lifetime.
    */
-  issueToken(playerId: string, ttlDays?: number): string;
+  issueToken(playerId: string, ttlDays?: number): Promise<string>;
 };
 
 export function createTokenService(
@@ -35,7 +35,7 @@ export function createTokenService(
   return {
     generateToken,
     hashToken,
-    issueToken(playerId, ttl = ttlDays) {
+    async issueToken(playerId, ttl = ttlDays) {
       const token = generateToken();
       const now = Date.now();
 
@@ -45,7 +45,7 @@ export function createTokenService(
         expiresAt: now + ttl * 24 * 60 * 60 * 1000,
         createdAt: now,
       };
-      repo.create(record);
+      await repo.create(record);
 
       return token;
     },

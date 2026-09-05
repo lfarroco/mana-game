@@ -110,22 +110,22 @@ describe("sqlite schema", () => {
 });
 
 describe("createSqliteSessionRepo", () => {
-  it("round-trips a session and re-attaches a combat state with the Map rebuilt", () => {
+  it("round-trips a session and re-attaches a combat state with the Map rebuilt", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteSessionRepo(db);
     const service = createSessionService(repo);
 
-    service.createSession("p1", { crystalId: "critical_crystal" });
-    service.handleAction("p1", { type: "skip" });
-    service.handleAction("p1", { type: "skip" });
-    service.handleAction("p1", { type: "skip" });
-    const result = service.handleAction("p1", { type: "start_combat" });
+    (await service.createSession("p1", { crystalId: "critical_crystal" }));
+    (await service.handleAction("p1", { type: "skip" }));
+    (await service.handleAction("p1", { type: "skip" }));
+    (await service.handleAction("p1", { type: "skip" }));
+    const result = (await service.handleAction("p1", { type: "start_combat" }));
 
     expect(result.session.phase).toBe("combat");
     expect(result.combatState).toBeDefined();
 
     // The stored session comes back with the live combat state re-attached.
-    const resumed = repo.get("p1")!;
+    const resumed = (await repo.get("p1"))!;
     expect(resumed.phase).toBe("combat");
     expect(resumed.combatState).toBeDefined();
     // The derived Map index survives the SQLite round-trip.
@@ -141,21 +141,21 @@ describe("createSqliteSessionRepo", () => {
 
     // end_combat transitions out of combat into the upgrade_core phase; the
     // stale combat row is not read.
-    service.handleAction("p1", { type: "end_combat" });
-    const next = repo.get("p1")!;
+    (await service.handleAction("p1", { type: "end_combat" }));
+    const next = (await repo.get("p1"))!;
     expect(next.phase).toBe("upgrade_core");
     expect(next.combatState).toBeUndefined();
 
     db.close();
   });
 
-  it("returns null for unknown players and deletes session + combat state", () => {
+  it("returns null for unknown players and deletes session + combat state", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteSessionRepo(db);
 
-    expect(repo.get("nobody")).toBeNull();
+    expect((await repo.get("nobody"))).toBeNull();
 
-    const session = createSessionService(repo).createSession("p1", {
+    const session = await createSessionService(repo).createSession("p1", {
       crystalId: "critical_crystal",
     });
     session.phase = "combat";
@@ -172,11 +172,11 @@ describe("createSqliteSessionRepo", () => {
       playerUnits: [makeUnit()],
       cpuUnits: [makeUnit()],
     };
-    repo.upsert("p1", session);
-    expect(repo.get("p1")!.combatState).toBeDefined();
+    (await repo.upsert("p1", session));
+    expect((await repo.get("p1"))!.combatState).toBeDefined();
 
-    repo.delete("p1");
-    expect(repo.get("p1")).toBeNull();
+    (await repo.delete("p1"));
+    expect((await repo.get("p1"))).toBeNull();
 
     db.close();
   });
@@ -195,28 +195,28 @@ function makeGhost(overrides: Partial<NewGhost> = {}): NewGhost {
 }
 
 describe("createSqlitePlayerRepo", () => {
-  it("round-trips a player and enforces UNIQUE(provider, provider_id)", () => {
+  it("round-trips a player and enforces UNIQUE(provider, provider_id)", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqlitePlayerRepo(db);
     const player = makePlayer();
 
-    repo.create(player);
+    (await repo.create(player));
 
-    expect(repo.findById(player.playerId)).toEqual(player);
-    expect(repo.findByProvider("steam", STEAM_ID_A)).toEqual(player);
+    expect((await repo.findById(player.playerId))).toEqual(player);
+    expect((await repo.findByProvider("steam", STEAM_ID_A))).toEqual(player);
 
     // Repeat login (same steam account) returns the existing player.
-    const secondAttempt = repo.create(makePlayer({ playerId: "player-2" }));
+    const secondAttempt = (await repo.create(makePlayer({ playerId: "player-2" })));
     expect(secondAttempt).toEqual(player);
-    expect(repo.findById("player-2")).toBeNull();
+    expect((await repo.findById("player-2"))).toBeNull();
 
-    expect(repo.findById("nobody")).toBeNull();
-    expect(repo.findByProvider("steam", "76561198000009999")).toBeNull();
+    expect((await repo.findById("nobody"))).toBeNull();
+    expect((await repo.findByProvider("steam", "76561198000009999"))).toBeNull();
 
     db.close();
   });
 
-  it("treats distinct steam accounts and distinct providers as distinct players", () => {
+  it("treats distinct steam accounts and distinct providers as distinct players", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqlitePlayerRepo(db);
 
@@ -231,40 +231,40 @@ describe("createSqlitePlayerRepo", () => {
       providerId: "guest-id",
     });
 
-    repo.create(momo);
-    repo.create(other);
-    repo.create(guest);
+    (await repo.create(momo));
+    (await repo.create(other));
+    (await repo.create(guest));
 
-    expect(repo.findById("p-1")).toEqual(momo);
-    expect(repo.findById("p-2")).toEqual(other);
-    expect(repo.findById("p-3")).toEqual(guest);
+    expect((await repo.findById("p-1"))).toEqual(momo);
+    expect((await repo.findById("p-2"))).toEqual(other);
+    expect((await repo.findById("p-3"))).toEqual(guest);
 
     db.close();
   });
 
-  it("stores players without a display name (nullable column)", () => {
+  it("stores players without a display name (nullable column)", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqlitePlayerRepo(db);
     const anonymous = makePlayer({ displayName: undefined });
 
-    repo.create(anonymous);
+    (await repo.create(anonymous));
 
-    expect(repo.findById(anonymous.playerId)).toEqual(anonymous);
+    expect((await repo.findById(anonymous.playerId))).toEqual(anonymous);
 
     db.close();
   });
 
-  it("updates the display name and stamps the rename cooldown timestamp", () => {
+  it("updates the display name and stamps the rename cooldown timestamp", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqlitePlayerRepo(db);
     const player = makePlayer({ displayName: "Momo" });
-    repo.create(player);
+    (await repo.create(player));
 
-    const updated = repo.updateDisplayName(
+    const updated = (await repo.updateDisplayName(
       player.playerId,
       "Renamed",
       1_752_500_000_000,
-    );
+    ));
 
     expect(updated).toEqual({
       ...player,
@@ -272,21 +272,21 @@ describe("createSqlitePlayerRepo", () => {
       displayNameUpdatedAt: 1_752_500_000_000,
     });
     // Persisted: a fresh read sees the new name + timestamp.
-    expect(repo.findById(player.playerId)).toEqual(updated);
+    expect((await repo.findById(player.playerId))).toEqual(updated);
 
     db.close();
   });
 
-  it("returns null from updateDisplayName for an unknown player", () => {
+  it("returns null from updateDisplayName for an unknown player", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqlitePlayerRepo(db);
 
-    expect(repo.updateDisplayName("nobody", "Xyz", Date.now())).toBeNull();
+    expect((await repo.updateDisplayName("nobody", "Xyz", Date.now()))).toBeNull();
 
     db.close();
   });
 
-  it("migrates an existing players table without the cooldown column", () => {
+  it("migrates an existing players table without the cooldown column", async () => {
     const db = openSqliteDatabase(":memory:");
     // Simulate a database created before the rename feature: drop the column
     // migration would have added (a fresh open already has it).
@@ -306,14 +306,14 @@ describe("createSqlitePlayerRepo", () => {
 
     // And the migrated repo persists renames.
     const player = makePlayer({ playerId: "p-migrated" });
-    repos.playerRepo.create(player);
-    const updated = repos.playerRepo.updateDisplayName(
+    (await repos.playerRepo.create(player));
+    const updated = (await repos.playerRepo.updateDisplayName(
       "p-migrated",
       "NewName",
       1_752_500_000_000,
-    );
+    ));
     expect(updated?.displayName).toBe("NewName");
-    expect(repos.playerRepo.findById("p-migrated")?.displayNameUpdatedAt).toBe(
+    expect((await repos.playerRepo.findById("p-migrated"))?.displayNameUpdatedAt).toBe(
       1_752_500_000_000,
     );
 
@@ -322,77 +322,77 @@ describe("createSqlitePlayerRepo", () => {
 });
 
 describe("createSqliteTokenRepo", () => {
-  it("stores a token and finds it by hash", () => {
+  it("stores a token and finds it by hash", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteTokenRepo(db);
     const record = makeToken();
 
-    repo.create(record);
+    (await repo.create(record));
 
-    expect(repo.findByHash("hash-1")).toEqual(record);
-    expect(repo.findByHash("unknown")).toBeNull();
+    expect((await repo.findByHash("hash-1"))).toEqual(record);
+    expect((await repo.findByHash("unknown"))).toBeNull();
 
     db.close();
   });
 
-  it("allows multiple tokens per player (one per device/launch)", () => {
+  it("allows multiple tokens per player (one per device/launch)", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteTokenRepo(db);
 
-    repo.create(makeToken({ tokenHash: "hash-1", playerId: "p1" }));
-    repo.create(makeToken({ tokenHash: "hash-2", playerId: "p1" }));
+    (await repo.create(makeToken({ tokenHash: "hash-1", playerId: "p1" })));
+    (await repo.create(makeToken({ tokenHash: "hash-2", playerId: "p1" })));
 
-    expect(repo.findByHash("hash-1")?.playerId).toBe("p1");
-    expect(repo.findByHash("hash-2")?.playerId).toBe("p1");
+    expect((await repo.findByHash("hash-1"))?.playerId).toBe("p1");
+    expect((await repo.findByHash("hash-2"))?.playerId).toBe("p1");
 
     db.close();
   });
 });
 
 describe("createSqliteGhostRepo", () => {
-  it("round-trips ghosts (team as JSON) and finds them by round", () => {
+  it("round-trips ghosts (team as JSON) and finds them by round", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteGhostRepo(db);
 
-    const ghost = repo.create(makeGhost());
+    const ghost = (await repo.create(makeGhost()));
     expect(ghost.ghostId).not.toBe("");
 
-    const roundOne = repo.findByRound(1);
+    const roundOne = (await repo.findByRound(1));
     expect(roundOne).toEqual([ghost]);
     // The team array is JSON round-tripped, not aliased.
     expect(roundOne[0].team).toEqual(makeGhost().team);
-    expect(repo.findByRound(2)).toEqual([]);
+    expect((await repo.findByRound(2))).toEqual([]);
 
     db.close();
   });
 
-  it("caps the recently-fought list at 20 (FIFO, oldest first)", () => {
+  it("caps the recently-fought list at 20 (FIFO, oldest first)", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteGhostRepo(db);
 
     for (let i = 0; i < 25; i++) {
-      repo.recordMatchup("p1", `opp-${i}`);
+      (await repo.recordMatchup("p1", `opp-${i}`));
     }
 
-    const opponents = repo.getRecentOpponents("p1");
+    const opponents = (await repo.getRecentOpponents("p1"));
     expect(opponents).toHaveLength(20);
     expect(opponents[0]).toBe("opp-5"); // oldest kept (25 - 20)
     expect(opponents[19]).toBe("opp-24"); // most recent at the end
-    expect(repo.getRecentOpponents("nobody")).toEqual([]);
+    expect((await repo.getRecentOpponents("nobody"))).toEqual([]);
 
     db.close();
   });
 
-  it("moves a re-recorded opponent to the most-recent end", () => {
+  it("moves a re-recorded opponent to the most-recent end", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteGhostRepo(db);
 
     for (let i = 0; i < 20; i++) {
-      repo.recordMatchup("p1", `opp-${i}`);
+      (await repo.recordMatchup("p1", `opp-${i}`));
     }
-    repo.recordMatchup("p1", "opp-10"); // already in the list
+    (await repo.recordMatchup("p1", "opp-10")); // already in the list
 
-    const opponents = repo.getRecentOpponents("p1");
+    const opponents = (await repo.getRecentOpponents("p1"));
     expect(opponents).toHaveLength(20);
     expect(opponents[19]).toBe("opp-10");
     expect(opponents.filter((id) => id === "opp-10")).toHaveLength(1); // moved, not duplicated
@@ -401,34 +401,34 @@ describe("createSqliteGhostRepo", () => {
     db.close();
   });
 
-  it("keeps recently-fought lists isolated per player", () => {
+  it("keeps recently-fought lists isolated per player", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteGhostRepo(db);
 
-    repo.recordMatchup("p1", "opp-a");
-    repo.recordMatchup("p2", "opp-b");
+    (await repo.recordMatchup("p1", "opp-a"));
+    (await repo.recordMatchup("p2", "opp-b"));
 
-    expect(repo.getRecentOpponents("p1")).toEqual(["opp-a"]);
-    expect(repo.getRecentOpponents("p2")).toEqual(["opp-b"]);
+    expect((await repo.getRecentOpponents("p1"))).toEqual(["opp-a"]);
+    expect((await repo.getRecentOpponents("p2"))).toEqual(["opp-b"]);
 
     db.close();
   });
 });
 
 describe("createSqliteRatingRepo", () => {
-  it("round-trips a rating and updates in place", () => {
+  it("round-trips a rating and updates in place", async () => {
     const db = openSqliteDatabase(":memory:");
     const repo = createSqliteRatingRepo(db);
 
-    expect(repo.get("p1")).toBeNull();
+    expect((await repo.get("p1"))).toBeNull();
 
     const first: Rating = { playerId: "p1", rating: 1000, updatedAt: 111 };
-    repo.upsert(first);
-    expect(repo.get("p1")).toEqual(first);
+    (await repo.upsert(first));
+    expect((await repo.get("p1"))).toEqual(first);
 
     const second: Rating = { playerId: "p1", rating: 1006, updatedAt: 222 };
-    repo.upsert(second);
-    expect(repo.get("p1")).toEqual(second);
+    (await repo.upsert(second));
+    expect((await repo.get("p1"))).toEqual(second);
 
     db.close();
   });
@@ -489,8 +489,8 @@ describe("restart survival", () => {
       expect(started.body.combatState).toBeDefined();
 
       // Side tables written by the flow: ghost snapshot + default rating.
-      expect(first.repos.ghostRepo.findByRound(1)).toHaveLength(1);
-      expect(first.repos.ratingRepo.get(player.playerId)?.rating).toBe(1000);
+      expect((await first.repos.ghostRepo.findByRound(1))).toHaveLength(1);
+      expect((await first.repos.ratingRepo.get(player.playerId))?.rating).toBe(1000);
 
       // --- "kill": close the database connection ---
       first.db.close();
@@ -500,10 +500,10 @@ describe("restart survival", () => {
 
       // Player identity, rating, ghost snapshot survived.
       expect(
-        second.repos.playerRepo.findById(player.playerId)?.providerId,
+        (await second.repos.playerRepo.findById(player.playerId))?.providerId,
       ).toBe(STEAM_ID_A);
-      expect(second.repos.ratingRepo.get(player.playerId)?.rating).toBe(1000);
-      expect(second.repos.ghostRepo.findByRound(1)).toHaveLength(1);
+      expect((await second.repos.ratingRepo.get(player.playerId))?.rating).toBe(1000);
+      expect((await second.repos.ghostRepo.findByRound(1))).toHaveLength(1);
 
       // The ORIGINAL bearer token still authenticates (hash stored durably).
       const resumed = await request(second.app)

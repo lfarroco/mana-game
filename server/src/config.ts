@@ -48,6 +48,12 @@ export type ServerConfig = {
    * in-memory SQLite database. `null` (unset) keeps the in-memory repos.
    */
   sqlitePath: string | null;
+  /**
+   * MANA_FIRESTORE_PROJECT_ID — Firestore opt-in (the Firebase backend). When
+   * set, the server uses Firestore repos; when unset, the SQLite / in-memory
+   * selection applies. No data migration — Firestore starts as fresh datasets.
+   */
+  firestoreProjectId: string | null;
 };
 
 export function loadConfig(
@@ -78,6 +84,11 @@ export function loadConfig(
     sqlitePath:
       env["MANA_SQLITE_PATH"] && env["MANA_SQLITE_PATH"].trim() !== ""
         ? env["MANA_SQLITE_PATH"]
+        : null,
+    firestoreProjectId:
+      env["MANA_FIRESTORE_PROJECT_ID"] &&
+      env["MANA_FIRESTORE_PROJECT_ID"].trim() !== ""
+        ? env["MANA_FIRESTORE_PROJECT_ID"].trim()
         : null,
   };
 }

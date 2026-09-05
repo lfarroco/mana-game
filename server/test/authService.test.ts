@@ -56,45 +56,45 @@ beforeEach(() => {
 });
 
 describe("findOrCreatePlayer", () => {
-  it("creates a player and finds them by provider", () => {
-    const player = service.findOrCreatePlayer({
+  it("creates a player and finds them by provider", async () => {
+    const player = (await service.findOrCreatePlayer({
       provider: "steam",
       providerId: STEAM_ID_A,
       displayName: "Momo",
-    });
+    }));
 
     expect(player.playerId).not.toBe("");
     expect(player.provider).toBe("steam");
     expect(player.providerId).toBe(STEAM_ID_A);
     expect(player.displayName).toBe("Momo");
-    expect(playerRepo.findById(player.playerId)).toEqual(player);
+    expect((await playerRepo.findById(player.playerId))).toEqual(player);
   });
 
-  it("reuses the existing player on repeat login (UNIQUE(provider, provider_id))", () => {
-    const first = service.findOrCreatePlayer({
+  it("reuses the existing player on repeat login (UNIQUE(provider, provider_id))", async () => {
+    const first = (await service.findOrCreatePlayer({
       provider: "steam",
       providerId: STEAM_ID_A,
       displayName: "Momo",
-    });
-    const second = service.findOrCreatePlayer({
+    }));
+    const second = (await service.findOrCreatePlayer({
       provider: "steam",
       providerId: STEAM_ID_A,
       displayName: "Renamed",
-    });
+    }));
 
     expect(second.playerId).toBe(first.playerId);
-    expect(playerRepo.findByProvider("steam", STEAM_ID_A)).toEqual(first);
+    expect((await playerRepo.findByProvider("steam", STEAM_ID_A))).toEqual(first);
   });
 
-  it("keeps distinct steam accounts separate", () => {
-    const a = service.findOrCreatePlayer({
+  it("keeps distinct steam accounts separate", async () => {
+    const a = (await service.findOrCreatePlayer({
       provider: "steam",
       providerId: STEAM_ID_A,
-    });
-    const b = service.findOrCreatePlayer({
+    }));
+    const b = (await service.findOrCreatePlayer({
       provider: "steam",
       providerId: STEAM_ID_B,
-    });
+    }));
 
     expect(a.playerId).not.toBe(b.playerId);
   });
@@ -114,7 +114,7 @@ describe("login", () => {
 
     // Token is issued for the player and stored hashed.
     const tokenService = createTokenService(tokenRepo);
-    const record = tokenRepo.findByHash(tokenService.hashToken(result.token))!;
+    const record = (await tokenRepo.findByHash(tokenService.hashToken(result.token)))!;
     expect(record.playerId).toBe(result.player.playerId);
   });
 
@@ -136,8 +136,7 @@ describe("login", () => {
     await expect(service.login("guest", {})).rejects.toThrow(
       expect.objectContaining({ status: 400 }),
     );
-    await expect(
-      service.login("steam", { ticket: "valid-ticket" }),
+    await expect(service.login("steam", { ticket: "valid-ticket" }),
     ).resolves.toBeTruthy();
   });
 });

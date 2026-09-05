@@ -1,0 +1,30 @@
+{
+  "functions": [
+    {
+      "source": "server",
+      "codebase": "default",
+      "main": "dist/functions.cjs",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "data",
+        "test",
+        "src",
+        "*.log",
+        ".env*"
+      ],
+      "predeploy": ["npm --prefix server run build"]
+    }
+  ],
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8088
+    },
+    "ui": {
+      "enabled": false
+    }
+  }
+}

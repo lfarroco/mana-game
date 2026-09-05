@@ -3,7 +3,9 @@
  *
  * Stores state in Maps. Create a fresh repo per app instance via the
  * createMemory*Repo() factories — tests get fully isolated state and
- * `createApp()` gets a clean default.
+ * `createApp()` gets a clean default. Methods are async to match the
+ * repository interfaces (Firestore has no sync API); the work itself is
+ * still synchronous.
  */
 
 import type { SessionData } from "@game/types/session";
@@ -11,6 +13,8 @@ import { v4 as uuid } from "uuid";
 import type {
   Ghost,
   GhostRepo,
+  IdempotencyRecord,
+  IdempotencyRepo,
   NewGhost,
   Player,
   PlayerProvider,
@@ -20,22 +24,35 @@ import type {
   RatingRepo,
   RunCompletion,
   SessionRepo,
+  SessionUpdater,
   TokenRecord,
   TokenRepo,
   VictoryCounts,
 } from "./repositories";
+import type { ActionResponse } from "@game/types/action";
 
 export function createMemorySessionRepo(): SessionRepo {
   const sessions = new Map<string, SessionData>();
 
+  const applyUpdate = (
+    playerId: string,
+    updater: SessionUpdater,
+  ): ActionResponse => {
+    const result = updater(sessions.get(playerId) ?? null);
+    sessions.set(playerId, result.session);
+    return result;
+  };
+
   return {
-    get: (playerId) => sessions.get(playerId) ?? null,
-    upsert: (playerId, session) => {
+    get: async (playerId) => sessions.get(playerId) ?? null,
+    upsert: async (playerId, session) => {
       sessions.set(playerId, session);
     },
-    delete: (playerId) => {
+    delete: async (playerId) => {
       sessions.delete(playerId);
     },
+    // Single process: no contention, so apply directly.
+    update: async (playerId, updater) => applyUpdate(playerId, updater),
   };
 }
 
@@ -55,10 +72,10 @@ export function createMemoryPlayerRepo(): PlayerRepo {
     `${provider}:${providerId}`;
 
   return {
-    findByProvider: (provider, providerId) =>
+    findByProvider: async (provider, providerId) =>
       playersByProvider.get(providerKey(provider, providerId)) ?? null,
-    findById: (playerId) => playersById.get(playerId) ?? null,
-    create: (player) => {
+    findById: async (playerId) => playersById.get(playerId) ?? null,
+    create: async (player) => {
       const existing = playersByProvider.get(
         providerKey(player.provider, player.providerId),
       );
@@ -70,7 +87,7 @@ export function createMemoryPlayerRepo(): PlayerRepo {
       playersById.set(player.playerId, player);
       return player;
     },
-    updateDisplayName: (playerId, displayName, updatedAt) => {
+    updateDisplayName: async (playerId, displayName, updatedAt) => {
       const player = playersById.get(playerId);
       if (!player) return null;
       const updated: Player = {
@@ -97,10 +114,10 @@ export function createMemoryTokenRepo(): TokenRepo {
   const tokens = new Map<string, TokenRecord>();
 
   return {
-    create: (token) => {
+    create: async (token) => {
       tokens.set(token.tokenHash, token);
     },
-    findByHash: (tokenHash) => tokens.get(tokenHash) ?? null,
+    findByHash: async (tokenHash) => tokens.get(tokenHash) ?? null,
   };
 }
 
@@ -117,13 +134,14 @@ export function createMemoryGhostRepo(): GhostRepo {
   const recentlyFought = new Map<string, string[]>();
 
   return {
-    create: (ghost: NewGhost): Ghost => {
+    create: async (ghost: NewGhost): Promise<Ghost> => {
       const stored: Ghost = { ...ghost, ghostId: uuid() };
       ghosts.push(stored);
       return stored;
     },
-    findByRound: (round) => ghosts.filter((ghost) => ghost.round === round),
-    recordMatchup: (playerId, opponentPlayerId) => {
+    findByRound: async (round) =>
+      ghosts.filter((ghost) => ghost.round === round),
+    recordMatchup: async (playerId, opponentPlayerId) => {
       const current = recentlyFought.get(playerId) ?? [];
       // Move to the front (most recent) and cap the list.
       const next = [
@@ -132,7 +150,7 @@ export function createMemoryGhostRepo(): GhostRepo {
       ];
       recentlyFought.set(playerId, next.slice(-MAX_RECENT_OPPONENTS));
     },
-    getRecentOpponents: (playerId) => recentlyFought.get(playerId) ?? [],
+    getRecentOpponents: async (playerId) => recentlyFought.get(playerId) ?? [],
   };
 }
 
@@ -144,8 +162,8 @@ export function createMemoryRatingRepo(): RatingRepo {
   const ratings = new Map<string, Rating>();
 
   return {
-    get: (playerId) => ratings.get(playerId) ?? null,
-    upsert: (rating) => {
+    get: async (playerId) => ratings.get(playerId) ?? null,
+    upsert: async (rating) => {
       ratings.set(rating.playerId, rating);
     },
   };
@@ -160,12 +178,12 @@ export function createMemoryPlayerStatsRepo(): PlayerStatsRepo {
   const completions = new Map<string, RunCompletion>();
 
   return {
-    recordRunCompletion: (completion) => {
+    recordRunCompletion: async (completion) => {
       if (!completions.has(completion.sessionId)) {
         completions.set(completion.sessionId, completion);
       }
     },
-    getVictoryCounts: (playerId, sinceEpochMs) => {
+    getVictoryCounts: async (playerId, sinceEpochMs) => {
       const counts: VictoryCounts = { bronze: 0, silver: 0, gold: 0 };
       for (const completion of completions.values()) {
         if (
@@ -177,6 +195,29 @@ export function createMemoryPlayerStatsRepo(): PlayerStatsRepo {
         }
       }
       return counts;
+    },
+  };
+}
+
+/**
+ * In-memory idempotency store keyed by (playerId, key). Write-once per key:
+ * the first completed attempt wins, so a retried action replays the stored
+ * response instead of running the transition twice.
+ */
+export function createMemoryIdempotencyRepo(): IdempotencyRepo {
+  const records = new Map<string, IdempotencyRecord>();
+
+  const recordKey = (playerId: string, key: string): string =>
+    `${playerId}:${key}`;
+
+  return {
+    find: async (playerId, key) =>
+      records.get(recordKey(playerId, key)) ?? null,
+    save: async (record) => {
+      const k = recordKey(record.playerId, record.key);
+      if (!records.has(k)) {
+        records.set(k, record);
+      }
     },
   };
 }

@@ -65,7 +65,7 @@ describe("requireAuth", () => {
 
   it("rejects an expired token with 401 invalid_token", async () => {
     // issueToken with a negative TTL produces an already-expired record.
-    const token = createTokenService(tokenRepo).issueToken("player-1", -1);
+    const token = await createTokenService(tokenRepo).issueToken("player-1", -1);
 
     const res = await request(app)
       .get("/protected")
@@ -76,7 +76,7 @@ describe("requireAuth", () => {
   });
 
   it("attaches the player id for a valid token", async () => {
-    const token = createTokenService(tokenRepo).issueToken("player-1");
+    const token = await createTokenService(tokenRepo).issueToken("player-1");
 
     const res = await request(app)
       .get("/protected")
@@ -87,7 +87,7 @@ describe("requireAuth", () => {
   });
 
   it("accepts the Bearer scheme case-insensitively", async () => {
-    const token = createTokenService(tokenRepo).issueToken("player-1");
+    const token = await createTokenService(tokenRepo).issueToken("player-1");
 
     const res = await request(app)
       .get("/protected")
@@ -98,8 +98,8 @@ describe("requireAuth", () => {
   });
 
   it("only accepts tokens for a single playerId (no cross-account reuse)", async () => {
-    const tokenA = createTokenService(tokenRepo).issueToken("player-a");
-    const tokenB = createTokenService(tokenRepo).issueToken("player-b");
+    const tokenA = await createTokenService(tokenRepo).issueToken("player-a");
+    const tokenB = await createTokenService(tokenRepo).issueToken("player-b");
 
     const resA = await request(app)
       .get("/protected")

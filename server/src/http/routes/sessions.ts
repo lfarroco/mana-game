@@ -24,6 +24,7 @@ import type { SessionData } from "@game/types/session";
 import type { CombatState } from "@game/types/combat";
 import type {
   GhostRepo,
+  IdempotencyRepo,
   PlayerRepo,
   PlayerStatsRepo,
   RatingRepo,
@@ -39,6 +40,7 @@ export type SessionRouterDeps = {
   ratingRepo: RatingRepo;
   playerRepo: PlayerRepo;
   playerStatsRepo: PlayerStatsRepo;
+  idempotencyRepo: IdempotencyRepo;
 };
 
 export function sessionsRouter(deps: SessionRouterDeps): Router {
@@ -47,14 +49,15 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
     ratingRepo: deps.ratingRepo,
     playerRepo: deps.playerRepo,
     playerStatsRepo: deps.playerStatsRepo,
+    idempotencyRepo: deps.idempotencyRepo,
   });
   const router = Router();
 
   // POST /sessions — create a new multiplayer session (409 if one exists)
-  router.post("/", (req: Request, res: Response) => {
+  router.post("/", async (req: Request, res: Response) => {
     const playerId = getPlayerId(req);
     const request = parseCreateSessionBody(req.body);
-    const session = service.createSession(playerId, request);
+    const session = await service.createSession(playerId, request);
 
     res.status(201).json(toWireSession(session));
   });
@@ -63,9 +66,9 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
   // combat. Finished (terminal-phase) runs are intentionally not served: the
   // service returns null for them, so this 404s with `no_active_session` and
   // the player can only create a new session.
-  router.get("/current", (req: Request, res: Response) => {
+  router.get("/current", async (req: Request, res: Response) => {
     const playerId = getPlayerId(req);
-    const session = service.getSession(playerId);
+    const session = await service.getSession(playerId);
 
     if (!session) {
       res.status(404).json({
@@ -79,10 +82,10 @@ export function sessionsRouter(deps: SessionRouterDeps): Router {
   });
 
   // POST /sessions/current/actions — dispatch a single action
-  router.post("/current/actions", (req: Request, res: Response) => {
+  router.post("/current/actions", async (req: Request, res: Response) => {
     const playerId = getPlayerId(req);
-    const { action } = parseActionDispatchBody(req.body);
-    const result = service.handleAction(playerId, action);
+    const { action, clientActionId } = parseActionDispatchBody(req.body);
+    const result = await service.handleAction(playerId, action, clientActionId);
 
     const response: Record<string, unknown> = {
       session: toWireSession(result.session),

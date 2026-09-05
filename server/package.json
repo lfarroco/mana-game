@@ -4,6 +4,7 @@
   "private": true,
   "description": "Authoritative game server for Mana Battle multiplayer sessions.",
   "type": "module",
+  "main": "dist/functions.cjs",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -13,12 +14,18 @@
     "build": "tsup",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests",
-    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests --watch"
+    "test:watch": "NODE_OPTIONS='--experimental-vm-modules' npx jest --passWithNoTests --watch",
+    "deploy:functions": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "22"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.6.2",
+    "firebase-admin": "^14.3.0",
+    "firebase-functions": "^7.3.2",
     "uuid": "^14.0.1"
   },
   "devDependencies": {

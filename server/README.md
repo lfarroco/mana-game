@@ -192,12 +192,15 @@ All errors are `{ "error": "<code>", "message": "..." }`:
 | `MANA_AUTH_RATE_LIMIT_MAX` | `20`        | Per-IP request cap per window for the auth endpoints (`POST /auth/steam`, `POST /auth/itch`) |
 | `MANA_AUTH_RATE_LIMIT_WINDOW_MS` | `900000` | Rate-limit window (ms) for the auth endpoints              |
 | `MANA_SQLITE_PATH`     | —             | Opt into durable SQLite persistence (a database file path or `:memory:`); unset = in-memory repos |
+| `MANA_FIRESTORE_PROJECT_ID` | —          | Opt into Firestore persistence (the Firebase backend — wins over SQLite when both are set); unset = SQLite/memory selection |
 
 ## Persistence (Phase 4)
 
-Persistence is behind repository interfaces (`src/persistence/repositories.ts`)
-with two implementations: in-memory (`memory.ts`, the **default**) and durable
-SQLite via `better-sqlite3` (`sqlite.ts`).
+Persistence is behind repository interfaces (`src/persistence/repositories.ts`,
+all async) with three implementations: in-memory (`memory.ts`, the
+**default**), durable SQLite via `better-sqlite3` (`sqlite.ts`), and
+Firestore (`firestore.ts` — selected by `MANA_FIRESTORE_PROJECT_ID`, the
+Firebase backend; wins over SQLite when both are set).
 
 **Selection logic**: set `MANA_SQLITE_PATH` to a database file path (parent
 directory is auto-created, WAL journaling enabled) or `:memory:` to boot all
@@ -216,10 +219,13 @@ Schema (idempotent `CREATE TABLE IF NOT EXISTS`, created on boot):
 `players`, `tokens`, `sessions` (`SessionData` as JSON), `combat_states`
 (`CombatStateDto` via the core `CombatCodec` — the live `SessionData.combatState`
 carries a `Map` that plain JSON cannot hold, so it is stored separately and
-re-attached on load), `ghosts` + `recently_fought` (capped FIFO), `ratings`.
+re-attached on load), `ghosts` + `recently_fought` (capped FIFO), `ratings`,
+`run_completions`, `idempotency` (write-once `clientActionId` retry store).
 Session + combat rows are written in a single transaction; a kill/restart
 mid-run resumes via `GET /sessions/current` with the combat state intact
-(restart-survival test in `test/sqlite.test.ts`).
+(restart-survival test in `test/sqlite.test.ts`). The Firestore backend
+(`MANA_FIRESTORE_PROJECT_ID`) mirrors this shape as collections — see
+`src/persistence/firestore.ts` and `docs/firebase-backend.md`.
 
 ## Deployment (Ubuntu VM)
 

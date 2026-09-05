@@ -260,7 +260,7 @@ describe("POST /api/v1/sessions", () => {
       .send({ crystalId: CRYSTAL });
     expect(res.status).toBe(201);
 
-    expect(ratingRepo.get(playerId)).toEqual({
+    expect((await ratingRepo.get(playerId))).toEqual({
       playerId,
       rating: 1000,
       updatedAt: expect.any(Number),
@@ -466,7 +466,7 @@ describe("POST /api/v1/sessions/current/actions", () => {
     expect(res.body.combatState.units.length).toBeGreaterThan(0);
 
     // The player's team was snapshotted as a ghost for the current round.
-    const ghosts = ghostRepo.findByRound(1);
+    const ghosts = (await ghostRepo.findByRound(1));
     expect(ghosts).toHaveLength(1);
     expect(ghosts[0].playerId).toBe(playerId);
     expect(ghosts[0].team.length).toBeGreaterThan(0);
@@ -536,7 +536,7 @@ describe("POST /api/v1/sessions/current/actions", () => {
     expect(["victory", "game_over"]).toContain(terminal.phase);
 
     const wins = terminal.wins;
-    const rating = ratingRepo.get(playerId);
+    const rating = (await ratingRepo.get(playerId));
     expect(rating).not.toBeNull();
     expect(rating!.rating).toBe(1000 + getMultiplayerRatingDelta(wins));
   });

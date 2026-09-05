@@ -70,15 +70,15 @@ describe("getSeasonStartEpochMs", () => {
 });
 
 describe("getPlayerProfile", () => {
-  function makeDeps() {
+  async function makeDeps() {
     const playerRepo = createMemoryPlayerRepo();
-    playerRepo.create({
+    (await playerRepo.create({
       playerId: PLAYER_ID,
       provider: "steam",
       providerId: STEAM_ID,
       displayName: "Momo",
       createdAt: Date.now(),
-    });
+    }));
     return {
       playerRepo,
       ratingRepo: createMemoryRatingRepo(),
@@ -87,9 +87,9 @@ describe("getPlayerProfile", () => {
     };
   }
 
-  it("returns identity, default rating, zeroed stats, and no active session for a new player", () => {
-    const deps = makeDeps();
-    const profile = getPlayerProfile(PLAYER_ID, deps);
+  it("returns identity, default rating, zeroed stats, and no active session for a new player", async () => {
+    const deps = await makeDeps();
+    const profile = (await getPlayerProfile(PLAYER_ID, deps));
 
     expect(profile.player).toEqual({
       playerId: PLAYER_ID,
@@ -103,90 +103,90 @@ describe("getPlayerProfile", () => {
     expect(profile.hasActiveSession).toBe(false);
   });
 
-  it("reports rename availability: allowed for a never-changed player", () => {
-    const deps = makeDeps();
-    expect(getPlayerProfile(PLAYER_ID, deps).displayNameChange).toEqual({
+  it("reports rename availability: allowed for a never-changed player", async () => {
+    const deps = await makeDeps();
+    expect((await getPlayerProfile(PLAYER_ID, deps)).displayNameChange).toEqual({
       allowed: true,
     });
   });
 
-  it("reports rename availability: blocked with nextAllowedAt within the cooldown", () => {
-    const deps = makeDeps();
+  it("reports rename availability: blocked with nextAllowedAt within the cooldown", async () => {
+    const deps = await makeDeps();
     const changedAt = Date.now() - 1000;
-    deps.playerRepo.updateDisplayName(PLAYER_ID, "Fresh", changedAt);
+    (await deps.playerRepo.updateDisplayName(PLAYER_ID, "Fresh", changedAt));
 
-    const change = getPlayerProfile(PLAYER_ID, deps).displayNameChange;
+    const change = (await getPlayerProfile(PLAYER_ID, deps)).displayNameChange;
     expect(change.allowed).toBe(false);
     expect(change.nextAllowedAt).toBe(changedAt + NAME_CHANGE_COOLDOWN_MS);
   });
 
-  it("reports rename availability: allowed again once the cooldown has passed", () => {
-    const deps = makeDeps();
-    deps.playerRepo.updateDisplayName(
+  it("reports rename availability: allowed again once the cooldown has passed", async () => {
+    const deps = await makeDeps();
+    (await deps.playerRepo.updateDisplayName(
       PLAYER_ID,
       "Old",
       Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
-    );
+    ));
 
-    expect(getPlayerProfile(PLAYER_ID, deps).displayNameChange).toEqual({
+    expect((await getPlayerProfile(PLAYER_ID, deps)).displayNameChange).toEqual({
       allowed: true,
     });
   });
 
-  it("reports an active session for a mid-run phase and false for a finished run", () => {
-    const deps = makeDeps();
-    deps.sessionRepo.upsert(PLAYER_ID, makeSession({ phase: "combat" }));
-    expect(getPlayerProfile(PLAYER_ID, deps).hasActiveSession).toBe(true);
+  it("reports an active session for a mid-run phase and false for a finished run", async () => {
+    const deps = await makeDeps();
+    (await deps.sessionRepo.upsert(PLAYER_ID, makeSession({ phase: "combat" })));
+    expect((await getPlayerProfile(PLAYER_ID, deps)).hasActiveSession).toBe(true);
 
-    deps.sessionRepo.upsert(PLAYER_ID, makeSession({ phase: "victory" }));
-    expect(getPlayerProfile(PLAYER_ID, deps).hasActiveSession).toBe(false);
+    (await deps.sessionRepo.upsert(PLAYER_ID, makeSession({ phase: "victory" })));
+    expect((await getPlayerProfile(PLAYER_ID, deps)).hasActiveSession).toBe(false);
   });
 
-  it("separates career counts from the current-month season counts", () => {
-    const deps = makeDeps();
+  it("separates career counts from the current-month season counts", async () => {
+    const deps = await makeDeps();
     const now = Date.now();
     const seasonStart = getSeasonStartEpochMs(now);
     // Last month's gold (career-only) + this month's silver + bronze.
-    deps.playerStatsRepo.recordRunCompletion({
+    (await deps.playerStatsRepo.recordRunCompletion({
       sessionId: "old-gold",
       playerId: PLAYER_ID,
       tier: "gold",
       wins: 10,
       completedAt: seasonStart - 1,
-    });
-    deps.playerStatsRepo.recordRunCompletion({
+    }));
+    (await deps.playerStatsRepo.recordRunCompletion({
       sessionId: "season-silver",
       playerId: PLAYER_ID,
       tier: "silver",
       wins: 8,
       completedAt: now,
-    });
-    deps.playerStatsRepo.recordRunCompletion({
+    }));
+    (await deps.playerStatsRepo.recordRunCompletion({
       sessionId: "season-bronze",
       playerId: PLAYER_ID,
       tier: "bronze",
       wins: 5,
       completedAt: now,
-    });
+    }));
 
-    const profile = getPlayerProfile(PLAYER_ID, deps);
+    const profile = (await getPlayerProfile(PLAYER_ID, deps));
     expect(profile.career).toEqual({ bronze: 1, silver: 1, gold: 1 });
     expect(profile.season).toEqual({ bronze: 1, silver: 1, gold: 0 });
   });
 
-  it("reads the persisted rating when one exists", () => {
-    const deps = makeDeps();
-    deps.ratingRepo.upsert({
+  it("reads the persisted rating when one exists", async () => {
+    const deps = await makeDeps();
+    (await deps.ratingRepo.upsert({
       playerId: PLAYER_ID,
       rating: 1012,
       updatedAt: Date.now(),
-    });
-    expect(getPlayerProfile(PLAYER_ID, deps).rating).toBe(1012);
+    }));
+    expect((await getPlayerProfile(PLAYER_ID, deps)).rating).toBe(1012);
   });
 
-  it("throws player_not_found for an unknown player", () => {
-    const deps = makeDeps();
-    expect(() => getPlayerProfile("nobody", deps)).toThrow(
+  it("throws player_not_found for an unknown player", async () => {
+    const deps = await makeDeps();
+    await expect(getPlayerProfile("nobody", deps)).rejects.toThrow(
       expect.objectContaining({ status: 404, code: "player_not_found" }),
     );
   });
@@ -241,15 +241,15 @@ describe("validateDisplayName", () => {
 });
 
 describe("updateDisplayName", () => {
-  function makeDeps() {
+  async function makeDeps() {
     const playerRepo = createMemoryPlayerRepo();
-    playerRepo.create({
+    (await playerRepo.create({
       playerId: PLAYER_ID,
       provider: "steam",
       providerId: STEAM_ID,
       displayName: "Momo",
       createdAt: Date.now(),
-    });
+    }));
     return {
       playerRepo,
       ratingRepo: createMemoryRatingRepo(),
@@ -258,24 +258,24 @@ describe("updateDisplayName", () => {
     };
   }
 
-  it("renames a player and returns the refreshed profile", () => {
-    const deps = makeDeps();
-    const profile = updateDisplayName(PLAYER_ID, "  NovaMage  ", deps);
+  it("renames a player and returns the refreshed profile", async () => {
+    const deps = await makeDeps();
+    const profile = (await updateDisplayName(PLAYER_ID, "  NovaMage  ", deps));
 
     expect(profile.player.displayName).toBe("NovaMage");
     // The cooldown now applies.
     expect(profile.displayNameChange.allowed).toBe(false);
     expect(profile.displayNameChange.nextAllowedAt).toBeGreaterThan(Date.now());
     // Persisted to the repo.
-    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("NovaMage");
-    expect(deps.playerRepo.findById(PLAYER_ID)?.displayNameUpdatedAt).toBeDefined();
+    expect((await deps.playerRepo.findById(PLAYER_ID))?.displayName).toBe("NovaMage");
+    expect((await deps.playerRepo.findById(PLAYER_ID))?.displayNameUpdatedAt).toBeDefined();
   });
 
-  it("rejects a second change within the 30-day cooldown", () => {
-    const deps = makeDeps();
-    updateDisplayName(PLAYER_ID, "First", deps);
+  it("rejects a second change within the 30-day cooldown", async () => {
+    const deps = await makeDeps();
+    (await updateDisplayName(PLAYER_ID, "First", deps));
 
-    expect(() => updateDisplayName(PLAYER_ID, "Second", deps)).toThrow(
+    await expect(updateDisplayName(PLAYER_ID, "Second", deps)).rejects.toThrow(
       expect.objectContaining({
         status: 429,
         code: "name_change_cooldown",
@@ -283,45 +283,45 @@ describe("updateDisplayName", () => {
       }),
     );
     // The original name is untouched.
-    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("First");
+    expect((await deps.playerRepo.findById(PLAYER_ID))?.displayName).toBe("First");
   });
 
-  it("allows a change once the cooldown has expired", () => {
-    const deps = makeDeps();
-    deps.playerRepo.updateDisplayName(
+  it("allows a change once the cooldown has expired", async () => {
+    const deps = await makeDeps();
+    (await deps.playerRepo.updateDisplayName(
       PLAYER_ID,
       "Old",
       Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
-    );
+    ));
 
-    const profile = updateDisplayName(PLAYER_ID, "Fresh", deps);
+    const profile = (await updateDisplayName(PLAYER_ID, "Fresh", deps));
     expect(profile.player.displayName).toBe("Fresh");
     expect(profile.displayNameChange.allowed).toBe(false);
   });
 
-  it("validates the name before touching the player", () => {
-    const deps = makeDeps();
-    expect(() => updateDisplayName(PLAYER_ID, "", deps)).toThrow(
+  it("validates the name before touching the player", async () => {
+    const deps = await makeDeps();
+    await expect(updateDisplayName(PLAYER_ID, "", deps)).rejects.toThrow(
       expect.objectContaining({ code: "invalid_display_name" }),
     );
-    expect(deps.playerRepo.findById(PLAYER_ID)?.displayName).toBe("Momo");
+    expect((await deps.playerRepo.findById(PLAYER_ID))?.displayName).toBe("Momo");
     expect(
-      deps.playerRepo.findById(PLAYER_ID)?.displayNameUpdatedAt,
+      (await deps.playerRepo.findById(PLAYER_ID))?.displayNameUpdatedAt,
     ).toBeUndefined();
   });
 
-  it("throws player_not_found for an unknown player", () => {
-    const deps = makeDeps();
-    expect(() => updateDisplayName("nobody", "Nova", deps)).toThrow(
+  it("throws player_not_found for an unknown player", async () => {
+    const deps = await makeDeps();
+    await expect(updateDisplayName("nobody", "Nova", deps)).rejects.toThrow(
       expect.objectContaining({ status: 404, code: "player_not_found" }),
     );
   });
 
-  it("surfaces ApiError instances (not generic Errors)", () => {
-    const deps = makeDeps();
+  it("surfaces ApiError instances (not generic Errors)", async () => {
+    const deps = await makeDeps();
     let caught: unknown = null;
     try {
-      updateDisplayName(PLAYER_ID, "Bad\u0001Name", deps);
+      (await updateDisplayName(PLAYER_ID, "Bad\u0001Name", deps));
     } catch (err) {
       caught = err;
     }

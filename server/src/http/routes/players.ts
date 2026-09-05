@@ -35,23 +35,23 @@ export type PlayersRouterDeps = {
 export function playersRouter(deps: PlayersRouterDeps): Router {
   const router = Router();
 
-  router.get("/me", (req: Request, res: Response) => {
+  router.get("/me", async (req: Request, res: Response) => {
     const playerId = req.playerId;
     if (!playerId) {
       // Defensive guard — requireAuth guarantees this on mounted routes.
       throw new ApiError(401, "missing_token", "Missing player identity");
     }
-    res.json(getPlayerProfile(playerId, deps));
+    res.json(await getPlayerProfile(playerId, deps));
   });
 
-  router.patch("/me", (req: Request, res: Response) => {
+  router.patch("/me", async (req: Request, res: Response) => {
     const playerId = req.playerId;
     if (!playerId) {
       // Defensive guard — requireAuth guarantees this on mounted routes.
       throw new ApiError(401, "missing_token", "Missing player identity");
     }
     const { displayName } = parseUpdateDisplayNameBody(req.body);
-    res.json(updateDisplayName(playerId, displayName, deps));
+    res.json(await updateDisplayName(playerId, displayName, deps));
   });
 
   return router;

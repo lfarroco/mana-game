@@ -330,14 +330,14 @@ describe("resolveOpponent", () => {
 });
 
 describe("createMemoryGhostRepo", () => {
-  it("caps the recently-fought list per player (FIFO)", () => {
+  it("caps the recently-fought list per player (FIFO)", async () => {
     const ghostRepo = createMemoryGhostRepo();
 
     for (let i = 1; i <= 25; i++) {
-      ghostRepo.recordMatchup("me", `opponent-${i}`);
+      (await ghostRepo.recordMatchup("me", `opponent-${i}`));
     }
 
-    const recent = ghostRepo.getRecentOpponents("me");
+    const recent = (await ghostRepo.getRecentOpponents("me"));
     expect(recent).toHaveLength(20);
     // Oldest entries fell off; the newest are kept (most recent last).
     expect(recent[0]).toBe("opponent-6");
@@ -345,12 +345,12 @@ describe("createMemoryGhostRepo", () => {
     expect(recent).not.toContain("opponent-1");
   });
 
-  it("dedupes a re-fought opponent to the front of the list", () => {
+  it("dedupes a re-fought opponent to the front of the list", async () => {
     const ghostRepo = createMemoryGhostRepo();
-    ghostRepo.recordMatchup("me", "a");
-    ghostRepo.recordMatchup("me", "b");
-    ghostRepo.recordMatchup("me", "a");
+    (await ghostRepo.recordMatchup("me", "a"));
+    (await ghostRepo.recordMatchup("me", "b"));
+    (await ghostRepo.recordMatchup("me", "a"));
 
-    expect(ghostRepo.getRecentOpponents("me")).toEqual(["b", "a"]);
+    expect((await ghostRepo.getRecentOpponents("me"))).toEqual(["b", "a"]);
   });
 });

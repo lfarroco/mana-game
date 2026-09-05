@@ -1,18 +1,42 @@
 /**
  * Repository interfaces for server persistence.
  *
- * v1 uses in-memory implementations (memory.ts). Phase 4 adds durable SQLite
- * implementations behind the same interfaces so the app layer never changes.
+ * All methods are async (Firestore has no sync API). Three backends implement
+ * them — in-memory (memory.ts, tests/dev), durable SQLite (sqlite.ts, the VM
+ * path), and Firestore (firestore.ts, the Firebase backend) — so the app
+ * layer never changes.
  */
 
 import type { SessionData } from "@game/types/session";
 import type { Unit } from "@game/types/unit";
+import type { ActionResponse } from "@game/types/action";
 
-/** Session repository keyed by player id — one active session per player. */
+/**
+ * Atomic read-modify-write on one player's session. The updater is pure —
+ * backends may retry it under contention (Firestore transactions do), so it
+ * must not perform side effects (no ghost/rating writes inside). It throws
+ * `ApiError` for missing/finished sessions and rejected actions, exactly as
+ * the old get-then-upsert sequence did.
+ */
+export type SessionUpdater = (current: SessionData | null) => ActionResponse;
+
+/**
+ * Session repository keyed by player id — one active session per player.
+ * All methods are async: Firestore (the Functions backend) has no sync API,
+ * and the in-memory/SQLite backends wrap their sync work in promises so the
+ * app layer sees one shape.
+ */
 export type SessionRepo = {
-  get(playerId: string): SessionData | null;
-  upsert(playerId: string, session: SessionData): void;
-  delete(playerId: string): void;
+  get(playerId: string): Promise<SessionData | null>;
+  upsert(playerId: string, session: SessionData): Promise<void>;
+  delete(playerId: string): Promise<void>;
+  /**
+   * Run `updater` against the stored session and persist the returned
+   * session atomically. On Firestore this is a transaction (serializes
+   * concurrent actions from the same player across instances); on SQLite a
+   * write transaction; on memory (single process) a plain apply.
+   */
+  update(playerId: string, updater: SessionUpdater): Promise<ActionResponse>;
 };
 
 /**
@@ -57,9 +81,12 @@ export type Player = {
  * the (provider, providerId) pair is already known).
  */
 export type PlayerRepo = {
-  findByProvider(provider: PlayerProvider, providerId: string): Player | null;
-  findById(playerId: string): Player | null;
-  create(player: Player): Player;
+  findByProvider(
+    provider: PlayerProvider,
+    providerId: string,
+  ): Promise<Player | null>;
+  findById(playerId: string): Promise<Player | null>;
+  create(player: Player): Promise<Player>;
   /**
    * Set the display name and stamp `displayNameUpdatedAt` (the 30-day rename
    * cooldown). Returns the updated player, or null when the player does not
@@ -70,7 +97,7 @@ export type PlayerRepo = {
     playerId: string,
     displayName: string,
     updatedAt: number,
-  ): Player | null;
+  ): Promise<Player | null>;
 };
 
 /**
@@ -90,8 +117,8 @@ export type TokenRecord = {
 
 /** Token repository keyed by token hash. A player may hold multiple tokens. */
 export type TokenRepo = {
-  create(token: TokenRecord): void;
-  findByHash(tokenHash: string): TokenRecord | null;
+  create(token: TokenRecord): Promise<void>;
+  findByHash(tokenHash: string): Promise<TokenRecord | null>;
 };
 
 /**
@@ -125,15 +152,15 @@ export type NewGhost = Omit<Ghost, "ghostId">;
  * (in-memory v1; SQLite in Phase 4).
  */
 export type GhostRepo = {
-  create(ghost: NewGhost): Ghost;
-  findByRound(round: number): Ghost[];
+  create(ghost: NewGhost): Promise<Ghost>;
+  findByRound(round: number): Promise<Ghost[]>;
   /**
    * Remember that `playerId` fought `opponentPlayerId` (a ghost owner). The
    * list is capped per player; entries fall off as newer matchups are added.
    */
-  recordMatchup(playerId: string, opponentPlayerId: string): void;
+  recordMatchup(playerId: string, opponentPlayerId: string): Promise<void>;
   /** Opponent player ids this player recently fought, oldest first. */
-  getRecentOpponents(playerId: string): string[];
+  getRecentOpponents(playerId: string): Promise<string[]>;
 };
 
 /**
@@ -150,8 +177,8 @@ export type Rating = {
 
 /** Rating repository keyed by player id — one rating per player. */
 export type RatingRepo = {
-  get(playerId: string): Rating | null;
-  upsert(rating: Rating): void;
+  get(playerId: string): Promise<Rating | null>;
+  upsert(rating: Rating): Promise<void>;
 };
 
 /**
@@ -196,7 +223,39 @@ export type VictoryCounts = {
  */
 export type PlayerStatsRepo = {
   /** Record a completed run. Must be idempotent per sessionId. */
-  recordRunCompletion(completion: RunCompletion): void;
+  recordRunCompletion(completion: RunCompletion): Promise<void>;
   /** Count tiered victories completed at or after `sinceEpochMs`. */
-  getVictoryCounts(playerId: string, sinceEpochMs: number): VictoryCounts;
+  getVictoryCounts(
+    playerId: string,
+    sinceEpochMs: number,
+  ): Promise<VictoryCounts>;
+};
+
+/**
+ * Action-idempotency record — lets clients safely retry an action after a
+ * timeout (common on serverless cold starts). The stored payload is the
+ * wire response: the session JSON (without the live Map-carrying
+ * CombatState) plus the serialized combat DTO, so a replay returns bytes
+ * identical to the first attempt.
+ */
+export type IdempotencyRecord = {
+  playerId: string;
+  /** Client-supplied `clientActionId` for one action dispatch. */
+  key: string;
+  /** `SessionData` (combat state stripped) as JSON. */
+  sessionJson: string;
+  /** Serialized `CombatStateDto` as JSON, or null when no combat resulted. */
+  combatJson: string | null;
+  /** Epoch milliseconds. */
+  createdAt: number;
+};
+
+/**
+ * Action-idempotency store keyed by (playerId, key). Entries are
+ * write-once per key — the first completed attempt wins; concurrent
+ * duplicates resolve to the same stored response.
+ */
+export type IdempotencyRepo = {
+  find(playerId: string, key: string): Promise<IdempotencyRecord | null>;
+  save(record: IdempotencyRecord): Promise<void>;
 };

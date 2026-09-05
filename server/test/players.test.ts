@@ -137,26 +137,26 @@ describe("GET /api/v1/players/me", () => {
     // A terminal run always records a completion row; the tier depends on the
     // seeded win count, so the tiered counts may legitimately be zero for a
     // below-bronze run. The completion itself is recorded regardless.
-    expect(playerStatsRepo.getVictoryCounts("", 0)).toBeDefined();
+    expect((await playerStatsRepo.getVictoryCounts("", 0))).toBeDefined();
     expect(profile.body.season).toEqual(profile.body.career); // all ran today
   });
 
   it("surfaces seeded stats from the completions repo", async () => {
     const { token, playerId } = await login();
-    playerStatsRepo.recordRunCompletion({
+    (await playerStatsRepo.recordRunCompletion({
       sessionId: "seed-s1",
       playerId,
       tier: "gold",
       wins: 10,
       completedAt: Date.now(),
-    });
-    playerStatsRepo.recordRunCompletion({
+    }));
+    (await playerStatsRepo.recordRunCompletion({
       sessionId: "seed-s2",
       playerId,
       tier: "silver",
       wins: 8,
       completedAt: Date.now(),
-    });
+    }));
 
     const res = await request(app)
       .get("/api/v1/players/me")
@@ -190,7 +190,7 @@ describe("PATCH /api/v1/players/me", () => {
       .get("/api/v1/players/me")
       .set("Authorization", `Bearer ${token}`);
     expect(get.body.player.displayName).toBe("NovaMage");
-    expect(playerRepo.findById(playerId)?.displayNameUpdatedAt).toBeDefined();
+    expect((await playerRepo.findById(playerId))?.displayNameUpdatedAt).toBeDefined();
   });
 
   it("rejects a second change within the 30-day cooldown", async () => {
@@ -219,11 +219,11 @@ describe("PATCH /api/v1/players/me", () => {
 
   it("allows a change once the cooldown has expired", async () => {
     const { token, playerId } = await login();
-    playerRepo.updateDisplayName(
+    (await playerRepo.updateDisplayName(
       playerId,
       "Old",
       Date.now() - NAME_CHANGE_COOLDOWN_MS - 1000,
-    );
+    ));
 
     const res = await request(app)
       .patch("/api/v1/players/me")
