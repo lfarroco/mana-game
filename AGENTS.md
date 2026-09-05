@@ -52,6 +52,8 @@ its own `package.json` — run from inside that directory):
 Single test file: `npx jest src/path/ToFile.test.ts --runInBand` from the
 package directory. Full command reference: [docs/building-and-running.md](docs/building-and-running.md).
 
+Format check without writes: `npm run format:check` from the repo root.
+
 ## Coding Standards
 
 Key rules:
