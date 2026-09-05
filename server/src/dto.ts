@@ -191,6 +191,62 @@ export const MAX_DISPLAY_NAME_WIRE_LENGTH = 100;
  * pathologically long. The semantic rules (trimmed length, control
  * characters, the 30-day cooldown) live in `playerService.updateDisplayName`.
  */
+/**
+ * Ranking page size: the lobby renders 20 rows per page. The cap bounds a
+ * single response while still allowing larger clients to fetch more.
+ */
+export const DEFAULT_RANKING_PAGE_SIZE = 20;
+export const MAX_RANKING_PAGE_SIZE = 50;
+
+export type RankingQueryRequest = {
+  page: number;
+  pageSize: number;
+};
+
+/**
+ * Parse the `GET /api/v1/players/ranking` query string. Both params are
+ * optional (`page` defaults to 1, `pageSize` to 20); non-integer or
+ * out-of-range values (`page < 1`, `pageSize < 1` or above the max) are
+ * rejected with 400 `invalid_request`. A repeated param uses its first value.
+ */
+export function parseRankingQuery(query: unknown): RankingQueryRequest {
+  const raw = asRecord(query);
+  return {
+    page: parsePositiveInt(raw.page, 1, "page", Number.MAX_SAFE_INTEGER),
+    pageSize: parsePositiveInt(
+      raw.pageSize,
+      DEFAULT_RANKING_PAGE_SIZE,
+      "pageSize",
+      MAX_RANKING_PAGE_SIZE,
+    ),
+  };
+}
+
+/** Parse an optional positive-integer query param (absent/"" = default). */
+function parsePositiveInt(
+  value: unknown,
+  defaultValue: number,
+  name: string,
+  max: number,
+): number {
+  if (value === undefined || value === "") return defaultValue;
+  const text = Array.isArray(value) ? value[0] : value;
+  const parsed =
+    typeof text === "number"
+      ? text
+      : typeof text === "string"
+        ? Number(text)
+        : NaN;
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > max) {
+    throw new ApiError(
+      400,
+      "invalid_request",
+      `${name} must be an integer between 1 and ${max}`,
+    );
+  }
+  return parsed;
+}
+
 export function parseUpdateDisplayNameBody(
   body: unknown,
 ): UpdateDisplayNameRequest {

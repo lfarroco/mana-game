@@ -477,20 +477,36 @@ export function createSqliteRatingRepo(db: Database.Database): RatingRepo {
        rating = excluded.rating,
        updated_at = excluded.updated_at`,
   );
+  const listTopStmt = db.prepare(
+    `SELECT player_id, rating, updated_at FROM ratings
+     ORDER BY rating DESC, player_id ASC LIMIT ? OFFSET ?`,
+  );
+  const countStmt = db.prepare("SELECT COUNT(*) AS count FROM ratings");
+  const countAboveStmt = db.prepare(
+    `SELECT COUNT(*) AS count FROM ratings
+     WHERE rating > ? OR (rating = ? AND player_id < ?)`,
+  );
+
+  const rowToRating = (row: RatingRow) => ({
+    playerId: row.player_id,
+    rating: row.rating,
+    updatedAt: row.updated_at,
+  });
 
   return {
     get: async (playerId) => {
       const row = getStmt.get(playerId) as RatingRow | undefined;
       if (!row) return null;
-      return {
-        playerId: row.player_id,
-        rating: row.rating,
-        updatedAt: row.updated_at,
-      };
+      return rowToRating(row);
     },
     upsert: async (rating) => {
       upsertStmt.run(rating.playerId, rating.rating, rating.updatedAt);
     },
+    listTop: async (limit, offset) =>
+      (listTopStmt.all(limit, offset) as RatingRow[]).map(rowToRating),
+    count: async () => (countStmt.get() as { count: number }).count,
+    countAbove: async (rating, playerId) =>
+      (countAboveStmt.get(rating, rating, playerId) as { count: number }).count,
   };
 }
 

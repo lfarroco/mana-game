@@ -161,11 +161,24 @@ export function createMemoryGhostRepo(): GhostRepo {
 export function createMemoryRatingRepo(): RatingRepo {
   const ratings = new Map<string, Rating>();
 
+  /** Leaderboard order: rating DESC, playerId ASC tiebreak. */
+  const sorted = (): Rating[] =>
+    [...ratings.values()].sort(
+      (a, b) => b.rating - a.rating || (a.playerId < b.playerId ? -1 : 1),
+    );
+
   return {
     get: async (playerId) => ratings.get(playerId) ?? null,
     upsert: async (rating) => {
       ratings.set(rating.playerId, rating);
     },
+    listTop: async (limit, offset) => sorted().slice(offset, offset + limit),
+    count: async () => ratings.size,
+    countAbove: async (rating, playerId) =>
+      sorted().filter(
+        (r) =>
+          r.rating > rating || (r.rating === rating && r.playerId < playerId),
+      ).length,
   };
 }
 

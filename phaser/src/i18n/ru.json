@@ -550,5 +550,15 @@
 	"unlock_description.windlash_serpent": "Получите золотую победу с Быстрым камнем, чтобы разблокировать Ветрохлещущего змея.",
 	"upgradeCrystal.title": "Улучшить кристалл",
 	"winsDisplay.description": "Вы получаете бонус за 5, 8 и 10 побед.",
-	"winsDisplay.title": "Победы"
+	"winsDisplay.title": "Победы",
+	"lobby.tabLobby": "ЛОББИ",
+	"lobby.tabRanking": "РЕЙТИНГ",
+	"lobby.ranking": "РЕЙТИНГ",
+	"lobby.yourRanking": "Ваше место: №{rank}",
+	"lobby.rankingLoading": "Загрузка рейтинга…",
+	"lobby.rankingEmpty": "Пока нет игроков в рейтинге.",
+	"lobby.rankingPrev": "НАЗАД",
+	"lobby.rankingNext": "ДАЛЕЕ",
+	"lobby.rankingPage": "Страница {page} из {total}",
+	"lobby.rankingFailed": "Не удалось загрузить рейтинг."
 }

@@ -434,6 +434,21 @@ type GhostDoc = {
 export function createFirestoreRatingRepo(db: Firestore): RatingRepo {
   const ratings = db.collection("ratings");
 
+  // All ratings (ratings are clamped to >= 0, so this matches every row).
+  // The single-field `>=` query keeps the file's index-free guarantee and
+  // works against the in-memory fake in firestore.test.ts.
+  const readAllRatings = async (): Promise<Rating[]> => {
+    const snap = await ratings.where("rating", ">=", 0).get();
+    return snap.docs.map((doc) => {
+      const data = doc.data() as { rating: number; updatedAt: number };
+      return {
+        playerId: doc.id,
+        rating: data.rating,
+        updatedAt: data.updatedAt,
+      };
+    });
+  };
+
   return {
     get: async (playerId) => {
       const snap = await ratings.doc(playerId).get();
@@ -452,6 +467,23 @@ export function createFirestoreRatingRepo(db: Firestore): RatingRepo {
         updatedAt: rating.updatedAt,
       });
     },
+    listTop: async (limit, offset) => {
+      // Index-free like the rest of this file: read all ratings and sort
+      // client-side (rating sets are small). Leaderboard order is rating
+      // DESC with a playerId ASC tiebreak.
+      const all = await readAllRatings();
+      return all
+        .sort(
+          (a, b) => b.rating - a.rating || (a.playerId < b.playerId ? -1 : 1),
+        )
+        .slice(offset, offset + limit);
+    },
+    count: async () => (await readAllRatings()).length,
+    countAbove: async (rating, playerId) =>
+      (await readAllRatings()).filter(
+        (r) =>
+          r.rating > rating || (r.rating === rating && r.playerId < playerId),
+      ).length,
   };
 }
 

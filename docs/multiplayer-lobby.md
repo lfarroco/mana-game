@@ -16,19 +16,49 @@ login). This doc is the reference for the code comments in `playerService.ts`,
 
 After login (Steam, itch.io, or Google) the player used to land directly in
 crystal selection (or straight into a mid-run session). The multiplayer lobby
-is a hub between the title screen and a multiplayer run that shows:
+is a hub between the title screen and a multiplayer run with two tabs —
+**LOBBY** (first) and **RANKING** — plus an adaptive PLAY button and BACK that
+stay visible on both tabs. The LOBBY tab shows:
 
 - **identity** — display name (falling back to the provider id), provider badge,
 - **rating** — the current ladder rating (starts at `DEFAULT_PLAYER_RATING`
   = 1000),
 - **career + season victory counts** — gold/silver/bronze runs completed, all
   time vs. since the 1st of the current month (UTC),
-- **an adaptive PLAY button** — "RESUME" when the server has a resumable run,
-  "NEW GAME" otherwise, plus BACK to the title screen,
 - **rename** — a CHANGE NAME button (with a countdown hint while the 30-day
   cooldown applies) so players can pick a handle instead of their provider
   name — Google sign-in surfaces the Google profile (real) name by default,
   which is exactly what players want to replace.
+
+The **RANKING** tab shows the rating leaderboard: "Your ranking: #x" in gold
+above a paginated list (20 rows per page in two columns of ten, PREV/NEXT +
+"Page x of y"), with the viewer's own row highlighted. PLAY ("RESUME" when
+the server has a resumable run, "NEW GAME" otherwise) and BACK stay visible
+on both tabs.
+
+## Endpoint — `GET /api/v1/players/ranking`
+
+Bearer-authenticated. Query params `page` (default 1) and `pageSize`
+(default 20, max 50) — anything else is `400 invalid_request`. Response:
+
+```ts
+type RankingPage = {
+  entries: { rank: number; playerId: string; displayName: string; rating: number }[];
+  page: number;
+  pageSize: number;
+  totalPlayers: number; // includes the viewer when they have no rating row yet
+  totalPages: number;
+  yourRank: number;     // exact even before the viewer's first run
+  yourRating: number;   // the default rating when the viewer has no row yet
+};
+```
+
+Leaderboard order is rating DESC with a playerId ASC tiebreak
+(`RatingRepo.listTop` / `count` / `countAbove`, implemented by all three
+backends). Entry names resolve through the player repo with the same
+display-name-or-provider-id fallback as the lobby. The viewer's rank is
+`1 + countAbove(effectiveRating, viewerId)`, so it needs no rating row —
+a player who never played still sees their (default-rated) position.
 
 ## Endpoint — `GET /api/v1/players/me`
 
@@ -140,6 +170,13 @@ type RunCompletion = {
   RESUME / NEW GAME decision. RESUME fetches the session
   (`remoteServer.getSession`), patches client state, and enters the
   battleground — including mid-combat (`combatState`).
+- `rankingPanel.ts` — the RANKING tab content: the golden "Your ranking: #x"
+  header, the two-column paginated leaderboard (lazy first fetch on tab show,
+  PREV/NEXT refetch, stale-response guard via a generation counter +
+  destroyed flag), and the 401 → re-login path via the screen's `goToLogin`.
+  The screen wraps the old panels in one `lobbyContent` container and toggles
+  it against the ranking container with LOBBY/RANKING tab buttons (the active
+  tab's button is disabled); PLAY/BACK stay outside both tabs.
 - i18n: all `lobby.*` keys (incl. the `rename*` family) exist in all six
   catalogs (`en`, `es`, `jp`, `pt`, `cn`, `ru`).
 
@@ -147,12 +184,12 @@ type RunCompletion = {
 
 | Area | Files |
 |---|---|
-| Server endpoints | `server/src/http/routes/players.ts` (`GET` + `PATCH /me`), `server/src/services/playerService.ts` (profile assembly + rename validation/cooldown) |
+| Server endpoints | `server/src/http/routes/players.ts` (`GET` + `PATCH /me`, `GET /ranking`), `server/src/services/playerService.ts` (profile assembly + rename validation/cooldown + `getRankingPage`), `server/src/dto.ts` (`parseRankingQuery`) |
 | Server persistence | `server/src/persistence/repositories.ts` (`PlayerRepo.updateDisplayName`, `Player.displayNameUpdatedAt`), `memory.ts`, `sqlite.ts` (incl. `display_name_updated_at` migration) |
 | Server wiring | `server/src/app.ts` (player router + `playerStatsRepo` dep), `server/src/services/sessionService.ts` (completion recording), `server/src/services/rating.ts` (tier type re-export), `server/src/dto.ts` (`parseUpdateDisplayNameBody`), `server/src/errors.ts` (`invalid_display_name`, `name_change_cooldown`) |
-| Server tests | `server/test/players.test.ts`, `playerService.test.ts`, `playerStatsRepo.test.ts`, `sessionFlow.test.ts`, `sqlite.test.ts`, `dto.test.ts` |
-| Client adapter | `phaser/src/RemoteServer.ts` (`getProfile`, `updateDisplayName`, `MultiplayerProfile` + shape guard), `RemoteServer.test.ts` |
-| Client screen | `phaser/src/Screens/MultiplayerLobby/` (`MultiplayerLobbyScreen.ts` + `Components/`: `profilePanel.ts`, `statsPanel.ts`, `actionButtons.ts`, `changeName.ts`, `renameModal.ts`) |
+| Server tests | `server/test/players.test.ts`, `playerService.test.ts`, `playerStatsRepo.test.ts`, `sessionFlow.test.ts`, `sqlite.test.ts`, `dto.test.ts`, `ranking.test.ts` (leaderboard HTTP: order, pagination, viewer rank, fallbacks, validation) |
+| Client adapter | `phaser/src/RemoteServer.ts` (`getProfile`, `updateDisplayName`, `getRanking`, `MultiplayerProfile`/`RankingPage` + shape guards), `RemoteServer.test.ts` |
+| Client screen | `phaser/src/Screens/MultiplayerLobby/` (`MultiplayerLobbyScreen.ts` (LOBBY/RANKING tabs) + `Components/`: `profilePanel.ts`, `statsPanel.ts`, `actionButtons.ts`, `changeName.ts`, `renameModal.ts`, `rankingPanel.ts`) |
 | Client wiring | `phaser/src/Screens/Title/Components/arenaButton.ts`, `Screens/ScreenManager.ts` (route), `Client.ts` (registry), `i18n/*.json` |
 
 ## Verification
@@ -163,7 +200,9 @@ cd phaser && npm run test:ci && npm run typecheck && npm run lint
 ```
 
 Manual smoke (Steam Electron, itch web, or Google Android/web): title →
-MULTIPLAYER → login → lobby shows the profile/rating/stats → CHANGE NAME opens
+MULTIPLAYER → login → lobby shows the profile/rating/stats → RANKING tab
+shows "Your ranking: #x" + the leaderboard (PREV/NEXT page through it) →
+CHANGE NAME opens
 the modal → a valid name updates the panel and shows the countdown hint; a
 second attempt within 30 days is rejected with the cooldown message (and the
 button stays disabled with "Next change available: <date>"). NEW GAME goes to

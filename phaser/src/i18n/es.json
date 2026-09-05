@@ -550,5 +550,15 @@
 	"unlock_description.windlash_serpent": "Consigue una Victoria de Oro con Piedra Veloz para desbloquear a la Serpiente Latigaviento.",
 	"upgradeCrystal.title": "Mejorar Cristal",
 	"winsDisplay.description": "Obtienes una bonificación por 5, 8 y 10 victorias.",
-	"winsDisplay.title": "Victorias"
+	"winsDisplay.title": "Victorias",
+	"lobby.tabLobby": "SALA",
+	"lobby.tabRanking": "CLASIFICACIÓN",
+	"lobby.ranking": "CLASIFICACIÓN",
+	"lobby.yourRanking": "Tu puesto: n.º {rank}",
+	"lobby.rankingLoading": "Cargando clasificación…",
+	"lobby.rankingEmpty": "Aún no hay jugadores clasificados.",
+	"lobby.rankingPrev": "ANT.",
+	"lobby.rankingNext": "SIG.",
+	"lobby.rankingPage": "Página {page} de {total}",
+	"lobby.rankingFailed": "No se pudo cargar la clasificación."
 }

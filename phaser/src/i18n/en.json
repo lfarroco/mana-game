@@ -784,5 +784,15 @@
 	"unlock_description.windlash_serpent": "Get a Gold Victory with Quickstone to unlock Windlash Serpent.",
 	"upgradeCrystal.title": "Upgrade Crystal",
 	"winsDisplay.description": "You get a bonus for 5, 8 and 10 wins.",
-	"winsDisplay.title": "Wins"
+	"winsDisplay.title": "Wins",
+	"lobby.tabLobby": "LOBBY",
+	"lobby.tabRanking": "RANKING",
+	"lobby.ranking": "RANKING",
+	"lobby.yourRanking": "Your ranking: #{rank}",
+	"lobby.rankingLoading": "Loading ranking…",
+	"lobby.rankingEmpty": "No ranked players yet.",
+	"lobby.rankingPrev": "PREV",
+	"lobby.rankingNext": "NEXT",
+	"lobby.rankingPage": "Page {page} of {total}",
+	"lobby.rankingFailed": "Could not load the ranking."
 }

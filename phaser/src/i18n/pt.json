@@ -550,5 +550,15 @@
 	"unlock_description.windlash_serpent": "Consiga uma Vitória Ouro com Pedra-Rápida para desbloquear Serpente Açoitadora.",
 	"upgradeCrystal.title": "Melhorar Cristal",
 	"winsDisplay.description": "Você ganha um bônus por 5, 8 e 10 vitórias.",
-	"winsDisplay.title": "Vitórias"
+	"winsDisplay.title": "Vitórias",
+	"lobby.tabLobby": "SAGUÃO",
+	"lobby.tabRanking": "CLASSIFICAÇÃO",
+	"lobby.ranking": "CLASSIFICAÇÃO",
+	"lobby.yourRanking": "Sua posição: n.º {rank}",
+	"lobby.rankingLoading": "Carregando classificação…",
+	"lobby.rankingEmpty": "Ainda não há jogadores classificados.",
+	"lobby.rankingPrev": "ANT.",
+	"lobby.rankingNext": "PRÓX.",
+	"lobby.rankingPage": "Página {page} de {total}",
+	"lobby.rankingFailed": "Não foi possível carregar a classificação."
 }

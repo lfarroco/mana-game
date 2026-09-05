@@ -75,6 +75,12 @@ export type RemoteServer = {
 	 * can re-render in one round trip.
 	 */
 	updateDisplayName(displayName: string): Promise<MultiplayerProfile>;
+	/**
+	 * Rating leaderboard page (`GET /api/v1/players/ranking?page=&pageSize=`).
+	 * The lobby's ranking tab renders 20 rows per page with the viewer's own
+	 * rank above the list.
+	 */
+	getRanking(page: number, pageSize?: number): Promise<RankingPage>;
 };
 
 /** Tiered victory counts from the lobby profile endpoint. */
@@ -148,6 +154,53 @@ function isVictoryCounts(value: unknown): value is MultiplayerVictoryCounts {
 		typeof value.bronze === "number" &&
 		typeof value.silver === "number" &&
 		typeof value.gold === "number"
+	);
+}
+
+/** One leaderboard row from `GET /api/v1/players/ranking`. */
+export type RankingEntry = {
+	rank: number;
+	playerId: string;
+	displayName: string;
+	rating: number;
+};
+
+/** A page of the rating leaderboard (20 rows per page in the lobby). */
+export type RankingPage = {
+	entries: RankingEntry[];
+	page: number;
+	pageSize: number;
+	totalPlayers: number;
+	totalPages: number;
+	yourRank: number;
+	yourRating: number;
+};
+
+/** Default page size used by the lobby's ranking tab. */
+export const RANKING_PAGE_SIZE = 20;
+
+function isRankingEntry(value: unknown): value is RankingEntry {
+	if (!isRecord(value)) return false;
+	return (
+		typeof value.rank === "number" &&
+		typeof value.playerId === "string" &&
+		typeof value.displayName === "string" &&
+		typeof value.rating === "number"
+	);
+}
+
+/** Shape-guard for the ranking payload (`GET /api/v1/players/ranking`). */
+function isRankingPage(value: unknown): value is RankingPage {
+	if (!isRecord(value)) return false;
+	return (
+		Array.isArray(value.entries) &&
+		value.entries.every(isRankingEntry) &&
+		typeof value.page === "number" &&
+		typeof value.pageSize === "number" &&
+		typeof value.totalPlayers === "number" &&
+		typeof value.totalPages === "number" &&
+		typeof value.yourRank === "number" &&
+		typeof value.yourRating === "number"
 	);
 }
 
@@ -321,6 +374,16 @@ export function createRemoteServer(deps: RemoteServerDeps = {}): RemoteServer {
 			});
 			if (!isMultiplayerProfile(payload)) {
 				throw new Error("Game server returned an unexpected profile payload");
+			}
+			return payload;
+		},
+
+		async getRanking(page: number, pageSize: number = RANKING_PAGE_SIZE): Promise<RankingPage> {
+			const payload = await request(`/api/v1/players/ranking?page=${page}&pageSize=${pageSize}`, {
+				method: "GET",
+			});
+			if (!isRankingPage(payload)) {
+				throw new Error("Game server returned an unexpected ranking payload");
 			}
 			return payload;
 		},

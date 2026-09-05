@@ -549,5 +549,15 @@
 	"unlock_description.windlash_serpent": "クイックストーンでゴールド勝利を達成すると、ウインドラッシュサーペントがアンロックされます。",
 	"upgradeCrystal.title": "クリスタル強化",
 	"winsDisplay.description": "5、8、10勝でボーナスを獲得できます。",
-	"winsDisplay.title": "勝利数"
+	"winsDisplay.title": "勝利数",
+	"lobby.tabLobby": "ロビー",
+	"lobby.tabRanking": "ランキング",
+	"lobby.ranking": "ランキング",
+	"lobby.yourRanking": "あなたの順位: {rank}位",
+	"lobby.rankingLoading": "ランキングを読み込み中…",
+	"lobby.rankingEmpty": "まだランク入りしたプレイヤーはいません。",
+	"lobby.rankingPrev": "前へ",
+	"lobby.rankingNext": "次へ",
+	"lobby.rankingPage": "{page} / {total} ページ",
+	"lobby.rankingFailed": "ランキングを読み込めませんでした。"
 }

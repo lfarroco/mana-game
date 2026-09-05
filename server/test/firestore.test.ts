@@ -359,6 +359,24 @@ describe("firestore rating + stats + idempotency repos", () => {
     expect((await repos.ratingRepo.get("p1"))?.rating).toBe(1004);
   });
 
+  it("pages the leaderboard in rating-DESC order with playerId tiebreak", async () => {
+    const repos = makeRepos();
+    await repos.ratingRepo.upsert({ playerId: "b", rating: 1000, updatedAt: 1 });
+    await repos.ratingRepo.upsert({ playerId: "a", rating: 1000, updatedAt: 1 });
+    await repos.ratingRepo.upsert({ playerId: "c", rating: 1200, updatedAt: 1 });
+
+    expect(await repos.ratingRepo.count()).toBe(3);
+    expect((await repos.ratingRepo.listTop(2, 0)).map((r) => r.playerId)).toEqual([
+      "c",
+      "a",
+    ]);
+    expect((await repos.ratingRepo.listTop(2, 2)).map((r) => r.playerId)).toEqual([
+      "b",
+    ]);
+    expect(await repos.ratingRepo.countAbove(1000, "b")).toBe(2);
+    expect(await repos.ratingRepo.countAbove(1200, "c")).toBe(0);
+  });
+
   it("records run completions idempotently and counts windows", async () => {
     const repos = makeRepos();
     const completion = {

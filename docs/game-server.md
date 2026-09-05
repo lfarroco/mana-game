@@ -88,6 +88,7 @@ Base path `/api/v1`. JSON in/out. Auth via `Authorization: Bearer <token>` for e
 | POST | `/auth/itch` | `{ token }` → `{ player, token }` | itch.io OAuth token login (web build) — validates via `api.itch.io/profile`; see [itchio-auth.md](itchio-auth.md) |
 | POST | `/auth/google` | `{ idToken }` → `{ player, token }` | Google OIDC ID-token login (Android build) — validates via Google tokeninfo with an `aud` check; see [android-multiplayer.md](android-multiplayer.md) |
 | GET | `/players/me` | → `PlayerProfile` | authenticated lobby profile — identity, rating, career + season victory counts, active-session flag; see [multiplayer-lobby.md](multiplayer-lobby.md) |
+| GET | `/players/ranking?page=&pageSize=` | → `RankingPage` | paginated rating leaderboard (default 20/page, max 50) — entries with rank + display name, plus the viewer's own rank; see [multiplayer-lobby.md](multiplayer-lobby.md) |
 | POST | `/players` | `{ displayName? }` → `{ playerId, token }` | guest account; token returned once — **future phase**, not part of the Steam-only launch |
 | POST | `/sessions` | `{ crystalId, queueType? }` → `SessionData` | creates an MP session; one **active** session per player (409 if one exists) — a finished run does **not** block a new one |
 | GET | `/sessions/current` | → `SessionData` (+ `combatState?` while `phase === "combat"`) | resume/reconnect; 404 if none **or the run has finished** (finished sessions are never served) |
@@ -110,7 +111,7 @@ is **no client-delete endpoint** (no `DELETE /sessions/current`).
   - `POST /sessions` succeeds again — the finished session is superseded by
     the new one (the player can only create a new session).
 
-Later (Phase 5): `GET /leaderboard`, and agent endpoints reviving the removed `agentGameServer` surface (`POST /games`, `GET /games/:id/state`, `POST /games/:id/choices`, …). `GET /players/me` (the multiplayer-lobby profile) was pulled forward and is **done** — see [multiplayer-lobby.md](multiplayer-lobby.md).
+Later (Phase 5): agent endpoints reviving the removed `agentGameServer` surface (`POST /games`, `GET /games/:id/state`, `POST /games/:id/choices`, …). `GET /players/me` (the multiplayer-lobby profile) was pulled forward and is **done**, and the leaderboard arrived as `GET /api/v1/players/ranking` (rating-ordered, paginated) — see [multiplayer-lobby.md](multiplayer-lobby.md).
 
 ### Wire format
 

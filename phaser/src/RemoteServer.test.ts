@@ -415,4 +415,50 @@ describe("RemoteServer HTTP adapter", () => {
 		expect(options.options).toEqual([]);
 		expect(options.team).toEqual({ units: [] });
 	});
+
+	it("fetches a ranking page via GET /players/ranking with page params", async () => {
+		const rankingBody = {
+			entries: [
+				{ rank: 1, playerId: "player-9", displayName: "Nova", rating: 1120 },
+				{ rank: 2, playerId: "player-1", displayName: "Momo", rating: 1012 },
+			],
+			page: 2,
+			pageSize: 20,
+			totalPlayers: 22,
+			totalPages: 2,
+			yourRank: 2,
+			yourRating: 1012,
+		};
+		const fetchMock = createFetchMock(200, rankingBody);
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		const page = await server.getRanking(2);
+
+		const [url, init] = callsOf(fetchMock)[0];
+		expect(url).toBe(`${DEFAULT_SERVER_URL}/api/v1/players/ranking?page=2&pageSize=20`);
+		expect(init.method).toBe("GET");
+		expect(init.headers?.Authorization).toBe("Bearer tok-123");
+		expect(page).toEqual(rankingBody);
+	});
+
+	it("rejects a ranking payload with a malformed entry", async () => {
+		const fetchMock = createFetchMock(200, {
+			entries: [{ rank: 1, playerId: "player-9", rating: "high" }],
+			page: 1,
+			pageSize: 20,
+			totalPlayers: 1,
+			totalPages: 1,
+			yourRank: 1,
+			yourRating: 1120,
+		});
+		const server = createRemoteServer({
+			fetch: fetchMock as unknown as typeof fetch,
+			getBearerToken: () => "tok-123",
+		});
+
+		await expect(server.getRanking(1)).rejects.toThrow(/unexpected ranking payload/);
+	});
 });

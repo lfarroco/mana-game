@@ -179,6 +179,20 @@ export type Rating = {
 export type RatingRepo = {
   get(playerId: string): Promise<Rating | null>;
   upsert(rating: Rating): Promise<void>;
+  /**
+   * Top ratings in leaderboard order (rating DESC, playerId ASC tiebreak),
+   * paginated. Powers `GET /api/v1/players/ranking` (20 per page).
+   */
+  listTop(limit: number, offset: number): Promise<Rating[]>;
+  /** Number of stored ratings (players who have a rating row). */
+  count(): Promise<number>;
+  /**
+   * Number of stored ratings ordered strictly above `(rating, playerId)` in
+   * leaderboard order — i.e. `rating` greater, or equal with a smaller
+   * playerId. The viewer's rank is `1 + countAbove(...)`, which also works
+   * for players with no rating row yet (effective rating = default).
+   */
+  countAbove(rating: number, playerId: string): Promise<number>;
 };
 
 /**

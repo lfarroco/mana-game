@@ -550,5 +550,15 @@
 	"unlock_description.windlash_serpent": "使用速石获得金牌胜利以解锁风鞭巨蛇。",
 	"upgradeCrystal.title": "升级水晶",
 	"winsDisplay.description": "你在 5、8 和 10 胜时获得奖励。",
-	"winsDisplay.title": "胜利"
+	"winsDisplay.title": "胜利",
+	"lobby.tabLobby": "大厅",
+	"lobby.tabRanking": "排行榜",
+	"lobby.ranking": "排行榜",
+	"lobby.yourRanking": "你的排名: 第{rank}名",
+	"lobby.rankingLoading": "排行榜加载中…",
+	"lobby.rankingEmpty": "暂无上榜玩家。",
+	"lobby.rankingPrev": "上一页",
+	"lobby.rankingNext": "下一页",
+	"lobby.rankingPage": "第{page}页, 共{total}页",
+	"lobby.rankingFailed": "无法加载排行榜。"
 }

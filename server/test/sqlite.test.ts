@@ -432,6 +432,24 @@ describe("createSqliteRatingRepo", () => {
 
     db.close();
   });
+
+  it("pages the leaderboard in rating-DESC order with playerId tiebreak", async () => {
+    const db = openSqliteDatabase(":memory:");
+    const repo = createSqliteRatingRepo(db);
+
+    await repo.upsert({ playerId: "b", rating: 1000, updatedAt: 1 });
+    await repo.upsert({ playerId: "a", rating: 1000, updatedAt: 1 });
+    await repo.upsert({ playerId: "c", rating: 1200, updatedAt: 1 });
+
+    expect(await repo.count()).toBe(3);
+    expect((await repo.listTop(2, 0)).map((r) => r.playerId)).toEqual(["c", "a"]);
+    expect((await repo.listTop(2, 2)).map((r) => r.playerId)).toEqual(["b"]);
+    expect(await repo.countAbove(1000, "b")).toBe(2);
+    expect(await repo.countAbove(1000, "a")).toBe(1);
+    expect(await repo.countAbove(1200, "c")).toBe(0);
+
+    db.close();
+  });
 });
 
 describe("createApp with SQLite persistence", () => {

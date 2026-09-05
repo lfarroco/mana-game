@@ -7,6 +7,7 @@ import * as profilePanel from "./Components/profilePanel";
 import * as statsPanel from "./Components/statsPanel";
 import * as actionButtons from "./Components/actionButtons";
 import * as changeName from "./Components/changeName";
+import * as rankingPanel from "./Components/rankingPanel";
 import * as renameModal from "./Components/renameModal";
 import { createEvent } from "@game/Models";
 import { createScreen, ScreenCtx, screenModule, type Destroyable } from "@mana/framework";
@@ -55,6 +56,11 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 		currentProfile = null;
 		identityPanel = null;
 		changeNameElement = null;
+		rankingElement = null;
+		lobbyContent = null;
+		lobbyTabBtn = null;
+		rankingTabBtn = null;
+		activeTab = "lobby";
 		const elements: Destroyable[] = [];
 
 		const background = cloudsBg.create();
@@ -97,7 +103,9 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 			);
 			changeNameElement = changeNameSection;
 
-			elements.push(
+			// Lobby tab content: the previous full-screen panels, wrapped so
+			// the tab switch toggles them with one setVisible call.
+			const content = env.container([
 				identity.container,
 				changeNameSection.container,
 				statsPanel.create({
@@ -110,8 +118,42 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 					counts: profile.season,
 					position: [constants.MIDDLE_SCREEN_X + 640, 420],
 				}),
+			]);
+			lobbyContent = content;
+
+			const ranking = rankingPanel.create(profile, {
+				onAuthError: () => goToLogin(),
+			});
+			rankingElement = ranking;
+
+			// Tab row sits 10px above the content below (buttons are 60 high,
+			// so their bottom edge lands at y=200, just clear of the panels).
+			lobbyTabBtn = UIButton.create({
+				text: i18n.t("lobby.tabLobby"),
+				position: [constants.MIDDLE_SCREEN_X - 190, 170],
+				width: 340,
+				callback: () => {
+					if (activeTab !== "lobby") showTab("lobby");
+				},
+			});
+			rankingTabBtn = UIButton.create({
+				text: i18n.t("lobby.tabRanking"),
+				position: [constants.MIDDLE_SCREEN_X + 190, 170],
+				width: 340,
+				callback: () => {
+					if (activeTab !== "ranking") showTab("ranking");
+				},
+			});
+
+			elements.push(
+				content,
+				ranking.container,
+				lobbyTabBtn.container,
+				rankingTabBtn.container,
+				// PLAY / BACK stay visible on both tabs.
 				...actionButtons.create(ctx, hasActiveRun)
 			);
+			showTab("lobby");
 		} catch (err) {
 			loading.destroy();
 			if (handleAuthExpired(err)) return;
@@ -133,11 +175,44 @@ let currentProfile: MultiplayerProfile | null = null;
 let identityPanel: profilePanel.ProfilePanelElement | null = null;
 let changeNameElement: changeName.ChangeNameElement | null = null;
 
+/** Lobby tabs — the profile/stats panels live in "lobby", the leaderboard in "ranking". */
+type LobbyTab = "lobby" | "ranking";
+let activeTab: LobbyTab = "lobby";
+let lobbyContent: Phaser.GameObjects.Container | null = null;
+let rankingElement: rankingPanel.RankingPanelElement | null = null;
+let lobbyTabBtn: UIButton.Button | null = null;
+let rankingTabBtn: UIButton.Button | null = null;
+
+/** Switch tabs: toggle the content containers and mark the active tab button. */
+function showTab(tab: LobbyTab): void {
+	activeTab = tab;
+	const showLobby = tab === "lobby";
+	lobbyContent?.setVisible(showLobby);
+	if (showLobby) {
+		rankingElement?.hide();
+	} else {
+		rankingElement?.show();
+	}
+	if (showLobby) {
+		lobbyTabBtn?.disable();
+		rankingTabBtn?.enable();
+	} else {
+		lobbyTabBtn?.enable();
+		rankingTabBtn?.disable();
+	}
+}
+
 const cleanup = () => {
 	hasActiveRun = false;
 	currentProfile = null;
 	identityPanel = null;
 	changeNameElement = null;
+	rankingElement?.destroy();
+	rankingElement = null;
+	lobbyContent = null;
+	lobbyTabBtn = null;
+	rankingTabBtn = null;
+	activeTab = "lobby";
 	renameModal.destroy();
 };
 
@@ -222,11 +297,16 @@ async function resumeActiveRun(): Promise<void> {
  */
 function handleAuthExpired(err: unknown): boolean {
 	if (err instanceof RemoteServerError && err.status === 401) {
-		authSession.clearSession();
-		void getScreenManager().go("multiplayer_login");
+		goToLogin();
 		return true;
 	}
 	return false;
+}
+
+/** Clear the stale session and send the player back to the login screen. */
+function goToLogin(): void {
+	authSession.clearSession();
+	void getScreenManager().go("multiplayer_login");
 }
 
 /** Small dismissible modal for lobby load/action errors. */

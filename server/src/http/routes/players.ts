@@ -1,7 +1,8 @@
 /**
  * Player routes — the authenticated profile endpoint for the multiplayer lobby
- * (`GET /api/v1/players/me`) plus the display-name change
- * (`PATCH /api/v1/players/me`).
+ * (`GET /api/v1/players/me`), the display-name change
+ * (`PATCH /api/v1/players/me`), and the paginated rating leaderboard
+ * (`GET /api/v1/players/ranking`).
  *
  * GET returns everything the lobby needs in one request: identity (display
  * name, provider), the current rating, career + season victory counts, rename
@@ -13,9 +14,10 @@
 
 import { Router, type Request, type Response } from "express";
 import { ApiError } from "../../errors";
-import { parseUpdateDisplayNameBody } from "../../dto";
+import { parseRankingQuery, parseUpdateDisplayNameBody } from "../../dto";
 import {
   getPlayerProfile,
+  getRankingPage,
   updateDisplayName,
 } from "../../services/playerService";
 import type {
@@ -34,6 +36,16 @@ export type PlayersRouterDeps = {
 
 export function playersRouter(deps: PlayersRouterDeps): Router {
   const router = Router();
+
+  router.get("/ranking", async (req: Request, res: Response) => {
+    const playerId = req.playerId;
+    if (!playerId) {
+      // Defensive guard — requireAuth guarantees this on mounted routes.
+      throw new ApiError(401, "missing_token", "Missing player identity");
+    }
+    const { page, pageSize } = parseRankingQuery(req.query);
+    res.json(await getRankingPage(playerId, page, pageSize, deps));
+  });
 
   router.get("/me", async (req: Request, res: Response) => {
     const playerId = req.playerId;

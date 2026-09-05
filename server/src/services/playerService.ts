@@ -121,6 +121,86 @@ export type PlayerProfileDeps = {
   sessionRepo: SessionRepo;
 };
 
+/** One leaderboard row — rank is 1-based in leaderboard order. */
+export type RankingEntry = {
+  rank: number;
+  playerId: string;
+  /** Display name, falling back to the provider id (same rule as the lobby). */
+  displayName: string;
+  rating: number;
+};
+
+/** A page of the rating leaderboard (`GET /api/v1/players/ranking`). */
+export type RankingPage = {
+  entries: RankingEntry[];
+  page: number;
+  pageSize: number;
+  /** Players in the ranking, including the viewer when they have no row yet. */
+  totalPlayers: number;
+  totalPages: number;
+  /** The viewer's own 1-based rank (works before their first run, too). */
+  yourRank: number;
+  /** The viewer's effective rating (the default when they have no row yet). */
+  yourRating: number;
+};
+
+export type RankingDeps = {
+  playerRepo: PlayerRepo;
+  ratingRepo: RatingRepo;
+};
+
+/**
+ * A page of the rating leaderboard, ordered by rating DESC (playerId ASC
+ * tiebreak). Entry names resolve through the player repo with the same
+ * display-name-or-provider-id fallback the lobby profile uses. The viewer's
+ * own rank is `1 + countAbove(...)` over their effective rating (the stored
+ * rating, or the default when they have never played), so "Your ranking: #x"
+ * is exact even before their first run.
+ */
+export async function getRankingPage(
+  viewerPlayerId: string,
+  page: number,
+  pageSize: number,
+  deps: RankingDeps,
+): Promise<RankingPage> {
+  const [stored, total, ratings] = await Promise.all([
+    deps.ratingRepo.get(viewerPlayerId),
+    deps.ratingRepo.count(),
+    deps.ratingRepo.listTop(pageSize, (page - 1) * pageSize),
+  ]);
+  const yourRating = stored?.rating ?? DEFAULT_PLAYER_RATING;
+  const above = await deps.ratingRepo.countAbove(yourRating, viewerPlayerId);
+
+  const entries = await Promise.all(
+    ratings.map(async (rating, index) => {
+      const player = await deps.playerRepo.findById(rating.playerId);
+      const displayName =
+        player?.displayName && player.displayName.trim() !== ""
+          ? player.displayName
+          : (player?.providerId ?? rating.playerId);
+      return {
+        rank: (page - 1) * pageSize + index + 1,
+        playerId: rating.playerId,
+        displayName,
+        rating: rating.rating,
+      };
+    }),
+  );
+
+  // The viewer counts toward the total even before their first run gives
+  // them a rating row — otherwise their rank could exceed the total.
+  const totalPlayers = stored ? total : total + 1;
+  return {
+    entries,
+    page,
+    pageSize,
+    totalPlayers,
+    totalPages: Math.max(1, Math.ceil(totalPlayers / pageSize)),
+    yourRank: above + 1,
+    yourRating,
+  };
+}
+
 export async function getPlayerProfile(
   playerId: string,
   deps: PlayerProfileDeps,
