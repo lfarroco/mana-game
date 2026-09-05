@@ -70,6 +70,18 @@ describe("buildUnitDescription", () => {
     expect(title).toBe("Test Crystal (Silver)");
   });
 
+  it("names ranks past platinum with a platinum level", () => {
+    const unit = makeUnit();
+    unit.rank = 5;
+    expect(buildUnitDescription(unit, fakeT, false).title).toBe(
+      "Test Crystal (Platinum 1)",
+    );
+    unit.rank = 7;
+    expect(buildUnitDescription(unit, fakeT, false).title).toBe(
+      "Test Crystal (Platinum 3)",
+    );
+  });
+
   it("includes the cooldown seconds and the no-abilities fallback", () => {
     const { description } = buildUnitDescription(makeUnit(), fakeT, false);
     expect(description).toContain("2.0s");

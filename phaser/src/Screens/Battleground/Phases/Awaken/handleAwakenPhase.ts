@@ -102,7 +102,7 @@ export const AwakenPhase = (_ctx: BGContext) => {
 			// flash, exactly like the shop promotion flow.
 			const refreshedUnit = env.state.session.team.units.find((u) => u.id === awakenUnitId);
 			if (chara && refreshedUnit) {
-				await Effects.powerUpEffect({ x: chara.x, y: chara.y - 30 }, () =>
+				await Effects.powerUpEffect({ x: chara.x, y: chara.y }, () =>
 					Chara.refreshCharaInPlace(refreshedUnit)
 				);
 			}

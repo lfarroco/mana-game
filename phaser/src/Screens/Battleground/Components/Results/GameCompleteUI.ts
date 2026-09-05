@@ -6,8 +6,8 @@ import * as AchievementSystem from "@Systems/AchievementSystem";
 import * as ResultsConfig from "./ResultsConfig";
 import * as StatsStore from "@Models/StatsStore";
 import * as i18n from "@i18n/i18n";
-import * as RunStatsPanel from "@Screens/Battleground/Components/UI/RunStatsPanel";
 import * as constants from "@Constants";
+import { getMultiplayerRatingDelta } from "@game/session/Rating";
 import * as Config from "@config";
 import { deleteSavedData } from "@Systems/Storage/deleteSavedData";
 import { env, makeContainer, borderedRoundRect } from "@Env";
@@ -141,8 +141,6 @@ export async function displayGameComplete(
 			}).container
 	);
 
-	const statsPanel = RunStatsPanel.createRunStatsPanel();
-
 	// Victory title text
 	const victoryTitle = env.scene.add
 		.text(0, 0, i18n.t("results.wins_title", { count: wins.toString() }), {
@@ -166,6 +164,22 @@ export async function displayGameComplete(
 				.setOrigin(0.5)
 				.setPosition(panelX, panelY - 145)
 		: null;
+
+	// Multiplayer rating change, below the victory-tier message. The delta is
+	// wins-based (gold +6, silver +4, bronze +2, else +1) — the same rule the
+	// server applies, shared via core.
+	const ratingDelta = isMultiplayerRun ? getMultiplayerRatingDelta(wins) : null;
+	const ratingText =
+		ratingDelta !== null
+			? env.scene.add
+					.text(0, 0, `+${ratingDelta} ${i18n.t("lobby.rating")}`, {
+						...constants.titleTextConfig,
+						fontSize: ResultsConfig.RESULTS_FONT_SIZES.titleSmall,
+						color: ResultsConfig.RESULTS_COLORS.victory,
+					})
+					.setOrigin(0.5)
+					.setPosition(panelX, hasMessage ? panelY - 105 : panelY - 170)
+			: null;
 
 	// Subtitle text
 	const subtitleY = hasMessage ? panelY - 65 : panelY - 130;
@@ -192,7 +206,6 @@ export async function displayGameComplete(
 			ResultsConfig.RESULTS_PANEL.overlayColor,
 			ResultsConfig.RESULTS_PANEL.overlayAlpha
 		),
-		statsPanel,
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],
@@ -203,6 +216,7 @@ export async function displayGameComplete(
 		),
 		victoryTitle,
 		messageText,
+		ratingText,
 		subtitle,
 		divider,
 		...buttons,

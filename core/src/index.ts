@@ -10,7 +10,7 @@
  *   board/          — Board logic (slot finding, movement)
  *   Combat/         — Combat simulation (runner, simulation, logger, systems, stats)
  *   Entities/       — Entity definitions & factories (Card, Unit, Force)
- *   session/        — Session management (creation, transitions, option generation, enemies)
+ *   session/        — Session management (creation, transitions, option generation, enemies, rating)
  *   TriggerSystem/  — Trigger system & effects
  *   Actions/        — Action handlers (recruitment, orb upgrades)
  *   Orbs/           — Orb definitions & constants
@@ -82,6 +82,7 @@ export * as SessionManagement from "./session/SessionManagement";
 export * as SessionTransitions from "./session/SessionTransitions";
 export * as OptionGeneration from "./session/OptionGeneration";
 export * as EnemyGeneration from "./session/EnemyGeneration";
+export * as Rating from "./session/Rating";
 
 // ---------------------------------------------------------------------------
 // Phase system

@@ -18,7 +18,12 @@ export function buildUnitDescription(
     t("rank.gold"),
     t("rank.platinum"),
   ];
-  const rankName = rankNames[unit.rank - 1] || unit.rank.toString();
+  // Ranks past platinum keep the platinum name with a level (rank 5 is the
+  // first level beyond platinum) instead of degrading to a bare number.
+  const rankName =
+    unit.rank > rankNames.length
+      ? `${rankNames[rankNames.length - 1]} ${unit.rank - rankNames.length}`
+      : rankNames[unit.rank - 1] || unit.rank.toString();
   const title = `${t(`card.${unit.cardId}.name`)} (${rankName})`;
 
   const effectBlocks = unit.effects

@@ -19,7 +19,9 @@ export function create(unit: Unit, chara: Chara.Chara): Phaser.GameObjects.Shade
 }
 
 function makeRankOrb(unit: Unit): Phaser.GameObjects.Shader {
-	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
+	const { x, y, z } = colorUtils.hexToVector3(
+		colors[Math.min(unit.rank, colors.length) - 1] || bronze
+	);
 
 	return env.shader(
 		MagicOrbShader.simpleMagicOrbFragmentShader,
@@ -55,6 +57,8 @@ export function update(chara: Chara.Chara, unit: Unit): void {
 
 	if (!orb) return;
 
-	const { x, y, z } = colorUtils.hexToVector3(colors[unit.rank - 1] || bronze);
+	const { x, y, z } = colorUtils.hexToVector3(
+		colors[Math.min(unit.rank, colors.length) - 1] || bronze
+	);
 	orb.setUniform("color1.value", { x: x ?? 0, y: y ?? 0, z: z ?? 0 });
 }

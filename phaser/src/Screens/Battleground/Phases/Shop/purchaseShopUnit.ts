@@ -195,7 +195,7 @@ async function handleUpgradedUnitPurchase(
 		// transfer above ends with the power-up — a golden beam rising from the
 		// unit. The rank-orb color change is synced with the beam's flash via
 		// the start callback.
-		await Effects.powerUpEffect({ x: targetChara.x, y: targetChara.y - 30 }, () =>
+		await Effects.powerUpEffect({ x: targetChara.x, y: targetChara.y }, () =>
 			Chara.refreshCharaInPlace(upgradedUnit)
 		);
 	} else {

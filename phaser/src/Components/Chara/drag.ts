@@ -7,6 +7,9 @@ import { whenDroppedOnZone } from "../../phaser-helpers";
 const DRAG_TILT_ANGLE = -10;
 const DRAG_TILT_DURATION_MS = 100;
 const DRAG_SNAP_DURATION_MS = 150;
+// Pointer travel before the tilt kicks in — plain clicks (and tiny
+// accidental nudges) never tilt the unit, only real drags do.
+const DRAG_TILT_DISTANCE_PX = 50;
 
 export type DragGestureCallbacks = {
 	/** Per-zone drop handlers; a drop over any key marks the gesture successful. */
@@ -37,8 +40,8 @@ export function initDragGesture(chara: Chara.Chara, callbacks: DragGestureCallba
 
 		wasDragSuccessful = false;
 		chara.setData("dragStartVec", [chara.x, chara.y] as Vec2);
+		chara.setData("dragTilted", false);
 		env.scene.children.bringToTop(chara);
-		tilt(chara, DRAG_TILT_ANGLE);
 		callbacks.onDragStart?.();
 	});
 
@@ -47,6 +50,16 @@ export function initDragGesture(chara: Chara.Chara, callbacks: DragGestureCallba
 
 		chara.x = dragX;
 		chara.y = dragY;
+
+		// Tilt only once the pointer has really traveled — a click (or a
+		// sub-threshold nudge) leaves the unit straight.
+		if (!chara.getData("dragTilted")) {
+			const [startX, startY] = chara.getData("dragStartVec") as Vec2;
+			if (Phaser.Math.Distance.Between(startX, startY, dragX, dragY) > DRAG_TILT_DISTANCE_PX) {
+				chara.setData("dragTilted", true);
+				tilt(chara, DRAG_TILT_ANGLE);
+			}
+		}
 	});
 
 	for (const [zoneName, onDrop] of Object.entries(callbacks.onDropZone ?? {})) {
@@ -61,7 +74,9 @@ export function initDragGesture(chara: Chara.Chara, callbacks: DragGestureCallba
 	chara.on(Phaser.Input.Events.DRAG_END, () => {
 		if (!Board.isInputEnabled()) return;
 
-		tilt(chara, 0);
+		if (chara.getData("dragTilted")) {
+			tilt(chara, 0);
+		}
 		callbacks.onDragEnd?.();
 
 		if (!wasDragSuccessful) {
