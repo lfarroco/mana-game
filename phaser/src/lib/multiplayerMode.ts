@@ -26,3 +26,22 @@ export function setMultiplayerMode(mode: boolean): void {
 export function isMultiplayerMode(): boolean {
 	return multiplayerMode;
 }
+
+/**
+ * Where the title-screen multiplayer button leads.
+ *
+ * A stored `{ token, player }` auth session (guest, Google, itch.io, or
+ * Steam) skips the login screen and lands straight in the lobby — the lobby
+ * re-validates the Bearer [REDACTED] and bounces expired sessions back to the
+ * logged-out flow. Without a session, Electron (Steam build) auto-logs-in
+ * while every other platform picks a provider on the login screen.
+ */
+export type MultiplayerEntryTarget = "lobby" | "steam_login" | "login_screen";
+
+export function resolveMultiplayerEntry(
+	hasStoredSession: boolean,
+	electron: boolean
+): MultiplayerEntryTarget {
+	if (hasStoredSession) return "lobby";
+	return electron ? "steam_login" : "login_screen";
+}

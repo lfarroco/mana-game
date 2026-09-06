@@ -9,18 +9,23 @@ import { authSession } from "../../lib/authSession";
 import { googleAuth } from "../../lib/googleAuth";
 import { guestAuth } from "../../lib/guestAuth";
 import { itchAuth } from "../../lib/itchAuth";
+import { steamAuth } from "../../lib/steamAuth";
 import { GameEvent } from "../../Events";
 import { getScreenManager } from "../ScreenManager";
 import * as cloudsBg from "../Title/Components/cloudsBg";
 
+const STEAM_Y = 460;
 const GOOGLE_Y = 460;
 const ITCH_Y = 560;
 const GUEST_Y = 660;
 const LOGOUT_Y = 760;
 const BACK_Y = 860;
 const STATUS_Y = 330;
+/** Downward shift of every button below the Steam slot when it is shown. */
+const STEAM_SHIFT = 100;
 
 export type MultiplayerLoginEvents = {
+	steamClicked: ReturnType<typeof createEvent<void>>;
 	googleClicked: ReturnType<typeof createEvent<void>>;
 	itchClicked: ReturnType<typeof createEvent<void>>;
 	guestClicked: ReturnType<typeof createEvent<void>>;
@@ -31,18 +36,20 @@ export type MultiplayerLoginEvents = {
 export type Context = ScreenCtx<never, MultiplayerLoginEvents>;
 
 /**
- * Multiplayer login hub (docs/android-multiplayer.md) — the entry screen for
- * non-Steam platforms:
+ * Multiplayer login hub (docs/android-multiplayer.md) — the provider-choice
+ * screen:
  *
- *   [multiplayer button] → [login screen: Google / itch.io / Guest / Log out / Back]
+ *   [multiplayer button] → [login screen: Steam? / Google / itch.io / Guest / Log out / Back]
  *                        → [multiplayer lobby]
  *
- * Steam (Electron) auto-logs-in and skips this screen entirely. The screen
- * shows the current auth state (signed in as whom), lets the player pick a
- * provider (Google — popup on web, system browser on Android — itch.io, or
- * instant guest play), log out, or return to the title. Any successful login
- * lands in the lobby, which re-reads the persisted `{ token, player }`
- * session.
+ * Fresh Electron (Steam build) entries auto-log-in and skip this screen, but
+ * a logged-out Steam player lands here with PLAY WITH STEAM on top (above
+ * the other providers) so they can re-enter via Steam or switch providers.
+ * The screen shows the current auth state (signed in as whom), lets the
+ * player pick a provider (Steam, Google — popup on web, system browser on
+ * Android — itch.io, or instant guest play), log out, or return to the
+ * title. Any successful login lands in the lobby, which re-reads the
+ * persisted `{ token, player }` session.
  */
 
 /** Guards re-entry while a login is in flight. */
@@ -56,6 +63,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 	name: "multiplayer_login",
 
 	events: () => {
+		const steamClicked = createEvent<void>();
 		const googleClicked = createEvent<void>();
 		const itchClicked = createEvent<void>();
 		const guestClicked = createEvent<void>();
@@ -63,9 +71,19 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 		const backClicked = createEvent<void>();
 
 		return {
-			events: { googleClicked, itchClicked, guestClicked, logoutClicked, backClicked },
+			events: {
+				steamClicked,
+				googleClicked,
+				itchClicked,
+				guestClicked,
+				logoutClicked,
+				backClicked,
+			},
 			listeners: [
 				GameEvent.screenHidden.listen(cleanup),
+				steamClicked.listen(() => {
+					void enterWith(steamAuth.loginWithSteam);
+				}),
 				googleClicked.listen(() => {
 					void enterWith(googleAuth.loginWithGoogle);
 				}),
@@ -88,7 +106,14 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 
 	create: async (ctx) => {
 		const elements: Destroyable[] = [];
-		const { googleClicked, itchClicked, guestClicked, logoutClicked, backClicked } = ctx.events;
+		const { steamClicked, googleClicked, itchClicked, guestClicked, logoutClicked, backClicked } =
+			ctx.events;
+
+		// The Steam slot sits above every other provider. When Steam is
+		// unavailable (web/Android) the shift is 0 and the layout below is
+		// exactly the old one.
+		const showSteam = steamAuth.isSteamAvailable();
+		const shift = showSteam ? STEAM_SHIFT : 0;
 
 		const background = cloudsBg.create();
 		if (background) elements.push(background);
@@ -105,12 +130,32 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 			.setWordWrapWidth(900, true);
 		elements.push(statusText);
 
+		// Steam re-entry — first slot, shown only when the Steam client is
+		// present (Electron). A logged-out Steam player lands here from the
+		// lobby and can re-enter via Steam or pick another provider below.
+		if (showSteam) {
+			const steamBtn = UIButton.create({
+				text: i18n.t("login.playWithSteam"),
+				position: [constants.MIDDLE_SCREEN_X, STEAM_Y],
+				width: 380,
+				callback: () => {
+					steamClicked.emit();
+				},
+				tooltip: {
+					title: i18n.t("login.playWithSteam"),
+					description: i18n.t("login.steamTooltip"),
+					position: "right",
+				},
+			});
+			elements.push(steamBtn.container);
+		}
+
 		// Google sign-in — shown whenever a client id is baked into the build
 		// (web + Android; hidden when unset so the button can't error).
 		if (googleAuth.isConfigured()) {
 			const googleBtn = UIButton.create({
 				text: i18n.t("login.signInGoogle"),
-				position: [constants.MIDDLE_SCREEN_X, GOOGLE_Y],
+				position: [constants.MIDDLE_SCREEN_X, GOOGLE_Y + shift],
 				width: 380,
 				callback: () => {
 					googleClicked.emit();
@@ -126,7 +171,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 
 		const itchBtn = UIButton.create({
 			text: i18n.t("login.signInItch"),
-			position: [constants.MIDDLE_SCREEN_X, ITCH_Y],
+			position: [constants.MIDDLE_SCREEN_X, ITCH_Y + shift],
 			width: 380,
 			callback: () => {
 				itchClicked.emit();
@@ -138,7 +183,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 		// handle. Always available (POST /auth/guest needs no provider).
 		const guestBtn = UIButton.create({
 			text: i18n.t("login.playAsGuest"),
-			position: [constants.MIDDLE_SCREEN_X, GUEST_Y],
+			position: [constants.MIDDLE_SCREEN_X, GUEST_Y + shift],
 			width: 380,
 			callback: () => {
 				guestClicked.emit();
@@ -153,7 +198,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 
 		const backBtn = UIButton.create({
 			text: i18n.t("login.back"),
-			position: [constants.MIDDLE_SCREEN_X, BACK_Y],
+			position: [constants.MIDDLE_SCREEN_X, BACK_Y + shift],
 			width: 380,
 			callback: () => {
 				backClicked.emit();
@@ -166,7 +211,7 @@ const screen = createScreen<never, MultiplayerLoginEvents>({
 		if (authSession.readStoredSession()) {
 			logoutButton = UIButton.create({
 				text: i18n.t("login.logOut"),
-				position: [constants.MIDDLE_SCREEN_X, LOGOUT_Y],
+				position: [constants.MIDDLE_SCREEN_X, LOGOUT_Y + shift],
 				width: 380,
 				callback: () => {
 					logoutClicked.emit();

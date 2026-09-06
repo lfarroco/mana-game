@@ -29,8 +29,11 @@ Steam (Electron): [Multiplayer] ────────────────
                                                         (Steam auto-login, no login screen)
 
 Web / Android:    [Multiplayer] → [Login screen:       → [Multiplayer lobby]
-                                   Google · itch.io ·   (after a successful login)
-                                   Log out · Back]
+                                   Google · itch.io ·   (first login, or after
+                                   Guest · Log out ·     LOG OUT; skipped when a
+                                   Back]                 session is stored)
+                [Multiplayer lobby: PLAY · LOG OUT · BACK — LOG OUT returns to
+                 the login screen (Steam first on Electron) to switch providers]
 ```
 
 ## Key facts (verified 2026-09-02)
@@ -129,7 +132,8 @@ Google was:
 - **`phaser/src/lib/authSession.ts`** — `AuthProvider` += `"google"`.
 - **Re-auth fix** — `MultiplayerLobbyScreen` now catches 401
   (`RemoteServerError`) from profile/resume, clears the stale session, and
-  sends the player to the login screen instead of a dead-end error modal
+  sends the player back to the login screen (Steam first on Electron)
+  instead of a dead-end error modal
   (the 30-day bearer TTL has no refresh; previously a stale token trapped
   the player).
 
@@ -228,8 +232,9 @@ through the relay deep link).
 3. itch.io button on Android → same relay flow → itch login.
 4. Log out → status flips to "Not signed in", button disappears; sign in again
    → short-circuit to the lobby (stored session).
-5. Second launch: Multiplayer → login screen shows "Signed in as …" → tap the
-   provider button → lobby (no browser round-trip).
+5. Second launch: Multiplayer → lobby directly (stored session skips the
+   login screen); LOG OUT in the lobby → back to the login screen to switch
+   providers.
 6. Web build unchanged: itch popup still works; Steam build unchanged
    (Electron → lobby directly).
 7. `curl -X POST https://api.manabattle.com/api/v1/auth/google -d '{}'`

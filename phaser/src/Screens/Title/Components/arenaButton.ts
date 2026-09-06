@@ -5,6 +5,8 @@ import * as i18n from "@i18n/i18n";
 import { env } from "@Env";
 import { getScreenManager } from "../../ScreenManager";
 import { isElectron } from "@Utils/environment";
+import { authSession } from "@lib/authSession";
+import { resolveMultiplayerEntry } from "@lib/multiplayerMode";
 import { steamAuth } from "@lib/steamAuth";
 
 const BUTTON_Y = 600;
@@ -32,11 +34,13 @@ export function create() {
 
 /**
  * Multiplayer entry (docs/itchio-auth.md Phase C + docs/android-multiplayer.md):
- * Electron uses the Steam auto-login and goes straight to the lobby; every
- * other platform (web + Android) routes through the multiplayer login screen,
- * which owns the provider choice (Google / itch.io), logout, and the lobby
- * transition. Errors surface in a modal so the player can fall back to
- * single-player.
+ * an already-logged-in player (guest, Google, itch.io, or Steam — a stored
+ * `{ token, player }` session exists) goes straight to the lobby on every
+ * platform, like the Steam build always did. Otherwise Electron uses the
+ * Steam auto-login and every other platform (web + Android) routes through
+ * the multiplayer login screen, which owns the provider choice (Google /
+ * itch.io / guest), logout, and the lobby transition. Errors surface in a
+ * modal so the player can fall back to single-player.
  */
 async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	if (enteringMultiplayer) return;
@@ -49,7 +53,10 @@ async function enterMultiplayer(btn: UIButton.Button): Promise<void> {
 	enteringMultiplayer = true;
 	btn.disable();
 	try {
-		if (isElectron()) {
+		const target = resolveMultiplayerEntry(authSession.readStoredSession() !== null, isElectron());
+		if (target === "lobby") {
+			void getScreenManager().go("multiplayer_lobby");
+		} else if (target === "steam_login") {
 			await steamAuth.loginWithSteam();
 			void getScreenManager().go("multiplayer_lobby");
 		} else {

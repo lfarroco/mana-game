@@ -24,6 +24,7 @@ import { getScreenManager } from "../ScreenManager";
 
 export type MultiplayerLobbyEvents = {
 	playClicked: ReturnType<typeof createEvent<void>>;
+	logoutClicked: ReturnType<typeof createEvent<void>>;
 	backClicked: ReturnType<typeof createEvent<void>>;
 };
 
@@ -34,20 +35,23 @@ export type Context = ScreenCtx<never, MultiplayerLobbyEvents>;
  * screen and a multiplayer run. Loads the player's profile (`GET
  * /api/v1/players/me`): display name, provider, rating, career + season
  * victory stats, and whether a run is resumable. The PLAY button adapts to
- * that (RESUME / NEW GAME); BACK returns to the title screen.
+ * that (RESUME / NEW GAME); LOG OUT clears the session for provider
+ * switching; BACK returns to the title screen.
  */
 const screen = createScreen<never, MultiplayerLobbyEvents>({
 	name: "multiplayer_lobby",
 
 	events: () => {
 		const playClicked = createEvent<void>();
+		const logoutClicked = createEvent<void>();
 		const backClicked = createEvent<void>();
 
 		return {
-			events: { playClicked, backClicked },
+			events: { playClicked, logoutClicked, backClicked },
 			listeners: [
 				GameEvent.screenHidden.listen(cleanup),
 				playClicked.listen(handlePlay),
+				logoutClicked.listen(handleLogout),
 				backClicked.listen(() => {
 					void getScreenManager().go("title");
 				}),
@@ -136,7 +140,7 @@ const screen = createScreen<never, MultiplayerLobbyEvents>({
 			lobbyContent = content;
 
 			const ranking = rankingPanel.create(profile, {
-				onAuthError: () => goToLogin(),
+				onAuthError: () => handleLogout(),
 			});
 			rankingElement = ranking;
 
@@ -410,19 +414,23 @@ async function resumeActiveRun(): Promise<void> {
 /**
  * Re-auth path for expired/invalid bearer tokens (docs/android-multiplayer.md):
  * the persisted session is stale (30-day TTL, no refresh) — clear it and send
- * the player to the multiplayer login screen instead of a dead-end error
- * modal. Returns true when handled.
+ * the player through the logged-out flow instead of a dead-end error modal.
+ * Returns true when handled.
  */
 function handleAuthExpired(err: unknown): boolean {
 	if (err instanceof RemoteServerError && err.status === 401) {
-		goToLogin();
+		handleLogout();
 		return true;
 	}
 	return false;
 }
 
-/** Clear the stale session and send the player back to the login screen. */
-function goToLogin(): void {
+/**
+ * Log out: clear the stored session and return to the login screen, where
+ * the player can re-enter via Steam (first slot on Electron) or switch to
+ * another provider (guest, Google, itch.io).
+ */
+function handleLogout(): void {
 	authSession.clearSession();
 	void getScreenManager().go("multiplayer_login");
 }

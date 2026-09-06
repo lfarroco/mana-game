@@ -17,8 +17,8 @@ login). This doc is the reference for the code comments in `playerService.ts`,
 After login (Steam, itch.io, or Google) the player used to land directly in
 crystal selection (or straight into a mid-run session). The multiplayer lobby
 is a hub between the title screen and a multiplayer run with two tabs —
-**LOBBY** (first) and **RANKING** — plus an adaptive PLAY button and BACK that
-stay visible on both tabs. The LOBBY tab shows:
+**LOBBY** (first) and **RANKING** — plus adaptive PLAY, LOG OUT, and BACK
+buttons that stay visible on both tabs. The LOBBY tab shows:
 
 - **identity** — display name (falling back to the provider id), provider badge,
 - **rating** — the current ladder rating (starts at `DEFAULT_PLAYER_RATING`
@@ -173,15 +173,16 @@ type RunCompletion = {
   persisted auth-session `displayName` is synced (the login screen reads it),
   and the cooldown hint appears. A `429 name_change_cooldown` shows a
   localized cooldown message; a `401` triggers the lobby's re-auth path.
-- `arenaButton.ts` (title screen) now navigates to `multiplayer_lobby` after a
-  successful login instead of jumping straight into a run; the lobby owns the
-  RESUME / NEW GAME decision. RESUME fetches the session
+- `arenaButton.ts` (title screen) skips the login screen when a stored auth
+  session exists (guest, Google, itch.io, or Steam) and navigates straight to
+  `multiplayer_lobby` instead of jumping straight into a run; the lobby owns
+  the RESUME / NEW GAME decision. RESUME fetches the session
   (`remoteServer.getSession`), patches client state, and enters the
   battleground — including mid-combat (`combatState`).
 - `rankingPanel.ts` — the RANKING tab content: the golden "Your ranking: #x"
   header, the two-column paginated leaderboard (lazy first fetch on tab show,
   PREV/NEXT refetch, stale-response guard via a generation counter +
-  destroyed flag), and the 401 → re-login path via the screen's `goToLogin`.
+  destroyed flag), and the 401 → re-login path via the screen's `handleLogout`.
   The screen wraps the old panels in one `lobbyContent` container and toggles
   it against the ranking container with LOBBY/RANKING tab buttons (the active
   tab's button is disabled); PLAY/BACK stay outside both tabs.
@@ -210,9 +211,11 @@ cd phaser && npm run test:ci && npm run typecheck && npm run lint
 ```
 
 Manual smoke (Steam Electron, itch web, or Google Android/web): title →
-MULTIPLAYER → login → lobby shows the profile/rating/stats → RANKING tab
+MULTIPLAYER → login (skipped when already logged in — straight to the lobby)
+→ lobby shows the profile/rating/stats → RANKING tab
 shows "Your ranking: #x" + the leaderboard (PREV/NEXT page through it) →
-CHANGE NAME opens
+LOG OUT returns to the login screen (Steam first on Electron) for provider
+switching → CHANGE NAME opens
 the modal → a valid name updates the panel and shows the countdown hint; a
 second attempt within 30 days is rejected with the cooldown message (and the
 button stays disabled with "Next change available: <date>"). NEW GAME goes to
