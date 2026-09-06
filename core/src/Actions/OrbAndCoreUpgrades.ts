@@ -6,7 +6,14 @@
  */
 
 import { Unit, EffectReaction } from "../Models";
-import { applyPowerDelta, upgradeUnitData } from "../Entities/Unit";
+import {
+  applyPowerDelta,
+  recordGrantedEffect,
+  recordGrantedReaction,
+  removeUnitEffect,
+  removeUnitReaction,
+  upgradeUnitData,
+} from "../Entities/Unit";
 import * as Random from "../math/Random";
 import * as OrbConstants from "../Orbs/OrbConstants";
 import { ORB_DEFINITIONS, OrbDefinition } from "../Orbs/OrbDefinitions";
@@ -128,13 +135,13 @@ function applySacrificeOrb(targetUnit: Unit, rng: { seed: string }): number {
     if (removeType === "effect") {
       const { picked, seed } = Random.pickOneSeeded(rng, targetUnit.effects);
       rng.seed = seed;
-      const toRemove = picked;
-      targetUnit.effects = targetUnit.effects.filter((e) => e !== toRemove);
+      // Syncs the grant ledger so a sacrificed orb grant is not resurrected
+      // by the next rank-up (see recordGrantedEffect).
+      removeUnitEffect(targetUnit, picked);
     } else {
       const { picked, seed } = Random.pickOneSeeded(rng, targetUnit.reactions);
       rng.seed = seed;
-      const toRemove = picked;
-      targetUnit.reactions = targetUnit.reactions.filter((r) => r !== toRemove);
+      removeUnitReaction(targetUnit, picked);
     }
   }
 
@@ -199,11 +206,14 @@ function applyIncreaseCriticalOrb(
   }
 
   targetUnit.effects = targetUnit.effects || [];
-  targetUnit.effects.push({
+  const granted = {
     id: "increase_critical",
     amount: 10,
     targets: { id: "self" },
-  });
+  } as const;
+  targetUnit.effects.push({ ...granted });
+  // A synthesized grant like any other — survives rank-ups via the ledger.
+  recordGrantedEffect(targetUnit, { ...granted });
   return true;
 }
 
@@ -272,6 +282,9 @@ export function applyOrb(
       const reaction = buildReaction(def, rng);
       targetUnit.reactions = targetUnit.reactions || [];
       targetUnit.reactions.push(reaction);
+      // Ledger the pristine grant so the next rank-up keeps it (void-crystal
+      // class bug: resetUnitEffectsToCardDefinition used to drop it).
+      recordGrantedReaction(targetUnit, reaction);
       console.info(
         "orbAndCoreUpgrades",
         `Added reaction ${orbId} to unit ${targetUnit.id}`,
@@ -468,10 +481,12 @@ export function applyCoreUpgrade(
 
   if (def.kind === "effect" && def.effect) {
     core.effects = [...core.effects, structuredClone(def.effect)];
+    recordGrantedEffect(core, def.effect);
     return;
   }
   if (def.kind === "reaction" && def.reaction) {
     core.reactions = [...core.reactions, structuredClone(def.reaction)];
+    recordGrantedReaction(core, def.reaction);
     return;
   }
   if (def.kind === "stat" && def.stat) {

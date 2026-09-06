@@ -125,8 +125,11 @@ export const runCombat = (
   // effect loops (e.g. every_10_regen → charge/haste/power → more regen) can
   // grow the simulation's per-frame work without bound; without this guard
   // such a board freezes the game (CPU melt / OOM) instead of resolving. Once
-  // the budget is spent the combat ends gracefully (both_won, mirroring the
-  // MAX_COMBAT_DURATION_MS timeout) with a runaway_combat log entry.
+  // the budget is spent the combat ends as a LOSS (player_lost) with a
+  // runaway_combat log entry: unlike the 120s MAX_COMBAT_DURATION_MS timeout
+  // (both_won — both cores genuinely survived the full fight), a runaway can
+  // trip seconds in with the enemy at full health, so scoring it a win hands
+  // degenerate infinite-loop boards a free round.
   let workBudget = MAX_COMBAT_WORK;
 
   /** Spend `units` of work budget. Returns true when the budget is exhausted. */
@@ -143,7 +146,7 @@ export const runCombat = (
     runnerState.env.logger.log({
       type: "runaway_combat",
     });
-    finishCombat("both_won");
+    finishCombat("player_lost");
   };
 
   const updateFrame = (

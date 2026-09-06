@@ -29,6 +29,19 @@ export type Unit = {
   effects: Effect[];
   reactions: EffectReaction[];
 
+  /**
+   * Orb/encounter-granted abilities in their pristine (unscaled) shapes.
+   *
+   * Rank upgrades (`resetUnitEffectsToCardDefinition`) rebuild `effects` /
+   * `reactions` from the card definition, which used to silently discard
+   * everything an orb had granted (notably the void crystal's identity
+   * effects). Entries recorded here are re-appended after the reset, so they
+   * survive rank-ups. Removal paths (sacrifice orbs / sacrifice effect) must
+   * drop the matching entry here too, or the ability resurrects next rank-up.
+   */
+  grantedEffects?: Effect[];
+  grantedReactions?: EffectReaction[];
+
   charge: number; // each tick the unit's charge accumulates here; when it reaches cooldown, the unit can act
   refresh: number; // post-action recovery time; must be 0 to act even if charged
 

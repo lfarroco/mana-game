@@ -1,5 +1,6 @@
 import { CombatEnvironment, Unit } from "../../Models";
 import { nextRandomValue, pickRandom } from "../../Random";
+import { removeUnitEffect, removeUnitReaction } from "../../Entities/Unit";
 import { increasePower } from "./increasePower";
 
 export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
@@ -24,15 +25,14 @@ export const sacrificeEffect = (env: CombatEnvironment, sourceUnit: Unit) => {
   if (removeType === "effect") {
     const { picked, seed } = pickRandom(env, removableEffects, 1);
     env.seed = seed;
-    const effectToRemove = picked[0];
-    sourceUnit.effects = sourceUnit.effects.filter((e) => e !== effectToRemove);
+    // Combat runs on session-unit clones; syncing the grant ledger here keeps
+    // the post-combat write-back from resurrecting the sacrificed ability on
+    // the next rank-up.
+    removeUnitEffect(sourceUnit, picked[0]);
   } else {
     const { picked, seed } = pickRandom(env, removableReactions, 1);
     env.seed = seed;
-    const reactionToRemove = picked[0];
-    sourceUnit.reactions = sourceUnit.reactions.filter(
-      (r) => r !== reactionToRemove,
-    );
+    removeUnitReaction(sourceUnit, picked[0]);
   }
 
   increasePower(env, [sourceUnit], 10, false, sourceUnit);

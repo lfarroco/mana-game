@@ -153,6 +153,24 @@ describe("applyLogEntryToCombatState", () => {
     expect(unit.bonusPower).toBe(-2);
   });
 
+  it("decrease_power clamps replay power at 0 (mirrors the sim clamp)", () => {
+    // Overkill decreases used to replay below zero on the client while the
+    // simulation clamped at 0 — negative client power desync.
+    const unit = makeUnit();
+    const combatState = makeCombatState(unit);
+
+    applyLogEntryToCombatState(combatState, {
+      type: "decrease_power",
+      targetId: "u1",
+      affectedUnitId: "u1",
+      amount: 9999,
+      permanent: true,
+    });
+
+    expect(unit.power).toBe(0);
+    expect(unit.power).toBeGreaterThanOrEqual(0);
+  });
+
   it("damage_hit log entry is a no-op (unit unchanged)", () => {
     const unit = makeUnit();
     const combatState = makeCombatState(unit);

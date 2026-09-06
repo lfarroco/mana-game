@@ -210,6 +210,8 @@ const ACTION_HANDLERS: Record<
       }
 
       unit.reactions = [...unit.reactions, structuredClone(power.reaction)];
+      // Ledger the grant so a later rank-up keeps the awaken power.
+      Unit.recordGrantedReaction(unit, power.reaction);
       delete session.awakenUnitId;
       return transitionToNextStep(session);
     }
@@ -293,6 +295,7 @@ const ACTION_HANDLERS: Record<
           );
           session.seed = seed;
           core.reactions = [...core.reactions, structuredClone(def.reaction!)];
+          Unit.recordGrantedReaction(core, def.reaction!);
         }
       }
       return transitionToNextStep(session);

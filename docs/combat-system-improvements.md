@@ -85,10 +85,12 @@ threshold crossings; the simulation then did unbounded work per frame
    timeline through a bounded FX-per-frame cap
    (docs/combat-playback-performance.md Optimization 1).
 
-When either budget is exhausted the combat ends gracefully as `both_won`
-(mirroring the `MAX_COMBAT_DURATION_MS` timeout) with a `runaway_combat` log
-entry (classified `none` — no FX handler). Regression tests:
-`CombatRunawayGuard.test.ts` (runaway board resolves bounded + `both_won`;
+When either budget is exhausted the combat ends as a loss (`player_lost`)
+with a `runaway_combat` log entry (classified `none` — no FX handler). It is
+deliberately NOT `both_won` like the `MAX_COMBAT_DURATION_MS` timeout: a
+runaway can trip seconds in with the enemy at full health, so scoring it a
+win hands degenerate infinite-loop boards a free round. Regression tests:
+`CombatRunawayGuard.test.ts` (runaway board resolves bounded + `player_lost`;
 per-frame work stays bounded; a legit high-power board never trips the guard)
 and the `maxResults` carry-over test in `CombatStatsTracker.test.ts`.
 

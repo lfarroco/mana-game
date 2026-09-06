@@ -74,6 +74,10 @@ export const handleHealHit = (log: CombatLogger.HealHitEntry, _playbackState: Pl
 
 	const unit = Chara.getUnit(target);
 	ForceStats.updateLifeDisplay(unit.force, log.newLife, log.lifeDelta);
+	// A heal also cleanses the force's poison stacks (reducePoison) — the
+	// post-cleanse total rides on the hit entry, so sync the chip here or it
+	// only ever moves on poison_hit and drifts from the true stack.
+	ForceStats.syncPoisonDisplay(unit.force, log.newPoison);
 };
 
 export const handleShieldHit = (

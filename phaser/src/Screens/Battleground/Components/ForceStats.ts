@@ -327,6 +327,29 @@ export function updateRegenDisplay(targetUnit: Unit, regen: number, delta: numbe
 	chip.container.add(textElement);
 }
 
+/**
+ * Unconditional poison-chip sync (no delta guard, no popup): for stack
+ * changes that carry no per-hit delta — heal-cleanse (`heal_hit` reports the
+ * post-cleanse `newPoison`) and dispel (stacks cleared to 0). Without this
+ * the chip only moves on `poison_hit` and goes stale the moment anything
+ * reduces the stacks.
+ */
+export function syncPoisonDisplay(force: string, poison: number) {
+	const chip = Chip.getChip(`poison-display/${force}`);
+	if (!chip) return;
+	Chip.updateChipText(`poison-display/${force}`, Utils.compactNumber(poison));
+}
+
+/**
+ * Unconditional regen-chip sync (see `syncPoisonDisplay`): dispel clears the
+ * force's regen stacks with no `regen_hit` to move the chip.
+ */
+export function syncRegenDisplay(force: string, regen: number) {
+	const chip = Chip.getChip(`regen-display/${force}`);
+	if (!chip) return;
+	Chip.updateChipText(`regen-display/${force}`, Utils.compactNumber(regen));
+}
+
 export function updatePoisonDisplay(force: string, poison: number, delta: number) {
 	if (delta === 0) return;
 

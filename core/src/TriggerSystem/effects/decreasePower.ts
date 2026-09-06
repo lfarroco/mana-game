@@ -9,13 +9,22 @@ export const decreasePower = (
   sourceUnit: Unit | undefined,
 ) => {
   for (const target of targets) {
-    applyPersistentPowerDelta(env, target, -amount, permanent);
+    // Log the APPLIED magnitude, not the requested one: power clamps at 0
+    // (applyPowerDelta), so an overkill decrease would otherwise replay
+    // deeper on the client than the simulation went (client/server desync
+    // with negative client power — the old "below 0 power" bug).
+    const appliedDelta = applyPersistentPowerDelta(
+      env,
+      target,
+      -amount,
+      permanent,
+    );
 
     env.logger.log({
       type: "decrease_power",
       sourceId: sourceUnit?.id,
       targetId: target.id,
-      amount: amount,
+      amount: -appliedDelta,
       permanent: permanent,
       affectedUnitId: target.id,
     });

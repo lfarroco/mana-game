@@ -1,6 +1,6 @@
 import * as Card from "./Card";
 import * as Random from "../math/Random";
-import { CardDefinition, Effect, Unit } from "../Models";
+import { CardDefinition, Effect, EffectReaction, Unit } from "../Models";
 
 export const testCardDefinitions = {
   basicWarrior: {
@@ -99,17 +99,148 @@ export function upgradeUnitEffects(unit: Unit, startingRank: number = 1) {
   });
 }
 
+/**
+ * Record an orb/encounter-granted effect on the unit so rank upgrades keep
+ * it (see `resetUnitEffectsToCardDefinition`). Stores a pristine clone —
+ * the live copy in `unit.effects` is rank-scaled in place by
+ * `upgradeUnitEffects`, while this ledger stays unscaled so the next reset
+ * re-scales from the base shape instead of compounding.
+ */
+export function recordGrantedEffect(unit: Unit, effect: Effect): void {
+  unit.grantedEffects = [...(unit.grantedEffects ?? []), structuredClone(effect)];
+}
+
+/**
+ * Record an orb/encounter-granted reaction on the unit (pristine clone —
+ * see `recordGrantedEffect`).
+ */
+export function recordGrantedReaction(
+  unit: Unit,
+  reaction: EffectReaction,
+): void {
+  unit.grantedReactions = [
+    ...(unit.grantedReactions ?? []),
+    structuredClone(reaction),
+  ];
+}
+
+/**
+ * Drop one ledger entry matching a removed ability so a sacrificed
+ * effect/reaction is not resurrected by the next rank-up. Matches by deep
+ * equality first; falls back to the lineage key because the live copy is
+ * rank-scaled (amount/count/duration drift from the pristine ledger shape).
+ */
+function dropGrantedEntry<T>(
+  entries: T[] | undefined,
+  removed: T,
+  lineageKey: (entry: T) => string,
+): T[] | undefined {
+  if (!entries || entries.length === 0) return entries;
+  const removedKey = lineageKey(removed);
+  let dropped = false;
+  return entries.filter((e) => {
+    if (dropped) return true;
+    if (
+      JSON.stringify(e) === JSON.stringify(removed) ||
+      lineageKey(e) === removedKey
+    ) {
+      dropped = true;
+      return false;
+    }
+    return true;
+  });
+}
+
+const effectLineage = (e: Effect): string =>
+  `${e.id}|${JSON.stringify(("targets" in e ? e.targets : null) ?? null)}`;
+
+const reactionLineage = (r: EffectReaction): string =>
+  `${r.position}|${r.effectId}`;
+
+/**
+ * Remove a sacrificed effect from the live array and the grant ledger.
+ * A sacrificed base-definition copy is restored by the next reset on its
+ * own, so it leaves the ledger untouched (otherwise a same-lineage grant
+ * would be dropped as collateral).
+ */
+export function removeUnitEffect(unit: Unit, effect: Effect): void {
+  unit.effects = unit.effects.filter((e) => e !== effect);
+  if (isBaseEffect(unit, effect)) return;
+  unit.grantedEffects = dropGrantedEntry(
+    unit.grantedEffects,
+    effect,
+    effectLineage,
+  );
+}
+
+/** Remove a sacrificed reaction from the live array and the grant ledger. */
+export function removeUnitReaction(
+  unit: Unit,
+  reaction: EffectReaction,
+): void {
+  unit.reactions = unit.reactions.filter((r) => r !== reaction);
+  if (isBaseReaction(unit, reaction)) return;
+  unit.grantedReactions = dropGrantedEntry(
+    unit.grantedReactions,
+    reaction,
+    reactionLineage,
+  );
+}
+
+/** Rank-scaled base effects the live array holds at the unit's rank. */
+function scaledBaseEffects(unit: Unit, cardDef: CardDefinition): Effect[] {
+  const probe = {
+    rank: unit.rank,
+    effects: structuredClone(cardDef.effects ?? []),
+    reactions: [],
+  } as unknown as Unit;
+  upgradeUnitEffects(probe, cardDef.rank || 1);
+  return probe.effects;
+}
+
+/** Rank-scaled base reactions the live array holds at the unit's rank. */
+function scaledBaseReactions(
+  unit: Unit,
+  cardDef: CardDefinition,
+): EffectReaction[] {
+  const probe = {
+    rank: unit.rank,
+    effects: [],
+    reactions: structuredClone(cardDef.reactions ?? []),
+  } as unknown as Unit;
+  upgradeUnitEffects(probe, cardDef.rank || 1);
+  return probe.reactions;
+}
+
+function isBaseEffect(unit: Unit, effect: Effect): boolean {
+  const cardDef = Card.getCardDefinition(unit.cardId);
+  return scaledBaseEffects(unit, cardDef).some(
+    (b) => JSON.stringify(b) === JSON.stringify(effect),
+  );
+}
+
+function isBaseReaction(unit: Unit, reaction: EffectReaction): boolean {
+  const cardDef = Card.getCardDefinition(unit.cardId);
+  return scaledBaseReactions(unit, cardDef).some(
+    (b) => JSON.stringify(b) === JSON.stringify(reaction),
+  );
+}
+
 export function resetUnitEffectsToCardDefinition(
   unit: Unit,
   cardDef: CardDefinition,
 ) {
-  const newReactions = unit.reactions.filter((r) => {
-    return !cardDef.reactions.some((c) => c.effectId === r.effectId);
-  });
   unit.effects = structuredClone(cardDef.effects ?? []);
-  unit.reactions = structuredClone(cardDef.reactions ?? []).concat(
-    newReactions,
-  );
+  unit.reactions = structuredClone(cardDef.reactions ?? []);
+  // Re-append orb/encounter-granted abilities (pristine shapes — the caller,
+  // `upgradeUnitData`, rank-scales the merged arrays fresh via
+  // `upgradeUnitEffects`, so grants never compound across ranks).
+  for (const effect of unit.grantedEffects ?? []) {
+    unit.effects.push(structuredClone(effect));
+  }
+  for (const reaction of unit.grantedReactions ?? []) {
+    unit.reactions.push(structuredClone(reaction));
+  }
 }
 
 export function upgradeUnitData(unit: Unit) {

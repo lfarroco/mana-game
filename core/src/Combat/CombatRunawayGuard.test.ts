@@ -10,7 +10,10 @@
  * without bound until the game froze / crashed (CPU melt / OOM).
  *
  * The guard caps per-frame work and bounds total work + log size; a runaway
- * board now ends gracefully as both_won with a runaway_combat log entry.
+ * board now ends as a LOSS (player_lost) with a runaway_combat log entry —
+ * a runaway can trip seconds in with the enemy at full health, so scoring
+ * it a win (like the genuine 120s both_won timeout) hands infinite-loop
+ * boards a free round.
  */
 import * as CombatSimulation from "./CombatSimulation";
 import * as CombatRunner from "./CombatRunner";
@@ -149,10 +152,15 @@ describe("combat runaway guard", () => {
 
     const final = CombatSimulation.simulateCombat(session, combatState);
 
-    // The runaway board resolves as both_won (mirroring the 120s timeout),
-    // with a runaway_combat marker, and never produces an unbounded log.
+    // The runaway board resolves as a loss (NOT both_won like the genuine
+    // 120s timeout), with a runaway_combat marker, and never produces an
+    // unbounded log.
     expect(filterLogs(final.logs, "outcome")).toHaveLength(1);
-    expect(filterLogs(final.logs, "outcome")[0].result).toBe("both_won");
+    expect(filterLogs(final.logs, "outcome")[0].result).toBe("player_lost");
+    // …and the run scores it as a loss, not a round win: an infinite-loop
+    // board must never earn a free victory with the enemy at full health.
+    expect(CombatSimulation.determineCombatOutcome(final.logs)).toBe(false);
+    expect(final.wonCombat).toBe(false);
     expect(filterLogs(final.logs, "runaway_combat")).toHaveLength(1);
     // Unbounded without the guard (the repro hit ~800k entries and was still
     // accelerating); the guard bounds it well below that.

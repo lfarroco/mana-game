@@ -225,5 +225,10 @@ export const handleDispelHit = (
 	if (dispelTarget) {
 		applyLogEntryToCombatState(combatState, log);
 		ChargeBarDisplay.updateChargeBar(log.targetId);
+		// Dispel wipes the target force's poison + regen stacks server-side
+		// with no hit entry to move those chips — reset them here or they
+		// freeze at the pre-dispel totals for the rest of the fight.
+		ForceStats.syncPoisonDisplay(dispelTarget.force, 0);
+		ForceStats.syncRegenDisplay(dispelTarget.force, 0);
 	}
 };

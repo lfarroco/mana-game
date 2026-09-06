@@ -62,6 +62,8 @@ describe("Effect integration — decrease_power", () => {
     const { combatState, combatRunner } = setupCombat([unit]);
 
     const cpuCore = combatState.cpuCore;
+    // Non-overkill target so the logged amount equals the configured one.
+    cpuCore.power = 50;
     const initialCpuPower = cpuCore.power;
 
     const logs = runFrames(combatRunner, combatState, 200);
@@ -71,6 +73,31 @@ describe("Effect integration — decrease_power", () => {
     expect(decLogs[0].amount).toBe(8);
     const csCpuCore = combatState.cpuCore;
     expect(csCpuCore.power).toBeLessThan(initialCpuPower);
+  });
+
+  it("logs the applied magnitude on overkill (power clamps at 0)", () => {
+    // The harness cpu core has 1 power: a decrease of 8 applies 1. Logging
+    // the requested 8 would replay -7 on the client (negative-power desync).
+    const unit = makeTestUnit({
+      effects: [
+        {
+          id: "decrease_power",
+          amount: 8,
+          permanent: false,
+          targets: { id: "random_enemy", count: 1 },
+        },
+      ],
+      cooldown: 500,
+    });
+    unit.id = "dec-overkill-unit";
+    const { combatState, combatRunner } = setupCombat([unit]);
+
+    const logs = runFrames(combatRunner, combatState, 200);
+
+    const decLogs = logs.filter((l) => l.type === "decrease_power");
+    expect(decLogs.length).toBeGreaterThanOrEqual(1);
+    expect(decLogs[0].amount).toBe(1);
+    expect(combatState.cpuCore.power).toBe(0);
   });
 });
 

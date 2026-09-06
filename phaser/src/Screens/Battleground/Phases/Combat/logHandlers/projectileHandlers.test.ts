@@ -5,6 +5,7 @@ const mockMustGetCharaById = jest.fn<(id: string) => unknown>();
 const mockGetUnit = jest.fn<(chara: unknown) => { force: string }>();
 const mockShake = jest.fn<(chara: unknown) => void>();
 const mockUpdatePoisonDisplay = jest.fn<(force: string, poison: number, delta: number) => void>();
+const mockSyncPoisonDisplay = jest.fn<(force: string, poison: number) => void>();
 const mockUpdateLifeDisplay = jest.fn();
 const mockUpdateShieldDisplay = jest.fn();
 
@@ -17,6 +18,7 @@ jest.mock("@Components/Chara/Chara", () => ({
 jest.mock("@Screens/Battleground/Components/ForceStats", () => ({
 	updatePoisonDisplay: (force: string, poison: number, delta: number) =>
 		mockUpdatePoisonDisplay(force, poison, delta),
+	syncPoisonDisplay: (force: string, poison: number) => mockSyncPoisonDisplay(force, poison),
 	updateLifeDisplay: (...args: Array<unknown>) => mockUpdateLifeDisplay(...args),
 	updateShieldDisplay: (...args: Array<unknown>) => mockUpdateShieldDisplay(...args),
 }));
@@ -41,7 +43,7 @@ jest.mock("../../../../../FX", () => ({
 	arcaneMissileTargeted: jest.fn(),
 }));
 
-import { handlePoisonHit } from "./projectileHandlers";
+import { handleHealHit, handlePoisonHit } from "./projectileHandlers";
 
 describe("handlePoisonHit", () => {
 	const playbackState = {} as unknown as PlaybackState;
@@ -98,5 +100,36 @@ describe("handlePoisonHit", () => {
 
 		expect(mockUpdatePoisonDisplay).toHaveBeenNthCalledWith(1, "CPU", 30, 6);
 		expect(mockUpdatePoisonDisplay).toHaveBeenNthCalledWith(2, "CPU", 36, 6);
+	});
+});
+
+describe("handleHealHit", () => {
+	const playbackState = {} as unknown as PlaybackState;
+
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockMustGetCharaById.mockImplementation((id: string) => ({ id }));
+		mockGetUnit.mockReturnValue({ force: "PLAYER" });
+	});
+
+	it("syncs the poison chip to the post-cleanse total on the hit entry", () => {
+		// Heal-cleanse (reducePoison) shrinks the force's stacks with no
+		// poison_hit to move the chip — the handler must apply newPoison or
+		// the counter drifts from the true stack.
+		handleHealHit(
+			{
+				type: "heal_hit",
+				sourceId: "u1",
+				targetId: "player-core",
+				amount: 100,
+				newLife: 500,
+				newPoison: 12,
+				lifeDelta: 40,
+			},
+			playbackState
+		);
+
+		expect(mockUpdateLifeDisplay).toHaveBeenCalledWith("PLAYER", 500, 40);
+		expect(mockSyncPoisonDisplay).toHaveBeenCalledWith("PLAYER", 12);
 	});
 });

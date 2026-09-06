@@ -75,7 +75,9 @@ export function applyLogEntryToCombatState(
     case "decrease_power": {
       const target = combatState.unitById.get(log.affectedUnitId);
       if (target) {
-        target.power -= log.amount;
+        // Mirror the simulation clamp: power never drops below 0, even for
+        // stale/foreign logs that predate applied-magnitude logging.
+        target.power = Math.max(0, target.power - log.amount);
         if (log.permanent) target.bonusPower -= log.amount;
       }
       break;

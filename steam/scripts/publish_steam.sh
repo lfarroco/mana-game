@@ -261,12 +261,18 @@ if [ "${MANA_SKIP_BUILD:-0}" != "1" ]; then
     echo ""
 fi
 
-# --- Verify the build output for every depot exists ---
+# --- Verify the build output for every depot exists and is non-empty ---
+# An existing-but-empty depot dir uploads as an empty Steam depot — the
+# player gets a 0B install folder with no error at push time — so emptiness
+# fails the push here instead of shipping a hollow build.
 BUILD_DIRS=(win-unpacked mac-universal linux-unpacked)
 MISSING_DIRS=()
+EMPTY_DIRS=()
 for d in "${BUILD_DIRS[@]}"; do
     if [ ! -d "$PHASER_DIR/dist-electron/$d" ]; then
         MISSING_DIRS+=("$d")
+    elif [ -z "$(ls -A "$PHASER_DIR/dist-electron/$d")" ]; then
+        EMPTY_DIRS+=("$d")
     fi
 done
 if [ "${#MISSING_DIRS[@]}" -gt 0 ]; then
@@ -275,12 +281,53 @@ if [ "${#MISSING_DIRS[@]}" -gt 0 ]; then
     echo "MANA_SKIP_BUILD=1):  cd phaser && npm run build && npx electron-builder --win --linux --dir --x64 && npx electron-builder --mac --dir --universal"
     exit 1
 fi
+if [ "${#EMPTY_DIRS[@]}" -gt 0 ]; then
+    echo "Error: empty build output — ${EMPTY_DIRS[*]} under $PHASER_DIR/dist-electron/"
+    echo "electron-builder left these depot dirs with no files; uploading them"
+    echo "produces an empty (0B) Steam install. Delete them and rebuild:"
+    echo "  cd phaser && npx electron-builder --win --linux --dir --x64 && npx electron-builder --mac --dir --universal"
+    exit 1
+fi
 
-# --- Generate the app build config with a descriptive build name ---
+# --- Generate the app + depot build configs ---
+# The checked-in templates use paths relative to the VDF directory
+# (../../phaser/dist-electron/...). steamcmd resolves those against its own
+# working directory — NOT the VDF location — so under the Docker runner (CWD
+# /) they point at nothing and the depots upload EMPTY with no error, which
+# is exactly the "0B folder on Steam" failure. The generated *.gen.vdf files
+# below use absolute paths: the fixed container paths in Docker mode (which
+# match the -v mounts in RUN_CMD), the host paths otherwise.
 # NOTE: use the POSIX [[:space:]] class, not `\s` — macOS ships BSD sed which
 # doesn't understand `\s`, and a non-matching pattern would pass the line
-# through with the old desc.
-sed "s/^\([[:space:]]*\"desc\"[[:space:]]*\).*/\1\"$STEAM_BUILD_DESC\"/" \
+# through with the old value.
+if [ "$RUNNER_MODE" = "docker" ]; then
+    VDF_CONTENT_BASE="/repo/phaser/dist-electron"
+    VDF_BUILD_BASE="/repo/phaser/$BUILD_DIR_NAME"
+else
+    VDF_CONTENT_BASE="$PHASER_DIR/dist-electron"
+    VDF_BUILD_BASE="$BUILD_OUTPUT_DIR"
+fi
+if [ "$DEMO" = "1" ]; then
+    DEPOT_PREFIX="depot_build_demo_"
+else
+    DEPOT_PREFIX="depot_build_"
+fi
+for PLATFORM_DIR in win-unpacked mac-universal linux-unpacked; do
+    case "$PLATFORM_DIR" in
+        win-unpacked)   DEPOT_SUFFIX="win" ;;
+        mac-universal)  DEPOT_SUFFIX="mac" ;;
+        linux-unpacked) DEPOT_SUFFIX="linux" ;;
+    esac
+    sed "s|^\([[:space:]]*\"ContentRoot\"[[:space:]]*\).*|\1\"$VDF_CONTENT_BASE/$PLATFORM_DIR\"|" \
+        "$STEAM_CONFIG_DIR/${DEPOT_PREFIX}${DEPOT_SUFFIX}.vdf" \
+        > "$STEAM_CONFIG_DIR/${DEPOT_PREFIX}${DEPOT_SUFFIX}.gen.vdf"
+done
+# App build: descriptive name + the generated depot files + absolute
+# contentroot/buildoutput (same relative-resolution hazard as ContentRoot).
+sed -e "s/^\([[:space:]]*\"desc\"[[:space:]]*\).*/\1\"$STEAM_BUILD_DESC\"/" \
+    -e "s|^\([[:space:]]*\"contentroot\"[[:space:]]*\).*|\1\"$VDF_CONTENT_BASE\"|" \
+    -e "s|^\([[:space:]]*\"buildoutput\"[[:space:]]*\).*|\1\"$VDF_BUILD_BASE\"|" \
+    -e "s|\"${DEPOT_PREFIX}\([a-z]*\)\.vdf\"|\"${DEPOT_PREFIX}\1.gen.vdf\"|" \
     "$STEAM_CONFIG_DIR/$BUILD_VDF" > "$STEAM_CONFIG_DIR/$GEN_VDF"
 
 # --- Config.vdf placement: Docker mounts / host install ---
@@ -386,6 +433,14 @@ echo ""
 if [ "${STEAM_DRY_RUN:-0}" = "1" ]; then
     echo "(dry run — STEAM_DRY_RUN=1, nothing was uploaded)"
     echo "  $DISPLAY_CMD"
+    echo ""
+    echo "--- generated $GEN_VDF ---"
+    cat "$STEAM_CONFIG_DIR/$GEN_VDF"
+    for PLATFORM_DIR in win mac linux; do
+        echo ""
+        echo "--- generated ${DEPOT_PREFIX}${PLATFORM_DIR}.gen.vdf ---"
+        cat "$STEAM_CONFIG_DIR/${DEPOT_PREFIX}${PLATFORM_DIR}.gen.vdf"
+    done
     exit 0
 fi
 
