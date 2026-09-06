@@ -264,6 +264,19 @@ Two effects compound with themselves and each other, so they carry hard caps:
 - **Reactions that grant charge must key off a specific effect from a specific
   directional ally** (e.g. `damage` from `left_ally`). Broad triggers
   (`"all"`, or row/column/allies positions) fire too often and are not allowed.
+- **Threshold triggers (`every_*`) must never grant charge or haste — in any
+  catalog, orbs included.** Team-stat counters feed back into cast speed
+  (stat → threshold → tempo → faster casts → more stat), which ignites
+  board-wide infinites once power growth joins in (player report 2026-09-06:
+  `every_100_heal`/`every_10_regen` charge/haste orbs + heal/power engines;
+  only the runaway guard caught it, scoring the "OP build" a loss). The
+  static-card rule already banned broad charge triggers, but the orb catalog
+  carried an explicit exemption — closed 2026-09-06 by rekeying all nine
+  `every_*` → charge/haste orbs to directional single-effect triggers
+  (e.g. `heal` from `left_ally`, tempo to `self`). Haste is covered too: a
+  500 ms hasted window is ~500 ms of bonus cooldown progress, i.e. the same
+  loop economics as a 300 ms charge grant (proven by sim in
+  `ThresholdTempoLoop.test.ts`).
 - This restriction is "expressed by AP prices": the reaction model (§7) prices
   narrow directional triggers (1 source) far below broad ones (3–8 sources), so
   a broad charge reaction would blow its budget.

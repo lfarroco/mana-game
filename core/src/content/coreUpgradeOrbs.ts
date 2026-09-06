@@ -82,8 +82,15 @@ export type CoreUpgradeDefinition = {
  * are the removed baseline reactions). `shield`/`regen` bare builders fire as
  * their basic action; when `shield` fires from `on_over_heal` it shields the
  * source force's CORE (see addShield.ts) — correct for the overflow identity
- * orbs. Charge reactions positioned "allies" are fine here: the static-card
- * charge rule only checks ALL_CARDS, which excludes this catalog.
+ * orbs.
+ *
+ * Charge/haste discipline (docs/unit-balance.md §17, extended to orbs
+ * 2026-09-06 after the player-reported threshold-tempo infinite): threshold
+ * triggers (every_*) must NEVER grant charge or haste — team-stat counters
+ * feed back into cast speed (stat → threshold → tempo → faster casts → more
+ * stat) and ignite board-wide infinites that only the runaway guard catches.
+ * Tempo orbs key off a specific effect from a directional ally instead
+ * (e.g. "regen" from "left_ally"), mirroring the static-card charge rule.
  */
 export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
   // --- regen theme (mana_crystal): Column Growth, Reactive Charge, Overflow Shield, Regen Charge ---
@@ -109,7 +116,7 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "mana_regen_charge",
     theme: "regen",
     kind: "reaction",
-    reaction: reaction("every_10_regen", "allies", charge(300, randomAlly(1))),
+    reaction: reaction("regen", "left_ally", charge(300, self)),
   },
   // --- regen additions (2026-08-25 variety pass): sustain → growth / tempo ---
   mana_regen_power: {
@@ -122,7 +129,7 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "mana_regen_haste",
     theme: "regen",
     kind: "reaction",
-    reaction: reaction("every_10_regen", "allies", haste(500, randomAlly(1))),
+    reaction: reaction("regen", "left_ally", haste(500, self)),
   },
   mana_weave: {
     id: "mana_weave",
@@ -239,17 +246,13 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "shield_haste",
     theme: "shield",
     kind: "reaction",
-    reaction: reaction("every_100_shield", "allies", haste(500, randomAlly(1))),
+    reaction: reaction("shield", "left_ally", haste(500, self)),
   },
   shield_charge: {
     id: "shield_charge",
     theme: "shield",
     kind: "reaction",
-    reaction: reaction(
-      "every_100_shield",
-      "allies",
-      charge(200, randomAlly(1)),
-    ),
+    reaction: reaction("shield", "left_ally", charge(200, self)),
   },
   shield_bastion: {
     id: "shield_bastion",
@@ -308,13 +311,13 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "heal_heal_charge",
     theme: "heal",
     kind: "reaction",
-    reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+    reaction: reaction("heal", "left_ally", charge(300, self)),
   },
   heal_heal_haste: {
     id: "heal_heal_haste",
     theme: "heal",
     kind: "reaction",
-    reaction: reaction("every_100_heal", "allies", haste(500, randomAlly(1))),
+    reaction: reaction("heal", "left_ally", haste(500, self)),
   },
   heal_vitality: {
     id: "heal_vitality",
@@ -374,13 +377,13 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "poison_haste",
     theme: "poison",
     kind: "reaction",
-    reaction: reaction("every_10_poison", "allies", haste(500, randomAlly(1))),
+    reaction: reaction("poison", "left_ally", haste(500, self)),
   },
   poison_charge: {
     id: "poison_charge",
     theme: "poison",
     kind: "reaction",
-    reaction: reaction("every_10_poison", "allies", charge(300, randomAlly(1))),
+    reaction: reaction("poison", "left_ally", charge(300, self)),
   },
   poison_venom: {
     id: "poison_venom",
@@ -493,7 +496,7 @@ export const CORE_UPGRADE_DEFINITIONS: Record<string, CoreUpgradeDefinition> = {
     id: "radiant_overflow_charge",
     theme: "overflow",
     kind: "reaction",
-    reaction: reaction("every_100_heal", "allies", charge(300, randomAlly(1))),
+    reaction: reaction("heal", "right_ally", charge(300, self)),
   },
   // --- overflow additions (2026-08-25 variety pass): overflow → team growth / tempo ---
   radiant_radiance: {
