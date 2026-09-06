@@ -84,7 +84,7 @@ npx jest src/path/ToFile.test.ts --runInBand
 | `npm run format:check`    | Prettier check (no writes)                                  |
 | `make dev`                | `cd phaser && npm run dev`                                  |
 | `make electron-dev`       | Run desktop app in development mode                         |
-| `make electron-dev-cloud` | Run desktop dev app against the remote cloud API (builds with `MANA_SERVER_URL=https://<MANA_API_DOMAIN>` and loads the built `dist` bundle — no local dev server needed) |
+| `make electron-dev-cloud` | Run desktop dev app against the remote production API (builds with `MANA_SERVER_URL` defaulting to the Cloud Function URL and loads the built `dist` bundle — no local dev server needed) |
 | `make electron-build`     | Build desktop app for current platform                      |
 | `make electron-build-all` | Build desktop app for all platforms (Windows, macOS, Linux) |
 | `make android-build`      | Build for Android via Capacitor                             |
@@ -122,7 +122,7 @@ The phaser development server runs on port 8080 by default and includes:
 
 ```bash
 cd phaser
-MANA_SERVER_URL=https://api.manabattle.com MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57 npm run build
+MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57 npm run build
 ```
 
 Creates an optimized production build in the `dist` directory (this is the
@@ -204,7 +204,7 @@ wrappers; `publish_steam_demo.sh` just sets `STEAM_DEMO=1`).
 ### Desktop Build
 
 ```bash
-MANA_SERVER_URL=https://api.manabattle.com make electron-build-all
+MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api make electron-build-all
 ```
 
 Builds standalone executables for:
@@ -222,7 +222,7 @@ make android-build      # bump version → cd phaser && npm run build && npx cap
 make android-open       # open the project in Android Studio
 ```
 
-- `make android-build` defaults `MANA_SERVER_URL` to `https://api.manabattle.com`
+- `make android-build` defaults `MANA_SERVER_URL` to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`
   and bakes `MANA_GOOGLE_CLIENT_ID` / `MANA_ITCH_CLIENT_ID` from the root
   `.env` (webpack `DefinePlugin` — a missing Google client id is warned about).
 - `make android-build` **bumps the Android version first** (see
@@ -245,7 +245,7 @@ make android-open       # open the project in Android Studio
   system browser + the game server's OAuth relay page + a `com.manabattle.app://`
   deep link — full spec: [android-multiplayer.md](android-multiplayer.md).
 - One-time human setup before the first live login: create the Google Cloud
-  OAuth client id, register `https://api.manabattle.com/oauth/callback` as a
+  OAuth client id, register `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback` as a
   redirect URI in Google Cloud **and** the itch.io OAuth app, and set
   `MANA_GOOGLE_ENABLED=true` + `MANA_GOOGLE_CLIENT_ID` server-side.
 

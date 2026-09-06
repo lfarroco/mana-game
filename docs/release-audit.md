@@ -4,6 +4,13 @@ Result of the release-blocker audit run 2026-08-25 (post engine-overhaul +
 multiplayer). Records what was fixed and what still needs a human. Reference
 for another agent picking up where this run stopped.
 
+> **2026-09-06 note**: the Oracle VM backend this audit verified against was
+> decommissioned — production is now Cloud Functions + Firestore
+> (`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`,
+> `api.manabattle.com` retired; see [firebase-backend.md](firebase-backend.md)).
+> VM/compose/Caddy references below describe the 2026-08-25 audit baseline,
+> not current infra.
+
 ## Verification baseline (all green, run 2026-08-25)
 
 | Package | Tests | Typecheck | Lint |
@@ -36,7 +43,7 @@ The 2026-08-25 build of `dist/bundle.min.js` contained `127.0.0.1:8787` and no
 - **Fixed**: `.env.example`, `README.md` (Publishing), and
   `docs/building-and-running.md` (Building for Production) now document/set the
   values. The Makefile already sources + exports the root `.env`, so setting
-  `MANA_SERVER_URL=https://api.manabattle.com` there bakes it into every
+  `MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` there bakes it into every
   `make electron-build-*` release build.
 - **Still manual**: the actual release run must be made with the env set (or
   present in root `.env`). Nothing can enforce the author's terminal — the

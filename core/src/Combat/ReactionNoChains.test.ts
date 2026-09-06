@@ -293,6 +293,52 @@ describe("can't react to reactions", () => {
     // …but never fired re_slow, so the canary gained no power.
     expect(combatState.unitById.get("reslow-reactor")!.power).toBe(10);
   });
+
+  it("thorns mirror terminates decisively (retaliation can't ping-pong)", () => {
+    // Both forces retaliate on_crystal_hit with damage. Retaliation damage
+    // is reaction-sourced (deferred + isReaction), so it emits no
+    // on_crystal_hit of its own — a mirror that ping-ponged would flood the
+    // log and trip the runaway guard instead of resolving.
+    const mirror = (force: string, id: string): Models.Unit => {
+      const u = makeTestUnit({
+        effects: [damage],
+        reactions: [reaction("on_crystal_hit", "enemies", damage, "enemy")],
+        power: 60,
+        cooldown: 1500,
+        life: 800,
+        position: force === Constants.FORCE_ID_PLAYER ? [1, 0] : [0, 1],
+      });
+      u.force = force;
+      u.id = id;
+      return u;
+    };
+    const playerTeam = [
+      makeCore(Constants.FORCE_ID_PLAYER, "player-core", 800),
+      mirror(Constants.FORCE_ID_PLAYER, "p-thorns"),
+    ];
+    const { combatState } = setupWithEnemies(playerTeam, [
+      makeCore(Constants.FORCE_ID_CPU, "enemy-core", 800),
+      mirror(Constants.FORCE_ID_CPU, "e-thorns"),
+    ]);
+    const session = {
+      id: "thorns-mirror",
+      seed: "thorns-mirror",
+      team: { units: playerTeam },
+    } as Models.SessionData;
+    const final = CombatSimulation.simulateCombat(session, combatState);
+
+    // Exactly one outcome with a small log and no runaway_combat marker.
+    // (The mirror usually ends in mutual annihilation — both_won — which is
+    // a legitimate draw, not a loop: a ping-pong would flood the log and
+    // trip the guard instead of resolving.)
+    expect(filterLogs(final.logs, "runaway_combat")).toHaveLength(0);
+    expect(final.logs.length).toBeLessThan(2000);
+    const outcome = filterLogs(final.logs, "outcome");
+    expect(outcome).toHaveLength(1);
+    expect(["player_won", "player_lost", "both_won"]).toContain(
+      outcome[0].result,
+    );
+  });
 });
 
 describe("reaction-sourced basics don't feed thresholds", () => {

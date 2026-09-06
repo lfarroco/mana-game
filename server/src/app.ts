@@ -30,7 +30,7 @@ import {
 } from "./persistence/memory";
 import { createSqliteRepos, openSqliteDatabase } from "./persistence/sqlite";
 import { createFirestoreRepos } from "./persistence/firestore";
-import { TRUSTED_PROXY_RANGES } from "./trustProxy";
+import { TRUST_PROXY_HOPS } from "./trustProxy";
 import type { Firestore } from "firebase-admin/firestore";
 import type {
   GhostRepo,
@@ -164,11 +164,11 @@ export function createApp(deps: AppDeps = {}): express.Express {
 
   const app = express();
 
-  // Real-client-IP resolution behind the reverse proxies (Cloudflare → Caddy →
-  // this process). Trust loopback (Caddy) plus Cloudflare's edge ranges so the
-  // auth rate limiter keys per player instead of per Cloudflare PoP — see
-  // src/trustProxy.ts for the full rationale and the spoofing analysis.
-  app.set("trust proxy", TRUSTED_PROXY_RANGES);
+  // Real-client-IP resolution behind the single Google frontend hop
+  // (Firebase backend — docs/firebase-backend.md). The auth rate limiter
+  // keys per player IP — see src/trustProxy.ts for the topology and the
+  // spoofing analysis.
+  app.set("trust proxy", TRUST_PROXY_HOPS);
 
   app.use(express.json({ limit: "1mb" }));
   app.use(requestLogger);

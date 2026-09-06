@@ -1,12 +1,12 @@
 # Firebase backend — migration from the Oracle VM deployment
 
-**Status**: 🟡 code complete + emulator-verified, not yet deployed —
-Phases F1 + F2 landed and proven locally (see Verification below). Project:
-`mana-battle-f3b15`, Firestore `nam5`, functions region `us-central1` (the
-code default; nam5 is a Firestore multi-region, functions need a single
-region — override with `MANA_FUNCTIONS_REGION`). The VM deployment
-(`compose.yaml`, `server/scripts/deploy.sh`) remains the production path
-until first deploy + client switch land.
+**Status**: 🟢 **production** — deployed to project `mana-battle-f3b15`
+(Firestore `nam5`, functions region `us-central1`) and serving live traffic:
+`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/health` →
+`{"ok":true}` (verified 2026-09-06). The Oracle VM deployment was
+decommissioned 2026-09-06 (`docker compose down` + all VM files deleted —
+see §VM decommission checklist). `api.manabattle.com` is retired; clients bake
+the function URL at build time.
 
 **Decisions** (2026-09-04): Express app wrapped in one 2nd-gen HTTPS function
 (`onRequest`, smallest diff, same client contract); Firestore replaces
@@ -160,31 +160,44 @@ name `api` + the app's `/api/v1` prefix) — `MANA_SERVER_URL` absorbs it
 unchanged. Optional cleanup later: Firebase Hosting rewrite (`/api/**` →
 the function) for a clean `https://<project>.web.app/api/v1/...`.
 
-## Client switch (after F2)
+## Client switch ✅ done
 
-Rebuild clients with the function URL — no code changes
-(`phaser/src/RemoteServer.ts` reads the base URL at build time):
+Clients bake the function URL at build time — no code changes
+(`phaser/src/RemoteServer.ts` reads the base URL at build time). The default
+is wired into every release path (`make android-build`, `make electron-dev-cloud`,
+`phaser/scripts/publish_itch.sh`, `steam/scripts/publish_steam.sh`, `.env.example`):
 
 ```bash
-MANA_SERVER_URL=https://<region>-<project>.cloudfunctions.net/api npm run build
+MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api npm run build
 ```
 
 Covers the Steam Electron build, the itch.io web build (needs
 `MANA_CORS_ORIGIN` set to the itch page origins), and the Android build.
 Verify: Multiplayer login → full run → resume via `GET /sessions/current`.
 
-## VM decommission checklist (last)
+⚠️ **OAuth redirect registrations must track the relay**: the relay page is
+`<MANA_SERVER_URL>/oauth/callback`, so the itch.io OAuth app
+(`https://itch.io/settings/oauth`) and the Google Cloud authorized redirect
+URI must list
+`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`
+— the old `https://api.manabattle.com/oauth/callback` registration no longer
+matches. Same for `MANA_CORS_ORIGIN` (plain function env): it must allow the
+itch.io page origins.
 
-1. F2 deployed + production smoke test green (login, full run, resume,
-   second account ghost matchmaking).
-2. DNS: point `api.manabattle.com` at the function URL (or retire the name;
-   clients bake the URL at build time, so old builds keep hitting the VM
-   until rebuilt — keep the VM serving during the overlap).
-3. Keep one SQLite snapshot (`server/scripts/backup.sh`) archived.
-4. Then: `docker compose down` on the VM, delete `compose.yaml` +
-   `server/scripts/{deploy,setup-docker,setup-bare,deploy-bare}.sh` +
-   `server/{Dockerfile,Caddyfile*}` + `cloud-*` Makefile targets, and update
-   `server/README.md` + `docs/game-server.md` §Config & deployment.
+## VM decommission checklist ✅ done 2026-09-06
+
+1. ~~F2 deployed + production smoke test green~~ — live traffic serving
+   (`/health` → `{"ok":true}`, verified 2026-09-06).
+2. ~~DNS: point `api.manabattle.com` at the function URL (or retire the name)~~ —
+   retired: clients bake the function URL at build time; old builds pointing at
+   the VM are dead with it (`docker compose down` already run).
+3. ~~Keep one SQLite snapshot archived~~ — `server/data/backups/` retains the
+   migrated snapshots (incl. `mana-20260905-171412.db`, the migration source).
+4. ~~`docker compose down`, delete VM files, update docs~~ — done:
+   `compose.yaml`, `server/Dockerfile`, `server/Caddyfile*`,
+   `server/scripts/{deploy,setup-docker,setup-bare,deploy-bare,backup,db-snapshot}.sh`,
+   `server/systemd/`, the `cloud-*` Makefile targets, plus `server/README.md` +
+   `docs/game-server.md` §Config & deployment rewritten for Functions.
 
 ## Data migration ✅ done 2026-09-05
 

@@ -84,10 +84,10 @@ describe("POST /api/v1/auth/steam rate limit", () => {
     expect(health.status).toBe(200);
   });
 
-  it("keys per real client IP behind a local reverse proxy (trust proxy)", async () => {
-    // supertest connects from 127.0.0.1 (loopback), so with `trust proxy:
-    // loopback` in createApp the X-Forwarded-For client IP is honored — each
-    // client gets its own quota instead of sharing one bucket behind Caddy.
+  it("keys per real client IP behind the frontend (trust proxy)", async () => {
+    // supertest connects directly, so with `trust proxy: 1` in createApp the
+    // X-Forwarded-For client IP is honored — each client gets its own quota
+    // instead of sharing one bucket keyed by the frontend's address.
     const app: Express = createApp({
       steam: { webApiKey: KEY, appIds: APP_IDS },
       steamFetch,
@@ -117,7 +117,7 @@ describe("POST /api/v1/auth/steam rate limit", () => {
     expect(b2.status).toBe(200);
   });
 
-  it("walks past Cloudflare edge IPs to the real client (CF + Caddy chain)", async () => {
+  it("keys by the frontend-appended IP, ignoring spoofed prefixes", async () => {
     const app: Express = createApp({
       steam: { webApiKey: KEY, appIds: APP_IDS },
       steamFetch,
@@ -125,18 +125,19 @@ describe("POST /api/v1/auth/steam rate limit", () => {
       authRateLimitWindowMs: 60_000,
     });
 
-    // X-Forwarded-For exactly as the server sees it behind Caddy+Cloudflare:
-    // [real client, cf edge]. 173.245.48.42 sits inside Cloudflare's
-    // 173.245.48.0/20, so it must be skipped and the real client used as the
-    // rate-limit key (per-player buckets instead of per-Cloudflare-PoP).
-    const post = (realClient: string) =>
+    // The Google frontend appends the real client IP to X-Forwarded-For, so a
+    // chain looks like "<maybe-fake>, <real>". With one trusted hop Express
+    // uses the appended (rightmost) entry — a client cannot pick its bucket
+    // by prepending entries.
+    const post = (realClient: string, fakePrefix = "198.51.100.7") =>
       request(app)
         .post("/api/v1/auth/steam")
-        .set("X-Forwarded-For", `${realClient}, 173.245.48.42`)
+        .set("X-Forwarded-For", `${fakePrefix}, ${realClient}`)
         .send(AUTH_BODY);
 
     const a1 = await post("203.0.113.10");
-    const a2 = await post("203.0.113.10");
+    // Same real client behind a different fake prefix: same bucket.
+    const a2 = await post("203.0.113.10", "192.0.2.99");
     expect(a1.status).toBe(200);
     expect(a2.status).toBe(200);
 
@@ -144,13 +145,12 @@ describe("POST /api/v1/auth/steam rate limit", () => {
     expect(aLimited.status).toBe(429);
     expect(aLimited.body.error).toBe("rate_limited");
 
-    // A different real client behind the SAME Cloudflare edge IP gets its own
-    // bucket — proving the CF IP was walked past, not used as the key.
+    // A different real client gets its own bucket despite the shared prefix.
     const b1 = await post("203.0.113.20");
     expect(b1.status).toBe(200);
   });
 
-  it("does not trust non-Cloudflare middle hops (spoofing resistance)", async () => {
+  it("does not let clients choose their bucket (single trusted hop)", async () => {
     const app: Express = createApp({
       steam: { webApiKey: KEY, appIds: APP_IDS },
       steamFetch,
@@ -158,9 +158,9 @@ describe("POST /api/v1/auth/steam rate limit", () => {
       authRateLimitWindowMs: 60_000,
     });
 
-    // 198.51.100.7 (documentation TEST-NET) is neither loopback nor a
-    // Cloudflare range → the rightmost untrusted hop wins, so a client cannot
-    // bypass the limiter by prepending fake X-Forwarded-For entries.
+    // Only the last hop (the frontend) is trusted, so the rightmost entry
+    // always wins — prepending entries cannot move a client to a fresh
+    // bucket, they just share the bucket keyed by that entry.
     const post = (x: string) =>
       request(app)
         .post("/api/v1/auth/steam")

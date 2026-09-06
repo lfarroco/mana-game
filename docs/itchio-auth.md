@@ -2,7 +2,7 @@
 
 **Status**: ✅ **Implemented** (2026-08-20). Server `itch` provider + client OAuth-popup
 login are landed and unit-tested. **2026-09-02: the web flow moved to the game server's
-stable OAuth relay page (`https://api.manabattle.com/oauth/callback`) as the itch OAuth
+stable OAuth relay page (`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`) as the itch OAuth
 callback** — this retires the per-deploy chore of re-registering the changing embed URL
 (`https://html-classic.itch.zone/html/<game>/<upload>/index.html`) that the first live
 smoke test surfaced ("invalid redirect URI", 2026-08-27). The relay is shared with the
@@ -40,8 +40,8 @@ single new `Authenticator` + route").
 |---|---|
 | OAuth app name | `Mana Battle Multiplayer` |
 | Client ID (public — ships in the web bundle) | `f20213f3887151a962afac88d0145c57` |
-| Login URL (web + Android) | `https://itch.io/user/oauth?client_id=f20213f3887151a962afac88d0145c57&scope=profile%3Ame&response_type=token&redirect_uri=https%3A%2F%2Fapi.manabattle.com%2Foauth%2Fcallback` |
-| Registered redirect URIs | **One stable registration** — `https://api.manabattle.com/oauth/callback`, the game server's OAuth relay page (`GET /oauth/callback`; `server/src/http/oauthRelayPage.ts`). Both the web and Android flows redirect here — **it never changes on deploy**, so there is no per-upload re-registration (unlike the old `https://html-classic.itch.zone/html/<game>/<upload>/index.html` callback, which changed with every push). Keeping `https://lfarroco.itch.io/mana-battle` registered is harmless but unused. Register in the OAuth app settings: `https://itch.io/settings/oauth`. |
+| Login URL (web + Android) | `https://itch.io/user/oauth?client_id=f20213f3887151a962afac88d0145c57&scope=profile%3Ame&response_type=token&redirect_uri=https%3A%2F%2Fus-central1-mana-battle-f3b15.cloudfunctions.net%2Fapi%2Foauth%2Fcallback` |
+| Registered redirect URIs | **One stable registration** — `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`, the game server's OAuth relay page (`GET /oauth/callback`; `server/src/http/oauthRelayPage.ts`). Both the web and Android flows redirect here — **it never changes on deploy**, so there is no per-upload re-registration (unlike the old `https://html-classic.itch.zone/html/<game>/<upload>/index.html` callback, which changed with every push). Keeping `https://lfarroco.itch.io/mana-battle` registered is harmless but unused. Register in the OAuth app settings: `https://itch.io/settings/oauth`. |
 | Scope requested | `profile:me` |
 | Developer API key | **Deliberately not stored in this doc — it is a credential.** Saved to the gitignored root `.env` as `MANA_ITCH_API_KEY`. Treat like a password. |
 
@@ -70,7 +70,7 @@ to the server → persist the issued `{ token, player }` via the storage provide
 ```
 Steam/Electron:  getAuthTicketForWebApi → POST /auth/steam      → server bearer token
 itchio (web):    OAuth popup → relay page → postMessage → POST /auth/itch
-                 ↑ the relay (api.manabattle.com/oauth/callback) forwards the
+                 ↑ the relay (us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback) forwards the
                    #access_token hash to the game; validates via api.itch.io/profile
 itchio (Android): system browser → relay page → com.manabattle.app:// deep link
                  → POST /auth/itch   (see android-multiplayer.md)
@@ -193,43 +193,43 @@ for Google) — see [android-multiplayer.md](android-multiplayer.md).
 
 **Status 2026-08-25: server-side ✅ verified — only the in-browser smoke test remains.**
 
-### ✅ Verified (2026-08-25, against the live VM `.env` + live API)
+### ✅ Verified (2026-08-25, against the then-live VM `.env` + live API — historical; the VM was decommissioned 2026-09-06 and env now lives in function config)
 
-1. **Server env** (the VM `.env` at `/opt/mana-game/.env`):
+1. **Server env** (at the time, the VM `.env` at `/opt/mana-game/.env`):
    - `MANA_ITCH_ENABLED= true` → parses **true** (`parseEnabled` trims in
      `server/src/config.ts`); `POST /api/v1/auth/itch` **is registered**.
    - `MANA_CORS_ORIGIN=*` → acceptable (bearer-token auth, no cookies).
    - `MANA_STEAM_API_URL` points at the public
      `https://api.steampowered.com/...` endpoint (correct for a standard Web API key).
-   - `MANA_STEAM_APP_IDS` is **not set** in the VM `.env`, but the docker-compose
-     deployment defaults it to `3757600,4233280` (`compose.yaml`), so both the
-     alpha and the demo app are allowed.
+   - `MANA_STEAM_APP_IDS` was **not set** in the VM `.env`, but the docker-compose
+     deployment defaulted it to `3757600,4233280` (`compose.yaml`), so both the
+     alpha and the demo app were allowed.
 2. **Live API checks (run 2026-08-25):**
    ```sh
-   curl https://api.manabattle.com/health
+   curl https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/health
    # {"ok":true}  (200)
-   curl -X POST https://api.manabattle.com/api/v1/auth/itch -H 'Content-Type: application/json' -d '{}'
+   curl -X POST https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/api/v1/auth/itch -H 'Content-Type: application/json' -d '{}'
    # 400 {"error":"invalid_itch_token",...} — route IS registered (404 would mean disabled)
    ```
 
-### ⚠️ Recommended VM `.env` hygiene (small)
+### ⚠️ Function env hygiene (small, carried over from the VM era)
 
-- `MANA_ITCH_ENABLED= true` has a **leading space** — it works today (compose + the
-  server both trim), but if anything ever stops trimming, itch silently disables.
-  Fix: `MANA_ITCH_ENABLED=true`.
-- Set `MANA_STEAM_APP_IDS=3757600,4233280` explicitly — the docker-compose default
-  currently covers it, but the bare-systemd flow (`config.ts` default is only
-  `[3757600]`) would reject demo players without it.
+- `MANA_ITCH_ENABLED` had a **leading space** in the old VM `.env`
+  (`MANA_ITCH_ENABLED= true`) — it worked because `parseEnabled` trims, but keep
+  the function env clean: `MANA_ITCH_ENABLED=true`.
+- Set `MANA_STEAM_APP_IDS=3757600,4233280` explicitly in the function env — the
+  old compose default covered it, but the server default is only `[3757600]`
+  and would reject demo players without it.
 
 ### ⏳ Remaining (human, in-browser)
 
 3. **Client build:** the itch web build must be made with
-   `MANA_SERVER_URL=https://api.manabattle.com` and `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`
+   `MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` and `MANA_ITCH_CLIENT_ID=f20213f3887151a962afac88d0145c57`
    baked in (webpack `DefinePlugin`; the production build warns if either is missing).
-   `MANA_SERVER_URL` also derives the OAuth callback (`https://api.manabattle.com/oauth/callback`),
+   `MANA_SERVER_URL` also derives the OAuth callback (`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`),
    which must be registered in the OAuth app (`https://itch.io/settings/oauth`).
 4. **D3 smoke test** on the live itch.io embed: click Multiplayer → OAuth popup →
-   authorize → the popup lands on the **relay page** (`api.manabattle.com/oauth/callback`)
+   authorize → the popup lands on the **relay page** (`us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`)
    → login → multiplayer lobby (profile + stats) → NEW GAME → crystal
    selection → MP run against the deployed server. Verify: garbage token → 401
    modal; second click reuses the stored session (no popup); token never appears
@@ -246,7 +246,7 @@ URL**, whose upload id changes with every deploy.
 
 **Fixed 2026-09-02 (code + one-time registration):** the client no longer builds the
 redirect URI from `window.location`; the callback is now the game server's stable relay
-page (`https://api.manabattle.com/oauth/callback`, derived from `MANA_SERVER_URL`).
+page (`https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`, derived from `MANA_SERVER_URL`).
 Register that single URL in the OAuth app settings and **no re-registration is ever
 needed on deploy**.
 
@@ -264,7 +264,7 @@ phaser:  npm run test:unit && npm run typecheck && npm run lint
 
 - **Redirect-URI strictness** — `redirect_uri` must match a registered value exactly; the
   client now always uses the game server's **stable relay page**
-  (`MANA_SERVER_URL` + `/oauth/callback`, e.g. `https://api.manabattle.com/oauth/callback`)
+  (`MANA_SERVER_URL` + `/oauth/callback`, e.g. `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`)
   — it never changes on deploy, so no per-upload re-registration. Register it once in the
   OAuth app settings; page variants (trailing slash, `?secret=` links) must not change it.
   (The old callback — the direct iframe URL `https://html-classic.itch.zone/html/<game>/<upload>/index.html`

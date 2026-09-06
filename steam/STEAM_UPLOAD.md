@@ -22,7 +22,7 @@ Each run, in order:
 1. reads the root `.env` (safe parse — only `MANA_SERVER_URL`, `STEAM_USERNAME`,
    `STEAM_PASSWORD`, `STEAM_GUARD_CODE`, `STEAM_CONFIG_VDF`, `STEAM_CONFIG_VDF_B64`;
    the Make-flavored lines are ignored),
-2. defaults `MANA_SERVER_URL` to `https://api.manabattle.com` so the build
+2. defaults `MANA_SERVER_URL` to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` so the build
    bakes the production server URL (a missing value would point multiplayer at
    the player's own machine),
 3. runs the phaser unit tests + typecheck (`MANA_SKIP_CHECKS=1` to skip),
@@ -174,7 +174,7 @@ Actions**):
 |---------------------|-------|
 | `STEAM_USERNAME`    | the build account's Steam username |
 | `STEAM_CONFIG_VDF`  | the base64 from step 2 |
-| `MANA_SERVER_URL`   | optional — defaults to `https://api.manabattle.com` |
+| `MANA_SERVER_URL`   | optional — defaults to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api` |
 
 Then **Actions → Publish to Steam → Run workflow** → pick `demo` or `full`. Job
 1 builds win/mac/linux on macOS; job 2 uploads on Ubuntu through the Docker

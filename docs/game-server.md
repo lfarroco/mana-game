@@ -207,8 +207,29 @@ Phase 0 is small and independently mergeable. Phases 1, 1.5, and 2 can land whil
 
 ## Config & deployment
 
-- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default `8787`), `MANA_SQLITE_PATH` (Phase 4: unset = in-memory repos; a file path or `:memory:` opts into SQLite — the parent directory of a file path is created on boot, WAL journaling is enabled), `MANA_TOKEN_TTL_DAYS`, `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS` (auth — see [auth.md](auth.md)).
-- Single Node process: `npm run build && npm start`. Dockerfile + a host (fly.io / Render / VPS) — the Dockerfile bundles `better-sqlite3` as a production dependency; the runtime stage compiles it natively (prebuilt binaries for common platforms, build tools only needed for exotic/musl targets).
+Production is the Firebase backend — see [firebase-backend.md](firebase-backend.md)
+for the full picture (function wiring, env/secrets mapping, deploy + client
+switch). Summary:
+
+- Env: `MANA_SERVER_HOST` (default `127.0.0.1`), `MANA_SERVER_PORT` (default
+  `8787`), `MANA_SQLITE_PATH` (local dev: unset = in-memory repos; a file path
+  or `:memory:` opts into SQLite — ignored when Firestore is set),
+  `MANA_FIRESTORE_PROJECT_ID` (production: selects the Firestore repos),
+  `MANA_TOKEN_TTL_DAYS`, `MANA_STEAM_WEB_API_KEY` + `MANA_STEAM_APP_IDS` (auth —
+  see [auth.md](auth.md)), `MANA_ITCH_ENABLED`, `MANA_GOOGLE_ENABLED` +
+  `MANA_GOOGLE_CLIENT_ID`, `MANA_CORS_ORIGIN` (the itch.io page origins for the
+  web build).
+- Deploy: `make functions-deploy` (or `cd server && npm run
+  deploy:functions -- --project mana-battle-f3b15`). One 2nd-gen HTTPS function
+  (`api`) serves the Express app; TLS comes from Google's frontend.
+- Clients bake the function URL at build time:
+  `MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`.
+- Local dev is unchanged: `make server-mp` (bare `tsx watch`, SQLite file) or
+  `npm run dev` in `server/`.
+- The Oracle VM / compose / Caddy deployment was decommissioned 2026-09-06
+  (`compose.yaml`, `server/Dockerfile`, `server/Caddyfile*`,
+  `server/scripts/{deploy,setup-docker,setup-bare,deploy-bare}.sh`,
+  `server/systemd/`, and the `cloud-*` Makefile targets are deleted).
 
 ## Risks & open questions
 

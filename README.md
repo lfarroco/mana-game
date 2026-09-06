@@ -59,7 +59,7 @@ See [AGENTS.md](AGENTS.md) for the AI agent guide — project knowledge index, c
 
 ## Publishing
 
-> Release builds must be made with `MANA_SERVER_URL=https://api.manabattle.com`
+> Release builds must be made with `MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`
 > (and `MANA_ITCH_CLIENT_ID` for the web build) so multiplayer points at the
 > deployed server instead of the player's own `http://127.0.0.1:8787`. The
 > production webpack build warns if either is missing. See

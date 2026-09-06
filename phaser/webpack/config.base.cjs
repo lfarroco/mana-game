@@ -100,7 +100,7 @@ const createSharedDefineValues = ({ webglDebug, experimental, logLevel, isProd =
 	if (isProd) {
 		if (!process.env.MANA_SERVER_URL) {
 			console.warn(
-				"[webpack] WARNING: MANA_SERVER_URL is unset — this build's multiplayer will target http://127.0.0.1:8787 (the player's own machine). Set MANA_SERVER_URL=https://api.manabattle.com for release builds."
+				"[webpack] WARNING: MANA_SERVER_URL is unset — this build's multiplayer will target http://127.0.0.1:8787 (the player's own machine). Set MANA_SERVER_URL=https://us-central1-mana-battle-f3b15.cloudfunctions.net/api for release builds."
 			);
 		}
 		if (!process.env.MANA_ITCH_CLIENT_ID) {

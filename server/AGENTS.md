@@ -7,7 +7,7 @@ design: [docs/game-server.md](../docs/game-server.md), [docs/auth.md](../docs/au
 
 ## Layout
 
-- `src/index.ts` — entry: config → app → listen, graceful shutdown (VM/bare-metal path)
+- `src/index.ts` — entry: config → app → listen, graceful shutdown (local dev path; production is Functions via `src/functions.ts`)
 - `src/functions.ts` — Firebase Functions entry (`api` 2nd-gen HTTPS trigger wrapping `createApp`); plan: [docs/firebase-backend.md](../docs/firebase-backend.md)
 - `src/app.ts` — express app assembly (routes + middleware)
 - `src/config.ts` — env parsing (`PORT`, `HOST`, `MANA_SQLITE_PATH`, `MANA_CORS_ORIGIN`, token TTL, Steam keys)

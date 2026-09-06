@@ -88,7 +88,7 @@ else
 fi
 
 # --- Read the keys we need from the root .env (safe parse) ---
-# The .env file is Make-flavored, e.g. `MANA_CLOUD=-i ~/.ssh/oracle.key host` —
+# The .env file is Make-flavored and may contain values bash would choke on
 # a fine Make assignment but bash `source` would mis-execute the trailing words
 # as commands. We only extract the vars this script uses, and values already in
 # the environment win (`make steam-publish` exports the whole .env, so running
@@ -114,7 +114,7 @@ load_env() {
 load_env "$REPO_ROOT/.env"
 
 # --- Release-build env (production default; .env overrides) ---
-export MANA_SERVER_URL="${MANA_SERVER_URL:-https://api.manabattle.com}"
+export MANA_SERVER_URL="${MANA_SERVER_URL:-https://us-central1-mana-battle-f3b15.cloudfunctions.net/api}"
 
 # --- Build description (Steamworks → Builds; the analog of butler's --userversion) ---
 if [ -z "${STEAM_BUILD_DESC:-}" ]; then

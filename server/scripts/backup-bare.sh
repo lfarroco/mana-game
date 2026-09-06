@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Online, crash-consistent backup of the SQLite DB for the BARE (no-Docker)
-# systemd deployment. Uses better-sqlite3's online backup API — safe under
+# Online, crash-consistent backup of a local SQLite DB file (e.g. the
+# `make server-mp` database at server/data/mana.db).
+# Uses better-sqlite3's online backup API — safe under
 # WAL mode, no downtime, consistent even while requests are in flight.
 #
 # Usage: ./server/scripts/backup-bare.sh [--keep N]

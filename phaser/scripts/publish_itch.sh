@@ -46,7 +46,7 @@ USER_GAME="${ITCH_USER_GAME:-lfarroco/mana-battle}"
 PAGE_URL="https://${USER_GAME%%/*}.itch.io/${USER_GAME#*/}"
 
 # --- Read the keys we need from the root .env (safe parse) ---
-# The .env file is Make-flavored, e.g. `MANA_CLOUD=-i ~/.ssh/oracle.key host` —
+# The .env file is Make-flavored and may contain values bash would choke on
 # a fine Make assignment but bash `source` would mis-execute the trailing words
 # as commands. We only extract the vars this script uses, and values already in
 # the environment win (`make itch-publish` exports the whole .env, so running
@@ -71,7 +71,7 @@ load_env() {
 load_env "$REPO_ROOT/.env"
 
 # --- Release-build env (production defaults; .env overrides) ---
-export MANA_SERVER_URL="${MANA_SERVER_URL:-https://api.manabattle.com}"
+export MANA_SERVER_URL="${MANA_SERVER_URL:-https://us-central1-mana-battle-f3b15.cloudfunctions.net/api}"
 export MANA_ITCH_CLIENT_ID="${MANA_ITCH_CLIENT_ID:-f20213f3887151a962afac88d0145c57}"
 
 # --- Credentials (BUTLER_API_KEY wins over MANA_BUTLER_API_KEY from .env) ---

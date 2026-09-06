@@ -49,7 +49,7 @@ Web / Android:    [Multiplayer] → [Login screen:       → [Multiplayer lobby]
 - **The URL-hash gotcha**: hash fragments are dropped when a browser→app
   https deep link is converted to an Android intent. The standard fix — used
   here — is a **relay page** the developer controls: Google/itch redirect the
-  *system browser* to `https://api.manabattle.com/oauth/callback`, whose
+  *system browser* to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback`, whose
   script does `location.replace("com.manabattle.app://oauth#…")` — a
   JS-initiated custom-scheme navigation **preserves the fragment**.
 - **Server verification**: the ID token is verified server-side against
@@ -89,8 +89,9 @@ Google was:
 - **`server/src/errors.ts`** — `ApiErrorCode` += `"invalid_google_token"`.
 - **`server/src/http/routes/auth.ts`** — `POST /auth/google` registered when
   `google.clientId` is set; `server/src/config.ts` (`MANA_GOOGLE_ENABLED`,
-  `MANA_GOOGLE_CLIENT_ID`), `server/src/app.ts`, `server/src/index.ts` wiring;
-  `compose.yaml` + `.env.example` pass-through.
+  `MANA_GOOGLE_CLIENT_ID`), `server/src/app.ts`, `server/src/index.ts` /
+  `server/src/functionsApp.ts` wiring; `.env.example` documents the vars
+  (production value lives in function env).
 - **`server/src/http/oauthRelayPage.ts`** (new) — the static OAuth relay page,
   served at `GET /oauth/callback` (`server/src/app.ts`). It forwards the URL
   hash to the opener (web `postMessage`) or to the app
@@ -150,15 +151,16 @@ dependencies (`@capacitor/app@^8.1.1`, `@capacitor/browser@^8.0.4`).
 1. **Google Cloud OAuth client** — in Google Cloud Console, create an OAuth
    **Web application** client id (public — ships in the app; the **same client
    id** serves the web popup flow and the Android system-browser flow). Add
-   `https://api.manabattle.com/oauth/callback` as an **Authorized redirect
+   `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback` as an **Authorized redirect
    URI** and your Google account(s) as **test users** (until the OAuth
    consent screen is verified). Note: the OAuth consent screen must be set to
    "External" + Testing (or verified) for the flow to work for players. The
    **Authorized JavaScript origins** field can stay empty — this flow never
    uses the Google JS library (it's the plain OAuth redirect/popup flow).
-2. **Server env** (root `.env`, and the VM's `/opt/mana-game/.env`):
+2. **Server env** (root `.env` for local dev; plain function env +
+   the `MANA_STEAM_WEB_API_KEY` Secret Manager secret in production):
    `MANA_GOOGLE_ENABLED=true`, `MANA_GOOGLE_CLIENT_ID=<the client id>`.
-3. **itch.io OAuth app** — add `https://api.manabattle.com/oauth/callback` to
+3. **itch.io OAuth app** — add `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/oauth/callback` to
    the registered redirect URIs of the `Mana Battle Multiplayer` OAuth app
    (`https://itch.io/settings/oauth`). This one registration serves **both** the
    Android itch.io flow **and** the web popup flow (since 2026-09-02 the web flow
@@ -170,7 +172,7 @@ dependencies (`@capacitor/app@^8.1.1`, `@capacitor/browser@^8.0.4`).
    `https://localhost` (and `capacitor://localhost` if the scheme is ever
    changed).
 5. **Android release build** — `make android-build` bakes
-   `MANA_SERVER_URL` (defaults to `https://api.manabattle.com`) and reads
+   `MANA_SERVER_URL` (defaults to `https://us-central1-mana-battle-f3b15.cloudfunctions.net/api`) and reads
    `MANA_GOOGLE_CLIENT_ID` / `MANA_ITCH_CLIENT_ID` from the root `.env`
    (webpack DefinePlugin). It also **bumps `android/app/build.gradle`**
    (`versionCode` +1, `versionName` prompted interactively or via
@@ -237,8 +239,8 @@ through the relay deep link).
    providers.
 6. Web build unchanged: itch popup still works; Steam build unchanged
    (Electron → lobby directly).
-7. `curl -X POST https://api.manabattle.com/api/v1/auth/google -d '{}'`
-   → 400 `invalid_google_token` (route live on the VM).
+7. `curl -X POST https://us-central1-mana-battle-f3b15.cloudfunctions.net/api/api/v1/auth/google -d '{}'`
+   → 400 `invalid_google_token` (route live in production).
 
 ## Risks & open questions
 
@@ -282,7 +284,7 @@ Interrupted mid-implementation? Do this:
 ## Implementation phases
 
 - [x] **A. Server `google` provider** — PlayerProvider, googleAuth service,
-      DTO, ApiErrorCode, route, config, app/index wiring, compose + .env
+      DTO, ApiErrorCode, route, config, app/index wiring, env
       pass-through, tests (unit + HTTP).
 - [x] **B. Login hub + re-auth** — `multiplayer_login` screen (Google/itch/
       logout/back), route + Client registration, i18n (all six catalogs),
