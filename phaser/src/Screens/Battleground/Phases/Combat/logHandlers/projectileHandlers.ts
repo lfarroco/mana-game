@@ -95,7 +95,10 @@ export const handlePoisonHit = (
 	Chara.shake(target);
 	const unit = Chara.getUnit(target);
 
-	ForceStats.updatePoisonDisplay(unit.force, log.amount, log.amount);
+	// Show the cumulative poison stack (newPoison), not just this hit's
+	// increment — amount is only the per-hit delta, so displaying it leaves
+	// the chip stuck at the last hit's value (~power * 0.1).
+	ForceStats.updatePoisonDisplay(unit.force, log.newPoison, log.poisonDelta);
 };
 
 // ---- Tick handlers (poison/regen periodic damage/healing) ----

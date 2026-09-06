@@ -199,13 +199,19 @@ export async function displayGameComplete(
 	);
 
 	const container = makeContainer([
-		// Full-screen dim overlay so content behind the result panels is less visible
-		env.centeredRect(
-			constants.MIDDLE_SCREEN,
-			constants.WHOLE_SCREEN,
-			ResultsConfig.RESULTS_PANEL.overlayColor,
-			ResultsConfig.RESULTS_PANEL.overlayAlpha
-		),
+		// Full-screen dim overlay so content behind the result panels is less
+		// visible — skipped on game over so the player's final board stays
+		// visible behind the panel.
+		...(isGameOver
+			? []
+			: [
+					env.centeredRect(
+						constants.MIDDLE_SCREEN,
+						constants.WHOLE_SCREEN,
+						ResultsConfig.RESULTS_PANEL.overlayColor,
+						ResultsConfig.RESULTS_PANEL.overlayAlpha
+					),
+				]),
 		borderedRoundRect(
 			env.scene,
 			[panelX, panelY],

@@ -103,7 +103,7 @@ export const handleChargeCast = (
 export const handleRegenHit = (log: CombatLogger.RegenHitEntry, _playbackState: PlaybackState) => {
 	const target = Chara.mustGetCharaById(log.targetId);
 	const unit = Chara.getUnit(target);
-	ForceStats.updateRegenDisplay(unit, log.newRegen, log.amount);
+	ForceStats.updateRegenDisplay(unit, log.newRegen, log.regenDelta);
 };
 
 export const handleHasteHit = (log: CombatLogger.HasteHitEntry, _playbackState: PlaybackState) => {
